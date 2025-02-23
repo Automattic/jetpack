@@ -2,11 +2,11 @@ import { ThreatsContext } from '@automattic/jetpack-scan';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { useContext, useEffect } from 'react';
-import getRedirectUrl from '../../../tools/jp-redirect';
-import Button from '../../button';
-import ShieldIcon from '../../shield-icon';
-import Text from '../../text';
-import CancelButton from '../cancel-button';
+import getRedirectUrl from '../../../tools/jp-redirect/index.js';
+import Button from '../../button/index.js';
+import ShieldIcon from '../../shield-icon/index.js';
+import Text from '../../text/index.js';
+import CancelButton from '../cancel-button.js';
 import styles from '../styles.module.scss';
 
 /**

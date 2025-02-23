@@ -1,10 +1,15 @@
 import { ThreatsContext } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import { useContext } from 'react';
-import ThreatSeverityBadge from '../../threat-severity-badge';
+import ThreatSeverityBadge from '../../threat-severity-badge/index.js';
 import styles from '../styles.module.scss';
 
-const ThreatDetailsModalTitle = () => {
+/**
+ * ThreatDetailsModalTitle component
+ *
+ * @return {JSX.Element} The rendered threat details modal title.
+ */
+const ThreatDetailsModalTitle = (): JSX.Element => {
 	const { selectedThreat: threat } = useContext( ThreatsContext );
 
 	let title: string;
