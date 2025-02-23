@@ -1,9 +1,7 @@
-import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import React from 'react';
-import { STORE_ID as CONNECTION_STORE_ID } from '../../../../js-packages/connection/state/store.jsx';
 import { getRedirectUrl } from '../../index.js';
 import getSiteAdminUrl from '../../tools/get-site-admin-url/index.js';
 import AutomatticBylineLogo from '../automattic-byline-logo/index.js';
@@ -48,17 +46,11 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	const [ isMd ] = useBreakpointMatch( 'md', '<=' );
 	const [ isLg ] = useBreakpointMatch( 'lg', '>' );
 
-	const { isActive, connectedPlugins } = useSelect( select => {
-		const connectionStatus = select( CONNECTION_STORE_ID ) as {
-			getConnectedPlugins: () => { slug: string }[];
-			getConnectionStatus: () => { isActive: boolean };
-		};
+	const {
+		connectedPlugins,
+		connectionStatus: { isActive },
+	} = window?.JP_CONNECTION_INITIAL_STATE || {};
 
-		return {
-			connectedPlugins: connectionStatus?.getConnectedPlugins(),
-			...connectionStatus.getConnectionStatus(),
-		};
-	}, [] );
 	const siteAdminUrl = getSiteAdminUrl();
 	const areAdminLinksEnabled =
 		siteAdminUrl &&
