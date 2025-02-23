@@ -9,11 +9,11 @@ import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useContext, useMemo, useState } from 'react';
-import Button from '../../button';
-import ShieldIcon from '../../shield-icon';
-import Spinner from '../../spinner';
-import Text from '../../text';
-import CancelButton from '../cancel-button';
+import Button from '../../button/index.js';
+import ShieldIcon from '../../shield-icon/index.js';
+import Spinner from '../../spinner/index.js';
+import Text from '../../text/index.js';
+import CancelButton from '../cancel-button.js';
 import styles from '../styles.module.scss';
 
 /**

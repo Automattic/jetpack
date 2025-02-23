@@ -1,9 +1,9 @@
 import { getFixerDescription, THREAT_ACTION_FIX, ThreatsContext } from '@automattic/jetpack-scan';
 import { _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useContext, useState } from 'react';
-import Button from '../../button';
-import ToggleControl from '../../toggle-control';
-import CancelButton from '../cancel-button';
+import Button from '../../button/index.js';
+import ToggleControl from '../../toggle-control/index.js';
+import CancelButton from '../cancel-button.js';
 import styles from '../styles.module.scss';
 
 /**
@@ -15,7 +15,13 @@ import styles from '../styles.module.scss';
  *
  * @return {JSX.Element} ThreatFixersModalContent Component.
  */
-export default function ThreatFixersModalContent( { selectedThreatIds, setSelectedThreatIds } ) {
+export default function ThreatFixersModalContent( {
+	selectedThreatIds,
+	setSelectedThreatIds,
+}: {
+	selectedThreatIds: string[];
+	setSelectedThreatIds: ( ids: string[] ) => void;
+} ): JSX.Element {
 	const { actions, actionToConfirm, setActionToConfirm } = useContext( ThreatsContext );
 
 	const [ isLoading, setIsLoading ] = useState( false );
@@ -33,7 +39,9 @@ export default function ThreatFixersModalContent( { selectedThreatIds, setSelect
 
 	// Callback function for the fixer action.
 	const onFixClick = useCallback( () => {
-		const items = actionToConfirm.items.filter( item => selectedThreatIds.includes( item.id ) );
+		const items = actionToConfirm.items.filter( item =>
+			selectedThreatIds.includes( `${ item.id }` )
+		);
 
 		setIsLoading( true );
 		actions?.[ THREAT_ACTION_FIX ]?.callback( items, {

@@ -2,10 +2,10 @@ import { ThreatsContext } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
 import { _n } from '@wordpress/i18n';
 import { useContext, useMemo, useState } from 'react';
-import ThreatFixersModalContent from './bulk';
-import ConnectionNeededContent from './connection';
-import CredentialsNeededContent from './credentials';
-import { ThreatFixerModalContent } from './single';
+import ThreatFixersModalContent from './bulk.js';
+import ConnectionNeededContent from './connection.js';
+import CredentialsNeededContent from './credentials.js';
+import { ThreatFixerModalContent } from './single.js';
 
 /**
  * Threat Fixer Modal Content

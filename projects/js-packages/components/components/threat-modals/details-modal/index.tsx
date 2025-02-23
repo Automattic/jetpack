@@ -2,22 +2,22 @@ import { ThreatsContext } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext } from 'react';
-import ContextualUpgradeTrigger from '../../contextual-upgrade-trigger';
-import Text from '../../text';
-import ThemeProvider from '../../theme-provider';
+import ContextualUpgradeTrigger from '../../contextual-upgrade-trigger/index.js';
+import Text from '../../text/index.js';
+import ThemeProvider from '../../theme-provider/index.js';
 import styles from '../styles.module.scss';
-import ThreatDetailsModalActions from './actions';
-import ThreatDetailsModalTechnicalDetails from './technical-details';
-import ThreatDetailsModalTitle from './title';
+import ThreatDetailsModalActions from './actions.js';
+import ThreatDetailsModalTechnicalDetails from './technical-details.js';
+import ThreatDetailsModalTitle from './title.js';
 
 /**
  * ThreatDetailsModal component
  *
- * @param {object} props - The modal props.
+ * @param {object} props - Props to pass to the Modal component.
  *
- * @return {JSX.Element} The rendered fix confirmation.
+ * @return {JSX.Element} The rendered threat details modal.
  */
-const ThreatDetailsModal = props => {
+const ThreatDetailsModal = ( props: React.ComponentProps< typeof Modal > ): JSX.Element => {
 	const { selectedThreat: threat, upgradePlan } = useContext( ThreatsContext );
 
 	return (

@@ -1,19 +1,19 @@
 import { ThreatsContext } from '@automattic/jetpack-scan';
 import { __, _n } from '@wordpress/i18n';
 import { useContext } from 'react';
-import getRedirectUrl from '../../../tools/jp-redirect';
-import Button from '../../button';
-import ShieldIcon from '../../shield-icon';
-import Text from '../../text';
-import CancelButton from '../cancel-button';
+import getRedirectUrl from '../../../tools/jp-redirect/index.js';
+import Button from '../../button/index.js';
+import ShieldIcon from '../../shield-icon/index.js';
+import Text from '../../text/index.js';
+import CancelButton from '../cancel-button.js';
 import styles from '../styles.module.scss';
 
 /**
  * Connection Needed Modal Content
  *
- * @return {JSX.Element} CredentialsNeededContent Component.
+ * @return {JSX.Element} ConnectionModalContent Component.
  */
-export default function ConnectionModalContent() {
+export default function ConnectionModalContent(): JSX.Element {
 	const { actionToConfirm, connection } = useContext( ThreatsContext );
 
 	return (

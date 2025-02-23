@@ -4,7 +4,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { Text, Button, getRedirectUrl } from '@automattic/jetpack-components';
-import ConnectionModalContent from '../connection-modal';
+import ConnectionModalContent from '../connection-modal/index.js';
 import styles from '../styles.module.scss';
 
 const ThreatIgnoreModal = ( props: React.ComponentProps< typeof Modal > ) => {
