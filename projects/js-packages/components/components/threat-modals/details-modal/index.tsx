@@ -31,19 +31,28 @@ const ThreatDetailsModal = props => {
 
 						{ !! threat.description && <Text>{ threat.description }</Text> }
 
-						{ ! threat.fixable && threat.fixedIn && (
+						{ ! threat.fixable && (
 							<>
 								<Text className={ styles[ 'threat-modal__section__title' ] }>
 									{ __( 'How to fix it?', 'jetpack-components' ) }
 								</Text>
-								<Text>
-									{ sprintf(
-										/* translators: Translates to Updates to version. %1$s: Name. %2$s: Fixed version */
-										__( 'Update %1$s to version %2$s.', 'jetpack-components' ),
-										threat.extension.name,
-										threat.fixedIn
-									) }
-								</Text>
+								{ threat.fixedIn ? (
+									<Text>
+										{ sprintf(
+											/* translators: Translates to Updates to version. %1$s: Name. %2$s: Fixed version */
+											__( 'Update %1$s to version %2$s.', 'jetpack-components' ),
+											threat.extension.name,
+											threat.fixedIn
+										) }
+									</Text>
+								) : (
+									<Text>
+										{ __(
+											'Jetpack cannot automatically fix this threat. We suggest that you resolve the threat manually: ensure that WordPress, your theme, and all of your plugins are up to date, and remove the offending code, theme, or plugin from your site.',
+											'jetpack-components'
+										) }
+									</Text>
+								) }
 							</>
 						) }
 					</div>
