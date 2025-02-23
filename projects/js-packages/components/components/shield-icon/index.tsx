@@ -1,5 +1,3 @@
-import React from 'react';
-
 const COLORS = {
 	default: '#1d2327',
 	info: '#A7AAAD',

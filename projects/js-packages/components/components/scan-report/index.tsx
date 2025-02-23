@@ -10,7 +10,7 @@ import {
 import { __, _n } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
-import ShieldIcon from '../shield-icon';
+import ShieldIcon from '../shield-icon/index.js';
 import {
 	FIELD_NAME,
 	FIELD_VERSION,
@@ -20,7 +20,7 @@ import {
 	STATUS_TYPES,
 	TYPES,
 	ICONS,
-} from './constants';
+} from './constants.js';
 import styles from './styles.module.scss';
 
 /**
@@ -33,7 +33,15 @@ import styles from './styles.module.scss';
  *
  * @return {JSX.Element} The ScanReport component.
  */
-export default function ScanReport( { dataSource, data, onChangeSelection } ): JSX.Element {
+export default function ScanReport( {
+	dataSource,
+	data,
+	onChangeSelection,
+}: {
+	dataSource: string;
+	data: ScanReportExtension[];
+	onChangeSelection: ( selected: string[] ) => void;
+} ): JSX.Element {
 	const baseView = {
 		search: '',
 		filters: [],

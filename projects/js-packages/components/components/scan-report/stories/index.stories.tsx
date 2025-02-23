@@ -1,4 +1,4 @@
-import ScanReport from '..';
+import ScanReport from '../index.js';
 
 export default {
 	title: 'JS Packages/Components/Scan Report',

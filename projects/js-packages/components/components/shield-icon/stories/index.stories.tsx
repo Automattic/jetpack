@@ -1,4 +1,4 @@
-import ShieldIcon from '../index';
+import ShieldIcon from '../index.js';
 
 export default {
 	title: 'JS Packages/Components/Sheild Icon',
