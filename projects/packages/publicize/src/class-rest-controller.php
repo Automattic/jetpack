@@ -83,21 +83,6 @@ class REST_Controller {
 			)
 		);
 
-		// Dismiss a notice.
-		// Flagged to be removed after deprecation.
-		// @deprecated 0.47.2
-		register_rest_route(
-			'jetpack/v4',
-			'/social/dismiss-notice',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'update_dismissed_notices' ),
-				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
-				'args'                => rest_get_endpoint_args_for_schema( $this->get_dismiss_notice_endpoint_schema(), WP_REST_Server::CREATABLE ),
-				'schema'              => array( $this, 'get_dismiss_notice_endpoint_schema' ),
-			)
-		);
-
 		register_rest_route(
 			'jetpack/v4',
 			'/publicize/(?P<postId>\d+)',
@@ -331,34 +316,6 @@ class REST_Controller {
 	}
 
 	/**
-	 * Retrieves the JSON schema for dismissing notices.
-	 *
-	 * @return array Schema data.
-	 */
-	public function get_dismiss_notice_endpoint_schema() {
-		$schema = array(
-			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'jetpack-social-dismiss-notice',
-			'type'       => 'object',
-			'properties' => array(
-				'notice'            => array(
-					'description' => __( 'Name of the notice to dismiss', 'jetpack-publicize-pkg' ),
-					'type'        => 'string',
-					'enum'        => array( 'instagram', 'advanced-upgrade-nudge-admin', 'advanced-upgrade-nudge-editor' ),
-					'required'    => true,
-				),
-				'reappearance_time' => array(
-					'description' => __( 'Time when the notice should reappear', 'jetpack-publicize-pkg' ),
-					'type'        => 'integer',
-					'default'     => 0,
-				),
-			),
-		);
-
-		return rest_default_additional_properties_to_false( $schema );
-	}
-
-	/**
 	 * Gets the current Publicize connections, with the resolt of testing them, for the site.
 	 *
 	 * GET `jetpack/v4/publicize/connection-test-results`
@@ -421,31 +378,6 @@ class REST_Controller {
 		return array(
 			'v1' => $products->{self::JETPACK_SOCIAL_V1_YEARLY},
 		);
-	}
-
-	/**
-	 * Dismisses a notice to prevent it from appearing again.
-	 *
-	 * @param WP_REST_Request $request The request object, which includes the parameters.
-	 * @return WP_REST_Response|WP_Error True if the request was successful, or a WP_Error otherwise.
-	 */
-	public function update_dismissed_notices( $request ) {
-		$notice            = $request->get_param( 'notice' );
-		$reappearance_time = $request->get_param( 'reappearance_time' );
-		$dismissed_notices = get_option( Publicize::OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES );
-
-		if ( ! is_array( $dismissed_notices ) ) {
-			$dismissed_notices = array();
-		}
-
-		if ( array_key_exists( $notice, $dismissed_notices ) && $dismissed_notices[ $notice ] === $reappearance_time ) {
-			return rest_ensure_response( array( 'success' => true ) );
-		}
-
-		$dismissed_notices[ $notice ] = $reappearance_time;
-		update_option( Publicize::OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES, $dismissed_notices );
-
-		return rest_ensure_response( array( 'success' => true ) );
 	}
 
 	/**

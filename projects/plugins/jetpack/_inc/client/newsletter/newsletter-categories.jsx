@@ -1,4 +1,6 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React, { useCallback, useMemo } from 'react';
@@ -138,9 +140,16 @@ function NewsletterCategories( props ) {
 				} }
 			>
 				<p>
-					{ __(
-						'Newsletter categories allow visitors to subscribe only to specific topics. When enabled, only posts published under the categories selected below will be emailed to your subscribers.',
-						'jetpack'
+					{ createInterpolateElement(
+						__(
+							"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters. By default, subscribers can choose from your selected categories, or you can pre-select categories using the <docsLink>subscribe block</docsLink>.",
+							'jetpack'
+						),
+						{
+							docsLink: (
+								<ExternalLink href={ getRedirectUrl( 'jetpack-support-subscribe-block' ) } />
+							),
+						}
 					) }
 				</p>
 				<div className="newsletter-categories-toggle-wrapper">

@@ -9,7 +9,6 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useNotices from '../../hooks/use-notices';
 import useProtectData from '../../hooks/use-protect-data';
-import useWafData from '../../hooks/use-waf-data';
 import Notice from '../notice';
 import Tabs, { Tab } from '../tabs';
 import styles from './styles.module.scss';
@@ -17,7 +16,6 @@ import styles from './styles.module.scss';
 const AdminPage = ( { children } ) => {
 	const { notice } = useNotices();
 	const { isRegistered } = useConnection();
-	const { isSeen: wafSeen } = useWafData();
 	const navigate = useNavigate();
 	const {
 		counts: {
@@ -58,17 +56,7 @@ const AdminPage = ( { children } ) => {
 							</span>
 						}
 					/>
-					<Tab
-						link="/firewall"
-						label={
-							<>
-								{ __( 'Firewall', 'jetpack-protect' ) }
-								{ wafSeen === false && (
-									<span className={ styles.badge }>{ __( 'New', 'jetpack-protect' ) }</span>
-								) }
-							</>
-						}
-					/>
+					<Tab link="/firewall" label={ __( 'Firewall', 'jetpack-protect' ) } />
 				</Tabs>
 			</Container>
 			{ children }
