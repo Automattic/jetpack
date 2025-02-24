@@ -128,8 +128,8 @@ const PluginIntegrationPanel = ( {
 		// Not Installed State
 		if ( ! pluginStatus.isInstalled ) {
 			return (
-				<div className="jetpack-contact-form__integration-panel">
-					<div className="jetpack-contact-form__integration-panel-content">
+				<div className="jetpack-plugin-integration__panel">
+					<div className="jetpack-plugin-integration__panel-content">
 						<div>{ description }</div>
 						{ renderActionButton() }
 					</div>
@@ -140,8 +140,8 @@ const PluginIntegrationPanel = ( {
 		// Installed but Not Active State
 		if ( ! pluginStatus.isActive ) {
 			return (
-				<div className="jetpack-contact-form__integration-panel">
-					<div className="jetpack-contact-form__integration-panel-content">
+				<div className="jetpack-plugin-integration__panel">
+					<div className="jetpack-plugin-integration__panel-content">
 						<div>
 							{ __(
 								"You already have the plugin installed, but it's not activated.",
