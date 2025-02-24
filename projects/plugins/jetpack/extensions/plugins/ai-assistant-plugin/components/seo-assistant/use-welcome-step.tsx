@@ -1,5 +1,11 @@
+/*
+ * External dependencies
+ */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/*
+ * Types
+ */
 import type { Step } from './types';
 
 export const useWelcomeStep = ( { stepLabels }: { stepLabels: string[] } ): Step => {
@@ -9,6 +15,7 @@ export const useWelcomeStep = ( { stepLabels }: { stepLabels: string[] } ): Step
 			return `${ ordinal }. ${ label }`;
 		} )
 		.join( '<br />' );
+
 	return {
 		id: 'welcome',
 		title: __( 'Improve SEO', 'jetpack' ),

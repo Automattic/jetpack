@@ -994,7 +994,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "8f51311ffdd7a5ae6b1b425acb766a767d68d142"
+                "reference": "67d8689b5d0780d1f4ead6eb2abe553a2b82708c"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1010,7 +1010,6 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "automattic/jetpack-mu-wpcom": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/patchwork-redefine-exit": "@dev",
                 "brain/monkey": "^2.6.2",
@@ -1027,11 +1026,6 @@
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
-                },
-                "dependencies": {
-                    "test-only": [
-                        "packages/jetpack-mu-wpcom"
-                    ]
                 },
                 "mirror-repo": "Automattic/jetpack-masterbar",
                 "textdomain": "jetpack-masterbar",

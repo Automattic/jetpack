@@ -714,13 +714,15 @@ class Test_REST_Endpoints extends TestCase {
 	 * Tests that the endpoint succeeds for a connected admin disconnecting themselves
 	 */
 	public function test_unlink_user_success() {
+
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/user' );
 		$request->set_header( 'Content-Type', 'application/json' );
 		$request->set_body(
 			wp_json_encode(
 				array(
-					'linked' => false,
-					'force'  => true,
+					'linked'               => false,
+					'force'                => true,
+					'disconnect-all-users' => true,
 				)
 			)
 		);

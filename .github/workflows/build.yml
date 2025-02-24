@@ -60,8 +60,8 @@ jobs:
           CHANGED: ${{ steps.changed.outputs.projects }}
         with:
           script: |
-            const checkTestReminderComment = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
-            const data = await checkTestReminderComment( github, context, core );
+            const { checkTestPendingComment } = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
+            const data = await checkTestPendingComment( github, context, core );
             return data;
 
       # We need the tree (but not the blob) for packages that will have -alpha version numbers so the timestamp appending works right.
@@ -159,40 +159,8 @@ jobs:
           DATA: ${{ steps.check-test-reminder-comment.outputs.result }}
         with:
           script: |
-            const { BRANCH_NAME, TEST_COMMENT_INDICATOR } = process.env;
-            const data = JSON.parse( process.env.DATA );
-            const commands = data.projects.reduce( ( acc, cur ) => {
-              return acc += `
-              \`\`\`
-              bin/jetpack-downloader test ${ cur } ${ BRANCH_NAME }
-              \`\`\`
-              `;
-            }, '' );
-
-            let jetpackMuWPcomLine = '';
-            if ( data.projects.includes( 'jetpack-mu-wpcom-plugin' ) ) {
-              jetpackMuWPcomLine = "  - For \`jetpack-mu-wpcom\` changes, also add \`define( 'JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN', true );\` to your \`wp-config.php\` file.";
-            }
-
-            const commentBody = `${ TEST_COMMENT_INDICATOR }
-            Are you an Automattician? Please test your changes on all WordPress.com environments to help mitigate accidental explosions.
-
-            - To test on WoA, go to the Plugins menu on a WordPress.com Simple site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta, select your plugin, and enable the \`${ BRANCH_NAME }\` branch. 
-            ${ jetpackMuWPcomLine }
-            - To test on Simple, run the following command on your sandbox:
-            ${ commands }
-
-            *Interested in more tips and information?*
-
-            - In your local development environment, use the \`jetpack rsync\` command to sync your changes to a WoA dev blog.
-            - Read more about our development workflow here: PCYsg-eg0-p2
-            - Figure out **when your changes will be shipped to customers** here: PCYsg-eg5-p2`;
-            await github.rest.issues.updateComment( {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: commentBody,
-              comment_id: +data.commentId,
-            } );
+            const { checkTestReminderComment } = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
+            await checkTestReminderComment( github, context, core );
 
   jetpack_beta:
     name: Create artifact for Jetpack Beta plugin

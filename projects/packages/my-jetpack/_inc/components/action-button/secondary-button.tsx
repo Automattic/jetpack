@@ -16,6 +16,7 @@ export type SecondaryButtonProps = {
 	disabled?: boolean;
 	isLoading?: boolean;
 	className?: string;
+	'aria-labelledby'?: string;
 };
 
 // SecondaryButton component
