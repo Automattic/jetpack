@@ -31,13 +31,17 @@ registerJetpackBlockFromMetadata( metadata, {
 					},
 				},
 			},
+		],
+		to: [
 			{
 				type: 'block',
 				blocks: [ 'jetpack/simple-payments' ],
 				transform: attributes => {
+					console.log( attributes );
 					// Remove the productId when duplicating
 					const newAttributes = { ...attributes };
 					delete newAttributes.productId;
+					console.log( 'newAttributes', newAttributes );
 
 					return createBlock( 'jetpack/simple-payments', newAttributes );
 				},
