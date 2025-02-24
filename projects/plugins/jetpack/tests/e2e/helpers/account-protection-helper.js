@@ -41,7 +41,7 @@ export function getAccountProtectionTokenFromUrl( url ) {
  */
 export async function getAccountProtectionAuthCodeFromTransient( token ) {
 	const transient = await execWpCommand(
-		`transient get password_detection_${ token } --format=json`
+		`transient get jetpack_account_protection_${ token } --format=json`
 	);
 	logger.info( `Transient: ${ transient }` );
 	console.log( `Transient: ${ transient }` );
