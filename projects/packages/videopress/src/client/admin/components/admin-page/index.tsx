@@ -199,7 +199,7 @@ const Admin = () => {
 		<AdminPage
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 			header={ <JetpackVideoPressLogo /> }
-			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+			showFooterAdminLinks={ hasConnectedJetpackPlugin }
 		>
 			<div
 				className={ clsx( styles[ 'files-overlay' ], {

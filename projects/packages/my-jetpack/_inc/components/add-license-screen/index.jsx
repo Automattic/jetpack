@@ -58,7 +58,7 @@ export default function AddLicenseScreen() {
 		<AdminPage
 			showHeader={ false }
 			showBackground={ false }
-			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+			showFooterAdminLinks={ hasConnectedJetpackPlugin }
 		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col>

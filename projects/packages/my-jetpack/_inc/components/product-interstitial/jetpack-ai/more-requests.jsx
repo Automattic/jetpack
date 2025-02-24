@@ -50,7 +50,7 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 		<AdminPage
 			showHeader={ false }
 			showBackground={ false }
-			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+			showFooterAdminLinks={ hasConnectedJetpackPlugin }
 		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col className={ styles[ 'product-interstitial__header' ] }>

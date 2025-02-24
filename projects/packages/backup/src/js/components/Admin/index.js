@@ -85,7 +85,7 @@ const Admin = () => {
 			showFooter
 			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
 			header={ <Header /> }
-			hasConnectedJetpackPlugin={ hasConnectedJetpackPlugin }
+			showFooterAdminLinks={ hasConnectedJetpackPlugin }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">

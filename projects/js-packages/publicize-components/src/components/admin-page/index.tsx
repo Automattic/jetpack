@@ -69,7 +69,7 @@ export const SocialAdminPage = () => {
 				moduleName={ moduleName }
 				showHeader={ false }
 				showBackground={ false }
-				enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+				showFooterAdminLinks={ hasConnectedJetpackPlugin }
 			>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col>
@@ -85,7 +85,7 @@ export const SocialAdminPage = () => {
 			moduleName={ moduleName }
 			header={ <AdminPageHeader /> }
 			showFooter={ isJetpackSite }
-			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+			showFooterAdminLinks={ hasConnectedJetpackPlugin }
 		>
 			<GlobalNotices />
 			{ ( isJetpackSite && ! hasSocialPaidFeatures() && showPricingPage ) ||

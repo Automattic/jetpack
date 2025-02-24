@@ -302,7 +302,7 @@ const EditVideoDetails = () => {
 						/>
 					</>
 				}
-				enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+				showFooterAdminLinks={ hasConnectedJetpackPlugin }
 			>
 				<AdminSection>
 					<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>

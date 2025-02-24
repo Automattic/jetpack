@@ -214,7 +214,7 @@ export default function () {
 		<AdminPage
 			showHeader={ false }
 			showBackground={ true }
-			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+			showFooterAdminLinks={ hasConnectedJetpackPlugin }
 		>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>

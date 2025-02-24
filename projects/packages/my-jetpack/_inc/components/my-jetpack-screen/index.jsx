@@ -173,7 +173,7 @@ export default function MyJetpackScreen() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
-			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+			showFooterAdminLinks={ hasConnectedJetpackPlugin }
 		>
 			<h1 className="screen-reader-text">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</h1>
 			<hr className={ styles.separator } />

@@ -68,7 +68,7 @@ export default function WordAdsDashboard() {
 			{ ! isLoading && (
 				<AdminPage
 					moduleName={ __( 'WordAds', 'jetpack-wordads' ) }
-					hasConnectedJetpackPlugin={ hasConnectedJetpackPlugin }
+					showFooterAdminLinks={ hasConnectedJetpackPlugin }
 				>
 					<AdminSection>
 						<Container horizontalSpacing={ 5 }>

@@ -105,7 +105,7 @@ export default function UpsellPage( { isLoading = false } ) {
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 						header={ <Header /> }
 						moduleNameHref={ JETPACK_SEARCH__LINK }
-						enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+						showFooterAdminLinks={ hasConnectedJetpackPlugin }
 					>
 						<AdminSectionHero>
 							{ isNewPricing ? (

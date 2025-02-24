@@ -24,13 +24,13 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 	moduleNameHref,
 	showHeader = true,
 	showFooter = true,
+	showFooterAdminLinks = false,
 	showBackground = true,
 	sandboxedDomain = '',
 	apiRoot = '',
 	apiNonce = '',
 	optionalMenuItems,
 	header,
-	enableFooterJetpackAdminLinks,
 } ) => {
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
@@ -91,7 +91,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 							moduleName={ moduleName }
 							moduleNameHref={ moduleNameHref }
 							menu={ optionalMenuItems }
-							enableJetpackAdminLinks={ enableFooterJetpackAdminLinks }
+							showFooterAdminLinks={ showFooterAdminLinks }
 						/>
 					</Col>
 				</Container>
