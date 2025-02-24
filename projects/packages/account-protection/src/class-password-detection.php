@@ -431,7 +431,7 @@ class Password_Detection {
 					'message' => __( 'Authentication code verified successfully.', 'jetpack-account-protection' ),
 				)
 			);
-			// TODO: Ensure all transient are also removed on module and/or plugin deactivation
+
 			delete_transient( Config::PASSWORD_DETECTION_TRANSIENT_PREFIX . "_{$token}" );
 			wp_set_auth_cookie( $user->ID, true );
 			wp_set_current_user( $user->ID );
