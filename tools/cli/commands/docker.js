@@ -683,18 +683,6 @@ export function dockerDefine( yargs ) {
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
-					command: 'select-php <version>',
-					description:
-						'Select the version of PHP for use inside the container. See documentation for important notes!',
-					builder: yargCmd => {
-						yargCmd.positional( 'version', {
-							describe: 'The version to select, or "default".',
-							type: 'string',
-						} );
-					},
-					handler: argv => execDockerCmdHandler( argv ),
-				} )
-				.command( {
 					command: 'phpunit',
 					description: 'Run PHPUnit tests inside container',
 					builder: yargCmd =>
