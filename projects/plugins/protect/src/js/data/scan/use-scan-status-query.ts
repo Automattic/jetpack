@@ -1,6 +1,6 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import { type ScanStatus } from '@automattic/jetpack-scan';
-import { useQuery, UseQueryResult, useQueryClient } from '@tanstack/react-query';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import camelize from 'camelize';
 import API from '../../api';
 import {
@@ -9,6 +9,12 @@ import {
 	SCAN_STATUS_UNAVAILABLE,
 	QUERY_SCAN_STATUS_KEY,
 } from '../../constants';
+
+export const SCAN_STATUS_QUERY = {
+	queryKey: [ QUERY_SCAN_STATUS_KEY ],
+	queryFn: API.getScanStatus,
+	initialData: camelize( window?.jetpackProtectInitialState?.status ),
+};
 
 export const isRequestedScanNotStarted = ( status: ScanStatus ) => {
 	if ( status.status !== 'idle' ) {
@@ -57,29 +63,10 @@ export const isScanInProgress = ( status: ScanStatus ) => {
 export default function useScanStatusQuery( {
 	usePolling,
 }: { usePolling?: boolean } = {} ): UseQueryResult< ScanStatus > {
-	const queryClient = useQueryClient();
-	const { isRegistered } = useConnection( {
-		autoTrigger: false,
-		from: 'protect',
-		redirectUri: null,
-		skipUserConnection: true,
-	} );
+	const { isRegistered } = useConnection();
 
 	return useQuery( {
-		queryKey: [ QUERY_SCAN_STATUS_KEY ],
-		queryFn: async () => {
-			// Fetch scan status data from the API
-			const data = await API.getScanStatus();
-
-			// Return cached data if conditions are met
-			if ( isRequestedScanNotStarted( data ) ) {
-				return queryClient.getQueryData( [ QUERY_SCAN_STATUS_KEY ] );
-			}
-
-			// If cached data is not applicable or expired, return the fresh API data
-			return data;
-		},
-		initialData: camelize( window?.jetpackProtectInitialState?.status ),
+		...SCAN_STATUS_QUERY,
 		enabled: isRegistered,
 		refetchInterval( query ) {
 			if ( ! usePolling ) {

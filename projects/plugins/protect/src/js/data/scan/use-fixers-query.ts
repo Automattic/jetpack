@@ -31,12 +31,7 @@ export default function useFixersQuery( {
 } ): UseQueryResult< FixersStatus > {
 	const queryClient = useQueryClient();
 	const { showSuccessNotice, showErrorNotice } = useNotices();
-	const { isRegistered } = useConnection( {
-		autoTrigger: false,
-		from: 'protect',
-		redirectUri: null,
-		skipUserConnection: true,
-	} );
+	const { isRegistered } = useConnection();
 
 	// Helper to show success or failure notices
 	const showBulkNotices = useCallback(

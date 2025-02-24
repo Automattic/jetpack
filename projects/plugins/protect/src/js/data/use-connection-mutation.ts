@@ -1,8 +1,7 @@
 import { useConnection } from '@automattic/jetpack-connection';
-import { type ScanStatus } from '@automattic/jetpack-scan';
+import { ScanStatus } from '@automattic/jetpack-scan';
 import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import API from '../api';
 import {
 	QUERY_CREDENTIALS_KEY,
 	QUERY_HAS_PLAN_KEY,
@@ -26,9 +25,7 @@ export default function useConnectSiteMutation(): UseMutationResult {
 	const { showErrorNotice } = useNotices();
 
 	const { handleRegisterSite } = useConnection( {
-		autoTrigger: false,
 		from: 'protect',
-		redirectUri: null,
 		skipUserConnection: true,
 	} );
 
@@ -42,15 +39,10 @@ export default function useConnectSiteMutation(): UseMutationResult {
 			} ) );
 
 			// Invalidate all queries that depend on the connection status.
-			queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
-			queryClient.invalidateQueries( { queryKey: [ QUERY_WAF_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_HAS_PLAN_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_CREDENTIALS_KEY ] } );
-
-			queryClient.ensureQueryData( {
-				queryKey: [ QUERY_ACCOUNT_PROTECTION_KEY ],
-				queryFn: API.getAccountProtection,
-			} );
+			queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
+			queryClient.invalidateQueries( { queryKey: [ QUERY_WAF_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_ACCOUNT_PROTECTION_KEY ] } );
 		},
 		onError: () => {

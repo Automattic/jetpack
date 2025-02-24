@@ -3,23 +3,22 @@ import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import API from '../api';
 import { QUERY_CREDENTIALS_KEY } from '../constants';
 
+export const CREDENTIALS_QUERY = {
+	queryKey: [ QUERY_CREDENTIALS_KEY ],
+	queryFn: API.checkCredentials,
+	initialData: window?.jetpackProtectInitialState?.credentials,
+};
+
 /**
  * Credentials Query Hook
  *
  * @return {UseQueryResult} useQuery result.
  */
 export default function useCredentialsQuery(): UseQueryResult< [ Record< string, unknown > ] > {
-	const { isRegistered } = useConnection( {
-		autoTrigger: false,
-		from: 'protect',
-		redirectUri: null,
-		skipUserConnection: true,
-	} );
+	const { isRegistered } = useConnection();
 
 	return useQuery( {
-		queryKey: [ QUERY_CREDENTIALS_KEY ],
-		queryFn: API.checkCredentials,
-		initialData: window?.jetpackProtectInitialState?.credentials,
+		...CREDENTIALS_QUERY,
 		enabled: isRegistered,
 	} );
 }

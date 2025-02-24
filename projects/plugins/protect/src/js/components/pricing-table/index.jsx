@@ -25,9 +25,7 @@ const ConnectedPricingTable = () => {
 	const { recordEvent } = useAnalyticsTracks();
 	const connectSiteMutation = useConnectSiteMutation();
 	const { upgradePlan, isLoading: isPlanLoading } = usePlan();
-	const { registrationError } = useConnection( {
-		skipUserConnection: true,
-	} );
+	const { registrationError } = useConnection();
 
 	// Access paid protect product data
 	const { jetpackScan } = useProtectData();
