@@ -213,13 +213,24 @@ class Unauth_File_Upload_Handler {
 	 * @param array $default_mime_types Array of mime types.
 	 * @return array Array of allowed mime types.
 	 */
-	private function get_allowed_mime_types( $default_mime_types = array() ) {
+	public static function get_allowed_mime_types( $default_mime_types = array() ) {
 		if ( empty( $default_mime_types ) ) {
 			$default_mime_types = array(
-				'image/jpeg' => 'jpg|jpeg|jpe',
-				'image/gif'  => 'gif',
-				'image/png'  => 'png',
-				'image/webp' => 'webp',
+				// Image formats.
+				'jpg|jpeg|jpe' => 'image/jpeg',
+				'gif'          => 'image/gif',
+				'png'          => 'image/png',
+				'bmp'          => 'image/bmp',
+				'tiff|tif'     => 'image/tiff',
+				'webp'         => 'image/webp',
+				'avif'         => 'image/avif',
+				'ico'          => 'image/x-icon',
+
+				// TODO: Needs improvement. All images with the following mime types seem to have .heic file extension.
+				'heic'         => 'image/heic',
+				'heif'         => 'image/heif',
+				'heics'        => 'image/heic-sequence',
+				'heifs'        => 'image/heif-sequence',
 			);
 		}
 
@@ -240,7 +251,7 @@ class Unauth_File_Upload_Handler {
 	 * @return true|WP_Error True if the file type is allowed, WP_Error object otherwise.
 	 */
 	public function check_file_type( $file_name ) {
-		$allowed_mime_types = $this->get_allowed_mime_types();
+		$allowed_mime_types = self::get_allowed_mime_types();
 		$file_type          = \wp_check_filetype( $file_name, $allowed_mime_types );
 
 		if ( ! $file_type['type'] ) {
@@ -250,7 +261,7 @@ class Unauth_File_Upload_Handler {
 			);
 		}
 
-		if ( ! isset( $allowed_mime_types[ $file_type['type'] ] ) ) {
+		if ( ! in_array( $file_type['type'], $allowed_mime_types, true ) ) {
 			return new WP_Error(
 				'invalid_file_type',
 				\__( 'File type not allowed for security reasons.', 'jetpack' )
