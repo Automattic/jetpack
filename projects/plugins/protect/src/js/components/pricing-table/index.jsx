@@ -67,6 +67,9 @@ const ConnectedPricingTable = () => {
 				name: __( 'Brute force protection', 'jetpack-protect' ),
 			},
 			{
+				name: __( 'Account protection', 'jetpack-protect' ),
+			},
+			{
 				name: __( 'Access to scan on Cloud', 'jetpack-protect' ),
 			},
 			{
@@ -121,6 +124,7 @@ const ConnectedPricingTable = () => {
 					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ true } />
+					<PricingTableItem isIncluded={ true } />
 				</PricingTableColumn>
 				<PricingTableColumn>
 					<PricingTableHeader>
@@ -154,6 +158,7 @@ const ConnectedPricingTable = () => {
 						isIncluded={ true }
 						label={ __( 'Manual rules only', 'jetpack-protect' ) }
 					/>
+					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ false } />
 					<PricingTableItem isIncluded={ false } />
