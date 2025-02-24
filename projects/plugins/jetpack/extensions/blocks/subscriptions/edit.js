@@ -208,7 +208,7 @@ export function SubscriptionEdit( props ) {
 		...( ! buttonBackgroundColor.color && buttonGradient.gradientValue
 			? { background: buttonGradient.gradientValue }
 			: { backgroundColor: buttonBackgroundColor.color } ),
-		width: buttonWidth ?? 'auto',
+		width: buttonWidth.length > 0 ? buttonWidth : 'auto',
 	};
 
 	console.log( 'buttonStyles', buttonStyles );
