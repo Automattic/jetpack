@@ -24,16 +24,16 @@
 	"type": "module",
 	"devDependencies": {
 		"@jest/globals": "29.7.0",
-		"@storybook/addon-actions": "8.4.7",
-		"@storybook/blocks": "8.4.7",
-		"@storybook/react": "8.4.7",
+		"@storybook/addon-actions": "8.5.8",
+		"@storybook/blocks": "8.5.8",
+		"@storybook/react": "8.5.8",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.2.0",
 		"@types/jest": "29.5.14",
 		"@types/react": "18.3.18",
 		"jest": "^29.7.0",
 		"jest-environment-jsdom": "29.7.0",
-		"storybook": "8.4.7",
+		"storybook": "8.5.8",
 		"typescript": "5.0.4"
 	},
 	"exports": {

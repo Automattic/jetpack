@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection: Disconnection connection ower will disconnect all other users first.
