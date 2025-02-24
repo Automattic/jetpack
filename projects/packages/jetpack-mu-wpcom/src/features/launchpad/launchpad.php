@@ -433,6 +433,14 @@ function wpcom_launchpad_get_task_lists( $rebuild = false ) {
  * Register all tasks and task lists on init.
  */
 function wpcom_register_default_launchpad_checklists() {
+	if ( ! is_user_logged_in() ) {
+		jetpack_wpcom_log2logstash(
+			'Launchpad checklists registered with no user',
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_wp_debug_backtrace_summary
+			array( 'stack_trace' => wp_debug_backtrace_summary() )
+		);
+	}
+
 	wpcom_launchpad_get_task_lists();
 	wpcom_add_active_task_listener_hooks_to_correct_action();
 }
