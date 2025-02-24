@@ -200,7 +200,7 @@ class Validation_Service_Test extends BaseTestCase {
 		$user->user_pass = wp_hash_password( 'somepassword' );
 		$user->ID        = 1;
 
-		update_user_meta( $user->ID, Config::PASSWORD_MANAGER_RECENT_PASSWORD_HASHES_USER_META_KEY, array( $user->user_pass ) );
+		update_user_meta( $user->ID, Config::RECENT_PASSWORD_HASHES_USER_META_KEY, array( $user->user_pass ) );
 
 		$validation_service = new Validation_Service( $this->get_connection_manager() );
 		$this->assertTrue( $validation_service->is_recent_password( $user, 'somepassword' ) );
@@ -211,7 +211,7 @@ class Validation_Service_Test extends BaseTestCase {
 		$user->user_pass = wp_hash_password( 'somepassword' );
 		$user->ID        = 1;
 
-		update_user_meta( $user->ID, Config::PASSWORD_MANAGER_RECENT_PASSWORD_HASHES_USER_META_KEY, array( $user->user_pass ) );
+		update_user_meta( $user->ID, Config::RECENT_PASSWORD_HASHES_USER_META_KEY, array( $user->user_pass ) );
 
 		$validation_service = new Validation_Service( $this->get_connection_manager() );
 		$this->assertFalse( $validation_service->is_recent_password( $user, 'anotherpassword' ) );
