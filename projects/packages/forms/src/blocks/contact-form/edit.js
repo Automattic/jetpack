@@ -27,7 +27,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
 import { childBlocks } from './child-blocks';
-import AkismetIntegrationPanel from './components/akismet-integration/akismet-integration-panel';
+import AkismetPanel from './components/akismet-panel';
 import InspectorHint from './components/inspector-hint';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
@@ -238,7 +238,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						<>
 							{ canUserInstallPlugins && (
 								<>
-									<AkismetIntegrationPanel />
+									<AkismetPanel />
 									<PanelBody
 										title={ __( 'CRM Connection', 'jetpack-forms' ) }
 										initialOpen={ false }
