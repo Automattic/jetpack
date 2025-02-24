@@ -486,10 +486,13 @@ HTML;
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
 
-				$data = array(
+				$headers = getallheaders();
+				$data    = array(
 					'session_token' => wp_get_session_token(),
 					'editor_type'   => isset( $_POST['verbum_loaded_editor'] ) ? sanitize_text_field( wp_unslash( $_POST['verbum_loaded_editor'] ) ) : '',
-					'headers'       => getallheaders(),
+					'cookies'       => ! empty( $headers['Cookie'] ) ? array_keys( wp_parse_cookie( $headers['Cookie'] ) ) : array(),
+					'user_agent'    => sanitize_text_field( $headers['User-Agent'] ?? '' ),
+					'referrer'      => esc_url_raw( $headers['Referer'] ?? '' ),
 				);
 
 				log2logstash(
@@ -498,6 +501,7 @@ HTML;
 						'message'    => 'Pre-comment nonce failed',
 						'blog_id'    => get_current_blog_id(),
 						'user_id'    => $current_user_id,
+						'host'       => sanitize_text_field( $headers['Host'] ?? '' ),
 						'comment_id' => $comment_id,
 						'extra'      => wp_json_encode( $data ),
 					)
