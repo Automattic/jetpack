@@ -6,7 +6,7 @@ use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Settings;
 
-class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_TestBase {
 	public function test_never_queues_if_development() {
 		$this->markTestIncomplete( "We now check this during 'init', so testing is pretty hard" );
 		// @phan-suppress-next-line PhanPluginUnreachableCode

@@ -324,7 +324,7 @@ class Password_Detection {
 								printf(
 									/* translators: %s: Risks of using weak passwords link */
 									esc_html__( 'Learn more about the %s and how to protect your account.', 'jetpack-account-protection' ),
-									'<a class="risks-link" href="#" target="_blank" rel="noopener noreferrer">' . esc_html__( 'risks of using weak passwords', 'jetpack-account-protection' ) . '</a>' // TODO: Update this redirect URL once document exists
+									'<a class="risks-link" href="' . esc_url( Config::SUPPORT_LINK . '#risks-of-using-a-weak-password' ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'risks of using weak passwords', 'jetpack-account-protection' ) . '</a>'
 								);
 							?>
 						</p>
@@ -471,7 +471,7 @@ class Password_Detection {
 					'message' => __( 'Authentication code verified successfully.', 'jetpack-account-protection' ),
 				)
 			);
-			// TODO: Ensure all transient are also removed on module and/or plugin deactivation
+
 			delete_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
 			delete_transient( Config::TRANSIENT_PREFIX . "_last_valid_token_{$user->ID}" );
 			wp_set_auth_cookie( $user->ID, true );

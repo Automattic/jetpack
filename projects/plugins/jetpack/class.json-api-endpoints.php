@@ -280,6 +280,27 @@ abstract class WPCOM_JSON_API_Endpoint {
 	public $allow_fallback_to_jetpack_blog_token = false;
 
 	/**
+	 * Post object format.
+	 *
+	 * @var array
+	 */
+	public $post_object_format;
+
+	/**
+	 * Comment object format.
+	 *
+	 * @var array
+	 */
+	public $comment_object_format;
+
+	/**
+	 * Dropdown page object format.
+	 *
+	 * @var array
+	 */
+	public $dropdown_page_object_format;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string|array|object $args Args.

@@ -12,6 +12,8 @@ use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Tracking;
+use Jetpack_Tracks_Client;
 
 /**
  * Class Admin
@@ -1315,6 +1317,18 @@ class Admin {
 				'in_footer'    => true,
 			)
 		);
+
+		if ( Contact_Form_Plugin::can_use_analytics() ) {
+			Tracking::register_tracks_functions_scripts( true );
+
+			wp_localize_script(
+				'grunion-admin',
+				'jetpack_forms_tracking',
+				array(
+					'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+				)
+			);
+		}
 
 		wp_enqueue_style( 'grunion.css' );
 

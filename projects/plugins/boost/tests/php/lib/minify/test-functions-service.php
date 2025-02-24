@@ -3,10 +3,10 @@
 namespace Automattic\Jetpack_Boost\Tests\Lib\Minify;
 
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
-use Automattic\Jetpack_Boost\Tests\Base_Test_Case;
+use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 use Brain\Monkey\Functions;
 
-class Test_Functions_Service extends Base_Test_Case {
+class Test_Functions_Service extends Base_TestCase {
 	protected function set_up() {
 		parent::set_up();
 
@@ -49,7 +49,7 @@ class Test_Functions_Service extends Base_Test_Case {
 			->once()
 			->with( 'jetpack_boost_static_minification', 1 );
 
-		$this->assertEquals( 1, jetpack_boost_404_tester() );
+		$this->assertSame( 1, jetpack_boost_404_tester() );
 	}
 
 	public function test_404_tester_when_404_file_does_not_exist() {
@@ -66,7 +66,7 @@ class Test_Functions_Service extends Base_Test_Case {
 			->once()
 			->with( 'jetpack_boost_static_minification', 0 );
 
-		$this->assertEquals( 0, jetpack_boost_404_tester() );
+		$this->assertSame( 0, jetpack_boost_404_tester() );
 	}
 
 	public function test_404_tester_disabled_by_constant() {
@@ -77,7 +77,7 @@ class Test_Functions_Service extends Base_Test_Case {
 		Functions\expect( 'wp_remote_get' )->never();
 		Functions\expect( 'update_site_option' )->never();
 
-		$this->assertEquals( '', jetpack_boost_404_tester() );
+		$this->assertNull( jetpack_boost_404_tester() );
 	}
 
 	protected function tear_down() {

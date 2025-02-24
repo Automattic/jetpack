@@ -14,7 +14,6 @@ return [
     // PhanTypeMismatchArgumentProbablyReal : 7 occurrences
     // PhanRedundantCondition : 6 occurrences
     // PhanTypeMismatchArgument : 6 occurrences
-    // PhanUndeclaredProperty : 6 occurrences
     // PhanTypeMismatchReturn : 5 occurrences
     // PhanImpossibleCondition : 4 occurrences
     // PhanTypeMismatchProperty : 4 occurrences
@@ -45,8 +44,7 @@ return [
         'src/initializers/class-initializer.php' => ['PhanNoopNew'],
         'src/instant-search/class-instant-search.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/widgets/class-search-widget.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeSuspiciousEcho'],
-        'src/wpes/class-query-builder.php' => ['PhanImpossibleCondition', 'PhanRedundantCondition', 'PhanTypeMismatchDimAssignment', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
-        'src/wpes/class-query-parser.php' => ['PhanUndeclaredProperty'],
+        'src/wpes/class-query-builder.php' => ['PhanImpossibleCondition', 'PhanRedundantCondition', 'PhanTypeMismatchDimAssignment', 'PhanTypeMismatchReturnProbablyReal'],
         'tests/php/test-helpers.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument'],
         'tests/php/test-plan.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal'],
     ],

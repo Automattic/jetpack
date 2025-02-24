@@ -5,7 +5,7 @@ use Automattic\Jetpack\Sync\Defaults;
 /**
  * Testing WP_Test_Defaults class
  */
-class WP_Test_Jetpack_Sync_Defaults extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Defaults extends WP_Test_Jetpack_Sync_TestBase {
 	private $jp_option = 'example_jp_option_name_here';
 
 	private $jp_sync_option = 'example_jp_sync_option_name_here';

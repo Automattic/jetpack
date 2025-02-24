@@ -9,7 +9,7 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Posts;
 use Automattic\Jetpack\Sync\Settings;
 
-class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_TestBase {
 	protected $post_id;
 	protected $meta_id;
 	protected $meta_module;

@@ -96,8 +96,8 @@ class Account_Protection {
 		add_action( 'jetpack_deactivate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_deactivation' ) );
 
 		// Do not run in unsupported environments
-		add_action( 'jetpack_get_available_modules', array( $this, 'remove_module_on_unsupported_environments' ) );
-		add_action( 'jetpack_get_available_standalone_modules', array( $this, 'remove_standalone_module_on_unsupported_environments' ) );
+		add_filter( 'jetpack_get_available_modules', array( $this, 'remove_module_on_unsupported_environments' ) );
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'remove_standalone_module_on_unsupported_environments' ) );
 	}
 
 	/**
@@ -198,6 +198,24 @@ class Account_Protection {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Determines if the current Jetpack version is supported.
+	 *
+	 * @return bool
+	 */
+	public function has_unsupported_jetpack_version(): bool {
+		// Do not run when Jetpack version is less than 14.5
+		if ( defined( 'JETPACK__VERSION' ) ) {
+			$jetpack_version = JETPACK__VERSION;
+
+			if ( is_string( $jetpack_version ) && version_compare( $jetpack_version, '14.5', '<' ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

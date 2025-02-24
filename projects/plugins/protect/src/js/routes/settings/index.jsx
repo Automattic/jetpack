@@ -19,6 +19,8 @@ import usePlan from '../../hooks/use-plan';
 import styles from './styles.module.scss';
 
 const SettingsPage = () => {
+	const SUPPORT_LINK = 'https://jetpack.com/?post_type=jetpack_support&p=324199';
+
 	const { hasPlan } = usePlan();
 	const { data: accountProtection } = useAccountProtectionQuery();
 	const toggleAccountProtectionMutation = useToggleAccountProtectionMutation();
@@ -44,9 +46,17 @@ const SettingsPage = () => {
 		<div className={ styles[ 'toggle-section' ] }>
 			<div className={ styles[ 'toggle-section__control' ] }>
 				<ToggleControl
-					checked={ accountProtection.isSupported && accountProtection.isEnabled }
+					checked={
+						accountProtection.isSupported &&
+						! accountProtection.hasUnsupportedJetpackVersion &&
+						accountProtection.isEnabled
+					}
 					onChange={ toggleAccountProtection }
-					disabled={ ! accountProtection.isSupported || toggleAccountProtectionMutation.isPending }
+					disabled={
+						! accountProtection.isSupported ||
+						accountProtection.hasUnsupportedJetpackVersion ||
+						toggleAccountProtectionMutation.isPending
+					}
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
@@ -68,7 +78,32 @@ const SettingsPage = () => {
 							<Button
 								variant="link"
 								isExternalLink
-								href={ '#' } // TODO: Update this redirect URL once document exists
+								href={ SUPPORT_LINK + '#unsupported-environments' }
+								key="learn-more"
+							>
+								{ __( 'Learn more', 'jetpack-protect' ) }
+							</Button>,
+						] }
+					/>
+				) }
+				{ accountProtection.isSupported && accountProtection.hasUnsupportedJetpackVersion && (
+					<Notice
+						level="warning"
+						hideCloseButton={ true }
+						className={ styles[ 'toggle-section__alert' ] }
+						title={
+							<Text>
+								{ __(
+									'This feature has been disabled because Jetpack Protect is installed with an unsupported version of Jetpack. Please update Jetpack to version 14.5 or later to enable this feature.',
+									'jetpack-protect'
+								) }
+							</Text>
+						}
+						actions={ [
+							<Button
+								variant="link"
+								isExternalLink
+								href={ SUPPORT_LINK + '#requirements' }
 								key="learn-more"
 							>
 								{ __( 'Learn more', 'jetpack-protect' ) }
@@ -83,7 +118,7 @@ const SettingsPage = () => {
 							'jetpack-protect'
 						),
 						{
-							link: <a href={ '#' } />, // TODO: Update this redirect URL once document exists
+							link: <a href={ SUPPORT_LINK } target="_blank" rel="noopener noreferrer" />,
 						}
 					) }
 				</Text>
@@ -102,7 +137,13 @@ const SettingsPage = () => {
 								'jetpack-protect'
 							),
 							{
-								link: <a href={ '#' } />, // TODO: Update this redirect URL once document exists
+								link: (
+									<a
+										href={ SUPPORT_LINK + '#risks-of-using-a-weak-password' }
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
 							}
 						) }
 					</Text>

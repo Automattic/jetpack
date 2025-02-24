@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-moving the api endpoint for unlinking the user to the connection package
