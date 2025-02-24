@@ -12,7 +12,7 @@ use WC_Order;
 use WC_Product;
 
 /**
- * Filters and Actions added to Store pages to perform analytics
+ * Filters and Actions added to Store pages to perform analytics.
  */
 class Universal {
 	/**
