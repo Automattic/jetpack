@@ -61,6 +61,11 @@ function load_assets( $attr, $content ) {
  * This ultimately sets an Origin-Trial header with the token.
  */
 function add_chrome_ai_token_headers() {
+	if ( ! apply_filters( 'jetpack_ai_enabled', true )
+		|| ! apply_filters( 'ai_chrome_ai_enabled', false ) ) {
+		return;
+	}
+
 	$token_transient_names = array( 'jetpack-ai-chrome-ai-translation-token', 'jetpack-ai-chrome-ai-summarization-token' );
 
 	foreach ( $token_transient_names as $token_transient_name ) {
@@ -183,7 +188,8 @@ add_action(
 			apply_filters( 'ai_chrome_ai_enabled', false )
 		) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-use-chrome-ai-sometimes' );
-			add_action( 'wp_head', __NAMESPACE__ . '\add_chrome_ai_token_headers' );
 		}
 	}
 );
+
+add_action( 'wp_head', __NAMESPACE__ . '\add_chrome_ai_token_headers' );
