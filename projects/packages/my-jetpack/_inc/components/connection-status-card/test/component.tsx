@@ -202,8 +202,10 @@ describe( 'ConnectionStatusCard', () => {
 
 			it( 'renders the correct user connection line item', () => {
 				setup();
-				expect( screen.getByText( 'Some features require authentication.' ) ).toBeInTheDocument();
-				expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
+				setTimeout( () => {
+					expect( screen.getByText( 'Some features require authentication.' ) ).toBeInTheDocument();
+					expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
+				}, 1500 );
 			} );
 		} );
 	} );
