@@ -303,9 +303,9 @@ jQuery( document ).ready( function ( $ ) {
 
 			apiFetch( {
 				path: addQueryArgs( 'jetpack/v4/jitm', {
-					message_path: message_path,
-					query: query,
-					full_jp_logo_exists: full_jp_logo_exists,
+					message_path,
+					query,
+					full_jp_logo_exists,
 				} ),
 				method: 'GET',
 			} ).then( function ( messages ) {
