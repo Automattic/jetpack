@@ -38,6 +38,13 @@ class Unauth_File_Upload_Handler {
 	const UNAUTH_UPLOADS_OPTION = 'jetpack_unauth_uploads';
 
 	/**
+	 * Option name for storing the secret directory name.
+	 *
+	 * @var string
+	 */
+	const UNAUTH_UPLOADS_DIR_OPTION = 'jetpack_unauth_upload_dir';
+
+	/**
 	 * Maximum allowed file size (20MB).
 	 *
 	 * @var int
@@ -143,24 +150,16 @@ class Unauth_File_Upload_Handler {
 	 */
 	private function store_uploaded_file( $file, $context ) {
 
-		$upload_dir = \wp_upload_dir();
-		if ( ! empty( $upload_dir['error'] ) ) {
-			return new WP_Error( 'dir_error', \__( 'Unable to process file upload.', 'jetpack' ) );
-		}
-
-		$temp_dir = path_join( $upload_dir['basedir'], 'jetpack-upload/' . $this->get_secret_directory() . '/temp' );
-		if ( ! file_exists( $temp_dir ) ) {
-			$create_dir = \wp_mkdir_p( $temp_dir );
-			if ( ! $create_dir ) {
-				return new WP_Error( 'dir_create', \__( 'Unable to process file upload.', 'jetpack' ) );
-			}
+		$temp_path = $this->get_secret_temp_path();
+		if ( is_wp_error( $temp_path ) ) {
+			return $temp_path;
 		}
 
 		$secret_file_name    = $this->generate_secure_filename( $file['name'] );
-		$new_secret_filename = \wp_unique_filename( $temp_dir, $secret_file_name );
+		$new_secret_filename = \wp_unique_filename( $temp_path, $secret_file_name );
 
 		// Move uploaded file.
-		$move_result = move_uploaded_file( $file['tmp_name'], $temp_dir . '/' . $new_secret_filename );
+		$move_result = move_uploaded_file( $file['tmp_name'], $temp_path . '/' . $new_secret_filename );
 		if ( ! $move_result ) {
 			return new WP_Error( 'file_move', \__( 'Unable to process file upload.', 'jetpack' ) );
 		}
@@ -171,7 +170,6 @@ class Unauth_File_Upload_Handler {
 		// Store file details.
 		$file_data = array(
 			'filename'      => $new_secret_filename,
-			'path'          => $temp_dir,
 			'original_name' => $file['name'],
 			'created'       => time(),
 			'context'       => $context,
@@ -311,12 +309,37 @@ class Unauth_File_Upload_Handler {
 	 * @return string The secret directory name.
 	 */
 	private function get_secret_directory() {
-		$secret_dir = \get_option( 'jetpack_upload_dir', false );
+		$secret_dir = \get_option( self::UNAUTH_UPLOADS_DIR_OPTION, false );
 		if ( ! $secret_dir ) {
 			$secret_dir = \wp_generate_password( 64, false );
-			\update_option( 'jetpack_upload_dir', $secret_dir, false );
+			\update_option( self::UNAUTH_UPLOADS_DIR_OPTION, $secret_dir, false );
 		}
 		return $secret_dir;
+	}
+
+	/**
+	 * Gets the temporary path for storing uploaded files.
+	 * This path is unique to each site and is used to store temporary files that are uploaded by unauthenticated users.
+	 *
+	 * @return string|WP_Error The path to the temporary directory, or WP_Error object on failure.
+	 */
+	private function get_secret_temp_path() {
+		$upload_dir = \wp_upload_dir();
+
+		if ( ! empty( $upload_dir['error'] ) ) {
+			return new WP_Error( 'dir_error', \__( 'Unable to process file upload.', 'jetpack' ) );
+		}
+
+		$temp_dir = path_join( $upload_dir['basedir'], 'jetpack-upload/' . $this->get_secret_directory() . '/temp' );
+
+		if ( ! file_exists( $temp_dir ) ) {
+			$create_dir = \wp_mkdir_p( $temp_dir );
+			if ( ! $create_dir ) {
+				return new WP_Error( 'dir_create', \__( 'Unable to process file upload.', 'jetpack' ) );
+			}
+		}
+
+		return $temp_dir;
 	}
 
 	/**
@@ -395,9 +418,12 @@ class Unauth_File_Upload_Handler {
 	 * Retrieves file details using a token.
 	 *
 	 * @param string $token The file token.
+	 * @param string $destination The destination path for the file.
+	 *
 	 * @return array|WP_Error Array with file data on success, WP_Error object on failure.
 	 */
-	public function get_file_by_token( $token ) {
+	public function checkout_file( $token, $destination ) {
+		global $wp_filesystem;
 		$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
 
 		if ( ! isset( $uploads[ $token ] ) ) {
@@ -407,8 +433,13 @@ class Unauth_File_Upload_Handler {
 			);
 		}
 
+		$temp_path = $this->get_secret_temp_path();
+		if ( is_wp_error( $temp_path ) ) {
+			return $temp_path;
+		}
+
 		$file_data = $uploads[ $token ];
-		$file_path = \trailingslashit( $file_data['path'] ) . $file_data['filename'];
+		$file_path = \trailingslashit( $temp_path ) . $file_data['filename'];
 
 		if ( ! file_exists( $file_path ) ) {
 			// Remove the entry if file doesn't exist.
@@ -421,7 +452,14 @@ class Unauth_File_Upload_Handler {
 			);
 		}
 
-		\wp_delete_file( $file_path );
+		// move the file to the final destination.
+		\WP_Filesystem();
+		$move_result = $wp_filesystem->move( $file_path, $destination );
+
+		if ( is_wp_error( $move_result ) ) {
+			return $move_result;
+		}
+
 		unset( $uploads[ $token ] );
 		\update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
 
