@@ -29,12 +29,25 @@ describe( 'SocialModuleToggle', () => {
 
 		getSocialScriptData.mockReturnValue( {
 			urls: { connectionsManagementPage: 'https://example.com/connections' },
-			feature_flags: { useAdminUiV1: false },
+			feature_flags: { useAdminUiV1: true },
 			is_publicize_enabled: true,
 		} );
 	} );
 
-	it( 'should render with module enabled', () => {
+	it( 'should render connection management component by default', () => {
+		render( <SocialModuleToggle /> );
+
+		expect( screen.getByTestId( 'connection-management' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /Manage social media connections/i ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'should render legacy UI when useAdminUiV1 is false', () => {
+		getSocialScriptData.mockReturnValue( {
+			urls: { connectionsManagementPage: 'https://example.com/connections' },
+			feature_flags: { useAdminUiV1: false },
+			is_publicize_enabled: true,
+		} );
+
 		render( <SocialModuleToggle /> );
 
 		expect( screen.getByText( /Manage social media connections/i ) ).toBeInTheDocument();
@@ -42,6 +55,12 @@ describe( 'SocialModuleToggle', () => {
 	} );
 
 	it( 'should render with module disabled', () => {
+		getSocialScriptData.mockReturnValue( {
+			urls: { connectionsManagementPage: 'https://example.com/connections' },
+			feature_flags: { useAdminUiV1: false },
+			is_publicize_enabled: true,
+		} );
+
 		mockStore( {
 			getSocialModuleSettings: () => ( { publicize: false } ),
 		} );
@@ -63,16 +82,5 @@ describe( 'SocialModuleToggle', () => {
 		render( <SocialModuleToggle /> );
 
 		expect( screen.queryByText( /Unlock advanced sharing options/i ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'should render connection management component when useAdminUiV1 is true', () => {
-		getSocialScriptData.mockReturnValue( {
-			feature_flags: { useAdminUiV1: true },
-		} );
-
-		render( <SocialModuleToggle /> );
-
-		expect( screen.getByTestId( 'connection-management' ) ).toBeInTheDocument();
-		expect( screen.queryByText( /Manage social media connections/i ) ).not.toBeInTheDocument();
 	} );
 } );
