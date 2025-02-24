@@ -478,15 +478,17 @@ function get_element_styles_from_attributes( $attributes ) {
 	}
 
 	if ( has_attribute( $attributes, 'buttonWidth' ) ) {
-		$submit_button_wrapper_styles .= sprintf( 'width: %s;', get_attribute( $attributes, 'buttonWidth' ) );
+		$button_width = get_attribute( $attributes, 'buttonWidth' );
+		if ( empty( $button_width ) ) {
+			$button_width = 'auto';
+		}
+		$submit_button_wrapper_styles .= sprintf( 'width: %s;', $button_width );
 		$submit_button_wrapper_styles .= 'max-width: 100%;';
 
 		// Account for custom margins on inline forms.
 		$submit_button_styles .= true === get_attribute( $attributes, 'buttonOnNewLine' )
 			? 'width: 100%;'
 			: sprintf( 'width: calc(100%% - %dpx);', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) );
-	} else {
-		$submit_button_wrapper_styles .= 'width: auto;';
 	}
 
 	$font_size = get_attribute( $attributes, 'customFontSize', DEFAULT_FONTSIZE_VALUE );
