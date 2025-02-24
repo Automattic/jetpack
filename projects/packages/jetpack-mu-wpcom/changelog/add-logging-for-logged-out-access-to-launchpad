@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Launchpad: add logging when launchpad is loaded without a user context
