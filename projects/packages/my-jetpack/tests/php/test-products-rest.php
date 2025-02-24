@@ -26,13 +26,6 @@ class Test_Products_Rest extends TestCase {
 	private $server;
 
 	/**
-	 * The original hostname to restore after tests are finished.
-	 *
-	 * @var string
-	 */
-	private $api_host_original;
-
-	/**
 	 * The current user id.
 	 *
 	 * @var int
@@ -124,7 +117,7 @@ class Test_Products_Rest extends TestCase {
 	 * Test GET products
 	 */
 	public function test_get_products() {
-		$products = Products::get_products();
+		$products = Products::get_products_api_data();
 
 		$request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
 
@@ -165,7 +158,7 @@ class Test_Products_Rest extends TestCase {
 	 * Test GET product
 	 */
 	public function test_get_product() {
-		$product = Products::get_product( 'boost' );
+		$product = Products::get_products_api_data( 'boost' );
 
 		$request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
 		$request->set_query_params(
