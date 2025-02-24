@@ -25,7 +25,7 @@ const PluginIntegrationPanel = ( {
 
 	const { pluginStatus, isLoading } = useSelect(
 		select => {
-			const installedPlugins = select( 'core' ).getPlugins();
+			const installedPlugins = select( coreStore ).getPlugins();
 
 			if ( ! installedPlugins ) {
 				return { isLoading: true };
