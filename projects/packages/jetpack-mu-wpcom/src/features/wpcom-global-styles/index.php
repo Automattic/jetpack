@@ -778,6 +778,7 @@ function wpcom_global_styles_is_previewing_premium_theme_without_premium_plan( $
  */
 function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
 	// We force false until we get a new experiment running.
+	// @phan-suppress-next-line UnreachableCode
 	return false;
 
 	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
