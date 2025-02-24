@@ -199,7 +199,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 					isPrimary: true,
 					operators: [ 'is' ] as Operator[],
 				},
-				elements: categories.length > 1 ? categories : [],
+				elements: categories?.length > 1 ? categories : [],
 				isVisible: () => false,
 				getValue( { item }: { item: ProductData } ) {
 					return item.product.category;
