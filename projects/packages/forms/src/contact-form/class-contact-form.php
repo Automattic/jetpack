@@ -1710,6 +1710,47 @@ class Contact_Form extends Contact_Form_Shortcode {
 		wp_redirect( $redirect );
 		exit( 0 );
 	}
+
+	/**
+	 * A function that gets called when processing form submissions and returns a list of files that were processed or errors.
+	 */
+	private function process_file_uploads() {
+		require_once __DIR__ . '/class-contact-form-file-handler.php';
+		$file_handler = new Contact_Form_File_Handler();
+
+		$uploaded_files = array();
+
+		// Find and process file fields
+		foreach ( $this->fields as $id => $field ) {
+			if ( $field->get_attribute( 'type' ) !== 'file' ) {
+				continue;
+			}
+
+			$field_id         = sanitize_key( $id );
+			$token_field_name = $field_id . '_token';
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$token = isset( $_POST[ $token_field_name ] ) ? sanitize_text_field( wp_unslash( $_POST[ $token_field_name ] ) ) : '';
+
+			if ( empty( $token ) ) {
+				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
+				continue;
+			}
+
+			// Process the file token using the file handler
+			$result = $file_handler->process_file_upload( $token );
+			if ( is_wp_error( $result ) ) {
+				$field->add_error( $result->get_error_message() );
+				continue;
+			}
+
+			$uploaded_files[ $field_id ] = $result;
+		}
+
+		l( $uploaded_files );
+
+		return $uploaded_files;
+	}
+
 	/**
 	 * Get the permalink for the post ID that include the page query parameter if it was set.
 	 *
