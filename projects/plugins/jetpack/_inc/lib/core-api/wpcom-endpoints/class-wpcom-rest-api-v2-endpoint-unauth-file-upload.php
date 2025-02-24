@@ -75,6 +75,16 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 			);
 		}
 
+		// Check the wp_rest upload nonce
+		$upload_nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! $upload_nonce ) {
+			return new WP_Error(
+				'missing_upload_nonce',
+				__( 'wp rest nonce is required.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		// Check the Jetpack upload nonce
 		$upload_nonce = $request->get_header( 'X-Jetpack-Upload-Nonce' );
 		if ( ! $upload_nonce ) {
@@ -87,6 +97,7 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 
 		// Verify the upload nonce with its context
 		$context = $request->get_param( 'context' );
+
 		if ( ! wp_verify_nonce( $upload_nonce, 'jetpack_file_upload_' . $context ) ) {
 			return new WP_Error(
 				'invalid_upload_nonce',
