@@ -30,6 +30,17 @@ registerJetpackBlockFromMetadata( metadata, {
 					},
 				},
 			},
+			{
+				type: 'block',
+				blocks: ['jetpack/simple-payments'],
+				transform: (attributes) => {
+					// Remove the productId when duplicating
+					const newAttributes = { ...attributes };
+					delete newAttributes.productId;
+
+					return createBlock('jetpack/simple-payments', newAttributes);
+				},
+			},
 		],
 	},
 	deprecated: [ deprecatedV1, deprecatedV2 ],
