@@ -122,7 +122,6 @@ class Jetpack_Mu_Wpcom {
 	/**
 	 * Modify the JavaScript translation JSON file URL for Atomic sites.
 	 *
-	 * WordPress translation JSON files include an MD5 hash, which must remain unchanged.
 	 * - Simple Sites: Use default WordPress locale loading.
 	 * - Atomic Sites: Load from `https://widgets.wp.com/languages/mu-plugins/`.
 	 *
