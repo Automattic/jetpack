@@ -76,7 +76,7 @@ export function ConnectForm( {
 			onSubmit={ onSubmitForm }
 		>
 			{ displayInputs ? (
-				<div className={ styles[ 'fields-wrapper' ] }>
+				<div className={ clsx( styles[ 'fields-wrapper' ], styles.input ) }>
 					<CustomInputs service={ service } />
 				</div>
 			) : null }

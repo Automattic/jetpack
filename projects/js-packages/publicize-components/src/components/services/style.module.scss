@@ -204,6 +204,10 @@
 		width: 100%;
 		gap: 1rem;
 
+		&.input {
+			justify-content: flex-start;
+		}
+
 		@include break-medium {
 			flex-direction: row;
 		}
