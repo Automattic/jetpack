@@ -13,7 +13,8 @@ ENV LANG=en_US.UTF-8 \
     JETPACK_MONOREPO_ENV=1 \
     PNPM_HOME=/usr/local/pnpm \
     PATH="/usr/local/pnpm:${PATH}" \
-    npm_config_update_notifier=false
+    npm_config_update_notifier=false \
+    WP_CLI_ALLOW_ROOT=1
 
 WORKDIR /app
 
