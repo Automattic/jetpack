@@ -447,7 +447,7 @@ const buildExecCmd = argv => {
 		if ( argv.type === 'e2e' ) {
 			opts.splice( 1, 0, '-T' );
 		}
-		opts.push( 'wp', '--allow-root', '--path=/var/www/html/', ...wpArgs );
+		opts.push( 'wp', '--path=/var/www/html/', ...wpArgs );
 	} else if ( cmd === 'tail' ) {
 		opts.push( '/var/scripts/tail.sh' );
 	} else if ( cmd === 'uninstall' ) {
