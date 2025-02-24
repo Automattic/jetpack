@@ -50,7 +50,7 @@ class Password_Detection {
 		}
 
 		// Skip if we're validating a Brute force protection recovery token
-		if ( get_transient( 'jetpack_protect_recovery_key_validated' ) ) {
+		if ( get_transient( 'jetpack_protect_recovery_key_validated_' . $user->ID ) ) {
 			return $user;
 		}
 
