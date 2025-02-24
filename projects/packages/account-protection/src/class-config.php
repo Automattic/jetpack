@@ -11,6 +11,8 @@ namespace Automattic\Jetpack\Account_Protection;
  * Class Config
  */
 class Config {
+	public const SUPPORT_LINK = 'https://jetpack.com/?post_type=jetpack_support&p=324199';
+
 	// Password Detection Constants
 	public const PASSWORD_DETECTION_TRANSIENT_PREFIX      = 'password_detection';
 	public const PASSWORD_DETECTION_ERROR_CODE            = 'password_detection_validation_error';
