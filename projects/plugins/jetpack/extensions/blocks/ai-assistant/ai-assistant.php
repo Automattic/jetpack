@@ -101,7 +101,7 @@ function add_chrome_ai_token_headers() {
 		}
 
 		if ( $cached_token ) {
-			header( "Origin-Trial: {$cached_token}" );
+			echo '<meta http-equiv="origin-trial" content="' . esc_attr( $cached_token ) . '">';
 		}
 	}
 }
