@@ -7,7 +7,7 @@ use Automattic\Jetpack\Sync\Modules;
  *
  * @group legacy-full-sync
  */
-class WP_Test_Jetpack_Sync_Term_Relationships extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Term_Relationships extends WP_Test_Jetpack_Sync_TestBase {
 	protected $post_id;
 	protected $term_object;
 	protected $taxonomy;

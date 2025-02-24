@@ -19,7 +19,6 @@
 		"brain/monkey": "^2.6.2",
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/jetpack-mu-wpcom": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
 		"automattic/jetpack-test-environment": "@dev"
 	},
@@ -74,11 +73,6 @@
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
-		},
-		"dependencies": {
-			"test-only": [
-				"packages/jetpack-mu-wpcom"
-			]
 		},
 		"mirror-repo": "Automattic/jetpack-masterbar",
 		"textdomain": "jetpack-masterbar",

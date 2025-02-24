@@ -12,7 +12,7 @@ require_once dirname( __DIR__, 2 ) . '/lib/class-wp-test-jetpack-rest-testcase.p
  *
  * @coversDefaultClass WPCOM_REST_API_V2_Endpoint_Transient
  */
-class WP_Test_WPCOM_REST_API_V2_Endpoint_Transient extends WP_Test_Jetpack_REST_Testcase {
+class WP_Test_WPCOM_REST_API_V2_Endpoint_Transient extends WP_Test_Jetpack_REST_TestCase {
 
 	/**
 	 * Mock user ID.

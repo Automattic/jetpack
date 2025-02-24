@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Masterbar\Admin_Menu;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -53,6 +54,29 @@ function wpcom_admin_interface_track_changed_event( $value ) {
 		require_lib( 'tracks/client' );
 		tracks_record_event( get_current_user_id(), $event_name, $properties );
 	}
+}
+
+/**
+ * Check if we should disable the calypso links.
+ *
+ * @param string $screen The given screen.
+ *
+ * @return bool
+ */
+function wpcom_should_disable_calypso_links( string $screen ): bool {
+	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || ! ( new Host() )->is_wpcom_platform() ) {
+		return true;
+	}
+
+	if ( ( new Host() )->is_wpcom_simple() && function_exists( '\Automattic\Jetpack\Dashboard_Customizations\show_unified_nav' ) && ! \Automattic\Jetpack\Dashboard_Customizations\show_unified_nav() ) {
+		return true;
+	}
+
+	if ( ( new Host() )->is_woa_site() && ! apply_filters( 'jetpack_load_admin_menu_class', true ) ) {
+		return true;
+	}
+
+	return Admin_Menu::get_instance()->get_preferred_view( $screen ) === Admin_Menu::CLASSIC_VIEW;
 }
 
 /**

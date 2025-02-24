@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Removed the Jetpack_Keyring_Service_Helper class in favour of the one on publicize

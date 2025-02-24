@@ -30,9 +30,15 @@ export interface AdminSiteData {
 
 export interface SiteData extends PublicSiteData, Partial< AdminSiteData > {}
 
+export interface UserCapabilities {
+	manage_options: boolean;
+	manage_modules: boolean;
+}
+
 export interface CurrentUserData {
 	id: number;
 	display_name: string;
+	capabilities: UserCapabilities;
 	wpcom?: {
 		ID: number;
 		login: string;
