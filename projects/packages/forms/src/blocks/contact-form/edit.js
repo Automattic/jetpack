@@ -239,11 +239,11 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 											setAttributes={ setAttributes }
 										/>
 									</PanelBody>
+									<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
+										<NewsletterIntegrationSettings />
+									</PanelBody>
 								</>
 							) }
-							<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
-								<NewsletterIntegrationSettings />
-							</PanelBody>
 						</>
 					) }
 				</InspectorControls>
