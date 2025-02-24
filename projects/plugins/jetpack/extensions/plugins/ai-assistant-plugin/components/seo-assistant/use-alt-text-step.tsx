@@ -67,7 +67,8 @@ export const useAltTextStep = ( {
 	const { getMessages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages(
 		imageBlocks.length
 	);
-	const postContent = usePostContent();
+	const { getPostContent } = usePostContent();
+	const postContent = getPostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const { tracks } = useAnalytics();
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
