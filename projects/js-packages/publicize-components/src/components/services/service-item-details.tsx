@@ -66,7 +66,7 @@ export function ServiceItemDetails( { service, serviceConnections }: ServicesIte
 			} ) }
 		>
 			{ service.examples.map( ( Example, idx ) => (
-				<div key={ service.ID + idx } className={ styles.example }>
+				<div key={ service.id + idx } className={ styles.example }>
 					<Example />
 				</div>
 			) ) }

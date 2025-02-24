@@ -35,7 +35,7 @@ export function useSupportedServices(): Array< SupportedService > {
 		return supported_services.reduce< Record< string, ConnectionService > >(
 			( serviceData, service ) => ( {
 				...serviceData,
-				[ service.ID ]: service,
+				[ service.id ]: service,
 			} ),
 			{}
 		);
@@ -261,6 +261,6 @@ export function useSupportedServices(): Array< SupportedService > {
 	];
 	return supportedServices.filter(
 		// Return only the ones that are present in the available services.
-		service => Boolean( service.ID )
+		service => Boolean( service.id )
 	);
 }

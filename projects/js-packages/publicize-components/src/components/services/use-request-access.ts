@@ -57,9 +57,9 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 
 	return useCallback(
 		( formData: FormData ) => {
-			const url = new URL( service.connect_URL );
+			const url = new URL( service.url );
 
-			switch ( service.ID ) {
+			switch ( service.id ) {
 				case 'mastodon': {
 					const instance = formData.get( 'instance' ).toString().trim();
 
@@ -118,8 +118,8 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 			isBlueskyAccountAlreadyConnected,
 			isMastodonAlreadyConnected,
 			onConfirm,
-			service.ID,
-			service.connect_URL,
+			service.id,
+			service.url,
 		]
 	);
 }
