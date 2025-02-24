@@ -24,6 +24,7 @@ import styles from './index.module.scss';
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
+	const speculationRulesLink = getRedirectUrl( 'jetpack-boost-speculation-rules' );
 
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
@@ -152,9 +153,22 @@ const Index = () => {
 				title={ __( 'Speculation Rules', 'jetpack-boost' ) }
 				description={
 					<p>
-						{ __(
-							'Prefetch pages that are likely to be visited next, so they load faster when the user clicks on them.',
-							'jetpack-boost'
+						{ createInterpolateElement(
+							__(
+								'Prefetch pages that are likely to be visited next, so they load faster when the user clicks on them. Read more on <link>mdn web docs</link>.',
+								'jetpack-boost'
+							),
+							{
+								link: (
+									// eslint-disable-next-line jsx-a11y/anchor-has-content
+									<a
+										onClick={ () => recordBoostEvent( 'speculation_rules_link_clicked', {} ) }
+										href={ speculationRulesLink }
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
+							}
 						) }
 					</p>
 				}
