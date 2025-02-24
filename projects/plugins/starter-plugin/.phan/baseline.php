@@ -10,12 +10,11 @@
 return [
     // # Issue statistics:
     // PhanNoopNew : 3 occurrences
-    // PhanUndeclaredProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'jetpack-starter-plugin.php' => ['PhanNoopNew'],
-        'tests/php/test-class-jetpack-starter-plugin.php' => ['PhanNoopNew', 'PhanUndeclaredProperty'],
+        'tests/php/test-class-jetpack-starter-plugin.php' => ['PhanNoopNew'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

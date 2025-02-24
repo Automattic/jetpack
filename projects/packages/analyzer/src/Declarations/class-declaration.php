@@ -8,6 +8,11 @@ abstract class Declaration extends PersistentListItem {
 	public $path;
 	public $line;
 
+	/**
+	 * @var array
+	 */
+	public $params;
+
 	function __construct( $path, $line ) {
 		$this->path = $path;
 		$this->line = $line;

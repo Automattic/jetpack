@@ -20,6 +20,7 @@ $status-size: 8px;
 
 .actions {
 	display: flex;
+	flex-direction: row-reverse;
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;
@@ -91,7 +92,7 @@ $status-size: 8px;
 	$statuses: (
 		"active": "--jp-green-50",
 		"inactive": "--jp-gray-50",
-		"warning": "--jp-yellow-40",
+		"warning": "--jp-yellow-50",
 		"error": "--jp-red-60"
 	);
 

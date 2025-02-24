@@ -214,10 +214,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback(
-			( suggestion: string ) => {
+			( suggestion: string, skipRequestCount?: boolean ) => {
 				disableAutoScroll();
 				onBlockDone( suggestion );
-				increaseRequestsCount();
+				if ( ! skipRequestCount ) {
+					increaseRequestsCount();
+				}
 				setAction( '' );
 
 				if ( lastRequest.current?.message ) {

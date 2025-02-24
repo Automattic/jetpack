@@ -54,20 +54,26 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
+			'is_complete_callback' => $is_user_in_goals_first_experiment ? '__return_true' : 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) use ( $is_user_in_goals_first_experiment ) {
 				$flow = get_option( 'site_intent' );
+				if ( $is_user_in_goals_first_experiment ) {
+					return '/themes/' . $data['site_slug_encoded'];
+				}
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'] . '&flow=' . $flow;
 			},
-			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_true' : '__return_false',
+			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_false' : 'wpcom_launchpad_is_design_step_enabled',
 		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
-			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_true' : 'wpcom_launchpad_is_design_step_enabled',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
+			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_false' : 'wpcom_launchpad_is_design_step_enabled',
+			'get_calypso_path'     => function ( $task, $default, $data ) use ( $is_user_in_goals_first_experiment ) {
+				if ( $is_user_in_goals_first_experiment ) {
+					return '/themes/' . $data['site_slug_encoded'];
+				}
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
@@ -184,6 +190,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_email_verified',
 			'is_disabled_callback' => 'wpcom_launchpad_is_email_verified',
+			'is_visible_callback'  => 'wpcom_launchpad_is_email_task_visible',
 			'get_calypso_path'     => function () {
 				return '/me/account';
 			},
@@ -298,15 +305,6 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'get_calypso_path'      => function () {
 				return admin_url( 'site-editor.php' );
-			},
-		),
-		'setup_link_in_bio'               => array(
-			'get_title'            => function () {
-				return __( 'Personalize Link in Bio', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => '__return_true',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/setup/link-in-bio-post-setup/linkInBioPostSetup?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
 
@@ -1920,6 +1918,38 @@ function wpcom_launchpad_mark_verify_email_complete( $user_id ) {
 	wpcom_launchpad_track_completed_task( 'verify_email', array(), $user );
 }
 add_action( 'wpcom_email_verification_complete', 'wpcom_launchpad_mark_verify_email_complete' );
+
+/**
+ * Callback to determine email verification visibility.
+ * This uses a heuristic to determine whether it's likely that the user needed to
+ * verify their email at the time the site was created. That way we're not showing
+ * the completed task to users who were verified before creating this site.
+ *
+ * @param Task  $task The task object.
+ * @param bool  $is_visible Whether the task should be visible.
+ * @param array $data Additional data.
+ * @return bool True when the email verification task should be visible.
+ */
+function wpcom_launchpad_is_email_task_visible( $task, $is_visible, $data ) {
+	if ( ! isset( $data ) || ! isset( $data['launchpad_context'] ) || $data['launchpad_context'] !== 'customer-home-treatment-cumulative' ) {
+		return $is_visible;
+	}
+
+	if ( ! class_exists( 'Email_Verification' ) ) {
+		// Don't show the task if we don't have the ability to complete it
+		return false;
+	}
+
+	if ( Email_Verification::is_email_unverified() ) {
+		return true;
+	}
+
+	if ( ! function_exists( 'get_blog_count_for_user' ) ) {
+		return true;
+	}
+
+	return get_blog_count_for_user() < 2;
+}
 
 /**
  * If the site has a paid-subscriber goal.

@@ -48,6 +48,17 @@ function usage {
 	exit 1
 }
 
+handle_exit() {
+	local exit_code=$?
+	local PAYLOAD="$(
+		jq -n \
+			--arg exit_code "$exit_code" \
+			--arg step "$CUR_STEP" \
+			'{"exit_code": $exit_code, "step": $step }'
+	)"
+	send_tracks_event "jetpack_release_exit" "$PAYLOAD"
+}
+
 # Preliminary environment checks.
 function preflight_checks {
 	# Make sure the GitHub CLI is installed.
@@ -409,6 +420,10 @@ function do_final_instructions {
 	fi
 }
 
+trap 'exit 130' SIGINT
+trap 'exit 143' SIGTERM
+trap 'handle_exit' EXIT
+
 preflight_checks
 
 # No args, help flag, or invalid flag, so show usage.
@@ -524,5 +539,3 @@ for ((i = CUR_STEP; i < ${#RELEASE_STEPS[@]}; i++)); do
 	"${RELEASE_STEPS[$i]}"
 	((CUR_STEP+=1))
 done
-
-send_tracks_event "jetpack_release_done"

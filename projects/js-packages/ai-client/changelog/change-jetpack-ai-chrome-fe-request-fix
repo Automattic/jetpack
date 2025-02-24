@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack AI: Requests that use Chrome AI should not cause front-end to show a request has been used

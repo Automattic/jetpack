@@ -303,7 +303,6 @@ class Initializer {
 				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'canUserViewStats'       => current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ),
-				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
 				'sandboxedDomain'        => $sandboxed_domain,
 				'isDevVersion'           => $is_dev_version,
@@ -513,16 +512,6 @@ class Initializer {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Determines whether the user has come from a host we can recognize.
-	 *
-	 * @return string
-	 */
-	public static function is_user_from_known_host() {
-		// Known (external) host is the one that has been determined and is not dotcom.
-		return ! in_array( ( new Status_Host() )->get_known_host_guess(), array( 'unknown', 'wpcom' ), true );
 	}
 
 	/**

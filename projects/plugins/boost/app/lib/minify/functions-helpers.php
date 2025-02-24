@@ -190,9 +190,9 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
  */
 function jetpack_boost_page_optimize_schedule_404_tester() {
 	if ( false === wp_next_scheduled( 'jetpack_boost_404_tester_cron' ) ) {
-		// Run the test immediately, and schedule the cronjob to run daily.
-		jetpack_boost_404_tester();
+		// Run the test immediately, so the settings page can show the result.
 		wp_schedule_event( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' );
+		jetpack_boost_404_tester();
 	}
 }
 
@@ -365,19 +365,6 @@ function jetpack_boost_minify_is_enabled() {
 	$minify_js  = new Module( new Minify_JS() );
 
 	return $minify_css->is_enabled() || $minify_js->is_enabled();
-}
-
-/**
- * Run during deactivation of any minify module.
- *
- * This handles removing the 404 tester if both css and js minification are disabled.
- *
- * @return void
- */
-function jetpack_boost_minify_deactivation() {
-	if ( ! jetpack_boost_minify_is_enabled() ) {
-		jetpack_boost_minify_clear_scheduled_events();
-	}
 }
 
 /**

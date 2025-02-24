@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Script data: remove unneeded specific host check.

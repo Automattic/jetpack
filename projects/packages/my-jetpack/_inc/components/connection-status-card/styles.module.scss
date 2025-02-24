@@ -40,7 +40,7 @@ $myjetpack-connection-avatar-overlap: 10px;
 		}
 
 		.warning {
-			border-color: var( --jp-yellow-40 );
+			border-color: var( --jp-yellow-50 );
 		}
 	}
 
@@ -70,8 +70,8 @@ $myjetpack-connection-avatar-overlap: 10px;
 			}
 
 			&.warning {
-				color: var( --jp-yellow-40 );
-				fill: var( --jp-yellow-40 );
+				color: var( --jp-yellow-50 );
+				fill: var( --jp-yellow-50 );
 			}
 
 			&.success {

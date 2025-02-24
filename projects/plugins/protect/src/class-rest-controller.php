@@ -143,30 +143,6 @@ class REST_Controller {
 
 		register_rest_route(
 			'jetpack-protect/v1',
-			'waf-seen',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::api_get_waf_seen_status',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
-
-		register_rest_route(
-			'jetpack-protect/v1',
-			'waf-seen',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::api_set_waf_seen_status',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
-
-		register_rest_route(
-			'jetpack-protect/v1',
 			'waf-upgrade-seen',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
@@ -384,7 +360,6 @@ class REST_Controller {
 			array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),
-				'isSeen'              => Jetpack_Protect::get_waf_seen_status(),
 				'upgradeIsSeen'       => Jetpack_Protect::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => Jetpack_Protect::get_waf_upgrade_badge_display_status(),
 				'isEnabled'           => Waf_Runner::is_enabled(),
@@ -393,24 +368,6 @@ class REST_Controller {
 				'globalStats'         => Waf_Stats::get_global_stats(),
 			)
 		);
-	}
-
-	/**
-	 * Get WAF "Seen" status for the API endpoint
-	 *
-	 * @return bool Whether the current user has viewed the WAF screen.
-	 */
-	public static function api_get_waf_seen_status() {
-		return Jetpack_Protect::get_waf_seen_status();
-	}
-
-	/**
-	 * Set WAF "Seen" status for the API endpoint
-	 *
-	 * @return bool True if seen status updated to true, false on failure.
-	 */
-	public static function api_set_waf_seen_status() {
-		return Jetpack_Protect::set_waf_seen_status();
 	}
 
 	/**

@@ -14,7 +14,7 @@
 	"require": {
 		"php": ">=7.4",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-		"mediawiki/mediawiki-codesniffer": "^45.0",
+		"mediawiki/mediawiki-codesniffer": "^46.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-variable-analysis": "^2.10",
 		"wp-coding-standards/wpcs": "^3.0",

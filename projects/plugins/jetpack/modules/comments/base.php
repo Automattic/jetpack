@@ -11,6 +11,19 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
  * All the code shared between WP.com Highlander and Jetpack Highlander
  */
 class Highlander_Comments_Base {
+	/**
+	 * ID sources.
+	 *
+	 * @var array
+	 */
+	public $id_sources;
+
+	/**
+	 * The default comment scheme, if set.
+	 *
+	 * @var ?string
+	 */
+	public $default_color_scheme;
 
 	/**
 	 * Constructor

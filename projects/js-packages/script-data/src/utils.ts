@@ -1,16 +1,3 @@
-import { AdminSiteData } from './types';
-
-/**
- * Values come from https://github.com/Automattic/jetpack/blob/128db0505a27dcdcdef5946d60f443173b2ef6cd/projects/packages/status/src/class-host.php#L240
- */
-const NON_SELF_HOSTED_TYPES: Array< AdminSiteData[ 'host' ] > = [
-	'woa',
-	'atomic',
-	'newspack',
-	'vip',
-	'wpcom',
-];
-
 /**
  * Get the script data from the window object.
  *
@@ -126,5 +113,5 @@ export function isWpcomPlatformSite() {
  * @return {boolean} Whether the site is self-hosted Jetpack site.
  */
 export function isJetpackSelfHostedSite() {
-	return ! NON_SELF_HOSTED_TYPES.includes( getSiteData()?.host );
+	return getScriptData()?.site?.host === 'unknown';
 }

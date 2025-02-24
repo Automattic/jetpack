@@ -34,6 +34,13 @@ class Meta_Tags_Test extends BaseTestCase {
 	protected static $attachment_id_small;
 
 	/**
+	 * Meta tags.
+	 *
+	 * @var \Automattic\Jetpack\Social\Meta_Tags
+	 */
+	public $meta_tags;
+
+	/**
 	 * Initialize tests
 	 */
 	public function set_up() {

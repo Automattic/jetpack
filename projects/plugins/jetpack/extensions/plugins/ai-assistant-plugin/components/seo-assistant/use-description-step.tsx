@@ -17,6 +17,9 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { useMessages } from './wizard-messages';
+/**
+ * Types
+ */
 import type { Step, OptionMessage } from './types';
 
 const mockDescriptionRequest = ( keywords: string ) => {
@@ -46,7 +49,8 @@ export const useDescriptionStep = ( {
 	const [ lastValue, setLastValue ] = useState< string >( '' );
 	const [ selectedDescription, setSelectedDescription ] = useState< string >();
 	const [ valueOptions, setValueOptions ] = useState< OptionMessage[] >( [] );
-	const { messages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages();
+	const { getMessages, setMessages, addMessage, editLastMessage, setSelectedMessage } =
+		useMessages();
 	const { editPost } = useDispatch( editorStore );
 	const postContent = usePostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
@@ -54,6 +58,7 @@ export const useDescriptionStep = ( {
 	const [ hasFailed, setHasFailed ] = useState( false );
 	const [ failurePoint, setFailurePoint ] = useState< 'generate' | 'regenerate' | null >( null );
 	const { tracks } = useAnalytics();
+	const messages = getMessages();
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
 	const stepId = 'description';
 
@@ -61,11 +66,13 @@ export const useDescriptionStep = ( {
 		if ( mockRequests ) {
 			return mockDescriptionRequest( keywords );
 		}
+
 		tracks.recordEvent( 'jetpack_wizard_chat_request', {
 			step: stepId,
 			context: keywords,
 			assistant_name: 'seo-assistant',
 		} );
+
 		return askQuestionSync(
 			[
 				{
@@ -96,7 +103,6 @@ export const useDescriptionStep = ( {
 
 	const getDescriptions = useCallback( async () => {
 		const response = await request();
-		// TODO: handle errors
 		const parsedResponse: { descriptions: string[] } = JSON.parse( response );
 		const count = parsedResponse.descriptions?.length;
 		const newDescriptions = parsedResponse.descriptions.map( ( description, index ) => ( {
@@ -113,6 +119,7 @@ export const useDescriptionStep = ( {
 		setValue( selectedDescription );
 		await editPost( { meta: { advanced_seo_description: selectedDescription } } );
 		addMessage( { content: __( 'Description updated! ✅', 'jetpack' ) } );
+
 		return selectedDescription;
 	}, [ selectedDescription, addMessage, editPost ] );
 
@@ -158,6 +165,7 @@ export const useDescriptionStep = ( {
 					setHasFailed( true );
 					// reset the last value to the previous value on failure to avoid a wrong value for prevStepHasChanged
 					setLastValue( previousLastValue );
+
 					return;
 				}
 			}
