@@ -94,7 +94,7 @@ const SettingsPage = () => {
 						title={
 							<Text>
 								{ __(
-									'This feature has been disabled because Jetpack Protect is installed with an unsupported version of Jetpack. Please update Jetpack to version 14.4 or later to enable this feature.',
+									'This feature has been disabled because Jetpack Protect is installed with an unsupported version of Jetpack. Please update Jetpack to version 14.5 or later to enable this feature.',
 									'jetpack-protect'
 								) }
 							</Text>

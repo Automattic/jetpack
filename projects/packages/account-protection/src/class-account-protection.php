@@ -206,11 +206,11 @@ class Account_Protection {
 	 * @return bool
 	 */
 	public function has_unsupported_jetpack_version(): bool {
-		// Do not run when Jetpack version is less than 14.4
+		// Do not run when Jetpack version is less than 14.5
 		if ( defined( 'JETPACK__VERSION' ) ) {
 			$jetpack_version = JETPACK__VERSION;
 
-			if ( is_string( $jetpack_version ) && version_compare( $jetpack_version, '14.4', '<' ) ) {
+			if ( is_string( $jetpack_version ) && version_compare( $jetpack_version, '14.5', '<' ) ) {
 				return true;
 			}
 		}
