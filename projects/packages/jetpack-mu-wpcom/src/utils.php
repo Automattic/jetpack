@@ -154,3 +154,32 @@ function get_wpcom_blog_id() {
 
 	return false;
 }
+
+/**
+ * Log data to logstash based on the environment we're in.
+ *
+ * @param string $message The message to log.
+ * @param array  $extra   Extra data to log.
+ */
+function jetpack_wpcom_log2logstash( $message, $extra = array() ): void {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && file_exists( WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php' ) ) {
+		require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+
+		log2logstash(
+			array(
+				'feature' => 'jetpack-mu-wpcom-log',
+				'message' => $message,
+				'blog_id' => get_current_blog_id(),
+				'extra'   => wp_json_encode( $extra ),
+			)
+		);
+
+		return;
+	}
+
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && class_exists( 'WPCOMSH_Log' ) && method_exists( 'WPCOMSH_Log', 'log' ) ) {
+		WPCOMSH_Log::log( $message, $extra );
+
+		return;
+	}
+}
