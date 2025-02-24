@@ -23,23 +23,26 @@ const PluginIntegrationPanel = ( {
 	const { invalidateResolution } = useDispatch( coreStore );
 	const { tracks } = useAnalytics();
 
-	const { pluginStatus, isLoading } = useSelect( () => {
-		const installedPlugins = window?.wp?.data?.select( 'core' )?.getPlugins?.();
+	const { pluginStatus, isLoading } = useSelect(
+		select => {
+			const installedPlugins = select( 'core' ).getPlugins();
 
-		if ( ! installedPlugins ) {
-			return { isLoading: true };
-		}
+			if ( ! installedPlugins ) {
+				return { isLoading: true };
+			}
 
-		const plugin = installedPlugins.find( p => p.plugin === pluginPath );
+			const plugin = installedPlugins.find( p => p.plugin === pluginPath );
 
-		return {
-			isLoading: false,
-			pluginStatus: {
-				isInstalled: !! plugin,
-				isActive: plugin?.status === 'active',
-			},
-		};
-	}, [ pluginPath ] );
+			return {
+				isLoading: false,
+				pluginStatus: {
+					isInstalled: !! plugin,
+					isActive: plugin?.status === 'active',
+				},
+			};
+		},
+		[ pluginPath ]
+	);
 
 	const handleButtonClick = useCallback( () => {
 		const func = pluginStatus?.isInstalled ? activatePlugin : installAndActivatePlugin;
