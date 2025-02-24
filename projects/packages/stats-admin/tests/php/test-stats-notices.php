@@ -3,14 +3,14 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Stats\Options as Stats_Options;
-use Automattic\Jetpack\Stats_Admin\Test_Case as Stats_Test_Case;
+use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
 
 /**
  * Unit tests for the Notice class.
  *
  * @package automattic/jetpack-stats-admin
  */
-class Test_Notices extends Stats_Test_Case {
+class Test_Notices extends Stats_TestCase {
 	/**
 	 * Holds the Notices instance.
 	 *

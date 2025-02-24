@@ -40,6 +40,13 @@ class Crm extends Product {
 	public static $plugin_slug = 'zero-bs-crm';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'management';
+
+	/**
 	 * Whether this product requires a user connection
 	 *
 	 * @var string

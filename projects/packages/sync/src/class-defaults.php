@@ -195,7 +195,6 @@ class Defaults {
 		'wpcom_locked_mode',
 		'wpcom_newsletter_categories',
 		'wpcom_newsletter_categories_enabled',
-		'wpcom_newsletter_categories_modal_hidden',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
 		'wpcom_reader_views_enabled',

@@ -14,6 +14,9 @@ jest.mock( '../../connection-management/disconnect', () => ( {
 jest.mock( '../../connection-management/mark-as-shared', () => ( {
 	MarkAsShared: () => <button>Mark as Shared</button>,
 } ) );
+jest.mock( '../../../hooks/use-user-can-share-connection', () => ( {
+	useUserCanShareConnection: jest.fn( () => true ),
+} ) );
 
 describe( 'ServiceConnectionInfo', () => {
 	const connection = {
@@ -74,7 +77,7 @@ describe( 'ServiceConnectionInfo', () => {
 	} );
 
 	test( 'displays MarkAsShared button if connection can be disconnected', () => {
-		renderComponent( {}, {}, { isAdmin: true } );
+		renderComponent( {}, {}, { canMarkAsShared: true } );
 		expect( screen.getByText( 'Mark as Shared' ) ).toBeInTheDocument();
 	} );
 

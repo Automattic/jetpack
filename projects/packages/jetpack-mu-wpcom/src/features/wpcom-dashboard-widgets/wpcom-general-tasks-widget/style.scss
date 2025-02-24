@@ -1,0 +1,18 @@
+#wpcom_general_tasks_widget_main {
+    min-height: 180px;
+
+    h2 {
+        padding: 0;
+    }
+}
+
+.wpcom_general_tasks_widget_buttons .button.button-link {
+    min-height: auto;
+    line-height: 1.4;
+    background: none;
+
+    &:disabled,
+    &:hover {
+        background: none !important; // Has !important for core style.
+    }
+}

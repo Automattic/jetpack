@@ -26,6 +26,15 @@ function wpcom_launchpad_should_use_wp_admin_link() {
  * @return Task[]
  */
 function wpcom_launchpad_get_task_definitions() {
+	$experiment_name                   = 'calypso_signup_onboarding_goals_first_flow_holdout_v2_20250131';
+	$user                              = wp_get_current_user();
+	$is_user_in_goals_first_experiment = false;
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && $user && $user->exists() && function_exists( '\ExPlat\get_user_assignment' ) ) {
+		$assignment                        = \ExPlat\get_user_assignment( $experiment_name, $user );
+		$is_user_in_goals_first_experiment = 'treatment_cumulative' === $assignment;
+	}
+
 	$task_definitions = array(
 		// Core tasks.
 		'design_edited'                   => array(
@@ -45,19 +54,26 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
+			'is_complete_callback' => $is_user_in_goals_first_experiment ? '__return_true' : 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) use ( $is_user_in_goals_first_experiment ) {
 				$flow = get_option( 'site_intent' );
+				if ( $is_user_in_goals_first_experiment ) {
+					return '/themes/' . $data['site_slug_encoded'];
+				}
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'] . '&flow=' . $flow;
 			},
+			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_false' : 'wpcom_launchpad_is_design_step_enabled',
 		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
-			'is_disabled_callback' => 'wpcom_launchpad_is_design_step_enabled',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
+			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_false' : 'wpcom_launchpad_is_design_step_enabled',
+			'get_calypso_path'     => function ( $task, $default, $data ) use ( $is_user_in_goals_first_experiment ) {
+				if ( $is_user_in_goals_first_experiment ) {
+					return '/themes/' . $data['site_slug_encoded'];
+				}
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
@@ -155,11 +171,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_disabled_callback' => '__return_true',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'options-general.php' );
-				}
-				return '/settings/general/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'options-general.php' );
 			},
 		),
 		'site_launched'                   => array(
@@ -177,6 +190,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_email_verified',
 			'is_disabled_callback' => 'wpcom_launchpad_is_email_verified',
+			'is_visible_callback'  => 'wpcom_launchpad_is_email_task_visible',
 			'get_calypso_path'     => function () {
 				return '/me/account';
 			},
@@ -291,15 +305,6 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'get_calypso_path'      => function () {
 				return admin_url( 'site-editor.php' );
-			},
-		),
-		'setup_link_in_bio'               => array(
-			'get_title'            => function () {
-				return __( 'Personalize Link in Bio', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => '__return_true',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/setup/link-in-bio-post-setup/linkInBioPostSetup?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
 
@@ -618,7 +623,7 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'themes.php' );
 				}
-				return '/themes/' . $data['site_slug_encoded'];
+				return '/themes/' . $data['site_slug_encoded'] . '#theme-selected';
 			},
 		),
 		'install_custom_plugin'           => array(
@@ -630,7 +635,7 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'plugins.php' );
 				}
-				return '/plugins/' . $data['site_slug_encoded'];
+				return '/plugins/' . $data['site_slug_encoded'] . '#install-plugin';
 			},
 		),
 		'setup_ssh'                       => array(
@@ -648,7 +653,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/site-monitoring/' . $data['site_slug_encoded'];
+				return '/site-monitoring/' . $data['site_slug_encoded'] . '#site-monitoring';
 			},
 		),
 		'import_subscribers'              => array(
@@ -657,6 +662,18 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'id_map'               => 'subscribers_added',
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
+			},
+		),
+		'add_first_subscribers'           => array(
+			// We do not want this mapped to the 'subscribers_added' task, since this task supports
+			// being marked as complete in situations where subscribers are not added.
+			'get_title'            => function () {
+				return __( 'Add subscribers', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_add_first_subscribers_completed',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
@@ -946,12 +963,13 @@ function wpcom_launchpad_is_woocommerce_task_completed( $task, $is_complete ) {
 /**
  * Record completion event in Tracks if we're running on WP.com.
  *
- * @param string $task_id The task ID.
- * @param array  $extra_props Optional extra arguments to pass to the Tracks event.
+ * @param string       $task_id The task ID.
+ * @param array        $extra_props Optional extra arguments to pass to the Tracks event.
+ * @param WP_User|null $user Optional user to use instead of the current user.
  *
  * @return void
  */
-function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() ) {
+function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array(), $user = null ) {
 	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 		return;
 	}
@@ -959,7 +977,7 @@ function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() 
 	require_lib( 'tracks/client' );
 
 	tracks_record_event(
-		wp_get_current_user(),
+		$user ?? wp_get_current_user(),
 		'wpcom_launchpad_mark_task_complete',
 		array_merge(
 			array( 'task_id' => $task_id ),
@@ -1888,6 +1906,52 @@ function wpcom_launchpad_is_email_verified() {
 }
 
 /**
+ * Handles WPCOM action fired when email verification is completed.
+ *
+ * @param int $user_id The user ID.
+ */
+function wpcom_launchpad_mark_verify_email_complete( $user_id ) {
+	$user = get_user_by( 'id', $user_id );
+	if ( empty( $user ) ) {
+		return;
+	}
+	wpcom_launchpad_track_completed_task( 'verify_email', array(), $user );
+}
+add_action( 'wpcom_email_verification_complete', 'wpcom_launchpad_mark_verify_email_complete' );
+
+/**
+ * Callback to determine email verification visibility.
+ * This uses a heuristic to determine whether it's likely that the user needed to
+ * verify their email at the time the site was created. That way we're not showing
+ * the completed task to users who were verified before creating this site.
+ *
+ * @param Task  $task The task object.
+ * @param bool  $is_visible Whether the task should be visible.
+ * @param array $data Additional data.
+ * @return bool True when the email verification task should be visible.
+ */
+function wpcom_launchpad_is_email_task_visible( $task, $is_visible, $data ) {
+	if ( ! isset( $data ) || ! isset( $data['launchpad_context'] ) || $data['launchpad_context'] !== 'customer-home-treatment-cumulative' ) {
+		return $is_visible;
+	}
+
+	if ( ! class_exists( 'Email_Verification' ) ) {
+		// Don't show the task if we don't have the ability to complete it
+		return false;
+	}
+
+	if ( Email_Verification::is_email_unverified() ) {
+		return true;
+	}
+
+	if ( ! function_exists( 'get_blog_count_for_user' ) ) {
+		return true;
+	}
+
+	return get_blog_count_for_user() < 2;
+}
+
+/**
  * If the site has a paid-subscriber goal.
  *
  * @return bool True if the site has a paid-subscriber goal, false otherwise.
@@ -2697,6 +2761,25 @@ function wpcom_launchpad_is_domain_customize_completed( $task, $default ) {
 
 	// For everyone else, show the task as incomplete.
 	return $default;
+}
+
+/**
+ * Determines whether the add_first_subscribers task is complete by checking both the task option
+ * and related tasks like subscribers_added and import_subscribers.
+ *
+ * This exists because we need a 1-way relationship between these tasks: completion of other
+ * subscriber tasks implies add_first_subscribers is completed, but completion of
+ * add_first_subscribers does not imply completion of other subscriber tasks. This is because
+ * add_first_subscribers is allowed to be marked complete at times when no subscribers are actually
+ * added, and why using id_map here will not work since it creates a 2-way relationship.
+ *
+ * @param Task $task    The Task object.
+ * @return bool True if either condition is met.
+ */
+function wpcom_launchpad_is_add_first_subscribers_completed( $task ) {
+	return wpcom_launchpad_is_task_option_completed( $task )
+		|| wpcom_is_checklist_task_complete( 'subscribers_added' )
+		|| wpcom_is_checklist_task_complete( 'import_subscribers' );
 }
 
 /**

@@ -6,8 +6,14 @@ import {
 	FontSizePicker,
 	__experimentalPanelColorGradientSettings as PanelColorGradientSettings, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
+import {
+	ToggleControl,
+	PanelBody,
+	RangeControl,
+	TextareaControl,
+	CheckboxControl,
+} from '@wordpress/components';
+import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
 import { WidthControl } from '../../shared/width-panel';
@@ -30,6 +36,8 @@ import {
 } from './constants';
 
 export default function SubscriptionControls( {
+	availableNewsletterCategories,
+	areNewsletterCategoriesEnabled,
 	buttonBackgroundColor,
 	borderColor,
 	buttonGradient,
@@ -43,6 +51,8 @@ export default function SubscriptionControls( {
 	includeSocialFollowers,
 	isGradientAvailable,
 	padding,
+	preselectNewsletterCategories,
+	selectedNewsletterCategoryIds,
 	setAttributes,
 	setBorderColor,
 	setButtonBackgroundColor,
@@ -56,6 +66,27 @@ export default function SubscriptionControls( {
 	successMessage = DEFAULT_SUCCESS_MESSAGE,
 } ) {
 	const { isModuleActive: isPublicizeEnabled } = useModuleStatus( 'publicize' );
+
+	// Unset any selected categories that are no longer available
+	useEffect( () => {
+		if ( availableNewsletterCategories?.length > 0 && selectedNewsletterCategoryIds?.length > 0 ) {
+			const availableIds = availableNewsletterCategories.map( cat => cat.id );
+			const validSelectedIds = selectedNewsletterCategoryIds.filter( id =>
+				availableIds.includes( id )
+			);
+
+			if ( validSelectedIds.length !== selectedNewsletterCategoryIds.length ) {
+				const updates = { selectedNewsletterCategoryIds: validSelectedIds };
+
+				// If no valid categories remain selected, disable preselection
+				if ( validSelectedIds.length === 0 ) {
+					updates.preselectNewsletterCategories = false;
+				}
+
+				setAttributes( updates );
+			}
+		}
+	}, [ availableNewsletterCategories, setAttributes, selectedNewsletterCategoryIds ] );
 
 	return (
 		<>
@@ -301,6 +332,52 @@ export default function SubscriptionControls( {
 						help={ __( 'Edit the message displayed when a user subscribes.', 'jetpack' ) }
 						onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
 					/>
+				) }
+				{ areNewsletterCategoriesEnabled && availableNewsletterCategories.length > 0 && (
+					<>
+						<ToggleControl
+							__nextHasNoMarginBottom={ true }
+							label={ __( 'Pre-select categories', 'jetpack' ) }
+							checked={ preselectNewsletterCategories }
+							onChange={ value => {
+								setAttributes( { preselectNewsletterCategories: value } );
+							} }
+							help={ __(
+								'When enabled, the user will be automatically subscribed to the selected categories below when they submit the form.',
+								'jetpack'
+							) }
+						/>
+						{ preselectNewsletterCategories && (
+							<fieldset>
+								<legend className="wp-block-jetpack-subscriptions__legend">
+									{ __( 'Categories', 'jetpack' ) }
+								</legend>
+								{ availableNewsletterCategories.map( category => (
+									<CheckboxControl
+										key={ category.id }
+										__nextHasNoMarginBottom={ true }
+										disabled={ ! preselectNewsletterCategories }
+										label={ category.name }
+										checked={ selectedNewsletterCategoryIds.includes( category.id ) }
+										onChange={ () => {
+											const selectedIds = selectedNewsletterCategoryIds.includes( category.id )
+												? selectedNewsletterCategoryIds.filter( id => id !== category.id )
+												: [ ...selectedNewsletterCategoryIds, category.id ];
+
+											const updates = { selectedNewsletterCategoryIds: selectedIds };
+
+											// If no categories are selected, disable the preselect option
+											if ( selectedIds.length === 0 ) {
+												updates.preselectNewsletterCategories = false;
+											}
+
+											setAttributes( updates );
+										} }
+									/>
+								) ) }
+							</fieldset>
+						) }
+					</>
 				) }
 			</PanelBody>
 		</>

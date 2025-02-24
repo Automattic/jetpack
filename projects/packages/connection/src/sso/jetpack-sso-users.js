@@ -5,7 +5,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			tooltip.innerHTML += ' [?]';
 
 			const tooltipTextbox = document.createElement( 'span' );
-			tooltipTextbox.classList.add( 'jetpack-sso-invitation-tooltip', 'jetpack-sso-th-tooltip' );
+			tooltipTextbox.classList.add( 'jetpack-sso-invitation-tooltip' );
 
 			const tooltipString = window.Jetpack_SSOTooltip.tooltipString;
 			tooltipTextbox.innerHTML += tooltipString;

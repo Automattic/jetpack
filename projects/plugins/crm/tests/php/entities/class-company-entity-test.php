@@ -4,14 +4,14 @@ namespace Automattic\Jetpack\CRM\Entities\Tests;
 
 use Automattic\Jetpack\CRM\Entities\Company;
 use Automattic\Jetpack\CRM\Entities\Factories\Company_Factory;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
 
 /**
  * Test Event Manager system.
  *
  * @covers Automattic\Jetpack\CRM\Entities\Company
  */
-class Company_Entity_Test extends JPCRM_Base_Integration_Test_Case {
+class Company_Entity_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * @testdox Test that company entity is created from input data.

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Remove duplicate views: Sync calypso preference for a12s and force reset cache.
+
+

@@ -47,7 +47,7 @@ function cliLink( options ) {
 						[
 							{
 								title: chalkJetpackGreen( `Enabling global access to the CLI` ),
-								task: () => command( 'pnpm link --global', options.v, path.resolve( 'tools/cli' ) ),
+								task: () => command( 'pnpm link', options.v, path.resolve( 'tools/cli' ) ),
 							},
 						],
 						opts

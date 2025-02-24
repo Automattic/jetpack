@@ -326,43 +326,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.3 - 2025-02-04
+### 14.4-a.7 - 2025-02-24
 #### Enhancements
-- Blocks: Improve performance.
-- Forms: Add Checkbox and Consent field enter action to create a new block.
-- Forms: Allow HTML block within forms.
-- Show Infinite Scroll options in Simple Classic.
-- Social: Enable Social post UI for WordPress.com sites.
-- Social: Post character limits are now dynamic based on selected connections.
-
-#### Improved compatibility
-- Nova Restaurant: ensure that the custom post type is now loaded via the Classic Theme Helper package.
-- Open Graph Meta Tags: Do not display Jetpack's tags when the SEOPress plugin is active.
-- Social: Remove "Your post" section from previews in favor of newer Social Post UI.
+- Newsletter: Add new newsletter widget.
+- Connection: Disconnect all other users before disconnecting connection owner account.
+- Custom Post Types: do not display testimonials and portfolios on block themes where they are not in use.
+- Social: Update the admin page to be used by Editors and Authors.
 
 #### Bug fixes
-- Authors widget: Fix saving of unchecked "Display all authors" checkbox in the legacy widget editor.
-- Copy Post: Ensure Copy option is still available on all CPTs after quick edit in post list.
-- Fix: Newsletter toggle in editor sidebar has a visually broken active state.
-- Forms: Fix datepicker appearance on dark themes.
-- Forms: Fix dropdown icon style.
-- Forms: Fix field spacing and widths.
-- Forms: Fix permanent deletion of form reponses via quicklinks.
-- Forms: Hide empty radio fields.
-- Forms: Keep content as-is when switching Feedback status between spam and publish.
-- Forms: Make the icons show up as expected in the style editor.
-- Forms: Prevent error in block placeholder when the Forms module is disabled.
-- Pages and Posts: Fix the layout on mobile when details are open.
-- Photon: Fix double encoding image urls.
-- Sharing: Fix the location of the sharing dialog so it is not always the first sharing element on the page.
-- Sitemaps: Ensure a valid news sitemap is present even if no posts are eligible.
-- Social: Fix profile links for LinkedIn connections.
-- Social: Fix Publicize error in the editor due to malformed connections data.
-- Social: Fix wordpress.com login error when connecting Social accounts.
-- Stats: Fix saving of custom roles settings.
-- Testimonials: Fix shortcode-related bug.
-- Tiled Gallery block: Ensure icons are visible when selecting image in editor.
-- VideoPress: Fix issue with VideoPress block with zero height and width.
+- Fix Social toggles.
+- Newsletter: Fix post placement not displaying on certain block themes.
+- Social Previews: Fix distorted image for Tumblr preview.
 
 --------
 

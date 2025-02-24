@@ -9,7 +9,7 @@ use Automattic\Jetpack\CRM\Automation\Triggers\Task_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Task_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Task_Updated;
 use Automattic\Jetpack\CRM\Entities\Task;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -20,7 +20,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Task_Deleted
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Task_Updated
  */
-class Task_Trigger_Test extends JPCRM_Base_Test_Case {
+class Task_Trigger_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
 

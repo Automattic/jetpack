@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
 
@@ -13,7 +13,7 @@ require_once __DIR__ . '/tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository
  */
-class Workflow_Repository_Test extends JPCRM_Base_Integration_Test_Case {
+class Workflow_Repository_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * @testdox Workflow Repository instance creation

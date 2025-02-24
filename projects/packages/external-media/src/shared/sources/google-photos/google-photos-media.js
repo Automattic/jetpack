@@ -11,6 +11,7 @@ import {
 	DATE_RANGE_ANY,
 } from '../../constants';
 import MediaBrowser from '../../media-browser';
+import { MediaSource } from '../../media-service/types';
 import { getExternalMediaApiUrl } from '../api';
 import Breadcrumbs from './breadcrumbs';
 import GoogleFilterOption from './filter-option';
@@ -183,6 +184,7 @@ function GooglePhotosMedia( props ) {
 				className="jetpack-external-media-browser__google"
 				key={ listUrl }
 				media={ media }
+				mediaSource={ MediaSource.GooglePhotos }
 				imageOnly={ imageOnly }
 				isCopying={ isCopying }
 				isLoading={ isLoading }

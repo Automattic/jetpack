@@ -189,3 +189,34 @@ WithoutSmoothing.args = {
 	...Default.args,
 	smoothing: false,
 };
+
+export const CustomTooltips: StoryObj< typeof LineChart > = Template.bind( {} );
+CustomTooltips.args = {
+	...Default.args,
+	renderTooltip: ( { tooltipData } ) => {
+		const nearestDatum = tooltipData?.nearestDatum?.datum;
+		if ( ! nearestDatum ) return null;
+
+		const tooltipPoints = Object.entries( tooltipData?.datumByKey || {} )
+			.map( ( [ key, { datum } ] ) => ( {
+				key,
+				value: datum.value as number,
+			} ) )
+			.sort( ( a, b ) => b.value - a.value );
+
+		return (
+			<div>
+				<h3>{ nearestDatum?.date?.toLocaleDateString() } 💯 </h3>
+
+				<table style={ { border: '1px solid black', borderCollapse: 'collapse' } }>
+					{ tooltipPoints.map( point => (
+						<tr style={ { border: '1px solid black' } } key={ point.key }>
+							<td style={ { border: '1px solid black' } }>{ point.key }</td>
+							<td>{ point.value }</td>
+						</tr>
+					) ) }
+				</table>
+			</div>
+		);
+	},
+};

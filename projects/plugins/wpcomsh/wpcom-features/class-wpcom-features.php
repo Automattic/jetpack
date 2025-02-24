@@ -577,7 +577,7 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 		),
 		self::CLASSIC_SEARCH                    => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_WOOEXPRESS_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::JETPACK_SEARCH_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
@@ -773,6 +773,9 @@ class WPCOM_Features {
 			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 		),
 		self::INSTANT_SEARCH                    => array(
+			self::WPCOM_BUSINESS_PLANS,
+			self::WPCOM_ECOMMERCE_PLANS,
+			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			self::WPCOM_SEARCH,
 			self::WPCOM_SEARCH_MONTHLY,
 			self::WP_P2_PLUS_MONTHLY,
@@ -1060,6 +1063,7 @@ class WPCOM_Features {
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_SOCIAL_PLANS,
 			self::JETPACK_GROWTH_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		self::SOCIAL_IMAGE_GENERATOR            => array(
 			self::JETPACK_SOCIAL_ADVANCED_PLANS,
@@ -1070,12 +1074,7 @@ class WPCOM_Features {
 			self::JETPACK_GROWTH_PLANS,
 		),
 		self::SOCIAL_ADMIN_PAGE                 => array(
-			array(
-				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
-				'before' => '1900-01-01',
-				self::WPCOM_ALL_SITES,
-				self::JETPACK_ALL_SITES,
-			),
+			self::WPCOM_ALL_SITES,
 		),
 		self::SOCIAL_MASTODON_CONNECTION        => array(
 			array(

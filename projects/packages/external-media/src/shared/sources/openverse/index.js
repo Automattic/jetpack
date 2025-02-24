@@ -67,6 +67,7 @@ function OpenverseMedia( props ) {
 			<MediaBrowser
 				className="jetpack-external-media-browser__openverse"
 				media={ media }
+				mediaSource={ MediaSource.Openverse }
 				isCopying={ isCopying }
 				isLoading={ isLoading }
 				nextPage={ () => getNextPage( searchQuery ) }

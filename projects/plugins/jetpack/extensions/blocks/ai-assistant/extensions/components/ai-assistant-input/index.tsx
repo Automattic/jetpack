@@ -115,10 +115,11 @@ export default function AiAssistantInput( {
 	const handleUndo = useCallback( () => {
 		tracks.recordEvent( 'jetpack_ai_assistant_undo', {
 			block_type: blockType,
+			prompt: lastAction || null,
 		} );
 
 		undo?.();
-	}, [ blockType, tracks, undo ] );
+	}, [ blockType, lastAction, tracks, undo ] );
 
 	const handleUpgrade = useCallback( () => {
 		tracks.recordEvent( 'jetpack_ai_upgrade_button', {

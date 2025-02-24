@@ -82,6 +82,8 @@ class Publicize_Setup {
 			new Jetpack_Social_Settings\Settings();
 		}
 
+		add_action( 'init', array( Keyring_Helper::class, 'init' ), 9, 0 );
+
 		( new Social_Image_Generator\Setup() )->init();
 	}
 

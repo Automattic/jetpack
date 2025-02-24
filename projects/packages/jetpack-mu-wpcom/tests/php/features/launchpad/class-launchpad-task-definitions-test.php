@@ -221,4 +221,25 @@ class Launchpad_Task_Definitions_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( isset( $options['test_task_with_id_map'] ) );
 		$this->assertTrue( isset( $options['test_task_id_map'] ) );
 	}
+
+	/**
+	 * Test that tasks returned by {@see wpcom_launchpad_get_task_definitions()} have the correct shape.
+	 */
+	public function test_wpcom_launchpad_get_task_definitions() {
+		remove_all_filters( 'wpcom_launchpad_extended_task_definitions' );
+
+		$tasks = wpcom_launchpad_get_task_definitions();
+
+		$this->assertIsArray( $tasks );
+
+		// Look for one expected task
+		$this->assertArrayHasKey( 'design_edited', $tasks );
+
+		$task_ids = array_keys( $tasks );
+		foreach ( $task_ids as $task_id ) {
+			$this->assertIsString( $task_id );
+			$this->assertIsArray( $tasks[ $task_id ], 'Task definition for ' . $task_id . ' is not an array' );
+			$this->assertArrayHasKey( 'get_title', $tasks[ $task_id ], 'Task definition for ' . $task_id . ' is missing get_title function' );
+		}
+	}
 }

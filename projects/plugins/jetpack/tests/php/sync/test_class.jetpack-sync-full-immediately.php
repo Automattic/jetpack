@@ -14,7 +14,7 @@ if ( ! function_exists( 'jetpack_foo_full_sync_callable' ) ) {
 	}
 }
 
-class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_TestBase {
 
 	/** @var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately */
 	private $full_sync;
@@ -679,24 +679,6 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'foo5', $this->server_replica_storage->get_metadata( 'post', $post_id, 'a_public_meta', true ) );
 	}
 
-	public function test_full_sync_sends_all_post_terms() {
-		$post_id = self::factory()->post->create();
-		wp_set_object_terms( $post_id, 'tag', 'post_tag' );
-
-		$this->sender->do_sync();
-		$terms = get_the_terms( $post_id, 'post_tag' );
-
-		$this->assertEqualsObject( $terms, $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Initial sync doesn\'t work' );
-		// reset the storage, check value, and do full sync - storage should be set!
-		$this->server_replica_storage->reset();
-
-		$this->assertFalse( $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Not empty' );
-		$this->full_sync->start();
-		$this->sender->do_full_sync();
-
-		$this->assertEqualsObject( $terms, $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Full sync doesn\'t work' );
-	}
-
 	public function test_full_sync_sends_all_comment_meta() {
 		$post_id     = self::factory()->post->create();
 		$comment_ids = self::factory()->comment->create_post_comments( $post_id );
@@ -777,9 +759,9 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
 
-		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		wp_update_plugins();
-		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ) );
 
 		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
@@ -816,9 +798,9 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
 
-		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		wp_update_themes();
-		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ) );
 		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
 

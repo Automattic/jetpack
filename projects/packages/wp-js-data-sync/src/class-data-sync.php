@@ -228,6 +228,23 @@ final class Data_Sync {
 		$this->registry->register( $key, $entry_adapter );
 	}
 
+	/**
+	 * Register a readonly entry.
+	 *
+	 * @param string   $key The key to register the entry under.
+	 * @param Parser   $parser The parser to use for the entry.
+	 * @param callable $callback The callback to use for the entry.
+	 *
+	 * @return void
+	 */
+	public function register_readonly(
+		$key,
+		$parser,
+		$callback
+	) {
+		$this->register( $key, $parser, new Data_Sync_Readonly( $callback ) );
+	}
+
 	public function register_action(
 		$key,
 		$action_name,

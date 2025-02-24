@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Provider } from '$features/critical-css';
 import clsx from 'clsx';
+import { Button } from '@automattic/jetpack-components';
 
 type HeadingMetaProps = {
 	dismissedIssues: Provider[];
@@ -117,7 +118,7 @@ const HeadingMeta = ( { dismissedIssues, showDismissedIssues }: HeadingMetaProps
 		>
 			<div ref={ ref }>
 				<p style={ { margin: 0 } }>
-					<button className="components-button is-link" onClick={ () => setShowHidden( true ) }>
+					<Button variant="link" size="small" onClick={ () => setShowHidden( true ) }>
 						{ sprintf(
 							/* translators: %d is a number of recommendations which were previously hidden by the user */
 							_n(
@@ -128,7 +129,7 @@ const HeadingMeta = ( { dismissedIssues, showDismissedIssues }: HeadingMetaProps
 							),
 							dismissedIssues.length
 						) }
-					</button>
+					</Button>
 				</p>
 			</div>
 		</animated.div>

@@ -1,0 +1,24 @@
+.wpcom-media-library-action-buttons {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 4px;
+
+	> a {
+		position: relative;
+		top: -3px;
+		vertical-align: baseline;
+
+		@media screen and (max-width: 782px) {
+			& {
+				margin-left: 0 !important;
+			}
+
+			&.button-secondary {
+				font-size: 14px;
+				padding: 10px 15px;
+				margin-bottom: 0;
+				line-height: 2.15384615;
+			}
+		}
+	}
+}

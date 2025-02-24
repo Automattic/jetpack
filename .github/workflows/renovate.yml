@@ -44,7 +44,7 @@ jobs:
           configurationFile: /tmp/monorepo/.github/renovate-config.js
           token: ${{ secrets.RENOVATE_TOKEN }}
           mount-docker-socket: true
-          renovate-version: 39.22.0
+          renovate-version: 39.173.1
         env:
           LOG_LEVEL: ${{ github.event.inputs.logLevel || 'debug' }}
           RENOVATE_DRY_RUN: ${{ github.event.inputs.dryRun == 'no' && 'null' || github.event.inputs.dryRun || 'null' }}

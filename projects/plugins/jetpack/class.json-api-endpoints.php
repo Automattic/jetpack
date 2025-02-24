@@ -301,6 +301,27 @@ abstract class WPCOM_JSON_API_Endpoint {
 	const REST_NAMESPACE = 'jetpack/rest';
 
 	/**
+	 * Post object format.
+	 *
+	 * @var array
+	 */
+	public $post_object_format;
+
+	/**
+	 * Comment object format.
+	 *
+	 * @var array
+	 */
+	public $comment_object_format;
+
+	/**
+	 * Dropdown page object format.
+	 *
+	 * @var array
+	 */
+	public $dropdown_page_object_format;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string|array|object $args Args.

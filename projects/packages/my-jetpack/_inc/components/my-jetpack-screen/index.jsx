@@ -174,7 +174,7 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 			) }
-			{ isWelcomeBannerVisible ? (
+			{ isWelcomeBannerVisible && userIsAdmin ? (
 				<WelcomeFlow
 					welcomeFlowExperiment={ welcomeFlowExperiment }
 					setWelcomeFlowExperiment={ setWelcomeFlowExperiment }
@@ -202,7 +202,9 @@ export default function MyJetpackScreen() {
 					</Container>
 				)
 			) }
-			{ ! isWelcomeBannerVisible && isSectionVisible && <EvaluationRecommendations /> }
+			{ ! isWelcomeBannerVisible && isSectionVisible && userIsAdmin && (
+				<EvaluationRecommendations />
+			) }
 
 			<ProductCardsSection />
 

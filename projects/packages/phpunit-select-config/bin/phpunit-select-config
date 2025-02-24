@@ -1,0 +1,10 @@
+#!/usr/bin/env php
+<?php
+/**
+ * A shim to select a config file based on the PHPUnit version installed.
+ *
+ * @package automattic/phpunit-select-config
+ */
+
+// This is a stub so the executable doesn't have the '.php' extension
+require __DIR__ . '/phpunit-select-config.php';

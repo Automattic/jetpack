@@ -6,7 +6,7 @@ use Automattic\Jetpack\Sync\Settings;
 /**
  * Testing CRUD on Options
  */
-class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_TestBase {
 	protected $post;
 
 	/** @var \Automattic\Jetpack\Sync\Modules\Options */
@@ -256,7 +256,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_post_date_in_email'                   => false,
 			'wpcom_newsletter_categories'                  => array(),
 			'wpcom_newsletter_categories_enabled'          => false,
-			'wpcom_newsletter_categories_modal_hidden'     => false,
 			'wpcom_gifting_subscription'                   => true,
 			'launch-status'                                => 'unlaunched',
 			'wpcom_subscription_emails_use_excerpt'        => false,

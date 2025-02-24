@@ -118,16 +118,6 @@ jobs:
           echo "::group::Composer"
           composer install --working-dir=tools/php-test-env
 
-          # Add WorDBless for various package tests that use uploads since concurrency can nuke uploads that are in use.
-          # @todo Update WorDBless to be able to use a customized upload dir, do that, and remove this.
-          if [[ "$TEST_SCRIPT" =~ ^test-(php|coverage)$ ]]; then
-            VER=$( jq -r '.require["automattic/wordbless"]' tools/php-test-env/composer.json )
-            for pkg in packages/image-cdn packages/publicize packages/videopress; do
-              echo "Adding WordBless for $pkg tests"
-              composer require --working-dir="projects/$pkg" "automattic/wordbless:$VER" --dev --no-update
-            done
-          fi
-
           if [[ ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) && ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) ]]; then
             VER=$(composer --format=json --working-dir="tools/php-test-env" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
             if [[ -n "$VER" ]]; then
@@ -309,6 +299,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Get token
+        id: get_token
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/gh-app-token
+        with:
+          app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
+          private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
+
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
@@ -324,7 +322,7 @@ jobs:
           SECRET: ${{ secrets.CODECOV_SECRET }}
           STATUS: ${{ needs.run-tests.outputs.coverage-status }}
           PR_HEAD: ${{ github.event.pull_request.head.sha }}
-          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+          POST_MESSAGE_TOKEN: ${{ steps.get_token.outputs.token }}
         run: .github/files/coverage-munger/upload-coverage.sh
 
   storybook-test:

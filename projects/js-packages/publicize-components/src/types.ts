@@ -13,6 +13,7 @@ export type SharesData = {
 	to_be_publicized_count: number;
 	publicized_count: number;
 	shared_posts_count: number;
+	is_share_limit_enabled: boolean;
 };
 
 export interface FeatureFlags {
@@ -44,7 +45,7 @@ export type SocialSettings = {
 	showPricingPage: boolean;
 };
 
-export type PluginInfo = Record< 'social' | 'jetpack', { version: string } >;
+export type PluginInfo = Record< 'social' | 'jetpack', { version: string | null } >;
 
 export interface SocialScriptData {
 	api_paths: ApiPaths;

@@ -15,9 +15,9 @@ import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
-import Badge from '../badge';
-import ThreatFixerButton from '../threat-fixer-button';
-import ThreatSeverityBadge from '../threat-severity-badge';
+import Badge from '../badge/index.js';
+import ThreatFixerButton from '../threat-fixer-button/index.js';
+import ThreatSeverityBadge from '../threat-severity-badge/index.js';
 import {
 	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
@@ -38,9 +38,9 @@ import {
 	THREAT_ICONS,
 	THREAT_STATUSES,
 	THREAT_TYPES,
-} from './constants';
+} from './constants.js';
 import styles from './styles.module.scss';
-import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-control';
+import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-control.js';
 
 /**
  * DataViews component for displaying security threats.

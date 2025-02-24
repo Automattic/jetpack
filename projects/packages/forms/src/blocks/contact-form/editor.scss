@@ -55,6 +55,7 @@
 
 			&.wp-block-jetpack-button {
 				flex-basis: auto;
+				align-self: flex-end; // Ensure button is aligned with the bottom of the previous field when on a same row
 			}
 
 			&.jetpack-field__width-25,
@@ -93,6 +94,17 @@
 			&[data-type='jetpack/field-consent'] {
 				align-self: center;
 			}
+
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator ){
+				max-width: var( --wp--preset--spacing--80, 100px );
+				margin-left: auto;
+				margin-right: auto;
+			}
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
+				max-width: inherit;
+			}
+
 		}
 	}
 
@@ -317,6 +329,7 @@
 }
 
 .jetpack-field__textarea {
+	display: block;
 	min-height: 200px;
 }
 

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import type { TestimonialType } from './types';
+import type { TestimonialType } from './types.js';
 
 import './style.scss';
 

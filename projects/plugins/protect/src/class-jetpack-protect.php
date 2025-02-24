@@ -224,12 +224,11 @@ class Jetpack_Protect {
 			'siteSuffix'         => ( new Jetpack_Status() )->get_site_suffix(),
 			'blogID'             => Connection_Manager::get_site_id( true ),
 			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
-			'hasPlan'            => Plan::has_required_plan(),
+			'hasPlan'            => Plan::has_required_plan( true ),
 			'onboardingProgress' => Onboarding::get_current_user_progress(),
 			'waf'                => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),
-				'isSeen'              => self::get_waf_seen_status(),
 				'upgradeIsSeen'       => self::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => self::get_waf_upgrade_badge_display_status(),
 				'isEnabled'           => Waf_Runner::is_enabled(),
@@ -369,24 +368,6 @@ class Jetpack_Protect {
 		}
 
 		return $license_found;
-	}
-
-	/**
-	 * Get WAF "Seen" Status
-	 *
-	 * @return bool Whether the current user has viewed the WAF screen.
-	 */
-	public static function get_waf_seen_status() {
-		return (bool) get_user_meta( get_current_user_id(), 'jetpack_protect_waf_seen', true );
-	}
-
-	/**
-	 * Set WAF "Seen" Status
-	 *
-	 * @return bool True if seen status updated to true, false on failure.
-	 */
-	public static function set_waf_seen_status() {
-		return (bool) update_user_meta( get_current_user_id(), 'jetpack_protect_waf_seen', true );
 	}
 
 	/**

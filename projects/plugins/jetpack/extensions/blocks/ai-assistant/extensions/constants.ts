@@ -1,6 +1,7 @@
 // All Jetpack Form blocks to extend
 export const JETPACK_FORM_CHILDREN_BLOCKS = [
 	'jetpack/field-name',
+	'jetpack/field-number',
 	'jetpack/field-email',
 	'jetpack/field-text',
 	'jetpack/field-textarea',

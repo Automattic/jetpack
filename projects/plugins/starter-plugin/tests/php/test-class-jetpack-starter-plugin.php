@@ -22,6 +22,13 @@ class Jetpack_Starter_Plugin_Test extends BaseTestCase {
 	private static $user_id;
 
 	/**
+	 * The starter plugin object.
+	 *
+	 * @var \Jetpack_Starter_Plugin
+	 */
+	public $starter;
+
+	/**
 	 * Initialize tests
 	 */
 	public function set_up() {

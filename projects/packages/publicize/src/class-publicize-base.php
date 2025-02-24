@@ -244,9 +244,6 @@ abstract class Publicize_Base {
 		// Alter the "Post Publish" admin notice to mention the Connections we Publicized to.
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
 
-		// Connection test callback.
-		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
-
 		// Custom priority to ensure post type support is added prior to thumbnail support being added to the theme.
 		add_action( 'init', array( $this, 'add_post_type_support' ), 8 );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
@@ -723,15 +720,6 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * AJAX Handler to run connection tests on all Connections
-	 *
-	 * @return void
-	 */
-	public function test_publicize_conns() {
-		wp_send_json_success( $this->get_publicize_conns_test_results() );
-	}
-
-	/**
 	 * Parse the error code returned by the XML-RPC API call.
 	 *
 	 * @param string $code Error code in numerical format.
@@ -885,19 +873,17 @@ abstract class Publicize_Base {
 			$post_id = null;
 		}
 
-		// TODO Get these services->connections from the cache populated from the REST API.
-		$services = $this->get_services( 'connected' );
-		$all_done = $this->post_is_done_sharing( $post_id );
-
 		// We don't allow Publicizing to the same external id twice, to prevent spam.
 		$service_id_done = (array) get_post_meta( $post_id, $this->POST_SERVICE_DONE, true );
 
-		foreach ( $services as $service_name => $connections ) {
+		$connections = Connections::get_all_for_user();
+
+		if ( ! empty( $connections ) ) {
+
 			foreach ( $connections as $connection ) {
-				$connection_meta = $this->get_connection_meta( $connection );
-				$connection_data = $connection_meta['connection_data'];
-				$unique_id       = $this->get_connection_unique_id( $connection );
-				$connection_id   = $this->get_connection_id( $connection );
+				$service_name  = $connection['service_name'];
+				$unique_id     = $connection['id'];
+				$connection_id = $connection['connection_id'];
 				// Was this connection (OR, old-format service) already Publicized to?
 				$done = ! empty( $post ) && (
 					// Flags based on token_id.
@@ -916,10 +902,10 @@ abstract class Publicize_Base {
 				 * @param bool true Should the post be publicized to a given service? Default to true.
 				 * @param int $post_id Post ID.
 				 * @param string $service_name Service name.
-				 * @param array $connection_data Array of information about all Publicize details for the site.
+				 * @param array $connection The connection data.
 				 */
 				/* phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores */
-				if ( ! apply_filters( 'wpas_submit_post?', true, $post_id, $service_name, $connection_data ) ) {
+				if ( ! apply_filters( 'wpas_submit_post?', true, $post_id, $service_name, $connection ) ) {
 					continue;
 				}
 
@@ -943,14 +929,9 @@ abstract class Publicize_Base {
 					)
 					||
 					(
-						is_array( $connection )
-						&&
-						isset( $connection_meta['external_id'] ) && ! empty( $service_id_done[ $service_name ][ $connection_meta['external_id'] ] )
+						isset( $connection['external_id'] ) && ! empty( $service_id_done[ $service_name ][ $connection['external_id'] ] )
 					)
 				);
-
-				// If this one has already been publicized to, don't let it happen again.
-				$toggleable = ! $done && ! $all_done;
 
 				// Determine the state of the checkbox (on/off) and allow filtering.
 				$enabled = $done || ! $skip;
@@ -968,12 +949,9 @@ abstract class Publicize_Base {
 				$enabled = apply_filters( 'publicize_checkbox_default', $enabled, $post_id, $service_name, $connection );
 
 				/**
-				 * If this is a global connection and this user doesn't have enough permissions to modify
-				 * those connections, don't let them change it.
+				 * If this is a shared connection and this user doesn't have enough permissions to modify.
 				 */
-				if ( ! $done && $this->is_global_connection( $connection_meta ) && ! current_user_can( $this->GLOBAL_CAP ) ) {
-					$toggleable = false;
-
+				if ( ! $done && Connections::is_shared( $connection ) && ! current_user_can( $this->GLOBAL_CAP ) ) {
 					/**
 					 * Filters the checkboxes for global connections with non-prilvedged users.
 					 *
@@ -993,28 +971,12 @@ abstract class Publicize_Base {
 					$enabled = true;
 				}
 
-				$connection_list[] = array(
-					// REST Meta fields.
-					'connection_id'   => $connection_id,
-					'display_name'    => $this->get_display_name( $service_name, $connection ),
-					'enabled'         => $enabled,
-					'external_handle' => $this->get_external_handle( $service_name, $connection ),
-					'external_id'     => $connection_meta['external_id'] ?? '',
-					'profile_link'    => (string) $this->get_profile_link( $service_name, $connection ),
-					'profile_picture' => (string) $this->get_profile_picture( $connection ),
-					'service_label'   => static::get_service_label( $service_name ),
-					'service_name'    => $service_name,
-					'shared'          => ! $connection_data['user_id'],
-					'status'          => null,
-
-					// Deprecated fields.
-					'id'              => $connection_id,
-					'unique_id'       => $unique_id,
-					'username'        => $this->get_username( $service_name, $connection ),
-					'done'            => $done,
-					'toggleable'      => $toggleable,
-					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.PHP.StrictComparisons.LooseComparison -- Other types can be used at times.
-					'user_id'         => (int) $connection_data['user_id'],
+				$connection_list[] = array_merge(
+					$connection,
+					array(
+						'enabled' => $enabled,
+						'done'    => $done,
+					)
 				);
 			}
 		}
@@ -1303,13 +1265,9 @@ abstract class Publicize_Base {
 		// - API/XML-RPC Test Posts
 		if (
 			(
-				defined( 'XMLRPC_REQUEST' )
-			&&
-				XMLRPC_REQUEST
+			( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
 			||
-				defined( 'APP_REQUEST' )
-			&&
-				APP_REQUEST
+			( defined( 'APP_REQUEST' ) && constant( 'APP_REQUEST' ) )
 			)
 		&&
 			str_starts_with( $post->post_title, 'Temporary Post Used For Theme Detection' )
@@ -1927,9 +1885,9 @@ abstract class Publicize_Base {
 	 */
 	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
 		if ( $this->use_admin_ui_v1() && current_user_can( 'manage_options' ) ) {
-			$is_social_active = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' );
+			$has_social_admin_page = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) || Publicize_Script_Data::has_feature_flag( 'admin-page' );
 
-			$page = $is_social_active ? 'jetpack-social' : 'jetpack#/sharing';
+			$page = $has_social_admin_page ? 'jetpack-social' : 'jetpack#/sharing';
 
 			return ( new Paths() )->admin_url( array( 'page' => $page ) );
 		}

@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.7.4';
+	const PACKAGE_VERSION = '0.7.6';
 
 	/**
 	 * Singleton.
@@ -1444,5 +1444,14 @@ final class Image_CDN {
 	 */
 	private static function is_amp_endpoint() {
 		return class_exists( '\Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request();
+	}
+
+	/**
+	 * Get the list of supported image extensions
+	 *
+	 * @return string[] Array of supported extensions
+	 */
+	public static function get_supported_extensions() {
+		return self::$extensions;
 	}
 }

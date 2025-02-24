@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+/**
+ * A tool for managing changelog files via a changelog directory.
+ *
+ * Unfortunately we can't use `bin/changelogger` directly within the package itself.
+ *
+ * @package automattic/jetpack-changelogger
+ */
+
+// Make sure this script is being run over the PHP CLI.
+if ( 'cli' !== php_sapi_name() ) {
+	throw new RuntimeException( 'This file must be run from the command line.' );
+}
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+$app = new Automattic\Jetpack\Changelogger\Application();
+exit( $app->run() );
