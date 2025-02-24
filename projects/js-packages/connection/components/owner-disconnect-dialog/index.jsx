@@ -68,8 +68,7 @@ const OwnerDisconnectDialog = ( {
 				jetpackAnalytics.tracks.recordEvent(
 					'jetpack_manage_connection_dialog_owner_disconnect_success'
 				);
-				setIsDisconnecting( false );
-				onClose(); // Close first
+				// Don't close modal or change state since page will reload
 				onDisconnected && onDisconnected();
 				onUnlinked && onUnlinked();
 			} )
@@ -86,7 +85,7 @@ const OwnerDisconnectDialog = ( {
 				);
 				setIsDisconnecting( false );
 			} );
-	}, [ onClose, onDisconnected, onUnlinked ] );
+	}, [ onDisconnected, onUnlinked ] );
 
 	return (
 		isOpen && (
