@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Jetpack-Tests: Exclude `WordPress.DB.DirectDatabaseQuery`, if tests trigger it they're probably doing it intentionally.
