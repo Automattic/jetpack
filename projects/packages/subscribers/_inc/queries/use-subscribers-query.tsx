@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import wpcom from 'calypso/lib/wp';
+import apiFetch from '@wordpress/api-fetch';
 import { DEFAULT_PER_PAGE, SubscribersFilterBy, SubscribersSortBy } from '../constants';
 import { getSubscribersCacheKey } from '../helpers';
 import useManySubsSite from '../hooks/use-many-subs-site';
@@ -18,7 +18,6 @@ type SubscriberQueryParams = {
 };
 
 const useSubscribersQuery = ( {
-	siteId,
 	page = 1,
 	perPage = DEFAULT_PER_PAGE,
 	search,
@@ -28,13 +27,12 @@ const useSubscribersQuery = ( {
 	filterOption = SubscribersFilterBy.All,
 	limitData = false,
 }: SubscriberQueryParams ) => {
-	const { hasManySubscribers, isLoading } = useManySubsSite( siteId );
+	const { hasManySubscribers, isLoading } = useManySubsSite();
 	const shouldFetch = ! isLoading;
 	const limitDataReturned = ! limitData && shouldFetch && hasManySubscribers;
-
+	console.log( 'aaa' );
 	const query = useQuery< SubscriberEndpointResponse >( {
 		queryKey: getSubscribersCacheKey(
-			siteId,
 			page,
 			perPage,
 			search,
@@ -45,6 +43,7 @@ const useSubscribersQuery = ( {
 			sortOrder
 		),
 		queryFn: () => {
+			console.log( 'bbbb' );
 			// This is a temporary solution until we have a better way to handle this.
 			const pathRoute = limitDataReturned ? 'subscribers_by_user_type' : 'subscribers';
 			const userTypeField = limitDataReturned ? 'user_type' : 'filter';
@@ -62,13 +61,9 @@ const useSubscribersQuery = ( {
 				...( sortTerm && { sort: sortTerm } ),
 				...( sortOrder && { sort_order: sortOrder } ),
 			} );
-
-			return wpcom.req.get( {
-				path: `/sites/${ siteId }/${ pathRoute }?${ params.toString() }`,
-				apiNamespace: 'wpcom/v2',
-			} );
+			return apiFetch( { path: `/wpcom/v2/${ pathRoute }?${ params.toString() }` } );
 		},
-		enabled: !! siteId && shouldFetch,
+		enabled: shouldFetch,
 	} );
 
 	return { ...query, isLoading: query.isLoading || isLoading };

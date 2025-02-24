@@ -1,7 +1,6 @@
 import { SubscriberListArgs } from '../types';
 
 const getSubscribersCacheKey = (
-	siteId: number | undefined | null,
 	currentPage?: number,
 	perPage?: number,
 	search?: string,
@@ -11,7 +10,7 @@ const getSubscribersCacheKey = (
 	timestamp?: number,
 	sortOrder?: 'asc' | 'desc'
 ) => {
-	const cacheKey = [ 'subscribers', siteId ];
+	const cacheKey = [ 'subscribers' ];
 	if ( currentPage ) {
 		cacheKey.push( currentPage );
 	}

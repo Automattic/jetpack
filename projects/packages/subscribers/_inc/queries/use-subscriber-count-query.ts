@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import wpcom from 'calypso/lib/wp';
+import apiFetch from '@wordpress/api-fetch';
 
 export interface SubscribersTotals {
 	email_subscribers: number;
@@ -14,10 +14,7 @@ export const defaultSubscribersTotals = {
 };
 
 const getSubscriberCount = ( siteId: number | null ): Promise< any > => {
-	return wpcom.req.get( {
-		apiNamespace: 'wpcom/v2',
-		path: `/sites/${ siteId }/subscribers/counts`,
-	} );
+	return apiFetch( { path: '/wpcom/v2/subscribers/counts' } );
 };
 
 /**

@@ -12,9 +12,6 @@ import { SubscribersFilterBy, SubscribersSortBy } from '../../constants';
 import { useSubscribersQuery, useSubscriberCountQuery } from '../../queries';
 import { Subscriber } from '../../types/subscribers';
 import { EmptyListView } from '../empty-list-view';
-import { SubscriberDetails } from '../subscriber-details';
-import { SubscribersHeader } from '../subscribers-header';
-import { UnsubscribeModal } from '../unsubscribe-modal';
 import './style.scss';
 
 /**
@@ -24,6 +21,27 @@ import './style.scss';
  */
 function TimeSince( { date }: { date: string } ) {
 	return date;
+}
+
+/**
+ *
+ */
+function SubscribersHeader() {
+	return null;
+}
+
+/**
+ *
+ */
+function SubscriberDetails() {
+	return null;
+}
+
+/**
+ *
+ */
+function UnsubscribeModal() {
+	return null;
 }
 
 type SubscriberDataViewsProps = {
@@ -68,8 +86,6 @@ const defaultView: View = {
 
 const SubscriberDataViews = ( {
 	siteId = undefined,
-	isUnverified = false,
-	isStagingSite = false,
 	onGiftSubscription,
 }: SubscriberDataViewsProps ) => {
 	const isMobile = useBreakpoint( '<660px' );
@@ -119,29 +135,18 @@ const SubscriberDataViews = ( {
 		pages: 0,
 	};
 
-	const {
-		currentSubscriber,
-		onClickUnsubscribe: handleUnsubscribe,
-		onConfirmModal,
-		resetSubscriber,
-	} = useUnsubscribeModal(
-		siteId ?? null,
-		{
-			currentPage: currentView.page ?? 1,
-			filterOption,
-			searchTerm,
-			sortTerm: SubscribersSortBy.DateSubscribed,
-		},
-		false,
-		() => {
-			setSelectedSubscriber( null );
-		}
-	);
-
 	//const EmptyComponent = isSimple || isAtomic ? SubscriberLaunchpad : EmptyListView;
 	const EmptyComponent = EmptyListView;
 	const shouldShowLaunchpad =
 		! isLoading && ! searchTerm && ( ! grandTotal || ( grandTotal === 1 && isOwnerSubscribed ) );
+
+	console.log( {
+		subscribersQueryResult,
+		shouldShowLaunchpad,
+		subscribers,
+		pages,
+		subscribersTotals,
+	} );
 
 	const handleSubscriberSelect = useCallback(
 		( items: string[] ) => {
@@ -283,7 +288,7 @@ const SubscriberDataViews = ( {
 			{
 				id: 'remove',
 				label: __( 'Remove', 'jetpack-subscribers' ),
-				callback: ( items: Subscriber[] ) => handleUnsubscribe( items[ 0 ] ),
+				callback: ( items: Subscriber[] ) => {},
 				isPrimary: false,
 			},
 		];
@@ -300,13 +305,7 @@ const SubscriberDataViews = ( {
 		} );
 
 		return baseActions;
-	}, [
-		selectedSubscriber,
-		handleSubscriberSelect,
-		handleUnsubscribe,
-		onGiftSubscription,
-		getSubscriberId,
-	] );
+	}, [ selectedSubscriber, handleSubscriberSelect, onGiftSubscription, getSubscriberId ] );
 
 	useEffect( () => {
 		// If we're on mobile, we only want to show the name field.
@@ -362,9 +361,9 @@ const SubscriberDataViews = ( {
 		>
 			<section className="subscriber-data-views__list">
 				<SubscribersHeader
-					selectedSiteId={ siteId || undefined }
-					disableCta={ isUnverified || isStagingSite }
-					hideSubtitle={ !! selectedSubscriber }
+				//selectedSiteId={ siteId || undefined }
+				//disableCta={ isUnverified || isStagingSite }
+				//hideSubtitle={ !! selectedSubscriber }
 				/>
 				{ shouldShowLaunchpad ? (
 					<EmptyComponent />
@@ -392,18 +391,18 @@ const SubscriberDataViews = ( {
 			{ selectedSubscriber && siteId && (
 				<section className="subscriber-data-views__details">
 					<SubscriberDetails
-						subscriber={ selectedSubscriber }
-						siteId={ siteId }
-						subscriptionId={ selectedSubscriber.subscription_id }
-						onClose={ () => setSelectedSubscriber( null ) }
-						onUnsubscribe={ handleUnsubscribe }
+					//subscriber={ selectedSubscriber }
+					//siteId={ siteId }
+					//subscriptionId={ selectedSubscriber.subscription_id }
+					//onClose={ () => setSelectedSubscriber( null ) }
+					//onUnsubscribe={ handleUnsubscribe }
 					/>
 				</section>
 			) }
 			<UnsubscribeModal
-				subscriber={ currentSubscriber }
-				onCancel={ resetSubscriber }
-				onConfirm={ onConfirmModal }
+			//subscriber={ currentSubscriber }
+			//onCancel={ resetSubscriber }
+			//onConfirm={ onConfirmModal }
 			/>
 		</div>
 	);

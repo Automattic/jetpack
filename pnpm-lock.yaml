@@ -3225,6 +3225,9 @@ importers:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
+      '@automattic/color-studio':
+        specifier: 4.0.0
+        version: 4.0.0
       '@automattic/components':
         specifier: 2.2.0
         version: 2.2.0(@babel/runtime@7.26.0)(@types/react@18.3.18)(@wordpress/data@10.17.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3258,6 +3261,12 @@ importers:
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
+      '@automattic/typography':
+        specifier: 1.0.0
+        version: 1.0.0
       '@automattic/viewport-react':
         specifier: 1.0.1
         version: 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3267,6 +3276,9 @@ importers:
       '@wordpress/api-fetch':
         specifier: 7.17.0
         version: 7.17.0
+      '@wordpress/base-styles':
+        specifier: 5.17.0
+        version: 5.17.0
       '@wordpress/components':
         specifier: 29.3.0
         version: 29.3.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3309,6 +3321,9 @@ importers:
       react-router-dom:
         specifier: 6.28.1
         version: 6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      wpcom-proxy-request:
+        specifier: ^7.0.3
+        version: 7.0.6
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -3355,6 +3370,9 @@ importers:
       jest-environment-jsdom:
         specifier: 29.7.0
         version: 29.7.0
+      pkg-dir:
+        specifier: ^5.0.0
+        version: 5.0.0
       react:
         specifier: 18.3.1
         version: 18.3.1

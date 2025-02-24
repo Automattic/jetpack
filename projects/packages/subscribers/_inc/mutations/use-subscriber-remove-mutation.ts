@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import wpcom from 'calypso/lib/wp';
+//import wpcom from 'calypso/lib/wp';
 import { DEFAULT_PER_PAGE } from '../constants';
 import {
 	getSubscriberDetailsCacheKey,
@@ -46,12 +46,12 @@ const useSubscriberRemoveMutation = (
 			if ( subscriber.plans?.length ) {
 				// unsubscribe this user from all plans
 				const promises = subscriber.plans.map( plan =>
-					wpcom.req.post(
-						`/sites/${ siteId }/memberships/subscriptions/${ plan.paid_subscription_id }/cancel`,
-						{
-							user_id: subscriber.user_id,
-						}
-					)
+					//wpcom.req.post(
+					//	`/sites/${ siteId }/memberships/subscriptions/${ plan.paid_subscription_id }/cancel`,
+					//	{
+					//		user_id: subscriber.user_id,
+					//	}
+					//)
 				);
 
 				await Promise.all( promises );
