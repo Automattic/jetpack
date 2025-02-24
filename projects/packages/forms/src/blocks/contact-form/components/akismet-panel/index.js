@@ -3,6 +3,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import PluginIntegrationPanel from '../shared/plugin-integration-panel';
+import './styles.css';
 
 const AkismetPanel = () => {
 	const { adminUrl } = useSelect( select => {
@@ -26,10 +27,10 @@ const AkismetPanel = () => {
 			title={ __( 'Spam Protection', 'jetpack-forms' ) }
 			initialOpen={ false }
 		>
-			<p className="jetpack-contact-form__akismet_text">
+			<p className="jetpack-akismet-panel__text">
 				{ __( 'Your forms are protected with Akismet!', 'jetpack-forms' ) }
 			</p>
-			<div className="jetpack-contact-form__akismet-buttons">
+			<div className="jetpack-akismet-panel__buttons">
 				{ adminUrl && (
 					<Button
 						variant="secondary"

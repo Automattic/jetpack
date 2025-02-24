@@ -1,0 +1,8 @@
+.jetpack-akismet-panel__buttons {
+	display: flex;
+	gap: 8px;
+}
+
+.jetpack-akismet-panel__text {
+	margin-bottom: 16px;
+} 
