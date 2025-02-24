@@ -146,7 +146,7 @@ class Host {
 			return array();
 		}
 
-		$dns_records = dns_get_record( $domain, DNS_NS ); // Fetches the DNS records of type NS (Name Server)
+		$dns_records = @dns_get_record( $domain, DNS_NS ); // Fetches the DNS records of type NS (Name Server)
 		$nameservers = array();
 		foreach ( $dns_records as $record ) {
 			if ( isset( $record['target'] ) ) {
