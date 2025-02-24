@@ -1,4 +1,4 @@
 Significance: major
 Type: added
 
-New sniff `Jetpack.PHPUnit.ClassName` to check PHPUnit test class names against PHPUnit's requirements.
+New sniff `Jetpack.PHPUnit.TestClassName` to check PHPUnit test class names against PHPUnit's requirements.

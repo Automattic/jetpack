@@ -17,7 +17,7 @@ use PHP_CodeSniffer\Sniffs\Sniff;
 /**
  * Sniff for PHPUnit's class name requirements.
  */
-class ClassNameSniff implements Sniff {
+class TestClassNameSniff implements Sniff {
 	use \MediaWiki\Sniffs\PHPUnit\PHPUnitTestTrait;
 
 	/**

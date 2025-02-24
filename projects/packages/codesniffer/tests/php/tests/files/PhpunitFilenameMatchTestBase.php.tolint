@@ -1,6 +1,6 @@
 <?php
 /**
- * A dummy file to test Jetpack.PHPUnit.ClassName
+ * A dummy file to test Jetpack.PHPUnit.TestClassName
  *
  * @package automattic/jetpack-codesniffer
  */
