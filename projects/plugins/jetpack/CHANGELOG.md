@@ -2,6 +2,34 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.4-a.7 - 2025-02-24
+### Enhancements
+- Newsletter: Add new newsletter widget. [#41807]
+- Connection: Disconnect all other users before disconnecting connection owner account. [#41923]
+- Custom Post Types: do not display testimonials and portfolios on block themes where they are not in use. [#41714]
+- Social: Update the admin page to be used by Editors and Authors. [#41859]
+
+### Bug fixes
+- Fix Social toggles. [#41912]
+- Newsletter: Fix post placement not displaying on certain block themes. [#41870]
+- Social Previews: Fix distorted image for Tumblr preview. [#41844]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Code: Prevent dynamic class properties. [#41857]
+- Jetpack AI: Prevent Chrome AI requests from incrementing request count. [#41900]
+- Jetpack SEO: Add image alt text step. [#41897]
+- Mailchimp Block: Prevent vertical stretch in button. [#41790]
+- Move the API endpoint for unlinking the user to the automattic/jetpack-connection package. [#41398]
+- Newsletter settings: Update copy. [#41884]
+- Recipe Block: Switch to strings for all block descriptions. [#41431]
+- Remove the Jetpack_Keyring_Service_Helper class in favour of the one in the Publicize package. [#41460]
+- Remove feature flag for new Like widget layout and code for old avatar popup. [#41849]
+- SEO Assistant: UX tweaks. [#41823]
+- Social: Fix PHP warnings on WordPress.com. [#41869]
+- Social: Update classic editor logic to use the new connections schema. [#41778]
+- Subscriptions Block: Unset invalid newsletter categories from attributes. [#41774]
+- Theme tools: Load theme compat functionality relevant to features in Classic Theme Helper package from this package. [#41598]
+
 ## 14.4-a.5 - 2025-02-17
 ### Enhancements
 - Connection: Display connection status on Users page independent of the SSO module. [#41794]
@@ -19,8 +47,8 @@
 - Jetpack AI: Fix some styles and deprecation props. [#41814]
 - Jetpack SEO: Add box-shadow as in BigSky. [#41791]
 - Jetpack SEO: Add tracking events on significant actions. [#41697]
-- Jetpack SEO: Change AI feature request name, see https://github.a8c.com/Automattic/wpcom/pull/173244. [#41762]
-- Jetpack SEO: Change copy edits on the completion step. [#41798]
+- Jetpack SEO: Change AI feature request name. [#41762]
+- Jetpack SEO: Change copy on the completion step. [#41798]
 - Jetpack SEO: Move steps upwards so we can establish the assistant as a generic component and provide steps dynamically. [#41768]
 - Jetpack SEO: Rename CSS classes and events for consistency and alignment with event requirements. [#41800]
 - Jetpack SEO: Turn default filter value to true so to enable the SEO assistant by default. It remains as BETA though. [#41767]

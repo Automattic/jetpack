@@ -5,18 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.4] - 2025-02-24
+### Changed
+- Internal updates.
+
 ## [0.12.3] - 2025-02-17
 ### Fixed
-- JITMs: ensure we offer the same shortcircuit as in other elements where JITMs can be injected. [#41380]
+- JITMs: Ensure we offer the same shortcircuit as in other elements where JITMs can be injected. [#41380]
 
 ## [0.12.2] - 2025-02-10
 ### Changed
-- Updated package dependencies. [#41491]
+- Update package dependencies. [#41491]
 
 ## [0.12.1] - 2025-02-03
 ### Changed
 - Phan: Update baselines. [#41263]
-- Updated package dependencies. [#41286]
+- Update package dependencies. [#41286]
 
 ## [0.12.0] - 2025-01-27
 ### Added
@@ -227,6 +231,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.12.4]: https://github.com/Automattic/jetpack-masterbar/compare/v0.12.3...v0.12.4
 [0.12.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.12.2...v0.12.3
 [0.12.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.12.0...v0.12.1
