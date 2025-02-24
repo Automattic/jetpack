@@ -52,6 +52,12 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 
+		// Load PHP translations (.mo/) for Simple or Atomic sites
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_php_translations' ) );
+
+		// Modify JavaScript translations (.json) for Simple or Atomic sites
+		add_filter( 'load_script_translation_file', array( __CLASS__, 'fix_script_translation_path' ), 10, 3 );
+
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
@@ -87,6 +93,30 @@ class Jetpack_Mu_Wpcom {
 		 * @since 0.1.2
 		 */
 		do_action( 'jetpack_mu_wpcom_initialized' );
+	}
+
+	/**
+	 * Load PHP translations (.mo/.po) based on the site type.
+	 * - Simple Sites: Load from local filesystem.
+	 * - Atomic Sites: Load from a remote URL.
+	 */
+	public static function load_php_translations() {
+		$domain = 'jetpack-mu-wpcom';
+		$locale = determine_locale(); // Get the current language (e.g., 'fr_FR')
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			// Atomic Sites: Load from a remote URL (Handled remotely - No local file)
+			$remote_mo_url = "https://widgets.wp.com/languages/mu-plugins/{$domain}-{$locale}.mo";
+			load_textdomain( $domain, $remote_mo_url );
+		} else {
+			// Simple Sites: Load from local filesystem
+			$language_dir = defined( 'WP_LANG_DIR' ) ? WP_LANG_DIR : WP_CONTENT_DIR . '/languages';
+			$mo_file      = "{$language_dir}/mu-plugins/{$domain}-{$locale}.mo";
+
+			if ( file_exists( $mo_file ) ) {
+				load_textdomain( $domain, $mo_file );
+			}
+		}
 	}
 
 	/**
