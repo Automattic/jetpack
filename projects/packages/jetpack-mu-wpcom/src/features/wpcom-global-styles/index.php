@@ -363,6 +363,37 @@ function wpcom_global_styles_current_user_can_edit_wp_global_styles( $blog_id = 
 }
 
 /**
+ * Get the user data from wp global styles.
+ *
+ * We need this wrapper because in rare occasions WP Core triggers a TypeError in this snippet:
+ *
+ * $global_style_query = new WP_Query();
+ * $recent_posts       = $global_style_query->query( $args );
+ * if ( count( $recent_posts ) === 1 ) {
+ * $user_cpt = get_object_vars( $recent_posts[0] );
+ *
+ * In some scenarios, $recent_posts[0] is null and get_object_vars triggers a TypeError.
+ *
+ * @return array
+ */
+function wpcom_get_user_data_from_wp_global_styles() {
+	try {
+		return WP_Theme_JSON_Resolver::get_user_data_from_wp_global_styles( wp_get_theme() );
+	} catch ( TypeError $error ) {
+		wp_clean_theme_json_cache();
+	}
+
+	/**
+	 * Try again after theme cache json is purged. If it's not working, fallback to an empty array.
+	 */
+	try {
+		return WP_Theme_JSON_Resolver::get_user_data_from_wp_global_styles( wp_get_theme() );
+	} catch ( TypeError $error ) {
+		return array();
+	}
+}
+
+/**
  * Checks if the current blog has custom styles in use.
  *
  * @return bool Returns true if custom styles are in use.
@@ -376,7 +407,7 @@ function wpcom_global_styles_in_use() {
 		return false;
 	}
 
-	$user_cpt = WP_Theme_JSON_Resolver::get_user_data_from_wp_global_styles( wp_get_theme() );
+	$user_cpt = wpcom_get_user_data_from_wp_global_styles();
 
 	$global_styles_in_use = wpcom_global_styles_in_use_by_wp_global_styles_post( $user_cpt );
 
