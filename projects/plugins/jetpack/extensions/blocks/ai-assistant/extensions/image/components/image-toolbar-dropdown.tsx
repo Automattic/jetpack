@@ -2,14 +2,16 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { MenuGroup, MenuItem } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { MenuGroup, MenuItem, Spinner } from '@wordpress/components';
+import { useCallback, forwardRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { caption as captionIcon, unseen as altTextIcon } from '@wordpress/icons';
+import debugFactory from 'debug';
 /*
  * Internal dependencies
  */
 import AiAssistantToolbarDropdown from '../../../extensions/components/ai-assistant-toolbar-dropdown';
+import './style.scss';
 /*
  * Types
  */
@@ -17,70 +19,95 @@ import type { ReactElement } from 'react';
 
 type AiAssistantExtensionToolbarDropdownContentProps = {
 	onClose: () => void;
-	onRequestAltText: () => void;
-	onRequestCaption: () => void;
+	onRequestAltText: () => Promise< void >;
+	onRequestCaption: () => Promise< void >;
+	loading?: boolean;
 };
+
+const debug = debugFactory( 'jetpack-ai:image-extension' );
 
 /**
  * The dropdown content component with logic for the image block extension toolbar.
  * @param {AiAssistantExtensionToolbarDropdownContentProps} props - The props.
  * @return {ReactElement} The React content of the dropdown.
  */
-function AiAssistantExtensionToolbarDropdownContent( {
-	onClose,
-	onRequestAltText,
-	onRequestCaption,
-}: AiAssistantExtensionToolbarDropdownContentProps ) {
-	const handleToolbarButtonClick = useCallback(
-		( type: 'alt-text' | 'caption' ) => {
-			if ( type === 'alt-text' ) {
-				onRequestAltText?.();
-			} else {
-				onRequestCaption?.();
-			}
-			onClose?.();
-		},
-		[ onRequestAltText, onRequestCaption, onClose ]
-	);
+const AiAssistantExtensionToolbarDropdownContent = forwardRef(
+	(
+		{
+			onClose,
+			onRequestAltText,
+			onRequestCaption,
+			loading = false,
+		}: AiAssistantExtensionToolbarDropdownContentProps,
+		ref: React.RefObject< HTMLDivElement >
+	) => {
+		const handleToolbarButtonClick = useCallback(
+			async ( type: 'alt-text' | 'caption' ) => {
+				try {
+					if ( type === 'alt-text' ) {
+						await onRequestAltText?.();
+					} else {
+						await onRequestCaption?.();
+					}
+					onClose?.();
+				} catch ( error ) {
+					debug( 'Error generating %s', type, error );
+				}
+			},
+			[ onRequestAltText, onRequestCaption, onClose ]
+		);
 
-	const handleRequestAltText = () => {
-		handleToolbarButtonClick( 'alt-text' );
-	};
+		const handleRequestAltText = () => {
+			handleToolbarButtonClick( 'alt-text' );
+		};
 
-	const handleRequestCaption = () => {
-		handleToolbarButtonClick( 'caption' );
-	};
+		const handleRequestCaption = () => {
+			handleToolbarButtonClick( 'caption' );
+		};
 
-	return (
-		<MenuGroup>
-			<MenuItem
-				icon={ altTextIcon }
-				iconPosition="left"
-				key="key-ai-assistant-alt-text"
-				onClick={ handleRequestAltText }
+		return (
+			<div
+				className="jetpack-ai-assistant-image-toolbar-dropdown-wrapper"
+				tabIndex={ -1 }
+				ref={ ref }
 			>
-				{ __( 'Generate alt text', 'jetpack' ) }
-			</MenuItem>
-			<MenuItem
-				icon={ captionIcon }
-				iconPosition="left"
-				key="key-ai-assistant-caption"
-				onClick={ handleRequestCaption }
-			>
-				{ __( 'Generate caption', 'jetpack' ) }
-			</MenuItem>
-		</MenuGroup>
-	);
-}
+				<MenuGroup>
+					<MenuItem
+						icon={ loading ? <Spinner /> : altTextIcon }
+						iconPosition="left"
+						key="key-ai-assistant-alt-text"
+						onClick={ handleRequestAltText }
+						disabled={ loading }
+					>
+						{ __( 'Generate alt text', 'jetpack' ) }
+					</MenuItem>
+					<MenuItem
+						icon={ captionIcon }
+						iconPosition="left"
+						key="key-ai-assistant-caption"
+						onClick={ handleRequestCaption }
+						disabled={ true }
+					>
+						{ __( 'Generate caption', 'jetpack' ) }
+					</MenuItem>
+				</MenuGroup>
+			</div>
+		);
+	}
+);
 
 export default function AiAssistantImageExtensionToolbarDropdown( {
 	label = __( 'AI Assistant', 'jetpack' ),
 	onRequestAltText,
 	onRequestCaption,
+	loading = false,
+	wrapperRef,
 }: {
 	label?: string;
-	onRequestAltText: () => void;
-	onRequestCaption: () => void;
+	onRequestAltText: () => Promise< void >;
+	onRequestCaption: () => Promise< void >;
+	loading?: boolean;
+	wrapperRef: React.RefObject< HTMLDivElement >;
 } ): ReactElement {
 	const { tracks } = useAnalytics();
 
@@ -101,7 +128,7 @@ export default function AiAssistantImageExtensionToolbarDropdown( {
 			block_type: 'core/image',
 		} );
 
-		onRequestAltText?.();
+		return onRequestAltText?.();
 	}, [ onRequestAltText, tracks ] );
 
 	const handleRequestCaption = useCallback( () => {
@@ -110,7 +137,7 @@ export default function AiAssistantImageExtensionToolbarDropdown( {
 			block_type: 'core/image',
 		} );
 
-		onRequestCaption?.();
+		return onRequestCaption?.();
 	}, [ onRequestCaption, tracks ] );
 
 	return (
@@ -120,9 +147,11 @@ export default function AiAssistantImageExtensionToolbarDropdown( {
 			onDropdownToggle={ toggleHandler }
 			renderContent={ ( { onClose } ) => (
 				<AiAssistantExtensionToolbarDropdownContent
+					ref={ wrapperRef }
 					onClose={ onClose }
 					onRequestAltText={ handleRequestAltText }
 					onRequestCaption={ handleRequestCaption }
+					loading={ loading }
 				/>
 			) }
 		/>
