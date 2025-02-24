@@ -777,6 +777,9 @@ function wpcom_global_styles_is_previewing_premium_theme_without_premium_plan( $
  * @return bool Whether the site has access to Global Styles with a Personal plan.
  */
 function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
+	// We force false until we get a new experiment running.
+	return false;
+
 	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 		return false;
 	}
@@ -789,7 +792,7 @@ function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
 		$blog_id = get_current_blog_id();
 	}
 
-	$cache_key                          = "global-styles-on-personal-02-2025-$blog_id";
+	$cache_key                          = "global-styles-on-personal-03-2025-$blog_id";
 	$found_in_cache                     = false;
 	$has_global_styles_in_personal_plan = wp_cache_get( $cache_key, 'a8c_experiments', false, $found_in_cache );
 	if ( $found_in_cache ) {
