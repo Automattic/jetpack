@@ -133,6 +133,9 @@ class Slideshow extends Component {
 				<div
 					className="wp-block-jetpack-slideshow_container swiper-container"
 					ref={ this.slideshowRef }
+					tabIndex="0"
+					role="group"
+					aria-label={ 'Image slideshow' }
 				>
 					<ul className="wp-block-jetpack-slideshow_swiper-wrapper swiper-wrapper">
 						{ images.map( ( { alt, caption, id, url, link, hasCustomLink }, index ) => (
