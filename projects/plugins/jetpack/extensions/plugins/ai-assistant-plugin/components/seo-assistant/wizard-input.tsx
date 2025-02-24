@@ -4,20 +4,26 @@ import { arrowRight } from '@wordpress/icons';
 
 export const OptionsInput = ( {
 	disabled,
+	loading,
 	handleRetry,
 	retryCtaLabel,
 	handleSubmit,
 	submitCtaLabel,
 } ) => {
 	return (
-		<div className="assistant-wizard__actions">
-			<Button variant="secondary" className="assistant-wizard__submit" onClick={ handleRetry }>
+		<div className="jetpack-wizard-chat__actions">
+			<Button
+				variant="secondary"
+				className="jetpack-wizard-chat__submit"
+				onClick={ handleRetry }
+				disabled={ loading }
+			>
 				{ retryCtaLabel }
 			</Button>
 
 			<Button
 				variant="primary"
-				className="assistant-wizard__submit"
+				className="jetpack-wizard-chat__submit"
 				onClick={ handleSubmit }
 				disabled={ disabled }
 			>
@@ -30,13 +36,20 @@ export const OptionsInput = ( {
 
 function UnforwardedKeywordsInput( { placeholder, value, setValue, handleSubmit }, ref ) {
 	return (
-		<div ref={ ref } className="assistant-wizard__input">
+		<div ref={ ref } className="jetpack-wizard-chat__input">
 			<KeyboardShortcuts shortcuts={ { enter: handleSubmit } }>
-				<TextControl value={ value } onChange={ setValue } placeholder={ placeholder } />
+				<TextControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					value={ value }
+					onChange={ setValue }
+					placeholder={ placeholder }
+				/>
 			</KeyboardShortcuts>
+
 			<Button
 				variant="primary"
-				className="assistant-wizard__submit"
+				className="jetpack-wizard-chat__submit"
 				onClick={ handleSubmit }
 				size="small"
 				disabled={ ! value }
@@ -51,8 +64,8 @@ export const TextInput = forwardRef( UnforwardedKeywordsInput );
 
 export const CompletionInput = ( { submitCtaLabel, handleSubmit } ) => {
 	return (
-		<div className="assistant-wizard__completion">
-			<Button variant="primary" className="assistant-wizard__submit" onClick={ handleSubmit }>
+		<div className="jetpack-wizard-chat__completion">
+			<Button variant="primary" className="jetpack-wizard-chat__submit" onClick={ handleSubmit }>
 				{ submitCtaLabel }
 			</Button>
 		</div>

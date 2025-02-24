@@ -11,15 +11,23 @@ use WP_Error;
 
 /**
  * Import trait. Base class for all import endpoints.
+ *
+ * @property array|false $allow_batch Batching details.
  */
 trait Import {
-
 	/**
 	 * REST API namespace.
 	 *
 	 * @var string
 	 */
 	private static $rest_namespace = 'jetpack/v4/import';
+
+	/**
+	 * REST base path.
+	 *
+	 * @var ?string
+	 */
+	protected $rest_base;
 
 	/**
 	 * Registers the routes for the objects of the controller.

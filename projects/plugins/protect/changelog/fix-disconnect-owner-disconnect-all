@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection: Disconnecting a connection owner account will disconnect all other users first.

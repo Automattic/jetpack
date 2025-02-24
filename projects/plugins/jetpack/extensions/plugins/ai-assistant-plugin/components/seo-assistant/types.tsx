@@ -9,44 +9,65 @@ export interface Message {
 	selected?: boolean;
 }
 
-export type OptionMessage = Pick< Message, 'id' | 'content' >;
+export type OptionMessage = Pick< Message, 'id' | 'content' | 'selected' >;
 
-interface BaseStep {
+export interface Results {
+	[ key: string ]: {
+		value: string;
+		type: string;
+		label: string;
+	};
+}
+
+type OnStart = ( options?: { fromSkip?: boolean; results?: Results } ) => Promise< void | string >;
+
+export interface Step {
 	id: string;
 	title: string;
 	label?: string;
 	messages: Message[];
 	type: StepType;
-	onStart?: OnStartFunction;
+	onStart?: OnStart;
 	onSubmit?: () => Promise< string >;
-	onSkip?: () => void;
+	onSkip?: () => Promise< void >;
 	value?: string;
 	setValue?:
 		| React.Dispatch< React.SetStateAction< string > >
 		| React.Dispatch< React.SetStateAction< Array< string > > >;
-	setCompleted?: React.Dispatch< React.SetStateAction< boolean > >;
-	completed?: boolean;
-}
+	autoAdvance?: number;
+	includeInResults?: boolean;
 
-export interface InputStep extends BaseStep {
-	type: 'input';
-	placeholder: string;
-}
+	// Input step properties
+	placeholder?: string;
+	rawInput?: string;
+	setRawInput?: React.Dispatch< React.SetStateAction< string > >;
+	inputRef?: React.RefObject< HTMLInputElement >;
 
-interface OptionsStep extends BaseStep {
-	type: 'options';
-	options: OptionMessage[];
-	onSelect: ( option: OptionMessage ) => void;
+	// Options step properties
+	options?: OptionMessage[];
+	onSelect?: ( option: OptionMessage ) => void;
 	submitCtaLabel?: string;
-	onRetry?: () => void;
+	onRetry?: OnStart;
 	retryCtaLabel?: string;
+	hasSelection?: boolean;
+	hasFailed?: boolean;
+	resetState?: () => void;
+	selectBlock?: () => void;
 }
 
-export interface CompletionStep extends BaseStep {
-	type: 'completion';
-	submitCtaLabel?: string;
+export interface SeoAssistantState {
+	isOpen: boolean;
 }
 
-export type Step = BaseStep | InputStep | OptionsStep | CompletionStep;
+export type SeoAssistantAction = {
+	type: 'OPEN' | 'CLOSE';
+};
 
-export type OnStartFunction = ( options?: { fromSkip: boolean; stepValue: string } ) => void;
+export type SeoAssistantSelect = {
+	isOpen: () => boolean;
+};
+
+export type SeoAssistantDispatch = {
+	open: () => void;
+	close: () => void;
+};

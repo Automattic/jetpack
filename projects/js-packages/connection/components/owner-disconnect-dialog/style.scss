@@ -1,0 +1,14 @@
+.jp-connection__disconnect-dialog {
+    // Add !important to override WordPress styles
+    .components-button.jp-connection__disconnect-dialog__btn-dismiss {
+        background: var( --jp-black ) !important;
+    }
+   .jp-connection__disconnect-dialog__content {
+        --spacing-base: 8px;
+    }
+    .jp-connection__disconnect-dialog .components-modal__content > div:not(.components-modal__header) {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+}

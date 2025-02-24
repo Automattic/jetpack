@@ -10,6 +10,7 @@ import Gridicon from 'components/gridicon';
 import {
 	getSiteConnectionStatus,
 	isConnectionOwner,
+	isConnectionOwnerName,
 	isCurrentUserLinked,
 	isOfflineMode,
 	isFetchingUserData as _isFetchingUserData,
@@ -77,9 +78,23 @@ export class DashConnections extends Component {
 								</span>
 							) }
 
-							{ this.props.userCanDisconnectSite && (
+							{ ! this.props.isConnectionOwner && this.props.isConnectionOwnerName && (
+								<span className="jp-connection-settings__is-owner">
+									{ sprintf(
+										/* translators: Placeholder is the WordPress user login name. */
+										__( 'The connection owner is %s.', 'jetpack' ),
+										this.props.isConnectionOwnerName
+									) }
+								</span>
+							) }
+
+							{ this.props.userCanDisconnectSite ? (
 								<div className="jp-connection-settings__actions">
 									<ConnectButton asLink autoOpenInDisconnectRoute={ true } />
+								</div>
+							) : (
+								<div className="jp-connection-settings__actions">
+									<span>{ __( 'This site is connected to WordPress.com.', 'jetpack' ) }</span>
 								</div>
 							) }
 						</div>
@@ -232,6 +247,7 @@ export default connect( state => {
 		userGravatar: getUserGravatar( state ),
 		username: getUsername( state ),
 		isConnectionOwner: isConnectionOwner( state ),
+		isConnectionOwnerName: isConnectionOwnerName( state ),
 		isLinked: isCurrentUserLinked( state ),
 		siteIcon: getSiteIcon( state ),
 		isFetchingUserData: _isFetchingUserData( state ),

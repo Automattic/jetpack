@@ -49,6 +49,13 @@ abstract class Product {
 	public static $plugin_slug = null;
 
 	/**
+	 * The category of the product in the Jetpack ecosystem. The options are performance, growth, security, management, and create
+	 *
+	 * @var string
+	 */
+	public static $category = null;
+
+	/**
 	 * The Jetpack plugin slug
 	 *
 	 * @var string
@@ -148,6 +155,24 @@ abstract class Product {
 	}
 
 	/**
+	 * This method will be called in the class initializer to perform any necessary initialization
+	 *
+	 * @return void
+	 */
+	public static function initialize() {
+		// This method should be implemented in the child class.
+	}
+
+	/**
+	 * This method will be called in the class initializer to register the product's endpoints
+	 *
+	 * @return void
+	 */
+	public static function register_endpoints(): void {
+		// This method should be implemented in the child class.
+	}
+
+	/**
 	 * Get the installed plugin filename, considering all possible filenames a plugin might have
 	 *
 	 * @param string $plugin Which plugin to check. jetpack for the jetpack plugin or product for the product specific plugin.
@@ -183,6 +208,7 @@ abstract class Product {
 			'plugin_slug'                     => static::get_plugin_slug(),
 			'name'                            => static::get_name(),
 			'title'                           => static::get_title(),
+			'category'                        => static::$category,
 			'description'                     => static::get_description(),
 			'long_description'                => static::get_long_description(),
 			'tiers'                           => static::get_tiers(),
@@ -213,6 +239,7 @@ abstract class Product {
 			'post_checkout_urls_by_feature'   => static::get_post_checkout_urls_by_feature(),
 			'manage_paid_plan_purchase_url'   => static::get_manage_paid_plan_purchase_url(),
 			'renew_paid_plan_purchase_url'    => static::get_renew_paid_plan_purchase_url(),
+			'does_module_need_attention'      => static::does_module_need_attention(),
 		);
 	}
 
@@ -514,7 +541,7 @@ abstract class Product {
 			return array();
 		}
 		$paid_bundles   = $features['available']->$idendifying_feature ?? array();
-		$current_bundle = Wpcom_Products::get_site_current_plan();
+		$current_bundle = Wpcom_Products::get_site_current_plan( true );
 
 		if ( in_array( static::$feature_identifying_paid_plan, $current_bundle['features']['active'], true ) ) {
 			$paid_bundles[] = $current_bundle['product_slug'];

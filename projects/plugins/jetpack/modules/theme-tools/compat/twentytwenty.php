@@ -50,11 +50,6 @@ function twentytwenty_jetpack_setup() {
 			),
 		)
 	);
-
-	/**
-	 * Add theme support for geo-location.
-	 */
-	add_theme_support( 'jetpack-geo-location' );
 }
 add_action( 'after_setup_theme', 'twentytwenty_jetpack_setup' );
 
@@ -79,7 +74,7 @@ function twentytwenty_no_sharing_on_excerpts() {
 
 		// Remove Likes.
 		if ( class_exists( 'Jetpack_Likes' ) ) {
-			remove_filter( 'the_excerpt', array( Jetpack_Likes::init(), 'post_likes' ), 30, 1 );
+			remove_filter( 'the_excerpt', array( Jetpack_Likes::init(), 'post_likes' ), 30 );
 		}
 	}
 }

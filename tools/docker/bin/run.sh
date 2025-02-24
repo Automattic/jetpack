@@ -79,14 +79,15 @@ fi
 if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	# If we don't have the wordpress test helpers, download them
 	if [ ! -d /tmp/wordpress-develop/tests ]; then
+		CUR_WP_VERSION=$(wp --allow-root core version);
 		# Get latest WordPress unit-test helper files
 		svn co \
-			https://develop.svn.wordpress.org/trunk/tests/phpunit/data \
+			"https://develop.svn.wordpress.org/tags/$CUR_WP_VERSION/tests/phpunit/data" \
 			/tmp/wordpress-develop/tests/phpunit/data \
 			--trust-server-cert \
 			--non-interactive
 		svn co \
-			https://develop.svn.wordpress.org/trunk/tests/phpunit/includes \
+			"https://develop.svn.wordpress.org/tags/$CUR_WP_VERSION/tests/phpunit/includes" \
 			/tmp/wordpress-develop/tests/phpunit/includes \
 			--trust-server-cert \
 			--non-interactive
@@ -100,7 +101,11 @@ if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	# Symlink jetpack into wordpress-develop for WP >= 5.6-beta1
 	WP_TESTS_JP_DIR="/tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack"
 	if [ ! -L $WP_TESTS_JP_DIR ] || [ ! -e $WP_TESTS_JP_DIR ]; then
-		ln -s /var/www/html/wp-content/plugins/jetpack $WP_TESTS_JP_DIR
+		mkdir -p "$(dirname "$WP_TESTS_JP_DIR")" || true
+		ln -s /var/www/html/wp-content/plugins/jetpack $WP_TESTS_JP_DIR || {
+			echo "Warning: Failed to create symlink for test environment. This is non-fatal."
+			echo "Jetpack plugin PHPUnit tests will not run until this is resolved."
+		}
 	fi
 fi
 

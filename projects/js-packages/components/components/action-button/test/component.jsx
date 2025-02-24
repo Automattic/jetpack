@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import ActionButton from '../index';
+import ActionButton from '../index.js';
 
 describe( 'ActionButton', () => {
 	const testProps = {

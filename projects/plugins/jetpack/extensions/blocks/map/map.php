@@ -154,6 +154,11 @@ function render_single_block_page() {
 	/** This filter is already documented in core/wp-includes/post-template.php */
 	$content = apply_filters( 'the_content', $post->post_content );
 
+	// Return early if empty to prevent DOMDocument::loadHTML fatal.
+	if ( empty( $content ) ) {
+		return;
+	}
+
 	/* Suppress warnings */
 	libxml_use_internal_errors( true );
 	@$post_html->loadHTML( $content ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged

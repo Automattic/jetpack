@@ -51,9 +51,6 @@ class Publicize_Setup {
 			}
 		}
 
-		// This doesn't need to be active on WPCOM.
-		new REST_API\Settings_Controller();
-
 		Social_Admin_Page::init();
 	}
 
@@ -84,6 +81,8 @@ class Publicize_Setup {
 			// Load the settings page.
 			new Jetpack_Social_Settings\Settings();
 		}
+
+		add_action( 'init', array( Keyring_Helper::class, 'init' ), 9, 0 );
 
 		( new Social_Image_Generator\Setup() )->init();
 	}

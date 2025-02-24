@@ -439,13 +439,8 @@ const buildExecCmd = argv => {
 		opts.push( '/var/scripts/uninstall.sh' );
 	} else if ( cmd === 'multisite-convert' ) {
 		opts.push( '/var/scripts/multisite-convert.sh' );
-	} else if ( cmd === 'update-core-unit-tests' ) {
-		opts.push(
-			'svn',
-			'up',
-			'/tmp/wordpress-develop/tests/phpunit/data/',
-			'/tmp/wordpress-develop/tests/phpunit/includes'
-		);
+	} else if ( cmd === 'update-core' ) {
+		opts.push( '/var/scripts/update-core.sh', argv.version );
 	} else if ( cmd === 'run-extras' ) {
 		opts.push( '/var/scripts/run-extras.sh' );
 	} else if ( cmd === 'link-plugin' ) {
@@ -767,9 +762,14 @@ export function dockerDefine( yargs ) {
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
-					command: 'update-core-unit-tests',
-					description: 'Pulls latest Core unit tests files from SVN',
-					builder: yargExec => defaultOpts( yargExec ),
+					command: 'update-core [version]',
+					description: 'Installs core files',
+					builder: yargExec =>
+						defaultOpts( yargExec ).positional( 'version', {
+							type: 'string',
+							description: 'Specify the version to install',
+							default: 'latest',
+						} ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {

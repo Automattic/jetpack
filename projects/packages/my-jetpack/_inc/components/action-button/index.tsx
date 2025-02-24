@@ -1,5 +1,5 @@
 import { Button } from '@automattic/jetpack-components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
@@ -17,6 +17,8 @@ import type { SecondaryButtonProps } from './secondary-button';
 import type { AdditionalAction } from './types';
 import type { FC, ComponentProps, MouseEvent, SetStateAction } from 'react';
 
+const getActionButtonId = ( productSlug: string ) => `action-button-label-${ productSlug }`;
+
 type ActionButtonProps = {
 	slug: JetpackModule;
 	additionalActions?: AdditionalAction[];
@@ -25,6 +27,7 @@ type ActionButtonProps = {
 	setIsActionLoading?: ( value: SetStateAction< boolean > ) => void;
 	className?: string;
 	tracksIdentifier?: `${ string }_${ string }`;
+	labelSuffixId?: string;
 };
 
 const ActionButton: FC< ActionButtonProps > = ( {
@@ -35,8 +38,9 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	setIsActionLoading,
 	className,
 	tracksIdentifier,
+	labelSuffixId,
 } ) => {
-	const { userIsAdmin, lifecycleStats } = getMyJetpackWindowInitialState();
+	const { lifecycleStats } = getMyJetpackWindowInitialState();
 	const { ownedProducts } = lifecycleStats;
 
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
@@ -49,7 +53,6 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		managePaidPlanPurchaseUrl,
 		renewPaidPlanPurchaseUrl,
 		status,
-		name,
 		requiresUserConnection,
 	} = detail;
 	const { siteIsRegistering, isRegistered, isUserConnected } = useMyJetpackConnection();
@@ -68,9 +71,9 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
 	const hasAdditionalActions = additionalActions?.length > 0;
 	const isOwned = ownedProducts?.includes( slug );
-	const admin = !! userIsAdmin;
 	const troubleshootBackupsUrl =
 		'https://jetpack.com/support/backup/troubleshooting-jetpack-backup/';
+	const labelledBy = `${ getActionButtonId( slug ) } ${ labelSuffixId || '' }`.trim();
 
 	const buttonState = useMemo< Partial< SecondaryButtonProps > >( () => {
 		return {
@@ -138,7 +141,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		installStandalonePlugin();
 	}, [ slug, installStandalonePlugin, recordEvent, tracksIdentifier ] );
 
-	const getStatusAction = useCallback( (): SecondaryButtonProps => {
+	const statusAction: SecondaryButtonProps = useMemo( () => {
 		switch ( status ) {
 			case PRODUCT_STATUSES.ABSENT: {
 				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
@@ -148,6 +151,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: buttonText,
 					onClick: learnMoreHandler,
+					'aria-labelledby': labelledBy,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.ABSENT ] ?? {} ),
 				};
 			}
@@ -158,6 +162,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: buttonText,
 					onClick: installStandaloneHandler,
+					'aria-labelledby': labelledBy,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ] ?? {} ),
 				};
 			}
@@ -169,6 +174,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: __( 'Learn more', 'jetpack-my-jetpack' ),
 					onClick: addHandler,
+					'aria-labelledby': labelledBy,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.NEEDS_PLAN: {
@@ -182,6 +188,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: buttonText,
 					onClick: addHandler,
+					'aria-labelledby': labelledBy,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_PLAN ] ?? {} ),
 				};
 			}
@@ -192,6 +199,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: __( 'Upgrade', 'jetpack-my-jetpack' ),
 					onClick: addHandler,
+					'aria-labelledby': labelledBy,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.CAN_UPGRADE ] ?? {} ),
 				};
 			}
@@ -205,6 +213,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'secondary',
 					label: buttonText,
 					onClick: manageHandler,
+					'aria-labelledby': labelledBy,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.ACTIVE ] ?? {} ),
 				};
 			}
@@ -214,6 +223,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
 					onClick: fixSiteConnectionHandler,
+					'aria-labelledby': labelledBy,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
@@ -222,6 +232,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
 					onClick: fixUserConnectionHandler,
+					'aria-labelledby': labelledBy,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.INACTIVE:
@@ -232,6 +243,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'secondary',
 					label: __( 'Activate', 'jetpack-my-jetpack' ),
 					onClick: handleActivate,
+					'aria-labelledby': labelledBy,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.INACTIVE ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.EXPIRING_SOON:
@@ -240,6 +252,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: renewPaidPlanPurchaseUrl,
 					variant: 'primary',
 					label: __( 'Renew my plan', 'jetpack-my-jetpack' ),
+					'aria-labelledby': labelledBy,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.EXPIRING_SOON ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.EXPIRED:
@@ -248,6 +261,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: managePaidPlanPurchaseUrl,
 					variant: 'primary',
 					label: __( 'Resume my plan', 'jetpack-my-jetpack' ),
+					'aria-labelledby': labelledBy,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.EXPIRED ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR: {
@@ -256,6 +270,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: manageUrl,
 					variant: 'primary',
 					label: __( 'Troubleshoot', 'jetpack-my-jetpack' ),
+					'aria-labelledby': labelledBy,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR ] ?? {} ),
 				};
 				switch ( slug ) {
@@ -279,6 +294,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: manageUrl,
 					variant: 'primary',
 					label: __( 'Troubleshoot', 'jetpack-my-jetpack' ),
+					'aria-labelledby': labelledBy,
 					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING ] ?? {} ),
 				};
 				switch ( slug ) {
@@ -299,6 +315,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: purchaseUrl || `#/add-${ slug }`,
 					label: __( 'Learn more', 'jetpack-my-jetpack' ),
 					onClick: addHandler,
+					'aria-labelledby': labelledBy,
 				};
 		}
 	}, [
@@ -319,12 +336,12 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		installStandaloneHandler,
 		learnMoreHandler,
 		manageHandler,
+		labelledBy,
 	] );
 
 	const allActions = useMemo(
-		() =>
-			hasAdditionalActions ? [ ...additionalActions, getStatusAction() ] : [ getStatusAction() ],
-		[ additionalActions, getStatusAction, hasAdditionalActions ]
+		() => ( hasAdditionalActions ? [ ...additionalActions, statusAction ] : [ statusAction ] ),
+		[ additionalActions, statusAction, hasAdditionalActions ]
 	);
 
 	const recordDropdownStateChange = useCallback( () => {
@@ -360,21 +377,10 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		}
 	} );
 
-	if ( ! admin ) {
-		return (
-			<Button { ...buttonState } size="small" variant="link" weight="regular">
-				{
-					/* translators: placeholder is product name. */
-					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
-				}
-			</Button>
-		);
-	}
-
 	const dropdown = hasAdditionalActions && (
 		<div ref={ dropdownRef } className={ styles[ 'action-button-dropdown' ] }>
 			<ul className={ styles[ 'dropdown-menu' ] }>
-				{ [ ...additionalActions, getStatusAction() ].map( ( { label, isExternalLink }, index ) => {
+				{ [ ...additionalActions, statusAction ].map( ( { label, isExternalLink }, index ) => {
 					const onDropdownMenuItemClick = () => {
 						setCurrentAction( allActions[ index ] );
 						setIsDropdownOpen( false );
@@ -415,7 +421,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					hasAdditionalActions ? styles[ 'has-additional-actions' ] : null
 				) }
 			>
-				<Button { ...buttonState } { ...currentAction }>
+				<Button { ...buttonState } { ...currentAction } id={ getActionButtonId( slug ) }>
 					{ currentAction.label }
 				</Button>
 				{ hasAdditionalActions && (

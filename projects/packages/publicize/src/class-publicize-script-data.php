@@ -70,7 +70,7 @@ class Publicize_Script_Data {
 		$data['site']['wpcom']['blog_id'] = Manager::get_site_id( true );
 		$data['site']['suffix']           = ( new Status() )->get_site_suffix();
 		if ( ! isset( $data['site']['host'] ) ) {
-			$data['site']['host'] = ( new Host() )->get_known_host_guess();
+			$data['site']['host'] = ( new Host() )->get_known_host_guess( false );
 		}
 
 		self::set_wpcom_user_data( $data['user']['current_user'] );
@@ -117,7 +117,7 @@ class Publicize_Script_Data {
 		}
 
 		$basic_data = array(
-			'api_paths'            => array(),
+			'api_paths'            => self::get_api_paths(),
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'feature_flags'        => self::get_feature_flags(),
 			'supported_services'   => array(),
@@ -141,7 +141,6 @@ class Publicize_Script_Data {
 		return array_merge(
 			$basic_data,
 			array(
-				'api_paths'           => self::get_api_paths(),
 				'supported_services'  => self::get_supported_services(),
 				'shares_data'         => self::get_shares_data(),
 				'urls'                => self::get_urls(),
@@ -286,13 +285,7 @@ class Publicize_Script_Data {
 	 * @return array List of external services and their settings.
 	 */
 	public static function get_supported_services() {
-		/**
-		 * Disable caching for now to avoid nonce errors
-		 * for secondary users trying to connect an account
-		 *
-		 * @link https://github.com/Automattic/jetpack/pull/41149
-		 */
-		return Publicize_Services::get_all( true /* Ignore cache */ );
+		return Publicize_Services::get_all();
 	}
 
 	/**
@@ -306,6 +299,8 @@ class Publicize_Script_Data {
 
 		$commom_paths = array(
 			'refreshConnections' => '/wpcom/v2/publicize/connections?test_connections=1',
+			// The complete path will be like `/jetpack/v4/social/settings`.
+			'socialToggleBase'   => Utils::should_use_jetpack_module_endpoint() ? 'settings' : 'social/settings',
 		);
 
 		$specific_paths = array();

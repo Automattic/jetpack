@@ -21,6 +21,13 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	protected $dedicated_sync_request_spawned;
 
 	/**
+	 * Sync queue.
+	 *
+	 * @var \Automattic\Jetpack\Sync\Queue
+	 */
+	public $queue;
+
+	/**
 	 * Setting up the testing environment.
 	 */
 	public function set_up() {

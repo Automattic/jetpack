@@ -56,18 +56,6 @@ div.jetpack-comment-likes-widget-wrapper iframe {
 #likes-other-gravatars {
 	display: none;
 	position: absolute;
-	padding: 10px 10px 12px 10px;
-	background-color: #2e4453;
-	border-width: 0;
-	box-shadow: 0 0 10px #2e4453;
-	box-shadow: 0 0 10px rgba(46,68,83,.6);
-	min-width: 130px;
-	z-index: 1000;
-}
-
-#likes-other-gravatars.wpl-new-layout {
-	display: none;
-	position: absolute;
 	padding: 9px 12px 10px 12px;
 	background-color: #fff;
 	border: solid 1px #dcdcde;
@@ -85,12 +73,6 @@ div.jetpack-comment-likes-widget-wrapper iframe {
 }
 
 #likes-other-gravatars .likes-text {
-	color: white;
-	font-size: 12px;
-	padding-bottom: 8px;
-}
-
-#likes-other-gravatars.wpl-new-layout .likes-text {
 	color: #101517;
 	font-size: 12px;
 	font-weight: 500;
@@ -116,13 +98,6 @@ div.jetpack-comment-likes-widget-wrapper iframe {
 }
 
 #likes-other-gravatars ul.wpl-avatars li {
-	width: 32px;
-	height: 32px;
-	float: left;
-	margin: 0 5px 5px 0;
-}
-
-#likes-other-gravatars.wpl-new-layout ul.wpl-avatars li {
 	width: 196px;
 	height: 28px;
 	float: none;
@@ -132,19 +107,13 @@ div.jetpack-comment-likes-widget-wrapper iframe {
 #likes-other-gravatars ul.wpl-avatars li a {
 	margin: 0 2px 0 0;
 	border-bottom: none !important;
-	display: block;
-}
-
-#likes-other-gravatars.wpl-new-layout ul.wpl-avatars li a {
-	margin: 0 2px 0 0;
-	border-bottom: none !important;
 	display: flex;
 	align-items: center;
 	gap: 8px;
 	text-decoration: none;
 }
 
-#likes-other-gravatars.wpl-new-layout ul.wpl-avatars li a span {
+#likes-other-gravatars ul.wpl-avatars li a span {
 	font-size: 12px;
 	color: #2C3338;
 	overflow: hidden;
@@ -155,19 +124,11 @@ div.jetpack-comment-likes-widget-wrapper iframe {
 #likes-other-gravatars ul.wpl-avatars li a img {
 	background: none;
 	border: none;
-	margin: 0 !important;
-	padding: 0 !important;
-	position: static;
-	box-sizing: border-box;
-}
-
-#likes-other-gravatars.wpl-new-layout ul.wpl-avatars li a img {
-	background: none;
-	border: none;
 	border-radius: 50%;
 	margin: 0 !important;
 	padding: 1px !important;
 	position: static;
+	box-sizing: border-box;
 }
 
 div.sd-box {
@@ -213,9 +174,6 @@ div.sd-box {
 
 .post-likes-widget-placeholder .button {
 	display: none;	/* Let's not show a dummy like button, let's just make a great button experience once it's loaded */
-}
-
-.post-likes-widget-placeholder .button span {
 }
 
 .post-likes-widget-placeholder .loading,

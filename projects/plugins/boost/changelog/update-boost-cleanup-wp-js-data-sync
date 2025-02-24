@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+General: Improved the way modules are configured internally [#39859]

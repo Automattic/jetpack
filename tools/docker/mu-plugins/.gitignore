@@ -2,6 +2,7 @@
 !.gitignore
 !debug.php
 !avoid-plugin-deletion.php
+!bypass_circular_refs_during_core_update.php
 !fix-monorepo-plugin_url.php
 !jetpack-debug-helper-loader.php
 !/jetpack-debug-helper

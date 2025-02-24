@@ -1104,21 +1104,33 @@ class WPCOM_JSON_API {
 			return wp_count_comments( $post_id );
 		}
 
-		array_walk( $include, 'esc_sql' );
-		$where = sprintf(
-			"WHERE comment_type IN ( '%s' )",
-			implode( "','", $include )
-		);
+		// The following caching mechanism is based on what the get_comments() function uses.
 
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- `$where` is built with escaping just above.
-		$count = $wpdb->get_results(
-			"SELECT comment_approved, COUNT(*) AS num_comments
-				FROM $wpdb->comments
-				{$where}
-				GROUP BY comment_approved
-			"
-		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$key          = md5( serialize( $include ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+		$last_changed = wp_cache_get_last_changed( 'comment' );
+
+		$cache_key = "wp_count_comments:$key:$last_changed";
+		$count     = wp_cache_get( $cache_key, 'jetpack-json-api' );
+
+		if ( false === $count ) {
+			array_walk( $include, 'esc_sql' );
+			$where = sprintf(
+				"WHERE comment_type IN ( '%s' )",
+				implode( "','", $include )
+			);
+
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- `$where` is built with escaping just above.
+			$count = $wpdb->get_results(
+				"SELECT comment_approved, COUNT(*) AS num_comments
+					FROM $wpdb->comments
+					{$where}
+					GROUP BY comment_approved
+				"
+			);
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+			wp_cache_add( $cache_key, $count, 'jetpack-json-api' );
+		}
 
 		$approved = array(
 			'0'            => 'moderated',

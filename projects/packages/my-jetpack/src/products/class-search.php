@@ -13,7 +13,6 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
-use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -40,6 +39,13 @@ class Search extends Hybrid_Product {
 	 * @var string
 	 */
 	public static $plugin_slug = 'jetpack-search';
+
+	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'performance';
 
 	/**
 	 * Search has a standalone plugin
@@ -270,39 +276,6 @@ class Search extends Hybrid_Product {
 		$body                      = wp_remote_retrieve_body( $response );
 		$pricings[ $record_count ] = json_decode( $body, true );
 		return $pricings[ $record_count ];
-	}
-
-	/**
-	 * Hits the wpcom api to check Search status.
-	 *
-	 * @todo Maybe add caching.
-	 *
-	 * @return Object|WP_Error
-	 */
-	private static function get_state_from_wpcom() {
-		static $status = null;
-
-		if ( $status !== null ) {
-			return $status;
-		}
-
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		$response = Client::wpcom_json_api_request_as_blog(
-			'/sites/' . $blog_id . '/jetpack-search/plan',
-			'2',
-			array( 'timeout' => 5 ),
-			null,
-			'wpcom'
-		);
-
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'search_state_fetch_failed' );
-		}
-
-		$body   = wp_remote_retrieve_body( $response );
-		$status = json_decode( $body );
-		return $status;
 	}
 
 	/**

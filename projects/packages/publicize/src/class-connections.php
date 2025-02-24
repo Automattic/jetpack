@@ -84,12 +84,23 @@ class Connections {
 
 		foreach ( $connections as $connection ) {
 
-			if ( $connection['shared'] || self::user_owns_connection( $connection ) ) {
+			if ( self::is_shared( $connection ) || self::user_owns_connection( $connection ) ) {
 				$connections_for_user[] = $connection;
 			}
 		}
 
 		return $connections_for_user;
+	}
+
+	/**
+	 * Check whether a connection is shared.
+	 *
+	 * @param array $connection The connection.
+	 *
+	 * @return boolean
+	 */
+	public static function is_shared( $connection ) {
+		return ! empty( $connection['shared'] );
 	}
 
 	/**
@@ -152,6 +163,11 @@ class Connections {
 	public static function fetch_and_cache_connections() {
 		$connections = self::fetch_site_connections();
 
+		if ( is_wp_error( $connections ) ) {
+			// @todo log error.
+			return array();
+		}
+
 		if ( is_array( $connections ) ) {
 			if ( ! set_transient( self::CONNECTIONS_TRANSIENT, $connections, HOUR_IN_SECONDS * 4 ) ) {
 				// If the transient has beeen set in another request, the call to set_transient can fail.
@@ -168,21 +184,14 @@ class Connections {
 	/**
 	 * Fetch connections for the site from WPCOM REST API.
 	 *
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public static function fetch_site_connections() {
 		$proxy = new Proxy_Requests( 'publicize/connections' );
 
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/connections' );
 
-		$connections = $proxy->proxy_request_to_wpcom_as_blog( $request );
-
-		if ( is_wp_error( $connections ) ) {
-			// @todo log error.
-			return array();
-		}
-
-		return $connections;
+		return $proxy->proxy_request_to_wpcom_as_blog( $request );
 	}
 
 	/**

@@ -157,12 +157,23 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		unlinkUser: () =>
-			postRequest( `${ apiRoot }jetpack/v4/connection/user`, postParams, {
-				body: JSON.stringify( { linked: false } ),
+		unlinkUser: ( force = false, options = {} ) => {
+			const params = {
+				linked: false,
+				force: !! force,
+			};
+
+			// Add any additional options to the params
+			if ( options.disconnectAllUsers ) {
+				params[ 'disconnect-all-users' ] = true;
+			}
+
+			return postRequest( `${ apiRoot }jetpack/v4/connection/user`, postParams, {
+				body: JSON.stringify( params ),
 			} )
 				.then( checkStatus )
-				.then( parseJsonResponse ),
+				.then( parseJsonResponse );
+		},
 
 		reconnect: () =>
 			postRequest( `${ apiRoot }jetpack/v4/connection/reconnect`, postParams )
@@ -274,6 +285,11 @@ function JetpackRestApiClient( root, nonce ) {
 			postRequest( `${ apiRoot }jetpack/v4/module/akismet/key/check`, postParams, {
 				body: JSON.stringify( { api_key: apiKey } ),
 			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		getFeatureTypeStatus: customContentType =>
+			getRequest( `${ apiRoot }jetpack/v4/feature/${ customContentType }`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 

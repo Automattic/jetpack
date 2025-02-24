@@ -12,6 +12,8 @@ use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Tracking;
+use Jetpack_Tracks_Client;
 
 /**
  * Class Admin
@@ -702,12 +704,6 @@ class Admin {
 	 * @return void
 	 */
 	public function grunion_manage_post_column_response( $post ) {
-		$non_printable_keys = array(
-			'email_marketing_consent',
-			'entry_title',
-			'entry_permalink',
-			'feedback_id',
-		);
 
 		$post_content = get_post_field( 'post_content', $post->ID );
 		$content      = explode( '<!--more-->', $post_content );
@@ -750,7 +746,12 @@ class Admin {
 			}
 		}
 
-		$response_fields = array_diff_key( $response_fields, array_flip( $non_printable_keys ) );
+		$url = get_permalink( $post->post_parent );
+		if ( isset( $response_fields['entry_page'] ) ) {
+			$url = add_query_arg( 'page', $response_fields['entry_page'], $url );
+		}
+
+		$response_fields = array_diff_key( $response_fields, array_flip( array_keys( Contact_Form_Plugin::NON_PRINTABLE_FIELDS ) ) );
 
 		echo '<hr class="feedback_response__mobile-separator" />';
 		echo '<div class="feedback_response__item">';
@@ -774,7 +775,7 @@ class Admin {
 			echo '<div class="feedback_response__item-value">' . esc_html( $content_fields['_feedback_ip'] ) . '</div>';
 		}
 		echo '<div class="feedback_response__item-key">' . esc_html__( 'Source', 'jetpack-forms' ) . '</div>';
-		echo '<div class="feedback_response__item-value"><a href="' . esc_url( get_permalink( $post->post_parent ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( get_permalink( $post->post_parent ) ) . '</a></div>';
+		echo '<div class="feedback_response__item-value"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
 		echo '</div>';
 	}
 
@@ -1316,6 +1317,18 @@ class Admin {
 				'in_footer'    => true,
 			)
 		);
+
+		if ( Contact_Form_Plugin::can_use_analytics() ) {
+			Tracking::register_tracks_functions_scripts( true );
+
+			wp_localize_script(
+				'grunion-admin',
+				'jetpack_forms_tracking',
+				array(
+					'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+				)
+			);
+		}
 
 		wp_enqueue_style( 'grunion.css' );
 

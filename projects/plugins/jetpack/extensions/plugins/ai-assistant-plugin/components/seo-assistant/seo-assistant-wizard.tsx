@@ -1,46 +1,62 @@
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import debugFactory from 'debug';
+/**
+ * External dependencies
+ */
+import { useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+/**
+ * Internal dependencies
+ */
+import { store as seoAssistantStore } from './store';
+import { useAltTextStep } from './use-alt-text-step';
+import { useCompletionStep } from './use-completion-step';
+import { useDescriptionStep } from './use-description-step';
+import { useKeywordsStep } from './use-keywords-step';
+import { useTitleStep } from './use-title-step';
+import { useWelcomeStep } from './use-welcome-step';
+import WizardChat from './wizard-chat';
 import './style.scss';
-import AssistantWizard from './assistant-wizard';
+/**
+ * Types
+ */
+import type { SeoAssistantDispatch } from './types';
+import type { Block } from '@automattic/jetpack-ai-client';
 
-const debug = debugFactory( 'jetpack-ai:seo-assistant-wizard' );
+export default function SeoAssistantWizard() {
+	const imageBlocks = useSelect(
+		select =>
+			select( editorStore )
+				.getBlocks()
+				.filter( ( block: Block ) => block.name === 'core/image' ),
+		[]
+	);
 
-export default function SeoAssistantWizard( { close }: { close?: () => void } ) {
-	debug( 'render' );
+	const { close } = useDispatch( seoAssistantStore ) as SeoAssistantDispatch;
+	const keywordsStepData = useKeywordsStep();
+	const titleStepData = useTitleStep( { keywords: keywordsStepData.value, mockRequests: false } );
+	const descriptionStepData = useDescriptionStep( {
+		keywords: keywordsStepData.value,
+	} );
+	const altTextSteps = useAltTextStep( {
+		keywords: keywordsStepData.value,
+		imageBlocks,
+	} );
+	const welcomeStepData = useWelcomeStep( {
+		stepLabels: [ titleStepData, descriptionStepData, ...altTextSteps ].map( step => step.label ),
+	} );
+	const completionStepData = useCompletionStep();
+
 	return (
-		<AssistantWizard
+		<WizardChat
 			close={ close }
-			tasks={ [
-				{
-					id: 'welcome',
-					title: __( 'Optimise for SEO', 'jetpack' ),
-					label: 'welcome',
-					type: 'welcome',
-					autoAdvance: 1500,
-					messages: [
-						{
-							content: createInterpolateElement(
-								__( "<b>Hi there! 👋 Let's optimise your blog post for SEO.</b>", 'jetpack' ),
-								{ b: <b /> }
-							),
-							showIcon: true,
-							id: '1',
-						},
-						{
-							content: createInterpolateElement(
-								__(
-									"Here's what we can improve:<br />1. Keywords<br />2. Title<br />3. Meta description",
-									'jetpack'
-								),
-								{ br: <br /> }
-							),
-							showIcon: false,
-							id: '2',
-						},
-					],
-				},
+			steps={ [
+				welcomeStepData,
+				keywordsStepData,
+				titleStepData,
+				descriptionStepData,
+				...altTextSteps,
+				completionStepData,
 			] }
+			assistantName={ 'seo-assistant' }
 		/>
 	);
 }

@@ -512,7 +512,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "2095f92a85f5a400e82af6aca9be107793733833"
+                "reference": "de8d9e7711ef6c7ac5c9fc2150b939e2e4436774"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -547,7 +547,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.3.x-dev"
+                    "dev-trunk": "6.5.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -838,7 +838,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "6b2795ebf1c65e0a1a0bb9f0f1a9accaac0e22bf"
+                "reference": "f527bde0c78e784b2716e959766ca9f599794137"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -870,7 +870,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.0.x-dev"
+                    "dev-trunk": "4.1.x-dev"
                 }
             },
             "autoload": {
@@ -1293,9 +1293,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect-models",
-                "reference": "6b8a84b23ab688f32c77c37bf835ef2b9d3ef6b1"
+                "reference": "39c60f757e5fbfecb8a1b9cb35bccf9b3752e9af"
             },
             "require": {
+                "automattic/jetpack-redirect": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -1310,7 +1311,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-protect-models/compare/v${old}...v${new}"
@@ -1357,7 +1358,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect-status",
-                "reference": "a44ea0f3df3aba3bc7524f8a3159b06f3a43e942"
+                "reference": "de3b1715798e5c6fc17ecbb0c2495da9fd700e58"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1379,7 +1380,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-protect-status/compare/v${old}...v${new}"
@@ -1742,7 +1743,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "a70bbb708b593062cf5e3c2f241360ffccfae42b"
+                "reference": "614e8080c65490680b5ed287519fab6676ae6f45"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1775,7 +1776,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.5.x-dev"
+                    "dev-trunk": "4.8.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1816,9 +1817,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "60af893cdd71ba76d13b5b93427d3c042745e7bb"
+                "reference": "c4eef7baeda708c6b260b9658cc9c57e942692b3"
             },
             "require": {
+                "composer-runtime-api": "^2.2.0",
                 "php": ">=7.2.5",
                 "symfony/console": "^5.4 || ^6.4 || ^7.1",
                 "symfony/process": "^5.4 || ^6.4 || ^7.1"
@@ -1867,10 +1869,10 @@
                     "@composer phpunit"
                 ],
                 "post-install-cmd": [
-                    "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
+                    "rm -f vendor/bin/changelogger && ln -s ../../bin/local-changelogger vendor/bin/changelogger"
                 ],
                 "post-update-cmd": [
-                    "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
+                    "rm -f vendor/bin/changelogger && ln -s ../../bin/local-changelogger vendor/bin/changelogger"
                 ]
             },
             "license": [
@@ -4392,16 +4394,16 @@
         },
         {
             "name": "yoast/phpunit-polyfills",
-            "version": "1.1.3",
+            "version": "1.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Yoast/PHPUnit-Polyfills.git",
-                "reference": "0b31ce834facf03b8b44b6587e65b3cf1d7cfb94"
+                "reference": "e6faedf5e34cea4438e341f660e2f719760c531d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/0b31ce834facf03b8b44b6587e65b3cf1d7cfb94",
-                "reference": "0b31ce834facf03b8b44b6587e65b3cf1d7cfb94",
+                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/e6faedf5e34cea4438e341f660e2f719760c531d",
+                "reference": "e6faedf5e34cea4438e341f660e2f719760c531d",
                 "shasum": ""
             },
             "require": {
@@ -4416,7 +4418,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "3.x-dev"
+                    "dev-main": "4.x-dev"
                 }
             },
             "autoload": {
@@ -4451,7 +4453,7 @@
                 "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2025-01-08T16:58:34+00:00"
+            "time": "2025-02-09T18:13:44+00:00"
         }
     ],
     "aliases": [],

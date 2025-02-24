@@ -221,8 +221,8 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create();
 
 		// create a post.
-		$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
-		$this->post = get_post( $post_id );
+		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+		get_post( $post_id );
 
 		// Perform Checksum.
 		$tc     = new Table_Checksum( 'posts' );
@@ -319,8 +319,8 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create();
 
 		// create a post, needed to allow for field checks.
-		$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
-		$this->post = get_post( $post_id );
+		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+		get_post( $post_id );
 
 		// Calculate checksum.
 		$tc     = new Table_Checksum( 'posts' );

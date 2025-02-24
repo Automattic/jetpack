@@ -17,7 +17,6 @@ import { useCallback, useEffect, useState, useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
 import Textarea from '../../components/textarea';
 import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../../constants';
-import useWafSeenMutation from '../../data/waf/use-waf-seen-mutation';
 import useWafUpgradeSeenMutation from '../../data/waf/use-waf-upgrade-seen-mutation';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
@@ -43,7 +42,6 @@ const FirewallPage = () => {
 		},
 		currentIp,
 		isEnabled: isWafModuleEnabled,
-		isSeen,
 		upgradeIsSeen,
 		displayUpgradeBadge,
 		wafSupported,
@@ -60,7 +58,6 @@ const FirewallPage = () => {
 	const { hasPlan } = usePlan();
 	const { upgradePlan } = usePlan( { redirectUrl: `${ ADMIN_URL }#/firewall` } );
 	const { recordEvent } = useAnalyticsTracks();
-	const wafSeenMutation = useWafSeenMutation();
 	const wafUpgradeSeenMutation = useWafUpgradeSeenMutation();
 	const { automaticRulesLastUpdated } = stats;
 
@@ -211,17 +208,6 @@ const FirewallPage = () => {
 			} );
 		}
 	}, [ jetpackWafIpBlockList, jetpackWafIpAllowList, isUpdating ] );
-
-	/**
-	 * "WAF Seen" useEffect()
-	 */
-	useEffect( () => {
-		if ( isSeen ) {
-			return;
-		}
-
-		wafSeenMutation.mutate();
-	}, [ isSeen, wafSeenMutation ] );
 
 	// Track view for Protect WAF page.
 	useAnalyticsTracks( {

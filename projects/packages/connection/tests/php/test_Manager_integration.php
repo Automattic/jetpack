@@ -633,8 +633,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 				$this,
 				$callback,
 			),
-			10,
-			3
+			10
 		);
 
 		$this->assertCount( $expected_user_token_count, $this->manager->get_connected_users() );

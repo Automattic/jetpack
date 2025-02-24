@@ -6,6 +6,7 @@ import {
 	ERROR_QUOTA_EXCEEDED,
 	mapActionToHumanText,
 	useAiSuggestions,
+	useAiFeature,
 } from '@automattic/jetpack-ai-client';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -18,7 +19,6 @@ import React from 'react';
 /*
  * Internal dependencies
  */
-import useAiFeature from '../hooks/use-ai-feature';
 import useAutoScroll from '../hooks/use-auto-scroll';
 import useBlockModuleStatus from '../hooks/use-block-module-status';
 import { mapInternalPromptTypeToBackendPromptType } from '../lib/prompt/backend-prompt';
@@ -214,10 +214,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback(
-			( suggestion: string ) => {
+			( suggestion: string, skipRequestCount?: boolean ) => {
 				disableAutoScroll();
 				onBlockDone( suggestion );
-				increaseRequestsCount();
+				if ( ! skipRequestCount ) {
+					increaseRequestsCount();
+				}
 				setAction( '' );
 
 				if ( lastRequest.current?.message ) {

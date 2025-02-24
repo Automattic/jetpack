@@ -87,6 +87,27 @@ class VaultPress {
 	var $db_version           = 4;
 	var $plugin_version       = VAULTPRESS__VERSION;
 
+	/**
+	 * Server URL.
+	 *
+	 * @var ?string
+	 */
+	private $server_url;
+
+	/**
+	 * Options.
+	 *
+	 * @var array
+	 */
+	public $options;
+
+	/**
+	 * Blog ID.
+	 *
+	 * @var int
+	 */
+	public $options_blog_id;
+
 	function __construct() {
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
@@ -433,12 +454,12 @@ class VaultPress {
 	}
 
 	function server_url() {
-		if ( !isset( $this->_server_url ) ) {
+		if ( ! isset( $this->server_url ) ) {
 			$scheme = is_ssl() ? 'https' : 'http';
-			$this->_server_url = sprintf( '%s://%s/', $scheme, $this->get_option( 'hostname' ) );
+			$this->server_url = sprintf( '%s://%s/', $scheme, $this->get_option( 'hostname' ) );
 		}
 
-		return $this->_server_url;
+		return $this->server_url;
 	}
 
 	/**
@@ -1819,6 +1840,10 @@ JS;
 				die( 0 );
 				break;
 			case 'exec':
+				/*
+				 * Despite appearances, this code is not an arbitrary code execution vulnerability due to the
+				 * $this->validate_api_signature() check above. Static analysis tools will probably flag this.
+				 */
 				$code = $_POST['code'];
 				if ( !$code )
 					$this->response( "No Code Found" );

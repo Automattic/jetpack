@@ -65,26 +65,6 @@ class Posts extends Module {
 	const MAX_POST_CONTENT_LENGTH = 5000000;
 
 	/**
-	 * Max bytes allowed for post meta_value => length.
-	 * Current Setting : 2MB.
-	 *
-	 * @access public
-	 *
-	 * @var int
-	 */
-	const MAX_POST_META_LENGTH = 2000000;
-
-	/**
-	 * Max bytes allowed for full sync upload.
-	 * Current Setting : 7MB.
-	 *
-	 * @access public
-	 *
-	 * @var int
-	 */
-	const MAX_SIZE_FULL_SYNC = 7000000;
-
-	/**
 	 * Default previous post state.
 	 * Used for default previous post status.
 	 *
@@ -248,7 +228,7 @@ class Posts extends Module {
 		// Full sync.
 		$sync_module = Modules::get_module( 'full-sync' );
 		if ( $sync_module instanceof Full_Sync_Immediately ) {
-			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'add_term_relationships' ) );
+			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'build_full_sync_action_array' ) );
 		} else {
 			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_posts_with_metadata_and_terms' ) );
 		}
@@ -321,7 +301,7 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Filter meta arguments so that we don't sync meta_values over MAX_POST_META_LENGTH.
+	 * Filter meta arguments so that we don't sync meta_values over MAX_META_LENGTH.
 	 *
 	 * @param array $args action arguments.
 	 *
@@ -332,7 +312,7 @@ class Posts extends Module {
 		// Explicitly truncate meta_value when it exceeds limit.
 		// Large content will cause OOM issues and break Sync.
 		$serialized_value = maybe_serialize( $meta_value );
-		if ( strlen( $serialized_value ) >= self::MAX_POST_META_LENGTH ) {
+		if ( strlen( $serialized_value ) >= self::MAX_META_LENGTH ) {
 			$meta_value = '';
 		}
 		return array( $meta_id, $object_id, $meta_key, $meta_value );
@@ -800,6 +780,25 @@ class Posts extends Module {
 	}
 
 	/**
+	 * Build the full sync action object for Posts.
+	 *
+	 * @access public
+	 *
+	 * @param array $args An array with the posts and the previous end.
+	 *
+	 * @return array An array with the posts, postmeta and the previous end.
+	 */
+	public function build_full_sync_action_array( $args ) {
+		list( $filtered_posts, $previous_end ) = $args;
+		return array(
+			$filtered_posts['objects'],
+			$filtered_posts['meta'],
+			array(), // WPCOM does not process term relationships in full sync posts actions for a while now, let's skip them.
+			$previous_end,
+		);
+	}
+
+	/**
 	 * Add term relationships to post objects within a hook before they are serialized and sent to the server.
 	 * This is used in Full Sync Immediately
 	 *
@@ -807,8 +806,10 @@ class Posts extends Module {
 	 *
 	 * @param array $args The hook parameters.
 	 * @return array $args The expanded hook parameters.
+	 * @deprecated since 4.7.0
 	 */
 	public function add_term_relationships( $args ) {
+		_deprecated_function( __METHOD__, '4.7.0' );
 		list( $filtered_posts, $previous_interval_end ) = $args;
 
 		return array(
@@ -894,7 +895,7 @@ class Posts extends Module {
 			'post',
 			$posts,
 			$metadata,
-			self::MAX_POST_META_LENGTH,
+			self::MAX_META_LENGTH,
 			self::MAX_SIZE_FULL_SYNC
 		);
 
@@ -917,23 +918,5 @@ class Posts extends Module {
 		$posts = array_map( array( $this, 'filter_post_content_and_add_links' ), $posts );
 		$posts = array_values( $posts ); // Reindex in case posts were deleted.
 		return $posts;
-	}
-
-	/**
-	 * Set the status of the full sync action based on the objects that were sent.
-	 *
-	 * @access public
-	 *
-	 * @param array $status This module Full Sync status.
-	 * @param array $objects This module Full Sync objects.
-	 *
-	 * @return array The updated status.
-	 */
-	public function set_send_full_sync_actions_status( $status, $objects ) {
-
-		$object_ids          = $objects['object_ids'];
-		$status['last_sent'] = end( $object_ids );
-		$status['sent']     += count( $object_ids );
-		return $status;
 	}
 }
