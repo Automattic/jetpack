@@ -1692,18 +1692,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * A function that gets called when processing form submissions and returns a list of files that were processed or errors.
 	 */
 	private function process_file_uploads() {
+		require_once __DIR__ . '/class-contact-form-file-handler.php';
+		$file_handler = new Contact_Form_File_Handler();
 
-		global $wp_filesystem;
-		if ( ! function_exists( 'WP_Filesystem' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-
-		WP_Filesystem();
-
-		// Initialize an empty array for storing uploaded file paths
 		$uploaded_files = array();
 
-		// Process file uploads first
+		// Find and process file fields
 		foreach ( $this->fields as $id => $field ) {
 			if ( $field->get_attribute( 'type' ) !== 'file' ) {
 				continue;
@@ -1719,78 +1713,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 				continue;
 			}
 
-			$secret_dir            = get_option( 'jetpack_upload_dir' );
-			$unauth_uploaded_files = get_option( 'jetpack_unauth_uploads', array() );
-			if ( ! isset( $unauth_uploaded_files[ $token ] ) ) {
-				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
+			// Process the file token using the file handler
+			$result = $file_handler->process_file_upload( $token );
+			if ( is_wp_error( $result ) ) {
+				$field->add_error( $result->get_error_message() );
 				continue;
 			}
 
-			$file_data = $unauth_uploaded_files[ $token ];
-
-			$original_file_name = $file_data['original_name'];
-			// lets locate the file in the temp folder.
-			$uploads_folder          = wp_upload_dir();
-			$jetpack_forms_dir       = $uploads_folder['basedir'] . '/jetpack-upload/' . $secret_dir;
-			$jetpack_forms_temp_path = $jetpack_forms_dir . '/temp/';
-
-			$temp_file = $jetpack_forms_temp_path . $file_data['filename'];
-			if ( ! $wp_filesystem->exists( $temp_file ) ) {
-				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
-				continue;
-			}
-
-			$new_hash          = wp_hash( wp_rand( 100000, 999999 ) . microtime() );
-			$new_secret_name   = wp_hash( $new_hash ) . '-' . $original_file_name;
-			$year              = gmdate( 'Y' );
-			$month             = gmdate( 'm' );
-			$final_path_folder = $jetpack_forms_dir . '/' . $year . '/' . $month . '/';
-			wp_mkdir_p( $final_path_folder );
-
-			$final_path = $final_path_folder . $new_secret_name;
-
-			// Check if the destination directory is writable
-			if ( ! $wp_filesystem->is_writable( $final_path_folder ) ) {
-				$field->add_error( __( 'Failed to upload file. Destination directory is not writable.', 'jetpack-forms' ) );
-				continue;
-			}
-
-			// Check if the source file is readable
-			if ( ! $wp_filesystem->is_readable( $temp_file ) ) {
-				$field->add_error( __( 'Failed to upload file. Source file is not readable.', 'jetpack-forms' ) );
-				continue;
-			}
-
-			$move_result = $wp_filesystem->move( $temp_file, $final_path );
-			if ( ! $move_result ) {
-				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
-				continue;
-			}
-			unset( $unauth_uploaded_files[ $token ] );
-			if ( empty( $unauth_uploaded_files ) ) {
-				delete_option( 'jetpack_unauth_uploads' );
-			} else {
-				update_option( 'jetpack_unauth_uploads', $unauth_uploaded_files, true );
-			}
-
-			$uploaded_files[ $field_id ] = array(
-				'field_type' => $field->get_attribute( 'type' ),
-				'name'       => $original_file_name,
-				'path'       => $final_path,
-				'url'        => add_query_arg(
-					array(
-						'jp-filename' => $original_file_name,
-						'jp-hash'     => $new_hash,
-						't'           => $year . '-' . $month,
-					),
-					get_site_url()
-				),
-				'hash'       => $new_hash,
-				'size'       => wp_filesize( $final_path ),
-			);
+			$uploaded_files[ $field_id ] = $result;
 		}
+
+		l( $uploaded_files );
+
 		return $uploaded_files;
 	}
+
 	/**
 	 * Get the permalink for the post ID that include the page query parameter if it was set.
 	 *
