@@ -10,6 +10,8 @@ interface DropzoneOptions {
 		fileSizeUnits?: string[];
 		removeFile?: string;
 		uploadError?: string;
+		unsupportedFiletype?: string;
+		folderNotSupported?: string;
 	};
 }
 
@@ -17,12 +19,14 @@ export default class JP_Dropzone {
 	element: HTMLElement;
 	previewContainer: HTMLElement;
 	uploadButton: HTMLElement;
+	form: HTMLFormElement;
 	fileField: HTMLInputElement;
 	isProcessing: boolean;
 
 	options: DropzoneOptions;
 	files: File[];
 	xhr: XMLHttpRequest[];
+	events: { [ key: string ]: EventCallback[] };
 
 	/**
 	 * @param {HTMLElement} element The dropzone element.
@@ -31,18 +35,8 @@ export default class JP_Dropzone {
 	constructor( element: HTMLElement, options: DropzoneOptions ) {
 		// Option. Single or multiple files.
 		this.element = element;
+		this.form = element.closest( 'form' ) as HTMLFormElement;
 		this.fileField = element.querySelector( '.jetpack-form-file-field' ) as HTMLInputElement;
-
-		this.fileField.addEventListener( 'invalid', ( event: Event ) => {
-			const target = event.target as HTMLInputElement;
-			if ( ! target ) return;
-
-			const alert = document.createElement( 'div' );
-			alert.textContent = target.validationMessage;
-			alert.classList.add( 'contact-form__error' );
-			this.element.appendChild( alert );
-		} );
-
 		this.options = options;
 
 		this.previewContainer = this.element.querySelector(
@@ -52,6 +46,7 @@ export default class JP_Dropzone {
 		this.files = [];
 		this.xhr = [];
 		this.isProcessing = false;
+		this.events = {};
 
 		this.init();
 	}
@@ -62,6 +57,7 @@ export default class JP_Dropzone {
 	init() {
 		this.uploadButton.addEventListener( 'click', this.handleClick.bind( this ) );
 		this.uploadButton.addEventListener( 'keypress', this.handleClick.bind( this ) );
+		this.fileField.addEventListener( 'change', this.handleFiles.bind( this ) );
 
 		this.previewContainer.addEventListener( 'click', this.preventDefaults, false );
 
@@ -103,17 +99,67 @@ export default class JP_Dropzone {
 	}
 
 	/**
+	 * Check if the file type is allowed based on the file input's accept attribute.
+	 * @param {File} file The file to check.
+	 * @returns {boolean} Whether the file type is allowed.
+	 */
+	isFileTypeAllowed( file: File ): boolean {
+		const acceptAttribute = this.fileField.accept;
+
+		// If no accept attribute is set, allow all files
+		if ( ! acceptAttribute ) {
+			return true;
+		}
+
+		// Split the accept attribute into an array of allowed types
+		const allowedTypes = acceptAttribute.split( ',' ).map( type => type.trim().toLowerCase() );
+
+		// Get the file's type and extension
+		const fileType = file.type.toLowerCase();
+		const fileExtension = `.${ file.name.split( '.' ).pop()?.toLowerCase() }`;
+
+		return allowedTypes.some( type => {
+			// Check for exact mime type match
+			if ( type === fileType ) {
+				return true;
+			}
+			// Check for wildcard mime type (e.g., "image/*")
+			if ( type.endsWith( '/*' ) && fileType.startsWith( type.slice( 0, -1 ) ) ) {
+				return true;
+			}
+			// Check for file extension match (e.g., ".jpg")
+			if ( type.startsWith( '.' ) && type === fileExtension ) {
+				return true;
+			}
+			return false;
+		} );
+	}
+
+	/**
 	 * Handle the drop event and process the dropped files.
 	 * @param {DragEvent} event The drop event.
 	 */
 	handleDrop( event: DragEvent ) {
+		this.preventDefaults( event );
+		this.clearError();
+
 		if ( this.isProcessing ) {
-			this.preventDefaults( event );
 			return;
 		}
 
 		const dataTransfer = event.dataTransfer;
 		if ( dataTransfer ) {
+			// Check if any of the dragged items are folders
+			for ( const item of Array.from( dataTransfer.items ) ) {
+				if ( item.webkitGetAsEntry()?.isDirectory ) {
+					const errorMessage =
+						this.options?.i18n?.folderNotSupported ||
+						'Folders cannot be uploaded. Please drop a single file.';
+					this.triggerError( errorMessage );
+					return;
+				}
+			}
+
 			this.handleNewFiles( dataTransfer.files );
 		}
 	}
@@ -128,9 +174,10 @@ export default class JP_Dropzone {
 			return;
 		}
 
+		this.clearError();
+
 		this.preventDefaults( event );
 		this.fileField.click();
-		this.fileField.addEventListener( 'change', this.handleFiles.bind( this ) );
 	}
 
 	/**
@@ -144,8 +191,18 @@ export default class JP_Dropzone {
 
 		// Only take the first file
 		if ( files.length > 0 ) {
-			this.isProcessing = true;
 			const file = files[ 0 ];
+
+			// Check if file type is allowed
+			if ( ! this.isFileTypeAllowed( file ) ) {
+				const errorMessage =
+					this.options?.i18n?.unsupportedFiletype ||
+					'Invalid file type. Please check the list of allowed file types.';
+				this.triggerError( errorMessage );
+				return;
+			}
+
+			this.isProcessing = true;
 			this.files = [ file ];
 			this.renderPreviews( [ file ] );
 			this.uploadFiles( [ file ] );
@@ -157,7 +214,6 @@ export default class JP_Dropzone {
 	 * @param {Event} event The change event.
 	 */
 	handleFiles( event: Event ) {
-		this.fileField.removeEventListener( 'change', this.handleFiles.bind( this ) );
 		const target = event.target as HTMLInputElement;
 		if ( target && target.files ) {
 			this.handleNewFiles( target.files );
@@ -317,18 +373,7 @@ export default class JP_Dropzone {
 
 			if ( event.target.responseText ) {
 				const response = JSON.parse( event.target.responseText );
-
-				const errorEvent = new CustomEvent( 'jp-dropzone-error', {
-					detail: { file, index, response },
-					bubbles: true,
-					cancelable: true,
-				} );
-				this.element.dispatchEvent( errorEvent );
-
-				if ( response.message ) {
-					this.fileField.setCustomValidity( response.message );
-					this.fileField.reportValidity();
-				}
+				this.triggerError( response.message );
 			}
 
 			// Reset processing state after upload completes (success or error)
@@ -361,6 +406,55 @@ export default class JP_Dropzone {
 				this.previewContainer.classList.remove( 'is-active' );
 				this.isProcessing = false;
 			}
+		} );
+	}
+
+	/**
+	 * Register an event handler.
+	 * @param {string}        event    The event name.
+	 * @param {EventCallback} callback The event callback.
+	 * @returns {JP_Dropzone} The JP_Dropzone instance.
+	 */
+	on( event: string, callback: EventCallback ): JP_Dropzone {
+		if ( ! this.events[ event ] ) {
+			this.events[ event ] = [];
+		}
+		this.events[ event ].push( callback );
+		return this;
+	}
+
+	/**
+	 * Trigger an event.
+	 * @param {string}       event The event name.
+	 * @param {...unknown[]} args  The arguments to pass to the event callback.
+	 */
+	trigger( event: string, ...args: unknown[] ) {
+		if ( this.events[ event ] ) {
+			this.events[ event ].forEach( callback => callback.apply( this, args ) );
+		}
+	}
+	/**
+	 *
+	 * @param string message - Error message that we want to show the user.
+	 */
+	triggerError( message: string ) {
+		this.fileField.setCustomValidity( message );
+		this.trigger( 'error', {
+			input: this.fileField,
+			form: this.form,
+			message,
+		} );
+	}
+
+	/**
+	 * Use to clear the errors on the file.
+	 */
+	clearError() {
+		this.fileField.setCustomValidity( '' );
+		this.trigger( 'clear-error', {
+			input: this.fileField,
+			form: this.form,
+			message: '',
 		} );
 	}
 

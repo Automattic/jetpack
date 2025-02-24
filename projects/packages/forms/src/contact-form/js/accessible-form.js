@@ -689,7 +689,7 @@ const clearGroupInputError = fieldset => {
  * @param {HTMLElement} input Input element
  * @param {object}      opts  Form options
  */
-const clearInputError = ( input, opts ) => {
+export const clearInputError = ( input, opts ) => {
 	input.removeAttribute( 'aria-invalid' );
 	input.removeAttribute( 'aria-describedby' );
 
@@ -1021,7 +1021,7 @@ const setFieldErrors = ( form, opts ) => {
  * @param {HTMLFormElement} form  Parent form element
  * @param {object}          opts  Form options
  */
-const setSimpleFieldError = ( input, form, opts ) => {
+export const setSimpleFieldError = ( input, form, opts ) => {
 	const errorId = `${ input.name }-error`;
 
 	let error = form.querySelector( `#${ errorId }` );

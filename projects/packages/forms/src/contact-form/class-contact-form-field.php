@@ -1026,10 +1026,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'jetpackFormFileField',
 			array(
 				'i18n'           => array(
-					'language'      => get_bloginfo( 'language' ),
-					'fileSizeUnits' => $file_size_units,
-					'removeFile'    => __( 'Remove', 'jetpack-forms' ),
-					'uploadError'   => __( 'Error uploading file', 'jetpack-forms' ),
+					'language'            => get_bloginfo( 'language' ),
+					'fileSizeUnits'       => $file_size_units,
+					'removeFile'          => __( 'Remove', 'jetpack-forms' ),
+					'uploadError'         => __( 'Error uploading file', 'jetpack-forms' ),
+					'unsupportedFiletype' => __( 'Invalid file type. Please check the list of allowed file types.', 'jetpack-forms' ),
+					'folderNotSupported'  => __( 'Folders cannot be uploaded. Please drop a single file.', 'jetpack-forms' ),
 				),
 				'uploadEndpoint' => rest_url( 'wpcom/v2/unauth-file-upload' ),
 			)
