@@ -1,6 +1,7 @@
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { Spinner, AdminSection, AdminPage, Container, Col } from '@automattic/jetpack-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch, select as syncSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
@@ -44,6 +45,10 @@ export default function WordAdsDashboard() {
 		}
 	};
 
+	const { connectionStatus, connectedPlugins } = getScriptData()?.connection ?? {};
+	const hasConnectedJetpackPlugin =
+		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
+
 	useMemo( () => {
 		const apiRootUrl = syncSelect( STORE_ID ).getAPIRootUrl();
 		const apiNonce = syncSelect( STORE_ID ).getAPINonce();
@@ -61,7 +66,10 @@ export default function WordAdsDashboard() {
 				<Spinner className="jp-wordads-dashboard-page-loading-spinner" color="#000" size={ 32 } />
 			) }
 			{ ! isLoading && (
-				<AdminPage moduleName={ __( 'WordAds', 'jetpack-wordads' ) }>
+				<AdminPage
+					moduleName={ __( 'WordAds', 'jetpack-wordads' ) }
+					hasConnectedJetpackPlugin={ hasConnectedJetpackPlugin }
+				>
 					<AdminSection>
 						<Container horizontalSpacing={ 5 }>
 							<Col sm={ 4 }>

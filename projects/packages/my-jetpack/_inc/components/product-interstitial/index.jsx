@@ -79,6 +79,9 @@ export default function ProductInterstitial( {
 	const { detail } = useProduct( slug );
 	const { detail: bundleDetail } = useProduct( bundle );
 	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
+	const { connectionStatus, connectedPlugins } = useMyJetpackConnection();
+	const hasConnectedJetpackPlugin =
+		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
 
 	// Get the post activation URL for the product.
 	let redirectUri = detail?.postActivationUrl || null;
@@ -210,7 +213,11 @@ export default function ProductInterstitial( {
 	);
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ false }
+			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } />

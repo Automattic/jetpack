@@ -117,14 +117,15 @@ class Publicize_Script_Data {
 		}
 
 		$basic_data = array(
-			'api_paths'            => self::get_api_paths(),
-			'is_publicize_enabled' => Utils::is_publicize_active(),
-			'feature_flags'        => self::get_feature_flags(),
-			'supported_services'   => array(),
-			'shares_data'          => array(),
-			'urls'                 => array(),
-			'settings'             => self::get_social_settings(),
-			'plugin_info'          => self::get_plugin_info(),
+			'api_paths'                    => self::get_api_paths(),
+			'is_publicize_enabled'         => Utils::is_publicize_active(),
+			'feature_flags'                => self::get_feature_flags(),
+			'supported_services'           => array(),
+			'shares_data'                  => array(),
+			'urls'                         => array(),
+			'settings'                     => self::get_social_settings(),
+			'plugin_info'                  => self::get_plugin_info(),
+			'has_connected_jetpack_plugin' => is_plugin_active( 'jetpack/jetpack.php' ) && ( new Manager() )->has_connected_owner(),
 		);
 
 		if ( ! Utils::is_publicize_active() ) {

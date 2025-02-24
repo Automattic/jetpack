@@ -8,6 +8,7 @@ import {
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
@@ -74,12 +75,17 @@ const Admin = () => {
 		}
 	}
 
+	const { connectedPlugins } = getScriptData()?.connection ?? {};
+	const hasConnectedJetpackPlugin =
+		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
+
 	return (
 		<AdminPage
 			showHeader
 			showFooter
 			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
 			header={ <Header /> }
+			hasConnectedJetpackPlugin={ hasConnectedJetpackPlugin }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">

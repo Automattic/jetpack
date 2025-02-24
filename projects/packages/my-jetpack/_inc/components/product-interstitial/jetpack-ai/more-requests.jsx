@@ -18,6 +18,7 @@ import { Link } from 'react-router-dom';
  * Internal dependencies
  */
 import useAnalytics from '../../../hooks/use-analytics';
+import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import GoBackLink from '../../go-back-link';
 import jetpackAiImage from '../jetpack-ai.png';
 import styles from './style.module.scss';
@@ -30,6 +31,10 @@ import styles from './style.module.scss';
  * @return {object}                       JetpackAIInterstitialMoreRequests react component.
  */
 export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } ) {
+	const { connectionStatus, connectedPlugins } = useMyJetpackConnection();
+	const hasConnectedJetpackPlugin =
+		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
+
 	const title = __( 'Do you need more requests for Jetpack AI Assistant?', 'jetpack-my-jetpack' );
 	const longDescription = __(
 		'Allow us to assist you in discovering the optimal plan tailored to your requirements, ensuring you can continue using the most advanced AI technology Jetpack has to offer.',
@@ -42,7 +47,11 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 	}, [ recordEvent ] );
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ false }
+			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } reload={ false } />

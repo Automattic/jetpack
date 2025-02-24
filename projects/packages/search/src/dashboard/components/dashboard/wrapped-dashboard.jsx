@@ -74,6 +74,10 @@ function WrappedDashboard202208() {
 function AfterConnectionPage() {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
+	const hasConnectedJetpackPlugin = useSelect(
+		select => select( STORE_ID ).hasConnectedJetpackPlugin(),
+		[]
+	);
 
 	const isPageLoading = useSelect(
 		select =>
@@ -83,7 +87,12 @@ function AfterConnectionPage() {
 
 	return (
 		<>
-			{ supportsSearch && <SearchDashboardPage isLoading={ isPageLoading } /> }
+			{ supportsSearch && (
+				<SearchDashboardPage
+					isLoading={ isPageLoading }
+					enableJetpackAdminLinks={ hasConnectedJetpackPlugin }
+				/>
+			) }
 			{ ! supportsSearch && <UpsellPage isLoading={ isPageLoading } /> }
 		</>
 	);

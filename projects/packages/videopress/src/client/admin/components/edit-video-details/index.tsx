@@ -12,6 +12,7 @@ import {
 	JetpackVideoPressLogo,
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { SelectControl, RadioControl, CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import {
@@ -266,6 +267,10 @@ const EditVideoDetails = () => {
 		height ? ` h=${ height }` : ''
 	}]`;
 
+	const { connectionStatus, connectedPlugins } = getScriptData()?.connection ?? {};
+	const hasConnectedJetpackPlugin =
+		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
+
 	return (
 		<>
 			{ /* This is no longer supported as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
@@ -297,6 +302,7 @@ const EditVideoDetails = () => {
 						/>
 					</>
 				}
+				enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
 			>
 				<AdminSection>
 					<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>

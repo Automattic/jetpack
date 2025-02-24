@@ -13,10 +13,17 @@ const ConnectionScreen: FC = () => {
 	const [ searchParams ] = useSearchParams();
 	const shouldSkipPricing = searchParams.get( 'skip_pricing' ) === 'true';
 	const returnToPage = useMyJetpackReturnToPage();
-	const { apiRoot, apiNonce, registrationNonce } = useMyJetpackConnection();
+	const { apiRoot, apiNonce, registrationNonce, connectionStatus, connectedPlugins } =
+		useMyJetpackConnection();
+	const hasConnectedJetpackPlugin =
+		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ false }
+			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+		>
 			<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
 				<Col className={ styles[ 'relative-col' ] }>
 					<CloseLink

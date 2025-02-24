@@ -15,7 +15,11 @@ import {
 	Button,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
-import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import {
+	ConnectionError,
+	useConnection,
+	useConnectionErrorNotice,
+} from '@automattic/jetpack-connection';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -47,6 +51,10 @@ export default function UpsellPage( { isLoading = false } ) {
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
+
+	const { connectionStatus, connectedPlugins } = useConnection();
+	const hasConnectedJetpackPlugin =
+		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
 
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
 	const checkSiteHasSearchProduct = useCallback( () => {
@@ -97,6 +105,7 @@ export default function UpsellPage( { isLoading = false } ) {
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 						header={ <Header /> }
 						moduleNameHref={ JETPACK_SEARCH__LINK }
+						enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
 					>
 						<AdminSectionHero>
 							{ isNewPricing ? (

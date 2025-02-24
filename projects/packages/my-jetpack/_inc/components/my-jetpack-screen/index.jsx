@@ -99,7 +99,10 @@ export default function MyJetpackScreen() {
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
-	const { siteIsRegistered, apiRoot, apiNonce } = useMyJetpackConnection();
+	const { siteIsRegistered, apiRoot, apiNonce, connectionStatus, connectedPlugins } =
+		useMyJetpackConnection();
+	const hasConnectedJetpackPlugin =
+		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -170,6 +173,7 @@ export default function MyJetpackScreen() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
+			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
 		>
 			<h1 className="screen-reader-text">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</h1>
 			<hr className={ styles.separator } />

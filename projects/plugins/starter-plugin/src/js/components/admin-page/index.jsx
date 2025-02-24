@@ -12,14 +12,22 @@ import React from 'react';
 import styles from './styles.module.scss';
 
 const Admin = () => {
-	const connectionStatus = useSelect(
-		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
+	const { connectionStatus, connectedPlugins } = useSelect(
+		select => ( {
+			connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
+			connectedPlugins: select( CONNECTION_STORE_ID ).getConnectedPlugins(),
+		} ),
 		[]
 	);
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	return (
-		<AdminPage moduleName={ __( 'Jetpack Starter Plugin', 'jetpack-starter-plugin' ) }>
+		<AdminPage
+			moduleName={ __( 'Jetpack Starter Plugin', 'jetpack-starter-plugin' ) }
+			hasConnectedJetpackPlugin={
+				connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive
+			}
+		>
 			<AdminSectionHero>
 				{ showConnectionCard ? (
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>

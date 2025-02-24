@@ -30,6 +30,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 	apiNonce = '',
 	optionalMenuItems,
 	header,
+	enableFooterJetpackAdminLinks,
 } ) => {
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
@@ -90,6 +91,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 							moduleName={ moduleName }
 							moduleNameHref={ moduleNameHref }
 							menu={ optionalMenuItems }
+							enableJetpackAdminLinks={ enableFooterJetpackAdminLinks }
 						/>
 					</Col>
 				</Container>

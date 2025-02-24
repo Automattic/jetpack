@@ -25,7 +25,9 @@ export default function AddLicenseScreen() {
 		name: QUERY_LICENSES_KEY,
 		queryFn: async api => ( await api.getUserLicenses() )?.items,
 	} );
-	const { userConnectionData } = useMyJetpackConnection();
+	const { userConnectionData, connectionStatus, connectedPlugins } = useMyJetpackConnection();
+	const hasConnectedJetpackPlugin =
+		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
 	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( false );
 
 	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.
@@ -53,7 +55,11 @@ export default function AddLicenseScreen() {
 	const { siteSuffix = '', adminUrl = '' } = getMyJetpackWindowInitialState();
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ false }
+			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col>
 					<GoBackLink onClick={ onClickGoBack } reload={ hasActivatedLicense } />

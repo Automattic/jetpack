@@ -1,6 +1,7 @@
 import { JetpackFooter } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { config } from '../..';
 import JetpackFormsLogo from '../logo';
 
 import './style.scss';
@@ -16,6 +17,7 @@ const Layout = ( { children, className, showFooter } ) => {
 				<JetpackFooter
 					className="jp-forms__layout-footer"
 					moduleName={ __( 'Jetpack Forms', 'jetpack-forms' ) }
+					enableJetpackAdminLinks={ config( 'hasJetpack' ) }
 				/>
 			) }
 		</div>

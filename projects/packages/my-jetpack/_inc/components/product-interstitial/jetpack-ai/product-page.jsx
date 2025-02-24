@@ -40,7 +40,9 @@ export default function () {
 	const { detail } = useProduct( 'jetpack-ai' );
 	const { description, aiAssistantFeature } = detail;
 	const [ showNotice, setShowNotice ] = useState( false );
-	const { isRegistered } = useMyJetpackConnection();
+	const { isRegistered, connectionStatus, connectedPlugins } = useMyJetpackConnection();
+	const hasConnectedJetpackPlugin =
+		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
 
 	const videoTitleContentGeneration = __(
 		'Generate and edit content faster with Jetpack AI Assistant',
@@ -209,7 +211,11 @@ export default function () {
 	);
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ true }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ true }
+			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+		>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>

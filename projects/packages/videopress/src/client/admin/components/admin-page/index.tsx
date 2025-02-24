@@ -18,6 +18,7 @@ import {
 	useConnectionErrorNotice,
 	ConnectionError,
 } from '@automattic/jetpack-connection';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -188,12 +189,17 @@ const Admin = () => {
 			onSelectFiles: handleFilesUpload,
 		} );
 
+	const { connectionStatus, connectedPlugins } = getScriptData()?.connection ?? {};
+	const hasConnectedJetpackPlugin =
+		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
+
 	useAnalyticsTracks( { pageViewEventName: 'jetpack_videopress_admin_page_view' } );
 
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 			header={ <JetpackVideoPressLogo /> }
+			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
 		>
 			<div
 				className={ clsx( styles[ 'files-overlay' ], {

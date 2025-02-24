@@ -97,7 +97,11 @@ class Dashboard {
 
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
-			'window.jetpackFormsData = ' . wp_json_encode( array( 'apiRoot' => $api_root ) ) . ';',
+			'window.jetpackFormsData = ' . wp_json_encode(
+				array(
+					'apiRoot' => $api_root,
+				)
+			) . ';',
 			'before'
 		);
 	}
@@ -144,8 +148,9 @@ class Dashboard {
 		$ai_feature = \Jetpack_AI_Helper::get_ai_assistance_feature();
 		$has_ai     = ! is_wp_error( $ai_feature ) ? $ai_feature['has-feature'] : false;
 
-		$jetpack_connected = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( get_current_user_id() );
-		$user_id           = (int) get_current_user_id();
+		$jetpack_plugin_active = is_plugin_active( 'jetpack/jetpack.php' );
+		$jetpack_connected     = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( get_current_user_id() );
+		$user_id               = (int) get_current_user_id();
 
 		$config = array(
 			'blogId'                  => get_current_blog_id(),
@@ -159,6 +164,7 @@ class Dashboard {
 			'siteURL'                 => ( new Status() )->get_site_suffix(),
 			'hasFeedback'             => $this->has_feedback(),
 			'hasAI'                   => $has_ai,
+			'hasJetpack'              => $jetpack_plugin_active && $jetpack_connected,
 		);
 		?>
 		<div id="jp-forms-dashboard" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>

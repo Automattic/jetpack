@@ -52,7 +52,10 @@ export const SocialAdminPage = () => {
 		};
 	}, [] );
 
-	const { social, jetpack } = getSocialScriptData().plugin_info;
+	const {
+		plugin_info: { social, jetpack },
+		has_connected_jetpack_plugin: hasConnectedJetpackPlugin,
+	} = getSocialScriptData();
 
 	const moduleName = social.version
 		? `Jetpack Social ${ social.version }`
@@ -62,7 +65,12 @@ export const SocialAdminPage = () => {
 
 	if ( showConnectionCard ) {
 		return (
-			<AdminPage moduleName={ moduleName } showHeader={ false } showBackground={ false }>
+			<AdminPage
+				moduleName={ moduleName }
+				showHeader={ false }
+				showBackground={ false }
+				enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
+			>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col>
 						<ConnectionScreen />
@@ -77,6 +85,7 @@ export const SocialAdminPage = () => {
 			moduleName={ moduleName }
 			header={ <AdminPageHeader /> }
 			showFooter={ isJetpackSite }
+			enableFooterJetpackAdminLinks={ hasConnectedJetpackPlugin }
 		>
 			<GlobalNotices />
 			{ ( isJetpackSite && ! hasSocialPaidFeatures() && showPricingPage ) ||

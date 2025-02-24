@@ -12,15 +12,27 @@ import React from 'react';
 import styles from './styles.module.scss';
 
 const Admin = () => {
-	const connectionStatus = useSelect(
-		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
-		[]
-	);
+	const { connectionStatus, enableFooterJetpackAdminLinks } = useSelect( select => {
+		const connectedPlugins = select( CONNECTION_STORE_ID ).getConnectedPlugins();
+
+		const areAdminLinksEnabled =
+			// Some admin pages require the site to be connected (e.g., Privacy)
+			connectionStatus?.isActive &&
+			// Admin pages are part of the Jetpack plugin and required it to be installed
+			connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
+
+		return {
+			connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
+			enableFooterJetpackAdminLinks: areAdminLinksEnabled,
+		};
+	}, [] );
+
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack Classic Theme Helper Plugin', 'classic-theme-helper-plugin' ) }
+			enableFooterJetpackAdminLinks={ enableFooterJetpackAdminLinks }
 		>
 			<AdminSectionHero>
 				{ showConnectionCard ? (
