@@ -1,6 +1,9 @@
 <?php
 /**
- * REST API endpoint for retrieving JITMs from the WPCOM API.
+ * REST API endpoint for retrieving JITMs from the WPCOM API via the Jetpack JITM class
+ * infrastructure.
+ *
+ * Replaces projects/packages/jitm/src/class-rest-api-endpoints.php.
  *
  * Available on:
  * - Simple - via Dotcom Public API (https://public-api.wordpress.com/wpcom/v2/sites/{site_id}/jitm-v2).
