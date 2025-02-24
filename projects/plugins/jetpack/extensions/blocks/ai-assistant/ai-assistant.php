@@ -183,8 +183,7 @@ add_action(
 			apply_filters( 'ai_chrome_ai_enabled', false )
 		) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-use-chrome-ai-sometimes' );
-
-			add_chrome_ai_token_headers();
+			add_action( 'wp_head', __NAMESPACE__ . '\add_chrome_ai_token_headers' );
 		}
 	}
 );
