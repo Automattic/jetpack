@@ -4,6 +4,7 @@
  *
  * @package automattic/jetpack-mu-wpcom
  */
+
 // phpcs:disable Squiz.PHP.NonExecutableCode.Unreachable
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
