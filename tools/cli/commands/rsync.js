@@ -484,7 +484,7 @@ async function getUntrackedFiles( pluginPath ) {
 						cwd,
 						await fs.realpath( path.join( link.parentPath, link.name ) )
 					);
-					if ( ! cwd.startsWith( '..' ) ) {
+					if ( ! rp.startsWith( '..' + path.sep ) ) {
 						paths.push( rp );
 					}
 				} catch {
