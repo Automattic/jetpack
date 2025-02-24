@@ -85,6 +85,7 @@ class Contact_Form_File_Handler {
 	public function process_file_upload( $token ) {
 		// Get temporary file information from the unauth handler
 		$file_data = $this->unauth_handler->get_file_info_by_token( $token );
+
 		if ( ! $file_data ) {
 			return new \WP_Error( 'file_upload_failed', __( 'Failed to upload file.', 'jetpack-forms' ) );
 		}
@@ -112,20 +113,25 @@ class Contact_Form_File_Handler {
 			return $checkout_result;
 		}
 
+		// Get upload directory information to build proper URL
+		$uploads = wp_upload_dir();
+
+		// Convert the server path to a URL by replacing the server path with the URL path
+		$file_url = str_replace(
+			$uploads['basedir'],
+			$uploads['baseurl'],
+			$permanent_path
+		);
+
 		// Return the file data for the permanent storage
-		return array(
+		$result = array(
 			'name' => $original_file_name,
 			'path' => $permanent_path,
-			'url'  => add_query_arg(
-				array(
-					'jp-filename' => $original_file_name,
-					'jp-hash'     => $new_hash,
-					't'           => $year . '-' . $month,
-				),
-				get_site_url()
-			),
+			'url'  => $file_url,
 			'hash' => $new_hash,
 			'size' => wp_filesize( $permanent_path ),
 		);
+
+		return $result;
 	}
 }

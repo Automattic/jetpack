@@ -1728,6 +1728,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$field_id         = sanitize_key( $id );
 			$token_field_name = $field_id . '_token';
+
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$token = isset( $_POST[ $token_field_name ] ) ? sanitize_text_field( wp_unslash( $_POST[ $token_field_name ] ) ) : '';
 
@@ -1738,6 +1739,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			// Process the file token using the file handler
 			$result = $file_handler->process_file_upload( $token );
+
 			if ( is_wp_error( $result ) ) {
 				$field->add_error( $result->get_error_message() );
 				continue;
@@ -1745,8 +1747,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$uploaded_files[ $field_id ] = $result;
 		}
-
-		l( $uploaded_files );
 
 		return $uploaded_files;
 	}
