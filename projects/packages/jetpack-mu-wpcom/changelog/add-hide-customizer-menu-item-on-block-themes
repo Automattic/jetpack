@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide customizer link in admin bar and admin menu when a block theme is set.
