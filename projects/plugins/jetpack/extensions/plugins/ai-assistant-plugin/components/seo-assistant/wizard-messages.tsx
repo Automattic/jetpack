@@ -1,46 +1,69 @@
-import { useCallback, useState } from '@wordpress/element';
+/**
+ * External dependencies
+ */
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+/**
+ * Internal dependencies
+ */
 import bigSkyIcon from './big-sky-icon.svg';
 import TypingMessage from './typing-message';
+import { useArrayState } from './use-array-state';
+/**
+ * Types
+ */
 import type { Message } from './types';
 
 const randomId = () => Math.random().toString( 32 ).substring( 2, 8 );
 
-export const useMessages = () => {
-	const [ messages, setMessages ] = useState< Message[] >( [] );
+/**
+ * Custom hook to manage messages in the wizard
+ * @param {number} count - The number of message arrays to initialize, for dynamic steps
+ * @return {object} An object containing methods to manage messages
+ */
+export const useMessages = ( count = 1 ) => {
+	const [ messagesArray, setMessages ] = useArrayState< Message[] >(
+		Array.from( { length: count }, () => [] )
+	);
 
 	const wrapMessagesWithId = useCallback(
-		rawMessages => {
+		( rawMessages: Message[], id = 0 ) => {
 			setMessages(
-				rawMessages.map( rawMessage => ( { ...rawMessage, id: rawMessage.id || randomId() } ) )
+				rawMessages.map( rawMessage => ( {
+					...rawMessage,
+					id: rawMessage.id || randomId(),
+				} ) ),
+				id
 			);
 		},
 		[ setMessages ]
 	);
 
-	const addMessage = async ( message: Message ) => {
+	const addMessage = async ( message: Message, id = 0 ) => {
 		const newMessage = {
 			...message,
 			showIcon: message.showIcon === false ? false : ! message.isUser,
 			id: message.id || randomId(),
 		} as Message;
 
-		setMessages( prev => [ ...prev, newMessage ] );
+		setMessages( previousMessages => [ ...previousMessages, newMessage ], id );
 	};
 
 	/* Removes last message */
-	const removeLastMessage = () => {
-		setMessages( prev => prev.slice( 0, -1 ) );
+	const removeLastMessage = ( id = 0 ) => {
+		setMessages( previousMessages => previousMessages.slice( 0, -1 ), id );
 	};
 
 	/* Edits content of last message */
-	const editLastMessage = ( content: Message[ 'content' ], append = false ) => {
-		setMessages( prev => {
-			const prevMessages = [ ...prev ];
-			if ( prevMessages.length > 0 ) {
-				const lastMessageContent = prevMessages[ prevMessages.length - 1 ].content;
+	const editLastMessage = ( content: Message[ 'content' ], append = false, id = 0 ) => {
+		setMessages( previousMessages => {
+			const next = [ ...previousMessages ];
+
+			if ( next.length > 0 ) {
+				const lastMessageContent = next[ next.length - 1 ].content;
 				let newContent = content;
+
 				if ( append ) {
 					if ( typeof lastMessageContent === 'object' || typeof newContent === 'object' ) {
 						newContent = (
@@ -53,23 +76,30 @@ export const useMessages = () => {
 						newContent = `${ lastMessageContent } + ${ newContent }`;
 					}
 				}
-				prevMessages[ prevMessages.length - 1 ] = {
-					...prevMessages[ prevMessages.length - 1 ],
+
+				next[ next.length - 1 ] = {
+					...next[ next.length - 1 ],
 					content: newContent,
 				};
 			}
-			return prevMessages;
-		} );
+
+			return next;
+		}, id );
 	};
 
-	const setSelectedMessage = message => {
-		setMessages( prev =>
-			prev.map( prevMessage => ( { ...prevMessage, selected: message.id === prevMessage.id } ) )
-		);
+	const setSelectedMessage = ( message: Message, id = 0 ) => {
+		setMessages( previousMessages => {
+			const next = previousMessages.map( previousMessage => ( {
+				...previousMessage,
+				selected: message.id === previousMessage.id,
+			} ) );
+
+			return next;
+		}, id );
 	};
 
 	return {
-		messages,
+		getMessages: ( id = 0 ) => messagesArray[ id ],
 		setMessages: wrapMessagesWithId,
 		addMessage,
 		removeLastMessage,
@@ -114,7 +144,7 @@ export default function Messages( { onSelect, messages, isBusy } ) {
 	return (
 		<>
 			<div className="jetpack-wizard-chat__messages">
-				{ messages.map( message => (
+				{ messages.map( ( message: Message ) => (
 					<MessageBubble key={ message.id } onSelect={ onSelect } message={ message } />
 				) ) }
 				{ isBusy && <MessageBubble message={ { content: <TypingMessage />, showIcon: true } } /> }

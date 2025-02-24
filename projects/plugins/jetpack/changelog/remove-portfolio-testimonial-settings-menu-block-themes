@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Custom post types: do not display testimonials and portfolios on block themes where they are not in use. 

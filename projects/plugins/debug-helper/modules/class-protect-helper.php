@@ -19,6 +19,13 @@ class Protect_Helper {
 	const STORED_OPTIONS_KEY = 'protect_helper_option_name';
 
 	/**
+	 * Notice type
+	 *
+	 * @var string
+	 */
+	public $notice_type;
+
+	/**
 	 * Construction.
 	 */
 	public function __construct() {

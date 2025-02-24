@@ -5,7 +5,7 @@ namespace Automattic\Jetpack_Boost\Tests;
 use Automattic\Jetpack_Boost\Lib\My_Jetpack;
 use Brain\Monkey\Functions;
 
-class My_Jetpack_Test extends Base_Test_Case {
+class My_Jetpack_Test extends Base_TestCase {
 	private $product;
 
 	protected function set_up() {

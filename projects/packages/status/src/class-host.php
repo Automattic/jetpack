@@ -235,7 +235,7 @@ class Host {
 	/**
 	 * Returns a guess of the hosting provider for the current site based on various checks.
 	 *
-	 * @since $$next-version$$ Added $guess parameter.
+	 * @since 5.0.4 Added $guess parameter.
 	 *
 	 * @param bool $guess Whether to guess the hosting provider.
 	 *

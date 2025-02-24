@@ -13,12 +13,15 @@ import debugFactory from 'debug';
  */
 import { OptionsInput, TextInput, CompletionInput } from './wizard-input';
 import WizardStep from './wizard-step';
+/**
+ * Types
+ */
 import type { Step, OptionMessage } from './types';
 
 const debug = debugFactory( 'jetpack-wizard-chat' );
 
-const disableSkip = true;
-const disableBack = true;
+const disableSkip = false;
+const disableBack = false;
 
 const errorMessageWithSkip = __(
 	'Something went wrong. Please try again or skip this step.',
@@ -31,28 +34,29 @@ export default function WizardChat( { close, steps, assistantName } ) {
 	const [ currentStep, setCurrentStep ] = useState( 0 );
 	const [ isBusy, setIsBusy ] = useState( false );
 	const stepsEndRef = useRef( null );
-	const scrollToBottom = () => {
-		stepsEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
-	};
-
 	const prevStepIdRef = useRef< string | undefined >();
 	const [ results, setResults ] = useState( {} );
 	const { tracks } = useAnalytics();
+	const [ currentStepData, setCurrentStepData ] = useState< Step >( steps[ 0 ] );
+	const [ assistantFlowAction, setAssistantFlowAction ] = useState( '' );
+
+	const scrollToBottom = () => {
+		stepsEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
+	};
 
 	useEffect( () => {
 		scrollToBottom();
 	} );
 
-	const [ currentStepData, setCurrentStepData ] = useState< Step >( steps[ 0 ] );
-	const [ assistantFlowAction, setAssistantFlowAction ] = useState( '' );
-
 	const stepsCount = steps.length;
 
 	const handleStepStart = useCallback( async () => {
 		debug( 'handleStepStart', currentStepData?.id );
+
 		if ( ! currentStepData || ! currentStepData.onStart ) {
 			return;
 		}
+
 		// If the step is backwards, we don't want to start the step again, unless it failed before and has no options
 		if ( assistantFlowAction !== 'backwards' || steps[ currentStep ]?.options?.length === 0 ) {
 			await currentStepData?.onStart( {
@@ -60,6 +64,7 @@ export default function WizardChat( { close, steps, assistantName } ) {
 				results,
 			} );
 		}
+
 		setIsBusy( false );
 	}, [ currentStepData, assistantFlowAction, steps, currentStep, results ] );
 
@@ -73,8 +78,10 @@ export default function WizardChat( { close, steps, assistantName } ) {
 				nextStep = prev + 1;
 				debug( 'moving to ' + nextStep );
 				setCurrentStepData( steps[ nextStep ] );
+
 				return nextStep;
 			}
+
 			return prev;
 		} );
 	}, [ stepsCount, steps, currentStep ] );
@@ -97,6 +104,7 @@ export default function WizardChat( { close, steps, assistantName } ) {
 			setIsBusy( true );
 			setAssistantFlowAction( 'forwards' );
 			const timeout = setTimeout( handleNext, steps[ 0 ].autoAdvance );
+
 			return () => clearTimeout( timeout );
 		}
 	}, [ currentStep, handleNext, steps ] );
@@ -109,6 +117,7 @@ export default function WizardChat( { close, steps, assistantName } ) {
 					if ( step.includeInResults && results[ step.id ]?.value ) {
 						acc++;
 					}
+
 					return acc;
 				}, 0 ) / steps.filter( step => step.includeInResults ).length;
 
@@ -120,6 +129,7 @@ export default function WizardChat( { close, steps, assistantName } ) {
 				placement: isCloseButton ? 'close' : 'done',
 				assistant_name: assistantName,
 			} );
+
 			close();
 			setCurrentStep( 0 );
 		},
@@ -134,6 +144,7 @@ export default function WizardChat( { close, steps, assistantName } ) {
 					step_to: steps[ stepNumber ]?.id,
 					assistant_name: assistantName,
 				} );
+
 				setAssistantFlowAction( 'jump' );
 				setCurrentStep( stepNumber );
 				setCurrentStepData( steps[ stepNumber ] );
@@ -147,6 +158,7 @@ export default function WizardChat( { close, steps, assistantName } ) {
 			if ( stepNumber !== currentStep ) {
 				jumpToStep( stepNumber );
 			}
+
 			steps[ stepNumber ].onSelect?.( option );
 		},
 		[ currentStep, jumpToStep, steps ]
@@ -163,6 +175,7 @@ export default function WizardChat( { close, steps, assistantName } ) {
 				assistant_name: assistantName,
 			} );
 			steps[ currentStep ].resetState?.();
+			steps[ currentStep - 1 ].selectBlock?.();
 			setCurrentStep( currentStep - 1 );
 			setCurrentStepData( steps[ currentStep - 1 ] );
 		}
@@ -174,6 +187,7 @@ export default function WizardChat( { close, steps, assistantName } ) {
 		debug( 'skipping step', currentStep );
 		await steps[ currentStep ]?.onSkip?.();
 		const step = steps[ currentStep ];
+
 		if ( ! results[ step.id ] && step.includeInResults ) {
 			setResults( prev => ( {
 				...prev,
@@ -184,11 +198,13 @@ export default function WizardChat( { close, steps, assistantName } ) {
 				},
 			} ) );
 		}
+
 		tracks.recordEvent( 'jetpack_wizard_chat_skip', {
 			step_from: steps[ currentStep ]?.id,
 			step_to: steps[ currentStep + 1 ]?.id,
 			assistant_name: assistantName,
 		} );
+
 		if ( steps[ currentStep ]?.type === 'completion' ) {
 			handleDone();
 		} else {
@@ -198,6 +214,7 @@ export default function WizardChat( { close, steps, assistantName } ) {
 
 	const handleStepSubmit = useCallback( async () => {
 		debug( 'step submitted' );
+
 		if ( steps[ currentStep ]?.type === 'completion' ) {
 			debug( 'completion step, closing wizard' );
 			handleDone();
@@ -206,9 +223,11 @@ export default function WizardChat( { close, steps, assistantName } ) {
 
 		setIsBusy( true );
 		const stepValue = await steps[ currentStep ]?.onSubmit?.();
+
 		if ( ! stepValue?.trim?.() ) {
 			return handleSkip();
 		}
+
 		debug( 'stepValue', stepValue );
 		if ( steps[ currentStep ].includeInResults ) {
 			const newResults = {
@@ -221,6 +240,7 @@ export default function WizardChat( { close, steps, assistantName } ) {
 			debug( 'newResults', newResults );
 			setResults( prev => ( { ...prev, ...newResults } ) );
 		}
+
 		setAssistantFlowAction( 'submit' );
 		tracks.recordEvent( 'jetpack_wizard_chat_submit', {
 			step_from: steps[ currentStep ].id,

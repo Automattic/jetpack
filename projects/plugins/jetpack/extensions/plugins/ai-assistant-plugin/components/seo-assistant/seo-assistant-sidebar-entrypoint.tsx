@@ -22,26 +22,27 @@ import type { SeoAssistantSelect, SeoAssistantDispatch } from './types';
 const debug = debugFactory( 'jetpack-ai:seo-assistant' );
 
 export default function SeoAssistant( { disabled, placement } ) {
+	const { tracks } = useAnalytics();
 	const postIsEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
+	const { open } = useDispatch( seoAssistantStore ) as SeoAssistantDispatch;
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
-	const { tracks } = useAnalytics();
-
 	const isOpen = useSelect(
 		select => ( select( seoAssistantStore ) as SeoAssistantSelect ).isOpen(),
 		[]
 	);
-	const { open } = useDispatch( seoAssistantStore ) as SeoAssistantDispatch;
 
 	const handleOpen = useCallback( () => {
 		tracks.recordEvent( 'jetpack_wizard_chat_open', {
 			placement,
 			assistant_name: 'seo-assistant',
 		} );
+
 		open();
 	}, [ placement, tracks, open ] );
 
 	debug( 'rendering seo-assistant entry point' );
+
 	return (
 		<div>
 			<p>{ __( 'Improve post engagement.', 'jetpack' ) }</p>

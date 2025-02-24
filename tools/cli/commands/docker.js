@@ -256,6 +256,38 @@ const launchNgrok = argv => {
 };
 
 /**
+ * Builds the command options for running PHPUnit tests inside a Docker container.
+ *
+ * @param {object}        argv                      - Command line args.
+ * @param {Array}         opts                      - Options for the Docker command.
+ * @param {object}        unitTestArgs              - Unit test args.
+ * @param {string}        unitTestArgs.plugin       - The name of the plugin we're running tests against.
+ * @param {string}        [unitTestArgs.configFile] - The PHPUnit configuration file to use. Defaults to 'phpunit.xml.dist'.
+ * @param {Array<string>} [unitTestArgs.envVars]    - Environment variables to set in the Docker container.
+ * @return {Array} Modified opts array.
+ */
+const buildPhpUnitTestCmd = ( argv, opts, unitTestArgs ) => {
+	const passthruArgs = argv._.slice( 2 );
+	const configFile = unitTestArgs.configFile ?? 'phpunit.xml.dist';
+
+	opts.splice( 1, 0, '-w', '/var/www/html/wp-content/plugins/' + unitTestArgs.plugin ); // Need to add this option to `exec` before the container name.
+	if ( unitTestArgs.envVars ) {
+		for ( let i = 0; i < unitTestArgs.envVars.length; i++ ) {
+			opts.splice( 3, 0, '-e', unitTestArgs.envVars[ i ] );
+		}
+	}
+
+	opts.push(
+		...( argv.php
+			? [ '/var/scripts/phpunit-version-wrapper.sh', argv.php ]
+			: [ 'vendor/bin/phpunit' ] ),
+		'--configuration=/var/www/html/wp-content/plugins/' + unitTestArgs.plugin + '/' + configFile,
+		...passthruArgs
+	);
+	return opts;
+};
+
+/**
  * Performs the given action again and again until it does not throw an error.
  *
  * @param {Function} action               - The action to perform.
@@ -335,7 +367,7 @@ const defaultDockerCmdHandler = async argv => {
  * @return {Array} Array of options required for specified command
  */
 const buildExecCmd = argv => {
-	const opts = [ 'exec', 'wordpress' ];
+	let opts = [ 'exec', 'wordpress' ];
 	const cmd = argv._[ 1 ];
 
 	if ( cmd === 'exec' ) {
@@ -359,16 +391,10 @@ const buildExecCmd = argv => {
 				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
 			)
 		);
-		const unitArgs = argv._.slice( 2 );
-
-		opts.splice( 1, 0, '-w', '/var/www/html/wp-content/plugins/jetpack' ); // Need to add this option to `exec` before the container name.
-		opts.push(
-			...( argv.php
-				? [ '/var/scripts/phpunit-version-wrapper.sh', argv.php ]
-				: [ 'vendor/bin/phpunit' ] ),
-			'--configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist',
-			...unitArgs
-		);
+		const unitTestArgs = {
+			plugin: 'jetpack',
+		};
+		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
 	} else if ( cmd === 'phpunit-multisite' ) {
 		// @todo: Make this scale.
 		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
@@ -377,16 +403,24 @@ const buildExecCmd = argv => {
 				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
 			)
 		);
-		const unitArgs = argv._.slice( 2 );
 
-		opts.splice( 1, 0, '-w', '/var/www/html/wp-content/plugins/jetpack' ); // Need to add this option to `exec` before the container name.
-		opts.push(
-			...( argv.php
-				? [ '/var/scripts/phpunit-version-wrapper.sh', argv.php ]
-				: [ 'vendor/bin/phpunit' ] ),
-			'--configuration=/var/www/html/wp-content/plugins/jetpack/tests/php.multisite.xml',
-			...unitArgs
+		const unitTestArgs = {
+			plugin: 'jetpack',
+			configFile: 'tests/php.multisite.xml',
+		};
+		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
+	} else if ( cmd === 'phpunit-wpcomsh' ) {
+		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
+		console.warn(
+			chalk.yellow(
+				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
+			)
 		);
+		const unitTestArgs = {
+			plugin: 'jetpack',
+			envVars: [ 'JETPACK_TEST_WPCOMSH=1' ],
+		};
+		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
 	} else if ( cmd === 'phpunit-woocommerce' ) {
 		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
 		console.warn(
@@ -394,37 +428,18 @@ const buildExecCmd = argv => {
 				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
 			)
 		);
-		const unitArgs = argv._.slice( 2 );
-
-		opts.splice(
-			1,
-			0,
-			'-w',
-			'/var/www/html/wp-content/plugins/jetpack',
-			'-e',
-			'JETPACK_TEST_WOOCOMMERCE=1'
-		); // Need to add this option to `exec` before the container name.
-		opts.push(
-			...( argv.php
-				? [ '/var/scripts/phpunit-version-wrapper.sh', argv.php ]
-				: [ 'vendor/bin/phpunit' ] ),
-			'--configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist',
-			'--group=woocommerce',
-			...unitArgs
-		);
+		const unitTestArgs = {
+			plugin: 'jetpack',
+			envVars: [ 'JETPACK_TEST_WOOCOMMERCE=1' ],
+		};
+		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
+		opts.push( '--group=woocommerce' );
 	} else if ( cmd === 'phpunit-crm' ) {
-		// @todo: Make this scale.
 		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack CRM plugin.' ) );
-		const unitArgs = argv._.slice( 2 );
-
-		opts.splice( 1, 0, '-w', '/var/www/html/wp-content/plugins/crm' ); // Need to add this option to `exec` before the container name.
-		opts.push(
-			...( argv.php
-				? [ '/var/scripts/phpunit-version-wrapper.sh', argv.php ]
-				: [ 'vendor/bin/phpunit' ] ),
-			'--configuration=/var/www/html/wp-content/plugins/crm/phpunit.xml.dist',
-			...unitArgs
-		);
+		const unitTestArgs = {
+			plugin: 'crm',
+		};
+		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
 	} else if ( cmd === 'wp' ) {
 		const wpArgs = argv._.slice( 2 );
 		// Ugly solution to allow interactive shell work in dev context
@@ -432,20 +447,15 @@ const buildExecCmd = argv => {
 		if ( argv.type === 'e2e' ) {
 			opts.splice( 1, 0, '-T' );
 		}
-		opts.push( 'wp', '--allow-root', '--path=/var/www/html/', ...wpArgs );
+		opts.push( 'wp', '--path=/var/www/html/', ...wpArgs );
 	} else if ( cmd === 'tail' ) {
 		opts.push( '/var/scripts/tail.sh' );
 	} else if ( cmd === 'uninstall' ) {
 		opts.push( '/var/scripts/uninstall.sh' );
 	} else if ( cmd === 'multisite-convert' ) {
 		opts.push( '/var/scripts/multisite-convert.sh' );
-	} else if ( cmd === 'update-core-unit-tests' ) {
-		opts.push(
-			'svn',
-			'up',
-			'/tmp/wordpress-develop/tests/phpunit/data/',
-			'/tmp/wordpress-develop/tests/phpunit/includes'
-		);
+	} else if ( cmd === 'update-core' ) {
+		opts.push( '/var/scripts/update-core.sh', argv.version );
 	} else if ( cmd === 'run-extras' ) {
 		opts.push( '/var/scripts/run-extras.sh' );
 	} else if ( cmd === 'link-plugin' ) {
@@ -677,7 +687,7 @@ export function dockerDefine( yargs ) {
 				} )
 				.command( {
 					command: 'db',
-					description: 'Access MySql CLI',
+					description: 'Access MySQL CLI',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
@@ -685,18 +695,6 @@ export function dockerDefine( yargs ) {
 					command: 'sh',
 					description: 'Access shell on WordPress container',
 					builder: yargExec => defaultOpts( yargExec ),
-					handler: argv => execDockerCmdHandler( argv ),
-				} )
-				.command( {
-					command: 'select-php <version>',
-					description:
-						'Select the version of PHP for use inside the container. See documentation for important notes!',
-					builder: yargCmd => {
-						yargCmd.positional( 'version', {
-							describe: 'The version to select, or "default".',
-							type: 'string',
-						} );
-					},
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
@@ -730,7 +728,18 @@ export function dockerDefine( yargs ) {
 				.command( {
 					command: 'phpunit-multisite',
 					alias: 'phpunit:multisite',
-					description: 'Run multisite PHPUnit tests inside container ',
+					description: 'Run multisite Jetpack PHPUnit tests inside container',
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).option( 'php', {
+							describe: 'Use the specified version of PHP.',
+							type: 'string',
+						} ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'phpunit-wpcomsh',
+					alias: 'phpunit:wpcomsh',
+					description: 'Run Jetpack PHPUnit tests with wpcomsh inside container',
 					builder: yargCmd =>
 						defaultOpts( yargCmd ).option( 'php', {
 							describe: 'Use the specified version of PHP.',
@@ -741,7 +750,7 @@ export function dockerDefine( yargs ) {
 				.command( {
 					command: 'phpunit-woocommerce',
 					alias: 'phpunit:woocommerce',
-					description: 'Run PHPUnit tests with WooCommerce inside container ',
+					description: 'Run Jetpack PHPUnit tests with WooCommerce inside container',
 					builder: yargCmd =>
 						defaultOpts( yargCmd ).option( 'php', {
 							describe: 'Use the specified version of PHP.',
@@ -767,9 +776,14 @@ export function dockerDefine( yargs ) {
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
-					command: 'update-core-unit-tests',
-					description: 'Pulls latest Core unit tests files from SVN',
-					builder: yargExec => defaultOpts( yargExec ),
+					command: 'update-core [version]',
+					description: 'Installs core files',
+					builder: yargExec =>
+						defaultOpts( yargExec ).positional( 'version', {
+							type: 'string',
+							description: 'Specify the version to install',
+							default: 'latest',
+						} ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
