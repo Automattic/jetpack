@@ -27,6 +27,7 @@ const displayNotice = message => {
 	button.setAttribute( 'type', 'button' );
 	button.className = 'notice-dismiss';
 	button.setAttribute( 'aria-label', dismissText );
+	notice.appendChild( button );
 
 	// Create a span element for screen readers.
 	const span = document.createElement( 'span' );
@@ -36,23 +37,14 @@ const displayNotice = message => {
 
 	// Hook up the dismiss functionality.
 	button.addEventListener( 'click', () => {
-		notice.parentNode.removeChild( notice );
+		notice.remove();
 	} );
 
-	// Append the button to the notice.
-	notice.appendChild( button );
-
 	// Insert the notice after the headerEnd element.
-	if ( headerEnd.nextSibling ) {
-		headerEnd.parentNode.insertBefore( notice, headerEnd.nextSibling );
-	} else {
-		headerEnd.parentNode.appendChild( notice );
-	}
+	headerEnd.after( notice );
 
 	// Use wp.a11y.speak, if available, to immediately announce the notice.
-	if ( window.wp && window.wp.a11y && typeof window.wp.a11y.speak === 'function' ) {
-		window.wp.a11y.speak( message );
-	}
+	window.wp?.a11y?.speak?.( message );
 };
 
 document.addEventListener( 'DOMContentLoaded', async () => {
