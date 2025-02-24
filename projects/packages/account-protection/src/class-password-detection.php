@@ -50,8 +50,7 @@ class Password_Detection {
 		}
 
 		// Skip if we're validating a Brute force protection recovery token
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) ) {
+		if ( get_transient( 'jetpack_protect_recovery_key_validated' ) ) {
 			return $user;
 		}
 
