@@ -441,7 +441,8 @@ function wpcom_register_default_launchpad_checklists() {
 			jetpack_wpcom_log2logstash(
 				'Launchpad checklists registered with no user',
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_wp_debug_backtrace_summary
-				array( 'stack_trace' => wp_debug_backtrace_summary() )
+				array( 'stack_trace' => wp_debug_backtrace_summary() ),
+				true
 			);
 		}
 	}

@@ -158,10 +158,11 @@ function get_wpcom_blog_id() {
 /**
  * Log data to logstash based on the environment we're in.
  *
- * @param string $message The message to log.
- * @param array  $extra   Extra data to log.
+ * @param string $message      The message to log.
+ * @param array  $extra        Extra data to log.
+ * @param bool   $force_at_log Whether to force the log to be written. This is only relevant for Atomic sites, where logging depends on a site option.
  */
-function jetpack_wpcom_log2logstash( $message, $extra = array() ): void {
+function jetpack_wpcom_log2logstash( $message, $extra = array(), $force_at_log = false ): void {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && file_exists( WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php' ) ) {
 		require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
 
@@ -177,8 +178,12 @@ function jetpack_wpcom_log2logstash( $message, $extra = array() ): void {
 		return;
 	}
 
-	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && class_exists( 'WPCOMSH_Log' ) && method_exists( 'WPCOMSH_Log', 'log' ) ) {
-		WPCOMSH_Log::log( $message, $extra );
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && class_exists( 'WPCOMSH_Log' ) ) {
+		if ( $force_at_log && method_exists( 'WPCOMSH_Log', 'unsafe_direct_log' ) ) {
+			WPCOMSH_Log::unsafe_direct_log( $message, $extra );
+		} else {
+			do_action( 'wpcomsh_log', $message, $extra );
+		}
 
 		return;
 	}
