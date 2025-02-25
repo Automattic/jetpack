@@ -734,7 +734,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Check if this is a JSON-encoded file upload and extract the filename if it is.
 		$json_decoded = json_decode( $value, true );
-		if ( $json_decoded && isset( $json_decoded['name'] ) && isset( $json_decoded['url'] ) ) {
+		if ( $json_decoded && isset( $json_decoded['name'] ) && isset( $json_decoded['file_id'] ) ) {
 			// This is a file upload, so just return the file name.
 			$value = $json_decoded['name'];
 		}
