@@ -7,14 +7,14 @@ use WP_REST_Request;
 use WP_REST_Server;
 use zbsDAL_contacts;
 
-require_once __DIR__ . '/../class-rest-base-test-case.php';
+require_once __DIR__ . '/../class-rest-base-testcase.php';
 
 /**
  * Route_Scope class.
  *
  * @covers \Automattic\Jetpack\CRM\REST_API\V4\REST_Contacts_Controller
  */
-class REST_Contacts_Controller_Test extends REST_Base_Test_Case {
+class REST_Contacts_Controller_Test extends REST_Base_TestCase {
 
 	/**
 	 * GET Contact: Test that we can successfully access the endpoint.

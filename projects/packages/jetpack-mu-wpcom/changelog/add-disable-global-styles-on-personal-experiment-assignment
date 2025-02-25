@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Disabled assigning and caching the global styles on personal experiment variation until we set up a new experiment

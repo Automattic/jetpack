@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.19.0] - 2025-02-24
+### Changed
+- Add parameter to unlinkUser to allow all users to be disconnected. [#41923]
+- Move the API endpoint for unlinking the user to the automattic/jetpack-connection package. [#41398]
+
 ## [0.18.0] - 2025-02-05
 ### Changed
 - Custom Content Types: Ensure feature works on Jetpack settings page without using module functionality. [#41349]
@@ -394,6 +399,7 @@
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
 
+[0.19.0]: https://github.com/Automattic/jetpack-api/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/Automattic/jetpack-api/compare/v0.17.22...v0.18.0
 [0.17.22]: https://github.com/Automattic/jetpack-api/compare/v0.17.21...v0.17.22
 [0.17.21]: https://github.com/Automattic/jetpack-api/compare/v0.17.20...v0.17.21

@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-protect-status",
-	"version": "0.5.1",
+	"version": "0.5.2",
 	"description": "This package contains the Protect Status API functionality to retrieve a site's scan status (WordPress, Themes, and Plugins threats).",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/protect-status/#readme",
 	"bugs": {

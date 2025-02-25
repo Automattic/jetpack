@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.37.0] - 2025-02-24
+### Added
+- Warn that disconnecting owner account will disconnect all other users first. [#41923]
+
+### Changed
+- Move the API endpoint for unlinking the user to the automattic/jetpack-connection package. [#41398]
+- Update package dependencies. [#41955]
+
 ## [0.36.7] - 2025-02-17
 ### Changed
 - Update dependencies.
@@ -934,6 +942,7 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.37.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.7...v0.37.0
 [0.36.7]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.6...v0.36.7
 [0.36.6]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.5...v0.36.6
 [0.36.5]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.4...v0.36.5

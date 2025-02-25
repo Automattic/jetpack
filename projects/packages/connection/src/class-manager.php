@@ -944,17 +944,46 @@ class Manager {
 	/**
 	 * Force user disconnect.
 	 *
-	 * @param int $user_id Local (external) user ID.
+	 * @param int  $user_id Local (external) user ID.
+	 * @param bool $disconnect_all_users Whether to disconnect all users before disconnecting the primary user.
 	 *
 	 * @return bool
 	 */
-	public function disconnect_user_force( $user_id ) {
+	public function disconnect_user_force( $user_id, $disconnect_all_users = false ) {
 		if ( ! (int) $user_id ) {
 			// Missing user ID.
 			return false;
 		}
+		// If we are disconnecting the primary user we may need to disconnect all other users first
+		if ( $user_id === $this->get_connection_owner_id() && $disconnect_all_users && ! $this->disconnect_all_users_except_primary() ) {
+			return false;
+		}
 
 		return $this->disconnect_user( $user_id, true, true );
+	}
+
+	/**
+	 * Disconnects all users except the primary user.
+	 *
+	 * @return bool
+	 */
+	public function disconnect_all_users_except_primary() {
+
+		$all_connected_users = $this->get_connected_users();
+
+		foreach ( $all_connected_users as $user ) {
+			// Skip the primary.
+			if ( $user->ID === $this->get_connection_owner_id() ) {
+				continue;
+			}
+			$disconnected = $this->disconnect_user( $user->ID, false, true );
+			// If we fail to disconnect any user, we should not proceed with disconnecting the primary user.
+			if ( ! $disconnected ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**

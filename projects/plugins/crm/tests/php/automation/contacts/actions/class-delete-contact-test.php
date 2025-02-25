@@ -9,14 +9,14 @@ use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated;
 use Automattic\Jetpack\CRM\Entities\Contact;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
 
 /**
  * Test Automation Workflow functionalities
  *
  * @covers Automattic\Jetpack\CRM\Automation\Actions\Delete_Contact
  */
-class Delete_Contact_Test extends JPCRM_Base_Integration_Test_Case {
+class Delete_Contact_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * A helper class to generate data for the automation tests.

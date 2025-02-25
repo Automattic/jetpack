@@ -10,6 +10,9 @@ ARG PNPM_VERSION
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 
+# Bypass WP-CLI `--allow-root` check. Reworking the container to not run as root would be a lot of work for basically no benefit.
+ENV WP_CLI_ALLOW_ROOT=1
+
 WORKDIR /tmp
 
 # Record ARGs
