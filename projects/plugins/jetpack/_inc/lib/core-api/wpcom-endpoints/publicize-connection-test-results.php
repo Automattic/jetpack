@@ -12,6 +12,8 @@ require_once __DIR__ . '/publicize-connections.php';
  *
  * All the same data as the Publicize Connections Endpoint, plus test results.
  *
+ * @deprecated $$next-version$$ Deprecated in favor of /wpcom/v2/publicize/connections?test_connections=1
+ *
  * @since 6.8
  */
 class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections {

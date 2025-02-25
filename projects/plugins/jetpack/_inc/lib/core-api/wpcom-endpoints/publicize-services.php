@@ -17,6 +17,8 @@
  *   ...
  * ]
  *
+ * @deprecated $$next-version$$
+ *
  * @since 6.8
  */
 class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Controller {
