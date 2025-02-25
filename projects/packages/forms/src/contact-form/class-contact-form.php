@@ -124,12 +124,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$default_to      .= $post_author->user_email;
 			}
 
-			if ( ! empty( self::$forms ) ) {
+			$form_count = isset( self::$forms ) ? count( self::$forms ) : 0;
+			if ( $form_count > 0 ) {
 				// Ensure 'id' exists in $attributes before trying to modify it
 				if ( ! isset( $attributes['id'] ) ) {
 					$attributes['id'] = '';
 				}
-				$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page;
+				$attributes['id'] = $attributes['id'] . '-' . ( $form_count + 1 ) . '-' . $page;
 			}
 
 			$this->hash = sha1( wp_json_encode( $attributes ) );
@@ -137,7 +138,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$this->hash = $attributes['hash'];
 		}
 
-		self::$forms[ $this->hash ] = $this;
+		if ( ! isset( self::$forms[ $this->hash ] ) ) {
+			self::$forms[ $this->hash ] = $this;
+		}
 
 		// Keep reference to $this for parsing form fields.
 		self::$current_form = $this;
@@ -300,10 +303,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$r  = '';
 		$r .= "<div data-test='contact-form' id='contact-form-$id' class='{$container_classes_string}'>\n";
 
-		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
+		$form_errors = Contact_Form_Plugin::$submission->get_errors( $form->hash ) ?? null;
+		if ( is_wp_error( $form_errors ) && $form_errors->get_error_codes() ) {
 			// There are errors.  Display them
 			$r .= "<div class='form-error'>\n<h3>" . __( 'Error!', 'jetpack-forms' ) . "</h3>\n<ul class='form-errors'>\n";
-			foreach ( $form->errors->get_error_messages() as $message ) {
+			foreach ( $form_errors->get_error_messages() as $message ) {
 				$r .= "\t<li class='form-error-message'>" . esc_html( $message ) . "</li>\n";
 			}
 			$r .= "</ul>\n</div>\n\n";

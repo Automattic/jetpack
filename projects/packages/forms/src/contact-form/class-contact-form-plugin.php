@@ -56,6 +56,13 @@ class Contact_Form_Plugin {
 	 */
 	private $pde_email_address = '';
 
+	/**
+	 * Where data from form submissions is stored.
+	 *
+	 * @var Contact_Form_Submission
+	 */
+	public static $submission;
+
 	/*
 	 * Field keys that might be present in the entry json but we don't want to show to the admin
 	 * since they not something that the visitor entered into the form.
@@ -623,6 +630,8 @@ class Contact_Form_Plugin {
 		$hash = is_string( $hash ) ? preg_replace( '/[^\da-f]/i', '', $hash ) : $hash;
 		// phpcs:enable
 
+		self::$submission = new Contact_Form_Submission( $id, $hash );
+
 		if ( ! is_string( $id ) || ! is_string( $hash ) ) {
 			return false;
 		}
@@ -727,19 +736,20 @@ class Contact_Form_Plugin {
 			);
 			do_blocks( '<!-- wp:template-part ' . wp_json_encode( $attributes ) . ' /-->' );
 		} else {
-			// It's a form embedded in a post
+			global $post;
 
-			if ( ! is_post_publicly_viewable( $id ) && ! current_user_can( 'read_post', $id ) ) {
+			// It's a form embedded in a post
+			$post_id = isset( $post->ID ) ? $post->ID : null;
+
+			if ( ! isset( $post_id ) || ( ! is_post_publicly_viewable( $post_id ) && ! current_user_can( 'read_post', $post_id ) ) ) {
 				// The user can't see the post.
 				return false;
 			}
 
-			if ( post_password_required( $id ) ) {
+			if ( post_password_required( $post_id ) ) {
 				// The post is password-protected and the password is not provided.
 				return false;
 			}
-
-			$post = get_post( $id );
 
 			// Process the content to populate Contact_Form::$last
 			if ( $post ) {
@@ -752,7 +762,7 @@ class Contact_Form_Plugin {
 					$content = $post->post_content;
 				}
 				/** This filter is already documented in core. wp-includes/post-template.php */
-				apply_filters( 'the_content', $content );
+				apply_filters( 'the_content', do_blocks( $content ) );
 			}
 		}
 
@@ -788,15 +798,17 @@ class Contact_Form_Plugin {
 			return false;
 		}
 
-		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
-			return $form->errors;
+		$form_errors = self::$submission->get_errors( $hash );
+
+		if ( is_wp_error( $form_errors ) && $form_errors->get_error_codes() ) {
+			return $form_errors->errors;
 		}
 
 		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
 			Post_To_Url::init();
 		}
 		// Process the form
-		return $form->process_submission();
+		return self::$submission->process();
 	}
 
 	/**

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Extensions\Contact_Form;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 
 /**
  * Field Text Block.
@@ -100,25 +101,22 @@ class Field_Text_Block {
 	/**
 	 * Get validation errors for a text field.
 	 *
+	 * @param string $form_hash The form hash.
 	 * @param array  $attributes The block attributes.
 	 * @param string $value The field value.
 	 *
 	 * @return string|null The validation error message if validation fails, null otherwise.
 	 */
-	private static function get_validation_errors( $attributes, $value ) {
-			// TODO - the shortcode also sets validation errors on the parent form (via an `add_error` method).
-		// We need to find a way to replicate this behavior. Child blocks can't traditionally pass data to a parent.
-		// Possible solutions
-		// - Use the interactivity API (somehow).
-		// - Use a view script to scrape for field errors and accumulate them.
-		// - Use some kind of singleton form object that can store errors per form id.
-		// Ideally, in the future there may also be a 'Form Errors' block that can be used to display errors.
-		// Think about a way that would work nicely with such a block.
-
-		if ( ! is_string( $value ) || ! strlen( trim( $value ) ) ) {
-			/* translators: %s is the name of a form field */
-			return sprintf( __( '%s is required', 'jetpack-forms' ), $attributes['label'] );
+	private static function validate( $form_hash, $attributes, $value ) {
+		if ( is_string( $value ) && strlen( trim( $value ) ) ) {
+			Contact_Form_Plugin::$submission->add_value( $form_hash, $attributes['id'], $value );
+			return null;
 		}
+
+		/* translators: %s is the name of a form field */
+		$error_message = sprintf( __( '%s is required', 'jetpack-forms' ), $attributes['label'] );
+		Contact_Form_Plugin::$submission->add_error( $form_hash, $attributes['id'], $error_message );
+		return $error_message;
 	}
 
 	/**
@@ -139,7 +137,7 @@ class Field_Text_Block {
 		$validation_errors = null;
 
 		if ( $should_validate ) {
-			$validation_errors = self::get_validation_errors( $attributes, $value );
+			$validation_errors = self::validate( $form_hash, $attributes, $value );
 		}
 
 		$is_required           = ! empty( $attributes['required'] );

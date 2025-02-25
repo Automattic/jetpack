@@ -11,7 +11,6 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
-use Jetpack;
 
 /**
  * Contact Form block render callback.
@@ -36,8 +35,68 @@ class Contact_Form_Block {
 			)
 		);
 
+		add_filter( 'render_block_data', array( __CLASS__, 'add_id_and_hash_to_attributes' ), 10, 1 );
+		add_filter( 'render_block_context', array( __CLASS__, 'add_id_and_hash_to_context' ), 10, 2 );
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
 		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
+	}
+
+	/**
+	 * Add the form id and hash to the block attributes.
+	 *
+	 * @param array $parsed_block The parsed block.
+	 *
+	 * @return array The parsed block with the form id and hash added to the attributes.
+	 */
+	public static function add_id_and_hash_to_attributes( $parsed_block ) {
+		// Ideally it'd be possible to use block context for the post id and type here,
+		// but the `render_block_data` filter is called before block context is available.
+		global $post, $page;
+
+		if ( $parsed_block['blockName'] !== 'jetpack/contact-form' ) {
+			return $parsed_block;
+		}
+
+		if ( ! isset( $post->ID ) ) {
+			return $parsed_block;
+		}
+
+		$form_id    = $post->post_type . '_' . $post->ID;
+		$form_count = isset( Contact_Form::$forms ) ? count( Contact_Form::$forms ) : 0;
+		if ( $form_count > 0 ) {
+			$form_id .= '-' . ( $form_count + 1 ) . '-' . $page;
+		}
+
+		$parsed_block['attrs']['id']   = $form_id;
+		$form_hash                     = sha1( wp_json_encode( $parsed_block['attrs'] ) );
+		$parsed_block['attrs']['hash'] = $form_hash;
+
+		return $parsed_block;
+	}
+
+	/**
+	 * Add the form id and hash to the block context.
+	 *
+	 * @param array $context The block context.
+	 * @param array $parsed_block The parsed block.
+	 *
+	 * @return array The block context with the form id and hash added.
+	 */
+	public static function add_id_and_hash_to_context( $context, $parsed_block ) {
+		if ( $parsed_block['blockName'] !== 'jetpack/contact-form' ) {
+			return $context;
+		}
+
+		$form_id   = $parsed_block['attrs']['id'] ?? null;
+		$form_hash = $parsed_block['attrs']['hash'] ?? null;
+
+		return array_merge(
+			$context,
+			array(
+				'jetpack/contact-form/id'   => $form_id,
+				'jetpack/contact-form/hash' => $form_hash,
+			)
+		);
 	}
 
 	/**
@@ -190,14 +249,11 @@ class Contact_Form_Block {
 	/**
 	 * Render the gutenblock form.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block The block object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
 	 * @return string
 	 */
-	public static function gutenblock_render_form( $atts, $content, $block ) {
-		global $page;
-
+	public static function gutenblock_render_form( $atts, $content ) {
 		// We should not render block is module is disabled
 		if ( ! Jetpack::is_module_active( 'contact-form' ) ) {
 			return '';
@@ -213,56 +269,7 @@ class Contact_Form_Block {
 		}
 
 		self::load_view_scripts();
-
-		$extended_attributes     = array_merge( $atts, array() );
-		$can_compute_id_and_hash = isset( $block->context['postId'] ) && isset( $block->context['postType'] );
-		if ( $can_compute_id_and_hash ) {
-			$post_type = $block->context['postType'];
-			$post_id   = $block->context['postId'];
-			$form_id   = $post_type . '_' . $post_id;
-
-			// TODO - Ideally the block should not depend on the Contact_Form (shortcode) class.
-			// A solution might be to create an intermediate `Contact_Form_Registry` class that
-			// is responsible for keeping track of the form instances. Both the shortcode and the
-			// block could use the same registry.
-			// Or find a completely different approach.
-			if ( ! empty( Contact_Form::$forms ) ) {
-				$extended_attributes['id'] .= '-' . ( count( Contact_Form::$forms ) + 1 ) . '-' . $page;
-			}
-
-			$extended_attributes['id']   = $form_id;
-			$form_hash                   = sha1( wp_json_encode( $extended_attributes ) );
-			$extended_attributes['hash'] = $form_hash;
-
-			/*
-			 * `id` and `hash` attributes are computed at render time, add them to the block context for fields
-			 * via the `render_block_context` filter.
-			 */
-			$add_id_and_hash_to_context = function ( $context ) use ( $extended_attributes ) {
-				return array_merge(
-					$context,
-					array(
-						'jetpack/contact-form/id'   => $extended_attributes['id'],
-						'jetpack/contact-form/hash' => $extended_attributes['hash'],
-					)
-				);
-			};
-
-			add_filter(
-				'render_block_context',
-				$add_id_and_hash_to_context,
-				10,
-				1
-			);
-		}
-
-		$content = Contact_Form::parse( $extended_attributes, do_blocks( $content ) );
-
-		if ( $can_compute_id_and_hash ) {
-			remove_filter( 'render_block_context', $add_id_and_hash_to_context, 1 );
-		}
-
-		return $content;
+		return Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
 
 	/**
