@@ -84,9 +84,7 @@ jQuery( document ).ready( function ( $ ) {
 				listItem.hide();
 			}
 
-			const validationIcon = $( '<img>', {
-				src: jetpackData.loadingIcon,
-				alt: 'Validating...',
+			const validationIcon = $( '<span>', {
 				class: 'validation-icon',
 			} );
 
@@ -213,6 +211,10 @@ jQuery( document ).ready( function ( $ ) {
 	 */
 	function updateValidationChecklist( state ) {
 		const failedConditions = [];
+		const iconClassMap = {
+			true: 'cross',
+			false: 'check',
+		};
 
 		// Manually update core strength meter status
 		const corePasswordStrengthResultsClass =
@@ -232,11 +234,7 @@ jQuery( document ).ready( function ( $ ) {
 			}
 
 			if ( checklistItem ) {
-				checklistItem.icon.attr(
-					'src',
-					validationFailed ? jetpackData.crossIcon : jetpackData.checkIcon
-				);
-				checklistItem.icon.attr( 'alt', validationFailed ? 'Invalid' : 'Valid' );
+				checklistItem.icon.attr( 'class', `validation-icon ${ iconClassMap[ validationFailed ] }` );
 				checklistItem.text.css( { color: validationFailed ? '#E65054' : '#008710' } );
 			}
 
@@ -313,8 +311,7 @@ jQuery( document ).ready( function ( $ ) {
 		Object.entries( UIComponents.validationChecklistItems ).forEach( ( [ key, itemData ] ) => {
 			const { icon, text, item } = itemData;
 
-			icon.attr( 'src', jetpackData.loadingIcon );
-			icon.attr( 'alt', 'Validating...' );
+			icon.removeClass( 'check cross' );
 			text.css( { color: '#3C434A' } );
 
 			// Re-hide the core and contains_backslash items
@@ -348,7 +345,7 @@ jQuery( document ).ready( function ( $ ) {
 	 * @return {jQuery} - The info popover element.
 	 */
 	function createInfoIconPopover( infoText ) {
-		const infoIcon = $( '<img>', { src: jetpackData.infoIcon, alt: 'Info', class: 'info-icon' } );
+		const infoIcon = $( '<span>', { class: 'info-icon' } );
 		const popover = $( '<div>', { text: infoText, class: 'popover' } ).append(
 			$( '<div>', { class: 'popover-arrow' } )
 		);
