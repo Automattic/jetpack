@@ -31,6 +31,43 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_Test_Jetpack_REST_Te
 	public function set_up() {
 		parent::set_up();
 		wp_set_current_user( static::$user_id );
+
+		// Add test JITM via filter
+		add_filter( 'jetpack_pre_connection_jitms', array( $this, 'inject_test_jitm' ), 10, 2 );
+	}
+
+	/**
+	 * Clean up after each test.
+	 */
+	public function tear_down() {
+		remove_filter( 'jetpack_pre_connection_jitms', array( $this, 'inject_test_jitm' ) );
+		parent::tear_down();
+	}
+
+	/**
+	 * Inject test JITM data. As it is not possible to mock the JITM::get_instance() method,
+	 * we utilise the jetpack_pre_connection_jitms filter to inject the test JITM.
+	 * Pre_Connection_JITM does not make HTTP requests so whilst this is not ideal, it is the best solution.
+	 *
+	 * @param array $jitms The JITMs array.
+	 * @return array
+	 */
+	public function inject_test_jitm( $jitms ) {
+		$message_path = '/test_message_path/';
+
+		// In Pre_Connection_JITM the message must have specific keys.
+		// The message_path must also be a regex pattern that matches the message_path under test.
+		// See Pre_Connection_JITM::filter_messages() for more details.
+		$jitms[] = array(
+			'id'             => 'test-jitm',
+			'message_path'   => $message_path,
+			'message'        => 'Test message',
+			'description'    => 'Test description',
+			'button_link'    => 'https://example.com',
+			'button_caption' => 'Test Button',
+		);
+
+		return $jitms;
 	}
 
 	/**
@@ -85,10 +122,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_Test_Jetpack_REST_Te
 	 * Tests getting JITMs.
 	 */
 	public function test_get_jitms() {
+		$message_path = '/test_message_path/';
+
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/jitm-v2' );
 		$request->set_query_params(
 			array(
-				'message_path'        => 'test_message_path',
+				'message_path'        => $message_path,
 				'query'               => '',
 				'full_jp_logo_exists' => false,
 			)
@@ -97,8 +136,24 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_Test_Jetpack_REST_Te
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 200, $response->get_status() );
 		$this->assertIsArray( $data );
+		$this->assertCount( 1, $data );
+
+		$jitm = $data[0];
+		$this->assertInstanceOf( 'stdClass', $jitm );
+		$this->assertObjectHasProperty( 'id', $jitm );
+		$this->assertObjectHasProperty( 'CTA', $jitm );
+		$this->assertObjectHasProperty( 'content', $jitm );
+		$this->assertObjectHasProperty( 'url', $jitm );
+		$this->assertObjectHasProperty( 'is_dismissible', $jitm );
+
+		$this->assertSame( 'test-jitm', $jitm->id );
+		$this->assertSame( 'Test Button', $jitm->CTA['message'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$this->assertSame( 'https://example.com', $jitm->url );
+		$this->assertSame( 'Test message', $jitm->content['message'] );
+		$this->assertSame( 'Test description', $jitm->content['description'] );
+		$this->assertTrue( $jitm->is_dismissible );
 	}
 
 	/**
