@@ -1229,10 +1229,28 @@ class Contact_Form_Plugin {
 			if ( is_array( $value ) ) {
 				$value = implode( ', ', $value );
 			}
+			$value          = $this->get_file_name_from_file_data( $value );
 			$result[ $key ] = html_entity_decode( $value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Get the file name from the file data.
+	 *
+	 * @param string $maybe_file_data The file data to check.
+	 *
+	 * @return string The file name or the original data.
+	 */
+	private function get_file_name_from_file_data( $maybe_file_data ) {
+		if ( str_starts_with( $maybe_file_data, '{' ) ) {
+			$file_data = json_decode( $maybe_file_data, true );
+			if ( isset( $file_data['file_id'] ) ) {
+				return $file_data['name'];
+			}
+		}
+		return $maybe_file_data;
 	}
 
 	/**
@@ -2146,7 +2164,25 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		$fields['_feedback_all_fields'] = $all_values;
+		// update the fields with URL data.
+		$new_all_values = array();
+		require_once __DIR__ . '/class-contact-form-file-handler.php';
+		$file_handler = new Contact_Form_File_Handler();
+		foreach ( $all_values as $key => $value ) {
+			$new_all_values[ $key ] = $value;
+
+			if ( str_starts_with( $value, '{' ) ) {
+				$maybe_file_data = json_decode( $value, true );
+				if ( is_array( $maybe_file_data ) && isset( $maybe_file_data['file_id'] ) && isset( $maybe_file_data['name'] ) ) {
+					// This is a file upload field, display a link instead of raw data
+					$maybe_file_data['url']  = $file_handler->get_file_url( $maybe_file_data['file_id'] );
+					$maybe_file_data['name'] = self::strip_tags( trim( $maybe_file_data['name'] ) );
+					$new_all_values[ $key ]  = wp_json_encode( $maybe_file_data );
+				}
+			}
+		}
+
+		$fields['_feedback_all_fields'] = $new_all_values;
 
 		$post_fields[ $post_id ] = $fields;
 
