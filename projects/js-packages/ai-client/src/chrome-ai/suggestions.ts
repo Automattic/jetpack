@@ -1,8 +1,15 @@
+/**
+ * External dependencies
+ */
 import { EventSourceMessage } from '@microsoft/fetch-event-source';
+/**
+ * Internal dependencies
+ */
 import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants.js';
 import { getErrorData } from '../hooks/use-ai-suggestions/index.js';
 import { renderHTMLFromMarkdown, renderMarkdownFromHTML } from '../libs/markdown/index.js';
 import { AiModelTypeProp, ERROR_RESPONSE, ERROR_NETWORK } from '../types.js';
+import { isTranslationAvailable, isSummarizerAvailable } from './utils.js';
 
 type ChromeAISuggestionsEventSourceConstructorArgs = {
 	content: string;
@@ -110,7 +117,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	// use the Chrome AI translator
 	async translate( text: string, target: string, source: string = '' ) {
-		if ( ! ( 'translation' in self ) ) {
+		if ( ! isTranslationAvailable() ) {
 			return;
 		}
 
@@ -160,7 +167,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	// use the Chrome AI summarizer
 	async summarize( text: string, tone?: string, wordCount?: number ) {
-		if ( ! ( 'ai' in self ) || ! ( 'summarizer' in self.ai ) ) {
+		if ( ! isSummarizerAvailable() ) {
 			return;
 		}
 		const available = ( await self.ai.summarizer.capabilities() ).available;

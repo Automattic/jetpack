@@ -1,16 +1,15 @@
-import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
+/**
+ * Internal dependencies
+ */
 import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants.js';
 import { PromptProp, PromptItemProps } from '../types.js';
 import ChromeAISuggestionsEventSource from './suggestions.js';
-
-/**
- * Check for the feature flag.
- *
- * @return boolean
- */
-function shouldUseChromeAI() {
-	return getJetpackExtensionAvailability( 'ai-use-chrome-ai-sometimes' ).available === true;
-}
+import {
+	shouldUseChromeAI,
+	isTranslationAvailable,
+	isLanguageDetectorAvailable,
+	isSummarizerAvailable,
+} from './utils.js';
 
 interface PromptContext {
 	type?: string;
@@ -78,11 +77,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 	if ( promptType.startsWith( 'ai-assistant-change-language' ) ) {
 		const [ language ] = context.language.split( ' ' );
 
-		if (
-			! ( 'translation' in self ) ||
-			! self.translation.createTranslator ||
-			! self.translation.canTranslate
-		) {
+		if ( ! isTranslationAvailable() ) {
 			return false;
 		}
 
@@ -92,7 +87,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		};
 
 		// see if we can detect the source language
-		if ( 'ai' in self && self.ai.languageDetector ) {
+		if ( isLanguageDetectorAvailable() ) {
 			const detector = await self.ai.languageDetector.create();
 			const confidences = await detector.detect( context.content );
 
@@ -123,8 +118,11 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		return chromeAI;
 	}
 
-	// TODO: consider also using ChromeAI for ai-assistant-summarize
 	if ( promptType.startsWith( 'ai-content-lens' ) ) {
+		if ( ! isSummarizerAvailable() ) {
+			return false;
+		}
+
 		const summaryOpts = {
 			tone: tone,
 			wordCount: wordCount,
