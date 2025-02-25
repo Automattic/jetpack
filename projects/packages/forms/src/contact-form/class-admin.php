@@ -753,17 +753,37 @@ class Admin {
 
 		$response_fields = array_diff_key( $response_fields, array_flip( array_keys( Contact_Form_Plugin::NON_PRINTABLE_FIELDS ) ) );
 
+		// Load file handler for generating file links
+		require_once __DIR__ . '/class-contact-form-file-handler.php';
+		$file_handler = new Contact_Form_File_Handler();
+
 		echo '<hr class="feedback_response__mobile-separator" />';
 		echo '<div class="feedback_response__item">';
 		foreach ( $response_fields as $key => $value ) {
+			$display_value = $value;
+
 			if ( is_array( $value ) ) {
-				$value = implode( ', ', $value );
+				// Check if this might be a file upload array
+				if ( isset( $value['file_id'] ) && isset( $value['name'] ) ) {
+					// This is a file upload field, display a link
+					$display_value = $file_handler->get_file_link_html( $value );
+				} else {
+					// Regular array, just join the values
+					$display_value = implode( ', ', $value );
+				}
+			} elseif ( is_string( $value ) && is_string( trim( $value ) ) && 0 === strpos( trim( $value ), '{' ) ) {
+				// Check if the value might be JSON containing file data
+				$maybe_file_data = json_decode( $value, true );
+				if ( is_array( $maybe_file_data ) && isset( $maybe_file_data['file_id'] ) && isset( $maybe_file_data['name'] ) ) {
+					// This is a file upload field, display a link instead of raw data
+					$display_value = $file_handler->get_file_link_html( $maybe_file_data );
+				}
 			}
 
 			printf(
 				'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">%s</div>',
 				esc_html( preg_replace( '#^\d+_#', '', $key ) ),
-				nl2br( esc_html( $value ) )
+				wp_kses_post( nl2br( $display_value ) ) // Allow HTML for the file links but still sanitize
 			);
 		}
 		echo '</div>';
