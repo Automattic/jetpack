@@ -1,3 +1,7 @@
+@import '@wordpress/base-styles/variables';
+@import '@wordpress/base-styles/breakpoints';
+@import "~@wordpress/base-styles/mixins";
+@import '@wordpress/dataviews/build-style/style.css';
 
 $padding-standard: 16px;
 
@@ -43,7 +47,7 @@ body.is-section-subscribers.is-subscribers-dataviews,
             );
             overflow: hidden;
         
-            @media ( max-width: 600px ) {
+            @media ( max-width: $break-small ) {
                 padding: 0;
             }
         
@@ -93,7 +97,7 @@ body.is-section-subscribers.is-subscribers-dataviews,
                     overflow: hidden;
                     box-sizing: border-box;
 
-                    @media ( max-width: 600px ) {
+                    @media ( max-width: $break-small ) {
                         margin: 0 auto;
                         padding: 16px;
                     }
@@ -124,7 +128,7 @@ body.is-section-subscribers.is-subscribers-dataviews,
                             border-radius: inherit;
                         }
 
-                        @media ( max-width: 1280px ) {
+                        @media ( max-width: $break-wide ) {
                             height: 40px;
                             width: 40px;
                         }
@@ -155,7 +159,7 @@ body.is-section-subscribers.is-subscribers-dataviews,
                         }
                     }
 
-                    @media ( max-width: 1280px ) {
+                    @media ( max-width: $break-wide ) {
                         display: none;
                     }
                 }
@@ -182,7 +186,7 @@ body.is-section-subscribers.is-subscribers-dataviews,
                             border-radius: 4px;
                         }
 
-                        @media ( max-width: 960px ) {
+                        @media ( max-width: $break-large ) {
                             .highlight-cards-list {
                                 flex-flow: column;
                             }
@@ -207,7 +211,7 @@ body.is-section-subscribers.is-subscribers-dataviews,
             }
         
             .subscriber-profile.subscriber-profile--compact {
-                @media ( max-width: 1280px ) {
+                @media ( max-width: $break-wide ) {
                     max-width: 195px;
                 }
         
