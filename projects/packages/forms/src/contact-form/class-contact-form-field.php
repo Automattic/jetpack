@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Unauth_File_Upload_Handler;
 
 /**
  * Class for the contact-field shortcode.
@@ -800,6 +801,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$rest_nonce        = wp_create_nonce( 'wp_rest' );
 		$file_upload_nonce = wp_create_nonce( 'jetpack_file_upload_jetpack-form' );
 
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
+		$accepted_file_types = implode( ', ', Unauth_File_Upload_Handler::get_allowed_mime_types() );
+
 		$field  = $this->render_label( 'file', $id, $label, $required, $required_field_text );
 		$field .= "<div class='jetpack-form-file-field__dropzone' data-id='{$id}' data-rest-nonce='{$rest_nonce}' data-jp-file-upload='{$file_upload_nonce}'  >\n";
 		$field .= "<a href='#' class='wp-block-button__link wp-element-button'>" . esc_html__( 'Select a file', 'jetpack-forms' ) . "</a>\n";
@@ -811,7 +815,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			id='" . esc_attr( $id ) . "'
 			" . $class . '
 			' . ( $required ? "required aria-required='true'" : '' ) . "
-			accept='.pdf,.jpg'
+			accept='" . esc_attr( $accepted_file_types ) . "'
 			style='" . $this->field_styles . "'
 		/>\n";
 		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_token' class='jetpack-form-file-field__token' value='' />\n";
