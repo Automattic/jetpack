@@ -1,14 +1,7 @@
 import { Button, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-const PluginActionButton = ( {
-	isInstalling,
-	isActivating,
-	isInstalled,
-	installText,
-	activateText,
-	onClick,
-} ) => {
+const PluginActionButton = ( { isInstalling, isActivating, isInstalled, onClick } ) => {
 	const isLoading = isInstalling || isActivating;
 
 	return (
@@ -24,12 +17,16 @@ const PluginActionButton = ( {
 			aria-label={
 				( isActivating && __( 'Activating…', 'jetpack-forms' ) ) ||
 				( isInstalling && __( 'Installing…', 'jetpack-forms' ) ) ||
-				( isInstalled ? activateText : installText )
+				( isInstalled
+					? __( 'Activate Akismet', 'jetpack-forms' )
+					: __( 'Install Akismet', 'jetpack-forms' ) )
 			}
 		>
 			{ ( isActivating && __( 'Activating…', 'jetpack-forms' ) ) ||
 				( isInstalling && __( 'Installing…', 'jetpack-forms' ) ) ||
-				( isInstalled ? activateText : installText ) }
+				( isInstalled
+					? __( 'Activate Akismet', 'jetpack-forms' )
+					: __( 'Install Akismet', 'jetpack-forms' ) ) }
 		</Button>
 	);
 };

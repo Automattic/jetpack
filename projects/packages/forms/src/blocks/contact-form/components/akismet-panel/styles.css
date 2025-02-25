@@ -14,4 +14,10 @@
 
 .jetpack-plugin-integration__spinner-icon {
 	animation: rotation 2s infinite linear;
+}
+
+@keyframes rotation {
+	100% {
+		transform: rotate(360deg);
+	}
 } 
