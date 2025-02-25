@@ -189,6 +189,12 @@ export default class JP_Dropzone {
 				this.updateProgress.bind( this, file, div ),
 				false
 			);
+			// Listen for success event to mark progress as complete
+			this.element.addEventListener(
+				'jp-dropzone-success',
+				this.markProgressComplete.bind( this, file, div ),
+				false
+			);
 			const removeButton = div.querySelector( '.jetpack-form-file-field__remove' ) as HTMLElement;
 			removeButton.addEventListener( 'click', this.removeFile.bind( this, file, div ) );
 		} );
@@ -196,12 +202,26 @@ export default class JP_Dropzone {
 
 	updateProgress( file, div, event ) {
 		if ( event.detail.file === file ) {
+			// Cap progress at 95% until we get server confirmation
+			const progress = Math.min( event.detail.progress, 95 );
 			div
 				.querySelector( '.jetpack-form-file-field__progress' )
-				.style.setProperty( '--progress', `${ event.detail.progress }%` );
-			if ( event.detail.progress === 100 ) {
-				div.querySelector( '.jetpack-form-file-field__progress' ).classList.add( 'is-complete' );
-			}
+				.style.setProperty( '--progress', `${ progress }%` );
+		}
+	}
+
+	/**
+	 * Mark the progress as complete after receiving a successful response.
+	 * @param {File}        file  The file that was uploaded.
+	 * @param {HTMLElement} div   The preview element.
+	 * @param {Event}       event The success event.
+	 */
+	markProgressComplete( file, div, event ) {
+		if ( event.detail.file === file ) {
+			div
+				.querySelector( '.jetpack-form-file-field__progress' )
+				.style.setProperty( '--progress', '100%' );
+			div.querySelector( '.jetpack-form-file-field__progress' ).classList.add( 'is-complete' );
 		}
 	}
 
