@@ -161,7 +161,7 @@ class Jetpack_Boost {
 			return;
 		}
 
-		// Schedule the cron event to handle the version change. This ensures the previous version's handle_version_change() is always flushed.
+		// Schedule the cron event to handle the version change. This ensures the previous version's handle is always flushed.
 		wp_schedule_single_event( time() + 10, 'jetpack_boost_handle_version_change_cron' );
 	}
 

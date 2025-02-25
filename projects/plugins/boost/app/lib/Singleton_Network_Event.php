@@ -8,8 +8,17 @@ use Automattic\Jetpack_Boost\Contracts\Has_Setup;
  * Handles network-wide cron events that should only run once per network instead of per site.
  * This class is compatible with both multisite and single-site installations.
  *
+ * In a multisite environment, this class ensures that any registered events are only executed
+ * once per network with respect to the schedule's recurrence.
+ * This prevents duplicate executions across subsites. For single-site
+ * installations, it behaves like a regular scheduled event.
+ *
  * @since $$next-version$$
  * @package Automattic\Jetpack_Boost\Lib
+ *
+ * @see wp_schedule_event()      For WordPress scheduling functionality
+ * @see wp_next_scheduled()      For checking scheduled events
+ * @see wp_unschedule_event()    For removing scheduled events
  */
 class Singleton_Network_Event implements Has_Setup {
 	/**

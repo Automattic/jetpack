@@ -3,10 +3,10 @@
 namespace Automattic\Jetpack_Boost\Tests\Lib;
 
 use Automattic\Jetpack_Boost\Lib\Singleton_Network_Event;
-use Automattic\Jetpack_Boost\Tests\Base_Test_Case;
+use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 use Brain\Monkey\Functions;
 
-class Test_Scheduled_Event extends Base_Test_Case {
+class Test_Scheduled_Event extends Base_TestCase {
 	public function test_setup() {
 		$scheduled_event = new Singleton_Network_Event();
 
