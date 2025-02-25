@@ -27,6 +27,7 @@ export default class JP_Dropzone {
 	files: File[];
 	xhr: XMLHttpRequest[];
 	events: { [ key: string ]: EventCallback[] };
+	tokens: string[];
 
 	/**
 	 * @param {HTMLElement} element The dropzone element.
@@ -45,6 +46,7 @@ export default class JP_Dropzone {
 		this.uploadButton = this.element.querySelector( '.wp-block-button__link' ) as HTMLElement;
 		this.files = [];
 		this.xhr = [];
+		this.tokens = [];
 		this.isProcessing = false;
 		this.events = {};
 
@@ -228,7 +230,7 @@ export default class JP_Dropzone {
 		this.previewContainer.classList.add( 'is-active' );
 		// Only show the first file
 		if ( files.length > 0 ) {
-			this.showImage( files[ 0 ] );
+			this.showImage( files[ 0 ], 0 );
 		}
 	}
 
@@ -236,7 +238,7 @@ export default class JP_Dropzone {
 	 * Display an image preview for the given file.
 	 * @param {File} file The file to display.
 	 */
-	showImage( file: File ) {
+	showImage( file: File, index: number ) {
 		if ( ! ( file instanceof Blob ) ) {
 			console.error( 'Invalid file type:', file ); // eslint-disable-line no-console
 			return;
@@ -277,7 +279,7 @@ export default class JP_Dropzone {
 				false
 			);
 			const removeButton = div.querySelector( '.jetpack-form-file-field__remove' ) as HTMLElement;
-			removeButton.addEventListener( 'click', this.removeFile.bind( this, file, div ) );
+			removeButton.addEventListener( 'click', this.removeFile.bind( this, file, div, index ) );
 		} );
 	}
 
@@ -385,10 +387,11 @@ export default class JP_Dropzone {
 					this.fileField.reportValidity();
 					// update the hidden field with the token
 					this.updateHiddenFields( '.jetpack-form-file-field__token', response.data.token );
+					this.tokens[ index ] = response.data.token;
 
 					// Clear the file input after successful upload and token retrieval
 					// This prevents the browser from re-uploading the file when the form is submitted
-					this.fileField.value = '';
+					this.this.fileField.value = '';
 					return;
 				}
 			}
@@ -419,7 +422,7 @@ export default class JP_Dropzone {
 	 * @param {File}        file The file to remove.
 	 * @param {HTMLElement} div  The preview element to remove.
 	 */
-	removeFile( file: File, div: HTMLElement ) {
+	removeFile( file: File, div: HTMLElement, index: number ) {
 		this.files = this.files.filter( f => f !== file );
 		div.classList.add( 'fade-out' );
 		div.addEventListener( 'animationend', () => {
@@ -429,6 +432,18 @@ export default class JP_Dropzone {
 				this.isProcessing = false;
 			}
 		} );
+
+		const request = new Request( this.options.endpoint + '/remove', {
+			method: 'POST',
+			headers: {
+				'X-WP-Nonce': this.element.getAttribute( 'data-rest-nonce' ) || '',
+				'X-Jetpack-Upload-Nonce': this.element.getAttribute( 'data-jp-file-upload' ) || '',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify( { token: this.tokens[ index ] || '', context: 'jetpack-form' } ),
+		} );
+
+		fetch( request );
 	}
 
 	/**
