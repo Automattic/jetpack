@@ -597,8 +597,10 @@ function wpcomsh_head_rum_meta() {
 			$allow_iframe = 'data-allow-iframe="true"';
 		}
 	}
+
 	$rum_kv = array();
 	$rum_kv = wpcomsh_get_woo_rum_data( $rum_kv );
+
 	if ( count( $rum_kv ) > 0 ) {
 		$rum_kv = wp_json_encode( $rum_kv, JSON_FORCE_OBJECT );
 		if ( is_string( $rum_kv ) ) {
@@ -609,6 +611,7 @@ function wpcomsh_head_rum_meta() {
 	} else {
 		$rum_kv = '';
 	}
+
 	$data_site_tz = 'data-site-tz="' . esc_attr( wpcomsh_stats_timezone_string() ) . '"';
 
 	// Create the meta tag with all the attributes
