@@ -17,6 +17,8 @@ import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
+const X_TICK_WIDTH = 60;
+
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withGradientFill: boolean;
 	smoothing?: boolean;
@@ -138,6 +140,12 @@ const LineChart: FC< LineChartProps > = ( {
 		return { ...defaultMargin, ...margin };
 	}, [ margin, options ] );
 
+	const xNumTicks = useMemo(
+		() =>
+			Math.max( Math.floor( Math.min( dataSorted[ 0 ]?.data.length, width / X_TICK_WIDTH ) ), 4 ),
+		[ dataSorted, width ]
+	);
+
 	const error = validateData( dataSorted );
 	if ( error ) {
 		return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
@@ -173,7 +181,7 @@ const LineChart: FC< LineChartProps > = ( {
 				<AnimatedGrid columns={ false } numTicks={ 4 } />
 				<AnimatedAxis
 					orientation="bottom"
-					numTicks={ 5 }
+					numTicks={ xNumTicks }
 					tickFormat={ formatDateTick }
 					{ ...options?.axis?.x }
 				/>
