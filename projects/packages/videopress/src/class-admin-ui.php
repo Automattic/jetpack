@@ -393,7 +393,7 @@ class Admin_UI {
 	protected static function attachment_info_template_part() {
 		?>
 		<span class="setting" data-setting="title">
-			<label for="attachment-details-title" class="name"><?php _e( 'Video Title', 'jetpack-videopress-pkg' ); ?></label>
+			<label for="attachment-details-title" class="name"><?php _e( 'Title', 'jetpack-videopress-pkg' ); ?></label>
 			<input type="text" id="attachment-details-title" value="{{ data.title }}" readonly />
 		</span>
 		<span class="setting" data-setting="filename">
