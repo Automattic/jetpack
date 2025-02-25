@@ -223,6 +223,28 @@ describe( 'Inspector controls', () => {
 				spacing: 5,
 			} );
 		} );
+
+		test( 'toggles place button on new line if width set to 100%', async () => {
+			const user = userEvent.setup();
+			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+			await user.click( screen.getByText( 'Spacing' ), { selector: 'button' } );
+			await user.click( screen.getByLabelText( '100%' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonOnNewLine: true,
+			} );
+		} );
+
+		test( 'toggles place button on new line if width set to 50%', async () => {
+			const user = userEvent.setup();
+			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+			await user.click( screen.getByText( 'Spacing' ), { selector: 'button' } );
+			await user.click( screen.getByLabelText( '50%' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonOnNewLine: false,
+			} );
+		} );
 	} );
 
 	describe( 'Display settings panel', () => {
