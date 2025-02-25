@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 450+ occurrences
+    // PhanTypeMismatchArgument : 440+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 260+ occurrences
     // PhanNoopNew : 200+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 190+ occurrences
@@ -33,13 +33,13 @@ return [
     // PhanPluginSimplifyExpressionBool : 20+ occurrences
     // PhanTypeArraySuspicious : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
-    // PhanPluginMixedKeyNoKey : 15+ occurrences
     // PhanPluginUnreachableCode : 15+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
     // PhanTypeExpectedObjectPropAccessButGotNull : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 15+ occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 10+ occurrences
+    // PhanPluginMixedKeyNoKey : 10+ occurrences
     // PhanRedefineClass : 10+ occurrences
     // PhanRedundantConditionInLoop : 10+ occurrences
     // PhanTypeInvalidDimOffset : 10+ occurrences
@@ -135,7 +135,6 @@ return [
         '_inc/lib/core-api/wpcom-endpoints/memberships.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode', 'PhanTypeArraySuspicious'],
         '_inc/lib/core-api/wpcom-endpoints/publicize-connection-test-results.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument'],
         '_inc/lib/core-api/wpcom-endpoints/publicize-connections.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument'],
-        '_inc/lib/core-api/wpcom-endpoints/publicize-services.php' => ['PhanParamSignatureMismatch', 'PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument'],
         '_inc/lib/core-api/wpcom-endpoints/service-api-keys.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturnProbablyReal'],
         '_inc/lib/core-api/wpcom-fields/post-fields-publicize-connections.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMissingReturn'],
         '_inc/lib/debugger/class-jetpack-cxn-test-base.php' => ['PhanDeprecatedFunctionInternal', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn'],
