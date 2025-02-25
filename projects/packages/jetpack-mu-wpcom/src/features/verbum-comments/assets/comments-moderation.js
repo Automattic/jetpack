@@ -15,12 +15,6 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		};
 	};
 
-	// Remove the quicktags toolbar, a GB toolbar is all anyone needs.
-	const quicktags = document.getElementById( 'qt_content_toolbar' );
-	if ( quicktags ) {
-		quicktags.remove();
-	}
-
 	// Find the comment content textarea
 	const contentTextarea = document.getElementById( 'content' );
 	if ( ! contentTextarea || ! ( contentTextarea instanceof HTMLTextAreaElement ) ) {

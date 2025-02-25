@@ -21,6 +21,23 @@ class Verbum_Moderate {
 	 */
 	public function __construct() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_filter( 'wp_editor_settings', array( $this, 'disable_rich_editing' ) );
+	}
+
+	/**
+	 * Disable rich editing for comments with Gutenberg blocks.
+	 *
+	 * @param array $settings The editor settings.
+	 * @return array The modified editor settings.
+	 */
+	public function disable_rich_editing( $settings ) {
+		$comment = $this->get_block_comment_being_edited();
+		if ( $comment ) {
+			$settings['tinymce']   = false;
+			$settings['quicktags'] = false;
+		}
+
+		return $settings;
 	}
 
 	/**
@@ -29,20 +46,8 @@ class Verbum_Moderate {
 	 * @param string $hook The current admin page.
 	 */
 	public function enqueue_scripts( $hook ) {
-		// Only load on comment.php admin page
-		if ( 'comment.php' !== $hook ) {
-			return;
-		}
-
-		// Check if we have a comment ID and if its content has Gutenberg blocks
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$comment_id = isset( $_GET['c'] ) ? absint( $_GET['c'] ) : 0;
-		if ( ! $comment_id ) {
-			return;
-		}
-
-		$comment = get_comment( $comment_id );
-		if ( ! $comment || ! has_blocks( $comment->comment_content ) ) {
+		$comment = $this->get_block_comment_being_edited( $hook );
+		if ( ! $comment ) {
 			return;
 		}
 
@@ -69,5 +74,37 @@ class Verbum_Moderate {
 			),
 			'before'
 		);
+	}
+
+	/**
+	 * Get the block-based comment being edited if on the comment edit screen.
+	 *
+	 * @param string|null $hook The current admin page hook.
+	 * @return WP_Comment|false The comment object if we're editing a block-based comment, false otherwise.
+	 */
+	private function get_block_comment_being_edited( $hook = null ) {
+		// Check if we're on the comment.php admin page
+		if ( $hook === null ) {
+			$screen = get_current_screen();
+			if ( ! $screen || 'comment' !== $screen->id ) {
+				return false;
+			}
+		} elseif ( 'comment.php' !== $hook ) {
+			return false;
+		}
+
+		// Check if we have a comment ID
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$comment_id = isset( $_GET['c'] ) ? absint( $_GET['c'] ) : 0;
+		if ( ! $comment_id ) {
+			return false;
+		}
+
+		$comment = get_comment( $comment_id );
+		if ( ! $comment || ! has_blocks( $comment->comment_content ) ) {
+			return false;
+		}
+
+		return $comment;
 	}
 }
