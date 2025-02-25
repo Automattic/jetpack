@@ -15,6 +15,29 @@ interface DropzoneOptions {
 	};
 }
 
+type EventCallback = ( ...args: unknown[] ) => void;
+
+class EventEmitter {
+	private events: { [ key: string ]: EventCallback[] } = {};
+
+	on( event: string, callback: EventCallback ): void {
+		if ( ! this.events[ event ] ) {
+			this.events[ event ] = [];
+		}
+		this.events[ event ].push( callback );
+	}
+
+	off( event: string, callback: EventCallback ): void {
+		if ( ! this.events[ event ] ) return;
+		this.events[ event ] = this.events[ event ].filter( cb => cb !== callback );
+	}
+
+	emit( event: string, ...args: unknown[] ): void {
+		if ( ! this.events[ event ] ) return;
+		this.events[ event ].forEach( callback => callback( ...args ) );
+	}
+}
+
 export default class JP_Dropzone {
 	element: HTMLElement;
 	previewContainer: HTMLElement;
@@ -26,7 +49,7 @@ export default class JP_Dropzone {
 	options: DropzoneOptions;
 	files: File[];
 	xhr: XMLHttpRequest[];
-	events: { [ key: string ]: EventCallback[] };
+	events: EventEmitter;
 	tokens: string[];
 
 	/**
@@ -48,7 +71,7 @@ export default class JP_Dropzone {
 		this.xhr = [];
 		this.tokens = [];
 		this.isProcessing = false;
-		this.events = {};
+		this.events = new EventEmitter();
 
 		this.init();
 	}
@@ -267,25 +290,17 @@ export default class JP_Dropzone {
 				) }</a>
 			`;
 			this.previewContainer.appendChild( div );
-			this.element.addEventListener(
-				'jp-dropzone-progress',
-				this.updateProgress.bind( this, file, div ),
-				false
-			);
-			// Listen for success event to mark progress as complete
-			this.element.addEventListener(
-				'jp-dropzone-success',
-				this.markProgressComplete.bind( this, file, div ),
-				false
-			);
+			this.events.on( 'upload:progress', this.updateProgress.bind( this, file, div ) );
+			this.events.on( 'upload:done', this.markProgressComplete.bind( this, file, div ) );
+
 			const removeButton = div.querySelector( '.jetpack-form-file-field__remove' ) as HTMLElement;
 			removeButton.addEventListener( 'click', this.removeFile.bind( this, file, div, index ) );
 		} );
 	}
 
 	updateProgress( file, div, event ) {
-		if ( event.detail.file === file ) {
-			const progress = Math.min( event.detail.progress, 95 );
+		if ( event.file === file ) {
+			const progress = Math.min( event.progress, 97 );
 			div
 				.querySelector( '.jetpack-form-file-field__progress' )
 				.style.setProperty( '--progress', `${ progress }%` );
@@ -342,12 +357,8 @@ export default class JP_Dropzone {
 	}
 
 	onProgress( file, index, event ) {
-		const progressEvent = new CustomEvent( 'jp-dropzone-progress', {
-			detail: { file, index, event, progress: ( event.loaded / event.total ) * 100 },
-			bubbles: true,
-			cancelable: true,
-		} );
-		this.element.dispatchEvent( progressEvent );
+		const progress = ( event.loaded / event.total ) * 100;
+		this.events.emit( 'upload:progress', { file, index, progress } );
 	}
 
 	updateHiddenFields( selector, value ) {
@@ -358,12 +369,11 @@ export default class JP_Dropzone {
 	}
 	/**
 	 * Mark the progress as complete after receiving a successful response.
-	 * @param {File}        file  The file that was uploaded.
 	 * @param {HTMLElement} div   The preview element.
 	 * @param {Event}       event The success event.
 	 */
 	markProgressComplete( file, div, event ) {
-		if ( event.detail.file === file ) {
+		if ( event.file === file ) {
 			div
 				.querySelector( '.jetpack-form-file-field__progress' )
 				.style.setProperty( '--progress', '100%' );
@@ -377,21 +387,16 @@ export default class JP_Dropzone {
 				const response = JSON.parse( event.target.responseText );
 
 				if ( response.success ) {
-					const successEvent = new CustomEvent( 'jp-dropzone-success', {
-						detail: { file, index, response },
-						bubbles: true,
-						cancelable: true,
-					} );
-					this.element.dispatchEvent( successEvent );
+					this.tokens[ index ] = response.data.token;
+					this.events.emit( 'upload:done', { file, index, token: response.data.token } );
 					this.fileField.setCustomValidity( '' );
 					this.fileField.reportValidity();
 					// update the hidden field with the token
 					this.updateHiddenFields( '.jetpack-form-file-field__token', response.data.token );
-					this.tokens[ index ] = response.data.token;
 
 					// Clear the file input after successful upload and token retrieval
 					// This prevents the browser from re-uploading the file when the form is submitted
-					this.this.fileField.value = '';
+					this.fileField.value = '';
 					return;
 				}
 			}
@@ -453,10 +458,7 @@ export default class JP_Dropzone {
 	 * @returns {JP_Dropzone} The JP_Dropzone instance.
 	 */
 	on( event: string, callback: EventCallback ): JP_Dropzone {
-		if ( ! this.events[ event ] ) {
-			this.events[ event ] = [];
-		}
-		this.events[ event ].push( callback );
+		this.events.on( event, callback );
 		return this;
 	}
 
@@ -466,9 +468,7 @@ export default class JP_Dropzone {
 	 * @param {...unknown[]} args  The arguments to pass to the event callback.
 	 */
 	trigger( event: string, ...args: unknown[] ) {
-		if ( this.events[ event ] ) {
-			this.events[ event ].forEach( callback => callback.apply( this, args ) );
-		}
+		this.events.emit( event, ...args );
 	}
 	/**
 	 *
@@ -488,7 +488,7 @@ export default class JP_Dropzone {
 	 */
 	clearError() {
 		this.fileField.setCustomValidity( '' );
-		this.trigger( 'clear-error', {
+		this.trigger( 'error:clear', {
 			input: this.fileField,
 			form: this.form,
 			message: '',
