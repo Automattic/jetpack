@@ -52,10 +52,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 
-		// Load PHP translations (.mo/) for Simple or Atomic sites
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_php_translations' ) );
-
-		// Modify JavaScript translations (.json) for Simple or Atomic sites
+		// Load JavaScript translations (.json) for Simple sites.
 		add_filter( 'load_script_translation_file', array( __CLASS__, 'fix_script_translation_path' ), 10, 3 );
 
 		// These features run only on simple sites.
@@ -96,34 +93,7 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load PHP translations (.mo/.po) based on the site type.
-	 * - Simple Sites: Load from local filesystem.
-	 * - Atomic Sites: Load from a remote URL.
-	 */
-	public static function load_php_translations() {
-		$domain = 'jetpack-mu-wpcom';
-		$locale = determine_locale(); // Get the current language (e.g., 'fr_FR')
-
-		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-			// Atomic Sites: Load from a remote URL (Handled remotely - No local file)
-			$remote_mo_url = "https://widgets.wp.com/languages/mu-plugins/{$domain}-{$locale}.mo";
-			load_textdomain( $domain, $remote_mo_url );
-		} else {
-			// Simple Sites: Load from local filesystem
-			$language_dir = defined( 'WP_LANG_DIR' ) ? WP_LANG_DIR : WP_CONTENT_DIR . '/languages';
-			$mo_file      = "{$language_dir}/mu-plugins/{$domain}-{$locale}.mo";
-
-			if ( file_exists( $mo_file ) ) {
-				load_textdomain( $domain, $mo_file );
-			}
-		}
-	}
-
-	/**
-	 * Modify the JavaScript translation JSON file URL for Atomic sites.
-	 *
-	 * - Simple Sites: Use default WordPress locale loading.
-	 * - Atomic Sites: Load from `https://widgets.wp.com/languages/mu-plugins/`.
+	 * Fix the script translation path for Jetpack MU plugin
 	 *
 	 * @param string|false $file Default JSON translation file URL (or false if none found).
 	 * @param string       $handle The script handle.
@@ -132,22 +102,15 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function fix_script_translation_path( $file, $handle, $domain ) {
 		if ( 'jetpack-mu-wpcom' !== $domain ) {
-			return $file; // Keep default translation path for other domains.
+			return $file;
 		}
 
-		$filename = wp_basename( $file ); // Example: jetpack-mu-wpcom-fr_FR-<MD5>.json
-
-		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-			// Atomic Sites: Ensure JSON translations load from `widgets.wp.com`
-			return "https://widgets.wp.com/languages/mu-plugins/{$filename}";
-		} else {
-			// Simple Sites: Ensure translations load from `languages/mu-plugins/`
-			$language_dir = defined( 'WP_LANG_DIR' ) ? WP_LANG_DIR : WP_CONTENT_DIR . '/languages';
-
-			if ( file_exists( "{$language_dir}/mu-plugins/$filename" ) ) {
-				return "{$language_dir}/mu-plugins/$filename";
-			}
+		// Simple sites use `/languages/mu-plugins/`
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$custom_file = WP_CONTENT_DIR . '/languages/mu-plugins/' . basename( $file );
+			return file_exists( $custom_file ) ? $custom_file : $file;
 		}
+
 		return $file;
 	}
 
