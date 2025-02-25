@@ -22,7 +22,8 @@ function jetpack_boost_minify_cache_buster() {
  * @param int $file_age The age of files to purge, in seconds.
  */
 function jetpack_boost_legacy_minify_cache_cleanup( $file_age = DAY_IN_SECONDS ) {
-	// Explicitly cast to int as do_action() can pass a non-int value. https://core.trac.wordpress.org/ticket/14881
+	// If file_age is not an int, set it to the default.
+	// $file_age can be an empty string if calling this from an action: https://core.trac.wordpress.org/ticket/14881
 	$file_age = is_int( $file_age ) ? $file_age : DAY_IN_SECONDS;
 
 	$cache_folder = Config::get_legacy_cache_dir_path();
