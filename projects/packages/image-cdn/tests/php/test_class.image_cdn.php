@@ -6,7 +6,7 @@ if ( ! defined( 'WP_TESTS_DOMAIN' ) ) {
 	define( 'WP_TESTS_DOMAIN', 'example.org' );
 }
 
-class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
+class WP_Test_Image_CDN extends Image_CDN_Attachment_TestCase {
 
 	/**
 	 * Test image.

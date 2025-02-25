@@ -3,7 +3,7 @@
 /**
  * Testing Import Syncing Events
  */
-class WP_Test_Jetpack_Sync_Import extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Import extends WP_Test_Jetpack_Sync_TestBase {
 	public function test_sync_export_content_event() {
 		// Can't call export_wp directly since it require no headers to be set...
 		do_action( 'export_wp', array( 'content' => 'all' ) );

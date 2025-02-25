@@ -5,12 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.39.0] - 2025-02-24
+### Changed
+- Forms: Add Tracks when connecting Google Drive. [#41825]
+
+### Fixed
+- Forms: Fix `empty form` check for select elements. [#41846]
+- Forms: Update block editor tracks events. [#41824]
+
 ## [0.38.0] - 2025-02-17
 ### Added
 - Forms block: Add number input. [#40962]
 
 ### Changed
-- Forms: Added tracking for plugin installations. [#41732]
+- Forms: Add tracking for plugin installations. [#41732]
 
 ### Fixed
 - Forms: Fix error setting for field. [#41715]
@@ -20,27 +28,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.37.1] - 2025-02-11
 ### Fixed
-- Forms: fix missing translations [#41671]
+- Forms: Fix missing translations. [#41671]
 
 ## [0.37.0] - 2025-02-10
 ### Added
 - Forms: Add a new file upload field block to allow visitors to upload files through contact forms. [#41582]
-- Forms: Add support for having multiple forms accross paginated pages [#41407]
-- Forms: Tests: An empty form shouldn't submit test [#41504]
+- Forms: Add support for having multiple forms across paginated pages. [#41407]
 - Forms: Update fields and button blocks to support contentOnly editing. [#41411]
+- Tests: Verify empty forms do not submit. [#41504]
 
 ### Changed
-- Forms: Refine file upload field block to use WordPress upload icon and follow consistent field patterns. Make the block available in beta. [#41586]
-- Forms: tracks forms submissions in orden to improve the product. [#41307]
-- Updated package dependencies. [#41491]
+- File Upload Field block: Use WordPress upload icon and follow consistent field patterns (currently in beta). [#41586]
+- Forms: Track forms submissions in order to improve the product. [#41307]
+- Update package dependencies. [#41491]
 
 ### Fixed
-- Fix submit button width and alignment [#41139]
+- Fix submit button width and alignment. [#41139]
 - Forms: Fix block style variations not showing in the editor. [#41457]
-- Forms: fixes the date format input if multiple date pickers are used with different date formats. [#41611]
-- Forms: Fix invalid html IDs. [#41564]
+- Forms: Fix the date format input if multiple date pickers are used with different date formats. [#41611]
+- Forms: Fix invalid HTML IDs. [#41564]
 - Forms: Hide fields without options. [#41443]
-- Improves the styling options of the separator block when placed inside the form block [#40967]
+- Improve the styling options of the separator block when placed inside the form block. [#40967]
 
 ## [0.36.0] - 2025-02-03
 ### Added
@@ -49,7 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Remove legacy code and improve code quality. [#41348]
 - Rename contact form block placeholder to "Forms". [#41384]
-- Updated package dependencies. [#41286]
+- Update package dependencies. [#41286]
 
 ### Fixed
 - Add wrapping div to the core HTML block when inserted inside the form block. [#41269]
@@ -849,6 +857,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.39.0]: https://github.com/automattic/jetpack-forms/compare/v0.38.0...v0.39.0
 [0.38.0]: https://github.com/automattic/jetpack-forms/compare/v0.37.1...v0.38.0
 [0.37.1]: https://github.com/automattic/jetpack-forms/compare/v0.37.0...v0.37.1
 [0.37.0]: https://github.com/automattic/jetpack-forms/compare/v0.36.0...v0.37.0

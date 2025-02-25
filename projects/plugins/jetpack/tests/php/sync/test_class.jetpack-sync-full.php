@@ -10,7 +10,7 @@ use Automattic\Jetpack\Sync\Settings;
  *
  * @group legacy-full-sync
  */
-class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_TestBase {
 
 	/** @var \Automattic\Jetpack\Sync\Modules\Full_Sync */
 	private $full_sync;
@@ -941,9 +941,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
 
-		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		wp_update_plugins();
-		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ) );
 
 		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
@@ -971,9 +971,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
 
-		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		wp_update_themes();
-		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ) );
 		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
 

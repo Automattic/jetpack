@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Remove dependency on automattic/jetpack-mu-wpcom that was added for Phan and causes odd dependency loops. Make Phan happy in a different way for now.
-
-

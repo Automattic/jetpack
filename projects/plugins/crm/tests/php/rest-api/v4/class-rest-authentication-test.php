@@ -5,14 +5,14 @@ namespace Automattic\Jetpack\CRM\Tests;
 use WP_REST_Request;
 use WP_REST_Server;
 
-require_once __DIR__ . '/../class-rest-base-test-case.php';
+require_once __DIR__ . '/../class-rest-base-testcase.php';
 
 /**
  * Authentication test.
  *
  * @covers \Automattic\Jetpack\CRM\REST_API\V4\REST_Contacts_Controller
  */
-class REST_Authentication_Test extends REST_Base_Test_Case {
+class REST_Authentication_Test extends REST_Base_TestCase {
 
 	/**
 	 * Return an array of URLs that require WP_User/cookie authentication.

@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Search\Test_Case as Search_Test_Case;
+use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -13,7 +13,7 @@ use WP_REST_Server;
  *
  * @package automattic/jetpack-search
  */
-class Test_REST_Controller extends Search_Test_Case {
+class Test_REST_Controller extends Search_TestCase {
 
 	/**
 	 * REST Server object.
@@ -294,7 +294,7 @@ class Test_REST_Controller extends Search_Test_Case {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( '{"search_plan_info":' . Search_Test_Case::PLAN_INFO_FIXTURE . '}' );
+		$request->set_body( '{"search_plan_info":' . Search_TestCase::PLAN_INFO_FIXTURE . '}' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
 	}
@@ -307,7 +307,7 @@ class Test_REST_Controller extends Search_Test_Case {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( '{"search_plan_info":' . Search_Test_Case::PLAN_INFO_FIXTURE . '}' );
+		$request->set_body( '{"search_plan_info":' . Search_TestCase::PLAN_INFO_FIXTURE . '}' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 403, $response->get_status() );
 	}
@@ -320,7 +320,7 @@ class Test_REST_Controller extends Search_Test_Case {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( '{"search_plan_info":' . Search_Test_Case::PLAN_INFO_FIXTURE . '}' );
+		$request->set_body( '{"search_plan_info":' . Search_TestCase::PLAN_INFO_FIXTURE . '}' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 	}

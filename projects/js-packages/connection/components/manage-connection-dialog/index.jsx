@@ -16,6 +16,7 @@ import React, { useCallback, useEffect, useState, useMemo } from 'react';
  */
 import ConnectionErrorNotice from '../connection-error-notice/index.jsx';
 import DisconnectDialog from '../disconnect-dialog';
+import OwnerDisconnectDialog from '../owner-disconnect-dialog';
 import './style.scss';
 
 /**
@@ -42,6 +43,7 @@ const ManageConnectionDialog = props => {
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const [ isDisconnectingUser, setIsDisconnectingUser ] = useState( false );
 	const [ unlinkError, setUnlinkError ] = useState( '' );
+	const [ isOwnerDisconnectDialogOpen, setIsOwnerDisconnectDialogOpen ] = useState( false );
 
 	/**
 	 * Initialize the REST API.
@@ -121,13 +123,21 @@ const ManageConnectionDialog = props => {
 	const handleDisconnectUser = useCallback(
 		e => {
 			e && e.preventDefault();
+
+			// If user is connection owner, show warning modal instead of disconnecting
+			if ( connectedUser.currentUser?.isMaster ) {
+				setIsOwnerDisconnectDialogOpen( true );
+				return;
+			}
+
+			// Existing disconnect logic for non-owners
 			jetpackAnalytics.tracks.recordEvent(
 				'jetpack_manage_connection_dialog_disconnect_user_click',
 				{ context: context }
 			);
 			_disconnectUser();
 		},
-		[ _disconnectUser, context ]
+		[ _disconnectUser, context, connectedUser ]
 	);
 
 	const isControlsDisabled = useMemo( () => {
@@ -136,6 +146,10 @@ const ManageConnectionDialog = props => {
 
 	// This is silly, but it's an optimizer workaround
 	const disconnectingText = __( 'Disconnecting…', 'jetpack-connection-js' );
+
+	const handleCloseOwnerDialog = useCallback( () => {
+		setIsOwnerDisconnectDialogOpen( false );
+	}, [ setIsOwnerDisconnectDialogOpen ] );
 
 	return (
 		<>
@@ -213,6 +227,15 @@ const ManageConnectionDialog = props => {
 						isOpen={ isDisconnectDialogOpen }
 						onClose={ closeDisconnectDialog }
 						context={ context }
+					/>
+
+					<OwnerDisconnectDialog
+						isOpen={ isOwnerDisconnectDialogOpen }
+						onClose={ handleCloseOwnerDialog }
+						apiRoot={ apiRoot }
+						apiNonce={ apiNonce }
+						onDisconnected={ onDisconnected }
+						onUnlinked={ onUnlinked }
 					/>
 				</>
 			) }

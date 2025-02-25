@@ -792,4 +792,202 @@ class ManagerTest extends TestCase {
 		$this->assertNotNull( $error );
 		$this->assertEquals( $error_code, $error->get_error_code() );
 	}
+
+	/**
+	 * Test disconnecting a user from WordPress.com with force parameter.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user_force
+	 * @dataProvider get_disconnect_user_force_scenarios
+	 *
+	 * @param bool $remote   Was the remote disconnection successful.
+	 * @param bool $local    Was the local disconnection successful.
+	 * @param bool $expected Expected outcome.
+	 */
+	public function test_disconnect_user_force( $remote, $local, $expected ) {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login' => 'owner',
+				'user_pass'  => 'pass',
+				'user_email' => 'owner@owner.com',
+				'role'       => 'administrator',
+			)
+		);
+		( new Tokens() )->update_user_token( $owner_id, sprintf( '%s.%s.%d', 'key', 'private', $owner_id ), false );
+
+		$this->manager->method( 'unlink_user_from_wpcom' )
+			->willReturn( $remote );
+
+		$this->tokens->method( 'disconnect_user' )
+			->willReturn( $local );
+
+		$result = $this->manager->disconnect_user( $owner_id, true );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test data for test_disconnect_user_force
+	 *
+	 * @return array
+	 */
+	public function get_disconnect_user_force_scenarios() {
+		return array(
+			'Successful remote and local disconnection' => array(
+				true,
+				true,
+				true,
+			),
+			'Failed remote and successful local disconnection' => array(
+				false,
+				true,
+				false,
+			),
+			'Successful remote and failed local disconnection' => array(
+				true,
+				false,
+				false,
+			),
+		);
+	}
+
+	/**
+	 * Test disconnecting all users except the primary (owner) user.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_all_users_except_primary
+	 */
+	public function test_disconnect_all_users_except_primary() {
+		// Create owner and connected users
+		$owner_id = wp_insert_user(
+			array(
+				'user_login' => 'owner',
+				'user_pass'  => 'pass',
+				'user_email' => 'owner@owner.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+
+		$secondary_admin_id = wp_insert_user(
+			array(
+				'user_login' => 'secondary_admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'secondary_admin@secondary_admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		// Set up tokens for all users
+		$tokens = new Tokens();
+		$tokens->update_user_token( $owner_id, sprintf( '%s.%s.%d', 'key', 'private', $owner_id ), false );
+		$tokens->update_user_token( $editor_id, sprintf( '%s.%s.%d', 'key', 'private', $editor_id ), false );
+		$tokens->update_user_token( $secondary_admin_id, sprintf( '%s.%s.%d', 'key', 'private', $secondary_admin_id ), false );
+
+		// Mock get_connection_owner_id to return the owner
+		$this->manager->expects( $this->any() )
+			->method( 'get_connection_owner_id' )
+			->willReturn( $owner_id );
+
+		// Mock unlink_user_from_wpcom to succeed for non-owner users
+		$this->manager->expects( $this->exactly( 2 ) )
+			->method( 'unlink_user_from_wpcom' )
+			->willReturn( true );
+
+		// Mock disconnect_user to succeed for non-owner users
+		$this->tokens->expects( $this->exactly( 2 ) )
+			->method( 'disconnect_user' )
+			->willReturn( true );
+
+		// Mock access tokens to return different values based on user
+		$owner_token = (object) array(
+			'secret'           => 'abcd1234',
+			'external_user_id' => 1,
+		);
+
+		$this->tokens->expects( $this->any() )
+			->method( 'get_access_token' )
+			->willReturnCallback(
+				function ( $user_id ) use ( $owner_id, $owner_token ) {
+					return $user_id === $owner_id ? $owner_token : false;
+				}
+			);
+
+		// Run the disconnect
+		$result = $this->manager->disconnect_all_users_except_primary();
+
+		// Verify the result
+		$this->assertTrue( $result );
+
+		// Verify owner is still connected
+		$this->assertTrue( $this->manager->is_user_connected( $owner_id ) );
+
+		// Verify other users are disconnected
+		$this->assertFalse( $this->manager->is_user_connected( $editor_id ) );
+		$this->assertFalse( $this->manager->is_user_connected( $secondary_admin_id ) );
+	}
+
+	/**
+	 * Test disconnecting all users except primary when there's a failure.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_all_users_except_primary
+	 */
+	public function test_disconnect_all_users_except_primary_failure() {
+		// Create owner and one other user
+		$owner_id = wp_insert_user(
+			array(
+				'user_login' => 'owner',
+				'user_pass'  => 'pass',
+				'user_email' => 'owner@owner.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+
+		// Set up tokens
+		$tokens = new Tokens();
+		$tokens->update_user_token( $owner_id, sprintf( '%s.%s.%d', 'key', 'private', $owner_id ), false );
+		$tokens->update_user_token( $editor_id, sprintf( '%s.%s.%d', 'key', 'private', $editor_id ), false );
+
+		// Mock get_connection_owner_id to return the owner
+		$this->manager->method( 'get_connection_owner_id' )
+			->willReturn( $owner_id );
+
+		// Mock unlink_user_from_wpcom to fail
+		$this->manager->method( 'unlink_user_from_wpcom' )
+			->willReturn( false );
+
+		// Mock access tokens for all users
+		$access_token = (object) array(
+			'secret'           => 'abcd1234',
+			'external_user_id' => 1,
+		);
+		$this->tokens->expects( $this->any() )
+			->method( 'get_access_token' )
+			->willReturn( $access_token );
+
+		// Run the disconnect
+		$result = $this->manager->disconnect_all_users_except_primary();
+
+		// Verify the result indicates failure
+		$this->assertFalse( $result );
+
+		// Verify both users are still connected
+		$this->assertTrue( $this->manager->is_user_connected( $owner_id ) );
+		$this->assertTrue( $this->manager->is_user_connected( $editor_id ) );
+	}
 }

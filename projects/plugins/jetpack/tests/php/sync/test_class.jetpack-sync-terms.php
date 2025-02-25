@@ -7,7 +7,7 @@ use Automattic\Jetpack\Sync\Settings;
 /**
  * Testing CRUD on Terms
  */
-class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_TestBase {
 	protected $post_id;
 	protected $term_object;
 	protected $taxonomy;

@@ -6,7 +6,7 @@ require_once dirname( __DIR__, 2 ) . '/lib/class-wp-test-jetpack-rest-testcase.p
  * @group publicize
  * @group rest-api
  */
-class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_REST_Testcase {
+class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_REST_TestCase {
 
 	public static $editor_user_id;
 	public static $subscriber_user_id;
