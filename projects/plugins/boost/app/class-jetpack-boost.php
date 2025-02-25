@@ -28,8 +28,8 @@ use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Pages;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
-use Automattic\Jetpack_Boost\Lib\Scheduled_Event;
 use Automattic\Jetpack_Boost\Lib\Setup;
+use Automattic\Jetpack_Boost\Lib\Singleton_Network_Event;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
@@ -114,7 +114,7 @@ class Jetpack_Boost {
 		$cornerstone_pages = new Cornerstone_Pages();
 		Setup::add( $cornerstone_pages );
 
-		Setup::add( new Scheduled_Event() );
+		Setup::add( new Singleton_Network_Event() );
 
 		// Initialize the Admin experience.
 		$this->init_admin( $modules_setup );
@@ -303,11 +303,25 @@ class Jetpack_Boost {
 				WHERE  `option_name` LIKE 'jetpack_boost_%';
 			"
 		);
+		$site_options = $wpdb->get_col(
+			"
+				SELECT `option_name`
+				FROM   `$wpdb->site_options`
+				WHERE  `option_name` LIKE 'jetpack_boost_%';
+			"
+		);
 		//phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		foreach ( $option_names as $option_name ) {
 			delete_option( $option_name );
 		}
+
+		foreach ( $site_options as $site_option ) {
+			delete_site_option( $site_option );
+		}
+
+		// Unschedule all network cron events.
+		Singleton_Network_Event::unschedule_all();
 
 		// Delete stored Critical CSS.
 		( new Critical_CSS_Storage() )->clear();

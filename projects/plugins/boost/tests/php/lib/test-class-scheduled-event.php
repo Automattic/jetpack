@@ -2,17 +2,17 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Lib;
 
-use Automattic\Jetpack_Boost\Lib\Scheduled_Event;
+use Automattic\Jetpack_Boost\Lib\Singleton_Network_Event;
 use Automattic\Jetpack_Boost\Tests\Base_Test_Case;
 use Brain\Monkey\Functions;
 
 class Test_Scheduled_Event extends Base_Test_Case {
 	public function test_setup() {
-		$scheduled_event = new Scheduled_Event();
+		$scheduled_event = new Singleton_Network_Event();
 
 		Functions\expect( 'add_action' )
 			->once()
-			->with( 'jetpack_boost_network_cron', array( $scheduled_event, 'execute_network_cron' ), 10, 2 )
+			->with( 'jetpack_boost_network_cron', array( $scheduled_event, 'execute' ), 10, 2 )
 			->andReturn( true );
 
 		$result = $scheduled_event->setup();
@@ -35,26 +35,16 @@ class Test_Scheduled_Event extends Base_Test_Case {
 			->with( "{$hook}_network_cron_recurrence", $recurrence )
 			->andReturn( true );
 
-		Functions\expect( 'get_site_option' )
-			->once()
-			->with( "{$hook}_network_cron_blogs_subscribed", array() )
-			->andReturn( array() );
-
 		Functions\expect( 'get_current_blog_id' )
 			->once()
 			->andReturn( 1 );
-
-		Functions\expect( 'update_site_option' )
-			->once()
-			->with( "{$hook}_network_cron_blogs_subscribed", array( 1 => true ) )
-			->andReturn( true );
 
 		Functions\expect( 'wp_schedule_event' )
 			->once()
 			->with( $timestamp, $recurrence, 'jetpack_boost_network_cron', array( $hook, $args ) )
 			->andReturn( true );
 
-		Scheduled_Event::schedule_singleton_network_cron( $timestamp, $recurrence, $hook, $args );
+		Singleton_Network_Event::schedule( $timestamp, $recurrence, $hook, $args );
 		$this->expectNotToPerformAssertions();
 	}
 
@@ -69,7 +59,7 @@ class Test_Scheduled_Event extends Base_Test_Case {
 			->with( 'jetpack_boost_network_cron', array( $hook, $args ) )
 			->andReturn( $timestamp );
 
-		Scheduled_Event::schedule_singleton_network_cron( $timestamp, $recurrence, $hook, $args );
+		Singleton_Network_Event::schedule( $timestamp, $recurrence, $hook, $args );
 		$this->expectNotToPerformAssertions();
 	}
 
@@ -77,19 +67,9 @@ class Test_Scheduled_Event extends Base_Test_Case {
 		$hook = 'test_hook';
 		$args = array( 'test_arg' => 'value' );
 
-		Functions\expect( 'get_site_option' )
-			->once()
-			->with( "{$hook}_network_cron_blogs_subscribed", array() )
-			->andReturn( array( 1 => true ) );
-
 		Functions\expect( 'get_current_blog_id' )
 			->once()
 			->andReturn( 1 );
-
-		Functions\expect( 'update_site_option' )
-			->once()
-			->with( "{$hook}_network_cron_blogs_subscribed", array() )
-			->andReturn( true );
 
 		Functions\expect( 'delete_site_option' )
 			->once()
@@ -101,17 +81,12 @@ class Test_Scheduled_Event extends Base_Test_Case {
 			->with( "{$hook}_network_cron_recurrence" )
 			->andReturn( true );
 
-			Functions\expect( 'delete_site_option' )
-			->once()
-			->with( "{$hook}_network_cron_blogs_subscribed" )
-			->andReturn( true );
-
 		Functions\expect( 'wp_clear_scheduled_hook' )
 			->once()
 			->with( 'jetpack_boost_network_cron', array( $hook, $args ) )
 			->andReturn( true );
 
-		Scheduled_Event::unschedule_singleton_network_cron( $hook, $args );
+		Singleton_Network_Event::unschedule( $hook, $args );
 		$this->expectNotToPerformAssertions();
 	}
 
@@ -139,7 +114,7 @@ class Test_Scheduled_Event extends Base_Test_Case {
 			->with( "{$action}_network_cron_ran", 0 )
 			->andReturn( $current_time - 100 );
 
-		Scheduled_Event::execute_network_cron( $action, $args );
+		Singleton_Network_Event::execute( $action, $args );
 		$this->expectNotToPerformAssertions();
 	}
 
@@ -176,7 +151,7 @@ class Test_Scheduled_Event extends Base_Test_Case {
 			->once()
 			->with( $action, 'test_value' );
 
-		Scheduled_Event::execute_network_cron( $action, $args );
+		Singleton_Network_Event::execute( $action, $args );
 		$this->expectNotToPerformAssertions();
 	}
 }

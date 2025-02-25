@@ -3,7 +3,7 @@
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 use Automattic\Jetpack_Boost\Lib\Minify\File_Paths;
-use Automattic\Jetpack_Boost\Lib\Scheduled_Event;
+use Automattic\Jetpack_Boost\Lib\Singleton_Network_Event;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
@@ -95,8 +95,8 @@ function jetpack_boost_delete_expired_files( $files, $file_age ) {
  * Removes the cache cleanup cron job and the 404 tester cron job.
  */
 function jetpack_boost_minify_clear_scheduled_events() {
-	Scheduled_Event::unschedule_singleton_network_cron( 'jetpack_boost_minify_cron_cache_cleanup' );
-	Scheduled_Event::unschedule_singleton_network_cron( 'jetpack_boost_404_tester_cron' );
+	Singleton_Network_Event::unschedule( 'jetpack_boost_minify_cron_cache_cleanup' );
+	Singleton_Network_Event::unschedule( 'jetpack_boost_404_tester_cron' );
 }
 
 /**
@@ -197,7 +197,7 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
  * Schedule a cronjob for the 404 tester, if one isn't already scheduled.
  */
 function jetpack_boost_page_optimize_schedule_404_tester() {
-	if ( Scheduled_Event::schedule_singleton_network_cron( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' ) ) {
+	if ( Singleton_Network_Event::schedule( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' ) ) {
 		// Run the test immediately, if it wasn't already scheduled.
 		jetpack_boost_404_tester();
 	}
@@ -351,7 +351,7 @@ function jetpack_boost_minify_serve_concatenated() {
  */
 function jetpack_boost_minify_activation() {
 	// Schedule a cronjob for cache cleanup, if one isn't already scheduled.
-	Scheduled_Event::schedule_singleton_network_cron( time(), 'daily', 'jetpack_boost_minify_cron_cache_cleanup' );
+	Singleton_Network_Event::schedule( time(), 'daily', 'jetpack_boost_minify_cron_cache_cleanup' );
 
 	// Setup the cronjob to periodically test for the 404 handler.
 	jetpack_boost_404_setup();
