@@ -261,11 +261,7 @@ export default function SubscriptionControls( {
 					width={ buttonWidth }
 					onChange={ newButtonWidth => {
 						setAttributes( { buttonWidth: newButtonWidth } );
-						// eslint-disable-next-line no-console
-						console.log( 'newButtonWidth', newButtonWidth );
-						if ( newButtonWidth === '100%' ) {
-							setAttributes( { buttonOnNewLine: true } );
-						}
+						setAttributes( { buttonOnNewLine: newButtonWidth === '100%' } );
 					} }
 				/>
 			</PanelBody>
