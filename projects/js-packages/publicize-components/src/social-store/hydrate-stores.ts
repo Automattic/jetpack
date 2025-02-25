@@ -30,7 +30,7 @@ export async function hydrateStores() {
 		await receiveEntityRecords(
 			'wpcom/v2',
 			'publicize/services',
-			getSocialScriptData().supported_services,
+			getSocialScriptData()?.supported_services,
 			true
 		);
 
