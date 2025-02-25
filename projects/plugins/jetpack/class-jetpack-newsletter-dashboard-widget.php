@@ -66,7 +66,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	 */
 	public static function render() {
 		?>
-		<div id="wpcom" style="min-height: calc(100vh - 100px);">
+		<div id="wpcom">
 			<div id="newsletter-widget-app"></div>
 		</div>
 		<?php
