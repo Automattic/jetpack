@@ -211,8 +211,6 @@ export function SubscriptionEdit( props ) {
 		width: buttonWidth.length > 0 ? buttonWidth : 'auto',
 	};
 
-	console.log( 'buttonStyles', buttonStyles );
-
 	if ( activeStyleName !== 'button' ) {
 		if ( buttonOnNewLine ) {
 			buttonStyles.marginTop = getSpacingStyleValue( spacing ) + 'px';

@@ -503,7 +503,6 @@ function get_element_styles_from_attributes( $attributes ) {
 	$submit_button_styles .= $style;
 	$email_field_styles   .= $style;
 
-	$button_spacing = get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE );
 	if ( ! $is_button_only_style ) {
 		$button_spacing = get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE );
 		if ( true === get_attribute( $attributes, 'buttonOnNewLine' ) ) {
