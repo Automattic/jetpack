@@ -54,9 +54,9 @@ const AkismetPanel = () => {
 
 	return (
 		<PanelBody title={ __( 'Spam protection', 'jetpack-forms' ) } initialOpen={ false }>
-			<div className="jetpack-plugin-integration__content" aria-live="polite">
+			<div className="akismet-panel__content" aria-live="polite">
 				{ isLoading && (
-					<div className="jetpack-plugin-integration__status">
+					<div className="akismet-panel__status">
 						<div>
 							<Spinner />
 							<span>{ __( 'Checking plugin status…', 'jetpack-forms' ) }</span>
@@ -65,7 +65,7 @@ const AkismetPanel = () => {
 				) }
 
 				{ ! isLoading && ! pluginStatus && (
-					<div className="jetpack-plugin-integration__status">
+					<div className="akismet-panel__status">
 						<Icon icon="warning" />
 						<span>
 							{ __(
@@ -77,8 +77,8 @@ const AkismetPanel = () => {
 				) }
 
 				{ ! isLoading && pluginStatus && ! isInstalled && (
-					<div className="jetpack-plugin-integration__panel">
-						<div className="jetpack-plugin-integration__panel-content">
+					<div className="akismet-panel__panel">
+						<div className="akismet-panel__panel-content">
 							<div>
 								{ createInterpolateElement(
 									__(
@@ -107,8 +107,8 @@ const AkismetPanel = () => {
 				) }
 
 				{ ! isLoading && isInstalled && ! isActive && (
-					<div className="jetpack-plugin-integration__panel">
-						<div className="jetpack-plugin-integration__panel-content">
+					<div className="akismet-panel__panel">
+						<div className="akismet-panel__panel-content">
 							<div>
 								{ __(
 									"You already have the plugin installed, but it's not activated.",

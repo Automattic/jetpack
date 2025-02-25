@@ -10,9 +10,7 @@ const PluginActionButton = ( { isInstalling, isActivating, isInstalled, onClick 
 			onClick={ isLoading ? undefined : onClick }
 			disabled={ isLoading }
 			icon={
-				isLoading ? (
-					<Icon className="jetpack-plugin-integration__spinner-icon" icon="update" />
-				) : undefined
+				isLoading ? <Icon className="akismet-panel__spinner-icon" icon="update" /> : undefined
 			}
 			aria-label={
 				( isActivating && __( 'Activating…', 'jetpack-forms' ) ) ||
