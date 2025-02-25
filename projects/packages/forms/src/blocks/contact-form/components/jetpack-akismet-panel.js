@@ -2,8 +2,7 @@ import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import PluginIntegrationPanel from '../shared/plugin-integration-panel';
-import './styles.css';
+import PluginIntegrationPanel from './shared/plugin-integration-panel';
 
 const AkismetPanel = () => (
 	<PluginIntegrationPanel
@@ -30,7 +29,7 @@ const AkismetPanel = () => (
 		tracksEventName="jetpack_forms_upsell_akismet_click"
 		initialOpen={ false }
 	>
-		<p className="jetpack-akismet-panel__text">
+		<p>
 			{ createInterpolateElement(
 				__( 'Your forms are protected from spam with <a>Akismet</a>!', 'jetpack-forms' ),
 				{
@@ -44,19 +43,17 @@ const AkismetPanel = () => (
 				}
 			) }
 		</p>
-		<div className="jetpack-akismet-panel__buttons">
-			{ getAdminUrl() && (
-				<Button
-					variant="secondary"
-					href={ `${ getAdminUrl() }admin.php?page=jetpack-forms#/responses?status=spam` }
-					target="_blank"
-					rel="noopener noreferrer"
-					__next40pxDefaultSize={ true }
-				>
-					{ __( 'Review spam', 'jetpack-forms' ) }
-				</Button>
-			) }
-		</div>
+		{ getAdminUrl() && (
+			<Button
+				variant="secondary"
+				href={ `${ getAdminUrl() }admin.php?page=jetpack-forms#/responses?status=spam` }
+				target="_blank"
+				rel="noopener noreferrer"
+				__next40pxDefaultSize={ true }
+			>
+				{ __( 'Review spam', 'jetpack-forms' ) }
+			</Button>
+		) }
 	</PluginIntegrationPanel>
 );
 
