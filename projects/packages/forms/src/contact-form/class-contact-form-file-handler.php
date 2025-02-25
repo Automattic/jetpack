@@ -123,27 +123,53 @@ class Contact_Form_File_Handler {
 			$permanent_path
 		);
 
+		// Create a file identifier that doesn't depend on the full server path
+		$relative_path = $year . '/' . $month . '/' . $new_secret_name;
+
 		// Return the file data for the permanent storage
 		$result = array(
-			'name' => $original_file_name,
-			'path' => $permanent_path,
-			'url'  => $file_url,
-			'hash' => $new_hash,
-			'size' => wp_filesize( $permanent_path ),
+			'name'    => $original_file_name,
+			'file_id' => $relative_path, // Store relative path as file_id instead of full path
+			'url'     => $file_url,
+			'hash'    => $new_hash,
+			'size'    => wp_filesize( $permanent_path ),
 		);
 
 		return $result;
 	}
 
 	/**
-	 * Delete a file from the filesystem.
+	 * Get the full file path from a file identifier.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string $file_path The path to the file to delete.
+	 * @param string $file_id The file identifier (relative path).
+	 * @return string The full file path.
+	 */
+	public function get_file_path( $file_id ) {
+		if ( empty( $file_id ) ) {
+			return '';
+		}
+
+		// Reconstruct the full path using the base directory and file identifier
+		return $this->base_dir . '/' . $file_id;
+	}
+
+	/**
+	 * Delete a file using its identifier.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $file_id The file identifier to delete.
 	 * @return bool True on success, false on failure.
 	 */
-	public function delete_file( $file_path ) {
+	public function delete_file( $file_id ) {
+		if ( empty( $file_id ) ) {
+			return false;
+		}
+
+		$file_path = $this->get_file_path( $file_id );
+
 		if ( empty( $file_path ) || ! file_exists( $file_path ) ) {
 			return false;
 		}
