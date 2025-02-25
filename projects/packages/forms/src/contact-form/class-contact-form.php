@@ -725,6 +725,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 
+		// Check if this is a JSON-encoded file upload and extract the filename if it is.
+		$json_decoded = json_decode( $value, true );
+		if ( $json_decoded && isset( $json_decoded['name'] ) && isset( $json_decoded['url'] ) ) {
+			// This is a file upload, so just return the file name.
+			$value = $json_decoded['name'];
+		}
+
 		$value = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value );
 		return nl2br( wp_kses( $value, array() ) );
 	}
@@ -1200,7 +1207,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
 
-			if ( is_array( $value ) ) {
+			// Check if this is a file field with uploaded data
+			if ( $uploaded_files && isset( $uploaded_files[ $field_id ] ) ) {
+				$value = wp_json_encode( $uploaded_files[ $field_id ] );
+			} elseif ( is_array( $value ) ) {
 				$value = implode( ', ', $value );
 			}
 
