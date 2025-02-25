@@ -292,20 +292,10 @@ remove_action( 'admin_menu', 'add_jetpack_submenu', 999999 );
 function wpcom_hide_customizer_submenu_on_block_theme() {
 	if ( wp_is_block_theme() && ! is_customize_preview() ) {
 
-		// Remove the customize item from admin bar
 		add_action(
 			'admin_bar_menu',
 			function ( $wp_admin_bar ) {
 				$wp_admin_bar->remove_node( 'customize' );
-			},
-			50
-		);
-
-		// Remove the customize submenu from the admin menu
-		add_action(
-			'admin_menu',
-			function () {
-				remove_submenu_page( 'themes.php', 'customize.php?return=%2Fwp-admin%2Foptions-general.php' );
 			},
 			50
 		);
