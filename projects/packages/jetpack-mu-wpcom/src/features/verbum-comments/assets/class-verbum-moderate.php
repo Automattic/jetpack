@@ -80,7 +80,7 @@ class Verbum_Moderate {
 	 * Get the block-based comment being edited if on the comment edit screen.
 	 *
 	 * @param string|null $hook The current admin page hook.
-	 * @return WP_Comment|false The comment object if we're editing a block-based comment, false otherwise.
+	 * @return \WP_Comment|false The comment object if we're editing a block-based comment, false otherwise.
 	 */
 	private function get_block_comment_being_edited( $hook = null ) {
 		// Check if we're on the comment.php admin page
