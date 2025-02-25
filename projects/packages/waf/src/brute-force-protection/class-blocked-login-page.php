@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
+use WP_User;
 
 /**
  * Class Brute_Force_Protection_Blocked_Login_Page
