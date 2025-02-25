@@ -53,7 +53,7 @@ const wpcom_profile_settings_modify_name_section = () => {
 };
 
 const wpcom_profile_settings_modify_email_section = () => {
-	// Hide the email field except on simple sites.
+	// Hide the email field on simple sites.
 	if ( ! window.wpcomProfileSettingsLinkToWpcom?.isWpcomAtomic ) {
 		const field = document.getElementById( 'email' ) as HTMLInputElement;
 		if ( field ) {
