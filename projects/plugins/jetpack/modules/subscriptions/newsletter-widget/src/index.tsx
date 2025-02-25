@@ -2,6 +2,15 @@ import { createRoot } from '@wordpress/element';
 import React from 'react';
 import { NewsletterWidget } from './newsletter-widget';
 
+declare global {
+	interface Window {
+		jetpackNewsletterWidgetConfigData?: {
+			hostname: string;
+			adminUrl: string;
+		};
+	}
+}
+
 document.addEventListener( 'DOMContentLoaded', () => {
 	const container = document.getElementById( 'newsletter-widget-app' );
 
@@ -9,9 +18,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
-	// FIXME: Just to prove out the concept, we're hardcoding these values.
-	const hostname = 'holdercptest2.wordpress.com';
-	const adminUrl = 'https://holdercptest2.wordpress.com/wp-admin/';
+	const { hostname, adminUrl } = window.jetpackNewsletterWidgetConfigData || {};
 
 	if ( ! hostname || ! adminUrl ) {
 		return;

@@ -45,7 +45,17 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	 * Sets up the Jetpack Newsletter widget in the WordPress admin dashboard.
 	 */
 	public static function wp_dashboard_setup() {
-		static::load_admin_scripts( 'jp-newsletter-widget', 'newsletter-widget', array( 'config_variable_name' => 'jetpackNewsletterWidgetConfigData' ) );
+		static::load_admin_scripts(
+			'jp-newsletter-widget',
+			'newsletter-widget',
+			array(
+				'config_variable_name' => 'jetpackNewsletterWidgetConfigData',
+				'config_data'          => array(
+					'hostname' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+					'adminUrl' => admin_url(),
+				),
+			)
+		);
 		if ( Jetpack::is_connection_ready() ) {
 			$widget_title = sprintf(
 				__( 'Newsletter', 'jetpack' )
@@ -78,7 +88,17 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	 * @return void
 	 */
 	public static function admin_init() {
-		static::load_admin_scripts( 'jp-newsletter-widget', 'newsletter-widget', array( 'config_variable_name' => 'jetpackNewsletterWidgetConfigData' ) );
+		static::load_admin_scripts(
+			'jp-newsletter-widget',
+			'newsletter-widget',
+			array(
+				'config_variable_name' => 'jetpackNewsletterWidgetConfigData',
+				'config_data'          => array(
+					'hostname' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+					'adminUrl' => admin_url(),
+				),
+			)
+		);
 	}
 
 	/**
@@ -142,10 +162,10 @@ class Jetpack_Newsletter_Dashboard_Widget {
 
 		// Add any configuration data if needed
 		if ( ! empty( $options['config_data'] ) ) {
-			wp_localize_script(
+			wp_add_inline_script(
 				$asset_handle,
-				$options['config_variable_name'],
-				$options['config_data']
+				"window.{$options['config_variable_name']} = " . wp_json_encode( $options['config_data'] ) . ';',
+				'before'
 			);
 		}
 	}
