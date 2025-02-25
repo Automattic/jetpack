@@ -1,5 +1,6 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import connectionsFacebook from '../../assets/connections-facebook.png';
@@ -8,8 +9,8 @@ import connectionsLinkedin from '../../assets/connections-linkedin.png';
 import connectionsNextdoor from '../../assets/connections-nextdoor.png';
 import connectionsThreads from '../../assets/connections-threads.png';
 import connectionsTumblr from '../../assets/connections-tumblr.png';
+import { store as socialStore } from '../../social-store';
 import { ConnectionService } from '../../types';
-import { getSocialScriptData } from '../../utils/script-data';
 
 export type Badge = {
 	text: string;
@@ -29,9 +30,9 @@ export interface SupportedService extends ConnectionService {
  * @return {Array< SupportedService >} The list of supported services
  */
 export function useSupportedServices(): Array< SupportedService > {
-	const availableServices = useMemo( () => {
-		const { supported_services } = getSocialScriptData();
+	const supported_services = useSelect( select => select( socialStore ).getServicesList(), [] );
 
+	const availableServices = useMemo( () => {
 		return supported_services.reduce< Record< string, ConnectionService > >(
 			( serviceData, service ) => ( {
 				...serviceData,
@@ -39,7 +40,7 @@ export function useSupportedServices(): Array< SupportedService > {
 			} ),
 			{}
 		);
-	}, [] );
+	}, [ supported_services ] );
 
 	const badgeNew: Badge = {
 		text: __( 'New', 'jetpack-publicize-components' ),
