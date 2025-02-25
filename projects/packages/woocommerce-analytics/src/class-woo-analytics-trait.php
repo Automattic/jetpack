@@ -329,12 +329,12 @@ trait Woo_Analytics_Trait {
 	}
 
 	/**
-	 * In case session_id is empty. A new session should be created.
+	 * In case session_id is empty and woocommerceanalytics_session cookie is not set. A new session should be created.
 	 *
 	 * @return void
 	 */
 	public function maybe_start_session() {
-		if ( ! isset( $_COOKIE['woocommerceanalytics_session'] ) ) {
+		if ( ! isset( $_COOKIE['woocommerceanalytics_session'] ) && ! $this->session_id ) {
 			$session_id         = wp_generate_uuid4();
 			$this->session_id   = $session_id;
 			$this->landing_page = sanitize_url( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- actually escaped with sanitize_url.
