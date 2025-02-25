@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Rest_Authentication;
+use Automattic\Jetpack\Publicize\REST_API\Proxy_Requests;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -319,12 +320,25 @@ class REST_Controller {
 	 * Gets the current Publicize connections, with the resolt of testing them, for the site.
 	 *
 	 * GET `jetpack/v4/publicize/connection-test-results`
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public function get_publicize_connection_test_results() {
-		$blog_id  = $this->get_blog_id();
-		$path     = sprintf( '/sites/%d/publicize/connection-test-results', absint( $blog_id ) );
-		$response = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
-		return rest_ensure_response( $this->make_proper_response( $response ) );
+
+		Publicize_Utils::endpoint_deprecated_warning(
+			__METHOD__,
+			'jetpack-14.4, jetpack-social-6.2.0',
+			'jetpack/v4/publicize/connection-test-results',
+			'wpcom/v2/publicize/connections?test_connections=1'
+		);
+
+		$proxy = new Proxy_Requests( 'publicize/connections' );
+
+		$request = new WP_REST_Request( 'GET' );
+
+		$request->set_param( 'test_connections', '1' );
+
+		return rest_ensure_response( $proxy->proxy_request_to_wpcom_as_user( $request ) );
 	}
 
 	/**
@@ -332,24 +346,105 @@ class REST_Controller {
 	 *
 	 * GET `jetpack/v4/publicize/connections`
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
 	public function get_publicize_connections( $request ) {
-		$run_test_results = $request->get_param( 'test_connections' );
-		$clear_cache      = $request->get_param( 'clear_cache' );
 
-		$args = array();
+		Publicize_Utils::endpoint_deprecated_warning(
+			__METHOD__,
+			'jetpack-14.4, jetpack-social-6.2.0',
+			'jetpack/v4/publicize/connections',
+			'wpcom/v2/publicize/connections?test_connections=1'
+		);
 
-		if ( ! empty( $run_test_results ) ) {
-			$args['test_connections'] = true;
+		if ( $request->get_param( 'test_connections' ) ) {
+
+			$proxy = new Proxy_Requests( 'publicize/connections' );
+
+			return rest_ensure_response( $proxy->proxy_request_to_wpcom_as_user( $request ) );
 		}
 
-		if ( ! empty( $clear_cache ) ) {
-			$args['clear_cache'] = true;
-		}
+		return rest_ensure_response( Connections::get_all_for_user() );
+	}
 
-		global $publicize;
-		return rest_ensure_response( $publicize->get_all_connections_for_user( $args ) );
+	/**
+	 * Create a publicize connection
+	 *
+	 * @deprecated $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 * @return WP_REST_Response|WP_Error True if the request was successful, or a WP_Error otherwise.
+	 */
+	public function create_publicize_connection( $request ) {
+
+		Publicize_Utils::endpoint_deprecated_warning(
+			__METHOD__,
+			'jetpack-14.4, jetpack-social-6.2.0',
+			'jetpack/v4/social/connections',
+			'wpcom/v2/publicize/connections'
+		);
+
+		$proxy = new Proxy_Requests( 'publicize/connections' );
+
+		return rest_ensure_response(
+			$proxy->proxy_request_to_wpcom_as_user( $request, '', array( 'timeout' => 120 ) )
+		);
+	}
+
+	/**
+	 * Calls the WPCOM endpoint to update the publicize connection.
+	 *
+	 * POST jetpack/v4/social/connections/{connection_id}
+	 *
+	 * @deprecated $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 */
+	public function update_publicize_connection( $request ) {
+
+		Publicize_Utils::endpoint_deprecated_warning(
+			__METHOD__,
+			'jetpack-14.4, jetpack-social-6.2.0',
+			'jetpack/v4/social/connections/:connection_id',
+			'wpcom/v2/publicize/connections/:connection_id'
+		);
+
+		$proxy = new Proxy_Requests( 'publicize/connections' );
+
+		$path = $request->get_param( 'connection_id' );
+
+		return rest_ensure_response(
+			$proxy->proxy_request_to_wpcom_as_user( $request, $path, array( 'timeout' => 120 ) )
+		);
+	}
+
+	/**
+	 * Calls the WPCOM endpoint to delete the publicize connection.
+	 *
+	 * DELETE jetpack/v4/social/connections/{connection_id}
+	 *
+	 * @deprecated $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 */
+	public function delete_publicize_connection( $request ) {
+
+		Publicize_Utils::endpoint_deprecated_warning(
+			__METHOD__,
+			'jetpack-14.4, jetpack-social-6.2.0',
+			'jetpack/v4/social/connections/:connection_id',
+			'wpcom/v2/publicize/connections/:connection_id'
+		);
+
+		$proxy = new Proxy_Requests( 'publicize/connections' );
+
+		$path = $request->get_param( 'connection_id' );
+
+		return rest_ensure_response(
+			$proxy->proxy_request_to_wpcom_as_user( $request, $path, array( 'timeout' => 120 ) )
+		);
 	}
 
 	/**
@@ -451,131 +546,6 @@ class REST_Controller {
 	 */
 	protected function get_blog_id() {
 		return $this->is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
-	}
-
-	/**
-	 * Calls the WPCOM endpoint to update the publicize connection.
-	 *
-	 * POST jetpack/v4/social/connections/{connection_id}
-	 *
-	 * @param WP_REST_Request $request The request object, which includes the parameters.
-	 */
-	public function update_publicize_connection( $request ) {
-		$external_user_id = $request->get_param( 'external_user_ID' );
-		$shared           = $request->get_param( 'shared' );
-		$blog_id          = $this->get_blog_id();
-		$connection_id    = $request->get_param( 'connection_id' );
-
-		$path = sprintf(
-			'/sites/%d/jetpack-social-connections/%d',
-			$blog_id,
-			$connection_id
-		);
-
-		$body = array();
-
-		if ( ! empty( $external_user_id ) ) {
-			$body['external_user_ID'] = $external_user_id;
-		}
-
-		if ( $shared || ( false === $shared ) ) {
-			$body['shared'] = $shared;
-		}
-
-		$response = Client::wpcom_json_api_request_as_user(
-			$path,
-			'2',
-			array(
-				'method'  => 'POST',
-				'timeout' => 120,
-			),
-			$body,
-			'wpcom'
-		);
-
-		$response = $this->make_proper_response( $response );
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		global $publicize;
-		return rest_ensure_response( $publicize->get_connection_for_user( (int) $connection_id ) );
-	}
-
-	/**
-	 * Calls the WPCOM endpoint to delete the publicize connection.
-	 *
-	 * DELETE jetpack/v4/social/connections/{connection_id}
-	 *
-	 * @param WP_REST_Request $request The request object, which includes the parameters.
-	 */
-	public function delete_publicize_connection( $request ) {
-		$connection_id = $request->get_param( 'connection_id' );
-		$blog_id       = $this->get_blog_id();
-
-		$path = sprintf(
-			'/sites/%d/jetpack-social-connections/%d',
-			$blog_id,
-			$connection_id
-		);
-
-		$response = Client::wpcom_json_api_request_as_user( $path, '2', array( 'method' => 'DELETE' ), null, 'wpcom' );
-		return rest_ensure_response( $this->make_proper_response( $response ) );
-	}
-
-	/**
-	 * Create a publicize connection
-	 *
-	 * @param WP_REST_Request $request The request object, which includes the parameters.
-	 * @return WP_REST_Response|WP_Error True if the request was successful, or a WP_Error otherwise.
-	 */
-	public function create_publicize_connection( $request ) {
-		$keyring_connection_id = $request->get_param( 'keyring_connection_ID' );
-		$shared                = $request->get_param( 'shared' );
-		$external_user_id      = $request->get_param( 'external_user_ID' );
-		$blog_id               = $this->get_blog_id();
-
-		$path = sprintf(
-			'/sites/%d/jetpack-social-connections/new',
-			$blog_id
-		);
-
-		$body = array(
-			'keyring_connection_ID' => $keyring_connection_id,
-			'shared'                => $shared,
-		);
-
-		if ( ! empty( $external_user_id ) ) {
-			$body['external_user_ID'] = $external_user_id;
-		}
-
-		$response = Client::wpcom_json_api_request_as_user(
-			$path,
-			'2',
-			array(
-				'method'  => 'POST',
-				'timeout' => 120,
-			),
-			$body,
-			'wpcom'
-		);
-
-		$response = $this->make_proper_response( $response );
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		if ( isset( $response['ID'] ) ) {
-			global $publicize;
-			return rest_ensure_response( $publicize->get_connection_for_user( (int) $response['ID'] ) );
-		}
-
-		return new WP_Error(
-			'could_not_create_connection',
-			__( 'Something went wrong while creating a connection.', 'jetpack-publicize-pkg' )
-		);
 	}
 
 	/**
