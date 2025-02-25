@@ -33,6 +33,7 @@
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/block-editor": "14.12.0",
 		"@wordpress/blocks": "14.6.0",
