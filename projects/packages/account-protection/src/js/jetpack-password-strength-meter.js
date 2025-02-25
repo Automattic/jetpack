@@ -19,22 +19,24 @@ jQuery( document ).ready( function ( $ ) {
 	let currentAjaxRequest = null;
 	let isValidating = true;
 
-	initializeUI();
+	initializeValidationUI();
 	bindEvents();
 
 	/**
-	 * Apply initial UI structure and styling
+	 * Apply initial validation UI structure and styling
 	 */
-	function initializeUI() {
+	function initializeValidationUI() {
 		const { passwordInputWrapper, passwordInput, passwordStrengthResults } = UIComponents.core;
 
 		passwordInputWrapper.css( {
 			'margin-bottom': '16px',
 		} );
+
 		passwordInput.css( {
 			'border-color': '#8C8F94',
 			'border-radius': '4px 4px 0 0',
 		} );
+
 		passwordStrengthResults.hide();
 		passwordInput.after( UIComponents.passwordValidationStatus );
 		UIComponents.passwordValidationStatus.append( UIComponents.validationCheckList );
@@ -93,11 +95,7 @@ jQuery( document ).ready( function ( $ ) {
 				class: 'validation-message',
 			} );
 
-			let infoIconPopover = null;
-			if ( value.info ) {
-				infoIconPopover = createInfoIconPopover( value.info );
-			}
-
+			const infoIconPopover = value.info ? createInfoIconPopover( value.info ) : null;
 			listItem.append( validationIcon, validationMessage, infoIconPopover );
 			UIComponents.validationCheckList.append( listItem );
 
@@ -295,7 +293,10 @@ jQuery( document ).ready( function ( $ ) {
 		isValidating = false;
 
 		UIComponents.passwordValidationStatus.hide();
-		UIComponents.core.passwordInput.removeAttr( 'style' );
+		UIComponents.core.passwordInput.css( {
+			'border-color': '#8C8F94',
+			'border-radius': '4px',
+		} );
 	}
 
 	/**
