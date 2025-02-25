@@ -122,7 +122,7 @@ class Jetpack_Boost {
 		// Initiate jetpack sync.
 		$this->init_sync();
 
-		add_action( 'admin_init', array( $this, 'handle_version_change' ) );
+		add_action( 'admin_init', array( $this, 'schedule_version_change' ) );
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
@@ -152,13 +152,20 @@ class Jetpack_Boost {
 		register_deactivation_hook( $plugin_file, array( $this, 'deactivate' ) );
 	}
 
-	public function handle_version_change() {
+	public function schedule_version_change() {
+		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
+
 		$version = get_option( 'jetpack_boost_version' );
 
 		if ( $version === JETPACK_BOOST_VERSION ) {
 			return;
 		}
 
+		// Schedule the cron event to handle the version change. This ensures the previous version's handle_version_change() is always flushed.
+		wp_schedule_single_event( time() + 10, 'jetpack_boost_handle_version_change_cron' );
+	}
+
+	public function handle_version_change() {
 		update_option( 'jetpack_boost_version', JETPACK_BOOST_VERSION );
 
 		if ( jetpack_boost_minify_is_enabled() ) {

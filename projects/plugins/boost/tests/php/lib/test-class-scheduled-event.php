@@ -35,10 +35,6 @@ class Test_Scheduled_Event extends Base_Test_Case {
 			->with( "{$hook}_network_cron_recurrence", $recurrence )
 			->andReturn( true );
 
-		Functions\expect( 'get_current_blog_id' )
-			->once()
-			->andReturn( 1 );
-
 		Functions\expect( 'wp_schedule_event' )
 			->once()
 			->with( $timestamp, $recurrence, 'jetpack_boost_network_cron', array( $hook, $args ) )
@@ -66,20 +62,6 @@ class Test_Scheduled_Event extends Base_Test_Case {
 	public function test_unschedule_singleton_network_cron() {
 		$hook = 'test_hook';
 		$args = array( 'test_arg' => 'value' );
-
-		Functions\expect( 'get_current_blog_id' )
-			->once()
-			->andReturn( 1 );
-
-		Functions\expect( 'delete_site_option' )
-			->once()
-			->with( "{$hook}_network_cron_ran" )
-			->andReturn( true );
-
-		Functions\expect( 'delete_site_option' )
-			->once()
-			->with( "{$hook}_network_cron_recurrence" )
-			->andReturn( true );
 
 		Functions\expect( 'wp_clear_scheduled_hook' )
 			->once()
