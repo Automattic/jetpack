@@ -490,7 +490,6 @@ HTML;
 				$data    = array(
 					'session_token' => wp_get_session_token(),
 					'editor_type'   => isset( $_POST['verbum_loaded_editor'] ) ? sanitize_text_field( wp_unslash( $_POST['verbum_loaded_editor'] ) ) : '',
-					'cookies'       => ! empty( $headers['Cookie'] ) ? array_keys( wp_parse_cookie( $headers['Cookie'] ) ) : array(),
 					'user_agent'    => sanitize_text_field( $headers['User-Agent'] ?? '' ),
 					'referrer'      => esc_url_raw( $headers['Referer'] ?? '' ),
 				);
