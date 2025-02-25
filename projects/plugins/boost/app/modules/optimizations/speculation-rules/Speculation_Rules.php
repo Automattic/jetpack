@@ -12,7 +12,7 @@ class Speculation_Rules implements Pluggable, Optimization, Changes_Page_Output 
 			return \JETPACK_BOOST_ALPHA_FEATURES === true;
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
