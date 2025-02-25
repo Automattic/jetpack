@@ -849,8 +849,6 @@ class Jetpack {
 		if ( $is_connection_ready ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
-			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 	}
 
@@ -1026,14 +1024,6 @@ class Jetpack {
 	 */
 	public function jetpack_custom_caps( $caps, $cap ) {
 		switch ( $cap ) {
-			case 'jetpack_manage_modules':
-			case 'jetpack_activate_modules':
-			case 'jetpack_deactivate_modules':
-				$caps = array( 'manage_options' );
-				break;
-			case 'jetpack_configure_modules':
-				$caps = array( 'manage_options' );
-				break;
 			case 'jetpack_manage_autoupdates':
 				$caps = array(
 					'manage_options',

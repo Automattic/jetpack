@@ -14,7 +14,7 @@ require_once dirname( __DIR__, 2 ) . '/lib/class-wp-test-jetpack-rest-testcase.p
  *
  * @coversDefaultClass WPCOM_REST_API_V2_Endpoint_Send_Email_Preview
  */
-class WP_Test_WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_Test_Jetpack_REST_Testcase {
+class WP_Test_WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_Test_Jetpack_REST_TestCase {
 
 	/**
 	 * Mock user ID with editor permissions.

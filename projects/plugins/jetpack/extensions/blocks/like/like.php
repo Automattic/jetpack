@@ -62,17 +62,6 @@ function render_block( $attr, $content, $block ) {
 		return;
 	}
 
-	/**
-	 * Enable an alternate Likes layout.
-	 *
-	 * @since 12.9
-	 *
-	 * @module likes
-	 *
-	 * @param bool $new_layout Enable the new Likes layout. False by default.
-	 */
-	$new_layout = apply_filters( 'likes_new_layout', true ) ? '&amp;n=1' : '';
-
 	add_action( 'wp_footer', __NAMESPACE__ . '\render_iframe', 25 );
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -97,7 +86,7 @@ function render_block( $attr, $content, $block ) {
 		$domain             = $bloginfo->domain;
 		$reblog_param       = $show_reblog_button ? '&amp;reblog=1' : '';
 		$show_avatars_param = $show_avatars ? '' : '&amp;slim=1';
-		$src                = sprintf( '//widgets.wp.com/likes/index.html?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s&amp;block=1%7$s%8$s', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid, $new_layout, $reblog_param, $show_avatars_param );
+		$src                = sprintf( 'https://widgets.wp.com/likes/index.html?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s%7$s&amp;block=1', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid, $reblog_param, $show_avatars_param );
 
 		// provide the mapped domain when needed
 		if ( isset( $_SERVER['HTTP_HOST'] ) && strpos( sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ), '.wordpress.com' ) === false ) {
@@ -110,7 +99,7 @@ function render_block( $attr, $content, $block ) {
 		$url_parts          = wp_parse_url( $url );
 		$domain             = $url_parts['host'];
 		$show_avatars_param = $show_avatars ? '' : '&amp;slim=1';
-		$src                = sprintf( 'https://widgets.wp.com/likes/?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s&amp;block=1%7$s', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid, $new_layout, $show_avatars_param );
+		$src                = sprintf( 'https://widgets.wp.com/likes/index.html?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s&amp;block=1', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid, $show_avatars_param );
 	}
 
 	$name    = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );

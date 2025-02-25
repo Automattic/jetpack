@@ -145,7 +145,7 @@ class Test_Products_Rest extends TestCase {
 
 		$response = $this->server->dispatch( $request );
 
-		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 200, $response->get_status() );
 	}
 
 	/**

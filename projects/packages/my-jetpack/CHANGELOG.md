@@ -5,9 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.5.0] - 2025-02-24
+### Changed
+- Allow users to manage user connection in My Jetpack. [#41398]
+- Move backup endpoint to product class. [#41730]
+- Update package dependencies. [#41955]
+
+### Removed
+- Script data: Remove unused property. [#41890]
+
+### Fixed
+- Code: Prevent dynamic class properties. [#41857]
+- Fix My Jetpack display for non-admin users. [#41398]
+- Improve accessibility for product card actions with ARIA labelling. [#41896]
+- Increase product card status contrast ratio. [#41896]
+- Move product card status before action for screen readers. [#41896]
+
 ## [5.4.5] - 2025-02-17
 ### Changed
-- Social | Updated manage module link to point to the new Social admin page. [#41741]
+- Social: Update manage module link to point to the new Social admin page. [#41741]
 
 ## [5.4.4] - 2025-02-12
 ### Changed
@@ -27,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Cache calls to backup API in My Jetpack. [#41608]
-- Updated package dependencies. [#41491] [#41577]
+- Update package dependencies. [#41491] [#41577]
 - Update the unowned section from a product grid to a product list. [#41312]
 
 ### Fixed
@@ -40,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Make Action Button component more reusable. [#41361]
 - Replace Jetpack AI upgrade page with a modal. [#41301]
-- Updated package dependencies. [#41286]
+- Update package dependencies. [#41286]
 - Update My Jetpack interstitial modal with new styles and layout. [#41300]
 
 ### Fixed
@@ -1965,6 +1981,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.5...5.5.0
 [5.4.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.4...5.4.5
 [5.4.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.3...5.4.4
 [5.4.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.2...5.4.3

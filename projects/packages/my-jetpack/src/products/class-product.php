@@ -155,6 +155,24 @@ abstract class Product {
 	}
 
 	/**
+	 * This method will be called in the class initializer to perform any necessary initialization
+	 *
+	 * @return void
+	 */
+	public static function initialize() {
+		// This method should be implemented in the child class.
+	}
+
+	/**
+	 * This method will be called in the class initializer to register the product's endpoints
+	 *
+	 * @return void
+	 */
+	public static function register_endpoints(): void {
+		// This method should be implemented in the child class.
+	}
+
+	/**
 	 * Get the installed plugin filename, considering all possible filenames a plugin might have
 	 *
 	 * @param string $plugin Which plugin to check. jetpack for the jetpack plugin or product for the product specific plugin.

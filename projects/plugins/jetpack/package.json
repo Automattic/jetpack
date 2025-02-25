@@ -59,7 +59,7 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/popup-monitor": "1.0.2",
 		"@automattic/request-external-access": "1.0.0",
-		"@automattic/social-previews": "2.1.0-beta.9",
+		"@automattic/social-previews": "2.1.0-beta.10",
 		"@automattic/viewport": "1.0.0",
 		"@microsoft/fetch-event-source": "2.0.1",
 		"@wordpress/base-styles": "5.17.0",

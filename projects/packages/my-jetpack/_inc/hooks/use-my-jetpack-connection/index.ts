@@ -45,6 +45,7 @@ const useMyJetpackConnection = ( {
 	// Alias: https://github.com/Automattic/jetpack/blob/trunk/projects/packages/connection/src/class-rest-connector.php/#L315
 	const isSiteConnected = connectionData.isRegistered;
 	const siteIsRegistered = connectionData.isRegistered;
+	const hasConnectedOwner = connectionData.hasConnectedOwner;
 
 	return {
 		apiNonce,
@@ -55,6 +56,7 @@ const useMyJetpackConnection = ( {
 		isSiteConnected,
 		siteIsRegistered,
 		topJetpackMenuItemUrl,
+		hasConnectedOwner,
 	};
 };
 

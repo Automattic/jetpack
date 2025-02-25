@@ -75,6 +75,13 @@ class WPCom_Markdown {
 	);
 
 	/**
+	 * Whether or not kses filters were removed. Only set if removal was attempted.
+	 *
+	 * @var ?bool
+	 */
+	public $kses;
+
+	/**
 	 * Yay singletons!
 	 *
 	 * @return object WPCom_Markdown instance

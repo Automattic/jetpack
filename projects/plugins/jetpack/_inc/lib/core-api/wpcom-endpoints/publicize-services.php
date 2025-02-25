@@ -98,15 +98,6 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	public function get_items( $request ) {
 		global $publicize;
 
-		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-			/**
-			 * We need this because Publicize::get_available_service_data() uses `Jetpack_Keyring_Service_Helper`
-			 * and `Jetpack_Keyring_Service_Helper` needs a `sharing` page to be registered.
-			 */
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
-			Jetpack_Keyring_Service_Helper::register_sharing_page();
-		}
-
 		$services_data = $publicize->get_available_service_data();
 
 		$services = array();

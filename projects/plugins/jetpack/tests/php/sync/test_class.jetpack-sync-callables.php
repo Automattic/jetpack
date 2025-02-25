@@ -15,7 +15,7 @@ use Automattic\Jetpack\Sync\Settings;
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
 
-require_once __DIR__ . '/test_class.jetpack-sync-base.php';
+require_once __DIR__ . '/test_class.jetpack-sync-testbase.php';
 
 function jetpack_foo_is_callable() {
 	return 'bar';
@@ -34,7 +34,7 @@ function jetpack_foo_is_anon_callable() {
 /**
  * Testing Functions
  */
-class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_TestBase {
 
 	protected $post;
 
@@ -1083,7 +1083,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			),
 		);
 
-		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		do_action(
 			'upgrader_process_complete',
 			$upgrader,
@@ -1094,7 +1094,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 				'plugins' => array( 'the/the.php' ),
 			)
 		);
-		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ) );
 
 		$this->sender->do_sync();
 		$synced_value3           = $this->server_replica_storage->get_callable( 'jetpack_foo' );

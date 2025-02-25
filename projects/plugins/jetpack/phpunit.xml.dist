@@ -66,7 +66,6 @@
 			<exclude>tests/php/sync/test_class.jetpack-sync-full.php</exclude>
 		</testsuite>
 		<testsuite name="legacy-full-sync">
-			<file>tests/php/sync/test_class.jetpack-sync-base.php</file>
 			<file>tests/php/sync/test_class.jetpack-sync-full.php</file>
 		</testsuite>
 		<testsuite name="uninstall">

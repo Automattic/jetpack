@@ -143,7 +143,12 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * More options for the chart.
 	 */
 	options?: {
-		yScale?: { type?: ScaleType; zero?: boolean };
+		yScale?: {
+			type?: ScaleType;
+			zero?: boolean;
+			domain?: [ number, number ];
+			range?: [ number, number ];
+		};
 		xScale?: { type?: ScaleType };
 		axis?: {
 			x?: AxisOptions;

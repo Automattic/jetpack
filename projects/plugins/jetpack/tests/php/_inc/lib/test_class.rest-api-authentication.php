@@ -10,7 +10,7 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server
  *
  * @covers Jetpack
  */
-class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testcase {
+class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_TestCase {
 	protected static $admin_id;
 
 	protected $request;

@@ -4,14 +4,14 @@ namespace Automattic\Jetpack\CRM\Entities\Tests;
 
 use Automattic\Jetpack\CRM\Entities\Factories\Transaction_Factory;
 use Automattic\Jetpack\CRM\Entities\Transaction;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
 
 /**
  * Test Event Manager system.
  *
  * @covers Automattic\Jetpack\CRM\Entities\Transaction
  */
-class Transaction_Entity_Test extends JPCRM_Base_Integration_Test_Case {
+class Transaction_Entity_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * @testdox Test that transaction entity is created from input data.

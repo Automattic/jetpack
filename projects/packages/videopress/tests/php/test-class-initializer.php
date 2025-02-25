@@ -60,4 +60,51 @@ class Test_Uploader extends BaseTestCase {
 		$cache_returned = VideoPress_Initializer::video_enqueue_bridge_when_oembed_present( $cache_value, 'https://www.some-site.com', null, null );
 		$this->assertEquals( $cache_value, $cache_returned );
 	}
+
+	/** Tests the render_videopress_video_block function, when max width is set */
+	public function test_render_videopress_video_block_with_max_width() {
+		$attributes = array(
+			'controls'            => true,
+			'loop'                => false,
+			'muted'               => true,
+			'playsinline'         => true,
+			'poster'              => 'http://localhost/wp-content/uploads/2023/03/cHJpdmF0ZS9sci9pbWFnZJMvd2Vic2l0ZS8yMDIyLTA1L25zMTEwODYtaW1hZ2Uta3d2eWRqaGYuanBn.jpg',
+			'preload'             => 'none',
+			'seekbarColor'        => '#ff6900',
+			'seekbarPlayedColor'  => '#00d084',
+			'seekbarLoadingColor' => '#fcb900',
+			'useAverageColor'     => false,
+			'maxWidth'            => '300px',
+		);
+
+		$content = 'some content';
+		$block   = array( 'context' => array() );
+
+		$rendered_block = VideoPress_Initializer::render_videopress_video_block( $attributes, $content, $block );
+
+		$this->assertStringContainsString( 'wp-block-jetpack-videopress--has-max-width', $rendered_block );
+	}
+
+	/** Tests the render_videopress_video_block function, when max width is not set */
+	public function test_render_videopress_video_block_without_max_width() {
+		$attributes = array(
+			'controls'            => true,
+			'loop'                => false,
+			'muted'               => true,
+			'playsinline'         => true,
+			'poster'              => 'http://localhost/wp-content/uploads/2023/03/cHJpdmF0ZS9sci9pbWFnZJMvd2Vic2l0ZS8yMDIyLTA1L25zMTEwODYtaW1hZ2Uta3d2eWRqaGYuanBn.jpg',
+			'preload'             => 'none',
+			'seekbarColor'        => '#ff6900',
+			'seekbarPlayedColor'  => '#00d084',
+			'seekbarLoadingColor' => '#fcb900',
+			'useAverageColor'     => false,
+		);
+
+		$block   = array( 'context' => array() );
+		$content = 'some content';
+
+		$rendered_block = VideoPress_Initializer::render_videopress_video_block( $attributes, $content, $block );
+
+		$this->assertStringNotContainsString( 'wp-block-jetpack-videopress--has-max-width', $rendered_block );
+	}
 }

@@ -97,6 +97,14 @@ const getCategories: (
 	return categoryOptions;
 };
 
+/**
+ * Generate the product title ID attribute from a product slug
+ *
+ * @param {string} slug - The product slug
+ * @return {string} The generated title ID attribute
+ */
+export const getProductTitleId = slug => `product-title-${ slug }`;
+
 const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 	const getItemId = useCallback( ( item: ProductData ) => item.product.slug, [] );
 	const onChangeView = useCallback( ( newView: View ) => {
@@ -164,7 +172,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 				},
 				render: ( { item }: { item: ProductData } ) => {
 					const { product } = item;
-					return <div>{ product.name }</div>;
+					return <div id={ getProductTitleId( product.slug ) }>{ product.name }</div>;
 				},
 			},
 			{
@@ -231,6 +239,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 							className="product-list-item-cta"
 							slug={ slug }
 							tracksIdentifier="product_list_item"
+							labelSuffixId={ getProductTitleId( slug ) }
 						/>
 					);
 				},
