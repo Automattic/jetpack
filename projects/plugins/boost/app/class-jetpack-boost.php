@@ -128,6 +128,8 @@ class Jetpack_Boost {
 
 		add_action( 'jetpack_boost_critical_css_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
 
+		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
+
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
 
@@ -153,8 +155,6 @@ class Jetpack_Boost {
 	}
 
 	public function schedule_version_change() {
-		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
-
 		$version = get_option( 'jetpack_boost_version' );
 
 		if ( $version === JETPACK_BOOST_VERSION ) {
@@ -163,7 +163,9 @@ class Jetpack_Boost {
 		update_option( 'jetpack_boost_version', JETPACK_BOOST_VERSION );
 
 		// Schedule the cron event to handle the version change. This ensures the previous version's handle is always flushed.
-		wp_schedule_single_event( time() + 2, 'jetpack_boost_handle_version_change_cron' );
+		if ( ! wp_next_scheduled( 'jetpack_boost_handle_version_change_cron' ) ) {
+			wp_schedule_single_event( time() + 2, 'jetpack_boost_handle_version_change_cron' );
+		}
 	}
 
 	public function handle_version_change() {
