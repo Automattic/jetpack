@@ -36,7 +36,7 @@ class Password_Strength_Meter {
 	 * @return bool
 	 */
 	protected function verify_nonce( string $nonce, string $action ): bool {
-		return wp_verify_nonce( sanitize_text_field( wp_unslash( $nonce ) ), $action );
+		return wp_verify_nonce( $nonce, $action );
 	}
 
 	/**
@@ -67,12 +67,13 @@ class Password_Strength_Meter {
 	 * @return void
 	 */
 	public function validate_password_ajax(): void {
+		// phpcs:disable WordPress.Security.NonceVerification
 		if ( ! isset( $_POST['password'] ) ) {
 			$this->send_json_error( __( 'No password provided.', 'jetpack-account-protection' ) );
 			return;
 		}
 
-		if ( ! isset( $_POST['nonce'] ) || ! $this->verify_nonce( $_POST['nonce'], 'validate_password_nonce' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! $this->verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'validate_password_nonce' ) ) {
 			$this->send_json_error( __( 'Invalid nonce.', 'jetpack-account-protection' ) );
 			return;
 		}
@@ -83,7 +84,8 @@ class Password_Strength_Meter {
 		}
 
 		$password = sanitize_text_field( wp_unslash( $_POST['password'] ) );
-		$state    = $this->validation_service->get_validation_state( $password, $user_specific );
+		// phpcs:enable WordPress.Security.NonceVerification
+		$state = $this->validation_service->get_validation_state( $password, $user_specific );
 
 		$this->send_json_success( array( 'state' => $state ) );
 	}
@@ -114,7 +116,7 @@ class Password_Strength_Meter {
 	 */
 	public function enqueue_jetpack_password_strength_meter_reset_script(): void {
 		// No nonce verification necessary as the action includes a robust verification process
-		// phpcs:disable WordPress.Security.NonceVerification
+		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $_GET['action'] ) && ( 'rp' === $_GET['action'] || 'resetpass' === $_GET['action'] ) ) {
 			$this->enqueue_script();
 			$this->enqueue_styles();

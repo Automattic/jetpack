@@ -524,7 +524,7 @@ class Password_Detection {
 			return;
 		}
 		// No nonce verification necessary - reading only
-		// phpcs:disable WordPress.Security.NonceVerification
+		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $_GET['action'] ) && $_GET['action'] === 'password-detection' ) {
 			wp_enqueue_style(
 				'password-detection-styles',
