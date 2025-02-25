@@ -975,6 +975,7 @@ abstract class Publicize_Base {
 					$connection,
 					array(
 						'enabled' => $enabled,
+						'done'    => $done,
 					)
 				);
 			}

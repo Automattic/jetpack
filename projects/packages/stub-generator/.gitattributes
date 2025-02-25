@@ -15,3 +15,4 @@ phpunit.xml.dist                 production-exclude
 .phpcs.dir.phpcompatibility.xml  production-exclude
 tests/**                         production-exclude
 .phpcsignore                     production-exclude
+bin/local-jetpack-stub-generator production-exclude

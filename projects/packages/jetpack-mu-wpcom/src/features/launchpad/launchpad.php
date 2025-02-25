@@ -66,7 +66,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'design_selected',
-				'setup_link_in_bio',
 				'plan_selected',
 				'links_added',
 				'link_in_bio_launched',
@@ -79,7 +78,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'design_selected',
-				'setup_link_in_bio',
 				'plan_selected',
 				'links_added',
 				'link_in_bio_launched',

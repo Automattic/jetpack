@@ -6,7 +6,7 @@ use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Conditions\Quote_Status_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Quote_Data;
 use Automattic\Jetpack\CRM\Entities\Quote;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -15,7 +15,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Quote_Status_Changed
  */
-class Quote_Condition_Test extends JPCRM_Base_Test_Case {
+class Quote_Condition_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
 

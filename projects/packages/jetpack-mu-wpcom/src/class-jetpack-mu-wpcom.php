@@ -181,6 +181,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
+		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-locale/sync-locale-from-calypso-to-atomic.php';
 		require_once __DIR__ . '/features/wpcom-media/wpcom-media-url-upload.php';
@@ -257,6 +258,7 @@ class Jetpack_Mu_Wpcom {
 
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
+		require_once __DIR__ . '/features/wpcom-fse/wpcom-fse.php';
 
 		/**
 		 * Load features for the editor and the frontend pages.

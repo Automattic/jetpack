@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add new helper function for registering read only entries

@@ -13,6 +13,13 @@ use WorDBless\BaseTestCase;
  */
 class Jetpack_Social_Test extends BaseTestCase {
 	/**
+	 * Meta tags.
+	 *
+	 * @var Jetpack_Social
+	 */
+	public $social;
+
+	/**
 	 * Initialize tests
 	 */
 	public function set_up() {

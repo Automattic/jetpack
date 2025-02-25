@@ -23,14 +23,16 @@
 	],
 	"scripts": {
 		"phpunit": [
-			"./tests/phpunit-select-config phpunit.#.xml.dist --colors=always"
+			"./vendor/bin/phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
 		"test-coverage": [
-			"php -dpcov.directory=. ./tests/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
-		]
+		],
+		"post-install-cmd": "rm -f vendor/bin/phpunit-select-config && ln -s ../../bin/local-phpunit-select-config vendor/bin/phpunit-select-config",
+		"post-update-cmd": "rm -f vendor/bin/phpunit-select-config && ln -s ../../bin/local-phpunit-select-config vendor/bin/phpunit-select-config"
 	},
 	"repositories": [
 		{

@@ -12,7 +12,8 @@ import type { Step } from './types';
 export const useKeywordsStep = (): Step => {
 	const [ value, setValue ] = useState< string >( '' );
 	const [ rawInput, setRawInput ] = useState( '' );
-	const { messages, addMessage } = useMessages();
+	const { getMessages, addMessage } = useMessages();
+	const messages = getMessages();
 
 	const onStart = useCallback( async () => {
 		addMessage( {
@@ -46,6 +47,7 @@ export const useKeywordsStep = (): Step => {
 		if ( ! rawInput.trim() ) {
 			return '';
 		}
+
 		addMessage( { content: rawInput, isUser: true } );
 
 		const keywordsString = await new Promise< string >( resolve =>
@@ -54,9 +56,11 @@ export const useKeywordsStep = (): Step => {
 					if ( arr.length === 1 ) {
 						return curr;
 					}
+
 					if ( i === arr.length - 1 ) {
 						return `${ acc } </b>&<b> ${ curr }`;
 					}
+
 					return i === 0 ? curr : `${ acc }, ${ curr }`;
 				}, '' );
 
@@ -72,6 +76,7 @@ export const useKeywordsStep = (): Step => {
 			}
 		);
 		addMessage( { content: message } );
+
 		return value;
 	}, [ addMessage, rawInput, value ] );
 

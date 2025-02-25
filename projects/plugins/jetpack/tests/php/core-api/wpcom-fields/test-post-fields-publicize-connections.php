@@ -16,7 +16,7 @@ require_once dirname( __DIR__, 2 ) . '/lib/class-wp-test-jetpack-rest-testcase.p
  * @group publicize
  * @group rest-api
  */
-class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Jetpack_REST_Testcase {
+class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Jetpack_REST_TestCase {
 
 	/**
 	 * User ID.

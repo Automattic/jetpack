@@ -7,7 +7,7 @@ use Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Field_Contains;
 use Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Status_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Invoice_Data;
 use Automattic\Jetpack\CRM\Entities\Invoice;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -17,7 +17,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Status_Changed
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Field_Contains
  */
-class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
+class Invoice_Condition_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
 

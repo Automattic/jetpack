@@ -7,6 +7,11 @@ use Facebook\WebDriver\Cookie as FacebookWebdriverCookie;
 use Symfony\Component\BrowserKit\Cookie;
 use function GuzzleHttp\Psr7\build_query;
 
+/**
+ * The WPBrowserMethods trait.
+ *
+ * @property array $config Config details.
+ */
 trait WPBrowserMethods {
 
 	/**

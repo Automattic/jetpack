@@ -166,7 +166,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			/**
 			 * Filter whether the site should display portfolios.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.11.0
 			 *
 			 * @param bool $should_display Whether portfolios should be displayed.
 			 */

@@ -4,7 +4,7 @@
  *
  * @since 3.9.2
  */
-class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
+class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_TestCase {
 
 	private $icon_id;
 
@@ -40,7 +40,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 */
 	public function test_jetpack_og_get_image_default() {
 		$image_url = jetpack_og_get_image();
-		$this->assertEquals( is_array( $image_url ), true );
+		$this->assertIsArray( $image_url );
 	}
 
 	/**
@@ -219,7 +219,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 		// Extract an image from the current post.
 		$chosen_image = jetpack_og_get_image();
 
-		$this->assertTrue( is_array( $chosen_image ) );
+		$this->assertIsArray( $chosen_image );
 		// We expect jetpack_og_get_image to return the first of the images in the post.
 		$first_image_url = $post_info['img_urls'][0];
 		$this->assertEquals( $first_image_url, $chosen_image['src'] );
@@ -246,7 +246,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 
 		$image = jetpack_og_get_image();
 
-		$this->assertEquals( $image['alt_text'], '' );
+		$this->assertSame( '', $image['alt_text'] );
 	}
 
 	/**

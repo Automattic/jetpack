@@ -60,47 +60,49 @@ function load_assets( $attr, $content ) {
  * Retrieve the Chrome trial AI token for use with the Chrome AI feature.
  * This ultimately sets an Origin-Trial header with the token.
  */
-function add_chrome_ai_token_header() {
-	$token_transient_name = 'jetpack-ai-chrome-ai-token';
+function add_chrome_ai_token_headers() {
+	$token_transient_names = array( 'jetpack-ai-chrome-ai-translation-token', 'jetpack-ai-chrome-ai-summarization-token' );
 
-	$cached_token = get_transient( $token_transient_name );
+	foreach ( $token_transient_names as $token_transient_name ) {
+		$cached_token = get_transient( $token_transient_name );
 
-	if ( ! $cached_token ) {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
+		if ( ! $cached_token ) {
+			$blog_id = \Jetpack_Options::get_option( 'id' );
 
-		// get the token from wpcom
-		$wpcom_request = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%d/jetpack-ai/ai-assistant-feature', $blog_id ),
-			'v2',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+			// get the token from wpcom
+			$wpcom_request = Client::wpcom_json_api_request_as_user(
+				sprintf( '/sites/%d/jetpack-ai/ai-assistant-feature', $blog_id ),
+				'v2',
+				array(
+					'method'  => 'GET',
+					'headers' => array(
+						'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+					),
+					'timeout' => 30,
 				),
-				'timeout' => 30,
-			),
-			null,
-			'wpcom'
-		);
+				null,
+				'wpcom'
+			);
 
-		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
-		if ( 200 === $response_code ) {
-			$ai_assistant_feature_data = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+			$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+			if ( 200 === $response_code ) {
+				$ai_assistant_feature_data = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
 
-			if ( ! empty( $ai_assistant_feature_data['chrome-ai-token'] ) ) {
-				set_transient(
-					$token_transient_name,
-					$ai_assistant_feature_data['chrome-ai-token'],
-					3600 // cache for an hour, but this can probably be longer
-				);
+				if ( ! empty( $ai_assistant_feature_data['chrome-ai-token'] ) ) {
+					set_transient(
+						$token_transient_name,
+						$ai_assistant_feature_data['chrome-ai-token'],
+						3600 // cache for an hour, but this can probably be longer
+					);
 
-				$cached_token = $ai_assistant_feature_data['chrome-ai-token'];
+					$cached_token = $ai_assistant_feature_data['chrome-ai-token'];
+				}
 			}
 		}
-	}
 
-	if ( $cached_token ) {
-		header( "Origin-Trial: {$cached_token}" );
+		if ( $cached_token ) {
+			echo '<meta http-equiv="origin-trial" content="' . esc_attr( $cached_token ) . '">';
+		}
 	}
 }
 
@@ -181,8 +183,7 @@ add_action(
 			apply_filters( 'ai_chrome_ai_enabled', false )
 		) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-use-chrome-ai-sometimes' );
-
-			add_chrome_ai_token_header();
+			add_chrome_ai_token_headers();
 		}
 	}
 );

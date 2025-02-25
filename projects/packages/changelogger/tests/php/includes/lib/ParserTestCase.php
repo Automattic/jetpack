@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test base class for changelog parsers.
  */
-class ParserTestCase extends TestCase {
+abstract class ParserTestCase extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 

@@ -14,3 +14,4 @@ changelog/**                    production-exclude
 .phpcs.dir.phpcompatibility.xml production-exclude
 phpunit.*.xml.dist              production-exclude
 tests/**                        production-exclude
+bin/local-phpunit-select-config production-exclude

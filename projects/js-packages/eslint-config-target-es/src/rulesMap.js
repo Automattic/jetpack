@@ -53,7 +53,10 @@ module.exports = {
 	'no-regexp-unicode-property-escapes-2023': false, // No support data in MDN separate from no-regexp-unicode-property-escapes. https://github.com/mdn/browser-compat-data/issues/19631
 
 	// ES2022
-	'no-arbitrary-module-namespace-names': false, // No support data. https://github.com/mdn/browser-compat-data/issues/18152
+	'no-arbitrary-module-namespace-names': [
+		'javascript.statements.export.arbitrary_module_namespace_identifier_names',
+		'javascript.statements.import.arbitrary_module_namespace_identifier_names',
+	],
 	'no-array-string-prototype-at': [
 		'javascript.builtins.Array.at',
 		'javascript.builtins.String.at',

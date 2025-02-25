@@ -12,7 +12,7 @@ use Automattic\Jetpack\CRM\Entities\Transaction;
 use Automattic\Jetpack\CRM\Event_Manager\Contact_Event;
 use Automattic\Jetpack\CRM\Event_Manager\Invoice_Event;
 use Automattic\Jetpack\CRM\Event_Manager\Transaction_Event;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
 
 require_once __DIR__ . '/../automation/tools/class-automation-faker.php';
 
@@ -23,7 +23,7 @@ require_once __DIR__ . '/../automation/tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Event_Manager\Invoice_Event
  * @covers Automattic\Jetpack\CRM\Event_Manager\Transaction_Event
  */
-class Event_Manager_Test extends JPCRM_Base_Test_Case {
+class Event_Manager_Test extends JPCRM_Base_TestCase {
 
 	/**
 	 * @testdox Test that contact created event is fired
