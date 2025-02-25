@@ -3,7 +3,7 @@
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-jetpack-rest-testcase.php';
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server.php';
 
-class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_Jetpack_REST_Testcase {
+class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_Jetpack_REST_TestCase {
 	/**
 	 * @author zinigor
 	 * @covers Jetpack_Core_Json_Api_Endpoints

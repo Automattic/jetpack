@@ -64,7 +64,7 @@ class Services {
 	public static function fetch_and_cache_services() {
 		$proxy = new Proxy_Requests( 'external-services' );
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/external-services' );
+		$request = new WP_REST_Request( 'GET' );
 
 		$request->set_param( 'type', 'publicize' );
 

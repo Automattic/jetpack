@@ -1,3 +1,5 @@
+import { CurrentUserData } from './types';
+
 /**
  * Get the script data from the window object.
  *
@@ -114,4 +116,14 @@ export function isWpcomPlatformSite() {
  */
 export function isJetpackSelfHostedSite() {
 	return getScriptData()?.site?.host === 'unknown';
+}
+
+/**
+ * Check if the current user has a particular capability.
+ *
+ * @param capability - The capability to check.
+ * @return Whether the current user has that capability.
+ */
+export function currentUserCan( capability: keyof CurrentUserData[ 'capabilities' ] ): boolean {
+	return getScriptData().user.current_user.capabilities[ capability ];
 }

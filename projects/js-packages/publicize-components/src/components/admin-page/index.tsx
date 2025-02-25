@@ -11,6 +11,7 @@ import {
 	isJetpackSelfHostedSite,
 	isSimpleSite,
 	siteHasFeature,
+	currentUserCan,
 } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -57,6 +58,8 @@ export const SocialAdminPage = () => {
 		? `Jetpack Social ${ social.version }`
 		: `Jetpack ${ jetpack.version }`;
 
+	const canManageOptions = currentUserCan( 'manage_options' );
+
 	if ( showConnectionCard ) {
 		return (
 			<AdminPage moduleName={ moduleName } showHeader={ false } showBackground={ false }>
@@ -92,15 +95,19 @@ export const SocialAdminPage = () => {
 					</AdminSectionHero>
 					<AdminSection>
 						<SocialModuleToggle />
-						{ isModuleEnabled && <UtmToggle /> }
-						{
-							// Only show the Social Notes toggle if Social plugin is active
-							social.version && isModuleEnabled && (
-								<SocialNotesToggle disabled={ isUpdatingJetpackSettings } />
-							)
-						}
-						{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
-							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
+						{ canManageOptions && (
+							<>
+								{ isModuleEnabled && <UtmToggle /> }
+								{
+									// Only show the Social Notes toggle if Social plugin is active
+									social.version && isModuleEnabled && (
+										<SocialNotesToggle disabled={ isUpdatingJetpackSettings } />
+									)
+								}
+								{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
+									<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
+								) }
+							</>
 						) }
 					</AdminSection>
 					<AdminSectionHero>

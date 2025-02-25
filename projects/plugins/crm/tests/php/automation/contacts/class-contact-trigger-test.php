@@ -11,7 +11,7 @@ use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Email_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated;
 use Automattic\Jetpack\CRM\Entities\Contact;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -25,7 +25,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated
  */
-class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
+class Contact_Trigger_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
 

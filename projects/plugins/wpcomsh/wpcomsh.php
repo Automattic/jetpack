@@ -541,6 +541,49 @@ function wpcom_hide_scan_threats_from_api( $response ) {
 add_filter( 'rest_post_dispatch', 'wpcom_hide_scan_threats_from_api' );
 
 /**
+ * Returns a standardized timezone string.
+ *
+ * `wp_timezone_string()` sometimes returns offsets (e.g. "-07:00"), which are
+ * a non-standard representation of a UTC offset that only works in PHP.
+ * This function returns a standardized timezone string instead, of the form
+ * "Etc/GMT+7" for integer hour offsets, or a matching "<Area>/<City>" form for
+ * fractional hour offsets (used e.g. in India).
+ */
+function wpcomsh_stats_timezone_string() {
+	$wp_tz = wp_timezone_string();
+
+	// Did we get back an offset?
+	if ( preg_match( '/^([+-])?(\d{1,2}):(\d{2})$/', $wp_tz, $matches ) ) {
+		$sign    = $matches[1] === '-' ? -1 : 1;
+		$hours   = intval( $matches[2], 10 );
+		$minutes = intval( $matches[3], 10 );
+
+		// For fractional hour offsets, use `timezone_name_from_abbr` to get a
+		// matching "<Area>/<City>" timezone.
+		if ( $minutes > 0 ) {
+			$offset  = $sign * ( $hours * 3600 + $minutes * 60 );
+			$city_tz = timezone_name_from_abbr( '', $offset, 0 );
+
+			if ( ! empty( $city_tz ) ) {
+				return $city_tz;
+			}
+		}
+
+		// For integer hour offsets, use "Etc/GMT(+|-)<offset>".
+		// The sign is flipped, to match how the `Etc` area is specced.
+		//
+		// This codepath is also followed if no city exists to match a
+		// fractional offset, by simply discarding the fractional part.
+		// This isn't ideal, but there's no standard way of describing
+		// these offsets, and is likely to be an extreme edge case.
+		return 'Etc/GMT' . ( $sign === -1 ? '+' : '-' ) . $hours;
+	}
+
+	// For anything that's not an offset, return the string we got from WP.
+	return $wp_tz;
+}
+
+/**
  * Collect RUM performance data
  * p9o2xV-XY-p2
  */
@@ -571,12 +614,15 @@ function wpcomsh_footer_rum_js() {
 		$rum_kv = '';
 	}
 
+	$data_site_tz = 'data-site-tz="' . esc_attr( wpcomsh_stats_timezone_string() ) . '"';
+
 	printf(
-		'<script defer id="bilmur" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s src="%4$s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		'<script defer id="bilmur" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s src="%4$s" %5$s></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		$rum_kv, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		esc_attr( $service ),
 		wp_kses_post( $allow_iframe ),
-		esc_url( 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' ) )
+		esc_url( 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' ) ),
+		$data_site_tz // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	);
 }
 

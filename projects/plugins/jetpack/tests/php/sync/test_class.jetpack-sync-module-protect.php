@@ -6,7 +6,7 @@ use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 /**
  * Test pluggable functionality for bruteprotect
  */
-class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_TestBase {
 
 	public function set_up() {
 		parent::set_up();
