@@ -85,11 +85,12 @@ class Verbum_Moderate {
 	private function get_block_comment_being_edited( $hook = null ) {
 		// Check if we're on the comment.php admin page
 		if ( $hook === null ) {
-			$screen = get_current_screen();
-			if ( ! $screen || 'comment' !== $screen->id ) {
-				return false;
-			}
-		} elseif ( 'comment.php' !== $hook ) {
+			$screen          = get_current_screen();
+			$editing_comment = $screen && 'comment' === $screen->id;
+		} else {
+			$editing_comment = 'comment.php' === $hook;
+		}
+		if ( ! $editing_comment ) {
 			return false;
 		}
 
