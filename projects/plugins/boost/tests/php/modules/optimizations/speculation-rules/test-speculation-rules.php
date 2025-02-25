@@ -5,6 +5,9 @@ namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Speculation_Rules
 use Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules\Speculation_Rules;
 use Automattic\Jetpack_Boost\Tests\Base_Test_Case;
 
+// Explicitly include the Base_Test_Case file
+require_once __DIR__ . '/../../../class-base-test-case.php';
+
 class Test_Speculation_Rules extends Base_Test_Case {
 	private $speculation_rules;
 	private $was_constant_defined;
