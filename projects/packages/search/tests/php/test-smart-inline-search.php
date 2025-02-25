@@ -190,9 +190,8 @@ class Test_Smart_Inline_Search extends TestCase {
 	public function test_search( array $wp_query_args, array $expected_api_args ) {
 		$search = Smart_Inline_Search::instance( 0 );
 		$search->do_search( new \WP_Query( $wp_query_args ) );
-		$this->assertEquals(
-			'https://public-api.wordpress.com/rest/v1.3/sites/0/search?' . http_build_query( $expected_api_args, '', null, PHP_QUERY_RFC3986 ),
-			$this->last_search_url
-		);
+		$actual_api_args = array();
+		parse_str( wp_parse_url( $this->last_search_url, PHP_URL_QUERY ), $actual_api_args );
+		$this->assertEquals( $expected_api_args, $actual_api_args );
 	}
 }

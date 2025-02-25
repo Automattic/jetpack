@@ -28,7 +28,7 @@ class Smart_Inline_Search extends Classic_Search {
 	/**
 	 * Returns a class singleton. Initializes with first-time setup.
 	 *
-	 * @param string $blog_id Blog id.
+	 * @param string|int $blog_id Blog id.
 	 * @return Smart_Inline_Search The class singleton.
 	 */
 	public static function instance( $blog_id = null ) {
