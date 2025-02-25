@@ -585,12 +585,14 @@ function wpcomsh_stats_timezone_string() {
 
 /**
  * Output RUM meta data in head
+ * p9o2xV-XY-p2
  */
 function wpcomsh_head_rum_meta() {
 	$service      = 'atomic';
 	$allow_iframe = '';
 	if ( 'admin_head' === current_action() ) {
-		$service      = 'atomic-wpadmin';
+		$service = 'atomic-wpadmin';
+
 		$block_editor = \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\Jetpack_WPCOM_Block_Editor::init();
 		if ( $block_editor->is_iframed_block_editor() ) {
 			$service      = 'atomic-gutenframe';
