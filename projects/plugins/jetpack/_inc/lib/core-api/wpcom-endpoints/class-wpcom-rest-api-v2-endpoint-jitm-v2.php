@@ -44,22 +44,52 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_REST_Controller {
 	}
 
 	/**
-	 * Register routes.
+	 * Register JITM V2 routes.
 	 */
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/',
+			$this->rest_base,
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_item' ),
 					'permission_callback' => '__return_true',
+					'args'                => array(
+						'message_path'        => array(
+							'required'          => true,
+							'type'              => 'string',
+							'description'       => __( 'The message path to fetch JITMs for', 'jetpack' ),
+							'validate_callback' => 'rest_validate_request_arg',
+						),
+						'query'               => array(
+							'required'    => false,
+							'type'        => 'string',
+							'description' => __( 'Additional query parameters', 'jetpack' ),
+						),
+						'full_jp_logo_exists' => array(
+							'required'    => false,
+							'type'        => 'boolean',
+							'description' => __( 'Whether the full Jetpack logo exists', 'jetpack' ),
+						),
+					),
 				),
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'dismiss_item' ),
 					'permission_callback' => array( $this, 'dismiss_item_permissions_check' ),
+					'args'                => array(
+						'id'            => array(
+							'required'    => true,
+							'type'        => 'string',
+							'description' => __( 'The ID of the JITM to dismiss', 'jetpack' ),
+						),
+						'feature_class' => array(
+							'required'    => true,
+							'type'        => 'string',
+							'description' => __( 'The feature class of the JITM', 'jetpack' ),
+						),
+					),
 				),
 			)
 		);

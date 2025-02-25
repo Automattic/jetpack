@@ -89,7 +89,15 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_Test_Jetpack_REST_Te
 	 */
 	public function test_get_item_permissions_check() {
 		wp_set_current_user( 0 );
-		$request  = new WP_REST_Request( 'GET', '/wpcom/v2/jitm-v2' );
+		$request      = new WP_REST_Request( 'GET', '/wpcom/v2/jitm-v2' );
+		$message_path = '/test_message_path/';
+		$request->set_query_params(
+			array(
+				'message_path'        => $message_path,
+				'query'               => '',
+				'full_jp_logo_exists' => false,
+			)
+		);
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status(), 'Unauthenticated users should be able to get JITMs' );
 	}
