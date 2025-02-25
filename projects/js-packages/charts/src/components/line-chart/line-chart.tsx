@@ -177,8 +177,9 @@ const LineChart: FC< LineChartProps > = ( {
 								<LinearGradient
 									id={ `area-gradient-${ index + 1 }` }
 									from={ stroke }
-									to="white"
+									fromOpacity={ 0.4 }
 									toOpacity={ 0.1 }
+									to={ theme.backgroundColor }
 									{ ...seriesData.options?.gradient }
 									data-testid="line-gradient"
 								/>
