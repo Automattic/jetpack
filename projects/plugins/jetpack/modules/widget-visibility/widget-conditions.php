@@ -1148,8 +1148,6 @@ class Jetpack_Widget_Conditions {
 					continue;
 				}
 
-				$opts = $wp_registered_widgets[ $widget ];
-
 				$id_base       = wp_parse_widget_id( $widget )['id_base'];
 				$widget_object = $wp_widget_factory->get_widget_object( $id_base );
 
@@ -1200,7 +1198,7 @@ class Jetpack_Widget_Conditions {
 					}
 				}
 
-				update_option( $opts['callback'][0]->option_name, $instances );
+				update_option( $widget_object->option_name, $instances );
 			}
 		}
 	}
