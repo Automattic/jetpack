@@ -132,7 +132,7 @@ const LineChart: FC< LineChartProps > = ( {
 			defaultMargin = { ...defaultMargin, right: 40, left: 0 };
 		}
 		if ( options.axis?.x?.orientation === 'top' ) {
-			defaultMargin = { ...defaultMargin, top: 20, bottom: 0 };
+			defaultMargin = { ...defaultMargin, top: 20, bottom: 10 };
 		}
 		// Merge default margin with user-specified margin.
 		return { ...defaultMargin, ...margin };
