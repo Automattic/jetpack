@@ -154,3 +154,27 @@ function get_wpcom_blog_id() {
 
 	return false;
 }
+
+/**
+ * Check if the site is a WordPress.com Atomic site.
+ *
+ * @return bool
+ */
+function is_woa_site() {
+	if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
+		return false;
+	}
+	$host = new Automattic\Jetpack\Status\Host();
+	return $host->is_woa_site();
+}
+
+/**
+ * Whether the current user is connected to WordPress.com.
+ */
+function is_current_user_connected() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return true;
+	}
+
+	return ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
+}
