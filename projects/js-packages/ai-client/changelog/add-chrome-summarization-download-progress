@@ -1,5 +1,5 @@
 Significance: patch
 Type: changed
-Comment: Just a debug message that we want to test
+Comment: Adds a workaround for a bug in Chrome's implementation of AI summarization
 
 
