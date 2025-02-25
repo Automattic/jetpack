@@ -172,7 +172,7 @@ class Validation_Service_Test extends BaseTestCase {
 	}
 
 	public function test_get_validation_errors_user_specific() {
-		$user     = new \WP_User();
+		$user     = new \stdClass();
 		$user->ID = 1;
 
 		$validation_service = $this->getMockBuilder( Validation_Service::class )

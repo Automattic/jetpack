@@ -28,17 +28,53 @@ class Password_Strength_Meter {
 	}
 
 	/**
+	 * Wrapper method for nonce verification.
+	 *
+	 * @param string $nonce  Nonce value.
+	 * @param string $action Nonce action.
+	 *
+	 * @return bool
+	 */
+	protected function verify_nonce( string $nonce, string $action ): bool {
+		return wp_verify_nonce( sanitize_text_field( wp_unslash( $nonce ) ), $action );
+	}
+
+	/**
+	 * Wrapper method for sending a JSON error response.
+	 *
+	 * @param string $message The error message.
+	 *
+	 * @return void
+	 */
+	protected function send_json_error( string $message ): void {
+		wp_send_json_error( array( 'message' => $message ) );
+	}
+
+	/**
+	 * Wrapper method for sending a JSON success response.
+	 *
+	 * @param array $data The data to send.
+	 *
+	 * @return void
+	 */
+	protected function send_json_success( array $data ): void {
+		wp_send_json_success( $data );
+	}
+
+	/**
 	 * AJAX endpoint for password validation.
 	 *
 	 * @return void
 	 */
 	public function validate_password_ajax(): void {
 		if ( ! isset( $_POST['password'] ) ) {
-			wp_send_json_error( array( 'message' => __( 'No password provided.', 'jetpack-account-protection' ) ) );
+			$this->send_json_error( __( 'No password provided.', 'jetpack-account-protection' ) );
+			return;
 		}
 
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'validate_password_nonce' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'jetpack-account-protection' ) ) );
+		if ( ! isset( $_POST['nonce'] ) || ! $this->verify_nonce( $_POST['nonce'], 'validate_password_nonce' ) ) {
+			$this->send_json_error( __( 'Invalid nonce.', 'jetpack-account-protection' ) );
+			return;
 		}
 
 		$user_specific = false;
@@ -49,7 +85,7 @@ class Password_Strength_Meter {
 		$password = sanitize_text_field( wp_unslash( $_POST['password'] ) );
 		$state    = $this->validation_service->get_validation_state( $password, $user_specific );
 
-		wp_send_json_success( array( 'state' => $state ) );
+		$this->send_json_success( array( 'state' => $state ) );
 	}
 
 	/**
