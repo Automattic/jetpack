@@ -584,25 +584,21 @@ function wpcomsh_stats_timezone_string() {
 }
 
 /**
- * Collect RUM performance data
- * p9o2xV-XY-p2
+ * Output RUM meta data in head
  */
-function wpcomsh_footer_rum_js() {
+function wpcomsh_head_rum_meta() {
 	$service      = 'atomic';
 	$allow_iframe = '';
-	if ( 'admin_footer' === current_action() ) {
-		$service = 'atomic-wpadmin';
-
+	if ( 'admin_head' === current_action() ) {
+		$service      = 'atomic-wpadmin';
 		$block_editor = \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\Jetpack_WPCOM_Block_Editor::init();
 		if ( $block_editor->is_iframed_block_editor() ) {
 			$service      = 'atomic-gutenframe';
 			$allow_iframe = 'data-allow-iframe="true"';
 		}
 	}
-
 	$rum_kv = array();
 	$rum_kv = wpcomsh_get_woo_rum_data( $rum_kv );
-
 	if ( count( $rum_kv ) > 0 ) {
 		$rum_kv = wp_json_encode( $rum_kv, JSON_FORCE_OBJECT );
 		if ( is_string( $rum_kv ) ) {
@@ -613,16 +609,26 @@ function wpcomsh_footer_rum_js() {
 	} else {
 		$rum_kv = '';
 	}
-
 	$data_site_tz = 'data-site-tz="' . esc_attr( wpcomsh_stats_timezone_string() ) . '"';
 
+	// Create the meta tag with all the attributes
 	printf(
-		'<script defer id="bilmur" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s src="%4$s" %5$s></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		'<meta id="bilmur" property="bilmur:data" content="" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s %4$s />' . "\n",
 		$rum_kv, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		esc_attr( $service ),
 		wp_kses_post( $allow_iframe ),
-		esc_url( 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' ) ),
 		$data_site_tz // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	);
+}
+
+/**
+ * Output RUM script in footer (Collect RUM performance data)
+ * p9o2xV-XY-p2
+ */
+function wpcomsh_footer_rum_js() {
+	printf(
+		'<script defer src="%s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		esc_url( 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' ) )
 	);
 }
 
@@ -646,6 +652,8 @@ function wpcomsh_get_woo_rum_data( $rum_kv = array() ) {
 	return $rum_kv;
 }
 
+add_action( 'wp_head', 'wpcomsh_head_rum_meta' );
+add_action( 'admin_head', 'wpcomsh_head_rum_meta' );
 add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
 add_action( 'admin_footer', 'wpcomsh_footer_rum_js' );
 
