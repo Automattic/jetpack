@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize\REST_API;
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Publicize\Publicize_Utils;
 use Automattic\Jetpack\Publicize\Services;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
