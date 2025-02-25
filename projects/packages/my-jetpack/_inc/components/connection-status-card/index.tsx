@@ -361,7 +361,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	} );
 
 	return (
-		<div id="dylan" className={ styles[ 'connection-status-card' ] }>
+		<div className={ styles[ 'connection-status-card' ] }>
 			<H3>{ title }</H3>
 
 			<Text variant="body" mb={ 3 }>
