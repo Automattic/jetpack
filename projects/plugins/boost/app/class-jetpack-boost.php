@@ -160,14 +160,13 @@ class Jetpack_Boost {
 		if ( $version === JETPACK_BOOST_VERSION ) {
 			return;
 		}
+		update_option( 'jetpack_boost_version', JETPACK_BOOST_VERSION );
 
 		// Schedule the cron event to handle the version change. This ensures the previous version's handle is always flushed.
-		wp_schedule_single_event( time() + 10, 'jetpack_boost_handle_version_change_cron' );
+		wp_schedule_single_event( time() + 2, 'jetpack_boost_handle_version_change_cron' );
 	}
 
 	public function handle_version_change() {
-		update_option( 'jetpack_boost_version', JETPACK_BOOST_VERSION );
-
 		if ( jetpack_boost_minify_is_enabled() ) {
 			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
 			jetpack_boost_minify_clear_scheduled_events();
