@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-require_once __DIR__ . '/publicize-connections.php';
-
 /**
  * Publicize: List Connection Test Result Data
  *
