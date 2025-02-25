@@ -6,25 +6,53 @@
  */
 
 /**
- * Class Test_WPCOMSH_Stats_Timezone_String
+ * Class Test_WPCOMSH_RUM_Functions
  */
 // phpcs:disable Squiz.Commenting.FunctionComment.WrongStyle
 class Test_WPCOMSH_RUM_Functions extends WP_UnitTestCase {
+	/**
+	 * @var array Original wp_head callbacks
+	 */
+	private $original_wp_head_callbacks;
+
+	/**
+	 * @var array Original wp_footer callbacks
+	 */
+	private $original_wp_footer_callbacks;
+
+	/**
+	 * @var array Original admin_head callbacks
+	 */
+	private $original_admin_head_callbacks;
+
+	/**
+	 * @var array Original admin_footer callbacks
+	 */
+	private $original_admin_footer_callbacks;
+
 	public function setUp(): void {
 		parent::setUp();
 		// Save original action callbacks
-		$this->original_wp_head_callbacks      = $GLOBALS['wp_filter']['wp_head']->callbacks;
-		$this->original_wp_footer_callbacks    = $GLOBALS['wp_filter']['wp_footer']->callbacks;
-		$this->original_admin_head_callbacks   = $GLOBALS['wp_filter']['admin_head']->callbacks;
-		$this->original_admin_footer_callbacks = $GLOBALS['wp_filter']['admin_footer']->callbacks;
+		$this->original_wp_head_callbacks      = $GLOBALS['wp_filter']['wp_head']->callbacks ?? array();
+		$this->original_wp_footer_callbacks    = $GLOBALS['wp_filter']['wp_footer']->callbacks ?? array();
+		$this->original_admin_head_callbacks   = $GLOBALS['wp_filter']['admin_head']->callbacks ?? array();
+		$this->original_admin_footer_callbacks = $GLOBALS['wp_filter']['admin_footer']->callbacks ?? array();
 	}
 
 	public function tearDown(): void {
 		// Restore original action callbacks
-		$GLOBALS['wp_filter']['wp_head']->callbacks      = $this->original_wp_head_callbacks;
-		$GLOBALS['wp_filter']['wp_footer']->callbacks    = $this->original_wp_footer_callbacks;
-		$GLOBALS['wp_filter']['admin_head']->callbacks   = $this->original_admin_head_callbacks;
-		$GLOBALS['wp_filter']['admin_footer']->callbacks = $this->original_admin_footer_callbacks;
+		if ( isset( $GLOBALS['wp_filter']['wp_head'] ) ) {
+			$GLOBALS['wp_filter']['wp_head']->callbacks = $this->original_wp_head_callbacks;
+		}
+		if ( isset( $GLOBALS['wp_filter']['wp_footer'] ) ) {
+			$GLOBALS['wp_filter']['wp_footer']->callbacks = $this->original_wp_footer_callbacks;
+		}
+		if ( isset( $GLOBALS['wp_filter']['admin_head'] ) ) {
+			$GLOBALS['wp_filter']['admin_head']->callbacks = $this->original_admin_head_callbacks;
+		}
+		if ( isset( $GLOBALS['wp_filter']['admin_footer'] ) ) {
+			$GLOBALS['wp_filter']['admin_footer']->callbacks = $this->original_admin_footer_callbacks;
+		}
 		parent::tearDown();
 	}
 
@@ -68,10 +96,6 @@ class Test_WPCOMSH_RUM_Functions extends WP_UnitTestCase {
 	 * Test the output of wpcomsh_head_rum_meta
 	 */
 	public function test_wpcomsh_head_rum_meta_output() {
-		// Set up a mock for current_action
-		$mock = $this->createPartialMock( \stdClass::class, array( 'current_action' ) );
-		$mock->method( 'current_action' )->willReturn( 'wp_head' );
-
 		// Start output buffering
 		ob_start();
 		wpcomsh_head_rum_meta();
