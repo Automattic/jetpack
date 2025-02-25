@@ -54,7 +54,7 @@ return [
     // PhanTypeInvalidLeftOperandOfNumericOp : 7 occurrences
     // PhanTypeMismatchArgumentInternalReal : 7 occurrences
     // PhanCommentAbstractOnInheritedMethod : 6 occurrences
-    // PhanDeprecatedClass : 6 occurrences
+    // PhanDeprecatedClass : 5 occurrences
     // PhanNonClassMethodCall : 5 occurrences
     // PhanTypeMismatchDimAssignment : 5 occurrences
     // PhanAccessMethodInternal : 4 occurrences
@@ -133,8 +133,7 @@ return [
         '_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v3-endpoint-blogging-prompts.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeInvalidLeftOperandOfAdd', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturnProbablyReal'],
         '_inc/lib/core-api/wpcom-endpoints/gutenberg-available-extensions.php' => ['PhanPluginMixedKeyNoKey'],
         '_inc/lib/core-api/wpcom-endpoints/memberships.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode', 'PhanTypeArraySuspicious'],
-        '_inc/lib/core-api/wpcom-endpoints/publicize-connection-test-results.php' => ['PhanDeprecatedClass', 'PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument'],
-        '_inc/lib/core-api/wpcom-endpoints/publicize-connections.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument'],
+        '_inc/lib/core-api/wpcom-endpoints/publicize-connection-test-results.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument'],
         '_inc/lib/core-api/wpcom-endpoints/service-api-keys.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturnProbablyReal'],
         '_inc/lib/core-api/wpcom-fields/post-fields-publicize-connections.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMissingReturn'],
         '_inc/lib/debugger/class-jetpack-cxn-test-base.php' => ['PhanDeprecatedFunctionInternal', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn'],
