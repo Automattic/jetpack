@@ -170,6 +170,10 @@ declare global {
 				} ) => Promise< {
 					ready: Promise< void >;
 					summarize: ( text: string, summarizeOptions?: { context?: string } ) => Promise< string >;
+					addEventListener: (
+						event: string,
+						callback: ( e: { loaded: number; total: number } ) => void
+					) => void;
 				} >;
 			};
 		};

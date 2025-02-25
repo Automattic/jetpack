@@ -174,6 +174,10 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 		const summarizer = await self.ai.summarizer.create( options );
 
 		if ( available === 'after-download' ) {
+			summarizer.addEventListener( 'downloadprogress', e => {
+				// eslint-disable-next-line no-console
+				console.log( `Downloaded ${ e.loaded } of ${ e.total } bytes.` );
+			} );
 			await summarizer.ready;
 		}
 
