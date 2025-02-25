@@ -295,6 +295,10 @@ export default class JP_Dropzone {
 					// update the hidden field with the token
 					this.updateHiddenFields( '.jetpack-form-file-field__token', response.data.token );
 
+					// Clear the file input after successful upload and token retrieval
+					// This prevents the browser from re-uploading the file when the form is submitted
+					this.fileField.value = '';
+
 					return;
 				}
 			}
