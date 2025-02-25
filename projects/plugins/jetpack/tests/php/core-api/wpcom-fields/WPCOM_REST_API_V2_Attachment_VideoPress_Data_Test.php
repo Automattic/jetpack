@@ -46,7 +46,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data_Test extends Jetpack_REST_Tes
 	 */
 	public function test_attachment_fields_videopress_get() {
 		$this->markTestSkipped( 'Test is broken' );
-
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$mock = $this->getMockBuilder( WPCOM_REST_API_V2_Attachment_VideoPress_Data::class )
 						->onlyMethods( array( 'get_videopress_data' ) )
 						->getMock();

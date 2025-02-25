@@ -106,6 +106,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 */
 	public function test_checksum_with_disabled_sync_modules( $table, $enabled_modules, $is_valid ) {
 		$this->markTestSkipped( 'Test breaks state needed by other tests' );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		if ( ! $is_valid ) {
 			// Exception expected if corresponding Sync module is not enabled.
 			$this->expectException( Exception::class );
