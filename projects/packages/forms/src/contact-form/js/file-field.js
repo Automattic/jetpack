@@ -15,7 +15,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			.on( 'error', args => {
 				setSimpleFieldError( args.input, args.form, {} );
 			} )
-			.on( 'clear-error', args => {
+			.on( 'error:clear', args => {
 				clearInputError( args.input, {} );
 			} );
 	} );
