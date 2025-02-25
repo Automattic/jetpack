@@ -142,7 +142,7 @@ const LineChart: FC< LineChartProps > = ( {
 
 	const xNumTicks = useMemo(
 		() =>
-			Math.max( Math.floor( Math.min( dataSorted[ 0 ]?.data.length, width / X_TICK_WIDTH ) ), 4 ),
+			Math.max( Math.floor( Math.min( dataSorted[ 0 ]?.data.length, width / X_TICK_WIDTH ) ), 5 ),
 		[ dataSorted, width ]
 	);
 
