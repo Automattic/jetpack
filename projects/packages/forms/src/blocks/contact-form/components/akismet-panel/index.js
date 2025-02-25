@@ -15,16 +15,16 @@ const AkismetPanel = () => {
 
 	return (
 		<PluginIntegrationPanel
+			title={ __( 'Spam Protection', 'jetpack-forms' ) }
 			pluginSlug="akismet"
 			pluginPath="akismet/akismet"
 			installText={ __( 'Install Akismet', 'jetpack-forms' ) }
-			activateText={ __( 'Activate the Akismet plugin', 'jetpack-forms' ) }
+			activateText={ __( 'Activate Akismet', 'jetpack-forms' ) }
 			description={ __(
 				"Add one-click spam protection for your forms with Akismet. Simply install the plugin and you're set.",
 				'jetpack-forms'
 			) }
 			tracksEventName="jetpack_forms_upsell_akismet_click"
-			title={ __( 'Spam Protection', 'jetpack-forms' ) }
 			initialOpen={ false }
 		>
 			<p className="jetpack-akismet-panel__text">

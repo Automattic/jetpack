@@ -8,6 +8,7 @@ import { installAndActivatePlugin, activatePlugin } from '../../../util/plugin-m
 import './styles.css';
 
 const PluginIntegrationPanel = ( {
+	title,
 	pluginSlug,
 	pluginPath,
 	installText,
@@ -15,7 +16,6 @@ const PluginIntegrationPanel = ( {
 	description,
 	tracksEventName,
 	children,
-	title,
 	initialOpen = false,
 } ) => {
 	const [ isInstalling, setIsInstalling ] = useState( false );
