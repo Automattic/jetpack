@@ -9,7 +9,12 @@ import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants
 import { getErrorData } from '../hooks/use-ai-suggestions/index.js';
 import { renderHTMLFromMarkdown, renderMarkdownFromHTML } from '../libs/markdown/index.js';
 import { AiModelTypeProp, ERROR_RESPONSE, ERROR_NETWORK } from '../types.js';
-import { isTranslationAvailable, isSummarizerAvailable } from './utils.js';
+import {
+	isTranslationAvailable,
+	isSummarizerAvailable,
+	callWithTimeout,
+	disableSummarizer,
+} from './utils.js';
 
 type ChromeAISuggestionsEventSourceConstructorArgs = {
 	content: string;
@@ -147,7 +152,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	// Helper function to format summarizer options
 	private getSummarizerOptions( tone?: string, wordCount?: number ) {
-		let sharedContext = `The summary you write should contain approximately ${
+		let sharedContext = `The summary you write should be approximately ${
 			wordCount ?? 50
 		} words long. Strive for precision in word count without compromising clarity and significance`;
 
@@ -177,8 +182,18 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 		}
 
 		const options = this.getSummarizerOptions( tone, wordCount );
+		let summarizer;
 
-		const summarizer = await self.ai.summarizer.create( options );
+		try {
+			// At the time of writing, the summarizer methods seem to hang indefinitely on Linux builds of Chrome.
+			// This is a workaround to ensure the method does not hang more than 5 seconds.
+			summarizer = await callWithTimeout( () => self.ai.summarizer.create( options ), 5000 );
+		} catch ( error ) {
+			disableSummarizer();
+			this.processErrorEvent( error );
+
+			return;
+		}
 
 		if ( available === 'after-download' ) {
 			summarizer.addEventListener( 'downloadprogress', e => {
@@ -190,7 +205,10 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 		try {
 			const context = `Write with a ${ tone } tone.`;
-			const summary = await summarizer.summarize( text, { context: context } );
+			const summary = await callWithTimeout(
+				() => summarizer.summarize( text, { context: context } ),
+				5000
+			);
 			this.processEvent( {
 				id: '',
 				event: 'summary',
@@ -200,6 +218,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 				} ),
 			} );
 		} catch ( error ) {
+			disableSummarizer();
 			this.processErrorEvent( error );
 		}
 	}
