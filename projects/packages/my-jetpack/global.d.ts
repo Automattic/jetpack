@@ -144,6 +144,7 @@ interface Window {
 		blogID: string;
 		fileSystemWriteAccess: 'yes' | 'no';
 		isStatsModuleActive: string;
+		canUserViewStats: boolean;
 		isUserFromKnownHost: string;
 		jetpackManage: {
 			isAgencyAccount: boolean;
@@ -510,6 +511,8 @@ interface Window {
 				blogId: number;
 				wpcomUser: {
 					avatar: boolean;
+					display_name: string;
+					email: string;
 				};
 				gravatar: string;
 				permissions: {

@@ -16,6 +16,14 @@ import styles from './style.module.scss';
 import type { AdditionalAction, SecondaryAction } from '../action-button/types';
 import type { FC, MouseEventHandler, ReactNode, MouseEvent } from 'react';
 
+/**
+ * Generate the product card title ID attribute from a product slug
+ *
+ * @param {string} slug - The product slug
+ * @return {string} The generated title ID attribute
+ */
+export const getProductCardTitleId = slug => `product-card-title-${ slug }`;
+
 export type ProductCardProps = {
 	children?: ReactNode;
 	name: string;
@@ -43,6 +51,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 		name,
 		Description,
 		status,
+		admin,
 		isDataLoading,
 		slug,
 		additionalActions,
@@ -135,6 +144,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 			headerRightContent={ null }
 			onMouseEnter={ onMouseEnter }
 			onMouseLeave={ onMouseLeave }
+			titleId={ getProductCardTitleId( slug ) }
 		>
 			{ recommendation && <PriceComponent slug={ slug } /> }
 			<Description />
@@ -149,22 +159,11 @@ const ProductCard: FC< ProductCardProps > = props => {
 				<RecommendationActions slug={ slug } />
 			) : (
 				<div className={ styles.actions }>
-					<div className={ styles.buttons }>
-						{ secondaryAction && secondaryAction?.positionFirst && (
-							<SecondaryButton { ...secondaryAction } />
-						) }
-						<ActionButton
-							slug={ slug }
-							additionalActions={ additionalActions }
-							primaryActionOverride={ primaryActionOverride }
-							fixSiteConnectionHandler={ fixSiteConnectionHandler }
-							setIsActionLoading={ setIsActionLoading }
-							tracksIdentifier="product_card"
-						/>
-						{ secondaryAction && ! secondaryAction?.positionFirst && (
-							<SecondaryButton { ...secondaryAction } />
-						) }
-					</div>
+					{
+						// TODO: only some products (social connections for example) have settings for non-admins
+						// Each product needs to specify this separately and provide a destination to link to for management by non-admins
+						// Until then, we don't show any action buttons or links on product cards for non-admins
+					 }
 					<Status
 						status={ status }
 						isFetching={ isLoading }
@@ -172,6 +171,25 @@ const ProductCard: FC< ProductCardProps > = props => {
 						isOwned={ isOwned }
 						suppressNeedsAttention={ slug === 'protect' }
 					/>
+					{ admin && (
+						<div className={ styles.buttons }>
+							{ secondaryAction && secondaryAction?.positionFirst && (
+								<SecondaryButton { ...secondaryAction } />
+							) }
+							<ActionButton
+								slug={ slug }
+								additionalActions={ additionalActions }
+								primaryActionOverride={ primaryActionOverride }
+								fixSiteConnectionHandler={ fixSiteConnectionHandler }
+								setIsActionLoading={ setIsActionLoading }
+								tracksIdentifier="product_card"
+								labelSuffixId={ getProductCardTitleId( slug ) }
+							/>
+							{ secondaryAction && ! secondaryAction?.positionFirst && admin && (
+								<SecondaryButton { ...secondaryAction } />
+							) }
+						</div>
+					) }
 				</div>
 			) }
 		</Card>

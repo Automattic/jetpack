@@ -88,7 +88,9 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 		}
 
 		if ( data.complete ) {
-			this.dispatchEvent( new CustomEvent( 'done', { detail: data.message } ) );
+			this.dispatchEvent(
+				new CustomEvent( 'done', { detail: { message: data.message, source: 'chromeAI' } } )
+			);
 		}
 	}
 

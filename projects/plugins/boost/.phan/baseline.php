@@ -25,7 +25,6 @@ return [
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanCoalescingNeverNull : 1 occurrence
     // PhanImpossibleTypeComparisonInGlobalScope : 1 occurrence
-    // PhanParamTooMany : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
     // PhanTypeComparisonToArray : 1 occurrence
@@ -67,7 +66,6 @@ return [
         'compatibility/woocommerce.php' => ['PhanTypeArraySuspicious'],
         'jetpack-boost.php' => ['PhanNoopNew'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
-        'wp-js-data-sync.php' => ['PhanParamTooMany'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

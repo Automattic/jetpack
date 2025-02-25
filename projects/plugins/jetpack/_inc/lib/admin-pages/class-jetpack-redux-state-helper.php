@@ -24,6 +24,7 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
+use Automattic\Jetpack\Publicize\Keyring_Helper;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -408,11 +409,10 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_external_services_connect_urls() {
 		$connect_urls = array();
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 		// phpcs:disable
-		foreach ( Jetpack_Keyring_Service_Helper::SERVICES as $service_name => $service_info ) {
+		foreach ( Keyring_Helper::SERVICES as $service_name => $service_info ) {
 			// phpcs:enable
-			$connect_urls[ $service_name ] = Jetpack_Keyring_Service_Helper::connect_url( $service_name, $service_info['for'] );
+			$connect_urls[ $service_name ] = Keyring_Helper::connect_url( $service_name, $service_info['for'] );
 		}
 		return $connect_urls;
 	}

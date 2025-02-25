@@ -3,7 +3,7 @@
 use Automattic\Jetpack\Sync\Dedicated_Sender;
 use Automattic\Jetpack\Sync\Settings;
 
-class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
+class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_TestBase {
 
 	/**
 	 * Whether a dedicated Sync test request was spawned.

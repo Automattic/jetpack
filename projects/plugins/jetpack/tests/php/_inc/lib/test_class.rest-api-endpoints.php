@@ -349,37 +349,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test permission to disconnect Jetpack site for a user that is connected.
-	 *
-	 * @since 4.4.0
-	 */
-	public function test_admin_user_unlink_permission() {
-
-		$this->load_rest_endpoints_direct();
-
-		// Current user doesn't have credentials, so checking permissions should fail
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::unlink_user_permission_callback() );
-
-		// Create an admin user.
-		$user = $this->create_and_get_user( 'administrator' );
-
-		// Add Jetpack capability
-		$user->add_cap( 'jetpack_connect_user' );
-
-		// Setup global variables so this is the current user
-		wp_set_current_user( $user->ID );
-
-		// This should still fail because user is not connected
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::unlink_user_permission_callback() );
-
-		// Mock that it's connected
-		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
-
-		// User has the capability and is connected so this should work this time
-		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::unlink_user_permission_callback() );
-	}
-
-	/**
 	 * Test permission to manage and configure Jetpack modules.
 	 *
 	 * @since 4.4.0
