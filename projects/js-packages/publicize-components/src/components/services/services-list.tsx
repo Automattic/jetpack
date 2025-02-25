@@ -32,11 +32,11 @@ export function ServicesList() {
 	return (
 		<ul className={ styles.services }>
 			{ supportedServices.map( service => (
-				<li key={ service.ID } className={ styles[ 'service-list-item' ] }>
+				<li key={ service.id } className={ styles[ 'service-list-item' ] }>
 					<ServiceItem
 						service={ service }
-						serviceConnections={ connections[ service.ID ] || [] }
-						isPanelDefaultOpen={ reconnectingAccount?.service_name === service.ID }
+						serviceConnections={ connections[ service.id ] || [] }
+						isPanelDefaultOpen={ reconnectingAccount?.service_name === service.id }
 					/>
 				</li>
 			) ) }

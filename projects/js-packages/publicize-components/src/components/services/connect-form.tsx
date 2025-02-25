@@ -1,6 +1,6 @@
 import { Button } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { store } from '../../social-store';
@@ -38,6 +38,13 @@ export function ConnectForm( {
 
 	const { isConnectionsModalOpen } = useSelect( select => select( store ), [] );
 
+	const [ isConnecting, setIsConnecting ] = useState( false );
+
+	const isFetchingServicesList = useSelect(
+		select => select( store ).isFetchingServicesList(),
+		[]
+	);
+
 	const onConfirm = useCallback(
 		( result: KeyringResult ) => {
 			// Set the keyring result only if the modal is open
@@ -54,7 +61,7 @@ export function ConnectForm( {
 	} );
 
 	const onSubmitForm = useCallback(
-		( event: React.FormEvent ) => {
+		async ( event: React.FormEvent ) => {
 			event.preventDefault();
 			// Prevent Jetpack settings from being submitted
 			event.stopPropagation();
@@ -63,9 +70,11 @@ export function ConnectForm( {
 				return onSubmit();
 			}
 
+			setIsConnecting( true );
+
 			const formData = new FormData( event.target as HTMLFormElement );
 
-			requestAccess( formData );
+			await requestAccess( formData );
 		},
 		[ onSubmit, requestAccess ]
 	);
@@ -87,10 +96,15 @@ export function ConnectForm( {
 						variant={ hasConnections ? 'secondary' : 'primary' }
 						type="submit"
 						className={ styles[ 'connect-button' ] }
+						disabled={ isFetchingServicesList }
 					>
 						{ ( label => {
 							if ( label ) {
 								return label;
+							}
+
+							if ( isFetchingServicesList && isConnecting ) {
+								return __( 'Connecting…', 'jetpack-publicize-components' );
 							}
 
 							return hasConnections

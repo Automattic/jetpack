@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Rename and abstractify PHPUnit custom TestCase subclasses so our phpcs sniffs can recognize them as such.
-
-

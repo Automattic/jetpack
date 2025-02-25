@@ -326,15 +326,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.4-a.5 - 2025-02-17
+### 14.4-a.7 - 2025-02-24
 #### Enhancements
-- Connection: Display connection status on Users page independent of the SSO module.
-- Forms block: Add number input.
-- Subscriptions: Pre-select newsletter categories.
+- Newsletter: Add new newsletter widget.
+- Connection: Disconnect all other users before disconnecting connection owner account.
+- Custom Post Types: do not display testimonials and portfolios on block themes where they are not in use.
+- Social: Update the admin page to be used by Editors and Authors.
 
 #### Bug fixes
-- Geo Location: Remove support from default themes to prevent deprecation notice.
-- Related Posts: Ensure images using the AVIF format are properly displayed.
+- Fix Social toggles.
+- Newsletter: Fix post placement not displaying on certain block themes.
+- Social Previews: Fix distorted image for Tumblr preview.
 
 --------
 

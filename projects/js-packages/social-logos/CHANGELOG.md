@@ -1,16 +1,20 @@
+## [3.1.18] - 2025-02-24
+### Changed
+- Update dependencies.
+
 ## [3.1.17] - 2025-01-09
 ### Fixed
-- Removed `module` in package.json given it's a CommonJS package. [#40867]
+- Remove `module` in package.json given it's a CommonJS package. [#40867]
 
 ## [3.1.16] - 2025-01-06
 ### Changed
-- Updated package dependencies. [#40796] [#40798] [#40831]
+- Update package dependencies. [#40796] [#40798] [#40831]
 
 ### Deprecated
 - Default import is now deprecated in favor of named import and will be removed in future.
 
 ### Fixed
-- Fixed package.json exports to expose built in types [#40801]
+- Expose built-in types in package.json file. [#40801]
 
 ## [3.1.15] - 2024-12-16
 ### Changed
@@ -198,6 +202,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.1.18]: https://github.com/Automattic/social-logos/compare/v3.1.17...v3.1.18
 [3.1.17]: https://github.com/Automattic/social-logos/compare/v3.1.16...v3.1.17
 [3.1.16]: https://github.com/Automattic/social-logos/compare/v3.1.15...v3.1.16
 [3.1.15]: https://github.com/Automattic/social-logos/compare/v3.1.14...v3.1.15
