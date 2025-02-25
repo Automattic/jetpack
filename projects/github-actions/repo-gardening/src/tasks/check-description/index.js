@@ -507,8 +507,11 @@ The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e
 **Follow this PR Review Process:**
 
 1. Ensure all required checks appearing at the bottom of this PR are passing.
-2. Label this PR with the "[Status] Needs Review" label. For most changes, e.g updating a team-specific component or a shared library, having a review from your fellow team member should be enough. If this PR makes significant changes to core functionality, or introduces major updates to a shared library or complex features, please reach out to code owners.
-3. Get at least one approval before merging.
+2. Label this PR with the "[Status] Needs Review" label.
+3. Use [GitHub's Reviewers functionality](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/requesting-a-pull-request-review) to request a review.
+4. Get at least one approval before merging.
+
+ For most changes, e.g updating a team-specific component or a shared library, having a review from your fellow team member should be enough. If this PR makes significant changes to core functionality, or introduces major updates to a shared library or complex features, please reach out to teams or people with expertise. Feel free to ask in the #jetpack-developers channel for help.
 
 Still unsure? Reach out in #jetpack-developers for guidance!`;
 	}
