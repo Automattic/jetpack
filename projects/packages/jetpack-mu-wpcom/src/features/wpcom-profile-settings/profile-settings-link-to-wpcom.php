@@ -57,11 +57,11 @@ function wpcom_profile_settings_add_links_to_wpcom() {
 			),
 			'email'         => array(
 				'link' => esc_url( 'https://wordpress.com/me/account' ),
-				'text' => $is_wpcom_atomic ? __( 'Or manage on WP.com ↗', 'jetpack-mu-wpcom' ) : __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
+				'text' => $is_wpcom_atomic ? __( 'Or manage your WP.com account email ↗', 'jetpack-mu-wpcom' ) : __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
 			'password'      => array(
 				'link' => esc_url( 'https://wordpress.com/me/security' ),
-				'text' => $is_wpcom_atomic ? __( 'Or manage on WP.com ↗', 'jetpack-mu-wpcom' ) : __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
+				'text' => $is_wpcom_atomic ? __( 'Or manage your WP.com account password ↗', 'jetpack-mu-wpcom' ) : __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
 			'isWpcomAtomic' => $is_wpcom_atomic,
 		)
