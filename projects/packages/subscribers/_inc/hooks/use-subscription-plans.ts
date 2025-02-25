@@ -1,10 +1,7 @@
 import { getCurrencyObject } from '@automattic/format-currency';
-import {
-	PLAN_YEARLY_FREQUENCY,
-	PLAN_MONTHLY_FREQUENCY,
-} from 'calypso/my-sites/earn/memberships/constants';
-import { useTranslate } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 import { ReactNode, useMemo } from 'react';
+import { PLAN_YEARLY_FREQUENCY, PLAN_MONTHLY_FREQUENCY } from '../constants';
 import { Subscriber, SubscriptionPlan } from '../types';
 
 export type SubscriptionPlanData = {
@@ -23,8 +20,7 @@ type PlanData = {
 };
 
 const useSubscriptionPlans = ( subscriber: Subscriber ): SubscriptionPlanData[] => {
-	const translate = useTranslate();
-	const freePlan = translate( 'Free' );
+	const freePlan = __( 'Free', 'jetpack-subscribers' );
 
 	const getPaymentInterval = (
 		renew_interval: string,
@@ -32,11 +28,11 @@ const useSubscriptionPlans = ( subscriber: Subscriber ): SubscriptionPlanData[] 
 	): string => {
 		renew_interval = renew_interval || inactive_renew_interval;
 		if ( renew_interval === null ) {
-			return translate( 'one time' );
+			return __( 'one time', 'jetpack-subscribers' );
 		} else if ( renew_interval === PLAN_MONTHLY_FREQUENCY ) {
-			return translate( 'Monthly' );
+			return __( 'Monthly', 'jetpack-subscribers' );
 		} else if ( renew_interval === PLAN_YEARLY_FREQUENCY ) {
-			return translate( 'Yearly' );
+			return __( 'Yearly', 'jetpack-subscribers' );
 		}
 
 		return '';
@@ -93,7 +89,7 @@ const useSubscriptionPlans = ( subscriber: Subscriber ): SubscriptionPlanData[] 
 
 	const getPlanDisplay = ( plan: PlanData ): string => {
 		if ( plan.is_gift ) {
-			return translate( 'Gift' ) + `: ${ plan.title }`;
+			return __( 'Gift', 'jetpack-subscribers' ) + `: ${ plan.title }`;
 		} else if ( plan.renewalPrice === freePlan ) {
 			return plan.renewalPrice;
 		}

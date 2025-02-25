@@ -30,7 +30,6 @@ const useSubscribersQuery = ( {
 	const { hasManySubscribers, isLoading } = useManySubsSite();
 	const shouldFetch = ! isLoading;
 	const limitDataReturned = ! limitData && shouldFetch && hasManySubscribers;
-	console.log( 'aaa' );
 	const query = useQuery< SubscriberEndpointResponse >( {
 		queryKey: getSubscribersCacheKey(
 			page,
@@ -43,7 +42,6 @@ const useSubscribersQuery = ( {
 			sortOrder
 		),
 		queryFn: () => {
-			console.log( 'bbbb' );
 			// This is a temporary solution until we have a better way to handle this.
 			const pathRoute = limitDataReturned ? 'subscribers_by_user_type' : 'subscribers';
 			const userTypeField = limitDataReturned ? 'user_type' : 'filter';

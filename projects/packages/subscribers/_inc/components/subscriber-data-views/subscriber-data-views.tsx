@@ -6,9 +6,9 @@ import { DataViews, type View, type Action, Operator } from '@wordpress/dataview
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { hasTranslation, __ } from '@wordpress/i18n';
 //import { SubscriberLaunchpad } from 'calypso/my-sites/subscribers/components/subscriber-launchpad';
-//import { useSubscriptionPlans, useUnsubscribeModal } from 'calypso/my-sites/subscribers/hooks';
-//import { getCouponsAndGiftsEnabledForSiteId } from 'calypso/state/memberships/settings/selectors';
 import { SubscribersFilterBy, SubscribersSortBy } from '../../constants';
+import { useSubscriptionPlans } from '../../hooks';
+//import { getCouponsAndGiftsEnabledForSiteId } from 'calypso/state/memberships/settings/selectors';
 import { useSubscribersQuery, useSubscriberCountQuery } from '../../queries';
 import { Subscriber } from '../../types/subscribers';
 import { EmptyListView } from '../empty-list-view';
@@ -52,9 +52,8 @@ type SubscriberDataViewsProps = {
 };
 
 const SubscriptionTypeCell = ( { subscriber }: { subscriber: Subscriber } ) => {
-	return 'plan';
-	//const plans = useSubscriptionPlans( subscriber );
-	//return plans.map( ( plan, index ) => <div key={ index }>{ plan.plan }</div> );
+	const plans = useSubscriptionPlans( subscriber );
+	return plans.map( ( plan, index ) => <div key={ index }>{ plan.plan }</div> );
 };
 
 const SubscriberName = ( { displayName, email }: { displayName: string; email: string } ) => (

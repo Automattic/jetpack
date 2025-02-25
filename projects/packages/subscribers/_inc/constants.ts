@@ -16,3 +16,6 @@ export enum SubscribersFilterBy {
 }
 
 export const DEFAULT_PER_PAGE = 10;
+
+export const PLAN_YEARLY_FREQUENCY = '1 year';
+export const PLAN_MONTHLY_FREQUENCY = '1 month';
