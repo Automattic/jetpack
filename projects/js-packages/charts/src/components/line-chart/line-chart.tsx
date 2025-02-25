@@ -10,7 +10,7 @@ import {
 } from '@visx/xychart';
 import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import clsx from 'clsx';
-import { FC, ReactNode, useMemo } from 'react';
+import { FC, ReactNode, useId, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { withResponsive } from '../shared/with-responsive';
@@ -104,6 +104,7 @@ const LineChart: FC< LineChartProps > = ( {
 	options = {},
 } ) => {
 	const providerTheme = useChartTheme();
+	const chartId = useId(); // Ensure unique ids for gradient fill.
 
 	const theme = useMemo( () => {
 		const seriesColors =
@@ -175,7 +176,7 @@ const LineChart: FC< LineChartProps > = ( {
 						<g key={ seriesData?.label || index }>
 							{ withGradientFill && (
 								<LinearGradient
-									id={ `area-gradient-${ index + 1 }` }
+									id={ `area-gradient-${ chartId }-${ index + 1 }` }
 									from={ stroke }
 									fromOpacity={ 0.4 }
 									toOpacity={ 0.1 }
@@ -189,7 +190,9 @@ const LineChart: FC< LineChartProps > = ( {
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] }
 								{ ...accessors }
-								fill={ withGradientFill ? `url(#area-gradient-${ index + 1 })` : undefined }
+								fill={
+									withGradientFill ? `url(#area-gradient-${ chartId }-${ index + 1 })` : undefined
+								}
 								renderLine={ true }
 								curve={ smoothing ? curveCatmullRom : curveLinear }
 							/>
