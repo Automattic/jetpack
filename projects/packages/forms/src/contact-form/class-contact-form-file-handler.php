@@ -134,4 +134,20 @@ class Contact_Form_File_Handler {
 
 		return $result;
 	}
+
+	/**
+	 * Delete a file from the filesystem.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $file_path The path to the file to delete.
+	 * @return bool True on success, false on failure.
+	 */
+	public function delete_file( $file_path ) {
+		if ( empty( $file_path ) || ! file_exists( $file_path ) ) {
+			return false;
+		}
+
+		return wp_delete_file( $file_path );
+	}
 }
