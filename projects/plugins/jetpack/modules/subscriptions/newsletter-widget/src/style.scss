@@ -20,3 +20,11 @@
 		columns: 2;
 	}
 }
+
+// wp-admin overrides
+#jetpack_newsletter_dashboard_widget {
+    .inside {
+        padding: 0;
+        margin: 0;
+    }
+}
