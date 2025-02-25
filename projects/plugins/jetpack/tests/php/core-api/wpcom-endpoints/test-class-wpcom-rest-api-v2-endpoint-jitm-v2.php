@@ -120,7 +120,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_Test_Jetpack_REST_Te
 		$this->assertErrorResponse( 'invalid_user_permission_jetpack_delete_jitm_message', $response, rest_authorization_required_code() );
 
 		// Test with subscriber (should succeed)
-		$subscriber_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
 		wp_set_current_user( $subscriber_id );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status(), 'Subscribers should be able to dismiss JITMs' );
