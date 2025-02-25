@@ -1,4 +1,4 @@
-Significance: patch
+Significance: major
 Type: changed
 
-Update package dependencies.
+Update eslint-plugin-es-x and enable many new rules.
