@@ -53,7 +53,7 @@ const wpcom_profile_settings_modify_name_section = () => {
 };
 
 const wpcom_profile_settings_modify_email_section = () => {
-	// Hide the email field except on Atomic Classic sites.
+	// Hide the email field except on simple sites.
 	if ( ! window.wpcomProfileSettingsLinkToWpcom?.isWpcomAtomic ) {
 		const field = document.getElementById( 'email' ) as HTMLInputElement;
 		if ( field ) {
@@ -114,7 +114,7 @@ const wpcom_profile_settings_modify_password_section = () => {
 	const userSessionSection = document.querySelector( '.user-sessions-wrap' );
 	userSessionSection?.remove();
 
-	// We cannot set a password in wp-admin except on Atomic Classic sites.
+	// We cannot set a password in wp-admin on simple sites.
 	const newPasswordSection = document.getElementById( 'password' )?.querySelector( 'td' );
 	if ( ! window.wpcomProfileSettingsLinkToWpcom?.isWpcomAtomic && newPasswordSection ) {
 		newPasswordSection.innerHTML = '';
