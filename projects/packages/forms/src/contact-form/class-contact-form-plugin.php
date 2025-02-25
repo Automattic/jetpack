@@ -2336,18 +2336,25 @@ class Contact_Form_Plugin {
 	public function delete_feedback_attachments( $post_id ) {
 		// Only process feedback post types
 		if ( get_post_type( $post_id ) !== 'feedback' ) {
+			do_action( 'jetpack_forms_debug_message', sprintf( 'Jetpack Forms: Not deleting attachments for post %d - not a feedback post type', $post_id ) );
 			return;
 		}
+
+		do_action( 'jetpack_forms_debug_message', sprintf( 'Jetpack Forms: Processing attachment deletion for feedback post %d', $post_id ) );
 
 		// Get the extra fields which may contain file upload data
 		$extra_fields = get_post_meta( $post_id, '_feedback_extra_fields', true );
 		if ( empty( $extra_fields ) || ! is_array( $extra_fields ) ) {
+			do_action( 'jetpack_forms_debug_message', sprintf( 'Jetpack Forms: No extra fields found for feedback post %d', $post_id ) );
 			return;
 		}
 
 		// Load the file handler class
 		require_once __DIR__ . '/class-contact-form-file-handler.php';
 		$file_handler = new Contact_Form_File_Handler();
+
+		$deleted_count = 0;
+		$failed_count  = 0;
 
 		// Loop through all fields to find file uploads
 		foreach ( $extra_fields as $field_value ) {
@@ -2358,12 +2365,38 @@ class Contact_Form_Plugin {
 
 			// Try to decode JSON data which would indicate a file upload
 			$file_data = json_decode( $field_value, true );
-			if ( ! $file_data || ! isset( $file_data['path'] ) || ! isset( $file_data['url'] ) ) {
+
+			// Check for file_id (new format) or path (old format)
+			$file_identifier = null;
+			if ( isset( $file_data['file_id'] ) ) {
+				// New format - using file_id
+				$file_identifier = $file_data['file_id'];
+				do_action( 'jetpack_forms_debug_message', sprintf( 'Jetpack Forms: Attempting to delete file with ID %s for feedback post %d', $file_identifier, $post_id ) );
+			} else {
+				// Not a valid file upload data
 				continue;
 			}
 
 			// Use the file handler to delete the file
-			$file_handler->delete_file( $file_data['path'] );
+			$result = $file_handler->delete_file( $file_identifier );
+
+			if ( $result ) {
+				++$deleted_count;
+				do_action( 'jetpack_forms_debug_message', sprintf( 'Jetpack Forms: Successfully deleted file %s', $file_identifier ) );
+			} else {
+				++$failed_count;
+				do_action( 'jetpack_forms_debug_message', sprintf( 'Jetpack Forms: Failed to delete file %s - file may not exist or permissions issue', $file_identifier ) );
+			}
 		}
+
+		do_action(
+			'jetpack_forms_debug_message',
+			sprintf(
+				'Jetpack Forms: Completed attachment deletion for feedback post %d - Deleted: %d, Failed: %d',
+				$post_id,
+				$deleted_count,
+				$failed_count
+			)
+		);
 	}
 }

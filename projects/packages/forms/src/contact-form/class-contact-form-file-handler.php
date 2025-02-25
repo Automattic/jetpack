@@ -113,25 +113,13 @@ class Contact_Form_File_Handler {
 			return $checkout_result;
 		}
 
-		// Get upload directory information to build proper URL
-		$uploads = wp_upload_dir();
-
-		// Convert the server path to a URL by replacing the server path with the URL path
-		$file_url = str_replace(
-			$uploads['basedir'],
-			$uploads['baseurl'],
-			$permanent_path
-		);
-
 		// Create a file identifier that doesn't depend on the full server path
 		$relative_path = $year . '/' . $month . '/' . $new_secret_name;
 
-		// Return the file data for the permanent storage
+		// Return the file data for the permanent storage - remove url and hash fields
 		$result = array(
 			'name'    => $original_file_name,
 			'file_id' => $relative_path, // Store relative path as file_id instead of full path
-			'url'     => $file_url,
-			'hash'    => $new_hash,
 			'size'    => wp_filesize( $permanent_path ),
 		);
 
@@ -156,6 +144,52 @@ class Contact_Form_File_Handler {
 	}
 
 	/**
+	 * Get the file URL from a file_id
+	 *
+	 * @param string $file_id The file_id for the file.
+	 * @return string The URL to access the file via the REST API.
+	 */
+	public function get_file_url( $file_id ) {
+		if ( empty( $file_id ) ) {
+			return '';
+		}
+
+		// Get the standard REST API URL without the file_id in the path
+		$base_url = get_rest_url( null, 'jetpack-forms/v1/files' );
+
+		// For REST API requests, WordPress validates the logged-in user automatically
+		// Create a nonce based on a hash of the file_id instead of the raw file_id
+		// This handles cases where URL encoding/decoding might alter the file_id string
+		$file_id_hash = md5( $file_id );
+		$file_nonce   = wp_create_nonce( 'jetpack_forms_view_file_' . $file_id_hash );
+
+		return add_query_arg(
+			array(
+				'_wpnonce'     => wp_create_nonce( 'wp_rest' ),
+				'file_nonce'   => $file_nonce,
+				'file_id'      => $file_id,
+				'file_id_hash' => $file_id_hash,
+			),
+			$base_url
+		);
+	}
+
+	/**
+	 * Get file link HTML for display
+	 *
+	 * @param array $file_data The file data array containing name and file_id.
+	 * @return string HTML link to file or empty string.
+	 */
+	public function get_file_link_html( $file_data ) {
+		if ( empty( $file_data['file_id'] ) || empty( $file_data['name'] ) ) {
+			return '';
+		}
+
+		$file_url = $this->get_file_url( $file_data['file_id'] );
+		return sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $file_url ), esc_html( $file_data['name'] ) );
+	}
+
+	/**
 	 * Delete a file using its identifier.
 	 *
 	 * @since $$next-version$$
@@ -175,5 +209,47 @@ class Contact_Form_File_Handler {
 		}
 
 		return wp_delete_file( $file_path );
+	}
+
+	/**
+	 * Get file attachments for a feedback post
+	 *
+	 * @param int $post_id The feedback post ID.
+	 * @return array Array of file attachments or empty array.
+	 */
+	public function get_feedback_attachments( $post_id ) {
+		$attachments = get_post_meta( $post_id, '_feedback_file_attachments', true );
+
+		if ( empty( $attachments ) || ! is_array( $attachments ) ) {
+			return array();
+		}
+
+		return $attachments;
+	}
+
+	/**
+	 * Delete all file attachments associated with a feedback post
+	 *
+	 * @param int $post_id The feedback post ID.
+	 * @return bool True if files were deleted, false if not.
+	 */
+	public function delete_feedback_attachments( $post_id ) {
+		$attachments = $this->get_feedback_attachments( $post_id );
+
+		if ( empty( $attachments ) ) {
+			return false;
+		}
+
+		$deleted = 0;
+		foreach ( $attachments as $file_data ) {
+			if ( ! empty( $file_data['file_id'] ) ) {
+				$result = $this->delete_file( $file_data['file_id'] );
+				if ( $result ) {
+					++$deleted;
+				}
+			}
+		}
+
+		return $deleted > 0;
 	}
 }
