@@ -13,7 +13,7 @@ export const defaultSubscribersTotals = {
 	social_followers: 0,
 };
 
-const getSubscriberCount = ( siteId: number | null ): Promise< any > => {
+const getSubscriberCount = (): Promise< any > => {
 	return apiFetch( { path: '/wpcom/v2/subscribers/counts' } );
 };
 
@@ -21,15 +21,14 @@ const getSubscriberCount = ( siteId: number | null ): Promise< any > => {
  *
  * @param siteId
  */
-export default function useSubscriberCountQuery( siteId: number | null ) {
+export default function useSubscriberCountQuery() {
 	return useQuery< SubscribersTotals >( {
-		queryKey: [ 'subscribers', 'count', siteId ],
+		queryKey: [ 'subscribers', 'count' ],
 		queryFn: () => {
-			return getSubscriberCount( siteId ).then( response => {
+			return getSubscriberCount().then( response => {
 				return response.counts || defaultSubscribersTotals;
 			} );
 		},
-		enabled: !! siteId,
 		placeholderData: keepPreviousData,
 	} );
 }

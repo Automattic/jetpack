@@ -13,7 +13,6 @@ const JetpackSubscribers = () => {
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<SubscriberDataViews />
-			<p>ok</p>
 		</QueryClientProvider>
 	);
 };

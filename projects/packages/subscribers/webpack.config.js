@@ -58,6 +58,20 @@ module.exports = [
 					},
 				} ),
 
+				// Add textdomains (but no other optimizations) for @wordpress/dataviews.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@wordpress/dataviews/build-wp/' ],
+					babelOpts: {
+						configFile: false,
+						plugins: [
+							[
+								require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
+								{ textdomain: 'jetpack-subscribers' },
+							],
+						],
+					},
+				} ),
+
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],

@@ -2,7 +2,7 @@ import { Gravatar } from '@automattic/components';
 import { useIsEnglishLocale } from '@automattic/i18n-utils';
 import { useBreakpoint } from '@automattic/viewport-react';
 import { Tooltip } from '@wordpress/components';
-import { DataViews, type View, type Action, Operator } from '@wordpress/dataviews';
+import { DataViews, type View, type Action, Operator } from '@wordpress/dataviews/wp';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { hasTranslation, __ } from '@wordpress/i18n';
 //import { SubscriberLaunchpad } from 'calypso/my-sites/subscribers/components/subscriber-launchpad';
@@ -146,6 +146,7 @@ const SubscriberDataViews = ( {
 		subscribers,
 		pages,
 		subscribersTotals,
+		grandTotal,
 	} );
 
 	const handleSubscriberSelect = useCallback(
