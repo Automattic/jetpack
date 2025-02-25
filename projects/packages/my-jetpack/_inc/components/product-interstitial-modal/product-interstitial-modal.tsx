@@ -80,7 +80,7 @@ type WithMainCTAButton = BaseProductInterstitialModalProps & {
 	/**
 	 * Main button of the modal
 	 */
-	modalMainButton: React.ReactNode;
+	modalMainButton: React.ReactElement;
 	/**
 	 * Href of the CTA button in the modal
 	 */
@@ -128,6 +128,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		onOpen,
 		onClose,
 		onModalMainButtonClick,
+		modalMainButton,
 		isButtonDisabled,
 		buttonHasExternalLink = false,
 		buttonHref,
@@ -164,6 +165,16 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 			{ modalTriggerButtonLabel }
 		</Button>
 	);
+
+	const PrimaryButton =
+		modalMainButton &&
+		cloneElement( modalMainButton, {
+			onClick: onModalMainButtonClick,
+			buttonLabel,
+			disabled: isButtonDisabled,
+			isExternalLink: buttonHasExternalLink,
+			href: buttonHref,
+		} );
 
 	return (
 		<>
@@ -202,18 +213,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 									) }
 								</div>
 								<div className={ styles[ 'primary-footer' ] }>
-									{ buttonLabel ?? (
-										<Button
-											variant="primary"
-											className={ styles[ 'action-button' ] }
-											disabled={ isButtonDisabled }
-											onClick={ onModalMainButtonClick }
-											isExternalLink={ buttonHasExternalLink }
-											href={ buttonHref }
-										>
-											{ buttonLabel }
-										</Button>
-									) }
+									{ PrimaryButton }
 									<Button
 										variant="link"
 										isExternalLink={ secondaryButtonHasExternalLink }
