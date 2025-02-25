@@ -76,6 +76,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $allowed_html_tags_for_submit_button = array( 'br' => array() );
 
 	/**
+	 * Field values from form submission.
+	 *
+	 * @var array
+	 */
+	public $field_values = array();
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
@@ -1028,6 +1035,39 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$plugin = Contact_Form_Plugin::init();
 
+		$errors = $this->validate();
+
+		// Don't process the form if there are errors.
+		if ( ! empty( $errors ) ) {
+			$message = '';
+
+			foreach ( $errors as $id => $error ) {
+				$message .= sprintf(
+					// translators: Placeholder is a pre-translated error string.
+					'<p>%s</p>',
+					$error
+				);
+			}
+
+			return new \WP_Error( 'contact-form-error', $message );
+		}
+
+		// Process all file uploads
+		$uploaded_files = $this->process_file_uploads();
+
+		if ( is_wp_error( $uploaded_files ) ) {
+			return $uploaded_files;
+		}
+
+		// Initialize all values with a dummy value, so that a field is always defined.
+		// We don't want the user to be redirected to the WordPress.com login page
+		// or get a Manage Subscription page if they're submitting via Ajax.
+		foreach ( $this->fields as $field ) {
+			$id                        = $field->get_attribute( 'id' );
+			$value                     = $field->get_attribute( 'type' ) === 'checkbox' ? '0' : '';
+			$this->field_values[ $id ] = $value;
+		}
+
 		$id                  = $this->get_attribute( 'id' );
 		$to                  = $this->get_attribute( 'to' );
 		$widget              = $this->get_attribute( 'widget' );
@@ -1163,8 +1203,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( null === $email_marketing_consent ) {
 			$email_marketing_consent = false;
 		}
-
-		$uploaded_files = $this->process_file_uploads();
 
 		$all_values   = array();
 		$extra_values = array();
@@ -1451,6 +1489,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
+
+		// Store file attachments in a dedicated meta field
+		if ( ! empty( $uploaded_files ) ) {
+			update_post_meta( $post_id, '_feedback_file_attachments', $this->addslashes_deep( $uploaded_files ) );
+		}
 
 		if ( 'publish' === $feedback_status ) {
 			// Increase count of unread feedback.
@@ -1910,5 +1953,26 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 		return $align_to_class_map[ $attributes['align'] ];
+	}
+
+	/**
+	 * Validates the submitted form values.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Array of validation errors keyed by field ID, empty array if no errors.
+	 */
+	public function validate() {
+		$errors = array();
+
+		// Validate each field and collect errors
+		foreach ( $this->fields as $id => $field ) {
+			$field_errors = $field->validate();
+			if ( ! empty( $field_errors ) ) {
+				$errors[ $id ] = $field_errors;
+			}
+		}
+
+		return $errors;
 	}
 }
