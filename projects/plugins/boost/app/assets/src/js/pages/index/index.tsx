@@ -94,7 +94,7 @@ const Index = () => {
 				<CriticalCssMeta />
 
 				<ProductInterstitialMyJetpack
-					slug="jetpack-ai"
+					slug="boost"
 					onOpen={ () => {} }
 					customModalTrigger={
 						<UpgradeCTA
@@ -105,8 +105,7 @@ const Index = () => {
 							) }
 						/>
 					}
-					buttonLabel={ __( 'Upgrade', 'jetpack-boost' ) }
-					isWithVideo
+					buttonLabel={ __( 'Upgrade now', 'jetpack-boost' ) }
 					secondaryColumn={
 						<div>
 							<iframe
@@ -120,7 +119,7 @@ const Index = () => {
 							<script src="https://videopress.com/videopress-iframe.js"></script>
 						</div>
 					}
-					secondaryButtonHref="https://jetpack.com/ai/"
+					secondaryButtonHref="https://jetpack.com/boost/"
 				/>
 			</Module>
 			<Module
