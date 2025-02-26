@@ -45,7 +45,6 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 } ) => {
 	const { recordEvent } = useAnalytics();
 	const { detail } = useProduct( slug );
-	const queryClient = new QueryClient();
 
 	const { title, longDescription, features, pricingForUi } = detail;
 
@@ -136,24 +135,32 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	}
 
 	return (
+		<ProductInterstitialModal
+			title={ title }
+			description={ longDescription }
+			priceComponent={ priceComponent }
+			modalMainButton={ <ProductInterstitialModalCta slug={ slug } /> }
+			onOpen={ handleOpen }
+			onClose={ handleClose }
+			{ ...props }
+		>
+			<>
+				{ features && <ProductInterstitialFeatureList features={ features } /> }
+				{ additionalContent }
+				{ children }
+			</>
+		</ProductInterstitialModal>
+	);
+};
+
+const ProductInterstitialPluginWithQueryClient: FC< ProductInterstitialPluginProps > = props => {
+	const queryClient = new QueryClient();
+
+	return (
 		<QueryClientProvider client={ queryClient }>
-			<ProductInterstitialModal
-				title={ title }
-				description={ longDescription }
-				priceComponent={ priceComponent }
-				modalMainButton={ <ProductInterstitialModalCta slug={ slug } /> }
-				onOpen={ handleOpen }
-				onClose={ handleClose }
-				{ ...props }
-			>
-				<>
-					{ features && <ProductInterstitialFeatureList features={ features } /> }
-					{ additionalContent }
-					{ children }
-				</>
-			</ProductInterstitialModal>
+			<ProductInterstitialPlugin { ...props } />
 		</QueryClientProvider>
 	);
 };
 
-export default ProductInterstitialPlugin;
+export default ProductInterstitialPluginWithQueryClient;
