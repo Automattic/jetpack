@@ -801,23 +801,6 @@ class Admin {
 	}
 
 	/**
-	 * Get file link HTML for display
-	 *
-	 * @param array $file_data The file data array containing name and file_id.
-	 * @return string HTML link to file or empty string.
-	 */
-	public function get_file_link_html( $file_data ) {
-		if ( empty( $file_data['file_id'] ) || empty( $file_data['name'] ) ) {
-			return '';
-		}
-
-		require_once __DIR__ . '/class-file-handler.php';
-		$file_handler = new File_Handler();
-		$file_url     = $file_handler->get_file_url( $file_data['file_id'] );
-		return sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $file_url ), esc_html( $file_data['name'] ) );
-	}
-
-	/**
 	 * Displays the value for the source column.
 	 *
 	 * @param  \WP_Post $post Current post.
