@@ -540,11 +540,6 @@ abstract class Base_Admin_Menu {
 	 * Adds a dashboard switcher to the list of screen meta links of the current page.
 	 */
 	public function add_dashboard_switcher() {
-		static $is_added = false;
-		if ( $is_added ) {
-			return;
-		}
-
 		$menu_mappings = require __DIR__ . '/menu-mappings.php';
 		$screen        = $this->get_current_screen();
 
@@ -571,8 +566,6 @@ abstract class Base_Admin_Menu {
 			</div>
 		</div>
 		<?php
-
-		$is_added = true;
 	}
 
 	/**
