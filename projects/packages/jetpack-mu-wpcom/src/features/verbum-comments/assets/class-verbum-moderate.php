@@ -53,6 +53,15 @@ class Verbum_Moderate {
 
 		\Verbum_Asset_Loader::load_editor();
 
+		wp_add_inline_style(
+			'verbum-gutenberg-css',
+			'
+			#content {
+				visibility: hidden;
+			}
+		'
+		);
+
 		Assets::register_script(
 			'verbum-comments-moderation',
 			'../../../build/verbum-comments/assets/comments-moderation.js',
