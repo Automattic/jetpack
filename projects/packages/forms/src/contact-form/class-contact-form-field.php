@@ -784,14 +784,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		\wp_enqueue_style( 'jetpack-form-file-field', plugins_url( '../../dist/contact-form/css/file-field.css', __FILE__ ), array(), '1.0' );
 
-		$rest_nonce        = wp_create_nonce( 'wp_rest' );
-		$file_upload_nonce = wp_create_nonce( 'jetpack_file_upload_jetpack-form' );
-
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
 		$accepted_file_types = implode( ', ', Unauth_File_Upload_Handler::get_allowed_mime_types() );
 
 		$field  = $this->render_label( 'file', $id, $label, $required, $required_field_text );
-		$field .= "<div class='jetpack-form-file-field__dropzone' data-id='{$id}' data-rest-nonce='{$rest_nonce}' data-jp-file-upload='{$file_upload_nonce}'  >\n";
+		$field .= "<div class='jetpack-form-file-field__dropzone' data-id='{$id}'  >\n";
 		$field .= "<a href='#' class='wp-block-button__link wp-element-button'>" . esc_html__( 'Select a file', 'jetpack-forms' ) . "</a>\n";
 		$field .= "<span class='jetpack-form-file-field__short'>" . esc_html__( '....or drag and drop a file.', 'jetpack-forms' ) . " </span>\n";
 		$field .= "<input
@@ -851,6 +848,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					'uploadError'   => __( 'Error uploading file', 'jetpack-forms' ),
 				),
 				'uploadEndpoint' => rest_url( 'wpcom/v2/unauth-file-upload' ),
+				'wp_nonce'       => wp_create_nonce( 'wp_rest' ),
+				'jp_nonce'       => wp_create_nonce( 'jetpack_file_upload_jetpack-form' ),
 			)
 		);
 	}
