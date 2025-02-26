@@ -263,9 +263,8 @@ trait Woo_Analytics_Trait {
 	 * @return array Array of standard event props.
 	 */
 	public function get_common_properties() {
-		$session_data       = json_decode( sanitize_text_field( wp_unslash( $_COOKIE['woocommerceanalytics_session'] ?? '' ) ), true ) ?? array();
-		$session_id         = sanitize_text_field( $session_data['session_id'] ?? $this->session_id );
-		$landing_page       = sanitize_url( $session_data['landing_page'] ?? $this->landing_page );
+		$session_id         = $this->get_session_id();
+		$landing_page       = $this->get_landing_page();
 		$site_info          = array(
 			'session_id'                         => $session_id,
 			'blog_id'                            => Jetpack_Connection::get_site_id(),
@@ -323,7 +322,10 @@ trait Woo_Analytics_Trait {
 	 * @return string|void
 	 */
 	public function record_event( $event_name, $properties = array(), $product_id = null, $clickhouse = true ) {
-		$this->maybe_start_session();
+		if ( ! isset( $properties['session_id'] ) ) {
+			$this->maybe_start_session();
+		}
+
 		$js = $this->process_event_properties( $event_name, $properties, $product_id, $clickhouse );
 		wc_enqueue_js( "_wca.push({$js});" );
 	}
@@ -334,7 +336,7 @@ trait Woo_Analytics_Trait {
 	 * @return void
 	 */
 	public function maybe_start_session() {
-		if ( ! isset( $_COOKIE['woocommerceanalytics_session'] ) && ! $this->session_id ) {
+		if ( ! $this->get_session_id() ) {
 			$session_id         = wp_generate_uuid4();
 			$this->session_id   = $session_id;
 			$this->landing_page = sanitize_url( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- actually escaped with sanitize_url.
@@ -696,5 +698,36 @@ trait Woo_Analytics_Trait {
 			return 0;
 		}
 		return $cart->get_cart_contents_count();
+	}
+
+	/**
+	 * Return the session_id.
+	 * First try to get it from the cookie. Fallback to $this->session_id.
+	 *
+	 * @return string
+	 */
+	public function get_session_id() {
+		$cookie = $this->get_session_cookie();
+		return $cookie['session_id'] ?? $this->session_id;
+	}
+
+	/**
+	 * Return the landing page.
+	 * First try to get it from the cookie. Fallback to $this->landing_page.
+	 *
+	 * @return string
+	 */
+	public function get_landing_page() {
+		$cookie = $this->get_session_cookie();
+		return $cookie['landing_page'] ?? $this->session_id;
+	}
+
+	/**
+	 * Get the sanitized session cookie as an array
+	 *
+	 * @return array|mixed
+	 */
+	public function get_session_cookie() {
+		return json_decode( sanitize_text_field( wp_unslash( $_COOKIE['woocommerceanalytics_session'] ?? '' ) ), true ) ?? array();
 	}
 }

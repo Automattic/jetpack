@@ -80,11 +80,23 @@ class Universal {
 			$data = WC()->session->get( 'wca_session_data' );
 			if ( ! empty( $data ) ) {
 				foreach ( $data as $data_instance ) {
+					$event_props = array(
+						'pq' => $data_instance['quantity'],
+					);
+
+					// Attach the session ID to this event in case it's saved in the Data Instance
+					if ( $data_instance['session_id'] ) {
+						$event_props['session_id'] = $data_instance['session_id'];
+					}
+
+					// Attach the Landing Page to this event in case it's saved in the Data Instance
+					if ( $data_instance['landing_page'] ) {
+						$event_props['landing_page'] = $data_instance['landing_page'];
+					}
+
 					$this->record_event(
 						$data_instance['event'],
-						array(
-							'pq' => $data_instance['quantity'],
-						),
+						$event_props,
 						$data_instance['product_id']
 					);
 				}
@@ -448,9 +460,11 @@ class Universal {
 
 		// extract new event data.
 		$new_data = array(
-			'event'      => $event,
-			'product_id' => (string) $product_id,
-			'quantity'   => (string) $quantity,
+			'event'        => $event,
+			'product_id'   => (string) $product_id,
+			'quantity'     => (string) $quantity,
+			'session_id'   => $this->get_session_id(),
+			'landing_page' => $this->get_landing_page(),
 		);
 
 		// append new data.
