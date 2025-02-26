@@ -1036,13 +1036,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$plugin = Contact_Form_Plugin::init();
 
-		// Process all file uploads
-		$uploaded_files = $this->process_file_uploads();
-
-		if ( is_wp_error( $uploaded_files ) ) {
-			return $uploaded_files;
-		}
-
 		$id                  = $this->get_attribute( 'id' );
 		$to                  = $this->get_attribute( 'to' );
 		$widget              = $this->get_attribute( 'widget' );
@@ -1182,6 +1175,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$all_values   = array();
 		$extra_values = array();
 		$i            = 1; // Prefix counter for stored metadata
+
+		// Process all file uploads
+		$uploaded_files = $this->process_file_uploads();
 
 		// For all fields, grab label and value
 		foreach ( $field_ids['all'] as $field_id ) {
@@ -1465,11 +1461,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
 
-		// Store file attachments in a dedicated meta field
-		if ( ! empty( $uploaded_files ) ) {
-			update_post_meta( $post_id, '_feedback_file_attachments', $this->addslashes_deep( $uploaded_files ) );
-		}
-
 		if ( 'publish' === $feedback_status ) {
 			// Increase count of unread feedback.
 			$unread = (int) get_option( 'feedback_unread_count', 0 ) + 1;
@@ -1702,6 +1693,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 	/**
 	 * A function that gets called when processing form submissions and returns a list of files that were processed or errors.
+	 *
+	 * @return array An array of uploaded files or errors.
 	 */
 	private function process_file_uploads() {
 		require_once __DIR__ . '/class-file-handler.php';
