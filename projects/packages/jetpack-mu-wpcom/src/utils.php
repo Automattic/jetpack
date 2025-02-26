@@ -170,11 +170,14 @@ function is_woa_site() {
 
 /**
  * Whether the current user is connected to WordPress.com.
+ *
+ * @param int $user_id the user identifier. Default is the current user.
+ * @return bool Boolean is the user connected?
  */
-function is_current_user_connected() {
+function is_current_user_connected( $user_id ) {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		return true;
 	}
 
-	return ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
+	return ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
 }
