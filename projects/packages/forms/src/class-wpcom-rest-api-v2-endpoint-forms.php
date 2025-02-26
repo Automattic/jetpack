@@ -91,12 +91,31 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 				'callback'                => array( $this, 'get_file' ),
 				'permission_callback'     => array( $this, 'get_file_permissions_check' ),
 				'args'                    => array(
-					'file_id' => array(
+					'file_id'    => array(
 						'required'          => true,
 						'validate_callback' => function ( $param ) {
-							return ! empty( $param );
+							if ( empty( $param ) ) {
+								return new WP_Error(
+									'missing_file_id',
+									esc_html__( 'File ID is required.', 'jetpack-forms' ),
+									array( 'status' => 400 )
+								);
+							}
 						},
-						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'file_nonce' => array(
+						'required'          => true,
+						'validate_callback' => function ( $file_nonce, $request ) {
+							$file_id = $request->get_param( 'file_id' );
+							if ( ! $file_nonce || ! wp_verify_nonce( $file_nonce, 'jetpack_forms_view_file_' . $file_id ) ) {
+								return new WP_Error(
+									'rest_forbidden',
+									esc_html__( 'Invalid or missing file access token.', 'jetpack-forms' ),
+									array( 'status' => 403 )
+								);
+							}
+							return true;
+						},
 					),
 				),
 				'requires_authentication' => true,
@@ -513,35 +532,14 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	/**
 	 * Checks if the current user has permission to view files.
 	 *
-	 * @param \WP_REST_Request $request The current request object.
 	 * @return true|\WP_Error True if the user has permission, WP_Error otherwise.
 	 */
-	public function get_file_permissions_check( $request ) {
+	public function get_file_permissions_check() {
 		// Verify the user is logged in with appropriate capabilities
-		if ( ! current_user_can( 'edit_pages' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
 				esc_html__( 'You must be logged in with appropriate permissions to view this file.', 'jetpack-forms' ),
-				array( 'status' => 403 )
-			);
-		}
-
-		// Get the file ID from the request
-		$file_id = $request->get_param( 'file_id' );
-		if ( empty( $file_id ) ) {
-			return new WP_Error(
-				'missing_file_id',
-				esc_html__( 'File ID is required.', 'jetpack-forms' ),
-				array( 'status' => 400 )
-			);
-		}
-
-		// Verify the file-specific nonce
-		$file_nonce = $request->get_param( 'file_nonce' );
-		if ( ! $file_nonce || ! wp_verify_nonce( $file_nonce, 'jetpack_forms_view_file_' . $file_id ) ) {
-			return new WP_Error(
-				'rest_forbidden',
-				esc_html__( 'Invalid or missing file access token.', 'jetpack-forms' ),
 				array( 'status' => 403 )
 			);
 		}
