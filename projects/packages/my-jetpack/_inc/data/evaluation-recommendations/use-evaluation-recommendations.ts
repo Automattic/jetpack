@@ -36,6 +36,7 @@ const useEvaluationRecommendations = () => {
 	const [ isFirstRun, setIsFirstRun ] = useValueStore( 'isFirstRun', getInitialIsFirstRun() );
 	const {
 		data: { ownedProducts: ownedProductsData },
+		isLoading: isProductOwnershipLoading,
 	} = useProductsByOwnership();
 
 	const unownedRecommendedModules = useMemo( () => {
@@ -152,6 +153,7 @@ const useEvaluationRecommendations = () => {
 		recommendedModules: unownedRecommendedModules,
 		isSectionVisible,
 		isFirstRun,
+		isProductOwnershipLoading,
 	};
 };
 
