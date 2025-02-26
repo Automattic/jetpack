@@ -33,7 +33,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_Test_Jetpack_REST_Te
 		wp_set_current_user( static::$user_id );
 
 		// Add test JITM via filter
-		add_filter( 'jetpack_pre_connection_jitms', array( $this, 'inject_test_jitm' ), 10, 2 );
+		add_filter( 'jetpack_pre_connection_jitms', array( $this, 'inject_test_jitm' ), 10, 1 );
 	}
 
 	/**
