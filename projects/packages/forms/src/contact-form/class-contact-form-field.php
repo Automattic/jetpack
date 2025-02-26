@@ -762,15 +762,70 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the file field.
 	 *
-	 * @param string $id - the ID.
-	 * @param string $label - the label.
-	 * @param string $class - the field class.
+	 * Renders a file upload field with drag-and-drop functionality.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id - the field ID.
+	 * @param string $label - the field label.
+	 * @param string $class - the field CSS class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 *
-	 * @return string HTML
+	 * @return string HTML for the file upload field.
 	 */
 	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
+		// Enqueue necessary scripts and styles.
+		$this->enqueue_file_field_assets();
+
+		// Get allowed MIME types for display in the field.
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
+		$accepted_file_types = implode( ', ', Unauth_File_Upload_Handler::get_allowed_mime_types() );
+
+		// Add accessibility attributes and required status if needed.
+		$input_attrs = array(
+			'type'       => 'file',
+			'class'      => 'jetpack-form-file-field ' . esc_attr( $class ),
+			'name'       => esc_attr( $id ),
+			'id'         => esc_attr( $id ),
+			'accept'     => esc_attr( $accepted_file_types ),
+			'aria-label' => esc_attr( $label ),
+		);
+
+		if ( $required ) {
+			$input_attrs['required']      = 'required';
+			$input_attrs['aria-required'] = 'true';
+		}
+
+		// Build input attributes string.
+		$input_attributes = '';
+		foreach ( $input_attrs as $attr => $value ) {
+			$input_attributes .= $attr . ( $value !== '' ? '="' . $value . '"' : '' ) . ' ';
+		}
+
+		$field  = $this->render_label( 'file', $id, $label, $required, $required_field_text );
+		$field .= "<div class='jetpack-form-file-field__dropzone' data-id='" . esc_attr( $id ) . "'>\n";
+		$field .= "<a href='#' class='wp-block-button__link wp-element-button'>" . esc_html__( 'Select a file', 'jetpack-forms' ) . "</a>\n";
+		$field .= "<span class='jetpack-form-file-field__short'>" . esc_html__( '....or drag and drop a file.', 'jetpack-forms' ) . "</span>\n";
+		$field .= '<input ' . trim( $input_attributes ) . "/>\n";
+		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_token' class='jetpack-form-file-field__token' value='' />\n";
+		$field .= "<div class='jetpack-form-file-field__preview-wrap' aria-live='polite'></div>\n";
+		$field .= "</div>\n";
+
+		// Localize the script only once.
+		$this->localize_file_field_script();
+
+		return $field;
+	}
+
+	/**
+	 * Enqueues scripts and styles needed for the file field.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	private function enqueue_file_field_assets() {
 		Assets::register_script(
 			'jetpack-form-file-field',
 			'../../dist/contact-form/js/file-field.js',
@@ -782,49 +837,35 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			)
 		);
 
-		\wp_enqueue_style( 'jetpack-form-file-field', plugins_url( '../../dist/contact-form/css/file-field.css', __FILE__ ), array(), '1.0' );
-
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
-		$accepted_file_types = implode( ', ', Unauth_File_Upload_Handler::get_allowed_mime_types() );
-
-		$field  = $this->render_label( 'file', $id, $label, $required, $required_field_text );
-		$field .= "<div class='jetpack-form-file-field__dropzone' data-id='{$id}'  >\n";
-		$field .= "<a href='#' class='wp-block-button__link wp-element-button'>" . esc_html__( 'Select a file', 'jetpack-forms' ) . "</a>\n";
-		$field .= "<span class='jetpack-form-file-field__short'>" . esc_html__( '....or drag and drop a file.', 'jetpack-forms' ) . " </span>\n";
-		$field .= "<input
-			type='file'
-			class='jetpack-form-file-field'
-			name='" . esc_attr( $id ) . "'
-			id='" . esc_attr( $id ) . "'
-			" . $class . '
-			' . ( $required ? "required aria-required='true'" : '' ) . "
-			accept='" . esc_attr( $accepted_file_types ) . "'
-			style='" . $this->field_styles . "'
-		/>\n";
-		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_token' class='jetpack-form-file-field__token' value='' />\n";
-		$field .= "<div class='jetpack-form-file-field__preview-wrap'></div>\n";
-		$field .= "</div>\n";
-
-		$this->localize_file_field_script();
-
-		return $field;
+		\wp_enqueue_style(
+			'jetpack-form-file-field',
+			plugins_url( '../../dist/contact-form/css/file-field.css', __FILE__ ),
+			array(),
+			\JETPACK__VERSION
+		);
 	}
 
 	/**
 	 * Helper function to only localize the file field once.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
 	 */
 	private function localize_file_field_script() {
 		/**
 		 * Filter to disable the localization of the file field script.
 		 *
 		 * @since $$next-version$$
+		 *
+		 * @param bool $localize Whether to localize the script. Default false.
 		 */
 		if ( apply_filters( 'jetpack_form_localize_file_field', false ) ) {
 			return;
 		}
 		add_filter( 'jetpack_form_localize_file_field', '__return_true' );
 
-		// Order of this is important
+		// Order of this is important for localization.
 		$file_size_units = array(
 			_x( 'B', 'unit symbol', 'jetpack-forms' ),
 			_x( 'KB', 'unit symbol', 'jetpack-forms' ),
@@ -846,6 +887,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					'fileSizeUnits' => $file_size_units,
 					'removeFile'    => __( 'Remove', 'jetpack-forms' ),
 					'uploadError'   => __( 'Error uploading file', 'jetpack-forms' ),
+					'maxFileSize'   => __( 'Maximum file size exceeded', 'jetpack-forms' ),
+					'invalidType'   => __( 'This file type is not allowed', 'jetpack-forms' ),
 				),
 				'uploadEndpoint' => rest_url( 'wpcom/v2/unauth-file-upload' ),
 				'wp_nonce'       => wp_create_nonce( 'wp_rest' ),
