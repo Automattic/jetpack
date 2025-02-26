@@ -3,7 +3,6 @@
 jQuery( document ).ready( function ( $ ) {
 	const UIComponents = {
 		core: {
-			passwordInputWrapper: $( '.user-pass1-wrap' ),
 			passwordInput: $( '#pass1' ),
 			passwordStrengthResults: $( '#pass-strength-result' ),
 			weakPasswordConfirmation: $( '.pw-weak' ),
@@ -22,11 +21,16 @@ jQuery( document ).ready( function ( $ ) {
 	 * Apply initial validation UI structure and styling
 	 */
 	function initializeValidationUI() {
-		const { passwordInputWrapper, passwordInput, passwordStrengthResults } = UIComponents.core;
+		initializeForm();
+		initializeStrengthMeter();
+		initializeValidationChecklist();
+	}
 
-		passwordInputWrapper.css( {
-			'margin-bottom': '16px',
-		} );
+	/**
+	 * Generate and append the initial strength meter state
+	 */
+	function initializeForm() {
+		const { passwordInput, passwordStrengthResults } = UIComponents.core;
 
 		passwordInput.css( {
 			'border-color': '#8C8F94',
@@ -36,9 +40,6 @@ jQuery( document ).ready( function ( $ ) {
 		passwordStrengthResults.hide();
 		passwordInput.after( UIComponents.passwordValidationStatus );
 		UIComponents.passwordValidationStatus.append( UIComponents.validationCheckList );
-
-		initializeStrengthMeter();
-		initializeValidationChecklist();
 	}
 
 	/**
@@ -233,11 +234,15 @@ jQuery( document ).ready( function ( $ ) {
 	 * Render the empty input state
 	 */
 	function renderEmptyState() {
-		UIComponents.passwordValidationStatus.hide();
-		UIComponents.core.passwordInput.css( {
+		const { weakPasswordConfirmation, passwordInput } = UIComponents.core;
+
+		weakPasswordConfirmation.hide();
+		passwordInput.css( {
 			'border-color': '#8C8F94',
 			'border-radius': '4px',
 		} );
+
+		UIComponents.passwordValidationStatus.hide();
 	}
 
 	/**
@@ -247,22 +252,21 @@ jQuery( document ).ready( function ( $ ) {
 		renderFormLoadingState();
 		renderStrengthMeterLoadingState();
 		renderValidationChecklistLoadingState();
-
-		UIComponents.passwordValidationStatus.show();
 	}
 
 	/**
 	 * Render the form loading state
 	 */
 	function renderFormLoadingState() {
-		const { passwordInput, weakPasswordConfirmation, submitButtons } = UIComponents.core;
+		const { submitButtons, passwordInput } = UIComponents.core;
 
+		submitButtons.prop( 'disabled', true );
 		passwordInput.css( {
 			'border-color': '#C3C4C7',
 			'border-radius': '4px 4px 0px 0px',
 		} );
-		submitButtons.prop( 'disabled', true );
-		weakPasswordConfirmation.hide();
+
+		UIComponents.passwordValidationStatus.show();
 	}
 
 	/**
