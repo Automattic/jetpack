@@ -21,6 +21,7 @@ use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Subscribers\Dashboard as Subscribers_Dashboard;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
@@ -147,6 +148,8 @@ class Jetpack_Subscriptions {
 
 		// Track categories created through the category editor page
 		add_action( 'wp_ajax_add-tag', array( $this, 'track_newsletter_category_creation' ), 1 );
+		$subscribers_dashboard = new Subscribers_Dashboard();
+		$subscribers_dashboard::init();
 	}
 
 	/**
@@ -973,6 +976,10 @@ class Jetpack_Subscriptions {
 	 * @return void
 	 */
 	public function add_subscribers_menu() {
+		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
+			return;
+		}
+
 		/*
 		 * Do not display any menu on WoA and WordPress.com Simple sites (unless Classic wp-admin is enabled).
 		 * They already get a menu item under Users via nav-unification.
