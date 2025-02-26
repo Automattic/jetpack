@@ -89,7 +89,7 @@ const getPrimaryAction = (
 		detail.status === PRODUCT_STATUSES.ACTIVE &&
 		( detail.isUpgradableByBundle.length || detail.isUpgradable );
 	const upgradeHasPrice =
-		detail.pricingForUi.fullPrice || detail.pricingForUi.tiers?.upgraded?.fullPrice;
+		detail?.pricingForUi?.fullPrice || detail?.pricingForUi?.tiers?.upgraded?.fullPrice;
 
 	if ( detail.status === PRODUCT_STATUSES.CAN_UPGRADE || isUpgradable ) {
 		if ( upgradeHasPrice ) {
