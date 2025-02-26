@@ -205,7 +205,6 @@ export default function MyJetpackScreen() {
 			{ ! isWelcomeBannerVisible && isSectionVisible && userIsAdmin && (
 				<EvaluationRecommendations />
 			) }
-			<EvaluationRecommendations />
 
 			<ProductCardsSection />
 
