@@ -1,6 +1,13 @@
+/*
+ * External dependencies
+ */
 import { select, dispatch } from '@wordpress/data';
+/*
+ * Internal dependencies
+ */
 import { BlockHandler } from '../block-handler';
 import { BlockEditorDispatch } from '../types';
+
 export class JetpackChildrenFormHandler extends BlockHandler {
 	jetpackFormBlockName = 'jetpack/contact-form';
 

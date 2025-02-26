@@ -8,7 +8,12 @@ type CoreInterfaceDispatch = {
 	enableComplementaryArea: ( area: string, slot: string ) => Promise< void >;
 };
 
-export default function openBlockSidebar( clientId: string ) {
+/**
+ * Open the block sidebar for the given client ID.
+ *
+ * @param {string} clientId - The client ID of the block to open the sidebar for.
+ */
+export function openBlockSidebar( clientId: string ) {
 	if ( ! clientId ) {
 		return;
 	}

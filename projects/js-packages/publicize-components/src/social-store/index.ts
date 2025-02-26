@@ -1,6 +1,7 @@
 import { createReduxStore, register } from '@wordpress/data';
 import { getSocialScriptData } from '../utils';
 import actions from './actions';
+import { hydrateStores } from './hydrate-stores';
 import reducer from './reducer';
 import resolvers from './resolvers';
 import selectors from './selectors';
@@ -16,3 +17,5 @@ export const SOCIAL_STORE_CONFIG = {
 
 export const store = createReduxStore( SOCIAL_STORE_ID, SOCIAL_STORE_CONFIG );
 register( store );
+
+hydrateStores();

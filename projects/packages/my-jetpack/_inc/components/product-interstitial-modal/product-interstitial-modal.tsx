@@ -165,7 +165,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 					>
 						<Container
 							className={ styles.wrapper }
-							horizontalSpacing={ 0 }
+							horizontalSpacing={ 1 }
 							horizontalGap={ 2 }
 							fluid={ false }
 						>

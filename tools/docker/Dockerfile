@@ -52,6 +52,9 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 # Enable various Apache modules.
 RUN a2dismod mpm_prefork && a2enmod rewrite mpm_event proxy_fcgi http2
 
+# Inform git 2.39.4+ that the monorepo is safe to use, even though the ownership will look odd.
+RUN git config --global --add safe.directory /usr/local/src/jetpack-monorepo
+
 # Install requested version of PHP.
 COPY ./config/php.ini /var/lib/jetpack-config/php.ini
 RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
