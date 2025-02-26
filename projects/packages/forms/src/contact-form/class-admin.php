@@ -782,7 +782,7 @@ class Admin {
 			printf(
 				'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">%s</div>',
 				esc_html( preg_replace( '#^\d+_#', '', $key ) ),
-				wp_kses_post( nl2br( $display_value ) ) // Allow HTML for the file links but still sanitize
+				nl2br( esc_html( $display_value ) )
 			);
 		}
 
