@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
+use Automattic\Jetpack\Forms\File_Handler;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
 use Automattic\Jetpack\Status;
@@ -2166,8 +2167,8 @@ class Contact_Form_Plugin {
 
 		// update the fields with URL data.
 		$new_all_values = array();
-		require_once __DIR__ . '/class-contact-form-file-handler.php';
-		$file_handler = new Contact_Form_File_Handler();
+		require_once __DIR__ . '/class-file-handler.php';
+		$file_handler = new File_Handler();
 
 		if ( is_array( $all_values ) ) {
 			foreach ( $all_values as $key => $value ) {
@@ -2384,9 +2385,8 @@ class Contact_Form_Plugin {
 			return;
 		}
 
-		// Load the file handler class
-		require_once __DIR__ . '/class-contact-form-file-handler.php';
-		$file_handler = new Contact_Form_File_Handler();
+		require_once __DIR__ . '/class-file-handler.php';
+		$file_handler = new File_Handler();
 
 		$deleted_count = 0;
 		$failed_count  = 0;

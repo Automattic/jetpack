@@ -1,16 +1,16 @@
 <?php
 /**
- * Contact Form File Handler class.
+ * File Handler class.
  *
  * @package automattic/jetpack-forms
  */
 
-namespace Automattic\Jetpack\Forms\ContactForm;
+namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Unauth_File_Upload_Handler;
 
 /**
- * Class for handling file attachments in Jetpack Contact Forms.
+ * Class for handling file attachments in Jetpack Forms.
  *
  * This class is responsible for processing temporarily uploaded files and
  * storing them permanently in a secure location. It provides a clean interface
@@ -18,7 +18,7 @@ use Automattic\Jetpack\Unauth_File_Upload_Handler;
  *
  * @since $$next-version$$
  */
-class Contact_Form_File_Handler {
+class File_Handler {
 	/**
 	 * Option name for storing the secret directory for uploads.
 	 *
