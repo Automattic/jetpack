@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Clean up the remnants of registration nonce we no longer use.
