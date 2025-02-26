@@ -50,7 +50,6 @@ class Jetpack_Forms {
 	 * @return void
 	 */
 	public static function delete_feedback_attachments( $post_id ) {
-		// Only process feedback post types
 		if ( get_post_type( $post_id ) !== 'feedback' ) {
 			return;
 		}
