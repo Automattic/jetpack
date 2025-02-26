@@ -311,21 +311,10 @@ class Jetpack_Boost {
 				WHERE  `option_name` LIKE 'jetpack_boost_%';
 			"
 		);
-		$site_options = $wpdb->get_col(
-			"
-				SELECT `option_name`
-				FROM   `$wpdb->site_options`
-				WHERE  `option_name` LIKE 'jetpack_boost_%';
-			"
-		);
 		//phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		foreach ( $option_names as $option_name ) {
 			delete_option( $option_name );
-		}
-
-		foreach ( $site_options as $site_option ) {
-			delete_site_option( $site_option );
 		}
 
 		// Unschedule all network cron events.
