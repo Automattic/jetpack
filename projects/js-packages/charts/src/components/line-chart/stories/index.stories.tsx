@@ -40,7 +40,6 @@ Default.args = {
 	legendOrientation: 'horizontal',
 	withGradientFill: false,
 	smoothing: true,
-	margin: { top: 20, right: 40, bottom: 40, left: 20 },
 	options: {
 		axis: {
 			x: {
@@ -114,7 +113,7 @@ GridientFilled.args = {
 	data: webTrafficData,
 	withGradientFill: true,
 	options: {
-		axis: { x: { numTicks: 10 }, y: { orientation: 'right' } },
+		axis: { y: { orientation: 'right' } },
 	},
 };
 

@@ -1,6 +1,7 @@
 {
 	extends: [ 'config:recommended', 'group:definitelyTyped' ],
 	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
+	reviewers: [ 'team:jetpack-garage' ],
 	prHourlyLimit: 1,
 	timezone: 'UTC',
 	schedule: [ '* 0-2 1 * *' ],
@@ -108,7 +109,7 @@
 				'uuid',
 				'@testing-library/preact',
 			],
-			reviewers: [ 'team:red' ],
+			additionalReviewers: [ 'team:red' ],
 			addLabels: [ '[Feature] Search', 'Instant Search' ],
 		},
 	],

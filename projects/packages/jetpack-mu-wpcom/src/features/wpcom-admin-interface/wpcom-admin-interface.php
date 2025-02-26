@@ -29,7 +29,7 @@ function wpcomsh_wpcom_admin_interface_settings_field() {
  */
 function wpcom_admin_interface_display() {
 	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
-	$value = get_option( 'wpcom_admin_interface' );
+	$value = get_option( 'wpcom_admin_interface', 'calypso' );
 	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 
 	echo '<fieldset>';

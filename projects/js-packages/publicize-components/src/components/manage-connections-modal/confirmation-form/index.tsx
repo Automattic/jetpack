@@ -70,16 +70,16 @@ export function ConfirmationForm( {
 	const { createErrorNotice } = useGlobalNotices();
 
 	const service = supportedServices.find(
-		supportedService => supportedService.ID === keyringResult.service
+		supportedService => supportedService.id === keyringResult.service
 	);
 	const isAlreadyConnected = useCallback(
 		( externalID: string ) => {
 			return existingConnections.some(
 				connection =>
-					connection.service_name === service?.ID && connection.external_id === externalID
+					connection.service_name === service?.id && connection.external_id === externalID
 			);
 		},
-		[ existingConnections, service.ID ]
+		[ existingConnections, service.id ]
 	);
 
 	const accounts = useMemo( () => {
@@ -94,7 +94,7 @@ export function ConfirmationForm( {
 		const options: Array< AccountOption > = [];
 
 		// If user account is supported, add it to the list
-		if ( ! service.external_users_only ) {
+		if ( ! service.supports.additional_users_only ) {
 			options.push( {
 				label: keyringResult.external_display || keyringResult.external_name,
 				value: keyringResult.external_ID,
@@ -103,7 +103,7 @@ export function ConfirmationForm( {
 		}
 
 		if (
-			service.multiple_external_user_ID_support &&
+			service.supports.additional_users_only &&
 			keyringResult.additional_external_users?.length
 		) {
 			for ( const user of keyringResult.additional_external_users ) {
@@ -148,7 +148,7 @@ export function ConfirmationForm( {
 			}
 
 			const data = {
-				external_user_ID: service.multiple_external_user_ID_support ? external_user_ID : undefined,
+				external_user_ID: service.supports.additional_users ? external_user_ID : undefined,
 				keyring_connection_ID: keyringResult.ID,
 				shared: formData.get( 'shared' ) === '1' ? true : undefined,
 			};
@@ -165,7 +165,7 @@ export function ConfirmationForm( {
 			createConnection( data, {
 				display_name: accountInfo?.label,
 				profile_picture: accountInfo?.profile_picture,
-				service_name: service.ID,
+				service_name: service.id,
 				external_id: external_user_ID.toString(),
 			} );
 
@@ -178,8 +178,8 @@ export function ConfirmationForm( {
 			createErrorNotice,
 			keyringResult.ID,
 			onComplete,
-			service.multiple_external_user_ID_support,
-			service.ID,
+			service.supports,
+			service.id,
 			accounts.not_connected,
 		]
 	);
@@ -240,7 +240,7 @@ export function ConfirmationForm( {
 								// If we are reconnecting an account, preselect it,
 								// otherwise, preselect the first account
 								const defaultChecked = reconnectingAccount
-									? reconnectingAccount.service_name === service?.ID &&
+									? reconnectingAccount.service_name === service?.id &&
 									  reconnectingAccount.external_id === option.value
 									: index === 0;
 
