@@ -2364,16 +2364,12 @@ class Contact_Form_Plugin {
 	public function delete_feedback_attachments( $post_id ) {
 		// Only process feedback post types
 		if ( get_post_type( $post_id ) !== 'feedback' ) {
-			do_action( 'jetpack_forms_debug_message', sprintf( 'Jetpack Forms: Not deleting attachments for post %d - not a feedback post type', $post_id ) );
 			return;
 		}
-
-		do_action( 'jetpack_forms_debug_message', sprintf( 'Jetpack Forms: Processing attachment deletion for feedback post %d', $post_id ) );
 
 		// Get the extra fields which may contain file upload data
 		$extra_fields = get_post_meta( $post_id, '_feedback_extra_fields', true );
 		if ( empty( $extra_fields ) || ! is_array( $extra_fields ) ) {
-			do_action( 'jetpack_forms_debug_message', sprintf( 'Jetpack Forms: No extra fields found for feedback post %d', $post_id ) );
 			return;
 		}
 
@@ -2399,7 +2395,6 @@ class Contact_Form_Plugin {
 			if ( isset( $file_data['file_id'] ) ) {
 				// New format - using file_id
 				$file_identifier = $file_data['file_id'];
-				do_action( 'jetpack_forms_debug_message', sprintf( 'Jetpack Forms: Attempting to delete file with ID %s for feedback post %d', $file_identifier, $post_id ) );
 			} else {
 				// Not a valid file upload data
 				continue;
@@ -2410,21 +2405,9 @@ class Contact_Form_Plugin {
 
 			if ( $result ) {
 				++$deleted_count;
-				do_action( 'jetpack_forms_debug_message', sprintf( 'Jetpack Forms: Successfully deleted file %s', $file_identifier ) );
 			} else {
 				++$failed_count;
-				do_action( 'jetpack_forms_debug_message', sprintf( 'Jetpack Forms: Failed to delete file %s - file may not exist or permissions issue', $file_identifier ) );
 			}
 		}
-
-		do_action(
-			'jetpack_forms_debug_message',
-			sprintf(
-				'Jetpack Forms: Completed attachment deletion for feedback post %d - Deleted: %d, Failed: %d',
-				$post_id,
-				$deleted_count,
-				$failed_count
-			)
-		);
 	}
 }

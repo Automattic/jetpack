@@ -567,12 +567,6 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 		$file_path = $file_handler->get_file_path( $file_id );
 
 		if ( empty( $file_path ) || ! file_exists( $file_path ) ) {
-			// Log the failure for debugging using WordPress logging
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// Use apply_filters instead of direct error_log for debugging
-				do_action( 'jetpack_forms_debug_message', sprintf( 'Jetpack Forms: File not found. ID: %s, Path: %s', $file_id, $file_path ) );
-			}
-
 			return new WP_Error(
 				'file_not_found',
 				esc_html__( 'The requested file does not exist.', 'jetpack-forms' ),
