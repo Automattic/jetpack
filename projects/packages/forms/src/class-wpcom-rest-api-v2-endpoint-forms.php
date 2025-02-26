@@ -614,24 +614,6 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 		echo $file_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- File contents should not be escaped
 		exit;
 	}
-
-	/**
-	 * Get the mime type of a file.
-	 *
-	 * @param string $file_path Path to the file.
-	 * @return string The mime type.
-	 *
-	 * @deprecated $$next-version$$ Use wp_check_filetype() instead
-	 */
-	protected function get_file_mime_type( $file_path ) {
-		$mime_type = mime_content_type( $file_path );
-		if ( false === $mime_type ) {
-			// Fallback to a generic mime type
-			$mime_type = 'image/' . substr( $file_path, strrpos( $file_path, '.' ) + 1 );
-
-		}
-		return $mime_type;
-	}
 }
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
