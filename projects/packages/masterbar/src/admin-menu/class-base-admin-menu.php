@@ -579,6 +579,11 @@ abstract class Base_Admin_Menu {
 	 * Adds a script to append the dashboard switcher to screen meta
 	 */
 	public function dashboard_switcher_scripts() {
+		static $is_script_added = false;
+		if ( $is_script_added ) {
+			return;
+		}
+
 		wp_add_inline_script(
 			'common',
 			"(function( $ ) {
@@ -587,16 +592,12 @@ abstract class Base_Admin_Menu {
 				var viewLink = $( '#view-link' );
 				var viewWrap = $( '#view-wrap' );
 
-				// Remove any existing click handlers before adding a new one
-				viewLink.off( 'click' ).on( 'click', function() {
-					console.log( 'click' );
+				viewLink.on( 'click', function() {
 					viewWrap.toggle();
 					viewLink.toggleClass( 'screen-meta-active' );
-					console.log( 'class is toggled' );
 				} );
 
-				// Use .off() before .on() to prevent duplicate handlers
-				$( document ).off( 'mouseup.viewWrapClose' ).on( 'mouseup.viewWrapClose', function( event ) {
+				$( document ).on( 'mouseup', function( event ) {
 					if ( ! viewLink.is( event.target ) && ! viewWrap.is( event.target ) && viewWrap.has( event.target ).length === 0 ) {
 						viewWrap.hide();
 						viewLink.removeClass( 'screen-meta-active' );
@@ -604,6 +605,8 @@ abstract class Base_Admin_Menu {
 				});
 			})( jQuery );"
 		);
+
+		$is_script_added = true;
 	}
 
 	/**
