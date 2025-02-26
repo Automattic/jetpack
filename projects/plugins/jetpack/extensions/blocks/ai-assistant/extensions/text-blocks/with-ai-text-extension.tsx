@@ -19,13 +19,13 @@ import React from 'react';
 /*
  * Internal dependencies
  */
-import useAutoScroll from '../hooks/use-auto-scroll';
-import useBlockModuleStatus from '../hooks/use-block-module-status';
-import { mapInternalPromptTypeToBackendPromptType } from '../lib/prompt/backend-prompt';
+import useAutoScroll from '../../hooks/use-auto-scroll';
+import useBlockModuleStatus from '../../hooks/use-block-module-status';
+import { mapInternalPromptTypeToBackendPromptType } from '../../lib/prompt/backend-prompt';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
 import { getBlockHandler, InlineExtensionsContext } from './get-block-handler';
-import { isPossibleToExtendBlock } from './lib/is-possible-to-extend-block';
+import { isPossibleToExtendTextBlock } from './lib/is-possible-to-extend-text-block';
 /*
  * Types
  */
@@ -33,8 +33,8 @@ import type { ExtendedBlockProp } from './constants';
 import type {
 	AiAssistantDropdownOnChangeOptionsArgProps,
 	OnRequestSuggestion,
-} from '../components/ai-assistant-toolbar-dropdown/dropdown-content';
-import type { PromptTypeProp } from '../lib/prompt';
+} from '../../components/ai-assistant-toolbar-dropdown/dropdown-content';
+import type { PromptTypeProp } from '../../lib/prompt';
 import type {
 	PromptMessagesProp,
 	PromptItemProps,
@@ -68,7 +68,7 @@ type RequestOptions = {
 type CoreEditorDispatch = { undo: () => Promise< void > };
 type CoreEditorSelect = { getCurrentPostId: () => number };
 
-// HOC to populate the block's edit component with the AI Assistant control inpuit and toolbar button.
+// HOC to populate the block's edit component with the AI Assistant control input and toolbar button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	function ExtendedBlock( props ) {
 		// Block props. isSelectionEnabled is used to determine if the block is in the editor or in the preview.
@@ -572,7 +572,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
  */
 function blockWithInlineExtension( settings, name: ExtendedBlockProp ) {
 	// Only extend the allowed block types and when AI is enabled
-	const possibleToExtendBlock = isPossibleToExtendBlock( name );
+	const possibleToExtendBlock = isPossibleToExtendTextBlock( name );
 
 	if ( ! possibleToExtendBlock ) {
 		return settings;
@@ -592,7 +592,7 @@ function blockWithInlineExtension( settings, name: ExtendedBlockProp ) {
 
 addFilter(
 	'blocks.registerBlockType',
-	'jetpack/ai-assistant-support/with-ai-extension',
+	'jetpack/ai-assistant-support/with-ai-text-extension',
 	blockWithInlineExtension,
 	100
 );

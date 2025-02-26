@@ -97,7 +97,8 @@ export default function TitleOptimization( {
 		? SEOSidebarButtonLabel
 		: currentSidebarButtonLabel;
 
-	const postContent = usePostContent();
+	const { getPostContent } = usePostContent();
+	const postContent = getPostContent();
 	const [ selected, setSelected ] = useState( null );
 	const [ isTitleOptimizationModalVisible, setIsTitleOptimizationModalVisible ] = useState( false );
 	const [ generating, setGenerating ] = useState( false );

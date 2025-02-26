@@ -10,6 +10,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
+use Automattic\Jetpack\Publicize\Connections;
 use Automattic\Jetpack\Publicize\Publicize;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Actions;
@@ -1669,6 +1670,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * [<identifier>]
 	 * : The connection ID or service to perform an action on.
 	 *
+	 * [--ignore-cache]
+	 * : Whether to ignore connections cache.
+	 *
 	 * [--format=<format>]
 	 * : Allows overriding the output of the command when listing connections.
 	 * ---
@@ -1686,6 +1690,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 *     # List all publicize connections.
 	 *     $ wp jetpack publicize list
+	 *
+	 *     # List all publicize connections, ignoring the cache.
+	 *     $ wp jetpack publicize list --ignore-cache
 	 *
 	 *     # List publicize connections for a given service.
 	 *     $ wp jetpack publicize list linkedin
@@ -1745,49 +1752,37 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		switch ( $action ) {
 			case 'list':
-				$connections_to_return = array();
-
+				$_args = array(
+					'ignore_cache' => $named_args['ignore-cache'] ?? false,
+				);
 				// For the CLI command, let's return all connections when a user isn't specified. This
 				// differs from the logic in the Publicize class.
-				$option_connections = is_user_logged_in()
-					? (array) $publicize->get_all_connections_for_user()
-					: (array) $publicize->get_all_connections();
-
-				foreach ( $option_connections as $service_name => $connections ) {
-					foreach ( (array) $connections as $id => $connection ) {
-						$connection['id']        = $id;
-						$connection['service']   = $service_name;
-						$connections_to_return[] = $connection;
-					}
-				}
+				$connections_to_return = is_user_logged_in()
+					? Connections::get_all_for_user( $_args )
+					: Connections::get_all( $_args );
 
 				if ( $id_is_service && ! empty( $identifier ) && ! empty( $connections_to_return ) ) {
 					$temp_connections      = $connections_to_return;
 					$connections_to_return = array();
 
 					foreach ( $temp_connections as $connection ) {
-						if ( $identifier === $connection['service'] ) {
+						if ( $identifier === $connection['service_name'] ) {
 							$connections_to_return[] = $connection;
 						}
 					}
 				}
 
 				if ( $identifier && ! $id_is_service && ! empty( $connections_to_return ) ) {
-					$connections_to_return = wp_list_filter( $connections_to_return, array( 'id' => $identifier ) );
+					$connections_to_return = wp_list_filter( $connections_to_return, array( 'connection_id' => $identifier ) );
 				}
 
 				$expected_keys = array(
-					'id',
-					'service',
-					'user_id',
-					'provider',
-					'issued',
-					'expires',
+					'connection_id',
+					'service_name',
+					'display_name',
 					'external_id',
-					'external_name',
-					'external_display',
-					'type',
-					'connection_data',
+					'wpcom_user_id',
+					'shared',
 				);
 
 				// Somehow, a test site ended up in a state where $connections_to_return looked like:
@@ -1827,21 +1822,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 					jetpack_cli_are_you_sure();
 
-					$connections = array();
 					$service     = $identifier;
+					$connections = is_user_logged_in()
+						? Connections::get_all_for_user()
+						: Connections::get_all();
 
-					$option_connections = is_user_logged_in()
-						? (array) $publicize->get_all_connections_for_user()
-						: (array) $publicize->get_all_connections();
-
-					if ( 'all' === $service ) {
-						foreach ( (array) $option_connections as $service_name => $service_connections ) {
-							foreach ( $service_connections as $id => $connection ) {
-								$connections[ $id ] = $connection;
-							}
-						}
-					} elseif ( ! empty( $option_connections[ $service ] ) ) {
-						$connections = $option_connections[ $service ];
+					if ( 'all' !== $service ) {
+						$connections = wp_list_filter( $connections, array( 'service_name' => $service ) );
 					}
 
 					if ( ! empty( $connections ) ) {
@@ -1852,7 +1839,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 							$count
 						);
 
-						foreach ( $connections as $id => $connection ) {
+						foreach ( $connections as $connection ) {
+							$id = $connection['connection_id'];
 							if ( false === $publicize->disconnect( false, $id ) ) {
 								WP_CLI::error(
 									sprintf(

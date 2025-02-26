@@ -7,8 +7,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal
  */
-import { compareBlocks } from '../../lib/utils/compare-blocks';
-import { fixIncompleteHTML } from '../../lib/utils/fix-incomplete-html';
+import { compareBlocks } from '../../../lib/utils/compare-blocks';
+import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
 import { BlockHandler } from '../block-handler';
 /**
  * Types

@@ -2,16 +2,42 @@
 // Values are either a path, an array of paths, true to always enable the rule, or false to always disable it.
 module.exports = {
 	// ES2025
+	'no-dataview-prototype-getfloat16-setfloat16': [
+		'javascript.builtins.DataView.getFloat16',
+		'javascript.builtins.DataView.setFloat16',
+	],
+	'no-dynamic-import-options': 'javascript.operators.import.options_parameter',
+	'no-float16array': 'javascript.builtins.Float16Array',
+	'no-import-attributes': 'javascript.statements.import.import_attributes',
+	'no-intl-durationformat': 'javascript.builtins.Intl.DurationFormat',
+	'no-iterator': 'javascript.builtins.Iterator',
+	'no-iterator-prototype-drop': 'javascript.builtins.Iterator.drop',
+	'no-iterator-prototype-every': 'javascript.builtins.Iterator.every',
+	'no-iterator-prototype-filter': 'javascript.builtins.Iterator.filter',
+	'no-iterator-prototype-find': 'javascript.builtins.Iterator.find',
+	'no-iterator-prototype-flatmap': 'javascript.builtins.Iterator.flatMap',
+	'no-iterator-prototype-foreach': 'javascript.builtins.Iterator.forEach',
+	'no-iterator-prototype-map': 'javascript.builtins.Iterator.map',
+	'no-iterator-prototype-reduce': 'javascript.builtins.Iterator.reduce',
+	'no-iterator-prototype-some': 'javascript.builtins.Iterator.some',
+	'no-iterator-prototype-take': 'javascript.builtins.Iterator.take',
+	'no-iterator-prototype-toarray': 'javascript.builtins.Iterator.toArray',
+	'no-json-modules': 'javascript.statements.import.import_attributes.type_json',
+	'no-math-f16round': 'javascript.builtins.Math.f16round',
+	'no-promise-try': 'javascript.builtins.Promise.try',
 	'no-regexp-duplicate-named-capturing-groups':
 		'javascript.regular_expressions.named_capturing_group.duplicate_named_capturing_groups',
+	'no-regexp-escape': 'javascript.builtins.RegExp.escape',
+	'no-regexp-modifiers': 'javascript.regular_expressions.modifier',
+	'no-trailing-dynamic-import-commas':
+		'javascript.grammar.trailing_commas.trailing_commas_in_dynamic_import',
 
 	// ES2024
 	'no-arraybuffer-prototype-transfer': 'javascript.builtins.ArrayBuffer.transfer',
 	'no-atomics-waitasync': 'javascript.builtins.Atomics.waitAsync',
-	'no-object-map-groupby': [
-		'javascript.builtins.Map.groupBy',
-		'javascript.builtins.Object.groupBy',
-	],
+	'no-map-groupby': 'javascript.builtins.Map.groupBy',
+	'no-object-groupby': 'javascript.builtins.Object.groupBy',
+	'no-object-map-groupby': false, // Deprecated
 	'no-promise-withresolvers': 'javascript.builtins.Promise.withResolvers',
 	'no-regexp-v-flag': 'javascript.builtins.RegExp.unicodeSets',
 	'no-resizable-and-growable-arraybuffers': [
@@ -31,10 +57,9 @@ module.exports = {
 	'no-set-prototype-issupersetof': 'javascript.builtins.Set.isSupersetOf',
 	'no-set-prototype-symmetricdifference': 'javascript.builtins.Set.symmetricDifference',
 	'no-set-prototype-union': 'javascript.builtins.Set.union',
-	'no-string-prototype-iswellformed-towellformed': [
-		'javascript.builtins.String.isWellFormed',
-		'javascript.builtins.String.toWellFormed',
-	],
+	'no-string-prototype-iswellformed': 'javascript.builtins.String.isWellFormed',
+	'no-string-prototype-iswellformed-towellformed': false, // Deprecated
+	'no-string-prototype-towellformed': 'javascript.builtins.String.toWellFormed',
 
 	// ES2023
 	'no-array-prototype-findlast-findlastindex': [
@@ -57,17 +82,16 @@ module.exports = {
 		'javascript.statements.export.arbitrary_module_namespace_identifier_names',
 		'javascript.statements.import.arbitrary_module_namespace_identifier_names',
 	],
-	'no-array-string-prototype-at': [
-		'javascript.builtins.Array.at',
-		'javascript.builtins.String.at',
-		'javascript.builtins.TypedArray.at',
-	],
-	'no-class-fields': [
-		'javascript.classes.private_class_fields',
-		'javascript.classes.private_class_methods',
+	'no-array-prototype-at': 'javascript.builtins.Array.at',
+	'no-array-string-prototype-at': false, // Deprecated
+	'no-class-fields': false, // Deprecated
+	'no-class-instance-fields': [
 		'javascript.classes.public_class_fields',
-		'javascript.classes.static_class_fields',
+		'javascript.classes.private_class_fields',
 	],
+	'no-class-private-fields': 'javascript.classes.private_class_fields',
+	'no-class-private-methods': 'javascript.classes.private_class_methods',
+	'no-class-static-fields': 'javascript.classes.static_class_fields',
 	'no-class-static-block': 'javascript.classes.static_initialization_blocks',
 	'no-error-cause': [
 		'javascript.builtins.Error.Error.options_cause_parameter',
@@ -79,6 +103,7 @@ module.exports = {
 	'no-private-in': 'javascript.classes.private_class_fields_in',
 	'no-regexp-d-flag': 'javascript.builtins.RegExp.hasIndices',
 	'no-regexp-unicode-property-escapes-2022': false, // No support data in MDN separate from no-regexp-unicode-property-escapes. https://github.com/mdn/browser-compat-data/issues/19631
+	'no-string-prototype-at': 'javascript.builtins.String.at',
 	'no-top-level-await': 'javascript.operators.await.top_level',
 
 	// ES2021
@@ -363,4 +388,75 @@ module.exports = {
 		'javascript.builtins.Object.lookupGetter',
 		'javascript.builtins.Object.lookupSetter',
 	],
+
+	// "No nonstandard properties" rules.
+	// No compat data for any of these, as far as I can tell.
+	'no-nonstandard-array-properties': false,
+	'no-nonstandard-array-prototype-properties': false,
+	'no-nonstandard-arraybuffer-properties': false,
+	'no-nonstandard-arraybuffer-prototype-properties': false,
+	'no-nonstandard-atomics-properties': false,
+	'no-nonstandard-bigint-properties': false,
+	'no-nonstandard-bigint-prototype-properties': false,
+	'no-nonstandard-boolean-properties': false,
+	'no-nonstandard-boolean-prototype-properties': false,
+	'no-nonstandard-dataview-properties': false,
+	'no-nonstandard-dataview-prototype-properties': false,
+	'no-nonstandard-date-properties': false,
+	'no-nonstandard-date-prototype-properties': false,
+	'no-nonstandard-finalizationregistry-properties': false,
+	'no-nonstandard-finalizationregistry-prototype-properties': false,
+	'no-nonstandard-function-properties': false,
+	'no-nonstandard-intl-collator-properties': false,
+	'no-nonstandard-intl-collator-prototype-properties': false,
+	'no-nonstandard-intl-datetimeformat-properties': false,
+	'no-nonstandard-intl-datetimeformat-prototype-properties': false,
+	'no-nonstandard-intl-displaynames-properties': false,
+	'no-nonstandard-intl-displaynames-prototype-properties': false,
+	'no-nonstandard-intl-durationformat-properties': false,
+	'no-nonstandard-intl-durationformat-prototype-properties': false,
+	'no-nonstandard-intl-listformat-properties': false,
+	'no-nonstandard-intl-listformat-prototype-properties': false,
+	'no-nonstandard-intl-locale-properties': false,
+	'no-nonstandard-intl-locale-prototype-properties': false,
+	'no-nonstandard-intl-numberformat-properties': false,
+	'no-nonstandard-intl-numberformat-prototype-properties': false,
+	'no-nonstandard-intl-pluralrules-properties': false,
+	'no-nonstandard-intl-pluralrules-prototype-properties': false,
+	'no-nonstandard-intl-properties': false,
+	'no-nonstandard-intl-relativetimeformat-properties': false,
+	'no-nonstandard-intl-relativetimeformat-prototype-properties': false,
+	'no-nonstandard-intl-segmenter-properties': false,
+	'no-nonstandard-intl-segmenter-prototype-properties': false,
+	'no-nonstandard-iterator-properties': false,
+	'no-nonstandard-iterator-prototype-properties': false,
+	'no-nonstandard-json-properties': false,
+	'no-nonstandard-map-properties': false,
+	'no-nonstandard-map-prototype-properties': false,
+	'no-nonstandard-math-properties': false,
+	'no-nonstandard-number-properties': false,
+	'no-nonstandard-number-prototype-properties': false,
+	'no-nonstandard-object-properties': false,
+	'no-nonstandard-promise-properties': false,
+	'no-nonstandard-promise-prototype-properties': false,
+	'no-nonstandard-proxy-properties': false,
+	'no-nonstandard-reflect-properties': false,
+	'no-nonstandard-regexp-properties': false,
+	'no-nonstandard-regexp-prototype-properties': false,
+	'no-nonstandard-set-properties': false,
+	'no-nonstandard-set-prototype-properties': false,
+	'no-nonstandard-sharedarraybuffer-properties': false,
+	'no-nonstandard-sharedarraybuffer-prototype-properties': false,
+	'no-nonstandard-string-properties': false,
+	'no-nonstandard-string-prototype-properties': false,
+	'no-nonstandard-symbol-properties': false,
+	'no-nonstandard-symbol-prototype-properties': false,
+	'no-nonstandard-typed-array-properties': false,
+	'no-nonstandard-typed-array-prototype-properties': false,
+	'no-nonstandard-weakmap-properties': false,
+	'no-nonstandard-weakmap-prototype-properties': false,
+	'no-nonstandard-weakref-properties': false,
+	'no-nonstandard-weakref-prototype-properties': false,
+	'no-nonstandard-weakset-properties': false,
+	'no-nonstandard-weakset-prototype-properties': false,
 };

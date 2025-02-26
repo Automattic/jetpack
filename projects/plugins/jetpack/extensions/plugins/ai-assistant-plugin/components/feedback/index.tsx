@@ -28,7 +28,8 @@ export default function Feedback( {
 	const { tracks } = useAnalytics();
 
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
-	const postContent = usePostContent();
+	const { getPostContent } = usePostContent();
+	const postContent = getPostContent();
 
 	const toggleFeedbackModal = () => {
 		setIsFeedbackModalVisible( ! isFeedbackModalVisible );

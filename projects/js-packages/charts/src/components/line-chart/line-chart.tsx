@@ -10,12 +10,14 @@ import {
 } from '@visx/xychart';
 import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import clsx from 'clsx';
-import { FC, ReactNode, useMemo } from 'react';
+import { FC, ReactNode, useId, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
+
+const X_TICK_WIDTH = 60;
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withGradientFill: boolean;
@@ -104,15 +106,25 @@ const LineChart: FC< LineChartProps > = ( {
 	options = {},
 } ) => {
 	const providerTheme = useChartTheme();
+	const chartId = useId(); // Ensure unique ids for gradient fill.
+
+	const dataSorted = useMemo(
+		() =>
+			data.map( series => ( {
+				...series,
+				data: series.data.sort( ( a, b ) => a.date.getTime() - b.date.getTime() ),
+			} ) ),
+		[ data ]
+	);
 
 	const theme = useMemo( () => {
 		const seriesColors =
-			data?.map( series => series.options?.stroke ?? '' ).filter( Boolean ) ?? [];
+			dataSorted?.map( series => series.options?.stroke ?? '' ).filter( Boolean ) ?? [];
 		return buildChartTheme( {
 			...providerTheme,
 			colors: [ ...seriesColors, ...providerTheme.colors ],
 		} );
-	}, [ providerTheme, data ] );
+	}, [ providerTheme, dataSorted ] );
 
 	margin = useMemo( () => {
 		// Auto-margin unless specified to make room for axis labels.
@@ -122,19 +134,25 @@ const LineChart: FC< LineChartProps > = ( {
 			defaultMargin = { ...defaultMargin, right: 40, left: 0 };
 		}
 		if ( options.axis?.x?.orientation === 'top' ) {
-			defaultMargin = { ...defaultMargin, top: 40, bottom: 0 };
+			defaultMargin = { ...defaultMargin, top: 20, bottom: 10 };
 		}
 		// Merge default margin with user-specified margin.
 		return { ...defaultMargin, ...margin };
 	}, [ margin, options ] );
 
-	const error = validateData( data );
+	const xNumTicks = useMemo(
+		() =>
+			Math.max( Math.floor( Math.min( dataSorted[ 0 ]?.data.length, width / X_TICK_WIDTH ) ), 5 ),
+		[ dataSorted, width ]
+	);
+
+	const error = validateData( dataSorted );
 	if ( error ) {
 		return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 	}
 
 	// Create legend items from group labels, this iterates over groups rather than data points
-	const legendItems = data.map( ( group, index ) => ( {
+	const legendItems = dataSorted.map( ( group, index ) => ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
 		color: providerTheme.colors[ index % providerTheme.colors.length ],
@@ -156,29 +174,30 @@ const LineChart: FC< LineChartProps > = ( {
 				theme={ theme }
 				width={ width }
 				height={ height }
-				margin={ { top: 0, right: 0, bottom: 0, left: 0, ...margin } }
+				margin={ { top: 10, right: 0, bottom: 20, left: 40, ...margin } }
 				xScale={ { type: 'time', ...options?.xScale } }
 				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
 			>
 				<AnimatedGrid columns={ false } numTicks={ 4 } />
 				<AnimatedAxis
 					orientation="bottom"
-					numTicks={ 5 }
+					numTicks={ xNumTicks }
 					tickFormat={ formatDateTick }
 					{ ...options?.axis?.x }
 				/>
 				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
 
-				{ data.map( ( seriesData, index ) => {
+				{ dataSorted.map( ( seriesData, index ) => {
 					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
 					return (
 						<g key={ seriesData?.label || index }>
 							{ withGradientFill && (
 								<LinearGradient
-									id={ `area-gradient-${ index + 1 }` }
+									id={ `area-gradient-${ chartId }-${ index + 1 }` }
 									from={ stroke }
-									to="white"
+									fromOpacity={ 0.4 }
 									toOpacity={ 0.1 }
+									to={ theme.backgroundColor }
 									{ ...seriesData.options?.gradient }
 									data-testid="line-gradient"
 								/>
@@ -188,7 +207,9 @@ const LineChart: FC< LineChartProps > = ( {
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] }
 								{ ...accessors }
-								fill={ withGradientFill ? `url(#area-gradient-${ index + 1 })` : undefined }
+								fill={
+									withGradientFill ? `url(#area-gradient-${ chartId }-${ index + 1 })` : undefined
+								}
 								renderLine={ true }
 								curve={ smoothing ? curveCatmullRom : curveLinear }
 							/>
