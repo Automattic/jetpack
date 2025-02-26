@@ -17,7 +17,7 @@ import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
-const X_TICK_WIDTH = 60;
+const X_TICK_WIDTH = 100;
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withGradientFill: boolean;
@@ -141,8 +141,7 @@ const LineChart: FC< LineChartProps > = ( {
 	}, [ margin, options ] );
 
 	const xNumTicks = useMemo(
-		() =>
-			Math.max( Math.floor( Math.min( dataSorted[ 0 ]?.data.length, width / X_TICK_WIDTH ) ), 5 ),
+		() => Math.min( dataSorted[ 0 ]?.data.length ?? 0, Math.floor( width / X_TICK_WIDTH ) ),
 		[ dataSorted, width ]
 	);
 
