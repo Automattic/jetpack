@@ -14,6 +14,11 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 \Automattic\Jetpack\Test_Environment::init();
 
 // Some of the legacy test rely on this constant
+if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
+	define( 'JETPACK__PLUGIN_DIR', __DIR__ . '/../../../../plugins/jetpack/' );
+}
+
+// Some of the legacy test rely on this constant
 if ( ! defined( 'JETPACK__VERSION' ) ) {
 	define( 'JETPACK__VERSION', '10' );
 }
