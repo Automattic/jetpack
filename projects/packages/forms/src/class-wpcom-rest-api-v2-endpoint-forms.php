@@ -17,9 +17,6 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 
-// Require the file handler class for file endpoint functionality
-require_once __DIR__ . '/contact-form/class-contact-form-file-handler.php';
-
 /**
  * Handles the REST routes for Form Responses, aka Feedback.
  */
@@ -560,10 +557,9 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	public function get_file( $request ) {
 		$file_id = $request->get_param( 'file_id' );
 
-		// Initialize the file handler
+		require_once __DIR__ . '/contact-form/class-contact-form-file-handler.php';
 		$file_handler = new Contact_Form_File_Handler();
 
-		// Get the full file path
 		$file_path = $file_handler->get_file_path( $file_id );
 
 		if ( empty( $file_path ) || ! file_exists( $file_path ) ) {
