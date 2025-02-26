@@ -48,8 +48,8 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 		discountPrice:
 			// Only display discount if site is elgible
 			hasDiscount && eligibleForIntroDiscount ? discountPricePerMonth : null,
-		fullPrice: fullPricePerMonth,
-		currencyCode,
+		fullPrice: fullPricePerMonth ?? 0,
+		currencyCode: currencyCode ?? 'USD',
 	};
 };
 
