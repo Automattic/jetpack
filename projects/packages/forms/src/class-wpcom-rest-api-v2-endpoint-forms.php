@@ -526,18 +526,19 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			);
 		}
 
-		// Get the file ID from the request and its hash
-		$file_id      = $request->get_param( 'file_id' );
-		$file_id_hash = $request->get_param( 'file_id_hash' );
-
-		// If no hash was provided, generate it from the file_id
-		if ( empty( $file_id_hash ) ) {
-			$file_id_hash = md5( $file_id );
+		// Get the file ID from the request
+		$file_id = $request->get_param( 'file_id' );
+		if ( empty( $file_id ) ) {
+			return new WP_Error(
+				'missing_file_id',
+				esc_html__( 'File ID is required.', 'jetpack-forms' ),
+				array( 'status' => 400 )
+			);
 		}
 
-		// Verify the file-specific nonce using the hash
+		// Verify the file-specific nonce
 		$file_nonce = $request->get_param( 'file_nonce' );
-		if ( ! $file_nonce || ! wp_verify_nonce( $file_nonce, 'jetpack_forms_view_file_' . $file_id_hash ) ) {
+		if ( ! $file_nonce || ! wp_verify_nonce( $file_nonce, 'jetpack_forms_view_file_' . $file_id ) ) {
 			return new WP_Error(
 				'rest_forbidden',
 				esc_html__( 'Invalid or missing file access token.', 'jetpack-forms' ),

@@ -157,18 +157,14 @@ class Contact_Form_File_Handler {
 		// Get the standard REST API URL without the file_id in the path
 		$base_url = get_rest_url( null, 'jetpack-forms/v1/files' );
 
-		// For REST API requests, WordPress validates the logged-in user automatically
-		// Create a nonce based on a hash of the file_id instead of the raw file_id
-		// This handles cases where URL encoding/decoding might alter the file_id string
-		$file_id_hash = md5( $file_id );
-		$file_nonce   = wp_create_nonce( 'jetpack_forms_view_file_' . $file_id_hash );
+		// Create a nonce based directly on the file_id
+		$file_nonce = wp_create_nonce( 'jetpack_forms_view_file_' . $file_id );
 
 		return add_query_arg(
 			array(
-				'_wpnonce'     => wp_create_nonce( 'wp_rest' ),
-				'file_nonce'   => $file_nonce,
-				'file_id'      => $file_id,
-				'file_id_hash' => $file_id_hash,
+				'_wpnonce'   => wp_create_nonce( 'wp_rest' ),
+				'file_nonce' => $file_nonce,
+				'file_id'    => $file_id,
 			),
 			$base_url
 		);
