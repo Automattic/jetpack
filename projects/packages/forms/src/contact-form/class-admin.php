@@ -753,10 +753,6 @@ class Admin {
 
 		$response_fields = array_diff_key( $response_fields, array_flip( array_keys( Contact_Form_Plugin::NON_PRINTABLE_FIELDS ) ) );
 
-		// Load file handler for generating file links
-		require_once __DIR__ . '/class-file-handler.php';
-		$file_handler = new File_Handler();
-
 		echo '<hr class="feedback_response__mobile-separator" />';
 		echo '<div class="feedback_response__item">';
 		foreach ( $response_fields as $key => $value ) {
@@ -766,7 +762,7 @@ class Admin {
 				// Check if this might be a file upload array
 				if ( isset( $value['file_id'] ) && isset( $value['name'] ) ) {
 					// This is a file upload field, display a link
-					$display_value = $file_handler->get_file_link_html( $value );
+					$display_value = $this->get_file_link_html( $value );
 				} else {
 					// Regular array, just join the values
 					$display_value = implode( ', ', $value );
@@ -776,7 +772,7 @@ class Admin {
 				$maybe_file_data = json_decode( $value, true );
 				if ( is_array( $maybe_file_data ) && isset( $maybe_file_data['file_id'] ) && isset( $maybe_file_data['name'] ) ) {
 					// This is a file upload field, display a link instead of raw data
-					$display_value = $file_handler->get_file_link_html( $maybe_file_data );
+					$display_value = $this->get_file_link_html( $maybe_file_data );
 				}
 			}
 
@@ -797,6 +793,23 @@ class Admin {
 		echo '<div class="feedback_response__item-key">' . esc_html__( 'Source', 'jetpack-forms' ) . '</div>';
 		echo '<div class="feedback_response__item-value"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
 		echo '</div>';
+	}
+
+	/**
+	 * Get file link HTML for display
+	 *
+	 * @param array $file_data The file data array containing name and file_id.
+	 * @return string HTML link to file or empty string.
+	 */
+	public function get_file_link_html( $file_data ) {
+		if ( empty( $file_data['file_id'] ) || empty( $file_data['name'] ) ) {
+			return '';
+		}
+
+		require_once __DIR__ . '/class-file-handler.php';
+		$file_handler = new File_Handler();
+		$file_url     = $file_handler->get_file_url( $file_data['file_id'] );
+		return sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $file_url ), esc_html( $file_data['name'] ) );
 	}
 
 	/**
