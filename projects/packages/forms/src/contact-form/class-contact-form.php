@@ -1036,23 +1036,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$plugin = Contact_Form_Plugin::init();
 
-		$errors = $this->validate();
-
-		// Don't process the form if there are errors.
-		if ( ! empty( $errors ) ) {
-			$message = '';
-
-			foreach ( $errors as $id => $error ) {
-				$message .= sprintf(
-					// translators: Placeholder is a pre-translated error string.
-					'<p>%s</p>',
-					$error
-				);
-			}
-
-			return new \WP_Error( 'contact-form-error', $message );
-		}
-
 		// Process all file uploads
 		$uploaded_files = $this->process_file_uploads();
 
@@ -1945,26 +1928,5 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 		return $align_to_class_map[ $attributes['align'] ];
-	}
-
-	/**
-	 * Validates the submitted form values.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return array Array of validation errors keyed by field ID, empty array if no errors.
-	 */
-	public function validate() {
-		$errors = array();
-
-		// Validate each field and collect errors
-		foreach ( $this->fields as $id => $field ) {
-			$field_errors = $field->validate();
-			if ( ! empty( $field_errors ) ) {
-				$errors[ $id ] = $field_errors;
-			}
-		}
-
-		return $errors;
 	}
 }
