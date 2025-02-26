@@ -97,20 +97,14 @@ const getCategories: (
 	return categoryOptions;
 };
 
-/**
- * Generate the product title ID attribute from a product slug
- *
- * @param {string} slug - The product slug
- * @return {string} The generated title ID attribute
- */
-export const getProductTitleId = slug => `product-title-${ slug }`;
+export const getProductTitleId = ( slug: JetpackModule ) => `product-title-${ slug }`;
 
 const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 	const getItemId = useCallback( ( item: ProductData ) => item.product.slug, [] );
 	const onChangeView = useCallback( ( newView: View ) => {
 		setView( newView );
 	}, [] );
-	const allProductData = useAllProducts();
+	const { data: allProductData, isLoading, isError } = useAllProducts();
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const navigate = useNavigate();
 	const { recordEvent } = useAnalytics();
@@ -136,10 +130,12 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 		},
 	};
 
-	const categories = useMemo(
-		() => getCategories( products, allProductData ),
-		[ products, allProductData ]
-	);
+	const categories = useMemo( () => {
+		if ( isLoading || isError ) {
+			return [];
+		}
+		return getCategories( products, allProductData );
+	}, [ products, allProductData, isLoading, isError ] );
 
 	const navigateToInterstitial = useCallback(
 		( slug: string ) => {
@@ -249,7 +245,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 		// and a 'jumping' of the CTA buttons. Having categories as a dependency here is unnecessary
 		// and leaving it out doesn't cause the values to be incorrect.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ isMobileViewport, navigateToInterstitial ] );
+	}, [ isMobileViewport, navigateToInterstitial, categories ] );
 
 	const [ view, setView ] = useState< View >( {
 		type: 'list',

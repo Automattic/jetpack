@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix 404 error when a user submits an invalid form with JavaScript disabled.
