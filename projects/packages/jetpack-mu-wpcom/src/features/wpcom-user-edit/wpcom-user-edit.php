@@ -1,6 +1,6 @@
 <?php
 /**
- * Prevent site owner from editing user's account-level fields.
+ * Prevent the site owner from editing user's account-level fields.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -10,67 +10,63 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 require_once __DIR__ . '/../../utils.php';
 
 /**
- * Load the assets of the wpcom-user-edit.
+ * Disable the account-level fields of the connected users to prevent the site owner from editing them.
  */
-function load_wpcom_user_edit() {
+function wpcom_disable_account_level_fields_if_needed() {
+	$user_id = ! empty( $_REQUEST['user_id'] ) ? absint( sanitize_text_field( wp_unslash( $_REQUEST['user_id'] ) ) ) : 0; // // phpcs:ignore WordPress.Security.NonceVerification
+
 	// Do nothing if the user is not connected to WordPress.com.
-	// if ( ! is_current_user_connected() ) {
-	// return;
-	// }
+	if ( ! $user_id || ! is_current_user_connected( $user_id ) ) {
+		return;
+	}
 
-	$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-user-edit', array( 'js', 'css' ) );
+	?>
+		<script type="text/javascript">
+			document.addEventListener( 'DOMContentLoaded', function() {
+				const fields = [
+					/** Language */
+					{ selector: '#locale' },
+					/** First Name */
+					{ selector: '#first_name' },
+					/** Last Name */
+					{ selector: '#last_name' },
+					/** Nickname */
+					{ selector: '#nickname' },
+					/** Display name */
+					{ selector: '#display_name' },
+					/** Website */
+					{ selector: '#url' },
+					/** Biographical Info */
+					{ selector: '#description', tagName: 'p' },
+					/** Email */
+					{ selector: '#email' },
+				];
 
-	$data = wp_json_encode(
-		array(
-			'fields' => array(
-				'language'    => array(
-					'selector'    => '#locale',
-					'description' => __( 'It cannot be changed.', 'jetpack-mu-wpcom' ),
-					'disabled'    => true,
-				),
-				'firstName'   => array(
-					'selector'    => '#first_name',
-					'description' => __( 'It cannot be changed.', 'jetpack-mu-wpcom' ),
-					'disabled'    => true,
-				),
-				'lastName'    => array(
-					'selector'    => '#last_name',
-					'description' => __( 'It cannot be changed.', 'jetpack-mu-wpcom' ),
-					'disabled'    => true,
-				),
-				'nickname'    => array(
-					'selector'    => '#nickname',
-					'description' => __( 'It cannot be changed.', 'jetpack-mu-wpcom' ),
-					'disabled'    => true,
-				),
-				'displayName' => array(
-					'selector'    => '#display_name',
-					'description' => __( 'It cannot be changed.', 'jetpack-mu-wpcom' ),
-					'disabled'    => true,
-				),
-				'website'     => array(
-					'selector'    => '#url',
-					'description' => __( 'It cannot be changed.', 'jetpack-mu-wpcom' ),
-					'disabled'    => true,
-				),
-				'bio'         => array(
-					'selector'    => '#description',
-					'description' => __( 'It cannot be changed.', 'jetpack-mu-wpcom' ),
-					'disabled'    => true,
-				),
-				'email'       => array(
-					'selector'    => '#email',
-					'description' => __( 'It cannot be changed.', 'jetpack-mu-wpcom' ),
-					'disabled'    => true,
-				),
-			),
-		)
-	);
+				for ( let i = 0; i < fields.length; i++ ) {
+					const field = fields[i];
+					const element = document.querySelector( field.selector );
+					if ( ! element ) {
+						continue;
+					}
 
-	wp_add_inline_script(
-		$handle,
-		"window.JETPACK_MU_WPCOM_USER_EDIT = $data;",
-		'before'
-	);
+					if ( element.tagName === 'INPUT' ) {
+						element.readOnly = true;
+					} else {
+						element.disabled = true;
+					}
+
+					/**
+					 * Append the description to indicate the field cannot be changed.
+					 */
+					const tagName = field.tagName ? field.tagName : 'span';
+					const description = document.createElement( tagName );
+					description.className = 'description';
+					// Use the `Tab` for spacing to align with other fields.
+					description.innerHTML = "\t<?php echo esc_html__( 'It cannot be changed.', 'jetpack-mu-wpcom' ); ?>";
+					element.parentNode.appendChild( description );
+				}
+			} );
+		</script>
+	<?php
 }
-add_action( 'load-user-edit.php', __NAMESPACE__ . '\load_wpcom_user_edit' );
+add_action( 'admin_print_footer_scripts-user-edit.php', __NAMESPACE__ . '\wpcom_disable_account_level_fields_if_needed' );
