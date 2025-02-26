@@ -31,7 +31,7 @@ describe( 'controls', () => {
 
 			const result = await registerSite( { redirectUri, from } );
 			expect( result ).toEqual( fakeResult );
-			expect( stubRegisterSite ).toHaveBeenCalledWith( null, redirectUri, from );
+			expect( stubRegisterSite ).toHaveBeenCalledWith( redirectUri, from );
 		} );
 
 		it( 'resolves with error', async () => {
