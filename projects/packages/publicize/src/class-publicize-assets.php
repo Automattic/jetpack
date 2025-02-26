@@ -36,7 +36,10 @@ class Publicize_Assets {
 			return false;
 		}
 
-		return true;
+		/** This filter is documented in projects/packages/publicize/src/class-publicize-base.php */
+		$capability = apply_filters( 'jetpack_publicize_capability', 'publish_posts' );
+
+		return current_user_can( $capability );
 	}
 
 	/**
