@@ -540,6 +540,11 @@ abstract class Base_Admin_Menu {
 	 * Adds a dashboard switcher to the list of screen meta links of the current page.
 	 */
 	public function add_dashboard_switcher() {
+		static $is_added = false;
+		if ( $is_added ) {
+			return;
+		}
+
 		$menu_mappings = require __DIR__ . '/menu-mappings.php';
 		$screen        = $this->get_current_screen();
 
@@ -566,6 +571,8 @@ abstract class Base_Admin_Menu {
 			</div>
 		</div>
 		<?php
+
+		$is_added = true;
 	}
 
 	/**
@@ -580,12 +587,16 @@ abstract class Base_Admin_Menu {
 				var viewLink = $( '#view-link' );
 				var viewWrap = $( '#view-wrap' );
 
-				viewLink.on( 'click', function() {
+				// Remove any existing click handlers before adding a new one
+				viewLink.off( 'click' ).on( 'click', function() {
+					console.log( 'click' );
 					viewWrap.toggle();
 					viewLink.toggleClass( 'screen-meta-active' );
+					console.log( 'class is toggled' );
 				} );
 
-				$( document ).on( 'mouseup', function( event ) {
+				// Use .off() before .on() to prevent duplicate handlers
+				$( document ).off( 'mouseup.viewWrapClose' ).on( 'mouseup.viewWrapClose', function( event ) {
 					if ( ! viewLink.is( event.target ) && ! viewWrap.is( event.target ) && viewWrap.has( event.target ).length === 0 ) {
 						viewWrap.hide();
 						viewLink.removeClass( 'screen-meta-active' );
