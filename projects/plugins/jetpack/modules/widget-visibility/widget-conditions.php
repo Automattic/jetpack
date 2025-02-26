@@ -1133,6 +1133,7 @@ class Jetpack_Widget_Conditions {
 	 */
 	public static function migrate_post_type_rules() {
 		global $wp_widget_factory, $wp_registered_widgets;
+		'@phan-var \WP_Widget_Factory $wp_widget_factory';
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
 
