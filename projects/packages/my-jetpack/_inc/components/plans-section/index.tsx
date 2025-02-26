@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { useCallback } from 'react';
 import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../constants';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
-import { useAllProducts } from '../../data/products/use-all-products';
+import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
@@ -158,7 +158,7 @@ const PlanSectionHeader: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPurchases } ) => {
 	const { recordEvent } = useAnalytics();
 	const { isUserConnected } = useMyJetpackConnection();
-	const { complete } = useAllProducts();
+	const { detail: complete } = useProduct( 'complete' );
 	const hasComplete = complete.hasPaidPlanForProduct;
 
 	const planManageDescription = _n(

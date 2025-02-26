@@ -3,6 +3,7 @@
  */
 import { serialize } from '@wordpress/blocks';
 import { useSelect } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 /**
  * Types
  */
@@ -21,7 +22,12 @@ const usePostContent = () => {
 		[]
 	);
 
-	return blocks?.length ? renderMarkdownFromHTML( { content: serialize( blocks ) } ) : '';
+	const getPostContent = useCallback( () => {
+		return blocks?.length ? renderMarkdownFromHTML( { content: serialize( blocks ) } ) : '';
+	}, [ blocks ] );
+
+	// TODO: Check all the places that use this hook and optimize them for performance
+	return { getPostContent };
 };
 
 export default usePostContent;

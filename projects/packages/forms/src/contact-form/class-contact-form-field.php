@@ -205,13 +205,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * Validates the form input
 	 */
 	public function validate() {
+		$field_type = $this->maybe_override_type();
+
 		// If it's not required, there's nothing to validate
-		if ( ! $this->get_attribute( 'required' ) ) {
+		if ( ! $this->get_attribute( 'required' ) || ! $this->is_field_renderable( $field_type ) ) {
 			return;
 		}
 
 		$field_id    = $this->get_attribute( 'id' );
-		$field_type  = $this->maybe_override_type();
 		$field_label = $this->get_attribute( 'label' );
 
 		if ( isset( $_POST[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.

@@ -57,7 +57,8 @@ export default function FeaturedImage( {
 		placement === PLACEMENT_MEDIA_SOURCE_DROPDOWN
 	);
 	const siteType = useSiteType();
-	const postContent = usePostContent();
+	const { getPostContent } = usePostContent();
+	const postContent = getPostContent();
 	const { postTitle, postFeaturedMediaId, isEditorPanelOpened } = useSelect( select => {
 		return {
 			postTitle: select( editorStore ).getEditedPostAttribute( 'title' ),

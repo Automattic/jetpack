@@ -1,4 +1,4 @@
-/* global window, jest */
+/* global window */
 
 if ( ! window.matchMedia ) {
 	window.matchMedia = query => ( {

@@ -1,8 +1,5 @@
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
-import {
-	PROMPT_TYPE_CHANGE_LANGUAGE,
-	//PROMPT_TYPE_SUMMARIZE,
-} from '../constants.js';
+import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants.js';
 import { PromptProp, PromptItemProps } from '../types.js';
 import ChromeAISuggestionsEventSource from './suggestions.js';
 
@@ -19,6 +16,8 @@ interface PromptContext {
 	type?: string;
 	content?: string;
 	language?: string;
+	tone?: string;
+	words?: number;
 }
 
 /**
@@ -36,7 +35,11 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		content: '',
 		language: '',
 	};
+
 	let promptType = '';
+	let tone = null;
+	let wordCount = null;
+
 	if ( Array.isArray( promptArg ) ) {
 		for ( let i = 0; i < promptArg.length; i++ ) {
 			const prompt: PromptItemProps = promptArg[ i ];
@@ -60,6 +63,14 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 
 			if ( promptContext.content ) {
 				context.content = promptContext.content;
+			}
+
+			if ( promptContext.tone ) {
+				tone = promptContext.tone;
+			}
+
+			if ( promptContext.words ) {
+				wordCount = promptContext.words;
 			}
 		}
 	}
@@ -112,17 +123,19 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		return chromeAI;
 	}
 
-	// TODO
-	if ( promptType.startsWith( 'ai-assistant-summarize' ) ) {
-		/*
-		return new ChromeAISuggestionsEventSource({
-			content: "",
-			promptType: PROMPT_TYPE_SUMMARIZE,
-			options: {},
-		} );
-		*/
+	// TODO: consider also using ChromeAI for ai-assistant-summarize
+	if ( promptType.startsWith( 'ai-content-lens' ) ) {
+		const summaryOpts = {
+			tone: tone,
+			wordCount: wordCount,
+		};
 
-		return false;
+		// TODO: detect if the content is in English and fallback if it's not
+		return new ChromeAISuggestionsEventSource( {
+			content: context.content,
+			promptType: PROMPT_TYPE_SUMMARIZE,
+			options: summaryOpts,
+		} );
 	}
 
 	return false;

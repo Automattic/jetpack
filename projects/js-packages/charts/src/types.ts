@@ -24,7 +24,10 @@ export type SeriesData = {
 	group?: string;
 	label: string;
 	data: DataPointDate[] | DataPoint[];
-	options: { gradient?: { from: string; to: string; toOpacity?: number }; stroke?: string };
+	options?: {
+		gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
+		stroke?: string;
+	};
 };
 
 export type MultipleDataPointsDate = {
