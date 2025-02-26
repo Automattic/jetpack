@@ -171,21 +171,6 @@ class File_Handler {
 	}
 
 	/**
-	 * Get file link HTML for display
-	 *
-	 * @param array $file_data The file data array containing name and file_id.
-	 * @return string HTML link to file or empty string.
-	 */
-	public function get_file_link_html( $file_data ) {
-		if ( empty( $file_data['file_id'] ) || empty( $file_data['name'] ) ) {
-			return '';
-		}
-
-		$file_url = $this->get_file_url( $file_data['file_id'] );
-		return sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $file_url ), esc_html( $file_data['name'] ) );
-	}
-
-	/**
 	 * Delete a file using its identifier.
 	 *
 	 * @since $$next-version$$
