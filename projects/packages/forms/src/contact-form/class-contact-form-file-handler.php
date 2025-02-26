@@ -155,16 +155,16 @@ class Contact_Form_File_Handler {
 		}
 
 		// Get the standard REST API URL without the file_id in the path
-		$base_url = get_rest_url( null, 'jetpack-forms/v1/files' );
+		$base_url = get_rest_url( null, 'wpcom/v2/forms/files' );
 
 		// Create a nonce based directly on the file_id
 		$file_nonce = wp_create_nonce( 'jetpack_forms_view_file_' . $file_id );
 
 		return add_query_arg(
 			array(
+				'file_id'    => $file_id,
 				'_wpnonce'   => wp_create_nonce( 'wp_rest' ),
 				'file_nonce' => $file_nonce,
-				'file_id'    => $file_id,
 			),
 			$base_url
 		);

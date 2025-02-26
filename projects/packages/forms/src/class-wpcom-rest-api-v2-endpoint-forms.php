@@ -84,8 +84,8 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 
 		// Register the file endpoint route
 		register_rest_route(
-			'jetpack-forms/v1',
-			'files',
+			$this->namespace,
+			$this->rest_base . '/files',
 			array(
 				'methods'                 => WP_REST_Server::READABLE,
 				'callback'                => array( $this, 'get_file' ),
