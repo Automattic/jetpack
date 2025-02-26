@@ -28,6 +28,7 @@ const DEFAULT_BORDER_WEIGHT_VALUE = 1;
 const DEFAULT_FONTSIZE_VALUE      = '16px';
 const DEFAULT_PADDING_VALUE       = 15;
 const DEFAULT_SPACING_VALUE       = 10;
+const DEFAULT_BUTTON_WIDTH        = 'auto';
 
 /**
  * Registers the block for use in Gutenberg
@@ -478,10 +479,7 @@ function get_element_styles_from_attributes( $attributes ) {
 	}
 
 	if ( has_attribute( $attributes, 'buttonWidth' ) ) {
-		$button_width = get_attribute( $attributes, 'buttonWidth' );
-		if ( empty( $button_width ) ) {
-			$button_width = 'auto';
-		}
+		$button_width                  = get_attribute( $attributes, 'buttonWidth', DEFAULT_BUTTON_WIDTH );
 		$submit_button_wrapper_styles .= sprintf( 'width: %s;', $button_width );
 		$submit_button_wrapper_styles .= 'max-width: 100%;';
 
