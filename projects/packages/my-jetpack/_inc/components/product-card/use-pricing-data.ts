@@ -12,7 +12,7 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
 	const { tiers, wpcomFreeProductSlug, introductoryOffer } = pricingForUi || {};
-	if ( pricingForUi.tiers ) {
+	if ( tiers ) {
 		const {
 			discountPrice,
 			fullPrice,
