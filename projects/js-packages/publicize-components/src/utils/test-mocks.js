@@ -22,6 +22,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: jest.fn(),
 	siteHasFeature: jest.fn(),
 	getMyJetpackUrl: jest.fn( () => 'https://example.com/add-license' ),
+	currentUserCan: jest.fn( () => true ),
 } ) );
 
 jest.mock( '@wordpress/editor', () => ( {
@@ -64,6 +65,10 @@ jest.mock( './', () => ( {
 		},
 	} ) ),
 	hasSocialPaidFeatures: jest.fn( () => false ),
+} ) );
+
+jest.mock( '../social-store/hydrate-stores.ts', () => ( {
+	hydrateStores: jest.fn(),
 } ) );
 
 // Store
