@@ -1,6 +1,5 @@
 import * as jpDataUtils from '@automattic/jetpack-script-data';
 import { createRoot } from '@wordpress/element';
-import React from 'react';
 import { NewsletterWidget } from './newsletter-widget';
 
 declare global {
@@ -22,8 +21,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const { emailSubscribers, paidSubscribers } = window.jetpackNewsletterWidgetConfigData || {};
 	const { suffix: site } = jpDataUtils.getSiteData();
 	const adminUrl = jpDataUtils.getAdminUrl();
+	const isWpcomSite = jpDataUtils.isWpcomPlatformSite();
 
-	if ( ! site || ! adminUrl ) {
+	if ( ! site || ! adminUrl || isWpcomSite === undefined ) {
 		return;
 	}
 
@@ -32,6 +32,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		<NewsletterWidget
 			site={ site }
 			adminUrl={ adminUrl }
+			isWpcomSite={ isWpcomSite }
 			emailSubscribers={ emailSubscribers }
 			paidSubscribers={ paidSubscribers }
 		/>
