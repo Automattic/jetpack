@@ -17,7 +17,6 @@ jQuery( document ).ready( function ( $ ) {
 	};
 
 	let currentAjaxRequest = null;
-	let isValidating = true;
 
 	initializeValidationUI();
 	bindEvents();
@@ -133,6 +132,59 @@ jQuery( document ).ready( function ( $ ) {
 	}
 
 	/**
+	 *
+	 * Update the validation UI based on the current state
+	 * @param {string} state                      - The current validation state
+	 * @param {Array}  failedValidationConditions - Array containing failed validation conditions keys
+	 */
+	function updateValidationUI( state, failedValidationConditions = [] ) {
+		const {
+			passwordInput,
+			weakPasswordConfirmation,
+			weakPasswordConfirmationCheckbox,
+			submitButtons,
+		} = UIComponents.core;
+		const { wrapper, text } = UIComponents.strengthMeter;
+
+		passwordInput.css( { transition: 'none' } );
+
+		if ( state === 'empty' ) {
+			UIComponents.passwordValidationStatus.hide();
+			passwordInput.css( { 'border-color': '#8C8F94', 'border-radius': '4px' } );
+			submitButtons.prop( 'disabled', true );
+			return;
+		}
+
+		UIComponents.passwordValidationStatus.show();
+
+		if ( state === 'loading' ) {
+			// TODO: Why isn't this in renderLoadingState? Maybe it is but the results are available so far we basically skip it?
+			text.text( 'Validating...' );
+			wrapper.css( 'background-color', '#C3C4C7' );
+			passwordInput.css( { 'border-color': '#C3C4C7', 'border-radius': '4px 4px 0px 0px' } );
+			submitButtons.prop( 'disabled', true );
+		}
+
+		const isPasswordStrong = failedValidationConditions.length === 0;
+		const color = isPasswordStrong ? '#9DD977' : '#FFABAF';
+		const strengthText = isPasswordStrong ? 'Strong' : 'Weak';
+
+		text.text( strengthText );
+		wrapper.css( 'background-color', color );
+		passwordInput.css( { 'border-color': color, 'border-radius': '4px 4px 0px 0px' } );
+
+		weakPasswordConfirmation.css( 'display', isPasswordStrong ? 'none' : 'table-row' );
+		submitButtons.prop(
+			'disabled',
+			! isPasswordStrong && ! weakPasswordConfirmationCheckbox.prop( 'checked' )
+		);
+
+		setTimeout( () => {
+			passwordInput.css( { transition: '' } ); // Re-enable transition
+		}, 10 );
+	}
+
+	/**
 	 * Validate the current password input
 	 */
 	function validatePassword() {
@@ -147,16 +199,14 @@ jQuery( document ).ready( function ( $ ) {
 		}
 
 		if ( ! password?.trim() ) {
-			applyStyling( [], true );
+			updateValidationUI( 'empty' );
 			return;
 		}
 
 		// Ensure core strength meter is hidden
 		passwordStrengthResults.hide();
 
-		if ( ! isValidating ) {
-			renderLoadingState();
-		}
+		updateValidationUI( 'loading' );
 
 		currentAjaxRequest = $.ajax( {
 			url: jetpackData.ajaxurl,
@@ -178,13 +228,14 @@ jQuery( document ).ready( function ( $ ) {
 	 */
 	function handleValidationResponse( response ) {
 		currentAjaxRequest = null;
-		isValidating = false;
 
 		if ( response.success ) {
 			const failedValidationConditions = updateValidationChecklist( response.data.state );
-			applyStyling( failedValidationConditions );
+			updateValidationUI( 'results', failedValidationConditions );
 		} else {
 			restoreCoreStrengthMeter();
+			// updateValidationUI( 'core' ); ?
+			// TODO: Move this to inside the updateValidationUI function
 		}
 	}
 
@@ -195,9 +246,9 @@ jQuery( document ).ready( function ( $ ) {
 	 */
 	function handleValidationError( jqXHR, textStatus ) {
 		if ( textStatus !== 'abort' ) {
-			isValidating = false;
-
 			restoreCoreStrengthMeter();
+			// updateValidationUI( 'core' ); ?
+			// TODO: Move this to inside the updateValidationUI function
 		}
 	}
 
@@ -222,6 +273,7 @@ jQuery( document ).ready( function ( $ ) {
 			corePasswordStrengthResultsClass.includes( 'good' )
 		);
 
+		// TODO: Move all UI changes to updateValidationUI... just return failed conditions here
 		Object.entries( state ).forEach( ( [ key, item ] ) => {
 			const validationFailed = key === 'core' ? coreValidationFailed : item.status;
 			const checklistItem = UIComponents.validationChecklistItems[ key ];
@@ -242,56 +294,54 @@ jQuery( document ).ready( function ( $ ) {
 		return failedConditions;
 	}
 
-	/**
-	 *
-	 * Apply styling based on validation results
-	 *
-	 * @param {Array}   failedValidationConditions - Array containing failed validation conditions keys
-	 * @param {boolean} passwordIsEmpty            - Whether the password input is empty
-	 */
-	function applyStyling( failedValidationConditions, passwordIsEmpty = false ) {
-		if ( passwordIsEmpty ) {
-			renderEmptyInputState();
-			return;
-		}
+	// /**
+	//  *
+	//  * Apply styling based on validation results
+	//  *
+	//  * @param {Array}   failedValidationConditions - Array containing failed validation conditions keys
+	//  * @param {boolean} passwordIsEmpty            - Whether the password input is empty
+	//  */
+	// function applyStyling( failedValidationConditions, passwordIsEmpty = false ) {
+	// 	if ( passwordIsEmpty ) {
+	// 		renderEmptyInputState();
+	// 		return;
+	// 	}
 
-		const isPasswordStrong = failedValidationConditions.length === 0;
-		const color = isPasswordStrong ? '#9DD977' : '#FFABAF';
-		const strengthText = isPasswordStrong ? 'Strong' : 'Weak';
+	// 	const isPasswordStrong = failedValidationConditions.length === 0;
+	// 	const color = isPasswordStrong ? '#9DD977' : '#FFABAF';
+	// 	const strengthText = isPasswordStrong ? 'Strong' : 'Weak';
 
-		const {
-			weakPasswordConfirmation,
-			weakPasswordConfirmationCheckbox,
-			submitButtons,
-			passwordInput,
-		} = UIComponents.core;
-		const { wrapper, text } = UIComponents.strengthMeter;
+	// 	const {
+	// 		weakPasswordConfirmation,
+	// 		weakPasswordConfirmationCheckbox,
+	// 		submitButtons,
+	// 		passwordInput,
+	// 	} = UIComponents.core;
+	// 	const { wrapper, text } = UIComponents.strengthMeter;
 
-		if ( isPasswordStrong || weakPasswordConfirmationCheckbox.prop( 'checked' ) ) {
-			submitButtons.prop( 'disabled', false );
-		} else {
-			submitButtons.prop( 'disabled', true );
-		}
+	// 	if ( isPasswordStrong || weakPasswordConfirmationCheckbox.prop( 'checked' ) ) {
+	// 		submitButtons.prop( 'disabled', false );
+	// 	} else {
+	// 		submitButtons.prop( 'disabled', true );
+	// 	}
 
-		weakPasswordConfirmation.css( 'display', isPasswordStrong ? 'none' : 'table-row' );
+	// 	weakPasswordConfirmation.css( 'display', isPasswordStrong ? 'none' : 'table-row' );
 
-		text.text( strengthText );
-		wrapper.css( 'background-color', color );
+	// 	text.text( strengthText );
+	// 	wrapper.css( 'background-color', color );
 
-		passwordInput.css( {
-			'border-color': color,
-			'border-radius': '4px 4px 0px 0px',
-		} );
+	// 	passwordInput.css( {
+	// 		'border-color': color,
+	// 		'border-radius': '4px 4px 0px 0px',
+	// 	} );
 
-		UIComponents.passwordValidationStatus.show();
-	}
+	// 	UIComponents.passwordValidationStatus.show();
+	// }
 
 	/**
 	 * Render the empty input state
 	 */
 	function renderEmptyInputState() {
-		isValidating = false;
-
 		UIComponents.passwordValidationStatus.hide();
 		UIComponents.core.passwordInput.css( {
 			'border-color': '#8C8F94',
@@ -299,37 +349,37 @@ jQuery( document ).ready( function ( $ ) {
 		} );
 	}
 
-	/**
-	 * Render the loading state
-	 */
-	function renderLoadingState() {
-		isValidating = true;
+	// /**
+	//  * Render the loading state
+	//  */
+	// function renderLoadingState() {
+	// 	isValidating = true;
 
-		const { passwordInput, weakPasswordConfirmation, submitButtons } = UIComponents.core;
-		submitButtons.prop( 'disabled', true );
-		weakPasswordConfirmation.hide();
+	// 	const { passwordInput, weakPasswordConfirmation, submitButtons } = UIComponents.core;
+	// 	submitButtons.prop( 'disabled', true );
+	// 	weakPasswordConfirmation.hide();
 
-		Object.entries( UIComponents.validationChecklistItems ).forEach( ( [ key, itemData ] ) => {
-			const { icon, text, item } = itemData;
+	// 	Object.entries( UIComponents.validationChecklistItems ).forEach( ( [ key, itemData ] ) => {
+	// 		const { icon, text, item } = itemData;
 
-			icon.removeClass( 'check cross' );
-			text.css( { color: '#3C434A' } );
+	// 		icon.removeClass( 'check cross' );
+	// 		text.css( { color: '#3C434A' } );
 
-			// Re-hide the core and contains_backslash items
-			if ( [ 'core', 'contains_backslash' ].includes( key ) ) {
-				item.hide();
-			}
-		} );
+	// 		// Re-hide the core and contains_backslash items
+	// 		if ( [ 'core', 'contains_backslash' ].includes( key ) ) {
+	// 			item.hide();
+	// 		}
+	// 	} );
 
-		UIComponents.strengthMeter.text.text( 'Validating...' );
-		UIComponents.strengthMeter.wrapper.css( 'background-color', '#C3C4C7' );
-		passwordInput.css( {
-			'border-color': '#C3C4C7',
-			'border-radius': '4px 4px 0px 0px',
-		} );
+	// 	UIComponents.strengthMeter.text.text( 'Validating...' );
+	// 	UIComponents.strengthMeter.wrapper.css( 'background-color', '#C3C4C7' );
+	// 	passwordInput.css( {
+	// 		'border-color': '#C3C4C7',
+	// 		'border-radius': '4px 4px 0px 0px',
+	// 	} );
 
-		UIComponents.passwordValidationStatus.show();
-	}
+	// 	UIComponents.passwordValidationStatus.show();
+	// }
 
 	/**
 	 * Resets UI to core strength meter.
