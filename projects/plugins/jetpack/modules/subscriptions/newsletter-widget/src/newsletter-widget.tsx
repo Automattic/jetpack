@@ -4,16 +4,21 @@ import { Icon } from '@wordpress/components';
 import { envelope, payment } from '@wordpress/icons';
 
 interface NewsletterWidgetProps {
-	hostname: string;
+	site: string;
 	adminUrl: string;
 	emailSubscribers?: number;
 	paidSubscribers?: number;
 }
 
+interface NewsletterWidgetProps {
+	site: string;
+	adminUrl: string;
+}
+
 const WPCOM_BASE = 'https://wordpress.com';
 
 export const NewsletterWidget = ( {
-	hostname,
+	site,
 	adminUrl,
 	emailSubscribers,
 	paidSubscribers,
@@ -29,9 +34,7 @@ export const NewsletterWidget = ( {
 						<span className="newsletter-widget__stat-content">
 							<span className="newsletter-widget__stat-number">{ emailSubscribers }</span>
 							<span className="newsletter-widget__stat-label">
-								<a href={ `${ WPCOM_BASE }/stats/subscribers/${ hostname }` }>
-									email subscriptions
-								</a>
+								<a href={ `${ WPCOM_BASE }/stats/subscribers/${ site }` }>email subscriptions</a>
 							</span>
 						</span>
 					</span>
@@ -42,7 +45,7 @@ export const NewsletterWidget = ( {
 						<span className="newsletter-widget__stat-content">
 							<span className="newsletter-widget__stat-number">{ paidSubscribers }</span>
 							<span className="newsletter-widget__stat-label">
-								<a href={ `${ WPCOM_BASE }/stats/subscribers/${ hostname }` }>paid subscriptions</a>
+								<a href={ `${ WPCOM_BASE }/stats/subscribers/${ site }` }>paid subscriptions</a>
 							</span>
 						</span>
 					</span>
@@ -63,23 +66,19 @@ export const NewsletterWidget = ( {
 							<a href={ `${ adminUrl }edit.php` }>Publish your next post</a>
 						</li>
 						<li>
-							<a href={ `${ WPCOM_BASE }/stats/subscribers/${ hostname }` }>
-								View subscriber stats
-							</a>
+							<a href={ `${ WPCOM_BASE }/stats/subscribers/${ site }` }>View subscriber stats</a>
 						</li>
 						<li>
-							<a href={ `${ WPCOM_BASE }/subscribers/${ hostname }` }>Import subscribers</a>
+							<a href={ `${ WPCOM_BASE }/subscribers/${ site }` }>Import subscribers</a>
 						</li>
 						<li>
-							<a href={ `${ WPCOM_BASE }/subscribers/${ hostname }` }>Manage subscribers</a>
+							<a href={ `${ WPCOM_BASE }/subscribers/${ site }` }>Manage subscribers</a>
 						</li>
 						<li>
-							<a href={ `${ WPCOM_BASE }/earn/${ hostname }` }>Monetize</a>
+							<a href={ `${ WPCOM_BASE }/earn/${ site }` }>Monetize</a>
 						</li>
 						<li>
-							<a href={ `${ WPCOM_BASE }/settings/newsletter/${ hostname }` }>
-								Newsletter settings
-							</a>
+							<a href={ `${ WPCOM_BASE }/settings/newsletter/${ site }` }>Newsletter settings</a>
 						</li>
 					</ul>
 				</div>

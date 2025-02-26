@@ -14,7 +14,7 @@ jest.mock( '@wordpress/icons', () => ( {
 
 describe( 'NewsletterWidget', () => {
 	const defaultProps = {
-		hostname: 'example.com',
+		site: 'example.com',
 		adminUrl: 'https://example.com/wp-admin/',
 		emailSubscribers: 100,
 		paidSubscribers: 50,
