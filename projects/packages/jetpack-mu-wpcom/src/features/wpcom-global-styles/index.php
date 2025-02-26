@@ -777,7 +777,6 @@ function wpcom_global_styles_is_previewing_premium_theme_without_premium_plan( $
  * @return bool Whether the site has access to Global Styles with a Personal plan.
  */
 function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
-	// @phan-suppress-next-line UnreachableCode
 	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 		return false;
 	}
