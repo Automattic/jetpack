@@ -51,6 +51,10 @@ const OwnerDisconnectDialog = ( { isOpen, onClose, apiRoot, apiNonce, onDisconne
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ disconnectError, setDisconnectError ] = useState( '' );
 
+	// Define translation strings as constants
+	const disconnectingText = __( 'Disconnecting…', 'jetpack' );
+	const disconnectText = __( 'Disconnect', 'jetpack' );
+
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
@@ -165,9 +169,7 @@ const OwnerDisconnectDialog = ( { isOpen, onClose, apiRoot, apiNonce, onDisconne
 							isDestructive
 							disabled={ isDisconnecting }
 						>
-							{ isDisconnecting
-								? __( 'Disconnecting…', 'jetpack' )
-								: __( 'Disconnect', 'jetpack' ) }
+							{ isDisconnecting ? disconnectingText : disconnectText }
 						</Button>
 					</div>
 				</div>
