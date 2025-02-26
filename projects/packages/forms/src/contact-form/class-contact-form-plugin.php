@@ -2168,16 +2168,19 @@ class Contact_Form_Plugin {
 		$new_all_values = array();
 		require_once __DIR__ . '/class-contact-form-file-handler.php';
 		$file_handler = new Contact_Form_File_Handler();
-		foreach ( $all_values as $key => $value ) {
-			$new_all_values[ $key ] = $value;
 
-			if ( str_starts_with( $value, '{' ) ) {
-				$maybe_file_data = json_decode( $value, true );
-				if ( is_array( $maybe_file_data ) && isset( $maybe_file_data['file_id'] ) && isset( $maybe_file_data['name'] ) ) {
-					// This is a file upload field, display a link instead of raw data
-					$maybe_file_data['url']  = $file_handler->get_file_url( $maybe_file_data['file_id'] );
-					$maybe_file_data['name'] = self::strip_tags( trim( $maybe_file_data['name'] ) );
-					$new_all_values[ $key ]  = wp_json_encode( $maybe_file_data );
+		if ( is_array( $all_values ) ) {
+			foreach ( $all_values as $key => $value ) {
+				$new_all_values[ $key ] = $value;
+
+				if ( str_starts_with( $value, '{' ) ) {
+					$maybe_file_data = json_decode( $value, true );
+					if ( is_array( $maybe_file_data ) && isset( $maybe_file_data['file_id'] ) && isset( $maybe_file_data['name'] ) ) {
+						// This is a file upload field, display a link instead of raw data
+						$maybe_file_data['url']  = $file_handler->get_file_url( $maybe_file_data['file_id'] );
+						$maybe_file_data['name'] = self::strip_tags( trim( $maybe_file_data['name'] ) );
+						$new_all_values[ $key ]  = wp_json_encode( $maybe_file_data );
+					}
 				}
 			}
 		}
