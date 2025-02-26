@@ -62,7 +62,6 @@ describe( 'useConnection', () => {
 		const { rerender } = renderHook( props => useConnection( props ), { initialProps } );
 		expect( stubRegisterSite ).toHaveBeenCalledTimes( 1 );
 		expect( stubRegisterSite ).toHaveBeenCalledWith( {
-			registrationNonce: 'REGISTRATION',
 			redirectUri: 'REDIRECT',
 		} );
 		stubRegisterSite.mockClear();
@@ -90,7 +89,6 @@ describe( 'useConnection', () => {
 	it( 'calls connectUser after register site', done => {
 		setupStubs();
 		const initialProps = {
-			registrationNonce: 'REGISTRATION',
 			redirectUri: 'REDIRECT',
 			from: 'JETPACK',
 		};

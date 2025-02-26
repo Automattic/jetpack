@@ -38,7 +38,6 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		setTimeout( () => {
 			expect( stubRegisterSite ).toHaveBeenCalledTimes( 1 );
 			expect( stubRegisterSite ).toHaveBeenCalledWith( {
-				registrationNonce: 'REGISTRATION',
 				redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
 				from: 'jetpack-partner-coupon',
 			} );

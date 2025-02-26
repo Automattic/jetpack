@@ -18,7 +18,6 @@ const RedeemPartnerCouponPreConnection = props => {
 		connectionStatus,
 		partnerCoupon,
 		assetBaseUrl,
-		registrationNonce,
 		siteRawUrl,
 		tracksUserData,
 		analytics,
@@ -41,7 +40,6 @@ const RedeemPartnerCouponPreConnection = props => {
 		<div className={ classes }>
 			<ConnectScreen
 				apiNonce={ apiNonce }
-				registrationNonce={ registrationNonce }
 				apiRoot={ apiRoot }
 				images={ [ '/images/connect-right-partner-backup.png' ] }
 				assetBaseUrl={ assetBaseUrl }
@@ -95,7 +93,6 @@ RedeemPartnerCouponPreConnection.propTypes = {
 	assetBaseUrl: PropTypes.string.isRequired,
 	connectionStatus: PropTypes.object.isRequired,
 	partnerCoupon: PropTypes.object.isRequired,
-	registrationNonce: PropTypes.string.isRequired,
 	siteRawUrl: PropTypes.string.isRequired,
 	tracksUserData: PropTypes.bool.isRequired,
 	analytics: PropTypes.object,

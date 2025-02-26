@@ -2,7 +2,6 @@ import { useConnection } from '@automattic/jetpack-connection';
 import {
 	getMyJetpackWindowInitialState,
 	getMyJetpackWindowRestState,
-	getMyJetpackWindowConnectionState,
 } from '../../data/utils/get-my-jetpack-window-state';
 /**
  * React custom hook to get the site purchases data.
@@ -30,11 +29,9 @@ const useMyJetpackConnection = ( {
 }: MyJetpackConnectionOptions = {} ): MyJetpackConnection => {
 	const { apiRoot, apiNonce } = getMyJetpackWindowRestState();
 	const { topJetpackMenuItemUrl, blogID } = getMyJetpackWindowInitialState();
-	const { registrationNonce } = getMyJetpackWindowConnectionState();
 	const connectionData = useConnection( {
 		apiRoot,
 		apiNonce,
-		registrationNonce,
 		skipUserConnection,
 		from: 'my-jetpack',
 		redirectUri: redirectUri,
@@ -50,7 +47,6 @@ const useMyJetpackConnection = ( {
 		apiNonce,
 		apiRoot,
 		blogID,
-		registrationNonce,
 		...connectionData,
 		isSiteConnected,
 		siteIsRegistered,

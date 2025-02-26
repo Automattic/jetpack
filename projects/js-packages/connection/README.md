@@ -28,7 +28,6 @@ The component implements the connection screen page, and loads the `ConnectButto
 ### Properties
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
-- *registrationNonce* - string (required), registration nonce.
 - *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 - *from* - string, custom string parameter to identify where the request is coming from.
 - *title* - string, page title.
@@ -55,7 +54,6 @@ const statusCallback = useCallback(
 <ConnectScreen
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
-	registrationNonce="54321"
 	from="my-jetpack"
 	redirectUri="tools.php?page=wpcom-connection-manager"
 	statusCallback={ statusCallback }
@@ -71,7 +69,6 @@ The component displays the connection button and handles the connection process,
 - *connectLabel* - string, the "Connect" button label.
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
-- *registrationNonce* - string (required), registration nonce.
 - *from* - string, custom string parameter to identify where the request is coming from.
 - *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 - *statusCallback* - callback to pull connection status from the component.
@@ -89,7 +86,6 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 <ConnectButton
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
-	registrationNonce="54321"
 	from="my-jetpack"
 	redirectUri="tools.php?page=wpcom-connection-manager"
 	connectionStatus={ connectionStatus }
