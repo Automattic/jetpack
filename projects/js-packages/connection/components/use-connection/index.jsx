@@ -7,7 +7,6 @@ import { STORE_ID } from '../../state/store';
 const initialState = window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
 
 export default ( {
-	registrationNonce = initialState.registrationNonce,
 	apiRoot = initialState.apiRoot,
 	apiNonce = initialState.apiNonce,
 	redirectUri,
@@ -74,7 +73,7 @@ export default ( {
 			return handleConnectUser();
 		}
 
-		return registerSite( { registrationNonce, redirectUri, from } ).then( () => {
+		return registerSite( { redirectUri, from } ).then( () => {
 			return handleConnectUser();
 		} );
 	};

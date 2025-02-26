@@ -10,7 +10,6 @@ import { STORE_ID } from '../../state/store.jsx';
 const debug = debugFactory( 'jetpack:connection:useProductCheckoutWorkflow' );
 
 const {
-	registrationNonce,
 	apiRoot,
 	apiNonce,
 	siteSuffix: defaultSiteSuffix,
@@ -169,9 +168,7 @@ export default function useProductCheckoutWorkflow( {
 			return handleAfterRegistration( redirect );
 		}
 
-		registerSite( { registrationNonce, redirectUri: redirectUrl } ).then( () =>
-			handleAfterRegistration( redirect )
-		);
+		registerSite( { redirectUri: redirectUrl } ).then( () => handleAfterRegistration( redirect ) );
 	};
 
 	// Initialize/Setup the REST API.

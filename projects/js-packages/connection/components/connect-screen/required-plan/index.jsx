@@ -21,7 +21,6 @@ const ConnectScreenRequiredPlan = props => {
 		buttonLabel = __( 'Set up Jetpack', 'jetpack-connection-js' ),
 		apiRoot,
 		apiNonce,
-		registrationNonce,
 		from,
 		redirectUri,
 		children,
@@ -43,7 +42,6 @@ const ConnectScreenRequiredPlan = props => {
 		registrationError,
 		isOfflineMode,
 	} = useConnection( {
-		registrationNonce,
 		redirectUri,
 		apiRoot,
 		apiNonce,
@@ -94,8 +92,6 @@ ConnectScreenRequiredPlan.propTypes = {
 	apiRoot: PropTypes.string.isRequired,
 	/** API nonce. */
 	apiNonce: PropTypes.string.isRequired,
-	/** Registration nonce. */
-	registrationNonce: PropTypes.string.isRequired,
 	/** Where the connection request is coming from. */
 	from: PropTypes.string,
 	/** The redirect admin URI. */

@@ -418,8 +418,6 @@ class Test_REST_Endpoints extends TestCase {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
-		$request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
-
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -443,8 +441,6 @@ class Test_REST_Endpoints extends TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
 		$request->set_header( 'Content-Type', 'application/json' );
-
-		$request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();

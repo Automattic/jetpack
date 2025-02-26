@@ -28,7 +28,6 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 	it( 'passes along coupon when not connected', done => {
 		setupSpies();
 		const initialProps = {
-			registrationNonce: 'REGISTRATION',
 			redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
 			from: 'jetpack-partner-coupon',
 		};

@@ -15,8 +15,6 @@ interface ConnectScreenProps {
 	apiRoot: string;
 	// API nonce
 	apiNonce: string;
-	// Registration nonce
-	registrationNonce: string;
 	// The redirect admin UR
 	redirectUri: string;
 	// Additional page elements to show before the call to action

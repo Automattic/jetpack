@@ -8,8 +8,6 @@ export type Props = {
 	apiRoot: string;
 	// API nonce
 	apiNonce: string;
-	// Registration nonce
-	registrationNonce: string;
 	// The redirect admin UR
 	redirectUri: string;
 	// Additional page elements to show before the call to action
@@ -47,7 +45,6 @@ const ConnectScreen: React.FC< Props > = ( {
 	loadingLabel,
 	apiRoot,
 	apiNonce,
-	registrationNonce,
 	from,
 	redirectUri,
 	images,
@@ -66,7 +63,6 @@ const ConnectScreen: React.FC< Props > = ( {
 		registrationError,
 		isOfflineMode,
 	} = useConnection( {
-		registrationNonce,
 		redirectUri,
 		apiRoot,
 		apiNonce,

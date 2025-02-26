@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react';
 import { STORE_ID } from 'store';
 
 const {
-	registrationNonce,
 	apiRoot,
 	apiNonce,
 	siteSuffix: defaultSiteSuffix,
@@ -93,7 +92,7 @@ export default function useProductCheckoutWorkflow( {
 			return handleAfterRegistration();
 		}
 
-		registerSite( { registrationNonce, redirectUri } ).then( handleAfterRegistration );
+		registerSite( { redirectUri } ).then( handleAfterRegistration );
 	};
 
 	// Initialize/Setup the REST API.

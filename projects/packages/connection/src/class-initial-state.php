@@ -27,7 +27,6 @@ class Initial_State {
 		return array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
 			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'connectionStatus'   => REST_Connector::connection_status( false ),
 			'userConnectionData' => REST_Connector::get_user_connection_data( false ),
 			'connectedPlugins'   => REST_Connector::get_connection_plugins( false ),

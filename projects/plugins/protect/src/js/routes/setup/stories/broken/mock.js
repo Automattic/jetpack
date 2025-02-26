@@ -3,7 +3,6 @@ import { SCAN_STATUS_SCHEDULED } from '../../../../constants';
 export const jetpackProtectInitialState = {
 	apiRoot: 'http://localhost/wp-json/',
 	apiNonce: 'f2d2d42e2a',
-	registrationNonce: 'c923ca109f',
 	status: {
 		last_checked: '2022-05-05 20:56:27',
 		num_threats: 6,

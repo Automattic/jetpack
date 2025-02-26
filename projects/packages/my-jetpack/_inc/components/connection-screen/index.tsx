@@ -13,7 +13,7 @@ const ConnectionScreen: FC = () => {
 	const [ searchParams ] = useSearchParams();
 	const shouldSkipPricing = searchParams.get( 'skip_pricing' ) === 'true';
 	const returnToPage = useMyJetpackReturnToPage();
-	const { apiRoot, apiNonce, registrationNonce } = useMyJetpackConnection();
+	const { apiRoot, apiNonce } = useMyJetpackConnection();
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
@@ -30,7 +30,6 @@ const ConnectionScreen: FC = () => {
 						redirectUri={ returnToPage }
 						apiRoot={ apiRoot }
 						apiNonce={ apiNonce }
-						registrationNonce={ registrationNonce }
 						skipPricingPage={ shouldSkipPricing }
 						footer={ <ConnectionScreenFooter /> }
 					/>

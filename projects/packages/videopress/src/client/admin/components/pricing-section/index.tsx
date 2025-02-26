@@ -18,14 +18,13 @@ import { useState } from 'react';
 import { usePlan } from '../../hooks/use-plan';
 
 const PricingPage = ( { onRedirecting } ) => {
-	const { siteSuffix, adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
+	const { siteSuffix, adminUri } = window.jetpackVideoPressInitialState;
 	const { siteProduct, productPrice } = usePlan();
 	const { yearly: yearlyPrice } = productPrice;
 
 	const { handleRegisterSite, userIsConnecting } = useConnection( {
 		redirectUri: adminUri,
 		from: 'jetpack-videopress',
-		registrationNonce,
 	} );
 	const [ isConnecting, setIsConnecting ] = useState( false );
 

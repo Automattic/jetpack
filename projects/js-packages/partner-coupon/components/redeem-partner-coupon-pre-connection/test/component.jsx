@@ -27,7 +27,6 @@ const requiredProps = {
 	connectionStatus: { isRegistered: true },
 	partnerCoupon: partnerCoupon,
 	assetBaseUrl: 'PATH',
-	registrationNonce: 'NONCE',
 	siteRawUrl: 'example.com',
 	tracksUserData: true,
 	analytics: analytics,

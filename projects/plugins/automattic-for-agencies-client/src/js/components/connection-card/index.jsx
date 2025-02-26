@@ -19,7 +19,7 @@ import styles from './styles.module.scss';
  * @return {React.Component} The `ConnectionContent` component.
  */
 function ConnectionContent( { onShowSharingDetailsClick } ) {
-	const { apiNonce, apiRoot, registrationNonce } = window.automatticForAgenciesClientInitialState;
+	const { apiNonce, apiRoot } = window.automatticForAgenciesClientInitialState;
 	return (
 		<>
 			<h1>
@@ -87,7 +87,6 @@ function ConnectionContent( { onShowSharingDetailsClick } ) {
 						connectLabel={ __( 'Connect this site', 'automattic-for-agencies-client' ) }
 						apiRoot={ apiRoot }
 						apiNonce={ apiNonce }
-						registrationNonce={ registrationNonce }
 						from="automattic-for-agencies-client"
 						redirectUri="options-general.php?page=automattic-for-agencies-client"
 					/>

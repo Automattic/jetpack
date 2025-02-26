@@ -10,7 +10,6 @@ const PartnerCouponRedeem = props => {
 		connectionStatus,
 		partnerCoupon,
 		assetBaseUrl,
-		registrationNonce,
 		siteRawUrl,
 		tracksUserData,
 		analytics,
@@ -32,7 +31,6 @@ const PartnerCouponRedeem = props => {
 	return (
 		<RedeemPartnerCouponPreConnection
 			apiNonce={ apiNonce }
-			registrationNonce={ registrationNonce }
 			apiRoot={ apiRoot }
 			assetBaseUrl={ assetBaseUrl }
 			connectionStatus={ connectionStatus }
@@ -50,7 +48,6 @@ PartnerCouponRedeem.propTypes = {
 	assetBaseUrl: PropTypes.string.isRequired,
 	connectionStatus: PropTypes.object.isRequired,
 	partnerCoupon: PropTypes.object.isRequired,
-	registrationNonce: PropTypes.string.isRequired,
 	siteRawUrl: PropTypes.string.isRequired,
 	tracksUserData: PropTypes.bool.isRequired,
 	analytics: PropTypes.object,

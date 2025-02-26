@@ -81,7 +81,6 @@ const SearchConnectionScreen = () => {
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore(), [] );
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter(), [] );
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
-	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
 	const checkSiteHasSearchProduct = useCallback(
 		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
@@ -98,7 +97,6 @@ const SearchConnectionScreen = () => {
 			title={ __( 'The best WordPress search experience', 'jetpack-search-pkg' ) }
 			apiRoot={ APIRoot }
 			apiNonce={ APINonce }
-			registrationNonce={ registrationNonce }
 			from="jetpack-search"
 			redirectUri="admin.php?page=jetpack-search"
 			wpcomProductSlug="jetpack_search"

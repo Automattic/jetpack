@@ -76,8 +76,7 @@ const Admin = () => {
 export default Admin;
 
 const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } =
-		window.jetpackClassicThemeHelperPluginInitialState;
+	const { apiNonce, apiRoot } = window.jetpackClassicThemeHelperPluginInitialState;
 	return (
 		<ConnectScreenRequiredPlan
 			buttonLabel={ __( 'Get Jetpack Classic Theme Helper Plugin', 'classic-theme-helper-plugin' ) }
@@ -87,7 +86,6 @@ const ConnectionSection = () => {
 			title={ __( 'Features for classic themes.', 'classic-theme-helper-plugin' ) }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
-			registrationNonce={ registrationNonce }
 			from="classic-theme-helper-plugin"
 			redirectUri="admin.php?page=classic-theme-helper-plugin"
 		>

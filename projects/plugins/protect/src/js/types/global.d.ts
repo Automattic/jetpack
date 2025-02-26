@@ -11,7 +11,6 @@ declare global {
 		jetpackProtectInitialState?: {
 			apiRoot: string;
 			apiNonce: string;
-			registrationNonce: string;
 			credentials: [ Record< string, unknown > ];
 			status: ScanStatus;
 			fixerStatus: FixersStatus;

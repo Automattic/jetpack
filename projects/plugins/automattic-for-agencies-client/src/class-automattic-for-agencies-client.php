@@ -135,9 +135,8 @@ class Automattic_For_Agencies_Client {
 	 */
 	private static function initial_state() {
 		return array(
-			'apiRoot'           => esc_url_raw( rest_url() ),
-			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'apiRoot'  => esc_url_raw( rest_url() ),
+			'apiNonce' => wp_create_nonce( 'wp_rest' ),
 		);
 	}
 

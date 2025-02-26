@@ -57,7 +57,6 @@ describe( 'useConnection', () => {
 		setupStubs();
 		const initialProps = {
 			autoTrigger: true,
-			registrationNonce: 'REGISTRATION',
 			redirectUri: 'REDIRECT',
 		};
 		const { rerender } = renderHook( props => useConnection( props ), { initialProps } );

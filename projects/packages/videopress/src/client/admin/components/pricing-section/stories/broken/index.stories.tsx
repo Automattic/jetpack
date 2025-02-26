@@ -12,7 +12,6 @@ window.jetpackVideoPressInitialState = {
 	adminUri: 'admin-uri',
 	apiNonce: 'nonce',
 	apiRoot: 'https://api-root.com',
-	registrationNonce: 'registration-nonce',
 	paidFeatures: {
 		isVideoPressSupported: true,
 		isVideoPress1TBSupported: true,

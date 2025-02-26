@@ -13,7 +13,7 @@ import styles from './styles.module.scss';
  * @return {React.Component} The `ConnectionCard` component.
  */
 export default function DisconnectedCard() {
-	const { apiNonce, apiRoot, registrationNonce } = window.automatticForAgenciesClientInitialState;
+	const { apiNonce, apiRoot } = window.automatticForAgenciesClientInitialState;
 
 	const connectionErrors = useSelect(
 		select => select( CONNECTION_STORE_ID ).getConnectionErrors(),
@@ -49,7 +49,6 @@ export default function DisconnectedCard() {
 							connectLabel={ __( 'Reconnect this site now', 'automattic-for-agencies-client' ) }
 							apiRoot={ apiRoot }
 							apiNonce={ apiNonce }
-							registrationNonce={ registrationNonce }
 							from="automattic-for-agencies-client"
 							redirectUri="options-general.php?page=automattic-for-agencies-client"
 						/>

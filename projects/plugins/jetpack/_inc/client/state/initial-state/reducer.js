@@ -285,16 +285,6 @@ export function getApiRootUrl( state ) {
 }
 
 /**
- * Returns the registration nonce.
- *
- * @param {object} state - Global state tree
- * @return {string} The registration nonce
- */
-export function getRegistrationNonce( state ) {
-	return get( state.jetpack.initialState, 'registrationNonce' );
-}
-
-/**
  * Returns the plugin base URL.
  *
  * @param {object} state - Global state tree

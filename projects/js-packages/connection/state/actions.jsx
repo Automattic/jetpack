@@ -88,19 +88,18 @@ function* connectUser( { from, redirectFunc, redirectUri, skipPricingPage } = {}
  *
  * Register an site into jetpack
  *
- * @param {object} Object                   - contains registrationNonce and redirectUri
- * @param {string} Object.registrationNonce - Registration nonce
- * @param {string} Object.redirectUri       - URI that user will be redirected
- * @param {string} [Object.from]            - Value that represents the origin of the request (optional)
+ * @param {object} Object             - contains "redirectUri" and "from"
+ * @param {string} Object.redirectUri - URI that user will be redirected
+ * @param {string} [Object.from]      - Value that represents the origin of the request (optional)
  * @yield {object} Action object that will be yielded
  * @return {Promise} Resolved or rejected value of registerSite
  */
-function* registerSite( { registrationNonce, redirectUri, from = '' } ) {
+function* registerSite( { redirectUri, from = '' } ) {
 	yield clearRegistrationError();
 	yield setSiteIsRegistering( true );
 
 	try {
-		const response = yield { type: REGISTER_SITE, registrationNonce, redirectUri, from };
+		const response = yield { type: REGISTER_SITE, redirectUri, from };
 		yield setConnectionStatus( { isRegistered: true } );
 		yield setAuthorizationUrl( response.authorizeUrl );
 		yield setSiteIsRegistering( false );

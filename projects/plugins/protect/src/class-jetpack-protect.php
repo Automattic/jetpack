@@ -212,7 +212,6 @@ class Jetpack_Protect {
 		$initial_state = array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
 			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'credentials'        => Credentials::get_credential_array(),
 			'status'             => $status,
 			'fixerStatus'        => Threats::fix_threats_status( $status->fixable_threat_ids ),

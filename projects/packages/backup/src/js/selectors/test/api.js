@@ -59,31 +59,4 @@ describe( 'apiSelectors', () => {
 			expect( output ).toBe( expected );
 		} );
 	} );
-
-	describe( 'getRegistrationNonce()', () => {
-		it.each( [
-			{
-				state: fixtures.emptyObjectAPIState,
-				expected: null,
-			},
-			{
-				state: fixtures.dummyValueAPIState,
-				expected: null,
-			},
-			{
-				state: {
-					API: {
-						registrationNonce: 123456,
-					},
-				},
-				expected: 123456,
-			},
-		] )(
-			'should return registrationNonce value if passed, null otherwise',
-			( { state, expected } ) => {
-				const output = selectors.getRegistrationNonce( state );
-				expect( output ).toBe( expected );
-			}
-		);
-	} );
 } );

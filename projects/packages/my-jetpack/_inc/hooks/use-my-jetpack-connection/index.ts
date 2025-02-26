@@ -14,7 +14,6 @@ type MyJetpackConnection = {
 	apiNonce: string;
 	apiRoot: string;
 	blogID: string;
-	registrationNonce: string;
 	isSiteConnected: boolean;
 	siteIsRegistered: boolean;
 	topJetpackMenuItemUrl: string;

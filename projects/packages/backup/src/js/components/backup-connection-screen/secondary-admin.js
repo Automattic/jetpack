@@ -9,7 +9,6 @@ import connectImage from './assets/connect-backup.png';
 export const BackupSecondaryAdminConnectionScreen = () => {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
-	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
 
 	return (
 		<ConnectScreen
@@ -17,7 +16,6 @@ export const BackupSecondaryAdminConnectionScreen = () => {
 			buttonLabel={ __( 'Log in to continue', 'jetpack-backup-pkg' ) }
 			apiRoot={ APIRoot }
 			apiNonce={ APINonce }
-			registrationNonce={ registrationNonce }
 			images={ [ connectImage ] }
 			from="jetpack-backup"
 			redirectUri="admin.php?page=jetpack-backup"

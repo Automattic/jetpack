@@ -69,7 +69,7 @@ const Admin = () => {
 export default Admin;
 
 const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.jetpackStarterPluginInitialState;
+	const { apiNonce, apiRoot } = window.jetpackStarterPluginInitialState;
 	return (
 		<ConnectScreenRequiredPlan
 			buttonLabel={ __( 'Get Jetpack Starter Plugin', 'jetpack-starter-plugin' ) }
@@ -79,7 +79,6 @@ const ConnectionSection = () => {
 			title={ __( 'plugin--description', 'jetpack-starter-plugin' ) }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
-			registrationNonce={ registrationNonce }
 			from="jetpack-starter-plugin"
 			redirectUri="admin.php?page=jetpack-starter-plugin"
 		>

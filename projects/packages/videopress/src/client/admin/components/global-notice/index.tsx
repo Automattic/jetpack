@@ -81,12 +81,11 @@ export default function GlobalNotice( {
 }
 
 export const NeedUserConnectionGlobalNotice = () => {
-	const { adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
+	const { adminUri } = window.jetpackVideoPressInitialState;
 
 	const { hasConnectedOwner, handleRegisterSite } = useConnection( {
 		redirectUri: adminUri,
 		from: 'jetpack-videopress',
-		registrationNonce,
 	} );
 
 	if ( hasConnectedOwner ) {

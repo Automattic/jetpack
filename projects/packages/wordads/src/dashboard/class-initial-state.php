@@ -49,14 +49,13 @@ class Initial_State {
 	public function get_initial_state() {
 		return array(
 			'siteData'        => array(
-				'WP_API_root'       => esc_url_raw( rest_url() ),
-				'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
-				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-				'adminUrl'          => esc_url( admin_url() ),
-				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
+				'WP_API_root'  => esc_url_raw( rest_url() ),
+				'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
+				'adminUrl'     => esc_url( admin_url() ),
+				'blogId'       => Jetpack_Options::get_option( 'id', 0 ),
 				// TODO: add WORDADS_PACKAGE_VERSION to a proper place after major PRs merged.
-				'version'           => defined( 'WORDADS_PACKAGE_VERSION' ) ? WORDADS_PACKAGE_VERSION : 'dev',
-				'calypsoSlug'       => ( new Status() )->get_site_suffix(),
+				'version'      => defined( 'WORDADS_PACKAGE_VERSION' ) ? WORDADS_PACKAGE_VERSION : 'dev',
+				'calypsoSlug'  => ( new Status() )->get_site_suffix(),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),

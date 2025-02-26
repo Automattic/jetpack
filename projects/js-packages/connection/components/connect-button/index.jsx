@@ -15,7 +15,6 @@ const ConnectButton = props => {
 		apiRoot,
 		apiNonce,
 		connectLabel = __( 'Connect', 'jetpack-connection-js' ),
-		registrationNonce,
 		redirectUri = null,
 		from,
 		autoTrigger = false,
@@ -29,7 +28,6 @@ const ConnectButton = props => {
 		userIsConnecting,
 		registrationError,
 	} = useConnection( {
-		registrationNonce,
 		redirectUri,
 		apiRoot,
 		apiNonce,
@@ -62,8 +60,6 @@ ConnectButton.propTypes = {
 	from: PropTypes.string,
 	/** The redirect admin URI. */
 	redirectUri: PropTypes.string.isRequired,
-	/** Registration nonce. */
-	registrationNonce: PropTypes.string.isRequired,
 	/** Whether to initiate the connection process automatically upon rendering the component. */
 	autoTrigger: PropTypes.bool,
 };

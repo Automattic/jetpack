@@ -487,7 +487,6 @@ interface Window {
 	JP_CONNECTION_INITIAL_STATE: {
 		apiRoot: string;
 		apiNonce: string;
-		registrationNonce: string;
 		connectionStatus: {
 			isActive: boolean;
 			isStaging: boolean;

@@ -7,12 +7,7 @@ import backupVideoThumbnail from './images/jetpack-backup-video-thumbnail.png';
 
 import './style.scss';
 
-const BackupVideoSection = ( {
-	siteProductAvailabilityHandler,
-	apiRoot,
-	apiNonce,
-	registrationNonce,
-} ) => {
+const BackupVideoSection = ( { siteProductAvailabilityHandler, apiRoot, apiNonce } ) => {
 	const { run: handleCheckoutWorkflow, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_backup_t1_yearly',
 		redirectUrl: 'admin.php?page=jetpack-backup',
@@ -21,7 +16,6 @@ const BackupVideoSection = ( {
 	} );
 
 	const { siteIsRegistering, userIsConnecting, isOfflineMode, registrationError } = useConnection( {
-		registrationNonce: registrationNonce,
 		redirectUri: 'admin.php?page=jetpack-backup',
 		apiRoot: apiRoot,
 		apiNonce: apiNonce,

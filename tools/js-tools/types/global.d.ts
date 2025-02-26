@@ -24,7 +24,6 @@ interface Window {
 	JP_CONNECTION_INITIAL_STATE: {
 		apiRoot: string;
 		apiNonce: string;
-		registrationNonce: string;
 		calypsoEnv?: string;
 		connectionStatus: {
 			isActive: boolean;

@@ -13,7 +13,6 @@ declare global {
 			allowedVideoExtensions: Record< string, string >;
 			apiNonce: string;
 			apiRoot: string;
-			registrationNonce: string;
 			paidFeatures: {
 				isVideoPressSupported: boolean;
 				isVideoPress1TBSupported: boolean;

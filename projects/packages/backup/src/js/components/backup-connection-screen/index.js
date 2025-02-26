@@ -38,7 +38,6 @@ const testimonials = [
 export const BackupConnectionScreen = () => {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
-	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
 	const { price, priceAfter } = useBackupProductInfo();
 
 	const checkSiteHasBackupProduct = useCallback(
@@ -57,7 +56,6 @@ export const BackupConnectionScreen = () => {
 				title={ __( 'The best real-time WordPress backups', 'jetpack-backup-pkg' ) }
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
-				registrationNonce={ registrationNonce }
 				from="jetpack-backup"
 				redirectUri="admin.php?page=jetpack-backup"
 				wpcomProductSlug="jetpack_backup_t1_yearly"
@@ -71,7 +69,6 @@ export const BackupConnectionScreen = () => {
 			<Testimonials testimonials={ testimonials } />
 
 			<BackupVideoSection
-				registrationNonce={ registrationNonce }
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
 				siteProductAvailabilityHandler={ checkSiteHasBackupProduct }

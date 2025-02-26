@@ -9,7 +9,6 @@ describe( 'Admin', () => {
 		window.jetpackStarterPluginInitialState = {
 			apiNonce: '',
 			apiRoot: '',
-			registrationNonce: '',
 		};
 	} );
 
