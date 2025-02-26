@@ -558,10 +558,13 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 
 		require_once __DIR__ . '/contact-form/class-file-handler.php';
 		$file_handler = new File_Handler();
+		$file_path    = $file_handler->get_file_path( $file_id );
 
-		$file_path = $file_handler->get_file_path( $file_id );
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		WP_Filesystem();
+		global $wp_filesystem;
 
-		if ( empty( $file_path ) || ! file_exists( $file_path ) ) {
+		if ( empty( $file_path ) || ! $wp_filesystem->exists( $file_path ) ) {
 			return new WP_Error(
 				'file_not_found',
 				esc_html__( 'The requested file does not exist.', 'jetpack-forms' ),
@@ -569,31 +572,46 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			);
 		}
 
-		// Get the file mime type
-		$mime_type = $this->get_file_mime_type( $file_path );
+		$file_type = wp_check_filetype( $file_path );
+		$mime_type = $file_type['type'];
 
-		// Use WP_Filesystem to read and output the file instead of readfile()
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		WP_Filesystem();
-		global $wp_filesystem;
+		if ( empty( $mime_type ) ) {
+			// Return an error if we can't determine the mime type
+			return new WP_Error(
+				'unknown_file_type',
+				esc_html__( 'Unable to determine the file type. The file cannot be served.', 'jetpack-forms' ),
+				array( 'status' => 415 )
+			);
+		}
 
+		$file_content = $wp_filesystem->get_contents( $file_path );
+		$file_size    = $wp_filesystem->size( $file_path );
+		$file_name    = wp_basename( $file_path );
+
+		// Set up file-specific headers
+		$headers = array(
+			'Content-Type'              => $mime_type,
+			'Content-Disposition'       => 'inline; filename="' . $file_name . '"',
+			'Content-Length'            => $file_size,
+			'Content-Transfer-Encoding' => 'binary',
+			'X-Robots-Tag'              => 'noindex',
+		);
+
+		// Use WordPress core function for cache control headers
 		nocache_headers();
-		header( 'X-Robots-Tag: noindex', true );
-		header( 'Content-Type: ' . $mime_type );
-		header( 'Content-Description: File Transfer' );
-		header( 'Content-Disposition: inline; filename="' . wp_basename( $file_path ) . '"' );
-		header( 'Content-Transfer-Encoding: binary' );
-		header( 'Content-Length: ' . $wp_filesystem->size( $file_path ) );
-		header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
 
-		// Clear any previous output buffers
+		// Set file-specific headers
+		foreach ( $headers as $name => $value ) {
+			header( "{$name}: {$value}" );
+		}
+
+		// Clear previous output buffers
 		while ( ob_get_level() ) {
 			ob_end_clean();
 		}
 
-		if ( $wp_filesystem->exists( $file_path ) ) {
-			echo $wp_filesystem->get_contents( $file_path ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- File contents should not be escaped
-		}
+		// Output file content and exit
+		echo $file_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- File contents should not be escaped
 		exit;
 	}
 
@@ -602,6 +620,8 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	 *
 	 * @param string $file_path Path to the file.
 	 * @return string The mime type.
+	 *
+	 * @deprecated $$next-version$$ Use wp_check_filetype() instead
 	 */
 	protected function get_file_mime_type( $file_path ) {
 		$mime_type = mime_content_type( $file_path );
