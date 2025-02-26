@@ -197,6 +197,10 @@
 			#wp-admin-bar-reader {
 				display: block;
 
+				.ab-label {
+					display: none;
+				}
+
 				.ab-item {
 					display: flex;
 					justify-content: center;

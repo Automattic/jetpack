@@ -221,7 +221,7 @@ function wpcom_add_reader_menu( $wp_admin_bar ) {
 		array(
 			'id'     => 'reader',
 			'title'  => '<span class="ab-icon" title="' . __( 'Read the blogs and topics you follow', 'jetpack-mu-wpcom' ) . '" aria-hidden="true"></span>' .
-						__( 'Reader', 'jetpack-mu-wpcom' ),
+						'<span class="ab-label">' . __( 'Reader', 'jetpack-mu-wpcom' ) . '</span>',
 			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/reader' ),
 			'meta'   => array(
 				'class' => 'wp-admin-bar-reader',
