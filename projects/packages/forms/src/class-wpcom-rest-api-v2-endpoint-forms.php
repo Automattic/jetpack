@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\Forms\ContactForm\Contact_Form_File_Handler;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use WP_Error;
 use WP_REST_Controller;
@@ -557,8 +556,8 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	public function get_file( $request ) {
 		$file_id = $request->get_param( 'file_id' );
 
-		require_once __DIR__ . '/contact-form/class-contact-form-file-handler.php';
-		$file_handler = new Contact_Form_File_Handler();
+		require_once __DIR__ . '/contact-form/class-file-handler.php';
+		$file_handler = new File_Handler();
 
 		$file_path = $file_handler->get_file_path( $file_id );
 
