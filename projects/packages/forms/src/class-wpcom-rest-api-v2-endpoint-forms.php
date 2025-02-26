@@ -600,14 +600,14 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 		// Use WordPress core function for cache control headers
 		nocache_headers();
 
-		// Set file-specific headers
-		foreach ( $headers as $name => $value ) {
-			header( "{$name}: {$value}" );
-		}
-
 		// Clear previous output buffers
 		while ( ob_get_level() ) {
 			ob_end_clean();
+		}
+
+		// Set file-specific headers
+		foreach ( $headers as $name => $value ) {
+			header( "{$name}: {$value}" );
 		}
 
 		// Output file content and exit
