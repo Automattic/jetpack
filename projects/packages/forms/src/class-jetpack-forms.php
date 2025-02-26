@@ -52,7 +52,7 @@ class Jetpack_Forms {
 		if ( get_post_type( $post_id ) !== 'feedback' ) {
 			return;
 		}
-
+		require_once __DIR__ . '/contact-form/class-file-handler.php';
 		$file_handler = new File_Handler();
 		$file_handler->delete_feedback_attachments( $post_id );
 	}
