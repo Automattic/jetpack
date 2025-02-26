@@ -108,7 +108,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 						'required'          => true,
 						'validate_callback' => function ( $file_nonce, $request ) {
 							$file_id = $request->get_param( 'file_id' );
-							if ( ! $file_nonce || ! wp_verify_nonce( $file_nonce, 'jetpack_forms_view_file_' . $file_id ) ) {
+							if ( ! wp_verify_nonce( $file_nonce, 'jetpack_forms_view_file_' . $file_id ) ) {
 								return new WP_Error(
 									'rest_forbidden',
 									esc_html__( 'Invalid or missing file access token.', 'jetpack-forms' ),
