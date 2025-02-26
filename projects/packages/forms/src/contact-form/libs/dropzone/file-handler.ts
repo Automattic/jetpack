@@ -1,4 +1,4 @@
-import { EventEmitter } from './event-emmiter';
+import { EventEmitter } from './event-emitter';
 import { DropzoneOptions } from './options';
 
 export class FileHandler {
