@@ -53,7 +53,12 @@ export default function SpeculationFetchMethod() {
 					{
 						link: (
 							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							<a href={ unsafeSpeculationRulesLink } target="_blank" rel="noopener noreferrer" />
+							<a
+								onClick={ () => recordBoostEvent( 'unsafe_speculation_rules_link_clicked', {} ) }
+								href={ unsafeSpeculationRulesLink }
+								target="_blank"
+								rel="noopener noreferrer"
+							/>
 						),
 					}
 				) }
