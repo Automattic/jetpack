@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Forms\File_Handler;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;
@@ -754,8 +755,8 @@ class Admin {
 		$response_fields = array_diff_key( $response_fields, array_flip( array_keys( Contact_Form_Plugin::NON_PRINTABLE_FIELDS ) ) );
 
 		// Load file handler for generating file links
-		require_once __DIR__ . '/class-contact-form-file-handler.php';
-		$file_handler = new Contact_Form_File_Handler();
+		require_once __DIR__ . '/class-file-handler.php';
+		$file_handler = new File_Handler();
 
 		echo '<hr class="feedback_response__mobile-separator" />';
 		echo '<div class="feedback_response__item">';

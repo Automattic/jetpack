@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Forms;
 
-use Automattic\Jetpack\Forms\ContactForm\Contact_Form_File_Handler;
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
@@ -54,7 +53,7 @@ class Jetpack_Forms {
 			return;
 		}
 
-		$file_handler = new Contact_Form_File_Handler();
+		$file_handler = new File_Handler();
 		$file_handler->delete_feedback_attachments( $post_id );
 	}
 

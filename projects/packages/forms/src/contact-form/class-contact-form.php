@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Forms\File_Handler;
 use Automattic\Jetpack\Sync\Settings;
 use PHPMailer\PHPMailer\PHPMailer;
 use WP_Error;
@@ -1729,8 +1730,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * A function that gets called when processing form submissions and returns a list of files that were processed or errors.
 	 */
 	private function process_file_uploads() {
-		require_once __DIR__ . '/class-contact-form-file-handler.php';
-		$file_handler = new Contact_Form_File_Handler();
+		require_once __DIR__ . '/class-file-handler.php';
+		$file_handler = new File_Handler();
 
 		$uploaded_files = array();
 
