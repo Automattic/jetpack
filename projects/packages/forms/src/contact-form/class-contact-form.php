@@ -1095,15 +1095,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return $uploaded_files;
 		}
 
-		// Initialize all values with a dummy value, so that a field is always defined.
-		// We don't want the user to be redirected to the WordPress.com login page
-		// or get a Manage Subscription page if they're submitting via Ajax.
-		foreach ( $this->fields as $field ) {
-			$id                        = $field->get_attribute( 'id' );
-			$value                     = $field->get_attribute( 'type' ) === 'checkbox' ? '0' : '';
-			$this->field_values[ $id ] = $value;
-		}
-
 		$id                  = $this->get_attribute( 'id' );
 		$to                  = $this->get_attribute( 'to' );
 		$widget              = $this->get_attribute( 'widget' );
