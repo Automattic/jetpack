@@ -231,6 +231,7 @@ describe( 'Inspector controls', () => {
 			await user.click( screen.getByLabelText( '100%' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonWidth: '100%',
 				buttonOnNewLine: true,
 			} );
 		} );
@@ -242,7 +243,20 @@ describe( 'Inspector controls', () => {
 			await user.click( screen.getByLabelText( '50%' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonWidth: '50%',
 				buttonOnNewLine: false,
+			} );
+		} );
+
+		test( 'Does not toggle place button on new line if width set to 50% and new line setting enabled', async () => {
+			const user = userEvent.setup();
+			render( <SubscriptionsInspectorControls { ...defaultProps } buttonOnNewLine={ true } /> );
+			await user.click( screen.getByText( 'Spacing' ), { selector: 'button' } );
+			await user.click( screen.getByLabelText( '50%' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonWidth: '50%',
+				buttonOnNewLine: true,
 			} );
 		} );
 	} );
