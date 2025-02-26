@@ -120,6 +120,7 @@ class Jetpack_Boost {
 		$this->init_sync();
 
 		add_action( 'admin_init', array( $this, 'handle_version_change' ) );
+		add_action( 'admin_enqueue_scripts', array( My_Jetpack_Initializer::class, 'enqueue_scripts' ) );
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 

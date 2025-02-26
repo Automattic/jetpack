@@ -1,4 +1,5 @@
 import { Button, ProductPrice, getRedirectUrl } from '@automattic/jetpack-components';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, type FC } from 'react';
@@ -44,6 +45,7 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 } ) => {
 	const { recordEvent } = useAnalytics();
 	const { detail } = useProduct( slug );
+	const queryClient = new QueryClient();
 
 	const { title, longDescription, features, pricingForUi } = detail;
 
@@ -134,21 +136,23 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	}
 
 	return (
-		<ProductInterstitialModal
-			title={ title }
-			description={ longDescription }
-			priceComponent={ priceComponent }
-			modalMainButton={ <ProductInterstitialModalCta slug={ slug } /> }
-			onOpen={ handleOpen }
-			onClose={ handleClose }
-			{ ...props }
-		>
-			<>
-				{ features && <ProductInterstitialFeatureList features={ features } /> }
-				{ additionalContent }
-				{ children }
-			</>
-		</ProductInterstitialModal>
+		<QueryClientProvider client={ queryClient }>
+			<ProductInterstitialModal
+				title={ title }
+				description={ longDescription }
+				priceComponent={ priceComponent }
+				modalMainButton={ <ProductInterstitialModalCta slug={ slug } /> }
+				onOpen={ handleOpen }
+				onClose={ handleClose }
+				{ ...props }
+			>
+				<>
+					{ features && <ProductInterstitialFeatureList features={ features } /> }
+					{ additionalContent }
+					{ children }
+				</>
+			</ProductInterstitialModal>
+		</QueryClientProvider>
 	);
 };
 
