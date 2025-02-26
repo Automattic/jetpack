@@ -755,24 +755,27 @@ class Admin {
 
 		echo '<hr class="feedback_response__mobile-separator" />';
 		echo '<div class="feedback_response__item">';
-		foreach ( $response_fields as $key => $value ) {
-			$display_value = $value;
+		require_once __DIR__ . '/class-file-handler.php';
+		$file_handler = new File_Handler();
 
-			if ( is_array( $value ) ) {
-				// Check if this might be a file upload array
-				if ( isset( $value['file_id'] ) && isset( $value['name'] ) ) {
-					// This is a file upload field, display a link
-					$display_value = $this->get_file_link_html( $value );
-				} else {
-					// Regular array, just join the values
-					$display_value = implode( ', ', $value );
-				}
-			} elseif ( is_string( $value ) && is_string( trim( $value ) ) && 0 === strpos( trim( $value ), '{' ) ) {
+		foreach ( $response_fields as $key => $display_value ) {
+			if ( is_array( $display_value ) ) {
+				// Regular array, just join the values
+				$display_value = implode( ', ', $display_value );
+			} elseif ( is_string( $display_value ) ) {
 				// Check if the value might be JSON containing file data
-				$maybe_file_data = json_decode( $value, true );
+				$maybe_file_data = json_decode( $display_value, true );
 				if ( is_array( $maybe_file_data ) && isset( $maybe_file_data['file_id'] ) && isset( $maybe_file_data['name'] ) ) {
 					// This is a file upload field, display a link instead of raw data
-					$display_value = $this->get_file_link_html( $maybe_file_data );
+					$file_url = $file_handler->get_file_url( $maybe_file_data['file_id'] );
+
+					printf(
+						'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value"><a href="%s" target="_blank">%s</a></div>',
+						esc_html( preg_replace( '#^\d+_#', '', $key ) ),
+						esc_url( $file_url ),
+						esc_html( $maybe_file_data['name'] )
+					);
+					continue;
 				}
 			}
 
@@ -782,6 +785,7 @@ class Admin {
 				wp_kses_post( nl2br( $display_value ) ) // Allow HTML for the file links but still sanitize
 			);
 		}
+
 		echo '</div>';
 		echo '<hr />';
 
