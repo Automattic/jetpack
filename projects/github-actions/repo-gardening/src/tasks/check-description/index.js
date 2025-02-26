@@ -509,7 +509,7 @@ The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e
 1. Ensure all required checks appearing at the bottom of this PR are passing.
 2. Make sure to test your changes on all platforms that it applies to. *You're responsible for the quality of the code you ship*.
 3. You can use [GitHub's Reviewers functionality](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/requesting-a-pull-request-review) to request a review.
-4. When it's reviewed and merged, be ready to deploy the changes to WordPress.com once the build is done.
+4. When it's reviewed and merged, you will be pinged in Slack to deploy the changes to WordPress.com simple once the build is done.
 
 If you have questions about anything, reach out in #jetpack-developers for guidance!`;
 	}
