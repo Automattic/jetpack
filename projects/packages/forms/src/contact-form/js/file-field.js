@@ -9,6 +9,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	inputDropZones.forEach( dropzone => {
 		// Initialize dropzone
 		dropzone.jp_dropzone = new Dropzone( dropzone, {
+			maxUploadSize: jetpackFormFileField?.maxUploadSize,
 			i18n: jetpackFormFileField?.i18n,
 			endpoint: jetpackFormFileField?.uploadEndpoint,
 			wp_nonce: jetpackFormFileField?.wp_nonce,
