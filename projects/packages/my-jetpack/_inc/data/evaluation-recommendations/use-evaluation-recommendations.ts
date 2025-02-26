@@ -9,6 +9,7 @@ import {
 	REST_API_EVALUATE_SITE_RECOMMENDATIONS,
 	REST_API_SITE_EVALUATION_RESULT,
 } from '../constants';
+import useProductsByOwnership from '../products/use-products-by-ownership';
 import useSimpleMutation from '../use-simple-mutation';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
 import isJetpackUserNew from '../utils/is-jetpack-user-new';
@@ -33,6 +34,9 @@ const useEvaluationRecommendations = () => {
 		getInitialRecommendedModules()
 	);
 	const [ isFirstRun, setIsFirstRun ] = useValueStore( 'isFirstRun', getInitialIsFirstRun() );
+	const {
+		data: { ownedProducts: ownedProductsData },
+	} = useProductsByOwnership();
 
 	const unownedRecommendedModules = useMemo( () => {
 		// TODO: Maybe remove this ternary condition
@@ -42,13 +46,13 @@ const useEvaluationRecommendations = () => {
 		const ownedProducts = (
 			process?.env?.NODE_ENV === 'development'
 				? [ 'anti-spam', 'extras', 'jetpack-ai' ]
-				: getMyJetpackWindowInitialState( 'lifecycleStats' )?.ownedProducts || []
+				: ownedProductsData || []
 		) as JetpackModule[];
 		// We filter out owned modules, and return the top recommendations
 		return recommendedModules
 			?.filter( module => ! ownedProducts.includes( module ) )
 			.slice( 0, NUMBER_OF_RECOMMENDATIONS_TO_SHOW );
-	}, [ recommendedModules ] );
+	}, [ recommendedModules, ownedProductsData ] );
 
 	const isEligibleForRecommendations = useMemo( () => {
 		const { dismissed } = getMyJetpackWindowInitialState( 'recommendedModules' );

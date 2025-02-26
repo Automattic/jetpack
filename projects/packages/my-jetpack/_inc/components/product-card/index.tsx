@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectSite from '../../hooks/use-connect-site';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -66,7 +66,9 @@ const ProductCard: FC< ProductCardProps > = props => {
 
 	let { secondaryAction } = props;
 
-	const { ownedProducts } = getMyJetpackWindowInitialState( 'lifecycleStats' );
+	const {
+		data: { ownedProducts },
+	} = useProductsByOwnership();
 	const isOwned = ownedProducts?.includes( slug );
 
 	const isError =
