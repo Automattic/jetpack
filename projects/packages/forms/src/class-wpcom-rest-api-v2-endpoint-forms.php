@@ -101,6 +101,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 									array( 'status' => 400 )
 								);
 							}
+							return true;
 						},
 					),
 					'file_nonce' => array(
