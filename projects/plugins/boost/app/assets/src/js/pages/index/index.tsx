@@ -18,8 +18,8 @@ import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
+import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/components/product-interstitial-modal';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import styles from './index.module.scss';
 
 const Index = () => {
@@ -93,12 +93,34 @@ const Index = () => {
 			>
 				<CriticalCssMeta />
 
-				<UpgradeCTA
-					identifier="critical-css"
-					description={ __(
-						'Save time by upgrading to Automatic Critical CSS generation.',
-						'jetpack-boost'
-					) }
+				<ProductInterstitialMyJetpack
+					slug="jetpack-ai"
+					onOpen={ () => {} }
+					customModalTrigger={
+						<UpgradeCTA
+							identifier="critical-css"
+							description={ __(
+								'Save time by upgrading to Automatic Critical CSS generation.',
+								'jetpack-boost'
+							) }
+						/>
+					}
+					buttonLabel={ __( 'Upgrade', 'jetpack-boost' ) }
+					isWithVideo
+					secondaryColumn={
+						<div>
+							<iframe
+								width="621"
+								height="447"
+								src="https://video.wordpress.com/embed/whyeZF1t?cover=1&autoPlay=0&controls=0&loop=1&muted=0&persistVolume=1&playsinline=0&preloadContent=metadata&useAverageColor=1&posterUrl=https%3A%2F%2Fjetpack.com%2Fwp-content%2Fuploads%2F2024%2F09%2Fthumbnail-1.png&hd=1"
+								allowFullScreen
+								allow="clipboard-write"
+								title={ __( 'Discover Jetpack AI', 'jetpack-boost' ) }
+							></iframe>
+							<script src="https://videopress.com/videopress-iframe.js"></script>
+						</div>
+					}
+					secondaryButtonHref="https://jetpack.com/ai/"
 				/>
 			</Module>
 			<Module
