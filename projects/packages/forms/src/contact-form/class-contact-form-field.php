@@ -886,18 +886,22 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			_x( 'GB', 'unit symbol', 'jetpack-forms' ),
 		);
 
+		$max_file_size = wp_max_upload_size();
 		wp_localize_script(
 			'jetpack-form-file-field',
 			'jetpackFormFileField',
 			array(
 				'i18n'           => array(
-					'language'      => get_bloginfo( 'language' ),
-					'fileSizeUnits' => $file_size_units,
-					'removeFile'    => __( 'Remove', 'jetpack-forms' ),
-					'uploadError'   => __( 'Error uploading file', 'jetpack-forms' ),
-					'maxFileSize'   => __( 'Maximum file size exceeded', 'jetpack-forms' ),
-					'invalidType'   => __( 'This file type is not allowed', 'jetpack-forms' ),
+					'language'           => get_bloginfo( 'language' ),
+					'fileSizeUnits'      => $file_size_units,
+					'removeFile'         => __( 'Remove', 'jetpack-forms' ),
+					'uploadError'        => __( 'Error uploading file', 'jetpack-forms' ),
+					'folderNotSupported' => __( 'Folder uploads are not supported', 'jetpack-forms' ),
+					// translators: %s is the formatted maximum file size.
+					'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_file_size ) ),
+					'invalidType'        => __( 'This file type is not allowed', 'jetpack-forms' ),
 				),
+				'maxUploadSize'  => $max_file_size,
 				'uploadEndpoint' => rest_url( 'wpcom/v2/unauth-file-upload' ),
 				'wp_nonce'       => wp_create_nonce( 'wp_rest' ),
 				'jp_nonce'       => wp_create_nonce( 'jetpack_file_upload_jetpack-form' ),

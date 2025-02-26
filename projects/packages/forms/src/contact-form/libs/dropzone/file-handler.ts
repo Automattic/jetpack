@@ -14,7 +14,12 @@ export class FileHandler {
 		this.maxFiles = maxFiles;
 	}
 
-	addFiles( files: FileList, fileField: HTMLInputElement, options: DropzoneOptions ) {
+	addFiles(
+		files: FileList,
+		fileField: HTMLInputElement,
+		options: DropzoneOptions,
+		triggerError: ( message: string ) => void
+	) {
 		if ( this.isAcceptingFiles() ) {
 			return;
 		}
@@ -29,7 +34,13 @@ export class FileHandler {
 				const errorMessage =
 					options?.i18n?.unsupportedFiletype ||
 					'Invalid file type. Please check the list of allowed file types.';
-				this.triggerError( errorMessage, fileField );
+				triggerError( errorMessage );
+				return;
+			}
+
+			// Check if file size is within the allowed limit
+			if ( options.maxUploadSize && file.size > options.maxUploadSize ) {
+				triggerError( options?.i18n?.fileTooLarge );
 				return;
 			}
 
@@ -128,10 +139,10 @@ export class FileHandler {
 
 	triggerError( message: string, fileField: HTMLInputElement ) {
 		fileField.setCustomValidity( message );
-		this.events.emit( 'error', message );
+		this.events.emit( 'error', message, fileField );
 	}
 
-	removeFile( file, index, options ) {
+	removeFile( file: File, index: number, options: DropzoneOptions ) {
 		this.files = this.files.filter( f => f !== file );
 
 		const request = new Request( options.endpoint + '/remove', {
