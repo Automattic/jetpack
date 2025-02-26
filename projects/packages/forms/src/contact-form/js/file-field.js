@@ -1,16 +1,18 @@
 /* global jetpackFormFileField */
+
+import Dropzone from '../libs/dropzone';
 import { setSimpleFieldError, clearInputError } from './form-errors';
-import JP_Dropzone from './jp-dropzone';
 
 document.addEventListener( 'DOMContentLoaded', () => {
 	const inputDropZones = document.querySelectorAll( '.jetpack-form-file-field__dropzone' );
 
 	inputDropZones.forEach( dropzone => {
 		// Initialize dropzone
-		dropzone.jp_dropzone = new JP_Dropzone( dropzone, {
+		dropzone.jp_dropzone = new Dropzone( dropzone, {
 			i18n: jetpackFormFileField?.i18n,
 			endpoint: jetpackFormFileField?.uploadEndpoint,
-			nonce: jetpackFormFileField?.nonce,
+			wp_nonce: jetpackFormFileField?.wp_nonce,
+			jp_nonce: jetpackFormFileField?.jp_nonce,
 		} )
 			.on( 'error', args => {
 				setSimpleFieldError( args.input, args.form, {} );

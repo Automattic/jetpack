@@ -1,56 +1,19 @@
+import { EventEmitter } from './event-emmiter';
+import { FileHandler } from './file-handler';
+import { DropzoneOptions } from './options';
 /**
  * Dropzone class to handle file drag-and-drop and file input interactions.
  */
 
-interface DropzoneOptions {
-	endpoint: string;
-	nonce: string;
-	i18n?: {
-		language?: string;
-		fileSizeUnits?: string[];
-		removeFile?: string;
-		uploadError?: string;
-		unsupportedFiletype?: string;
-		folderNotSupported?: string;
-	};
-}
-
-type EventCallback = ( ...args: unknown[] ) => void;
-
-class EventEmitter {
-	private events: { [ key: string ]: EventCallback[] } = {};
-
-	on( event: string, callback: EventCallback ): void {
-		if ( ! this.events[ event ] ) {
-			this.events[ event ] = [];
-		}
-		this.events[ event ].push( callback );
-	}
-
-	off( event: string, callback: EventCallback ): void {
-		if ( ! this.events[ event ] ) return;
-		this.events[ event ] = this.events[ event ].filter( cb => cb !== callback );
-	}
-
-	emit( event: string, ...args: unknown[] ): void {
-		if ( ! this.events[ event ] ) return;
-		this.events[ event ].forEach( callback => callback( ...args ) );
-	}
-}
-
-export default class JP_Dropzone {
+export default class Dropzone {
 	element: HTMLElement;
 	previewContainer: HTMLElement;
 	uploadButton: HTMLElement;
 	form: HTMLFormElement;
 	fileField: HTMLInputElement;
-	isProcessing: boolean;
-
 	options: DropzoneOptions;
-	files: File[];
-	xhr: XMLHttpRequest[];
 	events: EventEmitter;
-	tokens: string[];
+	fileHandler: FileHandler;
 
 	/**
 	 * @param {HTMLElement} element The dropzone element.
@@ -67,11 +30,9 @@ export default class JP_Dropzone {
 			'.jetpack-form-file-field__preview-wrap'
 		) as HTMLElement;
 		this.uploadButton = this.element.querySelector( '.wp-block-button__link' ) as HTMLElement;
-		this.files = [];
-		this.xhr = [];
-		this.tokens = [];
-		this.isProcessing = false;
+
 		this.events = new EventEmitter();
+		this.fileHandler = new FileHandler( this.events, 1 );
 
 		this.init();
 	}
@@ -98,6 +59,8 @@ export default class JP_Dropzone {
 		[ 'dragleave', 'drop', 'mouseleave' ].forEach( eventName => {
 			this.element.addEventListener( eventName, this.unhighlight.bind( this ), false );
 		} );
+
+		this.events.on( 'file:added', this.renderPreview.bind( this ) );
 	}
 
 	/**
@@ -124,53 +87,16 @@ export default class JP_Dropzone {
 	}
 
 	/**
-	 * Check if the file type is allowed based on the file input's accept attribute.
-	 * @param {File} file The file to check.
-	 * @returns {boolean} Whether the file type is allowed.
-	 */
-	isFileTypeAllowed( file: File ): boolean {
-		const acceptAttribute = this.fileField.accept;
-
-		// If no accept attribute is set, allow all files
-		if ( ! acceptAttribute ) {
-			return true;
-		}
-
-		// Split the accept attribute into an array of allowed types
-		const allowedTypes = acceptAttribute.split( ',' ).map( type => type.trim().toLowerCase() );
-
-		// Get the file's type and extension
-		const fileType = file.type.toLowerCase();
-		const fileExtension = `.${ file.name.split( '.' ).pop()?.toLowerCase() }`;
-
-		return allowedTypes.some( type => {
-			// Check for exact mime type match
-			if ( type === fileType ) {
-				return true;
-			}
-			// Check for wildcard mime type (e.g., "image/*")
-			if ( type.endsWith( '/*' ) && fileType.startsWith( type.slice( 0, -1 ) ) ) {
-				return true;
-			}
-			// Check for file extension match (e.g., ".jpg")
-			if ( type.startsWith( '.' ) && type === fileExtension ) {
-				return true;
-			}
-			return false;
-		} );
-	}
-
-	/**
 	 * Handle the drop event and process the dropped files.
 	 * @param {DragEvent} event The drop event.
 	 */
 	handleDrop( event: DragEvent ) {
+		if ( ! this.fileHandler.isAcceptingFiles() ) {
+			this.triggerError( "You can't upload any more filed" );
+			this.preventDefaults( event );
+		}
 		this.preventDefaults( event );
 		this.clearError();
-
-		if ( this.isProcessing ) {
-			return;
-		}
 
 		const dataTransfer = event.dataTransfer;
 		if ( dataTransfer ) {
@@ -185,7 +111,7 @@ export default class JP_Dropzone {
 				}
 			}
 
-			this.handleNewFiles( dataTransfer.files );
+			this.fileHandler.addFiles( dataTransfer.files, this.fileField, this.options );
 		}
 	}
 
@@ -194,44 +120,15 @@ export default class JP_Dropzone {
 	 * @param {Event} event The click event.
 	 */
 	handleClick( event: Event ) {
-		if ( this.isProcessing ) {
+		if ( ! this.fileHandler.isAcceptingFiles() ) {
+			this.triggerError( "You can't upload any more filed" );
 			this.preventDefaults( event );
 			return;
 		}
 
 		this.clearError();
-
 		this.preventDefaults( event );
 		this.fileField.click();
-	}
-
-	/**
-	 * Handle new files added to the dropzone.
-	 * @param {FileList} files The list of files to handle.
-	 */
-	handleNewFiles( files: FileList ) {
-		if ( this.isProcessing ) {
-			return;
-		}
-
-		// Only take the first file
-		if ( files.length > 0 ) {
-			const file = files[ 0 ];
-
-			// Check if file type is allowed
-			if ( ! this.isFileTypeAllowed( file ) ) {
-				const errorMessage =
-					this.options?.i18n?.unsupportedFiletype ||
-					'Invalid file type. Please check the list of allowed file types.';
-				this.triggerError( errorMessage );
-				return;
-			}
-
-			this.isProcessing = true;
-			this.files = [ file ];
-			this.renderPreviews( [ file ] );
-			this.uploadFiles( [ file ] );
-		}
 	}
 
 	/**
@@ -241,20 +138,18 @@ export default class JP_Dropzone {
 	handleFiles( event: Event ) {
 		const target = event.target as HTMLInputElement;
 		if ( target && target.files ) {
-			this.handleNewFiles( target.files );
+			this.fileHandler.addFiles( target.files, this.fileField, this.options );
 		}
 	}
 
 	/**
 	 * Render the previews of the selected files.
-	 * @param {FileList} files The list of files to handle.
+	 * @param {file} File to handle
 	 */
-	renderPreviews( files: FileList | File[] ) {
+	renderPreview( file ) {
 		this.previewContainer.classList.add( 'is-active' );
 		// Only show the first file
-		if ( files.length > 0 ) {
-			this.showImage( files[ 0 ], 0 );
-		}
+		this.showImage( file, 0 );
 	}
 
 	/**
@@ -291,7 +186,8 @@ export default class JP_Dropzone {
 			`;
 			this.previewContainer.appendChild( div );
 			this.events.on( 'upload:progress', this.updateProgress.bind( this, file, div ) );
-			this.events.on( 'upload:done', this.markProgressComplete.bind( this, file, div ) );
+			this.events.on( 'upload:done', this.fileUploaded.bind( this, file, div ) );
+			this.events.on( 'upload:fail', this.uploadFailed.bind( this ) );
 
 			const removeButton = div.querySelector( '.jetpack-form-file-field__remove' ) as HTMLElement;
 			removeButton.addEventListener( 'click', this.removeFile.bind( this, file, div, index ) );
@@ -307,60 +203,6 @@ export default class JP_Dropzone {
 		}
 	}
 
-	/**
-	 * Upload files to the server.
-	 * @param {FileList} files The list of files to upload.
-	 */
-	uploadFiles( files: FileList | File[] ) {
-		// Only upload the first file
-		if ( files.length > 0 ) {
-			this.uploadFile( files[ 0 ], 0 );
-		}
-	}
-
-	setHeader( dateAttribute: string, header: string, index: number ) {
-		const nonce = this.element.getAttribute( dateAttribute );
-		if ( nonce ) {
-			this.xhr[ index ].setRequestHeader( header, nonce );
-		}
-	}
-
-	uploadFile( file, index ) {
-		var url = this.options.endpoint;
-		this.xhr[ index ] = new XMLHttpRequest();
-		var formData = new FormData();
-
-		this.xhr[ index ].open( 'POST', url, true );
-		this.xhr[ index ].withCredentials = true;
-		this.xhr[ index ].setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-		// Add REST API nonce if available
-		this.setHeader( 'data-rest-nonce', 'X-WP-Nonce', index );
-		this.setHeader( 'data-jp-file-upload', 'X-Jetpack-Upload-Nonce', index );
-
-		// Update progress (can be used to show progress indicator)
-		this.xhr[ index ].upload.addEventListener(
-			'progress',
-			this.onProgress.bind( this, file, index )
-		);
-
-		const onReadyStateChangeHandler = this.onReadyStateChange.bind(
-			this,
-			file,
-			index,
-			this.xhr[ index ]
-		);
-		this.xhr[ index ].addEventListener( 'readystatechange', onReadyStateChangeHandler );
-
-		formData.append( 'context', 'jetpack-form' );
-		formData.append( 'file', file );
-		this.xhr[ index ].send( formData );
-	}
-
-	onProgress( file, index, event ) {
-		const progress = ( event.loaded / event.total ) * 100;
-		this.events.emit( 'upload:progress', { file, index, progress } );
-	}
-
 	updateHiddenFields( selector, value ) {
 		const hiddenField = this.element.querySelector( selector ) as HTMLInputElement;
 		if ( hiddenField ) {
@@ -372,43 +214,26 @@ export default class JP_Dropzone {
 	 * @param {HTMLElement} div   The preview element.
 	 * @param {Event}       event The success event.
 	 */
-	markProgressComplete( file, div, event ) {
+	fileUploaded( file, div, event ) {
 		if ( event.file === file ) {
 			div
 				.querySelector( '.jetpack-form-file-field__progress' )
 				.style.setProperty( '--progress', '100%' );
 			div.querySelector( '.jetpack-form-file-field__progress' ).classList.add( 'is-complete' );
 		}
+
+		this.fileField.setCustomValidity( '' );
+		this.fileField.reportValidity();
+		// update the hidden field with the token
+		this.updateHiddenFields( '.jetpack-form-file-field__token', event.token );
+
+		// Clear the file input after successful upload and token retrieval
+		// This prevents the browser from re-uploading the file when the form is submitted
+		this.fileField.value = '';
 	}
 
-	onReadyStateChange( file, index, xhr, event ) {
-		if ( event.target.readyState === 4 ) {
-			if ( event.target.status === 200 ) {
-				const response = JSON.parse( event.target.responseText );
-
-				if ( response.success ) {
-					this.tokens[ index ] = response.data.token;
-					this.events.emit( 'upload:done', { file, index, token: response.data.token } );
-					this.fileField.setCustomValidity( '' );
-					this.fileField.reportValidity();
-					// update the hidden field with the token
-					this.updateHiddenFields( '.jetpack-form-file-field__token', response.data.token );
-
-					// Clear the file input after successful upload and token retrieval
-					// This prevents the browser from re-uploading the file when the form is submitted
-					this.fileField.value = '';
-					return;
-				}
-			}
-
-			if ( event.target.responseText ) {
-				const response = JSON.parse( event.target.responseText );
-				this.triggerError( response.message );
-			}
-
-			// Reset processing state after upload completes (success or error)
-			this.isProcessing = false;
-		}
+	uploadFailed( event ) {
+		this.triggerError( event.message );
 	}
 
 	/**
@@ -428,27 +253,17 @@ export default class JP_Dropzone {
 	 * @param {HTMLElement} div  The preview element to remove.
 	 */
 	removeFile( file: File, div: HTMLElement, index: number ) {
-		this.files = this.files.filter( f => f !== file );
 		div.classList.add( 'fade-out' );
+		this.clearError();
+
+		this.fileHandler.removeFile( file, index, this.options );
+
 		div.addEventListener( 'animationend', () => {
 			div.remove();
-			if ( this.files.length === 0 ) {
+			if ( ! this.fileHandler.hasFiles() ) {
 				this.previewContainer.classList.remove( 'is-active' );
-				this.isProcessing = false;
 			}
 		} );
-
-		const request = new Request( this.options.endpoint + '/remove', {
-			method: 'POST',
-			headers: {
-				'X-WP-Nonce': this.element.getAttribute( 'data-rest-nonce' ) || '',
-				'X-Jetpack-Upload-Nonce': this.element.getAttribute( 'data-jp-file-upload' ) || '',
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify( { token: this.tokens[ index ] || '', context: 'jetpack-form' } ),
-		} );
-
-		fetch( request );
 	}
 
 	/**
