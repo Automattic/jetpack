@@ -83,7 +83,7 @@ function JetpackRestApiClient( root, nonce ) {
 			cacheBusterCallback = callback;
 		},
 
-		registerSite: ( deprecated, redirectUri, from ) => {
+		registerSite: ( redirectUri, from ) => {
 			const params = {};
 
 			if ( jetpackConfigHas( 'consumer_slug' ) ) {

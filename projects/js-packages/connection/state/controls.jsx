@@ -2,7 +2,7 @@ import restApi from '@automattic/jetpack-api';
 import { createRegistryControl } from '@wordpress/data';
 import STORE_ID from './store-id';
 
-const REGISTER_SITE = ( { redirectUri, from } ) => restApi.registerSite( null, redirectUri, from );
+const REGISTER_SITE = ( { redirectUri, from } ) => restApi.registerSite( redirectUri, from );
 
 const CONNECT_USER = createRegistryControl(
 	( { resolveSelect } ) =>
