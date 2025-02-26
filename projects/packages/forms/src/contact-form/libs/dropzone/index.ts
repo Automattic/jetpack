@@ -92,7 +92,7 @@ export default class Dropzone {
 	 */
 	handleDrop( event: DragEvent ) {
 		if ( ! this.fileHandler.isAcceptingFiles() ) {
-			this.triggerError( "You can't upload any more filed" );
+			this.emitError( "You can't upload any more files" );
 			this.preventDefaults( event );
 		}
 		this.preventDefaults( event );
@@ -106,12 +106,17 @@ export default class Dropzone {
 					const errorMessage =
 						this.options?.i18n?.folderNotSupported ||
 						'Folders cannot be uploaded. Please drop a single file.';
-					this.triggerError( errorMessage );
+					this.emitError( errorMessage );
 					return;
 				}
 			}
 
-			this.fileHandler.addFiles( dataTransfer.files, this.fileField, this.options );
+			this.fileHandler.addFiles(
+				dataTransfer.files,
+				this.fileField,
+				this.options,
+				this.emitError.bind( this )
+			);
 		}
 	}
 
@@ -121,7 +126,7 @@ export default class Dropzone {
 	 */
 	handleClick( event: Event ) {
 		if ( ! this.fileHandler.isAcceptingFiles() ) {
-			this.triggerError( "You can't upload any more filed" );
+			this.emitError( "You can't upload any more filed" );
 			this.preventDefaults( event );
 			return;
 		}
@@ -138,7 +143,12 @@ export default class Dropzone {
 	handleFiles( event: Event ) {
 		const target = event.target as HTMLInputElement;
 		if ( target && target.files ) {
-			this.fileHandler.addFiles( target.files, this.fileField, this.options );
+			this.fileHandler.addFiles(
+				target.files,
+				this.fileField,
+				this.options,
+				this.emitError.bind( this )
+			);
 		}
 	}
 
@@ -233,7 +243,7 @@ export default class Dropzone {
 	}
 
 	uploadFailed( event ) {
-		this.triggerError( event.message );
+		this.emitError( event.message );
 	}
 
 	/**
@@ -278,20 +288,12 @@ export default class Dropzone {
 	}
 
 	/**
-	 * Trigger an event.
-	 * @param {string}       event The event name.
-	 * @param {...unknown[]} args  The arguments to pass to the event callback.
-	 */
-	trigger( event: string, ...args: unknown[] ) {
-		this.events.emit( event, ...args );
-	}
-	/**
 	 *
 	 * @param string message - Error message that we want to show the user.
 	 */
-	triggerError( message: string ) {
+	emitError( message: string ) {
 		this.fileField.setCustomValidity( message );
-		this.trigger( 'error', {
+		this.events.emit( 'error', {
 			input: this.fileField,
 			form: this.form,
 			message,
@@ -303,7 +305,7 @@ export default class Dropzone {
 	 */
 	clearError() {
 		this.fileField.setCustomValidity( '' );
-		this.trigger( 'error:clear', {
+		this.events.emit( 'error:clear', {
 			input: this.fileField,
 			form: this.form,
 			message: '',
