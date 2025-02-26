@@ -831,9 +831,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'../../dist/contact-form/js/file-field.js',
 			__FILE__,
 			array(
-				'enqueue'      => true,
-				'dependencies' => array(),
-				'version'      => \JETPACK__VERSION,
+				'enqueue' => true,
+				'version' => \JETPACK__VERSION,
 			)
 		);
 
@@ -871,11 +870,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			_x( 'KB', 'unit symbol', 'jetpack-forms' ),
 			_x( 'MB', 'unit symbol', 'jetpack-forms' ),
 			_x( 'GB', 'unit symbol', 'jetpack-forms' ),
-			_x( 'TB', 'unit symbol', 'jetpack-forms' ),
-			_x( 'PB', 'unit symbol', 'jetpack-forms' ),
-			_x( 'EB', 'unit symbol', 'jetpack-forms' ),
-			_x( 'ZB', 'unit symbol', 'jetpack-forms' ),
-			_x( 'YB', 'unit symbol', 'jetpack-forms' ),
 		);
 
 		wp_localize_script(
