@@ -39,7 +39,7 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 		fullPricePerMonth,
 		currencyCode,
 		wpcomProductSlug,
-	} = pricingForUi;
+	} = pricingForUi || {};
 	const hasDiscount = discountPrice && discountPrice !== fullPrice;
 	const eligibleForIntroDiscount = ! introductoryOffer?.reason;
 	return {
