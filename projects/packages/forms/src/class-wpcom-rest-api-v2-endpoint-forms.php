@@ -537,7 +537,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	 */
 	public function get_file_permissions_check() {
 		// Verify the user is logged in with appropriate capabilities
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'edit_pages' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
 				esc_html__( 'You must be logged in with appropriate permissions to view this file.', 'jetpack-forms' ),
