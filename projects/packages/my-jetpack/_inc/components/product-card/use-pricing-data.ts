@@ -11,7 +11,7 @@ import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
-	const { tiers, wpcomFreeProductSlug, introductoryOffer } = pricingForUi;
+	const { tiers, wpcomFreeProductSlug, introductoryOffer } = pricingForUi || {};
 	if ( pricingForUi.tiers ) {
 		const {
 			discountPrice,
