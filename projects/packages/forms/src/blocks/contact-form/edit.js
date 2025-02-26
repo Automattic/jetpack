@@ -1,9 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import {
-	isAtomicSite,
-	isSimpleSite,
-	useModuleStatus,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	InspectorControls,
 	URLInput,
@@ -233,7 +229,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							instanceId={ instanceId }
 						/>
 					) }
-					{ ! ( isSimpleSite() || isAtomicSite() ) && (
+					{ ! isSimpleSite() && (
 						<>
 							{ canUserInstallPlugins && (
 								<PanelBody title={ __( 'CRM Connection', 'jetpack-forms' ) } initialOpen={ false }>
