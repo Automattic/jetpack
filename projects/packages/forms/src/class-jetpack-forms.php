@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Forms;
 
-use Automattic\Jetpack\Forms\ContactForm\Contact_Form_File_Endpoint;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_File_Handler;
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
@@ -39,10 +38,6 @@ class Jetpack_Forms {
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Util::register_pattern' );
 
 		add_action( 'rest_api_init', array( new WPCOM_REST_API_V2_Endpoint_Forms(), 'register_rest_routes' ) );
-
-		// Explicitly require the file endpoint class to avoid autoloading issues
-		require_once __DIR__ . '/contact-form/class-contact-form-file-endpoint.php';
-		add_action( 'rest_api_init', array( new Contact_Form_File_Endpoint(), 'register_rest_routes' ) );
 
 		// Add hook to delete file attachments when a feedback post is deleted
 		add_action( 'before_delete_post', array( __CLASS__, 'delete_feedback_attachments' ) );
