@@ -1,3 +1,4 @@
+import { getSiteData, getAdminUrl } from '@automattic/jetpack-script-data';
 import './style.scss';
 import { Icon } from '@wordpress/components';
 import { envelope, payment } from '@wordpress/icons';
