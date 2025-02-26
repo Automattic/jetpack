@@ -607,7 +607,8 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 		$mime_type = mime_content_type( $file_path );
 		if ( false === $mime_type ) {
 			// Fallback to a generic mime type
-			$mime_type = 'application/octet-stream';
+			$mime_type = 'image/' . substr( $file_path, strrpos( $file_path, '.' ) + 1 );
+
 		}
 		return $mime_type;
 	}
