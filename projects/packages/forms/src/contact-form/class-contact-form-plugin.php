@@ -531,7 +531,7 @@ class Contact_Form_Plugin {
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
-	 * @return string HTML for the file upload field.
+	 * @return string HTML for the number field.
 	 */
 	public static function gutenblock_render_field_number( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'number' );
