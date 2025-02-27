@@ -56,7 +56,7 @@ function get_checklist_slug_by_goals( $goals, $enable_features_for_goals ) {
 		}
 	}
 
-	if ( contains_one( $goals, 'sell', 'sell-digital', 'sell-physical' ) ) {
+	if ( contains_any( $goals, 'sell', 'sell-digital', 'sell-physical' ) ) {
 		return 'sell';
 	}
 
@@ -94,7 +94,7 @@ function contains_all( $string_list, ...$strings_to_check ) {
  * @param string ...$strings_to_check The strings to check for.
  * @return bool
  */
-function contains_one( $string_list, ...$strings_to_check ) {
+function contains_any( $string_list, ...$strings_to_check ) {
 	foreach ( $strings_to_check as $s ) {
 		if ( in_array( $s, $string_list, true ) ) {
 			return true;
