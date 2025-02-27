@@ -3,9 +3,9 @@
 	"name": "@automattic/jetpack-subscribers-dashboard",
 	"version": "0.0.1",
 	"description": "WP Admin page to manage subscribers",
-	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/subscribers/#readme",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/subscribers-dashboard/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Package] My Jetpack"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Subscribers Dashboard"
 	},
 	"repository": {
 		"type": "git",
