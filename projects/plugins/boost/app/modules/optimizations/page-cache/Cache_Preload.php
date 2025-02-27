@@ -5,30 +5,85 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\pre_wordpress\Logger;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
+/**
+ * Class Cache_Preload
+ *
+ * Handles the preloading of cache for pages, currently only for Cornerstone Pages.
+ * This module automagically preloads the cache after cache invalidation events, or when
+ * Cornerstone Pages are updated, to ensure that important pages always have fresh cache.
+ *
+ * @since $$next-version$$
+ * @package Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache
+ */
 class Cache_Preload implements Pluggable, Is_Always_On {
 
+	/**
+	 * Set up the module by registering hooks.
+	 *
+	 * This method is called during plugin initialization and registers necessary WordPress
+	 * hooks and actions to handle cache preloading events.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
 	public function setup() {
 		add_action( 'update_option_jetpack_boost_ds_cornerstone_pages_list', array( $this, 'schedule_cornerstone_preload' ) );
 		add_action( 'jetpack_boost_preload_pages', array( $this, 'preload_pages' ) );
 
 		add_action( 'post_updated', array( $this, 'handle_post_update' ), 10, 1 );
-		add_action( 'jetpack_boost_invalidate_cache_success', array( $this, 'handle_cache_invalidation' ), 10, 1 );
+		add_action( 'jetpack_boost_invalidate_cache_success', array( $this, 'handle_cache_invalidation' ), 10, 2 );
 	}
 
+	/**
+	 * Get the module slug.
+	 *
+	 * Returns a unique identifier for this module within Jetpack Boost.
+	 *
+	 * @since $$next-version$$
+	 * @return string The module slug.
+	 */
 	public static function get_slug() {
 		return 'cache_preload';
 	}
 
+	/**
+	 * Check if the module is available.
+	 *
+	 * Determines whether this module can be activated in the current environment.
+	 * Always returns true for this module as cache preload is always available.
+	 *
+	 * @since $$next-version$$
+	 * @return bool Always returns true.
+	 */
 	public static function is_available() {
 		return true;
 	}
 
+	/**
+	 * Get the list of posts that need to be preloaded.
+	 *
+	 * Retrieves the stored list of post URLs that are scheduled for preloading.
+	 *
+	 * @since $$next-version$$
+	 * @return array Array of post URLs to preload.
+	 */
 	public function get_posts_to_preload() {
 		return get_option( 'jetpack_boost_posts_to_preload', array() );
 	}
 
+	/**
+	 * Set the list of posts to preload.
+	 *
+	 * Updates the option storing the list of post URLs that need to be preloaded.
+	 * Ensures that all posts in the list are unique.
+	 *
+	 * @since $$next-version$$
+	 * @param array $posts Array of post URLs to preload.
+	 * @return void
+	 */
 	public function set_posts_to_preload( array $posts ) {
 		// Ensures the posts are all unique.
 		$posts = array_unique( $posts );
@@ -37,8 +92,13 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	}
 
 	/**
-	 * Schedule preload for all cornerstone pages.
-	 * This is triggered when the cornerstone pages list is updated.
+	 * Schedule preload for all Cornerstone Pages.
+	 *
+	 * This method is triggered when the Cornerstone Pages list is updated,
+	 * ensuring all Cornerstone Pages have their cache preloaded.
+	 *
+	 * @since $$next-version$$
+	 * @return void
 	 */
 	public function schedule_cornerstone_preload() {
 		$this->schedule_preload( Cornerstone_Utils::get_list() );
@@ -46,6 +106,12 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 
 	/**
 	 * Schedules the preload cronjob, if not already scheduled.
+	 *
+	 * Sets up a single event to trigger the preload process with a short delay of 2 seconds
+	 * to avoid race conditions with cache invalidation processes.
+	 *
+	 * @since $$next-version$$
+	 * @return void
 	 */
 	public function schedule_preload_cronjob() {
 		if ( ! wp_next_scheduled( 'jetpack_boost_preload_pages' ) ) {
@@ -56,6 +122,12 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 
 	/**
 	 * Preloads the pages scheduled for preload.
+	 *
+	 * This method is called via a cronjob and iterates through
+	 * all pages scheduled for preload, requesting each one to populate the cache.
+	 *
+	 * @since $$next-version$$
+	 * @return void
 	 */
 	public function preload_pages() {
 		$posts = $this->get_posts_to_preload();
@@ -76,6 +148,15 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 		}
 	}
 
+	/**
+	 * Preload a single page.
+	 *
+	 * Makes an HTTP request to the specified URL to generate a fresh cache entry.
+	 *
+	 * @since $$next-version$$
+	 * @param string $page The URL of the page to preload.
+	 * @return void
+	 */
 	private function preload_page( $page ) {
 		$url = $page;
 
@@ -85,7 +166,11 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	/**
 	 * Schedule preload for a post or an array of posts.
 	 *
+	 * Adds the specified posts to the preload queue and schedules the preload cronjob.
+	 *
+	 * @since $$next-version$$
 	 * @param string|array $post_to_schedule The post URL or an array of post URLs to schedule.
+	 * @return void
 	 */
 	public function schedule_preload( $post_to_schedule ) {
 		$posts = $this->get_posts_to_preload();
@@ -102,7 +187,12 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	/**
 	 * Handle post updates to check if the post is a cornerstone page and schedule preload if needed.
 	 *
+	 * Triggered when a post is updated. If the post is identified as a cornerstone page,
+	 * its cache will be preloaded.
+	 *
+	 * @since $$next-version$$
 	 * @param int $post_id The ID of the post being updated.
+	 * @return void
 	 */
 	public function handle_post_update( $post_id ) {
 		if ( ! Cornerstone_Utils::is_cornerstone_page( $post_id ) ) {
@@ -112,8 +202,26 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 		$this->schedule_preload( get_permalink( $post_id ) );
 	}
 
-	public function handle_cache_invalidation( $path ) {
+	/**
+	 * Handle cache invalidation events to schedule preloading for affected pages.
+	 *
+	 * If cache for Cornerstone Pages is invalidated, this method schedules those pages
+	 * for preloading to ensure they have fresh cache.
+	 *
+	 * @since $$next-version$$
+	 * @param string $path The path that was invalidated.
+	 * @param string $type The type of invalidation that occurred (e.g., Filesystem_Utils::DELETE_ALL).
+	 * @return void
+	 */
+	public function handle_cache_invalidation( $path, $type ) {
 		$cornerstone_pages = Cornerstone_Utils::get_list();
+		if ( $type === Filesystem_Utils::DELETE_ALL ) {
+			// If the cache is invalidated for all files, schedule preload for all Cornerstone Pages.
+			$this->schedule_preload( $cornerstone_pages );
+			return;
+		}
+
+		// Otherwise identify if a Cornerstone Page cache file is being deleted and schedule preload that page if it is.
 		$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
 		// If the $path is in the cornertstone page list, add it to the preload list.
 		if ( in_array( untrailingslashit( $path ), $cornerstone_pages, true ) ) {
