@@ -92,8 +92,9 @@ export default class Dropzone {
 	 */
 	handleDrop( event: DragEvent ) {
 		if ( ! this.fileHandler.isAcceptingFiles() ) {
-			this.emitError( "You can't upload any more files" );
+			this.emitError( "You can't upload any more files." );
 			this.preventDefaults( event );
+			return;
 		}
 		this.preventDefaults( event );
 		this.clearError();
@@ -126,7 +127,7 @@ export default class Dropzone {
 	 */
 	handleClick( event: Event ) {
 		if ( ! this.fileHandler.isAcceptingFiles() ) {
-			this.emitError( "You can't upload any more filed" );
+			this.emitError( "You can't upload any more files." );
 			this.preventDefaults( event );
 			return;
 		}
