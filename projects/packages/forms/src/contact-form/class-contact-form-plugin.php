@@ -2109,7 +2109,13 @@ class Contact_Form_Plugin {
 			} else {
 				$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 
-				// TODO: some explanation on this regex could help
+				// This line of code is used to parse a string containing key-value pairs formatted as [Key] => Value and extract the keys and values into an array.
+				// The regular expression ensures that each key-value pair is correctly identified and captured.
+				// Given an input string
+				// [Key1] => Value1
+				// [Key2] => Value2
+				// it  $matches[1]: The keys (e.g., Key1, Key2 ).
+				// and $matches[2]: The values (e.g., Value1, Value2 ).
 				preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
 
 				if ( count( $matches ) > 1 ) {
@@ -2139,11 +2145,16 @@ class Contact_Form_Plugin {
 			}
 		}
 
+		require_once __DIR__ . '/class-file-handler.php';
+		$file_handler = new File_Handler();
+
 		// update the fields with URL data.
 		$new_all_values = array();
-
 		if ( is_array( $all_values ) ) {
 			foreach ( $all_values as $key => $value ) {
+				if ( Contact_Form::is_file_upload_field( $value ) ) {
+					$value['url'] = $file_handler->get_file_url( $value['file_id'] );
+				}
 				$new_all_values[ $key ] = $value;
 			}
 		}

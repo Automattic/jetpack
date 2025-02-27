@@ -1,6 +1,5 @@
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-import { Icon } from '@wordpress/components';
-import { upload } from '@wordpress/icons';
+import { Icon, upload } from '@wordpress/icons';
 import { isArray, isEmpty, join } from 'lodash';
 
 export const getDisplayName = response => {
@@ -35,27 +34,21 @@ export const formatFieldName = fieldName => {
 };
 
 export const formatFieldValue = fieldValue => {
-	if ( isEmpty( fieldValue ) ) {
+	if ( fieldValue.name && fieldValue.url ) {
+		return (
+			<span className="file-field">
+				<Icon icon={ upload } />
+				<a href={ fieldValue.url } target="_blank" rel="noopener noreferrer">
+					{ fieldValue.name }
+				</a>
+			</span>
+		);
+	} else if ( isEmpty( fieldValue ) ) {
 		return '-';
 	} else if ( isArray( fieldValue ) ) {
 		return join( fieldValue, ', ' );
 	}
 
-	try {
-		const parsedValue = JSON.parse( fieldValue );
-		if ( parsedValue.file_id ) {
-			return (
-				<span className="file-field">
-					<Icon icon={ upload } />
-					<a href={ parsedValue.url } target="_blank" rel="noopener noreferrer">
-						{ parsedValue.name }
-					</a>
-				</span>
-			);
-		}
-	} catch {
-		// Do nothing
-	}
 	return fieldValue;
 };
 
