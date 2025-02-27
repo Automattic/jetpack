@@ -36,8 +36,6 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	 * @access public
 	 */
 	public function register_rest_routes() {
-		// Stats for single resource type.
-
 		register_rest_route(
 			$this->namespace,
 			$this->rest_base . '/responses',
@@ -179,6 +177,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 				$all_fields = array_merge( $base_fields, $data['_feedback_all_fields'] );
 				return array(
 					'id'                      => $response->ID,
+					'post_status'             => $response->post_status,
 					'uid'                     => $all_fields['feedback_id'],
 					'date'                    => get_the_date( 'c', $response ),
 					'author_name'             => $data['_feedback_author'],

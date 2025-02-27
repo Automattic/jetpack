@@ -28,7 +28,6 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 
 	.jp-forms__layout-header,
 	.jp-forms__inbox-tabs .components-tab-panel__tabs {
-		background-color: var( --color-surface, #fff );
 		color: var( --color-neutral-100, #101517 );
 		padding-left: 32px;
 		padding-right: 32px;
@@ -38,14 +37,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		padding-top: 16px;
 	}
 
-	.jp-forms__inbox.is-response-view .jp-forms__layout-header {
-		@media (max-width: 1024px) {
-			border-bottom: 1px solid #0000000d;
-		}
-	}
-
 	.jp-forms__inbox-tabs .components-tab-panel__tabs {
-		// border-bottom: 1px solid #0000000d;
 		padding-top: 0;
 	}
 
@@ -66,12 +58,6 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		color: var( --color-neutral-80, #2C3338 );
 		line-height: 20px;
 		padding: 0 8px;
-	}
-
-	.jp-forms__inbox.is-response-view .jp-forms__inbox-content-column {
-		@media (max-width: 1024px) {
-			padding-top: 32px;
-		}
 	}
 
 	.jp-forms__layout-title {
@@ -122,32 +108,6 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		}
 	}
 
-	.jp-forms__inbox-actions {
-		--jp-forms-border-color: var( --color-neutral-5, #dcdcde );
-
-		background-color: #fdfdfd;
-		border-top: 1px solid #0000000d;
-		padding-left: 32px;
-		padding-right: 32px;
-		padding-top: 31px;
-		top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height});
-
-		.components-button {
-			font-size: 14px;
-			padding: var(--jp-forms-spacing-base ) calc( var( --jp-forms-spacing-base ) * 2 );
-
-			&:hover {
-				background-color: var( --color-neutral-0, #f6f7f7 );
-				box-shadow: inset 0 0 0 1px var( --jp-forms-border-color );
-				color: var( --color-neutral-100, #101517 );
-			}
-
-			svg {
-				fill: var( --color-neutral-30, #8c8f94 );
-			}
-		}
-	}
-
 	.jp-forms__inbox-sticky-mark {
 		top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height});
 	}
@@ -166,15 +126,6 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		@media (min-width: 1025px) {
 			padding-left: 0;
 			padding-right: 0;
-		}
-	}
-
-	.jp-forms__inbox-list.jp-forms__table {
-		background-color: #fdfdfd;
-		border-radius: 5px;
-
-		@media (min-width: 1025px) {
-			min-height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px));
 		}
 	}
 
@@ -198,8 +149,8 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		border-radius: 5px;
 
 		@media (min-width: 1025px) {
-			height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px));
-			top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height});
+			// height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px));
+			// top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height});
 		}
 
 		&::before {

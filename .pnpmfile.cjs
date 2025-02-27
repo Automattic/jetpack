@@ -41,6 +41,36 @@ function fixDeps( pkg ) {
 		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
+	// Missing deps.
+	// https://github.com/WordPress/gutenberg/issues/67864
+	if ( pkg.name === '@wordpress/dataviews' ) {
+		for ( const dep of [
+			'change-case',
+			'colord',
+			'date-fns',
+			'deepmerge',
+			'@emotion/cache',
+			'@emotion/css',
+			'@emotion/react',
+			'@emotion/styled',
+			'@emotion/utils',
+			'fast-deep-equal',
+			'@floating-ui/react-dom',
+			'framer-motion',
+			'highlight-words-core',
+			'is-plain-object',
+			'memize',
+			'react-dom',
+			'@use-gesture/react',
+			'use-memo-one',
+			'uuid',
+			'@wordpress/date',
+			'@wordpress/hooks',
+		] ) {
+			pkg.optionalDependencies[ dep ] = '*';
+		}
+	}
+
 	// Missing dep or peer dep.
 	// https://github.com/actions/toolkit/issues/1684
 	if (
