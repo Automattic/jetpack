@@ -1,10 +1,12 @@
-import { Button } from '@wordpress/components';
+import { Button, __experimentalHStack as HStack } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PluginIntegrationPanel from './shared/plugin-integration-panel';
 
 const AkismetPanel = () => {
 	const adminUrl = window?.jpFormsBlocks?.defaults?.formsAdminUrl || '';
+	const akismetActiveWithKey = window?.jpFormsBlocks?.defaults?.akismetActiveWithKey || false;
+	const akismetUrl = window?.jpFormsBlocks?.defaults?.akismetUrl || '';
 
 	return (
 		<PluginIntegrationPanel
@@ -31,30 +33,66 @@ const AkismetPanel = () => {
 			tracksEventName="jetpack_forms_upsell_akismet_click"
 			initialOpen={ false }
 		>
-			<p>
-				{ createInterpolateElement(
-					__( 'Your forms are protected from spam with <a>Akismet</a>!', 'jetpack-forms' ),
-					{
-						a: (
-							<a
-								href="https://akismet.com/support/getting-started/using-akismet-with-your-contact-forms/"
-								target="_blank"
-								rel="noopener noreferrer"
-							/>
-						),
-					}
-				) }
-			</p>
-			{ adminUrl && (
-				<Button
-					variant="secondary"
-					href={ adminUrl }
-					target="_blank"
-					rel="noopener noreferrer"
-					__next40pxDefaultSize={ true }
-				>
-					{ __( 'Review spam', 'jetpack-forms' ) }
-				</Button>
+			{ akismetActiveWithKey ? (
+				<>
+					<p>
+						{ createInterpolateElement(
+							__( 'Your forms are protected from spam with <a>Akismet</a>!', 'jetpack-forms' ),
+							{
+								a: (
+									<a
+										href="https://akismet.com/support/getting-started/using-akismet-with-your-contact-forms/"
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
+							}
+						) }
+					</p>
+					<HStack justify="flex-start" spacing={ 2 }>
+						<Button
+							variant="secondary"
+							href={ adminUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+							__next40pxDefaultSize={ true }
+						>
+							{ __( 'View spam', 'jetpack-forms' ) }
+						</Button>
+						<Button
+							variant="secondary"
+							href={ akismetUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+							__next40pxDefaultSize={ true }
+						>
+							{ __( 'View stats', 'jetpack-forms' ) }
+						</Button>
+					</HStack>
+				</>
+			) : (
+				<>
+					<p>
+						{ createInterpolateElement(
+							__(
+								'Akismet is active! There is one step left. Please add your <a>Akismet key</a>.',
+								'jetpack-forms'
+							),
+							{
+								a: <a href={ akismetUrl } target="_blank" rel="noopener noreferrer" />,
+							}
+						) }
+					</p>
+					<Button
+						variant="secondary"
+						href={ akismetUrl }
+						target="_blank"
+						rel="noopener noreferrer"
+						__next40pxDefaultSize={ true }
+					>
+						{ __( 'Add Akismet key', 'jetpack-forms' ) }
+					</Button>
+				</>
 			) }
 		</PluginIntegrationPanel>
 	);

@@ -234,15 +234,19 @@ class Contact_Form_Block {
 		);
 
 		// Create a Contact_Form instance to get the default values
-		$contact_form = new Contact_Form( array() );
-		$defaults     = $contact_form->defaults;
-		$admin_url    = ( new Dashboard_View_Switch() )->get_forms_admin_url( 'spam' );
+		$contact_form            = new Contact_Form( array() );
+		$defaults                = $contact_form->defaults;
+		$admin_url               = ( new Dashboard_View_Switch() )->get_forms_admin_url( 'spam' );
+		$akismet_active_with_key = Jetpack::is_akismet_active();
+		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
 
 		$data = array(
 			'defaults' => array(
-				'to'            => $defaults['to'],
-				'subject'       => $defaults['subject'],
-				'formsAdminUrl' => $admin_url,
+				'to'                   => $defaults['to'],
+				'subject'              => $defaults['subject'],
+				'formsAdminUrl'        => $admin_url,
+				'akismetActiveWithKey' => $akismet_active_with_key,
+				'akismetUrl'           => $akismet_key_url,
 			),
 		);
 
