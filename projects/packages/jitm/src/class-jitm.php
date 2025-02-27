@@ -53,8 +53,6 @@ class JITM {
 		} else {
 			$jitm = new Pre_Connection_JITM();
 		}
-		// log the jitm instance
-		error_log( 'JITM instance: ' . print_r( $jitm, true ) );
 		return $jitm;
 	}
 
