@@ -11,9 +11,6 @@ require_once __DIR__ . '/../../imports/playground/class-sql-postprocessor.php';
 use Imports\SQL_Postprocessor;
 
 // In this file we are using raw SQL queries to check the values.
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.SchemaChange
 // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 /**
@@ -224,4 +221,3 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 		$this->assertEquals( $previous_site, get_option( 'siteurl' ) );
 	}
 }
-// phpcs:enable

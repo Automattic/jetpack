@@ -70,7 +70,6 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$this->assertWPError( $result );
 		$this->assertEquals( 'database-file-empty', $result->get_error_code() );
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		fclose( $tmp_file['resource'] );
 	}
 
@@ -84,7 +83,6 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$this->assertWPError( $result );
 		$this->assertEquals( 'not-valid-sqlite-file', $result->get_error_code() );
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		fclose( $tmp_file['resource'] );
 	}
 
@@ -303,7 +301,6 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$tmp_db_path = $meta_data['uri'];
 
 		if ( $data !== null ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 			fwrite( $tmp_file, $data );
 		}
 

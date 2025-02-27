@@ -6,7 +6,7 @@ use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 use Brain\Monkey\Functions;
 
-class Test_Functions_Service extends Base_TestCase {
+class Functions_Service_Test extends Base_TestCase {
 	protected function set_up() {
 		parent::set_up();
 
@@ -18,8 +18,8 @@ class Test_Functions_Service extends Base_TestCase {
 		Functions\expect( 'add_action' )->andReturn( true );
 
 		// Clean up any test files before each test
-		if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_exists
-			unlink( Config::get_static_cache_dir_path() . '/404' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+		if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) {
+			unlink( Config::get_static_cache_dir_path() . '/404' );
 		}
 		require_once __DIR__ . '/../../../../app/lib/minify/loader.php';
 	}
@@ -28,9 +28,9 @@ class Test_Functions_Service extends Base_TestCase {
 		// Create mock 404 file
 		$cache_dir = Config::get_static_cache_dir_path();
 		if ( ! is_dir( $cache_dir ) ) {
-			mkdir( $cache_dir, 0775, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+			mkdir( $cache_dir, 0775, true );
 		}
-		file_put_contents( $cache_dir . '/404', '1' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $cache_dir . '/404', '1' );
 
 		Functions\expect( 'home_url' )
 			->once()
@@ -85,13 +85,13 @@ class Test_Functions_Service extends Base_TestCase {
 
 		// Clean up any test files after each test
 		if ( file_exists( Config::get_static_cache_dir_path() . '/404' ) ) {
-			unlink( Config::get_static_cache_dir_path() . '/404' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			unlink( Config::get_static_cache_dir_path() . '/404' );
 		}
 
 		$path = '/tmp/wordpress/wp-content/boost-cache/static/';
 		while ( $path !== '/tmp' ) {
 			if ( is_dir( $path ) ) {
-				rmdir( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+				rmdir( $path );
 			}
 			$path = dirname( $path );
 		}

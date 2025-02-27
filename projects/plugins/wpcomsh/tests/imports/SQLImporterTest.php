@@ -33,7 +33,6 @@ class SQLImporterTest extends WP_UnitTestCase {
 	 */
 	public function tearDown(): void {
 		if ( $this->tmp_sql_path !== null && file_exists( $this->tmp_sql_path ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 			fclose( $this->tmp_sql_file );
 		}
 
@@ -82,7 +81,6 @@ class SQLImporterTest extends WP_UnitTestCase {
 		$this->tmp_sql_path = $meta_data['uri'];
 
 		if ( $data !== null ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 			fwrite( $this->tmp_sql_file, $data );
 		}
 	}

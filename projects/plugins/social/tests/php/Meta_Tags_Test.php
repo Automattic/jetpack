@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Meta tags testing.
  *
@@ -71,7 +71,7 @@ class Meta_Tags_Test extends BaseTestCase {
 	 * @return integer
 	 */
 	public function create_upload_object( $file, $parent = 0 ) {
-		$contents = file_get_contents( $file ); //phpcs:ignore
+		$contents = file_get_contents( $file );
 		$upload   = wp_upload_bits( basename( $file ), null, $contents );
 
 		$type = '';
@@ -277,7 +277,6 @@ class Meta_Tags_Test extends BaseTestCase {
 				'post_content' => $content,
 			)
 		);
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$post = get_post( self::$post );
 		setup_postdata( $post );
 

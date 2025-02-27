@@ -54,7 +54,6 @@ class BackupImportManagerTest extends WP_UnitTestCase {
 		$this->assertWPError( $result );
 		$this->assertEquals( 'file_type_not_supported', $result->get_error_code() );
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		fclose( $tmp_file );
 	}
 

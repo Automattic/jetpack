@@ -8,9 +8,9 @@
 use Imports\Playground_Clean_Up;
 
 /**
- * Class PlaygroundCleanUp.
+ * Class Playground_Clean_Up_Test.
  */
-class PlaygroundCleanUp extends WP_UnitTestCase {
+class Playground_Clean_Up_Test extends WP_UnitTestCase {
 
 	/**
 	 * Open an empty file.

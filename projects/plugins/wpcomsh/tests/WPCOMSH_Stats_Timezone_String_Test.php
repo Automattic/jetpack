@@ -6,10 +6,9 @@
  */
 
 /**
- * Class Test_WPCOMSH_Stats_Timezone_String
+ * Class WPCOMSH_Stats_Timezone_String_Test
  */
-// phpcs:disable Squiz.Commenting.FunctionComment.WrongStyle
-class Test_WPCOMSH_Stats_Timezone_String extends WP_UnitTestCase {
+class WPCOMSH_Stats_Timezone_String_Test extends WP_UnitTestCase {
 	private $original_timezone_string;
 	private $original_gmt_offset;
 
@@ -27,7 +26,7 @@ class Test_WPCOMSH_Stats_Timezone_String extends WP_UnitTestCase {
 		parent::tearDown();
 	}
 
-	// Test with a named timezone (e.g., "America/New_York")
+	/** Test with a named timezone (e.g., "America/New_York") */
 	public function test_wpcomsh_stats_timezone_string_with_named_tz() {
 		update_option( 'timezone_string', 'America/New_York' );
 		update_option( 'gmt_offset', '' ); // Clear offset to ensure we use timezone_string
@@ -37,7 +36,7 @@ class Test_WPCOMSH_Stats_Timezone_String extends WP_UnitTestCase {
 		$this->assertEquals( $expected_output, $actual_output );
 	}
 
-	// Test with integer hour offset (e.g., UTC+5)
+	/** Test with integer hour offset (e.g., UTC+5) */
 	public function test_wpcomsh_stats_timezone_string_with_integer_offset() {
 		update_option( 'timezone_string', '' );
 		update_option( 'gmt_offset', 5 ); // +5 hours
@@ -47,7 +46,7 @@ class Test_WPCOMSH_Stats_Timezone_String extends WP_UnitTestCase {
 		$this->assertEquals( $expected_output, $actual_output );
 	}
 
-	// Test with negative integer hour offset (e.g., UTC-3)
+	/** Test with negative integer hour offset (e.g., UTC-3) */
 	public function test_wpcomsh_stats_timezone_string_with_negative_integer_offset() {
 		update_option( 'timezone_string', '' );
 		update_option( 'gmt_offset', -3 ); // -3 hours
@@ -57,7 +56,7 @@ class Test_WPCOMSH_Stats_Timezone_String extends WP_UnitTestCase {
 		$this->assertEquals( $expected_output, $actual_output );
 	}
 
-	// Test with fractional hour offset (e.g., UTC+5:30)
+	/** Test with fractional hour offset (e.g., UTC+5:30) */
 	public function test_wpcomsh_stats_timezone_string_with_fractional_offset() {
 		update_option( 'timezone_string', '' );
 		update_option( 'gmt_offset', 5.5 ); // +5 hours 30 minutes
@@ -68,7 +67,7 @@ class Test_WPCOMSH_Stats_Timezone_String extends WP_UnitTestCase {
 		$this->assertEquals( 'Asia/Kolkata', $actual_output );
 	}
 
-	// Test with fractional offset that has no city match (fall back to integer)
+	/** Test with fractional offset that has no city match (fall back to integer) */
 	public function test_wpcomsh_stats_timezone_string_with_unmatched_fractional_offset() {
 		update_option( 'timezone_string', '' );
 		update_option( 'gmt_offset', 5.25 ); // +5 hours 15 minutes (no common city match)
@@ -87,4 +86,3 @@ class Test_WPCOMSH_Stats_Timezone_String extends WP_UnitTestCase {
 		$this->assertEquals( $expected_output, $actual_output );
 	}
 }
-// phpcs:enable Squiz.Commenting.FunctionComment.WrongStyle
