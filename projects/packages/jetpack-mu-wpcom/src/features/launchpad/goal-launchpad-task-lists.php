@@ -44,14 +44,14 @@ function get_checklist_slug_by_goals( $goals, $enable_features_for_goals ) {
 		return get_default_checklist_slug();
 	}
 
-	if ( contains_all( $enable_features_for_goals, 'courses' ) ) {
-		if ( contains_all( $goals, 'courses' ) ) {
+	if ( in_array( 'courses', $enable_features_for_goals, true ) ) {
+		if ( in_array( 'courses', $goals, true ) ) {
 			return 'create-course-goal';
 		}
 	}
 
-	if ( contains_all( $enable_features_for_goals, 'newsletter' ) ) {
-		if ( contains_all( $goals, 'newsletter' ) ) {
+	if ( in_array( 'newsletter', $enable_features_for_goals, true ) ) {
+		if ( in_array( 'newsletter', $goals, true ) ) {
 			return 'intent-newsletter-goal';
 		}
 	}
@@ -60,31 +60,15 @@ function get_checklist_slug_by_goals( $goals, $enable_features_for_goals ) {
 		return 'sell';
 	}
 
-	if ( contains_all( $goals, 'promote' ) ) {
+	if ( in_array( 'promote', $goals, true ) ) {
 		return 'build';
 	}
 
-	if ( contains_all( $goals, 'write' ) ) {
+	if ( in_array( 'write', $goals, true ) ) {
 		return 'write';
 	}
 
 	return get_default_checklist_slug();
-}
-
-/**
- * The string_list must contains all the provided strings (but can contain more).
- *
- * @param array  $string_list The list of strings to check.
- * @param string ...$strings_to_check The strings to check for.
- * @return bool
- */
-function contains_all( $string_list, ...$strings_to_check ) {
-	foreach ( $strings_to_check as $s ) {
-		if ( ! in_array( $s, $string_list, true ) ) {
-			return false;
-		}
-	}
-	return true;
 }
 
 /**
@@ -101,15 +85,4 @@ function contains_any( $string_list, ...$strings_to_check ) {
 		}
 	}
 	return false;
-}
-
-/**
- * The string_list must contain only the provided string. That is, string_list must have length of one.
- *
- * @param array  $string_list The list of strings to check.
- * @param string $string_to_check The string to check for.
- * @return bool
- */
-function contains_only( $string_list, $string_to_check ) {
-	return count( $string_list ) === 1 && in_array( $string_to_check, $string_list, true );
 }
