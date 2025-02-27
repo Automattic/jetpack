@@ -12,8 +12,8 @@ use Automattic\Jetpack\Unauth_File_Upload_Handler;
 /**
  * Class for handling file attachments in Jetpack Forms.
  *
- * This class is responsible for processing temporarily uploaded files and
- * storing them permanently in a secure location. It provides a clean interface
+ * This class is responsible for processing permanently uploaded files and
+ * storing them in a secure location. It provides a clean interface
  * for moving files from temporary storage to permanent storage through tokens.
  *
  * @since $$next-version$$
