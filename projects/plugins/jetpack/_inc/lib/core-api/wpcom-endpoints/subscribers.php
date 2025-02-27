@@ -87,27 +87,15 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	/**
 	 * Retrieves splitted subscriber counts
 	 *
-	 * @param WP_REST_Request $request incoming API request info.
 	 * @return array data object containing subscriber counts ['email_subscribers' => 0, 'social_followers' => 0]
 	 */
-	public function get_subscriber_counts( $request ) {
+	public function get_subscriber_counts() {
 		if ( ! Constants::is_defined( 'TESTING_IN_JETPACK' ) ) {
 			delete_transient( 'wpcom_subscribers_totals' );
 		}
 
 		$subscriber_info   = Automattic\Jetpack\Extensions\Subscriptions\fetch_subscriber_counts();
 		$subscriber_counts = $subscriber_info['value'];
-
-		// Get query parameter if provided
-		$aggregate_stats = $request->get_param( 'aggregate_stats' );
-
-		if ( ! empty( $aggregate_stats ) ) {
-			$subscriber_counts['aggregate_stats'] = array(
-				'email_subscribers' => array(),
-				'paid_subscribers'  => array(),
-				'total_subscribers' => array(),
-			);
-		}
 
 		return array( 'counts' => $subscriber_counts );
 	}
