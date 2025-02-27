@@ -786,15 +786,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array Array of file attachments or empty array.
 	 */
 	public static function get_file_upload_fields( $post_id ) {
-		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
-		$attachments    = array();
+		$content_fields     = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+		$file_upload_fields = array();
 		foreach ( $content_fields as $field_value ) {
 			if ( self::is_file_upload_field( $field_value ) ) {
-				$attachments[] = $field_value;
+				$file_upload_fields[] = $field_value;
 			}
 		}
 
-		return $attachments;
+		return $file_upload_fields;
 	}
 
 	/**
