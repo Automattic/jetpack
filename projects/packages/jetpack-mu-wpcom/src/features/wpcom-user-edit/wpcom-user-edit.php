@@ -16,7 +16,7 @@ function wpcom_disable_account_level_fields_if_needed() {
 	$user_id = ! empty( $_REQUEST['user_id'] ) ? absint( sanitize_text_field( wp_unslash( $_REQUEST['user_id'] ) ) ) : 0; // // phpcs:ignore WordPress.Security.NonceVerification
 
 	// Do nothing if the user is not connected to WordPress.com.
-	if ( ! $user_id || ! is_current_user_connected( $user_id ) ) {
+	if ( ! $user_id || ! is_user_connected( $user_id ) ) {
 		return;
 	}
 

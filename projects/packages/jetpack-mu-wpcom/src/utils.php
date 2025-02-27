@@ -174,7 +174,7 @@ function is_woa_site() {
  * @param int $user_id the user identifier. Default is the current user.
  * @return bool Boolean is the user connected?
  */
-function is_current_user_connected( $user_id ) {
+function is_user_connected( $user_id ) {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		return true;
 	}
