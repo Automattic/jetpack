@@ -139,11 +139,16 @@
 			}
 
 			#wp-admin-bar-my-wpcom-account {
-				padding: 4px 0;
+				padding: 6px 0;
 
 				.ab-item {
 					height: unset;
 					width: unset;
+					padding: 0 12px;
+
+					@media (max-width: 782px) {
+						padding: 8px 16px;
+					}
 				}
 
 				span.wpcom-button {
