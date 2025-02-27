@@ -766,9 +766,7 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
-		self::$submission->set_defaults( $form->defaults );
-		self::$submission->set_form_submission_data( $form->get_form_submission_data() );
+		$form = Contact_Form::$forms[ $hash ] ?? null;
 
 		// No form may mean user is using do_shortcode, grab the form using the stored post meta
 		if ( ! $form && is_numeric( $id ) && $hash ) {
@@ -800,6 +798,8 @@ class Contact_Form_Plugin {
 			return false;
 		}
 
+		self::$submission->set_defaults( $form->defaults );
+		self::$submission->set_form_submission_data( $form->get_form_submission_data() );
 		$form_errors = self::$submission->get_errors( $hash );
 
 		if ( is_wp_error( $form_errors ) && $form_errors->get_error_codes() ) {

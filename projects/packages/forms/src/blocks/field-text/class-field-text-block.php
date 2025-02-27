@@ -109,7 +109,7 @@ class Field_Text_Block {
 	private static function validate( $form_hash, $attributes, $value ) {
 		$submission = Contact_Form_Plugin::$submission ?? null;
 		if ( $submission ) {
-			$submission->add_field( $form_hash, $attributes['id'], $attributes['type'], $attributes['label'], $value );
+			$submission->add_field( $form_hash, $attributes['id'], 'text', $attributes['label'], $value );
 		}
 
 		/* translators: %s is the name of a form field */
