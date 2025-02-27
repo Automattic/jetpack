@@ -3,19 +3,12 @@
  */
 import {
 	TabPanel,
-	Button,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
-import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
+import { useEntityRecords } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import {
-	createInterpolateElement,
-	useCallback,
-	useEffect,
-	useState,
-	useMemo,
-} from '@wordpress/element';
+import { createInterpolateElement, useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 /**
@@ -26,7 +19,7 @@ import Layout from '../components/layout';
 import { STORE_NAME } from '../state';
 import CheckForSpamButton from './check-for-spam-button';
 import InboxView from './dataviews';
-import ExportModal from './export-modal';
+import ExportResponses from './export-responses';
 /**
  * Style dependencies
  */
@@ -93,13 +86,8 @@ function useTabItems() {
 const Inbox = () => {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const urlStatus = searchParams.get( 'status' );
-	const [ showExportModal, setShowExportModal ] = useState( false );
 	const navigate = useNavigate();
 	const tabs = useTabItems();
-	const userCanExport = useSelect(
-		select => select( coreStore ).canUser( 'update', 'settings' ),
-		[]
-	);
 
 	// If a user has no responses yet, redirect them to the landing page.
 	useEffect( () => {
@@ -108,11 +96,6 @@ const Inbox = () => {
 		}
 		navigate( '/landing' );
 	}, [ navigate ] );
-
-	const toggleExportModal = useCallback(
-		() => setShowExportModal( ! showExportModal ),
-		[ showExportModal, setShowExportModal ]
-	);
 
 	const title = <span className="title">{ __( 'Responses', 'jetpack-forms' ) }</span>;
 
@@ -150,11 +133,7 @@ const Inbox = () => {
 					<h2 className="jp-forms__layout-title">{ title }</h2>
 					<HStack justify="flex-end">
 						<CheckForSpamButton />
-						{ userCanExport && (
-							<Button className="export-button" variant="primary" onClick={ toggleExportModal }>
-								{ __( 'Export', 'jetpack-forms' ) }
-							</Button>
-						) }
+						<ExportResponses />
 					</HStack>
 				</HStack>
 				<p className="jp-forms__header-subtext">{ subtitle }</p>
@@ -168,7 +147,6 @@ const Inbox = () => {
 			>
 				{ () => <InboxView /> }
 			</TabPanel>
-			<ExportModal isVisible={ showExportModal } onClose={ toggleExportModal } />
 		</Layout>
 	);
 };
