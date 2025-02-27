@@ -308,12 +308,10 @@
 			'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, ' +
 			'figure.wp-block-gallery.has-nested-images, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery';
 
-		// Selector for items within a gallery or tiled gallery.
-		var galleryItemSelector =
-			'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' + ' .tiled-gallery__item';
-
 		// Selector for all items including single images.
-		var itemSelector = galleryItemSelector + ', .wp-block-image';
+		var itemSelector =
+			'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' +
+			'.tiled-gallery__item, .wp-block-image';
 
 		var carousel = {};
 
@@ -378,10 +376,36 @@
 			}
 		}
 
+		/**
+		 * Update the image to improve keyboard and screen reader access.
+		 *
+		 * @param HTMLElement img
+		 */
 		function makeGalleryImageAccessible( img ) {
-			img.role = 'button';
-			img.tabIndex = 0;
-			img.ariaLabel = jetpackCarouselStrings.image_label;
+			// The tiled gallery adds attributes to the image directly.
+			if ( domUtil.closest( img, '.tiled-gallery__item' ) ) {
+				return;
+			}
+
+			// Find the link if it exists, otherwise create it.
+			let link = img.parentElement;
+			if ( ! domUtil.matches( link, 'a' ) ) {
+				link = document.createElement( 'a' );
+				link.href = img.getAttribute( 'data-permalink' );
+				link.appendChild( img.cloneNode( true ) );
+				img.replaceWith( link );
+			}
+
+			// Add aria attributes to the link.
+			link.role = 'button';
+
+			// Insert button text after the image, so that both image alt text
+			// and this label are read aloud. Prefixing with : creates a pause
+			// to separate the image alt text from the label.
+			const span = document.createElement( 'span' );
+			span.innerText = ': ' + jetpackCarouselStrings.image_label;
+			span.classList.add( 'screen-reader-text' );
+			link.appendChild( span );
 		}
 
 		function initializeCarousel() {
@@ -709,7 +733,7 @@
 				}
 
 				// Skip if image is part of a gallery.
-				if ( domUtil.closest( container, galleryItemSelector ) ) {
+				if ( domUtil.closest( container, gallerySelector ) ) {
 					return;
 				}
 
@@ -1584,10 +1608,12 @@
 		// Register the event listeners for starting the gallery
 		document.body.addEventListener( 'click', handleInteraction );
 		document.body.addEventListener( 'keydown', handleInteraction );
-		document.querySelectorAll( galleryItemSelector + 'img' ).forEach( function ( galleryImage ) {
-			if ( shouldOpenModal( galleryImage ) ) {
-				makeGalleryImageAccessible( galleryImage );
-			}
+		document.querySelectorAll( gallerySelector ).forEach( function ( container ) {
+			container.querySelectorAll( 'img' ).forEach( function ( galleryImage ) {
+				if ( shouldOpenModal( galleryImage ) ) {
+					makeGalleryImageAccessible( galleryImage );
+				}
+			} );
 		} );
 
 		function handleInteraction( e ) {
@@ -1598,8 +1624,7 @@
 
 			if ( e.type === 'keydown' ) {
 				const parentElement = document.activeElement.parentElement;
-				const isParentCarouselContainer =
-					parentElement && parentElement.classList.contains( 'tiled-gallery__item' );
+				const isParentCarouselContainer = domUtil.matches( parentElement, itemSelector );
 
 				if ( ( e.key === ' ' || e.key === 'Enter' ) && isParentCarouselContainer ) {
 					handleClick( e );
@@ -1658,7 +1683,14 @@
 				return;
 			}
 
-			var target = e.target;
+			// If the event happened on the link (keyboard), target is the link, but we need the image.
+			var target = domUtil.matches( e.target, 'img' )
+				? e.target
+				: e.target.querySelector( ':scope > img' );
+			if ( ! target ) {
+				return;
+			}
+
 			var gallery = domUtil.closest( target, gallerySelector );
 
 			if ( gallery ) {
