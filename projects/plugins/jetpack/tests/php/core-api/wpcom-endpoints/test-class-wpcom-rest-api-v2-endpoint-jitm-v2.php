@@ -1,13 +1,13 @@
 <?php
 
-require_once dirname( __DIR__, 2 ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
+require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
 /**
  * Tests for JITM V2 REST API Endpoints.
  *
  * @package automattic/jetpack
  */
-class WP_Test_WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_Test_Jetpack_REST_Testcase {
+class WP_Test_WPCOM_REST_API_V2_Endpoint_JITM_V2 extends Jetpack_REST_Testcase {
 
 	/**
 	 * Mock user ID.
