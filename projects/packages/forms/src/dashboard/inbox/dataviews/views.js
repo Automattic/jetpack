@@ -13,12 +13,11 @@ const defaultView = {
 	filters: [],
 	page: 1,
 	perPage: 20,
-	titleField: 'from',
-	fields: [ 'date', 'source' ],
+	fields: [ 'from', 'date', 'source' ],
 };
 
 export const defaultLayouts = {
-	[ LAYOUT_TABLE ]: { showMedia: false },
+	[ LAYOUT_TABLE ]: {},
 };
 
 /**
@@ -35,7 +34,6 @@ export function useView() {
 	const [ view, setView ] = useState( () => ( {
 		...defaultView,
 		search: urlSearch ?? '',
-		...defaultLayouts[ defaultView.type ],
 	} ) );
 	// When view changes, update the URL params if needed.
 	const setViewWithUrlUpdate = useEvent( newView => {
