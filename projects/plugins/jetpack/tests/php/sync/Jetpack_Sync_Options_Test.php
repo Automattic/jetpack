@@ -282,7 +282,6 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_waf_share_data'                       => true,
 			'jetpack_waf_share_debug_data'                 => false,
 			'jetpack_waf_automatic_rules_last_updated_timestamp' => 0,
-			'difm_lite_site_options'                       => array(),
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
