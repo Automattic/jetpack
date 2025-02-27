@@ -17,10 +17,6 @@ use WP_REST_Response;
  * registered in \Automattic\Jetpack\Forms\ContactForm\Contact_Form.
  */
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
-	// Check Akismet filters there... (contact_form_akismet)
-
-	// TODO: check about `get_responses_permission_check` differences...
-
 	/**
 	 * Registers the REST routes.
 	 *

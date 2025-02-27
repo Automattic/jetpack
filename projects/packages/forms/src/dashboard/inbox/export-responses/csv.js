@@ -5,10 +5,6 @@ import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-/**
- * Internal dependencies
- */
-import { isWpcom } from '../util';
 
 const CSVExport = ( { onExport } ) => {
 	const downloadCSV = useCallback( () => {
@@ -29,9 +25,7 @@ const CSVExport = ( { onExport } ) => {
 		} );
 	}, [ onExport ] );
 
-	const buttonClasses = clsx( 'button', 'export-button', 'export-csv', {
-		'button-primary': ! isWpcom(),
-	} );
+	const buttonClasses = clsx( 'button', 'export-button', 'export-csv' );
 
 	return (
 		<div className="jp-forms__export-modal-card">

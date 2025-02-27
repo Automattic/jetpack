@@ -11,7 +11,6 @@ import { tap } from 'lodash';
  * Internal dependencies
  */
 import { config } from '../..';
-import { isWpcom } from '../util';
 
 const GoogleDriveExport = ( { onExport } ) => {
 	const [ isConnected, setIsConnected ] = useState( config( 'gdriveConnection' ) );
@@ -65,9 +64,7 @@ const GoogleDriveExport = ( { onExport } ) => {
 		} );
 	}, [ tracks, pollForConnection ] );
 
-	const buttonClasses = clsx( 'button', 'export-button', 'export-gdrive', {
-		'button-primary': ! isWpcom(),
-	} );
+	const buttonClasses = clsx( 'button', 'export-button', 'export-gdrive' );
 
 	return (
 		<div className="jp-forms__export-modal-card">
