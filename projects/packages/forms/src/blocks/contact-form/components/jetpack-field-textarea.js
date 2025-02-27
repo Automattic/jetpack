@@ -1,8 +1,7 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
-import { useEffect } from '@wordpress/element';
 import clsx from 'clsx';
-import { isEmpty, isNil } from 'lodash';
+import { isEmpty } from 'lodash';
 import { useFormStyle } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
@@ -17,7 +16,6 @@ const JetpackFieldTextarea = props => {
 		isSelected,
 		required,
 		requiredText,
-		label,
 		setAttributes,
 		placeholder,
 		width,
@@ -33,13 +31,6 @@ const JetpackFieldTextarea = props => {
 		style: blockStyle,
 	} );
 
-	useEffect( () => {
-		if ( isNil( label ) ) {
-			setAttributes( { label: '' } );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
-
 	return (
 		<>
 			<div { ...blockProps }>
@@ -47,7 +38,6 @@ const JetpackFieldTextarea = props => {
 					clientId={ clientId }
 					required={ required }
 					requiredText={ requiredText }
-					label={ label }
 					setAttributes={ setAttributes }
 					attributes={ attributes }
 					style={ formStyle }

@@ -35,7 +35,6 @@ function useEnter( props ) {
 const FieldLabel = ( {
 	attributes,
 	className,
-	label,
 	suffix,
 	labelFieldName,
 	placeholder,
@@ -53,7 +52,7 @@ const FieldLabel = ( {
 			<RichText
 				ref={ useEnterRef }
 				tagName="label"
-				value={ label }
+				value={ attributes.label }
 				className="jetpack-field-label__input"
 				onChange={ value => {
 					resetFocus && resetFocus();

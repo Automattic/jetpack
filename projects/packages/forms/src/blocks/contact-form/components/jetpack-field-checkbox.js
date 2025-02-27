@@ -20,7 +20,6 @@ function JetpackFieldCheckbox( props ) {
 		instanceId,
 		required,
 		requiredText,
-		label,
 		setAttributes,
 		width,
 		defaultValue,
@@ -54,7 +53,6 @@ function JetpackFieldCheckbox( props ) {
 				<JetpackFieldLabel
 					required={ required }
 					requiredText={ requiredText }
-					label={ label }
 					setAttributes={ setAttributes }
 					attributes={ attributes }
 					insertBlocksAfter={ insertBlocksAfter }

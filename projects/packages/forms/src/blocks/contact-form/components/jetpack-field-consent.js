@@ -30,8 +30,9 @@ const JetpackFieldConsent = ( {
 			<JetpackFieldLabel
 				required={ false }
 				label={
+					// @TODO: remove prop as unused?
 					{
-						implicit: implicitConsentMessage,
+						implicit: implicitConsentMessage, //
 						explicit: explicitConsentMessage,
 					}[ consentType ] ?? ''
 				}

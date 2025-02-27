@@ -17,7 +17,6 @@ const JetpackField = props => {
 		isSelected,
 		required,
 		requiredText,
-		label,
 		setAttributes,
 		placeholder = '',
 		width,
@@ -40,7 +39,6 @@ const JetpackField = props => {
 			<div { ...blockProps }>
 				<JetpackFieldLabel
 					attributes={ attributes }
-					label={ label }
 					required={ required }
 					requiredText={ requiredText }
 					setAttributes={ setAttributes }

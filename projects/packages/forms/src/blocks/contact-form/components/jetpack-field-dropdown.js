@@ -13,7 +13,7 @@ import JetpackFieldLabel from './jetpack-field-label';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttributes } ) => {
-	const { id, label, options, required, requiredText, toggleLabel, width } = attributes;
+	const { id, options, required, requiredText, toggleLabel, width } = attributes;
 	const optionsWrapper = useRef( undefined );
 	const formStyle = useFormStyle( clientId );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
@@ -105,10 +105,6 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 	};
 
 	useEffect( () => {
-		if ( isNil( label ) ) {
-			setAttributes( { label: '' } );
-		}
-
 		if ( isNil( toggleLabel ) ) {
 			setAttributes( { toggleLabel: __( 'Select one option', 'jetpack-forms' ) } );
 		}
@@ -121,7 +117,6 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 				<JetpackFieldLabel
 					required={ required }
 					requiredText={ requiredText }
-					label={ label }
 					attributes={ attributes }
 					setAttributes={ setAttributes }
 					isSelected={ isSelected }

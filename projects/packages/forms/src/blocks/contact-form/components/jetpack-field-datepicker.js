@@ -36,7 +36,7 @@ const DATE_FORMATS = [
 
 const JetpackDatePicker = props => {
 	const { attributes, clientId, isSelected, name, setAttributes, insertBlocksAfter } = props;
-	const { id, label, required, requiredText, width, placeholder, dateFormat } = attributes;
+	const { id, required, requiredText, width, placeholder, dateFormat } = attributes;
 
 	useFormWrapper( { attributes, clientId, name } );
 
@@ -55,7 +55,6 @@ const JetpackDatePicker = props => {
 			<div { ...blockProps }>
 				<JetpackFieldLabel
 					attributes={ attributes }
-					label={ label }
 					suffix={ `(${ DATE_FORMATS.find( f => f.value === dateFormat )?.label })` }
 					required={ required }
 					requiredText={ requiredText }
