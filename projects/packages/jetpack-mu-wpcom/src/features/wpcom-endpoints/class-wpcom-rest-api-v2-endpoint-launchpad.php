@@ -40,22 +40,22 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_data' ),
 					'permission_callback' => array( $this, 'can_access' ),
 					'args'                => array(
-						'checklist_slug'            => array(
+						'checklist_slug'             => array(
 							'description' => 'Checklist slug',
 							'type'        => 'string',
 							'enum'        => $this->get_checklist_slug_enums(),
 						),
-						'launchpad_context'         => array(
+						'launchpad_context'          => array(
 							'description' => 'Screen where Launchpand instance is loaded.',
 							'type'        => 'string',
 						),
-						'use_goals'                 => array(
+						'use_goals'                  => array(
 							'description' => 'Should the launchpad data use site goals or intent.',
 							'type'        => 'boolean',
 							'required'    => false,
 							'default'     => false,
 						),
-						'enable_features_for_goals' => array(
+						'enable_checklist_for_goals' => array(
 							'description' => 'Used by the client to signal to Jetpack which launchpad goals have been enabled (e.g. via feature flags)',
 							'type'        => 'array',
 							'items'       => array( 'type' => 'string' ),
@@ -184,7 +184,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			// The user must be part of a cohort which should deterine which checklist to show soley on
 			// goal selection, not the "intent".
 			$site_goals     = get_option( 'site_goals', array() );
-			$checklist_slug = Launchpad\get_checklist_slug_by_goals( $site_goals, $request['enable_features_for_goals'] );
+			$checklist_slug = Launchpad\get_checklist_slug_by_goals( $site_goals, $request['enable_checklist_for_goals'] );
 		}
 
 		$response = array(

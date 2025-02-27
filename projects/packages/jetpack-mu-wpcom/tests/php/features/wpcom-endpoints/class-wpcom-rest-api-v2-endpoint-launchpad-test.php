@@ -392,19 +392,19 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	 *
 	 * @dataProvider provide_get_tasklist_using_goals_test_cases()
 	 * @param array $site_goals List of goals that the user selected during onboarding.
-	 * @param mixed $enable_features_for_goals Flags used to enable/disable a specific tasklist (usually set by a client-side feature flag or experiment).
+	 * @param mixed $enable_checklist_for_goals Flags used to enable/disable a specific tasklist (usually set by a client-side feature flag or experiment).
 	 * @param mixed $expected_tasklist_slug Slug for the tasklist we expect to be returned (e.g. wpcom_launchpad_get_task_list_definitions()).
 	 * @covers ::get_data
 	 */
-	public function test_get_tasklist_using_goals( $site_goals, $enable_features_for_goals, $expected_tasklist_slug ) {
+	public function test_get_tasklist_using_goals( $site_goals, $enable_checklist_for_goals, $expected_tasklist_slug ) {
 		wp_set_current_user( $this->admin_id );
 		update_option( 'site_goals', $site_goals );
 
 		$data = array(
-			'checklist_slug'            => 'start-writing', // This should get ignored, due to the use_goals flag.
-			'launchpad_context'         => 'customer-home',
-			'use_goals'                 => true,
-			'enable_features_for_goals' => $enable_features_for_goals,
+			'checklist_slug'             => 'start-writing', // This should get ignored, due to the use_goals flag.
+			'launchpad_context'          => 'customer-home',
+			'use_goals'                  => true,
+			'enable_checklist_for_goals' => $enable_checklist_for_goals,
 		);
 
 		$result = $this->call_launchpad_api( Requests::GET, $data );

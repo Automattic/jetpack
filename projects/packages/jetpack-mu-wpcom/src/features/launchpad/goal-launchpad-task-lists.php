@@ -28,11 +28,11 @@ function get_goals_default_checklist_slug() {
  * are successful for which goals.
  *
  * @param array $goals Array of goal slugs.
- * @param array $enable_features_for_goals Used by the client to signal to Jetpack which launchpad goals have been enabled (e.g. via feature flags)'.
+ * @param array $enable_checklist_for_goals Used by the client to signal to Jetpack which launchpad goals have been enabled (e.g. via feature flags)'.
  *
  * @return string
  */
-function get_checklist_slug_by_goals( $goals, $enable_features_for_goals ) {
+function get_checklist_slug_by_goals( $goals, $enable_checklist_for_goals ) {
 	if ( empty( $goals ) ) {
 		return get_goals_default_checklist_slug();
 	}
@@ -44,13 +44,13 @@ function get_checklist_slug_by_goals( $goals, $enable_features_for_goals ) {
 		return get_goals_default_checklist_slug();
 	}
 
-	if ( in_array( 'courses', $enable_features_for_goals, true ) ) {
+	if ( in_array( 'courses', $enable_checklist_for_goals, true ) ) {
 		if ( in_array( 'courses', $goals, true ) ) {
 			return 'create-course-goal';
 		}
 	}
 
-	if ( in_array( 'newsletter', $enable_features_for_goals, true ) ) {
+	if ( in_array( 'newsletter', $enable_checklist_for_goals, true ) ) {
 		if ( in_array( 'newsletter', $goals, true ) ) {
 			return 'intent-newsletter-goal';
 		}
