@@ -579,6 +579,11 @@ abstract class Base_Admin_Menu {
 	 * Adds a script to append the dashboard switcher to screen meta
 	 */
 	public function dashboard_switcher_scripts() {
+		static $is_script_added = false;
+		if ( $is_script_added ) {
+			return;
+		}
+
 		wp_add_inline_script(
 			'common',
 			"(function( $ ) {
@@ -600,6 +605,8 @@ abstract class Base_Admin_Menu {
 				});
 			})( jQuery );"
 		);
+
+		$is_script_added = true;
 	}
 
 	/**

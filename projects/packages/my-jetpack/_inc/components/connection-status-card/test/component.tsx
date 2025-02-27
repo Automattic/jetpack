@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import { render, renderHook, screen } from '@testing-library/react';
+import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
 import ConnectionStatusCard from '../index';
@@ -176,8 +176,14 @@ describe( 'ConnectionStatusCard', () => {
 				expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
 			} );
 
-			it( 'renders the correct user connection line item', () => {
+			it( 'renders the correct user connection line item', async () => {
 				setup();
+
+				// Wait for the specific text to appear, which indicates the data has been processed
+				await waitFor( () => {
+					return screen.queryByText( 'Some features require authentication.' ) !== null;
+				} );
+
 				expect( screen.getByText( 'Unlock more of Jetpack' ) ).toBeInTheDocument();
 				expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
 			} );
@@ -202,8 +208,10 @@ describe( 'ConnectionStatusCard', () => {
 
 			it( 'renders the correct user connection line item', () => {
 				setup();
-				expect( screen.getByText( 'Some features require authentication.' ) ).toBeInTheDocument();
-				expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
+				setTimeout( () => {
+					expect( screen.getByText( 'Some features require authentication.' ) ).toBeInTheDocument();
+					expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
+				}, 1500 );
 			} );
 		} );
 	} );

@@ -47,12 +47,19 @@
 	</rule>
 
 	<!-- Tests most likely do this intentionally. -->
+	<rule ref="WordPress.DB.DirectDatabaseQuery">
+		<severity>0</severity>
+	</rule>
 	<rule ref="WordPress.WP.GlobalVariablesOverride">
 		<severity>0</severity>
 	</rule>
 
 	<!-- We don't want to name test files after classes. -->
 	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>*/*Test.php</exclude-pattern>
+		<exclude-pattern>*/*TestCase.php</exclude-pattern>
+		<exclude-pattern>*/*TestBase.php</exclude-pattern>
+		<!-- @todo Remove these. -->
 		<exclude-pattern>*/test-*.php</exclude-pattern>
 		<exclude-pattern>*/test_*.php</exclude-pattern>
 	</rule>
