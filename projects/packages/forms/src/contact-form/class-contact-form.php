@@ -788,9 +788,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static function get_file_upload_fields( $post_id ) {
 		$content_fields     = Contact_Form_Plugin::parse_fields_from_content( $post_id );
 		$file_upload_fields = array();
-		foreach ( $content_fields as $field_value ) {
-			if ( self::is_file_upload_field( $field_value ) ) {
-				$file_upload_fields[] = $field_value;
+		if ( isset( $content_fields['_feedback_all_fields'] ) ) {
+			foreach ( $content_fields['_feedback_all_fields'] as $field_value ) {
+				if ( self::is_file_upload_field( $field_value ) ) {
+					$file_upload_fields[] = $field_value;
+				}
 			}
 		}
 
@@ -1258,8 +1260,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			$label = $i . '_' . $field->get_attribute( 'label' );
+			if ( $field->get_attribute( 'type' ) === 'file' ) {
+				$field->value = $this->process_file_upload( $field_id, $field );
+			}
 			$value = $field->value;
-
+			if ( is_array( $value ) && ! $field->get_attribute( 'type' ) === 'file' ) {
+				$value = implode( ', ', $value );
+			}
 			$all_values[ $label ] = $value;
 			++$i; // Increment prefix counter for the next field
 		}
@@ -1275,13 +1282,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
-
-			if ( $field->get_attribute( 'type' ) === 'file' ) {
-				$value = $this->process_file_upload( $field_id, $field );
-			} elseif ( is_array( $value ) ) {
-				$value = implode( ', ', $value );
+			if ( ! $field->get_attribute( 'type' ) === 'file' ) {
+				if ( is_array( $value ) ) {
+					$value = implode( ', ', $value );
+				}
 			}
-
 			$extra_values[ $label ] = $value;
 			++$i; // Increment prefix counter for the next extra field
 		}
