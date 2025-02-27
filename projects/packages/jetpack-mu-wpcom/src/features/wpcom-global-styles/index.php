@@ -801,5 +801,6 @@ function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
 
 	$experiment_assignment = \ExPlat\assign_given_user( 'calypso_plans_global_styles_personal_v2_20240225', $owner );
 
+	// All non-control groups have Global Styles on Personal
 	return null !== $experiment_assignment;
 }
