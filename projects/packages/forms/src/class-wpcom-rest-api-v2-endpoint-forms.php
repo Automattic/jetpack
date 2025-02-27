@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use WP_Error;
 use WP_REST_Controller;
@@ -210,14 +211,26 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			'_feedback_subject'      => '',
 		);
 
+		require_once __DIR__ . '/contact-form/class-file-handler.php';
+		$file_handler = new File_Handler();
+
 		$responses = array_map(
-			function ( $response ) use ( $base_fields, $data_defaults ) {
+			function ( $response ) use ( $base_fields, $data_defaults, $file_handler ) {
 				$data = array_merge(
 					$data_defaults,
 					\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::parse_fields_from_content( $response->ID )
 				);
 
 				$all_fields = array_merge( $base_fields, $data['_feedback_all_fields'] );
+
+				if ( is_array( $all_fields ) ) {
+					foreach ( $all_fields as &$value ) {
+						if ( Contact_Form::is_file_upload_field( $value ) ) {
+							$value['url'] = $file_handler->get_file_url( $value['file_id'] );
+						}
+					}
+				}
+
 				return array(
 					'id'                      => $response->ID,
 					'uid'                     => $all_fields['feedback_id'],

@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
-use Automattic\Jetpack\Forms\File_Handler;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
 use Automattic\Jetpack\Status;
@@ -2142,21 +2141,7 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		require_once __DIR__ . '/class-file-handler.php';
-		$file_handler = new File_Handler();
-
-		// update the fields with URL data.
-		$new_all_values = array();
-		if ( is_array( $all_values ) ) {
-			foreach ( $all_values as $key => $value ) {
-				if ( Contact_Form::is_file_upload_field( $value ) ) {
-					$value['url'] = $file_handler->get_file_url( $value['file_id'] );
-				}
-				$new_all_values[ $key ] = $value;
-			}
-		}
-
-		$fields['_feedback_all_fields'] = $new_all_values;
+		$fields['_feedback_all_fields'] = $all_values;
 
 		$post_fields[ $post_id ] = $fields;
 
