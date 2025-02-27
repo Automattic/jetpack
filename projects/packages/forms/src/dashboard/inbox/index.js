@@ -8,7 +8,13 @@ import {
 } from '@wordpress/components';
 import { useEntityRecords } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement, useCallback, useEffect, useMemo } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+} from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 /**
@@ -88,6 +94,7 @@ const Inbox = () => {
 	const urlStatus = searchParams.get( 'status' );
 	const navigate = useNavigate();
 	const tabs = useTabItems();
+	const layoutHeaderRef = useRef();
 
 	// If a user has no responses yet, redirect them to the landing page.
 	useEffect( () => {
@@ -128,7 +135,7 @@ const Inbox = () => {
 	);
 	return (
 		<Layout className="jp-forms__inbox">
-			<div className="jp-forms__layout-header">
+			<div className="jp-forms__layout-header" ref={ layoutHeaderRef }>
 				<HStack justify="space-between">
 					<h2 className="jp-forms__layout-title">{ title }</h2>
 					<HStack justify="flex-end">
@@ -145,7 +152,7 @@ const Inbox = () => {
 				onSelect={ onTabSelect }
 				tabs={ tabs }
 			>
-				{ () => <InboxView /> }
+				{ () => <InboxView layoutHeaderRef={ layoutHeaderRef } /> }
 			</TabPanel>
 		</Layout>
 	);

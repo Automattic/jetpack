@@ -29,10 +29,6 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-tabs {
-	.jp-forms__inbox & .components-tab-panel__tabs {
-		display: flex;
-	}
-
 	.components-tab-panel__tabs {
 		margin: 0;
 		padding: 16px 48px 0;
@@ -77,85 +73,6 @@ $action-bar-height: 88px;
 	padding: 0 6px;
 }
 
-.jp-forms__inbox-content {
-	box-sizing: border-box;
-	display: flex;
-	flex-direction: row;
-	gap: 0;
-	padding: 0 0 48px;
-	position: relative;
-	width: 100%;
-	margin-top: 0;
-	z-index: 0;
-
-	@media (min-width: 1025px) {
-		gap: 24px;
-		padding-left: 64px;
-		padding-right: 64px;
-	}
-}
-
-.jp-forms__inbox-content-column {
-	align-items: center;
-	box-sizing: border-box;
-	flex-direction: column;
-	min-width: 0;
-	position: relative;
-	width: 100%;
-
-	&:first-child {
-		display: flex;
-	}
-
-	&:last-child {
-		display: none;
-	}
-
-	.jp-forms__inbox &:first-child {
-		display: none;
-	}
-
-	.jp-forms__inbox &:last-child {
-		display: flex;
-	}
-
-	@media (max-width: 660px) {
-		padding-left: 24px;
-		padding-right: 24px;
-	}
-
-	@media (min-width: 661px) and (max-width: 1024px) {
-		padding-left: 64px;
-		padding-right: 64px;
-	}
-
-	@media (min-width: 1025px) {
-		display: flex !important;
-		flex: 3;
-		width: auto;
-
-		&:last-child {
-			flex: 2;
-		}
-	}
-
-	.jp-forms__inbox-sticky-sentinel {
-		background: transparent;
-		width: 1px;
-		height: 1px;
-		position: absolute;
-		top: 0;
-	}
-
-	.jp-forms__inbox-sticky-mark {
-		border-bottom: 1px solid #dcdcde;
-		box-shadow: 0 1px 5px 0 rgb(0 0 0 / 30%);
-		position: sticky;
-		top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height});
-		width: 100%;
-	}
-}
-
 .jp-forms__inbox-response {
 	border: 1px solid #dcdcde;
 	border-radius: 8px;
@@ -186,13 +103,6 @@ $action-bar-height: 88px;
 .jp-forms__inbox-response {
 	background-color: #fff;
 	position: relative;
-
-	@media (min-width: 1025px) {
-		// height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px));
-		// overflow-y: auto;
-		// position: sticky;
-		// top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height});
-	}
 
 	&::before {
 		background: linear-gradient(30deg, #eaeff5, #f2f3e3);
@@ -373,25 +283,20 @@ $action-bar-height: 88px;
 	white-space: pre-wrap;
 }
 
-// TODO: tidy up styles and hardcoded specific pixel values...
-
 .jp-forms__header-subtext {
 	margin-bottom: 0;
 }
 
 .jp-forms__inbox__dataviews__container {
+	height: 100%;
 	border-top: 1px solid #dcdcde;
 	background-color: #f9f9f9;
 	padding: 35px;
     box-sizing: border-box;
-	// logo height: 70px
-	// layout-header: 88px
-	// tabs height: 56px
-	// TODO: find a good way to do this..
-	height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 100px));
+	min-height: 400px;
 }
 
-.jp-forms__inbox__dataviews{
+.jp-forms__inbox__dataviews {
 	border: 1px solid #dcdcde;
 	border-radius: 8px;
 	display: flex;
@@ -411,3 +316,46 @@ $action-bar-height: 88px;
 	height: 100%;
 	overflow: auto;
 }
+
+
+/* We need to make the available canvas 100% tall. Without this, no flex values will work, they will only use the available space. */
+.toplevel_page_jetpack-forms #wpwrap,
+.toplevel_page_jetpack-forms #wpcontent,
+.toplevel_page_jetpack-forms #wpbody,
+.toplevel_page_jetpack-forms #wpbody-content {
+	height: 100%;
+}
+
+#jp-forms-dashboard,
+.jp-forms__layout {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+/* This was just for debugging. Remove these min-heights. */
+#jp-forms-dashboard {
+	min-height: 0 !important;
+}
+
+.jp-forms__logo-wrapper,
+.jp-forms__layout-header {
+	flex: 0 1 auto; /* Flex, but don't grow */
+}
+
+.jp-forms__inbox-tabs {
+	flex: 1 1 auto; /* Flex, and grow */
+
+	/* Continue flexing downwards from here. */
+	display: flex;
+	flex-direction: column;
+}
+
+.jp-forms__inbox-tabs .components-tab-panel__tabs {
+	flex: 0 1 auto;
+}
+
+.jp-forms__inbox-tabs .components-tab-panel__tab-content {
+	flex: 1 1 auto;
+}
+
