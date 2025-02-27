@@ -27,8 +27,8 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 			wpcomFreeProductSlug,
 			wpcomProductSlug: ! quantity ? wpcomProductSlug : `${ wpcomProductSlug }:-q-${ quantity }`,
 			discountPrice: hasDiscount && eligibleForIntroDiscount ? discountPrice / 12 : null,
-			fullPrice: fullPrice / 12,
-			currencyCode,
+			fullPrice: fullPrice ? fullPrice / 12 : 0,
+			currencyCode: currencyCode ?? 'USD',
 		};
 	}
 
