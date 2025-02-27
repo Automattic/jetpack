@@ -64,11 +64,11 @@
 	"prefer-stable": true,
 	"extra": {
 		"autotagger": true,
-		"mirror-repo": "Automattic/jetpack-subscriber-dashboard",
+		"mirror-repo": "Automattic/jetpack-subscribers-dashboard",
 		"branch-alias": {
 			"dev-trunk": "0.0.x-dev"
 		},
-		"textdomain": "jetpack-subscriber-dashboard",
+		"textdomain": "jetpack-subscribers-dashboard",
 		"version-constants": {
 			"::VERSION": "src/class-dashboard.php"
 		}
