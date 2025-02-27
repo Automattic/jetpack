@@ -197,9 +197,6 @@ class Contact_Form_Plugin {
 
 		add_filter( 'use_block_editor_for_post_type', array( $this, 'use_block_editor_for_post_type' ), 10, 2 );
 
-		// Add action to delete uploaded files when a feedback post is deleted
-		add_action( 'before_delete_post', array( $this, 'delete_feedback_attachments' ) );
-
 		// custom post type we'll use to keep copies of the feedback items
 		register_post_type(
 			'feedback',
@@ -2347,35 +2344,5 @@ class Contact_Form_Plugin {
 		$should_enable_tracking = $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
 
 		return $is_wpcom || $should_enable_tracking;
-	}
-
-	/**
-	 * Delete uploaded files when a feedback post is deleted.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param int $post_id The post ID being deleted.
-	 * @return void
-	 */
-	public function delete_feedback_attachments( $post_id ) {
-		if ( get_post_type( $post_id ) !== 'feedback' ) {
-			return;
-		}
-
-		// Get the extra fields which may contain file upload data
-		$extra_fields = get_post_meta( $post_id, '_feedback_extra_fields', true );
-		if ( empty( $extra_fields ) || ! is_array( $extra_fields ) ) {
-			return;
-		}
-
-		require_once __DIR__ . '/class-file-handler.php';
-		$file_handler = new File_Handler();
-
-		// Loop through all fields to find file uploads
-		foreach ( $extra_fields as $field_value ) {
-			if ( Contact_Form::is_file_upload_field( $field_value ) ) {
-				$file_handler->delete_file( $field_value['file_id'] );
-			}
-		}
 	}
 }
