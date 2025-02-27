@@ -183,13 +183,8 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 		if ( $use_goals ) {
 			// The user must be part of a cohort which should deterine which checklist to show soley on
 			// goal selection, not the "intent".
-			$site_goals = get_option( 'site_goals' );
-			if ( $site_goals === false || empty( $site_goals ) ) {
-				$checklist_slug = Launchpad\get_goals_default_checklist_slug();
-			} else {
-				$enable_features_for_goals = isset( $request['enable_features_for_goals'] ) ? $request['enable_features_for_goals'] : false;
-				$checklist_slug            = Launchpad\get_checklist_slug_by_goals( $site_goals, $enable_features_for_goals );
-			}
+			$site_goals     = get_option( 'site_goals', array() );
+			$checklist_slug = Launchpad\get_checklist_slug_by_goals( $site_goals, $request['enable_features_for_goals'] );
 		}
 
 		$response = array(

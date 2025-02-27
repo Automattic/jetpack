@@ -33,7 +33,7 @@ function get_goals_default_checklist_slug() {
  * @return string
  */
 function get_checklist_slug_by_goals( $goals, $enable_features_for_goals ) {
-	if ( ! is_array( $goals ) || empty( $goals ) ) {
+	if ( empty( $goals ) ) {
 		return get_goals_default_checklist_slug();
 	}
 
