@@ -1229,29 +1229,14 @@ class Contact_Form_Plugin {
 		foreach ( $md as $key => $value ) {
 			if ( is_array( $value ) ) {
 				$value = implode( ', ', $value );
+				if ( Contact_Form::is_file_upload_field( $value ) ) {
+					$value = $value['name'];
+				}
 			}
-			$value          = $this->get_file_name_from_file_data( $value );
 			$result[ $key ] = html_entity_decode( $value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 		}
 
 		return $result;
-	}
-
-	/**
-	 * Get the file name from the file data.
-	 *
-	 * @param string $maybe_file_data The file data to check.
-	 *
-	 * @return string The file name or the original data.
-	 */
-	private function get_file_name_from_file_data( $maybe_file_data ) {
-		if ( str_starts_with( $maybe_file_data, '{' ) ) {
-			$file_data = json_decode( $maybe_file_data, true );
-			if ( isset( $file_data['file_id'] ) ) {
-				return $file_data['name'];
-			}
-		}
-		return $maybe_file_data;
 	}
 
 	/**
@@ -2377,7 +2362,7 @@ class Contact_Form_Plugin {
 
 		// Loop through all fields to find file uploads
 		foreach ( $extra_fields as $field_value ) {
-			if ( is_array( $field_value ) && isset( $field_value['file_id'] ) && isset( $field_value['name'] ) ) {
+			if ( Contact_Form::is_file_upload_field( $field_value ) ) {
 				$file_handler->delete_file( $field_value['file_id'] );
 			}
 		}
