@@ -14,6 +14,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 		add_action( 'jetpack_boost_preload_pages', array( $this, 'preload_pages' ) );
 
 		add_action( 'post_updated', array( $this, 'handle_post_update' ), 10, 1 );
+		add_action( 'jetpack_boost_invalidate_cache_success', array( $this, 'handle_cache_invalidation' ), 10, 1 );
 	}
 
 	public static function get_slug() {
@@ -24,43 +25,46 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 		return true;
 	}
 
-	public function get_preload_posts() {
+	public function get_posts_to_preload() {
 		return get_option( 'jetpack_boost_posts_to_preload', array() );
 	}
 
-	public function set_preload_posts( array $posts ) {
+	public function set_posts_to_preload( array $posts ) {
 		// Ensures the posts are all unique.
 		$posts = array_unique( $posts );
 		// The option is not autoloaded as it's only used within the cron job.
 		update_option( 'jetpack_boost_posts_to_preload', $posts, false );
 	}
 
+	/**
+	 * Schedule preload for all cornerstone pages.
+	 * This is triggered when the cornerstone pages list is updated.
+	 */
 	public function schedule_cornerstone_preload() {
 		$this->schedule_preload( Cornerstone_Utils::get_list() );
 	}
 
+	/**
+	 * Schedules the preload cronjob, if not already scheduled.
+	 */
 	public function schedule_preload_cronjob() {
 		if ( ! wp_next_scheduled( 'jetpack_boost_preload_pages' ) ) {
-			wp_schedule_single_event( time(), 'jetpack_boost_preload_pages' );
+			// Add 2 seconds delay to prevent potential race conditions with the cronjob, or so the cache invalidation process has time to complete.
+			wp_schedule_single_event( time() + 2, 'jetpack_boost_preload_pages' );
 		}
 	}
 
-	public function preload_cornerstone_pages() {
-		$pages = Cornerstone_Utils::get_list();
-
-		foreach ( $pages as $page ) {
-			$this->preload_page( $page );
-		}
-	}
-
+	/**
+	 * Preloads the pages scheduled for preload.
+	 */
 	public function preload_pages() {
-		$posts = $this->get_preload_posts();
+		$posts = $this->get_posts_to_preload();
 		if ( empty( $posts ) ) {
 			return;
 		}
 
 		// Clear the preload posts so they're not preloaded again.
-		$this->set_preload_posts( array() );
+		$this->set_posts_to_preload( array() );
 
 		foreach ( $posts as $post ) {
 			try {
@@ -84,14 +88,14 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @param string|array $post_to_schedule The post URL or an array of post URLs to schedule.
 	 */
 	public function schedule_preload( $post_to_schedule ) {
-		$posts = $this->get_preload_posts();
+		$posts = $this->get_posts_to_preload();
 		if ( is_array( $post_to_schedule ) ) {
 			$posts = array_merge( $posts, $post_to_schedule );
 		} else {
 			$posts[] = $post_to_schedule;
 		}
 
-		$this->set_preload_posts( $posts );
+		$this->set_posts_to_preload( $posts );
 		$this->schedule_preload_cronjob();
 	}
 
@@ -106,5 +110,14 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 		}
 
 		$this->schedule_preload( get_permalink( $post_id ) );
+	}
+
+	public function handle_cache_invalidation( $path ) {
+		$cornerstone_pages = Cornerstone_Utils::get_list();
+		$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
+		// If the $path is in the cornertstone page list, add it to the preload list.
+		if ( in_array( untrailingslashit( $path ), $cornerstone_pages, true ) ) {
+			$this->schedule_preload( $path );
+		}
 	}
 }
