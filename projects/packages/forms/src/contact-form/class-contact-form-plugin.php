@@ -1223,9 +1223,10 @@ class Contact_Form_Plugin {
 		$result = array();
 		foreach ( $md as $key => $value ) {
 			if ( is_array( $value ) ) {
-				$value = implode( ', ', $value );
 				if ( Contact_Form::is_file_upload_field( $value ) ) {
 					$value = $value['name'];
+				} else {
+					$value = implode( ', ', $value );
 				}
 			}
 			$result[ $key ] = html_entity_decode( $value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
