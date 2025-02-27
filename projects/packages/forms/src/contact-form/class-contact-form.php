@@ -1220,9 +1220,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$extra_values = array();
 		$i            = 1; // Prefix counter for stored metadata
 
-		// Process all file uploads
-		$uploaded_files = $this->process_file_uploads();
-
 		// For all fields, grab label and value
 		foreach ( $field_ids['all'] as $field_id ) {
 			$field = $this->fields[ $field_id ];
@@ -1233,10 +1230,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
-
-			if ( $uploaded_files && isset( $uploaded_files[ $field_id ] ) ) {
-				$value = $uploaded_files[ $field_id ];
-			}
 
 			$all_values[ $label ] = $value;
 			++$i; // Increment prefix counter for the next field
@@ -1254,9 +1247,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
 
-			// Check if this is a file field with uploaded data
-			if ( $uploaded_files && isset( $uploaded_files[ $field_id ] ) ) {
-				$value = $uploaded_files[ $field_id ];
+			if ( $field->get_attribute( 'type' ) === 'file' ) {
+				$value = $this->process_file_upload( $field_id, $field );
 			} elseif ( is_array( $value ) ) {
 				$value = implode( ', ', $value );
 			}
@@ -1748,43 +1740,35 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * A function that gets called when processing form submissions and returns a list of files that were processed or errors.
 	 *
+	 * @param string $field_id The field ID.
+	 * @param object $field The field object.
+	 *
 	 * @return array An array of uploaded files or errors.
 	 */
-	private function process_file_uploads() {
+	private function process_file_upload( $field_id, $field ) {
 		require_once __DIR__ . '/class-file-handler.php';
 		$file_handler = new File_Handler();
 
-		$uploaded_files = array();
+		$field_id         = sanitize_key( $field_id );
+		$token_field_name = $field_id . '_token';
 
-		// Find and process file fields
-		foreach ( $this->fields as $id => $field ) {
-			if ( $field->get_attribute( 'type' ) !== 'file' ) {
-				continue;
-			}
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$unauth_file_token = isset( $_POST[ $token_field_name ] ) ? sanitize_text_field( wp_unslash( $_POST[ $token_field_name ] ) ) : '';
 
-			$field_id         = sanitize_key( $id );
-			$token_field_name = $field_id . '_token';
-
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$unauth_file_token = isset( $_POST[ $token_field_name ] ) ? sanitize_text_field( wp_unslash( $_POST[ $token_field_name ] ) ) : '';
-
-			if ( empty( $unauth_file_token ) ) {
-				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
-				continue;
-			}
-
-			// Process the file token using the file handler
-			$result = $file_handler->process_file_upload( $unauth_file_token );
-
-			if ( is_wp_error( $result ) ) {
-				$field->add_error( $result->get_error_message() );
-				continue;
-			}
-
-			$uploaded_files[ $field_id ] = $result;
+		if ( empty( $unauth_file_token ) ) {
+			$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
+			return;
 		}
 
-		return $uploaded_files;
+		// Process the file token using the file handler
+		$result = $file_handler->process_file_upload( $unauth_file_token );
+
+		if ( is_wp_error( $result ) ) {
+			$field->add_error( $result->get_error_message() );
+			return;
+		}
+
+		return $result;
 	}
 
 	/**
