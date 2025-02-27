@@ -39,22 +39,7 @@ class Jetpack_Forms {
 		add_action( 'rest_api_init', array( new WPCOM_REST_API_V2_Endpoint_Forms(), 'register_rest_routes' ) );
 
 		// Add hook to delete file attachments when a feedback post is deleted
-		add_action( 'before_delete_post', array( __CLASS__, 'delete_feedback_attachments' ) );
-	}
-
-	/**
-	 * Delete file attachments when a feedback post is deleted
-	 *
-	 * @param int $post_id The post ID being deleted.
-	 * @return void
-	 */
-	public static function delete_feedback_attachments( $post_id ) {
-		if ( get_post_type( $post_id ) !== 'feedback' ) {
-			return;
-		}
-		require_once __DIR__ . '/contact-form/class-file-handler.php';
-		$file_handler = new File_Handler();
-		$file_handler->delete_feedback_attachments( $post_id );
+		add_action( 'before_delete_post', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'delete_feedback_files' ) );
 	}
 
 	/**
