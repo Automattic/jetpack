@@ -14,7 +14,7 @@ namespace Automattic\Jetpack\Launchpad;
  *
  * @return string
  */
-function get_default_checklist_slug() {
+function get_goals_default_checklist_slug() {
 	return 'build';
 }
 
@@ -34,14 +34,14 @@ function get_default_checklist_slug() {
  */
 function get_checklist_slug_by_goals( $goals, $enable_features_for_goals ) {
 	if ( ! is_array( $goals ) || empty( $goals ) ) {
-		return get_default_checklist_slug();
+		return get_goals_default_checklist_slug();
 	}
 
 	if ( count( $goals ) >= 3 ) {
 		// If the user chooses too many goals we're not as confident we know
 		// exactly what they think is most important. A general checklist
 		// could be best.
-		return get_default_checklist_slug();
+		return get_goals_default_checklist_slug();
 	}
 
 	if ( in_array( 'courses', $enable_features_for_goals, true ) ) {
@@ -68,7 +68,7 @@ function get_checklist_slug_by_goals( $goals, $enable_features_for_goals ) {
 		return 'write';
 	}
 
-	return get_default_checklist_slug();
+	return get_goals_default_checklist_slug();
 }
 
 /**
