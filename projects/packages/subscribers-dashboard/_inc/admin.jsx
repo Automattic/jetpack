@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-import { Text } from '@automattic/jetpack-components';
 import { createRoot } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 import './style.module.scss';
 
-const JetpackSubscribers = () => {
-	return <Text>{ __( 'Hello world!', 'jetpack-subscribers-dashboard' ) }</Text>;
+export const JetpackSubscribers = () => {
+	return <b>{ __( 'Hello world!', 'jetpack-subscribers-dashboard' ) }</b>;
 };
 
 /**
