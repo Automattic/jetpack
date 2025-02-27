@@ -15,7 +15,7 @@ class Data_Sync_Schema {
 		return Schema::as_array(
 			Schema::as_assoc_array(
 				array(
-					'url'     => Schema::as_string(),
+					'url'     => Schema::as_string()->nullable(),
 					'message' => Schema::as_string(),
 					'type'    => Schema::as_string(),
 					'meta'    => Schema::any_json_data()->nullable(),

@@ -46,6 +46,16 @@ interface GeneratorCallbacks extends ProviderCallbacks {
 	onFinished: () => void; // Called when the generator is finished, regardless of success or failure.
 }
 
+class ProviderCssSaveError extends Error {
+	originalError: unknown;
+
+	constructor( message: string, originalError: unknown ) {
+		super( message );
+		this.name = 'ProviderCssSaveError';
+		this.originalError = originalError;
+	}
+}
+
 async function criticalCssGenerator() {
 	return await import(
 		/* webpackChunkName: "jetpack-critical-css-gen" */ '@automattic/jetpack-critical-css-gen'
@@ -232,14 +242,37 @@ async function generateForKeys(
 				maxPages: 10,
 			} );
 
-			await callbacks.setProviderCss( key, css );
-			totalSize += css.length;
-			maxSize = css.length > maxSize ? css.length : maxSize;
-			stepsPassed++;
+			let providerFailed: unknown | Error | null = null;
+
+			try {
+				await callbacks.setProviderCss( key, css );
+
+				totalSize += css.length;
+				maxSize = css.length > maxSize ? css.length : maxSize;
+				stepsPassed++;
+			} catch ( err ) {
+				providerFailed = err;
+			}
 
 			// Reset local progress whenever a provider is finished to prevent progress bar jank.
 			callbacks.setProviderProgress( 0 );
+
+			if ( providerFailed instanceof Error ) {
+				throw new ProviderCssSaveError( 'Provider failed to save CSS', providerFailed );
+			}
 		} catch ( err ) {
+			if ( err instanceof ProviderCssSaveError ) {
+				await callbacks.setProviderErrors( key, [
+					{
+						url: 'provider-failed-to-save-css',
+						message: err.message,
+						type: 'ProviderError',
+						meta: {}, // Can we get the actual error here?
+					},
+				] );
+				return;
+			}
+
 			// Success Target Errors indicate that URLs failed, but the process itself succeeded.
 			if ( isSuccessTargetError( err ) ) {
 				stepsFailed++;

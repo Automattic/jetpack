@@ -464,6 +464,30 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			],
 		} ),
 	},
+
+	ProviderError: {
+		describeSet: set =>
+			_n(
+				"Jetpack Boost couldn't save the following page due to an error:",
+				"Jetpack Boost couldn't save the following pages due to an error:",
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		rawError: set => Object.values( set.byUrl )[ 0 ].message,
+		suggestion: _set => ( {
+			paragraph: __(
+				'Jetpack Boost uses iframes while generating your Critical CSS. Unfortunately, your site has a special configuration header which prevents it from loading inside an iframe. The header is called "X-Frame-Options: DENY". This can be added to a WordPress site either by using a plugin, or by server configuration.',
+				'jetpack-boost'
+			),
+			list: [
+				__(
+					'Steps TBD. We should include a snippet so they can give it to their hosting provider.',
+					'jetpack-boost'
+				),
+				__( '<retry>Try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),
+			],
+		} ),
+	},
 };
 
 function getErrorSpec( type: string ): ErrorTypeSpec {
