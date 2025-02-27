@@ -8,6 +8,8 @@
 
 use Automattic\Jetpack\Launchpad;
 
+require_once __DIR__ . '/../launchpad/goal-launchpad-task-lists.php';
+
 /**
  * Fetches Launchpad-related data for the site.
  *
