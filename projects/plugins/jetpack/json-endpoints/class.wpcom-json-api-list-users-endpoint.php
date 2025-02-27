@@ -245,8 +245,8 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 							$user->login = $wp_user->user_login;
 						}
 
-						$order   = strtolower( $args['order'] ) ?? 'asc';
-						$orderby = strtolower( $args['order_by'] ) ?? 'name';
+						$order   = ! empty( $args['order'] ) ? strtolower( $args['order'] ) : 'asc';
+						$orderby = ! empty( $args['order_by'] ) ? strtolower( $args['order_by'] ) : 'name';
 
 						usort(
 							$combined_users,
