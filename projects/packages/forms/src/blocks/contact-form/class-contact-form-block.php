@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Jetpack;
 
 /**
  * Contact Form block render callback.
