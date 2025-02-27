@@ -71,9 +71,9 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 					<LoadingBlock width="100%" height="350px" />
 				</Col>
 			) }
-			{ slugs.includes( 'stats' ) && showFullJetpackStatsCard && (
+			{ ! isLoading && slugs.includes( 'stats' ) && showFullJetpackStatsCard && (
 				<Col className={ styles.fullStatsCard }>
-					{ isLoading ? <LoadingBlock width="100%" height="350px" /> : <StatsSection /> }
+					<StatsSection />
 				</Col>
 			) }
 
