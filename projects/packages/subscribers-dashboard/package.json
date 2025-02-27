@@ -16,7 +16,11 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client",
+		"build-js": "webpack --config webpack.config.js",
 		"build-client": "pnpm webpack --config webpack.config.js",
+		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
+		"validate": "pnpm exec validate-es build/",
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
 		"test": "jest --config=tests/jest.config.js",

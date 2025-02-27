@@ -8,14 +8,7 @@ import { __ } from '@wordpress/i18n';
 import './style.module.scss';
 
 const JetpackSubscribers = () => {
-	return (
-		<Text>
-			{ __(
-				'Hello world!',
-				"no text domain is set in this in this project's eslint.config.mjs or composer.json"
-			) }
-		</Text>
-	);
+	return <Text>{ __( 'Hello world!', 'jetpack-subscribers-dashboard' ) }</Text>;
 };
 
 /**
