@@ -3,10 +3,14 @@ import { store as coreStore } from '@wordpress/core-data';
 import { __, sprintf } from '@wordpress/i18n';
 import { seen, trash, backup } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { notSpam, spam } from '../../../icons';
-import { STORE_NAME } from '../../../state';
-import { ACTIONS } from '../../constants';
-import InboxResponse from '../../response';
+import { notSpam, spam } from '../../icons';
+import { STORE_NAME } from '../../store';
+import InboxResponse from '../response';
+
+export const BULK_ACTIONS = {
+	markAsSpam: 'mark_as_spam',
+	markAsNotSpam: 'mark_as_not_spam',
+};
 
 export const viewAction = {
 	id: 'view-response',
@@ -29,7 +33,7 @@ export const markAsSpamAction = {
 		const itemIds = items.map( ( { id } ) => id );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		try {
-			await registry.dispatch( STORE_NAME ).doBulkAction( itemIds, ACTIONS.markAsSpam );
+			await registry.dispatch( STORE_NAME ).doBulkAction( itemIds, BULK_ACTIONS.markAsSpam );
 			const numberOfItems = itemIds.length;
 			const successMessage =
 				numberOfItems === 1
@@ -63,7 +67,7 @@ export const markAsNotSpamAction = {
 		const itemIds = items.map( ( { id } ) => id );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		try {
-			await registry.dispatch( STORE_NAME ).doBulkAction( itemIds, ACTIONS.markAsNotSpam );
+			await registry.dispatch( STORE_NAME ).doBulkAction( itemIds, BULK_ACTIONS.markAsNotSpam );
 			const numberOfItems = itemIds.length;
 			const successMessage =
 				numberOfItems === 1

@@ -20,8 +20,7 @@ import { useSearchParams } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import { getPath } from '../../inbox/util';
-import { STORE_NAME } from '../../state';
+import { STORE_NAME } from '../../store';
 import InboxResponse from '../response';
 import {
 	viewAction,
@@ -37,6 +36,14 @@ const EMPTY_ARRAY = [];
 const MOBILE_BREAKPOINT = 780;
 const isItemClickable = () => true;
 const getItemId = item => item.id.toString();
+export const getPath = response => {
+	try {
+		const url = new URL( response.entry_permalink );
+		return url.pathname;
+	} catch {
+		return '';
+	}
+};
 
 /**
  * Hook to get the status filter to apply from the URL.

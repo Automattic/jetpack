@@ -16,7 +16,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
  */
 import { config } from '../';
 import Layout from '../components/layout';
-import { STORE_NAME } from '../state';
+import { STORE_NAME } from '../store';
 import CheckForSpamButton from './check-for-spam-button';
 import InboxView from './dataviews';
 import ExportResponses from './export-responses';

@@ -6,12 +6,43 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { map } from 'lodash';
+import { isArray, isEmpty, join, map } from 'lodash';
 /**
  * Internal dependencies
  */
 import SwitchTransition from '../components/switch-transition';
-import { formatFieldName, formatFieldValue, getDisplayName } from './util';
+
+export const getDisplayName = response => {
+	if ( response.author_name ) {
+		return response.author_name;
+	}
+
+	if ( response.author_email ) {
+		return response.author_email;
+	}
+
+	return response.ip;
+};
+
+export const formatFieldName = fieldName => {
+	const match = fieldName.match( /^(\d+_)?(.*)/i );
+
+	if ( match ) {
+		return match[ 2 ];
+	}
+
+	return fieldName;
+};
+
+export const formatFieldValue = fieldValue => {
+	if ( isEmpty( fieldValue ) ) {
+		return '-';
+	} else if ( isArray( fieldValue ) ) {
+		return join( fieldValue, ', ' );
+	}
+
+	return fieldValue;
+};
 
 const InboxResponse = ( { loading, response } ) => {
 	const [ emailCopied, setEmailCopied ] = useState( false );
