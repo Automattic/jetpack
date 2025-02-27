@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove excessive check in fetching current user ID in user provisioning.
