@@ -50,17 +50,10 @@ function get_checklist_slug_by_goals( $goals, $enable_features_for_goals ) {
 		}
 	}
 
-	if ( contains_all( $enable_features_for_goals, 'write' ) ) {
-		if ( contains_only( $goals, 'write' ) ) {
-			return 'new-improved-write-v2-final';
+	if ( contains_all( $enable_features_for_goals, 'newsletter' ) ) {
+		if ( contains_all( $goals, 'newsletter' ) ) {
+			return 'intent-newsletter-goal';
 		}
-		if ( contains_all( $goals, 'write', 'newsletter' ) ) {
-			return 'hybrid-write-newsletter';
-		}
-	}
-
-	if ( contains_all( $goals, 'newsletter' ) ) {
-		return 'intent-newsletter-goal';
 	}
 
 	if ( contains_one( $goals, 'sell', 'sell-digital', 'sell-physical' ) ) {
