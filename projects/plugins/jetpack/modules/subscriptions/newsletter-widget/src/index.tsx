@@ -7,6 +7,8 @@ declare global {
 		jetpackNewsletterWidgetConfigData?: {
 			hostname: string;
 			adminUrl: string;
+			emailSubscribers?: number;
+			paidSubscribers?: number;
 		};
 	}
 }
@@ -18,12 +20,20 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
-	const { hostname, adminUrl } = window.jetpackNewsletterWidgetConfigData || {};
+	const { hostname, adminUrl, emailSubscribers, paidSubscribers } =
+		window.jetpackNewsletterWidgetConfigData || {};
 
 	if ( ! hostname || ! adminUrl ) {
 		return;
 	}
 
 	const root = createRoot( container );
-	root.render( <NewsletterWidget hostname={ hostname } adminUrl={ adminUrl } /> );
+	root.render(
+		<NewsletterWidget
+			hostname={ hostname }
+			adminUrl={ adminUrl }
+			emailSubscribers={ emailSubscribers }
+			paidSubscribers={ paidSubscribers }
+		/>
+	);
 } );
