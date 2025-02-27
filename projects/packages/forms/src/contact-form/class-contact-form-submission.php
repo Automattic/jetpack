@@ -349,7 +349,7 @@ class Contact_Form_Submission {
 				$compiled_form[ $field_index ] = sprintf(
 					'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
 					wp_kses( $field_label, array() ),
-					self::escape_and_sanitize_field_value( $value )
+					Contact_Form::escape_and_sanitize_field_value( $value )
 				);
 			}
 		}
@@ -376,7 +376,7 @@ class Contact_Form_Submission {
 					$compiled_form[ $field_index ] = sprintf(
 						'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
 						wp_kses( $label, array() ),
-						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
+						Contact_Form::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
 					);
 
 					++$i;
@@ -440,7 +440,7 @@ class Contact_Form_Submission {
 
 				$compiled_form[ $field_index ] = array(
 					wp_kses( $field_label, array() ),
-					self::escape_and_sanitize_field_value( $value ),
+					Contact_Form::escape_and_sanitize_field_value( $value ),
 				);
 			}
 		}
@@ -466,7 +466,7 @@ class Contact_Form_Submission {
 
 					$compiled_form[ $field_index ] = array(
 						wp_kses( $field_label, array() ),
-						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] ),
+						Contact_Form::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] ),
 					);
 
 					++$i;
