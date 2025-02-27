@@ -56,6 +56,29 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/remove',
+			array(
+				'methods'             => 'POST',
+				'permission_callback' => array( $this, 'permissions_check_params' ),
+				'callback'            => array( $this, 'remove_file' ),
+				'args'                => array(
+					'context' => array(
+						'description' => __( 'Context identifier for the upload', 'jetpack' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+					'token'   => array(
+						'description' => __( 'Token of the recetnly uploaded file', 'jetpack' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+					// it also expects a file but there's no way to say this in the args
+				),
+			)
+		);
 	}
 
 	/**
@@ -74,6 +97,17 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 				array( 'status' => 400 )
 			);
 		}
+
+		return $this->permissions_check_params( $request );
+	}
+
+	/**
+	 * Checks if the request has permission to upload files
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return bool|WP_Error True if the request has permission, WP_Error object otherwise.
+	 */
+	public function permissions_check_params( $request ) {
 
 		// Check the wp_rest upload nonce
 		$upload_nonce = $request->get_header( 'X-WP-Nonce' );
@@ -143,10 +177,7 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 		$file    = $files['file'];
 		$context = $request->get_param( 'context' );
 
-		if ( ! class_exists( 'Unauth_File_Upload_Handler' ) ) {
-			// Load the Jetpack class if it's not already loaded
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
-		}
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
 
 		$upload_handler = new Unauth_File_Upload_Handler();
 
@@ -178,6 +209,27 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 			array(
 				'success' => true,
 				'data'    => $result,
+			)
+		);
+	}
+	/**
+	 * Removes the file from the server that was temprary added.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function remove_file( $request ) {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
+		$upload_handler = new Unauth_File_Upload_Handler();
+
+		$token = $request->get_param( 'token' );
+
+		$upload_handler->remove_file( $token );
+
+		return rest_ensure_response(
+			array(
+				'success' => true,
 			)
 		);
 	}

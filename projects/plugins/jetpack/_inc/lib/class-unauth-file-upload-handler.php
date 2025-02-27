@@ -364,10 +364,15 @@ class Unauth_File_Upload_Handler {
 	 */
 	private function get_total_size() {
 		$uploads    = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+		$temp_path  = $this->get_secret_temp_path();
 		$total_size = 0;
 
+		if ( is_wp_error( $temp_path ) ) {
+			return $total_size;
+		}
+
 		foreach ( $uploads as $file_data ) {
-			$file_path = \trailingslashit( $file_data['path'] ) . $file_data['filename'];
+			$file_path = \trailingslashit( $temp_path ) . $file_data['filename'];
 			if ( file_exists( $file_path ) ) {
 				$total_size += filesize( $file_path );
 			}
@@ -383,7 +388,12 @@ class Unauth_File_Upload_Handler {
 	 * @return bool True if space was freed, false if unable to free enough space.
 	 */
 	private function free_up_space( $required_space ) {
-		$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+		$uploads   = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+		$temp_path = $this->get_secret_temp_path();
+
+		if ( is_wp_error( $temp_path ) ) {
+			return false;
+		}
 
 		// Sort by creation time, oldest first.
 		uasort(
@@ -397,14 +407,12 @@ class Unauth_File_Upload_Handler {
 		$total_needed = $this->get_total_size() + $required_space - self::MAX_TOTAL_SIZE;
 
 		foreach ( $uploads as $token => $file_data ) {
-			$file_path = \trailingslashit( $file_data['path'] ) . $file_data['filename'];
+			$file_path = \trailingslashit( $temp_path ) . $file_data['filename'];
 			if ( file_exists( $file_path ) ) {
 				$file_size = filesize( $file_path );
 				\wp_delete_file( $file_path );
 				$freed_space += $file_size;
-				unset( $uploads[ $token ] );
-				\update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
-
+				$this->unset_token( $token );
 				if ( $freed_space >= $total_needed ) {
 					return true;
 				}
@@ -424,6 +432,7 @@ class Unauth_File_Upload_Handler {
 	 */
 	public function checkout_file( $token, $destination ) {
 		global $wp_filesystem;
+
 		$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
 
 		if ( ! isset( $uploads[ $token ] ) ) {
@@ -439,12 +448,12 @@ class Unauth_File_Upload_Handler {
 		}
 
 		$file_data = $uploads[ $token ];
+
 		$file_path = \trailingslashit( $temp_path ) . $file_data['filename'];
 
 		if ( ! file_exists( $file_path ) ) {
 			// Remove the entry if file doesn't exist.
-			unset( $uploads[ $token ] );
-			\update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
+			$this->unset_token( $token );
 
 			return new WP_Error(
 				'file_not_found',
@@ -452,22 +461,74 @@ class Unauth_File_Upload_Handler {
 			);
 		}
 
-		// move the file to the final destination.
-		\WP_Filesystem();
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+
+		$initialized = \WP_Filesystem();
+
+		if ( ! $initialized ) {
+			return new WP_Error(
+				'filesystem_error',
+				\__( 'Could not initialize filesystem.', 'jetpack' )
+			);
+		}
+
+		if ( ! $wp_filesystem || ! is_object( $wp_filesystem ) ) {
+			return new WP_Error(
+				'filesystem_error',
+				\__( 'Filesystem object not available.', 'jetpack' )
+			);
+		}
+
 		$move_result = $wp_filesystem->move( $file_path, $destination );
 
 		if ( is_wp_error( $move_result ) ) {
 			return $move_result;
 		}
 
-		unset( $uploads[ $token ] );
-		\update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
+		$this->unset_token( $token );
 
 		return array(
 			'original_name' => $file_data['original_name'],
 			'created'       => $file_data['created'],
 			'context'       => $file_data['context'],
 		);
+	}
+	/**
+	 * Removes the file from the server that was temprary added.
+	 *
+	 * @param string $token The token for the file.
+	 * @return bool True if the token was removed, false otherwise.
+	 */
+	public function remove_file( $token ) {
+		$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+
+		if ( ! isset( $uploads[ $token ] ) ) {
+			return true;
+		}
+
+		$secret_temp_path = $this->get_secret_temp_path();
+		$file_data        = $uploads[ $token ];
+		$file_path        = \trailingslashit( $secret_temp_path ) . $file_data['filename'];
+
+		\wp_delete_file_from_directory( $file_path, $secret_temp_path );
+
+		return $this->unset_token( $token );
+	}
+
+	/**
+	 * Removes the token from the list of unauthenticated uploads.
+	 *
+	 * @param string $token The token to remove.
+	 *
+	 * @return bool True if the token was removed, false otherwise.
+	 */
+	private function unset_token( $token ) {
+		$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+		unset( $uploads[ $token ] );
+		if ( empty( $uploads ) ) {
+			return \delete_option( self::UNAUTH_UPLOADS_OPTION );
+		}
+		return \update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
 	}
 
 	/**
@@ -478,10 +539,16 @@ class Unauth_File_Upload_Handler {
 		$uploads      = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
 		$current_time = time();
 		$max_age      = DAY_IN_SECONDS;
+		$temp_path    = $this->get_secret_temp_path();
+
+		// Only proceed if we have a valid temp path
+		if ( is_wp_error( $temp_path ) ) {
+			return;
+		}
 
 		foreach ( $uploads as $token => $file_data ) {
 			if ( ( $current_time - $file_data['created'] ) > $max_age ) {
-				$file_path = \trailingslashit( $file_data['path'] ) . $file_data['filename'];
+				$file_path = \trailingslashit( $temp_path ) . $file_data['filename'];
 				if ( file_exists( $file_path ) ) {
 					\wp_delete_file( $file_path );
 				}
@@ -490,5 +557,16 @@ class Unauth_File_Upload_Handler {
 		}
 
 		\update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
+	}
+
+	/**
+	 * Gets file information for a given token.
+	 *
+	 * @param string $token The token for the file.
+	 * @return array|false Array of file information if found, false if not found.
+	 */
+	public function get_file_info_by_token( $token ) {
+		$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+		return isset( $uploads[ $token ] ) ? $uploads[ $token ] : false;
 	}
 }
