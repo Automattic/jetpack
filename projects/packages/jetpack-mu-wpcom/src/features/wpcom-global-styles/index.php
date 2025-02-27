@@ -799,8 +799,7 @@ function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
 		return false;
 	}
 
-	$experiment_assignment              = \ExPlat\assign_given_user( 'calypso_plans_global_styles_personal_v2_20240225', $owner );
-	$has_global_styles_in_personal_plan = null !== $experiment_assignment;
+	$experiment_assignment = \ExPlat\assign_given_user( 'calypso_plans_global_styles_personal_v2_20240225', $owner );
 
-	return $has_global_styles_in_personal_plan;
+	return null !== $experiment_assignment;
 }
