@@ -349,8 +349,48 @@
 						e.preventDefault();
 						closeCarousel();
 						break;
+					case 9: // tab
+						handleFocusTrap( e );
+						break;
 					default:
 						break;
+				}
+			}
+		}
+
+		function handleFocusTrap( e ) {
+			const focusableSelectors = [
+				'a[href]',
+				'input:not([disabled]):not([type="hidden"]):not([aria-hidden])',
+				'select:not([disabled]):not([aria-hidden])',
+				'textarea:not([disabled]):not([aria-hidden])',
+				'button:not([disabled]):not([aria-hidden])',
+				'[contenteditable]',
+				'[tabindex]:not([tabindex^="-"])',
+			];
+			// Find all focusable elements on screen.
+			const focusableElements = [
+				...carousel.overlay.querySelectorAll( focusableSelectors ),
+			].filter( el => el.offsetParent !== null );
+			const firstFocusableElement = focusableElements[ 0 ];
+			const lastFocusableElement = focusableElements[ focusableElements.length - 1 ];
+
+			if ( e.shiftKey === true ) {
+				if (
+					e.target === firstFocusableElement ||
+					false === carousel.overlay.contains( e.target )
+				) {
+					e.preventDefault();
+					lastFocusableElement.focus();
+				}
+			}
+			if ( e.shiftKey === false ) {
+				if (
+					e.target === lastFocusableElement ||
+					false === carousel.overlay.contains( e.target )
+				) {
+					e.preventDefault();
+					firstFocusableElement.focus();
 				}
 			}
 		}
@@ -468,6 +508,8 @@
 
 				carousel.overlay.addEventListener( 'jp_carousel.afterOpen', function () {
 					enableKeyboardNavigation();
+					carousel.overlay.tabIndex = '-1';
+					carousel.overlay.focus();
 
 					// Don't show navigation if there's only one image.
 					if ( carousel.slides.length <= 1 ) {

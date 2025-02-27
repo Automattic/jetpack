@@ -597,6 +597,17 @@ class Jetpack_Carousel {
 		<div class="jp-carousel-overlay<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>" style="display: none;">
 
 		<div class="jp-carousel-container<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>">
+			<!-- The main close buton -->
+			<button class="jp-carousel-close-hint" aria-label="<?php esc_attr_e( 'Close image', 'jetpack' ); ?>">
+				<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<mask id="maskClose" mask-type="alpha" maskUnits="userSpaceOnUse" x="5" y="5" width="15" height="14">
+						<path d="M19.3166 6.41L17.9135 5L12.3509 10.59L6.78834 5L5.38525 6.41L10.9478 12L5.38525 17.59L6.78834 19L12.3509 13.41L17.9135 19L19.3166 17.59L13.754 12L19.3166 6.41Z" fill="white"/>
+					</mask>
+					<g mask="url(#maskClose)">
+						<rect x="0.409668" width="23.8823" height="24" fill="#FFFFFF"/>
+					</g>
+				</svg>
+			</button>
 			<!-- The Carousel Swiper -->
 			<div
 				class="jp-carousel-wrap swiper-container jp-carousel-swiper-container jp-carousel-transitions"
@@ -623,17 +634,6 @@ class Jetpack_Carousel {
 						</g>
 					</svg>
 				</div>
-			</div>
-			<!-- The main close buton -->
-			<div class="jp-carousel-close-hint">
-				<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<mask id="maskClose" mask-type="alpha" maskUnits="userSpaceOnUse" x="5" y="5" width="15" height="14">
-						<path d="M19.3166 6.41L17.9135 5L12.3509 10.59L6.78834 5L5.38525 6.41L10.9478 12L5.38525 17.59L6.78834 19L12.3509 13.41L17.9135 19L19.3166 17.59L13.754 12L19.3166 6.41Z" fill="white"/>
-					</mask>
-					<g mask="url(#maskClose)">
-						<rect x="0.409668" width="23.8823" height="24" fill="#FFFFFF"/>
-					</g>
-				</svg>
 			</div>
 			<!-- Image info, comments and meta -->
 			<div class="jp-carousel-info">

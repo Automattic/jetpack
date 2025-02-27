@@ -296,6 +296,8 @@ div.jp-carousel-buttons a:hover {
 	color: var(--jp-carousel-primary-color);
 	cursor: pointer;
 	transition: opacity 200ms ease-out;
+	background: unset;
+	border: unset;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint {
