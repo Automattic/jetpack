@@ -20,7 +20,7 @@ export class FileHandler {
 		options: DropzoneOptions,
 		triggerError: ( message: string ) => void
 	) {
-		if ( this.isAcceptingFiles() ) {
+		if ( ! this.isAcceptingFiles() ) {
 			return;
 		}
 
@@ -52,7 +52,10 @@ export class FileHandler {
 	}
 
 	isAcceptingFiles() {
-		return this.isProcessing && this.maxFiles <= this.files.length;
+		if ( this.files.length >= this.maxFiles ) {
+			return false;
+		}
+		return ! this.isProcessing;
 	}
 
 	isFileTypeAllowed( file: File, fileField: HTMLInputElement ): boolean {
