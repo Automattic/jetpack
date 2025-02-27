@@ -80,6 +80,7 @@ const JetpackNumberField = props => {
 						index: 1,
 						element: (
 							<NumberControl
+								key="min"
 								label={ __( 'Minimum value', 'jetpack-forms' ) }
 								value={ attributes.min }
 								onChange={ value =>
@@ -101,6 +102,7 @@ const JetpackNumberField = props => {
 						index: 2,
 						element: (
 							<NumberControl
+								key="max"
 								label={ __( 'Maximum value', 'jetpack-forms' ) }
 								value={ attributes.max }
 								onChange={ value =>
