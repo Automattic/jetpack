@@ -30,7 +30,7 @@ const L10N = {
 	/* translators: generic error message */
 	genericError: __( 'Please correct this field', 'jetpack-forms' ),
 	/* translators: error message shown when no field has been filled out */
-	emptyForm: __( 'The form you are trying to submit is emtpy.', 'jetpack-forms' ),
+	emptyForm: __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
 	errorCount: d =>
 		/* translators: message displayed when errors need to be fixed. %d is the number of errors. */
 		_n( 'You need to fix %d error.', 'You need to fix %d errors.', d, 'jetpack-forms' ),

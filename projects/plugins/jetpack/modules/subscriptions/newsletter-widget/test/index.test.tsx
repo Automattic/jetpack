@@ -3,11 +3,14 @@ import '../src/index';
 const mockRender = jest.fn();
 
 jest.mock( '@wordpress/element', () => {
+	const actualElement = jest.requireActual( '@wordpress/element' ); // Import the real module
+
 	return {
+		...actualElement, // Spread actual exports
 		createRoot: () => ( {
 			render: mockRender,
 		} ),
-		createElement: () => {},
+		memo: component => component, // Add memo to the mock
 	};
 } );
 

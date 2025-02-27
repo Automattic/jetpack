@@ -1,47 +1,58 @@
-// eslint-disable-next-line import/order -- This is a test file and we need to import the mocks first
-import { mockStore } from '../../../utils/test-mocks.js';
-import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
-import { hasSocialPaidFeatures } from '../../../utils';
+import { clearMockedScriptData, mockScriptData } from '../../../utils/test-utils';
 import AdminPageHeader from '../page-header';
 
 describe( 'AdminPageHeader', () => {
 	beforeEach( () => {
-		jest.clearAllMocks();
-		mockStore();
+		mockScriptData();
 	} );
 
+	afterEach( () => {
+		clearMockedScriptData();
+	} );
 	it( 'should show license text when no paid features and is Jetpack site', () => {
-		hasSocialPaidFeatures.mockReturnValue( false );
-		isJetpackSelfHostedSite.mockReturnValue( true );
-
 		render( <AdminPageHeader /> );
 		expect(
 			screen.getByText( /Already have an existing plan or license key\?/i )
 		).toBeInTheDocument();
 		expect( screen.getByRole( 'link' ) ).toHaveAttribute(
 			'href',
-			'https://example.com/add-license'
+			expect.stringContaining( 'admin.php?page=my-jetpack#/add-license' )
 		);
 	} );
 
 	it( 'should not show license text when has paid features', () => {
-		hasSocialPaidFeatures.mockReturnValue( true );
-		isJetpackSelfHostedSite.mockReturnValue( true );
-
+		mockScriptData( {
+			site: {
+				plan: {
+					features: {
+						active: [ 'social-enhanced-publishing' ],
+					},
+				},
+			},
+		} );
 		render( <AdminPageHeader /> );
 		expect(
 			screen.queryByText( /Already have an existing plan or license key\?/i )
 		).not.toBeInTheDocument();
+		clearMockedScriptData();
 	} );
 
 	it( 'should not show license text when not a Jetpack site', () => {
-		hasSocialPaidFeatures.mockReturnValue( false );
-		isJetpackSelfHostedSite.mockReturnValue( false );
-
+		mockScriptData( {
+			site: {
+				host: 'wpcom',
+				plan: {
+					features: {
+						active: [ 'social-enhanced-publishing' ],
+					},
+				},
+			},
+		} );
 		render( <AdminPageHeader /> );
 		expect(
 			screen.queryByText( /Already have an existing plan or license key\?/i )
 		).not.toBeInTheDocument();
+		clearMockedScriptData();
 	} );
 } );

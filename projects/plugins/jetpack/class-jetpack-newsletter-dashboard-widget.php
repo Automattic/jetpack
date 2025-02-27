@@ -11,6 +11,8 @@
  * @package jetpack
  */
 
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * Class that adds the Jetpack Newsletter Dashboard Widget to the WordPress admin dashboard.
  */
@@ -42,21 +44,58 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	}
 
 	/**
+	 * Get the config data for the Jetpack Newsletter widget.
+	 *
+	 * @return array
+	 */
+	public static function get_config_data() {
+		$subscriber_counts = array();
+		$config_data       = array(
+			'hostname' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+			'adminUrl' => admin_url(),
+		);
+
+		if ( Jetpack::is_connection_ready() ) {
+
+			$site_id  = Jetpack_Options::get_option( 'id' );
+			$api_path = sprintf( '/sites/%d/subscribers/counts', $site_id );
+			$response = Client::wpcom_json_api_request_as_blog(
+				$api_path,
+				'2',
+				array(),
+				null,
+				'wpcom'
+			);
+
+			if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
+				$subscriber_counts = json_decode( wp_remote_retrieve_body( $response ), true );
+				if ( isset( $subscriber_counts['counts']['email_subscribers'] ) ) {
+					$config_data['emailSubscribers'] = (int) $subscriber_counts['counts']['email_subscribers'];
+				}
+
+				if ( isset( $subscriber_counts['counts']['paid_subscribers'] ) ) {
+					$config_data['paidSubscribers'] = (int) $subscriber_counts['counts']['paid_subscribers'];
+				}
+			}
+		}
+
+		return $config_data;
+	}
+
+	/**
 	 * Sets up the Jetpack Newsletter widget in the WordPress admin dashboard.
 	 */
 	public static function wp_dashboard_setup() {
-		static::load_admin_scripts(
-			'jp-newsletter-widget',
-			'newsletter-widget',
-			array(
-				'config_variable_name' => 'jetpackNewsletterWidgetConfigData',
-				'config_data'          => array(
-					'hostname' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
-					'adminUrl' => admin_url(),
-				),
-			)
-		);
 		if ( Jetpack::is_connection_ready() ) {
+			static::load_admin_scripts(
+				'jp-newsletter-widget',
+				'newsletter-widget',
+				array(
+					'config_variable_name' => 'jetpackNewsletterWidgetConfigData',
+					'config_data'          => static::get_config_data(),
+				)
+			);
+
 			$widget_title = sprintf(
 				__( 'Newsletter', 'jetpack' )
 			);
@@ -93,10 +132,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			'newsletter-widget',
 			array(
 				'config_variable_name' => 'jetpackNewsletterWidgetConfigData',
-				'config_data'          => array(
-					'hostname' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
-					'adminUrl' => admin_url(),
-				),
+				'config_data'          => static::get_config_data(),
 			)
 		);
 	}

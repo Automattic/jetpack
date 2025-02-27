@@ -1,0 +1,142 @@
+import { Meta, Story, Canvas } from '@storybook/blocks';
+import ProductInterstitialModal from '../index';
+import * as ProductInterstitialModalStories from './index.stories';
+
+<Meta of={ProductInterstitialModalStories} />
+
+# Product Interstitial Modal
+This is a component to create modals with a consistent layout across Jetpack products. It supports a customizable trigger element, multiple columns, and various content sections.
+
+## Component variants and wrappers
+
+### In My Jetpack
+
+When including the component in My Jetpack `<ProductInterstitialMyJetpack />` component, there is a wrapper component provided that uses a product's slug to generate proper modal content and redirects users to the corresponding product page.
+It also renders the feature list the same way as the old product interstitial page.
+
+### In Jetpack plugins
+
+[Work in progress]
+
+## Props
+
+Below are the current available props for `ProductInterstitialModal`.
+
+### Modal Content
+
+#### title (required)
+The title displayed at the top of the modal.
+
+#### description
+Optional description text shown below the title.
+
+#### children
+Content placed in the left column between the description and price component.
+
+#### priceComponent
+Optional pricing information component displayed at the bottom of the left column.
+
+## Modal Triggers
+
+The modal can be triggered in two ways:
+
+#### Default Button Trigger
+```jsx
+<ProductInterstitialModal
+  modalTriggerButtonLabel="Open Modal"
+  modalTriggerButtonVariant="primary"
+  // ... other props
+/>
+```
+
+<Canvas of={ProductInterstitialModalStories.Default} />
+
+#### Custom Trigger
+You can provide any React element as a custom trigger. The component will inject the onClick handler.
+
+```jsx
+<ProductInterstitialModal
+  customModalTrigger={<JetpackLogo style={{ cursor: 'pointer' }} />}
+  // ... other props
+/>
+```
+
+<Canvas of={ProductInterstitialModalStories.WithCustomTrigger} />
+
+### Layout Options
+
+#### secondaryColumn
+Content for the right column (or middle column when additionalColumn is used).
+
+This column is designed to show a video or an image.
+When using the video, the `isWithVideo` prop should be set to `true` to apply aspect ratio formatting.
+
+```jsx
+<ProductInterstitialModal
+  customModalTrigger={<JetpackLogo style={{ cursor: 'pointer' }} />}
+  // ... other props
+/>
+```
+
+<Canvas of={ProductInterstitialModalStories.Default} />
+
+#### additionalColumn
+Optional third column that creates a three-column layout.
+
+[Styling is a work in progress]
+
+<Canvas of={ProductInterstitialModalStories.WithAdditionalColumn} />
+
+#### isWithVideo
+When true, applies aspect ratio formatting for video content in the secondary column.
+
+[Example in progress]
+
+### Callbacks
+
+#### onOpen
+Called when the modal is opened.
+
+#### onClose
+Called when the modal is closed.
+
+#### onModalMainButtonClick
+Called when the main CTA button is clicked.
+
+### Main CTA Options
+
+The modal supports two types of main CTA configurations:
+
+1. Using `modalMainButton` for a custom button component
+2. Using `buttonLabel`, `buttonHref`, and `buttonHasExternalLink` for a standard button
+
+### Secondary Button
+
+#### secondaryButtonHref
+URL for the "Learn more" link.
+
+#### secondaryButtonHasExternalLink
+When true, shows external link indicator on the secondary button.
+
+## Usage Examples
+
+### Basic Modal
+```jsx
+<ProductInterstitialModal
+  title="Jetpack Boost"
+  description="Speed up your WordPress site"
+  modalTriggerButtonLabel="Learn More"
+  buttonLabel="Upgrade"
+  onOpen={() => console.log('Modal opened')}
+/>
+```
+
+### With Custom Trigger and Video
+```jsx
+<ProductInterstitialModal
+  title="Jetpack AI"
+  customModalTrigger={<JetpackLogo style={{ cursor: 'pointer' }} />}
+  isWithVideo={true}
+  secondaryColumn={<VideoComponent />}
+/>
+```

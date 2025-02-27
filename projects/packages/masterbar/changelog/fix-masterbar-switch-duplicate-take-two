@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin menu: do not display the dashboard switcher button twice.

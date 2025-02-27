@@ -660,10 +660,11 @@ class Initializer {
 	public static function update_historically_active_jetpack_modules() {
 		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
 		$products                    = Products::get_products();
+		$product_classes             = Products::get_products_classes();
 
 		foreach ( $products as $product ) {
-			$status       = $product['status'];
 			$product_slug = $product['slug'];
+			$status       = $product_classes[ $product_slug ]::get_status();
 			// We want to leave modules in the array if they've been active in the past
 			// and were not manually disabled by the user.
 			if ( in_array( $status, Products::$broken_module_statuses, true ) ) {

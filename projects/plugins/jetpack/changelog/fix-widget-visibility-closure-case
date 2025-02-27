@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Widget Visibility: Fix possible fatal errors for widgets using anonymous functions as callbacks.
