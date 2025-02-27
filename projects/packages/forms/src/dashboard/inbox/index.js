@@ -6,8 +6,6 @@ import {
 	Button,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -147,33 +145,29 @@ const Inbox = () => {
 	);
 	return (
 		<Layout className="jp-forms__inbox">
-			<VStack className="jp-forms__inbox-contents" spacing={ 0 }>
-				<div className="jp-forms__layout-header">
-					<HStack justify="space-between">
-						<h2 className="jp-forms__layout-title">{ title }</h2>
-						<HStack justify="flex-end">
-							<CheckForSpamButton />
-							{ userCanExport && (
-								<Button className="export-button" variant="primary" onClick={ toggleExportModal }>
-									{ __( 'Export', 'jetpack-forms' ) }
-								</Button>
-							) }
-						</HStack>
+			<div className="jp-forms__layout-header">
+				<HStack justify="space-between">
+					<h2 className="jp-forms__layout-title">{ title }</h2>
+					<HStack justify="flex-end">
+						<CheckForSpamButton />
+						{ userCanExport && (
+							<Button className="export-button" variant="primary" onClick={ toggleExportModal }>
+								{ __( 'Export', 'jetpack-forms' ) }
+							</Button>
+						) }
 					</HStack>
-					<p className="jp-forms__header-subtext">{ subtitle }</p>
-				</div>
-				<TabPanel
-					className="jp-forms__inbox-tabs"
-					activeClass="active-tab"
-					initialTabName={
-						[ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox'
-					}
-					onSelect={ onTabSelect }
-					tabs={ tabs }
-				>
-					{ () => <InboxView /> }
-				</TabPanel>
-			</VStack>
+				</HStack>
+				<p className="jp-forms__header-subtext">{ subtitle }</p>
+			</div>
+			<TabPanel
+				className="jp-forms__inbox-tabs"
+				activeClass="active-tab"
+				initialTabName={ [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox' }
+				onSelect={ onTabSelect }
+				tabs={ tabs }
+			>
+				{ () => <InboxView /> }
+			</TabPanel>
 			<ExportModal isVisible={ showExportModal } onClose={ toggleExportModal } />
 		</Layout>
 	);
