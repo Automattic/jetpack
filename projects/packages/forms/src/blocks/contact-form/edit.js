@@ -257,7 +257,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						__nextHasNoMarginBottom={ true }
 						__next40pxDefaultSize={ true }
 					/>
-					<ExternalLink href="https://developer.mozilla.org/en-US/docs/Glossary/Accessible_name">
+					<ExternalLink href="https://developer.mozilla.org/docs/Glossary/Accessible_name">
 						{ __( 'Read more.', 'jetpack-forms' ) }
 					</ExternalLink>
 				</InspectorAdvancedControls>
