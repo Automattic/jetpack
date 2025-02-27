@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Forms;
 
-use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Unauth_File_Upload_Handler;
 
 /**
@@ -191,56 +190,5 @@ class File_Handler {
 		}
 
 		return wp_delete_file( $file_path );
-	}
-
-	/**
-	 * Get file attachments from feedback post content
-	 *
-	 * @param int $post_id The feedback post ID.
-	 * @return array Array of file attachments or empty array.
-	 */
-	public function get_feedback_attachments( $post_id ) {
-		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
-		$attachments    = array();
-		foreach ( $content_fields as $field_value ) {
-			if ( is_array( $field_value ) && isset( $field_value['file_id'] ) && isset( $field_value['name'] ) ) {
-				$attachments[] = array(
-					'file_id' => $field_value['file_id'],
-					'name'    => $field_value['name'],
-				);
-			}
-		}
-
-		if ( empty( $attachments ) || ! is_array( $attachments ) ) {
-			return array();
-		}
-
-		return $attachments;
-	}
-
-	/**
-	 * Delete all file attachments associated with a feedback post
-	 *
-	 * @param int $post_id The feedback post ID.
-	 * @return bool True if files were deleted, false if not.
-	 */
-	public function delete_feedback_attachments( $post_id ) {
-		$attachments = $this->get_feedback_attachments( $post_id );
-
-		if ( empty( $attachments ) ) {
-			return false;
-		}
-
-		$deleted = 0;
-		foreach ( $attachments as $file_data ) {
-			if ( ! empty( $file_data['file_id'] ) ) {
-				$result = $this->delete_file( $file_data['file_id'] );
-				if ( $result ) {
-					++$deleted;
-				}
-			}
-		}
-
-		return $deleted > 0;
 	}
 }

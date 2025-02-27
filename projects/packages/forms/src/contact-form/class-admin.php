@@ -761,7 +761,7 @@ class Admin {
 
 		foreach ( $response_fields as $key => $display_value ) {
 			if ( is_array( $display_value ) ) {
-				if ( isset( $display_value['file_id'] ) && isset( $display_value['name'] ) ) {
+				if ( Contact_Form::is_file_upload_field( $display_value ) ) {
 					// This is a file upload field, display a link instead of raw data
 					$file_url = $file_handler->get_file_url( $display_value['file_id'] );
 

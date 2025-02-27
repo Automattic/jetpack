@@ -728,7 +728,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		// Check if this is file upload data
-		if ( is_array( $value ) && isset( $value['name'] ) && isset( $value['file_id'] ) ) {
+		if ( self::is_file_upload_field( $value ) ) {
 			// This is a file upload, so just return the file name
 			$value = $value['name'];
 		}
@@ -746,6 +746,42 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public static function remove_empty( $single_value ) {
 		return ( $single_value !== '' );
+	}
+
+	/**
+	 * Get file upload fields
+	 *
+	 * @param int $post_id The feedback post ID.
+	 * @return array Array of file attachments or empty array.
+	 */
+	public static function get_file_upload_fields( $post_id ) {
+		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+		$attachments    = array();
+		foreach ( $content_fields as $field_value ) {
+			if ( self::is_file_upload_field( $field_value ) ) {
+				$attachments[] = $field_value;
+			}
+		}
+
+		return $attachments;
+	}
+
+	/**
+	 * Delete files
+	 *
+	 * @param int $post_id The post ID being deleted.
+	 * @return void
+	 */
+	public static function delete_feedback_files( $post_id ) {
+		if ( get_post_type( $post_id ) !== 'feedback' ) {
+			return;
+		}
+		require_once __DIR__ . '/contact-form/class-file-handler.php';
+		$file_handler       = new File_Handler();
+		$file_upload_fields = self::get_file_upload_fields( $post_id );
+		foreach ( $file_upload_fields as $file_upload_field ) {
+			$file_handler->delete_file( $file_upload_field['file_id'] );
+		}
 	}
 
 	/**
@@ -868,6 +904,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Output HTML
 		return $field->render();
+	}
+
+	/**
+	 * Check if the field is a file upload field.
+	 *
+	 * @param array $field The field to check.
+	 * @return bool True if the field is a file upload field, false otherwise.
+	 */
+	public static function is_file_upload_field( $field ) {
+		return ! empty( $field['file_id'] ) && ! empty( $field['name'] );
 	}
 
 	/**
