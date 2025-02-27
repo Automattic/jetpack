@@ -66,8 +66,8 @@ const renderDefaultTooltip = ( {
 	);
 };
 
-const formatDateTick = ( value: number ) => {
-	const date = new Date( value );
+const formatDateTick = ( timestamp: number ) => {
+	const date = new Date( timestamp );
 	return date.toLocaleDateString( undefined, {
 		month: 'short',
 		day: 'numeric',
@@ -174,6 +174,7 @@ const LineChart: FC< LineChartProps > = ( {
 				width={ width }
 				height={ height }
 				margin={ { top: 10, right: 0, bottom: 20, left: 40, ...margin } }
+				// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 				xScale={ { type: 'time', ...options?.xScale } }
 				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
 			>
