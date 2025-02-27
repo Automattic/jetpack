@@ -782,7 +782,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( get_post_type( $post_id ) !== 'feedback' ) {
 			return;
 		}
-		require_once __DIR__ . '/contact-form/class-file-handler.php';
+		require_once __DIR__ . '/class-file-handler.php';
 		$file_handler       = new File_Handler();
 		$file_upload_fields = self::get_file_upload_fields( $post_id );
 		foreach ( $file_upload_fields as $file_upload_field ) {
