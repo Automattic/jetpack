@@ -227,7 +227,6 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 			// Create a lookup array of viewer IDs.
 			foreach ( $viewers as $viewer ) {
 				$viewer_ids[ $viewer->ID ] = true;
-				$viewer->roles[]           = 'viewer';
 			}
 
 			// Add viewer role to users who are also viewers.
