@@ -673,6 +673,7 @@ class REST_Connector {
 		$response = array(
 			'currentUser'     => $current_user_connection_data,
 			'connectionOwner' => $owner_display_name,
+			'isSiteConnected' => $connection->is_connected(),
 		);
 
 		if ( $rest_response ) {
