@@ -54,7 +54,8 @@ export default function GeneralPurposeImage( {
 }: GeneralPurposeImageProps ) {
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( true );
 	const siteType = useSiteType();
-	const postContent = usePostContent();
+	const { getPostContent } = usePostContent();
+	const postContent = getPostContent();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;

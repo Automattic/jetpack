@@ -26,7 +26,7 @@ import { useGoBack } from '../../../hooks/use-go-back';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../../go-back-link';
-import { ProductInterstitialPlugin } from '../../product-interstitial-modal';
+import { ProductInterstitialMyJetpack } from '../../product-interstitial-modal';
 import styles from './style.module.scss';
 
 const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-page' );
@@ -239,10 +239,10 @@ export default function () {
 							</div>
 							{ ! shouldContactUs && ! hasUnlimited && (
 								<>
-									<ProductInterstitialPlugin
+									<ProductInterstitialMyJetpack
 										slug="jetpack-ai"
 										onOpen={ upgradeClickHandlerModal }
-										triggerButton={ __( 'Get more requests', 'jetpack-my-jetpack' ) }
+										modalTriggerButtonLabel={ __( 'Get more requests', 'jetpack-my-jetpack' ) }
 										buttonLabel={ __( 'Upgrade', 'jetpack-my-jetpack' ) }
 										isWithVideo
 										secondaryColumn={

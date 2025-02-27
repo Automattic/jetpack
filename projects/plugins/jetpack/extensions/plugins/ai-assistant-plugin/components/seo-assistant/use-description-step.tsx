@@ -52,7 +52,8 @@ export const useDescriptionStep = ( {
 	const { getMessages, setMessages, addMessage, editLastMessage, setSelectedMessage } =
 		useMessages();
 	const { editPost } = useDispatch( editorStore );
-	const postContent = usePostContent();
+	const { getPostContent } = usePostContent();
+	const postContent = getPostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const [ generatedCount, setGeneratedCount ] = useState( 0 );
 	const [ hasFailed, setHasFailed ] = useState( false );

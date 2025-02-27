@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Replace more JITM jQuery Ajax calls with @wordpress/api-fetch

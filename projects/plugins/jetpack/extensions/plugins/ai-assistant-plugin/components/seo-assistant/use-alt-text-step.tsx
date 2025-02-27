@@ -1,7 +1,7 @@
 /*
  * External dependencies
  */
-import { askQuestionSync, usePostContent } from '@automattic/jetpack-ai-client';
+import { askQuestionSync, usePostContent, openBlockSidebar } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -17,7 +17,6 @@ import debugFactory from 'debug';
 /*
  * Internal dependencies
  */
-import openBlockSidebar from './open-block-sidebar';
 import { useArrayState } from './use-array-state';
 import { useMessages } from './wizard-messages';
 /**
@@ -63,11 +62,12 @@ export const useAltTextStep = ( {
 		'generate' | 'regenerate' | null
 	>( imageBlocks.map( () => null ) );
 	const [ lastValue, setLastValue ] = useState< string >( '' );
-	const { updateBlockAttributes } = useDispatch( 'core/editor' );
+	const { updateBlockAttributes } = useDispatch( editorStore );
 	const { getMessages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages(
 		imageBlocks.length
 	);
-	const postContent = usePostContent();
+	const { getPostContent } = usePostContent();
+	const postContent = getPostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const { tracks } = useAnalytics();
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );

@@ -57,6 +57,7 @@ class Jetpack_Mu_Wpcom {
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
@@ -191,6 +192,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 
 		// Only load the Calypsoify and Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
@@ -501,6 +503,14 @@ class Jetpack_Mu_Wpcom {
 	public static function load_verbum_comments_admin() {
 		require_once __DIR__ . '/features/verbum-comments/assets/class-verbum-admin.php';
 		new \Automattic\Jetpack\Verbum_Admin();
+	}
+
+	/**
+	 * Load Verbum Moderate.
+	 */
+	public static function load_verbum_moderate() {
+		require_once __DIR__ . '/features/verbum-comments/assets/class-verbum-moderate.php';
+		new \Automattic\Jetpack\Verbum_Moderate();
 	}
 
 	/**

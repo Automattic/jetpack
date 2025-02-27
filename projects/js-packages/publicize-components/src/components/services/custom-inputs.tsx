@@ -52,7 +52,7 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 		[ validateBskyHandle ]
 	);
 
-	if ( 'mastodon' === service.ID ) {
+	if ( 'mastodon' === service.id ) {
 		return (
 			<div className={ styles[ 'fields-item' ] }>
 				<label htmlFor={ `${ id }-handle` }>
@@ -85,7 +85,7 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 		);
 	}
 
-	if ( 'bluesky' === service.ID ) {
+	if ( 'bluesky' === service.id ) {
 		return (
 			<>
 				<div className={ styles[ 'fields-item' ] }>

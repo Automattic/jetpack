@@ -75,7 +75,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// We don't need the `My Mailboxes` when the interface is set to wp-admin or the site is a staging site,
 		if ( ! $this->use_wp_admin_interface() && ! get_option( 'wpcom_is_staging_site' ) ) {
-			$this->add_my_mailboxes_menu();
+			if ( function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && ! wpcom_is_duplicate_views_experiment_enabled() ) {
+				$this->add_my_mailboxes_menu();
+			}
 		}
 
 		// Not needed outside of wp-admin.
