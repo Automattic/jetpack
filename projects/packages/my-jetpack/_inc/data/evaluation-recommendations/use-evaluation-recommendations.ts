@@ -150,7 +150,7 @@ const useEvaluationRecommendations = () => {
 		saveEvaluationResult,
 		removeEvaluationResult,
 		redoEvaluation,
-		recommendedModules: [ 'anti-spam', 'extras', 'jetpack-ai' ], //unownedRecommendedModules,
+		recommendedModules: unownedRecommendedModules,
 		isSectionVisible,
 		isFirstRun,
 		isProductOwnershipLoading,
