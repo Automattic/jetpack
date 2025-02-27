@@ -20,7 +20,6 @@ function wpcomInitializeFiverrCta() {
 	if ( fiverCta ) {
 		fiverCta.addEventListener( 'click', e => {
 			e.preventDefault();
-			e.stopPropagation();
 
 			wpcomTrackEvent( 'wp_admin_site_icon_fiverr_logo_maker_cta_click', {
 				cta_name: 'wp_admin_site_icon_fiverr_logo_maker',
