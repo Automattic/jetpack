@@ -76,7 +76,13 @@ function wpcom_should_disable_calypso_links( string $screen ): bool {
 		return true;
 	}
 
-	return Admin_Menu::get_instance()->get_preferred_view( $screen ) === Admin_Menu::CLASSIC_VIEW;
+	$admin_menu = wpcom_get_custom_admin_menu_class();
+
+	if ( ! $admin_menu ) {
+		return true;
+	}
+
+	return $admin_menu::get_instance()->get_preferred_view( $screen ) === Admin_Menu::CLASSIC_VIEW;
 }
 
 /**
@@ -783,7 +789,7 @@ add_action( 'admin_enqueue_scripts', 'wpcom_show_removed_calypso_screen_notice' 
 /**
  * Gets the name of the class used to customize the admin menu when Nav Unification is enabled.
  *
- * @return false|string The class name of the customized admin menu if any, false otherwise.
+ * @return false|class-string<\Automattic\Jetpack\Masterbar\Base_Admin_Menu> The class name of the customized admin menu if any, false otherwise.
  */
 function wpcom_get_custom_admin_menu_class() {
 	if ( ! function_exists( '\Automattic\Jetpack\Masterbar\get_admin_menu_class' ) || ! function_exists( '\Automattic\Jetpack\Masterbar\should_customize_nav' ) ) {
