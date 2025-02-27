@@ -63,7 +63,7 @@ class Dashboard {
 
 		$page_suffix = null;
 		if ( ( new Host() )->is_wpcom_platform() ) {
-			$page_suffix = add_submenu_page( 'users.php', __( 'Subscribers', 'jetpack-subscribers-dashboard' ), __( 'Subscribers', 'jetpack-subscribers-dashboard' ), 'manage_options', 'subscribers', array( $this, 'render' ), );
+			$page_suffix = add_submenu_page( 'users.php', __( 'Subscribers', 'jetpack-subscribers-dashboard' ), __( 'Subscribers', 'jetpack-subscribers-dashboard' ), 'manage_options', 'subscribers', array( $this, 'render' ) );
 		} else {
 			$page_suffix = Admin_Menu::add_menu(
 				__( 'Subscribers', 'jetpack-subscribers-dashboard' ),
