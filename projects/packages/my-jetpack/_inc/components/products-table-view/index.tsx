@@ -2,7 +2,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAllProducts } from '../../data/products/use-all-products';
 import useAnalytics from '../../hooks/use-analytics';
@@ -108,6 +108,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const navigate = useNavigate();
 	const { recordEvent } = useAnalytics();
+	const [ categories, setCategories ] = useState< Option[] >( [] );
 
 	const baseView: ViewList = {
 		sort: {
@@ -130,12 +131,11 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 		},
 	};
 
-	const categories = useMemo( () => {
-		if ( isLoading || isError ) {
-			return [];
+	useEffect( () => {
+		if ( ! isError && ! isLoading && ! categories.length ) {
+			setCategories( getCategories( products, allProductData ) );
 		}
-		return getCategories( products, allProductData );
-	}, [ products, allProductData, isLoading, isError ] );
+	}, [ isError, isLoading, categories, allProductData, products ] );
 
 	const navigateToInterstitial = useCallback(
 		( slug: string ) => {

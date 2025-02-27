@@ -111,11 +111,14 @@
 	.block-editor-block-list__layout.wp-block-jetpack-field-option-radio,
 	.block-editor-block-list__layout.wp-block-jetpack-field-option-checkbox  {
 		gap: 0;
-		align-items: center;
 
 		> .wp-block {
 			flex: initial;
 		}
+	}
+
+	.block-editor-block-list__layout.wp-block-jetpack-field-option-checkbox {
+		align-items: center;
 	}
 
 	.block-list-appender {
@@ -404,6 +407,7 @@
 
 		&[type="radio"]::before {
 			border-radius: 50%;
+			transform: translateY(15%);
 		}
 	}
 
@@ -487,6 +491,7 @@
 	.wp-block-jetpack-field-option-radio {
 		display: flex;
 		align-items: baseline; /* Align input with first label line */
+		flex-wrap: nowrap;
 
 		.jetpack-option__type:before {
 			display: block; /* display: flex causes baselines to not align */

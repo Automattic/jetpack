@@ -291,7 +291,7 @@ function renderStatusChecks( statusChecks ) {
 		debug( `check-description: this PR has a Status label: ${ statusChecks.hasStatusLabels }` );
 		checks += statusEntry(
 			! statusChecks.hasStatusLabels,
-			'Add a "[Status]" label (In Progress, Needs Team Review, ...).'
+			'Add a "[Status]" label (In Progress, Needs Review, ...).'
 		);
 	}
 
@@ -507,19 +507,11 @@ The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e
 **Follow this PR Review Process:**
 
 1. Ensure all required checks appearing at the bottom of this PR are passing.
-2. Choose a review path based on your changes:
-    - **A. Team Review:** add the "[Status] Needs Team Review" label
-        - For most changes, including minor cross-team impacts.
-        - Example: Updating a team-specific component or a small change to a shared library.
-    - **B. Crew Review:** add the "[Status] Needs Review" label
-        - For significant changes to core functionality.
-        - Example: Major updates to a shared library or complex features.
-    - **C. Both:** Start with Team, then request Crew
-        - For complex changes or when you need extra confidence.
-        - Example: Refactor affecting multiple systems.
-3. Get at least one approval before merging.
+2. Make sure to test your changes on all platforms that it applies to. *You're responsible for the quality of the code you ship*.
+3. You can use [GitHub's Reviewers functionality](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/requesting-a-pull-request-review) to request a review.
+4. When it's reviewed and merged, you will be pinged in Slack to deploy the changes to WordPress.com simple once the build is done.
 
-Still unsure? Reach out in #jetpack-developers for guidance!`;
+If you have questions about anything, reach out in #jetpack-developers for guidance!`;
 	}
 
 	// Gather info about the next release for that plugin.

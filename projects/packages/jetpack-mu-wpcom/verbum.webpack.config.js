@@ -86,6 +86,8 @@ module.exports = [
 		entry: {
 			'verbum-comments/assets/dynamic-loader':
 				'./src/features/verbum-comments/assets/dynamic-loader.js',
+			'verbum-comments/assets/comments-moderation':
+				'./src/features/verbum-comments/assets/comments-moderation.js',
 		},
 		mode: jetpackConfig.mode,
 		devtool: jetpackConfig.devtool,
