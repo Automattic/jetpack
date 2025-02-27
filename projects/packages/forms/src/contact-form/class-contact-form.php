@@ -77,13 +77,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $allowed_html_tags_for_submit_button = array( 'br' => array() );
 
 	/**
-	 * Field values from form submission.
-	 *
-	 * @var array
-	 */
-	public $field_values = array();
-
-	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
