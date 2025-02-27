@@ -89,11 +89,15 @@ add_filter(
 	2
 );
 
-// Ensure use of the correct local path when loading the JavaScript translation file for a CDN'ed asset.
+// Ensure use of the correct local path when loading the JavaScript translation file for a CDN'ed or jetpack-mu-wpcom asset.
 add_filter(
 	'load_script_translation_file',
-	function ( $file, $handle ) {
+	function ( $file, $handle, $domain ) {
 		global $wp_scripts;
+		if ( 'jetpack-mu-wpcom' === $domain ) {
+			return 'https://widgets.wp.com/languages/mu-plugins/' . basename( $file );
+		}
+
 		if ( class_exists( 'Jetpack_Photon_Static_Assets_CDN' ) ) {
 			// This is a rewritten plugin URL, so load the language file from the plugins path.
 			if ( isset( $wp_scripts->registered[ $handle ] ) && wp_startswith( $wp_scripts->registered[ $handle ]->src, Jetpack_Photon_Static_Assets_CDN::CDN . 'p' ) ) {
@@ -103,7 +107,7 @@ add_filter(
 		return $file;
 	},
 	10,
-	2
+	3
 );
 
 // end of https://github.com/Automattic/jetpack/pull/14797
