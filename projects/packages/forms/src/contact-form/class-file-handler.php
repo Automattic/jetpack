@@ -79,12 +79,12 @@ class File_Handler {
 	/**
 	 * Process a single file upload using a token.
 	 *
-	 * @param string $token The file upload token.
+	 * @param string $unauth_file_token The unauthenticated file upload token.
 	 * @return array|WP_Error File data array on success, WP_Error on failure.
 	 */
-	public function process_file_upload( $token ) {
+	public function process_file_upload( $unauth_file_token ) {
 		// Get temporary file information from the unauth handler
-		$file_data = $this->unauth_handler->get_file_info_by_token( $token );
+		$file_data = $this->unauth_handler->get_file_info_by_token( $unauth_file_token );
 
 		if ( ! $file_data ) {
 			return new \WP_Error( 'file_upload_failed', __( 'Failed to upload file.', 'jetpack-forms' ) );
@@ -107,7 +107,7 @@ class File_Handler {
 		$permanent_path  = $permanent_dir . $new_secret_name;
 
 		// Use the unauth handler's checkout_file method to move the file from temp to permanent storage
-		$checkout_result = $this->unauth_handler->checkout_file( $token, $permanent_path );
+		$checkout_result = $this->unauth_handler->checkout_file( $unauth_file_token, $permanent_path );
 
 		if ( is_wp_error( $checkout_result ) ) {
 			return $checkout_result;

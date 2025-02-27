@@ -1750,15 +1750,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$token_field_name = $field_id . '_token';
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$token = isset( $_POST[ $token_field_name ] ) ? sanitize_text_field( wp_unslash( $_POST[ $token_field_name ] ) ) : '';
+			$unauth_file_token = isset( $_POST[ $token_field_name ] ) ? sanitize_text_field( wp_unslash( $_POST[ $token_field_name ] ) ) : '';
 
-			if ( empty( $token ) ) {
+			if ( empty( $unauth_file_token ) ) {
 				$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
 				continue;
 			}
 
 			// Process the file token using the file handler
-			$result = $file_handler->process_file_upload( $token );
+			$result = $file_handler->process_file_upload( $unauth_file_token );
 
 			if ( is_wp_error( $result ) ) {
 				$field->add_error( $result->get_error_message() );
