@@ -1,10 +1,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { isSimpleSite, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
-<<<<<<< HEAD
 	InspectorAdvancedControls,
-=======
->>>>>>> a03d237ae7 (Ensure panel shows on atomic)
 	InspectorControls,
 	URLInput,
 	useBlockProps,
