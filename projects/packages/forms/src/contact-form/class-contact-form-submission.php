@@ -599,6 +599,26 @@ class Contact_Form_Submission {
 	}
 
 	/**
+	 * Add deepslashes. Add them everywhere.
+	 *
+	 * @param array $value - the value.
+	 * @return array The value, with slashes added.
+	 */
+	public static function addslashes_deep( $value ) {
+		if ( is_array( $value ) ) {
+			return array_map( array( __CLASS__, 'addslashes_deep' ), $value );
+		} elseif ( is_object( $value ) ) {
+			$vars = get_object_vars( $value );
+			foreach ( $vars as $key => $data ) {
+				$value->{$key} = self::addslashes_deep( $data );
+			}
+			return (array) $value;
+		}
+
+		return addslashes( $value );
+	}
+
+	/**
 	 * Returns a success message to be returned if the form is sent via AJAX.
 	 *
 	 * @param int $feedback_id - the feedback ID.
@@ -1032,7 +1052,7 @@ class Contact_Form_Submission {
 		// once insert has finished we don't need this filter any more
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 
-		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
+		update_post_meta( $post_id, '_feedback_extra_fields', self::addslashes_deep( $extra_values ) );
 
 		if ( 'publish' === $feedback_status ) {
 			// Increase count of unread feedback.
@@ -1041,7 +1061,7 @@ class Contact_Form_Submission {
 		}
 
 		if ( defined( 'AKISMET_VERSION' ) ) {
-			update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
+			update_post_meta( $post_id, '_feedback_akismet_values', self::addslashes_deep( $akismet_values ) );
 		}
 
 		/**
@@ -1052,7 +1072,7 @@ class Contact_Form_Submission {
 		 * @since 8.6.0
 		 *
 		 * @param integer $post_id The post id that contains the contact form data.
-		 * @param array   $this->fields An array containg the form's Contact_Form_Field objects.
+		 * @param array   $this->fields An array containing the form's Contact_Form_Field objects.
 		 * @param boolean $is_spam Whether the form submission has been identified as spam.
 		 * @param array   $entry_values The feedback entry values.
 		 */
@@ -1142,7 +1162,7 @@ class Contact_Form_Submission {
 		// This is called after `contact_form_message`, in order to preserve back-compat
 		$message = self::wrap_message_in_html_tags( $title, $message, $footer );
 
-		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
+		update_post_meta( $post_id, '_feedback_email', self::addslashes_deep( compact( 'to', 'message' ) ) );
 
 		/**
 		 * Fires right before the contact form message is sent via email to

@@ -994,26 +994,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Add deepslashes.
-	 *
-	 * @param array $value - the value.
-	 * @return array The value, with slashes added.
-	 */
-	public function addslashes_deep( $value ) {
-		if ( is_array( $value ) ) {
-			return array_map( array( $this, 'addslashes_deep' ), $value );
-		} elseif ( is_object( $value ) ) {
-			$vars = get_object_vars( $value );
-			foreach ( $vars as $key => $data ) {
-				$value->{$key} = $this->addslashes_deep( $data );
-			}
-			return (array) $value;
-		}
-
-		return addslashes( $value );
-	}
-
-	/**
 	 * Rough implementation of Gutenberg's align-attribute-to-css-class map.
 	 * Only allowin "wide" and "full" as "center", "left" and "right" don't
 	 * make much sense for the form.
