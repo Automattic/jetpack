@@ -215,3 +215,5 @@ Image_CDN_Core::setup();
 
 // Require everything else, that is not loaded via the autoloader.
 require_once JETPACK__PLUGIN_DIR . 'load-jetpack.php';
+
+add_filter( 'jetpack_wp_admin_subscriber_management_enabled', '__return_true' );

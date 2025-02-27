@@ -220,6 +220,7 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
+	if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
 	add_submenu_page(
 		'jetpack',
 		__( 'Subscribers', 'jetpack-mu-wpcom' ),
@@ -228,6 +229,7 @@ function wpcom_add_jetpack_submenu() {
 		$subscribers_url,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
+	}
 
 	if ( $is_simple_site ) {
 		add_submenu_page(

@@ -129,7 +129,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->update_submenus( $slug, $submenus_to_update );
 		}
 
-		if ( ! $this->use_wp_admin_interface() ) {
+		if ( ! $this->use_wp_admin_interface() && ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
 			// The 'Subscribers' menu exists in the Jetpack menu for Classic wp-admin interface, so only add it for non-wp-admin interfaces.
 			// // @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );

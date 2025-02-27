@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-subscribers",
+	"name": "automattic/jetpack-subscribers-dashboard",
 	"description": "Subscribers dashboard",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
@@ -64,11 +64,11 @@
 	"prefer-stable": true,
 	"extra": {
 		"autotagger": true,
-		"mirror-repo": "Automattic/jetpack-subscribers",
+		"mirror-repo": "Automattic/jetpack-subscriber-dashboard",
 		"branch-alias": {
 			"dev-trunk": "0.0.x-dev"
 		},
-		"textdomain": "jetpack-subscribers",
+		"textdomain": "jetpack-subscriber-dashboard",
 		"version-constants": {
 			"::VERSION": "src/class-dashboard.php"
 		}

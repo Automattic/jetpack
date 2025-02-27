@@ -52,7 +52,7 @@ module.exports = [
 						plugins: [
 							[
 								require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
-								{ textdomain: 'jetpack-subscribers' },
+								{ textdomain: 'jetpack-subscribers-dashboard' },
 							],
 						],
 					},
@@ -66,7 +66,7 @@ module.exports = [
 						plugins: [
 							[
 								require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
-								{ textdomain: 'jetpack-subscribers' },
+								{ textdomain: 'jetpack-subscribers-dashboard' },
 							],
 						],
 					},

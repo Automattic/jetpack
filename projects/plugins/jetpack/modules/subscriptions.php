@@ -21,7 +21,7 @@ use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Subscribers\Dashboard as Subscribers_Dashboard;
+use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 

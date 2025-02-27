@@ -5,10 +5,11 @@
  * @package automattic/jetpack-subscribers
  */
 
-namespace Automattic\Jetpack\Subscribers;
+namespace Automattic\Jetpack\Subscribers_Dashboard;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Responsible for adding a subscribers dashboard to wp-admin.
@@ -59,13 +60,19 @@ class Dashboard {
 		if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
 			return;
 		}
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Subscribers', 'jetpack-subscribers' ),
-			_x( 'Subscribers', 'product name shown in menu', 'jetpack-subscribers' ),
-			'manage_options',
-			'subscribers',
-			array( $this, 'render' )
-		);
+
+		$page_suffix = null;
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			$page_suffix = add_submenu_page( 'users.php', __( 'Subscribers', 'jetpack-subscribers-dashboard' ), __( 'Subscribers', 'jetpack-subscribers-dashboard' ), 'manage_options', 'subscribers', array( $this, 'render' ), null );
+		} else {
+			$page_suffix = Admin_Menu::add_menu(
+				__( 'Subscribers', 'jetpack-subscribers-dashboard' ),
+				_x( 'Subscribers', 'product name shown in menu', 'jetpack-subscribers-dashboard' ),
+				'manage_options',
+				'subscribers',
+				array( $this, 'render' )
+			);
+		}
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
@@ -76,7 +83,7 @@ class Dashboard {
 	 * Override render funtion
 	 */
 	public function render() {
-		echo '<div id="jetpack-subscribers"></div>';
+		echo '<div id="jetpack-subscribers-dashboard"></div>';
 	}
 
 	/**
@@ -91,15 +98,15 @@ class Dashboard {
 	 */
 	public function load_admin_scripts() {
 		Assets::register_script(
-			'jetpack-subscribers',
+			'jetpack-subscribers-dashboard',
 			'../build/index.js',
 			__FILE__,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-subscribers',
+				'textdomain' => 'jetpack-subscribers-dashboard',
 			)
 		);
-		Assets::enqueue_script( 'jetpack-subscribers' );
+		Assets::enqueue_script( 'jetpack-subscribers-dashboard' );
 		Assets::enqueue_script( 'jetpack-script-data' );
 	}
 }
