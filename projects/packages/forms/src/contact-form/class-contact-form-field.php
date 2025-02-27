@@ -225,6 +225,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$field_value = '';
 		}
 
+		$submission = Contact_Form_Plugin::$submission ?? null;
+		$form_hash  = $this->form->hash;
+
 		switch ( $field_type ) {
 			case 'url':
 				if ( ! is_string( $field_value ) || empty( $field_value ) || ! preg_match(
@@ -233,35 +236,55 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field_value
 				) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s: Please enter a valid URL - https://www.example.com', 'jetpack-forms' ), $field_label ) );
+					$error = sprintf( __( '%s: Please enter a valid URL - https://www.example.com', 'jetpack-forms' ), $field_label );
+					$this->add_error( $error );
+					if ( $submission ) {
+						$submission->add_error( $form_hash, $field_id, $error );
+					}
 				}
 				break;
 			case 'email':
 				// Make sure the email address is valid
 				if ( ! is_string( $field_value ) || ! is_email( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires a valid email address', 'jetpack-forms' ), $field_label ) );
+					$error = sprintf( __( '%s requires a valid email address', 'jetpack-forms' ), $field_label );
+					$this->add_error( $error );
+					if ( $submission ) {
+						$submission->add_error( $form_hash, $field_id, $error );
+					}
 				}
 				break;
 			case 'checkbox-multiple':
 				// Check that there is at least one option selected
 				if ( empty( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires at least one selection', 'jetpack-forms' ), $field_label ) );
+					$error = sprintf( __( '%s requires at least one selection', 'jetpack-forms' ), $field_label );
+					$this->add_error( $error );
+					if ( $submission ) {
+						$submission->add_error( $form_hash, $field_id, $error );
+					}
 				}
 				break;
 			case 'number':
 				// Make sure the number address is valid
 				if ( ! is_numeric( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires a number', 'jetpack-forms' ), $field_label ) );
+					$error = sprintf( __( '%s requires a number', 'jetpack-forms' ), $field_label );
+					$this->add_error( $error );
+					if ( $submission ) {
+						$submission->add_error( $form_hash, $field_id, $error );
+					}
 				}
 				break;
 			default:
 				// Just check for presence of any text
 				if ( ! is_string( $field_value ) || ! strlen( trim( $field_value ) ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s is required', 'jetpack-forms' ), $field_label ) );
+					$error = sprintf( __( '%s is required', 'jetpack-forms' ), $field_label );
+					$this->add_error( $error );
+					if ( $submission ) {
+						$submission->add_error( $form_hash, $field_id, $error );
+					}
 				}
 		}
 	}
@@ -367,6 +390,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field_class = apply_filters( 'jetpack_contact_form_input_class', $class );
 
 		$this->value = $this->get_computed_field_value( $field_type, $field_id );
+		$submission  = Contact_Form_Plugin::$submission ?? null;
+		if ( $submission && $this->is_field_renderable( $field_type ) ) {
+			$form_hash = $this->form->hash;
+			$submission->add_field( $form_hash, $field_id, $field_type, $field_label, $this->value );
+		}
 
 		$field_value = Contact_Form_Plugin::strip_tags( $this->value );
 		$field_label = Contact_Form_Plugin::strip_tags( $field_label );

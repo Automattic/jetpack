@@ -630,8 +630,6 @@ class Contact_Form_Plugin {
 		$hash = is_string( $hash ) ? preg_replace( '/[^\da-f]/i', '', $hash ) : $hash;
 		// phpcs:enable
 
-		self::$submission = new Contact_Form_Submission( $id, $hash );
-
 		if ( ! is_string( $id ) || ! is_string( $hash ) ) {
 			return false;
 		}
@@ -643,6 +641,8 @@ class Contact_Form_Plugin {
 		$is_widget              = str_starts_with( $id, 'widget-' );
 		$is_block_template      = str_starts_with( $id, 'block-template-' );
 		$is_block_template_part = str_starts_with( $id, 'block-template-part-' );
+
+		self::$submission = new Contact_Form_Submission( $id, $hash );
 
 		$form = false;
 
@@ -767,6 +767,8 @@ class Contact_Form_Plugin {
 		}
 
 		$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
+		self::$submission->set_defaults( $form->defaults );
+		self::$submission->set_form_submission_data( $form->get_form_submission_data() );
 
 		// No form may mean user is using do_shortcode, grab the form using the stored post meta
 		if ( ! $form && is_numeric( $id ) && $hash ) {
@@ -1024,50 +1026,6 @@ class Contact_Form_Plugin {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Populate an array with all values necessary to submit a NEW contact-form feedback to Akismet.
-	 * Note that this includes the current user_ip etc, so this should only be called when accepting a new item via $_POST
-	 *
-	 * @param array $form - contact form feedback array.
-	 *
-	 * @return array feedback array with additional data ready for submission to Akismet.
-	 */
-	public function prepare_for_akismet( $form ) {
-		$form['comment_type']     = 'contact_form';
-		$form['user_ip']          = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$form['user_agent']       = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		$form['referrer']         = isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
-		$form['blog']             = get_option( 'home' );
-		$form['comment_date_gmt'] = gmdate( DATE_ATOM, time() ); // ISO 8601. See https://www.php.net/manual/en/class.datetimeinterface.php#datetimeinterface.constants.types
-
-		foreach ( $_SERVER as $key => $value ) {
-			if ( ! is_string( $value ) ) {
-				continue;
-			}
-			if ( in_array( $key, array( 'HTTP_COOKIE', 'HTTP_COOKIE2', 'HTTP_USER_AGENT', 'HTTP_REFERER' ), true ) ) {
-				// We don't care about cookies, and the UA and Referrer were caught above.
-				continue;
-			} elseif ( in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ), true ) ) {
-				// All three of these are relevant indicators and should be passed along.
-				$form[ $key ] = $value;
-			} elseif ( str_starts_with( $key, 'HTTP_' ) ) {
-				// Any other HTTP header indicators.
-				$form[ $key ] = $value;
-			}
-		}
-
-		/**
-		 * Filter the values that are sent to Akismet for the spam check.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 10.2.0
-		 *
-		 * @param array $form The form values being sent to Akismet.
-		 */
-		return apply_filters( 'jetpack_contact_form_akismet_values', $form );
 	}
 
 	/**

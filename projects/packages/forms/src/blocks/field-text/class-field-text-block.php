@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Extensions\Contact_Form;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
-
 /**
  * Field Text Block.
  */
@@ -108,15 +107,20 @@ class Field_Text_Block {
 	 * @return string|null The validation error message if validation fails, null otherwise.
 	 */
 	private static function validate( $form_hash, $attributes, $value ) {
-		if ( is_string( $value ) && strlen( trim( $value ) ) ) {
-			Contact_Form_Plugin::$submission->add_value( $form_hash, $attributes['id'], $value );
-			return null;
+		$submission = Contact_Form_Plugin::$submission ?? null;
+		if ( $submission ) {
+			$submission->add_field( $form_hash, $attributes['id'], $attributes['type'], $attributes['label'], $value );
 		}
 
 		/* translators: %s is the name of a form field */
-		$error_message = sprintf( __( '%s is required', 'jetpack-forms' ), $attributes['label'] );
-		Contact_Form_Plugin::$submission->add_error( $form_hash, $attributes['id'], $error_message );
-		return $error_message;
+		if ( ! is_string( $value ) || ! strlen( trim( $value ) ) ) {
+			/* translators: %s is the name of a form field */
+			$error_message = sprintf( __( '%s is required', 'jetpack-forms' ), $attributes['label'] );
+			if ( $submission ) {
+				$submission->add_error( $form_hash, $attributes['id'], $error_message );
+			}
+			return $error_message;
+		}
 	}
 
 	/**
