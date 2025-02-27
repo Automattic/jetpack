@@ -954,7 +954,7 @@ class Contact_Form_Submission {
 
 		$entry_values = array(
 			'entry_title'     => the_title_attribute( 'echo=0' ),
-			'entry_permalink' => esc_url( self::get_permalink( get_the_ID() ) ),
+			'entry_permalink' => esc_url( self::get_permalink_with_page( get_the_ID() ) ),
 			'feedback_id'     => $feedback_id,
 		);
 
@@ -976,7 +976,7 @@ class Contact_Form_Submission {
 		if ( $is_block_template || $is_block_template_part || $is_widget ) {
 			$url = home_url( '/' );
 		} else {
-			$url = self::get_permalink( $post->ID );
+			$url = self::get_permalink_with_page( $post->ID );
 		}
 
 		// translators: the time of the form submission.
