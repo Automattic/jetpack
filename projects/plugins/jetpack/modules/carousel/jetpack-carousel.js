@@ -526,6 +526,16 @@
 				carousel.overlay.addEventListener( 'jp_carousel.beforeClose', function () {
 					disableKeyboardNavigation();
 
+					// Get the image position which opened this carousel, and focus it.
+					const [ container, index ] = carousel.source;
+					if ( container ) {
+						if ( domUtil.matches( container, 'a' ) ) {
+							container.focus();
+						} else {
+							container.querySelectorAll( 'a,:not(a) > img[tabindex]' )[ index ].focus();
+						}
+					}
+
 					// Fixes some themes where closing carousel brings view back to top.
 					document.documentElement.style.removeProperty( 'height' );
 
@@ -1561,6 +1571,7 @@
 			if ( settings.startIndex === -1 ) {
 				settings.startIndex = 0; // -1 returned if can't find index, so start from beginning
 			}
+			carousel.source = [ gallery, settings.startIndex ];
 
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeOpen' );
 			carousel.gallery.innerHTML = '';
