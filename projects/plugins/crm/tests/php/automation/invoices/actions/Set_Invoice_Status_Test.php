@@ -1,19 +1,19 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
-use Automattic\Jetpack\CRM\Automation\Actions\Set_Transaction_Status;
+use Automattic\Jetpack\CRM\Automation\Actions\Set_Invoice_Status;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
-use Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created;
+use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
 
 /**
  * Test Automation Workflow functionalities
  *
- * @covers Automattic\Jetpack\CRM\Automation\Actions\Set_Transaction_Status
+ * @covers Automattic\Jetpack\CRM\Automation\Actions\Set_Invoice_Status
  */
-class Set_Transaction_Status_Test extends JPCRM_Base_Integration_TestCase {
+class Set_Invoice_Status_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * A helper class to generate data for the automation tests.
@@ -34,27 +34,27 @@ class Set_Transaction_Status_Test extends JPCRM_Base_Integration_TestCase {
 	}
 
 	/**
-	 * @testdox Test the set transaction status action executes the action, within a workflow.
+	 * @testdox Test the set invoice status action executes the action, within a workflow.
 	 */
-	public function test_set_transaction_status_action_with_workflow() {
+	public function test_set_invoice_status_action_with_workflow() {
 		global $zbs;
 
 		$automation = new Automation_Engine();
-		$automation->register_trigger( Transaction_Created::class );
-		$automation->register_step( Set_Transaction_Status::class );
+		$automation->register_trigger( Invoice_Created::class );
+		$automation->register_step( Set_Invoice_Status::class );
 
 		$workflow_data = array(
-			'name'         => 'Set Transaction Action Workflow Test',
+			'name'         => 'Set Invoice Action Workflow Test',
 			'description'  => 'This is a test',
 			'category'     => 'Test',
 			'active'       => true,
 			'triggers'     => array(
-				Transaction_Created::get_slug(),
+				Invoice_Created::get_slug(),
 			),
 			'initial_step' => 0,
 			'steps'        => array(
 				0 => array(
-					'slug'           => Set_Transaction_Status::get_slug(),
+					'slug'           => Set_Invoice_Status::get_slug(),
 					'attributes'     => array(
 						'new_status' => 'Paid',
 					),
@@ -69,9 +69,9 @@ class Set_Transaction_Status_Test extends JPCRM_Base_Integration_TestCase {
 		$automation->add_workflow( $workflow );
 		$automation->init_workflows();
 
-		$transaction_id = $this->add_transaction( array( 'status' => 'Draft' ) );
+		$invoice_id = $this->add_invoice( array( 'status' => 'Draft' ) );
 
-		$transaction = $zbs->DAL->transactions->getTransaction( $transaction_id );
-		$this->assertSame( 'Paid', $transaction['status'] );
+		$invoice = $zbs->DAL->invoices->getInvoice( $invoice_id );
+		$this->assertSame( 'Paid', $invoice['status'] );
 	}
 }

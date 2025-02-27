@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 
 namespace Automattic\Jetpack\CRM\Event_Manager\Tests;
 

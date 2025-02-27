@@ -352,7 +352,7 @@ class REST_Connector {
 	public function remote_provision( WP_REST_Request $request ) {
 		$request_data = $request->get_params();
 
-		if ( did_action( 'application_password_did_authenticate' ) && current_user_can( 'jetpack_connect_user' ) ) {
+		if ( current_user_can( 'jetpack_connect_user' ) ) {
 			$request_data['local_user'] = get_current_user_id();
 		}
 
