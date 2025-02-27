@@ -20,7 +20,7 @@ class Publicize_Assets {
 	public static function configure() {
 		Publicize_Script_Data::configure();
 
-		add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_block_editor_scripts' ) );
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_block_editor_scripts' ), 15 );
 	}
 
 	/**
@@ -50,7 +50,17 @@ class Publicize_Assets {
 			return;
 		}
 
+		// We don't want to render the Social UI in Jetpack sidebar
+		// if Jetpack is old, which has it bundled.
+		if ( defined( 'JETPACK__VERSION' ) && ( version_compare( (string) JETPACK__VERSION, '14.4-a.7', '<' ) ) ) {
+			return;
+		}
+
 		$script_to_load = class_exists( 'Jetpack' ) ? 'editor-jetpack-sidebar' : 'editor-social-sidebar';
+
+		// Dequeue the old Social assets.
+		wp_dequeue_script( 'jetpack-social-editor' );
+		wp_dequeue_style( 'jetpack-social-editor' );
 
 		Assets::register_script(
 			'jetpack-social-editor',
