@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { config } from '../..';
-import { STORE_NAME } from '../../state';
+import { STORE_NAME } from '../../store';
 import CSVExport from './csv';
 import GoogleDriveExport from './google-drive';
 
