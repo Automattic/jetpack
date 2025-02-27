@@ -1,19 +1,17 @@
 // import { createStore, applyMiddleware, compose } from 'redux';
 import { createReduxStore, register } from '@wordpress/data';
 import * as actions from './actions';
-import controls from './controls';
 import reducer from './reducer';
+import * as resolvers from './resolvers';
 import * as selectors from './selectors';
 
 export const STORE_NAME = 'FORM_RESPONSES';
 
-const storeConfig = {
-	actions: { ...actions },
+const store = createReduxStore( STORE_NAME, {
+	actions,
 	reducer,
-	selectors: { ...selectors },
-	controls,
-};
-
-const store = createReduxStore( STORE_NAME, storeConfig );
+	selectors,
+	resolvers,
+} );
 
 register( store );

@@ -5,24 +5,22 @@ import { Gridicon, JetpackFooter } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { forEach } from 'lodash';
 /**
  * Internal dependencies
  */
 import { config } from '../../';
 import { STORE_NAME } from '../../state';
-import { useFeedbackQuery } from '../use-feedback-query';
 import CSVExport from './csv';
 import GoogleDriveExport from './google-drive';
 
 import './style.scss';
 
 const ExportModal = ( { isVisible, onClose } ) => {
-	const backdrop = useRef( undefined );
-
-	const selected = useSelect( select => select( STORE_NAME ).getSelectedResponseIds(), [] );
-	const { query } = useFeedbackQuery();
-
+	const backdrop = useRef();
+	const { selected, currentQuery } = useSelect( select => {
+		const { getSelectedResponsesFromCurrentDataset, getCurrentQuery } = select( STORE_NAME );
+		return { selected: getSelectedResponsesFromCurrentDataset(), currentQuery: getCurrentQuery() };
+	}, [] );
 	useEffect( () => {
 		backdrop.current?.addEventListener( 'click', event => {
 			if ( event.target !== backdrop.current ) {
@@ -36,20 +34,19 @@ const ExportModal = ( { isVisible, onClose } ) => {
 	const exportResponses = useCallback(
 		( action, nonceName ) => {
 			const data = new FormData();
-
 			data.append( 'action', action );
 			data.append( nonceName, config( 'exportNonce' ) );
-
-			forEach( selected, id => data.append( 'selected[]', id ) );
-
-			data.append( 'date', '' );
-			data.append( 'post', 'all' );
-			data.append( 'search', query.search || '' );
-			data.append( 'status', query.status );
-
+			selected.forEach( id => data.append( 'selected[]', id ) );
+			data.append( 'post', currentQuery.parent || 'all' );
+			data.append( 'search', currentQuery.search || '' );
+			data.append( 'status', currentQuery.status );
+			if ( currentQuery.before && currentQuery.after ) {
+				data.append( 'before', currentQuery.before );
+				data.append( 'after', currentQuery.after );
+			}
 			return fetch( window.ajaxurl, { method: 'POST', body: data } );
 		},
-		[ query, selected ]
+		[ currentQuery, selected ]
 	);
 
 	if ( ! isVisible ) {
