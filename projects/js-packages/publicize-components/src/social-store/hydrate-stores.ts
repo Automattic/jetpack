@@ -7,16 +7,30 @@ import { getSocialScriptData } from '../utils';
  * Hydrate the data stores
  */
 export async function hydrateStores() {
+	const {
+		addEntities,
+		receiveEntityRecords,
+		// @ts-expect-error finishResolution exists but it's not typed
+		finishResolution,
+	} = dispatch( coreStore );
+
+	const socialToggleBase = getSocialScriptData()?.api_paths?.socialToggleBase;
+
+	const jetpackEntities = select( coreStore ).getEntitiesConfig( 'jetpack/v4' );
+	if ( ! jetpackEntities.some( ( { name } ) => name === socialToggleBase ) ) {
+		await addEntities( [
+			{
+				kind: 'jetpack/v4',
+				name: socialToggleBase,
+				baseURL: `/jetpack/v4/${ socialToggleBase }`,
+				label: __( 'Social Settings', 'jetpack-publicize-components' ),
+			},
+		] );
+	}
+
 	const wpcomEntities = select( coreStore ).getEntitiesConfig( 'wpcom/v2' );
 
 	if ( ! wpcomEntities.some( ( { name } ) => name === 'publicize/services' ) ) {
-		const {
-			addEntities,
-			receiveEntityRecords,
-			// @ts-expect-error finishResolution exists but it's not typed
-			finishResolution,
-		} = dispatch( coreStore );
-
 		await addEntities( [
 			{
 				kind: 'wpcom/v2',
