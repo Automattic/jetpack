@@ -733,11 +733,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 
-		// Check if this is a JSON-encoded file upload and extract the filename if it is.
-		$json_decoded = json_decode( $value, true );
-		if ( $json_decoded && isset( $json_decoded['name'] ) && isset( $json_decoded['file_id'] ) ) {
-			// This is a file upload, so just return the file name.
-			$value = $json_decoded['name'];
+		// Check if this is file upload data
+		if ( is_array( $value ) && isset( $value['name'] ) && isset( $value['file_id'] ) ) {
+			// This is a file upload, so just return the file name
+			$value = $value['name'];
 		}
 
 		$value = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value );
@@ -1197,7 +1196,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$value = $field->value;
 
 			if ( $uploaded_files && isset( $uploaded_files[ $field_id ] ) ) {
-				$value = wp_json_encode( $uploaded_files[ $field_id ] );
+				$value = $uploaded_files[ $field_id ];
 			}
 
 			$all_values[ $label ] = $value;
@@ -1218,7 +1217,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			// Check if this is a file field with uploaded data
 			if ( $uploaded_files && isset( $uploaded_files[ $field_id ] ) ) {
-				$value = wp_json_encode( $uploaded_files[ $field_id ] );
+				$value = $uploaded_files[ $field_id ];
 			} elseif ( is_array( $value ) ) {
 				$value = implode( ', ', $value );
 			}

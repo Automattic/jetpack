@@ -761,23 +761,20 @@ class Admin {
 
 		foreach ( $response_fields as $key => $display_value ) {
 			if ( is_array( $display_value ) ) {
-				// Regular array, just join the values
-				$display_value = implode( ', ', $display_value );
-			} elseif ( is_string( $display_value ) ) {
-				// Check if the value might be JSON containing file data
-				$maybe_file_data = json_decode( $display_value, true );
-				if ( is_array( $maybe_file_data ) && isset( $maybe_file_data['file_id'] ) && isset( $maybe_file_data['name'] ) ) {
+				if ( isset( $display_value['file_id'] ) && isset( $display_value['name'] ) ) {
 					// This is a file upload field, display a link instead of raw data
-					$file_url = $file_handler->get_file_url( $maybe_file_data['file_id'] );
+					$file_url = $file_handler->get_file_url( $display_value['file_id'] );
 
 					printf(
 						'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value"><a href="%s" target="_blank">%s</a></div>',
 						esc_html( preg_replace( '#^\d+_#', '', $key ) ),
 						esc_url( $file_url ),
-						esc_html( $maybe_file_data['name'] )
+						esc_html( $display_value['name'] )
 					);
 					continue;
 				}
+				// Regular array, just join the values
+				$display_value = implode( ', ', $display_value );
 			}
 
 			printf(

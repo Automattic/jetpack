@@ -194,7 +194,7 @@ class File_Handler {
 	}
 
 	/**
-	 * Get file attachments for a feedback post
+	 * Get file attachments from feedback post content
 	 *
 	 * @param int $post_id The feedback post ID.
 	 * @return array Array of file attachments or empty array.
@@ -203,14 +203,11 @@ class File_Handler {
 		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
 		$attachments    = array();
 		foreach ( $content_fields as $field_value ) {
-			if ( is_string( $field_value ) && str_starts_with( $field_value, '{' ) ) {
-				$field = json_decode( $field_value, true );
-				if ( isset( $field['file_id'] ) && isset( $field['name'] ) ) {
-					$attachments[] = array(
-						'file_id' => $field['file_id'],
-						'name'    => $field['name'],
-					);
-				}
+			if ( is_array( $field_value ) && isset( $field_value['file_id'] ) && isset( $field_value['name'] ) ) {
+				$attachments[] = array(
+					'file_id' => $field_value['file_id'],
+					'name'    => $field_value['name'],
+				);
 			}
 		}
 
