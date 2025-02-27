@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix not being able to set labels empty
