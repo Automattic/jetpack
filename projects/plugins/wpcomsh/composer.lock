@@ -1585,7 +1585,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "892d09ba1648954f14d2dffbd3b4bfbe48ae0f64"
+                "reference": "0687b4630baf6098ad618b688c41f602405cf6c6"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1620,6 +1620,11 @@
                 "classmap": [
                     "src/"
                 ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Stats\\": "tests/php"
+                }
             },
             "scripts": {
                 "phpunit": [
