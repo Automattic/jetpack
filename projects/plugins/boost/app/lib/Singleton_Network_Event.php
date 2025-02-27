@@ -79,7 +79,7 @@ class Singleton_Network_Event implements Has_Setup {
 		$schedule            = wp_get_schedules();
 		$recurrence          = self::get_cron_recurrence( $hook );
 		$schedule_recurrence = $schedule[ $recurrence ] ?? array( 'interval' => 0 );
-		return $schedule_recurrence['interval'] ?? 0;
+		return $schedule_recurrence['interval'];
 	}
 
 	/**
