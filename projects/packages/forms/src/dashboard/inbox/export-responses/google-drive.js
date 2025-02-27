@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { Button } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -9,7 +10,7 @@ import { tap } from 'lodash';
 /**
  * Internal dependencies
  */
-import { config } from '../../';
+import { config } from '../..';
 import { isWpcom } from '../util';
 
 const GoogleDriveExport = ( { onExport } ) => {
@@ -115,15 +116,16 @@ const GoogleDriveExport = ( { onExport } ) => {
 					) }
 
 					{ ! isConnected && (
-						<a
+						<Button
 							href={ config( 'gdriveConnectURL' ) }
 							className={ buttonClasses }
+							variant="primary"
 							rel="noopener noreferrer"
 							target="_blank"
 							onClick={ handleConnectClick }
 						>
 							{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
-						</a>
+						</Button>
 					) }
 				</div>
 			</div>
