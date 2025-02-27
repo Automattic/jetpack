@@ -54,7 +54,6 @@ class Defaults {
 		'default_pingback_flag',
 		'default_post_format',
 		'default_role',
-		'difm_lite_site_options',
 		'disabled_likes',
 		'disabled_reblogs',
 		'disallowed_keys',
