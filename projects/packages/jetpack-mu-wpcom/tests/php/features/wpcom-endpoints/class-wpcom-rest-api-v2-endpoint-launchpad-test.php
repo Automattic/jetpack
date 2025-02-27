@@ -432,6 +432,28 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	}
 
 	/**
+	 * Tests calling the /wpcom/v2/launchpad endpoint with the use_goals flag explicitly set to false.
+	 *
+	 * @covers ::get_data
+	 */
+	public function test_get_tasklist_when_use_goals_is_false() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'site_goals', array( 'write' ) );
+
+		$data = array(
+			'checklist_slug'    => 'post-migration',
+			'launchpad_context' => 'customer-home',
+			'use_goals'         => 'false',
+		);
+
+		$result = $this->call_launchpad_api( Requests::GET, $data );
+
+		$this->assertEquals( 200, $result->get_status() );
+		$this->assertIsArray( $result->get_data()['checklist'] );
+		$this->assertEquals( 'Site migration', $result->get_data()['title'] );
+	}
+
+	/**
 	 * Helper function to create a new WP_REST_Request and call the Launchpad REST API.
 	 *
 	 * @param string     $method The HTTP method to use.
