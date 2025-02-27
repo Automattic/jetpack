@@ -310,14 +310,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$r  = '';
 		$r .= "<div data-test='contact-form' id='contact-form-$id' class='{$container_classes_string}'>\n";
 
-		$form_errors = Contact_Form_Plugin::$submission->get_errors( $form->hash ) ?? null;
-		if ( is_wp_error( $form_errors ) && $form_errors->get_error_codes() ) {
-			// There are errors.  Display them
-			$r .= "<div class='form-error'>\n<h3>" . __( 'Error!', 'jetpack-forms' ) . "</h3>\n<ul class='form-errors'>\n";
-			foreach ( $form_errors->get_error_messages() as $message ) {
-				$r .= "\t<li class='form-error-message'>" . esc_html( $message ) . "</li>\n";
+		$submission = Contact_Form_Plugin::$submission ?? null;
+		if ( $submission ) {
+			$form_errors = $submission->get_errors( $form->hash ) ?? null;
+			if ( is_wp_error( $form_errors ) && $form_errors->get_error_codes() ) {
+				// There are errors.  Display them
+				$r .= "<div class='form-error'>\n<h3>" . __( 'Error!', 'jetpack-forms' ) . "</h3>\n<ul class='form-errors'>\n";
+				foreach ( $form_errors->get_error_messages() as $message ) {
+					$r .= "\t<li class='form-error-message'>" . esc_html( $message ) . "</li>\n";
+				}
+				$r .= "</ul>\n</div>\n\n";
 			}
-			$r .= "</ul>\n</div>\n\n";
 		}
 
 		if ( isset( $_GET['contact-form-id'] )
