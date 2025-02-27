@@ -1,4 +1,4 @@
-<?php  // phpcs:disable
+<?php
 
 namespace Automattic\Jetpack;
 
@@ -9,7 +9,7 @@ use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
 
-class Test_Pre_Connection_JITM extends TestCase {
+class Pre_Connection_JITM_Test extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
@@ -45,10 +45,10 @@ class Test_Pre_Connection_JITM extends TestCase {
 			array(
 				'id'             => 'test-jitm',
 				'message_path'   => '/wp:plugins:admin_notices/',
-				'message'        => __( 'A test message.', 'jetpack' ),
-				'description'    => __( 'A test description.', 'jetpack' ),
+				'message'        => __( 'A test message.', 'jetpack-jitm' ),
+				'description'    => __( 'A test description.', 'jetpack-jitm' ),
 				'button_link'    => 'a/test/url',
-				'button_caption' => __( 'Test button text', 'jetpack' ),
+				'button_caption' => __( 'Test button text', 'jetpack-jitm' ),
 			),
 		);
 
@@ -224,15 +224,15 @@ class Test_Pre_Connection_JITM extends TestCase {
 	 */
 	public function data_provider_test_message_icon_values() {
 		return array(
-			'default icon' => array(
+			'default icon'     => array(
 				null,
 				'jetpack',
 			),
-			'supported icon' => array(
+			'supported icon'   => array(
 				'woocommerce',
 				'woocommerce',
 			),
-			'empty string' => array(
+			'empty string'     => array(
 				'',
 				'',
 			),

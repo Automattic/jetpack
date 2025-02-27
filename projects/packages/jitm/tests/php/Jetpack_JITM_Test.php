@@ -1,4 +1,4 @@
-<?php  // phpcs:disable
+<?php
 
 namespace Automattic\Jetpack;
 
@@ -10,7 +10,7 @@ use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
 
-class Test_Jetpack_JITM extends TestCase {
+class Jetpack_JITM_Test extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
@@ -40,7 +40,7 @@ class Test_Jetpack_JITM extends TestCase {
 	public function test_jitm_enabled_by_default() {
 		Functions\expect( 'apply_filters' )
 			->once()
-			->with(	'jetpack_just_in_time_msgs', true )
+			->with( 'jetpack_just_in_time_msgs', true )
 			->andReturn( true );
 
 		$jitm = new JITM();
@@ -65,19 +65,19 @@ class Test_Jetpack_JITM extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_prepare_jitms_enqueues_assets() {
-		$mockAssets = \Mockery::mock( 'alias:Automattic\Jetpack\Assets' );
+		$mock_assets = \Mockery::mock( 'alias:Automattic\Jetpack\Assets' );
 
 		// Assume we're on a Jetpack page.
-		$screen_id = 'jetpack_foo';
+		$screen_id               = 'jetpack_foo';
 		get_current_screen()->id = $screen_id;
 
 		// mock the static method and return a dummy value
-		$mockAssets
+		$mock_assets
 			->shouldReceive( 'register_script' )
 			->withSomeOfArgs( 'jetpack-jitm', '../build/index.js' )
 			->once();
 
-		$jitm = new JITM();
+		$jitm   = new JITM();
 		$screen = (object) array( 'id' => $screen_id ); // fake screen object
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Fake object, don't care.
 		$jitm->prepare_jitms( $screen );
@@ -124,7 +124,7 @@ class Test_Jetpack_JITM extends TestCase {
 			->andReturn( 123 );
 
 		Filters\expectApplied( 'jetpack_is_local_site' )
-			->andReturn( false);
+			->andReturn( false );
 
 		Actions\expectAdded( 'current_screen' );
 		JITM::configure();
