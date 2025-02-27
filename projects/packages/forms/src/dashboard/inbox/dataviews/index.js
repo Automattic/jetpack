@@ -178,10 +178,12 @@ export default function InboxView() {
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
 				getValue: ( { item } ) => {
-					return (
-						decodeEntities( item.author_name ) || item.author_email || item.author_url || item.ip
+					return decodeEntities(
+						item.author_name || item.author_email || item.author_url || item.ip
 					);
 				},
+				enableSorting: false,
+				enableHiding: false,
 			},
 			{
 				id: 'date',
@@ -221,48 +223,50 @@ export default function InboxView() {
 		[ filterOptions ]
 	);
 	const actions = useMemo( () => {
-		return [
-			viewAction,
+		const _actions = [
 			markAsSpamAction,
 			markAsNotSpamAction,
 			moveToTrashAction,
 			restoreAction,
 			deleteAction,
 		];
-	}, [] );
+		if ( isMobile ) {
+			_actions.unshift( viewAction );
+		}
+		return _actions;
+	}, [ isMobile ] );
 	return (
-		<div ref={ containerRef }>
-			<HStack
-				spacing={ 8 }
-				alignment="top"
-				justify="flex-start"
-				className="jp-forms__inbox__dataviews__container"
-			>
-				<div className="jp-forms__inbox__dataviews">
-					<DataViews
-						paginationInfo={ paginationInfo }
-						fields={ fields }
-						actions={ actions }
-						data={ data || EMPTY_ARRAY }
-						isLoading={ isLoadingData }
-						view={ view }
-						onChangeView={ setView }
-						selection={ selection }
-						onChangeSelection={ onChangeSelection }
-						getItemId={ getItemId }
-						isItemClickable={ isItemClickable }
-						onClickItem={ setSidePanelItem }
-						defaultLayouts={ defaultLayouts }
-					/>
-				</div>
-				<SingleResponse
-					sidePanelItem={ sidePanelItem }
-					setSidePanelItem={ setSidePanelItem }
-					isLoadingData={ isLoadingData }
-					isMobile={ isMobile }
+		<HStack
+			spacing={ 8 }
+			alignment="top"
+			justify="flex-start"
+			className="jp-forms__inbox__dataviews__container"
+			ref={ containerRef }
+		>
+			<div className="jp-forms__inbox__dataviews">
+				<DataViews
+					paginationInfo={ paginationInfo }
+					fields={ fields }
+					actions={ actions }
+					data={ data || EMPTY_ARRAY }
+					isLoading={ isLoadingData }
+					view={ view }
+					onChangeView={ setView }
+					selection={ selection }
+					onChangeSelection={ onChangeSelection }
+					getItemId={ getItemId }
+					isItemClickable={ isItemClickable }
+					onClickItem={ setSidePanelItem }
+					defaultLayouts={ defaultLayouts }
 				/>
-			</HStack>
-		</div>
+			</div>
+			<SingleResponse
+				sidePanelItem={ sidePanelItem }
+				setSidePanelItem={ setSidePanelItem }
+				isLoadingData={ isLoadingData }
+				isMobile={ isMobile }
+			/>
+		</HStack>
 	);
 }
 

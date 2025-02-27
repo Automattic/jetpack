@@ -1,4 +1,3 @@
-import { AntiSpamIcon } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -63,13 +62,14 @@ const CheckForSpamButton = () => {
 	}
 	return (
 		<Button
-			icon={ AntiSpamIcon }
-			label={ __( 'Check for spam', 'jetpack-forms' ) }
 			onClick={ onClick }
 			accessibleWhenDisabled
 			disabled={ isChecking }
 			isBusy={ isChecking }
-		/>
+			variant="tertiary"
+		>
+			{ __( 'Check for spam', 'jetpack-forms' ) }
+		</Button>
 	);
 };
 

@@ -374,17 +374,15 @@ $action-bar-height: 88px;
 }
 
 // TODO: tidy up styles and hardcoded specific pixel values...
-.jp-forms__inbox-contents {
-	border-top: 1px solid #dcdcde;
-	background-color: #f9f9f9;
-}
 
 .jp-forms__header-subtext {
 	margin-bottom: 0;
 }
 
 .jp-forms__inbox__dataviews__container {
-	padding: 16px 35px;
+	border-top: 1px solid #dcdcde;
+	background-color: #f9f9f9;
+	padding: 35px;
     box-sizing: border-box;
 	// logo height: 70px
 	// layout-header: 88px
@@ -401,6 +399,11 @@ $action-bar-height: 88px;
 	flex-grow: 1;
 	height: 100%;
 	max-height: 100vh;
+
+	.dataviews-wrapper {
+		background: #fff;
+		border-radius: 8px;
+	}
 }
 
 .jp-forms__inbox__dataviews-response {
