@@ -2167,22 +2167,10 @@ class Contact_Form_Plugin {
 
 		// update the fields with URL data.
 		$new_all_values = array();
-		require_once __DIR__ . '/class-file-handler.php';
-		$file_handler = new File_Handler();
 
 		if ( is_array( $all_values ) ) {
 			foreach ( $all_values as $key => $value ) {
 				$new_all_values[ $key ] = $value;
-
-				if ( str_starts_with( $value, '{' ) ) {
-					$maybe_file_data = json_decode( $value, true );
-					if ( is_array( $maybe_file_data ) && isset( $maybe_file_data['file_id'] ) && isset( $maybe_file_data['name'] ) ) {
-						// This is a file upload field, display a link instead of raw data
-						$maybe_file_data['url']  = $file_handler->get_file_url( $maybe_file_data['file_id'] );
-						$maybe_file_data['name'] = self::strip_tags( trim( $maybe_file_data['name'] ) );
-						$new_all_values[ $key ]  = wp_json_encode( $maybe_file_data );
-					}
-				}
 			}
 		}
 
@@ -2389,18 +2377,9 @@ class Contact_Form_Plugin {
 
 		// Loop through all fields to find file uploads
 		foreach ( $extra_fields as $field_value ) {
-			// Skip if not a file upload field or empty value
-			if ( empty( $field_value ) || ! is_string( $field_value ) ) {
-				continue;
+			if ( is_array( $field_value ) && isset( $field_value['file_id'] ) && isset( $field_value['name'] ) ) {
+				$file_handler->delete_file( $field_value['file_id'] );
 			}
-
-			// Try to decode JSON data which would indicate a file upload
-			$file_data = json_decode( $field_value, true );
-			if ( ! isset( $file_data['file_id'] ) ) {
-				continue;
-			}
-
-			$file_handler->delete_file( $file_data['file_id'] );
 		}
 	}
 }
