@@ -437,7 +437,7 @@ trait Woo_Analytics_Trait {
 
 		// ch param is needed to identify ClickHouse queries in the JS Analytics library.
 		if ( $this->is_clickhouse( $event_name ) ) {
-			$js .= "','ch':'1'";
+			$js .= ",'ch':'1'";
 		}
 
 		if ( isset( $product_details ) ) {
@@ -723,7 +723,7 @@ trait Woo_Analytics_Trait {
 	/**
 	 * Get the sanitized session cookie as an array
 	 *
-	 * @return array|mixed
+	 * @return array
 	 */
 	public function get_session_cookie() {
 		return json_decode( sanitize_text_field( wp_unslash( $_COOKIE['woocommerceanalytics_session'] ?? '' ) ), true ) ?? array();
