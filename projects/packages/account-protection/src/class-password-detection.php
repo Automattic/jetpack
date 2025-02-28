@@ -49,6 +49,11 @@ class Password_Detection {
 			return $user;
 		}
 
+		// Skip if we're validating a Brute force protection recovery token
+		if ( get_transient( 'jetpack_protect_recovery_key_validated_' . $user->ID ) ) {
+			return $user;
+		}
+
 		if ( ! $this->validation_service->is_weak_password( $password ) ) {
 			return $user;
 		}
