@@ -758,6 +758,6 @@ trait Woo_Analytics_Trait {
 	 * @return bool True if it should be sent to ClickHouse
 	 */
 	private function is_clickhouse( $event ) {
-		return array_key_exists( $event, $this->get_clickhouse_events() );
+		return in_array( $event, $this->get_clickhouse_events(), true );
 	}
 }
