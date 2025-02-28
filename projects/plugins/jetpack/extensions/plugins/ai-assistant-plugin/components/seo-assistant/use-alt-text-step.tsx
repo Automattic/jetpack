@@ -67,7 +67,6 @@ export const useAltTextStep = ( {
 		imageBlocks.length
 	);
 	const { getPostContent } = usePostContent();
-	const postContent = getPostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const { tracks } = useAnalytics();
 	const prevStepHasChanged = useMemo( () => keywords !== lastValue, [ keywords, lastValue ] );
@@ -91,7 +90,7 @@ export const useAltTextStep = ( {
 						role: 'jetpack-ai' as const,
 						context: {
 							type: 'images-alt-text',
-							content: postContent,
+							content: getPostContent(),
 							keywords: keywords.split( ',' ),
 							images: [
 								{
@@ -107,7 +106,7 @@ export const useAltTextStep = ( {
 				}
 			);
 		},
-		[ mockRequests, tracks, keywords, postId, postContent ]
+		[ mockRequests, tracks, keywords, postId, getPostContent ]
 	);
 
 	const handleAltTextSelect = useCallback(
