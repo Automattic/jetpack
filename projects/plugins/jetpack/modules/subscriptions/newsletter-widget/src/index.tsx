@@ -1,12 +1,7 @@
 import * as jpDataUtils from '@automattic/jetpack-script-data';
 import { createRoot } from '@wordpress/element';
-import { NewsletterWidget } from './newsletter-widget';
-
-export type DailyCount = {
-	all: number;
-	email: number;
-	paid: number;
-};
+import { NewsletterWidget } from './components/newsletter-widget';
+import type { DailyCount } from './types';
 
 declare global {
 	interface Window {

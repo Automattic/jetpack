@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { render, screen } from '@testing-library/react';
-import { NewsletterWidget } from '../src/newsletter-widget';
+import { NewsletterWidget } from '../src/components/newsletter-widget';
 
 // Add these mock declarations at the top of the file, before the tests
 jest.mock( '@wordpress/components', () => {

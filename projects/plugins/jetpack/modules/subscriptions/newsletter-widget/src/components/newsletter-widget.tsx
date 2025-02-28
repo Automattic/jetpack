@@ -1,10 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import './style.scss';
+import '../style.scss';
 import { Icon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
-import type { DailyCount } from '.';
+import type { DailyCount } from '../types';
 
 interface NewsletterWidgetProps {
 	site: string;
