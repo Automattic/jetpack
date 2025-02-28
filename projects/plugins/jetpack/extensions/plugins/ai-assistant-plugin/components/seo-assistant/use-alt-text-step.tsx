@@ -62,7 +62,7 @@ export const useAltTextStep = ( {
 		'generate' | 'regenerate' | null
 	>( imageBlocks.map( () => null ) );
 	const [ lastValue, setLastValue ] = useState< string >( '' );
-	const { updateBlockAttributes } = useDispatch( editorStore );
+	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 	const { getMessages, setMessages, addMessage, editLastMessage, setSelectedMessage } = useMessages(
 		imageBlocks.length
 	);

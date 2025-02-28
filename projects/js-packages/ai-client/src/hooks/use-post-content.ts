@@ -9,17 +9,22 @@ import { useCallback } from '@wordpress/element';
  * Internal dependencies
  */
 import { renderMarkdownFromHTML } from '../libs/markdown/index.js';
+/**
+ * Types
+ */
+import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors.js';
 
 /*
  * Simple helper to get the post content as markdown
  */
 const usePostContent = () => {
 	const { getBlocks, isEditedPostEmpty } = useSelect( select => {
-		const blockEditorSelect = select( editorStore );
+		const blockEditorSelect = select( 'core/block-editor' ) as typeof BlockEditorSelectors;
+		const coreEditorSelect = select( editorStore );
 
 		return {
 			getBlocks: blockEditorSelect.getBlocks,
-			isEditedPostEmpty: blockEditorSelect.isEditedPostEmpty,
+			isEditedPostEmpty: coreEditorSelect.isEditedPostEmpty,
 		};
 	}, [] );
 
