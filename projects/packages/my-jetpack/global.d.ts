@@ -478,7 +478,6 @@ interface Window {
 		sandboxedDomain: string;
 		isDevVersion: boolean;
 		userIsAdmin: string;
-		userIsNewToJetpack: string;
 	};
 	JP_CONNECTION_INITIAL_STATE: {
 		apiRoot: string;
