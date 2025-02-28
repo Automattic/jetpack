@@ -61,10 +61,9 @@ function useStatusFilter( urlStatus ) {
 /**
  * The DataViews implementation.
  *
- * @param {React.Ref} layoutHeaderRef - The ref of the layout header.
  * @return {React.ReactElement} The DataViews component.
  */
-export default function InboxView( { layoutHeaderRef } ) {
+export default function InboxView() {
 	const [ view, setView ] = useView();
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const [ containerWidth, setContainerWidth ] = useState( 0 );
@@ -242,19 +241,6 @@ export default function InboxView( { layoutHeaderRef } ) {
 		}
 		return _actions;
 	}, [ isMobile ] );
-	const layoutHeaderHeight = layoutHeaderRef?.current?.offsetHeight || 0;
-	const containerStyles = useMemo( () => {
-		return {
-			// We need to have a maximum height here because DataViews bulk actions
-			// are rendered at the bottom. This means that the height of the container
-			// should be enough for users to select items and see the bulk actions.
-			// The maxHeight is affected by the containers above it and for very small
-			// viewports we have a minHeight value to avoid the container to be too small.
-			// TODO: Can we do this in a better way with only css? This is very fragile..
-			// Above DataViews we have the logo (70px), tabs list (56px) and the header.
-			maxHeight: `calc(100vh - calc(var(--wp-admin--admin-bar--height) + 70px + 56px + ${ layoutHeaderHeight }px))`,
-		};
-	}, [ layoutHeaderHeight ] );
 	return (
 		<HStack
 			spacing={ 8 }
@@ -262,7 +248,6 @@ export default function InboxView( { layoutHeaderRef } ) {
 			justify="flex-start"
 			ref={ containerRef }
 			className="jp-forms__inbox__dataviews__container"
-			style={ containerStyles }
 		>
 			<div className="jp-forms__inbox__dataviews">
 				<DataViews
