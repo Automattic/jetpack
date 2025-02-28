@@ -292,7 +292,7 @@ $action-bar-height: 88px;
 	border-top: 1px solid #dcdcde;
 	background-color: #f9f9f9;
 	padding: 35px;
-    box-sizing: border-box;
+	box-sizing: border-box;
 	min-height: 400px;
 }
 
@@ -333,11 +333,6 @@ $action-bar-height: 88px;
 	flex-direction: column;
 }
 
-/* This was just for debugging. Remove these min-heights. */
-#jp-forms-dashboard {
-	min-height: 0 !important;
-}
-
 .jp-forms__logo-wrapper,
 .jp-forms__layout-header {
 	flex: 0 1 auto; /* Flex, but don't grow */
@@ -349,6 +344,9 @@ $action-bar-height: 88px;
 	/* Continue flexing downwards from here. */
 	display: flex;
 	flex-direction: column;
+
+	/* Important to pair with flex-shrink */
+	min-height: 0;;
 }
 
 .jp-forms__inbox-tabs .components-tab-panel__tabs {
@@ -357,5 +355,8 @@ $action-bar-height: 88px;
 
 .jp-forms__inbox-tabs .components-tab-panel__tab-content {
 	flex: 1 1 auto;
+
+	/* Important to pair with flex-shrink */
+	min-height: 0;;
 }
 
