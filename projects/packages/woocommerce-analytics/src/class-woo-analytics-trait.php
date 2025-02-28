@@ -719,7 +719,7 @@ trait Woo_Analytics_Trait {
 	 */
 	public function get_landing_page() {
 		$cookie = $this->get_session_cookie();
-		return $cookie['landing_page'] ?? $this->session_id;
+		return $cookie['landing_page'] ?? $this->landing_page;
 	}
 
 	/**
