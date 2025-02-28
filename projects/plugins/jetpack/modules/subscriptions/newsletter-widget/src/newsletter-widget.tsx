@@ -1,6 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import './style.scss';
 import { Icon } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
 
 interface NewsletterWidgetProps {
@@ -52,7 +54,7 @@ export const NewsletterWidget = ( {
 											: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
 									}
 								>
-									email subscriptions
+									{ __( 'email subscriptions', 'jetpack' ) }
 								</a>
 							</span>
 						</span>
@@ -71,7 +73,7 @@ export const NewsletterWidget = ( {
 											: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
 									}
 								>
-									paid subscriptions
+									{ __( 'paid subscriptions', 'jetpack' ) }
 								</a>
 							</span>
 						</span>
@@ -80,21 +82,29 @@ export const NewsletterWidget = ( {
 			</div>
 			<div className="newsletter-widget__footer">
 				<p className="newsletter-widget__footer-msg">
-					Effortlessly turn posts into emails with our Newsletter feature-expand your reach, engage
-					readers, and monetize your writing. No coding required.{ ' ' }
-					<a
-						href={ getRedirectUrl(
-							buildJPRedirectSource( 'learn/courses/newsletters-101/wordpress-com-newsletter' )
-						) }
-					>
-						Learn more
-					</a>
+					{ createInterpolateElement(
+						__(
+							'Effortlessly turn posts into emails with our Newsletter feature-expand your reach, engage readers, and monetize your writing. No coding required. <link>Learn more</link>',
+							'jetpack'
+						),
+						{
+							link: (
+								<a
+									href={ getRedirectUrl(
+										buildJPRedirectSource(
+											'learn/courses/newsletters-101/wordpress-com-newsletter'
+										)
+									) }
+								/>
+							),
+						}
+					) }
 				</p>
 				<div>
-					<h3>Quick Links</h3>
+					<h3>{ __( 'Quick Links', 'jetpack' ) }</h3>
 					<ul className="newsletter-widget__footer-list">
 						<li>
-							<a href={ `${ adminUrl }edit.php` }>Publish your next post</a>
+							<a href={ `${ adminUrl }edit.php` }>{ __( 'Publish your next post', 'jetpack' ) }</a>
 						</li>
 						<li>
 							<a
@@ -104,7 +114,7 @@ export const NewsletterWidget = ( {
 										: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
 								}
 							>
-								View subscriber stats
+								{ __( 'View subscriber stats', 'jetpack' ) }
 							</a>
 						</li>
 						<li>
@@ -113,7 +123,7 @@ export const NewsletterWidget = ( {
 									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite )
 								) }
 							>
-								Import subscribers
+								{ __( 'Import subscribers', 'jetpack' ) }
 							</a>
 						</li>
 						<li>
@@ -122,7 +132,7 @@ export const NewsletterWidget = ( {
 									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite )
 								) }
 							>
-								Manage subscribers
+								{ __( 'Manage subscribers', 'jetpack' ) }
 							</a>
 						</li>
 						<li>
@@ -134,7 +144,7 @@ export const NewsletterWidget = ( {
 									)
 								) }
 							>
-								Monetize
+								{ __( 'Monetize', 'jetpack' ) }
 							</a>
 						</li>
 						<li>
@@ -145,7 +155,7 @@ export const NewsletterWidget = ( {
 										: `${ adminUrl }admin.php?page=jetpack#newsletter`
 								}
 							>
-								Newsletter settings
+								{ __( 'Newsletter settings', 'jetpack' ) }
 							</a>
 						</li>
 					</ul>
