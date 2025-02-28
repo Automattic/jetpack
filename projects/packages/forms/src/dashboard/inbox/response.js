@@ -7,21 +7,10 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { isArray, isEmpty, join, map } from 'lodash';
-/**
- * Internal dependencies
- */
-import SwitchTransition from '../components/switch-transition';
 
 export const getDisplayName = response => {
-	if ( response.author_name ) {
-		return response.author_name;
-	}
-
-	if ( response.author_email ) {
-		return response.author_email;
-	}
-
-	return response.ip;
+	const { author_name, author_email, ip } = response;
+	return author_name || author_email || ip;
 };
 
 export const formatFieldName = fieldName => {
@@ -74,12 +63,7 @@ const InboxResponse = ( { loading, response } ) => {
 	} );
 
 	return (
-		<SwitchTransition
-			ref={ ref }
-			activeViewKey={ response.id }
-			className="jp-forms__inbox-response"
-			duration={ 200 }
-		>
+		<div ref={ ref } className="jp-forms__inbox-response">
 			<div className="jp-forms__inbox-response-avatar">
 				<img
 					src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"
@@ -140,7 +124,7 @@ const InboxResponse = ( { loading, response } ) => {
 					</div>
 				) ) }
 			</div>
-		</SwitchTransition>
+		</div>
 	);
 };
 
