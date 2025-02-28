@@ -3,7 +3,7 @@ import { Icon, Spinner, PanelBody } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { installAndActivatePlugin, activatePlugin } from '../../../util/plugin-management';
 import PluginActionButton from './plugin-action-button';
 import './styles.css';
@@ -12,6 +12,7 @@ const PluginIntegrationPanel = ( {
 	title,
 	pluginSlug,
 	pluginPath,
+	pluginTitle,
 	installText,
 	activateText,
 	description,
@@ -119,9 +120,10 @@ const PluginIntegrationPanel = ( {
 					<div className="jetpack-plugin-integration__panel">
 						<div className="jetpack-plugin-integration__panel-content">
 							<div>
-								{ __(
-									"You already have the plugin installed, but it's not activated.",
-									'jetpack-forms'
+								{ sprintf(
+									/* translators: %s: plugin name */
+									__( "You already have %s installed, but it's not activated.", 'jetpack-forms' ),
+									pluginTitle || __( 'the plugin', 'jetpack-forms' )
 								) }
 							</div>
 							<PluginActionButton
