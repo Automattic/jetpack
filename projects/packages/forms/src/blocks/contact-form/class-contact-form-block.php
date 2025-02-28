@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Submission;
 use Jetpack;
 
 /**
@@ -71,6 +72,19 @@ class Contact_Form_Block {
 		$parsed_block['attrs']['id']   = $form_id;
 		$form_hash                     = sha1( wp_json_encode( $parsed_block['attrs'] ) );
 		$parsed_block['attrs']['hash'] = $form_hash;
+
+		// Create a new submission object if the form is being submitted.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$has_submission =
+			( isset( $_POST['contact-form-id'] ) && $_POST['contact-form-id'] === $form_id ) ||
+			( isset( $_GET['contact-form-id'] ) && $_GET['contact-form-id'] === $form_id );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		if ( $has_submission ) {
+			Contact_Form_Plugin::$submission = new Contact_Form_Submission( $form_id, $form_hash );
+		}
 
 		return $parsed_block;
 	}
@@ -260,7 +274,9 @@ class Contact_Form_Block {
 			return '';
 		}
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
-		if ( ! jetpack_is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		if ( ! jetpack_is_frontend() && ! isset( $_POST['contact-form-id'] ) ) {
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 			return sprintf(
 				'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
 				esc_attr( Blocks::classes( 'contact-form', $atts ) ),

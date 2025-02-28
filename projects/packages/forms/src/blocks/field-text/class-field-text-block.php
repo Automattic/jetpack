@@ -98,6 +98,30 @@ class Field_Text_Block {
 	}
 
 	/**
+	 * Add a value to the submission.
+	 *
+	 * @param string $form_hash The form hash.
+	 * @param string $form_id The form id.
+	 * @param array  $attributes The block attributes.
+	 * @param string $value The field value.
+	 */
+	private static function add_value_to_submission( $form_hash, $form_id, $attributes, $value ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$has_submission =
+			( isset( $_POST['contact-form-id'] ) && $_POST['contact-form-id'] === $form_id ) ||
+			( isset( $_GET['contact-form-id'] ) && $_GET['contact-form-id'] === $form_id );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		if ( $has_submission ) {
+			$submission = Contact_Form_Plugin::$submission;
+			if ( $submission ) {
+				$submission->add_field( $form_hash, $attributes['id'], 'text', $attributes['label'], $value );
+			}
+		}
+	}
+
+	/**
 	 * Get validation errors for a text field.
 	 *
 	 * @param string $form_hash The form hash.
@@ -108,9 +132,6 @@ class Field_Text_Block {
 	 */
 	private static function validate( $form_hash, $attributes, $value ) {
 		$submission = Contact_Form_Plugin::$submission ?? null;
-		if ( $submission ) {
-			$submission->add_field( $form_hash, $attributes['id'], 'text', $attributes['label'], $value );
-		}
 
 		/* translators: %s is the name of a form field */
 		if ( ! is_string( $value ) || ! strlen( trim( $value ) ) ) {
@@ -136,10 +157,11 @@ class Field_Text_Block {
 		$form_id   = $block->context['jetpack/contact-form/id'];
 		$form_hash = $block->context['jetpack/contact-form/hash'];
 
-		$should_validate   = $attributes['required'] && self::requires_validation( $form_id, $form_hash );
-		$value             = self::get_value( $attributes['id'] );
-		$validation_errors = null;
+		$should_validate = $attributes['required'] && self::requires_validation( $form_id, $form_hash );
+		$value           = self::get_value( $attributes['id'] );
+		self::add_value_to_submission( $form_hash, $form_id, $attributes, $value );
 
+		$validation_errors = null;
 		if ( $should_validate ) {
 			$validation_errors = self::validate( $form_hash, $attributes, $value );
 		}

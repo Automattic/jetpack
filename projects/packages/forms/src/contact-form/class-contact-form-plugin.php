@@ -642,8 +642,6 @@ class Contact_Form_Plugin {
 		$is_block_template      = str_starts_with( $id, 'block-template-' );
 		$is_block_template_part = str_starts_with( $id, 'block-template-part-' );
 
-		self::$submission = new Contact_Form_Submission( $id, $hash );
-
 		$form = false;
 
 		if ( $is_widget ) {

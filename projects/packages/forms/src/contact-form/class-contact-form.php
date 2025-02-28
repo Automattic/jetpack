@@ -497,7 +497,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
 			$message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
 		} else {
-			$message = '<p>' . implode( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>';
+			$submission = Contact_Form_Plugin::$submission;
+			if ( $submission ) {
+				$compiled_form = $submission->get_compiled_form( $feedback_id );
+				$message       = '<p>' . implode( '</p><p>', $compiled_form ) . '</p>';
+			}
 		}
 
 		return wp_kses(
@@ -528,107 +532,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'customThankYou'         => $this->get_attribute( 'customThankYou' ),
 			'customThankYouRedirect' => $this->get_attribute( 'customThankYouRedirect' ),
 		);
-	}
-
-	/**
-	 * Returns a compiled form with labels and values in a form of  an array
-	 * of lines.
-	 *
-	 * @param int          $feedback_id - the feedback ID.
-	 * @param Contact_Form $form - the form.
-	 *
-	 * @return array $lines
-	 */
-	public static function get_compiled_form( $feedback_id, $form ) {
-		$feedback       = get_post( $feedback_id );
-		$field_ids      = $form->get_field_ids();
-		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $feedback_id );
-
-		// Maps field_ids to post_meta keys
-		$field_value_map = array(
-			'name'     => 'author',
-			'email'    => 'author_email',
-			'url'      => 'author_url',
-			'subject'  => 'subject',
-			'textarea' => false, // not a post_meta key.  This is stored in post_content
-		);
-
-		$compiled_form = array();
-
-		// "Standard" field allowed list.
-		foreach ( $field_value_map as $type => $meta_key ) {
-			if ( isset( $field_ids[ $type ] ) ) {
-				$field = $form->fields[ $field_ids[ $type ] ];
-
-				if ( $meta_key ) {
-					if ( isset( $content_fields[ "_feedback_{$meta_key}" ] ) ) {
-						if ( 'name' === $type ) {
-							// If a form contains both email and name fields but the user doesn't provide a name, we don't need to show the name field
-							// in the success message after submision. We have this specific check because in the above case the `author` field gets
-							// a fallback value of the provided email and is used in the backend in various places.
-							if ( isset( $content_fields['_feedback_author_email'] ) && $content_fields['_feedback_author'] === $content_fields['_feedback_author_email'] ) {
-								continue;
-							}
-						}
-						$value = $content_fields[ "_feedback_{$meta_key}" ];
-					}
-				} else {
-					// The feedback content is stored as the first "half" of post_content
-					$value         = is_a( $feedback, '\WP_Post' ) ? $feedback->post_content : '';
-					list( $value ) = explode( '<!--more-->', $value );
-					$value         = trim( $value );
-				}
-
-				// If we still do not have any value, bail.
-				if ( empty( $value ) ) {
-					continue;
-				}
-
-				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
-				$field_label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
-
-				$compiled_form[ $field_index ] = sprintf(
-					'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
-					wp_kses( $field_label, array() ),
-					self::escape_and_sanitize_field_value( $value )
-				);
-			}
-		}
-
-		// "Non-standard" fields
-		if ( $field_ids['extra'] ) {
-			// array indexed by field label (not field id)
-			$extra_fields = get_post_meta( $feedback_id, '_feedback_extra_fields', true );
-
-			/**
-			 * Only get data for the compiled form if `$extra_fields` is a valid and non-empty array.
-			 */
-			if ( is_array( $extra_fields ) && ! empty( $extra_fields ) ) {
-
-				$extra_field_keys = array_keys( $extra_fields );
-
-				$i = 0;
-				foreach ( $field_ids['extra'] as $field_id ) {
-					$field       = $form->fields[ $field_id ];
-					$field_index = array_search( $field_id, $field_ids['all'], true );
-
-					$label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
-
-					$compiled_form[ $field_index ] = sprintf(
-						'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
-						wp_kses( $label, array() ),
-						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
-					);
-
-					++$i;
-				}
-			}
-		}
-
-		// Sorting lines by the field index
-		ksort( $compiled_form );
-
-		return $compiled_form;
 	}
 
 	/**
