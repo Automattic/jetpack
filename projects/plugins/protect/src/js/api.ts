@@ -1,8 +1,8 @@
 import { type FixersStatus, type ScanStatus } from '@automattic/jetpack-scan';
 import apiFetch from '@wordpress/api-fetch';
 import camelize from 'camelize';
-import type { ProductData } from './types/products';
 import { WafStatus } from './types/waf';
+import type { ProductData } from './types/products';
 
 const API = {
 	getAccountProtection: () =>
