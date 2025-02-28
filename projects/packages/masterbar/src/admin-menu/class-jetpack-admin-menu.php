@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Masterbar;
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -249,6 +250,9 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 			if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
 				// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 				add_submenu_page( $users_url, esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 30 );
+			} else {
+				$subscribers_dashboard = new Subscribers_Dashboard();
+				$subscribers_dashboard::init();
 			}
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( $users_url, esc_attr__( 'My Profile', 'jetpack-masterbar' ), __( 'My Profile', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/me', null, 40 );

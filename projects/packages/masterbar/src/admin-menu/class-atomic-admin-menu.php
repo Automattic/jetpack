@@ -13,6 +13,7 @@ use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -133,6 +134,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			// The 'Subscribers' menu exists in the Jetpack menu for Classic wp-admin interface, so only add it for non-wp-admin interfaces.
 			// // @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
+		} else {
+			$subscribers_dashboard = new Subscribers_Dashboard();
+			$subscribers_dashboard::init();
 		}
 
 		// Users who can't 'list_users' will see "Profile" menu & "Profile > Account Settings" as submenu.

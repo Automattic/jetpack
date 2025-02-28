@@ -10,6 +10,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -229,6 +230,9 @@ function wpcom_add_jetpack_submenu() {
 		$subscribers_url,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
+	} else {
+		$subscribers_dashboard = new Subscribers_Dashboard();
+		$subscribers_dashboard::init();
 	}
 
 	if ( $is_simple_site ) {

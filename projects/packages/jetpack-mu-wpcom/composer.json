@@ -17,6 +17,7 @@
 		"automattic/scheduled-updates": "@dev",
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-google-analytics": "@dev",
+		"automattic/subscribers-dashboard": "@dev",
 		"scssphp/scssphp": "1.12.0"
 	},
 	"require-dev": {
