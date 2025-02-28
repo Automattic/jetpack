@@ -7,7 +7,7 @@ import { PRODUCT_STATUSES, MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useInstallPlugins from '../../data/products/use-install-plugins';
 import useProduct from '../../data/products/use-product';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
@@ -40,8 +40,9 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	tracksIdentifier,
 	labelSuffixId,
 } ) => {
-	const { lifecycleStats } = getMyJetpackWindowInitialState();
-	const { ownedProducts } = lifecycleStats;
+	const {
+		data: { ownedProducts },
+	} = useProductsByOwnership();
 
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState< ComponentProps< typeof Button > >( {} );

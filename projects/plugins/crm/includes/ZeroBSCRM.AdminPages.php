@@ -484,49 +484,6 @@ function zeroBSCRM_pages_logout() {
 ======================================================
 	Admin Pages
 	====================================================== */
-
-function zerobscrm_show_love( $url = '', $text = 'Jetpack - The WordPress CRM' ) {
-	// } Quick function to 'show some love'.. called from PayPal Sync and other locale.
-	?>
-	<style>
-	ul.share-buttons{
-	list-style: none;
-	padding: 0;
-	text-align: center;
-	}
-	ul.share-buttons li{
-	display: inline-block;
-	margin-left:4px;
-	}
-	.logo-wrapper{
-	padding:20px;
-	}
-	.logo-wrapper img{
-	width:200px;
-	}
-	</style>
-
-	<?php $text = htmlentities( $text, ENT_COMPAT ); ?>
-
-	<p style="font-size:16px;text-align:center"><?php echo esc_html__( 'Jetpack CRM is the ultimate CRM tool for WordPress.', 'zero-bs-crm' ) . '<br/ >' . esc_html__( 'Help us get the word out and show some love... You know what to do...', 'zero-bs-crm' ); ?></p>
-	<ul class="share-buttons">
-	<li><a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fjetpackcrm.com&t=<?php echo esc_attr( $text ); ?>" target="_blank"
-	><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Facebook.png'; ?>"></a></li>
-	<li><a href="https://twitter.com/intent/tweet?source=https%3A%2F%2Fjetpackcrm.com&text=<?php echo esc_attr( $text ); ?>%20https%3A%2F%2Fjetpackcrm.com&via=zerobscrm" target="_blank" title="Tweet"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Twitter.png'; ?>"></a></li>
-	<li><a href="https://plus.google.com/share?url=https%3A%2F%2Fjetpackcrm.com" target="_blank" title="Share on Google+" onclick="window.open('https://plus.google.com/share?url=' + encodeURIComponent(<?php echo esc_attr( $url ); ?>)); return false;"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Google+.png'; ?>"></a></li>
-	<li><a href="http://www.tumblr.com/share?v=3&u=https%3A%2F%2Fjetpackcrm.com&t=<?php echo esc_attr( $text ); ?>&s=" target="_blank" title="Post to Tumblr"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Tumblr.png'; ?>"></a></li>
-	<li><a href="http://pinterest.com/pin/create/button/?url=https%3A%2F%2Fjetpackcrm.com&description=<?php echo esc_attr( $text ); ?>" target="_blank" title="Pin it"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Pinterest.png'; ?>"></a></li>
-	<li><a href="https://getpocket.com/save?url=https%3A%2F%2Fjetpackcrm.com&title=<?php echo esc_attr( $text ); ?>" target="_blank" title="Add to Pocket"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Pocket.png'; ?>"></a></li>
-	<li><a href="http://www.reddit.com/submit?url=https%3A%2F%2Fjetpackcrm.com&title=<?php echo esc_attr( $text ); ?>" target="_blank" title="Submit to Reddit"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Reddit.png'; ?>"></a></li>
-	<li><a href="http://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fjetpackcrm.com&title=<?php echo esc_attr( $text ); ?>&summary=&source=https%3A%2F%2Fjetpackcrm.com" target="_blank" title="Share on LinkedIn"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/LinkedIn.png'; ?>"></a></li>
-	<li><a href="http://wordpress.com/press-this.php?u=https%3A%2F%2Fjetpackcrm.com&t=<?php echo esc_attr( $text ); ?>&s=" target="_blank" title="Publish on WordPress"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/WordPress.png'; ?>"></a></li>
-	<li><a href="https://pinboard.in/popup_login/?url=https%3A%2F%2Fjetpackcrm.com&title=<?php echo esc_attr( $text ); ?>&description=" target="_blank" title="Save to Pinboard" <img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Pinboard.png'; ?>"></a></li>
-	<li><a href="mailto:?subject=&body=<?php echo esc_attr( $text ); ?>:%20https%3A%2F%2Fjetpackcrm.com" target="_blank" title="Email"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Email.png'; ?>"></a></li>
-</ul>
-
-	<?php
-}
-
 // } Main Config page
 function zeroBSCRM_pages_home() {
 

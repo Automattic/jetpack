@@ -16,7 +16,6 @@ import JetpackFieldSingleChoiceItem from './components/jetpack-field-single-choi
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import { getIconColor } from './util/block-icons';
 import { useFormWrapper } from './util/form';
-import getFieldLabel from './util/get-field-label';
 import mergeSettings from './util/merge-settings';
 import renderMaterialIcon from './util/render-material-icon';
 
@@ -279,7 +278,7 @@ const editField = type => props => {
 		<JetpackField
 			clientId={ props.clientId }
 			type={ type }
-			label={ getFieldLabel( props.attributes, props.name ) }
+			label={ props.attributes.label }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
 			setAttributes={ props.setAttributes }
