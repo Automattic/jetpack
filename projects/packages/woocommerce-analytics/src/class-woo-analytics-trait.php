@@ -8,6 +8,7 @@
 namespace Automattic\Woocommerce_Analytics;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\IdentityCrisis\Exception;
 use WC_Order_Item;
 use WC_Order_Item_Product;
 use WC_Payment_Gateway;
@@ -317,16 +318,15 @@ trait Woo_Analytics_Trait {
 	 * @param string       $event_name The name of the event to record.
 	 * @param array        $properties Optional array of (key => value) event properties.
 	 * @param integer|null $product_id The id of the product relating to the event.
-	 * @param boolean      $clickhouse Send event to clickhouse.
 	 *
-	 * @return string|void
+	 * @return void
 	 */
-	public function record_event( $event_name, $properties = array(), $product_id = null, $clickhouse = true ) {
+	public function record_event( $event_name, $properties = array(), $product_id = null ) {
 		if ( ! isset( $properties['session_id'] ) ) {
 			$this->maybe_start_session();
 		}
 
-		$js = $this->process_event_properties( $event_name, $properties, $product_id, $clickhouse );
+		$js = $this->process_event_properties( $event_name, $properties, $product_id );
 		wc_enqueue_js( "_wca.push({$js});" );
 	}
 
@@ -403,11 +403,10 @@ trait Woo_Analytics_Trait {
 	 * @param string       $event_name The name of the event to record.
 	 * @param array        $properties Optional array of (key => value) event properties.
 	 * @param integer|null $product_id Optional id of the product relating to the event.
-	 * @param boolean      $clickhouse Send event to clickhouse.
 	 *
 	 * @return string|void
 	 */
-	public function process_event_properties( $event_name, $properties = array(), $product_id = null, $clickhouse = true ) {
+	public function process_event_properties( $event_name, $properties = array(), $product_id = null ) {
 
 		// Only set product details if we have a product id.
 		if ( $product_id ) {
@@ -435,9 +434,9 @@ trait Woo_Analytics_Trait {
 			)
 		);
 
-		// ch param is needed to identify ClickHouse queries in the JS Analytics library. Remove prefix also for ClickHouse
-		if ( $clickhouse ) {
-			$js = "{'_en': '" . esc_js( str_replace( 'woocommerceanalytics_', '', $event_name ) ) . "','ch':'1'";
+		// ch param is needed to identify ClickHouse queries in the JS Analytics library.
+		if ( $this->is_clickhouse( $event_name ) ) {
+			$js = "{'_en': '" . esc_js( $this->get_clickhouse_event( $event_name ) ) . "','ch':'1'";
 		} else {
 			$js = "{'_en': '" . esc_js( $event_name ) . "'";
 		}
@@ -729,5 +728,53 @@ trait Woo_Analytics_Trait {
 	 */
 	public function get_session_cookie() {
 		return json_decode( sanitize_text_field( wp_unslash( $_COOKIE['woocommerceanalytics_session'] ?? '' ) ), true ) ?? array();
+	}
+
+	/**
+	 * Get the mapping for the allowed CH Events.
+	 * Key - The event name in WooCommerce Analytics Package
+	 * Value - The event name in ClickHouse
+	 *
+	 * @return string[] The mapping for the allowed CH Events.
+	 */
+	private function get_clickhouse_events() {
+		return array(
+			'woocommerceanalytics_session_started'         => 'session_started',
+			'woocommerceanalytics_product_view'            => 'product_view',
+			'woocommerceanalytics_cart_view'               => 'cart_view',
+			'woocommerceanalytics_add_to_cart'             => 'add_to_cart',
+			'woocommerceanalytics_remove_from_cart'        => 'remove_from_cart',
+			'woocommerceanalytics_checkout_view'           => 'checkout_view',
+			'woocommerceanalytics_product_checkout'        => 'product_checkout',
+			'woocommerceanalytics_product_purchase'        => 'product_purchase',
+			'woocommerceanalytics_order_confirmation_view' => 'order_confirmation_view',
+			'woocommerceanalytics_search'                  => 'search',
+		);
+	}
+
+	/**
+	 * Check if the event should be sent to ClickHouse
+	 *
+	 * @param string $event The event name.
+	 * @return bool True if it should be sent to ClickHouse
+	 */
+	private function is_clickhouse( $event ) {
+		return array_key_exists( $event, $this->get_clickhouse_events() );
+	}
+
+	/**
+	 * Get the ClickHouse mapped event name from the list of allowed ClickHouse events.
+	 *
+	 * @see get_clickhouse_events
+	 * @param string $event The event name.
+	 * @return string The ClickHouse event.
+	 * @throws Exception If the ClickHouse event is invalid.
+	 */
+	private function get_clickhouse_event( $event ) {
+		$ch_events = $this->get_clickhouse_events();
+		if ( ! isset( $ch_events[ $event ] ) ) {
+			throw new Exception( 'Invalid ClickHouse Event' );
+		}
+		return $ch_events[ $event ];
 	}
 }
