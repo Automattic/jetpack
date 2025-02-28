@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Account_Protection;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Class Account_Protection
@@ -194,6 +195,11 @@ class Account_Protection {
 	public function is_supported_environment(): bool {
 		// Do not run when killswitch is enabled
 		if ( defined( 'DISABLE_JETPACK_ACCOUNT_PROTECTION' ) && DISABLE_JETPACK_ACCOUNT_PROTECTION ) {
+			return false;
+		}
+
+		// Do not run for WordPress.com Simple sites
+		if ( ( new Host() )->is_wpcom_simple() ) {
 			return false;
 		}
 
