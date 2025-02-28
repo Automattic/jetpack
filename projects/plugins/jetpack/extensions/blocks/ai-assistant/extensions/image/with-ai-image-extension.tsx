@@ -1,7 +1,12 @@
 /*
  * External dependencies
  */
-import { askQuestionSync, usePostContent, openBlockSidebar } from '@automattic/jetpack-ai-client';
+import {
+	askQuestionSync,
+	usePostContent,
+	openBlockSidebar,
+	useAiFeature,
+} from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -65,6 +70,7 @@ export function isPossibleToExtendImageBlock( blockName: string ): boolean {
 // HOC to populate the block's edit component with the AI Assistant toolbar button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	function ExtendedBlock( props ) {
+		const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
 		const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 		const { getPostContent } = usePostContent();
 		const [ loading, setLoading ] = useState< LOADING_STATE >( false );
@@ -91,10 +97,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		const request = useCallback(
 			async ( type: typeof TYPE_ALT_TEXT | typeof TYPE_CAPTION ) => {
+				if ( requireUpgrade ) {
+					return;
+				}
+
 				startLoading( type );
 
 				try {
-					openBlockSidebar( props.clientId );
+					dequeueAsyncRequest();
 
 					const response = await askQuestionSync(
 						[
@@ -117,6 +127,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						}
 					);
 
+					increaseRequestsCount();
+
 					const parsedResponse: { texts?: string[]; captions?: string[] } = JSON.parse( response );
 
 					if ( type === TYPE_ALT_TEXT ) {
@@ -133,10 +145,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				}
 			},
 			[
+				dequeueAsyncRequest,
 				getPostContent,
+				increaseRequestsCount,
 				postId,
 				props.attributes.url,
 				props.clientId,
+				requireUpgrade,
 				startLoading,
 				updateBlockAttributes,
 			]
