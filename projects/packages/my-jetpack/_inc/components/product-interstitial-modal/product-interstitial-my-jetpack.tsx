@@ -54,7 +54,7 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 		discountPricePerMonth: discountPrice,
 		introductoryOffer,
 		productTerm,
-	} = pricingForUi;
+	} = pricingForUi || {};
 
 	let priceDescription;
 	if ( introductoryOffer?.intervalUnit === 'month' && introductoryOffer?.intervalCount === 1 ) {
