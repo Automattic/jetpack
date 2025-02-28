@@ -54,20 +54,26 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
+			'is_complete_callback' => $is_user_in_goals_first_experiment ? '__return_true' : 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) use ( $is_user_in_goals_first_experiment ) {
 				$flow = get_option( 'site_intent' );
+				if ( $is_user_in_goals_first_experiment ) {
+					return '/themes/' . $data['site_slug_encoded'];
+				}
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'] . '&flow=' . $flow;
 			},
-			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_true' : '__return_false',
+			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_false' : 'wpcom_launchpad_is_design_step_enabled',
 		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
-			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_true' : 'wpcom_launchpad_is_design_step_enabled',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
+			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_false' : 'wpcom_launchpad_is_design_step_enabled',
+			'get_calypso_path'     => function ( $task, $default, $data ) use ( $is_user_in_goals_first_experiment ) {
+				if ( $is_user_in_goals_first_experiment ) {
+					return '/themes/' . $data['site_slug_encoded'];
+				}
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
@@ -299,15 +305,6 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'get_calypso_path'      => function () {
 				return admin_url( 'site-editor.php' );
-			},
-		),
-		'setup_link_in_bio'               => array(
-			'get_title'            => function () {
-				return __( 'Personalize Link in Bio', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => '__return_true',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/setup/link-in-bio-post-setup/linkInBioPostSetup?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
 

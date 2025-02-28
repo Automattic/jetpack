@@ -249,7 +249,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string HTML for the concat form.
 	 */
 	public static function parse( $attributes, $content ) {
-		global $post, $page; // $page is used in the contact-form submission redirect
+		global $post, $page, $multipage; // $page is used in the contact-form submission redirect
 		if ( Settings::is_syncing() ) {
 			return '';
 		}
@@ -346,7 +346,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			} else {
 				// Submit form to the post permalink
 				$url = get_permalink();
-				if ( $page ) {
+				if ( $multipage && $page ) {
 					$url = add_query_arg( 'page', $page, $url );
 				}
 			}
@@ -1161,6 +1161,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// For all fields, grab label and value
 		foreach ( $field_ids['all'] as $field_id ) {
 			$field = $this->fields[ $field_id ];
+
+			if ( ! $field->is_field_renderable( $field->get_attribute( 'type' ) ) ) {
+				continue;
+			}
+
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
 
@@ -1172,6 +1177,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Extra fields have their prefix starting from count( $all_values ) + 1
 		foreach ( $field_ids['extra'] as $field_id ) {
 			$field = $this->fields[ $field_id ];
+
+			if ( ! $field->is_field_renderable( $field->get_attribute( 'type' ) ) ) {
+				continue;
+			}
+
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
 

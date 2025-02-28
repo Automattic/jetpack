@@ -61,6 +61,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				isOfflineMode = this.props.isOfflineMode;
 
 			const showUpgradeLink =
+				userCanManageModules &&
 				! isAtomicSite &&
 				activeFeatures &&
 				activeFeatures.length > 0 &&
@@ -68,7 +69,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 				! hasPaidFeatures &&
 				isLinked;
 
-			const shouldShowChildElements = isActive && ! this.props.isSavingAnyOption( 'publicize' );
+			const shouldShowChildElements =
+				isActive && userCanManageModules && ! this.props.isSavingAnyOption( 'publicize' );
 
 			// We need to strip off the trailing slash for the pricing modal to open correctly.
 			const redirectUrl = encodeURIComponent( siteAdminUrl.replace( /\/$/, '' ) );
@@ -104,71 +106,69 @@ export const Publicize = withModuleSettingsFormHelpers(
 					feature={ FEATURE_JETPACK_SOCIAL }
 					isDisabled={ isOfflineMode || ! isLinked }
 				>
-					{ userCanManageModules && (
-						<SettingsGroup
-							hasChild
-							disableInOfflineMode
-							disableInSiteConnectionMode
-							module={ { module: 'publicize' } }
-							support={ {
-								text: __(
-									'Allows you to automatically share your newest content on social media sites, including Facebook and LinkedIn.',
-									'jetpack'
-								),
-								link: getRedirectUrl( 'jetpack-support-publicize' ),
-							} }
-						>
+					<SettingsGroup
+						hasChild
+						disableInOfflineMode
+						disableInSiteConnectionMode
+						module={ { module: 'publicize' } }
+						support={ {
+							text: __(
+								'Allows you to automatically share your newest content on social media sites, including Facebook and LinkedIn.',
+								'jetpack'
+							),
+							link: getRedirectUrl( 'jetpack-support-publicize' ),
+						} }
+					>
+						<p>
+							{ __(
+								'Enable Jetpack Social and connect your social accounts to automatically share your content with your followers with a single click. When you publish a post, you will be able to share it on all connected accounts.',
+								'jetpack'
+							) }
+						</p>
+						{ showUpgradeLink ? (
 							<p>
-								{ __(
-									'Enable Jetpack Social and connect your social accounts to automatically share your content with your followers with a single click. When you publish a post, you will be able to share it on all connected accounts.',
-									'jetpack'
+								{ createInterpolateElement(
+									__(
+										'<moreInfo>Upgrade to a Jetpack Social plan</moreInfo> to get advanced sharing options.',
+										'jetpack'
+									),
+									{
+										moreInfo: (
+											<a
+												href={ getRedirectUrl( 'jetpack-plugin-admin-page-sharings-screen', {
+													site: siteRawUrl,
+													query: 'redirect_to=' + redirectUrl,
+												} ) }
+											/>
+										),
+									}
 								) }
 							</p>
-							{ showUpgradeLink ? (
-								<p>
-									{ createInterpolateElement(
-										__(
-											'<moreInfo>Upgrade to a Jetpack Social plan</moreInfo> to get advanced sharing options.',
-											'jetpack'
-										),
-										{
-											moreInfo: (
-												<a
-													href={ getRedirectUrl( 'jetpack-plugin-admin-page-sharings-screen', {
-														site: siteRawUrl,
-														query: 'redirect_to=' + redirectUrl,
-													} ) }
-												/>
-											),
-										}
-									) }
-								</p>
-							) : null }
-							<ModuleToggle
-								slug="publicize"
-								disabled={ isOfflineMode || ! isLinked }
-								activated={ isActive }
-								toggling={ this.props.isSavingAnyOption( 'publicize' ) }
-								toggleModule={ this.props.toggleModuleNow }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
-								</span>
-							</ModuleToggle>
-							{ shouldShowChildElements && hasSocialImageGenerator && (
-								<SocialImageGeneratorSection />
-							) }
-							{ shouldShowChildElements && <UtmToggleSection /> }
-							{ isActive &&
-							isLinked &&
-							useAdminUiV1 &&
-							! this.props.isSavingAnyOption( 'publicize' ) ? (
-								<FormFieldset className="jp-settings__connection-management">
-									<ConnectionManagement />
-								</FormFieldset>
-							) : null }
-						</SettingsGroup>
-					) }
+						) : null }
+						<ModuleToggle
+							slug="publicize"
+							disabled={ isOfflineMode || ! isLinked || ! userCanManageModules }
+							activated={ isActive }
+							toggling={ this.props.isSavingAnyOption( 'publicize' ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
+							</span>
+						</ModuleToggle>
+						{ shouldShowChildElements && hasSocialImageGenerator && (
+							<SocialImageGeneratorSection />
+						) }
+						{ shouldShowChildElements && <UtmToggleSection /> }
+						{ isActive &&
+						isLinked &&
+						useAdminUiV1 &&
+						! this.props.isSavingAnyOption( 'publicize' ) ? (
+							<FormFieldset className="jp-settings__connection-management">
+								<ConnectionManagement />
+							</FormFieldset>
+						) : null }
+					</SettingsGroup>
 					{ isActive && ! useAdminUiV1 && configCard() }
 				</SettingsCard>
 			);

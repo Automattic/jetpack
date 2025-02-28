@@ -120,7 +120,7 @@ export default function ProductInterstitial( {
 			if ( pricingForUi?.tiers?.upgraded?.wpcomProductSlug ) {
 				return pricingForUi.tiers.upgraded.wpcomProductSlug;
 			}
-			return pricingForUi.wpcomProductSlug;
+			return pricingForUi?.wpcomProductSlug;
 		},
 		[ slug, pricingForUi ]
 	);

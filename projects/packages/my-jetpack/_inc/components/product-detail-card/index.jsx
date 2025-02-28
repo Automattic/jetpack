@@ -18,6 +18,7 @@ import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
+import LoadingBlock from '../loading-block';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
 
@@ -95,7 +96,7 @@ const ProductDetailCard = ( {
 		myJetpackCheckoutUri = '',
 	} = getMyJetpackWindowInitialState();
 
-	const { detail } = useProduct( slug );
+	const { detail, isLoading: isProductLoading } = useProduct( slug );
 
 	const {
 		name,
@@ -125,7 +126,7 @@ const ProductDetailCard = ( {
 		wpcomFreeProductSlug,
 		introductoryOffer,
 		productTerm,
-	} = pricingForUi;
+	} = pricingForUi || {};
 
 	const { recordEvent } = useAnalytics();
 
@@ -320,6 +321,8 @@ const ProductDetailCard = ( {
 						</Text>
 					) ) }
 				</ul>
+
+				{ isProductLoading && <LoadingBlock width="100%" height="70px" spaceBelow /> }
 
 				{ needsPurchase && productPrice && (
 					<>

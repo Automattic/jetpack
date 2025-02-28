@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Restored the code that assigned global styles on personal variations and added the new experiment code

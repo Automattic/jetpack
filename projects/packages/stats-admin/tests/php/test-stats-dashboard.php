@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName: This is necessary to ensure that PHPUnit runs these tests.
 namespace Automattic\Jetpack\Stats_Admin;
 
-use Automattic\Jetpack\Stats_Admin\Test_Case as Stats_Test_Case;
+use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
 use ReflectionProperty;
 
 /**
@@ -9,7 +9,7 @@ use ReflectionProperty;
  *
  * @package automattic/jetpack-stats-admin
  */
-class Test_Dashboard extends Stats_Test_Case {
+class Test_Dashboard extends Stats_TestCase {
 	/**
 	 * Test that init sets $initialized.
 	 */

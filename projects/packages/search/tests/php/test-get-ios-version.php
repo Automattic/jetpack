@@ -3,14 +3,14 @@ namespace Automattic\Jetpack\Search;
 
 require_once __DIR__ . '/../../compatibility/unsupported-browsers.php';
 
-use Automattic\Jetpack\Search\Test_Case as Search_Test_Case;
+use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 
 /**
  * Unit tests for the get_ios_version_from_user_agent.
  *
  * @package automattic/jetpack-search
  */
-class Test_Get_IOS_Version extends Search_Test_Case {
+class Test_Get_IOS_Version extends Search_TestCase {
 
 	/**
 	 * Data provider for test_ios_version.

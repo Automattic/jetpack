@@ -83,11 +83,8 @@ function JetpackRestApiClient( root, nonce ) {
 			cacheBusterCallback = callback;
 		},
 
-		registerSite: ( registrationNonce, redirectUri, from ) => {
-			const params = {
-				registration_nonce: registrationNonce,
-				no_iframe: true,
-			};
+		registerSite: ( deprecated, redirectUri, from ) => {
+			const params = {};
 
 			if ( jetpackConfigHas( 'consumer_slug' ) ) {
 				params.plugin_slug = jetpackConfigGet( 'consumer_slug' );
@@ -157,12 +154,23 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		unlinkUser: force =>
-			postRequest( `${ apiRoot }jetpack/v4/connection/user`, postParams, {
-				body: JSON.stringify( { linked: false, force: !! force } ),
+		unlinkUser: ( force = false, options = {} ) => {
+			const params = {
+				linked: false,
+				force: !! force,
+			};
+
+			// Add any additional options to the params
+			if ( options.disconnectAllUsers ) {
+				params[ 'disconnect-all-users' ] = true;
+			}
+
+			return postRequest( `${ apiRoot }jetpack/v4/connection/user`, postParams, {
+				body: JSON.stringify( params ),
 			} )
 				.then( checkStatus )
-				.then( parseJsonResponse ),
+				.then( parseJsonResponse );
+		},
 
 		reconnect: () =>
 			postRequest( `${ apiRoot }jetpack/v4/connection/reconnect`, postParams )

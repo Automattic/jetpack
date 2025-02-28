@@ -66,7 +66,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'design_selected',
-				'setup_link_in_bio',
 				'plan_selected',
 				'links_added',
 				'link_in_bio_launched',
@@ -79,7 +78,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'design_selected',
-				'setup_link_in_bio',
 				'plan_selected',
 				'links_added',
 				'link_in_bio_launched',
@@ -112,6 +110,18 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'start_building_your_audience',
 				'customize_welcome_message',
 				'first_post_published',
+				'site_launched',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
+		),
+		'create-course-goal'      => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'            => array(
+				'site_title',
+				'verify_email',
+				'domain_customize',
 				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
