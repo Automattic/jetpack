@@ -86,10 +86,8 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 - WoA releases happen weekly.
 - Releases to self-hosted sites happen monthly:
     - Scheduled release: _${ releaseDate }_
+${ codeFreezeDate ? `    - Code freeze: _${ codeFreezeDate }_` : '' }
 `;
-		if ( codeFreezeDate ) {
-			pluginMessage += `    - Code freeze: _${ codeFreezeDate }_\n`;
-		}
 	} else {
 		pluginMessage = `- Next scheduled release: _${ releaseDate }_\n`;
 		if ( codeFreezeDate ) {
