@@ -187,7 +187,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
-	 * @return WP_REST_Response The response
+	 * @return WP_REST_Response|WP_Error The response
 	 */
 	public function get_items( $request ) {
 		if ( Utils::is_wpcom() ) {
@@ -318,7 +318,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 		}
 
 		$post_id   = $request['postId'];
-		$action_id = (string) $request['actionId'];
+		$action_id = $request['actionId'];
 
 		$action = $this->wpcom_get_action_by_post_id_and_action_id( $post_id, $action_id );
 
@@ -338,7 +338,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 */
 	public function get_item( $request ) {
 		$post_id   = $request['postId'];
-		$action_id = (string) $request['actionId'];
+		$action_id = $request['actionId'];
 
 		if ( Utils::is_wpcom() ) {
 
@@ -372,7 +372,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	public function update_item( $request ) {
 
 		$post_id   = $request['postId'];
-		$action_id = (string) $request['actionId'];
+		$action_id = $request['actionId'];
 
 		if ( Utils::is_wpcom() ) {
 			require_lib( 'publicize/class.publicize-actions' );
@@ -422,7 +422,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	public function delete_item( $request ) {
 
 		$post_id   = $request['postId'];
-		$action_id = (string) $request['actionId'];
+		$action_id = $request['actionId'];
 
 		if ( Utils::is_wpcom() ) {
 			require_lib( 'publicize/class.publicize-actions' );
@@ -494,8 +494,8 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	/**
 	 * Return a formatted action by post_id and action_id
 	 *
-	 * @param int    $post_id The post ID.
-	 * @param string $action_id The action ID.
+	 * @param int $post_id   The post ID.
+	 * @param int $action_id The action ID.
 	 * @return WP_Error|array The action
 	 */
 	private function wpcom_get_action_by_post_id_and_action_id( $post_id, $action_id ) {
