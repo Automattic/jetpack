@@ -76,6 +76,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const [ loading, setLoading ] = useState< LOADING_STATE >( false );
 		const { updateBlockAttributes } = useDispatch( editorStore );
 		const wrapperRef = useRef< HTMLDivElement >( null );
+		const hasImage = !! props.attributes.url;
 
 		// When the dropdown is open, we need to focus the wrapper element to prevent it from closing.
 		const startLoading = useCallback( ( type: LOADING_STATE ) => {
@@ -169,6 +170,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						onRequestAltText={ () => request( TYPE_ALT_TEXT ) }
 						onRequestCaption={ () => request( TYPE_CAPTION ) }
 						loading={ loading }
+						disabled={ ! hasImage }
 						wrapperRef={ wrapperRef }
 					/>
 				</BlockControls>

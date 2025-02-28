@@ -106,12 +106,14 @@ export default function AiAssistantImageExtensionToolbarDropdown( {
 	onRequestAltText,
 	onRequestCaption,
 	loading = false,
+	disabled = false,
 	wrapperRef,
 }: {
 	label?: string;
 	onRequestAltText: () => Promise< void >;
 	onRequestCaption: () => Promise< void >;
 	loading?: LOADING_STATE;
+	disabled?: boolean;
 	wrapperRef: React.RefObject< HTMLDivElement >;
 } ): ReactElement {
 	const { requireUpgrade } = useAiFeature();
@@ -155,6 +157,7 @@ export default function AiAssistantImageExtensionToolbarDropdown( {
 			label={ label }
 			behavior={ 'dropdown' }
 			onDropdownToggle={ toggleHandler }
+			disabled={ disabled }
 			renderContent={ ( { onClose } ) => (
 				<AiAssistantImageExtensionToolbarDropdownContent
 					ref={ wrapperRef }
