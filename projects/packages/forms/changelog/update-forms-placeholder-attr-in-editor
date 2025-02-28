@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: use placeholder attribute in editor instead of value

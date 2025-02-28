@@ -1,3 +1,4 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { NewsletterWidget } from '../src/newsletter-widget';
@@ -14,8 +15,9 @@ jest.mock( '@wordpress/icons', () => ( {
 
 describe( 'NewsletterWidget', () => {
 	const defaultProps = {
-		hostname: 'example.com',
+		site: 'example.com',
 		adminUrl: 'https://example.com/wp-admin/',
+		isWpcomSite: true,
 		emailSubscribers: 100,
 		paidSubscribers: 50,
 	};
@@ -40,11 +42,14 @@ describe( 'NewsletterWidget', () => {
 		const learnMoreLink = screen.getByText( 'Learn more' );
 		expect( learnMoreLink ).toHaveAttribute(
 			'href',
-			'https://wordpress.com/learn/courses/newsletters-101/wordpress-com-newsletter/'
+			getRedirectUrl(
+				'https://wordpress.com/learn/courses/newsletters-101/wordpress-com-newsletter'
+			)
 		);
 	} );
 
-	it( 'renders all quick links with correct hrefs', () => {
+	it( 'renders correct quick links when hosted on WordPress.com', () => {
+		const redirectDomain = 'wordpress.com';
 		render( <NewsletterWidget { ...defaultProps } /> );
 
 		const expectedLinks = [
@@ -54,23 +59,65 @@ describe( 'NewsletterWidget', () => {
 			},
 			{
 				text: 'View subscriber stats',
-				href: 'https://wordpress.com/stats/subscribers/example.com',
+				href: getRedirectUrl(
+					`https://${ redirectDomain }/stats/subscribers/${ defaultProps.site }`
+				),
 			},
 			{
 				text: 'Import subscribers',
-				href: 'https://wordpress.com/subscribers/example.com',
+				href: getRedirectUrl( `https://${ redirectDomain }/subscribers/${ defaultProps.site }` ),
 			},
 			{
 				text: 'Manage subscribers',
-				href: 'https://wordpress.com/subscribers/example.com',
+				href: getRedirectUrl( `https://${ redirectDomain }/subscribers/${ defaultProps.site }` ),
 			},
 			{
 				text: 'Monetize',
-				href: 'https://wordpress.com/earn/example.com',
+				href: getRedirectUrl( `https://${ redirectDomain }/earn/${ defaultProps.site }` ),
 			},
 			{
 				text: 'Newsletter settings',
-				href: 'https://wordpress.com/settings/newsletter/example.com',
+				href: getRedirectUrl(
+					`https://${ redirectDomain }/settings/newsletter/${ defaultProps.site }`
+				),
+			},
+		];
+
+		expectedLinks.forEach( ( { text, href } ) => {
+			const link = screen.getByText( text );
+			expect( link ).toBeInTheDocument();
+			expect( link ).toHaveAttribute( 'href', href );
+		} );
+	} );
+
+	it( 'renders correct quick links when self-hosted', () => {
+		const redirectDomain = 'cloud.jetpack.com';
+		render( <NewsletterWidget { ...defaultProps } isWpcomSite={ false } /> );
+
+		const expectedLinks = [
+			{
+				text: 'Publish your next post',
+				href: `https://${ defaultProps.site }/wp-admin/edit.php`,
+			},
+			{
+				text: 'View subscriber stats',
+				href: `https://${ defaultProps.site }/wp-admin/admin.php?page=stats#!/stats/subscribers/${ defaultProps.site }`,
+			},
+			{
+				text: 'Import subscribers',
+				href: getRedirectUrl( `https://${ redirectDomain }/subscribers/${ defaultProps.site }` ),
+			},
+			{
+				text: 'Manage subscribers',
+				href: getRedirectUrl( `https://${ redirectDomain }/subscribers/${ defaultProps.site }` ),
+			},
+			{
+				text: 'Monetize',
+				href: getRedirectUrl( `https://${ redirectDomain }/monetize/${ defaultProps.site }` ),
+			},
+			{
+				text: 'Newsletter settings',
+				href: `https://${ defaultProps.site }/wp-admin/admin.php?page=jetpack#newsletter`,
 			},
 		];
 

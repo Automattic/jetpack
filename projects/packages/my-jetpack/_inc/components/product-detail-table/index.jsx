@@ -15,6 +15,7 @@ import { useCallback, useMemo, useState, useEffect } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
+import LoadingBlock from '../loading-block';
 
 /**
  * Product Detail Table Column component.
@@ -55,13 +56,14 @@ const ProductDetailTableColumn = ( {
 	const {
 		name,
 		featuresByTier = [],
-		pricingForUi: { tiers: tiersPricingForUi },
 		title,
 		postCheckoutUrl,
 		postCheckoutUrlsByFeature,
 		isBundle,
 		hasPaidPlanForProduct,
 	} = detail;
+
+	const tiersPricingForUi = detail?.pricingForUi?.tiers || {};
 
 	// Extract the pricing details for the provided tier.
 	const {
@@ -72,7 +74,7 @@ const ProductDetailTableColumn = ( {
 		isFree,
 		wpcomProductSlug,
 		quantity = null,
-	} = tiersPricingForUi[ tier ];
+	} = tiersPricingForUi[ tier ] || {};
 
 	useEffect( () => {
 		// If activation was successful, we will be redirecting the user
@@ -186,6 +188,8 @@ const ProductDetailTableColumn = ( {
 	return (
 		<PricingTableColumn primary={ ! isFree }>
 			<PricingTableHeader>
+				{ isFetching && <LoadingBlock width="100%" height="70px" spaceBelow /> }
+
 				{ isFree ? (
 					<ProductPrice price={ 0 } legend={ '' } currency={ 'USD' } hidePriceFraction />
 				) : (
@@ -284,7 +288,7 @@ const ProductDetailTable = ( {
 } ) => {
 	const { fileSystemWriteAccess = 'no' } = getMyJetpackWindowInitialState();
 
-	const { detail } = useProduct( slug );
+	const { detail, isLoading: isProductLoading } = useProduct( slug );
 	const {
 		description,
 		featuresByTier = [],
@@ -293,8 +297,9 @@ const ProductDetailTable = ( {
 		tiers = [],
 		hasPaidPlanForProduct,
 		title,
-		pricingForUi: { tiers: tiersPricingForUi },
 	} = detail;
+
+	const tiersPricingForUi = detail?.pricingForUi || {};
 
 	// If the plugin can not be installed automatically, the user will have to take extra steps.
 	const cantInstallPlugin = 'plugin_absent' === status && 'no' === fileSystemWriteAccess;
@@ -363,7 +368,7 @@ const ProductDetailTable = ( {
 							tier={ tier }
 							feature={ feature }
 							detail={ detail }
-							isFetching={ isFetching }
+							isFetching={ isFetching || isProductLoading }
 							isFetchingSuccess={ isFetchingSuccess }
 							onProductButtonClick={ onProductButtonClick }
 							trackProductButtonClick={ trackProductButtonClick }
