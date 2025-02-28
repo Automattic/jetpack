@@ -392,7 +392,9 @@ class Scheduled_Actions_Controller extends Base_Controller {
 			if ( is_wp_error( $save_result ) ) {
 				return $save_result;
 			}
-			return $this->prepare_action_for_response( $action );
+			return rest_ensure_response(
+				$this->prepare_action_for_response( $action )
+			);
 		}
 
 		return rest_ensure_response(
@@ -436,7 +438,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 			if ( is_wp_error( $delete_result ) ) {
 				return $delete_result;
 			}
-			return true;
+			return rest_ensure_response( true );
 		}
 
 		return rest_ensure_response(
@@ -528,7 +530,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	/**
 	 * Returns SQL formatted datetime from unix timestamp
 	 *
-	 * @param string $timestamp The timestamp.
+	 * @param int $timestamp The timestamp.
 	 *
 	 * @return string
 	 */
