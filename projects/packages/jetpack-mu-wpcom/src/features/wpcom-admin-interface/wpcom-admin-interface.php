@@ -694,64 +694,6 @@ function wpcom_get_custom_admin_menu_class() {
 }
 
 /**
- * Handles the AJAX request to dismiss a notice of a removed Calypso screen.
- */
-function wpcom_dismiss_removed_calypso_screen_notice() {
-	check_ajax_referer( 'wpcom_dismiss_removed_calypso_screen_notice' );
-	if ( isset( $_REQUEST['screen'] ) ) {
-		$screen = sanitize_text_field( wp_unslash( $_REQUEST['screen'] ) );
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			$preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
-
-			// If $preferences is not array we log the contents so that we can further debug.
-			if ( ! is_array( $preferences ) && function_exists( 'log2logstash' ) ) {
-				// The expected value when preferences aren't set is an empty string.
-				if ( $preferences !== '' ) {
-					$blog_id = wpcom_get_current_blog_id();
-					log2logstash(
-						array(
-							'feature' => 'wpcom-dismiss-wp-admin-notice',
-							'message' => 'Retrieved non-empty, non-array Calypso preferences.',
-							'extra'   => wp_json_encode(
-								array(
-									'preferences' => $preferences,
-									'user_id'     => get_current_user_id(),
-									'blog_id'     => $blog_id,
-								)
-							),
-						)
-					);
-					wp_die();
-				}
-
-				// If the preferences are empty, we set them to an empty array.
-				$preferences = array();
-			}
-
-			$preferences[ 'removed-calypso-screen-dismissed-notice-' . $screen ] = true;
-			update_user_attribute( get_current_user_id(), 'calypso_preferences', $preferences );
-		} else {
-			Client::wpcom_json_api_request_as_user(
-				'/me/preferences',
-				'2',
-				array(
-					'method' => 'POST',
-				),
-				array( 'calypso_preferences' => (object) array( 'removed-calypso-screen-dismissed-notice-' . $screen => true ) )
-			);
-			$notices_dismissed_locally = get_user_option( 'wpcom_removed_calypso_screen_dismissed_notices' );
-			if ( ! is_array( $notices_dismissed_locally ) ) {
-				$notices_dismissed_locally = array();
-			}
-			$notices_dismissed_locally[] = $screen;
-			update_user_option( get_current_user_id(), 'wpcom_removed_calypso_screen_dismissed_notices', $notices_dismissed_locally, true );
-		}
-	}
-	wp_die();
-}
-add_action( 'wp_ajax_wpcom_dismiss_removed_calypso_screen_notice', 'wpcom_dismiss_removed_calypso_screen_notice' );
-
-/**
  * Enable the Blaze dashboard (WP-Admin) for users that have the RDV experiment enabled.
  *
  * @param bool $activation_status The activation status - use WP-Admin or Calypso.
