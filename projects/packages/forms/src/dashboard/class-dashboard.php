@@ -176,7 +176,7 @@ class Dashboard {
 			'hasAI'                   => $has_ai,
 		);
 		?>
-		<div id="jp-forms-dashboard" style="min-height: calc(100vh - 100px);" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>
+		<div id="jp-forms-dashboard" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>
 		<?php
 	}
 
