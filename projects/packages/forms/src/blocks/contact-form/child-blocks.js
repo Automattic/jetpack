@@ -435,6 +435,10 @@ export const childBlocks = [
 					type: 'number',
 					default: '',
 				},
+				step: {
+					type: 'string', // Valid values are numbers and string "any"
+					default: '1',
+				},
 			},
 		},
 	},

@@ -1,6 +1,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
-import { __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { __experimentalNumberControl as NumberControl, FormToggle } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -24,6 +24,7 @@ const JetpackNumberField = props => {
 		placeholder,
 		min,
 		max,
+		step = 1, // Default value "1" behaves like no "step" value is set at all
 		width,
 		insertBlocksAfter,
 	} = props;
@@ -58,6 +59,7 @@ const JetpackNumberField = props => {
 					placeholder={ placeholder }
 					min={ min }
 					max={ max }
+					step={ step }
 					onKeyDown={ event => {
 						if ( event.defaultPrevented || event.key !== 'Enter' ) {
 							return;
@@ -113,6 +115,45 @@ const JetpackNumberField = props => {
 								__nextHasNoMarginBottom={ true }
 								__next40pxDefaultSize={ true }
 								help={ __( 'The maximum value to accept in the input.', 'jetpack-forms' ) }
+							/>
+						),
+					},
+					{
+						index: 3,
+						element: (
+							<NumberControl
+								key="step"
+								label={ __( 'Step', 'jetpack-forms' ) }
+								value={ attributes.step }
+								onChange={ value =>
+									setAttributes( {
+										step: value,
+									} )
+								}
+								disabled={ attributes.step === 'any' }
+								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
+								help={ __(
+									'Specifies the granularity that the value must adhere to; defaults to 1.',
+									'jetpack-forms'
+								) }
+							/>
+						),
+					},
+					{
+						index: 4,
+						element: (
+							<FormToggle
+								key="step-any"
+								label={ __( 'Accept any numerical value', 'jetpack-forms' ) }
+								onChange={ () =>
+									setAttributes( {
+										step: 'any',
+									} )
+								}
+								checked={ attributes.step === 'any' }
+								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						),
 					},
