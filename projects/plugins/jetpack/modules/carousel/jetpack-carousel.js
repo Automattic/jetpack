@@ -371,7 +371,10 @@
 			// Find all focusable elements on screen.
 			const focusableElements = [
 				...carousel.overlay.querySelectorAll( focusableSelectors ),
-			].filter( el => el.offsetParent !== null );
+			].filter(
+				el => el.classList.contains( 'jp-carousel-close-hint' ) || el.offsetParent !== null
+			);
+
 			const firstFocusableElement = focusableElements[ 0 ];
 			const lastFocusableElement = focusableElements[ focusableElements.length - 1 ];
 
