@@ -1,4 +1,5 @@
-import { Button, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PluginIntegrationPanel from './shared/plugin-integration-panel';
@@ -22,13 +23,7 @@ const AkismetPanel = () => {
 					'jetpack-forms'
 				),
 				{
-					a: (
-						<a
-							href="https://wordpress.org/plugins/akismet/"
-							target="_blank"
-							rel="noopener noreferrer"
-						/>
-					),
+					a: <ExternalLink href={ getRedirectUrl( 'akismet-wordpress-org' ) } />,
 				}
 			) }
 			tracksEventName="jetpack_forms_upsell_akismet_click"
@@ -40,13 +35,7 @@ const AkismetPanel = () => {
 						{ createInterpolateElement(
 							__( 'Your forms are protected from spam with <a>Akismet</a>!', 'jetpack-forms' ),
 							{
-								a: (
-									<a
-										href="https://akismet.com/support/getting-started/using-akismet-with-your-contact-forms/"
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
-								),
+								a: <ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) } />,
 							}
 						) }
 					</p>
@@ -80,7 +69,7 @@ const AkismetPanel = () => {
 								'jetpack-forms'
 							),
 							{
-								a: <a href={ akismetUrl } target="_blank" rel="noopener noreferrer" />,
+								a: <ExternalLink href={ akismetUrl } />,
 							}
 						) }
 					</p>
