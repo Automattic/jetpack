@@ -89,10 +89,8 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 ${ codeFreezeDate ? `    - Code freeze: _${ codeFreezeDate }_` : '' }
 `;
 	} else {
-		pluginMessage = `- Next scheduled release: _${ releaseDate }_\n`;
-		if ( codeFreezeDate ) {
-			pluginMessage += `- Code freeze: _${ codeFreezeDate }_\n`;
-		}
+		pluginMessage = `- Next scheduled release: _${ releaseDate }_
+${ codeFreezeDate ? `- Code freeze: _${ codeFreezeDate }_` : '' }`;
 	}
 
 	return `
