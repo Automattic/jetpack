@@ -730,11 +730,9 @@ trait Woo_Analytics_Trait {
 	}
 
 	/**
-	 * Get the mapping for the allowed CH Events.
-	 * Key - The event name in WooCommerce Analytics Package
-	 * Value - The event name in ClickHouse
+	 * Get the allowed CH Events.
 	 *
-	 * @return string[] The mapping for the allowed CH Events.
+	 * @return string[] The allowed CH Events.
 	 */
 	private function get_clickhouse_events() {
 		return array(
