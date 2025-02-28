@@ -8,9 +8,7 @@
 /**
  * Hides My Sites menu, updates icon, and comments icon
  */
-#wpadminbar li#wp-admin-bar-my-sites,
-#wpadminbar li#wp-admin-bar-updates,
-#wpadminbar li#wp-admin-bar-comments {
+#wpadminbar li#wp-admin-bar-my-sites {
 	display: none !important;
 }
 
