@@ -367,9 +367,8 @@ class Unauth_File_Upload_Handler {
 		}
 
 		// Create an empty index.html file
-		$index_content = '<html><head><title>403 Forbidden</title></head><body><p>Directory access is forbidden.</p></body></html>';
-		$index_file    = trailingslashit( $directory ) . 'index.html';
-		if ( ! $wp_filesystem->put_contents( $index_file, $index_content, FS_CHMOD_FILE ) ) {
+		$index_file = trailingslashit( $directory ) . 'index.html';
+		if ( ! $wp_filesystem->put_contents( $index_file, '', FS_CHMOD_FILE ) ) {
 			return false;
 		}
 
