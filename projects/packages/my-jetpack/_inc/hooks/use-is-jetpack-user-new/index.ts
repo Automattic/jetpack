@@ -15,7 +15,7 @@ const useIsJetpackUserNew = () => {
 		options: { enabled: isSiteConnected },
 	} );
 
-	const purchases = isError || isLoading ? [] : data;
+	const purchases = ! data || isError || isLoading ? [] : data;
 
 	const acceptedStatuses = [ 'unknown', 'brand-new', 'new' ];
 	return acceptedStatuses.includes(
