@@ -123,8 +123,8 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	/**
 	 * Preloads the pages scheduled for preload.
 	 *
-	 * This method is called via a cronjob and iterates through
-	 * all pages scheduled for preload, requesting each one to populate the cache.
+	 * This method is called via a cronjob and processes pages in batches
+	 * to populate the cache.
 	 *
 	 * @since $$next-version$$
 	 * @return void
@@ -135,14 +135,71 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 			return;
 		}
 
-		// Clear the preload posts so they're not preloaded again.
-		$this->set_posts_to_preload( array() );
+		// Get the current batch to process and update the queue
+		$batch = $this->prepare_next_batch( $posts );
 
-		foreach ( $posts as $post ) {
+		// Process the current batch
+		$this->process_batch( $batch );
+	}
+
+	/**
+	 * Prepares the next batch of URLs to preload.
+	 *
+	 * Takes the full list of posts to preload, extracts the first batch,
+	 * updates the preload queue, and schedules the next run if needed.
+	 *
+	 * @since $$next-version$$
+	 * @param array $posts Full list of posts to preload.
+	 * @return array The batch of posts to process now.
+	 */
+	private function prepare_next_batch( $posts ) {
+		// Process in batches of 10 to reduce server load
+		$batches       = array_chunk( $posts, 10 );
+		$current_batch = array_shift( $batches );
+
+		// Calculate remaining posts
+		$remaining = $this->flatten_batches( $batches );
+
+		// Update the preload queue
+		$this->set_posts_to_preload( $remaining );
+
+		// Schedule the next batch if needed
+		if ( ! empty( $remaining ) ) {
+			$this->schedule_preload_cronjob();
+		}
+
+		return $current_batch;
+	}
+
+	/**
+	 * Flattens a multi-dimensional array of batches into a single array.
+	 *
+	 * @since $$next-version$$
+	 * @param array $batches Array of batch arrays.
+	 * @return array Flattened array of all posts.
+	 */
+	private function flatten_batches( $batches ) {
+		$flattened = array();
+		foreach ( $batches as $batch ) {
+			$flattened = array_merge( $flattened, $batch );
+		}
+		return $flattened;
+	}
+
+	/**
+	 * Processes a batch of URLs for preloading.
+	 *
+	 * Attempts to preload each URL in the batch, logging any errors.
+	 *
+	 * @since $$next-version$$
+	 * @param array $batch Array of URLs to preload.
+	 * @return void
+	 */
+	private function process_batch( $batch ) {
+		foreach ( $batch as $url ) {
 			try {
-				$this->preload_page( $post );
+				$this->preload_page( $url );
 			} catch ( \Exception $e ) {
-				// If the page is not found, or cannot be loaded, log the error.
 				Logger::debug( 'Error preloading page: ' . $e->getMessage() );
 			}
 		}
@@ -160,7 +217,17 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	private function preload_page( $page ) {
 		$url = $page;
 
-		wp_remote_get( $url );
+		$response = wp_remote_get( $url );
+
+		if ( is_wp_error( $response ) ) {
+			Logger::debug( 'Error preloading page: ' . $response->get_error_message() );
+			return;
+		}
+
+		$status_code = wp_remote_retrieve_response_code( $response );
+		if ( $status_code !== 200 ) {
+			Logger::debug( sprintf( 'Error preloading page %s: HTTP status code %d', $url, $status_code ) );
+		}
 	}
 
 	/**
@@ -223,7 +290,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 
 		// Otherwise identify if a Cornerstone Page cache file is being deleted and schedule preload that page if it is.
 		$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
-		// If the $path is in the cornertstone page list, add it to the preload list.
+		// If the $path is in the Cornerstone Page list, add it to the preload list.
 		if ( in_array( untrailingslashit( $path ), $cornerstone_pages, true ) ) {
 			$this->schedule_preload( $path );
 		}
