@@ -26,6 +26,13 @@ describe( 'NewsletterWidget', () => {
 		isWpcomSite: true,
 		emailSubscribers: 100,
 		paidSubscribers: 50,
+		countsByDay: {
+			'2021-01-01': {
+				all: 10,
+				email: 5,
+				paid: 5,
+			},
+		},
 	};
 
 	it( 'renders', () => {

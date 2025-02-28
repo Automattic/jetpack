@@ -4,6 +4,7 @@ import { Icon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
+import type { DailyCount } from '.';
 
 interface NewsletterWidgetProps {
 	site: string;
@@ -11,6 +12,7 @@ interface NewsletterWidgetProps {
 	isWpcomSite: boolean;
 	emailSubscribers?: number;
 	paidSubscribers?: number;
+	countsByDay?: Record< string, DailyCount >;
 }
 
 /**
@@ -34,7 +36,7 @@ export const NewsletterWidget = ( {
 	adminUrl,
 	isWpcomSite,
 	emailSubscribers,
-	paidSubscribers,
+	paidSubscribers, // countsByDay,
 }: NewsletterWidgetProps ) => {
 	return (
 		<div className="newsletter-widget">
