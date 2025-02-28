@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Modules: ensure jetpack_get_module_path filter is available when JETPACK__PLUGIN_DIR is undefined"
+Modules: ensure jetpack_get_module_path filter is available when JETPACK__PLUGIN_DIR is undefined.
