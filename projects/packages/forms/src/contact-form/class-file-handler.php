@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Forms;
 use Automattic\Jetpack\Filesystem_Utils;
 use Automattic\Jetpack\Unauth_File_Upload_Handler;
 
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-filesystem-utils.php';
+
 /**
  * Class for handling file attachments in Jetpack Forms.
  *

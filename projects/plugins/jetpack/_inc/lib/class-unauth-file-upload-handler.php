@@ -17,6 +17,8 @@ namespace Automattic\Jetpack;
 
 use WP_Error;
 
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-filesystem-utils.php';
+
 /**
  * Class Unauth_File_Upload_Handler
  *

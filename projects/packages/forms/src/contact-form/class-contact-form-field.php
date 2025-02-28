@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Unauth_File_Upload_Handler;
+use Automattic\Jetpack\Filesystem_Utils;
 
 /**
  * Class for the contact-field shortcode.
@@ -793,8 +793,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$this->enqueue_file_field_assets();
 
 		// Get allowed MIME types for display in the field.
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
-		$accepted_file_types = implode( ', ', Unauth_File_Upload_Handler::get_allowed_mime_types() );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-filesystem-utils.php';
+		$accepted_file_types = implode( ', ', Filesystem_Utils::get_allowed_mime_types() );
 
 		// Add accessibility attributes and required status if needed.
 		$input_attrs = array(
