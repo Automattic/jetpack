@@ -136,6 +136,16 @@ class Account_Protection {
 		add_action( 'wp_ajax_nopriv_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
 	}
 
+	/**
+	 * Use the module path from the account protection package, for the account protection module.
+	 *
+	 * @filter jetpack_get_module_path
+	 *
+	 * @param string $path The path to the module.
+	 * @param string $module_name The name of the module.
+	 *
+	 * @return string The path to the module.
+	 */
 	public function get_module_path( $path, $module_name ) {
 		if ( self::ACCOUNT_PROTECTION_MODULE_NAME === $module_name ) {
 			return __DIR__ . '/modules/account-protection.php';
