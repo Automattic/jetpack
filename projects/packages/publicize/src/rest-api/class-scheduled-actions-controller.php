@@ -84,7 +84,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/posts/(?P<postId>\d+)/(?P<actionId>\w+)',
+			'/' . $this->rest_base . '/posts/(?P<postId>\d+)/(?P<actionId>\d+)',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
