@@ -1339,6 +1339,10 @@
 					image.src = attrs.previewImage;
 				}
 
+				if ( attrs.alt ) {
+					image.alt = attrs.alt;
+				}
+
 				image.setAttribute( 'itemprop', 'image' );
 				image.setAttribute( 'data-loaded', 1 );
 			}
@@ -1434,6 +1438,7 @@
 					caption: caption || '',
 					permalink: permalinkEl && permalinkEl.getAttribute( 'href' ),
 					src: origFile || item.getAttribute( 'src' ) || '',
+					alt: item.getAttribute( 'alt' ) || '',
 				};
 
 				var tiledGalleryItem = domUtil.closest( item, '.tiled-gallery-item' );
