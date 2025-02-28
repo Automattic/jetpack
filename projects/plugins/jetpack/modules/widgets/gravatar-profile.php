@@ -267,7 +267,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 		<?php
 		foreach ( $accounts as $account ) :
-			if ( true !== $account['verified'] || true === $account['is_hidden'] ) {
+			if ( true !== $account['verified'] || ( isset( $account['is_hidden'] ) && true === $account['is_hidden'] ) ) {
 				continue;
 			}
 
