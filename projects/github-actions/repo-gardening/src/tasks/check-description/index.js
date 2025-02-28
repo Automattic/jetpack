@@ -82,7 +82,7 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 	} else if ( plugin === 'jetpack' ) {
 		pluginMessage = `The Jetpack plugin has different release cadences depending on the platform:
 
-- WordPress.com Simple releases happen semi-continuously (PCYsg-Jjm-p2).
+- WordPress.com Simple releases happen as soon as you deploy your changes after merging this PR (PCYsg-Jjm-p2).
 - WoA releases happen weekly.
 - Releases to self-hosted sites happen monthly:
     - Scheduled release: _${ releaseDate }_
