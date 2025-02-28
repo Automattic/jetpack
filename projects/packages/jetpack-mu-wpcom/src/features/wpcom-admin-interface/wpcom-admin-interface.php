@@ -650,32 +650,6 @@ if ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST || defined( 'AT_PRO
 }
 
 /**
- * Retrieves the current blog ID in a WordPress.com or Jetpack environment.
- *
- * This function determines the blog ID based on the hosting environment:
- * - On WordPress.com (`IS_WPCOM` defined), it returns the current blog ID.
- * - In a Jetpack environment, it checks the Jetpack options for the associated blog ID.
- * - If no valid ID is found in the Jetpack options, it falls back to the default current blog ID.
- *
- * @return int The current blog ID.
- */
-function wpcom_get_current_blog_id() {
-	// Check if we’re in a WordPress.com environment
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		return get_current_blog_id();
-	}
-
-	// Attempt to retrieve the blog ID from Jetpack options
-	$jetpack_options = get_option( 'jetpack_options' );
-	if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
-		return (int) $jetpack_options['id'];
-	}
-
-	// Default fallback to the standard blog ID
-	return get_current_blog_id();
-}
-
-/**
  * Gets the name of the class used to customize the admin menu when Nav Unification is enabled.
  *
  * @return false|class-string<\Automattic\Jetpack\Masterbar\Base_Admin_Menu> The class name of the customized admin menu if any, false otherwise.
