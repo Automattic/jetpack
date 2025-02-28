@@ -337,69 +337,12 @@ class Unauth_File_Upload_Handler {
 			if ( ! $create_dir ) {
 				return new WP_Error( 'dir_create', \__( 'Unable to process file upload.', 'jetpack' ) );
 			}
-			if ( ! $this->create_protection_files( $temp_dir ) ) {
+			if ( ! Filesystem_Utils::create_protection_files( $temp_dir ) ) {
 				return new WP_Error( 'dir_create', \__( 'Unable to process file upload.', 'jetpack' ) );
 			}
 		}
 
 		return $temp_dir;
-	}
-
-	/**
-	 * Creates files to protect directory listing and prevent direct access.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $directory The directory to protect.
-	 * @return bool True if files were created successfully, false otherwise.
-	 */
-	private function create_protection_files( $directory ) {
-		global $wp_filesystem;
-
-		// Initialize WordPress filesystem
-		if ( ! function_exists( 'WP_Filesystem' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-
-		$initialized = \WP_Filesystem();
-		if ( ! $initialized || ! $wp_filesystem || ! is_object( $wp_filesystem ) ) {
-			return false;
-		}
-
-		// Create an empty index.html file
-		$index_file = trailingslashit( $directory ) . 'index.html';
-		if ( ! $wp_filesystem->put_contents( $index_file, '', FS_CHMOD_FILE ) ) {
-			return false;
-		}
-
-		// Create .htaccess to deny direct access, using Apache version detection
-		$htaccess_content = '# Prevent directory listing
-Options -Indexes
-
-# Apache 2.4+
-<IfModule authz_core_module>
-    <FilesMatch "\.(php|htaccess)$">
-        Require all denied
-    </FilesMatch>
-    
-    <Files index.html>
-        Require all granted
-    </Files>
-</IfModule>
-
-# Apache 2.2
-<IfModule !authz_core_module>
-    <FilesMatch "\.(php|htaccess)$">
-        Deny from all
-    </FilesMatch>
-    
-    <Files index.html>
-        Allow from all
-    </Files>
-</IfModule>';
-
-		$htaccess_file = trailingslashit( $directory ) . '.htaccess';
-		return $wp_filesystem->put_contents( $htaccess_file, $htaccess_content, FS_CHMOD_FILE );
 	}
 
 	/**

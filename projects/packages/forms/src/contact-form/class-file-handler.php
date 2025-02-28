@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms;
 
+use Automattic\Jetpack\Filesystem_Utils;
 use Automattic\Jetpack\Unauth_File_Upload_Handler;
 
 /**
@@ -66,8 +67,23 @@ class File_Handler {
 			update_option( self::SECRET_DIR_OPTION, $this->secret_dir, false );
 		}
 
+		// Construct the parent directory path
+		$parent_dir = $uploads['basedir'] . '/' . self::DEFAULT_BASE_DIR;
+
+		// Create the parent directory if it doesn't exist and add protection files
+		if ( ! file_exists( $parent_dir ) ) {
+			wp_mkdir_p( $parent_dir );
+			Filesystem_Utils::create_protection_files( $parent_dir );
+		}
+
 		// Construct the full base directory path using the default base dir
-		$this->base_dir = $uploads['basedir'] . '/' . self::DEFAULT_BASE_DIR . '/' . $this->secret_dir;
+		$this->base_dir = $parent_dir . '/' . $this->secret_dir;
+
+		// Create the base directory if it doesn't exist and add protection files
+		if ( ! file_exists( $this->base_dir ) ) {
+			wp_mkdir_p( $this->base_dir );
+			Filesystem_Utils::create_protection_files( $this->base_dir );
+		}
 
 		// Initialize the unauth file handler
 		if ( ! class_exists( 'Automattic\Jetpack\Unauth_File_Upload_Handler' ) ) {
@@ -93,12 +109,25 @@ class File_Handler {
 		$original_file_name = $file_data['original_name'];
 
 		// Prepare the permanent storage location using year/month
-		$year          = gmdate( 'Y' );
-		$month         = gmdate( 'm' );
-		$permanent_dir = $this->base_dir . '/' . $year . '/' . $month . '/';
+		$year     = gmdate( 'Y' );
+		$month    = gmdate( 'm' );
+		$year_dir = $this->base_dir . '/' . $year;
 
-		if ( ! wp_mkdir_p( $permanent_dir ) ) {
-			return new \WP_Error( 'directory_creation_failed', __( 'Failed to upload file.', 'jetpack-forms' ) );
+		// Create and protect year directory
+		if ( ! file_exists( $year_dir ) ) {
+			if ( ! wp_mkdir_p( $year_dir ) ) {
+				return new \WP_Error( 'directory_creation_failed', __( 'Failed to upload file.', 'jetpack-forms' ) );
+			}
+			Filesystem_Utils::create_protection_files( $year_dir );
+		}
+
+		// Create and protect month directory
+		$permanent_dir = $year_dir . '/' . $month . '/';
+		if ( ! file_exists( $permanent_dir ) ) {
+			if ( ! wp_mkdir_p( $permanent_dir ) ) {
+				return new \WP_Error( 'directory_creation_failed', __( 'Failed to upload file.', 'jetpack-forms' ) );
+			}
+			Filesystem_Utils::create_protection_files( $permanent_dir );
 		}
 
 		// Generate a unique filename for permanent storage
