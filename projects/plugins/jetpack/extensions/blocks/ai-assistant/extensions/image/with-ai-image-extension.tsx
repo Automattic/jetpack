@@ -104,6 +104,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				startLoading( type );
 
 				try {
+					if ( type === TYPE_ALT_TEXT ) {
+						openBlockSidebar( props.clientId );
+					}
+
 					dequeueAsyncRequest();
 
 					const response = await askQuestionSync(
