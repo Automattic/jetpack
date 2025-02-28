@@ -11,10 +11,11 @@ const API = {
 			method: 'GET',
 		} ),
 
-	toggleAccountProtection: () =>
+	setAccountProtection: ( settings: { isEnabled: boolean } ) =>
 		apiFetch( {
 			method: 'POST',
-			path: 'jetpack-protect/v1/toggle-account-protection',
+			path: 'jetpack-protect/v1/account-protection',
+			data: settings,
 		} ),
 
 	getWaf: (): Promise< WafStatus > =>

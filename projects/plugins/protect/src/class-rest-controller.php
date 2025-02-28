@@ -121,10 +121,10 @@ class REST_Controller {
 
 		register_rest_route(
 			'jetpack-protect/v1',
-			'toggle-account-protection',
+			'account-protection',
 			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::api_toggle_account_protection',
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::api_get_account_protection_settings',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
@@ -135,8 +135,8 @@ class REST_Controller {
 			'jetpack-protect/v1',
 			'account-protection',
 			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::api_get_account_protection',
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::api_set_account_protection_settings',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
@@ -379,7 +379,39 @@ class REST_Controller {
 	 *
 	 * @return WP_Rest_Response
 	 */
-	public static function api_get_account_protection() {
+	public static function api_get_account_protection_settings() {
+		return new WP_REST_Response( ( new Account_Protection_Settings() )->get() );
+	}
+
+	/**
+	 * Set Account Protection data for the API endpoint
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function api_set_account_protection_settings( WP_REST_Request $request ) {
+		// Toggle the account protection module based on the provided isEnabled property.
+		if ( isset( $request['isEnabled'] ) ) {
+			$account_protection = new Account_Protection();
+
+			if ( $request['isEnabled'] ) {
+				if ( ! $account_protection->enable() ) {
+					return new WP_Error(
+						'account_protection_enable_failed',
+						__( 'An error occurred enabling account protection.', 'jetpack-protect' ),
+						array( 'status' => 500 )
+					);
+				}
+			} elseif ( ! $account_protection->disable() ) {
+				return new WP_Error(
+					'account_protection_disable_failed',
+					__( 'An error occurred disabling account protection.', 'jetpack-protect' ),
+					array( 'status' => 500 )
+				);
+			}
+		}
+
 		return new WP_REST_Response( ( new Account_Protection_Settings() )->get() );
 	}
 
