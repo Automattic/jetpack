@@ -76,13 +76,10 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		// Spaces between words.
 		.join( ' ' );
 
-	if ( ! releaseDate ) {
-		return `No scheduled milestone found for the ${ capitalizedName } plugin.`;
-	}
-
-	// Break the return into a manageable chunk.
 	let pluginMessage = '';
-	if ( plugin === 'jetpack' ) {
+	if ( ! releaseDate ) {
+		pluginMessage = `No scheduled milestone found for this plugin.`;
+	} else if ( plugin === 'jetpack' ) {
 		pluginMessage = `The Jetpack plugin has different release cadences depending on the platform:
 
 - WordPress.com Simple releases happen semi-continuously (PCYsg-Jjm-p2).
