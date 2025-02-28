@@ -59,9 +59,23 @@
 		}
 	}
 
+	&__chart-container {
+		padding: 0 $spacing;
+	}
+
+	&__chart {
+		width: 100%;
+		box-sizing: border-box;
+	}
+
 	& a {
 		text-decoration: none;
 	}
+}
+
+.subscribers-chart {
+	width: 100%;
+	height: 200px;
 }
 
 // wp-admin overrides
