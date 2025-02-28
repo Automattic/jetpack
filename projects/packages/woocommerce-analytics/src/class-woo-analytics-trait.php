@@ -8,7 +8,6 @@
 namespace Automattic\Woocommerce_Analytics;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Jetpack\IdentityCrisis\Exception;
 use WC_Order_Item;
 use WC_Order_Item_Product;
 use WC_Payment_Gateway;
@@ -434,15 +433,15 @@ trait Woo_Analytics_Trait {
 			)
 		);
 
+		$js = "{'_en': '" . esc_js( $event_name ) . "'";
+
 		// ch param is needed to identify ClickHouse queries in the JS Analytics library.
 		if ( $this->is_clickhouse( $event_name ) ) {
-			$js = "{'_en': '" . esc_js( $this->get_clickhouse_event( $event_name ) ) . "','ch':'1'";
-		} else {
-			$js = "{'_en': '" . esc_js( $event_name ) . "'";
+			$js .= "','ch':'1'";
 		}
 
 		if ( isset( $product_details ) ) {
-				$all_props = array_merge( $all_props, $product_details );
+			$all_props = array_merge( $all_props, $product_details );
 		}
 
 		$js .= ',' . $this->render_properties_as_js( $all_props ) . '}';
@@ -739,16 +738,16 @@ trait Woo_Analytics_Trait {
 	 */
 	private function get_clickhouse_events() {
 		return array(
-			'woocommerceanalytics_session_started'         => 'session_started',
-			'woocommerceanalytics_product_view'            => 'product_view',
-			'woocommerceanalytics_cart_view'               => 'cart_view',
-			'woocommerceanalytics_add_to_cart'             => 'add_to_cart',
-			'woocommerceanalytics_remove_from_cart'        => 'remove_from_cart',
-			'woocommerceanalytics_checkout_view'           => 'checkout_view',
-			'woocommerceanalytics_product_checkout'        => 'product_checkout',
-			'woocommerceanalytics_product_purchase'        => 'product_purchase',
-			'woocommerceanalytics_order_confirmation_view' => 'order_confirmation_view',
-			'woocommerceanalytics_search'                  => 'search',
+			'woocommerceanalytics_session_started',
+			'woocommerceanalytics_product_view',
+			'woocommerceanalytics_cart_view',
+			'woocommerceanalytics_add_to_cart',
+			'woocommerceanalytics_remove_from_cart',
+			'woocommerceanalytics_checkout_view',
+			'woocommerceanalytics_product_checkout',
+			'woocommerceanalytics_product_purchase',
+			'woocommerceanalytics_order_confirmation_view',
+			'woocommerceanalytics_search',
 		);
 	}
 
@@ -760,21 +759,5 @@ trait Woo_Analytics_Trait {
 	 */
 	private function is_clickhouse( $event ) {
 		return array_key_exists( $event, $this->get_clickhouse_events() );
-	}
-
-	/**
-	 * Get the ClickHouse mapped event name from the list of allowed ClickHouse events.
-	 *
-	 * @see get_clickhouse_events
-	 * @param string $event The event name.
-	 * @return string The ClickHouse event.
-	 * @throws Exception If the ClickHouse event is invalid.
-	 */
-	private function get_clickhouse_event( $event ) {
-		$ch_events = $this->get_clickhouse_events();
-		if ( ! isset( $ch_events[ $event ] ) ) {
-			throw new Exception( 'Invalid ClickHouse Event' );
-		}
-		return $ch_events[ $event ];
 	}
 }
