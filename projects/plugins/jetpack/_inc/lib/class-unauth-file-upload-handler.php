@@ -86,7 +86,7 @@ class Unauth_File_Upload_Handler {
 
 		// Validate file type.
 		$file['name'] = \sanitize_file_name( \wp_unslash( $file['name'] ) );
-		$type_check   = $this->check_file_type( $file['name'] );
+		$type_check   = Filesystem_Utils::check_file_type( $file['name'] );
 		if ( is_wp_error( $type_check ) ) {
 			return $type_check;
 		}
@@ -155,8 +155,7 @@ class Unauth_File_Upload_Handler {
 			return $temp_path;
 		}
 
-		$secret_file_name    = $this->generate_secure_filename( $file['name'] );
-		$new_secret_filename = \wp_unique_filename( $temp_path, $secret_file_name );
+		$new_secret_filename = Filesystem_Utils::generate_secure_filename( $file['name'] );
 
 		// Move uploaded file.
 		$move_result = move_uploaded_file( $file['tmp_name'], $temp_path . '/' . $new_secret_filename );
@@ -201,73 +200,6 @@ class Unauth_File_Upload_Handler {
 	 * VALIDATION AND SECURITY METHODS
 	 * ================================================
 	 */
-
-	/**
-	 * Gets the list of allowed mime types for file uploads.
-	 *
-	 * Uses Jetpack's allowed mime types for media uploads through a filter,
-	 * similar to how Jetpack_Media handles it.
-	 *
-	 * @param array $default_mime_types Array of mime types.
-	 * @return array Array of allowed mime types.
-	 */
-	public static function get_allowed_mime_types( $default_mime_types = array() ) {
-		if ( empty( $default_mime_types ) ) {
-			$default_mime_types = array(
-				// Image formats.
-				'jpg|jpeg|jpe' => 'image/jpeg',
-				'gif'          => 'image/gif',
-				'png'          => 'image/png',
-				'bmp'          => 'image/bmp',
-				'tiff|tif'     => 'image/tiff',
-				'webp'         => 'image/webp',
-				'avif'         => 'image/avif',
-				'ico'          => 'image/x-icon',
-
-				// TODO: Needs improvement. All images with the following mime types seem to have .heic file extension.
-				'heic'         => 'image/heic',
-				'heif'         => 'image/heif',
-				'heics'        => 'image/heic-sequence',
-				'heifs'        => 'image/heif-sequence',
-			);
-		}
-
-		/**
-		 * Filter the allowed mime types for unauthenticated uploads.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param array $default_mime_types Array of mime types.
-		 */
-		return apply_filters( 'jetpack_unauth_upload_mime_types', $default_mime_types );
-	}
-
-	/**
-	 * Checks if the file type is allowed.
-	 *
-	 * @param string $file_name The name of the file to check.
-	 * @return true|WP_Error True if the file type is allowed, WP_Error object otherwise.
-	 */
-	public function check_file_type( $file_name ) {
-		$allowed_mime_types = self::get_allowed_mime_types();
-		$file_type          = \wp_check_filetype( $file_name, $allowed_mime_types );
-
-		if ( ! $file_type['type'] ) {
-			return new WP_Error(
-				'invalid_file_type',
-				\__( 'Invalid file type. Please check the list of allowed file types.', 'jetpack' )
-			);
-		}
-
-		if ( ! in_array( $file_type['type'], $allowed_mime_types, true ) ) {
-			return new WP_Error(
-				'invalid_file_type',
-				\__( 'File type not allowed for security reasons.', 'jetpack' )
-			);
-		}
-
-		return true;
-	}
 
 	/**
 	 * Gets an error message for file upload errors.
@@ -332,32 +264,11 @@ class Unauth_File_Upload_Handler {
 
 		$temp_dir = path_join( $upload_dir['basedir'], 'jetpack-upload/' . $this->get_secret_directory() . '/temp' );
 
-		if ( ! file_exists( $temp_dir ) ) {
-			$create_dir = \wp_mkdir_p( $temp_dir );
-			if ( ! $create_dir ) {
-				return new WP_Error( 'dir_create', \__( 'Unable to process file upload.', 'jetpack' ) );
-			}
-			if ( ! Filesystem_Utils::create_protection_files( $temp_dir ) ) {
-				return new WP_Error( 'dir_create', \__( 'Unable to process file upload.', 'jetpack' ) );
-			}
+		if ( ! Filesystem_Utils::create_protected_directory( $temp_dir ) ) {
+			return new WP_Error( 'dir_create', \__( 'Unable to process file upload.', 'jetpack' ) );
 		}
 
 		return $temp_dir;
-	}
-
-	/**
-	 * Generates a secure filename for temporary uploads.
-	 *
-	 * @param string $original_filename The original filename.
-	 * @return string A secure random filename.
-	 */
-	private function generate_secure_filename( $original_filename ) {
-		$file_parts = pathinfo( $original_filename );
-		$extension  = isset( $file_parts['extension'] ) ? strtolower( $file_parts['extension'] ) : '';
-		$base       = crc32( $file_parts['filename'] );
-		$unique     = sprintf( '%s-%s-%s', $base, time(), wp_generate_password( 8, false, false ) );
-
-		return $extension ? "{$unique}.{$extension}" : $unique;
 	}
 
 	/**
@@ -413,7 +324,7 @@ class Unauth_File_Upload_Handler {
 			$file_path = \trailingslashit( $temp_path ) . $file_data['filename'];
 			if ( file_exists( $file_path ) ) {
 				$file_size = filesize( $file_path );
-				\wp_delete_file( $file_path );
+				wp_delete_file_from_directory( $file_path, $temp_path );
 				$freed_space += $file_size;
 				$this->unset_token( $token );
 				if ( $freed_space >= $total_needed ) {
@@ -513,7 +424,7 @@ class Unauth_File_Upload_Handler {
 		$file_data        = $uploads[ $token ];
 		$file_path        = \trailingslashit( $secret_temp_path ) . $file_data['filename'];
 
-		\wp_delete_file_from_directory( $file_path, $secret_temp_path );
+		wp_delete_file_from_directory( $file_path, $secret_temp_path );
 
 		return $this->unset_token( $token );
 	}
@@ -553,7 +464,7 @@ class Unauth_File_Upload_Handler {
 			if ( ( $current_time - $file_data['created'] ) > $max_age ) {
 				$file_path = \trailingslashit( $temp_path ) . $file_data['filename'];
 				if ( file_exists( $file_path ) ) {
-					\wp_delete_file( $file_path );
+					wp_delete_file_from_directory( $file_path, $temp_path );
 				}
 				unset( $uploads[ $token ] );
 			}

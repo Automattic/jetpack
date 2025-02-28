@@ -71,19 +71,13 @@ class File_Handler {
 		$parent_dir = $uploads['basedir'] . '/' . self::DEFAULT_BASE_DIR;
 
 		// Create the parent directory if it doesn't exist and add protection files
-		if ( ! file_exists( $parent_dir ) ) {
-			wp_mkdir_p( $parent_dir );
-			Filesystem_Utils::create_protection_files( $parent_dir );
-		}
+		Filesystem_Utils::create_protected_directory( $parent_dir );
 
 		// Construct the full base directory path using the default base dir
 		$this->base_dir = $parent_dir . '/' . $this->secret_dir;
 
 		// Create the base directory if it doesn't exist and add protection files
-		if ( ! file_exists( $this->base_dir ) ) {
-			wp_mkdir_p( $this->base_dir );
-			Filesystem_Utils::create_protection_files( $this->base_dir );
-		}
+		Filesystem_Utils::create_protected_directory( $this->base_dir );
 
 		// Initialize the unauth file handler
 		if ( ! class_exists( 'Automattic\Jetpack\Unauth_File_Upload_Handler' ) ) {
@@ -114,25 +108,18 @@ class File_Handler {
 		$year_dir = $this->base_dir . '/' . $year;
 
 		// Create and protect year directory
-		if ( ! file_exists( $year_dir ) ) {
-			if ( ! wp_mkdir_p( $year_dir ) ) {
-				return new \WP_Error( 'directory_creation_failed', __( 'Failed to upload file.', 'jetpack-forms' ) );
-			}
-			Filesystem_Utils::create_protection_files( $year_dir );
+		if ( ! Filesystem_Utils::create_protected_directory( $year_dir ) ) {
+			return new \WP_Error( 'directory_creation_failed', __( 'Failed to upload file.', 'jetpack-forms' ) );
 		}
 
 		// Create and protect month directory
 		$permanent_dir = $year_dir . '/' . $month . '/';
-		if ( ! file_exists( $permanent_dir ) ) {
-			if ( ! wp_mkdir_p( $permanent_dir ) ) {
-				return new \WP_Error( 'directory_creation_failed', __( 'Failed to upload file.', 'jetpack-forms' ) );
-			}
-			Filesystem_Utils::create_protection_files( $permanent_dir );
+		if ( ! Filesystem_Utils::create_protected_directory( $permanent_dir ) ) {
+			return new \WP_Error( 'directory_creation_failed', __( 'Failed to upload file.', 'jetpack-forms' ) );
 		}
 
 		// Generate a unique filename for permanent storage
-		$new_hash        = wp_hash( wp_rand( 100000, 999999 ) . microtime() );
-		$new_secret_name = wp_hash( $new_hash ) . '-' . $original_file_name;
+		$new_secret_name = Filesystem_Utils::generate_secure_filename( $original_file_name, false );
 		$permanent_path  = $permanent_dir . $new_secret_name;
 
 		// Use the unauth handler's checkout_file method to move the file from temp to permanent storage
@@ -218,6 +205,6 @@ class File_Handler {
 			return false;
 		}
 
-		return wp_delete_file( $file_path );
+		return wp_delete_file_from_directory( $file_path, $this->base_dir );
 	}
 }
