@@ -803,19 +803,96 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$input_attributes .= $attr . ( $value !== '' ? '="' . $value . '"' : '' ) . ' ';
 		}
 
-		$field  = $this->render_label( 'file', $id, $label, $required, $required_field_text );
-		$field .= "<div class='jetpack-form-file-field__dropzone' data-id='" . esc_attr( $id ) . "'>\n";
-		$field .= "<a href='#' class='wp-block-button__link wp-element-button'>" . esc_html__( 'Select a file', 'jetpack-forms' ) . "</a>\n";
-		$field .= "<span class='jetpack-form-file-field__short'>" . esc_html__( '....or drag and drop a file.', 'jetpack-forms' ) . "</span>\n";
-		$field .= '<input ' . trim( $input_attributes ) . "/>\n";
-		$field .= "<input type='hidden' name='" . esc_attr( $id ) . "_token' class='jetpack-form-file-field__token' value='' />\n";
-		$field .= "<div class='jetpack-form-file-field__preview-wrap' aria-live='polite'></div>\n";
-		$field .= "</div>\n";
+		$context = array(
+			'maxUploadSize'  => wp_max_upload_size(),
+			'uploadEndpoint' => rest_url( 'wpcom/v2/unauth-file-upload' ),
+			'wp_nonce'       => wp_create_nonce( 'wp_rest' ),
+			'jp_nonce'       => wp_create_nonce( 'jetpack_file_upload_jetpack-form' ),
+		);
+		$field[] = $this->render_label( 'file', $id, $label, $required, $required_field_text );
+
+		ob_start();
+		?>
+
+<div id="my-interactive-plugin" data-wp-interactive="myInteractivePlugin">
+	<a
+		href="#"
+		class="lala"
+		data-wp-on--click="actions.toggleVisibility"
+		data-wp-bind--aria-expanded="state.isVisible"
+
+		aria-controls="status-paragraph"
+	>
+		show
+	</a>
+	<a
+		class="lala"
+		href="#"
+		data-wp-on--click="actions.toggleActivation"
+		data-wp-bind--disabled="!state.isVisible"
+	>
+		activate
+	</a>
+	<p
+		id="status-paragraph"
+
+		data-wp-class--active="state.isActive"
+		data-wp-class--inactive="!state.isActive"
+		data-wp-text="state.paragraphText"
+	>
+		this is inactive
+	</p>
+</div>
+
+<style>
+	#my-interactive-plugin {
+		min-height: 200px;
+		display: flex;
+	}
+	.lala {
+		width: 100px;
+		height: 50px;
+		color: red !important;
+		background-color: yellow;
+	}
+	.active {
+		color: green;
+	}
+	.inactive {
+		color: red;
+	}
+</style>
+		<?php
+		$field[] = ob_get_clean();
+
+		// $field[] = '<h1 data-wp-interactive="jpDropzone" data-wp-on--click="actions.howdy"> hello miguel!</h1>';
+
+		// $field[] = '<div data-wp-interactive="jpDropzone2" '. \wp_interactivity_data_wp_context( $context ) . " >\n";
+		// $filed[] = '<div class="jetpack-form-file-field__dropzone" data-wp-class--is_dropping="context.isHover" data-wp-on--click="actions.openFilePicker">';
+		// $field[] = '  <a href="#" class="wp-block-button__link wp-element-button" data-wp-on--click="actions.openFilePicker">' . esc_html__( 'Select a file', 'jetpack-forms' ) . '</a>';
+		// $field[] = '  <span class="jetpack-form-file-field__short">' . esc_html__( '....or drag and drop a file.', 'jetpack-forms' ) . '</span>';
+		// $field[] = '  <input ' . trim( $input_attributes ) . '/>';
+
+		// $field[] = "</div>\n";
+		// $field[] = '<div class="jetpack-form-file-field__preview-wrap" aria-live="polite">';
+		// $field[] = '<template data-wp-each--greeting="context.files">';
+		// $field[] = '   <div class="jetpack-form-file-field__preview">';
+		// $field[] = '     <div class="jetpack-form-file-field__progress" style="--progress: 10%;" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>';
+		// $field[] = '     <div class="jetpack-form-file-field__image" style="background-image:url();"></div>';
+		// $field[] = '     <div class="jetpack-form-file-field__file-wrap">';
+		// $field[] = '       <span class="jetpack-form-file-field__file-name"></span>';
+		// $filed[] = '       <span class="jetpack-form-file-field__file-size"></span>';
+		// $filed[] = '     </div>';
+		// $filed[] = '     <a href="#" class="jetpack-form-file-field__remove" aria-label="Remove file"></a>';
+		// $filed[] = "  </div>";
+		// $filed[] = "</template>";
+		// $field[] = "</div>\n";
+		// $field[] = "</div>\n";
 
 		// Localize the script only once.
 		$this->localize_file_field_script();
 
-		return $field;
+		return implode( "\n", $field );
 	}
 
 	/**
@@ -831,6 +908,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'../../dist/contact-form/js/file-field.js',
 			__FILE__,
 			array(
+				// 'dependencies' => array( 'wordpress/interactivity' ),
 				'enqueue' => true,
 				'version' => \JETPACK__VERSION,
 			)
