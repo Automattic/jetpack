@@ -54,8 +54,9 @@ const JetpackNumberField = props => {
 					className="jetpack-field__input"
 					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
 					style={ fieldStyle }
-					type="number"
-					value={ placeholder }
+					type={ isSelected ? 'text' : 'number' }
+					value={ isSelected ? placeholder : '' }
+					placeholder={ placeholder }
 					min={ min }
 					max={ max }
 					onKeyDown={ event => {
@@ -74,7 +75,6 @@ const JetpackNumberField = props => {
 				setAttributes={ setAttributes }
 				placeholder={ placeholder }
 				attributes={ attributes }
-				hidePlaceholder={ true }
 				extraFieldSettings={ [
 					{
 						index: 1,

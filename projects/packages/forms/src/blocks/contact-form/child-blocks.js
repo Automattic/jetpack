@@ -367,7 +367,7 @@ const EditNumber = props => {
 	return (
 		<JetpackFieldNumber
 			clientId={ props.clientId }
-			label={ getFieldLabel( props.attributes, props.name ) }
+			label={ props.attributes.label }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
 			setAttributes={ props.setAttributes }
