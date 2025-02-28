@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Gravatar Widget: Fixed undefined array key is_hidden warning
