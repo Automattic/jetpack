@@ -11,6 +11,7 @@ import JetpackDatePicker from './components/jetpack-field-datepicker';
 import JetpackDropdown from './components/jetpack-field-dropdown';
 import JetpackFieldMultipleChoice from './components/jetpack-field-multiple-choice';
 import JetpackFieldMultipleChoiceItem from './components/jetpack-field-multiple-choice/item';
+import JetpackFieldNumber from './components/jetpack-field-number';
 import JetpackFieldSingleChoice from './components/jetpack-field-single-choice';
 import JetpackFieldSingleChoiceItem from './components/jetpack-field-single-choice/item';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
@@ -360,6 +361,29 @@ const EditConsent = ( {
 	);
 };
 
+const EditNumber = props => {
+	useFormWrapper( props );
+
+	return (
+		<JetpackFieldNumber
+			clientId={ props.clientId }
+			label={ props.attributes.label }
+			required={ props.attributes.required }
+			requiredText={ props.attributes.requiredText }
+			setAttributes={ props.setAttributes }
+			isSelected={ props.isSelected }
+			defaultValue={ props.attributes.defaultValue }
+			placeholder={ props.attributes.placeholder }
+			id={ props.attributes.id }
+			width={ props.attributes.width }
+			attributes={ props.attributes }
+			insertBlocksAfter={ props.insertBlocksAfter }
+			min={ props.attributes.min }
+			max={ props.attributes.max }
+		/>
+	);
+};
+
 export const childBlocks = [
 	{
 		name: 'field-text',
@@ -396,12 +420,20 @@ export const childBlocks = [
 					d="M12 7H4V8.5H12V7ZM19.75 17.25V10.75H4.25V17.25H19.75ZM5.75 15.75V12.25H18.25V15.75H5.75Z"
 				/>
 			),
-			edit: editField( 'number' ),
+			edit: EditNumber,
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
 					default: __( 'Number', 'jetpack-forms' ),
+				},
+				min: {
+					type: 'number',
+					default: '',
+				},
+				max: {
+					type: 'number',
+					default: '',
 				},
 			},
 		},
