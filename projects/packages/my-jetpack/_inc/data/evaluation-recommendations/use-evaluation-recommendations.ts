@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../../hooks/use-analytics';
+import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import {
 	QUERY_EVALUATE_KEY,
 	QUERY_REMOVE_EVALUATION_KEY,
@@ -12,7 +13,6 @@ import {
 import useProductsByOwnership from '../products/use-products-by-ownership';
 import useSimpleMutation from '../use-simple-mutation';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
-import isJetpackUserNew from '../utils/is-jetpack-user-new';
 import useWelcomeBanner from '../welcome-banner/use-welcome-banner';
 
 const NUMBER_OF_RECOMMENDATIONS_TO_SHOW = 5;
@@ -38,6 +38,7 @@ const useEvaluationRecommendations = () => {
 		data: { ownedProducts: ownedProductsData },
 		isLoading: isProductOwnershipLoading,
 	} = useProductsByOwnership();
+	const isJetpackUserNew = useIsJetpackUserNew();
 
 	const unownedRecommendedModules = useMemo( () => {
 		// TODO: Maybe remove this ternary condition
@@ -57,8 +58,8 @@ const useEvaluationRecommendations = () => {
 
 	const isEligibleForRecommendations = useMemo( () => {
 		const { dismissed } = getMyJetpackWindowInitialState( 'recommendedModules' );
-		return ! dismissed && ! isWelcomeBannerVisible && isJetpackUserNew();
-	}, [ isWelcomeBannerVisible ] );
+		return ! dismissed && ! isWelcomeBannerVisible && isJetpackUserNew;
+	}, [ isWelcomeBannerVisible, isJetpackUserNew ] );
 
 	const [ isSectionVisible, setIsSectionVisible ] = useValueStore(
 		'recommendedModulesVisible',

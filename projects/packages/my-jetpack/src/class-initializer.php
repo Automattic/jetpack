@@ -261,9 +261,6 @@ class Initializer {
 				'products'               => array(
 					'items' => Products::get_products(),
 				),
-				'purchases'              => array(
-					'items' => array(),
-				),
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
