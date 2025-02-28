@@ -17,7 +17,7 @@ import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
-const X_TICK_WIDTH = 60;
+const X_TICK_WIDTH = 100;
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withGradientFill: boolean;
@@ -66,8 +66,8 @@ const renderDefaultTooltip = ( {
 	);
 };
 
-const formatDateTick = ( value: number ) => {
-	const date = new Date( value );
+const formatDateTick = ( timestamp: number ) => {
+	const date = new Date( timestamp );
 	return date.toLocaleDateString( undefined, {
 		month: 'short',
 		day: 'numeric',
@@ -141,8 +141,7 @@ const LineChart: FC< LineChartProps > = ( {
 	}, [ margin, options ] );
 
 	const xNumTicks = useMemo(
-		() =>
-			Math.max( Math.floor( Math.min( dataSorted[ 0 ]?.data.length, width / X_TICK_WIDTH ) ), 5 ),
+		() => Math.min( dataSorted[ 0 ]?.data.length, Math.ceil( width / X_TICK_WIDTH ) ),
 		[ dataSorted, width ]
 	);
 
@@ -175,6 +174,7 @@ const LineChart: FC< LineChartProps > = ( {
 				width={ width }
 				height={ height }
 				margin={ { top: 10, right: 0, bottom: 20, left: 40, ...margin } }
+				// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 				xScale={ { type: 'time', ...options?.xScale } }
 				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
 			>

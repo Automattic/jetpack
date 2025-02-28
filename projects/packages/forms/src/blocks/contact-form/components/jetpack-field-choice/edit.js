@@ -3,15 +3,13 @@ import { compose, withInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import clsx from 'clsx';
 import { useFormStyle, useFormWrapper } from '../../util/form';
-import getFieldLabel from '../../util/get-field-label';
 import { withSharedFieldAttributes } from '../../util/with-shared-field-attributes';
 import JetpackFieldControls from '../jetpack-field-controls';
 import JetpackFieldLabel from '../jetpack-field-label';
 import { useJetpackFieldStyles } from '../use-jetpack-field-styles';
 
 const JetpackFieldChoiceEdit = props => {
-	const { name, className, clientId, instanceId, setAttributes, isSelected, attributes, type } =
-		props;
+	const { className, clientId, instanceId, setAttributes, isSelected, attributes, type } = props;
 	const { required, requiredText, options, id, width } = attributes;
 
 	useFormWrapper( props );
@@ -43,7 +41,7 @@ const JetpackFieldChoiceEdit = props => {
 				<JetpackFieldLabel
 					required={ required }
 					requiredText={ requiredText }
-					label={ getFieldLabel( attributes, name ) }
+					label={ attributes.label }
 					setAttributes={ setAttributes }
 					isSelected={ isSelected }
 					attributes={ attributes }

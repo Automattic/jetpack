@@ -259,7 +259,12 @@ export default function SubscriptionControls( {
 
 				<WidthControl
 					width={ buttonWidth }
-					onChange={ newButtonWidth => setAttributes( { buttonWidth: newButtonWidth } ) }
+					onChange={ newButtonWidth => {
+						setAttributes( {
+							buttonWidth: newButtonWidth,
+							buttonOnNewLine: buttonOnNewLine || newButtonWidth === '100%',
+						} );
+					} }
 				/>
 			</PanelBody>
 			<PanelBody

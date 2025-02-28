@@ -380,6 +380,7 @@ class WPCOM_Features {
 	public const INSTALL_THEMES                    = 'install-themes';
 	public const INSTALL_WOO_ONBOARDING_PLUGINS    = 'install-woo-onboarding-plugins';
 	public const INSTANT_SEARCH                    = 'instant-search';
+	public const INSTANT_SEARCH_29                 = 'instant-search_29'; // TEMP AND TO BE DELETED AFTER REBUILDING the jetpack-search index
 	public const JETPACK_DASHBOARD                 = 'jetpack-dashboard';
 	public const LEGACY_CONTACT                    = 'legacy-contact';
 	public const LIST_INSTALLED_PLUGINS            = 'list-installed-plugins';
@@ -776,6 +777,13 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_PLANS,
 			self::WPCOM_ECOMMERCE_PLANS,
 			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			self::WPCOM_SEARCH,
+			self::WPCOM_SEARCH_MONTHLY,
+			self::WP_P2_PLUS_MONTHLY,
+			self::JETPACK_SEARCH_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+		),
+		self::INSTANT_SEARCH_29                 => array(
 			self::WPCOM_SEARCH,
 			self::WPCOM_SEARCH_MONTHLY,
 			self::WP_P2_PLUS_MONTHLY,
