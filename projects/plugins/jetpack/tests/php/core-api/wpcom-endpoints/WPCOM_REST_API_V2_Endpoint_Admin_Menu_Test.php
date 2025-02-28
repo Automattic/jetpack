@@ -207,8 +207,9 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	 */
 	public function test_prepare_menu_for_response_should_ignore_non_array_submenu_items() {
 		global $submenu;
-		$menu_item     = array( 'menu_title', 'read', 'index.php', '', '', '', '' );
-		$submenu_items = array();
+		$old_submenu_value = $submenu;
+		$menu_item         = array( 'menu_title', 'read', 'index.php', '', '', '', '' );
+		$submenu_items     = array();
 		for ( $i = 0; $i < 5; $i++ ) {
 			$submenu_items[] = array( "submenu_title_$i", 'read', "submenu$i.php", '', '', '', '' );
 		}
@@ -217,6 +218,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 
 		$submenu = array( 'index.php' => $submenu_items );
 		$menu    = ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->prepare_menu_for_response( array( $menu_item ) );
+		$submenu = $old_submenu_value;
 
 		$this->assertIsArray( $menu, 'The returned menu should be an array.' );
 		$this->assertArrayHasKey( 'children', $menu[0], 'The first menu item should contain a "children" key.' );
