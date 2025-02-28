@@ -50,7 +50,7 @@ async function hasProgressLabel( octokit, owner, repo, number ) {
  * @return {Promise<string>} Promise resolving to info about the release (code freeze, release date).
  */
 async function getMilestoneDates( plugin, nextMilestone ) {
-	let releaseDate = 'none scheduled';
+	let releaseDate;
 	let codeFreezeDate;
 	if ( nextMilestone && Object.hasOwn( nextMilestone, 'due_on' ) && nextMilestone.due_on ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
@@ -76,22 +76,36 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		// Spaces between words.
 		.join( ' ' );
 
-	return `
-******
+	if ( ! releaseDate ) {
+		return `No scheduled milestone found for the ${ capitalizedName } plugin.`;
+	}
 
-**${ capitalizedName } plugin:**
-
-${
-	'Jetpack' === capitalizedName
-		? `The Jetpack plugin has different release cadences depending on the platform:
+	// Break the return into a manageable chunk.
+	let pluginMessage = '';
+	if ( plugin === 'jetpack' ) {
+		pluginMessage = `The Jetpack plugin has different release cadences depending on the platform:
 
 - WordPress.com Simple releases happen semi-continuously (PCYsg-Jjm-p2).
 - WoA releases happen weekly.
-- Releases to self-hosted sites happen monthly. The next release is scheduled for _${ releaseDate }_ (scheduled code freeze on _${ codeFreezeDate }_).`
-		: `
-- Next scheduled release: _${ releaseDate }_.
-${ codeFreezeDate ? `- Scheduled code freeze: _${ codeFreezeDate }_.\n` : '' }`
-}
+- Releases to self-hosted sites happen monthly:
+    - Scheduled release: _${ releaseDate }_
+`;
+		if ( codeFreezeDate ) {
+			pluginMessage += `    - Code freeze: _${ codeFreezeDate }_\n`;
+		}
+	} else {
+		pluginMessage = `- Next scheduled release: _${ releaseDate }_\n`;
+		if ( codeFreezeDate ) {
+			pluginMessage += `- Code freeze: _${ codeFreezeDate }_\n`;
+		}
+	}
+
+	return `
+******
+	
+**${ capitalizedName } plugin:**
+
+${ pluginMessage }
 
 If you have any questions about the release process, please ask in the #jetpack-releases channel on Slack.
 `;
