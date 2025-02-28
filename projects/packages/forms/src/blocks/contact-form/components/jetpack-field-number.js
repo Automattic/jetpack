@@ -1,8 +1,7 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { createHigherOrderComponent, compose } from '@wordpress/compose';
-import { addFilter } from '@wordpress/hooks';
+import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { isEmpty } from 'lodash';
@@ -137,19 +136,3 @@ export default compose(
 		'borderColor',
 	] )
 )( JetpackNumberField );
-
-const withCustomClassName = createHigherOrderComponent( BlockListBlock => {
-	return props => {
-		if ( props.name.indexOf( 'jetpack/field' ) > -1 ) {
-			const customClassName = props.attributes.width
-				? 'jetpack-field__width-' + props.attributes.width
-				: '';
-
-			return <BlockListBlock { ...props } className={ customClassName } />;
-		}
-
-		return <BlockListBlock { ...props } />;
-	};
-}, 'withCustomClassName' );
-
-addFilter( 'editor.BlockListBlock', 'jetpack/contact-form', withCustomClassName );
