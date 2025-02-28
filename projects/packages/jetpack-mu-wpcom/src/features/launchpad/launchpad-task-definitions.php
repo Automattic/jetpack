@@ -21,13 +21,20 @@ function wpcom_launchpad_should_use_wp_admin_link() {
 }
 
 /**
+ * Returns whether the site was created through the onboarding flow.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_has_site_been_created_through_onboarding_flow() {
+	return get_option( 'site_creation_flow' ) === 'onboarding';
+}
+
+/**
  * Get the task definitions for the Launchpad.
  *
  * @return Task[]
  */
 function wpcom_launchpad_get_task_definitions() {
-	$site_created_through_onboarding_flow = get_option( 'site_creation_flow' ) === 'onboarding';
-
 	$task_definitions = array(
 		// Core tasks.
 		'design_edited'                   => array(
@@ -47,26 +54,28 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => $site_created_through_onboarding_flow ? '__return_true' : 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) use ( $site_created_through_onboarding_flow ) {
-				$flow = get_option( 'site_intent' );
-				if ( $site_created_through_onboarding_flow ) {
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
 					return '/themes/' . $data['site_slug_encoded'];
 				}
+
+				$flow = get_option( 'site_intent' );
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'] . '&flow=' . $flow;
 			},
-			'is_disabled_callback' => $site_created_through_onboarding_flow ? '__return_false' : 'wpcom_launchpad_is_design_step_enabled',
+			'is_disabled_callback' => 'wpcom_launchpad_is_design_step_enabled',
 		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
-			'is_disabled_callback' => $site_created_through_onboarding_flow ? '__return_false' : 'wpcom_launchpad_is_design_step_enabled',
-			'get_calypso_path'     => function ( $task, $default, $data ) use ( $site_created_through_onboarding_flow ) {
-				if ( $site_created_through_onboarding_flow ) {
+			'is_disabled_callback' => 'wpcom_launchpad_is_design_step_enabled',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
 					return '/themes/' . $data['site_slug_encoded'];
 				}
+
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
@@ -1200,6 +1209,10 @@ function wpcom_launchpad_track_edit_site_task() {
  * @return boolean
  */
 function wpcom_launchpad_is_design_step_enabled() {
+	if ( wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
+		return false;
+	}
+
 	return ! wpcom_can_update_design_selected_task();
 }
 
@@ -1730,6 +1743,10 @@ function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
  * @return bool True if the option for the task is marked as complete, false otherwise.
  */
 function wpcom_launchpad_is_task_option_completed( $task ) {
+	if ( 'design_completed' === $task['id'] && wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
+		return true;
+	}
+
 	$checklist = get_option( 'launchpad_checklist_tasks_statuses', array() );
 	if ( ! empty( $checklist[ $task['id'] ] ) ) {
 		return true;
