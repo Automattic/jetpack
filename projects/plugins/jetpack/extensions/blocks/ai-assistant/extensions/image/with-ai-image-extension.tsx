@@ -127,7 +127,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						],
 						{
 							postId,
-							feature: 'jetpack-seo-assistant',
+							feature: 'jetpack-ai-image-extension',
 						}
 					);
 
