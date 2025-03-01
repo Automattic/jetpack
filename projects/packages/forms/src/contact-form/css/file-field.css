@@ -21,6 +21,19 @@
     outline-offset: var(--g);
 }
 
+.jetpack-form-file-field__dropzone-inner {
+	content: ' ';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+	cursor: pointer;
+}
+
 .jetpack-form-file-field__dropzone.is_dropping::before {
     border: 1px dotted gray;
     border-radius: inherit; /* Match the border-radius of the parent */

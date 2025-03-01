@@ -13,9 +13,9 @@ import {
  * (multiple radio buttons) or Multiple Choice fields (multiple checkboxes).
  */
 
-document.addEventListener( 'DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
 	initAllForms();
-} );
+});
 
 /******************************************************************************
  * LOCALIZATION
@@ -24,22 +24,22 @@ document.addEventListener( 'DOMContentLoaded', () => {
 const { __, _n } = wp.i18n;
 const L10N = {
 	/* translators: text read by a screen reader when a warning icon is displayed in front of an error message. */
-	warning: __( 'Warning.', 'jetpack-forms' ),
+	warning: __('Warning.', 'jetpack-forms'),
 	/* translators: error message shown when one or more fields of the form are invalid. */
-	invalidForm: __( 'Please make sure all fields are valid.', 'jetpack-forms' ),
+	invalidForm: __('Please make sure all fields are valid.', 'jetpack-forms'),
 	/* translators: error message shown when a multiple choice field requires at least one option to be selected. */
-	checkboxMissingValue: __( 'Please select at least one option.', 'jetpack-forms' ),
+	checkboxMissingValue: __('Please select at least one option.', 'jetpack-forms'),
 	/* translators: error message shown when a user enters an invalid date */
-	invalidDate: __( 'The date is not valid.', 'jetpack-forms' ),
+	invalidDate: __('The date is not valid.', 'jetpack-forms'),
 	/* translators: text read by a screen reader when a form is being submitted */
-	submittingForm: __( 'Submitting form', 'jetpack-forms' ),
+	submittingForm: __('Submitting form', 'jetpack-forms'),
 	/* translators: generic error message */
-	genericError: __( 'Please correct this field', 'jetpack-forms' ),
+	genericError: __('Please correct this field', 'jetpack-forms'),
 	/* translators: error message shown when no field has been filled out */
-	emptyForm: __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
+	emptyForm: __('The form you are trying to submit is empty.', 'jetpack-forms'),
 	errorCount: d =>
 		/* translators: message displayed when errors need to be fixed. %d is the number of errors. */
-		_n( 'You need to fix %d error.', 'You need to fix %d errors.', d, 'jetpack-forms' ),
+		_n('You need to fix %d error.', 'You need to fix %d errors.', d, 'jetpack-forms'),
 };
 
 /******************************************************************************
@@ -51,25 +51,23 @@ const L10N = {
  */
 const initAllForms = () => {
 	document
-		.querySelectorAll( '.wp-block-jetpack-contact-form-container form.contact-form' )
-		.forEach( initForm );
+		.querySelectorAll('.wp-block-jetpack-contact-form-container form.contact-form')
+		.forEach(initForm);
 };
 
-function isFormEmpty( form ) {
-	const clonedForm = form.cloneNode( true );
+function isFormEmpty(form) {
+	const clonedForm = form.cloneNode(true);
 	// `cloneNode` API doesn't clone the selected value of the select element unless we
 	// had specifc html markup (`selected`). So, after cloning we need to update the existing
 	// select values.
-	Array.from( clonedForm.querySelectorAll( 'select' ) ).forEach( select => {
-		select.value = form.querySelector( `select[id="${ select.id }"` )?.value;
-	} );
+	Array.from(clonedForm.querySelectorAll('select')).forEach(select => {
+		select.value = form.querySelector(`select[id="${select.id}"`)?.value;
+	});
 	// Remove hidden fields from the cloned form.
-	Array.from( clonedForm.querySelectorAll( 'input[type="hidden"]' ) ).forEach( input =>
-		input.remove()
-	);
-	const formData = new FormData( clonedForm );
-	return ! Array.from( formData.values() ).some( value =>
-		value instanceof File ? !! value.size : !! value?.trim?.()
+	Array.from(clonedForm.querySelectorAll('input[type="hidden"]')).forEach(input => input.remove());
+	const formData = new FormData(clonedForm);
+	return !Array.from(formData.values()).some(value =>
+		value instanceof File ? !!value.size : !!value?.trim?.()
 	);
 }
 
@@ -80,12 +78,12 @@ function isFormEmpty( form ) {
 const initForm = form => {
 	// Browsers don't all handle form validation in an accessible way.
 	// Let's disable it and handle it ourselves.
-	if ( ! form.hasAttribute( 'novalidate' ) ) {
-		form.setAttribute( 'novalidate', true );
+	if (!form.hasAttribute('novalidate')) {
+		form.setAttribute('novalidate', true);
 	}
 
 	const opts = {
-		hasInsetLabel: hasFormInsetLabels( form ),
+		hasInsetLabel: hasFormInsetLabels(form),
 	};
 
 	// Hold references to the input event listeners.
@@ -95,31 +93,31 @@ const initForm = form => {
 		e.preventDefault();
 
 		// Prevent multiple submissions.
-		if ( isFormSubmitting( form ) ) {
+		if (isFormSubmitting(form)) {
 			return;
 		}
 
-		clearForm( form, inputListenerMap, opts );
+		clearForm(form, inputListenerMap, opts);
 
-		const isValid = isFormValid( form );
+		const isValid = isFormValid(form);
 		// If a form is invalid proceed with the usual validation process, even if it's empty.
 		// This indicates that some fields are required.
-		if ( isFormEmpty( form ) && isValid ) {
-			setFormError( form, [], { disableLiveRegion: true, type: 'emptyForm' } );
+		if (isFormEmpty(form) && isValid) {
+			setFormError(form, [], { disableLiveRegion: true, type: 'emptyForm' });
 			return;
 		}
 
-		if ( isValid ) {
+		if (isValid) {
 			inputListenerMap = {};
 
-			form.removeEventListener( 'submit', onSubmit );
-			submitForm( form );
+			form.removeEventListener('submit', onSubmit);
+			submitForm(form);
 		} else {
-			inputListenerMap = invalidateForm( form, opts );
+			inputListenerMap = invalidateForm(form, opts);
 		}
 	};
 
-	form.addEventListener( 'submit', onSubmit );
+	form.addEventListener('submit', onSubmit);
 };
 
 /******************************************************************************
@@ -134,25 +132,25 @@ const initForm = form => {
 const isFormValid = form => {
 	let isValid = form.checkValidity();
 
-	if ( ! isValid ) {
+	if (!isValid) {
 		return false;
 	}
 
 	// Handle the Multiple Choice fields separately since checkboxes can't have a required attribute
 	// in that case.
-	const multipleChoiceFields = getMultipleChoiceFields( form );
+	const multipleChoiceFields = getMultipleChoiceFields(form);
 
-	for ( const field of multipleChoiceFields ) {
-		if ( isMultipleChoiceFieldRequired( field ) && ! isMultipleChoiceFieldValid( field ) ) {
+	for (const field of multipleChoiceFields) {
+		if (isMultipleChoiceFieldRequired(field) && !isMultipleChoiceFieldValid(field)) {
 			return false;
 		}
 	}
 
 	// Handle Date Picker fields
-	const datePickerFields = getDatePickerFields( form );
+	const datePickerFields = getDatePickerFields(form);
 
-	for ( const field of datePickerFields ) {
-		if ( ! isDateFieldValid( field ) ) {
+	for (const field of datePickerFields) {
+		if (!isDateFieldValid(field)) {
 			return false;
 		}
 	}
@@ -166,7 +164,7 @@ const isFormValid = form => {
  * @returns {boolean}
  */
 const isFormSubmitting = form => {
-	return form.getAttribute( 'data-submitting' ) === true;
+	return form.getAttribute('data-submitting') === true;
 };
 
 /**
@@ -177,7 +175,7 @@ const isFormSubmitting = form => {
 const isMultipleChoiceField = elt => {
 	return (
 		elt.tagName.toLowerCase() === 'fieldset' &&
-		elt.classList.contains( 'grunion-checkbox-multiple-options' )
+		elt.classList.contains('grunion-checkbox-multiple-options')
 	);
 };
 
@@ -188,7 +186,7 @@ const isMultipleChoiceField = elt => {
  */
 const isSingleChoiceField = elt => {
 	return (
-		elt.tagName.toLowerCase() === 'fieldset' && elt.classList.contains( 'grunion-radio-options' )
+		elt.tagName.toLowerCase() === 'fieldset' && elt.classList.contains('grunion-radio-options')
 	);
 };
 
@@ -198,7 +196,7 @@ const isSingleChoiceField = elt => {
  * @returns {boolean}
  */
 const isDatePickerField = elt => {
-	return elt.tagName.toLowerCase() === 'input' && elt.classList.contains( 'jp-contact-form-date' );
+	return elt.tagName.toLowerCase() === 'input' && elt.classList.contains('jp-contact-form-date');
 };
 
 /**
@@ -208,7 +206,7 @@ const isDatePickerField = elt => {
  */
 const isMultipleChoiceFieldRequired = fieldset => {
 	// Unlike radio buttons, we can't use the `required` attribute on checkboxes.
-	return fieldset.hasAttribute( 'data-required' );
+	return fieldset.hasAttribute('data-required');
 };
 
 /**
@@ -217,8 +215,8 @@ const isMultipleChoiceFieldRequired = fieldset => {
  * @returns {boolean}
  */
 const isSingleChoiceFieldRequired = fieldset => {
-	return Array.from( fieldset.querySelectorAll( 'input[type="radio"]' ) ).some(
-		input => input.hasAttribute( 'required' ) || input.hasAttribute( 'aria-required' )
+	return Array.from(fieldset.querySelectorAll('input[type="radio"]')).some(
+		input => input.hasAttribute('required') || input.hasAttribute('aria-required')
 	);
 };
 
@@ -228,8 +226,8 @@ const isSingleChoiceFieldRequired = fieldset => {
  * @returns {boolean}
  */
 const isSimpleFieldValid = input => {
-	if ( isDatePickerField( input ) && input.value ) {
-		return isDateFieldValid( input );
+	if (isDatePickerField(input) && input.value) {
+		return isDateFieldValid(input);
 	}
 
 	return input.validity.valid;
@@ -241,10 +239,10 @@ const isSimpleFieldValid = input => {
  * @returns {boolean}
  */
 const isSingleChoiceFieldValid = fieldset => {
-	const inputs = Array.from( fieldset.querySelectorAll( 'input[type="radio"]' ) );
+	const inputs = Array.from(fieldset.querySelectorAll('input[type="radio"]'));
 
-	if ( inputs.length > 0 ) {
-		return inputs.every( input => input.validity.valid );
+	if (inputs.length > 0) {
+		return inputs.every(input => input.validity.valid);
 	}
 
 	return false;
@@ -256,14 +254,14 @@ const isSingleChoiceFieldValid = fieldset => {
  * @returns {boolean}
  */
 const isMultipleChoiceFieldValid = fieldset => {
-	if ( ! isMultipleChoiceFieldRequired( fieldset ) ) {
+	if (!isMultipleChoiceFieldRequired(fieldset)) {
 		return true;
 	}
 
-	const inputs = Array.from( fieldset.querySelectorAll( 'input[type="checkbox"]' ) );
+	const inputs = Array.from(fieldset.querySelectorAll('input[type="checkbox"]'));
 
-	if ( inputs.length > 0 ) {
-		return inputs.some( input => input.checked );
+	if (inputs.length > 0) {
+		return inputs.some(input => input.checked);
 	}
 
 	return false;
@@ -275,16 +273,16 @@ const isMultipleChoiceFieldValid = fieldset => {
  * @returns {boolean}
  */
 const isDateFieldValid = input => {
-	const format = input.getAttribute( 'data-format' );
+	const format = input.getAttribute('data-format');
 	const value = input.value;
 	const $ = window.jQuery;
 
-	if ( value && format && typeof $ !== 'undefined' ) {
+	if (value && format && typeof $ !== 'undefined') {
 		try {
-			$.datepicker.parseDate( format, value );
-			input.setCustomValidity( '' );
+			$.datepicker.parseDate(format, value);
+			input.setCustomValidity('');
 		} catch {
-			input.setCustomValidity( L10N.invalidDate );
+			input.setCustomValidity(L10N.invalidDate);
 
 			return false;
 		}
@@ -300,16 +298,16 @@ const isDateFieldValid = input => {
  */
 const hasFormInsetLabels = form => {
 	// The style "container" is insde the form.
-	const block = form.querySelector( '.wp-block-jetpack-contact-form' );
+	const block = form.querySelector('.wp-block-jetpack-contact-form');
 
-	if ( ! block ) {
+	if (!block) {
 		return false;
 	}
 
 	const blockClassList = block.classList;
 
 	return (
-		blockClassList.contains( 'is-style-outlined' ) || blockClassList.contains( 'is-style-animated' )
+		blockClassList.contains('is-style-outlined') || blockClassList.contains('is-style-animated')
 	);
 };
 
@@ -323,9 +321,7 @@ const hasFormInsetLabels = form => {
  * @returns {HTMLButtonElement|HTMLInputElement|undefined} Submit button
  */
 const getFormSubmitBtn = form => {
-	return (
-		form.querySelector( '[type="submit"]' ) || form.querySelector( 'button:not([type="reset"])' )
-	);
+	return form.querySelector('[type="submit"]') || form.querySelector('button:not([type="reset"])');
 };
 
 /**
@@ -334,7 +330,7 @@ const getFormSubmitBtn = form => {
  * @returns {HTMLFieldSetElement[]} Fieldset elements
  */
 const getMultipleChoiceFields = form => {
-	return Array.from( form.querySelectorAll( '.grunion-checkbox-multiple-options' ) );
+	return Array.from(form.querySelectorAll('.grunion-checkbox-multiple-options'));
 };
 
 /**
@@ -343,7 +339,7 @@ const getMultipleChoiceFields = form => {
  * @returns {HTMLInputElement[]} Input elements
  */
 const getDatePickerFields = form => {
-	return Array.from( form.querySelectorAll( 'input.jp-contact-form-date' ) );
+	return Array.from(form.querySelectorAll('input.jp-contact-form-date'));
 };
 
 /**
@@ -352,9 +348,9 @@ const getDatePickerFields = form => {
  * @returns {HTMLElement[]} Form inputs
  */
 const getFormInputs = form => {
-	return Array.from( form.elements ).filter(
+	return Array.from(form.elements).filter(
 		// input.offsetParent filters out inputs of which the parent is hidden.
-		input => ! [ 'hidden', 'submit' ].includes( input.type ) && input.offsetParent !== null
+		input => !['hidden', 'submit'].includes(input.type) && input.offsetParent !== null
 	);
 };
 
@@ -364,7 +360,7 @@ const getFormInputs = form => {
  * @returns {object} Form fields (type: fields[])
  */
 const getFormFields = form => {
-	const groupedInputs = groupInputs( getFormInputs( form ) );
+	const groupedInputs = groupInputs(getFormInputs(form));
 	const fields = {
 		simple: groupedInputs.default,
 		singleChoice: [],
@@ -373,38 +369,38 @@ const getFormFields = form => {
 
 	// Single Choice fields (i.e., fieldsets with radio buttons)
 	const uniqueRadioNames = groupedInputs.radios.reduce(
-		( acc, input ) => ( acc.includes( input.name ) ? acc : [ ...acc, input.name ] ),
+		(acc, input) => (acc.includes(input.name) ? acc : [...acc, input.name]),
 		[]
 	);
 
-	for ( const name of uniqueRadioNames ) {
+	for (const name of uniqueRadioNames) {
 		// Get the first radio button of the group.
-		const input = form.querySelector( `input[type="radio"][name="${ name }"]` );
+		const input = form.querySelector(`input[type="radio"][name="${name}"]`);
 
-		if ( input ) {
-			const fieldset = input.closest( 'fieldset' );
+		if (input) {
+			const fieldset = input.closest('fieldset');
 
-			if ( fieldset ) {
-				fields.singleChoice.push( fieldset );
+			if (fieldset) {
+				fields.singleChoice.push(fieldset);
 			}
 		}
 	}
 
 	// Multiple Choice fields (i.e., fieldsets with checkboxes)
 	const uniqueCheckboxNames = groupedInputs.checkboxes.reduce(
-		( acc, input ) => ( acc.includes( input.name ) ? acc : [ ...acc, input.name ] ),
+		(acc, input) => (acc.includes(input.name) ? acc : [...acc, input.name]),
 		[]
 	);
 
-	for ( const name of uniqueCheckboxNames ) {
+	for (const name of uniqueCheckboxNames) {
 		// Get the first checkbox of the group.
-		const input = form.querySelector( `input[type="checkbox"][name="${ name }"]` );
+		const input = form.querySelector(`input[type="checkbox"][name="${name}"]`);
 
-		if ( input ) {
-			const fieldset = input.closest( 'fieldset' );
+		if (input) {
+			const fieldset = input.closest('fieldset');
 
-			if ( fieldset ) {
-				fields.multipleChoice.push( fieldset );
+			if (fieldset) {
+				fields.multipleChoice.push(fieldset);
 			}
 		}
 	}
@@ -418,7 +414,7 @@ const getFormFields = form => {
  * @returns {HTMLElement|undefined} Error element
  */
 const getFormError = form => {
-	return form.querySelector( '.contact-form__error' );
+	return form.querySelector('.contact-form__error');
 };
 
 /**
@@ -427,7 +423,7 @@ const getFormError = form => {
  * @returns {NodeListOf<HTMLElement>} Invalid elements
  */
 const getInvalidFields = form => {
-	return form.querySelectorAll( '[aria-invalid]' );
+	return form.querySelectorAll('[aria-invalid]');
 };
 
 /******************************************************************************
@@ -439,24 +435,24 @@ const getInvalidFields = form => {
  * @returns {HTMLSpanElement} Spinner
  */
 const createSpinner = () => {
-	const elt = document.createElement( 'span' );
-	const spinner = document.createElement( 'span' );
-	const srText = document.createElement( 'span' );
+	const elt = document.createElement('span');
+	const spinner = document.createElement('span');
+	const srText = document.createElement('span');
 
 	// Hide SVG from screen readers
-	spinner.setAttribute( 'aria-hidden', true );
+	spinner.setAttribute('aria-hidden', true);
 	// Inlining the SVG rather than embedding it in an <img> tag allows us to set the `fill` property
 	// in CSS.
 	spinner.innerHTML =
 		'<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25"/><path d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"><animateTransform attributeName="transform" type="rotate" dur="0.75s" values="0 12 12;360 12 12" repeatCount="indefinite"/></path></svg>';
 
 	// Spinner replacement for screen readers
-	srText.classList.add( 'visually-hidden' );
+	srText.classList.add('visually-hidden');
 	srText.textContent = L10N.submittingForm;
 
-	elt.classList.add( 'contact-form__spinner' );
-	elt.appendChild( spinner );
-	elt.appendChild( srText );
+	elt.classList.add('contact-form__spinner');
+	elt.appendChild(spinner);
+	elt.appendChild(srText);
 
 	return elt;
 };
@@ -467,36 +463,36 @@ const createSpinner = () => {
  * @param {HTMLElement[]}   invalidFields Invalid fields
  * @returns {HTMLUListElement} List element
  */
-const createInvalidFieldsList = ( form, invalidFields ) => {
-	const list = document.createElement( 'ul' );
+const createInvalidFieldsList = (form, invalidFields) => {
+	const list = document.createElement('ul');
 
-	for ( const field of invalidFields ) {
+	for (const field of invalidFields) {
 		const id = field.id;
 
-		if ( ! id ) {
+		if (!id) {
 			continue;
 		}
 
 		let label;
 
-		if ( isMultipleChoiceField( field ) || isSingleChoiceField( field ) ) {
-			label = field.querySelector( 'legend' );
+		if (isMultipleChoiceField(field) || isSingleChoiceField(field)) {
+			label = field.querySelector('legend');
 		} else {
-			label = form.querySelector( `label[for="${ id }"]` );
+			label = form.querySelector(`label[for="${id}"]`);
 		}
 
-		if ( ! label ) {
+		if (!label) {
 			continue;
 		}
 
-		const li = document.createElement( 'li' );
-		const a = document.createElement( 'a' );
+		const li = document.createElement('li');
+		const a = document.createElement('a');
 
 		a.textContent = label.innerText;
-		a.setAttribute( 'href', `#${ id }` );
+		a.setAttribute('href', `#${id}`);
 
-		li.appendChild( a );
-		list.appendChild( li );
+		li.appendChild(a);
+		list.appendChild(li);
 	}
 
 	return list;
@@ -507,9 +503,9 @@ const createInvalidFieldsList = ( form, invalidFields ) => {
  * @returns {HTMLDivElement} Error container
  */
 const createFormErrorContainer = () => {
-	const elt = document.createElement( 'div' );
+	const elt = document.createElement('div');
 
-	elt.classList.add( 'contact-form__error' );
+	elt.classList.add('contact-form__error');
 
 	return elt;
 };
@@ -527,21 +523,21 @@ const createFormErrorContainer = () => {
  */
 const groupInputs = inputs => {
 	return inputs.reduce(
-		( acc, input ) => {
-			switch ( input.type ) {
+		(acc, input) => {
+			switch (input.type) {
 				case 'radio':
-					acc.radios.push( input );
+					acc.radios.push(input);
 					break;
 				case 'checkbox':
-					if ( input.name.indexOf( '[]' ) === input.name.length - 2 ) {
-						acc.checkboxes.push( input );
+					if (input.name.indexOf('[]') === input.name.length - 2) {
+						acc.checkboxes.push(input);
 					} else {
 						// Handle checkbox inputs with a single value like other inputs.
-						acc.default.push( input );
+						acc.default.push(input);
 					}
 					break;
 				default:
-					acc.default.push( input );
+					acc.default.push(input);
 					break;
 			}
 
@@ -561,14 +557,14 @@ const groupInputs = inputs => {
  * @param {object}          inputListenerMap Map of input event listeners (name: [event, handler])
  * @param {object}          opts             Form options
  */
-const clearForm = ( form, inputListenerMap, opts ) => {
-	clearErrors( form, opts );
+const clearForm = (form, inputListenerMap, opts) => {
+	clearErrors(form, opts);
 
-	for ( const name in inputListenerMap ) {
+	for (const name in inputListenerMap) {
 		form
-			.querySelectorAll( `[name="${ name }"]` )
-			.forEach( input =>
-				input.removeEventListener( inputListenerMap[ name ][ 0 ], inputListenerMap[ name ][ 1 ] )
+			.querySelectorAll(`[name="${name}"]`)
+			.forEach(input =>
+				input.removeEventListener(inputListenerMap[name][0], inputListenerMap[name][1])
 			);
 	}
 };
@@ -578,9 +574,9 @@ const clearForm = ( form, inputListenerMap, opts ) => {
  * @param {HTMLFormElement} form Form element
  * @param {object}          opts Form options
  */
-const clearErrors = ( form, opts ) => {
-	clearFormError( form );
-	clearFieldErrors( form, opts );
+const clearErrors = (form, opts) => {
+	clearFormError(form);
+	clearFieldErrors(form, opts);
 };
 
 /**
@@ -588,9 +584,9 @@ const clearErrors = ( form, opts ) => {
  * @param {HTMLFormElement} form Form element
  */
 const clearFormError = form => {
-	const formError = getFormError( form );
+	const formError = getFormError(form);
 
-	if ( formError ) {
+	if (formError) {
 		formError.replaceChildren();
 	}
 };
@@ -600,14 +596,14 @@ const clearFormError = form => {
  * @param {HTMLFormElement} form Form element
  * @param {object}          opts Form options
  */
-const clearFieldErrors = ( form, opts ) => {
-	for ( const field of getInvalidFields( form ) ) {
-		if ( isSingleChoiceField( field ) ) {
-			clearGroupInputError( field );
-		} else if ( isMultipleChoiceField( field ) ) {
-			clearGroupInputError( field );
+const clearFieldErrors = (form, opts) => {
+	for (const field of getInvalidFields(form)) {
+		if (isSingleChoiceField(field)) {
+			clearGroupInputError(field);
+		} else if (isMultipleChoiceField(field)) {
+			clearGroupInputError(field);
 		} else {
-			clearInputError( field, opts );
+			clearInputError(field, opts);
 		}
 	}
 };
@@ -618,12 +614,12 @@ const clearFieldErrors = ( form, opts ) => {
  * @param {HTMLFieldSetElement} fieldset Fieldset element
  */
 const clearGroupInputError = fieldset => {
-	fieldset.removeAttribute( 'aria-invalid' );
-	fieldset.removeAttribute( 'aria-describedby' );
+	fieldset.removeAttribute('aria-invalid');
+	fieldset.removeAttribute('aria-describedby');
 
-	const error = fieldset.querySelector( '.contact-form__input-error' );
+	const error = fieldset.querySelector('.contact-form__input-error');
 
-	if ( error ) {
+	if (error) {
 		error.replaceChildren();
 	}
 };
@@ -637,9 +633,9 @@ const clearGroupInputError = fieldset => {
  * @param {HTMLFormElement} form Form element
  */
 const submitForm = form => {
-	showFormSubmittingIndicator( form );
+	showFormSubmittingIndicator(form);
 
-	form.setAttribute( 'data-submitting', true );
+	form.setAttribute('data-submitting', true);
 	form.submit();
 };
 
@@ -648,14 +644,14 @@ const submitForm = form => {
  * @param {HTMLFormElement} form Form element
  */
 const showFormSubmittingIndicator = form => {
-	const submitBtn = getFormSubmitBtn( form );
+	const submitBtn = getFormSubmitBtn(form);
 
-	if ( submitBtn ) {
+	if (submitBtn) {
 		// We should avoid using `disabled` when possible. One of the reasons is that `disabled`
 		// buttons lose their focus, which can be confusing. Better use `aria-disabled` instead.
 		// Ref. https://css-tricks.com/making-disabled-buttons-more-inclusive/#aa-aria-to-the-rescue
-		submitBtn.setAttribute( 'aria-disabled', true );
-		submitBtn.appendChild( createSpinner() );
+		submitBtn.setAttribute('aria-disabled', true);
+		submitBtn.appendChild(createSpinner());
 	}
 };
 
@@ -669,10 +665,10 @@ const showFormSubmittingIndicator = form => {
  * @param {object}          opts Form options
  * @returns {object} Map of the input event listeners set (name: handler)
  */
-const invalidateForm = ( form, opts ) => {
-	setErrors( form, opts );
+const invalidateForm = (form, opts) => {
+	setErrors(form, opts);
 
-	return listenToInvalidFields( form, opts );
+	return listenToInvalidFields(form, opts);
 };
 
 /**
@@ -681,20 +677,20 @@ const invalidateForm = ( form, opts ) => {
  * @param {object}          opts Form options
  * @returns {object} Map of the input event listeners set (name: handler)
  */
-const listenToInvalidFields = ( form, opts ) => {
+const listenToInvalidFields = (form, opts) => {
 	let listenerMap = {};
 
-	const eventCb = () => updateFormErrorMessage( form );
+	const eventCb = () => updateFormErrorMessage(form);
 
-	for ( const field of getInvalidFields( form ) ) {
+	for (const field of getInvalidFields(form)) {
 		let obj;
 
-		if ( isSingleChoiceField( field ) && isSingleChoiceFieldRequired( field ) ) {
-			obj = listenToInvalidSingleChoiceField( field, eventCb, form, opts );
-		} else if ( isMultipleChoiceField( field ) && isMultipleChoiceFieldRequired( field ) ) {
-			obj = listenToInvalidMultipleChoiceField( field, eventCb, form, opts );
+		if (isSingleChoiceField(field) && isSingleChoiceFieldRequired(field)) {
+			obj = listenToInvalidSingleChoiceField(field, eventCb, form, opts);
+		} else if (isMultipleChoiceField(field) && isMultipleChoiceFieldRequired(field)) {
+			obj = listenToInvalidMultipleChoiceField(field, eventCb, form, opts);
 		} else {
-			obj = listenToInvalidSimpleField( field, eventCb, form, opts );
+			obj = listenToInvalidSimpleField(field, eventCb, form, opts);
 		}
 
 		listenerMap = {
@@ -714,26 +710,26 @@ const listenToInvalidFields = ( form, opts ) => {
  * @param {object}              opts     Form options
  * @returns {object} Map of the input event listeners set (name: [event, handler])
  */
-const listenToInvalidSingleChoiceField = ( fieldset, cb, form, opts ) => {
+const listenToInvalidSingleChoiceField = (fieldset, cb, form, opts) => {
 	const listenerMap = {};
 	const eventHandler = () => {
-		if ( isSingleChoiceFieldValid( fieldset ) ) {
-			clearGroupInputError( fieldset );
+		if (isSingleChoiceFieldValid(fieldset)) {
+			clearGroupInputError(fieldset);
 		} else {
-			setSingleChoiceFieldError( fieldset, form, opts );
+			setSingleChoiceFieldError(fieldset, form, opts);
 		}
 
 		cb();
 	};
 
-	const inputs = fieldset.querySelectorAll( 'input[type="radio"]' );
+	const inputs = fieldset.querySelectorAll('input[type="radio"]');
 
-	for ( const input of inputs ) {
-		input.addEventListener( 'blur', eventHandler );
-		input.addEventListener( 'change', eventHandler );
+	for (const input of inputs) {
+		input.addEventListener('blur', eventHandler);
+		input.addEventListener('change', eventHandler);
 
-		listenerMap[ input.name ] = [ 'blur', eventHandler ];
-		listenerMap[ input.name ] = [ 'change', eventHandler ];
+		listenerMap[input.name] = ['blur', eventHandler];
+		listenerMap[input.name] = ['change', eventHandler];
 	}
 
 	return listenerMap;
@@ -747,26 +743,26 @@ const listenToInvalidSingleChoiceField = ( fieldset, cb, form, opts ) => {
  * @param {object}              opts     Form options
  * @returns {object} Map of the input event listeners set (name: [event, handler])
  */
-const listenToInvalidMultipleChoiceField = ( fieldset, cb, form, opts ) => {
+const listenToInvalidMultipleChoiceField = (fieldset, cb, form, opts) => {
 	const listenerMap = {};
 	const eventHandler = () => {
-		if ( isMultipleChoiceFieldValid( fieldset ) ) {
-			clearGroupInputError( fieldset );
+		if (isMultipleChoiceFieldValid(fieldset)) {
+			clearGroupInputError(fieldset);
 		} else {
-			setMultipleChoiceFieldError( fieldset, form, opts );
+			setMultipleChoiceFieldError(fieldset, form, opts);
 		}
 
 		cb();
 	};
 
-	const inputs = fieldset.querySelectorAll( 'input[type="checkbox"]' );
+	const inputs = fieldset.querySelectorAll('input[type="checkbox"]');
 
-	for ( const input of inputs ) {
-		input.addEventListener( 'blur', eventHandler );
-		input.addEventListener( 'change', eventHandler );
+	for (const input of inputs) {
+		input.addEventListener('blur', eventHandler);
+		input.addEventListener('change', eventHandler);
 
-		listenerMap[ input.name ] = [ 'blur', eventHandler ];
-		listenerMap[ input.name ] = [ 'change', eventHandler ];
+		listenerMap[input.name] = ['blur', eventHandler];
+		listenerMap[input.name] = ['change', eventHandler];
 	}
 
 	return listenerMap;
@@ -780,37 +776,37 @@ const listenToInvalidMultipleChoiceField = ( fieldset, cb, form, opts ) => {
  * @param {object}          opts  Form options
  * @returns {object} Map of the input event listeners set (name: [event, handler])
  */
-const listenToInvalidSimpleField = ( input, cb, form, opts ) => {
+const listenToInvalidSimpleField = (input, cb, form, opts) => {
 	const isValueMissing = input.validity.valueMissing;
 	const listenerMap = {};
 	const blurHandler = () => {
-		if ( isSimpleFieldValid( input ) ) {
-			clearInputError( input, opts );
+		if (isSimpleFieldValid(input)) {
+			clearInputError(input, opts);
 		} else {
-			setSimpleFieldError( input, form, opts );
+			setSimpleFieldError(input, form, opts);
 		}
 
 		cb();
 	};
 	const inputHandler = () => {
-		if ( ! input.validity.valueMissing ) {
-			clearInputError( input, opts );
+		if (!input.validity.valueMissing) {
+			clearInputError(input, opts);
 		} else {
-			setSimpleFieldError( input, form, opts );
+			setSimpleFieldError(input, form, opts);
 		}
 
 		cb();
 	};
 
-	input.addEventListener( 'blur', blurHandler );
-	listenerMap[ input.name ] = [ 'blur', blurHandler ];
+	input.addEventListener('blur', blurHandler);
+	listenerMap[input.name] = ['blur', blurHandler];
 
 	// A missing value is the only error for which we want to discard the error message as a user
 	// updates the field. The native error message of an email input, for instance, changes as a user
 	// types, which is more distracting than helpful.
-	if ( isValueMissing ) {
-		input.addEventListener( 'input', inputHandler );
-		listenerMap[ input.name ] = [ 'input', inputHandler ];
+	if (isValueMissing) {
+		input.addEventListener('input', inputHandler);
+		listenerMap[input.name] = ['input', inputHandler];
 	}
 
 	return listenerMap;
@@ -825,10 +821,10 @@ const listenToInvalidSimpleField = ( input, cb, form, opts ) => {
  * @param {HTMLFormElement} form Form element
  * @param {object}          opts Form options
  */
-const setErrors = ( form, opts ) => {
-	const invalidFields = setFieldErrors( form, opts );
+const setErrors = (form, opts) => {
+	const invalidFields = setFieldErrors(form, opts);
 
-	setFormError( form, invalidFields );
+	setFormError(form, invalidFields);
 };
 
 /**
@@ -837,29 +833,29 @@ const setErrors = ( form, opts ) => {
  * @param {HTMLElement[]}   invalidFields Invalid fields
  * @param {object}          opts          Options
  */
-const setFormError = ( form, invalidFields, opts = {} ) => {
-	let error = getFormError( form );
+const setFormError = (form, invalidFields, opts = {}) => {
+	let error = getFormError(form);
 
-	if ( ! error ) {
-		error = createFormErrorContainer( form );
+	if (!error) {
+		error = createFormErrorContainer(form);
 
-		const submitBtn = getFormSubmitBtn( form );
+		const submitBtn = getFormSubmitBtn(form);
 
-		if ( submitBtn ) {
-			submitBtn.parentNode.parentNode.insertBefore( error, submitBtn.parentNode );
+		if (submitBtn) {
+			submitBtn.parentNode.parentNode.insertBefore(error, submitBtn.parentNode);
 		} else {
-			form.appendChild( error );
+			form.appendChild(error);
 		}
 	}
 
 	const { disableLiveRegion } = opts;
 
-	if ( disableLiveRegion ) {
-		error.removeAttribute( 'aria-live' );
-		error.removeAttribute( 'role' );
+	if (disableLiveRegion) {
+		error.removeAttribute('aria-live');
+		error.removeAttribute('role');
 	} else {
-		error.setAttribute( 'aria-live', 'assertive' );
-		error.setAttribute( 'role', 'alert' );
+		error.setAttribute('aria-live', 'assertive');
+		error.setAttribute('role', 'alert');
 	}
 
 	const count = invalidFields.length;
@@ -867,20 +863,20 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
 	// have no field validation errors. We have to pass no invalid fields and
 	// `opts.type` to match a translatable message. We should extract it when
 	// we refactor the error handling.
-	if ( ! count && !! L10N[ opts.type ] ) {
-		error.appendChild( createError( L10N[ opts.type ] ) );
+	if (!count && !!L10N[opts.type]) {
+		error.appendChild(createError(L10N[opts.type]));
 		return;
 	}
-	const errors = [ L10N.invalidForm ];
+	const errors = [L10N.invalidForm];
 
-	if ( count > 0 ) {
-		errors.push( L10N.errorCount( count ).replace( '%d', count ) );
+	if (count > 0) {
+		errors.push(L10N.errorCount(count).replace('%d', count));
 	}
 
-	error.appendChild( createError( errors.join( ' ' ) ) );
+	error.appendChild(createError(errors.join(' ')));
 
-	if ( count > 0 ) {
-		error.appendChild( createInvalidFieldsList( form, invalidFields ) );
+	if (count > 0) {
+		error.appendChild(createInvalidFieldsList(form, invalidFields));
 	}
 };
 
@@ -890,11 +886,11 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
  * @param {object}          opts Form options
  */
 const updateFormErrorMessage = form => {
-	clearFormError( form );
+	clearFormError(form);
 
-	if ( ! isFormValid( form ) ) {
+	if (!isFormValid(form)) {
 		// Prevent screen readers from announcing the error message on each update.
-		setFormError( form, getInvalidFields( form ), { disableLiveRegion: true } );
+		setFormError(form, getInvalidFields(form), { disableLiveRegion: true });
 	}
 };
 
@@ -904,31 +900,31 @@ const updateFormErrorMessage = form => {
  * @param {object}          opts Form options
  * @return {HTMLElement[]} Invalid fields
  */
-const setFieldErrors = ( form, opts ) => {
+const setFieldErrors = (form, opts) => {
 	const invalidFields = [];
-	const { simple, singleChoice, multipleChoice } = getFormFields( form );
+	const { simple, singleChoice, multipleChoice } = getFormFields(form);
 
-	for ( const field of simple ) {
-		if ( ! isSimpleFieldValid( field ) ) {
-			setSimpleFieldError( field, form, opts );
+	for (const field of simple) {
+		if (!isSimpleFieldValid(field)) {
+			setSimpleFieldError(field, form, opts);
 
-			invalidFields.push( field );
+			invalidFields.push(field);
 		}
 	}
 
-	for ( const field of singleChoice ) {
-		if ( ! isSingleChoiceFieldValid( field ) ) {
-			setSingleChoiceFieldError( field, form, opts );
+	for (const field of singleChoice) {
+		if (!isSingleChoiceFieldValid(field)) {
+			setSingleChoiceFieldError(field, form, opts);
 
-			invalidFields.push( field );
+			invalidFields.push(field);
 		}
 	}
 
-	for ( const field of multipleChoice ) {
-		if ( ! isMultipleChoiceFieldValid( field ) ) {
-			setMultipleChoiceFieldError( field, form, opts );
+	for (const field of multipleChoice) {
+		if (!isMultipleChoiceFieldValid(field)) {
+			setMultipleChoiceFieldError(field, form, opts);
 
-			invalidFields.push( field );
+			invalidFields.push(field);
 		}
 	}
 
@@ -941,8 +937,8 @@ const setFieldErrors = ( form, opts ) => {
  * @param {HTMLFormElement}     form     Parent form element
  * @param {object}              opts     Form options
  */
-const setSingleChoiceFieldError = ( fieldset, form, opts ) => {
-	setGroupInputError( fieldset, form, opts );
+const setSingleChoiceFieldError = (fieldset, form, opts) => {
+	setGroupInputError(fieldset, form, opts);
 };
 
 /**
@@ -951,11 +947,11 @@ const setSingleChoiceFieldError = ( fieldset, form, opts ) => {
  * @param {HTMLFormElement}     form     Parent form element
  * @param {object}              opts     Form options
  */
-const setMultipleChoiceFieldError = ( fieldset, form, opts ) => {
-	setGroupInputError( fieldset, form, {
+const setMultipleChoiceFieldError = (fieldset, form, opts) => {
+	setGroupInputError(fieldset, form, {
 		...opts,
 		message: L10N.checkboxMissingValue,
-	} );
+	});
 };
 
 /**
@@ -966,27 +962,27 @@ const setMultipleChoiceFieldError = ( fieldset, form, opts ) => {
  * @param {HTMLFormElement}     form     Parent form element
  * @param {object}              opts     Options
  */
-const setGroupInputError = ( fieldset, form, opts ) => {
-	const firstInput = fieldset.querySelector( 'input' );
+const setGroupInputError = (fieldset, form, opts) => {
+	const firstInput = fieldset.querySelector('input');
 
-	if ( ! firstInput ) {
+	if (!firstInput) {
 		return;
 	}
 
-	const inputName = firstInput.name.replace( '[]', '' );
-	const errorId = `${ inputName }-error`;
+	const inputName = firstInput.name.replace('[]', '');
+	const errorId = `${inputName}-error`;
 
-	let error = form.querySelector( `#${ errorId }` );
+	let error = form.querySelector(`#${errorId}`);
 
-	if ( ! error ) {
-		error = createInputErrorContainer( errorId );
+	if (!error) {
+		error = createInputErrorContainer(errorId);
 	}
 
 	error.replaceChildren(
-		createError( firstInput.validationMessage || opts.message || L10N.genericError )
+		createError(firstInput.validationMessage || opts.message || L10N.genericError)
 	);
 
-	fieldset.appendChild( error );
-	fieldset.setAttribute( 'aria-invalid', 'true' );
-	fieldset.setAttribute( 'aria-describedby', errorId );
+	fieldset.appendChild(error);
+	fieldset.setAttribute('aria-invalid', 'true');
+	fieldset.setAttribute('aria-describedby', errorId);
 };
