@@ -8,7 +8,7 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useNotices from '../../hooks/use-notices';
 import usePlan from '../../hooks/use-plan';
@@ -23,7 +23,12 @@ const ConnectedPricingTable = () => {
 	const { showErrorNotice } = useNotices();
 	const { recordEvent } = useAnalyticsTracks();
 	const { upgradePlan, isLoading: isPlanLoading } = usePlan();
-	const { handleRegisterSite, siteIsRegistering, registrationError } = useConnection( {
+
+	// Track whether the connection process has started outside of the checkout/connection flows.
+	// These flows result in redirects, so we want to keep the related actions as "busy" until the redirect is complete.
+	const [ hasConnectionStarted, setHasConnectionStarted ] = useState( false );
+
+	const { handleRegisterSite, registrationError } = useConnection( {
 		from: 'protect',
 		skipUserConnection: true,
 		redirectUri: 'admin.php?page=jetpack-protect',
@@ -41,15 +46,20 @@ const ConnectedPricingTable = () => {
 		: null;
 
 	const getScan = useCallback( () => {
+		setHasConnectionStarted( true );
 		recordEvent( 'jetpack_protect_pricing_table_get_scan_link_click' );
 		upgradePlan();
 	}, [ recordEvent, upgradePlan ] );
 
 	const getProtectFree = useCallback( async () => {
+		setHasConnectionStarted( true );
 		recordEvent( 'jetpack_protect_connected_product_activated' );
-		handleRegisterSite().catch( () =>
-			showErrorNotice( __( 'Could not connect site.', 'jetpack-protect' ) )
-		);
+		try {
+			await handleRegisterSite();
+		} catch {
+			showErrorNotice( __( 'Could not connect site.', 'jetpack-protect' ) );
+			setHasConnectionStarted( false );
+		}
 	}, [ handleRegisterSite, recordEvent, showErrorNotice ] );
 
 	const args = {
@@ -101,7 +111,7 @@ const ConnectedPricingTable = () => {
 							fullWidth
 							onClick={ getScan }
 							isLoading={ isPlanLoading }
-							disabled={ isPlanLoading || siteIsRegistering }
+							disabled={ isPlanLoading || hasConnectionStarted }
 						>
 							{ __( 'Get Jetpack Protect', 'jetpack-protect' ) }
 						</Button>
@@ -139,8 +149,8 @@ const ConnectedPricingTable = () => {
 							fullWidth
 							variant="secondary"
 							onClick={ getProtectFree }
-							isLoading={ siteIsRegistering }
-							disabled={ siteIsRegistering || isPlanLoading }
+							isLoading={ hasConnectionStarted }
+							disabled={ hasConnectionStarted || isPlanLoading }
 							error={
 								registrationError
 									? __( 'An error occurred. Please try again.', 'jetpack-protect' )
