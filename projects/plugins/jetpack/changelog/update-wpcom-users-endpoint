@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Ensure that the 'found' value accurately represents the found query count when including viewers in the result.
