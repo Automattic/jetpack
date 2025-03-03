@@ -28,6 +28,8 @@ import {
 	QUERY_CHAT_AUTHENTICATION_KEY,
 	QUERY_GET_JETPACK_MANAGE_DATA_KEY,
 	REST_API_GET_JETPACK_MANAGE_DATA,
+	QUERY_RED_BUBBLE_ALERTS_KEY,
+	REST_API_RED_BUBBLE_ALERTS,
 } from '../../data/constants';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useUpdateHistoricallyActiveModules from '../../data/products/use-update-historically-active-modules';
@@ -97,7 +99,6 @@ export default function MyJetpackScreen() {
 		isAtomic = false,
 		adminUrl,
 		sandboxedDomain,
-		redBubbleAlerts,
 		isDevVersion,
 		userIsAdmin,
 	} = getMyJetpackWindowInitialState();
@@ -127,6 +128,16 @@ export default function MyJetpackScreen() {
 		name: QUERY_GET_JETPACK_MANAGE_DATA_KEY,
 		query: { path: REST_API_GET_JETPACK_MANAGE_DATA },
 	} );
+
+	const {
+		data: redBubbleAlerts,
+		isLoading: isRedBubbleAlertsLoading,
+		isError: isRedBubbleAlertsError,
+	} = useSimpleQuery( {
+		name: QUERY_RED_BUBBLE_ALERTS_KEY,
+		query: { path: REST_API_RED_BUBBLE_ALERTS },
+	} );
+
 	const updateHistoricallyActiveModules = useUpdateHistoricallyActiveModules();
 
 	useEffect( () => {
@@ -147,10 +158,12 @@ export default function MyJetpackScreen() {
 	// useLayoutEffect gets called before useEffect.
 	// We are using it here to ensure the `page_view` event gets triggered first.
 	useLayoutEffect( () => {
-		recordEvent( 'jetpack_myjetpack_page_view', {
-			red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
-		} );
-	}, [ recordEvent, redBubbleAlerts ] );
+		if ( ! isRedBubbleAlertsError && ! isRedBubbleAlertsLoading && redBubbleAlerts.length > 0 ) {
+			recordEvent( 'jetpack_myjetpack_page_view', {
+				red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
+			} );
+		}
+	}, [ recordEvent, redBubbleAlerts, isRedBubbleAlertsError, isRedBubbleAlertsLoading ] );
 
 	if ( window.location.hash.includes( '?reload=true' ) ) {
 		// Clears the query string and reloads the page.
