@@ -58,7 +58,7 @@ const _wpcomBuildSiteUrl = ( fragment: DocumentFragment ) => {
 			<th scope="row"><label for="home">${ homeUrlLabel }</label></th>
 			<td>
 				<input type="url" id="home" value="${ window.wpcomSiteUrl.homeUrl }" class="regular-text code disabled" disabled="disabled" />
-				<button class="button wpcom-add-custom-address-button">
+				<button type="button" class="button wpcom-add-custom-address-button">
 					+ Add custom address
 				</button>
 			</td>
