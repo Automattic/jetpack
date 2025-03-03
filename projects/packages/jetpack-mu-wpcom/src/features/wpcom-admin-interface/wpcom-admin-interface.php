@@ -7,7 +7,6 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Masterbar\Admin_Menu;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
