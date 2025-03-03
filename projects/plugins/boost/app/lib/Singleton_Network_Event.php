@@ -43,7 +43,7 @@ class Singleton_Network_Event implements Has_Setup {
 	 *
 	 * This method ensures that network-wide cron jobs are synchronized across the network.
 	 * It compares the blog's cron schedule with the network-wide schedule and makes adjustments
-	 * to ensure cron jobs run at the appropriate time across the network.
+	 * to the blog's cron schedule to ensure it runs at the appropriate time across the network.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -57,9 +57,10 @@ class Singleton_Network_Event implements Has_Setup {
 
 		// Prevent infinite loop as wp_get_ready_cron_jobs() calls this filter.
 		self::$is_filtering = true;
-
 		// If $crons is empty, get the cron jobs from the database.
-		$crons = empty( $crons ) ? wp_get_ready_cron_jobs() : $crons;
+		$crons              = empty( $crons ) ? wp_get_ready_cron_jobs() : $crons;
+		self::$is_filtering = false;
+
 		if ( empty( $crons ) ) {
 			return $crons;
 		}
@@ -73,22 +74,30 @@ class Singleton_Network_Event implements Has_Setup {
 
 		$update_crons_to_execute = false;
 		// $crons is an array of arrays, where the first level key is the timestamp, and the second level key is the hook.
-		foreach ( $crons as $timestamp => $cronhooks ) {
+		foreach ( $crons as $blog_timestamp_to_execute => $cronhooks ) {
 			foreach ( $cronhooks as $hook => $hook_refs ) {
 				if ( empty( $crons_to_execute[ $hook ] ) ) {
 					// This cron is due but not a network cron, skip it.
 					continue;
 				}
 
+				if ( $blog_timestamp_to_execute < DAY_IN_SECONDS ) {
+					// If WordPress is indicating that the cron is due within a day of Unix, we assume this cron should be ran.
+					// Plugins such as WP Crontrol may set the event as due within a day of Unix, to ensure it's ran.
+					continue;
+				}
+
 				$hook_ref = current( $hook_refs );
 				if ( $crons_to_execute[ $hook ] > $now ) {
 					// Reschedule the blog's cronjob to run at the timestamp that was stored in the option.
-					wp_reschedule_event( $crons_to_execute[ $hook ], $hook_ref['schedule'], $hook, $hook_ref['args'] );
-					unset( $crons[ $timestamp ][ $hook ] );
+					wp_unschedule_event( $blog_timestamp_to_execute, $hook, $hook_ref['args'] );
+					wp_schedule_event( $crons_to_execute[ $hook ], $hook_ref['schedule'], $hook, $hook_ref['args'] );
 
-					if ( empty( $crons[ $timestamp ] ) ) {
+					unset( $crons[ $blog_timestamp_to_execute ][ $hook ] );
+
+					if ( empty( $crons[ $blog_timestamp_to_execute ] ) ) {
 						// If this was the only cronjob for this timestamp, remove the timestamp key.
-						unset( $crons[ $timestamp ] );
+						unset( $crons[ $blog_timestamp_to_execute ] );
 					}
 				} else {
 					// The blog's cronjob will run, update the timestamp to the next time it should run.
@@ -108,13 +117,13 @@ class Singleton_Network_Event implements Has_Setup {
 	 * Set the timestamp of the last time the cron was executed.
 	 *
 	 * @param string $hook The hook to set the cron executed timestamp for.
-	 * @param int    $timestamp The timestamp to set the cron executed timestamp to.
+	 * @param int    $blog_timestamp_to_execute The timestamp to set the cron executed timestamp to.
 	 *
 	 * @return bool True if the cron executed timestamp was set, false if it was already set.
 	 */
-	public static function set_cron_to_execute( string $hook, int $timestamp ) {
+	public static function set_cron_to_execute( string $hook, int $blog_timestamp_to_execute ) {
 		$cron_to_execute          = get_site_option( self::OPTION_CRON_TO_EXECUTE, array() );
-		$cron_to_execute[ $hook ] = $timestamp;
+		$cron_to_execute[ $hook ] = $blog_timestamp_to_execute;
 
 		return update_site_option( self::OPTION_CRON_TO_EXECUTE, $cron_to_execute );
 	}
@@ -122,18 +131,18 @@ class Singleton_Network_Event implements Has_Setup {
 	/**
 	 * Helper function that schedules a network-wide cronjob if not already scheduled.
 	 *
-	 * @param int    $timestamp The timestamp to schedule the cronjob at.
+	 * @param int    $blog_timestamp_to_execute The timestamp to schedule the cronjob at.
 	 * @param string $recurrence The recurrence of the cronjob.
 	 * @param string $hook The hook to schedule the cronjob for.
 	 * @param array  $args The arguments to pass to the action.
 	 *
 	 * @return bool True if the cronjob was scheduled, false if it was already scheduled.
 	 */
-	public static function schedule( int $timestamp, string $recurrence, string $hook, array $args = array() ) {
+	public static function schedule( int $blog_timestamp_to_execute, string $recurrence, string $hook, array $args = array() ) {
 		if ( false === wp_next_scheduled( $recurrence, $args ) ) {
-			self::set_cron_to_execute( $hook, $timestamp );
+			self::set_cron_to_execute( $hook, $blog_timestamp_to_execute );
 
-			wp_schedule_event( $timestamp, $recurrence, $hook, $args );
+			wp_schedule_event( $blog_timestamp_to_execute, $recurrence, $hook, $args );
 			return true;
 		}
 		return false;

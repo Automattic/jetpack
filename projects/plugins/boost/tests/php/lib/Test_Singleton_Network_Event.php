@@ -8,6 +8,8 @@ use Brain\Monkey\Functions;
 
 class Test_Singleton_Network_Event extends Base_TestCase {
 	public function test_setup() {
+		define( 'DAY_IN_SECONDS', 86400 );
+
 		$scheduled_event = new Singleton_Network_Event();
 
 		Functions\expect( 'add_action' )
@@ -15,144 +17,147 @@ class Test_Singleton_Network_Event extends Base_TestCase {
 			->with( 'jetpack_boost_network_cron', array( $scheduled_event, 'execute' ), 10, 2 )
 			->andReturn( true );
 
+		Functions\expect( 'add_filter' )
+			->once()
+			->with( 'pre_get_ready_cron_jobs', array( $scheduled_event, 'filter_cron_jobs' ) )
+			->andReturn( true );
+
 		$result = $scheduled_event->setup();
 		$this->assertNull( $result );
 	}
 
-	public function test_get_cron_executed() {
-		$hook      = 'test_hook';
-		$timestamp = time();
+	public function test_filter_cron_jobs_empty() {
+		$scheduled_event = new Singleton_Network_Event();
 
-		Functions\expect( 'get_site_option' )
+		Functions\expect( 'wp_get_ready_cron_jobs' )
 			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_EXECUTED, array() )
-			->andReturn( array( $hook => $timestamp ) );
-
-		$result = Singleton_Network_Event::get_cron_executed( $hook );
-		$this->assertEquals( $timestamp, $result );
-	}
-
-	public function test_get_cron_executed_default() {
-		$hook = 'test_hook';
-
-		Functions\expect( 'get_site_option' )
-			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_EXECUTED, array() )
 			->andReturn( array() );
 
-		$result = Singleton_Network_Event::get_cron_executed( $hook );
-		$this->assertSame( 0, $result );
+		$result = $scheduled_event->filter_cron_jobs( array() );
+		$this->assertEquals( array(), $result );
 	}
 
-	public function test_get_cron_recurrence() {
-		$hook       = 'test_hook';
-		$recurrence = 'hourly';
-
-		Functions\expect( 'get_site_option' )
-			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_RECURRENCE, array() )
-			->andReturn( array( $hook => $recurrence ) );
-
-		$result = Singleton_Network_Event::get_cron_recurrence( $hook );
-		$this->assertEquals( $recurrence, $result );
-	}
-
-	public function test_get_cron_recurrence_default() {
-		$hook = 'test_hook';
-
-		Functions\expect( 'get_site_option' )
-			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_RECURRENCE, array() )
-			->andReturn( array() );
-
-		$result = Singleton_Network_Event::get_cron_recurrence( $hook );
-		$this->assertEquals( 'daily', $result );
-	}
-
-	public function test_get_cron_recurrence_interval() {
-		$hook       = 'test_hook';
-		$recurrence = 'hourly';
-
-		Functions\expect( 'wp_get_schedules' )
-			->once()
-			->andReturn(
-				array(
-					'hourly' => array(
-						'interval' => 3600,
-						'display'  => 'Once Hourly',
-					),
-				)
-			);
-
-		Functions\expect( 'get_site_option' )
-			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_RECURRENCE, array() )
-			->andReturn( array( $hook => $recurrence ) );
-
-		$result = Singleton_Network_Event::get_cron_recurrence_interval( $hook );
-		$this->assertEquals( 3600, $result );
-	}
-
-	public function test_set_cron_executed() {
-		$hook      = 'test_hook';
-		$timestamp = time();
-
-		Functions\expect( 'get_site_option' )
-			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_EXECUTED, array() )
-			->andReturn( array() );
-
-		Functions\expect( 'update_site_option' )
-			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_EXECUTED, array( $hook => $timestamp ) )
-			->andReturn( true );
-
-		$result = Singleton_Network_Event::set_cron_executed( $hook, $timestamp );
-		$this->assertTrue( $result );
-	}
-
-	public function test_schedule_singleton_network_cron() {
-		$timestamp  = time();
-		$recurrence = 'daily';
-		$hook       = 'test_hook';
-		$args       = array( 'test_arg' => 'value' );
-
-		Functions\expect( 'wp_next_scheduled' )
-			->once()
-			->with( 'jetpack_boost_network_cron', array( $hook, $args ) )
-			->andReturn( false );
-
-		Functions\expect( 'get_site_option' )
-			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_RECURRENCE, array() )
-			->andReturn( array() );
-
-		Functions\expect( 'wp_get_schedules' )
-			->once()
-			->andReturn(
-				array(
-					'daily' => array(
+	public function test_filter_cron_jobs_no_network_crons() {
+		$scheduled_event = new Singleton_Network_Event();
+		$crons           = array(
+			time() => array(
+				'some_hook' => array(
+					'40cd750bba9870f18aada2478b24840a' => array(
+						'schedule' => 'daily',
+						'args'     => array(),
 						'interval' => 86400,
-						'display'  => 'Once Daily',
 					),
-				)
-			);
+				),
+			),
+		);
 
-		Functions\expect( 'update_site_option' )
+		Functions\expect( 'get_site_option' )
 			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_RECURRENCE, array( $hook => $recurrence ) )
+			->with( Singleton_Network_Event::OPTION_CRON_TO_EXECUTE, array() )
+			->andReturn( array() );
+
+		$result = $scheduled_event->filter_cron_jobs( $crons );
+		$this->assertEquals( $crons, $result );
+	}
+
+	public function test_filter_cron_jobs_with_network_crons_future() {
+		$scheduled_event = new Singleton_Network_Event();
+		$now             = time();
+		$hook            = 'test_hook';
+		$future_time     = $now + 3600;
+		$blog_time       = $now + 1800;
+
+		$crons = array(
+			$blog_time => array(
+				$hook => array(
+					'40cd750bba9870f18aada2478b24840a' => array(
+						'schedule' => 'daily',
+						'args'     => array(),
+						'interval' => 86400,
+					),
+				),
+			),
+		);
+
+		$crons_to_execute = array(
+			$hook => $future_time,
+		);
+
+		Functions\expect( 'get_site_option' )
+			->once()
+			->with( Singleton_Network_Event::OPTION_CRON_TO_EXECUTE, array() )
+			->andReturn( $crons_to_execute );
+
+		Functions\expect( 'wp_unschedule_event' )
+			->once()
+			->with( $blog_time, $hook, array() )
 			->andReturn( true );
 
 		Functions\expect( 'wp_schedule_event' )
 			->once()
-			->with( $timestamp, $recurrence, 'jetpack_boost_network_cron', array( $hook, $args ) )
+			->with( $future_time, 'daily', $hook, array() )
 			->andReturn( true );
 
-		Singleton_Network_Event::schedule( $timestamp, $recurrence, $hook, $args );
-		$this->expectNotToPerformAssertions();
+		$result = $scheduled_event->filter_cron_jobs( $crons );
+		$this->assertEquals( array(), $result );
 	}
 
-	public function test_schedule_singleton_network_cron_already_scheduled() {
+	public function test_filter_cron_jobs_with_network_crons_past() {
+		$scheduled_event = new Singleton_Network_Event();
+		$now             = time();
+		$hook            = 'test_hook';
+		$past_time       = $now - 3600;
+		$blog_time       = $now + 1800;
+
+		$crons = array(
+			$blog_time => array(
+				$hook => array(
+					'40cd750bba9870f18aada2478b24840a' => array(
+						'schedule' => 'daily',
+						'args'     => array(),
+						'interval' => 86400,
+					),
+				),
+			),
+		);
+
+		$crons_to_execute = array(
+			$hook => $past_time,
+		);
+
+		Functions\expect( 'get_site_option' )
+			->once()
+			->with( Singleton_Network_Event::OPTION_CRON_TO_EXECUTE, array() )
+			->andReturn( $crons_to_execute );
+
+		Functions\expect( 'update_site_option' )
+			->once()
+			->with( Singleton_Network_Event::OPTION_CRON_TO_EXECUTE, array( $hook => $now + 86400 ) )
+			->andReturn( true );
+
+		$result = $scheduled_event->filter_cron_jobs( $crons );
+		$this->assertEquals( $crons, $result );
+	}
+
+	public function test_set_cron_to_execute() {
+		$hook      = 'test_hook';
+		$timestamp = time();
+
+		Functions\expect( 'get_site_option' )
+			->once()
+			->with( Singleton_Network_Event::OPTION_CRON_TO_EXECUTE, array() )
+			->andReturn( array() );
+
+		Functions\expect( 'update_site_option' )
+			->once()
+			->with( Singleton_Network_Event::OPTION_CRON_TO_EXECUTE, array( $hook => $timestamp ) )
+			->andReturn( true );
+
+		$result = Singleton_Network_Event::set_cron_to_execute( $hook, $timestamp );
+		$this->assertTrue( $result );
+	}
+
+	public function test_schedule_with_new_schedule() {
 		$timestamp  = time();
 		$recurrence = 'daily';
 		$hook       = 'test_hook';
@@ -160,14 +165,44 @@ class Test_Singleton_Network_Event extends Base_TestCase {
 
 		Functions\expect( 'wp_next_scheduled' )
 			->once()
-			->with( 'jetpack_boost_network_cron', array( $hook, $args ) )
-			->andReturn( $timestamp );
+			->with( $recurrence, $args )
+			->andReturn( false );
 
-		Singleton_Network_Event::schedule( $timestamp, $recurrence, $hook, $args );
-		$this->expectNotToPerformAssertions();
+		Functions\expect( 'get_site_option' )
+			->once()
+			->with( Singleton_Network_Event::OPTION_CRON_TO_EXECUTE, array() )
+			->andReturn( array() );
+
+		Functions\expect( 'update_site_option' )
+			->once()
+			->with( Singleton_Network_Event::OPTION_CRON_TO_EXECUTE, array( $hook => $timestamp ) )
+			->andReturn( true );
+
+		Functions\expect( 'wp_schedule_event' )
+			->once()
+			->with( $timestamp, $recurrence, $hook, $args )
+			->andReturn( true );
+
+		$result = Singleton_Network_Event::schedule( $timestamp, $recurrence, $hook, $args );
+		$this->assertTrue( $result );
 	}
 
-	public function test_unschedule_singleton_network_cron() {
+	public function test_schedule_already_scheduled() {
+		$timestamp  = time();
+		$recurrence = 'daily';
+		$hook       = 'test_hook';
+		$args       = array( 'test_arg' => 'value' );
+
+		Functions\expect( 'wp_next_scheduled' )
+			->once()
+			->with( $recurrence, $args )
+			->andReturn( $timestamp );
+
+		$result = Singleton_Network_Event::schedule( $timestamp, $recurrence, $hook, $args );
+		$this->assertFalse( $result );
+	}
+
+	public function test_unschedule() {
 		$hook = 'test_hook';
 		$args = array( 'test_arg' => 'value' );
 
@@ -180,93 +215,13 @@ class Test_Singleton_Network_Event extends Base_TestCase {
 		$this->expectNotToPerformAssertions();
 	}
 
-	public function test_unschedule_all() {
-		Functions\expect( 'wp_unschedule_hook' )
-			->once()
-			->with( 'jetpack_boost_network_cron' )
-			->andReturn( true );
-
+	public function test_clean_up() {
 		Functions\expect( 'delete_site_option' )
 			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_EXECUTED )
+			->with( Singleton_Network_Event::OPTION_CRON_TO_EXECUTE )
 			->andReturn( true );
 
-		Functions\expect( 'delete_site_option' )
-			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_RECURRENCE )
-			->andReturn( true );
-
-		Singleton_Network_Event::unschedule_all();
-		$this->expectNotToPerformAssertions();
-	}
-
-	public function test_execute_network_cron_when_not_due() {
-		$action       = 'test_action';
-		$args         = array( 'test_arg' => 'value' );
-		$current_time = time();
-
-		Functions\expect( 'wp_get_schedules' )->andReturn(
-			array(
-				'daily' => array(
-					'interval' => 86400,
-					'display'  => 'Once Daily',
-				),
-			)
-		);
-
-		Functions\expect( 'get_site_option' )
-			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_RECURRENCE, array() )
-			->andReturn( array( $action => 'daily' ) );
-
-		Functions\expect( 'get_site_option' )
-			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_EXECUTED, array() )
-			->andReturn( array( $action => $current_time - 100 ) );
-
-		Singleton_Network_Event::execute( $action, $args );
-		$this->expectNotToPerformAssertions();
-	}
-
-	public function test_execute_network_cron_when_due() {
-		$action       = 'test_action';
-		$args         = array( 'test_value' );
-		$current_time = time();
-
-		Functions\expect( 'wp_get_schedules' )->andReturn(
-			array(
-				'daily' => array(
-					'interval' => 86400,
-					'display'  => 'Once Daily',
-				),
-			)
-		);
-
-		Functions\expect( 'get_site_option' )
-			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_RECURRENCE, array() )
-			->andReturn( array( $action => 'daily' ) );
-
-		Functions\expect( 'get_site_option' )
-			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_EXECUTED, array() )
-			->andReturn( array( $action => $current_time - 90000 ) ); // Last run was more than a day ago
-
-		Functions\expect( 'get_site_option' )
-			->once()
-			->withAnyArgs()
-			->andReturn( array() );
-
-		Functions\expect( 'update_site_option' )
-			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_EXECUTED, array( $action => $current_time ) )
-			->andReturn( true );
-
-		Functions\expect( 'do_action' )
-			->once()
-			->with( $action, 'test_value' );
-
-		Singleton_Network_Event::execute( $action, $args );
+		Singleton_Network_Event::clean_up();
 		$this->expectNotToPerformAssertions();
 	}
 }
