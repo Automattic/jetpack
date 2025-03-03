@@ -35,8 +35,8 @@ class Speculation_Rules implements Pluggable, Optimization, Changes_Page_Output,
 		$use_prerender = (bool) jetpack_boost_ds_get( 'speculation_method' );
 
 		// Get the exceptions list
-		$exceptions = jetpack_boost_ds_get( array( 'speculation_rules', 'exceptions' ) );
-		$exceptions = is_array( $exceptions ) ? $exceptions : array();
+		$rules      = jetpack_boost_ds_get( 'speculation_rules' );
+		$exceptions = isset( $rules['exceptions'] ) && is_array( $rules['exceptions'] ) ? $rules['exceptions'] : array();
 
 		// Convert exceptions to regex patterns
 		$exception_patterns = array_map(
