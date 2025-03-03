@@ -7,7 +7,18 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-require_once __DIR__ . '/../../utils.php';
+/**
+ * Check if the site is a WordPress.com Atomic site.
+ *
+ * @return bool
+ */
+function is_woa_site() {
+	if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
+		return false;
+	}
+	$host = new Automattic\Jetpack\Status\Host();
+	return $host->is_woa_site();
+}
 
 /**
  * Adds a link to the WordPress.com profile settings page.

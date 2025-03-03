@@ -21,20 +21,20 @@ function wpcom_launchpad_should_use_wp_admin_link() {
 }
 
 /**
+ * Returns whether the site was created through the onboarding flow.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_has_site_been_created_through_onboarding_flow() {
+	return get_option( 'site_creation_flow' ) === 'onboarding';
+}
+
+/**
  * Get the task definitions for the Launchpad.
  *
  * @return Task[]
  */
 function wpcom_launchpad_get_task_definitions() {
-	$experiment_name                   = 'calypso_signup_onboarding_goals_first_flow_holdout_v2_20250131';
-	$user                              = wp_get_current_user();
-	$is_user_in_goals_first_experiment = false;
-
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && $user && $user->exists() && function_exists( '\ExPlat\get_user_assignment' ) ) {
-		$assignment                        = \ExPlat\get_user_assignment( $experiment_name, $user );
-		$is_user_in_goals_first_experiment = 'treatment_cumulative' === $assignment;
-	}
-
 	$task_definitions = array(
 		// Core tasks.
 		'design_edited'                   => array(
@@ -54,26 +54,28 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => $is_user_in_goals_first_experiment ? '__return_true' : 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) use ( $is_user_in_goals_first_experiment ) {
-				$flow = get_option( 'site_intent' );
-				if ( $is_user_in_goals_first_experiment ) {
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
 					return '/themes/' . $data['site_slug_encoded'];
 				}
+
+				$flow = get_option( 'site_intent' );
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'] . '&flow=' . $flow;
 			},
-			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_false' : 'wpcom_launchpad_is_design_step_enabled',
+			'is_disabled_callback' => 'wpcom_launchpad_is_design_step_enabled',
 		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
-			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_false' : 'wpcom_launchpad_is_design_step_enabled',
-			'get_calypso_path'     => function ( $task, $default, $data ) use ( $is_user_in_goals_first_experiment ) {
-				if ( $is_user_in_goals_first_experiment ) {
+			'is_disabled_callback' => 'wpcom_launchpad_is_design_step_enabled',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
 					return '/themes/' . $data['site_slug_encoded'];
 				}
+
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
@@ -1114,7 +1116,12 @@ function wpcom_launchpad_update_task_status( $new_statuses ) {
 		// Use the requested task ID for completion tracking.
 		$requested_task_id = $option_map[ $task_id ];
 
-		wpcom_launchpad_track_completed_task( $requested_task_id );
+		wpcom_launchpad_track_completed_task(
+			$requested_task_id,
+			array(
+				'goals' => wpcom_get_current_site_goals_for_tracks(),
+			)
+		);
 	}
 
 	return $response_statuses;
@@ -1184,7 +1191,12 @@ add_action( 'init', 'wpcom_launchpad_init_task_definitions', 11 );
  */
 function wpcom_launchpad_mark_launchpad_task_complete_if_active( $task_id ) {
 	if ( wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id ) ) {
-		wpcom_launchpad_track_completed_task( $task_id );
+		wpcom_launchpad_track_completed_task(
+			$task_id,
+			array(
+				'goals' => wpcom_get_current_site_goals_for_tracks(),
+			)
+		);
 		return true;
 	}
 
@@ -1207,6 +1219,10 @@ function wpcom_launchpad_track_edit_site_task() {
  * @return boolean
  */
 function wpcom_launchpad_is_design_step_enabled() {
+	if ( wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
+		return false;
+	}
+
 	return ! wpcom_can_update_design_selected_task();
 }
 
@@ -1737,6 +1753,10 @@ function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
  * @return bool True if the option for the task is marked as complete, false otherwise.
  */
 function wpcom_launchpad_is_task_option_completed( $task ) {
+	if ( 'design_completed' === $task['id'] && wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
+		return true;
+	}
+
 	$checklist = get_option( 'launchpad_checklist_tasks_statuses', array() );
 	if ( ! empty( $checklist[ $task['id'] ] ) ) {
 		return true;
@@ -1915,7 +1935,12 @@ function wpcom_launchpad_mark_verify_email_complete( $user_id ) {
 	if ( empty( $user ) ) {
 		return;
 	}
-	wpcom_launchpad_track_completed_task( 'verify_email', array(), $user );
+
+	// Completed task events usually have a `goals` prop, however verifying email isn't associated
+	// with a specific site, so can't be associated with site goals.
+	$extra_props = array();
+
+	wpcom_launchpad_track_completed_task( 'verify_email', $extra_props, $user );
 }
 add_action( 'wpcom_email_verification_complete', 'wpcom_launchpad_mark_verify_email_complete' );
 
@@ -2938,4 +2963,24 @@ function wpcom_launchpad_is_primary_domain_wpcom() {
 
 	// If site_slug ends with .wpcomstaging.com return true
 	return str_ends_with( $host, '.wpcomstaging.com' );
+}
+
+/**
+ * Returns the goals for the current site to be used as a prop for the
+ * 'wpcom_launchpad_mark_task_complete' event.
+ *
+ * Ensures the current user actually owns the current site, to make sure we
+ * aren't recording goals for random sites like public-api.wordpress.com
+ * (the action which triggers this event could have been triggered by a
+ * public-api call.
+ *
+ * @return string Command separated list of goals.
+ */
+function wpcom_get_current_site_goals_for_tracks() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return '';
+	}
+
+	$site_goals = get_option( 'site_goals', array() );
+	return implode( ',', $site_goals );
 }

@@ -13,16 +13,16 @@
   </coverage>
   <testsuites>
     <testsuite name="rest-api">
-      <directory suffix="test.php">tests/php/rest-api</directory>
+      <directory suffix="Test.php">tests/php/rest-api</directory>
     </testsuite>
     <testsuite name="automation">
-      <directory suffix="test.php">tests/php/automation</directory>
+      <directory suffix="Test.php">tests/php/automation</directory>
     </testsuite>
     <testsuite name="event-manager">
-      <directory suffix="test.php">tests/php/event-manager</directory>
+      <directory suffix="Test.php">tests/php/event-manager</directory>
     </testsuite>
     <testsuite name="entities">
-      <directory suffix="test.php">tests/php/entities</directory>
+      <directory suffix="Test.php">tests/php/entities</directory>
     </testsuite>
   </testsuites>
 </phpunit>

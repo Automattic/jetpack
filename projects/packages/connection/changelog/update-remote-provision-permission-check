@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Allow cookie auth for user provisioning.

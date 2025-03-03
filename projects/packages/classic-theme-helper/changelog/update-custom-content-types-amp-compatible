@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Custom Content Types: Ensure script with initial state value is only added on Jetpack admin pages

@@ -353,6 +353,107 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	}
 
 	/**
+	 * Provide test cases for {@see test_get_tasklist_using_goals()}.
+	 *
+	 * @return array[]
+	 */
+	public function provide_get_tasklist_using_goals_test_cases() {
+		return array(
+			'Write goal gets write task list' => array(
+				array( 'write' ),
+				array( 'write' ),
+				'write',
+			),
+			'Sell goal gets sell task list'   => array(
+				array( 'promote', 'sell-physical' ),
+				array(),
+				'sell',
+			),
+			'Newsletter goal gets newsletter task list if feature is enabled' => array(
+				array( 'newsletter' ),
+				array( 'newsletter' ),
+				'intent-newsletter-goal',
+			),
+			'Newsletter goal gets default task list if feature is disabled' => array(
+				array( 'newsletter' ),
+				array(),
+				'build',
+			),
+			'Too many goals ( >= 3 ) and we just return the default tasklist' => array(
+				array( 'newsletter', 'sell-digital', 'sell-physical', 'promote', 'write' ),
+				array(),
+				'build',
+			),
+		);
+	}
+
+	/**
+	 * Tests calling the /wpcom/v2/launchpad endpoint with the use_goals flag set to true.
+	 *
+	 * @dataProvider provide_get_tasklist_using_goals_test_cases()
+	 * @param array $site_goals List of goals that the user selected during onboarding.
+	 * @param mixed $enable_checklist_for_goals Flags used to enable/disable a specific tasklist (usually set by a client-side feature flag or experiment).
+	 * @param mixed $expected_tasklist_slug Slug for the tasklist we expect to be returned (e.g. wpcom_launchpad_get_task_list_definitions()).
+	 * @covers ::get_data
+	 */
+	public function test_get_tasklist_using_goals( $site_goals, $enable_checklist_for_goals, $expected_tasklist_slug ) {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'site_goals', $site_goals );
+
+		$data = array(
+			'checklist_slug'             => 'start-writing', // This should get ignored, due to the use_goals flag.
+			'launchpad_context'          => 'customer-home',
+			'use_goals'                  => true,
+			'enable_checklist_for_goals' => $enable_checklist_for_goals,
+		);
+
+		$result = $this->call_launchpad_api( Requests::GET, $data );
+
+		$this->assertEquals( 200, $result->get_status() );
+
+		$this->assertIsArray( $result->get_data()['checklist'] );
+		$actual_task_ids = array_column( $result->get_data()['checklist'], 'id' );
+
+		// This is a bit of a hack, but we're using a follow up request to get the expected task IDs,
+		// as if we had asked for a specific tasklist slug rather than using a specific goal.
+		$result = $this->call_launchpad_api(
+			Requests::GET,
+			array(
+				'checklist_slug'    => $expected_tasklist_slug,
+				'use_goals'         => false,
+				'launchpad_context' => 'customer-home',
+			)
+		);
+		$this->assertEquals( 200, $result->get_status() );
+		$this->assertIsArray( $result->get_data()['checklist'] );
+		$expected_task_ids = array_column( $result->get_data()['checklist'], 'id' );
+
+		$this->assertEquals( $expected_task_ids, $actual_task_ids );
+	}
+
+	/**
+	 * Tests calling the /wpcom/v2/launchpad endpoint with the use_goals flag explicitly set to false.
+	 *
+	 * @covers ::get_data
+	 */
+	public function test_get_tasklist_when_use_goals_is_false() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'site_goals', array( 'write' ) );
+
+		$data = array(
+			'checklist_slug'    => 'post-migration',
+			'launchpad_context' => 'customer-home',
+			'use_goals'         => 'false',
+		);
+
+		$result = $this->call_launchpad_api( Requests::GET, $data );
+
+		$this->assertEquals( 200, $result->get_status() );
+		$this->assertIsArray( $result->get_data()['checklist'] );
+		$this->assertEquals( 'Site migration', $result->get_data()['title'] );
+	}
+
+	/**
 	 * Helper function to create a new WP_REST_Request and call the Launchpad REST API.
 	 *
 	 * @param string     $method The HTTP method to use.

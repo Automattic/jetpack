@@ -17,6 +17,7 @@ export default function AiAssistantToolbarDropdown( {
 	onDropdownToggle,
 	renderContent,
 	behaviorContext,
+	disabled,
 }: {
 	label?: string;
 	behavior: BlockBehavior;
@@ -24,6 +25,7 @@ export default function AiAssistantToolbarDropdown( {
 	onDropdownToggle?: ( isOpen: boolean ) => void;
 	renderContent: ( { onClose }: { onClose: () => void } ) => ReactElement;
 	behaviorContext?: unknown;
+	disabled?: boolean;
 } ): ReactElement {
 	return (
 		<Dropdown
@@ -56,6 +58,7 @@ export default function AiAssistantToolbarDropdown( {
 						aria-expanded={ isOpen }
 						label={ label }
 						icon={ aiAssistantIcon }
+						disabled={ disabled }
 					/>
 				);
 			} }
