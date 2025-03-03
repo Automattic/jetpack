@@ -872,6 +872,7 @@ class Test_REST_Endpoints extends TestCase {
 				),
 			),
 			'connectionOwner' => null,
+			'isRegistered'    => false,
 		);
 
 		$response_data = $response->get_data();
@@ -917,6 +918,7 @@ class Test_REST_Endpoints extends TestCase {
 				),
 			),
 			'connectionOwner' => null,
+			'isRegistered'    => true,
 		);
 
 		$response_data = $response->get_data();
@@ -968,6 +970,7 @@ class Test_REST_Endpoints extends TestCase {
 				),
 			),
 			'connectionOwner' => $user->user_login,
+			'isRegistered'    => true,
 		);
 
 		$response_data = $response->get_data();

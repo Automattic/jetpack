@@ -76,7 +76,7 @@ function wpcom_enqueue_options_general_assets() {
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-options-general/wpcom-options-general.js' ),
 		true
 	);
-
+	wp_set_script_translations( 'wpcom-options-general', 'jetpack-mu-wpcom' );
 	$site_slug           = wpcom_get_site_slug();
 	$options_general_url = admin_url( 'options-general.php' );
 	wp_add_inline_script(
