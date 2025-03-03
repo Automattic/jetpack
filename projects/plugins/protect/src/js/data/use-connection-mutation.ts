@@ -27,6 +27,7 @@ export default function useConnectSiteMutation(): UseMutationResult {
 	const { handleRegisterSite } = useConnection( {
 		from: 'protect',
 		skipUserConnection: true,
+		redirectUri: 'admin.php?page=jetpack-protect',
 	} );
 
 	return useMutation( {
