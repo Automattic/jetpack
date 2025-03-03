@@ -166,10 +166,13 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	/**
 	 * Check if the user has the basic permissions to access the Publicize scheduled actions.
 	 *
-	 * @return boolean
+	 * @return WP_Error|boolean
 	 */
 	public function basic_permissions_check() {
-		return current_user_can( 'edit_posts' );
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return false;
+		}
+		return $this->publicize_permissions_check();
 	}
 
 	/**
