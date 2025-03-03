@@ -10,7 +10,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
 const unsafeSpeculationRulesLink =
-	getRedirectUrl( 'jetpack-boost-speculation-rules' ) + '#unsafe_speculative_loading_conditions';
+	getRedirectUrl( 'jetpack-boost-unsafe-speculation-rules' );
 
 export default function SpeculationFetchMethod() {
 	const [ speculationMethod, setSpeculationMethod ] = useDataSync(
