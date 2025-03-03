@@ -6,7 +6,7 @@ use Automattic\Jetpack_Boost\Lib\Singleton_Network_Event;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 use Brain\Monkey\Functions;
 
-class Test_Singleton_Network_Event extends Base_TestCase {
+class Singleton_Network_Event_Test extends Base_TestCase {
 	public function test_setup() {
 		define( 'DAY_IN_SECONDS', 86400 );
 
