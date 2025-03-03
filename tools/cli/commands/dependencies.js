@@ -3,7 +3,7 @@ import { chalkStderr } from 'chalk';
 import ignore from 'ignore';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 
-// Files that mean --git-changed should report all projects as changed.
+// Files that mean --git-changed should report all projects as changed!
 const infrastructureFileSets = {};
 infrastructureFileSets.base = new Set( [
 	'tools/cli/commands/dependencies.js',
