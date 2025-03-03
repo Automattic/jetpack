@@ -1,19 +1,36 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import './style.scss';
 import { Icon } from '@wordpress/components';
 import { envelope, payment } from '@wordpress/icons';
 
 interface NewsletterWidgetProps {
-	hostname: string;
+	site: string;
 	adminUrl: string;
+	isWpcomSite: boolean;
 	emailSubscribers?: number;
 	paidSubscribers?: number;
 }
 
-const WPCOM_BASE = 'https://wordpress.com';
+/**
+ * Helper function to build the Jetpack redirect source URL.
+ * @param url         - The url to redirect to. Note: it can only be to a whitelisted domain, and query params and anchors must be passed to getRedirectUrl as arguments.
+ * @param isWpcomSite - The the site on the WordPress.com platform. Simple or WoA.
+ * @return The URL that can be passed to the getRedirectUrl function.
+ * @example
+ * const site = 'example.wordpress.com';
+ * const redirectUrl = buildJPRedirectSource( `subscribers/${ site }`, true );
+ *
+ * <a href={ getRedirectUrl( redirectUrl ) }>Subscriber</a>;
+ */
+const buildJPRedirectSource = ( url: string, isWpcomSite: boolean = true ) => {
+	const host = isWpcomSite ? 'wordpress.com' : 'cloud.jetpack.com';
+	return `https://${ host }/${ url }`;
+};
 
 export const NewsletterWidget = ( {
-	hostname,
+	site,
 	adminUrl,
+	isWpcomSite,
 	emailSubscribers,
 	paidSubscribers,
 }: NewsletterWidgetProps ) => {
@@ -28,7 +45,13 @@ export const NewsletterWidget = ( {
 						<span className="newsletter-widget__stat-content">
 							<span className="newsletter-widget__stat-number">{ emailSubscribers }</span>
 							<span className="newsletter-widget__stat-label">
-								<a href={ `${ WPCOM_BASE }/stats/subscribers/${ hostname }` }>
+								<a
+									href={
+										isWpcomSite
+											? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
+											: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
+									}
+								>
 									email subscriptions
 								</a>
 							</span>
@@ -41,7 +64,15 @@ export const NewsletterWidget = ( {
 						<span className="newsletter-widget__stat-content">
 							<span className="newsletter-widget__stat-number">{ paidSubscribers }</span>
 							<span className="newsletter-widget__stat-label">
-								<a href={ `${ WPCOM_BASE }/stats/subscribers/${ hostname }` }>paid subscriptions</a>
+								<a
+									href={
+										isWpcomSite
+											? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
+											: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
+									}
+								>
+									paid subscriptions
+								</a>
 							</span>
 						</span>
 					</span>
@@ -51,7 +82,11 @@ export const NewsletterWidget = ( {
 				<p className="newsletter-widget__footer-msg">
 					Effortlessly turn posts into emails with our Newsletter feature-expand your reach, engage
 					readers, and monetize your writing. No coding required.{ ' ' }
-					<a href={ `${ WPCOM_BASE }/learn/courses/newsletters-101/wordpress-com-newsletter/` }>
+					<a
+						href={ getRedirectUrl(
+							buildJPRedirectSource( 'learn/courses/newsletters-101/wordpress-com-newsletter' )
+						) }
+					>
 						Learn more
 					</a>
 				</p>
@@ -62,21 +97,54 @@ export const NewsletterWidget = ( {
 							<a href={ `${ adminUrl }edit.php` }>Publish your next post</a>
 						</li>
 						<li>
-							<a href={ `${ WPCOM_BASE }/stats/subscribers/${ hostname }` }>
+							<a
+								href={
+									isWpcomSite
+										? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
+										: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
+								}
+							>
 								View subscriber stats
 							</a>
 						</li>
 						<li>
-							<a href={ `${ WPCOM_BASE }/subscribers/${ hostname }` }>Import subscribers</a>
+							<a
+								href={ getRedirectUrl(
+									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite )
+								) }
+							>
+								Import subscribers
+							</a>
 						</li>
 						<li>
-							<a href={ `${ WPCOM_BASE }/subscribers/${ hostname }` }>Manage subscribers</a>
+							<a
+								href={ getRedirectUrl(
+									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite )
+								) }
+							>
+								Manage subscribers
+							</a>
 						</li>
 						<li>
-							<a href={ `${ WPCOM_BASE }/earn/${ hostname }` }>Monetize</a>
+							<a
+								href={ getRedirectUrl(
+									buildJPRedirectSource(
+										`${ isWpcomSite ? 'earn' : 'monetize' }/${ site }`,
+										isWpcomSite
+									)
+								) }
+							>
+								Monetize
+							</a>
 						</li>
 						<li>
-							<a href={ `${ WPCOM_BASE }/settings/newsletter/${ hostname }` }>
+							<a
+								href={
+									isWpcomSite
+										? getRedirectUrl( buildJPRedirectSource( `settings/newsletter/${ site }` ) )
+										: `${ adminUrl }admin.php?page=jetpack#newsletter`
+								}
+							>
 								Newsletter settings
 							</a>
 						</li>

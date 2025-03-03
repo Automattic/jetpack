@@ -4,6 +4,7 @@ import { useMemo, useCallback } from 'react';
 import { PRODUCT_SLUGS } from '../../data/constants';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import LoadingBlock from '../loading-block';
 import ProductsTableView from '../products-table-view';
 import StatsSection from '../stats-section';
 import AiCard from './ai-card';
@@ -21,6 +22,7 @@ import type { FC, ReactNode } from 'react';
 
 type DisplayItemsProps = {
 	slugs: JetpackModule[];
+	isLoading: boolean;
 };
 
 type DisplayItemType = Record<
@@ -32,7 +34,8 @@ type DisplayItemType = Record<
 	FC< { admin: boolean } >
 >;
 
-const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
+const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
+	const mockArrayOfProducts = [ ...Array( 9 ).keys() ];
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { userIsAdmin = false } = getMyJetpackWindowInitialState();
 
@@ -63,11 +66,17 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 
 	return (
 		<>
-			{ slugs.includes( 'stats' ) && showFullJetpackStatsCard && (
+			{ isLoading && (
+				<Col className={ styles.fullStatsCard }>
+					<LoadingBlock width="100%" height="350px" />
+				</Col>
+			) }
+			{ ! isLoading && slugs.includes( 'stats' ) && showFullJetpackStatsCard && (
 				<Col className={ styles.fullStatsCard }>
 					<StatsSection />
 				</Col>
 			) }
+
 			<Container
 				className={ styles.cardlist }
 				tagName="ul"
@@ -75,15 +84,21 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 				horizontalSpacing={ 0 }
 				horizontalGap={ 3 }
 			>
-				{ filteredSlugs.map( product => {
-					const Item = items[ product ];
+				{ isLoading
+					? mockArrayOfProducts.map( ( _, index ) => (
+							<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ index }>
+								<LoadingBlock width="100%" height="200px" />
+							</Col>
+					  ) )
+					: filteredSlugs.map( product => {
+							const Item = items[ product ];
 
-					return (
-						<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ product }>
-							<Item admin={ userIsAdmin === '1' } />
-						</Col>
-					);
-				} ) }
+							return (
+								<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ product }>
+									<Item admin={ userIsAdmin === '1' } />
+								</Col>
+							);
+					  } ) }
 			</Container>
 		</>
 	);
@@ -96,6 +111,7 @@ interface ProductCardsSectionProps {
 const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } ) => {
 	const {
 		data: { ownedProducts, unownedProducts },
+		isLoading,
 	} = useProductsByOwnership();
 
 	const { canUserViewStats, userIsAdmin } = getMyJetpackWindowInitialState();
@@ -139,7 +155,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 
 	return (
 		<>
-			{ filteredOwnedProducts.length > 0 && (
+			{ ( isLoading || filteredOwnedProducts.length > 0 ) && (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
 						<Col>
@@ -147,7 +163,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 								<Text variant="headline-small">{ __( 'My products', 'jetpack-my-jetpack' ) }</Text>
 							</Col>
 
-							<DisplayItems slugs={ filteredOwnedProducts } />
+							<DisplayItems isLoading={ isLoading } slugs={ filteredOwnedProducts } />
 						</Col>
 					</Container>
 				</AdminSectionHero>

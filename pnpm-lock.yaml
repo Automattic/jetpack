@@ -2893,6 +2893,9 @@ importers:
       '@types/jest':
         specifier: 29.5.14
         version: 29.5.14
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.17.17
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -2901,7 +2904,7 @@ importers:
         version: 7.6.0
       jest:
         specifier: 29.7.0
-        version: 29.7.0
+        version: 29.7.0(@types/node@20.17.17)
       jest-environment-jsdom:
         specifier: 29.7.0
         version: 29.7.0

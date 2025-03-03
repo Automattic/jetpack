@@ -104,6 +104,10 @@ const LineChart: FC< LineChartProps > = ( {
 	smoothing = true,
 	renderTooltip = renderDefaultTooltip,
 	options = {},
+	onPointerDown = undefined,
+	onPointerUp = undefined,
+	onPointerMove = undefined,
+	onPointerOut = undefined,
 } ) => {
 	const providerTheme = useChartTheme();
 	const chartId = useId(); // Ensure unique ids for gradient fill.
@@ -177,6 +181,11 @@ const LineChart: FC< LineChartProps > = ( {
 				// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 				xScale={ { type: 'time', ...options?.xScale } }
 				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
+				onPointerDown={ onPointerDown }
+				onPointerUp={ onPointerUp }
+				onPointerMove={ onPointerMove }
+				onPointerOut={ onPointerOut }
+				pointerEventsDataKey="nearest"
 			>
 				<AnimatedGrid columns={ false } numTicks={ 4 } />
 				<AnimatedAxis
@@ -219,6 +228,7 @@ const LineChart: FC< LineChartProps > = ( {
 
 				{ withTooltips && (
 					<Tooltip
+						detectBounds
 						snapTooltipToDatumX
 						snapTooltipToDatumY
 						showSeriesGlyphs

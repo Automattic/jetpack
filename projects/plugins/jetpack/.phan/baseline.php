@@ -55,10 +55,10 @@ return [
     // PhanTypeMismatchArgumentInternalReal : 7 occurrences
     // PhanCommentAbstractOnInheritedMethod : 6 occurrences
     // PhanDeprecatedClass : 5 occurrences
+    // PhanImpossibleCondition : 5 occurrences
     // PhanNonClassMethodCall : 5 occurrences
     // PhanTypeMismatchDimAssignment : 5 occurrences
     // PhanAccessMethodInternal : 4 occurrences
-    // PhanImpossibleCondition : 4 occurrences
     // PhanTypeInvalidLeftOperandOfAdd : 4 occurrences
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfBitwiseOp : 4 occurrences
@@ -162,7 +162,7 @@ return [
         'class.jetpack-post-images.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal'],
         'class.jetpack-twitter-cards.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset'],
         'class.jetpack.php' => ['PhanAccessMethodInternal', 'PhanDeprecatedFunction', 'PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantConditionInLoop', 'PhanTypeArraySuspiciousNullable', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'class.json-api-endpoints.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
+        'class.json-api-endpoints.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'class.json-api.php' => ['PhanPluginDuplicateSwitchCaseLooseEquality', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'enhanced-open-graph.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'extensions/blocks/ai-chat/ai-chat.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],

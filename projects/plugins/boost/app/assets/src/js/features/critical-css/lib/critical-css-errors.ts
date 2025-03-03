@@ -70,7 +70,9 @@ export function getPrimaryErrorSet( cssState: CriticalCssState ): ErrorSet | und
 	const primaryProviders = [ 'core_front_page', 'core_posts_page' ];
 
 	for ( const key of primaryProviders ) {
-		const provider = providersWithErrors.find( p => p.key === key );
+		const provider = providersWithErrors.find(
+			p => p.key === key || p.key.startsWith( 'cornerstone_' )
+		);
 		if ( provider && provider.errors ) {
 			return getPrimaryGroupedError( provider.errors );
 		}

@@ -265,19 +265,6 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	}
 
 	/**
-	 * Tests add_my_mailboxes_menu
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_my_mailboxes_menu
-	 */
-	public function test_add_my_mailboxes_menu() {
-		global $menu;
-
-		static::$admin_menu->add_my_mailboxes_menu();
-
-		$this->assertSame( 'https://wordpress.com/mailboxes/' . static::$domain, $menu['4.64424'][2] );
-	}
-
-	/**
 	 * Tests add_options_menu
 	 *
 	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_options_menu

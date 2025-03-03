@@ -352,7 +352,7 @@ class REST_Connector {
 	public function remote_provision( WP_REST_Request $request ) {
 		$request_data = $request->get_params();
 
-		if ( did_action( 'application_password_did_authenticate' ) && current_user_can( 'jetpack_connect_user' ) ) {
+		if ( current_user_can( 'jetpack_connect_user' ) ) {
 			$request_data['local_user'] = get_current_user_id();
 		}
 
@@ -414,13 +414,8 @@ class REST_Connector {
 	 * @return true|WP_Error
 	 */
 	public function remote_provision_permission_check( WP_REST_Request $request ) {
-		// We allow the app password authentication only if 'local_user' is empty for security reasons.
-		if ( empty( $request['local_user'] ) && did_action( 'application_password_did_authenticate' ) ) {
-			if ( current_user_can( 'jetpack_connect_user' ) ) {
-				return true;
-			}
-
-			return new WP_Error( 'invalid_user_permission_remote_provision', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+		if ( empty( $request['local_user'] ) && current_user_can( 'jetpack_connect_user' ) ) {
+			return true;
 		}
 
 		return Rest_Authentication::is_signed_with_blog_token()
@@ -678,6 +673,7 @@ class REST_Connector {
 		$response = array(
 			'currentUser'     => $current_user_connection_data,
 			'connectionOwner' => $owner_display_name,
+			'isRegistered'    => $connection->is_connected(),
 		);
 
 		if ( $rest_response ) {

@@ -15,7 +15,7 @@ use WP_REST_Request;
  */
 class Services {
 
-	const SERVICES_TRANSIENT = 'jetpack_social_services_list_v1';
+	const SERVICES_TRANSIENT = 'jetpack_social_services_list_v2';
 
 	/**
 	 * Get the available publicize services. Meant to be called directly only on WPCOM.
@@ -72,6 +72,24 @@ class Services {
 			if ( $ignore_cache || false === $services ) {
 				$services = self::fetch_and_cache_services();
 			}
+			// This is here for backwards compatibility
+			// TODO Remove this array_map() call after April 2025 release of Jetpack.
+			return array_map(
+				function ( $service ) {
+					global $publicize;
+
+					return array_merge(
+						$service,
+						array(
+							'ID'                  => $service['id'],
+							'connect_URL'         => $publicize->connect_url( $service['id'], 'connect' ),
+							'external_users_only' => $service['supports']['additional_users_only'],
+							'multiple_external_user_ID_support' => $service['supports']['additional_users'],
+						)
+					);
+				},
+				$services
+			);
 		}
 
 		return $services;
