@@ -11,6 +11,7 @@ import Module from '$features/module/module';
 import PageCacheModule from '$features/page-cache/page-cache';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import SpeculationMethod from '$features/speculation-rules/speculation-method';
+import SpeculationRulesMeta from '$features/speculation-rules/speculation-rules-meta';
 import Pill from '$features/ui/pill/pill';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
@@ -153,28 +154,31 @@ const Index = () => {
 				slug="speculation_rules"
 				title={ __( 'Speculation Rules', 'jetpack-boost' ) }
 				description={
-					<p>
-						{ createInterpolateElement(
-							__(
-								'Prefetch pages that are likely to be visited next, so they load faster when the user clicks on them. Browser support is limited to Chrome based browsers. Read more on <link>mdn web docs</link>.',
-								'jetpack-boost'
-							),
-							{
-								link: (
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									<a
-										onClick={ () => recordBoostEvent( 'speculation_rules_link_clicked', {} ) }
-										href={ speculationRulesLink }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
+					<>
+						<p>
+							{ createInterpolateElement(
+								__(
+									'Prefetch pages that are likely to be visited next, so they load faster when the user clicks on them. Browser support is limited to Chrome based browsers. Read more on <link>mdn web docs</link>.',
+									'jetpack-boost'
 								),
-							}
-						) }
-					</p>
+								{
+									link: (
+										// eslint-disable-next-line jsx-a11y/anchor-has-content
+										<a
+											onClick={ () => recordBoostEvent( 'speculation_rules_link_clicked', {} ) }
+											href={ speculationRulesLink }
+											target="_blank"
+											rel="noreferrer"
+										/>
+									),
+								}
+							) }
+						</p>
+					</>
 				}
 			>
 				<SpeculationMethod />
+				<SpeculationRulesMeta />
 			</Module>
 			<Module
 				slug="render_blocking_js"
