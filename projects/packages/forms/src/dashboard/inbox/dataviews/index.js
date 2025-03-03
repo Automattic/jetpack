@@ -146,13 +146,13 @@ export default function InboxView() {
 				);
 			}
 			setSearchParams( previouSearchParams => {
-				const _serachParams = new URLSearchParams( previouSearchParams );
+				const _searchParams = new URLSearchParams( previouSearchParams );
 				if ( items.length ) {
-					_serachParams.set( 'r', items.join( ',' ) );
+					_searchParams.set( 'r', items.join( ',' ) );
 				} else {
-					_serachParams.delete( 'r' );
+					_searchParams.delete( 'r' );
 				}
-				return _serachParams;
+				return _searchParams;
 			} );
 		},
 		[ data, setSearchParams, isMobile ]
