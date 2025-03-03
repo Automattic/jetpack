@@ -433,20 +433,6 @@ function wpcom_launchpad_get_task_lists( $rebuild = false ) {
  * Register all tasks and task lists on init.
  */
 function wpcom_register_default_launchpad_checklists() {
-	if ( ! is_user_logged_in() ) {
-		// Add filter so we can gradually roll out the logging without triggering a flood of log data.
-		$should_log = apply_filters( 'wpcom_launchpad_should_log_no_user', false );
-
-		if ( $should_log ) {
-			jetpack_wpcom_log2logstash(
-				'Launchpad checklists registered with no user',
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_wp_debug_backtrace_summary
-				array( 'stack_trace' => wp_debug_backtrace_summary() ),
-				true
-			);
-		}
-	}
-
 	wpcom_launchpad_get_task_lists();
 	wpcom_add_active_task_listener_hooks_to_correct_action();
 }
