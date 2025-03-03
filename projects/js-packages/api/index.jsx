@@ -83,11 +83,8 @@ function JetpackRestApiClient( root, nonce ) {
 			cacheBusterCallback = callback;
 		},
 
-		registerSite: ( registrationNonce, redirectUri, from ) => {
-			const params = {
-				registration_nonce: registrationNonce,
-				no_iframe: true,
-			};
+		registerSite: ( deprecated, redirectUri, from ) => {
+			const params = {};
 
 			if ( jetpackConfigHas( 'consumer_slug' ) ) {
 				params.plugin_slug = jetpackConfigGet( 'consumer_slug' );

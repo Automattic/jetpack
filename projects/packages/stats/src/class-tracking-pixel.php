@@ -150,7 +150,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 		wp_add_inline_script(
 			'jetpack-stats',
 			$triggers,
-			'after'
+			'before'
 		);
 	}
 

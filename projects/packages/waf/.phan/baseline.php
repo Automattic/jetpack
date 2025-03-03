@@ -44,10 +44,10 @@ return [
         'src/class-waf-rules-manager.php' => ['PhanTypeMismatchArgument'],
         'src/class-waf-runtime.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'src/class-waf-transforms.php' => ['PhanPluginInvalidPregRegex', 'PhanTypeInvalidDimOffset'],
+        'tests/php/unit/WafOperatorsTest.php' => ['PhanTypeMismatchArgumentInternal'],
+        'tests/php/unit/WafRuntimeTargetsTest.php' => ['PhanPluginRedundantAssignment'],
+        'tests/php/unit/WafStandaloneBootstrapTest.php' => ['PhanNoopNew'],
         'tests/php/unit/functions-wordpress.php' => ['PhanRedefineFunction'],
-        'tests/php/unit/test-waf-operators.php' => ['PhanTypeMismatchArgumentInternal'],
-        'tests/php/unit/test-waf-runtime-targets.php' => ['PhanPluginRedundantAssignment'],
-        'tests/php/unit/test-waf-standalone-bootstrap.php' => ['PhanNoopNew'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

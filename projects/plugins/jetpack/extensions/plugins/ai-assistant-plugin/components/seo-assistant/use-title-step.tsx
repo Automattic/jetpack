@@ -43,7 +43,7 @@ export const useTitleStep = ( {
 	const { getMessages, setMessages, addMessage, editLastMessage, setSelectedMessage } =
 		useMessages();
 	const [ lastValue, setLastValue ] = useState< string >( '' );
-	const postContent = usePostContent();
+	const { getPostContent } = usePostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const [ generatedCount, setGeneratedCount ] = useState( 0 );
 	const [ hasFailed, setHasFailed ] = useState( false );
@@ -70,7 +70,7 @@ export const useTitleStep = ( {
 					role: 'jetpack-ai' as const,
 					context: {
 						type: 'seo-title',
-						content: postContent,
+						content: getPostContent(),
 						keywords: keywords.split( ',' ),
 					},
 				},
@@ -80,7 +80,7 @@ export const useTitleStep = ( {
 				feature: 'jetpack-seo-assistant',
 			}
 		);
-	}, [ keywords, postContent, postId, mockRequests, tracks ] );
+	}, [ keywords, getPostContent, postId, mockRequests, tracks ] );
 
 	const handleTitleSelect = useCallback(
 		( option: OptionMessage ) => {
