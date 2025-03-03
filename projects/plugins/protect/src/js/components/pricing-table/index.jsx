@@ -9,8 +9,8 @@ import {
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
-import useConnectSiteMutation from '../../data/use-connection-mutation';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useNotices from '../../hooks/use-notices';
 import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 
@@ -20,10 +20,14 @@ import useProtectData from '../../hooks/use-protect-data';
  * @return {object}                ConnectedPricingTable react component.
  */
 const ConnectedPricingTable = () => {
+	const { showErrorNotice } = useNotices();
 	const { recordEvent } = useAnalyticsTracks();
-	const connectSiteMutation = useConnectSiteMutation();
 	const { upgradePlan, isLoading: isPlanLoading } = usePlan();
-	const { registrationError } = useConnection();
+	const { handleRegisterSite, siteIsRegistering, registrationError } = useConnection( {
+		from: 'protect',
+		skipUserConnection: true,
+		redirectUri: 'admin.php?page=jetpack-protect',
+	} );
 
 	// Access paid protect product data
 	const { jetpackScan } = useProtectData();
@@ -43,8 +47,10 @@ const ConnectedPricingTable = () => {
 
 	const getProtectFree = useCallback( async () => {
 		recordEvent( 'jetpack_protect_connected_product_activated' );
-		connectSiteMutation.mutateAsync();
-	}, [ connectSiteMutation, recordEvent ] );
+		handleRegisterSite().catch( () =>
+			showErrorNotice( __( 'Could not connect site.', 'jetpack-protect' ) )
+		);
+	}, [ handleRegisterSite, recordEvent, showErrorNotice ] );
 
 	const args = {
 		title: __( 'Stay one step ahead of threats', 'jetpack-protect' ),
@@ -95,7 +101,7 @@ const ConnectedPricingTable = () => {
 							fullWidth
 							onClick={ getScan }
 							isLoading={ isPlanLoading }
-							disabled={ isPlanLoading || connectSiteMutation.isPending }
+							disabled={ isPlanLoading || siteIsRegistering }
 						>
 							{ __( 'Get Jetpack Protect', 'jetpack-protect' ) }
 						</Button>
@@ -133,8 +139,8 @@ const ConnectedPricingTable = () => {
 							fullWidth
 							variant="secondary"
 							onClick={ getProtectFree }
-							isLoading={ connectSiteMutation.isPending }
-							disabled={ connectSiteMutation.isPending || isPlanLoading }
+							isLoading={ siteIsRegistering }
+							disabled={ siteIsRegistering || isPlanLoading }
 							error={
 								registrationError
 									? __( 'An error occurred. Please try again.', 'jetpack-protect' )
