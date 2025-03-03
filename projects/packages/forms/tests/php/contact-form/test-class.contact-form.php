@@ -2142,4 +2142,30 @@ EOT;
 			++$count;
 		}
 	}
+
+	/**
+	 * Tests that forms properly determine defaults even if the user doesn't exist anymore.
+	 */
+	public function test_form_defaults_to_admin_email_on_no_user_data() {
+		global $post;
+
+		// Removing the user without reassinging posts.
+		wp_delete_user( $post->post_author );
+
+		$this->add_field_values(
+			array(
+				'name'    => 'First form name 1',
+				'message' => 'First form message 1',
+			),
+			'g' . $post->ID
+		);
+
+		$form1 = new Contact_Form(
+			array(),
+			"[contact-field label='Name' type='name' required='1'/]"
+			. "[contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$this->assertEquals( $form1->defaults['to'], get_option( 'admin_email' ), 'The default to address should equal the admin email.' );
+	}
 } // end class
