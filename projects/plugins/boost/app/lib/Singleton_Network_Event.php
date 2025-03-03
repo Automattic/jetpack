@@ -21,65 +21,87 @@ use Automattic\Jetpack_Boost\Contracts\Has_Setup;
  * @see wp_unschedule_event()    For removing scheduled events
  */
 class Singleton_Network_Event implements Has_Setup {
-
 	/**
-	 * Option name for storing the last execution timestamp for each cron hook.
+	 * Option name for storing the timestamp for when the cron should run next.
 	 * Stores an array of hook => timestamp pairs.
 	 * Default value for each hook is 0 (never executed).
 	 */
-	const OPTION_CRON_EXECUTED = 'jetpack_boost_network_cron_executed';
+	const OPTION_CRON_TO_EXECUTE = 'jetpack_boost_network_cron_to_execute';
 
-	/**
-	 * Option name for storing the recurrence setting for each cron hook.
-	 * Stores an array of hook => recurrence pairs.
-	 * Default value for each hook is 'daily'.
-	 * Valid values are any registered WordPress cron schedule (e.g., 'hourly', 'daily', 'twicedaily').
-	 */
-	const OPTION_CRON_RECURRENCE = 'jetpack_boost_network_cron_recurrence';
+	private static $is_filtering = false;
 
 	/**
 	 * Setup the scheduled event that is needed for the network cron to work.
 	 */
 	public function setup() {
 		add_action( 'jetpack_boost_network_cron', array( $this, 'execute' ), 10, 2 );
+		add_filter( 'pre_get_ready_cron_jobs', array( $this, 'filter_cron_jobs' ) );
 	}
 
 	/**
-	 * Get the timestamp of the last time the cron was executed.
+	 * Filters the list of ready cron jobs before they are processed.
 	 *
-	 * @param string $hook The hook to get the cron executed timestamp for.
+	 * This method ensures that network-wide cron jobs are synchronized across the network.
+	 * It compares the blog's cron schedule with the network-wide schedule and makes adjustments
+	 * to ensure cron jobs run at the appropriate time across the network.
 	 *
-	 * @return int The timestamp of the last time the cron was executed. Default 0 if never executed.
+	 * @since $$next-version$$
+	 *
+	 * @param array $crons Array of cron jobs to be processed, where keys are timestamps and values are arrays of hooks scheduled for those times.
+	 * @return array Modified array of cron jobs.
 	 */
-	public static function get_cron_executed( string $hook ) {
-		$cron_executed = get_site_option( self::OPTION_CRON_EXECUTED, array() );
-		return $cron_executed[ $hook ] ?? 0;
-	}
+	public function filter_cron_jobs( $crons ) {
+		if ( self::$is_filtering ) {
+			return $crons;
+		}
 
-	/**
-	 * Get the recurrence of the cron.
-	 *
-	 * @param string $hook The hook to get the cron recurrence for.
-	 *
-	 * @return string The recurrence of the cron. Default 'daily' if never set.
-	 */
-	public static function get_cron_recurrence( string $hook ) {
-		$cron_recurrence = get_site_option( self::OPTION_CRON_RECURRENCE, array() );
-		return $cron_recurrence[ $hook ] ?? 'daily';
-	}
+		// Prevent infinite loop as wp_get_ready_cron_jobs() calls this filter.
+		self::$is_filtering = true;
 
-	/**
-	 * Get the interval of the cron recurrence.
-	 *
-	 * @param string $hook The hook to get the cron recurrence interval for.
-	 *
-	 * @return int The interval of the cron recurrence. Default 0 if never set.
-	 */
-	public static function get_cron_recurrence_interval( string $hook ) {
-		$schedule            = wp_get_schedules();
-		$recurrence          = self::get_cron_recurrence( $hook );
-		$schedule_recurrence = $schedule[ $recurrence ] ?? array( 'interval' => 0 );
-		return $schedule_recurrence['interval'];
+		// If $crons is empty, get the cron jobs from the database.
+		$crons = empty( $crons ) ? wp_get_ready_cron_jobs() : $crons;
+		if ( empty( $crons ) ) {
+			return $crons;
+		}
+
+		$crons_to_execute = get_site_option( self::OPTION_CRON_TO_EXECUTE, array() );
+		if ( empty( $crons_to_execute ) ) {
+			return $crons;
+		}
+
+		$now = time();
+
+		$update_crons_to_execute = false;
+		// $crons is an array of arrays, where the first level key is the timestamp, and the second level key is the hook.
+		foreach ( $crons as $timestamp => $cronhooks ) {
+			foreach ( $cronhooks as $hook => $hook_refs ) {
+				if ( empty( $crons_to_execute[ $hook ] ) ) {
+					// This cron is due but not a network cron, skip it.
+					continue;
+				}
+
+				$hook_ref = current( $hook_refs );
+				if ( $crons_to_execute[ $hook ] > $now ) {
+					// Reschedule the blog's cronjob to run at the timestamp that was stored in the option.
+					wp_reschedule_event( $crons_to_execute[ $hook ], $hook_ref['schedule'], $hook, $hook_ref['args'] );
+					unset( $crons[ $timestamp ][ $hook ] );
+
+					if ( empty( $crons[ $timestamp ] ) ) {
+						// If this was the only cronjob for this timestamp, remove the timestamp key.
+						unset( $crons[ $timestamp ] );
+					}
+				} else {
+					// The blog's cronjob will run, update the timestamp to the next time it should run.
+					$crons_to_execute[ $hook ] = $now + $hook_ref['interval'];
+					$update_crons_to_execute   = true;
+				}
+			}
+		}
+		if ( $update_crons_to_execute ) {
+			update_site_option( self::OPTION_CRON_TO_EXECUTE, $crons_to_execute );
+		}
+
+		return $crons;
 	}
 
 	/**
@@ -90,47 +112,15 @@ class Singleton_Network_Event implements Has_Setup {
 	 *
 	 * @return bool True if the cron executed timestamp was set, false if it was already set.
 	 */
-	public static function set_cron_executed( string $hook, int $timestamp ) {
-		$cron_executed          = get_site_option( self::OPTION_CRON_EXECUTED, array() );
-		$cron_executed[ $hook ] = $timestamp;
+	public static function set_cron_to_execute( string $hook, int $timestamp ) {
+		$cron_to_execute          = get_site_option( self::OPTION_CRON_TO_EXECUTE, array() );
+		$cron_to_execute[ $hook ] = $timestamp;
 
-		return update_site_option( self::OPTION_CRON_EXECUTED, $cron_executed );
+		return update_site_option( self::OPTION_CRON_TO_EXECUTE, $cron_to_execute );
 	}
 
 	/**
-	 * Validates if the given recurrence schedule is valid.
-	 *
-	 * @param string $recurrence The recurrence schedule to validate.
-	 * @return bool True if the recurrence is valid, false otherwise.
-	 */
-	private static function is_valid_recurrence( string $recurrence ) {
-		$schedules = wp_get_schedules();
-		return isset( $schedules[ $recurrence ] );
-	}
-
-	/**
-	 * Set the recurrence of the cron.
-	 *
-	 * @param string $hook The hook to set the cron recurrence for.
-	 * @param string $recurrence The recurrence to set. Must be a valid WordPress cron schedule
-	 *                          (e.g., 'hourly', 'daily', 'twicedaily').
-	 *                          Invalid values will fall back to 'daily'.
-	 *
-	 * @return bool True if the cron recurrence was set, false if it was already set or invalid.
-	 */
-	public static function set_cron_recurrence( string $hook, string $recurrence ) {
-		if ( ! self::is_valid_recurrence( $recurrence ) ) {
-			$recurrence = 'daily';
-		}
-
-		$cron_recurrence          = get_site_option( self::OPTION_CRON_RECURRENCE, array() );
-		$cron_recurrence[ $hook ] = $recurrence;
-
-		return update_site_option( self::OPTION_CRON_RECURRENCE, $cron_recurrence );
-	}
-
-	/**
-	 * Schedules a network-wide cronjob if not already scheduled.
+	 * Helper function that schedules a network-wide cronjob if not already scheduled.
 	 *
 	 * @param int    $timestamp The timestamp to schedule the cronjob at.
 	 * @param string $recurrence The recurrence of the cronjob.
@@ -140,11 +130,10 @@ class Singleton_Network_Event implements Has_Setup {
 	 * @return bool True if the cronjob was scheduled, false if it was already scheduled.
 	 */
 	public static function schedule( int $timestamp, string $recurrence, string $hook, array $args = array() ) {
-		if ( false === wp_next_scheduled( 'jetpack_boost_network_cron', array( $hook, $args ) ) ) {
-			// We save the recurrence to the site option so we don't need it when unscheduling the specific cron event.
-			self::set_cron_recurrence( $hook, $recurrence );
+		if ( false === wp_next_scheduled( $recurrence, $args ) ) {
+			self::set_cron_to_execute( $hook, $timestamp );
 
-			wp_schedule_event( $timestamp, $recurrence, 'jetpack_boost_network_cron', array( $hook, $args ) );
+			wp_schedule_event( $timestamp, $recurrence, $hook, $args );
 			return true;
 		}
 		return false;
@@ -163,35 +152,8 @@ class Singleton_Network_Event implements Has_Setup {
 	/**
 	 * Unschedules all network cron events.
 	 */
-	public static function unschedule_all() {
-		wp_unschedule_hook( 'jetpack_boost_network_cron' );
-
+	public static function clean_up() {
 		// We can safely delete the site options here because we know no network crons will be scheduled after this.
-		delete_site_option( self::OPTION_CRON_EXECUTED );
-		delete_site_option( self::OPTION_CRON_RECURRENCE );
-	}
-
-	/**
-	 * Schedules a network-wide cronjob that is only ran once per network instead of per site.
-	 * Also is compatible with non multisite installs.
-	 * Schedule_Event::schedule should be used to call this.
-	 *
-	 * @param string $action The action to schedule.
-	 * @param array  $args The arguments to pass to the action.
-	 */
-	public static function execute( string $action, array $args = array() ) {
-		// We need to fetch the interval of the schedule add it to the current time to see if the cronjob has already run within the last $interval seconds.
-		$interval = self::get_cron_recurrence_interval( $action );
-
-		$current_time = time();
-		$tester_ran   = self::get_cron_executed( $action );
-		// If the cronjob has already run within the last $interval seconds, bail.
-		if ( $tester_ran + $interval > $current_time ) {
-			return;
-		}
-
-		self::set_cron_executed( $action, $current_time );
-
-		do_action( $action, ...$args );
+		delete_site_option( self::OPTION_CRON_TO_EXECUTE );
 	}
 }

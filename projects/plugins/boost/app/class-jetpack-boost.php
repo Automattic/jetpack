@@ -318,7 +318,7 @@ class Jetpack_Boost {
 		}
 
 		// Unschedule all network cron events.
-		Singleton_Network_Event::unschedule_all();
+		Singleton_Network_Event::clean_up();
 
 		// Delete stored Critical CSS.
 		( new Critical_CSS_Storage() )->clear();

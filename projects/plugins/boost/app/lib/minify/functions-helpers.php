@@ -95,8 +95,8 @@ function jetpack_boost_delete_expired_files( $files, $file_age ) {
  * Removes the cache cleanup cron job and the 404 tester cron job.
  */
 function jetpack_boost_minify_clear_scheduled_events() {
-	Singleton_Network_Event::unschedule( 'jetpack_boost_minify_cron_cache_cleanup' );
-	Singleton_Network_Event::unschedule( 'jetpack_boost_404_tester_cron' );
+	wp_unschedule_hook( 'jetpack_boost_minify_cron_cache_cleanup' );
+	wp_unschedule_hook( 'jetpack_boost_404_tester_cron' );
 }
 
 /**
