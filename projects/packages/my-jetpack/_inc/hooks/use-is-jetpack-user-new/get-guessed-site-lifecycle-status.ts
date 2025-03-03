@@ -1,17 +1,13 @@
 const getGuessedSiteLifecycleStatus = (
-	lifecycleStats: Window[ 'myJetpackInitialState' ][ 'lifecycleStats' ]
+	lifecycleStats: Window[ 'myJetpackInitialState' ][ 'lifecycleStats' ],
+	purchases: Purchase[],
+	isPurchasesLoading: boolean
 ) => {
-	if ( ! lifecycleStats ) {
+	if ( ! lifecycleStats || isPurchasesLoading ) {
 		return 'unknown';
 	}
 
-	const {
-		modules,
-		purchases,
-		jetpackPlugins: plugins,
-		isSiteConnected,
-		isUserConnected,
-	} = lifecycleStats;
+	const { modules, jetpackPlugins: plugins, isSiteConnected, isUserConnected } = lifecycleStats;
 
 	// 'new' = no purchases + less than 3 modules
 	if ( purchases.length === 0 && modules.length < 3 ) {

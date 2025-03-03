@@ -4,20 +4,16 @@ import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../dat
 import useSimpleQuery from '../../data/use-simple-query';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { includesLifetimePurchase } from '../../utils/is-lifetime-purchase';
+import type { FC } from 'react';
 
-/**
- * The RedeemToken component of the My Jetpack app.
- *
- * @return {object} The RedeemTokenScreen component.
- */
-export default function RedeemTokenScreen() {
+const RedeemTokenScreen: FC = () => {
 	const { userConnectionData, isSiteConnected } = useMyJetpackConnection();
 	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.
 	const displayName =
 		userConnectionData?.currentUser?.wpcomUser?.display_name ||
 		userConnectionData?.currentUser?.wpcomUser?.login ||
 		userConnectionData?.currentUser?.username;
-	const { isLoading, data: purchases } = useSimpleQuery( {
+	const { isLoading, data: purchases } = useSimpleQuery< Purchase[] >( {
 		name: QUERY_PURCHASES_KEY,
 		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
 		options: { enabled: isSiteConnected },
@@ -34,4 +30,6 @@ export default function RedeemTokenScreen() {
 			<GoldenTokenModal tokenRedeemed={ tokenRedeemed } displayName={ displayName } />
 		</>
 	);
-}
+};
+
+export default RedeemTokenScreen;

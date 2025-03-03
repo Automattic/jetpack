@@ -261,9 +261,6 @@ class Initializer {
 				'products'               => array(
 					'items' => Products::get_products(),
 				),
-				'purchases'              => array(
-					'items' => array(),
-				),
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
@@ -279,14 +276,12 @@ class Initializer {
 				'adminUrl'               => esc_url( admin_url() ),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
-				'userIsNewToJetpack'     => self::is_jetpack_user_new(),
 				'lifecycleStats'         => array(
 					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
 					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
 					'brokenModules'             => self::check_for_broken_modules(),
 					'isSiteConnected'           => $connection->is_connected(),
 					'isUserConnected'           => $connection->is_user_connected(),
-					'purchases'                 => self::get_purchases(),
 					'modules'                   => self::get_active_modules(),
 				),
 				// Only in the My Jetpack context, we get the alerts without the cache to make sure we have the most up-to-date info
@@ -398,25 +393,6 @@ class Initializer {
 		return array(
 			'featuredStats' => $featured_stats,
 			'videoCount'    => $video_count,
-		);
-	}
-
-	/**
-	 * Get product slugs of the active purchases
-	 *
-	 * @return array
-	 */
-	public static function get_purchases() {
-		$purchases = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases ) ) {
-			return array();
-		}
-
-		return array_map(
-			function ( $purchase ) {
-				return $purchase->product_slug;
-			},
-			(array) $purchases
 		);
 	}
 
