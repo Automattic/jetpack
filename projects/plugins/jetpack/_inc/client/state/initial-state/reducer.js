@@ -606,8 +606,8 @@ export function getStaticProductsForPurchase( state ) {
  */
 export function getProductsForPurchase( state ) {
 	const staticProducts = get( state.jetpack.initialState, 'products', {} );
-	const wpcomUser = get( state.jetpack.initialState.userData.currentUser, 'wpcomUser', {} );
-	const currencyCode = wpcomUser.user_currency || null;
+	const wpcomUser = get( state.jetpack.initialState?.userData?.currentUser, 'wpcomUser', {} );
+	const currencyCode = wpcomUser?.user_currency || null;
 	const jetpackProducts = getSiteProducts( state );
 	const products = {};
 
