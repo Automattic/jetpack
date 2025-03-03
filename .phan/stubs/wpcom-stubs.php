@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit f1226e4348ae3a210537dd29de4ff42c8eadb05f.
+ * Stubs automatically generated from WordPress.com commit 8424db9d619258e881e7ae9d91a8ff20af5e3a38.
  */
 
 namespace {
@@ -465,6 +465,54 @@ namespace {
          * @return true|WP_Error
          */
         public function moderate($prompt)
+        {
+        }
+    }
+    class Publicize_Actions
+    {
+        /**
+         * @param int $blog_id
+         * @return array|WP_Error
+         */
+        public static function get_scheduled_actions_by_blog_id($blog_id, $limit = \Publicize_Actions::ACTIONS_LIMIT)
+        {
+        }
+        /**
+         * @param int $blog_id
+         * @param int $post_id
+         * @return array|WP_Error
+         */
+        public static function get_scheduled_actions_by_blog_and_post_id($blog_id, $post_id, $limit = \Publicize_Actions::ACTIONS_LIMIT)
+        {
+        }
+        /**
+         * @param array $action_data
+         * @return int|WP_Error
+         */
+        public static function add_scheduled_action($action_data)
+        {
+        }
+        /**
+         * @param int $action_id
+         * @return array|WP_Error
+         */
+        public static function get_scheduled_action($action_id)
+        {
+        }
+        /**
+         * @param int $action_id
+         * @param array $action_data
+         * @return boolean|WP_Error
+         */
+        public static function edit_scheduled_action($action_id, $action_data)
+        {
+        }
+        /**
+         * @param int $action_id
+         * @param int $blog_id
+         * @return boolean|WP_Error
+         */
+        public static function delete_scheduled_action($action_id, $blog_id = \null)
         {
         }
     }

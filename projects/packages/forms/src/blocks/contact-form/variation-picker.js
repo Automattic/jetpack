@@ -1,4 +1,3 @@
-import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import {
 	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -12,9 +11,6 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, get, map } from 'lodash';
 import './util/form-styles.js';
-
-const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;
-const CUSTOMIZING_FORMS_URL = 'https://jetpack.com/support/jetpack-blocks/contact-form/';
 
 const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 	const blocks = map( innerBlocksTemplate, ( [ blockName, attr, innerBlocks = [] ] ) =>
@@ -56,7 +52,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				icon={ get( blockType, [ 'icon', 'src' ] ) }
 				label={ get( blockType, [ 'title' ] ) }
 				instructions={ __(
-					'Start building a form by selecting one of these form templates, or search in the patterns library for more forms:',
+					'Start by selecting one of these templates, or browse patterns.',
 					'jetpack-forms'
 				) }
 				variations={ filter( variations, v => ! v.hiddenFromPicker ) }
@@ -77,26 +73,8 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 			/>
 			<div className="form-placeholder__footer">
 				<Button variant="secondary" onClick={ () => setIsPatternsModalOpen( true ) }>
-					{ __( 'Explore Form Patterns', 'jetpack-forms' ) }
+					{ __( 'Browse form patterns', 'jetpack-forms' ) }
 				</Button>
-				<div className="form-placeholder__footer-links">
-					<Button
-						variant="link"
-						className="form-placeholder__external-link"
-						href={ CUSTOMIZING_FORMS_URL }
-						target="_blank"
-					>
-						{ __( 'Learn more about customizing forms', 'jetpack-forms' ) }
-					</Button>
-					<Button
-						variant="link"
-						className="form-placeholder__external-link"
-						href={ RESPONSES_PATH }
-						target="_blank"
-					>
-						{ __( 'View and export your form responses here', 'jetpack-forms' ) }
-					</Button>
-				</div>
 			</div>
 			{ isPatternsModalOpen && (
 				<Modal
