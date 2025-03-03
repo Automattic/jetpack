@@ -870,7 +870,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<input id="<?php echo esc_attr( $id ); ?>" type="file" class="jetpack-form-file-field" data-wp-on--change="actions.fileAdded" />
 	</div>
 	<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="context.hasFiles">
-		<template data-wp-each--file="context.files">
+		<template data-wp-each--file="context.files" data-wp-key="context.file.id">
 			<div class="jetpack-form-file-field__preview">
 				<div class="jetpack-form-file-field__progress" data-wp-class--is-complete="context.file.hasToken" style="--progress: 3%;" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
 					<input type="hidden" name="jetpack-form-file-field[]" data-wp-bind--value='context.file.token' value="">
