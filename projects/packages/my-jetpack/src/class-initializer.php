@@ -59,12 +59,11 @@ class Initializer {
 		'jetpack-search',
 	);
 
-	private const MY_JETPACK_SITE_INFO_TRANSIENT_KEY             = 'my-jetpack-site-info';
-	private const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
-	private const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
-	private const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
-	private const VIDEOPRESS_PERIOD_KEY                          = 'my-jetpack-videopress-period';
-	private const MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY            = 'my-jetpack-red-bubble-transient';
+	private const MY_JETPACK_SITE_INFO_TRANSIENT_KEY  = 'my-jetpack-site-info';
+	private const MISSING_CONNECTION_NOTIFICATION_KEY = 'missing-connection';
+	private const VIDEOPRESS_STATS_KEY                = 'my-jetpack-videopress-stats';
+	private const VIDEOPRESS_PERIOD_KEY               = 'my-jetpack-videopress-period';
+	private const MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY = 'my-jetpack-red-bubble-transient';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -237,8 +236,6 @@ class Initializer {
 
 		Products::initialize_products();
 		$scan_data = Products\Protect::get_protect_data();
-
-		self::update_historically_active_jetpack_modules();
 
 		$waf_config     = array();
 		$waf_supported  = false;
@@ -546,6 +543,7 @@ class Initializer {
 		new REST_Zendesk_Chat();
 		new REST_AI();
 		new REST_Recommendations_Evaluation();
+		new Historically_Active_Modules();
 
 		Products::register_product_endpoints();
 
@@ -608,30 +606,17 @@ class Initializer {
 	}
 
 	/**
-	 * Set transient to queue an update to the historically active Jetpack modules on the next wp-admin load
-	 *
-	 * @param string $plugin The plugin that triggered the update. This will be present if the function was queued by a plugin activation.
-	 *
-	 * @return void
-	 */
-	public static function queue_historically_active_jetpack_modules_update( $plugin = null ) {
-		$plugin_filenames = Products::get_all_plugin_filenames();
-
-		if ( ! $plugin || in_array( $plugin, $plugin_filenames, true ) ) {
-			set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
-		}
-	}
-
-	/**
 	 * Hook into several connection-based actions to update the historically active Jetpack modules
 	 * If the transient that indicates the list needs to be synced, update it and delete the transient
 	 *
 	 * @return void
 	 */
 	public static function setup_historically_active_jetpack_modules_sync() {
-		if ( get_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY ) && ! wp_doing_ajax() ) {
-			self::update_historically_active_jetpack_modules();
-			delete_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY );
+		// yummmm. ham.
+		$ham = new Historically_Active_Modules();
+		if ( get_transient( $ham::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY ) && ! wp_doing_ajax() ) {
+			$ham::update_historically_active_jetpack_modules();
+			delete_transient( $ham::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY );
 		}
 
 		$actions = array(
@@ -641,50 +626,11 @@ class Initializer {
 		);
 
 		foreach ( $actions as $action ) {
-			add_action( $action, array( __CLASS__, 'queue_historically_active_jetpack_modules_update' ), 5 );
+			add_action( $action, array( $ham, 'queue_historically_active_jetpack_modules_update' ), 5 );
 		}
 
 		// Modules are often updated async, so we need to update them right away as there will sometimes be no page reload.
-		add_action( 'jetpack_activate_module', array( __CLASS__, 'update_historically_active_jetpack_modules' ), 5 );
-	}
-
-	/**
-	 * Update historically active Jetpack plugins
-	 * Historically active is defined as the Jetpack plugins that are installed and active with the required connections
-	 * This array will consist of any plugins that were active at one point in time and are still enabled on the site
-	 *
-	 * @return void
-	 */
-	public static function update_historically_active_jetpack_modules() {
-		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
-		$products                    = Products::get_products();
-		$product_classes             = Products::get_products_classes();
-
-		foreach ( $products as $product ) {
-			$product_slug = $product['slug'];
-			$status       = $product_classes[ $product_slug ]::get_status();
-			// We want to leave modules in the array if they've been active in the past
-			// and were not manually disabled by the user.
-			if ( in_array( $status, Products::$broken_module_statuses, true ) ) {
-				continue;
-			}
-
-			// If the module is active and not already in the array, add it
-			if (
-				in_array( $status, Products::$active_module_statuses, true ) &&
-				! in_array( $product_slug, $historically_active_modules, true )
-			) {
-					$historically_active_modules[] = $product_slug;
-			}
-
-			// If the module has been disabled due to a manual user action,
-			// or because of a missing plan error, remove it from the array
-			if ( in_array( $status, Products::$disabled_module_statuses, true ) ) {
-				$historically_active_modules = array_values( array_diff( $historically_active_modules, array( $product_slug ) ) );
-			}
-		}
-
-		\Jetpack_Options::update_option( 'historically_active_modules', array_unique( $historically_active_modules ) );
+		add_action( 'jetpack_activate_module', array( $ham, 'update_historically_active_jetpack_modules' ), 5 );
 	}
 
 	/**

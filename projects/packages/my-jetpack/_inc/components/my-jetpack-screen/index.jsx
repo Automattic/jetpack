@@ -27,6 +27,7 @@ import {
 	QUERY_CHAT_AUTHENTICATION_KEY,
 } from '../../data/constants';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
+import useUpdateHistoricallyActiveModules from '../../data/products/use-update-historically-active-modules';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
@@ -112,6 +113,11 @@ export default function MyJetpackScreen() {
 		name: QUERY_CHAT_AUTHENTICATION_KEY,
 		query: { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT },
 	} );
+	const updateHistoricallyActiveModules = useUpdateHistoricallyActiveModules();
+
+	useEffect( () => {
+		updateHistoricallyActiveModules();
+	}, [ updateHistoricallyActiveModules ] );
 
 	const isAvailable = availabilityData?.is_available;
 	const jwt = authData?.user?.jwt;

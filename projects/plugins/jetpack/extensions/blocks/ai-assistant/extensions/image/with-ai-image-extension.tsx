@@ -1,7 +1,12 @@
 /*
  * External dependencies
  */
-import { askQuestionSync, usePostContent, openBlockSidebar } from '@automattic/jetpack-ai-client';
+import {
+	askQuestionSync,
+	usePostContent,
+	openBlockSidebar,
+	useAiFeature,
+} from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -15,7 +20,12 @@ import debugFactory from 'debug';
 import useBlockModuleStatus from '../../hooks/use-block-module-status';
 import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
 import { canAIAssistantBeEnabled } from '../lib/can-ai-assistant-be-enabled';
+import { TYPE_ALT_TEXT, TYPE_CAPTION } from '../types';
 import AiAssistantImageExtensionToolbarDropdown from './components/image-toolbar-dropdown';
+/*
+ * Types
+ */
+import type { LOADING_STATE } from '../types';
 
 const debug = debugFactory( 'jetpack-ai:image-extension' );
 
@@ -60,85 +70,107 @@ export function isPossibleToExtendImageBlock( blockName: string ): boolean {
 // HOC to populate the block's edit component with the AI Assistant toolbar button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	function ExtendedBlock( props ) {
+		const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
 		const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 		const { getPostContent } = usePostContent();
-		const [ loading, setLoading ] = useState( false );
+		const [ loading, setLoading ] = useState< LOADING_STATE >( false );
 		const { updateBlockAttributes } = useDispatch( editorStore );
 		const wrapperRef = useRef< HTMLDivElement >( null );
+		const hasImage = !! props.attributes.url;
 
 		// When the dropdown is open, we need to focus the wrapper element to prevent it from closing.
-		const startLoading = useCallback( () => {
+		const startLoading = useCallback( ( type: LOADING_STATE ) => {
 			if ( wrapperRef.current ) {
 				wrapperRef.current.setAttribute( 'tabindex', '0' );
 				wrapperRef.current.focus();
 			}
 
-			setLoading( true );
+			setLoading( type );
 		}, [] );
 
 		useEffect( () => {
-			if ( ! loading ) {
+			if ( loading === false ) {
 				if ( wrapperRef.current ) {
 					wrapperRef.current.setAttribute( 'tabindex', '-1' );
 				}
 			}
 		}, [ loading ] );
 
-		const requestAltText = useCallback( async () => {
-			startLoading();
+		const request = useCallback(
+			async ( type: typeof TYPE_ALT_TEXT | typeof TYPE_CAPTION ) => {
+				if ( requireUpgrade ) {
+					return;
+				}
 
-			try {
-				openBlockSidebar( props.clientId );
+				startLoading( type );
 
-				const response = await askQuestionSync(
-					[
-						{
-							role: 'jetpack-ai' as const,
-							context: {
-								type: 'images-alt-text',
-								content: getPostContent(),
-								images: [
-									{
-										url: props.attributes.url,
-									},
-								],
-							},
-						},
-					],
-					{
-						postId,
-						feature: 'jetpack-seo-assistant',
+				try {
+					if ( type === TYPE_ALT_TEXT ) {
+						openBlockSidebar( props.clientId );
 					}
-				);
 
-				const parsedResponse: { texts: string[] } = JSON.parse( response );
-				const alt = parsedResponse.texts?.[ 0 ];
+					dequeueAsyncRequest();
 
-				updateBlockAttributes( props.clientId, { alt } );
-			} catch ( error ) {
-				debug( 'Error generating alt text', error );
-			} finally {
-				setLoading( false );
-			}
-		}, [
-			getPostContent,
-			postId,
-			props.attributes.url,
-			props.clientId,
-			startLoading,
-			updateBlockAttributes,
-		] );
+					const response = await askQuestionSync(
+						[
+							{
+								role: 'jetpack-ai' as const,
+								context: {
+									type: type,
+									content: getPostContent(),
+									images: [
+										{
+											url: props.attributes.url,
+										},
+									],
+								},
+							},
+						],
+						{
+							postId,
+							feature: 'jetpack-ai-image-extension',
+						}
+					);
 
-		const requestCaption = useCallback( async () => {}, [] );
+					increaseRequestsCount();
+
+					const parsedResponse: { texts?: string[]; captions?: string[] } = JSON.parse( response );
+
+					if ( type === TYPE_ALT_TEXT ) {
+						const alt = parsedResponse.texts?.[ 0 ];
+						updateBlockAttributes( props.clientId, { alt } );
+					} else if ( type === TYPE_CAPTION ) {
+						const caption = parsedResponse.captions?.[ 0 ];
+						updateBlockAttributes( props.clientId, { caption } );
+					}
+				} catch ( error ) {
+					debug( `Error generating ${ type }`, error );
+				} finally {
+					setLoading( false );
+				}
+			},
+			[
+				dequeueAsyncRequest,
+				getPostContent,
+				increaseRequestsCount,
+				postId,
+				props.attributes.url,
+				props.clientId,
+				requireUpgrade,
+				startLoading,
+				updateBlockAttributes,
+			]
+		);
 
 		return (
 			<>
 				<BlockEdit { ...props } />
 				<BlockControls { ...blockControlsProps }>
 					<AiAssistantImageExtensionToolbarDropdown
-						onRequestAltText={ requestAltText }
-						onRequestCaption={ requestCaption }
+						onRequestAltText={ () => request( TYPE_ALT_TEXT ) }
+						onRequestCaption={ () => request( TYPE_CAPTION ) }
 						loading={ loading }
+						disabled={ ! hasImage }
 						wrapperRef={ wrapperRef }
 					/>
 				</BlockControls>

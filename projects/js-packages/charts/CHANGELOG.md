@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2025-03-02
+### Added
+- Expose event handling for line chart [#42168]
+
 ## [0.8.4] - 2025-02-27
 ### Fixed
 - Line chart: no need for min x tick num [#42087]
@@ -128,6 +132,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.9.0]: https://github.com/Automattic/charts/compare/v0.8.4...v0.9.0
 [0.8.4]: https://github.com/Automattic/charts/compare/v0.8.3...v0.8.4
 [0.8.3]: https://github.com/Automattic/charts/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/Automattic/charts/compare/v0.8.1...v0.8.2
