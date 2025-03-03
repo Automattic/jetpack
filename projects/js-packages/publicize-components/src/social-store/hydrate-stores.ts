@@ -26,6 +26,16 @@ export async function hydrateStores() {
 				label: __( 'Social Settings', 'jetpack-publicize-components' ),
 			},
 		] );
+
+		// @ts-expect-error Only 3 arguments are required, rest are optional but types expect 7
+		await receiveEntityRecords(
+			'jetpack/v4',
+			socialToggleBase,
+			{ publicize: getSocialScriptData()?.is_publicize_enabled },
+			true
+		);
+
+		await finishResolution( 'getEntityRecord', [ 'jetpack/v4', socialToggleBase ] );
 	}
 
 	const wpcomEntities = select( coreStore ).getEntitiesConfig( 'wpcom/v2' );

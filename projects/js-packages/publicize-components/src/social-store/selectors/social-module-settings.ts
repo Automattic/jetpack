@@ -1,7 +1,6 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector } from '@wordpress/data';
 import { getSocialScriptData } from '../../utils';
-import { canToggleSocialModule } from '../../utils/misc';
 import { SocialModuleSettings } from '../types';
 
 /**
@@ -9,23 +8,12 @@ import { SocialModuleSettings } from '../types';
  */
 export const getSocialModuleSettings = createRegistrySelector(
 	select => (): SocialModuleSettings => {
-		const { is_publicize_enabled, api_paths } = getSocialScriptData();
+		const { api_paths } = getSocialScriptData();
 
-		const defaultSettings = {
-			publicize: is_publicize_enabled,
-		};
-
-		if ( ! canToggleSocialModule() ) {
-			return defaultSettings;
-		}
-
-		const data = select( coreStore ).getEntityRecord< SocialModuleSettings >(
+		return select( coreStore ).getEntityRecord< SocialModuleSettings >(
 			'jetpack/v4',
-			api_paths.socialToggleBase,
-			undefined
+			api_paths.socialToggleBase
 		);
-
-		return data ?? defaultSettings;
 	}
 );
 
