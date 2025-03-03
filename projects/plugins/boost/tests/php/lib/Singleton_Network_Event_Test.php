@@ -12,11 +12,6 @@ class Singleton_Network_Event_Test extends Base_TestCase {
 
 		$scheduled_event = new Singleton_Network_Event();
 
-		Functions\expect( 'add_action' )
-			->once()
-			->with( 'jetpack_boost_network_cron', array( $scheduled_event, 'execute' ), 10, 2 )
-			->andReturn( true );
-
 		Functions\expect( 'add_filter' )
 			->once()
 			->with( 'pre_get_ready_cron_jobs', array( $scheduled_event, 'filter_cron_jobs' ) )
@@ -200,19 +195,6 @@ class Singleton_Network_Event_Test extends Base_TestCase {
 
 		$result = Singleton_Network_Event::schedule( $timestamp, $recurrence, $hook, $args );
 		$this->assertFalse( $result );
-	}
-
-	public function test_unschedule() {
-		$hook = 'test_hook';
-		$args = array( 'test_arg' => 'value' );
-
-		Functions\expect( 'wp_clear_scheduled_hook' )
-			->once()
-			->with( 'jetpack_boost_network_cron', array( $hook, $args ) )
-			->andReturn( true );
-
-		Singleton_Network_Event::unschedule( $hook, $args );
-		$this->expectNotToPerformAssertions();
 	}
 
 	public function test_clean_up() {

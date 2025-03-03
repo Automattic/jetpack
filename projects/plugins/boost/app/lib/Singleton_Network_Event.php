@@ -34,7 +34,6 @@ class Singleton_Network_Event implements Has_Setup {
 	 * Setup the scheduled event that is needed for the network cron to work.
 	 */
 	public function setup() {
-		add_action( 'jetpack_boost_network_cron', array( $this, 'execute' ), 10, 2 );
 		add_filter( 'pre_get_ready_cron_jobs', array( $this, 'filter_cron_jobs' ) );
 	}
 
@@ -146,16 +145,6 @@ class Singleton_Network_Event implements Has_Setup {
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 * Unschedules the network cron event for the specific blog.
-	 *
-	 * @param string $hook The hook to unschedule the cronjob for.
-	 * @param array  $args The arguments to pass to the action.
-	 */
-	public static function unschedule( string $hook, array $args = array() ) {
-		wp_clear_scheduled_hook( 'jetpack_boost_network_cron', array( $hook, $args ) );
 	}
 
 	/**
