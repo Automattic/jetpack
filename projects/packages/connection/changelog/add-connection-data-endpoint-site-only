@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add 'isRegistered' flag to connection data endpoint.

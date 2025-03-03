@@ -28,8 +28,7 @@ export default function Feedback( {
 	const { tracks } = useAnalytics();
 
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
-	const { getPostContent } = usePostContent();
-	const postContent = getPostContent();
+	const { getPostContent, isEditedPostEmpty } = usePostContent();
 
 	const toggleFeedbackModal = () => {
 		setIsFeedbackModalVisible( ! isFeedbackModalVisible );
@@ -70,7 +69,7 @@ export default function Feedback( {
 				role: 'jetpack-ai' as const,
 				context: {
 					type: 'proofread-plugin', // Legacy name, do not change
-					content: postContent,
+					content: getPostContent(),
 				},
 			},
 		];
@@ -103,7 +102,7 @@ export default function Feedback( {
 			<Button
 				onClick={ handleRequest }
 				variant="secondary"
-				disabled={ ! postContent || disabled }
+				disabled={ isEditedPostEmpty() || disabled }
 				isBusy={ busy }
 				__next40pxDefaultSize
 			>
