@@ -66,7 +66,7 @@ class Services_Controller extends Base_Controller {
 		}
 		$schema = array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'jetpack-publicize-connection',
+			'title'      => 'jetpack-publicize-service',
 			'type'       => 'object',
 			'properties' => array(
 				'id'          => array(
