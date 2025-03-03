@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Tracking Pixel: ensure the tracking script can be deferred, so it is not blocking.

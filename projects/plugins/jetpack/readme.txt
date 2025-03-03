@@ -326,17 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.4-a.7 - 2025-02-24
+### 14.4-beta - 2025-03-03
 #### Enhancements
-- Newsletter: Add new newsletter widget.
-- Connection: Disconnect all other users before disconnecting connection owner account.
-- Custom Post Types: do not display testimonials and portfolios on block themes where they are not in use.
-- Social: Update the admin page to be used by Editors and Authors.
+- Newsletter: Add newsletter widget header row behind a feature flag.
+- Newsletter: Add footer widget section.
+- VideoPress: Add title to the attachment details view.
 
 #### Bug fixes
-- Fix Social toggles.
-- Newsletter: Fix post placement not displaying on certain block themes.
-- Social Previews: Fix distorted image for Tumblr preview.
+- Forms: Ensure non-rendering fields to not trigger validation or show value in form submission response.
+- Forms: Fix 404 error when a user submits an invalid form with JavaScript disabled.
+- Gravatar Widget: Fix linked accounts not showing.
+- Publicize: Fix disconnect command not working.
+- Widget Visibility: Fix possible fatal errors for widgets using anonymous functions as callbacks.
 
 --------
 

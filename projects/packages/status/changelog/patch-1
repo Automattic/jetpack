@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Hosting provider checks: avoid PHP warnings in local environments.
