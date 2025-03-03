@@ -81,9 +81,9 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 
 	const margin = {
 		top: 12,
-		bottom: 12 + 22,
+		bottom: 12 + 24, // Add 24 to create space for the x-axis ticks
 		left: 12,
-		right: 12 + 22,
+		right: 12 + 28, // Add 28 to create space for the y-axis ticks
 	};
 	const xMax = width - margin.left - margin.right;
 	const yMax = height - margin.top - margin.bottom;
@@ -99,6 +99,7 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 	const yScale = scaleLinear( {
 		range: [ yMax, 0 ],
 		domain: [ 0, getMaxY( cumulativeCountData ) ],
+		nice: true, // This will round the domain to nice round numbers
 	} );
 
 	const xScaled = useMemo( () => d => xScale( d.date ), [ xScale ] );
