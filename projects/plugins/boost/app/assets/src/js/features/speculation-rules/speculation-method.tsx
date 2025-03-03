@@ -9,8 +9,7 @@ import styles from './speculation-method.module.scss';
 import { createInterpolateElement } from '@wordpress/element';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
-const unsafeSpeculationRulesLink =
-	getRedirectUrl( 'jetpack-boost-unsafe-speculation-rules' );
+const unsafeSpeculationRulesLink = getRedirectUrl( 'jetpack-boost-unsafe-speculation-rules' );
 
 export default function SpeculationFetchMethod() {
 	const [ speculationMethod, setSpeculationMethod ] = useDataSync(
