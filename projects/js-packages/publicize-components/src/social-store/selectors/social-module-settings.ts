@@ -8,12 +8,14 @@ import { SocialModuleSettings } from '../types';
  */
 export const getSocialModuleSettings = createRegistrySelector(
 	select => (): SocialModuleSettings => {
-		const { api_paths } = getSocialScriptData();
+		const { api_paths, is_publicize_enabled } = getSocialScriptData();
 
-		return select( coreStore ).getEntityRecord< SocialModuleSettings >(
+		const data = select( coreStore ).getEntityRecord< SocialModuleSettings >(
 			'jetpack/v4',
 			api_paths.socialToggleBase
 		);
+
+		return data ?? { publicize: is_publicize_enabled };
 	}
 );
 
