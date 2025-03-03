@@ -36,6 +36,7 @@ new WPCOM_JSON_API_List_Users_Endpoint(
 			),
 			'authors_only'    => '(bool) Set to true to fetch authors only',
 			'include_viewers' => '(bool) Set to true to include viewers for Simple sites. When you pass in this parameter, order, order_by and search_columns are ignored. Currently, `search` is limited to the first page of results.',
+			'total_users'     => '(bool) Set to true to return the total number of site users.',
 			'type'            => "(string) Specify the post type to query authors for. Only works when combined with the `authors_only` flag. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 			'search'          => '(string) Find matching users.',
 			'search_columns'  => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter.",
@@ -93,8 +94,9 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @var array
 	 */
 	public $response_format = array(
-		'found' => '(int) The total number of authors found that match the request (ignoring limits and offsets).',
-		'users' => '(array:author) Array of user objects',
+		'found'       => '(int) The total number of authors found that match the request (ignoring limits and offsets).',
+		'users'       => '(array:author) Array of user objects',
+		'total_users' => '(int) The total number of users.',
 	);
 
 	/**
@@ -207,16 +209,12 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$return = array();
 		foreach ( array_keys( $this->response_format ) as $key ) {
 			switch ( $key ) {
+				// Total users found in the current query.
 				case 'found':
-					$user_count = (int) $user_query->get_total();
-
+					$user_count   = (int) $user_query->get_total();
 					$viewer_count = 0;
 					if ( $include_viewers ) {
-						if ( empty( $args['search'] ) ) {
-							$viewer_count = (int) get_count_private_blog_users( $blog_id );
-						} else {
-							$viewer_count = count( $viewers );
-						}
+						$viewer_count = count( $viewers );
 					}
 
 					$return[ $key ] = $user_count + $viewer_count;
@@ -249,6 +247,18 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 
 					$return[ $key ] = $combined_users;
+					break;
+				// Total users from the site.
+				case 'total_users':
+					if ( ! empty( $args['total_users'] ) && true === $args['total_users'] ) {
+						$viewer_count = 0;
+						if ( $include_viewers ) {
+							$viewer_count = (int) get_count_private_blog_users( $blog_id );
+						}
+						$user           = count_users( 'time', $blog_id );
+						$total_users    = isset( $user['total_users'] ) ? (int) $user['total_users'] : 0;
+						$return[ $key ] = $total_users + $viewer_count;
+					}
 					break;
 			}
 		}
