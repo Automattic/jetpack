@@ -265,7 +265,8 @@
 		margin-bottom: -3px;
 	}
 
-	.rich-text.jetpack-field-label__input {
+	// Duplicated classname to preserve specificity level.
+	.jetpack-field-label__input.jetpack-field-label__input {
 		cursor: text;
 		font-weight: bold;
 		margin-bottom: 0.25em;
