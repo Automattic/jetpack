@@ -8,7 +8,6 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Publicize\REST_API\Proxy_Requests;
 use Jetpack_Options;
@@ -480,41 +479,25 @@ class REST_Controller {
 	 *
 	 * POST jetpack/v4/publicize/(?P<postId>\d+)
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
 	public function share_post( $request ) {
-		$post_id             = $request->get_param( 'postId' );
-		$message             = trim( $request->get_param( 'message' ) );
-		$skip_connection_ids = $request->get_param( 'skipped_connections' );
-		$async               = (bool) $request->get_param( 'async' );
+		$post_id = $request->get_param( 'postId' );
 
-		/*
-		 * Publicize endpoint on WPCOM:
-		 * [POST] wpcom/v2/sites/{$siteId}/posts/{$postId}/publicize
-		 * body:
-		 *   - message: string
-		 *   - skipped_connections: array of connection ids to skip
-		 */
-		$url = sprintf(
-			'/sites/%d/posts/%d/publicize',
-			$this->get_blog_id(),
-			$post_id
+		Publicize_Utils::endpoint_deprecated_warning(
+			__METHOD__,
+			'jetpack-14.4.1, jetpack-social-6.2.0',
+			'jetpack/v4/publicize/:postId',
+			'wpcom/v2/publicize/share-post/:postId'
 		);
 
-		$response = Client::wpcom_json_api_request_as_user(
-			$url,
-			'v2',
-			array(
-				'method' => 'POST',
-			),
-			array(
-				'message'             => $message,
-				'skipped_connections' => $skip_connection_ids,
-				'async'               => $async,
-			)
-		);
+		$proxy = new Proxy_Requests( 'publicize/share-post' );
 
-		return rest_ensure_response( $this->make_proper_response( $response ) );
+		return rest_ensure_response(
+			$proxy->proxy_request_to_wpcom_as_user( $request, $post_id )
+		);
 	}
 
 	/**
