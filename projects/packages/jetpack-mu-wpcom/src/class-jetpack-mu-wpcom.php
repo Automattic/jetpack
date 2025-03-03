@@ -65,6 +65,7 @@ class Jetpack_Mu_Wpcom {
 		// These features run only on atomic sites.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'maybe_update_translations' ), 20 );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -520,5 +521,119 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
 			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 		}
+	}
+
+	/**
+	 * Checks for translation updates and installs them if necessary.
+	 */
+	public static function maybe_update_translations() {
+		$plugin_slug = 'jetpack-mu-wpcom';
+
+		// Get installed site locales.
+		$locales = self::get_all_active_locales();
+		if ( empty( $locales ) ) {
+			return;
+		}
+
+		// Query the translation API.
+		$api_url      = 'https://translate.wordpress.com/api/translations-updates/wpcom/plugins';
+		$request_body = array(
+			'locales' => $locales,
+			'plugins' => array(
+				$plugin_slug => array( 'version' => 'latest' ),
+			),
+		);
+
+		$response = wp_remote_post(
+			$api_url,
+			array(
+				'body'    => wp_json_encode( $request_body ),
+				'headers' => array( 'Content-Type' => 'application/json' ),
+				'timeout' => 10,
+			)
+		);
+
+		if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
+			return;
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( empty( $data['data'][ $plugin_slug ] ) ) {
+			return;
+		}
+
+		// Process each locale.
+		foreach ( $data['data'][ $plugin_slug ] as $translation ) {
+			$package_url   = $translation['package'] ?? '';
+			$locale        = $translation['wp_locale'] ?? '';
+			$last_modified = $translation['last_modified'] ?? '';
+
+			if ( ! $package_url || ! $locale || ! $last_modified ) {
+				continue;
+			}
+
+			// Get last saved timestamp for this locale.
+			$stored_last_modified = get_option( "jetpack_mu_wpcom_translation_{$locale}_last_modified", '' );
+
+			// If translation is already the latest version, skip.
+			if ( $stored_last_modified === $last_modified ) {
+				continue;
+			}
+
+			// Install the translation package.
+			if ( self::install_translation_package( $package_url ) ) {
+				update_option( "jetpack_mu_wpcom_translation_{$locale}_last_modified", $last_modified );
+			}
+		}
+	}
+
+	/**
+	 * Retrieves all active site locales.
+	 */
+	private static function get_all_active_locales() {
+		$locales             = array( get_locale() );
+		$available_languages = get_available_languages();
+		if ( ! empty( $available_languages ) ) {
+			$locales = array_unique( array_merge( $locales, $available_languages ) );
+		}
+		return array_values( $locales );
+	}
+
+	/**
+	 * Downloads and installs translation files from the given URL.
+	 *
+	 * @param string $package_url The URL of the language pack.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	private static function install_translation_package( $package_url ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+
+		$wpcomsh_dir = is_dir( WP_CONTENT_DIR . '/mu-plugins/wpcomsh-dev/' ) ? 'wpcomsh-dev' : 'wpcomsh';
+		$destination = WP_CONTENT_DIR . "/mu-plugins/{$wpcomsh_dir}/languages/";
+
+		// Ensure the languages directory exists.
+		if ( ! is_dir( $destination ) ) {
+			wp_mkdir_p( $destination );
+		}
+
+		$temp_file = download_url( $package_url );
+		if ( is_wp_error( $temp_file ) ) {
+			return false;
+		}
+
+		// Extract language files into the destination directory.
+		$unzip_result = unzip_file( $temp_file, $destination );
+
+		if ( file_exists( $temp_file ) ) {
+			wp_delete_file( $temp_file );
+		}
+
+		if ( is_wp_error( $unzip_result ) ) {
+			return false;
+		}
+
+		return true;
 	}
 }
