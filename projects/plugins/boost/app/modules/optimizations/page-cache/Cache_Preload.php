@@ -217,7 +217,16 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	private function preload_page( $page ) {
 		$url = $page;
 
-		$response = wp_remote_get( $url );
+		// Add a cache-busting header to ensure our response is fresh.
+		$args = array(
+			'headers' => array(
+				'Cache-Control' => 'no-cache, no-store, must-revalidate, max-age=0',
+				'Pragma'        => 'no-cache',
+				'Expires'       => '0',
+			),
+		);
+
+		$response = wp_remote_get( $url, $args );
 
 		if ( is_wp_error( $response ) ) {
 			Logger::debug( 'Error preloading page: ' . $response->get_error_message() );
