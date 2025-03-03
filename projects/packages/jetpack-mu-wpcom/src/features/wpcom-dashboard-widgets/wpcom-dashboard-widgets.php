@@ -68,6 +68,7 @@ function load_wpcom_dashboard_widgets() {
 	$checklist_slug    = get_option( 'site_intent' );
 
 	if (
+		defined( 'IS_WPCOM' ) && IS_WPCOM &&
 		get_option( 'launch-status', 'launched' ) !== 'launched' &&
 		! empty( wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context ) ) &&
 		! wpcom_launchpad_is_task_list_dismissed( $checklist_slug )

@@ -1116,7 +1116,12 @@ function wpcom_launchpad_update_task_status( $new_statuses ) {
 		// Use the requested task ID for completion tracking.
 		$requested_task_id = $option_map[ $task_id ];
 
-		wpcom_launchpad_track_completed_task( $requested_task_id );
+		wpcom_launchpad_track_completed_task(
+			$requested_task_id,
+			array(
+				'goals' => wpcom_get_current_site_goals_for_tracks(),
+			)
+		);
 	}
 
 	return $response_statuses;
@@ -1186,7 +1191,12 @@ add_action( 'init', 'wpcom_launchpad_init_task_definitions', 11 );
  */
 function wpcom_launchpad_mark_launchpad_task_complete_if_active( $task_id ) {
 	if ( wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id ) ) {
-		wpcom_launchpad_track_completed_task( $task_id );
+		wpcom_launchpad_track_completed_task(
+			$task_id,
+			array(
+				'goals' => wpcom_get_current_site_goals_for_tracks(),
+			)
+		);
 		return true;
 	}
 
@@ -1925,7 +1935,12 @@ function wpcom_launchpad_mark_verify_email_complete( $user_id ) {
 	if ( empty( $user ) ) {
 		return;
 	}
-	wpcom_launchpad_track_completed_task( 'verify_email', array(), $user );
+
+	// Completed task events usually have a `goals` prop, however verifying email isn't associated
+	// with a specific site, so can't be associated with site goals.
+	$extra_props = array();
+
+	wpcom_launchpad_track_completed_task( 'verify_email', $extra_props, $user );
 }
 add_action( 'wpcom_email_verification_complete', 'wpcom_launchpad_mark_verify_email_complete' );
 
@@ -2948,4 +2963,24 @@ function wpcom_launchpad_is_primary_domain_wpcom() {
 
 	// If site_slug ends with .wpcomstaging.com return true
 	return str_ends_with( $host, '.wpcomstaging.com' );
+}
+
+/**
+ * Returns the goals for the current site to be used as a prop for the
+ * 'wpcom_launchpad_mark_task_complete' event.
+ *
+ * Ensures the current user actually owns the current site, to make sure we
+ * aren't recording goals for random sites like public-api.wordpress.com
+ * (the action which triggers this event could have been triggered by a
+ * public-api call.
+ *
+ * @return string Command separated list of goals.
+ */
+function wpcom_get_current_site_goals_for_tracks() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return '';
+	}
+
+	$site_goals = get_option( 'site_goals', array() );
+	return implode( ',', $site_goals );
 }
