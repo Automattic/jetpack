@@ -11,13 +11,9 @@ import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
+import useSharesData from '../../../hooks/use-shares-data';
 import { store as socialStore } from '../../../social-store';
 import { getSocialScriptData } from '../../../utils';
-import {
-	getSharedPostsCount,
-	getTotalSharesCount,
-	isShareLimitEnabled,
-} from '../../../utils/shares-data';
 import StatCards from './stat-cards';
 import styles from './styles.module.scss';
 
@@ -35,6 +31,7 @@ const Header = () => {
 	const useAdminUiV1 = feature_flags.useAdminUiV1;
 
 	const { hasConnectionError } = useConnectionErrorNotice();
+	const { getTotalSharesCount, getSharedPostsCount, isShareLimitEnabled } = useSharesData();
 
 	const formatter = Intl.NumberFormat( getUserLocale(), {
 		notation: 'compact',
