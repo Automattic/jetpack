@@ -38,10 +38,16 @@ class Speculation_Rules implements Pluggable, Optimization, Changes_Page_Output,
 		$rules      = jetpack_boost_ds_get( 'speculation_rules' );
 		$exceptions = isset( $rules['exceptions'] ) && is_array( $rules['exceptions'] ) ? $rules['exceptions'] : array();
 
-		// Convert exceptions to regex patterns
-		$exception_patterns = array_map(
+		// Prepare the exceptions for the speculation rules
+		$exceptions = array_map(
 			function ( $url ) {
-				return preg_quote( $url, '/' );
+				static $home_url;
+				if ( ! $home_url ) {
+					$home_url = home_url();
+				}
+				$url = str_replace( $home_url, '', $url );
+				$url = trailingslashit( $url ) . '*';
+				return $url;
 			},
 			$exceptions
 		);
@@ -49,18 +55,22 @@ class Speculation_Rules implements Pluggable, Optimization, Changes_Page_Output,
 		// Determine the fetch speculation method based on the setting
 		$fetch_method = $use_prerender ? 'prerender' : 'prefetch';
 
+		if ( ! empty( $exceptions ) ) {
+			$not_exceptions = '{ "not": { "href_matches": [ "' . implode( '", "', $exceptions ) . '" ] } }';
+		} else {
+			$not_exceptions = '';
+		}
+
 		// Generate the speculation rules script
 		$script = '<script type="speculationrules">
 		{
 			"' . esc_js( $fetch_method ) . '": [
 				{
-					"source": "document",
 					"where": {
-						"href_matches": "/*"' .
-						( ! empty( $exception_patterns ) ? ',
-						"not": {
-							"href_matches": ' . wp_json_encode( $exception_patterns ) . '
-						}' : '' ) . '
+						"and": [
+							{ "href_matches": "/*" },' .
+							$not_exceptions . '
+						]
 					}
 				}
 			]
