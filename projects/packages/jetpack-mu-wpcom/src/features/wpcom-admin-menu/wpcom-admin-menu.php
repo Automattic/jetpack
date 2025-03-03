@@ -181,6 +181,7 @@ function wpcom_add_jetpack_submenu() {
 	$scan_url         = 'https://wordpress.com/scan/' . $domain;
 	$podcasting_url   = 'https://wordpress.com/settings/podcasting/' . $domain;
 
+	// Add submenu items that link to WordPress.com.
 	add_submenu_page(
 		'jetpack',
 		__( 'Activity Log', 'jetpack-mu-wpcom' ),
