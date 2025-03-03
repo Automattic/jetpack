@@ -1053,6 +1053,22 @@ function wpcom_launchpad_update_task_status( $new_statuses ) {
 		return array();
 	}
 
+	// Add logging for when one or more tasks are updated with no user.
+	if ( ! is_user_logged_in() ) {
+		$should_log = apply_filters( 'wpcom_launchpad_should_log_no_user', false );
+		if ( $should_log ) {
+			jetpack_wpcom_log2logstash(
+				'Launchpad checklist task updated with no user',
+				array(
+					'new_statuses' => $new_statuses,
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_wp_debug_backtrace_summary
+					'stack_trace'  => wp_debug_backtrace_summary(),
+				),
+				true
+			);
+		}
+	}
+
 	$task_definitions = wpcom_launchpad_get_task_definitions();
 	$reverse_id_map   = wpcom_launchpad_get_reverse_id_mappings();
 
