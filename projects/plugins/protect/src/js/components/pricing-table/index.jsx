@@ -9,7 +9,6 @@ import {
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import useConnectSiteMutation from '../../data/use-connection-mutation';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
@@ -21,7 +20,6 @@ import useProtectData from '../../hooks/use-protect-data';
  * @return {object}                ConnectedPricingTable react component.
  */
 const ConnectedPricingTable = () => {
-	const navigate = useNavigate();
 	const { recordEvent } = useAnalyticsTracks();
 	const connectSiteMutation = useConnectSiteMutation();
 	const { upgradePlan, isLoading: isPlanLoading } = usePlan();
@@ -45,9 +43,8 @@ const ConnectedPricingTable = () => {
 
 	const getProtectFree = useCallback( async () => {
 		recordEvent( 'jetpack_protect_connected_product_activated' );
-		await connectSiteMutation.mutateAsync();
-		navigate( '/scan' );
-	}, [ connectSiteMutation, recordEvent, navigate ] );
+		connectSiteMutation.mutateAsync();
+	}, [ connectSiteMutation, recordEvent ] );
 
 	const args = {
 		title: __( 'Stay one step ahead of threats', 'jetpack-protect' ),
