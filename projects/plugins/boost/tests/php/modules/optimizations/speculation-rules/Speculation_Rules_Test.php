@@ -6,7 +6,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules\Speculation
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 use Brain\Monkey\Functions;
 
-class Test_Speculation_Rules extends Base_TestCase {
+class Speculation_Rules_Test extends Base_TestCase {
 	private $speculation_rules;
 	private $was_constant_defined;
 	private $original_constant_value;
