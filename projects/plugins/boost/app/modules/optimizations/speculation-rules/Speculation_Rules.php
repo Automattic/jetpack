@@ -34,6 +34,18 @@ class Speculation_Rules implements Pluggable, Optimization, Changes_Page_Output,
 		// Get the fetch speculation method setting
 		$use_prerender = (bool) jetpack_boost_ds_get( 'speculation_method' );
 
+		// Get the exceptions list
+		$exceptions = jetpack_boost_ds_get( array( 'speculation_rules', 'exceptions' ) );
+		$exceptions = is_array( $exceptions ) ? $exceptions : array();
+
+		// Convert exceptions to regex patterns
+		$exception_patterns = array_map(
+			function ( $url ) {
+				return preg_quote( $url, '/' );
+			},
+			$exceptions
+		);
+
 		// Determine the fetch speculation method based on the setting
 		$fetch_method = $use_prerender ? 'prerender' : 'prefetch';
 
@@ -44,7 +56,11 @@ class Speculation_Rules implements Pluggable, Optimization, Changes_Page_Output,
 				{
 					"source": "document",
 					"where": {
-						"href_matches": "/*"
+						"href_matches": "/*"' .
+						( ! empty( $exception_patterns ) ? ',
+						"not": {
+							"href_matches": ' . wp_json_encode( $exception_patterns ) . '
+						}' : '' ) . '
 					}
 				}
 			]
@@ -71,5 +87,13 @@ class Speculation_Rules implements Pluggable, Optimization, Changes_Page_Output,
 	 */
 	public function register_data_sync( Data_Sync $instance ) {
 		$instance->register( 'speculation_method', Schema::as_boolean()->fallback( false ) );
+		$instance->register(
+			'speculation_rules',
+			Schema::as_assoc_array(
+				array(
+					'exceptions' => Schema::as_array( Schema::as_string() )->fallback( array() ),
+				)
+			)->fallback( array( 'exceptions' => array() ) )
+		);
 	}
 }
