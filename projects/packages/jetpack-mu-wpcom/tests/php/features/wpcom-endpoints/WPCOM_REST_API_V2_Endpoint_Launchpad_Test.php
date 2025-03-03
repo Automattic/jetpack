@@ -28,6 +28,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	 */
 	public function set_up() {
 		parent::set_up();
+		\Brain\Monkey\setUp();
 
 		$this->admin_id = wp_insert_user(
 			array(
@@ -39,6 +40,13 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		wp_set_current_user( 0 );
 		wpcom_register_default_launchpad_checklists();
 		do_action( 'rest_api_init' );
+	}
+
+	/**
+	 * Reverting the testing environment to its original state.
+	 */
+	public function tear_down() {
+		\Brain\Monkey\tearDown();
 	}
 
 	/**
@@ -397,6 +405,9 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	 * @covers ::get_data
 	 */
 	public function test_get_tasklist_using_goals( $site_goals, $enable_checklist_for_goals, $expected_tasklist_slug ) {
+		\Brain\Monkey\Functions\when( 'get_blog_count_for_user' )->justReturn( 1 );
+		\Mockery::mock( 'alias:Email_Verification' )->shouldReceive( 'is_email_unverified' )->andReturn( true );
+
 		wp_set_current_user( $this->admin_id );
 		update_option( 'site_goals', $site_goals );
 
