@@ -79,29 +79,6 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 				),
 			)
 		);
-
-		register_rest_route(
-			$this->namespace,
-			$this->rest_base . '/remove',
-			array(
-				'methods'             => 'POST',
-				'permission_callback' => array( $this, 'permissions_check_params' ),
-				'callback'            => array( $this, 'remove_file' ),
-				'args'                => array(
-					'context' => array(
-						'description' => __( 'Context identifier for the upload', 'jetpack' ),
-						'type'        => 'string',
-						'required'    => true,
-					),
-					'token'   => array(
-						'description' => __( 'Token of the recetnly uploaded file', 'jetpack' ),
-						'type'        => 'string',
-						'required'    => true,
-					),
-					// it also expects a file but there's no way to say this in the args
-				),
-			)
-		);
 	}
 
 	/**
