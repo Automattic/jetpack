@@ -58,7 +58,7 @@ class Jetpack_Social_Controller extends Base_Controller {
 	 * Get Jetpack Social data.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_items( $request ) {
 		// We only support this endpoint for self-hosted sites.
