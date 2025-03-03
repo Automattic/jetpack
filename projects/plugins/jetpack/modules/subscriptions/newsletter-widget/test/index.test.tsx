@@ -15,6 +15,10 @@ jest.mock( '@wordpress/element', () => {
 	};
 } );
 
+jest.mock( '../src/components/subscribers-chart', () => ( {
+	SubscribersChart: jest.fn( () => <div data-testid="mocked-chart">Chart Placeholder</div> ),
+} ) );
+
 const defaultScriptData = {
 	site: {
 		admin_url: 'https://example.com/wp-admin/',

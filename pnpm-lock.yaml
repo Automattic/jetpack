@@ -4230,29 +4230,11 @@ importers:
       '@microsoft/fetch-event-source':
         specifier: 2.0.1
         version: 2.0.1
-      '@visx/axis':
-        specifier: ^3.12.0
-        version: 3.12.0(react@18.3.1)
-      '@visx/curve':
-        specifier: 3.12.0
-        version: 3.12.0
-      '@visx/grid':
-        specifier: ^3.12.0
-        version: 3.12.0(react@18.3.1)
-      '@visx/group':
-        specifier: ^3.12.0
-        version: 3.12.0(react@18.3.1)
       '@visx/responsive':
         specifier: 3.12.0
         version: 3.12.0(react@18.3.1)
-      '@visx/scale':
-        specifier: ^3.12.0
-        version: 3.12.0
-      '@visx/shape':
-        specifier: ^3.12.0
-        version: 3.12.0(react@18.3.1)
-      '@visx/tooltip':
-        specifier: ^3.8.0
+      '@visx/xychart':
+        specifier: 3.12.0
         version: 3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/base-styles':
         specifier: 5.19.0
@@ -19015,6 +18997,17 @@ snapshots:
       prop-types: 15.8.1
       react: 18.3.1
 
+  '@visx/react-spring@3.12.0(react@18.3.1)':
+    dependencies:
+      '@types/react': 18.3.18
+      '@visx/axis': 3.12.0(react@18.3.1)
+      '@visx/grid': 3.12.0(react@18.3.1)
+      '@visx/scale': 3.12.0
+      '@visx/text': 3.12.0(react@18.3.1)
+      classnames: 2.5.1
+      prop-types: 15.8.1
+      react: 18.3.1
+
   '@visx/responsive@3.12.0(react@18.3.1)':
     dependencies:
       '@types/lodash': 4.17.16
@@ -19105,6 +19098,33 @@ snapshots:
       '@visx/glyph': 3.12.0(react@18.3.1)
       '@visx/grid': 3.12.0(react@18.3.1)
       '@visx/react-spring': 3.12.0(@react-spring/web@9.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+      '@visx/responsive': 3.12.0(react@18.3.1)
+      '@visx/scale': 3.12.0
+      '@visx/shape': 3.12.0(react@18.3.1)
+      '@visx/text': 3.12.0(react@18.3.1)
+      '@visx/tooltip': 3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@visx/vendor': 3.12.0
+      '@visx/voronoi': 3.12.0(react@18.3.1)
+      classnames: 2.5.1
+      d3-interpolate-path: 2.2.1
+      d3-shape: 2.1.0
+      lodash: 4.17.21
+      mitt: 2.1.0
+      prop-types: 15.8.1
+      react: 18.3.1
+    transitivePeerDependencies:
+      - react-dom
+
+  '@visx/xychart@3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@types/lodash': 4.17.16
+      '@types/react': 18.3.18
+      '@visx/annotation': 3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@visx/axis': 3.12.0(react@18.3.1)
+      '@visx/event': 3.12.0
+      '@visx/glyph': 3.12.0(react@18.3.1)
+      '@visx/grid': 3.12.0(react@18.3.1)
+      '@visx/react-spring': 3.12.0(react@18.3.1)
       '@visx/responsive': 3.12.0(react@18.3.1)
       '@visx/scale': 3.12.0
       '@visx/shape': 3.12.0(react@18.3.1)

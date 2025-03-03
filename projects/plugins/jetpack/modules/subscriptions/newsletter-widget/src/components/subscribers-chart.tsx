@@ -1,130 +1,166 @@
-import { AxisBottom, AxisRight } from '@visx/axis';
-import { Group } from '@visx/group';
-import { useParentSize } from '@visx/responsive';
-import { scaleLinear, scaleTime } from '@visx/scale';
-import { LinePath } from '@visx/shape';
-import { useMemo } from '@wordpress/element';
+import { ParentSize } from '@visx/responsive';
+import { Axis, Grid, LineSeries, Tooltip, XYChart } from '@visx/xychart';
 import type { DailyCount, SubscriptionStat } from '../types';
+import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 
 type SubscribersChartProps = {
 	countsByDay: Record< string, DailyCount >;
 };
 
-// Accessor functions
-const xAccessor = d => d.date;
-const yEmailAccessor = d => d.email;
-const yPaidAccessor = d => d.paid;
-
-// Pure helper functions
-const getExtent = ( data, accessor ) => {
-	if ( data.length === 0 ) return [ undefined, undefined ];
-
-	let min = accessor( data[ 0 ] );
-	let max = min;
-
-	for ( let i = 1; i < data.length; i++ ) {
-		const value = accessor( data[ i ] );
-		if ( value < min ) min = value;
-		if ( value > max ) max = value;
+// Format date using native JavaScript
+const formatDate = ( date: Date, format: 'short' | 'full' = 'short' ) => {
+	if ( format === 'short' ) {
+		// Format as "Jan 5"
+		return date.toLocaleDateString( undefined, { month: 'short', day: 'numeric' } );
 	}
 
-	return [ min, max ];
+	// Format as "Jan 5, 2023"
+	return date.toLocaleDateString( undefined, {
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric',
+	} );
 };
 
-const getMax = ( data, accessor ) => {
-	if ( data.length === 0 ) return 0;
+// Format function for axis tick dates
+const formatAxisTickDate = ( date: unknown ) => formatDate( date as Date, 'short' );
 
-	let max = accessor( data[ 0 ] );
+// Transform the data to the format expected by XYChart
+const transformData = ( countsByDay: Record< string, DailyCount > ): SubscriptionStat[] => {
+	const entries = Object.entries( countsByDay )
+		.map( ( [ dateStr, counts ] ) => ( {
+			date: new Date( dateStr ),
+			email: counts.email,
+			paid: counts.paid,
+		} ) )
+		.sort( ( a, b ) => a.date.getTime() - b.date.getTime() );
 
-	for ( let i = 1; i < data.length; i++ ) {
-		const value = accessor( data[ i ] );
-		if ( value > max ) max = value;
-	}
-
-	return max;
-};
-
-const getMaxY = data => {
-	const emailMax = getMax( data, yEmailAccessor );
-	const paidMax = getMax( data, yPaidAccessor );
-	return Math.max( emailMax, paidMax );
-};
-
-const formatData = ( countsByDay: Record< string, DailyCount > ): SubscriptionStat[] => {
-	return Object.entries( countsByDay ).map( ( [ date, counts ] ) => ( {
-		date: new Date( date ),
-		email: counts.email,
-		paid: counts.paid,
-	} ) );
-};
-
-const convertToCumulativeData = ( data: SubscriptionStat[] ): SubscriptionStat[] => {
-	const result = [ ...data ]; // Create a new array to avoid mutating the input
+	// Calculate cumulative totals
 	let emailTotal = 0;
 	let paidTotal = 0;
 
-	for ( let i = 0; i < result.length; i++ ) {
-		emailTotal += result[ i ].email;
-		paidTotal += result[ i ].paid;
-		result[ i ] = {
-			...result[ i ],
+	return entries.map( entry => {
+		emailTotal += entry.email;
+		paidTotal += entry.paid;
+
+		return {
+			date: entry.date,
 			email: emailTotal,
 			paid: paidTotal,
 		};
-	}
+	} );
+};
 
-	return result;
+// Chart accessors
+const getDate = ( d: SubscriptionStat ) => d.date;
+const getEmailSubscribers = ( d: SubscriptionStat ) => d.email;
+const getPaidSubscribers = ( d: SubscriptionStat ) => d.paid;
+
+// Properly typed tooltip renderer
+const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat > ) => {
+	if ( ! tooltipData?.nearestDatum ) return null;
+
+	const datum = tooltipData.nearestDatum.datum;
+	const date = getDate( datum );
+
+	return (
+		<div
+			style={ {
+				background: 'white',
+				padding: '8px',
+				border: '1px solid #ccc',
+				borderRadius: '4px',
+				boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+				fontSize: '12px',
+				color: '#333',
+			} }
+		>
+			<div style={ { fontWeight: 600, marginBottom: '5px' } }>{ formatDate( date, 'full' ) }</div>
+			<div style={ { display: 'flex', flexDirection: 'column', gap: '2px' } }>
+				<div style={ { display: 'flex', alignItems: 'center' } }>
+					<div
+						style={ {
+							width: '8px',
+							height: '8px',
+							borderRadius: '50%',
+							backgroundColor: '#2271b1',
+							marginRight: '5px',
+						} }
+					/>
+					<span>Email: { getEmailSubscribers( datum ) }</span>
+				</div>
+				<div style={ { display: 'flex', alignItems: 'center' } }>
+					<div
+						style={ {
+							width: '8px',
+							height: '8px',
+							borderRadius: '50%',
+							backgroundColor: '#d63638',
+							marginRight: '5px',
+						} }
+					/>
+					<span>Paid: { getPaidSubscribers( datum ) }</span>
+				</div>
+			</div>
+		</div>
+	);
 };
 
 export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
-	const { parentRef, width, height } = useParentSize();
-
-	const margin = {
-		top: 12,
-		bottom: 12 + 24, // Add 24 to create space for the x-axis ticks
-		left: 12,
-		right: 12 + 28, // Add 28 to create space for the y-axis ticks
-	};
-	const xMax = width - margin.left - margin.right;
-	const yMax = height - margin.top - margin.bottom;
-
-	const subData = formatData( countsByDay );
-	const cumulativeCountData = convertToCumulativeData( subData );
-
-	const xScale = scaleTime( {
-		range: [ 0, xMax ],
-		domain: getExtent( cumulativeCountData, xAccessor ),
-	} );
-
-	const yScale = scaleLinear( {
-		range: [ yMax, 0 ],
-		domain: [ 0, getMaxY( cumulativeCountData ) ],
-		nice: true, // This will round the domain to nice round numbers
-	} );
-
-	const xScaled = useMemo( () => d => xScale( d.date ), [ xScale ] );
-	const yEmailScaled = useMemo( () => d => yScale( d.email ), [ yScale ] );
-	const yPaidScaled = useMemo( () => d => yScale( d.paid ), [ yScale ] );
-
-	// Handle empty data case
-	if ( cumulativeCountData.length === 0 ) {
+	if ( Object.keys( countsByDay ).length === 0 ) {
 		return <div>No data available</div>;
 	}
 
+	const data = transformData( countsByDay );
+
 	return (
-		<div className="subscribers-chart" ref={ parentRef }>
-			<svg width={ width } height={ height }>
-				<Group top={ margin.top } left={ margin.left }>
-					<AxisRight scale={ yScale } numTicks={ 5 } left={ xMax } />
-					<AxisBottom scale={ xScale } numTicks={ 5 } top={ yMax } />
+		<div className="subscribers-chart">
+			<ParentSize>
+				{ ( { width, height } ) => (
+					<XYChart
+						height={ height }
+						width={ width }
+						margin={ { top: 12, right: 12, bottom: 12 + 19, left: 12 + 27 } }
+						xScale={ { type: 'time' } }
+						yScale={ { type: 'linear', nice: true } }
+					>
+						<Grid columns={ false } numTicks={ 5 } />
 
-					{ /* Email subscribers line */ }
-					<LinePath data={ cumulativeCountData } x={ xScaled } y={ yEmailScaled } stroke="blue" />
+						<LineSeries
+							dataKey="Email Subscribers"
+							data={ data }
+							xAccessor={ getDate }
+							yAccessor={ getEmailSubscribers }
+							stroke="#2271b1"
+							strokeWidth={ 2 }
+						/>
 
-					{ /* Paid subscribers line */ }
-					<LinePath data={ cumulativeCountData } x={ xScaled } y={ yPaidScaled } stroke="orange" />
-				</Group>
-			</svg>
+						<LineSeries
+							dataKey="Paid Subscribers"
+							data={ data }
+							xAccessor={ getDate }
+							yAccessor={ getPaidSubscribers }
+							stroke="#d63638"
+							strokeWidth={ 2 }
+						/>
+
+						<Axis orientation="left" numTicks={ 5 } hideAxisLine />
+
+						<Axis
+							orientation="bottom"
+							numTicks={ 5 }
+							tickFormat={ formatAxisTickDate }
+							hideAxisLine
+						/>
+
+						<Tooltip< SubscriptionStat >
+							showVerticalCrosshair
+							showSeriesGlyphs
+							renderTooltip={ renderTooltip }
+						/>
+					</XYChart>
+				) }
+			</ParentSize>
 		</div>
 	);
 };

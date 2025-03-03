@@ -2,7 +2,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { render, screen } from '@testing-library/react';
 import { NewsletterWidget } from '../src/components/newsletter-widget';
 
-// Add these mock declarations at the top of the file, before the tests
 jest.mock( '@wordpress/components', () => {
 	const actualModule = jest.requireActual( '@wordpress/components' );
 	const mockModule = {
@@ -13,6 +12,10 @@ jest.mock( '@wordpress/components', () => {
 		get: ( target, property ) => mockModule[ property ] ?? target[ property ],
 	} );
 } );
+
+jest.mock( '../src/components/subscribers-chart', () => ( {
+	SubscribersChart: jest.fn( () => <div data-testid="mocked-chart">Chart Placeholder</div> ),
+} ) );
 
 jest.mock( '@wordpress/icons', () => ( {
 	envelope: 'envelope-icon-mock',
