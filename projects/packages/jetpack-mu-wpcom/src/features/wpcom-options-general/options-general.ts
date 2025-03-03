@@ -55,10 +55,28 @@ const _wpcomBuildSiteUrl = ( fragment: DocumentFragment ) => {
 		const homeUrlLabel = __( 'Site Address (URL)', 'jetpack-mu-wpcom' );
 		const homeUrlRow = document.createElement( 'tr' );
 		homeUrlRow.innerHTML = `
-					<th scope="row"><label for="home">${ homeUrlLabel }</label></th>
-					<td><input type="url" id="home" value="${ window.wpcomSiteUrl.homeUrl }" class="regular-text code disabled" disabled="disabled" /></td>
-			`;
+			<th scope="row"><label for="home">${ homeUrlLabel }</label></th>
+			<td>
+				<input type="url" id="home" value="${ window.wpcomSiteUrl.homeUrl }" class="regular-text code disabled" disabled="disabled" />
+				<button class="button wpcom-add-custom-address-button">
+					+ Add custom address
+				</button>
+			</td>
+		`;
 		fragment.appendChild( homeUrlRow );
+
+		const addButton = homeUrlRow.querySelector( '.wpcom-add-custom-address-button' );
+		addButton?.addEventListener( 'click', e => {
+			e.preventDefault();
+
+			wpcomTrackEvent( 'wp_admin_upgrade_nudge_cta_click', {
+				cta_name: 'settings_site_address',
+			} );
+
+			window.open(
+				`https://wordpress.com/domains/add/${ window.wpcomSiteUrl.siteSlug }?redirect_to=${ window.wpcomSiteUrl.optionsGeneralUrl }`
+			);
+		} );
 	}
 };
 
