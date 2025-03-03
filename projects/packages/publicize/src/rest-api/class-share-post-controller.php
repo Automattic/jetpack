@@ -126,6 +126,7 @@ class Share_Post_Controller extends Base_Controller {
 
 			global $publicize;
 
+			// @phan-suppress-next-line PhanUndeclaredMethod - We are on WPCOM where republicize_post is available.
 			$result = $publicize->republicize_post( (int) $post_id, $message, $skip_connection_ids, true, ! $async, get_current_user_id() );
 			if ( false === $result ) {
 				return new WP_Error( 'not_found', __( 'Cannot find that post.', 'jetpack-publicize-pkg' ), array( 'status' => 404 ) );
