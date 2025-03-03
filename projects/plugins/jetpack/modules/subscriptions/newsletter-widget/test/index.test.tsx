@@ -1,23 +1,33 @@
+import { JetpackScriptData } from '@automattic/jetpack-script-data';
 import '../src/index';
 
 const mockRender = jest.fn();
 
 jest.mock( '@wordpress/element', () => {
+	const actualElement = jest.requireActual( '@wordpress/element' ); // Import the real module
+
 	return {
+		...actualElement, // Spread actual exports
 		createRoot: () => ( {
 			render: mockRender,
 		} ),
-		createElement: () => {},
+		memo: component => component, // Add memo to the mock
 	};
 } );
 
+const defaultScriptData = {
+	site: {
+		admin_url: 'https://example.com/wp-admin/',
+		suffix: 'example.com',
+	},
+} as JetpackScriptData;
+
 describe( 'Newsletter Widget Initialization', () => {
 	beforeEach( () => {
-		// Reset the DOM
 		document.body.innerHTML = '';
-		// Reset window config
-		delete window.jetpackNewsletterWidgetConfigData;
-		// Clear mock
+
+		window.JetpackScriptData = defaultScriptData;
+
 		mockRender.mockClear();
 	} );
 
@@ -27,8 +37,11 @@ describe( 'Newsletter Widget Initialization', () => {
 	} );
 
 	it( 'does not create root when config data is missing', () => {
+		window.JetpackScriptData = { site: { admin_url: '', suffix: '' } } as JetpackScriptData;
 		document.body.innerHTML = '<div id="newsletter-widget-app"></div>';
+
 		document.dispatchEvent( new Event( 'DOMContentLoaded' ) );
+
 		expect( mockRender ).not.toHaveBeenCalled();
 	} );
 
@@ -36,11 +49,6 @@ describe( 'Newsletter Widget Initialization', () => {
 		const container = document.createElement( 'div' );
 		container.id = 'newsletter-widget-app';
 		document.body.appendChild( container );
-
-		window.jetpackNewsletterWidgetConfigData = {
-			hostname: 'example.com',
-			adminUrl: 'https://example.com/wp-admin/',
-		};
 
 		document.dispatchEvent( new Event( 'DOMContentLoaded' ) );
 

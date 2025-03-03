@@ -10,6 +10,7 @@ import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import PageCacheModule from '$features/page-cache/page-cache';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
+import SpeculationMethod from '$features/speculation-rules/speculation-method';
 import Pill from '$features/ui/pill/pill';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
@@ -24,6 +25,7 @@ import styles from './index.module.scss';
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
+	const speculationRulesLink = getRedirectUrl( 'jetpack-boost-speculation-rules' );
 
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
@@ -147,6 +149,33 @@ const Index = () => {
 				<CloudCssMeta />
 			</Module>
 			<PageCacheModule />
+			<Module
+				slug="speculation_rules"
+				title={ __( 'Speculation Rules', 'jetpack-boost' ) }
+				description={
+					<p>
+						{ createInterpolateElement(
+							__(
+								'Prefetch pages that are likely to be visited next, so they load faster when the user clicks on them. Browser support is limited to Chrome based browsers. Read more on <link>mdn web docs</link>.',
+								'jetpack-boost'
+							),
+							{
+								link: (
+									// eslint-disable-next-line jsx-a11y/anchor-has-content
+									<a
+										onClick={ () => recordBoostEvent( 'speculation_rules_link_clicked', {} ) }
+										href={ speculationRulesLink }
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
+							}
+						) }
+					</p>
+				}
+			>
+				<SpeculationMethod />
+			</Module>
 			<Module
 				slug="render_blocking_js"
 				title={ __( 'Defer Non-Essential JavaScript', 'jetpack-boost' ) }

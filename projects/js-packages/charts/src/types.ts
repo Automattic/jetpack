@@ -1,7 +1,7 @@
 import { Orientation } from '@visx/axis';
 import { ScaleType } from '@visx/scale';
-import { LineStyles } from '@visx/xychart';
-import type { CSSProperties } from 'react';
+import { EventHandlerParams, LineStyles } from '@visx/xychart';
+import type { CSSProperties, PointerEvent } from 'react';
 
 type ValueOf< T > = T[ keyof T ];
 
@@ -125,6 +125,22 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 		bottom?: number;
 		left?: number;
 	};
+	/**
+	 * Callback function for pointer down event
+	 */
+	onPointerDown?: ( event: EventHandlerParams< object > ) => void;
+	/**
+	 * Callback function for pointer down event
+	 */
+	onPointerUp?: ( event: EventHandlerParams< object > ) => void;
+	/**
+	 * Callback function for pointer down event
+	 */
+	onPointerMove?: ( event: EventHandlerParams< object > ) => void;
+	/**
+	 * Callback function for pointer up event
+	 */
+	onPointerOut?: ( event: PointerEvent< Element > ) => void;
 	/**
 	 * Whether to show tooltips on hover. False by default.
 	 */

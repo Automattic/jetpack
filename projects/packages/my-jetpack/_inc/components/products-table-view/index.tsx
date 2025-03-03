@@ -2,7 +2,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAllProducts } from '../../data/products/use-all-products';
 import useAnalytics from '../../hooks/use-analytics';
@@ -97,23 +97,18 @@ const getCategories: (
 	return categoryOptions;
 };
 
-/**
- * Generate the product title ID attribute from a product slug
- *
- * @param {string} slug - The product slug
- * @return {string} The generated title ID attribute
- */
-export const getProductTitleId = slug => `product-title-${ slug }`;
+export const getProductTitleId = ( slug: JetpackModule ) => `product-title-${ slug }`;
 
 const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 	const getItemId = useCallback( ( item: ProductData ) => item.product.slug, [] );
 	const onChangeView = useCallback( ( newView: View ) => {
 		setView( newView );
 	}, [] );
-	const allProductData = useAllProducts();
+	const { data: allProductData, isLoading, isError } = useAllProducts();
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const navigate = useNavigate();
 	const { recordEvent } = useAnalytics();
+	const [ categories, setCategories ] = useState< Option[] >( [] );
 
 	const baseView: ViewList = {
 		sort: {
@@ -136,10 +131,11 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 		},
 	};
 
-	const categories = useMemo(
-		() => getCategories( products, allProductData ),
-		[ products, allProductData ]
-	);
+	useEffect( () => {
+		if ( ! isError && ! isLoading && ! categories.length ) {
+			setCategories( getCategories( products, allProductData ) );
+		}
+	}, [ isError, isLoading, categories, allProductData, products ] );
 
 	const navigateToInterstitial = useCallback(
 		( slug: string ) => {
@@ -249,7 +245,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 		// and a 'jumping' of the CTA buttons. Having categories as a dependency here is unnecessary
 		// and leaving it out doesn't cause the values to be incorrect.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ isMobileViewport, navigateToInterstitial ] );
+	}, [ isMobileViewport, navigateToInterstitial, categories ] );
 
 	const [ view, setView ] = useState< View >( {
 		type: 'list',
