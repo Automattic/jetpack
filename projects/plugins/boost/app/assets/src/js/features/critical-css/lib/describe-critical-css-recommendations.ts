@@ -475,7 +475,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			),
 		suggestion: _set => ( {
 			paragraph: __(
-				'Jetpack Boost needs valid URLs from the current site in order to generate Critical CSS. It seems that one or more of the URLs you provided are invalid.',
+				'Jetpack Boost needs valid URLs in order to generate Critical CSS. It seems that one or more of the URLs you provided are invalid.',
 				'jetpack-boost'
 			),
 			list: [
