@@ -22,6 +22,11 @@
 			"src/"
 		]
 	},
+	"autoload-dev": {
+		"psr-4": {
+			"Automattic\\Jetpack\\Stats\\": "tests/php"
+		}
+	},
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"

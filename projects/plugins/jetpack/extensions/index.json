@@ -72,7 +72,8 @@
 		"ai-proofread-breve",
 		"ai-assistant-site-logo-support",
 		"ai-title-optimization-keywords-support",
-		"ai-response-feedback"
+		"ai-response-feedback",
+		"ai-assistant-image-extension"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -82,8 +83,7 @@
 		"ai-assistant-backend-prompts",
 		"ai-list-to-table-transform",
 		"ai-seo-assistant",
-		"ai-use-chrome-ai-sometimes",
-		"ai-assistant-image-extension"
+		"ai-use-chrome-ai-sometimes"
 	],
 	"experimental": [],
 	"no-post-editor": [
