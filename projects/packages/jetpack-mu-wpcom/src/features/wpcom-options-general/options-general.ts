@@ -57,9 +57,11 @@ const _wpcomBuildSiteUrl = ( fragment: DocumentFragment ) => {
 		homeUrlRow.innerHTML = `
 			<th scope="row"><label for="home">${ homeUrlLabel }</label></th>
 			<td>
-				<input type="url" id="home" value="${ window.wpcomSiteUrl.homeUrl }" class="regular-text code disabled" disabled="disabled" />
+				<input type="url" id="home" value="${
+					window.wpcomSiteUrl.homeUrl
+				}" class="regular-text code disabled" disabled="disabled" />
 				<button type="button" class="button wpcom-add-custom-address-button">
-					+ Add custom address
+					&plus; ${ __( 'Add custom address', 'jetpack-mu-wpcom' ) }
 				</button>
 			</td>
 		`;
