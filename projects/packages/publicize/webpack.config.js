@@ -62,7 +62,12 @@ module.exports = [
 			'classic-editor-connections': './src/js/classic-editor-connections.js',
 		},
 	},
-
+	{
+		...socialWebpackConfig,
+		entry: {
+			'post-list-page': './src/js/post-list-page.js',
+		},
+	},
 	{
 		...socialWebpackConfig,
 		entry: {
