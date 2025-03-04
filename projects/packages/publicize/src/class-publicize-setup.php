@@ -54,6 +54,7 @@ class Publicize_Setup {
 		}
 
 		Social_Admin_Page::init();
+		Post_List_Page::init();
 	}
 
 	/**
