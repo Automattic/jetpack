@@ -15,11 +15,8 @@ import {
 	Button,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
-import {
-	ConnectionError,
-	useConnection,
-	useConnectionErrorNotice,
-} from '@automattic/jetpack-connection';
+import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -52,10 +49,10 @@ export default function UpsellPage( { isLoading = false } ) {
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
-	const { connectionStatus, connectedPlugins } = useConnection();
+	const { connectionStatus, connectedPlugins } = getScriptData()?.connection ?? {};
 	const useInternalLinks =
 		// Some admin pages require the site to be connected (e.g. Privacy)
-		connectionStatus?.hasConnectedOwner &&
+		connectionStatus?.isActive &&
 		// Admin pages are part of the Jetpack plugin and require it to be installed
 		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 

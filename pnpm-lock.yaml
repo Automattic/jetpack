@@ -3114,6 +3114,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       '@wordpress/base-styles':
         specifier: 5.19.0
         version: 5.19.0
@@ -3951,6 +3954,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       '@wordpress/data':
         specifier: 10.19.0
         version: 10.19.0(react@18.3.1)

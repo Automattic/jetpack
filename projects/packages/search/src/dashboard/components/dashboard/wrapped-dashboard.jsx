@@ -1,5 +1,6 @@
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useSelect, select as syncSelect } from '@wordpress/data';
 import SearchConnectionPage from 'components/pages/connection-page';
 import SearchDashboardPage from 'components/pages/dashboard-page';
@@ -74,10 +75,13 @@ function WrappedDashboard202208() {
 function AfterConnectionPage() {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
-	const hasConnectedJetpackPlugin = useSelect(
-		select => select( STORE_ID ).hasConnectedJetpackPlugin(),
-		[]
-	);
+
+	const { connectedPlugins, connectionStatus } = getScriptData()?.connection ?? {};
+	const useInternalLinks =
+		// Some admin pages require the site to be connected (e.g. Privacy)
+		connectionStatus?.isActive &&
+		// Admin pages are part of the Jetpack plugin and require it to be installed
+		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 
 	const isPageLoading = useSelect(
 		select =>
@@ -88,10 +92,7 @@ function AfterConnectionPage() {
 	return (
 		<>
 			{ supportsSearch && (
-				<SearchDashboardPage
-					isLoading={ isPageLoading }
-					useInternalLinks={ hasConnectedJetpackPlugin }
-				/>
+				<SearchDashboardPage isLoading={ isPageLoading } useInternalLinks={ useInternalLinks } />
 			) }
 			{ ! supportsSearch && <UpsellPage isLoading={ isPageLoading } /> }
 		</>

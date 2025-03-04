@@ -5,21 +5,14 @@ import {
 	Col,
 	PricingCard,
 } from '@automattic/jetpack-components';
-import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import { useSelect } from '@wordpress/data';
+import { ConnectScreenRequiredPlan } from '@automattic/jetpack-connection';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import styles from './styles.module.scss';
 
 const Admin = () => {
-	const { connectionStatus, connectedPlugins } = useSelect(
-		select => ( {
-			connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
-			connectedPlugins: select( CONNECTION_STORE_ID ).getConnectedPlugins(),
-		} ),
-		[]
-	);
-
+	const { connectionStatus, connectedPlugins } = getScriptData()?.connection ?? {};
 	const useInternalLinks =
 		// Some admin pages require the site to be connected (e.g. Privacy)
 		connectionStatus?.isActive &&

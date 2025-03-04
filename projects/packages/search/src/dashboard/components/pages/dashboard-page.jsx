@@ -23,16 +23,13 @@ import './dashboard-page.scss';
 /**
  * SearchDashboard component definition.
  *
- * @param {object}  props                               - Component properties.
- * @param {string}  props.isLoading                     - should page show Loading spinner.
- * @param {boolean} props.enableFooterJetpackAdminLinks - whether to enable Jetpack admin links in the footer.
+ * @param {object}  props                  - Component properties.
+ * @param {string}  props.isLoading        - should page show Loading spinner.
+ * @param {boolean} props.useInternalLinks - whether to enable Jetpack admin links in the footer.
  *
  * @return {React.Component} Search dashboard component.
  */
-export default function DashboardPage( {
-	isLoading = false,
-	enableFooterJetpackAdminLinks = false,
-} ) {
+export default function DashboardPage( { isLoading = false, useInternalLinks = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
@@ -168,7 +165,7 @@ export default function DashboardPage( {
 							isTogglingInstantSearch={ isTogglingInstantSearch }
 						/>
 					</div>
-					<Footer useInternalLinks={ enableFooterJetpackAdminLinks } />
+					<Footer useInternalLinks={ useInternalLinks } />
 					<NoticesList
 						notices={ notices }
 						handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
