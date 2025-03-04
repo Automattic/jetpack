@@ -148,8 +148,9 @@ class Dashboard {
 		$ai_feature = \Jetpack_AI_Helper::get_ai_assistance_feature();
 		$has_ai     = ! is_wp_error( $ai_feature ) ? $ai_feature['has-feature'] : false;
 
-		$jetpack_plugin_active = is_plugin_active( 'jetpack/jetpack.php' );
-		$jetpack_connected     = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( get_current_user_id() );
+		$connection            = new Connection_Manager( 'jetpack-forms' );
+		$jetpack_plugin_active = array_key_exists( 'jetpack', $connection->get_connected_plugins() );
+		$jetpack_connected     = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || $connection->is_user_connected( get_current_user_id() );
 		$user_id               = (int) get_current_user_id();
 
 		$config = array(
