@@ -1,6 +1,6 @@
 <?php
 /**
- * Smart Inline Search: search without popup using v1.3 Instant Search API
+ * Inline Search: search without popup using v1.3 Instant Search API
  *
  * @package automattic/jetpack-search
  */
@@ -8,13 +8,13 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Smart Inline Search class
+ * Inline Search class
  */
-class Smart_Inline_Search extends Classic_Search {
+class Inline_Search extends Classic_Search {
 	/**
 	 * The singleton instance of this class.
 	 *
-	 * @var Smart_Inline_Search
+	 * @var Inline_Search
 	 */
 	private static $instance;
 
@@ -22,14 +22,15 @@ class Smart_Inline_Search extends Classic_Search {
 	 * Returns whether this class should be used instead of Classic_Search.
 	 */
 	public static function should_replace_classic_search(): bool {
-		return (bool) apply_filters( 'jetpack_search_enable_smart_inline', false );
+		return (bool) apply_filters( 'jetpack_search_replace_classic', false );
 	}
 
 	/**
 	 * Returns a class singleton. Initializes with first-time setup.
 	 *
 	 * @param string|int $blog_id Blog id.
-	 * @return Smart_Inline_Search The class singleton.
+	 *
+	 * @return Inline_Search The class singleton.
 	 */
 	public static function instance( $blog_id = null ) {
 		if ( ! isset( self::$instance ) ) {
@@ -44,6 +45,162 @@ class Smart_Inline_Search extends Classic_Search {
 	}
 
 	/**
+	 * Bypass WP search and offload it to 1.3 search API instead.
+	 *
+	 * This is the main hook of the plugin and is responsible for returning the posts that match the search query.
+	 *
+	 * @param array     $posts Current array of posts (still pre-query).
+	 * @param \WP_Query $query The WP_Query being filtered.
+	 *
+	 * @return array Array of matching posts.
+	 */
+	public function filter__posts_pre_query( $posts, $query ) {
+		if ( ! $this->should_handle_query( $query ) ) {
+			return $posts;
+		}
+
+		$this->do_search( $query );
+
+		if ( ! is_array( $this->search_result ) ) {
+			do_action( 'jetpack_search_abort', 'no_search_results_array', $this->search_result );
+			return $posts;
+		}
+
+		// If no results, nothing to do.
+		if ( ! is_countable( $this->search_result['results'] ) ) {
+			return array();
+		}
+		if ( ! count( $this->search_result['results'] ) ) {
+			return array();
+		}
+
+		$post_ids = array();
+
+		foreach ( $this->search_result['results'] as $result ) {
+			$post_ids[] = (int) ( $result['fields']['post_id'] ?? 0 );
+		}
+
+		// Query all posts now.
+		$args = array(
+			'post__in'            => $post_ids,
+			'orderby'             => 'post__in',
+			'perm'                => 'readable',
+			'post_type'           => 'any',
+			'ignore_sticky_posts' => true,
+			'suppress_filters'    => true,
+			'posts_per_page'      => $query->get( 'posts_per_page' ),
+		);
+
+		$posts_query = new \WP_Query( $args );
+
+		// WP Core doesn't call the set_found_posts and its filters when filtering posts_pre_query like we do, so need to do these manually.
+		$query->found_posts   = $this->found_posts;
+		$query->max_num_pages = ceil( $this->found_posts / $query->get( 'posts_per_page' ) );
+
+		return $posts_query->posts;
+	}
+
+	/**
+	 * Execute 1.3 search API request.
+	 *
+	 * @param \WP_Query $query The original WP_Query to use for the parameters of our search.
+	 */
+	public function do_search( \WP_Query $query ) {
+		if ( ! $this->should_handle_query( $query ) ) {
+			do_action( 'jetpack_search_abort', 'search_attempted_non_search_query', $query );
+			return;
+		}
+
+		$page = ( $query->get( 'paged' ) ) ? absint( $query->get( 'paged' ) ) : 1;
+
+		// Get maximum allowed offset and posts per page values for the API.
+		$max_offset         = Helper::get_max_offset();
+		$max_posts_per_page = Helper::get_max_posts_per_page();
+
+		$posts_per_page = $query->get( 'posts_per_page' );
+		if ( $posts_per_page > $max_posts_per_page ) {
+			$posts_per_page = $max_posts_per_page;
+		}
+
+		// Start building the WP-style search query args.
+		// They'll be translated to API format args later.
+		$wp_query_args = array(
+			'query'          => $query->get( 's' ),
+			'posts_per_page' => $posts_per_page,
+			'paged'          => $page,
+			'orderby'        => $query->get( 'orderby' ),
+			'order'          => $query->get( 'order' ),
+		);
+
+		if ( ! empty( $this->aggregations ) ) {
+			$wp_query_args['aggregations'] = $this->aggregations;
+		}
+
+		// Did we query for authors?
+		if ( $query->get( 'author_name' ) ) {
+			$wp_query_args['author_name'] = $query->get( 'author_name' );
+		}
+
+		$wp_query_args['post_type'] = $this->get_es_wp_query_post_type_for_query( $query );
+		$wp_query_args['terms']     = $this->get_es_wp_query_terms_for_query( $query );
+
+		/**
+		 * Modify the search query parameters, such as controlling the post_type.
+		 *
+		 * These arguments are in the format of WP_Query arguments
+		 *
+		 * @module search
+		 *
+		 * @since  5.0.0
+		 *
+		 * @param array     $wp_query_args The current query args, in WP_Query format.
+		 * @param \WP_Query $query            The original WP_Query object.
+		 */
+		$wp_query_args = apply_filters( 'jetpack_search_es_wp_query_args', $wp_query_args, $query );
+
+		// If page * posts_per_page is greater than our max offset, send a 404. This is necessary because the offset is
+		// capped at Helper::get_max_offset(), so a high page would always return the last page of results otherwise.
+		if ( ( $wp_query_args['paged'] * $wp_query_args['posts_per_page'] ) > $max_offset ) {
+			$query->set_404();
+
+			return;
+		}
+
+		// If there were no post types returned, then 404 to avoid querying against non-public post types, which could
+		// happen if we don't add the post type restriction to the ES query.
+		if ( empty( $wp_query_args['post_type'] ) ) {
+			$query->set_404();
+
+			return;
+		}
+
+		// Convert the WP-style args into ES args.
+		$es_query_args = $this->convert_wp_query_to_api_args( $wp_query_args );
+
+		// Only trust ES to give us IDs, not the content since it is a mirror.
+		$es_query_args['fields'] = array(
+			'post_id',
+		);
+
+		// Do the actual search query!
+		$this->search_result = $this->search( $es_query_args );
+
+		if ( is_wp_error( $this->search_result ) || ! is_array( $this->search_result ) || empty( $this->search_result['results'] ) || ! is_array( $this->search_result['results'] ) ) {
+			$this->found_posts = 0;
+
+			return;
+		}
+
+		// If we have aggregations, fix the ordering to match the input order (ES doesn't guarantee the return order).
+		if ( isset( $this->search_result['aggregations'] ) && ! empty( $this->search_result['aggregations'] ) ) {
+			$this->search_result['aggregations'] = $this->fix_aggregation_ordering( $this->search_result['aggregations'], $this->aggregations );
+		}
+
+		// Total number of results for paging purposes. Capped at $max_offset + $posts_per_page, as deep paging gets quite expensive.
+		$this->found_posts = min( $this->search_result['total'], $max_offset + $posts_per_page );
+	}
+
+	/**
 	 * Run a search on the WordPress.com v1.3 public API.
 	 *
 	 * @param array $es_args Args conforming to the WP.com v1.3 search endpoint.
@@ -51,25 +208,7 @@ class Smart_Inline_Search extends Classic_Search {
 	 * @return array|\WP_Error The response from the public API converted to Classic Search format, or a WP_Error.
 	 */
 	public function search( array $es_args ) {
-		$response = $this->instant_api( $es_args );
-		if ( is_wp_error( $response ) || ! is_array( $response ) ) {
-			return $response;
-		}
-
-		return array(
-			'results' => array(
-				'total'        => $response['total'],
-				'hits'         => array_map(
-					function ( $hit ) {
-						return array(
-							'fields' => $hit['fields'],
-						);
-					},
-					$response['results']
-				),
-				'aggregations' => $response['aggregations'] ?? array(),
-			),
-		);
+		return $this->instant_api( $es_args );
 	}
 
 	/**
@@ -79,7 +218,7 @@ class Smart_Inline_Search extends Classic_Search {
 	 *
 	 * @return array Array of Search API v1.3 style request arguments.
 	 */
-	public function convert_wp_es_to_es_args( array $args ) {
+	public function convert_wp_query_to_api_args( array $args ) {
 		$from = 0;
 		if ( ! empty( $args['offset'] ) ) {
 			$from = absint( $args['offset'] );
@@ -253,5 +392,18 @@ class Smart_Inline_Search extends Classic_Search {
 		$instant_search                  = new Instant_Search();
 		$instant_search->jetpack_blog_id = $this->jetpack_blog_id;
 		return $instant_search->instant_api( $es_args );
+	}
+
+	/**
+	 * Get the most recent API response.
+	 *
+	 * @param bool $raw Ignored.
+	 *
+	 * @return array|\WP_Error|null Search API response.
+	 */
+	public function get_search_result(
+		$raw = false // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	) {
+		return $this->search_result;
 	}
 }

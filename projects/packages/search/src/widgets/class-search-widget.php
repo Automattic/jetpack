@@ -325,8 +325,8 @@ class Search_Widget extends \WP_Widget {
 
 		// Search instance must have been initialized before widget render.
 		if ( is_search() ) {
-			if ( Smart_Inline_Search::should_replace_classic_search() ) {
-				$search_instance = Smart_Inline_Search::instance();
+			if ( Inline_Search::should_replace_classic_search() ) {
+				$search_instance = Inline_Search::instance();
 			} else {
 				$search_instance = Classic_Search::instance();
 			}

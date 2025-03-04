@@ -1,6 +1,6 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
- * Smart Inline Search test cases
+ * Inline Search test cases
  *
  * @package automattic/jetpack
  */
@@ -10,9 +10,9 @@ namespace Automattic\Jetpack\Search;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Smart_Inline_Search test cases
+ * Inline_Search test cases
  */
-class Test_Smart_Inline_Search extends TestCase {
+class Inline_Search_Test extends TestCase {
 	/**
 	 * The most recent v1.3 search test request URL, including query string.
 	 *
@@ -85,8 +85,8 @@ class Test_Smart_Inline_Search extends TestCase {
 	 * Verify that the class is instantiable
 	 */
 	public function test_deprecated_jetpack_search_class() {
-		$search = Smart_Inline_Search::instance();
-		self::assertTrue( is_a( $search, 'Automattic\Jetpack\Search\Smart_Inline_Search' ) );
+		$search = Inline_Search::instance();
+		self::assertTrue( is_a( $search, 'Automattic\Jetpack\Search\Inline_Search' ) );
 	}
 
 	/**
@@ -188,7 +188,7 @@ class Test_Smart_Inline_Search extends TestCase {
 	 * @param array $expected_api_args Output, expected API arguments.
 	 */
 	public function test_search( array $wp_query_args, array $expected_api_args ) {
-		$search = Smart_Inline_Search::instance( 0 );
+		$search = Inline_Search::instance( 0 );
 		$search->do_search( new \WP_Query( $wp_query_args ) );
 		$actual_api_args = array();
 		parse_str( wp_parse_url( $this->last_search_url, PHP_URL_QUERY ), $actual_api_args );
