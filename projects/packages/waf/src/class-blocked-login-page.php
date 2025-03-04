@@ -422,7 +422,7 @@ class Blocked_Login_Page {
 	 */
 	public function render_recovery_form() {
 		$content = $this->get_html_blocked_login_message();
-		$this->protect_die( $content, null, null, true );
+		$this->protect_die( $content, null, false, true );
 	}
 
 	/**
