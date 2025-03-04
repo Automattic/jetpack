@@ -78,7 +78,7 @@ class Initial_State {
 				'isWpcom'                   => Helper::is_wpcom(),
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				'isPlanJustUpgraded'        => isset( $_GET['just_upgraded'] ) && wp_unslash( $_GET['just_upgraded'] ),
-				'hasConnectedJetpackPlugin' => is_plugin_active( 'jetpack/jetpack.php' ) && $this->connection_manager->has_connected_owner(),
+				'hasConnectedJetpackPlugin' => array_key_exists( 'jetpack', $this->connection_manager->get_connected_plugins() ) && $this->connection_manager->has_connected_owner(),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
