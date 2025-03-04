@@ -348,7 +348,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$settings_position      = array_search( $settings_submenu_label, $submenu_labels, true );
 			$podcasting_position    = $settings_position !== false ? $settings_position - 1 : $this->get_submenu_item_count( 'jetpack' );
 		}
-		add_submenu_page( 'jetpack', esc_attr__( 'Podcasting', 'jetpack-masterbar' ), __( 'Podcasting', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/podcasting/' . $this->domain, null, $podcasting_position );
+		add_submenu_page( 'jetpack', esc_attr__( 'Podcasting', 'jetpack-masterbar' ), __( 'Podcasting', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, $podcasting_position );
 
 		/**
 		 * Prevent duplicate menu items that link to Jetpack Backup.
