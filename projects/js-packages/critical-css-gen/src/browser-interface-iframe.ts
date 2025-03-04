@@ -131,13 +131,13 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 		}
 	}
 
-	async hasValidHttpStatus( url: string ): Promise< UrlError | null > {
+	async is404Page( url: string ): Promise< UrlError | null > {
 		const response = await this.fetch( url, { redirect: 'manual' }, 'html' );
-		if ( response.status === 200 ) {
-			return null;
+		if ( response.status === 404 ) {
+			return new HttpError( { url, code: response.status } );
 		}
 
-		return new HttpError( { url, code: response.status } );
+		return null;
 	}
 
 	sameOrigin( url: string ): boolean {
@@ -186,7 +186,7 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 					clearTimeout( timeoutId );
 
 					// Check HTTP status code first.
-					const urlError = await this.hasValidHttpStatus( fullUrl );
+					const urlError = await this.is404Page( fullUrl );
 					if ( urlError instanceof UrlError ) {
 						throw urlError;
 					}
