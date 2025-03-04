@@ -2,7 +2,10 @@ import { curveMonotoneX } from '@visx/curve';
 import { ParentSize } from '@visx/responsive';
 import { Axis, Grid, LineSeries, Tooltip, XYChart } from '@visx/xychart';
 import type { DailyCount, SubscriptionStat } from '../types';
-import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
+import type {
+	RenderTooltipGlyphProps,
+	RenderTooltipParams,
+} from '@visx/xychart/lib/components/Tooltip';
 
 // TODO: Do a translation pass on this file
 // TODO: Write tests
@@ -71,7 +74,7 @@ const seriesColors = {
 };
 
 // Custom rendering for tooltip glyphs to match the line colors
-const renderGlyph = ( { key, color, x, y } ) => {
+const renderGlyph = ( { key, color, x, y }: RenderTooltipGlyphProps< SubscriptionStat > ) => {
 	const fillColor = seriesColors[ key ] || color;
 
 	return (
