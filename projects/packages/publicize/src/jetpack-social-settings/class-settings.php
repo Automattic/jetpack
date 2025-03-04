@@ -341,7 +341,6 @@ class Settings {
 
 			$settings['is_publicize_enabled'] = true;
 			$settings['hasPaidFeatures']      = $publicize->has_paid_features();
-			$settings['hasJetpack']           = is_plugin_active( 'jetpack/jetpack.php' ) && $connection->has_connected_owner();
 
 			foreach ( self::FEATURE_FLAGS as $feature_flag ) {
 				$settings['featureFlags'][ $feature_flag['variable_name'] ] = $publicize->has_feature_flag( $feature_flag['flag_name'], $feature_flag['feature_name'] );
