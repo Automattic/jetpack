@@ -327,15 +327,17 @@ $action-bar-height: 88px;
 }
 
 #jp-forms-dashboard,
-.jp-forms__layout {
+.jp-forms__layout.jp-forms__inbox {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
 }
 
-.jp-forms__logo-wrapper,
-.jp-forms__layout-header {
-	flex: 0 1 auto; /* Flex, but don't grow */
+.jp-forms__layout.jp-forms__inbox {
+	.jp-forms__logo-wrapper,
+	.jp-forms__layout-header {
+		flex: 0 1 auto; /* Flex, but don't grow */
+	}
 }
 
 .jp-forms__inbox-tabs {
