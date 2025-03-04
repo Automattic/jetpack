@@ -17,8 +17,8 @@
 		border: solid 1px currentColor;
 		color: currentColor;
 	}
-
-	&:where(:not(.is-style-outline)) button {
-		border-width: 0;
-	}
+	
+	:where(&:not(.is-style-outline) button) {
+ 		border: none;
+ 	}
 }
