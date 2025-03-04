@@ -81,8 +81,10 @@ describe( 'SocialAdminPage', () => {
 
 		describe( 'Social Notes toggle', () => {
 			it( 'should show when plugin is active and module is enabled', () => {
+				mockScriptData();
 				render( <SocialAdminPage /> );
 				expect( screen.getByText( 'Enable Social Notes' ) ).toBeInTheDocument();
+				clearMockedScriptData();
 			} );
 
 			it( 'should not show when plugin is not active', () => {
@@ -107,7 +109,7 @@ describe( 'SocialAdminPage', () => {
 					},
 				} );
 				render( <SocialAdminPage /> );
-				expect( screen.queryByTestId( 'social-notes-toggle' ) ).not.toBeInTheDocument();
+				expect( screen.queryByText( 'Enable Social Notes' ) ).not.toBeInTheDocument();
 				clearMockedScriptData();
 			} );
 		} );

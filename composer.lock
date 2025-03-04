@@ -63,14 +63,15 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "9fd270d259829ef41af5d8cea2febf6f8ba6d8bd"
+                "reference": "28844eaa6e05b103fcf223c2e5376ddae4598d6a"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
                 "mediawiki/mediawiki-codesniffer": "^46.0",
-                "php": ">=7.4",
+                "php": ">=8.0",
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpcsstandards/phpcsutils": "^1.0",
                 "sirbrillig/phpcs-variable-analysis": "^2.10",
                 "wp-coding-standards/wpcs": "^3.0"
             },

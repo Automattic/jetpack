@@ -16,4 +16,5 @@ phpunit.xml.dist   export-ignore
 _inc/**            production-exclude
 /package.json      production-exclude
 /src/**/*.js       production-exclude
+/tests/**          production-exclude
 /webpack.config.js production-exclude

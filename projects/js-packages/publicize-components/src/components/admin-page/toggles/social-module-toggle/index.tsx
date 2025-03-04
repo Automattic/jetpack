@@ -5,11 +5,7 @@ import {
 	getRedirectUrl,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import {
-	getScriptData,
-	isWpcomPlatformSite,
-	currentUserCan,
-} from '@automattic/jetpack-script-data';
+import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
@@ -17,6 +13,7 @@ import clsx from 'clsx';
 import React, { useCallback } from 'react';
 import { store as socialStore } from '../../../../social-store';
 import { getSocialScriptData, hasSocialPaidFeatures } from '../../../../utils';
+import { canToggleSocialModule } from '../../../../utils/misc';
 import ConnectionManagement from '../../../connection-management';
 import ToggleSection from '../toggle-section';
 import styles from './styles.module.scss';
@@ -81,7 +78,7 @@ const SocialModuleToggle: React.FC = () => {
 		) : null;
 	};
 
-	const hideToggle = is_wpcom || ! currentUserCan( 'manage_modules' );
+	const hideToggle = ! canToggleSocialModule();
 	return (
 		<ToggleSection
 			hideToggle={ hideToggle }

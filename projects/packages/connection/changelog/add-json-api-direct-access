@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add the 'is_signed_with_user_token()' method for REST authentication.

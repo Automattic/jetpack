@@ -2,6 +2,39 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.4-beta - 2025-03-03
+### Enhancements
+- Newsletter: Add newsletter widget header row behind a feature flag. [#42060]
+- Newsletter: Add footer widget section. [#42048]
+- VideoPress: Add title to the attachment details view. [#42023]
+
+### Bug fixes
+- Forms: Ensure non-rendering fields to not trigger validation or show value in form submission response. [#41979]
+- Forms: Fix 404 error when a user submits an invalid form with JavaScript disabled. [#41947]
+- Gravatar Widget: Fix linked accounts not showing. [#42056]
+- Publicize: Fix disconnect command not working. [#41906]
+- Widget Visibility: Fix possible fatal errors for widgets using anonymous functions as callbacks. [#41873]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add REST support for jsonAPI endpoints. [#39432]
+- AI Assistant: Add alt text generation to image extension. [#42016]
+- AI Assistant: Add image caption generation to image extension. [#42127]
+- AI Assistant: Add image extension with feature flag. [#41971]
+- AI Assistant: Adding support to use Chrome AI bult-in API. [#41922]
+- AI Assistant: Count request for image extension features. [#42158]
+- AI Assistant: Update usage of usePostContent for only when necessary. [#42149]
+- Fix subscribe button width in editor. [#42012]
+- Fix the user connection link in Post-by-Email module. [#42132]
+- Gravatar Widget: Fix PHP warning for some linked accounts. [#42142]
+- Newsletter: Move Subscribe button to new line if width set to 100%. [#42024]
+- Newsletter Dashboard Widget: Add translations. [#42152]
+- Newsletter Dashboard Widget: Update footer links behind feature flag. [#42070]
+- Sharing: Reduce width of Likes column on posts page to better accommodate other columns. [#42052]
+- Social: Deprecate unused publicize endpoints. [#42020]
+- Social: Move the publicize/services endpoint to publicize package. [#42019]
+- The page-optimize plugin link shown to Atomic sites only is no longer required and has been removed. [#42091]
+- Update package dependencies. [#42163] [#42180]
+
 ## 14.4-a.7 - 2025-02-24
 ### Enhancements
 - Newsletter: Add new newsletter widget. [#41807]

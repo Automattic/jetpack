@@ -606,6 +606,8 @@ export function getStaticProductsForPurchase( state ) {
  */
 export function getProductsForPurchase( state ) {
 	const staticProducts = get( state.jetpack.initialState, 'products', {} );
+	const wpcomUser = get( state.jetpack.initialState?.userData?.currentUser, 'wpcomUser', {} );
+	const currencyCode = wpcomUser?.user_currency || null;
 	const jetpackProducts = getSiteProducts( state );
 	const products = {};
 
@@ -618,7 +620,7 @@ export function getProductsForPurchase( state ) {
 			features: product.features,
 			disclaimer: product.disclaimer,
 			available: get( jetpackProducts, [ product.slug, 'available' ], false ),
-			currencyCode: get( jetpackProducts, [ product.slug, 'currency_code' ], '' ),
+			currencyCode: currencyCode ?? get( jetpackProducts, [ product.slug, 'currency_code' ], '' ),
 			showPromotion: product.show_promotion,
 			promotionPercentage: product.discount_percent,
 			includedInPlans: product.included_in_plans,
