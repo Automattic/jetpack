@@ -479,8 +479,9 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				'jetpack-boost'
 			),
 			list: [
+				__( 'It is okay to ignore URLs that are not meant to be shown publicly.', 'jetpack-boost' ),
 				__(
-					'Check if you have any plugins that modify your permalinks or URL structure.',
+					'If they are meant to be shown publicly, check if you have any plugins that modify your permalinks or URL structure.',
 					'jetpack-boost'
 				),
 				__(
