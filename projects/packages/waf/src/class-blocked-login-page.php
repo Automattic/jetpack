@@ -267,7 +267,7 @@ class Blocked_Login_Page {
 	 * Checks if recovery key is valid.
 	 *
 	 * @param string $key - they recovery key.
-	 * @param string $user_id - the User ID.
+	 * @param int    $user_id - the User ID.
 	 */
 	public function is_valid_protect_recovery_key( $key, $user_id ) {
 
@@ -395,10 +395,10 @@ class Blocked_Login_Page {
 	/**
 	 * Prevent login by locking the login page.
 	 *
-	 * @param string $content - the content of the page.
-	 * @param string $title - the page title.
-	 * @param string $back_link - the back link.
-	 * @param string $recovery_form - the recovery form.
+	 * @param string|WP_Error $content       - the content of the page.
+	 * @param string|null     $title         - the page title.
+	 * @param bool            $back_link     - the back link.
+	 * @param bool            $recovery_form - the recovery form.
 	 */
 	public function protect_die( $content, $title = null, $back_link = false, $recovery_form = false ) {
 		if ( empty( $title ) ) {
@@ -474,10 +474,10 @@ class Blocked_Login_Page {
 	/**
 	 * Display the page.
 	 *
-	 * @param string $title - the page title.
-	 * @param string $message - the message we're sending.
-	 * @param string $back_button - the back button.
-	 * @param string $recovery_form - the recovery form.
+	 * @param string $title         - the page title.
+	 * @param string $message       - the message we're sending.
+	 * @param bool   $back_button   - the back button.
+	 * @param bool   $recovery_form - the recovery form.
 	 * @return never
 	 */
 	public function display_page( $title, $message, $back_button = false, $recovery_form = false ) {
