@@ -897,13 +897,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			),
 		);
 
+		$is_native_browser_style = $this->is_style_variant( 'is-style-browser-native' );
+
+		$input_type = 'text';
+		if ( $is_native_browser_style ) {
+			$input_type = 'date';
+		}
+
 		$date_format = $this->get_attribute( 'dateformat' );
 		$date_format = isset( $date_format ) && ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
-		$label       = isset( $formats[ $date_format ] ) ? $label . ' (' . $formats[ $date_format ]['label'] . ')' : $label;
+		$label       = isset( $formats[ $date_format ] ) && ! $is_native_browser_style ? $label . ' (' . $formats[ $date_format ]['label'] . ')' : $label;
 		$extra_attrs = array( 'data-format' => $date_format );
 
 		$field  = $this->render_label( 'date', $id, $label, $required, $required_field_text );
-		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required, $extra_attrs );
+		$field .= $this->render_input_field( $input_type, $id, $value, $class, $placeholder, $required, $extra_attrs );
 
 		/* For AMP requests, use amp-date-picker element: https://amp.dev/documentation/components/amp-date-picker */
 		if ( class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request() ) {
@@ -913,6 +920,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				esc_attr( $id ),
 				$field
 			);
+		}
+
+		if ( $is_native_browser_style ) {
+			return $field;
 		}
 
 		Assets::register_script(
@@ -929,6 +940,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( '../../dist/contact-form/css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
 
 		return $field;
+	}
+
+	/**
+	 * Return whether the a style variant is present.
+	 *
+	 * @param string $needle - key to find in the class attributes.
+	 *
+	 * @return boolean
+	 */
+	private function is_style_variant( $needle ) {
+		$class_names_array = explode( ' ', $this->get_attribute( 'class' ) );
+		return in_array( $needle, $class_names_array, true );
 	}
 
 	/**

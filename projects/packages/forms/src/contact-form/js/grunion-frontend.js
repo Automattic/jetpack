@@ -1,5 +1,5 @@
 jQuery( function ( $ ) {
-	const $input = $( '.contact-form input.jp-contact-form-date' );
+	const $input = $( '.contact-form input[type="text"].jp-contact-form-date' );
 	$input.each( function () {
 		const el = $( this );
 		const dateFormat = el.attr( 'data-format' ) || 'yy-mm-dd';

@@ -49,6 +49,32 @@ const JetpackDatePicker = props => {
 		} ),
 		style: blockStyle,
 	} );
+	const classNamesArray = attributes?.className ? attributes.className.split( ' ' ) : [];
+	const isNativeBrowserStyle = classNamesArray.includes( 'is-style-browser-native' );
+	const suffix = ! isNativeBrowserStyle
+		? `(${ DATE_FORMATS.find( f => f.value === dateFormat )?.label })`
+		: '';
+	const dateFormatInput = ! isNativeBrowserStyle ? (
+		<SelectControl
+			key="date-format"
+			label={ __( 'Date Format', 'jetpack-forms' ) }
+			options={ DATE_FORMATS.map( ( { value, label: optionLabel, example } ) => ( {
+				value,
+				label: `${ optionLabel } (${ example })`,
+			} ) ) }
+			onChange={ value =>
+				setAttributes( {
+					dateFormat: value,
+				} )
+			}
+			value={ attributes.dateFormat }
+			help={ __( 'Select the format in which the date will be displayed.', 'jetpack-forms' ) }
+			__nextHasNoMarginBottom={ true }
+			__next40pxDefaultSize={ true }
+		/>
+	) : null;
+
+	const inputType = isNativeBrowserStyle ? 'date' : 'text';
 
 	return (
 		<>
@@ -56,7 +82,7 @@ const JetpackDatePicker = props => {
 				<JetpackFieldLabel
 					attributes={ attributes }
 					label={ label }
-					suffix={ `(${ DATE_FORMATS.find( f => f.value === dateFormat )?.label })` }
+					suffix={ suffix }
 					required={ required }
 					requiredText={ requiredText }
 					setAttributes={ setAttributes }
@@ -66,7 +92,7 @@ const JetpackDatePicker = props => {
 					className="jetpack-field__input"
 					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
 					style={ fieldStyle }
-					type="text"
+					type={ inputType }
 					value={ placeholder }
 					onKeyDown={ event => {
 						if ( event.defaultPrevented || event.key !== 'Enter' ) {
@@ -87,28 +113,7 @@ const JetpackDatePicker = props => {
 				extraFieldSettings={ [
 					{
 						index: 1,
-						element: (
-							<SelectControl
-								key="date-format"
-								label={ __( 'Date Format', 'jetpack-forms' ) }
-								options={ DATE_FORMATS.map( ( { value, label: optionLabel, example } ) => ( {
-									value,
-									label: `${ optionLabel } (${ example })`,
-								} ) ) }
-								onChange={ value =>
-									setAttributes( {
-										dateFormat: value,
-									} )
-								}
-								value={ attributes.dateFormat }
-								help={ __(
-									'Select the format in which the date will be displayed.',
-									'jetpack-forms'
-								) }
-								__nextHasNoMarginBottom={ true }
-								__next40pxDefaultSize={ true }
-							/>
-						),
+						element: dateFormatInput,
 					},
 				] }
 			/>

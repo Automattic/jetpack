@@ -542,6 +542,10 @@ export const childBlocks = [
 					default: 'yy-mm-dd',
 				},
 			},
+			styles: [
+				{ name: 'default', label: 'Default', isDefault: true },
+				{ name: 'browser-native', label: __( 'Browser Native', 'jetpack-forms' ) },
+			],
 		},
 	},
 	{
