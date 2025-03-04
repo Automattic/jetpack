@@ -301,8 +301,8 @@ class Waf_Runtime {
 		$blocked_login_page = Blocked_Login_Page::instance( $real_ip, 'waf' );
 
 		if ( $blocked_login_page->is_blocked_user_valid() ) {
-			// Allow the IP to bypass the block for 10 minutes.
-			set_transient( 'jetpack_waf_recovery_' . $real_ip, $this->get_ip_hash( $real_ip ), 600 );
+			// Allow the IP to bypass the block for 15 minutes.
+			set_transient( 'jetpack_waf_recovery_' . $real_ip, $this->get_ip_hash( $real_ip ), 15 * 60 );
 			return;
 		}
 
