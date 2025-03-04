@@ -21,11 +21,11 @@ const onModalCloseDefault = event => {
 /**
  * Component that displays a golden token experience.
  *
- * @param {object}   props               - Component props.
- * @param {Function} props.redeemClick   - Callback function to handle redeem click.
- * @param {object}   props.displayName   - Connected user data.
- * @param {Function} props.onModalClose  - Callback function to handle module closure.
- * @param {Function} props.tokenRedeemed - If their token is already redeemed.
+ * @param {object}   props                - Component props.
+ * @param {Function} [props.redeemClick]  - Callback function to handle redeem click.
+ * @param {object}   props.displayName    - Connected user data.
+ * @param {Function} [props.onModalClose] - Callback function to handle module closure.
+ * @param {boolean}  props.tokenRedeemed  - If their token is already redeemed.
  * @return {React.Component} - GoldenToken component.
  */
 function GoldenTokenModal( {

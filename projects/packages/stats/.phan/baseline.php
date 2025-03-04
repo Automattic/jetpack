@@ -17,9 +17,9 @@ return [
     'file_suppressions' => [
         'src/class-tracking-pixel.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-wpcom-stats.php' => ['PhanTypeMismatchReturn'],
-        'tests/php/test-main.php' => ['PhanTypeVoidAssignment'],
-        'tests/php/test-options.php' => ['PhanTypeVoidAssignment'],
-        'tests/php/test-xmlrpc-provider.php' => ['PhanTypeVoidAssignment'],
+        'tests/php/Main_Test.php' => ['PhanTypeVoidAssignment'],
+        'tests/php/Options_Test.php' => ['PhanTypeVoidAssignment'],
+        'tests/php/XMLRPC_Provider_Test.php' => ['PhanTypeVoidAssignment'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

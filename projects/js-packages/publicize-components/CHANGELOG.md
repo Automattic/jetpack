@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.80.0] - 2025-03-03
+### Security
+- Social: Moved Mastodon input form to start. [#41986]
+
+### Added
+- Added unit tests for the admin page. [#41951]
+- Publicize Components: Add Storybook support. [#42167]
+
+### Changed
+- Social: Improve connect URL generation. [#42019]
+- Update package dependencies. [#42081] [#42163]
+
+### Fixed
+- Clean up Social admin page unit tests. [#42064]
+- Social: Avoid calling the settings endpoint on Social admin page if not relevant. [#42102]
+
 ## [0.79.0] - 2025-02-24
 ### Added
 - Add support for Bluesky video selection. [#41669]
@@ -1105,6 +1121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.80.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.79.0...v0.80.0
 [0.79.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.78.0...v0.79.0
 [0.78.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.77.2...v0.78.0
 [0.77.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.77.1...v0.77.2

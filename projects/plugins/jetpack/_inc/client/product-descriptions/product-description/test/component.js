@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import * as React from 'react';
 import analytics from 'lib/analytics';
 import { getProductsForPurchase } from 'state/initial-state';
 import { render, screen } from 'test/test-utils';

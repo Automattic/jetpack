@@ -321,7 +321,7 @@ class REST_Controller {
 	 *
 	 * GET `jetpack/v4/publicize/connection-test-results`
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.61.1
 	 */
 	public function get_publicize_connection_test_results() {
 
@@ -346,7 +346,7 @@ class REST_Controller {
 	 *
 	 * GET `jetpack/v4/publicize/connections`
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.61.1
 	 *
 	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
@@ -372,7 +372,7 @@ class REST_Controller {
 	/**
 	 * Create a publicize connection
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.61.1
 	 *
 	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 * @return WP_REST_Response|WP_Error True if the request was successful, or a WP_Error otherwise.
@@ -398,7 +398,7 @@ class REST_Controller {
 	 *
 	 * POST jetpack/v4/social/connections/{connection_id}
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.61.1
 	 *
 	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
@@ -425,7 +425,7 @@ class REST_Controller {
 	 *
 	 * DELETE jetpack/v4/social/connections/{connection_id}
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.61.1
 	 *
 	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
