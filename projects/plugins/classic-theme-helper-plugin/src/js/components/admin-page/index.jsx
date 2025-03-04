@@ -32,7 +32,7 @@ const Admin = () => {
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack Classic Theme Helper Plugin', 'classic-theme-helper-plugin' ) }
-			showFooterAdminLinks={ enableFooterJetpackAdminLinks }
+			useInternalLinks={ enableFooterJetpackAdminLinks }
 		>
 			<AdminSectionHero>
 				{ showConnectionCard ? (

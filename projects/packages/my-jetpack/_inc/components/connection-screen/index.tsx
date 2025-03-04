@@ -22,7 +22,7 @@ const ConnectionScreen: FC = () => {
 		<AdminPage
 			showHeader={ false }
 			showBackground={ false }
-			showFooterAdminLinks={ hasConnectedJetpackPlugin }
+			useInternalLinks={ hasConnectedJetpackPlugin }
 		>
 			<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
 				<Col className={ styles[ 'relative-col' ] }>

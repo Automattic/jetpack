@@ -32,7 +32,7 @@ export type JetpackFooterProps = {
 	/**
 	 * Whether to enable Jetpack admin links.
 	 */
-	showFooterAdminLinks?: boolean;
+	useInternalLinks?: boolean;
 
 	/**
 	 * URL of the site WP Admin.

@@ -37,7 +37,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	className,
 	moduleNameHref = 'https://jetpack.com',
 	menu,
-	showFooterAdminLinks,
+	useInternalLinks,
 	onAboutClick,
 	onPrivacyClick,
 	onTermsClick,
@@ -53,19 +53,19 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 		{
 			label: _x( 'About', 'Link to learn more about Jetpack.', 'jetpack-components' ),
 			title: __( 'About Jetpack', 'jetpack-components' ),
-			href: showFooterAdminLinks
+			href: useInternalLinks
 				? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
 				: getRedirectUrl( 'jetpack-about' ),
-			target: showFooterAdminLinks ? '_self' : '_blank',
+			target: useInternalLinks ? '_self' : '_blank',
 			onClick: onAboutClick,
 		},
 		{
 			label: _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack-components' ),
 			title: __( "Automattic's Privacy Policy", 'jetpack-components' ),
-			href: showFooterAdminLinks
+			href: useInternalLinks
 				? new URL( 'admin.php?page=jetpack#/privacy', siteAdminUrl ).href
 				: getRedirectUrl( 'a8c-privacy' ),
-			target: showFooterAdminLinks ? '_self' : '_blank',
+			target: useInternalLinks ? '_self' : '_blank',
 			onClick: onPrivacyClick,
 		},
 		{
@@ -139,7 +139,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 				<li className="jp-dashboard-footer__a8c-item">
 					<a
 						href={
-							showFooterAdminLinks
+							useInternalLinks
 								? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
 								: getRedirectUrl( 'a8c-about' )
 						}

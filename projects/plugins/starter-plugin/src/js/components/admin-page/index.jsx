@@ -24,7 +24,7 @@ const Admin = () => {
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack Starter Plugin', 'jetpack-starter-plugin' ) }
-			showFooterAdminLinks={ connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive }
+			useInternalLinks={ connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive }
 		>
 			<AdminSectionHero>
 				{ showConnectionCard ? (

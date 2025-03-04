@@ -216,7 +216,7 @@ export default function ProductInterstitial( {
 		<AdminPage
 			showHeader={ false }
 			showBackground={ false }
-			showFooterAdminLinks={ hasConnectedJetpackPlugin }
+			useInternalLinks={ hasConnectedJetpackPlugin }
 		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col className={ styles[ 'product-interstitial__header' ] }>

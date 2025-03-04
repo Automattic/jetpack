@@ -29,7 +29,7 @@ export type AdminPageProps = {
 	/**
 	 * Whether or not to enable Jetpack admin links in the Footer.
 	 */
-	showFooterAdminLinks?: boolean;
+	useInternalLinks?: boolean;
 
 	/**
 	 * Link that the Footer Module name will link to (optional).
