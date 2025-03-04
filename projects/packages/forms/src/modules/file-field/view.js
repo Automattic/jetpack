@@ -1,20 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { store, getContext } from '@wordpress/interactivity';
-const addFileToContext = ( context, file ) => {
-	const reader = new FileReader();
-	reader.readAsDataURL( file );
-	reader.onload = () => {
-		file.url = 'url(' + reader.result + ')';
-		file.id = performance.now() + '-' + Math.random();
-		file.formattedSize = formatBytes( file.size, 2, state.i18n.locale );
-		file.hasToken = false;
-		context.files.push( file );
-		context.hasFiles = true;
-		FileHandler.uploadFile( file, context );
-	};
-};
+import { store, getContext, withScope, getElement } from '@wordpress/interactivity';
 
 const formatBytes = ( size, decimals = 2, locale = 'en-US' ) => {
 	if ( size === 0 ) return '0 bytes';
@@ -29,43 +16,47 @@ const formatBytes = ( size, decimals = 2, locale = 'en-US' ) => {
 	} );
 	return `${ numberFormat.format( formattedSize ) } ${ sizes[ i ] }`;
 };
-const { state } = store( 'jpDropZone', {
+
+const { state, callbacks } = store( 'jpDropZone', {
 	state: {},
 	actions: {
-		openFilePicker: withSyncEvent( event => {
+		openFilePicker: event => {
 			const fileInput = event.target.parentNode.querySelector( '.jetpack-form-file-field' );
 			if ( fileInput ) {
 				fileInput.click();
 			}
-		} ),
+		},
 
 		fileAdded: event => {
-			const context = getContext();
 			const files = Array.from( event.target.files );
-			files.forEach( addFileToContext.bind( null, context ) );
+			files.forEach( callbacks.addFileToContext );
 		},
 
 		fileDropped: event => {
-			const context = getContext();
+			event.preventDefault();
 			if ( event.dataTransfer ) {
 				for ( const item of Array.from( event.dataTransfer.items ) ) {
 					if ( item.webkitGetAsEntry()?.isDirectory ) {
 						return;
 					}
-					addFileToContext( context, item.getAsFile() );
+					callbacks.addFileToContext( item.getAsFile() );
 				}
 			}
+			const context = getContext();
 			context.isDropping = false;
-			event.preventDefault();
 		},
+
 		dragOver: event => {
 			const context = getContext();
 			context.isDropping = true;
+			event.preventDefault();
 		},
+
 		dragLeave: () => {
 			const context = getContext();
 			context.isDropping = false;
 		},
+
 		removeFile: event => {
 			const context = getContext();
 			const fileId = event.target.dataset.id;
@@ -73,80 +64,111 @@ const { state } = store( 'jpDropZone', {
 			context.hasFiles = context.files.length > 0;
 		},
 	},
+
 	callbacks: {
-		logCounter: () => {
-			const { files } = getContext();
-			console.log( 'howdy!!!!', files );
+		/**
+		 * Add the file to the context.
+		 *
+		 * @param {*} file
+		 */
+		addFileToContext: file => {
+			const reader = new FileReader();
+			reader.readAsDataURL( file );
+			reader.onload = withScope( () => {
+				const context = getContext();
+				const fileId = performance.now() + '-' + Math.random();
+				context.files.push( {
+					name: file.name,
+					url: 'url(' + reader.result + ')',
+					formattedSize: formatBytes( file.size, 2, state.i18n.locale ),
+					hasToken: false,
+					id: fileId,
+				} );
+				context.hasFiles = true;
+				callbacks.uploadFile( file, fileId );
+			} );
+		},
+		/**
+		 * Make the endpoint request.
+		 *
+		 * @param {*} file   - file to upload
+		 * @param     string - fileId
+		 * @param     fileId
+		 */
+		uploadFile: ( file, fileId ) => {
+			const url = state.endpoint;
+			const xhr = new XMLHttpRequest();
+			const formData = new FormData();
+			xhr.open( 'POST', url, true );
+			xhr.withCredentials = true;
+			xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
+			xhr.setRequestHeader( 'X-WP-Nonce', state.wp_nonce );
+			xhr.setRequestHeader( 'X-Jetpack-Upload-Nonce', state.jp_nonce );
+			xhr.upload.addEventListener(
+				'progress',
+				withScope( callbacks.onProgress.bind( this, fileId ) )
+			);
+			xhr.addEventListener(
+				'readystatechange',
+				withScope( callbacks.onReadyStateChange.bind( this, fileId ) )
+			);
+			formData.append( 'context', 'jetpack-form' );
+			formData.append( 'file', file );
+			xhr.send( formData );
+		},
+		/**
+		 * Responsible for updating the progress circle.
+		 * gets called on the progress upload.
+		 *
+		 * @param     string - fileId
+		 * @param     fileId
+		 * @param {*} event
+		 */
+		onProgress: ( fileId, event ) => {
+			const { ref } = getElement();
+
+			const previewProgressElement = ref.querySelector( '[data-progress-id="' + fileId + '"]' );
+
+			const progress = ( event.loaded / event.total ) * 100;
+			if ( previewProgressElement ) {
+				previewProgressElement.style.setProperty( '--progress', progress );
+			}
+			callbacks.updateFileContext( { progress }, fileId );
+		},
+		/**
+		 * React to the onReadyStateChangeEvent when the endpoint return
+		 *
+		 * @param     string - fileId
+		 * @param     fileId
+		 * @param {*} event
+		 */
+		onReadyStateChange: ( fileId, event ) => {
+			const xhr = event.target;
+			if ( xhr.readyState === 4 ) {
+				if ( xhr.status === 200 ) {
+					const response = JSON.parse( xhr.responseText );
+					if ( response.success ) {
+						callbacks.updateFileContext( { token: response.data.token, hasToken: true }, fileId );
+						return;
+					}
+				}
+				if ( xhr.responseText ) {
+					const response = JSON.parse( xhr.responseText );
+					console.error( 'Error uploading file', response );
+				}
+			}
+		},
+		/**
+		 * Update the context with the new updatedFile Object based on the file id.
+		 * @param object      - updatedFile
+		 * @param string      - fileId
+		 * @param updatedFile
+		 * @param fileId
+		 */
+		updateFileContext: ( updatedFile, fileId ) => {
+			const context = getContext();
+			const index = context.files.findIndex( file => file.id === fileId );
+			context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
 		},
 	},
 } );
-
-const updateFile = file => {
-	const context = getContext();
-	const index = context.files.findIndex( f => f.id === file.id );
-	context.files[ index ] = file;
-	context.files = context.files;
-};
-
-const FileHandler = {
-	context: null,
-	uploadFile( file ) {
-		const url = state.endpoint;
-		const xhr = new XMLHttpRequest();
-		const formData = new FormData();
-		xhr.open( 'POST', url, true );
-		xhr.withCredentials = true;
-		xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-		xhr.setRequestHeader( 'X-WP-Nonce', state.wp_nonce );
-		xhr.setRequestHeader( 'X-Jetpack-Upload-Nonce', state.jp_nonce );
-		xhr.upload.addEventListener( 'progress', this.onProgress.bind( this, file ) );
-		xhr.addEventListener( 'readystatechange', this.onReadyStateChange.bind( this, file ) );
-		formData.append( 'context', 'jetpack-form' );
-		formData.append( 'file', file );
-		xhr.send( formData );
-	},
-
-	onProgress( file, event ) {
-		console.log( 'howdy!onProgress', { file, event } );
-		const progress = ( event.loaded / event.total ) * 100;
-		// this.events.emit( 'upload:progress', { file, index, progress } );
-		file.progress = progress;
-		updateFile( file );
-	},
-
-	onReadyStateChange( file, event ) {
-		console.log( 'howdy!onReadyStateChange', { file, event } );
-		const xhr = event.target;
-		if ( xhr.readyState === 4 ) {
-			if ( xhr.status === 200 ) {
-				const response = JSON.parse( xhr.responseText );
-				if ( response.success ) {
-					file.token = response.data.token;
-					file.hasToken = true;
-					file.url = '';
-					updateFile( file );
-					return;
-				}
-			}
-			if ( xhr.responseText ) {
-				const response = JSON.parse( xhr.responseText );
-				// this.events.emit( 'upload:fail', { file, index, message: response.message } );
-			}
-		}
-	},
-
-	removeFile( file ) {
-		// this.files = this.files.filter( f => f !== file );
-		// const request = new Request( options.endpoint + '/remove', {
-		// 	method: 'POST',
-		// 	headers: {
-		// 		'X-WP-Nonce': options.wp_nonce,
-		// 		'X-Jetpack-Upload-Nonce': options.jp_nonce,
-		// 		'Content-Type': 'application/json',
-		// 	},
-		// 	body: JSON.stringify( { token: this.tokens[ index ] || '', context: 'jetpack-form' } ),
-		// } );
-		// delete this.tokens[ index ];
-		// fetch( request );
-	},
-};

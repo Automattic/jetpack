@@ -855,7 +855,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		?>
 <div
 	data-wp-interactive="jpDropZone"
-	data-wp-watch="callbacks.logCounter"
 	<?php echo get_block_wrapper_attributes(); ?>
 	<?php echo wp_interactivity_data_wp_context( $context ); ?>
 	data-wp-on--dragover="actions.dragOver"
@@ -872,14 +871,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="context.hasFiles">
 		<template data-wp-each--file="context.files" data-wp-key="context.file.id">
 			<div class="jetpack-form-file-field__preview">
-				<div class="jetpack-form-file-field__progress" data-wp-class--is-complete="context.file.hasToken" style="--progress: 3%;" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
-					<input type="hidden" name="jetpack-form-file-field[]" data-wp-bind--value='context.file.token' value="">
-					<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
-					<div class="jetpack-form-file-field__file-wrap">
-						<span class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></span>
-						<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
-					</div>
-					<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="Remove file" data-wp-on--click="actions.removeFile">Remove</a>
+				<div class="jetpack-form-file-field__progress" data-wp-bind--data-progress-id='context.file.id' data-wp-class--is-complete="context.file.hasToken" style="--progress: 3%;" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+				<input type="hidden" name="<?php echo esc_attr( $id ) ?>_token[]" data-wp-bind--value='context.file.token' value="">
+				<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
+				<div class="jetpack-form-file-field__file-wrap">
+					<span class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></span>
+					<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
+				</div>
+				<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="Remove file" data-wp-on--click="actions.removeFile">Remove</a>
 			</div>
 		</template>
 	</div>
