@@ -268,7 +268,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 					__( 'Podcasting', 'jetpack-masterbar' ),
 					'manage_options',
 					'https://wordpress.com/settings/podcasting/' . $this->domain,
-					'',
+					// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+					null,
 					$this->get_submenu_item_count( 'jetpack' )
 				);
 			},
