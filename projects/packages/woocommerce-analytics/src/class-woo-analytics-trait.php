@@ -321,7 +321,7 @@ trait Woo_Analytics_Trait {
 	 * @return void
 	 */
 	public function record_event( $event_name, $properties = array(), $product_id = null ) {
-		if ( ! isset( $properties['session_id'] ) ) {
+		if ( ! isset( $properties['session_id'] ) && $this->is_clickhouse( $event_name ) ) {
 			$this->maybe_start_session();
 		}
 
