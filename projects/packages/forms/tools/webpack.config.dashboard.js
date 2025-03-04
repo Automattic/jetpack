@@ -56,7 +56,7 @@ module.exports = {
 						[
 							require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
 							{
-								textdomain: 'jetpack-protect',
+								textdomain: 'jetpack-forms',
 								functions: {
 									__: 1,
 									__1: 1,
