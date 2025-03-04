@@ -30,6 +30,25 @@ const formatDate = ( date: Date, format: 'short' | 'full' = 'short' ) => {
 };
 
 const formatAxisTickDate = ( date: unknown ) => formatDate( date as Date, 'short' );
+const getXAxisTickValues = ( data: SubscriptionStat[] ) => {
+	if ( data.length < 2 ) return data.map( d => d.date );
+
+	// Get first and last dates
+	const firstDate = data[ 0 ].date;
+	const lastDate = data[ data.length - 1 ].date;
+
+	// Calculate total time span in milliseconds
+	const timeSpan = lastDate.getTime() - firstDate.getTime();
+
+	// Calculate evenly spaced points at 0%, 25%, 50%, 75%, and 100% of the time span
+	return [
+		firstDate,
+		new Date( firstDate.getTime() + timeSpan * 0.25 ),
+		new Date( firstDate.getTime() + timeSpan * 0.5 ),
+		new Date( firstDate.getTime() + timeSpan * 0.75 ),
+		lastDate,
+	];
+};
 
 // Transform the data to the format expected by XYChart
 const transformData = ( countsByDay: Record< string, DailyCount > ): SubscriptionStat[] => {
@@ -134,7 +153,6 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 						<XYChart
 							height={ height }
 							width={ width }
-							margin={ { top: 12, right: 12, bottom: 12 + 19, left: 12 + 27 } }
 							xScale={ { type: 'time' } }
 							yScale={ { type: 'linear', nice: true } }
 						>
@@ -170,13 +188,21 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 								curve={ curveMonotoneX }
 							/>
 
-							<Axis orientation="left" hideAxisLine numTicks={ 5 } />
+							<Axis
+								orientation="left"
+								hideAxisLine
+								hideZero
+								numTicks={ 5 }
+								tickLabelProps={ { fill: '#3c434a', fontSize: '13px', fontWeight: '400' } }
+							/>
 
 							<Axis
 								orientation="bottom"
 								tickFormat={ formatAxisTickDate }
 								hideAxisLine
 								numTicks={ 5 }
+								tickValues={ getXAxisTickValues( data ) }
+								tickLabelProps={ { fill: '#3c434a', fontSize: '13px', fontWeight: '400' } }
 							/>
 
 							<Tooltip< SubscriptionStat >
