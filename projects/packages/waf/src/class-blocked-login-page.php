@@ -1,26 +1,27 @@
 <?php // phpcs:ignore - WordPress.Files.FileName.InvalidClassFileName
 
-namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
+namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
+use WP_User;
 
 /**
- * Class Brute_Force_Protection_Blocked_Login_Page
+ * Class Blocked_Login_Page
  *
- * Instanciated on the wp-login page when Jetpack modules are loaded and $pagenow
+ * Instantiated on the wp-login page when Jetpack modules are loaded and $pagenow
  * is available, or during the login_head hook.
  *
- * Class will only be instanciated if Brute Force Protection has detected a hard blocked IP address.
+ * Class will only be instantiated if a hard blocked IP address is detected.
  */
-class Brute_Force_Protection_Blocked_Login_Page {
+class Blocked_Login_Page {
 
 	/**
 	 * Instance of the class.
 	 *
-	 * @var Brute_Force_Protection_Blocked_Login_Page
+	 * @var Blocked_Login_Page
 	 */
 	private static $instance = null;
 
@@ -67,8 +68,8 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	 * @return object
 	 */
 	public static function instance( $ip_address ) {
-		if ( ! is_a( self::$instance, 'Brute_Force_Protection_Blocked_Login_Page' ) ) {
-			self::$instance = new Brute_Force_Protection_Blocked_Login_Page( $ip_address );
+		if ( ! is_a( self::$instance, 'Blocked_Login_Page' ) ) {
+			self::$instance = new Blocked_Login_Page( $ip_address );
 		}
 
 		return self::$instance;
@@ -81,6 +82,9 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	 */
 	public function __construct( $ip_address ) {
 
+		// TODO: Ensure we are registering these methods and firing twice now, once in the WAF and a second time in BFP.
+		// TODO: Can we add a context, to make content/links conditional? Or because its a singleton will this not matter?
+		// TODO: Ensure block method still works as expected - seems to duplicating blocks randomly but maybe that expected when the IP is blocked because each flow first multiple requests...
 		/**
 		 * Filter controls if an email recovery form is shown to blocked IPs.
 		 *
@@ -210,9 +214,13 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	/**
 	 * Check if user is blocked.
 	 *
-	 * @param string $user - the user.
+	 * @param WP_User|WP_Error $user - The user or error object if prior callback failed auth.
 	 */
 	public function check_valid_blocked_user( $user ) {
+		if ( is_wp_error( $user ) ) {
+			return $user;
+		}
+
 		if ( $this->valid_blocked_user_id && $this->valid_blocked_user_id != $user->ID ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 			return new WP_Error( 'invalid_recovery_token', __( 'The recovery token is not valid for this user.', 'jetpack-waf' ) );
 		}

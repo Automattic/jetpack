@@ -12,6 +12,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Waf\Blocked_Login_Page;
 use Automattic\Jetpack\Waf\Waf_Compatibility;
 use Automattic\Jetpack\Waf\Waf_Constants;
 use Automattic\Jetpack\Waf\Waf_Rules_Manager;
@@ -896,7 +897,7 @@ class Brute_Force_Protection {
 			);
 		}
 
-		$blocked_login_page = Brute_Force_Protection_Blocked_Login_Page::instance( $ip );
+		$blocked_login_page = Blocked_Login_Page::instance( $ip );
 
 		if ( $blocked_login_page->is_blocked_user_valid() ) {
 			return;
