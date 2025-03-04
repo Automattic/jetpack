@@ -10,6 +10,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -146,7 +147,80 @@ function wpcom_add_hosting_menu() {
 add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
 
 /**
- * Adds WordPress.com submenu items related to Jetpack under the Jetpack admin menu.
+ * Adds WordPress.com submenu items for Default sites under the Jetpack admin menu.
+ */
+function wpcom_add_jetpack_submenu_default_sites() {
+	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+	if ( ! $uses_wp_admin_interface ) {
+		return;
+	}
+
+	if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
+		return;
+	}
+
+	$host           = new Host();
+	$is_simple_site = $host->is_wpcom_simple();
+	$is_atomic_site = $host->is_woa_site();
+
+	if ( $is_atomic_site && ( ( new Status() )->is_offline_mode() || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) ) {
+		return;
+	}
+
+	global $submenu;
+	$domain = wpcom_get_site_slug();
+
+	if ( $is_simple_site ) {
+		/**
+		 * Simple sites: Add to the last position
+		 *
+		 * Using 999999 to ensure the item appears last in the submenu on Simple sites.
+		 * Lower priorities would place it before other items like Search and Akismet Anti-spam.
+		 */
+
+		$podcasting_position = 0;
+		if ( ! empty( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) ) {
+			$podcasting_position = count( $submenu['jetpack'] );
+		}
+
+		add_submenu_page(
+			'jetpack',
+			esc_attr__( 'Podcasting', 'jetpack-mu-wpcom' ),
+			__( 'Podcasting', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			"https://wordpress.com/podcasting/$domain",
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+			$podcasting_position
+		);
+	} elseif ( $is_atomic_site ) {
+		/**
+		 * Atomic sites: Add before Settings
+		 */
+
+		$podcasting_position = 0;
+
+		if ( ! empty( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) ) {
+			$settings_submenu_label = __( 'Settings', 'jetpack-mu-wpcom' );
+			$submenu_labels         = array_column( $submenu['jetpack'], 3 );
+			$settings_position      = array_search( $settings_submenu_label, $submenu_labels, true );
+			$podcasting_position    = $settings_position !== false ? $settings_position : count( $submenu['jetpack'] );
+		}
+
+		add_submenu_page(
+			'jetpack',
+			esc_attr__( 'Podcasting', 'jetpack-mu-wpcom' ),
+			__( 'Podcasting', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			"https://wordpress.com/settings/podcasting/$domain",
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+			$podcasting_position
+		);
+	}
+}
+add_action( 'admin_menu', 'wpcom_add_jetpack_submenu_default_sites', 999999 );
+
+/**
+ * Adds WordPress.com submenu items for Classic sites under the Jetpack admin menu.
  */
 function wpcom_add_jetpack_submenu() {
 	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;

@@ -248,36 +248,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds the Jetpack menu.
-	 */
-	public function add_jetpack_menu() {
-		parent::add_jetpack_menu();
-
-		/**
-		 * Add the Podcasting menu item to the Jetpack menu.
-		 *
-		 * Uses 999999 to ensure the item appears last in the submenu.
-		 * Lower priorities would place it before other items like Search and Akismet Anti-spam.
-		 */
-		add_action(
-			'admin_menu',
-			function () {
-				add_submenu_page(
-					'jetpack',
-					esc_attr__( 'Podcasting', 'jetpack-masterbar' ),
-					__( 'Podcasting', 'jetpack-masterbar' ),
-					'manage_options',
-					'https://wordpress.com/settings/podcasting/' . $this->domain,
-					// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-					null,
-					$this->get_submenu_item_count( 'jetpack' )
-				);
-			},
-			999999
-		);
-	}
-
-	/**
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {

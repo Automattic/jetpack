@@ -338,17 +338,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack-masterbar' ), __( 'Scan', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $scan_position );
 
-		// Add the Podcasting menu item before the Settings menu item on Atomic sites.
-		$podcasting_position = $this->get_submenu_item_count( 'jetpack' );
-		if ( isset( $submenu['jetpack'] ) ) {
-			$settings_submenu_label = __( 'Settings', 'jetpack-masterbar' );
-			$submenu_labels         = array_column( $submenu['jetpack'], 3 );
-			$settings_position      = array_search( $settings_submenu_label, $submenu_labels, true );
-			$podcasting_position    = $settings_position !== false ? $settings_position : $this->get_submenu_item_count( 'jetpack' );
-		}
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'jetpack', esc_attr__( 'Podcasting', 'jetpack-masterbar' ), __( 'Podcasting', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, (int) $podcasting_position );
-
 		/**
 		 * Prevent duplicate menu items that link to Jetpack Backup.
 		 * Hide the one that's shown when the standalone backup plugin is not installed, since Jetpack Backup is already included in Atomic sites.
