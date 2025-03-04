@@ -300,4 +300,28 @@ CSS
 		// Because of this, we need to support these two screens.
 		return $screen && in_array( $screen->id, array( 'admin_page_jetpack-forms', 'toplevel_page_jetpack-forms' ), true );
 	}
+
+	/**
+	 * Returns url of forms admin page.
+	 *
+	 * @param string|null $tab Tab to open in the forms admin page.
+	 *
+	 * @return string
+	 */
+	public function get_forms_admin_url( $tab = null ) {
+		$is_classic = $this->get_preferred_view() === self::CLASSIC_VIEW;
+
+		$url = $is_classic
+			? get_admin_url() . 'edit.php?post_type=feedback'
+			: get_admin_url() . 'admin.php?page=jetpack-forms';
+
+		// Return url directly to spam tab.
+		if ( $tab === 'spam' ) {
+			$url = $is_classic
+				? add_query_arg( 'post_status', 'spam', $url )
+				: $url . '#/responses?status=spam';
+		}
+
+		return $url;
+	}
 }

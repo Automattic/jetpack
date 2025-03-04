@@ -16,7 +16,6 @@ import type { NoticeOptions } from '../../context/notices/types';
 import type { MyJetpackInitialState } from '../../data/types';
 
 type RedBubbleAlerts = MyJetpackInitialState[ 'redBubbleAlerts' ];
-type Purchase = MyJetpackInitialState[ 'purchases' ][ 'items' ][ 0 ];
 
 // The notice will not show again for 14 days (when clicking the close(X) button).
 const NUM_DAYS_COOKIE_EXPIRES = 14;
@@ -26,14 +25,14 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 	const { recordEvent } = useAnalytics();
 
 	const { isSiteConnected } = useMyJetpackConnection();
-	const response = useSimpleQuery( {
+	const response = useSimpleQuery< Purchase[] >( {
 		name: QUERY_PURCHASES_KEY,
 		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
 		options: { enabled: isSiteConnected },
 	} );
 
 	const { isLoading, isError } = response;
-	const purchases = response.data as Purchase[];
+	const purchases = response.data;
 
 	const isPurchasesDataLoaded = purchases && ! isLoading && ! isError;
 

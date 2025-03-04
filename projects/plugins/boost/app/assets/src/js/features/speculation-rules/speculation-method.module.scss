@@ -1,0 +1,23 @@
+.wrapper {
+	margin-bottom: 10px;
+}
+
+.title {
+	display: flex;
+}
+
+.beta {
+	position: relative;
+	top: 4px;
+}
+
+.toggle-control {
+	margin-left: auto;
+	margin-bottom: 0 !important;
+}
+
+.description {
+	color: var(--gray-50);
+	font-size: 14px;
+	line-height: 1.6;
+}

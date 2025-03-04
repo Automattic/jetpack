@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Launchpad: verify email task uses heuristic for visibility, regardless of experiment cohort

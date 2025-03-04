@@ -1,7 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { store as coreStore } from '@wordpress/core-data';
 import { store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
 import { getSocialScriptData } from '../utils/script-data';
 import { normalizeShareStatus } from '../utils/share-status';
 import { setConnections } from './actions/connection-data';
@@ -77,32 +75,7 @@ export function getPostShareStatus( _postId ) {
 	};
 }
 
-/**
- * Resolves the social module settings to ensure the core-data entities are registered.
- *
- * @return {Function} Resolver
- */
-export function getSocialModuleSettings() {
-	return async ( { registry } ) => {
-		const { socialToggleBase } = getSocialScriptData().api_paths;
-
-		const jetpackEntities = registry.select( coreStore ).getEntitiesConfig( 'jetpack/v4' );
-
-		if ( ! jetpackEntities.some( ( { name } ) => name === socialToggleBase ) ) {
-			await registry.dispatch( coreStore ).addEntities( [
-				{
-					kind: 'jetpack/v4',
-					name: socialToggleBase,
-					baseURL: `/jetpack/v4/${ socialToggleBase }`,
-					label: __( 'Social Settings', 'jetpack-publicize-components' ),
-				},
-			] );
-		}
-	};
-}
-
 export default {
 	getConnections,
 	getPostShareStatus,
-	getSocialModuleSettings,
 };

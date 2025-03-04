@@ -75,6 +75,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const { getPostContent } = usePostContent();
 		const [ loading, setLoading ] = useState< LOADING_STATE >( false );
 		const { updateBlockAttributes } = useDispatch( editorStore );
+		const { createNotice } = useDispatch( 'core/notices' );
 		const wrapperRef = useRef< HTMLDivElement >( null );
 		const hasImage = !! props.attributes.url;
 
@@ -87,6 +88,15 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 			setLoading( type );
 		}, [] );
+
+		const showErrorNotice = useCallback(
+			( message: string ) => {
+				createNotice( 'error', message, {
+					isDismissible: true,
+				} );
+			},
+			[ createNotice ]
+		);
 
 		useEffect( () => {
 			if ( loading === false ) {
@@ -145,6 +155,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					}
 				} catch ( error ) {
 					debug( `Error generating ${ type }`, error );
+					if ( error?.message ) {
+						showErrorNotice( error.message );
+					}
 				} finally {
 					setLoading( false );
 				}
@@ -157,6 +170,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				props.attributes.url,
 				props.clientId,
 				requireUpgrade,
+				showErrorNotice,
 				startLoading,
 				updateBlockAttributes,
 			]

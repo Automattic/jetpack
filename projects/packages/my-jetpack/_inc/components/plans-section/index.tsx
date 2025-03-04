@@ -16,10 +16,7 @@ import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
 import { GoldenTokenTooltip } from '../golden-token/tooltip';
 import styles from './style.module.scss';
-import type { MyJetpackInitialState } from '../../data/types';
 import type { FC } from 'react';
-
-type Purchase = MyJetpackInitialState[ 'purchases' ][ 'items' ][ 0 ];
 
 interface PlanSectionProps {
 	purchase: Purchase;
@@ -246,14 +243,14 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 const PlansSection: FC = () => {
 	const userIsAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
 	const { isSiteConnected } = useMyJetpackConnection();
-	const response = useSimpleQuery( {
+	const response = useSimpleQuery< Purchase[] >( {
 		name: QUERY_PURCHASES_KEY,
 		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
 		options: { enabled: isSiteConnected },
 	} );
 
 	const { isLoading, isError } = response;
-	const purchases = response.data as Purchase[];
+	const purchases = response.data;
 
 	const isDataLoaded = purchases && ! isLoading && ! isError;
 	const numberOfPurchases = isDataLoaded ? purchases.length : 0;
