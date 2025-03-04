@@ -147,6 +147,8 @@ type RecommendationsResult = {
 	dismissedRecommendations: ProviderRecommendation[];
 };
 
+type ErrorsByType = Record< Critical_CSS_Error_Type, CriticalCssErrorDetails[] >;
+
 export function groupRecommendationsByStatus(
 	providersWithIssues: Provider[]
 ): RecommendationsResult {
@@ -154,21 +156,23 @@ export function groupRecommendationsByStatus(
 	const dismissedRecommendations: ProviderRecommendation[] = [];
 
 	providersWithIssues.forEach( provider => {
+		const providerErrors = provider.errors || [];
 		// Group errors by type first
-		const errorsByType = ( provider.errors || [] ).reduce<
-			Record< string, CriticalCssErrorDetails[] >
-		>( ( acc, error ) => {
+		const errorsByType = providerErrors.reduce( ( acc, error ) => {
 			if ( ! acc[ error.type ] ) {
 				acc[ error.type ] = [];
 			}
 			acc[ error.type ].push( error );
 			return acc;
-		}, {} );
+		}, {} as ErrorsByType );
+
+		const errorTypeGroups = Object.entries( errorsByType ) as [
+			Critical_CSS_Error_Type,
+			CriticalCssErrorDetails[],
+		][];
 
 		// For each error type group, check if it's dismissed
-		(
-			Object.entries( errorsByType ) as [ Critical_CSS_Error_Type, CriticalCssErrorDetails[] ][]
-		 ).forEach( ( [ errorType, errors ] ) => {
+		errorTypeGroups.forEach( ( [ errorType, errors ] ) => {
 			if ( provider.dismissed_errors?.includes( errorType ) ) {
 				dismissedRecommendations.push( {
 					key: provider.key,
