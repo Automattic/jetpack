@@ -1,7 +1,12 @@
 /*
  * External dependencies
  */
-import { askQuestionSync, usePostContent, openBlockSidebar } from '@automattic/jetpack-ai-client';
+import {
+	askQuestionSync,
+	usePostContent,
+	openBlockSidebar,
+	useAiFeature,
+} from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -65,11 +70,14 @@ export function isPossibleToExtendImageBlock( blockName: string ): boolean {
 // HOC to populate the block's edit component with the AI Assistant toolbar button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	function ExtendedBlock( props ) {
+		const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
 		const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 		const { getPostContent } = usePostContent();
 		const [ loading, setLoading ] = useState< LOADING_STATE >( false );
 		const { updateBlockAttributes } = useDispatch( editorStore );
+		const { createNotice } = useDispatch( 'core/notices' );
 		const wrapperRef = useRef< HTMLDivElement >( null );
+		const hasImage = !! props.attributes.url;
 
 		// When the dropdown is open, we need to focus the wrapper element to prevent it from closing.
 		const startLoading = useCallback( ( type: LOADING_STATE ) => {
@@ -81,6 +89,15 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setLoading( type );
 		}, [] );
 
+		const showErrorNotice = useCallback(
+			( message: string ) => {
+				createNotice( 'error', message, {
+					isDismissible: true,
+				} );
+			},
+			[ createNotice ]
+		);
+
 		useEffect( () => {
 			if ( loading === false ) {
 				if ( wrapperRef.current ) {
@@ -91,10 +108,18 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		const request = useCallback(
 			async ( type: typeof TYPE_ALT_TEXT | typeof TYPE_CAPTION ) => {
+				if ( requireUpgrade ) {
+					return;
+				}
+
 				startLoading( type );
 
 				try {
-					openBlockSidebar( props.clientId );
+					if ( type === TYPE_ALT_TEXT ) {
+						openBlockSidebar( props.clientId );
+					}
+
+					dequeueAsyncRequest();
 
 					const response = await askQuestionSync(
 						[
@@ -113,9 +138,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						],
 						{
 							postId,
-							feature: 'jetpack-seo-assistant',
+							feature: 'jetpack-ai-image-extension',
 						}
 					);
+
+					increaseRequestsCount();
 
 					const parsedResponse: { texts?: string[]; captions?: string[] } = JSON.parse( response );
 
@@ -128,15 +155,22 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					}
 				} catch ( error ) {
 					debug( `Error generating ${ type }`, error );
+					if ( error?.message ) {
+						showErrorNotice( error.message );
+					}
 				} finally {
 					setLoading( false );
 				}
 			},
 			[
+				dequeueAsyncRequest,
 				getPostContent,
+				increaseRequestsCount,
 				postId,
 				props.attributes.url,
 				props.clientId,
+				requireUpgrade,
+				showErrorNotice,
 				startLoading,
 				updateBlockAttributes,
 			]
@@ -150,6 +184,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						onRequestAltText={ () => request( TYPE_ALT_TEXT ) }
 						onRequestCaption={ () => request( TYPE_CAPTION ) }
 						loading={ loading }
+						disabled={ ! hasImage }
 						wrapperRef={ wrapperRef }
 					/>
 				</BlockControls>

@@ -219,3 +219,10 @@ CustomTooltips.args = {
 		);
 	},
 };
+
+export const WithPointerEvents: StoryObj< typeof LineChart > = Template.bind( {} );
+WithPointerEvents.args = {
+	...Default.args,
+	// eslint-disable-next-line no-alert
+	onPointerDown: ( { datum } ) => alert( 'Pointer down:' + JSON.stringify( datum ) ),
+};

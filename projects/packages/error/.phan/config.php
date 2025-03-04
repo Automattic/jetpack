@@ -15,7 +15,7 @@ return make_phan_config(
 	array(
 		'exclude_file_list' => array(
 			// Mocks of core classes.
-			'tests/php/test-error.php',
+			'tests/php/Error_Test.php',
 		),
 	)
 );
