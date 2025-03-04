@@ -26,6 +26,9 @@ function register_block() {
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			'uses_context'    => array( 'jetpack/parentBlockWidth' ),
+			'selectors'       => array(
+				'border' => '.wp-block-jetpack-button .wp-block-button__link',
+			),
 		)
 	);
 }
