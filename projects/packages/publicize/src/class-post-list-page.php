@@ -52,7 +52,7 @@ class Post_List_Page {
 	 *
 	 * @return boolean True if the criteria are met.
 	 */
-	public function should_render_on_page() {
+	public static function should_render_on_page() {
 
 		$screen = get_current_screen();
 
@@ -76,8 +76,8 @@ class Post_List_Page {
 	 *
 	 * @return boolean True if the criteria are met.
 	 */
-	public function should_render_for_post( WP_Post $post ) {
-		return $this->should_render_on_page() && 'publish' === $post->post_status;
+	public static function should_render_for_post( WP_Post $post ) {
+		return self::should_render_on_page() && 'publish' === $post->post_status;
 	}
 
 	/**
@@ -89,7 +89,7 @@ class Post_List_Page {
 	 */
 	public function append_share_post_action( array $actions, WP_Post $post ) {
 
-		if ( $this->should_render_for_post( $post ) ) {
+		if ( self::should_render_for_post( $post ) ) {
 
 			$actions['jetpack-social-share-post'] = sprintf(
 				'<a href="#" data-postid="%1$s" class="%2$s">%3$s</a>',
@@ -108,7 +108,7 @@ class Post_List_Page {
 	 * @return void
 	 */
 	public function render_share_post_root() {
-		if ( ! $this->should_render_on_page() ) {
+		if ( ! self::should_render_on_page() ) {
 			return;
 		}
 		?>
@@ -120,7 +120,7 @@ class Post_List_Page {
 	 * Enqueue admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
-		if ( ! $this->should_render_on_page() ) {
+		if ( ! self::should_render_on_page() ) {
 			return;
 		}
 
