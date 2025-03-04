@@ -325,11 +325,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			parent::add_jetpack_menu();
 		}
 
-		$scan_position = $this->get_submenu_item_count( 'jetpack' ) - 1;
-
 		global $submenu;
 
 		// Add the Scan menu item after the Backup menu item
+		$scan_position = $this->get_submenu_item_count( 'jetpack' ) - 1;
 		if ( isset( $submenu['jetpack'] ) ) {
 			$backup_submenu_label = __( 'Backup', 'jetpack-masterbar' );
 			$submenu_labels       = array_column( $submenu['jetpack'], 3 );
@@ -340,6 +339,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack-masterbar' ), __( 'Scan', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $scan_position );
 
 		// Add the Podcasting menu item before the Settings menu item on Atomic sites.
+		$podcasting_position = $this->get_submenu_item_count( 'jetpack' );
 		if ( isset( $submenu['jetpack'] ) ) {
 			$settings_submenu_label = __( 'Settings', 'jetpack-masterbar' );
 			$submenu_labels         = array_column( $submenu['jetpack'], 3 );
@@ -347,7 +347,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$podcasting_position    = $settings_position !== false ? $settings_position : $this->get_submenu_item_count( 'jetpack' );
 		}
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'jetpack', esc_attr__( 'Podcasting', 'jetpack-masterbar' ), __( 'Podcasting', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, $podcasting_position );
+		add_submenu_page( 'jetpack', esc_attr__( 'Podcasting', 'jetpack-masterbar' ), __( 'Podcasting', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, (int) $podcasting_position );
 
 		/**
 		 * Prevent duplicate menu items that link to Jetpack Backup.
