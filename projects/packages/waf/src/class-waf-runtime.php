@@ -293,11 +293,11 @@ class Waf_Runtime {
 	}
 
 	/**
-	 * Render the recovery prompt on the login page.
+	 * Process a recovery attempt.
 	 *
 	 * @param string $real_ip The real IP address of the request.
 	 */
-	private function render_recovery_prompt( $real_ip ) {
+	private function process_recovery_attempt( $real_ip ) {
 		$blocked_login_page = Blocked_Login_Page::instance( $real_ip, 'waf' );
 
 		if ( $blocked_login_page->is_blocked_user_valid() ) {
@@ -318,9 +318,7 @@ class Waf_Runtime {
 	 * @param int    $status_code Http status code.
 	 */
 	public function block( $action, $rule_id, $reason, $status_code = 403 ) {
-		$standalone_mode = Waf_Runner::get_standalone_mode_status();
-
-		if ( ! $standalone_mode && 'ip block list' === $reason ) {
+		if ( 'ip block list' === $reason ) {
 			$real_ip = $this->request->get_real_user_ip_address();
 
 			if ( $this->is_ip_allowed_for_recovery( $real_ip ) ) {
@@ -328,10 +326,8 @@ class Waf_Runtime {
 			}
 
 			global $pagenow;
-			$is_login_page = isset( $pagenow ) && $pagenow === 'wp-login.php';
-
-			if ( $is_login_page ) {
-				$this->render_recovery_prompt( $real_ip );
+			if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
+				$this->process_recovery_attempt( $real_ip );
 				return;
 			}
 		}
