@@ -14,12 +14,25 @@ body.toplevel_page_jetpack-forms {
 	padding: 0;
 	width: 100%;
 
-	.jp-forms__logo {
-		margin: 20px 48px;
-		width: 200px;
+	&.jp-forms__landing {
+		.jp-forms__logo {
+			margin: 40px 64px;
+			width: 330px;
 
-		@media (max-width: 660px) {
-			margin: 20px 24px;
+			@media (max-width: 660px) {
+				margin: 40px 24px;
+			}
+		}
+	}
+
+	&.jp-forms__inbox {
+		.jp-forms__logo {
+			margin: 20px 48px;
+			width: 200px;
+
+			@media (max-width: 660px) {
+				margin: 20px 24px;
+			}
 		}
 	}
 }
