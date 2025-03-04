@@ -33,9 +33,10 @@ import {
 import { useView, defaultLayouts } from './views';
 
 const EMPTY_ARRAY = [];
+const EMPTY_OBJECT = {};
 const MOBILE_BREAKPOINT = 780;
 const getItemId = item => item.id.toString();
-export const getPath = response => {
+const getPath = response => {
 	try {
 		const url = new URL( response.entry_permalink );
 		return url.pathname;
@@ -67,6 +68,7 @@ export default function InboxView() {
 	const [ view, setView ] = useView();
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const [ containerWidth, setContainerWidth ] = useState( 0 );
+	const [ queryArgs, setQueryArgs ] = useState( EMPTY_OBJECT );
 	const containerRef = useResizeObserver(
 		resizeObserverEntries => {
 			setContainerWidth( resizeObserverEntries[ 0 ].borderBoxSize[ 0 ].inlineSize );
@@ -79,7 +81,7 @@ export default function InboxView() {
 	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = useStatusFilter( urlStatus );
 	const filterOptions = useSelect( select => select( STORE_NAME ).getFilters(), [] );
-	const queryArgs = useMemo( () => {
+	useEffect( () => {
 		const _filters = view.filters?.reduce( ( accumulator, { field, value } ) => {
 			if ( ! value ) {
 				return accumulator;
@@ -101,10 +103,15 @@ export default function InboxView() {
 			..._filters,
 			status: statusFilter,
 		};
-		// We need to keep the current query args in state to be used in `export`
-		// and getting the total records per `status`.
+		// We need to keep the current query args in the store to be used in `export`
+		// and for getting the total records per `status`.
 		setCurrentQuery( _queryArgs );
-		return _queryArgs;
+		// We also need to keep the args in local state and update it inside `useEffect`
+		// to run after the component mounts. This is because the `status` filter is retrieved
+		// from URL and can be changed through the parent components (Tabs), and if we'd used
+		// `useMemo` it would run during rendering and would update the component while also
+		// rendering different ones.
+		setQueryArgs( _queryArgs );
 	}, [ view, statusFilter, setCurrentQuery ] );
 	const {
 		records,

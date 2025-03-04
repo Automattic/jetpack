@@ -1766,12 +1766,11 @@ class Contact_Form_Plugin {
 			$args['s'] = sanitize_text_field( wp_unslash( $_POST['search'] ) );
 		}
 
-		// TODO: This function seems to be reused by the `admin` UI.
-		// We can remove when that UI is removed.
+		// TODO: We can remove this when the wp-admin UI is removed.
 		if ( ! empty( $_POST['year'] ) && intval( $_POST['year'] ) > 0 ) {
 			$args['date_query']['year'] = intval( $_POST['year'] );
 		}
-
+		// TODO: We can remove this when the wp-admin UI is removed.
 		if ( ! empty( $_POST['month'] ) && intval( $_POST['month'] ) > 0 ) {
 			$args['date_query']['month'] = intval( $_POST['month'] );
 		}
