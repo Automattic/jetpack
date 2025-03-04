@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { config } from '../..';
-import { STORE_NAME } from '../../store';
+import { store as dashboardStore } from '../../store';
 import CSVExport from './csv';
 import GoogleDriveExport from './google-drive';
 
@@ -25,7 +25,7 @@ const ExportResponses = () => {
 		[]
 	);
 	const { selected, currentQuery } = useSelect( select => {
-		const { getSelectedResponsesFromCurrentDataset, getCurrentQuery } = select( STORE_NAME );
+		const { getSelectedResponsesFromCurrentDataset, getCurrentQuery } = select( dashboardStore );
 		return { selected: getSelectedResponsesFromCurrentDataset(), currentQuery: getCurrentQuery() };
 	}, [] );
 	const openModal = useCallback( () => setShowExportModal( true ), [ setShowExportModal ] );

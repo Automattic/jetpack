@@ -16,7 +16,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
  */
 import { config } from '../';
 import Layout from '../components/layout';
-import { STORE_NAME } from '../store';
+import { store as dashboardStore } from '../store';
 import InboxView from './dataviews';
 import ExportResponses from './export-responses';
 /**
@@ -40,7 +40,7 @@ const getTabTitle = ( title, totalItems ) => {
  * @return {object[]} The tab items.
  */
 function useTabItems() {
-	const currentQuery = useSelect( select => select( STORE_NAME ).getCurrentQuery(), [] );
+	const currentQuery = useSelect( select => select( dashboardStore ).getCurrentQuery(), [] );
 	const queryBase = { search: '', page: 1, ...currentQuery, per_page: 1, _fields: 'id' };
 	const { isResolving: isLoadingInbox, totalItems: totalItemsInbox } = useEntityRecords(
 		'postType',

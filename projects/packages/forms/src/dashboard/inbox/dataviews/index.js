@@ -20,7 +20,7 @@ import { useSearchParams } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import { STORE_NAME } from '../../store';
+import { store as dashboardStore } from '../../store';
 import InboxResponse from '../response';
 import {
 	viewAction,
@@ -76,11 +76,11 @@ export default function InboxView() {
 		{ box: 'border-box' }
 	);
 	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
-	const { setCurrentQuery, setSelectedResponses } = useDispatch( STORE_NAME );
+	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
 	const selectedResponses = searchParams.get( 'r' );
 	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = useStatusFilter( urlStatus );
-	const filterOptions = useSelect( select => select( STORE_NAME ).getFilters(), [] );
+	const filterOptions = useSelect( select => select( dashboardStore ).getFilters(), [] );
 	useEffect( () => {
 		const _filters = view.filters?.reduce( ( accumulator, { field, value } ) => {
 			if ( ! value ) {
