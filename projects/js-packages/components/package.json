@@ -19,6 +19,7 @@
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-scan": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@babel/runtime": "^7",
 		"@wordpress/browserslist-config": "6.19.0",
 		"@wordpress/components": "29.5.0",

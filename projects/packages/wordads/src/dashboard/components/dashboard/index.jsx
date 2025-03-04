@@ -1,7 +1,7 @@
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { Spinner, AdminSection, AdminPage, Container, Col } from '@automattic/jetpack-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch, select as syncSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
@@ -45,13 +45,6 @@ export default function WordAdsDashboard() {
 		}
 	};
 
-	const { connectionStatus, connectedPlugins } = getScriptData()?.connection ?? {};
-	const useInternalLinks =
-		// Some admin pages require the site to be connected (e.g. Privacy)
-		connectionStatus?.isActive &&
-		// Admin pages are part of the Jetpack plugin and require it to be installed
-		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
-
 	useMemo( () => {
 		const apiRootUrl = syncSelect( STORE_ID ).getAPIRootUrl();
 		const apiNonce = syncSelect( STORE_ID ).getAPINonce();
@@ -71,7 +64,7 @@ export default function WordAdsDashboard() {
 			{ ! isLoading && (
 				<AdminPage
 					moduleName={ __( 'WordAds', 'jetpack-wordads' ) }
-					useInternalLinks={ useInternalLinks }
+					useInternalLinks={ shouldUseInternalLinks() }
 				>
 					<AdminSection>
 						<Container horizontalSpacing={ 5 }>

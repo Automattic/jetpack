@@ -18,7 +18,7 @@ import {
 	useConnectionErrorNotice,
 	ConnectionError,
 } from '@automattic/jetpack-connection';
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -189,20 +189,13 @@ const Admin = () => {
 			onSelectFiles: handleFilesUpload,
 		} );
 
-	const { connectionStatus, connectedPlugins } = getScriptData()?.connection ?? {};
-	const useInternalLinks =
-		// Some admin pages require the site to be connected (e.g. Privacy)
-		connectionStatus?.hasConnectedOwner &&
-		// Admin pages are part of the Jetpack plugin and require it to be installed
-		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
-
 	useAnalyticsTracks( { pageViewEventName: 'jetpack_videopress_admin_page_view' } );
 
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 			header={ <JetpackVideoPressLogo /> }
-			useInternalLinks={ useInternalLinks }
+			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<div
 				className={ clsx( styles[ 'files-overlay' ], {

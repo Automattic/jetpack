@@ -3,6 +3,7 @@
  */
 import { AdminPage, Container, Col } from '@automattic/jetpack-components';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import React, { useCallback, useState, useMemo } from 'react';
 /*
  * Internal dependencies
@@ -25,12 +26,7 @@ export default function AddLicenseScreen() {
 		name: QUERY_LICENSES_KEY,
 		queryFn: async api => ( await api.getUserLicenses() )?.items,
 	} );
-	const { userConnectionData, connectionStatus, connectedPlugins } = useMyJetpackConnection();
-	const useInternalLinks =
-		// Some admin pages require the site to be connected (e.g. Privacy)
-		connectionStatus?.isActive &&
-		// Admin pages are part of the Jetpack plugin and require it to be installed
-		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
+	const { userConnectionData } = useMyJetpackConnection();
 	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( false );
 
 	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.
@@ -58,7 +54,11 @@ export default function AddLicenseScreen() {
 	const { siteSuffix = '', adminUrl = '' } = getMyJetpackWindowInitialState();
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false } useInternalLinks={ useInternalLinks }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ false }
+			useInternalLinks={ shouldUseInternalLinks() }
+		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col>
 					<GoBackLink onClick={ onClickGoBack } reload={ hasActivatedLicense } />

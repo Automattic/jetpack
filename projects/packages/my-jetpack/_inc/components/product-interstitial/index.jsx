@@ -9,6 +9,7 @@ import {
 	Text,
 	TermsOfService,
 } from '@automattic/jetpack-components';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -79,13 +80,6 @@ export default function ProductInterstitial( {
 	const { detail } = useProduct( slug );
 	const { detail: bundleDetail } = useProduct( bundle );
 	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
-	const { connectionStatus, connectedPlugins } = useMyJetpackConnection();
-
-	const useInternalLinks =
-		// Some admin pages require the site to be connected (e.g. Privacy)
-		connectionStatus?.hasConnectedOwner &&
-		// Admin pages are part of the Jetpack plugin and require it to be installed
-		connectedPlugins?.some( ( { slug: pluginSlug } ) => 'jetpack' === pluginSlug );
 
 	// Get the post activation URL for the product.
 	let redirectUri = detail?.postActivationUrl || null;
@@ -217,7 +211,11 @@ export default function ProductInterstitial( {
 	);
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false } useInternalLinks={ useInternalLinks }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ false }
+			useInternalLinks={ shouldUseInternalLinks() }
+		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } />

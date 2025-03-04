@@ -9,22 +9,17 @@ import { ConnectScreenRequiredPlan } from '@automattic/jetpack-connection';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
+import shouldUseInternalLinks from '../../../../../../js-packages/shared-extension-utils/src/should-use-internal-links';
 import styles from './styles.module.scss';
 
 const Admin = () => {
-	const { connectionStatus, connectedPlugins } = getScriptData()?.connection ?? {};
-	const useInternalLinks =
-		// Some admin pages require the site to be connected (e.g. Privacy)
-		connectionStatus?.isActive &&
-		// Admin pages are part of the Jetpack plugin and require it to be installed
-		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
-
+	const { connectionStatus } = getScriptData()?.connection ?? {};
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack Classic Theme Helper Plugin', 'classic-theme-helper-plugin' ) }
-			useInternalLinks={ useInternalLinks }
+			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<AdminSectionHero>
 				{ showConnectionCard ? (

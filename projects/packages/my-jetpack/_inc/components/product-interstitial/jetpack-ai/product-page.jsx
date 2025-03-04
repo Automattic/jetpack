@@ -10,6 +10,7 @@ import {
 	getRedirectUrl,
 	Notice,
 } from '@automattic/jetpack-components';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Card, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -40,13 +41,7 @@ export default function () {
 	const { detail } = useProduct( 'jetpack-ai' );
 	const { description, aiAssistantFeature } = detail;
 	const [ showNotice, setShowNotice ] = useState( false );
-	const { isRegistered, connectionStatus, connectedPlugins } = useMyJetpackConnection();
-
-	const useInternalLinks =
-		// Some admin pages require the site to be connected (e.g. Privacy)
-		connectionStatus?.hasConnectedOwner &&
-		// Admin pages are part of the Jetpack plugin and require it to be installed
-		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
+	const { isRegistered } = useMyJetpackConnection();
 
 	const videoTitleContentGeneration = __(
 		'Generate and edit content faster with Jetpack AI Assistant',
@@ -215,7 +210,11 @@ export default function () {
 	);
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ true } useInternalLinks={ useInternalLinks }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ true }
+			useInternalLinks={ shouldUseInternalLinks() }
+		>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>

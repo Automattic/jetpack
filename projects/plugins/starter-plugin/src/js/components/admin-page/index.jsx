@@ -6,13 +6,14 @@ import {
 	PricingCard,
 } from '@automattic/jetpack-components';
 import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import styles from './styles.module.scss';
 
 const Admin = () => {
-	const { connectionStatus, connectedPlugins } = useSelect(
+	const { connectionStatus } = useSelect(
 		select => ( {
 			connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
 			connectedPlugins: select( CONNECTION_STORE_ID ).getConnectedPlugins(),
@@ -21,15 +22,11 @@ const Admin = () => {
 	);
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
-	const useInternalLinks =
-		// Some admin pages require the site to be connected (e.g. Privacy)
-		connectionStatus?.isActive &&
-		// Admin pages are part of the Jetpack plugin and require it to be installed
-		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
+
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack Starter Plugin', 'jetpack-starter-plugin' ) }
-			useInternalLinks={ useInternalLinks }
+			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<AdminSectionHero>
 				{ showConnectionCard ? (

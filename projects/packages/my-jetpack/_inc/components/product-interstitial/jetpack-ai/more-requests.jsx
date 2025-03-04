@@ -10,6 +10,7 @@ import {
 	H3,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React, { useCallback } from 'react';
@@ -18,7 +19,6 @@ import { Link } from 'react-router-dom';
  * Internal dependencies
  */
 import useAnalytics from '../../../hooks/use-analytics';
-import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import GoBackLink from '../../go-back-link';
 import jetpackAiImage from '../jetpack-ai.png';
 import styles from './style.module.scss';
@@ -31,8 +31,6 @@ import styles from './style.module.scss';
  * @return {object}                       JetpackAIInterstitialMoreRequests react component.
  */
 export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } ) {
-	const { connectionStatus, connectedPlugins } = useMyJetpackConnection();
-
 	const title = __( 'Do you need more requests for Jetpack AI Assistant?', 'jetpack-my-jetpack' );
 	const longDescription = __(
 		'Allow us to assist you in discovering the optimal plan tailored to your requirements, ensuring you can continue using the most advanced AI technology Jetpack has to offer.',
@@ -44,14 +42,12 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 		recordEvent( 'jetpack_ai_upgrade_contact_us', { placement: 'insterstitial' } );
 	}, [ recordEvent ] );
 
-	const useInternalLinks =
-		// Some admin pages require the site to be connected (e.g. Privacy)
-		connectionStatus?.hasConnectedOwner &&
-		// Admin pages are part of the Jetpack plugin and require it to be installed
-		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
-
 	return (
-		<AdminPage showHeader={ false } showBackground={ false } useInternalLinks={ useInternalLinks }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ false }
+			useInternalLinks={ shouldUseInternalLinks() }
+		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } reload={ false } />

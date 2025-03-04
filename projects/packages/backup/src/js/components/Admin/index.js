@@ -8,7 +8,7 @@ import {
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
@@ -75,20 +75,13 @@ const Admin = () => {
 		}
 	}
 
-	const { connectedPlugins } = getScriptData()?.connection ?? {};
-	const useInternalLinks =
-		// Some admin pages require the site to be connected (e.g. Privacy)
-		connectionStatus?.isActive &&
-		// Admin pages are part of the Jetpack plugin and require it to be installed
-		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
-
 	return (
 		<AdminPage
 			showHeader
 			showFooter
 			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
 			header={ <Header /> }
-			useInternalLinks={ useInternalLinks }
+			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">

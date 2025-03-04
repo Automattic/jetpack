@@ -12,7 +12,7 @@ import {
 	JetpackVideoPressLogo,
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { SelectControl, RadioControl, CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import {
@@ -267,13 +267,6 @@ const EditVideoDetails = () => {
 		height ? ` h=${ height }` : ''
 	}]`;
 
-	const { connectionStatus, connectedPlugins } = getScriptData()?.connection ?? {};
-	const useInternalLinks =
-		// Some admin pages require the site to be connected (e.g. Privacy)
-		connectionStatus?.hasConnectedOwner &&
-		// Admin pages are part of the Jetpack plugin and require it to be installed
-		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
-
 	return (
 		<>
 			{ /* This is no longer supported as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
@@ -305,7 +298,7 @@ const EditVideoDetails = () => {
 						/>
 					</>
 				}
-				useInternalLinks={ useInternalLinks }
+				useInternalLinks={ shouldUseInternalLinks() }
 			>
 				<AdminSection>
 					<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>

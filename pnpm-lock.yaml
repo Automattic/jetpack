@@ -536,6 +536,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
+      '@automattic/jetpack-shared-extension-utils':
+        specifier: workspace:*
+        version: link:../shared-extension-utils
       '@babel/runtime':
         specifier: ^7
         version: 7.26.0
@@ -1493,6 +1496,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../connection
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../script-data
       '@wordpress/api-fetch':
         specifier: 7.19.0
         version: 7.19.0
@@ -1979,9 +1985,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
-      '@automattic/jetpack-script-data':
+      '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
-        version: link:../../js-packages/script-data
+        version: link:../../js-packages/shared-extension-utils
       '@tanstack/react-query':
         specifier: 5.20.5
         version: 5.20.5(react@18.3.1)
@@ -2421,9 +2427,6 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
-      '@automattic/jetpack-script-data':
-        specifier: workspace:*
-        version: link:../../js-packages/script-data
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
@@ -2859,6 +2862,9 @@ importers:
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
+      '@automattic/jetpack-shared-extension-utils':
+        specifier: workspace:*
+        version: link:../../js-packages/shared-extension-utils
       '@tanstack/react-query':
         specifier: 5.20.5
         version: 5.20.5(react@18.3.1)

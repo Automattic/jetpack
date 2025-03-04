@@ -1,4 +1,5 @@
 import { Container, Col, AdminPage } from '@automattic/jetpack-components';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
 import { useSearchParams } from 'react-router-dom';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -13,16 +14,13 @@ const ConnectionScreen: FC = () => {
 	const [ searchParams ] = useSearchParams();
 	const shouldSkipPricing = searchParams.get( 'skip_pricing' ) === 'true';
 	const returnToPage = useMyJetpackReturnToPage();
-	const { apiRoot, apiNonce, registrationNonce, connectionStatus, connectedPlugins } =
-		useMyJetpackConnection();
-	const useInternalLinks =
-		// Some admin pages require the site to be connected (e.g. Privacy)
-		connectionStatus?.hasConnectedOwner &&
-		// Admin pages are part of the Jetpack plugin and require it to be installed
-		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
-
+	const { apiRoot, apiNonce, registrationNonce } = useMyJetpackConnection();
 	return (
-		<AdminPage showHeader={ false } showBackground={ false } useInternalLinks={ useInternalLinks }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ false }
+			useInternalLinks={ shouldUseInternalLinks() }
+		>
 			<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
 				<Col className={ styles[ 'relative-col' ] }>
 					<CloseLink
