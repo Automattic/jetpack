@@ -9,7 +9,6 @@ import type {
 } from '@visx/xychart/lib/components/Tooltip';
 
 // TODO: Do a translation pass on this file
-// TODO: Write tests
 
 const SERIES_COLORS = {
 	all: '#2db85c',
