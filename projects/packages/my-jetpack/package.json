@@ -43,7 +43,7 @@
 		"@wordpress/i18n": "5.19.0",
 		"@wordpress/icons": "10.19.0",
 		"@wordpress/url": "4.19.0",
-		"@wordpress/dataviews": "4.14.0",
+		"@wordpress/dataviews": "4.15.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.0",
 		"gridicons": "3.4.1",
