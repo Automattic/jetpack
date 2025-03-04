@@ -319,9 +319,10 @@ class Waf_Runtime {
 	 */
 	public function block( $action, $rule_id, $reason, $status_code = 403 ) {
 		$standalone_mode = Waf_Runner::get_standalone_mode_status();
-		$real_ip         = $this->request->get_real_user_ip_address();
 
 		if ( ! $standalone_mode && 'ip block list' === $reason ) {
+			$real_ip = $this->request->get_real_user_ip_address();
+
 			if ( $this->is_ip_allowed_for_recovery( $real_ip ) ) {
 				return;
 			}
