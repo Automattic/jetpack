@@ -11,18 +11,26 @@ import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
-import useSharesData from '../../../hooks/use-shares-data';
 import { store as socialStore } from '../../../social-store';
 import { getSocialScriptData } from '../../../utils';
 import StatCards from './stat-cards';
 import styles from './styles.module.scss';
 
 const Header = () => {
-	const { hasConnections, isModuleEnabled } = useSelect( select => {
+	const {
+		hasConnections,
+		isModuleEnabled,
+		totalSharesCount,
+		sharedPostsCount,
+		isShareLimitEnabled,
+	} = useSelect( select => {
 		const store = select( socialStore );
 		return {
 			hasConnections: store.getConnections().length > 0,
 			isModuleEnabled: store.getSocialModuleSettings().publicize,
+			totalSharesCount: store.getTotalSharesCount(),
+			sharedPostsCount: store.getSharedPostsCount(),
+			isShareLimitEnabled: store.isShareLimitEnabled(),
 		};
 	} );
 
@@ -31,7 +39,6 @@ const Header = () => {
 	const useAdminUiV1 = feature_flags.useAdminUiV1;
 
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const { getTotalSharesCount, getSharedPostsCount, isShareLimitEnabled } = useSharesData();
 
 	const formatter = Intl.NumberFormat( getUserLocale(), {
 		notation: 'compact',
@@ -77,19 +84,19 @@ const Header = () => {
 						</Button>
 					</div>
 				</Col>
-				{ isShareLimitEnabled() ? (
+				{ isShareLimitEnabled ? (
 					<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
 						<StatCards
 							stats={ [
 								{
 									icon: <SocialIcon />,
 									label: __( 'Total shares past 30 days', 'jetpack-publicize-components' ),
-									value: formatter.format( getTotalSharesCount() ),
+									value: formatter.format( totalSharesCount ),
 								},
 								{
 									icon: <Icon icon={ postList } />,
 									label: __( 'Posted this month', 'jetpack-publicize-components' ),
-									value: formatter.format( getSharedPostsCount() ),
+									value: formatter.format( sharedPostsCount ),
 								},
 							] }
 						/>

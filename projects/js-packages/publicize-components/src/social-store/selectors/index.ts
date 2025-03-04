@@ -1,6 +1,7 @@
 import * as connectionDataSelectors from './connection-data';
 import * as servicesSelectors from './services';
 import * as shareStatusSelectors from './share-status';
+import * as sharesDataSelectors from './shares-data';
 import * as socialModuleSelectors from './social-module-settings';
 import * as socialSettingsSelectors from './social-settings';
 
@@ -10,6 +11,7 @@ const selectors = {
 	...socialModuleSelectors,
 	...socialSettingsSelectors,
 	...servicesSelectors,
+	...sharesDataSelectors,
 };
 
 export default selectors;

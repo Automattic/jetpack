@@ -60,4 +60,25 @@ export async function hydrateStores() {
 
 		await finishResolution( 'getEntityRecords', [ 'wpcom/v2', 'publicize/services' ] );
 	}
+
+	if ( ! wpcomEntities.some( ( { name } ) => name === 'jetpack-social' ) ) {
+		await addEntities( [
+			{
+				kind: 'wpcom/v2',
+				name: 'jetpack-social',
+				baseURL: '/wpcom/v2/jetpack-social',
+				label: __( 'Publicize shares data', 'jetpack-publicize-components' ),
+			},
+		] );
+
+		// @ts-expect-error Only 3 arguments are required, rest are optional but types expect 7
+		await receiveEntityRecords(
+			'wpcom/v2',
+			'jetpack-social',
+			getSocialScriptData()?.shares_data,
+			true
+		);
+
+		await finishResolution( 'getEntityRecords', [ 'wpcom/v2', 'jetpack-social' ] );
+	}
 }
