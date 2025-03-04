@@ -1,6 +1,7 @@
 import { curveMonotoneX } from '@visx/curve';
 import { ParentSize } from '@visx/responsive';
 import { Axis, Grid, LineSeries, Tooltip, XYChart, buildChartTheme } from '@visx/xychart';
+import { formatAxisTickDate, formatDate, getXAxisTickValues, transformData } from '../helpers';
 import type { DailyCount, SubscriptionStat } from '../types';
 import type {
 	RenderTooltipGlyphProps,
@@ -9,10 +10,6 @@ import type {
 
 // TODO: Do a translation pass on this file
 // TODO: Write tests
-
-type SubscribersChartProps = {
-	countsByDay: Record< string, DailyCount >;
-};
 
 const SERIES_COLORS = {
 	all: '#2db85c',
@@ -35,72 +32,6 @@ const chartTheme = buildChartTheme( {
 		fontWeight: 400,
 	},
 } );
-
-// TODO: Do we need to internationalize this?
-const formatDate = ( date: Date, format: 'short' | 'full' = 'short' ) => {
-	if ( format === 'short' ) {
-		// Format as "Jan 5"
-		return date.toLocaleDateString( undefined, { month: 'short', day: 'numeric' } );
-	}
-
-	// Format as "Jan 5, 2023"
-	return date.toLocaleDateString( undefined, {
-		month: 'short',
-		day: 'numeric',
-		year: 'numeric',
-	} );
-};
-
-const formatAxisTickDate = ( date: unknown ) => formatDate( date as Date, 'short' );
-const getXAxisTickValues = ( data: SubscriptionStat[] ) => {
-	if ( data.length < 2 ) return data.map( d => d.date );
-
-	// Get first and last dates
-	const firstDate = data[ 0 ].date;
-	const lastDate = data[ data.length - 1 ].date;
-
-	// Calculate total time span in milliseconds
-	const timeSpan = lastDate.getTime() - firstDate.getTime();
-
-	// Calculate evenly spaced points at 0%, 25%, 50%, 75%, and 100% of the time span
-	return [
-		firstDate,
-		new Date( firstDate.getTime() + timeSpan * 0.25 ),
-		new Date( firstDate.getTime() + timeSpan * 0.5 ),
-		new Date( firstDate.getTime() + timeSpan * 0.75 ),
-		lastDate,
-	];
-};
-
-// Transform the data to the format expected by XYChart
-const transformData = ( countsByDay: Record< string, DailyCount > ): SubscriptionStat[] => {
-	const entries = Object.entries( countsByDay )
-		.map( ( [ dateStr, counts ] ) => ( {
-			date: new Date( dateStr ),
-			all: counts.all,
-			email: counts.email,
-			paid: counts.paid,
-		} ) )
-		.sort( ( a, b ) => a.date.getTime() - b.date.getTime() );
-
-	// Calculate cumulative totals
-	let allTotal = 0;
-	let emailTotal = 0;
-	let paidTotal = 0;
-
-	return entries.map( entry => {
-		allTotal += entry.all;
-		emailTotal += entry.email;
-		paidTotal += entry.paid;
-
-		return {
-			date: entry.date,
-			all: allTotal,
-			email: emailTotal,
-			paid: paidTotal,
-		};
-	} );
-};
 
 // Chart accessors
 const getDate = ( d: SubscriptionStat ) => d.date;
@@ -160,6 +91,10 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 			</div>
 		</>
 	);
+};
+
+type SubscribersChartProps = {
+	countsByDay: Record< string, DailyCount >;
 };
 
 export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
