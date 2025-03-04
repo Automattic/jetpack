@@ -228,19 +228,15 @@ class REST_Connector {
 				'callback'            => array( $this, 'connection_register' ),
 				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
 				'args'                => array(
-					'from'               => array(
+					'from'         => array(
 						'description' => __( 'Indicates where the registration action was triggered for tracking/segmentation purposes', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
-					'registration_nonce' => array(
-						'description' => __( 'The registration nonce', 'jetpack-connection' ),
-						'type'        => 'string',
-					),
-					'redirect_uri'       => array(
+					'redirect_uri' => array(
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
-					'plugin_slug'        => array(
+					'plugin_slug'  => array(
 						'description' => __( 'Indicates from what plugin the request is coming from', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
@@ -356,7 +352,7 @@ class REST_Connector {
 	public function remote_provision( WP_REST_Request $request ) {
 		$request_data = $request->get_params();
 
-		if ( did_action( 'application_password_did_authenticate' ) && current_user_can( 'jetpack_connect_user' ) ) {
+		if ( current_user_can( 'jetpack_connect_user' ) ) {
 			$request_data['local_user'] = get_current_user_id();
 		}
 
@@ -418,13 +414,8 @@ class REST_Connector {
 	 * @return true|WP_Error
 	 */
 	public function remote_provision_permission_check( WP_REST_Request $request ) {
-		// We allow the app password authentication only if 'local_user' is empty for security reasons.
-		if ( empty( $request['local_user'] ) && did_action( 'application_password_did_authenticate' ) ) {
-			if ( current_user_can( 'jetpack_connect_user' ) ) {
-				return true;
-			}
-
-			return new WP_Error( 'invalid_user_permission_remote_provision', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+		if ( empty( $request['local_user'] ) && current_user_can( 'jetpack_connect_user' ) ) {
+			return true;
 		}
 
 		return Rest_Authentication::is_signed_with_blog_token()
@@ -682,6 +673,7 @@ class REST_Connector {
 		$response = array(
 			'currentUser'     => $current_user_connection_data,
 			'connectionOwner' => $owner_display_name,
+			'isRegistered'    => $connection->is_connected(),
 		);
 
 		if ( $rest_response ) {
@@ -836,9 +828,10 @@ class REST_Connector {
 	}
 
 	/**
-	 * The endpoint tried to partially or fully reconnect the website to WP.com.
+	 * The endpoint tried to connect Jetpack site to WPCOM.
 	 *
 	 * @since 1.7.0
+	 * @since 6.7.0 No longer needs `registration_nonce`.
 	 * @since-jetpack 7.7.0
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
@@ -846,11 +839,6 @@ class REST_Connector {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public function connection_register( $request ) {
-		// Only require nonce if cookie authentication is used.
-		if ( did_action( 'auth_cookie_valid' ) && ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
-			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack-connection' ), array( 'status' => 403 ) );
-		}
-
 		if ( isset( $request['from'] ) ) {
 			$this->connection->add_register_request_param( 'from', (string) $request['from'] );
 		}

@@ -1,5 +1,6 @@
 import jQuery from 'jquery';
-
+import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 import '../css/jetpack-admin-jitm.scss';
 
 jQuery( document ).ready( function ( $ ) {
@@ -300,23 +301,18 @@ jQuery( document ).ready( function ( $ ) {
 
 			var full_jp_logo_exists = $( '.jetpack-logo__masthead' ).length ? true : false;
 
-			$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
-				message_path: message_path,
-				query: query,
-				full_jp_logo_exists: full_jp_logo_exists,
-				_wpnonce: $el.data( 'nonce' ),
-			} ).then( function ( response ) {
-				if ( 'object' === typeof response && response[ '1' ] ) {
-					response = [ response[ '1' ] ];
+			apiFetch( {
+				path: addQueryArgs( 'jetpack/v4/jitm', {
+					message_path,
+					query,
+					full_jp_logo_exists,
+				} ),
+				method: 'GET',
+			} ).then( function ( messages ) {
+				const message = messages?.[ 0 ];
+				if ( message?.content ) {
+					setJITMContent( $el, message, redirect );
 				}
-
-				// properly handle the case of an empty array or no content set
-				if ( 0 === response.length || ! response[ 0 ].content ) {
-					return;
-				}
-
-				// for now, always take the first response
-				setJITMContent( $el, response[ 0 ], redirect );
 			} );
 		} );
 	};

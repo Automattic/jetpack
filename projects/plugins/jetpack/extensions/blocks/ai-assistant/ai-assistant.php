@@ -124,6 +124,8 @@ add_action(
 			Jetpack_Gutenberg::set_extension_available( 'ai-general-purpose-image-generator' );
 			Jetpack_Gutenberg::set_extension_available( 'ai-assistant-site-logo-support' );
 			Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization-keywords-support' );
+			Jetpack_Gutenberg::set_extension_available( 'ai-assistant-image-extension' );
+
 			if ( apply_filters( 'breve_enabled', true ) ) {
 				Jetpack_Gutenberg::set_extension_available( 'ai-proofread-breve' );
 			}

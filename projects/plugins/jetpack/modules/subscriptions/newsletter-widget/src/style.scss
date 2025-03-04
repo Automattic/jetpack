@@ -1,0 +1,73 @@
+@import '@wordpress/base-styles/colors';
+
+.newsletter-widget {
+	$spacing: 12px;
+
+	&__header{
+		padding: $spacing;
+	}
+
+	&__footer {
+		background-color: $gray-100;
+		padding: $spacing;
+	}
+
+	&__footer-msg {
+		margin: 0;
+		margin-bottom: $spacing;
+	}
+
+	&__footer-list {
+		margin: 0;
+		padding-left: $spacing;
+		list-style-type: disc;
+		columns: 2;
+	}
+
+	&__stat-number {
+		margin-left: 4px;
+	}
+
+	&__stat-label {	
+		margin-left: 4px;
+		text-decoration: none;
+	}
+
+	&__stats {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+	}
+
+	&__icon {
+		display: inline-flex;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	&__stat-item {
+		display: flex;
+		align-items: center; 
+		gap: 4px;
+		text-decoration: none;
+		&--left {
+			margin-right: auto;
+		}
+
+		&--right {
+			margin-left: auto;
+		}
+	}
+
+	& a {
+		text-decoration: none;
+	}
+}
+
+// wp-admin overrides
+#jetpack_newsletter_dashboard_widget {
+    .inside {
+        padding: 0;
+        margin: 0;
+    }
+}
