@@ -11,7 +11,7 @@ return [
     // # Issue statistics:
     // PhanPluginMixedKeyNoKey : 8 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 6 occurrences
-    // PhanTypeMismatchArgument : 6 occurrences
+    // PhanTypeMismatchArgument : 5 occurrences
     // PhanPluginUnreachableCode : 4 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanDeprecatedFunction : 2 occurrences
@@ -44,9 +44,9 @@ return [
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
         'src/rest-api/class-connections-controller.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeSuspiciousNonTraversableForeach'],
         'src/rest-api/class-connections-post-field.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
+        'src/rest-api/class-jetpack-social-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-scheduled-actions-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-services-controller.php' => ['PhanPluginMixedKeyNoKey'],
-        'src/rest-api/class-jetpack-social-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/social-image-generator/class-post-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/social-image-generator/class-rest-settings-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/social-image-generator/class-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
