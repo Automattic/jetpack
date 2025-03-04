@@ -33,21 +33,25 @@ const transformData = ( countsByDay: Record< string, DailyCount > ): Subscriptio
 	const entries = Object.entries( countsByDay )
 		.map( ( [ dateStr, counts ] ) => ( {
 			date: new Date( dateStr ),
+			all: counts.all,
 			email: counts.email,
 			paid: counts.paid,
 		} ) )
 		.sort( ( a, b ) => a.date.getTime() - b.date.getTime() );
 
 	// Calculate cumulative totals
+	let allTotal = 0;
 	let emailTotal = 0;
 	let paidTotal = 0;
 
 	return entries.map( entry => {
+		allTotal += entry.all;
 		emailTotal += entry.email;
 		paidTotal += entry.paid;
 
 		return {
 			date: entry.date,
+			all: allTotal,
 			email: emailTotal,
 			paid: paidTotal,
 		};
@@ -56,10 +60,12 @@ const transformData = ( countsByDay: Record< string, DailyCount > ): Subscriptio
 
 // Chart accessors
 const getDate = ( d: SubscriptionStat ) => d.date;
+const getAllSubscribers = ( d: SubscriptionStat ) => d.all;
 const getEmailSubscribers = ( d: SubscriptionStat ) => d.email;
 const getPaidSubscribers = ( d: SubscriptionStat ) => d.paid;
 
 const seriesColors = {
+	all: '#2db85c',
 	email: '#3057dc',
 	paid: '#e68b28',
 };
@@ -92,6 +98,18 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 		<div>
 			<div style={ { fontWeight: 600, marginBottom: '5px' } }>{ formatDate( date, 'full' ) }</div>
 			<div style={ { display: 'flex', flexDirection: 'column', gap: '2px' } }>
+				<div style={ { display: 'flex', alignItems: 'center' } }>
+					<div
+						style={ {
+							width: '8px',
+							height: '8px',
+							borderRadius: '50%',
+							backgroundColor: seriesColors.all,
+							marginRight: '5px',
+						} }
+					/>
+					<span>All: { getAllSubscribers( datum ) }</span>
+				</div>
 				<div style={ { display: 'flex', alignItems: 'center' } }>
 					<div
 						style={ {
@@ -131,53 +149,65 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 	return (
 		<div className="subscribers-chart">
 			<ParentSize>
-				{ ( { width, height } ) => (
-					<XYChart
-						height={ height }
-						width={ width }
-						margin={ { top: 12, right: 12, bottom: 12 + 19, left: 12 + 27 } }
-						xScale={ { type: 'time' } }
-						yScale={ { type: 'linear', nice: true } }
-					>
-						<Grid columns={ false } numTicks={ 5 } />
+				{ ( { width, height } ) => {
+					return (
+						<XYChart
+							height={ height }
+							width={ width }
+							margin={ { top: 12, right: 12, bottom: 12 + 19, left: 12 + 27 } }
+							xScale={ { type: 'time' } }
+							yScale={ { type: 'linear', nice: true } }
+						>
+							<Grid columns={ false } numTicks={ 5 } />
 
-						<LineSeries
-							dataKey="email"
-							data={ data }
-							xAccessor={ getDate }
-							yAccessor={ getEmailSubscribers }
-							stroke={ seriesColors.email }
-							strokeWidth={ 2 }
-							curve={ curveMonotoneX }
-						/>
+							<LineSeries
+								dataKey="all"
+								data={ data }
+								xAccessor={ getDate }
+								yAccessor={ getAllSubscribers }
+								stroke={ seriesColors.all }
+								strokeWidth={ 2 }
+								curve={ curveMonotoneX }
+							/>
 
-						<LineSeries
-							dataKey="paid"
-							data={ data }
-							xAccessor={ getDate }
-							yAccessor={ getPaidSubscribers }
-							stroke={ seriesColors.paid }
-							strokeWidth={ 2 }
-							curve={ curveMonotoneX }
-						/>
+							<LineSeries
+								dataKey="email"
+								data={ data }
+								xAccessor={ getDate }
+								yAccessor={ getEmailSubscribers }
+								stroke={ seriesColors.email }
+								strokeWidth={ 2 }
+								curve={ curveMonotoneX }
+							/>
 
-						<Axis orientation="left" hideAxisLine numTicks={ 5 } />
+							<LineSeries
+								dataKey="paid"
+								data={ data }
+								xAccessor={ getDate }
+								yAccessor={ getPaidSubscribers }
+								stroke={ seriesColors.paid }
+								strokeWidth={ 2 }
+								curve={ curveMonotoneX }
+							/>
 
-						<Axis
-							orientation="bottom"
-							tickFormat={ formatAxisTickDate }
-							hideAxisLine
-							numTicks={ 5 }
-						/>
+							<Axis orientation="left" hideAxisLine numTicks={ 5 } />
 
-						<Tooltip< SubscriptionStat >
-							showVerticalCrosshair
-							showSeriesGlyphs
-							renderTooltip={ renderTooltip }
-							renderGlyph={ renderGlyph }
-						/>
-					</XYChart>
-				) }
+							<Axis
+								orientation="bottom"
+								tickFormat={ formatAxisTickDate }
+								hideAxisLine
+								numTicks={ 5 }
+							/>
+
+							<Tooltip< SubscriptionStat >
+								showVerticalCrosshair
+								showSeriesGlyphs
+								renderTooltip={ renderTooltip }
+								renderGlyph={ renderGlyph }
+							/>
+						</XYChart>
+					);
+				} }
 			</ParentSize>
 		</div>
 	);

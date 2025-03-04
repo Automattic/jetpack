@@ -6,6 +6,7 @@ export type DailyCount = {
 
 export type SubscriptionStat = {
 	date: Date;
+	all: number;
 	email: number;
 	paid: number;
 };
