@@ -59,6 +59,28 @@ const getDate = ( d: SubscriptionStat ) => d.date;
 const getEmailSubscribers = ( d: SubscriptionStat ) => d.email;
 const getPaidSubscribers = ( d: SubscriptionStat ) => d.paid;
 
+const seriesColors = {
+	email: '#3057dc',
+	paid: '#e68b28',
+};
+
+// Custom rendering for tooltip glyphs to match the line colors
+const renderGlyph = ( { key, color, x, y } ) => {
+	const fillColor = seriesColors[ key ] || color;
+
+	return (
+		<circle
+			key={ `glyph-${ key }` }
+			cx={ x }
+			cy={ y }
+			r={ 4 }
+			fill={ fillColor }
+			stroke="white"
+			strokeWidth={ 2 }
+		/>
+	);
+};
+
 const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat > ) => {
 	if ( ! tooltipData?.nearestDatum ) return null;
 
@@ -67,17 +89,7 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 
 	// TODO: Clean up styles
 	return (
-		<div
-			style={ {
-				background: 'white',
-				padding: '8px',
-				border: '1px solid #ccc',
-				borderRadius: '4px',
-				boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-				fontSize: '12px',
-				color: '#333',
-			} }
-		>
+		<div>
 			<div style={ { fontWeight: 600, marginBottom: '5px' } }>{ formatDate( date, 'full' ) }</div>
 			<div style={ { display: 'flex', flexDirection: 'column', gap: '2px' } }>
 				<div style={ { display: 'flex', alignItems: 'center' } }>
@@ -86,7 +98,7 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 							width: '8px',
 							height: '8px',
 							borderRadius: '50%',
-							backgroundColor: '#2271b1',
+							backgroundColor: seriesColors.email,
 							marginRight: '5px',
 						} }
 					/>
@@ -98,7 +110,7 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 							width: '8px',
 							height: '8px',
 							borderRadius: '50%',
-							backgroundColor: '#d63638',
+							backgroundColor: seriesColors.paid,
 							marginRight: '5px',
 						} }
 					/>
@@ -130,21 +142,21 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 						<Grid columns={ false } numTicks={ 5 } />
 
 						<LineSeries
-							dataKey="Email Subscribers"
+							dataKey="email"
 							data={ data }
 							xAccessor={ getDate }
 							yAccessor={ getEmailSubscribers }
-							stroke="#2271b1"
+							stroke={ seriesColors.email }
 							strokeWidth={ 2 }
 							curve={ curveMonotoneX }
 						/>
 
 						<LineSeries
-							dataKey="Paid Subscribers"
+							dataKey="paid"
 							data={ data }
 							xAccessor={ getDate }
 							yAccessor={ getPaidSubscribers }
-							stroke="#d63638"
+							stroke={ seriesColors.paid }
 							strokeWidth={ 2 }
 							curve={ curveMonotoneX }
 						/>
@@ -162,6 +174,7 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 							showVerticalCrosshair
 							showSeriesGlyphs
 							renderTooltip={ renderTooltip }
+							renderGlyph={ renderGlyph }
 						/>
 					</XYChart>
 				) }
