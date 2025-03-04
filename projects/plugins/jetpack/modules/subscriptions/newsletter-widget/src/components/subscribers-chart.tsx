@@ -150,6 +150,8 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 		<div className="subscribers-chart">
 			<ParentSize>
 				{ ( { width, height } ) => {
+					if ( ! width || ! height ) return null;
+
 					return (
 						<XYChart
 							height={ height }
