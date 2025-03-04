@@ -324,8 +324,8 @@ export default connect(
 			fetchSiteConnectionStatus: () => {
 				return dispatch( fetchSiteConnectionStatus() );
 			},
-			unlinkUser: ( isOwner = false ) => {
-				return dispatch( unlinkUser( isOwner ) );
+			unlinkUser: () => {
+				return dispatch( unlinkUser() );
 			},
 			doConnectUser: ( featureLabel, from ) => {
 				return dispatch( _connectUser( featureLabel, from ) );
