@@ -14,6 +14,7 @@ use PHPUnit\Framework\TestCase;
  *
  * This should not be run normally.
  */
+// phpcs:ignore Jetpack.PHPUnit.TestClassName.DoesNotEndWithTest
 class RedefinitionTestChild extends TestCase {
 
 	/**

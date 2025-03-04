@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.61.1] - 2025-03-03
+### Added
+- Moved publicize/scheduled-actions enpoint from WPCOM to publicize. [#42136]
+
+### Changed
+- Social: Improve connect URL generation. [#42019]
+- Update package dependencies. [#42163]
+
+### Deprecated
+- Deprecated jetpack/v4 connection endpoints [#41911]
+
+### Fixed
+- Social: Fix PHP warnings on WPCOM. [#42107]
+- Social: Fix Social post UI not showing connections. [#42095]
+
 ## [0.61.0] - 2025-02-24
 ### Added
 - Social: Update the admin page for use by Editors and Authors. [#41859]
@@ -877,6 +892,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.61.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.0...v0.61.1
 [0.61.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.60.1...v0.61.0
 [0.60.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.60.0...v0.60.1
 [0.60.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.59.1...v0.60.0

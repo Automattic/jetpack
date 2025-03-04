@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Social | Avoid calling the settings endpoint on Social admin page if not relevant
