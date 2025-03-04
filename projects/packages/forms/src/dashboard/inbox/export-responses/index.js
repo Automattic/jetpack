@@ -53,9 +53,7 @@ const ExportResponses = () => {
 	return (
 		<>
 			<Button className="export-button" variant="primary" onClick={ openModal }>
-				{ selected?.length
-					? __( 'Export selected', 'jetpack-forms' )
-					: __( 'Export', 'jetpack-forms' ) }
+				{ __( 'Export', 'jetpack-forms' ) }
 			</Button>
 			{ showExportModal && (
 				<Modal
