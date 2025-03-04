@@ -61,11 +61,6 @@ class Jetpack_Social_Controller extends Base_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_items( $request ) {
-		// We only support this endpoint for self-hosted sites.
-		if ( Utils::is_wpcom() ) {
-			return new WP_Error( 'invalid_request', 'This endpoint is not available for WordPress.com sites.', array( 'status' => 404 ) );
-		}
-
 		$response = $this->proxy_request_to_wpcom_as_blog(
 			$request
 		);
@@ -86,6 +81,11 @@ class Jetpack_Social_Controller extends Base_Controller {
 	 * @return true|WP_Error
 	 */
 	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// We only support this endpoint for self-hosted sites.
+		if ( Utils::is_wpcom() ) {
+			return new WP_Error( 'invalid_request', 'This endpoint is not available for WordPress.com sites.', array( 'status' => 404 ) );
+		}
+
 		return $this->publicize_permissions_check();
 	}
 }
