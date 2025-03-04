@@ -2,10 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 14.4-beta - 2025-03-03
+## 14.4 - 2025-03-04
 ### Enhancements
-- Newsletter: Add newsletter widget header row behind a feature flag. [#42060]
 - Newsletter: Add footer widget section. [#42048]
+- Newsletter: Add newsletter widget header row behind a feature flag. [#42060]
 - VideoPress: Add title to the attachment details view. [#42023]
 
 ### Bug fixes
