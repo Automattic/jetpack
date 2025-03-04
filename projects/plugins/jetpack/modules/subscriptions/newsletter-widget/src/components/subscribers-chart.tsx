@@ -96,49 +96,24 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 	const datum = tooltipData.nearestDatum.datum;
 	const date = getDate( datum );
 
-	// TODO: Clean up styles
 	return (
-		<div>
-			<div style={ { fontWeight: 600, marginBottom: '5px' } }>{ formatDate( date, 'full' ) }</div>
-			<div style={ { display: 'flex', flexDirection: 'column', gap: '2px' } }>
-				<div style={ { display: 'flex', alignItems: 'center' } }>
-					<div
-						style={ {
-							width: '8px',
-							height: '8px',
-							borderRadius: '50%',
-							backgroundColor: seriesColors.all,
-							marginRight: '5px',
-						} }
-					/>
+		<>
+			<div className="subscribers-chart__tooltip-date">{ formatDate( date, 'full' ) }</div>
+			<div className="subscribers-chart__tooltip-stats">
+				<div className="subscribers-chart__tooltip-stat">
+					<div className="subscribers-chart__tooltip-indicator subscribers-chart__tooltip-indicator--all" />
 					<span>All: { getAllSubscribers( datum ) }</span>
 				</div>
-				<div style={ { display: 'flex', alignItems: 'center' } }>
-					<div
-						style={ {
-							width: '8px',
-							height: '8px',
-							borderRadius: '50%',
-							backgroundColor: seriesColors.email,
-							marginRight: '5px',
-						} }
-					/>
+				<div className="subscribers-chart__tooltip-stat">
+					<div className="subscribers-chart__tooltip-indicator subscribers-chart__tooltip-indicator--email" />
 					<span>Email: { getEmailSubscribers( datum ) }</span>
 				</div>
-				<div style={ { display: 'flex', alignItems: 'center' } }>
-					<div
-						style={ {
-							width: '8px',
-							height: '8px',
-							borderRadius: '50%',
-							backgroundColor: seriesColors.paid,
-							marginRight: '5px',
-						} }
-					/>
+				<div className="subscribers-chart__tooltip-stat">
+					<div className="subscribers-chart__tooltip-indicator subscribers-chart__tooltip-indicator--paid" />
 					<span>Paid: { getPaidSubscribers( datum ) }</span>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 
@@ -207,6 +182,7 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 							<Tooltip< SubscriptionStat >
 								showVerticalCrosshair
 								showSeriesGlyphs
+								className="subscribers-chart__tooltip"
 								renderTooltip={ renderTooltip }
 								renderGlyph={ renderGlyph }
 							/>

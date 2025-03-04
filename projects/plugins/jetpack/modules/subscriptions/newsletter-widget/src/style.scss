@@ -1,35 +1,34 @@
 @import '@wordpress/base-styles/colors';
+@import '@wordpress/base-styles/variables';
 
 .newsletter-widget {
-	$spacing: 12px;
-
 	&__header{
-		padding: $spacing;
+		padding: $grid-unit-15;
 	}
 
 	&__footer {
 		background-color: $gray-100;
-		padding: $spacing;
+		padding: $grid-unit-15;
 	}
 
 	&__footer-msg {
 		margin: 0;
-		margin-bottom: $spacing;
+		margin-bottom: $grid-unit-15;
 	}
 
 	&__footer-list {
 		margin: 0;
-		padding-left: $spacing;
+		padding-left: $grid-unit-15;
 		list-style-type: disc;
 		columns: 2;
 	}
 
 	&__stat-number {
-		margin-left: 4px;
+		margin-left: $grid-unit-05;
 	}
 
 	&__stat-label {	
-		margin-left: 4px;
+		margin-left: $grid-unit-05;
 		text-decoration: none;
 	}
 
@@ -48,7 +47,7 @@
 	&__stat-item {
 		display: flex;
 		align-items: center; 
-		gap: 4px;
+		gap: $grid-unit-05;
 		text-decoration: none;
 		&--left {
 			margin-right: auto;
@@ -60,7 +59,7 @@
 	}
 
 	&__chart-container {
-		padding: 0 $spacing;
+		padding: 0 $grid-unit-15;
 	}
 
 	&__chart {
@@ -74,8 +73,57 @@
 }
 
 .subscribers-chart {
+	$color-all: #2db85c;
+	$color-email: #3057dc;
+	$color-paid: #e68b28;
+
 	width: 100%;
 	height: 200px;
+
+	&__tooltip {
+		background: $white;
+		padding: $grid-unit-10;
+		border-radius: $radius-medium;
+		box-shadow: $elevation-x-small;
+		font-size: $font-size-small;
+		color: $gray-900;
+		min-width: 120px;
+	}
+
+	&__tooltip-date {
+		font-weight: $font-weight-medium;
+		margin-bottom: $grid-unit-05;
+	}
+
+	&__tooltip-stats {
+		display: flex;
+		flex-direction: column;
+		gap: $grid-unit-05 / 2;
+	}
+
+	&__tooltip-stat {
+		display: flex;
+		align-items: center;
+	}
+
+	&__tooltip-indicator {
+		width: $grid-unit-10;
+		height: $grid-unit-10;
+		border-radius: $radius-round;
+		margin-right: $grid-unit-05;
+		
+		&--all {
+			background-color: $color-all;
+		}
+		
+		&--email {
+			background-color: $color-email;
+		}
+		
+		&--paid {
+			background-color: $color-paid;
+		}
+	}
 }
 
 // wp-admin overrides
