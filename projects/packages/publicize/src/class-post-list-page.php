@@ -54,11 +54,12 @@ class Post_List_Page {
 	 */
 	public function should_render_on_page() {
 
-		global $pagenow, $typenow;
+		$screen = get_current_screen();
 
-		$is_list_page = 'edit.php' === $pagenow;
+		// $screen->id can be 'edit-post' or 'edit-jetpack-social-note' etc.
+		$is_post_list_page = 'edit-' . $screen->post_type === $screen->id;
 
-		if ( ! $is_list_page || ! post_type_supports( $typenow, 'publicize' ) ) {
+		if ( ! $is_post_list_page || ! post_type_supports( $screen->post_type, 'publicize' ) ) {
 			return false;
 		}
 
