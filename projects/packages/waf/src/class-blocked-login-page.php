@@ -40,6 +40,13 @@ class Blocked_Login_Page {
 	public $ip_address;
 
 	/**
+	 * The context.
+	 *
+	 * @var string
+	 */
+	public $context;
+
+	/**
 	 * Valid blocked user ID.
 	 *
 	 * @var int
@@ -64,12 +71,13 @@ class Blocked_Login_Page {
 	 * Singleton implementation
 	 *
 	 * @param string $ip_address - the IP address.
+	 * @param string $context - the context.
 	 *
 	 * @return object
 	 */
-	public static function instance( $ip_address ) {
+	public static function instance( $ip_address, $context ) {
 		if ( ! is_a( self::$instance, 'Blocked_Login_Page' ) ) {
-			self::$instance = new Blocked_Login_Page( $ip_address );
+			self::$instance = new Blocked_Login_Page( $ip_address, $context );
 		}
 
 		return self::$instance;
@@ -79,12 +87,9 @@ class Blocked_Login_Page {
 	 * Singleton implementation
 	 *
 	 * @param string $ip_address - the IP address.
+	 * @param string $context - the context.
 	 */
-	public function __construct( $ip_address ) {
-
-		// TODO: Ensure we are registering these methods and firing twice now, once in the WAF and a second time in BFP.
-		// TODO: Can we add a context, to make content/links conditional? Or because its a singleton will this not matter?
-		// TODO: Ensure block method still works as expected - seems to duplicating blocks randomly but maybe that expected when the IP is blocked because each flow first multiple requests...
+	public function __construct( $ip_address, $context ) {
 		/**
 		 * Filter controls if an email recovery form is shown to blocked IPs.
 		 *
@@ -99,6 +104,7 @@ class Blocked_Login_Page {
 		 */
 		$this->can_send_recovery_emails = apply_filters( 'jetpack_protect_can_send_recovery_emails', true );
 		$this->ip_address               = $ip_address;
+		$this->context                  = $context;
 
 		add_filter( 'wp_authenticate_user', array( $this, 'check_valid_blocked_user' ), 10, 1 );
 		add_filter( 'site_url', array( $this, 'add_args_to_login_post_url' ), 10, 3 );
@@ -115,8 +121,12 @@ class Blocked_Login_Page {
 	 *
 	 * @return string
 	 */
-	public static function get_help_url() {
-		return Redirect::get_url( 'jetpack-support-protect', array( 'anchor' => 'troubleshooting' ) );
+	public function get_help_url() {
+		if ( 'protect' === $this->context ) {
+			return Redirect::get_url( 'jetpack-support-protect-troubleshooting-protect' );
+		}
+		// TODO: Updated WAF docs to include the new context
+		return Redirect::get_url( 'jetpack-support-jetpack-waf', array( 'anchor' => 'troubleshooting' ) );
 	}
 
 	/**
@@ -434,7 +444,7 @@ class Blocked_Login_Page {
 			__( '<p>Your IP address <code>%2$s</code> has been flagged for potential security violations. You can unlock your login by sending yourself a special link via email. <a href="%3$s">Learn More</a></p>', 'jetpack-waf' ), // phpcs:ignore WordPress.WP.I18n.NoHtmlWrappedStrings
 			$icon,
 			$ip,
-			esc_url( self::get_help_url() )
+			esc_url( $this->get_help_url() )
 		);
 	}
 
@@ -763,7 +773,7 @@ class Blocked_Login_Page {
 			} else {
 				$help_icon = '<svg class="gridicon gridicons-help" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 16h-2v-2h2v2zm0-4.14V15h-2v-2c0-.552.448-1 1-1 1.103 0 2-.897 2-2s-.897-2-2-2-2 .897-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.862-1.278 3.413-3 3.86z"/></g></svg>';
 				?>
-					<a href="<?php echo esc_url( self::get_help_url() ); ?>" rel="noopener noreferrer" target="_blank">
+					<a href="<?php echo esc_url( $this->get_help_url() ); ?>" rel="noopener noreferrer" target="_blank">
 						<?php
 						printf(
 							/* translators: %s is HTML markup, for a help icon. */

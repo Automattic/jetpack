@@ -897,7 +897,7 @@ class Brute_Force_Protection {
 			);
 		}
 
-		$blocked_login_page = Blocked_Login_Page::instance( $ip );
+		$blocked_login_page = Blocked_Login_Page::instance( $ip, 'protect' );
 
 		if ( $blocked_login_page->is_blocked_user_valid() ) {
 			return;

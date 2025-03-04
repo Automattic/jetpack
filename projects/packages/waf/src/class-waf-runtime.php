@@ -298,7 +298,7 @@ class Waf_Runtime {
 	 * @param string $real_ip The real IP address of the request.
 	 */
 	private function render_recovery_prompt( $real_ip ) {
-		$blocked_login_page = Blocked_Login_Page::instance( $real_ip );
+		$blocked_login_page = Blocked_Login_Page::instance( $real_ip, 'waf' );
 
 		if ( $blocked_login_page->is_blocked_user_valid() ) {
 			// Allow the IP to bypass the block for 10 minutes.
