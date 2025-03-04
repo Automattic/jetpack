@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { seen, trash, backup } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
-import { STORE_NAME } from '../../store';
+import { store as dashboardStore } from '../../store';
 import InboxResponse from '../response';
 
 export const BULK_ACTIONS = {
@@ -30,11 +30,15 @@ export const markAsSpamAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ spam } />,
 	async callback( items, { registry } ) {
-		const itemIds = items.map( ( { id } ) => id );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
-		try {
-			await registry.dispatch( STORE_NAME ).doBulkAction( itemIds, BULK_ACTIONS.markAsSpam );
-			const numberOfItems = itemIds.length;
+		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const promises = await Promise.allSettled(
+			items.map( ( { id } ) => saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ) )
+		);
+		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+		if ( itemsUpdated.length === items.length ) {
+			// Every request was successful.
+			const numberOfItems = items.length;
 			const successMessage =
 				numberOfItems === 1
 					? sprintf(
@@ -48,10 +52,26 @@ export const markAsSpamAction = {
 							numberOfItems
 					  );
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'mark-as-spam-action' } );
-		} catch {
-			createErrorNotice(
-				__( 'An error occurred while marking responses as spam.', 'jetpack-forms' ),
-				{ type: 'snackbar' }
+		} else {
+			// There is at least one failure.
+			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
+			const errorMessage =
+				numberOfErrors === 1
+					? /* translators: The number of responses. */
+					  sprintf( __( 'An error occurred for %d response.', 'jetpack-forms' ), numberOfErrors )
+					: sprintf(
+							/* translators: The number of responses. */
+							__( 'An error occurred for %d responses.', 'jetpack-forms' ),
+							numberOfErrors
+					  );
+			createErrorNotice( errorMessage, { type: 'snackbar' } );
+		}
+
+		// Make the REST request which performs the `contact_form_akismet` `ham` action.
+		if ( itemsUpdated.length ) {
+			registry.dispatch( dashboardStore ).doBulkAction(
+				itemsUpdated.map( ( { value } ) => value.id ),
+				BULK_ACTIONS.markAsSpam
 			);
 		}
 	},
@@ -64,11 +84,17 @@ export const markAsNotSpamAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ notSpam } />,
 	async callback( items, { registry } ) {
-		const itemIds = items.map( ( { id } ) => id );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
-		try {
-			await registry.dispatch( STORE_NAME ).doBulkAction( itemIds, BULK_ACTIONS.markAsNotSpam );
-			const numberOfItems = itemIds.length;
+		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const promises = await Promise.allSettled(
+			items.map( ( { id } ) =>
+				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
+			)
+		);
+		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+		if ( itemsUpdated.length === items.length ) {
+			// Every request was successful.
+			const numberOfItems = items.length;
 			const successMessage =
 				numberOfItems === 1
 					? sprintf(
@@ -82,10 +108,26 @@ export const markAsNotSpamAction = {
 							numberOfItems
 					  );
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'mark-as-not-spam-action' } );
-		} catch {
-			createErrorNotice(
-				__( 'An error occurred while marking responses as not spam.', 'jetpack-forms' ),
-				{ type: 'snackbar' }
+		} else {
+			// There is at least one failure.
+			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
+			const errorMessage =
+				numberOfErrors === 1
+					? /* translators: The number of responses. */
+					  sprintf( __( 'An error occurred for %d response.', 'jetpack-forms' ), numberOfErrors )
+					: sprintf(
+							/* translators: The number of responses. */
+							__( 'An error occurred for %d responses.', 'jetpack-forms' ),
+							numberOfErrors
+					  );
+			createErrorNotice( errorMessage, { type: 'snackbar' } );
+		}
+
+		// Make the REST request which performs the `contact_form_akismet` `ham` action.
+		if ( itemsUpdated.length ) {
+			registry.dispatch( dashboardStore ).doBulkAction(
+				itemsUpdated.map( ( { value } ) => value.id ),
+				BULK_ACTIONS.markAsNotSpam
 			);
 		}
 	},
@@ -187,14 +229,21 @@ export const deleteAction = {
 	icon: <Icon icon={ trash } />,
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
+		const { invalidateFilters } = registry.dispatch( dashboardStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				deleteEntityRecord( 'postType', 'feedback', id, { force: true }, { throwOnError: true } )
 			)
 		);
-		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
-			const numberOfItems = promises.length;
+		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+		// If there is at least one succesful update, invalidate the cache for filters.
+		if ( itemsUpdated.length ) {
+			invalidateFilters();
+		}
+		if ( itemsUpdated.length === items.length ) {
+			// Every request was successful.
+			const numberOfItems = items.length;
 			const successMessage =
 				numberOfItems === 1
 					? sprintf(
