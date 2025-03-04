@@ -60,7 +60,6 @@ export function ButtonEdit( props ) {
 		fontSize: attributes.style?.typography?.fontSize,
 		color: textColor.color,
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
-		width,
 		...borderProps.style,
 	};
 
