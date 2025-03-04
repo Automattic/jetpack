@@ -4230,12 +4230,18 @@ importers:
       '@microsoft/fetch-event-source':
         specifier: 2.0.1
         version: 2.0.1
+      '@react-spring/web':
+        specifier: 9.7.5
+        version: 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@visx/curve':
+        specifier: 3.12.0
+        version: 3.12.0
       '@visx/responsive':
         specifier: 3.12.0
         version: 3.12.0(react@18.3.1)
       '@visx/xychart':
         specifier: 3.12.0
-        version: 3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 3.12.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/base-styles':
         specifier: 5.19.0
         version: 5.19.0
@@ -6862,6 +6868,12 @@ packages:
 
   '@react-spring/web@9.7.3':
     resolution: {integrity: sha512-BXt6BpS9aJL/QdVqEIX9YoUy8CE6TJrU0mNCqSoxdXlIeNcEBWOfIyE6B14ENNsyQKS3wOWkiJfco0tCr/9tUg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+
+  '@react-spring/web@9.7.5':
+    resolution: {integrity: sha512-lmvqGwpe+CSttsWNZVr+Dg62adtKhauGwLyGE/RRyZ8AAMLgb9x3NDMA5RMElXo+IMyTkPp7nxTB8ZQlmhb6JQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -17551,6 +17563,15 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
+  '@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@react-spring/animated': 9.7.5(react@18.3.1)
+      '@react-spring/core': 9.7.5(react@18.3.1)
+      '@react-spring/shared': 9.7.5(react@18.3.1)
+      '@react-spring/types': 9.7.5
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   '@redux-saga/core@1.3.0':
     dependencies:
       '@babel/runtime': 7.26.0
@@ -18997,8 +19018,9 @@ snapshots:
       prop-types: 15.8.1
       react: 18.3.1
 
-  '@visx/react-spring@3.12.0(react@18.3.1)':
+  '@visx/react-spring@3.12.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
     dependencies:
+      '@react-spring/web': 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/react': 18.3.18
       '@visx/axis': 3.12.0(react@18.3.1)
       '@visx/grid': 3.12.0(react@18.3.1)
@@ -19115,8 +19137,9 @@ snapshots:
     transitivePeerDependencies:
       - react-dom
 
-  '@visx/xychart@3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@visx/xychart@3.12.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
+      '@react-spring/web': 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/lodash': 4.17.16
       '@types/react': 18.3.18
       '@visx/annotation': 3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -19124,7 +19147,7 @@ snapshots:
       '@visx/event': 3.12.0
       '@visx/glyph': 3.12.0(react@18.3.1)
       '@visx/grid': 3.12.0(react@18.3.1)
-      '@visx/react-spring': 3.12.0(react@18.3.1)
+      '@visx/react-spring': 3.12.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@visx/responsive': 3.12.0(react@18.3.1)
       '@visx/scale': 3.12.0
       '@visx/shape': 3.12.0(react@18.3.1)

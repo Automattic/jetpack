@@ -13,10 +13,6 @@ jest.mock( '@wordpress/components', () => {
 	} );
 } );
 
-jest.mock( '../src/components/subscribers-chart', () => ( {
-	SubscribersChart: jest.fn( () => <div data-testid="mocked-chart">Chart Placeholder</div> ),
-} ) );
-
 jest.mock( '@wordpress/icons', () => ( {
 	envelope: 'envelope-icon-mock',
 	payment: 'payment-icon-mock',

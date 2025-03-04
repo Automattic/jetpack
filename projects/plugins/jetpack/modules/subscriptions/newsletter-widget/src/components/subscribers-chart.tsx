@@ -1,3 +1,4 @@
+import { curveMonotoneX } from '@visx/curve';
 import { ParentSize } from '@visx/responsive';
 import { Axis, Grid, LineSeries, Tooltip, XYChart } from '@visx/xychart';
 import type { DailyCount, SubscriptionStat } from '../types';
@@ -133,6 +134,7 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 							yAccessor={ getEmailSubscribers }
 							stroke="#2271b1"
 							strokeWidth={ 2 }
+							curve={ curveMonotoneX }
 						/>
 
 						<LineSeries
@@ -142,15 +144,16 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 							yAccessor={ getPaidSubscribers }
 							stroke="#d63638"
 							strokeWidth={ 2 }
+							curve={ curveMonotoneX }
 						/>
 
-						<Axis orientation="left" numTicks={ 5 } hideAxisLine />
+						<Axis orientation="left" hideAxisLine numTicks={ 5 } />
 
 						<Axis
 							orientation="bottom"
-							numTicks={ 5 }
 							tickFormat={ formatAxisTickDate }
 							hideAxisLine
+							numTicks={ 5 }
 						/>
 
 						<Tooltip< SubscriptionStat >
