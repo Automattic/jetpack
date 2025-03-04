@@ -514,8 +514,11 @@ function wpcom_should_show_global_styles_launch_bar() {
  * Renders the global style notice banner to the launch bar.
  */
 function wpcom_display_global_styles_launch_bar() {
+	$blog_id          = get_current_blog_id();
+	$global_styles_id = WP_Theme_JSON_Resolver::get_user_global_styles_post_id();
+
 	if ( method_exists( '\WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
-		$site_slug = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+		$site_slug = WPCOM_Masterbar::get_calypso_site_slug( $blog_id );
 	} else {
 		$home_url  = home_url( '/' );
 		$site_slug = wp_parse_url( $home_url, PHP_URL_HOST );
@@ -609,6 +612,8 @@ function wpcom_display_global_styles_launch_bar() {
 							class="launch-bar-global-styles-reset"
 							href="https://wordpress.com/support/using-styles/#reset-all-styles"
 							target="_blank"
+							data-blog-id="<?php echo esc_attr( (string) $blog_id ); ?>"
+							data-global-styles-id="<?php echo esc_attr( (string) $global_styles_id ); ?>"
 						>
 							<svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
 								<path d="M5.8125 5.6875C5.8125 4.75552 6.56802 4 7.5 4C8.43198 4 9.1875 4.75552 9.1875 5.6875C9.1875 6.55621 8.53108 7.2716 7.6872 7.36473C7.58427 7.37609 7.5 7.45895 7.5 7.5625V8.5M7.5 9.25V10.375M13.5 7C13.5 10.3137 10.8137 13 7.5 13C4.18629 13 1.5 10.3137 1.5 7C1.5 3.68629 4.18629 1 7.5 1C10.8137 1 13.5 3.68629 13.5 7Z" stroke="#1E1E1E" stroke-width="1.5"/>

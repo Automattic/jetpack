@@ -205,6 +205,12 @@
 			background: transparent;
 			color: #676767;
 		}
+
+		&.is-resetting {
+			opacity: 0.5;
+			pointer-events: none;
+  			cursor: default;
+		}
 	}
 
 	&.hidden {
