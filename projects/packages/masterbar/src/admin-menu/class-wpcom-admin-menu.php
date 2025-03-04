@@ -262,14 +262,13 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_action(
 			'admin_menu',
 			function () {
-				// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 				add_submenu_page(
 					'jetpack',
 					esc_attr__( 'Podcasting', 'jetpack-masterbar' ),
 					__( 'Podcasting', 'jetpack-masterbar' ),
 					'manage_options',
 					'https://wordpress.com/settings/podcasting/' . $this->domain,
-					null,
+					'',
 					$this->get_submenu_item_count( 'jetpack' )
 				);
 			},
@@ -323,17 +322,17 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );
 
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack-masterbar' ), __( 'Domains', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $last_upgrade_submenu_position - 1 );
+		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack-masterbar' ), __( 'Domains', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, '', $last_upgrade_submenu_position - 1 );
 
 		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
 		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack-masterbar' ), __( 'Emails', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
+			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack-masterbar' ), __( 'Emails', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, '', $last_upgrade_submenu_position );
 		}
 
 		if ( defined( 'WPCOM_ENABLE_ADD_ONS_MENU_ITEM' ) && WPCOM_ENABLE_ADD_ONS_MENU_ITEM ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'paid-upgrades.php', __( 'Add-Ons', 'jetpack-masterbar' ), __( 'Add-Ons', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/add-ons/' . $this->domain, null, 1 );
+			add_submenu_page( 'paid-upgrades.php', __( 'Add-Ons', 'jetpack-masterbar' ), __( 'Add-Ons', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/add-ons/' . $this->domain, '', 1 );
 		}
 	}
 
@@ -360,7 +359,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( $user_can_customize ) {
 			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => 'jetpack_custom_css' ) ), $customize_url );
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'themes.php', esc_attr__( 'Additional CSS', 'jetpack-masterbar' ), __( 'Additional CSS', 'jetpack-masterbar' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
+			add_submenu_page( 'themes.php', esc_attr__( 'Additional CSS', 'jetpack-masterbar' ), __( 'Additional CSS', 'jetpack-masterbar' ), 'customize', esc_url( $customize_custom_css_url ), '', 20 );
 		}
 
 		return $customize_url;
@@ -382,9 +381,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
 		$this->update_submenus( $slug, $submenus_to_update );
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'users.php', esc_attr__( 'Add New User', 'jetpack-masterbar' ), __( 'Add New User', 'jetpack-masterbar' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
+		add_submenu_page( 'users.php', esc_attr__( 'Add New User', 'jetpack-masterbar' ), __( 'Add New User', 'jetpack-masterbar' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, '', 1 );
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
+		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, '', 3 );
 	}
 
 	/**
@@ -394,7 +393,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::add_options_menu();
 
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Features', 'jetpack-masterbar' ), __( 'Hosting Features', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/hosting-features/' . $this->domain, null, 10 );
+		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Features', 'jetpack-masterbar' ), __( 'Hosting Features', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/hosting-features/' . $this->domain, '', 10 );
 	}
 
 	/**
