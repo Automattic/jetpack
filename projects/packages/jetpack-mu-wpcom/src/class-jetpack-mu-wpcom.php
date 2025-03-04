@@ -65,7 +65,7 @@ class Jetpack_Mu_Wpcom {
 		// These features run only on atomic sites.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
-			add_action( Scheduled_Updates::PLUGIN_CRON_HOOK, array( __CLASS__, 'maybe_update_translations' ) );
+			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -89,6 +89,29 @@ class Jetpack_Mu_Wpcom {
 		 * @since 0.1.2
 		 */
 		do_action( 'jetpack_mu_wpcom_initialized' );
+	}
+
+	/**
+	 * Schedules translation updates for Jetpack MU WPCOM.
+	 *
+	 * This function sets up the necessary cron jobs to ensure that translation files
+	 * are regularly updated.
+	 *
+	 * @return void
+	 */
+	public static function schedule_translation_updates() {
+		// Only schedule the cron job if it hasn't been scheduled before.
+		if ( ! get_option( 'wpcomsh_translations_cron_scheduled' ) ) {
+			if ( ! wp_next_scheduled( 'wpcomsh_daily_translation_update' ) ) {
+				wp_schedule_event( time(), 'daily', 'wpcomsh_daily_translation_update' );
+			}
+
+			// Mark as scheduled to prevent redundant event checks.
+			update_option( 'wpcomsh_translations_cron_scheduled', true );
+		}
+
+		// Bind the actual cron event to the function.
+		add_action( 'wpcomsh_daily_translation_update', array( __CLASS__, 'maybe_update_translations' ) );
 	}
 
 	/**
