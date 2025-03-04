@@ -12,27 +12,26 @@ import React from 'react';
 import styles from './styles.module.scss';
 
 const Admin = () => {
-	const { connectionStatus, enableFooterJetpackAdminLinks } = useSelect( select => {
-		const connectedPlugins = select( CONNECTION_STORE_ID ).getConnectedPlugins();
-
-		const areAdminLinksEnabled =
-			// Some admin pages require the site to be connected (e.g., Privacy)
-			connectionStatus?.isActive &&
-			// Admin pages are part of the Jetpack plugin and required it to be installed
-			connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
-
-		return {
+	const { connectionStatus, connectedPlugins } = useSelect(
+		select => ( {
 			connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
-			enableFooterJetpackAdminLinks: areAdminLinksEnabled,
-		};
-	}, [] );
+			connectedPlugins: select( CONNECTION_STORE_ID ).getConnectedPlugins(),
+		} ),
+		[]
+	);
+
+	const useInternalLinks =
+		// Some admin pages require the site to be connected (e.g. Privacy)
+		connectionStatus?.isActive &&
+		// Admin pages are part of the Jetpack plugin and require it to be installed
+		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack Classic Theme Helper Plugin', 'classic-theme-helper-plugin' ) }
-			useInternalLinks={ enableFooterJetpackAdminLinks }
+			useInternalLinks={ useInternalLinks }
 		>
 			<AdminSectionHero>
 				{ showConnectionCard ? (

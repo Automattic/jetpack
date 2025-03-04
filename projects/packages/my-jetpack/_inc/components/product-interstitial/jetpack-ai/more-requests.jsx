@@ -32,8 +32,6 @@ import styles from './style.module.scss';
  */
 export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } ) {
 	const { connectionStatus, connectedPlugins } = useMyJetpackConnection();
-	const hasConnectedJetpackPlugin =
-		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
 
 	const title = __( 'Do you need more requests for Jetpack AI Assistant?', 'jetpack-my-jetpack' );
 	const longDescription = __(
@@ -46,12 +44,14 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 		recordEvent( 'jetpack_ai_upgrade_contact_us', { placement: 'insterstitial' } );
 	}, [ recordEvent ] );
 
+	const useInternalLinks =
+		// Some admin pages require the site to be connected (e.g. Privacy)
+		connectionStatus?.hasConnectedOwner &&
+		// Admin pages are part of the Jetpack plugin and require it to be installed
+		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
+
 	return (
-		<AdminPage
-			showHeader={ false }
-			showBackground={ false }
-			useInternalLinks={ hasConnectedJetpackPlugin }
-		>
+		<AdminPage showHeader={ false } showBackground={ false } useInternalLinks={ useInternalLinks }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } reload={ false } />

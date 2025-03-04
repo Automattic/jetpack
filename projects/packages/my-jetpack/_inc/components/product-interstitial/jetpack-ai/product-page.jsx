@@ -41,8 +41,12 @@ export default function () {
 	const { description, aiAssistantFeature } = detail;
 	const [ showNotice, setShowNotice ] = useState( false );
 	const { isRegistered, connectionStatus, connectedPlugins } = useMyJetpackConnection();
-	const hasConnectedJetpackPlugin =
-		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
+
+	const useInternalLinks =
+		// Some admin pages require the site to be connected (e.g. Privacy)
+		connectionStatus?.hasConnectedOwner &&
+		// Admin pages are part of the Jetpack plugin and require it to be installed
+		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 
 	const videoTitleContentGeneration = __(
 		'Generate and edit content faster with Jetpack AI Assistant',
@@ -211,11 +215,7 @@ export default function () {
 	);
 
 	return (
-		<AdminPage
-			showHeader={ false }
-			showBackground={ true }
-			useInternalLinks={ hasConnectedJetpackPlugin }
-		>
+		<AdminPage showHeader={ false } showBackground={ true } useInternalLinks={ useInternalLinks }>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>

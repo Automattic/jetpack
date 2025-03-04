@@ -21,10 +21,15 @@ const Admin = () => {
 	);
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
+	const useInternalLinks =
+		// Some admin pages require the site to be connected (e.g. Privacy)
+		connectionStatus?.isActive &&
+		// Admin pages are part of the Jetpack plugin and require it to be installed
+		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack Starter Plugin', 'jetpack-starter-plugin' ) }
-			useInternalLinks={ connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive }
+			useInternalLinks={ useInternalLinks }
 		>
 			<AdminSectionHero>
 				{ showConnectionCard ? (

@@ -80,8 +80,12 @@ export default function ProductInterstitial( {
 	const { detail: bundleDetail } = useProduct( bundle );
 	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
 	const { connectionStatus, connectedPlugins } = useMyJetpackConnection();
-	const hasConnectedJetpackPlugin =
-		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
+
+	const useInternalLinks =
+		// Some admin pages require the site to be connected (e.g. Privacy)
+		connectionStatus?.hasConnectedOwner &&
+		// Admin pages are part of the Jetpack plugin and require it to be installed
+		connectedPlugins?.some( ( { slug: pluginSlug } ) => 'jetpack' === pluginSlug );
 
 	// Get the post activation URL for the product.
 	let redirectUri = detail?.postActivationUrl || null;
@@ -213,11 +217,7 @@ export default function ProductInterstitial( {
 	);
 
 	return (
-		<AdminPage
-			showHeader={ false }
-			showBackground={ false }
-			useInternalLinks={ hasConnectedJetpackPlugin }
-		>
+		<AdminPage showHeader={ false } showBackground={ false } useInternalLinks={ useInternalLinks }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } />

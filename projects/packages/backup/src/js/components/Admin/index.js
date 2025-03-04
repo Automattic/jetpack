@@ -76,8 +76,11 @@ const Admin = () => {
 	}
 
 	const { connectedPlugins } = getScriptData()?.connection ?? {};
-	const hasConnectedJetpackPlugin =
-		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
+	const useInternalLinks =
+		// Some admin pages require the site to be connected (e.g. Privacy)
+		connectionStatus?.isActive &&
+		// Admin pages are part of the Jetpack plugin and require it to be installed
+		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 
 	return (
 		<AdminPage
@@ -85,7 +88,7 @@ const Admin = () => {
 			showFooter
 			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
 			header={ <Header /> }
-			useInternalLinks={ hasConnectedJetpackPlugin }
+			useInternalLinks={ useInternalLinks }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">

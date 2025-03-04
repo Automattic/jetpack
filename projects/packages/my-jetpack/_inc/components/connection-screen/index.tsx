@@ -15,15 +15,14 @@ const ConnectionScreen: FC = () => {
 	const returnToPage = useMyJetpackReturnToPage();
 	const { apiRoot, apiNonce, registrationNonce, connectionStatus, connectedPlugins } =
 		useMyJetpackConnection();
-	const hasConnectedJetpackPlugin =
-		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
+	const useInternalLinks =
+		// Some admin pages require the site to be connected (e.g. Privacy)
+		connectionStatus?.hasConnectedOwner &&
+		// Admin pages are part of the Jetpack plugin and require it to be installed
+		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 
 	return (
-		<AdminPage
-			showHeader={ false }
-			showBackground={ false }
-			useInternalLinks={ hasConnectedJetpackPlugin }
-		>
+		<AdminPage showHeader={ false } showBackground={ false } useInternalLinks={ useInternalLinks }>
 			<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
 				<Col className={ styles[ 'relative-col' ] }>
 					<CloseLink

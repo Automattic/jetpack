@@ -52,7 +52,9 @@ export interface UserData {
 export interface ConnectionData {
 	connectionStatus?: {
 		hasConnectedOwner?: boolean;
+		isActive?: boolean;
 	};
+	connectedPlugins?: unknown[];
 }
 
 export interface JetpackScriptData {

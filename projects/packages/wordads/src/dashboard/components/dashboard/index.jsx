@@ -46,8 +46,11 @@ export default function WordAdsDashboard() {
 	};
 
 	const { connectionStatus, connectedPlugins } = getScriptData()?.connection ?? {};
-	const hasConnectedJetpackPlugin =
-		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
+	const useInternalLinks =
+		// Some admin pages require the site to be connected (e.g. Privacy)
+		connectionStatus?.isActive &&
+		// Admin pages are part of the Jetpack plugin and require it to be installed
+		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 
 	useMemo( () => {
 		const apiRootUrl = syncSelect( STORE_ID ).getAPIRootUrl();
@@ -68,7 +71,7 @@ export default function WordAdsDashboard() {
 			{ ! isLoading && (
 				<AdminPage
 					moduleName={ __( 'WordAds', 'jetpack-wordads' ) }
-					useInternalLinks={ hasConnectedJetpackPlugin }
+					useInternalLinks={ useInternalLinks }
 				>
 					<AdminSection>
 						<Container horizontalSpacing={ 5 }>

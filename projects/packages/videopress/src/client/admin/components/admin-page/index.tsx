@@ -190,8 +190,11 @@ const Admin = () => {
 		} );
 
 	const { connectionStatus, connectedPlugins } = getScriptData()?.connection ?? {};
-	const hasConnectedJetpackPlugin =
-		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
+	const useInternalLinks =
+		// Some admin pages require the site to be connected (e.g. Privacy)
+		connectionStatus?.hasConnectedOwner &&
+		// Admin pages are part of the Jetpack plugin and require it to be installed
+		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 
 	useAnalyticsTracks( { pageViewEventName: 'jetpack_videopress_admin_page_view' } );
 
@@ -199,7 +202,7 @@ const Admin = () => {
 		<AdminPage
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 			header={ <JetpackVideoPressLogo /> }
-			useInternalLinks={ hasConnectedJetpackPlugin }
+			useInternalLinks={ useInternalLinks }
 		>
 			<div
 				className={ clsx( styles[ 'files-overlay' ], {

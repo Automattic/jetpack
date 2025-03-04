@@ -53,8 +53,11 @@ export default function UpsellPage( { isLoading = false } ) {
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	const { connectionStatus, connectedPlugins } = useConnection();
-	const hasConnectedJetpackPlugin =
-		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
+	const useInternalLinks =
+		// Some admin pages require the site to be connected (e.g. Privacy)
+		connectionStatus?.hasConnectedOwner &&
+		// Admin pages are part of the Jetpack plugin and require it to be installed
+		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
 	const checkSiteHasSearchProduct = useCallback( () => {
@@ -105,7 +108,7 @@ export default function UpsellPage( { isLoading = false } ) {
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 						header={ <Header /> }
 						moduleNameHref={ JETPACK_SEARCH__LINK }
-						useInternalLinks={ hasConnectedJetpackPlugin }
+						useInternalLinks={ useInternalLinks }
 					>
 						<AdminSectionHero>
 							{ isNewPricing ? (

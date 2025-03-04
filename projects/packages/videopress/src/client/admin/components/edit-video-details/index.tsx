@@ -268,8 +268,11 @@ const EditVideoDetails = () => {
 	}]`;
 
 	const { connectionStatus, connectedPlugins } = getScriptData()?.connection ?? {};
-	const hasConnectedJetpackPlugin =
-		connectedPlugins?.includes( 'jetpack' ) && connectionStatus?.isActive;
+	const useInternalLinks =
+		// Some admin pages require the site to be connected (e.g. Privacy)
+		connectionStatus?.hasConnectedOwner &&
+		// Admin pages are part of the Jetpack plugin and require it to be installed
+		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 
 	return (
 		<>
@@ -302,7 +305,7 @@ const EditVideoDetails = () => {
 						/>
 					</>
 				}
-				useInternalLinks={ hasConnectedJetpackPlugin }
+				useInternalLinks={ useInternalLinks }
 			>
 				<AdminSection>
 					<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
