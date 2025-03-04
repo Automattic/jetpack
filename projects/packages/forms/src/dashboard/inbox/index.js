@@ -17,7 +17,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { config } from '../';
 import Layout from '../components/layout';
 import { STORE_NAME } from '../store';
-import CheckForSpamButton from './check-for-spam-button';
 import InboxView from './dataviews';
 import ExportResponses from './export-responses';
 /**
@@ -42,7 +41,7 @@ const getTabTitle = ( title, totalItems ) => {
  */
 function useTabItems() {
 	const currentQuery = useSelect( select => select( STORE_NAME ).getCurrentQuery(), [] );
-	const queryBase = { ...currentQuery, per_page: 1, _fields: 'id' };
+	const queryBase = { search: '', page: 1, ...currentQuery, per_page: 1, _fields: 'id' };
 	const { isResolving: isLoadingInbox, totalItems: totalItemsInbox } = useEntityRecords(
 		'postType',
 		'feedback',
@@ -131,10 +130,7 @@ const Inbox = () => {
 			<div className="jp-forms__layout-header">
 				<HStack justify="space-between">
 					<h2 className="jp-forms__layout-title">{ title }</h2>
-					<HStack justify="flex-end">
-						<CheckForSpamButton />
-						<ExportResponses />
-					</HStack>
+					<ExportResponses />
 				</HStack>
 				<p className="jp-forms__header-subtext">{ subtitle }</p>
 			</div>
