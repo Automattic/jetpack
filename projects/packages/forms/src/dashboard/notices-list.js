@@ -18,7 +18,6 @@ export default function DashboardNotices() {
 	const snackbarNotices = notices
 		.filter( ( { type } ) => type === 'snackbar' )
 		.slice( MAX_VISIBLE_NOTICES );
-
 	return (
 		<SnackbarList
 			notices={ snackbarNotices }

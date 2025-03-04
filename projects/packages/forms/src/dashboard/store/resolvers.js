@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { INVALIDATE_FILTERS } from './action-types';
 
 export const getFilters =
 	() =>
@@ -9,7 +10,4 @@ export const getFilters =
 		dispatch.receiveFilters( results );
 	};
 
-// TODO: invalidate properly..
-// getFilters.shouldInvalidate = ( action, kind, name ) => {
-
-// };
+getFilters.shouldInvalidate = action => action.type === INVALIDATE_FILTERS;

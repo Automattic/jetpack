@@ -43,15 +43,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'permission_callback' => array( $this, 'get_items_permissions_check' ),
 				'args'                => array(
 					'action'   => array(
-						'type' => 'string',
-						'enum' => array(
+						'type'     => 'string',
+						'enum'     => array(
 							'mark_as_spam',
 							'mark_as_not_spam',
 						),
+						'required' => true,
 					),
 					'post_ids' => array(
-						'type'  => 'array',
-						'items' => array( 'type' => 'integer' ),
+						'type'     => 'array',
+						'items'    => array( 'type' => 'integer' ),
+						'required' => true,
 					),
 				),
 			)
@@ -329,39 +331,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Marks all feedback posts matchin the given IDs as spam.
+	 * Performs the Akismet action to mark all feedback posts matching the given IDs as spam.
 	 *
 	 * @param  array $post_ids Array of post IDs.
 	 * @return WP_REST_Response
 	 */
 	private function bulk_action_mark_as_spam( $post_ids ) {
 		foreach ( $post_ids as $post_id ) {
-			$post = get_post( $post_id );
-			if ( $post->post_type !== 'feedback' ) {
-				continue;
-			}
-			$status = wp_update_post(
-				array(
-					'ID'          => $post_id,
-					'post_status' => 'spam',
-				),
-				false,
-				false
-			);
-
-			if ( ! $status || is_wp_error( $status ) ) {
-				return new WP_REST_Response(
-					array(
-						'error' => sprintf(
-							/* translators: %s: Post ID */
-							__( 'Failed to mark post as spam. Post ID: %d.', 'jetpack-forms' ),
-							$post_id
-						),
-					),
-					500
-				);
-			}
-
 			/** This action is documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action(
 				'contact_form_akismet',
@@ -369,44 +345,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				get_post_meta( $post_id, '_feedback_akismet_values', true )
 			);
 		}
-
 		return new WP_REST_Response( array(), 200 );
 	}
 
 	/**
-	 * Marks all feedback posts matchin the given IDs as not spam.
+	 * Performs the Akismet action to mark all feedback posts matching the given IDs as not spam.
 	 *
 	 * @param  array $post_ids Array of post IDs.
 	 * @return WP_REST_Response
 	 */
 	private function bulk_action_mark_as_not_spam( $post_ids ) {
 		foreach ( $post_ids as $post_id ) {
-			$post = get_post( $post_id );
-			if ( $post->post_type !== 'feedback' ) {
-				continue;
-			}
-			$status = wp_update_post(
-				array(
-					'ID'          => $post_id,
-					'post_status' => 'publish',
-				),
-				false,
-				false
-			);
-
-			if ( ! $status || is_wp_error( $status ) ) {
-				return new WP_REST_Response(
-					array(
-						'error' => sprintf(
-							/* translators: %s: Post ID */
-							__( 'Failed to mark post as not-spam. Post ID: %d.', 'jetpack-forms' ),
-							$post_id
-						),
-					),
-					500
-				);
-			}
-
 			/** This action is documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action(
 				'contact_form_akismet',
@@ -414,7 +363,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				get_post_meta( $post_id, '_feedback_akismet_values', true )
 			);
 		}
-
 		return new WP_REST_Response( array(), 200 );
 	}
 

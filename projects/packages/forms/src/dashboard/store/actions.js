@@ -1,9 +1,13 @@
 import apiFetch from '@wordpress/api-fetch';
-import { store as coreStore } from '@wordpress/core-data';
 /**
  * Internal dependencies
  */
-import { SET_SELECTED_RESPONSES, RECEIVE_FILTERS, SET_CURRENT_QUERY } from './action-types';
+import {
+	SET_SELECTED_RESPONSES,
+	RECEIVE_FILTERS,
+	SET_CURRENT_QUERY,
+	INVALIDATE_FILTERS,
+} from './action-types';
 
 /**
  * Receive the available filters for the responses.
@@ -17,6 +21,12 @@ export function receiveFilters( filters ) {
 		filters,
 	};
 }
+
+// When we permanently delete some responses, we need to invalidate
+// the filters in the dashboard to reflect the changes.
+export const invalidateFilters = () => {
+	return { type: INVALIDATE_FILTERS };
+};
 
 /**
  * Set the selected responses from current data set.
@@ -49,13 +59,8 @@ export function setCurrentQuery( currentQuery ) {
  * @param {string}   action - The action to be executed.
  * @return {Promise} Request promise.
  */
-export const doBulkAction =
-	( ids, action ) =>
-	// TODO: check if I should handle multiple dispatched actions here to avoid multiple same requests.
-	// This is handled okay in bulk actions from DataViews, but not for single item actions..
-	async ( { registry } ) => {
-		// TODO: try/catch and possible notifications.
-		// Check notifications in each action too..
+export const doBulkAction = ( ids, action ) => async () => {
+	try {
 		await apiFetch( {
 			path: `wp/v2/feedback/bulk_actions`,
 			method: 'POST',
@@ -64,8 +69,6 @@ export const doBulkAction =
 				post_ids: ids,
 			},
 		} );
-		// TODO: Can I batch this?? Can I fine tune this?
-		[ 'getEntityRecords', 'getEntityRecordsTotalItems', 'getEntityRecordsTotalPages' ].forEach(
-			selector => registry.dispatch( coreStore ).invalidateResolutionForStoreSelector( selector )
-		);
-	};
+		// eslint-disable-next-line no-empty
+	} catch {}
+};
