@@ -164,18 +164,14 @@ const Recommendation = ( { recommendation, setDismissed }: RecommendationProps )
 		return null;
 	}
 
-	return (
-		<>
-			{ errorSets.map( ( errorSet, _index ) => (
-				<SingleRecommendation
-					key={ `${ recommendation.key }-${ errorSet.type }` }
-					recommendation={ recommendation }
-					errorSet={ errorSet }
-					setDismissed={ setDismissed }
-				/>
-			) ) }
-		</>
-	);
+	return errorSets.map( ( errorSet, _index ) => (
+		<SingleRecommendation
+			key={ `${ recommendation.key }-${ errorSet.type }` }
+			recommendation={ recommendation }
+			errorSet={ errorSet }
+			setDismissed={ setDismissed }
+		/>
+	) );
 };
 
 type SingleRecommendationProps = {
