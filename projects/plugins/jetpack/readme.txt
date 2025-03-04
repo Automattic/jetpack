@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.4-beta - 2025-03-03
+### 14.4 - 2025-03-04
 #### Enhancements
 - Connection: Disconnect all other users before disconnecting connection owner account.
 - Connection: Display connection status on Users page independent of the SSO module.
