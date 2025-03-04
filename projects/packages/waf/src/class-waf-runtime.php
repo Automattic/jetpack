@@ -297,7 +297,7 @@ class Waf_Runtime {
 	 *
 	 * @param string $real_ip The real IP address of the request.
 	 */
-	private function process_recovery_attempt( $real_ip ) {
+	private function allow_login_or_prompt_recovery( $real_ip ) {
 		$blocked_login_page = Blocked_Login_Page::instance( $real_ip, 'waf' );
 
 		if ( $blocked_login_page->is_blocked_user_valid() ) {
@@ -327,7 +327,7 @@ class Waf_Runtime {
 
 			global $pagenow;
 			if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
-				$this->process_recovery_attempt( $real_ip );
+				$this->allow_login_or_prompt_recovery( $real_ip );
 				return;
 			}
 		}
