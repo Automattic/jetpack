@@ -673,6 +673,7 @@ class REST_Connector {
 		$response = array(
 			'currentUser'     => $current_user_connection_data,
 			'connectionOwner' => $owner_display_name,
+			'isRegistered'    => $connection->is_connected(),
 		);
 
 		if ( $rest_response ) {
@@ -830,7 +831,7 @@ class REST_Connector {
 	 * The endpoint tried to connect Jetpack site to WPCOM.
 	 *
 	 * @since 1.7.0
-	 * @since $$next-version$$ No longer needs `registration_nonce`.
+	 * @since 6.7.0 No longer needs `registration_nonce`.
 	 * @since-jetpack 7.7.0
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.

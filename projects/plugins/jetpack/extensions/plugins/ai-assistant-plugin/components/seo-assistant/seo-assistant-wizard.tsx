@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 /**
  * Internal dependencies
  */
@@ -20,13 +19,15 @@ import './style.scss';
  */
 import type { SeoAssistantDispatch } from './types';
 import type { Block } from '@automattic/jetpack-ai-client';
+import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors.js';
 
 export default function SeoAssistantWizard() {
 	const imageBlocks = useSelect(
 		select =>
-			select( editorStore )
+			( select( 'core/block-editor' ) as typeof BlockEditorSelectors )
 				.getBlocks()
-				.filter( ( block: Block ) => block.name === 'core/image' ),
+				.filter( ( block: Block ) => block.name === 'core/image' )
+				.filter( ( block: Block ) => !! block.attributes.url ),
 		[]
 	);
 

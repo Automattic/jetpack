@@ -20,7 +20,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '4.1.1';
+	const PACKAGE_VERSION = '4.2.0';
 
 	/**
 	 * List of screen IDs where JITMs are allowed to display.

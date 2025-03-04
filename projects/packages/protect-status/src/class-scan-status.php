@@ -117,7 +117,10 @@ class Scan_Status extends Status {
 		$response = Client::wpcom_json_api_request_as_blog(
 			self::get_api_url(),
 			'2',
-			array( 'method' => 'GET' ),
+			array(
+				'method'  => 'GET',
+				'timeout' => 30,
+			),
 			null,
 			'wpcom'
 		);

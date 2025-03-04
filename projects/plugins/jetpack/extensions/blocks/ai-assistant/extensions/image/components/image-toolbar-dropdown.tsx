@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { showAiAssistantSection, useAiFeature } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MenuGroup, MenuItem, Spinner } from '@wordpress/components';
 import { useCallback, forwardRef } from '@wordpress/element';
@@ -11,17 +12,19 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import AiAssistantToolbarDropdown from '../../../extensions/components/ai-assistant-toolbar-dropdown';
+import { TYPE_ALT_TEXT, TYPE_CAPTION } from '../../../extensions/types';
 import './style.scss';
 /*
  * Types
  */
+import type { LOADING_STATE } from '../../../extensions/types';
 import type { ReactElement } from 'react';
 
 type AiAssistantExtensionToolbarDropdownContentProps = {
 	onClose: () => void;
 	onRequestAltText: () => Promise< void >;
 	onRequestCaption: () => Promise< void >;
-	loading?: boolean;
+	loading?: LOADING_STATE;
 };
 
 const debug = debugFactory( 'jetpack-ai:image-extension' );
@@ -31,7 +34,7 @@ const debug = debugFactory( 'jetpack-ai:image-extension' );
  * @param {AiAssistantExtensionToolbarDropdownContentProps} props - The props.
  * @return {ReactElement} The React content of the dropdown.
  */
-const AiAssistantExtensionToolbarDropdownContent = forwardRef(
+const AiAssistantImageExtensionToolbarDropdownContent = forwardRef(
 	(
 		{
 			onClose,
@@ -41,10 +44,12 @@ const AiAssistantExtensionToolbarDropdownContent = forwardRef(
 		}: AiAssistantExtensionToolbarDropdownContentProps,
 		ref: React.RefObject< HTMLDivElement >
 	) => {
+		const { requireUpgrade } = useAiFeature();
+
 		const handleToolbarButtonClick = useCallback(
-			async ( type: 'alt-text' | 'caption' ) => {
+			async ( type: typeof TYPE_ALT_TEXT | typeof TYPE_CAPTION ) => {
 				try {
-					if ( type === 'alt-text' ) {
+					if ( type === TYPE_ALT_TEXT ) {
 						await onRequestAltText?.();
 					} else {
 						await onRequestCaption?.();
@@ -58,11 +63,11 @@ const AiAssistantExtensionToolbarDropdownContent = forwardRef(
 		);
 
 		const handleRequestAltText = () => {
-			handleToolbarButtonClick( 'alt-text' );
+			handleToolbarButtonClick( TYPE_ALT_TEXT );
 		};
 
 		const handleRequestCaption = () => {
-			handleToolbarButtonClick( 'caption' );
+			handleToolbarButtonClick( TYPE_CAPTION );
 		};
 
 		return (
@@ -73,20 +78,20 @@ const AiAssistantExtensionToolbarDropdownContent = forwardRef(
 			>
 				<MenuGroup>
 					<MenuItem
-						icon={ loading ? <Spinner /> : altTextIcon }
+						icon={ loading === TYPE_ALT_TEXT ? <Spinner /> : altTextIcon }
 						iconPosition="left"
 						key="key-ai-assistant-alt-text"
 						onClick={ handleRequestAltText }
-						disabled={ loading }
+						disabled={ !! loading || requireUpgrade }
 					>
 						{ __( 'Generate alt text', 'jetpack' ) }
 					</MenuItem>
 					<MenuItem
-						icon={ captionIcon }
+						icon={ loading === TYPE_CAPTION ? <Spinner /> : captionIcon }
 						iconPosition="left"
 						key="key-ai-assistant-caption"
 						onClick={ handleRequestCaption }
-						disabled={ true }
+						disabled={ !! loading || requireUpgrade }
 					>
 						{ __( 'Generate caption', 'jetpack' ) }
 					</MenuItem>
@@ -101,14 +106,17 @@ export default function AiAssistantImageExtensionToolbarDropdown( {
 	onRequestAltText,
 	onRequestCaption,
 	loading = false,
+	disabled = false,
 	wrapperRef,
 }: {
 	label?: string;
 	onRequestAltText: () => Promise< void >;
 	onRequestCaption: () => Promise< void >;
-	loading?: boolean;
+	loading?: LOADING_STATE;
+	disabled?: boolean;
 	wrapperRef: React.RefObject< HTMLDivElement >;
 } ): ReactElement {
+	const { requireUpgrade } = useAiFeature();
 	const { tracks } = useAnalytics();
 
 	const toggleHandler = useCallback(
@@ -117,9 +125,13 @@ export default function AiAssistantImageExtensionToolbarDropdown( {
 				tracks.recordEvent( 'jetpack_ai_assistant_extension_toolbar_menu_show', {
 					block_type: 'core/image',
 				} );
+
+				if ( requireUpgrade ) {
+					showAiAssistantSection();
+				}
 			}
 		},
-		[ tracks ]
+		[ requireUpgrade, tracks ]
 	);
 
 	const handleRequestAltText = useCallback( () => {
@@ -145,8 +157,9 @@ export default function AiAssistantImageExtensionToolbarDropdown( {
 			label={ label }
 			behavior={ 'dropdown' }
 			onDropdownToggle={ toggleHandler }
+			disabled={ disabled }
 			renderContent={ ( { onClose } ) => (
-				<AiAssistantExtensionToolbarDropdownContent
+				<AiAssistantImageExtensionToolbarDropdownContent
 					ref={ wrapperRef }
 					onClose={ onClose }
 					onRequestAltText={ handleRequestAltText }

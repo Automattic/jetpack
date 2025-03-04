@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Client Portal: Removed top margin from quotes to ensure the top of the quote is visible.

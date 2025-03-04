@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Avoid opening Fiverr link when hitting Enter

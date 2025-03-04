@@ -125,10 +125,77 @@
 		position: absolute;
 		right: 0;
 
+		@media (max-width: 600px) {
+			&.ab-top-menu > .menupop > .ab-sub-wrapper {
+				left: unset;
+			}
+		}
+
 		#wp-admin-bar-my-account {
 			.ab-item {
 				> .display-name {
 					color: currentColor;
+				}
+			}
+
+			#wp-admin-bar-my-wpcom-account {
+				padding: 6px 0;
+
+				.ab-item {
+					height: unset;
+					width: unset;
+					padding: 0 12px;
+
+					@media (max-width: 782px) {
+						padding: 8px 16px;
+					}
+				}
+
+				span.wpcom-button {
+					display: inline-block;
+					color: white;
+					background-color: #3858e9;
+					border-color: #3858e9;
+					border-radius: 2px;
+					padding: 0 14px;
+					box-sizing: border-box;
+					width: 100%;
+					text-align: center;
+
+					@media (max-width: 782px) {
+						height: 40px;
+						line-height: 38px;
+						font-size: 16px;
+					}
+
+					span.wpcom-logo:before {
+						content: "";
+						display: inline-block;
+						position: relative;
+						transform: scale(0.8);
+						top: -1px;
+						margin-right: -2px;
+						vertical-align: middle;
+						width: 20px;
+						height: 20px;
+						background-color: currentColor;
+						// SVG is from https://github.com/Automattic/gridicons/blob/f5b4c69fafc2a395aebce4500cb4f22d7c005745/php/gridicons.php#L380
+						mask-image: url("data:image/svg+xml;base64,PHN2ZyBjbGFzcz0iZ3JpZGljb24gZ3JpZGljb25zLW15LXNpdGVzIiBoZWlnaHQ9IjI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDI0IDI0Ij48Zz48cGF0aCBkPSJNMTIgMkM2LjQ3NyAyIDIgNi40NzcgMiAxMnM0LjQ3NyAxMCAxMCAxMCAxMC00LjQ3NyAxMC0xMFMxNy41MjMgMiAxMiAyek0zLjUgMTJjMC0xLjIzMi4yNjQtMi40MDIuNzM2LTMuNDU5TDguMjkxIDE5LjY1QTguNSA4LjUgMCAwMTMuNSAxMnptOC41IDguNTAxYy0uODM0IDAtMS42NC0uMTIyLTIuNDAxLS4zNDZsMi41NTEtNy40MTEgMi42MTMgNy4xNThhLjcxOC43MTggMCAwMC4wNjEuMTE3IDguNDk3IDguNDk3IDAgMDEtMi44MjQuNDgyem0xLjE3Mi0xMi40ODZjLjUxMi0uMDI3Ljk3My0uMDgxLjk3My0uMDgxLjQ1OC0uMDU0LjQwNC0uNzI3LS4wNTQtLjcwMSAwIDAtMS4zNzcuMTA4LTIuMjY2LjEwOC0uODM1IDAtMi4yMzktLjEwOC0yLjIzOS0uMTA4LS40NTktLjAyNi0uNTEyLjY3NC0uMDU0LjcwMSAwIDAgLjQzNC4wNTQuODkyLjA4MWwxLjMyNCAzLjYyOS0xLjg2IDUuNTc5LTMuMDk2LTkuMjA4Yy41MTItLjAyNy45NzMtLjA4MS45NzMtLjA4MS40NTgtLjA1NC40MDMtLjcyNy0uMDU1LS43MDEgMCAwLTEuMzc2LjEwOC0yLjI2NS4xMDgtLjE2IDAtLjM0Ny0uMDA0LS41NDctLjAxQTguNDkxIDguNDkxIDAgMDExMiAzLjVjMi4yMTMgMCA0LjIyOC44NDYgNS43NCAyLjIzMi0uMDM3LS4wMDItLjA3Mi0uMDA3LS4xMS0uMDA3LS44MzUgMC0xLjQyNy43MjctMS40MjcgMS41MDkgMCAuNzAxLjQwNCAxLjI5My44MzUgMS45OTQuMzIzLjU2Ni43MDEgMS4yOTMuNzAxIDIuMzQ0IDAgLjcyNy0uMjggMS41NzItLjY0NyAyLjc0OGwtLjg0OCAyLjgzMy0zLjA3Mi05LjEzOHptMy4xMDEgMTEuMzMybDIuNTk2LTcuNTA2Yy40ODUtMS4yMTMuNjQ2LTIuMTgyLjY0Ni0zLjA0NSAwLS4zMTMtLjAyMS0uNjAzLS4wNTctLjg3NEE4LjQ1NSA4LjQ1NSAwIDAxMjAuNSAxMmE4LjQ5MyA4LjQ5MyAwIDAxLTQuMjI3IDcuMzQ3eiIvPjwvZz48L3N2Zz4=");
+						mask-position: center;
+						mask-repeat: no-repeat;
+
+						@media (max-width: 782px) {
+							transform: none;
+							top: -2px;
+							margin-left: 2px;
+							margin-right: 0;
+						}
+					}
+
+					&:hover {
+						background-color: #4664eb;
+						border-color: #4664eb;
+					}
 				}
 			}
 		}
