@@ -154,10 +154,8 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 		try {
 			url = new URL( rawUrl );
 		} catch ( err ) {
-			return new Promise( ( resolve, reject ) => {
-				this.trackUrlError( rawUrl, err );
-				reject( new InvalidURLError( { url: rawUrl } ) );
-			} );
+			this.trackUrlError( rawUrl, err );
+			throw new InvalidURLError( { url: rawUrl } );
 		}
 
 		const fullUrl = this.addGetParameters( url );
