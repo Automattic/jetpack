@@ -90,7 +90,7 @@ function AfterConnectionPage() {
 			{ supportsSearch && (
 				<SearchDashboardPage
 					isLoading={ isPageLoading }
-					enableJetpackAdminLinks={ hasConnectedJetpackPlugin }
+					useInternalLinks={ hasConnectedJetpackPlugin }
 				/>
 			) }
 			{ ! supportsSearch && <UpsellPage isLoading={ isPageLoading } /> }

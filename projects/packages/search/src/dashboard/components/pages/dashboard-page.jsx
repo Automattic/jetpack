@@ -168,7 +168,7 @@ export default function DashboardPage( {
 							isTogglingInstantSearch={ isTogglingInstantSearch }
 						/>
 					</div>
-					<Footer enableJetpackAdminLinks={ enableFooterJetpackAdminLinks } />
+					<Footer useInternalLinks={ enableFooterJetpackAdminLinks } />
 					<NoticesList
 						notices={ notices }
 						handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
@@ -243,14 +243,14 @@ const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSear
 	);
 };
 
-const Footer = ( { enableJetpackAdminLinks } ) => {
+const Footer = ( { useInternalLinks } ) => {
 	return (
 		<div className="jp-search-dashboard-footer jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
 				<JetpackFooter
 					moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 					className="lg-col-span-12 md-col-span-8 sm-col-span-4"
-					enableJetpackAdminLinks={ enableJetpackAdminLinks }
+					useInternalLinks={ useInternalLinks }
 				/>
 			</div>
 		</div>

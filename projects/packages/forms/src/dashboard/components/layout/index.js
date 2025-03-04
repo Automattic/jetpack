@@ -17,7 +17,7 @@ const Layout = ( { children, className, showFooter } ) => {
 				<JetpackFooter
 					className="jp-forms__layout-footer"
 					moduleName={ __( 'Jetpack Forms', 'jetpack-forms' ) }
-					enableJetpackAdminLinks={ config( 'hasJetpack' ) }
+					useInternalLinks={ config( 'hasJetpack' ) }
 				/>
 			) }
 		</div>
