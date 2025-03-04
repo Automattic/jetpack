@@ -4,11 +4,14 @@ import { Axis, Grid, LineSeries, Tooltip, XYChart } from '@visx/xychart';
 import type { DailyCount, SubscriptionStat } from '../types';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 
+// TODO: Do a translation pass on this file
+// TODO: Write tests
+
 type SubscribersChartProps = {
 	countsByDay: Record< string, DailyCount >;
 };
 
-// Format date using native JavaScript
+// TODO: Do we need to internationalize this?
 const formatDate = ( date: Date, format: 'short' | 'full' = 'short' ) => {
 	if ( format === 'short' ) {
 		// Format as "Jan 5"
@@ -23,7 +26,6 @@ const formatDate = ( date: Date, format: 'short' | 'full' = 'short' ) => {
 	} );
 };
 
-// Format function for axis tick dates
 const formatAxisTickDate = ( date: unknown ) => formatDate( date as Date, 'short' );
 
 // Transform the data to the format expected by XYChart
@@ -57,13 +59,13 @@ const getDate = ( d: SubscriptionStat ) => d.date;
 const getEmailSubscribers = ( d: SubscriptionStat ) => d.email;
 const getPaidSubscribers = ( d: SubscriptionStat ) => d.paid;
 
-// Properly typed tooltip renderer
 const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat > ) => {
 	if ( ! tooltipData?.nearestDatum ) return null;
 
 	const datum = tooltipData.nearestDatum.datum;
 	const date = getDate( datum );
 
+	// TODO: Clean up styles
 	return (
 		<div
 			style={ {
