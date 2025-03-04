@@ -248,6 +248,27 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds the Jetpack menu.
+	 */
+	public function add_jetpack_menu() {
+		parent::add_jetpack_menu();
+
+		// Add the Podcasting menu item
+		global $submenu;
+		if ( isset( $submenu['jetpack'] ) ) {
+			/**
+			 * Add the Podcasting menu item before the Settings menu item on Atomic sites.
+			 * On Simple sites, there is no Settings menu item, so we add the Podcasting menu on the last position.
+			 */
+			$settings_submenu_label = __( 'Settings', 'jetpack-masterbar' );
+			$submenu_labels         = array_column( $submenu['jetpack'], 3 );
+			$settings_position      = array_search( $settings_submenu_label, $submenu_labels, true );
+			$podcasting_position    = $settings_position !== false ? $settings_position - 1 : $this->get_submenu_item_count( 'jetpack' );
+		}
+		add_submenu_page( 'jetpack', esc_attr__( 'Podcasting', 'jetpack-masterbar' ), __( 'Podcasting', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/podcasting/' . $this->domain, null, $podcasting_position );
+	}
+
+	/**
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
