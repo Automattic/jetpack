@@ -58,5 +58,4 @@ export interface SocialScriptData {
 	store_initial_state: SocialStoreState;
 	supported_services: Array< ConnectionService >;
 	urls: SocialUrls;
-	has_connected_jetpack_plugin: boolean;
 }

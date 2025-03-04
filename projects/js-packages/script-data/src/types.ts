@@ -49,9 +49,16 @@ export interface UserData {
 	current_user: CurrentUserData;
 }
 
+export interface ConnectionData {
+	connectionStatus?: {
+		hasConnectedOwner?: boolean;
+	};
+}
+
 export interface JetpackScriptData {
 	site: SiteData;
 	user: UserData;
+	connection?: ConnectionData;
 }
 
 declare global {

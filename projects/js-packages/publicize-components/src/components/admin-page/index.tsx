@@ -12,6 +12,7 @@ import {
 	isSimpleSite,
 	siteHasFeature,
 	currentUserCan,
+	getScriptData,
 } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -52,10 +53,9 @@ export const SocialAdminPage = () => {
 		};
 	}, [] );
 
-	const {
-		plugin_info: { social, jetpack },
-		has_connected_jetpack_plugin: hasConnectedJetpackPlugin,
-	} = getSocialScriptData();
+	const { social, jetpack } = getSocialScriptData().plugin_info;
+	const useInternalLinks =
+		jetpack.version && getScriptData().connection?.connectionStatus?.hasConnectedOwner;
 
 	const moduleName = social.version
 		? `Jetpack Social ${ social.version }`
@@ -69,7 +69,7 @@ export const SocialAdminPage = () => {
 				moduleName={ moduleName }
 				showHeader={ false }
 				showBackground={ false }
-				useInternalLinks={ hasConnectedJetpackPlugin }
+				useInternalLinks={ useInternalLinks }
 			>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col>
@@ -85,7 +85,7 @@ export const SocialAdminPage = () => {
 			moduleName={ moduleName }
 			header={ <AdminPageHeader /> }
 			showFooter={ isJetpackSite }
-			useInternalLinks={ hasConnectedJetpackPlugin }
+			useInternalLinks={ useInternalLinks }
 		>
 			<GlobalNotices />
 			{ ( isJetpackSite && ! hasSocialPaidFeatures() && showPricingPage ) ||
