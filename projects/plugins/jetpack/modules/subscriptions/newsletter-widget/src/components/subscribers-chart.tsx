@@ -156,7 +156,12 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 							xScale={ { type: 'time' } }
 							yScale={ { type: 'linear', nice: true } }
 						>
-							<Grid columns={ false } numTicks={ 5 } />
+							<Grid
+								columns={ false }
+								numTicks={ 5 }
+								strokeWidth={ 1 }
+								className="subscribers-chart__grid"
+							/>
 
 							<LineSeries
 								dataKey="all"
@@ -191,18 +196,20 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 							<Axis
 								orientation="left"
 								hideAxisLine
+								hideTicks
 								hideZero
 								numTicks={ 5 }
-								tickLabelProps={ { fill: '#3c434a', fontSize: '13px', fontWeight: '400' } }
+								tickClassName="subscribers-chart__axis-tick"
 							/>
 
 							<Axis
 								orientation="bottom"
 								tickFormat={ formatAxisTickDate }
 								hideAxisLine
+								hideTicks
 								numTicks={ 5 }
 								tickValues={ getXAxisTickValues( data ) }
-								tickLabelProps={ { fill: '#3c434a', fontSize: '13px', fontWeight: '400' } }
+								tickClassName="subscribers-chart__axis-tick"
 							/>
 
 							<Tooltip< SubscriptionStat >
