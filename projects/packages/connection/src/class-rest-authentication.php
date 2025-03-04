@@ -223,7 +223,7 @@ class Rest_Authentication {
 	/**
 	 * Whether the request was signed with a user token.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.7.0
 	 *
 	 * @return bool True if the request was signed with a valid user token, false otherwise.
 	 */

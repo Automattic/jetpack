@@ -69,7 +69,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "4.1.x-dev"
+			"dev-trunk": "4.2.x-dev"
 		}
 	}
 }
