@@ -65,7 +65,7 @@ class Jetpack_Mu_Wpcom {
 		// These features run only on atomic sites.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
-			add_action( 'plugins_loaded', array( __CLASS__, 'maybe_update_translations' ), 20 );
+			add_action( Scheduled_Updates::PLUGIN_CRON_HOOK, array( __CLASS__, 'maybe_update_translations' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -610,10 +610,9 @@ class Jetpack_Mu_Wpcom {
 	private static function install_translation_package( $package_url ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
-		$wpcomsh_dir = is_dir( WP_CONTENT_DIR . '/mu-plugins/wpcomsh-dev/' ) ? 'wpcomsh-dev' : 'wpcomsh';
-		$destination = WP_CONTENT_DIR . "/mu-plugins/{$wpcomsh_dir}/languages/";
+		$destination = WP_LANG_DIR . '/mu-plugins/';
 
-		// Ensure the languages directory exists.
+		// Ensure the mu-plugin's languages directory exists.
 		if ( ! is_dir( $destination ) ) {
 			wp_mkdir_p( $destination );
 		}
