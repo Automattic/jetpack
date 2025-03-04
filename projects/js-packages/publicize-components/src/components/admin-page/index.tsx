@@ -55,7 +55,7 @@ export const SocialAdminPage = () => {
 
 	const { social, jetpack } = getSocialScriptData().plugin_info;
 	const useInternalLinks =
-		jetpack.version && getScriptData().connection?.connectionStatus?.hasConnectedOwner;
+		jetpack?.version && getScriptData().connection?.connectionStatus?.hasConnectedOwner;
 
 	const moduleName = social.version
 		? `Jetpack Social ${ social.version }`
