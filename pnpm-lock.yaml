@@ -533,6 +533,9 @@ importers:
       '@automattic/jetpack-scan':
         specifier: workspace:*
         version: link:../scan
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../script-data
       '@babel/runtime':
         specifier: ^7
         version: 7.26.0
