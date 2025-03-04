@@ -1,7 +1,7 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { getSocialScriptData } from '../utils';
+import { getSocialScriptData } from '../utils/script-data';
 
 /**
  * Hydrate the data stores

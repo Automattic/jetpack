@@ -18,18 +18,22 @@ type SchedulePostOptions = {
 /**
  * Hook to schedule a post for sharing to social media connections.
  *
+ * @param {number} [postId] - The post ID to schedule.
+ *
  * @return {object} Object containing schedule functionality and state.
  */
-export function useSchedulePost() {
-	const { postId, isAutosaveablePost, isDirtyPost } = useSelect( select => {
+export function useSchedulePost( postId?: number ) {
+	const { currentPostId, isAutosaveablePost, isDirtyPost } = useSelect( select => {
 		const editorSelector = select( editorStore );
 
 		return {
-			postId: editorSelector.getCurrentPostId(),
+			currentPostId: editorSelector.getCurrentPostId(),
 			isAutosaveablePost: editorSelector.isEditedPostAutosaveable(),
 			isDirtyPost: editorSelector.isEditedPostDirty(),
 		};
 	}, [] );
+
+	postId = postId || currentPostId;
 
 	const { createScheduledShare } = useDispatch( socialStore );
 	const { message } = useSocialMediaMessage();

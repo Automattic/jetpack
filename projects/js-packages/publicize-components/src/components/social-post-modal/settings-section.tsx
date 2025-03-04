@@ -73,7 +73,7 @@ export function SettingsSection( { onReShared } ) {
 						/>
 						<SharePostButton
 							onShareCompleted={ onReShared }
-							isDisabled={ isSavingScheduledShare }
+							isDisabled={ isSavingScheduledShare || ! isReSharingPossible }
 						/>
 					</div>
 				) }

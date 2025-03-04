@@ -10,7 +10,6 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { useIsReSharingPossible } from '../../hooks/use-is-resharing-possible';
 import useSharePost from '../../hooks/use-share-post';
 import { store as socialStore } from '../../social-store';
 import { features } from '../../utils';
@@ -69,14 +68,16 @@ function getSiteType() {
  * Component to trigger the resharing of the post.
  *
  * @param {object}   props                    - The component props.
- * @param {Function} props.onShareCompleted   - The callback to be called when the share is completed.
+ * @param {Function} [props.onShareCompleted] - The callback to be called when the share is completed.
  * @param {boolean}  [props.isDisabled=false] - Whether the button is disabled or not.
+ * @param {number}   [props.postId]           - The post ID.
+ * @param {string}   [props.message]          - The custom message.
  * @return {object} A button component that will share the current post when clicked.
  */
-export function SharePostButton( { onShareCompleted, isDisabled = false } ) {
+export function SharePostButton( { onShareCompleted, isDisabled = false, message, postId } ) {
 	const hasMediaFeatures =
 		siteHasFeature( features.IMAGE_GENERATOR ) || siteHasFeature( features.ENHANCED_PUBLISHING );
-	const { isFetching, isError, isSuccess, doPublicize } = useSharePost();
+	const { isFetching, isError, isSuccess, doPublicize } = useSharePost( postId );
 	const { isAutosaveablePost, isDirtyPost, isPostPublished, isSavingPost } = useSelect( select => {
 		const editorSelector = select( editorStore );
 
@@ -106,10 +107,8 @@ export function SharePostButton( { onShareCompleted, isDisabled = false } ) {
 		}
 
 		showSuccessNotice();
-		onShareCompleted();
+		onShareCompleted?.();
 	}, [ isFetching, isError, isSuccess, onShareCompleted ] );
-
-	const isReSharingPossible = useIsReSharingPossible();
 
 	const sharePost = useCallback( async () => {
 		if ( ! isPostPublished ) {
@@ -134,7 +133,7 @@ export function SharePostButton( { onShareCompleted, isDisabled = false } ) {
 			await savePost();
 		}
 
-		await doPublicize();
+		await doPublicize( { message } );
 
 		if ( feature_flags.useShareStatus ) {
 			pollForPostShareStatus();
@@ -146,6 +145,7 @@ export function SharePostButton( { onShareCompleted, isDisabled = false } ) {
 		isAutosaveablePost,
 		hasMediaFeatures,
 		doPublicize,
+		message,
 		feature_flags.useShareStatus,
 		savePost,
 		pollForPostShareStatus,
@@ -155,7 +155,7 @@ export function SharePostButton( { onShareCompleted, isDisabled = false } ) {
 		<Button
 			variant="primary"
 			onClick={ sharePost }
-			disabled={ ! isReSharingPossible || isDisabled }
+			disabled={ isDisabled }
 			isBusy={ isFetching || isSavingPost }
 		>
 			{ __( 'Share', 'jetpack-publicize-components' ) }

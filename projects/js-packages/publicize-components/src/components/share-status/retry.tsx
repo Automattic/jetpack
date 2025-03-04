@@ -57,7 +57,7 @@ export function Retry( { shareItem }: RetryProps ) {
 
 		setIsRetrying( true );
 
-		await doPublicize( skippedConnections );
+		await doPublicize( { connectionsToSkip: skippedConnections } );
 
 		await pollForPostShareStatus( {
 			isRequestComplete( { postShareStatus, lastTimestamp } ) {

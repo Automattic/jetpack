@@ -27,7 +27,7 @@ export function ConnectionListItem( { connection, onToggle }: ConnectionListItem
 			</div>
 			<ToggleControl
 				className={ styles.toggle }
-				checked={ connection.enabled }
+				checked={ Boolean( connection.enabled ) }
 				onChange={ onToggle }
 				__nextHasNoMarginBottom={ true }
 			/>

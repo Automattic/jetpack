@@ -3,8 +3,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import { store as socialStore } from '../../social-store';
 import { getSocialScriptData } from '../../utils/script-data';
 
 /**
@@ -67,13 +66,9 @@ function getHumanReadableError( result ) {
  * A hook to get the necessary data and callbacks to reshare a post.
  *
  * @param {number} [postId] - The ID of the post to share.
- * @return { { doPublicize: (connectionsToSkip?: Array<string>) => Promise<void>, data: object, isFetching: boolean } } The doPublicize callback to share the post.
+ * @return { { doPublicize: (args: {connectionsToSkip?: Array<string>, message?: string}) => Promise<void>, data: object, isFetching: boolean } } The doPublicize callback to share the post.
  */
 export default function useSharePost( postId ) {
-	// Sharing data.
-	const { message } = useSocialMediaMessage();
-	const { skippedConnections } = useSocialMediaConnections();
-
 	// Get post ID to share.
 	const currentPostId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	postId = postId || currentPostId;
@@ -81,8 +76,14 @@ export default function useSharePost( postId ) {
 	const [ data, setData ] = useState( { data: [], error: {} } );
 	const path = getSocialScriptData().api_paths.resharePost.replace( '{postId}', postId );
 
+	const skippedConnections = useSelect( select =>
+		select( socialStore )
+			.getDisabledConnections()
+			.map( ( { connection_id } ) => connection_id )
+	);
+
 	const doPublicize = useCallback(
-		async function ( connectionsToSkip = null ) {
+		async function ( { connectionsToSkip = null, message } = {} ) {
 			const initialState = {
 				isFetching: false,
 				isError: false,
@@ -152,7 +153,7 @@ export default function useSharePost( postId ) {
 				setData( initialState ); // clean the state.
 			};
 		},
-		[ postId, message, skippedConnections, data.isFetching, path ]
+		[ postId, skippedConnections, data.isFetching, path ]
 	);
 
 	return { ...data, doPublicize };
