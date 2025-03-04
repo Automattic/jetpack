@@ -33,7 +33,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'permission_callback' => array( $this, 'get_items_permissions_check' ),
 			)
 		);
-		// TODO: add `args` to the route.
+
 		register_rest_route(
 			$this->namespace,
 			$this->rest_base . '/bulk_actions',
@@ -41,6 +41,19 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'bulk_actions' ),
 				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'args'                => array(
+					'action'   => array(
+						'type' => 'string',
+						'enum' => array(
+							'mark_as_spam',
+							'mark_as_not_spam',
+						),
+					),
+					'post_ids' => array(
+						'type'  => 'array',
+						'items' => array( 'type' => 'integer' ),
+					),
+				),
 			)
 		);
 	}
@@ -52,7 +65,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response Response object on success.
 	 */
 	public function get_filters() {
-		// TODO: investigate how we can do this better regarding usage of $wpdb,
+		// TODO: investigate how we can do this better regarding usage of $wpdb
 		// performance by querying all the entities, etc..
 		global $wpdb;
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
