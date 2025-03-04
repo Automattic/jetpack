@@ -73,10 +73,6 @@
 }
 
 .subscribers-chart {
-	$color-all: #2db85c;
-	$color-email: #3057dc;
-	$color-paid: #e68b28;
-
 	width: 100%;
 	height: 250px;
 
@@ -111,32 +107,6 @@
 		height: $grid-unit-10;
 		border-radius: $radius-round;
 		margin-right: $grid-unit-05;
-		
-		&--all {
-			background-color: $color-all;
-		}
-		
-		&--email {
-			background-color: $color-email;
-		}
-		
-		&--paid {
-			background-color: $color-paid;
-		}
-	}
-
-	&__axis-tick {
-		text {
-			font-size: $font-size-medium !important;
-			color: $gray-900 !important;
-			font-weight: $font-weight-regular !important;
-		}
-	}
-
-	&__grid {
-		line {
-			stroke: $gray-200 !important;
-		}
 	}
 }
 

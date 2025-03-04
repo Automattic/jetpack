@@ -1,6 +1,6 @@
 import { curveMonotoneX } from '@visx/curve';
 import { ParentSize } from '@visx/responsive';
-import { Axis, Grid, LineSeries, Tooltip, XYChart } from '@visx/xychart';
+import { Axis, Grid, LineSeries, Tooltip, XYChart, buildChartTheme } from '@visx/xychart';
 import type { DailyCount, SubscriptionStat } from '../types';
 import type {
 	RenderTooltipGlyphProps,
@@ -19,6 +19,22 @@ const SERIES_COLORS = {
 	email: '#3057dc',
 	paid: '#e68b28',
 };
+
+const chartTheme = buildChartTheme( {
+	backgroundColor: 'white',
+	colors: [ SERIES_COLORS.all, SERIES_COLORS.email, SERIES_COLORS.paid ],
+	gridColor: '#e0e0e0',
+	gridColorDark: '#e0e0e0',
+	tickLength: 0, // No tick marks
+	gridStyles: {
+		strokeWidth: 1,
+	},
+	svgLabelSmall: {
+		fill: '#1e1e1e',
+		fontSize: 13,
+		fontWeight: 400,
+	},
+} );
 
 // TODO: Do we need to internationalize this?
 const formatDate = ( date: Date, format: 'short' | 'full' = 'short' ) => {
@@ -121,15 +137,24 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 			<div className="subscribers-chart__tooltip-date">{ formatDate( date, 'full' ) }</div>
 			<div className="subscribers-chart__tooltip-stats">
 				<div className="subscribers-chart__tooltip-stat">
-					<div className="subscribers-chart__tooltip-indicator subscribers-chart__tooltip-indicator--all" />
+					<div
+						style={ { backgroundColor: SERIES_COLORS.all } }
+						className="subscribers-chart__tooltip-indicator"
+					/>
 					<span>All: { getAllSubscribers( datum ) }</span>
 				</div>
 				<div className="subscribers-chart__tooltip-stat">
-					<div className="subscribers-chart__tooltip-indicator subscribers-chart__tooltip-indicator--email" />
+					<div
+						style={ { backgroundColor: SERIES_COLORS.email } }
+						className="subscribers-chart__tooltip-indicator"
+					/>
 					<span>Email: { getEmailSubscribers( datum ) }</span>
 				</div>
 				<div className="subscribers-chart__tooltip-stat">
-					<div className="subscribers-chart__tooltip-indicator subscribers-chart__tooltip-indicator--paid" />
+					<div
+						style={ { backgroundColor: SERIES_COLORS.paid } }
+						className="subscribers-chart__tooltip-indicator"
+					/>
 					<span>Paid: { getPaidSubscribers( datum ) }</span>
 				</div>
 			</div>
@@ -156,13 +181,9 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 							width={ width }
 							xScale={ { type: 'time' } }
 							yScale={ { type: 'linear', nice: true } }
+							theme={ chartTheme }
 						>
-							<Grid
-								columns={ false }
-								numTicks={ 5 }
-								strokeWidth={ 1 }
-								className="subscribers-chart__grid"
-							/>
+							<Grid columns={ false } numTicks={ 5 } />
 
 							<LineSeries
 								dataKey="all"
@@ -194,14 +215,7 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 								curve={ curveMonotoneX }
 							/>
 
-							<Axis
-								orientation="left"
-								hideAxisLine
-								hideTicks
-								hideZero
-								numTicks={ 5 }
-								tickClassName="subscribers-chart__axis-tick"
-							/>
+							<Axis orientation="left" hideAxisLine hideTicks hideZero numTicks={ 5 } />
 
 							<Axis
 								orientation="bottom"
@@ -210,7 +224,6 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 								hideTicks
 								numTicks={ 5 }
 								tickValues={ getXAxisTickValues( data ) }
-								tickClassName="subscribers-chart__axis-tick"
 							/>
 
 							<Tooltip< SubscriptionStat >
