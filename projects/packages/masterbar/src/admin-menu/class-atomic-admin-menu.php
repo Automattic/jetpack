@@ -346,6 +346,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$settings_position      = array_search( $settings_submenu_label, $submenu_labels, true );
 			$podcasting_position    = $settings_position !== false ? $settings_position : $this->get_submenu_item_count( 'jetpack' );
 		}
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'jetpack', esc_attr__( 'Podcasting', 'jetpack-masterbar' ), __( 'Podcasting', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, $podcasting_position );
 
 		/**

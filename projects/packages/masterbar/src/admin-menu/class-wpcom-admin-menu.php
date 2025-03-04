@@ -254,6 +254,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::add_jetpack_menu();
 
 		// Add the Podcasting menu item on the last position on Simple sites.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'jetpack', esc_attr__( 'Podcasting', 'jetpack-masterbar' ), __( 'Podcasting', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, $this->get_submenu_item_count( 'jetpack' ) );
 	}
 
