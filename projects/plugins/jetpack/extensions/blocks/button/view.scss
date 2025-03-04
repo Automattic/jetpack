@@ -18,7 +18,7 @@
 		color: currentColor;
 	}
 
-	&:not(.is-style-outline) button {
-		border: none;
+	&:where(:not(.is-style-outline)) button {
+		border-width: 0;
 	}
 }
