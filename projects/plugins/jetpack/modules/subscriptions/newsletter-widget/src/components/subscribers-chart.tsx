@@ -14,6 +14,12 @@ type SubscribersChartProps = {
 	countsByDay: Record< string, DailyCount >;
 };
 
+const SERIES_COLORS = {
+	all: '#2db85c',
+	email: '#3057dc',
+	paid: '#e68b28',
+};
+
 // TODO: Do we need to internationalize this?
 const formatDate = ( date: Date, format: 'short' | 'full' = 'short' ) => {
 	if ( format === 'short' ) {
@@ -85,16 +91,11 @@ const getDate = ( d: SubscriptionStat ) => d.date;
 const getAllSubscribers = ( d: SubscriptionStat ) => d.all;
 const getEmailSubscribers = ( d: SubscriptionStat ) => d.email;
 const getPaidSubscribers = ( d: SubscriptionStat ) => d.paid;
-
-const seriesColors = {
-	all: '#2db85c',
-	email: '#3057dc',
-	paid: '#e68b28',
-};
+const getLineColor = ( k: string ) => SERIES_COLORS[ k ];
 
 // Custom rendering for tooltip glyphs to match the line colors
 const renderGlyph = ( { key, color, x, y }: RenderTooltipGlyphProps< SubscriptionStat > ) => {
-	const fillColor = seriesColors[ key ] || color;
+	const fillColor = SERIES_COLORS[ key ] || color;
 
 	return (
 		<circle
@@ -168,7 +169,7 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 								data={ data }
 								xAccessor={ getDate }
 								yAccessor={ getAllSubscribers }
-								stroke={ seriesColors.all }
+								colorAccessor={ getLineColor }
 								strokeWidth={ 2 }
 								curve={ curveMonotoneX }
 							/>
@@ -178,7 +179,7 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 								data={ data }
 								xAccessor={ getDate }
 								yAccessor={ getEmailSubscribers }
-								stroke={ seriesColors.email }
+								colorAccessor={ getLineColor }
 								strokeWidth={ 2 }
 								curve={ curveMonotoneX }
 							/>
@@ -188,7 +189,7 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 								data={ data }
 								xAccessor={ getDate }
 								yAccessor={ getPaidSubscribers }
-								stroke={ seriesColors.paid }
+								colorAccessor={ getLineColor }
 								strokeWidth={ 2 }
 								curve={ curveMonotoneX }
 							/>
