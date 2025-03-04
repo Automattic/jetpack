@@ -239,8 +239,9 @@ function get_button_styles( $attributes ) {
 		}
 	}
 
-	if ( isset( wp_style_engine_get_styles( array( 'border' => $border_styles ) )['css'] ) ) {
-		$styles[] = wp_style_engine_get_styles( array( 'border' => $border_styles ) )['css'];
+	$border_styles = wp_style_engine_get_styles( array( 'border' => $border_styles ) );
+	if ( isset( $border_styles['css'] ) ) {
+		$styles[] = $border_styles['css'];
 	}
 
 	return implode( ' ', $styles );
