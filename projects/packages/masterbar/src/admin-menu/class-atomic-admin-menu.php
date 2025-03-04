@@ -328,8 +328,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$scan_position = $this->get_submenu_item_count( 'jetpack' ) - 1;
 
 		global $submenu;
+
+		// Add the Scan menu item after the Backup menu item
 		if ( isset( $submenu['jetpack'] ) ) {
-			// Add the Scan menu item after the Backup menu item
 			$backup_submenu_label = __( 'Backup', 'jetpack-masterbar' );
 			$submenu_labels       = array_column( $submenu['jetpack'], 3 );
 			$backup_position      = array_search( $backup_submenu_label, $submenu_labels, true );
@@ -338,15 +339,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack-masterbar' ), __( 'Scan', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $scan_position );
 
-		// Add the Podcasting menu item
+		// Add the Podcasting menu item before the Settings menu item on Atomic sites.
 		if ( isset( $submenu['jetpack'] ) ) {
-			/**
-			 * Add the Podcasting menu item before the Settings menu item on Atomic sites.
-			 * On Simple sites, there is no Settings menu item, so we add the Podcasting menu on the last position.
-			 */
 			$settings_submenu_label = __( 'Settings', 'jetpack-masterbar' );
+			$submenu_labels         = array_column( $submenu['jetpack'], 3 );
 			$settings_position      = array_search( $settings_submenu_label, $submenu_labels, true );
-			$podcasting_position    = $settings_position !== false ? $settings_position - 1 : $this->get_submenu_item_count( 'jetpack' );
+			$podcasting_position    = $settings_position !== false ? $settings_position : $this->get_submenu_item_count( 'jetpack' );
 		}
 		add_submenu_page( 'jetpack', esc_attr__( 'Podcasting', 'jetpack-masterbar' ), __( 'Podcasting', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, $podcasting_position );
 
