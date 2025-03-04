@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.13] - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
 ## [0.47.12] - 2025-02-24
 ### Fixed
 - Code: Prevent dynamic class properties. [#41857]
@@ -1136,6 +1140,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.47.13]: https://github.com/Automattic/jetpack-search/compare/v0.47.12...v0.47.13
 [0.47.12]: https://github.com/Automattic/jetpack-search/compare/v0.47.11...v0.47.12
 [0.47.11]: https://github.com/Automattic/jetpack-search/compare/v0.47.10...v0.47.11
 [0.47.10]: https://github.com/Automattic/jetpack-search/compare/v0.47.9...v0.47.10

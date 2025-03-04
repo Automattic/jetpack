@@ -34,6 +34,7 @@ import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
 import resetJetpackOptions from '../../data/utils/reset-jetpack-options';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
+import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import ConnectionsSection from '../connections-section';
@@ -124,7 +125,8 @@ export default function MyJetpackScreen() {
 
 	const shouldShowZendeskChatWidget =
 		! isJwtLoading && ! isChatAvailabilityLoading && isAvailable && jwt;
-	const isNewUser = getMyJetpackWindowInitialState( 'userIsNewToJetpack' ) === '1';
+
+	const isNewUser = useIsJetpackUserNew();
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
