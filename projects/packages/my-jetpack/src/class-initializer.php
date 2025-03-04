@@ -519,7 +519,6 @@ class Initializer {
 		new REST_Zendesk_Chat();
 		new REST_AI();
 		new REST_Recommendations_Evaluation();
-		new Historically_Active_Modules();
 
 		Products::register_product_endpoints();
 		Historically_Active_Modules::register_rest_endpoints();
