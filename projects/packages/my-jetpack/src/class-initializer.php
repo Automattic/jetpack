@@ -522,6 +522,7 @@ class Initializer {
 		new Historically_Active_Modules();
 
 		Products::register_product_endpoints();
+		Historically_Active_Modules::register_rest_endpoints();
 
 		register_rest_route(
 			'my-jetpack/v1',
