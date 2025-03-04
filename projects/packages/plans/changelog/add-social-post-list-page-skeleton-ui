@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added a method to clear active plan cache

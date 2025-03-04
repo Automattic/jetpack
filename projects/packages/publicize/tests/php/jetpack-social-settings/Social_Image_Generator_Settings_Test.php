@@ -40,6 +40,7 @@ class Social_Image_Generator_Settings_Test extends BaseTestCase {
 
 		$plan                       = Current_Plan::PLAN_DATA['free'];
 		$plan['features']['active'] = array( 'social-image-generator' );
+		Current_Plan::clean_active_plan_cache();
 		update_option( Current_Plan::PLAN_OPTION, $plan, true );
 		$this->settings = new SocialSettings();
 		$this->settings->register_settings();

@@ -149,6 +149,15 @@ class Current_Plan {
 	);
 
 	/**
+	 * Clear the active plan cache.
+	 *
+	 * This should ideally be never used, except for resetting the cache for unit tests
+	 */
+	public static function clean_active_plan_cache() {
+		self::$active_plan_cache = null;
+	}
+
+	/**
 	 * Given a response to the `/sites/%d` endpoint, will parse the response and attempt to set the
 	 * site's plan and products from the response.
 	 *
