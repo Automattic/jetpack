@@ -41,6 +41,9 @@ export const settings = {
 		{ name: 'fill', label: __( 'Fill', 'jetpack' ), isDefault: true },
 		{ name: 'outline', label: __( 'Outline', 'jetpack' ) },
 	],
+	selectors: {
+		border: '.wp-block-jetpack-button .wp-block-button__link',
+	},
 	attributes,
 	edit,
 	save,
