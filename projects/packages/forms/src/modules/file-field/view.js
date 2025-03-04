@@ -3,6 +3,14 @@
  */
 import { store, getContext, withScope, getElement } from '@wordpress/interactivity';
 
+/**
+ * Format the file size to a human-readable string.
+ *
+ * @param {number} size             - The size of the file in bytes.
+ * @param {number} [decimals=2]     - The number of decimals to include.
+ * @param {string} [locale='en-US'] - The locale to use for formatting.
+ * @return {string} The formatted file size.
+ */
 const formatBytes = ( size, decimals = 2, locale = 'en-US' ) => {
 	if ( size === 0 ) return '0 bytes';
 	const k = 1024;
@@ -20,6 +28,11 @@ const formatBytes = ( size, decimals = 2, locale = 'en-US' ) => {
 const { state, callbacks } = store( 'jpDropZone', {
 	state: {},
 	actions: {
+		/**
+		 * Open the file picker dialog.
+		 *
+		 * @param {Event} event - The event object.
+		 */
 		openFilePicker: event => {
 			const fileInput = event.target.parentNode.querySelector( '.jetpack-form-file-field' );
 			if ( fileInput ) {
@@ -27,11 +40,21 @@ const { state, callbacks } = store( 'jpDropZone', {
 			}
 		},
 
+		/**
+		 * Handle file added event.
+		 *
+		 * @param {Event} event - The event object.
+		 */
 		fileAdded: event => {
 			const files = Array.from( event.target.files );
 			files.forEach( callbacks.addFileToContext );
 		},
 
+		/**
+		 * Handle file dropped event.
+		 *
+		 * @param {DragEvent} event - The drag event object.
+		 */
 		fileDropped: event => {
 			event.preventDefault();
 			if ( event.dataTransfer ) {
@@ -46,17 +69,30 @@ const { state, callbacks } = store( 'jpDropZone', {
 			context.isDropping = false;
 		},
 
+		/**
+		 * Handle drag over event.
+		 *
+		 * @param {DragEvent} event - The drag event object.
+		 */
 		dragOver: event => {
 			const context = getContext();
 			context.isDropping = true;
 			event.preventDefault();
 		},
 
+		/**
+		 * Handle drag leave event.
+		 */
 		dragLeave: () => {
 			const context = getContext();
 			context.isDropping = false;
 		},
 
+		/**
+		 * Remove a file from the context.
+		 *
+		 * @param {Event} event - The event object.
+		 */
 		removeFile: event => {
 			const context = getContext();
 			const fileId = event.target.dataset.id;
@@ -69,7 +105,7 @@ const { state, callbacks } = store( 'jpDropZone', {
 		/**
 		 * Add the file to the context.
 		 *
-		 * @param {*} file
+		 * @param {File} file - The file to add.
 		 */
 		addFileToContext: file => {
 			const reader = new FileReader();
@@ -88,12 +124,12 @@ const { state, callbacks } = store( 'jpDropZone', {
 				callbacks.uploadFile( file, fileId );
 			} );
 		},
+
 		/**
 		 * Make the endpoint request.
 		 *
-		 * @param {*} file   - file to upload
-		 * @param     string - fileId
-		 * @param     fileId
+		 * @param {File}   file   - The file to upload.
+		 * @param {string} fileId - The file ID.
 		 */
 		uploadFile: ( file, fileId ) => {
 			const url = state.endpoint;
@@ -116,31 +152,29 @@ const { state, callbacks } = store( 'jpDropZone', {
 			formData.append( 'file', file );
 			xhr.send( formData );
 		},
+
 		/**
 		 * Responsible for updating the progress circle.
-		 * gets called on the progress upload.
+		 * Gets called on the progress upload.
 		 *
-		 * @param     string - fileId
-		 * @param     fileId
-		 * @param {*} event
+		 * @param {string}        fileId - The file ID.
+		 * @param {ProgressEvent} event  - The progress event object.
 		 */
 		onProgress: ( fileId, event ) => {
 			const { ref } = getElement();
-
 			const previewProgressElement = ref.querySelector( '[data-progress-id="' + fileId + '"]' );
-
 			const progress = ( event.loaded / event.total ) * 100;
 			if ( previewProgressElement ) {
 				previewProgressElement.style.setProperty( '--progress', progress );
 			}
 			callbacks.updateFileContext( { progress }, fileId );
 		},
+
 		/**
-		 * React to the onReadyStateChangeEvent when the endpoint return
+		 * React to the onReadyStateChange event when the endpoint returns.
 		 *
-		 * @param     string - fileId
-		 * @param     fileId
-		 * @param {*} event
+		 * @param {string} fileId - The file ID.
+		 * @param {Event}  event  - The event object.
 		 */
 		onReadyStateChange: ( fileId, event ) => {
 			const xhr = event.target;
@@ -158,12 +192,12 @@ const { state, callbacks } = store( 'jpDropZone', {
 				}
 			}
 		},
+
 		/**
-		 * Update the context with the new updatedFile Object based on the file id.
-		 * @param object      - updatedFile
-		 * @param string      - fileId
-		 * @param updatedFile
-		 * @param fileId
+		 * Update the context with the new updatedFile object based on the file ID.
+		 *
+		 * @param {object} updatedFile - The updated file object.
+		 * @param {string} fileId      - The file ID.
 		 */
 		updateFileContext: ( updatedFile, fileId ) => {
 			const context = getContext();
