@@ -31,25 +31,10 @@ class Speculation_Rules implements Pluggable, Optimization, Changes_Page_Output,
 	 * Inject speculation rules script in the footer.
 	 */
 	public function inject_speculation_rules() {
-		// Get the fetch speculation method setting
-		$use_prerender = (bool) jetpack_boost_ds_get( 'speculation_method' );
-
-		// Determine the fetch speculation method based on the setting
-		$fetch_method = $use_prerender ? 'prerender' : 'prefetch';
-
 		// Generate the speculation rules script
-		$script = '<script type="speculationrules">
-		{
-			"' . esc_js( $fetch_method ) . '": [
-				{
-					"source": "document",
-					"where": {
-						"href_matches": "/*"
-					}
-				}
-			]
-		}
-		</script>';
+		$script  = '<script type="speculationrules">';
+		$script .= \wp_json_encode( ( new Manifest() )->get_manifest() );
+		$script .= '</script>';
 
 		echo $script; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
