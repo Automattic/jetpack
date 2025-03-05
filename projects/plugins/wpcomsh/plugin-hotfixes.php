@@ -142,6 +142,10 @@ if ( ! function_exists( 'get_magic_quotes_gpc' ) ) {
 /**
  * Use filter to remove the Elementor Developer Notice.
  *
+ * Gutenberg is a default plugin installed on all WordPress.com sites, 
+ * however, its presence triggers the beta install notice to appear even
+ * on production sites. 
+ *
  * @param array $notices The array of admin notices from Elementor.
  * @return array Modified array without the Elementor Developer Notice.
  */
