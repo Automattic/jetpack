@@ -64,7 +64,7 @@
 	&__chart {
 		width: 100%;
 		box-sizing: border-box;
-		padding: 0 $grid-unit-15;
+		padding: 0 $grid-unit-15 $grid-unit-15;
 	}
 
 	& a {
@@ -107,6 +107,11 @@
 		height: $grid-unit-10;
 		border-radius: $radius-round;
 		margin-right: $grid-unit-05;
+	}
+
+	&__legend {
+		display: flex;
+		justify-content: center;
 	}
 }
 

@@ -1,5 +1,7 @@
 import { curveMonotoneX } from '@visx/curve';
+import { LegendOrdinal } from '@visx/legend';
 import { ParentSize } from '@visx/responsive';
+import { scaleOrdinal } from '@visx/scale';
 import { Axis, Grid, LineSeries, Tooltip, XYChart, buildChartTheme } from '@visx/xychart';
 import { __, sprintf } from '@wordpress/i18n';
 import { formatAxisTickDate, formatDate, getXAxisTickValues, transformData } from '../helpers';
@@ -15,12 +17,24 @@ const SERIES_COLORS = {
 	paid: '#e68b28',
 };
 
+const SERIES_LABELS = {
+	all: __( 'All', 'jetpack' ),
+	email: __( 'Email', 'jetpack' ),
+	paid: __( 'Paid', 'jetpack' ),
+};
+
+// Create a scale for the legend
+const legendScale = scaleOrdinal( {
+	domain: [ 'all', 'email', 'paid' ],
+	range: [ SERIES_COLORS.all, SERIES_COLORS.email, SERIES_COLORS.paid ],
+} );
+
 const chartTheme = buildChartTheme( {
 	backgroundColor: 'white',
 	colors: [ SERIES_COLORS.all, SERIES_COLORS.email, SERIES_COLORS.paid ],
 	gridColor: '#e0e0e0',
 	gridColorDark: '#e0e0e0',
-	tickLength: 0, // No tick marks
+	tickLength: 0,
 	gridStyles: {
 		strokeWidth: 1,
 	},
@@ -37,6 +51,7 @@ const getAllSubscribers = ( d: SubscriptionStat ) => d.all;
 const getEmailSubscribers = ( d: SubscriptionStat ) => d.email;
 const getPaidSubscribers = ( d: SubscriptionStat ) => d.paid;
 const getLineColor = ( k: string ) => SERIES_COLORS[ k ];
+const getLegendLabel = ( k: string ) => SERIES_LABELS[ k ];
 
 // Custom rendering for tooltip glyphs to match the line colors
 const renderGlyph = ( { key, color, x, y }: RenderTooltipGlyphProps< SubscriptionStat > ) => {
@@ -122,74 +137,86 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 	const data = transformData( countsByDay );
 
 	return (
-		<div className="subscribers-chart">
-			<ParentSize>
-				{ ( { width, height } ) => {
-					if ( ! width || ! height ) return null;
+		<>
+			<div className="subscribers-chart">
+				<ParentSize>
+					{ ( { width, height } ) => {
+						if ( ! width || ! height ) return null;
 
-					return (
-						<XYChart
-							height={ height }
-							width={ width }
-							xScale={ { type: 'time' } }
-							yScale={ { type: 'linear', nice: true } }
-							theme={ chartTheme }
-							margin={ { top: 10, right: 30, bottom: 30, left: 30 } }
-						>
-							<Grid columns={ false } numTicks={ 5 } />
+						return (
+							<XYChart
+								height={ height }
+								width={ width }
+								xScale={ { type: 'time' } }
+								yScale={ { type: 'linear', nice: true } }
+								theme={ chartTheme }
+								margin={ { top: 10, right: 30, bottom: 30, left: 30 } }
+							>
+								<Grid columns={ false } numTicks={ 5 } />
 
-							<LineSeries
-								dataKey="all"
-								data={ data }
-								xAccessor={ getDate }
-								yAccessor={ getAllSubscribers }
-								colorAccessor={ getLineColor }
-								strokeWidth={ 2 }
-								curve={ curveMonotoneX }
-							/>
+								<LineSeries
+									dataKey="all"
+									data={ data }
+									xAccessor={ getDate }
+									yAccessor={ getAllSubscribers }
+									colorAccessor={ getLineColor }
+									strokeWidth={ 2 }
+									curve={ curveMonotoneX }
+								/>
 
-							<LineSeries
-								dataKey="email"
-								data={ data }
-								xAccessor={ getDate }
-								yAccessor={ getEmailSubscribers }
-								colorAccessor={ getLineColor }
-								strokeWidth={ 2 }
-								curve={ curveMonotoneX }
-							/>
+								<LineSeries
+									dataKey="email"
+									data={ data }
+									xAccessor={ getDate }
+									yAccessor={ getEmailSubscribers }
+									colorAccessor={ getLineColor }
+									strokeWidth={ 2 }
+									curve={ curveMonotoneX }
+								/>
 
-							<LineSeries
-								dataKey="paid"
-								data={ data }
-								xAccessor={ getDate }
-								yAccessor={ getPaidSubscribers }
-								colorAccessor={ getLineColor }
-								strokeWidth={ 2 }
-								curve={ curveMonotoneX }
-							/>
+								<LineSeries
+									dataKey="paid"
+									data={ data }
+									xAccessor={ getDate }
+									yAccessor={ getPaidSubscribers }
+									colorAccessor={ getLineColor }
+									strokeWidth={ 2 }
+									curve={ curveMonotoneX }
+								/>
 
-							<Axis orientation="left" hideAxisLine hideTicks hideZero numTicks={ 5 } />
+								<Axis orientation="left" hideAxisLine hideTicks hideZero numTicks={ 5 } />
 
-							<Axis
-								orientation="bottom"
-								tickFormat={ formatAxisTickDate }
-								hideAxisLine
-								hideTicks
-								numTicks={ 5 }
-								tickValues={ getXAxisTickValues( data ) }
-							/>
+								<Axis
+									orientation="bottom"
+									tickFormat={ formatAxisTickDate }
+									hideAxisLine
+									hideTicks
+									numTicks={ 5 }
+									tickValues={ getXAxisTickValues( data ) }
+								/>
 
-							<Tooltip< SubscriptionStat >
-								showVerticalCrosshair
-								showSeriesGlyphs
-								className="subscribers-chart__tooltip"
-								renderTooltip={ renderTooltip }
-								renderGlyph={ renderGlyph }
-							/>
-						</XYChart>
-					);
-				} }
-			</ParentSize>
-		</div>
+								<Tooltip< SubscriptionStat >
+									showVerticalCrosshair
+									showSeriesGlyphs
+									className="subscribers-chart__tooltip"
+									renderTooltip={ renderTooltip }
+									renderGlyph={ renderGlyph }
+								/>
+							</XYChart>
+						);
+					} }
+				</ParentSize>
+			</div>
+			<LegendOrdinal
+				scale={ legendScale }
+				direction="row"
+				labelFormat={ getLegendLabel }
+				shape="circle"
+				shapeWidth={ 10 }
+				shapeHeight={ 10 }
+				itemMargin={ 5 }
+				className="subscribers-chart__legend"
+			/>
+		</>
 	);
 };
