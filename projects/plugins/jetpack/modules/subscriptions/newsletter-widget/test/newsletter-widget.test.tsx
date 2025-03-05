@@ -37,16 +37,16 @@ describe( 'NewsletterWidget', () => {
 	it( 'renders', () => {
 		render( <NewsletterWidget { ...defaultProps } /> );
 		expect( screen.getByText( 'Quick Links' ) ).toBeInTheDocument();
-		expect( screen.getByText( defaultProps.emailSubscribers ) ).toBeInTheDocument();
-
-		// Check for paid subscribers number
-		expect( screen.getByText( defaultProps.paidSubscribers ) ).toBeInTheDocument();
 
 		// Check for email subscriptions label
-		expect( screen.getByText( 'email subscriptions' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( `${ defaultProps.emailSubscribers } email subscriptions` )
+		).toBeInTheDocument();
 
 		// Check for paid subscriptions label
-		expect( screen.getByText( 'paid subscriptions' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( `${ defaultProps.paidSubscribers } paid subscriptions` )
+		).toBeInTheDocument();
 	} );
 
 	it( 'displays the learn more link with correct href', () => {
