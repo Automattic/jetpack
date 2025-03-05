@@ -101,18 +101,11 @@ class Jetpack_Mu_Wpcom {
 	 * @return void
 	 */
 	public static function schedule_translation_updates() {
-		// Only schedule the cron job if it hasn't been scheduled before.
-		if ( ! get_option( 'wpcomsh_translations_cron_scheduled' ) ) {
-			if ( ! wp_next_scheduled( 'wpcomsh_daily_translation_update' ) ) {
-				wp_schedule_event( time(), 'daily', 'wpcomsh_daily_translation_update' );
-			}
-
-			// Mark as scheduled to prevent redundant event checks.
-			update_option( 'wpcomsh_translations_cron_scheduled', true );
-		}
-
-		// Bind the actual cron event to the function.
 		add_action( 'wpcomsh_daily_translation_update', array( __CLASS__, 'maybe_update_translations' ) );
+
+		if ( ! wp_next_scheduled( 'wpcomsh_daily_translation_update' ) ) {
+			wp_schedule_event( time(), 'daily', 'wpcomsh_daily_translation_update' );
+		}
 	}
 
 	/**
