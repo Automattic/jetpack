@@ -59,6 +59,7 @@
 		"@babel/plugin-transform-react-jsx": "7.25.9",
 		"@babel/preset-react": "7.26.3",
 		"@babel/runtime": "7.26.0",
+		"@storybook/react": "8.5.8",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.2.0",
 		"@testing-library/user-event": "14.6.1",
