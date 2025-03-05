@@ -25,7 +25,7 @@ const formatBytes = ( size, decimals = 2, locale = 'en-US' ) => {
 	return `${ numberFormat.format( formattedSize ) } ${ sizes[ i ] }`;
 };
 
-const { state, callbacks } = store( 'jetpack/file-field', {
+const { state, callbacks } = store( 'jetpack/field-file', {
 	state: {},
 	actions: {
 		/**
