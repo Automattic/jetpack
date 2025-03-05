@@ -12,6 +12,8 @@ import { store as membershipProductsStore } from '../../store/membership-product
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
+import FirstTimeModal from './first-time-modal';
+import './first-time-modal.scss';
 import LoadingError from './loading-error';
 import Tabs from './tabs';
 
@@ -22,6 +24,7 @@ const Edit = props => {
 	const blockProps = useBlockProps();
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
+	const [ showFirstTimeModal, setShowFirstTimeModal ] = useState( false );
 	const isUserConnected = useIsUserConnected();
 
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
@@ -71,6 +74,35 @@ const Edit = props => {
 			intervals.includes( '1 year' )
 		);
 	};
+
+	// Check if this is the first time using the donations block
+	useEffect( () => {
+		const checkFirstTimeUse = async () => {
+			try {
+				const response = await fetch( '/wp-json/jetpack/v4/site-meta' );
+				const data = await response.json();
+				const hasUsedDonations = data?.jetpack_donations_block_used;
+
+				if ( ! hasUsedDonations ) {
+					setShowFirstTimeModal( true );
+					// Mark the block as used
+					await fetch( '/wp-json/jetpack/v4/site-meta', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify( {
+							jetpack_donations_block_used: true,
+						} ),
+					} );
+				}
+			} catch {
+				// Silently handle errors to avoid breaking the block
+			}
+		};
+
+		checkFirstTimeUse();
+	}, [] );
 
 	useEffect( () => {
 		lockPostSaving( 'donations' );
@@ -156,7 +188,12 @@ const Edit = props => {
 		content = <Tabs { ...props } products={ products } />;
 	}
 
-	return <div { ...blockProps }>{ content }</div>;
+	return (
+		<div { ...blockProps }>
+			{ content }
+			{ showFirstTimeModal && <FirstTimeModal onClose={ () => setShowFirstTimeModal( false ) } /> }
+		</div>
+	);
 };
 
 export default Edit;
