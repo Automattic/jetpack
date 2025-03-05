@@ -6,18 +6,21 @@ declare global {
 		JETPACK_MU_WPCOM_SITE_VISIBILITY?: {
 			siteId: number;
 			siteSlug: string;
+			isWpcomStagingSite: boolean;
+			isUnlaunchedSite: boolean;
+			hasSitePreviewLink: boolean;
 			shareSiteLink?: string;
 			shareSiteNonce: string;
+			blogPublic: number;
+			wpcomComingSoon: number;
+			wpcomPublicComingSoon: number;
+			wpcomDataSharingOptOut: boolean;
 		};
 	}
 }
 
-const selectors = {
-	WPCOM_SITE_VISIBILITY: '#wpcom_site_visibility',
-};
-
 document.addEventListener( 'DOMContentLoaded', function () {
-	const container = document.getElementById( selectors.WPCOM_SITE_VISIBILITY );
+	const container = document.getElementById( 'wpcom-site-visibility' );
 	const props = typeof window === 'object' ? window.JETPACK_MU_WPCOM_SITE_VISIBILITY : null;
 	if ( container && props ) {
 		const root = ReactDOM.createRoot( container );
