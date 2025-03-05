@@ -111,32 +111,32 @@ class Share_Post_Controller extends Base_Controller {
 	public function share_post( $request ) {
 		$post_id = $request->get_param( 'postId' );
 
-		if ( Utils::is_wpcom() ) {
-			$message             = trim( $request->get_param( 'message' ) );
-			$skip_connection_ids = $request->get_param( 'skipped_connections' );
-			$async               = (bool) $request->get_param( 'async' );
-			$post                = get_post( $post_id );
-
-			if ( empty( $post ) ) {
-				return new WP_Error( 'not_found', __( 'Cannot find that post.', 'jetpack-publicize-pkg' ), array( 'status' => 404 ) );
-			}
-			if ( 'publish' !== $post->post_status ) {
-				return new WP_Error( 'not_published', __( 'Only published posts can be shared.', 'jetpack-publicize-pkg' ), array( 'status' => 400 ) );
-			}
-
-			global $publicize;
-
-			// @phan-suppress-next-line PhanUndeclaredMethod - We are on WPCOM where republicize_post is available.
-			$result = $publicize->republicize_post( (int) $post_id, $message, $skip_connection_ids, true, ! $async, get_current_user_id() );
-			if ( false === $result ) {
-				return new WP_Error( 'not_found', __( 'Cannot find that post.', 'jetpack-publicize-pkg' ), array( 'status' => 404 ) );
-			}
-
-			return rest_ensure_response( $result );
+		if ( ! Utils::is_wpcom() ) {
+			return rest_ensure_response(
+				$this->proxy_request_to_wpcom_as_user( $request, $post_id )
+			);
 		}
 
-		return rest_ensure_response(
-			$this->proxy_request_to_wpcom_as_user( $request, $post_id )
-		);
+		$message             = trim( $request->get_param( 'message' ) );
+		$skip_connection_ids = $request->get_param( 'skipped_connections' );
+		$async               = (bool) $request->get_param( 'async' );
+		$post                = get_post( $post_id );
+
+		if ( empty( $post ) ) {
+			return new WP_Error( 'not_found', __( 'Cannot find that post.', 'jetpack-publicize-pkg' ), array( 'status' => 404 ) );
+		}
+		if ( 'publish' !== $post->post_status ) {
+			return new WP_Error( 'not_published', __( 'Only published posts can be shared.', 'jetpack-publicize-pkg' ), array( 'status' => 400 ) );
+		}
+
+		global $publicize;
+
+		// @phan-suppress-next-line PhanUndeclaredMethod - We are on WPCOM where republicize_post is available.
+		$result = $publicize->republicize_post( (int) $post_id, $message, $skip_connection_ids, true, ! $async, get_current_user_id() );
+		if ( false === $result ) {
+			return new WP_Error( 'not_found', __( 'Cannot find that post.', 'jetpack-publicize-pkg' ), array( 'status' => 404 ) );
+		}
+
+		return rest_ensure_response( $result );
 	}
 }
