@@ -30,6 +30,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/data": "10.19.0",
 		"@wordpress/date": "5.19.0",
 		"@wordpress/element": "6.19.0",
