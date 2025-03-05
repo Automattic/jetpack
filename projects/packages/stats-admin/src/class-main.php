@@ -65,6 +65,8 @@ class Main {
 			10,
 			2
 		);
+
+		new Admin_Post_List_Column();
 	}
 
 	/**
