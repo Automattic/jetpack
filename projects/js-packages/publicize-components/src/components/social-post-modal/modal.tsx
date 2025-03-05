@@ -3,7 +3,7 @@ import { Modal, PanelRow, Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useReducer } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { PreviewSection } from './preview-section';
 import { SettingsSection } from './settings-section';
@@ -34,7 +34,7 @@ export function SocialPostModal() {
 					onRequestClose={ toggleModal }
 					title={
 						isPostPublished
-							? __( 'Share Post', 'jetpack-publicize-components' )
+							? _x( 'Share Post', 'The title of the social modal', 'jetpack-publicize-components' )
 							: __( 'Social Previews', 'jetpack-publicize-components' )
 					}
 					className={ styles.modal }
@@ -54,7 +54,11 @@ export function SocialPostModal() {
 			) }
 			<Button variant="secondary" onClick={ handleOpenModal } className={ styles[ 'open-button' ] }>
 				{ isPostPublished
-					? __( 'Preview & Share', 'jetpack-publicize-components' )
+					? _x(
+							'Preview & Share',
+							'The button label for the modal trigger',
+							'jetpack-publicize-components'
+					  )
 					: __( 'Preview social posts', 'jetpack-publicize-components' ) }
 			</Button>
 		</PanelRow>

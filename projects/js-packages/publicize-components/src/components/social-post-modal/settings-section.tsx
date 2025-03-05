@@ -1,6 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { SharePostForm } from '../form/share-post-form';
 import { SharePostButton } from '../share-post';
@@ -22,7 +22,7 @@ export function SettingsSection( { onReShared } ) {
 			<div className={ styles[ 'settings-header' ] }>
 				<h2>
 					{ isPostPublished
-						? __( 'Share Post', 'jetpack-publicize-components' )
+						? _x( 'Share Post', 'The title of the social modal', 'jetpack-publicize-components' )
 						: __( 'Social Preview', 'jetpack-publicize-components' ) }
 				</h2>
 			</div>
