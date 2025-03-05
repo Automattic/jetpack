@@ -1,3 +1,4 @@
+import { dateI18n } from '@wordpress/date';
 import { DailyCount, SubscriptionStat } from './types';
 
 /**
@@ -9,23 +10,21 @@ import { DailyCount, SubscriptionStat } from './types';
  */
 export const formatDate = ( date: Date, format: 'short' | 'full' = 'short' ) => {
 	if ( format === 'short' ) {
-		return date.toLocaleDateString( undefined, { month: 'short', day: 'numeric' } );
+		// 'M j' = Short month name followed by day number without leading zeros (e.g., "Jan 5")
+		return dateI18n( 'M j', date );
 	}
 
-	return date.toLocaleDateString( undefined, {
-		month: 'short',
-		day: 'numeric',
-		year: 'numeric',
-	} );
+	// 'M j, Y' = Short month name, day number without leading zeros, and year (e.g., "Jan 5, 2023")
+	return dateI18n( 'M j, Y', date );
 };
 
 /**
  * Formats a date specifically for axis tick labels.
  *
- * @param {unknown} date - The date to format (will be cast to Date).
+ * @param {Date} date - The date to format.
  * @returns {string} The formatted date string in short format.
  */
-export const formatAxisTickDate = ( date: unknown ) => formatDate( date as Date, 'short' );
+export const formatAxisTickDate = ( date: Date ) => formatDate( date, 'short' );
 
 /**
  * Calculates evenly spaced tick values for the X-axis for time series data.
