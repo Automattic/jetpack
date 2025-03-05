@@ -65,6 +65,7 @@ class Defaults {
 		'infinite_scroll',
 		'infinite_scroll_google_analytics',
 		'jetpack-memberships-has-connected-account',
+		'jetpack_donations_block_used',
 		'jetpack-twitter-cards-site-tag',
 		'jetpack_activated',
 		'jetpack_allowed_xsite_search_ids',
