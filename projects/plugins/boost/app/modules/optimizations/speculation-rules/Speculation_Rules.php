@@ -56,7 +56,7 @@ class Speculation_Rules implements Pluggable, Optimization, Changes_Page_Output,
 		$fetch_method = $use_prerender ? 'prerender' : 'prefetch';
 
 		if ( ! empty( $exceptions ) ) {
-			$not_exceptions = '{ "not": { "href_matches": [ "' . implode( '", "', $exceptions ) . '" ] } }';
+			$not_exceptions = '{ "not": { "href_matches": [ "' . implode( '", "', array_map( 'esc_js', $exceptions ) ) . '" ] } }';
 		} else {
 			$not_exceptions = '';
 		}
@@ -66,12 +66,14 @@ class Speculation_Rules implements Pluggable, Optimization, Changes_Page_Output,
 		{
 			"' . esc_js( $fetch_method ) . '": [
 				{
+					"source":"document",
 					"where": {
 						"and": [
-							{ "href_matches": "/*" },' .
+							{ "href_matches": "\/*" },' .
 							$not_exceptions . '
 						]
-					}
+					},
+					"eagerness":"moderate"
 				}
 			]
 		}
