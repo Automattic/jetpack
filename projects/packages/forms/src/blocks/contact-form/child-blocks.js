@@ -30,6 +30,7 @@ const FieldDefaults = {
 		// This doesn't opt in to support for any dimensions controls,
 		// but it's required to ensure the 'Styles' tab renders in the inspector.
 		// This is probably a bug in WordPress core.
+		// See: https://github.com/WordPress/gutenberg/issues/69404.
 		dimensions: {},
 	},
 	attributes: {
