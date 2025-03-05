@@ -477,7 +477,6 @@ return [
         'tests/php/core-api/WPCOM_REST_API_V2_Field_Controller_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/core-api/wpcom-endpoints/WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchReturn'],
         'tests/php/core-api/wpcom-endpoints/WPCOM_REST_API_V2_Endpoint_External_Media_Test.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument'],
-        'tests/php/core-api/wpcom-endpoints/WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/core-api/wpcom-fields/WPCOM_REST_API_V2_Attachment_VideoPress_Field_Test.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/core-api/wpcom-fields/WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Test.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode', 'PhanTypeComparisonToArray', 'PhanTypeMismatchPropertyProbablyReal'],
         'tests/php/extensions/blocks/premium-content/Jetpack_Premium_Content_Test.php' => ['PhanDeprecatedProperty', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMissingReturn', 'PhanUndeclaredMethod'],

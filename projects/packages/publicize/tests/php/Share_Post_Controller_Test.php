@@ -1,20 +1,25 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Tests for WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post.
- * To run this test by itself use the following command:
- * jetpack docker phpunit -- --filter=WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post_Test
+ * Tests for Share_Post_Controller.
  */
 
+namespace Automattic\Jetpack\Publicize;
+
+use Automattic\Jetpack\Publicize\REST_API\Share_Post_Controller;
+use PHPUnit\Framework\TestCase;
+use WorDBless\Options as WorDBless_Options;
+use WorDBless\Posts as WorDBless_Posts;
+use WorDBless\Users as WorDBless_Users;
+use WP_REST_Request;
+use WP_REST_Server;
 use WpOrg\Requests\Requests;
 
-require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
-
 /**
- * Class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post_Test
+ * Class Test_Share_Post_Controller
  *
- * @coversDefaultClass WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post
+ * @coversDefaultClass Automattic\Jetpack\Publicize\REST_API\Share_Post_Controller
  */
-class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post_Test extends Jetpack_REST_TestCase {
+class Share_Post_Controller_Test extends TestCase {
 
 	/**
 	 * Mock user ID with editor permissions.
@@ -38,35 +43,74 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post_Test extends Jetpack_REST_
 	private static $path = '';
 
 	/**
-	 * Create 2 mock blog users and a mock blog post.
+	 * REST Server object.
+	 *
+	 * @var WP_REST_Server
+	 */
+	private $server;
+
+	/**
+	 * Setting up the test.
+	 *
+	 * @before
 	 */
 	public function set_up() {
-		parent::set_up();
+		global $wp_rest_server;
 
-		static::$user_id_editor     = self::factory()->user->create( array( 'role' => 'editor' ) );
-		static::$user_id_subscriber = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		$wp_rest_server = new WP_REST_Server();
+		$this->server   = $wp_rest_server;
 
-		$post_id = self::factory()->post->create(
+		static::$user_id_editor = wp_insert_user(
 			array(
-				'post_status' => 'published',
-				'post_author' => (string) static::$user_id_editor,
+				'user_login' => 'dummy_editor',
+				'user_pass'  => 'dummy_pass',
+				'role'       => 'editor',
 			)
 		);
 
-		static::$path = "/wpcom/v2/posts/$post_id/publicize";
+		static::$user_id_subscriber = wp_insert_user(
+			array(
+				'user_login' => 'dummy_subscriber',
+				'user_pass'  => 'dummy_pass',
+				'role'       => 'subscriber',
+			)
+		);
+
+		$post_id = wp_insert_post(
+			array(
+				'post_author'  => static::$user_id_editor,
+				'post_title'   => 'acd',
+				'post_excerpt' => 'dsad',
+				'post_status'  => 'published',
+				'post_type'    => 'post',
+			)
+		);
+
+		static::$path = "/wpcom/v2/publicize/share-post/$post_id";
 
 		wp_set_current_user( static::$user_id_editor );
 
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
+
+		// Register REST routes.
+		add_action( 'rest_api_init', array( new Share_Post_Controller(), 'register_routes' ) );
+
+		do_action( 'rest_api_init' );
 	}
 
 	/**
-	 * Reset the environment to its original state after the test.
+	 * Returning the environment into its initial state.
+	 *
+	 * @after
 	 */
 	public function tear_down() {
-		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
+		wp_set_current_user( 0 );
 
-		parent::tear_down();
+		WorDBless_Options::init()->clear_options();
+		WorDBless_Posts::init()->clear_all_posts();
+		WorDBless_Users::init()->clear_all_users();
+
+		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
 	}
 
 	/**
@@ -100,7 +144,8 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post_Test extends Jetpack_REST_
 		);
 		$response = $this->server->dispatch( $request );
 
-		$this->assertErrorResponse( 'rest_cannot_view', $response, 401 );
+		$this->assertEquals( 401, $response->get_status() );
+		$this->assertEquals( 'Sorry, you are not allowed to access Jetpack Social data on this site.', $response->get_data()['message'] );
 	}
 
 	/**
@@ -120,7 +165,11 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post_Test extends Jetpack_REST_
 		);
 		$response = $this->server->dispatch( $request );
 
-		$this->assertErrorResponse( 'unauthorized', $response, 401 );
+		$this->assertEquals( 403, $response->get_status() );
+
+		$this->assertEquals( 'Sorry, you are not allowed to access Jetpack Social data on this site.', $response->get_data()['message'] );
+
+		$this->assertEquals( 'invalid_user_permission_publicize', $response->as_error()->get_error_code() );
 	}
 
 	/**
@@ -128,7 +177,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post_Test extends Jetpack_REST_
 	 *
 	 * @dataProvider rest_invalid_params
 	 *
-	 * @param string $input The test post content to parse.
+	 * @param array $input The test post content to parse.
 	 */
 	public function test_publicize_share_post_rest_invalid_param( $input ) {
 		wp_set_current_user( static::$user_id_subscriber );
@@ -137,7 +186,9 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post_Test extends Jetpack_REST_
 		$request->set_body_params( $input );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
+		$this->assertEquals( 400, $response->get_status() );
+
+		$this->assertEquals( 'rest_invalid_param', $response->as_error()->get_error_code() );
 	}
 
 	/**
@@ -145,7 +196,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post_Test extends Jetpack_REST_
 	 *
 	 * @dataProvider rest_missing_callback_params
 	 *
-	 * @param string $input The test post content to parse.
+	 * @param array $input The test post content to parse.
 	 */
 	public function test_publicize_share_post_rest_missing_callback_param( $input ) {
 		wp_set_current_user( static::$user_id_subscriber );
@@ -154,7 +205,9 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post_Test extends Jetpack_REST_
 		$request->set_body_params( $input );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertErrorResponse( 'rest_missing_callback_param', $response, 400 );
+		$this->assertEquals( 400, $response->get_status() );
+
+		$this->assertEquals( 'rest_missing_callback_param', $response->as_error()->get_error_code() );
 	}
 
 	/**
