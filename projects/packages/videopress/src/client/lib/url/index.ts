@@ -1,3 +1,4 @@
+import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { VideoBlockAttributes, VideoGUID } from '../../block-editor/blocks/video/types';
 
@@ -157,6 +158,37 @@ export function buildVideoPressURL(
 	}
 
 	return {};
+}
+
+/**
+ * Search for a VideoPress video by filename in the media library
+ *
+ * @param {string}               fileName            - The name of the video file to search for
+ * @param {VideoBlockAttributes} attributes          - Optional VideoPress URL attributes
+ * @return {Promise<BuildVideoPressURLProps | null>} The VideoPress URL and GUID if found, null otherwise
+ */
+export async function buildVideoPressVideoByFileName(
+	fileName: string,
+	attributes: VideoBlockAttributes = {}
+): Promise< BuildVideoPressURLProps | null > {
+	try {
+		const results = await apiFetch< Array< { jetpack_videopress_guid?: string } > >( {
+			path: `/wp/v2/media?mime_type=video&search=${ encodeURIComponent( fileName ) }`,
+		} );
+
+		const videoFile = results.find( item => item.jetpack_videopress_guid );
+
+		if ( videoFile?.jetpack_videopress_guid ) {
+			return {
+				url: getVideoPressUrl( videoFile.jetpack_videopress_guid, attributes ),
+				guid: videoFile.jetpack_videopress_guid,
+			};
+		}
+
+		return null;
+	} catch {
+		return null;
+	}
 }
 
 export const removeFileNameExtension = ( name: string ) => {
