@@ -134,6 +134,7 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 							xScale={ { type: 'time' } }
 							yScale={ { type: 'linear', nice: true } }
 							theme={ chartTheme }
+							margin={ { top: 10, right: 30, bottom: 30, left: 30 } }
 						>
 							<Grid columns={ false } numTicks={ 5 } />
 

@@ -85,6 +85,7 @@ export const NewsletterWidget = ( {
 				</div>
 			</div>
 			<div className="newsletter-widget__chart">
+				<h3 className="newsletter-widget__heading">{ __( 'Total Subscribers', 'jetpack' ) }</h3>
 				<SubscribersChart countsByDay={ countsByDay } />
 			</div>
 			<div className="newsletter-widget__footer">
@@ -108,7 +109,7 @@ export const NewsletterWidget = ( {
 					) }
 				</p>
 				<div>
-					<h3>{ __( 'Quick Links', 'jetpack' ) }</h3>
+					<h3 className="newsletter-widget__heading">{ __( 'Quick Links', 'jetpack' ) }</h3>
 					<ul className="newsletter-widget__footer-list">
 						<li>
 							<a href={ `${ adminUrl }edit.php` }>{ __( 'Publish your next post', 'jetpack' ) }</a>
