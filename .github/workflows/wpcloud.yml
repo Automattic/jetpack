@@ -121,7 +121,8 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::Transferring wpcomsh to the testing server"
-          ssh jpwpcomsh "wp dereferenced freshen > /dev/null 2>&1"
+          ssh jpwpcomsh "wp --skip-plugins --skip-themes dereferenced freshen > /dev/null 2>&1" || CODE=$?
+          echo "wp dereferenced freshen has exited with code $CODE"
           ssh jpwpcomsh "rm -rf /tmp/old-* > /dev/null 2>&1"
           pnpm jetpack rsync wpcomsh jpwpcomsh:~/htdocs/wp-content/mu-plugins
           scp -r projects/plugins/wpcomsh/bin jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh

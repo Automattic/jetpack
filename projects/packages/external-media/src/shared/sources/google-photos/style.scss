@@ -6,7 +6,6 @@ $grid-size: 8px;
 	display: flex;
 	align-items: flex-start;
 	justify-content: flex-start;
-	margin-bottom: 48px;
 	flex-direction: column;
 
 	@media only screen and ( min-width: 600px ) {
@@ -133,8 +132,11 @@ $grid-size: 8px;
 }
 
 .jetpack-external-media__google-photos-picker {
-	text-align: center;
-	margin-bottom: 48px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0;
+	margin-bottom: -72px 0 48px;
 
 	h1 {
 		font-weight: 400;
@@ -167,4 +169,15 @@ $grid-size: 8px;
 	p {
 		 margin: 0 0 2em 0;
 	}
+}
+
+.jetpack-external-media__google-photos-loading {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }

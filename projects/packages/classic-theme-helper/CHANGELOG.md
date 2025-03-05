@@ -5,12 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.1] - 2025-03-03
+### Added
+- Custom Content Types: Ensure script with initial state value is only added on Jetpack admin pages. [#42138]
+
+### Changed
+- Update package dependencies. [#42163]
+
+## [0.11.0] - 2025-02-24
+### Added
+- Theme tools: Load theme compat functionality relevant to features in Classic Theme Helper package from this package. [#41598]
+
+### Changed
+- Custom Post Types: Do not display testimonials and portfolios on block themes where they are not in use. [#41714]
+
+## [0.10.1] - 2025-02-17
+### Changed
+- Update dependencies.
+
+## [0.10.0] - 2025-02-10
+### Changed
+- Custom Content Types: Ensure feature works on Jetpack settings page without using module functionality. [#41349]
+- Update package dependencies. [#41491]
+
 ## [0.9.3] - 2025-02-03
 ### Added
 - Theme compat: Move relevant functionality to the package. [#41394]
 
 ### Changed
-- Updated package dependencies. [#41286]
+- Update package dependencies. [#41286]
 
 ## [0.9.2] - 2025-01-27
 ### Fixed
@@ -209,6 +232,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.11.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.0...v0.11.1
+[0.11.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.10.1...v0.11.0
+[0.10.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.10.0...v0.10.1
+[0.10.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.9.3...v0.10.0
 [0.9.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.9.0...v0.9.1

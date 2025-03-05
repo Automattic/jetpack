@@ -1,6 +1,5 @@
 export * from './constants';
 export { default as MediaBrowser } from './media-browser';
-export { default as MediaPlaceholder } from './media-browser/placeholder';
 export { default as MediaButton } from './media-button';
 export * from './media-service';
 export * from './media-service/types';

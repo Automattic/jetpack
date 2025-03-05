@@ -1421,8 +1421,12 @@ class Colors_Manager_Common {
 
 		$colors = $opts['colors'];
 
-		$colors['border'] = $colors['fg1'];
-		$colors['url']    = $colors['link'];
+		if ( isset( $colors['fg1'] ) ) {
+			$colors['border'] = $colors['fg1'];
+		}
+		if ( isset( $colors['link'] ) ) {
+			$colors['url'] = $colors['link'];
+		}
 		if ( isset( $colors['txt'] ) ) {
 			$colors['text'] = $colors['txt'];
 		}

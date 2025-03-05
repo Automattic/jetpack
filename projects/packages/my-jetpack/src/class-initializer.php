@@ -41,14 +41,14 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.4.1';
+	const PACKAGE_VERSION = '5.5.2';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
 	 */
-	const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
+	private const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
 
-	const JETPACK_PLUGIN_SLUGS = array(
+	private const JETPACK_PLUGIN_SLUGS = array(
 		'jetpack-backup',
 		'jetpack-boost',
 		'zerobscrm',
@@ -59,12 +59,11 @@ class Initializer {
 		'jetpack-search',
 	);
 
-	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY             = 'my-jetpack-site-info';
-	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
-	const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
-	const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
-	const VIDEOPRESS_PERIOD_KEY                          = 'my-jetpack-videopress-period';
-	const MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY            = 'my-jetpack-red-bubble-transient';
+	private const MY_JETPACK_SITE_INFO_TRANSIENT_KEY  = 'my-jetpack-site-info';
+	private const MISSING_CONNECTION_NOTIFICATION_KEY = 'missing-connection';
+	private const VIDEOPRESS_STATS_KEY                = 'my-jetpack-videopress-stats';
+	private const VIDEOPRESS_PERIOD_KEY               = 'my-jetpack-videopress-period';
+	private const MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY = 'my-jetpack-red-bubble-transient';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -234,11 +233,13 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
-		$scan_data                      = Products\Protect::get_protect_data();
-		self::update_historically_active_jetpack_modules();
 
-		$waf_config    = array();
-		$waf_supported = false;
+		Products::initialize_products();
+		$scan_data = Products\Protect::get_protect_data();
+
+		$waf_config     = array();
+		$waf_supported  = false;
+		$is_waf_enabled = false;
 
 		$sandboxed_domain = '';
 		$is_dev_version   = false;
@@ -248,8 +249,9 @@ class Initializer {
 		}
 
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
-			$waf_config    = Waf_Runner::get_config();
-			$waf_supported = Waf_Runner::is_supported_environment();
+			$waf_config     = Waf_Runner::get_config();
+			$is_waf_enabled = Waf_Runner::is_enabled();
+			$waf_supported  = Waf_Runner::is_supported_environment();
 		}
 
 		wp_localize_script(
@@ -258,9 +260,6 @@ class Initializer {
 			array(
 				'products'               => array(
 					'items' => Products::get_products(),
-				),
-				'purchases'              => array(
-					'items' => array(),
 				),
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
@@ -277,16 +276,12 @@ class Initializer {
 				'adminUrl'               => esc_url( admin_url() ),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
-				'userIsNewToJetpack'     => self::is_jetpack_user_new(),
 				'lifecycleStats'         => array(
 					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
 					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
-					'ownedProducts'             => Products::get_products_by_ownership( 'owned' ),
-					'unownedProducts'           => Products::get_products_by_ownership( 'unowned' ),
 					'brokenModules'             => self::check_for_broken_modules(),
 					'isSiteConnected'           => $connection->is_connected(),
 					'isUserConnected'           => $connection->is_user_connected(),
-					'purchases'                 => self::get_purchases(),
 					'modules'                   => self::get_active_modules(),
 				),
 				// Only in the My Jetpack context, we get the alerts without the cache to make sure we have the most up-to-date info
@@ -297,7 +292,7 @@ class Initializer {
 					'dismissed'  => \Jetpack_Options::get_option( 'dismissed_recommendations', false ),
 				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
-				'isUserFromKnownHost'    => self::is_user_from_known_host(),
+				'canUserViewStats'       => current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ),
 				'isCommercial'           => self::is_commercial_site(),
 				'sandboxedDomain'        => $sandboxed_domain,
 				'isDevVersion'           => $is_dev_version,
@@ -313,6 +308,7 @@ class Initializer {
 						$waf_config,
 						array(
 							'waf_supported' => $waf_supported,
+							'waf_enabled'   => $is_waf_enabled,
 						),
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
@@ -397,25 +393,6 @@ class Initializer {
 		return array(
 			'featuredStats' => $featured_stats,
 			'videoCount'    => $video_count,
-		);
-	}
-
-	/**
-	 * Get product slugs of the active purchases
-	 *
-	 * @return array
-	 */
-	public static function get_purchases() {
-		$purchases = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases ) ) {
-			return array();
-		}
-
-		return array_map(
-			function ( $purchase ) {
-				return $purchase->product_slug;
-			},
-			(array) $purchases
 		);
 	}
 
@@ -509,16 +486,6 @@ class Initializer {
 	}
 
 	/**
-	 * Determines whether the user has come from a host we can recognize.
-	 *
-	 * @return string
-	 */
-	public static function is_user_from_known_host() {
-		// Known (external) host is the one that has been determined and is not dotcom.
-		return ! in_array( ( new Status_Host() )->get_known_host_guess(), array( 'unknown', 'wpcom' ), true );
-	}
-
-	/**
 	 *  Build flags for My Jetpack UI
 	 *
 	 *  @return array
@@ -550,9 +517,11 @@ class Initializer {
 		new REST_Products();
 		new REST_Purchases();
 		new REST_Zendesk_Chat();
-		new REST_Product_Data();
 		new REST_AI();
 		new REST_Recommendations_Evaluation();
+
+		Products::register_product_endpoints();
+		Historically_Active_Modules::register_rest_endpoints();
 
 		register_rest_route(
 			'my-jetpack/v1',
@@ -613,30 +582,17 @@ class Initializer {
 	}
 
 	/**
-	 * Set transient to queue an update to the historically active Jetpack modules on the next wp-admin load
-	 *
-	 * @param string $plugin The plugin that triggered the update. This will be present if the function was queued by a plugin activation.
-	 *
-	 * @return void
-	 */
-	public static function queue_historically_active_jetpack_modules_update( $plugin = null ) {
-		$plugin_filenames = Products::get_all_plugin_filenames();
-
-		if ( ! $plugin || in_array( $plugin, $plugin_filenames, true ) ) {
-			set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
-		}
-	}
-
-	/**
 	 * Hook into several connection-based actions to update the historically active Jetpack modules
 	 * If the transient that indicates the list needs to be synced, update it and delete the transient
 	 *
 	 * @return void
 	 */
 	public static function setup_historically_active_jetpack_modules_sync() {
-		if ( get_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY ) && ! wp_doing_ajax() ) {
-			self::update_historically_active_jetpack_modules();
-			delete_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY );
+		// yummmm. ham.
+		$ham = new Historically_Active_Modules();
+		if ( get_transient( $ham::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY ) && ! wp_doing_ajax() ) {
+			$ham::update_historically_active_jetpack_modules();
+			delete_transient( $ham::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY );
 		}
 
 		$actions = array(
@@ -646,49 +602,11 @@ class Initializer {
 		);
 
 		foreach ( $actions as $action ) {
-			add_action( $action, array( __CLASS__, 'queue_historically_active_jetpack_modules_update' ), 5 );
+			add_action( $action, array( $ham, 'queue_historically_active_jetpack_modules_update' ), 5 );
 		}
 
 		// Modules are often updated async, so we need to update them right away as there will sometimes be no page reload.
-		add_action( 'jetpack_activate_module', array( __CLASS__, 'update_historically_active_jetpack_modules' ), 5 );
-	}
-
-	/**
-	 * Update historically active Jetpack plugins
-	 * Historically active is defined as the Jetpack plugins that are installed and active with the required connections
-	 * This array will consist of any plugins that were active at one point in time and are still enabled on the site
-	 *
-	 * @return void
-	 */
-	public static function update_historically_active_jetpack_modules() {
-		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
-		$products                    = Products::get_products();
-
-		foreach ( $products as $product ) {
-			$status       = $product['status'];
-			$product_slug = $product['slug'];
-			// We want to leave modules in the array if they've been active in the past
-			// and were not manually disabled by the user.
-			if ( in_array( $status, Products::$broken_module_statuses, true ) ) {
-				continue;
-			}
-
-			// If the module is active and not already in the array, add it
-			if (
-				in_array( $status, Products::$active_module_statuses, true ) &&
-				! in_array( $product_slug, $historically_active_modules, true )
-			) {
-					$historically_active_modules[] = $product_slug;
-			}
-
-			// If the module has been disabled due to a manual user action,
-			// or because of a missing plan error, remove it from the array
-			if ( in_array( $status, Products::$disabled_module_statuses, true ) ) {
-				$historically_active_modules = array_values( array_diff( $historically_active_modules, array( $product_slug ) ) );
-			}
-		}
-
-		\Jetpack_Options::update_option( 'historically_active_modules', array_unique( $historically_active_modules ) );
+		add_action( 'jetpack_activate_module', array( $ham, 'update_historically_active_jetpack_modules' ), 5 );
 	}
 
 	/**
@@ -860,12 +778,19 @@ class Initializer {
 	 */
 	public static function maybe_show_red_bubble() {
 		global $menu;
+
+		// Don't show red bubble alerts for non-admin users
+		// These alerts are generally only actionable for admins
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		// filters for the items in this file
 		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'add_red_bubble_alerts' ) );
 		$red_bubble_alerts = array_filter(
 			self::get_red_bubble_alerts(),
 			function ( $alert ) {
-				// We don't want to show silent alerts
+				// We don't want to show the red bubble for silent alerts
 				return empty( $alert['is_silent'] );
 			}
 		);
@@ -1065,13 +990,13 @@ class Initializer {
 						'manage_url'     => $product::get_manage_paid_plan_purchase_url(),
 					);
 
-					if ( $product::is_paid_plan_expired() ) {
+					if ( $product::is_paid_plan_expired() && empty( $_COOKIE[ "$purchase->product_slug--plan_expired_dismissed" ] ) ) {
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expired" ] = $redbubble_notice_data;
 						if ( ! $product::is_bundle_product() ) {
 							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expired" ][] = $product::get_name();
 						}
 					}
-					if ( $product::is_paid_plan_expiring() ) {
+					if ( $product::is_paid_plan_expiring() && empty( $_COOKIE[ "$purchase->product_slug--plan_expiring_soon_dismissed" ] ) ) {
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]               = $redbubble_notice_data;
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]['manage_url'] = $product::get_renew_paid_plan_purchase_url();
 						if ( ! $product::is_bundle_product() ) {
@@ -1096,6 +1021,10 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
+		// Make sure the Notice wasn't previously dismissed.
+		if ( ! empty( $_COOKIE['backup_failure_dismissed'] ) ) {
+			return $red_bubble_slugs;
+		}
 		// Make sure there's a Backup paid plan
 		if ( ! Products\Backup::is_plugin_active() || ! Products\Backup::has_paid_plan_for_product() ) {
 			return $red_bubble_slugs;
@@ -1125,6 +1054,10 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_protect_has_threats( array $red_bubble_slugs ) {
+		// Make sure the Notice hasn't been dismissed.
+		if ( ! empty( $_COOKIE['protect_threats_detected_dismissed'] ) ) {
+			return $red_bubble_slugs;
+		}
 		// Make sure we're dealing with the Protect product only
 		if ( ! Products\Protect::has_paid_plan_for_product() ) {
 			return $red_bubble_slugs;
@@ -1157,7 +1090,9 @@ class Initializer {
 		}
 
 		foreach ( $plugins_needing_installed_activated as $plan_slug => $plugins_requirements ) {
-			$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
+			if ( empty( $_COOKIE[ "$plan_slug--plugins_needing_installed_dismissed" ] ) ) {
+				$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
+			}
 		}
 
 		return $red_bubble_slugs;

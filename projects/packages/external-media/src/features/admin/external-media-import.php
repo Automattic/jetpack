@@ -7,13 +7,30 @@
  * @package automattic/jetpack-external-media
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\External_Media;
+
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
+/**
+ * Whether the current user is connected to WordPress.com.
+ */
+function is_current_user_connected() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return true;
+	}
+
+	return ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
+}
 
 /**
  * Register the Jetpack external media page to Media > Import.
  */
 function add_jetpack_external_media_import_page() {
-	if ( empty( $_GET['jetpack_external_media_import_page'] ) ) { // phpcs:disable WordPress.Security.NonceVerification.Recommended
+	/**
+	 * The feature is enabled only when the current user is connected to WordPress.com.
+	 */
+	if ( ! is_current_user_connected() ) {
 		return;
 	}
 
@@ -26,9 +43,38 @@ function add_jetpack_external_media_import_page() {
 		__NAMESPACE__ . '\render_jetpack_external_media_import_page'
 	);
 
+	add_action( 'load-upload.php', __NAMESPACE__ . '\enqueue_jetpack_external_media_import_button' );
 	add_action( "load-$external_media_import_page_hook", __NAMESPACE__ . '\enqueue_jetpack_external_media_import_page' );
 }
 add_action( 'admin_menu', __NAMESPACE__ . '\add_jetpack_external_media_import_page' );
+
+/**
+ * Enqueue the assets of the Jetpack external media import button.
+ */
+function enqueue_jetpack_external_media_import_button() {
+	$assets_base_path = 'build/';
+	$asset_name       = 'jetpack-external-media-import-button';
+
+	Assets::register_script(
+		$asset_name,
+		$assets_base_path . "$asset_name/$asset_name.js",
+		External_Media::BASE_FILE,
+		array(
+			'in_footer'  => true,
+			'textdomain' => 'jetpack-external-media',
+			'css_path'   => $assets_base_path . "$asset_name/$asset_name.css",
+		)
+	);
+
+	Assets::enqueue_script( $asset_name );
+	wp_localize_script(
+		$asset_name,
+		'JETPACK_EXTERNAL_MEDIA_IMPORT_BUTTON',
+		array(
+			'href' => admin_url( 'upload.php?page=jetpack_external_media_import_page' ),
+		)
+	);
+}
 
 /**
  * Enqueue the assets of the Jetpack external media page.
@@ -77,6 +123,7 @@ function render_jetpack_external_media_import_page() {
 	?>
 	<div id="jetpack-external-media-import" class="wrap">
 		<h1><?php echo esc_html( $title ); ?></h1>
+		<div id="jetpack-external-media-import-notice"></div>
 		<p><?php echo esc_html( $description ); ?></p>
 		<table class="widefat importers striped">
 			<?php

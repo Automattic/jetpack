@@ -59,9 +59,15 @@ function wpcomsh_storage_notices() {
 add_action( 'admin_notices', 'wpcomsh_storage_notices' );
 
 /**
- * Display disk space usage on /wp-admin/upload.php
+ * Display disk space usage on the uploader
  */
 function wpcomsh_display_disk_space_usage() {
+	global $pagenow;
+
+	if ( $pagenow === 'upload.php' ) {
+		return;
+	}
+
 	$site_info = wpcomsh_get_at_site_info();
 
 	if ( empty( $site_info['space_used'] ) || empty( $site_info['space_quota'] ) ) {

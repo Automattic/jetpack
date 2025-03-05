@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../../hooks/use-analytics';
+import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import {
 	QUERY_EVALUATE_KEY,
 	QUERY_REMOVE_EVALUATION_KEY,
@@ -9,9 +10,9 @@ import {
 	REST_API_EVALUATE_SITE_RECOMMENDATIONS,
 	REST_API_SITE_EVALUATION_RESULT,
 } from '../constants';
+import useProductsByOwnership from '../products/use-products-by-ownership';
 import useSimpleMutation from '../use-simple-mutation';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
-import isJetpackUserNew from '../utils/is-jetpack-user-new';
 import useWelcomeBanner from '../welcome-banner/use-welcome-banner';
 
 const NUMBER_OF_RECOMMENDATIONS_TO_SHOW = 5;
@@ -33,6 +34,11 @@ const useEvaluationRecommendations = () => {
 		getInitialRecommendedModules()
 	);
 	const [ isFirstRun, setIsFirstRun ] = useValueStore( 'isFirstRun', getInitialIsFirstRun() );
+	const {
+		data: { ownedProducts: ownedProductsData },
+		isLoading: isProductOwnershipLoading,
+	} = useProductsByOwnership();
+	const isJetpackUserNew = useIsJetpackUserNew();
 
 	const unownedRecommendedModules = useMemo( () => {
 		// TODO: Maybe remove this ternary condition
@@ -42,18 +48,18 @@ const useEvaluationRecommendations = () => {
 		const ownedProducts = (
 			process?.env?.NODE_ENV === 'development'
 				? [ 'anti-spam', 'extras', 'jetpack-ai' ]
-				: getMyJetpackWindowInitialState( 'lifecycleStats' )?.ownedProducts || []
+				: ownedProductsData || []
 		) as JetpackModule[];
 		// We filter out owned modules, and return the top recommendations
 		return recommendedModules
 			?.filter( module => ! ownedProducts.includes( module ) )
 			.slice( 0, NUMBER_OF_RECOMMENDATIONS_TO_SHOW );
-	}, [ recommendedModules ] );
+	}, [ recommendedModules, ownedProductsData ] );
 
 	const isEligibleForRecommendations = useMemo( () => {
 		const { dismissed } = getMyJetpackWindowInitialState( 'recommendedModules' );
-		return ! dismissed && ! isWelcomeBannerVisible && isJetpackUserNew();
-	}, [ isWelcomeBannerVisible ] );
+		return ! dismissed && ! isWelcomeBannerVisible && isJetpackUserNew;
+	}, [ isWelcomeBannerVisible, isJetpackUserNew ] );
 
 	const [ isSectionVisible, setIsSectionVisible ] = useValueStore(
 		'recommendedModulesVisible',
@@ -148,6 +154,7 @@ const useEvaluationRecommendations = () => {
 		recommendedModules: unownedRecommendedModules,
 		isSectionVisible,
 		isFirstRun,
+		isProductOwnershipLoading,
 	};
 };
 

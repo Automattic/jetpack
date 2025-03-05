@@ -5,6 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.40.0] - 2025-03-03
+### Added
+- Forms: Add min/max options to number field. [#41783]
+
+### Changed
+- Contact Form: Updated editor styles for improved UI consistency and better alignment of form elements. [#42112]
+- Forms: Add accessible name field to advanced settings. [#42101]
+- Forms: Simplify placeholder block. [#42141]
+- Forms: Use placeholder attribute in editor instead of value. [#41712]
+- Update package dependencies. [#42163]
+
+### Fixed
+- Fix warnings when post author is not available. [#42115]
+- Forms: Ensure fields that skip rendering (like empty options fields) do not trigger validation or show value in form submission response. [#41979]
+- Forms: Fix 404 error when a user submits an invalid form with JavaScript disabled. [#41947]
+- Forms: Fix field name set as label when trying to empty label. [#42125]
+- Forms: Show plugin integrations on Atomic. [#42073]
+
+## [0.39.0] - 2025-02-24
+### Changed
+- Forms: Add Tracks when connecting Google Drive. [#41825]
+
+### Fixed
+- Forms: Fix `empty form` check for select elements. [#41846]
+- Forms: Update block editor tracks events. [#41824]
+
+## [0.38.0] - 2025-02-17
+### Added
+- Forms block: Add number input. [#40962]
+
+### Changed
+- Forms: Add tracking for plugin installations. [#41732]
+
+### Fixed
+- Forms: Fix error setting for field. [#41715]
+- Forms: Fix missing translations in choice field settings. [#41719]
+- Forms: Fix syncing of shared styles for nested fields. [#41708]
+- Vertically align submit button in single row. [#41576]
+
+## [0.37.1] - 2025-02-11
+### Fixed
+- Forms: Fix missing translations. [#41671]
+
+## [0.37.0] - 2025-02-10
+### Added
+- Forms: Add a new file upload field block to allow visitors to upload files through contact forms. [#41582]
+- Forms: Add support for having multiple forms across paginated pages. [#41407]
+- Forms: Update fields and button blocks to support contentOnly editing. [#41411]
+- Tests: Verify empty forms do not submit. [#41504]
+
+### Changed
+- File Upload Field block: Use WordPress upload icon and follow consistent field patterns (currently in beta). [#41586]
+- Forms: Track forms submissions in order to improve the product. [#41307]
+- Update package dependencies. [#41491]
+
+### Fixed
+- Fix submit button width and alignment. [#41139]
+- Forms: Fix block style variations not showing in the editor. [#41457]
+- Forms: Fix the date format input if multiple date pickers are used with different date formats. [#41611]
+- Forms: Fix invalid HTML IDs. [#41564]
+- Forms: Hide fields without options. [#41443]
+- Improve the styling options of the separator block when placed inside the form block. [#40967]
+
 ## [0.36.0] - 2025-02-03
 ### Added
 - Prevent empty client-side form submission. [#41464]
@@ -12,7 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Remove legacy code and improve code quality. [#41348]
 - Rename contact form block placeholder to "Forms". [#41384]
-- Updated package dependencies. [#41286]
+- Update package dependencies. [#41286]
 
 ### Fixed
 - Add wrapping div to the core HTML block when inserted inside the form block. [#41269]
@@ -812,6 +875,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.40.0]: https://github.com/automattic/jetpack-forms/compare/v0.39.0...v0.40.0
+[0.39.0]: https://github.com/automattic/jetpack-forms/compare/v0.38.0...v0.39.0
+[0.38.0]: https://github.com/automattic/jetpack-forms/compare/v0.37.1...v0.38.0
+[0.37.1]: https://github.com/automattic/jetpack-forms/compare/v0.37.0...v0.37.1
+[0.37.0]: https://github.com/automattic/jetpack-forms/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/automattic/jetpack-forms/compare/v0.35.1...v0.36.0
 [0.35.1]: https://github.com/automattic/jetpack-forms/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/automattic/jetpack-forms/compare/v0.34.6...v0.35.0

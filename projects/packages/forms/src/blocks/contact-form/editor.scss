@@ -55,6 +55,7 @@
 
 			&.wp-block-jetpack-button {
 				flex-basis: auto;
+				align-self: flex-end; // Ensure button is aligned with the bottom of the previous field when on a same row
 			}
 
 			&.jetpack-field__width-25,
@@ -93,17 +94,31 @@
 			&[data-type='jetpack/field-consent'] {
 				align-self: center;
 			}
+
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator ){
+				max-width: var( --wp--preset--spacing--80, 100px );
+				margin-left: auto;
+				margin-right: auto;
+			}
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
+				max-width: inherit;
+			}
+
 		}
 	}
 
 	.block-editor-block-list__layout.wp-block-jetpack-field-option-radio,
 	.block-editor-block-list__layout.wp-block-jetpack-field-option-checkbox  {
 		gap: 0;
-		align-items: center;
 
 		> .wp-block {
 			flex: initial;
 		}
+	}
+
+	.block-editor-block-list__layout.wp-block-jetpack-field-option-checkbox {
+		align-items: center;
 	}
 
 	.block-list-appender {
@@ -167,43 +182,8 @@
 
 	.form-placeholder__footer {
 		display: flex;
-		flex-direction: column;
+		flex-direction: row;
 		justify-content: center;
-		align-items: center;
-		gap: 12px;
-
-		@include break-small() {
-			flex-direction: row;
-			justify-content: space-between;
-		}
-	}
-
-	.form-placeholder__footer-links {
-		font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-
-		@include break-small() {
-			align-items: flex-end;
-		}
-	}
-
-	.form-placeholder__external-link {
-		font-size: 13px;
-		padding: 0;
-		font-weight: 400;
-
-		&, &:hover, &:active, &:focus {
-			background-color: unset;
-			color: var(--wp-admin-theme-color)
-		}
-
-		svg {
-			width: 1.4em;
-			height: 1.4em;
-			margin-left: 2px;
-		}
 	}
 }
 
@@ -317,6 +297,7 @@
 }
 
 .jetpack-field__textarea {
+	display: block;
 	min-height: 200px;
 }
 
@@ -391,6 +372,7 @@
 
 		&[type="radio"]::before {
 			border-radius: 50%;
+			transform: translateY(15%);
 		}
 	}
 
@@ -474,6 +456,7 @@
 	.wp-block-jetpack-field-option-radio {
 		display: flex;
 		align-items: baseline; /* Align input with first label line */
+		flex-wrap: nowrap;
 
 		.jetpack-option__type:before {
 			display: block; /* display: flex causes baselines to not align */

@@ -10,6 +10,7 @@ function getPrettyError( error: string ) {
 		UrlVerifyError: 'url-verify-error',
 		EmptyCSSError: 'empty-css-error',
 		XFrameDenyError: 'x-frame-deny-error',
+		InvalidURLError: 'invalid-url-error',
 	};
 
 	return errorMap[ error as keyof typeof errorMap ] || error;

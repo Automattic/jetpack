@@ -13,7 +13,11 @@ import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
 import { store as socialStore } from '../../../social-store';
 import { getSocialScriptData } from '../../../utils';
-import { getSharedPostsCount, getTotalSharesCount } from '../../../utils/shares-data';
+import {
+	getSharedPostsCount,
+	getTotalSharesCount,
+	isShareLimitEnabled,
+} from '../../../utils/shares-data';
 import StatCards from './stat-cards';
 import styles from './styles.module.scss';
 
@@ -22,7 +26,7 @@ const Header = () => {
 		const store = select( socialStore );
 		return {
 			hasConnections: store.getConnections().length > 0,
-			isModuleEnabled: select( socialStore ).getSocialModuleSettings().publicize,
+			isModuleEnabled: store.getSocialModuleSettings().publicize,
 		};
 	} );
 
@@ -76,22 +80,24 @@ const Header = () => {
 						</Button>
 					</div>
 				</Col>
-				<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
-					<StatCards
-						stats={ [
-							{
-								icon: <SocialIcon />,
-								label: __( 'Total shares past 30 days', 'jetpack-publicize-components' ),
-								value: formatter.format( getTotalSharesCount() ),
-							},
-							{
-								icon: <Icon icon={ postList } />,
-								label: __( 'Posted this month', 'jetpack-publicize-components' ),
-								value: formatter.format( getSharedPostsCount() ),
-							},
-						] }
-					/>
-				</Col>
+				{ isShareLimitEnabled() ? (
+					<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
+						<StatCards
+							stats={ [
+								{
+									icon: <SocialIcon />,
+									label: __( 'Total shares past 30 days', 'jetpack-publicize-components' ),
+									value: formatter.format( getTotalSharesCount() ),
+								},
+								{
+									icon: <Icon icon={ postList } />,
+									label: __( 'Posted this month', 'jetpack-publicize-components' ),
+									value: formatter.format( getSharedPostsCount() ),
+								},
+							] }
+						/>
+					</Col>
+				) : null }
 			</Container>
 		</>
 	);

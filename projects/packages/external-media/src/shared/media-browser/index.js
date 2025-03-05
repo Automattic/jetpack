@@ -1,48 +1,54 @@
-import { Button } from '@wordpress/components';
-import { memo, useCallback, useState, useRef, useEffect } from '@wordpress/element';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { Spinner, Composite } from '@wordpress/components';
+import { useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { UP, DOWN, LEFT, RIGHT, SPACE, ENTER } from '@wordpress/keycodes';
 import clsx from 'clsx';
-import { debounce } from 'lodash';
 import React from 'react';
+import MediaBrowserSelectButton from './media-browser-select-button';
 import MediaItem from './media-item';
-import MediaPlaceholder from './placeholder';
+import usePageSource from './use-page-source';
 import './style.scss';
 
 const MAX_SELECTED = 10;
 
-const EmptyResults = memo( () => (
-	<div className="jetpack-external-media-browser__empty">
-		<p>{ __( 'Sorry, but nothing matched your search criteria.', 'jetpack-external-media' ) }</p>
-	</div>
-) );
-
 /**
  * MediaBrowser component
  *
- * @param {object} props - The component props
+ * @param {object}   props                  - The component props
+ * @param {object[]} props.media            - The list of media
+ * @param {string}   props.mediaSource      - The source of media
+ * @param {boolean}  props.isCopying        - Whether the media browser is copying the media
+ * @param {boolean}  props.isLoading        - Whether the media browser is loading
+ * @param {boolean}  props.imageOnly        - Whether to skip non-media items
+ * @param {number}   props.pageHandle       - The current page
+ * @param {string}   props.className        - The class name
+ * @param {boolean}  props.multiple         - Whether to allow multiple selection
+ * @param {Function} props.setPath          - To set the path for the folder item
+ * @param {Function} props.nextPage         - To get the next path
+ * @param {Function} props.onCopy           - To handle the copy
+ * @param {Function} props.selectButtonText - To get the select button text
+ * @param {boolean}  props.shouldProxyImg   - Whether to use the proxy for the media URL
  * @return {React.ReactElement} - JSX element
  */
-function MediaBrowser( props ) {
-	const {
-		media,
-		isCopying,
-		isLoading,
-		imageOnly,
-		pageHandle,
-		className,
-		multiple,
-		setPath,
-		nextPage,
-		onCopy,
-		selectButtonText,
-		shouldProxyImg,
-	} = props;
+function MediaBrowser( {
+	media,
+	mediaSource,
+	isCopying,
+	isLoading,
+	imageOnly,
+	pageHandle,
+	className,
+	multiple,
+	setPath,
+	nextPage,
+	onCopy,
+	selectButtonText,
+	shouldProxyImg,
+} ) {
 	const [ selected, setSelected ] = useState( [] );
-	const [ focused, setFocused ] = useState( -1 );
-
-	const columns = useRef( -1 );
 	const gridEl = useRef( null );
+	const { tracks } = useAnalytics();
+	const pageSource = usePageSource();
 
 	const select = useCallback(
 		newlySelected => {
@@ -66,168 +72,102 @@ function MediaBrowser( props ) {
 	);
 
 	const onCopyAndInsert = useCallback( () => {
+		tracks.recordEvent( 'jetpack_external_media_modal_submit', {
+			page: pageSource,
+			media_source: mediaSource,
+			media_count: selected.length,
+			multiple: !! multiple,
+		} );
+
 		onCopy( selected );
-	}, [ selected, onCopy ] );
+	}, [ tracks, pageSource, mediaSource, selected, multiple, onCopy ] );
 
 	const hasMediaItems = media.filter( item => item.type !== 'folder' ).length > 0;
-	const classes = clsx( {
-		'jetpack-external-media-browser__media': true,
-		'jetpack-external-media-browser__media__loading': isLoading,
-	} );
-	const wrapper = clsx( {
-		'jetpack-external-media-browser': true,
-		[ className ]: true,
-	} );
 
-	const onLoadMoreClick = () => {
-		if ( media.length ) {
-			setFocused( media.length );
-		}
-		nextPage();
+	const getSelectButtonLabel = () => {
+		const defaultLabel = isCopying
+			? __( 'Inserting…', 'jetpack-external-media' )
+			: __( 'Select', 'jetpack-external-media', /* dummy arg to avoid bad minification */ 0 );
+
+		return selectButtonText ? selectButtonText( selected.length, isCopying ) : defaultLabel;
 	};
-
-	const navigate = ( keyCode, index ) => {
-		switch ( keyCode ) {
-			case LEFT:
-				if ( index >= 1 ) {
-					setFocused( index - 1 );
-				}
-				break;
-			case RIGHT:
-				if ( index < media.length ) {
-					setFocused( index + 1 );
-				}
-				break;
-			case UP:
-				if ( index >= columns.current ) {
-					setFocused( index - columns.current );
-				}
-				break;
-			case DOWN:
-				if ( index < media.length - columns.current ) {
-					setFocused( index + columns.current );
-				}
-				break;
-		}
-	};
-
-	/**
-	 * Counts how many items are in a row by checking how many of the grid's child
-	 * items have a matching offsetTop.
-	 */
-	const checkColumns = () => {
-		let perRow = 1;
-
-		const items = gridEl.current.children;
-
-		if ( items.length > 0 ) {
-			const firstOffset = items[ 0 ].offsetTop;
-
-			/**
-			 * Check how many items have a matching offsetTop. This will give us the
-			 * total number of items in a row.
-			 */
-			while ( perRow < items.length && items[ perRow ].offsetTop === firstOffset ) {
-				++perRow;
-			}
-		}
-
-		columns.current = perRow;
-	};
-
-	const checkColumnsDebounced = debounce( checkColumns, 400 );
-
-	useEffect( () => {
-		// Re-set columns on window resize:
-		window.addEventListener( 'resize', checkColumnsDebounced );
-		return () => {
-			window.removeEventListener( 'resize', checkColumnsDebounced );
-		};
-	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
-
-	useEffect( () => {
-		// Set columns value once when media are loaded.
-		if ( media.length && columns.current === -1 ) {
-			checkColumns();
-		}
-	}, [ media ] );
 
 	// Using _event to avoid eslint errors. Can change to event if it's in use again.
 	const handleMediaItemClick = ( _event, { item } ) => {
 		select( item );
 	};
 
-	const handleMediaItemKeyDown = ( event, { item, index } ) => {
-		if ( [ LEFT, RIGHT, UP, DOWN ].includes( event.keyCode ) ) {
-			navigate( event.keyCode, index );
-		} else if ( SPACE === event.keyCode ) {
-			select( item );
-			event.preventDefault(); // Prevent space from scrolling the page down.
-		} else if ( ENTER === event.keyCode ) {
-			select( item );
+	// Infinite scroll
+	useEffect( () => {
+		const target = gridEl.current?.lastElementChild;
+		let observer;
+		if ( pageHandle && ! isLoading && target ) {
+			observer = new window.IntersectionObserver( entries => {
+				if ( entries[ 0 ].isIntersecting ) {
+					nextPage();
+				}
+			} );
+
+			observer.observe( target );
 		}
 
-		if ( [ LEFT, RIGHT, UP, DOWN, SPACE, ENTER ].includes( event.keyCode ) ) {
-			event.stopPropagation();
-		}
-	};
-
-	const SelectButton = selectProps => {
-		const disabled = selected.length === 0 || isCopying;
-		const defaultLabel = selectProps?.labelText
-			? selectProps?.labelText( selected.length )
-			: __( 'Select', 'jetpack-external-media', /* dummy arg to avoid bad minification */ 0 );
-
-		const label = isCopying ? __( 'Inserting…', 'jetpack-external-media' ) : defaultLabel;
-
-		return (
-			<div className="jetpack-external-media-browser__media__toolbar">
-				<Button
-					variant="primary"
-					isBusy={ isCopying }
-					disabled={ disabled }
-					onClick={ onCopyAndInsert }
-				>
-					{ label }
-				</Button>
-			</div>
-		);
-	};
+		return () => {
+			observer?.unobserve( target );
+		};
+	}, [ pageHandle, isLoading, gridEl ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
-		<div className={ wrapper }>
-			<ul ref={ gridEl } className={ classes }>
-				{ media.map( ( item, index ) => (
+		<div
+			className={ clsx( {
+				'jetpack-external-media-browser': true,
+				[ className ]: true,
+			} ) }
+		>
+			<Composite
+				role="listbox"
+				ref={ gridEl }
+				className={ clsx( {
+					'jetpack-external-media-browser__media': true,
+					'jetpack-external-media-browser__media__loading': isLoading,
+				} ) }
+				aria-label={ __( 'Media list', 'jetpack-external-media' ) }
+				render={ <ul /> }
+			>
+				{ media.map( item => (
 					<MediaItem
 						item={ item }
 						imageOnly={ imageOnly }
-						index={ index }
 						key={ item.ID }
 						onClick={ handleMediaItemClick }
-						onKeyDown={ handleMediaItemKeyDown }
-						focus={ index === focused }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 						isCopying={ isCopying }
 						shouldProxyImg={ shouldProxyImg }
 					/>
 				) ) }
+			</Composite>
 
-				{ media.length === 0 && ! isLoading && <EmptyResults /> }
-				{ isLoading && <MediaPlaceholder /> }
+			{ media.length === 0 && ! isLoading && (
+				<div className="jetpack-external-media-browser__empty">
+					<p>
+						{ __( 'Sorry, but nothing matched your search criteria.', 'jetpack-external-media' ) }
+					</p>
+				</div>
+			) }
 
-				{ pageHandle && ! isLoading && (
-					<Button
-						variant="secondary"
-						className="jetpack-external-media-browser__loadmore"
-						disabled={ isLoading || isCopying }
-						onClick={ onLoadMoreClick }
-					>
-						{ __( 'Load More', 'jetpack-external-media' ) }
-					</Button>
-				) }
-			</ul>
+			{ isLoading && (
+				<div className="jetpack-external-media-browser__loading">
+					<Spinner />
+				</div>
+			) }
 
-			{ hasMediaItems && <SelectButton labelText={ selectButtonText } /> }
+			{ hasMediaItems && (
+				<MediaBrowserSelectButton
+					label={ getSelectButtonLabel() }
+					isLoading={ isCopying }
+					disabled={ selected.length === 0 || isCopying }
+					onClick={ onCopyAndInsert }
+				/>
+			) }
 		</div>
 	);
 }

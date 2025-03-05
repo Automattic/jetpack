@@ -1,4 +1,4 @@
-import Badge from '../index';
+import Badge from '../index.js';
 
 export default {
 	title: 'JS Packages/Components/Badge',

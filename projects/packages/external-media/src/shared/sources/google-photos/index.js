@@ -1,11 +1,11 @@
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import MediaLoadingPlaceholder from '../../media-browser/placeholder';
 import { getGooglePhotosPickerCachedSessionId } from '../../media-service';
 import { MediaSource } from '../../media-service/types';
 import withMedia from '../with-media';
 import GooglePhotosAuth from './google-photos-auth';
 import GooglePhotosAuthUpgrade from './google-photos-auth-upgrade';
+import GooglePhotosLoading from './google-photos-loading';
 import GooglePhotosMedia from './google-photos-media';
 import GooglePhotosPickerButton from './google-photos-picker-button';
 import './style.scss';
@@ -99,7 +99,7 @@ function GooglePhotos( props ) {
 	] );
 
 	if ( isLoadingState ) {
-		return <MediaLoadingPlaceholder />;
+		return <GooglePhotosLoading { ...props } />;
 	}
 
 	if ( ! isAuthenticated ) {
@@ -117,4 +117,4 @@ function GooglePhotos( props ) {
 	return <GooglePhotosMedia pickerFeatureEnabled={ pickerFeatureEnabled } { ...props } />;
 }
 
-export default withMedia( MediaSource.GooglePhotos )( GooglePhotos );
+export default withMedia( MediaSource.GooglePhotos, { modalSize: 'fill' } )( GooglePhotos );

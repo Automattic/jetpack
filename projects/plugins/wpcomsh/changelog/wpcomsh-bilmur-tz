@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Bilmur RUM library now reports the site's timezone

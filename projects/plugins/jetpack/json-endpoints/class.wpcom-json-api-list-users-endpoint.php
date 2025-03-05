@@ -96,6 +96,13 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 	);
 
 	/**
+	 * Columns in which to search for a user match.
+	 *
+	 * @var array
+	 */
+	public $search_columns;
+
+	/**
 	 * API callback.
 	 *
 	 * @param string $path - the path.

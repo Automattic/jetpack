@@ -387,20 +387,6 @@ class Newspack_Blocks_API {
 		$where .= ' AND post_title LIKE "%' . $search . '%" ';
 		return $where;
 	}
-
-	/**
-	 * Return CSS for the Homepage Articles block, when rendered in the editor.
-	 *
-	 * @return WP_REST_Response.
-	 */
-	public static function css_endpoint() {
-		return newspack_blocks_get_homepage_articles_css_string(
-			[
-				'typeScale'    => range( 1, 10 ),
-				'showSubtitle' => [ 1 ],
-			]
-		);
-	}
 }
 
 add_action( 'rest_api_init', array( 'Newspack_Blocks_API', 'register_video_playlist_endpoint' ) );

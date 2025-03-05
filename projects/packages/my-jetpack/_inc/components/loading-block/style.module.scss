@@ -1,0 +1,18 @@
+.skeleton {
+    border-radius: var( --jp-border-radius-rna );
+    animation: skeleton-loading 1s linear infinite alternate;
+    color: transparent;
+}
+
+.spaceBelow {
+    margin-bottom: 1rem;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-color: #F5F5F5; /* FROM Color 1 */
+    }
+    100% {
+        background-color: #E2E2E2; /* TO Color 2 */
+    }
+}

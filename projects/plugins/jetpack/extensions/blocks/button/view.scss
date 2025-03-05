@@ -8,6 +8,7 @@
 	@include align-block;
 	max-width: 100%;
 	width: fit-content;
+	height: fit-content; // Since .wp-block-button__link has a 100% height, this prevents the button from matching its container's height.
 	margin: 0;
 
 	&.is-style-outline > .wp-block-button__link {

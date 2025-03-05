@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.7] - 2025-03-05
+### Changed
+- Internal updates.
+
+## [0.7.6] - 2025-02-24
+### Changed
+- Internal updates.
+
+## [0.7.5] - 2025-02-17
+### Fixed
+- Do not serve images using unsupported extensions with the cdn_url method. [#41760]
+
 ## [0.7.4] - 2025-02-03
 ### Fixed
 - Code: Remove extra params on function calls. [#41263]
@@ -170,6 +182,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add image CDN package. [#29561]
 
+[0.7.7]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.6...v0.7.7
+[0.7.6]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.5...v0.7.6
+[0.7.5]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.4...v0.7.5
 [0.7.4]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.3...v0.7.4
 [0.7.3]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.1...v0.7.2

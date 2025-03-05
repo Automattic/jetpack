@@ -1,6 +1,7 @@
 import { Button, SelectControl } from '@wordpress/components';
 import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import React from 'react';
 import {
 	SOURCE_GOOGLE_PHOTOS,
@@ -10,6 +11,7 @@ import {
 	DATE_RANGE_ANY,
 } from '../../constants';
 import MediaBrowser from '../../media-browser';
+import { MediaSource } from '../../media-service/types';
 import { getExternalMediaApiUrl } from '../api';
 import Breadcrumbs from './breadcrumbs';
 import GoogleFilterOption from './filter-option';
@@ -27,6 +29,7 @@ const isImageOnly = allowed => allowed && allowed.length === 1 && allowed[ 0 ] =
  */
 function GooglePhotosMedia( props ) {
 	const {
+		className,
 		account,
 		allowedTypes,
 		copyMedia,
@@ -35,6 +38,7 @@ function GooglePhotosMedia( props ) {
 		isLoading,
 		media,
 		multiple,
+		selectButtonText,
 		onChangePath,
 		pageHandle,
 		path,
@@ -72,7 +76,7 @@ function GooglePhotosMedia( props ) {
 	const listUrl = getExternalMediaApiUrl( 'list', SOURCE_GOOGLE_PHOTOS, params );
 
 	const getNextPage = useCallback(
-		( event, reset = false ) => {
+		( query, reset = false ) => {
 			getMedia( listUrl, reset );
 		},
 		[ getMedia, listUrl ]
@@ -112,12 +116,12 @@ function GooglePhotosMedia( props ) {
 	useEffect( () => {
 		if ( lastQuery !== listUrl ) {
 			lastQuery.current = listUrl;
-			getNextPage( {}, path !== lastPath.current );
+			getNextPage( '', path !== lastPath.current );
 		}
 	}, [ lastQuery, listUrl, getNextPage, path ] );
 
 	return (
-		<div className="jetpack-external-media-wrapper__google">
+		<div className={ clsx( className, 'jetpack-external-media-wrapper__google' ) }>
 			<div className="jetpack-external-media-header__view">
 				{ ! pickerFeatureEnabled && (
 					<>
@@ -180,6 +184,7 @@ function GooglePhotosMedia( props ) {
 				className="jetpack-external-media-browser__google"
 				key={ listUrl }
 				media={ media }
+				mediaSource={ MediaSource.GooglePhotos }
 				imageOnly={ imageOnly }
 				isCopying={ isCopying }
 				isLoading={ isLoading }
@@ -187,6 +192,7 @@ function GooglePhotosMedia( props ) {
 				onCopy={ onCopy }
 				pageHandle={ pageHandle }
 				multiple={ multiple }
+				selectButtonText={ selectButtonText }
 				setPath={ setPath }
 				shouldProxyImg={ pickerFeatureEnabled }
 			/>

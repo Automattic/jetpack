@@ -16,7 +16,7 @@ class Config {
 	/**
 	 * Get the directory path for storing cache files.
 	 */
-	public static function get_cache_dir_path() {
+	public static function get_legacy_cache_dir_path() {
 		if ( defined( 'PAGE_OPTIMIZE_CACHE_DIR' ) ) {
 			if ( empty( \PAGE_OPTIMIZE_CACHE_DIR ) ) {
 				return false;
@@ -70,7 +70,7 @@ class Config {
 	 * Check if cache can be used.
 	 */
 	public static function can_use_cache() {
-		$cache_dir = static::get_cache_dir_path();
+		$cache_dir = static::get_legacy_cache_dir_path();
 
 		if ( empty( $cache_dir ) ) {
 			static::log_error( __( 'Disabling page-optimize cache. Cache directory not defined.', 'jetpack-boost' ) );

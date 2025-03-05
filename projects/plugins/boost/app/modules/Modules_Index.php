@@ -8,18 +8,25 @@ use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Image_CDN;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules\Speculation_Rules;
 use Automattic\Jetpack_Boost\Modules\Performance_History\Performance_History;
-
 class Modules_Index {
 	const DISABLE_MODULE_QUERY_VAR = 'jb-disable-modules';
+
 	/**
 	 * @var Module[] - Associative array of all Jetpack Boost modules.
 	 *
 	 * Example: [ 'critical_css' => Module, 'image_cdn' => Module ]
+	 */
+	protected $modules = array();
+
+	/**
+	 * @var Module[] - Associative array of available Jetpack Boost modules.
 	 */
 	protected $available_modules = array();
 
@@ -30,6 +37,7 @@ class Modules_Index {
 		Critical_CSS::class,
 		Cloud_CSS::class,
 		Image_Size_Analysis::class,
+		Minify::class,
 		Minify_JS::class,
 		Minify_CSS::class,
 		Render_Blocking_JS::class,
@@ -37,6 +45,7 @@ class Modules_Index {
 		Image_CDN::class,
 		Performance_History::class,
 		Page_Cache::class,
+		Speculation_Rules::class,
 	);
 
 	/**
@@ -47,8 +56,9 @@ class Modules_Index {
 	 */
 	public function __construct() {
 		foreach ( self::FEATURES as $feature ) {
+			$this->modules[ $feature::get_slug() ] = new Module( new $feature() );
 			if ( $feature::is_available() ) {
-				$this->available_modules[ $feature::get_slug() ] = new Module( new $feature() );
+				$this->available_modules[ $feature::get_slug() ] = $this->modules[ $feature::get_slug() ];
 			}
 		}
 	}
@@ -69,6 +79,15 @@ class Modules_Index {
 		}
 
 		return $matching_features;
+	}
+
+	/**
+	 * Fetches all modules.
+	 *
+	 * @return Module[]
+	 */
+	public function get_modules() {
+		return $this->modules;
 	}
 
 	/**

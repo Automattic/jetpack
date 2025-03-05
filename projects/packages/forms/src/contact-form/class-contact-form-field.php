@@ -113,6 +113,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'labelcolor'             => null,
 				'labelfontsize'          => null,
 				'fieldfontsize'          => null,
+				'min'                    => null,
+				'max'                    => null,
 			),
 			$attributes,
 			'contact-field'
@@ -181,7 +183,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $message The error message to display on the form.
 	 */
 	public function add_error( $message ) {
-		$this->is_error = true;
+		$this->error = true;
 
 		if ( ! is_wp_error( $this->form->errors ) ) {
 			$this->form->errors = new \WP_Error();
@@ -205,13 +207,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * Validates the form input
 	 */
 	public function validate() {
+		$field_type = $this->maybe_override_type();
+
 		// If it's not required, there's nothing to validate
-		if ( ! $this->get_attribute( 'required' ) ) {
+		if ( ! $this->get_attribute( 'required' ) || ! $this->is_field_renderable( $field_type ) ) {
 			return;
 		}
 
 		$field_id    = $this->get_attribute( 'id' );
-		$field_type  = $this->maybe_override_type();
 		$field_label = $this->get_attribute( 'label' );
 
 		if ( isset( $_POST[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
@@ -247,6 +250,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				if ( empty( $field_value ) ) {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires at least one selection', 'jetpack-forms' ), $field_label ) );
+				}
+				break;
+			case 'number':
+				// Make sure the number address is valid
+				if ( ! is_numeric( $field_value ) ) {
+					/* translators: %s is the name of a form field */
+					$this->add_error( sprintf( __( '%s requires a number', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			default:
@@ -363,7 +373,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field_value = Contact_Form_Plugin::strip_tags( $this->value );
 		$field_label = Contact_Form_Plugin::strip_tags( $field_label );
 
-		$rendered_field = $this->render_field( $field_type, $field_id, $field_label, $field_value, $field_class, $field_placeholder, $field_required, $field_required_text );
+		$extra_attrs = array();
+
+		if ( $field_type === 'number' ) {
+			if ( is_numeric( $this->get_attribute( 'min' ) ) ) {
+				$extra_attrs['min'] = $this->get_attribute( 'min' );
+			}
+			if ( is_numeric( $this->get_attribute( 'max' ) ) ) {
+				$extra_attrs['max'] = $this->get_attribute( 'max' );
+			}
+		}
+
+		$rendered_field = $this->render_field( $field_type, $field_id, $field_label, $field_value, $field_class, $field_placeholder, $field_required, $field_required_text, $extra_attrs );
 
 		/**
 		 * Filter the HTML of the Contact Form.
@@ -655,7 +676,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the radio field.
 	 *
-	 * @param int    $id - the ID.
+	 * @param string $id - the ID (starts with 'g' - see constructor).
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
 	 * @param string $class - the field class.
@@ -670,11 +691,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field_style = 'style="' . $this->option_styles . '"';
 
+		$used_html_ids = array();
+
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
 				$radio_value = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option );
-				$radio_id    = "$id-$radio_value";
+				$radio_id    = $id . '-' . sanitize_html_class( $radio_value );
+
+				// If exact id was already used in this radio group, append option index.
+				// Multiple 'blue' options would give id-blue, id-blue-1, id-blue-2, etc.
+				if ( isset( $used_html_ids[ $radio_id ] ) ) {
+					$radio_id .= '-' . $option_index;
+				}
+				$used_html_ids[ $radio_id ] = true;
 
 				$field .= "<p class='contact-form-field'>";
 				$field .= "<input
@@ -745,7 +775,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the multiple checkbox field.
 	 *
-	 * @param int    $id - the ID.
+	 * @param string $id - the ID (starts with 'g' - see constructor).
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
 	 * @param string $class - the field class.
@@ -764,11 +794,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field_style = 'style="' . $this->option_styles . '"';
 
+		$used_html_ids = array();
+
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
 				$checkbox_value = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option );
-				$checkbox_id    = "$id-$checkbox_value";
+				$checkbox_id    = $id . '-' . sanitize_html_class( $checkbox_value );
+
+				// If exact id was already used in this checkbox group, append option index.
+				// Multiple 'blue' options would give id-blue, id-blue-1, id-blue-2, etc.
+				if ( isset( $used_html_ids[ $checkbox_id ] ) ) {
+					$checkbox_id .= '-' . $option_index;
+				}
+				$used_html_ids[ $checkbox_id ] = true;
 
 				$field .= "<p class='contact-form-field'>";
 				$field .= "<input
@@ -889,8 +928,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( '../../dist/contact-form/css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
 
-		// Using Core's built-in datepicker localization routine
-		wp_localize_jquery_ui_datepicker();
+		return $field;
+	}
+
+	/**
+	 * Return the HTML for the number field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 * @param array  $extra_attrs - Extra attributes used in number field, namely `min` and `max`.
+	 *
+	 * @return string HTML
+	 */
+	public function render_number_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array() ) {
+		$field  = $this->render_label( 'number', $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'number', $id, $value, $class, $placeholder, $required, $extra_attrs );
 		return $field;
 	}
 
@@ -996,10 +1053,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $placeholder - the field placeholder content.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text for a field marked as required.
+	 * @param array  $extra_attrs - extra attributes to be passed to render functions.
 	 *
 	 * @return string HTML
 	 */
-	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text ) {
+	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text, $extra_attrs = array() ) {
 		if ( ! $this->is_field_renderable( $type ) ) {
 			return null;
 		}
@@ -1085,6 +1143,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				break;
 			case 'consent':
 				$field .= $this->render_consent_field( $id, $field_class );
+				break;
+			case 'number':
+				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );

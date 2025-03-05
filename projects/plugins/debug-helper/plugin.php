@@ -104,6 +104,11 @@ $jetpack_dev_debug_modules = array(
 		'name'        => 'WPCOM API Request Tracker',
 		'description' => 'Displays the number of requests to WPCOM API endpoints for the current page request.',
 	),
+	'wpcom-api-request-faker'   => array(
+		'file'        => 'class-wpcom-api-request-faker-module.php',
+		'name'        => 'WPCOM API Request Faker',
+		'description' => 'Send custom requests to the WPcom API, authorized via your Jetpack connection.',
+	),
 	'xmlrpc-logger'             => array(
 		'file'        => 'class-xmlrpc-logger.php',
 		'name'        => 'XMLRPC Logger',

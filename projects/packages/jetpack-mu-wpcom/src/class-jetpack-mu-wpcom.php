@@ -55,9 +55,11 @@ class Jetpack_Mu_Wpcom {
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_newsletter_dashboard' ) );
 		}
 
 		// These features run only on atomic sites.
@@ -131,6 +133,15 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Load Newsletter Dashboard in Simple sites.
+	 */
+	public static function load_wpcom_newsletter_dashboard() {
+		if ( defined( 'JETPACK_NEWSLETTER_WIDGET' ) && JETPACK_NEWSLETTER_WIDGET ) {
+			require_once __DIR__ . '/features/wpcom-newsletter-widget/wpcom-newsletter-widget.php';
+		}
+	}
+
+	/**
 	 * Load features that only apply to WordPress.com users.
 	 */
 	public static function load_wpcom_user_features() {
@@ -150,6 +161,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
+		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-locale/sync-locale-from-calypso-to-atomic.php';
 		require_once __DIR__ . '/features/wpcom-media/wpcom-media-url-upload.php';
@@ -159,6 +171,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 
 		// Only load the Calypsoify and Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
@@ -226,6 +239,7 @@ class Jetpack_Mu_Wpcom {
 
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
+		require_once __DIR__ . '/features/wpcom-fse/wpcom-fse.php';
 
 		/**
 		 * Load features for the editor and the frontend pages.
@@ -468,6 +482,14 @@ class Jetpack_Mu_Wpcom {
 	public static function load_verbum_comments_admin() {
 		require_once __DIR__ . '/features/verbum-comments/assets/class-verbum-admin.php';
 		new \Automattic\Jetpack\Verbum_Admin();
+	}
+
+	/**
+	 * Load Verbum Moderate.
+	 */
+	public static function load_verbum_moderate() {
+		require_once __DIR__ . '/features/verbum-comments/assets/class-verbum-moderate.php';
+		new \Automattic\Jetpack\Verbum_Moderate();
 	}
 
 	/**

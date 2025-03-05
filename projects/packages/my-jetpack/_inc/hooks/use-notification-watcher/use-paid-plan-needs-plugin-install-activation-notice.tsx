@@ -16,21 +16,23 @@ import type { NoticeOptions } from '../../context/notices/types';
 import type { MyJetpackInitialState } from '../../data/types';
 
 type RedBubbleAlerts = MyJetpackInitialState[ 'redBubbleAlerts' ];
-type Purchase = MyJetpackInitialState[ 'purchases' ][ 'items' ][ 0 ];
+
+// The notice will not show again for 14 days (when clicking the close(X) button).
+const NUM_DAYS_COOKIE_EXPIRES = 14;
 
 const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { recordEvent } = useAnalytics();
 
 	const { isSiteConnected } = useMyJetpackConnection();
-	const response = useSimpleQuery( {
+	const response = useSimpleQuery< Purchase[] >( {
 		name: QUERY_PURCHASES_KEY,
 		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
 		options: { enabled: isSiteConnected },
 	} );
 
 	const { isLoading, isError } = response;
-	const purchases = response.data as Purchase[];
+	const purchases = response.data;
 
 	const isPurchasesDataLoaded = purchases && ! isLoading && ! isError;
 
@@ -142,6 +144,13 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 	const needsInstalledContainsJetpack = needsInstalled.find(
 		productSlug => products[ productSlug ].plugin_slug === 'jetpack'
 	);
+
+	const onCloseClick = useCallback( () => {
+		const expireDate = new Date( Date.now() + 1000 * 3600 * 24 * NUM_DAYS_COOKIE_EXPIRES );
+		document.cookie = `${ planSlug }--plugins_needing_installed_dismissed=1; expires=${ expireDate.toString() }; SameSite=None; Secure`;
+		delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
+		resetNotice();
+	}, [ planSlug, pluginsNeedingActionAlerts, redBubbleAlerts, resetNotice ] );
 
 	const { install: installAndActivatePlugins, isPending: isInstalling } =
 		useInstallPlugins( needsInstalled );
@@ -268,6 +277,8 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 					noDefaultClasses: true,
 				},
 			],
+			onClose: onCloseClick,
+			hideCloseButton: false,
 			priority: NOTICE_PRIORITY_MEDIUM + ( isInstallingOrActivating ? 1 : 0 ),
 		};
 
@@ -283,6 +294,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		buttonLabel,
 		isPurchasesDataLoaded,
 		numPluginsNeedingAction,
+		onCloseClick,
 		handleInstallActivateInOneClick,
 		planName,
 		planPurchase,

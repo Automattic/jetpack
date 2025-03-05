@@ -1,8 +1,8 @@
 import clsx from 'clsx';
 import React from 'react';
-import Col from '../layout/col';
-import Container from '../layout/container';
-import useBreakpointMatch from '../layout/use-breakpoint-match';
+import Col from '../layout/col/index.js';
+import Container from '../layout/container/index.js';
+import useBreakpointMatch from '../layout/use-breakpoint-match/index.js';
 import styles from './style.module.scss';
 
 type DialogProps = {

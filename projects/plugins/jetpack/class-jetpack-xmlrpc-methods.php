@@ -137,27 +137,6 @@ class Jetpack_XMLRPC_Methods {
 			}
 		}
 
-		if ( 'en' !== $locale ) {
-			// .org mo files are named slightly different from .com, and all we have is this the locale -- try to guess them.
-			$new_locale = $locale;
-			if ( str_contains( $locale, '-' ) ) {
-				$locale_pieces = explode( '-', $locale );
-				$new_locale    = $locale_pieces[0];
-				$new_locale   .= ( ! empty( $locale_pieces[1] ) ) ? '_' . strtoupper( $locale_pieces[1] ) : '';
-			} else { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
-				// .com might pass 'fr' because thats what our language files are named as, where core seems
-				// to do fr_FR - so try that if we don't think we can load the file.
-				if ( ! file_exists( WP_LANG_DIR . '/' . $locale . '.mo' ) ) {
-					$new_locale = $locale . '_' . strtoupper( $locale );
-				}
-			}
-
-			if ( file_exists( WP_LANG_DIR . '/' . $new_locale . '.mo' ) ) {
-				unload_textdomain( 'default' );
-				load_textdomain( 'default', WP_LANG_DIR . '/' . $new_locale . '.mo' );
-			}
-		}
-
 		$old_user = wp_get_current_user();
 		wp_set_current_user( $user_id );
 
@@ -176,12 +155,12 @@ class Jetpack_XMLRPC_Methods {
 		define( 'REST_API_REQUEST', true );
 		define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
 
-		// needed?
-		require_once ABSPATH . 'wp-admin/includes/admin.php';
-
 		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
 		$api                        = WPCOM_JSON_API::init( $method, $url, $post_body );
 		$api->token_details['user'] = $user_details;
+
+		$api->init_locale( $locale );
+
 		require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 		$display_errors = ini_set( 'display_errors', 0 ); // phpcs:ignore WordPress.PHP.IniSet

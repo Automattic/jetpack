@@ -1,8 +1,10 @@
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { useState } from '@wordpress/element';
+import clsx from 'clsx';
 import React from 'react';
-import { getExternalLibrary } from '../sources';
+import { getExternalLibrary, getExternalSource } from '../sources';
 import { isGeneralPurposeImageGeneratorBetaEnabled } from '../utils/is-general-purpose-image-generator-beta-enabled';
+import { isSupportNext40pxDefaultSize } from '../utils/is-support-next-40px-default-size';
 import MediaAiButton from './media-ai-button';
 import MediaButtonMenu from './media-menu';
 
@@ -23,6 +25,7 @@ function MediaButton( props ) {
 	const { mediaProps } = props;
 	const [ selectedSource, setSelectedSource ] = useState( null );
 	const ExternalLibrary = getExternalLibrary( selectedSource );
+	const externalSource = getExternalSource( selectedSource );
 	const isFeatured = isFeaturedImage( mediaProps );
 	const hasAiButtonSupport = blocksWithAiButtonSupport.includes( name );
 
@@ -45,7 +48,10 @@ function MediaButton( props ) {
 		// eslint-disable-next-line  jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
 		<div
 			onClick={ event => event.stopPropagation() }
-			className="jetpack-external-media-button-wrapper"
+			className={ clsx( {
+				'jetpack-external-media-button-wrapper': true,
+				'is-support-next-40px-default-button': isSupportNext40pxDefaultSize(),
+			} ) }
 		>
 			<MediaButtonMenu
 				{ ...props }
@@ -58,7 +64,13 @@ function MediaButton( props ) {
 				<MediaAiButton setSelectedSource={ setSelectedSource } />
 			) }
 
-			{ ExternalLibrary && <ExternalLibrary { ...mediaProps } onClose={ closeLibrary } /> }
+			{ ExternalLibrary && (
+				<ExternalLibrary
+					{ ...mediaProps }
+					externalSource={ externalSource }
+					onClose={ closeLibrary }
+				/>
+			) }
 		</div>
 	);
 }

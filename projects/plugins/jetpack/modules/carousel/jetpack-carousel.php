@@ -818,6 +818,9 @@ class Jetpack_Carousel {
 	 * @return string
 	 */
 	public function add_data_img_tags_and_enqueue_assets( $content ) {
+		if ( ! is_string( $content ) || $content === '' ) {
+			return '';
+		}
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()

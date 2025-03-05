@@ -1588,6 +1588,20 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 	# Predefined abbreviations.
 	public $predef_abbr = array();
 
+	/**
+	 * Reference attribute.
+	 *
+	 * @var array
+	 */
+	public $ref_attr;
+
+	/**
+	 * Parsing mode.
+	 *
+	 * @var string
+	 */
+	public $mode;
+
 
 	### Parser Implementation ###
 

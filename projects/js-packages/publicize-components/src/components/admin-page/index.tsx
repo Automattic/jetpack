@@ -7,7 +7,12 @@ import {
 	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { siteHasFeature } from '@automattic/jetpack-script-data';
+import {
+	isJetpackSelfHostedSite,
+	isSimpleSite,
+	siteHasFeature,
+	currentUserCan,
+} from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
@@ -25,8 +30,13 @@ import SocialNotesToggle from './toggles/social-notes-toggle';
 import UtmToggle from './toggles/utm-toggle';
 
 export const SocialAdminPage = () => {
+	const isSimple = isSimpleSite();
+
+	const isJetpackSite = isJetpackSelfHostedSite();
+
 	const { isUserConnected, isRegistered } = useConnection();
-	const showConnectionCard = ! isRegistered || ! isUserConnected;
+	const showConnectionCard = ! isSimple && ( ! isRegistered || ! isUserConnected );
+
 	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
 
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
@@ -42,9 +52,13 @@ export const SocialAdminPage = () => {
 		};
 	}, [] );
 
-	const pluginVersion = getSocialScriptData().plugin_info.social.version;
+	const { social, jetpack } = getSocialScriptData().plugin_info;
 
-	const moduleName = `Jetpack Social ${ pluginVersion }`;
+	const moduleName = social.version
+		? `Jetpack Social ${ social.version }`
+		: `Jetpack ${ jetpack.version }`;
+
+	const canManageOptions = currentUserCan( 'manage_options' );
 
 	if ( showConnectionCard ) {
 		return (
@@ -59,9 +73,14 @@ export const SocialAdminPage = () => {
 	}
 
 	return (
-		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
+		<AdminPage
+			moduleName={ moduleName }
+			header={ <AdminPageHeader /> }
+			showFooter={ isJetpackSite }
+		>
 			<GlobalNotices />
-			{ ( ! hasSocialPaidFeatures() && showPricingPage ) || forceDisplayPricingPage ? (
+			{ ( isJetpackSite && ! hasSocialPaidFeatures() && showPricingPage ) ||
+			forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
@@ -76,10 +95,19 @@ export const SocialAdminPage = () => {
 					</AdminSectionHero>
 					<AdminSection>
 						<SocialModuleToggle />
-						{ isModuleEnabled && <UtmToggle /> }
-						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
-						{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
-							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
+						{ canManageOptions && (
+							<>
+								{ isModuleEnabled && <UtmToggle /> }
+								{
+									// Only show the Social Notes toggle if Social plugin is active
+									social.version && isModuleEnabled && (
+										<SocialNotesToggle disabled={ isUpdatingJetpackSettings } />
+									)
+								}
+								{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
+									<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
+								) }
+							</>
 						) }
 					</AdminSection>
 					<AdminSectionHero>

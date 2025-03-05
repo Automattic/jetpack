@@ -1,114 +1,103 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 $grid-size: 8px;
- 
-@keyframes jetpack-external-media-loading-fade {
-	0% {
-		opacity: 0.5;
-	}
-	50% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0.5;
-	}
-}
-
-.jetpack-external-media-browser--visually-hidden {
-	position: absolute !important;
-	height: 1px;
-	width: 1px;
-	overflow: hidden;
-	clip: rect( 1px, 1px, 1px, 1px );
-	white-space: nowrap; /* added line */
-}
-
-/**
-* Media item container
-*/
-.jetpack-external-media-browser {
-	.is-error {
-		margin-bottom: 1em;
-		margin-left: 0;
-		margin-right: 0;
-	}
-
-	.components-placeholder {
-		background-color: transparent;
-	}
-
-	.components-modal__content {
-		overflow: auto;
-		padding-bottom: 0;
-		width: 100%;
-
-		@media ( min-width: 600px ) {
-			width: 90vw;
-			height: 90vh;
-		}
-	}
-}
-
-.jetpack-external-media-browser--is-copying {
-	pointer-events: none;
-}
 
 .jetpack-external-media-browser {
 	background: white;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
+	flex: 1;
+	position: relative;
+	padding-bottom: 76px;
 
 	.jetpack-external-media-browser__media {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		grid-auto-rows: 1fr;
+		gap: 16px;
 		width: 100%;
 	}
 
 	// Individual Thumbnails
 	.jetpack-external-media-browser__media__item {
 		height: 0;
-		width: 50%;
-		padding-top: 50%;
+		width: 100%;
+		padding-top: 100%;
+		margin: 0;
 		display: inline-flex;
 		position: relative;
+		cursor: pointer;
 
 		// Unset button appearance.
 		border: 0;
-		background: transparent;
+		border-radius: 4px;
+		background-color: $gray-400;
 
 		img {
 			display: block;
 			position: absolute;
-			top: $grid-size;
-			left: $grid-size;
-			width: calc( 100% - #{$grid-size * 2} );
-			height: calc( 100% - #{$grid-size * 2} );
-			object-fit: contain;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			border: 1px solid rgba(0,0,0,0.1);
+			border-radius: 4px;
+			user-select: none;
 		}
 
-		&.is-transient img {
-			opacity: 0.3;
+		&::after {
+			display: block;
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: transparent;
+		}
+
+		&:hover img {
+			border-color: rgba(0,0,0,0.2);
+		}
+
+		&:focus img {
+			border-color: var(--wp-admin-theme-color);
+			outline: 0.5px solid var(--wp-admin-theme-color);
+		}
+
+		&:focus-visible {
+			outline-color: var(--wp-admin-theme-color);
+		}
+
+		&__selected {
+			img {
+				border-color: var(--wp-admin-theme-color);
+			}
+
+			&::after {
+				background: var(--wp-admin-theme-color);
+				opacity: 0.2;
+			}
+		}
+
+		&.is-transient {
+			img {
+				border-color: rgba(0, 0, 0, 0.1);
+			}
+
+			&::after {
+				background: white;
+				opacity: 0.8;
+			}
 		}
 	}
 
-	.jetpack-external-media-browser__media__copying_indicator {
-		display: flex;
+	.jetpack-external-media-browser__media__checkbox {
 		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		text-align: center;
-
-		.components-spinner {
-			margin-bottom: $grid-size;
-		}
-	}
-
-	.jetpack-external-media-browser__media__copying_indicator__label {
-		font-size: 12px;
+		left: $grid-size;
+		top: $grid-size;
 	}
 
 	.jetpack-external-media-browser__media__folder {
@@ -137,64 +126,37 @@ $grid-size: 8px;
 		margin-bottom: auto;
 	}
 
-	// Resting, focus and selected.
-	$border-width: 8px;
-
-	.jetpack-external-media-browser__media__item {
-		border: $border-width solid transparent;
-
-		&:focus {
-			outline: none;
-			box-shadow: inset 0 0 0 2px var(--wp-admin-theme-color);
-			border-radius: 2px + $border-width; // Add the 4px from the transparent.
-		}
-
-		&__selected {
-			box-shadow: inset 0 0 0 6px var(--wp-admin-theme-color);
-			border-radius: 2px + $border-width; // Add the 4px from the transparent.
-		}
-
-		&__selected:focus {
-			box-shadow: inset 0 0 0 2px var(--wp-admin-theme-color), inset 0 0 0 3px white,
-				inset 0 0 0 6px var(--wp-admin-theme-color);
-		}
-	}
-
-	// Transient placeholder when media are loading.
-	.jetpack-external-media-browser__media__placeholder {
-		width: 100px;
-		height: 100px;
-		margin: $grid-size * 2;
-		animation: jetpack-external-media-loading-fade 1.6s ease-in-out infinite;
-		background-color: $gray-400;
-		border: 0;
-	}
-
 	// Toolbar for "insert" and pagination button.
 	.jetpack-external-media-browser__media__toolbar {
 		position: fixed;
-		position: sticky;
 		bottom: 0;
 		left: 0;
+		right: 0;
 		width: 100%;
+		height: 76px;
+		padding: 0 32px;
 		background: white;
-		padding: 20px 0;
 		display: flex;
+		align-items: center;
 		justify-content: flex-end;
 	}
 
-	.jetpack-external-media-browser__loadmore {
-		clear: both;
-		display: block;
-		margin: 24px auto 48px auto;
+	.jetpack-external-media-browser__loading {
+		flex: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		margin: 24px 0;
 	}
 }
 
 // Show more thumbs beyond mobile.
 @media only screen and ( min-width: 600px ) {
-	.jetpack-external-media-browser .jetpack-external-media-browser__media__item {
-		width: 20%;
-		padding-top: 20%;
+	.jetpack-external-media-browser {
+		.jetpack-external-media-browser__media {
+			grid-template-columns: repeat(5, 1fr);
+		}
 	}
 }
 

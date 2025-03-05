@@ -26,6 +26,13 @@
 	}
 }
 
+.column.notoggle {
+	grid-template-columns: 1fr 0;
+	> * {
+		grid-column: span 2;
+	}
+}
+
 .title {
 	grid-row: 1;
 

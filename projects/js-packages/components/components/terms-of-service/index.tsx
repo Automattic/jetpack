@@ -1,9 +1,9 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { getRedirectUrl } from '../../../components';
-import Text from '../text';
-import type { TermsOfServiceProps } from './types';
+import { getRedirectUrl } from '../../../components/index.js';
+import Text from '../text/index.js';
+import type { TermsOfServiceProps } from './types.js';
 import './styles.scss';
 
 const TermsOfService: React.FC< TermsOfServiceProps > = ( {

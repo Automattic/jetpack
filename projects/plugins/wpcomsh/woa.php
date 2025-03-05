@@ -269,3 +269,127 @@ function wpcomsh_woa_post_process_maybe_enable_wordads( $args, $assoc_args ) {
 	WP_CLI::success( 'WordAds options transferred and module activated' );
 }
 add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_process_maybe_enable_wordads', 10, 2 );
+
+/**
+ * Checks for WooCommerce connection details, validates them, and stores them in the database.
+ *
+ * @param array $args       Positional arguments.
+ * @param array $assoc_args Named arguments.
+ */
+function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $assoc_args ) {
+	$woocommerce_connection_details = WP_CLI\Utils\get_flag_value( $assoc_args, 'store-woocommerce-connection-details', false );
+	if ( ! $woocommerce_connection_details ) {
+		return;
+	}
+
+	// Validate that we have a valid JSON object.
+	$woocommerce_connection_details_decoded = json_decode( $woocommerce_connection_details, true );
+	if ( ! is_array( $woocommerce_connection_details_decoded ) ) {
+		WP_CLI::warning( 'Invalid WooCommerce connection details provided: ' . $woocommerce_connection_details );
+
+		WPCOMSH_Log::unsafe_direct_log( 'wp wpcomsh: Invalid WooCommerce connection details provided', array( 'woocommerce_connection_details' => $woocommerce_connection_details ) );
+
+		return;
+	}
+
+	$valid_keys = array(
+		'auth'           => array(
+			'access_token',
+			'access_token_secret',
+			'site_id',
+			'user_id',
+			'updated',
+		),
+		'auth_user_data' => array(
+			'email',
+		),
+	);
+
+	$required_root_keys = array( 'auth' );
+
+	foreach ( $required_root_keys as $required_root_key ) {
+		if ( ! isset( $woocommerce_connection_details_decoded[ $required_root_key ] ) ) {
+			WP_CLI::warning( 'Invalid WooCommerce connection details provided. Missing ' . $required_root_key );
+
+			WPCOMSH_Log::unsafe_direct_log(
+				'wp wpcomsh: Invalid WooCommerce connection details provided. Missing ' . $required_root_key,
+				array( 'woocommerce_connection_details' => $woocommerce_connection_details_decoded )
+			);
+			return;
+		}
+	}
+
+	$unexpected_root_keys = array_diff( array_keys( $woocommerce_connection_details_decoded ), array_keys( $valid_keys ) );
+	if ( ! empty( $unexpected_root_keys ) ) {
+		WP_CLI::warning( 'Unexpected WooCommerce connection details provided. Ignoring the following root key(s): ' . implode( ', ', $unexpected_root_keys ) );
+		WPCOMSH_Log::unsafe_direct_log(
+			'wp wpcomsh: Unexpected additional WooCommerce connection details',
+			array(
+				'extra_keys'                     => $unexpected_root_keys,
+				'woocommerce_connection_details' => $woocommerce_connection_details_decoded,
+			)
+		);
+		// Keep processing the valid data, so avoid returning early..
+	}
+
+	$option_data = array();
+
+	foreach ( $valid_keys as $valid_key => $required_key_fields ) {
+		if ( ! isset( $woocommerce_connection_details_decoded[ $valid_key ] ) ) {
+			// If the data isn't present, keep going - we validate presence for required keys above.
+			continue;
+		}
+
+		if ( ! is_array( $woocommerce_connection_details_decoded[ $valid_key ] ) ) {
+			WP_CLI::warning( 'Invalid WooCommerce connection details provided. Missing ' . $valid_key );
+			WPCOMSH_Log::unsafe_direct_log(
+				'wp wpcomsh: Invalid WooCommerce connection details provided. Missing ' . $valid_key,
+				array( 'woocommerce_connection_details' => $woocommerce_connection_details_decoded )
+			);
+			return;
+		}
+
+		if ( count( $required_key_fields ) !== count( $woocommerce_connection_details_decoded[ $valid_key ] ) ) {
+			WP_CLI::warning( 'Missing or extra WooCommerce connection details provided. Mismatch in ' . $valid_key );
+			// Keep processing the valid data - we may have new fields that the code isn't ready for.
+		}
+
+		foreach ( $required_key_fields as $required_key_field ) {
+			if ( ! isset( $woocommerce_connection_details_decoded[ $valid_key ][ $required_key_field ] ) ) {
+				WP_CLI::warning( 'Invalid WooCommerce connection details provided. Missing ' . $valid_key . ' => ' . $required_key_field );
+				WPCOMSH_Log::unsafe_direct_log(
+					'wp wpcomsh: Invalid WooCommerce connection details provided. Missing required field',
+					array(
+						'missing_path'                   => "$valid_key => $required_key_field",
+						'woocommerce_connection_details' => $woocommerce_connection_details_decoded,
+					)
+				);
+				return;
+			}
+
+			$option_data[ $valid_key ][ $required_key_field ] = $woocommerce_connection_details_decoded[ $valid_key ][ $required_key_field ];
+		}
+	}
+
+	if ( empty( $option_data ) ) {
+		WP_CLI::warning( 'No WooCommerce connection details to update' );
+		WPCOMSH_Log::unsafe_direct_log(
+			'wp wpcomsh: No WooCommerce connection details to update',
+			array( 'woocommerce_connection_details' => $woocommerce_connection_details_decoded )
+		);
+		return;
+	}
+
+	update_option( 'woocommerce_helper_data', $option_data );
+
+	WP_CLI::success( 'WooCommerce connection details stored' );
+
+	if ( class_exists( 'WC_Helper' ) && method_exists( 'WC_Helper', 'refresh_helper_subscriptions' ) ) {
+		WC_Helper::refresh_helper_subscriptions();
+
+		WP_CLI::success( 'Cleared WooCommerce Helper cache' );
+	}
+}
+add_action( 'wpcomsh_woa_post_clone', 'wpcomsh_woa_post_process_store_woocommerce_connection_details', 10, 2 );
+add_action( 'wpcomsh_woa_post_reset', 'wpcomsh_woa_post_process_store_woocommerce_connection_details', 10, 2 );
+add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_process_store_woocommerce_connection_details', 10, 2 );

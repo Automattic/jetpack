@@ -1,4 +1,4 @@
-import BoostScoreBar from '../index';
+import BoostScoreBar from '../index.js';
 import type { Meta } from '@storybook/react';
 
 const meta: Meta< typeof BoostScoreBar > = {

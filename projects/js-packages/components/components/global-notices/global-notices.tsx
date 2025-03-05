@@ -1,6 +1,6 @@
 import { SnackbarList } from '@wordpress/components';
 import styles from './styles.module.scss';
-import { useGlobalNotices } from './use-global-notices';
+import { useGlobalNotices } from './use-global-notices.js';
 
 export type GlobalNoticesProps = {
 	maxVisibleNotices?: number;

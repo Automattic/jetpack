@@ -74,6 +74,11 @@
 	:global(.components-panel__body.is-opened) {
 		margin-top: 1rem;
 	}
+
+	.description {
+		font-size: 14px;
+		color: var(--jp-gray-50);
+	}
 }
 
 .connection-list {

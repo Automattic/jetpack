@@ -1,15 +1,47 @@
 .wpcom-media-url-upload-form {
-	margin-top: -15px;
-	margin-bottom: 15px;
-	height: 30px;
+	margin: -15px 30px 0;
+	font-size: 12px;
 
-	button#{&}__pre-upload-button {
-		padding: 0 21px;
+	form {
+		display: flex;
+		align-items: flex-start;
+		justify-content: center;
+		gap: 6px;
+		flex-wrap: wrap;
+		margin: 12px 0 6px;
 	}
 
 	input {
-		width: 100%;
-		max-width: 600px;
-		margin-right: 6px;
+		flex: 1;
+		height: 30px;
+		max-width: 300px;
 	}
+}
+
+#plupload-upload-ui.has-wpcom-media-url-upload {
+	#drag-drop-area {
+		min-height: 200px;
+		height: auto;
+	}
+
+	.drag-drop-inside {
+		min-width: 250px;
+		width: auto;
+		margin-bottom: 60px;
+	}
+
+	.wpcom-media-url-upload-form {
+		margin-top: 15px;
+	}
+}
+
+/**
+ * To align the styles with Core.
+ *
+ * Another way is to avoid concat the `media-views` styles with the `css_do_concat` filter
+ * since the styles should not be loaded on the `media-new.php`. But this one seems to be
+ * relatively safe.
+ */
+.media-upload-form .attachment-details .copy-to-clipboard-container {
+	margin-left: 0;
 }

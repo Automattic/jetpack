@@ -38,6 +38,10 @@ module.exports = [
 			'wpcom-blocks-timeline-view': './src/features/wpcom-blocks/timeline/view.js',
 			'wpcom-block-description-links': './src/features/wpcom-block-description-links/index.tsx',
 			'wpcom-block-editor-nux': './src/features/wpcom-block-editor-nux/index.js',
+			'wpcom-comment-like': [
+				'./src/features/wpcom-comments/wpcom-comment-like.js',
+				'./src/features/wpcom-comments/wpcom-comment-like.css',
+			],
 			'wpcom-dashboard-widgets':
 				'./src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.js',
 			'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.js',
@@ -56,8 +60,6 @@ module.exports = [
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
 			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
-			'removed-calypso-screen-notice':
-				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',
 			'adminbar-launch-button': './src/features/launch-button/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,

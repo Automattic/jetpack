@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Settings;
 
 /**
@@ -65,42 +64,77 @@ class Terms extends Module {
 	/**
 	 * Allows WordPress.com servers to retrieve term-related objects via the sync API.
 	 *
-	 * @param string $object_type The type of object.
+	 * @param string $object_type The type of object. Accepts: 'term', 'term_taxonomy', 'term_relationships'.
 	 * @param int    $id          The id of the object.
 	 *
-	 * @return bool|object A WP_Term object, or a row from term_taxonomy table depending on object type.
+	 * @return false|object A term or term_taxonomy object, depending on object type.
 	 */
 	public function get_object_by_id( $object_type, $id ) {
+		$id = (int) $id;
+
+		if ( empty( $id ) ) {
+			return false;
+		}
+
+		$objects = $this->get_objects_by_id( $object_type, array( $id ) );
+
+		return $objects[ $id ] ?? false;
+	}
+
+	/**
+	 * Retrieve a set of objects by their IDs.
+	 *
+	 * @access public
+	 *
+	 * @param string $object_type Object type. Accepts: 'term', 'term_taxonomy', 'term_relationships'.
+	 * @param array  $ids         Object IDs.
+	 *
+	 * @return array Array of objects.
+	 */
+	public function get_objects_by_id( $object_type, $ids ) {
 		global $wpdb;
-		$object = false;
-		if ( 'term' === $object_type ) {
-			$object = get_term( (int) $id );
 
-			if ( is_wp_error( $object ) && $object->get_error_code() === 'invalid_taxonomy' ) {
-				// Fetch raw term.
-				$columns = implode( ', ', array_unique( array_merge( Defaults::$default_term_checksum_columns, array( 'term_group' ) ) ) );
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$object = $wpdb->get_row( $wpdb->prepare( "SELECT $columns FROM $wpdb->terms WHERE term_id = %d", $id ) );
-			}
+		$objects = array();
+
+		if ( ! is_array( $ids ) || empty( $ids ) || empty( $object_type ) ) {
+			return $objects;
 		}
 
-		if ( 'term_taxonomy' === $object_type ) {
-			$columns = implode( ', ', array_unique( array_merge( Defaults::$default_term_taxonomy_checksum_columns, array( 'description' ) ) ) );
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$object = $wpdb->get_row( $wpdb->prepare( "SELECT $columns FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d", $id ) );
+		// Sanitize.
+		$ids     = array_map( 'intval', $ids );
+		$ids_str = implode( ',', $ids );
+
+		$where_sql = Settings::get_whitelisted_taxonomies_sql();
+
+		switch ( $object_type ) {
+			case 'term':
+				$query    = "SELECT * FROM $wpdb->terms t INNER JOIN $wpdb->term_taxonomy tt ON t.term_id=tt.term_id WHERE t.term_id IN ( $ids_str ) AND ";
+				$callback = 'expand_raw_terms';
+				break;
+			case 'term_taxonomy':
+				$query    = "SELECT * FROM $wpdb->term_taxonomy WHERE term_taxonomy_id IN ( $ids_str ) AND ";
+				$callback = 'expand_raw_term_taxonomies';
+				break;
+			case 'term_relationships':
+				$query    = "SELECT * FROM $wpdb->term_relationships tr INNER JOIN $wpdb->term_taxonomy tt ON tr.term_taxonomy_id=tt.term_taxonomy_id WHERE object_id IN ( $ids_str ) AND ";
+				$callback = 'expand_raw_term_relationships';
+				break;
+			default:
+				return array();
 		}
 
-		if ( 'term_relationships' === $object_type ) {
-			$columns = implode( ', ', Defaults::$default_term_relationships_checksum_columns );
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$objects = $wpdb->get_results( $wpdb->prepare( "SELECT $columns FROM $wpdb->term_relationships WHERE object_id = %d", $id ) );
-			$object  = (object) array(
-				'object_id'     => $id,
-				'relationships' => array_map( array( $this, 'expand_terms_for_relationship' ), $objects ),
-			);
+		$query .= $where_sql;
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Already sanitized above.
+		$results = $wpdb->get_results( $query );
+
+		if ( ! is_array( $results ) ) {
+			return array();
 		}
 
-		return $object ? $object : false;
+		$objects = $this->$callback( $results );
+
+		return $objects ?? array();
 	}
 
 	/**
@@ -322,10 +356,127 @@ class Terms extends Module {
 	 *
 	 * @access public
 	 *
+	 * @deprecated since 4.8.1
+	 *
 	 * @param object $relationship A row object from the term_relationships table.
 	 * @return object|bool A term object, or false if term taxonomy doesn't exist.
 	 */
 	public function expand_terms_for_relationship( $relationship ) {
+		_deprecated_function( __METHOD__, '4.8.1' );
+
 		return get_term_by( 'term_taxonomy_id', $relationship->term_taxonomy_id );
+	}
+
+	/**
+	 * Prepare raw terms and return them in a standard format.
+	 *
+	 * @param  array $terms An array of raw term objects.
+	 * @return array        An array of term objects.
+	 */
+	private function expand_raw_terms( array $terms ) {
+		$objects = array();
+		$columns = array(
+			'term_id'          => 'int',
+			'name'             => 'string',
+			'slug'             => 'string',
+			'taxonomy'         => 'string',
+			'description'      => 'string',
+			'term_group'       => 'int',
+			'term_taxonomy_id' => 'int',
+			'parent'           => 'int',
+			'count'            => 'int',
+		);
+
+		foreach ( $terms as $term ) {
+			if ( ! array_key_exists( $term->term_id, $objects ) ) {
+				$t_array = array();
+
+				foreach ( $columns as $field => $type ) {
+					$value             = $term->$field ?? '';
+					$t_array[ $field ] = 'int' === $type ? (int) $value : $value;
+				}
+				// This will allow us to know on WPCOM that the term name is the raw one, coming from the DB. Useful with backwards compatibility in mind.
+				$t_array['raw_name'] = $t_array['name'];
+
+				$objects[ $term->term_id ] = (object) $t_array;
+			}
+		}
+
+		return $objects;
+	}
+
+	/**
+	 * Prepare raw term taxonomies and return them in a standard format.
+	 *
+	 * @param  array $term_taxonomies An array of raw term_taxonomy objects.
+	 * @return array                  An array of term_taxonomy objects.
+	 */
+	private function expand_raw_term_taxonomies( array $term_taxonomies ) {
+		$objects = array();
+		$columns = array(
+			'term_id'          => 'int',
+			'taxonomy'         => 'string',
+			'description'      => 'string',
+			'term_taxonomy_id' => 'int',
+			'parent'           => 'int',
+			'count'            => 'int',
+		);
+
+		foreach ( $term_taxonomies as $tt ) {
+			if ( ! array_key_exists( $tt->term_taxonomy_id, $objects ) ) {
+				$t_array = array();
+
+				foreach ( $columns as $field => $type ) {
+					$value             = $tt->$field ?? '';
+					$t_array[ $field ] = 'int' === $type ? (int) $value : $value;
+				}
+
+				$objects[ $tt->term_taxonomy_id ] = (object) $t_array;
+			}
+		}
+
+		return $objects;
+	}
+
+	/**
+	 * Prepare raw term taxonomies and return them in a standard format.
+	 *
+	 * @param  array $term_relationships An array of raw term_taxonomy objects.
+	 * @return array                     An array of term_taxonomy objects or false.
+	 */
+	private function expand_raw_term_relationships( array $term_relationships ) {
+		$objects = array();
+		$columns = array(
+			'object_id'        => 'int',
+			'term_id'          => 'int',
+			'taxonomy'         => 'string',
+			'term_taxonomy_id' => 'int',
+			'term_order'       => 'int',
+			'parent'           => 'int',
+			'count'            => 'int',
+		);
+
+		foreach ( $term_relationships as $tt ) {
+			$object_id = (int) $tt->object_id;
+
+			$relationship = array();
+			foreach ( $columns as $field => $type ) {
+				$value                  = $tt->$field ?? '';
+				$relationship[ $field ] = 'int' === $type ? (int) $value : $value;
+			}
+
+			$relationship = (object) $relationship;
+
+			if ( ! array_key_exists( $object_id, $objects ) ) {
+				$objects[ $object_id ] = (object) array(
+					'object_id'     => $object_id,
+					'relationships' => array( $relationship ),
+				);
+			} else {
+				$objects[ $object_id ]->relationships[] = $relationship;
+			}
+		}
+
+		return $objects;
 	}
 }

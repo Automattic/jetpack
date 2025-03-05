@@ -61,7 +61,7 @@ class Verbum_Comments {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
 		// Do things before the comment is accepted.
-		add_action( 'pre_comment_on_post', array( $this, 'check_comment_allowed' ) );
+		add_action( 'pre_comment_on_post', array( $this, 'check_comment_allowed' ), 10, 1 );
 		add_action( 'pre_comment_on_post', array( $this, 'allow_logged_out_user_to_comment_as_external' ), 100 ); // Set priority high to run after check to make sure they are logged in to the external service.
 		add_filter( 'preprocess_comment', array( $this, 'verify_external_account' ), 0 );
 
@@ -452,20 +452,60 @@ HTML;
 	/**
 	 * Verify nonce before accepting comment.
 	 *
-	 * @return WP_Error|void
+	 * @param int $comment_id The comment ID.
+	 * @return void
 	 */
-	public function check_comment_allowed() {
+	public function check_comment_allowed( int $comment_id ) {
 		// Don't check if we're using Jetpack Comments.
 		if ( is_jetpack_comments() ) {
 			return;
 		}
 
 		// Check for Highlander Nonce.
-		if (
-			isset( $_POST['highlander_comment_nonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ) ), 'highlander_comment' )
-		) {
-			return;
+		if ( isset( $_POST['highlander_comment_nonce'] ) ) {
+			$valid_nonce     = false;
+			$current_user_id = get_current_user_id();
+
+			if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ) ), 'highlander_comment' ) ) {
+				$valid_nonce = true;
+			} elseif ( function_exists( 'wp_set_current_user' ) ) {
+				// There randomly occurs a race condition between the logged in/out state of the user.
+				// Check if their nonce is a logged out nonce.
+				wp_set_current_user( 0 );
+				$valid_nonce = wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ) ), 'highlander_comment' );
+				wp_set_current_user( $current_user_id );
+			}
+
+			// All good, proceed.
+			if ( $valid_nonce ) {
+				return;
+			}
+
+			// Log the error to Log2Logstash.
+			// Related to https://github.com/Automattic/wp-calypso/issues/99436
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+
+				$headers = getallheaders();
+				$data    = array(
+					'session_token' => wp_get_session_token(),
+					'editor_type'   => isset( $_POST['verbum_loaded_editor'] ) ? sanitize_text_field( wp_unslash( $_POST['verbum_loaded_editor'] ) ) : '',
+					'user_agent'    => sanitize_text_field( $headers['User-Agent'] ?? '' ),
+					'referrer'      => esc_url_raw( $headers['Referer'] ?? '' ),
+				);
+
+				log2logstash(
+					array(
+						'feature'    => 'verbum-comments',
+						'message'    => 'Pre-comment nonce failed',
+						'blog_id'    => get_current_blog_id(),
+						'user_id'    => $current_user_id,
+						'host'       => sanitize_text_field( $headers['Host'] ?? '' ),
+						'comment_id' => $comment_id,
+						'extra'      => wp_json_encode( $data ),
+					)
+				);
+			}
 		}
 
 		wp_die( esc_html__( 'Sorry, this comment could not be posted.', 'jetpack-mu-wpcom' ) );

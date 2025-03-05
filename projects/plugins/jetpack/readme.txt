@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 14.2
+Stable tag: 14.4
 Requires at least: 6.6
 Requires PHP: 7.2
 Tested up to: 6.7
@@ -326,43 +326,49 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.3 - 2025-02-04
+### 14.4 - 2025-03-04
 #### Enhancements
-- Blocks: Improve performance.
-- Forms: Add Checkbox and Consent field enter action to create a new block.
-- Forms: Allow HTML block within forms.
-- Show Infinite Scroll options in Simple Classic.
-- Social: Enable Social post UI for WordPress.com sites.
-- Social: Post character limits are now dynamic based on selected connections.
+- Connection: Disconnect all other users before disconnecting connection owner account.
+- Connection: Display connection status on Users page independent of the SSO module.
+- Custom Post Types: do not display testimonials and portfolios on block themes where they are not in use.
+- Dashboard: Display connection owner to all users.
+- External Media: Add external media modal on the Media Import page.
+- Forms: Add support for having multiple forms accross paginated pages.
+- Forms: Update field and button blocks to support contentOnly editing.
+- Forms block: Add number input.
+- Media Page: Enable the "Untangle Calypso" feature.
+- My Jetpack: Update the unowned section from a product grid to a product list.
+- Newsletter: Add footer widget section.
+- Newsletter: Add new newsletter widget.
+- Newsletter: Add newsletter widget header row behind a feature flag.
+- Newsletter: Add setting to hide category selection modal.
+- Post actions: Rename Copy action to Duplicate, which is clearer.
+- Social: Update the admin page to be used by Editors and Authors.
+- Subscriptions: Pre-select newsletter categories.
+- Tiled Gallery block: Add ability to link to custom URLs from each image.
+- VideoPress: Add title to the attachment details view.
 
 #### Improved compatibility
-- Nova Restaurant: ensure that the custom post type is now loaded via the Classic Theme Helper package.
-- Open Graph Meta Tags: Do not display Jetpack's tags when the SEOPress plugin is active.
-- Social: Remove "Your post" section from previews in favor of newer Social Post UI.
+- Custom Content Types: Ensure feature works on Jetpack settings page without using module functionality.
 
 #### Bug fixes
-- Authors widget: Fix saving of unchecked "Display all authors" checkbox in the legacy widget editor.
-- Copy Post: Ensure Copy option is still available on all CPTs after quick edit in post list.
-- Fix: Newsletter toggle in editor sidebar has a visually broken active state.
-- Forms: Fix datepicker appearance on dark themes.
-- Forms: Fix dropdown icon style.
-- Forms: Fix field spacing and widths.
-- Forms: Fix permanent deletion of form reponses via quicklinks.
-- Forms: Hide empty radio fields.
-- Forms: Keep content as-is when switching Feedback status between spam and publish.
-- Forms: Make the icons show up as expected in the style editor.
-- Forms: Prevent error in block placeholder when the Forms module is disabled.
-- Pages and Posts: Fix the layout on mobile when details are open.
-- Photon: Fix double encoding image urls.
-- Sharing: Fix the location of the sharing dialog so it is not always the first sharing element on the page.
-- Sitemaps: Ensure a valid news sitemap is present even if no posts are eligible.
-- Social: Fix profile links for LinkedIn connections.
-- Social: Fix Publicize error in the editor due to malformed connections data.
-- Social: Fix wordpress.com login error when connecting Social accounts.
-- Stats: Fix saving of custom roles settings.
-- Testimonials: Fix shortcode-related bug.
-- Tiled Gallery block: Ensure icons are visible when selecting image in editor.
-- VideoPress: Fix issue with VideoPress block with zero height and width.
+- External Media: Fix the button size in the editor for Gutenberg 18 or below.
+- Fix Social toggles.
+- Forms: Ensure non-rendering fields to not trigger validation or show value in form submission response.
+- Forms: Fix 404 error when a user submits an invalid form with JavaScript disabled.
+- Forms: Fix block style variations not showing in the editor.
+- Forms: Fix invalid html IDs.
+- Forms: Hide fields without options.
+- Forms: Improve the styling of the separator block when placed inside the form block.
+- Geo Location: Remove support from default themes to prevent deprecation notice.
+- Gravatar Widget: Fix linked accounts not showing.
+- Newsletter: Fix post placement not displaying on certain block themes.
+- Publicize: Fix disconnect command not working.
+- Related Posts: Ensure images using the AVIF format are properly displayed.
+- Sharing: Fix possible warnings related to plugin compatibility.
+- Social Previews: Fix distorted image for Tumblr preview.
+- Stats: Fix a problem where count roles weren't able to be updated.
+- Widget Visibility: Fix possible fatal errors for widgets using anonymous functions as callbacks.
 
 --------
 
