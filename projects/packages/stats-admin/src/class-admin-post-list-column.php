@@ -19,6 +19,14 @@ use Automattic\Jetpack\Status\Host;
 class Admin_Post_List_Column {
 
 	/**
+	 * Create the object.
+	 *
+	 * @return self
+	 */
+	public static function register() {
+		return new self();
+	}
+	/**
 	 * The constructor.
 	 */
 	public function __construct() {
@@ -150,11 +158,6 @@ class Admin_Post_List_Column {
 		// Fallback to the last position if the post type does not support comments.
 		if ( ! is_int( $pos ) ) {
 			$pos = count( $columns );
-		}
-
-		// Final fallback, if the array was malformed by another plugin for example.
-		if ( ! is_int( $pos ) ) {
-			return $columns;
 		}
 
 		$chunks             = array_chunk( $columns, $pos, true );

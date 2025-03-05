@@ -66,7 +66,7 @@ class Main {
 			2
 		);
 
-		new Admin_Post_List_Column();
+		Admin_Post_List_Column::register();
 	}
 
 	/**
