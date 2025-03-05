@@ -19,6 +19,7 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/components/product-interstitial-modal';
+import boostImage from '@automattic/jetpack-my-jetpack/components/product-interstitial/boost.png';
 import { __ } from '@wordpress/i18n';
 import styles from './index.module.scss';
 
@@ -106,17 +107,10 @@ const Index = () => {
 						/>
 					}
 					buttonLabel={ __( 'Upgrade now', 'jetpack-boost' ) }
+					isWithVideo={ false }
 					secondaryColumn={
 						<div>
-							<iframe
-								width="621"
-								height="447"
-								src="https://video.wordpress.com/embed/whyeZF1t?cover=1&autoPlay=0&controls=0&loop=1&muted=0&persistVolume=1&playsinline=0&preloadContent=metadata&useAverageColor=1&posterUrl=https%3A%2F%2Fjetpack.com%2Fwp-content%2Fuploads%2F2024%2F09%2Fthumbnail-1.png&hd=1"
-								allowFullScreen
-								allow="clipboard-write"
-								title={ __( 'Discover Jetpack AI', 'jetpack-boost' ) }
-							></iframe>
-							<script src="https://videopress.com/videopress-iframe.js"></script>
+							<img src={ boostImage } alt="Boost" />
 						</div>
 					}
 					secondaryButtonHref="https://jetpack.com/boost/"

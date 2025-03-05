@@ -5,6 +5,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
+import LoadingBlock from '../loading-block';
 import {
 	ProductInterstitialModal,
 	ProductInterstitialFeatureList,
@@ -44,17 +45,23 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	...props
 } ) => {
 	const { recordEvent } = useAnalytics();
-	const { detail } = useProduct( slug );
-
+	const { detail, isLoading } = useProduct( slug );
 	const { title, longDescription, features, pricingForUi } = detail;
 
-	const {
-		fullPricePerMonth: price,
-		currencyCode,
-		discountPricePerMonth: discountPrice,
-		introductoryOffer,
-		productTerm,
-	} = pricingForUi || {};
+	// Get pricing for a plugin
+	const priceSource = slug === 'boost' ? pricingForUi?.tiers?.upgraded : pricingForUi;
+	let price, discountPrice;
+
+	if ( slug === 'boost' ) {
+		// component price structure
+		price = priceSource?.fullPrice;
+		discountPrice = priceSource?.discountPrice;
+	} else {
+		price = priceSource?.fullPricePerMonth;
+		discountPrice = priceSource?.discountPricePerMonth;
+	}
+
+	const { currencyCode, introductoryOffer, productTerm } = priceSource || {};
 
 	let priceDescription;
 	if ( introductoryOffer?.intervalUnit === 'month' && introductoryOffer?.intervalCount === 1 ) {
@@ -77,7 +84,9 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 
 	// TODO: check referrer url from product-details-card
 
-	const priceComponent = (
+	const priceComponent = isLoading ? (
+		<LoadingBlock width="100%" height="100px" />
+	) : (
 		<ProductPrice
 			currency={ currencyCode }
 			price={ price }
