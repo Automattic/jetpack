@@ -1,29 +1,47 @@
 import { useCopyToClipboard } from '@wordpress/compose';
 import { sprintf, __ } from '@wordpress/i18n';
+import { getQueryArg, addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
 import './style.scss';
 
+export type SitePreviewLink = {
+	code: string;
+	created_at: string;
+};
+
 interface Props {
+	homeUrl: string;
 	siteId: number;
 	siteSlug: string;
 	isWpcomStagingSite: boolean;
 	isUnlaunchedSite: boolean;
 	hasSitePreviewLink: boolean;
-	shareSiteLink?: string;
-	shareSiteNonce: string;
+	sitePreviewLink?: SitePreviewLink;
+	sitePreviewLinkNonce: string;
 	blogPublic: number;
 	wpcomComingSoon: number;
 	wpcomPublicComingSoon: number;
 	wpcomDataSharingOptOut: boolean;
 }
 
+const makeSitePreviewLink = ( homeUrl: string, share: string ) => {
+	if ( ! share ) {
+		return '';
+	}
+
+	return addQueryArgs( homeUrl, {
+		share,
+	} );
+};
+
 const SiteVisibility = ( {
+	homeUrl,
 	siteSlug,
 	isWpcomStagingSite,
 	isUnlaunchedSite,
 	hasSitePreviewLink,
-	shareSiteLink,
-	shareSiteNonce,
+	sitePreviewLink: defaultSitePreviewLink,
+	sitePreviewLinkNonce,
 	blogPublic: defaultBlogPublic,
 	wpcomComingSoon: defaultWpcomComingSoon,
 	wpcomPublicComingSoon: defaultWpcomPublicComingSoon,
@@ -36,8 +54,12 @@ const SiteVisibility = ( {
 		wpcomDataSharingOptOut: defaultWpcomDataSharingOptOut,
 	} );
 
+	const [ sitePreviewLink, setSitePreviewLink ] = useState(
+		makeSitePreviewLink( homeUrl, defaultSitePreviewLink?.code )
+	);
+	const [ isGeneratingSitePreviewLink, setIsGeneratingSitePreviewLink ] = useState( false );
 	const [ clipboardCopied, setClipboardCopied ] = useState( false );
-	const ref = useCopyToClipboard( shareSiteLink, () => setClipboardCopied( true ) );
+	const ref = useCopyToClipboard( sitePreviewLink, () => setClipboardCopied( true ) );
 
 	const { blogPublic, wpcomComingSoon, wpcomPublicComingSoon, wpcomDataSharingOptOut } = fields;
 
@@ -45,8 +67,42 @@ const SiteVisibility = ( {
 	const isAnyComingSoonEnabled =
 		( 0 === blogPublic && wpcomPublicComingSoon ) || isPrivateAndUnlaunched || wpcomComingSoon;
 	const isPublicChecked = ( blogPublic === 0 && ! wpcomPublicComingSoon ) || blogPublic === 1;
-	const showPreviewLink = isAnyComingSoonEnabled && hasSitePreviewLink;
+	const showPreviewLink = Number( defaultWpcomPublicComingSoon ) === 1 && hasSitePreviewLink;
 	const discourageSearchChecked = 0 === blogPublic && ! wpcomPublicComingSoon;
+
+	const generateSitePreviewLink = () => {
+		setIsGeneratingSitePreviewLink( true );
+		const data = new URLSearchParams( {
+			action: 'wpcom_generate_site_preview_link',
+			_ajax_nonce: sitePreviewLinkNonce,
+		} );
+
+		fetch( 'admin-ajax.php', {
+			method: 'POST',
+			body: data,
+		} )
+			.then( response => response.json() )
+			.then( ( currentSitePreviewLink: SitePreviewLink ) => {
+				setSitePreviewLink( makeSitePreviewLink( homeUrl, currentSitePreviewLink.code ) );
+				setIsGeneratingSitePreviewLink( false );
+			} );
+	};
+
+	const deleteSitePreviewLink = async () => {
+		const code = getQueryArg( sitePreviewLink, 'share' ) as string | undefined;
+		const data = new URLSearchParams( {
+			action: 'wpcom_delete_site_preview_link',
+			code: code ?? '',
+			_ajax_nonce: sitePreviewLinkNonce,
+		} );
+
+		fetch( 'admin-ajax.php', {
+			method: 'POST',
+			body: data,
+		} );
+
+		setSitePreviewLink( '' );
+	};
 
 	return (
 		<>
@@ -97,38 +153,42 @@ const SiteVisibility = ( {
 					{ showPreviewLink && (
 						<ul>
 							<li>
-								<p>
-									{ __(
-										'Enable "Share site" to let collaborators without an account view your site.',
-										'jetpack-mu-wpcom'
-									) }
-								</p>
-								<input
-									type="hidden"
-									name="wpcom_site_visibility_share_site_link_nonce"
-									value={ shareSiteNonce }
-								/>
-								{ ! shareSiteLink && (
-									<input
-										className="button-secondary generate"
+								<>
+									<p>
+										{ __(
+											'Enable "Share site" to let collaborators without an account view your site.',
+											'jetpack-mu-wpcom'
+										) }
+									</p>
+									<button
+										className="button-secondary"
 										type="button"
-										value={ __( 'Share site', 'jetpack-mu-wpcom' ) }
-									/>
-								) }
-								{ shareSiteLink && (
+										onClick={ () =>
+											sitePreviewLink ? deleteSitePreviewLink() : generateSitePreviewLink()
+										}
+									>
+										{ sitePreviewLink
+											? __( 'Disable', 'jetpack-mu-wpcom' )
+											: __( 'Enable', 'jetpack-mu-wpcom' ) }
+										{ isGeneratingSitePreviewLink && (
+											<img src="images/loading.gif" alt="Loading..." width="16" height="16"></img>
+										) }
+									</button>
+								</>
+								{ sitePreviewLink && (
 									<>
-										<input type="text" readOnly value={ shareSiteLink } />
-										<span className="copy-to-clipboard-container">
+										<input type="text" readOnly value={ sitePreviewLink } />
+										<span>
 											<button
 												type="button"
-												className="button button-small copy-attachment-url"
+												className="button"
 												ref={ ref }
 												onMouseLeave={ () => setClipboardCopied( false ) }
 											>
 												{ __( 'Copy URL to clipboard', 'jetpack-mu-wpcom' ) }
 											</button>
 											{ clipboardCopied && (
-												<span className="success" aria-hidden="true">
+												<span className="success hidden" aria-hidden="true">
 													{ __( 'Copied!', 'jetpack-mu-wpcom' ) }
 												</span>
 											) }
