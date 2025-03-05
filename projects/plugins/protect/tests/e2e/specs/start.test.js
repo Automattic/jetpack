@@ -8,6 +8,7 @@ test.describe( 'Jetpack Protect plugin', () => {
 			.withCleanEnv()
 			.withActivePlugins( [ 'protect' ] )
 			.withLoggedIn( true )
+			.withConnection( true )
 			.build();
 	} );
 
@@ -16,19 +17,9 @@ test.describe( 'Jetpack Protect plugin', () => {
 
 		await admin.visitAdminPage( 'admin.php', 'page=jetpack-protect' );
 
-		logger.action( 'Checking for heading "Stay one step ahead of threats"' );
+		logger.action( 'Checking for heading "Don\'t worry about a thing"' );
 		await expect(
-			page.getByRole( 'heading', { name: 'Stay one step ahead of threats' } )
+			page.getByRole( 'heading', { name: "Don't worry about a thing" } )
 		).toBeVisible();
-
-		logger.action( 'Checking for button "Get Jetpack Protect"' );
-		const getJetpackProtectButton = page.getByRole( 'button', { name: 'Get Jetpack Protect' } );
-		await expect( getJetpackProtectButton ).toBeVisible();
-		await expect( getJetpackProtectButton ).toBeEnabled();
-
-		logger.action( 'Checking for button "Start for free"' );
-		const startForFreeButton = page.getByRole( 'button', { name: 'Start for free' } );
-		await expect( startForFreeButton ).toBeVisible();
-		await expect( startForFreeButton ).toBeEnabled();
 	} );
 } );
