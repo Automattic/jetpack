@@ -268,10 +268,12 @@ We currently make use of the following packages in testing; it's encouraged to u
   * Do not use `Yoast\PHPUnitPolyfills\TestCases\TestCase` or `Yoast\PHPUnitPolyfills\TestCases\XTestCase`. Just use the `@before`, `@after`, `@beforeClass`, and `@afterClass` annotations directly.
 * PHPUnit's built-in mocking is used for class mocks.
 * [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
-* [automattic/wordbless](https://packagist.org/packages/automattic/wordbless) is used to pull in WordPress for testing.
-  * If using both Brain Monkey and WorDBless, note the following requirements:
-    * You must `require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';` in `bootstrap.php` before WorDBless's setup, so Brain Monkey can mock WordPress functions.
+* [automattic/jetpack-test-environment](../projects/packages/test-environment/README.md) is used to pull in WordPress for testing.
+  * If using both Brain Monkey and the Jetpack Test Environment, note the following requirements:
+    * You must `require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';` in `bootstrap.php` before the Jetpack Test Environment's setup, so Brain Monkey can mock WordPress functions.
     * Follow Brain Monkey's [functions-setup.md](https://github.com/Brain-WP/BrainMonkey/blob/master/docs/functions-testing-tools/functions-setup.md) instead of [wordpress-setup.md](https://github.com/Brain-WP/BrainMonkey/blob/master/docs/wordpress-specific-tools/wordpress-setup.md); don't call `Monkey\setUp()` or try to use its WordPress-specific tools.
+	* To initiate the Jetpack Test Environment, call `\Automattic\Jetpack\Test_Environment\Bootstrap::init();` in `bootstrap.php`.
+	* See the [Jetpack Test Environment README](../projects/packages/test-environment/README.md) for more details.
 
 #### PHP tests for plugins
 

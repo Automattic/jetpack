@@ -1,0 +1,12 @@
+<?php
+/**
+ * A dummy file to test Jetpack.PHPUnit.TestClassName
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+/**
+ * A dummy test case class.
+ */
+abstract class PhpunitFilenameMatchTestBase extends TestCase {
+}

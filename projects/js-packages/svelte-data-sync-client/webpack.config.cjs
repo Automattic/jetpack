@@ -24,6 +24,7 @@ module.exports = {
 		...jetpackWebpackConfig.output,
 		path: path.resolve( __dirname, 'build' ),
 		filename: 'index.js',
+		uniqueName: 'SvelteDataSyncClient',
 		library: {
 			name: 'SvelteDataSyncClient',
 			type: 'umd',

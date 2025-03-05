@@ -67,6 +67,7 @@ class GalleryImageEdit extends Component {
 			isSelected,
 			link,
 			linkTo,
+			customLink,
 			onMoveBackward,
 			onMoveForward,
 			onRemove,
@@ -86,6 +87,11 @@ class GalleryImageEdit extends Component {
 			case 'attachment':
 				href = link;
 				break;
+			case 'custom':
+				href = customLink || '';
+				break;
+			default:
+				href = '';
 		}
 
 		const isTransient = isBlobURL( origUrl );
@@ -98,6 +104,7 @@ class GalleryImageEdit extends Component {
 					data-id={ id }
 					data-link={ link }
 					data-url={ origUrl }
+					data-custom-link={ customLink }
 					data-width={ width }
 					ref={ this.img }
 					src={ isTransient ? undefined : url }

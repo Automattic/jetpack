@@ -75,7 +75,7 @@ $customisedFields = $zbs->settings->get( 'customisedfields' );
 <?php
 if ( isset( $sbupdated ) ) {
 	if ( $sbupdated ) {
-		echo zeroBSCRM_UI2_messageHTML( 'success', __( 'Settings Updated', 'zero-bs-crm', '' ) );
+		echo zeroBSCRM_UI2_messageHTML( 'success', __( 'Settings Updated', 'zero-bs-crm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
 ?>

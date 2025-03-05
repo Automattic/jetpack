@@ -1,7 +1,19 @@
 /**
  * External dependencies
  */
-import { JetpackEditorPanelLogo, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import {
+	useAICheckout,
+	useAiFeature,
+	FairUsageNotice,
+	FeaturedImage,
+} from '@automattic/jetpack-ai-client';
+import {
+	useAnalytics,
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_UNLIMITED,
+	usePlanType,
+} from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -12,19 +24,12 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import { FairUsageNotice } from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
-import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
-import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
-// import { isBetaExtension } from '../../../../editor';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
-import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
-import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
 import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get-availability';
 import Feedback from '../feedback';
-// import SeoAssistant from '../seo-assistant';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
 import {
@@ -72,15 +77,6 @@ const JetpackAndSettingsContent = ( {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
 	const isBreveAvailable = getBreveAvailability();
-	// const isViewable = useSelect( select => {
-	// 	const postTypeName = select( editorStore ).getCurrentPostType();
-	// 	const postTypeObject = ( select( coreStore ) as unknown as CoreSelect ).getPostType(
-	// 		postTypeName
-	// 	);
-
-	// 	return postTypeObject?.viewable;
-	// }, [] );
-
 	const isPostEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
 
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
@@ -98,19 +94,6 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-
-			{ /* { isSeoAssistantEnabled && isViewable && (
-				<PanelRow
-					className={ `jetpack-ai-sidebar__feature-section ${
-						isBetaExtension( 'ai-seo-assistant' ) ? 'is-beta-extension' : ''
-					}` }
-				>
-					<BaseControl __nextHasNoMarginBottom={ true }>
-						<BaseControl.VisualLabel>{ __( 'SEO', 'jetpack' ) }</BaseControl.VisualLabel>
-						<SeoAssistant disabled={ false } />
-					</BaseControl>
-				</PanelRow>
-			) } */ }
 
 			{ isPostEmpty && (
 				<PanelRow className="jetpack-ai-sidebar__warning-content">

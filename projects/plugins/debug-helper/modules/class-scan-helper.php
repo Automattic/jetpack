@@ -431,7 +431,7 @@ class Scan_Helper {
 	 */
 	private function generate_infected_file_threat() {
 		$content = "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;";
-		if ( ! $this->write_file( $this->threats['infected_file'], $content, FILE_APPEND ) ) {
+		if ( ! $this->write_file( $this->threats['infected_file'], $content ) ) {
 			return new WP_Error( 'could-not-write', "Unable to write threat from {$this->threats['infected_file']}" );
 		}
 

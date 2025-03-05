@@ -39,7 +39,7 @@ Default.args = {
 	showLegend: false,
 	legendOrientation: 'horizontal',
 	withGradientFill: false,
-	margin: { top: 20, right: 40, bottom: 40, left: 20 },
+	smoothing: true,
 	options: {
 		axis: {
 			x: {
@@ -109,10 +109,11 @@ FixedDimensions.parameters = {
 export const GridientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
 GridientFilled.args = {
 	...Default.args,
+	margin: undefined,
 	data: webTrafficData,
 	withGradientFill: true,
 	options: {
-		axis: { x: { numTicks: 10 }, y: { orientation: 'right' } },
+		axis: { y: { orientation: 'right' } },
 	},
 };
 
@@ -180,4 +181,48 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 			},
 		},
 	},
+};
+
+export const WithoutSmoothing: StoryObj< typeof LineChart > = Template.bind( {} );
+WithoutSmoothing.args = {
+	...Default.args,
+	smoothing: false,
+};
+
+export const CustomTooltips: StoryObj< typeof LineChart > = Template.bind( {} );
+CustomTooltips.args = {
+	...Default.args,
+	renderTooltip: ( { tooltipData } ) => {
+		const nearestDatum = tooltipData?.nearestDatum?.datum;
+		if ( ! nearestDatum ) return null;
+
+		const tooltipPoints = Object.entries( tooltipData?.datumByKey || {} )
+			.map( ( [ key, { datum } ] ) => ( {
+				key,
+				value: datum.value as number,
+			} ) )
+			.sort( ( a, b ) => b.value - a.value );
+
+		return (
+			<div>
+				<h3>{ nearestDatum?.date?.toLocaleDateString() } 💯 </h3>
+
+				<table style={ { border: '1px solid black', borderCollapse: 'collapse' } }>
+					{ tooltipPoints.map( point => (
+						<tr style={ { border: '1px solid black' } } key={ point.key }>
+							<td style={ { border: '1px solid black' } }>{ point.key }</td>
+							<td>{ point.value }</td>
+						</tr>
+					) ) }
+				</table>
+			</div>
+		);
+	},
+};
+
+export const WithPointerEvents: StoryObj< typeof LineChart > = Template.bind( {} );
+WithPointerEvents.args = {
+	...Default.args,
+	// eslint-disable-next-line no-alert
+	onPointerDown: ( { datum } ) => alert( 'Pointer down:' + JSON.stringify( datum ) ),
 };

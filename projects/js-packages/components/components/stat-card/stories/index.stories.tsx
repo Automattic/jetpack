@@ -1,5 +1,5 @@
 import { Icon, postList } from '@wordpress/icons';
-import StatCard from '..';
+import StatCard from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
@@ -20,6 +20,9 @@ export default {
 			table: {
 				disable: true,
 			},
+		},
+		hideValue: {
+			control: { type: 'boolean' },
 		},
 	},
 } as Meta< typeof StatCard >;

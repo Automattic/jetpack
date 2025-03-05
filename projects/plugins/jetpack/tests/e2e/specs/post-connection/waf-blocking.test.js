@@ -1,7 +1,7 @@
-import { Plans, prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
-import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
-import { WpPage } from 'jetpack-e2e-commons/pages/index.js';
+import { Plans, prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { resolveSiteUrl } from '_jetpack-e2e-commons/helpers/utils-helper.js';
+import { WpPage } from '_jetpack-e2e-commons/pages/index.js';
 import { enableAutomaticRules, generateRules } from '../../helpers/waf-helper.js';
 import playwrightConfig from '../../playwright.config.mjs';
 

@@ -63,11 +63,11 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 
 		const formData = new FormData();
 
-		if ( service.ID === 'mastodon' ) {
+		if ( service.id === 'mastodon' ) {
 			formData.set( 'instance', connection.external_handle );
 		}
 
-		if ( service.ID === 'bluesky' ) {
+		if ( service.id === 'bluesky' ) {
 			openConnectionsModal();
 		} else {
 			requestAccess( formData );
@@ -77,7 +77,7 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 		deleteConnectionById,
 		openConnectionsModal,
 		requestAccess,
-		service.ID,
+		service.id,
 		setReconnectingAccount,
 	] );
 

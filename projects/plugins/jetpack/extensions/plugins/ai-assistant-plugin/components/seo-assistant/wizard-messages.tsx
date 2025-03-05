@@ -1,87 +1,154 @@
-import { useEffect, useRef } from '@wordpress/element';
+/**
+ * External dependencies
+ */
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+/**
+ * Internal dependencies
+ */
 import bigSkyIcon from './big-sky-icon.svg';
+import TypingMessage from './typing-message';
+import { useArrayState } from './use-array-state';
+/**
+ * Types
+ */
+import type { Message } from './types';
 
-const Message = ( { message } ) => {
+const randomId = () => Math.random().toString( 32 ).substring( 2, 8 );
+
+/**
+ * Custom hook to manage messages in the wizard
+ * @param {number} count - The number of message arrays to initialize, for dynamic steps
+ * @return {object} An object containing methods to manage messages
+ */
+export const useMessages = ( count = 1 ) => {
+	const [ messagesArray, setMessages ] = useArrayState< Message[] >(
+		Array.from( { length: count }, () => [] )
+	);
+
+	const wrapMessagesWithId = useCallback(
+		( rawMessages: Message[], id = 0 ) => {
+			setMessages(
+				rawMessages.map( rawMessage => ( {
+					...rawMessage,
+					id: rawMessage.id || randomId(),
+				} ) ),
+				id
+			);
+		},
+		[ setMessages ]
+	);
+
+	const addMessage = async ( message: Message, id = 0 ) => {
+		const newMessage = {
+			...message,
+			showIcon: message.showIcon === false ? false : ! message.isUser,
+			id: message.id || randomId(),
+		} as Message;
+
+		setMessages( previousMessages => [ ...previousMessages, newMessage ], id );
+	};
+
+	/* Removes last message */
+	const removeLastMessage = ( id = 0 ) => {
+		setMessages( previousMessages => previousMessages.slice( 0, -1 ), id );
+	};
+
+	/* Edits content of last message */
+	const editLastMessage = ( content: Message[ 'content' ], append = false, id = 0 ) => {
+		setMessages( previousMessages => {
+			const next = [ ...previousMessages ];
+
+			if ( next.length > 0 ) {
+				const lastMessageContent = next[ next.length - 1 ].content;
+				let newContent = content;
+
+				if ( append ) {
+					if ( typeof lastMessageContent === 'object' || typeof newContent === 'object' ) {
+						newContent = (
+							<>
+								{ lastMessageContent }
+								{ newContent }
+							</>
+						);
+					} else {
+						newContent = `${ lastMessageContent } + ${ newContent }`;
+					}
+				}
+
+				next[ next.length - 1 ] = {
+					...next[ next.length - 1 ],
+					content: newContent,
+				};
+			}
+
+			return next;
+		}, id );
+	};
+
+	const setSelectedMessage = ( message: Message, id = 0 ) => {
+		setMessages( previousMessages => {
+			const next = previousMessages.map( previousMessage => ( {
+				...previousMessage,
+				selected: message.id === previousMessage.id,
+			} ) );
+
+			return next;
+		}, id );
+	};
+
+	return {
+		getMessages: ( id = 0 ) => messagesArray[ id ],
+		setMessages: wrapMessagesWithId,
+		addMessage,
+		removeLastMessage,
+		editLastMessage,
+		setSelectedMessage,
+	};
+};
+
+export const MessageBubble = ( { message, onSelect = ( m: Message ) => m } ) => {
 	return (
 		<div
-			className={ clsx( 'seo-assistant-wizard__message', {
+			className={ clsx( 'jetpack-wizard-chat__message', {
 				'is-user': message.isUser,
+				'is-option': message.type === 'option',
 			} ) }
 		>
-			<div className="seo-assistant-wizard__message-icon">
+			<div className="jetpack-wizard-chat__message-icon">
 				{ message.showIcon && (
 					<img src={ bigSkyIcon } alt={ __( 'SEO Assistant avatar', 'jetpack' ) } />
 				) }
 			</div>
 
-			{ message.type === 'past-options' && (
-				<div className="seo-assistant-wizard__options">
-					{ message.options.map( option => (
-						<div
-							key={ option.id }
-							className={ clsx( 'seo-assistant-wizard__option', {
-								'is-selected': option.selected,
-							} ) }
-						>
-							{ option.content }
-						</div>
-					) ) }
-				</div>
+			{ message.type === 'option' && (
+				<button
+					className={ clsx( 'jetpack-wizard-chat__option', {
+						'is-selected': message.selected,
+					} ) }
+					onClick={ () => onSelect( message ) }
+				>
+					{ message.content }
+				</button>
 			) }
 
 			{ ( ! message.type || message.type === 'chat' ) && (
-				<div className="seo-assistant-wizard__message-text">{ message.content }</div>
+				<div className="jetpack-wizard-chat__message-text">{ message.content }</div>
 			) }
 		</div>
 	);
 };
 
-const OptionMessages = ( { currentStepData } ) => {
-	if ( currentStepData.type !== 'options' || ! currentStepData.options.length ) {
-		return null;
-	}
-
+export default function Messages( { onSelect, messages, isBusy } ) {
 	return (
-		<div className="seo-assistant-wizard__message">
-			<div className="seo-assistant-wizard__message-icon"></div>
-			<div className="seo-assistant-wizard__message-text">
-				<div className="seo-assistant-wizard__options">
-					{ currentStepData.options.map( option => (
-						<button
-							key={ option.id }
-							className={ clsx( 'seo-assistant-wizard__option', {
-								'is-selected': option.selected,
-							} ) }
-							onClick={ () => currentStepData.onSelect( option ) }
-						>
-							{ option.content }
-						</button>
-					) ) }
-				</div>
+		<>
+			<div className="jetpack-wizard-chat__messages">
+				{ messages.map( ( message: Message ) => (
+					<MessageBubble key={ message.id } onSelect={ onSelect } message={ message } />
+				) ) }
+				{ isBusy && <MessageBubble message={ { content: <TypingMessage />, showIcon: true } } /> }
 			</div>
-		</div>
-	);
-};
-
-export default function Messages( { currentStepData, messages } ) {
-	const messagesEndRef = useRef< HTMLDivElement >( null );
-	const scrollToBottom = () => {
-		messagesEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
-	};
-
-	useEffect( () => {
-		scrollToBottom();
-	}, [ messages ] );
-
-	return (
-		<div className="seo-assistant-wizard__messages">
-			{ messages.map( message => (
-				<Message key={ message.id } message={ message } />
-			) ) }
-			<OptionMessages currentStepData={ currentStepData } />
-			<div ref={ messagesEndRef } />
-		</div>
+		</>
 	);
 }

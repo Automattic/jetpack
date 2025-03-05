@@ -713,12 +713,7 @@ async function createComposerJson( composerJson, answers ) {
 			"echo 'Add your build step to composer.json, please!'";
 	}
 	if ( answers.wordbless ) {
-		composerJson.scripts[ 'post-install-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
-		composerJson.scripts[ 'post-update-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
-		composerJson[ 'require-dev' ][ 'automattic/wordbless' ] = 'dev-master';
-		composerJson.config = composerJson.config || {};
-		composerJson.config[ 'allow-plugins' ] = composerJson.config[ 'allow-plugins' ] || {};
-		composerJson.config[ 'allow-plugins' ][ 'roots/wordpress-core-installer' ] = true;
+		composerJson[ 'require-dev' ][ 'automattic/jetpack-test-environment' ] = '@dev';
 	}
 
 	try {

@@ -22,6 +22,9 @@
 	<rule ref="WordPress.Security.NonceVerification">
 		<severity>0</severity>
 	</rule>
+	<rule ref="WordPress.Security.ValidatedSanitizedInput">
+		<exclude name="WordPress.Security.ValidatedSanitizedInput.MissingUnslash" />
+	</rule>
 	<rule ref="WordPress.WP.AlternativeFunctions">
 		<severity>0</severity>
 	</rule>

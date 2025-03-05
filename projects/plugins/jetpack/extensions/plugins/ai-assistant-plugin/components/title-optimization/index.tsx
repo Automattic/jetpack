@@ -8,8 +8,11 @@ import {
 	ERROR_NETWORK,
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
+	QuotaExceededMessage,
+	usePostContent,
+	AiAssistantModal,
 } from '@automattic/jetpack-ai-client';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { useAnalytics, useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner, ExternalLink, Notice } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -17,11 +20,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import QuotaExceededMessage from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
-import useAutoSaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
-import usePostContent from '../../hooks/use-post-content';
-import AiAssistantModal from '../modal';
 import TitleOptimizationKeywords from './title-optimization-keywords';
 import TitleOptimizationOptions from './title-optimization-options';
 import './style.scss';
@@ -98,7 +97,7 @@ export default function TitleOptimization( {
 		? SEOSidebarButtonLabel
 		: currentSidebarButtonLabel;
 
-	const postContent = usePostContent();
+	const { getPostContent, isEditedPostEmpty } = usePostContent();
 	const [ selected, setSelected ] = useState( null );
 	const [ isTitleOptimizationModalVisible, setIsTitleOptimizationModalVisible ] = useState( false );
 	const [ generating, setGenerating ] = useState( false );
@@ -106,7 +105,7 @@ export default function TitleOptimization( {
 	const [ error, setError ] = useState< TitleOptimizationError | null >( null );
 	const [ optimizationKeywords, setOptimizationKeywords ] = useState( '' );
 	const { editPost } = useDispatch( 'core/editor' );
-	const { autosave } = useAutoSaveAndRedirect();
+	const { autosave } = useAutosaveAndRedirect();
 	const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
@@ -159,7 +158,7 @@ export default function TitleOptimization( {
 					role: 'jetpack-ai' as const,
 					context: {
 						type: 'title-optimization',
-						content: postContent,
+						content: getPostContent(),
 						keywords: optimizationKeywords,
 					},
 				},
@@ -167,7 +166,7 @@ export default function TitleOptimization( {
 
 			request( messages, { feature: 'jetpack-ai-title-optimization' } );
 		},
-		[ recordEvent, placement, postContent, optimizationKeywords, request ]
+		[ recordEvent, placement, getPostContent, optimizationKeywords, request ]
 	);
 
 	const handleTitleOptimization = useCallback( () => {
@@ -231,7 +230,7 @@ export default function TitleOptimization( {
 			<p className="jetpack-ai-assistant__help-text">{ sidebarDescription }</p>
 			<Button
 				isBusy={ busy }
-				disabled={ ! postContent || disabled }
+				disabled={ isEditedPostEmpty() || disabled }
 				onClick={ handleTitleOptimization }
 				variant="secondary"
 				__next40pxDefaultSize

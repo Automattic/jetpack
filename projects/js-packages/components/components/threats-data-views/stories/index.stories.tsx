@@ -1,4 +1,4 @@
-import ThreatsDataViews from '..';
+import ThreatsDataViews from '../index.js';
 
 export default {
 	title: 'JS Packages/Components/Threats Data Views',

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Fix issue with VideoPress block with 0 height and width

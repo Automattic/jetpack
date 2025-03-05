@@ -8,9 +8,13 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use WP_Error;
 
@@ -51,6 +55,20 @@ class Contact_Form_Plugin {
 	 * @var string
 	 */
 	private $pde_email_address = '';
+
+	/*
+	 * Field keys that might be present in the entry json but we don't want to show to the admin
+	 * since they not something that the visitor entered into the form.
+	 *
+	 * @var array
+	 */
+	const NON_PRINTABLE_FIELDS = array(
+		'entry_title'             => '',
+		'email_marketing_consent' => '',
+		'entry_permalink'         => '',
+		'entry_page'              => '',
+		'feedback_id'             => '',
+	);
 
 	/**
 	 * Initializing function.
@@ -494,6 +512,32 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Render the file upload field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the file upload field.
+	 */
+	public static function gutenblock_render_field_file( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the number field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the file upload field.
+	 */
+	public static function gutenblock_render_field_number( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'number' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
 	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
@@ -699,8 +743,16 @@ class Contact_Form_Plugin {
 
 			// Process the content to populate Contact_Form::$last
 			if ( $post ) {
+				if ( str_contains( $post->post_content, '<!--nextpage-->' ) ) {
+					$postdata = generate_postdata( $post );
+					$page     = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+					$paged    = isset( $page ) ? $page : 1;
+					$content  = isset( $postdata['pages'][ $paged - 1 ] ) ? $postdata['pages'][ $paged - 1 ] : $post->post_content;
+				} else {
+					$content = $post->post_content;
+				}
 				/** This filter is already documented in core. wp-includes/post-template.php */
-				apply_filters( 'the_content', $post->post_content );
+				apply_filters( 'the_content', $content );
 			}
 		}
 
@@ -1135,7 +1187,7 @@ class Contact_Form_Plugin {
 		$content_fields = self::parse_fields_from_content( $post_id );
 		$all_fields     = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
 		$md             = $has_json_data
-			? array_diff_key( $all_fields, array_flip( array( 'entry_title', 'email_marketing_consent', 'entry_permalink', 'feedback_id' ) ) )
+			? array_diff_key( $all_fields, array_flip( array_keys( self::NON_PRINTABLE_FIELDS ) ) )
 			: (array) get_post_meta( $post_id, '_feedback_extra_fields', true );
 
 		$md['-3_response_date'] = get_the_date( 'Y-m-d H:i:s', $post_id );
@@ -1899,7 +1951,7 @@ class Contact_Form_Plugin {
 				}
 			}
 
-			$tracking = new \Automattic\Jetpack\Tracking();
+			$tracking = new Tracking();
 			$tracking->record_user_event( $event_name, $event_props, $event_user );
 		}
 	}
@@ -2241,5 +2293,21 @@ class Contact_Form_Plugin {
 			return 'publish';
 		}
 		return $current_status;
+	}
+
+	/**
+	 * Returns whether we are in condition to track and use
+	 * analytics functionality like Tracks.
+	 *
+	 * @return bool Returns true if we can track analytics, else false.
+	 */
+	public static function can_use_analytics() {
+		$is_wpcom               = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$status                 = new Status();
+		$connection             = new Connection_Manager();
+		$tracking               = new Tracking( 'jetpack', $connection );
+		$should_enable_tracking = $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
+
+		return $is_wpcom || $should_enable_tracking;
 	}
 }

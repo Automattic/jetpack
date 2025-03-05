@@ -1,3 +1,4 @@
+import restApi from '@automattic/jetpack-api';
 import {
 	AdminPage,
 	Container,
@@ -39,6 +40,7 @@ const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
  */
 export default function UpsellPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
+	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
@@ -47,10 +49,10 @@ export default function UpsellPage( { isLoading = false } ) {
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
-	const checkSiteHasSearchProduct = useCallback(
-		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
-		[ fetchSearchPlanInfo ]
-	);
+	const checkSiteHasSearchProduct = useCallback( () => {
+		restApi.setApiNonce( APINonce );
+		fetchSearchPlanInfo().then( response => response?.supports_search );
+	}, [ APINonce, fetchSearchPlanInfo ] );
 
 	const { run: sendToCartPaid, hasCheckoutStarted: hasCheckoutStartedPaid } =
 		useProductCheckoutWorkflow( {

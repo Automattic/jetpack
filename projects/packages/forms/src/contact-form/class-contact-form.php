@@ -82,7 +82,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string $content - the content.
 	 */
 	public function __construct( $attributes, $content = null ) {
-		global $post;
+		global $post, $page;
 
 		// Set up the default subject and recipient for this form.
 		$default_to      = '';
@@ -115,7 +115,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} elseif ( $post ) {
 			$attributes['id'] = $post->ID;
 			$post_author      = get_userdata( $post->post_author );
-			$default_to      .= $post_author->user_email;
+			if ( is_a( $post_author, '\WP_User' ) ) {
+				$default_to .= $post_author->user_email;
+			} else {
+				$default_to .= get_option( 'admin_email' );
+			}
 		}
 
 		if ( ! empty( self::$forms ) ) {
@@ -123,7 +127,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( ! isset( $attributes['id'] ) ) {
 				$attributes['id'] = '';
 			}
-			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 );
+			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page;
 		}
 
 		$this->hash                 = sha1( wp_json_encode( $attributes ) );
@@ -249,8 +253,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string HTML for the concat form.
 	 */
 	public static function parse( $attributes, $content ) {
-		global $post;
-
+		global $post, $page, $multipage; // $page is used in the contact-form submission redirect
 		if ( Settings::is_syncing() ) {
 			return '';
 		}
@@ -347,6 +350,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			} else {
 				// Submit form to the post permalink
 				$url = get_permalink();
+				if ( $multipage && $page ) {
+					$url = add_query_arg( 'page', $page, $url );
+				}
 			}
 
 			// For SSL/TLS page. See RFC 3986 Section 4.2
@@ -364,7 +370,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 * @param $post $GLOBALS['post'] Post global variable.
 			 * @param int $id Contact Form ID.
 			 */
-			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
+			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id, $page );
 			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' );
 			$form_classes            = 'contact-form commentsblock';
 			$post_title              = $post->post_title ?? '';
@@ -433,6 +439,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$r .= "\t\t<input type='hidden' name='contact-form-id' value='$id' />\n";
 			$r .= "\t\t<input type='hidden' name='action' value='grunion-contact-form' />\n";
 			$r .= "\t\t<input type='hidden' name='contact-form-hash' value='" . esc_attr( $form->hash ) . "' />\n";
+
+			if ( $page && $page > 1 ) {
+				$r .= "\t\t<input type='hidden' name='page' value='$page' />\n";
+			}
 
 			if ( ! $has_submit_button_block ) {
 				$r .= "\t</p>\n";
@@ -528,7 +538,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = is_a( $feedback, '\WP_Post' ) ? $feedback->post_content : '';
+					$value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
+									$feedback->post_content : '';
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
 				}
@@ -621,7 +632,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = is_a( $feedback, '\WP_Post' ) ? $feedback->post_content : '';
+					$value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
+									$feedback->post_content : '';
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
 				}
@@ -709,6 +721,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string
 	 */
 	public static function escape_and_sanitize_field_value( $value ) {
+		if ( $value === null ) {
+			return '';
+		}
+
 		$value = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value );
 		return nl2br( wp_kses( $value, array() ) );
 	}
@@ -861,6 +877,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 				break;
 			case 'name':
 				$str = __( 'Name', 'jetpack-forms' );
+				break;
+			case 'number':
+				$str = __( 'Number', 'jetpack-forms' );
 				break;
 			case 'email':
 				$str = __( 'Email', 'jetpack-forms' );
@@ -1148,6 +1167,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// For all fields, grab label and value
 		foreach ( $field_ids['all'] as $field_id ) {
 			$field = $this->fields[ $field_id ];
+
+			if ( ! $field->is_field_renderable( $field->get_attribute( 'type' ) ) ) {
+				continue;
+			}
+
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
 
@@ -1159,6 +1183,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Extra fields have their prefix starting from count( $all_values ) + 1
 		foreach ( $field_ids['extra'] as $field_id ) {
 			$field = $this->fields[ $field_id ];
+
+			if ( ! $field->is_field_renderable( $field->get_attribute( 'type' ) ) ) {
+				continue;
+			}
+
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
 
@@ -1323,9 +1352,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$entry_values = array(
 			'entry_title'     => the_title_attribute( 'echo=0' ),
-			'entry_permalink' => esc_url( get_permalink( get_the_ID() ) ),
+			'entry_permalink' => esc_url( self::get_permalink( get_the_ID() ) ),
 			'feedback_id'     => $feedback_id,
 		);
+
+		if ( isset( $_POST['page'] ) ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+			$entry_values['entry_page'] = absint( wp_unslash( $_POST['page'] ) ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+		}
 
 		$all_values = array_merge( $all_values, $entry_values );
 
@@ -1338,7 +1371,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $block_template || $block_template_part || $widget ) {
 			$url = home_url( '/' );
 		} else {
-			$url = get_permalink( $post->ID );
+			$url = self::get_permalink( $post->ID );
 		}
 
 		// translators: the time of the form submission.
@@ -1644,6 +1677,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We intentially allow external redirects here.
 		wp_redirect( $redirect );
 		exit( 0 );
+	}
+	/**
+	 * Get the permalink for the post ID that include the page query parameter if it was set.
+	 *
+	 * @param int $post_id The post ID.
+	 *
+	 * return string The permalink for the post ID.
+	 */
+	public static function get_permalink( $post_id ) {
+		$url  = get_permalink( $post_id );
+		$page = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+		if ( $page ) {
+			return add_query_arg( 'page', $page, $url );
+		}
+		return $url;
 	}
 
 	/**

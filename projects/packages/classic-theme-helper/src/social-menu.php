@@ -23,17 +23,17 @@ if ( ! function_exists( 'jetpack_social_menu_init' ) ) {
 			return;
 		}
 
-		/*
-		* Social Menu description.
-		*
-		* Rename the social menu description.
-		*
-		* @module theme-tools
-		*
-		* @since 3.9.0
-		*
-		* @param string $social_menu_description Social Menu description
-		*/
+		/**
+		 * Social Menu description.
+		 *
+		 * Rename the social menu description.
+		 *
+		 * @module theme-tools
+		 *
+		 * @since 3.9.0
+		 *
+		 * @param string $social_menu_description Social Menu description
+		 */
 		$social_menu_description = apply_filters( 'jetpack_social_menu_description', __( 'Social Menu', 'jetpack-classic-theme-helper' ) );
 
 		// Register a new menu location

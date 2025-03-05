@@ -3,14 +3,14 @@ import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import React from 'react';
-import { getRedirectUrl } from '../..';
-import { STORE_ID as CONNECTION_STORE_ID } from '../../../../js-packages/connection/state/store';
-import getSiteAdminUrl from '../../tools/get-site-admin-url';
-import AutomatticBylineLogo from '../automattic-byline-logo';
+import { STORE_ID as CONNECTION_STORE_ID } from '../../../../js-packages/connection/state/store.jsx';
+import { getRedirectUrl } from '../../index.js';
+import getSiteAdminUrl from '../../tools/get-site-admin-url/index.js';
+import AutomatticBylineLogo from '../automattic-byline-logo/index.js';
 import './style.scss';
-import JetpackLogo from '../jetpack-logo';
-import useBreakpointMatch from '../layout/use-breakpoint-match';
-import type { JetpackFooterProps, JetpackFooterMenuItem } from './types';
+import JetpackLogo from '../jetpack-logo/index.js';
+import useBreakpointMatch from '../layout/use-breakpoint-match/index.js';
+import type { JetpackFooterProps, JetpackFooterMenuItem } from './types.js';
 
 const JetpackIcon: React.FC = () => (
 	<JetpackLogo logoColor="#000" showText={ false } height={ 16 } aria-hidden="true" />

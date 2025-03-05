@@ -147,6 +147,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'highlander_comment_form_prompt'            => '(string) The prompt for the comment form',
 			'jetpack_comment_form_color_scheme'         => '(string) The color scheme for the comment form',
 			'is_fully_managed_agency_site'              => '(bool) Whether the site is a fully managed agency site',
+			'wpcom_hide_action_bar'                     => '(bool) Whether to hide the Action bar',
 		),
 
 		'response_format' => array(

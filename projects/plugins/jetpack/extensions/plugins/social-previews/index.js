@@ -1,5 +1,5 @@
 import { SocialPreviewsModal, SocialPreviewsPanel } from '@automattic/jetpack-publicize-components';
-import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelBody } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';

@@ -37,6 +37,13 @@ class Videopress extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-videopress';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'performance';
+
+	/**
 	 * The filename (id) of the plugin associated with this product.
 	 *
 	 * @var string

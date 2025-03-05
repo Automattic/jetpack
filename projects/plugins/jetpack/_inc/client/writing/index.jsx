@@ -9,6 +9,7 @@ import {
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
+import { getActiveFeatureDetails } from 'state/feature-check';
 import { userCanManageModules, userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated, getModuleOverride, getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
@@ -23,6 +24,59 @@ import WritingMedia from './writing-media';
 export class Writing extends React.Component {
 	static displayName = 'WritingSettings';
 
+	constructor( props ) {
+		super( props );
+
+		const customContentTypeStatusInitialState = window?.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active
+			? window.CUSTOM_CONTENT_TYPE__INITIAL_STATE.active
+			: false;
+
+		const customContentTypeOverrideStatusInitialState = window?.CUSTOM_CONTENT_TYPE__INITIAL_STATE
+			?.over_ride
+			? window.CUSTOM_CONTENT_TYPE__INITIAL_STATE.over_ride
+			: false;
+
+		this.state = {
+			customContentTypeIsActive: customContentTypeStatusInitialState,
+			customContentTypeIsOverridden: customContentTypeOverrideStatusInitialState,
+			customContentKeywords: [],
+		};
+
+		// Call async initialization directly
+		this.initializeCustomContentTypes();
+	}
+
+	initializeCustomContentTypes() {
+		this.props
+			.getActiveFeatureDetails()
+			.then( response => {
+				if ( response && response[ 'custom-content-types' ].active !== undefined ) {
+					this.setState( {
+						customContentTypeIsActive: response[ 'custom-content-types' ].active,
+						customContentTypeIsOverridden: response[ 'custom-content-types' ].over_ride,
+						customContentKeywords: [
+							...response[ 'custom-content-types' ].additional_search_queries
+								.split( ',' )
+								.map( keyword => keyword.trim().toLowerCase() ),
+							...response[ 'custom-content-types' ].description
+								.toLowerCase()
+								.split( ' ' )
+								.map( word => word.trim() ),
+						],
+					} );
+				} else {
+					this.setState( { customContentTypeIsActive: false } );
+				}
+			} )
+			.catch( error => {
+				// eslint-disable-next-line no-console
+				console.error( 'Error fetching custom content type status:', error );
+
+				// Update state to reflect that the route doesn't exist or an error occurred
+				this.setState( { customContentTypeIsActive: false } );
+			} );
+	}
+
 	render() {
 		const commonProps = {
 			settings: this.props.settings,
@@ -31,6 +85,8 @@ export class Writing extends React.Component {
 			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			isLinked: this.props.isLinked,
 			getModuleOverride: this.props.getModuleOverride,
+			customContentTypeIsActive: this.state.customContentTypeIsActive || false,
+			customContentTypeIsOverridden: this.state.customContentTypeIsOverridden || false,
 		};
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -43,17 +99,20 @@ export class Writing extends React.Component {
 			'latex',
 			'markdown',
 			'shortcodes',
-			'custom-content-types',
 			'post-by-email',
 			'infinite-scroll',
 			'widgets',
 			'widget-visibility',
 			'blocks',
 		].some( this.props.isModuleFound );
-
-		if ( ! found ) {
+		if ( ! found && ! this.state.customContentTypeIsActive ) {
 			return null;
 		}
+
+		const shouldRenderCustomContent =
+			( this.state.customContentTypeIsActive && this.props.searchTerm === '' ) ||
+			( this.state.customContentTypeIsActive &&
+				this.state.customContentKeywords.includes( this.props.searchTerm?.toLowerCase() ) );
 
 		const showComposing = this.props.userCanManageModules || this.props.userCanEditPosts,
 			showPostByEmail =
@@ -76,9 +135,7 @@ export class Writing extends React.Component {
 				{ showComposing && (
 					<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
 				) }
-				{ this.props.isModuleFound( 'custom-content-types' ) && (
-					<CustomContentTypes { ...commonProps } />
-				) }
+				{ shouldRenderCustomContent && <CustomContentTypes { ...commonProps } /> }
 				<ThemeEnhancements { ...commonProps } />
 				<Widgets { ...commonProps } />
 				{ this.props.isModuleFound( 'post-by-email' ) && showPostByEmail && (
@@ -102,18 +159,25 @@ export class Writing extends React.Component {
 	}
 }
 
-export default connect( state => {
-	return {
-		module: module_name => getModule( state, module_name ),
-		settings: getSettings( state ),
-		isOfflineMode: isOfflineMode( state ),
-		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
-		userCanEditPosts: userCanEditPosts( state ),
-		isModuleActivated: module_name => isModuleActivated( state, module_name ),
-		isLinked: isCurrentUserLinked( state ),
-		userCanManageModules: userCanManageModules( state ),
-		isModuleFound: module_name => isModuleFound( state, module_name ),
-		connectUrl: getConnectUrl( state ),
-		getModuleOverride: module_name => getModuleOverride( state, module_name ),
-	};
-} )( Writing );
+export default connect(
+	state => {
+		return {
+			module: module_name => getModule( state, module_name ),
+			settings: getSettings( state ),
+			isOfflineMode: isOfflineMode( state ),
+			isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
+			userCanEditPosts: userCanEditPosts( state ),
+			isModuleActivated: module_name => isModuleActivated( state, module_name ),
+			isLinked: isCurrentUserLinked( state ),
+			userCanManageModules: userCanManageModules( state ),
+			isModuleFound: module_name => isModuleFound( state, module_name ),
+			connectUrl: getConnectUrl( state ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		};
+	},
+	dispatch => ( {
+		getActiveFeatureDetails: () => {
+			return dispatch( getActiveFeatureDetails( 'custom-content-types' ) );
+		},
+	} )
+)( Writing );

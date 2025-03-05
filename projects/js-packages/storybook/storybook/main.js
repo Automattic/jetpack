@@ -54,7 +54,7 @@ const sbconfig = {
 		// Use esbuild to minify.
 		config.optimization.minimizer = [
 			new EsbuildPlugin( {
-				target: 'es2018',
+				target: 'esnext',
 			} ),
 		];
 
@@ -111,7 +111,7 @@ const sbconfig = {
 
 		// For tsc
 		config.resolve.extensionAlias = {
-			'.js': [ '.js', '.ts', '.tsx' ],
+			'.js': [ '.js', '.jsx', '.ts', '.tsx' ],
 			'.cjs': [ '.cjs', '.cts' ],
 			'.mjs': [ '.mjs', '.mts' ],
 		};

@@ -1,10 +1,10 @@
+import { useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
 import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { getPaidPlanLink } from '../../memberships/utils';
-import useAutosaveAndRedirect from '../../use-autosave-and-redirect';
 
 export default function PlansSetupDialog( { showDialog, closeDialog } ) {
 	const { hasTierPlans } = useSelect( select => {

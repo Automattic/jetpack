@@ -26,6 +26,7 @@ function replace_site_visibility() {
 
 	$jetpack_status = new Automattic\Jetpack\Status();
 	$site_slug      = $jetpack_status->get_site_suffix();
+	$current_screen = wpcom_admin_get_current_screen();
 
 	if ( ! is_jetpack_connected() && $jetpack_status->is_private_site() ) {
 		$settings_url = esc_url_raw( sprintf( '/wp-admin/admin.php?page=jetpack' ) );
@@ -34,6 +35,13 @@ function replace_site_visibility() {
 		return;
 	} else {
 		$settings_url = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
+
+		// To prevent "Default + hold-out" users from redirecting to /wp-admin/options-general.php.
+		// p1738634823404529/1738634703.754159-slack-CRWCHQGUB
+		if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+			$settings_url = esc_url_raw( sprintf( 'https://wordpress.com/sites/settings/site/%s', $site_slug ) );
+		}
+
 		$manage_label = __( 'Manage your privacy settings', 'jetpack-mu-wpcom' );
 	}
 

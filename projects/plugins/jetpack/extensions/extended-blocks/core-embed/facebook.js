@@ -1,7 +1,7 @@
+import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
+import { FacebookIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 import { addFilter } from '@wordpress/hooks';
 import { __, _x } from '@wordpress/i18n';
-import { getIconColor } from '../../shared/block-icons';
-import { FacebookIcon } from '../../shared/icons';
 
 const facebookVariation = {
 	name: 'facebook',

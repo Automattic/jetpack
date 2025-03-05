@@ -1,8 +1,18 @@
 /**
  * External dependencies
  */
+import { useAICheckout, useAiFeature } from '@automattic/jetpack-ai-client';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	useAutosaveAndRedirect,
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_TIERED,
+	usePlanType,
+	PlanType,
+	canUserPurchasePlan,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
@@ -11,17 +21,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
-import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAnalytics from '../../../../blocks/ai-assistant/hooks/use-analytics';
-import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
-import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
-import {
-	PLAN_TYPE_FREE,
-	PLAN_TYPE_TIERED,
-	usePlanType,
-	PlanType,
-} from '../../../../shared/use-plan-type';
 import UsageControl from '../usage-bar';
 import './style.scss';
 import type { UsagePanelProps, InternalUsagePanelProps } from './types';

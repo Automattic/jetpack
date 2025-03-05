@@ -14,7 +14,7 @@ type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 
 const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { recordEvent } = useAnalytics();
-	const { setNotice } = useContext( NoticeContext );
+	const { setNotice, resetNotice } = useContext( NoticeContext );
 
 	const {
 		type,
@@ -35,6 +35,13 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const contactSupportUrl = getRedirectUrl( 'jetpack-support' );
 
 	const noticeTitle = __( 'Oops! We couldn’t back up your site', 'jetpack-my-jetpack' );
+
+	const onCloseClick = useCallback( () => {
+		// Session cookie. Expires at session end.
+		document.cookie = `backup_failure_dismissed=1; SameSite=None; Secure`;
+		delete redBubbleAlerts.backup_failure;
+		resetNotice();
+	}, [ redBubbleAlerts.backup_failure, resetNotice ] );
 
 	const onPrimaryCtaClick = useCallback( () => {
 		window.open( troubleshootBackupsUrl );
@@ -95,6 +102,8 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 					isExternalLink: true,
 				},
 			],
+			onClose: onCloseClick,
+			hideCloseButton: false,
 			priority: NOTICE_PRIORITY_HIGH,
 		};
 
@@ -107,6 +116,7 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		redBubbleAlerts,
 		setNotice,
 		recordEvent,
+		onCloseClick,
 		onPrimaryCtaClick,
 		onSecondaryCtaClick,
 		noticeTitle,

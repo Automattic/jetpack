@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { fixes, Block, AiFeedbackThumbs } from '@automattic/jetpack-ai-client';
+import { fixes, Block, AiFeedbackThumbs, AiSVG } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { rawHandler, serialize } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
@@ -14,7 +14,6 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { AiSVG } from '../../ai-icon';
 import { BREVE_FEATURE_NAME } from '../constants';
 import features from '../features';
 import { LONG_SENTENCES } from '../features/long-sentences';

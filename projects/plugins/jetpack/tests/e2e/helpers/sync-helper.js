@@ -1,5 +1,5 @@
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
-import logger from 'jetpack-e2e-commons/logger.js';
+import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
+import logger from '_jetpack-e2e-commons/logger.js';
 
 /**
  * Enable sync

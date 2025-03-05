@@ -10,7 +10,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 /**
  * Enqueues the site URL script and localizes script data for General Settings.
  */
-function wpcom_add_siteurl_to_general_settings() {
+function _wpcom_add_siteurl_to_general_settings() {
 	if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
 		return;
 	}
@@ -39,4 +39,4 @@ function wpcom_add_siteurl_to_general_settings() {
 		'before'
 	);
 }
-add_action( 'load-options-general.php', 'wpcom_add_siteurl_to_general_settings' );
+add_action( 'load-options-general.php', '_wpcom_add_siteurl_to_general_settings' );

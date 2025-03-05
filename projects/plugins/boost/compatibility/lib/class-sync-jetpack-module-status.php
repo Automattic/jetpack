@@ -91,8 +91,8 @@ class Sync_Jetpack_Module_Status {
 	}
 
 	public function remove_sync_from_jetpack_action() {
-		remove_action( "jetpack_deactivate_module_{$this->jetpack_module_slug}", array( $this, 'sync_from_jetpack' ), 10, 2 );
-		remove_action( "jetpack_activate_module_{$this->jetpack_module_slug}", array( $this, 'sync_from_jetpack' ), 10, 2 );
+		remove_action( "jetpack_deactivate_module_{$this->jetpack_module_slug}", array( $this, 'sync_from_jetpack' ), 10 );
+		remove_action( "jetpack_activate_module_{$this->jetpack_module_slug}", array( $this, 'sync_from_jetpack' ), 10 );
 	}
 
 	/**
@@ -104,7 +104,7 @@ class Sync_Jetpack_Module_Status {
 	}
 
 	public function remove_sync_to_jetpack_action() {
-		remove_action( "add_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10, 2 );
-		remove_action( "update_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10, 2 );
+		remove_action( "add_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10 );
+		remove_action( "update_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10 );
 	}
 }

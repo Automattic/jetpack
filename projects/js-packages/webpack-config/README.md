@@ -93,6 +93,9 @@ This is an object suited for spreading some default values into Webpack's `outpu
 
 - `filename`: `[name].js`.
 - `chunkFilename`: `[name].js?minify=false&ver=[contenthash]`. The content hash serves as a cache buster, while `minify=false` avoids a broken minifier in the WordPress.com environment.
+- `uniqueName`: If `package.json` has a name, that. Otherwise if `composer.json` has a name, that.
+
+Note if you're setting `output.library.name`, you may want to also set `output.uniqueName` to the same string to match Webpack's default behavior.
 
 #### `optimization`
 

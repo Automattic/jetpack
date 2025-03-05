@@ -353,9 +353,17 @@ class Wpcom_Products {
 	/**
 	 * Gets the site's currently active "plan" (bundle).
 	 *
+	 * @param bool $reload  Whether to refresh data from wpcom or not.
 	 * @return array
 	 */
-	public static function get_site_current_plan() {
+	public static function get_site_current_plan( $reload = false ) {
+		static $reloaded_already = false;
+
+		if ( $reload && ! $reloaded_already ) {
+			Current_Plan::refresh_from_wpcom();
+			$reloaded_already = true;
+		}
+
 		return Current_Plan::get();
 	}
 

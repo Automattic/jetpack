@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove options-general.phph from WPCOM_DUPLICATED_VIEW

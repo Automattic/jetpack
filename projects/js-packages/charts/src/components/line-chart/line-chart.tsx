@@ -1,4 +1,4 @@
-import { curveNatural } from '@visx/curve';
+import { curveCatmullRom, curveLinear } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import {
 	XYChart,
@@ -8,38 +8,37 @@ import {
 	Tooltip,
 	buildChartTheme,
 } from '@visx/xychart';
+import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import clsx from 'clsx';
-import { FC, useMemo } from 'react';
+import { FC, ReactNode, useId, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
-interface LineChartProps extends BaseChartProps< SeriesData[] > {
-	margin?: { top: number; right: number; bottom: number; left: number };
-	withGradientFill: boolean;
-}
+const X_TICK_WIDTH = 100;
 
-type TooltipData = {
-	date: Date;
-	[ key: string ]: number | Date;
-};
+interface LineChartProps extends BaseChartProps< SeriesData[] > {
+	withGradientFill: boolean;
+	smoothing?: boolean;
+	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
+}
 
 type TooltipDatum = {
 	key: string;
 	value: number;
 };
 
-const renderTooltip = ( {
+const renderDefaultTooltip = ( {
 	tooltipData,
 }: {
 	tooltipData?: {
 		nearestDatum?: {
-			datum: TooltipData;
+			datum: DataPointDate;
 			key: string;
 		};
-		datumByKey?: { [ key: string ]: { datum: TooltipData } };
+		datumByKey?: { [ key: string ]: { datum: DataPointDate } };
 	};
 } ) => {
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -55,7 +54,7 @@ const renderTooltip = ( {
 	return (
 		<div className={ styles[ 'line-chart__tooltip' ] }>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
-				{ nearestDatum.date.toLocaleDateString() }
+				{ nearestDatum.date?.toLocaleDateString() }
 			</div>
 			{ tooltipPoints.map( point => (
 				<div key={ point.key } className={ styles[ 'line-chart__tooltip-row' ] }>
@@ -67,8 +66,8 @@ const renderTooltip = ( {
 	);
 };
 
-const formatDateTick = ( value: number ) => {
-	const date = new Date( value );
+const formatDateTick = ( timestamp: number ) => {
+	const date = new Date( timestamp );
 	return date.toLocaleDateString( undefined, {
 		month: 'short',
 		day: 'numeric',
@@ -97,43 +96,74 @@ const LineChart: FC< LineChartProps > = ( {
 	width,
 	height,
 	className,
-	margin = {},
+	margin,
 	withTooltips = true,
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	withGradientFill = false,
+	smoothing = true,
+	renderTooltip = renderDefaultTooltip,
 	options = {},
+	onPointerDown = undefined,
+	onPointerUp = undefined,
+	onPointerMove = undefined,
+	onPointerOut = undefined,
 } ) => {
 	const providerTheme = useChartTheme();
+	const chartId = useId(); // Ensure unique ids for gradient fill.
+
+	const dataSorted = useMemo(
+		() =>
+			data.map( series => ( {
+				...series,
+				data: series.data.sort( ( a, b ) => a.date.getTime() - b.date.getTime() ),
+			} ) ),
+		[ data ]
+	);
 
 	const theme = useMemo( () => {
 		const seriesColors =
-			data?.map( series => series.options?.stroke ?? '' ).filter( Boolean ) ?? [];
+			dataSorted?.map( series => series.options?.stroke ?? '' ).filter( Boolean ) ?? [];
 		return buildChartTheme( {
-			backgroundColor: providerTheme.backgroundColor,
+			...providerTheme,
 			colors: [ ...seriesColors, ...providerTheme.colors ],
-			gridStyles: providerTheme.gridStyles,
-			tickLength: providerTheme?.tickLength || 0,
-			gridColor: providerTheme?.gridColor || '',
-			gridColorDark: providerTheme?.gridColorDark || '',
 		} );
-	}, [ providerTheme, data ] );
+	}, [ providerTheme, dataSorted ] );
 
-	const error = validateData( data );
+	margin = useMemo( () => {
+		// Auto-margin unless specified to make room for axis labels.
+		// Default margin is for bottom and left axis labels.
+		let defaultMargin = {};
+		if ( options.axis?.y?.orientation === 'right' ) {
+			defaultMargin = { ...defaultMargin, right: 40, left: 0 };
+		}
+		if ( options.axis?.x?.orientation === 'top' ) {
+			defaultMargin = { ...defaultMargin, top: 20, bottom: 10 };
+		}
+		// Merge default margin with user-specified margin.
+		return { ...defaultMargin, ...margin };
+	}, [ margin, options ] );
+
+	const xNumTicks = useMemo(
+		() => Math.min( dataSorted[ 0 ]?.data.length, Math.ceil( width / X_TICK_WIDTH ) ),
+		[ dataSorted, width ]
+	);
+
+	const error = validateData( dataSorted );
 	if ( error ) {
 		return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 	}
 
 	// Create legend items from group labels, this iterates over groups rather than data points
-	const legendItems = data.map( ( group, index ) => ( {
+	const legendItems = dataSorted.map( ( group, index ) => ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
 		color: providerTheme.colors[ index % providerTheme.colors.length ],
 	} ) );
 
 	const accessors = {
-		xAccessor: ( d: DataPointDate ) => d.date,
-		yAccessor: ( d: DataPointDate ) => d.value,
+		xAccessor: ( d: DataPointDate ) => d?.date,
+		yAccessor: ( d: DataPointDate ) => d?.value,
 	};
 
 	return (
@@ -147,29 +177,36 @@ const LineChart: FC< LineChartProps > = ( {
 				theme={ theme }
 				width={ width }
 				height={ height }
-				margin={ { top: 20, right: 20, bottom: 40, left: 40, ...margin } }
+				margin={ { top: 10, right: 0, bottom: 20, left: 40, ...margin } }
+				// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 				xScale={ { type: 'time', ...options?.xScale } }
 				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
+				onPointerDown={ onPointerDown }
+				onPointerUp={ onPointerUp }
+				onPointerMove={ onPointerMove }
+				onPointerOut={ onPointerOut }
+				pointerEventsDataKey="nearest"
 			>
 				<AnimatedGrid columns={ false } numTicks={ 4 } />
 				<AnimatedAxis
 					orientation="bottom"
-					numTicks={ 5 }
+					numTicks={ xNumTicks }
 					tickFormat={ formatDateTick }
 					{ ...options?.axis?.x }
 				/>
 				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
 
-				{ data.map( ( seriesData, index ) => {
+				{ dataSorted.map( ( seriesData, index ) => {
 					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
 					return (
 						<g key={ seriesData?.label || index }>
 							{ withGradientFill && (
 								<LinearGradient
-									id={ `area-gradient-${ index + 1 }` }
+									id={ `area-gradient-${ chartId }-${ index + 1 }` }
 									from={ stroke }
-									to="white"
+									fromOpacity={ 0.4 }
 									toOpacity={ 0.1 }
+									to={ theme.backgroundColor }
 									{ ...seriesData.options?.gradient }
 									data-testid="line-gradient"
 								/>
@@ -179,9 +216,11 @@ const LineChart: FC< LineChartProps > = ( {
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] }
 								{ ...accessors }
-								fill={ withGradientFill ? `url(#area-gradient-${ index + 1 })` : undefined }
+								fill={
+									withGradientFill ? `url(#area-gradient-${ chartId }-${ index + 1 })` : undefined
+								}
 								renderLine={ true }
-								curve={ curveNatural }
+								curve={ smoothing ? curveCatmullRom : curveLinear }
 							/>
 						</g>
 					);
@@ -189,6 +228,7 @@ const LineChart: FC< LineChartProps > = ( {
 
 				{ withTooltips && (
 					<Tooltip
+						detectBounds
 						snapTooltipToDatumX
 						snapTooltipToDatumY
 						showSeriesGlyphs

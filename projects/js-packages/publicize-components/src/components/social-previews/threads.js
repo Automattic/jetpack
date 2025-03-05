@@ -1,9 +1,7 @@
 import { ThreadsPreviews } from '@automattic/social-previews';
-import { useSelect } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { usePostMeta } from '../../hooks/use-post-meta';
-import { CONNECTION_SERVICE_THREADS, store } from '../../social-store';
 
 /**
  * The threads tab component.
@@ -20,52 +18,38 @@ import { CONNECTION_SERVICE_THREADS, store } from '../../social-store';
 export function Threads( { excerpt, title, description, image, url, media } ) {
 	const { shareMessage } = usePostMeta();
 
-	const posts = useSelect(
-		select => {
-			const { displayName: name, profileImage } = select( store ).getConnectionProfileDetails(
-				CONNECTION_SERVICE_THREADS
-			);
+	const posts = useMemo( () => {
+		let caption = title;
 
-			let caption = title;
+		if ( shareMessage ) {
+			caption = shareMessage;
+		} else if ( title && excerpt ) {
+			caption = `${ title }\n\n${ excerpt }`;
+		}
 
-			if ( shareMessage ) {
-				caption = shareMessage;
-			} else if ( title && excerpt ) {
-				caption = `${ title }\n\n${ excerpt }`;
-			}
+		const captionLength =
+			// 500 characters
+			500 -
+			// Number of characters in the article URL
+			url.length -
+			// 2 characters for line break
+			2;
 
-			const captionLength =
-				// 500 characters
-				500 -
-				// Number of characters in the article URL
-				url.length -
-				// 2 characters for line break
-				2;
+		caption = decodeEntities( caption ).slice( 0, captionLength );
 
-			caption = decodeEntities( caption ).slice( 0, captionLength );
+		caption += `\n\n${ url }`;
 
-			caption += `\n\n${ url }`;
+		return [
+			{
+				caption,
+				title,
+				description,
+				image,
+				media,
+				url,
+			},
+		];
+	}, [ excerpt, title, image, description, media, url, shareMessage ] );
 
-			return [
-				{
-					caption,
-					name,
-					profileImage,
-					title,
-					description,
-					image,
-					media,
-					url,
-				},
-			];
-		},
-		[ excerpt, title, image, description, media, url, shareMessage ]
-	);
-
-	const threadsConnections = useSelect(
-		select => select( store ).getConnectionsByService( CONNECTION_SERVICE_THREADS ),
-		[]
-	);
-
-	return <ThreadsPreviews posts={ posts } hidePostPreview={ ! threadsConnections.length } />;
+	return <ThreadsPreviews posts={ posts } hidePostPreview />;
 }

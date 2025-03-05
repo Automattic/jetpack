@@ -19,13 +19,14 @@
 }
 
 .close-button {
-	width: calc( var( --spacing-base ) * 3 );
-	height: calc( var( --spacing-base ) * 3 );
-
+	padding: 0;
 	background-color: transparent;
 	border: none;
 	cursor: pointer;
 	outline: none;
+	svg {
+		display: block;
+	}
 }
 
 // Mobile layout differences.

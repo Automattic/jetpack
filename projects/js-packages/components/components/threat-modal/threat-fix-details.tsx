@@ -1,10 +1,10 @@
 import { getFixerDescription } from '@automattic/jetpack-scan';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useMemo, useContext } from 'react';
-import ContextualUpgradeTrigger from '../contextual-upgrade-trigger';
-import Text from '../text';
+import ContextualUpgradeTrigger from '../contextual-upgrade-trigger/index.js';
+import Text from '../text/index.js';
 import styles from './styles.module.scss';
-import { ThreatModalContext } from '.';
+import { ThreatModalContext } from './index.js';
 
 /**
  * ThreatFixDetails component

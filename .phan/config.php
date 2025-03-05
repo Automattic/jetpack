@@ -27,6 +27,8 @@ $config = make_phan_config(
 				// Ignore stuff in various subdirs too.
 				'.*/node_modules/',
 				'tools/docker/',
+				'tools/php-test-env/wordpress/',
+				'tools/php-test-env/vendor/',
 				// Don't load the stubs. (if we need to start loading _a_ stub for the "monorepo", do like `(?!filename\.php)` to exclude it from the exclusion.)
 				'.phan/stubs/',
 			),

@@ -27,6 +27,15 @@
 	}
 }
 
+#export-modal-opener {
+	margin-right: 8px;
+}
+
+.post-type-feedback .actions {
+	display: inline-flex;
+	margin-bottom: 4px;
+}
+
 .column-feedback_response .feedback_response__item {
 	display: grid;
 	grid-template-columns: 35% 1fr;

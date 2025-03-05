@@ -22,13 +22,12 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 
 	// js
 	wp_enqueue_script( 'jquery' );
-	// not really needed. wp_enqueue_script('zbsbeforeyougojs', plugins_url('/js/before-you-go/jquery.blockUI.min.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version);
 
 	// css
-	wp_enqueue_style( 'zbsbeforeyougocssloadstyles', plugins_url( '/css/before-you-go/loadstyles.min.css', ZBS_ROOTFILE ), array(), $zbs->version );
-	wp_enqueue_style( 'zbsbeforeyougocssopensans', plugins_url( '/css/before-you-go/opensans' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs->version );
-	wp_enqueue_style( 'zbsbeforeyougocssadminmin', plugins_url( '/css/before-you-go/admin.min.css', ZBS_ROOTFILE ), array(), $zbs->version );
-	wp_enqueue_style( 'zbsbeforeyougocssexitform', plugins_url( '/css/before-you-go/zbs-exitform.min.css', ZBS_ROOTFILE ), array(), $zbs->version );
+	wp_enqueue_style( 'zbsbeforeyougocssloadstyles', plugins_url( '/css/before-you-go/loadstyles.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+	wp_enqueue_style( 'zbsbeforeyougocssopensans', plugins_url( '/css/before-you-go/opensans' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+	wp_enqueue_style( 'zbsbeforeyougocssadminmin', plugins_url( '/css/before-you-go/admin.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+	wp_enqueue_style( 'zbsbeforeyougocssexitform', plugins_url( '/css/before-you-go/zbs-exitform.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 	$style_handles = array( 'zbsbeforeyougocssloadstyles', 'zbsbeforeyougocssopensans', 'zbsbeforeyougocssadminmin', 'zbsbeforeyougocssexitform' );
 
 ?><!DOCTYPE html>

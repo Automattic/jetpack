@@ -1,5 +1,5 @@
-import ProductOffer from '..';
-import { IconsCard } from '../icons-card';
+import { IconsCard } from '../icons-card.js';
+import ProductOffer from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
 export default {

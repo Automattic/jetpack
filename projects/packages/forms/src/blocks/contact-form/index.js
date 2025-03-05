@@ -94,9 +94,9 @@ export const settings = {
 		],
 	},
 	styles: [
-		{ name: 'default', label: 'Default', isDefault: true },
-		{ name: 'animated', label: 'Animated' },
-		{ name: 'outlined', label: 'Outlined' },
+		{ name: 'default', label: __( 'Default', 'jetpack-forms' ), isDefault: true },
+		{ name: 'animated', label: __( 'Animated', 'jetpack-forms' ) },
+		{ name: 'outlined', label: __( 'Outlined', 'jetpack-forms' ) },
 		// Need to figure out some details. Putting on hold for now
 		// { name: 'below', label: 'Below' },
 	],

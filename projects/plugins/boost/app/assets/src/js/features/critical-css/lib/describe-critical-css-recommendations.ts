@@ -464,6 +464,46 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			],
 		} ),
 	},
+
+	InvalidURLError: {
+		describeSet: set =>
+			_n(
+				'Jetpack Boost found an invalid URL:',
+				'Jetpack Boost found invalid URLs:',
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		suggestion: _set => ( {
+			paragraph: __(
+				'Jetpack Boost needs valid URLs in order to generate Critical CSS. It seems that one or more of the URLs you provided are invalid.',
+				'jetpack-boost'
+			),
+			list: [
+				__( 'It is okay to ignore URLs that are not meant to be shown publicly.', 'jetpack-boost' ),
+				__(
+					'If they are meant to be shown publicly, check if you have any plugins that modify your permalinks or URL structure.',
+					'jetpack-boost'
+				),
+				__(
+					'Verify your WordPress permalink settings are configured correctly in Settings → Permalinks.',
+					'jetpack-boost'
+				),
+				__(
+					'If you use custom post types, ensure they are properly registered and their permalinks are working.',
+					'jetpack-boost'
+				),
+				__(
+					'Try visiting the problematic URLs directly in your browser to confirm they work.',
+					'jetpack-boost'
+				),
+				__( '<retry>Try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),
+			],
+			closingParagraph: __(
+				'If the issue persists, you may want to check your theme and plugins for any custom code that modifies URLs or permalinks.',
+				'jetpack-boost'
+			),
+		} ),
+	},
 };
 
 function getErrorSpec( type: string ): ErrorTypeSpec {

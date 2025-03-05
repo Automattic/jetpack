@@ -15,6 +15,7 @@ const JetpackFieldConsent = ( {
 	explicitConsentMessage,
 	setAttributes,
 	attributes,
+	insertBlocksAfter,
 } ) => {
 	const blockProps = useBlockProps( {
 		id: `jetpack-field-consent-${ instanceId }`,
@@ -42,6 +43,7 @@ const JetpackFieldConsent = ( {
 					__( 'Add %s consent message…', 'jetpack-forms' ),
 					consentType
 				) }
+				insertBlocksAfter={ insertBlocksAfter }
 			/>
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>

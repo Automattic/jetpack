@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Adds missing deprecation for checkboxes and radio fields

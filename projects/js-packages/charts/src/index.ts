@@ -8,8 +8,9 @@ export { PieSemiCircleChart } from './components/pie-semi-circle-chart';
 export { BaseTooltip } from './components/tooltip';
 export { Legend } from './components/legend';
 
-// Providers
+// Themes
 export { ThemeProvider } from './providers/theme';
+export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
 
 // Hooks
 export { default as useChartMouseHandler } from './hooks/use-chart-mouse-handler';

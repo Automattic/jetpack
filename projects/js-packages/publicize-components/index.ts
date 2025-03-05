@@ -18,7 +18,6 @@ export { default as PublicizePanel } from './src/components/panel';
 export { default as ReviewPrompt } from './src/components/review-prompt';
 export { default as PostPublishPanels } from './src/components/post-publish-panels';
 export { default as ConnectionManagement } from './src/components/connection-management';
-export { default as SocialAdminPage } from './src/components/admin-page';
 export { default as UtmToggle } from './src/components/utm-toggle';
 
 export { default as useSocialMediaConnections } from './src/hooks/use-social-media-connections';

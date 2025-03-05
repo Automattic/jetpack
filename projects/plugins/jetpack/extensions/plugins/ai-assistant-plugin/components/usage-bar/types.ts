@@ -1,4 +1,4 @@
-import { PlanType } from '../../../../shared/use-plan-type';
+import { PlanType } from '@automattic/jetpack-shared-extension-utils';
 
 export type UsageBarProps = {
 	/**

@@ -433,7 +433,7 @@ class Starter_Page_Templates {
 			return $editor_settings;
 		}
 
-		$default_editor_styles_file = gutenberg_dir_path() . 'build/block-editor/default-editor-styles.css'; // @phan-suppress-current-line PhanUndeclaredFunction
+		$default_editor_styles_file = gutenberg_dir_path() . 'build/block-editor/default-editor-styles.css';
 		if ( ! file_exists( $default_editor_styles_file ) ) {
 			return $editor_settings;
 		}

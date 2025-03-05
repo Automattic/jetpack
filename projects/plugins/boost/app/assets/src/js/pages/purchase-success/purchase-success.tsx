@@ -1,5 +1,5 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, ExternalLink } from '@wordpress/components';
+import { getRedirectUrl, Button } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useImageAnalysisRequest } from '$features/image-size-analysis';
@@ -122,8 +122,9 @@ const PurchaseSuccess: React.FC = () => {
 			</p>
 			<Button
 				label={ __( 'Continue', 'jetpack-boost' ) }
+				variant="primary"
 				onClick={ () => navigate( '/' ) }
-				className="jp-action-button--button jb-button jb-button--primary mt-3"
+				className="mt-3"
 			>
 				{ __( 'Continue', 'jetpack-boost' ) }
 			</Button>

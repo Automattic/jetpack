@@ -147,6 +147,10 @@ class Host {
 		}
 
 		$dns_records = dns_get_record( $domain, DNS_NS ); // Fetches the DNS records of type NS (Name Server)
+		if ( false === $dns_records ) {
+			return array();
+		}
+
 		$nameservers = array();
 		foreach ( $dns_records as $record ) {
 			if ( isset( $record['target'] ) ) {
@@ -235,9 +239,13 @@ class Host {
 	/**
 	 * Returns a guess of the hosting provider for the current site based on various checks.
 	 *
+	 * @since 5.0.4 Added $guess parameter.
+	 *
+	 * @param bool $guess Whether to guess the hosting provider.
+	 *
 	 * @return string
 	 */
-	public function get_known_host_guess() {
+	public function get_known_host_guess( $guess = true ) {
 		$host = Cache::get( 'host_guess' );
 
 		if ( null !== $host ) {
@@ -267,9 +275,10 @@ class Host {
 				break;
 		}
 
-		// Second, let's check if we can recognize provider by nameservers:
+		// Second, let's check if we can recognize provider by nameservers.
+		// Only do this if we're asked to guess.
 		$domain = isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '';
-		if ( $provider === 'unknown' && ! empty( $domain ) ) {
+		if ( $provider === 'unknown' && ! empty( $domain ) && $guess ) {
 			$provider = $this->get_hosting_provider_by_nameserver( $domain );
 		}
 

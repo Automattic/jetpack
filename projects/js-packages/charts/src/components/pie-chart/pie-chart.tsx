@@ -21,11 +21,6 @@ interface PieChartProps extends OmitBaseChartProps {
 	innerRadius?: number;
 
 	/**
-	 * Size of the chart in pixels
-	 */
-	size?: number;
-
-	/**
 	 * Add padding to the chart
 	 */
 	padding?: number;

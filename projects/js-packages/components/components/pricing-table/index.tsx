@@ -10,17 +10,17 @@ import React, {
 	ReactElement,
 	CSSProperties,
 } from 'react';
-import IconTooltip from '../icon-tooltip';
-import useBreakpointMatch from '../layout/use-breakpoint-match';
-import TermsOfService from '../terms-of-service';
-import Text from '../text';
+import IconTooltip from '../icon-tooltip/index.js';
+import useBreakpointMatch from '../layout/use-breakpoint-match/index.js';
+import TermsOfService from '../terms-of-service/index.js';
+import Text from '../text/index.js';
 import styles from './styles.module.scss';
 import {
 	PricingTableProps,
 	PricingTableColumnProps,
 	PricingTableHeaderProps,
 	PricingTableItemProps,
-} from './types';
+} from './types.js';
 
 const INCLUDED_TEXT = __( 'Included', 'jetpack-components' );
 const NOT_INCLUDED_TEXT = __( 'Not included', 'jetpack-components' );

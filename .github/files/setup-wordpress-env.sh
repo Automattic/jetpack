@@ -33,6 +33,12 @@ git clone --depth=1 --branch "$WORDPRESS_TAG" git://develop.git.wordpress.org/ "
 # We need a built version of WordPress to test against, so download that into the src directory instead of what's in wordpress-develop.
 rm -rf "/tmp/wordpress-$WP_BRANCH/src"
 git clone --depth=1 --branch "$WORDPRESS_TAG" git://core.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH/src"
+
+echo "::group::Setting up WordPress uploads directory"
+mkdir -p "/tmp/wordpress-$WP_BRANCH/src/wp-content/uploads"
+chmod -R 777 "/tmp/wordpress-$WP_BRANCH/src/wp-content/uploads"
+echo "::endgroup::"
+
 echo "::endgroup::"
 
 if [[ -n "$GITHUB_ENV" ]]; then
@@ -104,19 +110,6 @@ for PLUGIN in projects/plugins/*/composer.json; do
 		fi
 	fi
 	cd "$BASE"
-
-	# Upgrade/downgrade WorDBless if necessary.
-	if [[ ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) && "$TEST_SCRIPT" == "test-php" ]]; then
-		VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
-		if [[ -n "$VER" ]]; then
-			INSVER=$WORDPRESS_TAG
-			[[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
-			echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
-			# Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
-			rm -rf "$DIR/wordpress"
-			composer --working-dir="$DIR" require --dev roots/wordpress="$INSVER" roots/wordpress-no-content="$INSVER"
-		fi
-	fi
 
 	cp -r "$DIR" "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME"
 	# Plugin dir for tests in WP >= 5.6-beta1

@@ -182,7 +182,7 @@ add_action( 'rest_api_init', 'wpme_rest_register_shortlinks' );
  * Set the Shortlink Gutenberg extension as available.
  */
 function wpme_set_extension_available() {
-	Jetpack_Gutenberg::set_extension_available( 'jetpack/shortlinks' );
+	Jetpack_Gutenberg::set_extension_available( 'shortlinks' );
 }
 
 add_action( 'init', 'wpme_set_extension_available' );

@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers;
 
-use Automattic\Jetpack_Boost\Lib\Cornerstone_Pages;
+use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 
 /**
  * Class Cornerstone_Provider
@@ -28,9 +28,7 @@ class Cornerstone_Provider extends Provider {
 	 * @return array
 	 */
 	public static function get_critical_source_urls( $_context_posts = array() ) {
-		$cornerstone_pages = new Cornerstone_Pages();
-
-		$urls = $cornerstone_pages->get_pages();
+		$urls = Cornerstone_Utils::get_list();
 
 		$groups = array();
 		foreach ( $urls as $url ) {
@@ -67,8 +65,7 @@ class Cornerstone_Provider extends Provider {
 	 * @return array
 	 */
 	public static function get_keys() {
-		$cornerstone_pages = new Cornerstone_Pages();
-		$urls              = $cornerstone_pages->get_pages();
+		$urls = Cornerstone_Utils::get_list();
 
 		return array_map( array( __CLASS__, 'get_hash_for_url' ), $urls );
 	}

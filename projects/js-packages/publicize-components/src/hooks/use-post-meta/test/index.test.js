@@ -3,6 +3,10 @@ import { RegistryProvider } from '@wordpress/data';
 import { usePostMeta } from '../';
 import { createRegistryWithStores } from '../../../utils/test-utils';
 
+jest.mock( '../../../utils/use-share-message-max-length.js', () => ( {
+	useShareMessageMaxLength: jest.fn().mockReturnValue( 255 ),
+} ) );
+
 const post = {
 	meta: {
 		jetpack_publicize_message: 'test',

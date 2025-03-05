@@ -47,7 +47,7 @@ class Nonce implements Permission {
 	public function __construct( $action, $request_key = 'nonce' ) {
 		$this->action      = $action;
 		$this->request_key = $request_key;
-		$this->generate_nonce( $action );
+		$this->generate_nonce();
 	}
 
 	public function verify( $request ) {

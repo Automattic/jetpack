@@ -8,6 +8,5 @@
 	"projects/plugins/jetpack/_inc/client/mixins/emitter/index.js",
 	"projects/plugins/jetpack/_inc/client/my-plan/index.jsx",
 	"projects/plugins/jetpack/_inc/client/state/initial-state/reducer.js",
-	"projects/plugins/jetpack/_inc/client/state/modules/actions.js",
 	"projects/plugins/jetpack/_inc/twitter-timeline.js"
 ]

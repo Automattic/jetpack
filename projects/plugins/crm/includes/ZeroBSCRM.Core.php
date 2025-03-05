@@ -20,11 +20,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class ZeroBSCRM {
 
 	/**
-	 * ZeroBSCRM version.
+	 * Jetpack CRM version.
 	 *
 	 * @var string
 	 */
-	public $version = '6.5.1';
+	const VERSION = '6.5.1';
+
+	/**
+	 * Jetpack CRM version (used in various extensions as of January 2025).
+	 *
+	 * @deprecated
+	 * @var string
+	 */
+	public $version = '';
 
 	/**
 	 * WordPress version tested with.
@@ -545,6 +553,8 @@ final class ZeroBSCRM {
 	 * Jetpack CRM Constructor.
 	 */
 	public function __construct() {
+		// @phan-suppress-next-line PhanDeprecatedProperty - Define old property for backward compatibility.
+		$this->version = $this::VERSION;
 
 		// Simple global definitions without loading any core files...
 		// required for verify_minimum_requirements()
@@ -619,10 +629,10 @@ final class ZeroBSCRM {
 			$this->setupUrlsSlugsEtc();
 
 			// build message
-			$message_html = '<p>' . sprintf( esc_html__( 'This version of CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use CRM you will need to install version 4 of CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+			$message_html = '<p>' . sprintf( esc_html__( 'This version of CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use CRM you will need to install version 4 of CRM and run the database upgrade.', 'zero-bs-crm' ), $this::VERSION, $this->dal_version ) . '</p>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
 
 			##WLREMOVE
-			$message_html  = '<p>' . sprintf( esc_html__( 'This version of Jetpack CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use Jetpack CRM you will need to install version 4 of Jetpack CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+			$message_html  = '<p>' . sprintf( esc_html__( 'This version of Jetpack CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use Jetpack CRM you will need to install version 4 of Jetpack CRM and run the database upgrade.', 'zero-bs-crm' ), $this::VERSION, $this->dal_version ) . '</p>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
 			$message_html .= '<p><a href="' . esc_url( $this->urls['kb-pre-v5-migration-todo'] ) . '" target="_blank" class="button">' . __( 'Read the guide on migrating', 'zero-bs-crm' ) . '</a></p>';
 			##/WLREMOVE
 
@@ -639,7 +649,7 @@ final class ZeroBSCRM {
 		} elseif ( ! function_exists( 'openssl_get_cipher_methods' ) ) {
 
 			// build message
-			$message_html  = '<p>' . sprintf( __( 'Jetpack CRM uses the OpenSSL extension for PHP to properly protect sensitive data. Most PHP environments have this installed by default, but it seems yours does not; we recommend contacting your host for further help.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>';
+			$message_html  = '<p>' . sprintf( __( 'Jetpack CRM uses the OpenSSL extension for PHP to properly protect sensitive data. Most PHP environments have this installed by default, but it seems yours does not; we recommend contacting your host for further help.', 'zero-bs-crm' ), $this::VERSION, $this->dal_version ) . '</p>';
 			$message_html .= '<p><a href="' . esc_url( 'https://www.php.net/manual/en/book.openssl.php' ) . '" target="_blank" class="button">' . __( 'PHP docs on OpenSSL', 'zero-bs-crm' ) . '</a></p>';
 
 			$this->add_wp_admin_notice(
@@ -1326,9 +1336,6 @@ final class ZeroBSCRM {
 		// } Put Plugin update message (notifications into the transient /wp-admin/plugins.php) page.. that way the nag message is not needed at the top of pages (and will always show, not need to be dismissed)
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.PluginUpdates.php';
 
-		// v3.0 update coming, warning
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.PluginUpdates.ImminentRelease.php';
-
 		// } FROM PLUGIN HUNT THEME - LOT OF USEFUL CODE IN HERE.
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.NotifyMe.php';
 
@@ -1596,7 +1603,7 @@ final class ZeroBSCRM {
 
 		// } Setup Config (centralises version numbers temp)
 		global $zeroBSCRM_Conf_Setup;
-		$zeroBSCRM_Conf_Setup['conf_pluginver']   = $this->version;
+		$zeroBSCRM_Conf_Setup['conf_pluginver']   = $this::VERSION; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		$zeroBSCRM_Conf_Setup['conf_plugindbver'] = $this->db_version;
 
 		// Not needed yet :) do_action( 'before_zerobscrm_settings_init' );
@@ -2192,8 +2199,8 @@ final class ZeroBSCRM {
 				$this->update_api_version,
 				ZBS_ROOTFILE,
 				array(
-					'version' => $this->version,
-					'license' => false,                   // license initiated to false..
+					'version' => $this::VERSION,
+					'license' => false, // license initiated to false..
 				)
 			);
 		}

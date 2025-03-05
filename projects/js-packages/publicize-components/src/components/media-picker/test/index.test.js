@@ -26,6 +26,10 @@ jest.mock( '@wordpress/components', () => {
 	} );
 } );
 
+jest.mock( '../../../utils/use-share-message-max-length.js', () => ( {
+	useShareMessageMaxLength: jest.fn().mockReturnValue( 255 ),
+} ) );
+
 // Fix a bug throwing a React warning when muted property is present.
 // @see: https://github.com/testing-library/react-testing-library/issues/470
 Object.defineProperty( HTMLMediaElement.prototype, 'muted', {

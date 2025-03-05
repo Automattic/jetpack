@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import getRedirectUrl from '../../../../components/tools/jp-redirect/index.js';
 import { EVENT_PLACEMENT_FREE_USER_SCREEN, EVENT_UPGRADE } from '../constants.js';
 import useLogoGenerator from '../hooks/use-logo-generator.js';
 /**

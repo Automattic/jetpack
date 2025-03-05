@@ -72,10 +72,9 @@ const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
 
 const BackupCard = props => {
 	const { detail } = useProduct( productSlug );
-	const { status } = detail;
-	const { backup_failure: backupFailure } =
-		getMyJetpackWindowInitialState( 'redBubbleAlerts' ) || {};
-	const { status: lastBackupStatus } = backupFailure || {};
+	const { status, doesModuleNeedAttention } = detail;
+	const lastBackupFailed = !! doesModuleNeedAttention;
+	const { status: lastBackupStatus } = doesModuleNeedAttention || {};
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const noDescription = () => null;
 
@@ -85,7 +84,7 @@ const BackupCard = props => {
 		return <WithBackupsValueSection slug={ productSlug } { ...props } />;
 	}
 
-	const isError = status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR && backupFailure;
+	const isError = status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR && lastBackupFailed;
 
 	return (
 		<ProductCard slug={ productSlug } Description={ isError && noDescription } { ...props }>

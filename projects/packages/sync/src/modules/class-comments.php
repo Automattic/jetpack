@@ -14,6 +14,7 @@ use Automattic\Jetpack\Sync\Settings;
  * Class to handle sync for comments.
  */
 class Comments extends Module {
+
 	/**
 	 * Sync module name.
 	 *
@@ -552,6 +553,7 @@ class Comments extends Module {
 	public function get_next_chunk( $config, $status, $chunk_size ) {
 
 		$comment_ids = parent::get_next_chunk( $config, $status, $chunk_size );
+		// If no comment IDs were fetched, return an empty array.
 		if ( empty( $comment_ids ) ) {
 			return array();
 		}
@@ -562,33 +564,31 @@ class Comments extends Module {
 				'order'       => 'DESC',
 			)
 		);
+		// If no comments were fetched, make sure to return the expected structure so that status is updated correctly.
 		if ( empty( $comments ) ) {
-			return array();
+			return array(
+				'object_ids' => $comment_ids,
+				'objects'    => array(),
+				'meta'       => array(),
+			);
 		}
 		// Get the comment IDs from the comments that were fetched.
 		$fetched_comment_ids = wp_list_pluck( $comments, 'comment_ID' );
-		return array(
-			'object_ids' => $comment_ids, // Still send the original comment IDs since we need them to update the status.
-			'objects'    => $comments,
-			'meta'       => $this->get_metadata( $fetched_comment_ids, 'comment', Settings::get_setting( 'comment_meta_whitelist' ) ),
+		$metadata            = $this->get_metadata( $fetched_comment_ids, 'comment', Settings::get_setting( 'comment_meta_whitelist' ) );
+
+		// Filter the comments and metadata based on the maximum size constraints.
+		list( $filtered_comment_ids, $filtered_comments, $filtered_comments_metadata ) = $this->filter_objects_and_metadata_by_size(
+			'comment',
+			$comments,
+			$metadata,
+			self::MAX_META_LENGTH, // Replace with appropriate comment meta length constant.
+			self::MAX_SIZE_FULL_SYNC
 		);
-	}
 
-	/**
-	 * Set the status of the full sync action based on the objects that were sent.
-	 *
-	 * @access public
-	 *
-	 * @param array $status This module Full Sync status.
-	 * @param array $objects This module Full Sync objects.
-	 *
-	 * @return array The updated status.
-	 */
-	public function set_send_full_sync_actions_status( $status, $objects ) {
-
-		$object_ids          = $objects['object_ids'];
-		$status['last_sent'] = end( $object_ids );
-		$status['sent']     += count( $object_ids );
-		return $status;
+		return array(
+			'object_ids' => $filtered_comment_ids,
+			'objects'    => $filtered_comments,
+			'meta'       => $filtered_comments_metadata,
+		);
 	}
 }

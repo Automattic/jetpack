@@ -237,37 +237,35 @@ a.comment-like-link.loading:before {
 	}
 
 	// Prevent a number of editor and theme conflicts
-	&.wpl-new-layout {
-		* {
-			cursor: default;
-		}
+	* {
+		cursor: default;
+	}
 
-		.wpl-avatars {
+	.wpl-avatars {
+		margin: 0;
+		padding-left: 0;
+		align-content: unset;
+
+		li {
 			margin: 0;
-			padding-left: 0;
-			align-content: unset;
-
-			li {
-				margin: 0;
-			}
-
-			li a:focus {
-				outline: none;
-				box-shadow: none;
-			}
-
-			li a img {
-				vertical-align: unset;
-			}
 		}
 
-		.wpl-count:focus,
-		.wpl-count a:focus,
-		.wpl-count-text:focus,
-		.wpl-count-text a:focus {
+		li a:focus {
 			outline: none;
 			box-shadow: none;
 		}
+
+		li a img {
+			vertical-align: unset;
+		}
+	}
+
+	.wpl-count:focus,
+	.wpl-count a:focus,
+	.wpl-count-text:focus,
+	.wpl-count-text a:focus {
+		outline: none;
+		box-shadow: none;
 	}
 
 	// Prevents hover state conflicts on the button element.

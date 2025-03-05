@@ -69,6 +69,12 @@
 		],
 		"test-js": [
 			"cd tools/cli && pnpm test"
+		],
+		"post-install-cmd": [
+			"cd tools/php-test-env && composer install"
+		],
+		"post-update-cmd": [
+			"cd tools/php-test-env && composer update"
 		]
 	},
 	"scripts-descriptions": {

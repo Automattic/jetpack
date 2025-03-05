@@ -1,0 +1,14 @@
+#wpadminbar .launch-site {
+	background: var(--wp-admin-theme-color);
+}
+
+#wpadminbar .launch-site .ab-item {
+	display: flex;
+	padding-inline: 8px;
+}
+
+#wpadminbar .launch-site svg {
+	width: 15px;
+	height: 15px;
+	fill: currentColor;
+}

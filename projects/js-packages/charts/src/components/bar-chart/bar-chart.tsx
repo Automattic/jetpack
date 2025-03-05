@@ -48,7 +48,6 @@ const BarChart: FC< BarChartProps > = ( {
 		) => {
 			const coords = localPoint( event );
 			if ( ! coords ) return;
-
 			showTooltip( {
 				tooltipData: { value, xLabel, yLabel, seriesIndex },
 				tooltipLeft: coords.x,
@@ -58,12 +57,25 @@ const BarChart: FC< BarChartProps > = ( {
 		[ showTooltip ]
 	);
 
-	const handleMouseLeave = useCallback( () => {
-		hideTooltip();
-	}, [ hideTooltip ] );
-
+	// Check for empty data
 	if ( ! data?.length ) {
-		return <div className={ clsx( 'bar-chart-empty', styles[ 'bat-chart-empty' ] ) }>Empty...</div>;
+		return <div className={ clsx( styles[ 'bar-chart-empty' ] ) }>No data available</div>;
+	}
+
+	// Add date validation to hasInvalidData check
+	const hasInvalidData = data.some( series =>
+		series.data.some(
+			d =>
+				d.value === null ||
+				d.value === undefined ||
+				isNaN( d.value ) ||
+				! d.label ||
+				( d.date && isNaN( d.date.getTime() ) ) // Add date validation
+		)
+	);
+
+	if ( hasInvalidData ) {
+		return <div className={ clsx( styles[ 'bar-chart-error' ] ) }>Invalid data</div>;
 	}
 
 	const margins = margin;
@@ -102,7 +114,12 @@ const BarChart: FC< BarChartProps > = ( {
 	} ) );
 
 	return (
-		<div className={ clsx( 'bar-chart', className, styles[ 'bar-chart' ] ) }>
+		<div
+			className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
+			data-testid="bar-chart"
+			role="img"
+			aria-label="bar chart"
+		>
 			<svg width={ width } height={ height }>
 				<Group left={ margins.left } top={ margins.top }>
 					<GridControl
@@ -133,7 +150,7 @@ const BarChart: FC< BarChartProps > = ( {
 										height={ yMax - ( yScale( d.value ) ?? 0 ) }
 										fill={ theme.colors[ seriesIndex % theme.colors.length ] }
 										onMouseMove={ withTooltips ? handleBarMouseMove : undefined }
-										onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
+										onMouseLeave={ withTooltips ? hideTooltip : undefined }
 									/>
 								);
 							} ) }
@@ -159,7 +176,7 @@ const BarChart: FC< BarChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					className={ styles[ 'bar-chart-legend' ] }
+					className={ styles[ 'bar-chart__legend' ] }
 				/>
 			) }
 		</div>

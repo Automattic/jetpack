@@ -141,7 +141,7 @@ function render_block( $attributes ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
-			'https://wordpress.com/read/site/subscription/' . Jetpack_Memberships::get_blog_id(),
+			'https://wordpress.com/reader/site/subscription/' . Jetpack_Memberships::get_blog_id(),
 			$manage_subscriptions_label
 		);
 	}

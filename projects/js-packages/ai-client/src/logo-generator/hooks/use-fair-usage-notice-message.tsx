@@ -1,7 +1,7 @@
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, type Element } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import getRedirectUrl from '../../../../components/tools/jp-redirect/index.js';
 /**
  * Internal dependencies
  */

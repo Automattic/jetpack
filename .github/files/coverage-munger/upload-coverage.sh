@@ -6,6 +6,7 @@
 # - GITHUB_SHA: Commit SHA.
 # - PR_ID: PR number or "trunk".
 # - SECRET: Shared secret.
+# - For non-trunk runs, anything needed by post-message.sh
 
 set -eo pipefail
 
@@ -95,3 +96,7 @@ done
 do_req "op=finish&token=$TOKEN"
 TOKEN=
 echo '::endgroup::'
+
+if [[ "$PR_ID" != "trunk" ]]; then
+	STATUS=$STATUS COVINFO=$JSON .github/files/coverage-munger/post-message.sh
+fi

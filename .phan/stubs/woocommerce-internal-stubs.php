@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from WooCommerce 9.7.0-dev
+ * Stubs automatically generated from WooCommerce 9.6.1
  * using the definition file `tools/stubs/woocommerce-internal-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.

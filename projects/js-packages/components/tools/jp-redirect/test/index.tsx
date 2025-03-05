@@ -1,4 +1,4 @@
-import getRedirectUrl from '../';
+import getRedirectUrl from '../index.js';
 
 describe( 'getRedirectUrl', () => {
 	it( 'simple url', () => {

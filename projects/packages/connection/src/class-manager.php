@@ -137,7 +137,9 @@ class Manager {
 			add_filter( 'shutdown', array( new Package_Version_Tracker(), 'maybe_update_package_versions' ) );
 		}
 
-		add_action( 'rest_api_init', array( $manager, 'initialize_rest_api_registration_connector' ) );
+		// This runs on priority 11 - at least one api method in the connection package is set to override a previously
+		// existing method from the Jetpack plugin. Running later than Jetpack's api init ensures the override is successful.
+		add_action( 'rest_api_init', array( $manager, 'initialize_rest_api_registration_connector' ), 11 );
 
 		( new Nonce_Handler() )->init_schedule();
 
@@ -942,17 +944,46 @@ class Manager {
 	/**
 	 * Force user disconnect.
 	 *
-	 * @param int $user_id Local (external) user ID.
+	 * @param int  $user_id Local (external) user ID.
+	 * @param bool $disconnect_all_users Whether to disconnect all users before disconnecting the primary user.
 	 *
 	 * @return bool
 	 */
-	public function disconnect_user_force( $user_id ) {
+	public function disconnect_user_force( $user_id, $disconnect_all_users = false ) {
 		if ( ! (int) $user_id ) {
 			// Missing user ID.
 			return false;
 		}
+		// If we are disconnecting the primary user we may need to disconnect all other users first
+		if ( $user_id === $this->get_connection_owner_id() && $disconnect_all_users && ! $this->disconnect_all_users_except_primary() ) {
+			return false;
+		}
 
 		return $this->disconnect_user( $user_id, true, true );
+	}
+
+	/**
+	 * Disconnects all users except the primary user.
+	 *
+	 * @return bool
+	 */
+	public function disconnect_all_users_except_primary() {
+
+		$all_connected_users = $this->get_connected_users();
+
+		foreach ( $all_connected_users as $user ) {
+			// Skip the primary.
+			if ( $user->ID === $this->get_connection_owner_id() ) {
+				continue;
+			}
+			$disconnected = $this->disconnect_user( $user->ID, false, true );
+			// If we fail to disconnect any user, we should not proceed with disconnecting the primary user.
+			if ( ! $disconnected ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -1565,6 +1596,16 @@ class Manager {
 				}
 				// With site connections in mind, non-admin users can connect their account only if a connection owner exists.
 				$caps = $this->has_connected_owner() ? array( 'read' ) : array( 'manage_options' );
+				break;
+			case 'jetpack_unlink_user':
+				$is_offline_mode = ( new Status() )->is_offline_mode();
+				if ( $is_offline_mode ) {
+					$caps = array( 'do_not_allow' );
+					break;
+				}
+
+				// Non-admins can always disconnect
+				$caps = array( 'read' );
 				break;
 		}
 		return $caps;

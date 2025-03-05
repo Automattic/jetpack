@@ -66,7 +66,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'design_selected',
-				'setup_link_in_bio',
 				'plan_selected',
 				'links_added',
 				'link_in_bio_launched',
@@ -79,7 +78,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'design_selected',
-				'setup_link_in_bio',
 				'plan_selected',
 				'links_added',
 				'link_in_bio_launched',
@@ -107,12 +105,24 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
+				'verify_email',
 				'site_title',
 				'start_building_your_audience',
 				'customize_welcome_message',
-				'add_about_page',
 				'first_post_published',
-				'preview_site',
+				'site_launched',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
+		),
+		'create-course-goal'      => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'            => array(
+				'site_title',
+				'verify_email',
+				'domain_customize',
+				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
@@ -136,6 +146,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'setup_write',
 				'design_completed',
 				'plan_selected',
+				'verify_email',
+				'add_first_subscribers',
 				'first_post_published',
 				'site_launched',
 			),
@@ -302,6 +314,23 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'legacy-site-setup'       => array(
+			'get_title'      => function () {
+				return __( 'Site setup', 'jetpack-mu-wpcom' );
+			},
+			'is_dismissible' => true,
+			'task_ids'       => array(
+				'woocommerce_setup',
+				'sensei_setup',
+				'site_title',
+				'front_page_updated',
+				'verify_domain_email',
+				'verify_email',
+				'mobile_app_installed',
+				'post_sharing_enabled',
+				'site_launched',
+			),
+		),
+		'sell'                    => array(
 			'get_title'      => function () {
 				return __( 'Site setup', 'jetpack-mu-wpcom' );
 			},

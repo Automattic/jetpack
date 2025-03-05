@@ -34,7 +34,7 @@ function newspack_blocks_render_block_carousel( $attributes ) {
 
 	$article_query = new WP_Query( Newspack_Blocks::build_articles_query( $attributes, apply_filters( 'newspack_blocks_block_name', 'newspack-blocks/carousel' ) ) );
 	if ( false === $article_query->have_posts() ) {
-		return;
+		return '';
 	}
 
 	$counter = 0;

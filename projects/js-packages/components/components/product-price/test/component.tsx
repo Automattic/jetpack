@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import ProductPrice from '../index';
+import ProductPrice from '../index.js';
 
 describe( 'ProductPrice', () => {
 	const testProps = {

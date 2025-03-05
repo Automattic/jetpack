@@ -9,13 +9,13 @@
  */
 return [
     // # Issue statistics:
-    // PhanNoopNew : 5 occurrences
+    // PhanNoopNew : 4 occurrences
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-main.php' => ['PhanNoopNew'],
         'src/profile-edit/bootstrap.php' => ['PhanNoopNew'],
-        'tests/php/test-class-admin-color-schemes.php' => ['PhanNoopNew'],
+        'tests/php/Admin_Color_Schemes_Test.php' => ['PhanNoopNew'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

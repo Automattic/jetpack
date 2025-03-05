@@ -63,7 +63,7 @@ class Template_Tags {
 		}
 
 		foreach ( (array) $filters as $filter ) {
-			if ( 'post_type' === $filter['type'] ) {
+			if ( isset( $filter['type'] ) && 'post_type' === $filter['type'] ) {
 				self::render_filter( $filter, $post_types );
 			} else {
 				self::render_filter( $filter, $active_post_types );

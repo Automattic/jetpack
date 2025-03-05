@@ -45,3 +45,15 @@ export function getTotalSharesCount() {
 export function getSharedPostsCount() {
 	return getSharesData().shared_posts_count ?? 0;
 }
+
+/**
+ * Get whether the sharing limits are enabled. This is partially
+ * irrelevant now as we have given the feature to all sites, but
+ * if the limits are enabled we count the shares made, and can
+ * display those stats.
+ *
+ * @return {boolean} Whether the sharing limits are enabled
+ */
+export function isShareLimitEnabled() {
+	return getSharesData().is_share_limit_enabled ?? false;
+}

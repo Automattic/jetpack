@@ -37,6 +37,13 @@ class Anti_Spam extends Product {
 	public static $plugin_slug = 'akismet';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'security';
+
+	/**
 	 * The feature slug that identifies the paid plan
 	 *
 	 * @var string

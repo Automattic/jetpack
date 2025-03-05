@@ -37,7 +37,7 @@ class JPCRM_GiveWP {
 		$feature_name = 'GiveWP Connector for Jetpack CRM';
 
 		$give_core_reqs = array(
-			'req_core_ver' => $zbs->version, // will match current core version
+			'req_core_ver' => $zbs::VERSION, // will match current core version
 			'req_DAL_ver'  => '3.0',
 		);
 		$give_plug_reqs = array(

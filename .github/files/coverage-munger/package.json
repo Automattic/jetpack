@@ -1,6 +1,5 @@
 {
 	"private": true,
-	"name": "jetpack-gh-config-munger",
 	"devDependencies": {
 		"istanbul-merge": "^2.0.0",
 		"nyc": "^17.1.0"

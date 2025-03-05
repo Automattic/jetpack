@@ -25,6 +25,7 @@ function JetpackFieldCheckbox( props ) {
 		width,
 		defaultValue,
 		attributes,
+		insertBlocksAfter,
 	} = props;
 
 	const { blockStyle } = useJetpackFieldStyles( attributes );
@@ -56,6 +57,7 @@ function JetpackFieldCheckbox( props ) {
 					label={ label }
 					setAttributes={ setAttributes }
 					attributes={ attributes }
+					insertBlocksAfter={ insertBlocksAfter }
 				/>
 				<InspectorControls>
 					<PanelBody title={ __( 'Checkbox Settings', 'jetpack-forms' ) }>

@@ -41,7 +41,7 @@
 		}
 	}
 
-	.block-editor-inner-blocks > .block-editor-block-list__layout {
+	.block-editor-block-list__layout {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: flex-start;
@@ -50,7 +50,13 @@
 
 		.wp-block {
 			flex: 0 0 100%;
-			margin: 0;
+			margin-top: 0;
+			margin-bottom: 0;
+
+			&.wp-block-jetpack-button {
+				flex-basis: auto;
+				align-self: flex-end; // Ensure button is aligned with the bottom of the previous field when on a same row
+			}
 
 			&.jetpack-field__width-25,
 			&.jetpack-field__width-50,
@@ -88,7 +94,31 @@
 			&[data-type='jetpack/field-consent'] {
 				align-self: center;
 			}
+
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator ){
+				max-width: var( --wp--preset--spacing--80, 100px );
+				margin-left: auto;
+				margin-right: auto;
+			}
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
+			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
+				max-width: inherit;
+			}
+
 		}
+	}
+
+	.block-editor-block-list__layout.wp-block-jetpack-field-option-radio,
+	.block-editor-block-list__layout.wp-block-jetpack-field-option-checkbox  {
+		gap: 0;
+
+		> .wp-block {
+			flex: initial;
+		}
+	}
+
+	.block-editor-block-list__layout.wp-block-jetpack-field-option-checkbox {
+		align-items: center;
 	}
 
 	.block-list-appender {
@@ -152,43 +182,8 @@
 
 	.form-placeholder__footer {
 		display: flex;
-		flex-direction: column;
+		flex-direction: row;
 		justify-content: center;
-		align-items: center;
-		gap: 12px;
-
-		@include break-small() {
-			flex-direction: row;
-			justify-content: space-between;
-		}
-	}
-
-	.form-placeholder__footer-links {
-		font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-
-		@include break-small() {
-			align-items: flex-end;
-		}
-	}
-
-	.form-placeholder__external-link {
-		font-size: 13px;
-		padding: 0;
-		font-weight: 400;
-
-		&, &:hover, &:active, &:focus {
-			background-color: unset;
-			color: var(--wp-admin-theme-color)
-		}
-
-		svg {
-			width: 1.4em;
-			height: 1.4em;
-			margin-left: 2px;
-		}
 	}
 }
 
@@ -302,6 +297,7 @@
 }
 
 .jetpack-field__textarea {
+	display: block;
 	min-height: 200px;
 }
 
@@ -376,6 +372,7 @@
 
 		&[type="radio"]::before {
 			border-radius: 50%;
+			transform: translateY(15%);
 		}
 	}
 
@@ -459,6 +456,7 @@
 	.wp-block-jetpack-field-option-radio {
 		display: flex;
 		align-items: baseline; /* Align input with first label line */
+		flex-wrap: nowrap;
 
 		.jetpack-option__type:before {
 			display: block; /* display: flex causes baselines to not align */
@@ -468,7 +466,7 @@
 	.jetpack-field-option.field-option-radio,
 	.wp-block-jetpack-field-option-radio {
 		.jetpack-option__type {
-			transform: translateY(15%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
+			transform: translateY(5%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
 		}
 	}
 }
@@ -573,17 +571,6 @@
 		.jetpack-field-label__input {
 			font-size: 13px;
 			text-transform: uppercase;
-		}
-	}
-}
-
-// Overrides to make the preview look good
-.block-editor-inserter__preview {
-	.jetpack-contact-form {
-		padding: 16px;
-
-		.block-editor-inner-blocks .block-editor-block-list__layout {
-			margin: 0;
 		}
 	}
 }
@@ -707,13 +694,13 @@
 		}
 	}
 
-	&.is-style-outlined, &.is-style-animated {
+	.is-style-outlined &, .is-style-animated & {
 		.jetpack-field {
 			position: relative;
 		}
 	}
 
-	&.is-style-outlined {
+	.is-style-outlined & {
 		.block-editor-block-list__block:not([contenteditable]):focus:after {
 			top: -10px;
 			left: -10px;
@@ -724,7 +711,7 @@
 		.jetpack-field {
 			--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 			margin-top: 8px;
-			display: flex;
+			box-sizing: border-box;
 
 			.notched-label {
 				position: absolute;
@@ -865,7 +852,7 @@
 		}
 	}
 
-	&.is-style-animated {
+	.is-style-animated & {
 		.jetpack-field {
 			--left-offset: calc(var(--jetpack--contact-form--input-padding-left, 16px) + var(--jetpack--contact-form--border-size));
 			--label-left: max(var(--left-offset), var(--jetpack--contact-form--border-radius));

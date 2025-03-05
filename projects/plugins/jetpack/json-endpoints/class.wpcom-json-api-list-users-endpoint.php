@@ -96,6 +96,13 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 	);
 
 	/**
+	 * Columns in which to search for a user match.
+	 *
+	 * @var array
+	 */
+	public $search_columns;
+
+	/**
 	 * API callback.
 	 *
 	 * @param string $path - the path.
@@ -181,14 +188,16 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 		) : array();
 		$viewers = array_map( array( $this, 'get_author' ), $viewers );
 
-		// we restrict search field to name when include_viewers is true.
+		// When include_viewers is true, search by username or email.
 		if ( $include_viewers && ! empty( $args['search'] ) ) {
 			$viewers = array_filter(
 				$viewers,
 				function ( $viewer ) use ( $args ) {
+					// Convert to WP_User so expected fields are available.
+					$wp_viewer = new WP_User( $viewer->ID );
 					// remove special database search characters from search term
 					$search_term = str_replace( '*', '', $args['search'] );
-					return strpos( $viewer->name, $search_term ) !== false;
+					return ( str_contains( $wp_viewer->user_login, $search_term ) || str_contains( $wp_viewer->user_email, $search_term ) || str_contains( $wp_viewer->display_name, $search_term ) );
 				}
 			);
 		}

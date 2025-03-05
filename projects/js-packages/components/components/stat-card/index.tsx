@@ -6,10 +6,10 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import numberFormat from '../number-format';
-import Text from '../text';
+import numberFormat from '../number-format/index.js';
+import Text from '../text/index.js';
 import styles from './style.module.scss';
-import { StatCardProps } from './types';
+import { StatCardProps } from './types.js';
 import type React from 'react';
 
 /**
@@ -18,7 +18,14 @@ import type React from 'react';
  * @param {StatCardProps} props - Component props.
  * @return {React.ReactNode} - StatCard react component.
  */
-const StatCard = ( { className, icon, label, value, variant = 'square' }: StatCardProps ) => {
+const StatCard = ( {
+	className,
+	hideValue,
+	icon,
+	label,
+	value,
+	variant = 'square',
+}: StatCardProps ) => {
 	const formattedValue = numberFormat( value );
 	const compactValue = numberFormat( value, {
 		notation: 'compact',
@@ -33,12 +40,12 @@ const StatCard = ( { className, icon, label, value, variant = 'square' }: StatCa
 				{ variant === 'square' ? (
 					<Tooltip text={ formattedValue } placement="top">
 						<Text variant="headline-small" className={ clsx( styles.value ) }>
-							{ compactValue }
+							{ hideValue ? '-' : compactValue }
 						</Text>
 					</Tooltip>
 				) : (
 					<Text variant="title-medium-semi-bold" className={ clsx( styles.value ) }>
-						{ formattedValue }
+						{ hideValue ? '-' : formattedValue }
 					</Text>
 				) }
 			</div>

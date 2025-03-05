@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
-use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Customize_Image_Control;
@@ -51,6 +51,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			// Add an option to enable the CPT. Set the priority to 11 to ensure "Portfolio Projects" appears above "Testimonials" in the UI.
 			add_action( 'admin_init', array( $this, 'settings_api_init' ), 11 );
 
+			// Check on theme switch if theme supports CPT and setting is disabled
+			add_action( 'after_switch_theme', array( $this, 'activation_post_type_support' ) );
+
 			// Make sure the post types are loaded for imports
 			add_action( 'import_start', array( $this, 'register_post_types' ) );
 
@@ -60,7 +63,11 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			// Add to REST API post type allowed list.
 			add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_cpt_rest_api_type' ) );
 
-			$this->maybe_register_cpt();
+			if ( get_option( self::OPTION_NAME, '0' ) || ( new Host() )->is_wpcom_platform() ) {
+				$this->maybe_register_cpt();
+			} else {
+				add_action( 'init', array( $this, 'maybe_register_cpt' ) );
+			}
 
 			// Add a variable with the theme support status for the Jetpack Settings Testimonial toggle UI.
 			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
@@ -82,17 +89,10 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		 */
 		public function maybe_register_cpt() {
 
-			// Check on theme switch if theme supports CPT and setting is disabled
-			add_action( 'after_switch_theme', array( $this, 'activation_post_type_support' ) );
-
 			$setting = class_exists( 'Jetpack_Options' ) ? Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' ) : '0'; // @phan-suppress-current-line PhanUndeclaredClassMethod -- We check if the class exists first.
 
 			// Bail early if Testimonial option is not set and the theme doesn't declare support
 			if ( empty( $setting ) && ! $this->site_supports_custom_post_type() ) {
-				return;
-			}
-
-			if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && class_exists( 'Jetpack' ) && ! \Jetpack::is_module_active( 'custom-content-types' ) ) { // @phan-suppress-current-line PhanUndeclaredClassMethod -- We check if the class exists first.
 				return;
 			}
 
@@ -148,12 +148,41 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		}
 
 		/**
+		 * Check if a site should display testimonials - it should not if:
+		 * - the theme is a block theme without testimonials enabled.
+		 *
+		 * @return bool
+		 */
+		public static function site_should_display_testimonials() {
+			$should_display = true;
+			if ( ( ! ( new Host() )->is_wpcom_simple() ) && Blocks::is_fse_theme() ) {
+				if ( ! get_option( self::OPTION_NAME, '0' ) ) {
+					$should_display = false;
+				}
+			}
+
+			/**
+			 * Filter whether the site should display testimonials.
+			 *
+			 * @since 0.11.0
+			 *
+			 * @param bool $should_display Whether testimonials should be displayed.
+			 */
+			return apply_filters( 'classic_theme_helper_should_display_testimonials', $should_display );
+		}
+
+		/**
 		 * Add a checkbox field in 'Settings' > 'Writing'
 		 * for enabling CPT functionality.
 		 *
 		 * @return void
 		 */
 		public function settings_api_init() {
+
+			if ( ! self::site_should_display_testimonials() ) {
+				return;
+			}
+
 			add_settings_field(
 				self::OPTION_NAME,
 				'<span class="cpt-options">' . __( 'Testimonials', 'jetpack-classic-theme-helper' ) . '</span>',
@@ -223,7 +252,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			}
 
 			// Otherwise, say no unless something wants to filter us to say yes.
-			/** This action is documented in modules/custom-post-types/nova.php */
+			/** This action is documented in classic-theme-helper/src/custom-post-types/class-nova-restaurant.php */
 			return (bool) apply_filters( 'jetpack_enable_cpt', false, self::CUSTOM_POST_TYPE );
 		}
 
@@ -311,7 +340,6 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		public static function activation_post_type_support() {
 			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 				update_option( self::OPTION_NAME, '1' );
-				( new Modules() )->activate( 'custom-content-types', false, false );
 			}
 		}
 
@@ -338,6 +366,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		 */
 		public function register_post_types() {
 			if ( post_type_exists( self::CUSTOM_POST_TYPE ) ) {
+				return;
+			}
+			if ( ! self::site_should_display_testimonials() ) {
 				return;
 			}
 

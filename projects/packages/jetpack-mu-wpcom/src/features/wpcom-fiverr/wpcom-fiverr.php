@@ -10,7 +10,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 /**
  * Enqueue assets needed by the fiverr cta.
  */
-function wpcom_fiverr_enqueue_scripts() {
+function _wpcom_fiverr_enqueue_scripts() {
 	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-fiverr/wpcom-fiverr.asset.php';
 
 	wp_enqueue_style(
@@ -31,20 +31,20 @@ function wpcom_fiverr_enqueue_scripts() {
 		)
 	);
 }
-add_action( 'admin_enqueue_scripts', 'wpcom_fiverr_enqueue_scripts' );
+add_action( 'admin_enqueue_scripts', '_wpcom_fiverr_enqueue_scripts' );
 
 /**
  * Add the fiverr cta to the general settings page.
  */
-function wpcom_fiverr() {
-	add_settings_field( 'wpcom_fiverr_cta', '', 'wpcom_fiverr_cta', 'general', 'default' );
+function _wpcom_fiverr() {
+	add_settings_field( 'wpcom_fiverr_cta', '', '_wpcom_fiverr_cta', 'general', 'default' );
 }
-add_action( 'admin_init', 'wpcom_fiverr' );
+add_action( 'admin_init', '_wpcom_fiverr' );
 
 /**
  * Display the fiverr cta on the general settings page.
  */
-function wpcom_fiverr_cta() {
+function _wpcom_fiverr_cta() {
 	?>
 	<tr class="wpcom-fiverr-cta">
 		<th>

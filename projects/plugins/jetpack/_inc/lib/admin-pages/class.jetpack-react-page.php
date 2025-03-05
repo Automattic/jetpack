@@ -4,6 +4,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Publicize\Publicize_Script_Data;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class.jetpack-admin-page.php';
@@ -169,7 +170,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			 */
 			if (
 				! Jetpack::is_module_active( 'post-by-email' )
-				&& ! Jetpack::is_module_active( 'publicize' )
+					&& (
+						Publicize_Script_Data::has_feature_flag( 'admin-page' ) ||
+						! Jetpack::is_module_active( 'publicize' ) ||
+						! current_user_can( 'publish_posts' )
+					)
 			) {
 				return false;
 			}

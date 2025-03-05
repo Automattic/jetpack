@@ -93,14 +93,20 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 					{ ...commonProps }
 					type="article"
 					customText={ message || excerpt || title }
-					user={ user }
+					user={ {
+						...user,
+						avatarUrl: user.profileImage,
+					} }
 				/>
 			) : (
 				<FacebookLinkPreview
 					{ ...commonProps }
 					type="article"
 					customText={ message || excerpt || title }
-					user={ user }
+					user={ {
+						...user,
+						avatarUrl: user.profileImage,
+					} }
 				/>
 			);
 

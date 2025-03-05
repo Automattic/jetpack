@@ -12,6 +12,8 @@ function maybe_do_not_concat( $do_concat, $handle ) {
 		'tribe-tickets-provider',
 		// Plugin: `woocommerce-shipping`
 		'woocommerce-shipping-checkout-address-validation',
+		// Plugin: `depay-payments-for-woocommerce`
+		'DEPAY_WC_WIDGETS',
 	);
 
 	if ( in_array( $handle, $excluded_handles, true ) ) {

@@ -12,6 +12,8 @@ use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Tracking;
+use Jetpack_Tracks_Client;
 
 /**
  * Class Admin
@@ -702,12 +704,6 @@ class Admin {
 	 * @return void
 	 */
 	public function grunion_manage_post_column_response( $post ) {
-		$non_printable_keys = array(
-			'email_marketing_consent',
-			'entry_title',
-			'entry_permalink',
-			'feedback_id',
-		);
 
 		$post_content = get_post_field( 'post_content', $post->ID );
 		$content      = explode( '<!--more-->', $post_content );
@@ -750,7 +746,12 @@ class Admin {
 			}
 		}
 
-		$response_fields = array_diff_key( $response_fields, array_flip( $non_printable_keys ) );
+		$url = get_permalink( $post->post_parent );
+		if ( isset( $response_fields['entry_page'] ) ) {
+			$url = add_query_arg( 'page', $response_fields['entry_page'], $url );
+		}
+
+		$response_fields = array_diff_key( $response_fields, array_flip( array_keys( Contact_Form_Plugin::NON_PRINTABLE_FIELDS ) ) );
 
 		echo '<hr class="feedback_response__mobile-separator" />';
 		echo '<div class="feedback_response__item">';
@@ -774,7 +775,7 @@ class Admin {
 			echo '<div class="feedback_response__item-value">' . esc_html( $content_fields['_feedback_ip'] ) . '</div>';
 		}
 		echo '<div class="feedback_response__item-key">' . esc_html__( 'Source', 'jetpack-forms' ) . '</div>';
-		echo '<div class="feedback_response__item-value"><a href="' . esc_url( get_permalink( $post->post_parent ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( get_permalink( $post->post_parent ) ) . '</a></div>';
+		echo '<div class="feedback_response__item-value"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
 		echo '</div>';
 	}
 
@@ -1116,14 +1117,23 @@ class Admin {
 		$post_type_object = get_post_type_object( $post->post_type );
 		$akismet_values   = get_post_meta( $post_id, '_feedback_akismet_values', true );
 		if ( $_POST['make_it'] === 'spam' ) {
-			$post->post_status = 'spam';
-			$status            = wp_insert_post( $post );
+
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'spam',
+				)
+			);
 
 			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'spam', $akismet_values );
 		} elseif ( $_POST['make_it'] === 'ham' ) {
-			$post->post_status = 'publish';
-			$status            = wp_insert_post( $post );
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'publish',
+				)
+			);
 
 			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'ham', $akismet_values );
@@ -1199,6 +1209,14 @@ class Admin {
 
 			if ( ! wp_trash_post( $post_id ) ) {
 				wp_die( esc_html__( 'Error in moving to Trash.', 'jetpack-forms' ) );
+			}
+		} elseif ( $_POST['make_it'] === 'delete' ) {
+			if ( ! current_user_can( $post_type_object->cap->delete_post, $post_id ) ) {
+				wp_die( esc_html__( 'You are not allowed to move this item to the Trash.', 'jetpack-forms' ) );
+			}
+
+			if ( ! wp_delete_post( $post_id, true ) ) {
+				wp_die( esc_html__( 'Error in deleting post.', 'jetpack-forms' ) );
 			}
 		}
 
@@ -1300,6 +1318,18 @@ class Admin {
 			)
 		);
 
+		if ( Contact_Form_Plugin::can_use_analytics() ) {
+			Tracking::register_tracks_functions_scripts( true );
+
+			wp_localize_script(
+				'grunion-admin',
+				'jetpack_forms_tracking',
+				array(
+					'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+				)
+			);
+		}
+
 		wp_enqueue_style( 'grunion.css' );
 
 		// Only add to feedback, only to spam view.
@@ -1315,7 +1345,7 @@ class Admin {
 
 		$button_parameters = array(
 			/* translators: The placeholder is for showing how much of the process has completed, as a percent. e.g., "Emptying Spam (40%)" */
-			'progress_label' => __( 'Emptying Spam (%1$s%)', 'jetpack-forms' ),
+			'progress_label' => __( 'Emptying Spam (%1$s%%)', 'jetpack-forms' ),
 			'success_url'    => $success_url,
 			'failure_url'    => $failure_url,
 			'spam_count'     => $spam_count,
