@@ -536,9 +536,6 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
-      '@automattic/jetpack-shared-extension-utils':
-        specifier: workspace:*
-        version: link:../shared-extension-utils
       '@babel/runtime':
         specifier: ^7
         version: 7.26.0
