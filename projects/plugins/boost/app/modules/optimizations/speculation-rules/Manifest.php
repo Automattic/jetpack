@@ -89,11 +89,6 @@ class Manifest {
 									),
 								),
 							),
-							array(
-								'not' => array(
-									'selector_matches' => array(),
-								),
-							),
 						),
 					),
 					'eagerness' => 'moderate',
