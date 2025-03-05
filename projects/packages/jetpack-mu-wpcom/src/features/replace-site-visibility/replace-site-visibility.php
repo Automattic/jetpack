@@ -111,10 +111,17 @@ function replace_site_visibility_load_assets() {
 
 	$data = wp_json_encode(
 		array(
-			'siteId'         => get_wpcom_blog_id(),
-			'siteSlug'       => $jetpack_status->get_site_suffix(),
-			'shareSiteLink'  => wpcom_share_site_link_get(),
-			'shareSiteNonce' => wp_create_nonce( 'wpcom_site_visibility_share_site_link' ),
+			'siteId'                 => get_wpcom_blog_id(),
+			'siteSlug'               => $jetpack_status->get_site_suffix(),
+			'isWpcomStagingSite'     => (bool) get_option( 'wpcom_is_staging_site' ),
+			'isUnlaunchedSite'       => get_option( 'launch-status' ) === 'unlaunched',
+			'hasSitePreviewLink'     => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::SITE_PREVIEW_LINKS ),
+			'shareSiteLink'          => wpcom_share_site_link_get(),
+			'shareSiteNonce'         => wp_create_nonce( 'wpcom_site_visibility_share_site_link' ),
+			'blogPublic'             => get_option( 'blog_public' ),
+			'wpcomComingSoon'        => get_option( 'wpcom_coming_soon' ),
+			'wpcomPublicComingSoon'  => get_option( 'wpcom_public_coming_soon' ),
+			'wpcomDataSharingOptOut' => (bool) get_option( 'wpcom_data_sharing_opt_out' ),
 		)
 	);
 
