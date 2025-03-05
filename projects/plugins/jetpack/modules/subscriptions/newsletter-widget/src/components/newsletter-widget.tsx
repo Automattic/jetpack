@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import '../style.scss';
 import { Icon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
 import { SubscribersChart } from './subscribers-chart';
 import type { DailyCount } from '../types';
@@ -44,12 +44,11 @@ export const NewsletterWidget = ( {
 		<div className="newsletter-widget">
 			<div className="newsletter-widget__header">
 				<div className="newsletter-widget__stats">
-					<span className="newsletter-widget__stat-item newsletter-widget__stat-item--left">
+					<span className="newsletter-widget__stat-item">
 						<span className="newsletter-widget__icon">
-							<Icon icon={ envelope } size={ 20 } />
+							<Icon icon={ envelope } size={ 24 } />
 						</span>
 						<span className="newsletter-widget__stat-content">
-							<span className="newsletter-widget__stat-number">{ emailSubscribers }</span>
 							<span className="newsletter-widget__stat-label">
 								<a
 									href={
@@ -58,17 +57,20 @@ export const NewsletterWidget = ( {
 											: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
 									}
 								>
-									{ __( 'email subscriptions', 'jetpack' ) }
+									{ sprintf(
+										//translators: %s is the number of email subscribers
+										__( '%s email subscriptions', 'jetpack' ),
+										emailSubscribers
+									) }
 								</a>
 							</span>
 						</span>
 					</span>
-					<span className="newsletter-widget__stat-item newsletter-widget__stat-item--right">
+					<span className="newsletter-widget__stat-item">
 						<span className="newsletter-widget__icon">
-							<Icon icon={ payment } size={ 20 } />
+							<Icon icon={ payment } size={ 24 } />
 						</span>
 						<span className="newsletter-widget__stat-content">
-							<span className="newsletter-widget__stat-number">{ paidSubscribers }</span>
 							<span className="newsletter-widget__stat-label">
 								<a
 									href={
@@ -77,7 +79,11 @@ export const NewsletterWidget = ( {
 											: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
 									}
 								>
-									{ __( 'paid subscriptions', 'jetpack' ) }
+									{ sprintf(
+										//translators: %s is the number of paid subscribers
+										__( '%s paid subscriptions', 'jetpack' ),
+										paidSubscribers
+									) }
 								</a>
 							</span>
 						</span>

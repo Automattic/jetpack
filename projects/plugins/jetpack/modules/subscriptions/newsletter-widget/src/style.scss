@@ -28,10 +28,6 @@
 		columns: 2;
 	}
 
-	&__stat-number {
-		margin-left: $grid-unit-05;
-	}
-
 	&__stat-label {	
 		margin-left: $grid-unit-05;
 		text-decoration: none;
@@ -39,8 +35,13 @@
 
 	&__stats {
 		display: flex;
-		justify-content: space-between;
+		gap: $grid-unit-15;
+		flex-wrap: wrap;
 		width: 100%;
+
+		> :first-child {
+			margin-right: $grid-unit-15;
+		}
 	}
 
 	&__icon {
@@ -54,13 +55,6 @@
 		align-items: center; 
 		gap: $grid-unit-05;
 		text-decoration: none;
-		&--left {
-			margin-right: auto;
-		}
-
-		&--right {
-			margin-left: auto;
-		}
 	}
 
 	&__chart-container {
