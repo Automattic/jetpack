@@ -125,11 +125,14 @@ function wpcom_always_use_user_locale() {
 add_action( 'admin_bar_menu', 'wpcom_always_use_user_locale', -1 );
 
 /**
- * Replaces the WP logo as a link to /sites.
+ * Replaces the WP logo with WP.com logo.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
-function wpcom_replace_wp_logo_with_wpcom_all_sites_menu( $wp_admin_bar ) {
+function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
+	$about_node      = $wp_admin_bar->get_node( 'about' );
+	$contribute_node = $wp_admin_bar->get_node( 'contribute' );
+
 	foreach ( $wp_admin_bar->get_nodes() as $node ) {
 		if ( $node->parent === 'wp-logo' || $node->parent === 'wp-logo-external' ) {
 			$wp_admin_bar->remove_node( $node->id );
@@ -149,8 +152,47 @@ function wpcom_replace_wp_logo_with_wpcom_all_sites_menu( $wp_admin_bar ) {
 			),
 		)
 	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'wpcom-logo',
+			'id'     => 'wpcom-sites',
+			'title'  => __( 'Sites', 'jetpack-mu-wpcom' ),
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/sites' ),
+		)
+	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'wpcom-logo',
+			'id'     => 'wpcom-domains',
+			'title'  => __( 'Domains', 'jetpack-mu-wpcom' ),
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/domains/manage' ),
+		)
+	);
+
+	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+		$wp_admin_bar->add_group(
+			array(
+				'parent' => 'wpcom-logo',
+				'id'     => 'wpcom-logo-external',
+				'meta'   => array(
+					'class' => 'ab-sub-secondary',
+				),
+			)
+		);
+
+		if ( $about_node ) {
+			$about_node->parent = 'wpcom-logo-external';
+			$wp_admin_bar->add_node( (array) $about_node );
+		}
+		if ( $contribute_node ) {
+			$contribute_node->parent = 'wpcom-logo-external';
+			$wp_admin_bar->add_node( (array) $contribute_node );
+		}
+	}
 }
-add_action( 'admin_bar_menu', 'wpcom_replace_wp_logo_with_wpcom_all_sites_menu', 11 );
+add_action( 'admin_bar_menu', 'wpcom_replace_wp_logo_with_wpcom_logo_menu', 11 );
 
 /**
  * Adds the Cart menu to the WordPress admin bar.

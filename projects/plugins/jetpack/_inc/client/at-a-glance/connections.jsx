@@ -113,7 +113,7 @@ export class DashConnections extends Component {
 	 * @returns {string}
 	 */
 	userConnection() {
-		const maybeShowLinkUnlinkBtn = this.props.isConnectionOwner ? null : (
+		const maybeShowLinkUnlinkBtn = (
 			<ConnectButton asBanner connectUser={ true } from="connection-settings" />
 		);
 

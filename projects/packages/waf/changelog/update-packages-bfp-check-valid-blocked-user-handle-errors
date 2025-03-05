@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Ensures check_valid_blocked_user handles error outcomes
