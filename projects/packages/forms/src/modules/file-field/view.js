@@ -25,7 +25,7 @@ const formatBytes = ( size, decimals = 2, locale = 'en-US' ) => {
 	return `${ numberFormat.format( formattedSize ) } ${ sizes[ i ] }`;
 };
 
-const { state, callbacks } = store( 'jpDropZone', {
+const { state, callbacks } = store( 'jetpack/file-field', {
 	state: {},
 	actions: {
 		/**
@@ -188,6 +188,7 @@ const { state, callbacks } = store( 'jpDropZone', {
 				}
 				if ( xhr.responseText ) {
 					const response = JSON.parse( xhr.responseText );
+					// eslint-disable-next-line no-console
 					console.error( 'Error uploading file', response );
 				}
 			}

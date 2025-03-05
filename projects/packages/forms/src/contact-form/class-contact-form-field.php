@@ -836,7 +836,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'jp_nonce'      => wp_create_nonce( 'jetpack_file_upload_jetpack-form' ),
 		);
 
-		wp_interactivity_state( 'jpDropZone', $global_state );
+		wp_interactivity_state( 'jetpack/file-field', $global_state );
 
 		$context = array(
 			'isDropping' => false,
@@ -848,7 +848,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		ob_start();
 		?>
 		<div
-			data-wp-interactive="jpDropZone"
+			data-wp-interactive="jetpack/file-field"
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
 			<?php echo get_block_wrapper_attributes(); ?>
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
