@@ -29,6 +29,14 @@ interface ProductInterstitialPluginProps {
 	 * Callback function to be called when the modal is closed
 	 */
 	onClose?: () => void;
+	/**
+	 * Optional description for the product that overwrites the description from the product details
+	 */
+	description?: string;
+	/**
+	 * Optional features for the product that overwrites the features from the product details
+	 */
+	features?: string[];
 }
 
 /**
@@ -42,20 +50,31 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	children,
 	onOpen,
 	onClose,
+	description,
+	features,
 	...props
 } ) => {
 	const { recordEvent } = useAnalytics();
 	const { detail, isLoading } = useProduct( slug );
-	const { title, longDescription, features, pricingForUi } = detail;
+	const {
+		title,
+		longDescription: detailDescription,
+		features: detailFeatures,
+		pricingForUi,
+	} = detail;
 
-	// Get pricing for a plugin
+	// allow plugins to overwrite the description and features from the product details
+	const modalDescription = description || detailDescription;
+	const modalFeatures = features || detailFeatures;
+
+	// Get pricing for a plugin - TODO: extract price to a hook or a component
 	const priceSource = slug === 'boost' ? pricingForUi?.tiers?.upgraded : pricingForUi;
 	let price, discountPrice;
 
 	if ( slug === 'boost' ) {
 		// component price structure
-		price = priceSource?.fullPrice;
-		discountPrice = priceSource?.discountPrice;
+		price = priceSource?.fullPrice / 12;
+		discountPrice = priceSource?.discountPrice / 12;
 	} else {
 		price = priceSource?.fullPricePerMonth;
 		discountPrice = priceSource?.discountPricePerMonth;
@@ -146,7 +165,7 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	return (
 		<ProductInterstitialModal
 			title={ title }
-			description={ longDescription }
+			description={ modalDescription }
 			priceComponent={ priceComponent }
 			modalMainButton={ <ProductInterstitialModalCta slug={ slug } /> }
 			onOpen={ handleOpen }
@@ -154,7 +173,7 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 			{ ...props }
 		>
 			<>
-				{ features && <ProductInterstitialFeatureList features={ features } /> }
+				{ modalFeatures && <ProductInterstitialFeatureList features={ modalFeatures } /> }
 				{ additionalContent }
 				{ children }
 			</>

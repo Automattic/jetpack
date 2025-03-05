@@ -96,7 +96,7 @@ const Index = () => {
 
 				<ProductInterstitialMyJetpack
 					slug="boost"
-					onOpen={ () => {} }
+					onOpen={ () => {} } // TODO: add onOpen callback
 					customModalTrigger={
 						<UpgradeCTA
 							identifier="critical-css"
@@ -114,6 +114,57 @@ const Index = () => {
 						</div>
 					}
 					secondaryButtonHref="https://jetpack.com/boost/"
+					description={ __(
+						'Unlock the full potential of Jetpack Boost with automated performance optimization tools and more.',
+						'jetpack-boost'
+					) }
+					features={ [
+						createInterpolateElement(
+							__(
+								"<strong>Automated Critical CSS Generation:</strong> Improve your site's load time. Say goodbye to manual tweaks and boost your speed scores with zero effort.",
+								'jetpack-boost'
+							),
+							{
+								strong: <strong />,
+							}
+						),
+						createInterpolateElement(
+							__(
+								'<strong>Automated Image Scanning:</strong> Always be on top of potential image size issues that might impact your site load time and SEO ranking.',
+								'jetpack-boost'
+							),
+							{
+								strong: <strong />,
+							}
+						),
+						createInterpolateElement(
+							__(
+								'<strong>In-depth Performance Insights:</strong> Track your success with historical performance and Core Web Vitals scores to see how your site improves over time.',
+								'jetpack-boost'
+							),
+							{
+								strong: <strong />,
+							}
+						),
+						createInterpolateElement(
+							__(
+								'<strong>Customizable Image Optimization:</strong> Control your image quality and loading speeds with customizable CDN settings, balancing aesthetics with efficiency.',
+								'jetpack-boost'
+							),
+							{
+								strong: <strong />,
+							}
+						),
+						createInterpolateElement(
+							__(
+								'<strong>Expert Support With Personal Assistance Available:</strong> Enjoy dedicated email support from our Happiness Engineers, ensuring a smoother experience and peace of mind.',
+								'jetpack-boost'
+							),
+							{
+								strong: <strong />,
+							}
+						),
+					] }
 				/>
 			</Module>
 			<Module
