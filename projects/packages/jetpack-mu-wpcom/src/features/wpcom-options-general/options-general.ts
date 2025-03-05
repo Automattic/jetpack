@@ -95,9 +95,7 @@ const _wpcomBuildSiteUrl = ( fragment: DocumentFragment ) => {
 		const homeUrlRow = document.createElement( 'tr' );
 		homeUrlRow.innerHTML = `
 			<th scope="row"><label for="home">${ homeUrlLabel }</label></th>
-			<td>
-				<input type="url" id="home" value="${ window.wpcomSiteUrl.homeUrl }" class="regular-text code disabled wpcom-home-url-input" disabled="disabled" />
-			</td>
+			<td><input type="url" id="home" value="${ window.wpcomSiteUrl.homeUrl }" class="regular-text code disabled wpcom-home-url-input" disabled="disabled" /></td>
 		`;
 		fragment.appendChild( homeUrlRow );
 	}
