@@ -112,6 +112,7 @@ class Jetpack_Mu_Wpcom {
 	 * Fetches and installs Jetpack-mu-wpcom package translations when needed.
 	 */
 	public static function maybe_update_translations() {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		require_once ABSPATH . 'wp-admin/includes/class-language-pack-upgrader.php';
 
 		$locales = self::get_all_active_locales();
@@ -149,7 +150,7 @@ class Jetpack_Mu_Wpcom {
 		$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		// API error, api returned but something was wrong.
-		if ( array_key_exists( 'success', $data ) && false === $response['success'] ) {
+		if ( array_key_exists( 'success', $data ) && false === $data['success'] ) {
 			return array();
 		}
 
