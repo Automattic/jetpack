@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers Automattic\Jetpack\Masterbar\Main
  */
-class Test_Main extends TestCase {
+class MainTest extends TestCase {
 
 	/**
 	 * Setup runs before each test.
