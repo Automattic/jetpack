@@ -811,13 +811,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$input_attrs['aria-required'] = 'true';
 		}
 
-		// Build input attributes string.
-		$input_attributes = '';
-		foreach ( $input_attrs as $attr => $value ) {
-			$input_attributes .= $attr . ( $value !== '' ? '="' . $value . '"' : '' ) . ' ';
-		}
-
-		$max_file_size = wp_max_upload_size();
+		$max_file_size   = wp_max_upload_size();
 		$file_size_units = array(
 			_x( 'B', 'unit symbol', 'jetpack-forms' ),
 			_x( 'KB', 'unit symbol', 'jetpack-forms' ),
@@ -826,7 +820,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		);
 
 		$global_state = array(
-			'i18n'           => array(
+			'i18n'          => array(
 				'language'           => get_bloginfo( 'language' ),
 				'fileSizeUnits'      => $file_size_units,
 				'removeFile'         => __( 'Remove', 'jetpack-forms' ),
@@ -836,10 +830,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_file_size ) ),
 				'invalidType'        => __( 'This file type is not allowed', 'jetpack-forms' ),
 			),
-			'maxUploadSize'  => $max_file_size,
-			'endpoint' => rest_url( 'wpcom/v2/unauth-file-upload' ),
-			'wp_nonce'       => wp_create_nonce( 'wp_rest' ),
-			'jp_nonce'       => wp_create_nonce( 'jetpack_file_upload_jetpack-form' ),
+			'maxUploadSize' => $max_file_size,
+			'endpoint'      => rest_url( 'wpcom/v2/unauth-file-upload' ),
+			'wp_nonce'      => wp_create_nonce( 'wp_rest' ),
+			'jp_nonce'      => wp_create_nonce( 'jetpack_file_upload_jetpack-form' ),
 		);
 
 		wp_interactivity_state( 'jpDropZone', $global_state );
@@ -850,40 +844,42 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'hasFiles'   => false,
 		);
 
-		$field  = $this->render_label( 'file', $id, $label, $required, $required_field_text );
+		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text );
 		ob_start();
 		?>
-<div
-	data-wp-interactive="jpDropZone"
-	<?php echo get_block_wrapper_attributes(); ?>
-	<?php echo wp_interactivity_data_wp_context( $context ); ?>
-	data-wp-on--dragover="actions.dragOver"
-	data-wp-on--dragleave="actions.dragLeave"
-	data-wp-on--mouseleave="actions.dragLeave"
-	data-wp-on--drop="actions.fileDropped"
->
-	<div class="jetpack-form-file-field__dropzone" data-wp-class--is_dropping="context.isDropping"  >
-		<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker"></div>
-		<a href="#" class="wp-block-button__link wp-element-button"><?php esc_html_e( 'Select a file', 'jetpack-forms' ); ?></a>
-		<span class="jetpack-form-file-field__short"><?php esc_html_e( '....or drag and drop a file.', 'jetpack-forms' ); ?></span>
-		<input id="<?php echo esc_attr( $id ); ?>" type="file" class="jetpack-form-file-field" data-wp-on--change="actions.fileAdded" />
-	</div>
-	<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="context.hasFiles">
-		<template data-wp-each--file="context.files" data-wp-key="context.file.id">
-			<div class="jetpack-form-file-field__preview">
-				<div class="jetpack-form-file-field__progress" data-wp-bind--data-progress-id='context.file.id' data-wp-class--is-complete="context.file.hasToken" style="--progress: 3%;" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
-				<input type="hidden" name="<?php echo esc_attr( $id ) ?>_token[]" data-wp-bind--value='context.file.token' value="">
-				<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
-				<div class="jetpack-form-file-field__file-wrap">
-					<span class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></span>
-					<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
-				</div>
-				<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="Remove file" data-wp-on--click="actions.removeFile">Remove</a>
+		<div
+			data-wp-interactive="jpDropZone"
+			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
+			<?php echo get_block_wrapper_attributes(); ?>
+			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
+			<?php echo wp_interactivity_data_wp_context( $context ); ?>
+			data-wp-on--dragover="actions.dragOver"
+			data-wp-on--dragleave="actions.dragLeave"
+			data-wp-on--mouseleave="actions.dragLeave"
+			data-wp-on--drop="actions.fileDropped"
+		>
+			<div class="jetpack-form-file-field__dropzone" data-wp-class--is_dropping="context.isDropping"  >
+				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker"></div>
+				<a href="#" class="wp-block-button__link wp-element-button"><?php esc_html_e( 'Select a file', 'jetpack-forms' ); ?></a>
+				<span class="jetpack-form-file-field__short"><?php esc_html_e( '....or drag and drop a file.', 'jetpack-forms' ); ?></span>
+				<input id="<?php echo esc_attr( $id ); ?>" type="file" class="jetpack-form-file-field" data-wp-on--change="actions.fileAdded" />
 			</div>
-		</template>
-	</div>
-</div>
-<?php
+			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="context.hasFiles">
+				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
+					<div class="jetpack-form-file-field__preview">
+						<div class="jetpack-form-file-field__progress" data-wp-bind--data-progress-id='context.file.id' data-wp-class--is-complete="context.file.hasToken" style="--progress: 3%;" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+						<input type="hidden" name="<?php echo esc_attr( $id ); ?>_token[]" data-wp-bind--value='context.file.token' value="">
+						<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
+						<div class="jetpack-form-file-field__file-wrap">
+							<span class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></span>
+							<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
+						</div>
+						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="Remove file" data-wp-on--click="actions.removeFile">Remove</a>
+					</div>
+				</template>
+			</div>
+		</div>
+		<?php
 
 		return $field . ob_get_clean();
 	}
@@ -901,7 +897,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'jetpack-form-file-field',
 			plugins_url( '../../dist/modules/file-field/view.js', __FILE__ ),
 			array( '@wordpress/interactivity' ),
-			\JETPACK__VERSION,
+			\JETPACK__VERSION
 		);
 
 		\wp_enqueue_style(
