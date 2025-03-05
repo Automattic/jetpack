@@ -1,9 +1,16 @@
 import { Threat, type FixersStatus, type ScanStatus } from '@automattic/jetpack-scan';
 import apiFetch from '@wordpress/api-fetch';
 import camelize from 'camelize';
+import { SessionsStatus } from './types/sessions';
 import { WafStatus } from './types/waf';
 
 const API = {
+	getSessions: (): Promise< SessionsStatus[] > =>
+		apiFetch( {
+			path: 'jetpack-protect/v1/sessions',
+			method: 'GET',
+		} ).then( camelize ),
+
 	getWaf: (): Promise< WafStatus > =>
 		apiFetch( {
 			path: 'jetpack-protect/v1/waf',

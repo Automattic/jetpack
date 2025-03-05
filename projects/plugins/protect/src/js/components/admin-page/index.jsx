@@ -77,6 +77,7 @@ const AdminPage = ( { children } ) => {
 						}
 					/>
 					<Tab link="/firewall" label={ __( 'Firewall', 'jetpack-protect' ) } />
+					<Tab link="/sessions" label={ __( 'Sessions', 'jetpack-protect' ) } />
 				</Tabs>
 			</Container>
 			{ children }

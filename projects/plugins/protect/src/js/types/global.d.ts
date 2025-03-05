@@ -1,8 +1,8 @@
 import { type ScanStatus } from '@automattic/jetpack-scan';
 import { PluginData, ThemeData } from './installed-extensions';
 import { ProductData } from './products';
+import { SessionsStatus } from './sessions';
 import { WafStatus } from './waf';
-
 declare module '*.scss';
 declare module '*.png';
 
@@ -29,6 +29,7 @@ declare global {
 			jetpackScan: ProductData;
 			hasPlan: boolean;
 			onboardingProgress: string[];
+			sessions: SessionsStatus[];
 			waf: WafStatus;
 		};
 	}

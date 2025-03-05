@@ -30,4 +30,5 @@ export const QUERY_HISTORY_KEY = 'history';
 export const QUERY_ONBOARDING_PROGRESS_KEY = 'onboarding progress';
 export const QUERY_PRODUCT_DATA_KEY = 'product data';
 export const QUERY_SCAN_STATUS_KEY = 'scan status';
+export const QUERY_SESSIONS_KEY = 'sessions';
 export const QUERY_WAF_KEY = 'waf';

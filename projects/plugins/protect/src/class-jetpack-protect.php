@@ -34,6 +34,7 @@ use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Automattic\Jetpack\Waf\Waf_Stats;
+use Automattic\Jetpack\Protect\Sessions;
 
 /**
  * Class Jetpack_Protect
@@ -228,6 +229,7 @@ class Jetpack_Protect {
 			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
 			'hasPlan'            => $has_plan,
 			'onboardingProgress' => Onboarding::get_current_user_progress(),
+			'sessions'           => Sessions::get_all(),
 			'waf'                => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),

@@ -200,6 +200,18 @@ class REST_Controller {
 				},
 			)
 		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'sessions',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::api_get_sessions',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -427,5 +439,15 @@ class REST_Controller {
 	public static function api_get_scan_history() {
 		$scan_history = Scan_History::get_scan_history( false );
 		return rest_ensure_response( $scan_history );
+	}
+
+	/**
+	 * Return Sessions for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_get_sessions() {
+		$sessions = Sessions::get_all();
+		return rest_ensure_response( $sessions );
 	}
 }

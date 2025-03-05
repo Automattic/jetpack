@@ -14,6 +14,7 @@ import FirewallRoute from './routes/firewall';
 import HomeRoute from './routes/home';
 import ScanRoute from './routes/scan';
 import HistoryRoute from './routes/scan/history';
+import SessionsRoute from './routes/sessions';
 import SetupRoute from './routes/setup';
 import './styles.module.scss';
 
@@ -77,6 +78,7 @@ function render() {
 											}
 										/>
 										<Route path="/firewall" element={ <FirewallRoute /> } />
+										<Route path="/sessions" element={ <SessionsRoute /> } />
 										<Route path="*" element={ <Navigate to="/" replace /> } />
 									</Routes>
 								</HashRouter>
