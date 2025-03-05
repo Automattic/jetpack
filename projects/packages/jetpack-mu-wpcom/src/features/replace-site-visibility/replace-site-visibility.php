@@ -25,10 +25,10 @@ function is_jetpack_connected() {
 /**
  * Generate the links for sharing the site.
  */
-function wp_ajax_wpcom_share_site_link_generate() {
-	check_ajax_referer( 'wpcom_site_visibility_share_site_link' );
+function wp_ajax_wpcom_generate_site_preview_link() {
+	check_ajax_referer( 'wpcom_site_visibility_site_preview_link' );
 
-	$blog_id = get_current_blog_id();
+	$blog_id = get_wpcom_blog_id();
 	$body    = Client::wpcom_json_api_request_as_user(
 		"/sites/$blog_id/preview-links",
 		'2',
@@ -38,26 +38,37 @@ function wp_ajax_wpcom_share_site_link_generate() {
 	);
 
 	if ( is_wp_error( $body ) ) {
-		return $body;
+		wp_send_json_error( $body );
+		return;
 	}
 
 	$response = json_decode( wp_remote_retrieve_body( $body ) );
-	return rest_ensure_response( $response );
+	if ( ! is_array( $response ) ) {
+		echo wp_json_encode( $response );
+		die( 0 );
+	}
+	echo wp_json_encode( $response[0] );
+	die( 0 );
 }
-add_action( 'wp_ajax_wpcom_share_site_link_generate', 'wp_ajax_wpcom_share_site_link_generate' );
+add_action( 'wp_ajax_wpcom_generate_site_preview_link', 'wp_ajax_wpcom_generate_site_preview_link' );
 
 /**
  * Delete the links for sharing the site.
  */
-function wp_ajax_wpcom_share_site_link_delete() {
-	check_ajax_referer( 'wpcom_site_visibility_share_site_link' );
+function wp_ajax_wpcom_delete_site_preview_link() {
+	check_ajax_referer( 'wpcom_site_visibility_site_preview_link' );
 
 	if ( ! isset( $_POST['code'] ) ) {
+		wp_send_json_error(
+			array(
+				'error' => 'Missing code',
+			)
+		);
 		return;
 	}
 
 	$code    = sanitize_text_field( wp_unslash( $_POST['code'] ) );
-	$blog_id = get_current_blog_id();
+	$blog_id = get_wpcom_blog_id();
 	$body    = Client::wpcom_json_api_request_as_user(
 		"/sites/$blog_id/preview-links/$code",
 		'2',
@@ -73,13 +84,13 @@ function wp_ajax_wpcom_share_site_link_delete() {
 	$response = json_decode( wp_remote_retrieve_body( $body ) );
 	return rest_ensure_response( $response );
 }
-add_action( 'wp_ajax_wpcom_share_site_delete', 'wp_ajax_wpcom_share_site_delete' );
+add_action( 'wp_ajax_wpcom_delete_site_preview_link', 'wp_ajax_wpcom_delete_site_preview_link' );
 
 /**
  * Get the links for sharing the site.
  */
-function wpcom_share_site_link_get() {
-	$blog_id = get_current_blog_id();
+function wpcom_get_site_preview_link() {
+	$blog_id = get_wpcom_blog_id();
 	$body    = Client::wpcom_json_api_request_as_user(
 		"/sites/$blog_id/preview-links"
 	);
@@ -90,15 +101,9 @@ function wpcom_share_site_link_get() {
 
 	$response = json_decode( wp_remote_retrieve_body( $body ) );
 	if ( ! is_array( $response ) ) {
-		return null;
+		return $response;
 	}
-
-	return add_query_arg(
-		array(
-			'share' => $response[0]['code'],
-		),
-		home_url( '/' )
-	);
+	return $response[0];
 }
 
 /**
@@ -111,13 +116,14 @@ function replace_site_visibility_load_assets() {
 
 	$data = wp_json_encode(
 		array(
+			'homeUrl'                => home_url( '/' ),
 			'siteId'                 => get_wpcom_blog_id(),
 			'siteSlug'               => $jetpack_status->get_site_suffix(),
 			'isWpcomStagingSite'     => (bool) get_option( 'wpcom_is_staging_site' ),
 			'isUnlaunchedSite'       => get_option( 'launch-status' ) === 'unlaunched',
 			'hasSitePreviewLink'     => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::SITE_PREVIEW_LINKS ),
-			'shareSiteLink'          => wpcom_share_site_link_get(),
-			'shareSiteNonce'         => wp_create_nonce( 'wpcom_site_visibility_share_site_link' ),
+			'sitePreviewLink'        => wpcom_get_site_preview_link(),
+			'sitePreviewLinkNonce'   => wp_create_nonce( 'wpcom_site_visibility_site_preview_link' ),
 			'blogPublic'             => get_option( 'blog_public' ),
 			'wpcomComingSoon'        => get_option( 'wpcom_coming_soon' ),
 			'wpcomPublicComingSoon'  => get_option( 'wpcom_public_coming_soon' ),
