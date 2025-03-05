@@ -12,6 +12,7 @@ import PageCacheModule from '$features/page-cache/page-cache';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import SpeculationMethod from '$features/speculation-rules/speculation-method';
 import SpeculationRulesMeta from '$features/speculation-rules/speculation-rules-meta';
+import SpeculationRulesNotice from '$features/speculation-rules/speculation-rules-notice';
 import Pill from '$features/ui/pill/pill';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
@@ -20,7 +21,7 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './index.module.scss';
 
 const Index = () => {
@@ -31,6 +32,7 @@ const Index = () => {
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
 	const regenerateCssAction = useRegenerateCriticalCssAction();
+	const [ showSpeculationNotice, setShowSpeculationNotice ] = useState( false );
 
 	const requestRegenerateCriticalCss = () => {
 		regenerateCssAction.mutate();
@@ -153,6 +155,7 @@ const Index = () => {
 			<Module
 				slug="speculation_rules"
 				title={ __( 'Speculation Rules', 'jetpack-boost' ) }
+				onEnable={ () => setShowSpeculationNotice( true ) }
 				description={
 					<>
 						<p>
@@ -177,6 +180,7 @@ const Index = () => {
 					</>
 				}
 			>
+				<SpeculationRulesNotice showNotice={ showSpeculationNotice } />
 				<SpeculationMethod />
 				<SpeculationRulesMeta />
 			</Module>
