@@ -151,7 +151,7 @@ if ( ! function_exists( 'get_magic_quotes_gpc' ) ) {
  */
 function wpcomsh_remove_elementor_dev_notice( $notices ) {
 	if ( is_array( $notices ) ) {
-		if ( class_exists( 'Elementor\Core\Admin\Notices\Elementor_Dev_Notice' ) ) {
+		if ( class_exists( 'Elementor\Core\Admin\Notices\Elementor_Dev_Notice', false ) ) {
 			foreach ( $notices as $key => $notice ) {
 				if ( $notice instanceof Elementor\Core\Admin\Notices\Elementor_Dev_Notice ) {
 					unset( $notices[ $key ] );
