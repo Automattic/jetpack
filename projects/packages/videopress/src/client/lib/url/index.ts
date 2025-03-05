@@ -219,17 +219,14 @@ export function getVideoUrlBasedOnPrivacy( guid: VideoGUID, isPrivate: boolean )
  */
 export function getVideoNameFromUrl( url: string ): string {
 	try {
-		// Create URL object to parse the URL
 		const urlObj = new URL( url );
 
 		// Split the pathname by '/' and get the last segment
 		const segments = urlObj.pathname.split( '/' );
 		const fileName = segments[ segments.length - 1 ];
 
-		// Return the filename if it exists, otherwise empty string
 		return fileName || '';
 	} catch {
-		// Return empty string if URL parsing fails
 		return '';
 	}
 }
