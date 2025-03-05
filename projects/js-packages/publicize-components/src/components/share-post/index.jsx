@@ -1,11 +1,11 @@
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import {
 	useAnalytics,
 	isSimpleSite,
 	isAtomicSite,
 } from '@automattic/jetpack-shared-extension-utils';
-import { Button, PanelRow } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { dispatch, useDispatch, useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
@@ -13,6 +13,7 @@ import { useIsSharingPossible } from '../../hooks/use-is-sharing-possible';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSharePost from '../../hooks/use-share-post';
 import { store as socialStore } from '../../social-store';
+import { features } from '../../utils';
 import { getSocialScriptData } from '../../utils/script-data';
 
 /**
@@ -67,15 +68,29 @@ function getSiteType() {
 /**
  * Component to trigger the resharing of the post.
  *
+ * @param {object}   props                  - The component props.
+ * @param {Function} props.onShareCompleted - The callback to be called when the share is completed.
  * @return {object} A button component that will share the current post when clicked.
  */
-export function SharePostButton() {
+export function SharePostButton( { onShareCompleted } ) {
 	const { isPublicizeEnabled } = usePublicizeConfig();
+	const hasMediaFeatures =
+		siteHasFeature( features.IMAGE_GENERATOR ) || siteHasFeature( features.ENHANCED_PUBLISHING );
 	const { isFetching, isError, isSuccess, doPublicize } = useSharePost();
-	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const { isAutosaveablePost, isDirtyPost, isPostPublished, isSavingPost } = useSelect( select => {
+		const editorSelector = select( 'core/editor' );
+
+		return {
+			isAutosaveablePost: editorSelector.isEditedPostAutosaveable(),
+			isDirtyPost: editorSelector.isEditedPostDirty(),
+			isPostPublished: editorSelector.isCurrentPostPublished(),
+			isSavingPost: editorSelector.isSavingPost(),
+		};
+	}, [] );
 	const { feature_flags } = getSocialScriptData();
 	const { pollForPostShareStatus } = useDispatch( socialStore );
 	const { recordEvent } = useAnalytics();
+	const savePost = dispatch( 'core/editor' ).savePost;
 
 	useEffect( () => {
 		if ( isFetching ) {
@@ -91,7 +106,8 @@ export function SharePostButton() {
 		}
 
 		showSuccessNotice();
-	}, [ isFetching, isError, isSuccess ] );
+		onShareCompleted();
+	}, [ isFetching, isError, isSuccess, onShareCompleted ] );
 
 	const isSharingPossible = useIsSharingPossible();
 
@@ -103,7 +119,7 @@ export function SharePostButton() {
 	 * - is sharing post
 	 */
 	const isButtonDisabled =
-		! isPublicizeEnabled || ! isSharingPossible || ! isPostPublished || isFetching;
+		! isPublicizeEnabled || ! isSharingPossible || ! isPostPublished || isFetching || isSavingPost;
 
 	const sharePost = useCallback( async () => {
 		if ( ! isPostPublished ) {
@@ -119,6 +135,10 @@ export function SharePostButton() {
 			environment: getSiteType(),
 		} );
 
+		if ( isDirtyPost && isAutosaveablePost && hasMediaFeatures ) {
+			await savePost();
+		}
+
 		await doPublicize();
 
 		if ( feature_flags.useShareStatus ) {
@@ -127,56 +147,23 @@ export function SharePostButton() {
 	}, [
 		isPostPublished,
 		recordEvent,
+		isDirtyPost,
+		isAutosaveablePost,
+		hasMediaFeatures,
 		doPublicize,
 		feature_flags.useShareStatus,
+		savePost,
 		pollForPostShareStatus,
 	] );
 
 	return (
 		<Button
-			variant="secondary"
+			variant="primary"
 			onClick={ sharePost }
 			disabled={ isButtonDisabled }
-			isBusy={ isFetching }
+			isBusy={ isFetching || isSavingPost }
 		>
-			{ __( 'Share post', 'jetpack-publicize-components' ) }
+			{ __( 'Share', 'jetpack-publicize-components' ) }
 		</Button>
-	);
-}
-
-/**
- * A panel row that renders the share button when the resharing
- * feature is available.
- *
- * @return {object|null} A PanelRow component, or null if nothing should be rendered.
- */
-export function SharePostRow() {
-	const { isRePublicizeUpgradableViaUpsell } = usePublicizeConfig();
-	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-
-	const { hasConnections } = useSelect( select => select( socialStore ), [] );
-
-	// Do not render the button when the post is not published.
-	if ( ! isPostPublished ) {
-		return null;
-	}
-
-	/*
-	 * Do not render when the feature is upgradable.
-	 * We show the upsale notice instead.
-	 */
-	if ( isRePublicizeUpgradableViaUpsell ) {
-		return null;
-	}
-
-	// Do not render the button when there are no connections.
-	if ( ! hasConnections() ) {
-		return null;
-	}
-
-	return (
-		<PanelRow>
-			<SharePostButton />
-		</PanelRow>
 	);
 }
