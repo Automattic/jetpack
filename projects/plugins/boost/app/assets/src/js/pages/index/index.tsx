@@ -10,7 +10,6 @@ import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import PageCacheModule from '$features/page-cache/page-cache';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
-import SpeculationMethod from '$features/speculation-rules/speculation-method';
 import Pill from '$features/ui/pill/pill';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
@@ -173,9 +172,7 @@ const Index = () => {
 						) }
 					</p>
 				}
-			>
-				<SpeculationMethod />
-			</Module>
+			/>
 			<Module
 				slug="render_blocking_js"
 				title={ __( 'Defer Non-Essential JavaScript', 'jetpack-boost' ) }
