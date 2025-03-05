@@ -80,13 +80,13 @@ class Singleton_Network_Event implements Has_Setup {
 					continue;
 				}
 
-				if ( $blog_timestamp_to_execute < DAY_IN_SECONDS ) {
-					// If WordPress is indicating that the cron is due within a day of Unix, we assume this cron should be ran.
-					// Plugins such as WP Crontrol may set the event as due within a day of Unix, to ensure it's ran.
+				$hook_ref = current( $hook_refs );
+
+				if ( empty( $hook_ref['schedule'] ) ) {
+					// If the Schedule is falsey, it means this is not a scheduled cron, no need to reschedule.
 					continue;
 				}
 
-				$hook_ref = current( $hook_refs );
 				if ( $crons_to_execute[ $hook ] > $now ) {
 					// Reschedule the blog's cronjob to run at the timestamp that was stored in the option.
 					wp_unschedule_event( $blog_timestamp_to_execute, $hook, $hook_ref['args'] );
@@ -113,7 +113,7 @@ class Singleton_Network_Event implements Has_Setup {
 	}
 
 	/**
-	 * Set the timestamp of the last time the cron was executed.
+	 * Sets the timestamp when the cron should be executed.
 	 *
 	 * @param string $hook The hook to set the cron executed timestamp for.
 	 * @param int    $blog_timestamp_to_execute The timestamp to set the cron executed timestamp to.
@@ -148,7 +148,7 @@ class Singleton_Network_Event implements Has_Setup {
 	}
 
 	/**
-	 * Unschedules all network cron events.
+	 * Cleans up the site options for the network cron.
 	 */
 	public static function clean_up() {
 		// We can safely delete the site options here because we know no network crons will be scheduled after this.

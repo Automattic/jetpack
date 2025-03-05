@@ -8,8 +8,6 @@ use Brain\Monkey\Functions;
 
 class Singleton_Network_Event_Test extends Base_TestCase {
 	public function test_setup() {
-		define( 'DAY_IN_SECONDS', 86400 );
-
 		$scheduled_event = new Singleton_Network_Event();
 
 		Functions\expect( 'add_filter' )

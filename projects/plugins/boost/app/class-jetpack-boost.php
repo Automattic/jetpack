@@ -173,9 +173,6 @@ class Jetpack_Boost {
 			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
 			jetpack_boost_minify_clear_scheduled_events();
 			jetpack_boost_minify_activation();
-			// Unschedule the legacy cronjob names.
-			wp_unschedule_hook( 'jetpack_boost_minify_cron_cache_cleanup' );
-			wp_unschedule_hook( 'jetpack_boost_404_tester_cron' );
 		}
 	}
 
