@@ -5,7 +5,13 @@ import { scaleOrdinal } from '@visx/scale';
 import { Axis, Grid, LineSeries, Tooltip, XYChart, buildChartTheme } from '@visx/xychart';
 import { __, sprintf } from '@wordpress/i18n';
 import { SERIES_COLORS, SERIES_LABELS } from '../constants';
-import { formatAxisTickDate, formatDate, getXAxisTickValues, transformData } from '../helpers';
+import {
+	calcLeftAxisMargin,
+	formatAxisTickDate,
+	formatDate,
+	getXAxisTickValues,
+	transformData,
+} from '../helpers';
 import type { DailyCount, SubscriptionStat } from '../types';
 import type {
 	RenderTooltipGlyphProps,
@@ -139,7 +145,7 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 								xScale={ { type: 'time' } }
 								yScale={ { type: 'linear', nice: true } }
 								theme={ chartTheme }
-								margin={ { top: 10, right: 30, bottom: 30, left: 30 } }
+								margin={ { top: 10, right: 30, bottom: 30, left: calcLeftAxisMargin( data ) } }
 							>
 								<Grid columns={ false } numTicks={ 5 } />
 

@@ -100,3 +100,24 @@ export const transformData = ( countsByDay: Record< string, DailyCount > ): Subs
 		};
 	} );
 };
+
+/**
+ * Calculates the maximum value of the subscription statistics to determine the left axis tick label margin.
+ * Larger labels will get cut off so we must dynamically increase the margin based on how many digits are in the largest number.
+ *
+ * @param {SubscriptionStat[]} subs - The subscription statistics array. The same data used to render the chart.
+ * @returns {number} The calculated left axis margin.
+ */
+export const calcLeftAxisMargin = ( subs: SubscriptionStat[] ): number => {
+	const DEFAULT_MARGIN = 30;
+	const CHAR_PX_WIDTH = 8;
+	const PADDING = 10;
+
+	const maxValue = Math.max(
+		...subs.map( d => Math.max( d.all || 0, d.email || 0, d.paid || 0 ) )
+	);
+	// Estimate character width (in pixels) and calculate margin
+	// Each digit is roughly 8px, plus add some padding
+	const digitCount = maxValue.toString().length;
+	return Math.max( DEFAULT_MARGIN, digitCount * CHAR_PX_WIDTH + PADDING );
+};
