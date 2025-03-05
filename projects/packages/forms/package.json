@@ -26,7 +26,7 @@
 		"test-coverage": "pnpm run test --coverage",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
 		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch' 'pnpm:module:start'",
-		"module:build": "wp-scripts build --source-path=src/modules/* --output-path=dist/modules --experimental-modules",
+		"module:build": "wp-scripts build --source-path=src/modules --output-path=dist/modules --experimental-modules",
 		"module:start": "wp-scripts start --source-path=src/modules --output-path=dist/modules --experimental-modules"
 	},
 	"browserslist": [
