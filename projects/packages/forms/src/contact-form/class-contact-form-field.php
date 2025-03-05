@@ -892,6 +892,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	private function enqueue_file_field_assets() {
+		\wp_enqueue_script_module(
+			'jetpack-form-file-field',
+			plugins_url( '../../dist/modules/file-field/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			\JETPACK__VERSION
+		);
 		\wp_enqueue_style(
 			'jetpack-form-file-field',
 			plugins_url( '../../dist/contact-form/css/file-field.css', __FILE__ ),
