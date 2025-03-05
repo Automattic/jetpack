@@ -295,7 +295,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10 # 2025-01-10 Wild guess
     needs: run-tests
-    if: always() && needs.run-tests.outputs.did-coverage == 'true' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/trunk' )
+    if: always() && needs.run-tests.outputs.did-coverage == 'true' && github.repository == 'Automattic/jetpack' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/trunk' )
     steps:
       - uses: actions/checkout@v4
 
