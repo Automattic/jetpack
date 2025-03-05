@@ -34,8 +34,8 @@ class Minify implements Pluggable, Optimization, Has_Activate, Has_Deactivate {
 	 * This is called when either minify module is activated
 	 */
 	public static function activate() {
-		$disable_404_tester = Boost_Admin_Config::get_hosting_provider() !== 'atomic' && Boost_Admin_Config::get_hosting_provider() !== 'woa';
-		jetpack_boost_minify_activation( $disable_404_tester );
+		$setup_404_tester = Boost_Admin_Config::get_hosting_provider() !== 'atomic' && Boost_Admin_Config::get_hosting_provider() !== 'woa';
+		jetpack_boost_minify_activation( $setup_404_tester );
 	}
 
 	/**

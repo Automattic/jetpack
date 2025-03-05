@@ -160,11 +160,11 @@ class Jetpack_Boost {
 		update_option( 'jetpack_boost_version', JETPACK_BOOST_VERSION );
 
 		if ( jetpack_boost_minify_is_enabled() ) {
-			$disable_404_tester = Boost_Admin_Config::get_hosting_provider() !== 'atomic' && Boost_Admin_Config::get_hosting_provider() !== 'woa';
+			$setup_404_tester = Boost_Admin_Config::get_hosting_provider() !== 'atomic' && Boost_Admin_Config::get_hosting_provider() !== 'woa';
 
 			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
 			jetpack_boost_minify_clear_scheduled_events();
-			jetpack_boost_minify_activation( $disable_404_tester );
+			jetpack_boost_minify_activation( $setup_404_tester );
 		}
 	}
 
