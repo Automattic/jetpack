@@ -4,9 +4,9 @@ import { close } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
-import isJetpackUserNew from '../../data/utils/is-jetpack-user-new';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
+import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { CardWrapper } from '../card';
 import ConnectionStep from './ConnectionStep';
@@ -42,6 +42,7 @@ const WelcomeFlow: FC< Props > = ( {
 	const [ prevStep, setPrevStep ] = useState( '' );
 
 	const [ isConnectionReady, setIsConnectionReady ] = useState( null );
+	const isJetpackUserNew = useIsJetpackUserNew();
 
 	useEffect( () => {
 		if ( prevStep === 'site-connecting' && ! siteIsRegistering && siteIsRegistered ) {
@@ -69,7 +70,7 @@ const WelcomeFlow: FC< Props > = ( {
 		} else if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
-			if ( ! recommendedModules && ! isJetpackUserNew() ) {
+			if ( ! recommendedModules && ! isJetpackUserNew ) {
 				// If user is not new but doesn't have recommendations, we skip evaluation
 				// If user has recommendations, it means they redo the evaluation
 				return null;
@@ -88,6 +89,7 @@ const WelcomeFlow: FC< Props > = ( {
 		welcomeFlowExperiment.isLoading,
 		isProcessingEvaluation,
 		recommendedModules,
+		isJetpackUserNew,
 	] );
 
 	useEffect( () => {

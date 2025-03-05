@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: fix field name set as label when trying to empty label

@@ -50,8 +50,8 @@ return [
         'src/social-image-generator/class-rest-settings-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/social-image-generator/class-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/social-image-generator/class-setup.php' => ['PhanTypeMismatchArgumentNullable'],
-        'tests/php/test-connections-post-field.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgument'],
-        'tests/php/test-publicize-og-optimization.php' => ['PhanDeprecatedFunction'],
+        'tests/php/Connections_Post_Field_Test.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgument'],
+        'tests/php/Publicize_OG_Optimization_Test.php' => ['PhanDeprecatedFunction'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

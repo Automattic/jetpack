@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Remove the register_nonce from site connection.
