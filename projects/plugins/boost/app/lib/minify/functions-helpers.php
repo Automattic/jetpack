@@ -350,14 +350,15 @@ function jetpack_boost_minify_serve_concatenated() {
  *
  * This handles scheduling cache cleanup, and setting up the cronjob to periodically test for the 404 handler.
  *
+ * @param bool $disable_404_tester Whether to disable the 404 tester.
  * @return void
  */
-function jetpack_boost_minify_activation() {
+function jetpack_boost_minify_activation( $disable_404_tester = false ) {
 	// Schedule cache cleanup.
 	jetpack_boost_page_optimize_schedule_cache_cleanup();
 
 	// Setup the cronjob to periodically test for the 404 handler.
-	jetpack_boost_404_setup();
+	jetpack_boost_404_setup( $disable_404_tester );
 }
 
 function jetpack_boost_minify_is_enabled() {

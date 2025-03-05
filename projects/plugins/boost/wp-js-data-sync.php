@@ -99,7 +99,8 @@ add_action( 'admin_init', 'jetpack_boost_initialize_datasync' );
 jetpack_boost_register_readonly_option(
 	'minify_legacy_notice',
 	function () {
-		if ( jetpack_boost_minify_disable_404_tester() ) {
+		// If the JETPACK_BOOST_DISABLE_404_TESTER is set and true, we don't need to show the legacy notice.
+		if ( defined( 'JETPACK_BOOST_DISABLE_404_TESTER' ) && JETPACK_BOOST_DISABLE_404_TESTER ) {
 			return false;
 		}
 

@@ -1,6 +1,5 @@
 <?php
 
-use Automattic\Jetpack_Boost\Admin\Config as Boost_Config;
 use Automattic\Jetpack_Boost\Lib\Minify;
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\File_Paths;
@@ -71,23 +70,6 @@ function jetpack_boost_check_404_handler( $request_uri ) {
 }
 
 /**
- * This function checks if the 404 tester should be disabled.
- *
- * @return bool True if the 404 tester is disabled, false otherwise.
- */
-function jetpack_boost_minify_disable_404_tester() {
-	if ( Boost_Config::get_hosting_provider() === 'atomic' || Boost_Config::get_hosting_provider() === 'woa' ) {
-		return true;
-	}
-
-	if ( defined( 'JETPACK_BOOST_DISABLE_404_TESTER' ) && JETPACK_BOOST_DISABLE_404_TESTER ) {
-		return true;
-	}
-
-	return false;
-}
-
-/**
  * This function is used to test if is_404() is working in wp-content/
  * It sends a request to a non-existent URL, that will execute the 404 handler
  * in jetpack_boost_check_404_handler().
@@ -97,7 +79,7 @@ function jetpack_boost_minify_disable_404_tester() {
  * This function is called when the Minify_CSS or Minify_JS module is activated, and once per day.
  */
 function jetpack_boost_404_tester() {
-	if ( jetpack_boost_minify_disable_404_tester() ) {
+	if ( defined( 'JETPACK_BOOST_DISABLE_404_TESTER' ) && JETPACK_BOOST_DISABLE_404_TESTER ) {
 		return;
 	}
 
@@ -122,10 +104,15 @@ add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
  * haven't been toggled since this feature was released.
  * Only run this in wp-admin to avoid excessive updates to the option.
  */
-function jetpack_boost_404_setup() {
+function jetpack_boost_404_setup( $disable_404_tester = false ) {
 	if ( is_admin() && get_site_option( 'jetpack_boost_static_minification', 'na' ) === 'na' ) {
 		update_site_option( 'jetpack_boost_static_minification', 0 ); // Add a default value if not set to avoid an extra SQL query.
 	}
+
+	if ( $disable_404_tester ) {
+		return;
+	}
+
 	jetpack_boost_page_optimize_schedule_404_tester();
 }
 
