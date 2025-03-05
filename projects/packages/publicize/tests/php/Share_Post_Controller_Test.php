@@ -19,7 +19,7 @@ use WpOrg\Requests\Requests;
  *
  * @coversDefaultClass Automattic\Jetpack\Publicize\REST_API\Share_Post_Controller
  */
-class Test_Share_Post_Controller extends TestCase {
+class Share_Post_Controller_Test extends TestCase {
 
 	/**
 	 * Mock user ID with editor permissions.
