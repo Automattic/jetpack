@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for Main class.
+ * Tests for Subscribers Dashboard.
  *
  * @package automattic/jetpack-subscribers-dashboard
  */
@@ -11,11 +11,11 @@ use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class Test_Main.
+ * Class Subscribers_Dashboard_Test.
  *
- * @covers Automattic\Jetpack\Masterbar\Main
+ * @covers Automattic\Jetpack\Subscribers_Dashboard
  */
-class MainTest extends TestCase {
+class Subscribers_Dashboard_Test extends TestCase {
 
 	/**
 	 * Setup runs before each test.
