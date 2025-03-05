@@ -1,14 +1,13 @@
 import { curveMonotoneX } from '@visx/curve';
 import { ParentSize } from '@visx/responsive';
 import { Axis, Grid, LineSeries, Tooltip, XYChart, buildChartTheme } from '@visx/xychart';
+import { __, sprintf } from '@wordpress/i18n';
 import { formatAxisTickDate, formatDate, getXAxisTickValues, transformData } from '../helpers';
 import type { DailyCount, SubscriptionStat } from '../types';
 import type {
 	RenderTooltipGlyphProps,
 	RenderTooltipParams,
 } from '@visx/xychart/lib/components/Tooltip';
-
-// TODO: Do a translation pass on this file
 
 const SERIES_COLORS = {
 	all: '#2db85c',
@@ -71,21 +70,40 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 						style={ { backgroundColor: SERIES_COLORS.all } }
 						className="subscribers-chart__tooltip-indicator"
 					/>
-					<span>All: { getAllSubscribers( datum ) }</span>
+
+					<span>
+						{ sprintf(
+							// translators: %s is the total number of subscribers.
+							__( 'All: %s', 'jetpack' ),
+							getAllSubscribers( datum )
+						) }
+					</span>
 				</div>
 				<div className="subscribers-chart__tooltip-stat">
 					<div
 						style={ { backgroundColor: SERIES_COLORS.email } }
 						className="subscribers-chart__tooltip-indicator"
 					/>
-					<span>Email: { getEmailSubscribers( datum ) }</span>
+					<span>
+						{ sprintf(
+							// translators: %s is the number of email subscribers.
+							__( 'Email: %s', 'jetpack' ),
+							getEmailSubscribers( datum )
+						) }
+					</span>
 				</div>
 				<div className="subscribers-chart__tooltip-stat">
 					<div
 						style={ { backgroundColor: SERIES_COLORS.paid } }
 						className="subscribers-chart__tooltip-indicator"
 					/>
-					<span>Paid: { getPaidSubscribers( datum ) }</span>
+					<span>
+						{ sprintf(
+							// translators: %s is the number of paid subscribers.
+							__( 'Paid: %s', 'jetpack' ),
+							getPaidSubscribers( datum )
+						) }
+					</span>
 				</div>
 			</div>
 		</>
@@ -98,7 +116,7 @@ type SubscribersChartProps = {
 
 export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 	if ( Object.keys( countsByDay ).length === 0 ) {
-		return <div>No data available</div>;
+		return <div>{ __( 'No data available', 'jetpack' ) }</div>;
 	}
 
 	const data = transformData( countsByDay );
