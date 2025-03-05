@@ -63,9 +63,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const popoverToggle = container.querySelector( '.launch-bar-global-styles-toggle' );
 	const popover = container.querySelector( '.launch-bar-global-styles-popover' );
 	const upgradeButton = container.querySelector( '.launch-bar-global-styles-upgrade' );
-	const previewButton = container.querySelector( '.launch-bar-global-styles-preview' );
+	//const previewButton = container.querySelector( '.launch-bar-global-styles-preview' );
 	const closeButton = container.querySelector( '.launch-bar-global-styles-close' );
-	const resetButton = container.querySelector( '.launch-bar-global-styles-reset' );
+	const resetButton = container.querySelector( '.launch-bar-global-styles__button--reset' );
 
 	const limitedGlobalStylesNoticeAction =
 		localStorage.getItem( 'limitedGlobalStylesNoticeAction' ) ?? 'show';
@@ -95,17 +95,18 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		window.location = upgradeButton.href;
 	} );
 
-	previewButton?.addEventListener( 'click', event => {
-		event.preventDefault();
-		const checkbox = previewButton.querySelector( 'input[type="checkbox"]' );
-		if ( checkbox ) {
-			checkbox.checked = ! checkbox.checked;
-		}
-		recordEvent( 'wpcom_global_styles_gating_notice_preview', {
-			action: checkbox.checked ? 'show' : 'hide',
-		} );
-		window.location = previewButton.href;
-	} );
+	// TODO: Add tracking back for preview buttons.
+	// previewButton?.addEventListener( 'click', event => {
+	// 	event.preventDefault();
+	// 	const checkbox = previewButton.querySelector( 'input[type="checkbox"]' );
+	// 	if ( checkbox ) {
+	// 		checkbox.checked = ! checkbox.checked;
+	// 	}
+	// 	recordEvent( 'wpcom_global_styles_gating_notice_preview', {
+	// 		action: checkbox.checked ? 'show' : 'hide',
+	// 	} );
+	// 	window.location = previewButton.href;
+	// } );
 
 	resetButton?.addEventListener( 'click', async event => {
 		event.preventDefault();
@@ -124,4 +125,24 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			window.open( resetButton.href, '_blank' ).focus();
 		}
 	} );
+
+	// Function to inject content into iframes
+	const injectIframeContent = () => {
+		const iframes = document.querySelectorAll( '.launch-bar-global-styles-actions__preview-frame' );
+		iframes.forEach( iframe => {
+			const content = iframe.getAttribute( 'data-content' );
+			const styles = iframe.getAttribute( 'data-styles' );
+			if ( content && styles ) {
+				const doc = iframe.contentDocument || iframe.contentWindow.document;
+				doc.open();
+				doc.write(
+					`<!DOCTYPE html><html><head><style>${ styles }</style></head><body>${ content }</body></html>`
+				);
+				doc.close();
+			}
+		} );
+	};
+
+	// Call it once DOM is loaded
+	injectIframeContent();
 } );

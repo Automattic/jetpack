@@ -384,6 +384,8 @@ function wpcom_global_styles_in_use() {
 	}
 
 	$user_cpt = WP_Theme_JSON_Resolver::get_user_data_from_wp_global_styles( wp_get_theme() );
+	// This is the global styles stylesheet.
+	// var_dump( wp_get_global_stylesheet() );
 
 	$global_styles_in_use = wpcom_global_styles_in_use_by_wp_global_styles_post( $user_cpt );
 
@@ -419,7 +421,7 @@ function wpcom_premium_global_styles_is_site_exempt( $blog_id = 0 ) {
 	}
 
 	// If the current user cannot modify the `wp_global_styles` CPT, the exemption check is not needed;
-	// other conditions will determine whether they can use GS.
+	// other conditions will determine whether they can use GS.
 	if ( ! wpcom_global_styles_current_user_can_edit_wp_global_styles( $blog_id ) ) {
 		return false;
 	}
@@ -515,7 +517,11 @@ function wpcom_should_show_global_styles_launch_bar() {
  */
 function wpcom_display_global_styles_launch_bar() {
 	$blog_id          = get_current_blog_id();
-	$global_styles_id = WP_Theme_JSON_Resolver::get_user_global_styles_post_id();
+	$global_styles_id = null;
+
+	if ( class_exists( 'WP_Theme_JSON_Resolver' ) ) {
+		$global_styles_id = WP_Theme_JSON_Resolver::get_user_global_styles_post_id();
+	}
 
 	if ( method_exists( '\WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
 		$site_slug = WPCOM_Masterbar::get_calypso_site_slug( $blog_id );
@@ -537,7 +543,27 @@ function wpcom_display_global_styles_launch_bar() {
 	} else {
 		$preview_location = remove_query_arg( 'hide-global-styles' );
 	}
+	remove_filter( 'wp_theme_json_data_user', 'wpcom_block_global_styles_frontend' );
 
+	// Get base theme styles
+	$base_theme_json = WP_Theme_JSON_Resolver_Gutenberg::get_merged_data( 'theme' );
+	$base_theme_json_stylesheet = $base_theme_json->get_stylesheet();
+
+	// Get raw user global styles directly from the database
+	$user_custom_post_type_id = WP_Theme_JSON_Resolver_Gutenberg::get_user_global_styles_post_id();
+	$global_styles_post = get_post( $user_custom_post_type_id );
+	$user_data = $global_styles_post ? json_decode( $global_styles_post->post_content, true ) : array();
+
+	// Create a new theme JSON object with user data
+	$user_theme_json = new WP_Theme_JSON( $user_data );
+
+	// Merge with theme data
+	$merged_data = new WP_Theme_JSON( array() );
+	$merged_data->merge( $base_theme_json );
+	$merged_data->merge( $user_theme_json );
+	$merged_stylesheet = $merged_data->get_stylesheet();
+
+	add_filter( 'wp_theme_json_data_user', 'wpcom_block_global_styles_frontend' );
 	?>
 
 	<div class="launch-banner" id="launch-banner" style="display:none;">
@@ -573,6 +599,9 @@ function wpcom_display_global_styles_launch_bar() {
 						<div class="launch-bar-global-styles-close">
 							<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 96 960 960" width="48"><path d="m249 849-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/></svg>
 						</div>
+						<h2 class="launch-bar-global-styles-popover__title">
+							<?php echo esc_html_e( 'Unlock premium styles', 'jetpack-mu-wpcom' ); ?>
+						</h2>
 						<div class="launch-bar-global-styles-message">
 							<?php
 							$support_url = function_exists( 'localized_wpcom_url' )
@@ -602,29 +631,63 @@ function wpcom_display_global_styles_launch_bar() {
 							);
 							?>
 						</div>
-						<a
-							class="launch-bar-global-styles-upgrade"
-							href="<?php echo esc_url( $upgrade_url ); ?>"
-						>
-							<?php echo esc_html__( 'Upgrade now', 'jetpack-mu-wpcom' ); ?>
-						</a>
-						<a
-							class="launch-bar-global-styles-reset"
-							href="https://wordpress.com/support/using-styles/#reset-all-styles"
-							target="_blank"
-							data-blog-id="<?php echo esc_attr( (string) $blog_id ); ?>"
-							data-global-styles-id="<?php echo esc_attr( (string) $global_styles_id ); ?>"
-						>
-							<svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M5.8125 5.6875C5.8125 4.75552 6.56802 4 7.5 4C8.43198 4 9.1875 4.75552 9.1875 5.6875C9.1875 6.55621 8.53108 7.2716 7.6872 7.36473C7.58427 7.37609 7.5 7.45895 7.5 7.5625V8.5M7.5 9.25V10.375M13.5 7C13.5 10.3137 10.8137 13 7.5 13C4.18629 13 1.5 10.3137 1.5 7C1.5 3.68629 4.18629 1 7.5 1C10.8137 1 13.5 3.68629 13.5 7Z" stroke="#1E1E1E" stroke-width="1.5"/>
-							</svg>
-							<?php echo esc_html__( 'Remove premium styles', 'jetpack-mu-wpcom' ); ?>
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg>
-						</a>
-						<a class="launch-bar-global-styles-preview" href="<?php echo esc_url( $preview_location ); ?>">
-							<label><input type="checkbox" <?php echo wpcom_is_previewing_global_styles() ? 'checked' : ''; ?>><span></span></label>
-							<?php echo esc_html__( 'Preview premium styles', 'jetpack-mu-wpcom' ); ?>
-						</a>
+						<div class="launch-bar-global-styles-actions">
+							<a 
+								class="launch-bar-global-styles-actions__preview <?php echo wpcom_is_previewing_global_styles() ? 'disabled' : ''; ?>"
+								href="<?php echo ! wpcom_is_previewing_global_styles() ? esc_url( $preview_location ) : 'javascript:void(0)'; ?>"
+							>
+								<iframe 
+									class="launch-bar-global-styles-actions__preview-frame"
+									data-content="<h2 style='display:inline;'>A</h2><p style='display:inline;'>a</p>"
+									data-styles="* {cursor: pointer;}<?php echo esc_attr( $merged_stylesheet ); ?>"
+									frameborder="0"
+									scrolling="no"
+									title="<?php echo esc_attr__( 'Style preview', 'jetpack-mu-wpcom' ); ?>"
+								></iframe>
+								<?php echo esc_html__( 'Use premium style', 'jetpack-mu-wpcom' ); ?>
+							</a>
+							<a
+								class="launch-bar-global-styles-actions__preview <?php echo ! wpcom_is_previewing_global_styles() ? 'disabled' : ''; ?>"
+								href="<?php echo wpcom_is_previewing_global_styles() ? esc_url( $preview_location ) : 'javascript:void(0)'; ?>"
+							>
+								<iframe 
+									class="launch-bar-global-styles-actions__preview-frame"
+									data-content="<h2 style='display:inline;'>A</h2><p style='display:inline;'>a</p>"
+									data-styles="* {cursor: pointer;}<?php echo esc_attr( $base_theme_json_stylesheet ); ?>"
+									frameborder="0"
+									scrolling="no"
+									title="<?php echo esc_attr__( 'Style preview', 'jetpack-mu-wpcom' ); ?>"
+								></iframe>
+								<?php echo esc_html__( 'Use default style', 'jetpack-mu-wpcom' ); ?>
+							</a>
+						</div>
+
+						<div class="launch-bar-global-styles-actions">
+						<?php
+						if ( wpcom_is_previewing_global_styles() ) {
+							?>
+							<a
+								class="launch-bar-global-styles__button--upgrade"
+								href="<?php echo esc_url( $upgrade_url ); ?>"
+							>
+								<?php echo esc_html__( 'Upgrade to Premium plan', 'jetpack-mu-wpcom' ); ?>
+							</a>
+								<?php
+							} else {
+							?>
+							<a
+								class="launch-bar-global-styles__button--reset"
+								href="https://wordpress.com/support/using-styles/#reset-all-styles"
+								target="_blank"
+								data-blog-id="<?php echo esc_attr( (string) $blog_id ); ?>"
+								data-global-styles-id="<?php echo esc_attr( (string) $global_styles_id ); ?>"
+							>
+								<?php echo esc_html__( 'Remove styles and keep free plan', 'jetpack-mu-wpcom' ); ?>
+							</a>
+								<?php
+						}
+						?>
+						</div>
 					</div>
 					<a class="launch-bar-global-styles-toggle" href="#">
 						<svg width="25" height="25" viewBox="0 96 960 960" xmlns="http://www.w3.org/2000/svg">
