@@ -132,7 +132,6 @@ require_once __DIR__ . '/notices/php-version-notices.php';
 require_once __DIR__ . '/notices/media-library-private-site-cdn-notice.php';
 require_once __DIR__ . '/notices/anyone-can-register-notice.php';
 require_once __DIR__ . '/notices/feature-moved-to-jetpack-notices.php';
-require_once __DIR__ . '/notices/manage-elementor-beta-notice.php';
 
 // Performance Profiler
 require_once __DIR__ . '/performance-profiler/performance-profiler.php';
