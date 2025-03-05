@@ -112,6 +112,8 @@ class Jetpack_Mu_Wpcom {
 	 * Fetches and installs Jetpack-mu-wpcom package translations when needed.
 	 */
 	public static function maybe_update_translations() {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/misc.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		require_once ABSPATH . 'wp-admin/includes/class-language-pack-upgrader.php';
 
