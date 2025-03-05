@@ -121,12 +121,18 @@ class Jetpack_Mu_Wpcom {
 	public static function maybe_update_translations() {
 		require_once ABSPATH . 'wp-admin/includes/class-language-pack-upgrader.php';
 
-		$plugin_slug = 'jetpack-mu-wpcom';
-		$destination = WP_LANG_DIR . '/mu-plugins/';
-
 		$locales = self::get_all_active_locales();
 		if ( empty( $locales ) ) {
 			return;
+		}
+
+		$plugins_request_data              = array();
+		$plugin_language_pack_destinations = array(
+			'jetpack-mu-wpcom' => WP_LANG_DIR . '/mu-plugins/',
+		);
+
+		foreach ( array_keys( $plugin_language_pack_destinations ) as $plugin_slug ) {
+			$plugins_request_data[ $plugin_slug ] = array( 'version' => 'latest' );
 		}
 
 		$response = wp_remote_post(
@@ -135,7 +141,7 @@ class Jetpack_Mu_Wpcom {
 				'body'    => wp_json_encode(
 					array(
 						'locales' => $locales,
-						'plugins' => array( $plugin_slug => array( 'version' => 'latest' ) ),
+						'plugins' => $plugins_request_data,
 					)
 				),
 				'headers' => array( 'Content-Type' => 'application/json' ),
@@ -156,31 +162,46 @@ class Jetpack_Mu_Wpcom {
 
 		$upgrader = new \Language_Pack_Upgrader();
 
-		foreach ( $data['data'][ $plugin_slug ] as $translation ) {
-			$locale        = $translation['wp_locale'] ?? '';
-			$package_url   = $translation['package'] ?? '';
-			$last_modified = $translation['last_modified'] ?? '';
-
-			if ( ! $locale || ! $package_url || ! $last_modified ) {
+		foreach ( $data['data'] as $plugin_name => $language_packs ) {
+			if ( ! isset( $plugin_language_pack_destinations[ $plugin_name ] ) ) {
 				continue;
 			}
 
-			$stored_last_modified = get_option( "jetpack_mu_wpcom_translation_{$locale}_last_modified", '' );
-			if ( $stored_last_modified === $last_modified ) {
-				continue;
-			}
+			$destination = $plugin_language_pack_destinations[ $plugin_name ];
 
-			$result = $upgrader->run(
-				array(
-					'package'           => $package_url,
-					'destination'       => $destination,
-					'clear_destination' => true,
-					'clear_working'     => true,
-				)
-			);
+			foreach ( $language_packs as $translation ) {
+				$locale        = $translation['wp_locale'] ?? '';
+				$package_url   = $translation['package'] ?? '';
+				$last_modified = $translation['last_modified'] ?? '';
 
-			if ( ! is_wp_error( $result ) ) {
-				update_option( "jetpack_mu_wpcom_translation_{$locale}_last_modified", $last_modified );
+				if ( ! $locale || ! $package_url || ! $last_modified ) {
+					continue;
+				}
+
+				$option_safe_plugin_name = str_replace( '-', '_', $plugin_name ); // jetpack-mu-wpcom is unsafe for option names.
+				$stored_last_modified    = get_option( "{$option_safe_plugin_name}_translation_{$locale}_last_modified", '' );
+
+				// Skip update if translation is already up-to-date.
+				if ( $stored_last_modified === $last_modified ) {
+					continue;
+				}
+
+				$result = $upgrader->run(
+					array(
+						'package'           => $package_url,
+						'destination'       => $destination,
+						'clear_destination' => true,
+						'clear_working'     => true,
+						'hook_extra'        => array(
+							'slug' => $plugin_name,
+						),
+					)
+				);
+
+				// Update the last modified time in the database IF successful.
+				if ( ! is_wp_error( $result ) ) {
+					update_option( "{$option_safe_plugin_name}_translation_{$locale}_last_modified", $last_modified );
+				}
 			}
 		}
 	}
