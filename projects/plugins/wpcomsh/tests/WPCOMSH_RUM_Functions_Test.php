@@ -9,7 +9,7 @@
  * Class Test_WPCOMSH_RUM_Functions
  */
 // phpcs:disable Squiz.Commenting.FunctionComment.WrongStyle
-class Test_WPCOMSH_RUM_Functions extends WP_UnitTestCase {
+class WPCOMSH_RUM_Functions_Test extends WP_UnitTestCase {
 	/**
 	 * Test that the script function is hooked correctly
 	 */
