@@ -10,6 +10,8 @@
  */
 require_once __DIR__ . '/../../utils.php';
 
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * Whether the current site is connected to Jetpack.
  *
@@ -21,89 +23,82 @@ function is_jetpack_connected() {
 }
 
 /**
- * Render the Site Visibility setting.
- *
- * @param string $site_slug The slug of the site.
+ * Generate the links for sharing the site.
  */
-function render_site_visibility( $site_slug ) {
-	ob_start();
+function wp_ajax_wpcom_share_site_link_generate() {
+	check_ajax_referer( 'wpcom_site_visibility_share_site_link' );
 
-	?>
-		<p>
-			<?php esc_html_e( 'Control who can view your site.', 'jetpack-mu-wpcom' ); ?>
-			<a href="https://wordpress.com/support/privacy-settings/" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Learn more', 'jetpack-mu-wpcom' ); ?></a>
-		</p>
-		<ul>
-			<li>
-				<label>
-					<input type="radio" name="blog_public" value="0" class="tog">
-					<?php esc_html_e( 'Coming Soon', 'jetpack-mu-wpcom' ); ?>
-				</label>
-				<p class="description">
-					<?php esc_html_e( 'Your site is hidden from visitors behind a "Coming Soon" notice until it is ready for viewing.', 'jetpack-mu-wpcom' ); ?>
-				</p>
-				<ul>
-					<li>
-						<p>
-							<?php esc_html_e( 'Enable "Share site" to let collaborators without an account view your site.', 'jetpack-mu-wpcom' ); ?>
-						</p>
-						<label>
-							<input type="checkbox">
-							<?php esc_html_e( 'Share site', 'jetpack-mu-wpcom' ); ?>
-						</label>
-						<span class="copy-to-clipboard-container">
-							<button type="button" class="button button-small copy-attachment-url" data-clipboard-target="#attachment-details-two-column-copy-link"><?php esc_html_e( 'Copy URL to clipboard', 'jetpack-mu-wpcom' ); ?></button>
-							<span class="success hidden" aria-hidden="true"><?php esc_html_e( 'Copied!', 'jetpack-mu-wpcom' ); ?></span>
-						</span>
-						<p class="description">
-							<?php esc_html_e( 'Anyone with the link can view your site.', 'jetpack-mu-wpcom' ); ?>
-						</p>
-					</li>
-				</ul>
-			</li>
-			<li>
-				<label>
-					<input type="radio" name="blog_public" value="1" class="tog">
-					<?php esc_html_e( 'Public', 'jetpack-mu-wpcom' ); ?>
-				</label>
-				<p class="description">
-					<?php esc_html_e( 'Your site is visible to everyone.', 'jetpack-mu-wpcom' ); ?>
-				</p>
-				<ul>
-					<li>
-						<label>
-							<input name="blog_public" type="checkbox" value="0" checked="checked">
-							<?php esc_html_e( 'Discourage search engines from indexing this site', 'jetpack-mu-wpcom' ); ?>
-						</label>
-						<p class="description">
-							<?php esc_html_e( 'This option does not block access to your site — it is up to search engines to honor your request.', 'jetpack-mu-wpcom' ); ?>
-						</p>
-					</li>
-					<li>
-						<label>
-							<input name="wpcom_data_sharing_opt_out" type="checkbox" value="true">
-							<?php sprintf( /* translators: %s: the slug of the site */ esc_html__( 'Prevent third-party sharing for %s', 'jetpack-mu-wpcom' ), $site_slug ); ?>
-						</label>
-						<p class="description">
-							<?php esc_html_e( 'This option will prevent this site’s content from being shared with our licensed network of content and research partners, including those that train AI models.', 'jetpack-mu-wpcom' ); ?>
-							<a href="https://wordpress.com/support/privacy-settings/make-your-website-public/#prevent-third-party-sharing" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Learn more', 'jetpack-mu-wpcom' ); ?></a>
-						</p>
-					</li>
-				</ul>
-			</li>
-			<li>
-				<label>
-					<input type="radio" name="blog_public" value="-1" class="tog">
-					<?php esc_html_e( 'Private', 'jetpack-mu-wpcom' ); ?>
-				</label>
-				<p class="description">
-					<?php esc_html_e( 'Your site is only visible to you and logged-in members you approve. Everyone else will see a log in screen.', 'jetpack-mu-wpcom' ); ?>
-				</p>
-			</li>
-		</ul>
-	<?php
-	$html = ob_get_clean();
-	return $html;
+	$blog_id = get_current_blog_id();
+	$body    = Client::wpcom_json_api_request_as_user(
+		"/sites/$blog_id/preview-links",
+		'2',
+		array(
+			'method' => 'POST',
+		)
+	);
+
+	if ( is_wp_error( $body ) ) {
+		return $body;
+	}
+
+	$response = json_decode( wp_remote_retrieve_body( $body ) );
+	return rest_ensure_response( $response );
+}
+add_action( 'wp_ajax_wpcom_share_site_link_generate', 'wp_ajax_wpcom_share_site_link_generate' );
+
+/**
+ * Delete the links for sharing the site.
+ */
+function wp_ajax_wpcom_share_site_link_delete() {
+	check_ajax_referer( 'wpcom_site_visibility_share_site_link' );
+
+	if ( ! isset( $_POST['code'] ) ) {
+		return;
+	}
+
+	$code    = sanitize_text_field( wp_unslash( $_POST['code'] ) );
+	$blog_id = get_current_blog_id();
+	$body    = Client::wpcom_json_api_request_as_user(
+		"/sites/$blog_id/preview-links/$code",
+		'2',
+		array(
+			'method' => 'DELETE',
+		)
+	);
+
+	if ( is_wp_error( $body ) ) {
+		return $body;
+	}
+
+	$response = json_decode( wp_remote_retrieve_body( $body ) );
+	return rest_ensure_response( $response );
+}
+add_action( 'wp_ajax_wpcom_share_site_delete', 'wp_ajax_wpcom_share_site_delete' );
+
+/**
+ * Get the links for sharing the site.
+ */
+function wpcom_share_site_link_get() {
+	$blog_id = get_current_blog_id();
+	$body    = Client::wpcom_json_api_request_as_user(
+		"/sites/$blog_id/preview-links"
+	);
+
+	if ( is_wp_error( $body ) ) {
+		return $body;
+	}
+
+	$response = json_decode( wp_remote_retrieve_body( $body ) );
+	if ( ! is_array( $response ) ) {
+		return null;
+	}
+
+	return add_query_arg(
+		array(
+			'share' => $response[0]['code'],
+		),
+		home_url( '/' )
+	);
 }
 
 /**
@@ -112,9 +107,14 @@ function render_site_visibility( $site_slug ) {
 function replace_site_visibility_load_assets() {
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-replace-site-visibility', array( 'js', 'css' ) );
 
+	$jetpack_status = new Automattic\Jetpack\Status();
+
 	$data = wp_json_encode(
 		array(
-			'siteId' => get_wpcom_blog_id(),
+			'siteId'         => get_wpcom_blog_id(),
+			'siteSlug'       => $jetpack_status->get_site_suffix(),
+			'shareSiteLink'  => wpcom_share_site_link_get(),
+			'shareSiteNonce' => wp_create_nonce( 'wpcom_site_visibility_share_site_link' ),
 		)
 	);
 
@@ -135,30 +135,23 @@ function replace_site_visibility() {
 	}
 
 	$jetpack_status = new Automattic\Jetpack\Status();
-	$site_slug      = $jetpack_status->get_site_suffix();
-	$current_screen = wpcom_admin_get_current_screen();
 
 	if ( ! is_jetpack_connected() && $jetpack_status->is_private_site() ) {
-		$settings_url = esc_url_raw( sprintf( '/wp-admin/admin.php?page=jetpack' ) );
-		$manage_label = __( 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.', 'jetpack-mu-wpcom' );
+		$settings_url    = esc_url_raw( sprintf( '/wp-admin/admin.php?page=jetpack' ) );
+		$manage_label    = __( 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.', 'jetpack-mu-wpcom' );
+		$escaped_content = '<a href="' . esc_url( $settings_url ) . '">' . esc_html( $manage_label ) . '</a>';
 	} elseif ( ! is_jetpack_connected() ) {
 		return;
 	} else {
-		$settings_url = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
+		$escaped_content = <<<HTML
+<div id="wpcom-site-visibility">
+	<img src="images/loading.gif" alt="Loading..." width="16" height="16">
+</div>
+HTML;
 
-		// To prevent "Default + hold-out" users from redirecting to /wp-admin/options-general.php.
-		// p1738634823404529/1738634703.754159-slack-CRWCHQGUB
-		if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
-			$settings_url = esc_url_raw( sprintf( 'https://wordpress.com/sites/settings/site/%s', $site_slug ) );
-		}
-
-		$manage_label = __( 'Manage your privacy settings', 'jetpack-mu-wpcom' );
+		replace_site_visibility_load_assets();
 	}
 
-	$escaped_content = '<a href="' . esc_url( $settings_url ) . '">' . esc_html( $manage_label ) . '</a>';
-	$escaped_content = render_site_visibility( $site_slug );
-
-	replace_site_visibility_load_assets();
 	?>
 <noscript>
 <p><?php echo wp_json_encode( $escaped_content, JSON_HEX_TAG | JSON_HEX_AMP ); ?></p>
