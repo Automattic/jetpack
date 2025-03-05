@@ -40,12 +40,9 @@ function _wpcomBuildAddCustomAddressButton( fragment: DocumentFragment ) {
 	addButton.className = 'button wpcom-add-custom-address-button';
 	addButton.innerHTML = `&plus; ${ __( 'Add custom address', 'jetpack-mu-wpcom' ) }`;
 
-	// Either WordPress Address (URL) or Site Address (URL), whichever comes last.
+	// Fragment == simple, document == Atomic
 	const previousSibling =
-		( fragment.getElementById( 'home' ) as HTMLInputElement ) ||
-		( fragment.getElementById( 'siteurl' ) as HTMLInputElement ) ||
-		document.getElementById( 'home' ) ||
-		document.getElementById( 'siteurl' );
+		( fragment.getElementById( 'home' ) as HTMLInputElement ) || document.getElementById( 'home' );
 	if ( ! previousSibling ) {
 		return;
 	}
@@ -95,7 +92,7 @@ const _wpcomBuildSiteUrl = ( fragment: DocumentFragment ) => {
 		const homeUrlRow = document.createElement( 'tr' );
 		homeUrlRow.innerHTML = `
 			<th scope="row"><label for="home">${ homeUrlLabel }</label></th>
-			<td><input type="url" id="home" value="${ window.wpcomSiteUrl.homeUrl }" class="regular-text code disabled wpcom-home-url-input" disabled="disabled" /></td>
+			<td><input type="url" id="home" value="${ window.wpcomSiteUrl.homeUrl }" class="regular-text code disabled" disabled="disabled" /></td>
 		`;
 		fragment.appendChild( homeUrlRow );
 	}
