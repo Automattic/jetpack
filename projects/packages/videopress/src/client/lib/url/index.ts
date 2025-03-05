@@ -163,8 +163,8 @@ export function buildVideoPressURL(
 /**
  * Search for a VideoPress video by filename in the media library
  *
- * @param {string}               fileName            - The name of the video file to search for
- * @param {VideoBlockAttributes} attributes          - Optional VideoPress URL attributes
+ * @param {string}               fileName   - The name of the video file to search for
+ * @param {VideoBlockAttributes} attributes - Optional VideoPress URL attributes
  * @return {Promise<BuildVideoPressURLProps | null>} The VideoPress URL and GUID if found, null otherwise
  */
 export async function buildVideoPressVideoByFileName(
@@ -209,6 +209,29 @@ export function getVideoUrlBasedOnPrivacy( guid: VideoGUID, isPrivate: boolean )
 	}
 
 	return `https://videopress.com/v/${ guid }`;
+}
+
+/**
+ * Extract the video filename with extension from a URL
+ *
+ * @param {string} url - The URL containing the video filename
+ * @return {string}    The video filename with extension, or empty string if not found
+ */
+export function getVideoNameFromUrl( url: string ): string {
+	try {
+		// Create URL object to parse the URL
+		const urlObj = new URL( url );
+
+		// Split the pathname by '/' and get the last segment
+		const segments = urlObj.pathname.split( '/' );
+		const fileName = segments[ segments.length - 1 ];
+
+		// Return the filename if it exists, otherwise empty string
+		return fileName || '';
+	} catch {
+		// Return empty string if URL parsing fails
+		return '';
+	}
 }
 
 /**
