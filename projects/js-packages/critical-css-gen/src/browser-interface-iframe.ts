@@ -131,13 +131,10 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 		}
 	}
 
-	async is404Page( url: string ): Promise< UrlError | null > {
+	async is404Page( url: string ): Promise< boolean > {
 		const response = await this.fetch( url, { redirect: 'manual' }, 'html' );
-		if ( response.status === 404 ) {
-			return new HttpError( { url, code: response.status } );
-		}
 
-		return null;
+		return response.status === 404;
 	}
 
 	sameOrigin( url: string ): boolean {
@@ -186,9 +183,9 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 					clearTimeout( timeoutId );
 
 					// Check HTTP status code first.
-					const urlError = await this.is404Page( fullUrl );
-					if ( urlError instanceof UrlError ) {
-						throw urlError;
+					const is404 = await this.is404Page( fullUrl );
+					if ( is404 ) {
+						throw new HttpError( { url, code: 404 } );
 					}
 
 					// Verify the inner document is readable.
