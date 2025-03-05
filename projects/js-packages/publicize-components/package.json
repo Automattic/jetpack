@@ -46,6 +46,7 @@
 		"@wordpress/media-utils": "5.19.0",
 		"@wordpress/notices": "5.19.0",
 		"clsx": "2.1.1",
+		"moment": "2.30.1",
 		"prop-types": "15.8.1",
 		"react-page-visibility": "7.0.0",
 		"rememo": "4.0.1"
