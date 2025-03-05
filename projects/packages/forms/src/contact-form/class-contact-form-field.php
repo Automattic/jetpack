@@ -831,7 +831,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'invalidType'        => __( 'This file type is not allowed', 'jetpack-forms' ),
 			),
 			'maxUploadSize' => $max_file_size,
-			'endpoing'      => rest_url( 'wpcom/v2/unauth-file-upload' ),
+			'endpoint'      => rest_url( 'wpcom/v2/unauth-file-upload' ),
 			'wp_nonce'      => wp_create_nonce( 'wp_rest' ),
 			'jp_nonce'      => wp_create_nonce( 'jetpack_file_upload_jetpack-form' ),
 		);
@@ -894,7 +894,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private function enqueue_file_field_assets() {
 		\wp_enqueue_script_module(
 			'jetpack-form-file-field',
-			plugins_url( '../../dist/modules/file-field/view.js', __FILE__ ),
+			plugins_url( '../../dist/modules/file-field-interactive.js', __FILE__ ),
 			array( '@wordpress/interactivity' ),
 			\JETPACK__VERSION
 		);
