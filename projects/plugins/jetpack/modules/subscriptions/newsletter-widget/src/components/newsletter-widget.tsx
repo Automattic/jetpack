@@ -21,64 +21,71 @@ export const NewsletterWidget = ( {
 	site,
 	adminUrl,
 	isWpcomSite,
-	emailSubscribers,
-	paidSubscribers,
-	countsByDay,
+	emailSubscribers = 0,
+	paidSubscribers = 0,
+	countsByDay = {},
 }: NewsletterWidgetProps ) => {
+	const showStats = emailSubscribers > 0 || paidSubscribers > 0;
+	const showChart = Object.values( countsByDay ).some( day => day?.all > 0 );
+
 	return (
 		<div className="newsletter-widget">
 			<div className="newsletter-widget__header">
-				<div className="newsletter-widget__stats">
-					<span className="newsletter-widget__stat-item">
-						<span className="newsletter-widget__icon">
-							<Icon icon={ envelope } size={ 24 } />
-						</span>
-						<span className="newsletter-widget__stat-content">
-							<span className="newsletter-widget__stat-label">
-								<a
-									href={
-										isWpcomSite
-											? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
-											: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
-									}
-								>
-									{ sprintf(
-										//translators: %s is the number of email subscribers
-										__( '%s email subscriptions', 'jetpack' ),
-										emailSubscribers
-									) }
-								</a>
+				{ showStats && (
+					<div className="newsletter-widget__stats">
+						<span className="newsletter-widget__stat-item">
+							<span className="newsletter-widget__icon">
+								<Icon icon={ envelope } size={ 24 } />
+							</span>
+							<span className="newsletter-widget__stat-content">
+								<span className="newsletter-widget__stat-label">
+									<a
+										href={
+											isWpcomSite
+												? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
+												: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
+										}
+									>
+										{ sprintf(
+											//translators: %s is the number of email subscribers
+											__( '%s email subscriptions', 'jetpack' ),
+											emailSubscribers
+										) }
+									</a>
+								</span>
 							</span>
 						</span>
-					</span>
-					<span className="newsletter-widget__stat-item">
-						<span className="newsletter-widget__icon">
-							<Icon icon={ payment } size={ 24 } />
-						</span>
-						<span className="newsletter-widget__stat-content">
-							<span className="newsletter-widget__stat-label">
-								<a
-									href={
-										isWpcomSite
-											? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
-											: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
-									}
-								>
-									{ sprintf(
-										//translators: %s is the number of paid subscribers
-										__( '%s paid subscriptions', 'jetpack' ),
-										paidSubscribers
-									) }
-								</a>
+						<span className="newsletter-widget__stat-item">
+							<span className="newsletter-widget__icon">
+								<Icon icon={ payment } size={ 24 } />
+							</span>
+							<span className="newsletter-widget__stat-content">
+								<span className="newsletter-widget__stat-label">
+									<a
+										href={
+											isWpcomSite
+												? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
+												: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
+										}
+									>
+										{ sprintf(
+											//translators: %s is the number of paid subscribers
+											__( '%s paid subscriptions', 'jetpack' ),
+											paidSubscribers
+										) }
+									</a>
+								</span>
 							</span>
 						</span>
-					</span>
+					</div>
+				) }
+			</div>
+			{ showChart && (
+				<div className="newsletter-widget__chart">
+					<h3 className="newsletter-widget__heading">{ __( 'Total Subscribers', 'jetpack' ) }</h3>
+					<SubscribersChart countsByDay={ countsByDay } />
 				</div>
-			</div>
-			<div className="newsletter-widget__chart">
-				<h3 className="newsletter-widget__heading">{ __( 'Total Subscribers', 'jetpack' ) }</h3>
-				<SubscribersChart countsByDay={ countsByDay } />
-			</div>
+			) }
 			<div className="newsletter-widget__footer">
 				<p className="newsletter-widget__footer-msg">
 					{ createInterpolateElement(
