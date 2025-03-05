@@ -9,6 +9,7 @@ import {
 	calcLeftAxisMargin,
 	formatAxisTickDate,
 	formatDate,
+	formatNumber,
 	getXAxisTickValues,
 	transformData,
 } from '../helpers';
@@ -85,7 +86,7 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 						{ sprintf(
 							// translators: %s is the total number of subscribers.
 							__( 'All: %s', 'jetpack' ),
-							getAllSubscribers( datum )
+							formatNumber( getAllSubscribers( datum ) )
 						) }
 					</span>
 				</div>
@@ -98,7 +99,7 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 						{ sprintf(
 							// translators: %s is the number of email subscribers.
 							__( 'Email: %s', 'jetpack' ),
-							getEmailSubscribers( datum )
+							formatNumber( getEmailSubscribers( datum ) )
 						) }
 					</span>
 				</div>
@@ -111,7 +112,7 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 						{ sprintf(
 							// translators: %s is the number of paid subscribers.
 							__( 'Paid: %s', 'jetpack' ),
-							getPaidSubscribers( datum )
+							formatNumber( getPaidSubscribers( datum ) )
 						) }
 					</span>
 				</div>

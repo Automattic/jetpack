@@ -18,6 +18,16 @@ export const buildJPRedirectSource = ( url: string, isWpcomSite: boolean = true 
 };
 
 /**
+ * Formats a number into a localized string representation.
+ *
+ * @param {number} num - The number to format.
+ * @returns {string} The formatted number string.
+ */
+export const formatNumber = ( num: number ): string => {
+	return num.toLocaleString();
+};
+
+/**
  * Formats a date into a string representation.
  *
  * @param {Date}             date   - The date to format.

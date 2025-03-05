@@ -4,7 +4,7 @@ import { Icon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
-import { buildJPRedirectSource } from '../helpers';
+import { buildJPRedirectSource, formatNumber } from '../helpers';
 import { SubscribersChart } from './subscribers-chart';
 import type { DailyCount } from '../types';
 
@@ -49,7 +49,7 @@ export const NewsletterWidget = ( {
 										{ sprintf(
 											//translators: %s is the number of email subscribers
 											__( '%s email subscriptions', 'jetpack' ),
-											emailSubscribers
+											formatNumber( emailSubscribers )
 										) }
 									</a>
 								</span>
@@ -71,7 +71,7 @@ export const NewsletterWidget = ( {
 										{ sprintf(
 											//translators: %s is the number of paid subscribers
 											__( '%s paid subscriptions', 'jetpack' ),
-											paidSubscribers
+											formatNumber( paidSubscribers )
 										) }
 									</a>
 								</span>
