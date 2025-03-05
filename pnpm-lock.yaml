@@ -1266,6 +1266,9 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -1297,6 +1300,9 @@ importers:
       '@babel/runtime':
         specifier: 7.26.0
         version: 7.26.0
+      '@storybook/react':
+        specifier: 8.5.8
+        version: 8.5.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/dom':
         specifier: 10.4.0
         version: 10.4.0
@@ -18105,6 +18111,8 @@ snapshots:
     dependencies:
       storybook: 8.5.8
 
+  '@storybook/components@8.5.8': {}
+
   '@storybook/components@8.5.8(storybook@8.5.8)':
     dependencies:
       storybook: 8.5.8
@@ -18170,6 +18178,8 @@ snapshots:
       '@vitest/utils': 2.1.9
       storybook: 8.5.8
 
+  '@storybook/manager-api@8.5.8': {}
+
   '@storybook/manager-api@8.5.8(storybook@8.5.8)':
     dependencies:
       storybook: 8.5.8
@@ -18200,6 +18210,8 @@ snapshots:
       - uglify-js
       - webpack-cli
 
+  '@storybook/preview-api@8.5.8': {}
+
   '@storybook/preview-api@8.5.8(storybook@8.5.8)':
     dependencies:
       storybook: 8.5.8
@@ -18217,6 +18229,11 @@ snapshots:
       webpack: 5.94.0(webpack-cli@6.0.1)
     transitivePeerDependencies:
       - supports-color
+
+  '@storybook/react-dom-shim@8.5.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   '@storybook/react-dom-shim@8.5.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.5.8)':
     dependencies:
@@ -18242,6 +18259,17 @@ snapshots:
       - supports-color
       - uglify-js
       - webpack-cli
+
+  '@storybook/react@8.5.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@storybook/components': 8.5.8
+      '@storybook/global': 5.0.0
+      '@storybook/manager-api': 8.5.8
+      '@storybook/preview-api': 8.5.8
+      '@storybook/react-dom-shim': 8.5.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@storybook/theming': 8.5.8
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   '@storybook/react@8.5.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.5.8)(typescript@5.0.4)':
     dependencies:
@@ -18324,6 +18352,8 @@ snapshots:
       '@vitest/expect': 2.0.5
       '@vitest/spy': 2.0.5
       storybook: 8.5.8
+
+  '@storybook/theming@8.5.8': {}
 
   '@storybook/theming@8.5.8(storybook@8.5.8)':
     dependencies:
