@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.7.1] - 2025-03-05
+### Changed
+- Internal updates.
+
 ## [6.7.0] - 2025-03-03
 ### Added
 - Add 'isRegistered' flag to connection data endpoint. [#42123]
@@ -1334,6 +1338,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[6.7.1]: https://github.com/Automattic/jetpack-connection/compare/v6.7.0...v6.7.1
 [6.7.0]: https://github.com/Automattic/jetpack-connection/compare/v6.6.0...v6.7.0
 [6.6.0]: https://github.com/Automattic/jetpack-connection/compare/v6.5.0...v6.6.0
 [6.5.0]: https://github.com/Automattic/jetpack-connection/compare/v6.4.1...v6.5.0

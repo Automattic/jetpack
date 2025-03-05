@@ -22,7 +22,7 @@ const { name, attributes, category } = metadata;
 // Name must be exported separately.
 export { name };
 
-export const title = __( 'Homepage Posts', 'jetpack-mu-wpcom' );
+export const title = __( 'Content Loop', 'jetpack-mu-wpcom' );
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -40,7 +40,7 @@ export const settings = {
 	title,
 	icon: {
 		src: icon,
-		foreground: '#36f',
+		foreground: '#406ebc',
 	},
 	attributes,
 	category,
@@ -48,11 +48,23 @@ export const settings = {
 		__( 'posts', 'jetpack-mu-wpcom' ),
 		__( 'articles', 'jetpack-mu-wpcom' ),
 		__( 'latest', 'jetpack-mu-wpcom' ),
+		__( 'homepage', 'jetpack-mu-wpcom' ),
+		__( 'query', 'jetpack-mu-wpcom' ),
 	],
-	description: __( 'A block for displaying homepage posts.', 'jetpack-mu-wpcom' ),
+	description: __(
+		'An advanced block that allows displaying content based on different parameters and visual configurations.',
+		'jetpack-mu-wpcom'
+	),
 	styles: [
-		{ name: 'default', label: _x( 'Default', 'block style', 'jetpack-mu-wpcom' ), isDefault: true },
-		{ name: 'borders', label: _x( 'Borders', 'block style', 'jetpack-mu-wpcom' ) },
+		{
+			name: 'default',
+			label: _x('Default', 'block style', 'jetpack-mu-wpcom'),
+			isDefault: true,
+		},
+		{
+			name: 'borders',
+			label: _x('Borders', 'block style', 'jetpack-mu-wpcom'),
+		},
 	],
 	supports: {
 		html: false,

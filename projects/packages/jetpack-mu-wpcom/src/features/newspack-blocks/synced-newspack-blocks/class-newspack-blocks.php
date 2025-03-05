@@ -213,6 +213,7 @@ class Newspack_Blocks {
 				'custom_taxonomies'          => self::get_custom_taxonomies(),
 				'can_use_name_your_price'    => self::can_use_name_your_price(),
 				'tier_amounts_template'      => self::get_formatted_amount(),
+				'currency'                   => function_exists( 'get_woocommerce_currency' ) ? \get_woocommerce_currency() : 'USD',
 			];
 
 			if ( class_exists( 'WP_REST_Newspack_Author_List_Controller' ) ) {
@@ -688,6 +689,10 @@ class Newspack_Blocks {
 							$term = $coauthors_plus->get_author_term( $co_author );
 							if ( $term ) {
 								$authors_term_ids[] = $term->term_id;
+							} else {
+								// If the author term does not exist, force a non-match, otherwise all posts will be returned.
+								// CAP's cli command to create author terms will only create terms for users that have authored posts.
+								$authors_term_ids[] = -1;
 							}
 
 							// If it's a guest author, also check the linked author.
@@ -1252,7 +1257,7 @@ class Newspack_Blocks {
 
 		// Tell Jetpack to mark the donations feature as unavailable.
 		Jetpack_Gutenberg::set_extension_unavailable(
-			'donations',
+			'jetpack/donations',
 			esc_html__( 'Jetpack donations is disabled in favour of Newspack donations.', 'jetpack-mu-wpcom' )
 		);
 	}
@@ -1420,7 +1425,7 @@ class Newspack_Blocks {
 	 *
 	 * @return string
 	 */
-	public static function get_formatted_amount( $amount = 0, $frequency = 'day', $hide_once_label = false ) {
+	public static function get_formatted_amount( $amount = null, $frequency = null, $hide_once_label = false ) {
 		if ( ! function_exists( 'wc_price' ) || ( method_exists( 'Newspack\Donations', 'is_platform_wc' ) && ! \Newspack\Donations::is_platform_wc() ) ) {
 			if ( 0 === $amount ) {
 				return false;
@@ -1432,31 +1437,33 @@ class Newspack_Blocks {
 			$formatted_price  = '<span class="price-amount">' . $formatter->formatCurrency( $amount, 'USD' ) . '</span> <span class="tier-frequency">' . $frequency_string . '</span>';
 			return str_replace( '.00', '', $formatted_price );
 		}
-		if ( ! function_exists( 'wcs_price_string' ) ) {
-			return \wc_price( $amount );
-		}
-		$price_args          = [
-			'recurring_amount'    => $amount,
-			'subscription_period' => 'once' === $frequency ? 'day' : $frequency,
-		];
-		$wc_formatted_amount = \wcs_price_string( $price_args );
 
-		// A '0' value means we want a placeholder string to replace in the editor.
-		if ( 0 === $amount ) {
-			preg_match( '/<\/span>(.*)<\/bdi>/', $wc_formatted_amount, $matches );
-			if ( ! empty( $matches[1] ) ) {
-				$wc_formatted_amount = str_replace( $matches[1], 'AMOUNT_PLACEHOLDER', $wc_formatted_amount );
+		$wc_formatted_amount = '';
+		if ( null === $amount && null === $frequency ) {
+			$currency_symbol     = function_exists( 'get_woocommerce_currency_symbol' ) ? \get_woocommerce_currency_symbol() : '&#36;';
+			$wc_formatted_amount = '<span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">' . $currency_symbol . '</span>AMOUNT_PLACEHOLDER</bdi></span> FREQUENCY_PLACEHOLDER';
+		} else {
+			// Format the amount with currency symbol and separators.
+			$amount_string = \wc_price(
+				$amount,
+				[ 'decimals' => is_int( $amount ) ? 0 : 2 ]
+			);
+
+			if ( ! function_exists( 'wcs_price_string' ) ) {
+				return $amount_string;
 			}
-		}
+			$price_args          = [
+				'recurring_amount'    => $amount_string,
+				'subscription_period' => 'once' === $frequency ? 'day' : $frequency,
+			];
+			$wc_formatted_amount = \wcs_price_string( $price_args );
 
-		// A 'day' frequency means we want a placeholder string to replace in the editor.
-		if ( 'day' === $frequency ) {
-			$wc_formatted_amount = preg_replace( '/ \/ ?.*/', 'FREQUENCY_PLACEHOLDER', $wc_formatted_amount );
-		} elseif ( 'once' === $frequency ) {
-			$once_label          = $hide_once_label ? '' : __( ' once', 'jetpack-mu-wpcom' );
-			$wc_formatted_amount = preg_replace( '/ \/ ?.*/', $once_label, $wc_formatted_amount );
+			if ( 'once' === $frequency ) {
+				$once_label          = $hide_once_label ? '' : __( ' once', 'jetpack-mu-wpcom' );
+				$wc_formatted_amount = preg_replace( '/ \/ ?.*/', $once_label, $wc_formatted_amount );
+			}
+			$wc_formatted_amount = str_replace( ' / ', __( ' per ', 'jetpack-mu-wpcom' ), $wc_formatted_amount );
 		}
-		$wc_formatted_amount = str_replace( ' / ', __( ' per ', 'jetpack-mu-wpcom' ), $wc_formatted_amount );
 
 		return '<span class="wpbnbd__tiers__amount__value">' . $wc_formatted_amount . '</span>';
 	}
