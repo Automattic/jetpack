@@ -323,6 +323,10 @@ class Contact_Form_Plugin {
 	 * That function doesn't work for form fields due to the way they're rendered as shortcodes,
 	 * while the core function will only generate and apply classnames for layout to html.
 	 *
+	 * This function also doesn't port the `columnStart`/`rowStart` styling from the core
+	 * function, since that's only required for the experimental grid functionality in the
+	 * Gutenberg plugin.
+	 *
 	 * @param array $layout - the block's `style.layout` attribute.
 	 *
 	 * @return string CSS for the child layout.
@@ -341,26 +345,6 @@ class Contact_Form_Plugin {
 			$css .= 'box-sizing: border-box;';
 		} elseif ( 'fill' === $self_stretch ) {
 			$css .= 'flex-grow: 1;';
-		}
-
-		$column_start = isset( $layout['columnStart'] ) ? $layout['columnStart'] : null;
-		$column_span  = isset( $layout['columnSpan'] ) ? $layout['columnSpan'] : null;
-		if ( $column_start && $column_span ) {
-			$css .= "grid-column: $column_start / span $column_span;";
-		} elseif ( $column_start ) {
-			$css .= "grid-column: $column_start;";
-		} elseif ( $column_span ) {
-			$css .= "grid-column: span $column_span;";
-		}
-
-		$row_start = isset( $layout['rowStart'] ) ? $layout['rowStart'] : null;
-		$row_span  = isset( $layout['rowSpan'] ) ? $layout['rowSpan'] : null;
-		if ( $row_start && $row_span ) {
-			$css .= "grid-row: $row_start / span $row_span;";
-		} elseif ( $row_start ) {
-			$css .= "grid-row: $row_start;";
-		} elseif ( $row_span ) {
-			$css .= "grid-row: span $row_span;";
 		}
 
 		return $css;
