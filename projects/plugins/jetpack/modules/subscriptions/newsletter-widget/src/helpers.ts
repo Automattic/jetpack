@@ -2,6 +2,22 @@ import { dateI18n } from '@wordpress/date';
 import { DailyCount, SubscriptionStat } from './types';
 
 /**
+ * Helper function to build the Jetpack redirect source URL.
+ * @param url         - The url to redirect to. Note: it can only be to a whitelisted domain, and query params and anchors must be passed to getRedirectUrl as arguments.
+ * @param isWpcomSite - The the site on the WordPress.com platform. Simple or WoA.
+ * @return The URL that can be passed to the getRedirectUrl function.
+ * @example
+ * const site = 'example.wordpress.com';
+ * const redirectUrl = buildJPRedirectSource( `subscribers/${ site }`, true );
+ *
+ * <a href={ getRedirectUrl( redirectUrl ) }>Subscriber</a>;
+ */
+export const buildJPRedirectSource = ( url: string, isWpcomSite: boolean = true ) => {
+	const host = isWpcomSite ? 'wordpress.com' : 'cloud.jetpack.com';
+	return `https://${ host }/${ url }`;
+};
+
+/**
  * Formats a date into a string representation.
  *
  * @param {Date}             date   - The date to format.

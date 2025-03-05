@@ -4,6 +4,7 @@ import { Icon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
+import { buildJPRedirectSource } from '../helpers';
 import { SubscribersChart } from './subscribers-chart';
 import type { DailyCount } from '../types';
 
@@ -15,22 +16,6 @@ interface NewsletterWidgetProps {
 	paidSubscribers?: number;
 	countsByDay?: Record< string, DailyCount >;
 }
-
-/**
- * Helper function to build the Jetpack redirect source URL.
- * @param url         - The url to redirect to. Note: it can only be to a whitelisted domain, and query params and anchors must be passed to getRedirectUrl as arguments.
- * @param isWpcomSite - The the site on the WordPress.com platform. Simple or WoA.
- * @return The URL that can be passed to the getRedirectUrl function.
- * @example
- * const site = 'example.wordpress.com';
- * const redirectUrl = buildJPRedirectSource( `subscribers/${ site }`, true );
- *
- * <a href={ getRedirectUrl( redirectUrl ) }>Subscriber</a>;
- */
-const buildJPRedirectSource = ( url: string, isWpcomSite: boolean = true ) => {
-	const host = isWpcomSite ? 'wordpress.com' : 'cloud.jetpack.com';
-	return `https://${ host }/${ url }`;
-};
 
 export const NewsletterWidget = ( {
 	site,

@@ -4,24 +4,13 @@ import { ParentSize } from '@visx/responsive';
 import { scaleOrdinal } from '@visx/scale';
 import { Axis, Grid, LineSeries, Tooltip, XYChart, buildChartTheme } from '@visx/xychart';
 import { __, sprintf } from '@wordpress/i18n';
+import { SERIES_COLORS, SERIES_LABELS } from '../constants';
 import { formatAxisTickDate, formatDate, getXAxisTickValues, transformData } from '../helpers';
 import type { DailyCount, SubscriptionStat } from '../types';
 import type {
 	RenderTooltipGlyphProps,
 	RenderTooltipParams,
 } from '@visx/xychart/lib/components/Tooltip';
-
-const SERIES_COLORS = {
-	all: '#2db85c',
-	email: '#3057dc',
-	paid: '#e68b28',
-};
-
-const SERIES_LABELS = {
-	all: __( 'All', 'jetpack' ),
-	email: __( 'Email', 'jetpack' ),
-	paid: __( 'Paid', 'jetpack' ),
-};
 
 // Create a scale for the legend
 const legendScale = scaleOrdinal( {
