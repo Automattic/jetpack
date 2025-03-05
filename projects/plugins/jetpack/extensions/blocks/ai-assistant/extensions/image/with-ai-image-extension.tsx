@@ -102,13 +102,21 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		);
 
 		const getBase64Image = useCallback( async ( url: string ) => {
-			const response = await fetch( url );
-			const buffer = await response.arrayBuffer();
-			const base64String = btoa(
-				new Uint8Array( buffer ).reduce( ( data, byte ) => data + String.fromCharCode( byte ), '' )
-			);
+			try {
+				const response = await fetch( url );
+				const buffer = await response.arrayBuffer();
+				const base64String = btoa(
+					new Uint8Array( buffer ).reduce(
+						( data, byte ) => data + String.fromCharCode( byte ),
+						''
+					)
+				);
 
-			return `data:image/png;base64,${ base64String }`;
+				return `data:image/png;base64,${ base64String }`;
+			} catch {
+				// If we can't fetch the image, it must be external, so we return the original URL.
+				return url;
+			}
 		}, [] );
 
 		useEffect( () => {
