@@ -101,10 +101,10 @@ class Jetpack_Mu_Wpcom {
 	 * @return void
 	 */
 	public static function schedule_translation_updates() {
-		add_action( 'wpcomsh_daily_translation_update', array( __CLASS__, 'maybe_update_translations' ) );
+		add_action( 'wpcomsh_translation_update', array( __CLASS__, 'maybe_update_translations' ) );
 
-		if ( ! wp_next_scheduled( 'wpcomsh_daily_translation_update' ) ) {
-			wp_schedule_event( time(), 'daily', 'wpcomsh_daily_translation_update' );
+		if ( ! wp_next_scheduled( 'wpcomsh_translation_update' ) ) {
+			wp_schedule_event( time(), 'twicedaily', 'wpcomsh_translation_update' );
 		}
 	}
 
