@@ -7,6 +7,12 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
+use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Add a Stats column in the post and page lists.
  */
@@ -58,7 +64,7 @@ class Admin_Post_List_Column {
 				);
 			} else {
 				// Link to the wp-admin stats page.
-				$stats_post_url = admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, Jetpack_Options::get_option( 'id', 0 ) ) );
+				$stats_post_url = admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, \Jetpack_Options::get_option( 'id', 0 ) ) );
 				// Unless the user is on a Default style WOA site, in which case link to Calypso.
 				if ( ( new Host() )->is_woa_site() && Stats_Options::get_option( 'enable_odyssey_stats' ) && 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
 					$stats_post_url = Redirect::get_url(
@@ -93,11 +99,11 @@ class Admin_Post_List_Column {
 				$compact_decimal_short = 14;
 
 				try {
-					$formatter = new NumberFormatter( $current_locale, $compact_decimal_short );
-					$formatter->setAttribute( NumberFormatter::MAX_FRACTION_DIGITS, 1 );
+					$formatter = new \NumberFormatter( $current_locale, $compact_decimal_short );
+					$formatter->setAttribute( \NumberFormatter::MAX_FRACTION_DIGITS, 1 );
 				} catch ( \Exception $e ) {
 					// Fallback to decimal if for some reason it fails to work.
-					$formatter = new NumberFormatter( $current_locale, NumberFormatter::DECIMAL );
+					$formatter = new \NumberFormatter( $current_locale, \NumberFormatter::DECIMAL );
 				}
 
 				?>
@@ -115,8 +121,6 @@ class Admin_Post_List_Column {
 	 * Set header for column that allows to view an entry's stats.
 	 *
 	 * @param array $columns An array of column names.
-	 *
-	 * @since 4.7.0
 	 *
 	 * @return mixed
 	 */
