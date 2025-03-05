@@ -25,6 +25,7 @@ import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
+import AkismetPanel from './components/jetpack-akismet-panel';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
@@ -227,16 +228,22 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					{ ! isSimpleSite() && (
 						<>
 							{ canUserInstallPlugins && (
-								<PanelBody title={ __( 'CRM Connection', 'jetpack-forms' ) } initialOpen={ false }>
-									<CRMIntegrationSettings
-										jetpackCRM={ jetpackCRM }
-										setAttributes={ setAttributes }
-									/>
-								</PanelBody>
+								<>
+									<AkismetPanel />
+									<PanelBody
+										title={ __( 'CRM Connection', 'jetpack-forms' ) }
+										initialOpen={ false }
+									>
+										<CRMIntegrationSettings
+											jetpackCRM={ jetpackCRM }
+											setAttributes={ setAttributes }
+										/>
+									</PanelBody>
+									<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
+										<NewsletterIntegrationSettings />
+									</PanelBody>
+								</>
 							) }
-							<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
-								<NewsletterIntegrationSettings />
-							</PanelBody>
 						</>
 					) }
 				</InspectorControls>
