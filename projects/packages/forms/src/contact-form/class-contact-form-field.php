@@ -1066,7 +1066,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$form_style = $this->get_form_style();
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
-			if ( '' === $placeholder ) {
+			if ( ! isset( $placeholder ) || '' === $placeholder ) {
 				$placeholder .= ' ';
 			} else {
 				$class .= ' has-placeholder';
