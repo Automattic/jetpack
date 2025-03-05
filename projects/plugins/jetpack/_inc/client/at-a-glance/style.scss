@@ -575,7 +575,8 @@
 	box-shadow: none;
 }
 
-.jp-dash-item__videopress .jp-dash-item__card {
+.jp-dash-item__videopress .jp-dash-item__card,
+.jp-dash-item__search .jp-dash-item__card {
 	flex-direction: column;
 }
 

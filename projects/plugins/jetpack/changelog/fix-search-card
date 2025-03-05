@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Dashboard: ensure the Search settings can be toggled on and off regardless of the Jetpack Search plan installed on the site.

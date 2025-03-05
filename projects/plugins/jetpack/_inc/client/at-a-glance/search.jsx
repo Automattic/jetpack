@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -11,10 +11,7 @@ import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
 import { getJetpackProductUpsellByFeature, FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
-import {
-	getProductDescriptionUrl,
-	isSearchNewPricingLaunched202208,
-} from 'product-descriptions/utils';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { currentThemeIsBlockTheme } from 'state/initial-state';
 import { siteHasFeature, isFetchingSitePurchases } from 'state/site';
@@ -42,9 +39,9 @@ const renderCard = props => (
 		} }
 		className={ props.className }
 		status={ props.status }
-		isModule={ props.pro_inactive }
-		pro={ true }
 		overrideContent={ props.overrideContent }
+		isModule={ props.pro_inactive }
+		noToggle={ props.pro_inactive }
 	>
 		<p className="jp-dash-item__description">{ props.content }</p>
 	</DashItem>
@@ -121,11 +118,7 @@ class DashSearch extends Component {
 				pro_inactive: true,
 				overrideContent: (
 					<JetpackBanner
-						callToAction={
-							isSearchNewPricingLaunched202208()
-								? __( 'Start for free', 'jetpack' )
-								: _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' )
-						}
+						callToAction={ __( 'Start for free', 'jetpack' ) }
 						title={ SEARCH_DESCRIPTION }
 						disableHref="false"
 						href={ this.props.upgradeUrl }
@@ -150,8 +143,6 @@ class DashSearch extends Component {
 							link: getRedirectUrl( 'jetpack-support-search' ),
 						} }
 						className="jp-dash-item__is-active"
-						isModule={ false }
-						pro={ true }
 					>
 						<p className="jp-dash-item__description">
 							{ __( 'Jetpack Search is powering search on your site.', 'jetpack' ) }

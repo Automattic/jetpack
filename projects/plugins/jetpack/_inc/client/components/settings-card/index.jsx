@@ -26,10 +26,7 @@ import {
 	FEATURE_JETPACK_EARN,
 } from 'lib/plans/constants';
 import ProStatus from 'pro-status';
-import {
-	getProductDescriptionUrl,
-	isSearchNewPricingLaunched202208,
-} from 'product-descriptions/utils';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
@@ -376,11 +373,7 @@ export const SettingsCard = inprops => {
 
 				return (
 					<JetpackBanner
-						callToAction={
-							isSearchNewPricingLaunched202208()
-								? __( 'Start for free', 'jetpack' )
-								: _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' )
-						}
+						callToAction={ __( 'Start for free', 'jetpack' ) }
 						title={ __(
 							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 							'jetpack'
