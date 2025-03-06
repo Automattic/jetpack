@@ -389,6 +389,17 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_disabled_callback' => '__return_true',
 		),
 
+		// Publish a Blog tasks.
+		'complete_profile'                => array(
+			'get_title'            => function () {
+				return __( 'Complete your profile', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function () {
+				return '/me#complete-your-profile';
+			},
+		),
+
 		// Keep Building tasks.
 		'site_title'                      => array(
 			'get_title'            => function () {
