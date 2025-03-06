@@ -128,24 +128,11 @@ const Index = () => {
 						'jetpack-boost'
 					) }
 					features={ [
-						createInterpolateElement( __( 'Automated Critical CSS Generation', 'jetpack-boost' ), {
-							strong: <strong />,
-						} ),
-						createInterpolateElement( __( 'Automated Image Scanning', 'jetpack-boost' ), {
-							strong: <strong />,
-						} ),
-						createInterpolateElement( __( 'In-depth Performance Insights', 'jetpack-boost' ), {
-							strong: <strong />,
-						} ),
-						createInterpolateElement( __( 'Customizable Image Optimization', 'jetpack-boost' ), {
-							strong: <strong />,
-						} ),
-						createInterpolateElement(
-							__( 'Expert Support With Personal Assistance Available', 'jetpack-boost' ),
-							{
-								strong: <strong />,
-							}
-						),
+						__( 'Automated Critical CSS Generation', 'jetpack-boost' ),
+						__( 'Automated Image Scanning', 'jetpack-boost' ),
+						__( 'In-depth Performance Insights', 'jetpack-boost' ),
+						__( 'Customizable Image Optimization', 'jetpack-boost' ),
+						__( 'Expert Support With Personal Assistance Available', 'jetpack-boost' ),
 					] }
 				/>
 			</Module>
