@@ -31,11 +31,10 @@ const { callbacks } = store( NAMESPACE, {
 	actions: {
 		/**
 		 * Open the file picker dialog.
-		 *
-		 * @param {Event} event - The event object.
 		 */
-		openFilePicker: event => {
-			const fileInput = event.target.parentNode.querySelector( '.jetpack-form-file-field' );
+		openFilePicker() {
+			const { ref } = getElement();
+			const fileInput = ref.parentNode.querySelector( '.jetpack-form-file-field' );
 			if ( fileInput ) {
 				fileInput.click();
 			}
