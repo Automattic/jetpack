@@ -52,19 +52,11 @@ const JetpackFieldControls = ( {
 	const optionColorLabel =
 		blockStyle === 'button'
 			? __( 'Button Text', 'jetpack-forms' )
-			: __( 'Option Text', 'jetpack-forms', 0 );
-
-	const inputColorLabel = isChoicesBlock
-		? optionColorLabel
-		: __( 'Field Text', 'jetpack-forms', 0 );
-
+			: __( 'Option Text', 'jetpack-forms' );
+	const inputColorLabel = isChoicesBlock ? optionColorLabel : __( 'Field Text', 'jetpack-forms' );
 	const backgroundColorLabel = isChoicesBlock
 		? __( 'Background', 'jetpack-forms' )
-		: __( 'Field Background', 'jetpack-forms', 0 );
-
-	const stylesPanelTitle = isChoicesBlock
-		? __( 'Options Styles', 'jetpack-forms' )
-		: __( 'Input Field Styles', 'jetpack-forms', 0 );
+		: __( 'Field Background', 'jetpack-forms' );
 
 	const colorSettings = [
 		{
@@ -291,7 +283,11 @@ const JetpackFieldControls = ( {
 			</InspectorControls>
 			<InspectorControls group="styles">
 				<ToolsPanel
-					label={ stylesPanelTitle }
+					label={
+						isChoicesBlock
+							? __( 'Options Typography', 'jetpack-forms' )
+							: __( 'Input Typography', 'jetpack-forms' )
+					}
 					resetAll={ () => {
 						setAttributes( {
 							fieldFontSize: undefined,
@@ -305,7 +301,7 @@ const JetpackFieldControls = ( {
 				>
 					<ToolsPanelItem
 						hasValue={ () => !! attributes.fieldFontSize }
-						label={ __( 'Font size', 'jetpack-forms' ) }
+						label={ __( 'Size', 'jetpack-forms' ) }
 						onDeselect={ () =>
 							setAttributes( {
 								fieldFontSize: undefined,
@@ -341,7 +337,7 @@ const JetpackFieldControls = ( {
 					</ToolsPanelItem>
 				</ToolsPanel>
 				<ToolsPanel
-					label={ __( 'Label Styles', 'jetpack-forms' ) }
+					label={ __( 'Label Typography', 'jetpack-forms' ) }
 					resetAll={ () => {
 						setAttributes( {
 							labelFontSize: undefined,
@@ -351,7 +347,7 @@ const JetpackFieldControls = ( {
 				>
 					<ToolsPanelItem
 						hasValue={ () => !! attributes.labelFontSize }
-						label={ __( 'Font size', 'jetpack-forms' ) }
+						label={ __( 'Size', 'jetpack-forms' ) }
 						onDeselect={ () =>
 							setAttributes( {
 								labelFontSize: undefined,
