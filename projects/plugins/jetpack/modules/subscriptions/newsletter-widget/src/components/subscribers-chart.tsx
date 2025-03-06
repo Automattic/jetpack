@@ -161,6 +161,16 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 								/>
 
 								<LineSeries
+									dataKey="email"
+									data={ data }
+									xAccessor={ getDate }
+									yAccessor={ getEmailSubscribers }
+									colorAccessor={ getLineColor }
+									strokeWidth={ 2 }
+									curve={ curveMonotoneX }
+								/>
+
+								<LineSeries
 									dataKey="paid"
 									data={ data }
 									xAccessor={ getDate }
