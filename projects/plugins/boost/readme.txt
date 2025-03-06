@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.6
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 3.10.2
+Stable tag: 3.10.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,9 +183,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.10.2 - 2025-03-06
+### 3.10.3 - 2025-03-06
 #### Fixed
-- Critical CSS: Fix fatal error during generation.
+- Critical CSS: Fix generation.
 
 --------
 
