@@ -195,6 +195,100 @@ const JetpackFieldControls = ( {
 					disableCustomGradients
 				/>
 			</InspectorControls>
+			<InspectorControls group="border">
+				{ ( isChoicesBlock || blockStyle === 'button' ) && (
+					<>
+						<ToolsPanelItem
+							panelId={ clientId }
+							hasValue={ () => !! attributes.buttonBorderWidth }
+							label={ __( 'Button Border Width', 'jetpack-forms' ) }
+							onDeselect={ () =>
+								setAttributes( {
+									buttonBorderWidth: undefined,
+								} )
+							}
+							isShownByDefault
+						>
+							<RangeControl
+								label={ __( 'Button Border Width', 'jetpack-forms' ) }
+								value={ attributes.buttonBorderWidth }
+								initialPosition={ 1 }
+								onChange={ setNumberAttribute( 'buttonBorderWidth' ) }
+								min={ 0 }
+								max={ 100 }
+								__nextHasNoMarginBottom={ true }
+							/>
+						</ToolsPanelItem>
+						<ToolsPanelItem
+							panelId={ clientId }
+							hasValue={ () => !! attributes.buttonBorderRadius }
+							label={ __( 'Button Border Radius', 'jetpack-forms' ) }
+							onDeselect={ () =>
+								setAttributes( {
+									buttonBorderRadius: undefined,
+								} )
+							}
+							isShownByDefault
+						>
+							<RangeControl
+								label={ __( 'Button Border Radius', 'jetpack-forms' ) }
+								value={ attributes.buttonBorderRadius }
+								initialPosition={ 0 }
+								onChange={ setNumberAttribute( 'buttonBorderRadius' ) }
+								min={ 0 }
+								max={ 100 }
+								__nextHasNoMarginBottom={ true }
+							/>
+						</ToolsPanelItem>
+					</>
+				) }
+				{ ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) && (
+					<>
+						<ToolsPanelItem
+							panelId={ clientId }
+							hasValue={ () => !! attributes.borderWidth }
+							label={ __( 'Border Width', 'jetpack-forms' ) }
+							onDeselect={ () =>
+								setAttributes( {
+									borderWidth: undefined,
+								} )
+							}
+							isShownByDefault
+						>
+							<RangeControl
+								label={ __( 'Border Width', 'jetpack-forms' ) }
+								value={ attributes.borderWidth }
+								initialPosition={ 1 }
+								onChange={ setNumberAttribute( 'borderWidth' ) }
+								min={ 0 }
+								max={ 100 }
+								__nextHasNoMarginBottom={ true }
+							/>
+						</ToolsPanelItem>
+						<ToolsPanelItem
+							panelId={ clientId }
+							hasValue={ () => !! attributes.borderRadius }
+							label={ __( 'Border Radius', 'jetpack-forms' ) }
+							onDeselect={ () =>
+								setAttributes( {
+									borderRadius: undefined,
+								} )
+							}
+							isShownByDefault
+						>
+							<RangeControl
+								label={ __( 'Border Radius', 'jetpack-forms' ) }
+								value={ attributes.borderRadius }
+								initialPosition={ 0 }
+								onChange={ setNumberAttribute( 'borderRadius' ) }
+								min={ 0 }
+								max={ 100 }
+								__nextHasNoMarginBottom={ true }
+							/>
+						</ToolsPanelItem>
+					</>
+				) }
+			</InspectorControls>
 			<InspectorControls group="styles">
 				<ToolsPanel
 					label={ stylesPanelTitle }
@@ -245,94 +339,6 @@ const JetpackFieldControls = ( {
 							size="__unstable-large"
 						/>
 					</ToolsPanelItem>
-					{ ( isChoicesBlock || blockStyle === 'button' ) && (
-						<>
-							<ToolsPanelItem
-								hasValue={ () => !! attributes.buttonBorderWidth }
-								label={ __( 'Button Border Width', 'jetpack-forms' ) }
-								onDeselect={ () =>
-									setAttributes( {
-										buttonBorderWidth: undefined,
-									} )
-								}
-								isShownByDefault
-							>
-								<RangeControl
-									label={ __( 'Button Border Width', 'jetpack-forms' ) }
-									value={ attributes.buttonBorderWidth }
-									initialPosition={ 1 }
-									onChange={ setNumberAttribute( 'buttonBorderWidth' ) }
-									min={ 0 }
-									max={ 100 }
-									__nextHasNoMarginBottom={ true }
-								/>
-							</ToolsPanelItem>
-							<ToolsPanelItem
-								hasValue={ () => !! attributes.buttonBorderRadius }
-								label={ __( 'Button Border Radius', 'jetpack-forms' ) }
-								onDeselect={ () =>
-									setAttributes( {
-										buttonBorderRadius: undefined,
-									} )
-								}
-								isShownByDefault
-							>
-								<RangeControl
-									label={ __( 'Button Border Radius', 'jetpack-forms' ) }
-									value={ attributes.buttonBorderRadius }
-									initialPosition={ 0 }
-									onChange={ setNumberAttribute( 'buttonBorderRadius' ) }
-									min={ 0 }
-									max={ 100 }
-									__nextHasNoMarginBottom={ true }
-								/>
-							</ToolsPanelItem>
-						</>
-					) }
-					{ ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) && (
-						<>
-							<ToolsPanelItem
-								hasValue={ () => !! attributes.borderWidth }
-								label={ __( 'Border Width', 'jetpack-forms' ) }
-								onDeselect={ () =>
-									setAttributes( {
-										borderWidth: undefined,
-									} )
-								}
-								isShownByDefault
-							>
-								<RangeControl
-									label={ __( 'Border Width', 'jetpack-forms' ) }
-									value={ attributes.borderWidth }
-									initialPosition={ 1 }
-									onChange={ setNumberAttribute( 'borderWidth' ) }
-									min={ 0 }
-									max={ 100 }
-									__nextHasNoMarginBottom={ true }
-								/>
-							</ToolsPanelItem>
-							<ToolsPanelItem
-								hasValue={ () => !! attributes.borderRadius }
-								label={ __( 'Border Radius', 'jetpack-forms' ) }
-								onDeselect={ () =>
-									setAttributes( {
-										borderRadius: undefined,
-									} )
-								}
-								isShownByDefault
-							>
-								<RangeControl
-									label={ __( 'Border Radius', 'jetpack-forms' ) }
-									value={ attributes.borderRadius }
-									initialPosition={ 0 }
-									onChange={ setNumberAttribute( 'borderRadius' ) }
-									min={ 0 }
-									max={ 100 }
-									__nextHasNoMarginBottom={ true }
-								/>
-							</ToolsPanelItem>
-						</>
-					) }
 				</ToolsPanel>
 				<ToolsPanel
 					label={ __( 'Label Styles', 'jetpack-forms' ) }
