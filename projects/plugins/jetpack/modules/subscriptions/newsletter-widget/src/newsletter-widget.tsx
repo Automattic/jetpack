@@ -120,7 +120,8 @@ export const NewsletterWidget = ( {
 						<li>
 							<a
 								href={ getRedirectUrl(
-									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite )
+									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite ),
+									{ anchor: 'add-subscribers' }
 								) }
 							>
 								{ __( 'Import subscribers', 'jetpack' ) }

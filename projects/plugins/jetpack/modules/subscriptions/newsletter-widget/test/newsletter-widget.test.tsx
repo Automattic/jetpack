@@ -71,7 +71,9 @@ describe( 'NewsletterWidget', () => {
 			},
 			{
 				text: 'Import subscribers',
-				href: getRedirectUrl( `https://${ redirectDomain }/subscribers/${ defaultProps.site }` ),
+				href: getRedirectUrl( `https://${ redirectDomain }/subscribers/${ defaultProps.site }`, {
+					anchor: 'add-subscribers',
+				} ),
 			},
 			{
 				text: 'Manage subscribers',
@@ -111,7 +113,9 @@ describe( 'NewsletterWidget', () => {
 			},
 			{
 				text: 'Import subscribers',
-				href: getRedirectUrl( `https://${ redirectDomain }/subscribers/${ defaultProps.site }` ),
+				href: getRedirectUrl( `https://${ redirectDomain }/subscribers/${ defaultProps.site }`, {
+					anchor: 'add-subscribers',
+				} ),
 			},
 			{
 				text: 'Manage subscribers',
