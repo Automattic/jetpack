@@ -103,11 +103,20 @@ export const getXAxisTickValues = ( data: SubscriptionStat[] ) => {
  */
 export const transformData = ( countsByDay: Record< string, DailyCount > ): SubscriptionStat[] => {
 	return Object.entries( countsByDay )
-		.map( ( [ dateStr, counts ] ) => ( {
-			date: new Date( dateStr ),
-			all: counts.all,
-			paid: counts.paid,
-		} ) )
+		.map( ( [ dateStr, counts ] ) => {
+			const date = new Date( dateStr );
+
+			if ( isNaN( date.getTime() ) ) {
+				return null;
+			}
+
+			return {
+				date,
+				all: counts?.all ?? 0,
+				paid: counts?.paid ?? 0,
+			};
+		} )
+		.filter( Boolean )
 		.sort( ( a, b ) => a.date.getTime() - b.date.getTime() );
 };
 
