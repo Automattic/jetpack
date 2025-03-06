@@ -2,9 +2,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
-use PHPUnit\Framework\TestCase;
-use WorDBless\Options as WorDBless_Options;
-use WorDBless\Users as WorDBless_Users;
+use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Server;
 
@@ -15,7 +13,7 @@ use WP_REST_Server;
  *
  * composer test-php tests/php/contact-form/Contact_Form_Endpoint_Test.php
  */
-class Contact_Form_Endpoint_Test extends TestCase {
+class Contact_Form_Endpoint_Test extends BaseTestCase {
 
 	/**
 	 * REST Server object.
@@ -53,13 +51,18 @@ class Contact_Form_Endpoint_Test extends TestCase {
 
 		do_action( 'rest_api_init' );
 
-		self::$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_admin',
-				'user_pass'  => '123',
-				'role'       => 'administrator',
-			)
-		);
+		$existing_user = get_user_by( 'login', 'test_admin' );
+		if ( ! $existing_user ) {
+			self::$user_id = wp_insert_user(
+				array(
+					'user_login' => 'test_admin',
+					'user_pass'  => '123',
+					'role'       => 'administrator',
+				)
+			);
+		} else {
+			self::$user_id = $existing_user->ID;
+		}
 		wp_set_current_user( self::$user_id );
 	}
 
@@ -69,9 +72,6 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	 * @after
 	 */
 	public function tear_down() {
-		WorDBless_Options::init()->clear_options();
-		WorDBless_Users::init()->clear_all_users();
-
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
 	}
@@ -102,7 +102,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	/**
 	 * Test item schema.
 	 */
-	public function test_item_shcema() {
+	public function test_item_schema() {
 		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/feedback' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();

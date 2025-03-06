@@ -2,6 +2,10 @@
 	<testsuites>
 		<testsuite name="main">
 			<directory suffix="Test.php">tests/php</directory>
+			<exclude>tests/php/contact-form/Contact_Form_Endpoint_Test.php</exclude>
+		</testsuite>
+		<testsuite name="endpoints">
+			<file>tests/php/contact-form/Contact_Form_Endpoint_Test.php</file>
 		</testsuite>
 	</testsuites>
 	<filter>

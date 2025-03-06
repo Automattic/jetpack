@@ -28,7 +28,8 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+			"./vendor/phpunit/phpunit/phpunit --colors=always --bootstrap tests/php/bootstrap.php --testsuite main",
+			"./vendor/phpunit/phpunit/phpunit --colors=always --bootstrap tests/php/bootstrap-endpoints.php --testsuite endpoints"
 		],
 		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
 		"test-php": [
