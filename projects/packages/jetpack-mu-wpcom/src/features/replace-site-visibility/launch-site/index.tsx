@@ -50,7 +50,8 @@ const LaunchSite = ( {
 					  )
 					: __(
 							"Your site hasn't been launched yet. It's private; only you can see it until it is launched.",
-							'jetpack-mu-wpcom'
+							'jetpack-mu-wpcom',
+							0
 					  ) }
 			</p>
 			<a
