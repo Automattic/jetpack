@@ -28,11 +28,20 @@ const usePostContent = () => {
 		};
 	}, [] );
 
-	const getPostContent = useCallback( () => {
-		const blocks = getBlocks();
+	const getPostContent = useCallback(
+		( preprocess?: ( serialized: string ) => string ) => {
+			const blocks = getBlocks();
 
-		return blocks?.length ? renderMarkdownFromHTML( { content: serialize( blocks ) } ) : '';
-	}, [ getBlocks ] );
+			let serialized = serialize( blocks );
+
+			if ( preprocess && typeof preprocess === 'function' ) {
+				serialized = preprocess( serialized );
+			}
+
+			return serialized ? renderMarkdownFromHTML( { content: serialized } ) : '';
+		},
+		[ getBlocks ]
+	);
 
 	return { getPostContent, isEditedPostEmpty };
 };
