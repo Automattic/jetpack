@@ -117,10 +117,7 @@ export function useLocalCriticalCssGenerator() {
 					},
 
 					setProviderCss: ( key: string, css: string ) => {
-						return setProviderCssAction.mutateAsync( {
-							key,
-							css,
-						} );
+						return setProviderCssAction.mutateAsync( { key, css } );
 					},
 
 					setProviderErrors: ( key: string, errors: CriticalCssErrorDetails[] ) =>

@@ -129,7 +129,6 @@ export function useSetProviderCssAction() {
 		z.object( {
 			key: z.string(),
 			css: z.string(),
-			isBase64Encoded: z.boolean().optional(),
 		} )
 	);
 }
