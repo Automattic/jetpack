@@ -14,12 +14,26 @@ import {
 	__experimentalToolsPanel as ToolsPanel, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToolsPanelItem as ToolsPanelItem, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { isValidElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useFormStyle, FORM_STYLE, getBlockStyle } from '../util/form';
 import ToolbarRequiredGroup from './block-controls/toolbar-required-group';
 import JetpackFieldDimensionControls from './jetpack-field-dimension-controls';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
+
+export function useToolsPanelDropdownMenuProps() {
+	const isMobile = useViewportMatch( 'medium', '<' );
+	return ! isMobile
+		? {
+				popoverProps: {
+					placement: 'left-start',
+					// For non-mobile, inner sidebar width (248px) - button width (24px) - border (1px) + padding (16px) + spacing (20px)
+					offset: 259,
+				},
+		  }
+		: {};
+}
 
 const JetpackFieldControls = ( {
 	attributes,
@@ -38,6 +52,7 @@ const JetpackFieldControls = ( {
 	const formStyle = useFormStyle( clientId );
 	const blockStyle = getBlockStyle( blockClassNames );
 	const isChoicesBlock = [ 'radio', 'checkbox' ].includes( type );
+	const dropdownMenuProps = useToolsPanelDropdownMenuProps();
 
 	const setNumberAttribute =
 		( key, parse = parseInt ) =>
@@ -298,6 +313,7 @@ const JetpackFieldControls = ( {
 							borderRadius: undefined,
 						} );
 					} }
+					dropdownMenuProps={ dropdownMenuProps }
 				>
 					<ToolsPanelItem
 						hasValue={ () => !! attributes.fieldFontSize }
@@ -344,6 +360,7 @@ const JetpackFieldControls = ( {
 							labelLineHeight: undefined,
 						} );
 					} }
+					dropdownMenuProps={ dropdownMenuProps }
 				>
 					<ToolsPanelItem
 						hasValue={ () => !! attributes.labelFontSize }
