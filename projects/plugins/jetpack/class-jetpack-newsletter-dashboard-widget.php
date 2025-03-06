@@ -73,6 +73,10 @@ class Jetpack_Newsletter_Dashboard_Widget {
 					$config_data['paidSubscribers'] = (int) $subscriber_counts['counts']['paid_subscribers'];
 				}
 
+				if ( isset( $subscriber_counts['counts']['all_subscribers'] ) ) {
+					$config_data['allSubscribers'] = (int) $subscriber_counts['counts']['all_subscribers'];
+				}
+
 				if ( isset( $subscriber_counts['aggregate'] ) ) {
 					$config_data['countsByDay'] = $subscriber_counts['aggregate'];
 				}

@@ -24,6 +24,7 @@ describe( 'NewsletterWidget', () => {
 		adminUrl: 'https://example.com/wp-admin/',
 		isWpcomSite: true,
 		emailSubscribers: 100,
+		allSubscribers: 150,
 		paidSubscribers: 50,
 		countsByDay: {
 			'2021-01-01': {
@@ -38,15 +39,19 @@ describe( 'NewsletterWidget', () => {
 		render( <NewsletterWidget { ...defaultProps } /> );
 		expect( screen.getByText( 'Quick Links' ) ).toBeInTheDocument();
 
-		// Check for email subscriptions label
+		// Check for subscriptions label
 		expect(
-			screen.getByText( `${ defaultProps.emailSubscribers } email subscriptions` )
+			screen.getByText(
+				`${ defaultProps.allSubscribers } subscribers (${ defaultProps.emailSubscribers } via email)`
+			)
 		).toBeInTheDocument();
 
 		// Check for paid subscriptions label
 		expect(
 			screen.getByText( `${ defaultProps.paidSubscribers } paid subscriptions` )
 		).toBeInTheDocument();
+
+		// Check for total subscribers label
 	} );
 
 	it( 'displays the learn more link with correct href', () => {

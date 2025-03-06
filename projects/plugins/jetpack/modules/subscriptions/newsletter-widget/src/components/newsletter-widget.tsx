@@ -14,6 +14,7 @@ interface NewsletterWidgetProps {
 	isWpcomSite: boolean;
 	emailSubscribers?: number;
 	paidSubscribers?: number;
+	allSubscribers?: number;
 	countsByDay?: Record< string, DailyCount >;
 }
 
@@ -23,6 +24,7 @@ export const NewsletterWidget = ( {
 	isWpcomSite,
 	emailSubscribers = 0,
 	paidSubscribers = 0,
+	allSubscribers = 0,
 	countsByDay = {},
 }: NewsletterWidgetProps ) => {
 	const showStats = emailSubscribers > 0 || paidSubscribers > 0;
@@ -47,9 +49,10 @@ export const NewsletterWidget = ( {
 										}
 									>
 										{ sprintf(
-											//translators: %s is the number of email subscribers
-											__( '%s email subscriptions', 'jetpack' ),
-											formatNumber( emailSubscribers )
+											//translators: %1$s is the total number of subscribers, %2$s is the number of email subscribers
+											__( '%1$s subscribers (%2$s via email)', 'jetpack' ),
+											allSubscribers,
+											emailSubscribers
 										) }
 									</a>
 								</span>

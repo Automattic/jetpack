@@ -8,6 +8,7 @@ declare global {
 		jetpackNewsletterWidgetConfigData?: {
 			emailSubscribers?: number;
 			paidSubscribers?: number;
+			allSubscribers?: number;
 			countsByDay?: Record< string, DailyCount >;
 		};
 	}
@@ -20,7 +21,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
-	const { emailSubscribers, paidSubscribers, countsByDay } =
+	const { emailSubscribers, paidSubscribers, allSubscribers, countsByDay } =
 		window.jetpackNewsletterWidgetConfigData || {};
 	const { suffix: site } = jpDataUtils.getSiteData();
 	const adminUrl = jpDataUtils.getAdminUrl();
@@ -38,6 +39,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			isWpcomSite={ isWpcomSite }
 			emailSubscribers={ emailSubscribers }
 			paidSubscribers={ paidSubscribers }
+			allSubscribers={ allSubscribers }
 			countsByDay={ countsByDay }
 		/>
 	);
