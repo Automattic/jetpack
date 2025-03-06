@@ -1,9 +1,7 @@
-import { useCallback } from 'react';
 import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/components/product-interstitial-modal';
 import boostImage from '@automattic/jetpack-my-jetpack/components/product-interstitial/boost.png';
 import { __ } from '@wordpress/i18n';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
-import { recordBoostPixelEvent } from '$lib/utils/analytics';
 
 type InterstitialModalCTAProps = {
 	description: string;
@@ -11,19 +9,9 @@ type InterstitialModalCTAProps = {
 };
 
 const InterstitialModalCTA = ( { description, identifier }: InterstitialModalCTAProps ) => {
-	const upgradeClickHandlerModal = useCallback( () => {
-		// record event for opening a modal
-		recordBoostPixelEvent( 'jetpack_boost_modal_interstitial_view', {
-			placement: 'product-page',
-			context: 'jetpack-boost',
-			identifier: identifier,
-		} );
-	}, [ identifier ] );
-
 	return (
 		<ProductInterstitialMyJetpack
 			slug="boost"
-			onOpen={ upgradeClickHandlerModal }
 			customModalTrigger={ <UpgradeCTA identifier={ identifier } description={ description } /> }
 			buttonLabel={ __( 'Upgrade now', 'jetpack-boost' ) }
 			isWithVideo={ false }
