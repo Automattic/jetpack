@@ -4,7 +4,7 @@ import {
 	InspectorControls,
 	LineHeightControl,
 	BlockControls,
-	PanelColorSettings,
+	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -68,36 +68,46 @@ const JetpackFieldControls = ( {
 
 	const colorSettings = [
 		{
-			value: attributes.labelColor,
-			onChange: value => setAttributes( { labelColor: value } ),
+			colorValue: attributes.labelColor,
+			onColorChange: value => setAttributes( { labelColor: value } ),
 			label: __( 'Label Text', 'jetpack-forms' ),
+			resetAllFilter: () => setAttributes( { labelColor: undefined } ),
+			clearable: true,
 		},
 		{
-			value: attributes.inputColor,
-			onChange: value => setAttributes( { inputColor: value } ),
+			colorValue: attributes.inputColor,
+			onColorChange: value => setAttributes( { inputColor: value } ),
 			label: inputColorLabel,
+			resetAllFilter: () => setAttributes( { inputColor: undefined } ),
+			clearable: true,
 		},
 	];
 
 	if ( isChoicesBlock && blockStyle === 'button' ) {
 		colorSettings.push( {
-			value: attributes.buttonBackgroundColor,
-			onChange: value => setAttributes( { buttonBackgroundColor: value } ),
+			colorValue: attributes.buttonBackgroundColor,
+			onColorChange: value => setAttributes( { buttonBackgroundColor: value } ),
 			label: __( 'Button Background', 'jetpack-forms' ),
+			resetAllFilter: () => setAttributes( { buttonBackgroundColor: undefined } ),
+			clearable: true,
 		} );
 	}
 
 	if ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) {
 		colorSettings.push( {
-			value: attributes.fieldBackgroundColor,
-			onChange: value => setAttributes( { fieldBackgroundColor: value } ),
+			colorValue: attributes.fieldBackgroundColor,
+			onColorChange: value => setAttributes( { fieldBackgroundColor: value } ),
 			label: backgroundColorLabel,
+			resetAllFilter: () => setAttributes( { fieldBackgroundColor: undefined } ),
+			clearable: true,
 		} );
 
 		colorSettings.push( {
-			value: attributes.borderColor,
-			onChange: value => setAttributes( { borderColor: value } ),
+			colorValue: attributes.borderColor,
+			onColorChange: value => setAttributes( { borderColor: value } ),
 			label: __( 'Border', 'jetpack-forms' ),
+			resetAllFilter: () => setAttributes( { borderColor: undefined } ),
+			clearable: true,
 		} );
 	}
 
@@ -164,7 +174,6 @@ const JetpackFieldControls = ( {
 					onClick={ () => setAttributes( { required: ! required } ) }
 				/>
 			</BlockControls>
-
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
@@ -173,11 +182,13 @@ const JetpackFieldControls = ( {
 					<>{ fieldSettings }</>
 				</PanelBody>
 			</InspectorControls>
-			<InspectorControls>
-				<PanelColorSettings
-					title={ __( 'Color', 'jetpack-forms' ) }
-					initialOpen={ false }
-					colorSettings={ colorSettings }
+			<InspectorControls group="color">
+				<ColorGradientSettingsDropdown
+					__experimentalIsRenderedInSidebar
+					settings={ colorSettings }
+					panelId={ clientId }
+					gradients={ [] }
+					disableCustomGradients
 				/>
 			</InspectorControls>
 			<InspectorControls group="styles">
@@ -366,7 +377,6 @@ const JetpackFieldControls = ( {
 					</ToolsPanelItem>
 				</ToolsPanel>
 			</InspectorControls>
-
 			<InspectorAdvancedControls>
 				<TextControl
 					label={ __( 'Name/ID', 'jetpack-forms' ) }

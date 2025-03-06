@@ -78,6 +78,7 @@ const JetpackDatePicker = props => {
 			</div>
 
 			<JetpackFieldControls
+				clientId={ clientId }
 				id={ id }
 				required={ required }
 				width={ width }

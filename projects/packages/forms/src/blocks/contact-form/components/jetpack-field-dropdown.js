@@ -157,6 +157,7 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 				</div>
 			) }
 			<JetpackFieldControls
+				clientId={ clientId }
 				id={ id }
 				required={ required }
 				attributes={ attributes }
