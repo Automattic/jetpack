@@ -1,15 +1,15 @@
 import { useCallback } from '@wordpress/element';
-import { _x } from '@wordpress/i18n';
 import { Connection } from '../../social-store/types';
 import { ScheduledPostItem } from './item';
 import styles from './list-style.module.scss';
 
 export type ScheduledPostsListProps = {
 	items: Array< {
+		id: number;
 		connection: Connection;
 		scheduledAt: string;
 	} >;
-	onDelete: ( connectionId: string ) => void;
+	onDelete: ( itemId: number ) => void;
 	confirmDeletion?: boolean;
 };
 
@@ -25,35 +25,26 @@ export function ScheduledPostsList( {
 	confirmDeletion = true,
 }: ScheduledPostsListProps ) {
 	const onDeleteItem = useCallback(
-		( connectionId: string ) => () => {
-			onDelete( connectionId );
+		( itemId: number ) => () => {
+			onDelete( itemId );
 		},
 		[ onDelete ]
 	);
 
 	return (
-		<section className={ styles.wrapper }>
-			<h4 className={ styles.title }>
-				{ _x(
-					'Upcoming shares',
-					'Upcoming posts scheduled for sharing.',
-					'jetpack-publicize-components'
-				) }
-			</h4>
-			<ul className={ styles.list }>
-				{ items.map( ( { connection, scheduledAt } ) => {
-					return (
-						<li key={ scheduledAt } className={ styles.item }>
-							<ScheduledPostItem
-								connection={ connection }
-								scheduledAt={ scheduledAt }
-								onDelete={ onDeleteItem( connection.connection_id ) }
-								confirmDeletion={ confirmDeletion }
-							/>
-						</li>
-					);
-				} ) }
-			</ul>
-		</section>
+		<ul className={ styles.list }>
+			{ items.map( ( { id, connection, scheduledAt } ) => {
+				return (
+					<li key={ `${ id }` } className={ styles.item }>
+						<ScheduledPostItem
+							connection={ connection }
+							scheduledAt={ scheduledAt }
+							onDelete={ onDeleteItem( id ) }
+							confirmDeletion={ confirmDeletion }
+						/>
+					</li>
+				);
+			} ) }
+		</ul>
 	);
 }

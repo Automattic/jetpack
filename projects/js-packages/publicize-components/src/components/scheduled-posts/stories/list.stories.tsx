@@ -13,31 +13,31 @@ const Template: StoryFn< typeof ScheduledPostsList > = args => <ScheduledPostsLi
 const DefaultArgs: ScheduledPostsListProps = {
 	items: [
 		{
+			id: 1234,
 			connection: {
 				display_name: 'Matt Mullenweg',
 				profile_picture:
 					'https://gravatar.com/avatar/5a5f21e099ba62ae525e62cd1ad859985c8170b8811431e7fa6ccbc9da22405b',
-				connection_id: '1234',
 				service_name: 'tumblr',
 			} as Connection,
 			scheduledAt: '2025-03-19T09:05:00+00:00',
 		},
 		{
+			id: 4567,
 			connection: {
 				display_name: 'Matt Mullenweg',
 				profile_picture:
 					'https://gravatar.com/avatar/5a5f21e099ba62ae525e62cd1ad859985c8170b8811431e7fa6ccbc9da22405b',
-				connection_id: '4567',
 				service_name: 'bluesky',
 			} as Connection,
 			scheduledAt: '2025-03-19T09:05:00+00:00',
 		},
 		{
+			id: 6789,
 			connection: {
 				display_name: 'Matt Mullenweg',
 				profile_picture:
 					'https://gravatar.com/avatar/5a5f21e099ba62ae525e62cd1ad859985c8170b8811431e7fa6ccbc9da22405b',
-				connection_id: '6789',
 				service_name: 'mastodon',
 			} as Connection,
 			scheduledAt: '2025-03-19T09:05:00+00:00',
