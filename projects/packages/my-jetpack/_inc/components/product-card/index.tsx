@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
+import { useAllProducts } from '../../data/products/use-all-products';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectSite from '../../hooks/use-connect-site';
@@ -66,6 +67,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 
 	let { secondaryAction } = props;
 
+	const [ isTracksFired, setIsTracksFired ] = useState( false );
 	const {
 		data: { ownedProducts },
 	} = useProductsByOwnership();
@@ -87,6 +89,8 @@ const ProductCard: FC< ProductCardProps > = props => {
 		[ styles[ 'has-error' ] ]: isError,
 		[ styles[ 'has-warning' ] ]: isWarning,
 	} );
+
+	const { isLoading: isAllProductsLoading, isError: isAllProductsError } = useAllProducts();
 
 	const [ isActionLoading, setIsActionLoading ] = useState( false );
 	const { recordEvent } = useAnalytics();
@@ -132,12 +136,27 @@ const ProductCard: FC< ProductCardProps > = props => {
 	 * Sends an event when the card loads
 	 */
 	useEffect( () => {
+		if ( isTracksFired || isDataLoading || isAllProductsLoading || isAllProductsError ) {
+			return;
+		}
+
+		setIsTracksFired( true );
 		recordEvent( 'jetpack_myjetpack_product_card_load', {
 			product: slug,
 			status: status,
 			...customLoadTracks,
 		} );
-	}, [ recordEvent, slug, status, customLoadTracks ] );
+	}, [
+		recordEvent,
+		slug,
+		status,
+		customLoadTracks,
+		isDataLoading,
+		isAllProductsError,
+		isAllProductsLoading,
+		isTracksFired,
+		setIsTracksFired,
+	] );
 
 	return (
 		<Card
