@@ -32,6 +32,10 @@ const usePostContent = () => {
 		( preprocess?: ( serialized: string ) => string ) => {
 			const blocks = getBlocks();
 
+			if ( blocks.length === 0 ) {
+				return '';
+			}
+
 			let serialized = serialize( blocks );
 
 			if ( preprocess && typeof preprocess === 'function' ) {
