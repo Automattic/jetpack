@@ -115,6 +115,7 @@ function replace_site_visibility_load_assets() {
 	$data = wp_json_encode(
 		array(
 			'homeUrl'                => home_url( '/' ),
+			'siteTitle'              => bloginfo( 'name' ),
 			'isWpcomStagingSite'     => (bool) get_option( 'wpcom_is_staging_site' ),
 			'isUnlaunchedSite'       => get_option( 'launch-status' ) === 'unlaunched',
 			'hasSitePreviewLink'     => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::SITE_PREVIEW_LINKS ),

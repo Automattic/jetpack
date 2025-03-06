@@ -1,16 +1,17 @@
 import ReactDOM from 'react-dom/client';
 import LaunchSite from './launch-site';
 import SiteVisibility from './site-visibility';
-import type { SitePreviewLink } from './site-visibility';
+import type { SitePreviewLinkObject } from './site-preview-link';
 
 declare global {
 	interface Window {
 		JETPACK_MU_WPCOM_SITE_VISIBILITY?: {
 			homeUrl: string;
+			siteTitle: string;
 			isWpcomStagingSite: boolean;
 			isUnlaunchedSite: boolean;
 			hasSitePreviewLink: boolean;
-			sitePreviewLink?: SitePreviewLink;
+			sitePreviewLink?: SitePreviewLinkObject;
 			sitePreviewLinkNonce: string;
 			blogPublic: number;
 			wpcomComingSoon: number;
