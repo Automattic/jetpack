@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import {
 	QUERY_DISMISS_WELCOME_BANNER_KEY,
@@ -19,13 +19,24 @@ const useWelcomeBanner = () => {
 		query: { path: REST_API_RED_BUBBLE_ALERTS },
 	} );
 
-	const redBubbleAlertKeys =
-		isRedBubbleAlertsError || isRedBubbleAlertsLoading ? [] : Object.keys( redBubbleAlerts );
+	const redBubbleAlertKeys = useMemo( () => {
+		if ( isRedBubbleAlertsError || isRedBubbleAlertsLoading ) {
+			return [];
+		}
+
+		return Object.keys( redBubbleAlerts );
+	}, [ isRedBubbleAlertsError, isRedBubbleAlertsLoading, redBubbleAlerts ] );
 
 	const [ isWelcomeBannerVisible, setIsWelcomeBannerVisible ] = useValueStore(
 		'isWelcomeBannerVisible',
-		isRedBubbleAlertsLoading ? false : redBubbleAlertKeys.includes( 'welcome-banner-active' )
+		redBubbleAlertKeys.includes( 'welcome-banner-active' )
 	);
+
+	useEffect( () => {
+		if ( ! isRedBubbleAlertsLoading ) {
+			setIsWelcomeBannerVisible( redBubbleAlertKeys.includes( 'welcome-banner-active' ) );
+		}
+	}, [ isRedBubbleAlertsLoading, redBubbleAlertKeys, setIsWelcomeBannerVisible ] );
 
 	const { mutate: handleDismissWelcomeBanner } = useSimpleMutation( {
 		name: QUERY_DISMISS_WELCOME_BANNER_KEY,
