@@ -15,19 +15,18 @@ import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
-function JetpackFieldCheckbox( props ) {
-	const {
-		instanceId,
-		required,
-		requiredText,
-		label,
-		setAttributes,
-		width,
-		defaultValue,
-		attributes,
-		insertBlocksAfter,
-	} = props;
-
+function JetpackFieldCheckbox( {
+	clientId,
+	instanceId,
+	required,
+	requiredText,
+	label,
+	setAttributes,
+	width,
+	defaultValue,
+	attributes,
+	insertBlocksAfter,
+} ) {
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const blockProps = useBlockProps( {
 		id: `jetpack-field-checkbox-${ instanceId }`,
@@ -69,6 +68,7 @@ function JetpackFieldCheckbox( props ) {
 						/>
 					</PanelBody>
 				</InspectorControls>
+				<JetpackFieldWidth clientId={ clientId } setAttributes={ setAttributes } width={ width } />
 				<InspectorControls>
 					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 						<JetpackManageResponsesSettings isChildBlock />
@@ -81,7 +81,6 @@ function JetpackFieldCheckbox( props ) {
 							help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
 							__nextHasNoMarginBottom={ true }
 						/>
-						<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 
 						<ToggleControl
 							label={ __( 'Sync fields style', 'jetpack-forms' ) }

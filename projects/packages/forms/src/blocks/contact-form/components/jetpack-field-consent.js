@@ -9,6 +9,7 @@ import JetpackManageResponsesSettings from './jetpack-manage-responses-settings'
 
 const JetpackFieldConsent = ( {
 	instanceId,
+	clientId,
 	width,
 	consentType,
 	implicitConsentMessage,
@@ -45,12 +46,12 @@ const JetpackFieldConsent = ( {
 				) }
 				insertBlocksAfter={ insertBlocksAfter }
 			/>
+			<JetpackFieldWidth clientId={ clientId } setAttributes={ setAttributes } width={ width } />
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
 				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
-					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<ToggleControl
 						label={ __( 'Sync fields style', 'jetpack-forms' ) }
 						checked={ attributes.shareFieldAttributes }

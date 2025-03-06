@@ -139,7 +139,6 @@ const JetpackFieldControls = ( {
 				__next40pxDefaultSize={ true }
 			/>
 		),
-		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
 		<ToggleControl
 			key="shareFieldAttributes"
 			label={ __( 'Sync fields style', 'jetpack-forms' ) }
@@ -182,6 +181,7 @@ const JetpackFieldControls = ( {
 					<>{ fieldSettings }</>
 				</PanelBody>
 			</InspectorControls>
+			<JetpackFieldWidth clientId={ clientId } setAttributes={ setAttributes } width={ width } />
 			<InspectorControls group="color">
 				<ColorGradientSettingsDropdown
 					__experimentalIsRenderedInSidebar
