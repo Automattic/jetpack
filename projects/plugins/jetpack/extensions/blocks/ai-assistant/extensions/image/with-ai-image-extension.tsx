@@ -6,6 +6,7 @@ import {
 	usePostContent,
 	openBlockSidebar,
 	useAiFeature,
+	getAllBlocks,
 } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -137,8 +138,18 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				startLoading( type );
 
 				try {
+					const context: { indexes?: number[] } = {};
+
 					if ( type === TYPE_ALT_TEXT ) {
 						openBlockSidebar( props.clientId );
+					}
+
+					if ( type === TYPE_CAPTION ) {
+						const allImageBlocks = getAllBlocks().filter( block => block.name === 'core/image' );
+						const imageIndex =
+							allImageBlocks.findIndex( block => block.clientId === props.clientId ) + 1;
+						// Index of the image in the post.
+						context.indexes = [ imageIndex ];
 					}
 
 					dequeueAsyncRequest();
@@ -150,8 +161,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 								context: {
 									type: type,
 									content: getPostContent( preprocessImageContent ),
-									// URL of the image for the AI to find where the image is in the post.
-									urls: [ props.attributes.url ],
+									...context,
 									images: [
 										{
 											// We convert the image to a base64 string to avoid inaccesible URLs for private images.
