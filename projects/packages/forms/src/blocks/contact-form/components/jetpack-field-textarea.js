@@ -61,6 +61,7 @@ const JetpackFieldTextarea = props => {
 			</div>
 
 			<JetpackFieldControls
+				clientId={ clientId }
 				id={ id }
 				required={ required }
 				setAttributes={ setAttributes }

@@ -1,0 +1,48 @@
+import { InspectorControls } from '@wordpress/block-editor';
+import {
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToolsPanelItem as ToolsPanelItem, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+
+const PERCENTAGE_WIDTHS = [ 25, 50, 75, 100 ];
+
+export default function JetpackFieldDimensionControls( { clientId, setAttributes, width } ) {
+	return (
+		<InspectorControls group="dimensions">
+			<ToolsPanelItem
+				panelId={ clientId }
+				hasValue={ () => width !== 100 }
+				label={ __( 'Width', 'jetpack-forms' ) }
+				onDeselect={ () => setAttributes( { width: 100 } ) }
+				resetAllFilter={ () => ( { width: 100 } ) }
+				isShownByDefault
+			>
+				<ToggleGroupControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					aria-label={ __( 'Width', 'jetpack-forms' ) }
+					isBlock
+					label={ __( 'Width', 'jetpack-forms' ) }
+					help={ __(
+						'Adjust the width of the field to include multiple fields on a single line.',
+						'jetpack-forms'
+					) }
+					onChange={ value => setAttributes( { width: value } ) }
+					value={ width }
+				>
+					{ PERCENTAGE_WIDTHS.map( widthValue => {
+						return (
+							<ToggleGroupControlOption
+								key={ widthValue }
+								label={ `${ widthValue }%` }
+								value={ widthValue }
+							/>
+						);
+					} ) }
+				</ToggleGroupControl>
+			</ToolsPanelItem>
+		</InspectorControls>
+	);
+}

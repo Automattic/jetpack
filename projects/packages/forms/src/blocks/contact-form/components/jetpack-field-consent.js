@@ -1,14 +1,27 @@
-import { InspectorControls, PanelColorSettings, useBlockProps } from '@wordpress/block-editor';
-import { BaseControl, PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
+import {
+	InspectorControls,
+	useBlockProps,
+	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/block-editor';
+import {
+	BaseControl,
+	PanelBody,
+	SelectControl,
+	ToggleControl,
+	__experimentalToolsPanel as ToolsPanel, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
+import useToolsPanelResponsiveDropdownProps from '../util/use-tool-panel-responsive-dropdown-props';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
+import JetpackFieldDimensionControls from './jetpack-field-dimension-controls';
 import JetpackFieldLabel from './jetpack-field-label';
-import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldConsent = ( {
 	instanceId,
+	clientId,
 	width,
 	consentType,
 	implicitConsentMessage,
@@ -21,6 +34,7 @@ const JetpackFieldConsent = ( {
 		id: `jetpack-field-consent-${ instanceId }`,
 		className: 'jetpack-field jetpack-field-consent',
 	} );
+	const toolsPanelDropdownMenuProps = useToolsPanelResponsiveDropdownProps();
 
 	return (
 		<div { ...blockProps }>
@@ -45,31 +59,49 @@ const JetpackFieldConsent = ( {
 				) }
 				insertBlocksAfter={ insertBlocksAfter }
 			/>
+			<JetpackFieldDimensionControls
+				clientId={ clientId }
+				setAttributes={ setAttributes }
+				width={ width }
+			/>
+			<InspectorControls group="styles">
+				<PanelBody>
+					<ToggleControl
+						label={ __( 'Apply styling to all fields', 'jetpack-forms' ) }
+						checked={ attributes.shareFieldAttributes }
+						onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
+						help={ __( 'Toggle off if you want to style this block only.', 'jetpack-forms' ) }
+						__nextHasNoMarginBottom={ true }
+					/>
+				</PanelBody>
+				<ToolsPanel
+					panelId={ clientId }
+					label={ __( 'Color', 'jetpack-forms' ) }
+					dropdownMenuProps={ toolsPanelDropdownMenuProps }
+				>
+					<div className="jetpack-field-controls__full-width-control">
+						<ColorGradientSettingsDropdown
+							__experimentalIsRenderedInSidebar
+							panelId={ clientId }
+							gradients={ [] }
+							disableCustomGradients
+							settings={ [
+								{
+									colorValue: attributes.labelColor,
+									onColorChange: value => setAttributes( { labelColor: value } ),
+									label: __( 'Label Text', 'jetpack-forms' ),
+									clearable: true,
+								},
+							] }
+							{ ...useMultipleOriginColorsAndGradients() }
+						/>
+					</div>
+				</ToolsPanel>
+			</InspectorControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
-				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
-					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
-					<ToggleControl
-						label={ __( 'Sync fields style', 'jetpack-forms' ) }
-						checked={ attributes.shareFieldAttributes }
-						onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
-						help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
-						__nextHasNoMarginBottom={ true }
-					/>
-				</PanelBody>
-				<PanelColorSettings
-					title={ __( 'Color', 'jetpack-forms' ) }
-					initialOpen={ false }
-					colorSettings={ [
-						{
-							value: attributes.labelColor,
-							onChange: value => setAttributes( { labelColor: value } ),
-							label: __( 'Label Text', 'jetpack-forms' ),
-						},
-					] }
-				/>
 				<PanelBody title={ __( 'Consent Settings', 'jetpack-forms' ) }>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<SelectControl

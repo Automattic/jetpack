@@ -4,20 +4,23 @@ import {
 	InspectorControls,
 	LineHeightControl,
 	BlockControls,
-	PanelColorSettings,
+	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import {
-	BaseControl,
 	PanelBody,
 	TextControl,
 	ToggleControl,
 	RangeControl,
+	__experimentalToolsPanel as ToolsPanel, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToolsPanelItem as ToolsPanelItem, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { isValidElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useFormStyle, FORM_STYLE, getBlockStyle } from '../util/form';
+import useToolsPanelResponsiveDropdownProps from '../util/use-tool-panel-responsive-dropdown-props';
 import ToolbarRequiredGroup from './block-controls/toolbar-required-group';
-import JetpackFieldWidth from './jetpack-field-width';
+import JetpackFieldDimensionControls from './jetpack-field-dimension-controls';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldControls = ( {
@@ -37,6 +40,7 @@ const JetpackFieldControls = ( {
 	const formStyle = useFormStyle( clientId );
 	const blockStyle = getBlockStyle( blockClassNames );
 	const isChoicesBlock = [ 'radio', 'checkbox' ].includes( type );
+	const toolsPanelDropdownMenuProps = useToolsPanelResponsiveDropdownProps();
 
 	const setNumberAttribute =
 		( key, parse = parseInt ) =>
@@ -52,51 +56,50 @@ const JetpackFieldControls = ( {
 		blockStyle === 'button'
 			? __( 'Button Text', 'jetpack-forms' )
 			: __( 'Option Text', 'jetpack-forms', 0 );
-
 	const inputColorLabel = isChoicesBlock
 		? optionColorLabel
 		: __( 'Field Text', 'jetpack-forms', 0 );
-
 	const backgroundColorLabel = isChoicesBlock
 		? __( 'Background', 'jetpack-forms' )
 		: __( 'Field Background', 'jetpack-forms', 0 );
 
-	const stylesPanelTitle = isChoicesBlock
-		? __( 'Options Styles', 'jetpack-forms' )
-		: __( 'Input Field Styles', 'jetpack-forms', 0 );
-
 	const colorSettings = [
 		{
-			value: attributes.labelColor,
-			onChange: value => setAttributes( { labelColor: value } ),
+			colorValue: attributes.labelColor,
+			onColorChange: value => setAttributes( { labelColor: value } ),
 			label: __( 'Label Text', 'jetpack-forms' ),
+			clearable: true,
 		},
 		{
-			value: attributes.inputColor,
-			onChange: value => setAttributes( { inputColor: value } ),
+			colorValue: attributes.inputColor,
+			onColorChange: value => setAttributes( { inputColor: value } ),
 			label: inputColorLabel,
+			clearable: true,
 		},
 	];
 
 	if ( isChoicesBlock && blockStyle === 'button' ) {
 		colorSettings.push( {
-			value: attributes.buttonBackgroundColor,
-			onChange: value => setAttributes( { buttonBackgroundColor: value } ),
+			colorValue: attributes.buttonBackgroundColor,
+			onColorChange: value => setAttributes( { buttonBackgroundColor: value } ),
 			label: __( 'Button Background', 'jetpack-forms' ),
+			clearable: true,
 		} );
 	}
 
 	if ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) {
 		colorSettings.push( {
-			value: attributes.fieldBackgroundColor,
-			onChange: value => setAttributes( { fieldBackgroundColor: value } ),
+			colorValue: attributes.fieldBackgroundColor,
+			onColorChange: value => setAttributes( { fieldBackgroundColor: value } ),
 			label: backgroundColorLabel,
+			clearable: true,
 		} );
 
 		colorSettings.push( {
-			value: attributes.borderColor,
-			onChange: value => setAttributes( { borderColor: value } ),
+			colorValue: attributes.borderColor,
+			onColorChange: value => setAttributes( { borderColor: value } ),
 			label: __( 'Border', 'jetpack-forms' ),
+			clearable: true,
 		} );
 	}
 
@@ -128,15 +131,6 @@ const JetpackFieldControls = ( {
 				__next40pxDefaultSize={ true }
 			/>
 		),
-		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
-		<ToggleControl
-			key="shareFieldAttributes"
-			label={ __( 'Sync fields style', 'jetpack-forms' ) }
-			checked={ attributes.shareFieldAttributes }
-			onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
-			help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
-			__nextHasNoMarginBottom={ true }
-		/>,
 	];
 
 	extraFieldSettings.forEach( ( { element, index } ) => {
@@ -163,7 +157,6 @@ const JetpackFieldControls = ( {
 					onClick={ () => setAttributes( { required: ! required } ) }
 				/>
 			</BlockControls>
-
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
@@ -171,22 +164,73 @@ const JetpackFieldControls = ( {
 				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
 					<>{ fieldSettings }</>
 				</PanelBody>
-				<PanelColorSettings
-					title={ __( 'Color', 'jetpack-forms' ) }
-					initialOpen={ false }
-					colorSettings={ colorSettings }
-				/>
-				<PanelBody title={ stylesPanelTitle } initialOpen={ false }>
-					<BaseControl __nextHasNoMarginBottom={ true }>
+			</InspectorControls>
+			<JetpackFieldDimensionControls
+				clientId={ clientId }
+				setAttributes={ setAttributes }
+				width={ width }
+			/>
+			<InspectorControls group="styles">
+				<PanelBody>
+					<ToggleControl
+						label={ __( 'Apply styling to all fields', 'jetpack-forms' ) }
+						checked={ attributes.shareFieldAttributes }
+						onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
+						help={ __( 'Toggle off if you want to style this block only.', 'jetpack-forms' ) }
+						__nextHasNoMarginBottom={ true }
+					/>
+				</PanelBody>
+				<ToolsPanel
+					label={ __( 'Color', 'jetpack-forms' ) }
+					panelId={ clientId }
+					dropdownMenuProps={ toolsPanelDropdownMenuProps }
+				>
+					<div className="jetpack-field-controls__full-width-control">
+						<ColorGradientSettingsDropdown
+							__experimentalIsRenderedInSidebar
+							settings={ colorSettings }
+							panelId={ clientId }
+							gradients={ [] }
+							disableCustomGradients
+							{ ...useMultipleOriginColorsAndGradients() }
+						/>
+					</div>
+				</ToolsPanel>
+				<ToolsPanel
+					label={
+						isChoicesBlock
+							? __( 'Options typography', 'jetpack-forms' )
+							: __( 'Input typography', 'jetpack-forms', 0 )
+					}
+					dropdownMenuProps={ toolsPanelDropdownMenuProps }
+				>
+					<ToolsPanelItem
+						hasValue={ () => !! attributes.fieldFontSize }
+						label={ __( 'Size', 'jetpack-forms' ) }
+						onDeselect={ () =>
+							setAttributes( {
+								fieldFontSize: undefined,
+							} )
+						}
+						isShownByDefault
+					>
 						<FontSizePicker
-							withReset={ true }
-							size="__unstable-large"
-							__nextHasNoMarginBottom
+							withReset={ false }
 							onChange={ fieldFontSize => setAttributes( { fieldFontSize } ) }
 							value={ attributes.fieldFontSize }
+							size="__unstable-large"
+							__nextHasNoMarginBottom
 						/>
-					</BaseControl>
-					<BaseControl __nextHasNoMarginBottom={ true }>
+					</ToolsPanelItem>
+					<ToolsPanelItem
+						hasValue={ () => !! attributes.lineHeight }
+						label={ __( 'Line height', 'jetpack-forms' ) }
+						onDeselect={ () =>
+							setAttributes( {
+								lineHeight: undefined,
+							} )
+						}
+					>
 						<LineHeightControl
 							__nextHasNoMarginBottom={ true }
 							__unstableInputWidth="100%"
@@ -194,58 +238,22 @@ const JetpackFieldControls = ( {
 							onChange={ setNumberAttribute( 'lineHeight', parseFloat ) }
 							size="__unstable-large"
 						/>
-					</BaseControl>
-					{ ( isChoicesBlock || blockStyle === 'button' ) && (
-						<>
-							<RangeControl
-								label={ __( 'Button Border Width', 'jetpack-forms' ) }
-								value={ attributes.buttonBorderWidth }
-								initialPosition={ 1 }
-								onChange={ setNumberAttribute( 'buttonBorderWidth' ) }
-								min={ 0 }
-								max={ 100 }
-								__nextHasNoMarginBottom={ true }
-								__next40pxDefaultSize={ true }
-							/>
-							<RangeControl
-								label={ __( 'Button Border Radius', 'jetpack-forms' ) }
-								value={ attributes.buttonBorderRadius }
-								initialPosition={ 0 }
-								onChange={ setNumberAttribute( 'buttonBorderRadius' ) }
-								min={ 0 }
-								max={ 100 }
-								__nextHasNoMarginBottom={ true }
-								__next40pxDefaultSize={ true }
-							/>
-						</>
-					) }
-					{ ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) && (
-						<>
-							<RangeControl
-								label={ __( 'Border Width', 'jetpack-forms' ) }
-								value={ attributes.borderWidth }
-								initialPosition={ 1 }
-								onChange={ setNumberAttribute( 'borderWidth' ) }
-								min={ 0 }
-								max={ 100 }
-								__nextHasNoMarginBottom={ true }
-								__next40pxDefaultSize={ true }
-							/>
-							<RangeControl
-								label={ __( 'Border Radius', 'jetpack-forms' ) }
-								value={ attributes.borderRadius }
-								initialPosition={ 0 }
-								onChange={ setNumberAttribute( 'borderRadius' ) }
-								min={ 0 }
-								max={ 100 }
-								__nextHasNoMarginBottom={ true }
-								__next40pxDefaultSize={ true }
-							/>
-						</>
-					) }
-				</PanelBody>
-				<PanelBody title={ __( 'Label Styles', 'jetpack-forms' ) } initialOpen={ false }>
-					<BaseControl __nextHasNoMarginBottom={ true }>
+					</ToolsPanelItem>
+				</ToolsPanel>
+				<ToolsPanel
+					label={ __( 'Label typography', 'jetpack-forms' ) }
+					dropdownMenuProps={ toolsPanelDropdownMenuProps }
+				>
+					<ToolsPanelItem
+						hasValue={ () => !! attributes.labelFontSize }
+						label={ __( 'Size', 'jetpack-forms' ) }
+						onDeselect={ () =>
+							setAttributes( {
+								labelFontSize: undefined,
+							} )
+						}
+						isShownByDefault
+					>
 						<FontSizePicker
 							withReset={ true }
 							size="__unstable-large"
@@ -253,8 +261,16 @@ const JetpackFieldControls = ( {
 							onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
 							value={ attributes.labelFontSize }
 						/>
-					</BaseControl>
-					<BaseControl __nextHasNoMarginBottom={ true }>
+					</ToolsPanelItem>
+					<ToolsPanelItem
+						hasValue={ () => !! attributes.labelLineHeight }
+						label={ __( 'Line height', 'jetpack-forms' ) }
+						onDeselect={ () =>
+							setAttributes( {
+								labelLineHeight: undefined,
+							} )
+						}
+					>
 						<LineHeightControl
 							__unstableInputWidth="100%"
 							__nextHasNoMarginBottom={ true }
@@ -262,10 +278,107 @@ const JetpackFieldControls = ( {
 							onChange={ setNumberAttribute( 'labelLineHeight', parseFloat ) }
 							size="__unstable-large"
 						/>
-					</BaseControl>
-				</PanelBody>
+					</ToolsPanelItem>
+				</ToolsPanel>
+				<ToolsPanel
+					label={ __( 'Border', 'jetpack-forms' ) }
+					panelId={ clientId }
+					dropdownMenuProps={ toolsPanelDropdownMenuProps }
+				>
+					{ ( isChoicesBlock || blockStyle === 'button' ) && (
+						<>
+							<ToolsPanelItem
+								panelId={ clientId }
+								hasValue={ () => typeof attributes.buttonBorderWidth === 'number' }
+								label={ __( 'Button Border Width', 'jetpack-forms' ) }
+								onDeselect={ () =>
+									setAttributes( {
+										buttonBorderWidth: undefined,
+									} )
+								}
+							>
+								<RangeControl
+									label={ __( 'Button Border Width', 'jetpack-forms' ) }
+									value={ attributes.buttonBorderWidth }
+									initialPosition={ 1 }
+									onChange={ setNumberAttribute( 'buttonBorderWidth' ) }
+									min={ 0 }
+									max={ 100 }
+									__nextHasNoMarginBottom={ true }
+									__next40pxDefaultSize={ true }
+								/>
+							</ToolsPanelItem>
+							<ToolsPanelItem
+								panelId={ clientId }
+								hasValue={ () => typeof attributes.buttonBorderRadius === 'number' }
+								label={ __( 'Button Border Radius', 'jetpack-forms' ) }
+								onDeselect={ () =>
+									setAttributes( {
+										buttonBorderRadius: undefined,
+									} )
+								}
+							>
+								<RangeControl
+									label={ __( 'Button Border Radius', 'jetpack-forms' ) }
+									value={ attributes.buttonBorderRadius }
+									initialPosition={ 0 }
+									onChange={ setNumberAttribute( 'buttonBorderRadius' ) }
+									min={ 0 }
+									max={ 100 }
+									__nextHasNoMarginBottom={ true }
+									__next40pxDefaultSize={ true }
+								/>
+							</ToolsPanelItem>
+						</>
+					) }
+					{ ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) && (
+						<>
+							<ToolsPanelItem
+								panelId={ clientId }
+								hasValue={ () => typeof attributes.borderWidth === 'number' }
+								label={ __( 'Border Width', 'jetpack-forms' ) }
+								onDeselect={ () =>
+									setAttributes( {
+										borderWidth: undefined,
+									} )
+								}
+							>
+								<RangeControl
+									label={ __( 'Border Width', 'jetpack-forms' ) }
+									value={ attributes.borderWidth }
+									initialPosition={ 1 }
+									onChange={ setNumberAttribute( 'borderWidth' ) }
+									min={ 0 }
+									max={ 100 }
+									__nextHasNoMarginBottom={ true }
+									__next40pxDefaultSize={ true }
+								/>
+							</ToolsPanelItem>
+							<ToolsPanelItem
+								panelId={ clientId }
+								hasValue={ () => typeof attributes.borderRadius === 'number' }
+								label={ __( 'Border Radius', 'jetpack-forms' ) }
+								onDeselect={ () =>
+									setAttributes( {
+										borderRadius: undefined,
+									} )
+								}
+							>
+								<RangeControl
+									label={ __( 'Border Radius', 'jetpack-forms' ) }
+									value={ attributes.borderRadius }
+									initialPosition={ 0 }
+									onChange={ setNumberAttribute( 'borderRadius' ) }
+									min={ 0 }
+									max={ 100 }
+									__nextHasNoMarginBottom={ true }
+									__next40pxDefaultSize={ true }
+								/>
+							</ToolsPanelItem>
+						</>
+					) }
+				</ToolsPanel>
 			</InspectorControls>
-
 			<InspectorAdvancedControls>
 				<TextControl
 					label={ __( 'Name/ID', 'jetpack-forms' ) }
