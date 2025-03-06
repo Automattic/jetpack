@@ -12,5 +12,6 @@ module.exports = {
 		'!<rootDir>/**/__tests__/**/*.[jt]s?(x)',
 		'!<rootDir>/**/?(*.)+(spec|test).[jt]s?(x)',
 		'!<rootDir>/**/test/*.[jt]s?(x)',
+		'!<rootDir>/**/stories/*.[jt]s?(x)',
 	],
 };
