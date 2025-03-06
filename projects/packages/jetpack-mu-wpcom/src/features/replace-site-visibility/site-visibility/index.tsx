@@ -12,8 +12,6 @@ export type SitePreviewLink = {
 
 interface Props {
 	homeUrl: string;
-	siteId: number;
-	siteSlug: string;
 	isWpcomStagingSite: boolean;
 	isUnlaunchedSite: boolean;
 	hasSitePreviewLink: boolean;
@@ -37,7 +35,6 @@ const makeSitePreviewLink = ( homeUrl: string, share: string ) => {
 
 const SiteVisibility = ( {
 	homeUrl,
-	siteSlug,
 	isWpcomStagingSite,
 	isUnlaunchedSite,
 	hasSitePreviewLink,
@@ -291,7 +288,7 @@ const SiteVisibility = ( {
 									{ sprintf(
 										// translators: %s: the slug of the site
 										__( 'Prevent third-party sharing for %s', 'jetpack-mu-wpcom' ),
-										siteSlug
+										new URL( homeUrl ).host
 									) }
 								</label>
 								<p className="description">

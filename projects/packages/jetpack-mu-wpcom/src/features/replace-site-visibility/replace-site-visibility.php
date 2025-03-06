@@ -112,13 +112,9 @@ function wpcom_get_site_preview_link() {
 function replace_site_visibility_load_assets() {
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-replace-site-visibility', array( 'js', 'css' ) );
 
-	$jetpack_status = new Automattic\Jetpack\Status();
-
 	$data = wp_json_encode(
 		array(
 			'homeUrl'                => home_url( '/' ),
-			'siteId'                 => get_wpcom_blog_id(),
-			'siteSlug'               => $jetpack_status->get_site_suffix(),
 			'isWpcomStagingSite'     => (bool) get_option( 'wpcom_is_staging_site' ),
 			'isUnlaunchedSite'       => get_option( 'launch-status' ) === 'unlaunched',
 			'hasSitePreviewLink'     => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::SITE_PREVIEW_LINKS ),
