@@ -67,7 +67,6 @@ const JetpackFieldConsent = ( {
 				<ToolsPanel
 					panelId={ clientId }
 					label={ __( 'Color', 'jetpack-forms' ) }
-					onDeselect={ () => setAttributes( { labelColor: undefined } ) }
 					resetAll={ () => setAttributes( { labelColor: undefined } ) }
 					dropdownMenuProps={ toolsPanelDropdownMenuProps }
 				>
@@ -88,19 +87,24 @@ const JetpackFieldConsent = ( {
 						/>
 					</div>
 				</ToolsPanel>
+				<ToolsPanel>
+					<div style={ { gridColumn: '1 / -1' } }>
+						<ToggleControl
+							label={ __( 'Sync field style', 'jetpack-forms' ) }
+							checked={ attributes.shareFieldAttributes }
+							onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
+							help={ __(
+								'Syncs all styles except for Width. Deactivate for individual styling of this block.',
+								'jetpack-forms'
+							) }
+							__nextHasNoMarginBottom={ true }
+						/>
+					</div>
+				</ToolsPanel>
 			</InspectorControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
-				</PanelBody>
-				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
-					<ToggleControl
-						label={ __( 'Sync fields style', 'jetpack-forms' ) }
-						checked={ attributes.shareFieldAttributes }
-						onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
-						help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
-						__nextHasNoMarginBottom={ true }
-					/>
 				</PanelBody>
 				<PanelBody title={ __( 'Consent Settings', 'jetpack-forms' ) }>
 					<BaseControl __nextHasNoMarginBottom={ true }>

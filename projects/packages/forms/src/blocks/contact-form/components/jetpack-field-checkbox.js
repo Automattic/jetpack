@@ -130,6 +130,20 @@ function JetpackFieldCheckbox( {
 							/>
 						</ToolsPanelItem>
 					</ToolsPanel>
+					<ToolsPanel>
+						<div style={ { gridColumn: '1 / -1' } }>
+							<ToggleControl
+								label={ __( 'Sync field style', 'jetpack-forms' ) }
+								checked={ attributes.shareFieldAttributes }
+								onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
+								help={ __(
+									'Syncs all styles except for Width. Deactivate for individual styling of this block.',
+									'jetpack-forms'
+								) }
+								__nextHasNoMarginBottom={ true }
+							/>
+						</div>
+					</ToolsPanel>
 				</InspectorControls>
 				<InspectorControls>
 					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
@@ -141,14 +155,6 @@ function JetpackFieldCheckbox( {
 							checked={ required }
 							onChange={ value => setAttributes( { required: value } ) }
 							help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
-							__nextHasNoMarginBottom={ true }
-						/>
-
-						<ToggleControl
-							label={ __( 'Sync fields style', 'jetpack-forms' ) }
-							checked={ attributes.shareFieldAttributes }
-							onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
-							help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
 							__nextHasNoMarginBottom={ true }
 						/>
 					</PanelBody>
