@@ -73,6 +73,7 @@ export const formatAxisTickDate = ( date: Date ) => formatDate( date, 'short' );
 
 /**
  * Calculates evenly spaced tick values for the X-axis for time series data.
+ * Assumes the data is sorted by date, earliest is first.
  *
  * @param {SubscriptionStat[]} data - The subscription data array.
  * @returns {Date[]} An array of dates representing tick positions at 0%, 25%, 50%, 75%, and 100% of the time range.

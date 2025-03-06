@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { SubscribersChart } from '../src/components/subscribers-chart';
-import type { DailyCount } from '../src/types';
+import type { DailySubscriptionStat } from '../src/types';
 
 // Mock the ParentSize component to provide dimensions
 jest.mock( '@visx/responsive', () => ( {
@@ -8,7 +8,7 @@ jest.mock( '@visx/responsive', () => ( {
 } ) );
 
 describe( 'SubscribersChart', () => {
-	const mockCountsByDay: Record< string, DailyCount > = {
+	const mockCountsByDay: Record< string, DailySubscriptionStat > = {
 		'2023-01-01': { all: 10, paid: 5 },
 		'2023-01-02': { all: 15, paid: 5 },
 		'2023-01-03': { all: 20, paid: 8 },
