@@ -158,6 +158,20 @@ declare global {
 					>;
 				} >;
 			};
+			summarizer?: {
+				capabilities: () => Promise< {
+					available: 'no' | 'yes' | 'after-download';
+				} >;
+				create: ( options: {
+					sharedContext?: string;
+					type?: string;
+					format?: string;
+					length?: string;
+				} ) => Promise< {
+					ready: Promise< void >;
+					summarize: ( text: string, summarizeOptions?: { context?: string } ) => Promise< string >;
+				} >;
+			};
 		};
 	}
 }

@@ -85,6 +85,7 @@ class Backup extends Hybrid_Product {
 	 * @return void
 	 */
 	public static function register_endpoints(): void {
+		parent::register_endpoints();
 		// Get backup undo event
 		register_rest_route(
 			'my-jetpack/v1',

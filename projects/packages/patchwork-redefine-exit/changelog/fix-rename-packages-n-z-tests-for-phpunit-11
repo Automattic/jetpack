@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Ignore `Jetpack.PHPUnit.TestClassName` for a fixture file.
+
+

@@ -2,6 +2,21 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.68.1] - 2025-03-05
+### Changed
+- Update package dependencies. [#42162]
+
+## [0.68.0] - 2025-03-03
+### Added
+- Stat Card: add hideValue prop. [#41454]
+
+### Changed
+- Update package dependencies. [#42081] [#42163]
+
+## [0.67.1] - 2025-02-24
+### Changed
+- Update package dependencies. [#41955]
+
 ## [0.67.0] - 2025-02-17
 ### Added
 - Use full import paths with JS extensions. [#41524]
@@ -1290,6 +1305,9 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.68.1]: https://github.com/Automattic/jetpack-components/compare/0.68.0...0.68.1
+[0.68.0]: https://github.com/Automattic/jetpack-components/compare/0.67.1...0.68.0
+[0.67.1]: https://github.com/Automattic/jetpack-components/compare/0.67.0...0.67.1
 [0.67.0]: https://github.com/Automattic/jetpack-components/compare/0.66.1...0.67.0
 [0.66.1]: https://github.com/Automattic/jetpack-components/compare/0.66.0...0.66.1
 [0.66.0]: https://github.com/Automattic/jetpack-components/compare/0.65.5...0.66.0

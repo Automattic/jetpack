@@ -9,16 +9,16 @@
 >
 	<testsuites>
 		<testsuite name="wpcomsh">
-			<directory prefix="test-" suffix=".php">./tests/</directory>
+			<directory suffix="Test.php">./tests/</directory>
 		</testsuite>
 		<testsuite name="wpcloud">
-			<directory prefix="test-" suffix=".php">tests/</directory>
-			<exclude>tests/feature-manager/test-feature-hooks.php</exclude>
-			<exclude>tests/test-blog-token-resilience.php</exclude>
-			<exclude>tests/test-frontend-notices.php</exclude>
-			<exclude>tests/test-functions.php</exclude>
-			<exclude>tests/test-plan-notices.php</exclude>
-			<exclude>tests/test-wpcom-features.php</exclude>
+			<directory suffix="Test.php">tests/</directory>
+			<exclude>tests/feature-manager/FeatureHookTest.php</exclude>
+			<exclude>tests/BlogTokenResilienceTest.php</exclude>
+			<exclude>tests/FrontendNoticesTest.php</exclude>
+			<exclude>tests/FunctionsTest.php</exclude>
+			<exclude>tests/PlanNoticesTest.php</exclude>
+			<exclude>tests/WpcomFeaturesTest.php</exclude>
 		</testsuite>
 	</testsuites>
 	<php>

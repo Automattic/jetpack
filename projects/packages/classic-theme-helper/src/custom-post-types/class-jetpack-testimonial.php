@@ -164,7 +164,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			/**
 			 * Filter whether the site should display testimonials.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.11.0
 			 *
 			 * @param bool $should_display Whether testimonials should be displayed.
 			 */

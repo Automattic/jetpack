@@ -1,4 +1,0 @@
-Significance: major
-Type: removed
-
-Drop support for installation with Composer < 2.2.

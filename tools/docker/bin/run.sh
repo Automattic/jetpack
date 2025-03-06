@@ -13,7 +13,7 @@ user="${APACHE_RUN_USER:-www-data}"
 group="${APACHE_RUN_GROUP:-www-data}"
 
 # Download WordPress
-[ -f /var/www/html/xmlrpc.php ] || wp --allow-root core download
+[ -f /var/www/html/xmlrpc.php ] || wp core download
 
 # Configure WordPress
 if [ ! -f /var/www/html/wp-config.php ]; then
@@ -26,7 +26,7 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 	i=1
 	while [ "$i" -le "$times" ]; do
 		sleep 3
-		wp --allow-root config create \
+		wp config create \
 			--dbhost=${MYSQL_HOST} \
 			--dbname=${MYSQL_DATABASE} \
 			--dbuser=${MYSQL_USER} \
@@ -38,27 +38,27 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 	done
 
 	echo "Setting other wp-config.php constants..."
-	wp --allow-root config set WP_DEBUG true --raw --type=constant
-	wp --allow-root config set WP_DEBUG_LOG true --raw --type=constant
-	wp --allow-root config set WP_DEBUG_DISPLAY false --raw --type=constant
-	wp --allow-root config set SCRIPT_DEBUG true --raw --type=constant
+	wp config set WP_DEBUG true --raw --type=constant
+	wp config set WP_DEBUG_LOG true --raw --type=constant
+	wp config set WP_DEBUG_DISPLAY false --raw --type=constant
+	wp config set SCRIPT_DEBUG true --raw --type=constant
 
 	# Respecting Dockerfile-forwarded environment variables
 	# Allow to be reverse-proxied from https
-	wp --allow-root config set "_SERVER['HTTPS']" "isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ? 'on' : NULL" \
+	wp config set "_SERVER['HTTPS']" "isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ? 'on' : NULL" \
 		--raw \
 		--type=variable
 
 	# Allow this installation to run on http or https.
-	wp --allow-root config set DOCKER_REQUEST_URL \
+	wp config set DOCKER_REQUEST_URL \
 		"( ! empty( \$_SERVER['HTTPS'] ) ? 'https://' : 'http://' ) . ( ! empty( \$_SERVER['HTTP_HOST'] ) ? \$_SERVER['HTTP_HOST'] : 'localhost' )" \
 		--raw \
 		--type=constant
-	wp --allow-root config set WP_SITEURL "DOCKER_REQUEST_URL" --raw --type=constant
-	wp --allow-root config set WP_HOME "DOCKER_REQUEST_URL" --raw --type=constant
+	wp config set WP_SITEURL "DOCKER_REQUEST_URL" --raw --type=constant
+	wp config set WP_HOME "DOCKER_REQUEST_URL" --raw --type=constant
 
 	# Tell WP-CONFIG we're in a docker instance.
-	wp --allow-root config set JETPACK_DOCKER_ENV true --raw --type=constant
+	wp config set JETPACK_DOCKER_ENV true --raw --type=constant
 fi
 
 # Copy single site htaccess if none is present
@@ -79,7 +79,7 @@ fi
 if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	# If we don't have the wordpress test helpers, download them
 	if [ ! -d /tmp/wordpress-develop/tests ]; then
-		CUR_WP_VERSION=$(wp --allow-root core version);
+		CUR_WP_VERSION=$(wp core version);
 		# Get latest WordPress unit-test helper files
 		svn co \
 			"https://develop.svn.wordpress.org/tags/$CUR_WP_VERSION/tests/phpunit/data" \

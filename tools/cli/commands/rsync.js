@@ -464,12 +464,42 @@ async function isFileExcluded( filePath ) {
  * @return {string} Files that aren't tracked.
  */
 async function getUntrackedFiles( pluginPath ) {
+	const paths = [ pluginPath ];
+
+	// Add any Composer-symlinked vendor packages. Assumes the usual directory structure.
+	const cwd = await fs.realpath( process.cwd() );
+	for ( const dir of [ 'vendor', 'jetpack_vendor' ] ) {
+		const dirents = (
+			await fs.readdir( path.join( pluginPath, dir ), { withFileTypes: true } ).catch( () => [] )
+		).filter( e => e.isDirectory() );
+		for ( const dir2 of dirents ) {
+			const dirents2 = (
+				await fs
+					.readdir( path.join( dir2.parentPath, dir2.name ), { withFileTypes: true } )
+					.catch( () => [] )
+			).filter( e => e.isSymbolicLink() );
+			for ( const link of dirents2 ) {
+				try {
+					const rp = path.relative(
+						cwd,
+						await fs.realpath( path.join( link.parentPath, link.name ) )
+					);
+					if ( ! rp.startsWith( '..' + path.sep ) ) {
+						paths.push( rp );
+					}
+				} catch {
+					// Probably a broken symlink. Ignore it.
+				}
+			}
+		}
+	}
+
 	try {
 		const { stdout } = await execa( 'git', [
 			'ls-files',
 			'--others',
 			'--exclude-standard',
-			pluginPath,
+			...paths,
 		] );
 		return stdout;
 	} catch ( e ) {

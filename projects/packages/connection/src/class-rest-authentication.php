@@ -219,4 +219,17 @@ class Rest_Authentication {
 
 		return true === $instance->rest_authentication_status && 'blog' === $instance->rest_authentication_type;
 	}
+
+	/**
+	 * Whether the request was signed with a user token.
+	 *
+	 * @since 6.7.0
+	 *
+	 * @return bool True if the request was signed with a valid user token, false otherwise.
+	 */
+	public static function is_signed_with_user_token() {
+		$instance = self::init();
+
+		return true === $instance->rest_authentication_status && 'user' === $instance->rest_authentication_type;
+	}
 }

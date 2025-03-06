@@ -203,7 +203,7 @@ if ( ! in_running_uninstall_group() ) {
 }
 
 // Load attachment helper methods.
-require __DIR__ . '/attachment_test_case.php';
+require __DIR__ . '/attachment_testcase.php';
 
 // Load WPCOM-shared helper functions.
 require __DIR__ . '/lib/class-wpcom-features.php';

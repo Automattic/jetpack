@@ -15,14 +15,14 @@ $body-background: $studio-gray-0; // Calypso --color-surface-backdrop
 $menu-text: $studio-gray-80; // Calypso --color-sidebar-text
 $menu-background: $studio-white; // Calypso --color-sidebar-background
 $menu-highlight-text: $studio-gray-90; // Calypso --color-sidebar-menu-hover-text
-$menu-highlight-icon: $studio-pink-30;
+$menu-highlight-icon: $studio-gray-90;
 $menu-highlight-background: $studio-gray-5; // Calypso --color-sidebar-menu-hover-background
 $menu-current-text: $studio-blue-70; // Calypso --color-sidebar-menu-selected-text
 $menu-current-icon: $menu-current-text;
 $menu-current-background: $studio-blue-5; // Calypso --color-sidebar-menu-selected-background
-$menu-submenu-text: $studio-gray-10; // Calypso --color-sidebar-submenu-text
-$menu-submenu-background: $studio-blue-70; // Calypso --color-sidebar-submenu-background
-$menu-submenu-focus-text: $studio-pink-30; // Calypso --color-sidebar-submenu-hover-text
+$menu-submenu-text: $studio-blue-70; // Calypso --color-sidebar-submenu-text
+$menu-submenu-background: $studio-blue-0; // Calypso --color-sidebar-submenu-background
+$menu-submenu-focus-text: $studio-gray-90; // Calypso --color-sidebar-submenu-hover-text
 $menu-submenu-current-text: $studio-pink-50; // Calypso --color-sidebar-submenu-selected-text
 $adminbar-avatar-frame: $studio-blue-70;
 
@@ -30,6 +30,8 @@ $adminbar-avatar-frame: $studio-blue-70;
 $masterbar-background: $studio-blue-60; // Calypso --color-masterbar-background
 $masterbar-highlight-background: $studio-blue-70; // Calypso --color-masterbar-item-hover-background
 $masterbar-active-background: $studio-blue-90; // Calypso --color-masterbar-item-active-background
+$masterbar-submenu-background: $studio-blue-70;
+$masterbar-submenu-background-alt: $studio-blue-80;
 
 // nav unification overrides
 $nav-unification-sidebar-border: $studio-gray-5; // Calypso --color-sidebar-border

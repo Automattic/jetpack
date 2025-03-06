@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Extended unlinkUser so a parameter for disconnecting all users can be passed.

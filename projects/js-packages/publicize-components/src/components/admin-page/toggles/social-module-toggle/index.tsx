@@ -13,6 +13,7 @@ import clsx from 'clsx';
 import React, { useCallback } from 'react';
 import { store as socialStore } from '../../../../social-store';
 import { getSocialScriptData, hasSocialPaidFeatures } from '../../../../utils';
+import { canToggleSocialModule } from '../../../../utils/misc';
 import ConnectionManagement from '../../../connection-management';
 import ToggleSection from '../toggle-section';
 import styles from './styles.module.scss';
@@ -77,9 +78,10 @@ const SocialModuleToggle: React.FC = () => {
 		) : null;
 	};
 
+	const hideToggle = ! canToggleSocialModule();
 	return (
 		<ToggleSection
-			hideToggle={ is_wpcom }
+			hideToggle={ hideToggle }
 			title={ __(
 				'Automatically share your posts to social networks',
 				'jetpack-publicize-components'
@@ -89,7 +91,7 @@ const SocialModuleToggle: React.FC = () => {
 			onChange={ toggleModule }
 		>
 			<Text className={ styles.text }>
-				{ ! is_wpcom
+				{ ! hideToggle
 					? _x(
 							'When enabled, you’ll be able to connect your social media accounts and send a post’s featured image and content to the selected channels with a single click when the post is published.',
 							'Description of the feature that the toggle enables',

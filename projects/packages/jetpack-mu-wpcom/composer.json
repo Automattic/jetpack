@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.2",
+		"php": ">=8.1",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-calypsoify": "@dev",
