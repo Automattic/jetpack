@@ -8,40 +8,44 @@ import ErrorNotice from '$features/error-notice/error-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 import styles from './speculation-rules-meta.module.scss';
+import clsx from 'clsx';
 
 const Meta = () => {
 	const speculationRules = useSpeculationRules();
-	const [ exceptions, mutateExceptions ] = useDataSyncSubset( speculationRules, 'bypass_patterns' );
-	const totalExceptions = exceptions?.length || 0;
+	const [ patterns, mutateBypassPatterns ] = useDataSyncSubset(
+		speculationRules,
+		'bypass_patterns'
+	);
+	const totalBypassPatterns = patterns?.length || 0;
 
 	const getSummary = () => {
-		return totalExceptions > 0
+		return totalBypassPatterns > 0
 			? sprintf(
-					/* translators: %d is the number of exception patterns. */
-					_n( '%d exception.', '%d exceptions.', totalExceptions, 'jetpack-boost' ),
-					totalExceptions
+					/* translators: %d is the number of bypass patterns. */
+					_n( '%d exception.', '%d exceptions.', totalBypassPatterns, 'jetpack-boost' ),
+					totalBypassPatterns
 			  )
 			: __( 'No exceptions.', 'jetpack-boost' );
 	};
 
-	const updateExceptions = ( newValue: string ) => {
-		const newExceptions = newValue
+	const updatePatterns = ( newValue: string ) => {
+		const newPatterns = newValue
 			.split( '\n' )
 			.map( line => line.trim() )
 			.filter( line => line !== '' );
 
-		recordBoostEvent( 'speculation_rules_exceptions', {
-			total: newExceptions.length,
+		recordBoostEvent( 'speculation_rules_bypass_patterns', {
+			total: newPatterns.length,
 		} );
-		mutateExceptions.mutate( newExceptions );
+		mutateBypassPatterns.mutate( newPatterns );
 	};
 
 	const content = (
 		<div className={ styles.body }>
-			<Exceptions
-				exceptions={ exceptions.join( '\n' ) }
-				setExceptions={ updateExceptions }
-				showErrorNotice={ mutateExceptions.isError }
+			<BypassPatterns
+				patterns={ patterns.join( '\n' ) }
+				setPatterns={ updatePatterns }
+				showErrorNotice={ mutateBypassPatterns.isError }
 			/>
 		</div>
 	);
@@ -61,19 +65,45 @@ const Meta = () => {
 	);
 };
 
-interface ExceptionsProps {
-	exceptions: string;
-	setExceptions: ( value: string ) => void;
+interface BypassPatternsProps {
+	patterns: string;
+	setPatterns: ( value: string ) => void;
 	showErrorNotice?: boolean;
 }
 
-const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: ExceptionsProps ) => {
-	const [ inputValue, setInputValue ] = useState( exceptions );
+const BypassPatterns = ( {
+	patterns,
+	setPatterns,
+	showErrorNotice = false,
+}: BypassPatternsProps ) => {
+	const [ inputValue, setInputValue ] = useState( patterns );
 	const [ showNotice, setShowNotice ] = useState( showErrorNotice );
+	const [ inputInvalid, setInputInvalid ] = useState( false );
+
+	const validateInputValue = ( value: string ) => {
+		setInputValue( value );
+		setInputInvalid( ! validatePatterns( value ) );
+	};
+
+	const validatePatterns = ( value: string ) => {
+		const lines = value
+			.split( '\n' )
+			.map( line => line.trim() )
+			.filter( line => line.trim() !== '' );
+
+		// check if it's a valid regex
+		try {
+			lines.forEach( line => new RegExp( line ) );
+		} catch {
+			return false;
+		}
+
+		return true;
+	};
 
 	useEffect( () => {
-		setInputValue( exceptions );
-	}, [ exceptions ] );
+		setInputValue( patterns );
+	}, [ patterns ] );
 
 	useEffect( () => {
 		setShowNotice( showErrorNotice );
@@ -81,11 +111,15 @@ const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: Exc
 
 	function save() {
 		recordBoostEvent( 'speculation_rules_exceptions_save_clicked', {} );
-		setExceptions( inputValue );
+		setPatterns( inputValue );
 	}
 
 	return (
-		<div className={ styles.section }>
+		<div
+			className={ clsx( styles.section, {
+				[ styles[ 'has-error' ] ]: inputInvalid,
+			} ) }
+		>
 			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
 			<label htmlFor="jb-speculation-rules-exceptions">
 				{ __(
@@ -96,7 +130,7 @@ const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: Exc
 			<textarea
 				value={ inputValue }
 				rows={ 3 }
-				onChange={ e => setInputValue( e.target.value ) }
+				onChange={ e => validateInputValue( e.target.value ) }
 				id="jb-speculation-rules-exceptions"
 			/>
 			<div className={ styles.description }>
@@ -114,7 +148,7 @@ const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: Exc
 					{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
 				</Notice>
 			) }
-			<Button disabled={ exceptions === inputValue } onClick={ save } className={ styles.button }>
+			<Button disabled={ patterns === inputValue } onClick={ save } className={ styles.button }>
 				{ __( 'Save', 'jetpack-boost' ) }
 			</Button>
 		</div>
