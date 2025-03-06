@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social | Moved JS editor code from Jetpack and Social to Publicize package
