@@ -128,11 +128,17 @@ describe( 'pickVideoBlockAttributesFromUrl', () => {
 describe( 'getVideoNameFromUrl', () => {
 	it( 'should return empty string when no URL', () => {
 		expect( getVideoNameFromUrl( '' ) ).toBe( '' );
+
+		expect( getVideoNameFromUrl( 'wrong-url' ) ).toBe( '' );
 	} );
 
 	it( 'should return video name from URL', () => {
 		expect(
 			getVideoNameFromUrl( 'https://test.wordpres.com/xxxx-photo-2693212/video-file.mp4' )
 		).toBe( 'video-file.mp4' );
+
+		expect( getVideoNameFromUrl( 'https://test.wordpres.com/xxxx-photo-2693212/video-file' ) ).toBe(
+			'video-file'
+		);
 	} );
 } );
