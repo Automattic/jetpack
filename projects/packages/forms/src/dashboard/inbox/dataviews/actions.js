@@ -163,7 +163,7 @@ export const restoreAction = {
 		}
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
-		// TODO: probably have better error messages..
+		// TODO: probably have better error messages.. This goes for all the actions that need this.
 		const errorMessage =
 			numberOfErrors === 1
 				? /* translators: The number of responses. */
@@ -207,7 +207,6 @@ export const moveToTrashAction = {
 		}
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
-		// TODO: probably have better error messages..
 		const errorMessage =
 			numberOfErrors === 1
 				? /* translators: The number of responses. */
@@ -261,7 +260,6 @@ export const deleteAction = {
 		}
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
-		// TODO: probably have better error messages..
 		const errorMessage =
 			numberOfErrors === 1
 				? /* translators: The number of responses. */
