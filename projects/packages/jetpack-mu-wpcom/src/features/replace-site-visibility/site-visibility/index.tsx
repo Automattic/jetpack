@@ -121,12 +121,6 @@ const SiteVisibility = ( {
 
 	return (
 		<>
-			<input type="hidden" name="wpcom_coming_soon" value={ wpcomComingSoon ? 1 : 0 } />
-			<input
-				type="hidden"
-				name="wpcom_public_coming_soon"
-				value={ fields.wpcomPublicComingSoon ? 1 : 0 }
-			/>
 			<p>
 				{ __( 'Control who can view your site.', 'jetpack-mu-wpcom' ) }
 				&nbsp;
@@ -346,6 +340,17 @@ const SiteVisibility = ( {
 					</p>
 				</li>
 			</ul>
+			<input type="hidden" name="wpcom_coming_soon" value={ wpcomComingSoon ? 1 : 0 } />
+			<input
+				type="hidden"
+				name="wpcom_public_coming_soon"
+				value={ wpcomPublicComingSoon ? 1 : 0 }
+			/>
+			<input
+				type="hidden"
+				name="wpcom_data_sharing_opt_out"
+				value={ wpcomDataSharingOptOut ? 'true' : 'false' }
+			/>
 		</>
 	);
 };
