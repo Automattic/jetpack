@@ -54,7 +54,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 
 		if ( Jetpack::is_connection_ready() ) {
 			$site_id  = Jetpack_Options::get_option( 'id' );
-			$api_path = sprintf( '/sites/%d/subscribers/counts?aggregate=true', $site_id );
+			$api_path = sprintf( '/sites/%d/subscribers/stats', $site_id );
 			$response = Client::wpcom_json_api_request_as_blog(
 				$api_path,
 				'2',
