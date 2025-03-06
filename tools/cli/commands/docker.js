@@ -262,13 +262,13 @@ const launchNgrok = argv => {
  * @param {Array}         opts                      - Options for the Docker command.
  * @param {object}        unitTestArgs              - Unit test args.
  * @param {string}        unitTestArgs.plugin       - The name of the plugin we're running tests against.
- * @param {string}        [unitTestArgs.configFile] - The PHPUnit configuration file to use. Defaults to 'phpunit.xml.dist'.
+ * @param {string}        [unitTestArgs.configFile] - The PHPUnit configuration file to use. Defaults to 'phpunit.#.xml.dist'.
  * @param {Array<string>} [unitTestArgs.envVars]    - Environment variables to set in the Docker container.
  * @return {Array} Modified opts array.
  */
 const buildPhpUnitTestCmd = ( argv, opts, unitTestArgs ) => {
 	const passthruArgs = argv._.slice( 2 );
-	const configFile = unitTestArgs.configFile ?? 'phpunit.xml.dist';
+	const configFile = unitTestArgs.configFile ?? 'phpunit.#.xml.dist';
 
 	opts.splice( 1, 0, '-w', '/var/www/html/wp-content/plugins/' + unitTestArgs.plugin ); // Need to add this option to `exec` before the container name.
 	if ( unitTestArgs.envVars ) {
@@ -280,8 +280,8 @@ const buildPhpUnitTestCmd = ( argv, opts, unitTestArgs ) => {
 	opts.push(
 		...( argv.php
 			? [ '/var/scripts/phpunit-version-wrapper.sh', argv.php ]
-			: [ 'vendor/bin/phpunit' ] ),
-		'--configuration=/var/www/html/wp-content/plugins/' + unitTestArgs.plugin + '/' + configFile,
+			: [ 'vendor/bin/phpunit-select-config' ] ),
+		'/var/www/html/wp-content/plugins/' + unitTestArgs.plugin + '/' + configFile,
 		...passthruArgs
 	);
 	return opts;
@@ -406,7 +406,7 @@ const buildExecCmd = argv => {
 
 		const unitTestArgs = {
 			plugin: 'jetpack',
-			configFile: 'tests/php.multisite.xml',
+			configFile: 'tests/php.multisite.#.xml',
 		};
 		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
 	} else if ( cmd === 'phpunit-wpcomsh' ) {
