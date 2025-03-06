@@ -214,6 +214,104 @@ const JetpackFieldControls = ( {
 					</div>
 				</ToolsPanel>
 				<ToolsPanel
+					label={
+						isChoicesBlock
+							? __( 'Options Typography', 'jetpack-forms' )
+							: __( 'Input Typography', 'jetpack-forms' )
+					}
+					resetAll={ () => {
+						setAttributes( {
+							fieldFontSize: undefined,
+							lineHeight: undefined,
+							buttonBorderWidth: undefined,
+							buttonBorderRadius: undefined,
+							borderWidth: undefined,
+							borderRadius: undefined,
+						} );
+					} }
+					dropdownMenuProps={ dropdownMenuProps }
+				>
+					<ToolsPanelItem
+						hasValue={ () => !! attributes.fieldFontSize }
+						label={ __( 'Size', 'jetpack-forms' ) }
+						onDeselect={ () =>
+							setAttributes( {
+								fieldFontSize: undefined,
+							} )
+						}
+					>
+						<FontSizePicker
+							withReset={ false }
+							onChange={ fieldFontSize => setAttributes( { fieldFontSize } ) }
+							value={ attributes.fieldFontSize }
+							size="__unstable-large"
+							__nextHasNoMarginBottom
+						/>
+					</ToolsPanelItem>
+					<ToolsPanelItem
+						hasValue={ () => !! attributes.lineHeight }
+						label={ __( 'Line height', 'jetpack-forms' ) }
+						onDeselect={ () =>
+							setAttributes( {
+								lineHeight: undefined,
+							} )
+						}
+					>
+						<LineHeightControl
+							__nextHasNoMarginBottom={ true }
+							__unstableInputWidth="100%"
+							value={ attributes.lineHeight }
+							onChange={ setNumberAttribute( 'lineHeight', parseFloat ) }
+							size="__unstable-large"
+						/>
+					</ToolsPanelItem>
+				</ToolsPanel>
+				<ToolsPanel
+					label={ __( 'Label Typography', 'jetpack-forms' ) }
+					resetAll={ () => {
+						setAttributes( {
+							labelFontSize: undefined,
+							labelLineHeight: undefined,
+						} );
+					} }
+					dropdownMenuProps={ dropdownMenuProps }
+				>
+					<ToolsPanelItem
+						hasValue={ () => !! attributes.labelFontSize }
+						label={ __( 'Size', 'jetpack-forms' ) }
+						onDeselect={ () =>
+							setAttributes( {
+								labelFontSize: undefined,
+							} )
+						}
+					>
+						<FontSizePicker
+							withReset={ true }
+							size="__unstable-large"
+							__nextHasNoMarginBottom
+							onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
+							value={ attributes.labelFontSize }
+						/>
+					</ToolsPanelItem>
+					<ToolsPanelItem
+						hasValue={ () => !! attributes.labelLineHeight }
+						label={ __( 'Line height', 'jetpack-forms' ) }
+						onDeselect={ () =>
+							setAttributes( {
+								labelLineHeight: undefined,
+							} )
+						}
+					>
+						<LineHeightControl
+							__unstableInputWidth="100%"
+							__nextHasNoMarginBottom={ true }
+							value={ attributes.labelLineHeight }
+							onChange={ setNumberAttribute( 'labelLineHeight', parseFloat ) }
+							size="__unstable-large"
+						/>
+					</ToolsPanelItem>
+				</ToolsPanel>
+				<ToolsPanel
 					label={ __( 'Border', 'jetpack-forms' ) }
 					panelId={ clientId }
 					resetAll={ () => {
@@ -314,104 +412,6 @@ const JetpackFieldControls = ( {
 							</ToolsPanelItem>
 						</>
 					) }
-				</ToolsPanel>
-				<ToolsPanel
-					label={
-						isChoicesBlock
-							? __( 'Options Typography', 'jetpack-forms' )
-							: __( 'Input Typography', 'jetpack-forms' )
-					}
-					resetAll={ () => {
-						setAttributes( {
-							fieldFontSize: undefined,
-							lineHeight: undefined,
-							buttonBorderWidth: undefined,
-							buttonBorderRadius: undefined,
-							borderWidth: undefined,
-							borderRadius: undefined,
-						} );
-					} }
-					dropdownMenuProps={ dropdownMenuProps }
-				>
-					<ToolsPanelItem
-						hasValue={ () => !! attributes.fieldFontSize }
-						label={ __( 'Size', 'jetpack-forms' ) }
-						onDeselect={ () =>
-							setAttributes( {
-								fieldFontSize: undefined,
-							} )
-						}
-					>
-						<FontSizePicker
-							withReset={ false }
-							onChange={ fieldFontSize => setAttributes( { fieldFontSize } ) }
-							value={ attributes.fieldFontSize }
-							size="__unstable-large"
-							__nextHasNoMarginBottom
-						/>
-					</ToolsPanelItem>
-					<ToolsPanelItem
-						hasValue={ () => !! attributes.lineHeight }
-						label={ __( 'Line height', 'jetpack-forms' ) }
-						onDeselect={ () =>
-							setAttributes( {
-								lineHeight: undefined,
-							} )
-						}
-					>
-						<LineHeightControl
-							__nextHasNoMarginBottom={ true }
-							__unstableInputWidth="100%"
-							value={ attributes.lineHeight }
-							onChange={ setNumberAttribute( 'lineHeight', parseFloat ) }
-							size="__unstable-large"
-						/>
-					</ToolsPanelItem>
-				</ToolsPanel>
-				<ToolsPanel
-					label={ __( 'Label Typography', 'jetpack-forms' ) }
-					resetAll={ () => {
-						setAttributes( {
-							labelFontSize: undefined,
-							labelLineHeight: undefined,
-						} );
-					} }
-					dropdownMenuProps={ dropdownMenuProps }
-				>
-					<ToolsPanelItem
-						hasValue={ () => !! attributes.labelFontSize }
-						label={ __( 'Size', 'jetpack-forms' ) }
-						onDeselect={ () =>
-							setAttributes( {
-								labelFontSize: undefined,
-							} )
-						}
-					>
-						<FontSizePicker
-							withReset={ true }
-							size="__unstable-large"
-							__nextHasNoMarginBottom
-							onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
-							value={ attributes.labelFontSize }
-						/>
-					</ToolsPanelItem>
-					<ToolsPanelItem
-						hasValue={ () => !! attributes.labelLineHeight }
-						label={ __( 'Line height', 'jetpack-forms' ) }
-						onDeselect={ () =>
-							setAttributes( {
-								labelLineHeight: undefined,
-							} )
-						}
-					>
-						<LineHeightControl
-							__unstableInputWidth="100%"
-							__nextHasNoMarginBottom={ true }
-							value={ attributes.labelLineHeight }
-							onChange={ setNumberAttribute( 'labelLineHeight', parseFloat ) }
-							size="__unstable-large"
-						/>
-					</ToolsPanelItem>
 				</ToolsPanel>
 			</InspectorControls>
 			<InspectorAdvancedControls>
