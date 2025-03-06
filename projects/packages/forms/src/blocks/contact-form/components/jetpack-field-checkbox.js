@@ -8,10 +8,12 @@ import {
 import {
 	PanelBody,
 	ToggleControl,
+	__experimentalToolsPanel as ToolsPanel, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToolsPanelItem as ToolsPanelItem, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import useToolsPanelResponsiveDropdownProps from '../util/use-tool-panel-responsive-dropdown-props';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import ToolbarRequiredGroup from './block-controls/toolbar-required-group';
 import JetpackFieldDimensionControls from './jetpack-field-dimension-controls';
@@ -37,6 +39,7 @@ function JetpackFieldCheckbox( {
 		className: 'jetpack-field jetpack-field-checkbox',
 		style: blockStyle,
 	} );
+	const toolsPanelDropdownMenuProps = useToolsPanelResponsiveDropdownProps();
 
 	return (
 		<>
@@ -77,47 +80,56 @@ function JetpackFieldCheckbox( {
 					setAttributes={ setAttributes }
 					width={ width }
 				/>
-				<InspectorControls group="color">
-					<ColorGradientSettingsDropdown
-						__experimentalIsRenderedInSidebar
+				<InspectorControls group="styles">
+					<ToolsPanel
 						panelId={ clientId }
-						gradients={ [] }
-						disableCustomGradients
-						settings={ [
-							{
-								colorValue: attributes.labelColor,
-								onColorChange: value => setAttributes( { labelColor: value } ),
-								label: __( 'Label Text', 'jetpack-forms' ),
-								resetAllFilter: () => setAttributes( { labelColor: undefined } ),
-								clearable: true,
-							},
-						] }
-					/>
-				</InspectorControls>
-				<InspectorControls group="typography">
-					<ToolsPanelItem
-						panelId={ clientId }
-						hasValue={ () => !! attributes.labelFontSize }
-						label={ __( 'Size', 'jetpack-forms' ) }
-						onDeselect={ () =>
-							setAttributes( {
-								labelFontSize: undefined,
-							} )
-						}
-						resetAllFilter={ () => ( {
-							labelFontSize: undefined,
-						} ) }
-						isShownByDefault
+						label={ __( 'Color', 'jetpack-forms' ) }
+						resetAll={ () => setAttributes( { labelColor: undefined } ) }
+						dropdownMenuProps={ toolsPanelDropdownMenuProps }
 					>
-						<FontSizePicker
-							withSlider
-							withReset={ true }
-							size="__unstable-large"
-							__nextHasNoMarginBottom
-							onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
-							value={ attributes.labelFontSize }
-						/>
-					</ToolsPanelItem>
+						<div className="jetpack-field-controls__color-settings">
+							<ColorGradientSettingsDropdown
+								__experimentalIsRenderedInSidebar
+								panelId={ clientId }
+								gradients={ [] }
+								disableCustomGradients
+								settings={ [
+									{
+										colorValue: attributes.labelColor,
+										onColorChange: value => setAttributes( { labelColor: value } ),
+										label: __( 'Label Text', 'jetpack-forms' ),
+										clearable: true,
+									},
+								] }
+							/>
+						</div>
+					</ToolsPanel>
+					<ToolsPanel
+						panelId={ clientId }
+						label={ __( 'Label Typography', 'jetpack-forms' ) }
+						resetAll={ () => setAttributes( { labelFontSize: undefined } ) }
+						dropdownMenuProps={ toolsPanelDropdownMenuProps }
+					>
+						<ToolsPanelItem
+							panelId={ clientId }
+							hasValue={ () => !! attributes.labelFontSize }
+							label={ __( 'Size', 'jetpack-forms' ) }
+							onDeselect={ () =>
+								setAttributes( {
+									labelFontSize: undefined,
+								} )
+							}
+						>
+							<FontSizePicker
+								withSlider
+								withReset={ true }
+								size="__unstable-large"
+								__nextHasNoMarginBottom
+								onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
+								value={ attributes.labelFontSize }
+							/>
+						</ToolsPanelItem>
+					</ToolsPanel>
 				</InspectorControls>
 				<InspectorControls>
 					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
