@@ -114,7 +114,7 @@ const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =>
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
-		if ( ! checkForCookie( cookieKey ) ) {
+		if ( ! isLoading && ! checkForCookie( cookieKey ) ) {
 			setNotice( {
 				title: noticeTitle,
 				message: noticeMessage,
@@ -134,6 +134,7 @@ const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =>
 		isExpiredAlert,
 		productSlug,
 		cookieKey,
+		isLoading,
 	] );
 };
 

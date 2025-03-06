@@ -108,7 +108,7 @@ const useBackupNeedsAttentionNotice: NoticeHookType = ( redBubbleAlerts, isLoadi
 			priority: NOTICE_PRIORITY_HIGH,
 		};
 
-		if ( ! checkForCookie( 'backup_failure_dismissed' ) ) {
+		if ( ! isLoading && ! checkForCookie( 'backup_failure_dismissed' ) ) {
 			setNotice( {
 				title: noticeTitle,
 				message: noticeMessage,

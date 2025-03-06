@@ -8,9 +8,10 @@ import checkForCookie from '../../utils/check-for-cookie';
 import createCookie from '../../utils/create-cookie';
 import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
+import type { NoticeHookType } from './types';
 import type { NoticeOptions } from '../../context/notices/types';
 
-const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
+const useProtectThreatsDetectedNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { detail } = useProduct( 'protect' );
@@ -114,7 +115,7 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
-		if ( ! checkForCookie( 'protect_threats_detected_dismissed' ) ) {
+		if ( ! isLoading && ! checkForCookie( 'protect_threats_detected_dismissed' ) ) {
 			setNotice( {
 				title: noticeTitle,
 				message: noticeMessage,
@@ -131,6 +132,7 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 		redBubbleAlerts?.protect_has_threats,
 		setNotice,
 		type,
+		isLoading,
 	] );
 };
 

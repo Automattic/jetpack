@@ -55,10 +55,12 @@ const useBadInstallNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) => {
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
-		setNotice( {
-			message: errorMessage,
-			options: noticeOptions,
-		} );
+		if ( ! isLoading ) {
+			setNotice( {
+				message: errorMessage,
+				options: noticeOptions,
+			} );
+		}
 	}, [ redBubbleAlerts, setNotice, recordEvent, isLoading ] );
 };
 

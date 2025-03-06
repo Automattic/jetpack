@@ -119,11 +119,13 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 			</Col>
 		);
 
-		setNotice( {
-			message: messageContent,
-			title: requiresUserConnection ? userConnectionContent.title : siteConnectionContent.title,
-			options: noticeOptions,
-		} );
+		if ( ! isLoading ) {
+			setNotice( {
+				message: messageContent,
+				title: requiresUserConnection ? userConnectionContent.title : siteConnectionContent.title,
+				options: noticeOptions,
+			} );
+		}
 	}, [
 		isSiteConnected,
 		connectSite,
@@ -137,6 +139,7 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 		connectionError,
 		refetchOwnershipData,
 		productSlugsThatRequireUserConnection,
+		isLoading,
 	] );
 };
 
