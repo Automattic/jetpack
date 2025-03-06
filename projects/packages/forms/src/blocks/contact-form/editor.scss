@@ -536,6 +536,17 @@
 	font-size: inherit;
 }
 
+// Replicates `color-block-support-panel__inner-wrapper` in core, which
+// wraps the `ColorGradientSettingsDropdown` and sets the correct column
+// and margin.
+.jetpack-field-controls__color-settings {
+	grid-column: 1 / -1;
+
+	.components-tools-panel-item:first-child {
+		margin-top: 0;
+	}
+}
+
 // Duplicated to elevate specificity in order to overwrite calypso styles
 .jetpack-option__remove.jetpack-option__remove {
 	padding: 6px;
