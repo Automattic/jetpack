@@ -823,7 +823,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'i18n'          => array(
 				'language'           => get_bloginfo( 'language' ),
 				'fileSizeUnits'      => $file_size_units,
-				'removeFile'         => __( 'Remove', 'jetpack-forms' ),
 				'uploadError'        => __( 'Error uploading file', 'jetpack-forms' ),
 				'folderNotSupported' => __( 'Folder uploads are not supported', 'jetpack-forms' ),
 				// translators: %s is the formatted maximum file size.
@@ -874,7 +873,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 							<span class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></span>
 							<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
 						</div>
-						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="Remove file" data-wp-on--click="actions.removeFile">Remove</a>
+						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="Remove file" data-wp-on--click="actions.removeFile"><?php esc_html_e( 'Remove', 'jetpack-forms' ); ?></a>
 					</div>
 				</template>
 			</div>
