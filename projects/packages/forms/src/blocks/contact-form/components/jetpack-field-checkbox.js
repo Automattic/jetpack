@@ -1,11 +1,15 @@
 import {
 	FontSizePicker,
 	InspectorControls,
-	PanelColorSettings,
 	BlockControls,
 	useBlockProps,
+	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl } from '@wordpress/components';
+import {
+	PanelBody,
+	ToggleControl,
+	__experimentalToolsPanelItem as ToolsPanelItem, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
@@ -73,6 +77,48 @@ function JetpackFieldCheckbox( {
 					setAttributes={ setAttributes }
 					width={ width }
 				/>
+				<InspectorControls group="color">
+					<ColorGradientSettingsDropdown
+						__experimentalIsRenderedInSidebar
+						panelId={ clientId }
+						gradients={ [] }
+						disableCustomGradients
+						settings={ [
+							{
+								colorValue: attributes.labelColor,
+								onColorChange: value => setAttributes( { labelColor: value } ),
+								label: __( 'Label Text', 'jetpack-forms' ),
+								resetAllFilter: () => setAttributes( { labelColor: undefined } ),
+								clearable: true,
+							},
+						] }
+					/>
+				</InspectorControls>
+				<InspectorControls group="typography">
+					<ToolsPanelItem
+						panelId={ clientId }
+						hasValue={ () => !! attributes.labelFontSize }
+						label={ __( 'Size', 'jetpack-forms' ) }
+						onDeselect={ () =>
+							setAttributes( {
+								labelFontSize: undefined,
+							} )
+						}
+						resetAllFilter={ () => ( {
+							labelFontSize: undefined,
+						} ) }
+						isShownByDefault
+					>
+						<FontSizePicker
+							withSlider
+							withReset={ true }
+							size="__unstable-large"
+							__nextHasNoMarginBottom
+							onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
+							value={ attributes.labelFontSize }
+						/>
+					</ToolsPanelItem>
+				</InspectorControls>
 				<InspectorControls>
 					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 						<JetpackManageResponsesSettings isChildBlock />
@@ -92,30 +138,6 @@ function JetpackFieldCheckbox( {
 							onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
 							help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
 							__nextHasNoMarginBottom={ true }
-						/>
-					</PanelBody>
-					<PanelColorSettings
-						title={ __( 'Color', 'jetpack-forms' ) }
-						initialOpen={ false }
-						colorSettings={ [
-							{
-								value: attributes.labelColor,
-								onChange: value => setAttributes( { labelColor: value } ),
-								label: __( 'Label Text', 'jetpack-forms' ),
-							},
-						] }
-					/>
-					<PanelBody
-						title={ __( 'Label Styles', 'jetpack-forms' ) }
-						initialOpen={ attributes.labelFontSize }
-					>
-						<FontSizePicker
-							withSlider
-							withReset={ true }
-							size="__unstable-large"
-							__nextHasNoMarginBottom
-							onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
-							value={ attributes.labelFontSize }
 						/>
 					</PanelBody>
 				</InspectorControls>
