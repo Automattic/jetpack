@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+PR checks: make check fail when a [Type] label is missing.

@@ -1,5 +1,6 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
+const { setFailed } = require( '@actions/core' );
 const moment = require( 'moment' );
 const debug = require( '../../utils/debug' );
 const getAffectedChangeloggerProjects = require( '../../utils/get-affected-changelogger-projects' );
@@ -527,6 +528,11 @@ If you have questions about anything, reach out in #jetpack-developers for guida
 	// If some of our checks are failing, remove any "Needs Review" labels and add an Needs Author Reply label.
 	if ( comment.includes( ':red_circle:' ) ) {
 		await updateLabels( payload, octokit );
+	}
+
+	// If the Type label is missing, make that task fail.
+	if ( ! statusChecks.hasTypeLabels ) {
+		setFailed( 'Your PR is missing a "[Type]" label. Please add one.' );
 	}
 }
 
