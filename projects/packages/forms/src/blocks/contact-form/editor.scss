@@ -942,3 +942,13 @@
 .block-editor-block-inspector .components-base-control .components-base-control:last-child {
 	margin-bottom: 0;
 }
+
+.is-style-outlined .jetpack-field.is-selected .notched-label__label[style*="font-size"] > *,
+.is-style-outlined .jetpack-field.has-placeholder .notched-label__label[style*="font-size"] > * {
+    font-size: 0.8em;
+}
+
+.is-style-animated .jetpack-field.is-selected .animated-label__label[style*="font-size"] > *,
+.is-style-animated .jetpack-field.has-placeholder .animated-label__label[style*="font-size"] > * {
+    font-size: 0.75em;
+}

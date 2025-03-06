@@ -522,6 +522,15 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: 0.8em;
 }
 
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__label[style*="font-size"] > *,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__label[style*="font-size"] > *,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__label[style*="font-size"] > *,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__label[style*="font-size"] > *,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__label[style*="font-size"] > *,
+.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label[style*="font-size"] > * {
+    font-size: 0.8em;
+}
+
 .contact-form .is-style-outlined .grunion-field-wrap > input,
 .contact-form .is-style-outlined .grunion-field-wrap > textarea,
 .contact-form .is-style-outlined .grunion-field-wrap select
@@ -588,6 +597,13 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: 0.75em;
 	transform: translateY(0);
 	top: calc(2px + var(--jetpack--contact-form--border-size));
+}
+
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field:focus ~ .animated-label__label[style*="font-size"] > *,
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .animated-label__label[style*="font-size"] > *,
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label[style*="font-size"] > *,
+.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label[style*="font-size"] > * {
+    font-size: 0.75em;
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options ~ .animated-label__label,
