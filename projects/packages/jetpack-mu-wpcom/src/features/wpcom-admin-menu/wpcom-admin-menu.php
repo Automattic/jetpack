@@ -232,7 +232,7 @@ function wpcom_add_jetpack_submenu() {
 	);
 	} else {
 		$subscribers_dashboard = new Subscribers_Dashboard();
-		$subscribers_dashboard::init();
+		$subscribers_dashboard->add_wp_admin_submenu();
 	}
 
 	if ( $is_simple_site ) {

@@ -359,7 +359,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
 		} else {
 			$subscribers_dashboard = new Subscribers_Dashboard();
-			$subscribers_dashboard::init();
+			$subscribers_dashboard->add_wp_admin_submenu();
 		}
 	}
 

@@ -252,7 +252,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 				add_submenu_page( $users_url, esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 30 );
 			} else {
 				$subscribers_dashboard = new Subscribers_Dashboard();
-				$subscribers_dashboard::init();
+				$subscribers_dashboard->add_wp_admin_submenu();
 			}
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( $users_url, esc_attr__( 'My Profile', 'jetpack-masterbar' ), __( 'My Profile', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/me', null, 40 );

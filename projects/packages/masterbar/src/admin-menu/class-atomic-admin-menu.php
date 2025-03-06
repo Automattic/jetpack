@@ -136,7 +136,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
 		} else {
 			$subscribers_dashboard = new Subscribers_Dashboard();
-			$subscribers_dashboard::init();
+			$subscribers_dashboard->add_wp_admin_submenu();
 		}
 
 		// Users who can't 'list_users' will see "Profile" menu & "Profile > Account Settings" as submenu.
