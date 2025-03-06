@@ -27,7 +27,101 @@ const formatBytes = ( size, decimals = 2 ) => {
 	return `${ numberFormat.format( formattedSize ) } ${ sizes[ i ] }`;
 };
 
-const { callbacks } = store( NAMESPACE, {
+/**
+ * Add the file to the context.
+ *
+ * @param {File} file - The file to add.
+ */
+const addFileToContext = file => {
+	const reader = new FileReader();
+	reader.readAsDataURL( file );
+	reader.onload = withScope( () => {
+		const context = getContext();
+		const fileId = performance.now() + '-' + Math.random();
+		context.files.push( {
+			name: file.name,
+			url: 'url(' + reader.result + ')',
+			formattedSize: formatBytes( file.size, 2 ),
+			hasToken: false,
+			id: fileId,
+		} );
+		context.hasFiles = true;
+		uploadFile( file, fileId );
+	} );
+};
+
+/**
+ * Make the endpoint request.
+ *
+ * @param {File}   file   - The file to upload.
+ * @param {string} fileId - The file ID.
+ */
+const uploadFile = ( file, fileId ) => {
+	const { endpoint, wp_nonce, jp_nonce } = getConfig( NAMESPACE );
+	const xhr = new XMLHttpRequest();
+	const formData = new FormData();
+	xhr.open( 'POST', endpoint, true );
+	xhr.withCredentials = true;
+	xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
+	xhr.setRequestHeader( 'X-WP-Nonce', wp_nonce );
+	xhr.setRequestHeader( 'X-Jetpack-Upload-Nonce', jp_nonce );
+	xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, fileId ) ) );
+	xhr.addEventListener( 'readystatechange', withScope( onReadyStateChange.bind( this, fileId ) ) );
+	formData.append( 'context', 'jetpack-form' );
+	formData.append( 'file', file );
+	xhr.send( formData );
+};
+
+/**
+ * Responsible for updating the progress circle.
+ * Gets called on the progress upload.
+ *
+ * @param {string}        fileId - The file ID.
+ * @param {ProgressEvent} event  - The progress event object.
+ */
+const onProgress = ( fileId, event ) => {
+	const progress = ( event.loaded / event.total ) * 100;
+	// We don't want to show 100% progress, as it's misleading.
+	updateFileContext( { progress: Math.min( progress, 97 ) }, fileId );
+};
+
+/**
+ * React to the onReadyStateChange event when the endpoint returns.
+ *
+ * @param {string} fileId - The file ID.
+ * @param {Event}  event  - The event object.
+ */
+const onReadyStateChange = ( fileId, event ) => {
+	const xhr = event.target;
+	if ( xhr.readyState === 4 ) {
+		if ( xhr.status === 200 ) {
+			const response = JSON.parse( xhr.responseText );
+			if ( response.success ) {
+				updateFileContext( { token: response.data.token, hasToken: true }, fileId );
+				return;
+			}
+		}
+		if ( xhr.responseText ) {
+			const response = JSON.parse( xhr.responseText );
+			// eslint-disable-next-line no-console
+			console.error( 'Error uploading file', response );
+		}
+	}
+};
+
+/**
+ * Update the context with the new updatedFile object based on the file ID.
+ *
+ * @param {object} updatedFile - The updated file object.
+ * @param {string} fileId      - The file ID.
+ */
+const updateFileContext = ( updatedFile, fileId ) => {
+	const context = getContext();
+	const index = context.files.findIndex( file => file.id === fileId );
+	context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
+};
+
+store( NAMESPACE, {
 	actions: {
 		/**
 		 * Open the file picker dialog.
@@ -47,7 +141,7 @@ const { callbacks } = store( NAMESPACE, {
 		 */
 		fileAdded: event => {
 			const files = Array.from( event.target.files );
-			files.forEach( callbacks.addFileToContext );
+			files.forEach( addFileToContext );
 		},
 
 		/**
@@ -62,7 +156,7 @@ const { callbacks } = store( NAMESPACE, {
 					if ( item.webkitGetAsEntry()?.isDirectory ) {
 						return;
 					}
-					callbacks.addFileToContext( item.getAsFile() );
+					addFileToContext( item.getAsFile() );
 				}
 			}
 			const context = getContext();
@@ -101,105 +195,5 @@ const { callbacks } = store( NAMESPACE, {
 		},
 	},
 
-	callbacks: {
-		/**
-		 * Add the file to the context.
-		 *
-		 * @param {File} file - The file to add.
-		 */
-		addFileToContext: file => {
-			const reader = new FileReader();
-			reader.readAsDataURL( file );
-			reader.onload = withScope( () => {
-				const context = getContext();
-				const fileId = performance.now() + '-' + Math.random();
-				context.files.push( {
-					name: file.name,
-					url: 'url(' + reader.result + ')',
-					formattedSize: formatBytes( file.size, 2 ),
-					hasToken: false,
-					id: fileId,
-				} );
-				context.hasFiles = true;
-				callbacks.uploadFile( file, fileId );
-			} );
-		},
-
-		/**
-		 * Make the endpoint request.
-		 *
-		 * @param {File}   file   - The file to upload.
-		 * @param {string} fileId - The file ID.
-		 */
-		uploadFile: ( file, fileId ) => {
-			const { endpoint, wp_nonce, jp_nonce } = getConfig( NAMESPACE );
-			const xhr = new XMLHttpRequest();
-			const formData = new FormData();
-			xhr.open( 'POST', endpoint, true );
-			xhr.withCredentials = true;
-			xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-			xhr.setRequestHeader( 'X-WP-Nonce', wp_nonce );
-			xhr.setRequestHeader( 'X-Jetpack-Upload-Nonce', jp_nonce );
-			xhr.upload.addEventListener(
-				'progress',
-				withScope( callbacks.onProgress.bind( this, fileId ) )
-			);
-			xhr.addEventListener(
-				'readystatechange',
-				withScope( callbacks.onReadyStateChange.bind( this, fileId ) )
-			);
-			formData.append( 'context', 'jetpack-form' );
-			formData.append( 'file', file );
-			xhr.send( formData );
-		},
-
-		/**
-		 * Responsible for updating the progress circle.
-		 * Gets called on the progress upload.
-		 *
-		 * @param {string}        fileId - The file ID.
-		 * @param {ProgressEvent} event  - The progress event object.
-		 */
-		onProgress: ( fileId, event ) => {
-			const progress = ( event.loaded / event.total ) * 100;
-			// We don't want to show 100% progress, as it's misleading.
-			callbacks.updateFileContext( { progress: Math.min( progress, 97 ) }, fileId );
-		},
-
-		/**
-		 * React to the onReadyStateChange event when the endpoint returns.
-		 *
-		 * @param {string} fileId - The file ID.
-		 * @param {Event}  event  - The event object.
-		 */
-		onReadyStateChange: ( fileId, event ) => {
-			const xhr = event.target;
-			if ( xhr.readyState === 4 ) {
-				if ( xhr.status === 200 ) {
-					const response = JSON.parse( xhr.responseText );
-					if ( response.success ) {
-						callbacks.updateFileContext( { token: response.data.token, hasToken: true }, fileId );
-						return;
-					}
-				}
-				if ( xhr.responseText ) {
-					const response = JSON.parse( xhr.responseText );
-					// eslint-disable-next-line no-console
-					console.error( 'Error uploading file', response );
-				}
-			}
-		},
-
-		/**
-		 * Update the context with the new updatedFile object based on the file ID.
-		 *
-		 * @param {object} updatedFile - The updated file object.
-		 * @param {string} fileId      - The file ID.
-		 */
-		updateFileContext: ( updatedFile, fileId ) => {
-			const context = getContext();
-			const index = context.files.findIndex( file => file.id === fileId );
-			context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
-		},
-	},
+	callbacks: {},
 } );
