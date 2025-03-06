@@ -823,6 +823,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'i18n'          => array(
 				'language'           => get_bloginfo( 'language' ),
 				'fileSizeUnits'      => $file_size_units,
+				'zeroBytes'          => __( '0 Bytes', 'jetpack-forms' ),
 				'uploadError'        => __( 'Error uploading file', 'jetpack-forms' ),
 				'folderNotSupported' => __( 'Folder uploads are not supported', 'jetpack-forms' ),
 				// translators: %s is the formatted maximum file size.
@@ -835,7 +836,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'jp_nonce'      => wp_create_nonce( 'jetpack_file_upload_jetpack-form' ),
 		);
 
-		wp_interactivity_state( 'jetpack/field-file', $global_state );
+		wp_interactivity_config( 'jetpack/field-file', $global_state );
 
 		$context = array(
 			'isDropping' => false,

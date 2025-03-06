@@ -1,32 +1,33 @@
 /**
  * WordPress dependencies
  */
-import { store, getContext, withScope, getElement } from '@wordpress/interactivity';
+import { store, getContext, withScope, getElement, getConfig } from '@wordpress/interactivity';
 
+const NAMESPACE = 'jetpack/field-file';
 /**
  * Format the file size to a human-readable string.
  *
- * @param {number} size             - The size of the file in bytes.
- * @param {number} [decimals=2]     - The number of decimals to include.
- * @param {string} [locale='en-US'] - The locale to use for formatting.
+ * @param {number} size         - The size of the file in bytes.
+ * @param {number} [decimals=2] - The number of decimals to include.
+ *
  * @return {string} The formatted file size.
  */
-const formatBytes = ( size, decimals = 2, locale = 'en-US' ) => {
-	if ( size === 0 ) return '0 bytes';
+const formatBytes = ( size, decimals = 2 ) => {
+	const config = getConfig( NAMESPACE );
+	if ( size === 0 ) return config.i18n.zeroBytes;
 	const k = 1024;
 	const dm = decimals < 0 ? 0 : decimals;
-	const sizes = state.i18n.fileSizeUnits || [ 'Bytes', 'KB', 'MB', 'GB', 'TB' ];
+	const sizes = config.i18n.fileSizeUnits || [ 'Bytes', 'KB', 'MB', 'GB', 'TB' ];
 	const i = Math.floor( Math.log( size ) / Math.log( k ) );
 	const formattedSize = parseFloat( ( size / Math.pow( k, i ) ).toFixed( dm ) );
-	const numberFormat = new Intl.NumberFormat( locale, {
+	const numberFormat = new Intl.NumberFormat( config.i18n.locale, {
 		minimumFractionDigits: dm,
 		maximumFractionDigits: dm,
 	} );
 	return `${ numberFormat.format( formattedSize ) } ${ sizes[ i ] }`;
 };
 
-const { state, callbacks } = store( 'jetpack/field-file', {
-	state: {},
+const { callbacks } = store( NAMESPACE, {
 	actions: {
 		/**
 		 * Open the file picker dialog.
@@ -116,7 +117,7 @@ const { state, callbacks } = store( 'jetpack/field-file', {
 				context.files.push( {
 					name: file.name,
 					url: 'url(' + reader.result + ')',
-					formattedSize: formatBytes( file.size, 2, state.i18n.locale ),
+					formattedSize: formatBytes( file.size, 2 ),
 					hasToken: false,
 					id: fileId,
 				} );
@@ -132,14 +133,14 @@ const { state, callbacks } = store( 'jetpack/field-file', {
 		 * @param {string} fileId - The file ID.
 		 */
 		uploadFile: ( file, fileId ) => {
-			const url = state.endpoint;
+			const { endpoint, wp_nonce, jp_nonce } = getConfig( NAMESPACE );
 			const xhr = new XMLHttpRequest();
 			const formData = new FormData();
-			xhr.open( 'POST', url, true );
+			xhr.open( 'POST', endpoint, true );
 			xhr.withCredentials = true;
 			xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-			xhr.setRequestHeader( 'X-WP-Nonce', state.wp_nonce );
-			xhr.setRequestHeader( 'X-Jetpack-Upload-Nonce', state.jp_nonce );
+			xhr.setRequestHeader( 'X-WP-Nonce', wp_nonce );
+			xhr.setRequestHeader( 'X-Jetpack-Upload-Nonce', jp_nonce );
 			xhr.upload.addEventListener(
 				'progress',
 				withScope( callbacks.onProgress.bind( this, fileId ) )
