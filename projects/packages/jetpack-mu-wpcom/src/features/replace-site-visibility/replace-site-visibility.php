@@ -157,9 +157,9 @@ function replace_site_visibility() {
 		return;
 	} else {
 		$escaped_content = <<<HTML
-<div id="wpcom-site-visibility">
+<fieldset id="wpcom-site-visibility">
 	<img src="images/loading.gif" alt="Loading..." width="16" height="16">
-</div>
+</fieldset>
 HTML;
 
 		replace_site_visibility_load_assets();
