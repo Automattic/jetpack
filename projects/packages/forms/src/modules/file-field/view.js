@@ -161,13 +161,9 @@ const { callbacks } = store( NAMESPACE, {
 		 * @param {ProgressEvent} event  - The progress event object.
 		 */
 		onProgress: ( fileId, event ) => {
-			const { ref } = getElement();
-			const previewProgressElement = ref.querySelector( '[data-progress-id="' + fileId + '"]' );
 			const progress = ( event.loaded / event.total ) * 100;
-			if ( previewProgressElement ) {
-				previewProgressElement.style.setProperty( '--progress', progress );
-			}
-			callbacks.updateFileContext( { progress }, fileId );
+			// We don't want to show 100% progress, as it's misleading.
+			callbacks.updateFileContext( { progress: Math.min( progress, 97 ) }, fileId );
 		},
 
 		/**
