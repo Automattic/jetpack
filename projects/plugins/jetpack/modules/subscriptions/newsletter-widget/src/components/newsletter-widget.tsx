@@ -8,7 +8,7 @@ import { buildJPRedirectSource, formatNumber } from '../helpers';
 import { SubscribersChart } from './subscribers-chart';
 import type { DailyCount } from '../types';
 
-interface NewsletterWidgetProps {
+export interface NewsletterWidgetProps {
 	site: string;
 	adminUrl: string;
 	isWpcomSite: boolean;

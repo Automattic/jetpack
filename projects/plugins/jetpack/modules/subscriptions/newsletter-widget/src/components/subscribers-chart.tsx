@@ -21,13 +21,13 @@ import type {
 
 // Create a scale for the legend
 const legendScale = scaleOrdinal( {
-	domain: [ 'all', 'email', 'paid' ],
-	range: [ SERIES_COLORS.all, SERIES_COLORS.email, SERIES_COLORS.paid ],
+	domain: [ 'all', 'paid' ],
+	range: [ SERIES_COLORS.all, SERIES_COLORS.paid ],
 } );
 
 const chartTheme = buildChartTheme( {
 	backgroundColor: 'white',
-	colors: [ SERIES_COLORS.all, SERIES_COLORS.email, SERIES_COLORS.paid ],
+	colors: [ SERIES_COLORS.all, SERIES_COLORS.paid ],
 	gridColor: '#e0e0e0',
 	gridColorDark: '#e0e0e0',
 	tickLength: 0,
@@ -44,7 +44,6 @@ const chartTheme = buildChartTheme( {
 // Chart accessors
 const getDate = ( d: SubscriptionStat ) => d.date;
 const getAllSubscribers = ( d: SubscriptionStat ) => d.all;
-const getEmailSubscribers = ( d: SubscriptionStat ) => d.email;
 const getPaidSubscribers = ( d: SubscriptionStat ) => d.paid;
 const getLineColor = ( k: string ) => SERIES_COLORS[ k ];
 const getLegendLabel = ( k: string ) => SERIES_LABELS[ k ];
@@ -92,19 +91,6 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 				</div>
 				<div className="subscribers-chart__tooltip-stat">
 					<div
-						style={ { backgroundColor: SERIES_COLORS.email } }
-						className="subscribers-chart__tooltip-indicator"
-					/>
-					<span>
-						{ sprintf(
-							// translators: %s is the number of email subscribers.
-							__( 'Email: %s', 'jetpack' ),
-							formatNumber( getEmailSubscribers( datum ) )
-						) }
-					</span>
-				</div>
-				<div className="subscribers-chart__tooltip-stat">
-					<div
 						style={ { backgroundColor: SERIES_COLORS.paid } }
 						className="subscribers-chart__tooltip-indicator"
 					/>
@@ -121,9 +107,9 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 	);
 };
 
-type SubscribersChartProps = {
+interface SubscribersChartProps {
 	countsByDay: Record< string, DailyCount >;
-};
+}
 
 export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 	if ( Object.keys( countsByDay ).length === 0 ) {
@@ -155,16 +141,6 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 									data={ data }
 									xAccessor={ getDate }
 									yAccessor={ getAllSubscribers }
-									colorAccessor={ getLineColor }
-									strokeWidth={ 2 }
-									curve={ curveMonotoneX }
-								/>
-
-								<LineSeries
-									dataKey="email"
-									data={ data }
-									xAccessor={ getDate }
-									yAccessor={ getEmailSubscribers }
 									colorAccessor={ getLineColor }
 									strokeWidth={ 2 }
 									curve={ curveMonotoneX }

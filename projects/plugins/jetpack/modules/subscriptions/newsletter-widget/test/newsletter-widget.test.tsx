@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { render, screen } from '@testing-library/react';
-import { NewsletterWidget } from '../src/components/newsletter-widget';
+import { NewsletterWidget, NewsletterWidgetProps } from '../src/components/newsletter-widget';
 
 jest.mock( '@wordpress/components', () => {
 	const actualModule = jest.requireActual( '@wordpress/components' );
@@ -19,7 +19,7 @@ jest.mock( '@wordpress/icons', () => ( {
 } ) );
 
 describe( 'NewsletterWidget', () => {
-	const defaultProps = {
+	const defaultProps: NewsletterWidgetProps = {
 		site: 'example.com',
 		adminUrl: 'https://example.com/wp-admin/',
 		isWpcomSite: true,
@@ -29,7 +29,6 @@ describe( 'NewsletterWidget', () => {
 		countsByDay: {
 			'2021-01-01': {
 				all: 10,
-				email: 5,
 				paid: 5,
 			},
 		},
@@ -50,8 +49,6 @@ describe( 'NewsletterWidget', () => {
 		expect(
 			screen.getByText( `${ defaultProps.paidSubscribers } paid subscriptions` )
 		).toBeInTheDocument();
-
-		// Check for total subscribers label
 	} );
 
 	it( 'displays the learn more link with correct href', () => {

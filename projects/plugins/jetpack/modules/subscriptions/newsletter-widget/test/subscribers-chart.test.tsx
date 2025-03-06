@@ -9,9 +9,9 @@ jest.mock( '@visx/responsive', () => ( {
 
 describe( 'SubscribersChart', () => {
 	const mockCountsByDay: Record< string, DailyCount > = {
-		'2023-01-01': { all: 10, email: 5, paid: 5 },
-		'2023-01-02': { all: 15, email: 10, paid: 5 },
-		'2023-01-03': { all: 20, email: 12, paid: 8 },
+		'2023-01-01': { all: 10, paid: 5 },
+		'2023-01-02': { all: 15, paid: 5 },
+		'2023-01-03': { all: 20, paid: 8 },
 	};
 
 	it( 'renders', async () => {

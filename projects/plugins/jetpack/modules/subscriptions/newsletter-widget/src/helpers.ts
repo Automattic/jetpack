@@ -77,38 +77,19 @@ export const getXAxisTickValues = ( data: SubscriptionStat[] ) => {
 };
 
 /**
- * Transforms daily subscription counts into cumulative statistics in a format for the visx chart package.
+ * Transforms daily subscription counts into a format for the visx chart package.
  *
  * @param {Record<string, DailyCount>} countsByDay - Object mapping date strings to daily subscription counts.
- * @returns {SubscriptionStat[]} An array of subscription statistics with cumulative totals, sorted by date.
+ * @returns {SubscriptionStat[]} An array of subscription statistics.
  */
 export const transformData = ( countsByDay: Record< string, DailyCount > ): SubscriptionStat[] => {
-	const entries = Object.entries( countsByDay )
+	return Object.entries( countsByDay )
 		.map( ( [ dateStr, counts ] ) => ( {
 			date: new Date( dateStr ),
 			all: counts.all,
-			email: counts.email,
 			paid: counts.paid,
 		} ) )
 		.sort( ( a, b ) => a.date.getTime() - b.date.getTime() );
-
-	// Calculate cumulative totals
-	let allTotal = 0;
-	let emailTotal = 0;
-	let paidTotal = 0;
-
-	return entries.map( entry => {
-		allTotal += entry.all;
-		emailTotal += entry.email;
-		paidTotal += entry.paid;
-
-		return {
-			date: entry.date,
-			all: allTotal,
-			email: emailTotal,
-			paid: paidTotal,
-		};
-	} );
 };
 
 /**
@@ -123,9 +104,7 @@ export const calcLeftAxisMargin = ( subs: SubscriptionStat[] ): number => {
 	const CHAR_PX_WIDTH = 8;
 	const PADDING = 10;
 
-	const maxValue = Math.max(
-		...subs.map( d => Math.max( d.all || 0, d.email || 0, d.paid || 0 ) )
-	);
+	const maxValue = Math.max( ...subs.map( d => Math.max( d.all || 0, d.paid || 0 ) ) );
 	// Estimate character width (in pixels) and calculate margin
 	// Each digit is roughly 8px, plus add some padding
 	const digitCount = maxValue.toString().length;
