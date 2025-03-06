@@ -5,12 +5,12 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * Load dependencies.
  */
 require_once __DIR__ . '/../../utils.php';
-
-use Automattic\Jetpack\Connection\Client;
 
 /**
  * Whether the current site is connected to Jetpack.
@@ -181,3 +181,23 @@ HTML;
 		<?php
 }
 add_action( 'blog_privacy_selector', 'replace_site_visibility' );
+
+/**
+ * Allow the options of the 'Site Visibility' settings.
+ *
+ * @param array $allowed_options The allowed options list.
+ */
+function allowed_options_wpcom_site_visibility( $allowed_options ) {
+	$wpcom_site_visibility_options = array(
+		'reading' => array(
+			'wpcom_coming_soon',
+			'wpcom_public_coming_soon',
+			'wpcom_data_sharing_opt_out',
+		),
+	);
+
+	return add_allowed_options( $wpcom_site_visibility_options, $allowed_options );
+}
+add_filter( 'allowed_options', 'allowed_options_wpcom_site_visibility' );
+
+add_filter( 'wpcom_should_update_privacy_selector', '__return_false' );
