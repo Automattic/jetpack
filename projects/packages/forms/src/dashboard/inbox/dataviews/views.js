@@ -39,14 +39,14 @@ export function useView() {
 	const setViewWithUrlUpdate = useEvent( newView => {
 		setView( newView );
 		if ( newView.search !== urlSearch ) {
-			setSearchParams( previouSearchParams => {
-				const _serachParams = new URLSearchParams( previouSearchParams );
+			setSearchParams( previousSearchParams => {
+				const _searchParams = new URLSearchParams( previousSearchParams );
 				if ( newView.search ) {
-					_serachParams.set( 'search', newView.search );
+					_searchParams.set( 'search', newView.search );
 				} else {
-					_serachParams.delete( 'search' );
+					_searchParams.delete( 'search' );
 				}
-				return _serachParams;
+				return _searchParams;
 			} );
 		}
 	} );

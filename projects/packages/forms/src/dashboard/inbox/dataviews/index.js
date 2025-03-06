@@ -152,8 +152,8 @@ export default function InboxView() {
 						data?.find( record => getItemId( record ) === items[ items.length - 1 ] )
 				);
 			}
-			setSearchParams( previouSearchParams => {
-				const _searchParams = new URLSearchParams( previouSearchParams );
+			setSearchParams( previousSearchParams => {
+				const _searchParams = new URLSearchParams( previousSearchParams );
 				if ( items.length ) {
 					_searchParams.set( 'r', items.join( ',' ) );
 				} else {
