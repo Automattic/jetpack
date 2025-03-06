@@ -31,11 +31,6 @@ class Set_Provider_CSS implements Data_Sync_Action {
 		$provider_key = sanitize_key( $data['key'] );
 		$css          = $data['css'];
 
-		if ( $data['isBase64Encoded'] ) {
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-			$css = base64_decode( $css );
-		}
-
 		$storage = new Critical_CSS_Storage();
 		$storage->store_css( $provider_key, $css );
 
