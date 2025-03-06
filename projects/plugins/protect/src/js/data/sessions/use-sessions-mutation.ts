@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import API from '../../api';
 import { QUERY_SESSIONS_KEY } from '../../constants';
 import useNotices from '../../hooks/use-notices';
-import { SessionsStatus } from '../../types/sessions';
+import { SessionsStatus, UserSessionTokens } from '../../types/sessions';
 
 /**
  * Sessions Mutatation Hook
@@ -16,12 +16,14 @@ export default function useSessionsMutation(): UseMutationResult {
 
 	return useMutation( {
 		mutationFn: API.terminateSessions,
-		onMutate: async ( sessions: SessionsStatus[] ) => {
-			const previousData = queryClient.getQueryData( [ QUERY_SESSIONS_KEY ] );
+		onMutate: async ( userSessionTokens: UserSessionTokens[] ) => {
+			const previousData = queryClient.getQueryData< SessionsStatus[] >( [ QUERY_SESSIONS_KEY ] );
 
-			queryClient.setQueryData( [ QUERY_SESSIONS_KEY ], ( currentSessions: SessionsStatus[] ) => {
-				return currentSessions.filter( session => ! sessions.includes( session ) );
-			} );
+			const tokenSet = new Set( userSessionTokens.flatMap( ( { tokens } ) => tokens ) );
+
+			queryClient.setQueryData( [ QUERY_SESSIONS_KEY ], ( sessions: SessionsStatus[] = [] ) =>
+				sessions.filter( session => ! tokenSet.has( session.token ) )
+			);
 
 			return { previousData };
 		},

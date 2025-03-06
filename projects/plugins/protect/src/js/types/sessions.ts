@@ -29,3 +29,8 @@ export type SessionsStatus = {
 	/** Whether the session is suspicious. */
 	isSuspicious: boolean;
 };
+
+export type UserSessionTokens = {
+	userId: number;
+	tokens: string[];
+};

@@ -217,8 +217,8 @@ class REST_Controller {
 			'jetpack-protect/v1',
 			'terminate-sessions',
 			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::api_terminate_sessions',
+				'methods'  => \WP_REST_Server::EDITABLE,
+				'callback' => __CLASS__ . '::api_terminate_sessions',
 			)
 		);
 	}
@@ -468,20 +468,16 @@ class REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public static function api_terminate_sessions( $request ) {
-
-		// TODO: Needs to handle bulk termination as well.
-		if ( empty( $request['sessions'] ) ) {
+		if ( empty( $request['userSessionTokens'] ) ) {
 			return new WP_REST_Response( 'Missing sessions data.', 400 );
 		}
 
-		foreach ( $request['sessions'] as $session ) {
-			// $terminated = Sessions::terminate_session( $session['user_id'], $session['token'] );
+		$terminated = Sessions::terminate_sessions( $request['userSessionTokens'] );
+
+		if ( ! $terminated ) {
+			return new WP_REST_Response( 'An error occurred while terminating sessions.', 500 );
 		}
 
-		// if ( ! $terminated ) {
-		// 	return new WP_REST_Response( 'An error occurred while attempting to terminate the sessions.', 500 );
-		// }
-
-		return new WP_REST_Response( 'Session terminated.' );
+		return new WP_REST_Response( 'Sessions terminated.' );
 	}
 }

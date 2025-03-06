@@ -331,7 +331,18 @@ export default function SessionsReport( {
 					items.length === 1
 						? __( 'Terminate Session', 'jetpack-components' )
 						: __( 'Terminate Sessions', 'jetpack-components' ),
-				callback: items => terminateSessions( items ),
+				callback: items => {
+					const userSessionTokens = Object.values(
+						items.reduce( ( acc, { userId, token } ) => {
+							if ( ! acc[ userId ] ) {
+								acc[ userId ] = { userId, tokens: [] };
+							}
+							acc[ userId ].tokens.push( token );
+							return acc;
+						}, {} )
+					);
+					terminateSessions( userSessionTokens );
+				},
 				isPrimary: true,
 				isDestructive: true,
 				supportsBulk: true,

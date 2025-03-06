@@ -13,7 +13,7 @@ const SessionsAdminSectionHero: React.FC = () => {
 					</AdminSectionHero.Heading>
 					<Text>
 						{ __(
-							'Monitor login activity and protect your site from unauthorized access.',
+							'Monitor login activity and protect your site from suspicious activity.',
 							'jetpack-protect'
 						) }
 					</Text>
