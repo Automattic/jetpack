@@ -1822,7 +1822,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "74bf2ffbd2504182fdd99bb71956c473d62a4896"
+                "reference": "21d48235c43f281400b02f2e4ee7f292fe988909"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1835,6 +1835,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {
