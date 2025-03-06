@@ -1,3 +1,4 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { DailyCount, SubscriptionStat } from './types';
 
@@ -15,6 +16,24 @@ import { DailyCount, SubscriptionStat } from './types';
 export const buildJPRedirectSource = ( url: string, isWpcomSite: boolean = true ) => {
 	const host = isWpcomSite ? 'wordpress.com' : 'cloud.jetpack.com';
 	return `https://${ host }/${ url }`;
+};
+
+/**
+ * Generates the URL for subscriber statistics based on site context.
+ *
+ * @param {string}  site        - The site identifier
+ * @param {boolean} isWpcomSite - Whether the site is on WordPress.com
+ * @param {string}  adminUrl    - The admin URL for self-hosted sites
+ * @returns {string} The appropriate subscriber stats URL
+ */
+export const getSubscriberStatsUrl = (
+	site: string,
+	isWpcomSite: boolean,
+	adminUrl: string
+): string => {
+	return isWpcomSite
+		? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
+		: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`;
 };
 
 /**

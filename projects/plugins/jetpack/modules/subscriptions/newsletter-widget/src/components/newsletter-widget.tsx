@@ -4,7 +4,7 @@ import { Icon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
-import { buildJPRedirectSource, formatNumber } from '../helpers';
+import { buildJPRedirectSource, formatNumber, getSubscriberStatsUrl } from '../helpers';
 import { SubscribersChart } from './subscribers-chart';
 import type { DailyCount } from '../types';
 
@@ -41,13 +41,7 @@ export const NewsletterWidget = ( {
 							</span>
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
-									<a
-										href={
-											isWpcomSite
-												? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
-												: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
-										}
-									>
+									<a href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }>
 										{ sprintf(
 											//translators: %1$s is the total number of subscribers, %2$s is the number of email subscribers
 											__( '%1$s subscribers (%2$s via email)', 'jetpack' ),
@@ -64,13 +58,7 @@ export const NewsletterWidget = ( {
 							</span>
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
-									<a
-										href={
-											isWpcomSite
-												? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
-												: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
-										}
-									>
+									<a href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }>
 										{ sprintf(
 											//translators: %s is the number of paid subscribers
 											__( '%s paid subscriptions', 'jetpack' ),
@@ -116,13 +104,7 @@ export const NewsletterWidget = ( {
 							<a href={ `${ adminUrl }edit.php` }>{ __( 'Publish your next post', 'jetpack' ) }</a>
 						</li>
 						<li>
-							<a
-								href={
-									isWpcomSite
-										? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
-										: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`
-								}
-							>
+							<a href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }>
 								{ __( 'View subscriber stats', 'jetpack' ) }
 							</a>
 						</li>
