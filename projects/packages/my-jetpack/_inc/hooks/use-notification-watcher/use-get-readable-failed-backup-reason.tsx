@@ -1,10 +1,14 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo, type ReactElement } from 'react';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import { QUERY_RED_BUBBLE_ALERTS_KEY, REST_API_RED_BUBBLE_ALERTS } from '../../data/constants';
+import useSimpleQuery from '../../data/use-simple-query';
 
 export type ReasonContent = {
-	title?: ReactElement | string;
-	text?: ReactElement | string;
+	reasonContent: {
+		title?: ReactElement | string;
+		text?: ReactElement | string;
+	};
+	isLoading: boolean;
 };
 
 /**
@@ -13,8 +17,13 @@ export type ReasonContent = {
  * @return {ReasonContent} An object containing each tooltip's title and text content.
  */
 export function useGetReadableFailedBackupReason(): ReasonContent {
-	const { backup_failure: backupFailure } =
-		getMyJetpackWindowInitialState( 'redBubbleAlerts' ) || {};
+	const { data: redBubbleAlerts, isLoading: isRedBubbleAlertsLoading } =
+		useSimpleQuery< RedBubbleAlerts >( {
+			name: QUERY_RED_BUBBLE_ALERTS_KEY,
+			query: { path: REST_API_RED_BUBBLE_ALERTS },
+		} );
+
+	const { backup_failure: backupFailure } = redBubbleAlerts || {};
 	const {
 		data: { status },
 	} = backupFailure || { data: {} };
@@ -171,5 +180,8 @@ export function useGetReadableFailedBackupReason(): ReasonContent {
 		}
 	}, [ status ] );
 
-	return reasonContent;
+	return {
+		isLoading: isRedBubbleAlertsLoading,
+		reasonContent: reasonContent,
+	};
 }

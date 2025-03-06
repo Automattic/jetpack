@@ -23,7 +23,7 @@ import type { APIFetchOptions } from '@wordpress/api-fetch';
 type QueryParams = {
 	name: string;
 	query: APIFetchOptions;
-	options?: Pick< UseQueryOptions, 'enabled' >;
+	options?: Pick< UseQueryOptions, 'enabled' | 'gcTime' >;
 	errorMessage?: string;
 };
 const useSimpleQuery = < T >( { name, query, options, errorMessage }: QueryParams ) => {

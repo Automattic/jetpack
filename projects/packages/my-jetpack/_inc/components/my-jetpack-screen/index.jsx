@@ -158,9 +158,21 @@ export default function MyJetpackScreen() {
 	// useLayoutEffect gets called before useEffect.
 	// We are using it here to ensure the `page_view` event gets triggered first.
 	useLayoutEffect( () => {
-		if ( ! isRedBubbleAlertsError && ! isRedBubbleAlertsLoading && redBubbleAlerts?.length > 0 ) {
-			recordEvent( 'jetpack_myjetpack_page_view', {
+		let customTracksData = {};
+
+		if (
+			! isRedBubbleAlertsError &&
+			typeof redBubbleAlerts === 'object' &&
+			Object.keys( redBubbleAlerts )?.length
+		) {
+			customTracksData = {
 				red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
+			};
+		}
+
+		if ( ! isRedBubbleAlertsLoading ) {
+			recordEvent( 'jetpack_myjetpack_page_view', {
+				...customTracksData,
 			} );
 		}
 	}, [ recordEvent, redBubbleAlerts, isRedBubbleAlertsError, isRedBubbleAlertsLoading ] );

@@ -4,12 +4,11 @@ import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useProduct from '../../data/products/use-product';
+import checkForCookie from '../../utils/check-for-cookie';
 import createCookie from '../../utils/create-cookie';
 import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
 import type { NoticeOptions } from '../../context/notices/types';
-
-type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 
 const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { recordEvent } = useAnalytics();
@@ -43,9 +42,9 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 
 	const onCloseClick = useCallback( () => {
 		createCookie( 'protect_threats_detected_dismissed', 7 );
-		delete redBubbleAlerts.protect_has_threats;
+		delete redBubbleAlerts?.protect_has_threats;
 		resetNotice();
-	}, [ redBubbleAlerts.protect_has_threats, resetNotice ] );
+	}, [ redBubbleAlerts?.protect_has_threats, resetNotice ] );
 
 	const onPrimaryCtaClick = useCallback( () => {
 		window.open( protectDashboardUrl );
@@ -115,11 +114,13 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
-		setNotice( {
-			title: noticeTitle,
-			message: noticeMessage,
-			options: noticeOptions,
-		} );
+		if ( ! checkForCookie( 'protect_threats_detected_dismissed' ) ) {
+			setNotice( {
+				title: noticeTitle,
+				message: noticeMessage,
+				options: noticeOptions,
+			} );
+		}
 	}, [
 		hasPaidPlanForProduct,
 		isStandaloneActive,

@@ -282,8 +282,6 @@ class Initializer {
 					'isUserConnected'           => $connection->is_user_connected(),
 					'modules'                   => self::get_active_modules(),
 				),
-				// Only in the My Jetpack context, we get the alerts without the cache to make sure we have the most up-to-date info
-				'redBubbleAlerts'        => Red_Bubble_Notifications::get_red_bubble_alerts( true ),
 				'recommendedModules'     => array(
 					'modules'    => self::get_recommended_modules(),
 					'isFirstRun' => \Jetpack_Options::get_option( 'recommendations_first_run', true ),
