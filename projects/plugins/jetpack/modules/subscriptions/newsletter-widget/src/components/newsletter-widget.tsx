@@ -27,8 +27,8 @@ export const NewsletterWidget = ( {
 	allSubscribers = 0,
 	countsByDay = {},
 }: NewsletterWidgetProps ) => {
-	const showStats = emailSubscribers > 0 || paidSubscribers > 0;
-	const showChart = Object.values( countsByDay ).some( day => day?.all > 0 );
+	const showStats = allSubscribers > 0 || paidSubscribers > 0;
+	const showChart = Object.values( countsByDay ).some( day => day?.all >= 5 || day?.paid > 0 );
 
 	return (
 		<div className="newsletter-widget">

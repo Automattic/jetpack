@@ -145,4 +145,89 @@ describe( 'NewsletterWidget', () => {
 			expect( link ).toHaveAttribute( 'href', href );
 		} );
 	} );
+
+	describe( 'Stats display conditions', () => {
+		it( 'shows stats section when allSubscribers > 0', () => {
+			render(
+				<NewsletterWidget
+					{ ...defaultProps }
+					allSubscribers={ 10 }
+					emailSubscribers={ 0 }
+					paidSubscribers={ 0 }
+				/>
+			);
+
+			expect( screen.getByText( '10 subscribers (0 via email)' ) ).toBeInTheDocument();
+		} );
+
+		it( 'shows stats section when paidSubscribers > 0', () => {
+			render( <NewsletterWidget { ...defaultProps } allSubscribers={ 0 } paidSubscribers={ 5 } /> );
+
+			expect( screen.getByText( '5 paid subscriptions' ) ).toBeInTheDocument();
+		} );
+
+		it( 'hides stats section when allSubscribers and paidSubscribers are 0', () => {
+			render(
+				<NewsletterWidget
+					{ ...defaultProps }
+					allSubscribers={ 0 }
+					emailSubscribers={ 0 }
+					paidSubscribers={ 0 }
+				/>
+			);
+
+			expect( screen.queryByText( /subscribers \(\d+ via email\)/ ) ).not.toBeInTheDocument();
+
+			expect( screen.queryByText( /paid subscriptions/ ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Chart display conditions', () => {
+		it( 'shows chart when at least one day has a total "all" count >= 5', () => {
+			const props = {
+				...defaultProps,
+				countsByDay: {
+					'2021-01-01': { all: 5, paid: 0 },
+				},
+			};
+
+			render( <NewsletterWidget { ...props } /> );
+			expect( screen.getByText( 'Total Subscribers' ) ).toBeInTheDocument();
+		} );
+
+		it( 'shows chart when at least one day has a total "paid" > 0', () => {
+			const props = {
+				...defaultProps,
+				countsByDay: {
+					'2021-01-01': { all: 0, paid: 1 },
+				},
+			};
+
+			render( <NewsletterWidget { ...props } /> );
+			expect( screen.getByText( 'Total Subscribers' ) ).toBeInTheDocument();
+		} );
+
+		it( 'hides chart when no day has "all" count >= 5 or "paid" count > 0', () => {
+			const props = {
+				...defaultProps,
+				countsByDay: {
+					'2021-01-01': { all: 4, paid: 0 },
+					'2021-01-02': { all: 3, paid: 0 },
+				},
+			};
+
+			render( <NewsletterWidget { ...props } /> );
+			expect( screen.queryByText( 'Total Subscribers' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'handles empty countsByDay by hiding chart', () => {
+			const props = {
+				...defaultProps,
+				countsByDay: {},
+			};
+
+			render( <NewsletterWidget { ...props } /> );
+			expect( screen.queryByText( 'Total Subscribers' ) ).not.toBeInTheDocument();
+		} );
+	} );
 } );
