@@ -7,7 +7,11 @@ import MessageBoxControl from '../message-box-control';
 import styles from './styles.module.scss';
 
 type SharePostFormProps = {
-	analyticsData?: object;
+	/** Data for tracking analytics */
+	analyticsData?: {
+		/** The location of the analytics event */
+		location: string;
+	};
 };
 
 /**
