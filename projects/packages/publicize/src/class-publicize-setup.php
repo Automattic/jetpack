@@ -40,7 +40,9 @@ class Publicize_Setup {
 
 		$rest_controllers = array(
 			REST_API\Connections_Controller::class,
+			REST_API\Scheduled_Actions_Controller::class,
 			REST_API\Services_Controller::class,
+			REST_API\Share_Post_Controller::class,
 		);
 
 		// Load the REST controllers.

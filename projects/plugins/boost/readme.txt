@@ -183,19 +183,18 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.9.0 - 2025-02-17
+### 3.10.0 - 2025-03-05
 #### Added
-- Cloud CSS: Handle prioritized cloud CSS regeneration for cornerstone pages updates.
-- Concatenate JS: Add compatibility with "Depay Payments for WooCommerce".
-- Speed Scores: Add tracking for speed score pop-out CTA.
+- Concatenate JS/CSS: Show a notice if legacy files are being served.
 
 #### Changed
-- Admin Panel: Cleanup CSS styles.
-- Concatenate JS/CSS: Update concatenated assets to be stored on the server as files.
-- Updated package dependencies.
+- Concatenate JS/CSS: Improved handling of minification settings.
+- General: Improved the way modules are configured internally
+- Update package dependencies.
 
 #### Fixed
-- UI: Fix UI discrepancy in Boost settings page upon toggling multiple Modules at same time.
+- Critical CSS: Fix showing empty error in some cases, when generation failed.
+- Critical CSS: Prevent invalid URLs from breaking the whole process.
 
 --------
 

@@ -949,19 +949,15 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					{ shouldRenderLoadingBlock && (
-						<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
-					) }
-					{ ! shouldRenderLoadingBlock && (
-						<VpBlock
-							{ ...this.props }
-							hideOverlay={ this.hideOverlay }
-							html={ html }
-							scripts={ scripts }
-							interactive={ interactive }
-							caption={ caption }
-						/>
-					) }
+					<VpBlock
+						{ ...this.props }
+						hideOverlay={ this.hideOverlay }
+						html={ html }
+						scripts={ scripts }
+						interactive={ interactive }
+						caption={ caption }
+						shouldRenderLoadingBlock={ shouldRenderLoadingBlock }
+					/>
 				</Fragment>
 			);
 		}
@@ -1034,7 +1030,16 @@ const UploaderBlock = props => {
 // In a separate function component so that `useBlockProps` could be called.
 export const VpBlock = props => {
 	let { scripts } = props;
-	const { html, interactive, caption, isSelected, hideOverlay, attributes, setAttributes } = props;
+	const {
+		html,
+		interactive,
+		caption,
+		isSelected,
+		hideOverlay,
+		attributes,
+		setAttributes,
+		shouldRenderLoadingBlock,
+	} = props;
 
 	const { align, className, videoPressClassNames, maxWidth } = attributes;
 
@@ -1070,6 +1075,14 @@ export const VpBlock = props => {
 		);
 
 		scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
+	}
+
+	if ( shouldRenderLoadingBlock ) {
+		return (
+			<figure { ...blockProps }>
+				<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
+			</figure>
+		);
 	}
 
 	return (

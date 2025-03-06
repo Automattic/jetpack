@@ -115,7 +115,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} elseif ( $post ) {
 			$attributes['id'] = $post->ID;
 			$post_author      = get_userdata( $post->post_author );
-			$default_to      .= $post_author->user_email;
+			if ( is_a( $post_author, '\WP_User' ) ) {
+				$default_to .= $post_author->user_email;
+			} else {
+				$default_to .= get_option( 'admin_email' );
+			}
 		}
 
 		if ( ! empty( self::$forms ) ) {
@@ -534,7 +538,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = is_a( $feedback, '\WP_Post' ) ? $feedback->post_content : '';
+					$value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
+									$feedback->post_content : '';
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
 				}
@@ -627,7 +632,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = is_a( $feedback, '\WP_Post' ) ? $feedback->post_content : '';
+					$value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
+									$feedback->post_content : '';
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
 				}

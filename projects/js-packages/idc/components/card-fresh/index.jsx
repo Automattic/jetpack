@@ -102,7 +102,7 @@ const CardFresh = props => {
 								}
 						  )
 						: createInterpolateElement(
-								customContent.startFreshCardBodyText ||
+								customContent.startFreshCardBodyTextDev ||
 									sprintf(
 										/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
 										__(

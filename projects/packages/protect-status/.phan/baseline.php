@@ -21,8 +21,8 @@ return [
         'src/class-protect-status.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-scan-status.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition'],
         'src/class-status.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
-        'tests/php/test-scan-status.php' => ['PhanTypeMismatchArgument'],
-        'tests/php/test-status.php' => ['PhanTypeMismatchArgument'],
+        'tests/php/Scan_Status_Test.php' => ['PhanTypeMismatchArgument'],
+        'tests/php/Status_Test.php' => ['PhanTypeMismatchArgument'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

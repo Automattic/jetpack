@@ -17,9 +17,11 @@ class Historically_Active_Modules {
 	public const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
 
 	/**
-	 * Constructor
+	 * Register the REST API routes.
+	 *
+	 * @return void
 	 */
-	public function __construct() {
+	public static function register_rest_endpoints() {
 		register_rest_route(
 			'my-jetpack/v1',
 			'site/update-historically-active-modules',

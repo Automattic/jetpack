@@ -205,8 +205,6 @@ rm "$PHPCSSTANDARDFILE"
 # Add textdomain to block.json
 echo "Adding textdomain to all block.json files..."
 for block_json_file in "$TARGET"/blocks/*/block.json; do
-	TMPFILE=$(mktemp)
-	jq --tab '. += {"textdomain": "jetpack-mu-wpcom"}' "$block_json_file" > "$TMPFILE"
-	mv "$TMPFILE" "$block_json_file"
+	jq --tab '. += {"textdomain": "jetpack-mu-wpcom"}' "$block_json_file" > "$block_json_file.tmp" && mv "$block_json_file.tmp" "$block_json_file"
 done
 echo Sync done.
