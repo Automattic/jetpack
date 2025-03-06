@@ -22,11 +22,11 @@ const FirstTimeModal = ( { onClose } ) => {
 						{ __( 'Learn more about donations.', 'jetpack' ) }
 					</a>
 				</p>
-				<ul>
+				<ol>
 					<li>{ __( 'Connect your Stripe account to your WordPress.com account', 'jetpack' ) }</li>
 					<li>{ __( 'Set up your business information in Stripe', 'jetpack' ) }</li>
 					<li>{ __( 'Configure your payment settings and supported currencies', 'jetpack' ) }</li>
-				</ul>
+				</ol>
 				<p>
 					{ __(
 						'Once connected, you can customize your donation form and start accepting payments.',
@@ -38,6 +38,7 @@ const FirstTimeModal = ( { onClose } ) => {
 						'Please note that accepting donations has additional requirements from Stripe. Learn more about',
 						'jetpack'
 					) }
+					&nbsp;
 					<a
 						href="https://support.stripe.com/questions/requirements-for-accepting-tips-or-donations"
 						target="_blank"
