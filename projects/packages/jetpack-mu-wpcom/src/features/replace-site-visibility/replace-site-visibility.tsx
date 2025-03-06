@@ -6,8 +6,6 @@ declare global {
 	interface Window {
 		JETPACK_MU_WPCOM_SITE_VISIBILITY?: {
 			homeUrl: string;
-			siteId: number;
-			siteSlug: string;
 			isWpcomStagingSite: boolean;
 			isUnlaunchedSite: boolean;
 			hasSitePreviewLink: boolean;
