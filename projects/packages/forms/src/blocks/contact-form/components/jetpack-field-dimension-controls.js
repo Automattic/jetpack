@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 
 const PERCENTAGE_WIDTHS = [ 25, 50, 75, 100 ];
 
-export default function JetpackFieldWidth( { clientId, setAttributes, width } ) {
+export default function JetpackFieldDimensionControls( { clientId, setAttributes, width } ) {
 	return (
 		<InspectorControls group="dimensions">
 			<ToolsPanelItem

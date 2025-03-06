@@ -10,8 +10,8 @@ import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import ToolbarRequiredGroup from './block-controls/toolbar-required-group';
+import JetpackFieldDimensionControls from './jetpack-field-dimension-controls';
 import JetpackFieldLabel from './jetpack-field-label';
-import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
@@ -68,7 +68,11 @@ function JetpackFieldCheckbox( {
 						/>
 					</PanelBody>
 				</InspectorControls>
-				<JetpackFieldWidth clientId={ clientId } setAttributes={ setAttributes } width={ width } />
+				<JetpackFieldDimensionControls
+					clientId={ clientId }
+					setAttributes={ setAttributes }
+					width={ width }
+				/>
 				<InspectorControls>
 					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 						<JetpackManageResponsesSettings isChildBlock />

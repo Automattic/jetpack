@@ -3,8 +3,8 @@ import { BaseControl, PanelBody, SelectControl, ToggleControl } from '@wordpress
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
+import JetpackFieldDimensionControls from './jetpack-field-dimension-controls';
 import JetpackFieldLabel from './jetpack-field-label';
-import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldConsent = ( {
@@ -46,7 +46,11 @@ const JetpackFieldConsent = ( {
 				) }
 				insertBlocksAfter={ insertBlocksAfter }
 			/>
-			<JetpackFieldWidth clientId={ clientId } setAttributes={ setAttributes } width={ width } />
+			<JetpackFieldDimensionControls
+				clientId={ clientId }
+				setAttributes={ setAttributes }
+				width={ width }
+			/>
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />

@@ -18,7 +18,7 @@ import { isValidElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useFormStyle, FORM_STYLE, getBlockStyle } from '../util/form';
 import ToolbarRequiredGroup from './block-controls/toolbar-required-group';
-import JetpackFieldWidth from './jetpack-field-width';
+import JetpackFieldDimensionControls from './jetpack-field-dimension-controls';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldControls = ( {
@@ -181,7 +181,11 @@ const JetpackFieldControls = ( {
 					<>{ fieldSettings }</>
 				</PanelBody>
 			</InspectorControls>
-			<JetpackFieldWidth clientId={ clientId } setAttributes={ setAttributes } width={ width } />
+			<JetpackFieldDimensionControls
+				clientId={ clientId }
+				setAttributes={ setAttributes }
+				width={ width }
+			/>
 			<InspectorControls group="color">
 				<ColorGradientSettingsDropdown
 					__experimentalIsRenderedInSidebar
