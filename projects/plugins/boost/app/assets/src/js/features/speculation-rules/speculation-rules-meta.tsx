@@ -1,14 +1,12 @@
-import { Button, Notice } from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useEffect, useState } from 'react';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
 import { useSpeculationRules } from '$lib/stores/speculation-rules';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
+import { BypassPatterns } from '$features/ui/bypass-patterns/bypass-pattern';
 import styles from './speculation-rules-meta.module.scss';
-import clsx from 'clsx';
 
 const Meta = () => {
 	const speculationRules = useSpeculationRules();
@@ -46,6 +44,16 @@ const Meta = () => {
 				patterns={ patterns.join( '\n' ) }
 				setPatterns={ updatePatterns }
 				showErrorNotice={ mutateBypassPatterns.isError }
+				label={ __(
+					'URLs of pages and posts that will not have speculation rules applied:',
+					'jetpack-boost'
+				) }
+				description={ __(
+					'Enter one URL per line. These pages will not have speculation rules applied to them.',
+					'jetpack-boost'
+				) }
+				errorMessage={ __( 'Error: Invalid format', 'jetpack-boost' ) }
+				source="speculation_rules"
 			/>
 		</div>
 	);
@@ -62,96 +70,6 @@ const Meta = () => {
 				</CollapsibleMeta>
 			</div>
 		)
-	);
-};
-
-interface BypassPatternsProps {
-	patterns: string;
-	setPatterns: ( value: string ) => void;
-	showErrorNotice?: boolean;
-}
-
-const BypassPatterns = ( {
-	patterns,
-	setPatterns,
-	showErrorNotice = false,
-}: BypassPatternsProps ) => {
-	const [ inputValue, setInputValue ] = useState( patterns );
-	const [ showNotice, setShowNotice ] = useState( showErrorNotice );
-	const [ inputInvalid, setInputInvalid ] = useState( false );
-
-	const validateInputValue = ( value: string ) => {
-		setInputValue( value );
-		setInputInvalid( ! validatePatterns( value ) );
-	};
-
-	const validatePatterns = ( value: string ) => {
-		const lines = value
-			.split( '\n' )
-			.map( line => line.trim() )
-			.filter( line => line.trim() !== '' );
-
-		// check if it's a valid regex
-		try {
-			lines.forEach( line => new RegExp( line ) );
-		} catch {
-			return false;
-		}
-
-		return true;
-	};
-
-	useEffect( () => {
-		setInputValue( patterns );
-	}, [ patterns ] );
-
-	useEffect( () => {
-		setShowNotice( showErrorNotice );
-	}, [ showErrorNotice ] );
-
-	function save() {
-		recordBoostEvent( 'speculation_rules_exceptions_save_clicked', {} );
-		setPatterns( inputValue );
-	}
-
-	return (
-		<div
-			className={ clsx( styles.section, {
-				[ styles[ 'has-error' ] ]: inputInvalid,
-			} ) }
-		>
-			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
-			<label htmlFor="jb-speculation-rules-exceptions">
-				{ __(
-					'URLs of pages and posts that will not have speculation rules applied:',
-					'jetpack-boost'
-				) }
-			</label>
-			<textarea
-				value={ inputValue }
-				rows={ 3 }
-				onChange={ e => validateInputValue( e.target.value ) }
-				id="jb-speculation-rules-exceptions"
-			/>
-			<div className={ styles.description }>
-				{ __(
-					'Enter one URL per line. These pages will not have speculation rules applied to them.',
-					'jetpack-boost'
-				) }
-			</div>
-			{ showNotice && (
-				<Notice
-					level="error"
-					title={ __( 'Error: Unable to save changes.', 'jetpack-boost' ) }
-					onClose={ () => setShowNotice( false ) }
-				>
-					{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
-				</Notice>
-			) }
-			<Button disabled={ patterns === inputValue } onClick={ save } className={ styles.button }>
-				{ __( 'Save', 'jetpack-boost' ) }
-			</Button>
-		</div>
 	);
 };
 

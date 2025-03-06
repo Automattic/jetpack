@@ -1,18 +1,18 @@
-import { Button, IconTooltip, Notice, getRedirectUrl } from '@automattic/jetpack-components';
+import { Button, IconTooltip, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import Lightning from '$svg/lightning';
 import styles from './meta.module.scss';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import { Link } from 'react-router-dom';
-import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
+import { BypassPatterns } from '$features/ui/bypass-patterns/bypass-pattern';
 
 const Meta = () => {
 	const pageCache = usePageCache();
@@ -107,12 +107,34 @@ const Meta = () => {
 		</Button>
 	);
 
+	const exclusionsLink = getRedirectUrl( 'jetpack-boost-cache-how-to-exclude' );
+
 	const content = (
 		<div className={ styles.body }>
 			<BypassPatterns
 				patterns={ bypassPatterns.join( '\n' ) }
 				setPatterns={ updatePatterns }
 				showErrorNotice={ mutateBypassPatterns.isError }
+				label={ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }
+				description={
+					<>
+						{ __(
+							'Use (.*) to address multiple URLs under a given path. Be sure each URL path is in its own line.',
+							'jetpack-boost'
+						) }
+						<br />
+						{ createInterpolateElement(
+							__( '<help>See an example</help> or <link>learn more</link>.', 'jetpack-boost' ),
+							{
+								help: <BypassPatternsExample />,
+								// eslint-disable-next-line jsx-a11y/anchor-has-content
+								link: <a href={ exclusionsLink } target="_blank" rel="noreferrer" />,
+							}
+						) }
+					</>
+				}
+				errorMessage={ __( 'Error: Invalid format', 'jetpack-boost' ) }
+				source="page_cache"
 			/>
 			<div className={ styles.section }>
 				<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
@@ -152,111 +174,6 @@ const Meta = () => {
 				</CollapsibleMeta>
 			</div>
 		)
-	);
-};
-
-type BypassPatternsProps = {
-	patterns: string;
-	setPatterns: ( newValue: string ) => void;
-	showErrorNotice: boolean;
-};
-
-const BypassPatterns = ( {
-	patterns,
-	setPatterns,
-	showErrorNotice = false,
-}: BypassPatternsProps ) => {
-	const [ inputValue, setInputValue ] = useState( patterns );
-	const [ showNotice, setShowNotice ] = useState( showErrorNotice );
-	const [ inputInvalid, setInputInvalid ] = useState( false );
-
-	const exclusionsLink = getRedirectUrl( 'jetpack-boost-cache-how-to-exclude' );
-
-	const validateInputValue = ( value: string ) => {
-		setInputValue( value );
-		setInputInvalid( ! validatePatterns( value ) );
-	};
-
-	const validatePatterns = ( value: string ) => {
-		const lines = value
-			.split( '\n' )
-			.map( line => line.trim() )
-			.filter( line => line.trim() !== '' );
-
-		// check if it's a valid regex
-		try {
-			lines.forEach( line => new RegExp( line ) );
-		} catch {
-			return false;
-		}
-
-		return true;
-	};
-
-	useEffect( () => {
-		setInputValue( patterns );
-	}, [ patterns ] );
-
-	useEffect( () => {
-		setShowNotice( showErrorNotice );
-	}, [ showErrorNotice ] );
-
-	function save() {
-		recordBoostEvent( 'page_cache_exceptions_save_clicked', {} );
-		setPatterns( inputValue );
-	}
-
-	return (
-		<div
-			className={ clsx( styles.section, {
-				[ styles[ 'has-error' ] ]: inputInvalid,
-			} ) }
-		>
-			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
-			<label htmlFor="jb-cache-exceptions">
-				{ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }
-			</label>
-			<textarea
-				value={ inputValue }
-				rows={ 3 }
-				onChange={ e => validateInputValue( e.target.value ) }
-				id="jb-cache-exceptions"
-			/>
-			<p className={ clsx( styles.description, styles[ 'error-message' ] ) }>
-				{ __( 'Error: Invalid format', 'jetpack-boost' ) }
-			</p>
-			<div className={ styles.description }>
-				{ __(
-					'Use (.*) to address multiple URLs under a given path. Be sure each URL path is in its own line.',
-					'jetpack-boost'
-				) }
-				<br />
-				{ createInterpolateElement(
-					__( '<help>See an example</help> or <link>learn more</link>.', 'jetpack-boost' ),
-					{
-						help: <BypassPatternsExample />, // children are passed after the interpolation.
-						// eslint-disable-next-line jsx-a11y/anchor-has-content
-						link: <a href={ exclusionsLink } target="_blank" rel="noreferrer" />,
-					}
-				) }
-			</div>
-			{ showNotice && (
-				<Notice
-					level="error"
-					title={ __( 'Error: Unable to save changes.', 'jetpack-boost' ) }
-					onClose={ () => setShowNotice( false ) }
-				>
-					{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
-				</Notice>
-			) }
-			<Button
-				disabled={ patterns === inputValue || inputInvalid }
-				onClick={ save }
-				className={ styles.button }
-			>
-				{ __( 'Save', 'jetpack-boost' ) }
-			</Button>
-		</div>
 	);
 };
 

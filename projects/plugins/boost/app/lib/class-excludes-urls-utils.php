@@ -16,7 +16,7 @@ class Excludes_URLs_Utils {
 	 *
 	 * @return array The sanitized value.
 	 */
-	public static function sanitize_value( $value, $checks = array( 'wildcards' => true ) ) {
+	public static function sanitize_value( $value, $checks = array( 'wildcards' => 'regex' ) ) {
 		if ( ! is_array( $value ) ) {
 			return array();
 		}
@@ -51,9 +51,9 @@ class Excludes_URLs_Utils {
 			// Make sure there's a leading slash
 			$path = '/' . ltrim( $path, '/' );
 
-			if ( in_array( 'wildcards', $checks, true ) && $checks['wildcards'] === true ) {
+			if ( isset( $checks['wildcards'] ) ) {
 				// Fix up any wildcards
-				$path = self::sanitize_wildcards( $path );
+				$path = self::sanitize_wildcards( $path, $checks['wildcards'] );
 			}
 		}
 
@@ -66,19 +66,28 @@ class Excludes_URLs_Utils {
 	 * @param string $path The path to sanitize.
 	 * @return string The sanitized path.
 	 */
-	private static function sanitize_wildcards( $path ) {
+	private static function sanitize_wildcards( $path, $wildcards_type ) {
 		if ( ! $path ) {
 			return '';
 		}
 
 		$path_components = explode( '/', $path );
-		$arr             = array(
-			'.*'   => '(.*)',
-			'*'    => '(.*)',
-			'(*)'  => '(.*)',
-			'(.*)' => '(.*)',
-		);
 
+		if ( $wildcards_type === 'regex' ) {
+			$arr = array(
+				'.*'   => '(.*)',
+				'*'    => '(.*)',
+				'(*)'  => '(.*)',
+				'(.*)' => '(.*)',
+			);
+		} else {
+			$arr = array(
+				'.*'   => '*',
+				'*'    => '*',
+				'(*)'  => '*',
+				'(.*)' => '*',
+			);
+		}
 		foreach ( $path_components as &$path_component ) {
 			$path_component = strtr( $path_component, $arr );
 		}
