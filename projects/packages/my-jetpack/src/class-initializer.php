@@ -513,12 +513,10 @@ class Initializer {
 		new REST_AI();
 		new REST_Recommendations_Evaluation();
 
-		$rbn = new Red_Bubble_Notifications();
-		$rbn->register_rest_routes();
-
 		Products::register_product_endpoints();
 		Historically_Active_Modules::register_rest_endpoints();
 		Jetpack_Manage::register_rest_endpoints();
+		Red_Bubble_Notifications::register_rest_endpoints();
 
 		register_rest_route(
 			'my-jetpack/v1',

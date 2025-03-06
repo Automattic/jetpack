@@ -21,18 +21,11 @@ class Red_Bubble_Notifications {
 	private const MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY = 'my-jetpack-red-bubble-transient';
 
 	/**
-	 * Red bubble alerts
-	 *
-	 * @var array
-	 */
-	public static $red_bubble_alerts = array();
-
-	/**
 	 * Summary of register_rest_routes
 	 *
 	 * @return void
 	 */
-	public static function register_rest_routes() {
+	public static function register_rest_endpoints() {
 		register_rest_route(
 			'my-jetpack/v1',
 			'red-bubble-notifications',
@@ -341,10 +334,7 @@ class Red_Bubble_Notifications {
 	 * @return array
 	 */
 	public static function get_red_bubble_alerts( bool $bypass_cache = false ) {
-		// using a static cache since we call this function more than once in the class
-		if ( ! empty( self::$red_bubble_alerts ) ) {
-			return self::$red_bubble_alerts;
-		}
+		$red_bubble_alerts = array();
 
 		// check for stored alerts
 		$stored_alerts = get_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY );
@@ -355,12 +345,12 @@ class Red_Bubble_Notifications {
 		}
 
 		// go find the alerts
-		self::$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', self::$red_bubble_alerts );
+		$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', $red_bubble_alerts );
 
 		// cache the alerts for one hour
-		set_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY, self::$red_bubble_alerts, 3600 );
+		set_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY, $red_bubble_alerts, 3600 );
 
-		return self::$red_bubble_alerts;
+		return $red_bubble_alerts;
 	}
 
 	/**
@@ -370,7 +360,6 @@ class Red_Bubble_Notifications {
 	 */
 	public static function rest_api_get_red_bubble_alerts() {
 		$red_bubble_alerts = self::get_red_bubble_alerts( true );
-		l( $red_bubble_alerts );
 		return rest_ensure_response( $red_bubble_alerts );
 	}
 }
