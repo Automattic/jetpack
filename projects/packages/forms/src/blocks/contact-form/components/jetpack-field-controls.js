@@ -214,7 +214,6 @@ const JetpackFieldControls = ( {
 									buttonBorderWidth: undefined,
 								} )
 							}
-							isShownByDefault
 						>
 							<RangeControl
 								label={ __( 'Button Border Width', 'jetpack-forms' ) }
@@ -235,7 +234,6 @@ const JetpackFieldControls = ( {
 									buttonBorderRadius: undefined,
 								} )
 							}
-							isShownByDefault
 						>
 							<RangeControl
 								label={ __( 'Button Border Radius', 'jetpack-forms' ) }
@@ -260,7 +258,6 @@ const JetpackFieldControls = ( {
 									borderWidth: undefined,
 								} )
 							}
-							isShownByDefault
 						>
 							<RangeControl
 								label={ __( 'Border Width', 'jetpack-forms' ) }
@@ -281,7 +278,6 @@ const JetpackFieldControls = ( {
 									borderRadius: undefined,
 								} )
 							}
-							isShownByDefault
 						>
 							<RangeControl
 								label={ __( 'Border Radius', 'jetpack-forms' ) }
@@ -323,7 +319,6 @@ const JetpackFieldControls = ( {
 								fieldFontSize: undefined,
 							} )
 						}
-						isShownByDefault
 					>
 						<FontSizePicker
 							withReset={ false }
@@ -341,7 +336,6 @@ const JetpackFieldControls = ( {
 								lineHeight: undefined,
 							} )
 						}
-						isShownByDefault
 					>
 						<LineHeightControl
 							__nextHasNoMarginBottom={ true }
@@ -370,7 +364,6 @@ const JetpackFieldControls = ( {
 								labelFontSize: undefined,
 							} )
 						}
-						isShownByDefault
 					>
 						<FontSizePicker
 							withReset={ true }
@@ -388,7 +381,6 @@ const JetpackFieldControls = ( {
 								labelLineHeight: undefined,
 							} )
 						}
-						isShownByDefault
 					>
 						<LineHeightControl
 							__unstableInputWidth="100%"
