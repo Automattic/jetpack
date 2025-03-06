@@ -45,8 +45,8 @@ export const NewsletterWidget = ( {
 										{ sprintf(
 											//translators: %1$s is the total number of subscribers, %2$s is the number of email subscribers
 											__( '%1$s subscribers (%2$s via email)', 'jetpack' ),
-											allSubscribers,
-											emailSubscribers
+											formatNumber( allSubscribers ),
+											formatNumber( emailSubscribers )
 										) }
 									</a>
 								</span>
