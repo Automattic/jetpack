@@ -31,6 +31,42 @@ function wpcomInitializeFiverrCta() {
 }
 
 /**
+ * Build and append the "Add custom address" button.
+ * @param fragment - The document fragment for options general.
+ */
+function _wpcomBuildAddCustomAddressButton( fragment: DocumentFragment ) {
+	const addButton = document.createElement( 'button' );
+	addButton.type = 'button';
+	addButton.className = 'button wpcom-add-custom-address-button';
+	addButton.innerHTML = `&plus; ${ __( 'Add custom address', 'jetpack-mu-wpcom' ) }`;
+
+	// Fragment == simple, document == Atomic
+	const previousSibling =
+		( fragment.getElementById( 'home' ) as HTMLInputElement ) || document.getElementById( 'home' );
+	if ( ! previousSibling ) {
+		return;
+	}
+
+	addButton.addEventListener( 'click', e => {
+		e.preventDefault();
+
+		if ( typeof window.wpcomSiteUrl === 'undefined' ) {
+			return;
+		}
+
+		wpcomTrackEvent( 'wp_admin_upgrade_nudge_cta_click', {
+			cta_name: 'settings_site_address',
+		} );
+
+		window.open(
+			`https://wordpress.com/domains/add/${ window.wpcomSiteUrl.siteSlug }?redirect_to=${ window.wpcomSiteUrl.optionsGeneralUrl }`
+		);
+	} );
+
+	previousSibling.parentElement?.appendChild( addButton );
+}
+
+/**
  * Build the Site Address (URL) and WordPress Address (URL) input fields.
  * @param fragment - The document fragment for options general.
  */
@@ -55,9 +91,9 @@ const _wpcomBuildSiteUrl = ( fragment: DocumentFragment ) => {
 		const homeUrlLabel = __( 'Site Address (URL)', 'jetpack-mu-wpcom' );
 		const homeUrlRow = document.createElement( 'tr' );
 		homeUrlRow.innerHTML = `
-					<th scope="row"><label for="home">${ homeUrlLabel }</label></th>
-					<td><input type="url" id="home" value="${ window.wpcomSiteUrl.homeUrl }" class="regular-text code disabled" disabled="disabled" /></td>
-			`;
+			<th scope="row"><label for="home">${ homeUrlLabel }</label></th>
+			<td><input type="url" id="home" value="${ window.wpcomSiteUrl.homeUrl }" class="regular-text code disabled" disabled="disabled" /></td>
+		`;
 		fragment.appendChild( homeUrlRow );
 	}
 };
@@ -107,6 +143,7 @@ const wpcomAddOptionsGeneralFragment = () => {
 
 	_wpcomBuildFiverrCta( fragment );
 	_wpcomBuildSiteUrl( fragment );
+	_wpcomBuildAddCustomAddressButton( fragment );
 	_wpcomBuildDomainSettingsLinks( fragment );
 
 	// Insert the fragment after the site icon section.

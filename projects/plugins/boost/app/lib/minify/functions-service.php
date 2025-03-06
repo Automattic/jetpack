@@ -103,12 +103,17 @@ add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
  * Schedule the 404 tester if the concatenation modules
  * haven't been toggled since this feature was released.
  * Only run this in wp-admin to avoid excessive updates to the option.
+ *
+ * @param bool $setup_404_tester Whether to setup the 404 tester or not.
  */
-function jetpack_boost_404_setup() {
+function jetpack_boost_404_setup( $setup_404_tester = true ) {
 	if ( is_admin() && get_site_option( 'jetpack_boost_static_minification', 'na' ) === 'na' ) {
 		update_site_option( 'jetpack_boost_static_minification', 0 ); // Add a default value if not set to avoid an extra SQL query.
 	}
-	jetpack_boost_page_optimize_schedule_404_tester();
+
+	if ( $setup_404_tester ) {
+		jetpack_boost_page_optimize_schedule_404_tester();
+	}
 }
 
 /**

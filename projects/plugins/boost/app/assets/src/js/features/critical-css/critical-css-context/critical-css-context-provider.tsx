@@ -117,7 +117,13 @@ export function useLocalCriticalCssGenerator() {
 					},
 
 					setProviderCss: ( key: string, css: string ) => {
-						return setProviderCssAction.mutateAsync( { key, css } );
+						return setProviderCssAction.mutateAsync( {
+							key,
+							// Avoid WAF pitfalls as firewalls can block critical CSS due to them including `<svg xmlns`
+							// See 9566-gh-Automattic/jpop-issues
+							css: btoa( css ),
+							isBase64Encoded: true,
+						} );
 					},
 
 					setProviderErrors: ( key: string, errors: CriticalCssErrorDetails[] ) =>
