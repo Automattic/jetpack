@@ -20,6 +20,7 @@ import debugFactory from 'debug';
 import useBlockModuleStatus from '../../hooks/use-block-module-status';
 import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
 import { canAIAssistantBeEnabled } from '../lib/can-ai-assistant-be-enabled';
+import { preprocessImageContent } from '../lib/preprocess-image-content';
 import { TYPE_ALT_TEXT, TYPE_CAPTION } from '../types';
 import AiAssistantImageExtensionToolbarDropdown from './components/image-toolbar-dropdown';
 /*
@@ -148,7 +149,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 								role: 'jetpack-ai' as const,
 								context: {
 									type: type,
-									content: getPostContent(),
+									content: getPostContent( preprocessImageContent ),
 									// URL of the image for the AI to find where the image is in the post.
 									urls: [ props.attributes.url ],
 									images: [
