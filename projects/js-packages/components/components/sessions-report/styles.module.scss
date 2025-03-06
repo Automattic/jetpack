@@ -1,0 +1,32 @@
+@import '@wordpress/dataviews/build-style/style.css';
+
+.session__media {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #EDFFEE;
+	border-color: #EDFFEE;
+
+	&.suspicious {
+		background-color: #FFEEDE;
+		border-color: #FFEEDE;
+	}
+
+	svg {
+		fill: var( --jp-black );
+	}
+}
+
+.session__tooltip {
+	max-width: 240px;
+	border-radius: 4px;
+	text-align: left;
+}
+
+.session__icon {
+	min-width: 32px;
+	display: flex;
+	justify-content: center;
+}

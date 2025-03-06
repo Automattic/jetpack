@@ -134,6 +134,7 @@ class Jetpack_Protect {
 		REST_Controller::init();
 		My_Jetpack_Initializer::init();
 		Site_Health::init();
+		Sessions::init();
 
 		// Sets up JITMS.
 		JITM::configure();

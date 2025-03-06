@@ -212,6 +212,15 @@ class REST_Controller {
 				},
 			)
 		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'terminate-sessions',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::api_terminate_sessions',
+			)
+		);
 	}
 
 	/**
@@ -449,5 +458,28 @@ class REST_Controller {
 	public static function api_get_sessions() {
 		$sessions = Sessions::get_all();
 		return rest_ensure_response( $sessions );
+	}
+
+	/**
+	 * Terminate a session for the API endpoint
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_terminate_sessions( $request ) {
+
+		// TODO: Needs to handle bulk termination as well.
+		if ( empty( $request['user_id'] ) || empty( $request['token'] ) ) {
+			return new WP_REST_Response( 'Missing user ID or token.', 400 );
+		}
+
+		$terminated = Sessions::terminate_session( $request['user_id'], $request['token'] );
+
+		if ( ! $terminated ) {
+			return new WP_REST_Response( 'An error occurred while attempting to terminate the session.', 500 );
+		}
+
+		return new WP_REST_Response( 'Session terminated.' );
 	}
 }

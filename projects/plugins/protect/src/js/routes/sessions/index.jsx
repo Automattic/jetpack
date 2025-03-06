@@ -1,11 +1,9 @@
-import { AdminSection, Container, Col, ScanReport } from '@automattic/jetpack-components';
-import { useMemo } from 'react';
+import { AdminSection, Container, Col, SessionsReport } from '@automattic/jetpack-components';
+import { useCallback } from 'react';
 import AdminPage from '../../components/admin-page';
-import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useSessionsQuery from '../../data/use-sessions-query';
 import HomeAdminSectionHero from './sessions-admin-section-hero';
 import styles from './styles.module.scss';
-
 /**
  * Home Page
  *
@@ -14,45 +12,34 @@ import styles from './styles.module.scss';
  * @return {Component} The root component for the scan page.
  */
 const SessionsPage = () => {
-	const { data: status } = useScanStatusQuery( { usePolling: true } );
 	const { data: sessions } = useSessionsQuery();
 
-	const data = useMemo(
-		() => [
-			...( Object.keys( status.core || {} ).length ? [ status.core ] : [] ),
-			...status.plugins,
-			...status.themes,
-			...( status.dataSource === 'scan_api'
-				? [
-						{
-							checked: !! status.lastChecked,
-							threats: status.files,
-							type: 'files',
-						},
-				  ]
-				: [] ),
-		],
-		[ status ]
-	);
+	const terminateSessions = useCallback( selectedItems => {
+		console.log( 'Terminate sessions:', selectedItems );
+	}, [] );
 
-	const showReport = ! isScanInProgress( status );
+	const getProfileLink = useCallback( userId => {
+		return `/wp-admin/user-edit.php?user_id=${ userId }`;
+	}, [] );
 
 	return (
 		<AdminPage>
 			<HomeAdminSectionHero />
-			{ showReport && (
-				<AdminSection>
-					<Container
-						className={ styles[ 'scan-report-container' ] }
-						horizontalSpacing={ 3 }
-						horizontalGap={ 4 }
-					>
-						<Col>
-							<ScanReport dataSource={ status.dataSource } data={ data } />
-						</Col>
-					</Container>
-				</AdminSection>
-			) }
+			<AdminSection>
+				<Container
+					className={ styles[ 'sessions-report-container' ] }
+					horizontalSpacing={ 3 }
+					horizontalGap={ 4 }
+				>
+					<Col>
+						<SessionsReport
+							data={ sessions }
+							getProfileLink={ getProfileLink }
+							terminateSessions={ terminateSessions }
+						/>
+					</Col>
+				</Container>
+			</AdminSection>
 		</AdminPage>
 	);
 };

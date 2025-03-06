@@ -1,0 +1,365 @@
+import { type SessionsStatus } from '@automattic/jetpack-scan';
+import { Tooltip } from '@wordpress/components';
+import {
+	type SupportedLayouts,
+	type View,
+	type Field,
+	type SortDirection,
+	DataViews,
+	filterSortAndPaginate,
+} from '@wordpress/dataviews';
+import { dateI18n } from '@wordpress/date';
+import { __ } from '@wordpress/i18n';
+import { Icon, trash, people } from '@wordpress/icons';
+import { useCallback, useMemo, useState } from 'react';
+import ShieldIcon from '../shield-icon';
+import {
+	FIELD_USER_ID,
+	FIELD_USER_LOGIN,
+	FIELD_STATUS,
+	FIELD_USER_ROLES,
+	FIELD_IP,
+	FIELD_LOGIN,
+	FIELD_EXPIRATION,
+	FIELD_USER_AGENT,
+	FIELD_TOKEN,
+	FIELD_ICON,
+	STATUS_TYPES,
+} from './constants';
+import styles from './styles.module.scss';
+
+/**
+ * DataViews component for displaying a sessions report.
+ *
+ * @param {object}   props                   - Component props.
+ * @param {Array}    props.data              - Sessions data.
+ * @param {Function} props.onChangeSelection - Callback function run when an item is selected.
+ * @param {Function} props.terminateSessions - Callback function run when a session is terminated.
+ * @param {Function} props.getProfileLink    - Callback function to get the user profile link.
+ *
+ * @return {JSX.Element} The SessionsReport component.
+ */
+export default function SessionsReport( {
+	data,
+	onChangeSelection,
+	terminateSessions,
+	getProfileLink,
+} ): JSX.Element {
+	const baseView = {
+		search: '',
+		filters: [],
+		page: 1,
+		perPage: 20,
+		sort: {
+			field: 'status',
+			direction: 'asc' as SortDirection,
+		},
+	};
+
+	// TODO: Add a default sort order, by status...
+
+	/**
+	 * DataView default layouts.
+	 */
+	const defaultLayouts: SupportedLayouts = {
+		table: {
+			...baseView,
+			fields: [
+				FIELD_USER_LOGIN,
+				FIELD_STATUS,
+				FIELD_USER_ROLES,
+				FIELD_IP,
+				FIELD_LOGIN,
+				FIELD_EXPIRATION,
+				FIELD_USER_AGENT,
+				FIELD_TOKEN,
+			],
+			titleField: FIELD_USER_ID,
+			showMedia: false,
+		},
+		list: {
+			...baseView,
+			fields: [ FIELD_STATUS, FIELD_USER_ID, FIELD_IP, FIELD_LOGIN, FIELD_EXPIRATION ],
+			titleField: FIELD_USER_LOGIN,
+			mediaField: FIELD_ICON,
+			showMedia: true,
+		},
+	};
+
+	/**
+	 * DataView view object - configures how the dataset is visible to the user.
+	 */
+	const [ view, setView ] = useState< View >( {
+		type: 'table',
+		...defaultLayouts.table,
+	} );
+
+	const {
+		users,
+		roles,
+	}: {
+		users: { value: string; label: string }[];
+		roles: { value: string; label: string }[];
+	} = useMemo( () => {
+		const UNKNOWN_VALUE = 'unknown';
+		const UNKNOWN_LABEL = __( 'Unknown', 'jetpack-components' );
+
+		const uniqueRoles = new Set< string >();
+		const uniqueUsers = new Map< string, { value: string; label: string } >();
+
+		data.forEach( ( { userId, userLogin, userRoles } ) => {
+			if ( ! userRoles?.length ) {
+				uniqueRoles.add( UNKNOWN_VALUE );
+			} else {
+				userRoles.forEach( role => uniqueRoles.add( role ) );
+			}
+
+			// Ensure only unique users are added
+			if ( ! uniqueUsers.has( String( userId ) ) ) {
+				const trimmedUserLogin = userLogin.trim();
+				uniqueUsers.set( String( userId ), {
+					value: trimmedUserLogin ? String( userId ) : UNKNOWN_VALUE,
+					label: trimmedUserLogin || UNKNOWN_LABEL,
+				} );
+			}
+		} );
+
+		const usersArray = Array.from( uniqueUsers.values() );
+		const rolesArray = Array.from( uniqueRoles ).map( role => ( {
+			value: role,
+			label:
+				role === UNKNOWN_VALUE ? UNKNOWN_LABEL : role.charAt( 0 ).toUpperCase() + role.slice( 1 ),
+		} ) );
+
+		const prioritizeUnknown = ( array: { value: string; label: string }[], unknownKey: string ) => {
+			const unknownItems = array.filter( item => item.value === unknownKey );
+			const otherItems = array.filter( item => item.value !== unknownKey );
+			return [ ...unknownItems, ...otherItems ];
+		};
+
+		return {
+			users: prioritizeUnknown( usersArray, UNKNOWN_VALUE ),
+			roles: prioritizeUnknown( rolesArray, UNKNOWN_VALUE ),
+		};
+	}, [ data ] );
+
+	/**
+	 * DataView fields - describes the visible items for each record in the dataset.
+	 */
+	const fields = useMemo( () => {
+		const result: Field< SessionsStatus >[] = [
+			{
+				id: FIELD_USER_ID,
+				label: __( 'ID', 'jetpack-components' ),
+				enableHiding: false,
+				enableGlobalSearch: true,
+				enableSorting: true,
+				getValue( { item }: { item: SessionsStatus } ) {
+					return String( item.userId );
+				},
+			},
+			{
+				id: FIELD_USER_LOGIN,
+				label: __( 'User', 'jetpack-components' ),
+				enableHiding: false,
+				enableGlobalSearch: true,
+				enableSorting: true,
+				elements: users,
+				getValue( { item }: { item: SessionsStatus } ) {
+					return item.userLogin.trim() ? String( item.userId ) : 'unknown';
+				},
+				render( { item }: { item: SessionsStatus } ) {
+					return (
+						<div>
+							{ item.userLogin.trim() ? (
+								<a href={ getProfileLink( item.userId ) } rel="noopener noreferrer">
+									{ item.userLogin }
+								</a>
+							) : (
+								<div>{ __( 'unknown', 'jetpack-components' ) }</div>
+							) }
+						</div>
+					);
+				},
+			},
+			{
+				id: FIELD_STATUS,
+				label: __( 'Status', 'jetpack-components' ),
+				enableHiding: false,
+				enableSorting: true,
+				elements: STATUS_TYPES,
+				getValue( { item }: { item: SessionsStatus } ) {
+					return item.isSuspicious ? 'suspicious' : 'valid';
+				},
+				render( { item }: { item: SessionsStatus } ) {
+					const text = item.isSuspicious
+						? __( 'This session is suspicious.', 'jetpack-components' )
+						: __( 'This session is valid.', 'jetpack-components' );
+					const variant = item.isSuspicious ? 'warning' : 'success';
+					return (
+						<Tooltip className={ styles.session__tooltip } text={ text }>
+							<div className={ styles.session__icon }>
+								<ShieldIcon variant={ variant } height={ 20 } />
+							</div>
+						</Tooltip>
+					);
+				},
+			},
+			{
+				id: FIELD_USER_ROLES,
+				label: __( 'Roles', 'jetpack-components' ),
+				enableHiding: false,
+				enableSorting: false,
+				elements: roles,
+				getValue( { item }: { item: SessionsStatus } ) {
+					return item.userRoles.length === 0 ? [ 'unknown' ] : item.userRoles;
+				},
+				render( { item }: { item: SessionsStatus } ) {
+					return (
+						<div>
+							{ item.userRoles.length === 0 ? (
+								<div>{ __( 'unknown', 'jetpack-components' ) }</div>
+							) : (
+								item.userRoles.map( ( role, index ) => <div key={ index }>{ role }</div> )
+							) }
+						</div>
+					);
+				},
+			},
+			{
+				id: FIELD_IP,
+				label: __( 'IP Address', 'jetpack-components' ),
+				enableHiding: false,
+				enableGlobalSearch: true,
+				enableSorting: true,
+				getValue( { item }: { item: SessionsStatus } ) {
+					return item.ip;
+				},
+			},
+			{
+				id: FIELD_LOGIN,
+				label: __( 'Login', 'jetpack-components' ),
+				enableHiding: true,
+				enableSorting: true,
+				getValue( { item }: { item: SessionsStatus } ) {
+					return item.login;
+				},
+				render( { item }: { item: SessionsStatus } ) {
+					const loginDate = new Date( item.login * 1000 );
+					return dateI18n( 'F j, Y g:i a', loginDate );
+				},
+			},
+			{
+				id: FIELD_EXPIRATION,
+				label: __( 'Expires', 'jetpack-components' ),
+				enableHiding: true,
+				enableSorting: true,
+				getValue( { item }: { item: SessionsStatus } ) {
+					return item.expiration;
+				},
+				render( { item }: { item: SessionsStatus } ) {
+					const expirationDate = new Date( item.expiration * 1000 );
+					return dateI18n( 'F j, Y g:i a', expirationDate );
+				},
+			},
+			{
+				id: FIELD_USER_AGENT,
+				label: __( 'User Agent', 'jetpack-components' ),
+				enableGlobalSearch: true,
+				enableHiding: false,
+				enableSorting: true,
+				getValue( { item }: { item: SessionsStatus } ) {
+					return item.ua;
+				},
+			},
+			{
+				id: FIELD_TOKEN,
+				label: __( 'Token', 'jetpack-components' ),
+				enableGlobalSearch: true,
+				enableHiding: true,
+				getValue( { item }: { item: SessionsStatus } ) {
+					return item.token;
+				},
+				render( { item }: { item: SessionsStatus } ) {
+					return item.token;
+				},
+			},
+			...( view.type === 'list'
+				? [
+						{
+							id: FIELD_ICON,
+							label: __( 'Icon', 'jetpack-components' ),
+							enableSorting: false,
+							enableHiding: false,
+							render() {
+								return (
+									<div className={ styles.session__media }>
+										<Icon icon={ people } />
+									</div>
+								);
+							},
+						},
+				  ]
+				: [] ),
+		];
+
+		return result;
+	}, [ users, roles, getProfileLink, view.type ] );
+
+	/**
+	 * DataView actions - defines the available actions for the dataset.
+	 */
+	const actions = useMemo(
+		() => [
+			{
+				id: 'terminate',
+				icon: trash,
+				label: items =>
+					items.length === 1
+						? __( 'Terminate Session', 'jetpack-components' )
+						: __( 'Terminate Sessions', 'jetpack-components' ),
+				callback: items => terminateSessions( items ),
+				isPrimary: true,
+				isDestructive: true,
+				supportsBulk: true,
+			},
+		],
+		[ terminateSessions ]
+	);
+
+	/**
+	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.
+	 */
+	const { data: processedData, paginationInfo } = useMemo( () => {
+		return filterSortAndPaginate( data, view, fields );
+	}, [ data, view, fields ] );
+
+	/**
+	 * Callback function to update the view state.
+	 */
+	const onChangeView = useCallback( ( newView: View ) => {
+		setView( newView );
+	}, [] );
+
+	/**
+	 * DataView getItemId function - returns the unique ID for each record in the dataset.
+	 */
+	const getItemId = useCallback(
+		( item: SessionsStatus ) => `${ item.userId }_${ item.token }`,
+		[]
+	);
+
+	return (
+		<DataViews
+			actions={ actions }
+			data={ processedData }
+			defaultLayouts={ defaultLayouts }
+			fields={ fields }
+			getItemId={ getItemId }
+			onChangeSelection={ onChangeSelection }
+			onChangeView={ onChangeView }
+			paginationInfo={ paginationInfo }
+			view={ view }
+		/>
+	);
+}

@@ -9,7 +9,7 @@ const SessionsAdminSectionHero: React.FC = () => {
 			<AdminSectionHero.Main>
 				<>
 					<AdminSectionHero.Heading>
-						{ __( 'Track and manage your active sessions', 'jetpack-protect' ) }
+						{ __( 'Manage active sessions', 'jetpack-protect' ) }
 					</AdminSectionHero.Heading>
 					<Text>
 						{ __(

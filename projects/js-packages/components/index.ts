@@ -53,6 +53,7 @@ export {
 } from './components/threats-data-views/index.js';
 export { default as ShieldIcon } from './components/shield-icon/index.js';
 export { default as ScanReport } from './components/scan-report/index.js';
+export { default as SessionsReport } from './components/sessions-report/index.js';
 export { default as Text, H2, H3, Title } from './components/text/index.js';
 export { default as ToggleControl } from './components/toggle-control/index.js';
 export { default as NumberControl } from './components/number-control/index.js';
