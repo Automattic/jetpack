@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { buildVideoPressURL, pickVideoBlockAttributesFromUrl } from '..';
+import { buildVideoPressURL, pickVideoBlockAttributesFromUrl, getVideoNameFromUrl } from '..';
 
 describe( 'buildVideoPressURL', () => {
 	it( 'should return empty object when invalid URL', () => {
@@ -122,5 +122,17 @@ describe( 'pickVideoBlockAttributesFromUrl', () => {
 		expect( attributes.poster ).toBe(
 			'http://localhost/wp-content/uploads/2023/04/pexels-photo-2693212.jpg'
 		);
+	} );
+} );
+
+describe( 'getVideoNameFromUrl', () => {
+	it( 'should return empty string when no URL', () => {
+		expect( getVideoNameFromUrl( '' ) ).toBe( '' );
+	} );
+
+	it( 'should return video name from URL', () => {
+		expect(
+			getVideoNameFromUrl( 'https://test.wordpres.com/xxxx-photo-2693212/video-file.mp4' )
+		).toBe( 'video-file.mp4' );
 	} );
 } );
