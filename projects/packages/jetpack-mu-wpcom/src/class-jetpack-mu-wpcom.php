@@ -159,8 +159,8 @@ class Jetpack_Mu_Wpcom {
 		if ( ! array_key_exists( 'data', $data ) && ! is_array( $data['data'] ) ) {
 			return;
 		}
-
-		$upgrader = new \Language_Pack_Upgrader();
+		$skin     = new \Language_Pack_Upgrader_Skin();
+		$upgrader = new \Language_Pack_Upgrader( $skin );
 
 		foreach ( $data['data'] as $plugin_name => $language_packs ) {
 			if ( ! isset( $plugin_language_pack_destinations[ $plugin_name ] ) ) {
@@ -193,7 +193,9 @@ class Jetpack_Mu_Wpcom {
 						'clear_destination' => true,
 						'clear_working'     => true,
 						'hook_extra'        => array(
-							'slug' => $plugin_name,
+							'slug'     => $plugin_name,
+							'language' => $locale,
+							'type'     => 'mu-plugin', // not a valid value, but we're using it to suprress warnings.
 						),
 					)
 				);
