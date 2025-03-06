@@ -185,11 +185,8 @@ class Initializer {
 		if ( ! apply_filters( 'jetpack_search_init_classic_search', true ) ) {
 			return;
 		}
-		if ( Inline_Search::should_replace_classic_search() ) {
-			Inline_Search::initialize( $blog_id );
-		} else {
-			Classic_Search::initialize( $blog_id );
-		}
+		Inline_Search::get_instance_maybe_fallback_to_classic( $blog_id );
+
 		return true;
 	}
 

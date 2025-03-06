@@ -45,6 +45,21 @@ class Inline_Search extends Classic_Search {
 	}
 
 	/**
+	 * Returns a class singleton - either this class, or Classic_Search if we haven't enabled the new feature yet.
+	 *
+	 * @param string|int $blog_id Blog ID.
+	 *
+	 * @return Classic_Search|Inline_Search
+	 */
+	public static function get_instance_maybe_fallback_to_classic( $blog_id = null ) {
+		if ( self::should_replace_classic_search() ) {
+			return self::instance( $blog_id );
+		} else {
+			return Classic_Search::instance( $blog_id );
+		}
+	}
+
+	/**
 	 * Bypass WP search and offload it to 1.3 search API instead.
 	 *
 	 * This is the main hook of the plugin and is responsible for returning the posts that match the search query.
