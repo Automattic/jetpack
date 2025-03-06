@@ -7,7 +7,7 @@ export type ScheduledPostsListProps = {
 	items: Array< {
 		id: number;
 		connection: Connection;
-		scheduledAt: string;
+		scheduledAt: number;
 	} >;
 	onDelete: ( itemId: number ) => void;
 	confirmDeletion?: boolean;

@@ -14,7 +14,7 @@ import styles from './item-style.module.scss';
 
 export type ScheduledPostItemProps = {
 	connection: Connection;
-	scheduledAt: string;
+	scheduledAt: number;
 	onDelete: VoidFunction;
 	confirmDeletion?: boolean;
 };
@@ -33,8 +33,8 @@ export function ScheduledPostItem( {
 }: ScheduledPostItemProps ) {
 	const date = format(
 		// "Wed, Mar 5, 2025 2:34 PM"
-		'D, M n, o g:i A',
-		scheduledAt
+		'D, M j, o g:i A',
+		new Date( scheduledAt * 1000 ).toUTCString()
 	);
 
 	const [ showConfirmation, toggleConfirmation ] = useReducer( state => ! state, false );

@@ -20,7 +20,7 @@ const DefaultArgs: ScheduledPostsListProps = {
 					'https://gravatar.com/avatar/5a5f21e099ba62ae525e62cd1ad859985c8170b8811431e7fa6ccbc9da22405b',
 				service_name: 'tumblr',
 			} as Connection,
-			scheduledAt: '2025-03-19T09:05:00+00:00',
+			scheduledAt: Math.floor( new Date().getTime() / 1000 ) + 86400,
 		},
 		{
 			id: 4567,
@@ -30,7 +30,7 @@ const DefaultArgs: ScheduledPostsListProps = {
 					'https://gravatar.com/avatar/5a5f21e099ba62ae525e62cd1ad859985c8170b8811431e7fa6ccbc9da22405b',
 				service_name: 'bluesky',
 			} as Connection,
-			scheduledAt: '2025-03-19T09:05:00+00:00',
+			scheduledAt: Math.floor( new Date().getTime() / 1000 ) + 86400,
 		},
 		{
 			id: 6789,
@@ -40,7 +40,7 @@ const DefaultArgs: ScheduledPostsListProps = {
 					'https://gravatar.com/avatar/5a5f21e099ba62ae525e62cd1ad859985c8170b8811431e7fa6ccbc9da22405b',
 				service_name: 'mastodon',
 			} as Connection,
-			scheduledAt: '2025-03-19T09:05:00+00:00',
+			scheduledAt: Math.floor( new Date().getTime() / 1000 ) + 86400,
 		},
 	],
 	onDelete: () => {},

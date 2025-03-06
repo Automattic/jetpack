@@ -18,7 +18,7 @@ const DefaultArgs: ScheduledPostItemProps = {
 		connection_id: '1234',
 		service_name: 'tumblr',
 	} as Connection,
-	scheduledAt: '2025-03-19T09:05:00+00:00',
+	scheduledAt: Math.floor( new Date().getTime() / 1000 ) + 86400,
 	onDelete: () => {},
 };
 
