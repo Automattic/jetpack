@@ -470,15 +470,17 @@ class REST_Controller {
 	public static function api_terminate_sessions( $request ) {
 
 		// TODO: Needs to handle bulk termination as well.
-		if ( empty( $request['user_id'] ) || empty( $request['token'] ) ) {
-			return new WP_REST_Response( 'Missing user ID or token.', 400 );
+		if ( empty( $request['sessions'] ) ) {
+			return new WP_REST_Response( 'Missing sessions data.', 400 );
 		}
 
-		$terminated = Sessions::terminate_session( $request['user_id'], $request['token'] );
-
-		if ( ! $terminated ) {
-			return new WP_REST_Response( 'An error occurred while attempting to terminate the session.', 500 );
+		foreach ( $request['sessions'] as $session ) {
+			// $terminated = Sessions::terminate_session( $session['user_id'], $session['token'] );
 		}
+
+		// if ( ! $terminated ) {
+		// 	return new WP_REST_Response( 'An error occurred while attempting to terminate the sessions.', 500 );
+		// }
 
 		return new WP_REST_Response( 'Session terminated.' );
 	}

@@ -120,18 +120,19 @@ class Sessions {
 		$records = $wpdb->get_results($query, ARRAY_A);
 		$sessions = [];
 
+		// TODO: Why can we use WP_Session_Tokens::get_all here?
+
 		foreach ( $records as &$record ) {
 			if ( ! is_array( $record['meta_value'] ) && is_string( $record['meta_value'] ) ) {
 				$record['meta_value'] = maybe_unserialize( $record['meta_value'] );
 			}
 
 			$user = get_userdata( $record['user_id'] );
-			// TODO: Handle if we dont have a user object... failed to retrieve or user since deleted
 
 			foreach( $record['meta_value'] as $session_token => $session_data ) {
 				$session_data['user_id']       = $record['user_id'];
-				$session_data['user_login']    = $user->user_login ?? ''; // No user
-				$session_data['user_roles']    = $user->roles ?? []; // No user
+				$session_data['user_login']    = $user->user_login ?? '';
+				$session_data['user_roles']    = $user->roles ?? [];
 				$session_data['token']         = $session_token;
 				$session_data['is_suspicious'] = self::is_suspicious_activity($session_data);
 

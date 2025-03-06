@@ -23,4 +23,5 @@ export const USER_ROLE_TYPES = [
 	{ value: 'author', label: __( 'Author', 'jetpack-components' ) },
 	{ value: 'contributor', label: __( 'Contributor', 'jetpack-components' ) },
 	{ value: 'subscriber', label: __( 'Subscriber', 'jetpack-components' ) },
+	{ value: 'custom', label: __( 'Custom', 'jetpack-components' ) },
 ];

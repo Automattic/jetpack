@@ -1,7 +1,8 @@
 import { AdminSection, Container, Col, SessionsReport } from '@automattic/jetpack-components';
 import { useCallback } from 'react';
 import AdminPage from '../../components/admin-page';
-import useSessionsQuery from '../../data/use-sessions-query';
+import useSessionsMutation from '../../data/sessions/use-sessions-mutation';
+import useSessionsQuery from '../../data/sessions/use-sessions-query';
 import HomeAdminSectionHero from './sessions-admin-section-hero';
 import styles from './styles.module.scss';
 /**
@@ -13,10 +14,14 @@ import styles from './styles.module.scss';
  */
 const SessionsPage = () => {
 	const { data: sessions } = useSessionsQuery();
+	const sessionsMutation = useSessionsMutation();
 
-	const terminateSessions = useCallback( selectedItems => {
-		console.log( 'Terminate sessions:', selectedItems );
-	}, [] );
+	const terminateSessions = useCallback(
+		selectedItems => {
+			sessionsMutation.mutate( selectedItems );
+		},
+		[ sessionsMutation ]
+	);
 
 	const getProfileLink = useCallback( userId => {
 		return `/wp-admin/user-edit.php?user_id=${ userId }`;

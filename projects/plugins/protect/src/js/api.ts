@@ -11,6 +11,13 @@ const API = {
 			method: 'GET',
 		} ).then( camelize ),
 
+	terminateSessions: ( sessions: SessionsStatus[] ): Promise< SessionsStatus[] > =>
+		apiFetch( {
+			path: `jetpack-protect/v1/terminate-sessions`,
+			method: 'POST',
+			data: { sessions: sessions },
+		} ),
+
 	getWaf: (): Promise< WafStatus > =>
 		apiFetch( {
 			path: 'jetpack-protect/v1/waf',

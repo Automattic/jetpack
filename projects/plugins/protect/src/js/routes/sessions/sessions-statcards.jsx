@@ -3,7 +3,7 @@ import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, scheduled, people, globe } from '@wordpress/icons';
 import { useMemo, useCallback } from 'react';
-import useSessionsQuery from '../../data/use-sessions-query';
+import useSessionsQuery from '../../data/sessions/use-sessions-query';
 import styles from './styles.module.scss';
 
 const SessionsStatCard = ( { text, args } ) => (

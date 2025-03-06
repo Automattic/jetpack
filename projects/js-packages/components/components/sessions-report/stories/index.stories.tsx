@@ -35,7 +35,7 @@ const DATA = [
 	{
 		userId: 2,
 		userLogin: 'user2',
-		userRoles: [ 'editor' ],
+		userRoles: [ 'editor', 'wp_custom_role' ],
 		isSuspicious: false,
 		lastAction: 'auth_cookie_valid',
 		ip: '192.168.1.2',
@@ -81,7 +81,14 @@ const ACTIONS = [
 	'set_logged_in_cookie',
 ];
 
-const ROLES = [ 'administrator', 'editor', 'author', 'contributor', 'subscriber' ];
+const ROLES = [
+	'administrator',
+	'editor',
+	'author',
+	'contributor',
+	'subscriber',
+	'wp_custom_role',
+];
 
 const USER_AGENTS = [
 	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',

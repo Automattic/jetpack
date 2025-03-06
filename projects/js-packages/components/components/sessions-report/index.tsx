@@ -93,14 +93,14 @@ export default function SessionsReport( {
 		...defaultLayouts.table,
 	} );
 
+	/**
+	 * Users data.
+	 */
 	const {
 		users,
 	}: {
 		users: { value: string; label: string }[];
 	} = useMemo( () => {
-		const UNKNOWN_VALUE = 'unknown';
-		const UNKNOWN_LABEL = __( 'Unknown', 'jetpack-components' );
-
 		const uniqueUsers = new Map< string, { value: string; label: string } >();
 		let hasUnknownUser = false;
 
@@ -114,7 +114,7 @@ export default function SessionsReport( {
 
 			if ( ! uniqueUsers.has( String( userId ) ) ) {
 				uniqueUsers.set( String( userId ), {
-					value: String( userId ),
+					value: trimmedUserLogin,
 					label: trimmedUserLogin,
 				} );
 			}
@@ -123,11 +123,20 @@ export default function SessionsReport( {
 		const usersArray = Array.from( uniqueUsers.values() );
 
 		if ( hasUnknownUser ) {
-			usersArray.unshift( { value: UNKNOWN_VALUE, label: UNKNOWN_LABEL } );
+			usersArray.unshift( { value: '', label: __( 'Unknown', 'jetpack-components' ) } );
 		}
 
 		return { users: usersArray };
 	}, [ data ] );
+
+	/**
+	 * Callback function to handle user login click.
+	 *
+	 * @param {React.MouseEvent<HTMLAnchorElement>} e - The click event.
+	 */
+	const handleUserLoginClick = useCallback( ( e: React.MouseEvent< HTMLAnchorElement > ) => {
+		e.stopPropagation();
+	}, [] );
 
 	/**
 	 * DataView fields - describes the visible items for each record in the dataset.
@@ -174,13 +183,17 @@ export default function SessionsReport( {
 				enableSorting: true,
 				elements: users,
 				getValue( { item }: { item: SessionsStatus } ) {
-					return item.userLogin.trim() ? String( item.userId ) : 'unknown';
+					return item.userLogin.trim() ? item.userLogin : '';
 				},
 				render( { item }: { item: SessionsStatus } ) {
 					return (
 						<div>
 							{ item.userLogin.trim() ? (
-								<a href={ getProfileLink( item.userId ) } rel="noopener noreferrer">
+								<a
+									href={ getProfileLink( item.userId ) }
+									rel="noopener noreferrer"
+									onClick={ handleUserLoginClick }
+								>
 									{ item.userLogin }
 								</a>
 							) : (
@@ -197,8 +210,19 @@ export default function SessionsReport( {
 				enableSorting: false,
 				elements: USER_ROLE_TYPES,
 				getValue( { item }: { item: SessionsStatus } ) {
-					// TODO: Handle custom roles or add a default...
-					return item.userRoles.length === 0 ? [ 'unknown' ] : item.userRoles;
+					if ( item.userRoles.length === 0 ) {
+						return [ 'unknown' ];
+					}
+
+					const coreRoleValues = new Set( USER_ROLE_TYPES.map( role => role.value ) );
+					const validRoles = item.userRoles.filter( role => coreRoleValues.has( role ) );
+					const hasCustomRole = item.userRoles.some( role => ! coreRoleValues.has( role ) );
+
+					if ( hasCustomRole ) {
+						validRoles.push( 'custom' );
+					}
+
+					return validRoles.length > 0 ? validRoles : [ 'custom' ];
 				},
 				render( { item }: { item: SessionsStatus } ) {
 					return (
@@ -293,7 +317,7 @@ export default function SessionsReport( {
 		];
 
 		return result;
-	}, [ users, getProfileLink, view.type ] );
+	}, [ view.type, users, getProfileLink, handleUserLoginClick ] );
 
 	/**
 	 * DataView actions - defines the available actions for the dataset.

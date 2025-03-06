@@ -1,7 +1,7 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import camelize from 'camelize';
-import API from '../api';
-import { QUERY_SESSIONS_KEY } from '../constants';
+import API from '../../api';
+import { QUERY_SESSIONS_KEY } from '../../constants';
 
 /**
  * Sessions Query Hook
