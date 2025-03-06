@@ -86,8 +86,9 @@ class Data_Sync_Schema {
 	public static function critical_css_set_provider() {
 		return Schema::as_assoc_array(
 			array(
-				'key' => Schema::as_string(),
-				'css' => Schema::as_string(),
+				'key'             => Schema::as_string(),
+				'css'             => Schema::as_string(),
+				'isBase64Encoded' => Schema::as_boolean()->fallback( false ),
 			)
 		);
 	}
