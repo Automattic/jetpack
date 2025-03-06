@@ -3,9 +3,16 @@ import {
 	useBlockProps,
 	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { BaseControl, PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
+import {
+	BaseControl,
+	PanelBody,
+	SelectControl,
+	ToggleControl,
+	__experimentalToolsPanel as ToolsPanel, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
+import useToolsPanelResponsiveDropdownProps from '../util/use-tool-panel-responsive-dropdown-props';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldDimensionControls from './jetpack-field-dimension-controls';
 import JetpackFieldLabel from './jetpack-field-label';
@@ -26,6 +33,7 @@ const JetpackFieldConsent = ( {
 		id: `jetpack-field-consent-${ instanceId }`,
 		className: 'jetpack-field jetpack-field-consent',
 	} );
+	const toolsPanelDropdownMenuProps = useToolsPanelResponsiveDropdownProps();
 
 	return (
 		<div { ...blockProps }>
@@ -55,22 +63,31 @@ const JetpackFieldConsent = ( {
 				setAttributes={ setAttributes }
 				width={ width }
 			/>
-			<InspectorControls group="color">
-				<ColorGradientSettingsDropdown
-					__experimentalIsRenderedInSidebar
+			<InspectorControls group="styles">
+				<ToolsPanel
 					panelId={ clientId }
-					gradients={ [] }
-					disableCustomGradients
-					settings={ [
-						{
-							colorValue: attributes.labelColor,
-							onColorChange: value => setAttributes( { labelColor: value } ),
-							label: __( 'Label Text', 'jetpack-forms' ),
-							resetAllFilter: () => setAttributes( { labelColor: undefined } ),
-							clearable: true,
-						},
-					] }
-				/>
+					label={ __( 'Color', 'jetpack-forms' ) }
+					onDeselect={ () => setAttributes( { labelColor: undefined } ) }
+					resetAll={ () => setAttributes( { labelColor: undefined } ) }
+					dropdownMenuProps={ toolsPanelDropdownMenuProps }
+				>
+					<div className="jetpack-field-controls__color-settings">
+						<ColorGradientSettingsDropdown
+							__experimentalIsRenderedInSidebar
+							panelId={ clientId }
+							gradients={ [] }
+							disableCustomGradients
+							settings={ [
+								{
+									colorValue: attributes.labelColor,
+									onColorChange: value => setAttributes( { labelColor: value } ),
+									label: __( 'Label Text', 'jetpack-forms' ),
+									clearable: true,
+								},
+							] }
+						/>
+					</div>
+				</ToolsPanel>
 			</InspectorControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
