@@ -10,7 +10,7 @@ import {
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
-import { Icon, trash, people } from '@wordpress/icons';
+import { Icon, trash, shield } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import ShieldIcon from '../shield-icon';
 import {
@@ -25,6 +25,7 @@ import {
 	FIELD_TOKEN,
 	FIELD_ICON,
 	STATUS_TYPES,
+	USER_ROLE_TYPES,
 } from './constants';
 import styles from './styles.module.scss';
 
@@ -56,8 +57,6 @@ export default function SessionsReport( {
 		},
 	};
 
-	// TODO: Add a default sort order, by status...
-
 	/**
 	 * DataView default layouts.
 	 */
@@ -65,8 +64,8 @@ export default function SessionsReport( {
 		table: {
 			...baseView,
 			fields: [
+				FIELD_USER_ID,
 				FIELD_USER_LOGIN,
-				FIELD_STATUS,
 				FIELD_USER_ROLES,
 				FIELD_IP,
 				FIELD_LOGIN,
@@ -74,12 +73,12 @@ export default function SessionsReport( {
 				FIELD_USER_AGENT,
 				FIELD_TOKEN,
 			],
-			titleField: FIELD_USER_ID,
+			titleField: FIELD_STATUS,
 			showMedia: false,
 		},
 		list: {
 			...baseView,
-			fields: [ FIELD_STATUS, FIELD_USER_ID, FIELD_IP, FIELD_LOGIN, FIELD_EXPIRATION ],
+			fields: [ FIELD_USER_ID, FIELD_IP, FIELD_LOGIN, FIELD_EXPIRATION ],
 			titleField: FIELD_USER_LOGIN,
 			mediaField: FIELD_ICON,
 			showMedia: true,
@@ -96,51 +95,38 @@ export default function SessionsReport( {
 
 	const {
 		users,
-		roles,
 	}: {
 		users: { value: string; label: string }[];
-		roles: { value: string; label: string }[];
 	} = useMemo( () => {
 		const UNKNOWN_VALUE = 'unknown';
 		const UNKNOWN_LABEL = __( 'Unknown', 'jetpack-components' );
 
-		const uniqueRoles = new Set< string >();
 		const uniqueUsers = new Map< string, { value: string; label: string } >();
+		let hasUnknownUser = false;
 
-		data.forEach( ( { userId, userLogin, userRoles } ) => {
-			if ( ! userRoles?.length ) {
-				uniqueRoles.add( UNKNOWN_VALUE );
-			} else {
-				userRoles.forEach( role => uniqueRoles.add( role ) );
+		data.forEach( ( { userId, userLogin } ) => {
+			const trimmedUserLogin = userLogin.trim();
+
+			if ( ! trimmedUserLogin ) {
+				hasUnknownUser = true;
+				return;
 			}
 
-			// Ensure only unique users are added
 			if ( ! uniqueUsers.has( String( userId ) ) ) {
-				const trimmedUserLogin = userLogin.trim();
 				uniqueUsers.set( String( userId ), {
-					value: trimmedUserLogin ? String( userId ) : UNKNOWN_VALUE,
-					label: trimmedUserLogin || UNKNOWN_LABEL,
+					value: String( userId ),
+					label: trimmedUserLogin,
 				} );
 			}
 		} );
 
 		const usersArray = Array.from( uniqueUsers.values() );
-		const rolesArray = Array.from( uniqueRoles ).map( role => ( {
-			value: role,
-			label:
-				role === UNKNOWN_VALUE ? UNKNOWN_LABEL : role.charAt( 0 ).toUpperCase() + role.slice( 1 ),
-		} ) );
 
-		const prioritizeUnknown = ( array: { value: string; label: string }[], unknownKey: string ) => {
-			const unknownItems = array.filter( item => item.value === unknownKey );
-			const otherItems = array.filter( item => item.value !== unknownKey );
-			return [ ...unknownItems, ...otherItems ];
-		};
+		if ( hasUnknownUser ) {
+			usersArray.unshift( { value: UNKNOWN_VALUE, label: UNKNOWN_LABEL } );
+		}
 
-		return {
-			users: prioritizeUnknown( usersArray, UNKNOWN_VALUE ),
-			roles: prioritizeUnknown( rolesArray, UNKNOWN_VALUE ),
-		};
+		return { users: usersArray };
 	}, [ data ] );
 
 	/**
@@ -148,6 +134,28 @@ export default function SessionsReport( {
 	 */
 	const fields = useMemo( () => {
 		const result: Field< SessionsStatus >[] = [
+			{
+				id: FIELD_STATUS,
+				label: __( 'Status', 'jetpack-components' ),
+				enableSorting: true,
+				elements: STATUS_TYPES,
+				getValue( { item }: { item: SessionsStatus } ) {
+					return item.isSuspicious ? 'suspicious' : 'valid';
+				},
+				render( { item }: { item: SessionsStatus } ) {
+					const text = item.isSuspicious
+						? __( 'This session is suspicious.', 'jetpack-components' )
+						: __( 'This session is valid.', 'jetpack-components' );
+					const variant = item.isSuspicious ? 'warning' : 'success';
+					return (
+						<Tooltip className={ styles.session__tooltip } text={ text }>
+							<div className={ styles.session__icon }>
+								<ShieldIcon variant={ variant } height={ 20 } />
+							</div>
+						</Tooltip>
+					);
+				},
+			},
 			{
 				id: FIELD_USER_ID,
 				label: __( 'ID', 'jetpack-components' ),
@@ -183,35 +191,13 @@ export default function SessionsReport( {
 				},
 			},
 			{
-				id: FIELD_STATUS,
-				label: __( 'Status', 'jetpack-components' ),
-				enableHiding: false,
-				enableSorting: true,
-				elements: STATUS_TYPES,
-				getValue( { item }: { item: SessionsStatus } ) {
-					return item.isSuspicious ? 'suspicious' : 'valid';
-				},
-				render( { item }: { item: SessionsStatus } ) {
-					const text = item.isSuspicious
-						? __( 'This session is suspicious.', 'jetpack-components' )
-						: __( 'This session is valid.', 'jetpack-components' );
-					const variant = item.isSuspicious ? 'warning' : 'success';
-					return (
-						<Tooltip className={ styles.session__tooltip } text={ text }>
-							<div className={ styles.session__icon }>
-								<ShieldIcon variant={ variant } height={ 20 } />
-							</div>
-						</Tooltip>
-					);
-				},
-			},
-			{
 				id: FIELD_USER_ROLES,
 				label: __( 'Roles', 'jetpack-components' ),
 				enableHiding: false,
 				enableSorting: false,
-				elements: roles,
+				elements: USER_ROLE_TYPES,
 				getValue( { item }: { item: SessionsStatus } ) {
+					// TODO: Handle custom roles or add a default...
 					return item.userRoles.length === 0 ? [ 'unknown' ] : item.userRoles;
 				},
 				render( { item }: { item: SessionsStatus } ) {
@@ -291,10 +277,13 @@ export default function SessionsReport( {
 							label: __( 'Icon', 'jetpack-components' ),
 							enableSorting: false,
 							enableHiding: false,
-							render() {
+							render( { item }: { item: SessionsStatus } ) {
+								const variant = item.isSuspicious ? 'suspicious' : 'valid';
 								return (
-									<div className={ styles.session__media }>
-										<Icon icon={ people } />
+									<div className={ `${ styles.session__media } ${ styles[ variant ] }` }>
+										<div className={ styles.session__icon }>
+											<Icon icon={ shield } />
+										</div>
 									</div>
 								);
 							},
@@ -304,7 +293,7 @@ export default function SessionsReport( {
 		];
 
 		return result;
-	}, [ users, roles, getProfileLink, view.type ] );
+	}, [ users, getProfileLink, view.type ] );
 
 	/**
 	 * DataView actions - defines the available actions for the dataset.

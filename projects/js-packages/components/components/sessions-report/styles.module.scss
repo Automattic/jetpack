@@ -6,16 +6,23 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background-color: #EDFFEE;
-	border-color: #EDFFEE;
 
-	&.suspicious {
-		background-color: #FFEEDE;
-		border-color: #FFEEDE;
+	&.valid {
+		background-color: #EDFFEE;
+		border-color: #EDFFEE;
+
+        svg {
+            fill: var( --jp-green-40 );
+        }
 	}
 
-	svg {
-		fill: var( --jp-black );
+	&.suspicious {
+		background-color: #FFF8DC;
+		border-color: #FFF8DC;
+
+		svg {
+			fill: var( --jp-yellow-40 );
+		}
 	}
 }
 

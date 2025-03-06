@@ -15,3 +15,12 @@ export const STATUS_TYPES = [
 	{ value: 'valid', label: __( 'Valid', 'jetpack-components' ) },
 	{ value: 'suspicious', label: __( 'Suspicious', 'jetpack-components' ) },
 ];
+
+export const USER_ROLE_TYPES = [
+	{ value: 'unknown', label: __( 'Unknown', 'jetpack-components' ) },
+	{ value: 'administrator', label: __( 'Administrator', 'jetpack-components' ) },
+	{ value: 'editor', label: __( 'Editor', 'jetpack-components' ) },
+	{ value: 'author', label: __( 'Author', 'jetpack-components' ) },
+	{ value: 'contributor', label: __( 'Contributor', 'jetpack-components' ) },
+	{ value: 'subscriber', label: __( 'Subscriber', 'jetpack-components' ) },
+];
