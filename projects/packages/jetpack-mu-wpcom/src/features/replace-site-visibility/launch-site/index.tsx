@@ -1,15 +1,31 @@
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import SitePreviewLink from '../site-preview-link';
+import type { SitePreviewLinkObject } from '../site-preview-link';
 
 interface Props {
 	homeUrl: string;
+	siteTitle: string;
 	isUnlaunchedSite: boolean;
+	hasSitePreviewLink: boolean;
+	sitePreviewLink?: SitePreviewLinkObject;
+	sitePreviewLinkNonce: string;
 	blogPublic: number;
 	wpcomComingSoon: number;
 	wpcomPublicComingSoon: number;
 }
 
-const LaunchSite = ( { homeUrl, blogPublic, wpcomComingSoon, wpcomPublicComingSoon }: Props ) => {
+const LaunchSite = ( {
+	homeUrl,
+	siteTitle,
+	isUnlaunchedSite,
+	hasSitePreviewLink,
+	sitePreviewLink,
+	sitePreviewLinkNonce,
+	blogPublic,
+	wpcomComingSoon,
+	wpcomPublicComingSoon,
+}: Props ) => {
 	// isPrivateAndUnlaunched means it is an unlaunched coming soon v1 site
 	const isPrivateAndUnlaunched = -1 === blogPublic && isUnlaunchedSite;
 	const isAnyComingSoonEnabled =
@@ -18,16 +34,15 @@ const LaunchSite = ( { homeUrl, blogPublic, wpcomComingSoon, wpcomPublicComingSo
 	const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
 		siteSlug: new URL( homeUrl ).host,
 		source: 'options-reading.php',
+		new: siteTitle,
 		search: 'yes',
 	} );
+
+	const showPreviewLink = isAnyComingSoonEnabled && hasSitePreviewLink;
 
 	return (
 		<>
 			<p>
-				{ __(
-					'Your site hasn\'t been launched yet. It is hidden from visitors behind a "Coming Soon" notice until it is launched.',
-					'jetpack-mu-wpcom'
-				) }
 				{ isAnyComingSoonEnabled
 					? __(
 							'Your site hasn\'t been launched yet. It is hidden from visitors behind a "Coming Soon" notice until it is launched.',
@@ -38,9 +53,30 @@ const LaunchSite = ( { homeUrl, blogPublic, wpcomComingSoon, wpcomPublicComingSo
 							'jetpack-mu-wpcom'
 					  ) }
 			</p>
-			<a role="button" className="button-secondary" href={ launchUrl }>
+			<a
+				role="button"
+				className="button-secondary"
+				style={ { marginTop: '0.5em' } }
+				href={ launchUrl }
+			>
 				{ __( 'Launch site', 'jetpack-mu-wpcom' ) }
 			</a>
+			{ showPreviewLink && (
+				<SitePreviewLink
+					homeUrl={ homeUrl }
+					sitePreviewLink={ sitePreviewLink }
+					sitePreviewLinkNonce={ sitePreviewLinkNonce }
+					description={
+						<>
+							{ __(
+								'"Coming soon" sites are only visible to you and invited users.',
+								'jetpack-mu-wpcom'
+							) }
+							&nbsp;
+						</>
+					}
+				/>
+			) }
 		</>
 	);
 };
