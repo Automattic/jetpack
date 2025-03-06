@@ -1,7 +1,7 @@
 import * as jpDataUtils from '@automattic/jetpack-script-data';
 import { createRoot } from '@wordpress/element';
 import { NewsletterWidget } from './components/newsletter-widget';
-import type { DailyCount } from './types';
+import type { DailySubscriptionStats } from './types';
 
 declare global {
 	interface Window {
@@ -9,7 +9,7 @@ declare global {
 			emailSubscribers?: number;
 			paidSubscribers?: number;
 			allSubscribers?: number;
-			countsByDay?: Record< string, DailyCount >;
+			countsByDay?: DailySubscriptionStats;
 		};
 	}
 }

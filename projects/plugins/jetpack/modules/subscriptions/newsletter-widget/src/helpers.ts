@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
-import { DailyCount, SubscriptionStat } from './types';
+import { DailySubscriptionStats, SubscriptionStat } from './types';
 
 /**
  * Helper function to build the Jetpack redirect source URL.
@@ -98,10 +98,10 @@ export const getXAxisTickValues = ( data: SubscriptionStat[] ) => {
 /**
  * Transforms daily subscription counts into a format for the visx chart package.
  *
- * @param {Record<string, DailyCount>} countsByDay - Object mapping date strings to daily subscription counts.
+ * @param {Record<string, DailySubscriptionStat>} countsByDay - Object mapping date strings to daily subscription counts.
  * @returns {SubscriptionStat[]} An array of subscription statistics.
  */
-export const transformData = ( countsByDay: Record< string, DailyCount > ): SubscriptionStat[] => {
+export const transformData = ( countsByDay: DailySubscriptionStats ): SubscriptionStat[] => {
 	return Object.entries( countsByDay )
 		.map( ( [ dateStr, counts ] ) => {
 			const date = new Date( dateStr );

@@ -6,7 +6,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
 import { buildJPRedirectSource, formatNumber, getSubscriberStatsUrl } from '../helpers';
 import { SubscribersChart } from './subscribers-chart';
-import type { DailyCount } from '../types';
+import type { DailySubscriptionStats } from '../types';
 
 export interface NewsletterWidgetProps {
 	site: string;
@@ -15,7 +15,7 @@ export interface NewsletterWidgetProps {
 	emailSubscribers?: number;
 	paidSubscribers?: number;
 	allSubscribers?: number;
-	countsByDay?: Record< string, DailyCount >;
+	countsByDay?: DailySubscriptionStats;
 }
 
 export const NewsletterWidget = ( {
