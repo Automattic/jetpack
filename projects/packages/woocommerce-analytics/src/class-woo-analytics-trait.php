@@ -57,14 +57,14 @@ trait Woo_Analytics_Trait {
 	 *
 	 *  @var string
 	 */
-	protected $session_id;
+	protected $session_id = '';
 
 	/**
 	 *  Landing page where session started.
 	 *
 	 *  @var string
 	 */
-	protected $landing_page;
+	protected $landing_page = '';
 
 	/**
 	 * Format Cart Items or Order Items to an array
@@ -263,19 +263,15 @@ trait Woo_Analytics_Trait {
 	 * @return array Array of standard event props.
 	 */
 	public function get_common_properties() {
-		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-		// Disabled the below temporarily to avoid caching issues.
-		// $session_data       = json_decode( sanitize_text_field( wp_unslash( $_COOKIE['woocommerceanalytics_session'] ?? '' ) ), true ) ?? array();
-		// $session_id         = sanitize_text_field( $session_data['session_id'] ?? $this->session_id );
-		// $landing_page       = sanitize_url( $session_data['landing_page'] ?? $this->landing_page );
-		// phpcs:enable Squiz.PHP.CommentedOutCode.Found
+		$session_id         = $this->get_session_id();
+		$landing_page       = $this->get_landing_page();
 		$site_info          = array(
-			'session_id'                         => null,
+			'session_id'                         => $session_id,
 			'blog_id'                            => Jetpack_Connection::get_site_id(),
 			'store_id'                           => defined( '\\WC_Install::STORE_ID_OPTION' ) ? get_option( \WC_Install::STORE_ID_OPTION ) : false,
 			'ui'                                 => $this->get_user_id(),
 			'url'                                => home_url(),
-			'landing_page'                       => null,
+			'landing_page'                       => $landing_page,
 			'woo_version'                        => WC()->version,
 			'wp_version'                         => get_bloginfo( 'version' ),
 			'store_admin'                        => in_array( array( 'administrator', 'shop_manager' ), wp_get_current_user()->roles, true ) ? 1 : 0,
@@ -318,15 +314,42 @@ trait Woo_Analytics_Trait {
 	/**
 	 * Record an event with optional product and custom properties.
 	 *
-	 * @param string  $event_name The name of the event to record.
-	 * @param array   $properties Optional array of (key => value) event properties.
-	 * @param integer $product_id The id of the product relating to the event.
+	 * @param string       $event_name The name of the event to record.
+	 * @param array        $properties Optional array of (key => value) event properties.
+	 * @param integer|null $product_id The id of the product relating to the event.
 	 *
-	 * @return string|void
+	 * @return void
 	 */
 	public function record_event( $event_name, $properties = array(), $product_id = null ) {
+		if ( ! isset( $properties['session_id'] ) && $this->is_clickhouse( $event_name ) ) {
+			$this->maybe_start_session();
+		}
+
 		$js = $this->process_event_properties( $event_name, $properties, $product_id );
 		wc_enqueue_js( "_wca.push({$js});" );
+	}
+
+	/**
+	 * In case session_id is empty and woocommerceanalytics_session cookie is not set. A new session should be created.
+	 *
+	 * @return void
+	 */
+	public function maybe_start_session() {
+		if ( ! $this->get_session_id() ) {
+			$session_id         = wp_generate_uuid4();
+			$this->session_id   = $session_id;
+			$this->landing_page = sanitize_url( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- actually escaped with sanitize_url.
+			$event_js           = $this->process_event_properties( 'woocommerceanalytics_session_started' );
+			$cookie_js          = "
+            const sessionData = JSON.stringify({
+                    session_id: '{$this->session_id}',
+                    landing_page: encodeURIComponent('{$this->landing_page}'),
+            });
+            document.cookie = `woocommerceanalytics_session=\${sessionData}; path=/; secure; samesite=strict`;
+            ";
+			wc_enqueue_js( $cookie_js ); // save the session cookie for further events in the session
+			wc_enqueue_js( "_wca.push({$event_js});" ); // trigger session started event
+		}
 	}
 
 	/**
@@ -376,9 +399,9 @@ trait Woo_Analytics_Trait {
 	/**
 	 * Compose event properties.
 	 *
-	 * @param string  $event_name The name of the event to record.
-	 * @param array   $properties Optional array of (key => value) event properties.
-	 * @param integer $product_id Optional id of the product relating to the event.
+	 * @param string       $event_name The name of the event to record.
+	 * @param array        $properties Optional array of (key => value) event properties.
+	 * @param integer|null $product_id Optional id of the product relating to the event.
 	 *
 	 * @return string|void
 	 */
@@ -412,8 +435,13 @@ trait Woo_Analytics_Trait {
 
 		$js = "{'_en': '" . esc_js( $event_name ) . "'";
 
+		// ch param is needed to identify ClickHouse queries in the JS Analytics library.
+		if ( $this->is_clickhouse( $event_name ) ) {
+			$js .= ",'ch':'1'";
+		}
+
 		if ( isset( $product_details ) ) {
-				$all_props = array_merge( $all_props, $product_details );
+			$all_props = array_merge( $all_props, $product_details );
 		}
 
 		$js .= ',' . $this->render_properties_as_js( $all_props ) . '}';
@@ -668,5 +696,66 @@ trait Woo_Analytics_Trait {
 			return 0;
 		}
 		return $cart->get_cart_contents_count();
+	}
+
+	/**
+	 * Return the session_id.
+	 * First try to get it from the cookie. Fallback to $this->session_id.
+	 *
+	 * @return string
+	 */
+	public function get_session_id() {
+		$cookie = $this->get_session_cookie();
+		return $cookie['session_id'] ?? $this->session_id;
+	}
+
+	/**
+	 * Return the landing page.
+	 * First try to get it from the cookie. Fallback to $this->landing_page.
+	 *
+	 * @return string
+	 */
+	public function get_landing_page() {
+		$cookie = $this->get_session_cookie();
+		return $cookie['landing_page'] ?? $this->landing_page;
+	}
+
+	/**
+	 * Get the sanitized session cookie as an array
+	 *
+	 * @return array
+	 */
+	public function get_session_cookie() {
+		return json_decode( sanitize_text_field( wp_unslash( $_COOKIE['woocommerceanalytics_session'] ?? '' ) ), true ) ?? array();
+	}
+
+	/**
+	 * Get the allowed CH Events.
+	 *
+	 * @return string[] The allowed CH Events.
+	 */
+	private function get_clickhouse_events() {
+		return array(
+			'woocommerceanalytics_session_started',
+			'woocommerceanalytics_product_view',
+			'woocommerceanalytics_cart_view',
+			'woocommerceanalytics_add_to_cart',
+			'woocommerceanalytics_remove_from_cart',
+			'woocommerceanalytics_checkout_view',
+			'woocommerceanalytics_product_checkout',
+			'woocommerceanalytics_product_purchase',
+			'woocommerceanalytics_order_confirmation_view',
+			'woocommerceanalytics_search',
+		);
+	}
+
+	/**
+	 * Check if the event should be sent to ClickHouse
+	 *
+	 * @param string $event The event name.
+	 * @return bool True if it should be sent to ClickHouse
+	 */
+	private function is_clickhouse( $event ) {
+		return in_array( $event, $this->get_clickhouse_events(), true );
 	}
 }

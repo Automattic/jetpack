@@ -12,7 +12,7 @@ use WC_Order;
 use WC_Product;
 
 /**
- * Filters and Actions added to Store pages to perform analytics
+ * Filters and Actions added to Store pages to perform analytics.
  */
 class Universal {
 	/**
@@ -30,9 +30,6 @@ class Universal {
 
 		// delayed events stored in session (can be add_to_carts, product_views...)
 		add_action( 'wp_head', array( $this, 'loop_session_events' ), 2 );
-
-		// Initialize session
-		add_action( 'template_redirect', array( $this, 'initialize_woocommerceanalytics_session' ) );
 
 		// Capture search
 		add_action( 'template_redirect', array( $this, 'capture_search_query' ), 11 );
@@ -75,35 +72,6 @@ class Universal {
 	}
 
 	/**
-	 * Set a UUID for the current session if is not yet loaded and record the session started event
-	 */
-	public function initialize_woocommerceanalytics_session() {
-		if ( ! isset( $_COOKIE['woocommerceanalytics_session'] ) ) {
-			$session_id         = wp_generate_uuid4();
-			$this->session_id   = $session_id;
-			$this->landing_page = sanitize_url( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- actually escaped with sanitize_url.
-			// Disabled the below temporarily to avoid caching issues.
-			// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-			// setcookie(
-			// 'woocommerceanalytics_session',
-			// wp_json_encode(
-			// array(
-			// 'session_id'   => $this->session_id,
-			// 'landing_page' => $this->landing_page,
-			// )
-			// ),
-			// 0,
-			// COOKIEPATH,
-			// COOKIE_DOMAIN,
-			// is_ssl(),
-			// true
-			// );
-			// $this->record_event( 'woocommerceanalytics_session_started' );
-			// phpcs:enable Squiz.PHP.CommentedOutCode.Found
-		}
-	}
-
-	/**
 	 * On product lists or other non-product pages, add an event listener to "Add to Cart" button click
 	 */
 	public function loop_session_events() {
@@ -112,11 +80,23 @@ class Universal {
 			$data = WC()->session->get( 'wca_session_data' );
 			if ( ! empty( $data ) ) {
 				foreach ( $data as $data_instance ) {
+					$event_props = array(
+						'pq' => $data_instance['quantity'],
+					);
+
+					// Attach the session ID to this event in case it's saved in the Data Instance
+					if ( $data_instance['session_id'] ) {
+						$event_props['session_id'] = $data_instance['session_id'];
+					}
+
+					// Attach the Landing Page to this event in case it's saved in the Data Instance
+					if ( $data_instance['landing_page'] ) {
+						$event_props['landing_page'] = $data_instance['landing_page'];
+					}
+
 					$this->record_event(
 						$data_instance['event'],
-						array(
-							'pq' => $data_instance['quantity'],
-						),
+						$event_props,
 						$data_instance['product_id']
 					);
 				}
@@ -480,9 +460,11 @@ class Universal {
 
 		// extract new event data.
 		$new_data = array(
-			'event'      => $event,
-			'product_id' => (string) $product_id,
-			'quantity'   => (string) $quantity,
+			'event'        => $event,
+			'product_id'   => (string) $product_id,
+			'quantity'     => (string) $quantity,
+			'session_id'   => $this->get_session_id(),
+			'landing_page' => $this->get_landing_page(),
 		);
 
 		// append new data.
