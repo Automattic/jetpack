@@ -24,7 +24,7 @@ const useWelcomeBanner = () => {
 
 	const [ isWelcomeBannerVisible, setIsWelcomeBannerVisible ] = useValueStore(
 		'isWelcomeBannerVisible',
-		redBubbleAlertKeys.includes( 'welcome-banner-active' )
+		isRedBubbleAlertsLoading ? false : redBubbleAlertKeys.includes( 'welcome-banner-active' )
 	);
 
 	const { mutate: handleDismissWelcomeBanner } = useSimpleMutation( {

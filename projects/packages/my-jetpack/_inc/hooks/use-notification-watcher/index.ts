@@ -15,7 +15,7 @@ const useNotificationWatcher = () => {
 	} );
 
 	usePaidPlanNeedsPluginInstallActivationNotice( redBubbleAlerts, isLoading );
-	useProtectThreatsDetectedNotice( redBubbleAlerts );
+	useProtectThreatsDetectedNotice( redBubbleAlerts, isLoading );
 	useExpiringPlansNotice( redBubbleAlerts, isLoading );
 	useBackupNeedsAttentionNotice( redBubbleAlerts, isLoading );
 	useConnectionErrorsNotice();

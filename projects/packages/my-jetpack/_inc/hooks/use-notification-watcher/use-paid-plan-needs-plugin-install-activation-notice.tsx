@@ -289,7 +289,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 			priority: NOTICE_PRIORITY_MEDIUM + ( isInstallingOrActivating ? 1 : 0 ),
 		};
 
-		if ( ! checkForCookie( `${ planSlug }--plugins_needing_installed_dismissed` ) ) {
+		if ( ! isLoading && ! checkForCookie( `${ planSlug }--plugins_needing_installed_dismissed` ) ) {
 			setNotice( {
 				title: noticeTitle,
 				message: noticeContent,
@@ -313,6 +313,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 		isInstalling,
 		isActivating,
 		planSlug,
+		isLoading,
 	] );
 };
 
