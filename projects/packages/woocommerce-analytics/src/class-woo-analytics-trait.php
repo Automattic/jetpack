@@ -746,6 +746,7 @@ trait Woo_Analytics_Trait {
 			'woocommerceanalytics_product_purchase',
 			'woocommerceanalytics_order_confirmation_view',
 			'woocommerceanalytics_search',
+			'woocommerceanalytics_page_view',
 		);
 	}
 
