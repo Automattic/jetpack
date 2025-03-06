@@ -11,7 +11,7 @@ import styles from './speculation-rules-meta.module.scss';
 
 const Meta = () => {
 	const speculationRules = useSpeculationRules();
-	const [ exceptions, mutateExceptions ] = useDataSyncSubset( speculationRules, 'exceptions' );
+	const [ exceptions, mutateExceptions ] = useDataSyncSubset( speculationRules, 'bypass_patterns' );
 	const totalExceptions = exceptions?.length || 0;
 
 	const getSummary = () => {
