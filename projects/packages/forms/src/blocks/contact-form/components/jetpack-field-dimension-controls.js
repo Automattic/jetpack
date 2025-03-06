@@ -14,9 +14,10 @@ export default function JetpackFieldDimensionControls( { clientId, setAttributes
 		<InspectorControls group="dimensions">
 			<ToolsPanelItem
 				panelId={ clientId }
-				hasValue={ () => !! width }
+				hasValue={ () => width !== 100 }
 				label={ __( 'Width', 'jetpack-forms' ) }
-				onDeselect={ () => setAttributes( { width: undefined } ) }
+				onDeselect={ () => setAttributes( { width: 100 } ) }
+				resetAllFilter={ () => ( { width: 100 } ) }
 				isShownByDefault
 			>
 				<BaseControl
