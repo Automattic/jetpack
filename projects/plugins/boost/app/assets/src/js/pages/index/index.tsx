@@ -14,15 +14,13 @@ import SpeculationMethod from '$features/speculation-rules/speculation-method';
 import Pill from '$features/ui/pill/pill';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
+import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
-import { recordBoostEvent, recordBoostPixelEvent } from '$lib/utils/analytics';
+import { recordBoostEvent } from '$lib/utils/analytics';
 import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/components/product-interstitial-modal';
-import boostImage from '@automattic/jetpack-my-jetpack/components/product-interstitial/boost.png';
 import { __ } from '@wordpress/i18n';
 import styles from './index.module.scss';
-import { useCallback } from 'react';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -46,14 +44,6 @@ const Index = () => {
 	const handleCriticalCssLink = () => {
 		recordBoostEvent( 'critical_css_link_clicked', {} );
 	};
-
-	const upgradeClickHandlerModal = useCallback( () => {
-		// record event for opening a modal
-		recordBoostPixelEvent( 'jetpack_boost_modal_interstitial_view', {
-			placement: 'product-page',
-			context: 'jetpack-boost',
-		} );
-	}, [] );
 
 	return (
 		<div className="jb-container--narrow">
@@ -103,37 +93,12 @@ const Index = () => {
 			>
 				<CriticalCssMeta />
 
-				<ProductInterstitialMyJetpack
-					slug="boost"
-					onOpen={ upgradeClickHandlerModal }
-					customModalTrigger={
-						<UpgradeCTA
-							identifier="critical-css"
-							description={ __(
-								'Save time by upgrading to Automatic Critical CSS generation.',
-								'jetpack-boost'
-							) }
-						/>
-					}
-					buttonLabel={ __( 'Upgrade now', 'jetpack-boost' ) }
-					isWithVideo={ false }
-					secondaryColumn={
-						<div>
-							<img src={ boostImage } alt="Boost" />
-						</div>
-					}
-					secondaryButtonHref="https://jetpack.com/boost/"
+				<InterstitialModalCTA
+					identifier="critical-css"
 					description={ __(
-						'Unlock the full potential of Jetpack Boost with automated performance optimization tools and more.',
+						'Save time by upgrading to Automatic Critical CSS generation.',
 						'jetpack-boost'
 					) }
-					features={ [
-						__( 'Automated Critical CSS Generation', 'jetpack-boost' ),
-						__( 'Automated Image Scanning', 'jetpack-boost' ),
-						__( 'In-depth Performance Insights', 'jetpack-boost' ),
-						__( 'Customizable Image Optimization', 'jetpack-boost' ),
-						__( 'Expert Support With Personal Assistance Available', 'jetpack-boost' ),
-					] }
 				/>
 			</Module>
 			<Module
