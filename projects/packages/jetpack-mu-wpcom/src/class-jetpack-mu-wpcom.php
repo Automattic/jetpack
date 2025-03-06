@@ -112,10 +112,11 @@ class Jetpack_Mu_Wpcom {
 	 * Fetches and installs Jetpack-mu-wpcom package translations when needed.
 	 */
 	public static function maybe_update_translations() {
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/misc.php';
-		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-		require_once ABSPATH . 'wp-admin/includes/class-language-pack-upgrader.php';
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
 
 		$locales = self::get_all_active_locales();
 		if ( empty( $locales ) ) {
@@ -159,8 +160,6 @@ class Jetpack_Mu_Wpcom {
 		if ( ! array_key_exists( 'data', $data ) && ! is_array( $data['data'] ) ) {
 			return;
 		}
-		$skin     = new \Language_Pack_Upgrader_Skin();
-		$upgrader = new \Language_Pack_Upgrader( $skin );
 
 		foreach ( $data['data'] as $plugin_name => $language_packs ) {
 			if ( ! isset( $plugin_language_pack_destinations[ $plugin_name ] ) ) {
@@ -178,32 +177,65 @@ class Jetpack_Mu_Wpcom {
 					continue;
 				}
 
-				$option_safe_plugin_name = str_replace( '-', '_', $plugin_name ); // jetpack-mu-wpcom is unsafe for option names.
-				$stored_last_modified    = get_option( "{$option_safe_plugin_name}_translation_{$locale}_last_modified", '' );
+				$local_po_file = "{$destination}/$plugin_name-{$locale}.po";
+				if ( file_exists( $local_po_file ) ) {
+					$local_po_data                       = wp_get_pomo_file_data( $local_po_file );
+					$installed_translation_revision_time = new \DateTime( $local_po_data['PO-Revision-Date'] );
+					$new_translation_revision_time       = new \DateTime( $last_modified );
+					// Skip if translation language pack is not newer than what is installed already.
+					if ( $new_translation_revision_time <= $installed_translation_revision_time ) {
+						continue;
+					}
+				}
 
-				// Skip update if translation is already up-to-date.
-				if ( $stored_last_modified === $last_modified ) {
+				$translation_zip_file = download_url( $package_url );
+				if ( is_wp_error( $translation_zip_file ) ) {
 					continue;
 				}
 
-				$result = $upgrader->run(
-					array(
-						'package'           => $package_url,
-						'destination'       => $destination,
-						'clear_destination' => true,
-						'clear_working'     => true,
-						'hook_extra'        => array(
-							'slug'     => $plugin_name,
-							'language' => $locale,
-							'type'     => 'mu-plugin', // not a valid value, but we're using it to suprress warnings.
-						),
-					)
-				);
+				static::clear_translation_destination( $destination, $plugin_name, $locale );
 
-				// Update the last modified time in the database IF successful.
-				if ( ! is_wp_error( $result ) ) {
-					update_option( "{$option_safe_plugin_name}_translation_{$locale}_last_modified", $last_modified );
+				$unzip_result = unzip_file( $translation_zip_file, $destination );
+				if ( is_wp_error( $unzip_result ) ) {
+					wp_delete_file( $translation_zip_file );
+					continue;
 				}
+
+				wp_delete_file( $translation_zip_file );
+
+			}
+		}
+	}
+
+	/**
+	 * Clears the translation destination by deleting existing translation files.
+	 *
+	 * @param string $local_destination The local destination path.
+	 * @param string $plugin_slug The plugin slug.
+	 * @param string $locale The locale.
+	 */
+	public static function clear_translation_destination( $local_destination, $plugin_slug, $locale ) {
+		global $wp_filesystem;
+
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
+		$files = array(
+			"{$local_destination}{$plugin_slug}-{$locale}.po",
+			"{$local_destination}{$plugin_slug}-{$locale}.mo",
+			"{$local_destination}{$plugin_slug}-{$locale}.l10n.php",
+		);
+
+		$json_files = glob( "{$local_destination}{$plugin_slug}-{$locale}-*.json" );
+		if ( $json_files ) {
+			$files = array_merge( $files, $json_files );
+		}
+
+		foreach ( $files as $file ) {
+			if ( $wp_filesystem->exists( $file ) ) {
+				$wp_filesystem->delete( $file );
 			}
 		}
 	}
