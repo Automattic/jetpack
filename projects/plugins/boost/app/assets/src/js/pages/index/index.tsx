@@ -49,7 +49,7 @@ const Index = () => {
 
 	const upgradeClickHandlerModal = useCallback( () => {
 		// record event for opening a modal
-		recordBoostPixelEvent( 'jetpack_boost_upgrade_button_clicked', {
+		recordBoostPixelEvent( 'jetpack_boost_modal_interstitial_view', {
 			placement: 'product-page',
 			context: 'jetpack-boost',
 		} );
