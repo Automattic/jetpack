@@ -162,6 +162,7 @@ class Jetpack_Boost {
 		$is_atomic = Boost_Admin_Config::get_hosting_provider() === 'atomic';
 		$is_woa    = Boost_Admin_Config::get_hosting_provider() === 'woa';
 		if ( $is_atomic || $is_woa ) {
+			// Remove this option to prevent the notice from showing up.
 			delete_site_option( 'jetpack_boost_static_minification' );
 		}
 

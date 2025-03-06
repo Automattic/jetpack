@@ -107,13 +107,15 @@ add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
  * @param bool $setup_404_tester Whether to setup the 404 tester or not.
  */
 function jetpack_boost_404_setup( $setup_404_tester = true ) {
+	if ( ! $setup_404_tester ) {
+		return;
+	}
+
 	if ( is_admin() && get_site_option( 'jetpack_boost_static_minification', 'na' ) === 'na' ) {
 		update_site_option( 'jetpack_boost_static_minification', 0 ); // Add a default value if not set to avoid an extra SQL query.
 	}
 
-	if ( $setup_404_tester ) {
-		jetpack_boost_page_optimize_schedule_404_tester();
-	}
+	jetpack_boost_page_optimize_schedule_404_tester();
 }
 
 /**
