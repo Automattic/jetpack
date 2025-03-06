@@ -153,7 +153,11 @@ class Jetpack_Mu_Wpcom {
 
 		// API error, api returned but something was wrong.
 		if ( array_key_exists( 'success', $data ) && false === $data['success'] ) {
-			return array();
+			return;
+		}
+		// Fix PHP Stan error
+		if ( ! array_key_exists( 'data', $data ) && ! is_array( $data['data'] ) ) {
+			return;
 		}
 
 		$upgrader = new \Language_Pack_Upgrader();
