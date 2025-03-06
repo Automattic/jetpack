@@ -3,10 +3,10 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalConfirmDialog as ConfirmDialog,
 } from '@wordpress/components';
+import { format } from '@wordpress/date';
 import { useCallback, useReducer } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { trash } from '@wordpress/icons';
-import moment from 'moment';
 import { Connection } from '../../social-store/types';
 import ConnectionIcon from '../connection-icon';
 import { ClockIcon } from './clock-icon';
@@ -31,7 +31,11 @@ export function ScheduledPostItem( {
 	onDelete,
 	confirmDeletion = true,
 }: ScheduledPostItemProps ) {
-	const date = moment( scheduledAt ).format( 'llll' );
+	const date = format(
+		// "Wed, Mar 5, 2025 2:34 PM"
+		'D, M n, o g:i A',
+		scheduledAt
+	);
 
 	const [ showConfirmation, toggleConfirmation ] = useReducer( state => ! state, false );
 
