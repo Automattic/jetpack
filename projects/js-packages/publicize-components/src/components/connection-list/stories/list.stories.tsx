@@ -1,3 +1,4 @@
+/* istanbul ignore file -- Ignore code coverage */
 import { useCallback, useState } from '@wordpress/element';
 import { Connection } from '../../../social-store/types';
 import { ConnectionList, ConnectionListProps } from '../list';
