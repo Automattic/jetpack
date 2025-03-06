@@ -157,7 +157,7 @@ class Jetpack_Mu_Wpcom {
 			return;
 		}
 		// Fix PHP Stan error
-		if ( ! array_key_exists( 'data', $data ) && ! is_array( $data['data'] ) ) {
+		if ( ! is_array( $data ) || ! is_array( $data['data'] ) ) {
 			return;
 		}
 
@@ -182,6 +182,7 @@ class Jetpack_Mu_Wpcom {
 					$local_po_data                       = wp_get_pomo_file_data( $local_po_file );
 					$installed_translation_revision_time = new \DateTime( $local_po_data['PO-Revision-Date'] );
 					$new_translation_revision_time       = new \DateTime( $last_modified );
+
 					// Skip if translation language pack is not newer than what is installed already.
 					if ( $new_translation_revision_time <= $installed_translation_revision_time ) {
 						continue;
