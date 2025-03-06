@@ -31,6 +31,11 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	 */
 	private static $user_id;
 
+	/**
+	 * The plugin instance.
+	 *
+	 * @var Contact_Form_Plugin
+	 */
 	private $plugin;
 
 	/**
@@ -78,6 +83,10 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/filters' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'date', $data );
+		$this->assertArrayHasKey( 'source', $data );
 	}
 
 	/**
@@ -88,5 +97,27 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/filters' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test item schema.
+	 */
+	public function test_item_shcema() {
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/feedback' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$schema_properties = $data['schema']['properties'];
+		$this->assertArrayHasKey( 'uid', $schema_properties );
+		$this->assertArrayHasKey( 'author_name', $schema_properties );
+		$this->assertArrayHasKey( 'author_email', $schema_properties );
+		$this->assertArrayHasKey( 'author_url', $schema_properties );
+		$this->assertArrayHasKey( 'author_avatar', $schema_properties );
+		$this->assertArrayHasKey( 'email_marketing_consent', $schema_properties );
+		$this->assertArrayHasKey( 'ip', $schema_properties );
+		$this->assertArrayHasKey( 'entry_title', $schema_properties );
+		$this->assertArrayHasKey( 'entry_permalink', $schema_properties );
+		$this->assertArrayHasKey( 'subject', $schema_properties );
+		$this->assertArrayHasKey( 'fields', $schema_properties );
 	}
 }
