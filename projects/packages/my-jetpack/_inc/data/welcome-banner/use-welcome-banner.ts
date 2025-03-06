@@ -4,15 +4,27 @@ import { useValueStore } from '../../context/value-store/valueStoreContext';
 import {
 	QUERY_DISMISS_WELCOME_BANNER_KEY,
 	REST_API_SITE_DISMISS_BANNER,
+	QUERY_RED_BUBBLE_ALERTS_KEY,
+	REST_API_RED_BUBBLE_ALERTS,
 } from '../../data/constants';
 import useSimpleMutation from '../use-simple-mutation';
-import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
-
+import useSimpleQuery from '../use-simple-query';
 const useWelcomeBanner = () => {
-	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
+	const {
+		data: redBubbleAlerts,
+		isLoading: isRedBubbleAlertsLoading,
+		isError: isRedBubbleAlertsError,
+	} = useSimpleQuery( {
+		name: QUERY_RED_BUBBLE_ALERTS_KEY,
+		query: { path: REST_API_RED_BUBBLE_ALERTS },
+	} );
+
+	const redBubbleAlertKeys =
+		isRedBubbleAlertsError || isRedBubbleAlertsLoading ? [] : Object.keys( redBubbleAlerts );
+
 	const [ isWelcomeBannerVisible, setIsWelcomeBannerVisible ] = useValueStore(
 		'isWelcomeBannerVisible',
-		Object.keys( redBubbleAlerts ).includes( 'welcome-banner-active' )
+		redBubbleAlertKeys.includes( 'welcome-banner-active' )
 	);
 
 	const { mutate: handleDismissWelcomeBanner } = useSimpleMutation( {

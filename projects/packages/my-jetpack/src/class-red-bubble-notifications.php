@@ -209,6 +209,7 @@ class Red_Bubble_Notifications {
 		}
 
 		$protect_threats_status = Products\Protect::does_module_need_attention();
+
 		if ( $protect_threats_status ) {
 			$red_bubble_slugs['protect_has_threats'] = $protect_threats_status;
 		}
@@ -334,7 +335,7 @@ class Red_Bubble_Notifications {
 	 * @return array
 	 */
 	public static function get_red_bubble_alerts( bool $bypass_cache = false ) {
-		$red_bubble_alerts = array();
+		static $red_bubble_alerts = array();
 
 		// check for stored alerts
 		$stored_alerts = get_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY );
@@ -359,6 +360,10 @@ class Red_Bubble_Notifications {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public static function rest_api_get_red_bubble_alerts() {
+		// Initialize products to ensure all products data is available during REST API call.
+		Products::initialize_products();
+		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'add_red_bubble_alerts' ) );
+
 		$red_bubble_alerts = self::get_red_bubble_alerts( true );
 		return rest_ensure_response( $red_bubble_alerts );
 	}

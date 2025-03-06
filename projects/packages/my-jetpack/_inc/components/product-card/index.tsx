@@ -90,7 +90,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 		[ styles[ 'has-warning' ] ]: isWarning,
 	} );
 
-	const { isLoading: isAllProductsLoading, isError: isAllProductsError } = useAllProducts();
+	const { isLoading: isAllProductsLoading } = useAllProducts();
 
 	const [ isActionLoading, setIsActionLoading ] = useState( false );
 	const { recordEvent } = useAnalytics();
@@ -136,7 +136,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 	 * Sends an event when the card loads
 	 */
 	useEffect( () => {
-		if ( isTracksFired || isDataLoading || isAllProductsLoading || isAllProductsError ) {
+		if ( isTracksFired || isDataLoading || isAllProductsLoading ) {
 			return;
 		}
 
@@ -152,7 +152,6 @@ const ProductCard: FC< ProductCardProps > = props => {
 		status,
 		customLoadTracks,
 		isDataLoading,
-		isAllProductsError,
 		isAllProductsLoading,
 		isTracksFired,
 		setIsTracksFired,

@@ -112,6 +112,47 @@ type BackupStatus =
 	| 'error'
 	| 'error-will-retry';
 
+type RedBubbleAlerts = {
+	'missing-connection'?: {
+		type: string;
+		is_error: boolean;
+	};
+	'welcome-banner-active'?: null;
+	[ key: `${ string }-bad-installation` ]: {
+		data: {
+			plugin: string;
+		};
+	};
+	backup_failure?: {
+		type: 'warning' | 'error';
+		data: BackupNeedsAttentionData;
+	};
+	[ key: `${ string }--plan_expired` ]: {
+		product_slug: string;
+		product_name?: string;
+		expiry_date?: string;
+		expiry_message?: string;
+		manage_url?: string;
+		products_effected?: string[];
+	};
+	[ key: `${ string }--plan_expiring_soon` ]: {
+		product_slug: string;
+		product_name?: string;
+		expiry_date?: string;
+		expiry_message?: string;
+		manage_url?: string;
+		products_effected?: string[];
+	};
+	protect_has_threats?: {
+		type: 'warning' | 'error';
+		data: ProtectNeedsAttentionData;
+	};
+	[ key: `${ string }--plugins_needing_installed_activated` ]: {
+		needs_installed?: string[];
+		needs_activated_only?: string[];
+	};
+};
+
 type BackupNeedsAttentionData = {
 	source: 'rewind' | 'last_backup';
 	status: RewindStatus | BackupStatus;
@@ -348,6 +389,7 @@ interface Window {
 						| {
 								type: 'warning' | 'error';
 								data: BackupNeedsAttentionData | ProtectNeedsAttentionData;
+								status?: BackupStatus | RewindStatus;
 						  };
 				};
 			};
@@ -408,46 +450,6 @@ interface Window {
 				};
 			};
 			videoCount: number;
-		};
-		redBubbleAlerts: {
-			'missing-connection'?: {
-				type: string;
-				is_error: boolean;
-			};
-			'welcome-banner-active'?: null;
-			[ key: `${ string }-bad-installation` ]: {
-				data: {
-					plugin: string;
-				};
-			};
-			backup_failure?: {
-				type: 'warning' | 'error';
-				data: BackupNeedsAttentionData;
-			};
-			[ key: `${ string }--plan_expired` ]: {
-				product_slug: string;
-				product_name?: string;
-				expiry_date?: string;
-				expiry_message?: string;
-				manage_url?: string;
-				products_effected?: string[];
-			};
-			[ key: `${ string }--plan_expiring_soon` ]: {
-				product_slug: string;
-				product_name?: string;
-				expiry_date?: string;
-				expiry_message?: string;
-				manage_url?: string;
-				products_effected?: string[];
-			};
-			protect_has_threats?: {
-				type: 'warning' | 'error';
-				data: ProtectNeedsAttentionData;
-			};
-			[ key: `${ string }--plugins_needing_installed_activated` ]: {
-				needs_installed?: string[];
-				needs_activated_only?: string[];
-			};
 		};
 		recommendedModules: {
 			modules: JetpackModule[] | null;
