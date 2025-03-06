@@ -180,7 +180,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 					),
 				),
 				'timestamp'     => array(
-					'type'        => 'string',
+					'type'        => 'integer',
 					'description' => __( 'GMT/UTC Unix timestamp in seconds for the action.', 'jetpack-publicize-pkg' ),
 				),
 				'wpcom_user_id' => array(
