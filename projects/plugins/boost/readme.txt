@@ -183,19 +183,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.10.1 - 2025-03-06
-#### Added
-- Concatenate JS/CSS: Show a notice if legacy files are being served.
-
-#### Changed
-- Concatenate JS/CSS: Improved handling of minification settings.
-- General: Improved the way modules are configured internally
-- Update package dependencies.
-
+### 3.10.2 - 2025-03-06
 #### Fixed
-- Critical CSS: Implement a workaround for WAF interfering with generation.
-- Critical CSS: Fix showing empty error in some cases, when generation failed.
-- Critical CSS: Prevent invalid URLs from breaking the whole process.
+- Critical CSS: Fix fatal error during generation.
 
 --------
 
