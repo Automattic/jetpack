@@ -15,13 +15,14 @@ import Pill from '$features/ui/pill/pill';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
-import { recordBoostEvent } from '$lib/utils/analytics';
+import { recordBoostEvent, recordBoostPixelEvent } from '$lib/utils/analytics';
 import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/components/product-interstitial-modal';
 import boostImage from '@automattic/jetpack-my-jetpack/components/product-interstitial/boost.png';
 import { __ } from '@wordpress/i18n';
 import styles from './index.module.scss';
+import { useCallback } from 'react';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -45,6 +46,14 @@ const Index = () => {
 	const handleCriticalCssLink = () => {
 		recordBoostEvent( 'critical_css_link_clicked', {} );
 	};
+
+	const upgradeClickHandlerModal = useCallback( () => {
+		// record event for opening a modal
+		recordBoostPixelEvent( 'jetpack_boost_upgrade_button_clicked', {
+			placement: 'product-page',
+			context: 'jetpack-boost',
+		} );
+	}, [] );
 
 	return (
 		<div className="jb-container--narrow">
@@ -96,7 +105,7 @@ const Index = () => {
 
 				<ProductInterstitialMyJetpack
 					slug="boost"
-					onOpen={ () => {} } // TODO: add onOpen callback
+					onOpen={ upgradeClickHandlerModal }
 					customModalTrigger={
 						<UpgradeCTA
 							identifier="critical-css"
@@ -119,47 +128,20 @@ const Index = () => {
 						'jetpack-boost'
 					) }
 					features={ [
+						createInterpolateElement( __( 'Automated Critical CSS Generation', 'jetpack-boost' ), {
+							strong: <strong />,
+						} ),
+						createInterpolateElement( __( 'Automated Image Scanning', 'jetpack-boost' ), {
+							strong: <strong />,
+						} ),
+						createInterpolateElement( __( 'In-depth Performance Insights', 'jetpack-boost' ), {
+							strong: <strong />,
+						} ),
+						createInterpolateElement( __( 'Customizable Image Optimization', 'jetpack-boost' ), {
+							strong: <strong />,
+						} ),
 						createInterpolateElement(
-							__(
-								"<strong>Automated Critical CSS Generation:</strong> Improve your site's load time. Say goodbye to manual tweaks and boost your speed scores with zero effort.",
-								'jetpack-boost'
-							),
-							{
-								strong: <strong />,
-							}
-						),
-						createInterpolateElement(
-							__(
-								'<strong>Automated Image Scanning:</strong> Always be on top of potential image size issues that might impact your site load time and SEO ranking.',
-								'jetpack-boost'
-							),
-							{
-								strong: <strong />,
-							}
-						),
-						createInterpolateElement(
-							__(
-								'<strong>In-depth Performance Insights:</strong> Track your success with historical performance and Core Web Vitals scores to see how your site improves over time.',
-								'jetpack-boost'
-							),
-							{
-								strong: <strong />,
-							}
-						),
-						createInterpolateElement(
-							__(
-								'<strong>Customizable Image Optimization:</strong> Control your image quality and loading speeds with customizable CDN settings, balancing aesthetics with efficiency.',
-								'jetpack-boost'
-							),
-							{
-								strong: <strong />,
-							}
-						),
-						createInterpolateElement(
-							__(
-								'<strong>Expert Support With Personal Assistance Available:</strong> Enjoy dedicated email support from our Happiness Engineers, ensuring a smoother experience and peace of mind.',
-								'jetpack-boost'
-							),
+							__( 'Expert Support With Personal Assistance Available', 'jetpack-boost' ),
 							{
 								strong: <strong />,
 							}
