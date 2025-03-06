@@ -121,7 +121,7 @@ export function useLocalCriticalCssGenerator() {
 							key,
 							// Avoid WAF pitfalls as firewalls can block critical CSS due to them including `<svg xmlns`
 							// See 9566-gh-Automattic/jpop-issues
-							css: btoa( css ),
+							css: btoa( String.fromCharCode( ...new TextEncoder().encode( css ) ) ),
 							isBase64Encoded: true,
 						} );
 					},
