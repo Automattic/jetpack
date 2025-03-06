@@ -36,13 +36,13 @@ class Data_Sync_Schema {
 				'providers'    => Schema::as_array(
 					Schema::as_assoc_array(
 						array(
-							'key'           => Schema::as_string(),
-							'label'         => Schema::as_string(),
-							'urls'          => Schema::as_array( Schema::as_string() ),
-							'success_ratio' => Schema::as_float(),
-							'status'        => Schema::enum( array( 'success', 'pending', 'error', 'validation-error' ) )->fallback( 'validation-error' ),
-							'error_status'  => Schema::enum( array( 'active', 'dismissed' ) )->nullable(),
-							'errors'        => self::critical_css_provider_error()->nullable(),
+							'key'              => Schema::as_string(),
+							'label'            => Schema::as_string(),
+							'urls'             => Schema::as_array( Schema::as_string() ),
+							'success_ratio'    => Schema::as_float(),
+							'status'           => Schema::enum( array( 'success', 'pending', 'error', 'validation-error' ) )->fallback( 'validation-error' ),
+							'dismissed_errors' => Schema::as_array( Schema::as_string() )->nullable(),
+							'errors'           => self::critical_css_provider_error()->nullable(),
 						)
 					)
 				)->nullable(),
@@ -86,8 +86,9 @@ class Data_Sync_Schema {
 	public static function critical_css_set_provider() {
 		return Schema::as_assoc_array(
 			array(
-				'key' => Schema::as_string(),
-				'css' => Schema::as_string(),
+				'key'             => Schema::as_string(),
+				'css'             => Schema::as_string(),
+				'isBase64Encoded' => Schema::as_boolean()->fallback( false ),
 			)
 		);
 	}
@@ -105,8 +106,9 @@ class Data_Sync_Schema {
 		return Schema::as_array(
 			Schema::as_assoc_array(
 				array(
-					'key'       => Schema::as_string(),
-					'dismissed' => Schema::as_boolean(),
+					'provider'   => Schema::as_string(),
+					'error_type' => Schema::as_string(),
+					'dismissed'  => Schema::as_boolean(),
 				)
 			)
 		);

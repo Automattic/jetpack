@@ -96,9 +96,6 @@ class Jetpack_Carousel {
 			add_action( 'wp_ajax_nopriv_get_attachment_comments', array( $this, 'get_attachment_comments' ) );
 			add_action( 'wp_ajax_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
 			add_action( 'wp_ajax_nopriv_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
-
-			// Disable core lightbox when Carousel is enabled.
-			add_action( 'wp_theme_json_data_theme', array( $this, 'disable_core_lightbox' ) );
 		} else {
 			if ( ! $this->in_jetpack ) {
 				if ( 0 === $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
@@ -126,11 +123,10 @@ class Jetpack_Carousel {
 				add_filter( 'the_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			}
 
+			add_filter( 'render_block_data', array( $this, 'remove_core_lightbox_in_gallery' ), 10, 3 );
+
 			// `is_amp_request()` can't be called until the 'wp' filter.
 			add_action( 'wp', array( $this, 'check_amp_support' ) );
-
-			// Disable core lightbox when Carousel is enabled.
-			add_action( 'wp_theme_json_data_theme', array( $this, 'disable_core_lightbox' ) );
 		}
 
 		if ( $this->in_jetpack ) {
@@ -210,32 +206,6 @@ class Jetpack_Carousel {
 		 * @param bool false Should Carousel be enabled for single images linking to 'Media File'? Default to false.
 		 */
 		return apply_filters( 'jp_carousel_load_for_images_linked_to_file', false );
-	}
-
-	/**
-	 * Disable the "Lightbox" option offered in WordPress core
-	 * whenever Jetpack's Carousel feature is enabled.
-	 *
-	 * @since 13.3
-	 *
-	 * @param WP_Theme_JSON_Data $theme_json Class to access and update theme.json data.
-	 */
-	public function disable_core_lightbox( $theme_json ) {
-		return $theme_json->update_with(
-			array(
-				'version'  => 2,
-				'settings' => array(
-					'blocks' => array(
-						'core/image' => array(
-							'lightbox' => array(
-								'allowEditing' => false,
-								'enabled'      => false,
-							),
-						),
-					),
-				),
-			)
-		);
 	}
 
 	/**
@@ -364,6 +334,26 @@ class Jetpack_Carousel {
 		}
 
 		return $content;
+	}
+
+	/**
+	 * Remove core lightbox settings from images in a gallery, if Carousel is enabled.
+	 *
+	 * @param array         $parsed_block An associative array of the block being rendered.
+	 * @param array         $source_block An un-modified copy of `$parsed_block`, as it appeared in the source content.
+	 * @param WP_Block|null $parent_block If this is a nested block, a reference to the parent block.
+	 * @return array The modified block data.
+	 */
+	public function remove_core_lightbox_in_gallery( $parsed_block, $source_block, $parent_block ) {
+		if (
+			! empty( $parsed_block['blockName'] ) &&
+			'core/image' === $parsed_block['blockName'] &&
+			! empty( $parent_block->name ) &&
+			'core/gallery' === $parent_block->name
+		) {
+			unset( $parsed_block['attrs']['lightbox'] );
+		}
+		return $parsed_block;
 	}
 
 	/**

@@ -23,7 +23,7 @@ class Speculation_Rules_Test extends Base_TestCase {
 	/**
 	 * Test the is_available method with different constant states
 	 *
-	 * @since $$next-version$$
+	 * @since 3.10.0
 	 */
 	public function test_is_available() {
 		// Test the current behavior based on the actual constant state
@@ -62,7 +62,7 @@ class Speculation_Rules_Test extends Base_TestCase {
 	/**
 	 * Test the inject_speculation_rules method with prefetch method
 	 *
-	 * @since $$next-version$$
+	 * @since 3.10.0
 	 */
 	public function test_inject_speculation_rules_prefetch() {
 		// Mock jetpack_boost_ds_get to return false (use prefetch)
@@ -83,7 +83,7 @@ class Speculation_Rules_Test extends Base_TestCase {
 	/**
 	 * Test the inject_speculation_rules method with prerender method
 	 *
-	 * @since $$next-version$$
+	 * @since 3.10.0
 	 */
 	public function test_inject_speculation_rules_prerender() {
 		// Mock jetpack_boost_ds_get to return true (use prerender)
@@ -104,7 +104,7 @@ class Speculation_Rules_Test extends Base_TestCase {
 	/**
 	 * Test the register_data_sync method
 	 *
-	 * @since $$next-version$$
+	 * @since 3.10.0
 	 */
 	public function test_register_data_sync() {
 		// Since we can't mock the Data_Sync class directly, we'll skip the actual test
