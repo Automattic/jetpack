@@ -117,10 +117,10 @@ const Inbox = () => {
 
 	const onTabSelect = useCallback(
 		newStatusValue => {
-			setSearchParams( previouSearchParams => {
-				const _serachParams = new URLSearchParams( previouSearchParams );
-				_serachParams.set( 'status', newStatusValue );
-				return _serachParams;
+			setSearchParams( previousSearchParams => {
+				const _searchParams = new URLSearchParams( previousSearchParams );
+				_searchParams.set( 'status', newStatusValue );
+				return _searchParams;
 			} );
 		},
 		[ setSearchParams ]
