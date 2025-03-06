@@ -46,13 +46,25 @@ function fixDeps( pkg ) {
 	// @see https://github.com/WordPress/gutenberg/issues/67864
 	if ( pkg.name === '@wordpress/dataviews' ) {
 		for ( const dep of [
+			'change-case',
 			'colord',
 			'date-fns',
+			'deepmerge',
 			'@emotion/cache',
 			'@emotion/css',
+			'@emotion/react',
+			'@emotion/styled',
+			'@emotion/utils',
+			'fast-deep-equal',
 			'@floating-ui/react-dom',
 			'framer-motion',
+			'highlight-words-core',
+			'is-plain-object',
+			'memize',
 			'react-dom',
+			'@use-gesture/react',
+			'use-memo-one',
+			'uuid',
 		] ) {
 			pkg.optionalDependencies[ dep ] = '*';
 		}
