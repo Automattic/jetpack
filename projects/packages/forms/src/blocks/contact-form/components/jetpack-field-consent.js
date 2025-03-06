@@ -1,4 +1,8 @@
-import { InspectorControls, PanelColorSettings, useBlockProps } from '@wordpress/block-editor';
+import {
+	InspectorControls,
+	useBlockProps,
+	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/block-editor';
 import { BaseControl, PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
@@ -51,6 +55,23 @@ const JetpackFieldConsent = ( {
 				setAttributes={ setAttributes }
 				width={ width }
 			/>
+			<InspectorControls group="color">
+				<ColorGradientSettingsDropdown
+					__experimentalIsRenderedInSidebar
+					panelId={ clientId }
+					gradients={ [] }
+					disableCustomGradients
+					settings={ [
+						{
+							colorValue: attributes.labelColor,
+							onColorChange: value => setAttributes( { labelColor: value } ),
+							label: __( 'Label Text', 'jetpack-forms' ),
+							resetAllFilter: () => setAttributes( { labelColor: undefined } ),
+							clearable: true,
+						},
+					] }
+				/>
+			</InspectorControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
@@ -64,17 +85,6 @@ const JetpackFieldConsent = ( {
 						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
-				<PanelColorSettings
-					title={ __( 'Color', 'jetpack-forms' ) }
-					initialOpen={ false }
-					colorSettings={ [
-						{
-							value: attributes.labelColor,
-							onChange: value => setAttributes( { labelColor: value } ),
-							label: __( 'Label Text', 'jetpack-forms' ),
-						},
-					] }
-				/>
 				<PanelBody title={ __( 'Consent Settings', 'jetpack-forms' ) }>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<SelectControl
