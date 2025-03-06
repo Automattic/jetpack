@@ -36,6 +36,7 @@
 		"@wordpress/data": "10.19.0",
 		"@wordpress/dataviews": "4.15.0",
 		"@wordpress/date": "5.19.0",
+		"@wordpress/dom-ready": "4.19.0",
 		"@wordpress/edit-post": "8.19.0",
 		"@wordpress/editor": "14.19.0",
 		"@wordpress/element": "6.19.0",
@@ -43,8 +44,11 @@
 		"@wordpress/html-entities": "4.19.0",
 		"@wordpress/i18n": "5.19.0",
 		"@wordpress/icons": "10.19.0",
+		"@wordpress/interface": "9.4.0",
 		"@wordpress/media-utils": "5.19.0",
 		"@wordpress/notices": "5.19.0",
+		"@wordpress/plugins": "7.19.0",
+		"@wordpress/url": "4.19.0",
 		"clsx": "2.1.1",
 		"prop-types": "15.8.1",
 		"react-page-visibility": "7.0.0",
@@ -72,7 +76,9 @@
 	},
 	"exports": {
 		".": "./index.ts",
-		"./social-admin-page": "./src/components/admin-page/entry-point.tsx"
+		"./social-admin-page": "./src/components/admin-page/entry-point.tsx",
+		"./editor-jetpack-sidebar": "./src/components/block-editor/jetpack-sidebar.tsx",
+		"./editor-social-sidebar": "./src/components/block-editor/social-sidebar.tsx"
 	},
 	"peerDependencies": {
 		"react-dom": "^18.0.0"

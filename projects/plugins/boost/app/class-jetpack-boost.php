@@ -19,6 +19,7 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
+use Automattic\Jetpack_Boost\Admin\Config as Boost_Admin_Config;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
@@ -159,9 +160,11 @@ class Jetpack_Boost {
 		update_option( 'jetpack_boost_version', JETPACK_BOOST_VERSION );
 
 		if ( jetpack_boost_minify_is_enabled() ) {
+			$setup_404_tester = Boost_Admin_Config::get_hosting_provider() !== 'atomic' && Boost_Admin_Config::get_hosting_provider() !== 'woa';
+
 			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
 			jetpack_boost_minify_clear_scheduled_events();
-			jetpack_boost_minify_activation();
+			jetpack_boost_minify_activation( $setup_404_tester );
 		}
 	}
 

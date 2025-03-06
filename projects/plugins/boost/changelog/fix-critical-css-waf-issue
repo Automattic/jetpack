@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Implement a workaround for WAF interfering with critical CSS.
