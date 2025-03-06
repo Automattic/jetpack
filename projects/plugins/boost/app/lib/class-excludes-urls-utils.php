@@ -16,7 +16,7 @@ class Excludes_URLs_Utils {
 	 *
 	 * @return array The sanitized value.
 	 */
-	public static function sanitize_value( $value ) {
+	public static function sanitize_value( $value, $checks = array( 'wildcards' => true ) ) {
 		if ( ! is_array( $value ) ) {
 			return array();
 		}
@@ -51,8 +51,10 @@ class Excludes_URLs_Utils {
 			// Make sure there's a leading slash
 			$path = '/' . ltrim( $path, '/' );
 
-			// Fix up any wildcards
-			$path = self::sanitize_wildcards( $path );
+			if ( in_array( 'wildcards', $checks, true ) && $checks['wildcards'] === true ) {
+				// Fix up any wildcards
+				$path = self::sanitize_wildcards( $path );
+			}
 		}
 
 		return array_values( array_unique( array_filter( $value ) ) );

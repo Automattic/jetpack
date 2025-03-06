@@ -46,7 +46,7 @@ class Speculation_Rules_Excludes_Entry implements Entry_Can_Get, Entry_Can_Set {
 	 * @return void
 	 */
 	public function set( $settings ) {
-		$settings['bypass_patterns'] = Excludes_URLs_Utils::sanitize_value( $settings['bypass_patterns'] );
+		$settings['bypass_patterns'] = Excludes_URLs_Utils::sanitize_value( $settings['bypass_patterns'], array( 'wildcards' => false ) );
 		update_option(
 			$this->option_key,
 			(array) apply_filters(
