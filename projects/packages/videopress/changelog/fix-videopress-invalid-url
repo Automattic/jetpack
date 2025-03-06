@@ -1,4 +1,5 @@
 Significance: patch
 Type: fixed
 
-https://github.com/Automattic/jetpack/issues/34741
+- Handle case when the URL doesn't contain VideoPress GUID
+- CSS: Add missing space between CTAs
