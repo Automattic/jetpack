@@ -63,6 +63,7 @@
 		"@wordpress/base-styles": "5.19.0",
 		"@wordpress/blocks": "14.8.0",
 		"@wordpress/components": "29.5.0",
+		"@wordpress/compose": "7.19.0",
 		"@wordpress/data": "10.19.0",
 		"@wordpress/dom-ready": "^4.8.1",
 		"@wordpress/element": "6.19.0",
