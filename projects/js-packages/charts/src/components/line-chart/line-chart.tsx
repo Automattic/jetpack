@@ -1,4 +1,4 @@
-import { curveCatmullRom, curveLinear } from '@visx/curve';
+import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import {
 	XYChart,
@@ -17,11 +17,31 @@ import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
+type CurveType = 'smooth' | 'linear' | 'monotone';
+
 const X_TICK_WIDTH = 100;
+
+const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
+	// Support legacy smoothing prop
+	if ( typeof smoothing === 'boolean' ) {
+		return smoothing ? curveCatmullRom : curveLinear;
+	}
+
+	// Support new curveType prop
+	switch ( type ) {
+		case 'smooth':
+			return curveCatmullRom;
+		case 'monotone':
+			return curveMonotoneX;
+		default:
+			return curveLinear;
+	}
+};
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withGradientFill: boolean;
 	smoothing?: boolean;
+	curveType?: CurveType;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 }
 
@@ -102,6 +122,7 @@ const LineChart: FC< LineChartProps > = ( {
 	legendOrientation = 'horizontal',
 	withGradientFill = false,
 	smoothing = true,
+	curveType = 'linear',
 	renderTooltip = renderDefaultTooltip,
 	options = {},
 	onPointerDown = undefined,
@@ -223,7 +244,7 @@ const LineChart: FC< LineChartProps > = ( {
 									withGradientFill ? `url(#area-gradient-${ chartId }-${ index + 1 })` : undefined
 								}
 								renderLine={ true }
-								curve={ smoothing ? curveCatmullRom : curveLinear }
+								curve={ getCurveType( curveType, smoothing ) }
 								lineProps={ lineProps }
 							/>
 						</g>
