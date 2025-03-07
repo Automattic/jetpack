@@ -136,6 +136,11 @@ export function SharePostButton( { onShareCompleted } ) {
 			environment: getSiteType(),
 		} );
 
+		/**
+		 * The share endpoint only gets the custom message as a parameter, the attached media and
+		 * SIG is saved to the post meta and will be read on wpcom. Because of that we need to save
+		 * the post before sharing it, if it has the media features to make sure we use the latest data.
+		 */
 		if ( isDirtyPost && isAutosaveablePost && hasMediaFeatures ) {
 			await savePost();
 		}
