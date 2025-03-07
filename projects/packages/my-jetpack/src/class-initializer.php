@@ -750,7 +750,7 @@ class Initializer {
 		// filters for the items in this file
 		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( $rbn, 'add_red_bubble_alerts' ) );
 		$red_bubble_alerts = array_filter(
-			Red_Bubble_Notifications::get_red_bubble_alerts(),
+			$rbn::get_red_bubble_alerts(),
 			function ( $alert ) {
 				// We don't want to show the red bubble for silent alerts
 				return empty( $alert['is_silent'] );
