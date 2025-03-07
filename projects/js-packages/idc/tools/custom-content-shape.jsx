@@ -9,6 +9,8 @@ export default {
 	mainTitle: PropTypes.string,
 	/** The main screen body text. */
 	mainBodyText: PropTypes.string,
+	/** The main screen body text for the dev mode. */
+	mainBodyTextDev: PropTypes.string,
 	/** The "migration finished" screen title. */
 	migratedTitle: PropTypes.string,
 	/** The "migration finished" screen body text. */

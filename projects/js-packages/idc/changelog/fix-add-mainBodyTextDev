@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add mainBodyTextDev for the body text of the Safe Mode notice in the development mode

@@ -1,8 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { render, screen } from '@testing-library/react';
-import { NewsletterWidget } from '../src/newsletter-widget';
+import { NewsletterWidget, NewsletterWidgetProps } from '../src/components/newsletter-widget';
 
-// Add these mock declarations at the top of the file, before the tests
 jest.mock( '@wordpress/components', () => {
 	const actualModule = jest.requireActual( '@wordpress/components' );
 	const mockModule = {
@@ -20,27 +19,36 @@ jest.mock( '@wordpress/icons', () => ( {
 } ) );
 
 describe( 'NewsletterWidget', () => {
-	const defaultProps = {
+	const defaultProps: NewsletterWidgetProps = {
 		site: 'example.com',
 		adminUrl: 'https://example.com/wp-admin/',
 		isWpcomSite: true,
 		emailSubscribers: 100,
+		allSubscribers: 150,
 		paidSubscribers: 50,
+		subscriberTotalsByDate: {
+			'2021-01-01': {
+				all: 10,
+				paid: 5,
+			},
+		},
 	};
 
 	it( 'renders', () => {
 		render( <NewsletterWidget { ...defaultProps } /> );
 		expect( screen.getByText( 'Quick Links' ) ).toBeInTheDocument();
-		expect( screen.getByText( defaultProps.emailSubscribers ) ).toBeInTheDocument();
 
-		// Check for paid subscribers number
-		expect( screen.getByText( defaultProps.paidSubscribers ) ).toBeInTheDocument();
-
-		// Check for email subscriptions label
-		expect( screen.getByText( 'email subscriptions' ) ).toBeInTheDocument();
+		// Check for subscriptions label
+		expect(
+			screen.getByText(
+				`${ defaultProps.allSubscribers } subscribers (${ defaultProps.emailSubscribers } via email)`
+			)
+		).toBeInTheDocument();
 
 		// Check for paid subscriptions label
-		expect( screen.getByText( 'paid subscriptions' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( `${ defaultProps.paidSubscribers } paid subscriptions` )
+		).toBeInTheDocument();
 	} );
 
 	it( 'displays the learn more link with correct href', () => {
@@ -135,6 +143,91 @@ describe( 'NewsletterWidget', () => {
 			const link = screen.getByText( text );
 			expect( link ).toBeInTheDocument();
 			expect( link ).toHaveAttribute( 'href', href );
+		} );
+	} );
+
+	describe( 'Stats display conditions', () => {
+		it( 'shows stats section when allSubscribers > 0', () => {
+			render(
+				<NewsletterWidget
+					{ ...defaultProps }
+					allSubscribers={ 10 }
+					emailSubscribers={ 0 }
+					paidSubscribers={ 0 }
+				/>
+			);
+
+			expect( screen.getByText( '10 subscribers (0 via email)' ) ).toBeInTheDocument();
+		} );
+
+		it( 'shows stats section when paidSubscribers > 0', () => {
+			render( <NewsletterWidget { ...defaultProps } allSubscribers={ 0 } paidSubscribers={ 5 } /> );
+
+			expect( screen.getByText( '5 paid subscriptions' ) ).toBeInTheDocument();
+		} );
+
+		it( 'hides stats section when allSubscribers and paidSubscribers are 0', () => {
+			render(
+				<NewsletterWidget
+					{ ...defaultProps }
+					allSubscribers={ 0 }
+					emailSubscribers={ 0 }
+					paidSubscribers={ 0 }
+				/>
+			);
+
+			expect( screen.queryByText( /subscribers \(\d+ via email\)/ ) ).not.toBeInTheDocument();
+
+			expect( screen.queryByText( /paid subscriptions/ ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Chart display conditions', () => {
+		it( 'shows chart when at least one day has a total "all" count >= 5', () => {
+			const props: NewsletterWidgetProps = {
+				...defaultProps,
+				subscriberTotalsByDate: {
+					'2021-01-01': { all: 5, paid: 0 },
+				},
+			};
+
+			render( <NewsletterWidget { ...props } /> );
+			expect( screen.getByText( 'Total Subscribers' ) ).toBeInTheDocument();
+		} );
+
+		it( 'shows chart when at least one day has a total "paid" > 0', () => {
+			const props: NewsletterWidgetProps = {
+				...defaultProps,
+				subscriberTotalsByDate: {
+					'2021-01-01': { all: 0, paid: 1 },
+				},
+			};
+
+			render( <NewsletterWidget { ...props } /> );
+			expect( screen.getByText( 'Total Subscribers' ) ).toBeInTheDocument();
+		} );
+
+		it( 'hides chart when no day has "all" count >= 5 or "paid" count > 0', () => {
+			const props: NewsletterWidgetProps = {
+				...defaultProps,
+				subscriberTotalsByDate: {
+					'2021-01-01': { all: 4, paid: 0 },
+					'2021-01-02': { all: 3, paid: 0 },
+				},
+			};
+
+			render( <NewsletterWidget { ...props } /> );
+			expect( screen.queryByText( 'Total Subscribers' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'handles empty subscriberTotalsByDate by hiding chart', () => {
+			const props = {
+				...defaultProps,
+				subscriberTotalsByDate: {},
+			};
+
+			render( <NewsletterWidget { ...props } /> );
+			expect( screen.queryByText( 'Total Subscribers' ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );
