@@ -1,9 +1,11 @@
 import { Button, ProductPrice, getRedirectUrl } from '@automattic/jetpack-components';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
+import LoadingBlock from '../loading-block';
 import {
 	ProductInterstitialModal,
 	ProductInterstitialFeatureList,
@@ -27,6 +29,14 @@ interface ProductInterstitialPluginProps {
 	 * Callback function to be called when the modal is closed
 	 */
 	onClose?: () => void;
+	/**
+	 * Optional description for the product that overwrites the description from the product details
+	 */
+	description?: string;
+	/**
+	 * Optional features for the product that overwrites the features from the product details
+	 */
+	features?: string[];
 }
 
 /**
@@ -40,20 +50,37 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	children,
 	onOpen,
 	onClose,
+	description,
+	features,
 	...props
 } ) => {
 	const { recordEvent } = useAnalytics();
-	const { detail } = useProduct( slug );
-
-	const { title, longDescription, features, pricingForUi } = detail;
-
+	const { detail, isLoading } = useProduct( slug );
 	const {
-		fullPricePerMonth: price,
-		currencyCode,
-		discountPricePerMonth: discountPrice,
-		introductoryOffer,
-		productTerm,
-	} = pricingForUi;
+		title,
+		longDescription: detailDescription,
+		features: detailFeatures,
+		pricingForUi,
+	} = detail;
+
+	// allow plugins to overwrite the description and features from the product details
+	const modalDescription = description || detailDescription;
+	const modalFeatures = features || detailFeatures;
+
+	// Get pricing for a plugin - TODO: extract price to a hook or a component
+	const priceSource = slug === 'boost' ? pricingForUi?.tiers?.upgraded : pricingForUi;
+	let price, discountPrice;
+
+	if ( slug === 'boost' ) {
+		// component price structure
+		price = priceSource?.fullPrice / 12;
+		discountPrice = priceSource?.discountPrice / 12;
+	} else {
+		price = priceSource?.fullPricePerMonth;
+		discountPrice = priceSource?.discountPricePerMonth;
+	}
+
+	const { currencyCode, introductoryOffer, productTerm } = priceSource || {};
 
 	let priceDescription;
 	if ( introductoryOffer?.intervalUnit === 'month' && introductoryOffer?.intervalCount === 1 ) {
@@ -76,7 +103,9 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 
 	// TODO: check referrer url from product-details-card
 
-	const priceComponent = (
+	const priceComponent = isLoading ? (
+		<LoadingBlock width="100%" height="100px" />
+	) : (
 		<ProductPrice
 			currency={ currencyCode }
 			price={ price }
@@ -136,7 +165,7 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	return (
 		<ProductInterstitialModal
 			title={ title }
-			description={ longDescription }
+			description={ modalDescription }
 			priceComponent={ priceComponent }
 			modalMainButton={ <ProductInterstitialModalCta slug={ slug } /> }
 			onOpen={ handleOpen }
@@ -144,7 +173,7 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 			{ ...props }
 		>
 			<>
-				{ features && <ProductInterstitialFeatureList features={ features } /> }
+				{ modalFeatures && <ProductInterstitialFeatureList features={ modalFeatures } /> }
 				{ additionalContent }
 				{ children }
 			</>
@@ -152,4 +181,14 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	);
 };
 
-export default ProductInterstitialPlugin;
+const ProductInterstitialPluginWithQueryClient: FC< ProductInterstitialPluginProps > = props => {
+	const queryClient = new QueryClient();
+
+	return (
+		<QueryClientProvider client={ queryClient }>
+			<ProductInterstitialPlugin { ...props } />
+		</QueryClientProvider>
+	);
+};
+
+export default ProductInterstitialPluginWithQueryClient;

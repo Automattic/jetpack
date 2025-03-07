@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+My Jetpack: add QueryProvider to ProductInterstitialModal for extendability
