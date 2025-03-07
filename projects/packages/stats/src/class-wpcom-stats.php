@@ -309,6 +309,43 @@ class WPCOM_Stats {
 	 * @return array|WP_Error
 	 */
 	public function get_total_post_views( $args = array() ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$post_ids         = isset( $args['post_ids'] ) ? explode( ',', $args['post_ids'] ) : array();
+			$escaped_post_ids = implode( ',', array_map( 'esc_sql', $post_ids ) );
+
+			$number_of_days = isset( $args['num'] ) ? absint( $args['num'] ) : 1;
+			// It's the same function used in WPCOM simple.
+			// @phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+			$end_date = isset( $args['end'] ) ? $args['end'] : date( 'Y-m-d' );
+
+			// Daily history summary returns anarray with one item '-'
+			// because return value is expected to be an array of days.
+			$stats = stats_get_daily_history(
+				null,
+				get_current_blog_id(),
+				'postviews',
+				'post_id',
+				$end_date,
+				$number_of_days,
+				" AND post_id IN ($escaped_post_ids)",
+				0,
+				true
+			);
+
+			$post_views = $stats['-'];
+
+			$posts = array_map(
+				function ( $post_id ) use ( $post_views ) {
+					return array(
+						'ID'    => $post_id,
+						'views' => isset( $post_views[ $post_id ] ) ? $post_views[ $post_id ] : 0,
+					);
+				},
+				$post_ids
+			);
+
+			return array( 'posts' => $posts );
+		}
 
 		$this->resource = 'views/posts';
 
