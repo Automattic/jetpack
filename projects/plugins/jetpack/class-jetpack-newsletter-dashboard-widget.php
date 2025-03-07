@@ -107,7 +107,11 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			wp_add_dashboard_widget(
 				self::$widget_id,
 				$widget_title,
-				array( static::class, 'render' )
+				array( static::class, 'render' ),
+				null,
+				null,
+				'side',
+				'high'
 			);
 		}
 	}
