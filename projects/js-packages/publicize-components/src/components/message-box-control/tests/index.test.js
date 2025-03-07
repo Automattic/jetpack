@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import MessageBoxControl, { DEFAULT_LABEL, PLACEHOLDER_TEXT } from '../';
+import MessageBoxControl, { getDefaultLabel, getPlaceholderText } from '../';
 
 const mockRecordEvent = jest.fn();
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
@@ -28,7 +28,7 @@ describe( 'MessageBoxControl', () => {
 			/>
 		);
 
-		expect( screen.getByLabelText( DEFAULT_LABEL ) ).toHaveValue( mockMessage );
+		expect( screen.getByLabelText( getDefaultLabel() ) ).toHaveValue( mockMessage );
 	} );
 
 	it( 'displays correct remaining character count', () => {
@@ -53,7 +53,7 @@ describe( 'MessageBoxControl', () => {
 			/>
 		);
 
-		const textArea = screen.getByLabelText( DEFAULT_LABEL );
+		const textArea = screen.getByLabelText( getDefaultLabel() );
 		await userEvent.type( textArea, ' additional text' );
 
 		expect( mockOnChange ).toHaveBeenCalled();
@@ -69,7 +69,7 @@ describe( 'MessageBoxControl', () => {
 			/>
 		);
 
-		const textArea = screen.getByLabelText( DEFAULT_LABEL );
+		const textArea = screen.getByLabelText( getDefaultLabel() );
 		await userEvent.type( textArea, ' first change' );
 		await userEvent.type( textArea, ' second change' );
 
@@ -89,7 +89,7 @@ describe( 'MessageBoxControl', () => {
 			/>
 		);
 
-		const textArea = screen.getByLabelText( DEFAULT_LABEL );
+		const textArea = screen.getByLabelText( getDefaultLabel() );
 		await userEvent.type( textArea, ' additional text' );
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_custom_message_changed', null );
@@ -105,7 +105,7 @@ describe( 'MessageBoxControl', () => {
 			/>
 		);
 
-		expect( screen.getByLabelText( DEFAULT_LABEL ) ).toBeDisabled();
+		expect( screen.getByLabelText( getDefaultLabel() ) ).toBeDisabled();
 	} );
 
 	it( 'enforces maxLength character limit', () => {
@@ -118,7 +118,7 @@ describe( 'MessageBoxControl', () => {
 			/>
 		);
 
-		const textArea = screen.getByLabelText( DEFAULT_LABEL );
+		const textArea = screen.getByLabelText( getDefaultLabel() );
 		expect( textArea ).toHaveAttribute( 'maxLength', shortMaxLength.toString() );
 	} );
 
@@ -127,7 +127,7 @@ describe( 'MessageBoxControl', () => {
 			<MessageBoxControl message="" onChange={ mockOnChange } maxLength={ mockMaxLength } />
 		);
 
-		const textArea = screen.getByPlaceholderText( PLACEHOLDER_TEXT );
+		const textArea = screen.getByPlaceholderText( getPlaceholderText() );
 		expect( textArea ).toBeInTheDocument();
 	} );
 } );

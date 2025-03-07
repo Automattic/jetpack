@@ -3,11 +3,13 @@ import { TextareaControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useRef } from 'react';
 
-export const PLACEHOLDER_TEXT = __(
-	'Write a custom message for your social audience here. This message will override your social post content.',
-	'jetpack-publicize-components'
-);
-export const DEFAULT_LABEL = __( 'Message', 'jetpack-publicize-components' );
+export const getPlaceholderText = () =>
+	__(
+		'Write a custom message for your social audience here. This message will override your social post content.',
+		'jetpack-publicize-components'
+	);
+
+export const getDefaultLabel = () => __( 'Message', 'jetpack-publicize-components' );
 
 export type MessageBoxControlProps = {
 	/** The label for the message box */
@@ -43,8 +45,8 @@ export type MessageBoxControlProps = {
  * @return {object} The message box component.
  */
 export default function MessageBoxControl( {
-	label = DEFAULT_LABEL,
-	placeholder = PLACEHOLDER_TEXT,
+	label = getDefaultLabel(),
+	placeholder = getPlaceholderText(),
 	message = '',
 	onChange,
 	disabled,
