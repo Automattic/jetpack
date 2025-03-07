@@ -114,7 +114,7 @@ class Verbum_Comments {
 	public function enqueue_assets() {
 		if (
 			! ( is_singular() && comments_open() )
-			&& ! ( is_front_page() && is_page() && comments_open() )
+			&& ! ( is_front_page() && comments_open() )
 		) {
 			return;
 		}
