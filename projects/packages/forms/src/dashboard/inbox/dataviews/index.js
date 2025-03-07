@@ -94,7 +94,7 @@ export default function InboxView() {
 			if ( field === 'date' ) {
 				const [ year, month ] = value.split( '/' ).map( Number );
 				accumulator.after = new Date( Date.UTC( year, month - 1, 1 ) ).toISOString();
-				accumulator.before = new Date( Date.UTC( year, month, 0 ) ).toISOString();
+				accumulator.before = new Date( Date.UTC( year, month, 0, 23, 59, 59 ) ).toISOString();
 			}
 			return accumulator;
 		}, {} );
