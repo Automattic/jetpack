@@ -69,6 +69,9 @@ class Universal {
 
 		// cart page view
 		add_action( 'wp_footer', array( $this, 'capture_cart_view' ), 11 );
+
+		// page view
+		add_action( 'wp_footer', array( $this, 'capture_page_view' ), 11 );
 	}
 
 	/**
@@ -537,6 +540,13 @@ class Universal {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Track page views
+	 */
+	public function capture_page_view() {
+		$this->record_event( 'woocommerceanalytics_page_view', array( 'url' => $this->get_current_url() ) );
 	}
 
 	/**
