@@ -121,6 +121,26 @@ const updateFileContext = ( updatedFile, fileId ) => {
 	context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
 };
 
+/**
+ * Remove file from the temporary folder.
+ *
+ * @param {string} token - The token of the file to remove.
+ */
+const removeFile = token => {
+	const { endpoint, wp_nonce, jp_nonce } = getConfig( NAMESPACE );
+
+	const request = new Request( endpoint + '/remove', {
+		method: 'POST',
+		headers: {
+			'X-WP-Nonce': wp_nonce,
+			'X-Jetpack-Upload-Nonce': jp_nonce,
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify( { token, context: 'jetpack-form' } ),
+	} );
+	fetch( request );
+};
+
 store( NAMESPACE, {
 	actions: {
 		/**
@@ -190,8 +210,11 @@ store( NAMESPACE, {
 		removeFile: event => {
 			const context = getContext();
 			const fileId = event.target.dataset.id;
-			context.files = context.files.filter( file => file.id !== fileId );
+			const file = context.files.find( fileObject => fileObject.id === fileId );
+			context.files = context.files.filter( fileObject => fileObject.id !== fileId );
 			context.hasFiles = context.files.length > 0;
+
+			removeFile( file.token );
 		},
 	},
 
