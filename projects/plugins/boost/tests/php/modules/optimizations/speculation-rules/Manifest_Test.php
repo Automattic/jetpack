@@ -13,15 +13,14 @@ use PHPUnit\Framework\TestCase;
  */
 class Manifest_Test extends TestCase {
 	protected $manifest;
-	protected $cornerstone_mock;
 
 	protected function setUp(): void {
 		parent::setUp();
 		Monkey\setUp();
 
 		// Mock the Cornerstone_Utils class
-		$this->cornerstone_mock = Mockery::mock( 'alias:' . Cornerstone_Utils::class );
-		$this->cornerstone_mock->shouldReceive( 'get_list' )
+		Mockery::mock( 'alias:' . Cornerstone_Utils::class )
+			->shouldReceive( 'get_list' )
 			->andReturn( array( '/about', '/contact' ) );
 
 		$this->manifest = new Manifest();

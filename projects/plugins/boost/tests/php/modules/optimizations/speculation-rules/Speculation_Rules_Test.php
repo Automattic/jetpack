@@ -2,8 +2,10 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Speculation_Rules;
 
+use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules\Speculation_Rules;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
+use Mockery;
 
 class Speculation_Rules_Test extends Base_TestCase {
 	private $speculation_rules;
@@ -12,6 +14,11 @@ class Speculation_Rules_Test extends Base_TestCase {
 
 	public function set_up() {
 		parent::set_up();
+
+		Mockery::mock( 'alias:' . Cornerstone_Utils::class )
+			->shouldReceive( 'get_list' )
+			->andReturn( array( '/' ) );
+
 		$this->speculation_rules = new Speculation_Rules();
 
 		// Store the original state of the constant
@@ -68,7 +75,6 @@ class Speculation_Rules_Test extends Base_TestCase {
 		$this->speculation_rules->inject_speculation_rules();
 		$output = ob_get_clean();
 
-		// Check that the output contains the expected script tag with prefetch method
 		$this->assertStringContainsString( '<script type="speculationrules">', $output );
 	}
 }
