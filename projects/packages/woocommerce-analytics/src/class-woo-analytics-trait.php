@@ -8,6 +8,8 @@
 namespace Automattic\Woocommerce_Analytics;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use DateTime;
+use DateTimeZone;
 use WC_Order_Item;
 use WC_Order_Item_Product;
 use WC_Payment_Gateway;
@@ -339,17 +341,31 @@ trait Woo_Analytics_Trait {
 			$session_id         = wp_generate_uuid4();
 			$this->session_id   = $session_id;
 			$this->landing_page = sanitize_url( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- actually escaped with sanitize_url.
+			$session_expiration = $this->get_session_expiration_time();
 			$event_js           = $this->process_event_properties( 'woocommerceanalytics_session_started' );
 			$cookie_js          = "
             const sessionData = JSON.stringify({
                     session_id: '{$this->session_id}',
                     landing_page: encodeURIComponent('{$this->landing_page}'),
             });
-            document.cookie = `woocommerceanalytics_session=\${sessionData}; path=/; secure; samesite=strict`;
+            document.cookie = `woocommerceanalytics_session=\${sessionData}; expires={$session_expiration}; path=/; secure; samesite=strict`;
             ";
 			wc_enqueue_js( $cookie_js ); // save the session cookie for further events in the session
 			wc_enqueue_js( "_wca.push({$event_js});" ); // trigger session started event
 		}
+	}
+
+	/**
+	 * Get a 30 minutes expiration time from now or at midnight UTC, whichever comes first.
+	 *
+	 * @return string
+	 */
+	public function get_session_expiration_time() {
+		$thirty_minutes_from_now = time() + ( 30 * 60 ); // 30 minutes from now
+		$midnight                = strtotime( 'tomorrow UTC' ) - 1; // 1 second before midnight
+		$expiration_time         = min( $thirty_minutes_from_now, $midnight );
+		$date                    = new DateTime( "@$expiration_time", new DateTimeZone( 'UTC' ) );
+		return $date->format( 'D, d M Y H:i:s \G\M\T' );
 	}
 
 	/**
