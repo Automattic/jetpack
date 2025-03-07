@@ -129,6 +129,10 @@ add_action(
 			if ( apply_filters( 'breve_enabled', true ) ) {
 				Jetpack_Gutenberg::set_extension_available( 'ai-proofread-breve' );
 			}
+
+			if ( apply_filters( 'ai_seo_enhancer_enabled', false ) ) {
+				Jetpack_Gutenberg::set_extension_available( 'ai-seo-enhancer' );
+			}
 		}
 	}
 );
@@ -186,20 +190,6 @@ add_action(
 		) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-use-chrome-ai-sometimes' );
 			add_chrome_ai_token_headers();
-		}
-	}
-);
-
-/**
- * Register the `ai-seo-enhancer` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
-			apply_filters( 'ai_seo_enhancer_enabled', false )
-		) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-seo-enhancer' );
 		}
 	}
 );
