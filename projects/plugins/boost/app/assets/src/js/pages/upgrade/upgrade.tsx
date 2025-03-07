@@ -1,6 +1,6 @@
 import { PricingCard } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { getUpgradeURL, useConnection } from '$lib/stores/connection';
+import { getUpgradeURL } from '$lib/stores/connection';
 import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
 import './upgrade.module.scss';
 import Forward from '$svg/forward';
@@ -15,7 +15,10 @@ const Upgrade: React.FC = () => {
 
 	const pricing = usePricing();
 
-	const { connection } = useConnection();
+	const connection = {
+		userConnected: true,
+		wpcomBlogId: 123,
+	};
 
 	const goToCheckout = () => {
 		recordBoostEventAndRedirect(
