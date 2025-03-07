@@ -289,6 +289,7 @@ function wpcomsh_allow_custom_wp_options( $options ) {
 	$options[] = 'jetpack_fonts';
 	$options[] = 'site_logo';
 	$options[] = 'footercredit';
+	$options[] = 'wpcomsh_at_managed_plugins';
 
 	return $options;
 }
