@@ -478,6 +478,7 @@ class Jetpack_Plugin_Search {
 			$slug,
 			array(
 				'jetpack',
+				'jetpack-backup',
 				'jetpack-boost',
 				'jetpack-protect',
 				'jetpack-search',
