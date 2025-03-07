@@ -2,11 +2,13 @@ import { numberFormat } from '@automattic/jetpack-components';
 import type { FormatNumberFunction } from './types';
 
 const defaultConfig: Intl.NumberFormatOptions = {
-	maximumFractionDigits: 1,
-	notation: 'compact',
+	style: 'percent',
 };
 
-const formatNumber: FormatNumberFunction = ( number, config = defaultConfig ) => {
+const formatPercentage: FormatNumberFunction = ( number, config = defaultConfig ) => {
+	// Force percentage
+	config.style = 'percent';
+
 	if ( number === null || ! Number.isFinite( number ) ) {
 		return '-';
 	}
@@ -14,4 +16,4 @@ const formatNumber: FormatNumberFunction = ( number, config = defaultConfig ) =>
 	return numberFormat( number, config );
 };
 
-export default formatNumber;
+export default formatPercentage;
