@@ -102,7 +102,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	/**
 	 * Test item schema.
 	 */
-	public function test_item_shcema() {
+	public function test_item_schema() {
 		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/feedback' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();

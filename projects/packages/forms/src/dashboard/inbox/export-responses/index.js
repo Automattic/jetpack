@@ -18,7 +18,7 @@ import GoogleDriveExport from './google-drive';
 
 import './style.scss';
 
-const ExportResponses = () => {
+const ExportResponsesButton = () => {
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const userCanExport = useSelect(
 		select => select( coreStore ).canUser( 'update', 'settings' ),
@@ -30,7 +30,7 @@ const ExportResponses = () => {
 	}, [] );
 	const openModal = useCallback( () => setShowExportModal( true ), [ setShowExportModal ] );
 	const closeModal = useCallback( () => setShowExportModal( false ), [ setShowExportModal ] );
-	const exportResponses = useCallback(
+	const onExport = useCallback(
 		( action, nonceName ) => {
 			const data = new FormData();
 			data.append( 'action', action );
@@ -65,8 +65,8 @@ const ExportResponses = () => {
 						<p className="jp-forms__export-modal-header-subtitle">
 							{ __( 'Choose your favorite file format or export destination:', 'jetpack-forms' ) }
 						</p>
-						<CSVExport onExport={ exportResponses } />
-						<GoogleDriveExport onExport={ exportResponses } />
+						<CSVExport onExport={ onExport } />
+						<GoogleDriveExport onExport={ onExport } />
 						<JetpackFooter
 							className="jp-forms__export-modal-footer"
 							moduleName={ __( 'Jetpack Forms', 'jetpack-forms' ) }
@@ -78,4 +78,4 @@ const ExportResponses = () => {
 	);
 };
 
-export default ExportResponses;
+export default ExportResponsesButton;

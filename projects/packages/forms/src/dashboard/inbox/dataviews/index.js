@@ -36,9 +36,11 @@ const EMPTY_ARRAY = [];
 const EMPTY_OBJECT = {};
 const MOBILE_BREAKPOINT = 780;
 const getItemId = item => item.id.toString();
-const getPath = response => {
+
+// Function to get the URL of the page or post where the form was submitted.
+const getPath = item => {
 	try {
-		const url = new URL( response.entry_permalink );
+		const url = new URL( item.entry_permalink );
 		return url.pathname;
 	} catch {
 		return '';
@@ -46,14 +48,14 @@ const getPath = response => {
 };
 
 /**
- * Hook to get the status filter to apply from the URL.
+ * Helper function to get the status filter to apply from the URL.
  * This is the only way to filter the data by `status` as intentionally
  * we don't want to have a `status` filter in the UI.
  *
  * @param {string} urlStatus - The current status from the URL.
  * @return {string} The status filter to apply.
  */
-function useStatusFilter( urlStatus ) {
+function getStatusFilter( urlStatus ) {
 	// Only allow specific status values.
 	const statusFilter = [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox';
 	return statusFilter === 'inbox' ? 'draft,publish' : statusFilter;
@@ -79,7 +81,7 @@ export default function InboxView() {
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
 	const selectedResponses = searchParams.get( 'r' );
 	const urlStatus = searchParams.get( 'status' );
-	const statusFilter = useStatusFilter( urlStatus );
+	const statusFilter = getStatusFilter( urlStatus );
 	const filterOptions = useSelect( select => select( dashboardStore ).getFilters(), [] );
 	useEffect( () => {
 		const _filters = view.filters?.reduce( ( accumulator, { field, value } ) => {
