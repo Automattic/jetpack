@@ -155,7 +155,7 @@ class Jetpack_Mu_Wpcom {
 		if ( array_key_exists( 'success', $data ) && false === $data['success'] ) {
 			return;
 		}
-		// Fix PHP Stan error
+
 		if ( ! is_array( $data ) || ! is_array( $data['data'] ) ) {
 			return;
 		}

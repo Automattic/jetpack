@@ -66,6 +66,7 @@ add_action(
 	'after_setup_theme',
 	function () {
 		load_muplugin_textdomain( 'wpcomsh', 'wpcomsh/languages' );
+		load_theme_textdomain( 'jetpack-mu-wpcom', WP_LANG_DIR . '/mu-plugins' );
 	}
 );
 
