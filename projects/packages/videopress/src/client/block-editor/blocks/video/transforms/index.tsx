@@ -3,7 +3,7 @@
  */
 import { createBlobURL } from '@wordpress/blob';
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
+import { createBlock, findTransform, getBlockTransforms } from '@wordpress/blocks';
 import { dispatch, select } from '@wordpress/data';
 import clsx from 'clsx';
 /**
@@ -18,7 +18,7 @@ import {
 /**
  * Types
  */
-import { filterVideoFiles, isVideoFile } from '../../../utils/video';
+import { isVideoFile } from '../../../utils/video';
 import { CoreEmbedVideoPressVariationBlockAttributes, VideoBlockAttributes } from '../types';
 
 const transformFromCoreEmbed = {
@@ -62,12 +62,35 @@ const transformFromFile = {
 	},
 
 	priority: 8, // higher priority (lower number) than v5's core/video transform (9).
-	transform: ( files: File[] ) =>
-		filterVideoFiles( files ).map( ( file: File ) =>
+	transform: ( files: File[] ) => {
+		const fromTransforms = getBlockTransforms( 'from' );
+		const [ videoFiles, nonVideoFiles ] = files.reduce(
+			( accumulator, file ) => {
+				accumulator[ isVideoFile( file ) ? 0 : 1 ].push( file );
+				return accumulator;
+			},
+			[ [], [] ] as [ File[], File[] ]
+		);
+
+		const otherBlocks = nonVideoFiles
+			.map( file => {
+				const transformation = findTransform(
+					fromTransforms,
+					transform => transform.type === 'files' && transform.isMatch( [ file ] )
+				);
+				return transformation ? transformation.transform( [ file ] ) : null;
+			} )
+			.filter( Boolean )
+			.flat();
+
+		const videoBlocks = videoFiles.map( file =>
 			createBlock( 'videopress/video', {
 				src: createBlobURL( file ),
 			} )
-		),
+		);
+
+		return [ ...videoBlocks, ...otherBlocks ];
+	},
 };
 
 const transformToCoreEmbed = {
