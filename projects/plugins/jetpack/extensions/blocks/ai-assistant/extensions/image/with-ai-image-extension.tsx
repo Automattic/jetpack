@@ -138,7 +138,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				startLoading( type );
 
 				try {
-					const context: { indexes?: number[] } = {};
+					const context: { positions?: number[] } = {};
 
 					if ( type === TYPE_ALT_TEXT ) {
 						openBlockSidebar( props.clientId );
@@ -149,7 +149,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						const imageIndex =
 							allImageBlocks.findIndex( block => block.clientId === props.clientId ) + 1;
 						// Index of the image in the post.
-						context.indexes = [ imageIndex ];
+						context.positions = [ imageIndex ];
 					}
 
 					dequeueAsyncRequest();
