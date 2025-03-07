@@ -18,7 +18,7 @@ import { config } from '../';
 import Layout from '../components/layout';
 import { store as dashboardStore } from '../store';
 import InboxView from './dataviews';
-import ExportResponses from './export-responses';
+import ExportResponsesButton from './export-responses';
 /**
  * Style dependencies
  */
@@ -130,7 +130,7 @@ const Inbox = () => {
 			<div className="jp-forms__layout-header">
 				<HStack justify="space-between">
 					<h2 className="jp-forms__layout-title">{ title }</h2>
-					<ExportResponses />
+					<ExportResponsesButton />
 				</HStack>
 				<p className="jp-forms__header-subtext">{ subtitle }</p>
 			</div>
