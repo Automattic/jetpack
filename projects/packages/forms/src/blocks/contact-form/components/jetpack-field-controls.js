@@ -307,7 +307,7 @@ const JetpackFieldControls = ( {
 						<>
 							<ToolsPanelItem
 								panelId={ clientId }
-								hasValue={ () => !! attributes.buttonBorderWidth }
+								hasValue={ () => typeof attributes.buttonBorderWidth === 'number' }
 								label={ __( 'Button Border Width', 'jetpack-forms' ) }
 								onDeselect={ () =>
 									setAttributes( {
@@ -327,7 +327,7 @@ const JetpackFieldControls = ( {
 							</ToolsPanelItem>
 							<ToolsPanelItem
 								panelId={ clientId }
-								hasValue={ () => !! attributes.buttonBorderRadius }
+								hasValue={ () => typeof attributes.buttonBorderRadius === 'number' }
 								label={ __( 'Button Border Radius', 'jetpack-forms' ) }
 								onDeselect={ () =>
 									setAttributes( {
@@ -351,7 +351,7 @@ const JetpackFieldControls = ( {
 						<>
 							<ToolsPanelItem
 								panelId={ clientId }
-								hasValue={ () => !! attributes.borderWidth }
+								hasValue={ () => typeof attributes.borderWidth === 'number' }
 								label={ __( 'Border Width', 'jetpack-forms' ) }
 								onDeselect={ () =>
 									setAttributes( {
@@ -371,7 +371,7 @@ const JetpackFieldControls = ( {
 							</ToolsPanelItem>
 							<ToolsPanelItem
 								panelId={ clientId }
-								hasValue={ () => !! attributes.borderRadius }
+								hasValue={ () => typeof attributes.borderRadius === 'number' }
 								label={ __( 'Border Radius', 'jetpack-forms' ) }
 								onDeselect={ () =>
 									setAttributes( {
