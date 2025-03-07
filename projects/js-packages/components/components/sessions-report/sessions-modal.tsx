@@ -46,6 +46,12 @@ export default function SessionsModal( {
 		[ sessionsWithTerminationConfirmation, setSessionsWithTerminationConfirmation ]
 	);
 
+	const getSessionTitleString = ( session: SessionsStatus ) => {
+		return `User ID: ${ session.userId } - Username: ${
+			session.userLogin.trim() ? session.userLogin : 'unknown'
+		} - IP: ${ session.ip }`;
+	};
+
 	if ( ! isOpen ) {
 		return null;
 	}
@@ -72,10 +78,8 @@ export default function SessionsModal( {
 								.map( session => (
 									<div key={ session.token } className={ styles.sessions__toggle }>
 										<ToggleControl
-											label={ session.token }
-											help={ `ID: ${ session.userId } - User: ${
-												session.userLogin.trim() ? session.userLogin : 'unknown'
-											} - IP: ${ session.ip }` }
+											label={ getSessionTitleString( session ) }
+											help={ `${ session.token }` }
 											checked={ sessionsWithTerminationConfirmation.includes( session ) }
 											onChange={ onToggleSession( session ) }
 											size="small"
@@ -86,14 +90,10 @@ export default function SessionsModal( {
 					) : (
 						<div>
 							<div className={ styles[ 'sessions-modal__section__title' ] }>
-								{ sessionsPendingTerminationConfirmation[ 0 ].token }
+								{ getSessionTitleString( sessionsPendingTerminationConfirmation[ 0 ] ) }
 							</div>
 							<p className={ styles[ 'sessions-modal__section__description' ] }>
-								{ `ID: ${ sessionsPendingTerminationConfirmation[ 0 ].userId } - User: ${
-									sessionsPendingTerminationConfirmation[ 0 ].userLogin.trim()
-										? sessionsPendingTerminationConfirmation[ 0 ].userLogin
-										: 'unknown'
-								} - IP: ${ sessionsPendingTerminationConfirmation[ 0 ].ip }` }
+								{ `${ sessionsPendingTerminationConfirmation[ 0 ].token }` }
 							</p>
 						</div>
 					) }
