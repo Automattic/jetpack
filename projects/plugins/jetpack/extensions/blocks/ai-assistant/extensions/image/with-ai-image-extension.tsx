@@ -179,7 +179,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 					increaseRequestsCount();
 
-					const parsedResponse: { texts?: string[]; captions?: string[] } = JSON.parse( response );
+					const parsedResponse: { texts?: string[]; captions?: string[] } = JSON.parse(
+						response
+							?.replace?.( /^```json\s*/, '' ) // Remove the markdown code block if it exists.
+							?.replace( /```$/, '' )
+					);
 
 					if ( type === TYPE_ALT_TEXT ) {
 						const alt = parsedResponse.texts?.[ 0 ];
