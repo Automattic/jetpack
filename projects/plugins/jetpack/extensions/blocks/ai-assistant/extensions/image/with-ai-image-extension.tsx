@@ -6,7 +6,6 @@ import {
 	usePostContent,
 	openBlockSidebar,
 	useAiFeature,
-	getAllBlocks,
 } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -145,11 +144,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					}
 
 					if ( type === TYPE_CAPTION ) {
-						const allImageBlocks = getAllBlocks().filter( block => block.name === 'core/image' );
-						const imageIndex =
-							allImageBlocks.findIndex( block => block.clientId === props.clientId ) + 1;
-						// Index of the image in the post.
-						context.positions = [ imageIndex ];
+						context.positions = [ props.clientId ];
 					}
 
 					dequeueAsyncRequest();
