@@ -54,11 +54,13 @@ const JetpackFieldControls = ( {
 	const optionColorLabel =
 		blockStyle === 'button'
 			? __( 'Button Text', 'jetpack-forms' )
-			: __( 'Option Text', 'jetpack-forms' );
-	const inputColorLabel = isChoicesBlock ? optionColorLabel : __( 'Field Text', 'jetpack-forms' );
+			: __( 'Option Text', 'jetpack-forms', 0 );
+	const inputColorLabel = isChoicesBlock
+		? optionColorLabel
+		: __( 'Field Text', 'jetpack-forms', 0 );
 	const backgroundColorLabel = isChoicesBlock
 		? __( 'Background', 'jetpack-forms' )
-		: __( 'Field Background', 'jetpack-forms' );
+		: __( 'Field Background', 'jetpack-forms', 0 );
 
 	const colorSettings = [
 		{
@@ -196,7 +198,7 @@ const JetpackFieldControls = ( {
 					label={
 						isChoicesBlock
 							? __( 'Options Typography', 'jetpack-forms' )
-							: __( 'Input Typography', 'jetpack-forms' )
+							: __( 'Input Typography', 'jetpack-forms', 0 )
 					}
 					resetAll={ () => {
 						setAttributes( {
