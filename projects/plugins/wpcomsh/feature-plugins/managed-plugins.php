@@ -580,7 +580,7 @@ function wpcomsh_update_managed_plugins(): void {
 
 	update_option( 'wpcomsh_at_managed_plugins', $managed_plugins );
 }
-add_action( 'deleted_plugin', 'wpcomsh_update_managed_plugins' );
+add_action( 'deleted_plugin', 'wpcomsh_update_managed_plugins', 100 );
 
 /**
  * Update the list of managed plugins after a plugin is installed.
