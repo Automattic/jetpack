@@ -6,6 +6,7 @@ import {
 	pickVideoBlockAttributesFromUrl,
 	getVideoNameFromUrl,
 	removeFileNameExtension,
+	isVideoPressUrl,
 } from '..';
 
 describe( 'buildVideoPressURL', () => {
@@ -167,5 +168,44 @@ describe( 'removeFileNameExtension', () => {
 
 	it( 'should handle empty string', () => {
 		expect( removeFileNameExtension( '' ) ).toBe( '' );
+	} );
+} );
+
+describe( 'isVideoPressUrl', () => {
+	describe( 'should return true for valid VideoPress URLs', () => {
+		const validUrls = [
+			'https://videopress.com/v/xyrdcYF4',
+			'https://videopress.com/v/xyrdcYF4/',
+			'https://videopress.com/embed/xyrdcYF4',
+			'https://v.wordpress.com/xyrdcYF4/',
+			'https://video.wordpress.com/v/xyrdcYF4',
+			'https://video.wordpress.com/embed/xyrdcYF4/',
+			'http://videopress.com/v/xyrdcYF4', // HTTP protocol
+		];
+
+		validUrls.forEach( url => {
+			it( `should validate ${ url }`, () => {
+				expect( isVideoPressUrl( url ) ).toBe( true );
+			} );
+		} );
+	} );
+
+	describe( 'should return false for invalid URLs', () => {
+		const invalidUrls = [
+			'https://example.com',
+			'',
+			'https://videopress.com/invalid/xyrdcYF4', // Invalid path
+			'https://videopress.com/v/xyz', // Invalid GUID (too short)
+			'https://videopress.com/v/xyrdcYF4extra', // Invalid GUID (too long)
+			'https://videopress.com/v/', // Missing GUID
+			'https://fakevideo.wordpress.com/v/xyrdcYF4', // Invalid subdomain
+			'videopress.com/v/xyrdcYF4', // Missing protocol
+		];
+
+		invalidUrls.forEach( url => {
+			it( `should not validate ${ url || '(empty string)' }`, () => {
+				expect( isVideoPressUrl( url ) ).toBe( false );
+			} );
+		} );
 	} );
 } );
