@@ -1,4 +1,4 @@
-import { getCurrencyObject } from '@automattic/format-currency';
+import { getCurrencyObject } from 'i18n-calypso';
 import { isFirstMonthTrial } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';

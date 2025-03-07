@@ -1,4 +1,4 @@
-import { getCurrencyObject } from '@automattic/format-currency';
+import { getCurrencyObject } from 'i18n-calypso';
 import {
 	CheckmarkIcon,
 	getIconBySlug,

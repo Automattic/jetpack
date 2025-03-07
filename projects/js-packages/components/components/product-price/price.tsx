@@ -1,4 +1,4 @@
-import { getCurrencyObject } from '@automattic/format-currency';
+import { getCurrencyObject } from 'i18n-calypso';
 import clsx from 'clsx';
 import Text from '../text/index.js';
 import styles from './style.module.scss';

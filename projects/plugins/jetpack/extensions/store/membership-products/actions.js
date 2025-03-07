@@ -1,6 +1,6 @@
-import formatCurrency from '@automattic/format-currency';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
+import { formatCurrency } from 'i18n-calypso';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-management-controls/constants';
 import { getMessageByProductType } from '../../shared/components/product-management-controls/utils';
 import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';

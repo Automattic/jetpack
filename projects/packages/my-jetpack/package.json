@@ -24,6 +24,7 @@
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"i18n-calypso": "^7.4.0",
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",

@@ -11,11 +11,15 @@ import './extended-blocks/core-site-logo/index.js';
 import './extended-blocks/core-social-links';
 import './extended-blocks/paid-blocks';
 import './shared/styles/slideshow-fix.scss';
+import { initializeI18n } from './shared/i18n-init';
 // Register media source store to the centralized data registry.
 import './store/media-source';
 import './store/membership-products';
 import extensionList from './index.json';
 import './index.scss';
+
+// Initialize i18n with the site locale
+initializeI18n();
 
 // Register middleware for @wordpress/api-fetch to indicate the fetch is coming from the editor.
 apiFetch.use( ( options, next ) => {

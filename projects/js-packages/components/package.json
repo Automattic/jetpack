@@ -14,6 +14,7 @@
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Components"
 	},
 	"dependencies": {
+		"i18n-calypso": "^7.4.0",
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",

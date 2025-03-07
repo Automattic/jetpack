@@ -1,6 +1,6 @@
-import formatCurrency from '@automattic/format-currency';
 import domReady from '@wordpress/dom-ready';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
+import { formatCurrency } from 'i18n-calypso';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 import { initializeMembershipButtons } from '../../shared/memberships';
 

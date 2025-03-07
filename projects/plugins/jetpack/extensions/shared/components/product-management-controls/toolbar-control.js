@@ -1,9 +1,9 @@
-import formatCurrency from '@automattic/format-currency';
 import { BlockControls } from '@wordpress/block-editor';
 import { ExternalLink, MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, update, warning } from '@wordpress/icons';
+import { formatCurrency } from 'i18n-calypso';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 import { CUSTOMIZER_EDITOR, getEditorType } from '../../get-editor-type';
 import { useProductManagementContext } from './context';
