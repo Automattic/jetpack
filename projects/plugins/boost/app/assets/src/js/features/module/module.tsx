@@ -1,9 +1,9 @@
-import { ToggleControl } from '@automattic/jetpack-components';
+import { Notice, ToggleControl } from '@automattic/jetpack-components';
 import { useEffect } from 'react';
 import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { isWoaHosting } from '$lib/utils/hosting';
 import { useNotices } from '$features/notice/context';
 
@@ -106,20 +106,31 @@ const Module = ( {
 	);
 };
 
+const ModuleErrorFallback = ( { error, ...props }: { error: Error } & ModuleProps ) => {
+	return (
+		<div className={ styles[ 'module-error-notice' ] }>
+			<h3 className={ styles[ 'module-error-title' ] }>{ props.title }</h3>
+
+			<Notice
+				level="error"
+				title={ __( 'Failed to load module', 'jetpack-boost' ) }
+				hideCloseButton={ true }
+			>
+				<p>
+					{
+						// translators: %s is error message
+						sprintf( __( 'Error: %s', 'jetpack-boost' ), error.message )
+					}
+				</p>
+			</Notice>
+		</div>
+	);
+};
+
 export default ( props: ModuleProps ) => {
 	return (
 		<ErrorBoundary
-			fallback={
-				<div>
-					<div className={ styles.content }>
-						<h3>{ props.title }</h3>
-
-						<div className={ styles.description }>
-							{ __( `Failed to load module.`, 'jetpack-boost' ) }
-						</div>
-					</div>
-				</div>
-			}
+			fallback={ <ModuleErrorFallback error={ new Error( 'Unknown error' ) } { ...props } /> }
 		>
 			<Module { ...props } />
 		</ErrorBoundary>
