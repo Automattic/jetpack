@@ -159,12 +159,17 @@ class Jetpack_Boost {
 
 		update_option( 'jetpack_boost_version', JETPACK_BOOST_VERSION );
 
-		if ( jetpack_boost_minify_is_enabled() ) {
-			$setup_404_tester = Boost_Admin_Config::get_hosting_provider() !== 'atomic' && Boost_Admin_Config::get_hosting_provider() !== 'woa';
+		$is_atomic = Boost_Admin_Config::get_hosting_provider() === 'atomic';
+		$is_woa    = Boost_Admin_Config::get_hosting_provider() === 'woa';
+		if ( $is_atomic || $is_woa ) {
+			// Remove this option to prevent the notice from showing up.
+			delete_site_option( 'jetpack_boost_static_minification' );
+		}
 
+		if ( jetpack_boost_minify_is_enabled() ) {
 			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
 			jetpack_boost_minify_clear_scheduled_events();
-			jetpack_boost_minify_activation( $setup_404_tester );
+			jetpack_boost_minify_activation( ! $is_atomic && ! $is_woa );
 		}
 	}
 
