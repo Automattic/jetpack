@@ -22,20 +22,20 @@ type CurveType = 'smooth' | 'linear' | 'monotone';
 const X_TICK_WIDTH = 100;
 
 const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
-	// Support legacy smoothing prop
-	if ( typeof smoothing === 'boolean' ) {
-		return smoothing ? curveCatmullRom : curveLinear;
+	// First check for explicit curve type
+	if ( type ) {
+		switch ( type ) {
+			case 'smooth':
+				return curveCatmullRom;
+			case 'monotone':
+				return curveMonotoneX;
+			case 'linear':
+				return curveLinear;
+		}
 	}
 
-	// Support new curveType prop
-	switch ( type ) {
-		case 'smooth':
-			return curveCatmullRom;
-		case 'monotone':
-			return curveMonotoneX;
-		default:
-			return curveLinear;
-	}
+	// Fall back to legacy smoothing prop
+	return smoothing ? curveCatmullRom : curveLinear;
 };
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
