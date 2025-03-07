@@ -320,7 +320,7 @@ class WPCOM_Stats {
 
 			// Daily history summary returns anarray with one item '-'
 			// because return value is expected to be an array of days.
-			$stats = stats_get_daily_history(
+			$stats = \stats_get_daily_history(
 				null,
 				get_current_blog_id(),
 				'postviews',
