@@ -347,7 +347,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$this->label_styles .= 'color: ' . esc_attr( $this->get_attribute( 'labelcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'labelfontsize' ) ) ) {
-			$this->label_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'labelfontsize' ) ) . ';';
+			$this->label_styles .= '--jetpack--contact-form--label--font-size:' . esc_attr( $this->get_attribute( 'labelfontsize' ) ) . ';';
 		}
 		if ( is_numeric( $this->get_attribute( 'labellineheight' ) ) ) {
 			$this->label_styles .= 'line-height: ' . (int) $this->get_attribute( 'labellineheight' ) . ';';
