@@ -6,6 +6,7 @@ $features-colors: (
 	'unconfident-words': rgb( 9, 181, 133 ),
 	'long-sentences': rgb( 122, 0, 223 ),
 	'spelling-mistakes': rgb( 214, 54, 56 ),
+	'grammar': rgb( 15, 125, 235 ),
 );
 
 @mixin properties( $feature, $color, $properties, $opacity: false ) {

@@ -192,6 +192,9 @@ importers:
       debug:
         specifier: 4.4.0
         version: 4.4.0
+      harper.js:
+        specifier: 0.23.0
+        version: 0.23.0
       markdown-it:
         specifier: 14.1.0
         version: 14.1.0
@@ -11065,6 +11068,9 @@ packages:
     resolution: {integrity: sha512-KC2BzPDh3F0vJzYa7KYBWJOO9gTHoKoFiHNazZEU9Gq2jIJ2zObOA67wlZjZkPHPCjZiLQrko3AYFLrMrHXKrA==}
     peerDependencies:
       react: 15 - 18
+
+  harper.js@0.23.0:
+    resolution: {integrity: sha512-981U/0mh/npIh1s2u6XbL0Hopf+a+6G7ffiWE0/7bUr/PZ54FpuOIGJcqN+jrPCm+ePn3CBhcUk3XtPX4KpOJA==}
 
   has-ansi@2.0.0:
     resolution: {integrity: sha512-C8vBJ8DwUCx19vhm7urhTuUsr4/IyP6l4VzNQDv+ryHQObW3TTTp9yB68WpYgRe2bbaGuZ/se74IqFeVnMnLZg==}
@@ -25315,6 +25321,8 @@ snapshots:
     dependencies:
       prop-types: 15.8.1
       react: 18.3.1
+
+  harper.js@0.23.0: {}
 
   has-ansi@2.0.0:
     dependencies:

@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+//import { rawHandler } from '@wordpress/blocks';
 import {
 	BaseControl,
 	PanelRow,
@@ -16,6 +17,7 @@ import { compose, useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect, withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, help } from '@wordpress/icons';
+import { create, toHTMLString } from '@wordpress/rich-text';
 /**
  * External dependencies
  */
@@ -24,6 +26,7 @@ import React, { useState, useEffect, useCallback } from 'react';
  * Internal dependencies
  */
 import features from './features';
+import highlight from './highlight/highlight';
 import calculateFleschKincaid from './utils/flesch-kincaid-utils';
 import { canWriteBriefFeatureBeEnabled } from './utils/get-availability';
 import { getPostText } from './utils/get-post-text';
@@ -47,6 +50,7 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 	const { toggleFeature, toggleProofread, setPopoverHover, setHighlightHover, setPopoverAnchor } =
 		useDispatch( 'jetpack/ai-breve' );
 	const { tracks } = useAnalytics();
+	const { updateBlock } = useDispatch( 'core/block-editor' );
 
 	const isProofreadEnabled = useSelect(
 		select => ( select( 'jetpack/ai-breve' ) as BreveSelect ).isProofreadEnabled(),
@@ -72,6 +76,56 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 	// Calculating the grade level is expensive, so debounce it to avoid recalculating it on every keypress.
 	const debouncedGradeLevelUpdate = useDebounce( updateGradeLevel, 250 );
 
+	const updateGrammar = useCallback( () => {
+		if ( ! isProofreadEnabled ) {
+			return;
+		}
+
+		const grammarData = JSON.parse(
+			localStorage.getItem(
+				'grammar-poc-test' // TODO: add post ID
+			)
+		);
+
+		// for now use the first block
+		const blockClientId = blocks[ 0 ].clientId;
+
+		const record = create( { html: blocks[ 0 ].originalContent } );
+
+		const applied = highlight( {
+			content: record,
+			type: 'jetpack/ai-proofread-grammar',
+			indexes: grammarData,
+
+			// TODO???
+			attributes: {
+				'data-breve-type': 'grammar',
+				'data-identifier': 'none',
+				'data-block': blockClientId,
+			},
+
+			// TODO
+			ignored: [],
+		} );
+
+		const newContent = toHTMLString( { value: applied } );
+
+		//const [ newBlock ] = rawHandler( { HTML: newContent } );
+
+		updateBlock(
+			//updateBlockAttributes(
+			blockClientId,
+			{
+				attributes: {
+					//content: newBlock.attributes.content,
+					content: newContent,
+				},
+			}
+		);
+	}, [ blocks, updateBlock, isProofreadEnabled ] );
+
+	const debouncedGrammar = useDebounce( updateGrammar, 50 );
+
 	const handleToggleFeature = useCallback(
 		( feature: string ) => ( checked: boolean ) => {
 			tracks.recordEvent( 'jetpack_ai_breve_feature_toggle', { type: feature, on: checked } );
@@ -87,7 +141,8 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 
 	useEffect( () => {
 		debouncedGradeLevelUpdate();
-	}, [ debouncedGradeLevelUpdate ] );
+		debouncedGrammar();
+	}, [ debouncedGradeLevelUpdate, debouncedGrammar ] );
 
 	// Update the grade level immediately on first load.
 	useInit( updateGradeLevel );

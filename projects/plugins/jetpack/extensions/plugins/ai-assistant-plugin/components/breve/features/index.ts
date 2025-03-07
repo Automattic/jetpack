@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
  * Features
  */
 import complexWords, { COMPLEX_WORDS, dictionary as dicComplex } from './complex-words';
+import grammar, { GRAMMAR } from './grammar';
 import longSentences, { LONG_SENTENCES } from './long-sentences';
 import spellingMistakes, { SPELLING_MISTAKES } from './spelling-mistakes';
 import unconfidentWords, { UNCONFIDENT_WORDS } from './unconfident-words';
@@ -36,6 +37,11 @@ const features: Array< BreveFeature > = [
 		config: UNCONFIDENT_WORDS,
 		highlight: unconfidentWords,
 		description: __( 'Remove weasel words.', 'jetpack' ),
+	},
+	{
+		config: GRAMMAR,
+		highlight: grammar,
+		description: __( 'Check grammar.', 'jetpack' ),
 	},
 ];
 
