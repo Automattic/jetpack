@@ -53,7 +53,6 @@ export default function PublicizeForm() {
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
 	const { feature_flags } = getSocialScriptData();
-	const showSocialPostModal = feature_flags.useEditorPreview && isPublicizeEnabled;
 
 	return (
 		<Wrapper>
@@ -66,7 +65,9 @@ export default function PublicizeForm() {
 					<PanelRow>
 						<ConnectionsList />
 					</PanelRow>
-					{ showSocialPostModal && ! isPostPublished ? <SocialPostModal /> : null }
+					{ feature_flags.useEditorPreview && isPublicizeEnabled && ! isPostPublished ? (
+						<SocialPostModal />
+					) : null }
 					<EnhancedFeaturesNudge />
 				</>
 			) : null }
@@ -77,7 +78,7 @@ export default function PublicizeForm() {
 					{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
 				</Fragment>
 			) }
-			{ showSocialPostModal && isPostPublished ? <SocialPostModal /> : null }
+			{ isPostPublished ? <SocialPostModal /> : null }
 		</Wrapper>
 	);
 }
