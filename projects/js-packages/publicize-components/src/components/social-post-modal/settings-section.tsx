@@ -1,5 +1,9 @@
+import { Panel } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { SharePostForm } from '../form/share-post-form';
+import { ScheduledShares } from './scheduled-shares';
 import styles from './styles.module.scss';
 
 /**
@@ -8,6 +12,8 @@ import styles from './styles.module.scss';
  * @return {import('react').ReactNode} - Settings section of the social post modal.
  */
 export function SettingsSection() {
+	const { getCurrentPostId, isCurrentPostPublished } = useSelect( editorStore, [] );
+
 	return (
 		<div className={ styles[ 'settings-section' ] }>
 			<div className={ styles[ 'settings-header' ] }>
@@ -22,6 +28,13 @@ export function SettingsSection() {
 				</p>
 				<SharePostForm analyticsData={ { location: 'preview-modal' } } />
 			</div>
+			{ isCurrentPostPublished() ? (
+				<div>
+					<Panel>
+						<ScheduledShares postId={ getCurrentPostId() } />
+					</Panel>
+				</div>
+			) : null }
 		</div>
 	);
 }
