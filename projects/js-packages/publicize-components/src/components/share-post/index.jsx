@@ -6,6 +6,7 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { dispatch, useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
@@ -78,7 +79,7 @@ export function SharePostButton( { onShareCompleted } ) {
 		siteHasFeature( features.IMAGE_GENERATOR ) || siteHasFeature( features.ENHANCED_PUBLISHING );
 	const { isFetching, isError, isSuccess, doPublicize } = useSharePost();
 	const { isAutosaveablePost, isDirtyPost, isPostPublished, isSavingPost } = useSelect( select => {
-		const editorSelector = select( 'core/editor' );
+		const editorSelector = select( editorStore );
 
 		return {
 			isAutosaveablePost: editorSelector.isEditedPostAutosaveable(),
@@ -90,7 +91,7 @@ export function SharePostButton( { onShareCompleted } ) {
 	const { feature_flags } = getSocialScriptData();
 	const { pollForPostShareStatus } = useDispatch( socialStore );
 	const { recordEvent } = useAnalytics();
-	const savePost = dispatch( 'core/editor' ).savePost;
+	const savePost = dispatch( editorStore ).savePost;
 
 	useEffect( () => {
 		if ( isFetching ) {
