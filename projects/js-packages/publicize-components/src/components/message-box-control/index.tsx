@@ -13,7 +13,7 @@ export const getDefaultLabel = () => __( 'Message', 'jetpack-publicize-component
 
 export type MessageBoxControlProps = {
 	/** The label for the message box */
-	label?: string;
+	label: string;
 
 	/** The placeholder text for the message box */
 	placeholder?: string;
