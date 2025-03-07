@@ -977,7 +977,7 @@ class WPCOM_JSON_API {
 	 * @return void
 	 */
 	protected function maybe_switch_to_token_user_and_site() {
-		if ( ! $this->endpoint->allow_jetpack_site_auth ) {
+		if ( ! $this->endpoint->allow_jetpack_token_auth ) {
 			return;
 		}
 
