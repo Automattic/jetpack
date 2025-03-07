@@ -465,6 +465,46 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 		} ),
 	},
 
+	InvalidURLError: {
+		describeSet: set =>
+			_n(
+				'Jetpack Boost found an invalid URL:',
+				'Jetpack Boost found invalid URLs:',
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		suggestion: _set => ( {
+			paragraph: __(
+				'Jetpack Boost needs valid URLs in order to generate Critical CSS. It seems that one or more of the URLs you provided are invalid.',
+				'jetpack-boost'
+			),
+			list: [
+				__( 'It is okay to ignore URLs that are not meant to be shown publicly.', 'jetpack-boost' ),
+				__(
+					'If they are meant to be shown publicly, check if you have any plugins that modify your permalinks or URL structure.',
+					'jetpack-boost'
+				),
+				__(
+					'Verify your WordPress permalink settings are configured correctly in Settings → Permalinks.',
+					'jetpack-boost'
+				),
+				__(
+					'If you use custom post types, ensure they are properly registered and their permalinks are working.',
+					'jetpack-boost'
+				),
+				__(
+					'Try visiting the problematic URLs directly in your browser to confirm they work.',
+					'jetpack-boost'
+				),
+				__( '<retry>Try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),
+			],
+			closingParagraph: __(
+				'If the issue persists, you may want to check your theme and plugins for any custom code that modifies URLs or permalinks.',
+				'jetpack-boost'
+			),
+		} ),
+	},
+
 	ProviderError: {
 		describeSet: set =>
 			_n(
@@ -476,7 +516,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 		rawError: set => Object.values( set.byUrl )[ 0 ].message,
 		suggestion: _set => ( {
 			paragraph: __(
-				'Jetpack Boost uses iframes while generating your Critical CSS. Unfortunately, your site has a special configuration header which prevents it from loading inside an iframe. The header is called "X-Frame-Options: DENY". This can be added to a WordPress site either by using a plugin, or by server configuration.',
+				'Jetpack Boost successfully generated Critical CSS, but something prevented it from being saved. Usually, this is due to a security plugin or the hosting provider detecting a false-positive.',
 				'jetpack-boost'
 			),
 			list: [

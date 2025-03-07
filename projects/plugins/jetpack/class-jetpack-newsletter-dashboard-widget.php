@@ -50,15 +50,11 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	 */
 	public static function get_config_data() {
 		$subscriber_counts = array();
-		$config_data       = array(
-			'hostname' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
-			'adminUrl' => admin_url(),
-		);
+		$config_data       = array();
 
 		if ( Jetpack::is_connection_ready() ) {
-
 			$site_id  = Jetpack_Options::get_option( 'id' );
-			$api_path = sprintf( '/sites/%d/subscribers/counts', $site_id );
+			$api_path = sprintf( '/sites/%d/subscribers/stats', $site_id );
 			$response = Client::wpcom_json_api_request_as_blog(
 				$api_path,
 				'2',
@@ -75,6 +71,14 @@ class Jetpack_Newsletter_Dashboard_Widget {
 
 				if ( isset( $subscriber_counts['counts']['paid_subscribers'] ) ) {
 					$config_data['paidSubscribers'] = (int) $subscriber_counts['counts']['paid_subscribers'];
+				}
+
+				if ( isset( $subscriber_counts['counts']['all_subscribers'] ) ) {
+					$config_data['allSubscribers'] = (int) $subscriber_counts['counts']['all_subscribers'];
+				}
+
+				if ( isset( $subscriber_counts['aggregate'] ) ) {
+					$config_data['subscriberTotalsByDate'] = $subscriber_counts['aggregate'];
 				}
 			}
 		}

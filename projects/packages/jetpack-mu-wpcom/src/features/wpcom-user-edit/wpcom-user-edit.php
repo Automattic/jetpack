@@ -13,6 +13,11 @@ require_once __DIR__ . '/../../utils.php';
  * Disable the account-level fields of the connected users to prevent the site owner from editing them.
  */
 function wpcom_disable_account_level_fields_if_needed() {
+	// Bail if editing from network.
+	if ( is_network_admin() ) {
+		return;
+	}
+
 	$user_id = ! empty( $_REQUEST['user_id'] ) ? absint( sanitize_text_field( wp_unslash( $_REQUEST['user_id'] ) ) ) : 0; // // phpcs:ignore WordPress.Security.NonceVerification
 
 	// Do nothing if the user is not connected to WordPress.com.

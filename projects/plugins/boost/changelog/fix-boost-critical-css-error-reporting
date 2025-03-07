@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Critical CSS: Fix showing empty error in some cases, when generation failed.

@@ -27,8 +27,6 @@ class Jetpack_Mu_Wpcom {
 		if ( did_action( 'jetpack_mu_wpcom_initialized' ) ) {
 			return;
 		}
-		// Apply temporary fix for translation path MD5 mismatch due to vendor -> jetpack_vendor change in https://github.com/Automattic/jetpack/pull/41185
-		add_filter( 'load_script_textdomain_relative_path', array( __CLASS__, 'fix_translation_relative_path_mismatch_wpcom_jetpack' ), 20, 2 );
 
 		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
@@ -57,6 +55,7 @@ class Jetpack_Mu_Wpcom {
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
@@ -89,25 +88,6 @@ class Jetpack_Mu_Wpcom {
 		 * @since 0.1.2
 		 */
 		do_action( 'jetpack_mu_wpcom_initialized' );
-	}
-
-	/**
-	 * Fixes translation file path MD5 mismatches caused by vendor -> jetpack_vendor migration.
-	 *
-	 * WordPress generates the translation file's MD5 hash based on the script's relative path.
-	 * Since the path structure changed, we rewrite `jetpack_vendor/` back to `vendor/` before hashing.
-	 *
-	 * @param string|false $relative The relative script path (before MD5 hashing).
-	 * @param string       $src     The script's original source path (unused).
-	 * @return string|false Updated relative path that keeps WordPress's MD5 hash consistent.
-	 */
-	public static function fix_translation_relative_path_mismatch_wpcom_jetpack( $relative, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( $relative && str_contains( $relative, 'jetpack_vendor/automattic/jetpack-mu-wpcom/src/build/' ) ) {
-			// Rewrite "jetpack_vendor/" back to the original "vendor/" to maintain MD5 compatibility
-			$relative = str_replace( 'jetpack_vendor/', 'vendor/', $relative );
-		}
-
-		return $relative;
 	}
 
 	/**
@@ -156,9 +136,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load Newsletter Dashboard in Simple sites.
 	 */
 	public static function load_wpcom_newsletter_dashboard() {
-		if ( defined( 'JETPACK_NEWSLETTER_WIDGET' ) && JETPACK_NEWSLETTER_WIDGET ) {
-			require_once __DIR__ . '/features/wpcom-newsletter-widget/wpcom-newsletter-widget.php';
-		}
+		require_once __DIR__ . '/features/wpcom-newsletter-widget/wpcom-newsletter-widget.php';
 	}
 
 	/**
@@ -502,6 +480,14 @@ class Jetpack_Mu_Wpcom {
 	public static function load_verbum_comments_admin() {
 		require_once __DIR__ . '/features/verbum-comments/assets/class-verbum-admin.php';
 		new \Automattic\Jetpack\Verbum_Admin();
+	}
+
+	/**
+	 * Load Verbum Moderate.
+	 */
+	public static function load_verbum_moderate() {
+		require_once __DIR__ . '/features/verbum-comments/assets/class-verbum-moderate.php';
+		new \Automattic\Jetpack\Verbum_Moderate();
 	}
 
 	/**

@@ -162,8 +162,9 @@ class UI {
 
 		$consumer_chosen     = null;
 		$consumer_url_length = 0;
-
+		$consumers_array     = array();
 		foreach ( $consumers as $consumer ) {
+
 			if ( empty( $consumer['admin_page'] ) || ! is_string( $consumer['admin_page'] ) ) {
 				continue;
 			}
@@ -176,9 +177,11 @@ class UI {
 				$consumer_chosen     = $consumer;
 				$consumer_url_length = strlen( $consumer['admin_page'] );
 			}
+
+			$consumers_array[] = $consumer;
 		}
 
-		static::$consumers = $consumer_chosen ? $consumer_chosen : array_shift( $consumers );
+		static::$consumers = $consumer_chosen ? $consumer_chosen : array_shift( $consumers_array );
 
 		return static::$consumers;
 	}

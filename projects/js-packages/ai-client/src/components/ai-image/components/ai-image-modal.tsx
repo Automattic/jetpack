@@ -41,7 +41,6 @@ type AiImageModalProps = {
 	isUnlimited: boolean;
 	upgradeDescription: string;
 	hasError: boolean;
-	postContent?: string | boolean | null;
 	handlePreviousImage: () => void;
 	handleNextImage: () => void;
 	acceptButton: React.JSX.Element;

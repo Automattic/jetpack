@@ -50,7 +50,7 @@ async function hasProgressLabel( octokit, owner, repo, number ) {
  * @return {Promise<string>} Promise resolving to info about the release (code freeze, release date).
  */
 async function getMilestoneDates( plugin, nextMilestone ) {
-	let releaseDate = 'none scheduled';
+	let releaseDate;
 	let codeFreezeDate;
 	if ( nextMilestone && Object.hasOwn( nextMilestone, 'due_on' ) && nextMilestone.due_on ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
@@ -76,22 +76,29 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		// Spaces between words.
 		.join( ' ' );
 
+	let pluginMessage = '';
+	if ( ! releaseDate ) {
+		pluginMessage = `No scheduled milestone found for this plugin.`;
+	} else if ( plugin === 'jetpack' ) {
+		pluginMessage = `The Jetpack plugin has different release cadences depending on the platform:
+
+- WordPress.com Simple releases happen as soon as you deploy your changes after merging this PR (PCYsg-Jjm-p2).
+- WoA releases happen weekly.
+- Releases to self-hosted sites happen monthly:
+    - Scheduled release: _${ releaseDate }_
+${ codeFreezeDate ? `    - Code freeze: _${ codeFreezeDate }_` : '' }
+`;
+	} else {
+		pluginMessage = `- Next scheduled release: _${ releaseDate }_
+${ codeFreezeDate ? `- Code freeze: _${ codeFreezeDate }_` : '' }`;
+	}
+
 	return `
 ******
 
 **${ capitalizedName } plugin:**
 
-${
-	'Jetpack' === capitalizedName
-		? `The Jetpack plugin has different release cadences depending on the platform:
-
-- WordPress.com Simple releases happen semi-continuously (PCYsg-Jjm-p2).
-- WoA releases happen weekly.
-- Releases to self-hosted sites happen monthly. The next release is scheduled for _${ releaseDate }_ (scheduled code freeze on _${ codeFreezeDate }_).`
-		: `
-- Next scheduled release: _${ releaseDate }_.
-${ codeFreezeDate ? `- Scheduled code freeze: _${ codeFreezeDate }_.\n` : '' }`
-}
+${ pluginMessage }
 
 If you have any questions about the release process, please ask in the #jetpack-releases channel on Slack.
 `;
@@ -489,12 +496,6 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 
 
 This comment will be updated as you work on your PR and make changes. If you think that some of those checks are not needed for your PR, please explain why you think so. Thanks for cooperation :robot:
-
-******`;
-
-	comment += `
-
-The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e-reports/${ number }/report/). Please note that it can take a few minutes after the e2e tests checks are complete for the report to be available.
 
 ******`;
 

@@ -9,6 +9,8 @@ export default {
 	mainTitle: PropTypes.string,
 	/** The main screen body text. */
 	mainBodyText: PropTypes.string,
+	/** The main screen body text for the dev mode. */
+	mainBodyTextDev: PropTypes.string,
 	/** The "migration finished" screen title. */
 	migratedTitle: PropTypes.string,
 	/** The "migration finished" screen body text. */
@@ -24,6 +26,10 @@ export default {
 	/** The "start fresh" card body. */
 	startFreshCardBodyText: PropTypes.string,
 	/** The "start fresh" card button label. */
+	safeModeCardBodyText: PropTypes.string,
+	/** The "stay in safe mode" card button label. */
+	startFreshCardBodyTextDev: PropTypes.string,
+	/** The "start fresh" for dev sites card button label. */
 	startFreshButtonLabel: PropTypes.string,
 	/** The "non admin" screen title. */
 	nonAdminTitle: PropTypes.string,

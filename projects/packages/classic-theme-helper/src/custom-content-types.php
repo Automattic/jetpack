@@ -46,6 +46,10 @@ if ( ! function_exists( 'jetpack_custom_post_types_loaded' ) ) {
 	 * Pass the active status to the front-end in it's initial state.
 	 */
 	function jetpack_custom_post_types_loaded() {
+		// Ensure we're only adding this script on the Jetpack settings page.
+		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We are not processing any data here.
+			return;
+		}
 		$initial_state = 'var CUSTOM_CONTENT_TYPE__INITIAL_STATE; typeof CUSTOM_CONTENT_TYPE__INITIAL_STATE === "object" || (CUSTOM_CONTENT_TYPE__INITIAL_STATE = JSON.parse(decodeURIComponent("' . rawurlencode(
 			wp_json_encode(
 				array(
