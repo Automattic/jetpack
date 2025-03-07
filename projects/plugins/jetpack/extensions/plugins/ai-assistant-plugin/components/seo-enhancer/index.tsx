@@ -17,13 +17,10 @@ export function SeoEnhancer() {
 				onChange={ toggleHandler }
 				label={ __( 'Auto-enhance', 'jetpack' ) }
 				// __nextHasNoMarginBottom={ true }
-				help={
-					! isEnabled &&
-					__(
-						"Automattically generate SEO title, SEO description and images' alternative text.",
-						'jetpack'
-					)
-				}
+				help={ __(
+					"Automattically generate SEO title, SEO description and images' alt text.",
+					'jetpack'
+				) }
 			/>
 		</BaseControl>
 	);
