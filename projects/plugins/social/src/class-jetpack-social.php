@@ -9,7 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -106,7 +105,7 @@ class Jetpack_Social {
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Social_Note_Controller(), 'register_rest_routes' ) );
 
 		// Add block editor assets
-		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_editor_scripts' ) );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_editor_scripts' ), 20 );
 		// Adds the review prompt initial state
 		add_action( 'enqueue_block_assets', array( $this, 'add_review_initial_state' ), 30 );
 
@@ -221,18 +220,6 @@ class Jetpack_Social {
 		) {
 			return;
 		}
-
-		Assets::register_script(
-			'jetpack-social-editor',
-			'build/editor.js',
-			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-social',
-			)
-		);
-
-		Assets::enqueue_script( 'jetpack-social-editor' );
 
 		$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
 		$social_state            = $jetpack_social_settings->get_initial_state();

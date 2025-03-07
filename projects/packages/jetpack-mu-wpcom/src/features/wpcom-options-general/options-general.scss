@@ -1,7 +1,18 @@
-.wpcom-fiverr-cta-button {
-	margin-top: 1em;
+.options-general-php {
+	.button.wpcom-fiverr-cta-button {
+		margin-top: 0.4em;
 
-	svg {
-		vertical-align: middle;
+		svg {
+			vertical-align: middle;
+		}
+	}
+
+	.button.wpcom-add-custom-address-button {
+		margin: 0 1px;
+	}
+
+	#home {
+		margin-bottom: 0.4em;
+		margin-right: 2px;
 	}
 }
