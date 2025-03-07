@@ -431,8 +431,14 @@ class Jetpack_Plugin_Search {
 				// Splice in the base module data.
 				$inject = array_merge( $inject, $jetpack_modules_list[ $matching_module ], $overrides );
 
-				// Add it to the top of the list.
+				/*
+				 * Remove standalone plugins from the list,
+				 * since they offer features that are already available in Jetpack.
+				 * Also remove the Jetpack plugin card from the list since it is already installed and active.
+				 */
 				$result->plugins = array_filter( $result->plugins, array( $this, 'filter_cards' ) );
+
+				// Add our feature suggestion to the top of the list.
 				array_unshift( $result->plugins, $inject );
 			}
 		}
@@ -440,11 +446,14 @@ class Jetpack_Plugin_Search {
 	}
 
 	/**
-	 * Remove cards for Jetpack plugins since we don't want duplicates.
+	 * When the user searches for a plugin, we don't want to show:
+	 * - the Jetpack plugin card, since it is already installed and active.
+	 * - standalone plugins, since they offer features that are already available in Jetpack.
 	 *
 	 * @since 7.1.0
 	 * @since 7.2.0 Only remove Jetpack.
 	 * @since 7.4.0 Simplify for WordPress 5.1+.
+	 * @since $$next-version$$ Remove standalone plugins.
 	 *
 	 * @param array|object $plugin WordPress search result card.
 	 *
@@ -465,7 +474,18 @@ class Jetpack_Plugin_Search {
 			return false;
 		}
 
-		return ! in_array( $slug, array( 'jetpack' ), true );
+		return ! in_array(
+			$slug,
+			array(
+				'jetpack',
+				'jetpack-boost',
+				'jetpack-protect',
+				'jetpack-search',
+				'jetpack-social',
+				'jetpack-videopress',
+			),
+			true
+		);
 	}
 
 	/**

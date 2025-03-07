@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Feature Suggestions: do not suggest Jetpack standalone plugins when a matching feature already exists in the Jetpack plugin.
