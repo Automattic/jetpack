@@ -275,6 +275,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 	public $allow_jetpack_site_auth = false;
 
 	/**
+	 * Set to true if the endpoint should accept user based authentication.
+	 *
+	 * @var bool
+	 */
+	public $allow_jetpack_token_auth = false;
+
+	/**
 	 * Set to true if the endpoint should accept auth from an upload token.
 	 *
 	 * @var bool
@@ -359,6 +366,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'allow_cross_origin_request'           => false,
 			'allow_unauthorized_request'           => false,
 			'allow_jetpack_site_auth'              => false,
+			'allow_jetpack_token_auth'             => false,
 			'allow_upload_token_auth'              => false,
 			'allow_fallback_to_jetpack_blog_token' => false,
 		);
@@ -399,6 +407,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->allow_cross_origin_request           = (bool) $args['allow_cross_origin_request'];
 		$this->allow_unauthorized_request           = (bool) $args['allow_unauthorized_request'];
 		$this->allow_jetpack_site_auth              = (bool) $args['allow_jetpack_site_auth'];
+		$this->allow_jetpack_token_auth             = (bool) $args['allow_jetpack_token_auth'];
 		$this->allow_upload_token_auth              = (bool) $args['allow_upload_token_auth'];
 		$this->allow_fallback_to_jetpack_blog_token = (bool) $args['allow_fallback_to_jetpack_blog_token'];
 		$this->require_rewind_auth                  = isset( $args['require_rewind_auth'] ) ? (bool) $args['require_rewind_auth'] : false;
