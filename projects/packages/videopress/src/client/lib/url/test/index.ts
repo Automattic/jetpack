@@ -1,7 +1,12 @@
 /**
  * Internal dependencies
  */
-import { buildVideoPressURL, pickVideoBlockAttributesFromUrl, getVideoNameFromUrl } from '..';
+import {
+	buildVideoPressURL,
+	pickVideoBlockAttributesFromUrl,
+	getVideoNameFromUrl,
+	removeFileNameExtension,
+} from '..';
 
 describe( 'buildVideoPressURL', () => {
 	it( 'should return empty object when invalid URL', () => {
@@ -140,5 +145,27 @@ describe( 'getVideoNameFromUrl', () => {
 		expect( getVideoNameFromUrl( 'https://test.wordpres.com/xxxx-photo-2693212/video-file' ) ).toBe(
 			'video-file'
 		);
+	} );
+} );
+
+describe( 'removeFileNameExtension', () => {
+	it( 'should remove extension from a simple filename', () => {
+		expect( removeFileNameExtension( 'video.mp4' ) ).toBe( 'video' );
+	} );
+
+	it( 'should remove extension from a filename with multiple dots', () => {
+		expect( removeFileNameExtension( 'my.awesome.video.mp4' ) ).toBe( 'my.awesome.video' );
+	} );
+
+	it( 'should handle filenames without extension', () => {
+		expect( removeFileNameExtension( 'video' ) ).toBe( 'video' );
+	} );
+
+	it( 'should handle filenames starting with a dot', () => {
+		expect( removeFileNameExtension( '.htaccess' ) ).toBe( '' );
+	} );
+
+	it( 'should handle empty string', () => {
+		expect( removeFileNameExtension( '' ) ).toBe( '' );
 	} );
 } );
