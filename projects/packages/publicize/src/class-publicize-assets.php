@@ -20,7 +20,7 @@ class Publicize_Assets {
 	public static function configure() {
 		Publicize_Script_Data::configure();
 
-		add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_block_editor_scripts' ), 15 );
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_scripts' ), 15 );
 	}
 
 	/**
