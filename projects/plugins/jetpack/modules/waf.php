@@ -7,6 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Firewall, WAF
+ * Additional Search Queries: waf, security, firewall, web application firewall
  * Feature: Security
  *
  * @package automattic/jetpack

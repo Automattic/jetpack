@@ -353,6 +353,7 @@ class Jetpack_Plugin_Search {
 				'vaultpress',
 				'videopress',
 				'search',
+				'waf',
 			);
 
 			/*
