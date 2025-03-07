@@ -116,6 +116,7 @@ const VideoPressUploader = ( {
 	function onSelectURL( videoSource, id ) {
 		// If the video source is a VideoPress URL, we can use it directly.
 		const { guid: guidFromSource, url: srcFromSource } = buildVideoPressURL( videoSource );
+		const invalidUrlMessage = __( 'Invalid VideoPress URL', 'jetpack-videopress-pkg' );
 
 		if ( guidFromSource ) {
 			const attrs = pickVideoBlockAttributesFromUrl( srcFromSource );
@@ -123,13 +124,16 @@ const VideoPressUploader = ( {
 		} else {
 			// If the video source is not a VideoPress URL, try to build it from the file name.
 			const videoName = getVideoNameFromUrl( videoSource );
-			buildVideoPressVideoByFileName( videoName ).then( attrs => {
-				attrs
-					? handleDoneUpload( { ...attrs, id } )
-					: setUploadErrorDataState( {
-							data: { message: __( 'Invalid VideoPress URL', 'jetpack-videopress-pkg' ) },
-					  } );
-			} );
+
+			if ( ! videoName ) {
+				setUploadErrorDataState( { data: { message: invalidUrlMessage } } );
+			} else {
+				buildVideoPressVideoByFileName( videoName ).then( attrs => {
+					attrs
+						? handleDoneUpload( { ...attrs, id } )
+						: setUploadErrorDataState( { data: { message: invalidUrlMessage } } );
+				} );
+			}
 		}
 	}
 
