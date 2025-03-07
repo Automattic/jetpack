@@ -114,7 +114,7 @@ add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_comment_like_script', 10, 2 
  */
 function wpcom_comments_register_like_api() {
 	require_once __DIR__ . '/class-wp-rest-comment-like.php';
-	$controller = new WP_REST_Comments_Like();
+	$controller = new WP_REST_Comment_Like();
 	$controller->register_routes();
 }
 if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
