@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect } from 'react';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import {
 	QUERY_DISMISS_WELCOME_BANNER_KEY,
@@ -31,6 +31,17 @@ const useWelcomeBanner = () => {
 		'isWelcomeBannerVisible',
 		redBubbleAlertKeys.includes( 'welcome-banner-active' )
 	);
+
+	useEffect( () => {
+		if ( ! isRedBubbleAlertsLoading && ! isRedBubbleAlertsError ) {
+			setIsWelcomeBannerVisible( redBubbleAlertKeys.includes( 'welcome-banner-active' ) );
+		}
+	}, [
+		isRedBubbleAlertsError,
+		isRedBubbleAlertsLoading,
+		redBubbleAlertKeys,
+		setIsWelcomeBannerVisible,
+	] );
 
 	const { mutate: handleDismissWelcomeBanner } = useSimpleMutation( {
 		name: QUERY_DISMISS_WELCOME_BANNER_KEY,
