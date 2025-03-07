@@ -13,7 +13,7 @@ import {
 	getXAxisTickValues,
 	transformData,
 } from '../helpers';
-import type { DailySubscriptionStats, SubscriptionStat } from '../types';
+import type { DailySubscriptionStats, ChartSubscriptionDataPoint } from '../types';
 import type {
 	RenderTooltipGlyphProps,
 	RenderTooltipParams,
@@ -42,14 +42,19 @@ const chartTheme = buildChartTheme( {
 } );
 
 // Chart accessors
-const getDate = ( d: SubscriptionStat ) => d.date;
-const getAllSubscribers = ( d: SubscriptionStat ) => d.all;
-const getPaidSubscribers = ( d: SubscriptionStat ) => d.paid;
+const getDate = ( d: ChartSubscriptionDataPoint ) => d.date;
+const getAllSubscribers = ( d: ChartSubscriptionDataPoint ) => d.all;
+const getPaidSubscribers = ( d: ChartSubscriptionDataPoint ) => d.paid;
 const getLineColor = ( k: string ) => SERIES_COLORS[ k ];
 const getLegendLabel = ( k: string ) => SERIES_LABELS[ k ];
 
 // Custom rendering for tooltip glyphs to match the line colors
-const renderGlyph = ( { key, color, x, y }: RenderTooltipGlyphProps< SubscriptionStat > ) => {
+const renderGlyph = ( {
+	key,
+	color,
+	x,
+	y,
+}: RenderTooltipGlyphProps< ChartSubscriptionDataPoint > ) => {
 	const fillColor = SERIES_COLORS[ key ] || color;
 
 	return (
@@ -65,7 +70,7 @@ const renderGlyph = ( { key, color, x, y }: RenderTooltipGlyphProps< Subscriptio
 	);
 };
 
-const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat > ) => {
+const renderTooltip = ( { tooltipData }: RenderTooltipParams< ChartSubscriptionDataPoint > ) => {
 	if ( ! tooltipData?.nearestDatum ) return null;
 
 	const datum = tooltipData.nearestDatum.datum;
@@ -108,15 +113,15 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< SubscriptionStat >
 };
 
 interface SubscribersChartProps {
-	countsByDay: DailySubscriptionStats;
+	subscriberTotalsByDate: DailySubscriptionStats;
 }
 
-export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
-	if ( Object.keys( countsByDay ).length === 0 ) {
+export const SubscribersChart = ( { subscriberTotalsByDate }: SubscribersChartProps ) => {
+	if ( Object.keys( subscriberTotalsByDate ).length === 0 ) {
 		return <div>{ __( 'No data available', 'jetpack' ) }</div>;
 	}
 
-	const data = transformData( countsByDay );
+	const data = transformData( subscriberTotalsByDate );
 
 	return (
 		<>
@@ -167,7 +172,7 @@ export const SubscribersChart = ( { countsByDay }: SubscribersChartProps ) => {
 									tickValues={ getXAxisTickValues( data ) }
 								/>
 
-								<Tooltip< SubscriptionStat >
+								<Tooltip< ChartSubscriptionDataPoint >
 									showVerticalCrosshair
 									showSeriesGlyphs
 									className="subscribers-chart__tooltip"

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { SubscribersChart } from '../src/components/subscribers-chart';
-import type { DailySubscriptionStat } from '../src/types';
+import type { SubscriberTotals } from '../src/types';
 
 // Mock the ParentSize component to provide dimensions
 jest.mock( '@visx/responsive', () => ( {
@@ -8,14 +8,14 @@ jest.mock( '@visx/responsive', () => ( {
 } ) );
 
 describe( 'SubscribersChart', () => {
-	const mockCountsByDay: Record< string, DailySubscriptionStat > = {
+	const mockCountsByDay: Record< string, SubscriberTotals > = {
 		'2023-01-01': { all: 10, paid: 5 },
 		'2023-01-02': { all: 15, paid: 5 },
 		'2023-01-03': { all: 20, paid: 8 },
 	};
 
 	it( 'renders', async () => {
-		render( <SubscribersChart countsByDay={ mockCountsByDay } /> );
+		render( <SubscribersChart subscriberTotalsByDate={ mockCountsByDay } /> );
 
 		const chart = await screen.findByLabelText( 'XYChart' );
 
@@ -23,7 +23,7 @@ describe( 'SubscribersChart', () => {
 	} );
 
 	it( 'displays a message when no data is available', () => {
-		render( <SubscribersChart countsByDay={ {} } /> );
+		render( <SubscribersChart subscriberTotalsByDate={ {} } /> );
 
 		expect( screen.getByText( 'No data available' ) ).toBeInTheDocument();
 	} );

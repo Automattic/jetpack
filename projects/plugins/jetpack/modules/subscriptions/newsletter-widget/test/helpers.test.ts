@@ -1,5 +1,5 @@
 import { formatAxisTickDate, formatDate, getXAxisTickValues, transformData } from '../src/helpers';
-import type { DailySubscriptionStats, SubscriptionStat } from '../src/types';
+import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../src/types';
 
 describe( 'helpers', () => {
 	describe( 'formatDate', () => {
@@ -45,7 +45,9 @@ describe( 'helpers', () => {
 
 	describe( 'getXAxisTickValues', () => {
 		it( 'returns all dates when there are fewer than 2 data points', () => {
-			const data: SubscriptionStat[] = [ { date: new Date( '2025-03-05' ), all: 10, paid: 5 } ];
+			const data: ChartSubscriptionDataPoint[] = [
+				{ date: new Date( '2025-03-05' ), all: 10, paid: 5 },
+			];
 
 			const tickValues = getXAxisTickValues( data );
 			expect( tickValues ).toHaveLength( 1 );
@@ -61,7 +63,7 @@ describe( 'helpers', () => {
 			const startDate = new Date( '2025-01-04' );
 			const endDate = new Date( '2025-03-05' );
 
-			const data: SubscriptionStat[] = [
+			const data: ChartSubscriptionDataPoint[] = [
 				{ date: startDate, all: 10, paid: 5 },
 				{ date: endDate, all: 30, paid: 5 },
 			];
@@ -88,7 +90,7 @@ describe( 'helpers', () => {
 		} );
 
 		it( 'sorts data by date', () => {
-			const countsByDay: DailySubscriptionStats = {
+			const countsByDay: SubscriberTotalsByDate = {
 				'2025-03-03': { all: 20, paid: 5 },
 				'2025-03-01': { all: 10, paid: 5 },
 				'2025-03-02': { all: 15, paid: 5 },

@@ -1,11 +1,11 @@
-export type DailySubscriptionStat = {
+export type SubscriberTotals = {
 	all: number;
 	paid: number;
 };
 
-export type DailySubscriptionStats = Record< string, DailySubscriptionStat >;
+export type SubscriberTotalsByDate = Record< string, SubscriberTotals >;
 
-export type SubscriptionStat = {
+export type ChartSubscriptionDataPoint = {
 	date: Date;
 	all: number;
 	paid: number;

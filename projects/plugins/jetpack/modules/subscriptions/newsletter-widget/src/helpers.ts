@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
-import { DailySubscriptionStats, SubscriptionStat } from './types';
+import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
 
 /**
  * Helper function to build the Jetpack redirect source URL.
@@ -75,10 +75,10 @@ export const formatAxisTickDate = ( date: Date ) => formatDate( date, 'short' );
  * Calculates evenly spaced tick values for the X-axis for time series data.
  * Assumes the data is sorted by date, earliest is first.
  *
- * @param {SubscriptionStat[]} data - The subscription data array.
+ * @param {ChartSubscriptionDataPoint[]} data - The subscription data array.
  * @returns {Date[]} An array of dates representing tick positions at 0%, 25%, 50%, 75%, and 100% of the time range.
  */
-export const getXAxisTickValues = ( data: SubscriptionStat[] ) => {
+export const getXAxisTickValues = ( data: ChartSubscriptionDataPoint[] ) => {
 	if ( data.length < 2 ) return data.map( d => d.date );
 
 	const firstDate = data[ 0 ].date;
@@ -100,9 +100,11 @@ export const getXAxisTickValues = ( data: SubscriptionStat[] ) => {
  * Transforms daily subscription counts into a format for the visx chart package.
  *
  * @param {Record<string, DailySubscriptionStat>} countsByDay - Object mapping date strings to daily subscription counts.
- * @returns {SubscriptionStat[]} An array of subscription statistics.
+ * @returns {ChartSubscriptionDataPoint[]} An array of subscription statistics.
  */
-export const transformData = ( countsByDay: DailySubscriptionStats ): SubscriptionStat[] => {
+export const transformData = (
+	countsByDay: SubscriberTotalsByDate
+): ChartSubscriptionDataPoint[] => {
 	return Object.entries( countsByDay )
 		.map( ( [ dateStr, counts ] ) => {
 			const date = new Date( dateStr );
@@ -125,10 +127,10 @@ export const transformData = ( countsByDay: DailySubscriptionStats ): Subscripti
  * Calculates the maximum value of the subscription statistics to determine the left axis tick label margin.
  * Larger labels will get cut off so we must dynamically increase the margin based on how many digits are in the largest number.
  *
- * @param {SubscriptionStat[]} subs - The subscription statistics array. The same data used to render the chart.
+ * @param {ChartSubscriptionDataPoint[]} subs - The subscription statistics array. The same data used to render the chart.
  * @returns {number} The calculated left axis margin.
  */
-export const calcLeftAxisMargin = ( subs: SubscriptionStat[] ): number => {
+export const calcLeftAxisMargin = ( subs: ChartSubscriptionDataPoint[] ): number => {
 	const DEFAULT_MARGIN = 30;
 	const CHAR_PX_WIDTH = 8;
 	const PADDING = 10;

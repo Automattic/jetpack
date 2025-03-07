@@ -78,7 +78,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 				}
 
 				if ( isset( $subscriber_counts['aggregate'] ) ) {
-					$config_data['countsByDay'] = $subscriber_counts['aggregate'];
+					$config_data['subscriberTotalsByDate'] = $subscriber_counts['aggregate'];
 				}
 			}
 		}

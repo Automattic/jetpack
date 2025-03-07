@@ -15,7 +15,7 @@ export interface NewsletterWidgetProps {
 	emailSubscribers?: number;
 	paidSubscribers?: number;
 	allSubscribers?: number;
-	countsByDay?: DailySubscriptionStats;
+	subscriberTotalsByDate?: DailySubscriptionStats;
 }
 
 export const NewsletterWidget = ( {
@@ -25,10 +25,12 @@ export const NewsletterWidget = ( {
 	emailSubscribers = 0,
 	paidSubscribers = 0,
 	allSubscribers = 0,
-	countsByDay = {},
+	subscriberTotalsByDate = {},
 }: NewsletterWidgetProps ) => {
 	const showStats = allSubscribers > 0 || paidSubscribers > 0;
-	const showChart = Object.values( countsByDay ).some( day => day?.all >= 5 || day?.paid > 0 );
+	const showChart = Object.values( subscriberTotalsByDate ).some(
+		day => day?.all >= 5 || day?.paid > 0
+	);
 
 	return (
 		<div className="newsletter-widget">
@@ -74,7 +76,7 @@ export const NewsletterWidget = ( {
 			{ showChart && (
 				<div className="newsletter-widget__chart">
 					<h3 className="newsletter-widget__heading">{ __( 'Total Subscribers', 'jetpack' ) }</h3>
-					<SubscribersChart countsByDay={ countsByDay } />
+					<SubscribersChart subscriberTotalsByDate={ subscriberTotalsByDate } />
 				</div>
 			) }
 			<div className="newsletter-widget__footer">

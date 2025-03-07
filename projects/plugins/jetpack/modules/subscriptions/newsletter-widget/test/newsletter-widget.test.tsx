@@ -26,7 +26,7 @@ describe( 'NewsletterWidget', () => {
 		emailSubscribers: 100,
 		allSubscribers: 150,
 		paidSubscribers: 50,
-		countsByDay: {
+		subscriberTotalsByDate: {
 			'2021-01-01': {
 				all: 10,
 				paid: 5,
@@ -184,9 +184,9 @@ describe( 'NewsletterWidget', () => {
 
 	describe( 'Chart display conditions', () => {
 		it( 'shows chart when at least one day has a total "all" count >= 5', () => {
-			const props = {
+			const props: NewsletterWidgetProps = {
 				...defaultProps,
-				countsByDay: {
+				subscriberTotalsByDate: {
 					'2021-01-01': { all: 5, paid: 0 },
 				},
 			};
@@ -196,9 +196,9 @@ describe( 'NewsletterWidget', () => {
 		} );
 
 		it( 'shows chart when at least one day has a total "paid" > 0', () => {
-			const props = {
+			const props: NewsletterWidgetProps = {
 				...defaultProps,
-				countsByDay: {
+				subscriberTotalsByDate: {
 					'2021-01-01': { all: 0, paid: 1 },
 				},
 			};
@@ -208,9 +208,9 @@ describe( 'NewsletterWidget', () => {
 		} );
 
 		it( 'hides chart when no day has "all" count >= 5 or "paid" count > 0', () => {
-			const props = {
+			const props: NewsletterWidgetProps = {
 				...defaultProps,
-				countsByDay: {
+				subscriberTotalsByDate: {
 					'2021-01-01': { all: 4, paid: 0 },
 					'2021-01-02': { all: 3, paid: 0 },
 				},
@@ -220,10 +220,10 @@ describe( 'NewsletterWidget', () => {
 			expect( screen.queryByText( 'Total Subscribers' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'handles empty countsByDay by hiding chart', () => {
+		it( 'handles empty subscriberTotalsByDate by hiding chart', () => {
 			const props = {
 				...defaultProps,
-				countsByDay: {},
+				subscriberTotalsByDate: {},
 			};
 
 			render( <NewsletterWidget { ...props } /> );
