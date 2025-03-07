@@ -1,14 +1,16 @@
 import { type SessionsStatus } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
 import { __, sprintf, _n } from '@wordpress/i18n';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import Button from '../button';
 import ToggleControl from '../toggle-control';
 import styles from './styles.module.scss';
 
 interface SessionsModalProps {
 	sessionsPendingTerminationConfirmation: SessionsStatus[];
-	onConfirm: ( sessionWithTerminationConfirmation: SessionsStatus[] ) => void;
+	sessionsWithTerminationConfirmation: SessionsStatus[];
+	setSessionsWithTerminationConfirmation: ( sessions: SessionsStatus[] ) => void;
+	onConfirm: () => void;
 	onRequestClose: () => void;
 	isOpen: boolean;
 }
@@ -22,34 +24,27 @@ interface SessionsModalProps {
  */
 export default function SessionsModal( {
 	sessionsPendingTerminationConfirmation,
+	sessionsWithTerminationConfirmation,
+	setSessionsWithTerminationConfirmation,
 	onConfirm,
 	onRequestClose,
 	isOpen,
 }: SessionsModalProps ): JSX.Element | null {
-	const [ sessionWithTerminationConfirmation, setSessionWithTerminationConfirmation ] = useState<
-		SessionsStatus[]
-	>( [] );
-
-	useEffect( () => {
-		setSessionWithTerminationConfirmation( sessionsPendingTerminationConfirmation );
-	}, [ sessionsPendingTerminationConfirmation ] );
-
 	const onToggleSession = useCallback(
 		( session: SessionsStatus ) => () => {
-			if ( sessionWithTerminationConfirmation.some( s => s.token === session.token ) ) {
-				setSessionWithTerminationConfirmation(
-					sessionWithTerminationConfirmation.filter( s => s.token !== session.token )
+			if ( sessionsWithTerminationConfirmation.some( s => s.token === session.token ) ) {
+				setSessionsWithTerminationConfirmation(
+					sessionsWithTerminationConfirmation.filter( s => s.token !== session.token )
 				);
 			} else {
-				setSessionWithTerminationConfirmation( [ ...sessionWithTerminationConfirmation, session ] );
+				setSessionsWithTerminationConfirmation( [
+					...sessionsWithTerminationConfirmation,
+					session,
+				] );
 			}
 		},
-		[ sessionWithTerminationConfirmation, setSessionWithTerminationConfirmation ]
+		[ sessionsWithTerminationConfirmation, setSessionsWithTerminationConfirmation ]
 	);
-
-	const onConfirmClick = useCallback( () => {
-		onConfirm( sessionWithTerminationConfirmation );
-	}, [ sessionWithTerminationConfirmation, onConfirm ] );
 
 	if ( ! isOpen ) {
 		return null;
@@ -60,7 +55,7 @@ export default function SessionsModal( {
 			title={ _n(
 				'Terminate Session',
 				'Terminate Sessions',
-				sessionWithTerminationConfirmation.length,
+				sessionsWithTerminationConfirmation.length,
 				'jetpack-components'
 			) }
 			focusOnMount={ false }
@@ -69,19 +64,39 @@ export default function SessionsModal( {
 		>
 			<div className={ styles[ 'sessions-modal__content' ] }>
 				<div className={ styles[ 'sessions-modal__section' ] }>
-					<div className={ styles.sessions__toggles }>
-						{ sessionsPendingTerminationConfirmation.map( session => (
-							<div key={ session.token } className={ styles.sessions__toggle }>
-								<ToggleControl
-									label={ __( 'Title', 'jetpack-components' ) }
-									help={ __( 'Description', 'jetpack-components' ) }
-									checked={ sessionWithTerminationConfirmation.includes( session ) }
-									onChange={ onToggleSession( session ) }
-									size="small"
-								/>
+					{ sessionsPendingTerminationConfirmation.length > 1 ? (
+						<div className={ styles.sessions__toggles }>
+							{ sessionsPendingTerminationConfirmation
+								.slice()
+								.sort( ( a, b ) => a.userId - b.userId )
+								.map( session => (
+									<div key={ session.token } className={ styles.sessions__toggle }>
+										<ToggleControl
+											label={ session.token }
+											help={ `ID: ${ session.userId } - User: ${
+												session.userLogin.trim() ? session.userLogin : 'unknown'
+											} - IP: ${ session.ip }` }
+											checked={ sessionsWithTerminationConfirmation.includes( session ) }
+											onChange={ onToggleSession( session ) }
+											size="small"
+										/>
+									</div>
+								) ) }
+						</div>
+					) : (
+						<div>
+							<div className={ styles[ 'sessions-modal__section__title' ] }>
+								{ sessionsPendingTerminationConfirmation[ 0 ].token }
 							</div>
-						) ) }
-					</div>
+							<p className={ styles[ 'sessions-modal__section__description' ] }>
+								{ `ID: ${ sessionsPendingTerminationConfirmation[ 0 ].userId } - User: ${
+									sessionsPendingTerminationConfirmation[ 0 ].userLogin.trim()
+										? sessionsPendingTerminationConfirmation[ 0 ].userLogin
+										: 'unknown'
+								} - IP: ${ sessionsPendingTerminationConfirmation[ 0 ].ip }` }
+							</p>
+						</div>
+					) }
 				</div>
 			</div>
 			<div className={ styles[ 'sessions-modal__footer' ] }>
@@ -91,20 +106,22 @@ export default function SessionsModal( {
 					</Button>
 					<Button
 						variant="primary"
-						onClick={ onConfirmClick }
+						onClick={ onConfirm }
 						isDestructive
-						disabled={ ! sessionWithTerminationConfirmation.length }
+						disabled={ ! sessionsWithTerminationConfirmation.length }
 					>
-						{ sprintf(
-							/* translators: placeholder is the number of sessions to terminate */
-							_n(
-								'Terminate %s Session',
-								'Terminate %s Sessions',
-								sessionWithTerminationConfirmation.length,
-								'jetpack-components'
-							),
-							sessionWithTerminationConfirmation.length
-						) }
+						{ sessionsWithTerminationConfirmation.length === 1
+							? __( 'Terminate Session', 'jetpack-components' )
+							: sprintf(
+									/* translators: placeholder is the number of sessions to terminate */
+									_n(
+										'Terminate %s Sessions', // This will be used for 0 and 2+
+										'Terminate %s Sessions', // Same plural form
+										sessionsWithTerminationConfirmation.length,
+										'jetpack-components'
+									),
+									sessionsWithTerminationConfirmation.length
+							  ) }
 					</Button>
 				</div>
 			</div>

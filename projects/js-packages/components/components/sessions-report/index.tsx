@@ -323,6 +323,9 @@ export default function SessionsReport( {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const [ sessionsPendingTerminationConfirmation, setSessionsPendingTerminationConfirmation ] =
 		useState< SessionsStatus[] >( [] );
+	const [ sessionsWithTerminationConfirmation, setSessionsWithTerminationConfirmation ] = useState<
+		SessionsStatus[]
+	>( [] );
 
 	/**
 	 * Callback function to handle modal close.
@@ -330,6 +333,7 @@ export default function SessionsReport( {
 	const handleModalClose = useCallback( () => {
 		setIsModalOpen( false );
 		setSessionsPendingTerminationConfirmation( [] );
+		setSessionsWithTerminationConfirmation( [] );
 	}, [] );
 
 	/**
@@ -338,32 +342,31 @@ export default function SessionsReport( {
 	const handleTerminate = useCallback( ( items: SessionsStatus[] ) => {
 		setIsModalOpen( true );
 		setSessionsPendingTerminationConfirmation( items );
+		setSessionsWithTerminationConfirmation( items );
 	}, [] );
 
 	/**
 	 * Callback function to handle confirm terminate.
 	 */
-	const handleConfirmTerminate = useCallback(
-		( confirmedSessions: SessionsStatus[] ) => {
-			if ( confirmedSessions.length === 0 ) {
-				return;
-			}
+	const handleConfirmTerminate = useCallback( () => {
+		if ( sessionsWithTerminationConfirmation.length === 0 ) {
+			return;
+		}
 
-			const userSessionTokens = Object.values(
-				confirmedSessions.reduce( ( acc, { userId, token } ) => {
-					if ( ! acc[ userId ] ) {
-						acc[ userId ] = { userId, tokens: [] };
-					}
-					acc[ userId ].tokens.push( token );
-					return acc;
-				}, {} )
-			);
-			terminateSessions( userSessionTokens );
-			setIsModalOpen( false );
-			setSessionsPendingTerminationConfirmation( [] );
-		},
-		[ terminateSessions ]
-	);
+		const userSessionTokens = Object.values(
+			sessionsWithTerminationConfirmation.reduce( ( acc, { userId, token } ) => {
+				if ( ! acc[ userId ] ) {
+					acc[ userId ] = { userId, tokens: [] };
+				}
+				acc[ userId ].tokens.push( token );
+				return acc;
+			}, {} )
+		);
+		terminateSessions( userSessionTokens );
+		setIsModalOpen( false );
+		setSessionsPendingTerminationConfirmation( [] );
+		setSessionsWithTerminationConfirmation( [] );
+	}, [ terminateSessions, sessionsWithTerminationConfirmation ] );
 
 	/**
 	 * DataView actions - defines the available actions for the dataset.
@@ -428,6 +431,8 @@ export default function SessionsReport( {
 				onRequestClose={ handleModalClose }
 				onConfirm={ handleConfirmTerminate }
 				sessionsPendingTerminationConfirmation={ sessionsPendingTerminationConfirmation }
+				sessionsWithTerminationConfirmation={ sessionsWithTerminationConfirmation }
+				setSessionsWithTerminationConfirmation={ setSessionsWithTerminationConfirmation }
 			/>
 		</>
 	);
