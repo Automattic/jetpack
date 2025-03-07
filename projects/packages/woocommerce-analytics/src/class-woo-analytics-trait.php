@@ -340,7 +340,7 @@ trait Woo_Analytics_Trait {
 		if ( ! $this->get_session_id() ) {
 			$session_id         = wp_generate_uuid4();
 			$this->session_id   = $session_id;
-      $this->landing_page = $this->get_current_url();
+			$this->landing_page = $this->get_current_url();
 			$session_expiration = $this->get_session_expiration_time();
 			$event_js           = $this->process_event_properties( 'woocommerceanalytics_session_started' );
 			$cookie_js          = "
