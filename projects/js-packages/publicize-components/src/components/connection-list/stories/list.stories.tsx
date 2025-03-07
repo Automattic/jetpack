@@ -61,5 +61,10 @@ const DefaultArgs: ConnectionListProps = {
 
 // Export Default story
 export const _default = Template.bind( {} );
-
 _default.args = DefaultArgs;
+
+export const NoTitle = Template.bind( {} );
+NoTitle.args = {
+	...DefaultArgs,
+	title: undefined,
+};

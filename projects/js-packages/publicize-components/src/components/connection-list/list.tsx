@@ -6,7 +6,7 @@ import styles from './list-style.module.scss';
 export type ConnectionListProps = {
 	connections: Array< Connection >;
 	onToggle: ( connectionId: string ) => void;
-	title: string;
+	title?: string;
 };
 
 /**
@@ -15,7 +15,7 @@ export type ConnectionListProps = {
  * @param {ConnectionListProps} props - Component props.
  * @return {JSX.Element} - React element
  */
-export function ConnectionList( { connections, onToggle, title }: ConnectionListProps ) {
+export function ConnectionList( { connections, onToggle, title = null }: ConnectionListProps ) {
 	const onConnectionToggle = useCallback(
 		( connectionId: string ) => () => {
 			onToggle( connectionId );
@@ -25,7 +25,7 @@ export function ConnectionList( { connections, onToggle, title }: ConnectionList
 
 	return (
 		<section className={ styles.wrapper }>
-			<h4 className={ styles.title }>{ title }</h4>
+			{ title && <h4 className={ styles.title }>{ title }</h4> }
 			<ul className={ styles.list }>
 				{ connections.map( connection => {
 					return (
