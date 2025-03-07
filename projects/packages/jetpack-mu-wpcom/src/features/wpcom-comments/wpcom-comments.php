@@ -7,7 +7,7 @@
  */
 
 if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC ) ) {
-	return false;
+	return;
 }
 
 /**
