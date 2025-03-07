@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Tweaked subscribers counts endpoint to return aggregated data based on a query param.

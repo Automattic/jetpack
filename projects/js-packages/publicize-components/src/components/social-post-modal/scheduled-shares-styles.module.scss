@@ -1,0 +1,10 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+
+    .title {
+        text-transform: uppercase;
+        margin-block: 0px;
+    }
+}

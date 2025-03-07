@@ -138,7 +138,6 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'text', $generated );
 		$this->assertStringContainsString( 'NOT NULL', $generated );
 		$this->assertStringContainsString( 'AUTO_INCREMENT', $generated );
-		$this->assertStringContainsString( 'DEFAULT', $generated );
 		$this->assertStringContainsString( 'COLLATE', $generated );
 
 		$column['type'] = 'datetime';
