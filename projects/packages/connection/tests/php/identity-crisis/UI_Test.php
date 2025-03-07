@@ -121,7 +121,6 @@ class UI_Test extends TestCase {
 						'startFreshCardBodyTextDev' => 'Test fresh dev text',
 						'safeModeCardBodyText'      => 'Test safe mode text',
 					),
-					'logo'          => 'https://bindlegirl.jurassic.tube/wp-content/plugins/woocommerce-payments/assets/images/logo.svg',
 					'admin_page'    => '/wp-admin/admin.php?page=wc-admin',
 					'priority'      => 5,
 				),
@@ -163,7 +162,6 @@ class UI_Test extends TestCase {
 
 		$expected = array(
 			'slug'       => 'woocommerce-payments',
-			'logo'       => 'https://bindlegirl.jurassic.tube/wp-content/plugins/woocommerce-payments/assets/images/logo.svg',
 			'admin_page' => '/wp-admin/admin.php?page=wc-admin',
 			'priority'   => 5,
 		);
@@ -229,7 +227,6 @@ class UI_Test extends TestCase {
 				'startFreshCardBodyTextDev' => 'Test fresh dev text',
 				'safeModeCardBodyText'      => 'Test safe mode text',
 			),
-			'logo'          => 'https://bindlegirl.jurassic.tube/wp-content/plugins/woocommerce-payments/assets/images/logo.svg',
 			'admin_page'    => '/wp-admin/admin.php?page=wc-admin',
 			'priority'      => 5,
 		);
