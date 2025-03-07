@@ -208,6 +208,10 @@ class Sessions {
 			$all_sessions = get_user_meta( $user_id, 'session_tokens', true );
 			$modified     = false;
 
+			if ( ! $all_sessions ) {
+				continue;
+			}
+
 			foreach ( $session['tokens'] as $token ) {
 
 				if ( isset( $all_sessions[ $token ] ) ) {
@@ -216,12 +220,19 @@ class Sessions {
 				}
 			}
 
+			$sessions_terminated = false;
+
 			if ( $modified ) {
 				if ( empty( $all_sessions ) ) {
 					delete_user_meta( $user_id, 'session_tokens' );
+					$sessions_terminated = true;
 				} else {
-					update_user_meta( $user_id, 'session_tokens', $all_sessions );
+					$sessions_terminated = update_user_meta( $user_id, 'session_tokens', $all_sessions );
 				}
+			}
+
+			if ( ! $sessions_terminated ) {
+				++$failure_count;
 			}
 
 			// Clear auth cookies if the current user's active session was deleted

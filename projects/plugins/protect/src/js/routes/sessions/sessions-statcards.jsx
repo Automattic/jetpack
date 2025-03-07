@@ -31,7 +31,7 @@ const SessionsStatCards = () => {
 
 	// Calculate unique users
 	const uniqueUsers = useMemo(
-		() => new Set( sessions.map( session => session.user_id ) ).size,
+		() => new Set( sessions.map( session => session.userId ) ).size,
 		[ sessions ]
 	);
 

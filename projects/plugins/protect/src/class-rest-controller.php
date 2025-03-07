@@ -217,8 +217,11 @@ class REST_Controller {
 			'jetpack-protect/v1',
 			'terminate-sessions',
 			array(
-				'methods'  => \WP_REST_Server::EDITABLE,
-				'callback' => __CLASS__ . '::api_terminate_sessions',
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::api_terminate_sessions',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
 			)
 		);
 	}
