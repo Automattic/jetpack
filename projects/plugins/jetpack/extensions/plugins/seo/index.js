@@ -26,6 +26,7 @@ import {
 	SeoAssistantWizard,
 } from '../ai-assistant-plugin/components/seo-assistant';
 import { STORE_NAME } from '../ai-assistant-plugin/components/seo-assistant/store';
+import { SeoEnhancer } from '../ai-assistant-plugin/components/seo-enhancer';
 import { SeoPlaceholder } from './components/placeholder';
 import { SeoSkeletonLoader } from './components/skeleton-loader';
 import UpsellNotice from './components/upsell';
@@ -38,6 +39,9 @@ export const name = 'seo';
 
 const isSeoAssistantEnabled =
 	getJetpackExtensionAvailability( 'ai-seo-assistant' )?.available === true;
+
+const isSeoEnhancerEnabled =
+	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true;
 
 const Seo = () => {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
@@ -107,6 +111,7 @@ const Seo = () => {
 		title: __( 'SEO', 'jetpack' ),
 	};
 
+	// TODO: remove all code related to the SeoAssistantWizard if it's a no-go
 	return (
 		<>
 			{ isSeoAssistantEnabled &&
@@ -124,6 +129,11 @@ const Seo = () => {
 							<SeoAssistantSidebarEntrypoint disabled={ false } placement="jetpack-sidebar" />
 						</PanelRow>
 					) }
+					{ isSeoEnhancerEnabled && isViewable && (
+						<PanelRow>
+							<SeoEnhancer />
+						</PanelRow>
+					) }
 					<PanelRow>
 						<SeoTitlePanel />
 					</PanelRow>
@@ -138,6 +148,11 @@ const Seo = () => {
 
 			<PluginPrePublishPanel { ...jetpackSeoPrePublishPanelProps }>
 				<>
+					{ isSeoEnhancerEnabled && isViewable && (
+						<PanelRow>
+							<SeoEnhancer />
+						</PanelRow>
+					) }
 					<PanelRow>
 						<SeoTitlePanel />
 					</PanelRow>
