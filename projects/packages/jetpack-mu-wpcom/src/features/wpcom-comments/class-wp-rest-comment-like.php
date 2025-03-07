@@ -50,7 +50,7 @@ class WP_REST_Comment_Like extends WP_REST_Controller {
 			'/comments/(?P<comment_id>\d+)/likes/mine/delete',
 			array(
 				array(
-					'methods'             => \WP_REST_Server::CREATABLE, // DELETE method.
+					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'delete_like' ),
 					'permission_callback' => array( $this, 'permission_callback' ),
 				),
@@ -101,11 +101,11 @@ class WP_REST_Comment_Like extends WP_REST_Controller {
 		$comment_id = $request->get_param( 'comment_id' );
 		$blog_id    = \Jetpack_Options::get_option( 'id' );
 
-		// Call a remote API to delete the current user's like.
+		// Call WPCom remote API to delete the current user's like.
 		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
 			"/sites/$blog_id/comments/$comment_id/likes/mine/delete",
 			'v1.1',
-			array( 'method' => 'POST' ), // Using POST here; adjust to DELETE if supported.
+			array( 'method' => 'POST' ),
 			null,
 			'rest'
 		);
