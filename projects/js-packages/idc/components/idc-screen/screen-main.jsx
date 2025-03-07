@@ -65,7 +65,7 @@ const ScreenMain = props => {
 							}
 					  )
 					: createInterpolateElement(
-							customContent.mainBodyText ||
+							customContent.mainBodyTextDev ||
 								sprintf(
 									/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
 									__(
