@@ -27,6 +27,7 @@ import {
 	STATUS_TYPES,
 	USER_ROLE_TYPES,
 } from './constants';
+import SessionsModal from './sessions-modal';
 import styles from './styles.module.scss';
 
 /**
@@ -34,7 +35,7 @@ import styles from './styles.module.scss';
  *
  * @param {object}   props                   - Component props.
  * @param {Array}    props.data              - Sessions data.
- * @param {Function} props.onChangeSelection - Callback function run when an item is selected.
+ * @param {Function} props.onChangeSelection - Callback function to update the selection state.
  * @param {Function} props.terminateSessions - Callback function run when a session is terminated.
  * @param {Function} props.getProfileLink    - Callback function to get the user profile link.
  *
@@ -319,6 +320,51 @@ export default function SessionsReport( {
 		return result;
 	}, [ view.type, users, getProfileLink, handleUserLoginClick ] );
 
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
+	const [ sessionsPendingTerminationConfirmation, setSessionsPendingTerminationConfirmation ] =
+		useState< SessionsStatus[] >( [] );
+
+	/**
+	 * Callback function to handle modal close.
+	 */
+	const handleModalClose = useCallback( () => {
+		setIsModalOpen( false );
+		setSessionsPendingTerminationConfirmation( [] );
+	}, [] );
+
+	/**
+	 * Callback function to handle terminate.
+	 */
+	const handleTerminate = useCallback( ( items: SessionsStatus[] ) => {
+		setIsModalOpen( true );
+		setSessionsPendingTerminationConfirmation( items );
+	}, [] );
+
+	/**
+	 * Callback function to handle confirm terminate.
+	 */
+	const handleConfirmTerminate = useCallback(
+		( confirmedSessions: SessionsStatus[] ) => {
+			if ( confirmedSessions.length === 0 ) {
+				return;
+			}
+
+			const userSessionTokens = Object.values(
+				confirmedSessions.reduce( ( acc, { userId, token } ) => {
+					if ( ! acc[ userId ] ) {
+						acc[ userId ] = { userId, tokens: [] };
+					}
+					acc[ userId ].tokens.push( token );
+					return acc;
+				}, {} )
+			);
+			terminateSessions( userSessionTokens );
+			setIsModalOpen( false );
+			setSessionsPendingTerminationConfirmation( [] );
+		},
+		[ terminateSessions ]
+	);
+
 	/**
 	 * DataView actions - defines the available actions for the dataset.
 	 */
@@ -331,24 +377,15 @@ export default function SessionsReport( {
 					items.length === 1
 						? __( 'Terminate Session', 'jetpack-components' )
 						: __( 'Terminate Sessions', 'jetpack-components' ),
-				callback: items => {
-					const userSessionTokens = Object.values(
-						items.reduce( ( acc, { userId, token } ) => {
-							if ( ! acc[ userId ] ) {
-								acc[ userId ] = { userId, tokens: [] };
-							}
-							acc[ userId ].tokens.push( token );
-							return acc;
-						}, {} )
-					);
-					terminateSessions( userSessionTokens );
+				callback: ( items: SessionsStatus[] ) => {
+					handleTerminate( items );
 				},
 				isPrimary: true,
 				isDestructive: true,
 				supportsBulk: true,
 			},
 		],
-		[ terminateSessions ]
+		[ handleTerminate ]
 	);
 
 	/**
@@ -374,16 +411,24 @@ export default function SessionsReport( {
 	);
 
 	return (
-		<DataViews
-			actions={ actions }
-			data={ processedData }
-			defaultLayouts={ defaultLayouts }
-			fields={ fields }
-			getItemId={ getItemId }
-			onChangeSelection={ onChangeSelection }
-			onChangeView={ onChangeView }
-			paginationInfo={ paginationInfo }
-			view={ view }
-		/>
+		<>
+			<DataViews
+				actions={ actions }
+				data={ processedData }
+				defaultLayouts={ defaultLayouts }
+				fields={ fields }
+				getItemId={ getItemId }
+				onChangeSelection={ onChangeSelection }
+				onChangeView={ onChangeView }
+				paginationInfo={ paginationInfo }
+				view={ view }
+			/>
+			<SessionsModal
+				isOpen={ isModalOpen }
+				onRequestClose={ handleModalClose }
+				onConfirm={ handleConfirmTerminate }
+				sessionsPendingTerminationConfirmation={ sessionsPendingTerminationConfirmation }
+			/>
+		</>
 	);
 }

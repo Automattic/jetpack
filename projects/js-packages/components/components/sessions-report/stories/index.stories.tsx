@@ -134,11 +134,12 @@ function generateRandomUserAgent() {
 export const Default = args => <SessionsReport { ...args } />;
 Default.args = {
 	data: DATA,
-	onChangeSelection: selectedItems => {
-		console.log( 'onChangeSelection:', selectedItems );
-	},
-	terminateSessions: selectedItems => {
-		console.log( 'TerminateSessions:', selectedItems );
+	terminateSessions: ( userSessionTokens: { userId: number; tokens: string[] }[] ) => {
+		const formattedSessions = userSessionTokens
+			.map( session => `User ${ session.userId }: [ ${ session.tokens.join( ', ' ) } ]` )
+			.join( '\n' );
+
+		alert( `Terminating sessions:\n${ formattedSessions }` ); // eslint-disable-line no-alert
 	},
 	getProfileLink: userId => {
 		return `/wp-admin/user-edit.php?user_id=${ userId }`;
@@ -148,9 +149,6 @@ Default.args = {
 export const Empty = args => <SessionsReport { ...args } />;
 Empty.args = {
 	data: [],
-	onChangeSelection: selectedItems => {
-		console.log( 'onChangeSelection:', selectedItems );
-	},
 	getProfileLink: userId => {
 		return `/wp-admin/user-edit.php?user_id=${ userId }`;
 	},
@@ -180,11 +178,12 @@ MultipleSessions.args = {
 			token: `token${ index + 1 }`,
 		};
 	} ),
-	onChangeSelection: selectedItems => {
-		console.log( 'onChangeSelection:', selectedItems );
-	},
-	terminateSessions: selectedItems => {
-		console.log( 'TerminateSessions:', selectedItems );
+	terminateSessions: ( userSessionTokens: { userId: number; tokens: string[] }[] ) => {
+		const formattedSessions = userSessionTokens
+			.map( session => `User ${ session.userId }: [${ session.tokens.join( ', ' ) }]` )
+			.join( '\n' );
+
+		alert( `Terminating sessions:\n${ formattedSessions }` ); // eslint-disable-line no-alert
 	},
 	getProfileLink: userId => {
 		return `/wp-admin/user-edit.php?user_id=${ userId }`;
