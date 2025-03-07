@@ -338,7 +338,7 @@ trait Woo_Analytics_Trait {
 		if ( ! $this->get_session_id() ) {
 			$session_id         = wp_generate_uuid4();
 			$this->session_id   = $session_id;
-			$this->landing_page = sanitize_url( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- actually escaped with sanitize_url.
+			$this->landing_page = $this->get_current_url();
 			$event_js           = $this->process_event_properties( 'woocommerceanalytics_session_started' );
 			$cookie_js          = "
             const sessionData = JSON.stringify({
@@ -730,6 +730,15 @@ trait Woo_Analytics_Trait {
 	}
 
 	/**
+	 * Get the current request URL
+	 *
+	 * @return string
+	 */
+	public function get_current_url() {
+		return sanitize_url( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- actually escaped with sanitize_url.
+	}
+
+	/**
 	 * Get the allowed CH Events.
 	 *
 	 * @return string[] The allowed CH Events.
@@ -746,6 +755,7 @@ trait Woo_Analytics_Trait {
 			'woocommerceanalytics_product_purchase',
 			'woocommerceanalytics_order_confirmation_view',
 			'woocommerceanalytics_search',
+			'woocommerceanalytics_page_view',
 		);
 	}
 
