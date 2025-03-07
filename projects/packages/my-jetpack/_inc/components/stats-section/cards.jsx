@@ -7,6 +7,16 @@ import createStatDiffText from './create-stat-diff-text';
 import eye from './eye';
 import styles from './style.module.scss';
 
+const createStatSRText = ( countStat, count, previousCount ) => {
+	const fragments = [];
+	const statCountText = sprintf( countStat( count ), formatNumber( count ) );
+
+	fragments.push( statCountText.endsWith( '.' ) ? statCountText : `${ statCountText }.` );
+	fragments.push( createStatDiffText( countStat, count, previousCount ) );
+
+	return fragments.join( ' ' );
+};
+
 /**
  * Creates the text read by screen readers for a stat card.
  *
