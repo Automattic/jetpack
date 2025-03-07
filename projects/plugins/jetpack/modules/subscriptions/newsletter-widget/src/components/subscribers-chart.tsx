@@ -13,7 +13,7 @@ import {
 	getXAxisTickValues,
 	transformData,
 } from '../helpers';
-import type { DailySubscriptionStats, ChartSubscriptionDataPoint } from '../types';
+import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../types';
 import type {
 	RenderTooltipGlyphProps,
 	RenderTooltipParams,
@@ -113,7 +113,7 @@ const renderTooltip = ( { tooltipData }: RenderTooltipParams< ChartSubscriptionD
 };
 
 interface SubscribersChartProps {
-	subscriberTotalsByDate: DailySubscriptionStats;
+	subscriberTotalsByDate: SubscriberTotalsByDate;
 }
 
 export const SubscribersChart = ( { subscriberTotalsByDate }: SubscribersChartProps ) => {

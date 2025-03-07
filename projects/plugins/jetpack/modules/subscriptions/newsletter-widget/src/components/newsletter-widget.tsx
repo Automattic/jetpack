@@ -6,7 +6,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
 import { buildJPRedirectSource, formatNumber, getSubscriberStatsUrl } from '../helpers';
 import { SubscribersChart } from './subscribers-chart';
-import type { DailySubscriptionStats } from '../types';
+import type { SubscriberTotalsByDate } from '../types';
 
 export interface NewsletterWidgetProps {
 	site: string;
@@ -15,7 +15,7 @@ export interface NewsletterWidgetProps {
 	emailSubscribers?: number;
 	paidSubscribers?: number;
 	allSubscribers?: number;
-	subscriberTotalsByDate?: DailySubscriptionStats;
+	subscriberTotalsByDate?: SubscriberTotalsByDate;
 }
 
 export const NewsletterWidget = ( {
@@ -27,15 +27,15 @@ export const NewsletterWidget = ( {
 	allSubscribers = 0,
 	subscriberTotalsByDate = {},
 }: NewsletterWidgetProps ) => {
-	const showStats = allSubscribers > 0 || paidSubscribers > 0;
+	const showHeader = allSubscribers > 0 || paidSubscribers > 0;
 	const showChart = Object.values( subscriberTotalsByDate ).some(
 		day => day?.all >= 5 || day?.paid > 0
 	);
 
 	return (
 		<div className="newsletter-widget">
-			<div className="newsletter-widget__header">
-				{ showStats && (
+			{ showHeader && (
+				<div className="newsletter-widget__header">
 					<div className="newsletter-widget__stats">
 						<span className="newsletter-widget__stat-item">
 							<span className="newsletter-widget__icon">
@@ -71,8 +71,8 @@ export const NewsletterWidget = ( {
 							</span>
 						</span>
 					</div>
-				) }
-			</div>
+				</div>
+			) }
 			{ showChart && (
 				<div className="newsletter-widget__chart">
 					<h3 className="newsletter-widget__heading">{ __( 'Total Subscribers', 'jetpack' ) }</h3>
