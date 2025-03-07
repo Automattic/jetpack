@@ -33,8 +33,12 @@ const useWelcomeBanner = () => {
 	);
 
 	useEffect( () => {
-		if ( ! isRedBubbleAlertsLoading && ! isRedBubbleAlertsError ) {
-			setIsWelcomeBannerVisible( redBubbleAlertKeys.includes( 'welcome-banner-active' ) );
+		if (
+			! isRedBubbleAlertsLoading &&
+			! isRedBubbleAlertsError &&
+			redBubbleAlertKeys.includes( 'welcome-banner-active' )
+		) {
+			setIsWelcomeBannerVisible( true );
 		}
 	}, [
 		isRedBubbleAlertsError,
