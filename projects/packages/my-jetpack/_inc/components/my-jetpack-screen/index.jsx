@@ -28,11 +28,10 @@ import {
 	QUERY_CHAT_AUTHENTICATION_KEY,
 	QUERY_GET_JETPACK_MANAGE_DATA_KEY,
 	REST_API_GET_JETPACK_MANAGE_DATA,
-	QUERY_RED_BUBBLE_ALERTS_KEY,
-	REST_API_RED_BUBBLE_ALERTS,
 } from '../../data/constants';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useUpdateHistoricallyActiveModules from '../../data/products/use-update-historically-active-modules';
+import useRedBubbleQuery from '../../data/use-red-bubble-query';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
@@ -133,10 +132,7 @@ export default function MyJetpackScreen() {
 		data: redBubbleAlerts,
 		isLoading: isRedBubbleAlertsLoading,
 		isError: isRedBubbleAlertsError,
-	} = useSimpleQuery( {
-		name: QUERY_RED_BUBBLE_ALERTS_KEY,
-		query: { path: REST_API_RED_BUBBLE_ALERTS },
-	} );
+	} = useRedBubbleQuery();
 
 	const updateHistoricallyActiveModules = useUpdateHistoricallyActiveModules();
 

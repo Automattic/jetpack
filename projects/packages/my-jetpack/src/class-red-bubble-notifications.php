@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Response;
 
 /**
@@ -30,9 +31,22 @@ class Red_Bubble_Notifications {
 			'my-jetpack/v1',
 			'red-bubble-notifications',
 			array(
-				'methods'             => \WP_REST_Server::READABLE,
+				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => __CLASS__ . '::rest_api_get_red_bubble_alerts',
 				'permission_callback' => __CLASS__ . '::permissions_callback',
+				'args'                => array(
+					'dismissal_cookies' => array(
+						'type'              => 'array',
+						'description'       => 'Array of dismissal cookies to set for the red bubble notifications.',
+						'required'          => false,
+						'items'             => array(
+							'type' => 'string',
+						),
+						'sanitize_callback' => function ( $param ) {
+							return array_map( 'sanitize_text_field', $param );
+						},
+					),
+				),
 			)
 		);
 	}
@@ -357,12 +371,29 @@ class Red_Bubble_Notifications {
 	/**
 	 * Get the red bubble alerts, bypassing cache when called via the REST API
 	 *
+	 * @param WP_REST_Request $request The REST API request object.
+	 *
 	 * @return WP_Error|WP_REST_Response
 	 */
-	public static function rest_api_get_red_bubble_alerts() {
+	public static function rest_api_get_red_bubble_alerts( $request ) {
 		// Initialize products to ensure all products data is available during REST API call.
 		Products::initialize_products();
 		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'add_red_bubble_alerts' ) );
+
+		$cookies = $request->get_param( 'dismissal_cookies' );
+
+		// Update $_COOKIE superglobal with the provided cookies
+		if ( ! empty( $cookies ) && is_array( $cookies ) ) {
+			foreach ( $cookies as $cookie_string ) {
+				// Parse cookie string in format "name=value"
+				$parts = explode( '=', $cookie_string, 2 );
+				if ( count( $parts ) === 2 ) {
+					$name             = trim( $parts[0] );
+					$value            = trim( $parts[1] );
+					$_COOKIE[ $name ] = $value;
+				}
+			}
+		}
 
 		$red_bubble_alerts = self::get_red_bubble_alerts( true );
 		return rest_ensure_response( $red_bubble_alerts );

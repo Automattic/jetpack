@@ -5,8 +5,7 @@ import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { applyTimezone } from '../../utils/apply-timezone';
-import checkForCookie from '../../utils/cookies/check-for-cookie';
-import createCookie from '../../utils/cookies/create-cookie';
+import createCookie from '../../utils/create-cookie';
 import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
 import { useGetReadableFailedBackupReason } from './use-get-readable-failed-backup-reason';
@@ -108,7 +107,7 @@ const useBackupNeedsAttentionNotice: NoticeHookType = ( redBubbleAlerts, isLoadi
 			priority: NOTICE_PRIORITY_HIGH,
 		};
 
-		if ( ! isLoading && ! checkForCookie( 'backup_failure_dismissed' ) ) {
+		if ( ! isLoading ) {
 			setNotice( {
 				title: noticeTitle,
 				message: noticeMessage,

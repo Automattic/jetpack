@@ -10,8 +10,7 @@ import useInstallPlugins from '../../data/products/use-install-plugins';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import checkForCookie from '../../utils/cookies/check-for-cookie';
-import createCookie from '../../utils/cookies/create-cookie';
+import createCookie from '../../utils/create-cookie';
 import useAnalytics from '../use-analytics';
 import { useGetPaidPlanNeedsPluginsContent } from './get-paid-plan-needs-plugins-content';
 import type { NoticeHookType } from './types';
@@ -289,7 +288,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 			priority: NOTICE_PRIORITY_MEDIUM + ( isInstallingOrActivating ? 1 : 0 ),
 		};
 
-		if ( ! isLoading && ! checkForCookie( `${ planSlug }--plugins_needing_installed_dismissed` ) ) {
+		if ( ! isLoading ) {
 			setNotice( {
 				title: noticeTitle,
 				message: noticeContent,

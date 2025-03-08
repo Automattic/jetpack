@@ -2,8 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
-import checkForCookie from '../../utils/cookies/check-for-cookie';
-import createCookie from '../../utils/cookies/create-cookie';
+import createCookie from '../../utils/create-cookie';
 import useAnalytics from '../use-analytics';
 import { useGetExpiringNoticeContent } from './use-get-expiring-notice-content';
 import type { NoticeHookType } from './types';
@@ -114,7 +113,7 @@ const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =>
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
-		if ( ! isLoading && ! checkForCookie( `${ cookieKey }_dismissed` ) ) {
+		if ( ! isLoading ) {
 			setNotice( {
 				title: noticeTitle,
 				message: noticeMessage,
