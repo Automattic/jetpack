@@ -1,7 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo, type ReactElement } from 'react';
-import { QUERY_RED_BUBBLE_ALERTS_KEY, REST_API_RED_BUBBLE_ALERTS } from '../../data/constants';
-import useSimpleQuery from '../../data/use-simple-query';
+import useRedBubbleQuery from '../../data/use-red-bubble-query';
 
 export type ReasonContent = {
 	reasonContent: {
@@ -17,11 +16,7 @@ export type ReasonContent = {
  * @return {ReasonContent} An object containing each tooltip's title and text content.
  */
 export function useGetReadableFailedBackupReason(): ReasonContent {
-	const { data: redBubbleAlerts, isLoading: isRedBubbleAlertsLoading } =
-		useSimpleQuery< RedBubbleAlerts >( {
-			name: QUERY_RED_BUBBLE_ALERTS_KEY,
-			query: { path: REST_API_RED_BUBBLE_ALERTS },
-		} );
+	const { data: redBubbleAlerts, isLoading: isRedBubbleAlertsLoading } = useRedBubbleQuery();
 
 	const { backup_failure: backupFailure } = redBubbleAlerts || {};
 	const {

@@ -4,8 +4,7 @@ import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useProduct from '../../data/products/use-product';
-import checkForCookie from '../../utils/cookies/check-for-cookie';
-import createCookie from '../../utils/cookies/create-cookie';
+import createCookie from '../../utils/create-cookie';
 import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
 import type { NoticeHookType } from './types';
@@ -115,7 +114,7 @@ const useProtectThreatsDetectedNotice: NoticeHookType = ( redBubbleAlerts, isLoa
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
-		if ( ! isLoading && ! checkForCookie( 'protect_threats_detected_dismissed' ) ) {
+		if ( ! isLoading ) {
 			setNotice( {
 				title: noticeTitle,
 				message: noticeMessage,
