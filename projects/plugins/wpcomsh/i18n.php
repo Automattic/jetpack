@@ -97,11 +97,9 @@ add_filter(
 		global $wp_scripts;
 
 		if ( 'jetpack-mu-wpcom' === $domain ) {
-			$translation_file = WP_LANG_DIR . '/mu-plugins/' . basename( $file );
-			if ( file_exists( $translation_file ) ) {
-				return $translation_file;
-			}
+			return WP_LANG_DIR . '/mu-plugins/' . basename( $file );
 		}
+
 		if ( class_exists( 'Jetpack_Photon_Static_Assets_CDN' ) ) {
 			// This is a rewritten plugin URL, so load the language file from the plugins path.
 			if ( isset( $wp_scripts->registered[ $handle ] ) && wp_startswith( $wp_scripts->registered[ $handle ]->src, Jetpack_Photon_Static_Assets_CDN::CDN . 'p' ) ) {
