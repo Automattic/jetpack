@@ -1,5 +1,6 @@
 <?php // phpcs:ignore
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
