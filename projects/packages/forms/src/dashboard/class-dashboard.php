@@ -106,19 +106,6 @@ class Dashboard {
 	 * Register the dashboard admin submenu.
 	 */
 	public function add_admin_submenu() {
-		if ( $this->switch->get_preferred_view() === Dashboard_View_Switch::CLASSIC_VIEW ) {
-			// We still need to register the jetpack forms page so it can be accessed manually.
-			add_submenu_page(
-				'',
-				__( 'Form Responses', 'jetpack-forms' ),
-				_x( 'Feedback', 'post type name shown in menu', 'jetpack-forms' ),
-				'edit_pages',
-				'jetpack-forms',
-				array( $this, 'render_dashboard' )
-			);
-
-			return;
-		}
 
 		remove_menu_page( 'feedback' );
 
