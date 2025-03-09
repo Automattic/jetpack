@@ -7,7 +7,7 @@ use Automattic\Jetpack\Status;
 /**
  * Update Twitter providers to use Automattic's Twitter/X oEmbed proxy.
  *
- * See https://wp.me/paFLeq-3QD.
+ * See paFLeq-3QD-p2.
  *
  * @param string $provider The URL of the oEmbed provider.
  *
