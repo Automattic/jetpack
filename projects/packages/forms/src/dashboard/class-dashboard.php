@@ -139,7 +139,7 @@ class Dashboard {
 
 		add_menu_page(
 			__( 'Form Responses', 'jetpack-forms' ),
-			_x( 'Feedback', 'post type name shown in menu', 'jetpack-forms' ),
+			_x( 'Forms', 'post type name shown in menu', 'jetpack-forms' ),
 			'edit_pages',
 			'jetpack-forms',
 			array( $this, 'render_dashboard' ),
