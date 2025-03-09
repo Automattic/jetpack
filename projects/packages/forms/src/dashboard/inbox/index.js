@@ -126,24 +126,15 @@ const Inbox = () => {
 		[ setSearchParams ]
 	);
 	return (
-		<Layout className="jp-forms__inbox">
-			<div className="jp-forms__layout-header">
-				<HStack justify="space-between">
-					<h2 className="jp-forms__layout-title">{ title }</h2>
-					<ExportResponsesButton />
-				</HStack>
-				<p className="jp-forms__header-subtext">{ subtitle }</p>
-			</div>
-			<TabPanel
-				className="jp-forms__inbox-tabs"
-				activeClass="active-tab"
-				initialTabName={ [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox' }
-				onSelect={ onTabSelect }
-				tabs={ tabs }
-			>
-				{ () => <InboxView /> }
-			</TabPanel>
-		</Layout>
+		<TabPanel
+			className="jp-forms__inbox-tabs"
+			activeClass="active-tab"
+			initialTabName={ [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox' }
+			onSelect={ onTabSelect }
+			tabs={ tabs }
+		>
+			{ () => <InboxView /> }
+		</TabPanel>
 	);
 };
 

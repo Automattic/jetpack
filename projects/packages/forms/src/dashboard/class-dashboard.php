@@ -118,6 +118,45 @@ class Dashboard {
 			'dashicons-feedback',
 			25 // Places 'Feedback' under 'Comments' in the menu
 		);
+
+		add_submenu_page(
+			'jetpack-forms',
+			__( 'Responses', 'textdomain' ),
+			__( 'Responses', 'textdomain' ),
+			'edit_pages',
+			'jetpack-forms#/responses',
+			array( $this, 'render_dashboard' )
+		);
+
+		add_submenu_page(
+			'jetpack-forms',
+			__( 'Settings', 'textdomain' ),
+			__( 'Settings', 'textdomain' ),
+			'edit_pages',
+			'jetpack-forms#/settings',
+			array( $this, 'render_dashboard' )
+		);
+
+		add_submenu_page(
+			'jetpack-forms',
+			__( 'About', 'textdomain' ),
+			__( 'About', 'textdomain' ),
+			'edit_pages',
+			'jetpack-forms#/about',
+			array( $this, 'render_dashboard' )
+		);
+	}
+
+	public function render_entries() {
+		echo 'entries';
+	}
+
+	public function render_settings() {
+		echo 'settings';
+	}
+
+	public function render_intergrations() {
+		echo 'render_intergrations';
 	}
 
 	/**

@@ -10,6 +10,9 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 import Inbox from './inbox';
 import LandingPage from './landing';
 import DashboardNotices from './notices-list';
+import SettingsPage from './settings';
+import Page from './page';
+
 import './style.scss';
 
 let settings = {};
@@ -24,16 +27,32 @@ window.addEventListener( 'load', () => {
 
 	const router = createHashRouter( [
 		{
-			path: '/landing',
-			element: <LandingPage />,
+			path: '/responses',
+			element: (
+				<Page>
+					<Inbox />
+				</Page>
+			),
 		},
 		{
-			path: '/responses',
-			element: <Inbox />,
+			path: '/settings',
+			element: (
+				<Page>
+					<SettingsPage />
+				</Page>
+			),
 		},
 		{
 			path: '/',
 			element: <Navigate to="/responses" />,
+		},
+		{
+			path: '/about',
+			element: (
+				<Page>
+					<LandingPage />
+				</Page>
+			),
 		},
 	] );
 

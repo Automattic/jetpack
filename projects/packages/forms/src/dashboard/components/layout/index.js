@@ -1,4 +1,5 @@
 import { JetpackFooter } from '@automattic/jetpack-components';
+import { TabPanel } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFormsLogo from '../logo';
@@ -11,6 +12,26 @@ const Layout = ( { children, className, showFooter } ) => {
 			<div className="jp-forms__logo-wrapper">
 				<JetpackFormsLogo />
 			</div>
+			<TabPanel
+				onSelect={ () => {} }
+				tabs={ [
+					{
+						name: 'responses',
+						title: 'Responses',
+					},
+					{
+						name: 'settings',
+						title: 'Settings',
+					},
+					{
+						name: 'about',
+						title: 'About',
+					},
+				] }
+				children={ () => {
+					children;
+				} }
+			/>
 			{ children }
 			{ showFooter && (
 				<JetpackFooter
