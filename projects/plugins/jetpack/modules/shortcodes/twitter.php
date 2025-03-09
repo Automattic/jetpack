@@ -40,7 +40,7 @@ function jetpack_proxy_twitter_oembed_provider( $provider ) {
 		);
 	}
 
-	return $oembed_proxy_url;
+	return str_replace( 'https://publish.twitter.com/oembed', $oembed_proxy_url, $provider );
 }
 add_filter( 'oembed_fetch_url', 'jetpack_proxy_twitter_oembed_provider', 10 );
 
