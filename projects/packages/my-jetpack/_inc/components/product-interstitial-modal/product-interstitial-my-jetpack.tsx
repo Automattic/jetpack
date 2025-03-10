@@ -43,7 +43,7 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	...props
 } ) => {
 	const { recordEvent } = useAnalytics();
-	const { detail } = useProduct( slug );
+	const { detail, isLoading } = useProduct( slug );
 
 	const { title, longDescription, features, pricingForUi } = detail;
 
@@ -53,7 +53,7 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 		discountPricePerMonth: discountPrice,
 		introductoryOffer,
 		productTerm,
-	} = pricingForUi;
+	} = pricingForUi || {};
 
 	let priceDescription;
 	if ( introductoryOffer?.intervalUnit === 'month' && introductoryOffer?.intervalCount === 1 ) {
@@ -141,10 +141,13 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 			modalMainButton={ <ProductInterstitialModalCta slug={ slug } /> }
 			onOpen={ handleOpen }
 			onClose={ handleClose }
+			isLoading={ isLoading }
 			{ ...props }
 		>
 			<>
-				{ features && <ProductInterstitialFeatureList features={ features } /> }
+				{ ( isLoading || features ) && (
+					<ProductInterstitialFeatureList isLoading={ isLoading } features={ features } />
+				) }
 				{ additionalContent }
 				{ children }
 			</>

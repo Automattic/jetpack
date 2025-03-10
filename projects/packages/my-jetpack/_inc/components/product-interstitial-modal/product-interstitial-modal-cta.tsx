@@ -35,7 +35,7 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 
 	const { pricingForUi, postCheckoutUrl } = detail;
 
-	const { wpcomProductSlug } = pricingForUi;
+	const { wpcomProductSlug } = pricingForUi || {};
 
 	// Redirect to the referrer URL when the `redirect_to_referrer` query param is present.
 	const referrerURL = useRedirectToReferrer();

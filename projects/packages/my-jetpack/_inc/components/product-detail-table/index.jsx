@@ -16,6 +16,7 @@ import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import LoadingBlock from '../loading-block';
+import styles from './style.module.scss';
 
 /**
  * Product Detail Table Column component.
@@ -300,6 +301,7 @@ const ProductDetailTable = ( {
 	} = detail;
 
 	const tiersPricingForUi = detail?.pricingForUi || {};
+	const mockTiersArray = [ ...Array( 3 ).keys() ];
 
 	// If the plugin can not be installed automatically, the user will have to take extra steps.
 	const cantInstallPlugin = 'plugin_absent' === status && 'no' === fileSystemWriteAccess;
@@ -347,7 +349,11 @@ const ProductDetailTable = ( {
 	);
 
 	const tierIsFree = tier => {
-		const { isFree } = tiersPricingForUi[ tier ];
+		if ( isProductLoading ) {
+			return false;
+		}
+
+		const { isFree } = tiersPricingForUi?.[ tier ] || {};
 		return isFree;
 	};
 
@@ -355,30 +361,38 @@ const ProductDetailTable = ( {
 		<>
 			{ cantInstallPluginNotice }
 
-			<PricingTable title={ description } items={ pricingTableItems }>
-				{ tiers.map( ( tier, index ) => {
-					// Don't show the column if this is a free offering and we already have a plan
-					if ( hasPaidPlanForProduct && tierIsFree( tier ) ) {
-						return null;
-					}
+			{ isProductLoading ? (
+				<div className={ styles.loadingBlockContainer }>
+					{ mockTiersArray.map( ( _, index ) => (
+						<LoadingBlock key={ index } width="100%" height="700px" />
+					) ) }
+				</div>
+			) : (
+				<PricingTable title={ description } items={ pricingTableItems }>
+					{ tiers.map( ( tier, index ) => {
+						// Don't show the column if this is a free offering and we already have a plan
+						if ( hasPaidPlanForProduct && tierIsFree( tier ) ) {
+							return null;
+						}
 
-					return (
-						<ProductDetailTableColumn
-							key={ index }
-							tier={ tier }
-							feature={ feature }
-							detail={ detail }
-							isFetching={ isFetching || isProductLoading }
-							isFetchingSuccess={ isFetchingSuccess }
-							onProductButtonClick={ onProductButtonClick }
-							trackProductButtonClick={ trackProductButtonClick }
-							primary={ index === 0 }
-							cantInstallPlugin={ cantInstallPlugin }
-							preferProductName={ preferProductName }
-						/>
-					);
-				} ) }
-			</PricingTable>
+						return (
+							<ProductDetailTableColumn
+								key={ index }
+								tier={ tier }
+								feature={ feature }
+								detail={ detail }
+								isFetching={ isFetching }
+								isFetchingSuccess={ isFetchingSuccess }
+								onProductButtonClick={ onProductButtonClick }
+								trackProductButtonClick={ trackProductButtonClick }
+								primary={ index === 0 }
+								cantInstallPlugin={ cantInstallPlugin }
+								preferProductName={ preferProductName }
+							/>
+						);
+					} ) }
+				</PricingTable>
+			) }
 		</>
 	);
 };
