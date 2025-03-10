@@ -262,25 +262,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 * @return true|WP_Error
 	 */
 	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
-		if ( ! $this->basic_permissions_check() ) {
-			return false;
-		}
-		$post_id = $request->get_param( 'post_id' );
-
-		if ( $post_id ) {
-			if ( ! get_blog_post( get_current_blog_id(), $post_id ) ) {
-				return new WP_Error(
-					'post_not_found',
-					__( 'Post not found.', 'jetpack-publicize-pkg' ),
-					array( 'status' => 400 )
-				);
-			}
-			// Ensure that the user can edit the post.
-			return current_user_can_for_blog( get_current_blog_id(), 'edit_post', $post_id );
-		}
-
-		return true;
+		return $this->basic_permissions_check();
 	}
 
 	/**
@@ -298,6 +280,14 @@ class Scheduled_Actions_Controller extends Base_Controller {
 			require_lib( 'publicize/class.publicize-actions' );
 
 			if ( $post_id ) {
+				if ( ! get_blog_post( get_current_blog_id(), $post_id ) ) {
+					return new WP_Error(
+						'post_not_found',
+						__( 'Post not found.', 'jetpack-publicize-pkg' ),
+						array( 'status' => 400 )
+					);
+				}
+
 				$scheduled_actions = \Publicize_Actions::get_scheduled_actions_by_blog_and_post_id(
 					get_current_blog_id(),
 					$post_id
@@ -329,21 +319,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
 	 */
 	public function create_item_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! $this->basic_permissions_check() ) {
-			return false;
-		}
-
-		$post_id = $request->get_param( 'post_id' );
-
-		if ( ! get_post( $post_id ) ) {
-			return new WP_Error(
-				'post_not_found',
-				__( 'Post not found.', 'jetpack-publicize-pkg' ),
-				array( 'status' => 400 )
-			);
-		}
-		// Ensure that the user can edit the post.
-		return current_user_can( 'edit_post', $post_id );
+		return $this->basic_permissions_check();
 	}
 
 	/**
@@ -424,8 +400,8 @@ class Scheduled_Actions_Controller extends Base_Controller {
 			return $action;
 		}
 
-		// Ensure that the action is for the current blog and the user can edit the post.
-		return get_current_blog_id() === $action['blog_id'] && current_user_can( 'edit_post', $action['post_id'] );
+		// Ensure that the action is for the current blog.
+		return get_current_blog_id() === $action['blog_id'];
 	}
 
 	/**
