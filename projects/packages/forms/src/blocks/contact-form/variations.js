@@ -8,16 +8,7 @@ import { getIconColor } from './util/block-icons';
 import renderMaterialIcon from './util/render-material-icon';
 
 const defaultBlockStyling = {
-	style: {
-		spacing: {
-			padding: {
-				top: '16px',
-				right: '16px',
-				bottom: '16px',
-				left: '16px',
-			},
-		},
-	},
+	style: {},
 };
 
 const variations = compact( [
