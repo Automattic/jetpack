@@ -29,7 +29,7 @@ class Set_Provider_CSS implements Data_Sync_Action {
 		}
 
 		$provider_key = sanitize_key( $data['key'] );
-		$css          = $this->desanitize_css( $data['css'] );
+		$css          = $this->unmask_content( $data['css'] );
 
 		$storage = new Critical_CSS_Storage();
 		$storage->store_css( $provider_key, $css );
@@ -44,12 +44,12 @@ class Set_Provider_CSS implements Data_Sync_Action {
 	}
 
 	/**
-	 * Desanitizes the CSS.
+	 * Unmasks the content.
 	 *
-	 * @param string $css The CSS to desanitize.
-	 * @return string The desanitized CSS.
+	 * @param string $content The content to unmask.
+	 * @return string The unmasked content.
 	 */
-	private function desanitize_css( $css ) {
-		return str_replace( '__JB_XMLNS__', 'xmlns', $css );
+	private function unmask_content( $content ) {
+		return str_replace( '__JB_XMLNS__', 'xmlns', $content );
 	}
 }

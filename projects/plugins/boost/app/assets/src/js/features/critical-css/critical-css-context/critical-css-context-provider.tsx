@@ -10,7 +10,7 @@ import {
 } from '../lib/stores/critical-css-state';
 import { runLocalGenerator } from '../lib/generate-critical-css';
 import { CriticalCssErrorDetails } from '../lib/stores/critical-css-state-types';
-import sanitizeCSS from '$lib/utils/sanitize-css';
+import maskContent from '$lib/utils/mask-content';
 
 type CriticalCssContextValues = {
 	isGenerating: boolean;
@@ -118,7 +118,7 @@ export function useLocalCriticalCssGenerator() {
 					},
 
 					setProviderCss: ( key: string, css: string ) => {
-						return setProviderCssAction.mutateAsync( { key, css: sanitizeCSS( css ) } );
+						return setProviderCssAction.mutateAsync( { key, css: maskContent( css ) } );
 					},
 
 					setProviderErrors: ( key: string, errors: CriticalCssErrorDetails[] ) =>
