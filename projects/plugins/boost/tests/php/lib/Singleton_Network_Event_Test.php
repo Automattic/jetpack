@@ -167,7 +167,7 @@ class Singleton_Network_Event_Test extends Base_TestCase {
 			->andReturn( false );
 
 		Functions\expect( 'get_site_option' )
-			->once()
+			->twice()
 			->with( Singleton_Network_Event::OPTION_CRON_TO_EXECUTE, array() )
 			->andReturn( array() );
 

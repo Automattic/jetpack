@@ -137,13 +137,22 @@ class Singleton_Network_Event implements Has_Setup {
 	 * @return bool True if the cronjob was scheduled, false if it was already scheduled.
 	 */
 	public static function schedule( int $timestamp, string $recurrence, string $hook, array $args = array() ) {
-		if ( false === wp_next_scheduled( $hook, $args ) ) {
-			self::set_cron_to_execute( $hook, $timestamp );
-
-			wp_schedule_event( $timestamp, $recurrence, $hook, $args );
-			return true;
+		if ( ! empty( wp_next_scheduled( $hook, $args ) ) ) {
+			return false;
 		}
-		return false;
+
+		$crons_to_execute = get_site_option( self::OPTION_CRON_TO_EXECUTE, array() );
+		if ( ! empty( $crons_to_execute[ $hook ] ) && is_int( $crons_to_execute[ $hook ] ) ) {
+			// If the cron to execute is already set, schedule the cronjob at the timestamp that was stored in the option.
+			$timestamp = $crons_to_execute[ $hook ];
+		} else {
+			// Otherwise, set the cron to execute at the timestamp.
+			self::set_cron_to_execute( $hook, $timestamp );
+		}
+
+		wp_schedule_event( $timestamp, $recurrence, $hook, $args );
+
+		return true;
 	}
 
 	/**
