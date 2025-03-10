@@ -217,10 +217,6 @@ interface Window {
 		isStatsModuleActive: string;
 		canUserViewStats: boolean;
 		isUserFromKnownHost: string;
-		jetpackManage: {
-			isAgencyAccount: boolean;
-			isEnabled: boolean;
-		};
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
