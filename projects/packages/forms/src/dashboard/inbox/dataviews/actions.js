@@ -1,7 +1,7 @@
 import { Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { seen, trash, backup } from '@wordpress/icons';
+import { details, trash, backup } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
@@ -16,7 +16,8 @@ export const viewAction = {
 	id: 'view-response',
 	label: __( 'View response', 'jetpack-forms' ),
 	isPrimary: true,
-	icon: <Icon icon={ seen } />,
+	icon: <Icon icon={ details } />,
+	modalHeader: __( 'Response', 'jetpack-forms' ),
 	RenderModal: ( { items } ) => {
 		const [ item ] = items;
 		return <InboxResponse isLoading={ false } response={ item } />;
