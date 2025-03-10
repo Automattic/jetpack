@@ -23,13 +23,13 @@ export default {
 	migrateCardBodyText: PropTypes.string,
 	/** The "start fresh" card title. */
 	startFreshCardTitle: PropTypes.string,
-	/** The "start fresh" card body. */
+	/** The "start fresh" card body text. */
 	startFreshCardBodyText: PropTypes.string,
-	/** The "start fresh" card button label. */
+	/** The "safe mode" card body text. */
 	safeModeCardBodyText: PropTypes.string,
-	/** The "stay in safe mode" card button label. */
+	/** The "start fresh" card body text for dev sites. */
 	startFreshCardBodyTextDev: PropTypes.string,
-	/** The "start fresh" for dev sites card button label. */
+	/** The "start fresh" card button label. */
 	startFreshButtonLabel: PropTypes.string,
 	/** The "non admin" screen title. */
 	nonAdminTitle: PropTypes.string,
@@ -37,6 +37,6 @@ export default {
 	nonAdminBodyText: PropTypes.string,
 	/** The support page URL. */
 	supportURL: PropTypes.string,
-	/** The "stay in safe mode" button title. */
+	/** The "stay in safe mode" button label. */
 	stayInSafeModeButtonLabel: PropTypes.string,
 };

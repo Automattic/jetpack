@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { dateI18n, isInTheFuture } from '@wordpress/date';
+import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -22,7 +22,8 @@ class ProductExpiration extends React.PureComponent {
 	};
 
 	render() {
-		const { expiryDate, purchaseDate, isRefundable, dateFormat, isGift, purchaseID } = this.props;
+		const { expiryDate, expiryStatus, purchaseDate, isRefundable, dateFormat, isGift, purchaseID } =
+			this.props;
 
 		// Return null if we don't have any dates.
 		if ( ! expiryDate && ! purchaseDate ) {
@@ -65,7 +66,7 @@ class ProductExpiration extends React.PureComponent {
 		}
 
 		// If the expiry date is in the past, show the expiration date.
-		if ( ! isInTheFuture( expiryDateObj ) ) {
+		if ( expiryStatus === 'expired' ) {
 			return createInterpolateElement(
 				sprintf(
 					/* translators: %d is a count of how many new (unread) recommendations are available. */

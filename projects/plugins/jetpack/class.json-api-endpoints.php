@@ -2820,7 +2820,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'site_not_connected' );
 		}
 
-		if ( ( $this->allow_jetpack_site_auth && Rest_Authentication::is_signed_with_blog_token() ) || ( get_current_user_id() && Rest_Authentication::is_signed_with_user_token() ) ) {
+		if ( ( ( $this->allow_jetpack_site_auth || $this->allow_fallback_to_jetpack_blog_token ) && Rest_Authentication::is_signed_with_blog_token() )
+			|| ( get_current_user_id() && Rest_Authentication::is_signed_with_user_token() )
+		) {
 			$custom_permission_result = $this->rest_permission_callback_custom();
 
 			// Successful custom permission check.

@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
+import createCookie from '../../utils/create-cookie';
 import useAnalytics from '../use-analytics';
 import { useGetExpiringNoticeContent } from './use-get-expiring-notice-content';
 import type { NoticeOptions } from '../../context/notices/types';
@@ -51,7 +52,7 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			? `${ productSlug }--plan_expired`
 			: `${ productSlug }--plan_expiring_soon`;
 		// Session cookie. Expires when session ends.
-		document.cookie = `${ cookieKey }_dismissed=1; SameSite=None; Secure`;
+		createCookie( `${ cookieKey }_dismissed`, 7 );
 		delete redBubbleAlerts[ alertToDisplay ];
 		resetNotice();
 	}, [ alertToDisplay, isExpiredAlert, productSlug, redBubbleAlerts, resetNotice ] );
