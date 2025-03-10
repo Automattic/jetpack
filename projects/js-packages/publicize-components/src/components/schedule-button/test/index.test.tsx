@@ -35,11 +35,8 @@ describe( 'ScheduleButton', () => {
 			<ScheduleButton onChange={ mockOnChange } scheduleTimestamp={ initialUnixTimestamp } />
 		);
 
-		// Click the Schedule button to open the dropdown
 		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
 		await user.click( scheduleButton );
-
-		// Use a query that targets the DateTimePicker directly
 
 		expect(
 			screen.getByRole( 'button', { name: 'October 1, 2023. Selected' } )
@@ -63,11 +60,8 @@ describe( 'ScheduleButton', () => {
 			<ScheduleButton onChange={ mockOnChange } scheduleTimestamp={ initialUnixTimestamp } />
 		);
 
-		// Click the Schedule button to open the dropdown
 		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
 		await user.click( scheduleButton );
-
-		// Use a query that targets the DateTimePicker directly
 
 		expect(
 			screen.getByRole( 'button', { name: 'October 1, 2023. Selected' } )
@@ -84,7 +78,6 @@ describe( 'ScheduleButton', () => {
 
 		render( <ScheduleButton onConfirm={ mockOnConfirm } /> );
 
-		// Click the Schedule button to open the dropdown
 		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
 		await user.click( scheduleButton );
 
