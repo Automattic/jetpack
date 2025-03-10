@@ -261,10 +261,14 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error
 	 */
-	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get_items_permissions_check( $request ) {
 
 		if ( ! $this->basic_permissions_check() ) {
-			return false;
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to do that.', 'jetpack-publicize-pkg' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
 		}
 		$post_id = $request->get_param( 'post_id' );
 
@@ -277,7 +281,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 				);
 			}
 			// Ensure that the user can edit the post.
-			return current_user_can_for_blog( get_current_blog_id(), 'edit_post', $post_id );
+			return current_user_can_for_site( get_current_blog_id(), 'edit_post', $post_id );
 		}
 
 		return true;
@@ -328,9 +332,13 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
 	 */
-	public function create_item_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function create_item_permissions_check( $request ) {
 		if ( ! $this->basic_permissions_check() ) {
-			return false;
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to do that.', 'jetpack-publicize-pkg' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
 		}
 
 		$post_id = $request->get_param( 'post_id' );
