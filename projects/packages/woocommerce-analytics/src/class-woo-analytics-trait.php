@@ -8,8 +8,6 @@
 namespace Automattic\Woocommerce_Analytics;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use DateTime;
-use DateTimeZone;
 use WC_Order_Item;
 use WC_Order_Item_Product;
 use WC_Payment_Gateway;
@@ -363,9 +361,8 @@ trait Woo_Analytics_Trait {
 	public function get_session_expiration_time() {
 		$thirty_minutes_from_now = time() + ( 30 * 60 ); // 30 minutes from now
 		$midnight                = strtotime( 'tomorrow UTC' ) - 1; // 1 second before midnight
-		$expiration_time         = min( $thirty_minutes_from_now, $midnight );
-		$date                    = new DateTime( "@$expiration_time", new DateTimeZone( 'UTC' ) );
-		return $date->format( 'D, d M Y H:i:s \G\M\T' );
+		$expiration_time         = min( $thirty_minutes_from_now, $midnight ); // Get the earliest expiration time
+		return gmdate( 'D, d M Y H:i:s \G\M\T', $expiration_time );
 	}
 
 	/**
