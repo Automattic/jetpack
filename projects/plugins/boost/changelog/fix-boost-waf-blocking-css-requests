@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Critical CSS: Sanitize CSS to prevent WAF false-positives.
+Critical CSS: Mask CSS to prevent WAF false-positives during generation.
