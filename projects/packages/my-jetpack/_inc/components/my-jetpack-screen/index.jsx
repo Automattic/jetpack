@@ -113,7 +113,11 @@ export default function MyJetpackScreen() {
 		name: QUERY_CHAT_AUTHENTICATION_KEY,
 		query: { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT },
 	} );
-	const { data: jetpackManageData, isLoading: isJetpackManageLoading } = useSimpleQuery( {
+	const {
+		data: jetpackManageData,
+		isLoading: isJetpackManageLoading,
+		isError: isJetpackManageError,
+	} = useSimpleQuery( {
 		name: QUERY_GET_JETPACK_MANAGE_DATA_KEY,
 		query: { path: REST_API_GET_JETPACK_MANAGE_DATA },
 	} );
@@ -226,6 +230,7 @@ export default function MyJetpackScreen() {
 					{ isJetpackManageLoading ? (
 						<LoadingBlock height="200px" width="100%" />
 					) : (
+						! isJetpackManageError &&
 						jetpackManageData.isEnabled && (
 							<JetpackManageBanner isAgencyAccount={ jetpackManageData.isAgencyAccount } />
 						)
