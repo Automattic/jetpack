@@ -506,16 +506,22 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 	},
 
 	ProviderError: {
-		describeSet: () => __( 'Jetpack Boost encountered an error:', 'jetpack-boost' ),
+		describeSet: set =>
+			_n(
+				'Boost could not save Critical CSS for the following page:',
+				'Boost could not save Critical CSS for the following pages:',
+				urlCount( set ),
+				'jetpack-boost'
+			),
 		rawError: set => Object.values( set.byUrl )[ 0 ].message,
 		suggestion: _set => ( {
 			paragraph: __(
-				'Jetpack Boost successfully generated Critical CSS, but something prevented it from being saved. Usually, this is due to a security plugin or the hosting provider detecting a false-positive.',
+				'Jetpack Boost successfully generated Critical CSS, but something prevented it from saving it. Usually, this is due to a security plugin or the hosting provider detecting a false-positive.',
 				'jetpack-boost'
 			),
 			list: [
 				__(
-					'Steps TBD. We should include a snippet so they can give it to their hosting provider.',
+					'Please contact <support>Jetpack Boost Support</support> with a copy of your error message, so they can help you resolve the issue.',
 					'jetpack-boost'
 				),
 				__( '<retry>Try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),

@@ -258,19 +258,20 @@ async function generateForKeys(
 			callbacks.setProviderProgress( 0 );
 
 			if ( providerFailed instanceof Error ) {
-				throw new ProviderCssSaveError( 'Provider failed to save CSS', providerFailed );
+				throw new ProviderCssSaveError( 'Failed to save Critical CSS', providerFailed );
 			}
 		} catch ( err ) {
 			if ( err instanceof ProviderCssSaveError ) {
 				stepsFailed++;
-				await callbacks.setProviderErrors( key, [
-					{
-						url: 'provider-failed-to-save-css',
+				await callbacks.setProviderErrors(
+					key,
+					urls.map( url => ( {
+						url,
 						message: err.message,
 						type: 'ProviderError',
-						meta: {}, // Can we get the actual error here?
-					},
-				] );
+						meta: {}, // This is empty because Boost failed, not the individual pages.
+					} ) )
+				);
 				continue;
 			}
 
