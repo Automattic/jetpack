@@ -18,13 +18,24 @@ function jetpack_boost_minify_cache_buster() {
 /**
  * This ensures that the cache cleanup cron job is only run once per day, espicially for multisite.
  */
-function jetpack_boost_minify_cron_cache_cleanup() {
+function jetpack_boost_should_run_daily_network_cron_job( $hook ) {
 	// If we see it's been executed within 24 hours, don't run
-	if ( get_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run', 0 ) > time() - DAY_IN_SECONDS ) {
-		return;
+	if ( get_site_option( 'jetpack_boost_' . $hook . '_last_run', 0 ) > time() - DAY_IN_SECONDS ) {
+		return false;
 	}
 
-	update_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run', time() );
+	update_site_option( 'jetpack_boost_' . $hook . '_last_run', time() );
+
+	return true;
+}
+
+/**
+ * This ensures that the cache cleanup cron job is only run once per day, espicially for multisite.
+ */
+function jetpack_boost_minify_cron_cache_cleanup() {
+	if ( ! jetpack_boost_should_run_daily_network_cron_job( 'minify_cron_cache_cleanup' ) ) {
+		return;
+	}
 
 	jetpack_boost_legacy_minify_cache_cleanup();
 	jetpack_boost_minify_cache_cleanup();

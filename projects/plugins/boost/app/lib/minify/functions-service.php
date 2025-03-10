@@ -74,11 +74,9 @@ function jetpack_boost_check_404_handler( $request_uri ) {
  */
 function jetpack_boost_404_tester_cron() {
 	// If we see it's been executed within 24 hours, don't run
-	if ( get_site_option( 'jetpack_boost_404_tester_last_run', 0 ) > time() - DAY_IN_SECONDS ) {
+	if ( ! jetpack_boost_should_run_daily_network_cron_job( '404_tester' ) ) {
 		return;
 	}
-
-	update_site_option( 'jetpack_boost_404_tester_last_run', time() );
 
 	jetpack_boost_404_tester();
 }
