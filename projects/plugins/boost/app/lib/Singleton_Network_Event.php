@@ -87,21 +87,22 @@ class Singleton_Network_Event implements Has_Setup {
 					continue;
 				}
 
-				if ( $crons_to_execute[ $hook ] > $now ) {
-					// Reschedule the blog's cronjob to run at the timestamp that was stored in the option.
-					wp_unschedule_event( $blog_timestamp_to_execute, $hook, $hook_ref['args'] );
-					wp_schedule_event( $crons_to_execute[ $hook ], $hook_ref['schedule'], $hook, $hook_ref['args'] );
-
-					unset( $crons[ $blog_timestamp_to_execute ][ $hook ] );
-
-					if ( empty( $crons[ $blog_timestamp_to_execute ] ) ) {
-						// If this was the only cronjob for this timestamp, remove the timestamp key.
-						unset( $crons[ $blog_timestamp_to_execute ] );
-					}
-				} else {
-					// The blog's cronjob will run, update the timestamp to the next time it should run.
+				if ( $crons_to_execute[ $hook ] < $now ) {
+					// The blog's cronjob is due to run, update the timestamp to the next time it should run.
 					$crons_to_execute[ $hook ] = $now + $hook_ref['interval'];
 					$update_crons_to_execute   = true;
+					continue;
+				}
+
+				// At this point the network cron doesn't need to be run: Reschedule the blog's cronjob to run at the timestamp that was stored in the option.
+				wp_unschedule_event( $blog_timestamp_to_execute, $hook, $hook_ref['args'] );
+				wp_schedule_event( $crons_to_execute[ $hook ], $hook_ref['schedule'], $hook, $hook_ref['args'] );
+
+				unset( $crons[ $blog_timestamp_to_execute ][ $hook ] );
+
+				if ( empty( $crons[ $blog_timestamp_to_execute ] ) ) {
+					// If this was the only cronjob for this timestamp, remove the timestamp key.
+					unset( $crons[ $blog_timestamp_to_execute ] );
 				}
 			}
 		}
