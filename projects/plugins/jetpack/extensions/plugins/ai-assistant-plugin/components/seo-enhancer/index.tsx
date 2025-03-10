@@ -18,7 +18,7 @@ export function SeoEnhancer() {
 				label={ __( 'Auto-enhance', 'jetpack' ) }
 				// __nextHasNoMarginBottom={ true }
 				help={ __(
-					"Automattically generate SEO title, SEO description and images' alt text on publish.",
+					"Automattically generate SEO title, SEO description and images' alt text.",
 					'jetpack'
 				) }
 			/>
