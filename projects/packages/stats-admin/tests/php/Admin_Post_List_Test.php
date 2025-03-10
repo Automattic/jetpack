@@ -92,7 +92,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 
 		// Create a mock for the protected `get_stats` method
 		$mocked_stats = $this->getMockBuilder( Automattic\Jetpack\Stats\WPCOM_Stats::class )
-							->setMethods( array( 'get_total_post_views' ) ) // Mock the get_stats method
+							->onlyMethods( array( 'get_total_post_views' ) ) // Mock the get_stats method
 							->getMock();
 
 		// Define behavior for the mocked `get_stats` method
@@ -108,7 +108,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 		);
 
 		$column_mock = $this->getMockBuilder( Admin_Post_List_Column::class )
-							->setMethods( array( 'get_stats' ) ) // Mock the get_stats method
+							->onlyMethods( array( 'get_stats' ) ) // Mock the get_stats method
 							->getMock();
 
 		// Replace the actual get_stats method with our mocked version
@@ -216,7 +216,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 
 		// Override the method to return the mocked stats
 		$column = $this->getMockBuilder( Admin_Post_List_Column::class )
-						->setMethods( array( 'get_stats' ) )
+						->onlyMethods( array( 'get_stats' ) )
 						->getMock();
 		$column->method( 'get_stats' )->willReturn( $mock_stats );
 
