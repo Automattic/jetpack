@@ -65,8 +65,6 @@ class Main {
 			10,
 			2
 		);
-
-		Admin_Post_List_Column::register();
 	}
 
 	/**

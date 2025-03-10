@@ -171,8 +171,8 @@ class Admin_Post_List_Column {
 		$wpcom_stats = $this->get_stats();
 		$post_views  = $wpcom_stats->get_total_post_views( array( 'post_ids' => implode( ',', $post_ids ) ) );
 
-		if ( is_wp_error( $post_views ) ) {
-			$post_views = array();
+		if ( is_wp_error( $post_views ) || empty( $post_views ) ) {
+			return array();
 		}
 
 		$views = array();

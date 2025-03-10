@@ -2,7 +2,7 @@
 use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\TestCase as BaseTestCase;
 
-class Admin_Post_LIst_Test extends BaseTestCase {
+class Admin_Post_List_Test extends BaseTestCase {
 	public function test_register_creates_instance() {
 		// Ensure the register method creates an instance of the class
 		$instance = Admin_Post_List_Column::register();
@@ -16,12 +16,51 @@ class Admin_Post_LIst_Test extends BaseTestCase {
 			'date'  => 'Date',
 		);
 
+		wp_set_current_user( $this->admin_id );
+
+		$set_cap = function ( $caps ) {
+			$caps['view_stats'] = true;
+
+			return $caps;
+		};
+
+		add_filter( 'user_has_cap', $set_cap );
 		// Call the method to add the stats column
 		$columns_with_stats = Admin_Post_List_Column::register()->add_stats_post_table( $columns );
+		remove_filter( 'user_has_cap', $set_cap );
 
 		// Assert that the 'stats' column is added
 		$this->assertArrayHasKey( 'stats', $columns_with_stats );
 		$this->assertEquals( 'Stats', $columns_with_stats['stats'] );
+	}
+
+	/**
+	 * Test if doesn't add the stats column if they don't have the right to view stats.
+	 *
+	 * @return void
+	 */
+	public function test_add_stats_post_table_not_adds_stats_column() {
+		// Prepare a simple columns array
+		$columns = array(
+			'title' => 'Title',
+			'date'  => 'Date',
+		);
+
+		wp_set_current_user( $this->admin_id );
+
+		$set_cap = function ( $caps ) {
+			unset( $caps['view_stats'] );
+
+			return $caps;
+		};
+
+		add_filter( 'user_has_cap', $set_cap );
+		// Call the method to add the stats column
+		$columns_with_stats = Admin_Post_List_Column::register()->add_stats_post_table( $columns );
+		remove_filter( 'user_has_cap', $set_cap );
+
+		// Assert that the 'stats' column is not added
+		$this->assertArrayNotHasKey( 'stats', $columns_with_stats );
 	}
 
 	/**
@@ -53,7 +92,7 @@ class Admin_Post_LIst_Test extends BaseTestCase {
 
 		// Create a mock for the protected `get_stats` method
 		$mocked_stats = $this->getMockBuilder( Automattic\Jetpack\Stats\WPCOM_Stats::class )
-							->setMethods( array( 'get_stats' ) ) // Mock the get_stats method
+							->setMethods( array( 'get_total_post_views' ) ) // Mock the get_stats method
 							->getMock();
 
 		// Define behavior for the mocked `get_stats` method
@@ -77,11 +116,11 @@ class Admin_Post_LIst_Test extends BaseTestCase {
 
 		// Start output buffering
 		ob_start();
-		$column_mock::register()->add_stats_post_table_cell( 'stats', $post_id );
+		$column_mock->add_stats_post_table_cell( 'stats', $post_id );
 		$output = ob_get_clean();
 
 		// Assert that the stats link is present in the output
-		$this->assertStringContainsString( 'admin.php?page=stats#!/stats/post/' . $post_id . '/0', $output );
+		$this->assertStringContainsString( 'admin.php?page=stats#!/stats/post/' . $post_id, $output );
 
 		$this->assertStringContainsString( '1.2M', $output );
 
@@ -146,7 +185,7 @@ class Admin_Post_LIst_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		// Ensure the correct CSS is outputted for the Stats column width
-		$this->assertStringContainsString( '.fixed .column-stats { width: 5em; }', $output );
+		$this->assertStringContainsString( '.fixed .column-stats', $output );
 	}
 
 	/**

@@ -23,6 +23,7 @@ use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
+use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
 use Automattic\Jetpack\Status\Host;
@@ -57,6 +58,8 @@ function stats_load() {
 		add_action( 'admin_head', 'stats_admin_bar_head', 100 );
 		add_action( 'wp_head', 'stats_admin_bar_head', 100 );
 	}
+
+	Admin_Post_List_Column::register();
 
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
