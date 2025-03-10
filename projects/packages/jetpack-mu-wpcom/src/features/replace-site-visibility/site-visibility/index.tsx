@@ -235,7 +235,7 @@ const SiteVisibility = ( {
 			<input
 				type="hidden"
 				name="wpcom_data_sharing_opt_out"
-				value={ wpcomDataSharingOptOut ? 'true' : 'false' }
+				value={ wpcomDataSharingOptOut ? 1 : 0 }
 			/>
 		</>
 	);
