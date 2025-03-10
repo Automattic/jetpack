@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Introduce i18n-calypso for unified number formatting. update to use for formatCurrency

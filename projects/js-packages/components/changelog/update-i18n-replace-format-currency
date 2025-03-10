@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Introduce i18n-calypso for unified number formatting. update to use for formatCurrency
