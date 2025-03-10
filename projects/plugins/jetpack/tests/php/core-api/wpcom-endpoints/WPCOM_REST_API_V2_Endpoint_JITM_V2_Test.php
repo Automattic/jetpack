@@ -103,7 +103,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 		$this->assertErrorResponse(
 			'invalid_user_permission_jetpack_get_jitm_message',
 			$response,
-			rest_authorization_required_code()
+			401
 		);
 
 		// Test with logged in user (should succeed)
