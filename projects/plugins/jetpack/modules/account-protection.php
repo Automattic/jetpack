@@ -17,7 +17,6 @@ use Automattic\Jetpack\Account_Protection\Account_Protection;
 
 $account_protection = new Account_Protection();
 
-// Do not activate in Pressable environments
 if ( ! defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
 	$account_protection->enable();
 }
