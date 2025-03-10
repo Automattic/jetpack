@@ -137,8 +137,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				startLoading( type );
 
 				try {
+					const context: { positions?: number[] } = {};
+
 					if ( type === TYPE_ALT_TEXT ) {
 						openBlockSidebar( props.clientId );
+					}
+
+					if ( type === TYPE_CAPTION ) {
+						context.positions = [ props.clientId ];
 					}
 
 					dequeueAsyncRequest();
@@ -150,8 +156,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 								context: {
 									type: type,
 									content: getPostContent( preprocessImageContent ),
-									// URL of the image for the AI to find where the image is in the post.
-									urls: [ props.attributes.url ],
+									...context,
 									images: [
 										{
 											// We convert the image to a base64 string to avoid inaccesible URLs for private images.
@@ -169,7 +174,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 					increaseRequestsCount();
 
-					const parsedResponse: { texts?: string[]; captions?: string[] } = JSON.parse( response );
+					const parsedResponse: { texts?: string[]; captions?: string[] } = JSON.parse(
+						response
+							?.replace?.( /^```json\s*/, '' ) // Remove the markdown code block if it exists.
+							?.replace( /```$/, '' )
+					);
 
 					if ( type === TYPE_ALT_TEXT ) {
 						const alt = parsedResponse.texts?.[ 0 ];

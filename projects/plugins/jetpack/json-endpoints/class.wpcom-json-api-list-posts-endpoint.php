@@ -16,6 +16,8 @@ new WPCOM_JSON_API_List_Posts_Endpoint(
 		'path_labels'                          => array(
 			'$site' => '(int|string) Site ID or domain',
 		),
+		'rest_route'                           => '/posts',
+		'rest_min_jp_version'                  => '14.5-a.1',
 
 		'allow_fallback_to_jetpack_blog_token' => true,
 

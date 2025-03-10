@@ -238,7 +238,6 @@ class Jetpack_Plugin_Search {
 			array(
 				'nonce'          => wp_create_nonce( 'wp_rest' ),
 				'base_rest_url'  => rest_url( '/jetpack/v4' ),
-				'poweredBy'      => esc_html__( 'by Jetpack (installed)', 'jetpack' ),
 				'manageSettings' => esc_html__( 'Configure', 'jetpack' ),
 				'activateModule' => esc_html__( 'Activate Module', 'jetpack' ),
 				'getStarted'     => esc_html__( 'Get started', 'jetpack' ),
@@ -418,6 +417,7 @@ class Jetpack_Plugin_Search {
 						$jetpack_modules_list[ $matching_module ]['name']
 					),
 					'short_description'   => $jetpack_modules_list[ $matching_module ]['short_description'],
+					'author'              => esc_attr__( 'Jetpack (installed)', 'jetpack' ),
 					'requires_connection' => (bool) $jetpack_modules_list[ $matching_module ]['requires_connection'],
 					'slug'                => self::$slug,
 					'version'             => JETPACK__VERSION,

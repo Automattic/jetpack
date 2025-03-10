@@ -16,7 +16,6 @@ import { getSocialScriptData } from '../../utils/script-data';
 import PublicizeForm from '../form';
 import { ManualSharing } from '../manual-sharing';
 import { ReSharingPanel } from '../resharing-panel';
-import { SharePostRow } from '../share-post';
 import styles from './styles.module.scss';
 import './global.scss';
 
@@ -78,7 +77,6 @@ const PublicizePanel = ( { prePublish, children }: PublicizePanelProps ) => {
 					) }
 
 					<PublicizeForm />
-					<SharePostRow />
 				</Fragment>
 			) }
 			{ isPostPublished && (
