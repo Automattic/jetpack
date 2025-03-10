@@ -127,7 +127,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( ! isset( $attributes['id'] ) ) {
 				$attributes['id'] = '';
 			}
-			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page;
+			$page_number      = isset( $page ) && $page > 0 ? $page : 1;
+			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_number;
 		}
 
 		$this->hash                 = sha1( wp_json_encode( $attributes ) );
