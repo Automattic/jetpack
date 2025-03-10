@@ -54,7 +54,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_item' ),
-					'permission_callback' => '__return_true',
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
 					'args'                => array(
 						'message_path'        => array(
 							'required'          => true,
@@ -129,6 +129,24 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_REST_Controller {
 		}
 
 		return rest_ensure_response( $messages );
+	}
+
+	/**
+	 * Checks if a given request has access to get JITMs.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error True if the request has permission to get JITMs, WP_Error object otherwise.
+	 */
+	public function get_item_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( ! current_user_can( 'read' ) ) {
+			return new WP_Error(
+				'invalid_user_permission_jetpack_get_jitm_message',
+				REST_Connector::get_user_permissions_error_msg(),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
 	}
 
 	/**
