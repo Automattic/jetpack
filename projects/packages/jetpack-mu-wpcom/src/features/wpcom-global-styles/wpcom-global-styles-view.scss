@@ -1,21 +1,28 @@
 /* stylelint-disable declaration-property-unit-allowed-list */
 .launch-banner {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-	font-size: 16px;
-	font-style: normal;
 	height: 48px;
-	line-height: normal;
 	background: #24282D;
 	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100%;
 	z-index: 99998;
-
-
+	text-decoration: none;
 	.is-mobile {
 		display: none;
 	}
+}
+
+.launch-banner * {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	font-size: 16px;
+	font-style: normal;
+	line-height: normal;
+    border-radius: 0;
+    box-sizing: content-box;
+	text-shadow: none;
+    text-transform: none;
+    letter-spacing: normal;
 }
 
 .admin-bar #launch-banner.launch-banner {
@@ -35,32 +42,29 @@
 	color: #fff;
 }
 
-// .launch-banner-content a,
-// .launch-banner-content button {
-// 	border: none;
-// 	align-items: center;
-// 	color: #fff;
-// 	cursor: pointer;
-// 	display: flex;
-// 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
-// 	font-size: 13px;
-// 	font-style: normal;
-// 	min-height: 48px;
-// 	outline: none;
-// 	padding: 0 20px;
-// 	text-decoration: none !important;
-// }
+.launch-banner-content .launch-banner-section a,
+.launch-banner-content .launch-banner-section button {
+	border: none;
+	align-items: center;
+	color: #fff;
+	cursor: pointer;
+	display: flex;
+	min-height: 48px;
+	outline: none;
+	padding: 0 20px;
+	text-decoration: none !important;
+}
 
-// .launch-banner-content a:hover,
-// .launch-banner-content button:hover {
-// 	background: #34383D;
-// 	cursor: pointer;
-// }
+.launch-banner-content a:hover,
+.launch-banner-content button:hover {
+	background: #34383D;
+	cursor: pointer;
+}
 
-// .launch-banner-content a:hover span,
-// .launch-banner-content button:hover span {
-// 	color: #fff;
-// }
+.launch-banner-content a:hover span,
+.launch-banner-content button:hover span {
+	color: #fff;
+}
 
 .launch-banner-section.bar-controls {
 	display: flex;
@@ -96,7 +100,6 @@
 	.admin-bar #launch-banner.launch-banner {
 		top: 46px;
 	}
-
 	.launch-banner {
 		position: absolute;
 	}
@@ -138,6 +141,7 @@
 
 .launch-bar-global-styles-popover {
 	position: absolute;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
 	width: 320px;
 	top: 48px;
 	font-size: 13px;
@@ -182,38 +186,48 @@
 		justify-content: center;
 		height: auto;
 		display: flex;
-		border: 1px solid #0675c4;
-		background: #0675c4;
-		color: #fff;
+		border: 1px solid #0675c4 !important;
+		background: #0675c4 !important;
+		color: #fff !important;
 		border-radius: 2px;
 		text-decoration: none;
 		align-items: center;
 		padding: 10px;
+		font-size: 13px !important;
+		min-height: 36px !important;
 	}
 
 	.launch-bar-global-styles__button--reset {
-		background: #fff;
-		color: #0675c4;
-		border: 1px solid #0675c4;
+		background: #fff !important;
+		color: #0675c4 !important;
+		border: 1px solid #0675c4 !important;
 	}
 
 	&.hidden {
 		display: none;
 	}
 }
+.launch-bar-global-styles-message a,
+.launch-bar-global-styles-message {
+	font-size: 13px !important;
+	line-height: 1.5;
+}
 
 .launch-banner-content .launch-bar-global-styles-popover .launch-bar-global-styles-message a {
 	display: inline;
 	color: inherit;
 	padding: 0;
-	font-weight: 400;
-	font-size: inherit;
 	text-decoration: underline !important;
 	background: none;
 }
 
+.launch-bar-global-styles-toggle span {
+	font-size: 13px;
+}
+
 .launch-bar-global-styles-toggle svg {
 	margin-right: 4px;
+	width: 18px;
 }
 
 .launch-bar-global-styles-close {
@@ -254,11 +268,9 @@
 	gap: 10px;
 	box-sizing: border-box;
 	&__preview {
-		display: flex;
-		align-items: center;
 		justify-content: center;
 		flex-grow: 1;
-		min-height: 110px;
+		min-height: 110px !important;
 		box-sizing: border-box;
 		width: 100%;
 		border-radius: 4px;
@@ -266,14 +278,14 @@
 		font-size: 13px;
 		line-height: 17px;
 		flex-direction: column;
-		padding: 10px;
+		padding: 10px !important;
 		flex: 1;
 		min-width: 0;
 		overflow: hidden;
-		text-decoration: none;
-		box-sizing: border-box;
+		color: #24282D !important;
 		&:hover {
 			box-shadow: inset 0 0 0 1px #0675c4;
+			color: #fff !important;
 		}
 		&.disabled {
 			pointer-events: none;
@@ -296,11 +308,20 @@
 		height: 100%;
 		min-height: 70px; // Adjust based on your content
 		display: block;
+		&.is-premium {
+			background-color: #0675c4;
+			color: #fff;
+		}
 	}
 
 	&__preview-frame h2,
 	&__preview-frame p {
 		margin: 0;
+		display:inline;
+		color: #24282D !important;
+		&:hover {
+			color: #24282D !important;
+		}
 	}
 }
 

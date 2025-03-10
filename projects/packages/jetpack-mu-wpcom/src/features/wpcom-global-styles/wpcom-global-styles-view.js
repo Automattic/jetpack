@@ -125,24 +125,4 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			window.open( resetButton.href, '_blank' ).focus();
 		}
 	} );
-
-	// Function to inject content into iframes
-	const injectIframeContent = () => {
-		const iframes = document.querySelectorAll( '.launch-bar-global-styles-actions__preview-frame' );
-		iframes.forEach( iframe => {
-			const content = iframe.getAttribute( 'data-content' );
-			const styles = iframe.getAttribute( 'data-styles' );
-			if ( content && styles ) {
-				const doc = iframe.contentDocument || iframe.contentWindow.document;
-				doc.open();
-				doc.write(
-					`<!DOCTYPE html><html><head><style>${ styles }</style></head><body>${ content }</body></html>`
-				);
-				doc.close();
-			}
-		} );
-	};
-
-	// Call it once DOM is loaded
-	injectIframeContent();
 } );

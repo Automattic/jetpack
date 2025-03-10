@@ -543,27 +543,6 @@ function wpcom_display_global_styles_launch_bar() {
 	} else {
 		$preview_location = remove_query_arg( 'hide-global-styles' );
 	}
-	remove_filter( 'wp_theme_json_data_user', 'wpcom_block_global_styles_frontend' );
-
-	// Get base theme styles
-	$base_theme_json = WP_Theme_JSON_Resolver_Gutenberg::get_merged_data( 'theme' );
-	$base_theme_json_stylesheet = $base_theme_json->get_stylesheet();
-
-	// Get raw user global styles directly from the database
-	$user_custom_post_type_id = WP_Theme_JSON_Resolver_Gutenberg::get_user_global_styles_post_id();
-	$global_styles_post = get_post( $user_custom_post_type_id );
-	$user_data = $global_styles_post ? json_decode( $global_styles_post->post_content, true ) : array();
-
-	// Create a new theme JSON object with user data
-	$user_theme_json = new WP_Theme_JSON( $user_data );
-
-	// Merge with theme data
-	$merged_data = new WP_Theme_JSON( array() );
-	$merged_data->merge( $base_theme_json );
-	$merged_data->merge( $user_theme_json );
-	$merged_stylesheet = $merged_data->get_stylesheet();
-
-	add_filter( 'wp_theme_json_data_user', 'wpcom_block_global_styles_frontend' );
 	?>
 
 	<div class="launch-banner" id="launch-banner" style="display:none;">
@@ -609,15 +588,24 @@ function wpcom_display_global_styles_launch_bar() {
 								// phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
 								: 'https://wordpress.com/support/using-styles/';
 
-							$message = sprintf(
+							$message = wpcom_is_previewing_global_styles() ? sprintf(
 								/* translators: %1$s - documentation URL, %2$s - the name of the required plan */
 								__(
-									'Your site includes <a href="%1$s" target="_blank">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher.',
+									'With <a href="%1$s" target="_blank">premium styles</a>, this is how your site will appear to visitors after you upgrade to the %2$s plan or higher.',
 									'jetpack-mu-wpcom'
 								),
-								$support_url,
+								esc_url( $support_url ),
 								get_store_product( $gs_upgrade_plan )->product_name
+							) : sprintf(
+								/* translators: %1$s - plan upgrade URL, %2$s - documentation URL */
+								__(
+									'This is how your site will appear to visitors. To customize its colors, fonts, layout and more, <a href="%1$s" target="_blank">upgrade your plan</a> to activate <a href="%2$s" target="_blank">premium styles</a>.',
+									'jetpack-mu-wpcom'
+								),
+								esc_url( $upgrade_url ),
+								esc_url( $support_url )
 							);
+
 							printf(
 								wp_kses(
 									$message,
@@ -636,29 +624,19 @@ function wpcom_display_global_styles_launch_bar() {
 								class="launch-bar-global-styles-actions__preview <?php echo wpcom_is_previewing_global_styles() ? 'disabled' : ''; ?>"
 								href="<?php echo ! wpcom_is_previewing_global_styles() ? esc_url( $preview_location ) : 'javascript:void(0)'; ?>"
 							>
-								<iframe 
-									class="launch-bar-global-styles-actions__preview-frame"
-									data-content="<h2 style='display:inline;'>A</h2><p style='display:inline;'>a</p>"
-									data-styles="* {cursor: pointer;}<?php echo esc_attr( $merged_stylesheet ); ?>"
-									frameborder="0"
-									scrolling="no"
-									title="<?php echo esc_attr__( 'Style preview', 'jetpack-mu-wpcom' ); ?>"
-								></iframe>
-								<?php echo esc_html__( 'Use premium style', 'jetpack-mu-wpcom' ); ?>
+								<div class="launch-bar-global-styles-actions__preview-frame is-premium">
+									<h2>A</h2><p>a</p>
+								</div>
+								<?php echo esc_html__( 'Premium styles', 'jetpack-mu-wpcom' ); ?>
 							</a>
 							<a
 								class="launch-bar-global-styles-actions__preview <?php echo ! wpcom_is_previewing_global_styles() ? 'disabled' : ''; ?>"
 								href="<?php echo wpcom_is_previewing_global_styles() ? esc_url( $preview_location ) : 'javascript:void(0)'; ?>"
 							>
-								<iframe 
-									class="launch-bar-global-styles-actions__preview-frame"
-									data-content="<h2 style='display:inline;'>A</h2><p style='display:inline;'>a</p>"
-									data-styles="* {cursor: pointer;}<?php echo esc_attr( $base_theme_json_stylesheet ); ?>"
-									frameborder="0"
-									scrolling="no"
-									title="<?php echo esc_attr__( 'Style preview', 'jetpack-mu-wpcom' ); ?>"
-								></iframe>
-								<?php echo esc_html__( 'Use default style', 'jetpack-mu-wpcom' ); ?>
+								<div class="launch-bar-global-styles-actions__preview-frame">
+									<h2>A</h2><p>a</p>
+								</div>
+								<?php echo esc_html__( 'Default styles', 'jetpack-mu-wpcom' ); ?>
 							</a>
 						</div>
 
@@ -670,10 +648,10 @@ function wpcom_display_global_styles_launch_bar() {
 								class="launch-bar-global-styles__button--upgrade"
 								href="<?php echo esc_url( $upgrade_url ); ?>"
 							>
-								<?php echo esc_html__( 'Upgrade to Premium plan', 'jetpack-mu-wpcom' ); ?>
+								<?php echo esc_html__( 'Upgrade and keep premium styles', 'jetpack-mu-wpcom' ); ?>
 							</a>
 								<?php
-							} else {
+						} else {
 							?>
 							<a
 								class="launch-bar-global-styles__button--reset"
@@ -682,7 +660,7 @@ function wpcom_display_global_styles_launch_bar() {
 								data-blog-id="<?php echo esc_attr( (string) $blog_id ); ?>"
 								data-global-styles-id="<?php echo esc_attr( (string) $global_styles_id ); ?>"
 							>
-								<?php echo esc_html__( 'Remove styles and keep free plan', 'jetpack-mu-wpcom' ); ?>
+								<?php echo esc_html__( 'Remove premium styles', 'jetpack-mu-wpcom' ); ?>
 							</a>
 								<?php
 						}
