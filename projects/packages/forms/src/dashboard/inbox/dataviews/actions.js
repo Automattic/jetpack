@@ -1,7 +1,7 @@
 import { Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { details, trash, backup } from '@wordpress/icons';
+import { commentContent, trash, backup } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
@@ -16,7 +16,7 @@ export const viewAction = {
 	id: 'view-response',
 	label: __( 'View response', 'jetpack-forms' ),
 	isPrimary: true,
-	icon: <Icon icon={ details } />,
+	icon: <Icon icon={ commentContent } />,
 	modalHeader: __( 'Response', 'jetpack-forms' ),
 	RenderModal: ( { items } ) => {
 		const [ item ] = items;
@@ -26,16 +26,18 @@ export const viewAction = {
 
 // TODO: We should probably have better error messages in case of failure.
 const getGenericErrorMessage = numberOfErrors => {
-	return sprintf(
-		/* translators: The number of responses. */
-		_n(
-			'An error occurred for %d response.',
-			'An error occurred for %d responses.',
-			numberOfErrors,
-			'jetpack-forms'
-		),
-		numberOfErrors
-	);
+	return numberOfErrors.length === 1
+		? __( 'An error occurred.', 'jetpack-forms' )
+		: sprintf(
+				/* translators: The number of responses. */
+				_n(
+					'An error occurred for %d response.',
+					'An error occurred for %d responses.',
+					numberOfErrors,
+					'jetpack-forms'
+				),
+				numberOfErrors
+		  );
 };
 
 export const markAsSpamAction = {
@@ -53,16 +55,19 @@ export const markAsSpamAction = {
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
-			const successMessage = sprintf(
-				/* translators: The number of responses. */
-				_n(
-					'%d response has been marked as spam.',
-					'%d responses have been marked as spam.',
-					items.length,
-					'jetpack-forms'
-				),
-				items.length
-			);
+			const successMessage =
+				items.length === 1
+					? __( 'Response marked as spam.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: The number of responses. */
+							_n(
+								'%d response marked as spam.',
+								'%d responses marked as spam.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'mark-as-spam-action' } );
 		} else {
 			// There is at least one failure.
@@ -97,16 +102,19 @@ export const markAsNotSpamAction = {
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
-			const successMessage = sprintf(
-				/* translators: The number of responses. */
-				_n(
-					'%d response has been marked as not spam.',
-					'%d responses have been marked as not spam.',
-					items.length,
-					'jetpack-forms'
-				),
-				items.length
-			);
+			const successMessage =
+				items.length === 1
+					? __( 'Response marked as not spam.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: The number of responses. */
+							_n(
+								'%d response marked as not spam.',
+								'%d responses marked as not spam.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'mark-as-not-spam-action' } );
 		} else {
 			// There is at least one failure.
@@ -139,16 +147,19 @@ export const restoreAction = {
 			)
 		);
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
-			const successMessage = sprintf(
-				/* translators: The number of responses. */
-				_n(
-					'%d response has been restored.',
-					'%d responses have been restored.',
-					items.length,
-					'jetpack-forms'
-				),
-				items.length
-			);
+			const successMessage =
+				items.length === 1
+					? __( 'Response restored.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: The number of responses. */
+							_n(
+								'%d response restored.',
+								'%d responses restored.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'restore-action' } );
 			return;
 		}
@@ -174,16 +185,19 @@ export const moveToTrashAction = {
 			)
 		);
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
-			const successMessage = sprintf(
-				/* translators: The number of responses. */
-				_n(
-					'%d response has been moved to trash.',
-					'%d responses have been moved to trash.',
-					items.length,
-					'jetpack-forms'
-				),
-				items.length
-			);
+			const successMessage =
+				items.length === 1
+					? __( 'Response moved to trash.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: The number of responses. */
+							_n(
+								'%d response moved to trash.',
+								'%d responses moved to trash.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
 			return;
 		}
@@ -216,16 +230,19 @@ export const deleteAction = {
 		}
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
-			const successMessage = sprintf(
-				/* translators: The number of responses. */
-				_n(
-					'%d response has been deleted permanently.',
-					'%d responses have been deleted permanently.',
-					items.length,
-					'jetpack-forms'
-				),
-				items.length
-			);
+			const successMessage =
+				items.length === 1
+					? __( 'Response deleted permanently.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: The number of responses. */
+							_n(
+								'%d response deleted permanently.',
+								'%d responses deleted permanently.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
 			return;
 		}
