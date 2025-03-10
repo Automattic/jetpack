@@ -261,10 +261,10 @@ function pre_update_option_wpcom_public_coming_soon( $new_value, $old_value ) {
 
 	$blog_id = get_wpcom_blog_id();
 	Client::wpcom_json_api_request_as_user(
-		"/sites/$blog_id/coming-soon",
+		"/sites/$blog_id/hosting/wpcom-public-coming-soon",
 		'v2',
 		array( 'method' => 'POST' ),
-		array( 'is_coming_soon' => (int) $new_value )
+		array( 'value' => $new_value )
 	);
 
 	return $new_value;
