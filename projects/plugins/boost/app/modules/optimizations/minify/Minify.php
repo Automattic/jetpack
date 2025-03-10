@@ -3,6 +3,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Admin\Config as Boost_Admin_Config;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
@@ -65,7 +66,8 @@ class Minify implements Pluggable, Optimization, Has_Activate, Has_Deactivate, H
 	 * This is called when either minify module is activated
 	 */
 	public static function activate() {
-		jetpack_boost_minify_activation();
+		$setup_404_tester = Boost_Admin_Config::get_hosting_provider() !== 'atomic' && Boost_Admin_Config::get_hosting_provider() !== 'woa';
+		jetpack_boost_minify_activation( $setup_404_tester );
 	}
 
 	/**

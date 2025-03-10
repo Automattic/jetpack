@@ -19,6 +19,10 @@
 		],
 		"test-js": [
 			"pnpm exec playwright install --with-deps chromium && pnpm run test"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
 		]
 	},
 	"repositories": [
