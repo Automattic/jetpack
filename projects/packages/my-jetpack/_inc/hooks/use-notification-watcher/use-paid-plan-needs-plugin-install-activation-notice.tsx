@@ -35,15 +35,18 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 
 	const isPurchasesDataLoaded = purchases && ! isLoadingPurchases && ! isError;
 
+	const redBubbleAlertCount =
+		typeof redBubbleAlerts === 'object' ? Object.keys( redBubbleAlerts ).length : 0;
+
 	const pluginsNeedingActionAlerts = useMemo( () => {
-		if ( isLoading ) {
+		if ( isLoading || redBubbleAlertCount === 0 ) {
 			return [];
 		}
 
 		return Object.keys( redBubbleAlerts ).filter( key =>
 			key.endsWith( '--plugins_needing_installed_activated' )
 		) as Array< `${ string }--plugins_needing_installed_activated` >;
-	}, [ isLoading, redBubbleAlerts ] );
+	}, [ isLoading, redBubbleAlertCount, redBubbleAlerts ] );
 
 	const alert = redBubbleAlerts?.[ pluginsNeedingActionAlerts[ 0 ] ];
 	const alertSlug = pluginsNeedingActionAlerts[ 0 ];
@@ -154,6 +157,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 	const onCloseClick = useCallback( () => {
 		createCookie( `${ planSlug }--plugins_needing_installed_dismissed`, 14 );
 		delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
+
 		resetNotice();
 	}, [ planSlug, pluginsNeedingActionAlerts, redBubbleAlerts, resetNotice ] );
 
