@@ -6,7 +6,7 @@
  * First Introduced: 14.4
  * Requires Connection: Yes
  * Requires User Connection: No
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Account Protection
  * Feature: Security
  *
@@ -15,4 +15,11 @@
 
 use Automattic\Jetpack\Account_Protection\Account_Protection;
 
-( new Account_Protection() )->init();
+$account_protection = new Account_Protection();
+
+// Do not activate in Pressable environments
+if ( ! defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+	$account_protection->enable();
+}
+
+$account_protection->init();
