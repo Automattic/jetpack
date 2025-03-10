@@ -8,7 +8,7 @@ import styles from './styles.module.scss';
 interface ScheduleButtonBaseProps {
 	scheduleTimestamp?: number;
 	onChange?: ( unixTimestamp: number ) => void;
-	onConfirm?: () => void;
+	onConfirm?: ( unixTimestamp: number ) => void;
 }
 
 interface ScheduleButtonContentProps extends ScheduleButtonBaseProps {
@@ -26,12 +26,12 @@ const ScheduleButtonContent = ( {
 	onConfirm,
 }: ScheduleButtonContentProps ) => {
 	const confirmCalback = useCallback( () => {
-		onConfirm?.();
+		onConfirm?.( scheduleTimestamp );
 		onClose();
-	}, [ onClose, onConfirm ] );
+	}, [ onClose, onConfirm, scheduleTimestamp ] );
 
 	const changeCallback = useCallback(
-		newDate => {
+		( newDate: string ) => {
 			const unixTime = +date( 'U', newDate + getSettings().timezone.abbr, 0 );
 			onChange?.( unixTime );
 		},
@@ -90,7 +90,13 @@ const ScheduleButton = ( {
 		),
 		[ scheduleTimestamp, onChange, onConfirm ]
 	);
-	return <Dropdown position="bottom left" renderToggle={ toggle } renderContent={ content } />;
+	return (
+		<Dropdown
+			popoverProps={ { placement: 'bottom-start' } }
+			renderToggle={ toggle }
+			renderContent={ content }
+		/>
+	);
 };
 
 export default ScheduleButton;
