@@ -1,6 +1,18 @@
 import { useRefEffect } from '@wordpress/compose';
 import { useState } from '@wordpress/element';
 
+/** @typedef {{ fallbackBackgroundColor: string, fallbackTextColor: string }} FallbackColors */
+/** @typedef {import('react').Ref} Ref */
+
+/**
+ * Computes the fallback colors for a button block.
+ * This hook returns the css colors for the block, which allows the contrast
+ * checker to test colors that might be provided by the theme against colors
+ * the user sets.
+ *
+ * @return {[FallbackColors, Ref]} An array with the fallback colors and a ref
+ * to the button block.
+ */
 export default function useFallbackColors() {
 	const [ fallbacks, setFallbacks ] = useState();
 
