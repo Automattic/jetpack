@@ -1,6 +1,6 @@
 import { Dropdown, Button, DateTimePicker } from '@wordpress/components';
 import { date, getSettings } from '@wordpress/date';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
 import styles from './styles.module.scss';
@@ -38,14 +38,10 @@ const ScheduleButtonContent = ( {
 		[ onChange ]
 	);
 
-	const scheduleDate = useMemo(
-		() =>
-			date(
-				'Y-m-d\\TH:i:s',
-				scheduleTimestamp ? new Date( scheduleTimestamp * 1000 ) : new Date(),
-				getSettings().timezone.offset
-			),
-		[ scheduleTimestamp ]
+	const scheduleDate = date(
+		'Y-m-d\\TH:i:s',
+		scheduleTimestamp ? new Date( scheduleTimestamp * 1000 ) : new Date(),
+		getSettings().timezone.offset
 	);
 
 	return (
