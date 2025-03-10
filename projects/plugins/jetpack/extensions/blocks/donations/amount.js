@@ -1,9 +1,12 @@
-import { CURRENCIES } from '@automattic/format-currency';
 import { formatCurrency } from '@automattic/number-formatters';
 import { RichText } from '@wordpress/block-editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import clsx from 'clsx';
-import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
+import {
+	LEGACY_CURRENCIES,
+	minimumTransactionAmountForCurrency,
+	parseAmount,
+} from '../../shared/currencies';
 
 const Amount = ( {
 	className = null,
@@ -98,7 +101,7 @@ const Amount = ( {
 			onClick={ setFocus }
 			onKeyDown={ setFocus }
 		>
-			{ CURRENCIES[ currency ].symbol }
+			{ LEGACY_CURRENCIES[ currency ].symbol }
 			{ disabled ? (
 				<div className="donations__amount-value">
 					{ formatCurrency( value ? value : defaultValue, currency, { symbol: '' } ) }

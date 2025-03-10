@@ -1,9 +1,119 @@
-import { CURRENCIES } from '@automattic/format-currency';
-
 // Removes all dots (`.`) from the end of a string.
 function removeTrailingDots( string ) {
 	return String( string || '' ).replace( /\.+$/, '' );
 }
+
+/**
+ * Currency data for formatting currencies.
+ * This is an internalized version of the CURRENCIES object previously imported from format-currency.
+ */
+export const LEGACY_CURRENCIES = {
+	USD: {
+		symbol: '$',
+		decimal: '.',
+		grouping: ',',
+		precision: 2,
+	},
+	AUD: {
+		symbol: 'A$',
+		decimal: '.',
+		grouping: ',',
+		precision: 2,
+	},
+	BRL: {
+		symbol: 'R$',
+		decimal: ',',
+		grouping: '.',
+		precision: 2,
+	},
+	CAD: {
+		symbol: 'C$',
+		decimal: '.',
+		grouping: ',',
+		precision: 2,
+	},
+	CHF: {
+		symbol: 'CHF',
+		decimal: '.',
+		grouping: "'",
+		precision: 2,
+	},
+	DKK: {
+		symbol: 'kr.',
+		decimal: ',',
+		grouping: '.',
+		precision: 2,
+	},
+	EUR: {
+		symbol: '€',
+		decimal: ',',
+		grouping: '.',
+		precision: 2,
+	},
+	GBP: {
+		symbol: '£',
+		decimal: '.',
+		grouping: ',',
+		precision: 2,
+	},
+	HKD: {
+		symbol: 'HK$',
+		decimal: '.',
+		grouping: ',',
+		precision: 2,
+	},
+	INR: {
+		symbol: '₹',
+		decimal: '.',
+		grouping: ',',
+		precision: 2,
+	},
+	JPY: {
+		symbol: '¥',
+		decimal: '.',
+		grouping: ',',
+		precision: 0,
+	},
+	MXN: {
+		symbol: 'MX$',
+		decimal: '.',
+		grouping: ',',
+		precision: 2,
+	},
+	NOK: {
+		symbol: 'kr',
+		decimal: ',',
+		grouping: ' ',
+		precision: 2,
+	},
+	NZD: {
+		symbol: 'NZ$',
+		decimal: '.',
+		grouping: ',',
+		precision: 2,
+	},
+	PLN: {
+		symbol: 'zł',
+		decimal: ',',
+		grouping: ' ',
+		precision: 2,
+	},
+	SEK: {
+		symbol: 'kr',
+		decimal: ',',
+		grouping: ' ',
+		precision: 2,
+	},
+	SGD: {
+		symbol: 'S$',
+		decimal: '.',
+		grouping: ',',
+		precision: 2,
+	},
+};
+
+// For backward compatibility, also export as CURRENCIES
+export const CURRENCIES = LEGACY_CURRENCIES;
 
 /**
  * Get the currency settings for a certain currency.
@@ -14,7 +124,7 @@ function removeTrailingDots( string ) {
  */
 export function getCurrencyDefaults( code ) {
 	return (
-		CURRENCIES[ code ] || {
+		LEGACY_CURRENCIES[ code ] || {
 			symbol: '$',
 			decimal: '.',
 			grouping: ',',
@@ -113,10 +223,10 @@ export function parseAmount( amount, currency ) {
 	}
 
 	let ungrouped_amount = amount;
-	if ( CURRENCIES[ currency ].grouping ) {
+	if ( LEGACY_CURRENCIES[ currency ].grouping ) {
 		// Remove any thousand grouping separator.
 		ungrouped_amount = amount.replace(
-			new RegExp( '\\' + CURRENCIES[ currency ].grouping, 'g' ),
+			new RegExp( '\\' + LEGACY_CURRENCIES[ currency ].grouping, 'g' ),
 			''
 		);
 	}
@@ -124,7 +234,7 @@ export function parseAmount( amount, currency ) {
 	amount = parseFloat(
 		ungrouped_amount
 			// Replace the localized decimal separator with a dot (the standard decimal separator in float numbers).
-			.replace( new RegExp( '\\' + CURRENCIES[ currency ].decimal, 'g' ), '.' )
+			.replace( new RegExp( '\\' + LEGACY_CURRENCIES[ currency ].decimal, 'g' ), '.' )
 	);
 
 	if ( isNaN( amount ) ) {

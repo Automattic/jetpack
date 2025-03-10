@@ -1,4 +1,3 @@
-import { CURRENCIES } from '@automattic/format-currency';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
@@ -18,6 +17,7 @@ import { DOWN } from '@wordpress/keycodes';
 import {
 	getDefaultDonationAmountsForCurrency,
 	SUPPORTED_CURRENCIES,
+	LEGACY_CURRENCIES,
 } from '../../shared/currencies';
 
 const Controls = props => {
@@ -74,7 +74,7 @@ const Controls = props => {
 											className="jetpack-donations__currency-toggle"
 											icon={
 												<>
-													{ currency + ' - ' + CURRENCIES[ currency ].symbol }
+													{ currency + ' - ' + LEGACY_CURRENCIES[ currency ].symbol }
 													<Dashicon icon="arrow-down" />
 												</>
 											}
@@ -96,7 +96,7 @@ const Controls = props => {
 												} }
 												key={ `jetpack-donations-currency-${ ccy }` }
 											>
-												{ ccy + ' - ' + CURRENCIES[ ccy ].symbol }
+												{ ccy + ' - ' + LEGACY_CURRENCIES[ ccy ].symbol }
 											</MenuItem>
 										) ) }
 									</MenuGroup>
