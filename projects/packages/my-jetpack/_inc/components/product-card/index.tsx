@@ -10,6 +10,7 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import ActionButton from '../action-button';
 import SecondaryButton from '../action-button/secondary-button';
 import Card from '../card';
+import LoadingBlock from '../loading-block';
 import PriceComponent from './pricing-component';
 import RecommendationActions from './recommendation-actions';
 import Status from './status';
@@ -170,7 +171,11 @@ const ProductCard: FC< ProductCardProps > = props => {
 			titleId={ getProductCardTitleId( slug ) }
 		>
 			{ recommendation && <PriceComponent slug={ slug } /> }
-			<Description />
+			{ isAllProductsLoading ? (
+				<LoadingBlock height="25px" width="100%" spaceBelow />
+			) : (
+				<Description />
+			) }
 
 			{ isDataLoading ? (
 				<span className={ styles.loading }>{ __( 'Loading…', 'jetpack-my-jetpack' ) }</span>
