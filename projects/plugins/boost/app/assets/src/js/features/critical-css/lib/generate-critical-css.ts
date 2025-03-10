@@ -270,7 +270,7 @@ async function generateForKeys(
 						meta: {}, // Can we get the actual error here?
 					},
 				] );
-				return;
+				continue;
 			}
 
 			// Success Target Errors indicate that URLs failed, but the process itself succeeded.
