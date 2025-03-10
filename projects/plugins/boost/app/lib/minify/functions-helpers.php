@@ -3,7 +3,6 @@
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 use Automattic\Jetpack_Boost\Lib\Minify\File_Paths;
-use Automattic\Jetpack_Boost\Lib\Singleton_Network_Event;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
@@ -14,6 +13,21 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
  */
 function jetpack_boost_minify_cache_buster() {
 	return 1;
+}
+
+/**
+ * This ensures that the cache cleanup cron job is only run once per day, espicially for multisite.
+ */
+function jetpack_boost_minify_cron_cache_cleanup() {
+	// If we see it's been executed within 24 hours, don't run
+	if ( get_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run', 0 ) > time() - DAY_IN_SECONDS ) {
+		return;
+	}
+
+	update_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run', time() );
+
+	jetpack_boost_legacy_minify_cache_cleanup();
+	jetpack_boost_minify_cache_cleanup();
 }
 
 /**
@@ -197,9 +211,21 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
  * Schedule a cronjob for the 404 tester, if one isn't already scheduled.
  */
 function jetpack_boost_page_optimize_schedule_404_tester() {
-	if ( Singleton_Network_Event::schedule( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' ) ) {
-		// Run the test immediately, if it wasn't already scheduled.
+	if ( false === wp_next_scheduled( 'jetpack_boost_404_tester_cron' ) ) {
+		wp_schedule_event( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' );
+
+		// Run the test immediately, so the settings page can show the result.
 		jetpack_boost_404_tester();
+	}
+}
+
+/**
+ * Schedule a cronjob for cache cleanup, if one isn't already scheduled.
+ */
+function jetpack_boost_page_optimize_schedule_cache_cleanup() {
+	// If caching is on, and job isn't queued for current cache folder
+	if ( false === wp_next_scheduled( 'jetpack_boost_minify_cron_cache_cleanup' ) ) {
+		wp_schedule_event( time(), 'daily', 'jetpack_boost_minify_cron_cache_cleanup' );
 	}
 }
 
@@ -352,7 +378,7 @@ function jetpack_boost_minify_serve_concatenated() {
  */
 function jetpack_boost_minify_activation( $setup_404_tester = true ) {
 	// Schedule a cronjob for cache cleanup, if one isn't already scheduled.
-	Singleton_Network_Event::schedule( time(), 'daily', 'jetpack_boost_minify_cron_cache_cleanup' );
+	jetpack_boost_page_optimize_schedule_cache_cleanup();
 
 	// Setup the cronjob to periodically test for the 404 handler.
 	jetpack_boost_404_setup( $setup_404_tester );
@@ -371,8 +397,7 @@ function jetpack_boost_minify_is_enabled() {
  * Run during every page load if any minify module is active.
  */
 function jetpack_boost_minify_init() {
-	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_legacy_minify_cache_cleanup' );
-	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_minify_cache_cleanup' );
+	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_minify_cron_cache_cleanup' );
 
 	if ( jetpack_boost_page_optimize_bail() ) {
 		return;

@@ -30,7 +30,6 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Setup;
-use Automattic\Jetpack_Boost\Lib\Singleton_Network_Event;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
@@ -114,8 +113,6 @@ class Jetpack_Boost {
 
 		$cornerstone_pages = new Cornerstone_Pages();
 		Setup::add( $cornerstone_pages );
-
-		Setup::add( new Singleton_Network_Event() );
 
 		// Initialize the Admin experience.
 		$this->init_admin( $modules_setup );
@@ -322,8 +319,9 @@ class Jetpack_Boost {
 			delete_option( $option_name );
 		}
 
-		// Unschedule all network cron events.
-		Singleton_Network_Event::clean_up();
+		// Delete the last run options for the network-wide cron jobs.
+		delete_site_option( 'jetpack_boost_404_tester_last_run' );
+		delete_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run' );
 
 		// Delete stored Critical CSS.
 		( new Critical_CSS_Storage() )->clear();
