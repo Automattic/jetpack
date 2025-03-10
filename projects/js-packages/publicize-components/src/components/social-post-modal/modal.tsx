@@ -1,7 +1,9 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, PanelRow, Button } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useReducer } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { PreviewSection } from './preview-section';
 import { SettingsSection } from './settings-section';
@@ -23,17 +25,23 @@ export function SocialPostModal() {
 		toggleModal();
 	}, [ isModalOpen, recordEvent ] );
 
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+
 	return (
 		<PanelRow className={ styles.panel }>
 			{ isModalOpen && (
 				<Modal
 					onRequestClose={ toggleModal }
-					title={ __( 'Social Previews', 'jetpack-publicize-components' ) }
+					title={
+						isPostPublished
+							? _x( 'Share Post', 'The title of the social modal', 'jetpack-publicize-components' )
+							: __( 'Social Previews', 'jetpack-publicize-components' )
+					}
 					className={ styles.modal }
 					__experimentalHideHeader
 				>
 					<div className={ styles[ 'modal-content' ] }>
-						<SettingsSection />
+						<SettingsSection onReShared={ toggleModal } />
 						<PreviewSection />
 					</div>
 					<Button
@@ -44,8 +52,14 @@ export function SocialPostModal() {
 					/>
 				</Modal>
 			) }
-			<Button variant="secondary" onClick={ handleOpenModal }>
-				{ __( 'Preview social posts', 'jetpack-publicize-components' ) }
+			<Button variant="secondary" onClick={ handleOpenModal } className={ styles[ 'open-button' ] }>
+				{ isPostPublished
+					? _x(
+							'Preview & Share',
+							'The button label for the modal trigger',
+							'jetpack-publicize-components'
+					  )
+					: __( 'Preview social posts', 'jetpack-publicize-components' ) }
 			</Button>
 		</PanelRow>
 	);
