@@ -93,8 +93,14 @@ export default function MyJetpackScreen() {
 		variation: 'control',
 	} );
 	useNotificationWatcher();
-	const { isAtomic = false, adminUrl, sandboxedDomain } = getMyJetpackWindowInitialState();
-	const { redBubbleAlerts, isDevVersion, userIsAdmin } = getMyJetpackWindowInitialState();
+	const {
+		isAtomic = false,
+		adminUrl,
+		sandboxedDomain,
+		redBubbleAlerts,
+		isDevVersion,
+		userIsAdmin,
+	} = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
@@ -225,18 +231,20 @@ export default function MyJetpackScreen() {
 
 			<ProductCardsSection />
 
-			<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
-				<Col>
-					{ isJetpackManageLoading ? (
-						<LoadingBlock height="200px" width="100%" />
-					) : (
-						! isJetpackManageError &&
-						jetpackManageData.isEnabled && (
-							<JetpackManageBanner isAgencyAccount={ jetpackManageData.isAgencyAccount } />
-						)
-					) }
-				</Col>
-			</Container>
+			{ userIsAdmin && (
+				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
+					<Col>
+						{ isJetpackManageLoading ? (
+							<LoadingBlock height="200px" width="100%" />
+						) : (
+							! isJetpackManageError &&
+							jetpackManageData.isEnabled && (
+								<JetpackManageBanner isAgencyAccount={ jetpackManageData.isAgencyAccount } />
+							)
+						) }
+					</Col>
+				</Container>
+			) }
 
 			<AdminSection>
 				<Container horizontalSpacing={ 8 }>
