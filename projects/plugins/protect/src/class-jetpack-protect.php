@@ -289,7 +289,7 @@ class Jetpack_Protect {
 	public static function activate_modules() {
 		delete_option( self::JETPACK_PROTECT_ACTIVATION_OPTION );
 
-		if ( ! defined( 'IS_PRESSABLE' ) || ! IS_PRESSABLE ) {
+		if ( ! defined( 'IS_PRESSABLE' ) ) {
 			( new Modules() )->activate( self::JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG, false, false );
 		}
 

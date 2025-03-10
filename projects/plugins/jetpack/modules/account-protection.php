@@ -17,7 +17,7 @@ use Automattic\Jetpack\Account_Protection\Account_Protection;
 
 $account_protection = new Account_Protection();
 
-if ( ! defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+if ( ! defined( 'IS_PRESSABLE' ) ) {
 	$account_protection->enable();
 }
 
