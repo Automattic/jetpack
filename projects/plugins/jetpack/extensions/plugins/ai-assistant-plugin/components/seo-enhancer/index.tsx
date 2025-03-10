@@ -1,10 +1,10 @@
-import { BaseControl, ToggleControl } from '@wordpress/components';
+import { BaseControl, ToggleControl, Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
 import './style.scss';
 
 export function SeoEnhancer() {
-	const [ isEnabled, setIsEnabled ] = useState( false );
+	const [ isEnabled, setIsEnabled ] = useState( true );
 
 	const toggleHandler = () => {
 		setIsEnabled( ! isEnabled );
@@ -18,10 +18,22 @@ export function SeoEnhancer() {
 				label={ __( 'Auto-enhance', 'jetpack' ) }
 				// __nextHasNoMarginBottom={ true }
 				help={ __(
-					"Automattically generate SEO title, SEO description and images' alt text.",
+					"Automattically generate SEO title, SEO description and images' alt text on publish.",
 					'jetpack'
 				) }
 			/>
+			{ ! isEnabled && (
+				<Button
+					style={ { width: '100%', justifyContent: 'center' } }
+					isBusy={ false }
+					disabled={ false }
+					onClick={ () => {} }
+					variant="secondary"
+					__next40pxDefaultSize
+				>
+					{ __( 'Generate SEO properties', 'jetpack' ) }
+				</Button>
+			) }
 		</BaseControl>
 	);
 }
