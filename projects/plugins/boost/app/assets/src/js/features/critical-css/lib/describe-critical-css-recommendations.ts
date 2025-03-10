@@ -506,13 +506,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 	},
 
 	ProviderError: {
-		describeSet: set =>
-			_n(
-				"Jetpack Boost couldn't save the following page due to an error:",
-				"Jetpack Boost couldn't save the following pages due to an error:",
-				urlCount( set ),
-				'jetpack-boost'
-			),
+		describeSet: () => __( 'Jetpack Boost encountered an error:', 'jetpack-boost' ),
 		rawError: set => Object.values( set.byUrl )[ 0 ].message,
 		suggestion: _set => ( {
 			paragraph: __(
