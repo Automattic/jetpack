@@ -6,8 +6,9 @@ export default function useFallbackColors() {
 
 	const ref = useRefEffect( node => {
 		const observer = new MutationObserver( () => {
-			const fallbackBackgroundColor = getComputedStyle( node ).backgroundColor;
-			const fallbackTextColor = getComputedStyle( node ).color;
+			const computedStyle = getComputedStyle( node );
+			const fallbackBackgroundColor = computedStyle.backgroundColor;
+			const fallbackTextColor = computedStyle.color;
 
 			// Don't update the fallback colors if they haven't changed.
 			if (
