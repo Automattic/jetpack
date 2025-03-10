@@ -129,6 +129,10 @@ add_action(
 			if ( apply_filters( 'breve_enabled', true ) ) {
 				Jetpack_Gutenberg::set_extension_available( 'ai-proofread-breve' );
 			}
+
+			if ( apply_filters( 'ai_seo_enhancer_enabled', false ) ) {
+				Jetpack_Gutenberg::set_extension_available( 'ai-seo-enhancer' );
+			}
 		}
 	}
 );

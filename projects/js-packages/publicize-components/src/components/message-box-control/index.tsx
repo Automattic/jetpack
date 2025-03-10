@@ -3,25 +3,56 @@ import { TextareaControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useRef } from 'react';
 
+export const getPlaceholderText = () =>
+	__(
+		'Write a custom message for your social audience here. This message will override your social post content.',
+		'jetpack-publicize-components'
+	);
+
+export const getDefaultLabel = () => __( 'Message', 'jetpack-publicize-components' );
+
+export type MessageBoxControlProps = {
+	/** The label for the message box */
+	label: string;
+
+	/** The placeholder text for the message box */
+	placeholder?: string;
+
+	/** The message to display */
+	message: string;
+
+	/** Callback to invoke as the message changes */
+	onChange: ( message: string ) => void;
+
+	/** Whether the control is disabled */
+	disabled?: boolean;
+
+	/** The maximum character length of the message */
+	maxLength: number;
+
+	/** Data for tracking analytics */
+	analyticsData?: {
+		/** The location of the analytics event */
+		location: string;
+	};
+};
+
 /**
  * Wrapper around a textbox to restrict the number of characters and
  * display how many are remaining.
  *
- * @param {object}   props               - The component's props.
- * @param {string}   props.message       - The message to display.
- * @param {Function} props.onChange      - Callback to invoke as the message changes.
- * @param {boolean}  [props.disabled]    - Whether the control is disabled.
- * @param {number}   props.maxLength     - The maximum character length of the message.
- * @param {object}   props.analyticsData - Data for tracking analytics.
+ * @param {MessageBoxControlProps} props - The component's props.
  * @return {object} The message box component.
  */
 export default function MessageBoxControl( {
+	label = getDefaultLabel(),
+	placeholder = getPlaceholderText(),
 	message = '',
 	onChange,
 	disabled,
 	maxLength,
 	analyticsData = null,
-} ) {
+}: MessageBoxControlProps ) {
 	const { recordEvent } = useAnalytics();
 	const isFirstChange = useRef( true );
 
@@ -41,14 +72,11 @@ export default function MessageBoxControl( {
 	return (
 		<TextareaControl
 			value={ message }
-			label={ __( 'Message', 'jetpack-publicize-components' ) }
+			label={ label }
 			onChange={ handleChange }
 			disabled={ disabled }
 			maxLength={ maxLength }
-			placeholder={ __(
-				'Write a custom message for your social audience here. This message will override your social post content.',
-				'jetpack-publicize-components'
-			) }
+			placeholder={ placeholder }
 			rows={ 4 }
 			help={ sprintf(
 				/* translators: placeholder is a number. */
