@@ -262,6 +262,7 @@ async function generateForKeys(
 			}
 		} catch ( err ) {
 			if ( err instanceof ProviderCssSaveError ) {
+				stepsFailed++;
 				await callbacks.setProviderErrors( key, [
 					{
 						url: 'provider-failed-to-save-css',
