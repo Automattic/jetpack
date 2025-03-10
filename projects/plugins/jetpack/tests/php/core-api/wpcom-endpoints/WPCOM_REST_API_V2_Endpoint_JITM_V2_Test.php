@@ -88,18 +88,29 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	 * Tests the permission check for GET requests.
 	 */
 	public function test_get_item_permissions_check() {
-		wp_set_current_user( 0 );
-		$request      = new WP_REST_Request( 'GET', '/wpcom/v2/jitm-v2' );
-		$message_path = '/test_message_path/';
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/jitm-v2' );
 		$request->set_query_params(
 			array(
-				'message_path'        => $message_path,
+				'message_path'        => '/test_message_path/',
 				'query'               => '',
 				'full_jp_logo_exists' => false,
 			)
 		);
+
+		// Test with no user (should fail)
+		wp_set_current_user( 0 );
 		$response = $this->server->dispatch( $request );
-		$this->assertEquals( 200, $response->get_status(), 'Unauthenticated users should be able to get JITMs' );
+		$this->assertErrorResponse(
+			'invalid_user_permission_jetpack_get_jitm_message',
+			$response,
+			rest_authorization_required_code()
+		);
+
+		// Test with logged in user (should succeed)
+		$subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		wp_set_current_user( $subscriber_id );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status(), 'Logged in users should be able to get JITMs' );
 	}
 
 	/**
@@ -117,9 +128,13 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 		// Test with no user (should fail)
 		wp_set_current_user( 0 );
 		$response = $this->server->dispatch( $request );
-		$this->assertErrorResponse( 'invalid_user_permission_jetpack_delete_jitm_message', $response, rest_authorization_required_code() );
+		$this->assertErrorResponse(
+			'invalid_user_permission_jetpack_delete_jitm_message',
+			$response,
+			rest_authorization_required_code()
+		);
 
-		// Test with subscriber (should succeed)
+		// Test with  (should succeed)
 		$subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
 		wp_set_current_user( $subscriber_id );
 		$response = $this->server->dispatch( $request );
