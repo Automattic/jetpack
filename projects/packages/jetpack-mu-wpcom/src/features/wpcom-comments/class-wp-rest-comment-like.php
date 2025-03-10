@@ -8,9 +8,10 @@
  */
 
 /**
- * Class WP_REST_Comments_Likes.
+ * Class WP_REST_Comment_Like.
  *
- * Handles endpoints for creating a new like and deleting a like.
+ * A thin wrapper around the wpcom implementation, specifically designed for comments moderation.
+ * Handles endpoints for creating a new like and deleting a like on comments.
  */
 class WP_REST_Comment_Like extends WP_REST_Controller {
 
@@ -34,12 +35,6 @@ class WP_REST_Comment_Like extends WP_REST_Controller {
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'new_like' ),
 					'permission_callback' => array( $this, 'permission_callback' ),
-					'args'                => array(
-						'_locale' => array(
-							'required' => false,
-							'type'     => 'string',
-						),
-					),
 				),
 			)
 		);
