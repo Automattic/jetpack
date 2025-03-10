@@ -335,7 +335,7 @@ class WPCOM_Stats {
 
 			$stats = $this->fetch_stats_on_wpcom_simple( $end_date, $number_of_days, $escaped_post_ids );
 
-			$post_views = $stats['-'];
+			$post_views = $stats['-'] ?? array();
 
 			$posts = array_map(
 				function ( $post_id ) use ( $post_views ) {
