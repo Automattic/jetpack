@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7ecab5a74142874080feb1d962e2a159",
+    "content-hash": "bde225c07910601bc0a5fecc33e5ed58",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -1212,7 +1212,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "e4e03c9f4809bb92c53a3ae8c413568e11d8ad13"
+                "reference": "0489d4b8d175eee562e811b8eb72632204bd76ff"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1227,7 +1227,7 @@
                 "automattic/jetpack-stats-admin": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/scheduled-updates": "@dev",
-                "php": ">=7.2",
+                "php": ">=8.1",
                 "scssphp/scssphp": "1.12.0"
             },
             "require-dev": {
@@ -4792,7 +4792,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.4"
+        "php": ">=8.1"
     },
     "platform-dev": {},
     "plugin-api-version": "2.6.0"

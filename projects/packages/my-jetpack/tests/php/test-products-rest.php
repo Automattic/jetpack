@@ -26,13 +26,6 @@ class Test_Products_Rest extends TestCase {
 	private $server;
 
 	/**
-	 * The original hostname to restore after tests are finished.
-	 *
-	 * @var string
-	 */
-	private $api_host_original;
-
-	/**
 	 * The current user id.
 	 *
 	 * @var int
@@ -124,7 +117,7 @@ class Test_Products_Rest extends TestCase {
 	 * Test GET products
 	 */
 	public function test_get_products() {
-		$products = Products::get_products();
+		$products = Products::get_products_api_data();
 
 		$request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
 
@@ -165,7 +158,7 @@ class Test_Products_Rest extends TestCase {
 	 * Test GET product
 	 */
 	public function test_get_product() {
-		$product = Products::get_product( 'boost' );
+		$product = Products::get_products_api_data( array( 'boost' ) );
 
 		$request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
 		$request->set_query_params(
@@ -178,7 +171,7 @@ class Test_Products_Rest extends TestCase {
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( $product, $data['boost'] );
+		$this->assertEquals( $product['boost'], $data['boost'] );
 	}
 
 	/**
@@ -213,10 +206,19 @@ class Test_Products_Rest extends TestCase {
 		$request->set_body( wp_json_encode( $body ) );
 
 		$response = $this->server->dispatch( $request );
-		$data     = $response->get_data();
+
+		$api_data_request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
+		$api_data_request->set_query_params(
+			array(
+				'products' => 'boost',
+			)
+		);
+
+		$api_data_response = $this->server->dispatch( $api_data_request );
+		$api_data          = $api_data_response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( 'can_upgrade', $data['boost']['status'] );
+		$this->assertEquals( 'can_upgrade', $api_data['boost']['status'] );
 		$this->assertTrue( is_plugin_active( $this->boost_mock_filename ) );
 	}
 
@@ -237,10 +239,19 @@ class Test_Products_Rest extends TestCase {
 		$request->set_body( wp_json_encode( $body ) );
 
 		$response = $this->server->dispatch( $request );
-		$data     = $response->get_data();
+
+		$api_data_request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
+		$api_data_request->set_query_params(
+			array(
+				'products' => 'boost',
+			)
+		);
+
+		$api_data_response = $this->server->dispatch( $api_data_request );
+		$api_data          = $api_data_response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( 'needs_activation', $data['boost']['status'] );
+		$this->assertEquals( 'needs_activation', $api_data['boost']['status'] );
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 	}
 

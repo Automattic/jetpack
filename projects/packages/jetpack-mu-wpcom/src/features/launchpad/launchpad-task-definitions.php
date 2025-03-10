@@ -21,20 +21,20 @@ function wpcom_launchpad_should_use_wp_admin_link() {
 }
 
 /**
+ * Returns whether the site was created through the onboarding flow.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_has_site_been_created_through_onboarding_flow() {
+	return get_option( 'site_creation_flow' ) === 'onboarding';
+}
+
+/**
  * Get the task definitions for the Launchpad.
  *
  * @return Task[]
  */
 function wpcom_launchpad_get_task_definitions() {
-	$experiment_name                   = 'calypso_signup_onboarding_goals_first_flow_holdout_v2_20250131';
-	$user                              = wp_get_current_user();
-	$is_user_in_goals_first_experiment = false;
-
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && $user && $user->exists() && function_exists( '\ExPlat\get_user_assignment' ) ) {
-		$assignment                        = \ExPlat\get_user_assignment( $experiment_name, $user );
-		$is_user_in_goals_first_experiment = 'treatment_cumulative' === $assignment;
-	}
-
 	$task_definitions = array(
 		// Core tasks.
 		'design_edited'                   => array(
@@ -54,26 +54,28 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => $is_user_in_goals_first_experiment ? '__return_true' : 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) use ( $is_user_in_goals_first_experiment ) {
-				$flow = get_option( 'site_intent' );
-				if ( $is_user_in_goals_first_experiment ) {
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
 					return '/themes/' . $data['site_slug_encoded'];
 				}
+
+				$flow = get_option( 'site_intent' );
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'] . '&flow=' . $flow;
 			},
-			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_false' : 'wpcom_launchpad_is_design_step_enabled',
+			'is_disabled_callback' => 'wpcom_launchpad_is_design_step_enabled',
 		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
-			'is_disabled_callback' => $is_user_in_goals_first_experiment ? '__return_false' : 'wpcom_launchpad_is_design_step_enabled',
-			'get_calypso_path'     => function ( $task, $default, $data ) use ( $is_user_in_goals_first_experiment ) {
-				if ( $is_user_in_goals_first_experiment ) {
+			'is_disabled_callback' => 'wpcom_launchpad_is_design_step_enabled',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
 					return '/themes/' . $data['site_slug_encoded'];
 				}
+
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
@@ -1207,6 +1209,10 @@ function wpcom_launchpad_track_edit_site_task() {
  * @return boolean
  */
 function wpcom_launchpad_is_design_step_enabled() {
+	if ( wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
+		return false;
+	}
+
 	return ! wpcom_can_update_design_selected_task();
 }
 
@@ -1737,6 +1743,10 @@ function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
  * @return bool True if the option for the task is marked as complete, false otherwise.
  */
 function wpcom_launchpad_is_task_option_completed( $task ) {
+	if ( 'design_completed' === $task['id'] && wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
+		return true;
+	}
+
 	$checklist = get_option( 'launchpad_checklist_tasks_statuses', array() );
 	if ( ! empty( $checklist[ $task['id'] ] ) ) {
 		return true;

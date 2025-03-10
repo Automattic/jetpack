@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix tests for new eslint version. No change to code itself.
+
+

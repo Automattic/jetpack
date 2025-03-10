@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Ensure fields that skip rendering (like empty options fields) do not trigger validation or show value in form submission response.

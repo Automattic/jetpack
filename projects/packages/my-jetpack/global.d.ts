@@ -166,8 +166,6 @@ interface Window {
 			isSiteConnected: boolean;
 			isUserConnected: boolean;
 			jetpackPlugins: Array< string >;
-			ownedProducts: JetpackModule[];
-			unownedProducts: JetpackModule[];
 			modules: Array< string >;
 			purchases: Array< string >;
 		};
@@ -201,6 +199,7 @@ interface Window {
 					disclaimers: Array< string[] >;
 					features: string[];
 					has_free_offering: boolean;
+					feature_identifying_paid_plan: string;
 					has_paid_plan_for_product: boolean;
 					features_by_tier: Array< string >;
 					is_bundle: boolean;

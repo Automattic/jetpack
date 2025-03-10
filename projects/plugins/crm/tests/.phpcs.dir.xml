@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <ruleset>
 
+	<rule ref="Jetpack-Tests" />
+
 	<!-- Don't care about this stuff for test files. -->
 	<rule ref="Generic.Commenting.DocComment">
-		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
 		<exclude name="Generic.Commenting.DocComment.ShortNotCapital"/>
 		<exclude name="Generic.Commenting.DocComment.SpacingBeforeTags"/>
 	</rule>
@@ -15,19 +16,14 @@
 		<exclude name="Squiz.Commenting.BlockComment.NoCapital"/>
 	</rule>
 	<rule ref="Squiz.Commenting.ClassComment">
-		<exclude name="Squiz.Commenting.ClassComment.Missing"/>
 		<exclude name="Squiz.Commenting.ClassComment.WrongStyle"/>
 	</rule>
 	<rule ref="Squiz.Commenting.FileComment">
-		<exclude name="Squiz.Commenting.FileComment.Missing"/>
 		<exclude name="Squiz.Commenting.FileComment.WrongStyle"/>
 	</rule>
 	<rule ref="Squiz.Commenting.FunctionComment">
 		<exclude name="Squiz.Commenting.FunctionComment.EmptyThrows"/>
-		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment"/>
 		<exclude name="Squiz.Commenting.FunctionComment.MissingParamName"/>
-		<exclude name="Squiz.Commenting.FunctionComment.MissingParamTag"/>
-		<exclude name="Squiz.Commenting.FunctionComment.Missing"/>
 		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop"/>
 		<exclude name="Squiz.Commenting.FunctionComment.WrongStyle"/>
 	</rule>
@@ -35,7 +31,6 @@
 		<exclude name="Squiz.Commenting.FunctionCommentThrowTag.Missing"/>
 	</rule>
 	<rule ref="Squiz.Commenting.VariableComment">
-		<exclude name="Squiz.Commenting.VariableComment.Missing"/>
 		<exclude name="Squiz.Commenting.VariableComment.MissingVar"/>
 		<exclude name="Squiz.Commenting.VariableComment.WrongStyle"/>
 	</rule>
@@ -57,16 +52,6 @@
 		<exclude name="WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase"/>
 		<exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"/>
 		<exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
-	</rule>
-	<rule ref="WordPress.PHP.DevelopmentFunctions">
-		<exclude name="WordPress.PHP.DevelopmentFunctions.error_log_print_r"/>
-	</rule>
-	<rule ref="WordPress.Security.EscapeOutput">
-		<exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped"/>
-	</rule>
-	<rule ref="WordPress.WP.AlternativeFunctions">
-		<exclude name="WordPress.WP.AlternativeFunctions.file_system_operations_fopen"/>
-		<exclude name="WordPress.WP.AlternativeFunctions.parse_url_parse_url"/>
 	</rule>
 
 </ruleset>

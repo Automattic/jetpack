@@ -28,6 +28,7 @@ const DEFAULT_BORDER_WEIGHT_VALUE = 1;
 const DEFAULT_FONTSIZE_VALUE      = '16px';
 const DEFAULT_PADDING_VALUE       = 15;
 const DEFAULT_SPACING_VALUE       = 10;
+const DEFAULT_BUTTON_WIDTH        = 'auto';
 
 /**
  * Registers the block for use in Gutenberg
@@ -478,7 +479,7 @@ function get_element_styles_from_attributes( $attributes ) {
 	}
 
 	if ( has_attribute( $attributes, 'buttonWidth' ) ) {
-		$submit_button_wrapper_styles .= sprintf( 'width: %s;', get_attribute( $attributes, 'buttonWidth' ) );
+		$submit_button_wrapper_styles .= sprintf( 'width: %s;', get_attribute( $attributes, 'buttonWidth', DEFAULT_BUTTON_WIDTH ) );
 		$submit_button_wrapper_styles .= 'max-width: 100%;';
 
 		// Account for custom margins on inline forms.
@@ -499,7 +500,6 @@ function get_element_styles_from_attributes( $attributes ) {
 	$submit_button_styles .= $style;
 	$email_field_styles   .= $style;
 
-	$button_spacing = get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE );
 	if ( ! $is_button_only_style ) {
 		$button_spacing = get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE );
 		if ( true === get_attribute( $attributes, 'buttonOnNewLine' ) ) {

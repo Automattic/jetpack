@@ -163,3 +163,56 @@ export function postPublishFetchHandler( postData ) {
 		};
 	};
 }
+
+/**
+ * Mocks JetpackScriptData with the provided data.
+ *
+ * @param {import('@automattic/jetpack-script-data').JetpackScriptData} data - The data
+ */
+export function mockScriptData( data = {} ) {
+	Object.defineProperty( global, 'JetpackScriptData', {
+		value: {
+			...data,
+			site: {
+				host: 'unknown',
+				wpcom: { blog_id: '123' },
+				...data.site,
+			},
+			user: {
+				current_user: {
+					id: 123,
+					capabilities: {
+						manage_options: true,
+					},
+					...data.user?.current_user,
+				},
+			},
+			social: {
+				is_publicize_enabled: true,
+				api_paths: {},
+				feature_flags: {},
+				settings: {
+					utmSettings: {},
+					socialNotes: {
+						config: {},
+					},
+					socialImageGenerator: {},
+					...data.social?.settings,
+				},
+				urls: {},
+				plugin_info: {
+					social: { version: '1.0.0' },
+					jetpack: { version: '1.0.0' },
+				},
+				shares_data: {},
+				store_initial_state: {},
+				...data.social,
+			},
+		},
+		writable: true,
+	} );
+}
+
+export const clearMockedScriptData = () => {
+	delete global.JetpackScriptData;
+};
