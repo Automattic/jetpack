@@ -110,10 +110,10 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 			currency={ currencyCode }
 			price={ price }
 			offPrice={ productPrice }
-			showNotOffPrice={ true }
+			showNotOffPrice={ price > productPrice } // show discounted price only if the new price is greater than the product price
 			isNotConvenientPrice={ false }
 			hidePriceFraction={ false }
-			hideDiscountLabel={ productPrice > price }
+			hideDiscountLabel={ productPrice >= price }
 			legend={ priceDescription }
 		/>
 	);
