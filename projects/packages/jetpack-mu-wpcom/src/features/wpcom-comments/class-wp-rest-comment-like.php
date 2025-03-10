@@ -117,7 +117,7 @@ class WP_REST_Comment_Like extends WP_REST_Controller {
 	 */
 	private function ensure_response( $response ) {
 		if ( ! $response ) {
-			return new WP_Error( 'unknown_response', 'Empty response', 500 );
+			return new WP_Error( 'unknown_response', 'Empty response from server', 500 );
 		}
 
 		if ( is_wp_error( $response ) ) {
@@ -126,14 +126,18 @@ class WP_REST_Comment_Like extends WP_REST_Controller {
 
 		$body = wp_remote_retrieve_body( $response );
 
-		if ( ! $body || is_wp_error( $body ) ) {
-			return new WP_Error( 'unknown_response', 'Empty response', 500 );
+		if ( is_wp_error( $body ) ) {
+			return $body;
+		}
+
+		if ( ! $body ) {
+			return new WP_Error( 'unknown_response', 'Empty response body from server', 500 );
 		}
 
 		$response = json_decode( $body, true );
 
 		if ( ! $response ) {
-			return new WP_Error( 'unknown_response', 'Empty response', 500 );
+			return new WP_Error( 'unknown_response', 'Empty decoded response body', 500 );
 		}
 
 		// Return the response from the server.
