@@ -104,9 +104,9 @@ class Dashboard {
 			array(
 				'in_footer'  => true,
 				'textdomain' => 'jetpack-subscribers-dashboard',
+				'enqueue'    => true,
 			)
 		);
-		Assets::enqueue_script( 'jetpack-subscribers-dashboard' );
 		Assets::enqueue_script( 'jetpack-script-data' );
 	}
 }
