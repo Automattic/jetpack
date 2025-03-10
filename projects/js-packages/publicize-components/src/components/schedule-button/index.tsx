@@ -1,7 +1,7 @@
 import { Dropdown, Button, DateTimePicker } from '@wordpress/components';
 import { date, getSettings } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
 import styles from './styles.module.scss';
 
@@ -48,7 +48,11 @@ const ScheduleButtonContent = ( {
 		<>
 			<DateTimePicker onChange={ changeCallback } currentDate={ scheduleDate } />
 			<Button variant="primary" onClick={ confirmCalback } className={ styles.confirm }>
-				{ __( 'Confirm Schedule', 'jetpack-publicize-components' ) }
+				{ _x(
+					'Confirm',
+					'Confirms the date and time selected to be used to share the post',
+					'jetpack-publicize-components'
+				) }
 			</Button>
 		</>
 	);
