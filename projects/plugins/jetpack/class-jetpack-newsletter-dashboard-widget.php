@@ -107,7 +107,12 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			wp_add_dashboard_widget(
 				self::$widget_id,
 				$widget_title,
-				array( static::class, 'render' )
+				array( static::class, 'render' ),
+				// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+				null,
+				array(),
+				'side',
+				'high'
 			);
 		}
 	}

@@ -65,8 +65,6 @@ const isAITitleOptimizationKeywordsFeatureAvailable = getFeatureAvailability(
 	'ai-title-optimization-keywords-support'
 );
 
-// const isSeoAssistantEnabled = getFeatureAvailability( 'ai-seo-assistant' );
-
 const JetpackAndSettingsContent = ( {
 	placement,
 	requireUpgrade,

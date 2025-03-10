@@ -5,6 +5,7 @@ import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { applyTimezone } from '../../utils/apply-timezone';
+import createCookie from '../../utils/create-cookie';
 import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
 import { useGetReadableFailedBackupReason } from './use-get-readable-failed-backup-reason';
@@ -37,8 +38,7 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const noticeTitle = __( 'Oops! We couldn’t back up your site', 'jetpack-my-jetpack' );
 
 	const onCloseClick = useCallback( () => {
-		// Session cookie. Expires at session end.
-		document.cookie = `backup_failure_dismissed=1; SameSite=None; Secure`;
+		createCookie( 'backup_failure_dismissed', 7 );
 		delete redBubbleAlerts.backup_failure;
 		resetNotice();
 	}, [ redBubbleAlerts.backup_failure, resetNotice ] );

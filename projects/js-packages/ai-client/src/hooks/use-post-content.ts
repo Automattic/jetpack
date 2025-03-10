@@ -28,15 +28,23 @@ const usePostContent = () => {
 		};
 	}, [] );
 
+	const getSerializedPostContent = useCallback( () => {
+		const blocks = getBlocks();
+
+		if ( blocks.length === 0 ) {
+			return '';
+		}
+
+		return serialize( blocks );
+	}, [ getBlocks ] );
+
 	const getPostContent = useCallback(
 		( preprocess?: ( serialized: string ) => string ) => {
-			const blocks = getBlocks();
+			let serialized = getSerializedPostContent();
 
-			if ( blocks.length === 0 ) {
+			if ( ! serialized ) {
 				return '';
 			}
-
-			let serialized = serialize( blocks );
 
 			if ( preprocess && typeof preprocess === 'function' ) {
 				serialized = preprocess( serialized );
@@ -47,7 +55,7 @@ const usePostContent = () => {
 		[ getBlocks ]
 	);
 
-	return { getPostContent, isEditedPostEmpty };
+	return { getPostContent, isEditedPostEmpty, getSerializedPostContent };
 };
 
 export default usePostContent;
