@@ -7,7 +7,7 @@ require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
  *
  * @package automattic/jetpack
  */
-class WP_Test_WPCOM_REST_API_V2_Endpoint_JITM_V2 extends Jetpack_REST_TestCase {
+class WP_Test_WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 
 	/**
 	 * Mock user ID.
