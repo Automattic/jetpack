@@ -93,7 +93,6 @@ function jetpack_boost_404_tester_cron() {
  * This function is called when the Minify_CSS or Minify_JS module is activated, and once per day.
  */
 function jetpack_boost_404_tester() {
-	// Update 404_tester_last_run
 	if ( defined( 'JETPACK_BOOST_DISABLE_404_TESTER' ) && JETPACK_BOOST_DISABLE_404_TESTER ) {
 		return;
 	}
