@@ -4,7 +4,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import React from 'react';
 
 // Last three notices. Slices from the tail end of the list.
-const MAX_VISIBLE_NOTICES = -3;
+const MAX_VISIBLE_NOTICES = 3;
 
 /**
  * This component renders the notices displayed in the dashboard.
@@ -17,7 +17,7 @@ export default function DashboardNotices() {
 	const { removeNotice } = useDispatch( noticesStore );
 	const snackbarNotices = notices
 		.filter( ( { type } ) => type === 'snackbar' )
-		.slice( MAX_VISIBLE_NOTICES );
+		.slice( -MAX_VISIBLE_NOTICES );
 	return (
 		<SnackbarList
 			notices={ snackbarNotices }

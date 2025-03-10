@@ -4,33 +4,14 @@
 import { Button } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { isArray, isEmpty, join, map } from 'lodash';
+import { map } from 'lodash';
 
-export const getDisplayName = response => {
-	const { author_name, author_email, ip } = response;
-	return author_name || author_email || ip;
-};
-
-export const formatFieldName = fieldName => {
-	const match = fieldName.match( /^(\d+_)?(.*)/i );
-
-	if ( match ) {
-		return match[ 2 ];
-	}
-
-	return fieldName;
-};
-
-export const formatFieldValue = fieldValue => {
-	if ( isEmpty( fieldValue ) ) {
-		return '-';
-	} else if ( isArray( fieldValue ) ) {
-		return join( fieldValue, ', ' );
-	}
-
-	return fieldValue;
+const getDisplayName = response => {
+	const { author_name, author_email, author_url, ip } = response;
+	return decodeEntities( author_name || author_email || author_url || ip );
 };
 
 const InboxResponse = ( { loading, response } ) => {
@@ -119,8 +100,8 @@ const InboxResponse = ( { loading, response } ) => {
 			<div className="jp-forms__inbox-response-data">
 				{ map( response.fields, ( value, key ) => (
 					<div key={ key } className="jp-forms__inbox-response-item">
-						<div className="jp-forms__inbox-response-data-label">{ formatFieldName( key ) }:</div>
-						<div className="jp-forms__inbox-response-data-value">{ formatFieldValue( value ) }</div>
+						<div className="jp-forms__inbox-response-data-label">{ key }:</div>
+						<div className="jp-forms__inbox-response-data-value">{ value }</div>
 					</div>
 				) ) }
 			</div>

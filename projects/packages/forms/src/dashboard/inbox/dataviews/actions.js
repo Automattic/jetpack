@@ -1,6 +1,6 @@
 import { Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { seen, trash, backup } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
@@ -23,6 +23,20 @@ export const viewAction = {
 	},
 };
 
+// TODO: We should probably have better error messages in case of failure.
+const getGenericErrorMessage = numberOfErrors => {
+	return sprintf(
+		/* translators: The number of responses. */
+		_n(
+			'An error occurred for %d response.',
+			'An error occurred for %d responses.',
+			numberOfErrors,
+			'jetpack-forms'
+		),
+		numberOfErrors
+	);
+};
+
 export const markAsSpamAction = {
 	id: 'mark-as-spam',
 	label: __( 'Mark as spam', 'jetpack-forms' ),
@@ -38,35 +52,23 @@ export const markAsSpamAction = {
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
-			const numberOfItems = items.length;
-			const successMessage =
-				numberOfItems === 1
-					? sprintf(
-							/* translators: The number of responses. */
-							__( '%d response has been marked as spam.', 'jetpack-forms' ),
-							numberOfItems
-					  )
-					: sprintf(
-							/* translators: The number of responses. */
-							__( '%d responses have been marked as spam.', 'jetpack-forms' ),
-							numberOfItems
-					  );
+			const successMessage = sprintf(
+				/* translators: The number of responses. */
+				_n(
+					'%d response has been marked as spam.',
+					'%d responses have been marked as spam.',
+					items.length,
+					'jetpack-forms'
+				),
+				items.length
+			);
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'mark-as-spam-action' } );
 		} else {
 			// There is at least one failure.
 			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
-			const errorMessage =
-				numberOfErrors === 1
-					? /* translators: The number of responses. */
-					  sprintf( __( 'An error occurred for %d response.', 'jetpack-forms' ), numberOfErrors )
-					: sprintf(
-							/* translators: The number of responses. */
-							__( 'An error occurred for %d responses.', 'jetpack-forms' ),
-							numberOfErrors
-					  );
+			const errorMessage = getGenericErrorMessage( numberOfErrors );
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
 		}
-
 		// Make the REST request which performs the `contact_form_akismet` `ham` action.
 		if ( itemsUpdated.length ) {
 			registry.dispatch( dashboardStore ).doBulkAction(
@@ -94,35 +96,23 @@ export const markAsNotSpamAction = {
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
-			const numberOfItems = items.length;
-			const successMessage =
-				numberOfItems === 1
-					? sprintf(
-							/* translators: The number of responses. */
-							__( '%d response has been marked as not spam.', 'jetpack-forms' ),
-							numberOfItems
-					  )
-					: sprintf(
-							/* translators: The number of responses. */
-							__( '%d responses have been marked as not spam.', 'jetpack-forms' ),
-							numberOfItems
-					  );
+			const successMessage = sprintf(
+				/* translators: The number of responses. */
+				_n(
+					'%d response has been marked as not spam.',
+					'%d responses have been marked as not spam.',
+					items.length,
+					'jetpack-forms'
+				),
+				items.length
+			);
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'mark-as-not-spam-action' } );
 		} else {
 			// There is at least one failure.
 			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
-			const errorMessage =
-				numberOfErrors === 1
-					? /* translators: The number of responses. */
-					  sprintf( __( 'An error occurred for %d response.', 'jetpack-forms' ), numberOfErrors )
-					: sprintf(
-							/* translators: The number of responses. */
-							__( 'An error occurred for %d responses.', 'jetpack-forms' ),
-							numberOfErrors
-					  );
+			const errorMessage = getGenericErrorMessage( numberOfErrors );
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
 		}
-
 		// Make the REST request which performs the `contact_form_akismet` `ham` action.
 		if ( itemsUpdated.length ) {
 			registry.dispatch( dashboardStore ).doBulkAction(
@@ -148,31 +138,22 @@ export const restoreAction = {
 			)
 		);
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
-			const numberOfItems = promises.length;
-			const successMessage =
-				numberOfItems === 1
-					? /* translators: The number of responses. */
-					  sprintf( __( '%d response has been restored.', 'jetpack-forms' ), numberOfItems )
-					: sprintf(
-							/* translators: The number of responses. */
-							__( '%d responses have been restored.', 'jetpack-forms' ),
-							numberOfItems
-					  );
+			const successMessage = sprintf(
+				/* translators: The number of responses. */
+				_n(
+					'%d response has been restored.',
+					'%d responses have been restored.',
+					items.length,
+					'jetpack-forms'
+				),
+				items.length
+			);
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'restore-action' } );
 			return;
 		}
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
-		// TODO: probably have better error messages.. This goes for all the actions that need this.
-		const errorMessage =
-			numberOfErrors === 1
-				? /* translators: The number of responses. */
-				  sprintf( __( 'An error occurred for %d response.', 'jetpack-forms' ), numberOfErrors )
-				: sprintf(
-						/* translators: The number of responses. */
-						__( 'An error occurred for %d responses.', 'jetpack-forms' ),
-						numberOfErrors
-				  );
+		const errorMessage = getGenericErrorMessage( numberOfErrors );
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
@@ -192,30 +173,22 @@ export const moveToTrashAction = {
 			)
 		);
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
-			const numberOfItems = promises.length;
-			const successMessage =
-				numberOfItems === 1
-					? /* translators: The number of responses. */
-					  sprintf( __( '%d response has been moved to trash.', 'jetpack-forms' ), numberOfItems )
-					: sprintf(
-							/* translators: The number of responses. */
-							__( '%d responses have been moved to trash.', 'jetpack-forms' ),
-							numberOfItems
-					  );
+			const successMessage = sprintf(
+				/* translators: The number of responses. */
+				_n(
+					'%d response has been moved to trash.',
+					'%d responses have been moved to trash.',
+					items.length,
+					'jetpack-forms'
+				),
+				items.length
+			);
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
 			return;
 		}
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
-		const errorMessage =
-			numberOfErrors === 1
-				? /* translators: The number of responses. */
-				  sprintf( __( 'An error occurred for %d response.', 'jetpack-forms' ), numberOfErrors )
-				: sprintf(
-						/* translators: The number of responses. */
-						__( 'An error occurred for %d responses.', 'jetpack-forms' ),
-						numberOfErrors
-				  );
+		const errorMessage = getGenericErrorMessage( numberOfErrors );
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
@@ -242,33 +215,22 @@ export const deleteAction = {
 		}
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
-			const numberOfItems = items.length;
-			const successMessage =
-				numberOfItems === 1
-					? sprintf(
-							/* translators: The number of responses. */
-							__( '%d response has been deleted permanently.', 'jetpack-forms' ),
-							numberOfItems
-					  )
-					: sprintf(
-							/* translators: The number of responses. */
-							__( '%d responses have been deleted permanently.', 'jetpack-forms' ),
-							numberOfItems
-					  );
+			const successMessage = sprintf(
+				/* translators: The number of responses. */
+				_n(
+					'%d response has been deleted permanently.',
+					'%d responses have been deleted permanently.',
+					items.length,
+					'jetpack-forms'
+				),
+				items.length
+			);
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
 			return;
 		}
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
-		const errorMessage =
-			numberOfErrors === 1
-				? /* translators: The number of responses. */
-				  sprintf( __( 'An error occurred for %d response.', 'jetpack-forms' ), numberOfErrors )
-				: sprintf(
-						/* translators: The number of responses. */
-						__( 'An error occurred for %d responses.', 'jetpack-forms' ),
-						numberOfErrors
-				  );
+		const errorMessage = getGenericErrorMessage( numberOfErrors );
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };

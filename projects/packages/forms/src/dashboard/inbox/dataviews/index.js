@@ -11,10 +11,11 @@ import { useResizeObserver } from '@wordpress/compose';
 import { useEntityRecords } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
-import { dateI18n } from '@wordpress/date';
+import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
+import { isArray, isEmpty, join } from 'lodash';
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 /**
@@ -47,6 +48,23 @@ const getPath = item => {
 	}
 };
 
+const formatFieldName = fieldName => {
+	const match = fieldName.match( /^(\d+_)?(.*)/i );
+	if ( match ) {
+		return match[ 2 ];
+	}
+	return fieldName;
+};
+
+const formatFieldValue = fieldValue => {
+	if ( isEmpty( fieldValue ) ) {
+		return '-';
+	} else if ( isArray( fieldValue ) ) {
+		return join( fieldValue, ', ' );
+	}
+	return fieldValue;
+};
+
 /**
  * Helper function to get the status filter to apply from the URL.
  * This is the only way to filter the data by `status` as intentionally
@@ -71,6 +89,7 @@ export default function InboxView() {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const [ containerWidth, setContainerWidth ] = useState( 0 );
 	const [ queryArgs, setQueryArgs ] = useState( EMPTY_OBJECT );
+	const dateSettings = getDateSettings();
 	const containerRef = useResizeObserver(
 		resizeObserverEntries => {
 			setContainerWidth( resizeObserverEntries[ 0 ].borderBoxSize[ 0 ].inlineSize );
@@ -125,15 +144,21 @@ export default function InboxView() {
 		() =>
 			records?.map( record => ( {
 				...record,
+				/**
+				 * We need to perform some operations to the fields:
+				 * 1. Decode the values.
+				 * 2. Remove the `number_` prefix from the keys. An example stored key is `1_Name: "Rigas"`.
+				 * 3. Normalize the values to handle the case where the value is an array or if is empty.
+				 */
 				fields: Object.entries( record.fields || {} ).reduce( ( accumulator, [ key, value ] ) => {
-					accumulator[ key ] = decodeEntities( value );
+					const _key = formatFieldName( key );
+					accumulator[ _key ] = formatFieldValue( decodeEntities( value ) );
 					return accumulator;
 				}, {} ),
 			} ) ),
 		[ records ]
 	);
 	const [ selection, setSelection ] = useState( selectedResponses?.split( ',' ) || EMPTY_ARRAY );
-
 	// We need to keep the valid selection item in state to be used in `export`.
 	// We do this because a user can have in their selection either ids that
 	// do not exist at all or ids that are not in the current data set.
@@ -203,13 +228,18 @@ export default function InboxView() {
 			{
 				id: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
-				render: ( { item } ) => dateI18n( 'M j, Y', item.date ),
+				render: ( { item } ) => dateI18n( dateSettings.formats.date, item.date ),
 				elements: ( filterOptions?.date || [] ).map( _filter => {
 					const date = new Date();
 					date.setDate( 1 );
-					date.setMonth( _filter.month - 1 );
+					date.setMonth( _filter.month - 1 ); // Months are zero-based in JS Date objects.
+					date.setFullYear( _filter.year );
 					return {
-						label: `${ dateI18n( 'F', date ) } ${ _filter.year }`,
+						label: dateI18n(
+							// translators: Date format for date filters' labels. See https://www.php.net/manual/en/datetime.format.php
+							__( 'F Y', 'jetpack-forms' ),
+							date
+						),
 						value: `${ _filter.year }/${ _filter.month }`,
 					};
 				} ),
@@ -235,7 +265,7 @@ export default function InboxView() {
 			},
 			{ id: 'ip', label: __( 'IP Address', 'jetpack-forms' ), enableSorting: false },
 		],
-		[ filterOptions ]
+		[ filterOptions, dateSettings.formats.date ]
 	);
 	const actions = useMemo( () => {
 		const _actions = [
