@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PluginIntegrationPanel from './shared/plugin-integration-panel';
 
@@ -8,6 +8,20 @@ const AkismetPanel = () => {
 	const adminUrl = window?.jpFormsBlocks?.defaults?.formsAdminUrl || '';
 	const akismetActiveWithKey = window?.jpFormsBlocks?.defaults?.akismetActiveWithKey || false;
 	const akismetUrl = window?.jpFormsBlocks?.defaults?.akismetUrl || '';
+
+	// Check if we need to refresh the page to get updated key status
+	useEffect( () => {
+		const needsRefresh = window?.sessionStorage?.getItem( 'akismet_activation_pending' );
+		if ( needsRefresh ) {
+			window.sessionStorage.removeItem( 'akismet_activation_pending' );
+			window.location.reload();
+		}
+	}, [] );
+
+	const onActivate = () => {
+		// Set a flag to check on next render if we need to refresh
+		window.sessionStorage.setItem( 'akismet_activation_pending', 'true' );
+	};
 
 	return (
 		<PluginIntegrationPanel
@@ -28,6 +42,7 @@ const AkismetPanel = () => {
 			) }
 			tracksEventName="jetpack_forms_upsell_akismet_click"
 			initialOpen={ false }
+			onActivate={ onActivate }
 		>
 			{ akismetActiveWithKey ? (
 				<>

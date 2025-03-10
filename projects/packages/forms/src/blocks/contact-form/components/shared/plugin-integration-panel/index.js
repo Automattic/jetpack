@@ -19,6 +19,8 @@ const PluginIntegrationPanel = ( {
 	tracksEventName,
 	children,
 	initialOpen = false,
+	hideWrapper = false,
+	onActivate,
 } ) => {
 	const [ isInstalling, setIsInstalling ] = useState( false );
 	const [ isActivating, setIsActivating ] = useState( false );
@@ -56,6 +58,9 @@ const PluginIntegrationPanel = ( {
 			invalidateResolution( 'getPlugins' );
 			setIsInstalling( false );
 			setIsActivating( false );
+			if ( isActivationCall && onActivate ) {
+				onActivate();
+			}
 		} );
 	}, [
 		isInstalled,
@@ -66,60 +71,69 @@ const PluginIntegrationPanel = ( {
 		setIsActivating,
 		invalidateResolution,
 		tracks,
+		onActivate,
 	] );
+
+	const content = (
+		<div className="jetpack-plugin-integration__content" aria-live="polite">
+			{ isLoading && (
+				<div className="jetpack-plugin-integration__status">
+					<div>
+						<Spinner />
+						<span>{ __( 'Checking plugin status…', 'jetpack-forms' ) }</span>
+					</div>
+				</div>
+			) }
+
+			{ ! isLoading && ! isInstalled && (
+				<div className="jetpack-plugin-integration__panel">
+					<div className="jetpack-plugin-integration__panel-content">
+						<div>{ description }</div>
+						<PluginActionButton
+							isInstalling={ isInstalling }
+							isActivating={ isActivating }
+							isInstalled={ isInstalled }
+							installText={ installText }
+							activateText={ activateText }
+							onClick={ handleButtonClick }
+						/>
+					</div>
+				</div>
+			) }
+
+			{ ! isLoading && isInstalled && ! isActive && (
+				<div className="jetpack-plugin-integration__panel">
+					<div className="jetpack-plugin-integration__panel-content">
+						<div>
+							{ sprintf(
+								/* translators: %s: plugin name */
+								__( "You already have %s installed, but it's not activated.", 'jetpack-forms' ),
+								pluginTitle || __( 'the plugin', 'jetpack-forms' )
+							) }
+						</div>
+						<PluginActionButton
+							isInstalling={ isInstalling }
+							isActivating={ isActivating }
+							isInstalled={ isInstalled }
+							installText={ installText }
+							activateText={ activateText }
+							onClick={ handleButtonClick }
+						/>
+					</div>
+				</div>
+			) }
+
+			{ ! isLoading && isInstalled && isActive && children }
+		</div>
+	);
+
+	if ( hideWrapper ) {
+		return content;
+	}
 
 	return (
 		<PanelBody title={ title } initialOpen={ initialOpen }>
-			<div className="jetpack-plugin-integration__content" aria-live="polite">
-				{ isLoading && (
-					<div className="jetpack-plugin-integration__status">
-						<div>
-							<Spinner />
-							<span>{ __( 'Checking plugin status…', 'jetpack-forms' ) }</span>
-						</div>
-					</div>
-				) }
-
-				{ ! isLoading && ! isInstalled && (
-					<div className="jetpack-plugin-integration__panel">
-						<div className="jetpack-plugin-integration__panel-content">
-							<div>{ description }</div>
-							<PluginActionButton
-								isInstalling={ isInstalling }
-								isActivating={ isActivating }
-								isInstalled={ isInstalled }
-								installText={ installText }
-								activateText={ activateText }
-								onClick={ handleButtonClick }
-							/>
-						</div>
-					</div>
-				) }
-
-				{ ! isLoading && isInstalled && ! isActive && (
-					<div className="jetpack-plugin-integration__panel">
-						<div className="jetpack-plugin-integration__panel-content">
-							<div>
-								{ sprintf(
-									/* translators: %s: plugin name */
-									__( "You already have %s installed, but it's not activated.", 'jetpack-forms' ),
-									pluginTitle || __( 'the plugin', 'jetpack-forms' )
-								) }
-							</div>
-							<PluginActionButton
-								isInstalling={ isInstalling }
-								isActivating={ isActivating }
-								isInstalled={ isInstalled }
-								installText={ installText }
-								activateText={ activateText }
-								onClick={ handleButtonClick }
-							/>
-						</div>
-					</div>
-				) }
-
-				{ ! isLoading && isInstalled && isActive && children }
-			</div>
+			{ content }
 		</PanelBody>
 	);
 };
