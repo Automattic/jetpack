@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix submission when multiple forms are on the page.
