@@ -12,6 +12,7 @@ use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status\Host;
+use NumberFormatter;
 
 /**
  * Add a Stats column in the post and page lists.
@@ -99,20 +100,7 @@ class Admin_Post_List_Column {
 
 				$current_locale = get_bloginfo( 'language' );
 
-				/**
-				 * PHP's NumberFormatter is just a wrapper over the ICU C library. The library does support decimal compact short formatter, but PHP doesn't have a stub for it.
-				 *
-				 * @see https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/unum_8h.html UNUM_DECIMAL_COMPACT_SHORT constant.
-				 */
-				$compact_decimal_short = 14;
-
-				try {
-					$formatter = new \NumberFormatter( $current_locale, $compact_decimal_short );
-					$formatter->setAttribute( \NumberFormatter::MAX_FRACTION_DIGITS, 1 );
-				} catch ( \Exception $e ) {
-					// Fallback to decimal if for some reason it fails to work.
-					$formatter = new \NumberFormatter( $current_locale, \NumberFormatter::DECIMAL );
-				}
+				$formatter = $this->get_formatter( $current_locale );
 
 				?>
 				<a href="<?php echo esc_url( $stats_post_url ); ?>"
@@ -171,7 +159,7 @@ class Admin_Post_List_Column {
 	 *
 	 * @return array
 	 */
-	private function get_post_page_views_for_current_list(): array {
+	public function get_post_page_views_for_current_list(): array {
 		global $wp_query;
 
 		if ( ! $wp_query->posts ) {
@@ -180,7 +168,7 @@ class Admin_Post_List_Column {
 
 		$post_ids = wp_list_pluck( $wp_query->posts, 'ID' );
 
-		$wpcom_stats = new WPCOM_Stats();
+		$wpcom_stats = $this->get_stats();
 		$post_views  = $wpcom_stats->get_total_post_views( array( 'post_ids' => implode( ',', $post_ids ) ) );
 
 		if ( is_wp_error( $post_views ) ) {
@@ -194,5 +182,49 @@ class Admin_Post_List_Column {
 		}
 
 		return $views;
+	}
+
+	/**
+	 * Get the stats object.
+	 *
+	 * @return WPCOM_Stats
+	 */
+	protected function get_stats() {
+		return new WPCOM_Stats();
+	}
+
+	/**
+	 * Get the NumberFormatter instance.
+	 *
+	 * @param string $current_locale The current locale.
+	 *
+	 * @return NumberFormatter
+	 */
+	protected function get_formatter( string $current_locale ): \NumberFormatter {
+		/**
+		 * PHP's NumberFormatter is just a wrapper over the ICU C library. The library does support decimal compact short formatter, but PHP doesn't have a stub for it (=< PHP 8.4).
+		 *
+		 * @see https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/unum_8h.html UNUM_DECIMAL_COMPACT_SHORT constant.
+		 */
+		$compact_decimal_short = 14;
+
+		/**
+		 * NumberFormatter::DECIMAL_COMPACT_SHORT only exists in PHP 8.5 and later.
+		 *
+		 * Use the constant if it's defined since it's safer.
+		 */
+		if ( defined( '\NumberFormatter::DECIMAL_COMPACT_SHORT' ) ) {
+			$compact_decimal_short = NumberFormatter::DECIMAL_COMPACT_SHORT;
+		}
+
+		try {
+			$formatter = new \NumberFormatter( $current_locale, $compact_decimal_short );
+			$formatter->setAttribute( \NumberFormatter::MAX_FRACTION_DIGITS, 1 );
+		} catch ( \Exception $e ) {
+			// Fallback to decimal if for some reason it fails to work.
+			$formatter = new \NumberFormatter( $current_locale, \NumberFormatter::DECIMAL );
+		}
+
+		return $formatter;
 	}
 }

@@ -556,17 +556,7 @@ class WPCOM_Stats {
 	 * @return null
 	 */
 	protected function fetch_stats_on_wpcom_simple( $end_date, $number_of_days, $escaped_post_ids ) {
-		return stats_get_daily_history(
-			null,
-			get_current_blog_id(),
-			'postviews',
-			'post_id',
-			$end_date,
-			$number_of_days,
-			" AND post_id IN ($escaped_post_ids)",
-			0,
-			true
-		);
+		return stats_get_daily_history( null, get_current_blog_id(), 'postviews', 'post_id', $end_date, $number_of_days, " AND post_id IN ($escaped_post_ids)", 0, true );
 	}
 
 	/**
