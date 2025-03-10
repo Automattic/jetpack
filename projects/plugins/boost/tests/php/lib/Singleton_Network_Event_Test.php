@@ -123,9 +123,14 @@ class Singleton_Network_Event_Test extends Base_TestCase {
 			->with( Singleton_Network_Event::OPTION_CRON_TO_EXECUTE, array() )
 			->andReturn( $crons_to_execute );
 
-		Functions\expect( 'update_site_option' )
+		Functions\expect( 'wp_next_scheduled' )
 			->once()
-			->with( Singleton_Network_Event::OPTION_CRON_TO_EXECUTE, array( $hook => $now + 86400 ) )
+			->with( 'jetpack_boost_schedule_network_cron', array( $hook, $now + 86400 ) )
+			->andReturn( false );
+
+		Functions\expect( 'wp_schedule_single_event' )
+			->once()
+			->with( $now, 'jetpack_boost_schedule_network_cron', array( $hook, $now + 86400 ) )
 			->andReturn( true );
 
 		$result = $scheduled_event->filter_cron_jobs( $crons );
@@ -158,7 +163,7 @@ class Singleton_Network_Event_Test extends Base_TestCase {
 
 		Functions\expect( 'wp_next_scheduled' )
 			->once()
-			->with( $recurrence, $args )
+			->with( $hook, $args )
 			->andReturn( false );
 
 		Functions\expect( 'get_site_option' )
@@ -188,7 +193,7 @@ class Singleton_Network_Event_Test extends Base_TestCase {
 
 		Functions\expect( 'wp_next_scheduled' )
 			->once()
-			->with( $recurrence, $args )
+			->with( $hook, $args )
 			->andReturn( $timestamp );
 
 		$result = Singleton_Network_Event::schedule( $timestamp, $recurrence, $hook, $args );

@@ -137,7 +137,7 @@ class Singleton_Network_Event implements Has_Setup {
 	 * @return bool True if the cronjob was scheduled, false if it was already scheduled.
 	 */
 	public static function schedule( int $timestamp, string $recurrence, string $hook, array $args = array() ) {
-		if ( false === wp_next_scheduled( $recurrence, $args ) ) {
+		if ( false === wp_next_scheduled( $hook, $args ) ) {
 			self::set_cron_to_execute( $hook, $timestamp );
 
 			wp_schedule_event( $timestamp, $recurrence, $hook, $args );
