@@ -3,7 +3,7 @@ import { RegistryProvider } from '@wordpress/data';
 import { usePostMeta } from '../';
 import { createRegistryWithStores } from '../../../utils/test-utils';
 
-jest.mock( '../../../utils/use-share-message-max-length.js', () => ( {
+jest.mock( '../../../utils/use-share-message-max-length.ts', () => ( {
 	useShareMessageMaxLength: jest.fn().mockReturnValue( 255 ),
 } ) );
 
