@@ -10,7 +10,7 @@ import { useState } from '@wordpress/element';
  * the user sets.
  *
  * @return {[FallbackColors, import('react').Ref]} An array with the fallback colors and a ref
- * to the button block.
+ * to the button element that the text and background colors are applied to.
  */
 export default function useFallbackColors() {
 	const [ fallbacks, setFallbacks ] = useState();
