@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Jetpack;
 
 /**
@@ -233,13 +234,19 @@ class Contact_Form_Block {
 		);
 
 		// Create a Contact_Form instance to get the default values
-		$contact_form = new Contact_Form( array() );
-		$defaults     = $contact_form->defaults;
+		$contact_form            = new Contact_Form( array() );
+		$defaults                = $contact_form->defaults;
+		$admin_url               = ( new Dashboard_View_Switch() )->get_forms_admin_url( 'spam' );
+		$akismet_active_with_key = Jetpack::is_akismet_active();
+		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
 
 		$data = array(
 			'defaults' => array(
-				'to'      => $defaults['to'],
-				'subject' => $defaults['subject'],
+				'to'                   => $defaults['to'],
+				'subject'              => $defaults['subject'],
+				'formsAdminUrl'        => $admin_url,
+				'akismetActiveWithKey' => $akismet_active_with_key,
+				'akismetUrl'           => $akismet_key_url,
 			),
 		);
 

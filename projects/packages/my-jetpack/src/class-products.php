@@ -258,6 +258,34 @@ class Products {
 	}
 
 	/**
+	 * Get products data related to the wpcom api
+	 *
+	 * @param array $product_slugs - (optional) An array of specified product slugs.
+	 * @return array
+	 */
+	public static function get_products_api_data( $product_slugs = array() ) {
+		$all_classes = self::get_products_classes();
+		$products    = array();
+		// If an array of $product_slugs are passed, return only the products specified in $product_slugs array
+		if ( $product_slugs ) {
+			foreach ( $product_slugs as $product_slug ) {
+				if ( isset( $all_classes[ $product_slug ] ) ) {
+					$class                     = $all_classes[ $product_slug ];
+					$products[ $product_slug ] = $class::get_wpcom_info();
+				}
+			}
+
+			return $products;
+		}
+		// Otherwise return All products.
+		foreach ( $all_classes as $slug => $class ) {
+			$products[ $slug ] = $class::get_wpcom_info();
+		}
+
+		return $products;
+	}
+
+	/**
 	 * Get a list of products sorted by whether or not the user owns them
 	 * An owned product is defined as a product that is any of the following
 	 * - Active

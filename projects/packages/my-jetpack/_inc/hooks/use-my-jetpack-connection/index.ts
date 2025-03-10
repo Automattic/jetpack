@@ -5,9 +5,9 @@ import {
 	getMyJetpackWindowConnectionState,
 } from '../../data/utils/get-my-jetpack-window-state';
 /**
- * React custom hook to get the site purchases data.
+ * React custom hook to get the site connection data
  *
- * @return {object} site purchases data
+ * @return {object} site connection data
  */
 
 type MyJetpackConnection = {

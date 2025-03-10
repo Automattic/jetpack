@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+New sniff `Jetpack.PHPUnit.UseTestCase` to check that `use`s of PHPUnit `TestCase` base classes don't use aliases that will confuse our other sniffs.

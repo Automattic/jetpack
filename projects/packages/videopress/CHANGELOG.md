@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.0] - 2025-03-03
+### Added
+- VideoPress: Add title to the attachment details view. [#42023]
+
+### Changed
+- Update package dependencies. [#42163]
+
 ## [0.26.0] - 2025-02-24
 ### Changed
 - Update package dependencies. [#41955]
@@ -1552,6 +1559,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.27.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.25.12...v0.26.0
 [0.25.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.25.11...v0.25.12
 [0.25.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.25.10...v0.25.11

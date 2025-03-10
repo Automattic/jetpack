@@ -7,6 +7,8 @@
  */
 
 import { Disabled, PanelRow } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { getSocialScriptData, usePublicizeConfig } from '../../..';
 import useAttachedMedia from '../../hooks/use-attached-media';
@@ -38,6 +40,8 @@ export default function PublicizeForm() {
 		useMediaDetails( mediaId )[ 0 ]
 	);
 
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+
 	const showSharePostForm =
 		isPublicizeEnabled &&
 		( hasEnabledConnections ||
@@ -61,7 +65,9 @@ export default function PublicizeForm() {
 					<PanelRow>
 						<ConnectionsList />
 					</PanelRow>
-					{ feature_flags.useEditorPreview && isPublicizeEnabled ? <SocialPostModal /> : null }
+					{ feature_flags.useEditorPreview && isPublicizeEnabled && ! isPostPublished ? (
+						<SocialPostModal />
+					) : null }
 					<EnhancedFeaturesNudge />
 				</>
 			) : null }
@@ -72,6 +78,7 @@ export default function PublicizeForm() {
 					{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
 				</Fragment>
 			) }
+			{ isPostPublished ? <SocialPostModal /> : null }
 		</Wrapper>
 	);
 }

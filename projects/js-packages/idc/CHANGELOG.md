@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.12.10 - 2025-03-06
+### Fixed
+- Making sure custom text works on dev Safe Mode. [#42235]
+
+## 0.12.9 - 2025-03-05
+### Changed
+- Update dependencies.
+
+## 0.12.8 - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
 ## 0.12.7 - 2025-02-24
 ### Changed
 - Update dependencies.
