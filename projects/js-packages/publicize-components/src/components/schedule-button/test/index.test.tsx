@@ -63,13 +63,20 @@ describe( 'ScheduleButton', () => {
 		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
 		await user.click( scheduleButton );
 
+		const hoursInput = screen.getByLabelText( 'Hours' );
+		const minutesInput = screen.getByLabelText( 'Minutes' );
+
 		expect(
 			screen.getByRole( 'button', { name: 'October 1, 2023. Selected' } )
 		).toBeInTheDocument();
+		expect( hoursInput ).toHaveValue( 12 );
+		expect( minutesInput ).toHaveValue( 0 );
 		const datePicker = screen.getByRole( 'button', { name: 'October 2, 2023' } );
 		await user.click( datePicker );
 
 		expect( mockOnChange ).toHaveBeenCalledWith( expectedUnixTimestamp );
+		expect( hoursInput ).toHaveValue( 12 );
+		expect( minutesInput ).toHaveValue( 0 );
 	} );
 
 	it( 'should call onConfirm when confirm button is clicked', async () => {
