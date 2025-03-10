@@ -16,7 +16,7 @@ export default function useFallbackColors() {
 	const [ fallbacks, setFallbacks ] = useState();
 
 	const ref = useRefEffect( node => {
-		const observer = new MutationObserver( () => {
+		const setColors = () => {
 			const computedStyle = getComputedStyle( node );
 			const fallbackBackgroundColor = computedStyle.backgroundColor;
 			const fallbackTextColor = computedStyle.color;
@@ -33,11 +33,15 @@ export default function useFallbackColors() {
 				fallbackBackgroundColor,
 				fallbackTextColor,
 			} );
-		} );
+		};
+
+		const observer = new MutationObserver( setColors );
 
 		observer.observe( node, {
 			attributeFilter: [ 'style', 'class' ],
 		} );
+
+		setColors();
 
 		return () => {
 			observer.disconnect();
