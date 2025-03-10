@@ -86,9 +86,7 @@ export const salesforceLeadFormVariation = {
 			spacing: {
 				padding: {
 					top: '16px',
-					right: '16px',
 					bottom: '16px',
-					left: '16px',
 				},
 			},
 		},
