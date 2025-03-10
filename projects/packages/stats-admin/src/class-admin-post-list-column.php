@@ -209,11 +209,12 @@ class Admin_Post_List_Column {
 		$compact_decimal_short = 14;
 
 		/**
-		 * NumberFormatter::DECIMAL_COMPACT_SHORT only exists in PHP 8.5 and later.
+		 * NumberFormatter::DECIMAL_COMPACT_SHORT only exists in PHP 8.5 and later. At this time, NumberFormatter::DECIMAL_COMPACT_SHORT only exists in PHP `main` branch.
 		 *
 		 * Use the constant if it's defined since it's safer.
 		 */
 		if ( defined( '\NumberFormatter::DECIMAL_COMPACT_SHORT' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredConstantOfClass
 			$compact_decimal_short = NumberFormatter::DECIMAL_COMPACT_SHORT;
 		}
 
