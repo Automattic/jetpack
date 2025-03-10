@@ -7,7 +7,11 @@ const useRedBubbleQuery = () => {
 		.map( cookie => cookie.trim() )
 		.filter( cookie => cookie.includes( '_dismissed' ) );
 
-	const { data, isLoading, isError } = useSimpleQuery< RedBubbleAlerts >( {
+	const {
+		data = {},
+		isLoading,
+		isError,
+	} = useSimpleQuery< RedBubbleAlerts >( {
 		name: QUERY_RED_BUBBLE_ALERTS_KEY,
 		query: {
 			path: REST_API_RED_BUBBLE_ALERTS,

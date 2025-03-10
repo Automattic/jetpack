@@ -29,6 +29,10 @@ const refetchProducts = async (
 	const { data: refetchedProducts } = await refetch();
 	const prevProducts = window.myJetpackInitialState.products.items;
 
+	if ( ! refetchedProducts ) {
+		return;
+	}
+
 	Object.keys( refetchedProducts ).forEach( productSlug => {
 		window.myJetpackInitialState.products.items[ productSlug ] = {
 			...prevProducts[ productSlug ],
