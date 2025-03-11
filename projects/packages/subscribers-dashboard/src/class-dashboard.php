@@ -26,6 +26,13 @@ class Dashboard {
 	private static $initialized = false;
 
 	/**
+	 * Whether the menu was added.
+	 *
+	 * @var boolean
+	 */
+	private static $menu_added = false;
+
+	/**
 	 * Priority for the dashboard menu
 	 * For Jetpack sites: Jetpack uses 998 and 'Admin_Menu' uses 1000, so we need to use 999.
 	 * For simple site: the value is overriden in a child class with value 100000 to wait for all menus to be registered.
@@ -57,7 +64,7 @@ class Dashboard {
 	 * The page to be added to submenu
 	 */
 	public function add_wp_admin_submenu() {
-		if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
+		if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) || self::$menu_added ) {
 			return;
 		}
 
@@ -76,6 +83,7 @@ class Dashboard {
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+			self::$menu_added = true;
 		}
 	}
 
