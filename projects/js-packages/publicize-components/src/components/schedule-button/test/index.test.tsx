@@ -19,6 +19,12 @@ const mockGetSettings = ( abbr = '+00', offset = 0, offsetFormatted = '0', strin
 
 describe( 'ScheduleButton', () => {
 	beforeEach( () => {
+		jest
+			.spyOn( Date, 'now' )
+			.mockImplementation( () => new Date( '2023-10-01T10:00:00Z' ).getTime() );
+	} );
+
+	afterEach( () => {
 		jest.clearAllMocks();
 	} );
 
@@ -92,5 +98,23 @@ describe( 'ScheduleButton', () => {
 		await user.click( confirmButton );
 
 		expect( mockOnConfirm ).toHaveBeenCalled();
+	} );
+
+	it( 'should disable past date buttons in the date picker', async () => {
+		jest
+			.spyOn( Date, 'now' )
+			.mockImplementation( () => new Date( '2023-10-15T10:00:00Z' ).getTime() );
+		const initialDate = new Date( '2023-10-15T12:00:00Z' );
+		const initialUnixTimestamp = Math.floor( initialDate.getTime() / 1000 );
+		const user = userEvent.setup();
+
+		mockGetSettings();
+		render( <ScheduleButton scheduleTimestamp={ initialUnixTimestamp } /> );
+
+		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
+		await user.click( scheduleButton );
+
+		const pastDateButton = screen.getByRole( 'button', { name: 'October 14, 2023' } );
+		expect( pastDateButton ).toBeDisabled();
 	} );
 } );

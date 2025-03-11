@@ -22,6 +22,10 @@ interface ScheduleButtonProps extends ScheduleButtonBaseProps {
 	isDisabled?: boolean;
 }
 
+const isInvalidDate = ( checkDate: Date ) => {
+	return checkDate.getTime() < Date.now();
+};
+
 const ScheduleButtonContent = ( {
 	onClose,
 	currentTimestamp,
@@ -51,8 +55,17 @@ const ScheduleButtonContent = ( {
 
 	return (
 		<>
-			<DateTimePicker onChange={ changeCallback } currentDate={ scheduleDate } />
-			<Button variant="primary" onClick={ confirmCallback } className={ styles.confirm }>
+			<DateTimePicker
+				onChange={ changeCallback }
+				currentDate={ scheduleDate }
+				isInvalidDate={ isInvalidDate }
+			/>
+			<Button
+				variant="primary"
+				onClick={ confirmCallback }
+				className={ styles.confirm }
+				disabled={ isInvalidDate( new Date( currentTimestamp * 1000 ) ) }
+			>
 				{ _x(
 					'Confirm',
 					'Confirms the date and time selected to be used to share the post',
