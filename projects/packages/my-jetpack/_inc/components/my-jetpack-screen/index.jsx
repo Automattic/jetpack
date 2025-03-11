@@ -156,11 +156,7 @@ export default function MyJetpackScreen() {
 	useLayoutEffect( () => {
 		let customTracksData = {};
 
-		if (
-			! isRedBubbleAlertsError &&
-			typeof redBubbleAlerts === 'object' &&
-			Object.keys( redBubbleAlerts )?.length
-		) {
+		if ( ! isRedBubbleAlertsError && Object.keys( redBubbleAlerts )?.length ) {
 			customTracksData = {
 				red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
 			};
