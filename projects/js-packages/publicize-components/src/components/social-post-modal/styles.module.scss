@@ -110,12 +110,16 @@
 	margin-top: 0;
 }
 
-.share-button {
+.share-actions {
 	display: flex;
-	justify-content: flex-end;
+	justify-content: space-between;
 	margin-top: auto;
 	padding-top: 1rem;
 	width: 100%;
+
+	> div > button {
+		box-shadow: none !important;
+	}
 
 	> button {
 		width: 50%;

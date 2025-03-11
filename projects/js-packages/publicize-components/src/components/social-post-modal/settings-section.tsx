@@ -1,8 +1,13 @@
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
+import { useCallback } from 'react';
+import { useIsReSharingPossible } from '../../hooks/use-is-resharing-possible';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
+import { useSchedulePost } from '../../hooks/use-schedule-post';
+import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { SharePostForm } from '../form/share-post-form';
+import ScheduleButton from '../schedule-button';
 import { SharePostButton } from '../share-post';
 import styles from './styles.module.scss';
 
@@ -16,6 +21,24 @@ import styles from './styles.module.scss';
 export function SettingsSection( { onReShared } ) {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const { isRePublicizeUpgradableViaUpsell } = usePublicizeConfig();
+	const isReSharingPossible = useIsReSharingPossible();
+	const { enabledConnections } = useSocialMediaConnections();
+
+	const { schedulePost, isScheduling } = useSchedulePost();
+
+	const onSchedule = useCallback(
+		async scheduleTimestamp => {
+			const success = await schedulePost( {
+				connectionIds: enabledConnections.map( connection => connection.connection_id ),
+				timestamp: scheduleTimestamp,
+			} );
+
+			if ( success ) {
+				onReShared();
+			}
+		},
+		[ schedulePost, enabledConnections, onReShared ]
+	);
 
 	return (
 		<div className={ styles[ 'settings-section' ] }>
@@ -35,8 +58,13 @@ export function SettingsSection( { onReShared } ) {
 				</p>
 				<SharePostForm analyticsData={ { location: 'preview-modal' } } />
 				{ isPostPublished && ! isRePublicizeUpgradableViaUpsell && (
-					<div className={ styles[ 'share-button' ] }>
-						<SharePostButton onShareCompleted={ onReShared } />
+					<div className={ styles[ 'share-actions' ] }>
+						<ScheduleButton
+							isDisabled={ ! isReSharingPossible }
+							onConfirm={ onSchedule }
+							isBusy={ isScheduling }
+						/>
+						<SharePostButton onShareCompleted={ onReShared } isDisabled={ isScheduling } />
 					</div>
 				) }
 			</div>
