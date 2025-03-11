@@ -73,7 +73,10 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"exports": {
-		".": "./index.ts",
+		".": {
+			"jetpack:src": "./index.ts",
+			"default": "./build/index.js"
+		},
 		"./tools/jp-redirect": "./tools/jp-redirect/index.ts"
 	},
 	"sideEffects": [
