@@ -11,6 +11,7 @@ const useRedBubbleQuery = () => {
 		data = {},
 		isLoading,
 		isError,
+		refetch,
 	} = useSimpleQuery< RedBubbleAlerts >( {
 		name: QUERY_RED_BUBBLE_ALERTS_KEY,
 		query: {
@@ -24,6 +25,7 @@ const useRedBubbleQuery = () => {
 		data,
 		isLoading,
 		isError,
+		refetch,
 	};
 };
 
