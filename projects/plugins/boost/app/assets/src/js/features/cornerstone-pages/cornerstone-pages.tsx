@@ -7,6 +7,7 @@ import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useCornerstonePages } from './lib/stores/cornerstone-pages';
 import Pill from '$features/ui/pill/pill';
+import Prerender from './prerender/prerender';
 
 const CornerstonePages = () => {
 	const premiumFeatures = usePremiumFeatures();
@@ -36,6 +37,9 @@ const CornerstonePages = () => {
 				>
 					<PanelRow>
 						<Meta />
+					</PanelRow>
+					<PanelRow>
+						<Prerender />
 					</PanelRow>
 				</PanelBody>
 			</Panel>
