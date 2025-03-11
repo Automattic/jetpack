@@ -67,3 +67,43 @@
 		opacity: 0.3;
 	}
 }
+
+// SWIPER WORKAROUND - START
+// Below's a workaround for https://github.com/Automattic/vulcan/issues/615.
+// Rather than including the full swiper styles in the block assets, which would increase the payload,
+// we're adding the minimum set of rules to align the slideshow controls properly.
+
+.swiper-button-white {
+	position: absolute;
+}
+
+.swiper-button-prev {
+	left: 10px;
+}
+
+.swiper-button-next {
+	right: 10px;
+}
+
+.swiper-notification {
+	display: none;
+}
+
+.swiper-pagination-bullet {
+	display: inline-block;
+
+	width: 8px;
+	height: 8px;
+	margin: 0;
+  padding: 0;
+
+	background: currentColor;
+	color: currentColor;
+	border-radius: 50%;
+	border: none;
+	
+	opacity: 0.5;
+	transition: opacity 250ms, transform 250ms;
+}
+
+// SWIPER WORKAROUND - END
