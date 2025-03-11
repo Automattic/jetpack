@@ -61,6 +61,8 @@ class Jetpack_Shortcodes_Twitter_Test extends WP_UnitTestCase {
 
 		$provider = jetpack_proxy_twitter_oembed_provider( $provider );
 		$this->assertStringContainsString( 'https://public-api.wordpress.com/oembed/1.0', $provider );
+
+		$this->assertNotFalse( has_filter( 'oembed_remote_get_args', 'jetpack_twitter_oembed_remote_get_args' ) );
 	}
 
 	/**
