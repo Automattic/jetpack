@@ -47,12 +47,9 @@ interface GeneratorCallbacks extends ProviderCallbacks {
 }
 
 class ProviderCssSaveError extends Error {
-	originalError: unknown;
-
-	constructor( message: string, originalError: unknown ) {
+	constructor( message: string ) {
 		super( message );
 		this.name = 'ProviderCssSaveError';
-		this.originalError = originalError;
 	}
 }
 
@@ -258,7 +255,7 @@ async function generateForKeys(
 			callbacks.setProviderProgress( 0 );
 
 			if ( providerFailed instanceof Error ) {
-				throw new ProviderCssSaveError( 'Failed to save Critical CSS', providerFailed );
+				throw new ProviderCssSaveError( providerFailed.message );
 			}
 		} catch ( err ) {
 			if ( err instanceof ProviderCssSaveError ) {
