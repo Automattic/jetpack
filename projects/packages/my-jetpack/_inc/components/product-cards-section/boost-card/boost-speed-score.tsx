@@ -14,7 +14,6 @@ import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import formatPercentage from '../../../utils/format-percentage';
 import { useBoostTooltipCopy } from './use-boost-tooltip-copy';
 import type { SpeedScores, BoostSpeedScoreType } from './types';
 import type { SetStateAction } from 'react';
@@ -31,23 +30,26 @@ const createSpeedScoreSRText = (
 
 	fragments.push(
 		sprintf(
-			// translators: %1$s: speed grade (e.g. 'A'), %2$s: speed score percentage (e.g. '95%').
-			__( 'Your website’s overall speed score is %1$s, or %2$s.', 'jetpack-my-jetpack' ),
+			// translators: %1$s: speed grade (e.g. 'A'), %2$s: numerical speed score (e.g. '95').
+			__( 'Your website’s overall speed score is %1$s, or %2$s out of 100.', 'jetpack-my-jetpack' ),
 			speedLetterGrade,
-			formatPercentage( currentSpeedScore / 100 )
+			currentSpeedScore
 		)
 	);
 
 	if ( boostScoreIncrease ) {
 		fragments.push(
-			sprintf(
-				// translators: %s: score increase (e.g. '10')
-				__(
-					'Your website’s overall speed score is %s faster than the previous period.',
-					'jetpack-my-jetpack'
-				),
-				formatPercentage( boostScoreIncrease / 100 )
-			)
+			boostScoreIncrease > 0
+				? sprintf(
+						// translators: %s: score increase (e.g. '10')
+						__( 'Your website’s overall speed score increased by %s.', 'jetpack-my-jetpack' ),
+						boostScoreIncrease
+				  )
+				: sprintf(
+						// translators: %s: score increase (e.g. '10')
+						__( 'Your website’s overall speed score decreased by %s.', 'jetpack-my-jetpack' ),
+						boostScoreIncrease
+				  )
 		);
 	}
 
