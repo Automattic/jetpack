@@ -235,7 +235,7 @@ class Post_List {
 			return $post_actions;
 		}
 
-		$url   = add_query_arg( 'jetpackSidebarIsOpen', 'true', $edit_url );
+		$url   = add_query_arg( 'jetpackSidebar', 'open_with_share_post', $edit_url );
 		$text  = _x( 'Share', 'Share the post on social networks', 'jetpack-post-list' );
 		$title = _draft_or_post_title( $post );
 		/* translators: post title */
