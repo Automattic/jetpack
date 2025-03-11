@@ -19,7 +19,7 @@ const Prerender = () => {
 	const enabledMessage = __( 'Prerender enabled.', 'jetpack-boost' );
 	const disabledMessage = __( 'Prerender disabled.', 'jetpack-boost' );
 	useMutationNotice( 'prerender-cornerstone-pages', setPrerenderedEnabled, {
-		successMessage: prerenderedEnabled ? enabledMessage : disabledMessage,
+		successMessage: prerenderedEnabled.data ? enabledMessage : disabledMessage,
 	} );
 
 	const isWordPressVersionSupported = Jetpack_Boost.wpVersion >= '6.8.0';
