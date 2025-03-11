@@ -22,7 +22,7 @@ const Prerender = () => {
 		successMessage: prerenderedEnabled ? enabledMessage : disabledMessage,
 	} );
 
-	const isWordPressVersionSupported = Jetpack_Boost.wp_version >= '6.8.0';
+	const isWordPressVersionSupported = Jetpack_Boost.wpVersion >= '6.8.0';
 
 	const handleToggle = ( value: boolean ) => {
 		setPrerenderedEnabled.mutate( value );

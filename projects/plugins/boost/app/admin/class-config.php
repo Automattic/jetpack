@@ -22,7 +22,7 @@ class Config {
 
 		$constants = array(
 			'version'             => JETPACK_BOOST_VERSION,
-			'wp_version'          => get_bloginfo( 'version' ),
+			'wpVersion'           => get_bloginfo( 'version' ),
 			'pluginDirUrl'        => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
 			'assetPath'           => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 			'canResizeImages'     => wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) ),
