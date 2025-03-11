@@ -59,6 +59,7 @@ class Jetpack_Shortcodes_Twitter_Test extends WP_UnitTestCase {
 		add_filter( 'jetpack_is_connection_ready', '__return_true' );
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 
+		Cache::clear(); // We shouldn't need this. But, adding it here to debug failing test in Github.
 		$provider = jetpack_proxy_twitter_oembed_provider( $provider );
 		$this->assertStringContainsString( 'https://public-api.wordpress.com/oembed/1.0', $provider );
 
