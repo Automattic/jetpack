@@ -51,7 +51,7 @@ const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > 
 
 	return (
 		<div className={ styles[ 'error-description' ] }>
-			<span>{ createInterpolateElement( describeErrorSet( errorSet ), intepolateVars ) }</span>
+			<p>{ createInterpolateElement( describeErrorSet( errorSet ), intepolateVars ) }</p>
 
 			<MoreList entries={ displayUrls } />
 
