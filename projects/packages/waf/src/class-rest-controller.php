@@ -190,6 +190,7 @@ class REST_Controller {
 			}
 		}
 
+		// ADDING NTOE TO COME BACK TO
 		return self::waf();
 	}
 

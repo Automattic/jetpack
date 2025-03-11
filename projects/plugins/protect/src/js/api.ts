@@ -1,6 +1,7 @@
 import { type FixersStatus, type ScanStatus } from '@automattic/jetpack-scan';
 import apiFetch from '@wordpress/api-fetch';
 import camelize from 'camelize';
+import { AccountProtectionStatus } from './types/account-protection';
 import { WafStatus } from './types/waf';
 import type { ProductData } from './types/products';
 
@@ -9,13 +10,21 @@ const API = {
 		apiFetch( {
 			path: 'jetpack-protect/v1/account-protection',
 			method: 'GET',
-		} ),
+		} ).then( camelize ),
 
-	toggleAccountProtection: () =>
+	toggleAccountProtection: ( settings: AccountProtectionStatus ) =>
 		apiFetch( {
 			method: 'POST',
-			path: 'jetpack-protect/v1/toggle-account-protection',
-		} ),
+			path: 'jetpack-protect/v1/account-protection',
+			data: settings,
+		} ).then( camelize ),
+
+	updateAccountProtection: data =>
+		apiFetch( {
+			method: 'POST',
+			path: 'jetpack/v4/account-protection',
+			data,
+		} ).then( camelize ),
 
 	getWaf: (): Promise< WafStatus > =>
 		apiFetch( {

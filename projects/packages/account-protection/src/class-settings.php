@@ -33,16 +33,27 @@ class Settings {
 	 * @return array
 	 */
 	public function get() {
-		$supports_auto_activation = $this->account_protection->environment_supports_auto_activation();
-
 		$settings = array(
-			'isEnabled'                     => $this->account_protection->is_enabled(),
-			'isSupported'                   => $this->account_protection->is_supported_environment(),
-			'hasUnsupportedJetpackVersion'  => $this->account_protection->has_unsupported_jetpack_version(),
-			'passwordDetectionEnabled'      => $supports_auto_activation,
-			'enforceStrongPasswordsEnabled' => true,
+			'isEnabled'                    => $this->account_protection->is_enabled(),
+			'isSupported'                  => $this->account_protection->is_supported_environment(),
+			'hasUnsupportedJetpackVersion' => $this->account_protection->has_unsupported_jetpack_version(),
+			'config'                       => $this->get_config(),
 		);
 
 		return $settings;
+	}
+
+	/**
+	 * Get account protection config.
+	 *
+	 * @return array
+	 */
+	public function get_config() {
+		$supports_auto_activation = $this->account_protection->environment_supports_auto_activation();
+
+		return array(
+			Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME => $supports_auto_activation ? (bool) get_option( Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME, true ) : false,
+			Config::STRONG_PASSWORDS_ENABLED_OPTION_NAME   => (bool) get_option( Config::STRONG_PASSWORDS_ENABLED_OPTION_NAME, true ),
+		);
 	}
 }

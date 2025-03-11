@@ -10,10 +10,9 @@ import {
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
-import React, { useCallback } from 'react';
+import React from 'react';
 import AdminPage from '../../components/admin-page';
-import useAccountProtectionQuery from '../../data/account-protection/use-account-protection-query';
-import useToggleAccountProtectionMutation from '../../data/account-protection/use-toggle-account-protection-module-mutation';
+import useAccountProtectionData from '../../hooks/use-account-protection-data';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import styles from './styles.module.scss';
@@ -22,17 +21,17 @@ const SettingsPage = () => {
 	const SUPPORT_LINK = 'https://jetpack.com/?post_type=jetpack_support&p=324199';
 
 	const { hasPlan } = usePlan();
-	const { data: accountProtection } = useAccountProtectionQuery();
-	const toggleAccountProtectionMutation = useToggleAccountProtectionMutation();
 
-	/**
-	 * Toggle Account Protect Module
-	 *
-	 * Flips the switch on the Account Protection module, and then refreshes the data.
-	 */
-	const toggleAccountProtection = useCallback( async () => {
-		toggleAccountProtectionMutation.mutate();
-	}, [ toggleAccountProtectionMutation ] );
+	const {
+		// config,
+		isToggling,
+		isEnabled,
+		isSupported,
+		hasUnsupportedJetpackVersion,
+		toggleAccountProtection,
+		// togglePasswordDetection,
+		// toggleStrongPasswords,
+	} = useAccountProtectionData();
 
 	// Track view for Protect Account Protection page.
 	useAnalyticsTracks( {
@@ -46,22 +45,14 @@ const SettingsPage = () => {
 		<div className={ styles[ 'toggle-section' ] }>
 			<div className={ styles[ 'toggle-section__control' ] }>
 				<ToggleControl
-					checked={
-						accountProtection.isSupported &&
-						! accountProtection.hasUnsupportedJetpackVersion &&
-						accountProtection.isEnabled
-					}
+					checked={ isSupported && ! hasUnsupportedJetpackVersion && isEnabled }
 					onChange={ toggleAccountProtection }
-					disabled={
-						! accountProtection.isSupported ||
-						accountProtection.hasUnsupportedJetpackVersion ||
-						toggleAccountProtectionMutation.isPending
-					}
+					disabled={ ! isSupported || hasUnsupportedJetpackVersion || isToggling }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
 				<Text variant="title-medium">{ __( 'Account protection', 'jetpack-protect' ) }</Text>
-				{ ! accountProtection.isSupported && (
+				{ ! isSupported && (
 					<Notice
 						level="warning"
 						hideCloseButton={ true }
@@ -86,7 +77,7 @@ const SettingsPage = () => {
 						] }
 					/>
 				) }
-				{ accountProtection.isSupported && accountProtection.hasUnsupportedJetpackVersion && (
+				{ isSupported && hasUnsupportedJetpackVersion && (
 					<Notice
 						level="warning"
 						hideCloseButton={ true }
@@ -128,7 +119,7 @@ const SettingsPage = () => {
 						'jetpack-protect'
 					) }
 				</Text>
-				{ ! accountProtection.isEnabled && accountProtection.isSupported && (
+				{ ! isEnabled && isSupported && (
 					<Text className={ styles[ 'toggle-section__info' ] }>
 						<Icon icon={ info } />
 						{ createInterpolateElement(

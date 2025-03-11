@@ -1,21 +1,22 @@
 import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
+import camelize from 'camelize';
 import API from '../../api';
 import { QUERY_ACCOUNT_PROTECTION_KEY } from '../../constants';
 import useNotices from '../../hooks/use-notices';
 import { AccountProtectionStatus } from '../../types/account-protection';
 /**
- * Toggle Account Protection Mutatation
+ * Account Protection Mutatation
  *
  * @return {UseMutationResult} useMutation result.
  */
-export default function useToggleAccountProtectionMutation(): UseMutationResult {
+export default function useAccountProtectionMutation(): UseMutationResult {
 	const queryClient = useQueryClient();
 	const { showSavingNotice, showSuccessNotice, showErrorNotice } = useNotices();
 
 	return useMutation( {
-		mutationFn: API.toggleAccountProtection,
-		onMutate: () => {
+		mutationFn: API.updateAccountProtection,
+		onMutate: config => {
 			showSavingNotice();
 
 			// Get the current cached data.
@@ -25,10 +26,16 @@ export default function useToggleAccountProtectionMutation(): UseMutationResult 
 
 			// Optimistically update the `isEnabled` property.
 			if ( initialValue ) {
-				queryClient.setQueryData< AccountProtectionStatus >( [ QUERY_ACCOUNT_PROTECTION_KEY ], {
-					...initialValue,
-					isEnabled: ! initialValue.isEnabled,
-				} );
+				queryClient.setQueryData(
+					[ QUERY_ACCOUNT_PROTECTION_KEY ],
+					( accountProtectionStatus: AccountProtectionStatus ) => ( {
+						...accountProtectionStatus,
+						config: {
+							...accountProtectionStatus.config,
+							...camelize( config ),
+						},
+					} )
+				);
 			}
 
 			return { initialValue };

@@ -117,7 +117,7 @@ class Jetpack_Protect {
 				$config->ensure( 'waf' );
 
 				// Account protection package.
-				$config->ensure( 'account_protection' );
+				$config->ensure( 'account-protection' );
 			},
 			1
 		);
