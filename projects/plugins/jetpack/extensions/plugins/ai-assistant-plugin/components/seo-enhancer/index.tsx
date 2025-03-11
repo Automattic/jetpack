@@ -14,12 +14,28 @@ import { __ } from '@wordpress/i18n';
 import { useState, useCallback, useEffect } from 'react';
 import './style.scss';
 
+type JetpackModuleSettings = {
+	[ module: string ]: {
+		options: {
+			[ option: string ]: {
+				current_value: boolean;
+			};
+		};
+	};
+};
+
+type JetpackModuleSelector = {
+	getJetpackModules: () => JetpackModuleSettings;
+};
+
 const useSeoModuleSettings = () => {
 	const [ isEnabled, setIsEnabled ] = useState( false );
 	const [ isToggling, setIsToggling ] = useState( false );
 
 	useEffect( () => {
-		const seoModuleSettings = select( JETPACK_MODULES_STORE_ID ).getJetpackModules()[ 'seo-tools' ];
+		const seoModuleSettings = (
+			select( JETPACK_MODULES_STORE_ID ) as JetpackModuleSelector
+		 ).getJetpackModules()[ 'seo-tools' ];
 		const enhancerAvailable =
 			seoModuleSettings && 'ai_seo_enhancer_enabled' in seoModuleSettings.options;
 		const enhancerEnabled =
