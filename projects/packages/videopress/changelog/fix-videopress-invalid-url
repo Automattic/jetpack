@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+
+- Handle case when the URL doesn't contain VideoPress GUID
+- CSS: Add missing space between CTAs

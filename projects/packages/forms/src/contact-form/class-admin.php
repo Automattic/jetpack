@@ -65,11 +65,11 @@ class Admin {
 		add_filter( 'views_edit-feedback', array( $this, 'grunion_admin_view_tabs' ) );
 		add_filter( 'manage_feedback_posts_columns', array( $this, 'grunion_post_type_columns_filter' ) );
 
-		add_action( 'manage_posts_custom_column', array( $this, 'grunion_manage_post_columns' ), 10, 2 );
+		add_action( 'manage_pages_custom_column', array( $this, 'grunion_manage_post_columns' ), 10, 2 );
 		add_action( 'restrict_manage_posts', array( $this, 'grunion_source_filter' ) );
 		add_action( 'pre_get_posts', array( $this, 'grunion_source_filter_results' ) );
 
-		add_filter( 'post_row_actions', array( $this, 'grunion_manage_post_row_actions' ), 10, 2 );
+		add_filter( 'page_row_actions', array( $this, 'grunion_manage_post_row_actions' ), 10, 2 );
 
 		add_action( 'wp_ajax_grunion_shortcode', array( $this, 'grunion_ajax_shortcode' ) );
 		add_action( 'wp_ajax_grunion_shortcode_to_json', array( $this, 'grunion_ajax_shortcode_to_json' ) );
@@ -85,6 +85,27 @@ class Admin {
 
 		add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
 		add_action( 'wp_ajax_grunion_gdrive_connection', array( $this, 'test_gdrive_connection' ) );
+
+		add_action( 'pre_get_posts', array( $this, 'change_feedback_list_order' ) );
+	}
+
+	/**
+	 * Change the `orderby` to `date` and `order` to `desc` of the feedback list.
+	 * This was needed since we made the `feedback` post type `hierarchical`
+	 * and the default order was changed.
+	 *
+	 * This is fine for now because the wp-admin list is going to be removed soon and
+	 * additionally it doesn't provide any sorting option in any of the columns.
+	 *
+	 * @param \WP_Query $query Current query.
+	 *
+	 * @return void
+	 */
+	public function change_feedback_list_order( $query ) {
+		if ( $query->get( 'post_type' ) === 'feedback' ) {
+			$query->set( 'orderby', 'date' );
+			$query->set( 'order', 'desc' );
+		}
 	}
 
 	/**
