@@ -345,7 +345,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			url = this.maybeRequestDisabled( url );
 			const result = await fetch( url, args );
 			if ( ! result.ok ) {
-				throw new DataSyncError( result.statusText, {
+				throw new DataSyncError( `DS request failed: ${ result.status } - ${ result.statusText }`, {
 					...this.describeSelf(),
 					method: args.method,
 					location: url,
