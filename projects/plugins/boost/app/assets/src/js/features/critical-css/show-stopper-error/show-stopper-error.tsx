@@ -65,24 +65,28 @@ const Description = ( { errorSet }: { errorSet: ErrorSet } ) => {
 	const displayUrls = formatErrorSetUrls( errorSet );
 
 	return (
-		<p>
-			{ createInterpolateElement( describeErrorSet( errorSet ), {
-				b: <b />,
-			} ) }{ ' ' }
-			{ displayUrls.map( ( { href, label }, index ) => (
-				<a
-					onClick={ () => {
-						recordBoostEvent( 'critical_css_error_link_clicked', {} );
-					} }
-					href={ href }
-					target="_blank"
-					rel="noreferrer"
-					key={ index }
-				>
-					{ label }
-				</a>
-			) ) }
-		</p>
+		<>
+			<p>
+				{ createInterpolateElement( describeErrorSet( errorSet ), {
+					b: <b />,
+				} ) }
+			</p>
+			<p>
+				{ displayUrls.map( ( { href, label }, index ) => (
+					<a
+						onClick={ () => {
+							recordBoostEvent( 'critical_css_error_link_clicked', {} );
+						} }
+						href={ href }
+						target="_blank"
+						rel="noreferrer"
+						key={ index }
+					>
+						{ label }
+					</a>
+				) ) }
+			</p>
+		</>
 	);
 };
 
