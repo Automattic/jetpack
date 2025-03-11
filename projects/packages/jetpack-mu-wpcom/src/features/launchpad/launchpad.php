@@ -504,15 +504,16 @@ function wpcom_is_checklist_task_complete( $task_id ) {
  *
  * @param string      $checklist_slug Checklist slug.
  * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
+ * @param bool        $updated_write_tasklist Optional. Whether we're using the updated `write` task list.
  *
  * @return Task[] Collection of tasks for a given checklist
  */
-function wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context = null ) {
+function wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context = null, $updated_write_tasklist = false ) {
 	if ( ! $checklist_slug ) {
 		return array();
 	}
 
-	return wpcom_launchpad_checklists()->build( $checklist_slug, $launchpad_context );
+	return wpcom_launchpad_checklists()->build( $checklist_slug, $launchpad_context, $updated_write_tasklist );
 }
 
 // TODO: Write code p2 post or dotcom post
