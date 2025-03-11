@@ -24,6 +24,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 	moduleNameHref,
 	showHeader = true,
 	showFooter = true,
+	useInternalLinks = false,
 	showBackground = true,
 	sandboxedDomain = '',
 	apiRoot = '',
@@ -90,6 +91,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 							moduleName={ moduleName }
 							moduleNameHref={ moduleNameHref }
 							menu={ optionalMenuItems }
+							useInternalLinks={ useInternalLinks }
 						/>
 					</Col>
 				</Container>

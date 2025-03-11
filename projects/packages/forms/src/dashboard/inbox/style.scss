@@ -294,6 +294,9 @@ $action-bar-height: 88px;
 	padding: 35px;
 	box-sizing: border-box;
 	min-height: 400px;
+	@media (max-width: 660px) {
+		padding: 24px;
+	}
 }
 
 .jp-forms__inbox__dataviews {
@@ -304,6 +307,7 @@ $action-bar-height: 88px;
 	flex-grow: 1;
 	height: 100%;
 	max-height: 100vh;
+	flex: 1 1 50%;
 
 	.dataviews-wrapper {
 		background: #fff;
@@ -312,9 +316,10 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox__dataviews-response {
-	width: 290px;
+	min-width: 300px !important;
 	height: 100%;
 	overflow: auto;
+	flex: 1 1 50%;
 }
 
 

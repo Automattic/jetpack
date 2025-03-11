@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { JetpackFooter } from '@automattic/jetpack-components';
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 import { Modal, Button, __experimentalVStack as VStack } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -67,10 +66,6 @@ const ExportResponsesButton = () => {
 						</p>
 						<CSVExport onExport={ onExport } />
 						<GoogleDriveExport onExport={ onExport } />
-						<JetpackFooter
-							className="jp-forms__export-modal-footer"
-							moduleName={ __( 'Jetpack Forms', 'jetpack-forms' ) }
-						/>
 					</VStack>
 				</Modal>
 			) }

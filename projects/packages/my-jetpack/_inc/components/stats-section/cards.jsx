@@ -11,19 +11,21 @@ import styles from './style.module.scss';
  * @param {object} props                - Component props.
  * @param {object} props.counts         - Counts object for the current period.
  * @param {object} props.previousCounts - Counts object for the previous period.
+ * @param {number} props.headingLevel   - Heading level between 1 and 6.
  *
  * @return {object} StatsCards React component.
  */
-const StatsCards = ( { counts, previousCounts } ) => {
+const StatsCards = ( { counts, previousCounts, headingLevel } ) => {
+	const Heading = `h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`;
+
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
-			<h3 className={ styles[ 'section-title' ] }>
+			<Heading className={ styles[ 'section-title' ] }>
 				<span>{ __( '7-day highlights', 'jetpack-my-jetpack' ) }</span>
-
 				<small className={ styles[ 'section-description' ] }>
 					{ __( 'Compared to previous period', 'jetpack-my-jetpack' ) }
 				</small>
-			</h3>
+			</Heading>
 
 			<div className={ styles[ 'cards-list' ] }>
 				<CountComparisonCard

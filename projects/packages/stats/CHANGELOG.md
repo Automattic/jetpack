@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.4] - 2025-03-10
+### Changed
+- Internal updates.
+
 ## [0.15.3] - 2025-03-03
 ### Fixed
-- Tracking Pixel: ensure the tracking script can be deferred, so it is not blocking. [#42175]
+- Tracking Pixel: Ensure the tracking script can be deferred, so it is not blocking. [#42175]
 
 ## [0.15.2] - 2025-02-24
 ### Changed
@@ -218,6 +222,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.15.4]: https://github.com/Automattic/jetpack-stats/compare/v0.15.3...v0.15.4
 [0.15.3]: https://github.com/Automattic/jetpack-stats/compare/v0.15.2...v0.15.3
 [0.15.2]: https://github.com/Automattic/jetpack-stats/compare/v0.15.1...v0.15.2
 [0.15.1]: https://github.com/Automattic/jetpack-stats/compare/v0.15.0...v0.15.1

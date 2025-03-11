@@ -29,7 +29,7 @@ class Set_Provider_CSS implements Data_Sync_Action {
 		}
 
 		$provider_key = sanitize_key( $data['key'] );
-		$css          = $data['css'];
+		$css          = $this->unmask_content( $data['css'] );
 
 		$storage = new Critical_CSS_Storage();
 		$storage->store_css( $provider_key, $css );
@@ -41,5 +41,15 @@ class Set_Provider_CSS implements Data_Sync_Action {
 			'success' => true,
 			'state'   => $state->get(),
 		);
+	}
+
+	/**
+	 * Unmasks the content.
+	 *
+	 * @param string $content The content to unmask.
+	 * @return string The unmasked content.
+	 */
+	private function unmask_content( $content ) {
+		return str_replace( '__JB_XMLNS__', 'xmlns', $content );
 	}
 }

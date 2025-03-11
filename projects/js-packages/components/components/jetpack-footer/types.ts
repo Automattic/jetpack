@@ -30,6 +30,11 @@ export type JetpackFooterProps = {
 	menu?: JetpackFooterMenuItem[];
 
 	/**
+	 * Whether to enable Jetpack admin links.
+	 */
+	useInternalLinks?: boolean;
+
+	/**
 	 * URL of the site WP Admin.
 	 */
 	siteAdminUrl?: string;
