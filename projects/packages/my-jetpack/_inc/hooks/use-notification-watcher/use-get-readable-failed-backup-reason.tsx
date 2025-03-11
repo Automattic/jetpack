@@ -4,18 +4,13 @@ import useRedBubbleQuery from '../../data/use-red-bubble-query';
 
 export type ReasonContent = {
 	reasonContent: {
-		title?: ReactElement | string;
-		text?: ReactElement | string;
+		title: ReactElement | string | null;
+		text: ReactElement | string | null;
 	};
 	isLoading: boolean;
 };
 
-/**
- * Gets the translated human readable descriptions of Backup failure codes.
- *
- * @return {ReasonContent} An object containing each tooltip's title and text content.
- */
-export function useGetReadableFailedBackupReason(): ReasonContent {
+const useGetReadableFailedBackupReason = (): ReasonContent => {
 	const { data: redBubbleAlerts, isLoading: isRedBubbleAlertsLoading } = useRedBubbleQuery();
 
 	const { backup_failure: backupFailure } = redBubbleAlerts || {};
@@ -179,4 +174,6 @@ export function useGetReadableFailedBackupReason(): ReasonContent {
 		isLoading: isRedBubbleAlertsLoading,
 		reasonContent: reasonContent,
 	};
-}
+};
+
+export default useGetReadableFailedBackupReason;

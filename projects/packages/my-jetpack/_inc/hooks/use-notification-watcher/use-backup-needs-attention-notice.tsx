@@ -8,7 +8,7 @@ import { applyTimezone } from '../../utils/apply-timezone';
 import createCookie from '../../utils/create-cookie';
 import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
-import { useGetReadableFailedBackupReason } from './use-get-readable-failed-backup-reason';
+import useGetReadableFailedBackupReason from './use-get-readable-failed-backup-reason';
 import type { NoticeHookType } from './types';
 import type { NoticeOptions } from '../../context/notices/types';
 
