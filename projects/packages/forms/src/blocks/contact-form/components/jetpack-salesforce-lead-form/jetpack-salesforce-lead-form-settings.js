@@ -86,12 +86,46 @@ export const salesforceLeadFormVariation = {
 			spacing: {
 				padding: {
 					top: '16px',
-					right: '16px',
 					bottom: '16px',
-					left: '16px',
 				},
 			},
 		},
+	},
+	example: {
+		innerBlocks: [
+			{
+				name: 'jetpack/field-email',
+				attributes: { required: true, label: __( 'Business Email', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/field-name',
+				attributes: { required: true, label: __( 'First Name', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/field-name',
+				attributes: { required: true, label: __( 'Last Name', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/field-text',
+				attributes: { required: true, label: __( 'Job Title', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/field-text',
+				attributes: { required: true, label: __( 'Company', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/field-telephone',
+				attributes: { required: true, label: __( 'Phone Number', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/button',
+				attributes: {
+					text: __( 'Submit', 'jetpack-forms' ),
+					element: 'button',
+					lock: { remove: true },
+				},
+			},
+		],
 	},
 };
 

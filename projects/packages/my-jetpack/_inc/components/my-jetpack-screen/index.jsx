@@ -171,6 +171,7 @@ export default function MyJetpackScreen() {
 			apiNonce={ apiNonce }
 			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
 		>
+			<h1 className="screen-reader-text">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</h1>
 			<hr className={ styles.separator } />
 
 			<IDCModal />

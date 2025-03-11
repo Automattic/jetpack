@@ -7,6 +7,8 @@
  * (multiple radio buttons) or Multiple Choice fields (multiple checkboxes).
  */
 
+import { validateDate } from './validate-helper';
+
 document.addEventListener( 'DOMContentLoaded', () => {
 	initAllForms();
 } );
@@ -271,15 +273,12 @@ const isMultipleChoiceFieldValid = fieldset => {
 const isDateFieldValid = input => {
 	const format = input.getAttribute( 'data-format' );
 	const value = input.value;
-	const $ = window.jQuery;
 
-	if ( value && format && typeof $ !== 'undefined' ) {
-		try {
-			$.datepicker.parseDate( format, value );
+	if ( value && format ) {
+		if ( validateDate( value, format ) ) {
 			input.setCustomValidity( '' );
-		} catch {
+		} else {
 			input.setCustomValidity( L10N.invalidDate );
-
 			return false;
 		}
 	}

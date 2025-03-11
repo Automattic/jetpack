@@ -5,16 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.61.2] - 2025-03-10
+### Changed
+- Move share post endpoint from Jetpack to publicize package. [#42179]
+- Social: Move JS editor code from Jetpack and Social to Publicize package. [#41836]
+- Make scheduled-actions endpoint compatible with getEntityRecords. [#42283]
+
+### Fixed
+- Social: Fix stylesheets loaded on the front-end when not needed. [#42289]
+- Social: Fix the share date schema for scheduled actions endpoint. [#42244]
+
 ## [0.61.1] - 2025-03-03
 ### Added
-- Moved publicize/scheduled-actions enpoint from WPCOM to publicize. [#42136]
+- Move publicize/scheduled-actions enpoint from WPCOM to publicize. [#42136]
 
 ### Changed
 - Social: Improve connect URL generation. [#42019]
 - Update package dependencies. [#42163]
 
 ### Deprecated
-- Deprecated jetpack/v4 connection endpoints [#41911]
+- Deprecate jetpack/v4 connection endpoints. [#41911]
 
 ### Fixed
 - Social: Fix PHP warnings on WPCOM. [#42107]
@@ -892,6 +902,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.61.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.1...v0.61.2
 [0.61.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.0...v0.61.1
 [0.61.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.60.1...v0.61.0
 [0.60.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.60.0...v0.60.1

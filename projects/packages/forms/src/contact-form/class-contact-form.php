@@ -127,7 +127,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( ! isset( $attributes['id'] ) ) {
 				$attributes['id'] = '';
 			}
-			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page;
+
+			// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
+			$page_num = max( 1, intval( $page ) );
+
+			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_num;
 		}
 
 		$this->hash                 = sha1( wp_json_encode( $attributes ) );

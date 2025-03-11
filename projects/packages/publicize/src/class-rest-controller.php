@@ -479,7 +479,7 @@ class REST_Controller {
 	 *
 	 * POST jetpack/v4/publicize/(?P<postId>\d+)
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.61.2
 	 *
 	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */

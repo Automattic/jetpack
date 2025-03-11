@@ -118,6 +118,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 				className
 			) }
 			aria-label={ __( 'Jetpack', 'jetpack-components' ) }
+			role="contentinfo"
 			{ ...otherProps }
 		>
 			<ul>

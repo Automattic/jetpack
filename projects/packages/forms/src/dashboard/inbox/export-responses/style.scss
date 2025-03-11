@@ -9,34 +9,6 @@
 	margin-bottom: 0;
 }
 
-.jp-forms__export-modal-footer {
-	box-sizing: border-box;
-	display: flex;
-	justify-content: space-between;
-	padding: 0 16px;
-}
-
-/* override JP logo */
-.jp-forms__export-modal-footer #jetpack-logo__icon {
-	width: 16px;
-	height: 16px;
-}
-
-.jp-forms__export-modal-footer #jetpack-logo__icon path {
-	fill: #000000;
-}
-
-.jp-forms__export-modal-footer .jp-forms__export-modal-footer-link {
-	padding-left: 8px;
-	font-size: 12px;
-	font-weight: 600;
-	line-height: 0;
-	letter-spacing: -0.02em;
-	text-align: left;
-	color: #23282D;
-	text-decoration: none;
-}
-
 .jp-forms__export-modal-card {
 	border-radius: var(--jp-border-radius, 4px);
 	box-shadow: 0 0 0 1px var(--jp-gray-10, #c3c4c7) inset;

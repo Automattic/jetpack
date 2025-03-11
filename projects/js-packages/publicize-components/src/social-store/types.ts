@@ -153,3 +153,13 @@ export type SocialSettingsFields = {
 	jetpack_social_notes_config: SocialNotesConfig;
 	[ 'jetpack-social_show_pricing_page' ]: boolean;
 };
+
+export type ScheduledShare = {
+	id: number;
+	blog_id: number;
+	connection_id: number;
+	message: string;
+	post_id: number;
+	timestamp: number;
+	wpcom_user_id: number;
+};
