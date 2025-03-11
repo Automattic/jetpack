@@ -26,10 +26,10 @@ const refetchProducts = async (
 		options?: RefetchOptions
 	) => Promise< QueryObserverResult< { [ key: string ]: ProductSnakeCase }, WP_Error > >
 ) => {
-	const { data: refetchedProducts } = await refetch();
+	const { data: refetchedProducts, isError, isLoading } = await refetch();
 	const prevProducts = window.myJetpackInitialState.products.items;
 
-	if ( ! refetchedProducts ) {
+	if ( isError || isLoading ) {
 		return;
 	}
 
