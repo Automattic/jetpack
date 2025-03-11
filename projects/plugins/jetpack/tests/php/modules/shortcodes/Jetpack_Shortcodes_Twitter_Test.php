@@ -64,7 +64,7 @@ class Jetpack_Shortcodes_Twitter_Test extends WP_UnitTestCase {
 
 		Cache::clear(); // We shouldn't need this. But, adding it here to debug failing test in Github.
 		$provider = jetpack_proxy_twitter_oembed_provider( $provider );
-		$this->assertStringContainsString( 'https://public-api.wordpress.com/oembed/1.0', $provider );
+		$this->assertStringContainsString( 'https://public-api.wordpress.com/wpcom/v2/oembed-proxy', $provider );
 
 		$this->assertNotFalse( has_filter( 'oembed_remote_get_args', 'jetpack_twitter_oembed_remote_get_args' ) );
 	}
@@ -106,7 +106,7 @@ class Jetpack_Shortcodes_Twitter_Test extends WP_UnitTestCase {
 	 */
 	public function test_remote_get_args_modified_for_proxied_twitter() {
 		$args = array( 'timeout' => 10 );
-		$url  = 'https://public-api.wordpress.com/oembed/1.0/sites/123/proxy?url=https://publish.twitter.com/oembed';
+		$url  = 'https://public-api.wordpress.com/wpcom/v2/oembed-proxy';
 
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
 

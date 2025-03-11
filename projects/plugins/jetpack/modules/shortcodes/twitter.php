@@ -33,7 +33,7 @@ function jetpack_proxy_twitter_oembed_provider( $provider ) {
 
 		$oembed_proxy_url = esc_url_raw(
 			sprintf(
-				'%s/oembed/1.0/sites/%d/proxy',
+				'%s/wpcom/v2/oembed-proxy',
 				JETPACK__WPCOM_JSON_API_BASE,
 				Jetpack_Options::get_option( 'id' )
 			)
