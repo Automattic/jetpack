@@ -1,6 +1,30 @@
-import { CURRENCIES } from '@automattic/format-currency';
 import ProductPrice from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
+
+/**
+ * Local array of currency codes so we don't need to import from format-currency
+ * This is the subset of currencies that are supported by Jetpack
+ * See js-packages/plugins/jetpack/extensions/shared/currencies.js
+ */
+const currencies = [
+	'USD',
+	'AUD',
+	'BRL',
+	'CAD',
+	'CHF',
+	'DKK',
+	'EUR',
+	'GBP',
+	'HKD',
+	'INR',
+	'JPY',
+	'MXN',
+	'NOK',
+	'NZD',
+	'PLN',
+	'SEK',
+	'SGD',
+];
 
 const meta: Meta< typeof ProductPrice > = {
 	title: 'JS Packages/Components/Product Price',
@@ -8,7 +32,7 @@ const meta: Meta< typeof ProductPrice > = {
 	argTypes: {
 		currency: {
 			control: { type: 'select' },
-			options: Object.keys( CURRENCIES ),
+			options: currencies,
 		},
 	},
 };
