@@ -17,7 +17,7 @@ const CriticalCssErrorType = z.enum( [
 ] );
 
 export const CriticalCssErrorDetailsSchema = z.object( {
-	url: z.coerce.string().optional(),
+	url: z.coerce.string(),
 	message: z.coerce.string(),
 	meta: z.record( JSONSchema ).catch( {} ),
 	type: CriticalCssErrorType,
