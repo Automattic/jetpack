@@ -102,10 +102,7 @@ export function ConfirmationForm( {
 			} );
 		}
 
-		if (
-			service.supports.additional_users_only &&
-			keyringResult.additional_external_users?.length
-		) {
+		if ( service.supports.additional_users && keyringResult.additional_external_users?.length ) {
 			for ( const user of keyringResult.additional_external_users ) {
 				options.push( {
 					label: user.external_name,
