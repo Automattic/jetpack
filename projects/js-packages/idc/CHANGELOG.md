@@ -2,9 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.12.11 - 2025-03-10
+### Fixed
+- Safe Mode: Add mainBodyTextDev for the body text in development mode. [#42280]
+
 ## 0.12.10 - 2025-03-06
 ### Fixed
-- Making sure custom text works on dev Safe Mode. [#42235]
+- Safe Mode: Make sure custom text works in development mode. [#42235]
 
 ## 0.12.9 - 2025-03-05
 ### Changed

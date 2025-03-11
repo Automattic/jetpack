@@ -47,7 +47,7 @@ describe( 'NewsletterWidget', () => {
 
 		// Check for paid subscriptions label
 		expect(
-			screen.getByText( `${ defaultProps.paidSubscribers } paid subscriptions` )
+			screen.getByText( `${ defaultProps.paidSubscribers } paid subscribers` )
 		).toBeInTheDocument();
 	} );
 
@@ -163,7 +163,7 @@ describe( 'NewsletterWidget', () => {
 		it( 'shows stats section when paidSubscribers > 0', () => {
 			render( <NewsletterWidget { ...defaultProps } allSubscribers={ 0 } paidSubscribers={ 5 } /> );
 
-			expect( screen.getByText( '5 paid subscriptions' ) ).toBeInTheDocument();
+			expect( screen.getByText( '5 paid subscribers' ) ).toBeInTheDocument();
 		} );
 
 		it( 'hides stats section when allSubscribers and paidSubscribers are 0', () => {
@@ -178,7 +178,35 @@ describe( 'NewsletterWidget', () => {
 
 			expect( screen.queryByText( /subscribers \(\d+ via email\)/ ) ).not.toBeInTheDocument();
 
-			expect( screen.queryByText( /paid subscriptions/ ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( /paid subscribers/ ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows stats section when allSubscribers = 1', () => {
+			render(
+				<NewsletterWidget
+					{ ...defaultProps }
+					allSubscribers={ 1 }
+					emailSubscribers={ 1 }
+					paidSubscribers={ 0 }
+				/>
+			);
+
+			expect( screen.getByText( '1 subscriber (1 via email)' ) ).toBeInTheDocument();
+			expect( screen.getByText( '0 paid subscribers' ) ).toBeInTheDocument();
+		} );
+
+		it( 'shows stats section when paidSubscribers = 1', () => {
+			render(
+				<NewsletterWidget
+					{ ...defaultProps }
+					allSubscribers={ 10 }
+					emailSubscribers={ 7 }
+					paidSubscribers={ 1 }
+				/>
+			);
+
+			expect( screen.getByText( '10 subscribers (7 via email)' ) ).toBeInTheDocument();
+			expect( screen.getByText( '1 paid subscriber' ) ).toBeInTheDocument();
 		} );
 	} );
 
