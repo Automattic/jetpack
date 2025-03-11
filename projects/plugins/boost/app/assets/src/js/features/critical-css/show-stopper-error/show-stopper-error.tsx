@@ -12,6 +12,7 @@ import formatErrorSetUrls from '$lib/utils/format-error-set-urls';
 import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useRetryRegenerate } from '../lib/use-retry-regenerate';
+import RawError from '../raw-error/raw-error';
 
 type ShowStopperErrorTypes = {
 	supportLink?: string;
@@ -35,6 +36,7 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 				{ showLearnSection ? (
 					<>
 						<Description errorSet={ primaryErrorSet } />
+						<RawError errorSet={ primaryErrorSet } />
 						<FoldingElement
 							labelExpandedText={ __( 'Learn what to do', 'jetpack-boost' ) }
 							labelCollapsedText={ __( 'Learn what to do', 'jetpack-boost' ) }
