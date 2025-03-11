@@ -442,7 +442,7 @@ class Universal {
 	 * @param array  $variation Variation attributes..
 	 * @param array  $cart_item_data Other cart data.
 	 */
-	public function capture_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id = 0, $variation = 0, $cart_item_data = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function capture_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_add_to_cart' );
 	}
 
