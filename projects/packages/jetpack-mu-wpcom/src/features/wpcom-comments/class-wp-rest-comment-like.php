@@ -59,7 +59,7 @@ class WP_REST_Comment_Like extends WP_REST_Controller {
 	 * @return bool
 	 */
 	public function permission_callback(): bool {
-		return current_user_can( 'moderate_comments' );
+		return is_user_logged_in();
 	}
 
 	/**
