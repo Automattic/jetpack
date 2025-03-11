@@ -47,11 +47,12 @@ class Tracking_Pixel {
 	public static function build_view_data() {
 		global $wp_the_query;
 
-		$blog     = Jetpack_Options::get_option( 'id' );
-		$tz       = get_option( 'gmt_offset' );
-		$v        = 'ext';
-		$blog_url = wp_parse_url( site_url() );
-		$srv      = $blog_url['host'];
+		$blog       = Jetpack_Options::get_option( 'id' );
+		$tz         = get_option( 'gmt_offset' );
+		$v          = 'ext';
+		$blog_url   = wp_parse_url( site_url() );
+		$srv        = $blog_url['host'];
+		$is_archive = false;
 		if ( $wp_the_query->is_single || $wp_the_query->is_page || $wp_the_query->is_posts_page ) {
 			// Store and reset the queried_object and queried_object_id
 			// Otherwise, redirect_canonical() will redirect to home_url( '/' ) for show_on_front = page sites where home_url() is not all lowercase.
@@ -70,7 +71,8 @@ class Tracking_Pixel {
 				$wp_the_query->queried_object_id = $queried_object_id;
 			}
 		} else {
-			$post = '0';
+			$post       = '0';
+			$is_archive = true;
 		}
 		$view_data = compact( 'v', 'blog', 'post', 'tz', 'srv' );
 		// Batcache removes some of the UTM params from $_GET, we need to extract them from uri directly instead.
@@ -82,6 +84,37 @@ class Tracking_Pixel {
 			if ( isset( $url_params[ $utm_parameter ] ) && is_scalar( $url_params[ $utm_parameter ] ) ) {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- UTMs are standardized parameters coming from outside WordPress, adding nonce is not possible
 				$view_data[ $utm_parameter ] = substr( sanitize_textarea_field( wp_unslash( $url_params[ $utm_parameter ] ) ), 0, 255 );
+			}
+		}
+
+		if ( $is_archive ) {
+			if ( $wp_the_query->is_home() ) {
+				$view_data['home'] = '1';
+			} elseif ( $wp_the_query->is_archive() ) {
+				if ( $wp_the_query->is_date ) {
+					$query               = $wp_the_query->query;
+					$date_parts          = array_filter( array( $query['year'] ?? null, $query['monthnum'] ?? null, $query['day'] ?? null ) );
+					$date                = implode( '/', $date_parts );
+					$view_data['arch']   = 'date';
+					$view_data['arch_v'] = $date;
+				} elseif ( $wp_the_query->is_category ) {
+					$view_data['arch']   = 'cat';
+					$view_data['arch_v'] = $wp_the_query->query['category_name'];
+				} elseif ( $wp_the_query->is_tag ) {
+					$view_data['arch']   = 'tag';
+					$view_data['arch_v'] = $wp_the_query->query['tag'];
+				} elseif ( $wp_the_query->is_author ) {
+					$view_data['arch']   = 'author';
+					$view_data['arch_v'] = $wp_the_query->query['author_name'];
+				}
+				// TODO: track custom types - is_post_type_archive() and is_tax()
+			} elseif ( $wp_the_query->is_404() ) {
+				// These do not seem to be tracked at all
+				$view_data['arch']   = 'err';
+				$view_data['arch_v'] = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ); // send the url path
+			} elseif ( $wp_the_query->is_search() ) {
+				$view_data['arch']   = 'search';
+				$view_data['arch_v'] = $wp_the_query->query['s'];
 			}
 		}
 
