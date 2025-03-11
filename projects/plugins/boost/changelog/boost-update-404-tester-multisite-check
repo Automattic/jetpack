@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Concatenate JS/CSS: Ensure delivery method tester is only tested once per network on Multisites

@@ -1,5 +1,6 @@
 import * as connectionData from './connection-data';
 import * as pricingPageSettings from './pricing-page';
+import * as scheduledSharesActions from './scheduled-shares';
 import * as servicesActions from './services';
 import * as shareStatus from './share-status';
 import * as sigActions from './social-image-generator';
@@ -16,6 +17,7 @@ const actions = {
 	...pricingPageSettings,
 	...socialModuleSettings,
 	...servicesActions,
+	...scheduledSharesActions,
 };
 
 export default actions;

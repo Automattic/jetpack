@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Components: Adding margins to elements who had spacing issues due to the __nextHasNoMarginBottom property.
