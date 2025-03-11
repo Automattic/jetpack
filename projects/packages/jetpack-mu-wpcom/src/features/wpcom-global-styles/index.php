@@ -383,10 +383,7 @@ function wpcom_global_styles_in_use() {
 		return false;
 	}
 
-	$user_cpt = WP_Theme_JSON_Resolver::get_user_data_from_wp_global_styles( wp_get_theme() );
-	// This is the global styles stylesheet.
-	// var_dump( wp_get_global_stylesheet() );
-
+	$user_cpt             = WP_Theme_JSON_Resolver::get_user_data_from_wp_global_styles( wp_get_theme() );
 	$global_styles_in_use = wpcom_global_styles_in_use_by_wp_global_styles_post( $user_cpt );
 
 	if ( $global_styles_in_use ) {

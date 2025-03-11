@@ -5,18 +5,16 @@ import { wpcomTrackEvent } from '../../common/tracks';
 import './wpcom-global-styles-view.scss';
 
 /**
- * REST API endpoint to update global styles.
+ * REST API endpoint call to reset global styles.
  *
  * @param {string} globalStylesId - The ID of the global styles.
  * @param {string} siteIdOrSlug   - The ID or slug of the site.
  * @return {Promise}                The response from the REST API.
  */
-const restGlobalStyles = async ( globalStylesId, siteIdOrSlug ) => {
+const resetGlobalStyles = async ( globalStylesId, siteIdOrSlug ) => {
 	if ( ! globalStylesId || ! siteIdOrSlug ) {
 		return false;
 	}
-
-	// TODO find a way to PUT from the frontend preview.
 
 	return await wpcomRequest( {
 		path: `/sites/${ encodeURIComponent( siteIdOrSlug ) }/global-styles/${ globalStylesId }`,
@@ -107,18 +105,19 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 	resetButton?.addEventListener( 'click', async event => {
 		event.preventDefault();
-		recordEvent( 'wpcom_global_styles_gating_notice_reset_support' );
 		const globalStylesId = resetButton.dataset.globalStylesId;
 		const siteId = resetButton.dataset.blogId;
 		if ( globalStylesId && siteId ) {
 			resetButton?.classList.add( 'is-resetting' );
-			const result = await restGlobalStyles( globalStylesId, siteId );
+			const result = await resetGlobalStyles( globalStylesId, siteId );
 			if ( result ) {
+				recordEvent( 'wpcom_global_styles_gating_notice_reset_styles', { action: 'reset' } );
 				window.location.reload();
 			} else {
 				resetButton?.classList.remove( 'is-resetting' );
 			}
 		} else {
+			recordEvent( 'wpcom_global_styles_gating_notice_reset_support' );
 			window.open( resetButton.href, '_blank' ).focus();
 		}
 	} );
