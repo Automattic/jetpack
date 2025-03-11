@@ -207,6 +207,15 @@ class Account_Protection {
 	}
 
 	/**
+	 * Determines if the environment supports auto activation.
+	 *
+	 * @return bool
+	 */
+	public function environment_supports_auto_activation(): bool {
+		return ! ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE );
+	}
+
+	/**
 	 * Determines if the current Jetpack version is supported.
 	 *
 	 * @return bool

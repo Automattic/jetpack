@@ -12,8 +12,8 @@ namespace Automattic\Jetpack\Account_Protection;
  */
 class Config {
 	public const SUPPORT_LINK                         = 'https://jetpack.com/?post_type=jetpack_support&p=324199';
-	public const TRANSIENT_PREFIX                     = 'jetpack_account_protection';
-	public const RECENT_PASSWORD_HASHES_USER_META_KEY = 'jetpack_account_protection_recent_password_hashes';
+	public const PREFIX                               = 'jetpack_account_protection';
+	public const RECENT_PASSWORD_HASHES_USER_META_KEY = self::PREFIX . '_recent_password_hashes';
 
 	// Password Detection Constants
 	public const PASSWORD_DETECTION_ERROR_CODE            = 'password_detection_validation_error';

@@ -33,10 +33,14 @@ class Settings {
 	 * @return array
 	 */
 	public function get() {
+		$supports_auto_activation = $this->account_protection->environment_supports_auto_activation();
+
 		$settings = array(
-			'isEnabled'                    => $this->account_protection->is_enabled(),
-			'isSupported'                  => $this->account_protection->is_supported_environment(),
-			'hasUnsupportedJetpackVersion' => $this->account_protection->has_unsupported_jetpack_version(),
+			'isEnabled'                     => $this->account_protection->is_enabled(),
+			'isSupported'                   => $this->account_protection->is_supported_environment(),
+			'hasUnsupportedJetpackVersion'  => $this->account_protection->has_unsupported_jetpack_version(),
+			'passwordDetectionEnabled'      => $supports_auto_activation,
+			'enforceStrongPasswordsEnabled' => true,
 		);
 
 		return $settings;
