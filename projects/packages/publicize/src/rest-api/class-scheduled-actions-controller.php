@@ -278,7 +278,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'Sorry, you are not allowed to view or scheduled shares for that post.', 'jetpack-publicize-pkg' ),
-				array( 'status' => 400 )
+				array( 'status' => 403 )
 			);
 		}
 
@@ -420,7 +420,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'Sorry, you cannot schedule shares to that connection.', 'jetpack-publicize-pkg' ),
-				array( 'status' => 400 )
+				array( 'status' => 403 )
 			);
 		}
 
