@@ -1,6 +1,25 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { ScheduledShare } from '../types';
+
+/**
+ * Creates a new scheduled share.
+ *
+ * @param data - The data.
+ *
+ * @return A thunk.
+ */
+export function createScheduledShare(
+	data: Pick< ScheduledShare, 'post_id' | 'connection_id' | 'timestamp' > &
+		Partial< Pick< ScheduledShare, 'message' > >
+) {
+	return async function ( { registry } ) {
+		const { saveEntityRecord } = registry.dispatch( coreStore );
+
+		await saveEntityRecord( 'wpcom/v2', 'publicize/scheduled-actions', data );
+	};
+}
 
 /**
  * Deletes a scheduled share.
