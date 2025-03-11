@@ -2113,7 +2113,7 @@ EOT;
 				'name'    => 'First form name 2',
 				'message' => 'First form message 2',
 			),
-			'g' . $post->ID . '-2'
+			'g' . $post->ID . '-2-1' // The 2 here is the count and 1 is now always set for page number which in this case is 1.
 		);
 
 		$form2   = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
