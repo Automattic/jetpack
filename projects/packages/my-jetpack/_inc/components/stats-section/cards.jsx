@@ -16,18 +16,16 @@ import styles from './style.module.scss';
  * @return {object} StatsCards React component.
  */
 const StatsCards = ( { counts, previousCounts, headingLevel } ) => {
+	const Heading = `h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`;
+
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
-			{ React.createElement(
-				`h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`,
-				{ className: styles[ 'section-title' ] },
-				<>
-					<span>{ __( '7-day highlights', 'jetpack-my-jetpack' ) }</span>
-					<small className={ styles[ 'section-description' ] }>
-						{ __( 'Compared to previous period', 'jetpack-my-jetpack' ) }
-					</small>
-				</>
-			) }
+			<Heading className={ styles[ 'section-title' ] }>
+				<span>{ __( '7-day highlights', 'jetpack-my-jetpack' ) }</span>
+				<small className={ styles[ 'section-description' ] }>
+					{ __( 'Compared to previous period', 'jetpack-my-jetpack' ) }
+				</small>
+			</Heading>
 
 			<div className={ styles[ 'cards-list' ] }>
 				<CountComparisonCard
