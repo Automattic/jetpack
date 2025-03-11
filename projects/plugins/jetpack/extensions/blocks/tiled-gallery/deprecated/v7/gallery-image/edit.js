@@ -5,7 +5,7 @@ import { Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { BACKSPACE, DELETE } from '@wordpress/keycodes';
 import clsx from 'clsx';
-import { close, downChevron, leftChevron, rightChevron, upChevron } from '../icons';
+import { close, downChevron, leftChevron, rightChevron, upChevron } from '../../../icons';
 
 class GalleryImageEdit extends Component {
 	img = createRef();

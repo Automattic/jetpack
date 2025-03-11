@@ -1,8 +1,8 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import clsx from 'clsx';
-import { getActiveStyleName } from '../../shared/block-styles';
+import { getActiveStyleName } from '../../../../shared/block-styles';
+import { defaultColumnsNumber } from '../../edit';
 import { LAYOUT_STYLES } from './constants';
-import { defaultColumnsNumber } from './edit';
 import Layout from './layout';
 
 export default function TiledGallerySave( { attributes } ) {

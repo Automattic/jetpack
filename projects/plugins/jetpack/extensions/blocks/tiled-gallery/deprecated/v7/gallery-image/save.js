@@ -37,7 +37,6 @@ export default function GalleryImageSave( props ) {
 			data-custom-link={ customLink }
 			data-width={ width }
 			src={ url }
-			data-amp-layout={ 'responsive' }
 		/>
 	);
 

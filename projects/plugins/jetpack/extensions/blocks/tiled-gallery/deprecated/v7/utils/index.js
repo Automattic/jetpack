@@ -7,7 +7,7 @@ import { isBlobURL } from '@wordpress/blob';
 import { select } from '@wordpress/data';
 import { range } from 'lodash';
 import photon from 'photon';
-import isOfflineMode from '../../../shared/is-offline-mode';
+import isOfflineMode from '../../../../../shared/is-offline-mode';
 import { PHOTON_MAX_RESIZE } from '../constants';
 
 let jetpackPlanFromState;
