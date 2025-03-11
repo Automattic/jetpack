@@ -5,7 +5,8 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 
-type NeedsPluginsAlert = RedBubbleAlerts[ `${ string }--plugins_needing_installed_activated` ];
+type NeedsPluginsAlert =
+	RedBubbleAlerts[ `${ JetpackPlanSlug }--plugins_needing_installed_activated` ];
 
 export const useGetPaidPlanNeedsPluginsContent = ( {
 	alert,
