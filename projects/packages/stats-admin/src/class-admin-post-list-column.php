@@ -27,6 +27,14 @@ class Admin_Post_List_Column {
 	public static function register() {
 		return new self();
 	}
+
+	/**
+	 * A list of NumberFormatters.
+	 *
+	 * @var \NumberFormatter[]
+	 */
+	private $formatter;
+
 	/**
 	 * The constructor.
 	 */
@@ -196,11 +204,15 @@ class Admin_Post_List_Column {
 	/**
 	 * Get the NumberFormatter instance.
 	 *
-	 * @param string $current_locale The current locale.
+	 * @param string $locale The current locale.
 	 *
 	 * @return NumberFormatter
 	 */
-	protected function get_formatter( string $current_locale ): \NumberFormatter {
+	protected function get_formatter( string $locale ): \NumberFormatter {
+		if ( isset( $this->formatter[ $locale ] ) ) {
+			return $this->formatter[ $locale ];
+		}
+
 		/**
 		 * PHP's NumberFormatter is just a wrapper over the ICU C library. The library does support decimal compact short formatter, but PHP doesn't have a stub for it (=< PHP 8.4).
 		 *
@@ -219,12 +231,14 @@ class Admin_Post_List_Column {
 		}
 
 		try {
-			$formatter = new \NumberFormatter( $current_locale, $compact_decimal_short );
+			$formatter = new \NumberFormatter( $locale, $compact_decimal_short );
 			$formatter->setAttribute( \NumberFormatter::MAX_FRACTION_DIGITS, 1 );
 		} catch ( \Exception $e ) {
 			// Fallback to decimal if for some reason it fails to work.
-			$formatter = new \NumberFormatter( $current_locale, \NumberFormatter::DECIMAL );
+			$formatter = new \NumberFormatter( $locale, \NumberFormatter::DECIMAL );
 		}
+
+		$this->formatter[ $locale ] = $formatter;
 
 		return $formatter;
 	}
