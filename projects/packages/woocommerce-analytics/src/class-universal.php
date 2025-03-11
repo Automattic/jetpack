@@ -149,7 +149,6 @@ class Universal {
 	 */
 	public function capture_remove_from_cart( $cart_item_key, $cart ) {
 		$item = $cart->removed_cart_contents[ $cart_item_key ] ?? null;
-		$this->record_event( 'woocommerceanalytics_remove_from_cart' );
 		$this->capture_event_in_session_data( (int) $item['product_id'], (int) $item['quantity'], 'woocommerceanalytics_remove_from_cart' );
 	}
 
