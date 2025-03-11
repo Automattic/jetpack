@@ -65,6 +65,7 @@ class Jetpack_Mu_Wpcom {
 		// These features run only on atomic sites.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
+			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -88,6 +89,168 @@ class Jetpack_Mu_Wpcom {
 		 * @since 0.1.2
 		 */
 		do_action( 'jetpack_mu_wpcom_initialized' );
+	}
+
+	/**
+	 * Schedules translation updates for Jetpack MU WPCOM.
+	 *
+	 * This function sets up the necessary cron jobs to ensure that translation files
+	 * are regularly updated.
+	 *
+	 * @return void
+	 */
+	public static function schedule_translation_updates() {
+		add_action( 'wpcomsh_translation_update', array( __CLASS__, 'maybe_update_translations' ) );
+
+		if ( ! wp_next_scheduled( 'wpcomsh_translation_update' ) ) {
+			wp_schedule_event( time(), 'twicedaily', 'wpcomsh_translation_update' );
+		}
+	}
+
+	/**
+	 * Fetches and installs Jetpack-mu-wpcom package translations when needed.
+	 */
+	public static function maybe_update_translations() {
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
+		$locales = self::get_all_active_locales();
+		if ( empty( $locales ) ) {
+			return;
+		}
+
+		$plugins_request_data              = array();
+		$plugin_language_pack_destinations = array(
+			'jetpack-mu-wpcom' => WP_LANG_DIR . '/mu-plugins/',
+		);
+
+		foreach ( array_keys( $plugin_language_pack_destinations ) as $plugin_slug ) {
+			$plugins_request_data[ $plugin_slug ] = array( 'version' => 'latest' );
+		}
+
+		$response = wp_remote_post(
+			'https://translate.wordpress.com/api/translations-updates/wpcom/plugins',
+			array(
+				'body'    => wp_json_encode(
+					array(
+						'locales' => $locales,
+						'plugins' => $plugins_request_data,
+					)
+				),
+				'headers' => array( 'Content-Type' => 'application/json' ),
+				'timeout' => 10,
+			)
+		);
+
+		if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
+			return;
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		// API error, api returned but something was wrong.
+		if ( array_key_exists( 'success', $data ) && false === $data['success'] ) {
+			return;
+		}
+
+		if ( ! is_array( $data ) || ! is_array( $data['data'] ) ) {
+			return;
+		}
+
+		foreach ( $data['data'] as $plugin_name => $language_packs ) {
+			if ( ! isset( $plugin_language_pack_destinations[ $plugin_name ] ) ) {
+				continue;
+			}
+
+			$destination = $plugin_language_pack_destinations[ $plugin_name ];
+
+			foreach ( $language_packs as $translation ) {
+				$locale        = $translation['wp_locale'] ?? '';
+				$package_url   = $translation['package'] ?? '';
+				$last_modified = $translation['last_modified'] ?? '';
+
+				if ( ! $locale || ! $package_url || ! $last_modified ) {
+					continue;
+				}
+
+				$local_po_file = "{$destination}/$plugin_name-{$locale}.po";
+				if ( file_exists( $local_po_file ) ) {
+					$local_po_data                       = wp_get_pomo_file_data( $local_po_file );
+					$installed_translation_revision_time = new \DateTime( $local_po_data['PO-Revision-Date'] );
+					$new_translation_revision_time       = new \DateTime( $last_modified );
+
+					// Skip if translation language pack is not newer than what is installed already.
+					if ( $new_translation_revision_time <= $installed_translation_revision_time ) {
+						continue;
+					}
+				}
+
+				$translation_zip_file = download_url( $package_url );
+				if ( is_wp_error( $translation_zip_file ) ) {
+					continue;
+				}
+
+				static::clear_translation_destination( $destination, $plugin_name, $locale );
+
+				$unzip_result = unzip_file( $translation_zip_file, $destination );
+				if ( is_wp_error( $unzip_result ) ) {
+					wp_delete_file( $translation_zip_file );
+					continue;
+				}
+
+				wp_delete_file( $translation_zip_file );
+
+			}
+		}
+	}
+
+	/**
+	 * Clears the translation destination by deleting existing translation files.
+	 *
+	 * @param string $local_destination The local destination path.
+	 * @param string $plugin_slug The plugin slug.
+	 * @param string $locale The locale.
+	 */
+	public static function clear_translation_destination( $local_destination, $plugin_slug, $locale ) {
+		global $wp_filesystem;
+
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
+		$files = array(
+			"{$local_destination}{$plugin_slug}-{$locale}.po",
+			"{$local_destination}{$plugin_slug}-{$locale}.mo",
+			"{$local_destination}{$plugin_slug}-{$locale}.l10n.php",
+		);
+
+		$json_files = glob( "{$local_destination}{$plugin_slug}-{$locale}-*.json" );
+		if ( $json_files ) {
+			$files = array_merge( $files, $json_files );
+		}
+
+		foreach ( $files as $file ) {
+			if ( $wp_filesystem->exists( $file ) ) {
+				$wp_filesystem->delete( $file );
+			}
+		}
+	}
+
+	/**
+	 * Retrieves all active locales for the site.
+	 */
+	public static function get_all_active_locales() {
+		$locales = array( get_locale() );
+
+		$available_languages = get_available_languages();
+		if ( ! empty( $available_languages ) ) {
+			$locales = array_merge( $locales, $available_languages );
+		}
+		return array_values( array_unique( $locales ) );
 	}
 
 	/**

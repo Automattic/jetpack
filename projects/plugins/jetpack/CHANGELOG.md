@@ -2,6 +2,41 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.5-a.1 - 2025-03-10
+### Enhancements
+- AI Assistant: Add image block extension with alt text and caption generation. [#42160]
+- AI Assistant: Use base64 on image extension requests. [#42211]
+- Connection: Add modal for disconnecting owner account in Dashboard. [#42074]
+- Feature suggestions: Improve the design of cards to better match WordPress Core's design. [#42301]
+- Forms: Add Akismet panel to Form Block. [#41826]
+- Social: Move resharing into the Share Post modal. [#42224]
+- Newsletter Dashboard Widget: Remove feature flag and enable widget. [#42276]
+
+### Improved compatibility
+- Carousel: Enable core lightbox on single image blocks. [#42089]
+
+### Bug fixes
+- VideoPress Block: Fix error in the core Video block. [#42216]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add image index information on caption generation request. [#42274]
+- AI Assistant: Remove image data from contextual content for image extension features. [#42269]
+- Check for user currency when getting currency code in Dashboard products. [#42189]
+- Components: Add margins to elements which had spacing issues due to the __nextHasNoMarginBottom property. [#42075]
+- Fix bug where subscription was showing incorrectly as expired in certain timezones. [#42240]
+- Jetpack AI: Handle image URL errors on AI vision requests and notify the user about the error. [#42191]
+- Jetpack SEO: Add first draft for SEO enhancer on Jetpack sidebar and pre-publish. [#42310]
+- Jetpack SEO: Revert filter `ai_seo_assistant_enabled` default state back to false. [#42238]
+- JSON API: Activate REST for posts fetching endpoint. [#42311]
+- Move `useUpgradeFlow` hook to shared-extension-utils package. [#41836]
+- Newsletter Dashboard Widget: Update href to import subscribers. [#42239]
+- Newsletter Widget: Fix type imports. [#42277]
+- Newsletter Widget: Update newsletter widget default placement in Dashboard. [#42304]
+- Notifications: Update link URL to wordpress.com. [#42295]
+- Social: Move JS editor code from Jetpack and Social to Publicize package. [#41836]
+- Social: Move share post endpoint from Jetpack to Publicize package. [#42179]
+- Tweak subscribers counts endpoint to return aggregated data based on a query param. [#42103]
+
 ## 14.4 - 2025-03-04
 ### Enhancements
 - Connection: Disconnect all other users before disconnecting connection owner account. [#41923]

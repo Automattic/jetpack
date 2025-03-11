@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.1] - 2025-03-10
+### Added
+- AI Client: Add optional preprocess function to getPostContent. [#42269]
+
+### Changed
+- Update dependencies. [#42222]
+
 ## [0.27.0] - 2025-03-03
 ### Added
 - AI Client: Move openBlockSidebar utility function. [#42016]
@@ -32,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.26.0] - 2025-02-10
 ### Added
-- Add shared components from ai-assistant-plugin [#41078]
+- Add shared components from ai-assistant-plugin. [#41078]
 
 ### Changed
 - Updated package dependencies. [#41491] [#41577]
@@ -542,6 +549,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.27.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.26.3...v0.27.0
 [0.26.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.26.2...v0.26.3
 [0.26.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.26.1...v0.26.2

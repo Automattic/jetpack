@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: updates the way that we valdate date info by removing jquery
