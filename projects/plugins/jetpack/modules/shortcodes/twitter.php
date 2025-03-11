@@ -38,6 +38,8 @@ function jetpack_proxy_twitter_oembed_provider( $provider ) {
 				Jetpack_Options::get_option( 'id' )
 			)
 		);
+
+		add_filter( 'oembed_remote_get_args', 'jetpack_twitter_oembed_remote_get_args', 10, 2 );
 	}
 
 	return str_replace( 'https://publish.twitter.com/oembed', $oembed_proxy_url, $provider );
@@ -51,8 +53,7 @@ add_filter( 'oembed_fetch_url', 'jetpack_proxy_twitter_oembed_provider', 10 );
  * @param string $url  URL to be inspected.
  */
 function jetpack_twitter_oembed_remote_get_args( $args, $url ) {
-	// Only add JP auth headers if we're proxying through WP.com for a Twitter oEmbed request.
-	if ( ! wp_startswith( $url, Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) ) || ! wp_startswith( $url, 'https://publish.twitter.com/oembed' ) ) {
+	if ( ! wp_startswith( $url, Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) ) ) {
 		return $args;
 	}
 
@@ -61,6 +62,9 @@ function jetpack_twitter_oembed_remote_get_args( $args, $url ) {
 		compact( 'url', 'method' )
 	);
 
+	if ( is_wp_error( $signed_request ) ) {
+		return $args;
+	}
+
 	return $signed_request['request'];
 }
-add_filter( 'oembed_remote_get_args', 'jetpack_twitter_oembed_remote_get_args', 10, 2 );
