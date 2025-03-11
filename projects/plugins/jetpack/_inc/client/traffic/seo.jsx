@@ -1,4 +1,4 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import {
 	FacebookLinkPreview,
 	TwitterLinkPreview,
@@ -11,12 +11,13 @@ import { connect } from 'react-redux';
 import { SocialLogo } from 'social-logos';
 import Button from 'components/button';
 import FoldableCard from 'components/foldable-card';
-import { FormLabel, FormTextarea } from 'components/forms';
+import { FormLabel, FormTextarea, FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SimpleNotice from 'components/notice';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { isSeoEnhancerAvailable } from 'state/initial-state';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
 
@@ -64,8 +65,18 @@ export const SEO = withModuleSettingsFormHelpers(
 		constants = {
 			frontPageMetaMaxLength: 300,
 			frontPageMetaSuggestedLength: 159,
-			moduleOptionsArray: [ 'advanced_seo_front_page_description', 'advanced_seo_title_formats' ],
+			moduleOptionsArray: [
+				'advanced_seo_front_page_description',
+				'advanced_seo_title_formats',
+				'ai_seo_enhancer_enabled',
+			],
 			siteIconPreviewSize: 512,
+		};
+
+		toggleSeoEnhancer = () => {
+			this.props.updateOptions( {
+				ai_seo_enhancer_enabled: ! this.props.getOptionValue( 'ai_seo_enhancer_enabled' ),
+			} );
 		};
 
 		SocialPreviewGoogle = siteData => (
@@ -203,6 +214,25 @@ export const SEO = withModuleSettingsFormHelpers(
 								{ __( 'Customize your SEO settings', 'jetpack' ) }
 							</span>
 						</ModuleToggle>
+						{ this.props.seoEnhancerAvailable && (
+							<FormFieldset>
+								<ToggleControl
+									id="seo-enhancer"
+									disabled={ ! this.props.getOptionValue( 'seo-tools' ) }
+									toggling={ this.props.isSavingAnyOption( 'ai_seo_enhancer_enabled' ) }
+									checked={ this.props.getOptionValue( 'ai_seo_enhancer_enabled' ) }
+									onChange={ this.toggleSeoEnhancer }
+									label={
+										<span className="jp-form-toggle-explanation">
+											{ __(
+												'Automatically generate SEO title, SEO description, and image alt text for new posts',
+												'jetpack'
+											) }
+										</span>
+									}
+								/>
+							</FormFieldset>
+						) }
 					</SettingsGroup>
 					{ isSeoActive &&
 						! isFetchingPluginsData( this.props.state ) &&
@@ -327,6 +357,7 @@ export const SEO = withModuleSettingsFormHelpers(
 export default connect( state => {
 	return {
 		siteData: state.jetpack.siteData.data,
+		seoEnhancerAvailable: isSeoEnhancerAvailable( state ),
 		state,
 	};
 } )( SEO );
