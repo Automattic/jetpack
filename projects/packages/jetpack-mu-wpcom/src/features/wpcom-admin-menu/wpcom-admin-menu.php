@@ -288,33 +288,25 @@ remove_action( 'admin_menu', 'add_jetpack_submenu', 999999 );
 
 /**
  * Ensures customizer menu and admin bar items are not visible on a block theme.
+ *
+ * This works by removing WordPress.com specific customize_register actions
+ * that might be causing the customizer to appear for block themes.
  */
 function wpcom_hide_customizer_submenu_on_block_theme() {
 	if ( wp_is_block_theme() && ! is_customize_preview() ) {
-
-		add_action(
-			'admin_bar_menu',
-			function ( $wp_admin_bar ) {
-				$wp_admin_bar->remove_node( 'customize' );
-			},
-			50
-		);
-
-		remove_action( 'customize_register', 'add_logotool_button', 20 );
-		remove_action( 'customize_register', 'footercredits_register', 99 );
-		remove_action( 'customize_register', 'wpcom_disable_customizer_site_icon', 20 );
+		remove_action( 'customize_register', 'add_logotool_button' );
+		remove_action( 'customize_register', 'footercredits_register' );
+		remove_action( 'customize_register', 'wpcom_disable_customizer_site_icon' );
+		remove_action( 'customize_register', array( 'Jetpack_Fonts_Typekit', 'maybe_override_for_advanced_mode' ) );
+		remove_action( 'customize_register', 'Automattic\Jetpack\Masterbar\register_css_nudge_control' );
+		remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
+		remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Customizer', 'customize_register' ) );
 
 		if ( class_exists( '\Jetpack_Fonts' ) ) {
 			$jetpack_fonts_instance = \Jetpack_Fonts::get_instance();
 			remove_action( 'customize_register', array( $jetpack_fonts_instance, 'register_controls' ) );
-			remove_action( 'customize_register', array( $jetpack_fonts_instance, 'maybe_prepopulate_option' ), 0 );
+			remove_action( 'customize_register', array( $jetpack_fonts_instance, 'maybe_prepopulate_option' ) );
 		}
-
-		remove_action( 'customize_register', array( 'Jetpack_Fonts_Typekit', 'maybe_override_for_advanced_mode' ), 20 );
-
-		remove_action( 'customize_register', 'Automattic\Jetpack\Masterbar\register_css_nudge_control' );
-
-		remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
 	}
 }
 add_action( 'init', 'wpcom_hide_customizer_submenu_on_block_theme' );
