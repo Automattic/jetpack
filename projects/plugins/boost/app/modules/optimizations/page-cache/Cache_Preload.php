@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
-use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
@@ -18,16 +17,10 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logg
  * @since $$next-version$$
  * @package Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache
  */
-class Cache_Preload implements Pluggable, Is_Always_On {
+class Cache_Preload implements Pluggable {
 
 	/**
-	 * Set up the module by registering hooks.
-	 *
-	 * This method is called during plugin initialization and registers necessary WordPress
-	 * hooks and actions to handle cache preloading events.
-	 *
 	 * @since $$next-version$$
-	 * @return void
 	 */
 	public function setup() {
 		add_action( 'update_option_jetpack_boost_ds_cornerstone_pages_list', array( $this, 'schedule_cornerstone_preload' ) );
@@ -38,28 +31,81 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	}
 
 	/**
-	 * Get the module slug.
-	 *
-	 * Returns a unique identifier for this module within Jetpack Boost.
-	 *
 	 * @since $$next-version$$
-	 * @return string The module slug.
 	 */
 	public static function get_slug() {
 		return 'cache_preload';
 	}
 
 	/**
-	 * Check if the module is available.
-	 *
-	 * Determines whether this module can be activated in the current environment.
-	 * Always returns true for this module as cache preload is always available.
-	 *
 	 * @since $$next-version$$
-	 * @return bool Always returns true.
 	 */
 	public static function is_available() {
+		if ( defined( 'JETPACK_BOOST_ALPHA_FEATURES' ) ) {
+			return \JETPACK_BOOST_ALPHA_FEATURES === true;
+		}
+		// TODO: Feature flag
 		return true;
+	}
+
+	/**
+	 * Prepares the next batch of URLs to preload.
+	 *
+	 * Takes the full list of posts to preload, extracts the first batch,
+	 * updates the preload queue, and schedules the next run if needed.
+	 *
+	 * @since $$next-version$$
+	 * @param array $posts Full list of posts to preload.
+	 * @return array The batch of posts to process now.
+	 */
+	private function prepare_next_batch( array $posts ) {
+		// Process in batches of 10 to reduce server load
+		$batches       = array_chunk( $posts, 10 );
+		$current_batch = array_shift( $batches );
+
+		// Calculate remaining posts
+		$remaining = $this->flatten_batches( $batches );
+		$remaining = array_unique( $remaining );
+
+		// Update the preload queue
+		$this->set_posts_to_preload( $remaining );
+
+		// Schedule the next batch if needed
+		if ( ! empty( $remaining ) ) {
+			$this->schedule_preload_cronjob();
+		}
+
+		return $current_batch;
+	}
+
+	/**
+	 * Flattens a multi-dimensional array of batches into a single array.
+	 *
+	 * @since $$next-version$$
+	 * @param array $batches Array of batch arrays.
+	 * @return array Flattened array of all posts.
+	 */
+	private function flatten_batches( array $batches ) {
+		$flattened = array();
+		foreach ( $batches as $batch ) {
+			$flattened = array_merge( $flattened, $batch );
+		}
+		return $flattened;
+	}
+
+	/**
+	 * Processes a batch of URLs for preloading.
+	 *
+	 * Attempts to preload each URL in the batch, logging any errors.
+	 *
+	 * @since $$next-version$$
+	 * @param array $batch Array of URLs to preload.
+	 * @return void
+	 */
+	private function process_batch( array $batch ) {
+		foreach ( $batch as $url ) {
+			$this->preload_page( $url );
+		}
 	}
 
 	/**
@@ -85,7 +131,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @return void
 	 */
 	public function set_posts_to_preload( array $posts ) {
-		// Ensures the posts are all unique.
+		// Ensure the posts are all unique. This should be done earlier, but we'll also do it here; validate early, validate often.
 		$posts = array_unique( $posts );
 		// The option is not autoloaded as it's only used within the cron job.
 		update_option( 'jetpack_boost_posts_to_preload', $posts, false );
@@ -143,69 +189,6 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	}
 
 	/**
-	 * Prepares the next batch of URLs to preload.
-	 *
-	 * Takes the full list of posts to preload, extracts the first batch,
-	 * updates the preload queue, and schedules the next run if needed.
-	 *
-	 * @since $$next-version$$
-	 * @param array $posts Full list of posts to preload.
-	 * @return array The batch of posts to process now.
-	 */
-	private function prepare_next_batch( $posts ) {
-		// Process in batches of 10 to reduce server load
-		$batches       = array_chunk( $posts, 10 );
-		$current_batch = array_shift( $batches );
-
-		// Calculate remaining posts
-		$remaining = $this->flatten_batches( $batches );
-
-		// Update the preload queue
-		$this->set_posts_to_preload( $remaining );
-
-		// Schedule the next batch if needed
-		if ( ! empty( $remaining ) ) {
-			$this->schedule_preload_cronjob();
-		}
-
-		return $current_batch;
-	}
-
-	/**
-	 * Flattens a multi-dimensional array of batches into a single array.
-	 *
-	 * @since $$next-version$$
-	 * @param array $batches Array of batch arrays.
-	 * @return array Flattened array of all posts.
-	 */
-	private function flatten_batches( $batches ) {
-		$flattened = array();
-		foreach ( $batches as $batch ) {
-			$flattened = array_merge( $flattened, $batch );
-		}
-		return $flattened;
-	}
-
-	/**
-	 * Processes a batch of URLs for preloading.
-	 *
-	 * Attempts to preload each URL in the batch, logging any errors.
-	 *
-	 * @since $$next-version$$
-	 * @param array $batch Array of URLs to preload.
-	 * @return void
-	 */
-	private function process_batch( $batch ) {
-		foreach ( $batch as $url ) {
-			try {
-				$this->preload_page( $url );
-			} catch ( \Exception $e ) {
-				Logger::debug( 'Error preloading page: ' . $e->getMessage() );
-			}
-		}
-	}
-
-	/**
 	 * Preload a single page.
 	 *
 	 * Makes an HTTP request to the specified URL to generate a fresh cache entry.
@@ -214,7 +197,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @param string $page The URL of the page to preload.
 	 * @return void
 	 */
-	private function preload_page( $page ) {
+	private function preload_page( string $page ) {
 		$url = $page;
 
 		// Add a cache-busting header to ensure our response is fresh.
@@ -256,6 +239,8 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 			$posts[] = $post_to_schedule;
 		}
 
+		// Ensure the posts are all unique. This should be done earlier, but we'll also do it here - validate early, validate often.
+		$posts = array_unique( $posts );
 		$this->set_posts_to_preload( $posts );
 		$this->schedule_preload_cronjob();
 	}
@@ -270,7 +255,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @param int $post_id The ID of the post being updated.
 	 * @return void
 	 */
-	public function handle_post_update( $post_id ) {
+	public function handle_post_update( int $post_id ) {
 		if ( ! Cornerstone_Utils::is_cornerstone_page( $post_id ) ) {
 			return;
 		}
@@ -289,7 +274,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @param string $type The type of invalidation that occurred (e.g., Filesystem_Utils::DELETE_ALL).
 	 * @return void
 	 */
-	public function handle_cache_invalidation( $path, $type ) {
+	public function handle_cache_invalidation( string $path, string $type ) {
 		$cornerstone_pages = Cornerstone_Utils::get_list();
 		if ( $type === Filesystem_Utils::DELETE_ALL ) {
 			// If the cache is invalidated for all files, schedule preload for all Cornerstone Pages.

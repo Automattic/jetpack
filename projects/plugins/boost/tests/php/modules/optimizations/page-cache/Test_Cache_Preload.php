@@ -24,15 +24,18 @@ class Test_Cache_Preload extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		// Set up Brain Monkey to mock WordPress functions
+		// Set up Brain Monkey to mock WordPress functions.
 		\Brain\Monkey\setUp();
+
+		// Define the constant as true for testing availability.
+		define( 'JETPACK_BOOST_ALPHA_FEATURES', true );
 	}
 
 	/**
 	 * Tear down tests.
 	 */
 	protected function tearDown(): void {
-		// Tear down Brain Monkey
+		// Tear down Brain Monkey.
 		\Brain\Monkey\tearDown();
 		Mockery::close();
 		parent::tearDown();
@@ -49,7 +52,7 @@ class Test_Cache_Preload extends TestCase {
 	 * Test the is_available method returns true.
 	 */
 	public function test_is_available() {
-		$this->assertTrue( Cache_Preload::is_available() );
+		$this->assertTrue( Cache_Preload::is_available(), 'Should return true when constant is defined as true' );
 	}
 
 	/**
@@ -193,7 +196,7 @@ class Test_Cache_Preload extends TestCase {
 		foreach ( $posts as $post ) {
 			Functions\expect( 'wp_remote_get' )
 				->once()
-				->with( $post );
+				->with( $post, Mockery::type( 'array' ) );
 			Functions\expect( 'wp_remote_retrieve_response_code' )
 				->once()
 				->withAnyArgs()
