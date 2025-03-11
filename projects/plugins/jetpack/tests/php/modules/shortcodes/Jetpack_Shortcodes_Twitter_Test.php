@@ -53,13 +53,14 @@ class Jetpack_Shortcodes_Twitter_Test extends WP_UnitTestCase {
 	/**
 	 * Test that Twitter provider is modified when connection is ready and not in offline mode.
 	 */
-	public function test_twitter_provider_modified_when_connected() {
+	public function test_twitter_provider_modified_no_custom_proxy() {
 		$provider = 'https://publish.twitter.com/oembed?url=https://twitter.com/jetpack/status/1234567890';
 
 		add_filter( 'jetpack_is_connection_ready', '__return_true' );
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 
-		$this->assertNotSame( $provider, jetpack_proxy_twitter_oembed_provider( $provider ) );
+		$provider = jetpack_proxy_twitter_oembed_provider( $provider );
+		$this->assertStringContainsString( 'https://public-api.wordpress.com/oembed/1.0', $provider );
 	}
 
 	/**
@@ -69,9 +70,6 @@ class Jetpack_Shortcodes_Twitter_Test extends WP_UnitTestCase {
 		$provider = 'https://publish.twitter.com/oembed?url=https://twitter.com/jetpack/status/1234567890';
 
 		Constants::set_constant( 'JETPACK__TWITTER_OEMBED_PROXY_URL', 'https://custom-proxy.example.com' );
-
-		add_filter( 'jetpack_is_connection_ready', '__return_true' );
-		add_filter( 'jetpack_offline_mode', '__return_true' );
 
 		$expected = 'https://custom-proxy.example.com?url=https://twitter.com/jetpack/status/1234567890';
 		$this->assertSame( $expected, jetpack_proxy_twitter_oembed_provider( $provider ) );
