@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import '../style.scss';
 import { Icon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, sprintf, _n } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
 import { buildJPRedirectSource, formatNumber, getSubscriberStatsUrl } from '../helpers';
 import { SubscribersChart } from './subscribers-chart';
@@ -46,7 +46,12 @@ export const NewsletterWidget = ( {
 									<a href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }>
 										{ sprintf(
 											//translators: %1$s is the total number of subscribers, %2$s is the number of email subscribers
-											__( '%1$s subscribers (%2$s via email)', 'jetpack' ),
+											_n(
+												'%1$s subscriber (%2$s via email)',
+												'%1$s subscribers (%2$s via email)',
+												allSubscribers,
+												'jetpack'
+											),
 											formatNumber( allSubscribers ),
 											formatNumber( emailSubscribers )
 										) }
@@ -63,7 +68,7 @@ export const NewsletterWidget = ( {
 									<a href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }>
 										{ sprintf(
 											//translators: %s is the number of paid subscribers
-											__( '%s paid subscriptions', 'jetpack' ),
+											_n( '%s paid subscriber', '%s paid subscribers', paidSubscribers, 'jetpack' ),
 											formatNumber( paidSubscribers )
 										) }
 									</a>

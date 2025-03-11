@@ -216,6 +216,7 @@ class Contact_Form_Plugin {
 				'query_var'             => false,
 				'capability_type'       => 'page',
 				'show_in_rest'          => true,
+				'hierarchical'          => true,
 				'rest_controller_class' => '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint',
 				'capabilities'          => array(
 					'create_posts'        => 'do_not_allow',
@@ -1765,12 +1766,22 @@ class Contact_Form_Plugin {
 			$args['s'] = sanitize_text_field( wp_unslash( $_POST['search'] ) );
 		}
 
+		// TODO: We can remove this when the wp-admin UI is removed.
 		if ( ! empty( $_POST['year'] ) && intval( $_POST['year'] ) > 0 ) {
 			$args['date_query']['year'] = intval( $_POST['year'] );
 		}
-
+		// TODO: We can remove this when the wp-admin UI is removed.
 		if ( ! empty( $_POST['month'] ) && intval( $_POST['month'] ) > 0 ) {
 			$args['date_query']['month'] = intval( $_POST['month'] );
+		}
+
+		if ( ! empty( $_POST['after'] ) && ! empty( $_POST['before'] ) ) {
+			$before = strtotime( sanitize_text_field( wp_unslash( $_POST['before'] ) ) );
+			$after  = strtotime( sanitize_text_field( wp_unslash( $_POST['after'] ) ) );
+			if ( $before && $after && $before < $after ) {
+				$args['date_query']['after']  = $after;
+				$args['date_query']['before'] = $before;
+			}
 		}
 
 		if ( ! empty( $_POST['selected'] ) && is_array( $_POST['selected'] ) ) {

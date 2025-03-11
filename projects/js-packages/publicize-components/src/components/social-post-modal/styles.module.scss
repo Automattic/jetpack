@@ -1,108 +1,129 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .panel {
-    margin: 1rem 0 1.5rem;
+	margin: 1rem 0 1.5rem;
 
-    :global(button.is-secondary) {
-        white-space: break-spaces;
-    }
+	:global(button.is-secondary) {
+		white-space: break-spaces;
+	}
 }
 
 .modal {
 
-    @include break-small {
-        width: calc(100vw - 40px);
-    }
+	@include break-small {
+		width: calc(100vw - 40px);
+	}
 
-    @include break-large {
-        width: calc(#{$break-large} - 40px);
-        max-height: calc(100% - 120px);
-    }
+	@include break-large {
+		width: calc(#{$break-large} - 40px);
+		max-height: calc(100% - 120px);
+	}
 
-    :global(.components-modal__content.hide-header) {
-        padding: 0;
-    }
+	:global(.components-modal__content.hide-header) {
+		padding: 0;
+	}
 }
 
 .modal-content {
-    display: flex;
+	display: flex;
 
-    @media (max-width: $break-medium ) {
-        flex-direction: column;
-    }
+	@media (max-width: $break-medium ) {
+		flex-direction: column;
+	}
 }
 
 .close-button {
-    position: absolute;
-    right: 0.5rem;
-    top: 0.5rem;
-    height: 2rem;
+	position: absolute;
+	right: 0.5rem;
+	top: 0.5rem;
+	height: 2rem;
 }
 
 .settings-header {
-    height: 48px; // Same as tablist height
-    display: flex;
-    align-items: center;
-    padding-inline: 2rem;
-    border-bottom: 1px solid var(--studio-gray-5);
+	height: 48px; // Same as tablist height
+	display: flex;
+	align-items: center;
+	padding-inline: 2rem;
+	border-bottom: 1px solid var(--studio-gray-5);
 
 
-    @include break-medium {
-        border-inline-end: 1px solid var(--studio-gray-5);
-    }
+	@include break-medium {
+		border-inline-end: 1px solid var(--studio-gray-5);
+	}
 
-    h2 {
-        font-weight: 600;
-        margin-block: 0;
-        font-size: 1rem;
-        line-height: 16px;
-    }
+	h2 {
+		font-weight: 600;
+		margin-block: 0;
+		font-size: 1rem;
+		line-height: 16px;
+	}
 }
 
 .settings-section {
-    @include break-medium {
-        flex: 1
-    }
+	@include break-medium {
+		flex: 1
+	}
 }
 
 .settings-content {
-    padding: 1rem 2rem;
+	display: flex;
+	flex-direction: column;
+	padding: 1rem 2rem;
+	height: calc(100% - 48px);
 
-    @include break-medium {
-        border-inline-end: 1px solid var(--studio-gray-5);
-    }
+	@include break-medium {
+		border-inline-end: 1px solid var(--studio-gray-5);
+	}
 }
 
 .preview-section {
-    flex: 1;
-    background: var(--jp-gray-0); // closest to #F0F2F5;
+	flex: 1;
+	background: var(--jp-gray-0); // closest to #F0F2F5;
 
-    @include break-medium {
-        flex: 2;
-    }
+	@include break-medium {
+		flex: 2;
+	}
 
-    :global(.components-tab-panel__tabs) {
-        justify-content: center;
-        background: var(--jp-white);
-        height: 48px;
-        border-bottom: 1px solid var(--studio-gray-5);
-    }
+	:global(.components-tab-panel__tabs) {
+		justify-content: center;
+		background: var(--jp-white);
+		height: 48px;
+		border-bottom: 1px solid var(--studio-gray-5);
+	}
 }
 
 .preview-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 2rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 1rem;
+	padding: 1rem 2rem;
 }
 
 .disabled-tab {
-    opacity: 0.5;
+	opacity: 0.5;
 }
 
 .modal-description {
 	color: var(--jp-gray-40);
 	margin-top: 0;
+}
+
+.share-button {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: auto;
+	padding-top: 1rem;
+	width: 100%;
+
+	> button {
+		width: 50%;
+		justify-content: center;
+	}
+}
+
+.open-button {
+	width: 100%;
+	justify-content: center;
 }
