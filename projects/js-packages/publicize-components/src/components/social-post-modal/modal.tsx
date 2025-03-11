@@ -17,7 +17,15 @@ import styles from './styles.module.scss';
  */
 export function SocialPostModal() {
 	const [ isModalOpen, toggleModal ] = useReducer(
-		state => ! state,
+		state => {
+			const url = new URL( window.location.href );
+			// If the modal is opened with the share post query arg, remove it from the URL.
+			if ( state && url.searchParams.has( 'jetpackSidebar' ) ) {
+				url.searchParams.delete( 'jetpackSidebar' );
+				window.history.replaceState( null, '', url.toString() );
+			}
+			return ! state;
+		},
 		null,
 		() => getQueryArg( window.location.search, 'jetpackSidebar' ) === 'open_with_share_post'
 	);
