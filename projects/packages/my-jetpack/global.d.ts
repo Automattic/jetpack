@@ -112,44 +112,211 @@ type BackupStatus =
 	| 'error'
 	| 'error-will-retry';
 
+type JetpackPlanSlug =
+	| 'jetpack_premium'
+	| 'jetpack_business'
+	| 'jetpack_free'
+	| 'jetpack_premium_monthly'
+	| 'jetpack_business_monthly'
+	| 'jetpack_personal'
+	| 'jetpack_personal_monthly'
+	| 'jetpack_security_daily'
+	| 'jetpack_security_daily_monthly'
+	| 'jetpack_security_realtime'
+	| 'jetpack_security_realtime_monthly'
+	| 'jetpack_growth_bi_yearly'
+	| 'jetpack_growth_yearly'
+	| 'jetpack_growth_monthly'
+	| 'jetpack_complete_bi_yearly'
+	| 'jetpack_complete'
+	| 'jetpack_complete_monthly'
+	| 'jetpack_security_t1_bi_yearly'
+	| 'jetpack_security_t1_yearly'
+	| 'jetpack_security_t1_monthly'
+	| 'jetpack_security_t2_yearly'
+	| 'jetpack_security_t2_monthly'
+	| 'jetpack_starter_yearly'
+	| 'jetpack_starter_monthly'
+	| 'jetpack_backup_daily'
+	| 'jetpack_backup_daily_monthly'
+	| 'jetpack_backup_realtime'
+	| 'jetpack_backup_realtime_monthly'
+	| 'jetpack_search_bi_yearly'
+	| 'jetpack_search'
+	| 'jetpack_search_monthly'
+	| 'jetpack_scan_bi_yearly'
+	| 'jetpack_scan'
+	| 'jetpack_scan_monthly'
+	| 'jetpack_scan_realtime'
+	| 'jetpack_scan_realtime_monthly'
+	| 'jetpack_anti_spam_bi_yearly'
+	| 'jetpack_anti_spam'
+	| 'jetpack_anti_spam_monthly'
+	| 'jetpack_backup_t1_bi_yearly'
+	| 'jetpack_backup_t1_yearly'
+	| 'jetpack_backup_t1_monthly'
+	| 'jetpack_backup_t2_yearly'
+	| 'jetpack_backup_t2_monthly'
+	| 'jetpack_backup_addon_storage_10gb_monthly'
+	| 'jetpack_backup_addon_storage_100gb_monthly'
+	| 'jetpack_backup_addon_storage_1tb_monthly'
+	| 'jetpack_backup_addon_storage_3tb_monthly'
+	| 'jetpack_backup_addon_storage_5tb_monthly'
+	| 'jetpack_videopress_bi_yearly'
+	| 'jetpack_videopress'
+	| 'jetpack_videopress_monthly'
+	| 'jetpack_backup_t0_yearly'
+	| 'jetpack_backup_t0_monthly'
+	| 'jetpack_search_free'
+	| 'jetpack_backup_one_time'
+	| 'jetpack_stats_free_yearly'
+	| 'jetpack_stats_pwyw_yearly'
+	| 'jetpack_stats_monthly'
+	| 'jetpack_stats_yearly'
+	| 'jetpack_stats_bi_yearly'
+	| 'jetpack_monitor_monthly'
+	| 'jetpack_monitor_yearly'
+	| 'jetpack_boost_bi_yearly'
+	| 'jetpack_boost_yearly'
+	| 'jetpack_boost_monthly'
+	| 'jetpack_ai_monthly'
+	| 'jetpack_ai_yearly'
+	| 'jetpack_ai_bi_yearly'
+	| 'jetpack_social_monthly'
+	| 'jetpack_social_basic_bi_yearly'
+	| 'jetpack_social_basic_yearly'
+	| 'jetpack_social_basic_monthly'
+	| 'jetpack_social_advanced_bi_yearly'
+	| 'jetpack_social_advanced_yearly'
+	| 'jetpack_social_advanced_monthly'
+	| 'jetpack_golden_token_lifetime'
+	| 'jetpack_creator_monthly'
+	| 'jetpack_creator_yearly'
+	| 'jetpack_creator_bi_yearly'
+	| 'jetpack_social_v1_monthly'
+	| 'jetpack_social_v1_yearly'
+	| 'jetpack_social_v1_bi_yearly';
+
+type BadInstallPluginSlug =
+	| 'jetpack-beta'
+	| 'jetpack-videopress'
+	| 'jetpack-boost'
+	| 'jetpack-protect'
+	| 'jetpack-crm'
+	| 'jetpack-search'
+	| 'vaultpress'
+	| 'jetpack-social'
+	| 'jetpack'
+	| 'jetpack-starter'
+	| 'jetpack-vaultpress-backup';
+
+type JetpackPluginDisplayName =
+	| 'Jetpack Beta'
+	| 'Jetpack VideoPress'
+	| 'Jetpack Boost'
+	| 'Jetpack Protect'
+	| 'Jetpack CRM'
+	| 'Jetpack Search'
+	| 'VaultPress'
+	| 'Jetpack Social'
+	| 'Jetpack'
+	| 'Jetpack Starter'
+	| 'Jetpack VaultPress Backup';
+
+type JetpackProductName =
+	| 'Security Bundle'
+	| 'CRM'
+	| 'Newsletter'
+	| 'Site Accelerator'
+	| 'Social'
+	| 'VideoPress'
+	| 'Related Posts'
+	| 'Starter'
+	| 'Stats'
+	| 'Akismet Anti-spam'
+	| 'Growth Bundle'
+	| 'Search'
+	| 'AI'
+	| 'VaultPress Backup'
+	| 'Boost'
+	| 'Extras'
+	| 'Complete Bundle'
+	| 'Protect'
+	| 'Creator'
+	| 'Scan';
+
+type PurchaseProductName =
+	| 'Jetpack Premium'
+	| 'Jetpack Personal'
+	| 'Jetpack Free'
+	| 'Jetpack Professional'
+	| 'Jetpack Security Daily'
+	| 'Jetpack Security Real-time'
+	| 'Jetpack Complete'
+	| 'Jetpack Security (10GB)'
+	| 'Jetpack Security (1TB)'
+	| 'Jetpack Growth'
+	| 'Jetpack Starter'
+	| 'Jetpack Creator'
+	| 'Jetpack Search Free'
+	| 'Jetpack Search'
+	| 'Jetpack Scan Daily'
+	| 'Jetpack Scan Realtime'
+	| 'Jetpack Akismet Anti-spam'
+	| 'Jetpack VaultPress Backup (1GB)'
+	| 'Jetpack VaultPress Backup (10GB)'
+	| 'Jetpack VaultPress Backup (1TB)'
+	| 'Jetpack VaultPress Backup (One-time)'
+	| 'Jetpack VaultPress Backup Add-on Storage (10GB)'
+	| 'Jetpack VaultPress Backup Add-on Storage (100GB)'
+	| 'Jetpack Anti-spam'
+	| 'Jetpack Backup'
+	| 'Jetpack Security'
+	| 'Jetpack CRM'
+	| 'Jetpack Social'
+	| 'Jetpack Boost'
+	| 'Jetpack Stats'
+	| 'Jetpack Protect'
+	| 'Jetpack VideoPress';
+
 type RedBubbleAlerts = {
 	'missing-connection'?: {
-		type: string;
+		type: 'site' | 'user';
 		is_error: boolean;
 	};
 	'welcome-banner-active'?: null;
-	[ key: `${ string }-bad-installation` ]: {
+	[ key: `${ BadInstallPluginSlug }-bad-installation` ]: {
 		data: {
-			plugin: string;
+			plugin: JetpackPluginDisplayName;
 		};
 	};
 	backup_failure?: {
 		type: 'warning' | 'error';
 		data: BackupNeedsAttentionData;
 	};
-	[ key: `${ string }--plan_expired` ]: {
-		product_slug: string;
-		product_name?: string;
+	[ key: `${ JetpackPlanSlug }--plan_expired` ]: {
+		product_slug: JetpackPlanSlug;
+		product_name?: PurchaseProductName;
 		expiry_date?: string;
 		expiry_message?: string;
 		manage_url?: string;
-		products_effected?: string[];
+		products_effected?: JetpackProductName[];
 	};
-	[ key: `${ string }--plan_expiring_soon` ]: {
-		product_slug: string;
-		product_name?: string;
+	[ key: `${ JetpackPlanSlug }--plan_expiring_soon` ]: {
+		product_slug: JetpackPlanSlug;
+		product_name?: PurchaseProductName;
 		expiry_date?: string;
 		expiry_message?: string;
 		manage_url?: string;
-		products_effected?: string[];
+		products_effected?: JetpackProductName[];
 	};
 	protect_has_threats?: {
 		type: 'warning' | 'error';
 		data: ProtectNeedsAttentionData;
 	};
-	[ key: `${ string }--plugins_needing_installed_activated` ]: {
-		needs_installed?: string[];
-		needs_activated_only?: string[];
+	[ key: `${ JetpackPlanSlug }--plugins_needing_installed_activated` ]: {
+		needs_installed?: JetpackModule[];
+		needs_activated_only?: JetpackModule[];
 	};
 };
 
