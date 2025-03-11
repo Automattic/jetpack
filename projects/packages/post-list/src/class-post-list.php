@@ -230,7 +230,7 @@ class Post_List {
 	 */
 	public function add_share_action( $post_actions, $post ) {
 		$edit_url = get_edit_post_link( $post->ID, 'raw' );
-		if ( ! $edit_url ) {
+		if ( ! $edit_url || 'publish' !== $post->post_status ) {
 			// Do nothing since we do not have an edit URL to work with.
 			return $post_actions;
 		}
