@@ -88,7 +88,7 @@ describe( 'ScheduleButton', () => {
 		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
 		await user.click( scheduleButton );
 
-		const confirmButton = screen.getByText( 'Confirm Schedule' );
+		const confirmButton = screen.getByText( 'Confirm' );
 		await user.click( confirmButton );
 
 		expect( mockOnConfirm ).toHaveBeenCalled();
