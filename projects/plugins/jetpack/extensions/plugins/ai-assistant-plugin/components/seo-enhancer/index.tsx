@@ -1,5 +1,6 @@
-import { JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-extension-utils';
-import apiFetch from '@wordpress/api-fetch';
+/**
+ * External dependencies
+ */
 import {
 	BaseControl,
 	ToggleControl,
@@ -9,87 +10,47 @@ import {
 	CardBody,
 	CheckboxControl,
 } from '@wordpress/components';
-import { select } from '@wordpress/data';
+import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useState, useCallback, useEffect } from 'react';
+import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
+import { useSeoModuleSettings } from './use-seo-module-settings';
+import { useSeoRequests } from './use-seo-requests';
 import './style.scss';
+/**
+ * Types
+ */
+import type { PromptType } from './types';
 
-type JetpackModuleSettings = {
-	[ module: string ]: {
-		options: {
-			[ option: string ]: {
-				current_value: boolean;
-			};
-		};
-	};
-};
-
-type JetpackModuleSelector = {
-	getJetpackModules: () => JetpackModuleSettings;
-};
-
-const useSeoModuleSettings = () => {
-	const [ isEnabled, setIsEnabled ] = useState( false );
-	const [ isToggling, setIsToggling ] = useState( false );
-
-	useEffect( () => {
-		const seoModuleSettings = (
-			select( JETPACK_MODULES_STORE_ID ) as JetpackModuleSelector
-		 ).getJetpackModules()[ 'seo-tools' ];
-		const enhancerAvailable =
-			seoModuleSettings && 'ai_seo_enhancer_enabled' in seoModuleSettings.options;
-		const enhancerEnabled =
-			enhancerAvailable && seoModuleSettings.options?.ai_seo_enhancer_enabled?.current_value;
-
-		setIsEnabled( enhancerEnabled );
-	}, [] );
-
-	const toggleEnhancer = useCallback( async () => {
-		setIsToggling( true );
-		apiFetch( {
-			path: 'jetpack/v4/module/seo-tools',
-			method: 'post',
-			data: { ai_seo_enhancer_enabled: ! isEnabled },
-		} )
-			.then( () => {
-				setIsEnabled( ! isEnabled );
-			} )
-			.catch( () => {
-				// handle error
-			} )
-			.finally( () => {
-				setIsToggling( false );
-			} );
-	}, [ isEnabled ] );
-
-	return {
-		isEnabled,
-		toggleEnhancer,
-		isToggling,
-	};
-};
+const debug = debugFactory( 'seo-enhancer:index' );
 
 export function SeoEnhancer() {
 	const { isEnabled, toggleEnhancer, isToggling } = useSeoModuleSettings();
 	const [ isLoading, setIsLoading ] = useState( false );
-	// const [ isToggling, setIsToggling ] = useState( false );
-	const [ features, setFeatures ] = useState( [
+	const [ features, setFeatures ] = useState<
+		{ name: PromptType; label: string; checked: boolean }[]
+	>( [
 		{
-			name: 'meta-title',
+			name: 'seo-title',
 			label: __( 'Meta title', 'jetpack' ),
 			checked: true,
 		},
 		{
-			name: 'meta-description',
+			name: 'seo-meta-description',
 			label: __( 'Meta description', 'jetpack' ),
 			checked: true,
 		},
 		{
-			name: 'image-alt-text',
+			name: 'images-alt-text',
 			label: __( 'Image alt text', 'jetpack' ),
 			checked: true,
 		},
 	] );
+	const { updateSeoData } = useSeoRequests(
+		features.filter( feature => feature.checked ).map( feature => feature.name )
+	);
 
 	const toggleSeoEnhancer = useCallback( async () => {
 		await toggleEnhancer();
@@ -103,12 +64,16 @@ export function SeoEnhancer() {
 		);
 	}, [] );
 
-	const generateHandler = () => {
-		setIsLoading( true );
+	const generateHandler = async () => {
+		try {
+			setIsLoading( true );
 
-		setTimeout( () => {
+			await updateSeoData();
+		} catch ( error ) {
+			debug( 'Error generating SEO data', error );
+		} finally {
 			setIsLoading( false );
-		}, 3000 );
+		}
 	};
 
 	return (

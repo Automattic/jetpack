@@ -97,7 +97,7 @@ export const useSeoRequests = ( features: PromptType[] = [] ) => {
 					},
 				} );
 			} catch ( error ) {
-				debug( error );
+				debug( 'Error updating title', error );
 			}
 		},
 		[ request, editPost ]
@@ -121,7 +121,7 @@ export const useSeoRequests = ( features: PromptType[] = [] ) => {
 					},
 				} );
 			} catch ( error ) {
-				debug( error );
+				debug( 'Error updating description', error );
 			}
 		},
 		[ request, editPost ]
@@ -140,7 +140,7 @@ export const useSeoRequests = ( features: PromptType[] = [] ) => {
 
 					await updateBlockAttributes( block.clientId, { alt: altText } );
 				} catch ( error ) {
-					debug( error );
+					debug( 'Error updating alt texts', error );
 				}
 			} );
 		},
