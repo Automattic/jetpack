@@ -63,7 +63,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const popoverToggle = container.querySelector( '.launch-bar-global-styles-toggle' );
 	const popover = container.querySelector( '.launch-bar-global-styles-popover' );
 	const upgradeButton = container.querySelector( '.launch-bar-global-styles-upgrade' );
-	//const previewButton = container.querySelector( '.launch-bar-global-styles-preview' );
+	const previewButtonCheckbox = container.querySelector(
+		'.launch-bar-global-styles-preview input[type="checkbox"]'
+	);
 	const closeButton = container.querySelector( '.launch-bar-global-styles-close' );
 	const resetButton = container.querySelector( '.launch-bar-global-styles__button--reset' );
 
@@ -95,18 +97,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		window.location = upgradeButton.href;
 	} );
 
-	// TODO: Add tracking back for preview buttons.
-	// previewButton?.addEventListener( 'click', event => {
-	// 	event.preventDefault();
-	// 	const checkbox = previewButton.querySelector( 'input[type="checkbox"]' );
-	// 	if ( checkbox ) {
-	// 		checkbox.checked = ! checkbox.checked;
-	// 	}
-	// 	recordEvent( 'wpcom_global_styles_gating_notice_preview', {
-	// 		action: checkbox.checked ? 'show' : 'hide',
-	// 	} );
-	// 	window.location = previewButton.href;
-	// } );
+	previewButtonCheckbox?.addEventListener( 'change', event => {
+		event.preventDefault();
+		recordEvent( 'wpcom_global_styles_gating_notice_preview', {
+			action: previewButtonCheckbox.checked ? 'show' : 'hide',
+		} );
+		window.location = previewButtonCheckbox.dataset.href;
+	} );
 
 	resetButton?.addEventListener( 'click', async event => {
 		event.preventDefault();

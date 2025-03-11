@@ -599,7 +599,7 @@ function wpcom_display_global_styles_launch_bar() {
 							) : sprintf(
 								/* translators: %1$s - plan upgrade URL, %2$s - documentation URL */
 								__(
-									'This is how your site will appear to visitors. To customize its colors, fonts, layout and more, <a href="%1$s" target="_blank">upgrade your plan</a> to activate <a href="%2$s" target="_blank">premium styles</a>.',
+									'With the Free plan, this is how your site will appear to visitors. To customize colors, fonts, layout and more, <a href="%1$s" target="_blank">upgrade your plan</a> to activate <a href="%2$s" target="_blank">premium styles</a>.',
 									'jetpack-mu-wpcom'
 								),
 								esc_url( $upgrade_url ),
@@ -620,26 +620,18 @@ function wpcom_display_global_styles_launch_bar() {
 							?>
 						</div>
 						<div class="launch-bar-global-styles-actions">
-							<a 
-								class="launch-bar-global-styles-actions__preview <?php echo wpcom_is_previewing_global_styles() ? 'disabled' : ''; ?>"
-								href="<?php echo ! wpcom_is_previewing_global_styles() ? esc_url( $preview_location ) : 'javascript:void(0)'; ?>"
-							>
-								<div class="launch-bar-global-styles-actions__preview-frame is-premium">
-									<h2>A</h2><p>a</p>
-								</div>
-								<?php echo esc_html__( 'Premium styles', 'jetpack-mu-wpcom' ); ?>
-							</a>
-							<a
-								class="launch-bar-global-styles-actions__preview <?php echo ! wpcom_is_previewing_global_styles() ? 'disabled' : ''; ?>"
-								href="<?php echo wpcom_is_previewing_global_styles() ? esc_url( $preview_location ) : 'javascript:void(0)'; ?>"
-							>
-								<div class="launch-bar-global-styles-actions__preview-frame">
-									<h2>A</h2><p>a</p>
-								</div>
-								<?php echo esc_html__( 'Default styles', 'jetpack-mu-wpcom' ); ?>
-							</a>
+							<form class="launch-bar-global-styles-preview" action="<?php echo esc_url( $preview_location ); ?>">
+								<label for="launch-bar-global-styles-preview-checkbox">
+									<span class="launch-bar-global-styles-preview__checkbox">
+										<input type="checkbox" id="launch-bar-global-styles-preview-checkbox" data-href="<?php echo esc_url( $preview_location ); ?>" <?php echo wpcom_is_previewing_global_styles() ? 'checked' : ''; ?>>
+										<span></span>
+									</span>
+									<span class="launch-bar-global-styles-preview__label-text"><?php echo esc_html__( 'Preview premium styles', 'jetpack-mu-wpcom' ); ?></span>
+								</label>
+								<input type="hidden" name="<?php echo wpcom_is_previewing_global_styles() ? 'hide-global-styles' : ''; ?>" value="" />
+								<button type="submit" class="launch-bar-global-styles__button--preview"><?php echo esc_html__( 'Preview', 'jetpack-mu-wpcom' ); ?></button>
+							</form>
 						</div>
-
 						<div class="launch-bar-global-styles-actions">
 						<?php
 						if ( wpcom_is_previewing_global_styles() ) {
@@ -654,12 +646,19 @@ function wpcom_display_global_styles_launch_bar() {
 						} else {
 							?>
 							<a
+								class="launch-bar-global-styles__button--upgrade"
+								href="<?php echo esc_url( $upgrade_url ); ?>"
+							>
+								<?php echo esc_html__( 'Upgrade and keep premium styles', 'jetpack-mu-wpcom' ); ?>
+							</a>
+							<a
 								class="launch-bar-global-styles__button--reset"
 								href="https://wordpress.com/support/using-styles/#reset-all-styles"
 								target="_blank"
 								data-blog-id="<?php echo esc_attr( (string) $blog_id ); ?>"
 								data-global-styles-id="<?php echo esc_attr( (string) $global_styles_id ); ?>"
 							>
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 5.5A2.25 2.25 0 0 0 9.878 7h4.244A2.251 2.251 0 0 0 12 5.5ZM12 4a3.751 3.751 0 0 0-3.675 3H5v1.5h1.27l.818 8.997a2.75 2.75 0 0 0 2.739 2.501h4.347a2.75 2.75 0 0 0 2.738-2.5L17.73 8.5H19V7h-3.325A3.751 3.751 0 0 0 12 4Zm4.224 4.5H7.776l.806 8.861a1.25 1.25 0 0 0 1.245 1.137h4.347a1.25 1.25 0 0 0 1.245-1.137l.805-8.861Z"></path></svg>
 								<?php echo esc_html__( 'Remove premium styles', 'jetpack-mu-wpcom' ); ?>
 							</a>
 								<?php
@@ -667,8 +666,8 @@ function wpcom_display_global_styles_launch_bar() {
 						?>
 						</div>
 					</div>
-					<a class="launch-bar-global-styles-toggle" href="#">
-						<svg width="25" height="25" viewBox="0 96 960 960" xmlns="http://www.w3.org/2000/svg">
+					<div class="launch-bar-global-styles-toggle">
+						<svg width="24" height="24" viewBox="0 96 960 960" xmlns="http://www.w3.org/2000/svg">
 							<path d="M479.982 776q14.018 0 23.518-9.482 9.5-9.483 9.5-23.5 0-14.018-9.482-23.518-9.483-9.5-23.5-9.5-14.018 0-23.518 9.482-9.5 9.483-9.5 23.5 0 14.018 9.482 23.518 9.483 9.5 23.5 9.5ZM453 623h60V370h-60v253Zm27.266 353q-82.734 0-155.5-31.5t-127.266-86q-54.5-54.5-86-127.341Q80 658.319 80 575.5q0-82.819 31.5-155.659Q143 347 197.5 293t127.341-85.5Q397.681 176 480.5 176q82.819 0 155.659 31.5Q709 239 763 293t85.5 127Q880 493 880 575.734q0 82.734-31.5 155.5T763 858.316q-54 54.316-127 86Q563 976 480.266 976Zm.234-60Q622 916 721 816.5t99-241Q820 434 721.188 335 622.375 236 480 236q-141 0-240.5 98.812Q140 433.625 140 576q0 141 99.5 240.5t241 99.5Zm-.5-340Z" style="fill: orange"/>
 						</svg>
 						<span class="is-mobile">
@@ -677,7 +676,7 @@ function wpcom_display_global_styles_launch_bar() {
 						<span class="is-desktop">
 							<?php echo esc_html__( 'Upgrade required', 'jetpack-mu-wpcom' ); ?>
 						</span>
-					</a>
+					</div>
 				</div>
 			</div>
 		</div>
