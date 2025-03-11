@@ -5,6 +5,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useReducer } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
+import { getQueryArg } from '@wordpress/url';
 import { PreviewSection } from './preview-section';
 import { SettingsSection } from './settings-section';
 import styles from './styles.module.scss';
@@ -15,7 +16,11 @@ import styles from './styles.module.scss';
  * @return {import('react').ReactNode} - Social Post Modal component.
  */
 export function SocialPostModal() {
-	const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
+	const [ isModalOpen, toggleModal ] = useReducer(
+		state => ! state,
+		null,
+		() => getQueryArg( window.location.search, 'jetpackSidebar' ) === 'open_with_share_post'
+	);
 	const { recordEvent } = useAnalytics();
 
 	const handleOpenModal = useCallback( () => {
