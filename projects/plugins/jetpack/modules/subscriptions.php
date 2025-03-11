@@ -976,6 +976,13 @@ class Jetpack_Subscriptions {
 	 * @return void
 	 */
 	public function add_subscribers_menu() {
+		/**
+		 * Enables the new in development subscribers in wp-admin dashboard.
+		 *
+		 * @since 9.5.0
+		 *
+		 * @param bool If the new dashboard is enabled. Default false.
+		 */
 		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
 			return;
 		}
