@@ -136,7 +136,10 @@ const ProductCard: FC< ProductCardProps > = props => {
 	 * Sends an event when the card loads
 	 */
 	useEffect( () => {
-		if ( isTracksFired || isDataLoading || isAllProductsLoading ) {
+		const isDataReady = ! isDataLoading && ! isAllProductsLoading;
+		const shouldTrackEvent = isDataReady && ! isTracksFired;
+
+		if ( ! shouldTrackEvent ) {
 			return;
 		}
 
