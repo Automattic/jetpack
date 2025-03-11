@@ -13,12 +13,8 @@ import React from 'react';
 import styles from './styles.module.scss';
 
 const Admin = () => {
-	const { connectionStatus } = useSelect(
-		select => ( {
-			connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
-			connectedPlugins: select( CONNECTION_STORE_ID ).getConnectedPlugins(),
-		} ),
-		[]
+	const connectionStatus = useSelect( select =>
+		select( CONNECTION_STORE_ID ).getConnectionStatus()
 	);
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
