@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Take red bubble notifications out of initial state
+My Jetpack: Move Red Bubble notifications out of myJetpackInitialState.
