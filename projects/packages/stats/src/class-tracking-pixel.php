@@ -106,8 +106,13 @@ class Tracking_Pixel {
 				} elseif ( $wp_the_query->is_author ) {
 					$view_data['arch']   = 'author';
 					$view_data['arch_v'] = $wp_the_query->query['author_name'];
+				} elseif ( $wp_the_query->is_tax ) {
+					$query = $wp_the_query->query;
+					if ( count( $query ) === 0 ) {
+						$view_data['arch']   = array_keys( $query )[0];
+						$view_data['arch_v'] = array_values( $query )[0];
+					}
 				}
-				// TODO: track custom types - is_post_type_archive() and is_tax()
 			} elseif ( $wp_the_query->is_404() ) {
 				// These do not seem to be tracked at all
 				$view_data['arch']   = 'err';
