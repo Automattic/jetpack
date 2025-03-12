@@ -10,12 +10,12 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { preprocessImageContent } from '../../../../blocks/ai-assistant/extensions/lib/preprocess-image-content';
+import { store } from './store';
 /**
  * Types
  */
 import type { PromptType } from './types';
 import type { Block } from '@automattic/jetpack-ai-client';
-
 const debug = debugFactory( 'seo-enhancer:use-seo-requests' );
 
 const parseResponse = ( response: string ) => {
@@ -32,11 +32,15 @@ const parseResponse = ( response: string ) => {
 	return parsedResponse;
 };
 
-export const useSeoRequests = ( features: PromptType[] = [] ) => {
+export const useSeoRequests = (
+	features: PromptType[] = [ 'seo-title', 'seo-meta-description', 'images-alt-text' ]
+) => {
 	const { editPost } = useDispatch( editorStore );
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const { getPostContent } = usePostContent();
+	const isBusy = useSelect( select => select( store ).isBusy(), [] );
+	const setBusy = useDispatch( store ).setBusy;
 
 	const request = useCallback(
 		async ( type: PromptType, block?: Block ) => {
@@ -147,8 +151,9 @@ export const useSeoRequests = ( features: PromptType[] = [] ) => {
 		[ request, updateBlockAttributes ]
 	);
 
-	const updateSeoData = useCallback( () => {
+	const updateSeoData = useCallback( async () => {
 		const promises = [];
+		setBusy( true );
 
 		features.forEach( feature => {
 			if ( feature === 'seo-title' ) {
@@ -162,8 +167,9 @@ export const useSeoRequests = ( features: PromptType[] = [] ) => {
 			}
 		} );
 
-		return Promise.all( promises );
-	}, [ features, updateTitle, updateDescription, updateAltTexts ] );
+		await Promise.all( promises );
+		setBusy( false );
+	}, [ features, updateTitle, updateDescription, updateAltTexts, setBusy ] );
 
-	return { updateSeoData };
+	return { updateSeoData, isBusy };
 };

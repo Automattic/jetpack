@@ -10,12 +10,14 @@ import {
 	CardBody,
 	CheckboxControl,
 } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import { store } from './store';
 import { useSeoModuleSettings } from './use-seo-module-settings';
 import { useSeoRequests } from './use-seo-requests';
 import './style.scss';
@@ -23,12 +25,11 @@ import './style.scss';
  * Types
  */
 import type { PromptType } from './types';
-
 const debug = debugFactory( 'seo-enhancer:index' );
 
 export function SeoEnhancer() {
 	const { isEnabled, toggleEnhancer, isToggling } = useSeoModuleSettings();
-	const [ isLoading, setIsLoading ] = useState( false );
+	const isLoading = useSelect( select => select( store ).isBusy(), [] );
 	const [ features, setFeatures ] = useState<
 		{ name: PromptType; label: string; checked: boolean }[]
 	>( [
@@ -66,13 +67,9 @@ export function SeoEnhancer() {
 
 	const generateHandler = async () => {
 		try {
-			setIsLoading( true );
-
 			await updateSeoData();
 		} catch ( error ) {
 			debug( 'Error generating SEO data', error );
-		} finally {
-			setIsLoading( false );
 		}
 	};
 

@@ -13,3 +13,12 @@ export type JetpackModuleSettings = {
 export type JetpackModuleSelector = {
 	getJetpackModules: () => JetpackModuleSettings;
 };
+
+export type SeoEnhancerState = {
+	isBusy: boolean;
+};
+
+export type SeoEnhancerAction = {
+	type: 'SET_BUSY';
+	isBusy: boolean;
+};
