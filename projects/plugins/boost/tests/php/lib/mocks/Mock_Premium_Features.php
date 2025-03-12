@@ -1,8 +1,8 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Lib;
+namespace Automattic\Jetpack_Boost\Tests\Lib\Mocks;
 
-class Premium_Features {
+class Mock_Premium_Features {
 	const CORNERSTONE_TEN_PAGES = 'cornerstone_ten_pages';
 
 	/**
@@ -23,3 +23,8 @@ class Premium_Features {
 		self::$mock_return = (bool) $value;
 	}
 }
+
+class_alias(
+	'Automattic\Jetpack_Boost\Tests\Lib\Mocks\Mock_Premium_Features',
+	'Automattic\Jetpack_Boost\Lib\Premium_Features'
+);

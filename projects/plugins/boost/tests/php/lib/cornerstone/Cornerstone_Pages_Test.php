@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Tests\Lib\Cornerstone;
 
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Pages;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
+use Automattic\Jetpack_Boost\Tests\Lib\Mocks\Mock_Premium_Features;
 use Brain\Monkey\Functions;
 use Mockery;
 use PHPUnit\Framework\TestCase;
@@ -59,7 +60,7 @@ class Cornerstone_Pages_Test extends TestCase {
 	}
 
 	public function test_get_properties_free_tier() {
-		\Automattic\Jetpack_Boost\Lib\Premium_Features::set_mock_return( false );
+		Mock_Premium_Features::set_mock_return( false );
 
 		Functions\when( 'home_url' )
 			->justReturn( 'https://example.com' );
@@ -81,7 +82,7 @@ class Cornerstone_Pages_Test extends TestCase {
 	}
 
 	public function test_get_properties_premium_tier() {
-		\Automattic\Jetpack_Boost\Lib\Premium_Features::set_mock_return( true );
+		Mock_Premium_Features::set_mock_return( true );
 
 		// Mock jetpack_boost_ds_get to return features array
 		Functions\when( 'jetpack_boost_ds_get' )
