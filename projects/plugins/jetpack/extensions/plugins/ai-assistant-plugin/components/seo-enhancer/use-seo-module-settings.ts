@@ -1,33 +1,24 @@
 /**
  * External dependencies
  */
-import { JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { select } from '@wordpress/data';
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
+import { store } from './store';
 /**
  * Types
  */
-import type { JetpackModuleSelector } from './types';
-
 const debug = debugFactory( 'seo-enhancer:use-seo-module-settings' );
 
 export const useSeoModuleSettings = () => {
-	const [ isEnabled, setIsEnabled ] = useState( false );
-	const [ isToggling, setIsToggling ] = useState( false );
-
-	useEffect( () => {
-		const seoModuleSettings = (
-			select( JETPACK_MODULES_STORE_ID ) as JetpackModuleSelector
-		 ).getJetpackModules()[ 'seo-tools' ];
-		const enhancerAvailable =
-			seoModuleSettings && 'ai_seo_enhancer_enabled' in seoModuleSettings.options;
-		const enhancerEnabled =
-			enhancerAvailable && seoModuleSettings.options?.ai_seo_enhancer_enabled?.current_value;
-
-		setIsEnabled( enhancerEnabled );
-	}, [] );
+	const isEnabled = useSelect( select => select( store ).isAutoEnhanceEnabled(), [] );
+	const isToggling = useSelect( select => select( store ).isTogglingAutoEnhance(), [] );
+	const setIsToggling = useDispatch( store ).setIsTogglingAutoEnhance;
+	const setIsEnabled = useDispatch( store ).setIsAutoEnhanceEnabled;
 
 	const toggleEnhancer = useCallback( async () => {
 		setIsToggling( true );
@@ -44,7 +35,7 @@ export const useSeoModuleSettings = () => {
 		} finally {
 			setIsToggling( false );
 		}
-	}, [ isEnabled ] );
+	}, [ isEnabled, setIsEnabled, setIsToggling ] );
 
 	return {
 		isEnabled,

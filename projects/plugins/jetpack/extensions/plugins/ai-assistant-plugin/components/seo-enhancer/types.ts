@@ -15,10 +15,14 @@ export type JetpackModuleSelector = {
 };
 
 export type SeoEnhancerState = {
-	isBusy: boolean;
+	isBusy?: boolean;
+	isTogglingAutoEnhance?: boolean;
+	isAutoEnhanceEnabled?: boolean;
 };
 
 export type SeoEnhancerAction = {
-	type: 'SET_BUSY';
-	isBusy: boolean;
+	type: 'SET_BUSY' | 'SET_IS_TOGGLING_AUTO_ENHANCE' | 'SET_IS_AUTO_ENHANCE_ENABLED';
+	isBusy?: boolean;
+	isToggling?: boolean;
+	isEnabled?: boolean;
 };

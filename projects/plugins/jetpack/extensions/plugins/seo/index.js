@@ -63,15 +63,21 @@ const Seo = () => {
 		return postTypeObject?.viewable;
 	}, [] );
 	const previousIsOpenRef = useRef( false );
-	const { isEnabled } = useSeoModuleSettings();
+	const { isEnabled, isToggling } = useSeoModuleSettings();
 
 	useEffect( () => {
-		if ( isPrePublishPanelOpen && ! previousIsOpenRef.current && ! isBusy && isEnabled ) {
+		if (
+			isPrePublishPanelOpen &&
+			! previousIsOpenRef.current &&
+			! isBusy &&
+			isEnabled &&
+			! isToggling
+		) {
 			updateSeoData();
 		}
 
 		previousIsOpenRef.current = isPrePublishPanelOpen;
-	}, [ isPrePublishPanelOpen, updateSeoData, isBusy, isEnabled ] );
+	}, [ isPrePublishPanelOpen, updateSeoData, isBusy, isEnabled, isToggling ] );
 
 	// If the post type is not viewable, do not render my plugin.
 	if ( ! isViewable ) {
