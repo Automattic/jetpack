@@ -189,7 +189,7 @@ class Connections {
 	public static function fetch_site_connections() {
 		$proxy = new Proxy_Requests( 'publicize/connections' );
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/connections' );
+		$request = new WP_REST_Request( 'GET' );
 
 		return $proxy->proxy_request_to_wpcom_as_blog( $request );
 	}

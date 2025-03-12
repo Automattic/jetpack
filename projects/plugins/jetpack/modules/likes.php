@@ -288,14 +288,16 @@ class Jetpack_Likes {
 		<style type="text/css">
 			.vers img { display: none; }
 			.metabox-prefs .vers img { display: inline; }
-			.fixed .column-likes { width: 5.5em; padding: 8px 0; text-align: left; }
+			.fixed .column-likes { width: 2.5em; padding: 4px 0; text-align: left; }
 			.fixed .column-stats { width: 5em; }
 			.fixed .column-likes .post-com-count {
 				-webkit-box-sizing: border-box;
 				-moz-box-sizing: border-box;
 				box-sizing: border-box;
 				display: inline-block;
-				padding: 0 8px;
+				padding: 0 4px;
+				min-width: 2em;
+				text-align: center;
 				height: 2em;
 				margin-top: 5px;
 				-webkit-border-radius: 5px;

@@ -18,7 +18,7 @@ return [
     'file_suppressions' => [
         'src/class-current-plan.php' => ['PhanTypeMismatchPropertyProbablyReal'],
         'src/class-plans.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'tests/php/test-current-plan.php' => ['PhanPluginMixedKeyNoKey'],
+        'tests/php/Jetpack_Plan_Test.php' => ['PhanPluginMixedKeyNoKey'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

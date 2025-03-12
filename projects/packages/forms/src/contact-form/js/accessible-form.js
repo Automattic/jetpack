@@ -7,6 +7,8 @@
  * (multiple radio buttons) or Multiple Choice fields (multiple checkboxes).
  */
 
+import { validateDate } from './validate-helper';
+
 document.addEventListener( 'DOMContentLoaded', () => {
 	initAllForms();
 } );
@@ -30,7 +32,7 @@ const L10N = {
 	/* translators: generic error message */
 	genericError: __( 'Please correct this field', 'jetpack-forms' ),
 	/* translators: error message shown when no field has been filled out */
-	emptyForm: __( 'The form you are trying to submit is emtpy.', 'jetpack-forms' ),
+	emptyForm: __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
 	errorCount: d =>
 		/* translators: message displayed when errors need to be fixed. %d is the number of errors. */
 		_n( 'You need to fix %d error.', 'You need to fix %d errors.', d, 'jetpack-forms' ),
@@ -271,15 +273,12 @@ const isMultipleChoiceFieldValid = fieldset => {
 const isDateFieldValid = input => {
 	const format = input.getAttribute( 'data-format' );
 	const value = input.value;
-	const $ = window.jQuery;
 
-	if ( value && format && typeof $ !== 'undefined' ) {
-		try {
-			$.datepicker.parseDate( format, value );
+	if ( value && format ) {
+		if ( validateDate( value, format ) ) {
 			input.setCustomValidity( '' );
-		} catch {
+		} else {
 			input.setCustomValidity( L10N.invalidDate );
-
 			return false;
 		}
 	}

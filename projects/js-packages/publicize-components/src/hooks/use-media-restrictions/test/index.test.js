@@ -10,7 +10,7 @@ import useMediaRestrictions from '../index';
 
 jest.mock( '../../use-attached-media', () => jest.fn() );
 
-jest.mock( '../../../utils/use-share-message-max-length.js', () => ( {
+jest.mock( '../../../utils/use-share-message-max-length.ts', () => ( {
 	useShareMessageMaxLength: jest.fn().mockReturnValue( 255 ),
 } ) );
 

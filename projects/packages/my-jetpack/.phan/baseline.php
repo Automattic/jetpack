@@ -15,13 +15,13 @@ return [
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
     // PhanNoopNew : 6 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
-    // PhanTypeMismatchReturn : 4 occurrences
     // PhanTypeMismatchReturnNullable : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanRedundantCondition : 2 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
+    // PhanTypeMismatchReturn : 2 occurrences
     // PhanPluginMixedKeyNoKey : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
@@ -32,7 +32,7 @@ return [
         'src/class-initializer.php' => ['PhanImpossibleCondition', 'PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod'],
         'src/class-jetpack-manage.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/class-products.php' => ['PhanNonClassMethodCall'],
-        'src/class-rest-products.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturn'],
+        'src/class-rest-products.php' => ['PhanPluginMixedKeyNoKey'],
         'src/class-rest-purchases.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-wpcom-products.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/products/class-anti-spam.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
@@ -53,13 +53,13 @@ return [
         'src/products/class-starter.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/products/class-stats.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal'],
         'src/products/class-videopress.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
-        'tests/php/test-backup-product.php' => ['PhanTypeMismatchArgumentNullable'],
-        'tests/php/test-hybrid-product.php' => ['PhanTypeMismatchArgumentNullable'],
-        'tests/php/test-product-multiple-filenames.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
-        'tests/php/test-products.php' => ['PhanNonClassMethodCall'],
-        'tests/php/test-search-product.php' => ['PhanTypeMismatchArgumentNullable'],
-        'tests/php/test-social-product.php' => ['PhanTypeMismatchArgumentNullable'],
-        'tests/php/test-videopress-product.php' => ['PhanTypeMismatchArgumentNullable'],
+        'tests/php/Backup_Product_Test.php' => ['PhanTypeMismatchArgumentNullable'],
+        'tests/php/Hybrid_Product_Test.php' => ['PhanTypeMismatchArgumentNullable'],
+        'tests/php/Product_Multiple_Filenames_Test.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
+        'tests/php/Products_Test.php' => ['PhanNonClassMethodCall'],
+        'tests/php/Search_Product_Test.php' => ['PhanTypeMismatchArgumentNullable'],
+        'tests/php/Social_Product_Test.php' => ['PhanTypeMismatchArgumentNullable'],
+        'tests/php/Videopress_Product_Test.php' => ['PhanTypeMismatchArgumentNullable'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

@@ -12,6 +12,7 @@ import {
 	ActionButton,
 	GlobalNotices,
 } from '@automattic/jetpack-components';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
@@ -27,12 +28,14 @@ import {
 	QUERY_CHAT_AUTHENTICATION_KEY,
 } from '../../data/constants';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
+import useUpdateHistoricallyActiveModules from '../../data/products/use-update-historically-active-modules';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
 import resetJetpackOptions from '../../data/utils/reset-jetpack-options';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
+import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import ConnectionsSection from '../connections-section';
@@ -112,13 +115,19 @@ export default function MyJetpackScreen() {
 		name: QUERY_CHAT_AUTHENTICATION_KEY,
 		query: { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT },
 	} );
+	const updateHistoricallyActiveModules = useUpdateHistoricallyActiveModules();
+
+	useEffect( () => {
+		updateHistoricallyActiveModules();
+	}, [ updateHistoricallyActiveModules ] );
 
 	const isAvailable = availabilityData?.is_available;
 	const jwt = authData?.user?.jwt;
 
 	const shouldShowZendeskChatWidget =
 		! isJwtLoading && ! isChatAvailabilityLoading && isAvailable && jwt;
-	const isNewUser = getMyJetpackWindowInitialState( 'userIsNewToJetpack' ) === '1';
+
+	const isNewUser = useIsJetpackUserNew();
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
@@ -162,7 +171,9 @@ export default function MyJetpackScreen() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
+			useInternalLinks={ shouldUseInternalLinks() }
 		>
+			<h1 className="screen-reader-text">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</h1>
 			<hr className={ styles.separator } />
 
 			<IDCModal />

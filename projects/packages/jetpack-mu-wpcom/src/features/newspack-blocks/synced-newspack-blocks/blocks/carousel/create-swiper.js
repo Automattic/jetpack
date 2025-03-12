@@ -135,6 +135,9 @@ export default function createSwiper( els, config = {} ) {
 			},
 
 			slideChange() {
+				if ( this.slides.length < 1 ) {
+					return; // No slides, no need to do anything.
+				}
 				const currentSlide = this.slides[ this.activeIndex ];
 
 				deactivateSlide( this.slides[ this.previousIndex ] );

@@ -2,7 +2,10 @@ import { Text, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-export type ManualSharingInfoProps = React.ComponentPropsWithoutRef< typeof Text >;
+export type ManualSharingInfoProps = Omit<
+	React.ComponentPropsWithoutRef< typeof Text >,
+	'children'
+>;
 
 /**
  * Manual sharing info component.

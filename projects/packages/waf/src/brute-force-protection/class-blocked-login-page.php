@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
+use WP_User;
 
 /**
  * Class Brute_Force_Protection_Blocked_Login_Page
@@ -210,9 +211,13 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	/**
 	 * Check if user is blocked.
 	 *
-	 * @param string $user - the user.
+	 * @param WP_User|WP_Error $user - The user or error object if prior callback failed auth.
 	 */
 	public function check_valid_blocked_user( $user ) {
+		if ( is_wp_error( $user ) ) {
+			return $user;
+		}
+
 		if ( $this->valid_blocked_user_id && $this->valid_blocked_user_id != $user->ID ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 			return new WP_Error( 'invalid_recovery_token', __( 'The recovery token is not valid for this user.', 'jetpack-waf' ) );
 		}

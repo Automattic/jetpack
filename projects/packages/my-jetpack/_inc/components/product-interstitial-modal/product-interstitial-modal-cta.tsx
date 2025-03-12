@@ -9,10 +9,20 @@ import styles from './style.module.scss';
 
 interface ProductInterstitialModalCtaProps {
 	slug: string;
+	buttonLabel?: string;
+	disabled?: boolean;
+	isExternalLink?: boolean;
+	href?: string;
 }
 
 // Component to handle the CTA for the product upgrades
-const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( { slug } ) => {
+const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
+	slug,
+	buttonLabel,
+	disabled,
+	isExternalLink,
+	href,
+} ) => {
 	const quantity = null;
 
 	const {
@@ -68,8 +78,11 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( { 
 			className={ styles[ 'action-button' ] }
 			isLoading={ hasMainCheckoutStarted }
 			onClick={ mainCheckoutRedirect }
+			isExternalLink={ isExternalLink }
+			href={ href }
+			disabled={ disabled }
 		>
-			{ __( 'Upgrade', 'jetpack-my-jetpack' ) }
+			{ buttonLabel || __( 'Upgrade', 'jetpack-my-jetpack' ) }
 		</Button>
 	);
 };

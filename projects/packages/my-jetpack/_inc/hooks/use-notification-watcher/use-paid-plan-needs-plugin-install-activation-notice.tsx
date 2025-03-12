@@ -10,30 +10,27 @@ import useInstallPlugins from '../../data/products/use-install-plugins';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import createCookie from '../../utils/create-cookie';
 import useAnalytics from '../use-analytics';
 import { useGetPaidPlanNeedsPluginsContent } from './get-paid-plan-needs-plugins-content';
 import type { NoticeOptions } from '../../context/notices/types';
 import type { MyJetpackInitialState } from '../../data/types';
 
 type RedBubbleAlerts = MyJetpackInitialState[ 'redBubbleAlerts' ];
-type Purchase = MyJetpackInitialState[ 'purchases' ][ 'items' ][ 0 ];
-
-// The notice will not show again for 14 days (when clicking the close(X) button).
-const NUM_DAYS_COOKIE_EXPIRES = 14;
 
 const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { recordEvent } = useAnalytics();
 
 	const { isSiteConnected } = useMyJetpackConnection();
-	const response = useSimpleQuery( {
+	const response = useSimpleQuery< Purchase[] >( {
 		name: QUERY_PURCHASES_KEY,
 		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
 		options: { enabled: isSiteConnected },
 	} );
 
 	const { isLoading, isError } = response;
-	const purchases = response.data as Purchase[];
+	const purchases = response.data;
 
 	const isPurchasesDataLoaded = purchases && ! isLoading && ! isError;
 
@@ -147,8 +144,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 	);
 
 	const onCloseClick = useCallback( () => {
-		const expireDate = new Date( Date.now() + 1000 * 3600 * 24 * NUM_DAYS_COOKIE_EXPIRES );
-		document.cookie = `${ planSlug }--plugins_needing_installed_dismissed=1; expires=${ expireDate.toString() }; SameSite=None; Secure`;
+		createCookie( `${ planSlug }--plugins_needing_installed_dismissed`, 14 );
 		delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
 		resetNotice();
 	}, [ planSlug, pluginsNeedingActionAlerts, redBubbleAlerts, resetNotice ] );

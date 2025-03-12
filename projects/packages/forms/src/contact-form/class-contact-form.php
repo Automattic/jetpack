@@ -115,7 +115,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} elseif ( $post ) {
 			$attributes['id'] = $post->ID;
 			$post_author      = get_userdata( $post->post_author );
-			$default_to      .= $post_author->user_email;
+			if ( is_a( $post_author, '\WP_User' ) ) {
+				$default_to .= $post_author->user_email;
+			} else {
+				$default_to .= get_option( 'admin_email' );
+			}
 		}
 
 		if ( ! empty( self::$forms ) ) {
@@ -123,7 +127,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( ! isset( $attributes['id'] ) ) {
 				$attributes['id'] = '';
 			}
-			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page;
+
+			// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
+			$page_num = max( 1, intval( $page ) );
+
+			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_num;
 		}
 
 		$this->hash                 = sha1( wp_json_encode( $attributes ) );
@@ -249,7 +257,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string HTML for the concat form.
 	 */
 	public static function parse( $attributes, $content ) {
-		global $post, $page; // $page is used in the contact-form submission redirect
+		global $post, $page, $multipage; // $page is used in the contact-form submission redirect
 		if ( Settings::is_syncing() ) {
 			return '';
 		}
@@ -346,7 +354,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			} else {
 				// Submit form to the post permalink
 				$url = get_permalink();
-				if ( $page ) {
+				if ( $multipage && $page ) {
 					$url = add_query_arg( 'page', $page, $url );
 				}
 			}
@@ -534,7 +542,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = is_a( $feedback, '\WP_Post' ) ? $feedback->post_content : '';
+					$value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
+									$feedback->post_content : '';
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
 				}
@@ -627,7 +636,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = is_a( $feedback, '\WP_Post' ) ? $feedback->post_content : '';
+					$value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
+									$feedback->post_content : '';
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
 				}
@@ -1161,6 +1171,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// For all fields, grab label and value
 		foreach ( $field_ids['all'] as $field_id ) {
 			$field = $this->fields[ $field_id ];
+
+			if ( ! $field->is_field_renderable( $field->get_attribute( 'type' ) ) ) {
+				continue;
+			}
+
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
 
@@ -1172,6 +1187,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Extra fields have their prefix starting from count( $all_values ) + 1
 		foreach ( $field_ids['extra'] as $field_id ) {
 			$field = $this->fields[ $field_id ];
+
+			if ( ! $field->is_field_renderable( $field->get_attribute( 'type' ) ) ) {
+				continue;
+			}
+
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
 

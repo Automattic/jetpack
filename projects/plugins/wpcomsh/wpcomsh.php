@@ -617,12 +617,15 @@ function wpcomsh_footer_rum_js() {
 	$data_site_tz = 'data-site-tz="' . esc_attr( wpcomsh_stats_timezone_string() ) . '"';
 
 	printf(
-		'<script defer id="bilmur" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s src="%4$s" %5$s></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		'<meta id="bilmur" property="bilmur:data" content="" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s %4$s >' . "\n",
 		$rum_kv, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		esc_attr( $service ),
 		wp_kses_post( $allow_iframe ),
-		esc_url( 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' ) ),
 		$data_site_tz // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	);
+	printf(
+		'<script defer src="%s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		esc_url( 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' ) )
 	);
 }
 

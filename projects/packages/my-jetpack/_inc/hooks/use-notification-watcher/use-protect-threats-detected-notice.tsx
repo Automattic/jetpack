@@ -4,6 +4,7 @@ import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useProduct from '../../data/products/use-product';
+import createCookie from '../../utils/create-cookie';
 import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
 import type { NoticeOptions } from '../../context/notices/types';
@@ -41,8 +42,7 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 	);
 
 	const onCloseClick = useCallback( () => {
-		// Session cookie. Expires at session end.
-		document.cookie = `protect_threats_detected_dismissed=1; SameSite=None; Secure`;
+		createCookie( 'protect_threats_detected_dismissed', 7 );
 		delete redBubbleAlerts.protect_has_threats;
 		resetNotice();
 	}, [ redBubbleAlerts.protect_has_threats, resetNotice ] );

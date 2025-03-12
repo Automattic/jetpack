@@ -27,8 +27,6 @@ class Jetpack_Mu_Wpcom {
 		if ( did_action( 'jetpack_mu_wpcom_initialized' ) ) {
 			return;
 		}
-		// Apply temporary fix for translation path MD5 mismatch due to vendor -> jetpack_vendor change in https://github.com/Automattic/jetpack/pull/41185
-		add_filter( 'load_script_textdomain_relative_path', array( __CLASS__, 'fix_translation_relative_path_mismatch_wpcom_jetpack' ), 20, 2 );
 
 		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
@@ -57,6 +55,7 @@ class Jetpack_Mu_Wpcom {
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
@@ -66,6 +65,7 @@ class Jetpack_Mu_Wpcom {
 		// These features run only on atomic sites.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
+			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -92,22 +92,165 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Fixes translation file path MD5 mismatches caused by vendor -> jetpack_vendor migration.
+	 * Schedules translation updates for Jetpack MU WPCOM.
 	 *
-	 * WordPress generates the translation file's MD5 hash based on the script's relative path.
-	 * Since the path structure changed, we rewrite `jetpack_vendor/` back to `vendor/` before hashing.
+	 * This function sets up the necessary cron jobs to ensure that translation files
+	 * are regularly updated.
 	 *
-	 * @param string|false $relative The relative script path (before MD5 hashing).
-	 * @param string       $src     The script's original source path (unused).
-	 * @return string|false Updated relative path that keeps WordPress's MD5 hash consistent.
+	 * @return void
 	 */
-	public static function fix_translation_relative_path_mismatch_wpcom_jetpack( $relative, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( $relative && str_contains( $relative, 'jetpack_vendor/automattic/jetpack-mu-wpcom/src/build/' ) ) {
-			// Rewrite "jetpack_vendor/" back to the original "vendor/" to maintain MD5 compatibility
-			$relative = str_replace( 'jetpack_vendor/', 'vendor/', $relative );
+	public static function schedule_translation_updates() {
+		add_action( 'wpcomsh_translation_update', array( __CLASS__, 'maybe_update_translations' ) );
+
+		if ( ! wp_next_scheduled( 'wpcomsh_translation_update' ) ) {
+			wp_schedule_event( time(), 'twicedaily', 'wpcomsh_translation_update' );
+		}
+	}
+
+	/**
+	 * Fetches and installs Jetpack-mu-wpcom package translations when needed.
+	 */
+	public static function maybe_update_translations() {
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
 		}
 
-		return $relative;
+		$locales = self::get_all_active_locales();
+		if ( empty( $locales ) ) {
+			return;
+		}
+
+		$plugins_request_data              = array();
+		$plugin_language_pack_destinations = array(
+			'jetpack-mu-wpcom' => WP_LANG_DIR . '/mu-plugins/',
+		);
+
+		foreach ( array_keys( $plugin_language_pack_destinations ) as $plugin_slug ) {
+			$plugins_request_data[ $plugin_slug ] = array( 'version' => 'latest' );
+		}
+
+		$response = wp_remote_post(
+			'https://translate.wordpress.com/api/translations-updates/wpcom/plugins',
+			array(
+				'body'    => wp_json_encode(
+					array(
+						'locales' => $locales,
+						'plugins' => $plugins_request_data,
+					)
+				),
+				'headers' => array( 'Content-Type' => 'application/json' ),
+				'timeout' => 10,
+			)
+		);
+
+		if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
+			return;
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		// API error, api returned but something was wrong.
+		if ( array_key_exists( 'success', $data ) && false === $data['success'] ) {
+			return;
+		}
+
+		if ( ! is_array( $data ) || ! is_array( $data['data'] ) ) {
+			return;
+		}
+
+		foreach ( $data['data'] as $plugin_name => $language_packs ) {
+			if ( ! isset( $plugin_language_pack_destinations[ $plugin_name ] ) ) {
+				continue;
+			}
+
+			$destination = $plugin_language_pack_destinations[ $plugin_name ];
+
+			foreach ( $language_packs as $translation ) {
+				$locale        = $translation['wp_locale'] ?? '';
+				$package_url   = $translation['package'] ?? '';
+				$last_modified = $translation['last_modified'] ?? '';
+
+				if ( ! $locale || ! $package_url || ! $last_modified ) {
+					continue;
+				}
+
+				$local_po_file = "{$destination}/$plugin_name-{$locale}.po";
+				if ( file_exists( $local_po_file ) ) {
+					$local_po_data                       = wp_get_pomo_file_data( $local_po_file );
+					$installed_translation_revision_time = new \DateTime( $local_po_data['PO-Revision-Date'] );
+					$new_translation_revision_time       = new \DateTime( $last_modified );
+
+					// Skip if translation language pack is not newer than what is installed already.
+					if ( $new_translation_revision_time <= $installed_translation_revision_time ) {
+						continue;
+					}
+				}
+
+				$translation_zip_file = download_url( $package_url );
+				if ( is_wp_error( $translation_zip_file ) ) {
+					continue;
+				}
+
+				static::clear_translation_destination( $destination, $plugin_name, $locale );
+
+				$unzip_result = unzip_file( $translation_zip_file, $destination );
+				if ( is_wp_error( $unzip_result ) ) {
+					wp_delete_file( $translation_zip_file );
+					continue;
+				}
+
+				wp_delete_file( $translation_zip_file );
+
+			}
+		}
+	}
+
+	/**
+	 * Clears the translation destination by deleting existing translation files.
+	 *
+	 * @param string $local_destination The local destination path.
+	 * @param string $plugin_slug The plugin slug.
+	 * @param string $locale The locale.
+	 */
+	public static function clear_translation_destination( $local_destination, $plugin_slug, $locale ) {
+		global $wp_filesystem;
+
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
+		$files = array(
+			"{$local_destination}{$plugin_slug}-{$locale}.po",
+			"{$local_destination}{$plugin_slug}-{$locale}.mo",
+			"{$local_destination}{$plugin_slug}-{$locale}.l10n.php",
+		);
+
+		$json_files = glob( "{$local_destination}{$plugin_slug}-{$locale}-*.json" );
+		if ( $json_files ) {
+			$files = array_merge( $files, $json_files );
+		}
+
+		foreach ( $files as $file ) {
+			if ( $wp_filesystem->exists( $file ) ) {
+				$wp_filesystem->delete( $file );
+			}
+		}
+	}
+
+	/**
+	 * Retrieves all active locales for the site.
+	 */
+	public static function get_all_active_locales() {
+		$locales = array( get_locale() );
+
+		$available_languages = get_available_languages();
+		if ( ! empty( $available_languages ) ) {
+			$locales = array_merge( $locales, $available_languages );
+		}
+		return array_values( array_unique( $locales ) );
 	}
 
 	/**
@@ -156,9 +299,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load Newsletter Dashboard in Simple sites.
 	 */
 	public static function load_wpcom_newsletter_dashboard() {
-		if ( defined( 'JETPACK_NEWSLETTER_WIDGET' ) && JETPACK_NEWSLETTER_WIDGET ) {
-			require_once __DIR__ . '/features/wpcom-newsletter-widget/wpcom-newsletter-widget.php';
-		}
+		require_once __DIR__ . '/features/wpcom-newsletter-widget/wpcom-newsletter-widget.php';
 	}
 
 	/**
@@ -191,6 +332,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 
 		// Only load the Calypsoify and Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
@@ -501,6 +643,14 @@ class Jetpack_Mu_Wpcom {
 	public static function load_verbum_comments_admin() {
 		require_once __DIR__ . '/features/verbum-comments/assets/class-verbum-admin.php';
 		new \Automattic\Jetpack\Verbum_Admin();
+	}
+
+	/**
+	 * Load Verbum Moderate.
+	 */
+	public static function load_verbum_moderate() {
+		require_once __DIR__ . '/features/verbum-comments/assets/class-verbum-moderate.php';
+		new \Automattic\Jetpack\Verbum_Moderate();
 	}
 
 	/**

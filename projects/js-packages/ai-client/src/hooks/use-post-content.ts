@@ -3,25 +3,59 @@
  */
 import { serialize } from '@wordpress/blocks';
 import { useSelect } from '@wordpress/data';
-/**
- * Types
- */
-import { renderMarkdownFromHTML } from '../libs/markdown/index.js';
-import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors.js';
+import { store as editorStore } from '@wordpress/editor';
+import { useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import { renderMarkdownFromHTML } from '../libs/markdown/index.js';
+/**
+ * Types
+ */
+import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors.js';
 
 /*
  * Simple helper to get the post content as markdown
  */
 const usePostContent = () => {
-	const blocks = useSelect(
-		select => ( select( 'core/block-editor' ) as typeof BlockEditorSelectors ).getBlocks(),
-		[]
+	const { getBlocks, isEditedPostEmpty } = useSelect( select => {
+		const blockEditorSelect = select( 'core/block-editor' ) as typeof BlockEditorSelectors;
+		const coreEditorSelect = select( editorStore );
+
+		return {
+			getBlocks: blockEditorSelect.getBlocks,
+			isEditedPostEmpty: coreEditorSelect.isEditedPostEmpty,
+		};
+	}, [] );
+
+	const getSerializedPostContent = useCallback( () => {
+		const blocks = getBlocks();
+
+		if ( blocks.length === 0 ) {
+			return '';
+		}
+
+		return serialize( blocks );
+	}, [ getBlocks ] );
+
+	const getPostContent = useCallback(
+		( preprocess?: ( serialized: string ) => string ) => {
+			let serialized = getSerializedPostContent();
+
+			if ( ! serialized ) {
+				return '';
+			}
+
+			if ( preprocess && typeof preprocess === 'function' ) {
+				serialized = preprocess( serialized );
+			}
+
+			return serialized ? renderMarkdownFromHTML( { content: serialized } ) : '';
+		},
+		[ getBlocks ]
 	);
 
-	return blocks?.length ? renderMarkdownFromHTML( { content: serialize( blocks ) } ) : '';
+	return { getPostContent, isEditedPostEmpty, getSerializedPostContent };
 };
 
 export default usePostContent;

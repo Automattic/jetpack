@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Button: Fix contrast checker when comparing a user specified color with a css provided color.
