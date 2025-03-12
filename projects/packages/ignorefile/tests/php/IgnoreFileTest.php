@@ -21,7 +21,6 @@ use SplFileInfo;
 
 /** Tests for IgnoreFile. */
 class IgnoreFileTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Run test cases from IgnoreFileTestData.jsonc.

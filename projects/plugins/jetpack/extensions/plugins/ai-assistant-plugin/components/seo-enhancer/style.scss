@@ -1,7 +1,25 @@
-.ai-seo-enhancer-toggle {
-	margin-bottom: 8px;
-	.components-toggle-control__help {
-		margin-inline-start: 0px;
+.jetpack-seo-sidebar__feature-section--toggle {
+	min-height: unset;
+
+	.ai-seo-enhancer-toggle {
+		.components-toggle-control__help {
+			margin-inline-start: 0px;
+		}
 	}
 }
 
+.jetpack-seo-sidebar__feature-section {
+	.feature-checkboxes-container {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.is-disabled {
+		input[type="checkbox"]:checked,
+		input[type="checkbox"]:indeterminate {
+			background-color: var( --jp-gray-5 );
+			border-color: var( --jp-gray-5 );
+		}
+	}
+}

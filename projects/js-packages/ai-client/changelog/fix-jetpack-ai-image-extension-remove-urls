@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-AI Client: Add optional preprocess function to getPostContent
