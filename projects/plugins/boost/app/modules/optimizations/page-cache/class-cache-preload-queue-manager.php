@@ -21,6 +21,24 @@ class Cache_Preload_Queue_Manager {
 	private $preload_queue = null;
 
 	/**
+	 * Batch size for preloading.
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	private $batch_size;
+
+	/**
+	 * Constructor.
+	 *
+	 * @since $$next-version$$
+	 * @param int $batch_size Batch size for preloading. Default 10.
+	 */
+	public function __construct( int $batch_size = 10 ) {
+		$this->batch_size = $batch_size;
+	}
+
+	/**
 	 * Get the list of posts that need to be preloaded.
 	 *
 	 * Returns the in-memory cached list of post URLs that are scheduled for preloading.
@@ -90,12 +108,11 @@ class Cache_Preload_Queue_Manager {
 	 *
 	 * @since $$next-version$$
 	 * @param array $posts Full list of posts to preload.
-	 * @param int   $batch_size Size of batch to process. Default 10.
 	 * @return array The batch of posts to process now.
 	 */
-	public function prepare_next_batch( array $posts, int $batch_size = 10 ) {
+	public function prepare_next_batch( array $posts ) {
 		// Process in batches to reduce server load
-		$batches       = array_chunk( $posts, $batch_size );
+		$batches       = array_chunk( $posts, $this->batch_size );
 		$current_batch = array_shift( $batches );
 
 		// Calculate remaining posts
