@@ -12,6 +12,7 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useAllProducts } from '../../data/products/use-all-products';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
@@ -47,6 +48,8 @@ const ProductDetailTableColumn = ( {
 	feature,
 } ) => {
 	const [ isButtonLoading, setIsButtonLoading ] = useState( false );
+	const { isLoading: isProductDataLoading } = useAllProducts();
+
 	const {
 		siteSuffix = '',
 		myJetpackCheckoutUri = '',
@@ -189,7 +192,7 @@ const ProductDetailTableColumn = ( {
 	return (
 		<PricingTableColumn primary={ ! isFree }>
 			<PricingTableHeader>
-				{ isFetching && <LoadingBlock width="100%" height="70px" spaceBelow /> }
+				{ isProductDataLoading && <LoadingBlock width="100%" height="70px" spaceBelow /> }
 
 				{ isFree ? (
 					<ProductPrice price={ 0 } legend={ '' } currency={ 'USD' } hidePriceFraction />

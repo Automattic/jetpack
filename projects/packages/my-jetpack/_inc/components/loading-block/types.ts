@@ -6,5 +6,4 @@ export interface LoadingBlockProps {
 	height: CSSLength;
 	width: CSSLength;
 	spaceBelow?: boolean;
-	key?: string | number;
 }
