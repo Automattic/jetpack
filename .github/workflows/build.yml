@@ -72,15 +72,16 @@ jobs:
         run: |
           mapfile -t PROJECTS < <(jq -r 'to_entries[] | select( .value ) | .key' <<<"$CHANGED")
           if [[ ${#PROJECTS[@]} -gt 0 ]]; then
-            echo "Projects: ${PROJECTS[@]}"
             depth=$( git rev-list --count --first-parent HEAD )
             [[ "$depth" -lt 1000 ]] && depth=1000
             BASE=$PWD
             REF=$(git rev-parse HEAD)
             for SLUG in $(pnpm jetpack dependencies list --add-dependencies --extra="build" --ignore-root "${PROJECTS[@]}"); do
               if [[ "$SLUG" == packages/* ]]; then
+                echo "Going to check $SLUG (is a package)"
                 SUBDIR=.
               elif [[ "$SLUG" == js-packages/social-logos ]]; then
+                echo "Going to check $SLUG (is social-logos)"
                 SUBDIR=./src/svg
               else
                 echo "No need to deepen for $SLUG"
