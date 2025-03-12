@@ -68,6 +68,9 @@ class Search extends Module {
 	 * @var array
 	 */
 	private static $postmeta_to_sync = array(
+		// Core
+		'_wp_old_date'                           => array(),
+
 		// jetpack.
 		'jetpack-search-meta0'                   => array( 'searchable_in_all_content' => true ),
 		'jetpack-search-meta1'                   => array( 'searchable_in_all_content' => true ),
@@ -458,7 +461,6 @@ class Search extends Module {
 		'_wp_attachment_is_custom_header'            => array(),
 		'_wp_attachment_metadata'                    => array(),
 		'_wp_desired_post_slug'                      => array(),
-		'_wp_old_date'                               => array(),
 		'_wp_old_slug'                               => array(),
 		'_wp_page_template'                          => array(),
 
