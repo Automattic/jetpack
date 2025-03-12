@@ -17,7 +17,6 @@ require_once __DIR__ . '/class-test-helpers-query.php';
  * Helpers for Classic and Instant Search tests
  */
 class Helpers_Test extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Request URI

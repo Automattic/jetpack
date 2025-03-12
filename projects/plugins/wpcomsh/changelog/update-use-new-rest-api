@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Use a new endpoint to get the list of themes from WordPress.com
