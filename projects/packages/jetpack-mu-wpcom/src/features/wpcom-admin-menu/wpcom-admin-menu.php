@@ -318,6 +318,8 @@ function wpcom_hide_customizer_submenu_on_block_theme() {
 
 		remove_action( 'customize_register', 'Automattic\Jetpack\Masterbar\register_css_nudge_control' );
 
+		remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Customizer', 'customize_register' ) );
+
 		remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
 	}
 }
