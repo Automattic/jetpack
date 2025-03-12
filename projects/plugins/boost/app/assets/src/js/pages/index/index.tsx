@@ -35,7 +35,6 @@ const Index = () => {
 	const { canResizeImages } = Jetpack_Boost;
 
 	const premiumFeatures = usePremiumFeatures();
-
 	const hasPremiumCdnFeatures =
 		premiumFeatures.includes( 'image-cdn-liar' ) && premiumFeatures.includes( 'image-cdn-quality' );
 
