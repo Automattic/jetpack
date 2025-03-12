@@ -14,58 +14,6 @@ const noop = () => {
 const DEFAULT_BATCH_SIZE = 5;
 
 /**
- * Process a batch of URLs and update the CSS files set
- * @param {BrowserInterface} browserInterface - interface to access pages
- * @param {string[]}         urls             - list of URLs to scan for CSS files
- * @param {CSSFileSet}       cssFiles         - CSSFileSet object to update
- * @param {object}           errors           - object to store errors
- * @return {Promise< number >} - number of successes
- */
-async function processBatch(
-	browserInterface: BrowserInterface,
-	urls: string[],
-	cssFiles: CSSFileSet,
-	errors: { [ url: string ]: UrlError }
-): Promise< number > {
-	let successes = 0;
-
-	for ( const url of urls ) {
-		try {
-			const cssIncludes = await browserInterface.getCssIncludes( url );
-
-			// Convert relative URLs to absolute.
-			const relativeUrls = Object.keys( cssIncludes );
-			const absoluteIncludes = relativeUrls.reduce(
-				( set, relative ) => {
-					try {
-						const absolute = new URL( relative, url ).toString();
-						set[ absolute ] = cssIncludes[ relative ];
-					} catch {
-						// Ignore invalid URLs.
-						// eslint-disable-next-line no-console
-						console.log( `Could not absolutify URL: ${ relative }` );
-					}
-
-					return set;
-				},
-				{} as typeof cssIncludes
-			);
-
-			await cssFiles.addMultiple( url, absoluteIncludes );
-
-			const internalStyles = await browserInterface.getInternalStyles( url );
-			await cssFiles.addInternalStyles( url, internalStyles );
-
-			successes++;
-		} catch ( err ) {
-			errors[ url ] = err;
-		}
-	}
-
-	return successes;
-}
-
-/**
  * Collate and return a CSSFileSet object describing all the CSS files used by
  * the set of URLs provided.
  *
@@ -125,6 +73,58 @@ async function collateCssFiles(
 	}
 
 	return [ cssFiles, errors ];
+}
+
+/**
+ * Process a batch of URLs and update the CSS files set
+ * @param {BrowserInterface} browserInterface - interface to access pages
+ * @param {string[]}         urls             - list of URLs to scan for CSS files
+ * @param {CSSFileSet}       cssFiles         - CSSFileSet object to update
+ * @param {object}           errors           - object to store errors
+ * @return {Promise< number >} - number of successes
+ */
+async function processBatch(
+	browserInterface: BrowserInterface,
+	urls: string[],
+	cssFiles: CSSFileSet,
+	errors: { [ url: string ]: UrlError }
+): Promise< number > {
+	let successes = 0;
+
+	for ( const url of urls ) {
+		try {
+			const cssIncludes = await browserInterface.getCssIncludes( url );
+
+			// Convert relative URLs to absolute.
+			const relativeUrls = Object.keys( cssIncludes );
+			const absoluteIncludes = relativeUrls.reduce(
+				( set, relative ) => {
+					try {
+						const absolute = new URL( relative, url ).toString();
+						set[ absolute ] = cssIncludes[ relative ];
+					} catch {
+						// Ignore invalid URLs.
+						// eslint-disable-next-line no-console
+						console.log( `Could not absolutify URL: ${ relative }` );
+					}
+
+					return set;
+				},
+				{} as typeof cssIncludes
+			);
+
+			await cssFiles.addMultiple( url, absoluteIncludes );
+
+			const internalStyles = await browserInterface.getInternalStyles( url );
+			await cssFiles.addInternalStyles( url, internalStyles );
+
+			successes++;
+		} catch ( err ) {
+			errors[ url ] = err;
+		}
+	}
+
+	return successes;
 }
 
 /**
