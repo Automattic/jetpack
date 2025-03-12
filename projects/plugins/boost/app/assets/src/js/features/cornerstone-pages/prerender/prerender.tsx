@@ -96,46 +96,6 @@ const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => 
 						'jetpack-boost'
 					) }
 					<br />
-					<br />
-					{ __( 'Potential risks include:', 'jetpack-boost' ) }
-					<ul>
-						<li>
-							{ __(
-								'State modification: JavaScript may modify a shopping cart, analytics, or other state.',
-								'jetpack-boost'
-							) }
-						</li>
-						<li>
-							{ __(
-								'Stale content: The prerendered page may display stale content, such as a shopping cart that has been emptied. Or a logged in page that should be logged out.',
-								'jetpack-boost'
-							) }
-						</li>
-					</ul>
-					<br />
-					{ __( 'Mitigate these risks by:', 'jetpack-boost' ) }
-					<br />
-					<ul>
-						<li>
-							{ __(
-								'Using the Sec-Purpose: prerender header to defer JavaScript execution until the page is activated.',
-								'jetpack-boost'
-							) }
-						</li>
-						<li>
-							{ __(
-								'Leverage APIs like document.prerendering to detect and delay JavaScript execution during prerendering.',
-								'jetpack-boost'
-							) }
-						</li>
-						<li>
-							{ __(
-								'Using a Promise which waits for the prerenderingchange event if a document is prerendering, or resolves immediately if it is now activated.',
-								'jetpack-boost'
-							) }
-						</li>
-					</ul>
-					<br />
 					{ createInterpolateElement( __( '<link>Learn more</link>', 'jetpack-boost' ), {
 						// eslint-disable-next-line jsx-a11y/anchor-has-content
 						link: <a href={ unsafeSpeculationRulesLink } target="_blank" rel="noreferrer" />,
