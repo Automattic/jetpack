@@ -82,6 +82,7 @@ jobs:
               elif [[ "$SLUG" == js-packages/social-logos ]]; then
                 SUBDIR=./src/svg
               else
+                echo "No need to deepen for $SLUG"
                 continue
               fi
               cd "$BASE/projects/$SLUG/"
