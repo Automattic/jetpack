@@ -7,7 +7,6 @@
 
 namespace A8C\FSE\Coming_soon;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once __DIR__ . '/../../utils.php';
@@ -242,34 +241,3 @@ function coming_soon_page( $template ) {
 	die( 0 );
 }
 add_filter( 'template_include', __NAMESPACE__ . '\coming_soon_page' );
-
-/**
- * Update the wpcom_public_coming_soon option on wpcom as it's the persistent data.
- *
- * @param string $new_value The new settings value.
- * @param string $old_value The old settings value.
- * @return string The value to update.
- */
-function pre_update_option_wpcom_public_coming_soon( $new_value, $old_value ) {
-	if ( $new_value === $old_value ) {
-		return $new_value;
-	}
-
-	if ( ! is_woa_site() ) {
-		return $new_value;
-	}
-
-	$blog_id = get_wpcom_blog_id();
-	Client::wpcom_json_api_request_as_user(
-		"/sites/$blog_id/hosting/wpcom-public-coming-soon",
-		'v2',
-		array( 'method' => 'POST' ),
-		array( 'value' => $new_value )
-	);
-
-	return $new_value;
-}
-
-if ( ! function_exists( '\wpcom_public_coming_soon_store_persistent_data_on_option_update' ) ) {
-	add_filter( 'pre_update_option_wpcom_public_coming_soon', __NAMESPACE__ . '\pre_update_option_wpcom_public_coming_soon', 10, 2 );
-}

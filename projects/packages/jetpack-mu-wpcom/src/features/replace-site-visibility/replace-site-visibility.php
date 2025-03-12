@@ -180,21 +180,46 @@ HTML;
 add_action( 'blog_privacy_selector', 'replace_site_visibility' );
 
 /**
- * Allow the options of the 'Site Visibility' settings.
- *
- * @param array $allowed_options The allowed options list.
+ * Update the site options that are related to the site visibility.
  */
-function allowed_options_wpcom_site_visibility( $allowed_options ) {
-	$wpcom_site_visibility_options = array(
-		'reading' => array(
-			'wpcom_coming_soon',
-			'wpcom_public_coming_soon',
-			'wpcom_data_sharing_opt_out',
-		),
+function load_options_update_site_visibility() {
+	$action      = ! empty( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
+	$option_page = ! empty( $_REQUEST['option_page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['option_page'] ) ) : '';
+	if ( $action !== 'update' || $option_page !== 'reading' || ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	check_admin_referer( 'reading-options' );
+
+	$data = array();
+
+	$allowed_options = array(
+		'blog_public',
+		'wpcom_coming_soon',
+		'wpcom_public_coming_soon',
+		'wpcom_data_sharing_opt_out',
 	);
 
-	return add_allowed_options( $wpcom_site_visibility_options, $allowed_options );
-}
-add_filter( 'allowed_options', 'allowed_options_wpcom_site_visibility' );
+	foreach ( $allowed_options as $option ) {
+		if ( isset( $_POST[ $option ] ) ) {
+			$data[ $option ] = sanitize_text_field( wp_unslash( $_POST[ $option ] ) );
+		}
+	}
 
-add_filter( 'wpcom_should_update_privacy_selector', '__return_false' );
+	if ( empty( $data ) ) {
+		return;
+	}
+
+	$blog_id  = get_wpcom_blog_id();
+	$response = Client::wpcom_json_api_request_as_user(
+		"/sites/$blog_id/site-visibility",
+		'v2',
+		array( 'method' => 'POST' ),
+		$data
+	);
+
+	if ( wp_remote_retrieve_response_code( $response ) !== 200 ) {
+		add_settings_error( 'general', 'settings_updated', __( 'Settings save failed.', 'jetpack-mu-wpcom' ), 'error' );
+	}
+}
+add_action( 'load-options.php', 'load_options_update_site_visibility' );
