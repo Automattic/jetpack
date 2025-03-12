@@ -1,10 +1,12 @@
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { QUERY_GET_PROTECT_DATA_KEY, REST_API_GET_PROTECT_DATA } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
-import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import useSimpleQuery from '../../../data/use-simple-query';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { InfoTooltip } from '../../info-tooltip';
+import LoadingBlock from '../../loading-block';
 import baseStyles from '../style.module.scss';
 import ShieldInactive from './assets/shield-inactive.svg';
 import ShieldOff from './assets/shield-off.svg';
@@ -16,11 +18,15 @@ export const AutoFirewallStatus = () => {
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false } = detail || {};
 	const { isSiteConnected } = useMyJetpackConnection();
-	const {
-		protect: { wafConfig: wafData },
-	} = getMyJetpackWindowInitialState();
+	const { data: protectData } = useSimpleQuery< ProtectData >( {
+		name: QUERY_GET_PROTECT_DATA_KEY,
+		query: {
+			path: REST_API_GET_PROTECT_DATA,
+		},
+	} );
+
 	const { jetpack_waf_automatic_rules: isAutoFirewallEnabled, waf_enabled: isWafEnabled } =
-		wafData || {};
+		protectData?.wafConfig || {};
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( isAutoFirewallEnabled && isWafEnabled ) {
@@ -48,6 +54,25 @@ function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 	const { hasPaidPlanForProduct = false } = detail || {};
 	const tooltipContent = useProtectTooltipCopy();
 	const { autoFirewallTooltip } = tooltipContent;
+	const { isLoading } = useSimpleQuery< ProtectData >( {
+		name: QUERY_GET_PROTECT_DATA_KEY,
+		query: {
+			path: REST_API_GET_PROTECT_DATA,
+		},
+	} );
+
+	if ( isLoading ) {
+		return (
+			<>
+				<div className={ baseStyles.valueSectionHeading }>
+					{ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
+				</div>
+				<div className="value-section__data">
+					<LoadingBlock height="30px" width="75px" />
+				</div>
+			</>
+		);
+	}
 
 	if ( status === 'active' ) {
 		return (

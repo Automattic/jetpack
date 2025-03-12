@@ -1,5 +1,8 @@
+import { QUERY_GET_PROTECT_DATA_KEY, REST_API_GET_PROTECT_DATA } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
+import useSimpleQuery from '../../../data/use-simple-query';
 import { InfoTooltip } from '../../info-tooltip';
+import LoadingBlock from '../../loading-block';
 import { AutoFirewallStatus } from './auto-firewall-status';
 import { LoginsBlockedStatus } from './logins-blocked-status';
 import { ScanAndThreatStatus } from './scan-threats-status';
@@ -15,11 +18,21 @@ const ProtectValueSection = () => {
 	const lastScanText = useLastScanText();
 	const tooltipContent = useProtectTooltipCopy();
 	const { pluginsThemesTooltip } = tooltipContent;
+	const { isLoading } = useSimpleQuery< ProtectData >( {
+		name: QUERY_GET_PROTECT_DATA_KEY,
+		query: {
+			path: REST_API_GET_PROTECT_DATA,
+		},
+	} );
 
 	return (
 		<>
 			<div className="value-section__last-scan">
-				{ lastScanText && <div>{ lastScanText }</div> }
+				{ isLoading ? (
+					<LoadingBlock width="150px" height="16px" />
+				) : (
+					lastScanText && <div>{ lastScanText }</div>
+				) }
 				{ ! isPluginActive && (
 					<InfoTooltip
 						tracksEventName={ 'protect_card_tooltip_open' }

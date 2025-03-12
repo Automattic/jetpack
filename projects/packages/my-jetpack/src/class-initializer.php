@@ -27,7 +27,6 @@ use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\VideoPress\Stats as VideoPress_Stats;
-use Automattic\Jetpack\Waf\Waf_Runner;
 use Jetpack;
 use WP_Error;
 
@@ -232,24 +231,11 @@ class Initializer {
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
 
-		Products::initialize_products();
-		$scan_data = Products\Protect::get_protect_data();
-
-		$waf_config     = array();
-		$waf_supported  = false;
-		$is_waf_enabled = false;
-
 		$sandboxed_domain = '';
 		$is_dev_version   = false;
 		if ( class_exists( 'Jetpack' ) ) {
 			$is_dev_version   = Jetpack::is_development_version();
 			$sandboxed_domain = defined( 'JETPACK__SANDBOX_DOMAIN' ) ? JETPACK__SANDBOX_DOMAIN : '';
-		}
-
-		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
-			$waf_config     = Waf_Runner::get_config();
-			$is_waf_enabled = Waf_Runner::is_enabled();
-			$waf_supported  = Waf_Runner::is_supported_environment();
 		}
 
 		wp_localize_script(
@@ -293,17 +279,6 @@ class Initializer {
 				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'latestBoostSpeedScores' => $latest_score,
-				'protect'                => array(
-					'scanData'  => $scan_data,
-					'wafConfig' => array_merge(
-						$waf_config,
-						array(
-							'waf_supported' => $waf_supported,
-							'waf_enabled'   => $is_waf_enabled,
-						),
-						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
-					),
-				),
 				'videopress'             => self::get_videopress_stats(),
 			)
 		);

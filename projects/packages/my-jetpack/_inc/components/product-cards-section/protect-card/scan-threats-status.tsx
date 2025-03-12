@@ -4,11 +4,13 @@ import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo, useState, useCallback, useRef } from 'react';
+import { REST_API_GET_PROTECT_DATA, QUERY_GET_PROTECT_DATA_KEY } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
-import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import useSimpleQuery from '../../../data/use-simple-query';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { InfoTooltip } from '../../info-tooltip';
+import LoadingBlock from '../../loading-block';
 import baseStyles from '../style.module.scss';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
@@ -20,13 +22,18 @@ export const ScanAndThreatStatus = () => {
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false, hasPaidPlanForProduct: hasProtectPaidPlan } = detail || {};
 	const { isSiteConnected } = useMyJetpackConnection();
-	const {
-		protect: { scanData },
-	} = getMyJetpackWindowInitialState();
-	const { plugins, themes, num_threats: numThreats = 0 } = scanData || {};
+	const { data: protectData } = useSimpleQuery< ProtectData >( {
+		name: QUERY_GET_PROTECT_DATA_KEY,
+		query: {
+			path: REST_API_GET_PROTECT_DATA,
+		},
+	} );
+
+	const { plugins, themes, num_threats: numThreats = 0 } = protectData?.scanData || {};
 
 	const criticalScanThreatCount = useMemo( () => {
-		const { core, database, files, num_plugins_threats, num_themes_threats } = scanData || {};
+		const { core, database, files, num_plugins_threats, num_themes_threats } =
+			protectData?.scanData || {};
 		const pluginsThreats = num_plugins_threats
 			? plugins.reduce( ( accum, plugin ) => accum.concat( plugin.threats ), [] )
 			: [];
@@ -37,14 +44,14 @@ export const ScanAndThreatStatus = () => {
 			...pluginsThreats,
 			...themesThreats,
 			...( core?.threats ?? [] ),
-			...database,
-			...files,
+			...( database ?? [] ),
+			...( files ?? [] ),
 		];
 		return allThreats.reduce(
 			( accum, threat ) => ( threat.severity >= 5 ? ( accum += 1 ) : accum ),
 			0
 		);
-	}, [ plugins, themes, scanData ] );
+	}, [ plugins, themes, protectData?.scanData ] );
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( hasProtectPaidPlan ) {
@@ -190,6 +197,26 @@ function ThreatStatus( {
 function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 	const tooltipContent = useProtectTooltipCopy();
 	const { scanThreatsTooltip } = tooltipContent;
+
+	const { isLoading } = useSimpleQuery< ProtectData >( {
+		name: QUERY_GET_PROTECT_DATA_KEY,
+		query: {
+			path: REST_API_GET_PROTECT_DATA,
+		},
+	} );
+
+	if ( isLoading ) {
+		return (
+			<>
+				<div className={ baseStyles.valueSectionHeading }>
+					{ __( 'Scan', 'jetpack-my-jetpack' ) }
+				</div>
+				<div className="value-section__data">
+					<LoadingBlock height="30px" width="75px" />
+				</div>
+			</>
+		);
+	}
 
 	if ( status === 'success' ) {
 		return (
