@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Backup: Move admin menu addition to a function hooked into admin_menu, preventing PHP warnings.
