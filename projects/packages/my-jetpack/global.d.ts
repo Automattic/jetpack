@@ -280,52 +280,63 @@ type PurchaseProductName =
 	| 'Jetpack Protect'
 	| 'Jetpack VideoPress';
 
-type RedBubbleAlerts = {
-	'missing-connection'?: {
-		type: 'site' | 'user';
-		is_error: boolean;
-	};
-	'welcome-banner-active'?: null;
-	[ key: `${ BadInstallPluginSlug }-bad-installation` ]: {
-		data: {
-			plugin: JetpackPluginDisplayName;
-		};
-	};
-	backup_failure?: {
-		type: 'warning' | 'error';
-		data: BackupNeedsAttentionData;
-	};
-	[ key: `${ JetpackPlanSlug }--plan_expired` ]: {
-		product_slug: JetpackPlanSlug;
-		product_name?: PurchaseProductName;
-		expiry_date?: string;
-		expiry_message?: string;
-		manage_url?: string;
-		products_effected?: JetpackProductName[];
-	};
-	[ key: `${ JetpackPlanSlug }--plan_expiring_soon` ]: {
-		product_slug: JetpackPlanSlug;
-		product_name?: PurchaseProductName;
-		expiry_date?: string;
-		expiry_message?: string;
-		manage_url?: string;
-		products_effected?: JetpackProductName[];
-	};
-	protect_has_threats?: {
-		type: 'warning' | 'error';
-		data: ProtectNeedsAttentionData;
-	};
-	[ key: `${ JetpackPlanSlug }--plugins_needing_installed_activated` ]: {
-		needs_installed?: JetpackModule[];
-		needs_activated_only?: JetpackModule[];
-	};
+type PlanExpirationAlert = {
+	product_slug: JetpackPlanSlug;
+	product_name?: PurchaseProductName;
+	expiry_date?: string;
+	expiry_message?: string;
+	manage_url?: string;
+	products_effected?: JetpackProductName[];
 };
+
+type PlanExpiredAlerts = Record< `${ JetpackPlanSlug }--plan_expired`, PlanExpirationAlert >;
+
+type MissingConnectionAlertData = {
+	type: 'site' | 'user';
+	is_error: boolean;
+};
+
+type MissingConnectionAlert = Record< 'missing-connection', MissingConnectionAlertData >;
+
+type WelcomeBannerActiveAlert = Record< 'welcome-banner-active', null >;
+
+type BackupFailureAlertData = {
+	type: 'warning' | 'error';
+	data: BackupNeedsAttentionData;
+};
+
+type BackupFailureAlert = Record< 'backup_failure', BackupFailureAlertData >;
+
+type ProtectHasThreatsAlertData = {
+	type: 'warning' | 'error';
+	data: ProtectNeedsAttentionData;
+};
+
+type ProtectHasThreatsAlert = Record< 'protect_has_threats', ProtectHasThreatsAlertData >;
+
+type PluginsNeedingInstallAlertData = {
+	needs_installed?: JetpackModule[];
+	needs_activated_only?: JetpackModule[];
+};
+
+type PluginsNeedingInstallAlert = Record<
+	`${ JetpackPlanSlug }--plugins_needing_installed_activated`,
+	PluginsNeedingInstallAlertData
+>;
+
+type RedBubbleAlerts = MissingConnectionAlert &
+	WelcomeBannerActiveAlert &
+	PlanExpiredAlerts &
+	BackupFailureAlert &
+	ProtectHasThreatsAlert &
+	PluginsNeedingInstallAlert;
 
 type BackupNeedsAttentionData = {
 	source: 'rewind' | 'last_backup';
 	status: RewindStatus | BackupStatus;
 	last_updated: string;
 };
+
 type ProtectNeedsAttentionData = {
 	threat_count: number;
 	critical_threat_count: number;
