@@ -72,6 +72,7 @@ jobs:
         run: |
           mapfile -t PROJECTS < <(jq -r 'to_entries[] | select( .value ) | .key' <<<"$CHANGED")
           if [[ ${#PROJECTS[@]} -gt 0 ]]; then
+            echo "Projects: ${PROJECTS[@]}"
             depth=$( git rev-list --count --first-parent HEAD )
             [[ "$depth" -lt 1000 ]] && depth=1000
             BASE=$PWD
