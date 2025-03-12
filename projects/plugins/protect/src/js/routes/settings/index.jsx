@@ -126,13 +126,6 @@ const SettingsPage = () => {
 
 	const accountProtectionSettings = (
 		<div className={ styles[ 'toggle-section' ] }>
-			{ /* <div className={ styles[ 'toggle-section__control' ] }>
-				<ToggleControl
-					checked={ isSupported && ! hasUnsupportedJetpackVersion && isEnabled }
-					onChange={ toggleAccountProtection }
-					disabled={ ! isSupported || hasUnsupportedJetpackVersion || isToggling }
-				/>
-			</div> */ }
 			<div className={ styles[ 'toggle-section__content' ] }>
 				<Text variant="title-medium">{ __( 'Account protection', 'jetpack-protect' ) }</Text>
 				{ renderNotice() }
@@ -243,8 +236,12 @@ const SettingsPage = () => {
 					<Col>
 						<div className={ styles[ 'toggle-wrapper' ] }>
 							{ accountProtectionSettings }
-							{ passwordDetectionSettings }
-							{ strongPasswordsSettings }
+							{ isEnabled && (
+								<>
+									{ passwordDetectionSettings }
+									{ strongPasswordsSettings }
+								</>
+							) }
 						</div>
 					</Col>
 				</Container>

@@ -153,9 +153,12 @@ const AccountProtection = class extends Component {
 					hasChild
 					disableInOfflineMode
 					disableInSiteConnectionMode
-					module={ this.props.getModule( 'account-protection' ) }
+					module={ this.props.getModule( MODULE_NAME ) }
 					support={ {
-						text: this.props.getModule( 'account-protection' ).description,
+						text: __(
+							'Enabling these settings enhances account security by detecting compromised passwords and enforcing additional verification when needed.',
+							'jetpack'
+						),
 						link: SUPPORT_LINK,
 					} }
 				>
