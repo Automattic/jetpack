@@ -312,7 +312,7 @@ To get started, there are several ways to run the unit tests, depending on how y
 	To run multisite tests, run:
 
 	```sh
-	phpunit -c tests/php.multisite.xml
+	phpunit -c tests/php.multisite.${PHPUNIT_MAJOR_VERSION}.xml
 	```
 
 	To filter and run just a particular test, you can run:

@@ -1,9 +1,7 @@
-import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import React from 'react';
-import { STORE_ID as CONNECTION_STORE_ID } from '../../../../js-packages/connection/state/store.jsx';
 import { getRedirectUrl } from '../../index.js';
 import getSiteAdminUrl from '../../tools/get-site-admin-url/index.js';
 import AutomatticBylineLogo from '../automattic-byline-logo/index.js';
@@ -39,6 +37,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	className,
 	moduleNameHref = 'https://jetpack.com',
 	menu,
+	useInternalLinks,
 	onAboutClick,
 	onPrivacyClick,
 	onTermsClick,
@@ -48,42 +47,25 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	const [ isMd ] = useBreakpointMatch( 'md', '<=' );
 	const [ isLg ] = useBreakpointMatch( 'lg', '>' );
 
-	const { isActive, connectedPlugins } = useSelect( select => {
-		const connectionStatus = select( CONNECTION_STORE_ID ) as {
-			getConnectedPlugins: () => { slug: string }[];
-			getConnectionStatus: () => { isActive: boolean };
-		};
-
-		return {
-			connectedPlugins: connectionStatus?.getConnectedPlugins(),
-			...connectionStatus.getConnectionStatus(),
-		};
-	}, [] );
 	const siteAdminUrl = getSiteAdminUrl();
-	const areAdminLinksEnabled =
-		siteAdminUrl &&
-		// Some admin pages require the site to be connected (e.g., Privacy)
-		isActive &&
-		// Admin pages are part of the Jetpack plugin and required it to be installed
-		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 
 	let items: JetpackFooterMenuItem[] = [
 		{
 			label: _x( 'About', 'Link to learn more about Jetpack.', 'jetpack-components' ),
 			title: __( 'About Jetpack', 'jetpack-components' ),
-			href: areAdminLinksEnabled
+			href: useInternalLinks
 				? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
 				: getRedirectUrl( 'jetpack-about' ),
-			target: areAdminLinksEnabled ? '_self' : '_blank',
+			target: useInternalLinks ? '_self' : '_blank',
 			onClick: onAboutClick,
 		},
 		{
 			label: _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack-components' ),
 			title: __( "Automattic's Privacy Policy", 'jetpack-components' ),
-			href: areAdminLinksEnabled
+			href: useInternalLinks
 				? new URL( 'admin.php?page=jetpack#/privacy', siteAdminUrl ).href
 				: getRedirectUrl( 'a8c-privacy' ),
-			target: areAdminLinksEnabled ? '_self' : '_blank',
+			target: useInternalLinks ? '_self' : '_blank',
 			onClick: onPrivacyClick,
 		},
 		{
@@ -157,7 +139,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 				<li className="jp-dashboard-footer__a8c-item">
 					<a
 						href={
-							areAdminLinksEnabled
+							useInternalLinks
 								? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
 								: getRedirectUrl( 'a8c-about' )
 						}

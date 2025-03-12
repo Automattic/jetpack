@@ -9,7 +9,7 @@ Generally, you should just [follow the instructions in the readme file](../readm
 You can also run _just_ the REST API test suite by:
 
 * Go to the root of the CRM plugin (`projects/plugins/crm`)
-* Run `./vendor/bin/phpunit --testsuite rest-api`
+* Run `composer run-script phpunit -- --testsuite rest-api`
 
 ### Running locally
 
