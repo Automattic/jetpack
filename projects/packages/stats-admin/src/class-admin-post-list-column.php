@@ -108,13 +108,13 @@ class Admin_Post_List_Column {
 
 				$current_locale = get_bloginfo( 'language' );
 
-				$formatter = $this->get_formatter( $current_locale );
+				$formatted_views = class_exists( '\NumberFormatter' ) ? $this->get_formatter( $current_locale )->format( $views ) : $this->get_fallback_format_to_compact_version( $views );
 
 				?>
 				<a href="<?php echo esc_url( $stats_post_url ); ?>"
 					title="<?php esc_html__( 'View stats for this post', 'jetpack-stats-admin' ); ?>" target="_blank">
 					<span
-						class="dashicons dashicons-visibility"></span>&nbsp;<span><?php echo null !== $views ? esc_html( $formatter->format( $views ) ) : ''; ?></span>
+						class="dashicons dashicons-visibility"></span>&nbsp;<span><?php echo null !== $views ? esc_html( $formatted_views ) : ''; ?></span>
 				</a>
 				<?php
 			}
@@ -241,5 +241,28 @@ class Admin_Post_List_Column {
 		$this->formatter[ $locale ] = $formatter;
 
 		return $formatter;
+	}
+
+	/**
+	 * Fallback Format a number to a compact version if the Intl extension is not available.
+	 *
+	 * @param int $views The given number.
+	 *
+	 * @return string
+	 */
+	public function get_fallback_format_to_compact_version( $views ) {
+		if ( $views >= 10000000 ) {
+			return round( $views / 1000000 ) . 'M';
+		} elseif ( $views >= 1000000 ) {
+			$views = round( $views / 1000000, 1 );
+			return preg_replace( '/\.0$/', '', $views ) . 'M';
+		} elseif ( $views >= 10000 ) {
+			return round( $views / 1000 ) . 'K';
+		} elseif ( $views >= 1000 ) {
+			$views = round( $views / 1000, 1 );
+			return preg_replace( '/\.0$/', '', $views ) . 'K';
+		}
+
+		return (string) $views;
 	}
 }

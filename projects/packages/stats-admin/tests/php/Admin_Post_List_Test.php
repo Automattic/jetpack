@@ -228,4 +228,23 @@ class Admin_Post_List_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 123, $views );
 		$this->assertEquals( 100, $views[123] ); // Ensure it has the correct view count
 	}
+
+	/**
+	 * Test the fallback format to compact.
+	 *
+	 * @return void
+	 */
+	public function test_get_fallback_format_to_compact_version() {
+		$instance = new Admin_Post_List_Column(); // Replace with the actual class name
+
+		// Test cases
+		$this->assertSame( '0', $instance->get_fallback_format_to_compact_version( 0 ) );
+		$this->assertEquals( '10M', $instance->get_fallback_format_to_compact_version( 10000000 ) );
+		$this->assertEquals( '1M', $instance->get_fallback_format_to_compact_version( 1000000 ) );
+		$this->assertEquals( '1.5M', $instance->get_fallback_format_to_compact_version( 1500000 ) );
+		$this->assertEquals( '10K', $instance->get_fallback_format_to_compact_version( 10000 ) );
+		$this->assertEquals( '1K', $instance->get_fallback_format_to_compact_version( 1000 ) );
+		$this->assertEquals( '1.2K', $instance->get_fallback_format_to_compact_version( 1200 ) );
+		$this->assertSame( '999', $instance->get_fallback_format_to_compact_version( 999 ) );
+	}
 }
