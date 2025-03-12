@@ -13,7 +13,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logg
  *
  * Handles the preloading of cache for pages, currently only for Cornerstone Pages.
  * This module automagically preloads the cache after cache invalidation events, or when
- * Cornerstone Pages are updated, to ensure that important pages always have fresh cache.
+ * Cornerstone Pages are updated, to ensure that important pages always have a cache.
  *
  * @since $$next-version$$
  * @package Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache
@@ -29,8 +29,6 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	private $queue_manager;
 
 	/**
-	 * Constructor.
-	 *
 	 * @since $$next-version$$
 	 */
 	public function __construct() {
@@ -98,7 +96,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * Schedules the preload cronjob, if not already scheduled.
 	 *
 	 * Sets up a single event to trigger the preload process with a short delay of 2 seconds
-	 * to avoid race conditions with cache invalidation processes.
+	 * to prevent multiple rapid cache rebuilds when multiple events trigger in sequence.
 	 *
 	 * @since $$next-version$$
 	 * @return void

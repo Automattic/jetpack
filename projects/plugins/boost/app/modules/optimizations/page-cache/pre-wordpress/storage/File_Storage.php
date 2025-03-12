@@ -165,21 +165,18 @@ class File_Storage implements Storage {
 		$response = null;
 		if ( ! in_array( $type, array( Filesystem_Utils::DELETE_FILE, Filesystem_Utils::REBUILD_FILE ), true ) && is_dir( $normalized_path ) ) {
 			$response = Filesystem_Utils::walk_directory( $normalized_path, $type );
-		}
-		if ( $type === Filesystem_Utils::DELETE_FILE && is_file( $normalized_path ) ) {
+		} elseif ( $type === Filesystem_Utils::DELETE_FILE && is_file( $normalized_path ) ) {
 			$response = Filesystem_Utils::delete_file( $normalized_path );
-		}
-		if ( $type === Filesystem_Utils::REBUILD_FILE && is_file( $normalized_path ) ) {
+		} elseif ( $type === Filesystem_Utils::REBUILD_FILE && is_file( $normalized_path ) ) {
 			$response = Filesystem_Utils::rebuild_file( $normalized_path );
-		}
-
-		if ( $response === true ) {
-			do_action( 'jetpack_boost_invalidate_cache_success', $path, $type );
-			return true;
 		}
 
 		if ( $response === null ) {
 			return new Boost_Cache_Error( 'no-cache-files-to-delete', 'No cache files to delete.' );
+		}
+
+		if ( $response === true ) {
+			do_action( 'jetpack_boost_invalidate_cache_success', $path, $type );
 		}
 
 		return $response;
