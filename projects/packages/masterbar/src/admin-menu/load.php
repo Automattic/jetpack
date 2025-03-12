@@ -76,8 +76,6 @@ function hide_customizer_menu_on_block_theme() {
  * @return string Class name.
  */
 function get_admin_menu_class() {
-	hide_customizer_menu_on_block_theme();
-
 	// WordPress.com Atomic sites.
 	if ( ( new Host() )->is_woa_site() ) {
 
