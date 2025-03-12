@@ -1062,6 +1062,14 @@ export const VpBlock = props => {
 		setAttributes( { maxWidth: newMaxWidth } );
 	};
 
+	if ( shouldRenderLoadingBlock ) {
+		return (
+			<figure { ...blockProps }>
+				<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
+			</figure>
+		);
+	}
+
 	if ( typeof scripts !== 'object' ) {
 		scripts = [];
 	}
@@ -1075,14 +1083,6 @@ export const VpBlock = props => {
 		);
 
 		scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
-	}
-
-	if ( shouldRenderLoadingBlock ) {
-		return (
-			<figure { ...blockProps }>
-				<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
-			</figure>
-		);
 	}
 
 	return (
