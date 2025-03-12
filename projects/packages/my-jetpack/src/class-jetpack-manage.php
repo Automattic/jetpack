@@ -91,7 +91,7 @@ class Jetpack_Manage {
 	 *
 	 * @return bool Return true if the user has enough sites to be able to use Jetpack Manage.
 	 */
-	private static function could_use_jp_manage( $min_sites = 2 ) {
+	public static function could_use_jp_manage( $min_sites = 2 ) {
 		// Only proceed if the user is connected to WordPress.com.
 		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
 			return false;
@@ -121,15 +121,14 @@ class Jetpack_Manage {
 	 *
 	 * @return bool Return true if the user is a partner/agency, otherwise false.
 	 */
-	private static function is_agency_account() {
+	public static function is_agency_account() {
 		// Only proceed if the user is connected to WordPress.com.
 		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
 			return false;
 		}
 
 		// Get the cached partner data.
-		$partner = false;
-		get_transient( 'jetpack_partner_data' );
+		$partner = get_transient( 'jetpack_partner_data' );
 
 		if ( $partner === false ) {
 			$wpcom_response = Client::wpcom_json_api_request_as_user( '/jetpack-partners' );
