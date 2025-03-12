@@ -26,6 +26,49 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 		this.tabs = {};
 	}
 
+	async loadBatch( urls: string[] ): Promise< void > {
+		// Close existing tabs
+		await this.closeTabs();
+
+		// Load new batch of URLs
+		this.tabs = await objectPromiseAll< Tab >(
+			urls.reduce( ( set, url ) => {
+				set[ url ] = this.newTab( this.context, url );
+				return set;
+			}, {} )
+		);
+	}
+
+	/**
+	 * Open url in a new tab in a given browserContext.
+	 *
+	 * @param {BrowserContext} browserContext - Browser context to use.
+	 * @param {string}         url            - Url to open.
+	 * @return {Promise<Tab>} Promise resolving to the tab instance.
+	 */
+	private async newTab( browserContext: BrowserContext, url: string ): Promise< Tab > {
+		const tab = {
+			page: await browserContext.newPage(),
+			statusCode: null,
+		};
+		tab.page.on( 'response', async response => {
+			if ( response.url() === url ) {
+				tab.statusCode = response.status();
+			}
+		} );
+
+		await tab.page.goto( url, { timeout: PAGE_GOTO_TIMEOUT_MS } );
+
+		return tab;
+	}
+
+	private async closeTabs(): Promise< void > {
+		for ( const tab of Object.values( this.tabs ) ) {
+			await tab.page.close();
+		}
+		this.tabs = {};
+	}
+
 	async runInPage< ReturnType >(
 		pageUrl: string,
 		viewport: Viewport | null,
@@ -73,49 +116,6 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 
 	private isOkStatus( statusCode: number ) {
 		return statusCode >= 200 && statusCode < 300;
-	}
-
-	async loadBatch( urls: string[] ): Promise< void > {
-		// Close existing tabs
-		await this.closeTabs();
-
-		// Load new batch of URLs
-		this.tabs = await objectPromiseAll< Tab >(
-			urls.reduce( ( set, url ) => {
-				set[ url ] = this.newTab( this.context, url );
-				return set;
-			}, {} )
-		);
-	}
-
-	/**
-	 * Open url in a new tab in a given browserContext.
-	 *
-	 * @param {BrowserContext} browserContext - Browser context to use.
-	 * @param {string}         url            - Url to open.
-	 * @return {Promise<Tab>} Promise resolving to the tab instance.
-	 */
-	private async newTab( browserContext: BrowserContext, url: string ): Promise< Tab > {
-		const tab = {
-			page: await browserContext.newPage(),
-			statusCode: null,
-		};
-		tab.page.on( 'response', async response => {
-			if ( response.url() === url ) {
-				tab.statusCode = response.status();
-			}
-		} );
-
-		await tab.page.goto( url, { timeout: PAGE_GOTO_TIMEOUT_MS } );
-
-		return tab;
-	}
-
-	private async closeTabs(): Promise< void > {
-		for ( const tab of Object.values( this.tabs ) ) {
-			await tab.page.close();
-		}
-		this.tabs = {};
 	}
 
 	async cleanup() {
