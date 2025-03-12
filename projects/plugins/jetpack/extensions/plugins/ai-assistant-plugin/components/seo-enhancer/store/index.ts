@@ -12,13 +12,19 @@ import * as selectors from './selectors';
 import type { JetpackModuleSelector } from '../types';
 export const STORE_NAME = 'jetpack/seo-enhancer';
 
-const seoModuleSettings = (
-	select( JETPACK_MODULES_STORE_ID ) as JetpackModuleSelector
- ).getJetpackModules()[ 'seo-tools' ];
-const enhancerAvailable =
-	seoModuleSettings && 'ai_seo_enhancer_enabled' in seoModuleSettings.options;
-const enhancerEnabled =
-	enhancerAvailable && seoModuleSettings.options?.ai_seo_enhancer_enabled?.current_value;
+let enhancerEnabled;
+
+try {
+	const seoModuleSettings = (
+		select( JETPACK_MODULES_STORE_ID ) as JetpackModuleSelector
+	 ).getJetpackModules()[ 'seo-tools' ];
+	const enhancerAvailable =
+		seoModuleSettings && 'ai_seo_enhancer_enabled' in seoModuleSettings.options;
+	enhancerEnabled =
+		enhancerAvailable && seoModuleSettings.options?.ai_seo_enhancer_enabled?.current_value;
+} catch {
+	enhancerEnabled = false;
+}
 
 export const store = createReduxStore( STORE_NAME, {
 	reducer,
@@ -26,6 +32,7 @@ export const store = createReduxStore( STORE_NAME, {
 	actions,
 	initialState: {
 		isBusy: false,
+		isTogglingAutoEnhance: false,
 		isAutoEnhanceEnabled: enhancerEnabled,
 	},
 } );
