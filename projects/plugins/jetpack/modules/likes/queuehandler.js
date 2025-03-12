@@ -165,6 +165,14 @@ function JetpackLikesMessageListener( event ) {
 			break;
 		}
 
+		case 'showCommentLikeWidget': {
+			const placeholder = document.querySelector( `#${ data.id } .likes-widget-placeholder` );
+			if ( placeholder ) {
+				placeholder.style.display = 'none';
+			}
+			break;
+		}
+
 		case 'killCommentLikes':
 			// If kill switch for comment likes is enabled remove all widgets wrappers and `Loading...` placeholders.
 			document
@@ -431,8 +439,8 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 
 		wrapper.classList.remove( 'jetpack-likes-widget-loading' );
 		wrapper.classList.add( 'jetpack-likes-widget-loaded' );
-		placeholder.style.display = 'none';
 		if ( postLikesFrame ) {
+			placeholder.style.display = 'none';
 			postLikesFrame.height = '55px';
 		}
 	} );
