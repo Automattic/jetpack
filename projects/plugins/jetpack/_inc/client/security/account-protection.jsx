@@ -4,10 +4,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-// import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { isModuleFound } from 'state/search';
 import QueryAccountProtectionSettings from '../components/data/query-account-protection-settings';
+import SimpleNotice from '../components/notice';
+import NoticeAction from '../components/notice/notice-action';
 import { FEATURE_JETPACK_ACCOUNT_PROTECTION } from '../lib/plans/constants';
 import { updateAccountProtectionSettings } from '../state/account-protection/actions';
 import {
@@ -15,6 +17,9 @@ import {
 	isFetchingAccountProtectionSettings,
 	isUpdatingAccountProtectionSettings,
 } from '../state/account-protection/reducer';
+
+const MODULE_NAME = 'account-protection';
+const SUPPORT_LINK = 'https://jetpack.com/?post_type=jetpack_support&p=324199';
 
 const AccountProtection = class extends Component {
 	/**
@@ -92,6 +97,7 @@ const AccountProtection = class extends Component {
 	};
 
 	render() {
+		const { isSupported } = this.props;
 		const isAccountProtectionActive = this.props.getOptionValue( 'account-protection' ),
 			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'account-protection' );
 		const baseInputDisabledCase =
@@ -109,6 +115,33 @@ const AccountProtection = class extends Component {
 				feature={ FEATURE_JETPACK_ACCOUNT_PROTECTION }
 			>
 				{ isAccountProtectionActive && <QueryAccountProtectionSettings /> }
+				{ ! isSupported && (
+					<SimpleNotice
+						status={ 'is-info' }
+						showDismiss={ false }
+						text={ __(
+							'This feature has been disabled by your site administrator or hosting provider.',
+							'jetpack'
+						) }
+						children={
+							<NoticeAction external href={ SUPPORT_LINK + '#unsupported-environments' }>
+								{ __( 'Learn more', 'jetpack' ) }
+							</NoticeAction>
+						}
+					/>
+				) }
+				{ isSupported && ! isAccountProtectionActive && (
+					<SimpleNotice
+						showDismiss={ false }
+						status={ 'is-info' }
+						text={ __( 'Jetpack recommends enabling this feature.', 'jetpack' ) }
+						children={
+							<NoticeAction external href={ '/wp-admin/admin.php?page=jetpack_modules' }>
+								{ __( 'Activate', 'jetpack' ) }
+							</NoticeAction>
+						}
+					/>
+				) }
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
@@ -116,7 +149,7 @@ const AccountProtection = class extends Component {
 					module={ this.props.getModule( 'account-protection' ) }
 					support={ {
 						text: this.props.getModule( 'account-protection' ).description,
-						link: '#', // TODO: Update this redirect URL
+						link: SUPPORT_LINK,
 					} }
 				>
 					<p className="jp-form-toggle-explanation">
@@ -126,14 +159,6 @@ const AccountProtection = class extends Component {
 						) }
 					</p>
 					{ isAccountProtectionActive && (
-						// <ModuleToggle
-						// 	slug="account-protection"
-						// 	compact
-						// 	disabled={ unavailableInOfflineMode }
-						// 	activated={ isAccountProtectionActive }
-						// 	toggling={ this.props.isSavingAnyOption( 'account-protection' ) }
-						// 	toggleModule={ this.props.toggleModuleNow }
-						// ></ModuleToggle>
 						<div className="account-protection__settings">
 							<div className="account-protection__settings__toggle-setting">
 								<ToggleControl
@@ -188,6 +213,7 @@ const AccountProtection = class extends Component {
 export default connect(
 	state => {
 		return {
+			isSupported: isModuleFound( state, MODULE_NAME ),
 			isFetchingSettings: isFetchingAccountProtectionSettings( state ),
 			isUpdatingAccountProtectionSettings: isUpdatingAccountProtectionSettings( state ),
 			settings: getAccountProtectionSettings( state ),

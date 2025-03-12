@@ -75,9 +75,6 @@ class Account_Protection {
 	 * @param ?Password_Strength_Meter $password_strength_meter Password strength meter instance.
 	 */
 	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null, ?Password_Manager $password_manager = null, ?Password_Strength_Meter $password_strength_meter = null ) {
-		$this->password_detection_enabled = get_option( Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME, true );
-		$this->strong_passwords_enabled   = get_option( Config::STRONG_PASSWORDS_ENABLED_OPTION_NAME, true );
-
 		$this->modules                 = $modules ?? new Modules();
 		$this->password_detection      = $password_detection ?? new Password_Detection();
 		$this->password_manager        = $password_manager ?? new Password_Manager();
@@ -112,10 +109,6 @@ class Account_Protection {
 	 * @return void
 	 */
 	protected function register_hooks(): void {
-		// Account protection activation/deactivation hooks
-		add_action( 'jetpack_activate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_activation' ) );
-		add_action( 'jetpack_deactivate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_deactivation' ) );
-
 		// Do not run in unsupported environments
 		add_filter( 'jetpack_get_available_modules', array( $this, 'remove_module_on_unsupported_environments' ) );
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'remove_standalone_module_on_unsupported_environments' ) );
@@ -127,7 +120,9 @@ class Account_Protection {
 	 * @return void
 	 */
 	protected function register_runtime_hooks(): void {
-		if ( $this->password_detection_enabled ) {
+		$config = ( new Settings( $this ) )->get_config();
+
+		if ( $config[ Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME ] ) {
 			// Validate password after successful login
 			add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
 
@@ -139,7 +134,7 @@ class Account_Protection {
 			add_action( 'wp_enqueue_scripts', array( $this->password_detection, 'enqueue_styles' ) );
 		}
 
-		if ( $this->strong_passwords_enabled ) {
+		if ( $config[ Config::STRONG_PASSWORDS_ENABLED_OPTION_NAME ] ) {
 			// Add password validation
 			add_action( 'user_profile_update_errors', array( $this->password_manager, 'validate_profile_update' ), 10, 3 );
 			add_action( 'validate_password_reset', array( $this->password_manager, 'validate_password_reset' ), 10, 2 );
@@ -156,24 +151,6 @@ class Account_Protection {
 			add_action( 'wp_ajax_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
 			add_action( 'wp_ajax_nopriv_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
 		}
-	}
-
-	/**
-	 * Activate the account protection on module activation.
-	 *
-	 * @return void
-	 */
-	public function on_account_protection_activation(): void {
-		// Activation logic can be added here
-	}
-
-	/**
-	 * Deactivate the account protection on module deactivation.
-	 *
-	 * @return void
-	 */
-	public function on_account_protection_deactivation(): void {
-		// Deactivation logic can be added here
 	}
 
 	/**
