@@ -255,12 +255,12 @@ class Admin_Post_List_Column {
 			return round( $views / 1000000 ) . 'M';
 		} elseif ( $views >= 1000000 ) {
 			$views = round( $views / 1000000, 1 );
-			return preg_replace( '/\.0$/', '', $views ) . 'M';
+			return preg_replace( '/\.0$/', '', (string) $views ) . 'M';
 		} elseif ( $views >= 10000 ) {
 			return round( $views / 1000 ) . 'K';
 		} elseif ( $views >= 1000 ) {
 			$views = round( $views / 1000, 1 );
-			return preg_replace( '/\.0$/', '', $views ) . 'K';
+			return preg_replace( '/\.0$/', '', (string) $views ) . 'K';
 		}
 
 		return (string) $views;
