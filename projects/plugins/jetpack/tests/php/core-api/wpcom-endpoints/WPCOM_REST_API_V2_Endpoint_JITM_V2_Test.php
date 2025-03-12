@@ -145,7 +145,11 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	 * Tests getting JITMs.
 	 */
 	public function test_get_jitms() {
-		$message_path = 'test_message_path'; // No delimiters in the request
+		// Ensure user has required capability
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		$message_path = 'test_message_path';
 
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/jitm-v2' );
 		$request->set_query_params(
