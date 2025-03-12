@@ -44,9 +44,11 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 		// Store original plan
 		$this->original_plan = Current_Plan::get();
 
-		// Set plan to business. This ensures that the user has the install_plugins capability.
-		// See projects/plugins/wpcomsh/feature-plugins/hooks.php where certain capabilities
-		// are removed based on the plan.
+		// Set plan to "Business". This ensures that the user has the install_plugins capability
+		// which is required to get JITMs but is not granted unless you have a business plan.
+		// See:
+		// - projects/packages/jitm/src/class-pre-connection-jitm.php#L133-L135
+		// - projects/plugins/wpcomsh/feature-plugins/hooks.php
 		$plan = Current_Plan::PLAN_DATA['business'];
 		update_option( Current_Plan::PLAN_OPTION, $plan, true );
 
