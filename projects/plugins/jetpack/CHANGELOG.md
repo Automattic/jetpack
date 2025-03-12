@@ -2,6 +2,33 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.5-a.3 - 2025-03-12
+### Enhancements
+- Feature suggestions: Do not automatically load when a site is connected to WordPress.com. [#42337]
+- Publicize Components: Add a schedule button. [#42313]
+- Sharing block: Improve the description of the "Native Share" feature. [#42336]
+
+### Bug fixes
+- Button: Fix contrast checker for user-specified colors. [#41294]
+- Fix error with videos uploaded through the Video block. [#42400]
+- Forms: Remove default padding around form block. [#42340]
+- Forms: Update the variation previews to match the current structures. [#42366]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Donation block: Add additional information about accepting donations. [#42214]
+- Handle singular/plural forms of labels. [#42319]
+- Jetpack SEO: Add action trigger when toggle is off. [#42331]
+- Jetpack SEO: Add settings toggle for automated SEO props generation. [#42350]
+- Jetpack SEO Enhancer: Add global setting toggle on the sidebar.
+- JSON API: Add REST support to `site` endpoint. [#42382]
+- JSON API: Fix post encoding. [#42377]
+- Provide connection data to footer component. [#42000]
+- SEO Enhancer: Add SEO requests. [#42383]
+- SEO Enhancer: Update UI. [#42347]
+- Tiled Gallery: Ensure custom links aren't restricted to just URLs - allows anchor links as well. [#42363]
+- Update package dependencies. [#42384]
+- Allow API authorization with Jetpack token. [#42300]
+
 ## 14.5-a.1 - 2025-03-10
 ### Enhancements
 - AI Assistant: Add image block extension with alt text and caption generation. [#42160]
