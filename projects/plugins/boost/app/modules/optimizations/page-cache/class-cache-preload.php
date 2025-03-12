@@ -21,6 +21,23 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logg
 class Cache_Preload implements Pluggable, Is_Always_On {
 
 	/**
+	 * Queue manager instance.
+	 *
+	 * @since $$next-version$$
+	 * @var Cache_Preload_Queue_Manager
+	 */
+	private $queue_manager;
+
+	/**
+	 * Constructor.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function __construct() {
+		$this->queue_manager = new Cache_Preload_Queue_Manager();
+	}
+
+	/**
 	 * @since $$next-version$$
 	 */
 	public function setup() {
@@ -50,51 +67,6 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	}
 
 	/**
-	 * Prepares the next batch of URLs to preload.
-	 *
-	 * Takes the full list of posts to preload, extracts the first batch,
-	 * updates the preload queue, and schedules the next run if needed.
-	 *
-	 * @since $$next-version$$
-	 * @param array $posts Full list of posts to preload.
-	 * @return array The batch of posts to process now.
-	 */
-	private function prepare_next_batch( array $posts ) {
-		// Process in batches of 10 to reduce server load
-		$batches       = array_chunk( $posts, 10 );
-		$current_batch = array_shift( $batches );
-
-		// Calculate remaining posts
-		$remaining = $this->flatten_batches( $batches );
-		$remaining = array_unique( $remaining );
-
-		// Update the preload queue
-		$this->set_posts_to_preload( $remaining );
-
-		// Schedule the next batch if needed
-		if ( ! empty( $remaining ) ) {
-			$this->schedule_preload_cronjob();
-		}
-
-		return $current_batch;
-	}
-
-	/**
-	 * Flattens a multi-dimensional array of batches into a single array.
-	 *
-	 * @since $$next-version$$
-	 * @param array $batches Array of batch arrays.
-	 * @return array Flattened array of all posts.
-	 */
-	private function flatten_batches( array $batches ) {
-		$flattened = array();
-		foreach ( $batches as $batch ) {
-			$flattened = array_merge( $flattened, $batch );
-		}
-		return $flattened;
-	}
-
-	/**
 	 * Processes a batch of URLs for preloading.
 	 *
 	 * Attempts to preload each URL in the batch, logging any errors.
@@ -107,35 +79,6 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 		foreach ( $batch as $url ) {
 			$this->preload_page( $url );
 		}
-	}
-
-	/**
-	 * Get the list of posts that need to be preloaded.
-	 *
-	 * Retrieves the stored list of post URLs that are scheduled for preloading.
-	 *
-	 * @since $$next-version$$
-	 * @return array Array of post URLs to preload.
-	 */
-	public function get_posts_to_preload() {
-		return get_option( 'jetpack_boost_posts_to_preload', array() );
-	}
-
-	/**
-	 * Set the list of posts to preload.
-	 *
-	 * Updates the option storing the list of post URLs that need to be preloaded.
-	 * Ensures that all posts in the list are unique.
-	 *
-	 * @since $$next-version$$
-	 * @param array $posts Array of post URLs to preload.
-	 * @return void
-	 */
-	public function set_posts_to_preload( array $posts ) {
-		// Ensure the posts are all unique. This should be done earlier, but we'll also do it here; validate early, validate often.
-		$posts = array_unique( $posts );
-		// The option is not autoloaded as it's only used within the cron job.
-		update_option( 'jetpack_boost_posts_to_preload', $posts, false );
 	}
 
 	/**
@@ -179,16 +122,21 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @return void
 	 */
 	public function preload_pages() {
-		$posts = $this->get_posts_to_preload();
+		$posts = $this->queue_manager->get_posts_to_preload();
 		if ( empty( $posts ) ) {
 			return;
 		}
 
 		// Get the current batch to process and update the queue
-		$batch = $this->prepare_next_batch( $posts );
+		$batch = $this->queue_manager->prepare_next_batch( $posts );
 
 		// Process the current batch
 		$this->process_batch( $batch );
+
+		// Schedule the next batch if needed
+		if ( ! $this->queue_manager->is_queue_empty() ) {
+			$this->schedule_preload_cronjob();
+		}
 	}
 
 	/**
@@ -235,16 +183,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @return void
 	 */
 	public function schedule_preload( $post_to_schedule ) {
-		$posts = $this->get_posts_to_preload();
-		if ( is_array( $post_to_schedule ) ) {
-			$posts = array_merge( $posts, $post_to_schedule );
-		} else {
-			$posts[] = $post_to_schedule;
-		}
-
-		// Ensure the posts are all unique. This should be done earlier, but we'll also do it here - validate early, validate often.
-		$posts = array_unique( $posts );
-		$this->set_posts_to_preload( $posts );
+		$this->queue_manager->add_to_queue( $post_to_schedule );
 		$this->schedule_preload_cronjob();
 	}
 
