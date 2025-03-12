@@ -12,24 +12,35 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
  * @package Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache
  */
 class Cache_Preload_Queue_Manager {
+	/**
+	 * In-memory cache of posts to preload.
+	 *
+	 * @since $$next-version$$
+	 * @var array
+	 */
+	private $preload_queue = null;
 
 	/**
 	 * Get the list of posts that need to be preloaded.
 	 *
-	 * Retrieves the stored list of post URLs that are scheduled for preloading.
+	 * Returns the in-memory cached list of post URLs that are scheduled for preloading.
 	 *
 	 * @since $$next-version$$
 	 * @return array Array of post URLs to preload.
 	 */
 	public function get_posts_to_preload() {
-		return get_option( 'jetpack_boost_posts_to_preload', array() );
+		if ( null === $this->preload_queue ) {
+			$this->preload_queue = get_option( 'jetpack_boost_posts_to_preload', array() );
+		}
+
+		return $this->preload_queue;
 	}
 
 	/**
 	 * Set the list of posts to preload.
 	 *
-	 * Updates the option storing the list of post URLs that need to be preloaded.
-	 * Ensures that all posts in the list are unique.
+	 * Updates both the in-memory cache and the database option storing the list of post URLs
+	 * that need to be preloaded. Ensures that all posts in the list are unique.
 	 *
 	 * @since $$next-version$$
 	 * @param array $posts Array of post URLs to preload.
@@ -38,8 +49,10 @@ class Cache_Preload_Queue_Manager {
 	public function set_posts_to_preload( array $posts ) {
 		// Ensure the posts are all unique. This should be done earlier, but we'll also do it here; validate early, validate often.
 		$posts = array_unique( $posts );
+
 		// The option is not autoloaded as it's only used within the cron job.
 		update_option( 'jetpack_boost_posts_to_preload', $posts, false );
+		$this->preload_queue = $posts;
 	}
 
 	/**
@@ -52,19 +65,21 @@ class Cache_Preload_Queue_Manager {
 	 * @return array The updated queue of posts to preload.
 	 */
 	public function add_to_queue( $posts_to_add ) {
-		$current_queue = $this->get_posts_to_preload();
+		$queue = $this->get_posts_to_preload();
 
 		if ( is_array( $posts_to_add ) ) {
-			$current_queue = array_merge( $current_queue, $posts_to_add );
+			$queue = array_merge( $queue, $posts_to_add );
 		} else {
-			$current_queue[] = $posts_to_add;
+			$queue[] = $posts_to_add;
 		}
 
 		// Ensure the posts are all unique.
-		$current_queue = array_unique( $current_queue );
-		$this->set_posts_to_preload( $current_queue );
+		$queue = array_unique( $queue );
 
-		return $current_queue;
+		// Update the queue using set_posts_to_preload to avoid duplicate DB operations
+		$this->set_posts_to_preload( $queue );
+
+		return $this->preload_queue;
 	}
 
 	/**

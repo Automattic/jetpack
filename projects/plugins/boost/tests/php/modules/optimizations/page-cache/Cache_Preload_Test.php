@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class Test_Cache_Preload
  */
-class Test_Cache_Preload extends TestCase {
+class Cache_Preload_Test extends TestCase {
 
 	/**
 	 * Set up tests.
@@ -28,7 +28,9 @@ class Test_Cache_Preload extends TestCase {
 		\Brain\Monkey\setUp();
 
 		// Define the constant as true for testing availability.
-		define( 'JETPACK_BOOST_ALPHA_FEATURES', true );
+		if ( ! defined( 'JETPACK_BOOST_ALPHA_FEATURES' ) ) {
+			define( 'JETPACK_BOOST_ALPHA_FEATURES', true );
+		}
 	}
 
 	/**
@@ -53,38 +55,6 @@ class Test_Cache_Preload extends TestCase {
 	 */
 	public function test_is_available() {
 		$this->assertTrue( Cache_Preload::is_available(), 'Should return true when constant is defined as true' );
-	}
-
-	/**
-	 * Test get_posts_to_preload returns the correct option value.
-	 */
-	public function test_get_posts_to_preload() {
-		$expected_posts = array( 'https://example.com', 'https://example.com/page' );
-
-		Functions\expect( 'get_option' )
-			->once()
-			->with( 'jetpack_boost_posts_to_preload', array() )
-			->andReturn( $expected_posts );
-
-		$preload = new Cache_Preload();
-		$this->assertEquals( $expected_posts, $preload->get_posts_to_preload() );
-	}
-
-	/**
-	 * Test set_posts_to_preload correctly updates the option.
-	 */
-	public function test_set_posts_to_preload() {
-		$posts          = array( 'https://example.com', 'https://example.com/page', 'https://example.com' );
-		$expected_posts = array( 'https://example.com', 'https://example.com/page' );
-
-		Functions\expect( 'update_option' )
-			->once()
-			->with( 'jetpack_boost_posts_to_preload', $expected_posts, false )
-			->andReturn( true );
-
-		$preload = new Cache_Preload();
-		$preload->set_posts_to_preload( $posts );
-		$this->expectNotToPerformAssertions();
 	}
 
 	/**
@@ -204,6 +174,7 @@ class Test_Cache_Preload extends TestCase {
 		}
 
 		$preload->preload_pages();
+
 		$this->expectNotToPerformAssertions();
 	}
 
