@@ -28,9 +28,11 @@ if ( ! function_exists( 'wpcom_site_has_feature' ) && false === getenv( 'JETPACK
 	 * @param string $feature The feature to check.
 	 */
 	function wpcom_site_has_feature( $feature, $blog_id = 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		error_log( '### MOCK: wpcom_site_has_feature: ' . $feature );
 		switch ( $feature ) {
 			case WPCOM_Features::ATOMIC:
 			case WPCOM_Features::MANAGE_PLUGINS:
+			case WPCOM_Features::INSTALL_PLUGINS:
 				return true;
 		}
 

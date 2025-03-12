@@ -2,8 +2,6 @@
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
-use Automattic\Jetpack\Current_Plan;
-
 /**
  * Tests for JITM V2 REST API Endpoints.
  *
@@ -17,13 +15,6 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	 * @var int
 	 */
 	private static $user_id = 0;
-
-	/**
-	 * Original plan before tests.
-	 *
-	 * @var array
-	 */
-	private $original_plan;
 
 	/**
 	 * Create shared database fixtures.
@@ -41,17 +32,6 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 		parent::set_up();
 		wp_set_current_user( static::$user_id );
 
-		// Store original plan
-		$this->original_plan = Current_Plan::get();
-
-		// Set plan to "Business". This ensures that the user has the install_plugins capability
-		// which is required to get JITMs but is not granted unless you have a business plan.
-		// See:
-		// - projects/packages/jitm/src/class-pre-connection-jitm.php#L133-L135
-		// - projects/plugins/wpcomsh/feature-plugins/hooks.php
-		$plan = Current_Plan::PLAN_DATA['business'];
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
-
 		// Add test JITM via filter
 		add_filter( 'jetpack_pre_connection_jitms', array( $this, 'inject_test_jitm' ), 10, 1 );
 	}
@@ -60,8 +40,6 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
-		// Restore original plan
-		update_option( Current_Plan::PLAN_OPTION, $this->original_plan, true );
 
 		remove_filter( 'jetpack_pre_connection_jitms', array( $this, 'inject_test_jitm' ) );
 		parent::tear_down();
