@@ -77,6 +77,13 @@ const AccountProtection = class extends Component {
 	};
 
 	/**
+	 * Toggle account protection.
+	 */
+	toggleAccountProtection = () => {
+		this.props.toggleModuleNow( 'account-protection' );
+	};
+
+	/**
 	 * Toggle password detection.
 	 */
 	togglePasswordDetection = () => {
@@ -136,7 +143,7 @@ const AccountProtection = class extends Component {
 						status={ 'is-info' }
 						text={ __( 'Jetpack recommends enabling this feature.', 'jetpack' ) }
 						children={
-							<NoticeAction external href={ '/wp-admin/admin.php?page=jetpack_modules' }>
+							<NoticeAction onClick={ this.toggleAccountProtection }>
 								{ __( 'Activate', 'jetpack' ) }
 							</NoticeAction>
 						}
