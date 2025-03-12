@@ -25,20 +25,6 @@ class Account_Protection {
 	private static $hooks_registered = false;
 
 	/**
-	 * Password detection enabled.
-	 *
-	 * @var bool
-	 */
-	private $password_detection_enabled;
-
-	/**
-	 * Strong passwords enabled.
-	 *
-	 * @var bool
-	 */
-	private $strong_passwords_enabled;
-
-	/**
 	 * Modules instance.
 	 *
 	 * @var Modules
