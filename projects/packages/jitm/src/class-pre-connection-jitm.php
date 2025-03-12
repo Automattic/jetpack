@@ -32,13 +32,11 @@ class Pre_Connection_JITM extends JITM {
 		 */
 		$messages = apply_filters( 'jetpack_pre_connection_jitms', array() );
 
-		error_log( '######## Messages after apply_filters' );
-		error_log( p// rint_r( $messages, true ) );
+		error_log( '######## Messages after apply_filters: ' . print_r( $messages, true ) );
 
 		$messages = $this->validate_messages( $messages );
 
-		error_log( '######## Messages after validate_messages' );
-		error_log( p// rint_r( $messages, true ) );
+		error_log( '######## Messages after validate_messages: ' . print_r( $messages, true ) );
 
 		$formatted_messages = array();
 

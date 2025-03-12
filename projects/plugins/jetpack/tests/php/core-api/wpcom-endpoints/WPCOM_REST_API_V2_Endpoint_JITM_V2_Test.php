@@ -149,6 +149,9 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_id );
 
+		// Verify the user actually has the required capability
+		$this->assertTrue( current_user_can( 'install_plugins' ), 'Admin user should have install_plugins capability' );
+
 		$message_path = 'test_message_path';
 
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/jitm-v2' );
