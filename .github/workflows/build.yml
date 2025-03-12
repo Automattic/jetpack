@@ -77,19 +77,17 @@ jobs:
             BASE=$PWD
             REF=$(git rev-parse HEAD)
             for SLUG in $(pnpm jetpack dependencies list --add-dependencies --extra="build" --ignore-root "${PROJECTS[@]}"); do
+              cd "$BASE/projects/$SLUG/"
               if [[ "$SLUG" == packages/* ]]; then
-                echo "Going to check $SLUG (is a package)"
                 SUBDIR=.
+                # Only deepen if it'll be a -alpha, i.e. it has changelog entries
+                CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
+                [[ -d "$CHANGES_DIR" && -n "$(ls -- "$CHANGES_DIR")" ]] || continue
               elif [[ "$SLUG" == js-packages/social-logos ]]; then
-                echo "Going to check $SLUG (is social-logos)"
                 SUBDIR=./src/svg
               else
-                echo "No need to deepen for $SLUG"
                 continue
               fi
-              cd "$BASE/projects/$SLUG/"
-              CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
-              [[ -d "$CHANGES_DIR" && -n "$(ls -- "$CHANGES_DIR")" ]] || continue
               echo "Checking depth for $SLUG"
               while git log --format='%h, %D,' -1 "$SUBDIR" | grep ', grafted,'; do
                 depth=$((depth * 2))
