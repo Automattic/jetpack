@@ -17,8 +17,6 @@ use PHPUnit\Framework\TestCase;
  * Class Blocks_Test
  */
 class Blocks_Test extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Test block name.

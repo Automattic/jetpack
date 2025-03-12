@@ -30,7 +30,6 @@ composer.lock                                 production-exclude
 /jetpack_vendor/automattic/**/src/css/*.scss  production-exclude
 /jetpack_vendor/automattic/**/composer.json   production-exclude
 /node_modules/**                              production-exclude
-/phpunit.xml.dist                             production-exclude
 /README.md                                    production-exclude
 **/*/*.md                                     production-exclude
 /vendor/automattic/**/src/css/*.scss          production-exclude

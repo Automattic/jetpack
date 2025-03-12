@@ -23,3 +23,5 @@ jsconfig.json       production-exclude
 tsconfig.json       production-exclude
 **/.phan/**         production-exclude
 **/.w.org-assets/** production-exclude
+phpunit.xml.dist    production-exclude
+phpunit.*.xml.dist  production-exclude
