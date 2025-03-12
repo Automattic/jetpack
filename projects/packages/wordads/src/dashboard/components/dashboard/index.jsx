@@ -1,6 +1,7 @@
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { Spinner, AdminSection, AdminPage, Container, Col } from '@automattic/jetpack-components';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch, select as syncSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
@@ -61,7 +62,10 @@ export default function WordAdsDashboard() {
 				<Spinner className="jp-wordads-dashboard-page-loading-spinner" color="#000" size={ 32 } />
 			) }
 			{ ! isLoading && (
-				<AdminPage moduleName={ __( 'WordAds', 'jetpack-wordads' ) }>
+				<AdminPage
+					moduleName={ __( 'WordAds', 'jetpack-wordads' ) }
+					useInternalLinks={ shouldUseInternalLinks() }
+				>
 					<AdminSection>
 						<Container horizontalSpacing={ 5 }>
 							<Col sm={ 4 }>
