@@ -10,6 +10,7 @@ declare module '@wordpress/compose';
 declare module '@wordpress/icons';
 declare module '@automattic/jetpack-connection';
 declare module '@wordpress/url';
+declare module '@wordpress/i18n';
 
 type ProductStatus =
 	| 'active'
