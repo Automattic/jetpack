@@ -562,7 +562,32 @@ class Boost_Cache {
 			return $params;
 		}
 
-		$default_cookies = array( 'cf_clearance', 'cf_chl_rc_i', 'cf_chl_rc_ni', 'cf_chl_rc_m', '_cfuvid', '__cfruid', '__cfwaitingroom', 'cf_ob_info', 'cf_use_ob', '__cfseq', '__cf_bm', '__cflb', 'sbjs_(.*)' );
+		$default_cookies = array(
+			'cf_clearance',
+			'cf_chl_rc_i',
+			'cf_chl_rc_ni',
+			'cf_chl_rc_m',
+			'_cfuvid',
+			'__cfruid',
+			'__cfwaitingroom',
+			'cf_ob_info',
+			'cf_use_ob',
+			'__cfseq',
+			'__cf_bm',
+			'__cflb',
+
+			// Sourcebuster
+			'sbjs_(.*)',
+
+			// Google Analytics
+			'_ga(?:_[A-Z0-9]*)?',
+
+			// AWS Load Balancer
+			'AWSELB',
+			'AWSELBCORS',
+			'AWSALB',
+			'AWSALBCORS',
+		);
 		$jetpack_cookies = array( 'tk_ai', 'tk_qs' );
 		$cookies         = array_merge( $default_cookies, $jetpack_cookies );
 

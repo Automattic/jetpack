@@ -1,6 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Adds the PSH functionality to Jetpack.
+ * Plugin Search Hints, aka Feature Suggestions.
+ *
+ * @since 7.1.0
+ * @since $$next-version$$ This file is no longer loaded. See https://github.com/Automattic/jetpack/pull/42337 for more info.
  *
  * @package automattic/jetpack
  */
