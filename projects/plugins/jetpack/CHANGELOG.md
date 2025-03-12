@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.4.1 - 2025-03-12
+### Bug fixes
+- Prevent errant message on General Settings page when saving.
+
 ## 14.4 - 2025-03-04
 ### Enhancements
 - Connection: Disconnect all other users before disconnecting connection owner account. [#41923]
