@@ -40,6 +40,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/base-styles": "5.19.0",
 		"@wordpress/block-editor": "14.14.0",
 		"@wordpress/data": "10.19.0",
