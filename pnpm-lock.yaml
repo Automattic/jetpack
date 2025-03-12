@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-bHV3KPQlVzZ0yt6Gk7v7TY9+faSIE1Nt+x/guIJ3+sk=
+pnpmfileChecksum: sha256-8TxZMyOsP+2934lrCDwgYwoF8EiELGo1kuPzm480dCo=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -2610,9 +2610,6 @@ importers:
       '@automattic/launchpad':
         specifier: 1.1.0
         version: 1.1.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.19.0(react@18.3.1))(@wordpress/element@6.19.0)(@wordpress/i18n@5.19.0)(debug@4.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)
-      '@automattic/page-pattern-modal':
-        specifier: 1.1.5
-        version: 1.1.5(@babel/core@7.26.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(@wordpress/data@10.19.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)(webpack@5.94.0)
       '@automattic/typography':
         specifier: 1.0.0
         version: 1.0.0
@@ -5329,9 +5326,6 @@ packages:
   '@automattic/calypso-url@1.1.0':
     resolution: {integrity: sha512-oA6pzfrp538gq5JEjE0ARDjvR8Efhw+jrK15TJPjAq5Q+vhPSJhH8sYKEsMAoYZV3d5nnyUcmI5Evge+yq4zeg==}
 
-  '@automattic/color-studio@2.6.0':
-    resolution: {integrity: sha512-2LzB6bbQw1vayZxZy5Y+DnCYU7x8tPu+rZhNkWD7V8QZTSJMJO65XKZhYaCByC+C5OegXyGyZzcqEOHHdj5iiQ==}
-
   '@automattic/color-studio@3.0.3':
     resolution: {integrity: sha512-2GXkwfu4ndGEWWSlQQamCdXIQ9qJ1zbqbGROxJzE6F4kS2EXGgXvkMolpaa6X7ZjosqlGhtTTvYOwgIw/2qD7A==}
 
@@ -5401,13 +5395,6 @@ packages:
 
   '@automattic/oauth-token@1.0.1':
     resolution: {integrity: sha512-do7/iKRiciU8ybEoqsrS3kcPux8Bs7+xslYJ/EhBVzdIPLP3Cn2BysEMhYkKDOSnoUhvRJi7Y9cCaoRuUIgYJw==}
-
-  '@automattic/page-pattern-modal@1.1.5':
-    resolution: {integrity: sha512-cFA82qWUDSSFhOHfOkOqh7X8I9As5fNGp7w3LVw7ZDRl6wSiQZveLvWp4msNDnLmeiJTpxWVOZWvCirxYUE3Sw==}
-    peerDependencies:
-      '@wordpress/data': ^10.2.0
-      react: ^18.2.0
-      redux: ^4.2.1
 
   '@automattic/popup-monitor@1.0.2':
     resolution: {integrity: sha512-Y4LMfdkV8iDmezu/7Ov/18JaFJ0QAy5vCntiP0S5AhLt4R/kjLtBt4ifNXNbdKTthGxlL17+LJ1bNtHBVCzPwg==}
@@ -8253,10 +8240,6 @@ packages:
 
   '@wordpress/base-styles@5.19.0':
     resolution: {integrity: sha512-rDRt2G2H1uRLZGRF/aXe2WZGNJJ2yzBup1VaiYBNRKS7io2YRu54vEYMgh/ll1el5eMN+jO9t4A54Ew/DO470Q==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
-  '@wordpress/base-styles@5.2.0':
-    resolution: {integrity: sha512-yBMVbn4gvNQimVfLAZ+/F7F/Tpl+femF9ojgv90c0A0o6IDEtdC+6vUvtAxvXVoruwmxsq8ncouoorZbYDb3yg==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/blob@4.19.0':
@@ -15398,8 +15381,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@automattic/color-studio@2.6.0': {}
-
   '@automattic/color-studio@3.0.3': {}
 
   '@automattic/color-studio@4.0.0': {}
@@ -15570,33 +15551,6 @@ snapshots:
     dependencies:
       cookie: 0.7.2
       store: 2.0.12
-
-  '@automattic/page-pattern-modal@1.1.5(@babel/core@7.26.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(@wordpress/data@10.19.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)(webpack@5.94.0)':
-    dependencies:
-      '@automattic/color-studio': 2.6.0
-      '@automattic/typography': 1.0.0
-      '@wordpress/base-styles': 5.2.0
-      '@wordpress/block-editor': 14.14.0(@babel/core@7.26.0)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.94.0)
-      '@wordpress/blocks': 14.8.0(react@18.3.1)
-      '@wordpress/components': 29.5.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/compose': 7.19.0(react@18.3.1)
-      '@wordpress/data': 10.19.0(react@18.3.1)
-      '@wordpress/element': 6.19.0
-      '@wordpress/i18n': 5.19.0
-      clsx: 2.1.1
-      debug: 4.4.0
-      lodash: 4.17.21
-      react: 18.3.1
-      redux: 4.2.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@emotion/is-prop-valid'
-      - '@types/react'
-      - '@types/react-dom'
-      - react-dom
-      - supports-color
-      - webpack
-      - webpack-virtual-modules
 
   '@automattic/popup-monitor@1.0.2':
     dependencies:
@@ -19378,8 +19332,6 @@ snapshots:
       - supports-color
 
   '@wordpress/base-styles@5.19.0': {}
-
-  '@wordpress/base-styles@5.2.0': {}
 
   '@wordpress/blob@4.19.0':
     dependencies:
