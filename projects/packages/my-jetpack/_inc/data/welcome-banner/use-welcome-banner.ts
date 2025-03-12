@@ -24,16 +24,22 @@ const useWelcomeBanner = () => {
 		return Object.keys( redBubbleAlerts );
 	}, [ isRedBubbleAlertsError, isRedBubbleAlertsLoading, redBubbleAlerts ] );
 
+	const [ isDismissing, setIsDismissing ] = useValueStore( 'isDismissingWelcomeBanner', false );
 	const [ isWelcomeBannerVisible, setIsWelcomeBannerVisible ] = useValueStore(
 		'isWelcomeBannerVisible',
 		redBubbleAlertKeys.includes( 'welcome-banner-active' )
 	);
 
 	useEffect( () => {
+		if ( isDismissing ) {
+			setIsWelcomeBannerVisible( false );
+			return;
+		}
+
 		if ( redBubbleAlertKeys.includes( 'welcome-banner-active' ) ) {
 			setIsWelcomeBannerVisible( true );
 		}
-	}, [ redBubbleAlertKeys, setIsWelcomeBannerVisible ] );
+	}, [ isDismissing, redBubbleAlertKeys, setIsWelcomeBannerVisible ] );
 
 	const { mutate: handleDismissWelcomeBanner } = useSimpleMutation( {
 		name: QUERY_DISMISS_WELCOME_BANNER_KEY,
@@ -48,17 +54,19 @@ const useWelcomeBanner = () => {
 	} );
 
 	const dismissWelcomeBanner = useCallback( () => {
+		setIsDismissing( true );
 		handleDismissWelcomeBanner( null, {
 			onSuccess: async () => {
 				await refetchRedBubbleAlerts();
-				setIsWelcomeBannerVisible( false );
+				setIsDismissing( false );
 			},
 		} );
-	}, [ handleDismissWelcomeBanner, refetchRedBubbleAlerts, setIsWelcomeBannerVisible ] );
+	}, [ handleDismissWelcomeBanner, refetchRedBubbleAlerts, setIsDismissing ] );
 
 	const showWelcomeBanner = useCallback( () => {
+		setIsDismissing( false );
 		setIsWelcomeBannerVisible( true );
-	}, [ setIsWelcomeBannerVisible ] );
+	}, [ setIsWelcomeBannerVisible, setIsDismissing ] );
 
 	return {
 		dismissWelcomeBanner,
