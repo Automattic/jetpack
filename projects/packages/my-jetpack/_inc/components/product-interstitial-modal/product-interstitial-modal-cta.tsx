@@ -35,7 +35,9 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 
 	const { pricingForUi, postCheckoutUrl } = detail;
 
-	const { wpcomProductSlug } = pricingForUi || {};
+	const { wpcomProductSlug, tiers } = pricingForUi || {};
+	// Boost pricing information is stored in the `tiers` object
+	const productSlug = slug !== 'boost' ? wpcomProductSlug : tiers?.upgraded?.wpcomProductSlug;
 
 	// Redirect to the referrer URL when the `redirect_to_referrer` query param is present.
 	const referrerURL = useRedirectToReferrer();
@@ -62,7 +64,7 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 
 	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
 		useProductCheckoutWorkflow( {
-			productSlug: wpcomProductSlug,
+			productSlug,
 			redirectUrl: checkoutRedirectUrl,
 			siteSuffix,
 			adminUrl,
