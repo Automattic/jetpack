@@ -127,7 +127,7 @@ jobs:
           pnpm jetpack rsync wpcomsh jpwpcomsh:~/htdocs/wp-content/mu-plugins
           scp -r projects/plugins/wpcomsh/bin jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh
           scp -r projects/plugins/wpcomsh/tests jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/
-          scp projects/plugins/wpcomsh/phpunit.xml.dist jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/
+          scp projects/plugins/wpcomsh/phpunit.9.xml.dist jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/phpunit.xml.dist
 
           echo "::engroup::"
 

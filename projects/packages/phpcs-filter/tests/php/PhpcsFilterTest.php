@@ -20,7 +20,6 @@ use RecursiveIteratorIterator;
  * Tests for PhpcsFilter.php.
  */
 class PhpcsFilterTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Old CWD to restore after the test.

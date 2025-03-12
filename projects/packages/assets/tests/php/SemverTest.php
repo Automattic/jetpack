@@ -14,8 +14,6 @@ use PHPUnit\Framework\TestCase;
  * Semver test suite.
  */
 class SemverTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Test parse.

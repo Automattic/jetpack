@@ -17,7 +17,6 @@ use PHPUnit\Framework\TestCase;
  * @preserveGlobalState disabled
  */
 class PluginLocatorTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * A mock of the path processor we're using.
