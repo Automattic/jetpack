@@ -1,5 +1,5 @@
 import { Dropdown, Button, DateTimePicker } from '@wordpress/components';
-import { date, getSettings } from '@wordpress/date';
+import { getDate, date, isInTheFuture } from '@wordpress/date';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
@@ -23,7 +23,9 @@ interface ScheduleButtonProps extends ScheduleButtonBaseProps {
 }
 
 const isInvalidDate = ( checkDate: Date ) => {
-	return checkDate.getTime() < Date.now();
+	const tomorrow = new Date( checkDate );
+	tomorrow.setDate( checkDate.getDate() + 1 );
+	return ! isInTheFuture( tomorrow );
 };
 
 const ScheduleButtonContent = ( {
@@ -40,18 +42,14 @@ const ScheduleButtonContent = ( {
 
 	const changeCallback = useCallback(
 		( newDate: string ) => {
-			const unixTime = +date( 'U', newDate + getSettings().timezone.abbr, 0 );
+			const unixTime = Math.floor( getDate( newDate ).getTime() / 1000 );
 			onTimestampChange( unixTime );
 			onChange?.( unixTime );
 		},
 		[ onChange, onTimestampChange ]
 	);
 
-	const scheduleDate = date(
-		'Y-m-d\\TH:i:s',
-		new Date( currentTimestamp * 1000 ),
-		getSettings().timezone.offset
-	);
+	const scheduleDate = date( 'Y-m-d\\TH:i:s', new Date( currentTimestamp * 1000 ), undefined );
 
 	return (
 		<>
@@ -64,7 +62,7 @@ const ScheduleButtonContent = ( {
 				variant="primary"
 				onClick={ confirmCallback }
 				className={ styles.confirm }
-				disabled={ isInvalidDate( new Date( currentTimestamp * 1000 ) ) }
+				disabled={ ! isInTheFuture( scheduleDate ) }
 			>
 				{ _x(
 					'Confirm',
