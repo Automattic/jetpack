@@ -137,7 +137,7 @@ const AccountProtection = class extends Component {
 						<div className="account-protection__settings">
 							<div className="account-protection__settings__toggle-setting">
 								<ToggleControl
-									checked={ this.state.passwordDetection }
+									checked={ this.props.settings?.passwordDetection }
 									disabled={ baseInputDisabledCase }
 									toggling={
 										this.props.isUpdatingAccountProtectionSettings &&
@@ -158,7 +158,7 @@ const AccountProtection = class extends Component {
 							</div>
 							<div className="account-protection__settings__toggle-setting">
 								<ToggleControl
-									checked={ this.state.strongPasswords }
+									checked={ this.props.settings?.strongPasswords }
 									disabled={ baseInputDisabledCase }
 									toggling={
 										this.props.isUpdatingAccountProtectionSettings &&
