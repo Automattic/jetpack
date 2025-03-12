@@ -105,10 +105,10 @@ const AccountProtection = class extends Component {
 
 	render() {
 		const { isSupported } = this.props;
-		const isAccountProtectionActive = this.props.getOptionValue( 'account-protection' ),
+		const isEnabled = this.props.getOptionValue( 'account-protection' ),
 			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'account-protection' );
 		const baseInputDisabledCase =
-			! isAccountProtectionActive ||
+			! isEnabled ||
 			unavailableInOfflineMode ||
 			this.props.isFetchingAccountProtectionSettings ||
 			this.props.isSavingAnyOption( [ 'account-protection' ] );
@@ -121,7 +121,7 @@ const AccountProtection = class extends Component {
 				hideButton={ true }
 				feature={ FEATURE_JETPACK_ACCOUNT_PROTECTION }
 			>
-				{ isAccountProtectionActive && <QueryAccountProtectionSettings /> }
+				{ isEnabled && <QueryAccountProtectionSettings /> }
 				{ ! isSupported && (
 					<SimpleNotice
 						status={ 'is-info' }
@@ -137,7 +137,7 @@ const AccountProtection = class extends Component {
 						}
 					/>
 				) }
-				{ isSupported && ! isAccountProtectionActive && (
+				{ isSupported && ! isEnabled && (
 					<SimpleNotice
 						showDismiss={ false }
 						status={ 'is-info' }
@@ -168,7 +168,7 @@ const AccountProtection = class extends Component {
 							'jetpack'
 						) }
 					</p>
-					{ isAccountProtectionActive && (
+					{ isEnabled && (
 						<div className="account-protection__settings">
 							<div className="account-protection__settings__toggle-setting">
 								<ToggleControl
