@@ -16,25 +16,8 @@ export function createScheduledShare(
 ) {
 	return async function ( { registry } ) {
 		const { saveEntityRecord } = registry.dispatch( coreStore );
-		const { getLastEntitySaveError } = registry.select( coreStore );
-		const { createErrorNotice, createSuccessNotice } = registry.dispatch( noticesStore );
-		const success = await saveEntityRecord( 'wpcom/v2', 'publicize/scheduled-actions', data );
 
-		// If the creation was not successful, show an error notice.
-		if ( ! success ) {
-			const lastError = getLastEntitySaveError( 'wpcom/v2', 'publicize/scheduled-actions' );
-			let message = __( 'There was an error scheduling the post.', 'jetpack-publicize-components' );
-			if ( lastError?.message ) {
-				message += ' ' + lastError.message;
-			}
-			createErrorNotice( message, {
-				type: 'snackbar',
-			} );
-		} else {
-			createSuccessNotice( __( 'Post scheduled successfully.', 'jetpack-publicize-components' ), {
-				type: 'snackbar',
-			} );
-		}
+		await saveEntityRecord( 'wpcom/v2', 'publicize/scheduled-actions', data );
 	};
 }
 
