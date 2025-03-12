@@ -2,6 +2,8 @@
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
+use Automattic\Jetpack\Current_Plan;
+
 /**
  * Tests for JITM V2 REST API Endpoints.
  *
@@ -15,6 +17,13 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	 * @var int
 	 */
 	private static $user_id = 0;
+
+	/**
+	 * Original plan before tests.
+	 *
+	 * @var array
+	 */
+	private $original_plan;
 
 	/**
 	 * Create shared database fixtures.
@@ -32,6 +41,15 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 		parent::set_up();
 		wp_set_current_user( static::$user_id );
 
+		// Store original plan
+		$this->original_plan = Current_Plan::get();
+
+		// Set plan to business. This ensures that the user has the install_plugins capability.
+		// See projects/plugins/wpcomsh/feature-plugins/hooks.php where certain capabilities
+		// are removed based on the plan.
+		$plan = Current_Plan::PLAN_DATA['business'];
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+
 		// Add test JITM via filter
 		add_filter( 'jetpack_pre_connection_jitms', array( $this, 'inject_test_jitm' ), 10, 1 );
 	}
@@ -40,6 +58,9 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
+		// Restore original plan
+		update_option( Current_Plan::PLAN_OPTION, $this->original_plan, true );
+
 		remove_filter( 'jetpack_pre_connection_jitms', array( $this, 'inject_test_jitm' ) );
 		parent::tear_down();
 	}
@@ -73,7 +94,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	/**
 	 * Tests the schema response for OPTIONS requests.
 	 */
-	public function skip_test_schema_request() {
+	public function test_schema_request() {
 		wp_set_current_user( 0 );
 
 		$request  = new WP_REST_Request( 'OPTIONS', '/wpcom/v2/jitm-v2' );
@@ -87,7 +108,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	/**
 	 * Tests the permission check for GET requests.
 	 */
-	public function skip_test_get_item_permissions_check() {
+	public function test_get_item_permissions_check() {
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/jitm-v2' );
 		$request->set_query_params(
 			array(
@@ -116,7 +137,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	/**
 	 * Tests the permission check for POST (dismiss) requests.
 	 */
-	public function skip_test_dismiss_item_permissions_check() {
+	public function test_dismiss_item_permissions_check() {
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/jitm-v2' );
 		$request->set_body_params(
 			array(
@@ -145,11 +166,9 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	 * Tests getting JITMs.
 	 */
 	public function test_get_jitms() {
-		// Ensure user has required capability
-		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $admin_id );
 
-		// Verify the user actually has the required capability
+		// Verify the user actually has the required capability. It can be removed if the plan is changed in this test
+		// as the plan change will remove the capability. This assertion is useful for debugging tests.
 		$this->assertTrue( current_user_can( 'install_plugins' ), 'Admin user should have install_plugins capability' );
 
 		$message_path = 'test_message_path';
@@ -189,7 +208,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	/**
 	 * Tests dismissing a JITM.
 	 */
-	public function skip_test_dismiss_jitm() {
+	public function test_dismiss_jitm() {
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/jitm-v2' );
 		$request->set_body_params(
 			array(
