@@ -70,7 +70,7 @@
 		"@babel/preset-env": "7.26.0",
 		"@babel/preset-react": "7.26.3",
 		"@babel/preset-typescript": "7.26.0",
-		"@babel/runtime": "7.26.0",
+		"@babel/runtime": "7.26.10",
 		"@csstools/postcss-global-data": "2.1.1",
 		"@size-limit/preset-app": "11.1.6",
 		"@testing-library/dom": "10.4.0",
