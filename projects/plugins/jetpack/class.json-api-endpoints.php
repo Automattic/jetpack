@@ -2745,8 +2745,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
+		add_filter( 'user_can_richedit', '__return_true' );
+		add_filter( 'comment_edit_pre', array( $this->api, 'comment_edit_pre' ) );
+
 		$this->api->initialize();
 		$this->api->endpoint = $this;
+
+		$this->api->path    = $this->path;
+		$this->api->version = $this->max_version;
 
 		$locale = $request->get_param( 'language' );
 		if ( $locale ) {

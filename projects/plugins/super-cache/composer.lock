@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "23ee51efd3c837a001770c5ad8f61be0",
+    "content-hash": "12e98e5c061ec23cf444ee3f9ad3f597",
     "packages": [
         {
             "name": "automattic/jetpack-device-detection",
@@ -12,13 +12,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "ee16773def7c4276f0e31490d4ca9d71f6ead185"
+                "reference": "1456f870353a342533d2c45016e31d0155f9574d"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {
@@ -42,10 +43,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -67,7 +68,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "b3837a86715f3e839cb78d454f032612e408c0b6"
+                "reference": "72f0b3630cb1112c6e1d68c3613bf9328b6db163"
             },
             "require": {
                 "composer-runtime-api": "^2.2.0",
@@ -76,6 +77,7 @@
                 "symfony/process": "^5.4 || ^6.4 || ^7.1"
             },
             "require-dev": {
+                "automattic/phpunit-select-config": "@dev",
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
@@ -94,6 +96,11 @@
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-changelogger/compare/${old}...${new}"
+                },
+                "dependencies": {
+                    "test-only": [
+                        "packages/phpunit-select-config"
+                    ]
                 }
             },
             "autoload": {
@@ -110,10 +117,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -134,6 +141,68 @@
                 "cli",
                 "dev",
                 "keepachangelog"
+            ],
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/phpunit-select-config",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/phpunit-select-config",
+                "reference": "ccf4ab797822bc0d40c4b14905d10242017b46c8"
+            },
+            "require": {
+                "composer-runtime-api": "^2.2.2",
+                "php": ">=5.4",
+                "phpunit/phpunit": "*"
+            },
+            "require-dev": {
+                "antecedent/patchwork": "^2.2",
+                "automattic/jetpack-changelogger": "@dev",
+                "yoast/phpunit-polyfills": "^1.1.1"
+            },
+            "bin": [
+                "bin/phpunit-select-config"
+            ],
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "1.0.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/phpunit-select-config/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/phpunit-select-config"
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/bin/phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "rm -f vendor/bin/phpunit-select-config && ln -s ../../bin/local-phpunit-select-config vendor/bin/phpunit-select-config"
+                ],
+                "post-update-cmd": [
+                    "rm -f vendor/bin/phpunit-select-config && ln -s ../../bin/local-phpunit-select-config vendor/bin/phpunit-select-config"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Run PHPUnit, choosing a configuration file by version.",
+            "keywords": [
+                "config",
+                "dev",
+                "phpunit"
             ],
             "transport-options": {
                 "relative": true
@@ -2710,7 +2779,8 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "automattic/jetpack-changelogger": 20,
-        "automattic/jetpack-device-detection": 20
+        "automattic/jetpack-device-detection": 20,
+        "automattic/phpunit-select-config": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

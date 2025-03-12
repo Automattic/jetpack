@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import {
 	BaseControl,
 	ToggleControl,
@@ -7,30 +10,51 @@ import {
 	CardBody,
 	CheckboxControl,
 } from '@wordpress/components';
+import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useState, useCallback } from 'react';
+import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
+import { useSeoModuleSettings } from './use-seo-module-settings';
+import { useSeoRequests } from './use-seo-requests';
 import './style.scss';
+/**
+ * Types
+ */
+import type { PromptType } from './types';
+
+const debug = debugFactory( 'seo-enhancer:index' );
 
 export function SeoEnhancer() {
-	const [ isEnabled, setIsEnabled ] = useState( true );
+	const { isEnabled, toggleEnhancer, isToggling } = useSeoModuleSettings();
 	const [ isLoading, setIsLoading ] = useState( false );
-	const [ features, setFeatures ] = useState( [
+	const [ features, setFeatures ] = useState<
+		{ name: PromptType; label: string; checked: boolean }[]
+	>( [
 		{
-			name: 'meta-title',
+			name: 'seo-title',
 			label: __( 'Meta title', 'jetpack' ),
 			checked: true,
 		},
 		{
-			name: 'meta-description',
+			name: 'seo-meta-description',
 			label: __( 'Meta description', 'jetpack' ),
 			checked: true,
 		},
 		{
-			name: 'image-alt-text',
+			name: 'images-alt-text',
 			label: __( 'Image alt text', 'jetpack' ),
 			checked: true,
 		},
 	] );
+	const { updateSeoData } = useSeoRequests(
+		features.filter( feature => feature.checked ).map( feature => feature.name )
+	);
+
+	const toggleSeoEnhancer = useCallback( async () => {
+		await toggleEnhancer();
+	}, [ toggleEnhancer ] );
 
 	const toggleFeature = useCallback( name => {
 		setFeatures( prevFeatures =>
@@ -40,16 +64,16 @@ export function SeoEnhancer() {
 		);
 	}, [] );
 
-	const toggleHandler = () => {
-		setIsEnabled( ! isEnabled );
-	};
+	const generateHandler = async () => {
+		try {
+			setIsLoading( true );
 
-	const generateHandler = () => {
-		setIsLoading( true );
-
-		setTimeout( () => {
+			await updateSeoData();
+		} catch ( error ) {
+			debug( 'Error generating SEO data', error );
+		} finally {
 			setIsLoading( false );
-		}, 3000 );
+		}
 	};
 
 	return (
@@ -58,17 +82,14 @@ export function SeoEnhancer() {
 				<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
 					<ToggleControl
 						checked={ isEnabled }
-						onChange={ toggleHandler }
-						label={ __( 'Auto-enhance', 'jetpack' ) }
+						disabled={ isToggling }
+						onChange={ toggleSeoEnhancer }
+						label={ __( 'Auto-fill missing metatags', 'jetpack' ) }
 						__nextHasNoMarginBottom={ true }
-						help={
-							! isEnabled
-								? __(
-										"Automattically generate SEO title, SEO description and images' alt text before publishing.",
-										'jetpack'
-								  )
-								: null
-						}
+						help={ __(
+							"Automattically generate SEO title, SEO description and images' alt text before publishing.",
+							'jetpack'
+						) }
 					/>
 				</BaseControl>
 			</PanelRow>
