@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
+use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
@@ -17,7 +18,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logg
  * @since $$next-version$$
  * @package Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache
  */
-class Cache_Preload implements Pluggable {
+class Cache_Preload implements Pluggable, Is_Always_On {
 
 	/**
 	 * @since $$next-version$$
@@ -44,7 +45,7 @@ class Cache_Preload implements Pluggable {
 		if ( defined( 'JETPACK_BOOST_ALPHA_FEATURES' ) ) {
 			return \JETPACK_BOOST_ALPHA_FEATURES === true;
 		}
-		// TODO: Feature flag
+
 		return true;
 	}
 
@@ -161,7 +162,9 @@ class Cache_Preload implements Pluggable {
 	 */
 	public function schedule_preload_cronjob() {
 		if ( ! wp_next_scheduled( 'jetpack_boost_preload_pages' ) ) {
-			// Add 2 seconds delay to prevent potential race conditions with the cronjob, or so the cache invalidation process has time to complete.
+			// Adding a 2 second delay helps prevent multiple rapid cache rebuilds when
+			// multiple events trigger in sequence (e.g., cache invalidation + cornerstone page updates + cloud css generation).
+			// If we attempt to schedule the cron job and one was already scheduled within 2 seconds, the cron job will not be scheduled.
 			wp_schedule_single_event( time() + 2, 'jetpack_boost_preload_pages' );
 		}
 	}
