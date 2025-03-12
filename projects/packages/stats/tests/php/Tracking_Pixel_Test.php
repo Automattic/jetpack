@@ -55,6 +55,155 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test for Tracking_Pixel::build_view_data with home
+	 *
+	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
+	 */
+	public function test_build_view_data_with_home() {
+		global $wp_the_query;
+		$wp_the_query->is_home = true;
+		$view_data             = Tracking_Pixel::build_view_data();
+		$expected_view_data    = array(
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => '0',
+			'tz'         => false,
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
+			'home'       => '1',
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+	}
+
+	/**
+	 * Test for Tracking_Pixel::build_view_data with archives
+	 *
+	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
+	 */
+	public function test_build_view_data_with_archives() {
+		// testing author archives
+		global $wp_the_query;
+		$wp_the_query->is_archive = true;
+		$wp_the_query->is_author  = true;
+		$wp_the_query->query      = array( 'author_name' => 'some_author' );
+		$view_data                = Tracking_Pixel::build_view_data();
+		$expected_view_data       = array(
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => '0',
+			'tz'         => false,
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
+			'arch'       => 'author',
+			'arch_v'     => 'some_author',
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+
+		// testing date archives
+		$wp_the_query->is_author = false;
+		$wp_the_query->is_date   = true;
+		$wp_the_query->parse_query( 'year=2019&monthnum=12&day=31' );
+		$view_data          = Tracking_Pixel::build_view_data();
+		$expected_view_data = array(
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => '0',
+			'tz'         => false,
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
+			'arch'       => 'date',
+			'arch_v'     => '2019/12/31',
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+
+		// testing category archives
+		$wp_the_query->is_date     = false;
+		$wp_the_query->is_category = true;
+		$wp_the_query->parse_query( 'cat=testcategory&category_name=testcategory' );
+		$view_data          = Tracking_Pixel::build_view_data();
+		$expected_view_data = array(
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => '0',
+			'tz'         => false,
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
+			'arch'       => 'cat',
+			'arch_v'     => 'testcategory',
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+
+		// testing tag archives
+		$wp_the_query->is_category = false;
+		$wp_the_query->is_tag      = true;
+		$wp_the_query->parse_query( 'tag=testtag' );
+		$view_data          = Tracking_Pixel::build_view_data();
+		$expected_view_data = array(
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => '0',
+			'tz'         => false,
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
+			'arch'       => 'tag',
+			'arch_v'     => 'testtag',
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+	}
+
+	/**
+	 * Test for Tracking_Pixel::build_view_data with error
+	 *
+	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
+	 */
+	public function test_build_view_data_with_error() {
+		global $wp_the_query;
+		$wp_the_query->is_404 = true;
+		$view_data            = Tracking_Pixel::build_view_data();
+		$expected_view_data   = array(
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => '0',
+			'tz'         => false,
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
+			'arch'       => 'err',
+			'arch_v'     => $_SERVER['REQUEST_URI'],
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+	}
+
+	/**
+	 * Test for Tracking_Pixel::build_view_data with search
+	 *
+	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
+	 */
+	public function test_build_view_data_with_search() {
+		global $wp_the_query;
+		$wp_the_query->is_search = true;
+		$wp_the_query->parse_query( 's=term' );
+		$view_data          = Tracking_Pixel::build_view_data();
+		$expected_view_data = array(
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => '0',
+			'tz'         => false,
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
+			'arch'       => 'search',
+			'arch_v'     => 'term',
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+	}
+
+	/**
 	 * Test for Tracking_Pixel::build_view_data with gmt offset
 	 */
 	public function test_build_view_data_with_gmt_offset() {

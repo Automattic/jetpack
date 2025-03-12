@@ -108,13 +108,12 @@ class Tracking_Pixel {
 					$view_data['arch_v'] = $wp_the_query->query['author_name'];
 				} elseif ( $wp_the_query->is_tax ) {
 					$query = $wp_the_query->query;
-					if ( count( $query ) === 0 ) {
+					if ( is_array( $query ) && count( $query ) === 1 ) {
 						$view_data['arch']   = array_keys( $query )[0];
 						$view_data['arch_v'] = array_values( $query )[0];
 					}
 				}
 			} elseif ( $wp_the_query->is_404() ) {
-				// These do not seem to be tracked at all
 				$view_data['arch']   = 'err';
 				$view_data['arch_v'] = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ); // send the url path
 			} elseif ( $wp_the_query->is_search() ) {
