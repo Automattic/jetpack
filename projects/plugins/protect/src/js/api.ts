@@ -6,30 +6,23 @@ import { WafStatus } from './types/waf';
 import type { ProductData } from './types/products';
 
 const API = {
-	getAccountProtection: () =>
+	toggleAccountProtection: () =>
 		apiFetch( {
-			path: 'jetpack-protect/v1/account-protection',
+			method: 'POST',
+			path: 'jetpack/v4/toggle-account-protection',
+		} ),
+
+	getAccountProtection: (): Promise< AccountProtectionStatus > =>
+		apiFetch( {
+			path: 'jetpack/v4/account-protection',
 			method: 'GET',
 		} ).then( camelize ),
 
-	toggleAccountProtection: ( settings: AccountProtectionStatus ) =>
-		apiFetch( {
-			method: 'POST',
-			path: 'jetpack-protect/v1/account-protection',
-			data: settings,
-		} ).then( camelize ),
-
-	updateAccountProtection: data =>
+	setAccountProtection: data =>
 		apiFetch( {
 			method: 'POST',
 			path: 'jetpack/v4/account-protection',
 			data,
-		} ).then( camelize ),
-
-	getWaf: (): Promise< WafStatus > =>
-		apiFetch( {
-			path: 'jetpack-protect/v1/waf',
-			method: 'GET',
 		} ).then( camelize ),
 
 	toggleWaf: () =>
@@ -37,6 +30,12 @@ const API = {
 			method: 'POST',
 			path: 'jetpack-protect/v1/toggle-waf',
 		} ),
+
+	getWaf: (): Promise< WafStatus > =>
+		apiFetch( {
+			path: 'jetpack-protect/v1/waf',
+			method: 'GET',
+		} ).then( camelize ),
 
 	updateWaf: data =>
 		apiFetch( {

@@ -18,12 +18,12 @@ export default function useToggleAccountProtectionMutation(): UseMutationResult 
 		onMutate: () => {
 			showSavingNotice();
 
-			// Get the current cached data.
+			// Get the current cached data
 			const initialValue = queryClient.getQueryData< AccountProtectionStatus >( [
 				QUERY_ACCOUNT_PROTECTION_KEY,
 			] );
 
-			// Optimistically update the `isEnabled` property.
+			// Optimistically update the `isEnabled` property
 			if ( initialValue ) {
 				queryClient.setQueryData< AccountProtectionStatus >( [ QUERY_ACCOUNT_PROTECTION_KEY ], {
 					...initialValue,
@@ -33,11 +33,8 @@ export default function useToggleAccountProtectionMutation(): UseMutationResult 
 
 			return { initialValue };
 		},
-		onSuccess: ( data: AccountProtectionStatus ) => {
+		onSuccess: () => {
 			showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) );
-
-			// Update the cached data with the latest data from the server.
-			queryClient.setQueryData< AccountProtectionStatus >( [ QUERY_ACCOUNT_PROTECTION_KEY ], data );
 		},
 		onError: ( error, variables, context ) => {
 			// If the request failed, revert the optimistic update.
@@ -48,10 +45,10 @@ export default function useToggleAccountProtectionMutation(): UseMutationResult 
 				);
 			}
 
-			// Invalidate the query to refetch the latest data from the server.
-			queryClient.invalidateQueries( { queryKey: [ QUERY_ACCOUNT_PROTECTION_KEY ] } );
-
 			showErrorNotice( __( 'An error occurred.', 'jetpack-protect' ) );
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries( { queryKey: [ QUERY_ACCOUNT_PROTECTION_KEY ] } );
 		},
 	} );
 }

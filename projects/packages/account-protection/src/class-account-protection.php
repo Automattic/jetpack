@@ -25,6 +25,20 @@ class Account_Protection {
 	private static $hooks_registered = false;
 
 	/**
+	 * Password detection enabled.
+	 *
+	 * @var bool
+	 */
+	private $password_detection_enabled;
+
+	/**
+	 * Strong passwords enabled.
+	 *
+	 * @var bool
+	 */
+	private $strong_passwords_enabled;
+
+	/**
 	 * Modules instance.
 	 *
 	 * @var Modules
@@ -61,6 +75,9 @@ class Account_Protection {
 	 * @param ?Password_Strength_Meter $password_strength_meter Password strength meter instance.
 	 */
 	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null, ?Password_Manager $password_manager = null, ?Password_Strength_Meter $password_strength_meter = null ) {
+		$this->password_detection_enabled = get_option( Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME, true );
+		$this->strong_passwords_enabled   = get_option( Config::STRONG_PASSWORDS_ENABLED_OPTION_NAME, true );
+
 		$this->modules                 = $modules ?? new Modules();
 		$this->password_detection      = $password_detection ?? new Password_Detection();
 		$this->password_manager        = $password_manager ?? new Password_Manager();
@@ -73,6 +90,9 @@ class Account_Protection {
 	 * @return void
 	 */
 	public function init(): void {
+		// Register REST routes
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+
 		if ( self::$hooks_registered ) {
 			return;
 		}
@@ -107,31 +127,35 @@ class Account_Protection {
 	 * @return void
 	 */
 	protected function register_runtime_hooks(): void {
-		// Validate password after successful login
-		add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
+		if ( $this->password_detection_enabled ) {
+			// Validate password after successful login
+			add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
 
-		// Handle password detection login failure
-		add_action( 'wp_login_failed', array( $this->password_detection, 'handle_password_detection_validation_error' ), 10, 2 );
+			// Handle password detection login failure
+			add_action( 'wp_login_failed', array( $this->password_detection, 'handle_password_detection_validation_error' ), 10, 2 );
 
-		// Add password detection flow
-		add_action( 'login_form_password-detection', array( $this->password_detection, 'render_page' ), 10, 2 );
-		add_action( 'wp_enqueue_scripts', array( $this->password_detection, 'enqueue_styles' ) );
+			// Add password detection flow
+			add_action( 'login_form_password-detection', array( $this->password_detection, 'render_page' ), 10, 2 );
+			add_action( 'wp_enqueue_scripts', array( $this->password_detection, 'enqueue_styles' ) );
+		}
 
-		// Add password validation
-		add_action( 'user_profile_update_errors', array( $this->password_manager, 'validate_profile_update' ), 10, 3 );
-		add_action( 'validate_password_reset', array( $this->password_manager, 'validate_password_reset' ), 10, 2 );
+		if ( $this->strong_passwords_enabled ) {
+			// Add password validation
+			add_action( 'user_profile_update_errors', array( $this->password_manager, 'validate_profile_update' ), 10, 3 );
+			add_action( 'validate_password_reset', array( $this->password_manager, 'validate_password_reset' ), 10, 2 );
 
-		// Update recent passwords list
-		add_action( 'profile_update', array( $this->password_manager, 'on_profile_update' ), 10, 2 );
-		add_action( 'after_password_reset', array( $this->password_manager, 'on_password_reset' ), 10, 1 );
+			// Update recent passwords list
+			add_action( 'profile_update', array( $this->password_manager, 'on_profile_update' ), 10, 2 );
+			add_action( 'after_password_reset', array( $this->password_manager, 'on_password_reset' ), 10, 1 );
 
-		// Enqueue password strength meter scripts
-		add_action( 'admin_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_profile_script' ) );
-		add_action( 'login_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_reset_script' ) );
+			// Enqueue password strength meter scripts
+			add_action( 'admin_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_profile_script' ) );
+			add_action( 'login_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_reset_script' ) );
 
-		// AJAX endpoint for password validation
-		add_action( 'wp_ajax_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
-		add_action( 'wp_ajax_nopriv_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
+			// AJAX endpoint for password validation
+			add_action( 'wp_ajax_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
+			add_action( 'wp_ajax_nopriv_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
+		}
 	}
 
 	/**

@@ -21,8 +21,8 @@ const useAccountProtectionData = () => {
 	 * Flips the switch on the account protection module, and then refreshes the data.
 	 */
 	const toggleAccountProtection = useCallback( async () => {
-		toggleAccountProtectionMutation.mutate( { isEnabled: ! accountProtection.isEnabled } );
-	}, [ toggleAccountProtectionMutation, accountProtection.isEnabled ] );
+		toggleAccountProtectionMutation.mutate();
+	}, [ toggleAccountProtectionMutation ] );
 
 	/**
 	 * Ensure Account Protection Module Is Enabled
@@ -41,7 +41,7 @@ const useAccountProtectionData = () => {
 	 * Flips the switch on the WAF automatic rules feature, and then refreshes the data.
 	 */
 	const togglePasswordDetection = useCallback( async () => {
-		const value = ! accountProtection.config.passwordDetectionEnabled;
+		const value = ! accountProtection.config.jetpackAccountProtectionPasswordDetection;
 		await ensureModuleIsEnabled();
 		await accountProtectionMutation.mutateAsync( {
 			jetpack_account_protection_password_detection: value,
@@ -54,7 +54,7 @@ const useAccountProtectionData = () => {
 	}, [
 		ensureModuleIsEnabled,
 		recordEvent,
-		accountProtection.config.passwordDetectionEnabled,
+		accountProtection.config.jetpackAccountProtectionPasswordDetection,
 		accountProtectionMutation,
 	] );
 
@@ -64,14 +64,14 @@ const useAccountProtectionData = () => {
 	 * Flips the switch on the strong passwords feature, and then refreshes the data.
 	 */
 	const toggleStrongPasswords = useCallback( async () => {
-		const value = ! accountProtection.config.strongPasswordsEnabled;
+		const value = ! accountProtection.config.jetpackAccountProtectionStrongPasswords;
 		await ensureModuleIsEnabled();
 		await accountProtectionMutation.mutateAsync( {
 			jetpack_account_protection_strong_passwords: value,
 		} );
 	}, [
 		ensureModuleIsEnabled,
-		accountProtection.config.strongPasswordsEnabled,
+		accountProtection.config.jetpackAccountProtectionStrongPasswords,
 		accountProtectionMutation,
 	] );
 

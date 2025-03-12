@@ -14,8 +14,8 @@ export type AccountProtectionStatus = {
 
 export type AccountProtectionConfig = {
 	/** Whether the password detection feature is enabled. */
-	passwordDetectionEnabled: boolean;
+	jetpackAccountProtectionPasswordDetection: boolean;
 
 	/** Whether the strong passwords feature is enabled. */
-	strongPasswordsEnabled: boolean;
+	jetpackAccountProtectionStrongPasswords: boolean;
 };

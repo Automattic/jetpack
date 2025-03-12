@@ -15,7 +15,7 @@ export default function useAccountProtectionMutation(): UseMutationResult {
 	const { showSavingNotice, showSuccessNotice, showErrorNotice } = useNotices();
 
 	return useMutation( {
-		mutationFn: API.updateAccountProtection,
+		mutationFn: API.setAccountProtection,
 		onMutate: config => {
 			showSavingNotice();
 

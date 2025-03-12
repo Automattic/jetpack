@@ -31,10 +31,30 @@ class REST_Controller {
 
 		register_rest_route(
 			'jetpack/v4',
-			'/waf',
+			'/toggle-account-protection',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::update_account_protection',
+				'callback'            => __CLASS__ . '::api_toggle_account_protection',
+				'permission_callback' => __CLASS__ . '::account_protection_permissions_callback',
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/account-protection',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::api_get_account_protection',
+				'permission_callback' => __CLASS__ . '::account_protection_permissions_callback',
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/account-protection',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::api_set_account_protection',
 				'permission_callback' => __CLASS__ . '::account_protection_permissions_callback',
 			)
 		);
@@ -43,13 +63,55 @@ class REST_Controller {
 	}
 
 	/**
-	 * Update Account Protection Endpoint
+	 * Toggle Account Protection data for the API endpoint
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function api_toggle_account_protection() {
+		$account_protection = new Account_Protection();
+
+		if ( $account_protection->is_enabled() ) {
+			$disabled = $account_protection->disable();
+			if ( ! $disabled ) {
+				return new WP_Error(
+					'account_protection_disable_failed',
+					__( 'An error occurred disabling account protection.', 'jetpack-account-protection' ),
+					array( 'status' => 500 )
+				);
+			}
+
+			return rest_ensure_response( true );
+		}
+
+		$enabled = $account_protection->enable();
+		if ( ! $enabled ) {
+			return new WP_Error(
+				'account_protection_enable_failed',
+				__( 'An error occurred enabling account protection.', 'jetpack-account-protection' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response( true );
+	}
+
+	/**
+	 * Get Account Protection data for the API endpoint
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function api_get_account_protection() {
+		return new WP_REST_Response( ( new Settings() )->get() );
+	}
+
+	/**
+	 * Set Account Protection data for the API endpoint
 	 *
 	 * @param WP_REST_Request $request The API request.
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public static function update_account_protection( $request ) {
+	public static function api_set_account_protection( $request ) {
 		// Password Detection Enabled
 		if ( isset( $request[ Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME ] ) ) {
 			update_option( Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME, $request->get_param( Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME ) ? '1' : '' );
@@ -60,7 +122,7 @@ class REST_Controller {
 			update_option( Config::STRONG_PASSWORDS_ENABLED_OPTION_NAME, $request->get_param( Config::STRONG_PASSWORDS_ENABLED_OPTION_NAME ) ? '1' : '' );
 		}
 
-		return rest_ensure_response( Account_Protection_Settings::get_config() );
+		return rest_ensure_response( ( new Settings() )->get() );
 	}
 
 	/**

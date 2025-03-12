@@ -49,10 +49,8 @@ class Settings {
 	 * @return array
 	 */
 	public function get_config() {
-		$supports_auto_activation = $this->account_protection->environment_supports_auto_activation();
-
 		return array(
-			Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME => $supports_auto_activation ? (bool) get_option( Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME, true ) : false,
+			Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME => (bool) get_option( Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME, true ),
 			Config::STRONG_PASSWORDS_ENABLED_OPTION_NAME   => (bool) get_option( Config::STRONG_PASSWORDS_ENABLED_OPTION_NAME, true ),
 		);
 	}
