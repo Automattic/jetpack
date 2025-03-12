@@ -157,7 +157,7 @@ const Seo = () => {
 
 			<PluginPrePublishPanel { ...jetpackSeoPrePublishPanelProps }>
 				<>
-					{ isSeoEnhancerEnabled && isViewable && <SeoEnhancer /> }
+					{ isSeoEnhancerEnabled && isViewable && <SeoEnhancer autoRun={ true } /> }
 					<PanelRow>
 						<SeoTitlePanel />
 					</PanelRow>

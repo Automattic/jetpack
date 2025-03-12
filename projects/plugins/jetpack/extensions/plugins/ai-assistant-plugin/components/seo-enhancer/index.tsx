@@ -10,7 +10,7 @@ import {
 	CardBody,
 	CheckboxControl,
 } from '@wordpress/components';
-import { useState, useCallback } from '@wordpress/element';
+import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
@@ -26,7 +26,7 @@ import type { PromptType } from './types';
 
 const debug = debugFactory( 'seo-enhancer:index' );
 
-export function SeoEnhancer() {
+export function SeoEnhancer( { autoRun = false }: { autoRun?: boolean } ) {
 	const { isEnabled, toggleEnhancer, isToggling } = useSeoModuleSettings();
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ features, setFeatures ] = useState<
@@ -64,7 +64,7 @@ export function SeoEnhancer() {
 		);
 	}, [] );
 
-	const generateHandler = async () => {
+	const generateHandler = useCallback( async () => {
 		try {
 			setIsLoading( true );
 
@@ -74,7 +74,13 @@ export function SeoEnhancer() {
 		} finally {
 			setIsLoading( false );
 		}
-	};
+	}, [ updateSeoData ] );
+
+	useEffect( () => {
+		if ( isEnabled && autoRun ) {
+			debug( 'generateHandler', generateHandler );
+		}
+	}, [ isEnabled, autoRun, generateHandler ] );
 
 	return (
 		<>
