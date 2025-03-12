@@ -12,7 +12,7 @@ import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import { siteHasFeature } from 'state/site';
 import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
-import { AccountProtection } from './account-protection';
+import AccountProtection from './account-protection';
 import AllowList from './allowList';
 import Antispam from './antispam';
 import BackupsScan from './backups-scan';
@@ -92,6 +92,8 @@ export class Security extends Component {
 			<BackupsScan { ...commonProps } />
 		);
 
+		const foundAccountProtection = this.props.isModuleFound( 'account-protection' );
+
 		return (
 			<div>
 				<QuerySite />
@@ -113,7 +115,7 @@ export class Security extends Component {
 						<QueryAkismetKeyCheck />
 					</>
 				) }
-				<AccountProtection isModuleFound={ this.props.isModuleFound } { ...commonProps } />
+				{ foundAccountProtection && <AccountProtection { ...commonProps } /> }
 				{ foundWaf && <Waf { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ ( foundWaf || foundProtect ) && <AllowList { ...commonProps } /> }

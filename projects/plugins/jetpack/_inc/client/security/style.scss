@@ -12,6 +12,17 @@
 
 }
 
+.account-protection__settings {
+
+	margin: 24px 0 24px 0;
+
+	&__toggle-setting {
+		flex-wrap: wrap;
+		display: flex;
+		margin-bottom: 16px;
+	}
+}
+
 .waf__settings {
 	margin-top: 24px;
 	margin-left: 64px;
