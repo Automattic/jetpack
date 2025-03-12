@@ -18,7 +18,6 @@ use WP_Error;
  * Connection Manager functionality testing.
  */
 class ManagerTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Temporary stack for `wp_redirect`.
