@@ -50,11 +50,20 @@ if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller'
 			return isset( $_SERVER['REQUEST_URI'] ) &&
 				isset( $_SERVER['REQUEST_METHOD'] ) &&
 				'OPTIONS' !== $_SERVER['REQUEST_METHOD'] &&
-				preg_match(
-					'/\/' . preg_quote( self::$route_namespace, '/' ) .
-					'\/sites\/[^\/]+\/' .
-					preg_quote( self::$route, '/' ) . '/',
-					sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ) )
+				(
+					// Match the format: /wpcom/v2/sites/{site_id}/editor-assets
+					preg_match(
+						'/\/' . preg_quote( self::$route_namespace, '/' ) .
+						'\/sites\/[^\/]+\/' .
+						preg_quote( self::$route, '/' ) . '/',
+						sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ) )
+					) ||
+					// Match the format: /wp-json/wpcom/v2/editor-assets
+					preg_match(
+						'/\/wp-json\/' . preg_quote( self::$route_namespace, '/' ) .
+						'\/' . preg_quote( self::$route, '/' ) . '\/?$/',
+						sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ) )
+					)
 				);
 		}
 
