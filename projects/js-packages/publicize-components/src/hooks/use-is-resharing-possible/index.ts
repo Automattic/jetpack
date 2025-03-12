@@ -20,14 +20,7 @@ export function useIsReSharingPossible() {
 	const isSharingPossible = useIsSharingPossible();
 	const { isFetching } = useSharePost();
 
-	const { isPostPublished, isSavingPost } = useSelect( select => {
-		const editorSelector = select( editorStore );
-
-		return {
-			isPostPublished: editorSelector.isCurrentPostPublished(),
-			isSavingPost: editorSelector.isSavingPost(),
-		};
-	}, [] );
+	const { isCurrentPostPublished: isPostPublished, isSavingPost } = useSelect( editorStore, [] );
 
 	return (
 		isPublicizeEnabled && isSharingPossible && isPostPublished && ! isFetching && ! isSavingPost
