@@ -81,7 +81,8 @@
 		"ai-assistant-backend-prompts",
 		"ai-list-to-table-transform",
 		"ai-seo-assistant",
-		"ai-use-chrome-ai-sometimes"
+		"ai-use-chrome-ai-sometimes",
+		"ai-seo-enhancer"
 	],
 	"experimental": [],
 	"no-post-editor": [

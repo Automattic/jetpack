@@ -13,7 +13,6 @@ dist/**           production-include
 .phpcs.dir.xml    production-exclude
 .phpcsignore      production-exclude
 changelog/**      production-exclude
-phpunit.xml.dist  production-exclude
 src/**/*.css      production-exclude
 src/**/*.js       production-exclude
 src/**/*.scss     production-exclude

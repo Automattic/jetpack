@@ -15,7 +15,6 @@ use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -101,20 +100,6 @@ class Dashboard {
 			'window.jetpackFormsData = ' . wp_json_encode( array( 'apiRoot' => $api_root ) ) . ';',
 			'before'
 		);
-
-		if ( ( new Host() )->is_wpcom_platform() ) {
-			Assets::register_script(
-				'jp-forms-dashboard-wpcom',
-				'../../dist/dashboard/jetpack-forms-dashboard.wpcom.js',
-				__FILE__,
-				array(
-					'in_footer'    => true,
-					'textdomain'   => 'jetpack-forms',
-					'enqueue'      => true,
-					'dependencies' => array( self::SCRIPT_HANDLE ),
-				)
-			);
-		}
 	}
 
 	/**
@@ -176,7 +161,7 @@ class Dashboard {
 			'hasAI'                   => $has_ai,
 		);
 		?>
-		<div id="jp-forms-dashboard" style="min-height: calc(100vh - 100px);" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>
+		<div id="jp-forms-dashboard" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>
 		<?php
 	}
 

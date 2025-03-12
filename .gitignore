@@ -30,6 +30,7 @@ npm-debug.log
 .phpcs.xml
 .pnpm-debug.log
 phpcs.xml
+.phpunit.cache
 .phpunit.result.cache
 
 ## Things for Docker compose

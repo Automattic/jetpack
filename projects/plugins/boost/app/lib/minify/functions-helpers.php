@@ -16,11 +16,41 @@ function jetpack_boost_minify_cache_buster() {
 }
 
 /**
+ * This ensures that the cache cleanup cron job is only run once per day, espicially for multisite.
+ */
+function jetpack_boost_should_run_daily_network_cron_job( $hook ) {
+	// If we see it's been executed within 24 hours, don't run
+	if ( get_site_option( 'jetpack_boost_' . $hook . '_last_run', 0 ) > time() - DAY_IN_SECONDS ) {
+		return false;
+	}
+
+	update_site_option( 'jetpack_boost_' . $hook . '_last_run', time() );
+
+	return true;
+}
+
+/**
+ * This ensures that the cache cleanup cron job is only run once per day, espicially for multisite.
+ */
+function jetpack_boost_minify_cron_cache_cleanup() {
+	if ( ! jetpack_boost_should_run_daily_network_cron_job( 'minify_cron_cache_cleanup' ) ) {
+		return;
+	}
+
+	jetpack_boost_legacy_minify_cache_cleanup();
+	jetpack_boost_minify_cache_cleanup();
+}
+
+/**
  * Cleanup minify cache files stored using the legacy method.
  *
  * @param int $file_age The age of files to purge, in seconds.
  */
 function jetpack_boost_legacy_minify_cache_cleanup( $file_age = DAY_IN_SECONDS ) {
+	// If file_age is not an int, set it to the default.
+	// $file_age can be an empty string if calling this from an action: https://core.trac.wordpress.org/ticket/14881
+	$file_age = is_int( $file_age ) ? $file_age : DAY_IN_SECONDS;
+
 	$cache_folder = Config::get_legacy_cache_dir_path();
 
 	if ( ! is_dir( $cache_folder ) ) {
@@ -38,6 +68,9 @@ function jetpack_boost_legacy_minify_cache_cleanup( $file_age = DAY_IN_SECONDS )
  * @param int $file_age The age of files to purge, in seconds.
  */
 function jetpack_boost_minify_cache_cleanup( $file_age = DAY_IN_SECONDS ) {
+	// Explicitly cast to int as do_action() can pass a non-int value. https://core.trac.wordpress.org/ticket/14881
+	$file_age = is_int( $file_age ) ? $file_age : DAY_IN_SECONDS;
+
 	/*
 	 * Cleanup obsolete files in static cache folder.
 	 * If $file_age is 0, we can skip this as we will delete all files anyway.
@@ -190,8 +223,9 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
  */
 function jetpack_boost_page_optimize_schedule_404_tester() {
 	if ( false === wp_next_scheduled( 'jetpack_boost_404_tester_cron' ) ) {
-		// Run the test immediately, so the settings page can show the result.
 		wp_schedule_event( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' );
+
+		// Run the test immediately, so the settings page can show the result.
 		jetpack_boost_404_tester();
 	}
 }
@@ -354,7 +388,7 @@ function jetpack_boost_minify_serve_concatenated() {
  * @return void
  */
 function jetpack_boost_minify_activation( $setup_404_tester = true ) {
-	// Schedule cache cleanup.
+	// Schedule a cronjob for cache cleanup, if one isn't already scheduled.
 	jetpack_boost_page_optimize_schedule_cache_cleanup();
 
 	// Setup the cronjob to periodically test for the 404 handler.
@@ -374,8 +408,7 @@ function jetpack_boost_minify_is_enabled() {
  * Run during every page load if any minify module is active.
  */
 function jetpack_boost_minify_init() {
-	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_legacy_minify_cache_cleanup' );
-	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_minify_cache_cleanup' );
+	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_minify_cron_cache_cleanup' );
 
 	if ( jetpack_boost_page_optimize_bail() ) {
 		return;

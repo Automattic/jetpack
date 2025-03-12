@@ -59,7 +59,6 @@ module.exports = [
 			'wpcom-profile-settings-link-to-wpcom':
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
-			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 			'adminbar-launch-button': './src/features/launch-button/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,
