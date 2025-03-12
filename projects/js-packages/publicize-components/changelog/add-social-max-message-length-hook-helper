@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added a helper function to get the max message length

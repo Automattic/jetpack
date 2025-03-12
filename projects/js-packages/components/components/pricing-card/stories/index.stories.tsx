@@ -1,5 +1,5 @@
 import { action } from '@storybook/addon-actions';
-import PricingCard from '../index';
+import PricingCard from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
 export default {

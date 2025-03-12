@@ -806,10 +806,10 @@ class Posts extends Module {
 	 *
 	 * @param array $args The hook parameters.
 	 * @return array $args The expanded hook parameters.
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 4.7.0
 	 */
 	public function add_term_relationships( $args ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '4.7.0' );
 		list( $filtered_posts, $previous_interval_end ) = $args;
 
 		return array(

@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+We can now use user Jetpack token for authorizing API calls.

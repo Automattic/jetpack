@@ -1,5 +1,5 @@
 import { render, queryByAttribute } from '@testing-library/react';
-import RecordMeterBar, { RecordMeterBarProps } from '../index';
+import RecordMeterBar, { RecordMeterBarProps } from '../index.js';
 
 const getRecordBarItems = ( container: HTMLElement ) => {
 	// eslint-disable-next-line testing-library/no-node-access

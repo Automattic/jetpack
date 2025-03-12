@@ -66,6 +66,13 @@ class Query_Builder {
 	protected $bucket_filters        = array();
 	protected $bucket_sub_aggs       = array();
 
+	/**
+	 * Language codes.
+	 *
+	 * @var array
+	 */
+	private $langs;
+
 	public function get_langs() {
 		if ( isset( $this->langs ) ) {
 			return $this->langs;

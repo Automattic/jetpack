@@ -1,11 +1,11 @@
 import { __ } from '@wordpress/i18n';
 import { useContext } from 'react';
-import ThreatActions from './threat-actions';
-import ThreatFixDetails from './threat-fix-details';
-import ThreatNotice from './threat-notice';
-import ThreatSummary from './threat-summary';
-import ThreatTechnicalDetails from './threat-technical-details';
-import { ThreatModalContext } from '.';
+import ThreatActions from './threat-actions.js';
+import ThreatFixDetails from './threat-fix-details.js';
+import ThreatNotice from './threat-notice.js';
+import ThreatSummary from './threat-summary.js';
+import ThreatTechnicalDetails from './threat-technical-details.js';
+import { ThreatModalContext } from './index.js';
 
 /**
  * ThreatFixConfirmation component

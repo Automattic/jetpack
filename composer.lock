@@ -63,14 +63,15 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "686f7115142bafa2a91ada334a821142443f4e61"
+                "reference": "28844eaa6e05b103fcf223c2e5376ddae4598d6a"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-                "mediawiki/mediawiki-codesniffer": "^45.0",
-                "php": ">=7.4",
+                "mediawiki/mediawiki-codesniffer": "^46.0",
+                "php": ">=8.0",
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpcsstandards/phpcsutils": "^1.0",
                 "sirbrillig/phpcs-variable-analysis": "^2.10",
                 "wp-coding-standards/wpcs": "^3.0"
             },
@@ -767,16 +768,16 @@
         },
         {
             "name": "mediawiki/mediawiki-codesniffer",
-            "version": "v45.0.0",
+            "version": "v46.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-tools-codesniffer.git",
-                "reference": "3ebb209514384d68ba52f16c26ba192a9027442d"
+                "reference": "6bd8a9ac4c10bf393dcd9ef32e3402399128a9e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/3ebb209514384d68ba52f16c26ba192a9027442d",
-                "reference": "3ebb209514384d68ba52f16c26ba192a9027442d",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/6bd8a9ac4c10bf393dcd9ef32e3402399128a9e5",
+                "reference": "6bd8a9ac4c10bf393dcd9ef32e3402399128a9e5",
                 "shasum": ""
             },
             "require": {
@@ -786,16 +787,16 @@
                 "ext-mbstring": "*",
                 "php": ">=7.4.0",
                 "phpcsstandards/phpcsextra": "1.2.1",
-                "squizlabs/php_codesniffer": "3.10.3",
+                "squizlabs/php_codesniffer": "3.11.3",
                 "symfony/polyfill-php80": "^1.26.0"
             },
             "require-dev": {
                 "ext-dom": "*",
-                "mediawiki/mediawiki-phan-config": "0.14.0",
+                "mediawiki/mediawiki-phan-config": "0.15.1",
                 "mediawiki/minus-x": "1.1.3",
                 "php-parallel-lint/php-console-highlighter": "1.0.0",
                 "php-parallel-lint/php-parallel-lint": "1.4.0",
-                "phpunit/phpunit": "9.6.16"
+                "phpunit/phpunit": "9.6.21"
             },
             "type": "phpcodesniffer-standard",
             "autoload": {
@@ -815,9 +816,9 @@
                 "mediawiki"
             ],
             "support": {
-                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v45.0.0"
+                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v46.0.0"
             },
-            "time": "2024-10-29T17:38:15+00:00"
+            "time": "2025-01-27T21:05:44+00:00"
         },
         {
             "name": "microsoft/tolerant-php-parser",
@@ -1058,16 +1059,16 @@
         },
         {
             "name": "php-stubs/woocommerce-stubs",
-            "version": "v9.5.0",
+            "version": "v9.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/woocommerce-stubs.git",
-                "reference": "813f3cad9892bd3b6ffae9334a4ccaa73692b439"
+                "reference": "3d5ee501872282058abbd0d6d6b08c511de039de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/813f3cad9892bd3b6ffae9334a4ccaa73692b439",
-                "reference": "813f3cad9892bd3b6ffae9334a4ccaa73692b439",
+                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/3d5ee501872282058abbd0d6d6b08c511de039de",
+                "reference": "3d5ee501872282058abbd0d6d6b08c511de039de",
                 "shasum": ""
             },
             "require": {
@@ -1096,22 +1097,22 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/woocommerce-stubs/issues",
-                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v9.5.0"
+                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v9.7.0"
             },
-            "time": "2024-12-17T03:31:31+00:00"
+            "time": "2025-02-25T12:21:28+00:00"
         },
         {
             "name": "php-stubs/wordpress-stubs",
-            "version": "v6.7.1",
+            "version": "v6.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-stubs.git",
-                "reference": "83448e918bf06d1ed3d67ceb6a985fc266a02fd1"
+                "reference": "c04f96cb232fab12a3cbcccf5a47767f0665c3f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/83448e918bf06d1ed3d67ceb6a985fc266a02fd1",
-                "reference": "83448e918bf06d1ed3d67ceb6a985fc266a02fd1",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/c04f96cb232fab12a3cbcccf5a47767f0665c3f4",
+                "reference": "c04f96cb232fab12a3cbcccf5a47767f0665c3f4",
                 "shasum": ""
             },
             "require-dev": {
@@ -1144,22 +1145,22 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.7.1"
+                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.7.2"
             },
-            "time": "2024-11-24T03:57:09+00:00"
+            "time": "2025-02-12T04:51:58+00:00"
         },
         {
             "name": "php-stubs/wordpress-tests-stubs",
-            "version": "v6.7.1",
+            "version": "v6.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-tests-stubs.git",
-                "reference": "37cc3f2136034cc239149151933e1c5be6ce6103"
+                "reference": "8aa4346a54022a6f3823a5621213e96862bb8fb0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/37cc3f2136034cc239149151933e1c5be6ce6103",
-                "reference": "37cc3f2136034cc239149151933e1c5be6ce6103",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/8aa4346a54022a6f3823a5621213e96862bb8fb0",
+                "reference": "8aa4346a54022a6f3823a5621213e96862bb8fb0",
                 "shasum": ""
             },
             "require-dev": {
@@ -1184,9 +1185,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-tests-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v6.7.1"
+                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v6.7.2"
             },
-            "time": "2024-11-23T22:07:27+00:00"
+            "time": "2025-02-11T16:45:49+00:00"
         },
         {
             "name": "php-stubs/wp-cli-stubs",
@@ -1779,16 +1780,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "2.0.0",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "c00d78fb6b29658347f9d37ebe104bffadf36299"
+                "reference": "9b30d6fd026b2c132b3985ce6b23bec09ab3aa68"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/c00d78fb6b29658347f9d37ebe104bffadf36299",
-                "reference": "c00d78fb6b29658347f9d37ebe104bffadf36299",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/9b30d6fd026b2c132b3985ce6b23bec09ab3aa68",
+                "reference": "9b30d6fd026b2c132b3985ce6b23bec09ab3aa68",
                 "shasum": ""
             },
             "require": {
@@ -1820,9 +1821,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/2.0.0"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/2.1.0"
             },
-            "time": "2024-10-13T11:29:49+00:00"
+            "time": "2025-02-19T13:28:12+00:00"
         },
         {
             "name": "psr/container",
@@ -2106,16 +2107,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.10.3",
+            "version": "3.11.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/PHP_CodeSniffer",
-                "reference": "003b725471d9b59e4654eb338fabb0bd12d24b0f"
+                "reference": "ced34d3d7a3b3d63db3d192d1f287eecd8017224"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/003b725471d9b59e4654eb338fabb0bd12d24b0f",
-                "reference": "003b725471d9b59e4654eb338fabb0bd12d24b0f",
+                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/ced34d3d7a3b3d63db3d192d1f287eecd8017224",
+                "reference": "ced34d3d7a3b3d63db3d192d1f287eecd8017224",
                 "shasum": ""
             },
             "require": {

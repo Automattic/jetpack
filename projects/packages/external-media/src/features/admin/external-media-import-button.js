@@ -8,7 +8,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		buttonContainer.className = 'wpcom-media-library-action-buttons';
 
 		const importButton = document.createElement( 'a' );
-		importButton.className = 'button';
+		importButton.className = 'button-secondary';
 		importButton.role = 'button';
 		importButton.innerHTML = __( 'Import Media', 'jetpack-external-media' );
 		importButton.href = window.JETPACK_EXTERNAL_MEDIA_IMPORT_BUTTON?.href;

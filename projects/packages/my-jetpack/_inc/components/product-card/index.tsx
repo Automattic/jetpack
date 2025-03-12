@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectSite from '../../hooks/use-connect-site';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -16,10 +16,18 @@ import styles from './style.module.scss';
 import type { AdditionalAction, SecondaryAction } from '../action-button/types';
 import type { FC, MouseEventHandler, ReactNode, MouseEvent } from 'react';
 
+/**
+ * Generate the product card title ID attribute from a product slug
+ *
+ * @param {string} slug - The product slug
+ * @return {string} The generated title ID attribute
+ */
+export const getProductCardTitleId = slug => `product-card-title-${ slug }`;
+
 export type ProductCardProps = {
 	children?: ReactNode;
 	name: string;
-	Description: FC;
+	Description: FC | string;
 	admin: boolean;
 	recommendation?: boolean;
 	isDataLoading?: boolean;
@@ -43,6 +51,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 		name,
 		Description,
 		status,
+		admin,
 		isDataLoading,
 		slug,
 		additionalActions,
@@ -57,7 +66,9 @@ const ProductCard: FC< ProductCardProps > = props => {
 
 	let { secondaryAction } = props;
 
-	const { ownedProducts } = getMyJetpackWindowInitialState( 'lifecycleStats' );
+	const {
+		data: { ownedProducts },
+	} = useProductsByOwnership();
 	const isOwned = ownedProducts?.includes( slug );
 
 	const isError =
@@ -130,11 +141,12 @@ const ProductCard: FC< ProductCardProps > = props => {
 
 	return (
 		<Card
-			title={ name }
+			title={ name || slug }
 			className={ clsx( styles.container, containerClassName ) }
 			headerRightContent={ null }
 			onMouseEnter={ onMouseEnter }
 			onMouseLeave={ onMouseLeave }
+			titleId={ getProductCardTitleId( slug ) }
 		>
 			{ recommendation && <PriceComponent slug={ slug } /> }
 			<Description />
@@ -149,22 +161,11 @@ const ProductCard: FC< ProductCardProps > = props => {
 				<RecommendationActions slug={ slug } />
 			) : (
 				<div className={ styles.actions }>
-					<div className={ styles.buttons }>
-						{ secondaryAction && secondaryAction?.positionFirst && (
-							<SecondaryButton { ...secondaryAction } />
-						) }
-						<ActionButton
-							slug={ slug }
-							additionalActions={ additionalActions }
-							primaryActionOverride={ primaryActionOverride }
-							fixSiteConnectionHandler={ fixSiteConnectionHandler }
-							setIsActionLoading={ setIsActionLoading }
-							tracksIdentifier="product_card"
-						/>
-						{ secondaryAction && ! secondaryAction?.positionFirst && (
-							<SecondaryButton { ...secondaryAction } />
-						) }
-					</div>
+					{
+						// TODO: only some products (social connections for example) have settings for non-admins
+						// Each product needs to specify this separately and provide a destination to link to for management by non-admins
+						// Until then, we don't show any action buttons or links on product cards for non-admins
+					 }
 					<Status
 						status={ status }
 						isFetching={ isLoading }
@@ -172,6 +173,25 @@ const ProductCard: FC< ProductCardProps > = props => {
 						isOwned={ isOwned }
 						suppressNeedsAttention={ slug === 'protect' }
 					/>
+					{ admin && (
+						<div className={ styles.buttons }>
+							{ secondaryAction && secondaryAction?.positionFirst && (
+								<SecondaryButton { ...secondaryAction } />
+							) }
+							<ActionButton
+								slug={ slug }
+								additionalActions={ additionalActions }
+								primaryActionOverride={ primaryActionOverride }
+								fixSiteConnectionHandler={ fixSiteConnectionHandler }
+								setIsActionLoading={ setIsActionLoading }
+								tracksIdentifier="product_card"
+								labelSuffixId={ getProductCardTitleId( slug ) }
+							/>
+							{ secondaryAction && ! secondaryAction?.positionFirst && admin && (
+								<SecondaryButton { ...secondaryAction } />
+							) }
+						</div>
+					) }
 				</div>
 			) }
 		</Card>

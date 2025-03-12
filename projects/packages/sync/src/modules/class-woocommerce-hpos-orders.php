@@ -228,10 +228,10 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @param array $args List of order IDs.
 	 *
 	 * @return array
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 4.7.0
 	 */
 	public function expand_order_objects( $args ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '4.7.0' );
 		list( $order_ids, $previous_end ) = $args;
 		return array(
 			'orders'       => $this->get_objects_by_id( 'order', $order_ids ),

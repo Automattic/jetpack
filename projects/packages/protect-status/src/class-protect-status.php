@@ -15,7 +15,7 @@ use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect_Models\Extension_Model;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Models\Threat_Model;
-use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Protect_Models\Vulnerability_Model;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Jetpack_Options;
 use WP_Error;
@@ -111,7 +111,10 @@ class Protect_Status extends Status {
 		$response = Client::wpcom_json_api_request_as_blog(
 			self::get_api_url(),
 			'2',
-			array( 'method' => 'GET' ),
+			array(
+				'method'  => 'GET',
+				'timeout' => 30,
+			),
 			null,
 			'wpcom'
 		);
@@ -223,21 +226,29 @@ class Protect_Status extends Status {
 				continue;
 			}
 
-			$extension->checked = true;
+			$extension->checked         = true;
+			$extension_threats[ $slug ] = $extension;
 
-			foreach ( $checked_extension->vulnerabilities as $vulnerability ) {
-				$threat         = new Threat_Model( $vulnerability );
-				$threat->source = isset( $vulnerability->id ) ? Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $vulnerability->id ) ) : null;
+			if ( is_array( $checked_extension->vulnerabilities ) && ! empty( $checked_extension->vulnerabilities ) ) {
+				// normalize the vulnerabilities data
+				$vulnerabilities = array_map(
+					function ( $vulnerability ) {
+						return new Vulnerability_Model( $vulnerability );
+					},
+					$checked_extension->vulnerabilities
+				);
 
-				$threat_extension            = clone $extension;
-				$extension_threat            = clone $threat;
-				$extension_threat->extension = null;
+				// convert the detected vulnerabilities into a vulnerable extension threat
+				$threat = Threat_Model::generate_from_extension_vulnerabilities( $extension, $vulnerabilities );
 
+				$threat_extension = clone $extension;
+				$extension_threat = clone $threat;
+
+				$extension_threat->extension           = null;
 				$extension_threats[ $slug ]->threats[] = $extension_threat;
 
 				$threat->extension = $threat_extension;
 				$status->threats[] = $threat;
-
 			}
 		}
 
@@ -284,27 +295,26 @@ class Protect_Status extends Status {
 		// If we've made it this far, the core version has been checked.
 		$core->checked = true;
 
-		// Extract threat data from the report.
-		if ( is_array( $report_data->core->vulnerabilities ) ) {
-			foreach ( $report_data->core->vulnerabilities as $vulnerability ) {
-				$threat = new Threat_Model(
-					array(
-						'id'          => $vulnerability->id,
-						'title'       => $vulnerability->title,
-						'fixed_in'    => $vulnerability->fixed_in,
-						'description' => isset( $vulnerability->description ) ? $vulnerability->description : null,
-						'source'      => isset( $vulnerability->id ) ? Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $vulnerability->id ) ) : null,
-					)
-				);
+		// Generate a threat from core vulnerabilities.
+		if ( is_array( $report_data->core->vulnerabilities ) && ! empty( $report_data->core->vulnerabilities ) ) {
+			// normalize the vulnerabilities data
+			$vulnerabilities = array_map(
+				function ( $vulnerability ) {
+					return new Vulnerability_Model( $vulnerability );
+				},
+				$report_data->core->vulnerabilities
+			);
 
-				$threat_extension = clone $core;
-				$extension_threat = clone $threat;
+			// convert the detected vulnerabilities into a vulnerable extension threat
+			$threat = Threat_Model::generate_from_extension_vulnerabilities( $core, $vulnerabilities );
 
-				$core->threats[]   = $extension_threat;
-				$threat->extension = $threat_extension;
+			$threat_extension = clone $core;
+			$extension_threat = clone $threat;
 
-				$status->threats[] = $threat;
-			}
+			$core->threats[]   = $extension_threat;
+			$threat->extension = $threat_extension;
+
+			$status->threats[] = $threat;
 		}
 
 		$status->core = $core;

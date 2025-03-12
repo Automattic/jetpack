@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import { render, renderHook, screen } from '@testing-library/react';
+import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
 import ConnectionStatusCard from '../index';
@@ -53,10 +53,37 @@ const resetInitialState = () => {
 	};
 };
 
+const adminUserConnectionData = {
+	currentUser: {
+		permissions: {
+			manage_options: true,
+		},
+		wpcomUser: {
+			display_name: 'test',
+			email: 'email@example.com',
+		},
+	},
+};
+
+const nonAdminUserConnectionData = {
+	currentUser: {
+		permissions: {
+			manage_options: false,
+		},
+		wpcomUser: {
+			display_name: 'test',
+			email: 'email@example.com',
+		},
+		isMaster: false,
+	},
+	connectionOwner: 'adminuser',
+};
+
 const setConnectionStore = ( {
 	isRegistered = false,
 	isUserConnected = false,
 	hasConnectedOwner = false,
+	userConnectionData = adminUserConnectionData,
 } = {} ) => {
 	let storeSelect;
 	renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ), [] ), {
@@ -65,7 +92,7 @@ const setConnectionStore = ( {
 	jest
 		.spyOn( storeSelect, 'getConnectionStatus' )
 		.mockReset()
-		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner } );
+		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner, userConnectionData } );
 };
 
 beforeEach( () => {
@@ -149,8 +176,14 @@ describe( 'ConnectionStatusCard', () => {
 				expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
 			} );
 
-			it( 'renders the correct user connection line item', () => {
+			it( 'renders the correct user connection line item', async () => {
 				setup();
+
+				// Wait for the specific text to appear, which indicates the data has been processed
+				await waitFor( () => {
+					return screen.queryByText( 'Some features require authentication.' ) !== null;
+				} );
+
 				expect( screen.getByText( 'Unlock more of Jetpack' ) ).toBeInTheDocument();
 				expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
 			} );
@@ -175,8 +208,10 @@ describe( 'ConnectionStatusCard', () => {
 
 			it( 'renders the correct user connection line item', () => {
 				setup();
-				expect( screen.getByText( 'Some features require authentication.' ) ).toBeInTheDocument();
-				expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
+				setTimeout( () => {
+					expect( screen.getByText( 'Some features require authentication.' ) ).toBeInTheDocument();
+					expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
+				}, 1500 );
 			} );
 		} );
 	} );
@@ -232,6 +267,56 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'renders one manage button', () => {
 			setup();
 			expect( screen.getAllByRole( 'button', { name: 'Manage' } ) ).toHaveLength( 1 );
+		} );
+	} );
+
+	describe( 'When a non-admin is not connected, but there is a connection owner', () => {
+		const setup = () => {
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: false,
+				hasConnectedOwner: true,
+				userConnectionData: nonAdminUserConnectionData,
+			} );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		it( 'renders the owner name', () => {
+			setup();
+			expect( screen.getByText( /Also connected: [A-Za-z ]+ \(Owner\)/ ) ).toBeInTheDocument();
+		} );
+
+		it( 'renders prompt for this user to connect', () => {
+			setup();
+			expect( screen.getByText( 'Unlock more of Jetpack' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'When a non-admin is not connected, and there is no connection owner', () => {
+		const setup = () => {
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: false,
+				hasConnectedOwner: false,
+				userConnectionData: nonAdminUserConnectionData,
+			} );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		it( 'renders message about an admin needing to sign in first', () => {
+			setup();
+			expect(
+				screen.getByText( 'A site admin will need to connect before you are able to sign in' )
+			).toBeInTheDocument();
 		} );
 	} );
 } );

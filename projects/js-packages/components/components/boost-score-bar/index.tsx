@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import Gridicon from '../gridicon';
-import type { BoostScoreBarProps } from './types';
+import Gridicon from '../gridicon/index.js';
+import type { BoostScoreBarProps } from './types.js';
 import type { FunctionComponent } from 'react';
 
 import './style.scss';

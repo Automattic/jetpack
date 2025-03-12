@@ -82,6 +82,8 @@ const MyJetpack = () => {
 					<Route path={ MyJetpackRoutes.AddSecurity } element={ <SecurityInterstitial /> } />
 					<Route path={ MyJetpackRoutes.AddGrowth } element={ <GrowthInterstitial /> } />
 					<Route path={ MyJetpackRoutes.AddComplete } element={ <CompleteInterstitial /> } />
+					{ /* Fallback route. Required to prevent visiting `?page=my-jetpack#wpbody-content` from raising an exception. */ }
+					<Route path="*" element={ <MyJetpackScreen /> } />
 				</Routes>
 			</HashRouter>
 		</Providers>

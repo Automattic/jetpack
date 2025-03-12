@@ -19,7 +19,7 @@ class Set_Provider_Error_Dismissed implements Data_Sync_Action {
 		$state = new Critical_CSS_State();
 
 		foreach ( $data as $item ) {
-			if ( empty( $item['key'] ) ) {
+			if ( empty( $item['provider'] ) ) {
 				return array(
 					'success' => false,
 					'state'   => $state->get(),
@@ -27,10 +27,10 @@ class Set_Provider_Error_Dismissed implements Data_Sync_Action {
 				);
 			}
 
-			$provider_key = sanitize_key( $item['key'] );
+			$provider_key = sanitize_key( $item['provider'] );
 			$dismissed    = ! empty( $item['dismissed'] );
 
-			$state->set_provider_error_dismissed( $provider_key, $dismissed );
+			$state->set_provider_error_dismissed( $provider_key, $item['error_type'], $dismissed );
 		}
 
 		$state->save();

@@ -1,4 +1,4 @@
-import JetpackVideoPressLogo from '../index';
+import JetpackVideoPressLogo from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
 export default {

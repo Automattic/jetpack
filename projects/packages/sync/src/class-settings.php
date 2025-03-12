@@ -384,6 +384,24 @@ class Settings {
 	}
 
 	/**
+	 * Returns escaped SQL for whitelisted taxonomies.
+	 * Can be injected directly into a WHERE clause.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return string SQL WHERE clause.
+	 */
+	public static function get_whitelisted_taxonomies_sql() {
+		global $wp_taxonomies;
+
+		$allowed_taxonomies = array_keys( $wp_taxonomies );
+		$allowed_taxonomies = array_diff( $allowed_taxonomies, static::get_setting( 'taxonomies_blacklist' ) );
+
+		return "taxonomy IN ('" . implode( "', '", array_map( 'esc_sql', $allowed_taxonomies ) ) . "')";
+	}
+
+	/**
 	 * Returns escaped SQL for blacklisted post meta.
 	 * Can be injected directly into a WHERE clause.
 	 *

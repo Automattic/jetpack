@@ -13,12 +13,18 @@ import getCriticalCssErrorSetInterpolateVars from '$lib/utils/get-critical-css-e
  * Remove GET parameters that are used to cache-bust from display URLs, as they add visible noise
  * to the error output with no real benefit to users understanding which URLs are problematic.
  *
+ * If the URL is invalid, return the original URL.
+ *
  * @param url The URL to strip cache parameters from.
  */
 export function stripCacheParams( url: string ): string {
-	const urlObj = new URL( url );
-	urlObj.searchParams.delete( 'donotcachepage' );
-	return urlObj.toString();
+	try {
+		const urlObj = new URL( url );
+		urlObj.searchParams.delete( 'donotcachepage' );
+		return urlObj.toString();
+	} catch ( err ) {
+		return url;
+	}
 }
 
 const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > = ( {

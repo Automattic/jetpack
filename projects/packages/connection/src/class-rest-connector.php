@@ -167,6 +167,20 @@ class REST_Connector {
 			)
 		);
 
+		// Disconnect/unlink user from WordPress.com servers.
+		// this endpoint is set to override the older endpoint that was previously in the Jetpack plugin
+		// Override is here in case an older version of the Jetpack plugin is installed alongside an updated standalone
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/user',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::unlink_user',
+				'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
+			),
+			true // override other implementations
+		);
+
 		// We are only registering this route if Jetpack-the-plugin is not active or it's version is ge 10.0-alpha.
 		// The reason for doing so is to avoid conflicts between the Connection package and
 		// older versions of Jetpack, registering the same route twice.
@@ -214,19 +228,15 @@ class REST_Connector {
 				'callback'            => array( $this, 'connection_register' ),
 				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
 				'args'                => array(
-					'from'               => array(
+					'from'         => array(
 						'description' => __( 'Indicates where the registration action was triggered for tracking/segmentation purposes', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
-					'registration_nonce' => array(
-						'description' => __( 'The registration nonce', 'jetpack-connection' ),
-						'type'        => 'string',
-					),
-					'redirect_uri'       => array(
+					'redirect_uri' => array(
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
-					'plugin_slug'        => array(
+					'plugin_slug'  => array(
 						'description' => __( 'Indicates from what plugin the request is coming from', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
@@ -342,7 +352,7 @@ class REST_Connector {
 	public function remote_provision( WP_REST_Request $request ) {
 		$request_data = $request->get_params();
 
-		if ( did_action( 'application_password_did_authenticate' ) && current_user_can( 'jetpack_connect_user' ) ) {
+		if ( current_user_can( 'jetpack_connect_user' ) ) {
 			$request_data['local_user'] = get_current_user_id();
 		}
 
@@ -404,13 +414,8 @@ class REST_Connector {
 	 * @return true|WP_Error
 	 */
 	public function remote_provision_permission_check( WP_REST_Request $request ) {
-		// We allow the app password authentication only if 'local_user' is empty for security reasons.
-		if ( empty( $request['local_user'] ) && did_action( 'application_password_did_authenticate' ) ) {
-			if ( current_user_can( 'jetpack_connect_user' ) ) {
-				return true;
-			}
-
-			return new WP_Error( 'invalid_user_permission_remote_provision', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+		if ( empty( $request['local_user'] ) && current_user_can( 'jetpack_connect_user' ) ) {
+			return true;
 		}
 
 		return Rest_Authentication::is_signed_with_blog_token()
@@ -576,6 +581,27 @@ class REST_Connector {
 	}
 
 	/**
+	 * Verify that a user can use the /connection/user endpoint. Has to be a registered user and be currently linked.
+	 *
+	 * @since 6.3.3
+	 *
+	 * @return bool|WP_Error True if user is able to unlink.
+	 */
+	public static function unlink_user_permission_callback() {
+		// This is a mapped capability
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown
+		if ( current_user_can( 'jetpack_unlink_user' ) && ( new Manager() )->is_user_connected( get_current_user_id() ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_unlink_user',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
 	 * Get miscellaneous user data related to the connection. Similar data available in old "My Jetpack".
 	 * Information about the master/primary user.
 	 * Information about the current user.
@@ -625,9 +651,13 @@ class REST_Connector {
 			'wpcomUser'   => $wpcom_user_data,
 			'gravatar'    => get_avatar_url( $current_user->ID ),
 			'permissions' => array(
-				'connect'      => current_user_can( 'jetpack_connect' ),
-				'connect_user' => current_user_can( 'jetpack_connect_user' ),
-				'disconnect'   => current_user_can( 'jetpack_disconnect' ),
+				'connect'        => current_user_can( 'jetpack_connect' ),
+				'connect_user'   => current_user_can( 'jetpack_connect_user' ),
+				// This is a mapped capability
+				// phpcs:ignore WordPress.WP.Capabilities.Unknown
+				'unlink_user'    => current_user_can( 'jetpack_unlink_user' ),
+				'disconnect'     => current_user_can( 'jetpack_disconnect' ),
+				'manage_options' => current_user_can( 'manage_options' ),
 			),
 		);
 
@@ -643,6 +673,7 @@ class REST_Connector {
 		$response = array(
 			'currentUser'     => $current_user_connection_data,
 			'connectionOwner' => $owner_display_name,
+			'isRegistered'    => $connection->is_connected(),
 		);
 
 		if ( $rest_response ) {
@@ -797,9 +828,10 @@ class REST_Connector {
 	}
 
 	/**
-	 * The endpoint tried to partially or fully reconnect the website to WP.com.
+	 * The endpoint tried to connect Jetpack site to WPCOM.
 	 *
 	 * @since 1.7.0
+	 * @since 6.7.0 No longer needs `registration_nonce`.
 	 * @since-jetpack 7.7.0
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
@@ -807,11 +839,6 @@ class REST_Connector {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public function connection_register( $request ) {
-		// Only require nonce if cookie authentication is used.
-		if ( did_action( 'auth_cookie_valid' ) && ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
-			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack-connection' ), array( 'status' => 403 ) );
-		}
-
 		if ( isset( $request['from'] ) ) {
 			$this->connection->add_register_request_param( 'from', (string) $request['from'] );
 		}
@@ -945,6 +972,51 @@ class REST_Connector {
 			esc_html__( 'Failed to disconnect the site as it appears already disconnected.', 'jetpack-connection' ),
 			array( 'status' => 400 )
 		);
+	}
+
+	/**
+	 * Unlinks current user from the WordPress.com Servers.
+	 *
+	 * @since 6.3.3
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return bool|WP_Error True if user successfully unlinked.
+	 */
+	public static function unlink_user( $request ) {
+
+		if ( ! isset( $request['linked'] ) || false !== $request['linked'] ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack-connection' ), array( 'status' => 404 ) );
+		}
+
+		// If the user is also connection owner, we need to disconnect all users. Since disconnecting all users is a destructive action, we need to pass a parameter to confirm the action.
+		$disconnect_all_users = false;
+
+		if ( ( new Manager() )->get_connection_owner_id() === get_current_user_id() ) {
+			if ( isset( $request['disconnect-all-users'] ) && false !== $request['disconnect-all-users'] ) {
+				$disconnect_all_users = true;
+			} else {
+				return new WP_Error( 'unlink_user_failed', esc_html__( 'Unable to unlink the connection owner.', 'jetpack-connection' ), array( 'status' => 400 ) );
+			}
+		}
+
+		// Allow admins to force a disconnect by passing the "force" parameter
+		// This allows an admin to disconnect themselves
+		if ( isset( $request['force'] ) && false !== $request['force'] && current_user_can( 'manage_options' ) && ( new Manager( 'jetpack' ) )->disconnect_user_force( get_current_user_id(), $disconnect_all_users ) ) {
+			return rest_ensure_response(
+				array(
+					'code' => 'success',
+				)
+			);
+		} elseif ( ( new Manager( 'jetpack' ) )->disconnect_user() ) {
+			return rest_ensure_response(
+				array(
+					'code' => 'success',
+				)
+			);
+		}
+
+		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user. Please try again.', 'jetpack-connection' ), array( 'status' => 400 ) );
 	}
 
 	/**

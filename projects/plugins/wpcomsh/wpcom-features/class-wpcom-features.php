@@ -380,6 +380,7 @@ class WPCOM_Features {
 	public const INSTALL_THEMES                    = 'install-themes';
 	public const INSTALL_WOO_ONBOARDING_PLUGINS    = 'install-woo-onboarding-plugins';
 	public const INSTANT_SEARCH                    = 'instant-search';
+	public const INSTANT_SEARCH_29                 = 'instant-search_29'; // TEMP AND TO BE DELETED AFTER REBUILDING the jetpack-search index
 	public const JETPACK_DASHBOARD                 = 'jetpack-dashboard';
 	public const LEGACY_CONTACT                    = 'legacy-contact';
 	public const LIST_INSTALLED_PLUGINS            = 'list-installed-plugins';
@@ -773,6 +774,16 @@ class WPCOM_Features {
 			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 		),
 		self::INSTANT_SEARCH                    => array(
+			self::WPCOM_BUSINESS_PLANS,
+			self::WPCOM_ECOMMERCE_PLANS,
+			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			self::WPCOM_SEARCH,
+			self::WPCOM_SEARCH_MONTHLY,
+			self::WP_P2_PLUS_MONTHLY,
+			self::JETPACK_SEARCH_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+		),
+		self::INSTANT_SEARCH_29                 => array(
 			self::WPCOM_SEARCH,
 			self::WPCOM_SEARCH_MONTHLY,
 			self::WP_P2_PLUS_MONTHLY,
@@ -1060,6 +1071,7 @@ class WPCOM_Features {
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_SOCIAL_PLANS,
 			self::JETPACK_GROWTH_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		self::SOCIAL_IMAGE_GENERATOR            => array(
 			self::JETPACK_SOCIAL_ADVANCED_PLANS,
@@ -1070,12 +1082,7 @@ class WPCOM_Features {
 			self::JETPACK_GROWTH_PLANS,
 		),
 		self::SOCIAL_ADMIN_PAGE                 => array(
-			array(
-				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
-				'before' => '1900-01-01',
-				self::WPCOM_ALL_SITES,
-				self::JETPACK_ALL_SITES,
-			),
+			self::WPCOM_ALL_SITES,
 		),
 		self::SOCIAL_MASTODON_CONNECTION        => array(
 			array(

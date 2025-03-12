@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix potential race condition if multiple requests are triggered

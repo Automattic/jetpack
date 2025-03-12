@@ -1,6 +1,6 @@
-import { Button, ToolbarButton, Notice } from '@wordpress/components';
+import { Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { _x, __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { accessOptions } from './constants';
 
 /**
@@ -49,27 +49,3 @@ export const MisconfigurationWarning = () => (
 		) }
 	</Notice>
 );
-
-export const paidPlanButtonText = hasTierPlans => {
-	return hasTierPlans
-		? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
-		: __( 'Set up a paid plan', 'jetpack' );
-};
-
-export default function GetAddPaidPlanButton( { context = 'other', hasTierPlans } ) {
-	const addPaidPlanButtonText = paidPlanButtonText( hasTierPlans );
-
-	if ( 'toolbar' === context ) {
-		return (
-			<ToolbarButton href={ getPaidPlanLink( hasTierPlans ) } target="_blank">
-				{ addPaidPlanButtonText }
-			</ToolbarButton>
-		);
-	}
-
-	return (
-		<Button variant="primary" href={ getPaidPlanLink( hasTierPlans ) } target="_blank">
-			{ addPaidPlanButtonText }
-		</Button>
-	);
-}

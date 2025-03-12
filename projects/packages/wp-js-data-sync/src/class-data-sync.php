@@ -70,7 +70,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 
 final class Data_Sync {
 
-	const PACKAGE_VERSION = '0.6.1';
+	const PACKAGE_VERSION = '0.6.2';
 
 	/**
 	 * @var Registry
@@ -226,6 +226,23 @@ final class Data_Sync {
 		}
 		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $parser );
 		$this->registry->register( $key, $entry_adapter );
+	}
+
+	/**
+	 * Register a readonly entry.
+	 *
+	 * @param string   $key The key to register the entry under.
+	 * @param Parser   $parser The parser to use for the entry.
+	 * @param callable $callback The callback to use for the entry.
+	 *
+	 * @return void
+	 */
+	public function register_readonly(
+		$key,
+		$parser,
+		$callback
+	) {
+		$this->register( $key, $parser, new Data_Sync_Readonly( $callback ) );
 	}
 
 	public function register_action(

@@ -14,7 +14,9 @@
 			"borderRadius": 8,
 			"borderWeight": 3,
 			"padding": 18,
-			"successMessage": "Volla, you subscribed to our blog!"
+			"successMessage": "Volla, you subscribed to our blog!",
+			"preselectNewsletterCategories": false,
+			"selectedNewsletterCategoryIds": []
 		},
 		"innerBlocks": [],
 		"originalContent": ""

@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
+import createCookie from '../../utils/create-cookie';
 import useAnalytics from '../use-analytics';
 import { useGetExpiringNoticeContent } from './use-get-expiring-notice-content';
 import type { NoticeOptions } from '../../context/notices/types';
@@ -9,7 +10,7 @@ import type { NoticeOptions } from '../../context/notices/types';
 type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 
 const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
-	const { setNotice } = useContext( NoticeContext );
+	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { recordEvent } = useAnalytics();
 
 	const planExpiredAlerts = Object.keys( redBubbleAlerts ).filter(
@@ -45,6 +46,16 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			expiryDate,
 			productsEffected,
 		} ) || {};
+
+	const onCloseClick = useCallback( () => {
+		const cookieKey = isExpiredAlert
+			? `${ productSlug }--plan_expired`
+			: `${ productSlug }--plan_expiring_soon`;
+		// Session cookie. Expires when session ends.
+		createCookie( `${ cookieKey }_dismissed`, 7 );
+		delete redBubbleAlerts[ alertToDisplay ];
+		resetNotice();
+	}, [ alertToDisplay, isExpiredAlert, productSlug, redBubbleAlerts, resetNotice ] );
 
 	const onPrimaryCtaClick = useCallback( () => {
 		window.location.href = manageUrl;
@@ -93,6 +104,8 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 					isExternalLink: true,
 				},
 			],
+			onClose: onCloseClick,
+			hideCloseButton: false,
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
@@ -106,6 +119,7 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		setNotice,
 		recordEvent,
 		alertToDisplay,
+		onCloseClick,
 		onPrimaryCtaClick,
 		onSecondaryCtaClick,
 		noticeTitle,

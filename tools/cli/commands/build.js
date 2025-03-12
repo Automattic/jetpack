@@ -600,7 +600,7 @@ async function buildProject( t ) {
 			composerJson.require?.[ 'automattic/jetpack-changelogger' ] ||
 			composerJson[ 'require-dev' ]?.[ 'automattic/jetpack-changelogger' ] )
 	) {
-		const changelogger = npath.resolve( 'projects/packages/changelogger/bin/changelogger' );
+		const changelogger = npath.resolve( 'projects/packages/changelogger/vendor/bin/changelogger' );
 		const changesDir = npath.resolve(
 			t.cwd,
 			composerJson.extra?.changelogger?.[ 'changes-dir' ] || 'changelog'

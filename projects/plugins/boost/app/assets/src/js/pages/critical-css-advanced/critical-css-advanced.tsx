@@ -5,25 +5,28 @@ import {
 	useCriticalCssState,
 	useSetProviderErrorDismissedAction,
 } from '$features/critical-css/lib/stores/critical-css-state';
-import { getPrimaryGroupedError } from '$features/critical-css/lib/critical-css-errors';
+import {
+	ErrorSet,
+	groupErrorsByFrequency,
+	groupRecommendationsByStatus,
+} from '$features/critical-css/lib/critical-css-errors';
 import { BackButton, CloseButton } from '$features/ui';
 import CriticalCssErrorDescription from '$features/critical-css/error-description/error-description';
 import InfoIcon from '$svg/info';
 import styles from './critical-css-advanced.module.scss';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Provider } from '$features/critical-css';
 import clsx from 'clsx';
 import { Button } from '@automattic/jetpack-components';
+import {
+	DismissedItem,
+	ProviderRecommendation,
+	RecommendationProps,
+} from '$features/critical-css/lib/stores/recommendation-types';
 
 type HeadingMetaProps = {
-	dismissedIssues: Provider[];
+	dismissedIssues: ProviderRecommendation[];
 	showDismissedIssues: () => void;
-};
-
-type RecommendationProps = {
-	provider: Provider;
-	setDismissed: ( dismissedItems: { key: string; dismissed: boolean }[] ) => void;
 };
 
 /**
@@ -33,24 +36,29 @@ export default function AdvancedCriticalCss() {
 	const [ cssState ] = useCriticalCssState();
 	const setDismissedAction = useSetProviderErrorDismissedAction();
 
-	const issues = cssState.providers.filter( p => p.status === 'error' );
-	const activeIssues = issues.filter( issue => issue.error_status !== 'dismissed' );
-	const dismissedIssues = issues.filter( issue => issue.error_status === 'dismissed' );
+	const providersWithIssues = cssState.providers.filter( p => p.status === 'error' );
+	const { activeRecommendations, dismissedRecommendations } =
+		groupRecommendationsByStatus( providersWithIssues );
 
-	function setDismissed( data: { key: string; dismissed: boolean }[] ) {
-		setDismissedAction.mutate( data );
+	function setDismissed( data: DismissedItem[] ) {
+		setDismissedAction.mutate(
+			data.map( item => ( {
+				provider: item.provider,
+				error_type: item.errorType,
+				dismissed: item.dismissed,
+			} ) )
+		);
 	}
 
 	// If there are no issues at all, redirect to the main page.
 	const navigate = useNavigate();
 	useEffect( () => {
-		if ( issues.length === 0 ) {
+		if ( providersWithIssues.length === 0 ) {
 			navigate( '/' );
 		}
-	}, [ issues, navigate ] );
-
+	}, [ providersWithIssues, navigate ] );
 	const heading =
-		activeIssues.length === 0
+		activeRecommendations.length === 0
 			? __( 'Congratulations, you have dealt with all the recommendations.', 'jetpack-boost' )
 			: __(
 					'While Jetpack Boost has been able to automatically generate optimized CSS for most of your important files & sections, we have identified a few more that require your attention.',
@@ -58,7 +66,13 @@ export default function AdvancedCriticalCss() {
 			  );
 
 	const showDismissedIssues = () => {
-		setDismissed( dismissedIssues.map( issue => ( { key: issue.key, dismissed: false } ) ) );
+		setDismissed(
+			dismissedRecommendations.map( recommendation => ( {
+				provider: recommendation.key,
+				errorType: recommendation.errorType,
+				dismissed: false,
+			} ) )
+		);
 	};
 
 	return (
@@ -70,16 +84,20 @@ export default function AdvancedCriticalCss() {
 			<section>
 				<Heading heading={ heading } />
 
-				{ dismissedIssues.length > 0 && (
+				{ dismissedRecommendations.length > 0 && (
 					<HeadingMeta
-						dismissedIssues={ dismissedIssues }
+						dismissedIssues={ dismissedRecommendations }
 						showDismissedIssues={ showDismissedIssues }
 					/>
 				) }
 			</section>
 
-			{ activeIssues.map( ( provider: Provider ) => (
-				<Recommendation key={ provider.key } provider={ provider } setDismissed={ setDismissed } />
+			{ activeRecommendations.map( ( recommendation: ProviderRecommendation ) => (
+				<Recommendation
+					key={ `${ recommendation.key }-${ recommendation.errorType }` }
+					recommendation={ recommendation }
+					setDismissed={ setDismissed }
+				/>
 			) ) }
 		</div>
 	);
@@ -136,25 +154,51 @@ const HeadingMeta = ( { dismissedIssues, showDismissedIssues }: HeadingMetaProps
 	);
 };
 
-const Recommendation = ( { provider, setDismissed }: RecommendationProps ) => {
-	if ( provider.errors && provider.errors.length === 0 ) {
+const Recommendation = ( { recommendation, setDismissed }: RecommendationProps ) => {
+	if ( recommendation.errors && recommendation.errors.length === 0 ) {
 		return null;
 	}
 
-	const errorSet = getPrimaryGroupedError( provider.errors ? provider.errors : [] );
-	if ( ! errorSet ) {
+	const errorSets = groupErrorsByFrequency( recommendation.errors ? recommendation.errors : [] );
+	if ( errorSets.length === 0 ) {
 		return null;
 	}
 
-	const [ isDismissed, setIsDismissed ] = useState( provider.error_status === 'dismissed' );
+	return errorSets.map( ( errorSet, _index ) => (
+		<SingleRecommendation
+			key={ `${ recommendation.key }-${ errorSet.type }` }
+			recommendation={ recommendation }
+			errorSet={ errorSet }
+			setDismissed={ setDismissed }
+		/>
+	) );
+};
+
+type SingleRecommendationProps = {
+	recommendation: ProviderRecommendation;
+	errorSet: ErrorSet;
+	setDismissed: ( dismissedItems: DismissedItem[] ) => void;
+};
+
+const SingleRecommendation = ( {
+	recommendation,
+	errorSet,
+	setDismissed,
+}: SingleRecommendationProps ) => {
+	const [ isDismissed, setIsDismissed ] = useState( false );
 
 	const [ ref, { height } ] = useMeasure();
 	const animationStyles = useSpring( {
 		height: isDismissed ? 0 : height,
 		onRest: isDismissed
 			? () => {
-					// Send a state update once animation has ended.
-					setDismissed( [ { key: provider.key, dismissed: true } ] );
+					setDismissed( [
+						{
+							provider: recommendation.key,
+							errorType: recommendation.errorType,
+							dismissed: true,
+						},
+					] );
 			  }
 			: undefined,
 	} );
@@ -169,7 +213,7 @@ const Recommendation = ( { provider, setDismissed }: RecommendationProps ) => {
 
 				<h4>
 					<InfoIcon />
-					{ provider.label }
+					{ recommendation.label }
 				</h4>
 
 				<div className={ styles.problem }>

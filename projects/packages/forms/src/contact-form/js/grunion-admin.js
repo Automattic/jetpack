@@ -1,4 +1,4 @@
-/* global ajaxurl jetpack_empty_spam_button_parameters */
+/* global ajaxurl jetpack_empty_spam_button_parameters analytics jetpack_forms_tracking */
 jQuery( function ( $ ) {
 	if ( typeof jetpack_empty_spam_button_parameters !== 'undefined' ) {
 		// Create the "Empty Spam" button and add it above and below the list of spam feedbacks.
@@ -233,16 +233,37 @@ jQuery( function ( $ ) {
 		}, 5000 );
 	}
 
-	$( document ).on( 'click', '#jetpack-form-responses-connect', function () {
+	$( document ).on( 'click', '#jetpack-form-responses-connect', function ( e ) {
 		const $this = $( this );
 		const name = $this.data( 'nonce-name' );
 		const value = $( '#' + name ).attr( 'value' );
+		const redirectUrl = $this.attr( 'href' );
+
+		// Pause redirect for tracking.
+		e.preventDefault();
+
 		$this.attr( 'disabled', 'disabled' );
 		$this.text(
 			( window.exportParameters && window.exportParameters.waitingConnection ) ||
 				'Waiting for connection...'
 		);
+
+		// Do the tracking.
+		if (
+			'undefined' !== typeof analytics &&
+			'undefined' !== typeof jetpack_forms_tracking &&
+			jetpack_forms_tracking?.tracksUserData
+		) {
+			const tracksUser = jetpack_forms_tracking.tracksUserData;
+			analytics.initialize( tracksUser.userid, tracksUser.username );
+			analytics.tracks.recordEvent( 'jetpack_forms_upsell_googledrive_click', {
+				screen: 'form-responses-classic',
+			} );
+		}
+
+		// Start polling and continue redirect.
 		startPollingConnection( { name, value } );
+		window.open( redirectUrl, '_blank' );
 	} );
 
 	// Handle export to Google Drive

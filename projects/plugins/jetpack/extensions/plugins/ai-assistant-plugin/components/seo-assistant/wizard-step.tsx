@@ -11,7 +11,7 @@ export default function WizardStep( {
 	current,
 } ) {
 	const stepRef = useRef( null );
-	const classes = clsx( 'assistant-wizard-step', className );
+	const classes = clsx( 'jetpack-wizard-chat__step', className );
 	const stepIsBusy = isBusy && current;
 
 	return (

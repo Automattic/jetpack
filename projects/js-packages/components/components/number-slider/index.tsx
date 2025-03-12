@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import React from 'react';
 import ReactSlider from 'react-slider';
-import { NumberSliderProps } from './types';
+import { NumberSliderProps } from './types.js';
 import './style.scss';
 
 /**

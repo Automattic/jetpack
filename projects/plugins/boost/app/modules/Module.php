@@ -45,6 +45,23 @@ class Module {
 		return false;
 	}
 
+	public function get_available_submodules() {
+		$submodules = $this->get_submodules();
+
+		if ( empty( $submodules ) ) {
+			return array();
+		}
+
+		$available_submodules = array();
+		foreach ( $submodules as $submodule ) {
+			if ( $submodule::is_available() ) {
+				$available_submodules[] = new Module( new $submodule() );
+			}
+		}
+
+		return $available_submodules;
+	}
+
 	public function update( $new_status ) {
 		return $this->status->set( $new_status );
 	}

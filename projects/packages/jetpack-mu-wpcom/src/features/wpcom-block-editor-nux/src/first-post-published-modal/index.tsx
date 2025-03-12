@@ -35,8 +35,13 @@ const FirstPostPublishedModalInner: React.FC = () => {
 		select => ( select( 'core/editor' ) as CoreEditorPlaceholder ).isCurrentPostPublished(),
 		[]
 	);
-	const previousIsCurrentPostPublished = useRef( isCurrentPostPublished );
-	const shouldShowFirstPostPublishedModal = useShouldShowFirstPostPublishedModal();
+
+	const initialHash = useRef( window.location.hash );
+	const isLaunchpadHomeTask = initialHash.current === '#publish-first-post';
+
+	const shouldShowFirstPostPublishedModal =
+		useShouldShowFirstPostPublishedModal() && ! isLaunchpadHomeTask;
+
 	const [ isOpen, setIsOpen ] = useState( false );
 	const closeModal = () => setIsOpen( false );
 
@@ -47,6 +52,8 @@ const FirstPostPublishedModalInner: React.FC = () => {
 		// https://mysite.wordpress.com/path becomes mysite.wordpress.com
 		siteUrl = new URL( siteUrlOption ).hostname;
 	}
+
+	const previousIsCurrentPostPublished = useRef( isCurrentPostPublished );
 
 	useEffect( () => {
 		// If the user is set to see the first post modal and current post status changes to publish,
@@ -75,9 +82,9 @@ const FirstPostPublishedModalInner: React.FC = () => {
 
 	const handleNextStepsClick = ( event: React.MouseEvent ) => {
 		event.preventDefault();
-		(
-			window.top as Window
-		 ).location.href = `https://wordpress.com/setup/write/launchpad?siteSlug=${ siteUrl }`;
+		const redirectUrl = `https://wordpress.com/setup/write/launchpad?siteSlug=${ siteUrl }`;
+
+		( window.top as Window ).location.href = redirectUrl;
 	};
 	return (
 		<NuxModal

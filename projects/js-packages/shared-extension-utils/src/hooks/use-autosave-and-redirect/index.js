@@ -24,7 +24,7 @@ function redirect( url, callback, shouldOpenNewWindow = false ) {
  * @param {Function} onRedirect  - To handle the redirection.
  * @return {object} - Object containing properties to handle autosave and redirect.
  */
-export default function useAutosaveAndRedirect( redirectUrl, onRedirect = noop ) {
+export default function useAutosaveAndRedirect( redirectUrl = null, onRedirect = noop ) {
 	const [ isRedirecting, setIsRedirecting ] = useState( false );
 
 	const { isAutosaveablePost, isDirtyPost, currentPost } = useSelect( select => {
@@ -95,7 +95,9 @@ export default function useAutosaveAndRedirect( redirectUrl, onRedirect = noop )
 		setIsRedirecting( true );
 
 		autosave( event ).then( () => {
-			redirect( redirectUrl, onRedirect, isWidgetEditor );
+			if ( redirectUrl ) {
+				redirect( redirectUrl, onRedirect, isWidgetEditor );
+			}
 		} );
 	};
 

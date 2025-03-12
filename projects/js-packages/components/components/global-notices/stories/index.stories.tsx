@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import Button from '../../button';
-import { GlobalNotices, useGlobalNotices } from '../index';
+import Button from '../../button/index.js';
+import { GlobalNotices, useGlobalNotices } from '../index.js';
 import type { Meta } from '@storybook/react';
 
 export default {

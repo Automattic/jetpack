@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.61.2] - 2025-03-10
+### Changed
+- Move share post endpoint from Jetpack to publicize package. [#42179]
+- Social: Move JS editor code from Jetpack and Social to Publicize package. [#41836]
+- Make scheduled-actions endpoint compatible with getEntityRecords. [#42283]
+
+### Fixed
+- Social: Fix stylesheets loaded on the front-end when not needed. [#42289]
+- Social: Fix the share date schema for scheduled actions endpoint. [#42244]
+
+## [0.61.1] - 2025-03-03
+### Added
+- Move publicize/scheduled-actions enpoint from WPCOM to publicize. [#42136]
+
+### Changed
+- Social: Improve connect URL generation. [#42019]
+- Update package dependencies. [#42163]
+
+### Deprecated
+- Deprecate jetpack/v4 connection endpoints. [#41911]
+
+### Fixed
+- Social: Fix PHP warnings on WPCOM. [#42107]
+- Social: Fix Social post UI not showing connections. [#42095]
+
+## [0.61.0] - 2025-02-24
+### Added
+- Social: Update the admin page for use by Editors and Authors. [#41859]
+
+### Changed
+- Script data: Extract less host information. [#41890]
+- Social: Use new connections class for share status. [#41905]
+- Update the connections schema for classic editor. [#41778]
+- Update Keyring_Helper class and enable publicize services caching [#41460]
+
+### Removed
+- Remove the deprecated "dismiss notice" functionality. [#41987]
+
+### Fixed
+- Code: Prevent dynamic class properties. [#41857]
+- Fix social connection toggle. [#41912]
+
+## [0.60.1] - 2025-02-17
+### Changed
+- Internal updates.
+
+## [0.60.0] - 2025-02-11
+### Changed
+- Register social/settings endpoint only if Jetpack version does not have it. [#41596]
+- Use social admin for connections URL. [#41541]
+
+## [0.59.1] - 2025-02-10
+### Changed
+- Update package dependencies. [#41491]
+
 ## [0.59.0] - 2025-02-03
 ### Added
 - Enable Social Post UI for WordPress.com. [#41219]
@@ -15,7 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Phan: Update baselines. [#41263]
 - Move Social settings endpoint to publicize package. [#41456]
 - Use feature flag for Social admin page. [#41413]
-- Updated package dependencies. [#41286]
+- Update package dependencies. [#41286]
 - Update the settings endpoint to use existing endpoints. [#41461]
 - Use Admin_Menu::remove_menu to handle old Social menu item. [#41422]
 
@@ -847,6 +902,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.61.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.1...v0.61.2
+[0.61.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.0...v0.61.1
+[0.61.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.60.1...v0.61.0
+[0.60.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.60.0...v0.60.1
+[0.60.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.59.1...v0.60.0
+[0.59.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.59.0...v0.59.1
 [0.59.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.4...v0.58.0
 [0.57.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.3...v0.57.4

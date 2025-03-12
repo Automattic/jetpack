@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Block Editor Nux: Do not show first post modal when the publish-first-post hash is present.
