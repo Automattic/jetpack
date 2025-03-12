@@ -165,10 +165,10 @@ class Universal {
 	public function capture_cart_quantity_update( $cart_item_key, $quantity, $old_quantity, $cart ) {
 		$product_id = $cart->cart_contents[ $cart_item_key ]['product_id'];
 		if ( $quantity > $old_quantity ) {
-			$this->capture_event_in_session_data( $product_id, $quantity - $old_quantity, 'woocommerceanalytics_add_to_cart' );
+			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_add_to_cart' );
 			$this->lock_add_to_cart_events = true;
 		} else {
-			$this->capture_event_in_session_data( $product_id, $old_quantity - $quantity, 'woocommerceanalytics_remove_from_cart' );
+			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_remove_from_cart' );
 		}
 	}
 
