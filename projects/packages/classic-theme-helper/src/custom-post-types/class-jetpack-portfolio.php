@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
-use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Customize_Image_Control;
@@ -150,12 +150,39 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		}
 
 		/**
+		 * Check if a site should display portfolios - it should not if:
+		 * - the theme is a block theme without portfolios enabled.
+		 *
+		 * @return bool
+		 */
+		public static function site_should_display_portfolios() {
+			$should_display = true;
+			if ( ( ! ( new Host() )->is_wpcom_simple() ) && Blocks::is_fse_theme() ) {
+				if ( ! get_option( self::OPTION_NAME, '0' ) ) {
+					$should_display = false;
+				}
+			}
+
+			/**
+			 * Filter whether the site should display portfolios.
+			 *
+			 * @since 0.11.0
+			 *
+			 * @param bool $should_display Whether portfolios should be displayed.
+			 */
+			return apply_filters( 'classic_theme_helper_should_display_portfolios', $should_display );
+		}
+
+		/**
 		 * Add a checkbox field in 'Settings' > 'Writing'
 		 * for enabling CPT functionality.
 		 *
 		 * @return void
 		 */
 		public function settings_api_init() {
+			if ( ! self::site_should_display_portfolios() ) {
+				return;
+			}
 			add_settings_field(
 				self::OPTION_NAME,
 				'<span class="cpt-options">' . __( 'Portfolio Projects', 'jetpack-classic-theme-helper' ) . '</span>',
@@ -188,42 +215,42 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		public function setting_html() {
 			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) : ?>
 				<p>
-				<?php
-				echo wp_kses(
-					sprintf(
+					<?php
+					echo wp_kses(
+						sprintf(
 						/* translators: %s is the name of a custom post type such as "jetpack-portfolio" */
-						__( 'Your theme supports <strong>%s</strong>', 'jetpack-classic-theme-helper' ),
-						esc_attr( self::CUSTOM_POST_TYPE )
-					),
-					array(
-						'strong' => array(),
-					)
-				);
-				?>
+							__( 'Your theme supports <strong>%s</strong>', 'jetpack-classic-theme-helper' ),
+							esc_attr( self::CUSTOM_POST_TYPE )
+						),
+						array(
+							'strong' => array(),
+						)
+					);
+					?>
 				</p>
-			<?php else : ?>
+				<?php else : ?>
 				<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
 					<input name="<?php echo esc_attr( self::OPTION_NAME ); ?>" id="<?php echo esc_attr( self::OPTION_NAME ); ?>" <?php echo checked( get_option( self::OPTION_NAME, '0' ), true, false ); ?> type="checkbox" value="1" />
 					<?php esc_html_e( 'Enable Portfolio Projects for this site.', 'jetpack-classic-theme-helper' ); ?>
 					<a target="_blank" href="https://en.support.wordpress.com/portfolios/"><?php esc_html_e( 'Learn More', 'jetpack-classic-theme-helper' ); ?></a>
 				</label>
-				<?php
-			endif;
-			if ( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) :
-				printf(
-					'<p><label for="%1$s">%2$s</label></p>',
-					esc_attr( self::OPTION_READING_SETTING ),
-					sprintf(
-						/* translators: %1$s is replaced with an input field for numbers */
-						__( 'Portfolio pages display at most %1$s projects', 'jetpack-classic-theme-helper' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the placeholder contains HTML.
+					<?php
+				endif;
+				if ( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) :
+					printf(
+						'<p><label for="%1$s">%2$s</label></p>',
+						esc_attr( self::OPTION_READING_SETTING ),
 						sprintf(
-							'<input name="%1$s" id="%1$s" type="number" step="1" min="1" value="%2$s" class="small-text" />',
-							esc_attr( self::OPTION_READING_SETTING ),
-							esc_attr( get_option( self::OPTION_READING_SETTING, '10' ) )
+						/* translators: %1$s is replaced with an input field for numbers */
+							__( 'Portfolio pages display at most %1$s projects', 'jetpack-classic-theme-helper' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the placeholder contains HTML.
+							sprintf(
+								'<input name="%1$s" id="%1$s" type="number" step="1" min="1" value="%2$s" class="small-text" />',
+								esc_attr( self::OPTION_READING_SETTING ),
+								esc_attr( get_option( self::OPTION_READING_SETTING, '10' ) )
+							)
 						)
-					)
-				);
-			endif;
+					);
+				endif;
 		}
 
 		/**
@@ -277,7 +304,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			}
 
 			// Otherwise, say no unless something wants to filter us to say yes.
-			/** This action is documented in modules/custom-post-types/nova.php */
+			/** This action is documented in classic-theme-helper/src/custom-post-types/class-nova-restaurant.php */
 			return (bool) apply_filters( 'jetpack_enable_cpt', false, self::CUSTOM_POST_TYPE );
 		}
 
@@ -319,7 +346,6 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		public static function activation_post_type_support() {
 			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 				update_option( self::OPTION_NAME, '1' );
-				( new Modules() )->activate( 'custom-content-types', false, false );
 			}
 		}
 
@@ -346,6 +372,10 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		 */
 		public function register_post_types() {
 			if ( post_type_exists( self::CUSTOM_POST_TYPE ) ) {
+				return;
+			}
+
+			if ( ! self::site_should_display_portfolios() ) {
 				return;
 			}
 
@@ -563,9 +593,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			$screen = get_current_screen();
 
 			if (
-				'edit.php' === $hook
-				&& self::CUSTOM_POST_TYPE === $screen->post_type
-				&& current_theme_supports( 'post-thumbnails' )
+			'edit.php' === $hook
+			&& self::CUSTOM_POST_TYPE === $screen->post_type
+			&& current_theme_supports( 'post-thumbnails' )
 			) {
 				wp_add_inline_style( 'wp-admin', '.manage-column.column-thumbnail { width: 50px; } @media screen and (max-width: 360px) { .column-thumbnail{ display:none; } }' );
 			}

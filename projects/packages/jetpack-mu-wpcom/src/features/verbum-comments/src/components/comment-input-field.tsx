@@ -71,7 +71,8 @@ export const CommentInputField = forwardRef(
 						handleOnKeyUp();
 					},
 					VerbumComments.isRTL,
-					embedContentCallback
+					embedContentCallback,
+					VerbumComments.colorScheme === 'dark'
 				);
 				// Wait fro the block editor to render.
 				setTimeout( () => setEditorState( 'LOADED' ), 100 );

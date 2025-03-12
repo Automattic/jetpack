@@ -1,0 +1,129 @@
+@import '@wordpress/base-styles/colors';
+@import '@wordpress/base-styles/variables';
+
+$spacing-xs: $grid-unit-05;      // 4px
+$spacing-sm: $grid-unit-10;      // 8px
+$spacing-md: $grid-unit-15;      // 12px
+$spacing-lg: $grid-unit-20;      // 16px
+
+.newsletter-widget {
+    &__header{
+        padding: $spacing-md;
+        margin-bottom: $spacing-md;
+    }
+
+    &__heading {
+        font-weight: $font-weight-medium !important;
+    }
+
+    &__footer {
+        background-color: $gray-100;
+        padding: $spacing-md;
+    }
+
+    &__footer-msg {
+        margin: 0;
+        margin-bottom: $spacing-md;
+    }
+
+    &__footer-list {
+        margin: 0;
+        padding-left: $spacing-md;
+        list-style-type: disc;
+        columns: 2;
+    }
+
+    &__stat-label {	
+        margin-left: $spacing-xs;
+        text-decoration: none;
+    }
+
+    &__stats {
+        display: flex;
+        gap: $spacing-md;
+        flex-wrap: wrap;
+        width: 100%;
+
+        > :first-child {
+            margin-right: $spacing-md;
+        }
+    }
+
+    &__icon {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    &__stat-item {
+        display: flex;
+        align-items: center; 
+        gap: $spacing-xs;
+        text-decoration: none;
+    }
+
+    &__chart-container {
+        padding: 0 $spacing-md;
+    }
+
+    &__chart {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0 $spacing-md $spacing-md;
+    }
+
+    & a {
+        text-decoration: none;
+    }
+}
+
+.subscribers-chart {
+    width: 100%;
+    height: 200px;
+
+    &__tooltip {
+        background: $white;
+        padding: $spacing-sm;
+        border-radius: $radius-medium;
+        box-shadow: $elevation-x-small;
+        font-size: $font-size-small;
+        color: $gray-900;
+        min-width: 120px;
+    }
+
+    &__tooltip-date {
+        font-weight: $font-weight-medium;
+        margin-bottom: $spacing-xs;
+    }
+
+    &__tooltip-stats {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs / 2;
+    }
+
+    &__tooltip-stat {
+        display: flex;
+        align-items: center;
+    }
+
+    &__tooltip-indicator {
+        width: $spacing-sm;
+        height: $spacing-sm;
+        border-radius: $radius-round;
+        margin-right: $spacing-xs;
+    }
+
+    &__legend {
+        display: flex;
+        justify-content: center;
+    }
+}
+
+// wp-admin overrides
+#jetpack_newsletter_dashboard_widget {
+    .inside {
+        padding: 0;
+        margin: 0;
+    }
+}

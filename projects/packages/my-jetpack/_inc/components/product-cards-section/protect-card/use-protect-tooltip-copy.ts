@@ -50,6 +50,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 		blocked_logins: blockedLoginsCount,
 		brute_force_protection: hasBruteForceProtection,
 		waf_supported: wafSupported,
+		waf_enabled: isWafEnabled,
 	} = wafData || {};
 
 	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
@@ -247,7 +248,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 						),
 				  },
 		autoFirewallTooltip:
-			( hasProtectPaidPlan && ! isAutoFirewallEnabled ) || ! wafSupported
+			( hasProtectPaidPlan && ( ! isAutoFirewallEnabled || ! isWafEnabled ) ) || ! wafSupported
 				? {
 						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
 						text: wafSupported

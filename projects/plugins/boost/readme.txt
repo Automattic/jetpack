@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.6
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 3.8.0
+Stable tag: 3.10.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,21 +183,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.8.0 - 2025-01-23
-#### Added
-- Critical CSS: Flag a site-health issue for Critical CSS when a page from the Cornerstone Pages list is modified.
-- Page Cache: Add extra PHP file the site owner can use to modify how the cache works.
-- Page Cache: Filter cookies and GET parameters so they do not cause a cache miss.
-
-#### Changed
-- Critical CSS: Reduce unnecessary regenerations.
-
+### 3.10.3 - 2025-03-06
 #### Fixed
-- Page Cache: Clear Page Cache when Image CDN Auto Resize Lazy Images is toggled.
-- Page Cache: Fix issue where exceptions were incorrectly applied to the entire URL.
-- Concatenate JS: Improve compatibility with WooCommerce Shipping.
-- Concatenate CSS: Fix cases where minification might cause a file to load slower.
-- Image CDN: Ensure that double encoding doesn't happen.
+- Critical CSS: Fix generation.
 
 --------
 

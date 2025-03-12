@@ -26,6 +26,7 @@ type CoreEditorPlaceholder = {
 };
 
 const RecommendedTagsModalInner: React.FC = () => {
+	const isP2 = window?.recommendedTagsModalOptions?.isP2 || false;
 	const isDismissedDefault = window?.recommendedTagsModalOptions?.isDismissed || false;
 	const { launchpadScreenOption } = window?.launchpadOptions || {};
 	const { isDismissed, updateIsDismissed } = useRecommendedTagsModalDismissed( isDismissedDefault );
@@ -83,7 +84,7 @@ const RecommendedTagsModalInner: React.FC = () => {
 		launchpadScreenOption,
 	] );
 
-	if ( ! isOpen || ! shouldShowSuggestedTags || isDismissedDefault ) {
+	if ( ! isOpen || ! shouldShowSuggestedTags || isDismissedDefault || isP2 ) {
 		return null;
 	}
 

@@ -3,7 +3,6 @@ import {
 	hasConnections,
 	getFailedConnections,
 	getMustReauthConnections,
-	getConnectionProfileDetails,
 	getEnabledConnections,
 	getDisabledConnections,
 } from '../connection-data';
@@ -117,34 +116,6 @@ describe( 'Social store selectors: connectionData', () => {
 				state.connectionData.connections[ 0 ],
 				state.connectionData.connections[ 2 ],
 			] );
-		} );
-	} );
-
-	describe( 'getConnectionProfileDetails', () => {
-		const defaultProfileDetails = {
-			displayName: '',
-			profileImage: '',
-			username: '',
-		};
-
-		it( 'should return default values if no connections', () => {
-			expect( getConnectionProfileDetails( {}, 'linkedin' ) ).toEqual( defaultProfileDetails );
-		} );
-
-		it( 'should return the profile details', () => {
-			const connection = state.connectionData.connections[ 0 ];
-
-			expect( getConnectionProfileDetails( state, 'facebook' ) ).toEqual( {
-				displayName: connection.display_name,
-				profileImage: connection.profile_picture,
-				username: connection.external_handle,
-			} );
-		} );
-
-		it( 'should return default values if forced', () => {
-			expect( getConnectionProfileDetails( state, 'facebook', { forceDefaults: true } ) ).toEqual(
-				defaultProfileDetails
-			);
 		} );
 	} );
 } );

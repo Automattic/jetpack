@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Lib\Cornerstone_Pages;
+use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Signed_With_Blog_Token;
 
@@ -18,8 +18,7 @@ class List_Cornerstone_Pages implements Endpoint {
 	}
 
 	public function response( $_request ) {
-		$cornerstone_pages = new Cornerstone_Pages();
-		return rest_ensure_response( $cornerstone_pages->get_pages() );
+		return rest_ensure_response( Cornerstone_Utils::get_list() );
 	}
 
 	public function permissions() {

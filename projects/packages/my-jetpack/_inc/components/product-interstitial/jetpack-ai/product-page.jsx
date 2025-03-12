@@ -10,6 +10,7 @@ import {
 	getRedirectUrl,
 	Notice,
 } from '@automattic/jetpack-components';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Card, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -26,6 +27,7 @@ import { useGoBack } from '../../../hooks/use-go-back';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../../go-back-link';
+import { ProductInterstitialMyJetpack } from '../../product-interstitial-modal';
 import styles from './style.module.scss';
 
 const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-page' );
@@ -178,6 +180,16 @@ export default function () {
 		navigateToPricingTable();
 	}, [ recordEvent, allTimeRequests, currentTier, navigateToPricingTable ] );
 
+	const upgradeClickHandlerModal = useCallback( () => {
+		// record event for opening a modal
+		recordEvent( 'jetpack_ai_upgrade_button', {
+			placement: 'product-page',
+			context: 'my-jetpack',
+			current_tier_slug: currentTier?.slug || '',
+			requests_count: allTimeRequests,
+		} );
+	}, [ recordEvent, allTimeRequests, currentTier ] );
+
 	const onNoticeClose = useCallback( () => setShowNotice( false ), [] );
 
 	useEffect( () => {
@@ -198,7 +210,11 @@ export default function () {
 	);
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ true }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ true }
+			useInternalLinks={ shouldUseInternalLinks() }
+		>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
@@ -227,13 +243,29 @@ export default function () {
 								) }
 							</div>
 							{ ! shouldContactUs && ! hasUnlimited && (
-								<Button
-									variant="primary"
-									onClick={ upgradeClickHandler }
-									className={ styles[ 'product-interstitial__hero-cta' ] }
-								>
-									{ __( 'Get more requests', 'jetpack-my-jetpack' ) }
-								</Button>
+								<>
+									<ProductInterstitialMyJetpack
+										slug="jetpack-ai"
+										onOpen={ upgradeClickHandlerModal }
+										modalTriggerButtonLabel={ __( 'Get more requests', 'jetpack-my-jetpack' ) }
+										buttonLabel={ __( 'Upgrade', 'jetpack-my-jetpack' ) }
+										isWithVideo
+										secondaryColumn={
+											<div>
+												<iframe
+													width="621"
+													height="447"
+													src="https://video.wordpress.com/embed/whyeZF1t?cover=1&autoPlay=0&controls=0&loop=1&muted=0&persistVolume=1&playsinline=0&preloadContent=metadata&useAverageColor=1&posterUrl=https%3A%2F%2Fjetpack.com%2Fwp-content%2Fuploads%2F2024%2F09%2Fthumbnail-1.png&hd=1"
+													allowFullScreen
+													allow="clipboard-write"
+													title={ __( 'Discover Jetpack AI', 'jetpack-my-jetpack' ) }
+												></iframe>
+												<script src="https://videopress.com/videopress-iframe.js"></script>
+											</div>
+										}
+										secondaryButtonHref="https://jetpack.com/ai/"
+									/>
+								</>
 							) }
 							{ shouldContactUs && (
 								<Button

@@ -7,7 +7,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Masterbar\Admin_Menu;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -18,7 +18,7 @@ use Automattic\Jetpack\Status\Host;
  * The setting is displayed only if the has the wp-admin interface selected.
  */
 function wpcomsh_wpcom_admin_interface_settings_field() {
-	add_settings_field( 'wpcom_admin_interface', '', 'wpcom_admin_interface_display', 'general', 'default' );
+	add_settings_field( 'wpcom_admin_interface', __( 'Admin Interface Style', 'jetpack-mu-wpcom' ), 'wpcom_admin_interface_display', 'general', 'default' );
 
 	register_setting( 'general', 'wpcom_admin_interface', array( 'sanitize_callback' => 'esc_attr' ) );
 }
@@ -27,9 +27,10 @@ function wpcomsh_wpcom_admin_interface_settings_field() {
  * Display the wpcom_admin_interface setting on the General settings page.
  */
 function wpcom_admin_interface_display() {
-	$value = get_option( 'wpcom_admin_interface' );
+	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+	$value = get_option( 'wpcom_admin_interface', 'calypso' );
+	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 
-	echo '<tr valign="top"><th scope="row"><label for="wpcom_admin_interface">' . esc_html__( 'Admin Interface Style', 'jetpack-mu-wpcom' ) . '</label></th><td>';
 	echo '<fieldset>';
 	echo '<label><input type="radio" name="wpcom_admin_interface" value="wp-admin" ' . checked( 'wp-admin', $value, false ) . '/> <span>' . esc_html__( 'Classic style', 'jetpack-mu-wpcom' ) . '</span></label><p>' . esc_html__( 'Use WP-Admin to manage your site.', 'jetpack-mu-wpcom' ) . '</p><br>';
 	echo '<label><input type="radio" name="wpcom_admin_interface" value="calypso" ' . checked( 'calypso', $value, false ) . '/> <span>' . esc_html__( 'Default style', 'jetpack-mu-wpcom' ) . '</span></label><p>' . esc_html__( 'Use WordPress.com’s native dashboard to manage your site.', 'jetpack-mu-wpcom' ) . '</p><br>';
@@ -52,6 +53,35 @@ function wpcom_admin_interface_track_changed_event( $value ) {
 		require_lib( 'tracks/client' );
 		tracks_record_event( get_current_user_id(), $event_name, $properties );
 	}
+}
+
+/**
+ * Check if we should disable the calypso links.
+ *
+ * @param string $screen The given screen.
+ *
+ * @return bool
+ */
+function wpcom_should_disable_calypso_links( string $screen ): bool {
+	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || ! ( new Host() )->is_wpcom_platform() ) {
+		return true;
+	}
+
+	if ( ( new Host() )->is_wpcom_simple() && function_exists( '\Automattic\Jetpack\Dashboard_Customizations\show_unified_nav' ) && ! \Automattic\Jetpack\Dashboard_Customizations\show_unified_nav() ) {
+		return true;
+	}
+
+	if ( ( new Host() )->is_woa_site() && ! apply_filters( 'jetpack_load_admin_menu_class', true ) ) {
+		return true;
+	}
+
+	$admin_menu = wpcom_get_custom_admin_menu_class();
+
+	if ( ! $admin_menu ) {
+		return true;
+	}
+
+	return $admin_menu::get_instance()->get_preferred_view( $screen ) === Admin_Menu::CLASSIC_VIEW;
 }
 
 /**
@@ -104,7 +134,7 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 			 */
 			function ( $location ) {
 				$updated_settings_page = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
-				if ( $location === $updated_settings_page ) {
+				if ( $location === $updated_settings_page && ! wpcom_is_duplicate_views_experiment_enabled() ) {
 					return 'https://wordpress.com/settings/general/' . wpcom_get_site_slug();
 				} else {
 					return $location;
@@ -126,6 +156,11 @@ const WPCOM_DUPLICATED_VIEW = array(
 	'edit-comments.php',
 	'edit-tags.php?taxonomy=category',
 	'edit-tags.php?taxonomy=post_tag',
+	'options-general.php',
+	'options-writing.php',
+	'options-reading.php',
+	'options-discussion.php',
+	'upload.php',
 );
 
 /**
@@ -237,134 +272,6 @@ function wpcom_has_admin_interface_changed() {
 }
 
 /**
- * Determine if the intro tour for the classic admin interface should be shown.
- *
- * @return bool
- */
-function wpcom_should_show_classic_tour() {
-	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
-		return false;
-	}
-
-	$tour_completed_option = get_option( 'wpcom_classic_tour_completed' );
-	$is_tour_in_progress   = $tour_completed_option === '0';
-	$is_tour_completed     = $tour_completed_option === '1';
-
-	if ( $is_tour_completed ) {
-		return false;
-	}
-
-	if ( ! wpcom_has_admin_interface_changed() && ! $is_tour_in_progress ) {
-		return false;
-	}
-
-	// Don't show the tour to non-administrators since it highlights features that are unavailable to them.
-	if ( ! current_user_can( 'manage_options' ) ) {
-		return false;
-	}
-
-	global $pagenow;
-	return $pagenow === 'index.php';
-}
-
-/**
- * Render the HTML template needed by the classic tour script.
- */
-function wpcom_render_classic_tour_template() {
-	if ( ! wpcom_should_show_classic_tour() ) {
-		return;
-	}
-	?>
-	<template id="wpcom-classic-tour-step-template">
-		<div class="wpcom-classic-tour-step">
-			<button class="button button-secondary" data-action="dismiss" title="<?php esc_attr_e( 'Dismiss', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-no-alt"></span></button>
-			<h3>{{title}}</h3>
-			<p>{{description}}</p>
-			<div class="wpcom-classic-tour-step-footer">
-				<div class="wpcom-classic-tour-step-current"><?php esc_html_e( 'Step {{currentStep}} of {{totalSteps}}', 'jetpack-mu-wpcom' ); ?></div>
-				<button data-action="prev" class="button button-secondary"><?php esc_html_e( 'Previous', 'jetpack-mu-wpcom' ); ?></button>
-				<button data-action="next" class="button button-primary"><?php esc_html_e( 'Next', 'jetpack-mu-wpcom' ); ?></button>
-				<button data-action="dismiss" class="button button-primary"><?php esc_html_e( 'Got it!', 'jetpack-mu-wpcom' ); ?></button>
-			</div>
-		</div>
-	</template>
-	<?php
-}
-add_action( 'admin_footer', 'wpcom_render_classic_tour_template' );
-
-/**
- * Enqueue the scripts that show an intro tour with some educational tooltips for folks who turn the classic admin interface on.
- */
-function wpcom_classic_tour_enqueue_scripts() {
-	if ( ! wpcom_should_show_classic_tour() ) {
-		return;
-	}
-
-	update_option( 'wpcom_classic_tour_completed', '0' );
-
-	wp_enqueue_style(
-		'wpcom-classic-tour',
-		plugins_url( 'classic-tour.css', __FILE__ ),
-		array(),
-		Jetpack_Mu_Wpcom::PACKAGE_VERSION
-	);
-
-	wp_enqueue_script(
-		'wpcom-classic-tour',
-		plugins_url( 'classic-tour.js', __FILE__ ),
-		array(),
-		Jetpack_Mu_Wpcom::PACKAGE_VERSION,
-		array(
-			'strategy'  => 'defer',
-			'in_footer' => true,
-		)
-	);
-
-	$data = array(
-		'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_classic_tour' ),
-		'steps'        => array(
-			array(
-				'target'      => '.toplevel_page_wpcom-hosting-menu',
-				'placement'   => 'right-bottom',
-				'title'       => esc_html__( 'Upgrades is now Hosting', 'jetpack-mu-wpcom' ),
-				'description' => esc_html__( 'The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more.', 'jetpack-mu-wpcom' ),
-				'position'    => 'fixed',
-			),
-			array(
-				'target'      => '.wpcom_site_management_widget__site-actions',
-				'placement'   => 'bottom',
-				'title'       => esc_html__( 'Hosting overview', 'jetpack-mu-wpcom' ),
-				'description' => esc_html__( 'Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs.', 'jetpack-mu-wpcom' ),
-				'position'    => 'absolute',
-			),
-			array(
-				'target'      => '.wp-admin-bar-all-sites',
-				'placement'   => 'bottom-right',
-				'title'       => esc_html__( 'All your sites', 'jetpack-mu-wpcom' ),
-				'description' => esc_html__( 'Click here to access your sites, domains, Reader, account settings, and more.', 'jetpack-mu-wpcom' ),
-				'position'    => 'fixed',
-			),
-		),
-	);
-
-	wp_add_inline_script(
-		'wpcom-site-menu',
-		'window.wpcomClassicTour = ' . wp_json_encode( $data ) . ';'
-	);
-}
-add_action( 'admin_enqueue_scripts', 'wpcom_classic_tour_enqueue_scripts' );
-
-/**
- * Handles the AJAX requests to dismiss the classic tour.
- */
-function wpcom_dismiss_classic_tour() {
-	check_ajax_referer( 'wpcom_dismiss_classic_tour' );
-	update_option( 'wpcom_classic_tour_completed', '1' );
-	wp_die();
-}
-add_action( 'wp_ajax_wpcom_dismiss_classic_tour', 'wpcom_dismiss_classic_tour' );
-
-/**
  * Displays a success notice in the dashboard after changing the admin interface.
  */
 function wpcom_show_admin_interface_notice() {
@@ -388,9 +295,40 @@ function wpcom_show_admin_interface_notice() {
 add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
 
 /**
+ * Force a cache purge.
+ *
+ * @return void
+ */
+function wpcom_rdv_reset_cache_if_needed() {
+	if ( ! get_user_option( 'rdv_force_cache_is_deleted', get_current_user_id() ) ) {
+		update_user_option( get_current_user_id(), 'rdv_force_cache_is_deleted', true, true );
+		delete_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, true );
+	}
+}
+
+/**
+ * Check if the might be an a11n on Atomic sites.
+ *
+ * @return bool
+ */
+function wpcom_atomic_rdv_maybe_is_a11n() {
+	$is_proxy_atomic    = defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
+	$is_support_session = WPCOMSH_Support_Session_Detect::is_probably_support_session();
+	$admin_menu_is_a11n = isset( $_GET['admin_menu_is_a11n'] ) && function_exists( 'wpcomsh_is_admin_menu_api_request' ) && wpcomsh_is_admin_menu_api_request();
+
+	/**
+	 * This handles two contexts: Calypso and WP-Admin.
+	 *
+	 * Calypso: WPCOM admin-menu API endpoint mapper sends a "admin_menu_is_a11n" param for a12s. If the param exists, then we'll switch to treatment.
+	 * WP-Admin: We check if the user is proxied and if it's not in a support session.
+	 */
+	return $admin_menu_is_a11n || ( $is_proxy_atomic && ! $is_support_session );
+}
+
+/**
  * Option to force and cache the Remove duplicate Views experiment assigned variation.
  */
-const RDV_EXPERIMENT_FORCE_ASSIGN_OPTION = 'remove_duplicate_views_experiment_assignment';
+const RDV_EXPERIMENT_FORCE_ASSIGN_OPTION = 'remove_duplicate_views_experiment_assignment_160125';
 
 /**
  * Check if the duplicate views experiment is enabled.
@@ -407,17 +345,44 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		return $is_enabled;
 	}
 
+	$host = new Host();
+
+	if ( $host->is_wpcom_simple() && is_automattician() || $host->is_atomic_platform() && wpcom_atomic_rdv_maybe_is_a11n() ) {
+		wpcom_rdv_reset_cache_if_needed();
+	}
+
 	$variation = get_user_option( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, get_current_user_id() );
 
+	/**
+	 * We cache it for both AT and Simple because we want to give a12s to be able to switch between variations for their accounts - this can be useful during support.
+	 * Note that switching the variations can only be achieved through the escape hatch, not via ExPlat.
+	 *
+	 * If we don't cache it, the is_automattician conditions will force treatment every time.
+	 */
 	if ( false !== $variation ) {
 		$is_enabled = 'treatment' === $variation;
 		return $is_enabled;
 	}
 
-	if ( ( new Host() )->is_wpcom_simple() ) {
+	if ( $host->is_wpcom_simple() ) {
 		\ExPlat\assign_current_user( $aa_test_name );
 		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
+
+		if ( is_automattician() ) {
+			$is_enabled = true;
+			update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
+			wpcom_set_rdv_calypso_preference( 'treatment' );
+		}
+
 		return $is_enabled;
+	}
+
+	if ( wpcom_atomic_rdv_maybe_is_a11n() ) {
+		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
+		wpcom_set_rdv_calypso_preference( 'treatment' );
+		$is_enabled = true;
+
+		return true;
 	}
 
 	if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
@@ -451,24 +416,16 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 
 	$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-	if ( isset( $data['variations'][ $experiment_name ] ) ) {
+	if ( isset( $data['variations'] ) && array_key_exists( $experiment_name, $data['variations'] ) ) {
 		$variation = $data['variations'][ $experiment_name ];
 		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, $variation, true );
 
 		$is_enabled = 'treatment' === $variation;
-	} elseif ( isset( $data['variations'] ) ) {
-		/**
-		 * If the variations array is set but the variation value is null chances are this is an a11n (since ExPlat returns null for a12s).
-		 *
-		 * We set treatment for all a12s.
-		 */
-		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
-		$is_enabled = true;
+		return $is_enabled;
 	} else {
 		$is_enabled = false;
+		return $is_enabled;
 	}
-
-	return $is_enabled;
 }
 
 /**
@@ -564,129 +521,9 @@ if ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST || defined( 'AT_PRO
 }
 
 /**
- * Displays a notice when a user visits the enforced WP Admin view of a removed Calypso screen for
- * the first time.
- */
-function wpcom_show_removed_calypso_screen_notice() {
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$blog_id = get_current_blog_id();
-	} else {
-		$jetpack_options = get_option( 'jetpack_options' );
-		if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
-			$blog_id = (int) $jetpack_options['id'];
-		} else {
-			$blog_id = get_current_blog_id();
-		}
-	}
-
-	// Do not show notice on sites created after the experiment started (2025-01-16).
-	if ( $blog_id > 240790000 ) { // 240790000 is the ID of a site created on 2025-01-16.
-		return;
-	}
-
-	$admin_menu_class = wpcom_get_custom_admin_menu_class();
-	if ( ! $admin_menu_class ) {
-		return;
-	}
-
-	$current_screen = wpcom_admin_get_current_screen();
-
-	if ( ! in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) ) {
-		return;
-	}
-
-	if ( ( new Host() )->is_wpcom_simple() ) {
-		$preferences  = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
-		$is_dismissed = $preferences[ 'removed-calypso-screen-dismissed-notice-' . $current_screen ] ?? false;
-		if ( $is_dismissed ) {
-			return;
-		}
-	} else {
-		$notices_dismissed_locally = get_user_option( 'wpcom_removed_calypso_screen_dismissed_notices' );
-		if ( ! is_array( $notices_dismissed_locally ) ) {
-			$notices_dismissed_locally = array();
-		}
-
-		if ( in_array( $current_screen, $notices_dismissed_locally, true ) ) {
-			return;
-		}
-
-		if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
-			return;
-		}
-
-		$response = Client::wpcom_json_api_request_as_user( '/me/preferences', 'v2' );
-		if ( is_wp_error( $response ) ) {
-			return;
-		}
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-		if ( 200 !== $response_code ) {
-			return;
-		}
-
-		$notices_dismissed_globally = array();
-		$preferences                = json_decode( wp_remote_retrieve_body( $response ), true );
-		foreach ( $preferences as $key => $value ) {
-			if ( $value && preg_match( '/^removed-calypso-screen-dismissed-notice-(.+)$/', $key, $matches ) ) {
-				$notices_dismissed_globally[] = $matches[1];
-			}
-		}
-
-		if ( array_diff( $notices_dismissed_globally, $notices_dismissed_locally ) ) {
-			update_user_option( get_current_user_id(), 'wpcom_removed_calypso_screen_dismissed_notices', $notices_dismissed_globally, true );
-		}
-
-		if ( in_array( $current_screen, $notices_dismissed_globally, true ) ) {
-			return;
-		}
-	}
-
-	if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
-		return;
-	}
-
-	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
-	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
-	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
-	if ( $uses_wp_admin_interface ) {
-		return;
-	}
-
-	remove_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
-	$preferred_views = get_user_option( 'jetpack_admin_menu_preferred_views' );
-	add_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
-	if ( ! empty( $preferred_views ) && isset( $preferred_views[ $current_screen ] ) && $preferred_views[ $current_screen ] === 'classic' ) {
-		return;
-	}
-
-	$handle = jetpack_mu_wpcom_enqueue_assets( 'removed-calypso-screen-notice', array( 'js', 'css' ) );
-	wp_set_script_translations( $handle, 'jetpack-mu-wpcom', Jetpack_Mu_Wpcom::PKG_DIR . 'languages' );
-
-	global $title;
-	$clean_title = preg_replace( '/\(\d+\)/', '', $title );
-	$clean_title = trim( $clean_title );
-	$config      = wp_json_encode(
-		array(
-			'title'        => $clean_title,
-			'screen'       => $current_screen,
-			'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
-			'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_removed_calypso_screen_notice' ),
-		)
-	);
-
-	wp_add_inline_script(
-		$handle,
-		"window.removedCalypsoScreenNoticeConfig = $config;",
-		'before'
-	);
-}
-add_action( 'admin_enqueue_scripts', 'wpcom_show_removed_calypso_screen_notice' );
-
-/**
  * Gets the name of the class used to customize the admin menu when Nav Unification is enabled.
  *
- * @return false|string The class name of the customized admin menu if any, false otherwise.
+ * @return false|class-string<\Automattic\Jetpack\Masterbar\Base_Admin_Menu> The class name of the customized admin menu if any, false otherwise.
  */
 function wpcom_get_custom_admin_menu_class() {
 	if ( ! function_exists( '\Automattic\Jetpack\Masterbar\get_admin_menu_class' ) || ! function_exists( '\Automattic\Jetpack\Masterbar\should_customize_nav' ) ) {
@@ -700,52 +537,6 @@ function wpcom_get_custom_admin_menu_class() {
 
 	return $admin_menu_class;
 }
-
-/**
- * Handles the AJAX request to dismiss a notice of a removed Calypso screen.
- */
-function wpcom_dismiss_removed_calypso_screen_notice() {
-	check_ajax_referer( 'wpcom_dismiss_removed_calypso_screen_notice' );
-	if ( isset( $_REQUEST['screen'] ) ) {
-		$screen = sanitize_text_field( wp_unslash( $_REQUEST['screen'] ) );
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			$preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
-
-			// If $preferences is not array we log the contents so that we can further debug.
-			if ( ! is_array( $preferences ) && function_exists( 'log2logstash' ) ) {
-				log2logstash(
-					array(
-						'feature' => 'wpcom-dismiss-wp-admin-notice',
-						'message' => 'Retrieved a non-array value from Calypso preferences.',
-						'extra'   => wp_json_encode( $preferences ),
-					)
-				);
-				// Bail if we can't update the preferences array.
-				wp_die();
-			}
-
-			$preferences[ 'removed-calypso-screen-dismissed-notice-' . $screen ] = true;
-			update_user_attribute( get_current_user_id(), 'calypso_preferences', $preferences );
-		} else {
-			Client::wpcom_json_api_request_as_user(
-				'/me/preferences',
-				'2',
-				array(
-					'method' => 'POST',
-				),
-				array( 'calypso_preferences' => (object) array( 'removed-calypso-screen-dismissed-notice-' . $screen => true ) )
-			);
-			$notices_dismissed_locally = get_user_option( 'wpcom_removed_calypso_screen_dismissed_notices' );
-			if ( ! is_array( $notices_dismissed_locally ) ) {
-				$notices_dismissed_locally = array();
-			}
-			$notices_dismissed_locally[] = $screen;
-			update_user_option( get_current_user_id(), 'wpcom_removed_calypso_screen_dismissed_notices', $notices_dismissed_locally, true );
-		}
-	}
-	wp_die();
-}
-add_action( 'wp_ajax_wpcom_dismiss_removed_calypso_screen_notice', 'wpcom_dismiss_removed_calypso_screen_notice' );
 
 /**
  * Enable the Blaze dashboard (WP-Admin) for users that have the RDV experiment enabled.

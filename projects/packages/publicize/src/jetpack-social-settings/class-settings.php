@@ -72,6 +72,26 @@ class Settings {
 	);
 
 	/**
+	 * Whether the actions have been hooked into.
+	 *
+	 * @var bool
+	 */
+	protected static $actions_hooked_in = false;
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+
+		if ( ! self::$actions_hooked_in ) {
+			add_action( 'rest_api_init', array( $this, 'register_settings' ) );
+			add_action( 'admin_init', array( $this, 'register_settings' ) );
+
+			self::$actions_hooked_in = true;
+		}
+	}
+
+	/**
 	 * Migrate old options to the new settings. Previously SIG settings were stored in the
 	 * jetpack_social_image_generator_settings option. Now they are stored in the jetpack_social_settings.
 	 *
@@ -153,7 +173,9 @@ class Settings {
 			self::OPTION_PREFIX . self::UTM_SETTINGS,
 			array(
 				'type'         => 'boolean',
-				'default'      => false,
+				'default'      => array(
+					'enabled' => false,
+				),
 				'show_in_rest' => array(
 					'schema' => array(
 						'type'       => 'object',
@@ -250,12 +272,21 @@ class Settings {
 	}
 
 	/**
+	 * Check if the pricing page should be displayed.
+	 *
+	 * @return bool
+	 */
+	public static function should_show_pricing_page() {
+		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE, true );
+	}
+
+	/**
 	 * Get if the social notes feature is enabled.
 	 *
 	 * @return bool
 	 */
 	public function is_social_notes_enabled() {
-		return get_option( self::JETPACK_SOCIAL_NOTE_CPT_ENABLED, false );
+		return (bool) get_option( self::JETPACK_SOCIAL_NOTE_CPT_ENABLED, false );
 	}
 
 	/**

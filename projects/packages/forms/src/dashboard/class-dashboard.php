@@ -10,11 +10,12 @@ namespace Automattic\Jetpack\Forms\Dashboard;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Handles the Jetpack Forms dashboard.
@@ -83,6 +84,10 @@ class Dashboard {
 			)
 		);
 
+		if ( Contact_Form_Plugin::can_use_analytics() ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
+
 		// Adds Connection package initial state.
 		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
 
@@ -95,20 +100,6 @@ class Dashboard {
 			'window.jetpackFormsData = ' . wp_json_encode( array( 'apiRoot' => $api_root ) ) . ';',
 			'before'
 		);
-
-		if ( ( new Host() )->is_wpcom_platform() ) {
-			Assets::register_script(
-				'jp-forms-dashboard-wpcom',
-				'../../dist/dashboard/jetpack-forms-dashboard.wpcom.js',
-				__FILE__,
-				array(
-					'in_footer'    => true,
-					'textdomain'   => 'jetpack-forms',
-					'enqueue'      => true,
-					'dependencies' => array( self::SCRIPT_HANDLE ),
-				)
-			);
-		}
 	}
 
 	/**
@@ -170,7 +161,7 @@ class Dashboard {
 			'hasAI'                   => $has_ai,
 		);
 		?>
-		<div id="jp-forms-dashboard" style="min-height: calc(100vh - 100px);" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>
+		<div id="jp-forms-dashboard" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>
 		<?php
 	}
 

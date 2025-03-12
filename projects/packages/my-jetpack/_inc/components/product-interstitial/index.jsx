@@ -9,6 +9,7 @@ import {
 	Text,
 	TermsOfService,
 } from '@automattic/jetpack-components';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -18,7 +19,7 @@ import React, { useCallback, useEffect } from 'react';
  */
 import { useParams } from 'react-router-dom';
 import { MyJetpackRoutes } from '../../constants';
-import useActivate from '../../data/products/use-activate';
+import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
@@ -78,7 +79,7 @@ export default function ProductInterstitial( {
 } ) {
 	const { detail } = useProduct( slug );
 	const { detail: bundleDetail } = useProduct( bundle );
-	const { activate, isPending: isActivating, isSuccess } = useActivate( slug );
+	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
 
 	// Get the post activation URL for the product.
 	let redirectUri = detail?.postActivationUrl || null;
@@ -120,7 +121,7 @@ export default function ProductInterstitial( {
 			if ( pricingForUi?.tiers?.upgraded?.wpcomProductSlug ) {
 				return pricingForUi.tiers.upgraded.wpcomProductSlug;
 			}
-			return pricingForUi.wpcomProductSlug;
+			return pricingForUi?.wpcomProductSlug;
 		},
 		[ slug, pricingForUi ]
 	);
@@ -210,7 +211,11 @@ export default function ProductInterstitial( {
 	);
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ false }
+			useInternalLinks={ shouldUseInternalLinks() }
+		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } />

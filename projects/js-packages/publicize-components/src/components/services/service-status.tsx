@@ -8,6 +8,7 @@ import styles from './style.module.scss';
 export type ServiceStatusProps = {
 	serviceConnections: Array< Connection >;
 	brokenConnections: Array< Connection >;
+	reauthConnections: Array< Connection >;
 };
 
 /**
@@ -17,34 +18,53 @@ export type ServiceStatusProps = {
  *
  * @return {import('react').ReactNode} Service status component
  */
-export function ServiceStatus( { serviceConnections, brokenConnections }: ServiceStatusProps ) {
+export function ServiceStatus( {
+	serviceConnections,
+	brokenConnections,
+	reauthConnections,
+}: ServiceStatusProps ) {
 	const canFix = useSelect(
-		select => brokenConnections.some( select( socialStore ).canUserManageConnection ),
-		[ brokenConnections ]
+		select =>
+			brokenConnections.some( select( socialStore ).canUserManageConnection ) ||
+			reauthConnections.some( select( socialStore ).canUserManageConnection ),
+		[ brokenConnections, reauthConnections ]
 	);
 
 	if ( ! serviceConnections.length ) {
 		return null;
 	}
 
-	if ( brokenConnections.length > 0 ) {
+	if ( brokenConnections.length || reauthConnections.length ) {
+		let message: string;
+		if ( brokenConnections.length ) {
+			message = canFix
+				? __(
+						'Please fix the broken connections or disconnect them to create more connections.',
+						'jetpack-publicize-components'
+				  )
+				: _n(
+						'Broken connection',
+						'Broken connections',
+						brokenConnections.length,
+						'jetpack-publicize-components'
+				  );
+		} else {
+			message = canFix
+				? __( 'Reconnect to continue sharing.', 'jetpack-publicize-components' )
+				: _n(
+						'Expiring connection',
+						'Expiring connections',
+						reauthConnections.length,
+						'jetpack-publicize-components'
+				  );
+		}
 		return (
 			<Alert
 				level={ canFix ? 'error' : 'warning' }
 				showIcon={ false }
 				className={ styles[ 'broken-connection-alert' ] }
 			>
-				{ canFix
-					? __(
-							'Please fix the broken connections or disconnect them to create more connections.',
-							'jetpack-publicize-components'
-					  )
-					: _n(
-							'Broken connection',
-							'Broken connections',
-							brokenConnections.length,
-							'jetpack-publicize-components'
-					  ) }
+				{ message }
 			</Alert>
 		);
 	}

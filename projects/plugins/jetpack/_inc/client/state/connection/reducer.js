@@ -349,6 +349,16 @@ export function isConnectionOwner( state ) {
 }
 
 /**
+ * Returns connection owner name.
+ *
+ * @param {object} state - Global state tree
+ * @return {string} Return connection owner name.
+ */
+export function isConnectionOwnerName( state ) {
+	return state.jetpack.connection.user?.connectionOwner;
+}
+
+/**
  * Returns true if the site has a connected owner.
  *
  * @param {object} state - Global state tree

@@ -62,39 +62,38 @@ function zeroBSCRM_notifyme_createDBtable(){
 
 
 function zeroBSCRM_notifyme_scripts(){
+	global $zbs;
+	wp_enqueue_script( 'jquery' );
+	wp_enqueue_script( 'notifyme-front', ZEROBSCRM_URL . 'js/lib/notifyme-front.min.js', array( 'jquery' ), $zbs::VERSION ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
+	wp_enqueue_style( 'notifyme-css', ZEROBSCRM_URL . 'css/lib/notifyme-front.min.css', array(), $zbs::VERSION );
 
-    global $zbs;
-    wp_enqueue_script("jquery");
-    wp_enqueue_script('notifyme-front', ZEROBSCRM_URL . 'js/lib/notifyme-front.min.js',array('jquery'), $zbs->version );
-    wp_enqueue_style('notifyme-css',  ZEROBSCRM_URL . 'css/lib/notifyme-front.min.css', array(), $zbs->version );
+	#} this does the browser notifications
+	wp_register_script( 'notifyme_push', ZEROBSCRM_URL . 'js/lib/push.min.js', array( 'jquery' ), $zbs::VERSION, true );
+	wp_enqueue_script( 'notifyme_push' );
 
-    #} this does the browser notifications
-    wp_register_script( 'notifyme_push', ZEROBSCRM_URL . 'js/lib/push.min.js', array( 'jquery' ) , $zbs->version, true ); 
-    wp_enqueue_script( 'notifyme_push' );
+	#} this stores things in cookies, so not to keep notifying
+	wp_register_script( 'notifyme_cookie', ZEROBSCRM_URL . 'js/lib/cookie.min.js', array( 'jquery' ), $zbs::VERSION, true );
+	wp_enqueue_script( 'notifyme_cookie' );
 
-    #} this stores things in cookies, so not to keep notifying 
-    wp_register_script( 'notifyme_cookie', ZEROBSCRM_URL . 'js/lib/cookie.min.js', array( 'jquery' ) , $zbs->version, true ); 
-    wp_enqueue_script( 'notifyme_cookie' );
+	#} this is the browser notification icon.
+	$notify_logo = jpcrm_get_logo();
 
-    #} this is the browser notification icon.
-    $notify_logo = jpcrm_get_logo();
+	#} this is which user to notify for..
+	$cid = get_current_user_id();
 
-    #} this is which user to notify for..
-    $cid = get_current_user_id();
+	#} we want to browser notify our users :-)
+	$notification_meta = array( 'browser_push' => 1 );
 
-    #} we want to browser notify our users :-)
-    $notification_meta['browser_push'] = 1;
-    $args = array(
-            'ph_notify_logo' =>  $notify_logo,
-            'current_user' => $cid,
-            'notification_nonce' => wp_create_nonce( "notifyme_nonce" ),
-            'notification_settings' => $notification_meta,
-            'ajaxurl'  => admin_url( 'admin-ajax.php' )
-    );
-    wp_localize_script('notifyme_push','notifyme',$args);
+	$args = array(
+		'ph_notify_logo'        => $notify_logo,
+		'current_user'          => $cid,
+		'notification_nonce'    => wp_create_nonce( 'notifyme_nonce' ),
+		'notification_settings' => $notification_meta,
+		'ajaxurl'               => admin_url( 'admin-ajax.php' ),
+	);
+	wp_localize_script( 'notifyme_push', 'notifyme', $args );
 }
 add_action( 'zbs-global-admin-styles', 'zeroBSCRM_notifyme_scripts' );
-
 
 //ADD ANY CORE FUNCTIONS FOR THE PLUGIN HERE
 function zeroBSCRM_notify_me(){

@@ -104,7 +104,7 @@ class jpcrm_usage_tracking{
         $extensions_count           = zeroBSCRM_extensionsInstalledCount();
         $modules_count              = jpcrm_core_modules_installed_count();
         $wp_version                 = $wp_version;
-        $crm_version                = $zbs->version;
+			$crm_version         = $zbs::VERSION;
         $dal_version                = $zbs->dal_version;
         $php_version                = PHP_VERSION;
         $mysql_version              = zeroBSCRM_database_getVersion();

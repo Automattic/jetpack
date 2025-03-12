@@ -146,7 +146,7 @@ class Jetpack_AMP_Support {
 	 */
 	public static function disable_comment_likes_before_the_content( $content ) {
 		if ( self::is_amp_request() ) {
-			remove_filter( 'comment_text', 'comment_like_button', 12, 2 );
+			remove_filter( 'comment_text', 'comment_like_button', 12 );
 		}
 		return $content;
 	}

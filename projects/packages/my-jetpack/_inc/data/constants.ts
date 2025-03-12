@@ -12,6 +12,7 @@ export const REST_API_VIDEOPRESS_FEATURED_STATS = 'videopress/v1/stats/featured'
 export const REST_API_SITE_DISMISS_BANNER = `${ REST_API_NAMESPACE }/site/dismiss-welcome-banner`;
 export const REST_API_EVALUATE_SITE_RECOMMENDATIONS = `${ REST_API_NAMESPACE }/site/recommendations/evaluation`;
 export const REST_API_SITE_EVALUATION_RESULT = `${ REST_API_NAMESPACE }/site/recommendations/evaluation/result`;
+export const REST_API_UPDATE_HISTORICALLY_ACTIVE_MODULES = `${ REST_API_NAMESPACE }/site/update-historically-active-modules`;
 
 export const getStatsHighlightsEndpoint = ( blogId: string ) =>
 	`${ ODYSSEY_STATS_API_NAMESPACE }/sites/${ blogId }/stats/highlights`;
@@ -32,6 +33,7 @@ export const QUERY_PURCHASES_KEY = 'purchases';
 export const QUERY_EVALUATE_KEY = 'evaluate site recommendations';
 export const QUERY_SAVE_EVALUATION_KEY = 'save site evaluation result';
 export const QUERY_REMOVE_EVALUATION_KEY = 'remove site evaluation result';
+export const QUERY_UPDATE_HISTORICALLY_ACTIVE_MODULES_KEY = 'update historically active modules';
 
 // Product Slugs
 export const PRODUCT_SLUGS = {

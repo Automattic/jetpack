@@ -1108,7 +1108,7 @@ function ZeroBSCRM_accept_quote() {
 		) {
 			zeroBSCRM_sendJSONError( array( 'access' => 1 ), 403 );
 		}
-	} elseif ( ! zeroBSCRM_quotes_getFromHash( $quoteHash, -1 )['success'] ) {
+	} elseif ( ! zeroBSCRM_quotes_getFromHash( $quoteHash )['success'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		zeroBSCRM_sendJSONError( array( 'hash' => 1 ), 403 );
 	}
 
@@ -4013,7 +4013,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								foreach ( $legitIDs as $id ) {
 
 									// } Update quote as unaccepted (should verify this worked...)
-									zeroBS_markQuoteUnAccepted( $id, zeroBS_getCurrentUserUsername() );
+									zeroBS_markQuoteUnAccepted( $id );
 
 									++$unaccepted;
 

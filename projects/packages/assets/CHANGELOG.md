@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.10] - 2025-03-05
+### Changed
+- Internal updates.
+
+## [4.0.9] - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+## [4.0.8] - 2025-02-24
+### Added
+- User data: Add permissions to the current user object [#41859]
+
+## [4.0.7] - 2025-02-17
+### Changed
+- Update dependencies.
+
+## [4.0.6] - 2025-02-11
+### Changed
+- Update dependencies.
+
+## [4.0.5] - 2025-02-05
+### Changed
+- Updated package dependencies. [#41491]
+
+## [4.0.4] - 2025-02-03
+### Changed
+- Updated package dependencies. [#41286]
+
 ## [4.0.3] - 2025-01-20
 ### Changed
 - Updated package dependencies. [#41099]
@@ -548,6 +576,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[4.0.10]: https://github.com/Automattic/jetpack-assets/compare/v4.0.9...v4.0.10
+[4.0.9]: https://github.com/Automattic/jetpack-assets/compare/v4.0.8...v4.0.9
+[4.0.8]: https://github.com/Automattic/jetpack-assets/compare/v4.0.7...v4.0.8
+[4.0.7]: https://github.com/Automattic/jetpack-assets/compare/v4.0.6...v4.0.7
+[4.0.6]: https://github.com/Automattic/jetpack-assets/compare/v4.0.5...v4.0.6
+[4.0.5]: https://github.com/Automattic/jetpack-assets/compare/v4.0.4...v4.0.5
+[4.0.4]: https://github.com/Automattic/jetpack-assets/compare/v4.0.3...v4.0.4
 [4.0.3]: https://github.com/Automattic/jetpack-assets/compare/v4.0.2...v4.0.3
 [4.0.2]: https://github.com/Automattic/jetpack-assets/compare/v4.0.1...v4.0.2
 [4.0.1]: https://github.com/Automattic/jetpack-assets/compare/v4.0.0...v4.0.1

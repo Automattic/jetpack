@@ -32,3 +32,12 @@ body.admin_page_jetpack-forms {
 		display: none;
 	}
 }
+
+// Adjust the position of the notices.
+.forms-dashboard-notices {
+	position: sticky;
+	right: 0;
+	bottom: 24px;
+	padding-left: 24px;
+	padding-right: 24px;
+}

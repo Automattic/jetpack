@@ -112,42 +112,6 @@ export function getDisabledConnections( state: SocialStoreState ) {
 }
 
 /**
- * Get the profile details for a connection
- *
- * @param state              - State object.
- * @param service            - The service name.
- * @param args               - Arguments.
- * @param args.forceDefaults - Whether to use default values.
- *
- * @return The profile details.
- */
-export function getConnectionProfileDetails(
-	state: SocialStoreState,
-	service: string,
-	{ forceDefaults = false }: { forceDefaults?: boolean } = {}
-) {
-	let displayName = '';
-	let profileImage = '';
-	let username = '';
-
-	if ( ! forceDefaults ) {
-		const connection = getConnections( state ).find(
-			( { service_name } ) => service === service_name
-		);
-
-		if ( connection ) {
-			const { display_name, profile_picture, external_handle } = connection;
-
-			displayName = display_name;
-			username = external_handle;
-			profileImage = profile_picture;
-		}
-	}
-
-	return { displayName, profileImage, username };
-}
-
-/**
  * Get the connections being deleted.
  *
  * @param state - State object.

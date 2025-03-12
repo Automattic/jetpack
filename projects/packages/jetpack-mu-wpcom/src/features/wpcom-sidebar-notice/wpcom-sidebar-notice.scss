@@ -38,15 +38,8 @@
 /**
  * Sidebar notice
  */
-#adminmenu li.menu-top.toplevel_page_site-notices {
-	&:hover,
-	&:focus {
-		background-color: inherit;
-	}
-
+#adminmenu li.toplevel_page_site-notices {
 	a {
-		cursor: default;
-
 		&:hover,
 		&:focus {
 			box-shadow: none;
@@ -54,9 +47,7 @@
 		}
 	}
 
-	.wp-menu-name {
-		padding: 0 8px 8px 8px;
-	}
+	padding: 0 8px 8px 8px;
 
 	.upsell_banner {
 		border-radius: 2px;
@@ -66,34 +57,17 @@
 		gap: 6px;
 	}
 
-	.upsell_banner__icon {
-		display: none;
-
-		&:before {
-			content: '\f534';
-			font-family: 'dashicons';
-			background-color: #a7aaad;
-			color: white;
-			border-radius: 50%;
-		}
-	}
-
 	.upsell_banner__text {
 		font-size: 12px;
 		line-height: 16px;
 	}
 
 	.upsell_banner__action {
-		width: 100%;
-		font-size: 13px;
-		line-height: 20px;
-		cursor: pointer;
-		min-height: 32px;
-		margin-bottom: 0;
-		border: 0;
+		text-align: center;
+		line-height: 2;
 	}
 
-	.upsell_banner__dismiss {
+	.upsell_banner__dismiss.button-link {
 		background-color: transparent;
 		color: inherit;
 		min-height: 0;

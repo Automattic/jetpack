@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.7] - 2025-02-05
+### Changed
+- Updated package dependencies. [#41286]
+
 ## [0.3.6] - 2024-12-04
 ### Added
 - Enable test coverage. [#39961]
@@ -66,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#29471]
 - Updated to use Abort Controller to allow cancelling requests mid-stream. [#29122]
 
+[0.3.7]: https://github.com/Automattic/jetpack-svelte-data-sync-client/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/Automattic/jetpack-svelte-data-sync-client/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/Automattic/jetpack-svelte-data-sync-client/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/Automattic/jetpack-svelte-data-sync-client/compare/v0.3.3...v0.3.4

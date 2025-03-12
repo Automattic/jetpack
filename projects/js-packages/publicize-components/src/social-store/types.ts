@@ -137,14 +137,13 @@ export type SocialNotesConfig = {
 	link_format: 'full_url' | 'shortlink' | 'permashortcitation';
 };
 
-export type SocialPluginSettings = {
-	publicize_active: boolean;
-	show_pricing_page: boolean;
-	social_notes_enabled: boolean;
-	social_notes_config: {
-		append_link: boolean;
-		link_format: 'full_url' | 'shortlink' | 'permashortcitation';
-	};
+export type SocialNotesSettings = {
+	enabled: boolean;
+	config: SocialNotesConfig;
+};
+
+export type SocialModuleSettings = {
+	publicize: boolean;
 };
 
 export type SocialSettingsFields = {
@@ -153,4 +152,14 @@ export type SocialSettingsFields = {
 	[ 'jetpack-social-note' ]: boolean;
 	jetpack_social_notes_config: SocialNotesConfig;
 	[ 'jetpack-social_show_pricing_page' ]: boolean;
+};
+
+export type ScheduledShare = {
+	id: number;
+	blog_id: number;
+	connection_id: number;
+	message: string;
+	post_id: number;
+	timestamp: number;
+	wpcom_user_id: number;
 };

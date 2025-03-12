@@ -70,7 +70,7 @@ class Publicize_Script_Data {
 		$data['site']['wpcom']['blog_id'] = Manager::get_site_id( true );
 		$data['site']['suffix']           = ( new Status() )->get_site_suffix();
 		if ( ! isset( $data['site']['host'] ) ) {
-			$data['site']['host'] = ( new Host() )->get_known_host_guess();
+			$data['site']['host'] = ( new Host() )->get_known_host_guess( false );
 		}
 
 		self::set_wpcom_user_data( $data['user']['current_user'] );
@@ -117,7 +117,7 @@ class Publicize_Script_Data {
 		}
 
 		$basic_data = array(
-			'api_paths'            => array(),
+			'api_paths'            => self::get_api_paths(),
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'feature_flags'        => self::get_feature_flags(),
 			'supported_services'   => array(),
@@ -141,7 +141,6 @@ class Publicize_Script_Data {
 		return array_merge(
 			$basic_data,
 			array(
-				'api_paths'           => self::get_api_paths(),
 				'supported_services'  => self::get_supported_services(),
 				'shares_data'         => self::get_shares_data(),
 				'urls'                => self::get_urls(),
@@ -162,6 +161,11 @@ class Publicize_Script_Data {
 		return array(
 			'socialImageGenerator' => $settings->get_image_generator_settings(),
 			'utmSettings'          => $settings->get_utm_settings(),
+			'socialNotes'          => array(
+				'enabled' => $settings->is_social_notes_enabled(),
+				'config'  => $settings->get_social_notes_config(),
+			),
+			'showPricingPage'      => $settings->should_show_pricing_page(),
 		);
 	}
 
@@ -212,9 +216,11 @@ class Publicize_Script_Data {
 			$share_status[ $post->ID ] = self::publicize()->get_post_share_status( $post->ID );
 		}
 
+		$should_have_connections = self::has_feature_flag( 'connections-management' ) || self::has_feature_flag( 'editor-preview' );
+
 		return array(
 			'connectionData' => array(
-				'connections' => self::has_feature_flag( 'connections-management' ) ? Connections::get_all_for_user() : array(),
+				'connections' => $should_have_connections ? Connections::get_all_for_user() : array(),
 			),
 			'shareStatus'    => $share_status,
 		);
@@ -270,7 +276,7 @@ class Publicize_Script_Data {
 	 * @return ?array
 	 */
 	public static function get_shares_data() {
-		return self::publicize()->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+		return self::publicize()->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ) ?? array();
 	}
 
 	/**
@@ -279,13 +285,7 @@ class Publicize_Script_Data {
 	 * @return array List of external services and their settings.
 	 */
 	public static function get_supported_services() {
-		/**
-		 * Disable caching for now to avoid nonce errors
-		 * for secondary users trying to connect an account
-		 *
-		 * @link https://github.com/Automattic/jetpack/pull/41149
-		 */
-		return Publicize_Services::get_all( true /* Ignore cache */ );
+		return Publicize_Services::get_all();
 	}
 
 	/**
@@ -295,26 +295,12 @@ class Publicize_Script_Data {
 	 */
 	public static function get_api_paths() {
 
-		$is_wpcom = ( new Host() )->is_wpcom_platform();
-
-		$commom_paths = array(
+		return array(
 			'refreshConnections' => '/wpcom/v2/publicize/connections?test_connections=1',
+			// The complete path will be like `/jetpack/v4/social/settings`.
+			'socialToggleBase'   => Utils::should_use_jetpack_module_endpoint() ? 'settings' : 'social/settings',
+			'resharePost'        => '/wpcom/v2/publicize/share-post/{postId}',
 		);
-
-		$specific_paths = array();
-
-		if ( $is_wpcom ) {
-
-			$specific_paths = array(
-				'resharePost' => '/wpcom/v2/posts/{postId}/publicize',
-			);
-		} else {
-			$specific_paths = array(
-				'resharePost' => '/jetpack/v4/publicize/{postId}',
-			);
-		}
-
-		return array_merge( $commom_paths, $specific_paths );
 	}
 
 	/**

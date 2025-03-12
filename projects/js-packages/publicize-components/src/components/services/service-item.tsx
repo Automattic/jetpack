@@ -41,6 +41,7 @@ export function ServiceItem( {
 	const areCustomInputsVisible = isPanelOpen && service.needsCustomInputs;
 
 	const brokenConnections = serviceConnections.filter( ( { status } ) => status === 'broken' );
+	const reauthConnections = serviceConnections.filter( ( { status } ) => status === 'must_reauth' );
 
 	const hasOwnBrokenConnections = useSelect(
 		select => {
@@ -89,6 +90,7 @@ export function ServiceItem( {
 					<ServiceStatus
 						serviceConnections={ serviceConnections }
 						brokenConnections={ brokenConnections }
+						reauthConnections={ reauthConnections }
 					/>
 				</div>
 				<div className={ styles.actions }>

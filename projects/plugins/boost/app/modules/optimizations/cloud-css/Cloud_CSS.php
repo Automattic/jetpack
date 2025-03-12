@@ -6,6 +6,7 @@ use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
+use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
@@ -13,6 +14,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
+use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
@@ -24,6 +26,9 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 
 	/** A post was updated/created. */
 	const REGENERATE_REASON_SAVE_POST = 'save_post';
+
+	/** A cornerstone page or the list of cornerstone pages was updated. */
+	const REGENERATE_REASON_CORNERSTONE_UPDATE = 'cornerstone_update';
 
 	/** Existing critical CSS invalidated because of a significant change, e.g. Theme changed. */
 	const REGENERATE_REASON_INVALIDATED = 'invalidated';
@@ -164,12 +169,29 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 			return;
 		}
 
+		if ( Cornerstone_Utils::is_cornerstone_page( $post_id ) ) {
+			$this->regenerate_cloud_css( self::REGENERATE_REASON_CORNERSTONE_UPDATE, $this->get_all_providers() );
+			return;
+		}
+
 		// This checks against the latest providers list, not the list
 		// stored in the database because newly added posts are always
 		// included in the providers list that will be used to generate
 		// the Cloud CSS.
 		if ( $this->is_post_in_latest_providers_list( $post ) ) {
 			$this->regenerate_cloud_css( self::REGENERATE_REASON_SAVE_POST, $this->get_all_providers( array( $post ) ) );
+		}
+	}
+
+	/**
+	 * Handle when a critical CSS environment change is detected.
+	 */
+	public function handle_environment_change( $is_major_change, $change_type ) {
+		/*
+		 * Regenerate Cloud CSS when the list of cornerstone pages is updated.
+		 */
+		if ( $change_type === Environment_Change_Detector::ENV_CHANGE_CORNERSTONE_PAGES_LIST_UPDATED ) {
+			$this->regenerate_cloud_css( self::REGENERATE_REASON_CORNERSTONE_UPDATE, $this->get_all_providers() );
 		}
 	}
 

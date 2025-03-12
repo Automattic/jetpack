@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.6.5 - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+## 3.6.4 - 2025-02-24
+### Changed
+- Update dependencies.
+
+## 3.6.3 - 2025-02-17
+### Changed
+- Add .jsx extension alias support. [#41524]
+
+## 3.6.2 - 2025-02-04
+### Changed
+- Update package dependencies. [#41491]
+
+## 3.6.1 - 2025-01-31
+### Changed
+- Update package dependencies. [#41286]
+
 ## 3.6.0 - 2025-01-27
 ### Added
 - Set `output.uniqueName` by default. Note this may change output for things setting `output.library.name`. [#41315]

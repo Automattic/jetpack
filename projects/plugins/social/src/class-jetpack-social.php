@@ -9,7 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -106,7 +105,7 @@ class Jetpack_Social {
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Social_Note_Controller(), 'register_rest_routes' ) );
 
 		// Add block editor assets
-		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_editor_scripts' ) );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_editor_scripts' ), 20 );
 		// Adds the review prompt initial state
 		add_action( 'enqueue_block_assets', array( $this, 'add_review_initial_state' ), 30 );
 
@@ -118,8 +117,6 @@ class Jetpack_Social {
 		add_filter( 'plugin_action_links_' . JETPACK_SOCIAL_PLUGIN_FOLDER . '/jetpack-social.php', array( $this, 'add_settings_link' ) );
 
 		add_shortcode( 'jp_shares_shortcode', array( $this, 'add_shares_shortcode' ) );
-
-		add_filter( 'jetpack_social_admin_script_data', array( $this, 'set_social_admin_script_data' ) );
 	}
 
 	/**
@@ -177,40 +174,6 @@ class Jetpack_Social {
 	}
 
 	/**
-	 * Set the social admin script data.
-	 *
-	 * @param array $data The initial state data.
-	 * @return array
-	 */
-	public function set_social_admin_script_data( $data ) {
-
-		$data['plugin_info']['social'] = array(
-			'version' => $this->get_plugin_version(),
-		);
-
-		$data['settings']['socialPlugin'] = array(
-			'publicize_active' => self::is_publicize_active(),
-
-		);
-
-		if ( $this->is_connected() ) {
-
-			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
-
-			$data['settings']['socialPlugin'] = array_merge(
-				$data['settings']['socialPlugin'],
-				array(
-					'show_pricing_page'    => self::should_show_pricing_page(),
-					'social_notes_enabled' => $jetpack_social_settings->is_social_notes_enabled(),
-					'social_notes_config'  => $jetpack_social_settings->get_social_notes_config(),
-				)
-			);
-		}
-
-		return $data;
-	}
-
-	/**
 	 * Returns a boolean as to whether we have a plan that supports
 	 * sharing beyond the free limit.
 	 *
@@ -257,18 +220,6 @@ class Jetpack_Social {
 		) {
 			return;
 		}
-
-		Assets::register_script(
-			'jetpack-social-editor',
-			'build/editor.js',
-			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-social',
-			)
-		);
-
-		Assets::enqueue_script( 'jetpack-social-editor' );
 
 		$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
 		$social_state            = $jetpack_social_settings->get_initial_state();

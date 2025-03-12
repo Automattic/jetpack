@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import React from 'react';
-import Button from '../button';
+import Button from '../button/index.js';
 import styles from './style.module.scss';
 
 /**

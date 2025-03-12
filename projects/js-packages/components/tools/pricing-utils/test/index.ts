@@ -1,5 +1,5 @@
-import { isFirstMonthTrial } from '..';
-import { IntroOffer } from './../types';
+import { isFirstMonthTrial } from '../index.js';
+import { IntroOffer } from './../types.js';
 
 const trialIntroOffer: IntroOffer = {
 	product_id: 0,

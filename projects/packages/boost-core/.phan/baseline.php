@@ -10,12 +10,10 @@
 return [
     // # Issue statistics:
     // PhanAbstractStaticMethodCallInStatic : 3 occurrences
-    // PhanParamTooMany : 2 occurrences
     // PhanTypeMismatchArgumentInternal : 2 occurrences
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/lib/class-boost-api.php' => ['PhanParamTooMany'],
         'src/lib/class-cacheable.php' => ['PhanAbstractStaticMethodCallInStatic'],
         'src/lib/class-utils.php' => ['PhanTypeMismatchArgumentInternal'],
     ],

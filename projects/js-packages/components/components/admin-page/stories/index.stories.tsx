@@ -1,7 +1,7 @@
 import React from 'react';
-import JetpackLogo from '../../jetpack-logo/index';
-import Text from '../../text/index';
-import AdminPage from '../index';
+import JetpackLogo from '../../jetpack-logo/index.js';
+import Text from '../../text/index.js';
+import AdminPage from '../index.js';
 import styles from './style.module.scss';
 import type { StoryFn, Meta } from '@storybook/react';
 

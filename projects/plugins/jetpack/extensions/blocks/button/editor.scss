@@ -1,6 +1,11 @@
-.wp-block[data-type='jetpack/button'] {
-	display: inline-block;
-	margin: 0 auto;
+@import "../../shared/styles/align";
+
+// This level of CSS specificity is required to overwrite existing styles
+.editor-styles-wrapper .block-editor-block-list__block.wp-block-jetpack-button {
+	@include align-block;
+	max-width: 100%;
+	width: fit-content;
+	margin: 0;
 
 	&.is-style-outline > .wp-block-button__link {
 		background-color: transparent;
@@ -9,34 +14,25 @@
 	}
 }
 
-.wp-block[data-align="center"] {
-	.wp-block-jetpack-button {
-		display: flex;
-		justify-content: center;
-	}
+// Support align feature for older themes
+.wp-block[data-align]:has(> .wp-block-jetpack-button) {
+	margin-left: 0;
+	margin-right: 0;
 }
 
-.wp-block[data-align="right"] {
-	.wp-block-jetpack-button {
-		display: flex;
-		justify-content: flex-end;
-	}
+.wp-block[data-align] > .wp-block-jetpack-button {
+	display: block;
 }
 
-div[data-type="jetpack/button"]:not([data-align='left']):not([data-align='right']) {
-	width: 100%;
+.wp-block[data-align="center"] > .wp-block-jetpack-button {
+	margin-left: auto;
+	margin-right: auto;
 }
 
-div[data-type="jetpack/button"][data-align] {
-	z-index: 1;
-	width: 100%;
-
-	.wp-block > div {
-		max-width: 100%;
-	}
+.wp-block[data-align="left"] > .wp-block-jetpack-button {
+	margin-right: auto;
 }
 
-.wp-block-jetpack-button,
-.wp-block-button__link.has-custom-width {
-	max-width: 100%;
+.wp-block[data-align="right"] > .wp-block-jetpack-button {
+	margin-left: auto;
 }

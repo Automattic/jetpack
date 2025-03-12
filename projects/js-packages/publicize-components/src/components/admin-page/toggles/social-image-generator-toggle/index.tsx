@@ -19,7 +19,7 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 	disabled,
 } ) => {
 	const { isEnabled, isUpdating, defaultTemplate } = useSelect( select => {
-		const config = select( socialStore ).getSocialImageGeneratorConfig();
+		const config = select( socialStore ).getSocialSettings().socialImageGenerator;
 
 		return {
 			isEnabled: config.enabled,

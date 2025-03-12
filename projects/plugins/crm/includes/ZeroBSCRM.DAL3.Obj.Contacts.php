@@ -3571,11 +3571,11 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 										)
 									);
 
-                } unset($trans);
+					} unset( $trans );
 
-                // delete events
-                $events = zeroBS_getEventsByCustomerID($id,false,1000000,0,false);
-                foreach ($events as $event){
+					// delete events
+					$events = zeroBS_getEventsByCustomerID( $id, false, 1000000, 0 );
+					foreach ( $events as $event ) {
 
 									// delete post
 									$zbs->DAL->events->deleteEvent( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase

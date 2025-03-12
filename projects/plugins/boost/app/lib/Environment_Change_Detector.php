@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
+
 /**
  * Class Environment_Change_Detector
  */
@@ -66,7 +68,7 @@ class Environment_Change_Detector {
 	/**
 	 * Fire the environment change action.
 	 *
-	 * @param bool   $is_major_change Whether the change is major.
+	 * @param bool   $is_major_change Whether the change is such that we should stop serving existing critical CSS immediately unless refreshed.
 	 * @param string $change_type The change type.
 	 */
 	public function do_action( $is_major_change, $change_type ) {
@@ -109,13 +111,8 @@ class Environment_Change_Detector {
 	 * @return string The change type.
 	 */
 	private function get_post_change_type( $post ) {
-		$cornerstone_pages = ( new Cornerstone_Pages() )->get_pages();
-		if ( $cornerstone_pages ) {
-			$cornerstone_pages_sanitized = array_map( 'untrailingslashit', $cornerstone_pages );
-			$current_url                 = untrailingslashit( get_permalink( $post ) );
-			if ( in_array( $current_url, $cornerstone_pages_sanitized, true ) ) {
-				return $this::ENV_CHANGE_CORNERSTONE_PAGE_SAVED;
-			}
+		if ( Cornerstone_Utils::is_cornerstone_page( $post->ID ) ) {
+			return $this::ENV_CHANGE_CORNERSTONE_PAGE_SAVED;
 		}
 
 		if ( 'page' === $post->post_type ) {

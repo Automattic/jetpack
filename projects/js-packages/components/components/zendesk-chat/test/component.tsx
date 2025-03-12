@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
-import ZendeskChat from '../index';
+import ZendeskChat from '../index.js';
 
 describe( 'ZendeskChat', () => {
 	afterEach( () => {

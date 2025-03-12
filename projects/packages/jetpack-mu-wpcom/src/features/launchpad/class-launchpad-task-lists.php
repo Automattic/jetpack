@@ -375,10 +375,11 @@ class Launchpad_Task_Lists {
 	 *
 	 * @param string      $id Task list id.
 	 * @param string|null $launchpad_context Optional. Screen in which launchpad is loading.
+	 * @param bool        $updated_write_tasklist Optional. Whether we're using the updated `write` task list.
 	 *
 	 * @return Task[] Collection of tasks associated with a task list.
 	 */
-	public function build( $id, $launchpad_context = null ) {
+	public function build( $id, $launchpad_context = null, $updated_write_tasklist = false ) {
 		$task_list           = $this->get_task_list( $id );
 		$tasks_for_task_list = array();
 
@@ -395,7 +396,7 @@ class Launchpad_Task_Lists {
 			$task_definition = $this->get_task( $task_id );
 
 			// if task can't be found don't add anything
-			if ( $this->is_visible( $task_definition ) ) {
+			if ( $this->is_visible( $task_definition, $launchpad_context, $updated_write_tasklist ) ) {
 				$tasks_for_task_list[] = $this->build_task( $task_definition, $launchpad_context );
 			}
 		}
@@ -407,15 +408,22 @@ class Launchpad_Task_Lists {
 	 * Allows a function to be called to determine if a task should be visible.
 	 * For instance: we don't even want to show the verify_email task if it's already done.
 	 *
-	 * @param Task $task_definition A task definition.
+	 * @param Task        $task_definition A task definition.
+	 * @param string|null $launchpad_context Optional. Screen in which launchpad is loading.
+	 * @param bool        $updated_write_tasklist Optional. Whether we're using the updated `write` task list.
 	 * @return boolean True if task is visible, false if not.
 	 */
-	protected function is_visible( $task_definition ) {
+	protected function is_visible( $task_definition, $launchpad_context = null, $updated_write_tasklist = false ) {
 		if ( empty( $task_definition ) ) {
 			return false;
 		}
 
-		return $this->load_value_from_callback( $task_definition, 'is_visible_callback', true );
+		$data = array(
+			'launchpad_context'      => $launchpad_context,
+			'updated_write_tasklist' => $updated_write_tasklist,
+		);
+
+		return $this->load_value_from_callback( $task_definition, 'is_visible_callback', true, $data );
 	}
 
 	/**

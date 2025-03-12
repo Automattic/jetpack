@@ -1,3 +1,4 @@
+import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { createSlotFill } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
@@ -5,7 +6,6 @@ import { PluginSidebar, PluginSidebarMoreMenuItem } from '@wordpress/edit-post';
 import { Fragment } from '@wordpress/element';
 import { registerPlugin } from '@wordpress/plugins';
 import { getQueryArg } from '@wordpress/url';
-import { JetpackLogo } from './icons';
 
 import './jetpack-plugin-sidebar.scss';
 

@@ -1,4 +1,4 @@
-import SplitButton from '../index';
+import SplitButton from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
 export default {

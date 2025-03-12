@@ -19,12 +19,13 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
+use Automattic\Jetpack_Boost\Admin\Config as Boost_Admin_Config;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
-use Automattic\Jetpack_Boost\Lib\Cornerstone_Pages;
+use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Pages;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
@@ -119,9 +120,13 @@ class Jetpack_Boost {
 		// Initiate jetpack sync.
 		$this->init_sync();
 
+		add_action( 'admin_init', array( $this, 'schedule_version_change' ) );
+
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
 		add_action( 'jetpack_boost_critical_css_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
+
+		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -145,6 +150,35 @@ class Jetpack_Boost {
 	private function register_deactivation_hook() {
 		$plugin_file = trailingslashit( dirname( __DIR__ ) ) . 'jetpack-boost.php';
 		register_deactivation_hook( $plugin_file, array( $this, 'deactivate' ) );
+	}
+
+	public function schedule_version_change() {
+		$version = get_option( 'jetpack_boost_version' );
+
+		if ( $version === JETPACK_BOOST_VERSION ) {
+			return;
+		}
+		update_option( 'jetpack_boost_version', JETPACK_BOOST_VERSION );
+
+		// Schedule the cron event to handle the version change. This ensures the previous version's handle is always flushed.
+		if ( ! wp_next_scheduled( 'jetpack_boost_handle_version_change_cron' ) ) {
+			wp_schedule_single_event( time() + 2, 'jetpack_boost_handle_version_change_cron' );
+		}
+	}
+
+	public function handle_version_change() {
+		$is_atomic = Boost_Admin_Config::get_hosting_provider() === 'atomic';
+		$is_woa    = Boost_Admin_Config::get_hosting_provider() === 'woa';
+		if ( $is_atomic || $is_woa ) {
+			// Remove this option to prevent the notice from showing up.
+			delete_site_option( 'jetpack_boost_static_minification' );
+		}
+
+		if ( jetpack_boost_minify_is_enabled() ) {
+			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
+			jetpack_boost_minify_clear_scheduled_events();
+			jetpack_boost_minify_activation( ! $is_atomic && ! $is_woa );
+		}
 	}
 
 	/**
@@ -181,7 +215,6 @@ class Jetpack_Boost {
 		do_action( 'jetpack_boost_deactivate' );
 
 		// Tell Minify JS/CSS to clean up.
-		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
 		jetpack_boost_page_optimize_deactivate();
 
 		Regenerate_Admin_Notice::dismiss();
@@ -285,6 +318,10 @@ class Jetpack_Boost {
 		foreach ( $option_names as $option_name ) {
 			delete_option( $option_name );
 		}
+
+		// Delete the last run options for the network-wide cron jobs.
+		delete_site_option( 'jetpack_boost_404_tester_last_run' );
+		delete_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run' );
 
 		// Delete stored Critical CSS.
 		( new Critical_CSS_Storage() )->clear();

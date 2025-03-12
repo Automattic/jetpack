@@ -1,5 +1,5 @@
 import { CURRENCIES } from '@automattic/format-currency';
-import ProductPrice from '../';
+import ProductPrice from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
 export default {

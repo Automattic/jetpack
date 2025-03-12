@@ -19,9 +19,8 @@
 		"brain/monkey": "^2.6.2",
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/jetpack-mu-wpcom": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
-		"automattic/wordbless": "^0.4.2"
+		"automattic/jetpack-test-environment": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -38,8 +37,6 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"test-coverage": [
 			"pnpm run build-production",
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
@@ -72,15 +69,10 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.12.x-dev"
+			"dev-trunk": "0.13.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
-		},
-		"dependencies": {
-			"test-only": [
-				"packages/jetpack-mu-wpcom"
-			]
 		},
 		"mirror-repo": "Automattic/jetpack-masterbar",
 		"textdomain": "jetpack-masterbar",

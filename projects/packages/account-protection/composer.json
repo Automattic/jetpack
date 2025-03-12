@@ -9,7 +9,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "dev-master"
+		"automattic/jetpack-test-environment": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -22,8 +22,6 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"test-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
@@ -42,11 +40,6 @@
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
-	},
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {

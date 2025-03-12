@@ -12,7 +12,7 @@ global $zbs;
 $reply = array(
 	'status'      => __( 'Successful Connection', 'zero-bs-crm' ),
 	'message'     => __( 'Your API Connection with Jetpack CRM is functioning correctly.', 'zero-bs-crm' ),
-	'crm_version' => $zbs->version,
+	'crm_version' => $zbs::VERSION,
 	'db_version'  => $zbs->db_version,
 );
 

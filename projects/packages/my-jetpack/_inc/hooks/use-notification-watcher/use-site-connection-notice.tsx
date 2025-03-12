@@ -1,10 +1,10 @@
 import { Col, TermsOfService, Text } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
-import { useAllProducts } from '../../data/products/use-product';
+import { useAllProducts } from '../../data/products/use-all-products';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../use-analytics';
@@ -22,7 +22,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { siteIsRegistering, isSiteConnected } = useMyJetpackConnection( {
 		skipUserConnection: true,
 	} );
-	const products = useAllProducts();
+	const { data: products, isLoading, isError } = useAllProducts();
 	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
 	const redBubbleSlug = 'missing-connection';
 	const connectionError = redBubbleAlerts[ redBubbleSlug ];
@@ -35,13 +35,18 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 
 	const { refetch: refetchOwnershipData } = useProductsByOwnership();
 
+	const productSlugsThatRequireUserConnection = useMemo( () => {
+		if ( isLoading || isError ) {
+			return [];
+		}
+		return getProductSlugsThatRequireUserConnection( products );
+	}, [ isError, isLoading, products ] );
+
 	useEffect( () => {
 		if ( ! connectionError ) {
 			return;
 		}
 
-		const productSlugsThatRequireUserConnection =
-			getProductSlugsThatRequireUserConnection( products );
 		const requiresUserConnection = connectionError.type === 'user';
 
 		const onActionButtonClick = ( { e }: { e: MouseEvent< HTMLButtonElement > } ) => {
@@ -132,6 +137,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		siteIsRegistering,
 		connectionError,
 		refetchOwnershipData,
+		productSlugsThatRequireUserConnection,
 	] );
 };
 

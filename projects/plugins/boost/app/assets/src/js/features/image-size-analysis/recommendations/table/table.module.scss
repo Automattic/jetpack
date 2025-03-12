@@ -2,3 +2,66 @@
 	max-width: 1320px;
 	margin: 0 auto;
 }
+
+.table {
+	will-change: opacity, filter;
+	transition:
+		opacity 0.3s ease-in-out,
+		filter 0.3s ease-in-out;
+
+	h1 {
+		padding-top: 16px;
+		width: 100%;
+		text-align: center;
+	}
+
+	&.loading {
+		filter: grayscale( 0.5 );
+		opacity: 0.2;
+		position: relative;
+	}
+}
+
+.loading-spinner {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate( -50%, -50% );
+	z-index: 9000;
+
+	&:not( .active ) {
+		display: none;
+	}
+}
+
+.table-header {
+	@media ( max-width: 782px ) {
+		display: none !important;
+	}
+
+	font-size: 0.875rem;
+	color: var( --gray-60 );
+	border: var( --border );
+	border-top-left-radius: var( --border-radius );
+	border-top-right-radius: var( --border-radius );
+	border-bottom: 0;
+	background-color: #fff;
+
+	.image {
+		grid-column: thumbnail / title;
+	}
+
+	.device {
+		grid-column: device;
+		text-align: center;
+	}
+
+	.potential-size {
+		grid-column: potential-size;
+	}
+
+	.page {
+		grid-column: page / expand;
+	}
+
+}

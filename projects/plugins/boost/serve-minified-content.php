@@ -18,6 +18,6 @@ require_once __DIR__ . '/app/lib/minify/Utils.php';
 require_once __DIR__ . '/app/lib/minify/Config.php';
 require_once __DIR__ . '/app/lib/minify/Dependency_Path_Mapping.php';
 require_once __DIR__ . '/app/lib/minify/functions-helpers.php';
-require_once __DIR__ . '/app/lib/minify/functions-service.php';
+require_once __DIR__ . '/app/lib/minify/functions-service-fallback.php';
 
 jetpack_boost_page_optimize_service_request();

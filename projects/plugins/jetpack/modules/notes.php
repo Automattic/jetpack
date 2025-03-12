@@ -205,7 +205,7 @@ class Jetpack_Notifications {
 					'class' => 'menupop',
 				),
 				'parent' => 'top-secondary',
-				'href'   => 'https://wordpress.com/notifications',
+				'href'   => 'https://wordpress.com/reader/notifications',
 			)
 		);
 	}

@@ -106,3 +106,43 @@ export const FixedDimensions: Story = {
 		},
 	},
 };
+
+export const ErrorStates: StoryObj< typeof BarChart > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '20px' } }>
+			<div>
+				<h3>Empty Data</h3>
+				<div style={ { width: '400px', height: '300px' } }>
+					<BarChart data={ [] } />
+				</div>
+			</div>
+
+			<div>
+				<h3>Invalid Data</h3>
+				<div style={ { width: '400px', height: '300px' } }>
+					<BarChart
+						data={ [
+							{
+								label: 'Invalid Series',
+								data: [
+									{ date: new Date( 'invalid' ), value: 10, label: 'Invalid Date' },
+									{ date: new Date( '2024-01-02' ), value: null, label: 'Null Value' },
+								],
+								options: {},
+							},
+						] }
+					/>
+				</div>
+			</div>
+		</div>
+	),
+};
+
+ErrorStates.parameters = {
+	docs: {
+		description: {
+			story:
+				'Examples of how the bar chart handles various error states including empty data and invalid data.',
+		},
+	},
+};

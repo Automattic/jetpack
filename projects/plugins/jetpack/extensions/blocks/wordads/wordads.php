@@ -81,7 +81,7 @@ class WordAds {
 	 * Set if the WordAds block is available.
 	 */
 	public static function set_availability() {
-		$block_name = Blocks::get_block_name( __DIR__ );
+		$block_name = 'wordads';
 
 		if ( ! self::is_available() ) {
 			Jetpack_Gutenberg::set_extension_unavailable( $block_name, 'WordAds unavailable' );

@@ -533,7 +533,7 @@ function zeroBSCRM_task_addEdit( $taskID = -1 ) {
 
 	$html .= zeroBSCRM_task_ui_clear();
 
-	$html .= zeroBSCRM_task_ui_for( $taskObject, $taskID );
+	$html .= zeroBSCRM_task_ui_for( $taskObject ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	$html .= zeroBSCRM_task_ui_clear();
 

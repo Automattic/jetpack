@@ -58,7 +58,7 @@ for DIR in $(git -c core.quotepath=off diff --name-only HEAD | sed -nE 's!^(proj
 	echo "Adding change file for $SLUG"
 	cd "$DIR"
 
-	changelogger_add 'Updated package dependencies.' '' --filename="${CHANGEFILE}" --filename-auto-suffix
+	changelogger_add 'Update package dependencies.' '' --filename="${CHANGEFILE}" --filename-auto-suffix
 	cd "$BASE"
 done
 

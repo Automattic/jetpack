@@ -1,5 +1,5 @@
 import './editor.scss';
-import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';

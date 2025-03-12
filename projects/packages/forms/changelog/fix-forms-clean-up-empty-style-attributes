@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: Prevent empty style values within form field block attributes

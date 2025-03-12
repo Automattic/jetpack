@@ -1,0 +1,20 @@
+@mixin align-block {
+	&.aligncenter,
+	&.alignleft,
+	&.alignright {
+		display: block;
+	}
+
+	&.aligncenter {
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	&.alignleft {
+		margin-right: auto;
+	}
+
+	&.alignright {
+		margin-left: auto;
+	}
+}

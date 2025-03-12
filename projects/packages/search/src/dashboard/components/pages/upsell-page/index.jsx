@@ -1,3 +1,4 @@
+import restApi from '@automattic/jetpack-api';
 import {
 	AdminPage,
 	Container,
@@ -15,6 +16,7 @@ import {
 	ThemeProvider,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -39,6 +41,7 @@ const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
  */
 export default function UpsellPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
+	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
@@ -47,10 +50,10 @@ export default function UpsellPage( { isLoading = false } ) {
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
-	const checkSiteHasSearchProduct = useCallback(
-		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
-		[ fetchSearchPlanInfo ]
-	);
+	const checkSiteHasSearchProduct = useCallback( () => {
+		restApi.setApiNonce( APINonce );
+		fetchSearchPlanInfo().then( response => response?.supports_search );
+	}, [ APINonce, fetchSearchPlanInfo ] );
 
 	const { run: sendToCartPaid, hasCheckoutStarted: hasCheckoutStartedPaid } =
 		useProductCheckoutWorkflow( {
@@ -95,6 +98,7 @@ export default function UpsellPage( { isLoading = false } ) {
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 						header={ <Header /> }
 						moduleNameHref={ JETPACK_SEARCH__LINK }
+						useInternalLinks={ shouldUseInternalLinks() }
 					>
 						<AdminSectionHero>
 							{ isNewPricing ? (

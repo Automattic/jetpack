@@ -14,7 +14,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "^0.4.2",
+		"automattic/jetpack-test-environment": "@dev",
 		"php-mock/php-mock-phpunit": "^2.10"
 	},
 	"suggest": {
@@ -34,9 +34,7 @@
 		],
 		"test-php": [
 			"@composer phpunit"
-		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		]
 	},
 	"repositories": [
 		{
