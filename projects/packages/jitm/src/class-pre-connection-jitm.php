@@ -32,7 +32,13 @@ class Pre_Connection_JITM extends JITM {
 		 */
 		$messages = apply_filters( 'jetpack_pre_connection_jitms', array() );
 
+		error_log( 'Messages after apply_filters' );
+		error_log( print_r( $messages, true ) );
+
 		$messages = $this->validate_messages( $messages );
+
+		error_log( 'Messages after validate_messages' );
+		error_log( print_r( $messages, true ) );
 
 		$formatted_messages = array();
 
@@ -131,12 +137,14 @@ class Pre_Connection_JITM extends JITM {
 	 */
 	public function get_messages( $message_path, $query, $full_jp_logo_exists ) {
 		if ( ! current_user_can( 'install_plugins' ) ) {
+			error_log( 'User does not have install_plugins permission' );
 			return array();
 		}
 
 		$messages = $this->filter_messages( $message_path );
 
 		if ( empty( $messages ) ) {
+			error_log( 'Messages empty after filter_messages' );
 			return array();
 		}
 
