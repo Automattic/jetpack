@@ -17,7 +17,6 @@ use PHPUnit\Framework\TestCase;
  * Tests for the Jetpack-Compat-* phpcs standards.
  */
 class JetpackCompatTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	const SRC1 = <<<'EOF'
 <?php

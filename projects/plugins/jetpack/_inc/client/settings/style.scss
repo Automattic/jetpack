@@ -58,6 +58,9 @@
 	.components-base-control.components-toggle-control:last-child {
 		margin-bottom: 0;
 	}
+	form#jp-settings-newsletter-jetpack .components-base-control.components-toggle-control:last-child {
+		margin-bottom: 16px;
+	}
 
 	.jp-form-has-child {
 		& > .jp-form-fieldset {

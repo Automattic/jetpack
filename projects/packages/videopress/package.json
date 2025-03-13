@@ -20,7 +20,7 @@
 		"clean": "rm -rf build/",
 		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm build && pnpm build-client --watch",
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test": "jest",
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
