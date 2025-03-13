@@ -25,6 +25,7 @@ interface ScheduleButtonProps extends ScheduleButtonBaseProps {
 const isInvalidDate = ( checkDate: Date ) => {
 	const tomorrow = new Date( checkDate );
 	tomorrow.setDate( checkDate.getDate() + 1 );
+	// @ts-expect-error - This can be a string or Date, but it's defined as a string
 	return ! isInTheFuture( tomorrow );
 };
 
