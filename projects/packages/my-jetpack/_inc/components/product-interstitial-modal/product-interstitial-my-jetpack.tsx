@@ -174,8 +174,8 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 			{ ...props }
 		>
 			<>
-				{ ( isLoading || features ) && (
-					<ProductInterstitialFeatureList isLoading={ isLoading } features={ features } />
+				{ ( isLoading || modalFeatures ) && (
+					<ProductInterstitialFeatureList isLoading={ isLoading } features={ modalFeatures } />
 				) }
 				{ additionalContent }
 				{ children }

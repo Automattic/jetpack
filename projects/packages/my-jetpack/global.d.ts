@@ -11,6 +11,7 @@ declare module '@wordpress/icons';
 declare module '@automattic/jetpack-connection';
 declare module '@wordpress/url';
 declare module '@wordpress/i18n';
+declare module '@wordpress/element';
 
 type ProductStatus =
 	| 'active'
@@ -509,7 +510,9 @@ interface Window {
 						product_term: string;
 						currency_code: string;
 						full_price: number;
+						full_price_per_month?: number;
 						discount_price: number;
+						discount_price_per_month?: number;
 						coupon_discount: number;
 						is_introductory_offer: boolean;
 						introductory_offer?: {
@@ -530,7 +533,9 @@ interface Window {
 								available: boolean;
 								currencyCode: string;
 								discountPrice: number;
+								discountPricePerMonth?: number;
 								fullPrice: number;
+								fullPricePerMonth?: number;
 								introductoryOffer?: {
 									costPerInterval: number;
 									intervalCount: number;
