@@ -2,8 +2,6 @@ import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { dispatch, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { store as noticesStore } from '@wordpress/notices';
 import { store as socialStore } from '../../social-store';
 import { features } from '../../utils';
 import useSocialMediaMessage from '../use-social-media-message';
@@ -36,7 +34,6 @@ export function useSchedulePost() {
 	}, [] );
 
 	const { createScheduledShare } = useDispatch( socialStore );
-	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { message } = useSocialMediaMessage();
 	const hasMediaFeatures =
 		siteHasFeature( features.IMAGE_GENERATOR ) || siteHasFeature( features.ENHANCED_PUBLISHING );
@@ -72,20 +69,9 @@ export function useSchedulePost() {
 						} );
 					} )
 				);
-
-				createSuccessNotice(
-					__( 'Social post scheduled successfully.', 'jetpack-publicize-components' ),
-					{ type: 'snackbar' }
-				);
-
 				setIsScheduling( false );
 				return true;
 			} catch {
-				createErrorNotice(
-					__( 'Failed to schedule social post.', 'jetpack-publicize-components' ),
-					{ type: 'snackbar' }
-				);
-
 				setIsScheduling( false );
 				return false;
 			}
@@ -95,11 +81,9 @@ export function useSchedulePost() {
 			isAutosaveablePost,
 			hasMediaFeatures,
 			savePost,
-			createSuccessNotice,
 			createScheduledShare,
 			postId,
 			message,
-			createErrorNotice,
 		]
 	);
 
