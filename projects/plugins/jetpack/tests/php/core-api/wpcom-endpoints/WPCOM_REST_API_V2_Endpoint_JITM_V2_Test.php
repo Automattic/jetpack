@@ -50,7 +50,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 		$this->patchwork_handle = \Patchwork\redefine(
 			'current_user_can',
 			function ( $capability ) {
-				if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) && 'install_plugins' === $capability ) {
+				if ( 'install_plugins' === $capability ) {
 					return true;
 				}
 				// Forward to the original function.
