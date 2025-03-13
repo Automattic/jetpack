@@ -293,14 +293,9 @@ class Initializer {
 				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'canUserViewStats'       => current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ),
-				'isCommercial'           => self::is_commercial_site(),
 				'sandboxedDomain'        => $sandboxed_domain,
 				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
-				'jetpackManage'          => array(
-					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
-					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
-				),
 				'latestBoostSpeedScores' => $latest_score,
 				'protect'                => array(
 					'scanData'  => $scan_data,
@@ -522,6 +517,7 @@ class Initializer {
 
 		Products::register_product_endpoints();
 		Historically_Active_Modules::register_rest_endpoints();
+		Jetpack_Manage::register_rest_endpoints();
 
 		register_rest_route(
 			'my-jetpack/v1',

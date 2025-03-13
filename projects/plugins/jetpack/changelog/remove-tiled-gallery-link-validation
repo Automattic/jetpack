@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Tiled Gallery: Ensure custom links aren't restricted to just URLs - allows anchor links as well.
