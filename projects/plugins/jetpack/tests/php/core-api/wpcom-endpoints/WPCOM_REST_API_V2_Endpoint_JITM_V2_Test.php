@@ -174,10 +174,6 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	 */
 	public function test_get_jitms() {
 
-		// Verify the user actually has the required capability. It can be removed if the plan is changed in this test
-		// as the plan change will remove the capability. This assertion is useful for debugging tests.
-		// $this->assertTrue( current_user_can( 'install_plugins' ), 'Admin user should have install_plugins capability' );
-
 		$message_path = 'test_message_path';
 
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/jitm-v2' );
