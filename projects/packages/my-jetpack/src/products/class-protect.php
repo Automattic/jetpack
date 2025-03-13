@@ -11,7 +11,6 @@ use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Waf\Waf_Runner;
 use WP_Error;
 use WP_REST_Response;
 
@@ -418,9 +417,10 @@ class Protect extends Hybrid_Product {
 		$is_waf_enabled = false;
 
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
-			$waf_config     = Waf_Runner::get_config();
-			$is_waf_enabled = Waf_Runner::is_enabled();
-			$waf_supported  = Waf_Runner::is_supported_environment();
+			$waf            = new \Automattic\Jetpack\Waf\Waf_Runner();
+			$waf_config     = $waf::get_config();
+			$is_waf_enabled = $waf::is_enabled();
+			$waf_supported  = $waf::is_supported_environment();
 		}
 
 		return rest_ensure_response(

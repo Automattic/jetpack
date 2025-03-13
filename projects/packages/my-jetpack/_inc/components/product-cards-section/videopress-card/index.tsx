@@ -23,13 +23,16 @@ import './style.scss';
 const slug = PRODUCT_SLUGS.VIDEOPRESS;
 
 const VideopressCard: ProductCardComponent = props => {
-	const { detail } = useProduct( slug );
-	const { data: videopressData, isLoading } = useSimpleQuery< VideopressData >( {
-		name: QUERY_GET_VIDEOPRESS_DATA_KEY,
-		query: {
-			path: REST_API_GET_VIDEOPRESS_DATA,
-		},
-	} );
+	const { detail, isLoading: isLoadingProductData } = useProduct( slug );
+	const { data: videopressData, isLoading: isLoadingVideopressData } =
+		useSimpleQuery< VideopressData >( {
+			name: QUERY_GET_VIDEOPRESS_DATA_KEY,
+			query: {
+				path: REST_API_GET_VIDEOPRESS_DATA,
+			},
+		} );
+
+	const isLoading = isLoadingProductData || isLoadingVideopressData;
 
 	const { status } = detail || {};
 

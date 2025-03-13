@@ -64,7 +64,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( {
 	const { videoCount, featuredStats } = data || {};
 	const { inactiveWithVideos, viewsWithoutPlan, viewsWithPlan, watchTime } = useTooltipCopy( data );
 
-	if ( ! videoCount ) {
+	if ( ! videoCount && ! isLoading ) {
 		return null;
 	}
 
@@ -115,7 +115,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( {
 	const viewsDifference = Math.abs( currentViews - previousViews );
 	const watchTimeDifference = Math.abs( currentWatchTime - previousWatchTime );
 
-	if ( currentViews === undefined || currentWatchTime === undefined ) {
+	if ( ! isLoading && ( currentViews === undefined || currentWatchTime === undefined ) ) {
 		return null;
 	}
 
