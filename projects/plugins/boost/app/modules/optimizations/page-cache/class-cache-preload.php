@@ -110,8 +110,6 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @return void
 	 */
 	private function preload_page( string $page ) {
-		$url = $page;
-
 		// Add a cache-busting header to ensure our response is fresh.
 		$args = array(
 			'headers' => array(
@@ -121,7 +119,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 			),
 		);
 
-		$response = wp_remote_get( $url, $args );
+		$response = wp_remote_get( $page, $args );
 
 		if ( is_wp_error( $response ) ) {
 			Logger::debug( 'Error preloading page: ' . $response->get_error_message() );
@@ -130,7 +128,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 		if ( $status_code !== 200 ) {
-			Logger::debug( sprintf( 'Error preloading page %s: HTTP status code %d', $url, $status_code ) );
+			Logger::debug( sprintf( 'Error preloading page %s: HTTP status code %d', $page, $status_code ) );
 		}
 	}
 
