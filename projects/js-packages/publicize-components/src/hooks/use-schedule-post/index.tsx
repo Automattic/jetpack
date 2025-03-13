@@ -8,7 +8,7 @@ import useSocialMediaMessage from '../use-social-media-message';
 
 type SchedulePostOptions = {
 	/** The connection IDs to share to. */
-	connectionIds: number[];
+	connectionIds: string[];
 	/** The message to share. */
 	message?: string;
 	/** The timestamp to schedule the share for. */

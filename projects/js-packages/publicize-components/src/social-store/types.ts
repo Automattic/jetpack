@@ -157,7 +157,7 @@ export type SocialSettingsFields = {
 export type ScheduledShare = {
 	id: number;
 	blog_id: number;
-	connection_id: number;
+	connection_id: string;
 	message: string;
 	post_id: number;
 	timestamp: number;
