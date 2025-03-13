@@ -116,6 +116,7 @@ const JetpackDatePicker = props => {
 						element: dateFormatInput,
 					},
 				] }
+				hidePlaceholder={ isNativeBrowserStyle }
 			/>
 		</>
 	);
