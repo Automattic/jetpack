@@ -15,16 +15,13 @@ import styles from './style.module.scss';
 const ConnectionManagement = ( { className = null, disabled = false } ) => {
 	const { refresh } = useSocialMediaConnections();
 
-	const { connections, deletingConnections, updatingConnections } = useSelect( select => {
-		const { getConnections, getDeletingConnections, getUpdatingConnections } = select( store );
+	const connections = useSelect( select => select( store ).getConnections(), [] );
 
-		return {
-			connections: getConnections(),
-			deletingConnections: getDeletingConnections(),
-			updatingConnections: getUpdatingConnections(),
-		};
-	}, [] );
+	const deletingConnections = useSelect( select => select( store ).getDeletingConnections(), [] );
 
+	const updatingConnections = useSelect( select => select( store ).getUpdatingConnections(), [] );
+
+	// Sort connections (moved outside useSelect to prevent sorting on every render)
 	connections.sort( ( a, b ) => {
 		if ( a.service_name === b.service_name ) {
 			return a.connection_id.localeCompare( b.connection_id );

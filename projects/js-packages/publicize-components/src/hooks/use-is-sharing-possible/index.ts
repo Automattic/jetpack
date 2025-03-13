@@ -1,4 +1,5 @@
 import { useSelect } from '@wordpress/data';
+import { useMemo } from '@wordpress/element';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useMediaDetails from '../../hooks/use-media-details';
@@ -24,12 +25,13 @@ export function useIsSharingPossible() {
 		enabledConnections,
 		useMediaDetails( mediaId )[ 0 ]
 	);
+	// Get broken connections and memoize the ids
+	const brokenConnections = useSelect( select => select( socialStore ).getBrokenConnections(), [] );
 
-	const brokenConnectionIds = useSelect( select => {
-		return select( socialStore )
-			.getBrokenConnections()
-			.map( c => c.connection_id );
-	}, [] );
+	const brokenConnectionIds = useMemo(
+		() => brokenConnections.map( c => c.connection_id ),
+		[ brokenConnections ]
+	);
 
 	// Sharing will be possible if any of the enabled connections are valid for sharing.
 	return enabledConnections.some( function isValidForSharing( { connection_id, service_name } ) {

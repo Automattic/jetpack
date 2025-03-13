@@ -1,4 +1,5 @@
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useMemo } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
 
 /**
@@ -9,28 +10,32 @@ import { store as socialStore } from '../../social-store';
 export default function useSocialMediaConnections() {
 	const { refreshConnectionTestResults, toggleConnectionById } = useDispatch( socialStore );
 
-	const connectionsData = useSelect( select => {
-		const store = select( socialStore );
-		const connections = store.getConnections();
-		const enabledConnections = store.getEnabledConnections();
-		const skippedConnections = store
-			.getDisabledConnections()
-			.map( connection => connection.connection_id );
+	const connections = useSelect( select => select( socialStore ).getConnections(), [] );
 
-		const hasConnections = connections.length > 0;
-		const hasEnabledConnections = enabledConnections.length > 0;
+	const enabledConnections = useSelect(
+		select => select( socialStore ).getEnabledConnections(),
+		[]
+	);
 
-		return {
-			connections,
-			hasConnections,
-			hasEnabledConnections,
-			skippedConnections,
-			enabledConnections,
-		};
-	}, [] );
+	const disabledConnections = useSelect(
+		select => select( socialStore ).getDisabledConnections(),
+		[]
+	);
+
+	const skippedConnections = useMemo(
+		() => disabledConnections.map( connection => connection.connection_id ),
+		[ disabledConnections ]
+	);
+
+	const hasConnections = connections.length > 0;
+	const hasEnabledConnections = enabledConnections.length > 0;
 
 	return {
-		...connectionsData,
+		connections,
+		hasConnections,
+		hasEnabledConnections,
+		skippedConnections,
+		enabledConnections,
 		toggleById: toggleConnectionById,
 		refresh: refreshConnectionTestResults,
 	};

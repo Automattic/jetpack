@@ -1,6 +1,6 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { useShareMessageMaxLength } from '../../utils';
 
 /**
@@ -11,6 +11,8 @@ import { useShareMessageMaxLength } from '../../utils';
 export function usePostMeta() {
 	const { editPost } = useDispatch( editorStore );
 	const maxCharacterLength = useShareMessageMaxLength();
+
+	const prevValuesRef = useRef( null );
 
 	const metaValues = useSelect(
 		select => {
@@ -29,7 +31,21 @@ export function usePostMeta() {
 				maxCharacterLength
 			);
 
-			return {
+			// Return previous values if nothing changed
+			const prevValues = prevValuesRef.current;
+			if (
+				prevValues &&
+				prevValues.isPublicizeEnabled === isPublicizeEnabled &&
+				prevValues.attachedMedia === attachedMedia &&
+				prevValues.imageGeneratorSettings === imageGeneratorSettings &&
+				prevValues.isPostAlreadyShared === isPostAlreadyShared &&
+				prevValues.shareMessage === shareMessage &&
+				prevValues.jetpackSocialOptions === jetpackSocialOptions
+			) {
+				return prevValues;
+			}
+
+			const newValues = {
 				isPublicizeEnabled,
 				jetpackSocialOptions,
 				attachedMedia,
@@ -37,6 +53,9 @@ export function usePostMeta() {
 				isPostAlreadyShared,
 				shareMessage,
 			};
+
+			prevValuesRef.current = newValues;
+			return newValues;
 		},
 		[ maxCharacterLength ]
 	);

@@ -15,39 +15,55 @@ export const isSavingSiteSettings = createRegistrySelector( select => () => {
 /**
  * Returns the social settings.
  */
-export const getSocialSettings = createRegistrySelector( select => () => {
-	const data = currentUserCan( 'manage_options' )
-		? select( coreStore ).getEntityRecord< SocialSettingsFields >( 'root', 'site' )
-		: null;
+export const getSocialSettings = createRegistrySelector( select => {
+	// Keep track of last input and output
+	let lastData = null;
+	let lastResult = null;
 
-	const { settings } = getSocialScriptData();
+	return () => {
+		const data = currentUserCan( 'manage_options' )
+			? select( coreStore ).getEntityRecord< SocialSettingsFields >( 'root', 'site' )
+			: null;
 
-	// If we don't have the data yet,
-	// return the default settings from the initial state.
-	if ( ! data ) {
-		return settings;
-	}
+		const { settings } = getSocialScriptData();
 
-	// Add safe fallbacks for cases when the REST API doesn't return the expected data.
-	// For example when publicize module is disabled, the API doesn't return the settings.
-	return {
-		showPricingPage: data[ 'jetpack-social_show_pricing_page' ] ?? settings.showPricingPage,
-		socialImageGenerator: {
-			...settings.socialImageGenerator,
-			...data.jetpack_social_image_generator_settings,
-		},
-		utmSettings: {
-			...settings.utmSettings,
-			...data.jetpack_social_utm_settings,
-		},
-		socialNotes: {
-			// When it's OFF, the API sometimes returns null,
-			// So, to avoid controlled vs uncrontrolled warning, we convert it to false
-			enabled: Boolean( data[ 'jetpack-social-note' ] ),
-			config: {
-				...settings.socialNotes.config,
-				...data.jetpack_social_notes_config,
+		// If we don't have the data yet, return the default settings from the initial state.
+		if ( ! data ) {
+			return settings;
+		}
+
+		// If the input data hasn't changed, return the last result
+		if ( lastData && data === lastData ) {
+			return lastResult;
+		}
+
+		// Update lastData
+		lastData = data;
+
+		// Add safe fallbacks for cases when the REST API doesn't return the expected data.
+		// For example when publicize module is disabled, the API doesn't return the settings
+		// Create new result only if data changed
+		lastResult = {
+			showPricingPage: data[ 'jetpack-social_show_pricing_page' ] ?? settings.showPricingPage,
+			socialImageGenerator: {
+				...settings.socialImageGenerator,
+				...data.jetpack_social_image_generator_settings,
 			},
-		},
-	} satisfies SocialSettings;
+			utmSettings: {
+				...settings.utmSettings,
+				...data.jetpack_social_utm_settings,
+			},
+			socialNotes: {
+				// When it's OFF, the API sometimes returns null,
+				// So, to avoid controlled vs uncrontrolled warning, we convert it to false
+				enabled: Boolean( data[ 'jetpack-social-note' ] ),
+				config: {
+					...settings.socialNotes.config,
+					...data.jetpack_social_notes_config,
+				},
+			},
+		} satisfies SocialSettings;
+
+		return lastResult;
+	};
 } );
