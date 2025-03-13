@@ -1,70 +1,75 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Modal, PanelRow } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useReducer } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import { JetpackSidebarManager } from '../block-editor/shared-utils';
+import { store as socialStore } from '../../social-store';
 import { PreviewSection } from './preview-section';
 import { SettingsSection } from './settings-section';
 import styles from './styles.module.scss';
 
-const jetpackSidebar = new JetpackSidebarManager();
-
 /**
  * The Social Post Modal component.
  *
- * @return {import('react').ReactNode} - Social Post Modal component.
+ * @param {{title:string}} props - The component props.
+ *
+ * @return - Social Post Modal component.
+ */
+function RenderSocialPostModal( { title }: { title: string } ) {
+	const { closeSharePostModal } = useDispatch( socialStore );
+
+	return (
+		<Modal
+			onRequestClose={ closeSharePostModal }
+			title={ title }
+			className={ styles.modal }
+			__experimentalHideHeader
+		>
+			<div className={ styles[ 'modal-content' ] }>
+				<SettingsSection onReShared={ closeSharePostModal } />
+				<PreviewSection />
+			</div>
+			<Button
+				className={ styles[ 'close-button' ] }
+				onClick={ closeSharePostModal }
+				icon={ close }
+				label={ __( 'Close', 'jetpack-publicize-components' ) }
+			/>
+		</Modal>
+	);
+}
+
+/**
+ * Share post modal component.
+ *
+ * @return - React element
  */
 export function SocialPostModal() {
-	const [ isModalOpen, toggleModal ] = useReducer(
-		state => {
-			// If the modal is opened with the share post query arg, remove it from the URL.
-			if ( state ) {
-				jetpackSidebar.mayBeRemoveQueryArg();
-			}
-			return ! state;
-		},
-		null,
-		() => jetpackSidebar.getQueryArg() === 'share_post'
-	);
+	const isModalOpen = useSelect( select => select( socialStore ).isSharePostModalOpen(), [] );
+	const { openSharePostModal } = useDispatch( socialStore );
 	const { recordEvent } = useAnalytics();
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	const handleOpenModal = useCallback( () => {
 		if ( ! isModalOpen ) {
 			recordEvent( 'jetpack_social_preview_modal_opened' );
 		}
-		toggleModal();
-	}, [ isModalOpen, recordEvent ] );
-
-	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+		openSharePostModal();
+	}, [ isModalOpen, openSharePostModal, recordEvent ] );
 
 	return (
 		<PanelRow className={ styles.panel }>
-			{ isModalOpen && (
-				<Modal
-					onRequestClose={ toggleModal }
+			{ isModalOpen ? (
+				<RenderSocialPostModal
 					title={
 						isPostPublished
 							? _x( 'Share Post', 'The title of the social modal', 'jetpack-publicize-components' )
 							: __( 'Social Previews', 'jetpack-publicize-components' )
 					}
-					className={ styles.modal }
-					__experimentalHideHeader
-				>
-					<div className={ styles[ 'modal-content' ] }>
-						<SettingsSection onReShared={ toggleModal } />
-						<PreviewSection />
-					</div>
-					<Button
-						className={ styles[ 'close-button' ] }
-						onClick={ toggleModal }
-						icon={ close }
-						label={ __( 'Close', 'jetpack-publicize-components' ) }
-					/>
-				</Modal>
-			) }
+				/>
+			) : null }
 			<Button variant="secondary" onClick={ handleOpenModal } className={ styles[ 'open-button' ] }>
 				{ isPostPublished
 					? _x(
