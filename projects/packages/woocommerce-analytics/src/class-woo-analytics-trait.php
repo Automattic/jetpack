@@ -74,7 +74,7 @@ trait Woo_Analytics_Trait {
 	protected $engaged_session = false;
 
 	/**
-	 *  Indicates when a session is created in the current request.
+	 *  Indicates when a new session has been created in the current request.
 	 *
 	 *  @var bool
 	 */
@@ -82,7 +82,7 @@ trait Woo_Analytics_Trait {
 
 	/**
 	 *  Locks Add to Cart Events Tracking in the current request avoiding duplications.
-	 *  i.e If update_cart and add_to_cart actions happens in the same request.
+	 *  i.e. If update_cart and add_to_cart actions happens in the same request.
 	 *
 	 *  @var bool If true. Cart events are locked for the current request.
 	 */
@@ -347,23 +347,20 @@ trait Woo_Analytics_Trait {
 			$this->maybe_start_session();
 		}
 
-		$this->maybe_record_engagement();
+		if ( ! $this->is_initial_page_view( $event_name ) && ! $this->is_engaged_session() ) {
+			$this->record_engagement();
+		}
 
 		$js = $this->process_event_properties( $event_name, $properties, $product_id );
 		wc_enqueue_js( "_wca.push({$js});" );
 	}
 
 	/**
-	 * In case of events in the current session record engagement event.
+	 * Record woocommerceanalytics_session_engagement event and set a flag in the session cookie.
 	 *
 	 * @return void
 	 */
-	public function maybe_record_engagement() {
-		// Don't engage for new sessions or if the session is already engaged
-		if ( $this->is_engaged_session() || ! $this->get_session_id() || $this->is_new_session ) {
-			return;
-		}
-
+	public function record_engagement() {
 		$event_js                    = $this->process_event_properties( 'woocommerceanalytics_session_engagement' );
 		$add_engagement_to_cookie_js = "
 				const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
@@ -849,5 +846,16 @@ trait Woo_Analytics_Trait {
 	 */
 	private function is_clickhouse( $event ) {
 		return in_array( $event, $this->get_clickhouse_events(), true );
+	}
+
+	/**
+	 * Check if the event is the initial page view event starting the session.
+	 *
+	 * @param string $event The event name.
+	 * @return bool
+	 */
+	private function is_initial_page_view( $event ) {
+		$initial_events = array( 'woocommerceanalytics_page_view', 'woocommerceanalytics_product_view', 'woocommerceanalytics_cart_view' );
+		return in_array( $event, $initial_events, true ) && ( ! $this->get_session_id() || $this->is_new_session );
 	}
 }
