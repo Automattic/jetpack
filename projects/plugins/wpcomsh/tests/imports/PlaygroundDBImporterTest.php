@@ -331,8 +331,10 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			array(
-				'location_id'        => 1,
-				'location_type_code' => '(`location_type`(10),`location_code`(20))',
+				$table_name => array(
+					'location_id'        => 1,
+					'location_type_code' => '(`location_type`(10),`location_code`(20))',
+				),
 			),
 			$map
 		);
