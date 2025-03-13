@@ -193,8 +193,9 @@ export function fileNameFormatter( filePath, includeTimestamp = true ) {
  */
 function getConfigTestSite() {
 	const testSite = process.env.TEST_SITE ? process.env.TEST_SITE : 'default';
-	logger.debug( `Using '${ testSite }' test site config` );
-	return config.get( `testSites.${ testSite }` );
+	const siteConfig = config.get( `testSites.${ testSite }` );
+	logger.debug( `Using '${ testSite }' test site config: ${ JSON.stringify( siteConfig ) }` );
+	return siteConfig;
 }
 
 /**
