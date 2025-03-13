@@ -418,9 +418,12 @@ class Protect extends Hybrid_Product {
 		$is_waf_enabled = false;
 
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
-			$waf_config     = Waf_Runner::get_config();
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$waf_config = Waf_Runner::get_config();
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$is_waf_enabled = Waf_Runner::is_enabled();
-			$waf_supported  = Waf_Runner::is_supported_environment();
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$waf_supported = Waf_Runner::is_supported_environment();
 		}
 
 		return rest_ensure_response(
