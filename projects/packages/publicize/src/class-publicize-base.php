@@ -272,21 +272,6 @@ abstract class Publicize_Base {
 	abstract public function get_services( $filter = 'all', $_blog_id = false, $_user_id = false );
 
 	/**
-	 * Whether to use the v1 admin UI.
-	 */
-	public function use_admin_ui_v1(): bool {
-
-		// If the option is set, use it.
-		if ( get_option( 'jetpack_social_use_admin_ui_v1', false ) ) {
-			return true;
-		}
-
-		// Otherwise, check the constant and the plan feature.
-		return ( defined( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1' ) && JETPACK_SOCIAL_USE_ADMIN_UI_V1 )
-			|| $this->has_connections_management_feature();
-	}
-
-	/**
 	 * Whether the site has the feature flag enabled.
 	 *
 	 * @param string $flag_name The feature flag to check. Will be prefixed with 'jetpack_social_has_' for the option.
@@ -1884,7 +1869,7 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
-		if ( $this->use_admin_ui_v1() && current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( 'manage_options' ) ) {
 			$has_social_admin_page = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) || Publicize_Script_Data::has_feature_flag( 'admin-page' );
 
 			$page = $has_social_admin_page ? 'jetpack-social' : 'jetpack#/sharing';

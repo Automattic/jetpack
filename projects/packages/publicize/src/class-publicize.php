@@ -250,28 +250,10 @@ class Publicize extends Publicize_Base {
 					$user_id = (int) $connection['connection_data']['user_id'];
 					// phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
 					if ( $user_id === 0 || $this->user_id() === $user_id ) {
-						if ( $this->use_admin_ui_v1() ) {
-							$connections_to_return[] = array_merge(
-								$connection,
-								array(
-									'service_name'   => $service_name,
-									'connection_id'  => $connection['connection_data']['id'],
-									'can_disconnect' => self::can_manage_connection( $connection['connection_data'] ),
-									'profile_link'   => (string) $this->get_profile_link( $service_name, $connection ),
-									'shared'         => '0' === $connection['connection_data']['user_id'],
-									'status'         => 'ok',
-								)
-							);
-						} else {
-							$connections_to_return[ $service_name ][ $id ] = $connection;
-						}
+						$connections_to_return[ $service_name ][ $id ] = $connection;
 					}
 				}
 			}
-		}
-
-		if ( self::use_admin_ui_v1() && isset( $args['test_connections'] ) && $args['test_connections'] && count( $connections_to_return ) > 0 ) {
-			$connections_to_return = $this->add_connection_test_results( $connections_to_return );
 		}
 
 		return $connections_to_return;
