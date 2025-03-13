@@ -95,7 +95,7 @@ class Protect extends Hybrid_Product {
 	public static $feature_identifying_paid_plan = 'scan';
 
 	/**
-	 * Backup initialization
+	 * Setup Protect REST API endpoints
 	 *
 	 * @return void
 	 */
@@ -117,7 +117,7 @@ class Protect extends Hybrid_Product {
 	 * Checks if the user has the correct permissions
 	 */
 	public static function permissions_callback() {
-		return current_user_can( 'manage_options' );
+		return current_user_can( 'edit_posts' );
 	}
 
 	/**

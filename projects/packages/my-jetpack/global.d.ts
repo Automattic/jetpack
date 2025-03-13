@@ -452,6 +452,28 @@ type ProtectData = {
 	};
 };
 
+type VideopressData = {
+	featuredStats?: {
+		label: string;
+		period: 'day' | 'year';
+		data: {
+			views: {
+				current: number;
+				previous: number;
+			};
+			impressions: {
+				current: number;
+				previous: number;
+			};
+			watch_time: {
+				current: number;
+				previous: number;
+			};
+		};
+	};
+	videoCount: number;
+};
+
 interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
@@ -615,27 +637,6 @@ interface Window {
 						  };
 				};
 			};
-		};
-		videopress: {
-			featuredStats?: {
-				label: string;
-				period: 'day' | 'year';
-				data: {
-					views: {
-						current: number;
-						previous: number;
-					};
-					impressions: {
-						current: number;
-						previous: number;
-					};
-					watch_time: {
-						current: number;
-						previous: number;
-					};
-				};
-			};
-			videoCount: number;
 		};
 		recommendedModules: {
 			modules: JetpackModule[] | null;
