@@ -1,6 +1,5 @@
 import { dispatch } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
-import { store as interfaceStore } from '@wordpress/interface';
 
 const JETPACK_EDITOR_ACTION = 'jetpack-editor-action';
 
@@ -38,7 +37,13 @@ export function handleJetpackEditorAction( {
 	domReady( () => {
 		const action = getJetpackEditorAction();
 		if ( action ) {
-			dispatch( interfaceStore ).enableComplementaryArea( 'core', sidebarToOpen );
+			/**
+			 * This should have been the `store` from '@wordpress/interface',
+			 * but that causes some build issues.
+			 *
+			 * TODO: Fix this.
+			 */
+			dispatch( 'core/interface' ).enableComplementaryArea( 'core', sidebarToOpen );
 
 			onAction?.( action );
 
