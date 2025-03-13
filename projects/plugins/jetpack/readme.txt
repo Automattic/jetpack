@@ -326,49 +326,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.4 - 2025-03-04
+### 14.5-a.1 - 2025-03-10
 #### Enhancements
-- Connection: Disconnect all other users before disconnecting connection owner account.
-- Connection: Display connection status on Users page independent of the SSO module.
-- Custom Post Types: do not display testimonials and portfolios on block themes where they are not in use.
-- Dashboard: Display connection owner to all users.
-- External Media: Add external media modal on the Media Import page.
-- Forms: Add support for having multiple forms accross paginated pages.
-- Forms: Update field and button blocks to support contentOnly editing.
-- Forms block: Add number input.
-- Media Page: Enable the "Untangle Calypso" feature.
-- My Jetpack: Update the unowned section from a product grid to a product list.
-- Newsletter: Add footer widget section.
-- Newsletter: Add new newsletter widget.
-- Newsletter: Add newsletter widget header row behind a feature flag.
-- Newsletter: Add setting to hide category selection modal.
-- Post actions: Rename Copy action to Duplicate, which is clearer.
-- Social: Update the admin page to be used by Editors and Authors.
-- Subscriptions: Pre-select newsletter categories.
-- Tiled Gallery block: Add ability to link to custom URLs from each image.
-- VideoPress: Add title to the attachment details view.
+- AI Assistant: Add image block extension with alt text and caption generation.
+- AI Assistant: Use base64 on image extension requests.
+- Connection: Add modal for disconnecting owner account in Dashboard.
+- Feature suggestions: Improve the design of cards to better match WordPress Core's design.
+- Forms: Add Akismet panel to Form Block.
+- Social: Move resharing into the Share Post modal.
+- Newsletter Dashboard Widget: Remove feature flag and enable widget.
 
 #### Improved compatibility
-- Custom Content Types: Ensure feature works on Jetpack settings page without using module functionality.
+- Carousel: Enable core lightbox on single image blocks.
 
 #### Bug fixes
-- External Media: Fix the button size in the editor for Gutenberg 18 or below.
-- Fix Social toggles.
-- Forms: Ensure non-rendering fields to not trigger validation or show value in form submission response.
-- Forms: Fix 404 error when a user submits an invalid form with JavaScript disabled.
-- Forms: Fix block style variations not showing in the editor.
-- Forms: Fix invalid html IDs.
-- Forms: Hide fields without options.
-- Forms: Improve the styling of the separator block when placed inside the form block.
-- Geo Location: Remove support from default themes to prevent deprecation notice.
-- Gravatar Widget: Fix linked accounts not showing.
-- Newsletter: Fix post placement not displaying on certain block themes.
-- Publicize: Fix disconnect command not working.
-- Related Posts: Ensure images using the AVIF format are properly displayed.
-- Sharing: Fix possible warnings related to plugin compatibility.
-- Social Previews: Fix distorted image for Tumblr preview.
-- Stats: Fix a problem where count roles weren't able to be updated.
-- Widget Visibility: Fix possible fatal errors for widgets using anonymous functions as callbacks.
+- VideoPress Block: Fix error in the core Video block.
 
 --------
 

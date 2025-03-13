@@ -14,7 +14,6 @@ use Automattic\Jetpack\Waf\Waf_Transforms;
  * Runtime test suite.
  */
 final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Test key/value targets  REQUEST_HEADERS, TX, IP, REQUEST_COOKIES, ARGS, ARGS_POST, ARGS_GET, FILES

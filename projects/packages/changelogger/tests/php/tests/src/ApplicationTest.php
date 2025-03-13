@@ -22,7 +22,6 @@ use Wikimedia\TestingAccessWrapper;
  */
 class ApplicationTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Set up.
