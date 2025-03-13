@@ -185,15 +185,6 @@ const JetpackFieldControls = ( {
 				<ToolsPanel
 					label={ __( 'Color', 'jetpack-forms' ) }
 					panelId={ clientId }
-					resetAll={ () => {
-						setAttributes( {
-							labelColor: undefined,
-							inputColor: undefined,
-							buttonBackgroundColor: undefined,
-							fieldBackgroundColor: undefined,
-							borderColor: undefined,
-						} );
-					} }
 					dropdownMenuProps={ toolsPanelDropdownMenuProps }
 				>
 					<div className="jetpack-field-controls__full-width-control">
@@ -213,16 +204,6 @@ const JetpackFieldControls = ( {
 							? __( 'Options typography', 'jetpack-forms' )
 							: __( 'Input typography', 'jetpack-forms', 0 )
 					}
-					resetAll={ () => {
-						setAttributes( {
-							fieldFontSize: undefined,
-							lineHeight: undefined,
-							buttonBorderWidth: undefined,
-							buttonBorderRadius: undefined,
-							borderWidth: undefined,
-							borderRadius: undefined,
-						} );
-					} }
 					dropdownMenuProps={ toolsPanelDropdownMenuProps }
 				>
 					<ToolsPanelItem
@@ -263,12 +244,6 @@ const JetpackFieldControls = ( {
 				</ToolsPanel>
 				<ToolsPanel
 					label={ __( 'Label typography', 'jetpack-forms' ) }
-					resetAll={ () => {
-						setAttributes( {
-							labelFontSize: undefined,
-							labelLineHeight: undefined,
-						} );
-					} }
 					dropdownMenuProps={ toolsPanelDropdownMenuProps }
 				>
 					<ToolsPanelItem
@@ -310,14 +285,6 @@ const JetpackFieldControls = ( {
 				<ToolsPanel
 					label={ __( 'Border', 'jetpack-forms' ) }
 					panelId={ clientId }
-					resetAll={ () => {
-						setAttributes( {
-							buttonBorderWidth: undefined,
-							buttonBorderRadius: undefined,
-							borderWidth: undefined,
-							borderRadius: undefined,
-						} );
-					} }
 					dropdownMenuProps={ toolsPanelDropdownMenuProps }
 				>
 					{ ( isChoicesBlock || blockStyle === 'button' ) && (

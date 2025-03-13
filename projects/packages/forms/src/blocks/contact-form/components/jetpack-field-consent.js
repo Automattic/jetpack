@@ -68,7 +68,6 @@ const JetpackFieldConsent = ( {
 				<ToolsPanel
 					panelId={ clientId }
 					label={ __( 'Color', 'jetpack-forms' ) }
-					resetAll={ () => setAttributes( { labelColor: undefined } ) }
 					dropdownMenuProps={ toolsPanelDropdownMenuProps }
 				>
 					<div className="jetpack-field-controls__full-width-control">
