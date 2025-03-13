@@ -183,7 +183,7 @@ const JetpackFieldControls = ( {
 							borderColor: undefined,
 						} );
 					} }
-					toolsPanelDropdownMenuProps={ toolsPanelDropdownMenuProps }
+					dropdownMenuProps={ toolsPanelDropdownMenuProps }
 				>
 					<div className="jetpack-field-controls__color-settings">
 						<ColorGradientSettingsDropdown
@@ -212,7 +212,7 @@ const JetpackFieldControls = ( {
 							borderRadius: undefined,
 						} );
 					} }
-					toolsPanelDropdownMenuProps={ toolsPanelDropdownMenuProps }
+					dropdownMenuProps={ toolsPanelDropdownMenuProps }
 				>
 					<ToolsPanelItem
 						hasValue={ () => !! attributes.fieldFontSize }
@@ -257,7 +257,7 @@ const JetpackFieldControls = ( {
 							labelLineHeight: undefined,
 						} );
 					} }
-					toolsPanelDropdownMenuProps={ toolsPanelDropdownMenuProps }
+					dropdownMenuProps={ toolsPanelDropdownMenuProps }
 				>
 					<ToolsPanelItem
 						hasValue={ () => !! attributes.labelFontSize }
@@ -305,7 +305,7 @@ const JetpackFieldControls = ( {
 							borderRadius: undefined,
 						} );
 					} }
-					toolsPanelDropdownMenuProps={ toolsPanelDropdownMenuProps }
+					dropdownMenuProps={ toolsPanelDropdownMenuProps }
 				>
 					{ ( isChoicesBlock || blockStyle === 'button' ) && (
 						<>
