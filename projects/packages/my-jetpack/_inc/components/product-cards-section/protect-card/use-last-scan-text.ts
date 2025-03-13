@@ -1,27 +1,19 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { QUERY_GET_PROTECT_DATA_KEY, REST_API_GET_PROTECT_DATA } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
-import useSimpleQuery from '../../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { timeSince } from '../../../utils/time-since';
 
-export const useLastScanText = () => {
+export const useLastScanText = ( data: ProtectData ) => {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false } = detail || {};
-	const { data: protectData } = useSimpleQuery< ProtectData >( {
-		name: QUERY_GET_PROTECT_DATA_KEY,
-		query: {
-			path: REST_API_GET_PROTECT_DATA,
-		},
-	} );
 	const { plugins, themes } = getMyJetpackWindowInitialState();
 	const {
 		plugins: fromScanPlugins,
 		themes: fromScanThemes,
 		last_checked: lastScanTime = null,
-	} = protectData?.scanData || {};
+	} = data?.scanData || {};
 
 	const pluginsCount = fromScanPlugins?.length || Object.keys( plugins ).length;
 	const themesCount = fromScanThemes?.length || Object.keys( themes ).length;

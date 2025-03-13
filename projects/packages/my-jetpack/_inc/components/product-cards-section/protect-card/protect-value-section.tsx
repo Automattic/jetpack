@@ -13,17 +13,19 @@ import './style.scss';
 
 const ProtectValueSection = () => {
 	const slug = 'protect';
-	const { detail } = useProduct( slug );
+	const { detail, isLoading: isLoadingProduct } = useProduct( slug );
 	const { isPluginActive = false } = detail || {};
-	const lastScanText = useLastScanText();
-	const tooltipContent = useProtectTooltipCopy();
-	const { pluginsThemesTooltip } = tooltipContent;
-	const { isLoading } = useSimpleQuery< ProtectData >( {
+	const { data: protectData, isLoading: isLoadingProtectData } = useSimpleQuery< ProtectData >( {
 		name: QUERY_GET_PROTECT_DATA_KEY,
 		query: {
 			path: REST_API_GET_PROTECT_DATA,
 		},
 	} );
+	const lastScanText = useLastScanText( protectData );
+	const tooltipContent = useProtectTooltipCopy( protectData );
+	const { pluginsThemesTooltip } = tooltipContent;
+
+	const isLoading = isLoadingProduct || isLoadingProtectData;
 
 	return (
 		<>
@@ -49,13 +51,25 @@ const ProtectValueSection = () => {
 			</div>
 			<div className="value-section">
 				<div className="value-section__scan-threats">
-					<ScanAndThreatStatus />
+					{ isLoading ? (
+						<LoadingBlock width="100px" height="50px" />
+					) : (
+						<ScanAndThreatStatus data={ protectData } />
+					) }
 				</div>
 				<div className="value-section__auto-firewall">
-					<AutoFirewallStatus />
+					{ isLoading ? (
+						<LoadingBlock width="100px" height="50px" />
+					) : (
+						<AutoFirewallStatus data={ protectData } />
+					) }
 				</div>
 				<div className="value-section__logins-blocked">
-					<LoginsBlockedStatus />
+					{ isLoading ? (
+						<LoadingBlock width="100px" height="50px" />
+					) : (
+						<LoginsBlockedStatus data={ protectData } />
+					) }
 				</div>
 			</div>
 		</>

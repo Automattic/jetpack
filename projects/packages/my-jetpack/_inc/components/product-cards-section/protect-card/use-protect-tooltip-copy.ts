@@ -1,13 +1,8 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo, createElement, type ReactElement } from 'react';
-import {
-	PRODUCT_SLUGS,
-	QUERY_GET_PROTECT_DATA_KEY,
-	REST_API_GET_PROTECT_DATA,
-} from '../../../data/constants';
+import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
-import useSimpleQuery from '../../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
@@ -24,12 +19,7 @@ export type TooltipContent = {
 	};
 };
 
-/**
- * Gets the translated tooltip copy based on Protect Scan details.
- *
- * @return {TooltipContent} An object containing each tooltip's title and text content.
- */
-export function useProtectTooltipCopy(): TooltipContent {
+export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 	const slug = PRODUCT_SLUGS.PROTECT;
 	const { detail } = useProduct( slug );
 	const {
@@ -39,26 +29,20 @@ export function useProtectTooltipCopy(): TooltipContent {
 	} = detail || {};
 	const { isStandaloneActive } = standalonePluginInfo || {};
 	const { recordEvent } = useAnalytics();
-	const { data: protectData } = useSimpleQuery< ProtectData >( {
-		name: QUERY_GET_PROTECT_DATA_KEY,
-		query: {
-			path: REST_API_GET_PROTECT_DATA,
-		},
-	} );
 	const { plugins, themes } = getMyJetpackWindowInitialState();
 	const {
 		plugins: fromScanPlugins,
 		themes: fromScanThemes,
 		num_threats: numThreats = 0,
 		threats = [],
-	} = protectData?.scanData || {};
+	} = data?.scanData || {};
 	const {
 		jetpack_waf_automatic_rules: isAutoFirewallEnabled,
 		blocked_logins: blockedLoginsCount,
 		brute_force_protection: hasBruteForceProtection,
 		waf_supported: wafSupported,
 		waf_enabled: isWafEnabled,
-	} = protectData?.wafConfig || {};
+	} = data?.wafConfig || {};
 
 	const pluginsCount = fromScanPlugins?.length || Object.keys( plugins ).length;
 	const themesCount = fromScanThemes?.length || Object.keys( themes ).length;
@@ -285,4 +269,4 @@ export function useProtectTooltipCopy(): TooltipContent {
 				  },
 		blockedLoginsTooltip: blockedLoginsTooltip,
 	};
-}
+};

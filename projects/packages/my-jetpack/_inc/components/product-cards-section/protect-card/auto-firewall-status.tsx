@@ -1,78 +1,52 @@
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { QUERY_GET_PROTECT_DATA_KEY, REST_API_GET_PROTECT_DATA } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
-import useSimpleQuery from '../../../data/use-simple-query';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { InfoTooltip } from '../../info-tooltip';
-import LoadingBlock from '../../loading-block';
 import baseStyles from '../style.module.scss';
 import ShieldInactive from './assets/shield-inactive.svg';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldSuccess from './assets/shield-success.svg';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
+import type { FC } from 'react';
 
-export const AutoFirewallStatus = () => {
+interface AutoFirewallStatusProps {
+	data: ProtectData;
+}
+
+export const AutoFirewallStatus: FC< AutoFirewallStatusProps > = ( { data } ) => {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false } = detail || {};
 	const { isSiteConnected } = useMyJetpackConnection();
-	const { data: protectData } = useSimpleQuery< ProtectData >( {
-		name: QUERY_GET_PROTECT_DATA_KEY,
-		query: {
-			path: REST_API_GET_PROTECT_DATA,
-		},
-	} );
 
 	const { jetpack_waf_automatic_rules: isAutoFirewallEnabled, waf_enabled: isWafEnabled } =
-		protectData?.wafConfig || {};
+		data?.wafConfig || {};
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( isAutoFirewallEnabled && isWafEnabled ) {
-			return <WafStatus status="active" />;
+			return <WafStatus data={ data } status="active" />;
 		}
 
-		return <WafStatus status="inactive" />;
+		return <WafStatus data={ data } status="inactive" />;
 	}
 
-	return <WafStatus status="off" />;
+	return <WafStatus data={ data } status="off" />;
 };
 
-/**
- * WafStatus component
- *
- * @param props        - The component props
- * @param props.status - The status of the WAF
- *
- * @return rendered component
- */
-function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
+interface WafStatusProps {
+	data: ProtectData;
+	status: 'active' | 'inactive' | 'off';
+}
+
+const WafStatus: FC< WafStatusProps > = ( { status, data } ) => {
 	const slug = 'protect';
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const { detail } = useProduct( slug );
 	const { hasPaidPlanForProduct = false } = detail || {};
-	const tooltipContent = useProtectTooltipCopy();
+	const tooltipContent = useProtectTooltipCopy( data );
 	const { autoFirewallTooltip } = tooltipContent;
-	const { isLoading } = useSimpleQuery< ProtectData >( {
-		name: QUERY_GET_PROTECT_DATA_KEY,
-		query: {
-			path: REST_API_GET_PROTECT_DATA,
-		},
-	} );
-
-	if ( isLoading ) {
-		return (
-			<>
-				<div className={ baseStyles.valueSectionHeading }>
-					{ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
-				</div>
-				<div className="value-section__data">
-					<LoadingBlock height="30px" width="75px" />
-				</div>
-			</>
-		);
-	}
 
 	if ( status === 'active' ) {
 		return (
@@ -144,4 +118,4 @@ function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 			</div>
 		</>
 	);
-}
+};
