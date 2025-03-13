@@ -44,6 +44,9 @@ class Pre_Connection_JITM extends JITM {
 
 		foreach ( $messages as $message ) {
 			if ( ! preg_match( $message['message_path'], $message_path ) ) {
+				error_log( '##### message does not match message_path' );
+				error_log( print_r( $message, true ) );
+				error_log( print_r( $message_path, true ) );
 				continue;
 			}
 
@@ -64,6 +67,9 @@ class Pre_Connection_JITM extends JITM {
 
 			$formatted_messages[] = $obj;
 		}
+
+		error_log( '##### formatted_messages' );
+		error_log( print_r( $formatted_messages, true ) );
 
 		return $formatted_messages;
 	}
@@ -150,17 +156,25 @@ class Pre_Connection_JITM extends JITM {
 
 		$hidden_jitms = \Jetpack_Options::get_option( 'hide_jitm' );
 
+		error_log( '##### hidden_jitms' );
+		error_log( print_r( $hidden_jitms, true ) );
+
 		foreach ( $messages as $idx => &$envelope ) {
 			$dismissed_feature = isset( $hidden_jitms[ 'pre-connection-' . $envelope->id ] ) &&
 				is_array( $hidden_jitms[ 'pre-connection-' . $envelope->id ] ) ? $hidden_jitms[ 'pre-connection-' . $envelope->id ] : null;
 
 			if ( is_array( $dismissed_feature ) ) {
 				unset( $messages[ $idx ] );
+				error_log( '##### dismissed_feature' );
+				error_log( print_r( $dismissed_feature, true ) );
 				continue;
 			}
 
 			$envelope->content['icon'] = $this->generate_icon( $envelope->content['icon'], $full_jp_logo_exists );
 		}
+
+		error_log( '##### messages after dismissing' );
+		error_log( print_r( $messages, true ) );
 
 		return $messages;
 	}
