@@ -907,7 +907,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$date_format = $this->get_attribute( 'dateformat' );
 		$date_format = isset( $date_format ) && ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
 		$label       = isset( $formats[ $date_format ] ) && ! $is_native_browser_style ? $label . ' (' . $formats[ $date_format ]['label'] . ')' : $label;
-		$extra_attrs = array( 'data-format' => $date_format );
+
+		$extra_attrs = $is_native_browser_style ? array() : array( 'data-format' => $date_format );
 
 		$field  = $this->render_label( 'date', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( $input_type, $id, $value, $class, $placeholder, $required, $extra_attrs );
