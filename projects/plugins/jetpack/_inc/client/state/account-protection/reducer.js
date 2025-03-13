@@ -14,6 +14,7 @@ export const data = ( state = {}, action ) => {
 		case ACCOUNT_PROTECTION_SETTINGS_FETCH_RECEIVE:
 		case ACCOUNT_PROTECTION_SETTINGS_UPDATE_SUCCESS:
 			return assign( {}, state, {
+				supportsAdvancedOptions: Boolean( action.settings?.config?.supports_advanced_options ),
 				passwordDetection: Boolean(
 					action.settings?.config?.jetpack_account_protection_password_detection
 				),

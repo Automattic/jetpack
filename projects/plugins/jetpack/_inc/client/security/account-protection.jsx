@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { isModuleFound } from 'state/search';
@@ -113,6 +114,15 @@ const AccountProtection = class extends Component {
 			this.props.isFetchingAccountProtectionSettings ||
 			this.props.isSavingAnyOption( [ 'account-protection' ] );
 
+		const accountProtectionDescription = (
+			<p className="jp-form-toggle-explanation">
+				{ __(
+					'Protect your site with enhanced password detection and profile management security.',
+					'jetpack'
+				) }
+			</p>
+		);
+
 		return (
 			<SettingsCard
 				{ ...this.props }
@@ -121,7 +131,7 @@ const AccountProtection = class extends Component {
 				hideButton={ true }
 				feature={ FEATURE_JETPACK_ACCOUNT_PROTECTION }
 			>
-				{ isEnabled && <QueryAccountProtectionSettings /> }
+				<QueryAccountProtectionSettings />
 				{ ! isSupported && (
 					<SimpleNotice
 						status={ 'is-info' }
@@ -143,9 +153,15 @@ const AccountProtection = class extends Component {
 						status={ 'is-info' }
 						text={ __( 'Jetpack recommends enabling this feature.', 'jetpack' ) }
 						children={
-							<NoticeAction onClick={ this.toggleAccountProtection }>
-								{ __( 'Activate', 'jetpack' ) }
-							</NoticeAction>
+							this.props.settings?.supportsAdvancedOptions ? (
+								<NoticeAction onClick={ this.toggleAccountProtection }>
+									{ __( 'Activate', 'jetpack' ) }
+								</NoticeAction>
+							) : (
+								<NoticeAction external href={ SUPPORT_LINK + '#risks-of-using-a-weak-password' }>
+									{ __( 'Learn about the risks', 'jetpack' ) }
+								</NoticeAction>
+							)
 						}
 					/>
 				) }
@@ -155,20 +171,33 @@ const AccountProtection = class extends Component {
 					disableInSiteConnectionMode
 					module={ this.props.getModule( MODULE_NAME ) }
 					support={ {
-						text: __(
-							'Enabling these settings enhances account security by detecting compromised passwords and enforcing additional verification when needed.',
-							'jetpack'
-						),
+						text: this.props.settings?.supportsAdvancedOptions
+							? __(
+									'Enabling these settings enhances account security by detecting compromised passwords and enforcing additional verification when needed.',
+									'jetpack'
+							  )
+							: __(
+									'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed.',
+									'jetpack'
+							  ),
 						link: SUPPORT_LINK,
 					} }
 				>
-					<p className="jp-form-toggle-explanation">
-						{ __(
-							'Protect your site with enhanced password detection and profile management security.',
-							'jetpack'
-						) }
-					</p>
-					{ isEnabled && (
+					{ this.props.settings?.supportsAdvancedOptions ? (
+						accountProtectionDescription
+					) : (
+						<ModuleToggle
+							slug="account-protection"
+							compact
+							disabled={ ! isSupported || unavailableInOfflineMode }
+							activated={ isEnabled }
+							toggling={ this.props.isSavingAnyOption( MODULE_NAME ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							{ accountProtectionDescription }
+						</ModuleToggle>
+					) }
+					{ this.props.settings?.supportsAdvancedOptions && (
 						<div className="account-protection__settings">
 							<div className="account-protection__settings__toggle-setting">
 								<ToggleControl
