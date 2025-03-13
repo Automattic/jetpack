@@ -6,18 +6,15 @@ import domReady from '@wordpress/dom-ready';
 import { store as interfaceStore } from '@wordpress/interface';
 import { getQueryArg } from '@wordpress/url';
 
-const JETPACK_SIDEBAR_OPTIONS = [ 'open', 'open_with_share_post' ];
-
 /**
- * Open Jetpack sidebar by default when URL includes jetpackSidebar query arg
+ * Open Jetpack sidebar by default when URL includes jetpack-sidebar query arg
  *
  * @param sidebar - The sidebar to open
  */
 export function mayBeOpenSidebar( sidebar: 'jetpack' | 'social' ) {
 	domReady( () => {
-		const value = getQueryArg( window.location.search, 'jetpackSidebar' ) as string;
-
-		if ( value && JETPACK_SIDEBAR_OPTIONS.includes( value ) ) {
+		// If the URL has `jetpack-sidebar` query arg, open the Jetpack sidebar
+		if ( getQueryArg( window.location.search, 'jetpack-sidebar' ) ) {
 			const area =
 				sidebar === 'jetpack' ? 'jetpack-sidebar/jetpack' : 'jetpack-social/jetpack-social';
 
