@@ -31,11 +31,13 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 		myJetpackCheckoutUri = '',
 	} = getMyJetpackWindowInitialState();
 
-	const { detail } = useProduct( slug );
+	const { detail, isLoading: isProductLoading } = useProduct( slug );
 
 	const { pricingForUi, postCheckoutUrl } = detail;
 
-	const { wpcomProductSlug } = pricingForUi;
+	const { wpcomProductSlug, tiers } = pricingForUi || {};
+	// Boost pricing information is stored in the `tiers` object
+	const productSlug = slug !== 'boost' ? wpcomProductSlug : tiers?.upgraded?.wpcomProductSlug;
 
 	// Redirect to the referrer URL when the `redirect_to_referrer` query param is present.
 	const referrerURL = useRedirectToReferrer();
@@ -62,7 +64,7 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 
 	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
 		useProductCheckoutWorkflow( {
-			productSlug: wpcomProductSlug,
+			productSlug,
 			redirectUrl: checkoutRedirectUrl,
 			siteSuffix,
 			adminUrl,
@@ -76,11 +78,11 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 		<Button
 			variant="primary"
 			className={ styles[ 'action-button' ] }
-			isLoading={ hasMainCheckoutStarted }
+			isLoading={ isProductLoading || hasMainCheckoutStarted }
 			onClick={ mainCheckoutRedirect }
 			isExternalLink={ isExternalLink }
 			href={ href }
-			disabled={ disabled }
+			disabled={ disabled || isProductLoading }
 		>
 			{ buttonLabel || __( 'Upgrade', 'jetpack-my-jetpack' ) }
 		</Button>

@@ -13,12 +13,12 @@ import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Pill from '$features/ui/pill/pill';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
+import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import styles from './index.module.scss';
 
 const Index = () => {
@@ -90,7 +90,7 @@ const Index = () => {
 			>
 				<CriticalCssMeta />
 
-				<UpgradeCTA
+				<InterstitialModalCTA
 					identifier="critical-css"
 					description={ __(
 						'Save time by upgrading to Automatic Critical CSS generation.',

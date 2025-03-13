@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.68.2] - 2025-03-12
+### Added
+- Add role to Jetpack footer. [#42156]
+- Provide connection data to footer component. [#42000]
+
 ## [0.68.1] - 2025-03-05
 ### Changed
 - Update package dependencies. [#42162]
@@ -1305,6 +1310,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.68.2]: https://github.com/Automattic/jetpack-components/compare/0.68.1...0.68.2
 [0.68.1]: https://github.com/Automattic/jetpack-components/compare/0.68.0...0.68.1
 [0.68.0]: https://github.com/Automattic/jetpack-components/compare/0.67.1...0.68.0
 [0.67.1]: https://github.com/Automattic/jetpack-components/compare/0.67.0...0.67.1
