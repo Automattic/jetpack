@@ -127,60 +127,6 @@ class Scheduled_Actions_Controller extends Base_Controller {
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
-
-		// TODO - Remove the below routes after https://github.com/Automattic/wp-calypso/pull/100984 is deployed.
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/posts/(?P<post_id>\d+)/',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_items' ),
-					'permission_callback' => array( $this, 'get_items_permissions_check' ),
-				),
-				array(
-					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'create_item' ),
-					'permission_callback' => array( $this, 'create_item_permissions_check' ),
-					'args'                => array(
-						'message'       => array(
-							'type'     => 'string',
-							'required' => true,
-						),
-						'connection_id' => array(
-							'type'     => 'integer',
-							'required' => true,
-						),
-						'share_date'    => array(
-							'type'        => 'integer',
-							'description' => sprintf(
-								/* translators: %s is the new field name */
-								__( 'Deprecated in favor of %s.', 'jetpack-publicize-pkg' ),
-								'timestamp'
-							),
-						),
-						'timestamp'     => array(
-							'type'        => 'integer',
-							'description' => __( 'GMT/UTC Unix timestamp in seconds for the action.', 'jetpack-publicize-pkg' ),
-						),
-					),
-				),
-				'schema' => array( $this, 'get_public_item_schema' ),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/posts/(?P<post_id>\d+)/(?P<action_id>\d+)',
-			array(
-				array(
-					'methods'             => WP_REST_Server::DELETABLE,
-					'callback'            => array( $this, 'delete_item' ),
-					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
-				),
-				'schema' => array( $this, 'get_public_item_schema' ),
-			)
-		);
 	}
 
 	/**
