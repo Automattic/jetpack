@@ -102,9 +102,14 @@ export type ShareStatus = {
 	[ PostId: number ]: PostShareStatus;
 };
 
+export type SharePost = {
+	isModalOpen?: boolean;
+};
+
 export type SocialStoreState = {
 	connectionData: ConnectionData;
 	shareStatus?: ShareStatus;
+	sharePost?: SharePost;
 };
 
 export interface KeyringAdditionalUser {
