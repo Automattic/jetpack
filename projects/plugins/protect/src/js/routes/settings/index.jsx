@@ -131,7 +131,30 @@ const SettingsPage = () => {
 		return null;
 	};
 
-	const renderDescription = () => {
+	// const ToggleSection = ( {
+	// 	displayToggle = true,
+	// 	title,
+	// 	description,
+	// 	checked,
+	// 	onChange,
+	// 	disabled,
+	// 	extras = null,
+	// } ) => (
+	// 	<div className={ styles[ 'toggle-section' ] }>
+	// 		{ displayToggle && (
+	// 			<div className={ styles[ 'toggle-section__control' ] }>
+	// 				<ToggleControl checked={ checked } onChange={ onChange } disabled={ disabled } />
+	// 			</div>
+	// 		) }
+	// 		<div className={ styles[ 'toggle-section__content' ] }>
+	// 			<Text variant="title-medium">{ title }</Text>
+	// 			<Text className={ styles[ 'toggle-section__description' ] }>{ description }</Text>
+	// 			{ extras }
+	// 		</div>
+	// 	</div>
+	// );
+
+	const renderAccountProtectionDescription = () => {
 		const translatedText = supportsAdvancedOptions
 			? __(
 					'Enabling these settings enhances account security by detecting compromised passwords and enforcing additional verification when needed. Learn more about <link>how this protects your site</link>.',
@@ -161,7 +184,9 @@ const SettingsPage = () => {
 			<div className={ styles[ 'toggle-section__content' ] }>
 				<Text variant="title-medium">{ __( 'Account protection', 'jetpack-protect' ) }</Text>
 				{ renderNotice() }
-				<Text className={ styles[ 'toggle-section__description' ] }>{ renderDescription() }</Text>
+				<Text className={ styles[ 'toggle-section__description' ] }>
+					{ renderAccountProtectionDescription() }
+				</Text>
 				{ ! isEnabled && isSupported && (
 					<Text className={ styles[ 'toggle-section__info' ] }>
 						<Icon icon={ info } />
@@ -227,6 +252,66 @@ const SettingsPage = () => {
 			</div>
 		</div>
 	);
+
+	// const accountProtectionSettings = (
+	// 	<ToggleSection
+	// 		displayToggle={ ! supportsAdvancedOptions }
+	// 		title={ __( 'Account protection', 'jetpack-protect' ) }
+	// 		description={ renderAccountProtectionDescription() }
+	// 		checked={ isFeatureAvailable }
+	// 		onChange={ toggleAccountProtection }
+	// 		disabled={ ! isSupported || hasUnsupportedJetpackVersion || isToggling }
+	// 		extras={
+	// 			! isEnabled &&
+	// 			isSupported && (
+	// 				<Text className={ styles[ 'toggle-section__info' ] }>
+	// 					<Icon icon={ info } />
+	// 					{ createInterpolateElement(
+	// 						__(
+	// 							'Jetpack recommends enabling this feature. <link>Learn about the risks</link>.',
+	// 							'jetpack-protect'
+	// 						),
+	// 						{
+	// 							link: (
+	// 								<a
+	// 									href={ SUPPORT_LINK + '#risks-of-using-a-weak-password' }
+	// 									target="_blank"
+	// 									rel="noopener noreferrer"
+	// 								/>
+	// 							),
+	// 						}
+	// 					) }
+	// 				</Text>
+	// 			)
+	// 		}
+	// 	/>
+	// );
+
+	// const passwordDetectionSettings = (
+	// 	<ToggleSection
+	// 		title={ __( 'Password detection', 'jetpack-protect' ) }
+	// 		description={ __(
+	// 			'Detect and prevent the use of compromised passwords that have been exposed in data breaches.',
+	// 			'jetpack-protect'
+	// 		) }
+	// 		checked={ isFeatureAvailable && jetpackAccountProtectionPasswordDetection }
+	// 		onChange={ togglePasswordDetection }
+	// 		disabled={ ! isFeatureAvailable || isToggling || isUpdating }
+	// 	/>
+	// );
+
+	// const strongPasswordsSettings = (
+	// 	<ToggleSection
+	// 		title={ __( 'Strong passwords', 'jetpack-protect' ) }
+	// 		description={ __(
+	// 			'Enforce strong password requirements for all users to enhance account security.',
+	// 			'jetpack-protect'
+	// 		) }
+	// 		checked={ isFeatureAvailable && jetpackAccountProtectionStrongPasswords }
+	// 		onChange={ toggleStrongPasswords }
+	// 		disabled={ ! isFeatureAvailable || isToggling || isUpdating }
+	// 	/>
+	// );
 
 	/**
 	 * Render
