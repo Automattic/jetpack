@@ -2,9 +2,9 @@ import { Fill } from '@wordpress/components';
 import { registerPlugin } from '@wordpress/plugins';
 import { SocialPanels } from './components/social-panels';
 import { SocialSettings } from './components/social-settings';
-import { mayBeOpenSidebar } from './shared-utils';
+import { JetpackSidebarManager } from './shared-utils';
 
-mayBeOpenSidebar( 'jetpack' );
+new JetpackSidebarManager().mayBeOpenSidebar( 'jetpack' );
 
 /**
  * The Social UI needed for Jetpack sidebar

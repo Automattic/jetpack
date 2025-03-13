@@ -1,14 +1,16 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Modal, PanelRow, Button } from '@wordpress/components';
+import { Button, Modal, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useReducer } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import { getQueryArg } from '@wordpress/url';
+import { JetpackSidebarManager } from '../block-editor/shared-utils';
 import { PreviewSection } from './preview-section';
 import { SettingsSection } from './settings-section';
 import styles from './styles.module.scss';
+
+const jetpackSidebar = new JetpackSidebarManager();
 
 /**
  * The Social Post Modal component.
@@ -18,16 +20,14 @@ import styles from './styles.module.scss';
 export function SocialPostModal() {
 	const [ isModalOpen, toggleModal ] = useReducer(
 		state => {
-			const url = new URL( window.location.href );
 			// If the modal is opened with the share post query arg, remove it from the URL.
-			if ( state && url.searchParams.has( 'jetpack-sidebar' ) ) {
-				url.searchParams.delete( 'jetpack-sidebar' );
-				window.history.replaceState( null, '', url.toString() );
+			if ( state ) {
+				jetpackSidebar.mayBeRemoveQueryArg();
 			}
 			return ! state;
 		},
 		null,
-		() => getQueryArg( window.location.search, 'jetpack-sidebar' ) === 'share_post'
+		() => jetpackSidebar.getQueryArg() === 'share_post'
 	);
 	const { recordEvent } = useAnalytics();
 

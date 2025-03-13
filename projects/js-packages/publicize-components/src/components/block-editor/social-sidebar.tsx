@@ -3,9 +3,9 @@ import { PluginSidebar } from '@wordpress/editor';
 import { registerPlugin } from '@wordpress/plugins';
 import { SocialPanels } from './components/social-panels';
 import { SocialSettings } from './components/social-settings';
-import { mayBeOpenSidebar } from './shared-utils';
+import { JetpackSidebarManager } from './shared-utils';
 
-mayBeOpenSidebar( 'social' );
+new JetpackSidebarManager().mayBeOpenSidebar( 'social' );
 
 /**
  * Social sidebar for the social plugin
