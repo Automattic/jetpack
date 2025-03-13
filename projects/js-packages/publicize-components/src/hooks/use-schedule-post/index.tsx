@@ -1,7 +1,7 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { dispatch, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
 import { features } from '../../utils';
 import useSocialMediaMessage from '../use-social-media-message';
@@ -21,8 +21,6 @@ type SchedulePostOptions = {
  * @return {object} Object containing schedule functionality and state.
  */
 export function useSchedulePost() {
-	const [ isScheduling, setIsScheduling ] = useState( false );
-
 	const { postId, isAutosaveablePost, isDirtyPost } = useSelect( select => {
 		const editorSelector = select( editorStore );
 
@@ -46,8 +44,6 @@ export function useSchedulePost() {
 				return false;
 			}
 
-			setIsScheduling( true );
-
 			/**
 			 * The share endpoint only gets the custom message as a parameter, the attached media and
 			 * SIG is saved to the post meta and will be read on wpcom. Because of that we need to save
@@ -69,10 +65,8 @@ export function useSchedulePost() {
 						} );
 					} )
 				);
-				setIsScheduling( false );
 				return true;
 			} catch {
-				setIsScheduling( false );
 				return false;
 			}
 		},
@@ -89,6 +83,5 @@ export function useSchedulePost() {
 
 	return {
 		schedulePost,
-		isScheduling,
 	};
 }

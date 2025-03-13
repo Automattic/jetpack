@@ -6,6 +6,7 @@ import { useIsReSharingPossible } from '../../hooks/use-is-resharing-possible';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { useSchedulePost } from '../../hooks/use-schedule-post';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { store as socialStore } from '../../social-store';
 import { SharePostForm } from '../form/share-post-form';
 import ScheduleButton from '../schedule-button';
 import { SharePostButton } from '../share-post';
@@ -20,11 +21,18 @@ import styles from './styles.module.scss';
  */
 export function SettingsSection( { onReShared } ) {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
+
 	const { isRePublicizeUpgradableViaUpsell } = usePublicizeConfig();
 	const isReSharingPossible = useIsReSharingPossible();
 	const { enabledConnections } = useSocialMediaConnections();
 
-	const { schedulePost, isScheduling } = useSchedulePost();
+	const { schedulePost } = useSchedulePost();
+
+	const isSavingScheduledShare = useSelect(
+		select => select( socialStore ).isSavingScheduledShare(),
+		[]
+	);
 
 	const onSchedule = useCallback(
 		async scheduleTimestamp => {
@@ -62,9 +70,12 @@ export function SettingsSection( { onReShared } ) {
 						<ScheduleButton
 							isDisabled={ ! isReSharingPossible }
 							onConfirm={ onSchedule }
-							isBusy={ isScheduling }
+							isBusy={ isSavingScheduledShare || isSavingPost }
 						/>
-						<SharePostButton onShareCompleted={ onReShared } isDisabled={ isScheduling } />
+						<SharePostButton
+							onShareCompleted={ onReShared }
+							isDisabled={ isSavingScheduledShare }
+						/>
 					</div>
 				) }
 			</div>
