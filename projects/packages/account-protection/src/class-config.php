@@ -16,7 +16,7 @@ class Config {
 	public const RECENT_PASSWORD_HASHES_USER_META_KEY = self::PREFIX . '_recent_password_hashes';
 
 	// Password Detection Constants
-	public const PASSWORD_DETECTION_ENABLED_OPTION_NAME   = 'jetpack_account_protection_password_detection';
+	public const PASSWORD_DETECTION_ENABLED_OPTION_NAME   = self::PREFIX . '_password_detection';
 	public const PASSWORD_DETECTION_ERROR_CODE            = 'password_detection_validation_error';
 	public const PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION = 600; // 10 minutes
 	public const PASSWORD_DETECTION_EMAIL_REQUEST_LIMIT   = 4;
@@ -29,5 +29,5 @@ class Config {
 	public const VALIDATION_SERVICE_MAX_LENGTH = 150;
 
 	// Strong Passwords Constants
-	public const STRONG_PASSWORDS_ENABLED_OPTION_NAME = 'jetpack_account_protection_strong_passwords';
+	public const STRONG_PASSWORDS_ENABLED_OPTION_NAME = self::PREFIX . '_strong_passwords';
 }
