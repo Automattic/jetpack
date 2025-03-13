@@ -22,6 +22,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		parent::set_up();
 
 		$_SERVER['REQUEST_URI'] = 'index.html?utm_source=a_source&utm_id=some_id';
+		register_taxonomy( 'testtax', array( 'testterm' ) );
 	}
 
 	/**
@@ -32,6 +33,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		global $wp_the_query;
 		$wp_the_query           = new WP_Query();
 		$_SERVER['REQUEST_URI'] = '';
+		unregister_taxonomy( 'testtax' );
 	}
 
 	/**
@@ -152,6 +154,23 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_source' => 'a_source',
 			'arch'       => 'tag',
 			'arch_v'     => 'testtag',
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+
+		// testing taxonomy
+		$wp_the_query->is_tag = false;
+		$wp_the_query->parse_query( 'testtax=testterm' );
+		$view_data          = Tracking_Pixel::build_view_data();
+		$expected_view_data = array(
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => '0',
+			'tz'         => false,
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
+			'arch'       => 'testtax',
+			'arch_v'     => 'testterm',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
