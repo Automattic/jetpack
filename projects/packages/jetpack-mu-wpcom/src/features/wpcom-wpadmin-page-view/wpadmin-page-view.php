@@ -93,13 +93,34 @@ add_action( 'customize_controls_print_footer_scripts', 'wpcom_maybe_track_custom
  * @return bool
  */
 function do_not_track_a11ns() {
-	// Since we view so many screens to offer support and do feature dev, I think it's best not to count us.
-	if ( is_automattician() ) {
-		return true;
+	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$is_atomic_site = ! $is_simple_site;
+
+	if ( $is_simple_site ) {
+		// Since we view so many screens to offer support and do feature dev, I think it's best not to count us.
+		if ( is_automattician() ) {
+			return true;
+		}
+
+		// Shouldn't hit this because of the is_automattician() check above, but let's be cautious.
+		if ( is_network_admin() ) {
+			return true;
+		}
 	}
 
-	// Shouldn't hit this because of the is_automattician() check above, but let's be cautious.
-	if ( is_network_admin() ) {
-		return true;
+	if ( $is_atomic_site ) {
+		return wpcom_atomic_maybe_is_a11n();
 	}
+}
+
+/**
+ * Check if the user might be an a11n on Atomic sites.
+ *
+ * @return bool
+ */
+function wpcom_atomic_maybe_is_a11n() {
+	$is_proxy_atomic    = defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
+	$is_support_session = WPCOMSH_Support_Session_Detect::is_probably_support_session();
+
+	return $is_proxy_atomic && ! $is_support_session;
 }
