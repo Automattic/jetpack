@@ -37,16 +37,20 @@ export function usePromptTags( promptId, tagsAdded, setTagsAdded ) {
 		const { getEntityRecords, getPostType, hasFinishedResolution } = select( 'core' );
 		const _termIds = getEditedPostAttribute( 'tags' );
 
-		const query = {
-			_fields: 'id,name',
-			context: 'view',
-			include: _termIds?.join( ',' ),
-			per_page: -1,
-		};
+		const query = _termIds.length
+			? {
+					_fields: 'id,name',
+					context: 'view',
+					include: _termIds?.join( ',' ),
+					per_page: -1,
+			  }
+			: null;
+
+		const postTypeData = getPostType( 'post' );
 
 		return {
 			postType: getEditedPostAttribute( 'type' ),
-			postsSupportTags: getPostType( 'post' )?.taxonomies.includes( 'post_tag' ),
+			postsSupportTags: postTypeData?.taxonomies?.includes( 'post_tag' ),
 			tagIds: _termIds || [],
 			tags: _termIds && _termIds.length ? getEntityRecords( 'taxonomy', 'post_tag', query ) : [],
 			tagsHaveResolved:
