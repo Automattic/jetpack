@@ -10,12 +10,37 @@ import {
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
-import React from 'react';
+import React, { useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
 import useAccountProtectionData from '../../hooks/use-account-protection-data';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import styles from './styles.module.scss';
+
+const ToggleSection = ( {
+	displayToggle = true,
+	notice = null,
+	title,
+	description,
+	checked,
+	onChange,
+	disabled,
+	extras = null,
+} ) => (
+	<div className={ styles[ 'toggle-section' ] }>
+		{ displayToggle && (
+			<div className={ styles[ 'toggle-section__control' ] }>
+				<ToggleControl checked={ checked } onChange={ onChange } disabled={ disabled } />
+			</div>
+		) }
+		<div className={ styles[ 'toggle-section__content' ] }>
+			<Text variant="title-medium">{ title }</Text>
+			{ notice }
+			<Text className={ styles[ 'toggle-section__description' ] }>{ description }</Text>
+			{ extras }
+		</div>
+	</div>
+);
 
 const SettingsPage = () => {
 	const SUPPORT_LINK = 'https://jetpack.com/?post_type=jetpack_support&p=324199';
@@ -46,9 +71,10 @@ const SettingsPage = () => {
 		},
 	} );
 
-	const isFeatureAvailable = isSupported && ! hasUnsupportedJetpackVersion && isEnabled;
+	const isAccountProtectionAvailable = isSupported && ! hasUnsupportedJetpackVersion && isEnabled;
+	const isFeatureAvailable = isAccountProtectionAvailable && ! isToggling && ! isUpdating;
 
-	const renderNotice = () => {
+	const disabledNotice = useMemo( () => {
 		if ( ! isSupported ) {
 			return (
 				<Notice
@@ -114,13 +140,7 @@ const SettingsPage = () => {
 					title="Account protection is currently inactive."
 					children={ <Text>{ __( 'Activate the feature to continue.', 'jetpack-protect' ) }</Text> }
 					actions={ [
-						<Button
-							key="enable"
-							variant="link"
-							onClick={ toggleAccountProtection }
-							isLoading={ isToggling }
-							disabled={ isToggling }
-						>
+						<Button key="enable" variant="link" onClick={ toggleAccountProtection }>
 							{ __( 'Activate', 'jetpack-protect' ) }
 						</Button>,
 					] }
@@ -129,32 +149,15 @@ const SettingsPage = () => {
 		}
 
 		return null;
-	};
+	}, [
+		isSupported,
+		isEnabled,
+		hasUnsupportedJetpackVersion,
+		supportsAdvancedOptions,
+		toggleAccountProtection,
+	] );
 
-	// const ToggleSection = ( {
-	// 	displayToggle = true,
-	// 	title,
-	// 	description,
-	// 	checked,
-	// 	onChange,
-	// 	disabled,
-	// 	extras = null,
-	// } ) => (
-	// 	<div className={ styles[ 'toggle-section' ] }>
-	// 		{ displayToggle && (
-	// 			<div className={ styles[ 'toggle-section__control' ] }>
-	// 				<ToggleControl checked={ checked } onChange={ onChange } disabled={ disabled } />
-	// 			</div>
-	// 		) }
-	// 		<div className={ styles[ 'toggle-section__content' ] }>
-	// 			<Text variant="title-medium">{ title }</Text>
-	// 			<Text className={ styles[ 'toggle-section__description' ] }>{ description }</Text>
-	// 			{ extras }
-	// 		</div>
-	// 	</div>
-	// );
-
-	const renderAccountProtectionDescription = () => {
+	const accountProtectionDescription = useMemo( () => {
 		const translatedText = supportsAdvancedOptions
 			? __(
 					'Enabling these settings enhances account security by detecting compromised passwords and enforcing additional verification when needed. Learn more about <link>how this protects your site</link>.',
@@ -168,26 +171,20 @@ const SettingsPage = () => {
 		return createInterpolateElement( translatedText, {
 			link: <a href={ SUPPORT_LINK } target="_blank" rel="noopener noreferrer" />,
 		} );
-	};
+	}, [ supportsAdvancedOptions ] );
 
 	const accountProtectionSettings = (
-		<div className={ styles[ 'toggle-section' ] }>
-			{ ! supportsAdvancedOptions && (
-				<div className={ styles[ 'toggle-section__control' ] }>
-					<ToggleControl
-						checked={ isFeatureAvailable }
-						onChange={ toggleAccountProtection }
-						disabled={ ! isSupported || hasUnsupportedJetpackVersion || isToggling }
-					/>
-				</div>
-			) }
-			<div className={ styles[ 'toggle-section__content' ] }>
-				<Text variant="title-medium">{ __( 'Account protection', 'jetpack-protect' ) }</Text>
-				{ renderNotice() }
-				<Text className={ styles[ 'toggle-section__description' ] }>
-					{ renderAccountProtectionDescription() }
-				</Text>
-				{ ! isEnabled && isSupported && (
+		<ToggleSection
+			displayToggle={ ! supportsAdvancedOptions }
+			title={ __( 'Account protection', 'jetpack-protect' ) }
+			notice={ disabledNotice }
+			description={ accountProtectionDescription }
+			checked={ isAccountProtectionAvailable }
+			onChange={ toggleAccountProtection }
+			disabled={ ! isSupported || hasUnsupportedJetpackVersion || isToggling }
+			extras={
+				! isEnabled &&
+				isSupported && (
 					<Text className={ styles[ 'toggle-section__info' ] }>
 						<Icon icon={ info } />
 						{ createInterpolateElement(
@@ -206,112 +203,36 @@ const SettingsPage = () => {
 							}
 						) }
 					</Text>
-				) }
-			</div>
-		</div>
+				)
+			}
+		/>
 	);
 
 	const passwordDetectionSettings = (
-		<div className={ styles[ 'toggle-section' ] }>
-			<div className={ styles[ 'toggle-section__control' ] }>
-				<ToggleControl
-					checked={ isFeatureAvailable && jetpackAccountProtectionPasswordDetection }
-					onChange={ togglePasswordDetection }
-					disabled={ ! isFeatureAvailable || isToggling || isUpdating }
-				/>
-			</div>
-			<div className={ styles[ 'toggle-section__content' ] }>
-				<Text variant="title-medium">{ __( 'Password detection', 'jetpack-protect' ) }</Text>
-				<Text className={ styles[ 'toggle-section__description' ] }>
-					{ __(
-						'Detect and prevent the use of compromised passwords that have been exposed in data breaches.',
-						'jetpack-protect'
-					) }
-				</Text>
-			</div>
-		</div>
+		<ToggleSection
+			title={ __( 'Password detection', 'jetpack-protect' ) }
+			description={ __(
+				'Detect and prevent the use of compromised passwords that have been exposed in data breaches.',
+				'jetpack-protect'
+			) }
+			checked={ isAccountProtectionAvailable && jetpackAccountProtectionPasswordDetection }
+			onChange={ togglePasswordDetection }
+			disabled={ ! isFeatureAvailable }
+		/>
 	);
 
 	const strongPasswordsSettings = (
-		<div className={ styles[ 'toggle-section' ] }>
-			<div className={ styles[ 'toggle-section__control' ] }>
-				<ToggleControl
-					checked={ isFeatureAvailable && jetpackAccountProtectionStrongPasswords }
-					onChange={ toggleStrongPasswords }
-					disabled={ ! isFeatureAvailable || isToggling || isUpdating }
-				/>
-			</div>
-			<div className={ styles[ 'toggle-section__content' ] }>
-				<Text variant="title-medium">{ __( 'Strong passwords', 'jetpack-protect' ) }</Text>
-				<Text className={ styles[ 'toggle-section__description' ] }>
-					{ __(
-						'Enforce strong password requirements for all users to enhance account security.',
-						'jetpack-protect'
-					) }
-				</Text>
-			</div>
-		</div>
+		<ToggleSection
+			title={ __( 'Strong passwords', 'jetpack-protect' ) }
+			description={ __(
+				'Enforce strong password requirements for all users to enhance account security.',
+				'jetpack-protect'
+			) }
+			checked={ isAccountProtectionAvailable && jetpackAccountProtectionStrongPasswords }
+			onChange={ toggleStrongPasswords }
+			disabled={ ! isFeatureAvailable }
+		/>
 	);
-
-	// const accountProtectionSettings = (
-	// 	<ToggleSection
-	// 		displayToggle={ ! supportsAdvancedOptions }
-	// 		title={ __( 'Account protection', 'jetpack-protect' ) }
-	// 		description={ renderAccountProtectionDescription() }
-	// 		checked={ isFeatureAvailable }
-	// 		onChange={ toggleAccountProtection }
-	// 		disabled={ ! isSupported || hasUnsupportedJetpackVersion || isToggling }
-	// 		extras={
-	// 			! isEnabled &&
-	// 			isSupported && (
-	// 				<Text className={ styles[ 'toggle-section__info' ] }>
-	// 					<Icon icon={ info } />
-	// 					{ createInterpolateElement(
-	// 						__(
-	// 							'Jetpack recommends enabling this feature. <link>Learn about the risks</link>.',
-	// 							'jetpack-protect'
-	// 						),
-	// 						{
-	// 							link: (
-	// 								<a
-	// 									href={ SUPPORT_LINK + '#risks-of-using-a-weak-password' }
-	// 									target="_blank"
-	// 									rel="noopener noreferrer"
-	// 								/>
-	// 							),
-	// 						}
-	// 					) }
-	// 				</Text>
-	// 			)
-	// 		}
-	// 	/>
-	// );
-
-	// const passwordDetectionSettings = (
-	// 	<ToggleSection
-	// 		title={ __( 'Password detection', 'jetpack-protect' ) }
-	// 		description={ __(
-	// 			'Detect and prevent the use of compromised passwords that have been exposed in data breaches.',
-	// 			'jetpack-protect'
-	// 		) }
-	// 		checked={ isFeatureAvailable && jetpackAccountProtectionPasswordDetection }
-	// 		onChange={ togglePasswordDetection }
-	// 		disabled={ ! isFeatureAvailable || isToggling || isUpdating }
-	// 	/>
-	// );
-
-	// const strongPasswordsSettings = (
-	// 	<ToggleSection
-	// 		title={ __( 'Strong passwords', 'jetpack-protect' ) }
-	// 		description={ __(
-	// 			'Enforce strong password requirements for all users to enhance account security.',
-	// 			'jetpack-protect'
-	// 		) }
-	// 		checked={ isFeatureAvailable && jetpackAccountProtectionStrongPasswords }
-	// 		onChange={ toggleStrongPasswords }
-	// 		disabled={ ! isFeatureAvailable || isToggling || isUpdating }
-	// 	/>
-	// );
 
 	/**
 	 * Render
