@@ -16,5 +16,4 @@ class WPCOM_Features {
 	const ATOMIC             = 'atomic';
 	const EMAIL_SUBSCRIPTION = 'email-subscription';
 	const MANAGE_PLUGINS     = 'manage-plugins';
-	const INSTALL_PLUGINS    = 'install-plugins';
 }
