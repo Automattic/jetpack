@@ -162,7 +162,7 @@ class Validation_Service {
 				$errors[] = __( '<strong>Error:</strong> The password matches new user data.', 'jetpack-account-protection' );
 			}
 			if ( $this->is_recent_password_hash( $user, $password ) ) {
-				return __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
+				$errors[] = __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
 			}
 		}
 
