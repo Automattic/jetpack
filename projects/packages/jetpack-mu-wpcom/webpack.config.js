@@ -9,7 +9,6 @@ module.exports = [
 		entry: {
 			'a8c-posts-list': './src/features/wpcom-blocks/a8c-posts-list/blocks/posts-list/index.js',
 			'block-inserter-modifications': './src/features/block-inserter-modifications/index.js',
-			'block-theme-previews': './src/features/block-theme-previews/index.js',
 			'core-customizer-css':
 				'./src/features/custom-css/custom-css/js/core-customizer-css.core-4.9.js',
 			'core-customizer-css-preview':
