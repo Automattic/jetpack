@@ -26,6 +26,8 @@ import {
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
 	QUERY_CHAT_AVAILABILITY_KEY,
 	QUERY_CHAT_AUTHENTICATION_KEY,
+	QUERY_GET_JETPACK_MANAGE_DATA_KEY,
+	REST_API_GET_JETPACK_MANAGE_DATA,
 } from '../../data/constants';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useUpdateHistoricallyActiveModules from '../../data/products/use-update-historically-active-modules';
@@ -42,6 +44,7 @@ import ConnectionsSection from '../connections-section';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
+import LoadingBlock from '../loading-block';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
 import WelcomeFlow from '../welcome-flow';
@@ -92,11 +95,12 @@ export default function MyJetpackScreen() {
 	useNotificationWatcher();
 	const {
 		isAtomic = false,
-		jetpackManage = {},
 		adminUrl,
 		sandboxedDomain,
+		redBubbleAlerts,
+		isDevVersion,
+		userIsAdmin,
 	} = getMyJetpackWindowInitialState();
-	const { redBubbleAlerts, isDevVersion, userIsAdmin } = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
@@ -114,6 +118,14 @@ export default function MyJetpackScreen() {
 	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery( {
 		name: QUERY_CHAT_AUTHENTICATION_KEY,
 		query: { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT },
+	} );
+	const {
+		data: jetpackManageData,
+		isLoading: isJetpackManageLoading,
+		isError: isJetpackManageError,
+	} = useSimpleQuery( {
+		name: QUERY_GET_JETPACK_MANAGE_DATA_KEY,
+		query: { path: REST_API_GET_JETPACK_MANAGE_DATA },
 	} );
 	const updateHistoricallyActiveModules = useUpdateHistoricallyActiveModules();
 
@@ -219,10 +231,17 @@ export default function MyJetpackScreen() {
 
 			<ProductCardsSection />
 
-			{ jetpackManage.isEnabled && (
+			{ userIsAdmin && (
 				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col>
-						<JetpackManageBanner isAgencyAccount={ jetpackManage.isAgencyAccount } />
+						{ isJetpackManageLoading ? (
+							<LoadingBlock height="200px" width="100%" />
+						) : (
+							! isJetpackManageError &&
+							jetpackManageData.isEnabled && (
+								<JetpackManageBanner isAgencyAccount={ jetpackManageData.isAgencyAccount } />
+							)
+						) }
 					</Col>
 				</Container>
 			) }

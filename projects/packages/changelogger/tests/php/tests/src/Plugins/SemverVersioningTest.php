@@ -20,7 +20,6 @@ use Symfony\Component\Console\Output\BufferedOutput;
  * @covers \Automattic\Jetpack\Changelogger\Plugins\SemverVersioning
  */
 class SemverVersioningTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Test parseVersion and normalizeVersion.
