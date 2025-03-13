@@ -32,6 +32,7 @@
 		"@wordpress/element": "6.19.0",
 		"@wordpress/hooks": "4.19.0",
 		"@wordpress/i18n": "5.19.0",
+		"@wordpress/interface": "9.4.0",
 		"@wordpress/plugins": "7.19.0",
 		"@wordpress/url": "4.19.0",
 		"clsx": "2.1.1",
