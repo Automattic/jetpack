@@ -36,6 +36,7 @@ class Universal {
 
 		// Capture cart events.
 		add_action( 'woocommerce_add_to_cart', array( $this, 'capture_add_to_cart' ), 10, 6 );
+		add_action( 'woocommerce_after_cart_item_quantity_update', array( $this, 'capture_cart_quantity_update' ), 10, 4 );
 		add_action( 'woocommerce_cart_item_removed', array( $this, 'capture_remove_from_cart' ), 10, 2 );
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart' ) );
 		add_action( 'woocommerce_after_mini_cart', array( $this, 'remove_from_cart' ) );
@@ -139,7 +140,7 @@ class Universal {
 	}
 
 	/**
-	 * Capture remove from cart events in mini-cart and cart blocls
+	 * Capture remove from cart events in mini-cart and cart blocks
 	 *
 	 * @param string   $cart_item_key The cart item removed.
 	 * @param \WC_Cart $cart The cart.
@@ -148,8 +149,27 @@ class Universal {
 	 */
 	public function capture_remove_from_cart( $cart_item_key, $cart ) {
 		$item = $cart->removed_cart_contents[ $cart_item_key ] ?? null;
-		$this->record_event( 'woocommerceanalytics_remove_from_cart' );
 		$this->capture_event_in_session_data( (int) $item['product_id'], (int) $item['quantity'], 'woocommerceanalytics_remove_from_cart' );
+	}
+
+	/**
+	 * Capture remove/add from cart events using the Cart Controller
+	 *
+	 * @param string   $cart_item_key The cart item updated.
+	 * @param int      $quantity Contains the new quantity of the item.
+	 * @param int      $old_quantity Contains the old quantity of the item.
+	 * @param \WC_Cart $cart The cart.
+	 *
+	 * @return void
+	 */
+	public function capture_cart_quantity_update( $cart_item_key, $quantity, $old_quantity, $cart ) {
+		$product_id = $cart->cart_contents[ $cart_item_key ]['product_id'];
+		if ( $quantity > $old_quantity ) {
+			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_add_to_cart' );
+			$this->lock_add_to_cart_events = true;
+		} else {
+			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_remove_from_cart' );
+		}
 	}
 
 	/**
@@ -424,14 +444,9 @@ class Universal {
 	 * @param array  $cart_item_data Other cart data.
 	 */
 	public function capture_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$referer_postid = isset( $_SERVER['HTTP_REFERER'] ) ? url_to_postid( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) ) : 0;
-		// if the referring post is not a product OR the product being added is not the same as post.
-		// (eg. related product list on single product page) then include a product view event.
-		$product_by_referer_postid = wc_get_product( $referer_postid );
-		if ( ! $product_by_referer_postid instanceof WC_Product || (int) $product_id !== $referer_postid ) {
-			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_product_view' );
+		if ( $this->lock_add_to_cart_events ) {
+			return;
 		}
-		// add cart event to the session data.
 		$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_add_to_cart' );
 	}
 
