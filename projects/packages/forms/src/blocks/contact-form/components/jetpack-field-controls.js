@@ -185,7 +185,7 @@ const JetpackFieldControls = ( {
 					} }
 					dropdownMenuProps={ toolsPanelDropdownMenuProps }
 				>
-					<div className="jetpack-field-controls__color-settings">
+					<div className="jetpack-field-controls__full-width-control">
 						<ColorGradientSettingsDropdown
 							__experimentalIsRenderedInSidebar
 							settings={ colorSettings }
@@ -397,7 +397,7 @@ const JetpackFieldControls = ( {
 					) }
 				</ToolsPanel>
 				<ToolsPanel>
-					<div style={ { gridColumn: '1 / -1' } }>
+					<div className="jetpack-field-controls__full-width-control">
 						<ToggleControl
 							label={ __( 'Sync field styles', 'jetpack-forms' ) }
 							checked={ attributes.shareFieldAttributes }

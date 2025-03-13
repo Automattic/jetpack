@@ -88,7 +88,7 @@ function JetpackFieldCheckbox( {
 						resetAll={ () => setAttributes( { labelColor: undefined } ) }
 						dropdownMenuProps={ toolsPanelDropdownMenuProps }
 					>
-						<div className="jetpack-field-controls__color-settings">
+						<div className="jetpack-field-controls__full-width-control">
 							<ColorGradientSettingsDropdown
 								__experimentalIsRenderedInSidebar
 								panelId={ clientId }
@@ -133,7 +133,7 @@ function JetpackFieldCheckbox( {
 						</ToolsPanelItem>
 					</ToolsPanel>
 					<ToolsPanel>
-						<div style={ { gridColumn: '1 / -1' } }>
+						<div className="jetpack-field-controls__full-width-control">
 							<ToggleControl
 								label={ __( 'Sync field styles', 'jetpack-forms' ) }
 								checked={ attributes.shareFieldAttributes }
