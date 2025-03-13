@@ -108,7 +108,7 @@ function JetpackFieldCheckbox( {
 					</ToolsPanel>
 					<ToolsPanel
 						panelId={ clientId }
-						label={ __( 'Label Typography', 'jetpack-forms' ) }
+						label={ __( 'Option typography', 'jetpack-forms' ) }
 						resetAll={ () => setAttributes( { labelFontSize: undefined } ) }
 						dropdownMenuProps={ toolsPanelDropdownMenuProps }
 					>
