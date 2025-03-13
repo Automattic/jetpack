@@ -170,10 +170,13 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 			modalMainButton={ <ProductInterstitialModalCta slug={ slug } /> }
 			onOpen={ handleOpen }
 			onClose={ handleClose }
+			isLoading={ isLoading }
 			{ ...props }
 		>
 			<>
-				{ modalFeatures && <ProductInterstitialFeatureList features={ modalFeatures } /> }
+				{ ( isLoading || features ) && (
+					<ProductInterstitialFeatureList isLoading={ isLoading } features={ features } />
+				) }
 				{ additionalContent }
 				{ children }
 			</>

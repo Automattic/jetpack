@@ -13,7 +13,7 @@ export type ReasonContent = {
 const useGetReadableFailedBackupReason = (): ReasonContent => {
 	const { data: redBubbleAlerts, isLoading: isRedBubbleAlertsLoading } = useRedBubbleQuery();
 
-	const { backup_failure: backupFailure } = redBubbleAlerts;
+	const { backup_failure: backupFailure } = redBubbleAlerts as RedBubbleAlerts;
 	const status = backupFailure?.data?.status;
 
 	const reasonContent = useMemo( () => {

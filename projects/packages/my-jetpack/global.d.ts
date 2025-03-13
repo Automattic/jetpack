@@ -491,6 +491,7 @@ interface Window {
 					is_bundle: boolean;
 					is_feature: boolean;
 					is_plugin_active: boolean;
+					is_tiered_pricing: boolean;
 					is_upgradable: boolean;
 					is_upgradable_by_bundle: string[];
 					long_description: string;
