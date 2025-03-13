@@ -199,8 +199,8 @@ const JetpackFieldControls = ( {
 				<ToolsPanel
 					label={
 						isChoicesBlock
-							? __( 'Options Typography', 'jetpack-forms' )
-							: __( 'Input Typography', 'jetpack-forms', 0 )
+							? __( 'Options typography', 'jetpack-forms' )
+							: __( 'Input typography', 'jetpack-forms', 0 )
 					}
 					resetAll={ () => {
 						setAttributes( {
@@ -250,7 +250,7 @@ const JetpackFieldControls = ( {
 					</ToolsPanelItem>
 				</ToolsPanel>
 				<ToolsPanel
-					label={ __( 'Label Typography', 'jetpack-forms' ) }
+					label={ __( 'Label typography', 'jetpack-forms' ) }
 					resetAll={ () => {
 						setAttributes( {
 							labelFontSize: undefined,
