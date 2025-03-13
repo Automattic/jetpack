@@ -36,16 +36,12 @@ export function SettingsSection( { onReShared } ) {
 
 	const onSchedule = useCallback(
 		async scheduleTimestamp => {
-			const success = await schedulePost( {
+			await schedulePost( {
 				connectionIds: enabledConnections.map( connection => Number( connection.connection_id ) ),
 				timestamp: scheduleTimestamp,
 			} );
-
-			if ( success ) {
-				onReShared();
-			}
 		},
-		[ schedulePost, enabledConnections, onReShared ]
+		[ schedulePost, enabledConnections ]
 	);
 
 	return (
