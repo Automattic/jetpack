@@ -13,12 +13,6 @@
 		]
 	},
 	"scripts": {
-		"build-development": [
-			"pnpm run build"
-		],
-		"build-production": [
-			"NODE_ENV=production pnpm run build"
-		],
 		"test-coverage": [
 			"pnpm run test-coverage"
 		],

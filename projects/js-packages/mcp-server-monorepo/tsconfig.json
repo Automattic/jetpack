@@ -2,8 +2,9 @@
 	"extends": "jetpack-js-tools/tsconfig.tsc.json",
 	"compilerOptions": {
 		"typeRoots": [ "./node_modules/@types/", "src/*" ],
-		"outDir": "./build/"
+		"outDir": "./build/",
+		"target": "es2019",
+		"typeRoots": [ "node_modules/@types" ]
 	},
-	// List all sources and source-containing subdirs.
 	"include": [ "./src" ]
 }
