@@ -54,25 +54,6 @@ const JetpackDatePicker = props => {
 	const suffix = ! isNativeBrowserStyle
 		? `(${ DATE_FORMATS.find( f => f.value === dateFormat )?.label })`
 		: '';
-	const dateFormatInput = ! isNativeBrowserStyle ? (
-		<SelectControl
-			key="date-format"
-			label={ __( 'Date Format', 'jetpack-forms' ) }
-			options={ DATE_FORMATS.map( ( { value, label: optionLabel, example } ) => ( {
-				value,
-				label: `${ optionLabel } (${ example })`,
-			} ) ) }
-			onChange={ value =>
-				setAttributes( {
-					dateFormat: value,
-				} )
-			}
-			value={ attributes.dateFormat }
-			help={ __( 'Select the format in which the date will be displayed.', 'jetpack-forms' ) }
-			__nextHasNoMarginBottom={ true }
-			__next40pxDefaultSize={ true }
-		/>
-	) : null;
 
 	const inputType = isNativeBrowserStyle ? 'date' : 'text';
 
@@ -110,13 +91,38 @@ const JetpackDatePicker = props => {
 				setAttributes={ setAttributes }
 				placeholder={ placeholder }
 				attributes={ attributes }
-				extraFieldSettings={ [
-					{
-						index: 1,
-						element: dateFormatInput,
-					},
-				] }
 				hidePlaceholder={ isNativeBrowserStyle }
+				extraFieldSettings={
+					! isNativeBrowserStyle
+						? [
+								{
+									index: 1,
+									element: (
+										<SelectControl
+											key="date-format"
+											label={ __( 'Date Format', 'jetpack-forms' ) }
+											options={ DATE_FORMATS.map( ( { value, label: optionLabel, example } ) => ( {
+												value,
+												label: `${ optionLabel } (${ example })`,
+											} ) ) }
+											onChange={ value =>
+												setAttributes( {
+													dateFormat: value,
+												} )
+											}
+											value={ attributes.dateFormat }
+											help={ __(
+												'Select the format in which the date will be displayed.',
+												'jetpack-forms'
+											) }
+											__nextHasNoMarginBottom={ true }
+											__next40pxDefaultSize={ true }
+										/>
+									),
+								},
+						  ]
+						: []
+				}
 			/>
 		</>
 	);
