@@ -1,16 +1,17 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { useCallback, useState } from '@wordpress/element';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { usePostStartedPublishing } from '../../hooks/use-saving-post';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { getSocialScriptData } from '../../utils';
 import ReviewPrompt from '../review-prompt';
 
 const PostPublishReviewPrompt = () => {
+	const { review } = getSocialScriptData();
 	const [ isReviewRequestDismissed, setIsReviewRequestDismissed ] = useState(
-		getJetpackData()?.social?.reviewRequestDismissed ?? true
+		review?.dismissed ?? true
 	);
 	const [ shouldReviewRequestShow, setShouldReviewRequestShow ] = useState( false );
 
@@ -26,11 +27,9 @@ const PostPublishReviewPrompt = () => {
 
 	// Handle when the review request is dismissed
 	const handleReviewDismiss = useCallback( () => {
-		const reviewRequestDismissUpdatePath =
-			getJetpackData()?.social?.dismissReviewRequestPath ?? null;
 		// Save that the user has dismissed this by calling to the social plugin API method
 		apiFetch( {
-			path: reviewRequestDismissUpdatePath,
+			path: review?.dismiss_path,
 			method: 'POST',
 			data: { dismissed: true },
 		} ).catch( error => {
@@ -38,7 +37,7 @@ const PostPublishReviewPrompt = () => {
 		} );
 
 		setIsReviewRequestDismissed( true );
-	}, [] );
+	}, [ review?.dismiss_path ] );
 
 	if ( isReviewRequestDismissed || ! shouldReviewRequestShow ) {
 		return null;

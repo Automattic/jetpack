@@ -1,5 +1,5 @@
 import { Dropdown, Button, DateTimePicker } from '@wordpress/components';
-import { date, getSettings } from '@wordpress/date';
+import { getDate, date, isInTheFuture } from '@wordpress/date';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
@@ -22,6 +22,12 @@ interface ScheduleButtonProps extends ScheduleButtonBaseProps {
 	isDisabled?: boolean;
 }
 
+const isInvalidDate = ( checkDate: Date ) => {
+	const tomorrow = new Date( checkDate );
+	tomorrow.setDate( checkDate.getDate() + 1 );
+	return ! isInTheFuture( tomorrow );
+};
+
 const ScheduleButtonContent = ( {
 	onClose,
 	currentTimestamp,
@@ -36,23 +42,28 @@ const ScheduleButtonContent = ( {
 
 	const changeCallback = useCallback(
 		( newDate: string ) => {
-			const unixTime = +date( 'U', newDate + getSettings().timezone.abbr, 0 );
+			const unixTime = Math.floor( getDate( newDate ).getTime() / 1000 );
 			onTimestampChange( unixTime );
 			onChange?.( unixTime );
 		},
 		[ onChange, onTimestampChange ]
 	);
 
-	const scheduleDate = date(
-		'Y-m-d\\TH:i:s',
-		new Date( currentTimestamp * 1000 ),
-		getSettings().timezone.offset
-	);
+	const scheduleDate = date( 'Y-m-d\\TH:i:s', new Date( currentTimestamp * 1000 ), undefined );
 
 	return (
 		<>
-			<DateTimePicker onChange={ changeCallback } currentDate={ scheduleDate } />
-			<Button variant="primary" onClick={ confirmCallback } className={ styles.confirm }>
+			<DateTimePicker
+				onChange={ changeCallback }
+				currentDate={ scheduleDate }
+				isInvalidDate={ isInvalidDate }
+			/>
+			<Button
+				variant="primary"
+				onClick={ confirmCallback }
+				className={ styles.confirm }
+				disabled={ ! isInTheFuture( scheduleDate ) }
+			>
 				{ _x(
 					'Confirm',
 					'Confirms the date and time selected to be used to share the post',
