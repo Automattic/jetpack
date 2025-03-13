@@ -81,6 +81,14 @@ trait Woo_Analytics_Trait {
 	protected $is_new_session = false;
 
 	/**
+	 *  Locks Add to Cart Events Tracking in the current request avoiding duplications.
+	 *  i.e If update_cart and add_to_cart actions happens in the same request.
+	 *
+	 *  @var bool If true. Cart events are locked for the current request.
+	 */
+	protected $lock_add_to_cart_events = false;
+
+	/**
 	 * Format Cart Items or Order Items to an array
 	 *
 	 * @param array|WC_Order_Item[] $items Cart Items or Order Items.
