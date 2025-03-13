@@ -135,7 +135,7 @@ function JetpackFieldCheckbox( {
 					<ToolsPanel>
 						<div style={ { gridColumn: '1 / -1' } }>
 							<ToggleControl
-								label={ __( 'Sync field style', 'jetpack-forms' ) }
+								label={ __( 'Sync field styles', 'jetpack-forms' ) }
 								checked={ attributes.shareFieldAttributes }
 								onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
 								help={ __(
