@@ -20,7 +20,6 @@ use RegexIterator;
  * Tests for the Jetpack phpcs standard.
  */
 class JetpackStandardTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Run phpcs on a file.
