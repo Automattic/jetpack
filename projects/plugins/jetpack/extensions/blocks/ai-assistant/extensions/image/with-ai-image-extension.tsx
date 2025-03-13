@@ -6,6 +6,7 @@ import {
 	usePostContent,
 	openBlockSidebar,
 	useAiFeature,
+	getBase64Image,
 } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -102,24 +103,6 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			[ createNotice ]
 		);
 
-		const getBase64Image = useCallback( async ( url: string ) => {
-			try {
-				const response = await fetch( url );
-				const buffer = await response.arrayBuffer();
-				const base64String = btoa(
-					new Uint8Array( buffer ).reduce(
-						( data, byte ) => data + String.fromCharCode( byte ),
-						''
-					)
-				);
-
-				return `data:image/png;base64,${ base64String }`;
-			} catch {
-				// If we can't fetch the image, it must be external, so we return the original URL.
-				return url;
-			}
-		}, [] );
-
 		useEffect( () => {
 			if ( loading === false ) {
 				if ( wrapperRef.current ) {
@@ -129,7 +112,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		}, [ loading ] );
 
 		const request = useCallback(
-			async ( type: typeof TYPE_ALT_TEXT | typeof TYPE_CAPTION ) => {
+			async (
+				type: typeof TYPE_ALT_TEXT | typeof TYPE_CAPTION,
+				useBase64Image: boolean = false
+			) => {
 				if ( requireUpgrade ) {
 					return;
 				}
@@ -160,7 +146,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 									images: [
 										{
 											// We convert the image to a base64 string to avoid inaccesible URLs for private images.
-											url: await getBase64Image( props.attributes.url ),
+											url: useBase64Image
+												? await getBase64Image( props.attributes.url )
+												: props.attributes.url,
 										},
 									],
 								},
@@ -187,18 +175,25 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						const caption = parsedResponse.captions?.[ 0 ];
 						updateBlockAttributes( props.clientId, { caption } );
 					}
+
+					setLoading( false );
 				} catch ( error ) {
+					if ( error?.message.includes( 'The image URL is invalid' ) && ! useBase64Image ) {
+						debug( 'Retrying with base64 image' );
+						return request( type, true );
+					}
+
 					debug( `Error generating ${ type }`, error );
+
 					if ( error?.message ) {
 						showErrorNotice( error.message );
 					}
-				} finally {
+
 					setLoading( false );
 				}
 			},
 			[
 				dequeueAsyncRequest,
-				getBase64Image,
 				getPostContent,
 				increaseRequestsCount,
 				postId,
