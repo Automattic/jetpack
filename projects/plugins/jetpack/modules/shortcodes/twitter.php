@@ -1,4 +1,16 @@
-<?php // phpcs:ignore
+<?php
+/**
+ * Twitter/X oEmbed proxy functionality.
+ *
+ * This file handles proxying Twitter/X oEmbed requests through Automattic's infrastructure
+ * to minimize issues with rate limiting with 404 responses from Twitter/X.
+ *
+ * Unlike tweet.php which handles the [tweet] shortcode, this file provides core oEmbed support
+ * and is force-loaded via module-extras.php regardless of module status.
+ *
+ * @package automattic/jetpack
+ * @since $$next-version$$
+ */
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
