@@ -318,27 +318,21 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$this->assertEquals( array(), $map );
 
 		$table_name = 'wp_woocommerce_tax_rate_locations';
-		$indices    = array(
-			array(
-				'name'    => 'location_type_code',
-				'columns' => 'test',
-			),
+		$index      = array(
+			'name'    => 'location_type_code',
+			'columns' => 'test',
 		);
 
 		$map = $this->db_importer->hot_fix_missing_indexes(
 			$table_name,
-			array(
-				$table_name => $indices,
-			)
+			array( $index )
 		);
 
 		$this->assertEquals(
 			array(
-				$table_name => array(
-					array(
-						'name'    => 'location_type_code',
-						'columns' => '(`location_type`(10),`location_code`(20))',
-					),
+				array(
+					'name'    => 'location_type_code',
+					'columns' => '(`location_type`(10),`location_code`(20))',
 				),
 			),
 			$map
