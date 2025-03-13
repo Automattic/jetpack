@@ -521,7 +521,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			),
 			list: [
 				__(
-					'Please contact <support>Jetpack Boost Support</support> with a copy of your error message, so they can help you resolve the issue.',
+					'Please contact <support>Jetpack Boost Support</support> with a copy of your error message, so we can help you resolve the issue.',
 					'jetpack-boost'
 				),
 				__( '<retry>Try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),
