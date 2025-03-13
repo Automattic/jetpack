@@ -3794,6 +3794,9 @@ importers:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
+      '@automattic/jetpack-my-jetpack':
+        specifier: workspace:*
+        version: link:../../packages/my-jetpack
       '@automattic/jetpack-react-data-sync-client':
         specifier: workspace:*
         version: link:../../js-packages/react-data-sync-client

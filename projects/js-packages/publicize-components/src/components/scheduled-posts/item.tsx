@@ -52,7 +52,9 @@ export function ScheduledPostItem( {
 					label={ connection.display_name }
 					profilePicture={ connection.profile_picture }
 				/>
-				<div className={ styles[ 'display-name' ] }>{ connection.display_name }</div>
+				<div className={ styles[ 'display-name' ] } title={ connection.display_name }>
+					{ connection.display_name }
+				</div>
 				<div className={ styles.date }>
 					<ClockIcon />
 					{ date }
