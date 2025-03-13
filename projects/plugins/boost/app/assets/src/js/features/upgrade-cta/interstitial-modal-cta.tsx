@@ -4,15 +4,22 @@ import { __ } from '@wordpress/i18n';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 
 type InterstitialModalCTAProps = {
-	description: string;
+	description?: string;
 	identifier: string;
+	customModalTrigger?: React.ReactNode;
 };
 
-const InterstitialModalCTA = ( { description, identifier }: InterstitialModalCTAProps ) => {
+const InterstitialModalCTA = ( {
+	description = '',
+	identifier,
+	customModalTrigger,
+}: InterstitialModalCTAProps ) => {
 	return (
 		<ProductInterstitialMyJetpack
 			slug="boost"
-			customModalTrigger={ <UpgradeCTA identifier={ identifier } description={ description } /> }
+			customModalTrigger={
+				customModalTrigger ?? <UpgradeCTA identifier={ identifier } description={ description } />
+			}
 			buttonLabel={ __( 'Upgrade now', 'jetpack-boost' ) }
 			isWithVideo={ false }
 			secondaryColumn={
