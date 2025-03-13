@@ -79,7 +79,7 @@ export function ConnectionStatus( { connection, service }: ConnectionStatusProps
 				} )( isUnsupported, connection.status ) }
 			</span>
 			&nbsp;
-			{ ! isUnsupported ? (
+			{ ! isUnsupported && service ? (
 				<Reconnect connection={ connection } service={ service } />
 			) : (
 				<Disconnect connection={ connection } variant="link" isDestructive={ false } />
