@@ -4,6 +4,7 @@ import {
 	BlockControls,
 	useBlockProps,
 	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -101,6 +102,7 @@ function JetpackFieldCheckbox( {
 										clearable: true,
 									},
 								] }
+								{ ...useMultipleOriginColorsAndGradients() }
 							/>
 						</div>
 					</ToolsPanel>
