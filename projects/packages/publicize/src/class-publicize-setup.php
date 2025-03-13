@@ -77,7 +77,7 @@ class Publicize_Setup {
 
 		add_action( 'rest_api_init', array( static::class, 'register_core_options' ) );
 		add_action( 'admin_init', array( static::class, 'register_core_options' ) );
-		add_action( 'admin_init', array( static::class, 'admin_init_actions' ) );
+		add_action( 'current_screen', array( self::class, 'add_filters_and_actions_for_screen' ), 5 );
 
 		if ( ( new Host() )->is_wpcom_simple() ) {
 
@@ -97,14 +97,6 @@ class Publicize_Setup {
 	 */
 	public static function register_core_options() {
 		( new Jetpack_Social_Settings\Dismissed_Notices() )->register();
-	}
-
-	/**
-	 * Things to do on admin_init.
-	 */
-	public static function admin_init_actions() {
-		( new Jetpack_Social_Settings\Dismissed_Notices() )->register();
-		add_action( 'current_screen', array( self::class, 'add_filters_and_actions_for_screen' ), 5 );
 	}
 
 	/**
