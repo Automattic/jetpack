@@ -13,7 +13,6 @@ use WorDBless\BaseTestCase;
  * Connection Manager functionality testing.
  */
 class Error_Handler_Test extends BaseTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Error_Handler instance.

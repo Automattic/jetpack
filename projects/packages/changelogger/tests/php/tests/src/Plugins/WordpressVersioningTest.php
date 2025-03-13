@@ -22,7 +22,6 @@ use Symfony\Component\Console\Output\BufferedOutput;
  * @covers \Automattic\Jetpack\Changelogger\Plugins\WordpressVersioning
  */
 class WordpressVersioningTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Test getOptions.

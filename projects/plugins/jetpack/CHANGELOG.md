@@ -37,6 +37,10 @@
 - Social: Move share post endpoint from Jetpack to Publicize package. [#42179]
 - Tweak subscribers counts endpoint to return aggregated data based on a query param. [#42103]
 
+## 14.4.1 - 2025-03-12
+### Bug fixes
+- Prevent errant message on General Settings page when saving.
+
 ## 14.4 - 2025-03-04
 ### Enhancements
 - Connection: Disconnect all other users before disconnecting connection owner account. [#41923]
