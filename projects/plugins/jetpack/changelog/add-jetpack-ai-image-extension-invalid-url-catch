@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack AI: handle image URL errors on AI vision requests to notify the user about the issue

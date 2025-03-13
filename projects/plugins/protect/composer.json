@@ -21,7 +21,8 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
-		"automattic/jetpack-changelogger": "@dev"
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -30,10 +31,10 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
 		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"

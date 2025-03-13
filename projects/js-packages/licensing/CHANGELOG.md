@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.14.12 - 2025-03-10
+### Fixed
+- My Jetpack: Add a margin between select and input license fields and titles. [#42075]
+
 ## 0.14.11 - 2025-03-05
 ### Changed
-- Update Golden Token modal to clarify optional properties [#42154]
+- Update Golden Token modal to clarify optional properties. [#42154]
 
 ## 0.14.10 - 2025-03-03
 ### Changed

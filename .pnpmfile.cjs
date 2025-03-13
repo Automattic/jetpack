@@ -9,10 +9,7 @@
 function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` and hope any breaking changes will not really break.
-	if (
-		pkg.name === '@automattic/social-previews' ||
-		pkg.name === '@automattic/page-pattern-modal'
-	) {
+	if ( pkg.name === '@automattic/social-previews' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
 				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
@@ -39,6 +36,35 @@ function fixDeps( pkg ) {
 		! pkg.peerDependencies?.[ '@babel/runtime' ]
 	) {
 		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
+	}
+
+	// We need to add the missing deps for `@wordpress/dataviews` because
+	// the build fails when using pnpm with hoisting.
+	// @see https://github.com/WordPress/gutenberg/issues/67864
+	if ( pkg.name === '@wordpress/dataviews' ) {
+		for ( const dep of [
+			'change-case',
+			'colord',
+			'date-fns',
+			'deepmerge',
+			'@emotion/cache',
+			'@emotion/css',
+			'@emotion/react',
+			'@emotion/styled',
+			'@emotion/utils',
+			'fast-deep-equal',
+			'@floating-ui/react-dom',
+			'framer-motion',
+			'highlight-words-core',
+			'is-plain-object',
+			'memize',
+			'react-dom',
+			'@use-gesture/react',
+			'use-memo-one',
+			'uuid',
+		] ) {
+			pkg.optionalDependencies[ dep ] = '*';
+		}
 	}
 
 	// Missing dep or peer dep.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix bug where subscription was showing incorrectly as expired in certain timezones
