@@ -456,7 +456,7 @@
 	.wp-block-jetpack-field-option-radio {
 		display: flex;
 		align-items: baseline; /* Align input with first label line */
-		flex-wrap: nowrap;
+		flex-wrap: nowrap !important; // Needed to override :not() on .block-editor-block-list__layout
 
 		.jetpack-option__type:before {
 			display: block; /* display: flex causes baselines to not align */
