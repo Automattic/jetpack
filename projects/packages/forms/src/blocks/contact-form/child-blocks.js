@@ -543,8 +543,8 @@ export const childBlocks = [
 				},
 			},
 			styles: [
-				{ name: 'default', label: 'Default', isDefault: true },
-				{ name: 'browser-native', label: __( 'Browser Native', 'jetpack-forms' ) },
+				{ name: 'default', label: __( 'Default', 'jetpack-forms' ), isDefault: true },
+				{ name: 'browser', label: __( 'Browser', 'jetpack-forms' ) },
 			],
 		},
 	},
