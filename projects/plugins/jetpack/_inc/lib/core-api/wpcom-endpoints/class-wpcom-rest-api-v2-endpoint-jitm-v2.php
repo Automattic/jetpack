@@ -105,7 +105,6 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_REST_Controller {
 		$jitm = Automattic\Jetpack\JITMS\JITM::get_instance();
 
 		if ( ! $jitm->jitms_enabled() ) {
-			error_log( 'JITMs are not enabled' );
 			return rest_ensure_response( array() );
 		}
 
