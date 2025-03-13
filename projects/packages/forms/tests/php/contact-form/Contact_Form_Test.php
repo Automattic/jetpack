@@ -848,6 +848,26 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test for date field_renders
+	 *
+	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
+	 */
+	public function test_make_sure_browser_native_date_field_renders_as_expected() {
+		$attributes = array(
+			'label'       => 'fun',
+			'type'        => 'date',
+			'class'       => 'foo is-style-browser',
+			'default'     => '',
+			'placeholder' => '',
+			'id'          => 'funID',
+			'format'      => '',
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'date' ) );
+		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	/**
 	 * Test for textarea field_renders
 	 *
 	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
@@ -1015,9 +1035,10 @@ class Contact_Form_Test extends BaseTestCase {
 	 *                                                       and radio buttons.
 	 */
 	public function assertFieldLabel( $wrapper_div, $attributes, $tag_name = 'label' ) {
-		$type     = $attributes['type'];
-		$label    = $this->getFirstElement( $wrapper_div, $tag_name );
-		$expected = 'date' === $type ? $attributes['label'] . ' ' . $attributes['format'] : $attributes['label'];
+		$type  = $attributes['type'];
+		$label = $this->getFirstElement( $wrapper_div, $tag_name );
+
+		$expected = 'date' === $type ? trim( $attributes['label'] . ' ' . $attributes['format'] ) : $attributes['label'];
 
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$this->assertEquals( $expected, trim( (string) $label->nodeValue ), 'Label is not what we expect it to be...' );
