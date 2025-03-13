@@ -171,6 +171,17 @@ const JetpackFieldControls = ( {
 				width={ width }
 			/>
 			<InspectorControls group="styles">
+				<ToolsPanel>
+					<div className="jetpack-field-controls__full-width-control">
+						<ToggleControl
+							label={ __( 'Apply styling to all fields', 'jetpack-forms' ) }
+							checked={ attributes.shareFieldAttributes }
+							onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
+							help={ __( 'Toggle off if you want to style this block only.', 'jetpack-forms' ) }
+							__nextHasNoMarginBottom={ true }
+						/>
+					</div>
+				</ToolsPanel>
 				<ToolsPanel
 					label={ __( 'Color', 'jetpack-forms' ) }
 					panelId={ clientId }
@@ -397,20 +408,6 @@ const JetpackFieldControls = ( {
 							</ToolsPanelItem>
 						</>
 					) }
-				</ToolsPanel>
-				<ToolsPanel>
-					<div className="jetpack-field-controls__full-width-control">
-						<ToggleControl
-							label={ __( 'Sync field styles', 'jetpack-forms' ) }
-							checked={ attributes.shareFieldAttributes }
-							onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
-							help={ __(
-								'Syncs all styles except for Width. Deactivate for individual styling of this block.',
-								'jetpack-forms'
-							) }
-							__nextHasNoMarginBottom={ true }
-						/>
-					</div>
 				</ToolsPanel>
 			</InspectorControls>
 			<InspectorAdvancedControls>
