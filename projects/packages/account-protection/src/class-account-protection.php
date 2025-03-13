@@ -194,12 +194,21 @@ class Account_Protection {
 	}
 
 	/**
-	 * Determines if the environment supports auto activation.
+	 * Determines if the environment supports advanced options.
 	 *
 	 * @return bool
 	 */
-	public function environment_supports_auto_activation(): bool {
-		return ! ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE );
+	public function environment_supports_advanced_options(): bool {
+		if ( defined( 'ADVANCED_JETPACK_ACCOUNT_PROTECTION' ) && ADVANCED_JETPACK_ACCOUNT_PROTECTION ) {
+			return true;
+		}
+
+		// Includes environments that do not support auto activation
+		if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

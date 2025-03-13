@@ -30,9 +30,9 @@ class Settings {
 	/**
 	 * Get account protection settings.
 	 *
-	 * @return array
+	 * @return array Settings.
 	 */
-	public function get() {
+	public function get(): array {
 		$settings = array(
 			'isEnabled'                    => $this->account_protection->is_enabled(),
 			'isSupported'                  => $this->account_protection->is_supported_environment(),
@@ -46,14 +46,15 @@ class Settings {
 	/**
 	 * Get account protection config.
 	 *
-	 * @return array
+	 * @return array Config settings.
 	 */
-	public function get_config() {
-		$supports_auto_activation = $this->account_protection->environment_supports_auto_activation();
+	public function get_config(): array {
+		$advanced_options = $this->account_protection->environment_supports_advanced_options();
 
 		return array(
-			Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME => (bool) get_option( Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME, $supports_auto_activation ),
-			Config::STRONG_PASSWORDS_ENABLED_OPTION_NAME   => (bool) get_option( Config::STRONG_PASSWORDS_ENABLED_OPTION_NAME, $supports_auto_activation ),
+			'supports_advanced_options'                    => $advanced_options,
+			Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME => (bool) get_option( Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME, ! $advanced_options ),
+			Config::STRONG_PASSWORDS_ENABLED_OPTION_NAME   => (bool) get_option( Config::STRONG_PASSWORDS_ENABLED_OPTION_NAME, ! $advanced_options ),
 		);
 	}
 }
