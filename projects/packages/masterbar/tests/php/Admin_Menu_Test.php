@@ -21,7 +21,6 @@ require_once __DIR__ . '/data/admin-menu.php';
  */
 class Admin_Menu_Test extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Menu data fixture.

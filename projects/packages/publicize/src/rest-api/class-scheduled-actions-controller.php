@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize\REST_API;
 
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
+use Automattic\Jetpack\Publicize\Connections;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use WP_Error;
 use WP_REST_Request;
@@ -126,60 +127,6 @@ class Scheduled_Actions_Controller extends Base_Controller {
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
-
-		// TODO - Remove the below routes after https://github.com/Automattic/wp-calypso/pull/100984 is deployed.
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/posts/(?P<post_id>\d+)/',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_items' ),
-					'permission_callback' => array( $this, 'get_items_permissions_check' ),
-				),
-				array(
-					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'create_item' ),
-					'permission_callback' => array( $this, 'create_item_permissions_check' ),
-					'args'                => array(
-						'message'       => array(
-							'type'     => 'string',
-							'required' => true,
-						),
-						'connection_id' => array(
-							'type'     => 'integer',
-							'required' => true,
-						),
-						'share_date'    => array(
-							'type'        => 'integer',
-							'description' => sprintf(
-								/* translators: %s is the new field name */
-								__( 'Deprecated in favor of %s.', 'jetpack-publicize-pkg' ),
-								'timestamp'
-							),
-						),
-						'timestamp'     => array(
-							'type'        => 'integer',
-							'description' => __( 'GMT/UTC Unix timestamp in seconds for the action.', 'jetpack-publicize-pkg' ),
-						),
-					),
-				),
-				'schema' => array( $this, 'get_public_item_schema' ),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/posts/(?P<post_id>\d+)/(?P<action_id>\d+)',
-			array(
-				array(
-					'methods'             => WP_REST_Server::DELETABLE,
-					'callback'            => array( $this, 'delete_item' ),
-					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
-				),
-				'schema' => array( $this, 'get_public_item_schema' ),
-			)
-		);
 	}
 
 	/**
@@ -246,7 +193,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	/**
 	 * Check if the user has the basic permissions to access the Publicize scheduled actions.
 	 *
-	 * @return WP_Error|boolean
+	 * @return bool|WP_Error
 	 */
 	public function basic_permissions_check() {
 		if ( ! current_user_can( 'edit_posts' ) ) {
@@ -256,13 +203,68 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	}
 
 	/**
+	 * Check if the user has the basic permissions
+	 * required to perform CRUD operations on an item related to a post
+	 *
+	 * @param int $post_id The post ID.
+	 * @return bool|WP_Error
+	 */
+	public function basic_post_permissions_check( $post_id ) {
+
+		if ( ! get_post( $post_id ) ) {
+			return new WP_Error(
+				'post_not_found',
+				__( 'Post not found.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Ensure that the user can edit the post.
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to view or scheduled shares for that post.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Verify that the request has access to connectoins list.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
-	 * @return true|WP_Error
+	 * @return bool|WP_Error
 	 */
-	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return $this->basic_permissions_check();
+	public function get_items_permissions_check( $request ) {
+		$basic_permissions = $this->basic_permissions_check();
+
+		if ( is_wp_error( $basic_permissions ) || ! $basic_permissions ) {
+			return $basic_permissions;
+		}
+
+		$post_id = $request->get_param( 'post_id' );
+
+		/**
+		 * The post_id is optional only for editors and above.
+		 * It means that authors can view the scheduled shares
+		 * only for the post they can edit but
+		 * cannot view all the scheduled shares for the site.
+		 */
+		if ( ! $post_id && ! current_user_can( 'edit_others_posts' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'You must pass a post ID to list scheduled shares.', 'jetpack-publicize-pkg' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		if ( $post_id ) {
+			return $this->basic_post_permissions_check( $post_id );
+		}
+
+		return true;
 	}
 
 	/**
@@ -280,14 +282,6 @@ class Scheduled_Actions_Controller extends Base_Controller {
 			require_lib( 'publicize/class.publicize-actions' );
 
 			if ( $post_id ) {
-				if ( ! get_blog_post( get_current_blog_id(), $post_id ) ) {
-					return new WP_Error(
-						'post_not_found',
-						__( 'Post not found.', 'jetpack-publicize-pkg' ),
-						array( 'status' => 400 )
-					);
-				}
-
 				$scheduled_actions = \Publicize_Actions::get_scheduled_actions_by_blog_and_post_id(
 					get_current_blog_id(),
 					$post_id
@@ -316,10 +310,67 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 * Checks if a given request has access to create a connection.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
-	 * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
+	 * @return bool|WP_Error True if the request has access to create items, WP_Error object otherwise.
 	 */
-	public function create_item_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return $this->basic_permissions_check();
+	public function create_item_permissions_check( $request ) {
+		$basic_permissions = $this->basic_permissions_check();
+
+		if ( is_wp_error( $basic_permissions ) || ! $basic_permissions ) {
+			return $basic_permissions;
+		}
+
+		$post_id = $request->get_param( 'post_id' );
+
+		$basic_post_permissions = $this->basic_post_permissions_check( $post_id );
+
+		if ( is_wp_error( $basic_post_permissions ) || ! $basic_post_permissions ) {
+			return $basic_post_permissions;
+		}
+
+		$post = get_post( $post_id );
+
+		// Ensure that the post is published.
+		if ( 'publish' !== $post->post_status ) {
+			return new WP_Error(
+				'post_not_published',
+				__( 'The post must be published to schedule it for sharing.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		/**
+		 * We need to validate the passed connection_id
+		 * to ensure that it's valid and the user has access to the connection.
+		 */
+		$connection = Connections::get_by_id( (string) $request->get_param( 'connection_id' ) );
+
+		if ( ! $connection ) {
+			return new WP_Error(
+				'connection_not_found',
+				__( 'That connection does not exist.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			return true;
+		}
+
+		/**
+		 * If the user is not an editor or above, they can create
+		 * actions only for the connections they have access to.
+		 * So, we need to check if the user has access to the connection
+		 * that they are trying to use to create the action.
+		 */
+		if ( ! Connections::is_shared( $connection ) && ! Connections::user_owns_connection( $connection ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you cannot schedule shares to that connection.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
 	}
 
 	/**
@@ -382,9 +433,10 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 * @return bool|WP_Error True if the request has read access for the item, WP_Error object or false otherwise.
 	 */
 	public function get_item_permissions_check( $request ) {
+		$basic_permissions = $this->basic_permissions_check();
 
-		if ( ! $this->basic_permissions_check() ) {
-			return false;
+		if ( is_wp_error( $basic_permissions ) || ! $basic_permissions ) {
+			return $basic_permissions;
 		}
 
 		if ( ! Utils::is_wpcom() ) {
@@ -392,16 +444,18 @@ class Scheduled_Actions_Controller extends Base_Controller {
 			return true;
 		}
 
-		$action_id = $request['action_id'];
-
-		$action = $this->wpcom_get_action( $action_id );
+		$action = $this->wpcom_get_action( $request['action_id'] );
 
 		if ( is_wp_error( $action ) ) {
 			return $action;
 		}
 
 		// Ensure that the action is for the current blog.
-		return get_current_blog_id() === $action['blog_id'];
+		if ( get_current_blog_id() !== $action['blog_id'] ) {
+			return false;
+		}
+
+		return $this->basic_post_permissions_check( $action['post_id'] );
 	}
 
 	/**

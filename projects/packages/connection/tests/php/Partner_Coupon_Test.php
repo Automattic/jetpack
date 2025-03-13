@@ -19,7 +19,6 @@ use PHPUnit\Framework\TestCase;
  * @covers Automattic\Jetpack\Partner_Coupon
  */
 class Partner_Coupon_Test extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	const PRODUCT = array(
 		'title'       => 'Jetpack Backup',
