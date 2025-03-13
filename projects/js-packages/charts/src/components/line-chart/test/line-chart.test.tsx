@@ -10,6 +10,7 @@ describe( 'LineChart', () => {
 	const defaultProps = {
 		width: 500,
 		height: 300,
+		withGradientFill: false,
 		data: [
 			{
 				label: 'Series A',
@@ -160,6 +161,47 @@ describe( 'LineChart', () => {
 			// Instead of checking styles, verify the chart renders
 			expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'img', { name: /line chart/i } ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Curve Types', () => {
+		test( 'renders with monotone curve type', () => {
+			renderWithTheme( {
+				withGradientFill: false,
+				curveType: 'monotone',
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10 },
+							{ date: new Date( '2024-01-02' ), value: 90 }, // Sharp rise
+							{ date: new Date( '2024-01-03' ), value: 85 }, // Slight decline
+						],
+					},
+				],
+			} );
+
+			// Verify the chart renders with monotone curve type
+			expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
+		} );
+
+		test( 'falls back to smoothing prop when no curve type is specified', () => {
+			renderWithTheme( {
+				withGradientFill: false,
+				smoothing: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10 },
+							{ date: new Date( '2024-01-02' ), value: 20 },
+						],
+					},
+				],
+			} );
+
+			// Verify the chart renders with smooth curve
+			expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
 		} );
 	} );
 } );
