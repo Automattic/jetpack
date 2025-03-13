@@ -222,6 +222,7 @@ const JetpackFieldControls = ( {
 								fieldFontSize: undefined,
 							} )
 						}
+						isShownByDefault
 					>
 						<FontSizePicker
 							withReset={ false }
@@ -267,6 +268,7 @@ const JetpackFieldControls = ( {
 								labelFontSize: undefined,
 							} )
 						}
+						isShownByDefault
 					>
 						<FontSizePicker
 							withReset={ true }

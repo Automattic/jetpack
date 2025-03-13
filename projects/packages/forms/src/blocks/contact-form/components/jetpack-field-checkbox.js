@@ -121,6 +121,7 @@ function JetpackFieldCheckbox( {
 									labelFontSize: undefined,
 								} )
 							}
+							isShownByDefault
 						>
 							<FontSizePicker
 								withSlider
