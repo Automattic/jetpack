@@ -897,7 +897,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			),
 		);
 
-		$is_native_browser_style = $this->is_style_variant( 'is-style-browser-native' );
+		$is_native_browser_style = $this->is_style_variant( 'is-style-browser' );
 
 		$input_type = 'text';
 		if ( $is_native_browser_style ) {

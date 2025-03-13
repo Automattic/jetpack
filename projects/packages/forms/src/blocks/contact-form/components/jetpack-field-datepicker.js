@@ -50,7 +50,7 @@ const JetpackDatePicker = props => {
 		style: blockStyle,
 	} );
 	const classNamesArray = attributes?.className ? attributes.className.split( ' ' ) : [];
-	const isNativeBrowserStyle = classNamesArray.includes( 'is-style-browser-native' );
+	const isNativeBrowserStyle = classNamesArray.includes( 'is-style-browser' );
 	const suffix = ! isNativeBrowserStyle
 		? `(${ DATE_FORMATS.find( f => f.value === dateFormat )?.label })`
 		: '';
