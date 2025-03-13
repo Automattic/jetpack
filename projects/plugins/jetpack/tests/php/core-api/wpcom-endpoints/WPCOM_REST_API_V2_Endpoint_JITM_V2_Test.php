@@ -17,6 +17,13 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	private static $user_id = 0;
 
 	/**
+	 * Store the Patchwork redefine handle
+	 *
+	 * @var mixed
+	 */
+	private $patchwork_handle;
+
+	/**
 	 * Create shared database fixtures.
 	 *
 	 * @param WP_UnitTest_Factory $factory Fixture factory.
@@ -32,6 +39,25 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 		parent::set_up();
 		wp_set_current_user( static::$user_id );
 
+		// Mock current_user_can to return true for install_plugins when testing with WPCOMSH.
+		// This is required because the Pre_Connection_JITM->get_messages() method
+		// uses `current_user_can` to check if the user has the `install_plugins` capability.
+		// This capability is revoked on Atomic if the user does not have a plan.
+		// Therefore without mocking, this test would fail when running with JETPACK_TEST_WPCOMSH=1.
+		// See:
+		// - projects/packages/jitm/src/class-pre-connection-jitm.php
+		// - projects/plugins/wpcomsh/feature-plugins/hooks.php
+		$this->patchwork_handle = \Patchwork\redefine(
+			'current_user_can',
+			function ( $capability ) {
+				if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) && 'install_plugins' === $capability ) {
+					return true;
+				}
+				// Forward to the original function.
+				return \Patchwork\relay();
+			}
+		);
+
 		// Add test JITM via filter
 		add_filter( 'jetpack_pre_connection_jitms', array( $this, 'inject_test_jitm' ), 10, 1 );
 	}
@@ -40,8 +66,9 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
-
 		remove_filter( 'jetpack_pre_connection_jitms', array( $this, 'inject_test_jitm' ) );
+
+		\Patchwork\restore( $this->patchwork_handle );
 		parent::tear_down();
 	}
 
@@ -149,7 +176,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 
 		// Verify the user actually has the required capability. It can be removed if the plan is changed in this test
 		// as the plan change will remove the capability. This assertion is useful for debugging tests.
-		$this->assertTrue( current_user_can( 'install_plugins' ), 'Admin user should have install_plugins capability' );
+		// $this->assertTrue( current_user_can( 'install_plugins' ), 'Admin user should have install_plugins capability' );
 
 		$message_path = 'test_message_path';
 
