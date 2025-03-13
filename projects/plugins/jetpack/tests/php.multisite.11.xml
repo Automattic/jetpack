@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+	xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
 	bootstrap="php/bootstrap.php"
-	cacheResultFile=".phpunit.cache/test-results"
+	cacheDirectory=".phpunit.cache"
 	colors="true"
 	executionOrder="depends"
 	beStrictAboutOutputDuringTests="true"
+	displayDetailsOnPhpunitDeprecations="false"
+	displayDetailsOnTestsThatTriggerDeprecations="true"
+	displayDetailsOnTestsThatTriggerErrors="true"
+	displayDetailsOnTestsThatTriggerNotices="true"
+	displayDetailsOnTestsThatTriggerWarnings="true"
+	failOnDeprecation="true"
+	failOnEmptyTestSuite="true"
+	failOnPhpunitDeprecation="false"
+	failOnNotice="true"
 	failOnRisky="true"
 	failOnWarning="true"
 >
@@ -74,4 +83,19 @@
 			<group>uninstall</group>
 		</exclude>
 	</groups>
+
+	<source>
+		<include>
+			<!-- Better to only include "src" than to add "." and then exclude "tests", "vendor", and so on, as PHPUnit still scans the excluded directories. -->
+			<!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
+			<file>../*.php</file>
+			<directory suffix=".php">../3rd-party</directory>
+			<directory suffix=".php">../extensions</directory>
+			<directory suffix=".php">../_inc</directory>
+			<directory suffix=".php">../json-endpoints</directory>
+			<directory suffix=".php">../modules</directory>
+			<directory suffix=".php">../sal</directory>
+			<directory suffix=".php">../src</directory>
+		</include>
+	</source>
 </phpunit>
