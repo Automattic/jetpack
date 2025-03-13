@@ -22,36 +22,25 @@ type CurveType = 'smooth' | 'linear' | 'monotone';
 const X_TICK_WIDTH = 100;
 
 /**
- * Determines the curve type for the line chart based on the provided type and smoothing parameters
+ * Determines the curve type for the line chart based on the provided type
  *
- * @param {CurveType} type      - The explicit curve type to use
- * @param {boolean}   smoothing - Legacy smoothing parameter
+ * @param {CurveType} type - The curve type to use
  * @return The curve function to use for the line
  */
-const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
-	// Early return for non-smooth lines when no type is specified
-	if ( ! type && ! smoothing ) {
-		return curveLinear;
+const getCurveType = ( type: CurveType = 'linear' ) => {
+	switch ( type ) {
+		case 'smooth':
+			return curveCatmullRom;
+		case 'monotone':
+			return curveMonotoneX;
+		case 'linear':
+		default:
+			return curveLinear;
 	}
-
-	// Early returns for explicit curve types
-	if ( type === 'smooth' ) {
-		return curveCatmullRom;
-	}
-	if ( type === 'monotone' ) {
-		return curveMonotoneX;
-	}
-	if ( type === 'linear' ) {
-		return curveLinear;
-	}
-
-	// Fall back to legacy smoothing prop
-	return smoothing ? curveCatmullRom : curveLinear;
 };
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withGradientFill: boolean;
-	smoothing?: boolean;
 	curveType?: CurveType;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 }
@@ -132,7 +121,6 @@ const LineChart: FC< LineChartProps > = ( {
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	withGradientFill = false,
-	smoothing = true,
 	curveType = 'linear',
 	renderTooltip = renderDefaultTooltip,
 	options = {},
@@ -252,7 +240,7 @@ const LineChart: FC< LineChartProps > = ( {
 									withGradientFill ? `url(#area-gradient-${ chartId }-${ index + 1 })` : undefined
 								}
 								renderLine={ true }
-								curve={ getCurveType( curveType, smoothing ) }
+								curve={ getCurveType( curveType ) }
 							/>
 						</g>
 					);
