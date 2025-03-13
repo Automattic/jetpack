@@ -147,27 +147,6 @@
 	align-items: center;
 }
 
-/* override JP logo */
-.feedback-export-modal__footer #jetpack-logo__icon {
-	width: 16px;
-	height: 16px;
-}
-
-.feedback-export-modal__footer #jetpack-logo__icon path {
-	fill: #000000;
-}
-
-.feedback-export-modal__footer .feedback-export-modal__footer-link {
-	padding-left: 8px;
-	font-size: 12px;
-	font-weight: 600;
-	line-height: 0;
-	letter-spacing: -0.02em;
-	text-align: left;
-	color: #23282D;
-	text-decoration: none;
-}
-
 .export-card {
 	border-radius: var(--jp-border-radius, 4px);
 	box-shadow: 0 0 0 1px var(--jp-gray-10, #c3c4c7) inset;

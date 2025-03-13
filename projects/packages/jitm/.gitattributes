@@ -11,6 +11,5 @@ webpack.config.js export-ignore
 /changelog/**     production-exclude
 .gitignore        production-exclude
 .phpcs.dir.xml    production-exclude
-phpunit.xml.dist  production-exclude
 src/js/**         production-exclude
 tests/**          production-exclude

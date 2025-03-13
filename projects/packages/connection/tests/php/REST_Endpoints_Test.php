@@ -26,7 +26,6 @@ use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
  * @see \Automattic\Jetpack\Connection\REST_Connector
  */
 class REST_Endpoints_Test extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	const BLOG_TOKEN = 'new.blogtoken';
 	const BLOG_ID    = 42;
