@@ -10,30 +10,33 @@ import { PreviewSection } from './preview-section';
 import { SettingsSection } from './settings-section';
 import styles from './styles.module.scss';
 
+type RenderSocialPostModalProps = {
+	title: string;
+	onClose: VoidFunction;
+};
+
 /**
  * The Social Post Modal component.
  *
- * @param {{title:string}} props - The component props.
+ * @param {RenderSocialPostModalProps} props - The component props.
  *
  * @return - Social Post Modal component.
  */
-function RenderSocialPostModal( { title }: { title: string } ) {
-	const { closeSharePostModal } = useDispatch( socialStore );
-
+function RenderSocialPostModal( { title, onClose }: RenderSocialPostModalProps ) {
 	return (
 		<Modal
-			onRequestClose={ closeSharePostModal }
+			onRequestClose={ onClose }
 			title={ title }
 			className={ styles.modal }
 			__experimentalHideHeader
 		>
 			<div className={ styles[ 'modal-content' ] }>
-				<SettingsSection onReShared={ closeSharePostModal } />
+				<SettingsSection onReShared={ onClose } />
 				<PreviewSection />
 			</div>
 			<Button
 				className={ styles[ 'close-button' ] }
-				onClick={ closeSharePostModal }
+				onClick={ onClose }
 				icon={ close }
 				label={ __( 'Close', 'jetpack-publicize-components' ) }
 			/>
@@ -48,7 +51,7 @@ function RenderSocialPostModal( { title }: { title: string } ) {
  */
 export function SocialPostModal() {
 	const isModalOpen = useSelect( select => select( socialStore ).isSharePostModalOpen(), [] );
-	const { openSharePostModal } = useDispatch( socialStore );
+	const { openSharePostModal, closeSharePostModal } = useDispatch( socialStore );
 	const { recordEvent } = useAnalytics();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
@@ -63,6 +66,7 @@ export function SocialPostModal() {
 		<PanelRow className={ styles.panel }>
 			{ isModalOpen ? (
 				<RenderSocialPostModal
+					onClose={ closeSharePostModal }
 					title={
 						isPostPublished
 							? _x( 'Share Post', 'The title of the social modal', 'jetpack-publicize-components' )
