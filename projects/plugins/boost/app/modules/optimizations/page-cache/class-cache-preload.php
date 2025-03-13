@@ -73,10 +73,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 */
 	public function schedule_preload_cronjob() {
 		if ( ! wp_next_scheduled( 'jetpack_boost_preload_pages' ) ) {
-			// Adding a 2 second delay helps prevent multiple rapid cache rebuilds when
-			// multiple events trigger in sequence (e.g., cache invalidation + cornerstone page updates + cloud css generation).
-			// If we attempt to schedule the cron job and one was already scheduled within 2 seconds, the cron job will not be scheduled.
-			wp_schedule_single_event( time() + 2, 'jetpack_boost_preload_pages' );
+			wp_schedule_single_event( time(), 'jetpack_boost_preload_pages' );
 		}
 	}
 
