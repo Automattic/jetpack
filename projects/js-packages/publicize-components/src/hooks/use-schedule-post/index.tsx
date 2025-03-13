@@ -53,22 +53,18 @@ export function useSchedulePost() {
 				await savePost();
 			}
 
-			try {
-				// Process each connection separately, one at a time
-				await Promise.all(
-					connectionIds.map( connection_id => {
-						return createScheduledShare( {
-							post_id: postId,
-							connection_id,
-							message,
-							timestamp,
-						} );
-					} )
-				);
-				return true;
-			} catch {
-				return false;
-			}
+			const result = await Promise.all(
+				connectionIds.map( connection_id => {
+					return createScheduledShare( {
+						post_id: postId,
+						connection_id,
+						message,
+						timestamp,
+					} );
+				} )
+			);
+
+			return result.every( Boolean );
 		},
 		[
 			isDirtyPost,

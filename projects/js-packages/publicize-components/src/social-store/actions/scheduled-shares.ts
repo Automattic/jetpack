@@ -14,7 +14,7 @@ export function createScheduledShare(
 	data: Pick< ScheduledShare, 'post_id' | 'connection_id' | 'timestamp' > &
 		Partial< Pick< ScheduledShare, 'message' > >
 ) {
-	return async function ( { registry } ) {
+	return async function ( { registry } ): Promise< boolean > {
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { getLastEntitySaveError } = registry.select( coreStore );
 		const { createErrorNotice, createSuccessNotice } = registry.dispatch( noticesStore );
@@ -36,6 +36,8 @@ export function createScheduledShare(
 				id: 'social-scheduled-share',
 			} );
 		}
+
+		return success;
 	};
 }
 
