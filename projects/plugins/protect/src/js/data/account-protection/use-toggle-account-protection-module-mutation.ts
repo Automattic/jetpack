@@ -4,6 +4,7 @@ import API from '../../api';
 import { QUERY_ACCOUNT_PROTECTION_KEY } from '../../constants';
 import useNotices from '../../hooks/use-notices';
 import { AccountProtectionStatus } from '../../types/account-protection';
+
 /**
  * Toggle Account Protection Mutatation
  *

@@ -16,6 +16,7 @@ import useAccountProtectionData from '../../hooks/use-account-protection-data';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import styles from './styles.module.scss';
+
 const SettingsPage = () => {
 	const SUPPORT_LINK = 'https://jetpack.com/?post_type=jetpack_support&p=324199';
 
