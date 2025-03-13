@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Playground: SQL Importer: Correctly handle `DB_HOST` containing a port.

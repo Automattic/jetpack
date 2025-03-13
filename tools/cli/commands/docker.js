@@ -395,7 +395,7 @@ const buildExecCmd = argv => {
 			plugin: 'jetpack',
 		};
 		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
-	} else if ( cmd === 'phpunit-multisite' ) {
+	} else if ( cmd === 'phpunit-jp-multisite' ) {
 		// @todo: Make this scale.
 		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
 		console.warn(
@@ -409,7 +409,7 @@ const buildExecCmd = argv => {
 			configFile: 'tests/php.multisite.#.xml',
 		};
 		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
-	} else if ( cmd === 'phpunit-wpcomsh' ) {
+	} else if ( cmd === 'phpunit-jp-wpcomsh' ) {
 		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
 		console.warn(
 			chalk.yellow(
@@ -425,6 +425,20 @@ const buildExecCmd = argv => {
 		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack CRM plugin.' ) );
 		const unitTestArgs = {
 			plugin: 'crm',
+		};
+		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
+	} else if ( cmd === 'phpunit-wpcomsh' ) {
+		console.warn( chalk.yellow( 'This currently only run tests for the wpcomsh plugin.' ) );
+		console.warn(
+			chalk.bold.yellow( 'Use `phpunit-jp-wpcomsh` to run tests for Jetpack with wpcomsh enabled.' )
+		);
+		const unitTestArgs = {
+			plugin: 'wpcomsh',
+			envVars: [
+				'WP_TESTS_DIR=/tmp/wordpress-develop/tests/phpunit',
+				'WP_CORE_DIR=/var/www/html',
+				'WP_CONTENT_DIR=/var/www/html/wp-content',
+			],
 		};
 		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
 	} else if ( cmd === 'wp' ) {
@@ -713,8 +727,8 @@ export function dockerDefine( yargs ) {
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
-					command: 'phpunit-multisite',
-					alias: 'phpunit:multisite',
+					command: 'phpunit-jp-multisite',
+					alias: 'phpunit:jp:multisite',
 					description: 'Run multisite Jetpack PHPUnit tests inside container',
 					builder: yargCmd =>
 						defaultOpts( yargCmd ).option( 'php', {
@@ -724,8 +738,8 @@ export function dockerDefine( yargs ) {
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
-					command: 'phpunit-wpcomsh',
-					alias: 'phpunit:wpcomsh',
+					command: 'phpunit-jp-wpcomsh',
+					alias: 'phpunit:jp:wpcomsh',
 					description: 'Run Jetpack PHPUnit tests with wpcomsh inside container',
 					builder: yargCmd =>
 						defaultOpts( yargCmd ).option( 'php', {
@@ -738,6 +752,17 @@ export function dockerDefine( yargs ) {
 					command: 'phpunit-crm',
 					alias: 'phpunit:crm',
 					description: 'Run Jetpack CRM PHPUnit inside container',
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).option( 'php', {
+							describe: 'Use the specified version of PHP.',
+							type: 'string',
+						} ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'phpunit-wpcomsh',
+					alias: 'phpunit:wpcomsh',
+					description: 'Run WPCOMSH PHPUnit inside container',
 					builder: yargCmd =>
 						defaultOpts( yargCmd ).option( 'php', {
 							describe: 'Use the specified version of PHP.',

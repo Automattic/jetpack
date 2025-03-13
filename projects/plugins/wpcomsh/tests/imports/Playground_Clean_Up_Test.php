@@ -17,10 +17,12 @@ class Playground_Clean_Up_Test extends WP_UnitTestCase {
 	 */
 	public function test_error_open_an_not_existing_file() {
 		$tmp_folder = tempnam( sys_get_temp_dir(), uniqid() );
-
-		Playground_Clean_Up::remove_tmp_files( uniqid(), $tmp_folder );
-
-		$this->assertFalse( is_dir( $tmp_folder ) );
+		try {
+			Playground_Clean_Up::remove_tmp_files( uniqid(), $tmp_folder );
+			$this->assertFalse( is_dir( $tmp_folder ) );
+		} finally {
+			unlink( $tmp_folder );
+		}
 	}
 
 	/**
@@ -40,10 +42,12 @@ class Playground_Clean_Up_Test extends WP_UnitTestCase {
 	public function test_remove_tmp_files() {
 		$tmp_file   = tempnam( sys_get_temp_dir(), 'tmp' );
 		$tmp_folder = tempnam( sys_get_temp_dir(), uniqid() );
-
-		Playground_Clean_Up::remove_tmp_files( $tmp_file, $tmp_folder );
-
-		$this->assertFalse( file_exists( $tmp_file ) );
-		$this->assertFalse( is_dir( $tmp_folder ) );
+		try {
+			Playground_Clean_Up::remove_tmp_files( $tmp_file, $tmp_folder );
+			$this->assertFalse( file_exists( $tmp_file ) );
+			$this->assertFalse( is_dir( $tmp_folder ) );
+		} finally {
+			unlink( $tmp_folder );
+		}
 	}
 }
