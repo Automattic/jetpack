@@ -21,21 +21,6 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logg
 class Cache_Preload implements Pluggable, Is_Always_On {
 
 	/**
-	 * Queue manager instance.
-	 *
-	 * @since $$next-version$$
-	 * @var Cache_Preload_Queue_Manager
-	 */
-	private $queue_manager;
-
-	/**
-	 * @since $$next-version$$
-	 */
-	public function __construct() {
-		$this->queue_manager = new Cache_Preload_Queue_Manager();
-	}
-
-	/**
 	 * @since $$next-version$$
 	 */
 	public function setup() {
@@ -62,21 +47,6 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Processes a batch of URLs for preloading.
-	 *
-	 * Attempts to preload each URL in the batch, logging any errors.
-	 *
-	 * @since $$next-version$$
-	 * @param array $batch Array of URLs to preload.
-	 * @return void
-	 */
-	private function process_batch( array $batch ) {
-		foreach ( $batch as $url ) {
-			$this->preload_page( $url );
-		}
 	}
 
 	/**
@@ -120,21 +90,17 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @return void
 	 */
 	public function preload_pages() {
-		$posts = $this->queue_manager->get_posts_to_preload();
+		$posts = get_option( 'jetpack_boost_posts_to_preload', array() );
 		if ( empty( $posts ) ) {
 			return;
 		}
 
-		// Get the current batch to process and update the queue
-		$batch = $this->queue_manager->prepare_next_batch( $posts );
-
-		// Process the current batch
-		$this->process_batch( $batch );
-
-		// Schedule the next batch if needed
-		if ( ! $this->queue_manager->is_queue_empty() ) {
-			$this->schedule_preload_cronjob();
+		foreach ( $posts as $url ) {
+			$this->preload_page( $url );
 		}
+
+		// Clear the preload queue after processing.
+		update_option( 'jetpack_boost_posts_to_preload', array(), false );
 	}
 
 	/**
@@ -181,7 +147,16 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @return void
 	 */
 	public function schedule_preload( $post_to_schedule ) {
-		$this->queue_manager->add_to_queue( $post_to_schedule );
+		$posts = get_option( 'jetpack_boost_posts_to_preload', array() );
+		if ( is_array( $post_to_schedule ) ) {
+			$posts = array_merge( $posts, $post_to_schedule );
+		} else {
+			$posts[] = $post_to_schedule;
+		}
+
+		// Do not autoload the option as it's only used within the preload process.
+		update_option( 'jetpack_boost_posts_to_preload', array_unique( $posts ), false );
+
 		$this->schedule_preload_cronjob();
 	}
 
@@ -215,14 +190,14 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @return void
 	 */
 	public function handle_cache_invalidation( string $path, string $type ) {
-		$cornerstone_pages = Cornerstone_Utils::get_list();
 		if ( $type === Filesystem_Utils::DELETE_ALL ) {
 			// If the cache is invalidated for all files, schedule preload for all Cornerstone Pages.
-			$this->schedule_preload( $cornerstone_pages );
+			$this->schedule_cornerstone_preload();
 			return;
 		}
 
 		// Otherwise identify if a Cornerstone Page cache file is being deleted and schedule preload that page if it is.
+		$cornerstone_pages = Cornerstone_Utils::get_list();
 		$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
 		// If the $path is in the Cornerstone Page list, add it to the preload list.
 		if ( in_array( untrailingslashit( $path ), $cornerstone_pages, true ) ) {
