@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.59] - 2025-03-12
+### Changed
+- Update dependencies.
+
 ## [0.1.58] - 2025-03-03
 ### Changed
 - Update package dependencies. [#42163]
@@ -247,6 +251,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Create package for the boost score bar API [#30781]
 
+[0.1.59]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.58...v0.1.59
 [0.1.58]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.57...v0.1.58
 [0.1.57]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.56...v0.1.57
 [0.1.56]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.55...v0.1.56

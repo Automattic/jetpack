@@ -44,7 +44,7 @@ class Jetpack_Social {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
-		// Init Jetpack packages
+		// Init Jetpack packages.
 		add_action(
 			'plugins_loaded',
 			function () {
@@ -83,7 +83,7 @@ class Jetpack_Social {
 
 		add_action( 'init', array( $this, 'do_init' ) );
 
-		// Activate the module as the plugin is activated
+		// Activate the module as the plugin is activated.
 		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
 		add_action( 'activated_plugin', array( $this, 'redirect_after_activation' ) );
 
@@ -98,12 +98,12 @@ class Jetpack_Social {
 
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 
-		// Add REST routes
+		// Add REST routes.
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Settings_Controller(), 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Social_Note_Controller(), 'register_rest_routes' ) );
 
-		// Adds the review prompt initial state
-		add_action( 'enqueue_block_assets', array( $this, 'add_review_initial_state' ), 30 );
+		// Adds the review prompt initial state.
+		add_action( 'jetpack_social_admin_script_data', array( $this, 'add_review_initial_state' ), 10, 1 );
 
 		// Add meta tags.
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
@@ -207,23 +207,23 @@ class Jetpack_Social {
 
 	/**
 	 * Adds the extra bits of initial state needed to display the review prompt.
-	 * Doing it separately means that it also gets added to the initial state for Jetpack.
+	 *
+	 * @param array $data The initial state data.
+	 *
+	 * @return array The modified initial state data.
 	 */
-	public function add_review_initial_state() {
+	public function add_review_initial_state( $data ) {
+
 		if ( ! $this->should_enqueue_block_editor_scripts() ) {
-			return;
+			return $data;
 		}
 
-		$review_state = array(
-			'reviewRequestDismissed'   => self::is_review_request_dismissed(),
-			'dismissReviewRequestPath' => '/jetpack/v4/social/review-dismiss',
+		$data['review'] = array(
+			'dismissed'    => self::is_review_request_dismissed(),
+			'dismiss_path' => '/jetpack/v4/social/review-dismiss',
 		);
 
-		wp_add_inline_script(
-			class_exists( 'Jetpack' ) ? 'jetpack-blocks-editor' : 'jetpack-social-editor',
-			sprintf( 'Object.assign( window.Jetpack_Editor_Initial_State.social, %s )', wp_json_encode( $review_state ) ),
-			'after'
-		);
+		return $data;
 	}
 
 	/**
