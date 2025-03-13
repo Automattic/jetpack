@@ -65,6 +65,15 @@
 		text-decoration: none;
 	}
 
+	.launch-bar-global-styles-toggle span {
+		font-size: 13px;
+	}
+
+	.launch-bar-global-styles-toggle svg {
+		margin-right: 4px;
+		width: 18px;
+	}
+
 	.launch-banner-section.bar-controls {
 		display: flex;
 		justify-content: center;
@@ -129,7 +138,18 @@
 			left: 50%;
 			transform: translateX(-50%);
 		}
-	
+
+		&.is-resetting {
+			button, a, form {
+				pointer-events: none;
+			}
+			form,
+			.launch-bar-global-styles__button--upgrade,
+			.launch-bar-global-styles__button--reset {
+				opacity: 0.5;
+			}
+		}
+
 		.launch-bar-global-styles-popover__title {
 			font-size: 18px;
 			font-weight: 600;
@@ -194,15 +214,6 @@
 			padding: 0;
 			text-decoration: underline;
 			background: none;
-		}
-	
-		.launch-bar-global-styles-toggle span {
-			font-size: 13px;
-		}
-	
-		.launch-bar-global-styles-toggle svg {
-			margin-right: 4px;
-			width: 18px;
 		}
 	
 		.launch-bar-global-styles-close {

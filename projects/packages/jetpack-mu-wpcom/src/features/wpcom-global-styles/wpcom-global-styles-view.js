@@ -108,13 +108,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		const globalStylesId = resetButton.dataset.globalStylesId;
 		const siteId = resetButton.dataset.blogId;
 		if ( globalStylesId && siteId ) {
-			resetButton?.classList.add( 'is-resetting' );
+			popover?.classList.add( 'is-resetting' );
 			const result = await resetGlobalStyles( globalStylesId, siteId );
 			if ( result ) {
 				recordEvent( 'wpcom_global_styles_gating_notice_reset_styles', { action: 'reset' } );
 				window.location.reload();
 			} else {
-				resetButton?.classList.remove( 'is-resetting' );
+				popover?.classList.remove( 'is-resetting' );
 			}
 		} else {
 			recordEvent( 'wpcom_global_styles_gating_notice_reset_support' );
