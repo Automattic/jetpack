@@ -21,17 +21,28 @@ type CurveType = 'smooth' | 'linear' | 'monotone';
 
 const X_TICK_WIDTH = 100;
 
+/**
+ * Determines the curve type for the line chart based on the provided type and smoothing parameters
+ *
+ * @param {CurveType} type      - The explicit curve type to use
+ * @param {boolean}   smoothing - Legacy smoothing parameter
+ * @return The curve function to use for the line
+ */
 const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
-	// First check for explicit curve type
-	if ( type ) {
-		switch ( type ) {
-			case 'smooth':
-				return curveCatmullRom;
-			case 'monotone':
-				return curveMonotoneX;
-			case 'linear':
-				return curveLinear;
-		}
+	// Early return for non-smooth lines when no type is specified
+	if ( ! type && ! smoothing ) {
+		return curveLinear;
+	}
+
+	// Early returns for explicit curve types
+	if ( type === 'smooth' ) {
+		return curveCatmullRom;
+	}
+	if ( type === 'monotone' ) {
+		return curveMonotoneX;
+	}
+	if ( type === 'linear' ) {
+		return curveLinear;
 	}
 
 	// Fall back to legacy smoothing prop
