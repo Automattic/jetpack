@@ -314,11 +314,10 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	}
 
 	public function test_hot_fix_missing_indexes() {
-		global $wpdb;
-		$map = $this->db_importer->hot_fix_missing_indexes( $wpdb->prefix . '_options', array() );
+		$map = $this->db_importer->hot_fix_missing_indexes( 'wp_options', array() );
 		$this->assertEquals( array(), $map );
 
-		$table_name = $wpdb->prefix . 'woocommerce_tax_rate_locations';
+		$table_name = 'wp_woocommerce_tax_rate_locations';
 		$map        = $this->db_importer->hot_fix_missing_indexes(
 			$table_name,
 			array(
