@@ -4,7 +4,7 @@ import { SocialPanels } from './components/social-panels';
 import { SocialSettings } from './components/social-settings';
 import { JetpackSidebarManager } from './shared-utils';
 
-new JetpackSidebarManager().mayBeOpenSidebar( 'jetpack' );
+new JetpackSidebarManager().handleSidebarQuery( 'jetpack' );
 
 /**
  * The Social UI needed for Jetpack sidebar

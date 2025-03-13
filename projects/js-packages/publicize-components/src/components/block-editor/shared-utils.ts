@@ -4,6 +4,7 @@
 import { dispatch } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
 import { store as interfaceStore } from '@wordpress/interface';
+import { store as socialStore } from '../../social-store';
 
 export class JetpackSidebarManager {
 	url: URL;
@@ -36,22 +37,14 @@ export class JetpackSidebarManager {
 	}
 
 	/**
-	 * Check if the URL has the query arg
-	 *
-	 * @return Whether the URL has the query arg
-	 */
-	hasQueryArg() {
-		return this.url.searchParams.has( this.queryArg );
-	}
-
-	/**
 	 * Open Jetpack sidebar by default when URL includes jetpack-sidebar query arg
 	 *
 	 * @param sidebar - The sidebar to open
 	 */
-	mayBeOpenSidebar( sidebar: 'jetpack' | 'social' ) {
+	handleSidebarQuery( sidebar: 'jetpack' | 'social' ) {
 		domReady( () => {
-			if ( this.hasQueryArg() ) {
+			const queryArg = this.getQueryArg();
+			if ( queryArg ) {
 				const area = sidebar === 'jetpack' ? this.jetpackSidebar : this.socialSidebar;
 
 				const { enableComplementaryArea } = dispatch( interfaceStore ) as {
@@ -59,16 +52,14 @@ export class JetpackSidebarManager {
 				};
 
 				enableComplementaryArea( 'core', area );
+
+				if ( queryArg === 'share_post' ) {
+					dispatch( socialStore ).openSharePostModal();
+				}
+
+				// Remove the query arg from the URL
+				this.removeQueryArg();
 			}
 		} );
-	}
-
-	/**
-	 * Remove the share post query arg from the URL if present.
-	 */
-	mayBeRemoveQueryArg() {
-		if ( this.hasQueryArg() ) {
-			this.removeQueryArg();
-		}
 	}
 }
