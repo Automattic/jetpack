@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import { SupportedService } from '../services/use-supported-services';
@@ -66,9 +66,14 @@ export function ConnectionStatus( { connection, service }: ConnectionStatusProps
 					}
 
 					return status === 'broken'
-						? __( 'There is an issue with this connection.', 'jetpack-publicize-components' )
-						: __(
+						? _x(
+								'There is an issue with this connection.',
+								'This notice is shown when a social media connection is broken.',
+								'jetpack-publicize-components'
+						  )
+						: _x(
 								'To keep sharing with this connection, please reconnect it.',
+								'This notice is shown when a social media connection needs to be reconnected.',
 								'jetpack-publicize-components'
 						  );
 				} )( isUnsupported, connection.status ) }
