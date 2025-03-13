@@ -29,7 +29,12 @@ const debug = debugFactory( 'seo-enhancer:index' );
 
 export function SeoEnhancer() {
 	const { isEnabled, toggleEnhancer, isToggling } = useSeoModuleSettings();
-	const isLoading = useSelect( select => select( store ).isBusy(), [] );
+	const isLoading = useSelect( select => {
+		const isBusy = select( store ).isBusy();
+		const isAnyImageBusy = select( store ).isAnyImageBusy();
+
+		return isBusy || isAnyImageBusy;
+	}, [] );
 	const [ features, setFeatures ] = useState<
 		{ name: PromptType; label: string; checked: boolean }[]
 	>( [
