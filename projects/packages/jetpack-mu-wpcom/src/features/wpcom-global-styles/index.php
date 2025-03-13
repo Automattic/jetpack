@@ -516,7 +516,7 @@ function wpcom_display_global_styles_launch_bar() {
 	$blog_id          = get_current_blog_id();
 	$global_styles_id = null;
 
-	if ( class_exists( 'WP_Theme_JSON_Resolver' ) ) {
+	if ( class_exists( 'WP_Theme_JSON_Resolver' ) && wpcom_global_styles_current_user_can_edit_wp_global_styles( $blog_id ) ) {
 		$global_styles_id = WP_Theme_JSON_Resolver::get_user_global_styles_post_id();
 	}
 
@@ -588,15 +588,15 @@ function wpcom_display_global_styles_launch_bar() {
 							$message = wpcom_is_previewing_global_styles() ? sprintf(
 								/* translators: %1$s - documentation URL, %2$s - the name of the required plan */
 								__(
-									'With <a href="%1$s" target="_blank">premium styles</a>, this is how your site will appear to visitors after you upgrade to the %2$s plan or higher.',
+									'You are viewing <a href="%1$s" target="_blank">premium styles</a>. This is how your site will appear to visitors after you upgrade to the %2$s plan or higher.',
 									'jetpack-mu-wpcom'
 								),
 								esc_url( $support_url ),
 								get_store_product( $gs_upgrade_plan )->product_name
 							) : sprintf(
-								/* translators: %1$s - plan upgrade URL, %2$s - documentation URL */
+								/* translators: %1$s - plan upgrade URL */
 								__(
-									'With the Free plan, this is how your site will appear to visitors. To customize colors, fonts, layout and more, <a href="%1$s" target="_blank">upgrade your plan</a> to activate <a href="%2$s" target="_blank">premium styles</a>.',
+									'You are viewing default styles. This is how your site will appear to visitors. To customize colors, fonts, layout and more, <a href="%1$s" target="_blank">upgrade your plan</a>.',
 									'jetpack-mu-wpcom'
 								),
 								esc_url( $upgrade_url ),
