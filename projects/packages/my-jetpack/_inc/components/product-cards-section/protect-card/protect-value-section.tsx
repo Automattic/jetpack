@@ -52,21 +52,21 @@ const ProtectValueSection = () => {
 			<div className="value-section">
 				<div className="value-section__scan-threats">
 					{ isLoading ? (
-						<LoadingBlock width="100px" height="50px" />
+						<LoadingBlock width="75px" height="50px" />
 					) : (
 						<ScanAndThreatStatus data={ protectData } />
 					) }
 				</div>
 				<div className="value-section__auto-firewall">
 					{ isLoading ? (
-						<LoadingBlock width="100px" height="50px" />
+						<LoadingBlock width="75px" height="50px" />
 					) : (
 						<AutoFirewallStatus data={ protectData } />
 					) }
 				</div>
 				<div className="value-section__logins-blocked">
 					{ isLoading ? (
-						<LoadingBlock width="100px" height="50px" />
+						<LoadingBlock width="75px" height="50px" />
 					) : (
 						<LoginsBlockedStatus data={ protectData } />
 					) }
