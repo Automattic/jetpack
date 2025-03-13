@@ -485,7 +485,7 @@ class Playground_DB_Importer {
 	 *
 	 * @return bool
 	 */
-	private function needs_191_limit( array $key_map ): bool {
+	public function needs_191_limit( array $key_map ): bool {
 		if ( $key_map['sqlite_type'] !== 'text' ) {
 			return false;
 		}
@@ -527,7 +527,7 @@ class Playground_DB_Importer {
 	 *
 	 * @return string
 	 */
-	private function get_tmp_file_name(): string {
+	public function get_tmp_file_name(): string {
 		// A random string to avoid collisions.
 		return 'sqlite-export-' . uniqid() . '.sql';
 	}
@@ -570,7 +570,7 @@ class Playground_DB_Importer {
 	 *
 	 * @return array
 	 */
-	private function hot_fix_missing_indexes( string $table_name, array $map ) {
+	public function hot_fix_missing_indexes( string $table_name, array $map ) {
 		// Fix: the default SQLite driver do not generate save index sizes.
 		$fix_map = array(
 			'wp_wc_orders'                           => array(
