@@ -31,6 +31,7 @@ export type ConnectionService = {
 		additional_users: boolean;
 		additional_users_only: boolean;
 	};
+	status: 'ok' | 'unsupported';
 };
 
 export interface ApiPaths {
