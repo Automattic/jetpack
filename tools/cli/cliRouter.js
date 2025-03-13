@@ -10,6 +10,7 @@ import { docsDefine } from './commands/docs.js';
 import { draftDefine } from './commands/draft.js';
 import { generateDefine } from './commands/generate.js';
 import * as installCommand from './commands/install.js';
+import { mcpDefine } from './commands/mcp.js';
 import * as noopCommand from './commands/noop.js';
 import * as phanCommand from './commands/phan.js';
 import { releaseDefine } from './commands/release.js';
@@ -44,6 +45,7 @@ export async function cli() {
 	argv = draftDefine( argv );
 	argv = generateDefine( argv );
 	argv.command( installCommand );
+	argv = mcpDefine( argv );
 	argv.command( noopCommand );
 	argv.command( phanCommand );
 	argv = releaseDefine( argv );
