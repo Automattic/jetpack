@@ -178,7 +178,8 @@ const AccountProtection = class extends Component {
 							  )
 							: __(
 									'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed.',
-									'jetpack'
+									'jetpack',
+									/* dummy arg to avoid bad minification */ 0
 							  ),
 						link: SUPPORT_LINK,
 					} }

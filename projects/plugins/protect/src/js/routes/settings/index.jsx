@@ -165,7 +165,8 @@ const SettingsPage = () => {
 			  )
 			: __(
 					'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed. Learn more about <link>how this protects your site</link>.',
-					'jetpack-protect'
+					'jetpack-protect',
+					/* dummy arg to avoid bad minification */ 0
 			  );
 
 		return createInterpolateElement( translatedText, {
