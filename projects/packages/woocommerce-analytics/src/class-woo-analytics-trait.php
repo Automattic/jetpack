@@ -348,7 +348,7 @@ trait Woo_Analytics_Trait {
 		}
 
 		if ( ! $this->is_initial_page_view( $event_name ) && ! $this->is_engaged_session() ) {
-			$this->record_engagement();
+			$this->record_engagement( $properties );
 		}
 
 		$js = $this->process_event_properties( $event_name, $properties, $product_id );
@@ -358,23 +358,24 @@ trait Woo_Analytics_Trait {
 	/**
 	 * Record woocommerceanalytics_session_engagement event and set a flag in the session cookie.
 	 *
+	 * @param array $properties Optional array of (key => value) event properties.
 	 * @return void
 	 */
-	public function record_engagement() {
-		$event_js                    = $this->process_event_properties( 'woocommerceanalytics_session_engagement' );
+	public function record_engagement( $properties = array() ) {
+		$event_js                    = $this->process_event_properties( 'woocommerceanalytics_session_engagement', $properties );
 		$add_engagement_to_cookie_js = "
-				const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
-					const [name, value] = cookie.split('=');
-					acc[name] = value;
-					return acc;
-    			}, {});
+		    const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
+	            const [name, value] = cookie.split('=');
+			    acc[name] = value;
+				return acc;
+    		}, {});
 
-    			if (cookies.woocommerceanalytics_session) {
-            		let sessionData = JSON.parse(decodeURIComponent(cookies.woocommerceanalytics_session));
-                    sessionData.is_engaged = true;
-           			document.cookie = `woocommerceanalytics_session=\${JSON.stringify(sessionData)}; expires=\${sessionData.expires}; path=/; secure; samesite=strict`;
-   		 		}
-            ";
+    		if (cookies.woocommerceanalytics_session) {
+            	let sessionData = JSON.parse(decodeURIComponent(cookies.woocommerceanalytics_session));
+                sessionData.is_engaged = true;
+           	    document.cookie = `woocommerceanalytics_session=\${JSON.stringify(sessionData)}; expires=\${sessionData.expires}; path=/; secure; samesite=strict`;
+   		 	}
+        ";
 
 		wc_enqueue_js( $add_engagement_to_cookie_js );
 		wc_enqueue_js( "_wca.push({$event_js});" );
