@@ -165,14 +165,6 @@ function JetpackLikesMessageListener( event ) {
 			break;
 		}
 
-		case 'showCommentLikeWidget': {
-			const placeholder = document.querySelector( `#${ data.id } .likes-widget-placeholder` );
-			if ( placeholder ) {
-				placeholder.style.display = 'none';
-			}
-			break;
-		}
-
 		case 'killCommentLikes':
 			// If kill switch for comment likes is enabled remove all widgets wrappers and `Loading...` placeholders.
 			document
@@ -394,15 +386,15 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 	wrapper.querySelectorAll( 'iframe' ).forEach( iFrame => iFrame.remove() );
 
 	const placeholder = wrapper.querySelector( '.likes-widget-placeholder' );
-	let postLikesFrame;
+
 	// Post like iframe
 	if ( placeholder && placeholder.classList.contains( 'post-likes-widget-placeholder' ) ) {
-		postLikesFrame = document.createElement( 'iframe' );
+		const postLikesFrame = document.createElement( 'iframe' );
 
 		postLikesFrame.classList.add( 'post-likes-widget', 'jetpack-likes-widget' );
 		postLikesFrame.name = wrapper.dataset.name;
 		postLikesFrame.src = wrapper.dataset.src;
-		postLikesFrame.height = '0';
+		postLikesFrame.height = '55px';
 		postLikesFrame.width = '100%';
 		postLikesFrame.frameBorder = '0';
 		postLikesFrame.scrolling = 'no';
@@ -439,10 +431,6 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 
 		wrapper.classList.remove( 'jetpack-likes-widget-loading' );
 		wrapper.classList.add( 'jetpack-likes-widget-loaded' );
-		if ( postLikesFrame ) {
-			placeholder.style.display = 'none';
-			postLikesFrame.height = '55px';
-		}
 	} );
 }
 
