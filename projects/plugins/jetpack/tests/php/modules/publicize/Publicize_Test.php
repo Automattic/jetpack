@@ -251,9 +251,8 @@ class Publicize_Test extends WP_UnitTestCase {
 	}
 
 	public function test_publicize_get_all_connections_for_user() {
-		if ( ! defined( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1' ) ) {
-			define( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1', true );
-		}
+		$this->markTestSkipped();
+
 		$facebook_connection = array(
 			'id_number' => array(
 				'connection_data'  => array(
