@@ -46,16 +46,16 @@ function render( dp: IDatePicker ) {
 		'<button tabindex="-1" type="button" aria-label="' +
 		lang.months[ hilightedMonth ] +
 		lang.ariaLabel.monthPickerButton +
-		'" class="dp-focusable dp-cal-month">' +
+		'" class="dp-focusable dp-cal-month dp-cal-dropdown">' +
 		lang.months[ hilightedMonth ] +
 		'</button>' +
 		'<button tabindex="-1" type="button" aria-label="' +
 		highlightedDate!.getFullYear() +
-		'Year Picker. Use the space key to enter the year picker." class="dp-focusable dp-cal-year">' +
+		'Year Picker. Use the space key to enter the year picker." class="dp-focusable dp-cal-year dp-cal-dropdown">' +
 		highlightedDate!.getFullYear() +
 		'</button>' +
-		'<button tabindex="-1" type="button" class="dp-focusable dp-prev">Previous Month</button>' +
-		'<button tabindex="-1" type="button" class="dp-focusable dp-next">Next Month</button>' +
+		'<button tabindex="-1" type="button" class="dp-focusable dp-prev dp-cal-nav">Previous Month</button>' +
+		'<button tabindex="-1" type="button" class="dp-focusable dp-next dp-cal-nav">Next Month</button>' +
 		'</header>' +
 		'<div class="dp-days">' +
 		dayNames

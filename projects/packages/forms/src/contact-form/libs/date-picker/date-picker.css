@@ -22,6 +22,7 @@
 
 	--dp-min-height: 274px;
 	--dp-bold: 600;
+	--dp-nav-radius: 2px;
 
 	--dp-ui-background: transparent;
 	--dp-ui-color: #333;
@@ -123,7 +124,7 @@
 	text-decoration: none;
 	position: relative;
 	color: var( --dp-date-color );
-	border-radius: 2px;
+	border-radius: var( --dp-nav-radius );
 	border: 0;
 	background: var( --dp-date-background );
 }
@@ -135,23 +136,20 @@
 	align-items: center;
 }
 
-.dp-next,
-.dp-prev {
+.dp-cal-nav {
 	position: absolute;
 	width: 36px;
 	height: 36px;
 	overflow: hidden;
 	color: var( --dp-ui-color );
-	border-radius: 50%;
+	border-radius: var( --dp-nav-radius );
 	border: 0;
 	background: var( --dp-ui-background );
 	padding: 0;
 }
 
-.dp-next:focus,
-.dp-prev:focus,
-.dp-next:hover,
-.dp-prev:hover {
+.dp-cal-nav:focus,
+.dp-cal-nav:hover {
 	background: var( --dp-ui-background-focus );
 	color: var( --dp-ui-color-focus );
 }
@@ -164,8 +162,7 @@
 	right: 3px;
 }
 
-.dp-prev:before,
-.dp-next:before {
+.dp-cal-nav:before {
 	content: '';
 	border: 2px solid;
 	width: 6px;
@@ -179,21 +176,38 @@
 .dp-prev:before {
 	border-right: 0;
 	border-bottom: 0;
-	}
+}
 
 .dp-next:before {
 	border-left: 0;
 	border-top: 0;
 	margin-left: 0;
-	margin-right: 4px;
+	margin-right: -20px;
 }
 
-.dp-cal-month,
-.dp-cal-year {
+.dp-cal-dropdown:after {
+	content: '';
+	border: 2px solid;
+	border-right: 0;
+	border-bottom: 0;
+	width: 6px;
+	height: 6px;
+	position: relative;
+	display: inline-block;
+	transform: rotate(-135deg);
+	transition: border-color 0.2s;
+	margin: 0;
+	margin-top: -6px;
+	right: -8px;
+	vertical-align: middle;
+}
+
+.dp-cal-dropdown {
+	position: relative;
 	display: inline-block;
 	font-size: 1.4em;
 	font-weight: var( --dp-bold);
-	padding: 8px 8px;
+	padding: 8px 22px 8px 8px;
 }
 
 .dp-cal-footer {
@@ -287,6 +301,7 @@
 
 .dp-month {
 	font-size: 1.4em;
+	padding: 0;
 }
 
 .dp-year {
