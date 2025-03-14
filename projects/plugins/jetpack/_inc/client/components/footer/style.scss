@@ -102,7 +102,7 @@
 				padding-right: 20px;
 			}
 		
-			&:focus {
+			&:focus-visible {
 				border-radius: 2px;
 				outline-offset: 3px;
 				outline: 1.5px solid var( --jp-black );
