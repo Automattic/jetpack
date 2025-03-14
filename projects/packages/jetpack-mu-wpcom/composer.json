@@ -44,6 +44,9 @@
 		"test-php": [
 			"@composer phpunit"
 		],
+		"test-js": [
+			"pnpm run test"
+		],
 		"build-production": "pnpm run build-production-js",
 		"build-development": "pnpm run build-js",
 		"watch": [
