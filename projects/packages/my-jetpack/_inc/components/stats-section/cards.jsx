@@ -18,13 +18,17 @@ import styles from './style.module.scss';
  */
 
 const createStatSRText = ( countStat, count, previousCount ) => {
+	if ( typeof count !== 'number' ) {
+		return '';
+	}
+
 	const fragments = [];
 	const statCountText = sprintf( countStat( count ), formatNumber( count ) );
 
 	fragments.push( statCountText.endsWith( '.' ) ? statCountText : `${ statCountText }.` );
 	fragments.push( createStatDiffText( countStat, count, previousCount ) );
 
-	return fragments.join( ' ' );
+	return fragments.filter( Boolean ).join( ' ' );
 };
 
 /**
