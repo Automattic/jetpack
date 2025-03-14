@@ -19,6 +19,7 @@ export type SeoEnhancerState = {
 	isTogglingAutoEnhance?: boolean;
 	isAutoEnhanceEnabled?: boolean;
 	busyImages?: Record< string, boolean >;
+	failedImages?: Record< string, boolean >;
 };
 
 export type SeoEnhancerAction = {
@@ -26,9 +27,11 @@ export type SeoEnhancerAction = {
 		| 'SET_BUSY'
 		| 'SET_IS_TOGGLING_AUTO_ENHANCE'
 		| 'SET_IS_AUTO_ENHANCE_ENABLED'
-		| 'SET_IMAGE_BUSY';
+		| 'SET_IMAGE_BUSY'
+		| 'SET_IMAGE_FAILED';
 	isBusy?: boolean;
 	isToggling?: boolean;
 	isEnabled?: boolean;
 	clientId?: string;
+	failed?: boolean;
 };

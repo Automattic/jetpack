@@ -35,6 +35,7 @@ export const store = createReduxStore( STORE_NAME, {
 		isTogglingAutoEnhance: false,
 		isAutoEnhanceEnabled: enhancerEnabled,
 		busyImages: {},
+		failedImages: {},
 	},
 } );
 

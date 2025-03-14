@@ -26,3 +26,11 @@ export function setImageBusy( clientId: string, isBusy: boolean ) {
 		isBusy,
 	};
 }
+
+export function setImageFailed( clientId: string, failed: boolean ) {
+	return {
+		type: 'SET_IMAGE_FAILED',
+		clientId,
+		failed,
+	};
+}

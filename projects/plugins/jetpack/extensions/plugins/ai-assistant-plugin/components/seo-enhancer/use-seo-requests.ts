@@ -46,8 +46,8 @@ export const useSeoRequests = (
 	const { getPostContent } = usePostContent();
 	const isBusy = useSelect( select => select( store ).isBusy(), [] );
 	const setBusy = useDispatch( store ).setBusy;
-	const { isImageBusy } = useSelect( select => select( store ), [] );
-	const { setImageBusy } = useDispatch( store );
+	const { isImageBusy, hasImageFailed } = useSelect( select => select( store ), [] );
+	const { setImageBusy, setImageFailed } = useDispatch( store );
 
 	const request = useCallback(
 		async ( type: PromptType, block?: Block, useBase64Image: boolean = false ) => {
@@ -150,6 +150,11 @@ export const useSeoRequests = (
 				return;
 			}
 
+			if ( hasImageFailed( block.clientId ) ) {
+				debug( 'Image failed, skipping' );
+				return;
+			}
+
 			try {
 				setImageBusy( block.clientId, true );
 				const response = await request( 'images-alt-text', block, useBase64Image );
@@ -165,10 +170,13 @@ export const useSeoRequests = (
 					return updateAltText( block, true );
 				}
 
+				if ( error?.code !== 'fetch_error' ) {
+					setImageFailed( block.clientId, true );
+				}
 				debug( 'Error updating alt text', error );
 			}
 		},
-		[ isImageBusy, setImageBusy, request, updateBlockAttributes ]
+		[ isImageBusy, hasImageFailed, setImageBusy, request, updateBlockAttributes, setImageFailed ]
 	);
 
 	const updateAltTexts = useCallback(

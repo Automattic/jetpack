@@ -13,6 +13,11 @@ export function reducer( state: SeoEnhancerState, action: SeoEnhancerAction ) {
 			return { ...state, isAutoEnhanceEnabled: action.isEnabled };
 		case 'SET_IMAGE_BUSY':
 			return { ...state, busyImages: { ...state.busyImages, [ action.clientId ]: action.isBusy } };
+		case 'SET_IMAGE_FAILED':
+			return {
+				...state,
+				failedImages: { ...state.failedImages, [ action.clientId ]: action.failed },
+			};
 		default:
 			return state;
 	}

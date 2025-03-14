@@ -22,3 +22,7 @@ export function isImageBusy( state: SeoEnhancerState, clientId: string ) {
 export function isAnyImageBusy( state: SeoEnhancerState ) {
 	return Object.values( state.busyImages ).some( busy => busy );
 }
+
+export function hasImageFailed( state: SeoEnhancerState, clientId: string ) {
+	return state.failedImages[ clientId ] ?? false;
+}
