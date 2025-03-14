@@ -42,7 +42,7 @@
 	}
 
 	.jetpack-contact-form,
-	.block-editor-block-list__layout[class*="wp-block-jetpack-field-option"] {
+	[class*="wp-block-jetpack-field-option"] {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: flex-start;
@@ -109,8 +109,8 @@
 		}
 	}
 
-	.block-editor-block-list__layout[class*="wp-block-jetpack-field-option"] {
-		flex-wrap: nowrap;
+	.wp-block-jetpack-field-option-radio,
+	.wp-block-jetpack-field-option-checkbox {
 		gap: 0;
 
 		> .wp-block {
