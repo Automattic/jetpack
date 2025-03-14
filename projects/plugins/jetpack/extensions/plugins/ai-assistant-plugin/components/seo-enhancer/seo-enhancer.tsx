@@ -6,8 +6,6 @@ import {
 	ToggleControl,
 	Button,
 	PanelRow,
-	Card,
-	CardBody,
 	CheckboxControl,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -40,17 +38,17 @@ export function SeoEnhancer() {
 	>( [
 		{
 			name: 'seo-title',
-			label: __( 'Meta title', 'jetpack' ),
+			label: __( 'SEO title', 'jetpack' ),
 			checked: true,
 		},
 		{
 			name: 'seo-meta-description',
-			label: __( 'Meta description', 'jetpack' ),
+			label: __( 'SEO description', 'jetpack' ),
 			checked: true,
 		},
 		{
 			name: 'images-alt-text',
-			label: __( 'Image alt text', 'jetpack' ),
+			label: __( 'Alt text for images', 'jetpack' ),
 			checked: true,
 		},
 	] );
@@ -82,39 +80,58 @@ export function SeoEnhancer() {
 		<>
 			<PanelRow className="jetpack-seo-sidebar__feature-section jetpack-seo-sidebar__feature-section--toggle">
 				<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
+					<BaseControl.VisualLabel className="ai-seo-enhancer-label">
+						{ __( 'Metadata AI Generator', 'jetpack' ) }
+					</BaseControl.VisualLabel>
 					<ToggleControl
 						checked={ isEnabled }
 						disabled={ isToggling }
 						onChange={ toggleSeoEnhancer }
-						label={ __( 'Auto-fill missing metatags', 'jetpack' ) }
+						label={ __( 'Auto-generate metadata', 'jetpack' ) }
 						__nextHasNoMarginBottom={ true }
 						help={ __(
-							"Automattically generate SEO title, SEO description and images' alt text before publishing.",
+							'When enabled, missing metadata will be automatically generated when you publish a post.',
 							'jetpack'
 						) }
 					/>
 				</BaseControl>
 			</PanelRow>
 			<PanelRow className="jetpack-seo-sidebar__feature-section">
-				<Card size="small">
-					<CardBody size="small">
-						<BaseControl __nextHasNoMarginBottom={ true }>
-							<div className="feature-checkboxes-container">
-								{ features.map( feature => (
-									<CheckboxControl
-										key={ feature.name }
-										label={ feature.label }
-										checked={ feature.checked }
-										onChange={ () => toggleFeature( feature.name ) }
-										__nextHasNoMarginBottom={ true }
-										disabled={ isLoading }
-										className={ isLoading ? 'is-disabled' : '' }
-									/>
-								) ) }
-							</div>
-						</BaseControl>
-					</CardBody>
-				</Card>
+				<BaseControl __nextHasNoMarginBottom={ true }>
+					{ ! isEnabled && (
+						<div className="feature-checkboxes-container">
+							{ features.map( feature => (
+								<CheckboxControl
+									key={ feature.name }
+									label={ feature.label }
+									checked={ feature.checked }
+									onChange={ () => toggleFeature( feature.name ) }
+									__nextHasNoMarginBottom={ true }
+									disabled={ isLoading }
+									className={ isLoading ? 'is-disabled' : '' }
+								/>
+							) ) }
+						</div>
+					) }
+					{ isEnabled && (
+						<div className="jetpack-seo-sidebar__feature-list-container">
+							{ features.some( feature => feature.checked ) ? (
+								<>
+									<p>{ __( "We'll auto-generate:", 'jetpack' ) }</p>
+									<ul className="jetpack-seo-sidebar__feature-list">
+										{ features
+											.filter( feature => feature.checked )
+											.map( feature => (
+												<li key={ feature.name }>{ feature.label }</li>
+											) ) }
+									</ul>
+								</>
+							) : (
+								<p>{ __( 'No features selected to auto-generate', 'jetpack' ) }</p>
+							) }
+						</div>
+					) }
+				</BaseControl>
 			</PanelRow>
 			<PanelRow className="jetpack-seo-sidebar__feature-section">
 				<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
@@ -125,7 +142,7 @@ export function SeoEnhancer() {
 						variant="secondary"
 						__next40pxDefaultSize
 					>
-						{ __( 'Generate SEO properties', 'jetpack' ) }
+						{ __( 'Generate metadata', 'jetpack' ) }
 					</Button>
 				</BaseControl>
 			</PanelRow>
