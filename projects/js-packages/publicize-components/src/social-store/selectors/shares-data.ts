@@ -1,4 +1,3 @@
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector } from '@wordpress/data';
 import { getSocialScriptData } from '../../utils';
@@ -9,12 +8,7 @@ import { getSocialScriptData } from '../../utils';
  * @return The shares data
  */
 const getSharesData = select => {
-	// On WordPress.com platform sites, use script data directly
-	if ( isWpcomPlatformSite() ) {
-		return getSocialScriptData().shares_data || {};
-	}
-
-	const data = select( coreStore ).getEntityRecord( 'wpcom/v2', 'jetpack-social' );
+	const data = select( coreStore ).getEntityRecord( 'wpcom/v2', 'publicize/shares-data' );
 	return data || getSocialScriptData().shares_data || {};
 };
 

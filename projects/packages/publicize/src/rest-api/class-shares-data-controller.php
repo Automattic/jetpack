@@ -17,7 +17,7 @@ use WP_REST_Server;
 /**
  * Jetpack Social Controller class.
  */
-class Jetpack_Social_Controller extends Base_Controller {
+class Shares_Data_Controller extends Base_Controller {
 
 	use WPCOM_REST_API_Proxy_Request;
 
@@ -31,7 +31,7 @@ class Jetpack_Social_Controller extends Base_Controller {
 		$this->version       = 'v2';
 
 		$this->namespace = "{$this->base_api_path}/{$this->version}";
-		$this->rest_base = 'jetpack-social';
+		$this->rest_base = 'publicize/shares-data';
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
@@ -61,7 +61,15 @@ class Jetpack_Social_Controller extends Base_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_items( $request ) {
-		$response = $this->proxy_request_to_wpcom_as_blog(
+		if ( Utils::is_wpcom() ) {
+			global $publicize;
+
+			return rest_ensure_response(
+				$publicize->get_publicize_shares_info( get_current_blog_id() )
+			);
+		}
+
+		$response = $this->proxy_request_to_wpcom_as_user(
 			$request
 		);
 
@@ -81,11 +89,6 @@ class Jetpack_Social_Controller extends Base_Controller {
 	 * @return true|WP_Error
 	 */
 	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// We only support this endpoint for self-hosted sites.
-		if ( Utils::is_wpcom() ) {
-			return new WP_Error( 'invalid_request', 'This endpoint is not available for WordPress.com sites.', array( 'status' => 404 ) );
-		}
-
 		return $this->publicize_permissions_check();
 	}
 }
