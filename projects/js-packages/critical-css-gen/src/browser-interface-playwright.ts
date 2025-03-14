@@ -30,10 +30,24 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 		// Close existing tabs
 		await this.closeTabs();
 
+		// Open new tabs
+		await this.openTabs( this.context, urls );
+	}
+
+	/**
+	 * Open an array of urls in a new browser context.
+	 *
+	 * Take a browser instance and an array of urls to open in new tabs.
+	 *
+	 * @param {BrowserContext} context - Browser context to use.
+	 * @param {string[]}       urls    - Array of urls to open.
+	 * @return {Promise< TabsByUrl >} Promise resolving to the browser context.
+	 */
+	private async openTabs( context: BrowserContext, urls: string[] ): Promise< void > {
 		// Load new batch of URLs
 		this.tabs = await objectPromiseAll< Tab >(
 			urls.reduce( ( set, url ) => {
-				set[ url ] = this.newTab( this.context, url );
+				set[ url ] = this.newTab( context, url );
 				return set;
 			}, {} )
 		);
