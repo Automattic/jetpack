@@ -3,6 +3,7 @@ import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useState, cloneElement, type FC } from 'react';
+import LoadingBlock from '../loading-block';
 import styles from './style.module.scss';
 
 interface BaseProductInterstitialModalProps {
@@ -46,6 +47,10 @@ interface BaseProductInterstitialModalProps {
 	 * Show additional column in the modal switching to three columns layout (additional column is always on the right)
 	 */
 	additionalColumn?: React.ReactNode;
+	/**
+	 * Loading state of the modal
+	 */
+	isLoading: boolean;
 	/**
 	 * On open callback of the modal
 	 */
@@ -139,6 +144,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		isWithVideo = true,
 		additionalColumn = false,
 		priceComponent,
+		isLoading,
 	} = props;
 
 	const [ isOpen, setOpen ] = useState( false );
@@ -202,14 +208,22 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 											{ title }
 										</Text>
 									</div>
-									{ description && (
-										<Text variant="body" className={ styles.description }>
-											{ description }
-										</Text>
+									{ isLoading ? (
+										<LoadingBlock height="50px" width="100%" />
+									) : (
+										description && (
+											<Text variant="body" className={ styles.description }>
+												{ description }
+											</Text>
+										)
 									) }
 									{ children }
-									{ priceComponent && (
-										<div className={ styles[ 'price-container' ] }>{ priceComponent }</div>
+									{ isLoading ? (
+										<LoadingBlock height="100px" width="100%" />
+									) : (
+										priceComponent && (
+											<div className={ styles[ 'price-container' ] }>{ priceComponent }</div>
+										)
 									) }
 								</div>
 								<div className={ styles[ 'primary-footer' ] }>

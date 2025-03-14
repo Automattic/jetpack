@@ -25,12 +25,16 @@ add_action( 'current_screen', 'import_page_customizations_init' );
  * Displays a banner on the wp-admin/import.php page that links to the Calypso importer.
  */
 function import_admin_banner() {
-	if ( ! function_exists( 'wpcom_get_site_slug' ) ) {
+	if ( ! function_exists( 'get_wpcom_blog_id' ) ) {
 		require_once __DIR__ . '/../../utils.php';
 	}
 
-	$site_slug  = wpcom_get_site_slug();
-	$import_url = esc_url( "https://wordpress.com/setup/hosted-site-migration?siteSlug={$site_slug}&ref=wp-admin" );
+	$blog_id = get_wpcom_blog_id();
+	if ( false === $blog_id ) {
+		return;
+	}
+
+	$import_url = esc_url( "https://wordpress.com/setup/hosted-site-migration/site-migration-import-or-migrate?siteId={$blog_id}&ref=wp-admin" );
 
 	$banner_content = sprintf(
 		'<p>%s</p><a href="%s" class="button">%s</a>',

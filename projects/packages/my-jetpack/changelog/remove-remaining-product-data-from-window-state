@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Call Protect and VideoPress product data on the frontend and remove from window state

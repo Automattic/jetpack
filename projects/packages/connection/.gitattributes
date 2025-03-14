@@ -3,8 +3,6 @@
 .github/         export-ignore
 package.json     export-ignore
 docs/            export-ignore
-phpunit.xml.dist export-ignore
-tests/           export-ignore
 
 # Files to include in the mirror repo
 /dist/**         production-include
@@ -12,6 +10,7 @@ tests/           export-ignore
 # Files not needed in the production build.
 .phpcs.dir.xml    production-exclude
 /changelog/**     production-exclude
+/tests/**         production-exclude
 .gitignore        production-exclude
 src/js/**         production-exclude
 webpack.config.js production-exclude

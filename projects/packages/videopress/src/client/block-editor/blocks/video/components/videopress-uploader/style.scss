@@ -42,10 +42,15 @@
 		transition: width 0.3s ease;
 	}
 
-	&__actions {
+	&__actions,
+	&__error-actions {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+	}
+	
+	&__error-actions {
+		gap: 16px;
 	}
 }
 

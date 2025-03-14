@@ -120,11 +120,13 @@ class Jetpack_Boost {
 		// Initiate jetpack sync.
 		$this->init_sync();
 
-		add_action( 'admin_init', array( $this, 'handle_version_change' ) );
+		add_action( 'admin_init', array( $this, 'schedule_version_change' ) );
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
 		add_action( 'jetpack_boost_critical_css_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
+
+		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -150,15 +152,21 @@ class Jetpack_Boost {
 		register_deactivation_hook( $plugin_file, array( $this, 'deactivate' ) );
 	}
 
-	public function handle_version_change() {
+	public function schedule_version_change() {
 		$version = get_option( 'jetpack_boost_version' );
 
 		if ( $version === JETPACK_BOOST_VERSION ) {
 			return;
 		}
-
 		update_option( 'jetpack_boost_version', JETPACK_BOOST_VERSION );
 
+		// Schedule the cron event to handle the version change. This ensures the previous version's handle is always flushed.
+		if ( ! wp_next_scheduled( 'jetpack_boost_handle_version_change_cron' ) ) {
+			wp_schedule_single_event( time() + 2, 'jetpack_boost_handle_version_change_cron' );
+		}
+	}
+
+	public function handle_version_change() {
 		$is_atomic = Boost_Admin_Config::get_hosting_provider() === 'atomic';
 		$is_woa    = Boost_Admin_Config::get_hosting_provider() === 'woa';
 		if ( $is_atomic || $is_woa ) {
@@ -310,6 +318,10 @@ class Jetpack_Boost {
 		foreach ( $option_names as $option_name ) {
 			delete_option( $option_name );
 		}
+
+		// Delete the last run options for the network-wide cron jobs.
+		delete_site_option( 'jetpack_boost_404_tester_last_run' );
+		delete_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run' );
 
 		// Delete stored Critical CSS.
 		( new Critical_CSS_Storage() )->clear();

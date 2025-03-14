@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  */
 class Test_Environment {
 
-	const PACKAGE_VERSION = '0.1.3';
+	const PACKAGE_VERSION = '0.1.4';
 
 	/**
 	 * Whether the environment has been initialized.

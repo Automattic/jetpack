@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.82.0] - 2025-03-12
+### Added
+- Add a helper function to get the max message length [#42325]
+- Add internal state for the ScheduleButton component [#42372]
+- Provide connection data to footer component. [#42000]
+- Publicize Components: Add the schedule button [#42313]
+- Social: Configure data store to handle scheduled shares. [#42296]
+
+### Changed
+- Update package dependencies. [#42384]
+
+## [0.81.0] - 2025-03-10
+### Added
+- Social: Add the ConnectionList and Item components. [#42233]
+- Social: Add the TabbedModal pure component. [#42298]
+- Social: Add scheduled post components. [#42221]
+
+### Changed
+- Social: Clean up the MessageBoxControl component. [#42253]
+- Social: Move resharing into the post modal. [#42224]
+- Social: Move JS editor code from Jetpack and Social to Publicize package. [#41836]
+- Update package dependencies. [#42162]
+
 ## [0.80.0] - 2025-03-03
 ### Security
 - Social: Moved Mastodon input form to start. [#41986]
@@ -1121,6 +1144,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.82.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.81.0...v0.82.0
+[0.81.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.80.0...v0.81.0
 [0.80.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.79.0...v0.80.0
 [0.79.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.78.0...v0.79.0
 [0.78.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.77.2...v0.78.0
