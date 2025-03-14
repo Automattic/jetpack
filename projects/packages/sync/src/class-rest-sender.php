@@ -102,7 +102,9 @@ class REST_Sender {
 		Sender::get_instance()->set_enqueue_wait_time( 0 );
 		remove_filter( 'jetpack_sync_send_data', $original_send_data_cb );
 		add_filter( 'jetpack_sync_send_data', $temp_send_data_cb, 10, 6 );
+		delete_transient( Sender::TEMP_FULL_SYNC_DISABLE_TRANSIENT_NAME );
 		Sender::get_instance()->do_full_sync();
+		set_transient( Sender::TEMP_FULL_SYNC_DISABLE_TRANSIENT_NAME, time(), Sender::TEMP_FULL_SYNC_DISABLE_TRANSIENT_EXPIRY );
 		remove_filter( 'jetpack_sync_send_data', $temp_send_data_cb );
 		add_filter( 'jetpack_sync_send_data', $original_send_data_cb, 10, 6 );
 

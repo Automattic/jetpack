@@ -25,7 +25,7 @@ class Sender {
 	const NEXT_SYNC_TIME_OPTION_NAME = 'jetpack_next_sync_time';
 
 	/**
-	 * Name of the transient responsible for temprorarily disabling Sync sending during Pulls.
+	 * Name of the transient responsible for temporarily disabling Sync sending during Pulls.
 	 *
 	 * @access public
 	 *
@@ -34,13 +34,31 @@ class Sender {
 	const TEMP_SYNC_DISABLE_TRANSIENT_NAME = 'jetpack_disable_sync_sending';
 
 	/**
-	 * Expiry of the transient responsible for temprorarily disabling Sync sending during Pulls.
+	 * Expiry of the transient responsible for temporarily disabling Sync sending during Pulls.
 	 *
 	 * @access public
 	 *
 	 * @var int
 	 */
 	const TEMP_SYNC_DISABLE_TRANSIENT_EXPIRY = MINUTE_IN_SECONDS;
+
+	/**
+	 * Name of the transient responsible for temporarily disabling Full Sync sending during Pulls.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
+	const TEMP_FULL_SYNC_DISABLE_TRANSIENT_NAME = 'jetpack_disable_full_sync_sending';
+
+	/**
+	 * Expiry of the transient responsible for temporarily disabling Full Sync sending during Pulls.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const TEMP_FULL_SYNC_DISABLE_TRANSIENT_EXPIRY = MINUTE_IN_SECONDS;
 
 	/**
 	 * Sync timeout after a WPCOM error.
@@ -299,6 +317,10 @@ class Sender {
 		// Full Sync Disabled.
 		if ( ! Settings::get_setting( 'full_sync_sender_enabled' ) ) {
 			return;
+		}
+
+		if ( get_transient( self::TEMP_FULL_SYNC_DISABLE_TRANSIENT_NAME ) ) {
+			return new WP_Error( 'sender_temporarily_disabled_while_pulling' );
 		}
 
 		// Don't sync if request is marked as read only.
