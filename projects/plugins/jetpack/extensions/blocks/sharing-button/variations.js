@@ -122,9 +122,8 @@ export const variations = [
 		// translators: option to share the content - a verb labelling a button.
 		title: __( 'Native Share', 'jetpack' ),
 		icon: <SocialLogo icon={ 'share' } size={ 24 } />,
-		//TODO: we can add link in the future to proper documentation
 		description: __(
-			'Share with native tools on users device or copy to clipboard otherwise',
+			'Share the post using your phone’s built-in sharing menu, or copy the link to the clipboard on desktop.',
 			'jetpack'
 		),
 	},

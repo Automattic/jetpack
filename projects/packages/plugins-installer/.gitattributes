@@ -12,5 +12,4 @@ package.json      export-ignore
 .phpcs.dir.xml    production-exclude
 .gitignore        production-exclude
 changelog/**      production-exclude
-phpunit.xml.dist  production-exclude
 tests/**          production-exclude

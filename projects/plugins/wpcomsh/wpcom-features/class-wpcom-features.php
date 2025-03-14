@@ -578,7 +578,7 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 		),
 		self::CLASSIC_SEARCH                    => array(
-			self::WPCOM_WOOEXPRESS_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::JETPACK_SEARCH_PLANS,
 			self::JETPACK_COMPLETE_PLANS,

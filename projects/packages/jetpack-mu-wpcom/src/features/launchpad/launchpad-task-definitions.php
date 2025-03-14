@@ -389,6 +389,17 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_disabled_callback' => '__return_true',
 		),
 
+		// Publish a Blog tasks.
+		'complete_profile'                => array(
+			'get_title'            => function () {
+				return __( 'Complete your profile', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function () {
+				return '/me#complete-your-profile';
+			},
+		),
+
 		// Keep Building tasks.
 		'site_title'                      => array(
 			'get_title'            => function () {
@@ -2403,11 +2414,19 @@ function wpcom_launchpad_is_front_page_updated_visible() {
 /**
  * Determine `site_title` task visibility. The task is not visible if the name was already set.
  *
+ * @param Task  $task The task data.
+ * @param bool  $is_visible Whether the task is currently visible.
+ * @param array $data Metadata about the launchpad.
+ *
  * @return bool True if we should show the task, false otherwise.
  */
-function wpcom_launchpad_is_site_title_task_visible() {
+function wpcom_launchpad_is_site_title_task_visible( $task, $is_visible, $data ) {
 	// Hide the task if it's already completed on write intent
-	if ( get_option( 'site_intent' ) === 'write' && wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_title' ) ) ) {
+	if (
+		( $data['launchpad_context'] !== 'focused-customer-home' || ! $data['updated_write_tasklist'] ) &&
+		get_option( 'site_intent' ) === 'write' &&
+		wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_title' ) )
+	) {
 		return false;
 	}
 	return true;

@@ -16,7 +16,6 @@ export { default as SocialImageGeneratorToggle } from './src/components/social-i
 export { default as TemplatePickerButton } from './src/components/social-image-generator/template-picker/button';
 export { default as PublicizePanel } from './src/components/panel';
 export { default as ReviewPrompt } from './src/components/review-prompt';
-export { default as PostPublishPanels } from './src/components/post-publish-panels';
 export { default as ConnectionManagement } from './src/components/connection-management';
 export { default as UtmToggle } from './src/components/utm-toggle';
 

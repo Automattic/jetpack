@@ -10,17 +10,16 @@ import useInstallPlugins from '../../data/products/use-install-plugins';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import createCookie from '../../utils/create-cookie';
 import useAnalytics from '../use-analytics';
 import { useGetPaidPlanNeedsPluginsContent } from './get-paid-plan-needs-plugins-content';
+import type { NoticeHookType } from './types';
 import type { NoticeOptions } from '../../context/notices/types';
-import type { MyJetpackInitialState } from '../../data/types';
 
-type RedBubbleAlerts = MyJetpackInitialState[ 'redBubbleAlerts' ];
-
-// The notice will not show again for 14 days (when clicking the close(X) button).
-const NUM_DAYS_COOKIE_EXPIRES = 14;
-
-const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
+const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
+	redBubbleAlerts,
+	isLoading
+) => {
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { recordEvent } = useAnalytics();
 
@@ -31,16 +30,25 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		options: { enabled: isSiteConnected },
 	} );
 
-	const { isLoading, isError } = response;
+	const { isLoading: isLoadingPurchases, isError } = response;
 	const purchases = response.data;
 
-	const isPurchasesDataLoaded = purchases && ! isLoading && ! isError;
+	const isPurchasesDataLoaded = purchases && ! isLoadingPurchases && ! isError;
 
-	const pluginsNeedingActionAlerts = Object.keys( redBubbleAlerts ).filter( key =>
-		key.endsWith( '--plugins_needing_installed_activated' )
-	) as Array< `${ string }--plugins_needing_installed_activated` >;
+	const redBubbleAlertCount =
+		typeof redBubbleAlerts === 'object' ? Object.keys( redBubbleAlerts ).length : 0;
 
-	const alert = redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
+	const pluginsNeedingActionAlerts = useMemo( () => {
+		if ( isLoading || redBubbleAlertCount === 0 ) {
+			return [];
+		}
+
+		return Object.keys( redBubbleAlerts ).filter( key =>
+			key.endsWith( '--plugins_needing_installed_activated' )
+		) as Array< `${ string }--plugins_needing_installed_activated` >;
+	}, [ isLoading, redBubbleAlertCount, redBubbleAlerts ] );
+
+	const alert = redBubbleAlerts?.[ pluginsNeedingActionAlerts[ 0 ] ];
 	const alertSlug = pluginsNeedingActionAlerts[ 0 ];
 	const planSlug = alertSlug?.split( '--' )[ 0 ];
 	const planPurchase = useMemo( () => {
@@ -48,6 +56,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 			isPurchasesDataLoaded && purchases.find( purchase => purchase.product_slug === planSlug )
 		);
 	}, [ isPurchasesDataLoaded, planSlug, purchases ] );
+
 	const planName = planPurchase && planPurchase.product_name;
 	const { needs_installed, needs_activated_only } = alert || {};
 	const numPluginsNeedingAction =
@@ -146,9 +155,9 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 	);
 
 	const onCloseClick = useCallback( () => {
-		const expireDate = new Date( Date.now() + 1000 * 3600 * 24 * NUM_DAYS_COOKIE_EXPIRES );
-		document.cookie = `${ planSlug }--plugins_needing_installed_dismissed=1; expires=${ expireDate.toString() }; SameSite=None; Secure`;
+		createCookie( `${ planSlug }--plugins_needing_installed_dismissed`, 14 );
 		delete redBubbleAlerts[ pluginsNeedingActionAlerts[ 0 ] ];
+
 		resetNotice();
 	}, [ planSlug, pluginsNeedingActionAlerts, redBubbleAlerts, resetNotice ] );
 
@@ -233,20 +242,21 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 						{ noticeMessage }
 					</Text>
 					<ul className="plugins-list">
-						{ pluginsList.map( ( pluginInfo, index ) => {
-							return (
-								<li key={ index } className="plugin-item">
-									{ pluginInfo.action === 'activate' ? (
-										<a href="/wp-admin/plugins.php">{ pluginInfo.pluginName }</a>
-									) : (
-										<ExternalLink href={ pluginInfo.pluginUri }>
-											{ pluginInfo.pluginName }
-										</ExternalLink>
-									) }
-									<span>({ actionNounMap[ pluginInfo.action ] })</span>
-								</li>
-							);
-						} ) }
+						{ pluginsList?.length > 0 &&
+							pluginsList.map( ( pluginInfo, index ) => {
+								return (
+									<li key={ index } className="plugin-item">
+										{ pluginInfo.action === 'activate' ? (
+											<a href="/wp-admin/plugins.php">{ pluginInfo.pluginName }</a>
+										) : (
+											<ExternalLink href={ pluginInfo.pluginUri }>
+												{ pluginInfo.pluginName }
+											</ExternalLink>
+										) }
+										<span>({ actionNounMap[ pluginInfo.action ] })</span>
+									</li>
+								);
+							} ) }
 					</ul>
 				</Col>
 			</>
@@ -282,11 +292,13 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 			priority: NOTICE_PRIORITY_MEDIUM + ( isInstallingOrActivating ? 1 : 0 ),
 		};
 
-		setNotice( {
-			title: noticeTitle,
-			message: noticeContent,
-			options: noticeOptions,
-		} );
+		if ( ! isLoading ) {
+			setNotice( {
+				title: noticeTitle,
+				message: noticeContent,
+				options: noticeOptions,
+			} );
+		}
 	}, [
 		actionType,
 		noticeTitle,
@@ -303,6 +315,8 @@ const usePaidPlanNeedsPluginInstallActivationNotice = ( redBubbleAlerts: RedBubb
 		setNotice,
 		isInstalling,
 		isActivating,
+		planSlug,
+		isLoading,
 	] );
 };
 

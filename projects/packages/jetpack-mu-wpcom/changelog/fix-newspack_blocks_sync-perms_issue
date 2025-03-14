@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Newspack Blocks: Fix perms issue with block.json files.

@@ -12,6 +12,7 @@ import {
 	JetpackVideoPressLogo,
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { SelectControl, RadioControl, CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import {
@@ -297,6 +298,7 @@ const EditVideoDetails = () => {
 						/>
 					</>
 				}
+				useInternalLinks={ shouldUseInternalLinks() }
 			>
 				<AdminSection>
 					<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>

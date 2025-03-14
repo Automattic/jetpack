@@ -54,7 +54,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 
 		if ( Jetpack::is_connection_ready() ) {
 			$site_id  = Jetpack_Options::get_option( 'id' );
-			$api_path = sprintf( '/sites/%d/subscribers/counts', $site_id );
+			$api_path = sprintf( '/sites/%d/subscribers/stats', $site_id );
 			$response = Client::wpcom_json_api_request_as_blog(
 				$api_path,
 				'2',
@@ -71,6 +71,14 @@ class Jetpack_Newsletter_Dashboard_Widget {
 
 				if ( isset( $subscriber_counts['counts']['paid_subscribers'] ) ) {
 					$config_data['paidSubscribers'] = (int) $subscriber_counts['counts']['paid_subscribers'];
+				}
+
+				if ( isset( $subscriber_counts['counts']['all_subscribers'] ) ) {
+					$config_data['allSubscribers'] = (int) $subscriber_counts['counts']['all_subscribers'];
+				}
+
+				if ( isset( $subscriber_counts['aggregate'] ) ) {
+					$config_data['subscriberTotalsByDate'] = $subscriber_counts['aggregate'];
 				}
 			}
 		}
@@ -99,7 +107,12 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			wp_add_dashboard_widget(
 				self::$widget_id,
 				$widget_title,
-				array( static::class, 'render' )
+				array( static::class, 'render' ),
+				// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+				null,
+				array(),
+				'side',
+				'high'
 			);
 		}
 	}

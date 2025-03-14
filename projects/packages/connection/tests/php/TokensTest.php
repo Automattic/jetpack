@@ -18,7 +18,6 @@ use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
  * Tokens functionality testing.
  */
 class TokensTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Used by filters to set the current `site_url`.

@@ -39,6 +39,7 @@ jobs:
     timeout-minutes: 2  # 2022-12-20: Seems like it should be fast.
     outputs:
       upgrade_check: ${{ steps.upgrade_check.outputs.id }}
+      wpcom_filename_check: ${{ steps.wpcom_filename_check.outputs.id }}
     steps:
       - name: Log info
         run: |
@@ -58,6 +59,18 @@ jobs:
         uses: ./.github/actions/check-run
         with:
           name: Test plugin upgrades
+          sha: ${{ github.event.workflow_run.head_sha }}
+          status: queued
+          title: Test queued...
+          summary: |
+            ${{ env.SUMMARY }}
+          token: ${{ steps.get_token.outputs.token }}
+
+      - name: 'Create "Test wpcom filename restrictions" check'
+        id: wpcom_filename_check
+        uses: ./.github/actions/check-run
+        with:
+          name: Test wpcom filename restrictions
           sha: ${{ github.event.workflow_run.head_sha }}
           status: queued
           title: Test queued...
@@ -85,6 +98,18 @@ jobs:
         uses: ./.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.upgrade_check }}
+          conclusion: cancelled
+          title: Build failed
+          summary: |
+            ${{ env.SUMMARY }}
+
+            Post-build run aborted because the build did not succeed.
+          token: ${{ steps.get_token.outputs.token }}
+
+      - name: 'Mark "Test wpcom filename restrictions" cancelled'
+        uses: ./.github/actions/check-run
+        with:
+          id: ${{ needs.setup.outputs.wpcom_filename_check }}
           conclusion: cancelled
           title: Build failed
           summary: |
@@ -156,6 +181,18 @@ jobs:
 
             Post-build run aborted because the "Find artifact" step failed.
           token: ${{ steps.get_token.outputs.token }}
+      - name: 'Mark "Test wpcom filename restrictions" failed'
+        if: ${{ ! success() }}
+        uses: ./.github/actions/check-run
+        with:
+          id: ${{ needs.setup.outputs.wpcom_filename_check }}
+          conclusion: failure
+          title: Failed to find build artifact
+          summary: |
+            ${{ env.SUMMARY }}
+
+            Post-build run aborted because the "Find artifact" step failed.
+          token: ${{ steps.get_token.outputs.token }}
 
   no_plugins:
     name: Handle no-plugins
@@ -177,6 +214,18 @@ jobs:
         uses: ./.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.upgrade_check }}
+          conclusion: skipped
+          title: No plugins were built
+          summary: |
+            ${{ env.SUMMARY }}
+
+            Post-build run skipped because no plugins were built.
+          token: ${{ steps.get_token.outputs.token }}
+
+      - name: 'Mark "Test wpcom filename restrictions" skipped'
+        uses: ./.github/actions/check-run
+        with:
+          id: ${{ needs.setup.outputs.wpcom_filename_check }}
           conclusion: skipped
           title: No plugins were built
           summary: |
@@ -289,6 +338,81 @@ jobs:
             ${{ env.SUMMARY }}
 
             ${{ steps.zips.outputs.info }}${{ steps.tests.outputs.info }}
+
+            See run [#${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+          token: ${{ steps.get_token.outputs.token }}
+
+  wpcom_filename_test:
+    name: Test wpcom filename restrictions
+    runs-on: ubuntu-latest
+    needs: [ setup, find_artifact ]
+    if: needs.find_artifact.outputs.any_plugins == 'true'
+    timeout-minutes: 15  # 2025-03-03: Guess. Leave time for the downloads.
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: trunk
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_commit.id }}
+          path: commit
+
+      - name: Get token
+        id: get_token
+        uses: ./trunk/.github/actions/gh-app-token
+        with:
+          app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
+          private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
+
+      - name: Notify check in progress
+        uses: ./trunk/.github/actions/check-run
+        with:
+          id: ${{ needs.setup.outputs.wpcom_filename_check }}
+          status: in_progress
+          title: Test started...
+          summary: |
+            ${{ env.SUMMARY }}
+
+            See run [#${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+          token: ${{ steps.get_token.outputs.token }}
+
+      - name: Download build artifact
+        env:
+          TOKEN: ${{ github.token }}
+          ZIPURL: ${{ needs.find_artifact.outputs.zip_url }}
+        shell: bash
+        run: |
+          for (( i=1; i<=2; i++ )); do
+            [[ $i -gt 1 ]] && sleep 10
+            echo "::group::Downloading artifact (attempt $i/2)"
+            curl -v -L --get \
+              --header "Authorization: token $TOKEN" \
+              --url "$ZIPURL" \
+              --output "artifact.zip"
+            echo "::endgroup::"
+            if [[ -e "artifact.zip" ]] && zipinfo artifact.zip &>/dev/null; then
+              break
+            fi
+          done
+          [[ ! -e "artifact.zip" ]] && { echo "::error::Failed to download artifact."; exit 1; }
+          unzip artifact.zip
+          tar --xz -xvvf build.tar.xz build
+
+      - name: Test filename restrictions
+        id: tests
+        run: trunk/.github/files/test-wpcom-filename-restrictions.sh
+
+      - name: Notify final status
+        if: always()
+        uses: ./trunk/.github/actions/check-run
+        with:
+          id: ${{ needs.setup.outputs.wpcom_filename_check }}
+          conclusion: ${{ job.status }}
+          title: ${{ job.status == 'success' && 'Tests passed' || job.status == 'cancelled' && 'Cancelled' || 'Tests failed' }}
+          summary: |
+            ${{ env.SUMMARY }}
+
+            ${{ steps.tests.outputs.info }}
 
             See run [#${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
           token: ${{ steps.get_token.outputs.token }}

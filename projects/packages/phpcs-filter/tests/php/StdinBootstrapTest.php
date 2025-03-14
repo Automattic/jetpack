@@ -16,7 +16,6 @@ use RuntimeException;
  * Tests for stdin-bootstrap.php.
  */
 class StdinBootstrapTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	private function runPhpcs( $args, $content ) {
 		$args = array_merge(
