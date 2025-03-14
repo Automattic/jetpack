@@ -621,6 +621,11 @@ export const childBlocks = [
 			edit: EditTextarea,
 			attributes: {
 				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: __( 'Text', 'jetpack-forms' ),
+					role: 'content',
+				},
 			},
 		},
 	},
