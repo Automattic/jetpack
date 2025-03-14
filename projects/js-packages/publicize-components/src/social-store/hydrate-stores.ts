@@ -70,16 +70,6 @@ export async function hydrateStores() {
 				label: __( 'Publicize shares data', 'jetpack-publicize-components' ),
 			},
 		] );
-
-		// @ts-expect-error Only 3 arguments are required, rest are optional but types expect 7
-		await receiveEntityRecords(
-			'wpcom/v2',
-			'publicize/shares-data',
-			getSocialScriptData()?.shares_data,
-			true
-		);
-
-		await finishResolution( 'getEntityRecords', [ 'wpcom/v2', 'publicize/shares-data' ] );
 	}
 
 	if ( ! wpcomEntities.some( ( { name } ) => name === 'publicize/scheduled-actions' ) ) {
