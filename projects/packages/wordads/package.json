@@ -31,7 +31,7 @@
 	},
 	"dependencies": {
 		"@automattic/calypso-color-schemes": "4.0.0",
-		"@automattic/color-studio": "4.0.0",
+		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
