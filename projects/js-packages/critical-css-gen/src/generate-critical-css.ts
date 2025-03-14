@@ -50,7 +50,16 @@ async function collateCssFiles(
 			await browserInterface.loadBatch( batchUrls );
 		}
 
-		const batchSuccesses = await processBatch( browserInterface, batchUrls, cssFiles, errors );
+		const remainingPages = maxPages - totalSuccesses;
+
+		const batchSuccesses = await processBatch(
+			browserInterface,
+			batchUrls,
+			cssFiles,
+			errors,
+			remainingPages
+		);
+
 		totalSuccesses += batchSuccesses;
 
 		// Add failed URLs from this batch to failedUrls set
@@ -81,17 +90,24 @@ async function collateCssFiles(
  * @param {string[]}         urls             - list of URLs to scan for CSS files
  * @param {CSSFileSet}       cssFiles         - CSSFileSet object to update
  * @param {object}           errors           - object to store errors
+ * @param {number}           remainingPages   - number of pages to process in this batch
  * @return {Promise< number >} - number of successes
  */
 async function processBatch(
 	browserInterface: BrowserInterface,
 	urls: string[],
 	cssFiles: CSSFileSet,
-	errors: { [ url: string ]: UrlError }
+	errors: { [ url: string ]: UrlError },
+	remainingPages: number
 ): Promise< number > {
 	let successes = 0;
 
 	for ( const url of urls ) {
+		// Stop if we've hit our target
+		if ( successes >= remainingPages ) {
+			break;
+		}
+
 		try {
 			const cssIncludes = await browserInterface.getCssIncludes( url );
 
@@ -167,10 +183,12 @@ async function getAboveFoldSelectors( {
 	// Go through all the URLs looking for above-the-fold selectors, and selectors which may be "dangerous"
 	const aboveFoldSelectors = new Set< string >();
 	const dangerousSelectors = new Set< string >();
+	let processedPages = 0;
 
 	// Process URLs in batches
-	for ( let i = 0; i < validUrls.length && i < maxPages; i += batchSize ) {
-		const batchUrls = validUrls.slice( i, i + batchSize );
+	for ( let i = 0; i < validUrls.length && processedPages < maxPages; i += batchSize ) {
+		const remainingPages = maxPages - processedPages;
+		const batchUrls = validUrls.slice( i, i + Math.min( batchSize, remainingPages ) );
 
 		// For Playwright, load the batch of pages
 		if ( browserInterface instanceof BrowserInterfacePlaywright ) {
@@ -179,6 +197,10 @@ async function getAboveFoldSelectors( {
 
 		// Process each URL in the batch
 		for ( const url of batchUrls ) {
+			if ( processedPages >= maxPages ) {
+				break;
+			}
+
 			// Work out which CSS selectors match any element on this page
 			const pageSelectors = await browserInterface.runInPage< string[] >(
 				url,
@@ -206,6 +228,8 @@ async function getAboveFoldSelectors( {
 
 				pageAboveFold.forEach( s => aboveFoldSelectors.add( s ) );
 			}
+
+			processedPages++;
 		}
 	}
 
