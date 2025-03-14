@@ -1,5 +1,6 @@
 import BarChart from '../bar-chart';
 import data from './sample-data';
+import trafficData from './site-traffic-sample';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof BarChart > = {
@@ -46,7 +47,8 @@ export const Default: Story = {
 export const SingleSeries: Story = {
 	args: {
 		...Default.args,
-		data: [ data[ 0 ] ],
+		data: [ trafficData[ 0 ] ],
+		options: { axis: { x: {} } }, //tickFormat: xLabel => xLabel
 	},
 	parameters: {
 		docs: {
