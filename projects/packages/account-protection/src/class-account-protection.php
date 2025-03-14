@@ -175,22 +175,58 @@ class Account_Protection {
 	}
 
 	/**
+	 * Wrapper function for the killswitch constant.
+	 *
+	 * @return bool
+	 */
+	public function is_killswitch_enabled(): bool {
+		return defined( 'DISABLE_JETPACK_ACCOUNT_PROTECTION' ) && DISABLE_JETPACK_ACCOUNT_PROTECTION;
+	}
+
+	/**
+	 * Wrapper function for the Host::is_wpcom_simple() method
+	 *
+	 * @return bool
+	 */
+	public function is_wpcom_simple(): bool {
+		return ( new Host() )->is_wpcom_simple();
+	}
+
+	/**
 	 * Determines if Account Protection is supported in the current environment.
 	 *
 	 * @return bool
 	 */
 	public function is_supported_environment(): bool {
 		// Do not run when killswitch is enabled
-		if ( defined( 'DISABLE_JETPACK_ACCOUNT_PROTECTION' ) && DISABLE_JETPACK_ACCOUNT_PROTECTION ) {
+		if ( $this->is_killswitch_enabled() ) {
 			return false;
 		}
 
 		// Do not run for WordPress.com Simple sites
-		if ( ( new Host() )->is_wpcom_simple() ) {
+		if ( $this->is_wpcom_simple() ) {
 			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Wrapper function for the advanced options constant.
+	 *
+	 * @return bool
+	 */
+	public function is_advanced_options_constant_defined(): bool {
+		return defined( 'ADVANCED_JETPACK_ACCOUNT_PROTECTION' ) && ADVANCED_JETPACK_ACCOUNT_PROTECTION;
+	}
+
+	/**
+	 * Wrapper function for the pressable constant.
+	 *
+	 * @return bool
+	 */
+	public function is_pressable(): bool {
+		return defined( 'IS_PRESSABLE' ) && IS_PRESSABLE;
 	}
 
 	/**
@@ -199,16 +235,34 @@ class Account_Protection {
 	 * @return bool
 	 */
 	public function environment_supports_advanced_options(): bool {
-		if ( defined( 'ADVANCED_JETPACK_ACCOUNT_PROTECTION' ) && ADVANCED_JETPACK_ACCOUNT_PROTECTION ) {
+		if ( $this->is_advanced_options_constant_defined() ) {
 			return true;
 		}
 
 		// Includes environments that do not support auto activation
-		if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+		if ( $this->is_pressable() ) {
 			return true;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Wrapper function for the Jetpack version constant.
+	 *
+	 * @return bool
+	 */
+	public function is_jetpack_version_defined(): bool {
+		return defined( 'JETPACK__VERSION' );
+	}
+
+	/**
+	 * Wrapper function for returning the Jetpack version.
+	 *
+	 * @return string
+	 */
+	public function get_jetpack_version(): string {
+		return JETPACK__VERSION;
 	}
 
 	/**
@@ -218,8 +272,8 @@ class Account_Protection {
 	 */
 	public function has_unsupported_jetpack_version(): bool {
 		// Do not run when Jetpack version is less than 14.5
-		if ( defined( 'JETPACK__VERSION' ) ) {
-			$jetpack_version = JETPACK__VERSION;
+		if ( $this->is_jetpack_version_defined() ) {
+			$jetpack_version = $this->get_jetpack_version();
 
 			if ( is_string( $jetpack_version ) && version_compare( $jetpack_version, '14.5', '<' ) ) {
 				return true;

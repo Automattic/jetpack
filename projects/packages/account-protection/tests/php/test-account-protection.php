@@ -143,4 +143,83 @@ class Account_Protection_Test extends BaseTestCase {
 
 		$this->assertNotContains( Account_Protection::ACCOUNT_PROTECTION_MODULE_NAME, $all_modules, 'The module should have removed itself.' );
 	}
+
+	public function test_is_supported_environment_returns_false_if_killswitch_enabled(): void {
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_killswitch_enabled' ) );
+		$sut->expects( $this->once() )
+			->method( 'is_killswitch_enabled' )
+			->willReturn( true );
+
+		$this->assertFalse( $sut->is_supported_environment() );
+	}
+
+	public function test_is_supported_environment_returns_false_if_wpcom_simple(): void {
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_wpcom_simple' ) );
+
+		$sut->expects( $this->once() )
+			->method( 'is_wpcom_simple' )
+			->willReturn( true );
+
+		$this->assertFalse( $sut->is_supported_environment() );
+	}
+
+	public function test_is_supported_environment_returns_true_if_no_restrictions(): void {
+		$sut = new Account_Protection();
+		$this->assertTrue( $sut->is_supported_environment() );
+	}
+
+	public function test_environment_supports_advanced_options_returns_true_if_advanced_protection_enabled(): void {
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_advanced_options_constant_defined', 'is_pressable' ) );
+		$sut->expects( $this->once() )
+			->method( 'is_advanced_options_constant_defined' )
+			->willReturn( true );
+
+		$this->assertTrue( $sut->environment_supports_advanced_options() );
+	}
+
+	public function test_environment_supports_advanced_options_returns_true_if_pressable(): void {
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_pressable' ) );
+
+		$sut->expects( $this->once() )
+			->method( 'is_pressable' )
+			->willReturn( true );
+
+		$this->assertTrue( $sut->environment_supports_advanced_options() );
+	}
+
+	public function test_environment_supports_advanced_options_returns_false_by_default(): void {
+		$sut = new Account_Protection();
+		$this->assertFalse( $sut->environment_supports_advanced_options() );
+	}
+
+	public function test_has_unsupported_jetpack_version_returns_true_for_old_version(): void {
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_jetpack_version_defined', 'get_jetpack_version' ) );
+		$sut->expects( $this->once() )
+			->method( 'is_jetpack_version_defined' )
+			->willReturn( true );
+
+		$sut->expects( $this->once() )
+			->method( 'get_jetpack_version' )
+			->willReturn( '14.4' );
+
+		$this->assertTrue( $sut->has_unsupported_jetpack_version() );
+	}
+
+	public function test_has_unsupported_jetpack_version_returns_false_for_supported_version(): void {
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_jetpack_version_defined', 'get_jetpack_version' ) );
+		$sut->expects( $this->once() )
+			->method( 'is_jetpack_version_defined' )
+			->willReturn( true );
+
+		$sut->expects( $this->once() )
+			->method( 'get_jetpack_version' )
+			->willReturn( '14.5' );
+
+		$this->assertFalse( $sut->has_unsupported_jetpack_version() );
+	}
+
+	public function test_has_unsupported_jetpack_version_returns_false_if_undefined(): void {
+		$sut = new Account_Protection();
+		$this->assertFalse( $sut->has_unsupported_jetpack_version() );
+	}
 }
