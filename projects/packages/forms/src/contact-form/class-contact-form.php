@@ -251,9 +251,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Adds a quick link to the admin bar for the contact form entries.
 	 *
-	 * @param WP_Admin_Bar $admin_bar The admin bar object.
+	 * @param \WP_Admin_Bar $admin_bar The admin bar object.
 	 */
-	public static function add_quick_link_to_admin_bar( $admin_bar ) {
+	public static function add_quick_link_to_admin_bar( \WP_Admin_Bar $admin_bar ) {
 
 		if ( ! current_user_can( 'edit_pages' ) ) {
 			return;
