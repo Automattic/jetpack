@@ -207,7 +207,7 @@
 .dp-cal-dropdown {
 	position: relative;
 	display: inline-block;
-	font-size: 1.3em;
+	font-size: 16px;
 	font-weight: var( --dp-bold);
 	padding: 8px 22px 8px 8px;
 }
