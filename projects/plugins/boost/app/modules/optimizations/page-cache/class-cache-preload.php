@@ -72,7 +72,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @param array $posts The posts to preload.
 	 * @return void
 	 */
-	public function schedule_preload_cronjob( $posts ) {
+	public function schedule_preload_cronjob( array $posts ) {
 		wp_schedule_single_event( time(), 'jetpack_boost_preload_pages', array( $posts ) );
 	}
 
@@ -140,7 +140,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 */
 	public function handle_post_update( int $post_id ) {
 		if ( Cornerstone_Utils::is_cornerstone_page( $post_id ) ) {
-			$this->schedule_preload( get_permalink( $post_id ) );
+			$this->schedule_preload_cronjob( array( get_permalink( $post_id ) ) );
 		}
 	}
 
@@ -167,7 +167,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 		$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
 		// If the $path is in the Cornerstone Page list, add it to the preload list.
 		if ( in_array( untrailingslashit( $path ), $cornerstone_pages, true ) ) {
-			$this->schedule_preload( $path );
+			$this->schedule_preload_cronjob( array( $path ) );
 		}
 	}
 }
