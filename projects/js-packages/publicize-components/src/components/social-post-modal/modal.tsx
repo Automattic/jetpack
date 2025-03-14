@@ -1,4 +1,8 @@
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import {
+	getJetpackEditorAction,
+	removeJetpackEditorAction,
+	useAnalytics,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Button, Modal, PanelRow } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -62,11 +66,19 @@ export function SocialPostModal() {
 		openSharePostModal();
 	}, [ isModalOpen, openSharePostModal, recordEvent ] );
 
+	const onClose = useCallback( () => {
+		closeSharePostModal();
+
+		if ( getJetpackEditorAction() === 'share_post' ) {
+			removeJetpackEditorAction();
+		}
+	}, [ closeSharePostModal ] );
+
 	return (
 		<PanelRow className={ styles.panel }>
 			{ isModalOpen ? (
 				<RenderSocialPostModal
-					onClose={ closeSharePostModal }
+					onClose={ onClose }
 					title={
 						isPostPublished
 							? _x( 'Share Post', 'The title of the social modal', 'jetpack-publicize-components' )
