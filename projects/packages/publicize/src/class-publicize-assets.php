@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Modules;
 
 /**
  * Publicize_Assets class.
@@ -33,6 +34,11 @@ class Publicize_Assets {
 		$post_type = get_post_type();
 
 		if ( empty( $post_type ) || ! post_type_supports( $post_type, 'publicize' ) ) {
+			return false;
+		}
+
+		// If Jetpack is active and the blocks module is not active, don't enqueue the block editor scripts.
+		if ( defined( 'JETPACK__VERSION' ) && ! ( new Modules() )->is_active( 'blocks' ) ) {
 			return false;
 		}
 
