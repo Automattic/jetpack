@@ -11,6 +11,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/carousel/jetpack-carousel.php';
  * Class Jetpack_Carousel_Test
  */
 class Jetpack_Carousel_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * The tested instance.

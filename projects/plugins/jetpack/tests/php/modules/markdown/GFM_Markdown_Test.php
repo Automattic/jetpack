@@ -13,6 +13,8 @@ require_once JETPACK__PLUGIN_DIR . 'modules/markdown/easy-markdown.php';
  * @covers WPCom_GHF_Markdown_Parser
  */
 class GFM_Markdown_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Test verifying that ~~strikethrough~~ works.
 	 *

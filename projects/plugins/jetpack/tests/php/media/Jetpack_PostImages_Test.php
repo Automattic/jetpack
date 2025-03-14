@@ -3,6 +3,7 @@
 require_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/slideshow.php';
 
 class Jetpack_PostImages_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @author blobaugh

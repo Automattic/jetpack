@@ -4,6 +4,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/slideshow/slideshow.php';
 
 class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**

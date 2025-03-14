@@ -14,6 +14,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-constants.php';
  * @since 4.7.0
  */
 class Jetpack_Sitemap_Constants_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * The capacity constants SITEMAP_MAX_BYTES, SITEMAP_MAX_ITEMS,

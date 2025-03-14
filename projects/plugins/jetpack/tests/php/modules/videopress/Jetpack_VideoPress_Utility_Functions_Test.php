@@ -11,6 +11,7 @@
  * Tests Jetpack_VideoPress_Utility_Functions
  */
 class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Tests a helper function to get the post by guid, when there is no post found.

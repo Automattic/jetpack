@@ -9,6 +9,8 @@
  * Tests the Module Override functionality.
  */
 class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Holder for the module override instance.
 	 *

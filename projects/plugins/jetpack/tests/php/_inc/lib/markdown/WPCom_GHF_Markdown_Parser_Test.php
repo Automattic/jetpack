@@ -14,6 +14,8 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/markdown.php';
  * @covers WPCom_GHF_Markdown_Parser
  */
 class WPCom_GHF_Markdown_Parser_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Test that links are preserved when going through the Markdown parser.
 	 *

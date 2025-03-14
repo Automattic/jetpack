@@ -12,6 +12,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * Test Extra embeds available.
  */
 class Jetpack_Shortcodes_Others_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**

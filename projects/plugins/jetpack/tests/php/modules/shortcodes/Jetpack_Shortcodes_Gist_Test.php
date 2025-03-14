@@ -12,6 +12,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * Gist shortcode tests.
  */
 class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**

@@ -14,6 +14,7 @@ use Automattic\Jetpack\Sync\Settings;
  * @group jetpack-sync
  */
 class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Allowed Tables for current test.

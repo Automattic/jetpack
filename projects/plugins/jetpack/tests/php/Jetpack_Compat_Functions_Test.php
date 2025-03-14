@@ -9,6 +9,7 @@
  * Testing class.
  */
 class Jetpack_Compat_Functions_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @dataProvider provider_wp_startswith

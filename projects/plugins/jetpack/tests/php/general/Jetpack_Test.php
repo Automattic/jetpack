@@ -58,6 +58,7 @@ class MockJetpack_XMLRPC_Server extends Jetpack_XMLRPC_Server {
  * @covers Jetpack
  */
 class Jetpack_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	public static $admin_id = 0;
 

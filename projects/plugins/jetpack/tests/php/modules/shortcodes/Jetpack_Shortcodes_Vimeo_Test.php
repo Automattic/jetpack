@@ -14,6 +14,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * Test our Vimeo embed feature (shortcode as well as embed code).
  */
 class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**

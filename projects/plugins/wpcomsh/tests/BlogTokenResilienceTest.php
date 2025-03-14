@@ -9,6 +9,7 @@
  * Class BlogTokenResilienceTest.
  */
 class BlogTokenResilienceTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Clear values for each test

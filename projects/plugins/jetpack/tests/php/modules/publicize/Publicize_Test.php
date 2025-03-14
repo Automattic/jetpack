@@ -24,6 +24,7 @@ if ( ! function_exists( 'publicize_init' ) ) {
  * @covers Automattic\Jetpack\Publicize\Publicize
  */
 class Publicize_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * In the publish filter?

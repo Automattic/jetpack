@@ -8,6 +8,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * @covers Jetpack_Recipes
  */
 class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**

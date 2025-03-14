@@ -11,6 +11,7 @@ if ( is_multisite() ) :
 	 * Test class for the Jetpack_Network class.
 	 */
 	class Jetpack_Network_Test extends WP_UnitTestCase {
+		use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 		/**
 		 * Confirms the instance is generated from the init.

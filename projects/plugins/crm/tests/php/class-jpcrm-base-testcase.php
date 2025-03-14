@@ -9,6 +9,7 @@ use ZeroBSCRM;
  * Test case that ensures we never have global changes to ZBS that bleeds into other tests.
  */
 abstract class JPCRM_Base_TestCase extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * The original/initial ZBS instance.

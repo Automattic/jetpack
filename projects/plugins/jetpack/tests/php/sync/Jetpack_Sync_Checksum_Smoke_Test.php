@@ -13,6 +13,7 @@ use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
  * @group jetpack-sync
  */
 class Jetpack_Sync_Checksum_Smoke_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Setup Test Data.

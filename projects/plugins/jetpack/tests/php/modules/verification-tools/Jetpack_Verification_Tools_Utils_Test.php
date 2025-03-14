@@ -2,6 +2,7 @@
 require __DIR__ . '/../../../../modules/verification-tools/verification-tools-utils.php';
 
 class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @author cbauerman

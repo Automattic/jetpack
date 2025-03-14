@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Tokens;
 
 class Jetpack_XMLRPC_Server_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	public static $xmlrpc_admin = 0;
 

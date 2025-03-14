@@ -4,6 +4,8 @@
  * Tests for functions in functions.global.php
  */
 class Functions_Global_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Test string returned by jetpack_deprecated_function
 	 *

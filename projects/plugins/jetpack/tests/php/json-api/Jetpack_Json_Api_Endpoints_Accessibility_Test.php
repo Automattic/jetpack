@@ -19,6 +19,8 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
  * Generic tests for Jetpack_JSON_API_Endpoint accessibility.
  */
 class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * An admin user_id.
 	 *

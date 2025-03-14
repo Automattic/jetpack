@@ -11,6 +11,7 @@ require __DIR__ . '/../../../../modules/widgets/twitter-timeline.php';
  * Test Jetpack_Twitter_Timeline_Widget.
  */
 class Twitter_Timeline_Widget_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * The tested instance.

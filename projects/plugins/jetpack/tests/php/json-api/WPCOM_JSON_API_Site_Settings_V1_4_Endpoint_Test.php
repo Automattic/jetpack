@@ -12,6 +12,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
  * Jetpack `sites/%s/settings` endpoint unit tests.
  */
 class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Example of woocommerce_onboarding_profile value.

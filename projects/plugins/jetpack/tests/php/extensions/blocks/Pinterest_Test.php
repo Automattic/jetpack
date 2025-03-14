@@ -12,6 +12,8 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/pinterest/pinterest.php';
  * Pinterest block tests.
  */
 class Pinterest_Test extends \WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Test the Pin type detected for a given Pinterest URL.
 	 *

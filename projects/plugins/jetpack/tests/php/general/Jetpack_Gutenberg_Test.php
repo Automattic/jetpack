@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Blocks;
 
 class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	public $master_user_id = false;
 

@@ -14,6 +14,8 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
  * Generic tests for Jetpack_JSON_API_Endpoint.
  */
 class Jetpack_Base_Json_Api_Endpoints_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * A super admin user used for test.
 	 *

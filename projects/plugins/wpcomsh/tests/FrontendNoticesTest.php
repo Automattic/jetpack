@@ -9,6 +9,7 @@
  * Class FrontendNoticesTest.
  */
 class FrontendNoticesTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Test should display gift notice when plan expired.

@@ -7,6 +7,7 @@ require __DIR__ . '/../../../../modules/infinite-scroll/infinity.php';
  * @covers The_Neverending_Home_Page
  */
 class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	private $infinite_scroll;
 

@@ -11,6 +11,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/photon-cdn.php';
  * Unit tests for the Jetpack_Photon_Static_Assets_CDN class.
  */
 class Jetpack_Photon_Static_Assets_CDN_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Test Jetpack_Photon_Static_Assets_CDN::fix_local_script_translation_path.

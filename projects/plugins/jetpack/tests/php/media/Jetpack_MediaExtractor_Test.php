@@ -3,6 +3,7 @@
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-extractor.php';
 
 class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @author scotchfield

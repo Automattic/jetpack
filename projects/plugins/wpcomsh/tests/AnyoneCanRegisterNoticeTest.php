@@ -9,6 +9,7 @@
  * Class AnyoneCanRegisterNoticeTest.
  */
 class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Run setup steps before each test.

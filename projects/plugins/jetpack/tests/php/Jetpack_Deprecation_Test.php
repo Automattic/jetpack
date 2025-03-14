@@ -1,6 +1,7 @@
 <?php
 
 class Jetpack_Deprecation_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @dataProvider provider_deprecated_file_paths
