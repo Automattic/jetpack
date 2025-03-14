@@ -1,8 +1,8 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { getActiveStyleName } from '../../../../shared/block-styles';
-import { LAYOUT_STYLES } from '../../constants';
 import { defaultColumnsNumber } from '../../edit';
-import Layout from '../../layout';
+import { LAYOUT_STYLES } from './constants';
+import Layout from './layout';
 
 export default function TiledGallerySave( { attributes } ) {
 	const { imageFilter, images } = attributes;
