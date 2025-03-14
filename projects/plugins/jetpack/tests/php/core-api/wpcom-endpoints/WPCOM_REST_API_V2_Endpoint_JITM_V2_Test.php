@@ -140,7 +140,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	/**
 	 * Tests the schema response for OPTIONS requests.
 	 */
-	public function skip_test_schema_request() {
+	public function test_schema_request() {
 		wp_set_current_user( 0 );
 
 		$request  = new WP_REST_Request( 'OPTIONS', '/wpcom/v2/jitm-v2' );
@@ -154,7 +154,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	/**
 	 * Tests the permission check for GET requests.
 	 */
-	public function skip_test_get_item_permissions_check() {
+	public function test_get_item_permissions_check() {
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/jitm-v2' );
 		$request->set_query_params(
 			array(
@@ -183,7 +183,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	/**
 	 * Tests the permission check for POST (dismiss) requests.
 	 */
-	public function skip_test_dismiss_item_permissions_check() {
+	public function test_dismiss_item_permissions_check() {
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/jitm-v2' );
 		$request->set_body_params(
 			array(
@@ -211,7 +211,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	/**
 	 * Tests dismissing a JITM.
 	 */
-	public function skip_test_dismiss_jitm() {
+	public function test_dismiss_jitm() {
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/jitm-v2' );
 		$request->set_body_params(
 			array(
