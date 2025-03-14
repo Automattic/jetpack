@@ -165,6 +165,12 @@ function JetpackLikesMessageListener( event ) {
 			break;
 		}
 
+		// We're keeping this for planned future follow ups.
+		// @see: https://github.com/Automattic/jetpack/pull/42361#discussion_r1995338815
+		case 'showCommentLikeWidget': {
+			break;
+		}
+
 		case 'killCommentLikes':
 			// If kill switch for comment likes is enabled remove all widgets wrappers and `Loading...` placeholders.
 			document
