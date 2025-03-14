@@ -7,7 +7,6 @@ import {
 	Container,
 	Col,
 	Notice,
-	ZendeskChat,
 	useBreakpointMatch,
 	ActionButton,
 	GlobalNotices,
@@ -22,10 +21,6 @@ import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { NOTICE_SITE_CONNECTION_ERROR } from '../../context/notices/noticeTemplates';
 import {
-	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
-	REST_API_CHAT_AVAILABILITY_ENDPOINT,
-	QUERY_CHAT_AVAILABILITY_KEY,
-	QUERY_CHAT_AUTHENTICATION_KEY,
 	QUERY_GET_JETPACK_MANAGE_DATA_KEY,
 	REST_API_GET_JETPACK_MANAGE_DATA,
 } from '../../data/constants';
@@ -113,14 +108,6 @@ export default function MyJetpackScreen() {
 		title: noticeTitle,
 		options: noticeOptions,
 	} = currentNotice || {};
-	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery( {
-		name: QUERY_CHAT_AVAILABILITY_KEY,
-		query: { path: REST_API_CHAT_AVAILABILITY_ENDPOINT },
-	} );
-	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery( {
-		name: QUERY_CHAT_AUTHENTICATION_KEY,
-		query: { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT },
-	} );
 	const {
 		data: jetpackManageData,
 		isLoading: isJetpackManageLoading,
@@ -141,12 +128,6 @@ export default function MyJetpackScreen() {
 	useEffect( () => {
 		updateHistoricallyActiveModules();
 	}, [ updateHistoricallyActiveModules ] );
-
-	const isAvailable = availabilityData?.is_available;
-	const jwt = authData?.user?.jwt;
-
-	const shouldShowZendeskChatWidget =
-		! isJwtLoading && ! isChatAvailabilityLoading && isAvailable && jwt;
 
 	const isNewUser = useIsJetpackUserNew();
 
@@ -280,8 +261,6 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 			</AdminSection>
-
-			{ shouldShowZendeskChatWidget && <ZendeskChat jwt_token={ jwt } /> }
 		</AdminPage>
 	);
 }
