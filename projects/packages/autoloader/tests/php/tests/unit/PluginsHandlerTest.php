@@ -17,7 +17,6 @@ use PHPUnit\Framework\TestCase;
  * @preserveGlobalState disabled
  */
 class PluginsHandlerTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * A dependency mock for the handler.

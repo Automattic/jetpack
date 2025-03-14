@@ -130,6 +130,13 @@ abstract class Product {
 	public static $requires_plan = false;
 
 	/**
+	 * Defines whether or not to show a product interstitial as tiered pricing or not
+	 *
+	 * @var bool
+	 */
+	public static $is_tiered_pricing = false;
+
+	/**
 	 * The feature slug that identifies the paid plan
 	 *
 	 * @var string
@@ -171,6 +178,15 @@ abstract class Product {
 	public static function register_endpoints(): void {
 		// This method should be implemented in the child class.
 	}
+	/**
+	 * Get data about the AI Assistant feature
+	 *
+	 * @return array
+	 */
+	public static function get_ai_assistant_feature() {
+		// This method should be optionally set in the child class.
+		return array();
+	}
 
 	/**
 	 * Get the installed plugin filename, considering all possible filenames a plugin might have
@@ -209,14 +225,10 @@ abstract class Product {
 			'name'                            => static::get_name(),
 			'title'                           => static::get_title(),
 			'category'                        => static::$category,
-			'description'                     => static::get_description(),
-			'long_description'                => static::get_long_description(),
-			'tiers'                           => static::get_tiers(),
-			'features'                        => static::get_features(),
-			'features_by_tier'                => static::get_features_by_tier(),
 			'disclaimers'                     => static::get_disclaimers(),
 			'is_bundle'                       => static::is_bundle_product(),
 			'is_plugin_active'                => static::is_plugin_active(),
+			'is_tiered_pricing'               => static::$is_tiered_pricing,
 			'is_upgradable_by_bundle'         => static::is_upgradable_by_bundle(),
 			'is_feature'                      => static::$is_feature,
 			'supported_products'              => static::get_supported_products(),
@@ -245,10 +257,15 @@ abstract class Product {
 			throw new \Exception( 'Product classes must declare the $slug attribute.' );
 		}
 
-		return array(
+		$product_data = array(
 			'status'                        => static::get_status(),
 			'pricing_for_ui'                => static::get_pricing_for_ui(),
 			'is_upgradable'                 => static::is_upgradable(),
+			'description'                   => static::get_description(),
+			'tiers'                         => static::get_tiers(),
+			'features'                      => static::get_features(),
+			'features_by_tier'              => static::get_features_by_tier(),
+			'long_description'              => static::get_long_description(),
 			'has_any_plan_for_product'      => static::has_any_plan_for_product(),
 			'has_free_plan_for_product'     => static::has_free_plan_for_product(),
 			'has_paid_plan_for_product'     => static::has_paid_plan_for_product(),
@@ -257,6 +274,12 @@ abstract class Product {
 			'renew_paid_plan_purchase_url'  => static::get_renew_paid_plan_purchase_url(),
 			'does_module_need_attention'    => static::does_module_need_attention(),
 		);
+
+		if ( static::$slug === 'jetpack-ai' ) {
+			$product_data['ai-assistant-feature'] = static::get_ai_assistant_feature();
+		}
+
+		return $product_data;
 	}
 
 	/**

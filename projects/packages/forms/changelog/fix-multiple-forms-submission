@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: Fix issue where multiple contact forms on the same page would fail to submit correctly. Ensures consistent form IDs between page load and form submission. 

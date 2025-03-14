@@ -60,6 +60,12 @@ function wpcom_should_limit_global_styles( $blog_id = 0 ) {
 		return false;
 	}
 
+	// Do not limit Global Styles on Big Sky free trial sites. Those sites will
+	// have their own paywall to go through.
+	if ( wpcom_global_styles_has_blog_sticker( 'big-sky-free-trial', $blog_id ) ) {
+		return false;
+	}
+
 	// Do not limit Global Styles if the site paid for it.
 	if ( wpcom_site_has_global_styles_feature( $blog_id ) ) {
 		return false;

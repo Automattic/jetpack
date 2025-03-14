@@ -44,7 +44,6 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	 * @return {Promise< TabsByUrl >} Promise resolving to the browser context.
 	 */
 	private async openTabs( context: BrowserContext, urls: string[] ): Promise< void > {
-		// Load new batch of URLs
 		this.tabs = await objectPromiseAll< Tab >(
 			urls.reduce( ( set, url ) => {
 				set[ url ] = this.newTab( context, url );
@@ -61,24 +60,32 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	 * @return {Promise<Tab>} Promise resolving to the tab instance.
 	 */
 	private async newTab( browserContext: BrowserContext, url: string ): Promise< Tab > {
-		const tab = {
-			page: await browserContext.newPage(),
-			statusCode: null,
-		};
-		tab.page.on( 'response', async response => {
-			if ( response.url() === url ) {
-				tab.statusCode = response.status();
-			}
-		} );
+		const page = await browserContext.newPage();
+		try {
+			const tab = {
+				page,
+				statusCode: null,
+			};
 
-		await tab.page.goto( url, { timeout: PAGE_GOTO_TIMEOUT_MS } );
+			tab.page.on( 'response', async response => {
+				if ( response.url() === url ) {
+					tab.statusCode = response.status();
+				}
+			} );
 
-		return tab;
+			await tab.page.goto( url, { timeout: PAGE_GOTO_TIMEOUT_MS } );
+			return tab;
+		} catch ( error ) {
+			await page.close().catch( () => {} ); // Cleanup on error
+			throw error;
+		}
 	}
 
 	private async closeTabs(): Promise< void > {
-		for ( const tab of Object.values( this.tabs ) ) {
-			await tab.page.close();
+		if ( this.tabs ) {
+			await Promise.all(
+				Object.values( this.tabs ).map( tab => tab.page.close().catch( () => {} ) )
+			);
 		}
 		this.tabs = {};
 	}

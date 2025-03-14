@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2025-03-12
+### Added
+- Add `shouldUseInternalLinks()`. [#42000]
+
+### Changed
+- Update package dependencies. [#42384]
+
 ## [0.17.5] - 2025-03-10
 ### Added
 - Social: Move useUpgradeFlow from Jetpack plugin to the shared package. [#41836]
@@ -551,6 +558,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.18.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.17.5...0.18.0
 [0.17.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.17.4...0.17.5
 [0.17.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.17.3...0.17.4
 [0.17.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.17.2...0.17.3
