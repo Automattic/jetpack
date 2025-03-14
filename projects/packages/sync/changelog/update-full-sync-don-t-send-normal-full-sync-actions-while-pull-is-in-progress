@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Sync: Don't send normal Full Sync actions while a Full Sync Pull is in progress
