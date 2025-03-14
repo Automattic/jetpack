@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Twitter Timeline Widget: Will no longer render a broken link when using twitter's deprecated data-widget-id approach without a type set.

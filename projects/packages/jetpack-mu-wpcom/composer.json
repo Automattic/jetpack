@@ -23,7 +23,8 @@
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
-		"brain/monkey": "^2.6.2"
+		"brain/monkey": "^2.6.2",
+		"automattic/phpunit-select-config": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -35,10 +36,10 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
 		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"

@@ -318,10 +318,14 @@ function wpcom_hide_customizer_submenu_on_block_theme() {
 
 		remove_action( 'customize_register', 'Automattic\Jetpack\Masterbar\register_css_nudge_control' );
 
+		remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Customizer', 'customize_register' ) );
+
 		remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
 	}
 }
-add_action( 'init', 'wpcom_hide_customizer_submenu_on_block_theme' );
+
+$customizer_removal_hook = defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ? 'rest_pre_dispatch' : 'init';
+add_action( $customizer_removal_hook, 'wpcom_hide_customizer_submenu_on_block_theme' );
 
 /**
  * Links were removed in 3.5 core, but we've kept them active on dotcom.

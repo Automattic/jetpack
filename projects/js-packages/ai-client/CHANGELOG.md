@@ -5,21 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.2] - 2025-03-12
+### Changed
+- Update dependencies. [#42328]
+
 ## [0.27.1] - 2025-03-10
 ### Added
-- AI Client: Add optional preprocess function to getPostContent. [#42269]
+- Add optional preprocess function to getPostContent. [#42269]
 
 ### Changed
 - Update dependencies. [#42222]
 
 ## [0.27.0] - 2025-03-03
 ### Added
-- AI Client: Move openBlockSidebar utility function. [#42016]
+- Move openBlockSidebar utility function. [#42016]
 
 ### Changed
 - AI Assistant: Add experimental functionality to test Chrome's built-in AI API with the AI excerpt. [#41922]
-- AI Client: Move showAiAssistantSection function to AI Client. [#42158]
-- AI Client: Refactor usePostContent hook to expose isEditedPostEmpty. [#42149]
+- Move showAiAssistantSection function to AI Client. [#42158]
+- Refactor usePostContent hook to expose isEditedPostEmpty. [#42149]
 - Update package dependencies. [#42163]
 
 ## [0.26.3] - 2025-02-24
@@ -549,6 +553,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.27.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.27.1...v0.27.2
 [0.27.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.26.3...v0.27.0
 [0.26.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.26.2...v0.26.3

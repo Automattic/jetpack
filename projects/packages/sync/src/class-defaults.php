@@ -769,6 +769,7 @@ class Defaults {
 		'_wp_attachment_is_custom_background',
 		'_wp_attachment_is_custom_header',
 		'_wp_attachment_metadata',
+		'_wp_old_date',
 		'_wp_page_template',
 		'_wp_trash_meta_comments_status',
 		'_wpas_feature_enabled',
