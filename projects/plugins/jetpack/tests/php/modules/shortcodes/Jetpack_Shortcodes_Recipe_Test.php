@@ -394,7 +394,7 @@ EOT;
 	 *
 	 * @return array The test data.
 	 */
-	public function get_data_recipe_amp() {
+	public static function get_data_recipe_amp() {
 		return array(
 			'only_recipe_shortcode'       => array(
 				'[recipe title="Mediterranean Panini" servings="5-8" preptime="50 mins" cooktime="25 mins" difficulty="hard" rating="★★★★"]',

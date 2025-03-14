@@ -66,7 +66,7 @@ class Server_Sandbox_Test extends BaseTestCase {
 	 *     'headers' => { An array containing the request headers },
 	 *     'output'  => { An array containing the expected output of the server_sandbox_request_parameters() }
 	 */
-	public function data_provider_test_server_sandbox_request_parameters() {
+	public static function data_provider_test_server_sandbox_request_parameters() {
 		return array(
 			'sandbox not a string'                   => array(
 				'sandbox' => 123,
@@ -160,7 +160,7 @@ class Server_Sandbox_Test extends BaseTestCase {
 	 *     'expected_url'     => { The value of $url after calling server_sandbox() },
 	 *     'expected_headers' => { The value of $headers after calling server_sandbox() }
 	 */
-	public function data_provider_test_server_sandbox() {
+	public static function data_provider_test_server_sandbox() {
 		return array(
 			'constant not set'                => array(
 				'constant'         => '',
@@ -232,7 +232,7 @@ class Server_Sandbox_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function data_provider_test_server_sandbox_with_xdebug() {
+	public static function data_provider_test_server_sandbox_with_xdebug() {
 		return array(
 			'not filtered'         => array(
 				'url'          => 'https://public-api.wordpress.com/test',
@@ -297,7 +297,7 @@ class Server_Sandbox_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function data_provider_test_extract_authorization_headers() {
+	public static function data_provider_test_extract_authorization_headers() {
 		return array(
 			'happy_case'          => array(
 				array(

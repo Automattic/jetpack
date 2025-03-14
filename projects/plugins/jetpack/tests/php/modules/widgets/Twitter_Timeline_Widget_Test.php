@@ -34,7 +34,7 @@ class Twitter_Timeline_Widget_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_widget_data() {
+	public static function get_widget_data() {
 		return array(
 			'no_id'                    => array(
 				array(),

@@ -255,7 +255,7 @@ class Blaze_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function get_enqueue_scenarios() {
+	public static function get_enqueue_scenarios() {
 		return array(
 			'In site editor, Blaze enabled, site admin'  => array(
 				'site-editor',
@@ -295,7 +295,7 @@ class Blaze_Test extends BaseTestCase {
 	 *
 	 * @return array[]
 	 */
-	public function get_blaze_eligibility_responses() {
+	public static function get_blaze_eligibility_responses() {
 		return array(
 			'no cache, successful request, blog eligible' => array(
 				array(

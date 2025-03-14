@@ -46,7 +46,7 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_posts_per_page_in_request_data() {
+	public static function get_posts_per_page_in_request_data() {
 		$posts_per_page_limit       = The_Neverending_Home_Page::MAX_ALLOWED_POSTS_PER_PAGE_ΙΝ_REQUEST;
 		$posts_per_page_under_limit = The_Neverending_Home_Page::MAX_ALLOWED_POSTS_PER_PAGE_ΙΝ_REQUEST - 1;
 		$posts_per_page_over_limit  = The_Neverending_Home_Page::MAX_ALLOWED_POSTS_PER_PAGE_ΙΝ_REQUEST + 1;

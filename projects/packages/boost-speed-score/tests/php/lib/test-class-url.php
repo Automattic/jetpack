@@ -106,7 +106,7 @@ class WP_Test_Url extends Base_TestCase {
 		$this->assertEquals( $expected_url, $normalized_url );
 	}
 
-	public function provide_url_data() {
+	public static function provide_url_data() {
 		return array(
 			array( 'http://example.com', 'http://example.com' ),
 			array( 'http://example.com/?allowed_param=1', 'http://example.com/?allowed_param=1' ),

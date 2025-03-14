@@ -271,7 +271,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	 *
 	 * @return array[]
 	 */
-	public function provide_hide_fse_next_steps_modal_test_cases() {
+	public static function provide_hide_fse_next_steps_modal_test_cases() {
 		return array(
 			// Flag value to pass, initial option, expected option.
 			'Empty option and false flag'     => array( false, false, false ),
@@ -365,7 +365,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	 *
 	 * @return array[]
 	 */
-	public function provide_get_tasklist_using_goals_test_cases() {
+	public static function provide_get_tasklist_using_goals_test_cases() {
 		return array(
 			'Write goal gets write task list' => array(
 				array( 'write' ),

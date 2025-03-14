@@ -233,7 +233,7 @@ if ( is_multisite() ) :
 		 *                              based on the values of $is_super_admin and $connection_override.
 		 * }
 		 */
-		public function data_provider_test_set_multisite_disconnect_caps() {
+		public static function data_provider_test_set_multisite_disconnect_caps() {
 			return array(
 				'is_super_admin: true; connection_override: true'   => array( true, true, true ),
 				'is_super_admin: true; connection_override: false'  => array( true, false, true ),

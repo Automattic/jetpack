@@ -87,7 +87,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Data provider for {@see test_task_list_is_completed()}.
 	 */
-	public function provider_test_task_list_is_completed() {
+	public static function provider_test_task_list_is_completed() {
 		$incomplete_task = array();
 		$completed_task  = array(
 			'is_complete_callback' => '__return_true',
@@ -232,7 +232,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @return array The test cases.
 	 */
-	public function provide_repetition_counting_task_list_test_cases() {
+	public static function provide_repetition_counting_task_list_test_cases() {
 		return array(
 			'Task with no repetitions'   => array(
 				array(
@@ -322,7 +322,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @return array Test cases for the unit test.
 	 */
-	public function provide_wpcom_launchpad_is_repeated_task_complete_test_cases() {
+	public static function provide_wpcom_launchpad_is_repeated_task_complete_test_cases() {
 		return array(
 			'Task is complete when the task option was already complete' => array(
 				array(
@@ -441,7 +441,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function provide_get_calypso_path_validation_test_cases() {
+	public static function provide_get_calypso_path_validation_test_cases() {
 		return array(
 			'External absolute URL should be invalid'    => array(
 				'https://example.com/invalid-full-url',
@@ -587,7 +587,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function provide_verify_email_task_visibility_test_cases() {
+	public static function provide_verify_email_task_visibility_test_cases() {
 		return array(
 			'unverified single-site user' => array(
 				'unverified',

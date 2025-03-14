@@ -19,7 +19,7 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_shortcode_googlemaps_data() {
+	public static function get_shortcode_googlemaps_data() {
 		return array(
 			'non_amp'         => array(
 				'[googlemaps https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA&amp;w=640&amp;h=480]',

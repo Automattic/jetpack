@@ -167,7 +167,7 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	/**
 	 * Data provider for test_accepts_site_based_authentication.
 	 */
-	public function data_provider_test_accepts_site_based_authentication() {
+	public static function data_provider_test_accepts_site_based_authentication() {
 		return array(
 			'allow_jetpack_site_auth: true; logged_in_user: false;'  => array( true, false, true ),
 			'allow_jetpack_site_auth: false; logged_in_user: false;' => array( false, false, false ),
@@ -178,7 +178,7 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	/**
 	 * Data provider for test_private_site_accessibility.
 	 */
-	public function data_provider_test_private_site_accessibility() {
+	public static function data_provider_test_private_site_accessibility() {
 		$success = 'success';
 		$error   = new WP_Error( 'unauthorized', 'User cannot access this private blog.', 403 );
 
@@ -193,7 +193,7 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	/**
 	 * Data provider for test_endpoint_capabilities.
 	 */
-	public function data_provider_test_endpoint_capabilities() {
+	public static function data_provider_test_endpoint_capabilities() {
 		$success = 'success';
 		$error   = new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 );
 

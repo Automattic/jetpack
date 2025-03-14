@@ -126,7 +126,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function get_test_connection_filters_data() {
+	public static function get_test_connection_filters_data() {
 		return array(
 			array(
 				true,

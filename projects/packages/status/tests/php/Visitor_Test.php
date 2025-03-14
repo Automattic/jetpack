@@ -71,7 +71,7 @@ class Visitor_Test extends TestCase {
 	 *    'check_all_headers' => Whether test_ip should check all headers.
 	 *    'expected_value' => The expected result after calling `get_ip`.
 	 */
-	public function get_ip_data_provider() {
+	public static function get_ip_data_provider() {
 		return array(
 			'REMOTE_ADDR do not check all headers'       => array(
 				'check_all_headers' => false,

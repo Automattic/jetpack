@@ -79,7 +79,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	/**
 	 * Data provider with various YouTube URLs with the expected iframe parameter.
 	 */
-	public function get_youtube_id_options() {
+	public static function get_youtube_id_options() {
 		return array(
 			't_as_seconds' => array(
 				'https://youtu.be/o-IvKy3322k?t=10683',
@@ -122,7 +122,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	 *
 	 * @return array[] The test data.
 	 */
-	public function get_youtube_args_data() {
+	public static function get_youtube_args_data() {
 		return array(
 			'empty_url'                        => array(
 				array(),
@@ -180,7 +180,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	 *
 	 * @return array[] The test data.
 	 */
-	public function get_amp_youtube_data() {
+	public static function get_amp_youtube_data() {
 		$height                   = 360;
 		$width                    = 640;
 		$GLOBALS['content_width'] = $width;
@@ -262,7 +262,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	 *
 	 * @return array[] The test data.
 	 */
-	public function get_amp_youtube_shortcode_data() {
+	public static function get_amp_youtube_shortcode_data() {
 		return array(
 			'empty_argument'  => array(
 				array(),
@@ -303,7 +303,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	/**
 	 * List of variation of YouTube embed URLs.
 	 */
-	public function get_youtube_urls() {
+	public static function get_youtube_urls() {
 		return array(
 			'valid_url'                          => array(
 				'https://www.youtube.com/watch?v=SVRiktFlWxI',

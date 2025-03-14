@@ -230,11 +230,11 @@ class Helpers_Test extends TestCase {
 	 * Test case
 	 */
 	public function test_get_widgets_from_option_with_widgets_saved() {
-		update_option( Helper::get_widget_option_name(), $this->get_sample_widgets_option() );
+		update_option( Helper::get_widget_option_name(), static::get_sample_widgets_option() );
 
 		$filters = Helper::get_widgets_from_option();
 
-		$expected = $this->get_sample_widgets_option();
+		$expected = static::get_sample_widgets_option();
 		unset( $expected['_multiwidget'] );
 
 		$this->assertSame( $expected, $filters );
@@ -272,20 +272,20 @@ class Helpers_Test extends TestCase {
 	 * Test case
 	 */
 	public function test_get_filters_from_widgets() {
-		$raw_option         = $this->get_sample_widgets_option();
+		$raw_option         = static::get_sample_widgets_option();
 		$filters            = $raw_option[22]['filters'];
 		$additional_filters = array(
-			$this->get_cat_filter(),
-			$this->get_tag_filter(),
-			$this->get_post_type_filter(),
-			$this->get_date_histogram_posts_by_month_filter(),
-			$this->get_date_histogram_posts_by_year_filter(),
-			$this->get_date_histogram_posts_modified_by_month_filter(),
-			$this->get_date_histogram_posts_modified_by_year_filter(),
-			$this->get_date_histogram_posts_by_month_gmt__filter(),
-			$this->get_date_histogram_posts_by_year_gmt__filter(),
-			$this->get_date_histogram_posts_modified_by_month_gmt_filter(),
-			$this->get_date_histogram_posts_modified_by_year_gmt_filter(),
+			static::get_cat_filter(),
+			static::get_tag_filter(),
+			static::get_post_type_filter(),
+			static::get_date_histogram_posts_by_month_filter(),
+			static::get_date_histogram_posts_by_year_filter(),
+			static::get_date_histogram_posts_modified_by_month_filter(),
+			static::get_date_histogram_posts_modified_by_year_filter(),
+			static::get_date_histogram_posts_by_month_gmt__filter(),
+			static::get_date_histogram_posts_by_year_gmt__filter(),
+			static::get_date_histogram_posts_modified_by_month_gmt_filter(),
+			static::get_date_histogram_posts_modified_by_year_gmt_filter(),
 		);
 
 		// Let's remove the name of the additional filters that way we can test our default name generation.
@@ -631,7 +631,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Test case
 	 */
-	public function get_date_filter_type_name_data() {
+	public static function get_date_filter_type_name_data() {
 		return array(
 			'default'      => array(
 				'Month',
@@ -664,7 +664,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_build_widget_id_data() {
+	public static function get_build_widget_id_data() {
 		return array(
 			'jetpack-search-filters-22' => array(
 				22,
@@ -680,7 +680,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_test_is_active_widget_data() {
+	public static function get_test_is_active_widget_data() {
 		return array(
 			'jetpack-search-filters-22' => array(
 				22,
@@ -696,7 +696,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_should_rerun_search_in_customizer_preview_data() {
+	public static function get_should_rerun_search_in_customizer_preview_data() {
 		return array(
 			'not_previewing'                              => array(
 				false,
@@ -716,7 +716,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_array_diff_data() {
+	public static function get_array_diff_data() {
 		return array(
 			'all_empty'                  => array(
 				array(),
@@ -749,7 +749,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_post_types_differ_searchable_data() {
+	public static function get_post_types_differ_searchable_data() {
 		return array(
 			'no_post_types'                         => array(
 				false,
@@ -777,7 +777,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_post_types_differ_query_data() {
+	public static function get_post_types_differ_query_data() {
 		return array(
 			'no_post_types_on_instance'                 => array(
 				false,
@@ -829,7 +829,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_filter_properties_for_tracks_data() {
+	public static function get_filter_properties_for_tracks_data() {
 		return array(
 			'empty_filters'    => array(
 				array(),
@@ -841,7 +841,7 @@ class Helpers_Test extends TestCase {
 					'widget_filter_type_taxonomy' => 1,
 				),
 				array(
-					$this->get_cat_filter(),
+					static::get_cat_filter(),
 				),
 			),
 			'multiple_filters' => array(
@@ -851,9 +851,9 @@ class Helpers_Test extends TestCase {
 					'widget_filter_type_post_type' => 1,
 				),
 				array(
-					$this->get_cat_filter(),
-					$this->get_post_type_filter(),
-					$this->get_tag_filter(),
+					static::get_cat_filter(),
+					static::get_post_type_filter(),
+					static::get_tag_filter(),
 				),
 			),
 		);
@@ -862,7 +862,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_widget_properties_for_tracks_data() {
+	public static function get_widget_properties_for_tracks_data() {
 		return array(
 			'empty_instance'                => array(
 				array(),
@@ -879,7 +879,7 @@ class Helpers_Test extends TestCase {
 					'widget_title'              => 'Search',
 					'widget_search_box_enabled' => 1,
 				),
-				$this->get_sample_widget_instance( 0 ),
+				static::get_sample_widget_instance( 0 ),
 			),
 			'instance_with_filters'         => array(
 				array(
@@ -888,7 +888,7 @@ class Helpers_Test extends TestCase {
 					'widget_filter_count'         => 1,
 					'widget_filter_type_taxonomy' => 1,
 				),
-				$this->get_sample_widget_instance( 1 ),
+				static::get_sample_widget_instance( 1 ),
 			),
 		);
 	}
@@ -896,9 +896,9 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_widget_tracks_value_data() {
-		$instance_with_filter_updated               = $this->get_sample_widget_instance();
-		$instance_with_filter_updated['filters'][1] = $this->get_tag_filter();
+	public static function get_widget_tracks_value_data() {
+		$instance_with_filter_updated               = static::get_sample_widget_instance();
+		$instance_with_filter_updated['filters'][1] = static::get_tag_filter();
 
 		return array(
 			'widget_updated_added_filters'       => array(
@@ -911,8 +911,8 @@ class Helpers_Test extends TestCase {
 						'widget_filter_type_taxonomy' => 1,
 					),
 				),
-				array( $this->get_sample_widget_instance( 0 ) ),
-				array( $this->get_sample_widget_instance( 1 ) ),
+				array( static::get_sample_widget_instance( 0 ) ),
+				array( static::get_sample_widget_instance( 1 ) ),
 			),
 			'widget_updated_title_changed'       => array(
 				array(
@@ -925,8 +925,8 @@ class Helpers_Test extends TestCase {
 						'widget_filter_type_post_type' => 1,
 					),
 				),
-				array( $this->get_sample_widget_instance() ),
-				array( array_merge( $this->get_sample_widget_instance(), array( 'title' => 'changed' ) ) ),
+				array( static::get_sample_widget_instance() ),
+				array( array_merge( static::get_sample_widget_instance(), array( 'title' => 'changed' ) ) ),
 			),
 			'widget_update_removed_filters'      => array(
 				array(
@@ -936,8 +936,8 @@ class Helpers_Test extends TestCase {
 						'widget_search_box_enabled' => 1,
 					),
 				),
-				array( $this->get_sample_widget_instance( 2 ) ),
-				array( $this->get_sample_widget_instance( 0 ) ),
+				array( static::get_sample_widget_instance( 2 ) ),
+				array( static::get_sample_widget_instance( 0 ) ),
 			),
 			'multiple_widgets_one_title_changed' => array(
 				array(
@@ -948,15 +948,15 @@ class Helpers_Test extends TestCase {
 					),
 				),
 				array(
-					'0'            => $this->get_sample_widget_instance( 0 ),
-					'1'            => $this->get_sample_widget_instance( 1 ),
-					'2'            => $this->get_sample_widget_instance( 2 ),
+					'0'            => static::get_sample_widget_instance( 0 ),
+					'1'            => static::get_sample_widget_instance( 1 ),
+					'2'            => static::get_sample_widget_instance( 2 ),
 					'_multiwidget' => 1,
 				),
 				array(
-					'0'            => array_merge( $this->get_sample_widget_instance( 0 ), array( 'title' => 'updated' ) ),
-					'1'            => $this->get_sample_widget_instance( 1 ),
-					'2'            => $this->get_sample_widget_instance( 2 ),
+					'0'            => array_merge( static::get_sample_widget_instance( 0 ), array( 'title' => 'updated' ) ),
+					'1'            => static::get_sample_widget_instance( 1 ),
+					'2'            => static::get_sample_widget_instance( 2 ),
 					'_multiwidget' => 1,
 				),
 				array(
@@ -975,15 +975,15 @@ class Helpers_Test extends TestCase {
 					),
 				),
 				array(
-					'0'            => $this->get_sample_widget_instance( 0 ),
-					'1'            => $this->get_sample_widget_instance( 1 ),
-					'2'            => $this->get_sample_widget_instance( 2 ),
+					'0'            => static::get_sample_widget_instance( 0 ),
+					'1'            => static::get_sample_widget_instance( 1 ),
+					'2'            => static::get_sample_widget_instance( 2 ),
 					'_multiwidget' => 1,
 				),
 				array(
-					'0'            => $this->get_sample_widget_instance( 0 ),
-					'1'            => $this->get_sample_widget_instance( 2 ),
-					'2'            => $this->get_sample_widget_instance( 2 ),
+					'0'            => static::get_sample_widget_instance( 0 ),
+					'1'            => static::get_sample_widget_instance( 2 ),
+					'2'            => static::get_sample_widget_instance( 2 ),
 					'_multiwidget' => 1,
 				),
 				array(
@@ -1002,14 +1002,14 @@ class Helpers_Test extends TestCase {
 					),
 				),
 				array(
-					'0'            => $this->get_sample_widget_instance( 0 ),
-					'1'            => $this->get_sample_widget_instance( 1 ),
-					'2'            => $this->get_sample_widget_instance( 2 ),
+					'0'            => static::get_sample_widget_instance( 0 ),
+					'1'            => static::get_sample_widget_instance( 1 ),
+					'2'            => static::get_sample_widget_instance( 2 ),
 					'_multiwidget' => 1,
 				),
 				array(
-					'0'            => $this->get_sample_widget_instance( 0 ),
-					'1'            => $this->get_sample_widget_instance( 1 ),
+					'0'            => static::get_sample_widget_instance( 0 ),
+					'1'            => static::get_sample_widget_instance( 1 ),
 					'2'            => $instance_with_filter_updated,
 					'_multiwidget' => 1,
 				),
@@ -1030,7 +1030,7 @@ class Helpers_Test extends TestCase {
 				),
 				array( '_multiwidget' => 1 ),
 				array(
-					'0'            => $this->get_sample_widget_instance(),
+					'0'            => static::get_sample_widget_instance(),
 					'_multiwidget' => 1,
 				),
 			),
@@ -1046,7 +1046,7 @@ class Helpers_Test extends TestCase {
 					),
 				),
 				array(
-					'0'            => $this->get_sample_widget_instance(),
+					'0'            => static::get_sample_widget_instance(),
 					'_multiwidget' => 1,
 				),
 				array( '_multiwidget' => 1 ),
@@ -1062,12 +1062,12 @@ class Helpers_Test extends TestCase {
 					),
 				),
 				array(
-					$this->get_sample_widget_instance(),
+					static::get_sample_widget_instance(),
 					'_multiwidget' => 1,
 				),
 				array(
-					$this->get_sample_widget_instance(),
-					$this->get_sample_widget_instance( 1 ),
+					static::get_sample_widget_instance(),
+					static::get_sample_widget_instance( 1 ),
 					'_multiwidget' => 1,
 				),
 			),
@@ -1080,12 +1080,12 @@ class Helpers_Test extends TestCase {
 					),
 				),
 				array(
-					'1'            => $this->get_sample_widget_instance( 0 ),
-					'2'            => $this->get_sample_widget_instance( 1 ),
+					'1'            => static::get_sample_widget_instance( 0 ),
+					'2'            => static::get_sample_widget_instance( 1 ),
 					'_multiwidget' => 1,
 				),
 				array(
-					'2'            => $this->get_sample_widget_instance( 1 ),
+					'2'            => static::get_sample_widget_instance( 1 ),
 					'_multiwidget' => 1,
 				),
 			),
@@ -1095,7 +1095,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_remove_active_from_post_type_buckets_data() {
+	public static function get_remove_active_from_post_type_buckets_data() {
 		return array(
 			'empty_array'                           => array(
 				array(),
@@ -1159,7 +1159,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_add_post_types_to_url_data() {
+	public static function get_add_post_types_to_url_data() {
 		return array(
 			'same_url_empty_post_types'     => array(
 				'http://jetpack.com?s=test',
@@ -1182,7 +1182,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_ensure_post_types_on_remove_url_data() {
+	public static function get_ensure_post_types_on_remove_url_data() {
 		return array(
 			'unmodified_if_no_post_types'            => array(
 				array(
@@ -1339,7 +1339,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_site_has_vip_index_data() {
+	public static function get_site_has_vip_index_data() {
 		return array(
 			'default_constants_filter'   => array(
 				false,
@@ -1368,7 +1368,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_max_offset_data() {
+	public static function get_max_offset_data() {
 		return array(
 			'not_vip_index' => array(
 				1000,
@@ -1384,7 +1384,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_max_posts_per_page_data() {
+	public static function get_max_posts_per_page_data() {
 		return array(
 			'not_vip_index' => array(
 				100,
@@ -1441,7 +1441,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_sample_widgets_option() {
+	public static function get_sample_widgets_option() {
 		return array(
 			'15'           => array(
 				'title'              => 'Search',
@@ -1455,7 +1455,7 @@ class Helpers_Test extends TestCase {
 					),
 				),
 			),
-			'22'           => $this->get_sample_widget_instance(),
+			'22'           => static::get_sample_widget_instance(),
 			'_multiwidget' => 1,
 		);
 	}
@@ -1466,15 +1466,15 @@ class Helpers_Test extends TestCase {
 	 * @param int $count_filters - Number of filters.
 	 * @param int $count_cat - Number of categories.
 	 */
-	public function get_sample_filters( $count_filters = 2, $count_cat = 4 ) {
+	public static function get_sample_filters( $count_filters = 2, $count_cat = 4 ) {
 		$filters = array();
 
 		if ( $count_filters > 0 ) {
-			$filters[] = $this->get_cat_filter( $count_cat );
+			$filters[] = static::get_cat_filter( $count_cat );
 		}
 
 		if ( $count_filters > 1 ) {
-			$filters[] = $this->get_post_type_filter();
+			$filters[] = static::get_post_type_filter();
 		}
 
 		return $filters;
@@ -1486,14 +1486,14 @@ class Helpers_Test extends TestCase {
 	 * @param int $count_filters - Number of filters.
 	 * @param int $count_cat - Number of categories.
 	 */
-	public function get_sample_widget_instance( $count_filters = 2, $count_cat = 4 ) {
+	public static function get_sample_widget_instance( $count_filters = 2, $count_cat = 4 ) {
 		$instance = array(
 			'title'              => 'Search',
 			'search_box_enabled' => 1,
 		);
 
 		if ( $count_filters > 0 ) {
-			$instance['filters'] = $this->get_sample_filters( $count_filters, $count_cat );
+			$instance['filters'] = static::get_sample_filters( $count_filters, $count_cat );
 		}
 
 		return $instance;
@@ -1504,7 +1504,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @param int $count - Number of categories.
 	 */
-	public function get_cat_filter( $count = 4 ) {
+	public static function get_cat_filter( $count = 4 ) {
 		return array(
 			'name'     => 'Categories',
 			'type'     => 'taxonomy',
@@ -1516,7 +1516,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_tag_filter() {
+	public static function get_tag_filter() {
 		return array(
 			'name'     => 'Tags',
 			'type'     => 'taxonomy',
@@ -1528,7 +1528,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_post_type_filter() {
+	public static function get_post_type_filter() {
 		return array(
 			'name'  => 'Post Type',
 			'type'  => 'post_type',
@@ -1539,7 +1539,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_date_histogram_posts_by_month_filter() {
+	public static function get_date_histogram_posts_by_month_filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_date',
@@ -1551,7 +1551,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_date_histogram_posts_by_year_filter() {
+	public static function get_date_histogram_posts_by_year_filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_date',
@@ -1563,7 +1563,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_date_histogram_posts_modified_by_month_filter() {
+	public static function get_date_histogram_posts_modified_by_month_filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_modified',
@@ -1575,7 +1575,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_date_histogram_posts_modified_by_year_filter() {
+	public static function get_date_histogram_posts_modified_by_year_filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_modified',
@@ -1587,7 +1587,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_date_histogram_posts_by_month_gmt__filter() {
+	public static function get_date_histogram_posts_by_month_gmt__filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_date_gmt',
@@ -1599,7 +1599,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_date_histogram_posts_by_year_gmt__filter() {
+	public static function get_date_histogram_posts_by_year_gmt__filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_date_gmt',
@@ -1611,7 +1611,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_date_histogram_posts_modified_by_month_gmt_filter() {
+	public static function get_date_histogram_posts_modified_by_month_gmt_filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_modified_gmt',
@@ -1623,7 +1623,7 @@ class Helpers_Test extends TestCase {
 	/**
 	 * Data provider
 	 */
-	public function get_date_histogram_posts_modified_by_year_gmt_filter() {
+	public static function get_date_histogram_posts_modified_by_year_gmt_filter() {
 		return array(
 			'type'     => 'date_histogram',
 			'field'    => 'post_modified_gmt',

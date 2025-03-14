@@ -30,7 +30,7 @@ class GFM_Markdown_Test extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function data_strikethrough() {
+	public static function data_strikethrough() {
 		return array(
 			'double strikethrough'           => array(
 				'~~strikethrough~~',

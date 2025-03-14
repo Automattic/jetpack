@@ -92,7 +92,7 @@ class Jetpack_Shortcodes_Others_Test extends WP_UnitTestCase {
 	 *
 	 * @since 9.0.0
 	 */
-	public function get_odesli_data() {
+	public static function get_odesli_data() {
 		$variations = array(
 			'https://song.link/hello',
 			'https://album.link/hello',

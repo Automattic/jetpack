@@ -33,7 +33,7 @@ class Default_Filter_Settings_Test extends TestCase {
 	 *
 	 * @return array An array containing the test inputs.
 	 */
-	public function data_provider_test_get_default_settings_invalid_input() {
+	public static function data_provider_test_get_default_settings_invalid_input() {
 		return array(
 			'null'           => array( null ),
 			'array'          => array( array( 'test' ) ),
@@ -59,7 +59,7 @@ class Default_Filter_Settings_Test extends TestCase {
 	 *
 	 * @return array An array containing the test inputs.
 	 */
-	public function data_provider_test_get_default_settings_valid_input() {
+	public static function data_provider_test_get_default_settings_valid_input() {
 		return array(
 			'options'   => array(
 				'input'  => 'jetpack_sync_options_whitelist',

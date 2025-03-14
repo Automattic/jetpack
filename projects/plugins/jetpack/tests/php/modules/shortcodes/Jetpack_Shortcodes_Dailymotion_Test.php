@@ -156,7 +156,7 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_dailymotion_amp_data() {
+	public static function get_dailymotion_amp_data() {
 		$id             = 26423151;
 		$default_height = 471;
 

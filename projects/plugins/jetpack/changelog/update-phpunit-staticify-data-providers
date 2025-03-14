@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Static-ify data providers in preparation for PHPUnit 11.
+
+

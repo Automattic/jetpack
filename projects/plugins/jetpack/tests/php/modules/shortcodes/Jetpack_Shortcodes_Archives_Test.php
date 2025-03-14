@@ -46,7 +46,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_data_archives_format_option() {
+	public static function get_data_archives_format_option() {
 		return array(
 			'non_amp' => array(
 				false,

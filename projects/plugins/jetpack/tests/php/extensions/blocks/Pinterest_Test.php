@@ -32,7 +32,7 @@ class Pinterest_Test extends \WP_UnitTestCase {
 	/**
 	 * URL variations to be used by the Pinterest block.
 	 */
-	public function get_pinterest_urls() {
+	public static function get_pinterest_urls() {
 		return array(
 			'null_url'               => array(
 				null,

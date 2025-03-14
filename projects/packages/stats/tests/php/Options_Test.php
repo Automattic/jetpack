@@ -85,7 +85,7 @@ class Options_Test extends StatsBaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function statsGetOptionDataProvider() {
+	public static function statsGetOptionDataProvider() {
 		return array(
 			'Blog ID'      => array(
 				'option_name'  => 'blog_id',
@@ -131,7 +131,7 @@ class Options_Test extends StatsBaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function statsSetOptionsDataProvider() {
+	public static function statsSetOptionsDataProvider() {
 		return array(
 			'not array'            => array(
 				'set_options'    => null,
@@ -301,7 +301,7 @@ class Options_Test extends StatsBaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function statsSetOptionDataProvider() {
+	public static function statsSetOptionDataProvider() {
 		return array(
 			'Blog ID'      => array(
 				'option_name'    => 'blog_id',

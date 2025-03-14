@@ -20,7 +20,7 @@ class Storage_Addon_Upsell_Test extends TestCase {
 	/**
 	 * Data provider for testing
 	 */
-	public function storage_addon_upsell_provider() {
+	public static function storage_addon_upsell_provider() {
 		$addons = array(
 			'10GB'  => 'jetpack_backup_addon_storage_10gb_monthly',
 			'100GB' => 'jetpack_backup_addon_storage_100gb_monthly',

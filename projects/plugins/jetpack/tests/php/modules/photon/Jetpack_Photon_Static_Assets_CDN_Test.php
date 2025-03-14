@@ -42,7 +42,7 @@ class Jetpack_Photon_Static_Assets_CDN_Test extends WP_UnitTestCase {
 	 *    [1] string       $script_src The script source.
 	 *    [2] string|false $expected_output The expected output of fix_local_script_translation_path().
 	 */
-	public function fix_local_script_translation_path_data_provider() {
+	public static function fix_local_script_translation_path_data_provider() {
 		return array(
 			'File is false'              => array(
 				false,

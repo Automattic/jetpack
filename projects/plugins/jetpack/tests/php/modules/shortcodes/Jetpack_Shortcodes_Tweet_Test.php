@@ -167,7 +167,7 @@ BODY;
 	 *
 	 * @return array The test data.
 	 */
-	public function get_tweet_amp_data() {
+	public static function get_tweet_amp_data() {
 		$tweet_id       = 95234262;
 		$default_height = 480;
 		$default_width  = 600;

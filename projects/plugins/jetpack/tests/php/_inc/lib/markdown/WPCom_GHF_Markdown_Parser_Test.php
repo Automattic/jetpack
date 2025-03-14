@@ -41,7 +41,7 @@ class WPCom_GHF_Markdown_Parser_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_text_urls() {
+	public static function get_text_urls() {
 		return array(
 			'no_link_bold'                      => array(
 				'Some **bold** text',

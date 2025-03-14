@@ -30,7 +30,7 @@ class Jetpack_XMLRPC_Server_Test extends WP_UnitTestCase {
 	/**
 	 * Data provider for test_xmlrpc_methods_exist
 	 */
-	public function data_xmlrpc_methods_exist() {
+	public static function data_xmlrpc_methods_exist() {
 		return array(
 			array( 'jetpack.featuresAvailable' ),
 			array( 'jetpack.featuresEnabled' ),

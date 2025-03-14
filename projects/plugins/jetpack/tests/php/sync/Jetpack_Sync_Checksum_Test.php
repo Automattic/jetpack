@@ -34,7 +34,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 *
 	 * @return int[][]
 	 */
-	public function table_provider() {
+	public static function table_provider() {
 		return array(
 			array( 'posts', true ),
 			array( 'comments', true ),
@@ -55,7 +55,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function table_modules_provider() {
+	public static function table_modules_provider() {
 		return array(
 			array( 'posts', array( 'Automattic\\Jetpack\\Sync\\Modules\\Comments' ), false ),
 			array( 'posts', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), true ),
@@ -136,7 +136,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 *
 	 * @return array{array,bool,?string}[]
 	 */
-	public function field_validation_provider() {
+	public static function field_validation_provider() {
 		global $wpdb;
 
 		return array(
@@ -244,7 +244,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 *
 	 * @return array{array,bool,?string}[]
 	 */
-	public function field_table_validation_provider() {
+	public static function field_table_validation_provider() {
 		global $wpdb;
 
 		return array(
@@ -342,7 +342,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 *
 	 * @return int[][]
 	 */
-	public function get_field_ranges_posts_provider() {
+	public static function get_field_ranges_posts_provider() {
 		/*
 		 * Data Format.
 		 *
@@ -443,7 +443,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 *
 	 * @return int[][]
 	 */
-	public function get_field_ranges_posts_args_provider() {
+	public static function get_field_ranges_posts_args_provider() {
 		/*
 		 * Data Format.
 		 *

@@ -846,7 +846,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function provider_gravatar_invalid_posts() {
+	public static function provider_gravatar_invalid_posts() {
 
 		return array(
 			'invalid (null) post id'                  => array(

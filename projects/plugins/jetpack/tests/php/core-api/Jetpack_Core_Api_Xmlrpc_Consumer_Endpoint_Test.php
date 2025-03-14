@@ -31,7 +31,7 @@ class Jetpack_Core_Api_Xmlrpc_Consumer_Endpoint_Test extends WP_UnitTestCase {
 		$this->assertEquals( $result, $endpoint->process( null ) );
 	}
 
-	public function true_false_provider() {
+	public static function true_false_provider() {
 		return array(
 			array( true, true ),
 			array( true, false ),

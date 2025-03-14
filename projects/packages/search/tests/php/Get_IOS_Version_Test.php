@@ -17,7 +17,7 @@ class Get_IOS_Version_Test extends Search_TestCase {
 	 *
 	 * @return (string[]|(string|null)[])[]
 	 */
-	public function user_agents_data_provider() {
+	public static function user_agents_data_provider() {
 		return array(
 			array( 'Mozilla/5.0 (iPad; CPU OS 14_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/87.0.4280.77 Mobile/15E148 Safari/604.1', '14.1' ), // Chrome
 			array( 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1', '14.4' ), // Safari

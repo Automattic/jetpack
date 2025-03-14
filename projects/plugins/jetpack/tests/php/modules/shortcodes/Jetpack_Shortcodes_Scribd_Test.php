@@ -19,7 +19,7 @@ class Jetpack_Shortcodes_Scribd_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_data_shortcodes_scribd() {
+	public static function get_data_shortcodes_scribd() {
 		return array(
 			'non_amp' => array(
 				'[scribd id=39027960 key=key-3kaiwcjqhtipf25m8tw mode=list]',

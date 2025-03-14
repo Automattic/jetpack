@@ -19,7 +19,7 @@ class VideoPress_Player_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_html_test_data() {
+	public static function get_html_test_data() {
 		return array(
 			'cover_enabled'  => array(
 				array(

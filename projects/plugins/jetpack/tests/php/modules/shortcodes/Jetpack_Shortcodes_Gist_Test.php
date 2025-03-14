@@ -90,7 +90,7 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	 *
 	 * @covers ::github_gist_shortcode
 	 */
-	public function gist_embed_data() {
+	public static function gist_embed_data() {
 		$public_id                  = '57cc50246aab776e110060926a2face2';
 		$expected_html_markup       = '<div style="tab-size: 8" id="gist';
 		$expected_public_amp_markup = sprintf(
@@ -158,7 +158,7 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	 *
 	 * @covers ::github_gist_shortcode
 	 */
-	public function gist_shortcode_data() {
+	public static function gist_shortcode_data() {
 		$public_id                   = '57cc50246aab776e110060926a2face2';
 		$private_id                  = 'fc5891af153e2cf365c9';
 		$public_w_username           = 'jeherve/' . $public_id;

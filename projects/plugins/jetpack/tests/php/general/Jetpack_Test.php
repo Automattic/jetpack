@@ -593,7 +593,7 @@ EXPECTED;
 		$this->assertStringNotContainsString( $$not_expected, $file_url );
 	}
 
-	public function get_file_url_for_environment_data_provider() {
+	public static function get_file_url_for_environment_data_provider() {
 		return array(
 			'script-debug-true'  => array(
 				'_inc/build/shortcodes/js/recipes.js',
@@ -620,7 +620,7 @@ EXPECTED;
 		$this->assertSame( $expected, Jetpack::get_content_width() );
 	}
 
-	public function get_content_width_data() {
+	public static function get_content_width_data() {
 		return array(
 			'zero'                  => array(
 				0,
@@ -1089,7 +1089,7 @@ EXPECTED;
 	 *     [1] => The $current_screen->base test value.
 	 *     [2] => The expected output of Jetpack::should_set_cookie().
 	 */
-	public function should_set_cookie_provider() {
+	public static function should_set_cookie_provider() {
 		return array(
 			array( 'display_update_modal', 'toplevel_page_jetpack', false ),
 			array( 'display_update_modal', 'test_page', true ),

@@ -155,7 +155,7 @@ class IntegrationTest extends TestCase {
 		$this->runPhan( $dir, true, true );
 	}
 
-	public function provideIntegration() {
+	public static function provideIntegration() {
 		$iterator = new DirectoryIterator( __DIR__ . '/integration' );
 
 		foreach ( $iterator as $dir ) {
