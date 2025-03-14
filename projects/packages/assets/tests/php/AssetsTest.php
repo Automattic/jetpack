@@ -22,7 +22,6 @@ use Wikimedia\TestingAccessWrapper;
  */
 class AssetsTest extends TestCase {
 	use \Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Test setup.

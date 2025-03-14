@@ -45,4 +45,4 @@ printf '\e[30;43m ** You may want to run `jetpack install` when done testing to 
 
 printf '\n\e[1m== Running phpunit ==\e[0m\n'
 export DOCKER_PHPUNIT_BASE_DIR="$DIR"
-exec "php$VER" "$DIR/vendor/bin/phpunit" "$@"
+exec "php$VER" "$DIR/vendor/bin/phpunit-select-config" "$@"

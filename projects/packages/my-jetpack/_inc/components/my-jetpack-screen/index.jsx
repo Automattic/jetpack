@@ -26,9 +26,12 @@ import {
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
 	QUERY_CHAT_AVAILABILITY_KEY,
 	QUERY_CHAT_AUTHENTICATION_KEY,
+	QUERY_GET_JETPACK_MANAGE_DATA_KEY,
+	REST_API_GET_JETPACK_MANAGE_DATA,
 } from '../../data/constants';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useUpdateHistoricallyActiveModules from '../../data/products/use-update-historically-active-modules';
+import useRedBubbleQuery from '../../data/use-red-bubble-query';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
@@ -42,6 +45,7 @@ import ConnectionsSection from '../connections-section';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
+import LoadingBlock from '../loading-block';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
 import WelcomeFlow from '../welcome-flow';
@@ -92,11 +96,11 @@ export default function MyJetpackScreen() {
 	useNotificationWatcher();
 	const {
 		isAtomic = false,
-		jetpackManage = {},
 		adminUrl,
 		sandboxedDomain,
+		isDevVersion,
+		userIsAdmin,
 	} = getMyJetpackWindowInitialState();
-	const { redBubbleAlerts, isDevVersion, userIsAdmin } = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
@@ -115,6 +119,21 @@ export default function MyJetpackScreen() {
 		name: QUERY_CHAT_AUTHENTICATION_KEY,
 		query: { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT },
 	} );
+	const {
+		data: jetpackManageData,
+		isLoading: isJetpackManageLoading,
+		isError: isJetpackManageError,
+	} = useSimpleQuery( {
+		name: QUERY_GET_JETPACK_MANAGE_DATA_KEY,
+		query: { path: REST_API_GET_JETPACK_MANAGE_DATA },
+	} );
+
+	const {
+		data: redBubbleAlerts,
+		isLoading: isRedBubbleAlertsLoading,
+		isError: isRedBubbleAlertsError,
+	} = useRedBubbleQuery();
+
 	const updateHistoricallyActiveModules = useUpdateHistoricallyActiveModules();
 
 	useEffect( () => {
@@ -135,10 +154,20 @@ export default function MyJetpackScreen() {
 	// useLayoutEffect gets called before useEffect.
 	// We are using it here to ensure the `page_view` event gets triggered first.
 	useLayoutEffect( () => {
-		recordEvent( 'jetpack_myjetpack_page_view', {
-			red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
-		} );
-	}, [ recordEvent, redBubbleAlerts ] );
+		let customTracksData = {};
+
+		if ( ! isRedBubbleAlertsError && Object.keys( redBubbleAlerts )?.length ) {
+			customTracksData = {
+				red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
+			};
+		}
+
+		if ( ! isRedBubbleAlertsLoading ) {
+			recordEvent( 'jetpack_myjetpack_page_view', {
+				...customTracksData,
+			} );
+		}
+	}, [ recordEvent, redBubbleAlerts, isRedBubbleAlertsError, isRedBubbleAlertsLoading ] );
 
 	if ( window.location.hash.includes( '?reload=true' ) ) {
 		// Clears the query string and reloads the page.
@@ -219,10 +248,17 @@ export default function MyJetpackScreen() {
 
 			<ProductCardsSection />
 
-			{ jetpackManage.isEnabled && (
+			{ userIsAdmin && (
 				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col>
-						<JetpackManageBanner isAgencyAccount={ jetpackManage.isAgencyAccount } />
+						{ isJetpackManageLoading ? (
+							<LoadingBlock height="200px" width="100%" />
+						) : (
+							! isJetpackManageError &&
+							jetpackManageData.isEnabled && (
+								<JetpackManageBanner isAgencyAccount={ jetpackManageData.isAgencyAccount } />
+							)
+						) }
 					</Col>
 				</Container>
 			) }

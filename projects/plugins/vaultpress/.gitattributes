@@ -17,7 +17,6 @@ vendor/jetpack-autoloader/**                production-include
 changelog/**                                production-exclude
 composer.lock                               production-exclude
 package.json                                production-exclude
-phpunit.xml.dist                            production-exclude
 .phpcs.dir.xml                              production-exclude
 tests/**                                    production-exclude
 /vendor/automattic/jetpack-autoloader/**    production-exclude
