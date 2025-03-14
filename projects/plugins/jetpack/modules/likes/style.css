@@ -136,11 +136,23 @@ div.sd-box {
 	border-top: 1px solid rgba(0,0,0,.13);
 }
 
+
+.jetpack-likes-widget-unloaded .likes-widget-placeholder,
+.jetpack-likes-widget-loading .likes-widget-placeholder,
+.jetpack-likes-widget-loaded iframe {
+	display: block;
+}
+
+.jetpack-likes-widget-loaded .likes-widget-placeholder,
+.jetpack-likes-widget-unloaded iframe,
+.jetpack-likes-widget-loading iframe {
+	display: none;
+}
+
 .entry-content .post-likes-widget, .post-likes-widget,
 .comment-likes-widget {
 	margin: 0;
 	border-width: 0;
-	display: block;
 }
 
 /* Loading text */
