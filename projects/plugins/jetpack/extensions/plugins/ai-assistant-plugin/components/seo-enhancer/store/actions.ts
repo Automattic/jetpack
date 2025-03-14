@@ -18,3 +18,11 @@ export function setIsAutoEnhanceEnabled( isEnabled: boolean ) {
 		isEnabled,
 	};
 }
+
+export function setImageBusy( clientId: string, isBusy: boolean ) {
+	return {
+		type: 'SET_IMAGE_BUSY',
+		clientId,
+		isBusy,
+	};
+}

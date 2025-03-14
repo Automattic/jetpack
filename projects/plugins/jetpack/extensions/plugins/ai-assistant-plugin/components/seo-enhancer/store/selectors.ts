@@ -14,3 +14,11 @@ export function isTogglingAutoEnhance( state: SeoEnhancerState ) {
 export function isAutoEnhanceEnabled( state: SeoEnhancerState ) {
 	return state.isAutoEnhanceEnabled;
 }
+
+export function isImageBusy( state: SeoEnhancerState, clientId: string ) {
+	return state.busyImages[ clientId ] ?? false;
+}
+
+export function isAnyImageBusy( state: SeoEnhancerState ) {
+	return Object.values( state.busyImages ).some( busy => busy );
+}

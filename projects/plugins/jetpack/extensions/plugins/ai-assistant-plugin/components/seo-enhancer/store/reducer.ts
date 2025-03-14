@@ -11,6 +11,8 @@ export function reducer( state: SeoEnhancerState, action: SeoEnhancerAction ) {
 			return { ...state, isTogglingAutoEnhance: action.isToggling };
 		case 'SET_IS_AUTO_ENHANCE_ENABLED':
 			return { ...state, isAutoEnhanceEnabled: action.isEnabled };
+		case 'SET_IMAGE_BUSY':
+			return { ...state, busyImages: { ...state.busyImages, [ action.clientId ]: action.isBusy } };
 		default:
 			return state;
 	}

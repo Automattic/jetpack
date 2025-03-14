@@ -162,15 +162,6 @@ abstract class Product {
 	}
 
 	/**
-	 * This method will be called in the class initializer to perform any necessary initialization
-	 *
-	 * @return void
-	 */
-	public static function initialize() {
-		// This method should be implemented in the child class.
-	}
-
-	/**
 	 * This method will be called in the class initializer to register the product's endpoints
 	 *
 	 * @return void

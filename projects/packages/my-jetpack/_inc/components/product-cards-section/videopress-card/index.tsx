@@ -4,9 +4,13 @@
 import { Text } from '@automattic/jetpack-components';
 import { useCallback, useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
-import { PRODUCT_SLUGS } from '../../../data/constants';
+import {
+	PRODUCT_SLUGS,
+	REST_API_GET_VIDEOPRESS_DATA,
+	QUERY_GET_VIDEOPRESS_DATA_KEY,
+} from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
-import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import useSimpleQuery from '../../../data/use-simple-query';
 import ProductCard from '../../connected-product-card';
 import { InfoTooltip } from '../../info-tooltip';
 import useTooltipCopy from './use-tooltip-copy';
@@ -19,11 +23,21 @@ import './style.scss';
 const slug = PRODUCT_SLUGS.VIDEOPRESS;
 
 const VideopressCard: ProductCardComponent = props => {
-	const { detail } = useProduct( slug );
+	const { detail, isLoading: isLoadingProductData } = useProduct( slug );
+	const { data: videopressData, isLoading: isLoadingVideopressData } =
+		useSimpleQuery< VideopressData >( {
+			name: QUERY_GET_VIDEOPRESS_DATA_KEY,
+			query: {
+				path: REST_API_GET_VIDEOPRESS_DATA,
+			},
+		} );
+
+	const isLoading = isLoadingProductData || isLoadingVideopressData;
+
 	const { status } = detail || {};
-	const { videopress: data } = getMyJetpackWindowInitialState();
-	const { activeAndNoVideos } = useTooltipCopy();
-	const { videoCount = 0, featuredStats } = data || {};
+
+	const { activeAndNoVideos } = useTooltipCopy( videopressData );
+	const { videoCount = 0, featuredStats } = videopressData || {};
 
 	const isPluginActive =
 		status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
@@ -78,7 +92,11 @@ const VideopressCard: ProductCardComponent = props => {
 			Description={ Description }
 			customLoadTracks={ customLoadTracks }
 		>
-			<VideoPressValueSection isPluginActive={ isPluginActive } data={ data } />
+			<VideoPressValueSection
+				isPluginActive={ isPluginActive }
+				data={ videopressData }
+				isLoading={ isLoading }
+			/>
 		</ProductCard>
 	);
 };
