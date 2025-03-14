@@ -27,14 +27,14 @@ function wpcom_nosara_track_admin_page_views() {
 	global $current_user, $current_blog, $current_screen;
 
 	if (
-		! $current_user instanceof WP_User ||
-		! $current_screen instanceof WP_Screen
+		! $current_user instanceof \WP_User ||
+		! $current_screen instanceof \WP_Screen
 	) {
 		return;
 	}
 
 	if ( $is_simple_site ) {
-		if ( ! $current_blog instanceof WP_Site ) {
+		if ( ! $current_blog instanceof \WP_Site ) {
 			return;
 		}
 
@@ -45,7 +45,7 @@ function wpcom_nosara_track_admin_page_views() {
 		}
 
 		$blog_id    = $current_blog->blog_id;
-		$user_types = WPCOM_User::get_types();
+		$user_types = \WPCOM_User::get_types();
 	}
 
 	if ( $is_atomic_site ) {
