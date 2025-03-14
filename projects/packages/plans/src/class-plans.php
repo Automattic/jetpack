@@ -83,8 +83,6 @@ class Plans {
 	/**
 	 * Efficiently get the short name of a plan from a slug.
 	 *
-	 * @since-jetpack $$next-version$$
-	 *
 	 * @param string $plan_slug Plan slug.
 	 * @return string|null Short product name or null if not round.
 	 */
