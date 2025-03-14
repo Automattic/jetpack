@@ -266,10 +266,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'id'     => 'jetpack-forms',
 				'parent' => null,
 				'group'  => null,
-				'title'  => __( 'Feedback', 'jetpack-forms' ),
+				'title'  => __( 'Form Responses', 'jetpack-forms' ),
 				'href'   => $url,
 				'meta'   => array(
-					'title' => __( 'Feedback', 'jetpack-forms' ),
+					'title' => __( 'Form Responses', 'jetpack-forms' ),
 				),
 			)
 		);
