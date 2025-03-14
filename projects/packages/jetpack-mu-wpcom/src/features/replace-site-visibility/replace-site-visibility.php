@@ -210,12 +210,21 @@ function load_options_update_site_visibility() {
 		return;
 	}
 
-	$blog_id  = get_wpcom_blog_id();
-	$response = Client::wpcom_json_api_request_as_user(
+	$blog_id = get_wpcom_blog_id();
+
+	// wpcom_json_api_request_as_user does not support internal requests.
+	$request  = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'wpcom_json_api_request_as_blog' : 'wpcom_json_api_request_as_user';
+	$response = Client::$request(
 		"/sites/$blog_id/site-visibility",
 		'v2',
-		array( 'method' => 'POST' ),
-		$data
+		array(
+			'method'  => 'POST',
+			'headers' => array(
+				'content-type' => 'application/json',
+			),
+		),
+		wp_json_encode( $data ),
+		'wpcom'
 	);
 
 	if ( wp_remote_retrieve_response_code( $response ) !== 200 ) {
