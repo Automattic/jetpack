@@ -8,13 +8,14 @@ import {
 	PanelRow,
 	CheckboxControl,
 } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import { FEATURE_LABELS, FEATURES } from './constants';
 import { store } from './store';
 import { useSeoModuleSettings } from './use-seo-module-settings';
 import { useSeoRequests } from './use-seo-requests';
@@ -22,7 +23,6 @@ import './style.scss';
 /**
  * Types
  */
-import type { PromptType } from './types';
 const debug = debugFactory( 'seo-enhancer:index' );
 
 export function SeoEnhancer() {
@@ -33,40 +33,21 @@ export function SeoEnhancer() {
 
 		return isBusy || isAnyImageBusy;
 	}, [] );
-	const [ features, setFeatures ] = useState<
-		{ name: PromptType; label: string; checked: boolean }[]
-	>( [
-		{
-			name: 'seo-title',
-			label: __( 'SEO title', 'jetpack' ),
-			checked: true,
-		},
-		{
-			name: 'seo-meta-description',
-			label: __( 'SEO description', 'jetpack' ),
-			checked: true,
-		},
-		{
-			name: 'images-alt-text',
-			label: __( 'Alt text for images', 'jetpack' ),
-			checked: true,
-		},
-	] );
-	const { updateSeoData } = useSeoRequests(
-		features.filter( feature => feature.checked ).map( feature => feature.name )
-	);
+	const enabledFeatures = useSelect( select => select( store ).getEnabledFeatures(), [] );
+	const { setFeatureEnabled } = useDispatch( store );
+
+	const { updateSeoData } = useSeoRequests( enabledFeatures );
 
 	const toggleSeoEnhancer = useCallback( async () => {
 		await toggleEnhancer();
 	}, [ toggleEnhancer ] );
 
-	const toggleFeature = useCallback( name => {
-		setFeatures( prevFeatures =>
-			prevFeatures.map( feature =>
-				feature.name === name ? { ...feature, checked: ! feature.checked } : feature
-			)
-		);
-	}, [] );
+	const toggleFeature = useCallback(
+		name => {
+			setFeatureEnabled( name, ! enabledFeatures.includes( name ) );
+		},
+		[ enabledFeatures, setFeatureEnabled ]
+	);
 
 	const generateHandler = async () => {
 		try {
@@ -100,12 +81,12 @@ export function SeoEnhancer() {
 				<BaseControl __nextHasNoMarginBottom={ true }>
 					{ ! isEnabled && (
 						<div className="feature-checkboxes-container">
-							{ features.map( feature => (
+							{ FEATURES.map( feature => (
 								<CheckboxControl
-									key={ feature.name }
-									label={ feature.label }
-									checked={ feature.checked }
-									onChange={ () => toggleFeature( feature.name ) }
+									key={ feature }
+									label={ FEATURE_LABELS[ feature ] }
+									checked={ enabledFeatures.includes( feature ) }
+									onChange={ () => toggleFeature( feature ) }
 									__nextHasNoMarginBottom={ true }
 									disabled={ isLoading }
 									className={ isLoading ? 'is-disabled' : '' }
@@ -115,15 +96,13 @@ export function SeoEnhancer() {
 					) }
 					{ isEnabled && (
 						<div className="jetpack-seo-sidebar__feature-list-container">
-							{ features.some( feature => feature.checked ) ? (
+							{ enabledFeatures.length > 0 ? (
 								<>
 									<p>{ __( "We'll auto-generate:", 'jetpack' ) }</p>
 									<ul className="jetpack-seo-sidebar__feature-list">
-										{ features
-											.filter( feature => feature.checked )
-											.map( feature => (
-												<li key={ feature.name }>{ feature.label }</li>
-											) ) }
+										{ enabledFeatures.map( feature => (
+											<li key={ feature }>{ FEATURE_LABELS[ feature ] }</li>
+										) ) }
 									</ul>
 								</>
 							) : (

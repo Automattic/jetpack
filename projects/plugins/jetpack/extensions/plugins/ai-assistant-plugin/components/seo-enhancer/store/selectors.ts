@@ -1,7 +1,7 @@
 /**
  * Types
  */
-import type { SeoEnhancerState } from '../types';
+import type { PromptType, SeoEnhancerState } from '../types';
 
 export function isBusy( state: SeoEnhancerState ) {
 	return state.isBusy;
@@ -25,4 +25,10 @@ export function isAnyImageBusy( state: SeoEnhancerState ) {
 
 export function hasImageFailed( state: SeoEnhancerState, clientId: string ) {
 	return state.failedImages[ clientId ] ?? false;
+}
+
+export function getEnabledFeatures( state: SeoEnhancerState ) {
+	return Object.keys( state.features ).filter(
+		feature => state.features[ feature ]
+	) as PromptType[];
 }
