@@ -145,7 +145,7 @@ function keyDown( ke: KeyboardEvent, dp: IDatePicker ) {
 	}
 
 	if ( key === Key.esc ) {
-		dp.close();
+		dp.close( true );
 	} else if ( shiftBy ) {
 		ke.preventDefault();
 		if ( ke.shiftKey ) {
