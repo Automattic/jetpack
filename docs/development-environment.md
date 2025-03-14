@@ -278,7 +278,7 @@ To get started, there are several ways to run the unit tests, depending on how y
 	This command runs the tests as a multi site install
 
 	```sh
-	jetpack docker phpunit-multisite -- --filter=Protect
+	jetpack docker phpunit-jp-multisite -- --filter=Protect
 	```
 
 	To run tests for specific packages, you can run the tests locally, from within the package's directory:

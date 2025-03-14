@@ -11,7 +11,7 @@ import {
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { useSelect, select as globalSelect } from '@wordpress/data';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { createPortal, useEffect, useRef } from '@wordpress/element';
@@ -40,17 +40,22 @@ import './editor.scss';
 
 export const name = 'seo';
 
+// On P2 this function is not available, causing an error
+const supportsPublishSidebar =
+	typeof globalSelect( editorStore ).isPublishSidebarOpened === 'function';
+
 const isSeoAssistantEnabled =
 	getJetpackExtensionAvailability( 'ai-seo-assistant' )?.available === true;
 
 const isSeoEnhancerEnabled =
-	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true;
+	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
+	supportsPublishSidebar;
 
 const Seo = () => {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
 	const isPrePublishPanelOpen = useSelect(
-		select => select( editorStore ).isPublishSidebarOpened(),
+		select => select( editorStore ).isPublishSidebarOpened?.(),
 		[]
 	);
 	const isSeoAssistantOpen = useSelect( select => select( STORE_NAME ).isOpen(), [] );
@@ -71,7 +76,8 @@ const Seo = () => {
 			! previousIsOpenRef.current &&
 			! isBusy &&
 			isEnabled &&
-			! isToggling
+			! isToggling &&
+			supportsPublishSidebar
 		) {
 			updateSeoData();
 		}

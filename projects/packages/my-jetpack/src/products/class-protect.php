@@ -58,6 +58,13 @@ class Protect extends Hybrid_Product {
 	public static $category = 'security';
 
 	/**
+	 * Defines whether or not to show a product interstitial as tiered pricing or not
+	 *
+	 * @var bool
+	 */
+	public static $is_tiered_pricing = true;
+
+	/**
 	 * Whether this product requires a user connection
 	 *
 	 * @var string

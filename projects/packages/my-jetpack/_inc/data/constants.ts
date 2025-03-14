@@ -14,6 +14,7 @@ export const REST_API_EVALUATE_SITE_RECOMMENDATIONS = `${ REST_API_NAMESPACE }/s
 export const REST_API_SITE_EVALUATION_RESULT = `${ REST_API_NAMESPACE }/site/recommendations/evaluation/result`;
 export const REST_API_UPDATE_HISTORICALLY_ACTIVE_MODULES = `${ REST_API_NAMESPACE }/site/update-historically-active-modules`;
 export const REST_API_GET_JETPACK_MANAGE_DATA = `${ REST_API_NAMESPACE }/jetpack-manage/data`;
+export const REST_API_RED_BUBBLE_ALERTS = `${ REST_API_NAMESPACE }/red-bubble-notifications`;
 
 export const getStatsHighlightsEndpoint = ( blogId: string ) =>
 	`${ ODYSSEY_STATS_API_NAMESPACE }/sites/${ blogId }/stats/highlights`;
@@ -36,6 +37,7 @@ export const QUERY_SAVE_EVALUATION_KEY = 'save site evaluation result';
 export const QUERY_REMOVE_EVALUATION_KEY = 'remove site evaluation result';
 export const QUERY_UPDATE_HISTORICALLY_ACTIVE_MODULES_KEY = 'update historically active modules';
 export const QUERY_GET_JETPACK_MANAGE_DATA_KEY = 'get jetpack manage data';
+export const QUERY_RED_BUBBLE_ALERTS_KEY = 'red bubble alerts';
 
 // Product Slugs
 export const PRODUCT_SLUGS = {

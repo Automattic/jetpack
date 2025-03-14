@@ -1,6 +1,6 @@
 import { Container, Col, Text, AdminSectionHero } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import { PRODUCT_SLUGS } from '../../data/constants';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -114,6 +114,20 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 		isLoading,
 	} = useProductsByOwnership();
 
+	const [ isLoadingProducts, setIsLoadingProducts ] = useState( true );
+
+	useEffect( () => {
+		if ( isLoading ) {
+			return;
+		}
+
+		// This adds a slight delay to the loading status change to prevent
+		// a brief moment in time where the section was not visible at all
+		// between the isLoading = true and isLoading = false states.
+		// This issue was causing a flicker effect.
+		requestAnimationFrame( () => setIsLoadingProducts( false ) );
+	} );
+
 	const { canUserViewStats, userIsAdmin } = getMyJetpackWindowInitialState();
 
 	const unownedSectionTitle = useMemo( () => {
@@ -155,7 +169,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 
 	return (
 		<>
-			{ ( isLoading || filteredOwnedProducts.length > 0 ) && (
+			{ ( isLoadingProducts || filteredOwnedProducts.length > 0 ) && (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
 						<Col>
@@ -163,7 +177,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 								<Text variant="headline-small">{ __( 'My products', 'jetpack-my-jetpack' ) }</Text>
 							</Col>
 
-							<DisplayItems isLoading={ isLoading } slugs={ filteredOwnedProducts } />
+							<DisplayItems isLoading={ isLoadingProducts } slugs={ filteredOwnedProducts } />
 						</Col>
 					</Container>
 				</AdminSectionHero>

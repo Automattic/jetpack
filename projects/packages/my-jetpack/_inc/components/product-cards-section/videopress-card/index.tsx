@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Text } from '@automattic/jetpack-components';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
@@ -33,10 +33,12 @@ const VideopressCard: ProductCardComponent = props => {
 		videoCount,
 	} );
 
-	const customLoadTracks = {
-		stats_period: featuredStats?.period,
-		video_count: videoCount,
-	};
+	const customLoadTracks = useMemo( () => {
+		return {
+			stats_period: featuredStats?.period,
+			video_count: videoCount,
+		};
+	}, [ featuredStats, videoCount ] );
 
 	const Description = useCallback( () => {
 		return (
