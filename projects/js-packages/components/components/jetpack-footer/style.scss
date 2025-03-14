@@ -24,7 +24,7 @@
 			text-decoration-thickness: 1.5px;
 		}
 
-		&:focus {
+		&:focus-visible {
 			border-radius: 2px;
 			box-shadow: none;
 			outline: 1.5px solid currentColor;
