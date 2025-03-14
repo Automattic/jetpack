@@ -347,7 +347,7 @@ trait Woo_Analytics_Trait {
 			$this->maybe_start_session();
 		}
 
-		if ( ! $this->is_initial_page_view( $event_name ) && ! $this->is_engaged_session() ) {
+		if ( ! $this->is_initial_page_view( $event_name ) && ! isset( $properties['is_engaged'] ) && ! $this->is_engaged_session() ) {
 			$this->record_engagement( $properties );
 		}
 
