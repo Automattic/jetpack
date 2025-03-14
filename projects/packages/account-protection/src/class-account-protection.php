@@ -248,21 +248,12 @@ class Account_Protection {
 	}
 
 	/**
-	 * Wrapper function for the Jetpack version constant.
-	 *
-	 * @return bool
-	 */
-	public function is_jetpack_version_defined(): bool {
-		return defined( 'JETPACK__VERSION' );
-	}
-
-	/**
 	 * Wrapper function for returning the Jetpack version.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
-	public function get_jetpack_version(): string {
-		return JETPACK__VERSION;
+	public function get_jetpack_version() {
+		return defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : null;
 	}
 
 	/**
@@ -271,13 +262,10 @@ class Account_Protection {
 	 * @return bool
 	 */
 	public function has_unsupported_jetpack_version(): bool {
+		$jetpack_version = $this->get_jetpack_version();
 		// Do not run when Jetpack version is less than 14.5
-		if ( $this->is_jetpack_version_defined() ) {
-			$jetpack_version = $this->get_jetpack_version();
-
-			if ( is_string( $jetpack_version ) && version_compare( $jetpack_version, '14.5', '<' ) ) {
-				return true;
-			}
+		if ( $jetpack_version && version_compare( $jetpack_version, '14.5', '<' ) ) {
+			return true;
 		}
 
 		return false;

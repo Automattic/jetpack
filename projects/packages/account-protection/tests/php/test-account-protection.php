@@ -193,10 +193,7 @@ class Account_Protection_Test extends BaseTestCase {
 	}
 
 	public function test_has_unsupported_jetpack_version_returns_true_for_old_version(): void {
-		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_jetpack_version_defined', 'get_jetpack_version' ) );
-		$sut->expects( $this->once() )
-			->method( 'is_jetpack_version_defined' )
-			->willReturn( true );
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'get_jetpack_version' ) );
 
 		$sut->expects( $this->once() )
 			->method( 'get_jetpack_version' )
@@ -206,10 +203,7 @@ class Account_Protection_Test extends BaseTestCase {
 	}
 
 	public function test_has_unsupported_jetpack_version_returns_false_for_supported_version(): void {
-		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_jetpack_version_defined', 'get_jetpack_version' ) );
-		$sut->expects( $this->once() )
-			->method( 'is_jetpack_version_defined' )
-			->willReturn( true );
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'get_jetpack_version' ) );
 
 		$sut->expects( $this->once() )
 			->method( 'get_jetpack_version' )
@@ -218,7 +212,7 @@ class Account_Protection_Test extends BaseTestCase {
 		$this->assertFalse( $sut->has_unsupported_jetpack_version() );
 	}
 
-	public function test_has_unsupported_jetpack_version_returns_false_if_undefined(): void {
+	public function test_has_unsupported_jetpack_version_returns_true_for_if_undefined(): void {
 		$sut = new Account_Protection();
 		$this->assertFalse( $sut->has_unsupported_jetpack_version() );
 	}
