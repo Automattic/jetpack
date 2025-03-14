@@ -1,4 +1,3 @@
-import { dispatch } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
 
 const JETPACK_EDITOR_ACTION = 'jetpack-editor-action';
@@ -25,31 +24,23 @@ export function removeJetpackEditorAction() {
 }
 
 /**
- * Handle the Jetpack Editor action.
+ * Handle a particular Jetpack Editor action.
  *
- * @param {{sidebarToOpen?: string; onAction?: (action:string) => void; removeQueryArg?: boolean}} args - Arguments.
+ * If the callback returns true, the Jetpack Editor action will be removed from the URL.
+ *
+ * @param {string}               action   - The action to handle.
+ * @param {() => (void|boolean)} callback - The callback to run when the action is handled.
  */
-export function handleJetpackEditorAction( {
-	sidebarToOpen = 'jetpack-sidebar/jetpack',
-	removeQueryArg = true,
-	onAction,
-} ) {
+export function handleJetpackEditorAction( action, callback ) {
 	domReady( () => {
-		const action = getJetpackEditorAction();
-		if ( action ) {
-			/**
-			 * This should have been the `store` from '@wordpress/interface',
-			 * but that causes some build issues.
-			 *
-			 * TODO: Fix this.
-			 */
-			dispatch( 'core/interface' ).enableComplementaryArea( 'core', sidebarToOpen );
+		const actionValue = getJetpackEditorAction();
+		if ( action !== actionValue ) {
+			return;
+		}
+		const removeQueryArg = callback();
 
-			onAction?.( action );
-
-			if ( removeQueryArg ) {
-				removeJetpackEditorAction();
-			}
+		if ( removeQueryArg ) {
+			removeJetpackEditorAction();
 		}
 	} );
 }

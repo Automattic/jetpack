@@ -1520,9 +1520,6 @@ importers:
       '@wordpress/i18n':
         specifier: 5.19.0
         version: 5.19.0
-      '@wordpress/interface':
-        specifier: 9.4.0
-        version: 9.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/plugins':
         specifier: 7.19.0
         version: 7.19.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

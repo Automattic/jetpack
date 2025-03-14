@@ -1,18 +1,14 @@
 import { handleJetpackEditorAction } from '@automattic/jetpack-shared-extension-utils';
 import { Fill } from '@wordpress/components';
-import { dispatch } from '@wordpress/data';
 import { registerPlugin } from '@wordpress/plugins';
-import { store as socialStore } from '../../social-store';
 import { SocialPanels } from './components/social-panels';
 import { SocialSettings } from './components/social-settings';
+import { handleSharePostAction } from './shared-utils';
 
-handleJetpackEditorAction( {
-	onAction( action ) {
-		if ( action === 'share_post' ) {
-			dispatch( socialStore ).openSharePostModal();
-		}
-	},
+handleJetpackEditorAction( 'share_post', () => {
+	return handleSharePostAction();
 } );
+
 /**
  * The Social UI needed for Jetpack sidebar
  *
