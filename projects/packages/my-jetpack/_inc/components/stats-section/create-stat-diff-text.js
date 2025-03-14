@@ -13,6 +13,10 @@ import formatPercentage from '../../utils/format-percentage';
  * @return {string}  Formatted text describing the difference
  */
 const createStatDiffText = ( countStat, count, previousCount ) => {
+	if ( typeof count !== 'number' || typeof previousCount !== 'number' ) {
+		return '';
+	}
+
 	const diff = count - previousCount;
 
 	if ( diff === 0 ) {
