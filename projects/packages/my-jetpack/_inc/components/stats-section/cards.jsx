@@ -7,6 +7,16 @@ import createStatDiffText from './create-stat-diff-text';
 import eye from './eye';
 import styles from './style.module.scss';
 
+/**
+ * Creates the text read by screen readers for a stat card.
+ *
+ * @param {Function} countStat     - Function that accepts a number and calls _n() with that number to return the singular or plural form of the stat count.
+ *                                 E.g. countStat( 1 ) returns '%s view', countStat( 5 ) returns '%s views'
+ * @param {number}   count         - The current count value.
+ * @param {number}   previousCount - The previous period's count value.
+ * @return {string} Screen reader text
+ */
+
 const createStatSRText = ( countStat, count, previousCount ) => {
 	const fragments = [];
 	const statCountText = sprintf( countStat( count ), formatNumber( count ) );
