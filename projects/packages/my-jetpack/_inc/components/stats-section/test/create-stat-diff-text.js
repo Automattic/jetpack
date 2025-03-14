@@ -51,4 +51,18 @@ describe( 'createStatDiffText', () => {
 			expect( text ).not.toContain( '%' );
 		} );
 	} );
+
+	describe( 'when inputs are not numbers', () => {
+		it( 'should return empty string for non-number count', () => {
+			expect( createStatDiffText( viewsCount, '10', 5 ) ).toBe( '' );
+			expect( createStatDiffText( viewsCount, null, 5 ) ).toBe( '' );
+			expect( createStatDiffText( viewsCount, undefined, 5 ) ).toBe( '' );
+		} );
+
+		it( 'should return empty string for non-number previousCount', () => {
+			expect( createStatDiffText( viewsCount, 10, '5' ) ).toBe( '' );
+			expect( createStatDiffText( viewsCount, 10, null ) ).toBe( '' );
+			expect( createStatDiffText( viewsCount, 10, undefined ) ).toBe( '' );
+		} );
+	} );
 } );
