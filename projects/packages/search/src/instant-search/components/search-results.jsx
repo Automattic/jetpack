@@ -117,6 +117,32 @@ class SearchResults extends Component {
 		return __( 'Showing popular results', 'jetpack-search-pkg' );
 	}
 
+	getCorrectedSearchQuery() {
+		const { corrected_query = false, corrected_query_total = 0 } = this.props.response;
+		const hasCorrectedQuery = corrected_query !== false;
+		const hasCorrectedResults = corrected_query_total > 0;
+
+		if ( ! hasCorrectedQuery || ! hasCorrectedResults ) {
+			return '';
+		}
+
+		return (
+			<a
+				href="#"
+				onClick={ e => {
+					e.preventDefault();
+					this.props.onChangeSearch( corrected_query );
+				} }
+				className="jetpack-instant-search__search-results-corrected-query-link"
+			>
+				{
+					// translators: %s: Suggested search query
+					sprintf( __( 'Did you mean "%s"?', 'jetpack-search-pkg' ), corrected_query )
+				}
+			</a>
+		);
+	}
+
 	renderPrimarySection() {
 		const { highlightColor, searchQuery } = this.props;
 		const { results = [], total = 0, corrected_query = false } = this.props.response;
@@ -156,6 +182,9 @@ class SearchResults extends Component {
 						}
 					</p>
 				) }
+
+				{ this.getCorrectedSearchQuery() }
+
 				{ this.props.hasError && (
 					<Notice type="warning">{ getErrorMessage( this.props.response.error ) }</Notice>
 				) }

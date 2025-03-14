@@ -421,4 +421,36 @@ class Inline_Search extends Classic_Search {
 	) {
 		return $this->search_result;
 	}
+
+	/**
+	 * Initialize hooks for handling corrected query functionality.
+	 */
+	public function init_corrected_query_hooks() {
+		parent::init_hooks();
+
+		// Add hook to update search options with corrected query
+		add_action( 'pre_get_posts', array( $this, 'update_search_options_with_correction' ) );
+	}
+
+	/**
+	 * Updates Instant Search options with corrected query if one exists.
+	 *
+	 * @param \WP_Query $query The WP_Query instance.
+	 */
+	public function update_search_options_with_correction( $query ) {
+		if ( ! $this->should_handle_query( $query ) ) {
+			return;
+		}
+
+		if ( isset( $this->search_result['corrected_query'] ) && $this->search_result['corrected_query'] ) {
+			// Add the corrected query to the Instant Search options
+			add_filter(
+				'jetpack_instant_search_options',
+				function ( $options ) {
+					$options['correctedQuery'] = $this->search_result['corrected_query'];
+					return $options;
+				}
+			);
+		}
+	}
 }
