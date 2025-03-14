@@ -13,48 +13,6 @@ export type Connection = {
 	shared: boolean;
 	status: ConnectionStatus;
 	wpcom_user_id: number;
-
-	/* DEPRECATED FIELDS  */
-	/**
-	 * @deprecated
-	 */
-	done?: boolean;
-	/**
-	 * @deprecated Use `status` instead.
-	 */
-	error_code?: string;
-	/**
-	 * @deprecated Use `display_name` instead.
-	 */
-	external_display?: string;
-	/**
-	 * @deprecated Use `external_handle` instead.
-	 */
-	external_name?: string;
-	/**
-	 * @deprecated Use `connection_id` instead.
-	 */
-	id?: string;
-	/**
-	 * @deprecated Use `status` instead.
-	 */
-	is_healthy?: boolean;
-	/**
-	 * @deprecated Use `service_label` instead.
-	 */
-	label?: string;
-	/**
-	 * @deprecated Use `status` instead.
-	 */
-	test_success?: boolean;
-	/**
-	 * @deprecated
-	 */
-	toggleable?: boolean;
-	/**
-	 * @deprecated Use `external_handle` instead.
-	 */
-	username?: string;
 };
 
 export type ConnectionData = {
