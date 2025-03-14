@@ -59,22 +59,21 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @return void
 	 */
 	public function schedule_cornerstone_preload() {
-		$this->schedule_preload( Cornerstone_Utils::get_list() );
+		$this->schedule_preload_cronjob( Cornerstone_Utils::get_list() );
 	}
 
 	/**
-	 * Schedules the preload cronjob, if not already scheduled.
+	 * Schedules the preload cronjob, if not already scheduled to execute within 10 minutes with the same arguments, per wp_schedule_single_event.
 	 *
 	 * Sets up a single event to trigger the preload process with a short delay of 2 seconds
 	 * to prevent multiple rapid cache rebuilds when multiple events trigger in sequence.
 	 *
 	 * @since $$next-version$$
+	 * @param array $posts The posts to preload.
 	 * @return void
 	 */
-	public function schedule_preload_cronjob() {
-		if ( ! wp_next_scheduled( 'jetpack_boost_preload_pages' ) ) {
-			wp_schedule_single_event( time(), 'jetpack_boost_preload_pages' );
-		}
+	public function schedule_preload_cronjob( $posts ) {
+		wp_schedule_single_event( time(), 'jetpack_boost_preload_pages', array( $posts ) );
 	}
 
 	/**
@@ -84,10 +83,10 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * to populate the cache.
 	 *
 	 * @since $$next-version$$
+	 * @param array $posts The posts to preload.
 	 * @return void
 	 */
-	public function preload_pages() {
-		$posts = get_option( 'jetpack_boost_posts_to_preload', array() );
+	public function preload_pages( $posts ) {
 		if ( empty( $posts ) ) {
 			return;
 		}
@@ -95,9 +94,6 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 		foreach ( $posts as $url ) {
 			$this->preload_page( $url );
 		}
-
-		// Clear the preload queue after processing.
-		update_option( 'jetpack_boost_posts_to_preload', array(), false );
 	}
 
 	/**
@@ -133,29 +129,6 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	}
 
 	/**
-	 * Schedule preload for a post or an array of posts.
-	 *
-	 * Adds the specified posts to the preload queue and schedules the preload cronjob.
-	 *
-	 * @since $$next-version$$
-	 * @param string|array $post_to_schedule The post URL or an array of post URLs to schedule.
-	 * @return void
-	 */
-	public function schedule_preload( $post_to_schedule ) {
-		$posts = get_option( 'jetpack_boost_posts_to_preload', array() );
-		if ( is_array( $post_to_schedule ) ) {
-			$posts = array_merge( $posts, $post_to_schedule );
-		} else {
-			$posts[] = $post_to_schedule;
-		}
-
-		// Do not autoload the option as it's only used within the preload process.
-		update_option( 'jetpack_boost_posts_to_preload', array_unique( $posts ), false );
-
-		$this->schedule_preload_cronjob();
-	}
-
-	/**
 	 * Handle post updates to check if the post is a cornerstone page and schedule preload if needed.
 	 *
 	 * Triggered when a post is updated. If the post is identified as a cornerstone page,
@@ -166,11 +139,9 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @return void
 	 */
 	public function handle_post_update( int $post_id ) {
-		if ( ! Cornerstone_Utils::is_cornerstone_page( $post_id ) ) {
-			return;
+		if ( Cornerstone_Utils::is_cornerstone_page( $post_id ) ) {
+			$this->schedule_preload( get_permalink( $post_id ) );
 		}
-
-		$this->schedule_preload( get_permalink( $post_id ) );
 	}
 
 	/**
