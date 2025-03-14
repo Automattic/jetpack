@@ -72,13 +72,23 @@ server.on( 'request', ( req, res ) => {
 		}
 	}
 
+	// Validate and sanitize req.url
+	const allowedPaths = ['/packages.json', '/p2/'];
+	const sanitizedUrl = allowedPaths.find(path => req.url.startsWith(path));
+	if (!sanitizedUrl) {
+		console.log(`!![${ reqid }] Invalid request path: ${ req.url }`);
+		res.writeHead(400, 'Bad Request');
+		res.end('Invalid request path');
+		return;
+	}
+
 	// Make remote request.
-	const upstreamUrl = upstreamHost + req.url.replace( /^\//, '' );
-	console.log( `!![${ reqid }] Proxying to ${ upstreamUrl }` );
-	const upstreamReq = https.request( upstreamUrl, {
+	const upstreamUrl = upstreamHost + sanitizedUrl.replace(/^\//, '');
+	console.log(`!![${ reqid }] Proxying to ${ upstreamUrl }`);
+	const upstreamReq = https.request(upstreamUrl, {
 		method: req.method,
 		headers,
-	} );
+	});
 
 	let sentResponse = false;
 	upstreamReq.on( 'response', upstreamRes => {
