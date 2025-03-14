@@ -24,6 +24,11 @@
 			text-decoration-thickness: 1.5px;
 		}
 
+		&:focus {
+			box-shadow: none;
+			outline-width: 0;
+		}
+
 		&:focus-visible {
 			border-radius: 2px;
 			box-shadow: none;

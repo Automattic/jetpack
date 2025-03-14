@@ -101,6 +101,11 @@
 			&.is-external {
 				padding-right: 20px;
 			}
+
+			&:focus {
+				box-shadow: none;
+				outline-width: 0;
+			}
 		
 			&:focus-visible {
 				border-radius: 2px;
