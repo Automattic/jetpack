@@ -1091,7 +1091,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "4f697b6da1b732ae5164feda859df5d724b12e66"
+                "reference": "d92490fbb5e761923873910b7c0272278d052f7b"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1148,6 +1148,9 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-js": [
+                    "pnpm run test"
                 ],
                 "build-production": [
                     "pnpm run build-production-js"
