@@ -131,7 +131,7 @@ class Cache_Preload_Test extends TestCase {
 	}
 
 	/**
-	 * Test schedule_preload with a single URL.
+	 * Test schedule_preload_cronjob with a single URL.
 	 */
 	public function test_schedule_preload_single() {
 		$new_url = array( 'https://example.com/new' );
@@ -148,7 +148,7 @@ class Cache_Preload_Test extends TestCase {
 	}
 
 	/**
-	 * Test schedule_preload with multiple URLs.
+	 * Test schedule_preload_cronjob with multiple URLs.
 	 */
 	public function test_schedule_preload_multiple() {
 		$new_urls = array( 'https://example.com/new1', 'https://example.com/new2' );
@@ -208,7 +208,7 @@ class Cache_Preload_Test extends TestCase {
 		// Set up the mock
 		$preload = new Cache_Preload();
 
-		// The schedule_preload should never be called because the post is not a cornerstone page
+		// The schedule_preload_cronjob should never be called because the post is not a cornerstone page
 		Functions\expect( 'get_permalink' )->never();
 		Functions\expect( 'wp_schedule_single_event' )->never();
 
