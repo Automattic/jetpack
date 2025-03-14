@@ -26,6 +26,10 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 		this.tabs = {};
 	}
 
+	async cleanup() {
+		await this.closeTabs();
+	}
+
 	async loadBatch( urls: string[] ): Promise< void > {
 		// Close existing tabs
 		await this.closeTabs();
@@ -82,7 +86,7 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	}
 
 	private async closeTabs(): Promise< void > {
-		if ( this.tabs ) {
+		if ( Object.keys( this.tabs ).length > 0 ) {
 			await Promise.all(
 				Object.values( this.tabs ).map( tab => tab.page.close().catch( () => {} ) )
 			);
@@ -137,9 +141,5 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 
 	private isOkStatus( statusCode: number ) {
 		return statusCode >= 200 && statusCode < 300;
-	}
-
-	async cleanup() {
-		await this.closeTabs();
 	}
 }
