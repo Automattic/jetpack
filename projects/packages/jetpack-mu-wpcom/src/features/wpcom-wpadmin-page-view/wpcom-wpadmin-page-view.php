@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Wpadmin_Page_View;
+
 use Automattic\Jetpack\VideoPress\Site;
 
 /**
