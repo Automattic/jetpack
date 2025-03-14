@@ -31,6 +31,18 @@ const views = {
 	( window as unknown ).CustomEvent = CustomEvent;
 } )();
 
+function isMobileDevice() {
+	return /iPhone|iPad|iPod|Android/i.test( navigator.userAgent );
+}
+
+function setReadonly( input: HTMLInputElement ) {
+	if ( isMobileDevice() ) {
+		input.readOnly = true;
+	} else {
+		input.readOnly = false;
+	}
+}
+
 export default function BaseMode(
 	input: HTMLInputElement,
 	emit: ( event: string, detail?: unknown ) => void,
@@ -86,6 +98,8 @@ export default function BaseMode(
 			dp.attachToDom();
 			dp.render();
 
+			setReadonly( input );
+
 			emit( 'open' );
 		},
 
@@ -119,6 +133,7 @@ export default function BaseMode(
 			if ( becauseOfBlur && dp.shouldFocusOnBlur ) {
 				focusInput( input );
 			}
+			input.readOnly = false;
 
 			// When we close, the input often gains refocus, which
 			// can then launch the date picker again, so we buffer
