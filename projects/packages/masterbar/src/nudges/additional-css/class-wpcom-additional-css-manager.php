@@ -66,8 +66,11 @@ class WPCOM_Additional_CSS_Manager {
 	 * @return mixed
 	 */
 	protected function get_plan() {
-
-		$plan_slug = wpcom_site_has_global_styles_in_personal_plan() ? 'personal-bundle' : 'value_bundle';
+		if ( function_exists( 'wpcom_site_has_global_styles_in_personal_plan' ) && wpcom_site_has_global_styles_in_personal_plan() ) {
+			$plan_slug = 'personal-bundle';
+		} else {
+			$plan_slug = 'value_bundle';
+		}
 
 		return \Automattic\Jetpack\Plans::get_plan( $plan_slug );
 	}
