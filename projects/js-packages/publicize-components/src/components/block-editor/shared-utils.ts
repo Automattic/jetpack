@@ -12,7 +12,7 @@ import { store as socialStore } from '../../social-store';
  */
 export function handleSharePostAction(
 	sidebarToOpen = 'jetpack-sidebar/jetpack',
-	removeQueryArg = true
+	removeQueryArg = false
 ) {
 	const { enableComplementaryArea } = dispatch( interfaceStore ) as {
 		enableComplementaryArea: ( scope: string, area: string ) => void;
