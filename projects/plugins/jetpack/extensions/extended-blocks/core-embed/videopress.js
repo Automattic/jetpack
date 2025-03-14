@@ -15,7 +15,7 @@ import { getVideoPressUrl } from '../../blocks/videopress/url';
 import { pickGUIDFromUrl } from '../../blocks/videopress/utils';
 
 // Add VideoPress settings to the embed block's edit component
-const withVideoPressSettings = createHigherOrderComponent( BlockEdit => {
+export const withVideoPressSettings = createHigherOrderComponent( BlockEdit => {
 	return props => {
 		const { name, attributes, isSelected } = props;
 
