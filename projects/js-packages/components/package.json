@@ -78,7 +78,11 @@
 			"types": "./build/index.d.ts"
 			"default": "./build/index.js"
 		},
-		"./tools/jp-redirect": "./tools/jp-redirect/index.ts"
+		"./tools/jp-redirect": {
+			"jetpack:src": "./tools/jp-redirect/index.ts",
+			"types": "./build/tools/jp-redirect/index.d.ts",
+			"default": "./build/tools/jp-redirect/index.js"
+		}
 	},
 	"sideEffects": [
 		"*.css",
