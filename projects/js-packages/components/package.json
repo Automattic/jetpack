@@ -75,7 +75,7 @@
 	"exports": {
 		".": {
 			"jetpack:src": "./index.ts",
-			"types": "./build/index.d.ts"
+			"types": "./build/index.d.ts",
 			"default": "./build/index.js"
 		},
 		"./tools/jp-redirect": {
