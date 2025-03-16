@@ -64,7 +64,7 @@ class Jetpack_Mu_Wpcom {
 		// These features run only on atomic sites.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
-			add_action( 'plugins_loaded', array( __CLASS__, 'schedule_translation_updates' ) );
+			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
