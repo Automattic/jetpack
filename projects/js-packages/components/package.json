@@ -89,7 +89,8 @@
 		"*.scss"
 	],
 	"scripts": {
-		"build": "pnpm run compile-ts",
+		"build": "pnpm run clean && pnpm run compile-ts",
+		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage"
