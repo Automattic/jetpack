@@ -182,7 +182,6 @@ class JITM {
 	public function jitm_enqueue_files() {
 		// Only load those files on the Jetpack or Woo admin pages.
 		if ( ! $this->is_a8c_admin_page() ) {
-			l( 'Isn\'t admin page!' );
 			return;
 		}
 
