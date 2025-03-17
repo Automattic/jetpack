@@ -20,12 +20,26 @@ import type { SetStateAction } from 'react';
 
 import './style.scss';
 
+/**
+ * Creates the text read by screen readers for the Boost Speed Score card.
+ *
+ * @param {string} speedLetterGrade     - Letter grade for the speed score (e.g. 'A', 'B', etc)
+ * @param {number} currentSpeedScore    - Current numerical speed score (0-100)
+ * @param {number} [boostScoreIncrease] - Optional score increase/decrease amount
+ * @param {string} [cta]                - Optional call-to-action text
+ * @return {string} Screen reader text describing the speed score
+ */
+
 const createSpeedScoreSRText = (
 	speedLetterGrade: string,
 	currentSpeedScore: number,
 	boostScoreIncrease?: number,
 	cta?: string
 ) => {
+	if ( ! speedLetterGrade || typeof currentSpeedScore !== 'number' ) {
+		return '';
+	}
+
 	const fragments = [];
 
 	fragments.push(
@@ -37,7 +51,7 @@ const createSpeedScoreSRText = (
 		)
 	);
 
-	if ( boostScoreIncrease ) {
+	if ( typeof boostScoreIncrease === 'number' ) {
 		fragments.push(
 			boostScoreIncrease > 0
 				? sprintf(
