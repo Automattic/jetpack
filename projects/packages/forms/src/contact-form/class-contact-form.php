@@ -268,9 +268,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'group'  => null,
 				'title'  => __( 'Form Responses', 'jetpack-forms' ),
 				'href'   => $url,
-				'meta'   => array(
-					'title' => __( 'Form Responses', 'jetpack-forms' ),
-				),
 			)
 		);
 	}
