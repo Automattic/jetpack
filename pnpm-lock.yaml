@@ -2666,8 +2666,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       '@gravatar-com/hovercards':
-        specifier: 0.10.7
-        version: 0.10.7
+        specifier: 0.10.8
+        version: 0.10.8
       '@gravatar-com/quick-editor':
         specifier: 0.7.0
         version: 0.7.0
@@ -6705,8 +6705,8 @@ packages:
   '@formatjs/intl-localematcher@0.6.1':
     resolution: {integrity: sha512-ePEgLgVCqi2BBFnTMWPfIghu6FkbZnnBVhO2sSxvLfrdFw7wCHAHiDoM2h4NRgjbaY7+B7HgOLZGkK187pZTZg==}
 
-  '@gravatar-com/hovercards@0.10.7':
-    resolution: {integrity: sha512-KtAsMwkUQWIAYCInuw1VFrNiaKz7FNT2Ui4967eGa8C2M4MCbeXOfoc6Q9pIRaVlJTpQ55Dz68gtaU3U61fxUQ==}
+  '@gravatar-com/hovercards@0.10.8':
+    resolution: {integrity: sha512-P/PYqIF8SDlPiG3TgFKsTFJDwqahx8ojX+d4Cb9ThA3+0Nw5olNtKexklRafJBKDSySMEOttu+EGgigtxiE8dw==}
     engines: {node: '>=20'}
 
   '@gravatar-com/quick-editor@0.7.0':
@@ -17285,7 +17285,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@gravatar-com/hovercards@0.10.7': {}
+  '@gravatar-com/hovercards@0.10.8': {}
 
   '@gravatar-com/quick-editor@0.7.0': {}
 
