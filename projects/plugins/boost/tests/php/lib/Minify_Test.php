@@ -5,7 +5,7 @@ use Automattic\Jetpack_Boost\Lib\Minify;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 
 /**
- * Class Minify
+ * Class Minify_Test
  *
  * @package Automattic\Jetpack_Boost\Tests\Lib
  */
