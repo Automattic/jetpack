@@ -3284,7 +3284,7 @@ importers:
         version: 4.0.0
       '@automattic/components':
         specifier: 2.2.0
-        version: 2.2.0(@babel/runtime@7.26.0)(@types/react@18.3.18)(@wordpress/data@10.17.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.2.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.17.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
@@ -3389,8 +3389,8 @@ importers:
         specifier: 7.26.0
         version: 7.26.0(@babel/core@7.26.0)
       '@babel/runtime':
-        specifier: 7.26.0
-        version: 7.26.0
+        specifier: 7.26.10
+        version: 7.26.10
       '@jest/globals':
         specifier: 29.7.0
         version: 29.7.0
@@ -6248,10 +6248,6 @@ packages:
 
   '@babel/runtime@7.25.7':
     resolution: {integrity: sha512-FjoyLe754PMiYsFaN5C94ttGiOmBNYTf6pLr4xXHAT5uctHb092PBszndLDR5XA/jghQvn4n7JMHl7dmTgbm9w==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/runtime@7.26.0':
-    resolution: {integrity: sha512-FDSOghenHTiToteC/QRlv2q3DhPZ/oOXTBoirfWNx1Cx3TMVcGWQtMMmQcSvb/JjpNeGzx8Pq/b4fKEJuWm1sw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/runtime@7.26.10':
@@ -15846,7 +15842,7 @@ snapshots:
 
   '@automattic/color-studio@4.0.0': {}
 
-  '@automattic/components@2.2.0(@babel/runtime@7.26.0)(@types/react@18.3.18)(@wordpress/data@10.17.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/components@2.2.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.17.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@automattic/calypso-analytics': 1.1.3
       '@automattic/calypso-color-schemes': 3.1.3
@@ -15879,7 +15875,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-modal: 3.16.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-router-dom: 6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-slider: 2.0.5(@babel/runtime@7.26.0)(react@18.3.1)
+      react-slider: 2.0.5(@babel/runtime@7.26.10)(react@18.3.1)
       utility-types: 3.11.0
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -16896,10 +16892,6 @@ snapshots:
       - supports-color
 
   '@babel/runtime@7.25.7':
-    dependencies:
-      regenerator-runtime: 0.14.1
-
-  '@babel/runtime@7.26.0':
     dependencies:
       regenerator-runtime: 0.14.1
 
@@ -28754,12 +28746,6 @@ snapshots:
   react-router@6.28.1(react@18.3.1):
     dependencies:
       '@remix-run/router': 1.21.0
-      react: 18.3.1
-
-  react-slider@2.0.5(@babel/runtime@7.26.0)(react@18.3.1):
-    dependencies:
-      '@babel/runtime': 7.26.0
-      prop-types: 15.8.1
       react: 18.3.1
 
   react-slider@2.0.5(@babel/runtime@7.26.10)(react@18.3.1):
