@@ -266,7 +266,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'id'     => 'jetpack-forms',
 				'parent' => null,
 				'group'  => null,
-				'title'  => __( 'Form Responses', 'jetpack-forms' ),
+				'title'  => '<span class="dashicons dashicons-feedback" style="font: normal 20px/1 dashicons; display: block; float: left; margin-top: 6px; color: rgba(240, 246, 252, 0.6); margin-right: 6px;"></span><span class="ab-label">' . esc_html__( 'Form Responses', 'jetpack-forms' ) . '</span>',
 				'href'   => $url,
 			)
 		);
