@@ -136,7 +136,7 @@ class REST_Authentication_Test extends TestCase {
 	 *                                       wp_rest_authenticate_errors. Required.
 	 *     ]
 	 */
-	public function wp_rest_authenticate_data_provider() {
+	public static function wp_rest_authenticate_data_provider() {
 		$token_data = array(
 			'type'      => 'user',
 			'token_key' => '123abc',
@@ -337,7 +337,7 @@ class REST_Authentication_Test extends TestCase {
 	 *     ],
 	 *     ['expected'] => (bool) The expected return value of wp_rest_authenticate. Required.
 	 */
-	public function is_signed_with_blog_token_data_provider() {
+	public static function is_signed_with_blog_token_data_provider() {
 		$token_data = array(
 			'type'      => 'user',
 			'token_key' => '123abc',

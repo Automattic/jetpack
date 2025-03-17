@@ -18,6 +18,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-fallback.php
  * @since 4.7.0
  */
 class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Construct a new buffer.

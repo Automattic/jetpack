@@ -15,6 +15,8 @@ require_once __DIR__ . '/../../../../modules/widgets/milestone.php';
  * phpcs:disable PEAR.NamingConventions.ValidClassName.Invalid
  */
 class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	// phpcs:enable PEAR.NamingConventions.ValidClassName.Invalid
 
 	/**

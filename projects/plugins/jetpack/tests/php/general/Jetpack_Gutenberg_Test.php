@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Blocks;
 
 class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	public $master_user_id = false;
 
@@ -212,26 +213,26 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 *
 	 * @return array Array of Test Data
 	 */
-	public function provider_invalid_urls() {
+	public static function provider_invalid_urls() {
 		return array(
 			array(
 				'https://calendar.google.com#@evil.com',
-				$this->equalTo( 'https://calendar.google.com/#%40evil.com' ),
+				self::equalTo( 'https://calendar.google.com/#%40evil.com' ),
 			),
 			array(
 				'https://foo@evil.com:80@calendar.google.com',
-				$this->equalTo( 'https://calendar.google.com/' ),
+				self::equalTo( 'https://calendar.google.com/' ),
 			),
 			array(
 				'https://foo@127.0.0.1 @calendar.google.com',
 				// The fix for https://bugs.php.net/bug.php?id=77423 changed the behavior here.
 				// It's included in PHP 8.0.1, 7.4.14, 7.3.26, and distros might have backported it to
 				// out-of-support versions too, so just expect either option.
-				$this->logicalOr( $this->isFalse(), $this->equalTo( 'https://calendar.google.com/' ) ),
+				self::logicalOr( self::isFalse(), self::equalTo( 'https://calendar.google.com/' ) ),
 			),
 			array(
 				'https://calendar.google.com/\xFF\x2E\xFF\x2E/passwd',
-				$this->equalTo( 'https://calendar.google.com/\xFF\x2E\xFF\x2E/passwd' ),
+				self::equalTo( 'https://calendar.google.com/\xFF\x2E\xFF\x2E/passwd' ),
 			),
 		);
 	}

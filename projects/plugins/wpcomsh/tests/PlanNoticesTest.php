@@ -9,6 +9,8 @@
  * Class PlanNoticesTest.
  */
 class PlanNoticesTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Set up.
 	 */

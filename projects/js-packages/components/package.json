@@ -73,15 +73,24 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"exports": {
-		".": "./index.ts",
-		"./tools/jp-redirect": "./tools/jp-redirect/index.ts"
+		".": {
+			"jetpack:src": "./index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		},
+		"./tools/jp-redirect": {
+			"jetpack:src": "./tools/jp-redirect/index.ts",
+			"types": "./build/tools/jp-redirect/index.d.ts",
+			"default": "./build/tools/jp-redirect/index.js"
+		}
 	},
 	"sideEffects": [
 		"*.css",
 		"*.scss"
 	],
 	"scripts": {
-		"build": "pnpm run compile-ts",
+		"build": "pnpm run clean && pnpm run compile-ts",
+		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage"

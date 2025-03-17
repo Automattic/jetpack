@@ -3,6 +3,7 @@
 require __DIR__ . '/../../../../modules/widgets/wordpress-post-widget.php';
 
 class Jetpack_Display_Posts_Widget_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Jetpack_Display_Posts_Widget object.

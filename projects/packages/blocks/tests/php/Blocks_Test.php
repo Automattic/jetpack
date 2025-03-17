@@ -169,7 +169,7 @@ class Blocks_Test extends TestCase {
 	 *
 	 * Data provider for test_remove_extension_prefix.
 	 */
-	public function get_extension_name_provider() {
+	public static function get_extension_name_provider() {
 		return array(
 			'not_jetpack'    => array(
 				'woocommerce/product-best-sellers',

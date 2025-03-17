@@ -57,6 +57,7 @@
 		"@automattic/jetpack-publicize-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@automattic/jetpack-subscribers-dashboard": "workspace:*",
 		"@automattic/popup-monitor": "1.0.2",
 		"@automattic/request-external-access": "1.0.0",
 		"@automattic/social-previews": "2.1.0-beta.10",

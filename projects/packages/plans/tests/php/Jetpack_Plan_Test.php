@@ -51,15 +51,15 @@ class Jetpack_Plan_Test extends TestCase {
 		$this->assertSame( $expected_plan_slug_after, $plan['product_slug'] );
 	}
 
-	public function get_update_from_sites_response_data() {
+	public static function get_update_from_sites_response_data() {
 		return array(
 			'is_errored_response'                    => array(
-				$this->get_errored_sites_response(),
+				static::get_errored_sites_response(),
 				'jetpack_free',
 				false,
 			),
 			'response_is_empty'                      => array(
-				$this->get_mocked_response( 200, '' ),
+				static::get_mocked_response( 200, '' ),
 				'jetpack_free',
 				false,
 			),
@@ -77,75 +77,75 @@ class Jetpack_Plan_Test extends TestCase {
 				false,
 			),
 			'initially_empty_option_to_free'         => array(
-				$this->get_response_free_plan(),
+				static::get_response_free_plan(),
 				'jetpack_free',
 				true,
 			),
 			'initially_empty_to_personal'            => array(
-				$this->get_response_personal_plan(),
+				static::get_response_personal_plan(),
 				'jetpack_personal',
 				true,
 			),
 			'initially_free_to_personal'             => array(
-				$this->get_response_personal_plan(),
+				static::get_response_personal_plan(),
 				'jetpack_personal',
 				true,
-				$this->get_free_plan(),
+				static::get_free_plan(),
 			),
 			'initially_personal_to_free'             => array(
-				$this->get_response_free_plan(),
+				static::get_response_free_plan(),
 				'jetpack_free',
 				true,
-				$this->get_personal_plan(),
+				static::get_personal_plan(),
 			),
 			'initially_free_no_change'               => array(
-				$this->get_response_free_plan(),
+				static::get_response_free_plan(),
 				'jetpack_free',
 				false,
-				$this->get_free_plan(),
+				static::get_free_plan(),
 			),
 			'initially_personal_to_changed_personal' => array(
-				$this->get_response_changed_personal_plan(),
+				static::get_response_changed_personal_plan(),
 				'jetpack_personal',
 				true,
-				$this->get_response_personal_plan(),
+				static::get_response_personal_plan(),
 			),
 		);
 	}
 
-	private function get_response_free_plan() {
-		return $this->get_successful_plan_response( $this->get_free_plan() );
+	private static function get_response_free_plan() {
+		return static::get_successful_plan_response( static::get_free_plan() );
 	}
 
-	private function get_response_personal_plan() {
-		return $this->get_successful_plan_response( $this->get_personal_plan() );
+	private static function get_response_personal_plan() {
+		return static::get_successful_plan_response( static::get_personal_plan() );
 	}
 
-	private function get_response_changed_personal_plan() {
-		return $this->get_successful_plan_response( $this->get_changed_personal_plan() );
+	private static function get_response_changed_personal_plan() {
+		return static::get_successful_plan_response( static::get_changed_personal_plan() );
 	}
 
-	private function get_successful_plan_response( $plan_response ) {
+	private static function get_successful_plan_response( $plan_response ) {
 		$body = wp_json_encode(
 			array(
 				'plan' => $plan_response,
 			)
 		);
-		return $this->get_mocked_response( 200, $body );
+		return static::get_mocked_response( 200, $body );
 	}
 
-	private function get_errored_sites_response() {
-		return $this->get_mocked_response( 400, new WP_Error() );
+	private static function get_errored_sites_response() {
+		return static::get_mocked_response( 400, new WP_Error() );
 	}
 
-	private function get_mocked_response( $code, $body ) {
+	private static function get_mocked_response( $code, $body ) {
 		return array(
 			'code' => $code,
 			'body' => $body,
 		);
 	}
 
-	private function get_free_plan() {
+	private static function get_free_plan() {
 		return array(
 			'product_id'         => 2002,
 			'product_slug'       => 'jetpack_free',
@@ -220,14 +220,14 @@ class Jetpack_Plan_Test extends TestCase {
 		);
 	}
 
-	private function get_changed_personal_plan() {
-		$changed_personal_plan = $this->get_personal_plan();
+	private static function get_changed_personal_plan() {
+		$changed_personal_plan = static::get_personal_plan();
 
 		$changed_personal_plan['features']['available']['test_feature'] = array( 'jetpack_free' );
 		return $changed_personal_plan;
 	}
 
-	private function get_personal_plan() {
+	private static function get_personal_plan() {
 		return array(
 			'product_id'         => 2005,
 			'product_slug'       => 'jetpack_personal',

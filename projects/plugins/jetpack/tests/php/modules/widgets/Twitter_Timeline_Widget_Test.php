@@ -11,6 +11,7 @@ require __DIR__ . '/../../../../modules/widgets/twitter-timeline.php';
  * Test Jetpack_Twitter_Timeline_Widget.
  */
 class Twitter_Timeline_Widget_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * The tested instance.
@@ -34,7 +35,7 @@ class Twitter_Timeline_Widget_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_widget_data() {
+	public static function get_widget_data() {
 		return array(
 			'no_id'                    => array(
 				array(),

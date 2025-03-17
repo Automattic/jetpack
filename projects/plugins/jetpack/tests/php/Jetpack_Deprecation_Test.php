@@ -1,6 +1,7 @@
 <?php
 
 class Jetpack_Deprecation_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @dataProvider provider_deprecated_file_paths
@@ -27,7 +28,7 @@ class Jetpack_Deprecation_Test extends WP_UnitTestCase {
 		$this->assertTrue( method_exists( $class_name, $method_name ) );
 	}
 
-	public function provider_deprecated_method_stubs() {
+	public static function provider_deprecated_method_stubs() {
 		return array(
 			array( 'Jetpack_Options', 'get_option', array( 'Bogus' ), false ),
 			array( 'Jetpack_Options', 'get_option_and_ensure_autoload', array( 'Bogus', 'Bogus' ), false ),
@@ -63,7 +64,7 @@ class Jetpack_Deprecation_Test extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function provider_deprecated_file_paths() {
+	public static function provider_deprecated_file_paths() {
 		return array();
 	}
 }

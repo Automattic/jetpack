@@ -12,6 +12,7 @@ use Imports\SQL_Generator;
  * Class PlaygroundDBImporterTest.
  */
 class PlaygroundDBImporterTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Temporary file path.

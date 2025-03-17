@@ -9,6 +9,8 @@
  * Tests the Module Override functionality.
  */
 class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Holder for the module override instance.
 	 *
@@ -179,7 +181,7 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 	/**
 	 * Helper to get supported filters.
 	 */
-	public function get_supported_filters() {
+	public static function get_supported_filters() {
 		return array(
 			'option_jetpack_active_modules' => array( // Case for filtering the option via core filter.
 				'option_jetpack_active_modules',

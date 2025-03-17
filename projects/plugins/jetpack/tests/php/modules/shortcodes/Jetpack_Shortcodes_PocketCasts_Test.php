@@ -6,6 +6,7 @@
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 class Jetpack_Shortcodes_PocketCasts_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	const POCKETCASTS_BETA_TEST_URL = 'https://pcast.pocketcasts.net/drtlaf9s';

@@ -1388,13 +1388,16 @@ That was a cool video.';
 	 *
 	 * @return array[] Test parameters.
 	 */
-	public function provider_jetpack_published_post_no_action() {
-		// @todo This seems somewhat broken, $this->post isn't set yet when this runs.
+	public static function provider_jetpack_published_post_no_action() {
+		// @todo Provide a usable post here. $this->post isn't set yet when the data provider is called.
+		$post = null;
+		'@phan-var ?WP_Post $post';
+
 		return array(
-			array( null, $this->post ),
-			array( 'alpha', $this->post ),
-			array( isset( $this->post->ID ) ? $this->post->ID : null, null ),
-			array( -1111, $this->post ),
+			array( null, $post ),
+			array( 'alpha', $post ),
+			array( isset( $post->ID ) ? $post->ID : null, null ),
+			array( -1111, $post ),
 		);
 	}
 

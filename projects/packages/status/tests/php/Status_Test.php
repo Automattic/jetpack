@@ -358,7 +358,7 @@ class Status_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_is_local_site_known_tld() {
+	public static function get_is_local_site_known_tld() {
 		return array(
 			'vvv'            => array(
 				'http://jetpack.test',
@@ -409,7 +409,7 @@ class Status_Test extends TestCase {
 	 *
 	 * @covers Automattic\Jetpack\Status::get_site_suffix
 	 */
-	public function get_site_suffix_examples() {
+	public static function get_site_suffix_examples() {
 		return array(
 			'no_site_home_url' => array(
 				'',
@@ -468,7 +468,7 @@ class Status_Test extends TestCase {
 	}
 
 	/** Data provider for test_cached */
-	public function provide_cached() {
+	public static function provide_cached() {
 		return array(
 			array( 'is_offline_mode', null, 'jetpack_offline_mode' ),
 			array( 'is_multi_network', 'is_multisite', null ),
@@ -509,7 +509,7 @@ class Status_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_coming_soon_status() {
+	public static function get_coming_soon_status() {
 		return array(
 			'Jetpack public site'       => array( null, false, false ),
 			'WoA public site'           => array( false, false, false ),

@@ -138,7 +138,7 @@ class Package_Version_Tracker_Test extends TestCase {
 	 *    'expected_value' => The expected value of the option after maybe_update_package_versions is called.
 	 *    'updated'        => Whether the option should be updated.
 	 */
-	public function jetpack_maybe_update_package_versions_data_provider() {
+	public static function jetpack_maybe_update_package_versions_data_provider() {
 		$added_version = array_merge( self::PACKAGE_VERSIONS, array( 'test' => '4.0' ) );
 
 		$removed_version = self::PACKAGE_VERSIONS;

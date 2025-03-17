@@ -6,6 +6,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * @covers ::shortcode_ted
  */
 class Jetpack_Shortcodes_Ted_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**

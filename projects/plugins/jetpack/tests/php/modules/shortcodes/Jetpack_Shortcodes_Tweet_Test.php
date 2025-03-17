@@ -3,6 +3,7 @@
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 class Jetpack_Shortcodes_Tweet_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
@@ -167,7 +168,7 @@ BODY;
 	 *
 	 * @return array The test data.
 	 */
-	public function get_tweet_amp_data() {
+	public static function get_tweet_amp_data() {
 		$tweet_id       = 95234262;
 		$default_height = 480;
 		$default_width  = 600;

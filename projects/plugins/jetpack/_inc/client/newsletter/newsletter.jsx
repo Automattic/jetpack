@@ -15,6 +15,7 @@ import {
 	isOfflineMode,
 	hasConnectedOwner,
 } from 'state/connection';
+import { isWpAdminSubscriberManagementEnabled, getSiteAdminUrl } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
@@ -39,6 +40,8 @@ function Newsletter( props ) {
 		unavailableInOfflineMode,
 		subscriptions,
 		siteHasConnectedUser,
+		wpAdminSubscriberManagementEnabled,
+		siteAdminUrl,
 	} = props;
 
 	const getSubClickableCard = () => {
@@ -51,9 +54,13 @@ function Newsletter( props ) {
 				compact
 				className="jp-settings-card__configure-link"
 				onClick={ trackViewSubsClick }
-				href={ getRedirectUrl( 'jetpack-settings-jetpack-manage-subscribers', {
-					site: blogID ?? siteRawUrl,
-				} ) }
+				href={
+					wpAdminSubscriberManagementEnabled
+						? siteAdminUrl + 'admin.php?page=subscribers'
+						: getRedirectUrl( 'jetpack-settings-jetpack-manage-subscribers', {
+								site: blogID ?? siteRawUrl,
+						  } )
+				}
 				target="_blank"
 				rel="noopener noreferrer"
 			>
@@ -114,6 +121,8 @@ export default withModuleSettingsFormHelpers(
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			subscriptions: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			siteHasConnectedUser: hasConnectedOwner( state ),
+			wpAdminSubscriberManagementEnabled: isWpAdminSubscriberManagementEnabled( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
 		};
 	} )( Newsletter )
 );

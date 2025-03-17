@@ -14,6 +14,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * Test our Vimeo embed feature (shortcode as well as embed code).
  */
 class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
@@ -55,7 +56,7 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	/**
 	 * Sample data with different sets of shortcode attrbutes.
 	 */
-	public function get_sample_shortcode_attributes() {
+	public static function get_sample_shortcode_attributes() {
 		$video_id = '141358';
 		$width    = '350';
 		$height   = '500';
@@ -143,7 +144,7 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	/**
 	 * Get different possible vimeo URL formats, and the expected URL.
 	 */
-	public function get_vimeo_urls() {
+	public static function get_vimeo_urls() {
 		return array(
 			'simple id'               => array(
 				'https://vimeo.com/6342264',
@@ -240,7 +241,7 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	/**
 	 * Get different types of embed codes and the expected shortcode output.
 	 */
-	public function get_embed_to_shortcode_data() {
+	public static function get_embed_to_shortcode_data() {
 		return array(
 			'http iFrame'                  => array(
 				'<iframe src="http://player.vimeo.com/video/18427511" width="400" height="225" frameborder="0"></iframe><p><a href="http://vimeo.com/18427511">Eskmo \'We Got More\' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>',
@@ -283,7 +284,7 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 *
 	 * @return array An associative array of test data.
 	 */
-	public function get_amp_vimeo_shortcode_data() {
+	public static function get_amp_vimeo_shortcode_data() {
 		return array(
 			'empty_attr_array'           => array(
 				array(),
@@ -353,7 +354,7 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The testing data.
 	 */
-	public function get_vimeo_dimensions_data() {
+	public static function get_vimeo_dimensions_data() {
 		return array(
 			'no_width_or_height'          => array(
 				array(),

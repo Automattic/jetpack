@@ -47,7 +47,7 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Test data provider
 	 */
-	public function transformDataProvider() {
+	public static function transformDataProvider() {
 		yield array(
 			'base64_decode',
 			array(

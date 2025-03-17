@@ -1,0 +1,81 @@
+{
+	"name": "automattic/jetpack-subscribers-dashboard",
+	"description": "Subscribers dashboard",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.2",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-plans": "@dev",
+		"automattic/jetpack-stats": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-jitm": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "^1.1.1",
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-test-environment": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
+		"test-php": [
+			"@composer phpunit"
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-js-watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run test --watch"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"NODE_ENV=production pnpm run build"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-subscribers-dashboard",
+		"branch-alias": {
+			"dev-trunk": "0.1.x-dev"
+		},
+		"textdomain": "jetpack-subscribers-dashboard",
+		"version-constants": {
+			"::VERSION": "src/class-dashboard.php"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
+	}
+}
