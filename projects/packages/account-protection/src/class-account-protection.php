@@ -106,7 +106,7 @@ class Account_Protection {
 	 * @return void
 	 */
 	protected function register_runtime_hooks(): void {
-		$config = ( new Settings( $this ) )->get_config();
+		$config = ( new Settings() )->get_config();
 
 		if ( $config[ Config::PASSWORD_DETECTION_ENABLED_OPTION_NAME ] ) {
 			// Validate password after successful login

@@ -274,6 +274,8 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_package_versions'                     => array(),
 			'jetpack_newsletters_publishing_default_frequency' => 'weekly',
 			'jetpack_scheduled_plugins_update'             => array(),
+			'jetpack_account_protection_password_detection' => true,
+			'jetpack_account_protection_strong_passwords'  => true,
 			'jetpack_waf_automatic_rules'                  => false,
 			'jetpack_waf_ip_allow_list'                    => 'pineapple',
 			'jetpack_waf_ip_allow_list_enabled'            => false,

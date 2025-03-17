@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Account_Protection\Account_Protection;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
@@ -2339,14 +2340,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack_account_protection_password_detection' => array(
 				'description'       => esc_html__( 'Password detection - Detect compromised passwords.', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 0,
+				'default'           => ( new Account_Protection() )->environment_supports_advanced_options(),
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'account-protection',
 			),
 			'jetpack_account_protection_strong_passwords' => array(
 				'description'       => esc_html__( 'Strong passwords - Require strong passwords.', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 0,
+				'default'           => ( new Account_Protection() )->environment_supports_advanced_options(),
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'account-protection',
 			),

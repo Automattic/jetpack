@@ -207,6 +207,8 @@ class Defaults {
 		'jetpack_package_versions',
 		'jetpack_newsletters_publishing_default_frequency',
 		'jetpack_scheduled_plugins_update',
+		'jetpack_account_protection_password_detection',
+		'jetpack_account_protection_strong_passwords',
 		'jetpack_waf_automatic_rules',
 		'jetpack_waf_ip_allow_list',
 		'jetpack_waf_ip_allow_list_enabled',

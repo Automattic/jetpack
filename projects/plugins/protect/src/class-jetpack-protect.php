@@ -104,6 +104,8 @@ class Jetpack_Protect {
 						),
 						'jetpack_sync_options_contentless' => array(),
 						'jetpack_sync_options_whitelist'   => array(
+							'jetpack_account_protection_password_detection',
+							'jetpack_account_protection_strong_passwords',
 							'active_plugins',
 							'stylesheet',
 						),
