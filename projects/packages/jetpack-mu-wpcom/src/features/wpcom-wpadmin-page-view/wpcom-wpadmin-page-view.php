@@ -165,7 +165,7 @@ function wpcom_atomic_get_user_types() {
 		$user_types[] = 'Paid';
 	}
 
-	if ( wpcom_site_has_feature( \WPCOM_Features::PRIORITY_SUPPORT::PRIORITY_SUPPORT ) ) {
+	if ( wpcom_site_has_feature( \WPCOM_Features::PRIORITY_SUPPORT ) ) {
 		$user_types[] = 'Business';
 	}
 
