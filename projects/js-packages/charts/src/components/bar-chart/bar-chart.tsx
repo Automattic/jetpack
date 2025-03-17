@@ -58,7 +58,7 @@ const validateData = ( data: SeriesData[] ) => {
 				d.value === null ||
 				d.value === undefined ||
 				isNaN( d.value ) ||
-				( ! d.label && d.date && isNaN( d.date.getTime() ) )
+				( ! d.label && ( ! d.date || isNaN( d.date.getTime() ) ) )
 		)
 	);
 
@@ -103,11 +103,6 @@ const BarChart: FC< BarChartProps > = ( {
 		},
 		[ showTooltip ]
 	);
-
-	// Check for empty data
-	if ( ! data?.length ) {
-		return <div className={ clsx( styles[ 'bar-chart-empty' ] ) }>No data available</div>;
-	}
 
 	// Validate data using the same pattern as LineChart
 	const error = validateData( data );
