@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms;
 
+use Automattic\Jetpack\Forms\ContactForm\Dashboard_Widget;
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
@@ -35,6 +36,10 @@ class Jetpack_Forms {
 		}
 
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Util::register_pattern' );
+
+		if ( is_admin() ) {
+			Dashboard_Widget::init();
+		}
 	}
 
 	/**
