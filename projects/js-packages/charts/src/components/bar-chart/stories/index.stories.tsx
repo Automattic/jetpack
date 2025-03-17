@@ -47,12 +47,27 @@ export const Default: Story = {
 export const SingleSeries: Story = {
 	args: {
 		...Default.args,
-		data: [ trafficData[ 0 ] ],
+		data: [ data[ 0 ] ],
 	},
 	parameters: {
 		docs: {
 			description: {
 				story: 'Bar chart with a single data series.',
+			},
+		},
+	},
+};
+
+// Story with single data series
+export const TimeSeries: Story = {
+	args: {
+		...Default.args,
+		data: [ trafficData[ 0 ] ],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Bar chart with a time series.',
 			},
 		},
 	},
