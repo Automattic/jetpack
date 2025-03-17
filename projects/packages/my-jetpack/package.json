@@ -63,7 +63,7 @@
 		"@babel/core": "7.26.0",
 		"@babel/preset-env": "7.26.0",
 		"@jest/globals": "29.7.0",
-		"@storybook/react": "8.5.8",
+		"@storybook/react": "8.6.7",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/jest-dom": "6.6.3",
 		"@testing-library/react": "16.2.0",
@@ -79,7 +79,7 @@
 		"require-from-string": "2.0.2",
 		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
-		"storybook": "8.5.8",
+		"storybook": "8.6.7",
 		"typescript": "5.0.4",
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1"
