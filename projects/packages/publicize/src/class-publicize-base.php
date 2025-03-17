@@ -1930,7 +1930,7 @@ abstract class Publicize_Base {
 	 *
 	 * This function is overwritten in class-publicize-wpcom.php
 	 *
-	 * @param string $blog_id The WPCOM blog_id for the current blog.
+	 * @param int $blog_id The WPCOM blog_id for the current blog.
 	 * @return ?array
 	 */
 	public function get_publicize_shares_info( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable

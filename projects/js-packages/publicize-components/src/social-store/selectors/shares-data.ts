@@ -1,13 +1,14 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector } from '@wordpress/data';
 import { getSocialScriptData } from '../../utils';
+import { SharesData } from '../types';
 
 /**
  * Get the shares data from the store or script data
  * @param select - Select function
  * @return The shares data
  */
-const getSharesData = select => {
+const getSharesData = ( select ): SharesData => {
 	const data = select( coreStore ).getEntityRecord( 'wpcom/v2', 'publicize/shares-data' );
 	return data || getSocialScriptData().shares_data || {};
 };
@@ -17,7 +18,7 @@ const getSharesData = select => {
  * @param data - Shares data object
  * @return Number of shares used
  */
-const getSharesUsedCount = data => {
+const getSharesUsedCount = ( data: SharesData ) => {
 	return data?.publicized_count ?? 0;
 };
 
@@ -26,7 +27,7 @@ const getSharesUsedCount = data => {
  * @param data - Shares data object
  * @return Number of scheduled shares
  */
-const getScheduledSharesCount = data => {
+const getScheduledSharesCount = ( data: SharesData ) => {
 	return data?.to_be_publicized_count ?? 0;
 };
 

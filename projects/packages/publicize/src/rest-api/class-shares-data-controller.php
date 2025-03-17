@@ -91,4 +91,35 @@ class Shares_Data_Controller extends Base_Controller {
 	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return $this->publicize_permissions_check();
 	}
+
+	/**
+	 * Schema for the endpoint.
+	 *
+	 * @return array
+	 */
+	public function get_item_schema() {
+		return array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'jetpack-social-shares-data',
+			'type'       => 'object',
+			'properties' => array(
+				'publicized_count'       => array(
+					'description' => __( 'Number of shares already used', 'jetpack-publicize-pkg' ),
+					'type'        => 'integer',
+				),
+				'to_be_publicized_count' => array(
+					'description' => __( 'Number of scheduled shares', 'jetpack-publicize-pkg' ),
+					'type'        => 'integer',
+				),
+				'shared_posts_count'     => array(
+					'description' => __( 'Number of posts shared', 'jetpack-publicize-pkg' ),
+					'type'        => 'integer',
+				),
+				'is_share_limit_enabled' => array(
+					'description' => __( 'Whether the share limit is enabled', 'jetpack-publicize-pkg' ),
+					'type'        => 'boolean',
+				),
+			),
+		);
+	}
 }
