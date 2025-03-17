@@ -35,6 +35,7 @@ class Jetpack_Shortcodes_SmartFrame_Test extends WP_UnitTestCase {
 		parent::set_up();
 
 		// PHPUnit 10+ renamed `getGroups()` to `groups()`.
+		// @phan-suppress-next-line PhanUndeclaredMethodInCallable, PhanUndeclaredMethod -- Being tested before use.
 		$groups = is_callable( array( $this, 'groups' ) ) ? $this->groups() : $this->getGroups();
 		if ( in_array( 'external-http', $groups, true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.

@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Constraint\Constraint;
+
 require __DIR__ . '/../../../../modules/widgets/wordpress-post-widget.php';
 
 class Jetpack_Display_Posts_Widget_Test extends WP_UnitTestCase {
