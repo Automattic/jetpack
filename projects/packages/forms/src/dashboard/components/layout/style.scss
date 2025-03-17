@@ -14,20 +14,33 @@ body.toplevel_page_jetpack-forms {
 	padding: 0;
 	width: 100%;
 
-	.jp-forms__logo {
-		margin: 40px 64px;
+	&.jp-forms__landing {
+		.jp-forms__logo {
+			margin: 40px 64px;
+			width: 330px;
 
-		@media (max-width: 660px) {
-			margin: 40px 24px;
+			@media (max-width: 660px) {
+				margin: 40px 24px;
+			}
+		}
+	}
+
+	&.jp-forms__inbox {
+		.jp-forms__logo {
+			margin: 20px 48px;
+			width: 200px;
+
+			@media (max-width: 660px) {
+				margin: 20px 24px;
+			}
 		}
 	}
 }
 
 .jp-forms__layout-header {
-	background-color: #f9f9f9;
 	box-sizing: border-box;
 	margin: 0;
-	padding: 48px 64px 16px;
+	padding: 16px 48px 0;
 	width: 100%;
 
 	@media (max-width: 660px) {

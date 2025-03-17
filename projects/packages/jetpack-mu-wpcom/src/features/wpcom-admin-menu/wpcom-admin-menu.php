@@ -179,6 +179,7 @@ function wpcom_add_jetpack_submenu() {
 	$subscribers_url  = 'https://wordpress.com/subscribers/' . $domain;
 	$newsletter_url   = 'https://wordpress.com/settings/newsletter/' . $domain;
 	$scan_url         = 'https://wordpress.com/scan/' . $domain;
+	$podcasting_url   = 'https://wordpress.com/settings/podcasting/' . $domain;
 
 	// Add submenu items that link to WordPress.com.
 	add_submenu_page(
@@ -235,6 +236,18 @@ function wpcom_add_jetpack_submenu() {
 			__( 'Newsletter', 'jetpack-mu-wpcom' ),
 			'manage_options',
 			$newsletter_url,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
+
+	if ( function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+		// Jetpack > Podcasting
+		add_submenu_page(
+			'jetpack',
+			__( 'Podcasting', 'jetpack-mu-wpcom' ),
+			__( 'Podcasting', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			$podcasting_url,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
 	}
@@ -305,10 +318,14 @@ function wpcom_hide_customizer_submenu_on_block_theme() {
 
 		remove_action( 'customize_register', 'Automattic\Jetpack\Masterbar\register_css_nudge_control' );
 
+		remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Customizer', 'customize_register' ) );
+
 		remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
 	}
 }
-add_action( 'init', 'wpcom_hide_customizer_submenu_on_block_theme' );
+
+$customizer_removal_hook = defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ? 'rest_pre_dispatch' : 'init';
+add_action( $customizer_removal_hook, 'wpcom_hide_customizer_submenu_on_block_theme' );
 
 /**
  * Links were removed in 3.5 core, but we've kept them active on dotcom.

@@ -295,28 +295,12 @@ class Publicize_Script_Data {
 	 */
 	public static function get_api_paths() {
 
-		$is_wpcom = ( new Host() )->is_wpcom_platform();
-
-		$commom_paths = array(
+		return array(
 			'refreshConnections' => '/wpcom/v2/publicize/connections?test_connections=1',
 			// The complete path will be like `/jetpack/v4/social/settings`.
 			'socialToggleBase'   => Utils::should_use_jetpack_module_endpoint() ? 'settings' : 'social/settings',
+			'resharePost'        => '/wpcom/v2/publicize/share-post/{postId}',
 		);
-
-		$specific_paths = array();
-
-		if ( $is_wpcom ) {
-
-			$specific_paths = array(
-				'resharePost' => '/wpcom/v2/posts/{postId}/publicize',
-			);
-		} else {
-			$specific_paths = array(
-				'resharePost' => '/jetpack/v4/publicize/{postId}',
-			);
-		}
-
-		return array_merge( $commom_paths, $specific_paths );
 	}
 
 	/**

@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.20.0] - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+### Removed
+- Remove the register_nonce from site connection. [#42076]
+
 ## [0.19.0] - 2025-02-24
 ### Changed
 - Add parameter to unlinkUser to allow all users to be disconnected. [#41923]
@@ -399,6 +406,7 @@
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
 
+[0.20.0]: https://github.com/Automattic/jetpack-api/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/Automattic/jetpack-api/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/Automattic/jetpack-api/compare/v0.17.22...v0.18.0
 [0.17.22]: https://github.com/Automattic/jetpack-api/compare/v0.17.21...v0.17.22

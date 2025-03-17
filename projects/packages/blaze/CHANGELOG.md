@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.14] - 2025-03-12
+### Changed
+- Update package dependencies. [#42384]
+
+## [0.25.13] - 2025-03-10
+### Changed
+- Internal updates.
+
+## [0.25.12] - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
 ## [0.25.11] - 2025-02-24
 ### Changed
 - Update dependencies. [#39855]
@@ -26,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#41286]
 
 ### Fixed
-- Blaze: Ensure Blaze still available after quick edit in post list [#41339]
+- Blaze: Ensure Blaze still available after quick edit in post list. [#41339]
 
 ## [0.25.6] - 2025-01-20
 ### Changed
@@ -533,6 +545,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.25.14]: https://github.com/automattic/jetpack-blaze/compare/v0.25.13...v0.25.14
+[0.25.13]: https://github.com/automattic/jetpack-blaze/compare/v0.25.12...v0.25.13
+[0.25.12]: https://github.com/automattic/jetpack-blaze/compare/v0.25.11...v0.25.12
 [0.25.11]: https://github.com/automattic/jetpack-blaze/compare/v0.25.10...v0.25.11
 [0.25.10]: https://github.com/automattic/jetpack-blaze/compare/v0.25.9...v0.25.10
 [0.25.9]: https://github.com/automattic/jetpack-blaze/compare/v0.25.8...v0.25.9

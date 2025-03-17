@@ -1,6 +1,5 @@
-import { ProductPrice } from '@automattic/jetpack-components';
+import { ProductPrice, JetpackLogo } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import ProductInterstitialFeatureList from '../product-interstifial-feature-list';
 import ProductInterstitialModal from '../product-interstitial-modal';
@@ -42,8 +41,9 @@ const DefaultArgs = {
 			legend="/month, paid yearly"
 		/>
 	),
-	triggerButton: 'Open Modal',
+	modalTriggerButtonLabel: 'Open Modal',
 	buttonLabel: 'Upgrade now',
+	isWithVideo: false,
 	secondaryColumn: <img src={ boostImage } alt="Boost" />,
 	secondaryButtonHref: 'https://jetpack.com',
 	secondaryButtonHasExternalLink: true,
@@ -83,6 +83,13 @@ WithVideo.args = {
 			<script src="https://videopress.com/videopress-iframe.js"></script>
 		</>
 	),
+};
+
+export const WithCustomTrigger = Template.bind( {} );
+WithCustomTrigger.args = {
+	...DefaultArgs,
+	modalTriggerButtonLabel: undefined,
+	customModalTrigger: <JetpackLogo style={ { cursor: 'pointer' } } />,
 };
 
 Default.parameters = {};

@@ -2,13 +2,15 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import { useAllProducts } from '../../data/products/use-all-products';
+import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectSite from '../../hooks/use-connect-site';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import ActionButton from '../action-button';
 import SecondaryButton from '../action-button/secondary-button';
 import Card from '../card';
+import LoadingBlock from '../loading-block';
 import PriceComponent from './pricing-component';
 import RecommendationActions from './recommendation-actions';
 import Status from './status';
@@ -66,7 +68,10 @@ const ProductCard: FC< ProductCardProps > = props => {
 
 	let { secondaryAction } = props;
 
-	const { ownedProducts } = getMyJetpackWindowInitialState( 'lifecycleStats' );
+	const [ isTracksFired, setIsTracksFired ] = useState( false );
+	const {
+		data: { ownedProducts },
+	} = useProductsByOwnership();
 	const isOwned = ownedProducts?.includes( slug );
 
 	const isError =
@@ -85,6 +90,8 @@ const ProductCard: FC< ProductCardProps > = props => {
 		[ styles[ 'has-error' ] ]: isError,
 		[ styles[ 'has-warning' ] ]: isWarning,
 	} );
+
+	const { isLoading: isAllProductsLoading } = useAllProducts();
 
 	const [ isActionLoading, setIsActionLoading ] = useState( false );
 	const { recordEvent } = useAnalytics();
@@ -130,12 +137,29 @@ const ProductCard: FC< ProductCardProps > = props => {
 	 * Sends an event when the card loads
 	 */
 	useEffect( () => {
+		const isDataReady = ! isDataLoading && ! isAllProductsLoading;
+		const shouldTrackEvent = isDataReady && ! isTracksFired;
+
+		if ( ! shouldTrackEvent ) {
+			return;
+		}
+
+		setIsTracksFired( true );
 		recordEvent( 'jetpack_myjetpack_product_card_load', {
 			product: slug,
 			status: status,
 			...customLoadTracks,
 		} );
-	}, [ recordEvent, slug, status, customLoadTracks ] );
+	}, [
+		recordEvent,
+		slug,
+		status,
+		customLoadTracks,
+		isDataLoading,
+		isAllProductsLoading,
+		isTracksFired,
+		setIsTracksFired,
+	] );
 
 	return (
 		<Card
@@ -147,7 +171,11 @@ const ProductCard: FC< ProductCardProps > = props => {
 			titleId={ getProductCardTitleId( slug ) }
 		>
 			{ recommendation && <PriceComponent slug={ slug } /> }
-			<Description />
+			{ isAllProductsLoading ? (
+				<LoadingBlock height="25px" width="100%" spaceBelow />
+			) : (
+				<Description />
+			) }
 
 			{ isDataLoading ? (
 				<span className={ styles.loading }>{ __( 'Loading…', 'jetpack-my-jetpack' ) }</span>

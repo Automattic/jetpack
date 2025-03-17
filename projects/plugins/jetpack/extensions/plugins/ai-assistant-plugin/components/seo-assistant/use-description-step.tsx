@@ -53,7 +53,6 @@ export const useDescriptionStep = ( {
 		useMessages();
 	const { editPost } = useDispatch( editorStore );
 	const { getPostContent } = usePostContent();
-	const postContent = getPostContent();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const [ generatedCount, setGeneratedCount ] = useState( 0 );
 	const [ hasFailed, setHasFailed ] = useState( false );
@@ -80,7 +79,7 @@ export const useDescriptionStep = ( {
 					role: 'jetpack-ai' as const,
 					context: {
 						type: 'seo-meta-description',
-						content: postContent,
+						content: getPostContent(),
 						keywords: keywords.split( ',' ),
 						count: 1,
 					},
@@ -91,7 +90,7 @@ export const useDescriptionStep = ( {
 				feature: 'jetpack-seo-assistant',
 			}
 		);
-	}, [ keywords, postContent, postId, mockRequests, tracks ] );
+	}, [ keywords, getPostContent, postId, mockRequests, tracks ] );
 
 	const handleDescriptionSelect = useCallback(
 		( option: OptionMessage ) => {

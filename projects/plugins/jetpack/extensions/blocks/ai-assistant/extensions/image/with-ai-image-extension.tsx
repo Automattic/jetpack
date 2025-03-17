@@ -1,7 +1,13 @@
 /*
  * External dependencies
  */
-import { askQuestionSync, usePostContent, openBlockSidebar } from '@automattic/jetpack-ai-client';
+import {
+	askQuestionSync,
+	usePostContent,
+	openBlockSidebar,
+	useAiFeature,
+	getBase64Image,
+} from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -12,9 +18,12 @@ import debugFactory from 'debug';
 /*
  * Internal dependencies
  */
+import { store as seoStore } from '../../../../plugins/ai-assistant-plugin/components/seo-enhancer/store';
 import useBlockModuleStatus from '../../hooks/use-block-module-status';
 import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
 import { canAIAssistantBeEnabled } from '../lib/can-ai-assistant-be-enabled';
+import { preprocessImageContent } from '../lib/preprocess-image-content';
+import { TYPE_ALT_TEXT, TYPE_CAPTION } from '../types';
 import AiAssistantImageExtensionToolbarDropdown from './components/image-toolbar-dropdown';
 
 const debug = debugFactory( 'jetpack-ai:image-extension' );
@@ -60,21 +69,57 @@ export function isPossibleToExtendImageBlock( blockName: string ): boolean {
 // HOC to populate the block's edit component with the AI Assistant toolbar button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	function ExtendedBlock( props ) {
-		const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
+		const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
+		const { getCurrentPostId, isImageBusy } = useSelect(
+			select => {
+				const { getCurrentPostId: getPostId } = select( editorStore ) as {
+					getCurrentPostId: () => number;
+				};
+				const isBusy = select( seoStore )?.isImageBusy( props.clientId ) ?? false;
+
+				return { getCurrentPostId: getPostId, isImageBusy: isBusy };
+			},
+			[ props.clientId ]
+		);
 		const { getPostContent } = usePostContent();
-		const [ loading, setLoading ] = useState( false );
+		const [ loadingAltText, setLoadingAltText ] = useState< boolean >( isImageBusy );
+		const [ loadingCaption, setLoadingCaption ] = useState< boolean >( false );
 		const { updateBlockAttributes } = useDispatch( editorStore );
+		const { createNotice } = useDispatch( 'core/notices' );
 		const wrapperRef = useRef< HTMLDivElement >( null );
+		const hasImage = !! props.attributes.url;
+		const loading = loadingAltText || loadingCaption;
+
+		useEffect( () => {
+			setLoadingAltText( isImageBusy );
+		}, [ isImageBusy ] );
+
+		const setLoading = ( type: typeof TYPE_ALT_TEXT | typeof TYPE_CAPTION, value: boolean ) => {
+			if ( type === TYPE_ALT_TEXT ) {
+				setLoadingAltText( value );
+			} else if ( type === TYPE_CAPTION ) {
+				setLoadingCaption( value );
+			}
+		};
 
 		// When the dropdown is open, we need to focus the wrapper element to prevent it from closing.
-		const startLoading = useCallback( () => {
+		const startLoading = useCallback( ( type: typeof TYPE_ALT_TEXT | typeof TYPE_CAPTION ) => {
 			if ( wrapperRef.current ) {
 				wrapperRef.current.setAttribute( 'tabindex', '0' );
 				wrapperRef.current.focus();
 			}
 
-			setLoading( true );
+			setLoading( type, true );
 		}, [] );
+
+		const showErrorNotice = useCallback(
+			( message: string ) => {
+				createNotice( 'error', message, {
+					isDismissible: true,
+				} );
+			},
+			[ createNotice ]
+		);
 
 		useEffect( () => {
 			if ( ! loading ) {
@@ -84,61 +129,111 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			}
 		}, [ loading ] );
 
-		const requestAltText = useCallback( async () => {
-			startLoading();
+		const request = useCallback(
+			async (
+				type: typeof TYPE_ALT_TEXT | typeof TYPE_CAPTION,
+				useBase64Image: boolean = false
+			) => {
+				if ( requireUpgrade ) {
+					return;
+				}
 
-			try {
-				openBlockSidebar( props.clientId );
+				startLoading( type );
 
-				const response = await askQuestionSync(
-					[
-						{
-							role: 'jetpack-ai' as const,
-							context: {
-								type: 'images-alt-text',
-								content: getPostContent(),
-								images: [
-									{
-										url: props.attributes.url,
-									},
-								],
-							},
-						},
-					],
-					{
-						postId,
-						feature: 'jetpack-seo-assistant',
+				try {
+					const context: { positions?: number[] } = {};
+
+					if ( type === TYPE_ALT_TEXT ) {
+						openBlockSidebar( props.clientId );
 					}
-				);
 
-				const parsedResponse: { texts: string[] } = JSON.parse( response );
-				const alt = parsedResponse.texts?.[ 0 ];
+					if ( type === TYPE_CAPTION ) {
+						context.positions = [ props.clientId ];
+					}
 
-				updateBlockAttributes( props.clientId, { alt } );
-			} catch ( error ) {
-				debug( 'Error generating alt text', error );
-			} finally {
-				setLoading( false );
-			}
-		}, [
-			getPostContent,
-			postId,
-			props.attributes.url,
-			props.clientId,
-			startLoading,
-			updateBlockAttributes,
-		] );
+					dequeueAsyncRequest();
 
-		const requestCaption = useCallback( async () => {}, [] );
+					const response = await askQuestionSync(
+						[
+							{
+								role: 'jetpack-ai' as const,
+								context: {
+									type: type,
+									content: getPostContent( preprocessImageContent ),
+									...context,
+									images: [
+										{
+											// We convert the image to a base64 string to avoid inaccesible URLs for private images.
+											url: useBase64Image
+												? await getBase64Image( props.attributes.url )
+												: props.attributes.url,
+										},
+									],
+								},
+							},
+						],
+						{
+							postId: getCurrentPostId(),
+							feature: 'jetpack-ai-image-extension',
+						}
+					);
+
+					increaseRequestsCount();
+
+					const parsedResponse: { texts?: string[]; captions?: string[] } = JSON.parse(
+						response
+							?.replace?.( /^```json\s*/, '' ) // Remove the markdown code block if it exists.
+							?.replace( /```$/, '' )
+					);
+
+					if ( type === TYPE_ALT_TEXT ) {
+						const alt = parsedResponse.texts?.[ 0 ];
+						updateBlockAttributes( props.clientId, { alt } );
+					} else if ( type === TYPE_CAPTION ) {
+						const caption = parsedResponse.captions?.[ 0 ];
+						updateBlockAttributes( props.clientId, { caption } );
+					}
+
+					setLoading( type, false );
+				} catch ( error ) {
+					if ( error?.message.includes( 'The image URL is invalid' ) && ! useBase64Image ) {
+						debug( 'Retrying with base64 image' );
+						return request( type, true );
+					}
+
+					debug( `Error generating ${ type }`, error );
+
+					if ( error?.message ) {
+						showErrorNotice( error.message );
+					}
+
+					setLoading( type, false );
+				}
+			},
+			[
+				dequeueAsyncRequest,
+				getCurrentPostId,
+				getPostContent,
+				increaseRequestsCount,
+				props.attributes.url,
+				props.clientId,
+				requireUpgrade,
+				showErrorNotice,
+				startLoading,
+				updateBlockAttributes,
+			]
+		);
 
 		return (
 			<>
 				<BlockEdit { ...props } />
 				<BlockControls { ...blockControlsProps }>
 					<AiAssistantImageExtensionToolbarDropdown
-						onRequestAltText={ requestAltText }
-						onRequestCaption={ requestCaption }
-						loading={ loading }
+						onRequestAltText={ () => request( TYPE_ALT_TEXT ) }
+						onRequestCaption={ () => request( TYPE_CAPTION ) }
+						loadingAltText={ loadingAltText }
+						loadingCaption={ loadingCaption }
+						disabled={ ! hasImage }
 						wrapperRef={ wrapperRef }
 					/>
 				</BlockControls>

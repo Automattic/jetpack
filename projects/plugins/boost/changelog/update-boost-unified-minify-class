@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Concatenation: create invisible "minify module" that handles deactivation of both modules.

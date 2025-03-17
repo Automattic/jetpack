@@ -5,7 +5,7 @@ import { scaleBand, scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { FC, useCallback, type MouseEvent } from 'react';
+import { FC, useCallback, type MouseEvent, ReactNode } from 'react';
 import { useChartTheme } from '../../providers/theme';
 import { GridControl } from '../grid-control';
 import { Legend } from '../legend';
@@ -21,22 +21,69 @@ type BarChartTooltipData = {
 	seriesIndex: number;
 };
 
-interface BarChartProps extends BaseChartProps< SeriesData[] > {}
+interface BarChartProps extends BaseChartProps< SeriesData[] > {
+	renderTooltip?: ( params: BarChartTooltipData ) => ReactNode;
+}
+
+const formatDateTick = ( timestamp: number ) => {
+	const date = new Date( timestamp );
+	return date.toLocaleDateString( undefined, {
+		month: 'short',
+		day: 'numeric',
+	} );
+};
+
+// Default tooltip renderer
+const renderDefaultTooltip = ( tooltipData: BarChartTooltipData ) => {
+	if ( ! tooltipData ) return null;
+
+	return (
+		<div className={ styles[ 'bar-chart__tooltip' ] }>
+			<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ tooltipData.yLabel }</div>
+			<div className={ styles[ 'bar-chart__tooltip-row' ] }>
+				<span className={ styles[ 'bar-chart__tooltip-label' ] }>{ tooltipData.xLabel }:</span>
+				<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ tooltipData.value }</span>
+			</div>
+		</div>
+	);
+};
+
+// Validation function similar to LineChart
+const validateData = ( data: SeriesData[] ) => {
+	if ( ! data?.length ) return 'No data available';
+
+	const hasInvalidData = data.some( series =>
+		series.data.some(
+			d =>
+				d.value === null ||
+				d.value === undefined ||
+				isNaN( d.value ) ||
+				( ! d.label && ( ! d.date || isNaN( d.date.getTime() ) ) )
+		)
+	);
+
+	if ( hasInvalidData ) return 'Invalid data';
+	return null;
+};
 
 const BarChart: FC< BarChartProps > = ( {
 	data,
+	width,
+	height = 400,
+	className,
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	className,
 	gridVisibility = 'x',
-	width,
-	height = 400,
+	renderTooltip = renderDefaultTooltip,
+	options = {},
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< BarChartTooltipData >();
+	const tickFormat = options.axis?.x?.tickFormat ?? formatDateTick;
+	delete options.axis?.x?.tickFormat;
 
 	const handleMouseMove = useCallback(
 		(
@@ -57,25 +104,10 @@ const BarChart: FC< BarChartProps > = ( {
 		[ showTooltip ]
 	);
 
-	// Check for empty data
-	if ( ! data?.length ) {
-		return <div className={ clsx( styles[ 'bar-chart-empty' ] ) }>No data available</div>;
-	}
-
-	// Add date validation to hasInvalidData check
-	const hasInvalidData = data.some( series =>
-		series.data.some(
-			d =>
-				d.value === null ||
-				d.value === undefined ||
-				isNaN( d.value ) ||
-				! d.label ||
-				( d.date && isNaN( d.date.getTime() ) ) // Add date validation
-		)
-	);
-
-	if ( hasInvalidData ) {
-		return <div className={ clsx( styles[ 'bar-chart-error' ] ) }>Invalid data</div>;
+	// Validate data using the same pattern as LineChart
+	const error = validateData( data );
+	if ( error ) {
+		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
 	}
 
 	const margins = margin;
@@ -83,7 +115,9 @@ const BarChart: FC< BarChartProps > = ( {
 	const yMax = height - margins.top - margins.bottom;
 
 	// Get labels for x-axis from the first series (assuming all series have same labels)
-	const labels = data[ 0 ].data?.map( d => d?.label || '' );
+	const labels = data[ 0 ].data?.map( d => {
+		return d?.label || tickFormat( d?.date );
+	} );
 
 	// Create scales
 	const xScale = scaleBand< string >( {
@@ -110,7 +144,7 @@ const BarChart: FC< BarChartProps > = ( {
 	const legendItems = data.map( ( group, index ) => ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
-		color: theme.colors[ index % theme.colors.length ],
+		color: group.options?.stroke || theme.colors[ index % theme.colors.length ],
 	} ) );
 
 	return (
@@ -132,23 +166,25 @@ const BarChart: FC< BarChartProps > = ( {
 					{ data.map( ( series, seriesIndex ) => (
 						<Group key={ seriesIndex }>
 							{ series.data.map( d => {
-								const xPos = xScale( d?.label || '' );
+								const xLabel = d?.label || tickFormat( d?.date );
+								const xPos = xScale( xLabel );
 								if ( xPos === undefined ) return null;
 
 								const barWidth = innerScale.bandwidth();
 								const barX = xPos + ( innerScale( seriesIndex.toString() ) ?? 0 );
-
+								const barColor =
+									series.options?.stroke || theme.colors[ seriesIndex % theme.colors.length ];
 								const handleBarMouseMove = ( event: MouseEvent< SVGRectElement > ) =>
-									handleMouseMove( event, d.value, d?.label || '', series.label, seriesIndex );
+									handleMouseMove( event, d.value, xLabel, series.label, seriesIndex );
 
 								return (
 									<Bar
-										key={ `bar-${ seriesIndex }-${ d.label }` }
+										key={ `bar-${ seriesIndex }-${ xLabel }` }
 										x={ barX }
 										y={ yScale( d.value ) }
 										width={ barWidth }
 										height={ yMax - ( yScale( d.value ) ?? 0 ) }
-										fill={ theme.colors[ seriesIndex % theme.colors.length ] }
+										fill={ barColor }
 										onMouseMove={ withTooltips ? handleBarMouseMove : undefined }
 										onMouseLeave={ withTooltips ? hideTooltip : undefined }
 									/>
@@ -163,12 +199,7 @@ const BarChart: FC< BarChartProps > = ( {
 
 			{ withTooltips && tooltipOpen && tooltipData && (
 				<BaseTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-					<div>
-						<div>{ tooltipData.yLabel }</div>
-						<div>
-							{ tooltipData.xLabel }: { tooltipData.value }
-						</div>
-					</div>
+					{ renderTooltip( tooltipData ) }
 				</BaseTooltip>
 			) }
 
@@ -183,5 +214,4 @@ const BarChart: FC< BarChartProps > = ( {
 	);
 };
 
-BarChart.displayName = 'BarChart';
 export default withResponsive< BarChartProps >( BarChart );

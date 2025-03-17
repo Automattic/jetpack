@@ -57,8 +57,7 @@ export default function FeaturedImage( {
 		placement === PLACEMENT_MEDIA_SOURCE_DROPDOWN
 	);
 	const siteType = useSiteType();
-	const { getPostContent } = usePostContent();
-	const postContent = getPostContent();
+	const { getPostContent, isEditedPostEmpty } = usePostContent();
 	const { postTitle, postFeaturedMediaId, isEditorPanelOpened } = useSelect( select => {
 		return {
 			postTitle: select( editorStore ).getEditedPostAttribute( 'title' ),
@@ -134,10 +133,10 @@ export default function FeaturedImage( {
 	 */
 	const handleGuessStyle = useCallback(
 		userPrompt => {
-			const content = postTitle + '\n\n' + postContent;
+			const content = postTitle + '\n\n' + getPostContent();
 			return guessStyle( userPrompt, 'featured-image-guess-style', content );
 		},
-		[ postContent, postTitle, guessStyle ]
+		[ postTitle, getPostContent, guessStyle ]
 	);
 
 	const handleGenerate = useCallback(
@@ -160,7 +159,7 @@ export default function FeaturedImage( {
 			setIsFeaturedImageModalVisible( true );
 			return processImageGeneration( {
 				userPrompt,
-				postContent: postTitle + '\n\n' + postContent,
+				postContent: postTitle + '\n\n' + getPostContent(),
 				notEnoughRequests,
 				style,
 			} ).catch( error => {
@@ -179,7 +178,7 @@ export default function FeaturedImage( {
 			featuredImageActiveModel,
 			siteType,
 			processImageGeneration,
-			postContent,
+			getPostContent,
 			notEnoughRequests,
 			postTitle,
 		]
@@ -210,7 +209,7 @@ export default function FeaturedImage( {
 			setCurrent( () => images.length );
 			processImageGeneration( {
 				userPrompt,
-				postContent: postTitle + '\n\n' + postContent,
+				postContent: postTitle + '\n\n' + getPostContent(),
 				notEnoughRequests,
 				style,
 			} ).catch( error => {
@@ -232,7 +231,7 @@ export default function FeaturedImage( {
 			setCurrent,
 			processImageGeneration,
 			postTitle,
-			postContent,
+			getPostContent,
 			notEnoughRequests,
 			images,
 		]
@@ -250,7 +249,7 @@ export default function FeaturedImage( {
 
 			processImageGeneration( {
 				userPrompt,
-				postContent: postTitle + '\n\n' + postContent,
+				postContent: postTitle + '\n\n' + getPostContent(),
 				notEnoughRequests,
 				style,
 			} ).catch( error => {
@@ -269,7 +268,7 @@ export default function FeaturedImage( {
 			featuredImageActiveModel,
 			siteType,
 			processImageGeneration,
-			postContent,
+			getPostContent,
 			notEnoughRequests,
 			postTitle,
 		]
@@ -347,7 +346,7 @@ export default function FeaturedImage( {
 	const generateAgainText = __( 'Generate another image', 'jetpack-ai-client' );
 	const generateText = __( 'Generate', 'jetpack-ai-client' );
 
-	const hasContent = postContent.trim?.() || postTitle.trim?.() ? true : false;
+	const hasContent = ! isEditedPostEmpty() || postTitle.trim?.() ? true : false;
 	const hasPrompt = hasContent ? prompt.length >= 0 : prompt.length >= 3;
 	const disableInput = notEnoughRequests || currentPointer?.generating || requireUpgrade;
 	const disableAction = disableInput || ( ! hasContent && ! hasPrompt );
@@ -397,7 +396,6 @@ export default function FeaturedImage( {
 				</>
 			) }
 			<AiImageModal
-				postContent={ hasContent }
 				autoStart={ hasContent && ! postFeaturedMediaId }
 				autoStartAction={ handleFirstGenerate }
 				images={ images }
