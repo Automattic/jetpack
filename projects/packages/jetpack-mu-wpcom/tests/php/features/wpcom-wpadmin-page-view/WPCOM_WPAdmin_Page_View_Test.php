@@ -21,11 +21,15 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-wpadmin-page-view/w
  */
 class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 	/**
-	 * Test that wpcom_nosara_track_admin_page_views does not track a11ns.
+	 * Tests that the wpcom_nosara_track_admin_page_views function does not track admin page views for Automatticians.
 	 *
 	 * @dataProvider wpcom_nosara_track_admin_page_views_does_not_track_a11ns_provider
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
+	 *
+	 * @param bool      $is_wpcom         Whether the site is a WordPress.com site.
+	 * @param bool|null $is_automattician Whether the user is an Automattician.
+	 * @param bool|null $is_network_admin Whether the user is a network admin.
 	 */
 	public function test_wpcom_nosara_track_admin_page_views_does_not_track_a11ns(
 		$is_wpcom,
