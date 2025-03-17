@@ -46,7 +46,8 @@ function wpcom_nosara_track_admin_page_views() {
 			return;
 		}
 
-		$blog_id    = $current_blog->blog_id;
+		$blog_id = $current_blog->blog_id;
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- This class is available in simple sites.
 		$user_types = \WPCOM_User::get_types();
 	}
 
@@ -97,7 +98,7 @@ function wpcom_track_customizer_from_frontend() {
 	global $current_user;
 
 	// Since we view so many screens to offer support and do feature dev, I think it's best not to count us.
-	if ( is_automattician() ) {
+	if ( do_not_track_a11ns() ) {
 		return;
 	}
 	?>
