@@ -5,14 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.7.1] - 2025-03-17
+### Fixed
+- Allow screen readers to read stats. [#42275]
+
 ## [5.7.0] - 2025-03-17
 ### Changed
-- Call Protect and VideoPress product data on the frontend and remove from window state [#42411]
+- Call Protect and VideoPress product data on the frontend and remove from window state. [#42411]
 - My Jetpack: Move Red Bubble notifications out of myJetpackInitialState. [#42271]
 - UI: Upgrade CTAs on the Jetpack Boost admin now opens a modal instead of navigating to the upgrade page. [#42309]
 
 ### Fixed
-- My Jetpack: fix interstitial modal that was displaying the discounted price when user had already used up the discount [#42349]
+- My Jetpack: Fix interstitial modal that was displaying the discounted price when user had already used up the discount. [#42349]
 
 ## [5.6.0] - 2025-03-12
 ### Added
@@ -2021,6 +2025,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.0...5.7.1
 [5.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.6.0...5.7.0
 [5.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.5.3...5.6.0
 [5.5.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.5.2...5.5.3

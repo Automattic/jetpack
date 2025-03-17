@@ -5,29 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.83.1] - 2025-03-17
+### Changed
+- Update dependencies. [#39855]
+
 ## [0.83.0] - 2025-03-17
 ### Added
-- Added schedule post functionality to the share post modal [#42376]
-- Social | Add scheduled posts panel [#42297]
+- Add "Schedule" functionality to the Share Post modal. [#42376]
+- Add Scheduled Posts panel. [#42297]
 
 ### Changed
-- ScheduleButton: Prevent date/times in the past from being selected [#42381]
-- Social | Change the query parameter to open Jetpack sidebar on editor load [#42364]
-- Social | Migrate review prompt initial state to script data [#42389]
+- Schedule Button: Prevent date/times in the past from being selected. [#42381]
+- Change the query parameter to open Jetpack sidebar on editor load. [#42364]
+- Migrate review prompt initial state to script data. [#42389]
 
 ### Removed
-- Social : Connections schema: Remove the deprecated fields [#42454]
+- Connections schema: Remove the deprecated fields. [#42454]
 
 ### Fixed
-- Fixed a deadlock with the media picker [#42455]
-- Social | Fix connecting LinkedIn company pages and Tumblr additional blogs [#42352]
+- Fixed a deadlock with the media picker. [#42455]
+- Resolve connection issues with LinkedIn company pages and Tumblr additional blogs. [#42352]
 
 ## [0.82.0] - 2025-03-12
 ### Added
-- Add a helper function to get the max message length [#42325]
-- Add internal state for the ScheduleButton component [#42372]
+- Add a helper function to get the max message length. [#42325]
+- Add internal state for the ScheduleButton component. [#42372]
 - Provide connection data to footer component. [#42000]
-- Publicize Components: Add the schedule button [#42313]
+- Publicize Components: Add the schedule button. [#42313]
 - Social: Configure data store to handle scheduled shares. [#42296]
 
 ### Changed
@@ -1161,6 +1165,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.83.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.83.0...v0.83.1
 [0.83.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.82.0...v0.83.0
 [0.82.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.81.0...v0.82.0
 [0.81.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.80.0...v0.81.0

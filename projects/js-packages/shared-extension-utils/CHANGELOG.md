@@ -5,12 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.2] - 2025-03-17
+### Changed
+- Update dependencies. [#42328]
+
 ## [0.18.1] - 2025-03-17
 ### Added
-- Added jetpack editor action utility functions [#42364]
+- Add Jetpack editor action utility functions. [#42364]
 
 ### Removed
-- Social | Removed the old unused initial state [#42390]
+- Social: Remove the old unused initial state. [#42390]
 
 ## [0.18.0] - 2025-03-12
 ### Added
@@ -565,6 +569,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.18.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.1...0.18.2
 [0.18.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.0...0.18.1
 [0.18.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.17.5...0.18.0
 [0.17.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.17.4...0.17.5

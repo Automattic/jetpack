@@ -5,16 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.61.5] - 2025-03-17
+### Changed
+- Internal updates.
+
 ## [0.61.4] - 2025-03-17
 ### Changed
-- Improved scheduled-actions endpoint permission checks [#42318]
-- Social | Change the query parameter to open Jetpack sidebar on editor load [#42364]
+- Improve scheduled-actions endpoint permission checks. [#42318]
+- Social: Change the query parameter to open Jetpack sidebar on editor load. [#42364]
 
 ### Removed
-- Remove the useAdminUiV1 feature flag [#42451]
-- Social : Connections schema: Remove the deprecated fields [#42454]
-- Social | Removed the old unused initial state [#42390]
-- Social | Remove unused scheduled-actions endpoint routes [#42415]
+- Remove the useAdminUiV1 feature flag. [#42451]
+- Social: Connections schema: Remove the deprecated fields. [#42454]
+- Social: Removed the old unused initial state. [#42390]
+- Social: Remove unused scheduled-actions endpoint routes. [#42415]
 
 ## [0.61.3] - 2025-03-12
 ### Changed
@@ -917,6 +921,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.61.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.4...v0.61.5
 [0.61.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.3...v0.61.4
 [0.61.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.2...v0.61.3
 [0.61.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.1...v0.61.2
