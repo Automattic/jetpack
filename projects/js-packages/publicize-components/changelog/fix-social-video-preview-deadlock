@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed a deadlock with the media picker

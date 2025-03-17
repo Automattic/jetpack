@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.7] - 2025-03-17
+### Changed
+- Social | Change the query parameter to open Jetpack sidebar on editor load [#42364]
+
 ## [0.8.6] - 2025-03-12
 ### Changed
 - Internal updates.
@@ -162,6 +166,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated the default columns displayed on the post and page list screens
 - Refactored thumbnail preview to function server side. All javascript removed.
 
+[0.8.7]: https://github.com/automattic/jetpack-post-list/compare/v0.8.6...v0.8.7
 [0.8.6]: https://github.com/automattic/jetpack-post-list/compare/v0.8.5...v0.8.6
 [0.8.5]: https://github.com/automattic/jetpack-post-list/compare/v0.8.4...v0.8.5
 [0.8.4]: https://github.com/automattic/jetpack-post-list/compare/v0.8.3...v0.8.4

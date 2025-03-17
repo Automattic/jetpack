@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Sync: Don't send any old full sync actions if full sync has been restarted.

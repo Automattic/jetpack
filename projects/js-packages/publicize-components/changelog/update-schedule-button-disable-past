@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-ScheduleButton: Prevent date/times in the past from being selected
