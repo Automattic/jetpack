@@ -1,3 +1,4 @@
+import trafficData from '../../line-chart/stories/site-traffic-sample';
 import BarChart from '../bar-chart';
 import data from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -52,6 +53,21 @@ export const SingleSeries: Story = {
 		docs: {
 			description: {
 				story: 'Bar chart with a single data series.',
+			},
+		},
+	},
+};
+
+// Story with single data series
+export const TimeSeries: Story = {
+	args: {
+		...Default.args,
+		data: [ trafficData[ 0 ] ],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Bar chart with a time series.',
 			},
 		},
 	},

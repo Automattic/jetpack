@@ -126,11 +126,12 @@ const useEvaluationRecommendations = () => {
 	);
 
 	const removeEvaluationResult = useCallback( () => {
+		setIsSectionVisible( false );
+
 		handleRemoveEvaluationResult(
 			{},
 			{
 				onSuccess: () => {
-					setIsSectionVisible( false );
 					setIsFirstRun( false );
 					recordEvent( 'jetpack_myjetpack_evaluation_recommendations_dismiss_click' );
 				},

@@ -91,7 +91,7 @@ describe( 'BarChart', () => {
 					{
 						label: 'Series A',
 						data: [
-							{ date: new Date( 'invalid' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( 'invalid' ), value: 10 },
 							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
 						],
 						options: {},

@@ -6,17 +6,17 @@ import useProduct from '../../../data/products/use-product';
 import formatNumber from '../../../utils/format-number';
 import formatTime from '../../../utils/format-time';
 import { InfoTooltip } from '../../info-tooltip';
+import LoadingBlock from '../../loading-block';
 import baseStyles from '../style.module.scss';
 import useTooltipCopy from './use-tooltip-copy';
 import type { FC } from 'react';
 
 import './style.scss';
 
-type VideoPressWindowData = Window[ 'myJetpackInitialState' ][ 'videopress' ];
-
 interface VideoPressValueSectionProps {
 	isPluginActive: boolean;
-	data: VideoPressWindowData;
+	data: VideopressData;
+	isLoading: boolean;
 }
 
 interface ValueSectionProps {
@@ -24,7 +24,7 @@ interface ValueSectionProps {
 	previousValue: number;
 	formattedValue: string;
 	formattedDifference: string;
-	period: VideoPressWindowData[ 'featuredStats' ][ 'period' ];
+	period: VideopressData[ 'featuredStats' ][ 'period' ];
 }
 
 const ValueSection: FC< ValueSectionProps > = ( {
@@ -54,13 +54,17 @@ const ValueSection: FC< ValueSectionProps > = ( {
 	);
 };
 
-const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginActive, data } ) => {
+const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( {
+	isPluginActive,
+	data,
+	isLoading,
+} ) => {
 	const { detail } = useProduct( PRODUCT_SLUGS.VIDEOPRESS );
 	const { status, hasPaidPlanForProduct } = detail || {};
 	const { videoCount, featuredStats } = data || {};
-	const { inactiveWithVideos, viewsWithoutPlan, viewsWithPlan, watchTime } = useTooltipCopy();
+	const { inactiveWithVideos, viewsWithoutPlan, viewsWithPlan, watchTime } = useTooltipCopy( data );
 
-	if ( ! videoCount ) {
+	if ( ! videoCount && ! isLoading ) {
 		return null;
 	}
 
@@ -76,19 +80,25 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 				<div className="videopress-card__value-section__container">
 					<span className={ baseStyles.valueSectionHeading }>
 						{ __( 'Existing videos', 'jetpack-my-jetpack' ) }
-						<InfoTooltip
-							className="videopress-card__no-video-tooltip"
-							tracksEventName={ 'videopress_card_tooltip_open' }
-							tracksEventProps={ {
-								location: 'existing_videos',
-								feature: 'jetpack-videopress',
-								status,
-								video_count: videoCount,
-							} }
-						>
-							<h3>{ inactiveWithVideos.title }</h3>
-							<p>{ inactiveWithVideos.text }</p>
-						</InfoTooltip>
+						{ isLoading ? (
+							<LoadingBlock height="32px" width="100%" />
+						) : (
+							<>
+								<InfoTooltip
+									className="videopress-card__no-video-tooltip"
+									tracksEventName={ 'videopress_card_tooltip_open' }
+									tracksEventProps={ {
+										location: 'existing_videos',
+										feature: 'jetpack-videopress',
+										status,
+										video_count: videoCount,
+									} }
+								>
+									<h3>{ inactiveWithVideos.title }</h3>
+									<p>{ inactiveWithVideos.text }</p>
+								</InfoTooltip>
+							</>
+						) }
 					</span>
 					<span className="videopress-card__video-count">{ videoCount }</span>
 				</div>
@@ -105,7 +115,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 	const viewsDifference = Math.abs( currentViews - previousViews );
 	const watchTimeDifference = Math.abs( currentWatchTime - previousWatchTime );
 
-	if ( currentViews === undefined || currentWatchTime === undefined ) {
+	if ( ! isLoading && ( currentViews === undefined || currentWatchTime === undefined ) ) {
 		return null;
 	}
 
@@ -147,13 +157,17 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 					</InfoTooltip>
 				</span>
 
-				<ValueSection
-					value={ currentViews }
-					previousValue={ previousViews }
-					formattedValue={ formatNumber( currentViews ) }
-					formattedDifference={ formatNumber( viewsDifference ) }
-					period={ period }
-				/>
+				{ isLoading ? (
+					<LoadingBlock height="32px" width="100%" />
+				) : (
+					<ValueSection
+						value={ currentViews }
+						previousValue={ previousViews }
+						formattedValue={ formatNumber( currentViews ) }
+						formattedDifference={ formatNumber( viewsDifference ) }
+						period={ period }
+					/>
+				) }
 			</div>
 
 			<div className="videopress-card__value-section__container">
@@ -180,13 +194,17 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 					</InfoTooltip>
 				</span>
 
-				<ValueSection
-					value={ currentWatchTime }
-					previousValue={ previousWatchTime }
-					formattedValue={ formatTime( currentWatchTime ) }
-					formattedDifference={ formatTime( watchTimeDifference ) }
-					period={ period }
-				/>
+				{ isLoading ? (
+					<LoadingBlock height="32px" width="100%" />
+				) : (
+					<ValueSection
+						value={ currentWatchTime }
+						previousValue={ previousWatchTime }
+						formattedValue={ formatTime( currentWatchTime ) }
+						formattedDifference={ formatTime( watchTimeDifference ) }
+						period={ period }
+					/>
+				) }
 			</div>
 		</div>
 	);

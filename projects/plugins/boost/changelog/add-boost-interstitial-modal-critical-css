@@ -1,4 +1,4 @@
 Significance: minor
-Type: added
+Type: changed
 
-Jetpack Boost: add product interstitial modal for boost
+UI: Upgrade CTAs on the Jetpack Boost admin now opens a modal instead of navigating to the upgrade page.

@@ -10,8 +10,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { useIsSharingPossible } from '../../hooks/use-is-sharing-possible';
-import usePublicizeConfig from '../../hooks/use-publicize-config';
+import { useIsReSharingPossible } from '../../hooks/use-is-resharing-possible';
 import useSharePost from '../../hooks/use-share-post';
 import { store as socialStore } from '../../social-store';
 import { features } from '../../utils';
@@ -69,12 +68,12 @@ function getSiteType() {
 /**
  * Component to trigger the resharing of the post.
  *
- * @param {object}   props                  - The component props.
- * @param {Function} props.onShareCompleted - The callback to be called when the share is completed.
+ * @param {object}   props                    - The component props.
+ * @param {Function} props.onShareCompleted   - The callback to be called when the share is completed.
+ * @param {boolean}  [props.isDisabled=false] - Whether the button is disabled or not.
  * @return {object} A button component that will share the current post when clicked.
  */
-export function SharePostButton( { onShareCompleted } ) {
-	const { isPublicizeEnabled } = usePublicizeConfig();
+export function SharePostButton( { onShareCompleted, isDisabled = false } ) {
 	const hasMediaFeatures =
 		siteHasFeature( features.IMAGE_GENERATOR ) || siteHasFeature( features.ENHANCED_PUBLISHING );
 	const { isFetching, isError, isSuccess, doPublicize } = useSharePost();
@@ -110,17 +109,7 @@ export function SharePostButton( { onShareCompleted } ) {
 		onShareCompleted();
 	}, [ isFetching, isError, isSuccess, onShareCompleted ] );
 
-	const isSharingPossible = useIsSharingPossible();
-
-	/*
-	 * Disabled button when
-	 * - sharing is disabled
-	 * - no enabled connections
-	 * - post is not published
-	 * - is sharing post
-	 */
-	const isButtonDisabled =
-		! isPublicizeEnabled || ! isSharingPossible || ! isPostPublished || isFetching || isSavingPost;
+	const isReSharingPossible = useIsReSharingPossible();
 
 	const sharePost = useCallback( async () => {
 		if ( ! isPostPublished ) {
@@ -166,7 +155,7 @@ export function SharePostButton( { onShareCompleted } ) {
 		<Button
 			variant="primary"
 			onClick={ sharePost }
-			disabled={ isButtonDisabled }
+			disabled={ ! isReSharingPossible || isDisabled }
 			isBusy={ isFetching || isSavingPost }
 		>
 			{ __( 'Share', 'jetpack-publicize-components' ) }

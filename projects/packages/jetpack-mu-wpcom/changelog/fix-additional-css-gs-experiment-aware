@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added a new function that returns the upsell plan based on the what Plan is required by Global Styles.
