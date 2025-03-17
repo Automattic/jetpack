@@ -222,14 +222,14 @@ function wpcom_add_jetpack_submenu() {
 	}
 
 	if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
-	add_submenu_page(
-		'jetpack',
-		__( 'Subscribers', 'jetpack-mu-wpcom' ),
-		__( 'Subscribers', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		$subscribers_url,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+		add_submenu_page(
+			'jetpack',
+			__( 'Subscribers', 'jetpack-mu-wpcom' ),
+			__( 'Subscribers', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			$subscribers_url,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
 	} else {
 		$subscribers_dashboard = new Subscribers_Dashboard();
 		$subscribers_dashboard->add_wp_admin_submenu();
