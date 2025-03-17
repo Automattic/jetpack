@@ -68,7 +68,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
-		"@babel/core": "7.26.0",
+		"@babel/core": "7.26.10",
 		"@babel/runtime": "7.26.10",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/user-event": "^14.4.3",
