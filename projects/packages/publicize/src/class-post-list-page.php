@@ -103,11 +103,19 @@ class Post_List_Page {
 
 		if ( self::should_render_for_post( $post ) ) {
 
+			$url   = add_query_arg( 'jetpack-editor-action', 'share_post', get_edit_post_link( $post->ID, 'raw' ) );
+			$text  = _x( 'Share', 'Share the post on social networks', 'jetpack-publicize-pkg' );
+			$title = _draft_or_post_title( $post );
+			/* translators: post title */
+			$aria_label = sprintf( _x( 'Share "%s" via Jetpack Social.', 'Share the post with the given title.', 'jetpack-publicize-pkg' ), $title );
+
 			$actions['jetpack-social-share-post'] = sprintf(
-				'<a href="#" data-postid="%1$s" class="%2$s">%3$s</a>',
-				$post->ID,
+				'<a href="%1$s" data-post-id="%2$s" class="%3$s" aria-label="%4$s">%5$s</a>',
+				esc_url( $url ),
+				esc_attr( $post->ID ),
 				'jetpack-social-share-post-action',
-				esc_html__( 'Share', 'jetpack-publicize-pkg' )
+				esc_html( $aria_label ),
+				esc_html( $text )
 			);
 		}
 

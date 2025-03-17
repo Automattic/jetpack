@@ -35,7 +35,7 @@ $( () => {
 	$( 'a.jetpack-social-share-post-action' ).on( 'click', e => {
 		e.preventDefault();
 
-		const postId = Number( e.target.dataset.postid );
+		const postId = Number( e.target.dataset.postId );
 
 		if ( postId ) {
 			renderApp( postId );
