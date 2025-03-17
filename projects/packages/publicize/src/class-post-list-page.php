@@ -42,6 +42,18 @@ class Post_List_Page {
 		if ( ! Publicize_Script_Data::has_feature_flag( 'post-list-ui' ) ) {
 			return;
 		}
+		add_action( 'current_screen', array( $this, 'setup' ) );
+	}
+
+	/**
+	 * Setup the actions and filters.
+	 */
+	public function setup() {
+
+		if ( ! self::should_render_on_page() ) {
+			return;
+		}
+
 		add_action( 'admin_footer', array( $this, 'render_share_post_root' ) );
 		add_filter( 'post_row_actions', array( $this, 'append_share_post_action' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
@@ -77,7 +89,7 @@ class Post_List_Page {
 	 * @return boolean True if the criteria are met.
 	 */
 	public static function should_render_for_post( WP_Post $post ) {
-		return self::should_render_on_page() && 'publish' === $post->post_status;
+		return 'publish' === $post->post_status;
 	}
 
 	/**
@@ -108,9 +120,6 @@ class Post_List_Page {
 	 * @return void
 	 */
 	public function render_share_post_root() {
-		if ( ! self::should_render_on_page() ) {
-			return;
-		}
 		?>
 			<div id="jetpack-social-share-post-root"></div>
 		<?php
@@ -120,10 +129,6 @@ class Post_List_Page {
 	 * Enqueue admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
-		if ( ! self::should_render_on_page() ) {
-			return;
-		}
-
 		Assets::register_script(
 			'jetpack-social-post-list-page',
 			'../build/post-list-page.js',
