@@ -293,7 +293,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( is_singular() ) {
-			add_action( 'admin_bar_menu', array( __CLASS__, 'add_quick_link_to_admin_bar' ), 500 );
+			add_action( 'admin_bar_menu', array( __CLASS__, 'add_quick_link_to_admin_bar' ), 100 ); // We use priority 100 so that the link that is added gets added after the "Edit Page" link.
 		}
 		// Create a new Contact_Form object (this class)
 		$form = new Contact_Form( $attributes, $content );
