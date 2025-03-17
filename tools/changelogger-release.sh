@@ -293,10 +293,14 @@ pnpm install --silent
 
 cat <<-EOM
 
-	You can examine the changelogs with
+	You can examine the changelogs directly with the following:
 
 	  git diff '**/CHANGELOG.md'
 
-	Feel free to edit them as needed.
+	You can open them all in VS Code with the following:
+
+	  code $(git diff --name-only '**/CHANGELOG.md')
+
+	Feel free to edit and save them as needed.
 
 EOM
