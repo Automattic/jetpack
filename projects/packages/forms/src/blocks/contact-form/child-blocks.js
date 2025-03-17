@@ -623,7 +623,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: __( 'Text', 'jetpack-forms' ),
+					default: __( 'Message', 'jetpack-forms' ),
 					role: 'content',
 				},
 			},
