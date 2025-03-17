@@ -324,7 +324,7 @@ function do_create_prerelease_PR {
 	# Remove the trailing comma and space
 	PLUGINS_CHANGED=${PLUGINS_CHANGED%, }
 	sed "s/%RELEASED_PLUGINS%/$PLUGINS_CHANGED/g" .github/files/BACKPORT_RELEASE_CHANGES.md > .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
-	gh pr create --title "Backport $PLUGINS_CHANGED Changes" --body "$(cat .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
+	gh pr create --title "Backport $PLUGINS_CHANGED Changes" --body "$(cat .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --label "[Type] Janitorial" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
 	rm .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
 }
 
