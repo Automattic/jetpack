@@ -48,7 +48,7 @@
  * This function hooks on to wp_footer and displays the secret template
  * tag that will be replaced by our dynamic content on each page view.
  * It may be helpful to check the $wp_cache_mfunc_enabled global variable
- * before outputting the template tag, to ensure it is not revealed when
+ * before outputting the template tag, to ensure the tag is not revealed when
  * the dynamic cache is disabled.
  *
  *

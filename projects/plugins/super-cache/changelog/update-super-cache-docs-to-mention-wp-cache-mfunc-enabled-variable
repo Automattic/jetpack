@@ -1,0 +1,3 @@
+Significance: patch
+Type: added
+Comment: Documentation: update the documentation to include the `$wp_cache_mfunc_enabled` global variable, ensuring users know it can help prevent the secret template tag from being revealed.
