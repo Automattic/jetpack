@@ -44,10 +44,12 @@ class Shares_Data_Controller extends Base_Controller {
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_items' ),
-				'permission_callback' => array( $this, 'get_items_permissions_check' ),
-				'schema'              => array( $this, 'get_public_item_schema' ),
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_items' ),
+					'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				),
+				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
 	}
