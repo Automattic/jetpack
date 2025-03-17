@@ -247,6 +247,7 @@ class Jetpack_Redux_State_Helper {
 			'isSubscriptionSiteEnabled'            => apply_filters( 'jetpack_subscription_site_enabled', false ),
 			'newsletterDateExample'                => gmdate( get_option( 'date_format' ), time() ),
 			'subscriptionSiteEditSupported'        => $current_theme->is_block_theme(),
+			/* This filter is already documented in jetpack/modules/subscriptions.php */
 			'isWpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ),
 		);
 	}
