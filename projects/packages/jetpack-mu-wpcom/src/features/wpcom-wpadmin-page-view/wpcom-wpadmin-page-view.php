@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Wpadmin_Page_View;
 
-use Automattic\Jetpack\VideoPress\Site;
 use WPCOMSH_Support_Session_Detect;
 
 /**
@@ -32,6 +31,9 @@ function wpcom_nosara_track_admin_page_views() {
 	) {
 		return;
 	}
+
+	$blog_id    = null;
+	$user_types = array();
 
 	if ( $is_simple_site ) {
 		if ( ! $current_blog instanceof \WP_Site ) {
@@ -58,7 +60,7 @@ function wpcom_nosara_track_admin_page_views() {
 			from_page: '<?php echo esc_js( $current_screen->id ); ?>',
 			is_block_editor: '<?php echo esc_js( $current_screen->is_block_editor ? 'true' : 'false' ); ?>',
 			source: 'wp-admin',
-			blog_id: '<?php echo esc_js( $blog_id ); ?>',
+			blog_id: '<?php echo esc_js( (string) $blog_id ); ?>',
 			user_type: '<?php echo esc_js( implode( ',', $user_types ) ); ?>'
 		};
 		_tkq = window._tkq || [];
@@ -158,12 +160,12 @@ function wpcom_atomic_get_user_types() {
 		$user_types[] = 'New User';
 	}
 
-	$purchases = Site::get_purchases();
+	$purchases = \Automattic\Jetpack\VideoPress\Site::get_purchases();
 	if ( count( $purchases ) > 0 ) {
 		$user_types[] = 'Paid';
 	}
 
-	if ( wpcom_site_has_feature( WPCOM_Features::PRIORITY_SUPPORT ) ) {
+	if ( wpcom_site_has_feature( \WPCOM_Features::PRIORITY_SUPPORT::PRIORITY_SUPPORT ) ) {
 		$user_types[] = 'Business';
 	}
 
