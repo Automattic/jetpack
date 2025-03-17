@@ -297,9 +297,9 @@ cat <<-EOM
 
 	  git diff '**/CHANGELOG.md'
 
-	You can open them all in VS Code with the following:
+	To get a list of the files that changed, use the following:
 
-	  code $(git diff --name-only '**/CHANGELOG.md')
+	  git diff --name-only '**/CHANGELOG.md'
 
 	Feel free to edit and save them as needed.
 
