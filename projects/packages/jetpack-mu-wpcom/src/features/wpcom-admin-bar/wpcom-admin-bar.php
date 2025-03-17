@@ -387,7 +387,7 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 		( function_exists( '\WPForTeams\is_wpforteams_site' ) &&
 		\WPForTeams\is_wpforteams_site( $blog_id ) ) ) {
 		$badge_text = 'P2';
-	} elseif ( $status->is_staging_site() ) {
+	} elseif ( (bool) get_option( 'wpcom_is_staging_site' ) ) {
 		// Check for staging site
 		$badge_text = __( 'Staging', 'jetpack-mu-wpcom' );
 	} elseif ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'trial' ) ) {
@@ -422,10 +422,10 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 
 	// Add plan information for non-staging sites
 	$plan_text  = '';
-	$is_staging = $status->is_staging_site();
+	$is_staging = (bool) get_option( 'wpcom_is_staging_site' );
 	if ( ! $is_staging ) {
 		$current_plan = Current_Plan::get();
-		$plan_name    = isset( $current_plan['product_name_short'] ) ? $current_plan['product_name_short'] : '';
+		$plan_name    = isset( $current_plan['product_name_short'] ) ?? '';
 		if ( $plan_name ) {
 			$plan_text = '<div class="wp-admin-bar__site-info">
 							<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
