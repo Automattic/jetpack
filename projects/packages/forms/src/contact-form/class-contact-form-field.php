@@ -850,7 +850,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<div
 			data-wp-interactive="jetpack/field-file"
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
-			<?php echo get_block_wrapper_attributes(); ?>
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
 			<?php echo wp_interactivity_data_wp_context( $context ); ?>
 			data-wp-on--dragover="actions.dragOver"
