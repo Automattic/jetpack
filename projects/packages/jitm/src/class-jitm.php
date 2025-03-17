@@ -33,7 +33,6 @@ class JITM {
 		'woo',
 		'shop',
 		'product',
-		'themes',
 	);
 
 	/**

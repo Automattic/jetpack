@@ -152,7 +152,6 @@ class Jetpack_JITM_Test extends TestCase {
 			'WooCommerce admin page'         => array( 'woocommerce_page_wc-admin', true ),
 			'WooCommerce order management'   => array( 'edit-shop_order', true ),
 			'WooCommerce product management' => array( 'edit-product', true ),
-			'Themes page'                    => array( 'themes', true ),
 		);
 	}
 }
