@@ -88,12 +88,16 @@ class Universal {
 						'pq' => $data_instance['quantity'],
 					);
 
-					// Attach the session ID to this event in case it's saved in the Data Instance
+					// Attach the session ID, engagement status and landing_page to this event in case it's saved in the Data Instance.
+					// Otherwise, keep it unset to allow override.
 					if ( $data_instance['session_id'] ) {
 						$event_props['session_id'] = $data_instance['session_id'];
 					}
 
-					// Attach the Landing Page to this event in case it's saved in the Data Instance
+					if ( $data_instance['is_engaged'] ) {
+						$event_props['is_engaged'] = $data_instance['is_engaged'];
+					}
+
 					if ( $data_instance['landing_page'] ) {
 						$event_props['landing_page'] = $data_instance['landing_page'];
 					}
@@ -483,6 +487,7 @@ class Universal {
 			'quantity'     => (string) $quantity,
 			'session_id'   => $this->get_session_id(),
 			'landing_page' => $this->get_landing_page(),
+			'is_engaged'   => $this->is_engaged_session(),
 		);
 
 		// append new data.
