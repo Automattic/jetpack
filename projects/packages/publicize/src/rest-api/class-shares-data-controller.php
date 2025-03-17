@@ -98,7 +98,7 @@ class Shares_Data_Controller extends Base_Controller {
 	 * @return array
 	 */
 	public function get_item_schema() {
-		return array(
+		$schema = array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			'title'      => 'jetpack-social-shares-data',
 			'type'       => 'object',
@@ -121,5 +121,7 @@ class Shares_Data_Controller extends Base_Controller {
 				),
 			),
 		);
+
+		return $this->add_additional_fields_schema( $schema );
 	}
 }
