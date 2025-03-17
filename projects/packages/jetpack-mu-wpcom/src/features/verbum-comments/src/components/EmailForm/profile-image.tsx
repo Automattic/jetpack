@@ -64,6 +64,7 @@ export const ProfileImage = ( { profile } ) => {
 	useEffect( () => {
 		if ( profileImageRef.current ) {
 			hovercardRef.current = new Hovercards( {
+				i18n: VerbumComments.hovercardi18n,
 				onCanShowHovercard: () => {
 					return quickEditorRef.current === null || ! quickEditorRef.current.isOpen();
 				},
