@@ -48,7 +48,6 @@ export const SingleSeries: Story = {
 	args: {
 		...Default.args,
 		data: [ trafficData[ 0 ] ],
-		options: { axis: { x: {} } }, //tickFormat: xLabel => xLabel
 	},
 	parameters: {
 		docs: {
