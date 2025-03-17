@@ -529,7 +529,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 					'jetpack-boost'
 				),
 				__(
-					'<strong>Still stuck?</strong> <support>Contact Jetpack Boost Support</support> and share this error message so we can look into this and assist.',
+					'<strong>Still stuck?</strong> <support>Contact Jetpack Boost Support</support> and share this error message visible below, so we can look into this and assist.',
 					'jetpack-boost'
 				),
 			],
