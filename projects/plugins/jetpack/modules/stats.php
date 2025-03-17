@@ -53,12 +53,6 @@ add_action( 'jetpack_modules_loaded', 'stats_load' );
 function stats_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 
-	// Only run the callback for those who can see the stats.
-	if ( is_user_logged_in() && current_user_can( 'view_stats' ) ) {
-		add_action( 'admin_head', 'stats_admin_bar_head', 100 );
-		add_action( 'wp_head', 'stats_admin_bar_head', 100 );
-	}
-
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
@@ -728,61 +722,6 @@ function stats_hide_smile_css() {
 }
 
 /**
- * Stats Admin Bar Head.
- *
- * @access public
- * @return void
- */
-function stats_admin_bar_head() {
-	// Let's not show the stats admin bar to users who are not logged in.
-	if ( ! is_user_logged_in() ) {
-		return;
-	}
-
-	if ( ! Stats_Options::get_option( 'admin_bar' ) ) {
-		return;
-	}
-
-	if ( ! current_user_can( 'view_stats' ) ) {
-		return;
-	}
-
-	if ( ! is_admin_bar_showing() ) {
-		return;
-	}
-
-	add_action( 'admin_bar_menu', 'stats_admin_bar_menu', 100 );
-	?>
-
-<style data-ampdevmode type='text/css'>
-#wpadminbar .quicklinks li#wp-admin-bar-stats {
-	height: 32px;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a {
-	height: 32px;
-	padding: 0;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a div {
-	height: 32px;
-	width: 95px;
-	overflow: hidden;
-	margin: 0 10px;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a:hover div {
-	width: auto;
-	margin: 0 8px 0 10px;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a img {
-	height: 24px;
-	margin: 4px 0;
-	max-width: none;
-	border: none;
-}
-</style>
-	<?php
-}
-
-/**
  * Gets the image source of the given stats chart.
  *
  * @param string $chart Name of the chart.
@@ -803,28 +742,6 @@ function stats_get_image_chart_src( $chart, $args = array() ) {
 		),
 		$url
 	);
-}
-
-/**
- * Stats AdminBar.
- *
- * @access public
- * @param mixed $wp_admin_bar WPAdminBar.
- * @return void
- */
-function stats_admin_bar_menu( &$wp_admin_bar ) {
-	$img_src    = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale' ) );
-	$img_src_2x = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale-2x' ) );
-	$alt        = esc_attr( __( 'Stats', 'jetpack' ) );
-	$title      = esc_attr( __( 'Views over 48 hours. Click for more Jetpack Stats.', 'jetpack' ) );
-
-	$menu = array(
-		'id'    => 'stats',
-		'href'  => add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ), // no menu_page_url() blog-side.
-		'title' => "<div><img fetchpriority='low' loading='lazy' decoding='async' src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>",
-	);
-
-	$wp_admin_bar->add_menu( $menu );
 }
 
 /**
