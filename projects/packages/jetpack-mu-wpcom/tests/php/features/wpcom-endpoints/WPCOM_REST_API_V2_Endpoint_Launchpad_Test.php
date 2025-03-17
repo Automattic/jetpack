@@ -10,6 +10,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/launchpad/launchpad.php';
 
+use WpOrg\Requests\Requests;
+
 /**
  * Test class for WPCOM_REST_API_V2_Endpoint_Launchpad.
  *

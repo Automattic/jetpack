@@ -1,15 +1,15 @@
-<?php //phpcs:ignoreFile
+<?php
 namespace Automattic\Jetpack_Boost\Tests\Lib;
 
 use Automattic\Jetpack_Boost\Lib\Minify;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 
 /**
- * Class WP_Test_Minify
+ * Class Minify
  *
  * @package Automattic\Jetpack_Boost\Tests\Lib
  */
-class WP_Test_Minify extends Base_TestCase {
+class Minify_Test extends Base_TestCase {
 	public function test_js() {
 		$expanded_js = 'var one = "one";
 var two = "two";

@@ -318,6 +318,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 */
 	public function test_get_block_name_from_path_convention_matches_get_block_name() {
 		$extensions = Jetpack_Gutenberg::get_available_extensions();
+		$this->assertIsArray( $extensions );
 
 		foreach ( $extensions as $extension ) {
 			$dirname         = 'blocks';

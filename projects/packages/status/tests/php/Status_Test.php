@@ -312,7 +312,6 @@ class Status_Test extends TestCase {
 		global $wpdb;
 
 		$wpdb = $this->getMockBuilder( \stdClass::class )
-					->setMockClassName( 'wpdb' )
 					->addMethods( array( 'get_var' ) )
 					->getMock();
 		$wpdb->method( 'get_var' )

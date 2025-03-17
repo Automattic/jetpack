@@ -17,7 +17,9 @@ class Jetpack_Shortcodes_PocketCasts_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
+		// PHPUnit 10+ renamed `getGroups()` to `groups()`.
+		$groups = is_callable( array( $this, 'groups' ) ) ? $this->groups() : $this->getGroups();
+		if ( in_array( 'external-http', $groups, true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.
 			add_filter( 'tests_allow_http_request', '__return_true' );
 		} else {

@@ -28,6 +28,10 @@ class IntegrationTest extends TestCase {
 		static $codeBase = null;
 		if ( ! $codeBase ) {
 			$codeBase = require __DIR__ . '/../../vendor/phan/phan/src/codebase.php';
+
+			// PHPUnit 11+ doesn't like that Phan registers error and exception handlers. And we don't seem to need them for the tests.
+			restore_error_handler();
+			restore_exception_handler();
 		}
 
 		$this->codeBase = $codeBase->shallowClone();

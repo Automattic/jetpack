@@ -139,7 +139,7 @@ class Options_Test extends StatsBaseTestCase {
 				'stored_options' => false,
 			),
 			'set only count roles' => array(
-				'options'        => array(
+				'set_options'    => array(
 					'count_roles' => array(),
 				),
 				'result'         => true,
@@ -160,7 +160,7 @@ class Options_Test extends StatsBaseTestCase {
 				),
 			),
 			'set version'          => array(
-				'options'        => array(
+				'set_options'    => array(
 					'version' => 'dummy',
 				),
 				'result'         => true,
@@ -181,7 +181,7 @@ class Options_Test extends StatsBaseTestCase {
 				),
 			),
 			'set blog blog_id'     => array(
-				'options'        => array(
+				'set_options'    => array(
 					'blog_id' => 999,
 				),
 				'result'         => true,
@@ -202,7 +202,7 @@ class Options_Test extends StatsBaseTestCase {
 				),
 			),
 			'multiple options'     => array(
-				'options'        => array(
+				'set_options'    => array(
 					'admin_bar'    => false,
 					'roles'        => array(
 						'administrator',

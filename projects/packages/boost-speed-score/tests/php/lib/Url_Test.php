@@ -1,5 +1,4 @@
 <?php
-//phpcs:ignoreFile
 namespace Automattic\Jetpack\Boost_Speed_Score\Tests\Lib;
 
 use Automattic\Jetpack\Boost_Core\Lib\Url;
@@ -8,13 +7,14 @@ use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 
 /**
- * Class WP_Test_Url
+ * Class Url_Test
  *
  * @package Automattic\Jetpack\Boost_Speed_Score\Tests\Lib
  */
-class WP_Test_Url extends Base_TestCase {
+class Url_Test extends Base_TestCase {
 	/**
-	 * test normalize
+	 * Test normalize
+	 *
 	 * @dataProvider provide_url_data
 	 */
 	public function test_normalize( $input, $expected ) {
@@ -22,9 +22,10 @@ class WP_Test_Url extends Base_TestCase {
 		// Dumb, but functional remove_query_arg polyfill.
 		// @phan-suppress-next-line PhanPluginUnreachableCode
 		if ( ! function_exists( 'remove_query_arg' ) ) {
+			// phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
 			function remove_query_arg( $parameters, $url ) {
 				foreach ( $parameters as $parameter ) {
-					$url = preg_replace( sprintf( '~&?%s=[^&]+~', preg_quote( $parameter ) ), '', $url );
+					$url = preg_replace( sprintf( '~&?%s=[^&]+~', preg_quote( $parameter, '~' ) ), '', $url );
 				}
 				return trim( $url, '?' );
 			}
@@ -32,6 +33,7 @@ class WP_Test_Url extends Base_TestCase {
 
 		// wp_parse_url in new PHP versions is the same as the native parse_url.
 		if ( ! function_exists( 'wp_parse_url' ) ) {
+			// phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
 			function wp_parse_url( $url ) {
 				return parse_url( $url );
 			}

@@ -1,5 +1,4 @@
 <?php
-//phpcs:ignoreFile
 namespace Automattic\Jetpack\Boost_Speed_Score\Tests\Lib;
 
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
@@ -7,11 +6,11 @@ use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_TestCase;
 use Brain\Monkey\Functions;
 
 /**
- * Class WP_Test_Speed_Score_History
+ * Class Speed_Score_History_Test
  *
  * @package Automattic\Jetpack\Boost_Speed_Score\Tests\Lib
  */
-class WP_Test_Speed_Score_History extends Base_TestCase {
+class Speed_Score_History_Test extends Base_TestCase {
 	/**
 	 * @var Speed_Score_History
 	 */
@@ -40,7 +39,7 @@ class WP_Test_Speed_Score_History extends Base_TestCase {
 
 		$this->history = new Speed_Score_History( 'http://example.com' );
 
-		for ( $i = 0; $i < Speed_Score_History::LIMIT; $i ++ ) {
+		for ( $i = 0; $i < Speed_Score_History::LIMIT; $i++ ) {
 			$this->history->push(
 				array(
 					'timestamp' => time() - $i * 100,
