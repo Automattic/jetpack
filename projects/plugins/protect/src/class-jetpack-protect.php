@@ -115,9 +115,6 @@ class Jetpack_Protect {
 
 				// Web application firewall package.
 				$config->ensure( 'waf' );
-
-				// Account protection package.
-				$config->ensure( 'account_protection' );
 			},
 			1
 		);
