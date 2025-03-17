@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { askQuestionSync, getAllBlocks, usePostContent } from '@automattic/jetpack-ai-client';
+import {
+	askQuestionSync,
+	getAllBlocks,
+	getBase64Image,
+	usePostContent,
+} from '@automattic/jetpack-ai-client';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
@@ -41,9 +46,11 @@ export const useSeoRequests = (
 	const { getPostContent } = usePostContent();
 	const isBusy = useSelect( select => select( store ).isBusy(), [] );
 	const setBusy = useDispatch( store ).setBusy;
+	const { isImageBusy } = useSelect( select => select( store ), [] );
+	const { setImageBusy } = useDispatch( store );
 
 	const request = useCallback(
-		async ( type: PromptType, block?: Block ) => {
+		async ( type: PromptType, block?: Block, useBase64Image: boolean = false ) => {
 			let context: Record< string, unknown > = { type };
 			let feature = 'jetpack-seo-assistant';
 
@@ -59,8 +66,13 @@ export const useSeoRequests = (
 				context = {
 					...context,
 					content: getPostContent( preprocessImageContent ),
-					// TODO: Check if site is private and use base64 image instead of url
-					images: [ { url: block?.attributes.url } ],
+					images: [
+						{
+							url: useBase64Image
+								? await getBase64Image( block?.attributes.url as string )
+								: block?.attributes.url,
+						},
+					],
 				};
 
 				feature = 'jetpack-ai-image-extension';
@@ -131,6 +143,34 @@ export const useSeoRequests = (
 		[ request, editPost ]
 	);
 
+	const updateAltText = useCallback(
+		async ( block: Block, useBase64Image: boolean = false ) => {
+			if ( isImageBusy( block.clientId ) ) {
+				debug( 'Already updating alt text, skipping' );
+				return;
+			}
+
+			try {
+				setImageBusy( block.clientId, true );
+				const response = await request( 'images-alt-text', block, useBase64Image );
+				const altText = parseResponse( response ).texts?.[ 0 ];
+				await updateBlockAttributes( block.clientId, { alt: altText } );
+				setImageBusy( block.clientId, false );
+			} catch ( error ) {
+				setImageBusy( block.clientId, false );
+
+				// If the image URL is invalid, try again with a base64 image.
+				if ( error?.message.includes( 'The image URL is invalid' ) && ! useBase64Image ) {
+					debug( 'Retrying with base64 image' );
+					return updateAltText( block, true );
+				}
+
+				debug( 'Error updating alt text', error );
+			}
+		},
+		[ isImageBusy, setImageBusy, request, updateBlockAttributes ]
+	);
+
 	const updateAltTexts = useCallback(
 		async ( force: boolean = false ) => {
 			const imageBlocks = getAllBlocks().filter( block => block.name === 'core/image' );
@@ -138,17 +178,10 @@ export const useSeoRequests = (
 			const blocks = force ? imageBlocks : imageBlocksWithoutAltText;
 
 			blocks.forEach( async block => {
-				try {
-					const response = await request( 'images-alt-text', block );
-					const altText = parseResponse( response ).texts?.[ 0 ];
-
-					await updateBlockAttributes( block.clientId, { alt: altText } );
-				} catch ( error ) {
-					debug( 'Error updating alt texts', error );
-				}
+				await updateAltText( block );
 			} );
 		},
-		[ request, updateBlockAttributes ]
+		[ updateAltText ]
 	);
 
 	const updateSeoData = useCallback( async () => {
@@ -171,5 +204,5 @@ export const useSeoRequests = (
 		setBusy( false );
 	}, [ features, updateTitle, updateDescription, updateAltTexts, setBusy ] );
 
-	return { updateSeoData, isBusy };
+	return { updateSeoData, updateAltText, isBusy };
 };

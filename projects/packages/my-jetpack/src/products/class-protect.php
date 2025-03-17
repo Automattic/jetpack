@@ -9,9 +9,11 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
-use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Waf\Waf_Runner;
+use WP_Error;
+use WP_REST_Response;
 
 /**
  * Class responsible for handling the Protect product
@@ -93,17 +95,29 @@ class Protect extends Hybrid_Product {
 	public static $feature_identifying_paid_plan = 'scan';
 
 	/**
-	 * Holds the scan data
+	 * Setup Protect REST API endpoints
 	 *
-	 * @var Status_Model
+	 * @return void
 	 */
-	private static $scan_data;
+	public static function register_endpoints(): void {
+		parent::register_endpoints();
+		// Get Jetpack Protect data.
+		register_rest_route(
+			'my-jetpack/v1',
+			'/site/protect/data',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_protect_data',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+	}
 
 	/**
-	 * Protect constructor.
+	 * Checks if the user has the correct permissions
 	 */
-	public static function initialize() {
-		self::$scan_data = Protect_Status::get_status();
+	public static function permissions_callback() {
+		return current_user_can( 'edit_posts' );
 	}
 
 	/**
@@ -166,15 +180,6 @@ class Protect extends Hybrid_Product {
 			self::UPGRADED_TIER_SLUG,
 			self::FREE_TIER_SLUG,
 		);
-	}
-
-	/**
-	 * Get the normalized protect/scan data
-	 *
-	 * @return Status_Model
-	 */
-	public static function get_protect_data() {
-		return self::$scan_data;
 	}
 
 	/**
@@ -289,9 +294,10 @@ class Protect extends Hybrid_Product {
 	 */
 	public static function does_module_need_attention() {
 		$protect_threat_status = false;
+		$scan_data             = Protect_Status::get_status();
 
 		// Check if there are scan threats.
-		$protect_data = self::$scan_data;
+		$protect_data = $scan_data;
 		if ( is_wp_error( $protect_data ) ) {
 			return $protect_threat_status; // false
 		}
@@ -397,5 +403,41 @@ class Protect extends Hybrid_Product {
 	 */
 	public static function is_upgradable_by_bundle() {
 		return array( 'security', 'complete' );
+	}
+
+	/**
+	 * Return site Jetpack Protect data for the REST API.
+	 *
+	 * @return WP_Rest_Response|WP_Error
+	 */
+	public static function get_site_protect_data() {
+		$scan_data = Protect_Status::get_status();
+
+		$waf_config     = array();
+		$waf_supported  = false;
+		$is_waf_enabled = false;
+
+		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$waf_config = Waf_Runner::get_config();
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$is_waf_enabled = Waf_Runner::is_enabled();
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$waf_supported = Waf_Runner::is_supported_environment();
+		}
+
+		return rest_ensure_response(
+			array(
+				'scanData'  => $scan_data,
+				'wafConfig' => array_merge(
+					$waf_config,
+					array(
+						'waf_supported' => $waf_supported,
+						'waf_enabled'   => $is_waf_enabled,
+					),
+					array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
+				),
+			)
+		);
 	}
 }

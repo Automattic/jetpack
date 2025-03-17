@@ -6,6 +6,7 @@ import {
 	usePostContent,
 	openBlockSidebar,
 	useAiFeature,
+	getBase64Image,
 } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -17,16 +18,13 @@ import debugFactory from 'debug';
 /*
  * Internal dependencies
  */
+import { store as seoStore } from '../../../../plugins/ai-assistant-plugin/components/seo-enhancer/store';
 import useBlockModuleStatus from '../../hooks/use-block-module-status';
 import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
 import { canAIAssistantBeEnabled } from '../lib/can-ai-assistant-be-enabled';
 import { preprocessImageContent } from '../lib/preprocess-image-content';
 import { TYPE_ALT_TEXT, TYPE_CAPTION } from '../types';
 import AiAssistantImageExtensionToolbarDropdown from './components/image-toolbar-dropdown';
-/*
- * Types
- */
-import type { LOADING_STATE } from '../types';
 
 const debug = debugFactory( 'jetpack-ai:image-extension' );
 
@@ -72,25 +70,46 @@ export function isPossibleToExtendImageBlock( blockName: string ): boolean {
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	function ExtendedBlock( props ) {
 		const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
-		const postId = useSelect(
-			select => ( select( editorStore ) as { getCurrentPostId: () => number } ).getCurrentPostId(),
-			[]
+		const { getCurrentPostId, isImageBusy } = useSelect(
+			select => {
+				const { getCurrentPostId: getPostId } = select( editorStore ) as {
+					getCurrentPostId: () => number;
+				};
+				const isBusy = select( seoStore )?.isImageBusy( props.clientId ) ?? false;
+
+				return { getCurrentPostId: getPostId, isImageBusy: isBusy };
+			},
+			[ props.clientId ]
 		);
 		const { getPostContent } = usePostContent();
-		const [ loading, setLoading ] = useState< LOADING_STATE >( false );
+		const [ loadingAltText, setLoadingAltText ] = useState< boolean >( isImageBusy );
+		const [ loadingCaption, setLoadingCaption ] = useState< boolean >( false );
 		const { updateBlockAttributes } = useDispatch( editorStore );
 		const { createNotice } = useDispatch( 'core/notices' );
 		const wrapperRef = useRef< HTMLDivElement >( null );
 		const hasImage = !! props.attributes.url;
+		const loading = loadingAltText || loadingCaption;
+
+		useEffect( () => {
+			setLoadingAltText( isImageBusy );
+		}, [ isImageBusy ] );
+
+		const setLoading = ( type: typeof TYPE_ALT_TEXT | typeof TYPE_CAPTION, value: boolean ) => {
+			if ( type === TYPE_ALT_TEXT ) {
+				setLoadingAltText( value );
+			} else if ( type === TYPE_CAPTION ) {
+				setLoadingCaption( value );
+			}
+		};
 
 		// When the dropdown is open, we need to focus the wrapper element to prevent it from closing.
-		const startLoading = useCallback( ( type: LOADING_STATE ) => {
+		const startLoading = useCallback( ( type: typeof TYPE_ALT_TEXT | typeof TYPE_CAPTION ) => {
 			if ( wrapperRef.current ) {
 				wrapperRef.current.setAttribute( 'tabindex', '0' );
 				wrapperRef.current.focus();
 			}
 
-			setLoading( type );
+			setLoading( type, true );
 		}, [] );
 
 		const showErrorNotice = useCallback(
@@ -102,26 +121,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			[ createNotice ]
 		);
 
-		const getBase64Image = useCallback( async ( url: string ) => {
-			try {
-				const response = await fetch( url );
-				const buffer = await response.arrayBuffer();
-				const base64String = btoa(
-					new Uint8Array( buffer ).reduce(
-						( data, byte ) => data + String.fromCharCode( byte ),
-						''
-					)
-				);
-
-				return `data:image/png;base64,${ base64String }`;
-			} catch {
-				// If we can't fetch the image, it must be external, so we return the original URL.
-				return url;
-			}
-		}, [] );
-
 		useEffect( () => {
-			if ( loading === false ) {
+			if ( ! loading ) {
 				if ( wrapperRef.current ) {
 					wrapperRef.current.setAttribute( 'tabindex', '-1' );
 				}
@@ -129,7 +130,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		}, [ loading ] );
 
 		const request = useCallback(
-			async ( type: typeof TYPE_ALT_TEXT | typeof TYPE_CAPTION ) => {
+			async (
+				type: typeof TYPE_ALT_TEXT | typeof TYPE_CAPTION,
+				useBase64Image: boolean = false
+			) => {
 				if ( requireUpgrade ) {
 					return;
 				}
@@ -160,14 +164,16 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 									images: [
 										{
 											// We convert the image to a base64 string to avoid inaccesible URLs for private images.
-											url: await getBase64Image( props.attributes.url ),
+											url: useBase64Image
+												? await getBase64Image( props.attributes.url )
+												: props.attributes.url,
 										},
 									],
 								},
 							},
 						],
 						{
-							postId,
+							postId: getCurrentPostId(),
 							feature: 'jetpack-ai-image-extension',
 						}
 					);
@@ -187,21 +193,28 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						const caption = parsedResponse.captions?.[ 0 ];
 						updateBlockAttributes( props.clientId, { caption } );
 					}
+
+					setLoading( type, false );
 				} catch ( error ) {
+					if ( error?.message.includes( 'The image URL is invalid' ) && ! useBase64Image ) {
+						debug( 'Retrying with base64 image' );
+						return request( type, true );
+					}
+
 					debug( `Error generating ${ type }`, error );
+
 					if ( error?.message ) {
 						showErrorNotice( error.message );
 					}
-				} finally {
-					setLoading( false );
+
+					setLoading( type, false );
 				}
 			},
 			[
 				dequeueAsyncRequest,
-				getBase64Image,
+				getCurrentPostId,
 				getPostContent,
 				increaseRequestsCount,
-				postId,
 				props.attributes.url,
 				props.clientId,
 				requireUpgrade,
@@ -218,7 +231,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					<AiAssistantImageExtensionToolbarDropdown
 						onRequestAltText={ () => request( TYPE_ALT_TEXT ) }
 						onRequestCaption={ () => request( TYPE_CAPTION ) }
-						loading={ loading }
+						loadingAltText={ loadingAltText }
+						loadingCaption={ loadingCaption }
 						disabled={ ! hasImage }
 						wrapperRef={ wrapperRef }
 					/>

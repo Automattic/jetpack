@@ -376,8 +376,6 @@ class Red_Bubble_Notifications {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public static function rest_api_get_red_bubble_alerts( $request ) {
-		// Initialize products to ensure all products data is available during REST API call.
-		Products::initialize_products();
 		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'add_red_bubble_alerts' ) );
 
 		$cookies = $request->get_param( 'dismissal_cookies' );
