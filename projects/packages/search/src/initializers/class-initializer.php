@@ -185,7 +185,8 @@ class Initializer {
 		if ( ! apply_filters( 'jetpack_search_init_classic_search', true ) ) {
 			return;
 		}
-		Classic_Search::initialize( $blog_id );
+		Inline_Search::get_instance_maybe_fallback_to_classic( $blog_id );
+
 		return true;
 	}
 

@@ -324,12 +324,13 @@ class Search_Widget extends \WP_Widget {
 		$display_filters = false;
 
 		// Search instance must have been initialized before widget render.
-		if ( is_search() && Classic_Search::instance() ) {
+		if ( is_search() ) {
+			$search_instance = Inline_Search::get_instance_maybe_fallback_to_classic();
 			if ( Helper::should_rerun_search_in_customizer_preview() ) {
-				Classic_Search::instance()->update_search_results_aggregations();
+				$search_instance->update_search_results_aggregations();
 			}
 
-			$filters = Classic_Search::instance()->get_filters();
+			$filters = $search_instance->get_filters();
 
 			if ( ! Helper::are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
 				$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );

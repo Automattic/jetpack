@@ -149,6 +149,7 @@ export class Footer extends React.Component {
 							onAboutClick={ this.trackAboutClick }
 							onPrivacyClick={ this.trackPrivacyClick }
 							onTermsClick={ this.trackTermsClick }
+							useInternalLinks={ this.props.siteConnectionStatus }
 						/>
 					</div>
 					{ this.props.isDevVersion && this.props.displayDevCard && <DevCard /> }

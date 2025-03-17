@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the useAdminUiV1 feature flag

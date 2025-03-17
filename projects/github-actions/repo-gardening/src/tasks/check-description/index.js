@@ -95,7 +95,7 @@ ${ codeFreezeDate ? `- Code freeze: _${ codeFreezeDate }_` : '' }`;
 
 	return `
 ******
-	
+
 **${ capitalizedName } plugin:**
 
 ${ pluginMessage }
@@ -496,12 +496,6 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 
 
 This comment will be updated as you work on your PR and make changes. If you think that some of those checks are not needed for your PR, please explain why you think so. Thanks for cooperation :robot:
-
-******`;
-
-	comment += `
-
-The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e-reports/${ number }/report/). Please note that it can take a few minutes after the e2e tests checks are complete for the report to be available.
 
 ******`;
 

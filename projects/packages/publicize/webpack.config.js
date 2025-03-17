@@ -72,6 +72,8 @@ module.exports = [
 		...socialWebpackConfig,
 		entry: {
 			'social-admin-page': './src/js/social-admin-page.js',
+			'editor-jetpack-sidebar': './src/js/editor-jetpack-sidebar.js',
+			'editor-social-sidebar': './src/js/editor-social-sidebar.js',
 		},
 	},
 ];

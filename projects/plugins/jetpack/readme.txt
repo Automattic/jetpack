@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 14.2
+Stable tag: 14.4
 Requires at least: 6.6
 Requires PHP: 7.2
 Tested up to: 6.7
@@ -326,49 +326,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.4-beta - 2025-03-03
+### 14.5-a.3 - 2025-03-12
 #### Enhancements
-- Connection: Disconnect all other users before disconnecting connection owner account.
-- Connection: Display connection status on Users page independent of the SSO module.
-- Custom Post Types: do not display testimonials and portfolios on block themes where they are not in use.
-- Dashboard: Display connection owner to all users.
-- External Media: Add external media modal on the Media Import page.
-- Forms: Add support for having multiple forms accross paginated pages.
-- Forms: Update field and button blocks to support contentOnly editing.
-- Forms block: Add number input.
-- Media Page: Enable the "Untangle Calypso" feature.
-- My Jetpack: Update the unowned section from a product grid to a product list.
-- Newsletter: Add footer widget section.
-- Newsletter: Add new newsletter widget.
-- Newsletter: Add newsletter widget header row behind a feature flag.
-- Newsletter: Add setting to hide category selection modal.
-- Post actions: Rename Copy action to Duplicate, which is clearer.
-- Social: Update the admin page to be used by Editors and Authors.
-- Subscriptions: Pre-select newsletter categories.
-- Tiled Gallery block: Add ability to link to custom URLs from each image.
-- VideoPress: Add title to the attachment details view.
-
-#### Improved compatibility
-- Custom Content Types: Ensure feature works on Jetpack settings page without using module functionality.
+- Feature suggestions: Do not automatically load when a site is connected to WordPress.com.
+- Publicize Components: Add a schedule button.
+- Sharing block: Improve the description of the "Native Share" feature.
 
 #### Bug fixes
-- External Media: Fix the button size in the editor for Gutenberg 18 or below.
-- Fix Social toggles.
-- Forms: Ensure non-rendering fields to not trigger validation or show value in form submission response.
-- Forms: Fix 404 error when a user submits an invalid form with JavaScript disabled.
-- Forms: Fix block style variations not showing in the editor.
-- Forms: Fix invalid html IDs.
-- Forms: Hide fields without options.
-- Forms: Improve the styling of the separator block when placed inside the form block.
-- Geo Location: Remove support from default themes to prevent deprecation notice.
-- Gravatar Widget: Fix linked accounts not showing.
-- Newsletter: Fix post placement not displaying on certain block themes.
-- Publicize: Fix disconnect command not working.
-- Related Posts: Ensure images using the AVIF format are properly displayed.
-- Sharing: Fix possible warnings related to plugin compatibility.
-- Social Previews: Fix distorted image for Tumblr preview.
-- Stats: Fix a problem where count roles weren't able to be updated.
-- Widget Visibility: Fix possible fatal errors for widgets using anonymous functions as callbacks.
+- Button: Fix contrast checker for user-specified colors.
+- Fix error with videos uploaded through the Video block.
+- Forms: Remove default padding around form block.
+- Forms: Update the variation previews to match the current structures.
 
 --------
 

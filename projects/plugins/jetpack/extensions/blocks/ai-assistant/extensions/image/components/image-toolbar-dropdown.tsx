@@ -17,14 +17,14 @@ import './style.scss';
 /*
  * Types
  */
-import type { LOADING_STATE } from '../../../extensions/types';
 import type { ReactElement } from 'react';
 
 type AiAssistantExtensionToolbarDropdownContentProps = {
 	onClose: () => void;
 	onRequestAltText: () => Promise< void >;
 	onRequestCaption: () => Promise< void >;
-	loading?: LOADING_STATE;
+	loadingAltText?: boolean;
+	loadingCaption?: boolean;
 };
 
 const debug = debugFactory( 'jetpack-ai:image-extension' );
@@ -40,7 +40,8 @@ const AiAssistantImageExtensionToolbarDropdownContent = forwardRef(
 			onClose,
 			onRequestAltText,
 			onRequestCaption,
-			loading = false,
+			loadingAltText,
+			loadingCaption,
 		}: AiAssistantExtensionToolbarDropdownContentProps,
 		ref: React.RefObject< HTMLDivElement >
 	) => {
@@ -78,20 +79,20 @@ const AiAssistantImageExtensionToolbarDropdownContent = forwardRef(
 			>
 				<MenuGroup>
 					<MenuItem
-						icon={ loading === TYPE_ALT_TEXT ? <Spinner /> : altTextIcon }
+						icon={ loadingAltText ? <Spinner /> : altTextIcon }
 						iconPosition="left"
 						key="key-ai-assistant-alt-text"
 						onClick={ handleRequestAltText }
-						disabled={ !! loading || requireUpgrade }
+						disabled={ !! loadingAltText || requireUpgrade }
 					>
 						{ __( 'Generate alt text', 'jetpack' ) }
 					</MenuItem>
 					<MenuItem
-						icon={ loading === TYPE_CAPTION ? <Spinner /> : captionIcon }
+						icon={ loadingCaption ? <Spinner /> : captionIcon }
 						iconPosition="left"
 						key="key-ai-assistant-caption"
 						onClick={ handleRequestCaption }
-						disabled={ !! loading || requireUpgrade }
+						disabled={ !! loadingCaption || requireUpgrade }
 					>
 						{ __( 'Generate caption', 'jetpack' ) }
 					</MenuItem>
@@ -105,14 +106,16 @@ export default function AiAssistantImageExtensionToolbarDropdown( {
 	label = __( 'AI Assistant', 'jetpack' ),
 	onRequestAltText,
 	onRequestCaption,
-	loading = false,
+	loadingAltText = false,
+	loadingCaption = false,
 	disabled = false,
 	wrapperRef,
 }: {
 	label?: string;
 	onRequestAltText: () => Promise< void >;
 	onRequestCaption: () => Promise< void >;
-	loading?: LOADING_STATE;
+	loadingAltText?: boolean;
+	loadingCaption?: boolean;
 	disabled?: boolean;
 	wrapperRef: React.RefObject< HTMLDivElement >;
 } ): ReactElement {
@@ -164,7 +167,8 @@ export default function AiAssistantImageExtensionToolbarDropdown( {
 					onClose={ onClose }
 					onRequestAltText={ handleRequestAltText }
 					onRequestCaption={ handleRequestCaption }
-					loading={ loading }
+					loadingAltText={ loadingAltText }
+					loadingCaption={ loadingCaption }
 				/>
 			) }
 		/>

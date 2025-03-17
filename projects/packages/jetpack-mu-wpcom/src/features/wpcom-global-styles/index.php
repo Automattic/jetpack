@@ -60,6 +60,12 @@ function wpcom_should_limit_global_styles( $blog_id = 0 ) {
 		return false;
 	}
 
+	// Do not limit Global Styles on Big Sky free trial sites. Those sites will
+	// have their own paywall to go through.
+	if ( wpcom_global_styles_has_blog_sticker( 'big-sky-free-trial', $blog_id ) ) {
+		return false;
+	}
+
 	// Do not limit Global Styles if the site paid for it.
 	if ( wpcom_site_has_global_styles_feature( $blog_id ) ) {
 		return false;
@@ -812,3 +818,17 @@ function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
 	wp_cache_set( $cache_key, $has_global_styles_in_personal_plan, 'a8c_experiments', MONTH_IN_SECONDS );
 	return $has_global_styles_in_personal_plan;
 }
+
+/**
+ * We return the upsell plan required for the current Global Styles plan requirement.
+ *
+ * @return string
+ */
+function wpcom_get_global_styles_upsell_plan_slug() {
+	if ( wpcom_site_has_global_styles_in_personal_plan() ) {
+		return 'personal-bundle';
+	}
+
+	return 'value_bundle';
+}
+add_filter( 'wpcom_customize_css_plan_slug', 'wpcom_get_global_styles_upsell_plan_slug' );

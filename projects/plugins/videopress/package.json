@@ -30,7 +30,7 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.26.0",
 		"@babel/preset-env": "7.26.0",
-		"@babel/runtime": "7.26.0",
+		"@babel/runtime": "7.26.10",
 		"@wordpress/browserslist-config": "6.19.0",
 		"concurrently": "7.6.0",
 		"sass": "1.64.1",

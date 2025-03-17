@@ -8,6 +8,7 @@ import {
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
@@ -80,6 +81,7 @@ const Admin = () => {
 			showFooter
 			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
 			header={ <Header /> }
+			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">

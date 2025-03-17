@@ -10,11 +10,13 @@ type UpgradeCTAProps = {
 	description: string;
 	identifier: string;
 	eventName?: string;
+	onClick?: () => void;
 };
 
 const UpgradeCTA = ( {
 	description,
 	identifier,
+	onClick,
 	eventName = 'upsell_cta_from_settings_page_in_plugin',
 }: UpgradeCTAProps ) => {
 	// No need to show the upgrade CTA if the site is unreachable.
@@ -24,8 +26,14 @@ const UpgradeCTA = ( {
 
 	const navigate = useNavigate();
 
-	const showBenefits = () => {
+	const onClickHandler = () => {
 		recordBoostEvent( eventName, { identifier } );
+
+		if ( onClick ) {
+			onClick();
+			return;
+		}
+
 		navigate( '/upgrade' );
 	};
 
@@ -38,7 +46,7 @@ const UpgradeCTA = ( {
 		: '_';
 
 	return (
-		<button className={ styles[ 'upgrade-cta' ] } onClick={ showBenefits }>
+		<button className={ styles[ 'upgrade-cta' ] } onClick={ onClickHandler }>
 			<div className={ styles.body }>
 				<p>{ description }</p>
 				<p className={ styles[ 'action-line' ] }>

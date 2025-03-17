@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+UI: Upgrade CTAs on the Jetpack Boost admin now opens a modal instead of navigating to the upgrade page.

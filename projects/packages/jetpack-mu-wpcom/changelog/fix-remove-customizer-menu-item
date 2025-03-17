@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed a bug that only happens in Calypso admin menu, under certain conditions
+
+

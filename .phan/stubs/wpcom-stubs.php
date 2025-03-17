@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 8424db9d619258e881e7ae9d91a8ff20af5e3a38.
+ * Stubs automatically generated from WordPress.com commit 3ab25ae68af14008a81c046766b78213dc7f2464.
  */
 
 namespace {
@@ -191,6 +191,9 @@ namespace {
          * @return array
          */
         public static function get_from_cache()
+        {
+        }
+        public static function get()
         {
         }
         /**
@@ -421,7 +424,12 @@ namespace {
     }
     class Memberships_Store_Sandbox
     {
-        public function init($force = \false)
+        /**
+         * @param bool $force
+         * @param int|null $blog_id
+         * @return void
+         */
+        public function init($force = \false, ?int $blog_id = \null)
         {
         }
         /**
@@ -744,6 +752,12 @@ namespace {
     function comment_like_button($comment_content = '', $comment_object = \null)
     {
     }
+    class Jetpack_Custom_CSS_Customizer
+    {
+        public static function customize_register($wp_customize)
+        {
+        }
+    }
     class Jetpack_Custom_CSS
     {
         /**
@@ -884,6 +898,15 @@ namespace {
     }
     function add_jetpack_submenu()
     {
+    }
+    class Jetpack_Server_Version
+    {
+        /**
+         * @return bool|WP_Error|object
+         */
+        static function get_token_from_authorization_header()
+        {
+        }
     }
     class Jetpack_Sync_WPCOM_Shadow_Replicastore extends \Automattic\Jetpack\Sync\Replicastore
     {

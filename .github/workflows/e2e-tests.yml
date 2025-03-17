@@ -340,6 +340,20 @@ jobs:
           event-type: ${{ steps.report-context.outputs.event_type }}
           client-payload: ${{ steps.report-context.outputs.client_payload }}
 
+      - name: Display link to test report in Action Summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await core.summary
+              .addHeading( 'E2E Test Report' )
+              .addLink(
+                `E2E Test Report`,
+                `https://automattic.github.io/jetpack-e2e-reports/${ context.issue.number }/report/`
+              )
+              .addBreak()
+              .addRaw('Please note that it can take a few minutes after the e2e tests checks are complete for the report to be available.', true)
+              .write()
+
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest

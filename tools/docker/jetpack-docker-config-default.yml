@@ -18,7 +18,7 @@ dev:
   extras:
     services:
       phpmyadmin:
-        image: phpmyadmin/phpmyadmin:latest
+        image: phpmyadmin:latest
         links:
           - db:mysql
         ports:

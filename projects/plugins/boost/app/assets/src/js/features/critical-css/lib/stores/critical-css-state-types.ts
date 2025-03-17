@@ -12,6 +12,7 @@ const CriticalCssErrorType = z.enum( [
 	'UrlVerifyError',
 	'EmptyCSSError',
 	'XFrameDenyError',
+	'InvalidURLError',
 ] );
 
 export const CriticalCssErrorDetailsSchema = z.object( {
@@ -37,8 +38,8 @@ export const ProviderSchema = z.object( {
 		.catch( 'validation-error' ),
 	// Error details
 	errors: z.array( CriticalCssErrorDetailsSchema ).optional(),
-	// If this an error, has it been dismissed?
-	error_status: z.enum( [ 'active', 'dismissed' ] ).optional(),
+	// List of error types that have been dismissed for this provider
+	dismissed_errors: z.array( CriticalCssErrorType ).optional(),
 } );
 
 export const CriticalCssStateSchema = z

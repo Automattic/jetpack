@@ -244,28 +244,10 @@ class Jetpack_Redux_State_Helper {
 			'isOdysseyStatsEnabled'         => Stats_Options::get_option( 'enable_odyssey_stats' ),
 			'shouldInitializeBlaze'         => Blaze::should_initialize(),
 			'isBlazeDashboardEnabled'       => Blaze::is_dashboard_enabled(),
-			'socialInitialState'            => self::get_publicize_initial_state(),
 			'isSubscriptionSiteEnabled'     => apply_filters( 'jetpack_subscription_site_enabled', false ),
 			'newsletterDateExample'         => gmdate( get_option( 'date_format' ), time() ),
 			'subscriptionSiteEditSupported' => $current_theme->is_block_theme(),
 		);
-	}
-
-	/**
-	 * Gets the initial state for the Publicize module.
-	 *
-	 * @return array|null
-	 */
-	public static function get_publicize_initial_state() {
-		$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
-
-		$initial_state = $jetpack_social_settings->get_initial_state();
-
-		if ( empty( $initial_state ) ) {
-			return null;
-		}
-
-		return $initial_state;
 	}
 
 	/**

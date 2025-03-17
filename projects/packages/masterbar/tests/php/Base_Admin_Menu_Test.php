@@ -19,7 +19,6 @@ use WorDBless\Users as WorDBless_Users;
  * @covers Automattic\Jetpack\Masterbar\Base_Admin_Menu
  */
 class Base_Admin_Menu_Test extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Admin menu instance.
