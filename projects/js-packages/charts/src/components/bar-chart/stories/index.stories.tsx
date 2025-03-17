@@ -1,6 +1,6 @@
+import trafficData from '../../line-chart/stories/site-traffic-sample';
 import BarChart from '../bar-chart';
 import data from './sample-data';
-import trafficData from './site-traffic-sample';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof BarChart > = {
