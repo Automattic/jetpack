@@ -1,11 +1,11 @@
-import { Axis } from '@visx/axis';
+import { AxisLeft, AxisBottom } from '@visx/axis';
 import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
 import { scaleBand, scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { FC, useCallback, useMemo, type MouseEvent, ReactNode } from 'react';
+import { FC, useCallback, type MouseEvent, ReactNode } from 'react';
 import { useChartTheme } from '../../providers/theme';
 import { GridControl } from '../grid-control';
 import { Legend } from '../legend';
@@ -24,6 +24,14 @@ type BarChartTooltipData = {
 interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: BarChartTooltipData ) => ReactNode;
 }
+
+const formatDateTick = ( timestamp: number ) => {
+	const date = new Date( timestamp );
+	return date.toLocaleDateString( undefined, {
+		month: 'short',
+		day: 'numeric',
+	} );
+};
 
 // Default tooltip renderer
 const renderDefaultTooltip = ( tooltipData: BarChartTooltipData ) => {
@@ -58,21 +66,13 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
-const formatDateTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, {
-		month: 'short',
-		day: 'numeric',
-	} );
-};
-
 const BarChart: FC< BarChartProps > = ( {
 	data,
 	width,
 	height = 400,
 	className,
-	margin = { top: 20, right: 20, bottom: 20, left: 20 },
-	withTooltips = true,
+	margin = { top: 20, right: 20, bottom: 40, left: 40 },
+	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	gridVisibility = 'x',
@@ -80,7 +80,6 @@ const BarChart: FC< BarChartProps > = ( {
 	options = {},
 } ) => {
 	const theme = useChartTheme();
-	// TODO: we need to allow bounds detecting, so we should probably use `useTooltipInPortal` instead.
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< BarChartTooltipData >();
 	const tickFormat = options.axis?.x?.tickFormat ?? formatDateTick;
@@ -105,19 +104,10 @@ const BarChart: FC< BarChartProps > = ( {
 		[ showTooltip ]
 	);
 
-	// Process margin like LineChart
-	const margins = useMemo( () => {
-		// Auto-margin unless specified to make room for axis labels
-		let defaultMargin = {};
-		if ( options.axis?.y?.orientation === 'right' ) {
-			defaultMargin = { ...defaultMargin, right: 40, left: 0 };
-		}
-		if ( options.axis?.x?.orientation === 'top' ) {
-			defaultMargin = { ...defaultMargin, top: 20, bottom: 10 };
-		}
-		// Merge default margin with user-specified margin
-		return { ...defaultMargin, ...margin };
-	}, [ margin, options ] );
+	// Check for empty data
+	if ( ! data?.length ) {
+		return <div className={ clsx( styles[ 'bar-chart-empty' ] ) }>No data available</div>;
+	}
 
 	// Validate data using the same pattern as LineChart
 	const error = validateData( data );
@@ -125,6 +115,7 @@ const BarChart: FC< BarChartProps > = ( {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
 	}
 
+	const margins = margin;
 	const xMax = width - margins.left - margins.right;
 	const yMax = height - margins.top - margins.bottom;
 
@@ -133,12 +124,11 @@ const BarChart: FC< BarChartProps > = ( {
 		return d?.label || tickFormat( d?.date );
 	} );
 
-	// Create scales with options like LineChart
+	// Create scales
 	const xScale = scaleBand< string >( {
 		range: [ 0, xMax ],
 		domain: labels,
 		padding: 0.2,
-		...options?.xScale,
 	} );
 
 	const innerScale = scaleBand( {
@@ -153,8 +143,6 @@ const BarChart: FC< BarChartProps > = ( {
 			0,
 			Math.max( ...data.map( series => Math.max( ...series.data.map( d => d?.value || 0 ) ) ) ),
 		],
-		nice: true,
-		...options?.yScale,
 	} );
 
 	// Create legend items from group labels, this iterates over groups rather than data points
@@ -191,9 +179,9 @@ const BarChart: FC< BarChartProps > = ( {
 								const barX = xPos + ( innerScale( seriesIndex.toString() ) ?? 0 );
 								const barColor =
 									series.options?.stroke || theme.colors[ seriesIndex % theme.colors.length ];
-
 								const handleBarMouseMove = ( event: MouseEvent< SVGRectElement > ) =>
 									handleMouseMove( event, d.value, xLabel, series.label, seriesIndex );
+
 								return (
 									<Bar
 										key={ `bar-${ seriesIndex }-${ xLabel }` }
@@ -209,8 +197,8 @@ const BarChart: FC< BarChartProps > = ( {
 							} ) }
 						</Group>
 					) ) }
-					<Axis orientation="left" scale={ yScale } numTicks={ 4 } { ...options?.axis?.y } />
-					<Axis orientation="bottom" scale={ xScale } top={ yMax } { ...options?.axis?.x } />
+					<AxisLeft scale={ yScale } />
+					<AxisBottom scale={ xScale } top={ yMax } />
 				</Group>
 			</svg>
 
