@@ -401,7 +401,7 @@ class JITM {
 	 * Check if the current site is connected.
 	 * On WordPress.com Simple, it is always connected.
 	 *
-	 * @return true
+	 * @return bool true if the site is connected, false otherwise.
 	 */
 	private static function is_connected() {
 		if ( ( new Host() )->is_wpcom_simple() ) {
