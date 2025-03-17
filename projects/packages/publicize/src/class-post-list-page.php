@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Current_Plan;
 use WP_Post;
 
 /**
@@ -72,6 +73,10 @@ class Post_List_Page {
 		$is_post_list_page = 'edit-' . $screen->post_type === $screen->id;
 
 		if ( ! $is_post_list_page || ! post_type_supports( $screen->post_type, 'publicize' ) ) {
+			return false;
+		}
+
+		if ( ! Current_Plan::supports( 'republicize' ) ) {
 			return false;
 		}
 
