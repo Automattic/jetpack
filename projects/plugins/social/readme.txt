@@ -128,11 +128,6 @@ The easiest way is to use the Custom Message option in the publishing options bo
 - Social | Move settings endpoint to publicize package
 - Updated composer.lock
 - Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Update package dependencies.
-- Update package dependencies.
 - Update the settings endppoint to use existing endpoints
 - Update the unowned section from a product grid to a product list
 
