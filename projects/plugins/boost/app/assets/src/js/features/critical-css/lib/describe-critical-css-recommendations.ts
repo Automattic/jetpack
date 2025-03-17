@@ -516,15 +516,22 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 		rawError: set => Object.values( set.byUrl )[ 0 ].message,
 		suggestion: _set => ( {
 			paragraph: __(
-				'Jetpack Boost successfully generated Critical CSS, but something prevented it from saving it. Usually, this is due to a security plugin or the hosting provider detecting a false-positive.',
+				"Jetpack Boost generated Critical CSS, but something blocked it from being saved. Until it's saved, it won't be applied to speed up your page. This is usually caused by the hosting provider's security settings (WAF) or a security plugin.",
 				'jetpack-boost'
 			),
 			list: [
 				__(
-					'Please contact <support>Jetpack Boost Support</support> with a copy of your error message, so we can help you resolve the issue.',
+					"<strong>Check your hosting security settings.</strong> Some hosts have a Web Application Firewall (WAF) that might block Boost. Ask your host if they can temporarily disable it or allow Boost's requests. Then, <retry>try again</retry>.",
 					'jetpack-boost'
 				),
-				__( '<retry>Try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),
+				__(
+					'<strong>Check your security plugins.</strong> If you have a firewall or security plugin, it might be blocking Boost. Look for any firewall, bot protection, or request-blocking settings and try temporarily turning them off. Then, <retry>try again</retry>.',
+					'jetpack-boost'
+				),
+				__(
+					'<strong>Still stuck?</strong> <support>Contact Jetpack Boost Support</support> and share this error message so we can look into this and assist.',
+					'jetpack-boost'
+				),
 			],
 		} ),
 	},
