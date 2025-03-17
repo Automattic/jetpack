@@ -62,24 +62,16 @@ class SearchResults extends Component {
 			return __( 'Searching…', 'jetpack-search-pkg', /* dummy arg to avoid bad minification */ 0 );
 		}
 
-		if ( total === 0 || this.props.hasError ) {
-			return __( 'No results found', 'jetpack-search-pkg' );
+		if ( total === 0 || this.props.hasError || ( hasQuery && hasCorrectedQuery ) ) {
+			return sprintf(
+				/* translators: %s: search query. */
+				__( 'No results found for "%s"', 'jetpack-search-pkg' ),
+				this.props.searchQuery
+			);
 		}
 
 		const num = new Intl.NumberFormat().format( total );
-		if ( hasQuery && hasCorrectedQuery ) {
-			return sprintf(
-				/* translators: %1$s: number of results. %2$s: the corrected search query. */
-				_n(
-					'Found %1$s result for "%2$s"',
-					'Found %1$s results for "%2$s"',
-					total,
-					'jetpack-search-pkg'
-				),
-				num,
-				corrected_query
-			);
-		} else if ( isMultiSite ) {
+		if ( isMultiSite ) {
 			const group = getAvailableStaticFilters().find( item => item.filter_id === 'group_id' );
 			const filterKey = group?.filter_id;
 
@@ -144,7 +136,7 @@ class SearchResults extends Component {
 	}
 
 	renderPrimarySection() {
-		const { highlightColor, searchQuery } = this.props;
+		const { highlightColor } = this.props;
 		const { results = [], total = 0, corrected_query = false } = this.props.response;
 		const textColor = getConstrastingColor( highlightColor );
 		const hasCorrectedQuery = corrected_query !== false;
@@ -174,11 +166,11 @@ class SearchResults extends Component {
 
 				<h2 className="jetpack-instant-search__search-results-title">{ this.getSearchTitle() }</h2>
 
-				{ hasResults && hasCorrectedQuery && (
+				{ hasCorrectedQuery && (
 					<p className="jetpack-instant-search__search-results-unused-query">
 						{
-							/* translators: %s: Search query. */
-							sprintf( __( 'No results for "%s"', 'jetpack-search-pkg' ), searchQuery )
+							/* translators: %s: Corrected search query. */
+							sprintf( __( 'Did you mean "%s"?', 'jetpack-search-pkg' ), corrected_query )
 						}
 					</p>
 				) }
