@@ -313,12 +313,12 @@ class Settings {
 		return $settings;
 	}
 
-		/**
-		 * Get the initial state.
-		 * Deprecated method, stub left here to avoid fatal.
-		 *
-		 * @deprecated $$next-version$$
-		 */
+	/**
+	 * Get the initial state.
+	 * Deprecated method, stub left here to avoid fatal.
+	 *
+	 * @deprecated $$next-version$$
+	 */
 	public function get_initial_state() {
 		return array();
 	}
