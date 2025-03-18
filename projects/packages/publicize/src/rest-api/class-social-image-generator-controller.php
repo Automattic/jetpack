@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize\REST_API;
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -84,10 +85,21 @@ class Social_Image_Generator_Controller extends Base_Controller {
 	/**
 	 * Ensure the user has proper permissions.
 	 *
-	 * @return boolean
+	 * @return boolean|WP_Error True if the user has permissions, WP_Error otherwise.
 	 */
 	public function permissions_check() {
-		return current_user_can( 'edit_posts' ) || self::is_authorized_blog_request();
+		$permissions = $this->publicize_permissions_check();
+
+		if ( is_wp_error( $permissions ) || ! $permissions ) {
+			return $permissions;
+		}
+
+		// On WPCOM, need to check for the feature.
+		if ( Utils::is_wpcom() ) {
+			return \Publicize\Social_Image_Generator\is_enabled();
+		}
+
+		return true;
 	}
 
 	/**
