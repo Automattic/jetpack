@@ -24,7 +24,8 @@
 		</testsuite>
 	</testsuites>
 
-	<source>
+	<!-- Set `ignoreIndirectDeprecations` because the available version of microsoft/tolerant-php-parser has some PHP 8.4 deprecations. -->
+	<source ignoreIndirectDeprecations="true">
 		<include>
 			<!-- Better to only include "src" than to add "." and then exclude "tests", "vendor", and so on, as PHPUnit still scans the excluded directories. -->
 			<!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
