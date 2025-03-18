@@ -302,7 +302,10 @@ class Password_Detection {
 			</head>
 			<body class="<?php echo esc_attr( $body_classes ); ?>">
 				<div class="password-detection-content">
-					<?php echo esc_html( ( new Jetpack_Logo() )->get_jp_emblem( true ) ); ?>
+					<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						echo ( new Jetpack_Logo() )->get_jp_emblem( true );
+					?>
 					<p class="password-detection-title"><?php echo $success_data['code'] === 'auth_code_success' ? esc_html__( 'Take action to stay secure', 'jetpack-account-protection' ) : esc_html__( 'Verify your identity', 'jetpack-account-protection' ); ?></p>
 					<?php if ( $error_data['message'] ) : ?>
 						<div class="error notice">
