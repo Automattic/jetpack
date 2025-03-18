@@ -157,6 +157,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				hasAnyInnerBlocks: innerBlocksData.length > 0,
 				postAuthorEmail: authorEmail,
 				selectedBlockClientId: selectedStepBlockId,
+				onlySubmitBlock:
+					innerBlocksData.length === 1 && innerBlocksData[ 0 ].name === 'jetpack/button',
 			};
 		},
 		[ clientId ]
@@ -625,7 +627,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				/>
 			);
 		}
-	} else if ( ! hasAnyInnerBlocks ) {
+	} else if ( ! hasAnyInnerBlocks || onlySubmitBlock ) {
 		elt = (
 			<VariationPicker
 				blockName={ name }
@@ -634,6 +636,12 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				classNames={ formClassnames }
 			/>
 		);
+
+		// Reset the padding of the block. Once the user picks a variation this padding gets set to the default one.
+		blockProps.style.paddingTop = 0;
+		blockProps.style.paddingBottom = 0;
+		blockProps.style.paddingLeft = 0;
+		blockProps.style.paddingRight = 0;
 	} else {
 		elt = (
 			<>
