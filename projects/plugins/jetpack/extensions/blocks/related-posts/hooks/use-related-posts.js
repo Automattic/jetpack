@@ -25,18 +25,13 @@ const useRelatedPosts = isEnabled => {
 	const prevIsEnabled = usePrevious( isEnabled );
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ relatedPosts, setRelatedPosts ] = useState( null );
-	const { currentPost } = useSelect(
-		select => ( {
-			currentPost: select( editorStore ).getCurrentPost(),
-		} ),
-		[]
-	);
-
-	const currentPostId = currentPost?.id;
-	const currentPostRelatedPosts = useMemo(
-		() => currentPost?.[ 'jetpack-related-posts' ] ?? [],
-		[ currentPost ]
-	);
+	const { currentPostId, currentPostRelatedPosts } = useSelect( select => {
+		const currentPost = select( editorStore ).getCurrentPost();
+		return {
+			currentPostId: currentPost.id,
+			currentPostRelatedPosts: currentPost?.[ 'jetpack-related-posts' ] ?? [],
+		};
+	} );
 
 	const shouldFetchRelatedPosts =
 		currentPostRelatedPosts.length === 0 && ! prevIsEnabled && isEnabled;

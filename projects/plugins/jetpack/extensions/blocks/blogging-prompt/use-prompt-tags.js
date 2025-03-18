@@ -49,7 +49,9 @@ export function usePromptTags( promptId, tagsAdded, setTagsAdded ) {
 
 	// Memoize the query object
 	const query = useMemo( () => {
-		if ( ! tagIds.length ) return null;
+		if ( tagIds.length === 0 ) {
+			return null;
+		}
 		return {
 			_fields: 'id,name',
 			context: 'view',
@@ -61,7 +63,9 @@ export function usePromptTags( promptId, tagsAdded, setTagsAdded ) {
 	// Get tags with memoized query
 	const tags = useSelect(
 		select => {
-			if ( ! tagIds.length ) return [];
+			if ( tagIds.length === 0 ) {
+				return [];
+			}
 			return select( 'core' ).getEntityRecords( 'taxonomy', 'post_tag', query ) || [];
 		},
 		[ query, tagIds.length ]
@@ -69,7 +73,9 @@ export function usePromptTags( promptId, tagsAdded, setTagsAdded ) {
 
 	const tagsHaveResolved = useSelect(
 		select => {
-			if ( ! tagIds.length ) return true;
+			if ( tagIds.length === 0 ) {
+				return true;
+			}
 			return select( 'core' ).hasFinishedResolution( 'getEntityRecords', [
 				'taxonomy',
 				'post_tag',
