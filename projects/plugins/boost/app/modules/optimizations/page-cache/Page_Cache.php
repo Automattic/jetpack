@@ -127,7 +127,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate, Has_Data_Sy
 	}
 
 	public static function activate() {
-		Cache_Preload::get_instance()->schedule_cornerstone_preload();
+		do_action( 'jetpack_boost_page_cache_activate' );
 	}
 
 	/**

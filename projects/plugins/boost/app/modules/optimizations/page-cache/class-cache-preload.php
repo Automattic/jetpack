@@ -21,15 +21,11 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logg
 class Cache_Preload implements Pluggable, Is_Always_On {
 
 	/**
-	 * @var Cache_Preload The instance of the class.
-	 */
-	private static $instance = null;
-
-	/**
 	 * @since $$next-version$$
 	 */
 	public function setup() {
 		add_action( 'update_option_jetpack_boost_ds_cornerstone_pages_list', array( $this, 'schedule_cornerstone_preload' ) );
+		add_action( 'jetpack_boost_page_cache_activate', array( $this, 'schedule_cornerstone_preload' ) );
 		add_action( 'jetpack_boost_preload_pages', array( $this, 'preload_pages' ) );
 
 		add_action( 'post_updated', array( $this, 'handle_post_update' ), 10, 1 );
@@ -52,19 +48,6 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Gets the instance of the class.
-	 *
-	 * @return Cache_Preload The instance of the class.
-	 */
-	public static function get_instance() {
-		if ( self::$instance === null ) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
 	}
 
 	/**
