@@ -870,10 +870,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						<input type="hidden" name="<?php echo esc_attr( $id ); ?>_token[]" data-wp-bind--value='context.file.token' value="">
 						<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
 						<div class="jetpack-form-file-field__file-wrap">
-							<span class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></span>
+							<strong class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></strong>
 							<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
 						</div>
-						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="Remove file" data-wp-on--click="actions.removeFile"><?php esc_html_e( 'Remove', 'jetpack-forms' ); ?></a>
+						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="<?php esc_attr_e( 'Remove file', 'jetpack-forms' ); ?>" data-wp-on--click="actions.removeFile"><?php esc_html_e( 'Remove', 'jetpack-forms' ); ?></a>
 					</div>
 				</template>
 			</div>
