@@ -117,7 +117,7 @@ class Post_List_Page {
 			$actions['jetpack-social-share-post'] = sprintf(
 				'<a href="%1$s" data-post-id="%2$s" class="%3$s" aria-label="%4$s">%5$s</a>',
 				esc_url( $url ),
-				esc_attr( $post->ID ),
+				$post->ID,
 				'jetpack-social-share-post-action',
 				esc_html( $aria_label ),
 				esc_html( $text )
