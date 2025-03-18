@@ -34,7 +34,11 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 			isValidEmail.value =
 				Boolean( userEmail.value ) && Boolean( emailRegex.test( userEmail.value ) );
 			isValidAuthor.value = Boolean( userName.value.length > 0 );
-			isValidUrl.value = ! userUrl.value || Boolean( new URL( userUrl.value ) );
+			try {
+				isValidUrl.value = ! userUrl.value || Boolean( new URL( userUrl.value ) );
+			} catch {
+				isValidUrl.value = false;
+			}
 		} );
 	};
 
