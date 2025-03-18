@@ -13,6 +13,18 @@ export function now() {
 	return dt;
 }
 
+export function Jan1st() {
+	var dt = new Date( now().getFullYear(), 0, 1 ); // Jan 1st of the current year.
+	dt.setHours( 0, 0, 0, 0 );
+	return dt;
+}
+
+export function Dec31st() {
+	var dt = new Date( now().getFullYear(), 11, 31 ); // Dec 31st of the current year.
+	dt.setHours( 0, 0, 0, 0 );
+	return dt;
+}
+
 /**
  * dateEq compares two dates
  *

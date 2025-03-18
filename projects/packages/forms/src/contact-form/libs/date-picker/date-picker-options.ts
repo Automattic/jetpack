@@ -2,7 +2,7 @@
  * @file Responsible for sanitizing and creating date picker options.
  */
 import { IDatePicker, IDatePickerOptions } from './interfaces';
-import { now, shiftYear, dateOrParse } from './lib/date';
+import { now, shiftYear, dateOrParse, Dec31st, Jan1st } from './lib/date';
 import { cp } from './lib/fns';
 
 const english = {
@@ -57,8 +57,8 @@ export function DatePickerOptions( _options: Partial< IDatePickerOptions > = {} 
 	options.lang = cp( english, options.lang );
 	options.parse = parse;
 	options.inRange = makeInRangeFn( options );
-	options.min = parse( options.min || shiftYear( now(), -100 ), options.dateFormat );
-	options.max = parse( options.max || shiftYear( now(), 100 ), options.dateFormat );
+	options.min = parse( options.min || shiftYear( Jan1st(), -100 ), options.dateFormat );
+	options.max = parse( options.max || shiftYear( Dec31st(), 100 ), options.dateFormat );
 	options.highlightedDate = options.parse( options.highlightedDate, options.dateFormat );
 	options.alignment = options.alignment || 'left';
 
