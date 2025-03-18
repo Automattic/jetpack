@@ -6,6 +6,7 @@ use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
@@ -22,7 +23,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
-class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submodules, Optimization {
+class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate, Has_Data_Sync, Has_Submodules, Optimization {
 	/**
 	 * @var array - The errors that occurred when removing the cache.
 	 */
@@ -123,6 +124,10 @@ class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submod
 	public function invalidate_cache() {
 		$cache = new Boost_Cache();
 		$cache->get_storage()->invalidate( home_url(), Filesystem_Utils::DELETE_ALL );
+	}
+
+	public static function activate() {
+		Cache_Preload::get_instance()->schedule_cornerstone_preload();
 	}
 
 	/**
