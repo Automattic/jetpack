@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.1] - 2025-03-18
+### Changed
+- Update package dependencies. [#42511]
+
 ## [0.14.0] - 2025-03-17
 ### Added
-- Add subscribers in wp-admin boiler plate. [#42066]
+- Add subscribers in WP Admin boilerplate. [#42066]
 
 ### Fixed
 - Upsell to correct plan in Additional CSS customizer menu when running the Global Styles experiment. [#42471]
@@ -257,6 +261,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.14.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.13.2...v0.14.0
 [0.13.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.13.1...v0.13.2
 [0.13.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.13.0...v0.13.1
