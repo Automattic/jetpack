@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack\Protect;
 
-use Automattic\Jetpack\Account_Protection\Account_Protection;
+use Automattic\Jetpack\Account_Protection\Main as Jetpack_Account_Protection_Main;
 use Automattic\Jetpack\Account_Protection\Settings as Account_Protection_Settings;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
@@ -348,7 +348,7 @@ class REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function api_toggle_account_protection() {
-		$account_protection = new Account_Protection();
+		$account_protection = new Jetpack_Account_Protection_Main();
 		if ( $account_protection->is_enabled() ) {
 			$disabled = $account_protection->disable();
 			if ( ! $disabled ) {

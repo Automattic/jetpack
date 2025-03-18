@@ -12,7 +12,3 @@
  *
  * @package automattic/jetpack
  */
-
-use Automattic\Jetpack\Account_Protection\Account_Protection;
-
-( new Account_Protection() )->init();

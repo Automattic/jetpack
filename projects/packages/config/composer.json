@@ -18,6 +18,7 @@
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-videopress": "@dev",
+		"automattic/jetpack-account-protection": "@dev",
 		"automattic/jetpack-waf": "@dev",
 		"automattic/jetpack-wordads": "@dev",
 		"automattic/jetpack-yoast-promo": "@dev"
@@ -63,6 +64,7 @@
 				"packages/stats-admin",
 				"packages/sync",
 				"packages/videopress",
+				"packages/account-protection",
 				"packages/waf",
 				"packages/wordads",
 				"packages/yoast-promo"

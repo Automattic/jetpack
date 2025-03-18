@@ -1,6 +1,6 @@
 <?php
 /**
- * Class used to define Account Protection.
+ * Class used to define Main.
  *
  * @package automattic/jetpack-account-protection
  */
@@ -11,9 +11,9 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Class Account_Protection
+ * Class Main
  */
-class Account_Protection {
+class Main {
 	const PACKAGE_VERSION                = '0.1.0-alpha';
 	const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
 
@@ -46,6 +46,19 @@ class Account_Protection {
 	private $password_strength_meter;
 
 	/**
+	 * Initializes the configurations needed for the account protection module.
+	 *
+	 * @return void
+	 */
+	public function initialize(): void {
+		$this->register_hooks();
+
+		if ( $this->is_enabled() ) {
+			$this->register_runtime_hooks();
+		}
+	}
+
+	/**
 	 * Account_Protection constructor.
 	 *
 	 * @param ?Modules                 $modules            Modules instance.
@@ -58,19 +71,6 @@ class Account_Protection {
 		$this->password_detection      = $password_detection ?? new Password_Detection();
 		$this->password_manager        = $password_manager ?? new Password_Manager();
 		$this->password_strength_meter = $password_strength_meter ?? new Password_Strength_Meter();
-	}
-
-	/**
-	 * Initializes the configurations needed for the account protection module.
-	 *
-	 * @return void
-	 */
-	public function init(): void {
-		$this->register_hooks();
-
-		if ( $this->is_enabled() ) {
-			$this->register_runtime_hooks();
-		}
 	}
 
 	/**
