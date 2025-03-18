@@ -110,36 +110,39 @@ class SearchResults extends Component {
 	}
 
 	getCorrectedSearchQuery() {
-		const { corrected_query = false, corrected_query_total = 0 } = this.props.response;
+		const { corrected_query = false } = this.props.response;
 		const hasCorrectedQuery = corrected_query !== false;
-		const hasCorrectedResults = corrected_query_total > 0;
 
-		if ( ! hasCorrectedQuery || ! hasCorrectedResults ) {
+		if ( ! hasCorrectedQuery ) {
 			return '';
 		}
-
 		return (
-			<a
-				href="#"
-				onClick={ e => {
-					e.preventDefault();
-					this.props.onChangeSearch( corrected_query );
-				} }
-				className="jetpack-instant-search__search-results-corrected-query-link"
+			<p
+				className="jetpack-instant-search__search-results-corrected-query"
+				style={ { display: 'inline', whiteSpace: 'nowrap' } }
 			>
-				{
-					// translators: %s: Suggested search query
-					sprintf( __( 'Did you mean "%s"?', 'jetpack-search-pkg' ), corrected_query )
-				}
-			</a>
+				{ sprintf(
+					/* translators: %s: Suggested search query */
+					__( 'Did you mean %s?', 'jetpack-search-pkg' ),
+					<a
+						href="#"
+						onClick={ e => {
+							e.preventDefault();
+							this.props.onChangeSearch( corrected_query );
+						} }
+						className="jetpack-instant-search__search-results-corrected-query-link"
+					>
+						{ corrected_query }
+					</a>
+				) }
+			</p>
 		);
 	}
 
 	renderPrimarySection() {
 		const { highlightColor } = this.props;
-		const { results = [], total = 0, corrected_query = false } = this.props.response;
+		const { results = [], total = 0 } = this.props.response;
 		const textColor = getConstrastingColor( highlightColor );
-		const hasCorrectedQuery = corrected_query !== false;
 		const hasResults = total > 0;
 
 		const isMultiSite =
@@ -165,15 +168,6 @@ class SearchResults extends Component {
 				<TabbedSearchFilters />
 
 				<h2 className="jetpack-instant-search__search-results-title">{ this.getSearchTitle() }</h2>
-
-				{ hasCorrectedQuery && (
-					<p className="jetpack-instant-search__search-results-unused-query">
-						{
-							/* translators: %s: Corrected search query. */
-							sprintf( __( 'Did you mean "%s"?', 'jetpack-search-pkg' ), corrected_query )
-						}
-					</p>
-				) }
 
 				{ this.getCorrectedSearchQuery() }
 
