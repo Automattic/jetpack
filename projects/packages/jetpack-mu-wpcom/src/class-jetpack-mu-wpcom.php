@@ -124,6 +124,7 @@ class Jetpack_Mu_Wpcom {
 		$plugins_request_data              = array();
 		$plugin_language_pack_destinations = array(
 			'jetpack-mu-wpcom' => WP_LANG_DIR . '/mu-plugins/',
+			'wpcomsh'          => WP_LANG_DIR . '/mu-plugins/',
 		);
 
 		foreach ( array_keys( $plugin_language_pack_destinations ) as $plugin_slug ) {

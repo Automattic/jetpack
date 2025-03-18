@@ -30,7 +30,10 @@ class Main_Test extends StatsBaseTestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		if ( strpos( $this->getName(), 'jp_version_lt_11_5_a_2' ) ) {
+		// PHPUnit 10+ renamed `getName()` to `name()`.
+		// @phan-suppress-next-line PhanUndeclaredMethodInCallable, PhanUndeclaredMethod -- Being tested before use.
+		$name = is_callable( array( $this, 'name' ) ) ? $this->name() : $this->getName();
+		if ( strpos( $name, 'jp_version_lt_11_5_a_2' ) ) {
 			Constants::set_constant( 'JETPACK__VERSION', '11.5-a.1' );
 		}
 

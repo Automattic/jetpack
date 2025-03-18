@@ -27,7 +27,7 @@ type AiAssistantExtensionToolbarDropdownContentProps = {
 	loadingCaption?: boolean;
 };
 
-const debug = debugFactory( 'jetpack-ai:image-extension' );
+const debug = debugFactory( 'jetpack-ai:image-extension-toolbar-dropdown' );
 
 /**
  * The dropdown content component with logic for the image block extension toolbar.

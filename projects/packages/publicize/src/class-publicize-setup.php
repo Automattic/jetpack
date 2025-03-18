@@ -43,6 +43,7 @@ class Publicize_Setup {
 			REST_API\Connections_Controller::class,
 			REST_API\Scheduled_Actions_Controller::class,
 			REST_API\Services_Controller::class,
+			REST_API\Shares_Data_Controller::class,
 			REST_API\Share_Post_Controller::class,
 		);
 

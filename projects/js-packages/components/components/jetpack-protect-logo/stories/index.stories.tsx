@@ -1,13 +1,15 @@
 import JetpackProtectLogo from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof JetpackProtectLogo > = {
 	title: 'JS Packages/Components/Jetpack Protect Logo',
 	component: JetpackProtectLogo,
 	argTypes: {
 		logoColor: { control: 'color' },
 	},
-} as Meta< typeof JetpackProtectLogo >;
+};
+
+export default meta;
 
 const Template: StoryFn< typeof JetpackProtectLogo > = args => <JetpackProtectLogo { ...args } />;
 

@@ -26,6 +26,8 @@ require_once $sync_server_dir . 'class.jetpack-sync-test-helper.php';
  * process events.
  */
 abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	protected $listener;
 	protected $sender;
 

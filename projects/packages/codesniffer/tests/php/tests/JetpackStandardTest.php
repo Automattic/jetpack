@@ -106,7 +106,7 @@ class JetpackStandardTest extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function provide_files() {
+	public static function provide_files() {
 		$dir_iterator = new RecursiveDirectoryIterator( __DIR__ . '/files', RecursiveDirectoryIterator::CURRENT_AS_PATHNAME );
 		$iterator     = new RegexIterator(
 			new RecursiveIteratorIterator( $dir_iterator ),

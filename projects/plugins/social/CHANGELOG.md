@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 6.2.0 - 2025-03-17
+### Added
+- Added the schedule share functionality to the share post modal [#42376]
+- Connection: Disconnecting a connection owner account will disconnect all other users first. [#41923]
+- Enabled Social Post UI for WPCOM sites [#41219]
+- Post List: Add a Copy Link Quick Action [#41305]
+- Publicize Components: Add the schedule button [#42313]
+- Social: Updated the admin page for use by Editors and Authors [#41859]
+
+### Changed
+- Connection: Display connection status on Users page independent of the SSO module. [#41794]
+- External Media: Move the GooglePhotosMedia, OpenverseMedia, PexelsMedia to @automattic/jetpack-shared-extension-utils [#41078]
+- Moved JS editor code from Jetpack and Social to Publicize package [#41836]
+- Moved Social admin page code and assets logic to publicize package [#41239]
+- Moved the Social resharing into the social post modal [#42224]
+- Move initial state from Social plugin to publicize package [#41381]
+- Only register social/settings endpoint if Jetpack version does not have it [#41596]
+- Open Graph Meta Tags: do not display Jetpack's tags when the SEOPress plugin is active. [#41331]
+- Social: Enable new admin page for the Social plugn [#41498]
+- Social post character limits are now dynamic based on selected connections [#41429]
+- Social | Migrate review prompt initial state to script data [#42389]
+- Social | Move settings endpoint to publicize package [#41456]
+- Updated composer.lock [#40863]
+- Updated package dependencies. [#41286]
+- Updated package dependencies. [#41491]
+- Updated package dependencies. [#41577]
+- Updated package dependencies. [#41659]
+- Update package dependencies. [#42163]
+- Update package dependencies. [#42180]
+- Update the settings endppoint to use existing endpoints [#41461]
+- Update the unowned section from a product grid to a product list [#41312]
+
+### Removed
+- Social Previews | Remove "Your post" section in favour of Social Post UI [#41329]
+- Social | Removed the old unused initial state [#42390]
+
+### Fixed
+- Code: Prevent dynamic class properties. [#41857]
+- Fixed connecting LinkedIn company pages and Tumblr additional blogs [#42352]
+- Social Previews | Fixed distorted image for Tumblr preview [#41844]
+
 ## 6.1.0 - 2025-01-27
 ### Changed
 - Code: Use function-style exit() and die() with a default status code of 0. [#41167]

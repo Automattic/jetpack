@@ -114,6 +114,11 @@
 		},
 	],
 
+	'github-actions': {
+		// Process Actions files copied into mirror repos.
+		fileMatch: [ '^\\.github/files/[^/]*/workflows/[^/]*.ya?ml$' ],
+	},
+
 	customManagers: [
 		// Update the renovate-version in the action itself.
 		// See also https://github.com/renovatebot/github-action/issues/756

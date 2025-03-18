@@ -65,7 +65,7 @@ add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file', 9
 add_action(
 	'after_setup_theme',
 	function () {
-		load_muplugin_textdomain( 'wpcomsh', 'wpcomsh/languages' );
+		load_theme_textdomain( 'wpcomsh', WP_LANG_DIR . '/mu-plugins' );
 		load_theme_textdomain( 'jetpack-mu-wpcom', WP_LANG_DIR . '/mu-plugins' );
 	}
 );
@@ -96,7 +96,7 @@ add_filter(
 	function ( $file, $handle, $domain ) {
 		global $wp_scripts;
 
-		if ( 'jetpack-mu-wpcom' === $domain ) {
+		if ( in_array( $domain, array( 'jetpack-mu-wpcom' ), true ) ) {
 			return WP_LANG_DIR . '/mu-plugins/' . basename( $file );
 		}
 

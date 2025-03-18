@@ -55,7 +55,7 @@ class IgnoreFileTest extends TestCase {
 	}
 
 	/** Data provider for testCases(). */
-	public function provideCases() {
+	public static function provideCases() {
 		$map = array(
 			'nomatch'              => array(
 				'ignored'   => false,
@@ -195,10 +195,10 @@ class IgnoreFileTest extends TestCase {
 	}
 
 	/** Data provider for testCasesGit(). */
-	public function provideCasesGit() {
+	public static function provideCasesGit() {
 		$git = shell_exec( 'command -v git 2>/dev/null' );
 		if ( ! $git ) {
-			$this->markTestSkipped( 'Git (or a POSIX shell) is unavailable' );
+			self::markTestSkipped( 'Git (or a POSIX shell) is unavailable' );
 		}
 
 		$map = array(
@@ -435,7 +435,7 @@ class IgnoreFileTest extends TestCase {
 	}
 
 	/** Data provider for testBadPattern(). */
-	public function provideBadPattern() {
+	public static function provideBadPattern() {
 		return array(
 			'Collating symbol'             => array( 'foo[[.-.]]bar', 'Collating symbols (`[.` inside a bracket expression) are not supported (in pattern at index 0)' ),
 			'Collating symbol (2)'         => array( 'foo[x[.-.]y]bar', 'Collating symbols (`[.` inside a bracket expression) are not supported (in pattern at index 0)' ),

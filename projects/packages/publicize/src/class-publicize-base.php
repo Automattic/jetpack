@@ -1928,17 +1928,19 @@ abstract class Publicize_Base {
 	/**
 	 * Get the Publicize shares info.
 	 *
-	 * @param string $blog_id The WPCOM blog_id for the current blog.
+	 * This function is overwritten in class-publicize-wpcom.php
+	 *
+	 * @param int $blog_id The WPCOM blog_id for the current blog.
 	 * @return ?array
 	 */
-	public function get_publicize_shares_info( $blog_id ) {
-		$data = $this->get_api_data( $blog_id );
+	public function get_publicize_shares_info( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$shares_info = get_transient( 'jetpack_publicize_shares_info' );
 
-		if ( empty( $data ) ) {
-			return null;
+		if ( ! empty( $shares_info ) ) {
+			return $shares_info;
 		}
 
-		return $data;
+		return null;
 	}
 
 	/**

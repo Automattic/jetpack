@@ -142,7 +142,7 @@ class Jetpack_JITM_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function data_test_is_a8c_admin_page() {
+	public static function data_test_is_a8c_admin_page() {
 		return array(
 			'Jetpack main dashboard'         => array( 'toplevel_page_jetpack', true ),
 			'Jetpack about page'             => array( 'admin_page_jetpack_about', true ),

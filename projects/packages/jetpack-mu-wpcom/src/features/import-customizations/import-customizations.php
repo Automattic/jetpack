@@ -47,7 +47,7 @@ function import_admin_banner() {
 		wp_kses_post( $banner_content ),
 		array(
 			'paragraph_wrap'     => false,
-			'additional_classes' => array( 'wpcom-import-banner' ),
+			'additional_classes' => array( 'wpcom-import-banner', 'notice-info' ),
 		)
 	);
 }

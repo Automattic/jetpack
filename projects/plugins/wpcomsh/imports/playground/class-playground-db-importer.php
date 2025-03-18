@@ -323,7 +323,12 @@ class Playground_DB_Importer {
 
 		// Schema: column_or_index|mysql_type
 		while ( $column = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			// May by column name and MySQL type.
+			// Hot fix: the default SQLite driver sometimes generate a column named `KEY`.
+			if ( $column['column_or_index'] === 'KEY' ) {
+				continue;
+			}
+
+			// Map by column name and MySQL type.
 			$mysql_map[ $column['column_or_index'] ] = $column['mysql_type'];
 		}
 
@@ -346,6 +351,11 @@ class Playground_DB_Importer {
 
 		// Schema: cid|name|type|notnull|dflt_value|pk
 		while ( $column = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			// Hot fix: skip `KEY` columns.
+			if ( $column['name'] === 'KEY' ) {
+				continue;
+			}
+
 			$is_primary    = $column['pk'] >= 1;
 			$field_names[] = $column['name'];
 
@@ -425,6 +435,9 @@ class Playground_DB_Importer {
 			$map[] = $new_index;
 		}
 
+		// Hot fix: add the missing index sizes.
+		$map = $this->hot_fix_missing_indexes( $table_name, $map );
+
 		$auto_increment = 0;
 
 		if ( $has_autoinc ) {
@@ -472,7 +485,7 @@ class Playground_DB_Importer {
 	 *
 	 * @return bool
 	 */
-	private function needs_191_limit( array $key_map ): bool {
+	public function needs_191_limit( array $key_map ): bool {
 		if ( $key_map['sqlite_type'] !== 'text' ) {
 			return false;
 		}
@@ -514,7 +527,7 @@ class Playground_DB_Importer {
 	 *
 	 * @return string
 	 */
-	private function get_tmp_file_name(): string {
+	public function get_tmp_file_name(): string {
 		// A random string to avoid collisions.
 		return 'sqlite-export-' . uniqid() . '.sql';
 	}
@@ -535,5 +548,61 @@ class Playground_DB_Importer {
 		if ( is_string( $query ) ) {
 			return $wpdb->remove_placeholder_escape( $query );
 		}
+	}
+
+	/**
+	 * Hot fix: add the missing index sizes. The default SQLite driver do not
+	 * generate index sizes and sometimes the indexes are not valid when made of
+	 * multiple text and integer columns and are more than 191 characters.
+	 *
+	 * Known columns are from WooCommerce.
+	 *
+	 * Example:
+	 * KEY `order_id_meta_key_meta_value` (`order_id`, `meta_key`, `meta_value`)
+	 *
+	 * should be:
+	 * KEY `order_id_meta_key_meta_value` (`order_id`,`meta_key`(100),`meta_value`(82))
+	 *
+	 * Once we have a better SQLite driver, we can remove this function.
+	 *
+	 * @param string $table_name The table name.
+	 * @param array  $map The columns map.
+	 *
+	 * @return array
+	 */
+	public function hot_fix_missing_indexes( string $table_name, array $map ) {
+		// Fix: the default SQLite driver do not generate save index sizes.
+		$fix_map = array(
+			'wp_wc_orders'                           => array(
+				'customer_id_billing_email' => '(`customer_id`,`billing_email`(171))',
+			),
+			'wp_wc_orders_meta'                      => array(
+				'meta_key_value'               => '(`meta_key`(100),`meta_value`(82))',
+				'order_id_meta_key_meta_value' => '(`order_id`,`meta_key`(100),`meta_value`(82))',
+			),
+			'wp_woocommerce_downloadable_product_permissions' => array(
+				'download_order_key_product' => '(`product_id`,`order_id`,`order_key`(16),`download_id`)',
+			),
+			'wp_woocommerce_shipping_zone_locations' => array(
+				'location_type_code' => '(`location_type`(10),`location_code`(20))',
+			),
+			'wp_woocommerce_tax_rate_locations'      => array(
+				'location_type_code' => '(`location_type`(10),`location_code`(20))',
+			),
+		);
+
+		if ( ! array_key_exists( $table_name, $fix_map ) ) {
+			// No fix for this table.
+			return $map;
+		}
+
+		foreach ( $map as $i => $column ) {
+			if ( array_key_exists( $column['name'], $fix_map[ $table_name ] ) ) {
+				// Hot fix: add the missing index sizes.
+				$map[ $i ]['columns'] = $fix_map[ $table_name ][ $column['name'] ];
+			}
+		}
+
+		return $map;
 	}
 }

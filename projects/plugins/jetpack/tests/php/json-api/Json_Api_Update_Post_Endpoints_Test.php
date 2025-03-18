@@ -11,6 +11,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
  * Jetpack `sites/%s/posts/%d` endpoint unit tests.
  */
 class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Inserts globals needed to initialize the endpoint.
