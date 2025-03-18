@@ -504,6 +504,37 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			),
 		} ),
 	},
+
+	ProviderError: {
+		describeSet: set =>
+			_n(
+				'Boost could not save Critical CSS for the following page:',
+				'Boost could not save Critical CSS for the following pages:',
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		rawError: set => Object.values( set.byUrl )[ 0 ].message,
+		suggestion: _set => ( {
+			paragraph: __(
+				"Jetpack Boost generated Critical CSS, but something blocked it from being saved. Until it's saved, it won't be applied to speed up your page. This is usually caused by the hosting provider's security settings (WAF) or a security plugin.",
+				'jetpack-boost'
+			),
+			list: [
+				__(
+					"<strong>Check your hosting security settings.</strong> Some hosts have a Web Application Firewall (WAF) that might block Boost. Ask your host if they can temporarily disable it or allow Boost's requests. Then, <retry>try again</retry>.",
+					'jetpack-boost'
+				),
+				__(
+					'<strong>Check your security plugins.</strong> If you have a firewall or security plugin, it might be blocking Boost. Look for any firewall, bot protection, or request-blocking settings and try temporarily turning them off. Then, <retry>try again</retry>.',
+					'jetpack-boost'
+				),
+				__(
+					'<strong>Still stuck?</strong> <support>Contact Jetpack Boost Support</support> and share this error message visible below, so we can look into this and assist.',
+					'jetpack-boost'
+				),
+			],
+		} ),
+	},
 };
 
 function getErrorSpec( type: string ): ErrorTypeSpec {

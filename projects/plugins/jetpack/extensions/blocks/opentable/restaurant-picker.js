@@ -1,46 +1,45 @@
-import { Button, FormTokenField, Notice } from '@wordpress/components';
+import { Button, FormTokenField } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
-import useRestaurantSearch, { possibleEmbed } from './use-restaurant-search';
 
-const MAX_SUGGESTIONS = 20;
+export const possibleEmbed = /^\s*(http[s]?:\/\/|<script)/;
 
 export default function RestaurantPicker( props ) {
 	const [ input, setInput ] = useState( '' );
-	const { restaurants, hasRequestFailed } = useRestaurantSearch( input, MAX_SUGGESTIONS );
 	const [ selectedRestaurants, setSelectedRestaurants ] = useState( props.rids || [] );
 
 	const idRegex = /^(\d+)$|\(#(\d+)\)$/;
 
 	const onChange = selected => {
+		// we try to parse the restaurant id
 		const selectedIds = selected.map( restaurant => {
 			const parsed = idRegex.exec( restaurant );
-			const selectedId = parsed[ 1 ] || parsed[ 2 ];
-
-			return selectedId;
+			if ( parsed ) {
+				const selectedId = parsed[ 1 ] || parsed[ 2 ];
+				return selectedId;
+			}
+			// and default we to user entry
+			return restaurant;
 		} );
 		setSelectedRestaurants( selectedIds );
 		props.onChange && props.onChange( selectedIds );
 	};
-
-	const restaurantNames = restaurants
-		.filter( restaurant => selectedRestaurants.indexOf( restaurant.rid.toString() ) < 0 )
-		.map( restaurant => restaurant.name + ` (#${ restaurant.rid })` );
 
 	const onSubmit = event => {
 		event.preventDefault();
 		props.onSubmit( isEmpty( selectedRestaurants ) ? input : selectedRestaurants );
 	};
 
+	// Even though we don't search the OpenTable API
+	// we still allow for multiple restaurants, hence
+	// still use the token field
 	const formInput = (
 		<FormTokenField
 			value={ selectedRestaurants }
-			suggestions={ restaurantNames }
 			saveTransform={ token => ( possibleEmbed.test( token ) ? '' : token.trim() ) }
 			onInputChange={ setInput }
-			maxSuggestions={ MAX_SUGGESTIONS }
-			label={ _n( 'Restaurant', 'Restaurants', selectedRestaurants.length, 'jetpack' ) }
+			label={ _n( 'Restaurant ID', 'Restaurant IDs', selectedRestaurants.length, 'jetpack' ) }
 			{ ...props }
 			onChange={ onChange }
 			__nextHasNoMarginBottom={ true }
@@ -58,14 +57,6 @@ export default function RestaurantPicker( props ) {
 				</form>
 			) : (
 				formInput
-			) }
-			{ hasRequestFailed && (
-				<Notice status="error" isDismissible={ false }>
-					{ __(
-						"OpenTable can't find this restaurant right now. Please try again later.",
-						'jetpack'
-					) }
-				</Notice>
 			) }
 		</div>
 	);

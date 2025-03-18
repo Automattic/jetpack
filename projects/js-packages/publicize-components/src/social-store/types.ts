@@ -126,3 +126,10 @@ export type ScheduledShare = {
 	timestamp: number;
 	wpcom_user_id: number;
 };
+
+export type SharesData = {
+	publicized_count: number;
+	to_be_publicized_count: number;
+	shared_posts_count: number;
+	is_share_limit_enabled: boolean;
+};

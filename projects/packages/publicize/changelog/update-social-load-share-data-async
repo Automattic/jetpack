@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Moved the jetpack-social endpoint ot the publicize package

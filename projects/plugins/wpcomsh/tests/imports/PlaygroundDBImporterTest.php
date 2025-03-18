@@ -291,6 +291,55 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( SQL_Generator::DEFAULT_COLLATION, $result );
 	}
 
+	public function get_needs_191_limit_test_cases() {
+		$this->assertFalse(
+			$this->db_importer->needs_191_limit(
+				array(
+					'type'        => 'text',
+					'sqlite_type' => 'text',
+				)
+			)
+		);
+		$this->assertTrue(
+			$this->db_importer->needs_191_limit(
+				array(
+					'type'        => 'varchar(255)',
+					'sqlite_type' => 'text',
+				)
+			)
+		);
+	}
+
+	public function test_get_tmp_file_name() {
+		$this->assertStringContainsString( 'sqlite-export-', $this->db_importer->get_tmp_file_name() );
+	}
+
+	public function test_hot_fix_missing_indexes() {
+		$map = $this->db_importer->hot_fix_missing_indexes( 'wp_options', array() );
+		$this->assertEquals( array(), $map );
+
+		$table_name = 'wp_woocommerce_tax_rate_locations';
+		$index      = array(
+			'name'    => 'location_type_code',
+			'columns' => 'test',
+		);
+
+		$map = $this->db_importer->hot_fix_missing_indexes(
+			$table_name,
+			array( $index )
+		);
+
+		$this->assertEquals(
+			array(
+				array(
+					'name'    => 'location_type_code',
+					'columns' => '(`location_type`(10),`location_code`(20))',
+				),
+			),
+			$map
+		);
+	}
+
 	/**
 	 * Generates a temporary file.
 	 *

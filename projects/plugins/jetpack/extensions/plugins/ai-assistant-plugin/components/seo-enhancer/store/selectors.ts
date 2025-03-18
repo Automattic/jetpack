@@ -32,3 +32,7 @@ export function getEnabledFeatures( state: SeoEnhancerState ) {
 		feature => state.features[ feature ]
 	) as PromptType[];
 }
+
+export function isImageAltTextFeatureEnabled( state: SeoEnhancerState ) {
+	return getEnabledFeatures( state ).includes( 'images-alt-text' );
+}

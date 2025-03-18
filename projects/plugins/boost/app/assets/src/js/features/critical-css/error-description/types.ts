@@ -3,7 +3,7 @@ import { type ErrorSet } from '../lib/critical-css-errors';
 export type CriticalCssErrorDescriptionTypes = {
 	errorSet: ErrorSet;
 	showSuggestion?: boolean;
-	foldRawErrors?: boolean;
+	expandRawErrors?: boolean;
 	showClosingParagraph?: boolean;
 };
 
