@@ -68,7 +68,7 @@ export const TimeSeries: Story = {
 				x: {
 					tickFormat: ( timestamp: number ) => {
 						const date = new Date( timestamp );
-						return date.toLocaleDateString( 'en-US' ).substring( 0, 5 );
+						return date.toLocaleDateString( 'en-US', { dateStyle: 'short' } );
 					},
 				},
 			},
