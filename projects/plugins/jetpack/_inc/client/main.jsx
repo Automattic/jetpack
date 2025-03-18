@@ -56,7 +56,6 @@ import {
 	getSiteAdminUrl,
 	getApiNonce,
 	getApiRootUrl,
-	getRegistrationNonce,
 	userCanManageModules,
 	userCanConnectSite,
 	userCanViewStats,
@@ -358,7 +357,6 @@ class Main extends React.Component {
 			return (
 				<ContextualizedConnection
 					apiNonce={ this.props.apiNonce }
-					registrationNonce={ this.props.registrationNonce }
 					apiRoot={ this.props.apiRoot }
 					title={ __(
 						'Welcome to Jetpack! Security, Growth, & Performance tools for WordPress businesses',
@@ -413,7 +411,7 @@ class Main extends React.Component {
 				return (
 					<PartnerCouponRedeem
 						apiNonce={ this.props.apiNonce }
-						registrationNonce={ this.props.registrationNonce }
+						registrationNonce=""
 						apiRoot={ this.props.apiRoot }
 						assetBaseUrl={ this.props.pluginBaseUrl }
 						connectionStatus={ this.props.connectionStatus }
@@ -446,7 +444,7 @@ class Main extends React.Component {
 					redirectUri="admin.php?page=jetpack"
 					apiRoot={ this.props.apiRoot }
 					apiNonce={ this.props.apiNonce }
-					registrationNonce={ this.props.registrationNonce }
+					registrationNonce=""
 					autoTrigger={ this.shouldAutoTriggerConnection() }
 				/>
 			);
@@ -469,7 +467,7 @@ class Main extends React.Component {
 			return (
 				<ConnectScreen
 					apiNonce={ this.props.apiNonce }
-					registrationNonce={ this.props.registrationNonce }
+					registrationNonce=""
 					apiRoot={ this.props.apiRoot }
 					images={ [ '/images/connect-right.jpg' ] }
 					assetBaseUrl={ this.props.pluginBaseUrl }
@@ -901,7 +899,6 @@ export default connect(
 			searchTerm: getSearchTerm( state ),
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
-			registrationNonce: getRegistrationNonce( state ),
 			tracksUserData: getTracksUserData( state ),
 			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state ),
