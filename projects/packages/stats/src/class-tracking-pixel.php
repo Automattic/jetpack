@@ -113,12 +113,14 @@ class Tracking_Pixel {
 						$view_data['arch_v'] = array_values( $query )[0];
 					}
 				}
+				$view_data['arch_res'] = count( $wp_the_query->posts );
 			} elseif ( $wp_the_query->is_404() ) {
 				$view_data['arch']   = 'err';
 				$view_data['arch_v'] = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ); // send the url path
 			} elseif ( $wp_the_query->is_search() ) {
-				$view_data['arch']   = 'search';
-				$view_data['arch_v'] = sanitize_text_field( $wp_the_query->query['s'] );
+				$view_data['arch']     = 'search';
+				$view_data['arch_v']   = sanitize_text_field( $wp_the_query->query['s'] );
+				$view_data['arch_res'] = count( $wp_the_query->posts );
 			}
 		}
 
