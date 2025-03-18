@@ -177,14 +177,14 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	 * @param bool   $is_activated The new status.
 	 */
 	public function on_module_status_update( $module_slug, $is_activated ) {
-		$status = new Status( $module_slug );
-		$status->on_update( $is_activated );
-
 		$module = $this->modules_index->get_module_instance_by_slug( $module_slug );
 
 		if ( ! $module ) {
 			return;
 		}
+
+		$status = new Status( $module_slug );
+		$status->on_update( $is_activated );
 
 		if ( $is_activated ) {
 			$module->on_activate();
