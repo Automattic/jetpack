@@ -553,7 +553,7 @@ class WPCOM_Stats {
 	 * @param int    $number_of_days   The number of days.
 	 * @param string $escaped_post_ids The escaped post ids.
 	 *
-	 * @return null
+	 * @return array
 	 */
 	protected function fetch_stats_on_wpcom_simple( $end_date, $number_of_days, $escaped_post_ids ) {
 		return stats_get_daily_history( null, get_current_blog_id(), 'postviews', 'post_id', $end_date, $number_of_days, " AND post_id IN ($escaped_post_ids)", 0, true );
