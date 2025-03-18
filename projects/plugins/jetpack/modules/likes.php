@@ -21,6 +21,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status\Host;
 
 Assets::add_resource_hint(
 	array(
@@ -40,13 +41,6 @@ require_once __DIR__ . '/likes/jetpack-likes-settings.php';
  * Jetpack Like Class
  */
 class Jetpack_Likes {
-	/**
-	 * Determines whether the Jetpack class and method exists. Default is true.
-	 *
-	 * @var bool
-	 */
-	public $in_jetpack = true;
-
 	/**
 	 * Jetpack_Likes_Settings object
 	 *
@@ -71,8 +65,6 @@ class Jetpack_Likes {
 	 * Constructs Likes class
 	 */
 	public function __construct() {
-		$this->in_jetpack = class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' );
-
 		$this->settings = new Jetpack_Likes_Settings();
 
 		// We need to run on wp hook rather than init because we check is_amp_endpoint()
@@ -84,7 +76,8 @@ class Jetpack_Likes {
 		add_action( 'jetpack_activate_module_likes', array( $this, 'set_social_notifications_like' ) );
 		add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
 
-		if ( $this->in_jetpack ) {
+		// The `enable_module_configurable` method doesn't exist in the WP.com loader implementation.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
 			Jetpack::enable_module_configurable( __FILE__ );
 		}
 
