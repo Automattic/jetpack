@@ -140,3 +140,12 @@ export class XFrameDenyError extends UrlError {
 		);
 	}
 }
+
+/**
+ * InvalidURLError - Indicates that a requested URL is invalid.
+ */
+export class InvalidURLError extends UrlError {
+	constructor( { url }: { url: string } ) {
+		super( 'InvalidURLError', { url }, `Invalid URL: ${ url }` );
+	}
+}

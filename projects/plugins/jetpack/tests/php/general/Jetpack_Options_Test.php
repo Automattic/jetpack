@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Constants;
 
 class Jetpack_Options_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Cache for the test option.

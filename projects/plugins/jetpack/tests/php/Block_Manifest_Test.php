@@ -11,6 +11,7 @@ require_once dirname( __DIR__, 2 ) . '/tools/build-block-manifest.php';
  * Test case for block manifest generation.
  */
 class Block_Manifest_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Temporary test directory path.

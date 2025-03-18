@@ -9,7 +9,6 @@ module.exports = [
 		entry: {
 			'a8c-posts-list': './src/features/wpcom-blocks/a8c-posts-list/blocks/posts-list/index.js',
 			'block-inserter-modifications': './src/features/block-inserter-modifications/index.js',
-			'block-theme-previews': './src/features/block-theme-previews/index.js',
 			'core-customizer-css':
 				'./src/features/custom-css/custom-css/js/core-customizer-css.core-4.9.js',
 			'core-customizer-css-preview':
@@ -59,7 +58,6 @@ module.exports = [
 			'wpcom-profile-settings-link-to-wpcom':
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
-			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 			'adminbar-launch-button': './src/features/launch-button/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,

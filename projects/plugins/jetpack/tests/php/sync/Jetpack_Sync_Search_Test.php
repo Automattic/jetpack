@@ -72,7 +72,7 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 	 *
 	 * @return string[][]
 	 */
-	public function get_random_allowed_postmeta_keys() {
+	public static function get_random_allowed_postmeta_keys() {
 		$params = array();
 		$keys   = Modules\Search::get_all_postmeta_keys();
 		foreach ( array_rand( $keys, 10 ) as $k ) {
@@ -87,7 +87,7 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 	 *
 	 * @return string[][]
 	 */
-	public function get_random_allowed_taxonomies() {
+	public static function get_random_allowed_taxonomies() {
 		$params = array();
 		$keys   = Modules\Search::get_all_taxonomies();
 		foreach ( array_rand( $keys, 10 ) as $k ) {

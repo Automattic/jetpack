@@ -1000,7 +1000,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 		$this->assertSame( 0, $terms[0]->count );
 	}
 
-	public function store_provider( $name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function store_provider() {
 		if ( ! self::$all_replicastores ) {
 			// detect classes that implement iJetpack_Sync_Replicastore
 			self::$all_replicastores = array();

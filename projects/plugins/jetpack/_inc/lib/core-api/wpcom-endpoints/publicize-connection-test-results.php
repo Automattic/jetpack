@@ -10,7 +10,7 @@
  *
  * All the same data as the Publicize Connections Endpoint, plus test results.
  *
- * @deprecated $$next-version$$ Deprecated in favor of /wpcom/v2/publicize/connections?test_connections=1
+ * @deprecated 14.4 Deprecated in favor of /wpcom/v2/publicize/connections?test_connections=1
  *
  * @since 6.8
  */
