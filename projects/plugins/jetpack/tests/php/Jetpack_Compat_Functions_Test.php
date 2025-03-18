@@ -9,6 +9,7 @@
  * Testing class.
  */
 class Jetpack_Compat_Functions_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @dataProvider provider_wp_startswith
@@ -17,7 +18,7 @@ class Jetpack_Compat_Functions_Test extends WP_UnitTestCase {
 		$this->assertEquals( $expected, wp_startswith( $haystack, $needle ) );
 	}
 
-	public function provider_wp_startswith() {
+	public static function provider_wp_startswith() {
 		return array(
 			array( 'Random String', 'Random', true ), // Regular usage.
 			array( '12345', 123, true ), // Passing an int as the needle is deprecated, but previously supported.
@@ -35,7 +36,7 @@ class Jetpack_Compat_Functions_Test extends WP_UnitTestCase {
 		$this->assertEquals( $expected, wp_endswith( $haystack, $needle ) );
 	}
 
-	public function provider_wp_endswith() {
+	public static function provider_wp_endswith() {
 		return array(
 			array( 'Random String', 'String', true ), // Regular usage.
 			array( '12345', 45, true ), // Passing an int as the needle is deprecated, but previously supported.
@@ -53,7 +54,7 @@ class Jetpack_Compat_Functions_Test extends WP_UnitTestCase {
 		$this->assertEquals( $expected, wp_in( $needle, $haystack ) );
 	}
 
-	public function provider_wp_in() {
+	public static function provider_wp_in() {
 		// Notice this is in the $haystack, $needle format, even though this function is $needle, $haystack.
 		return array(
 			array( 'Random String', 'dom', true ), // Regular usage.

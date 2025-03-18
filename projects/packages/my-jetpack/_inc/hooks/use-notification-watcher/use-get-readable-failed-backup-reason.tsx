@@ -1,23 +1,20 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo, type ReactElement } from 'react';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useRedBubbleQuery from '../../data/use-red-bubble-query';
 
 export type ReasonContent = {
-	title?: ReactElement | string;
-	text?: ReactElement | string;
+	reasonContent: {
+		title: ReactElement | string | null;
+		text: ReactElement | string | null;
+	};
+	isLoading: boolean;
 };
 
-/**
- * Gets the translated human readable descriptions of Backup failure codes.
- *
- * @return {ReasonContent} An object containing each tooltip's title and text content.
- */
-export function useGetReadableFailedBackupReason(): ReasonContent {
-	const { backup_failure: backupFailure } =
-		getMyJetpackWindowInitialState( 'redBubbleAlerts' ) || {};
-	const {
-		data: { status },
-	} = backupFailure || { data: {} };
+const useGetReadableFailedBackupReason = (): ReasonContent => {
+	const { data: redBubbleAlerts, isLoading: isRedBubbleAlertsLoading } = useRedBubbleQuery();
+
+	const { backup_failure: backupFailure } = redBubbleAlerts as RedBubbleAlerts;
+	const status = backupFailure?.data?.status;
 
 	const reasonContent = useMemo( () => {
 		switch ( status ) {
@@ -171,5 +168,10 @@ export function useGetReadableFailedBackupReason(): ReasonContent {
 		}
 	}, [ status ] );
 
-	return reasonContent;
-}
+	return {
+		isLoading: isRedBubbleAlertsLoading,
+		reasonContent: reasonContent,
+	};
+};
+
+export default useGetReadableFailedBackupReason;

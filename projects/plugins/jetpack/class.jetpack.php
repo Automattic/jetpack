@@ -652,10 +652,8 @@ class Jetpack {
 		require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-dashboard-widget.php';
 		add_action( 'wp_dashboard_setup', array( new Jetpack_Stats_Dashboard_Widget(), 'init' ) );
 
-		if ( defined( 'JETPACK_NEWSLETTER_WIDGET' ) && JETPACK_NEWSLETTER_WIDGET ) {
-			require_once JETPACK__PLUGIN_DIR . 'class-jetpack-newsletter-dashboard-widget.php';
-			add_action( 'wp_dashboard_setup', array( new Jetpack_Newsletter_Dashboard_Widget(), 'init' ) );
-		}
+		require_once JETPACK__PLUGIN_DIR . 'class-jetpack-newsletter-dashboard-widget.php';
+		add_action( 'wp_dashboard_setup', array( new Jetpack_Newsletter_Dashboard_Widget(), 'init' ) );
 
 		// Returns HTTPS support status.
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );

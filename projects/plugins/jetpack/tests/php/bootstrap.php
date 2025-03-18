@@ -83,7 +83,7 @@ if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
 require $jp_autoloader;
 
 if ( '1' !== getenv( 'WP_MULTISITE' ) && ( ! defined( 'WP_TESTS_MULTISITE' ) || ! WP_TESTS_MULTISITE ) ) {
-	echo 'To run Jetpack multisite, use -c tests/php.multisite.xml' . PHP_EOL;
+	echo 'To run Jetpack multisite, use -c tests/php.multisite.#.xml' . PHP_EOL;
 	echo "Disregard Core's -c tests/phpunit/multisite.xml notice below." . PHP_EOL;
 }
 
@@ -189,6 +189,9 @@ if ( '1' === getenv( 'LEGACY_FULL_SYNC' ) ) {
 if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
 	define( 'WP_TESTS_CONFIG_FILE_PATH', getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) );
 }
+
+// Load trait for WP_UnitTestCase PHPUnit 10 compat.
+require_once __DIR__ . '/WP_UnitTestCase_Fix.php';
 
 require $test_root . '/includes/bootstrap.php';
 

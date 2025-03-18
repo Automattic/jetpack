@@ -38,7 +38,7 @@ const UploadError = ( { errorData, onRetry, onCancel } ) => {
 
 	return (
 		<PlaceholderWrapper errorMessage={ message } onNoticeRemove={ onCancel }>
-			<div className="videopress-uploader__error-actions">
+			<div className="videopress-uploader-progress__error-actions">
 				<Button variant="primary" onClick={ onRetry }>
 					{ __( 'Try again', 'jetpack-videopress-pkg' ) }
 				</Button>

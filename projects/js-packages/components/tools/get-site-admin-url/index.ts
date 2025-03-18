@@ -1,3 +1,5 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
+
 /**
  * Returns the site admin URL.
  *
@@ -5,6 +7,7 @@
  */
 export default function getSiteAdminUrl() {
 	return (
+		getScriptData()?.site?.admin_url ||
 		window.Initial_State?.adminUrl ||
 		window.Jetpack_Editor_Initial_State?.adminUrl ||
 		window?.myJetpackInitialState?.adminUrl ||

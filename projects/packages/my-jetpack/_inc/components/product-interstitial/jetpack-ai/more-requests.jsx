@@ -10,6 +10,7 @@ import {
 	H3,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React, { useCallback } from 'react';
@@ -42,7 +43,11 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 	}, [ recordEvent ] );
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ false }
+			useInternalLinks={ shouldUseInternalLinks() }
+		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } reload={ false } />

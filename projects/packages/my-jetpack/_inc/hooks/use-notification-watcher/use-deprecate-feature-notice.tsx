@@ -4,8 +4,6 @@ import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import type { NoticeOptions } from '../../context/notices/types';
 
-type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
-
 const useDeprecateFeatureNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 

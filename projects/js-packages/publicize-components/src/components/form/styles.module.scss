@@ -39,7 +39,7 @@
 }
 
 .broken-connection-btn {
-	&:global(.components-button.is-link) {
+	&:global(.components-button.is-link.components-button.is-link) {
 		font-size: inherit;
 		font-weight: inherit;
 
@@ -64,4 +64,9 @@
 
 .share-post-form__media-section {
 	margin-top: 1rem;
+}
+
+.unsupported-connections-list {
+	margin-inline-start: 1rem;
+	list-style-type: disc;
 }

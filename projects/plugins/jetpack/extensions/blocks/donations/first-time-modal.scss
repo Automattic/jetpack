@@ -1,0 +1,24 @@
+.jetpack-donations-first-time-modal {
+	&__content {
+		padding: 16px 0;
+
+		p {
+			margin-bottom: 16px;
+		}
+
+		ul {
+			margin: 16px 0;
+			padding-left: 24px;
+
+			li {
+				margin-bottom: 8px;
+			}
+		}
+	}
+
+	&__actions {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 24px;
+	}
+}

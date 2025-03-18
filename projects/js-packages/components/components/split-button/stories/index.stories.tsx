@@ -1,7 +1,7 @@
 import SplitButton from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof SplitButton > = {
 	title: 'JS Packages/Components/Split Button',
 	component: SplitButton,
 	argTypes: {
@@ -26,7 +26,9 @@ export default {
 			default: 'dark',
 		},
 	},
-} as Meta< typeof SplitButton >;
+};
+
+export default meta;
 
 const Template: StoryFn< typeof SplitButton > = args => (
 	<SplitButton { ...args }>Buy now!</SplitButton>

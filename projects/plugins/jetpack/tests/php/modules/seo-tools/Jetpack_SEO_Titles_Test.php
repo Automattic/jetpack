@@ -11,6 +11,8 @@ require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-titles.p
  * Class Jetpack_SEO_Titles_Test
  */
 class Jetpack_SEO_Titles_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Test for expected output after sanitizing the custom SEO page title structures.
 	 */

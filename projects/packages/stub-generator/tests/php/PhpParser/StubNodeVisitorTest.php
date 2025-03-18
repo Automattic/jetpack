@@ -69,7 +69,7 @@ class StubNodeVisitorTest extends TestCase {
 	/**
 	 * Data provider for testIntegration.
 	 */
-	public function provideIntegration() {
+	public static function provideIntegration() {
 		return array(
 			'Extract some functions, defs = *'            => array(
 				<<<'PHP'
@@ -1645,7 +1645,7 @@ class StubNodeVisitorTest extends TestCase {
 	/**
 	 * Data provider for testIntegration_NoParent.
 	 */
-	public function provideIntegration_NoParent() {
+	public static function provideIntegration_NoParent() {
 		return array(
 			'ClassConst'  => array(
 				'const C = "C";',

@@ -35,6 +35,7 @@ import {
 	createRef,
 	Fragment,
 	useEffect,
+	useCallback,
 } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -949,19 +950,15 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					{ shouldRenderLoadingBlock && (
-						<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
-					) }
-					{ ! shouldRenderLoadingBlock && (
-						<VpBlock
-							{ ...this.props }
-							hideOverlay={ this.hideOverlay }
-							html={ html }
-							scripts={ scripts }
-							interactive={ interactive }
-							caption={ caption }
-						/>
-					) }
+					<VpBlock
+						{ ...this.props }
+						hideOverlay={ this.hideOverlay }
+						html={ html }
+						scripts={ scripts }
+						interactive={ interactive }
+						caption={ caption }
+						shouldRenderLoadingBlock={ shouldRenderLoadingBlock }
+					/>
 				</Fragment>
 			);
 		}
@@ -1033,8 +1030,17 @@ const UploaderBlock = props => {
 // The actual, final rendered video player markup
 // In a separate function component so that `useBlockProps` could be called.
 export const VpBlock = props => {
-	let { scripts } = props;
-	const { html, interactive, caption, isSelected, hideOverlay, attributes, setAttributes } = props;
+	const { scripts } = props;
+	const {
+		html,
+		interactive,
+		caption,
+		isSelected,
+		hideOverlay,
+		attributes,
+		setAttributes,
+		shouldRenderLoadingBlock,
+	} = props;
 
 	const { align, className, videoPressClassNames, maxWidth } = attributes;
 
@@ -1043,6 +1049,35 @@ export const VpBlock = props => {
 			[ `align${ align }` ]: align,
 		} ),
 	} );
+
+	const getSandboxScripts = useCallback( () => {
+		const sandboxScripts = Array.isArray( scripts ) ? scripts : [];
+
+		if ( window.videopressAjax ) {
+			const videopresAjaxURLBlob = new Blob(
+				[ `var videopressAjax = ${ JSON.stringify( window.videopressAjax ) };` ],
+				{
+					type: 'text/javascript',
+				}
+			);
+
+			return [
+				...sandboxScripts,
+				URL.createObjectURL( videopresAjaxURLBlob ),
+				window.videopressAjax.bridgeUrl,
+			];
+		}
+
+		return sandboxScripts;
+	}, [ scripts ] );
+
+	if ( shouldRenderLoadingBlock ) {
+		return (
+			<figure { ...blockProps }>
+				<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
+			</figure>
+		);
+	}
 
 	const onBlockResize = ( event, direction, elem ) => {
 		let newMaxWidth = getComputedStyle( elem ).width;
@@ -1056,21 +1091,6 @@ export const VpBlock = props => {
 
 		setAttributes( { maxWidth: newMaxWidth } );
 	};
-
-	if ( typeof scripts !== 'object' ) {
-		scripts = [];
-	}
-
-	if ( window.videopressAjax ) {
-		const videopresAjaxURLBlob = new Blob(
-			[ `var videopressAjax = ${ JSON.stringify( window.videopressAjax ) };` ],
-			{
-				type: 'text/javascript',
-			}
-		);
-
-		scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
-	}
 
 	return (
 		<figure { ...blockProps }>
@@ -1087,7 +1107,7 @@ export const VpBlock = props => {
 					style={ { margin: 'auto' } }
 					onResizeStop={ onBlockResize }
 				>
-					<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
+					<SandBox html={ html } scripts={ getSandboxScripts() } type={ videoPressClassNames } />
 				</ResizableBox>
 			</div>
 
