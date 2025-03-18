@@ -10,6 +10,7 @@ import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-d
 import AddLicenseScreen from './components/add-license-screen';
 import ConnectionScreen from './components/connection-screen';
 import MyJetpackScreen from './components/my-jetpack-screen';
+import OnboardingScreen from './components/onboarding-screen';
 import {
 	AntiSpamInterstitial,
 	BackupInterstitial,
@@ -76,12 +77,12 @@ const MyJetpack = () => {
 					{ loadAddLicenseScreen && (
 						<Route path={ MyJetpackRoutes.AddLicense } element={ <AddLicenseScreen /> } />
 					) }
-					<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
-					<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
 					<Route path={ MyJetpackRoutes.JetpackAi } element={ <JetpackAiProductPage /> } />
 					<Route path={ MyJetpackRoutes.AddSecurity } element={ <SecurityInterstitial /> } />
 					<Route path={ MyJetpackRoutes.AddGrowth } element={ <GrowthInterstitial /> } />
 					<Route path={ MyJetpackRoutes.AddComplete } element={ <CompleteInterstitial /> } />
+					<Route path={ MyJetpackRoutes.Onboarding } element={ <OnboardingScreen /> } />
+					<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
 					{ /* Fallback route. Required to prevent visiting `?page=my-jetpack#wpbody-content` from raising an exception. */ }
 					<Route path="*" element={ <MyJetpackScreen /> } />
 				</Routes>
