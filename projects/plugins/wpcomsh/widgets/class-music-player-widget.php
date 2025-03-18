@@ -48,6 +48,9 @@ class Music_Player_Widget extends WP_Widget {
 		$instance['shortcode'] = wp_kses( $instance['shortcode'], array() );
 		echo do_shortcode( $instance['shortcode'] );
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		/** This action is documented in jetpack/modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'music-player' );
 	}
 
 	/**
