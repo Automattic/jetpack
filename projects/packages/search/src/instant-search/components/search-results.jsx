@@ -63,10 +63,13 @@ class SearchResults extends Component {
 		}
 
 		if ( total === 0 || this.props.hasError || ( hasQuery && hasCorrectedQuery ) ) {
-			return sprintf(
-				/* translators: %s: search query. */
-				__( 'No results found for "%s"', 'jetpack-search-pkg' ),
-				this.props.searchQuery
+			return (
+				hasCorrectedQuery &&
+				sprintf(
+					/* translators: %s: suggested search query */
+					__( 'Showing results for "%s"', 'jetpack-search-pkg' ),
+					corrected_query
+				)
 			);
 		}
 
@@ -117,24 +120,11 @@ class SearchResults extends Component {
 			return '';
 		}
 		return (
-			<p
-				className="jetpack-instant-search__search-results-corrected-query"
-				style={ { display: 'inline', whiteSpace: 'nowrap' } }
-			>
-				{ sprintf(
-					/* translators: %s: Suggested search query */
-					__( 'Did you mean %s?', 'jetpack-search-pkg' ),
-					<a
-						href="#"
-						onClick={ e => {
-							e.preventDefault();
-							this.props.onChangeSearch( corrected_query );
-						} }
-						className="jetpack-instant-search__search-results-corrected-query-link"
-					>
-						{ corrected_query }
-					</a>
-				) }
+			<p className="jetpack-instant-search__search-results-corrected-query">
+				{
+					/* translators: %s: Original search query */
+					sprintf( __( 'No results found for "%s"', 'jetpack-search-pkg' ), this.props.searchQuery )
+				}
 			</p>
 		);
 	}
