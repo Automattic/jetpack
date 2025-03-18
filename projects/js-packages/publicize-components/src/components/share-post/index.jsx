@@ -67,14 +67,21 @@ function getSiteType() {
 /**
  * Component to trigger the resharing of the post.
  *
- * @param {object}   props                    - The component props.
- * @param {Function} [props.onShareCompleted] - The callback to be called when the share is completed.
- * @param {boolean}  [props.isDisabled=false] - Whether the button is disabled or not.
- * @param {number}   [props.postId]           - The post ID.
- * @param {string}   [props.message]          - The custom message.
+ * @param {object}   props                      - The component props.
+ * @param {Function} [props.onShareCompleted]   - The callback to be called when the share is completed.
+ * @param {boolean}  [props.isDisabled=false]   - Whether the button is disabled or not.
+ * @param {number}   [props.postId]             - The post ID.
+ * @param {string}   [props.message]            - The custom message.
+ * @param {boolean}  [props.fetchStatusOnShare] - Whether to fetch the status of the share after sharing.
  * @return {object} A button component that will share the current post when clicked.
  */
-export function SharePostButton( { onShareCompleted, isDisabled = false, message, postId } ) {
+export function SharePostButton( {
+	onShareCompleted,
+	isDisabled = false,
+	message,
+	postId,
+	fetchStatusOnShare = true,
+} ) {
 	const hasMediaFeatures =
 		siteHasFeature( features.IMAGE_GENERATOR ) || siteHasFeature( features.ENHANCED_PUBLISHING );
 	const { isFetching, isError, isSuccess, doPublicize } = useSharePost( postId );
@@ -128,10 +135,11 @@ export function SharePostButton( { onShareCompleted, isDisabled = false, message
 
 		await doPublicize( { message } );
 
-		if ( feature_flags.useShareStatus ) {
+		if ( feature_flags.useShareStatus && fetchStatusOnShare ) {
 			pollForPostShareStatus();
 		}
 	}, [
+		fetchStatusOnShare,
 		recordEvent,
 		isDirtyPost,
 		isAutosaveablePost,

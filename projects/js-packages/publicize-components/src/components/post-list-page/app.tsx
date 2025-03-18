@@ -82,6 +82,7 @@ export function App( { onClose, postId }: AppProps ) {
 					isDisabled={ isSavingScheduledShare }
 					message={ message }
 					postId={ postId }
+					fetchStatusOnShare={ false }
 				/>
 			</div>
 		</Modal>
