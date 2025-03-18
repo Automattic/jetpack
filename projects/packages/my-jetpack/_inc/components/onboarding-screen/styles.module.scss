@@ -3,3 +3,25 @@
 	top: 24px;
 	left: 24px;
 }
+
+.onboarding-screen {
+	height: 100vh;
+	overflow-y: hidden;
+}
+
+.primary-column {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.seconday-column {
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 12px;
+		display: block;
+	}
+}

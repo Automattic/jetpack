@@ -44,9 +44,11 @@
 
 		#wpbody-content {
 			min-height: 100vh !important;
+			padding-bottom: 0;
 		}
 
 		#wpcontent > *,
+		#wpfooter,
 		#adminmenumain,
 		.notice,
 		.error,
