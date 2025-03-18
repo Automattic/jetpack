@@ -82,6 +82,15 @@ function JetpackFieldCheckbox( {
 					width={ width }
 				/>
 				<InspectorControls group="styles">
+					<PanelBody>
+						<ToggleControl
+							label={ __( 'Apply styling to all fields', 'jetpack-forms' ) }
+							checked={ attributes.shareFieldAttributes }
+							onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
+							help={ __( 'Toggle off if you want to style this block only.', 'jetpack-forms' ) }
+							__nextHasNoMarginBottom={ true }
+						/>
+					</PanelBody>
 					<ToolsPanel
 						panelId={ clientId }
 						label={ __( 'Color', 'jetpack-forms' ) }
@@ -130,20 +139,6 @@ function JetpackFieldCheckbox( {
 								value={ attributes.labelFontSize }
 							/>
 						</ToolsPanelItem>
-					</ToolsPanel>
-					<ToolsPanel>
-						<div className="jetpack-field-controls__full-width-control">
-							<ToggleControl
-								label={ __( 'Sync field styles', 'jetpack-forms' ) }
-								checked={ attributes.shareFieldAttributes }
-								onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
-								help={ __(
-									'Syncs all styles except for Width. Deactivate for individual styling of this block.',
-									'jetpack-forms'
-								) }
-								__nextHasNoMarginBottom={ true }
-							/>
-						</div>
 					</ToolsPanel>
 				</InspectorControls>
 				<InspectorControls>
