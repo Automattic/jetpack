@@ -13,13 +13,13 @@ class Settings_Test extends BaseTestCase {
 			$modules_mock = $this->createMock( Modules::class );
 			$modules_mock->expects( $this->once() )
 				->method( 'is_active' )
-				->with( Account_Protection::ACCOUNT_PROTECTION_MODULE_NAME )
+				->with( Main::ACCOUNT_PROTECTION_MODULE_NAME )
 				->willReturn( true );
 
 			$modules_mock->expects( $this->never() )
 				->method( 'activate' );
 
-			$settings = ( new Settings( new Account_Protection( $modules_mock ) ) )->get();
+			$settings = ( new Settings( new Main( $modules_mock ) ) )->get();
 
 			$this->assertTrue( $settings['isSupported'] );
 			$this->assertTrue( $settings['isEnabled'] );

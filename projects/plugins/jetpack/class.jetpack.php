@@ -759,6 +759,7 @@ class Jetpack {
 			array(
 				'jitm',
 				'sync',
+				'account_protection',
 				'waf',
 				'videopress',
 				'stats',
