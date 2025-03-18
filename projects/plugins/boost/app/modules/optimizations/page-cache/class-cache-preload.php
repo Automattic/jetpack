@@ -46,7 +46,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 			return \JETPACK_BOOST_ALPHA_FEATURES === true;
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
@@ -63,10 +63,8 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	}
 
 	/**
-	 * Schedules the preload cronjob, if not already scheduled to execute within 10 minutes with the same arguments, per wp_schedule_single_event.
-	 *
-	 * Sets up a single event to trigger the preload process with a short delay of 2 seconds
-	 * to prevent multiple rapid cache rebuilds when multiple events trigger in sequence.
+	 * Schedules the preload cronjob, if not already scheduled
+	 * to execute within 10 minutes with the same arguments, per wp_schedule_single_event.
 	 *
 	 * @since $$next-version$$
 	 * @param array $posts The posts to preload.
@@ -78,9 +76,6 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 
 	/**
 	 * Preloads the pages scheduled for preload.
-	 *
-	 * This method is called via a cronjob and processes pages in batches
-	 * to populate the cache.
 	 *
 	 * @since $$next-version$$
 	 * @param array $posts The posts to preload.
@@ -97,9 +92,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	}
 
 	/**
-	 * Preload a single page.
-	 *
-	 * Makes an HTTP request to the specified URL to generate a fresh cache entry.
+	 * Preload a single page. Makes an HTTP request to the specified URL to generate a fresh cache entry.
 	 *
 	 * @since $$next-version$$
 	 * @param string $page The URL of the page to preload.
@@ -130,9 +123,6 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 
 	/**
 	 * Handle post updates to check if the post is a cornerstone page and schedule preload if needed.
-	 *
-	 * Triggered when a post is updated. If the post is identified as a cornerstone page,
-	 * its cache will be preloaded.
 	 *
 	 * @since $$next-version$$
 	 * @param int $post_id The ID of the post being updated.
