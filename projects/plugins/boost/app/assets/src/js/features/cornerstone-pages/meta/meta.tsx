@@ -14,7 +14,7 @@ import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
-import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
+import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { useNotices } from '$features/notice/context';
 const Meta = () => {
 	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
@@ -260,7 +260,7 @@ const List: React.FC< ListProps > = ( {
 			</div>
 			{ ! isPremium && cornerstonePagesProperties && (
 				<div className={ styles.wrapper }>
-					<UpgradeCTA
+					<InterstitialModalCTA
 						eventName="cornerstone_pages_upgrade_link_clicked"
 						identifier="cornerstone-10-pages"
 						description={ sprintf(

@@ -1,6 +1,5 @@
 import { numberFormat } from '@automattic/jetpack-components';
-
-type FormatNumberFunction = ( number: number, config?: Intl.NumberFormatOptions ) => string;
+import type { FormatNumberFunction } from './types';
 
 const defaultConfig: Intl.NumberFormatOptions = {
 	maximumFractionDigits: 1,

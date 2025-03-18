@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Improve the import page by fixing the position of the Notice component and adding a color to it to not look disabled.

@@ -209,7 +209,7 @@ class Meta_Tags_Test extends BaseTestCase {
 	/**
 	 * Potential descriptions given to OG description.
 	 */
-	public function get_description_data_provider() {
+	public static function get_description_data_provider() {
 		return array(
 			'empty'                                       => array(
 				'',
@@ -288,7 +288,7 @@ class Meta_Tags_Test extends BaseTestCase {
 	 *
 	 * @return array An array of test case tuples. Input and expected title.
 	 */
-	public function get_note_title_data_provider() {
+	public static function get_note_title_data_provider() {
 		$ellipsis = "\u{2026}";
 		return array(
 			'standard_content'                   => array(

@@ -606,6 +606,7 @@ class WPCOM_JSON_API {
 	 */
 	public function process_request( WPCOM_JSON_API_Endpoint $endpoint, $path_pieces ) {
 		$this->endpoint = $endpoint;
+		$this->maybe_switch_to_token_user_and_site();
 		return call_user_func_array( array( $endpoint, 'callback' ), $path_pieces );
 	}
 
@@ -968,6 +969,35 @@ class WPCOM_JSON_API {
 		}
 
 		return $blog_id;
+	}
+
+	/**
+	 * Switch to a user and blog based on the current request's Jetpack token when the endpoint accepts this feature.
+	 *
+	 * @return void
+	 */
+	protected function maybe_switch_to_token_user_and_site() {
+		if ( ! $this->endpoint->allow_jetpack_token_auth ) {
+			return;
+		}
+
+		if ( ! class_exists( 'Jetpack_Server_Version' ) ) {
+			return;
+		}
+
+		$token = Jetpack_Server_Version::get_token_from_authorization_header();
+
+		if ( ! $token || is_wp_error( $token ) ) {
+			return;
+		}
+
+		if ( get_current_user_id() !== $token->user_id ) {
+			wp_set_current_user( $token->user_id );
+		}
+
+		if ( get_current_blog_id() !== $token->blog_id ) {
+			switch_to_blog( $token->blog_id );
+		}
 	}
 
 	/**

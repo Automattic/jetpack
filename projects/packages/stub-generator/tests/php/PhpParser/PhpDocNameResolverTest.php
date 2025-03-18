@@ -64,7 +64,7 @@ class PhpDocNameResolverTest extends TestCase {
 	/**
 	 * Data provider for testIntegration.
 	 */
-	public function provideIntegration() {
+	public static function provideIntegration() {
 		return array(
 			'Simple use'             => array(
 				<<<'PHP'

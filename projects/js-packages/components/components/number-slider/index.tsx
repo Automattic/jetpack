@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import React from 'react';
-import ReactSlider from 'react-slider';
+import ReactSlider, { ReactSliderProps } from 'react-slider';
 import { NumberSliderProps } from './types.js';
 import './style.scss';
 
@@ -56,9 +56,15 @@ const NumberSlider: React.FC< NumberSliderProps > = ( {
 				);
 		  };
 
+	/**
+	 * Type casting to prevent TypeScript error:
+	 * TS2604: JSX element type 'ReactSlider' does not have any construct or call signatures.
+	 */
+	const TypedReactSlider = ReactSlider as unknown as React.ComponentType< ReactSliderProps >;
+
 	return (
 		<div className={ componentClassName } data-testid="number-slider">
-			<ReactSlider
+			<TypedReactSlider
 				className="jp-components-number-slider__control"
 				thumbClassName="jp-components-number-slider__thumb"
 				thumbActiveClassName="jp-components-number-slider__thumb--is-active"

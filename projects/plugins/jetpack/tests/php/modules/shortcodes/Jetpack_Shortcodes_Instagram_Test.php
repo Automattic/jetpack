@@ -5,6 +5,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 use Automattic\Jetpack\Constants;
 
 class Jetpack_Shortcodes_Instagram_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
@@ -26,7 +27,10 @@ class Jetpack_Shortcodes_Instagram_Test extends WP_UnitTestCase {
 		// specifically covers that.
 		Constants::set_constant( 'JETPACK_INSTAGRAM_EMBED_TOKEN', 'test' );
 
-		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
+		// PHPUnit 10+ renamed `getGroups()` to `groups()`.
+		// @phan-suppress-next-line PhanUndeclaredMethodInCallable, PhanUndeclaredMethod -- Being tested before use.
+		$groups = is_callable( array( $this, 'groups' ) ) ? $this->groups() : $this->getGroups();
+		if ( in_array( 'external-http', $groups, true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.
 			add_filter( 'tests_allow_http_request', '__return_true' );
 		} else {
@@ -216,7 +220,7 @@ BODY;
 	/**
 	 * List of variation of Instagram embed URLs.
 	 */
-	public function get_instagram_urls() {
+	public static function get_instagram_urls() {
 		return array(
 			'simple_image_embed'            => array(
 				'https://www.instagram.com/p/BnMO9vRleEx/',
@@ -269,7 +273,7 @@ BODY;
 	 *
 	 * @return array The test data.
 	 */
-	public function get_instagram_amp_data() {
+	public static function get_instagram_amp_data() {
 		$shortcode_id      = 'BnMOk_FFsxg';
 		$url_with_id       = 'https://www.instagram.com/p/' . $shortcode_id;
 		$short_url_with_id = 'https://instagr.am/p/' . $shortcode_id;
@@ -371,7 +375,7 @@ BODY;
 	 *
 	 * @since 9.1.0
 	 */
-	public function get_instagram_parameters() {
+	public static function get_instagram_parameters() {
 		$base_instagram_url = 'https://www.instagram.com/p/BnMOk_FFsxg';
 
 		return array(

@@ -3,6 +3,7 @@
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
@@ -156,7 +157,7 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_dailymotion_amp_data() {
+	public static function get_dailymotion_amp_data() {
 		$id             = 26423151;
 		$default_height = 471;
 

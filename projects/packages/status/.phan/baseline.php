@@ -30,8 +30,8 @@ return [
         'src/class-host.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/class-modules.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-status.php' => ['PhanRedundantCondition', 'PhanUndeclaredFunction'],
+        'tests/php/Status_Test.php' => ['PhanTypeMismatchArgumentInternal'],
         'tests/php/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
-        'tests/php/test-status.php' => ['PhanTypeMismatchArgumentInternal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
