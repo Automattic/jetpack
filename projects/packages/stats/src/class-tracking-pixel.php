@@ -92,35 +92,32 @@ class Tracking_Pixel {
 				$view_data['home'] = '1';
 			} elseif ( $wp_the_query->is_archive() ) {
 				if ( $wp_the_query->is_date ) {
-					$query               = $wp_the_query->query;
-					$date_parts          = array_filter( array( $query['year'] ?? null, $query['monthnum'] ?? null, $query['day'] ?? null ) );
-					$date                = implode( '/', $date_parts );
-					$view_data['arch']   = 'date';
-					$view_data['arch_v'] = $date;
-				} elseif ( $wp_the_query->is_category ) {
-					$view_data['arch']   = 'cat';
-					$view_data['arch_v'] = $wp_the_query->query['category_name'];
-				} elseif ( $wp_the_query->is_tag ) {
-					$view_data['arch']   = 'tag';
-					$view_data['arch_v'] = $wp_the_query->query['tag'];
-				} elseif ( $wp_the_query->is_author ) {
-					$view_data['arch']   = 'author';
-					$view_data['arch_v'] = $wp_the_query->query['author_name'];
-				} elseif ( $wp_the_query->is_tax ) {
+					$query                  = $wp_the_query->query;
+					$date_parts             = array_filter( array( $query['year'] ?? null, $query['monthnum'] ?? null, $query['day'] ?? null ) );
+					$date                   = implode( '/', $date_parts );
+					$view_data['arch_date'] = $date;
+				}
+				if ( $wp_the_query->is_category ) {
+					$view_data['arch_cat'] = $wp_the_query->query['category_name'];
+				}
+				if ( $wp_the_query->is_tag ) {
+					$view_data['arch_tag'] = $wp_the_query->query['tag'];
+				}
+				if ( $wp_the_query->is_author ) {
+					$view_data['arch_author'] = $wp_the_query->query['author_name'];
+				}
+				if ( $wp_the_query->is_tax ) {
 					$query = $wp_the_query->query;
 					if ( is_array( $query ) && count( $query ) === 1 ) {
-						$view_data['arch']   = array_keys( $query )[0];
-						$view_data['arch_v'] = array_values( $query )[0];
+						$view_data[ 'arch_' . array_keys( $query )[0] ] = array_values( $query )[0];
 					}
 				}
-				$view_data['arch_res'] = count( $wp_the_query->posts );
+				$view_data['arch_results'] = $wp_the_query->posts ? count( $wp_the_query->posts ) : 0;
 			} elseif ( $wp_the_query->is_404() ) {
-				$view_data['arch']   = 'err';
-				$view_data['arch_v'] = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ); // send the url path
+				$view_data['arch_err'] = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
 			} elseif ( $wp_the_query->is_search() ) {
-				$view_data['arch']     = 'search';
-				$view_data['arch_v']   = sanitize_text_field( $wp_the_query->query['s'] );
-				$view_data['arch_res'] = count( $wp_the_query->posts );
+				$view_data['arch_search']  = sanitize_text_field( $wp_the_query->query['s'] );
+				$view_data['arch_results'] = $wp_the_query->posts ? count( $wp_the_query->posts ) : 0;
 			}
 		}
 
