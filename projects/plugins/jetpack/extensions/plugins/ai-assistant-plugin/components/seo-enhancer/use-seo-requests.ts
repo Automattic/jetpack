@@ -45,7 +45,7 @@ export const useSeoRequests = (
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const { getPostContent } = usePostContent();
 	const isBusy = useSelect( select => select( store ).isBusy(), [] );
-	const setBusy = useDispatch( store ).setBusy;
+	const { setBusy, setTitleBusy, setDescriptionBusy } = useDispatch( store );
 	const { isImageBusy, hasImageFailed } = useSelect( select => select( store ), [] );
 	const { setImageBusy, setImageFailed } = useDispatch( store );
 
@@ -104,6 +104,7 @@ export const useSeoRequests = (
 			}
 
 			try {
+				setTitleBusy( true );
 				const response = await request( 'seo-title' );
 				const title = parseResponse( response ).titles?.[ 0 ];
 
@@ -114,9 +115,11 @@ export const useSeoRequests = (
 				} );
 			} catch ( error ) {
 				debug( 'Error updating title', error );
+			} finally {
+				setTitleBusy( false );
 			}
 		},
-		[ request, editPost ]
+		[ setTitleBusy, request, editPost ]
 	);
 
 	const updateDescription = useCallback(
@@ -129,6 +132,7 @@ export const useSeoRequests = (
 			}
 
 			try {
+				setDescriptionBusy( true );
 				const response = await request( 'seo-meta-description' );
 				const description = parseResponse( response ).descriptions?.[ 0 ];
 				editPost( {
@@ -138,9 +142,11 @@ export const useSeoRequests = (
 				} );
 			} catch ( error ) {
 				debug( 'Error updating description', error );
+			} finally {
+				setDescriptionBusy( false );
 			}
 		},
-		[ request, editPost ]
+		[ setDescriptionBusy, request, editPost ]
 	);
 
 	const updateAltText = useCallback(
