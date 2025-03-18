@@ -5,6 +5,7 @@
  * @covers Jetpack_Client_Server
  */
 class Jetpack_Client_Server_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Set up before class.

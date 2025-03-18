@@ -61,7 +61,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Data provider for `test_get_ip`.
 	 */
-	public function provide_get_ip() {
+	public static function provide_get_ip() {
 		return array(
 			'Basic IPv4 address'                    => array(
 				'192.0.2.1',

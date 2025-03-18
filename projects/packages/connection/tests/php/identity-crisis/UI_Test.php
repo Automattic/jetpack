@@ -60,7 +60,9 @@ class UI_Test extends TestCase {
 	 * @return array The mocked consumers.
 	 */
 	public function get_mock_consumers( $consumers ) {
-		$test_name = $this->getName();
+		// PHPUnit 10+ renamed `getName()` to `name()`.
+		// @phan-suppress-next-line PhanUndeclaredMethodInCallable, PhanUndeclaredMethod -- Being tested before use.
+		$test_name = is_callable( array( $this, 'name' ) ) ? $this->name() : $this->getName();
 
 		// The mock consumers array will be determined by the current test
 		if ( $test_name === 'test_get_consumer_data_with_single_consumer' ) {

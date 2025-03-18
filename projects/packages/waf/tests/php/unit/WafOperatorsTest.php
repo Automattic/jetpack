@@ -53,7 +53,7 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Test data provider
 	 */
-	public function transformDataProvider() {
+	public static function transformDataProvider() {
 		yield array(
 			'begins_with',
 			// input, paramToMatch, expected_return.

@@ -16,6 +16,8 @@ return make_phan_config(
 		'exclude_file_regex'    => array( 'tests/lib/mocks' ),
 		'exclude_file_list'     => array(
 			__DIR__ . '/../../../packages/classic-theme-helper/_inc/lib/class.color.php',
+			// We have a stub for this because the real file has duplicate trait definitions.
+			'tests/WP_UnitTestCase_Fix.php',
 		),
 		'parse_file_list'       => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.

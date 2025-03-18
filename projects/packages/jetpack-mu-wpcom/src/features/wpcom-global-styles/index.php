@@ -192,11 +192,12 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 	}
 
 	// @TODO Remove this once the global styles are available for all users on the Personal Plan.
-	$upgrade_url = "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization";
-	$plan_name   = Plans::get_plan( 'value_bundle' )->product_name_short;
 	if ( is_global_styles_on_personal_plan() ) {
-		$plan_name   = Plans::get_plan( 'personal-bundle' )->product_name_short;
+		$plan_name   = Plans::get_plan_short_name( 'personal-bundle' );
 		$upgrade_url = "$calypso_domain/plans/$site_slug?plan=personal-bundle&feature=style-customization";
+	} else {
+		$plan_name   = Plans::get_plan_short_name( 'value_bundle' );
+		$upgrade_url = "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization";
 	}
 
 	wp_localize_script(

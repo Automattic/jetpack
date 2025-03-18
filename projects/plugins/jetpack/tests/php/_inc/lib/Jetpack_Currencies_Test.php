@@ -11,6 +11,8 @@ require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
  * Class for testing the Jetpack_Currencies class.
  */
 class Jetpack_Currencies_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Test that USD currencies are formatted in fixed format, regardless the user locale.
 	 */

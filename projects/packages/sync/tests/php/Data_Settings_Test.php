@@ -68,7 +68,7 @@ class Data_Settings_Test extends BaseTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function data_provider_test_add_settings_list_default_inputs() {
+	public static function data_provider_test_add_settings_list_default_inputs() {
 		return array(
 			'null'            => array( null ),
 			'string'          => array( 'test' ),
@@ -120,7 +120,7 @@ class Data_Settings_Test extends BaseTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function data_provider_test_add_settings_list_with_one_input() {
+	public static function data_provider_test_add_settings_list_with_one_input() {
 		return array(
 			'some modules, no filters set'                 => array(
 				Data_Test_Data_Settings::data_test_1(),
@@ -191,7 +191,7 @@ class Data_Settings_Test extends BaseTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function data_provider_test_add_settings_list_with_two_inputs() {
+	public static function data_provider_test_add_settings_list_with_two_inputs() {
 		return array(
 			'first input uses custom filters, second uses defaults' => array(
 				Data_Test_Data_Settings::data_test_8(),

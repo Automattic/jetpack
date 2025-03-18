@@ -1,3 +1,5 @@
+import { FEATURES } from '../constants';
+
 export function setBusy( isBusy: boolean ) {
 	return {
 		type: 'SET_BUSY',
@@ -24,5 +26,21 @@ export function setImageBusy( clientId: string, isBusy: boolean ) {
 		type: 'SET_IMAGE_BUSY',
 		clientId,
 		isBusy,
+	};
+}
+
+export function setImageFailed( clientId: string, failed: boolean ) {
+	return {
+		type: 'SET_IMAGE_FAILED',
+		clientId,
+		failed,
+	};
+}
+
+export function setFeatureEnabled( feature: ( typeof FEATURES )[ number ], enabled: boolean ) {
+	return {
+		type: 'SET_FEATURE_ENABLED',
+		feature,
+		enabled,
 	};
 }
