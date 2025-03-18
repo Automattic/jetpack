@@ -78,13 +78,12 @@ export function SharePostButton( { onShareCompleted, isDisabled = false, message
 	const hasMediaFeatures =
 		siteHasFeature( features.IMAGE_GENERATOR ) || siteHasFeature( features.ENHANCED_PUBLISHING );
 	const { isFetching, isError, isSuccess, doPublicize } = useSharePost( postId );
-	const { isAutosaveablePost, isDirtyPost, isPostPublished, isSavingPost } = useSelect( select => {
+	const { isAutosaveablePost, isDirtyPost, isSavingPost } = useSelect( select => {
 		const editorSelector = select( editorStore );
 
 		return {
 			isAutosaveablePost: editorSelector.isEditedPostAutosaveable(),
 			isDirtyPost: editorSelector.isEditedPostDirty(),
-			isPostPublished: editorSelector.isCurrentPostPublished(),
 			isSavingPost: editorSelector.isSavingPost(),
 		};
 	}, [] );
@@ -111,12 +110,6 @@ export function SharePostButton( { onShareCompleted, isDisabled = false, message
 	}, [ isFetching, isError, isSuccess, onShareCompleted ] );
 
 	const sharePost = useCallback( async () => {
-		if ( ! isPostPublished ) {
-			return showErrorNotice(
-				__( 'You must publish your post before you can share it.', 'jetpack-publicize-components' )
-			);
-		}
-
 		cleanNotice( 'publicize-post-share-message' );
 
 		recordEvent( 'jetpack_social_reshare_clicked', {
@@ -139,7 +132,6 @@ export function SharePostButton( { onShareCompleted, isDisabled = false, message
 			pollForPostShareStatus();
 		}
 	}, [
-		isPostPublished,
 		recordEvent,
 		isDirtyPost,
 		isAutosaveablePost,
