@@ -11,6 +11,7 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-recommendations.php';
  * Class for testing the Jetpack_Currencies class.
  */
 class Jetpack_Recommendations_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	public function test_videopress_is_not_recommended_if_module_enabled() {
 		\Jetpack::update_active_modules( array( 'videopress' ) );

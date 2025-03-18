@@ -159,6 +159,7 @@ export default function VideoPressEdit( {
 	const chapter = tracks?.filter( track => track.kind === 'chapters' )?.[ 0 ];
 
 	const [ showCaption, setShowCaption ] = useState( !! caption );
+	const { replaceBlock, __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
 
 	const {
 		videoData,
@@ -193,6 +194,7 @@ export default function VideoPressEdit( {
 			return;
 		}
 
+		__unstableMarkNextChangeAsNotPersistent();
 		setAttributes( { cacheHtml: previewHtml } );
 	}, [ previewHtml, cacheHtml, setAttributes ] );
 
@@ -209,6 +211,7 @@ export default function VideoPressEdit( {
 			return;
 		}
 
+		__unstableMarkNextChangeAsNotPersistent();
 		setAttributes( { videoRatio: ratio } );
 	}, [ videoRatio, previewWidth, previewHeight, setAttributes ] );
 
@@ -336,13 +339,13 @@ export default function VideoPressEdit( {
 		}
 
 		// Clean the src attribute.
+		__unstableMarkNextChangeAsNotPersistent();
 		setAttributes( { src: undefined } );
 
 		// Set state to start the upload process.
 		setIsUploadingFile( true );
 		setFileToUpload( file );
 	}, [ src ] );
-	const { replaceBlock } = useDispatch( blockEditorStore );
 
 	// Replace video state
 	const [ isReplacingFile, setIsReplacingFile ] = useState< {
@@ -394,6 +397,7 @@ export default function VideoPressEdit( {
 				return;
 			}
 
+			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( newVideoData );
 		};
 

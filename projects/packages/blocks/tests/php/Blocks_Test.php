@@ -32,6 +32,7 @@ class Blocks_Test extends TestCase {
 	 */
 	public function set_up() {
 		Monkey\setUp();
+		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', __DIR__ . '/fixtures/jetpack.php' );
 		// Register a test block.
 		Blocks::jetpack_register_block( $this->block_name );
 	}
@@ -43,6 +44,7 @@ class Blocks_Test extends TestCase {
 	 */
 	public function tear_down() {
 		Monkey\tearDown();
+		Jetpack_Constants::clear_constants();
 		// Unregister the test Jetpack block we may have created for our tests.
 		unregister_block_type( $this->block_name );
 	}
@@ -169,7 +171,7 @@ class Blocks_Test extends TestCase {
 	 *
 	 * Data provider for test_remove_extension_prefix.
 	 */
-	public function get_extension_name_provider() {
+	public static function get_extension_name_provider() {
 		return array(
 			'not_jetpack'    => array(
 				'woocommerce/product-best-sellers',
@@ -456,8 +458,6 @@ class Blocks_Test extends TestCase {
 
 		$result = Blocks::get_path_to_block_metadata( $block_dir, '/dist' );
 		$this->assertEquals( $block_dir, $result );
-
-		Jetpack_Constants::clear_constants();
 	}
 
 	/**

@@ -31,6 +31,7 @@ export type ConnectionService = {
 		additional_users: boolean;
 		additional_users_only: boolean;
 	};
+	status: 'ok' | 'unsupported';
 };
 
 export interface ApiPaths {
@@ -53,6 +54,10 @@ export interface SocialScriptData {
 	feature_flags: FeatureFlags;
 	is_publicize_enabled: boolean;
 	plugin_info: PluginInfo;
+	review?: {
+		dismissed: boolean;
+		dismiss_path: string;
+	};
 	settings: SocialSettings;
 	shares_data: SharesData;
 	store_initial_state: SocialStoreState;

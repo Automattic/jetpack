@@ -1,13 +1,15 @@
 import JetpackSearchLogo from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof JetpackSearchLogo > = {
 	title: 'JS Packages/Components/Jetpack Search Logo',
 	component: JetpackSearchLogo,
 	argTypes: {
 		logoColor: { control: 'color' },
 	},
-} as Meta< typeof JetpackSearchLogo >;
+};
+
+export default meta;
 
 const Template: StoryFn< typeof JetpackSearchLogo > = args => <JetpackSearchLogo { ...args } />;
 

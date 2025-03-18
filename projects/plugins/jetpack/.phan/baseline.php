@@ -17,7 +17,7 @@ return [
     // PhanTypeMismatchReturnProbablyReal : 130+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 95+ occurrences
     // PhanRedundantCondition : 70+ occurrences
-    // PhanDeprecatedFunction : 65+ occurrences
+    // PhanDeprecatedFunction : 60+ occurrences
     // PhanPossiblyUndeclaredVariable : 55+ occurrences
     // PhanTypeArraySuspiciousNullable : 55+ occurrences
     // PhanRedefineFunction : 50+ occurrences
@@ -507,7 +507,7 @@ return [
         'tests/php/modules/sitemaps/Jetpack_Sitemap_Librarian_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/modules/subscriptions/Jetpack_Subscriptions_Test.php' => ['PhanDeprecatedProperty', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/modules/widgets/Contact_Info_Widget_Test.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/modules/widgets/Jetpack_Display_Posts_Widget_Test.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal'],
+        'tests/php/modules/widgets/Jetpack_Display_Posts_Widget_Test.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/sync/Jetpack_Sync_Checksum_Smoke_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn'],
         'tests/php/sync/Jetpack_Sync_Checksum_Test.php' => ['PhanNoopNew', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchReturn'],
         'tests/php/sync/Jetpack_Sync_Comments_Test.php' => ['PhanTypeMismatchArgument'],

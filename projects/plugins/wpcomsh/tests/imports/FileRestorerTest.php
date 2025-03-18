@@ -11,6 +11,8 @@ use Imports\Utils\FileRestorer;
  * FileRestorerTest Class.
  */
 class FileRestorerTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * The FileRestorer instance.
 	 *

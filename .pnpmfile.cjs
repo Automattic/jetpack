@@ -17,6 +17,15 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Outdated dependency version causing dependabot warnings.
+	// https://github.com/WordPress/gutenberg/issues/69557
+	if (
+		pkg.name.startsWith( '@wordpress/' ) &&
+		pkg.dependencies?.[ '@babel/runtime' ] === '7.25.7'
+	) {
+		pkg.dependencies[ '@babel/runtime' ] = '^7.26.10';
+	}
+
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
 	// https://github.com/WordPress/gutenberg/issues/68694

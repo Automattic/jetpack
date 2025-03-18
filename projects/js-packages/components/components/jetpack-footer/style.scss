@@ -25,6 +25,11 @@
 		}
 
 		&:focus {
+			box-shadow: none;
+			outline-width: 0;
+		}
+
+		&:focus-visible {
 			border-radius: 2px;
 			box-shadow: none;
 			outline: 1.5px solid currentColor;

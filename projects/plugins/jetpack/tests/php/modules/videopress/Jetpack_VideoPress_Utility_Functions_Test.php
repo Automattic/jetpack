@@ -11,6 +11,7 @@
  * Tests Jetpack_VideoPress_Utility_Functions
  */
 class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Tests a helper function to get the post by guid, when there is no post found.
@@ -29,7 +30,7 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_data_test_video_non_cached() {
+	public static function get_data_test_video_non_cached() {
 		return array(
 			'external_object_cache_is_enabled'     => array(
 				'wp_cache_get',
@@ -85,7 +86,7 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_data_test_video_cached() {
+	public static function get_data_test_video_cached() {
 		return array(
 			'post_should_be_stored_in_cache'        => array(
 				'wp_cache_set',
@@ -140,7 +141,7 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_data_cached_invalid() {
+	public static function get_data_cached_invalid() {
 		return array(
 			'non_post_object'           => array( new stdClass() ),
 			'int_but_not_valid_post_id' => array( PHP_INT_MAX ),
@@ -192,7 +193,7 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function privacy_settings_data_provider() {
+	public static function privacy_settings_data_provider() {
 		return array(
 			array( 0, VIDEOPRESS_PRIVACY::IS_PUBLIC ),
 			array( 1, VIDEOPRESS_PRIVACY::IS_PRIVATE ),

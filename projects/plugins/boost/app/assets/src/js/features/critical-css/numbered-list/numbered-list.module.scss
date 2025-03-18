@@ -1,7 +1,6 @@
 .numbered-list {
 	list-style-type: none;
-	margin-left: 0;
-	margin: 0;
+	margin: 0 0 1em 0;
 
 	li {
 		margin-bottom: 1em;
@@ -28,4 +27,8 @@
 		font-size: 14px;
 		margin-right: 5px;
 	}
+}
+
+.numbered-list:last-child {
+	margin-bottom: 0;
 }

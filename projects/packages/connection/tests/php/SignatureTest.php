@@ -37,7 +37,7 @@ class SignatureTest extends TestCase {
 	 *    'value'           => The name of the constant.
 	 *    'expected_output' => The expected output of $signature->join_with_equal_sign.
 	 */
-	public function join_with_equal_sign_data_provider() {
+	public static function join_with_equal_sign_data_provider() {
 		return array(
 			'string_value'                   =>
 				array(
@@ -123,7 +123,7 @@ class SignatureTest extends TestCase {
 	 *    'value'           => The name of the constant.
 	 *    'expected_output' => The expected output of $signature->normalized_query_parameters().
 	 */
-	public function normalized_query_parameters_data_provider() {
+	public static function normalized_query_parameters_data_provider() {
 		return array(
 			'signature_omitted' =>
 				array(
@@ -176,7 +176,7 @@ class SignatureTest extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function sanitize_host_post_data_provider() {
+	public static function sanitize_host_post_data_provider() {
 		return array(
 			array(
 				'',
@@ -261,7 +261,7 @@ class SignatureTest extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_request_port_data_provider() {
+	public static function get_request_port_data_provider() {
 		return array(
 			array(
 				'',

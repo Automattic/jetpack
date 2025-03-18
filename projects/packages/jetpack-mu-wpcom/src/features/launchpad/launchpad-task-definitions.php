@@ -2423,7 +2423,7 @@ function wpcom_launchpad_is_front_page_updated_visible() {
 function wpcom_launchpad_is_site_title_task_visible( $task, $is_visible, $data ) {
 	// Hide the task if it's already completed on write intent
 	if (
-		( $data['launchpad_context'] !== 'focused-customer-home' || ! $data['updated_write_tasklist'] ) &&
+		( 'launched' === get_option( 'launch-status' ) || ! $data['updated_write_tasklist'] ) &&
 		get_option( 'site_intent' ) === 'write' &&
 		wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_title' ) )
 	) {

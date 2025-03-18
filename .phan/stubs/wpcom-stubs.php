@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 311fc0d0b8034a506d58c9e385abfcfdf5e81614.
+ * Stubs automatically generated from WordPress.com commit dd2b58c012b494834c1398213575deb22774a2b9.
  */
 
 namespace {
@@ -191,6 +191,9 @@ namespace {
          * @return array
          */
         public static function get_from_cache()
+        {
+        }
+        public static function get()
         {
         }
         /**
@@ -748,6 +751,12 @@ namespace {
      */
     function comment_like_button($comment_content = '', $comment_object = \null)
     {
+    }
+    class Jetpack_Custom_CSS_Customizer
+    {
+        public static function customize_register($wp_customize)
+        {
+        }
     }
     class Jetpack_Custom_CSS
     {
@@ -1597,6 +1606,44 @@ namespace Newsletter_Categories {
      * @return int
      */
     function get_blog_subscriptions_aggregate_count(?int $blog_id = null, $post_term_ids = []): int
+    {
+    }
+}
+namespace Publicize\Social_Image_Generator {
+    /**
+     * @param int $blog_id
+     * @return bool
+     */
+    function is_enabled($blog_id = 0)
+    {
+    }
+}
+namespace Social_Image_Generator {
+    class Token
+    {
+        /**
+         * @var string|null
+         */
+        public $image_url = null;
+        /**
+         * @var string
+         */
+        public $text = '';
+        /**
+         * @var string|null
+         */
+        public $template = null;
+        /**
+         * @var int|null
+         */
+        public $blog_id = null;
+    }
+    /**
+     * @param Token $token
+     * @param string $secret
+     * @return string
+     */
+    function encode_token($token, $secret)
     {
     }
 }

@@ -9,11 +9,16 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\VideoPress\Stats as VideoPress_Stats;
+use WP_Error;
+use WP_REST_Response;
 
 /**
  * Class responsible for handling the VideoPress product
  */
 class Videopress extends Hybrid_Product {
+	private const VIDEOPRESS_STATS_KEY  = 'my-jetpack-videopress-stats';
+	private const VIDEOPRESS_PERIOD_KEY = 'my-jetpack-videopress-period';
 
 	/**
 	 * The product slug
@@ -81,6 +86,32 @@ class Videopress extends Hybrid_Product {
 	 * @var string
 	 */
 	public static $feature_identifying_paid_plan = 'videopress';
+
+		/**
+		 * Setup VideoPress REST API endpoints
+		 *
+		 * @return void
+		 */
+	public static function register_endpoints(): void {
+		parent::register_endpoints();
+		// Get Jetpack VideoPress data.
+		register_rest_route(
+			'my-jetpack/v1',
+			'/site/videopress/data',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_videopress_data',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+	}
+
+	/**
+	 * Checks if the user has the correct permissions
+	 */
+	public static function permissions_callback() {
+		return current_user_can( 'edit_posts' );
+	}
 
 	/**
 	 * Get the product name
@@ -208,5 +239,77 @@ class Videopress extends Hybrid_Product {
 	 */
 	public static function is_upgradable_by_bundle() {
 		return array( 'complete' );
+	}
+
+	/**
+	 * Get stats for VideoPress
+	 *
+	 * @return array|WP_Error
+	 */
+	private static function get_videopress_stats() {
+		$video_count = array_sum( (array) wp_count_attachments( 'video' ) );
+
+		if ( ! class_exists( 'Automattic\Jetpack\VideoPress\Stats' ) ) {
+			return array(
+				'videoCount' => $video_count,
+			);
+		}
+
+		$featured_stats = get_transient( self::VIDEOPRESS_STATS_KEY );
+
+		if ( $featured_stats ) {
+			return array(
+				'featuredStats' => $featured_stats,
+				'videoCount'    => $video_count,
+			);
+		}
+
+		$stats_period     = get_transient( self::VIDEOPRESS_PERIOD_KEY );
+		$videopress_stats = new VideoPress_Stats();
+
+		// If the stats period exists, retrieve that information without checking the view count.
+		// If it does not, check the view count of monthly stats and determine if we want to show yearly or monthly stats.
+		if ( $stats_period ) {
+			if ( $stats_period === 'day' ) {
+				$featured_stats = $videopress_stats->get_featured_stats( 60, 'day' );
+			} else {
+				$featured_stats = $videopress_stats->get_featured_stats( 2, 'year' );
+			}
+		} else {
+			$featured_stats = $videopress_stats->get_featured_stats( 60, 'day' );
+
+			if (
+				! is_wp_error( $featured_stats ) &&
+				$featured_stats &&
+				( $featured_stats['data']['views']['current'] < 500 || $featured_stats['data']['views']['previous'] < 500 )
+			) {
+				$featured_stats = $videopress_stats->get_featured_stats( 2, 'year' );
+			}
+		}
+
+		if ( is_wp_error( $featured_stats ) || ! $featured_stats ) {
+			return array(
+				'videoCount' => $video_count,
+			);
+		}
+
+		set_transient( self::VIDEOPRESS_PERIOD_KEY, $featured_stats['period'], WEEK_IN_SECONDS );
+		set_transient( self::VIDEOPRESS_STATS_KEY, $featured_stats, DAY_IN_SECONDS );
+
+		return array(
+			'featuredStats' => $featured_stats,
+			'videoCount'    => $video_count,
+		);
+	}
+
+	/**
+	 * Get VideoPress data for the REST API
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function get_site_videopress_data() {
+		$videopress_stats = self::get_videopress_stats();
+
+		return rest_ensure_response( $videopress_stats );
 	}
 }

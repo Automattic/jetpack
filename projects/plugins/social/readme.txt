@@ -104,18 +104,41 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 6.1.0 - 2025-01-27
+### 6.2.0 - 2025-03-17
+#### Added
+- Added the schedule share functionality to the share post modal
+- Connection: Disconnecting a connection owner account will disconnect all other users first.
+- Enabled Social Post UI for WPCOM sites
+- Post List: Add a Copy Link Quick Action
+- Publicize Components: Add the schedule button
+- Social: Updated the admin page for use by Editors and Authors
+
 #### Changed
-- Code: Use function-style exit() and die() with a default status code of 0.
-- License: Social admin page header hides license link on WoA sites.
-- Moved the Social admin page to the publicize-components package
-- Refactored Social Note settings to use core
+- Connection: Display connection status on Users page independent of the SSO module.
+- External Media: Move the GooglePhotosMedia, OpenverseMedia, PexelsMedia to @automattic/jetpack-shared-extension-utils
+- Moved JS editor code from Jetpack and Social to Publicize package
+- Moved Social admin page code and assets logic to publicize package
+- Moved the Social resharing into the social post modal
+- Move initial state from Social plugin to publicize package
+- Only register social/settings endpoint if Jetpack version does not have it
+- Open Graph Meta Tags: do not display Jetpack's tags when the SEOPress plugin is active.
+- Social: Enable new admin page for the Social plugn
+- Social post character limits are now dynamic based on selected connections
+- Social | Migrate review prompt initial state to script data
+- Social | Move settings endpoint to publicize package
+- Updated composer.lock
 - Updated package dependencies.
+- Update the settings endppoint to use existing endpoints
+- Update the unowned section from a product grid to a product list
+
+#### Removed
+- Social Previews | Remove "Your post" section in favour of Social Post UI
+- Social | Removed the old unused initial state
 
 #### Fixed
-- Fixed profile links for LinkedIn connections
-- Fixed wordpress.com log in error when connecting Social accounts
-- Fix publicize error in the editor due to malformed connections data
+- Code: Prevent dynamic class properties.
+- Fixed connecting LinkedIn company pages and Tumblr additional blogs
+- Social Previews | Fixed distorted image for Tumblr preview
 
 == Upgrade Notice ==
 

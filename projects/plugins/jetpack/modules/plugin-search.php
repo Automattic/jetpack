@@ -3,7 +3,7 @@
  * Plugin Search Hints, aka Feature Suggestions.
  *
  * @since 7.1.0
- * @since $$next-version$$ This file is no longer loaded. See https://github.com/Automattic/jetpack/pull/42337 for more info.
+ * @since 14.5 This file is no longer loaded. See https://github.com/Automattic/jetpack/pull/42337 for more info.
  *
  * @package automattic/jetpack
  */

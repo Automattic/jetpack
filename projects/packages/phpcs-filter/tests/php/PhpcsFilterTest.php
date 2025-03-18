@@ -244,7 +244,7 @@ class PhpcsFilterTest extends TestCase {
 	}
 
 	/** Data provider for testRun(). */
-	public function provideRun() {
+	public static function provideRun() {
 		return array(
 			'General tests'                  => array( __DIR__ . '/../../tests/fixtures/perdir' ),
 			'Custom per-directory file name' => array( __DIR__ . '/../../tests/fixtures/perdir-custom' ),

@@ -9,6 +9,8 @@
  * Class WPCOMSH_Stats_Timezone_String_Test
  */
 class WPCOMSH_Stats_Timezone_String_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	private $original_timezone_string;
 	private $original_gmt_offset;
 
