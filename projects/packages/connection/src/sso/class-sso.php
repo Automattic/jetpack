@@ -622,7 +622,7 @@ class SSO {
 
 					<?php if ( $display_name && $gravatar ) : ?>
 					<a rel="nofollow" class="jetpack-sso-wrap__reauth" href="<?php echo esc_url( $this->build_sso_button_url( array( 'force_reauth' => '1' ) ) ); ?>">
-						<?php esc_html_e( 'Log in as a different WordPress.com user', 'jetpack-connection' ); ?>
+						<?php esc_html_e( 'Log in with another WordPress.com account', 'jetpack-connection' ); ?>
 					</a>
 				<?php else : ?>
 					<p>

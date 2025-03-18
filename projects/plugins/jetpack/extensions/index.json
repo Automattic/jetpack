@@ -27,7 +27,6 @@
 		"pinterest",
 		"podcast-player",
 		"premium-content",
-		"publicize",
 		"rating-star",
 		"recurring-payments",
 		"related-posts",
@@ -39,7 +38,6 @@
 		"shortlinks",
 		"simple-payments",
 		"slideshow",
-		"social-previews",
 		"story",
 		"subscriber-login",
 		"subscriptions",
@@ -72,7 +70,8 @@
 		"ai-proofread-breve",
 		"ai-assistant-site-logo-support",
 		"ai-title-optimization-keywords-support",
-		"ai-response-feedback"
+		"ai-response-feedback",
+		"ai-assistant-image-extension"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -83,7 +82,7 @@
 		"ai-list-to-table-transform",
 		"ai-seo-assistant",
 		"ai-use-chrome-ai-sometimes",
-		"ai-assistant-image-extension"
+		"ai-seo-enhancer"
 	],
 	"experimental": [],
 	"no-post-editor": [

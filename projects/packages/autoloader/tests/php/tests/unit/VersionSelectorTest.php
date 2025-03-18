@@ -112,7 +112,7 @@ class VersionSelectorTest extends TestCase {
 	 *
 	 * @return Array The test data.
 	 */
-	public function is_version_update_required_with_dev_constant_provider() {
+	public static function is_version_update_required_with_dev_constant_provider() {
 		return array(
 			'selected dev, compare stable' => array( 'dev-test', '1.0', false ),
 			'selected stable, compare dev' => array( '1.0', 'dev-test', true ),

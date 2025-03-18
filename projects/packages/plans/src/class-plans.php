@@ -79,4 +79,33 @@ class Plans {
 			}
 		}
 	}
+
+	/**
+	 * Efficiently get the short name of a plan from a slug.
+	 *
+	 * @param string $plan_slug Plan slug.
+	 * @return string|null Short product name or null if not round.
+	 */
+	public static function get_plan_short_name( $plan_slug ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( ! class_exists( 'Store_Product_List' ) ) {
+				require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
+			}
+
+			// Skip additional work like processing of coupons, since we only need the plan's short name.
+			$products = Store_Product_List::get();
+
+			foreach ( $products as $product ) {
+				if ( isset( $product['product_slug'] ) && $product['product_slug'] === $plan_slug ) {
+					return $product['product_name_short'] ?? null;
+				}
+			}
+
+			return null;
+		}
+
+		// Fallback to less efficient method for Jetpack environments.
+		$plan = self::get_plan( $plan_slug );
+		return $plan->product_name_short ?? null;
+	}
 }

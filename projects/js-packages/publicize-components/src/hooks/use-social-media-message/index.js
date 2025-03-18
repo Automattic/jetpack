@@ -3,9 +3,9 @@ import { usePostMeta } from '../use-post-meta';
 
 /**
  * @typedef {object} MessageHook
- * @property {string}   message       - The text of the message.
- * @property {number}   maxLength     - The maximum length of the message.
- * @property {Function} updateMessage - Callback used to update the message.
+ * @property {string}                      message       - The text of the message.
+ * @property {number}                      maxLength     - The maximum length of the message.
+ * @property {( message: string ) => void} updateMessage - Callback used to update the message.
  */
 
 /**

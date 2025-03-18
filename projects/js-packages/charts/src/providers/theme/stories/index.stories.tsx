@@ -106,11 +106,23 @@ export const WooTheme: Story = {
 	),
 };
 
-export const CustomColorTheme: Story = {
+export const CustomTheme: Story = {
 	render: () => (
 		<ThemeProvider
 			theme={ {
 				colors: [ '#073B3A', '#0B6E4F', '#08A045', '#6BBF59', '#DDB771' ],
+				seriesLineStyles: [
+					{
+						strokeWidth: 1,
+						strokeDasharray: '8 8',
+						strokeLinecap: 'square',
+					},
+					{
+						strokeDasharray: '5 8',
+						strokeWidth: 2,
+						strokeLinecap: 'square',
+					},
+				],
 				gridStyles: {
 					stroke: '#ffe3e3',
 					strokeWidth: 2,

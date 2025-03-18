@@ -34,6 +34,8 @@ class MockDomainMapping extends Domain_Mapping {
  * @package automattic/jetpack
  */
 class Domain_Mapping_Test extends \WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Test Tear down.
 	 */

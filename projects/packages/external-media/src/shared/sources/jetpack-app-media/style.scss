@@ -8,6 +8,7 @@
 	color:var( --jp-gray-100 );
 
 }
+
 .jetpack-external-media-wrapper__jetpack_app_media-description {
 	font-size: 14px;
 	font-weight: 400;
@@ -25,6 +26,9 @@
 			max-width: calc( 100% - 300px );
 		}
 	}
+}
+.jetpack-external-media-browser__modal-content .jetpack-app-icon {
+	width: 80px;
 }
 
 .jetpack-external-media-wrapper__jetpack_app_media-qr-code canvas {
@@ -49,6 +53,7 @@
 	justify-content: space-between;
 	align-items: center;
 	flex-grow: 1;
+	padding-bottom: 32px;
 }
 
 .jetpack-external-media-wrapper__jetpack_app_media .jetpack-external-media-browser__empty {

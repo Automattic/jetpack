@@ -6,15 +6,18 @@ import { SocialModuleSettings } from '../types';
 /**
  * Returns the Social module settings.
  */
-export const getSocialModuleSettings = createRegistrySelector( select => () => {
-	const { socialToggleBase } = getSocialScriptData().api_paths;
+export const getSocialModuleSettings = createRegistrySelector(
+	select => (): SocialModuleSettings => {
+		const { api_paths, is_publicize_enabled } = getSocialScriptData();
 
-	const data = select( coreStore ).getEntityRecord( 'jetpack/v4', socialToggleBase, undefined );
+		const data = select( coreStore ).getEntityRecord< SocialModuleSettings >(
+			'jetpack/v4',
+			api_paths.socialToggleBase
+		);
 
-	return ( data ?? {
-		publicize: getSocialScriptData().is_publicize_enabled,
-	} ) as SocialModuleSettings;
-} );
+		return data ?? { publicize: is_publicize_enabled };
+	}
+);
 
 /**
  * Returns whether the Social module settings are being saved

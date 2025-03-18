@@ -8,6 +8,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
+use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
@@ -21,7 +22,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
-class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Optimization {
+class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submodules, Optimization {
 	/**
 	 * @var array - The errors that occurred when removing the cache.
 	 */
@@ -157,5 +158,11 @@ class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Optimizati
 
 	public static function get_slug() {
 		return 'page_cache';
+	}
+
+	public function get_submodules() {
+		return array(
+			Cache_Preload::class,
+		);
 	}
 }

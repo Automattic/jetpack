@@ -1,0 +1,50 @@
+/**
+ * Styles for the Pages-Homepage connection banner.
+ */
+ 
+ .wpcom-homepage-notice.card {
+    clear: both;
+    max-width: none;
+    width: 100%;
+    margin: 8px 0;
+    padding: 16px 20px;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    box-sizing: border-box;
+    display: block;
+}
+
+.wpcom-homepage-notice-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.wpcom-homepage-notice-text {
+    margin: 0;
+    font-size: 14px;
+    color: #3c434a;
+    line-height: 1.4;
+}
+
+.wpcom-homepage-notice-edit-link {
+    font-size: 13px;
+    padding: 4px 0;
+}
+
+.wpcom-homepage-notice-edit-link:hover {
+    text-decoration: underline;
+}
+
+@media screen and (max-width: 782px) {
+    .wpcom-homepage-notice-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .wpcom-homepage-notice-actions {
+        margin-top: 12px;
+    }
+}

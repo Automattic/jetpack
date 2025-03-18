@@ -196,7 +196,7 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_TestCase {
 	 *
 	 * @return array Pagination criteria.
 	 */
-	public function dataprovider_pagination_criteria() {
+	public static function dataprovider_pagination_criteria() {
 		return array(
 			'return all if we provide default arguments' => array(
 				array(

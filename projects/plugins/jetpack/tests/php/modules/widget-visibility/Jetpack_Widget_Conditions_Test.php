@@ -10,6 +10,8 @@ require_once JETPACK__PLUGIN_DIR . 'modules/widget-visibility/widget-conditions.
  * @covers Jetpack_Widget_Conditions
  */
 class Jetpack_Widget_Conditions_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Verifies that filter_widget is able to understand gutenberg blocks
 	 * passed to it, and filter visibility based on their rules.

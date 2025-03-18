@@ -9,6 +9,7 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
  */
 import Inbox from './inbox';
 import LandingPage from './landing';
+import DashboardNotices from './notices-list';
 import './style.scss';
 
 let settings = {};
@@ -37,5 +38,10 @@ window.addEventListener( 'load', () => {
 	] );
 
 	const root = createRoot( container );
-	root.render( <RouterProvider router={ router } /> );
+	root.render(
+		<>
+			<RouterProvider router={ router } />
+			<DashboardNotices />
+		</>
+	);
 } );

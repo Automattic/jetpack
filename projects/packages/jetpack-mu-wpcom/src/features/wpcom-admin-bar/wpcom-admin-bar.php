@@ -125,11 +125,14 @@ function wpcom_always_use_user_locale() {
 add_action( 'admin_bar_menu', 'wpcom_always_use_user_locale', -1 );
 
 /**
- * Replaces the WP logo as a link to /sites.
+ * Replaces the WP logo with WP.com logo.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
-function wpcom_replace_wp_logo_with_wpcom_all_sites_menu( $wp_admin_bar ) {
+function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
+	$about_node      = $wp_admin_bar->get_node( 'about' );
+	$contribute_node = $wp_admin_bar->get_node( 'contribute' );
+
 	foreach ( $wp_admin_bar->get_nodes() as $node ) {
 		if ( $node->parent === 'wp-logo' || $node->parent === 'wp-logo-external' ) {
 			$wp_admin_bar->remove_node( $node->id );
@@ -149,8 +152,47 @@ function wpcom_replace_wp_logo_with_wpcom_all_sites_menu( $wp_admin_bar ) {
 			),
 		)
 	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'wpcom-logo',
+			'id'     => 'wpcom-sites',
+			'title'  => __( 'Sites', 'jetpack-mu-wpcom' ),
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/sites' ),
+		)
+	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'wpcom-logo',
+			'id'     => 'wpcom-domains',
+			'title'  => __( 'Domains', 'jetpack-mu-wpcom' ),
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/domains/manage' ),
+		)
+	);
+
+	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+		$wp_admin_bar->add_group(
+			array(
+				'parent' => 'wpcom-logo',
+				'id'     => 'wpcom-logo-external',
+				'meta'   => array(
+					'class' => 'ab-sub-secondary',
+				),
+			)
+		);
+
+		if ( $about_node ) {
+			$about_node->parent = 'wpcom-logo-external';
+			$wp_admin_bar->add_node( (array) $about_node );
+		}
+		if ( $contribute_node ) {
+			$contribute_node->parent = 'wpcom-logo-external';
+			$wp_admin_bar->add_node( (array) $contribute_node );
+		}
+	}
 }
-add_action( 'admin_bar_menu', 'wpcom_replace_wp_logo_with_wpcom_all_sites_menu', 11 );
+add_action( 'admin_bar_menu', 'wpcom_replace_wp_logo_with_wpcom_logo_menu', 11 );
 
 /**
  * Adds the Cart menu to the WordPress admin bar.
@@ -234,11 +276,15 @@ function wpcom_add_reader_menu( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 11 );
 
 /**
- * Points the "Edit Profile" and "Howdy,..." to /me.
+ * Points the "Edit Profile" and "Howdy,..." to /me if the user is not member of the blog.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
 function wpcom_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
+	if ( is_user_member_of_blog() ) {
+		return;
+	}
+
 	$edit_profile_node = $wp_admin_bar->get_node( 'user-info' );
 	if ( $edit_profile_node ) {
 		$edit_profile_node->href  = maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' );
@@ -253,6 +299,36 @@ function wpcom_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
 }
 // Run this function later than Core: https://github.com/WordPress/wordpress-develop/blob/5a30482419f1b0bcc713a7fdee3a14afd67a1bca/src/wp-includes/class-wp-admin-bar.php#L651
 add_action( 'admin_bar_menu', 'wpcom_replace_edit_profile_menu_to_me', 9999 );
+
+/**
+ * Adds "Howdy,..." -> My WP.com Account submenu pointing to /me/account.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
+ */
+function wpcom_add_my_wpcom_account_submenu( $wp_admin_bar ) {
+	$wp_admin_bar->add_group(
+		array(
+			'parent' => 'my-account',
+			'id'     => 'wpcom-account',
+			'meta'   => array(
+				'class' => 'ab-sub-secondary',
+			),
+		)
+	);
+
+	/* translators: %s: WordPress.com logo */
+	$button_text = sprintf( __( 'My %s WordPress.com Account', 'jetpack-mu-wpcom' ), '<span class="wpcom-logo"></span>' );
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'wpcom-account',
+			'id'     => 'my-wpcom-account',
+			'title'  => '<span class="button wpcom-button">' . $button_text . '</span>',
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/me/account' ),
+		)
+	);
+}
+add_action( 'admin_bar_menu', 'wpcom_add_my_wpcom_account_submenu' );
 
 /**
  * Replaces the default admin bar class with our own.

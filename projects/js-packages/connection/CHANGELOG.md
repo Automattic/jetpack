@@ -2,6 +2,28 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.39.2] - 2025-03-17
+### Changed
+- Update dependencies.
+
+## [0.39.1] - 2025-03-12
+### Changed
+- Update dependencies.
+
+## [0.39.0] - 2025-03-05
+### Added
+- Enable connection owner disconnection in Dashboard. [#42074]
+
+## [0.38.0] - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+### Removed
+- Remove register_nonce from site connection. [#42076]
+
+### Fixed
+- Improve connection owner unlink modal responsiveness. [#41998]
+
 ## [0.37.0] - 2025-02-24
 ### Added
 - Warn that disconnecting owner account will disconnect all other users first. [#41923]
@@ -942,6 +964,10 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.39.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.1...v0.39.2
+[0.39.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.0...v0.39.1
+[0.39.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.38.0...v0.39.0
+[0.38.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.7...v0.37.0
 [0.36.7]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.6...v0.36.7
 [0.36.6]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.5...v0.36.6

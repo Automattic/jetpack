@@ -18,6 +18,7 @@ import {
 	useConnectionErrorNotice,
 	ConnectionError,
 } from '@automattic/jetpack-connection';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -194,6 +195,7 @@ const Admin = () => {
 		<AdminPage
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 			header={ <JetpackVideoPressLogo /> }
+			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<div
 				className={ clsx( styles[ 'files-overlay' ], {

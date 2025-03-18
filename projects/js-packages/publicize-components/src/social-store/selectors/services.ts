@@ -41,3 +41,20 @@ export const isFetchingServicesList = createRegistrySelector( select => (): bool
 
 	return isResolving( 'getEntityRecords', [ 'wpcom/v2', 'publicize/services' ] );
 } );
+
+/**
+ * Get the list of services filtered by a key and value.
+ *
+ * @param state - State object.
+ * @param key   - The key to filter by.
+ * @param value - The value to filter by.
+ *
+ * @return The list of services.
+ */
+export function getServicesBy< Key extends keyof ConnectionService >(
+	state: unknown,
+	key: Key,
+	value: ConnectionService[ Key ]
+) {
+	return getServicesList().filter( service => service[ key ] === value );
+}
