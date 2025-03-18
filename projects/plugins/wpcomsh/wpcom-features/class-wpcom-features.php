@@ -338,6 +338,7 @@ class WPCOM_Features {
 	public const BACKUPS                           = 'backups';
 	public const BACKUPS_DAILY                     = 'backups-daily';
 	public const BACKUPS_RESTORE                   = 'restore';
+	public const BIG_SKY                           = 'big-sky';
 	public const BACKUP_ONE_TIME                   = 'backup-one-time';
 	public const BLOG_DOMAIN_ONLY                  = 'blog-domain-only';
 	public const CALENDLY                          = 'calendly';
@@ -561,6 +562,10 @@ class WPCOM_Features {
 		 */
 		self::BACKUP_ONE_TIME                   => array(
 			self::JETPACK_BACKUP_ONE_TIME,
+		),
+		self::BIG_SKY                           => array(
+			self::WPCOM_BUSINESS_PLANS,
+			self::WPCOM_PREMIUM_PLANS,
 		),
 		// BLOG_DOMAIN_ONLY - Users on Blogger plan can only purchase .blog domains.
 		self::BLOG_DOMAIN_ONLY                  => array(
