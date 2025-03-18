@@ -104,19 +104,19 @@ class Shares_Data_Controller extends Base_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'publicized_count'       => array(
-					'description' => __( 'Number of shares already used', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Number of shares already used.', 'jetpack-publicize-pkg' ),
 					'type'        => 'integer',
 				),
 				'to_be_publicized_count' => array(
-					'description' => __( 'Number of scheduled shares', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Number of scheduled shares.', 'jetpack-publicize-pkg' ),
 					'type'        => 'integer',
 				),
 				'shared_posts_count'     => array(
-					'description' => __( 'Number of posts shared', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Number of posts shared.', 'jetpack-publicize-pkg' ),
 					'type'        => 'integer',
 				),
 				'is_share_limit_enabled' => array(
-					'description' => __( 'Whether the share limit is enabled', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Whether the share limit is enabled.', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
 				),
 			),
