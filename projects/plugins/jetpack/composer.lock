@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "bc1c89ff97eb8406ccc442a3e5dd9544",
+	"content-hash": "c24223aa513bcfa173747f9b7fd7271c",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -66,7 +66,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/account-protection",
-				"reference": "b58e285f9a88c029d4026b6b03756d7a69f7f6c2"
+				"reference": "e200350054139efd813b50c396e59edffac3fc8c"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -76,6 +76,7 @@
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
 				"automattic/jetpack-test-environment": "@dev",
+				"automattic/phpunit-select-config": "@dev",
 				"yoast/phpunit-polyfills": "^1.1.1"
 			},
 			"suggest": {
@@ -109,10 +110,10 @@
 					"echo 'Add your build step to composer.json, please!'"
 				],
 				"phpunit": [
-					"./vendor/phpunit/phpunit/phpunit --colors=always"
+					"phpunit-select-config phpunit.#.xml.dist --colors=always"
 				],
 				"test-coverage": [
-					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+					"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 				],
 				"test-php": [
 					"@composer phpunit"
