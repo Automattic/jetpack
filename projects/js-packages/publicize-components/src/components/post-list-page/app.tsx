@@ -22,8 +22,6 @@ export type AppProps = {
  * @return Post list page app component.
  */
 export function App( { onClose, postId }: AppProps ) {
-	const connections = useSelect( select => select( socialStore ).getConnections(), [] );
-
 	const { toggleConnectionById } = useDispatch( socialStore );
 
 	const toggleConnection = useCallback(
@@ -37,22 +35,21 @@ export function App( { onClose, postId }: AppProps ) {
 
 	const { schedulePost } = useSchedulePost( postId );
 
-	const { isSavingScheduledShare, enabledConnections } = useSelect(
-		select => ( {
-			isSavingScheduledShare: select( socialStore ).isSavingScheduledShare(),
-			enabledConnections: select( socialStore ).getEnabledConnections(),
-		} ),
+	const { isSavingScheduledShare, getEnabledConnections, getConnections } = useSelect(
+		socialStore,
 		[]
 	);
 
 	const onSchedule = useCallback(
 		async ( scheduleTimestamp: number ) => {
 			await schedulePost( {
-				connectionIds: enabledConnections.map( connection => Number( connection.connection_id ) ),
+				connectionIds: getEnabledConnections().map( connection =>
+					Number( connection.connection_id )
+				),
 				timestamp: scheduleTimestamp,
 			} );
 		},
-		[ schedulePost, enabledConnections ]
+		[ schedulePost, getEnabledConnections ]
 	);
 
 	return (
@@ -71,15 +68,15 @@ export function App( { onClose, postId }: AppProps ) {
 			/>
 
 			<div style={ { marginTop: '2rem' } }>
-				<ConnectionList connections={ connections } onToggle={ toggleConnection } />
+				<ConnectionList connections={ getConnections() } onToggle={ toggleConnection } />
 			</div>
 
 			<div
 				style={ { display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' } }
 			>
-				<ScheduleButton onConfirm={ onSchedule } isBusy={ isSavingScheduledShare } />
+				<ScheduleButton onConfirm={ onSchedule } isBusy={ isSavingScheduledShare() } />
 				<SharePostButton
-					isDisabled={ isSavingScheduledShare }
+					isDisabled={ isSavingScheduledShare() }
 					message={ message }
 					postId={ postId }
 					fetchStatusOnShare={ false }
