@@ -1,6 +1,6 @@
 <?php
 /**
- * Class used to define Main.
+ * Class used to define Account Protection.
  *
  * @package automattic/jetpack-account-protection
  */
@@ -12,11 +12,18 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Class Main
+ * Class Account_Protection
  */
-class Main {
+class Account_Protection {
 	const PACKAGE_VERSION                = '0.1.0-alpha';
 	const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
+
+	/**
+	 * Account_Protection instance
+	 *
+	 * @var Account_Protection
+	 */
+	private static $instance = null;
 
 	/**
 	 * Modules instance.
@@ -45,6 +52,19 @@ class Main {
 	 * @var Password_Strength_Meter
 	 */
 	private $password_strength_meter;
+
+	/**
+	 * Initialize the Account_Protection instance
+	 *
+	 * @return Account_Protection
+	 */
+	public static function instance(): Account_Protection {
+		if ( self::$instance === null ) {
+			self::$instance = new Account_Protection();
+		}
+
+		return self::$instance;
+	}
 
 	/**
 	 * Initializes the configurations needed for the account protection module.
@@ -80,9 +100,6 @@ class Main {
 	 * @return void
 	 */
 	protected function register_hooks(): void {
-		// Account protection deactivation hooks
-		add_action( 'jetpack_deactivate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_deactivation' ) );
-
 		// Do not run in unsupported environments
 		add_filter( 'jetpack_get_available_modules', array( $this, 'remove_module_on_unsupported_environments' ) );
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'remove_standalone_module_on_unsupported_environments' ) );
@@ -142,68 +159,6 @@ class Main {
 	public function register_strong_passwords_hooks(): void {
 		$this->register_password_manager_hooks();
 		$this->register_password_strength_meter_hooks();
-	}
-
-	/**
-	 * Unregister hooks for password detection.
-	 *
-	 * @return void
-	 */
-	public function unregister_password_detection_hooks(): void {
-		if ( isset( $this->password_detection ) ) {
-			remove_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ) );
-			remove_action( 'wp_login_failed', array( $this->password_detection, 'handle_password_detection_validation_error' ) );
-			remove_action( 'login_form_password-detection', array( $this->password_detection, 'render_page' ) );
-			remove_action( 'wp_enqueue_scripts', array( $this->password_detection, 'enqueue_styles' ) );
-		}
-	}
-
-	/**
-	 * Unregister hooks for password manager.
-	 *
-	 * @return void
-	 */
-	public function unregister_password_manager_hooks(): void {
-		if ( isset( $this->password_manager ) ) {
-			remove_action( 'user_profile_update_errors', array( $this->password_manager, 'validate_profile_update' ) );
-			remove_action( 'validate_password_reset', array( $this->password_manager, 'validate_password_reset' ) );
-			remove_action( 'profile_update', array( $this->password_manager, 'on_profile_update' ) );
-			remove_action( 'after_password_reset', array( $this->password_manager, 'on_password_reset' ) );
-		}
-	}
-
-	/**
-	 * Unregister hooks for password strength meter.
-	 *
-	 * @return void
-	 */
-	public function unregister_password_strength_meter_hooks(): void {
-		if ( isset( $this->password_strength_meter ) ) {
-			remove_action( 'admin_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_profile_script' ) );
-			remove_action( 'login_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_reset_script' ) );
-			remove_action( 'wp_ajax_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
-			remove_action( 'wp_ajax_nopriv_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
-		}
-	}
-
-	/**
-	 * Unregister hooks for strong passwords.
-	 *
-	 * @return void
-	 */
-	public function unregister_strong_passwords_hooks(): void {
-		$this->unregister_password_manager_hooks();
-		$this->unregister_password_strength_meter_hooks();
-	}
-
-	/**
-	 * Deactivate the account protection on module deactivation.
-	 *
-	 * @return void
-	 */
-	public function on_account_protection_deactivation(): void {
-		$this->unregister_password_detection_hooks();
-		$this->unregister_strong_passwords_hooks();
 	}
 
 	/**

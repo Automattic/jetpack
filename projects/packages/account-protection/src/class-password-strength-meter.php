@@ -117,7 +117,7 @@ class Password_Strength_Meter {
 			'jetpack-password-strength-meter',
 			plugin_dir_url( __FILE__ ) . 'js/jetpack-password-strength-meter.js',
 			array( 'jquery' ),
-			Main::PACKAGE_VERSION,
+			Account_Protection::PACKAGE_VERSION,
 			true
 		);
 	}
@@ -132,7 +132,7 @@ class Password_Strength_Meter {
 			'strength-meter-styles',
 			plugin_dir_url( __FILE__ ) . 'css/strength-meter.css',
 			array(),
-			Main::PACKAGE_VERSION
+			Account_Protection::PACKAGE_VERSION
 		);
 	}
 }

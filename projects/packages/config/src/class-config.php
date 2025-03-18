@@ -12,7 +12,7 @@ namespace Automattic\Jetpack;
  * contain the package classes shown below. The consumer plugin
  * must require the corresponding packages to use these features.
  */
-use Automattic\Jetpack\Account_Protection\Initializer as Jetpack_Account_Protection_Main;
+use Automattic\Jetpack\Account_Protection\Account_Protection as Jetpack_Account_Protection_Main;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\Import\Main as Import_Main;
@@ -147,7 +147,7 @@ class Config {
 		}
 
 		if ( $this->config['account_protection'] ) {
-			$this->ensure_class( 'Automattic\Jetpack\Account_Protection\Initializer' )
+			$this->ensure_class( 'Automattic\Jetpack\Account_Protection\Account_Protection' )
 				&& $this->ensure_feature( 'account_protection' );
 		}
 
@@ -320,7 +320,8 @@ class Config {
 	 * Enables Account Protection.
 	 */
 	protected function enable_account_protection() {
-		Jetpack_Account_Protection_Main::init();
+		$account_protection = Jetpack_Account_Protection_Main::instance();
+		$account_protection->initialize();
 
 		return true;
 	}

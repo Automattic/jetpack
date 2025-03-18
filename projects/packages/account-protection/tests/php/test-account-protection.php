@@ -6,23 +6,23 @@ use Automattic\Jetpack\Modules;
 use WorDBless\BaseTestCase;
 
 /**
- * Tests for the Main module class.
+ * Tests for the Account_Protection module class.
  */
-class Main_Test extends BaseTestCase {
+class Account_Protection_Test extends BaseTestCase {
 
 	public function test_is_enabled_proxies_to_modules_dependency(): void {
 		$modules_mock = $this->createMock( Modules::class );
 		$modules_mock->expects( $this->once() )
 			->method( 'is_active' )
-			->with( Main::ACCOUNT_PROTECTION_MODULE_NAME )
+			->with( Account_Protection::ACCOUNT_PROTECTION_MODULE_NAME )
 			->willReturn( true );
 
-		$sut = new Main( $modules_mock );
+		$sut = new Account_Protection( $modules_mock );
 		$this->assertTrue( $sut->is_enabled(), 'Module should be enabled.' );
 	}
 
 	public function test_init_registers_hooks_and_runtime_hooks_if_module_enabled(): void {
-		$sut = $this->createPartialMock( Main::class, array( 'is_enabled', 'register_hooks', 'register_runtime_hooks' ) );
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_enabled', 'register_hooks', 'register_runtime_hooks' ) );
 		$sut->expects( $this->once() )
 			->method( 'is_enabled' )
 			->willReturn( true );
@@ -37,7 +37,7 @@ class Main_Test extends BaseTestCase {
 	}
 
 	public function test_init_registers_hooks_but_not_runtime_hooks_if_module_disabled(): void {
-		$sut = $this->createPartialMock( Main::class, array( 'is_enabled', 'register_hooks', 'register_runtime_hooks' ) );
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_enabled', 'register_hooks', 'register_runtime_hooks' ) );
 		$sut->expects( $this->once() )
 			->method( 'is_enabled' )
 			->willReturn( false );
@@ -59,10 +59,10 @@ class Main_Test extends BaseTestCase {
 
 		$modules_mock->expects( $this->once() )
 			->method( 'activate' )
-			->with( Main::ACCOUNT_PROTECTION_MODULE_NAME, false, false )
+			->with( Account_Protection::ACCOUNT_PROTECTION_MODULE_NAME, false, false )
 			->willReturn( true );
 
-		$sut = new Main( $modules_mock );
+		$sut = new Account_Protection( $modules_mock );
 		$this->assertTrue( $sut->enable(), 'Module should be enabled successfully.' );
 	}
 
@@ -75,7 +75,7 @@ class Main_Test extends BaseTestCase {
 		$modules_mock->expects( $this->never() )
 			->method( 'activate' );
 
-		$sut = new Main( $modules_mock );
+		$sut = new Account_Protection( $modules_mock );
 		$this->assertTrue( $sut->enable(), 'Module should be enabled successfully.' );
 	}
 
@@ -87,10 +87,10 @@ class Main_Test extends BaseTestCase {
 
 		$modules_mock->expects( $this->once() )
 			->method( 'deactivate' )
-			->with( Main::ACCOUNT_PROTECTION_MODULE_NAME )
+			->with( Account_Protection::ACCOUNT_PROTECTION_MODULE_NAME )
 			->willReturn( true );
 
-		$sut = new Main( $modules_mock );
+		$sut = new Account_Protection( $modules_mock );
 		$this->assertTrue( $sut->disable(), 'Module should be disabled successfully.' );
 	}
 
@@ -103,39 +103,39 @@ class Main_Test extends BaseTestCase {
 		$modules_mock->expects( $this->never() )
 			->method( 'deactivate' );
 
-		$sut = new Main( $modules_mock );
+		$sut = new Account_Protection( $modules_mock );
 		$this->assertTrue( $sut->disable(), 'Module should be disabled successfully.' );
 	}
 
 	public function test_remove_module_on_unsupported_environments_removes_itself_correctly(): void {
-		$sut = $this->createPartialMock( Main::class, array( 'is_supported_environment' ) );
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_supported_environment' ) );
 		$sut->expects( $this->once() )
 			->method( 'is_supported_environment' )
 			->willReturn( false );
 
 		$all_modules = array(
-			'something-else'                     => 'should_remain',
-			Main::ACCOUNT_PROTECTION_MODULE_NAME => 'should_be_removed',
+			'something-else' => 'should_remain',
+			Account_Protection::ACCOUNT_PROTECTION_MODULE_NAME => 'should_be_removed',
 		);
 
 		$all_modules = $sut->remove_module_on_unsupported_environments( $all_modules );
 
-		$this->assertArrayNotHasKey( Main::ACCOUNT_PROTECTION_MODULE_NAME, $all_modules, 'The module should have removed itself.' );
+		$this->assertArrayNotHasKey( Account_Protection::ACCOUNT_PROTECTION_MODULE_NAME, $all_modules, 'The module should have removed itself.' );
 	}
 
 	public function test_remove_standalone_module_on_unsupported_environments_removes_itself_correctly(): void {
-		$sut = $this->createPartialMock( Main::class, array( 'is_supported_environment' ) );
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_supported_environment' ) );
 		$sut->expects( $this->once() )
 			->method( 'is_supported_environment' )
 			->willReturn( false );
 
 		$all_modules = array(
 			'some_other_module',
-			Main::ACCOUNT_PROTECTION_MODULE_NAME,
+			Account_Protection::ACCOUNT_PROTECTION_MODULE_NAME,
 		);
 
 		$all_modules = $sut->remove_standalone_module_on_unsupported_environments( $all_modules );
 
-		$this->assertNotContains( Main::ACCOUNT_PROTECTION_MODULE_NAME, $all_modules, 'The module should have removed itself.' );
+		$this->assertNotContains( Account_Protection::ACCOUNT_PROTECTION_MODULE_NAME, $all_modules, 'The module should have removed itself.' );
 	}
 }
