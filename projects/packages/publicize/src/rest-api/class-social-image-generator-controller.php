@@ -90,7 +90,7 @@ class Social_Image_Generator_Controller extends Base_Controller {
 	public function permissions_check() {
 		$permissions = $this->publicize_permissions_check();
 
-		if ( is_wp_error( $permissions ) || ! $permissions ) {
+		if ( is_wp_error( $permissions ) ) {
 			return $permissions;
 		}
 
