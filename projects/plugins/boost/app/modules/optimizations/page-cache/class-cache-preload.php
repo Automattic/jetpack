@@ -5,14 +5,14 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
-
 /**
  * Class Cache_Preload
  *
- * Handles the preloading of cache for pages, currently only for Cornerstone Pages.
- * This module automagically preloads the cache after cache invalidation events, or when
+ * Handles the rebuilding/preloading of cache for pages, currently only for Cornerstone Pages.
+ * This module automagically preloads the cache after cache invalidation events such as rebuilds, or when
  * Cornerstone Pages are updated, to ensure that important pages always have a cache.
  *
  * @since $$next-version$$
@@ -24,8 +24,9 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @since $$next-version$$
 	 */
 	public function setup() {
-		add_action( 'update_option_jetpack_boost_ds_cornerstone_pages_list', array( $this, 'schedule_cornerstone_preload' ) );
-		add_action( 'jetpack_boost_page_cache_activate', array( $this, 'schedule_cornerstone_preload' ) );
+		add_action( 'update_option_jetpack_boost_ds_cornerstone_pages_list', array( $this, 'schedule_cornerstone_rebuild' ) );
+		add_action( 'jetpack_boost_page_cache_activate', array( $this, 'schedule_cornerstone_rebuild_cronjob' ) );
+		add_action( 'jetpack_boost_rebuild', array( $this, 'rebuild' ) );
 		add_action( 'jetpack_boost_preload_pages', array( $this, 'preload_pages' ) );
 
 		add_action( 'post_updated', array( $this, 'handle_post_update' ), 10, 1 );
@@ -51,6 +52,55 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	}
 
 	/**
+	 * Schedules a regular cronjob to rebuild the Cornerstone Pages every 30 minutes.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public function schedule_cornerstone_rebuild_cronjob() {
+		// TODO: Update this to run every 30 minutes.
+		wp_schedule_event( time(), 'hourly', 'jetpack_boost_rebuild', Cornerstone_Utils::get_list() );
+	}
+
+	/**
+	 * Schedule rebuild for all Cornerstone Pages.
+	 *
+	 * This method is triggered when the Cornerstone Pages list is updated,
+	 * ensuring all Cornerstone Pages have their cache rebuilt, and hence preloaded.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public function schedule_cornerstone_rebuild() {
+		$this->schedule_rebuild( Cornerstone_Utils::get_list() );
+	}
+
+	/**
+	 * Schedule a rebuild for the given URLs.
+	 *
+	 * @since $$next-version$$
+	 * @param array $urls The URLs of the Cornerstone Pages to rebuild.
+	 * @return void
+	 */
+	public function schedule_rebuild( array $urls ) {
+		wp_schedule_single_event( time(), 'jetpack_boost_rebuild', array( $urls ) );
+	}
+
+	/**
+	 * Rebuild the cache for the given URLs.
+	 *
+	 * @since $$next-version$$
+	 * @param array $urls The URLs of the Cornerstone Pages to rebuild.
+	 * @return void
+	 */
+	public function rebuild( array $urls ) {
+		$boost_cache = new Boost_Cache();
+		foreach ( $urls as $url ) {
+			$boost_cache->invalidate_cache_for_url( $url, Filesystem_Utils::REBUILD_FILES );
+		}
+	}
+
+	/**
 	 * Schedule preload for all Cornerstone Pages.
 	 *
 	 * This method is triggered when the Cornerstone Pages list is updated,
@@ -60,7 +110,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @return void
 	 */
 	public function schedule_cornerstone_preload() {
-		$this->schedule_preload_cronjob( Cornerstone_Utils::get_list() );
+		$this->schedule_preload( Cornerstone_Utils::get_list() );
 	}
 
 	/**
@@ -71,7 +121,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 * @param array $posts The posts to preload.
 	 * @return void
 	 */
-	public function schedule_preload_cronjob( array $posts ) {
+	public function schedule_preload( array $posts ) {
 		wp_schedule_single_event( time(), 'jetpack_boost_preload_pages', array( $posts ) );
 	}
 
@@ -131,7 +181,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 	 */
 	public function handle_post_update( int $post_id ) {
 		if ( Cornerstone_Utils::is_cornerstone_page( $post_id ) ) {
-			$this->schedule_preload_cronjob( array( get_permalink( $post_id ) ) );
+			$this->schedule_rebuild( array( get_permalink( $post_id ) ) );
 		}
 	}
 
@@ -158,7 +208,7 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 		$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
 		// If the $path is in the Cornerstone Page list, add it to the preload list.
 		if ( in_array( untrailingslashit( $path ), $cornerstone_pages, true ) ) {
-			$this->schedule_preload_cronjob( array( $path ) );
+			$this->schedule_preload( array( $path ) );
 		}
 	}
 }
