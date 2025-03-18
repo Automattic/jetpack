@@ -11,6 +11,7 @@ use Imports\Playground_Clean_Up;
  * Class Playground_Clean_Up_Test.
  */
 class Playground_Clean_Up_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Open an empty file.

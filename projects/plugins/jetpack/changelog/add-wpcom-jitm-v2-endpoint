@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Adds new endpoint as a consistent way to fetch JITMs from the WPCOm Public API via the existing Jetpack JITM classes

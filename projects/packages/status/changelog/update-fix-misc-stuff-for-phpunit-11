@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: `->setMockClassName()` no longer allows multiple calls with the same name. Doesn't seem to be needed anyway.
+
+

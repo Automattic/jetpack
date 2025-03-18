@@ -1,10 +1,8 @@
 .jetpack-seo-sidebar__feature-section--toggle {
 	min-height: unset;
 
-	.ai-seo-enhancer-toggle {
-		.components-toggle-control__help {
-			margin-inline-start: 0px;
-		}
+	.ai-seo-enhancer-label {
+		margin-bottom: 24px;
 	}
 }
 
@@ -21,5 +19,13 @@
 			background-color: var( --jp-gray-5 );
 			border-color: var( --jp-gray-5 );
 		}
+	}
+
+	.jetpack-seo-sidebar__feature-list-container {
+		margin-left: 40px;
+	}
+
+	.jetpack-seo-sidebar__feature-list {
+		list-style: inside;
 	}
 }

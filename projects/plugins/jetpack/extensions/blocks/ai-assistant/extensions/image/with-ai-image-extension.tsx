@@ -204,7 +204,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					debug( `Error generating ${ type }`, error );
 
 					if ( error?.message ) {
-						showErrorNotice( error.message );
+						showErrorNotice(
+							`Image ${ type === TYPE_ALT_TEXT ? 'alt text' : 'caption' } generation failed: ${
+								error.message
+							}`
+						);
 					}
 
 					setLoading( type, false );

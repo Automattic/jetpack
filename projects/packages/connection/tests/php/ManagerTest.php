@@ -362,7 +362,7 @@ class ManagerTest extends TestCase {
 	 *     [2] => 'custom_cap'        string The custom capability that is being tested.
 	 *     [3] => 'expected_caps'     array The expected output of the call to jetpack_connection_custom_caps.
 	 */
-	public function jetpack_connection_custom_caps_data_provider() {
+	public static function jetpack_connection_custom_caps_data_provider() {
 
 		return array(
 			'offline mode, owner exists, jetpack_connect'  => array( true, true, 'jetpack_connect', array( 'do_not_allow' ) ),
@@ -449,7 +449,7 @@ class ManagerTest extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_disconnect_user_scenarios() {
+	public static function get_disconnect_user_scenarios() {
 		return array(
 			'Successful remote and local disconnection' => array(
 				true,
@@ -756,7 +756,7 @@ class ManagerTest extends TestCase {
 		$this->assertSame( $access_token, $error );
 	}
 
-	public function signature_data_provider() {
+	public static function signature_data_provider() {
 		return array(
 			array( 'abcde:1:aaa', 'bogus signature', 'malformed_user_id' ),
 			array( 'bogus token', 'bogus signature', 'malformed_token' ),
@@ -829,7 +829,7 @@ class ManagerTest extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_disconnect_user_force_scenarios() {
+	public static function get_disconnect_user_force_scenarios() {
 		return array(
 			'Successful remote and local disconnection' => array(
 				true,

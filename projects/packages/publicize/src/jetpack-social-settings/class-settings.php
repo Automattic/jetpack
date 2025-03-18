@@ -314,6 +314,16 @@ class Settings {
 	}
 
 	/**
+	 * Get the initial state.
+	 * Deprecated method, stub left here to avoid fatal.
+	 *
+	 * @deprecated $$next-version$$
+	 */
+	public function get_initial_state() {
+		return array();
+	}
+
+	/**
 	 * Update the settings.
 	 *
 	 * @param bool   $updated The updated settings.

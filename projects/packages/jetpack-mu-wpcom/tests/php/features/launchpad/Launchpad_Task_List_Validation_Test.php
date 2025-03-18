@@ -23,7 +23,7 @@ class Launchpad_Task_List_Validation_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function provide_validate_task_list_test_cases() {
+	public static function provide_validate_task_list_test_cases() {
 		return array(
 			'Valid task list with required task IDs and last task completion' => array(
 				array(

@@ -13,6 +13,7 @@ use function Automattic\Jetpack\Extensions\Premium_Content\subscription_service;
 use const Automattic\Jetpack\Extensions\Premium_Content\PAYWALL_FILTER;
 
 class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	protected $product_id = 1234;
 

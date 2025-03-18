@@ -95,7 +95,7 @@ class Product_Multiple_Filenames_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function installed_plugin_filename_data() {
+	public static function installed_plugin_filename_data() {
 		$data = array();
 		foreach ( self::$possible_folders as $folder ) {
 			$data[ $folder ] = array( $folder );
@@ -112,7 +112,7 @@ class Product_Multiple_Filenames_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function activate_data() {
+	public static function activate_data() {
 		$data = array();
 		foreach ( self::$possible_folders as $folder ) {
 			$data[ $folder ] = array( $folder );

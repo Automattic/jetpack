@@ -224,7 +224,7 @@ class Partner_Coupon_Test extends TestCase {
 	 *
 	 * @return array[]
 	 */
-	public function dataprovider_purge_dates() {
+	public static function dataprovider_purge_dates() {
 		return array(
 			array(
 				strtotime( '-31 days' ),
@@ -289,7 +289,7 @@ class Partner_Coupon_Test extends TestCase {
 	 *
 	 * @return array[]
 	 */
-	public function dataprovider_availability_check_scenarios() {
+	public static function dataprovider_availability_check_scenarios() {
 		return array(
 			'successful remote request | unavailable coupon' => array(
 				array(
