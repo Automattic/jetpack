@@ -103,7 +103,7 @@ class Password_Strength_Meter {
 				'ajaxurl'                => admin_url( 'admin-ajax.php' ),
 				'nonce'                  => wp_create_nonce( 'validate_password_nonce' ),
 				'userSpecific'           => $user_specific,
-				'logo'                   => htmlspecialchars( ( new Jetpack_Logo() )->get_jp_emblem( true ) ),
+				'logo'                   => htmlspecialchars( ( new Jetpack_Logo() )->get_jp_emblem( true ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
 				'validationInitialState' => $this->validation_service->get_validation_initial_state( $user_specific ),
 			)
 		);
