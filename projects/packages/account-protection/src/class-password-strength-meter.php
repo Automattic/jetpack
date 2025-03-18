@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Account_Protection;
 
+use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+
 /**
  * Class Password_Strength_Meter
  */
@@ -101,7 +103,7 @@ class Password_Strength_Meter {
 				'ajaxurl'                => admin_url( 'admin-ajax.php' ),
 				'nonce'                  => wp_create_nonce( 'validate_password_nonce' ),
 				'userSpecific'           => $user_specific,
-				'logo'                   => plugin_dir_url( __FILE__ ) . 'assets/jetpack-logo.svg',
+				'logo'                   => htmlspecialchars( ( new Jetpack_Logo() )->get_jp_emblem( true ) ),
 				'validationInitialState' => $this->validation_service->get_validation_initial_state( $user_specific ),
 			)
 		);
