@@ -12,6 +12,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/opentable/opentable.php';
  * OpenTable block tests
  */
 class OpenTable_Test extends \WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * `load_assets` with empty attributes

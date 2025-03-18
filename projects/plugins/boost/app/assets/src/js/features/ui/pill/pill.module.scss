@@ -9,10 +9,10 @@
 	transform: translateY( -4px );
 	display: inline-block;
 	border-radius: 0.4em;
+	border: 1px solid;
 }
 
 .pill-alt {
 	background: transparent;
 	color: var( --gray-40 );
-	border: 1px solid;
 }

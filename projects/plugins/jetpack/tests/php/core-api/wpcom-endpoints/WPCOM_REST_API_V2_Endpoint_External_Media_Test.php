@@ -321,7 +321,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 	 *
 	 * @return array[]
 	 */
-	public function google_photos_request_methods() {
+	public static function google_photos_request_methods() {
 		return array(
 			'GET'    => array( Requests::GET ),
 			'DELETE' => array( Requests::DELETE ),

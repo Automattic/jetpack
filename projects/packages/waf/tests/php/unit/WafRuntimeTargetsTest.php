@@ -20,12 +20,14 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @dataProvider provideArrayTargets
 	 *
-	 * @param Waf_Runtime                   $runtime                    The Waf_Runtime instance to use for the test (pre-loaded with items of mocked data).
-	 * @param string                        $target_name                The modsecurity target name being tested, lowercase (examples: 'request_headers', 'tx', 'args', etc).
-	 * @param array{0: string, 1: scalar}[] $expected_names_and_values  Array of key/value tuples, where `key` is the name of one of the three mocked items, and `value` is its value.
-	 * @param string                        $second_name_regex          RegEx pattern that will match only the second item in the list.
+	 * @param callable(WafRuntimeTargetsTest):Waf_Runtime $runtimeFactory             Factory to create a Waf_Runtime instance to use for the test (pre-loaded with items of mocked data).
+	 * @param string                                      $target_name                The modsecurity target name being tested, lowercase (examples: 'request_headers', 'tx', 'args', etc).
+	 * @param array{0: string, 1: scalar}[]               $expected_names_and_values  Array of key/value tuples, where `key` is the name of one of the three mocked items, and `value` is its value.
+	 * @param string                                      $second_name_regex          RegEx pattern that will match only the second item in the list.
 	 */
-	public function testArrayTargets( $runtime, $target_name, $expected_names_and_values, $second_name_regex ) {
+	public function testArrayTargets( $runtimeFactory, $target_name, $expected_names_and_values, $second_name_regex ) {
+		$runtime = $runtimeFactory( $this );
+
 		$expected_count = count( $expected_names_and_values );
 		$expected       = array();
 		foreach ( $expected_names_and_values as list( $exp_name, $exp_value ) ) {
@@ -104,12 +106,14 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @dataProvider provideArrayTargetsNames
 	 *
-	 * @param Waf_Runtime $runtime            The Waf_Runtime instance to use for the test (pre-loaded with items of mocked data).
-	 * @param string      $target_name        The modsecurity target name being tested, lowercase (examples: 'request_headers_names', 'args_names', etc).
-	 * @param string[]    $expected_names     Array of names that are expected to be found in the target.
-	 * @param string      $second_name_regex  RegEx pattern that will match only the second item in the list.
+	 * @param callable(WafRuntimeTargetsTest):Waf_Runtime $runtimeFactory             Factory to create a Waf_Runtime instance to use for the test (pre-loaded with items of mocked data).
+	 * @param string                                      $target_name        The modsecurity target name being tested, lowercase (examples: 'request_headers_names', 'args_names', etc).
+	 * @param string[]                                    $expected_names     Array of names that are expected to be found in the target.
+	 * @param string                                      $second_name_regex  RegEx pattern that will match only the second item in the list.
 	 */
-	public function testArrayTargetsNames( $runtime, $target_name, $expected_names, $second_name_regex ) {
+	public function testArrayTargetsNames( $runtimeFactory, $target_name, $expected_names, $second_name_regex ) {
+		$runtime = $runtimeFactory( $this );
+
 		$expected_count = count( $expected_names );
 		$expected       = array();
 		foreach ( $expected_names as $i => $exp_name ) {
@@ -186,9 +190,9 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Provide data to test key/value targets suach as ARGS_NAMES, REQUEST_HEADERS_NAMES, etc.
 	 */
-	public function provideArrayTargetsNames() {
+	public static function provideArrayTargetsNames() {
 		// use the same output from provideArrayTargets(), but skip IP and TX
-		foreach ( $this->provideArrayTargets() as $k => $v ) {
+		foreach ( self::provideArrayTargets() as $k => $v ) {
 			if ( $k === 'TX' || $k === 'IP' ) {
 				continue;
 			}
@@ -210,144 +214,162 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Provide data to test key/value targets such as REQUEST_HEADERS, ARGS, TX, etc.
 	 */
-	public function provideArrayTargets() {
+	public static function provideArrayTargets() {
 		// REQUEST_HEADERS
-		$expected = array(
+		$expected       = array(
 			array( 'header-a', 'testa' ),
 			array( 'header-b', 'testb' ),
 			array( 'header-c', 'testc' ),
 		);
-		$request  = $this->mock_request(
-			array(
-				'headers' => $expected,
-			)
-		);
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
-		yield 'REQUEST_HEADERS' => array( $runtime, 'request_headers', $expected, '/-b$/' );
+		$runtimeFactory = function ( $that ) use ( $expected ) {
+			$request = $that->mock_request(
+				array(
+					'headers' => $expected,
+				)
+			);
+			return new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		};
+		yield 'REQUEST_HEADERS' => array( $runtimeFactory, 'request_headers', $expected, '/-b$/' );
 
 		// TX
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
-		$expected = array(
+		$expected       = array(
 			array( 'test_a', 'val_a' ),
 			array( 'test_b', 'val_b' ),
 			array( 'test_c', 'val_c' ),
 		);
-		foreach ( $expected as list ( $name, $value ) ) {
-			$runtime->set_var( "tx.$name", $value );
-		}
-		yield 'TX' => array( $runtime, 'tx', $expected, '/_b$/' );
+		$runtimeFactory = function () use ( $expected ) {
+			$runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
+			foreach ( $expected as list ( $name, $value ) ) {
+				$runtime->set_var( "tx.$name", $value );
+			}
+			return $runtime;
+		};
+		yield 'TX' => array( $runtimeFactory, 'tx', $expected, '/_b$/' );
 
 		// IP
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
-		$expected = array(
+		$expected       = array(
 			array( 'test_a', 'val_a' ),
 			array( 'test_b', 'val_b' ),
 			array( 'test_c', 'val_c' ),
 		);
-		foreach ( $expected as list ( $name, $value ) ) {
-			$runtime->set_var( "ip.$name", $value );
-		}
-		yield 'IP' => array( $runtime, 'ip', $expected, '/_b$/' );
+		$runtimeFactory = function () use ( $expected ) {
+			$runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
+			foreach ( $expected as list ( $name, $value ) ) {
+				$runtime->set_var( "ip.$name", $value );
+			}
+			return $runtime;
+		};
+		yield 'IP' => array( $runtimeFactory, 'ip', $expected, '/_b$/' );
 
 		// REQUEST_COOKIES
-		$expected = array(
+		$expected       = array(
 			array( 'test_a', 'cookie_a' ),
 			array( 'test_b', 'cookie_b' ),
 			array( 'test_c', 'cookie_c' ),
 		);
-		$request  = $this->mock_request(
-			array(
-				'cookies' => $expected,
-			)
-		);
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
-		yield 'REQUEST_COOKIES' => array( $runtime, 'request_cookies', $expected, '/_b$/' );
+		$runtimeFactory = function ( $that ) use ( $expected ) {
+			$request = $that->mock_request(
+				array(
+					'cookies' => $expected,
+				)
+			);
+			return new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		};
+		yield 'REQUEST_COOKIES' => array( $runtimeFactory, 'request_cookies', $expected, '/_b$/' );
 
 		// ARGS
-		$request  = $this->mock_request(
-			array(
-				'get_vars'  => array(
-					array( 'get_var', 'get_val' ),
-				),
-				'post_vars' => array(
-					array( 'post_var', 'post_val' ),
-				),
-			)
-		);
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
-		$expected = array(
+		$runtimeFactory = function ( $that ) {
+			$request = $that->mock_request(
+				array(
+					'get_vars'  => array(
+						array( 'get_var', 'get_val' ),
+					),
+					'post_vars' => array(
+						array( 'post_var', 'post_val' ),
+					),
+				)
+			);
+			return new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		};
+		$expected       = array(
 			array( 'get_var', 'get_val' ),
 			array( 'post_var', 'post_val' ),
 		);
-		yield 'ARGS' => array( $runtime, 'args', $expected, '/^post_/' );
+		yield 'ARGS' => array( $runtimeFactory, 'args', $expected, '/^post_/' );
 
 		// ARGS_GET
-		$request  = $this->mock_request(
-			array(
-				'get_vars' => array(
-					array( 'scalar', 'scalar_val' ),
-					array( 'array[0]', 'array_val_0' ),
-					array( 'array[1]', 'array_val_1' ),
-					array( 'assoc[key0]', 'value0' ),
-					array( 'assoc[key1][key1a]', 'val1a' ),
-				),
-			)
-		);
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
-		$expected = array(
+		$runtimeFactory = function ( $that ) {
+			$request = $that->mock_request(
+				array(
+					'get_vars' => array(
+						array( 'scalar', 'scalar_val' ),
+						array( 'array[0]', 'array_val_0' ),
+						array( 'array[1]', 'array_val_1' ),
+						array( 'assoc[key0]', 'value0' ),
+						array( 'assoc[key1][key1a]', 'val1a' ),
+					),
+				)
+			);
+			return new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		};
+		$expected       = array(
 			array( 'scalar', 'scalar_val' ),
 			array( 'array[0]', 'array_val_0' ),
 			array( 'array[1]', 'array_val_1' ),
 			array( 'assoc[key0]', 'value0' ),
 			array( 'assoc[key1][key1a]', 'val1a' ),
 		);
-		yield 'ARGS_GET' => array( $runtime, 'args_get', $expected, '/\[0\]$/' );
+		yield 'ARGS_GET' => array( $runtimeFactory, 'args_get', $expected, '/\[0\]$/' );
 
 		// ARGS_POST
-		$request  = $this->mock_request(
-			array(
-				'post_vars' => array(
-					array( 'scalar', 'scalar_val' ),
-					array( 'array[0]', 'array_val_0' ),
-					array( 'array[1]', 'array_val_1' ),
-					array( 'assoc[key0]', 'value0' ),
-					array( 'assoc[key1][key1a]', 'val1a' ),
-				),
-			)
-		);
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
-		$expected = array(
+		$runtimeFactory = function ( $that ) {
+			$request = $that->mock_request(
+				array(
+					'post_vars' => array(
+						array( 'scalar', 'scalar_val' ),
+						array( 'array[0]', 'array_val_0' ),
+						array( 'array[1]', 'array_val_1' ),
+						array( 'assoc[key0]', 'value0' ),
+						array( 'assoc[key1][key1a]', 'val1a' ),
+					),
+				)
+			);
+			return new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		};
+		$expected       = array(
 			array( 'scalar', 'scalar_val' ),
 			array( 'array[0]', 'array_val_0' ),
 			array( 'array[1]', 'array_val_1' ),
 			array( 'assoc[key0]', 'value0' ),
 			array( 'assoc[key1][key1a]', 'val1a' ),
 		);
-		yield 'ARGS_POST' => array( $runtime, 'args_post', $expected, '/\[0\]$/' );
+		yield 'ARGS_POST' => array( $runtimeFactory, 'args_post', $expected, '/\[0\]$/' );
 
 		// FILES
-		$expected   = array(
+		$expected       = array(
 			array( 'fileAA', 'file1' ),
 			array( 'fileBB', 'file2' ),
 			array( 'file[]', 'file3' ),
 			array( 'file[]', 'file4' ),
 		);
-		$mock_files = array_map(
-			function ( $item ) {
-				return array(
-					'name'     => $item[0],
-					'filename' => $item[1],
-				);
-			},
-			$expected
-		);
-		$request    = $this->mock_request(
-			array(
-				'files' => $mock_files,
-			)
-		);
-		$runtime    = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
-		yield 'FILES' => array( $runtime, 'files', $expected, '/^fileBB$/' );
+		$runtimeFactory = function ( $that ) use ( $expected ) {
+			$mock_files = array_map(
+				function ( $item ) {
+					return array(
+						'name'     => $item[0],
+						'filename' => $item[1],
+					);
+				},
+				$expected
+			);
+			$request    = $that->mock_request(
+				array(
+					'files' => $mock_files,
+				)
+			);
+			return new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		};
+		yield 'FILES' => array( $runtimeFactory, 'files', $expected, '/^fileBB$/' );
 	}
 
 	/**

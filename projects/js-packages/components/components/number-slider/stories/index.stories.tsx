@@ -2,10 +2,12 @@ import { useState } from 'react';
 import NumberSlider from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof NumberSlider > = {
 	title: 'JS Packages/Components/Number Slider',
 	component: NumberSlider,
-} as Meta< typeof NumberSlider >;
+};
+
+export default meta;
 
 // Export additional stories using pre-defined values
 const Template: StoryFn< typeof NumberSlider > = args => <NumberSlider { ...args } />;

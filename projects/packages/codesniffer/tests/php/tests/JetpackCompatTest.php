@@ -97,7 +97,7 @@ EOF;
 	 *
 	 * @return \Generator<array>
 	 */
-	public function provide_standards() {
+	public static function provide_standards() {
 		$lines1 = array(
 			' 2 | ERROR | Trailing comma\'s are not allowed in function calls in PHP 7.2 or earlier (PHPCompatibility.Syntax.NewFunctionCallTrailingComma.FoundInFunctionCall)',
 			' 3 | ERROR | null coalesce equal operator (??=) is not present in PHP version 7.3 or earlier (PHPCompatibility.Operators.NewOperators.t_coalesce_equalFound)',

@@ -2,6 +2,7 @@
 require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/recaptcha.php';
 
 class Jetpack_ReCaptcha_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	private $site_key;
 	private $secret_key;

@@ -26,8 +26,8 @@
 	"main": "./build/browser.js",
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.26.0",
-		"@babel/preset-env": "7.26.0",
+		"@babel/core": "7.26.10",
+		"@babel/preset-env": "7.26.9",
 		"@babel/preset-typescript": "7.26.0",
 		"@types/clean-css": "4.2.11",
 		"@types/css-tree": "2.3.10",

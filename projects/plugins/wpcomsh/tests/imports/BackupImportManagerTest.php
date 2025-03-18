@@ -11,6 +11,7 @@ use Imports\Backup_Import_Manager;
  * Class BackupImportManagerTest
  */
 class BackupImportManagerTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Clear values for each test

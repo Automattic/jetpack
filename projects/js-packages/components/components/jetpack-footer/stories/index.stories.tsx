@@ -1,10 +1,12 @@
 import JetpackFooter from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof JetpackFooter > = {
 	title: 'JS Packages/Components/Jetpack Footer',
 	component: JetpackFooter,
-} as Meta< typeof JetpackFooter >;
+};
+
+export default meta;
 
 const Template: StoryFn< typeof JetpackFooter > = args => <JetpackFooter { ...args } />;
 

@@ -40,7 +40,7 @@ class Partner_Test extends TestCase {
 	 *
 	 * @return array[]
 	 */
-	public function code_provider() {
+	public static function code_provider() {
 		return array(
 			'subsidiary_code' =>
 				array(

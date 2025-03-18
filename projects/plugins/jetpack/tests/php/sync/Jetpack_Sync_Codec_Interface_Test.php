@@ -70,7 +70,7 @@ class Jetpack_Sync_Codec_Interface_Test extends TestCase {
 		$this->assertEquals( $copy_of_object, $decoded_object );
 	}
 
-	public function codec_provider( $name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function codec_provider() {
 		if ( ! self::$all_codecs ) {
 			// detect classes that implement Automattic\Jetpack\Sync\Codec_Interface
 			self::$all_codecs = array();
