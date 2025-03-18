@@ -54,7 +54,7 @@
 		"mirror-repo": "Automattic/jetpack-account-protection",
 		"textdomain": "jetpack-account-protection",
 		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-main.php"
+			"::PACKAGE_VERSION": "src/class-account-protection.php"
 		}
 	},
 	"suggest": {
