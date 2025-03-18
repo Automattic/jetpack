@@ -536,9 +536,11 @@
 	font-size: inherit;
 }
 
-// Replicates `color-block-support-panel__inner-wrapper` in core, which
-// wraps the `ColorGradientSettingsDropdown` and sets the correct column
-// and margin.
+/*
+ * Replicates `color-block-support-panel__inner-wrapper` in core, which
+ * wraps the `ColorGradientSettingsDropdown` and sets the correct column
+ * and margin.
+ */
 .jetpack-field-controls__full-width-control {
 	grid-column: 1 / -1;
 
