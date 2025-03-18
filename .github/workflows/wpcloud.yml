@@ -48,6 +48,7 @@ jobs:
         run: |
           find . -path ./.github -prune -o -type f -print | sort > /tmp/before.txt
           echo "::group::Installing and building wpcomsh"
+          rm projects/plugins/wpcomsh/composer.lock
           pnpm jetpack build -v --deps plugins/wpcomsh
           echo "::endgroup::"
 
