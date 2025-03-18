@@ -140,8 +140,15 @@ export default function Player( {
 	const videoPlayerEventsHandler = useCallback( ( ev: MessageEvent ) => {
 		const { data: eventData } = ev || {};
 		const { event: eventName } = eventData;
+
+		// Handle existing loading state
 		if ( eventName === 'videopress_loading_state' ) {
 			setIsVideoPlayerLoaded( eventData?.state === 'loaded' );
+		}
+
+		// Handle URL opening requests
+		if ( eventName === 'open_url' && eventData?.url ) {
+			window.open( eventData.url, '_blank' );
 		}
 	}, [] );
 
@@ -240,6 +247,23 @@ export default function Player( {
 		}
 	`;
 
+	// Modify the html prop to include our script
+	const enhancedHtml = `
+		${ html }
+		<script type="text/javascript">
+			document.querySelectorAll('.videopress-error-message a').forEach(link => {
+				link.addEventListener('click', function(e) {
+					e.preventDefault();
+					e.stopPropagation();
+					window.parent.postMessage({
+						event: 'open_url',
+						url: this.getAttribute('href')
+					}, '*');
+				});
+			});
+		</script>
+	`;
+
 	return (
 		<figure ref={ mainWrapperRef } className="jetpack-videopress-player">
 			<ResizableBox
@@ -265,7 +289,7 @@ export default function Player( {
 					<>
 						{ ! isRequestingEmbedPreview && (
 							<SandBox
-								html={ html }
+								html={ enhancedHtml }
 								scripts={ sandboxScripts }
 								styles={ [ innerContainerStyle ] }
 							/>
