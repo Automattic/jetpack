@@ -1,0 +1,8 @@
+// Adjust the position of the notices
+.notices {
+	position: fixed;
+	inset-inline-end: 0;
+	bottom: 24px;
+	padding-inline: 24px;
+	z-index: 100001; // 1 more than that of the modal
+}

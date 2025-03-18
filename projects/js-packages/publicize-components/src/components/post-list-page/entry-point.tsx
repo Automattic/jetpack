@@ -2,6 +2,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import * as WPElement from '@wordpress/element';
 import $ from 'jquery';
 import { App } from './app';
+import Notices from './notices';
 import type ReactDOM from 'react-dom/client';
 
 const ROOT_ID = 'jetpack-social-share-post-root';
@@ -22,6 +23,7 @@ const renderApp = ( postId: number ) => {
 		createdRoot.render(
 			<ThemeProvider targetDom={ document.body }>
 				<App onClose={ unmountApp } postId={ postId } />
+				<Notices />
 			</ThemeProvider>
 		);
 	} else {
