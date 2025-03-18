@@ -831,7 +831,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'invalidType'        => __( 'This file type is not allowed', 'jetpack-forms' ),
 			),
 			'maxUploadSize' => $max_file_size,
-			'endpoint'      => rest_url( 'wpcom/v2/unauth-file-upload' ),
+			'endpoint'      => $this->get_unauth_endpoint_url(),
 			'wp_nonce'      => wp_create_nonce( 'wp_rest' ),
 			'jp_nonce'      => wp_create_nonce( 'jetpack_file_upload_jetpack-form' ),
 		);
@@ -906,6 +906,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			\JETPACK__VERSION
 		);
 	}
+  /**
+	 * Returns the URL for the unauthenticated file upload endpoint.
+	 *
+	 * @return string
+	 */
+	private function get_unauth_endpoint_url() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/unauth-file-upload', get_current_blog_id() );
+		}
+		return rest_url( 'wpcom/v2/unauth-file-upload' );
+  }
 
 	/**
 	 * Return the HTML for the multiple checkbox field.
