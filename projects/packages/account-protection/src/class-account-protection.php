@@ -47,7 +47,7 @@ class Account_Protection {
 	private $password_manager;
 
 	/**
-	 * Password_Strength_Meter instance
+	 * Password strength meter instance
 	 *
 	 * @var Password_Strength_Meter
 	 */

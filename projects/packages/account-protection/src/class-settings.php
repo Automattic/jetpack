@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Account_Protection;
  */
 class Settings {
 	/**
-	 * Account_Protection instance.
+	 * Account protection instance.
 	 *
 	 * @var Account_Protection
 	 */
