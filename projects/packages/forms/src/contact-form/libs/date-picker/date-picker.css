@@ -48,7 +48,7 @@
 	--dp-date-background-disabled: transparent;
 	--dp-date-color-disabled: #8c8f94;
 
-	--dp-today-color:#1f3286;
+	--dp-today-color: #2a46ce;
 	--dp-date-edge-color: #787c82;
 
 	--dp-text-color: #3c434a;
@@ -137,17 +137,29 @@
 	align-items: center;
 }
 
+.dp .dp-day,
+.dp .dp-month,
+.dp .dp-year,
+.dp .dp-cal-dropdown,
+.dp .dp-cal-nav {
+	color: var( --dp-ui-color ); /* Higher specificigy than the default */
+	border: none;
+	letter-spacing: 0;
+}
+
 .dp-cal-nav {
 	position: absolute;
 	width: 36px;
 	height: 36px;
-	overflow: hidden;
-	color: var( --dp-ui-color );
+	overflow: hidden !important; /* We don't want to show this ever */
 	border-radius: var( --dp-nav-radius );
 	box-shadow: none;
 	border: 0;
 	background: var( --dp-ui-background );
 	padding: 0;
+	font-size: 12px;
+	text-align: center;
+	line-height: 12px;
 }
 
 .dp-cal-nav:focus,
@@ -185,7 +197,7 @@
 	border-left: 0;
 	border-top: 0;
 	margin-left: 0;
-	margin-right: -26px;
+	margin-right: -22px;
 }
 
 .dp-cal-dropdown:after {
@@ -322,18 +334,11 @@
 }
 
 .dp-edge-day {
-	color: var(--dp-date-edge-color);
 	cursor: default;
 }
 
-.dp-selected {
-	background: var(--dp-date-background-selected);
-	color: var(--dp-date-color-selected);
-}
-
-.dp-current {
-	background: var(--dp-date-background-selected);
-	color: var(--dp-date-color-selected);
+.dp .dp-edge-day {
+	color: var(--dp-date-edge-color);
 }
 
 .dp-current:focus,
@@ -342,21 +347,44 @@
 .dp-selected:focus,
 .dp-year:focus {
 	outline: none;
+	box-shadow: none;
+}
+
+.dp .dp-current:focus,
+.dp .dp-day:focus,
+.dp .dp-month:focus,
+.dp .dp-selected:focus,
+.dp .dp-year:focus {
 	background: var(--dp-date-background-focus);
 	color: var(--dp-date-color-focus);
-	box-shadow: none;
 }
 
 .dp-day:hover,
 .dp-month:hover,
 .dp-year:hover,
 .dp-selected:hover {
-	background: var(--dp-date-background-hover);
-	color: var(--dp-date-color-hover);
 	box-shadow: none;
 }
 
-.dp-day-disabled {
+.dp .dp-selected {
+	background: var(--dp-date-background-selected);
+	color: var(--dp-date-color-selected);
+}
+
+.dp .dp-current {
+	background: var(--dp-date-background-selected);
+	color: var(--dp-date-color-selected);
+}
+
+.dp .dp-day:hover,
+.dp .dp-month:hover,
+.dp .dp-year:hover,
+.dp .dp-selected:hover {
+	background: var(--dp-date-background-hover);
+	color: var(--dp-date-color-hover);
+}
+
+.dp .dp-day-disabled {
 	background: var(--dp-date-background-disabled);
 	color: var(--dp-date-color-disabled);
 }
