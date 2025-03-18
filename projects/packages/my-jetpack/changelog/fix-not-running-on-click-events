@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Product Interstitial Modal: Fix not running custom onClick events if a customModalTrigger was used.
