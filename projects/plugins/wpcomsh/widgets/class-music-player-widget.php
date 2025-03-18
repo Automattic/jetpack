@@ -17,6 +17,18 @@ class Music_Player_Widget extends WP_Widget {
 		);
 		parent::__construct( 'music-player', __( 'Music Player', 'wpcomsh' ), $widget_ops );
 		add_action( 'admin_enqueue_scripts', array( $this, 'widget_scripts' ) );
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove the widget from the Legacy Widget block
+	 *
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		$widget_types[] = 'music-player';
+		return $widget_types;
 	}
 
 	/**
