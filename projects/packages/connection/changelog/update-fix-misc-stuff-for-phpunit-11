@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: PHPUnit 11 renames `->getName()` to `->name()`, and data providers providing named args with the wrong names.
-
-

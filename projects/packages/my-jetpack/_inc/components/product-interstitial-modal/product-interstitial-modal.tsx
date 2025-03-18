@@ -164,7 +164,12 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 	// Render trigger element
 	const triggerElement = customModalTrigger ? (
 		// Clone custom trigger and inject onClick handler
-		cloneElement( customModalTrigger, { onClick: openModal } )
+		cloneElement( customModalTrigger, {
+			onClick: () => {
+				customModalTrigger.props.onClick?.();
+				openModal();
+			},
+		} )
 	) : (
 		// Default button behavior
 		<Button variant={ modalTriggerButtonVariant } onClick={ openModal }>

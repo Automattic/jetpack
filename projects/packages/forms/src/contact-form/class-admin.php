@@ -307,7 +307,6 @@ class Admin {
 					<path d="M11.8387 1.16016H2C1.44772 1.16016 1 1.60787 1 2.16016V21.8053V21.8376C1 22.3899 1.44772 22.8376 2 22.8376H16C16.5523 22.8376 17 22.3899 17 21.8376V5.80532M11.8387 1.16016V5.80532H17M11.8387 1.16016L17 5.80532M4.6129 13.0311V16.1279H9.25806M4.6129 13.0311V9.93435H9.25806M4.6129 13.0311H13.9032M13.9032 13.0311V9.93435H9.25806M13.9032 13.0311V16.1279H9.25806M9.25806 9.93435V16.1279" stroke="#008710" stroke-width="1.5"/>
 				</svg>
 				<div class="export-card__header-title"><?php esc_html_e( 'Google Sheets', 'jetpack-forms' ); ?></div>
-				<div class="export-card__beta-badge">BETA</div>
 			</div>
 			<div class="export-card__body">
 				<div class="export-card__body-description">
@@ -322,7 +321,6 @@ class Admin {
 						);
 						?>
 					</div>
-					<p class="export-card__body-description-footer"><?php esc_html_e( 'This premium feature is currently free to use in beta.', 'jetpack-forms' ); ?></p>
 				</div>
 				<div class="export-card__body-cta">
 					<?php
