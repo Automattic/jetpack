@@ -34,6 +34,7 @@ class Contact_Form_Block {
 
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
 		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
+		add_filter( 'block_editor_settings_all', array( __CLASS__, 'disable_field_inspector_tabs' ) );
 	}
 
 	/**
@@ -69,6 +70,36 @@ class Contact_Form_Block {
 		}
 
 		return $content;
+	}
+
+	/**
+	 * Disable the field inspector tabs for the Contact Form block.
+	 *
+	 * See https://make.wordpress.org/core/2023/03/07/introduction-of-block-inspector-tabs/.
+	 *
+	 * @param array $settings The block editor settings.
+	 * @return array The modified block editor settings.
+	 */
+	public static function disable_field_inspector_tabs( $settings ) {
+		$settings['blockInspectorTabs'] = array_merge(
+			$settings['blockInspectorTabs'] ?? array(),
+			array(
+				'jetpack/field-text'              => false,
+				'jetpack/field-name'              => false,
+				'jetpack/field-email'             => false,
+				'jetpack/field-url'               => false,
+				'jetpack/field-date'              => false,
+				'jetpack/field-telephone'         => false,
+				'jetpack/field-textarea'          => false,
+				'jetpack/field-checkbox'          => false,
+				'jetpack/field-checkbox-multiple' => false,
+				'jetpack/field-radio'             => false,
+				'jetpack/field-select'            => false,
+				'jetpack/field-consent'           => false,
+				'jetpack/field-number'            => false,
+			)
+		);
+		return $settings;
 	}
 
 	/**
