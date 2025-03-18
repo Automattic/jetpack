@@ -156,8 +156,6 @@ const BarChart: FC< BarChartProps > = ( {
 		>
 			<svg width={ width } height={ height }>
 				<Group left={ margins.left } top={ margins.top }>
-					<AxisBottom scale={ xScale } top={ yMax } />
-
 					<GridControl
 						width={ xMax }
 						height={ yMax }
@@ -195,6 +193,7 @@ const BarChart: FC< BarChartProps > = ( {
 						</Group>
 					) ) }
 					<AxisLeft scale={ yScale } />
+					<AxisBottom scale={ xScale } top={ yMax } />
 				</Group>
 			</svg>
 
