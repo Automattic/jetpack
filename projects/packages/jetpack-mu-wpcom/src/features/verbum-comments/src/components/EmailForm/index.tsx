@@ -22,6 +22,8 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 	const isEmailTouched = useSignal( false );
 	const isNameTouched = useSignal( false );
 	const isValidAuthor = useSignal( true );
+	const isValidUrl = useSignal( true );
+	const isUrlTouched = useSignal( false );
 	const userEmail = useComputed( () => mailLoginData.value.email || '' );
 	const userName = useComputed( () => mailLoginData.value.author || '' );
 	const userUrl = useComputed( () => mailLoginData.value.url || '' );
@@ -32,6 +34,7 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 			isValidEmail.value =
 				Boolean( userEmail.value ) && Boolean( emailRegex.test( userEmail.value ) );
 			isValidAuthor.value = Boolean( userName.value.length > 0 );
+			isValidUrl.value = ! userUrl.value || Boolean( new URL( userUrl.value ) );
 		} );
 	};
 
@@ -136,12 +139,17 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 							<Website />
 							<input
 								id="verbum-email-form-website"
-								className="verbum-form__website"
+								className={ clsx( 'verbum-form__website', {
+									'invalid-form-data': isValidUrl.value === false && isUrlTouched.value,
+								} ) }
 								type="text"
 								spellCheck={ false }
 								autoCorrect="off"
 								name="url"
-								onInput={ setFormData }
+								onInput={ event => {
+									isUrlTouched.value = true;
+									setFormData( event );
+								} }
 								value={ userUrl }
 								placeholder={ `${ translate( 'Website' ) } (${ translate( 'Optional' ) })` }
 							/>
