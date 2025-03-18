@@ -20,7 +20,7 @@
 	overflow: hidden;
 	font-family: sans-serif;
 
-	--dp-min-height: 274px;
+	--dp-min-height: 300px;
 	--dp-bold: 600;
 	--dp-nav-radius: 2px;
 
@@ -154,6 +154,7 @@
 .dp-cal-nav:hover {
 	background: var( --dp-ui-background-focus );
 	color: var( --dp-ui-color-focus );
+	box-shadow: none;
 }
 
 .dp-prev {
@@ -201,6 +202,7 @@
 	margin: 0;
 	margin-top: -6px;
 	right: -8px;
+	font-size: 16px;
 	vertical-align: middle;
 }
 
@@ -208,8 +210,14 @@
 	position: relative;
 	display: inline-block;
 	font-size: 16px;
+	line-height: 20px;
 	font-weight: var( --dp-bold);
 	padding: 8px 22px 8px 8px;
+}
+
+.dp-cal-dropdown:focus,
+.dp-cal-dropdown:hover {
+	box-shadow: none;
 }
 
 .dp-cal-footer {
@@ -302,7 +310,7 @@
 }
 
 .dp-month {
-	font-size: 1.3em;
+	font-size: 16px;
 	padding: 0;
 }
 
@@ -310,7 +318,7 @@
 	display: block;
 	padding: 8px 40px;
 	width: 100%;
-	font-size: 1.3em;
+	font-size: 16px;
 }
 
 .dp-edge-day {
@@ -336,6 +344,7 @@
 	outline: none;
 	background: var(--dp-date-background-focus);
 	color: var(--dp-date-color-focus);
+	box-shadow: none;
 }
 
 .dp-day:hover,
@@ -344,6 +353,7 @@
 .dp-selected:hover {
 	background: var(--dp-date-background-hover);
 	color: var(--dp-date-color-hover);
+	box-shadow: none;
 }
 
 .dp-day-disabled {
