@@ -862,6 +862,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					<a href="#" ><?php esc_html_e( 'Select a file', 'jetpack-forms' ); ?></a>
 					<span class="jetpack-form-file-field__short"><?php esc_html_e( 'or drag and drop a file.', 'jetpack-forms' ); ?></span>
 				</div>
+				<div class="jetpack-form-file-field__helper">JPEG, PNG, PDG, and MP4 formats, up to 500MB</div> <!-- todo update to be dynamic and translatable.-->
 				<input id="<?php echo esc_attr( $id ); ?>" type="file" class="jetpack-form-file-field" data-wp-on--change="actions.fileAdded" />
 			</div>
 			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="context.hasFiles">

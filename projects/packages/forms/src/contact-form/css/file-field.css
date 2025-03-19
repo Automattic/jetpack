@@ -42,13 +42,14 @@
 	display: none;
 }
 
-.jetpack-form-file-field__dropzone .wp-block-button__link {
-	cursor: pointer;
-
+.jetpack-form-file-field__helper {
+	font-size: 14px;
+	color: #AAA;
 }
 
 .jetpack-form-file-field__preview-wrap {
 	padding: 0;
+	margin-top: 8px;
 	visibility: hidden;
 }
 
