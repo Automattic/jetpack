@@ -849,9 +849,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		?>
 		<div
 			data-wp-interactive="jetpack/field-file"
-			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
-			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
-			<?php echo wp_interactivity_data_wp_context( $context ); ?>
+			<?php echo wp_interactivity_data_wp_context( $context ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_interactivity_data_wp_context handles escaping ?>
 			data-wp-on--dragover="actions.dragOver"
 			data-wp-on--dragleave="actions.dragLeave"
 			data-wp-on--mouseleave="actions.dragLeave"
@@ -859,8 +857,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		>
 			<div class="jetpack-form-file-field__dropzone" data-wp-class--is_dropping="context.isDropping"  >
 				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker"></div>
-				<a href="#" class="wp-block-button__link wp-element-button"><?php esc_html_e( 'Select a file', 'jetpack-forms' ); ?></a>
-				<span class="jetpack-form-file-field__short"><?php esc_html_e( '....or drag and drop a file.', 'jetpack-forms' ); ?></span>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" class="jetpack-form-file-field__upload-icon" aria-hidden="true" focusable="false">
+					<path d="M18.5 15v3.5H13V6.7l4.5 4.1 1-1.1-6.2-5.8-6.2 5.8 1 1.1 4.5-4.1v11.8h-5.5V15H4v5h16v-5z"></path>
+				</svg>
+				<div class="jetpack-form-file-field__text">
+					<span><a href="#" class="jetpack-form-file-field__select-link" data-wp-on--click="actions.openFilePicker"><?php esc_html_e( 'Select a file', 'jetpack-forms' ); ?></a> <?php esc_html_e( 'or drag and drop your file here', 'jetpack-forms' ); ?></span>
+					<span class="jetpack-form-file-field__formats">
+					<?php
+					/* translators: %s: Maximum upload size in human readable format (e.g. 64 MB) */
+					printf( esc_html__( 'JPEG, PNG, PDF, and MP4 formats, up to %s', 'jetpack-forms' ), esc_html( size_format( wp_max_upload_size() ) ) );
+					?>
+					</span>
+				</div>
 				<input id="<?php echo esc_attr( $id ); ?>" type="file" class="jetpack-form-file-field" data-wp-on--change="actions.fileAdded" />
 			</div>
 			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="context.hasFiles">
@@ -906,7 +914,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			\JETPACK__VERSION
 		);
 	}
-  /**
+	/**
 	 * Returns the URL for the unauthenticated file upload endpoint.
 	 *
 	 * @return string
@@ -916,7 +924,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/unauth-file-upload', get_current_blog_id() );
 		}
 		return rest_url( 'wpcom/v2/unauth-file-upload' );
-  }
+	}
 
 	/**
 	 * Return the HTML for the multiple checkbox field.

@@ -1,6 +1,7 @@
 :root {
 	--jetpack--contact-form--border: 1px solid #8c8f94;
 	--jetpack--contact-form--border-color: #8c8f94;
+	--jetpack--contact-form--border-color-rgb: 140, 143, 148;
 	--jetpack--contact-form--border-size: 1px;
 	--jetpack--contact-form--border-style: solid;
 	--jetpack--contact-form--border-radius: 0px;
