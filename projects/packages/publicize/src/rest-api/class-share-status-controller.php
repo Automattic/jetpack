@@ -129,20 +129,53 @@ class Share_Status_Controller extends Base_Controller {
 			'title'      => 'jetpack-social-share-status',
 			'type'       => 'object',
 			'properties' => array(
-				'publicized_count'       => array(
-					'description' => __( 'Number of shares already used.', 'jetpack-publicize-pkg' ),
-					'type'        => 'integer',
+				'shares' => array(
+					'description' => __( 'List of shares.', 'jetpack-publicize-pkg' ),
+					'type'        => 'array',
+					'items'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'status'          => array(
+								'description' => __( 'Status of the share.', 'jetpack-publicize-pkg' ),
+								'type'        => 'string',
+							),
+							'message'         => array(
+								'description' => __( 'Share message or link.', 'jetpack-publicize-pkg' ),
+								'type'        => 'string',
+							),
+							'timestamp'       => array(
+								'description' => __( 'Timestamp of the share.', 'jetpack-publicize-pkg' ),
+								'type'        => 'integer',
+							),
+							'service'         => array(
+								'description' => __( 'The service to which it was shared.', 'jetpack-publicize-pkg' ),
+								'type'        => 'string',
+							),
+							'connection_id'   => array(
+								'description' => __( 'Connection ID for the share.', 'jetpack-publicize-pkg' ),
+								'type'        => 'integer',
+							),
+							'external_id'     => array(
+								'description' => __( 'External ID of the shared post.', 'jetpack-publicize-pkg' ),
+								'type'        => 'string',
+							),
+							'external_name'   => array(
+								'description' => __( 'External name of the shared post.', 'jetpack-publicize-pkg' ),
+								'type'        => 'string',
+							),
+							'profile_picture' => array(
+								'description' => __( 'Profile picture URL of the account sharing.', 'jetpack-publicize-pkg' ),
+								'type'        => 'string',
+							),
+							'profile_link'    => array(
+								'description' => __( 'Profile link of the sharing account.', 'jetpack-publicize-pkg' ),
+								'type'        => 'string',
+							),
+						),
+					),
 				),
-				'to_be_publicized_count' => array(
-					'description' => __( 'Number of scheduled shares.', 'jetpack-publicize-pkg' ),
-					'type'        => 'integer',
-				),
-				'shared_posts_count'     => array(
-					'description' => __( 'Number of posts shared.', 'jetpack-publicize-pkg' ),
-					'type'        => 'integer',
-				),
-				'is_share_limit_enabled' => array(
-					'description' => __( 'Whether the share limit is enabled.', 'jetpack-publicize-pkg' ),
+				'done'   => array(
+					'description' => __( 'Indicates if the process is completed.', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
 				),
 			),
