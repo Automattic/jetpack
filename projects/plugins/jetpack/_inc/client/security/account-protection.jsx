@@ -42,7 +42,10 @@ const AccountProtectionComponent = class extends Component {
 					<SimpleNotice
 						showDismiss={ false }
 						status={ 'is-info' }
-						text={ __( 'Jetpack recommends enabling this feature.', 'jetpack' ) }
+						text={ __(
+							'Jetpack recommends enabling this feature to enhance account security.',
+							'jetpack'
+						) }
 						children={
 							<NoticeAction external href={ SUPPORT_LINK + '#risks-of-using-a-weak-password' }>
 								{ __( 'Learn about the risks', 'jetpack' ) }
