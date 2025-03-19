@@ -62,7 +62,11 @@
 	justify-content: center;
 	align-items: center;
 	height: 100%;
-	padding-top: 48px;
+	padding: 72px 24px 0 24px;
+
+	@media screen and (max-width: 600px) {
+		justify-content: flex-start;
+	}
 }
 
 .seconday-column {
