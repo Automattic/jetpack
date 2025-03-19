@@ -1,4 +1,5 @@
 import { Container, Col, JetpackLogo } from '@automattic/jetpack-components';
+import clsx from 'clsx';
 import { useFullScreen } from '../../hooks/use-fullscreen';
 import ConnectionsSection from '../connections-section';
 import exampleImage from './grow-your-audience.png';
@@ -18,7 +19,12 @@ const OnboardingScreen: FC = () => {
 			<Col sm={ 4 } md={ 4 } lg={ 6 } className={ styles[ 'primary-column' ] }>
 				<ConnectionsSection />
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 6 } className={ styles[ 'seconday-column' ] }>
+			<Col
+				sm={ 4 }
+				md={ 4 }
+				lg={ 6 }
+				className={ clsx( styles[ 'seconday-column' ], styles.testimonials ) }
+			>
 				<img src={ exampleImage } alt="Onboarding Screen" />
 			</Col>
 		</Container>
