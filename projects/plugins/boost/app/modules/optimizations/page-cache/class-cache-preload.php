@@ -6,7 +6,6 @@ use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
-use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
@@ -58,7 +57,8 @@ class Cache_Preload implements Pluggable, Has_Activate, Is_Always_On {
 	 * @since $$next-version$$
 	 */
 	public static function activate() {
-		Setup::get_or_create_instance_of( self::class )->schedule_cornerstone_preload();
+		$instance = new self();
+		$instance->schedule_cornerstone_preload();
 	}
 
 	/**
