@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Fix video start time frame when poster is picked from video frame
