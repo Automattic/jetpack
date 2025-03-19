@@ -76,6 +76,7 @@ const Seo = () => {
 
 	useEffect( () => {
 		if (
+			isSeoEnhancerEnabled &&
 			isPrePublishPanelOpen &&
 			! previousIsOpenRef.current &&
 			! isBusy &&
