@@ -16,14 +16,19 @@ const OnboardingScreen: FC = () => {
 			className={ styles[ 'onboarding-screen' ] }
 		>
 			<JetpackLogo height={ 24 } showText={ false } className={ styles[ 'jetpack-logo' ] } />
-			<Col sm={ 4 } md={ 4 } lg={ 6 } className={ styles[ 'primary-column' ] }>
+			<Col
+				sm={ 4 }
+				md={ 4 }
+				lg={ 6 }
+				className={ clsx( styles.column, styles[ 'primary-column' ] ) }
+			>
 				<ConnectionsSection />
 			</Col>
 			<Col
 				sm={ 4 }
 				md={ 4 }
 				lg={ 6 }
-				className={ clsx( styles[ 'seconday-column' ], styles.testimonials ) }
+				className={ clsx( styles.column, styles[ 'seconday-column' ], styles.testimonials ) }
 			>
 				<img src={ exampleImage } alt="Onboarding Screen" />
 			</Col>
