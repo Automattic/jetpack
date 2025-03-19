@@ -5,14 +5,14 @@ import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { applyTimezone } from '../../utils/apply-timezone';
+import createCookie from '../../utils/create-cookie';
 import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
-import { useGetReadableFailedBackupReason } from './use-get-readable-failed-backup-reason';
+import useGetReadableFailedBackupReason from './use-get-readable-failed-backup-reason';
+import type { NoticeHookType } from './types';
 import type { NoticeOptions } from '../../context/notices/types';
 
-type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
-
-const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
+const useBackupNeedsAttentionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 
@@ -20,7 +20,8 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		type,
 		data: { status, last_updated: lastUpdated },
 	} = redBubbleAlerts?.backup_failure || { type: 'error', data: {} };
-	const { text: errorDescription } = useGetReadableFailedBackupReason() || {};
+	const { reasonContent } = useGetReadableFailedBackupReason() || {};
+	const { text: errorDescription } = reasonContent || {};
 
 	const {
 		timezone: { offset },
@@ -37,11 +38,10 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const noticeTitle = __( 'Oops! We couldn’t back up your site', 'jetpack-my-jetpack' );
 
 	const onCloseClick = useCallback( () => {
-		// Session cookie. Expires at session end.
-		document.cookie = `backup_failure_dismissed=1; SameSite=None; Secure`;
-		delete redBubbleAlerts.backup_failure;
+		createCookie( 'backup_failure_dismissed', 7 );
+		delete redBubbleAlerts?.backup_failure;
 		resetNotice();
-	}, [ redBubbleAlerts.backup_failure, resetNotice ] );
+	}, [ redBubbleAlerts?.backup_failure, resetNotice ] );
 
 	const onPrimaryCtaClick = useCallback( () => {
 		window.open( troubleshootBackupsUrl );
@@ -73,7 +73,7 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 						)
 					) }
 				</Text>
-				{ errorDescription && (
+				{ ! isLoading && errorDescription && (
 					<Text mb={ 1 }>{ preventWidows( errorDescription as string ) }</Text>
 				) }
 				<Text mb={ 1 }>
@@ -107,11 +107,13 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			priority: NOTICE_PRIORITY_HIGH,
 		};
 
-		setNotice( {
-			title: noticeTitle,
-			message: noticeMessage,
-			options: noticeOptions,
-		} );
+		if ( ! isLoading ) {
+			setNotice( {
+				title: noticeTitle,
+				message: noticeMessage,
+				options: noticeOptions,
+			} );
+		}
 	}, [
 		redBubbleAlerts,
 		setNotice,
@@ -123,6 +125,7 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		backupStatusLastUpdatedDate,
 		type,
 		errorDescription,
+		isLoading,
 	] );
 };
 

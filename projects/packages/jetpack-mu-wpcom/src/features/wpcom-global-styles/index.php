@@ -60,6 +60,12 @@ function wpcom_should_limit_global_styles( $blog_id = 0 ) {
 		return false;
 	}
 
+	// Do not limit Global Styles on Big Sky free trial sites. Those sites will
+	// have their own paywall to go through.
+	if ( wpcom_global_styles_has_blog_sticker( 'big-sky-free-trial', $blog_id ) ) {
+		return false;
+	}
+
 	// Do not limit Global Styles if the site paid for it.
 	if ( wpcom_site_has_global_styles_feature( $blog_id ) ) {
 		return false;
@@ -186,11 +192,12 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 	}
 
 	// @TODO Remove this once the global styles are available for all users on the Personal Plan.
-	$upgrade_url = "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization";
-	$plan_name   = Plans::get_plan( 'value_bundle' )->product_name_short;
 	if ( is_global_styles_on_personal_plan() ) {
-		$plan_name   = Plans::get_plan( 'personal-bundle' )->product_name_short;
+		$plan_name   = Plans::get_plan_short_name( 'personal-bundle' );
 		$upgrade_url = "$calypso_domain/plans/$site_slug?plan=personal-bundle&feature=style-customization";
+	} else {
+		$plan_name   = Plans::get_plan_short_name( 'value_bundle' );
+		$upgrade_url = "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization";
 	}
 
 	wp_localize_script(
@@ -789,7 +796,7 @@ function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
 		$blog_id = get_current_blog_id();
 	}
 
-	$cache_key                          = "global-styles-on-personal-02-2025-$blog_id";
+	$cache_key                          = "global-styles-on-personal-03-2025-$blog_id";
 	$found_in_cache                     = false;
 	$has_global_styles_in_personal_plan = wp_cache_get( $cache_key, 'a8c_experiments', false, $found_in_cache );
 	if ( $found_in_cache ) {
@@ -806,9 +813,23 @@ function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
 		return false;
 	}
 
-	$experiment_assignment              = \ExPlat\assign_given_user( 'calypso_plans_global_styles_personal_20240127', $owner );
+	$experiment_assignment              = \ExPlat\assign_given_user( 'calypso_plans_global_styles_personal_v2_20240225', $owner );
 	$has_global_styles_in_personal_plan = null !== $experiment_assignment;
 	// Cache the experiment assignment to prevent duplicate DB queries in the frontend.
 	wp_cache_set( $cache_key, $has_global_styles_in_personal_plan, 'a8c_experiments', MONTH_IN_SECONDS );
 	return $has_global_styles_in_personal_plan;
 }
+
+/**
+ * We return the upsell plan required for the current Global Styles plan requirement.
+ *
+ * @return string
+ */
+function wpcom_get_global_styles_upsell_plan_slug() {
+	if ( wpcom_site_has_global_styles_in_personal_plan() ) {
+		return 'personal-bundle';
+	}
+
+	return 'value_bundle';
+}
+add_filter( 'wpcom_customize_css_plan_slug', 'wpcom_get_global_styles_upsell_plan_slug' );

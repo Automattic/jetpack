@@ -1,5 +1,4 @@
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { type ErrorSet } from '../lib/critical-css-errors';
 import { suggestion, footerComponent } from '../lib/describe-critical-css-recommendations';
 import { type InterpolateVars } from '$lib/utils/interplate-vars-types';
@@ -30,8 +29,6 @@ const Suggestion: React.FC< SuggestionTypes > = ( {
 
 	return (
 		<>
-			<h5 className={ styles[ 'suggestion-title' ] }>{ __( 'What to do', 'jetpack-boost' ) }</h5>
-
 			<p className={ styles.suggestion }>
 				{ createInterpolateElement( suggestion( errorSet ).paragraph, interpolateVars ) }
 			</p>

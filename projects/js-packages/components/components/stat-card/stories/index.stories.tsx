@@ -2,7 +2,7 @@ import { Icon, postList } from '@wordpress/icons';
 import StatCard from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof StatCard > = {
 	title: 'JS Packages/Components/Stat Card',
 	component: StatCard,
 	argTypes: {
@@ -21,8 +21,13 @@ export default {
 				disable: true,
 			},
 		},
+		hideValue: {
+			control: { type: 'boolean' },
+		},
 	},
-} as Meta< typeof StatCard >;
+};
+
+export default meta;
 
 const defaultArgs = {
 	icon: <Icon icon={ postList } color="green" />,

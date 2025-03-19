@@ -70,6 +70,18 @@ function jetpack_boost_check_404_handler( $request_uri ) {
 }
 
 /**
+ * This ensures that the 404 tester is only run once per day, espicially for multisite.
+ */
+function jetpack_boost_404_tester_cron() {
+	// If we see it's been executed within 24 hours, don't run
+	if ( ! jetpack_boost_should_run_daily_network_cron_job( '404_tester' ) ) {
+		return;
+	}
+
+	jetpack_boost_404_tester();
+}
+
+/**
  * This function is used to test if is_404() is working in wp-content/
  * It sends a request to a non-existent URL, that will execute the 404 handler
  * in jetpack_boost_check_404_handler().
@@ -95,7 +107,8 @@ function jetpack_boost_404_tester() {
 
 	return $minification_enabled;
 }
-add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
+
+add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester_cron' );
 
 /**
  * Setup the 404 tester.
@@ -103,11 +116,18 @@ add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester' );
  * Schedule the 404 tester if the concatenation modules
  * haven't been toggled since this feature was released.
  * Only run this in wp-admin to avoid excessive updates to the option.
+ *
+ * @param bool $setup_404_tester Whether to setup the 404 tester or not.
  */
-function jetpack_boost_404_setup() {
+function jetpack_boost_404_setup( $setup_404_tester = true ) {
+	if ( ! $setup_404_tester ) {
+		return;
+	}
+
 	if ( is_admin() && get_site_option( 'jetpack_boost_static_minification', 'na' ) === 'na' ) {
 		update_site_option( 'jetpack_boost_static_minification', 0 ); // Add a default value if not set to avoid an extra SQL query.
 	}
+
 	jetpack_boost_page_optimize_schedule_404_tester();
 }
 

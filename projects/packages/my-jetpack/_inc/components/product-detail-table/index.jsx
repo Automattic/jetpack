@@ -12,9 +12,12 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useAllProducts } from '../../data/products/use-all-products';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
+import LoadingBlock from '../loading-block';
+import styles from './style.module.scss';
 
 /**
  * Product Detail Table Column component.
@@ -45,6 +48,8 @@ const ProductDetailTableColumn = ( {
 	feature,
 } ) => {
 	const [ isButtonLoading, setIsButtonLoading ] = useState( false );
+	const { isLoading: isProductDataLoading } = useAllProducts();
+
 	const {
 		siteSuffix = '',
 		myJetpackCheckoutUri = '',
@@ -55,13 +60,14 @@ const ProductDetailTableColumn = ( {
 	const {
 		name,
 		featuresByTier = [],
-		pricingForUi: { tiers: tiersPricingForUi },
 		title,
 		postCheckoutUrl,
 		postCheckoutUrlsByFeature,
 		isBundle,
 		hasPaidPlanForProduct,
 	} = detail;
+
+	const tiersPricingForUi = detail?.pricingForUi?.tiers || {};
 
 	// Extract the pricing details for the provided tier.
 	const {
@@ -72,7 +78,7 @@ const ProductDetailTableColumn = ( {
 		isFree,
 		wpcomProductSlug,
 		quantity = null,
-	} = tiersPricingForUi[ tier ];
+	} = tiersPricingForUi[ tier ] || {};
 
 	useEffect( () => {
 		// If activation was successful, we will be redirecting the user
@@ -186,6 +192,8 @@ const ProductDetailTableColumn = ( {
 	return (
 		<PricingTableColumn primary={ ! isFree }>
 			<PricingTableHeader>
+				{ isProductDataLoading && <LoadingBlock width="100%" height="70px" spaceBelow /> }
+
 				{ isFree ? (
 					<ProductPrice price={ 0 } legend={ '' } currency={ 'USD' } hidePriceFraction />
 				) : (
@@ -284,7 +292,7 @@ const ProductDetailTable = ( {
 } ) => {
 	const { fileSystemWriteAccess = 'no' } = getMyJetpackWindowInitialState();
 
-	const { detail } = useProduct( slug );
+	const { detail, isLoading: isProductLoading } = useProduct( slug );
 	const {
 		description,
 		featuresByTier = [],
@@ -293,8 +301,10 @@ const ProductDetailTable = ( {
 		tiers = [],
 		hasPaidPlanForProduct,
 		title,
-		pricingForUi: { tiers: tiersPricingForUi },
 	} = detail;
+
+	const tiersPricingForUi = detail?.pricingForUi || {};
+	const mockTiersArray = [ ...Array( 3 ).keys() ];
 
 	// If the plugin can not be installed automatically, the user will have to take extra steps.
 	const cantInstallPlugin = 'plugin_absent' === status && 'no' === fileSystemWriteAccess;
@@ -342,7 +352,11 @@ const ProductDetailTable = ( {
 	);
 
 	const tierIsFree = tier => {
-		const { isFree } = tiersPricingForUi[ tier ];
+		if ( isProductLoading ) {
+			return false;
+		}
+
+		const { isFree } = tiersPricingForUi?.[ tier ] || {};
 		return isFree;
 	};
 
@@ -350,30 +364,38 @@ const ProductDetailTable = ( {
 		<>
 			{ cantInstallPluginNotice }
 
-			<PricingTable title={ description } items={ pricingTableItems }>
-				{ tiers.map( ( tier, index ) => {
-					// Don't show the column if this is a free offering and we already have a plan
-					if ( hasPaidPlanForProduct && tierIsFree( tier ) ) {
-						return null;
-					}
+			{ isProductLoading ? (
+				<div className={ styles.loadingBlockContainer }>
+					{ mockTiersArray.map( ( _, index ) => (
+						<LoadingBlock key={ index } width="100%" height="700px" />
+					) ) }
+				</div>
+			) : (
+				<PricingTable title={ description } items={ pricingTableItems }>
+					{ tiers.map( ( tier, index ) => {
+						// Don't show the column if this is a free offering and we already have a plan
+						if ( hasPaidPlanForProduct && tierIsFree( tier ) ) {
+							return null;
+						}
 
-					return (
-						<ProductDetailTableColumn
-							key={ index }
-							tier={ tier }
-							feature={ feature }
-							detail={ detail }
-							isFetching={ isFetching }
-							isFetchingSuccess={ isFetchingSuccess }
-							onProductButtonClick={ onProductButtonClick }
-							trackProductButtonClick={ trackProductButtonClick }
-							primary={ index === 0 }
-							cantInstallPlugin={ cantInstallPlugin }
-							preferProductName={ preferProductName }
-						/>
-					);
-				} ) }
-			</PricingTable>
+						return (
+							<ProductDetailTableColumn
+								key={ index }
+								tier={ tier }
+								feature={ feature }
+								detail={ detail }
+								isFetching={ isFetching }
+								isFetchingSuccess={ isFetchingSuccess }
+								onProductButtonClick={ onProductButtonClick }
+								trackProductButtonClick={ trackProductButtonClick }
+								primary={ index === 0 }
+								cantInstallPlugin={ cantInstallPlugin }
+								preferProductName={ preferProductName }
+							/>
+						);
+					} ) }
+				</PricingTable>
+			) }
 		</>
 	);
 };

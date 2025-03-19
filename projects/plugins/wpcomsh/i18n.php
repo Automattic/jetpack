@@ -65,7 +65,8 @@ add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file', 9
 add_action(
 	'after_setup_theme',
 	function () {
-		load_muplugin_textdomain( 'wpcomsh', 'wpcomsh/languages' );
+		load_theme_textdomain( 'wpcomsh', WP_LANG_DIR . '/mu-plugins' );
+		load_theme_textdomain( 'jetpack-mu-wpcom', WP_LANG_DIR . '/mu-plugins' );
 	}
 );
 
@@ -92,8 +93,13 @@ add_filter(
 // Ensure use of the correct local path when loading the JavaScript translation file for a CDN'ed asset.
 add_filter(
 	'load_script_translation_file',
-	function ( $file, $handle ) {
+	function ( $file, $handle, $domain ) {
 		global $wp_scripts;
+
+		if ( in_array( $domain, array( 'jetpack-mu-wpcom' ), true ) ) {
+			return WP_LANG_DIR . '/mu-plugins/' . basename( $file );
+		}
+
 		if ( class_exists( 'Jetpack_Photon_Static_Assets_CDN' ) ) {
 			// This is a rewritten plugin URL, so load the language file from the plugins path.
 			if ( isset( $wp_scripts->registered[ $handle ] ) && wp_startswith( $wp_scripts->registered[ $handle ]->src, Jetpack_Photon_Static_Assets_CDN::CDN . 'p' ) ) {
@@ -103,7 +109,7 @@ add_filter(
 		return $file;
 	},
 	10,
-	2
+	3
 );
 
 // end of https://github.com/Automattic/jetpack/pull/14797

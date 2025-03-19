@@ -3,7 +3,6 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
@@ -27,9 +26,6 @@ import './style.scss';
 
 const LandingPage = () => {
 	const ASSETS_URL = config( 'pluginAssetsURL' );
-	const TEASER_IMG_PATH =
-		isAtomicSite() || isSimpleSite() ? 'responses-inbox-wp-com.png' : 'responses-inbox.png';
-
 	useEffect( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_display' );
 	}, [] );
@@ -80,11 +76,6 @@ const LandingPage = () => {
 					<button className="button button-primary mb-10" onClick={ onButtonClickHandler( false ) }>
 						{ __( 'Create your first form', 'jetpack-forms' ) }
 					</button>
-					<img
-						src={ `${ ASSETS_URL }/images/${ TEASER_IMG_PATH }` }
-						className="jp-forms__teaser-image"
-						alt={ __( 'Jetpack Forms teaser video', 'jetpack-forms' ) }
-					/>
 				</div>
 			</section>
 			<section className="jp-forms__landing-section features-block">

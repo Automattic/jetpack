@@ -177,19 +177,6 @@ class Products {
 	}
 
 	/**
-	 * Inititializes all products with an initialize method.
-	 *
-	 * @return void
-	 */
-	public static function initialize_products() {
-		$classes = self::get_products_classes();
-
-		foreach ( $classes as $class ) {
-			$class::initialize();
-		}
-	}
-
-	/**
 	 * Register endpoints related to product classes
 	 *
 	 * @return void
@@ -252,6 +239,34 @@ class Products {
 		// Otherwise return All products.
 		foreach ( $all_classes as $slug => $class ) {
 			$products[ $slug ] = $class::get_info();
+		}
+
+		return $products;
+	}
+
+	/**
+	 * Get products data related to the wpcom api
+	 *
+	 * @param array $product_slugs - (optional) An array of specified product slugs.
+	 * @return array
+	 */
+	public static function get_products_api_data( $product_slugs = array() ) {
+		$all_classes = self::get_products_classes();
+		$products    = array();
+		// If an array of $product_slugs are passed, return only the products specified in $product_slugs array
+		if ( $product_slugs ) {
+			foreach ( $product_slugs as $product_slug ) {
+				if ( isset( $all_classes[ $product_slug ] ) ) {
+					$class                     = $all_classes[ $product_slug ];
+					$products[ $product_slug ] = $class::get_wpcom_info();
+				}
+			}
+
+			return $products;
+		}
+		// Otherwise return All products.
+		foreach ( $all_classes as $slug => $class ) {
+			$products[ $slug ] = $class::get_wpcom_info();
 		}
 
 		return $products;

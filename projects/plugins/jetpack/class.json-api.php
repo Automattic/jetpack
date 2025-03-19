@@ -606,6 +606,7 @@ class WPCOM_JSON_API {
 	 */
 	public function process_request( WPCOM_JSON_API_Endpoint $endpoint, $path_pieces ) {
 		$this->endpoint = $endpoint;
+		$this->maybe_switch_to_token_user_and_site();
 		return call_user_func_array( array( $endpoint, 'callback' ), $path_pieces );
 	}
 
@@ -693,25 +694,8 @@ class WPCOM_JSON_API {
 		$response = $this->filter_fields( $response );
 
 		if ( isset( $this->query['http_envelope'] ) && self::is_truthy( $this->query['http_envelope'] ) ) {
-			$headers = array(
-				array(
-					'name'  => 'Content-Type',
-					'value' => $content_type,
-				),
-			);
+			$response = static::wrap_http_envelope( $status_code, $response, $content_type, $extra );
 
-			foreach ( $extra as $key => $value ) {
-				$headers[] = array(
-					'name'  => $key,
-					'value' => $value,
-				);
-			}
-
-			$response     = array(
-				'code'    => (int) $status_code,
-				'headers' => $headers,
-				'body'    => $response,
-			);
 			$status_code  = 200;
 			$content_type = 'application/json';
 		}
@@ -741,6 +725,40 @@ class WPCOM_JSON_API {
 		}
 
 		return $content_type;
+	}
+
+	/**
+	 * Wrap JSON API response into an HTTP 200 one.
+	 *
+	 * @param int        $status_code HTTP status code.
+	 * @param mixed      $response Response body.
+	 * @param string     $content_type Content type.
+	 * @param array|null $extra Extra data.
+	 *
+	 * @return array
+	 */
+	public static function wrap_http_envelope( $status_code, $response, $content_type, $extra = null ) {
+		$headers = array(
+			array(
+				'name'  => 'Content-Type',
+				'value' => $content_type,
+			),
+		);
+
+		if ( is_array( $extra ) ) {
+			foreach ( $extra as $key => $value ) {
+				$headers[] = array(
+					'name'  => $key,
+					'value' => $value,
+				);
+			}
+		}
+
+		return array(
+			'code'    => (int) $status_code,
+			'headers' => $headers,
+			'body'    => $response,
+		);
 	}
 
 	/**
@@ -951,6 +969,35 @@ class WPCOM_JSON_API {
 		}
 
 		return $blog_id;
+	}
+
+	/**
+	 * Switch to a user and blog based on the current request's Jetpack token when the endpoint accepts this feature.
+	 *
+	 * @return void
+	 */
+	protected function maybe_switch_to_token_user_and_site() {
+		if ( ! $this->endpoint->allow_jetpack_token_auth ) {
+			return;
+		}
+
+		if ( ! class_exists( 'Jetpack_Server_Version' ) ) {
+			return;
+		}
+
+		$token = Jetpack_Server_Version::get_token_from_authorization_header();
+
+		if ( ! $token || is_wp_error( $token ) ) {
+			return;
+		}
+
+		if ( get_current_user_id() !== $token->user_id ) {
+			wp_set_current_user( $token->user_id );
+		}
+
+		if ( get_current_blog_id() !== $token->blog_id ) {
+			switch_to_blog( $token->blog_id );
+		}
 	}
 
 	/**
@@ -1281,6 +1328,34 @@ class WPCOM_JSON_API {
 	public function finish_request() {
 		if ( function_exists( 'fastcgi_finish_request' ) ) {
 			return fastcgi_finish_request();
+		}
+	}
+
+	/**
+	 * Initialize the locale if different from 'en'.
+	 *
+	 * @param string $locale The locale to initialize.
+	 */
+	public function init_locale( $locale ) {
+		if ( 'en' !== $locale ) {
+			// .org mo files are named slightly different from .com, and all we have is this the locale -- try to guess them.
+			$new_locale = $locale;
+			if ( str_contains( $locale, '-' ) ) {
+				$locale_pieces = explode( '-', $locale );
+				$new_locale    = $locale_pieces[0];
+				$new_locale   .= ( ! empty( $locale_pieces[1] ) ) ? '_' . strtoupper( $locale_pieces[1] ) : '';
+			} else { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
+				// .com might pass 'fr' because thats what our language files are named as, where core seems
+				// to do fr_FR - so try that if we don't think we can load the file.
+				if ( ! file_exists( WP_LANG_DIR . '/' . $locale . '.mo' ) ) {
+					$new_locale = $locale . '_' . strtoupper( $locale );
+				}
+			}
+
+			if ( file_exists( WP_LANG_DIR . '/' . $new_locale . '.mo' ) ) {
+				unload_textdomain( 'default' );
+				load_textdomain( 'default', WP_LANG_DIR . '/' . $new_locale . '.mo' );
+			}
 		}
 	}
 }

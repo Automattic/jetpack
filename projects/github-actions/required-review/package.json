@@ -12,9 +12,12 @@
 		"picomatch": "4.0.2"
 	},
 	"devDependencies": {
-		"@vercel/ncc": "0.36.1"
+		"@vercel/ncc": "0.36.1",
+		"jest": "29.7.0"
 	},
 	"scripts": {
-		"build": "ncc build src/main.js -o dist --source-map --license licenses.txt"
+		"build": "ncc build src/main.js -o dist --source-map --license licenses.txt",
+		"test": "jest --config=tests/jest.config.js --verbose",
+		"test-coverage": "pnpm run test --coverage"
 	}
 }

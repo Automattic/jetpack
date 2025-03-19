@@ -24,6 +24,8 @@ $config = make_phan_config(
 			'_inc/lib/class.color.php',
 			// One or the other of the SimplePie alias files.
 			'_inc/lib/jp-simplepie-alias-' . ( getenv( 'NO_PHAN_UNUSED_SUPPRESSION' ) ? 'new' : 'old' ) . '.php',
+			// We have a stub for this because the real file has duplicate trait definitions.
+			'tests/php/WP_UnitTestCase_Fix.php',
 		),
 		'exclude_analysis_directory_list' => array(),
 		'parse_file_list'                 => array(

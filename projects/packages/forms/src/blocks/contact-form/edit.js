@@ -1,10 +1,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
+import { isSimpleSite, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
-	isAtomicSite,
-	isSimpleSite,
-	useModuleStatus,
-} from '@automattic/jetpack-shared-extension-utils';
-import {
+	InspectorAdvancedControls,
 	InspectorControls,
 	URLInput,
 	useBlockProps,
@@ -12,11 +9,11 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import {
+	ExternalLink,
 	PanelBody,
 	SelectControl,
 	TextareaControl,
 	TextControl,
-	Notice,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
@@ -28,6 +25,7 @@ import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
+import AkismetPanel from './components/jetpack-akismet-panel';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
@@ -75,15 +73,17 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		customThankyouRedirect,
 		jetpackCRM,
 		salesforceData,
+		formTitle,
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
-	const { canUserInstallPlugins, hasInnerBlocks, postAuthorEmail } = useSelect(
+	const { postTitle, canUserInstallPlugins, hasInnerBlocks, postAuthorEmail } = useSelect(
 		select => {
 			const { getBlocks } = select( blockEditorStore );
 			const { getEditedPostAttribute } = select( editorStore );
 			const { getUser, canUser } = select( coreStore );
 			const innerBlocks = getBlocks( clientId );
 
+			const title = getEditedPostAttribute( 'title' );
 			const authorId = getEditedPostAttribute( 'author' );
 			const authorEmail = authorId && getUser( authorId )?.email;
 			const submitButton = innerBlocks.find( block => block.name === 'jetpack/button' );
@@ -93,6 +93,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			}
 
 			return {
+				postTitle: title,
 				canUserInstallPlugins: canUser( 'create', 'plugins' ),
 				hasInnerBlocks: innerBlocks.length > 0,
 				postAuthorEmail: authorEmail,
@@ -100,6 +101,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		},
 		[ clientId ]
 	);
+
 	const wrapperRef = useRef();
 	const innerRef = useRef();
 	const blockProps = useBlockProps( { ref: wrapperRef } );
@@ -151,16 +153,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		elt = (
 			<>
 				<InspectorControls>
-					{ ! attributes.formTitle && (
-						<PanelBody>
-							<Notice status="warning" isDismissible={ false }>
-								{ __(
-									'Add a heading inside the form or before it to help everybody identify it.',
-									'jetpack-forms'
-								) }
-							</Notice>{ ' ' }
-						</PanelBody>
-					) }
 					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
 					</PanelBody>
@@ -233,22 +225,45 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							instanceId={ instanceId }
 						/>
 					) }
-					{ ! ( isSimpleSite() || isAtomicSite() ) && (
+					{ ! isSimpleSite() && (
 						<>
 							{ canUserInstallPlugins && (
-								<PanelBody title={ __( 'CRM Connection', 'jetpack-forms' ) } initialOpen={ false }>
-									<CRMIntegrationSettings
-										jetpackCRM={ jetpackCRM }
-										setAttributes={ setAttributes }
-									/>
-								</PanelBody>
+								<>
+									<AkismetPanel />
+									<PanelBody
+										title={ __( 'CRM Connection', 'jetpack-forms' ) }
+										initialOpen={ false }
+									>
+										<CRMIntegrationSettings
+											jetpackCRM={ jetpackCRM }
+											setAttributes={ setAttributes }
+										/>
+									</PanelBody>
+									<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
+										<NewsletterIntegrationSettings />
+									</PanelBody>
+								</>
 							) }
-							<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
-								<NewsletterIntegrationSettings />
-							</PanelBody>
 						</>
 					) }
 				</InspectorControls>
+				<InspectorAdvancedControls>
+					<TextControl
+						label={ __( 'Accessible name', 'jetpack-forms' ) }
+						value={ formTitle }
+						placeholder={ postTitle }
+						onChange={ value => setAttributes( { formTitle: value } ) }
+						help={ __(
+							'Add an accessible name to help people using assistive technology identify the form. Defaults to page or post title.',
+							'jetpack-forms'
+						) }
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
+					/>
+					<ExternalLink href="https://developer.mozilla.org/docs/Glossary/Accessible_name">
+						{ __( 'Read more.', 'jetpack-forms' ) }
+					</ExternalLink>
+				</InspectorAdvancedControls>
 				<div { ...innerBlocksProps } />
 			</>
 		);

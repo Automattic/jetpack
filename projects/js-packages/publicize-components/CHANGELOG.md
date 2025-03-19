@@ -5,6 +5,66 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.83.1] - 2025-03-17
+### Changed
+- Update dependencies. [#39855]
+
+## [0.83.0] - 2025-03-17
+### Added
+- Add "Schedule" functionality to the Share Post modal. [#42376]
+- Add Scheduled Posts panel. [#42297]
+
+### Changed
+- Schedule Button: Prevent date/times in the past from being selected. [#42381]
+- Change the query parameter to open Jetpack sidebar on editor load. [#42364]
+- Migrate review prompt initial state to script data. [#42389]
+
+### Removed
+- Connections schema: Remove the deprecated fields. [#42454]
+
+### Fixed
+- Fixed a deadlock with the media picker. [#42455]
+- Resolve connection issues with LinkedIn company pages and Tumblr additional blogs. [#42352]
+
+## [0.82.0] - 2025-03-12
+### Added
+- Add a helper function to get the max message length. [#42325]
+- Add internal state for the ScheduleButton component. [#42372]
+- Provide connection data to footer component. [#42000]
+- Publicize Components: Add the schedule button. [#42313]
+- Social: Configure data store to handle scheduled shares. [#42296]
+
+### Changed
+- Update package dependencies. [#42384]
+
+## [0.81.0] - 2025-03-10
+### Added
+- Social: Add the ConnectionList and Item components. [#42233]
+- Social: Add the TabbedModal pure component. [#42298]
+- Social: Add scheduled post components. [#42221]
+
+### Changed
+- Social: Clean up the MessageBoxControl component. [#42253]
+- Social: Move resharing into the post modal. [#42224]
+- Social: Move JS editor code from Jetpack and Social to Publicize package. [#41836]
+- Update package dependencies. [#42162]
+
+## [0.80.0] - 2025-03-03
+### Security
+- Social: Moved Mastodon input form to start. [#41986]
+
+### Added
+- Added unit tests for the admin page. [#41951]
+- Publicize Components: Add Storybook support. [#42167]
+
+### Changed
+- Social: Improve connect URL generation. [#42019]
+- Update package dependencies. [#42081] [#42163]
+
+### Fixed
+- Clean up Social admin page unit tests. [#42064]
+- Social: Avoid calling the settings endpoint on Social admin page if not relevant. [#42102]
+
 ## [0.79.0] - 2025-02-24
 ### Added
 - Add support for Bluesky video selection. [#41669]
@@ -1105,6 +1165,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.83.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.83.0...v0.83.1
+[0.83.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.82.0...v0.83.0
+[0.82.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.81.0...v0.82.0
+[0.81.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.80.0...v0.81.0
+[0.80.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.79.0...v0.80.0
 [0.79.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.78.0...v0.79.0
 [0.78.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.77.2...v0.78.0
 [0.77.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.77.1...v0.77.2

@@ -95,6 +95,9 @@ if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
 	define( 'WP_TESTS_CONFIG_FILE_PATH', getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) );
 }
 
+// Load trait for WP_UnitTestCase PHPUnit 10 compat.
+require_once __DIR__ . '/WP_UnitTestCase_Fix.php';
+
 /**
  * Start up the WP testing environment.
  */

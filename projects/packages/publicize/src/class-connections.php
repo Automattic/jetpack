@@ -41,10 +41,6 @@ class Connections {
 			}
 		}
 
-		// Let us add the deprecated fields for now.
-		// TODO: Remove this after https://github.com/Automattic/jetpack/pull/40539 is merged.
-		$connections = self::retain_deprecated_fields( $connections );
-
 		return $connections;
 	}
 
@@ -125,37 +121,6 @@ class Connections {
 	}
 
 	/**
-	 * Retain deprecated fields.
-	 *
-	 * @param array $connections Connections.
-	 * @return array
-	 */
-	private static function retain_deprecated_fields( $connections ) {
-		return array_map(
-			function ( $connection ) {
-
-				$owns_connection = self::user_owns_connection( $connection );
-
-				$connection = array_merge(
-					$connection,
-					array(
-						'external_display' => $connection['display_name'],
-						'can_disconnect'   => current_user_can( 'edit_others_posts' ) || $owns_connection,
-						'label'            => $connection['service_label'],
-					)
-				);
-
-				if ( 'bluesky' === $connection['service_name'] ) {
-					$connection['external_name'] = $connection['external_handle'];
-				}
-
-				return $connection;
-			},
-			$connections
-		);
-	}
-
-	/**
 	 * Fetch connections from the REST API and cache them.
 	 *
 	 * @return array
@@ -189,7 +154,7 @@ class Connections {
 	public static function fetch_site_connections() {
 		$proxy = new Proxy_Requests( 'publicize/connections' );
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/connections' );
+		$request = new WP_REST_Request( 'GET' );
 
 		return $proxy->proxy_request_to_wpcom_as_blog( $request );
 	}

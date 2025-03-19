@@ -156,19 +156,29 @@ class File_Storage implements Storage {
 	 *
 	 * @param string $path - The path to delete. File or directory.
 	 * @param string $type - defines what files/directories are deleted or rebuilt.
+	 * @return bool|Boost_Cache_Error True on success, error object on failure
 	 */
 	public function invalidate( $path, $type ) {
 		Logger::debug( "invalidate: $path $type" );
 		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
 
+		$response = null;
 		if ( ! in_array( $type, array( Filesystem_Utils::DELETE_FILE, Filesystem_Utils::REBUILD_FILE ), true ) && is_dir( $normalized_path ) ) {
-			return Filesystem_Utils::walk_directory( $normalized_path, $type );
+			$response = Filesystem_Utils::walk_directory( $normalized_path, $type );
 		} elseif ( $type === Filesystem_Utils::DELETE_FILE && is_file( $normalized_path ) ) {
-			return Filesystem_Utils::delete_file( $normalized_path );
+			$response = Filesystem_Utils::delete_file( $normalized_path );
 		} elseif ( $type === Filesystem_Utils::REBUILD_FILE && is_file( $normalized_path ) ) {
-			return Filesystem_Utils::rebuild_file( $normalized_path );
-		} else {
+			$response = Filesystem_Utils::rebuild_file( $normalized_path );
+		}
+
+		if ( $response === null ) {
 			return new Boost_Cache_Error( 'no-cache-files-to-delete', 'No cache files to delete.' );
 		}
+
+		if ( $response === true ) {
+			do_action( 'jetpack_boost_invalidate_cache_success', $path, $type );
+		}
+
+		return $response;
 	}
 }

@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit f1226e4348ae3a210537dd29de4ff42c8eadb05f.
+ * Stubs automatically generated from WordPress.com commit dd2b58c012b494834c1398213575deb22774a2b9.
  */
 
 namespace {
@@ -191,6 +191,9 @@ namespace {
          * @return array
          */
         public static function get_from_cache()
+        {
+        }
+        public static function get()
         {
         }
         /**
@@ -421,7 +424,12 @@ namespace {
     }
     class Memberships_Store_Sandbox
     {
-        public function init($force = \false)
+        /**
+         * @param bool $force
+         * @param int|null $blog_id
+         * @return void
+         */
+        public function init($force = \false, ?int $blog_id = \null)
         {
         }
         /**
@@ -465,6 +473,54 @@ namespace {
          * @return true|WP_Error
          */
         public function moderate($prompt)
+        {
+        }
+    }
+    class Publicize_Actions
+    {
+        /**
+         * @param int $blog_id
+         * @return array|WP_Error
+         */
+        public static function get_scheduled_actions_by_blog_id($blog_id, $limit = \Publicize_Actions::ACTIONS_LIMIT)
+        {
+        }
+        /**
+         * @param int $blog_id
+         * @param int $post_id
+         * @return array|WP_Error
+         */
+        public static function get_scheduled_actions_by_blog_and_post_id($blog_id, $post_id, $limit = \Publicize_Actions::ACTIONS_LIMIT)
+        {
+        }
+        /**
+         * @param array $action_data
+         * @return int|WP_Error
+         */
+        public static function add_scheduled_action($action_data)
+        {
+        }
+        /**
+         * @param int $action_id
+         * @return array|WP_Error
+         */
+        public static function get_scheduled_action($action_id)
+        {
+        }
+        /**
+         * @param int $action_id
+         * @param array $action_data
+         * @return boolean|WP_Error
+         */
+        public static function edit_scheduled_action($action_id, $action_data)
+        {
+        }
+        /**
+         * @param int $action_id
+         * @param int $blog_id
+         * @return boolean|WP_Error
+         */
+        public static function delete_scheduled_action($action_id, $blog_id = \null)
         {
         }
     }
@@ -696,6 +752,12 @@ namespace {
     function comment_like_button($comment_content = '', $comment_object = \null)
     {
     }
+    class Jetpack_Custom_CSS_Customizer
+    {
+        public static function customize_register($wp_customize)
+        {
+        }
+    }
     class Jetpack_Custom_CSS
     {
         /**
@@ -836,6 +898,15 @@ namespace {
     }
     function add_jetpack_submenu()
     {
+    }
+    class Jetpack_Server_Version
+    {
+        /**
+         * @return bool|WP_Error|object
+         */
+        static function get_token_from_authorization_header()
+        {
+        }
     }
     class Jetpack_Sync_WPCOM_Shadow_Replicastore extends \Automattic\Jetpack\Sync\Replicastore
     {
@@ -1535,6 +1606,44 @@ namespace Newsletter_Categories {
      * @return int
      */
     function get_blog_subscriptions_aggregate_count(?int $blog_id = null, $post_term_ids = []): int
+    {
+    }
+}
+namespace Publicize\Social_Image_Generator {
+    /**
+     * @param int $blog_id
+     * @return bool
+     */
+    function is_enabled($blog_id = 0)
+    {
+    }
+}
+namespace Social_Image_Generator {
+    class Token
+    {
+        /**
+         * @var string|null
+         */
+        public $image_url = null;
+        /**
+         * @var string
+         */
+        public $text = '';
+        /**
+         * @var string|null
+         */
+        public $template = null;
+        /**
+         * @var int|null
+         */
+        public $blog_id = null;
+    }
+    /**
+     * @param Token $token
+     * @param string $secret
+     * @return string
+     */
+    function encode_token($token, $secret)
     {
     }
 }

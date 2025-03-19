@@ -1,7 +1,13 @@
 /**
  * Internal dependencies
  */
-import { buildVideoPressURL, pickVideoBlockAttributesFromUrl } from '..';
+import {
+	buildVideoPressURL,
+	pickVideoBlockAttributesFromUrl,
+	getVideoNameFromUrl,
+	removeFileNameExtension,
+	isVideoPressUrl,
+} from '..';
 
 describe( 'buildVideoPressURL', () => {
 	it( 'should return empty object when invalid URL', () => {
@@ -122,5 +128,84 @@ describe( 'pickVideoBlockAttributesFromUrl', () => {
 		expect( attributes.poster ).toBe(
 			'http://localhost/wp-content/uploads/2023/04/pexels-photo-2693212.jpg'
 		);
+	} );
+} );
+
+describe( 'getVideoNameFromUrl', () => {
+	it( 'should return empty string when no URL', () => {
+		expect( getVideoNameFromUrl( '' ) ).toBe( '' );
+
+		expect( getVideoNameFromUrl( 'wrong-url' ) ).toBe( '' );
+	} );
+
+	it( 'should return video name from URL', () => {
+		expect(
+			getVideoNameFromUrl( 'https://test.wordpres.com/xxxx-photo-2693212/video-file.mp4' )
+		).toBe( 'video-file.mp4' );
+
+		expect( getVideoNameFromUrl( 'https://test.wordpres.com/xxxx-photo-2693212/video-file' ) ).toBe(
+			'video-file'
+		);
+	} );
+} );
+
+describe( 'removeFileNameExtension', () => {
+	it( 'should remove extension from a simple filename', () => {
+		expect( removeFileNameExtension( 'video.mp4' ) ).toBe( 'video' );
+	} );
+
+	it( 'should remove extension from a filename with multiple dots', () => {
+		expect( removeFileNameExtension( 'my.awesome.video.mp4' ) ).toBe( 'my.awesome.video' );
+	} );
+
+	it( 'should handle filenames without extension', () => {
+		expect( removeFileNameExtension( 'video' ) ).toBe( 'video' );
+	} );
+
+	it( 'should handle filenames starting with a dot', () => {
+		expect( removeFileNameExtension( '.htaccess' ) ).toBe( '' );
+	} );
+
+	it( 'should handle empty string', () => {
+		expect( removeFileNameExtension( '' ) ).toBe( '' );
+	} );
+} );
+
+describe( 'isVideoPressUrl', () => {
+	describe( 'should return true for valid VideoPress URLs', () => {
+		const validUrls = [
+			'https://videopress.com/v/xyrdcYF4',
+			'https://videopress.com/v/xyrdcYF4/',
+			'https://videopress.com/embed/xyrdcYF4',
+			'https://v.wordpress.com/xyrdcYF4/',
+			'https://video.wordpress.com/v/xyrdcYF4',
+			'https://video.wordpress.com/embed/xyrdcYF4/',
+			'http://videopress.com/v/xyrdcYF4', // HTTP protocol
+		];
+
+		validUrls.forEach( url => {
+			it( `should validate ${ url }`, () => {
+				expect( isVideoPressUrl( url ) ).toBe( true );
+			} );
+		} );
+	} );
+
+	describe( 'should return false for invalid URLs', () => {
+		const invalidUrls = [
+			'https://example.com',
+			'',
+			'https://videopress.com/invalid/xyrdcYF4', // Invalid path
+			'https://videopress.com/v/xyz', // Invalid GUID (too short)
+			'https://videopress.com/v/xyrdcYF4extra', // Invalid GUID (too long)
+			'https://videopress.com/v/', // Missing GUID
+			'https://fakevideo.wordpress.com/v/xyrdcYF4', // Invalid subdomain
+			'videopress.com/v/xyrdcYF4', // Missing protocol
+		];
+
+		invalidUrls.forEach( url => {
+			it( `should not validate ${ url || '(empty string)' }`, () => {
+				expect( isVideoPressUrl( url ) ).toBe( false );
+			} );
+		} );
 	} );
 } );

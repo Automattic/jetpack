@@ -401,6 +401,12 @@ async function addLabels( payload, octokit ) {
 		labelsToAdd.splice( maxLabelsToAdd );
 	}
 
+	// Check again, as all the above may have cleared out the labels we were going to add.
+	if ( labelsToAdd.length === 0 ) {
+		debug( 'add-labels: No new labels to add to that PR. Aborting.' );
+		return;
+	}
+
 	debug( `add-labels: Adding labels ${ labelsToAdd } to PR #${ number }` );
 
 	await octokit.rest.issues.addLabels( {

@@ -6,6 +6,10 @@
  * @since 1.1.0
  */
 
+use Automattic\Jetpack\Launchpad;
+
+require_once __DIR__ . '/../launchpad/goal-launchpad-task-lists.php';
+
 /**
  * Fetches Launchpad-related data for the site.
  *
@@ -36,14 +40,33 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_data' ),
 					'permission_callback' => array( $this, 'can_access' ),
 					'args'                => array(
-						'checklist_slug'    => array(
+						'checklist_slug'             => array(
 							'description' => 'Checklist slug',
 							'type'        => 'string',
 							'enum'        => $this->get_checklist_slug_enums(),
 						),
-						'launchpad_context' => array(
+						'launchpad_context'          => array(
 							'description' => 'Screen where Launchpand instance is loaded.',
 							'type'        => 'string',
+						),
+						'use_goals'                  => array(
+							'description' => 'Should the launchpad data use site goals or intent.',
+							'type'        => 'boolean',
+							'required'    => false,
+							'default'     => false,
+						),
+						'enable_checklist_for_goals' => array(
+							'description' => 'Used by the client to signal to Jetpack which launchpad goals have been enabled (e.g. via feature flags)',
+							'type'        => 'array',
+							'items'       => array( 'type' => 'string' ),
+							'required'    => false,
+							'default'     => array(),
+						),
+						'updated_write_tasklist'     => array(
+							'description' => 'Enable the updated write tasklist, for testing purposes',
+							'type'        => 'boolean',
+							'required'    => false,
+							'default'     => false,
 						),
 					),
 				),
@@ -156,17 +179,33 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			$switched_locale = switch_to_locale( $locale );
 		}
 
-		$checklist_slug = isset( $request['checklist_slug'] ) ? $request['checklist_slug'] : get_option( 'site_intent' );
+		$checklist_slug         = isset( $request['checklist_slug'] ) ? $request['checklist_slug'] : get_option( 'site_intent' );
+		$use_goals              = isset( $request['use_goals'] ) ? $request['use_goals'] : false;
+		$updated_write_tasklist = isset( $request['updated_write_tasklist'] ) ? $request['updated_write_tasklist'] : false;
 
 		$launchpad_context = isset( $request['launchpad_context'] )
 			? $request['launchpad_context']
 			: null;
 
+		if ( $updated_write_tasklist && $checklist_slug === 'write' ) {
+			// The updated_write_tasklist param facilitates a call-for-testing where we want
+			// to try out changes to the write tasks. The intention is that `updated-write-tasklist`
+			// will replace `write`, at which point updated_write_tasklist should be removed.
+			$checklist_slug = 'updated-write-tasklist';
+		}
+
+		if ( $use_goals ) {
+			// The user must be part of a cohort which should deterine which checklist to show soley on
+			// goal selection, not the "intent".
+			$site_goals     = get_option( 'site_goals', array() );
+			$checklist_slug = Launchpad\get_checklist_slug_by_goals( $site_goals, $request['enable_checklist_for_goals'] );
+		}
+
 		$response = array(
 			'site_intent'        => get_option( 'site_intent' ),
 			'launchpad_screen'   => get_option( 'launchpad_screen' ),
 			'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
-			'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context ),
+			'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context, $updated_write_tasklist ),
 			'is_enabled'         => wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ),
 			'is_dismissed'       => wpcom_launchpad_is_task_list_dismissed( $checklist_slug ),
 			'is_dismissible'     => wpcom_launchpad_is_task_list_dismissible( $checklist_slug ),

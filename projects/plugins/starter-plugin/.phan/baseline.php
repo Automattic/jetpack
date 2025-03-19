@@ -14,7 +14,7 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'jetpack-starter-plugin.php' => ['PhanNoopNew'],
-        'tests/php/test-class-jetpack-starter-plugin.php' => ['PhanNoopNew'],
+        'tests/php/Jetpack_Starter_Plugin_Test.php' => ['PhanNoopNew'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

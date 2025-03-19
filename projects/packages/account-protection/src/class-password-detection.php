@@ -49,6 +49,11 @@ class Password_Detection {
 			return $user;
 		}
 
+		// Skip if we're validating a Brute force protection recovery token
+		if ( get_transient( 'jetpack_protect_recovery_key_validated_' . $user->ID ) ) {
+			return $user;
+		}
+
 		if ( ! $this->validation_service->is_weak_password( $password ) ) {
 			return $user;
 		}
@@ -254,7 +259,7 @@ class Password_Detection {
 	 * @param string $transient_key The transient key.
 	 * @return array An array containing 'message' and 'code'.
 	 */
-	public function extract_and_clear_transient_data( string $transient_key ): array {
+	private function extract_and_clear_transient_data( string $transient_key ): array {
 		$data = get_transient( $transient_key );
 		delete_transient( $transient_key );
 
@@ -496,7 +501,7 @@ class Password_Detection {
 	 *
 	 * @return void
 	 */
-	public function set_transient_success( int $user_id, array $success, int $expiration = 60 ): void {
+	private function set_transient_success( int $user_id, array $success, int $expiration = 60 ): void {
 		set_transient( Config::TRANSIENT_PREFIX . "_success_{$user_id}", $success, $expiration );
 	}
 
@@ -509,7 +514,7 @@ class Password_Detection {
 	 *
 	 * @return void
 	 */
-	public function set_transient_error( int $user_id, array $error, int $expiration = 60 ): void {
+	private function set_transient_error( int $user_id, array $error, int $expiration = 60 ): void {
 		set_transient( Config::TRANSIENT_PREFIX . "_error_{$user_id}", $error, $expiration );
 	}
 

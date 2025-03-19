@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix: missing SQLite default driver index sizes

@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 14.2
+Stable tag: 14.4
 Requires at least: 6.6
 Requires PHP: 7.2
 Tested up to: 6.7
@@ -326,17 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.4-a.7 - 2025-02-24
+### 14.5-a.5 - 2025-03-17
 #### Enhancements
-- Newsletter: Add new newsletter widget.
-- Connection: Disconnect all other users before disconnecting connection owner account.
-- Custom Post Types: do not display testimonials and portfolios on block themes where they are not in use.
-- Social: Update the admin page to be used by Editors and Authors.
+- Social: Add "Schedule" functionality to the Share Post modal.
 
 #### Bug fixes
-- Fix Social toggles.
-- Newsletter: Fix post placement not displaying on certain block themes.
-- Social Previews: Fix distorted image for Tumblr preview.
+- Forms: Fix core list bullets not showing.
+- Slideshow: Fix misaligned controls in site editor.
+- Social: Resolve connection issues with LinkedIn company pages and Tumblr additional blogs.
+- Twitter Timeline Widget: Prevent broken links when using Twitter's deprecated data-widget-id approach.
+- VideoPress Block: Fix broken undo functionality.
 
 --------
 
