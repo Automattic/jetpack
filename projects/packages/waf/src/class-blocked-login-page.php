@@ -71,7 +71,7 @@ class Blocked_Login_Page {
 	 * Singleton implementation
 	 *
 	 * @param string $ip_address - the IP address.
-	 * @param string $context - the context.
+	 * @param string $context - The current context the blocked login page is being executed by. Example: "protect" or "waf".
 	 *
 	 * @return object
 	 */
@@ -87,7 +87,7 @@ class Blocked_Login_Page {
 	 * Singleton implementation
 	 *
 	 * @param string $ip_address - the IP address.
-	 * @param string $context - the context.
+	 * @param string $context - The current context the blocked login page is being executed by. Example: "protect" or "waf".
 	 */
 	public function __construct( $ip_address, $context ) {
 		/**
