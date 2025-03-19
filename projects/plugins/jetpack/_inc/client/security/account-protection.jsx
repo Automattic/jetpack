@@ -1,5 +1,5 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from 'node_modules/@automattic/jetpack-components';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
