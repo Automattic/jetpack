@@ -1,3 +1,9 @@
+:global(body) {
+	font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
 .jetpack-logo {
 	position: absolute;
 	top: 24px;
@@ -13,6 +19,7 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+	align-items: center;
 	height: 100%;
 	padding-top: 48px;
 }
