@@ -7,18 +7,17 @@ import {
 	wordpress as coreIcon,
 } from '@wordpress/icons';
 
-export const THREAT_STATUSES: { value: string; label: string; variant?: 'success' | 'warning' }[] =
-	[
-		{ value: 'current', label: __( 'Active', 'jetpack-scan' ), variant: 'warning' },
-		{ value: 'fixed', label: __( 'Fixed', 'jetpack-scan' ), variant: 'success' },
-		{ value: 'ignored', label: __( 'Ignored', 'jetpack-scan' ) },
-	];
+export const THREAT_STATUSES: { value: string; label: string; variant?: 'success' }[] = [
+	{ value: 'fixed', label: __( 'Fixed', 'jetpack-scan' ), variant: 'success' },
+	{ value: 'ignored', label: __( 'Ignored', 'jetpack-scan' ) },
+];
 
 export const THREAT_TYPES = [
 	{ value: 'plugins', label: __( 'Plugin', 'jetpack-scan' ) },
 	{ value: 'themes', label: __( 'Theme', 'jetpack-scan' ) },
 	{ value: 'core', label: __( 'WordPress', 'jetpack-scan' ) },
 	{ value: 'file', label: __( 'File', 'jetpack-scan' ) },
+	{ value: '', label: __( 'Unknown', 'jetpack-scan' ) },
 ];
 
 export const THREAT_ICONS = {
@@ -43,6 +42,27 @@ export const THREAT_FIELD_SIGNATURE = 'signature';
 export const THREAT_FIELD_FIRST_DETECTED = 'first-detected';
 export const THREAT_FIELD_FIXED_ON = 'fixed-on';
 export const THREAT_FIELD_AUTO_FIX = 'auto-fix';
+
+export const CURRENT_TABLE_FIELDS = [
+	THREAT_FIELD_SEVERITY,
+	THREAT_FIELD_TYPE,
+	THREAT_FIELD_AUTO_FIX,
+];
+
+export const HISTORIC_TABLE_FIELDS = [
+	THREAT_FIELD_SEVERITY,
+	THREAT_FIELD_STATUS,
+	THREAT_FIELD_TYPE,
+	THREAT_FIELD_FIRST_DETECTED,
+	THREAT_FIELD_FIXED_ON,
+];
+
+export const LIST_FIELDS = [
+	THREAT_FIELD_SEVERITY,
+	THREAT_FIELD_TYPE,
+	THREAT_FIELD_EXTENSION,
+	THREAT_FIELD_SIGNATURE,
+];
 
 export const THREAT_ACTION_FIX = 'fix';
 export const THREAT_ACTION_IGNORE = 'ignore';

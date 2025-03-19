@@ -19,6 +19,7 @@ const projects = [
 	'../../../packages/videopress/src/client/block-editor',
 	'../../../plugins/jetpack/extensions/',
 	'../../charts/src',
+	'../../scan/src/components',
 ];
 
 module.exports = projects.map( project => path.join( __dirname, project ) );

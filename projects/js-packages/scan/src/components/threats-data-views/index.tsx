@@ -1,7 +1,5 @@
-import { Badge } from '@automattic/jetpack-components';
+import { Badge, useBreakpointMatch } from '@automattic/jetpack-components';
 import {
-	type Action,
-	type ActionButton,
 	type Field,
 	type FieldType,
 	type Filter,
@@ -14,13 +12,22 @@ import {
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { useCallback, useMemo, useState } from 'react';
-import { ThreatSeverityBadge, getThreatType, type Threat } from '@automattic/jetpack-scan';
-import ThreatFixerButton from '../threat-fixer-button/index.js';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import {
+	getThreatType,
 	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
-	THREAT_ACTION_UNIGNORE,
+	ThreatsContext,
+	type Threat,
+} from '@automattic/jetpack-scan';
+import ThreatFixerButton from '../threat-fixer-button/index.js';
+import ThreatDetailsModal from '../threat-modals/details-modal/index.js';
+import ThreatFixerModal from '../threat-modals/fixer-modal/index.js';
+import ThreatIgnoreModal from '../threat-modals/ignore-modal/index.js';
+import ThreatSeverityBadge from '../threat-severity-badge/index.js';
+import {
+	CURRENT_TABLE_FIELDS,
+	LIST_FIELDS,
 	THREAT_FIELD_AUTO_FIX,
 	THREAT_FIELD_DESCRIPTION,
 	THREAT_FIELD_EXTENSION,
@@ -39,52 +46,48 @@ import {
 	THREAT_TYPES,
 } from './constants.js';
 import styles from './styles.module.scss';
-import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-control.js';
+
+export { HISTORIC_TABLE_FIELDS, THREAT_FIELD_AUTO_FIX } from './constants.js';
+
+type ThreatsDataViewsProps = {
+	data: Threat[];
+	header?: JSX.Element;
+	initialFields?: string[];
+	initialFilters?: Filter[];
+	disableFields?: string[];
+};
 
 /**
- * DataViews component for displaying security threats.
+ * DataViews component for displaying threats data.
  *
- * @param {object}   props                             - Component props.
- * @param {Array}    props.data                        - Threats data.
- * @param {Array}    props.filters                     - Initial DataView filters.
- * @param {Function} props.onChangeSelection           - Callback function run when an item is selected.
- * @param {Function} props.onFixThreats                - Threat fix action callback.
- * @param {Function} props.onIgnoreThreats             - Threat ignore action callback.
- * @param {Function} props.onUnignoreThreats           - Threat unignore action callback.
- * @param {Function} props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
- * @param {Function} props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
- * @param {Function} props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
+ * @param {object} props                - Component props.
+ * @param {Array}  props.data           - DataViews data.
+ * @param {Array}  props.header         - DataViews header.
+ * @param {Array}  props.initialFields  - Initial DataViews fields.
+ * @param {Array}  props.initialFilters - Initial DataViews filters.
+ * @param {Array}  props.disableFields  - Fields to hide from the DataView.
  *
- * @return {JSX.Element} The ThreatsDataViews component.
+ * @return {JSX.Element} The threats data views component.
  */
-export default function ThreatsDataViews( {
+const ThreatsDataViews = ( {
 	data,
-	filters,
-	onChangeSelection,
-	isThreatEligibleForFix,
-	isThreatEligibleForIgnore,
-	isThreatEligibleForUnignore,
-	onFixThreats,
-	onIgnoreThreats,
-	onUnignoreThreats,
-}: {
-	data: Threat[];
-	filters?: Filter[];
-	onChangeSelection?: ( selectedItemIds: string[] ) => void;
-	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
-	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
-	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
-	onFixThreats?: ( threats: Threat[] ) => void;
-	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
-	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
-} ): JSX.Element {
+	header,
+	initialFields,
+	initialFilters,
+	disableFields,
+}: ThreatsDataViewsProps ): JSX.Element => {
+	const [ isSm ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+
+	const { actions, selectedThreat, setSelectedThreat, actionToConfirm, setActionToConfirm } =
+		useContext( ThreatsContext );
+
 	const baseView = {
 		sort: {
 			field: 'severity',
 			direction: 'desc' as SortDirection,
 		},
 		search: '',
-		filters: filters || [],
+		filters: initialFilters || [],
 		page: 1,
 		perPage: 20,
 	};
@@ -99,19 +102,14 @@ export default function ThreatsDataViews( {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
+			fields: initialFields || CURRENT_TABLE_FIELDS,
 			titleField: THREAT_FIELD_TITLE,
 			descriptionField: THREAT_FIELD_DESCRIPTION,
 			showMedia: false,
 		},
 		list: {
 			...baseView,
-			fields: [
-				THREAT_FIELD_SEVERITY,
-				THREAT_FIELD_TYPE,
-				THREAT_FIELD_EXTENSION,
-				THREAT_FIELD_SIGNATURE,
-			],
+			fields: initialFields || LIST_FIELDS,
 			titleField: THREAT_FIELD_TITLE,
 			mediaField: THREAT_FIELD_ICON,
 			showMedia: true,
@@ -119,14 +117,39 @@ export default function ThreatsDataViews( {
 	};
 
 	/**
+	 * Default View Type.
+	 *
+	 * Set the default view type (list or table) based on the initial screen size.
+	 */
+	const defaultViewType: 'list' | 'table' = isSm ? 'list' : 'table';
+
+	/**
 	 * DataView view object - configures how the dataset is visible to the user.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#view-object
 	 */
 	const [ view, setView ] = useState< View >( {
-		type: 'table',
-		...defaultLayouts.table,
+		type: defaultViewType,
+		...defaultLayouts[ defaultViewType ],
 	} );
+
+	/**
+	 * Callback function to handle the fix action.
+	 */
+	const onClickFix = useCallback(
+		( threat: Threat ) => () => {
+			setActionToConfirm( { id: 'fix', items: [ threat ] } );
+		},
+		[ setActionToConfirm ]
+	);
+
+	/**
+	 * Callback function to handle dismissing the modal.
+	 */
+	const onRequestClose = useCallback( () => {
+		setSelectedThreat( undefined );
+		setActionToConfirm( undefined );
+	}, [ setSelectedThreat, setActionToConfirm ] );
 
 	/**
 	 * Compute values from the provided threats data.
@@ -159,7 +182,10 @@ export default function ThreatsDataViews( {
 							break;
 						case 'plugins':
 							if ( ! acc.plugins.find( ( { value } ) => value === threat.extension.slug ) ) {
-								acc.plugins.push( { value: threat.extension.slug, label: threat.extension.name } );
+								acc.plugins.push( {
+									value: threat.extension.slug,
+									label: threat.extension.name,
+								} );
 							}
 							break;
 						default:
@@ -238,44 +264,11 @@ export default function ThreatsDataViews( {
 				},
 			},
 			{
-				id: THREAT_FIELD_STATUS,
-				label: __( 'Status', 'jetpack-scan' ),
-				elements: THREAT_STATUSES,
-				getValue( { item }: { item: Threat } ) {
-					if ( ! item.status ) {
-						return 'current';
-					}
-					return (
-						THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ?? item.status
-					);
-				},
-				render( { item }: { item: Threat } ) {
-					if ( item.status ) {
-						const status = THREAT_STATUSES.find( ( { value } ) => value === item.status );
-						if ( status ) {
-							return <Badge variant={ status?.variant }>{ status.label }</Badge>;
-						}
-					}
-					return <Badge variant="warning">{ __( 'Active', 'jetpack-scan' ) }</Badge>;
-				},
-			},
-			{
 				id: THREAT_FIELD_TYPE,
 				label: __( 'Type', 'jetpack-scan' ),
 				elements: THREAT_TYPES,
 				getValue( { item }: { item: Threat } ) {
-					switch ( getThreatType( item ) ) {
-						case 'core':
-							return __( 'WordPress', 'jetpack-scan' );
-						case 'plugins':
-							return __( 'Plugin', 'jetpack-scan' );
-						case 'themes':
-							return __( 'Theme', 'jetpack-scan' );
-						case 'file':
-							return __( 'File', 'jetpack-scan' );
-						default:
-							return __( 'Unknown', 'jetpack-scan' );
-					}
+					return getThreatType( item ) ?? '';
 				},
 			},
 			{
@@ -310,6 +303,35 @@ export default function ThreatsDataViews( {
 					return item.extension ? item.extension.slug : '';
 				},
 			},
+			...( dataFields.includes( 'status' )
+				? [
+						{
+							id: THREAT_FIELD_STATUS,
+							label: __( 'Status', 'jetpack-scan' ),
+							elements: THREAT_STATUSES,
+							getValue( { item }: { item: Threat } ) {
+								if ( ! item.status ) {
+									return 'current';
+								}
+								return (
+									THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ??
+									item.status
+								);
+							},
+							render( { item }: { item: Threat } ) {
+								if ( item.status ) {
+									const threatStatus = THREAT_STATUSES.find(
+										( { value } ) => value === item.status
+									);
+									if ( threatStatus ) {
+										return <Badge variant={ threatStatus?.variant }>{ threatStatus.label }</Badge>;
+									}
+								}
+								return <Badge variant="warning">{ __( 'Current', 'jetpack-scan' ) }</Badge>;
+							},
+						},
+				  ]
+				: [] ),
 			...( dataFields.includes( 'severity' )
 				? [
 						{
@@ -400,90 +422,15 @@ export default function ThreatsDataViews( {
 									return null;
 								}
 
-								return <ThreatFixerButton threat={ item } onClick={ onFixThreats } />;
+								return <ThreatFixerButton threat={ item } onClick={ onClickFix( item ) } />;
 							},
 						},
 				  ]
 				: [] ),
 		];
 
-		return result;
-	}, [ dataFields, plugins, themes, signatures, onFixThreats ] );
-
-	/**
-	 * DataView actions - collection of operations that can be performed upon each record.
-	 *
-	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#actions-object
-	 */
-	const actions = useMemo( () => {
-		const result: Action< Threat >[] = [];
-
-		if ( dataFields.includes( 'fixable' ) ) {
-			result.push( {
-				id: THREAT_ACTION_FIX,
-				label: __( 'Auto-fix', 'jetpack-scan' ),
-				isPrimary: true,
-				callback: onFixThreats,
-				isEligible( item ) {
-					if ( ! onFixThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForFix ) {
-						return isThreatEligibleForFix( item );
-					}
-					return !! item.fixable;
-				},
-			} );
-		}
-
-		if ( dataFields.includes( 'status' ) ) {
-			result.push( {
-				id: THREAT_ACTION_IGNORE,
-				label: __( 'Ignore', 'jetpack-scan' ),
-				isPrimary: true,
-				isDestructive: true,
-				callback: onIgnoreThreats,
-				isEligible( item ) {
-					if ( ! onIgnoreThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForIgnore ) {
-						return isThreatEligibleForIgnore( item );
-					}
-					return item.status === 'current';
-				},
-			} );
-		}
-
-		if ( dataFields.includes( 'status' ) ) {
-			result.push( {
-				id: THREAT_ACTION_UNIGNORE,
-				label: __( 'Unignore', 'jetpack-scan' ),
-				isPrimary: true,
-				isDestructive: true,
-				callback: onUnignoreThreats,
-				isEligible( item ) {
-					if ( ! onUnignoreThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForUnignore ) {
-						return isThreatEligibleForUnignore( item );
-					}
-					return item.status === 'ignored';
-				},
-			} );
-		}
-
-		return result;
-	}, [
-		dataFields,
-		onFixThreats,
-		onIgnoreThreats,
-		onUnignoreThreats,
-		isThreatEligibleForFix,
-		isThreatEligibleForIgnore,
-		isThreatEligibleForUnignore,
-	] );
+		return result.filter( field => ! disableFields?.includes( field.id ) );
+	}, [ plugins, themes, dataFields, signatures, onClickFix, disableFields ] );
 
 	/**
 	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.
@@ -504,30 +451,63 @@ export default function ThreatsDataViews( {
 	}, [] );
 
 	/**
-	 * DataView getItemId function - returns the unique ID for each record in the dataset.
+	 * DataViews getItemId function - returns the unique ID for each record in the dataset.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#getitemid-function
 	 */
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
 
-	return (
-		<DataViews
-			actions={ actions }
-			data={ processedData }
-			defaultLayouts={ defaultLayouts }
-			fields={ fields }
-			getItemId={ getItemId }
-			onChangeSelection={ onChangeSelection }
-			onChangeView={ onChangeView }
-			paginationInfo={ paginationInfo }
-			view={ view }
-			header={
-				<ThreatsStatusToggleGroupControl
-					data={ data }
-					view={ view }
-					onChangeView={ onChangeView }
-				/>
-			}
-		/>
+	/**
+	 * DataViews onClickItem function - render the threat modal on media or primary field click.
+	 */
+	const onClickItem = useCallback(
+		( item: Threat ) => {
+			setSelectedThreat( item );
+		},
+		[ setSelectedThreat ]
 	);
-}
+
+	/**
+	 * Modal component to render based on the selected threat or action to confirm.
+	 */
+	const ModalComponent = useMemo( () => {
+		if ( actionToConfirm ) {
+			switch ( actionToConfirm.id ) {
+				case THREAT_ACTION_FIX:
+					return ThreatFixerModal;
+				case THREAT_ACTION_IGNORE:
+					return ThreatIgnoreModal;
+				default:
+					break;
+			}
+		}
+
+		if ( selectedThreat ) {
+			return ThreatDetailsModal;
+		}
+
+		return null;
+	}, [ actionToConfirm, selectedThreat ] );
+
+	return (
+		<>
+			<DataViews
+				actions={ Object.values( actions ) }
+				data={ processedData }
+				defaultLayouts={ defaultLayouts }
+				fields={ fields }
+				getItemId={ getItemId }
+				onChangeView={ onChangeView }
+				paginationInfo={ paginationInfo }
+				onClickItem={ onClickItem }
+				view={ view }
+				header={ header }
+			/>
+			{ ModalComponent && (
+				<ModalComponent threat={ selectedThreat } onRequestClose={ onRequestClose } />
+			) }
+		</>
+	);
+};
+
+export default ThreatsDataViews;

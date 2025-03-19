@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { ThreatsContextProvider } from '@automattic/jetpack-scan';
 import ThreatsDataViews from '../index.js';
 
 const data = [
@@ -14,17 +15,17 @@ const data = [
 		fixedOn: '2024-10-07T20:45:06.000Z',
 		fixable: { fixer: 'rollback', target: 'January 26, 2024, 6:49 am', extensionStatus: '' },
 		fixer: {
-			status: 'in_progress',
+			status: 'in_progress' as const,
 			startedAt: '2024-10-07T20:45:06.000Z',
 			lastUpdated: '2024-10-07T20:45:06.000Z',
 		},
 		severity: 8,
-		status: 'current',
+		status: 'current' as const,
 		filename: '/var/www/html/wp-content/index.php',
 		context: {
-			1: 'echo <<<HTML',
-			2: 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*',
-			3: 'HTML;',
+			'1': 'echo <<<HTML',
+			'2': 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*',
+			'3': 'HTML;',
 			marks: {},
 		},
 	},
@@ -39,15 +40,40 @@ const data = [
 			name: 'WooCommerce',
 			slug: 'woocommerce',
 			version: '3.2.3',
-			type: 'plugins',
+			type: 'plugins' as const,
 		},
 		fixedIn: '3.2.4',
 	},
 ];
 
+const mockProps = {
+	filters: [],
+	isSupportedEnvironment: true,
+	handleUpgradeClick: () => {},
+	onFixThreats: () => {},
+	onIgnoreThreats: () => {},
+	onUnignoreThreats: () => {},
+	isThreatEligibleForFix: () => true,
+	isThreatEligibleForIgnore: () => true,
+	isThreatEligibleForUnignore: () => true,
+	isUserConnected: true,
+	hasConnectedOwner: true,
+	userIsConnecting: false,
+	handleConnectUser: () => {},
+	credentials: [],
+	credentialsIsFetching: false,
+	credentialsRedirectUrl: '/redirect-url',
+	onModalOpen: () => {},
+	onModalClose: () => {},
+};
+
 describe( 'ThreatsDataViews', () => {
 	it( 'renders threat data', () => {
-		render( <ThreatsDataViews data={ data } /> );
+		render(
+			<ThreatsContextProvider>
+				<ThreatsDataViews data={ data } { ...mockProps } />
+			</ThreatsContextProvider>
+		);
 		expect( screen.getByText( 'Malicious code found in file: index.php' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText( 'WooCommerce <= 3.2.3 - Authenticated PHP Object Injection' )
