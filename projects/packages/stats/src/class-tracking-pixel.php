@@ -47,12 +47,12 @@ class Tracking_Pixel {
 	public static function build_view_data() {
 		global $wp_the_query;
 
-		$blog       = Jetpack_Options::get_option( 'id' );
-		$tz         = get_option( 'gmt_offset' );
-		$v          = 'ext';
-		$blog_url   = wp_parse_url( site_url() );
-		$srv        = $blog_url['host'];
-		$is_archive = false;
+		$blog        = Jetpack_Options::get_option( 'id' );
+		$tz          = get_option( 'gmt_offset' );
+		$v           = 'ext';
+		$blog_url    = wp_parse_url( site_url() );
+		$srv         = $blog_url['host'];
+		$is_not_post = false;
 		if ( $wp_the_query->is_single || $wp_the_query->is_page || $wp_the_query->is_posts_page ) {
 			// Store and reset the queried_object and queried_object_id
 			// Otherwise, redirect_canonical() will redirect to home_url( '/' ) for show_on_front = page sites where home_url() is not all lowercase.
@@ -71,8 +71,8 @@ class Tracking_Pixel {
 				$wp_the_query->queried_object_id = $queried_object_id;
 			}
 		} else {
-			$post       = '0';
-			$is_archive = true;
+			$post        = '0';
+			$is_not_post = true;
 		}
 		$view_data = compact( 'v', 'blog', 'post', 'tz', 'srv' );
 		// Batcache removes some of the UTM params from $_GET, we need to extract them from uri directly instead.
@@ -87,7 +87,7 @@ class Tracking_Pixel {
 			}
 		}
 
-		if ( $is_archive ) {
+		if ( $is_not_post ) {
 			if ( $wp_the_query->is_home() ) {
 				$view_data['home'] = '1';
 			} elseif ( $wp_the_query->is_archive() ) {
@@ -109,7 +109,7 @@ class Tracking_Pixel {
 				if ( $wp_the_query->is_tax ) {
 					$query = $wp_the_query->query;
 					if ( is_array( $query ) && count( $query ) === 1 ) {
-						$view_data[ 'arch_' . array_keys( $query )[0] ] = array_values( $query )[0];
+						$view_data[ 'arch_tax_' . array_keys( $query )[0] ] = array_values( $query )[0];
 					}
 				}
 				$view_data['arch_results'] = $wp_the_query->posts ? count( $wp_the_query->posts ) : 0;
@@ -118,6 +118,8 @@ class Tracking_Pixel {
 			} elseif ( $wp_the_query->is_search() ) {
 				$view_data['arch_search']  = sanitize_text_field( $wp_the_query->query['s'] );
 				$view_data['arch_results'] = $wp_the_query->posts ? count( $wp_the_query->posts ) : 0;
+			} else {
+				$view_data['arch_other'] = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
 			}
 		}
 

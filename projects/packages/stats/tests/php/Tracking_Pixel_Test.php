@@ -163,15 +163,15 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		$wp_the_query->posts = array( 'post1', 'post2', 'post3' );
 		$view_data           = Tracking_Pixel::build_view_data();
 		$expected_view_data  = array(
-			'v'            => 'ext',
-			'blog'         => 1234,
-			'post'         => '0',
-			'tz'           => false,
-			'srv'          => 'example.org',
-			'utm_id'       => 'some_id',
-			'utm_source'   => 'a_source',
-			'arch_testtax' => 'testterm',
-			'arch_results' => 3,
+			'v'                => 'ext',
+			'blog'             => 1234,
+			'post'             => '0',
+			'tz'               => false,
+			'srv'              => 'example.org',
+			'utm_id'           => 'some_id',
+			'utm_source'       => 'a_source',
+			'arch_tax_testtax' => 'testterm',
+			'arch_results'     => 3,
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
@@ -194,6 +194,26 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_id'     => 'some_id',
 			'utm_source' => 'a_source',
 			'arch_err'   => $_SERVER['REQUEST_URI'],
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+	}
+
+	/**
+	 * Test for Tracking_Pixel::build_view_data with an undefined type of page
+	 *
+	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
+	 */
+	public function test_build_view_data_with_undefined_type() {
+		$view_data          = Tracking_Pixel::build_view_data();
+		$expected_view_data = array(
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => '0',
+			'tz'         => false,
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
+			'arch_other' => $_SERVER['REQUEST_URI'],
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
@@ -237,6 +257,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'srv'        => 'example.org',
 			'utm_id'     => 'some_id',
 			'utm_source' => 'a_source',
+			'arch_other' => $_SERVER['REQUEST_URI'],
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
