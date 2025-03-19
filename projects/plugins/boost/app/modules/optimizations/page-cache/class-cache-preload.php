@@ -108,7 +108,7 @@ class Cache_Preload implements Pluggable, Has_Activate, Is_Always_On {
 	 * @since $$next-version$$
 	 */
 	public static function activate() {
-		Setup::get_or_create_instance_of( self::class )->schedule_cornerstone_preload();
+		Setup::get_or_create_instance_of( self::class )->schedule_cornerstone_rebuild_cronjob();
 	}
 
 	/**
