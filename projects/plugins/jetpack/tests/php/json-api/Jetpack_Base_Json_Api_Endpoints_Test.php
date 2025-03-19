@@ -75,7 +75,6 @@ class Jetpack_Base_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	 * Reset the environment to its original state after the test.
 	 */
 	public function tear_down() {
-		set_error_handler( null );
 		delete_user_meta( self::$super_admin_user_id, 'user_id' );
 
 		parent::tear_down();
@@ -89,11 +88,14 @@ class Jetpack_Base_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	public function test_get_author_should_trigger_error_if_a_user_not_exists() {
 		// Force the error handler to return null.
 		set_error_handler( '__return_null' );
+		try {
+			$endpoint = $this->get_dummy_endpoint();
+			$author   = $endpoint->get_author( 0 );
 
-		$endpoint = $this->get_dummy_endpoint();
-		$author   = $endpoint->get_author( 0 );
-
-		$this->assertNull( $author );
+			$this->assertNull( $author );
+		} finally {
+			restore_error_handler();
+		}
 	}
 
 	/**

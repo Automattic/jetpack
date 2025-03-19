@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Constraint\Constraint;
+
 require __DIR__ . '/../../../../modules/widgets/wordpress-post-widget.php';
 
 class Jetpack_Display_Posts_Widget_Test extends WP_UnitTestCase {
@@ -15,9 +17,43 @@ class Jetpack_Display_Posts_Widget_Test extends WP_UnitTestCase {
 	/**
 	 * Jetpack_Display_Posts_Widget_Test constructor.
 	 */
-	public function __construct() {
-		parent::__construct();
+	public function __construct( ...$args ) {
+		parent::__construct( ...$args );
 		$this->inst = new Jetpack_Display_Posts_Widget();
+	}
+
+	/**
+	 * Reimplement `withConsecutive` for PHPUnit.
+	 *
+	 * Unfortunately PHPUnit deprecated withConsecutive with no replacement, so we
+	 * have to roll our own version.
+	 *
+	 * @see https://github.com/sebastianbergmann/phpunit/issues/4026
+	 *
+	 * @param array ...$groups Sets of arguments as you'd have passed to `->withConsecutive()`.
+	 * @return Constraint[] Array of constraints to pass to `->with()`.
+	 */
+	private static function with_consecutive( ...$groups ) {
+		$ct         = count( $groups[0] );
+		$value_sets = array();
+		foreach ( $groups as $group ) {
+			for ( $i = 0; $i < $ct; $i++ ) {
+				$value_sets[ $i ][] = $group[ $i ] instanceof Constraint ? $group[ $i ] : static::equalTo( $group[ $i ] );
+			}
+		}
+		$funcs = array();
+		for ( $i = 0; $i < $ct; $i++ ) {
+			$funcs[] = static::callback(
+				function ( $value ) use ( $value_sets, $i ) {
+					static $set = null;
+					$set        = $set ?? $value_sets[ $i ]; // @phan-suppress-current-line PhanTypePossiblyInvalidDimOffset -- False positive.
+					$expect     = array_shift( $set );
+					$expect->evaluate( $value );
+					return true;
+				}
+			);
+		}
+		return $funcs;
 	}
 
 	/**
@@ -814,10 +850,12 @@ class Jetpack_Display_Posts_Widget_Test extends WP_UnitTestCase {
 
 		$mock->expects( $this->exactly( 3 ) )
 			->method( 'update_instance' )
-			->withConsecutive(
-				array( 'test_url_1' ),
-				array( 'test_url_2' ),
-				array( 'test_url_3' )
+			->with(
+				...static::with_consecutive(
+					array( 'test_url_1' ),
+					array( 'test_url_2' ),
+					array( 'test_url_3' )
+				)
 			);
 
 		$result = $mock->cron_task();
@@ -1405,17 +1443,21 @@ class Jetpack_Display_Posts_Widget_Test extends WP_UnitTestCase {
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'wp_wp_remote_get' )
-			->withConsecutive(
-				array( $mock->service_url . 'first_endpoint', array( 'timeout' => 15 ) ),
-				array( $mock->service_url . 'second_endpoint', array( 'timeout' => 15 ) )
+			->with(
+				...static::with_consecutive(
+					array( $mock->service_url . 'first_endpoint', array( 'timeout' => 15 ) ),
+					array( $mock->service_url . 'second_endpoint', array( 'timeout' => 15 ) )
+				)
 			)
 			->willReturnOnConsecutiveCalls( 'first_endpoint response', 'second_endpoint response' );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'parse_service_response' )
-			->withConsecutive(
-				array( 'first_endpoint response' ),
-				array( 'second_endpoint response' )
+			->with(
+				...static::with_consecutive(
+					array( 'first_endpoint response' ),
+					array( 'second_endpoint response' )
+				)
 			)
 			->willReturnOnConsecutiveCalls( 'first test', 'second test' );
 

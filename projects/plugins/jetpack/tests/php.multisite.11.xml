@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+	bootstrap="php/bootstrap.php"
+	cacheDirectory=".phpunit.cache"
+	colors="true"
+	executionOrder="depends"
+	beStrictAboutOutputDuringTests="true"
+	displayDetailsOnPhpunitDeprecations="false"
+	displayDetailsOnTestsThatTriggerDeprecations="true"
+	displayDetailsOnTestsThatTriggerErrors="true"
+	displayDetailsOnTestsThatTriggerNotices="true"
+	displayDetailsOnTestsThatTriggerWarnings="true"
+	failOnDeprecation="true"
+	failOnEmptyTestSuite="true"
+	failOnPhpunitDeprecation="false"
+	failOnNotice="true"
+	failOnRisky="true"
+	failOnWarning="true"
+>
+	<php>
+		<const name="WP_TESTS_MULTISITE" value="1" />
+		<const name="PHPUNIT_JETPACK_TESTSUITE" value="true"/>
+	</php>
+
+	<testsuites>
+		<testsuite name="general">
+			<directory suffix="Test.php">php/general</directory>
+		</testsuite>
+		<testsuite name="core-api">
+			<directory suffix="Test.php">php/core-api</directory>
+		</testsuite>
+		<testsuite name="media">
+			<directory suffix="Test.php">php/media</directory>
+		</testsuite>
+		<testsuite name="photon">
+			<directory suffix="Test.php">php/modules/photon</directory>
+			<file>php/Functions_OpenGraph_Test.php</file>
+		</testsuite>
+		<testsuite name="json-api">
+			<file>php/json-api/Jetpack_Json_Api_Endpoints_Test.php</file>
+			<file>php/json-api/Jetpack_Json_Api_Plugins_Endpoints_Test.php</file>
+		</testsuite>
+		<testsuite name="infinite-scroll">
+			<directory suffix="Test.php">php/modules/infinite-scroll</directory>
+		</testsuite>
+		<testsuite name="publicize">
+			<directory suffix="Test.php">php/modules/publicize</directory>
+		</testsuite>
+		<testsuite name="sharedaddy">
+			<directory suffix="Test.php">php/modules/sharedaddy</directory>
+		</testsuite>
+		<testsuite name="shortcodes">
+			<directory suffix="Test.php">php/modules/shortcodes</directory>
+		</testsuite>
+		<testsuite name="widgets">
+			<directory suffix="Test.php">php/modules/widgets</directory>
+		</testsuite>
+		<testsuite name="subscriptions">
+			<directory suffix="Test.php">php/modules/subscriptions</directory>
+		</testsuite>
+		<testsuite name="premium-content">
+			<directory suffix="Test.php">php/extensions/blocks/premium-content</directory>
+		</testsuite>
+		<testsuite name="sync">
+			<directory suffix="Test.php">php/sync</directory>
+			<exclude>php/sync/Jetpack_Sync_Full_Test.php</exclude>
+		</testsuite>
+		<testsuite name="uninstall">
+			<directory suffix="Test.php">php/uninstall</directory>
+		</testsuite>
+		<testsuite name="restapi">
+			<directory prefix="Jetpack_REST_API" suffix=".php">php/_inc/lib</directory>
+		</testsuite>
+		<testsuite name="autoloaded">
+			<directory suffix="Test.php">php/src</directory>
+		</testsuite>
+	</testsuites>
+
+	<groups>
+		<exclude>
+			<group>external-http</group>
+			<group>uninstall</group>
+		</exclude>
+	</groups>
+
+	<source>
+		<include>
+			<!-- Better to only include "src" than to add "." and then exclude "tests", "vendor", and so on, as PHPUnit still scans the excluded directories. -->
+			<!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
+			<file>../*.php</file>
+			<directory suffix=".php">../3rd-party</directory>
+			<directory suffix=".php">../extensions</directory>
+			<directory suffix=".php">../_inc</directory>
+			<directory suffix=".php">../json-endpoints</directory>
+			<directory suffix=".php">../modules</directory>
+			<directory suffix=".php">../sal</directory>
+			<directory suffix=".php">../src</directory>
+		</include>
+	</source>
+</phpunit>

@@ -7,6 +7,10 @@ class Jetpack_Deprecation_Test extends WP_UnitTestCase {
 	 * @dataProvider provider_deprecated_file_paths
 	 */
 	public function test_deprecated_file_paths( $file_path, $replacement_path ) {
+		if ( $file_path === '' && $replacement_path === '' ) {
+			$this->markTestSkipped( 'No deprecated paths to test' );
+		}
+
 		$this->setExpectedDeprecated( $file_path );
 
 		$mock = $this->getMockBuilder( stdClass::class )
@@ -65,6 +69,9 @@ class Jetpack_Deprecation_Test extends WP_UnitTestCase {
 	 * @return array
 	 */
 	public static function provider_deprecated_file_paths() {
-		return array();
+		return array(
+			// PHPunit 11 doesn't allow an empty data provider and doesn't allow the provider to explicitly skip either, sigh. So we have to do BS like this instead.
+			array( '', '' ),
+		);
 	}
 }

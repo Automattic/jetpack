@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "0.18.1",
+	"version": "0.18.4",
 	"description": "Utility functions used by the block editor extensions",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/shared-extension-utils/#readme",
 	"bugs": {
@@ -18,7 +18,7 @@
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
-		"@automattic/color-studio": "4.0.0",
+		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
@@ -41,7 +41,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.26.0",
+		"@babel/core": "7.26.10",
 		"@babel/plugin-transform-react-jsx": "7.25.9",
 		"@babel/preset-react": "7.26.3",
 		"@babel/runtime": "7.26.10",

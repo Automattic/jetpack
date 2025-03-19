@@ -45,9 +45,9 @@ export const useSeoRequests = (
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const { getPostContent } = usePostContent();
 	const isBusy = useSelect( select => select( store ).isBusy(), [] );
-	const setBusy = useDispatch( store ).setBusy;
-	const { isImageBusy } = useSelect( select => select( store ), [] );
-	const { setImageBusy } = useDispatch( store );
+	const { setBusy, setTitleBusy, setDescriptionBusy } = useDispatch( store );
+	const { isImageBusy, hasImageFailed } = useSelect( select => select( store ), [] );
+	const { setImageBusy, setImageFailed } = useDispatch( store );
 
 	const request = useCallback(
 		async ( type: PromptType, block?: Block, useBase64Image: boolean = false ) => {
@@ -104,6 +104,7 @@ export const useSeoRequests = (
 			}
 
 			try {
+				setTitleBusy( true );
 				const response = await request( 'seo-title' );
 				const title = parseResponse( response ).titles?.[ 0 ];
 
@@ -114,9 +115,11 @@ export const useSeoRequests = (
 				} );
 			} catch ( error ) {
 				debug( 'Error updating title', error );
+			} finally {
+				setTitleBusy( false );
 			}
 		},
-		[ request, editPost ]
+		[ setTitleBusy, request, editPost ]
 	);
 
 	const updateDescription = useCallback(
@@ -129,6 +132,7 @@ export const useSeoRequests = (
 			}
 
 			try {
+				setDescriptionBusy( true );
 				const response = await request( 'seo-meta-description' );
 				const description = parseResponse( response ).descriptions?.[ 0 ];
 				editPost( {
@@ -138,15 +142,22 @@ export const useSeoRequests = (
 				} );
 			} catch ( error ) {
 				debug( 'Error updating description', error );
+			} finally {
+				setDescriptionBusy( false );
 			}
 		},
-		[ request, editPost ]
+		[ setDescriptionBusy, request, editPost ]
 	);
 
 	const updateAltText = useCallback(
 		async ( block: Block, useBase64Image: boolean = false ) => {
 			if ( isImageBusy( block.clientId ) ) {
 				debug( 'Already updating alt text, skipping' );
+				return;
+			}
+
+			if ( hasImageFailed( block.clientId ) ) {
+				debug( 'Image failed, skipping' );
 				return;
 			}
 
@@ -165,10 +176,13 @@ export const useSeoRequests = (
 					return updateAltText( block, true );
 				}
 
+				if ( error?.code !== 'fetch_error' ) {
+					setImageFailed( block.clientId, true );
+				}
 				debug( 'Error updating alt text', error );
 			}
 		},
-		[ isImageBusy, setImageBusy, request, updateBlockAttributes ]
+		[ isImageBusy, hasImageFailed, setImageBusy, request, updateBlockAttributes, setImageFailed ]
 	);
 
 	const updateAltTexts = useCallback(

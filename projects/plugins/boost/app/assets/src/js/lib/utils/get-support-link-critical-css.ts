@@ -11,6 +11,7 @@ function getPrettyError( error: string ) {
 		EmptyCSSError: 'empty-css-error',
 		XFrameDenyError: 'x-frame-deny-error',
 		InvalidURLError: 'invalid-url-error',
+		ProviderError: 'provider-error',
 	};
 
 	return errorMap[ error as keyof typeof errorMap ] || error;

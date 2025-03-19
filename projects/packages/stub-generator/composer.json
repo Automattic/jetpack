@@ -18,7 +18,7 @@
 		"symfony/console": "^5.4 || ^6.4 || ^7.1"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^1.1.1",
+		"yoast/phpunit-polyfills": "^3.0.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},

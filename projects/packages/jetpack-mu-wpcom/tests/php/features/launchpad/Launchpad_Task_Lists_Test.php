@@ -147,7 +147,8 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 					true,
 					array(
 						'is_completed_callback' => function ( $task_list ) {
-									$first_task = reset( wpcom_launchpad_checklists()->build( $task_list['id'] ) );
+									$tasks = wpcom_launchpad_checklists()->build( $task_list['id'] );
+									$first_task = reset( $tasks );
 									return $first_task['completed'];
 						},
 					),

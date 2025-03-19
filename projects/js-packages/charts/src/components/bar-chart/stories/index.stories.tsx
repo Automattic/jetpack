@@ -63,6 +63,16 @@ export const TimeSeries: Story = {
 	args: {
 		...Default.args,
 		data: [ trafficData[ 0 ] ],
+		options: {
+			axis: {
+				x: {
+					tickFormat: ( timestamp: number ) => {
+						const date = new Date( timestamp );
+						return date.toLocaleDateString( 'en-US', { dateStyle: 'short' } );
+					},
+				},
+			},
+		},
 	},
 	parameters: {
 		docs: {

@@ -101,9 +101,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 
 		$utils_mock->expects( $this->once() )
 			->method( 'remote_get' )
-			->withConsecutive(
-				array( 'https://public-api.wordpress.com/rest/v1/ptk/patterns/fr?post_type=wp_block' )
-			);
+			->willReturn( 'https://public-api.wordpress.com/rest/v1/ptk/patterns/fr?post_type=wp_block' );
 
 		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
 	}
