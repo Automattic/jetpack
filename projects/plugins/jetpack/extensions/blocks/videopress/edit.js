@@ -794,6 +794,8 @@ const VideoPressEdit = CoreVideoEdit =>
 					startPollingForPosterImage();
 				} else {
 					updatePosterImage( result.poster );
+					// Clear the videoFrameSelectedInMillis after poster is generated
+					this.setState( { videoFrameSelectedInMillis: null } );
 				}
 			};
 
