@@ -488,14 +488,14 @@ function get_element_styles_from_attributes( $attributes ) {
 			: sprintf( 'width: calc(100%% - %dpx);', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) );
 	}
 
-	$font_size = get_attribute( $attributes, 'customFontSize', DEFAULT_FONTSIZE_VALUE );
-	$style     = sprintf( 'font-size: %s%s;', $font_size, is_numeric( $font_size ) ? 'px' : '' );
+	$font_size = get_attribute( $attributes, 'customFontSize' );
+	$style     = ( $font_size && $font_size !== DEFAULT_FONTSIZE_VALUE ) ? sprintf( 'font-size: %s%s;', $font_size, is_numeric( $font_size ) ? 'px' : '' ) : '';
 
 	$submit_button_styles .= $style;
 	$email_field_styles   .= $style;
 
-	$padding = get_attribute( $attributes, 'padding', DEFAULT_PADDING_VALUE );
-	$style   = sprintf( 'padding: %1$dpx %2$dpx %1$dpx %2$dpx;', $padding, round( $padding * 1.5 ) );
+	$padding = get_attribute( $attributes, 'padding' );
+	$style   = ( $padding && $padding !== DEFAULT_PADDING_VALUE ) ? sprintf( 'padding: %1$dpx %2$dpx %1$dpx %2$dpx;', $padding, round( $padding * 1.5 ) ) : '';
 
 	$submit_button_styles .= $style;
 	$email_field_styles   .= $style;
@@ -516,11 +516,13 @@ function get_element_styles_from_attributes( $attributes ) {
 		$email_field_styles   .= $style;
 	}
 
-	$style                 = sprintf( 'border-radius: %dpx;', get_attribute( $attributes, 'borderRadius', DEFAULT_BORDER_RADIUS_VALUE ) );
+	$border_radius         = get_attribute( $attributes, 'borderRadius' );
+	$style                 = ( $border_radius && $border_radius !== DEFAULT_BORDER_RADIUS_VALUE ) ? sprintf( 'border-radius: %dpx;', $border_radius ) : '';
 	$submit_button_styles .= $style;
 	$email_field_styles   .= $style;
 
-	$style                 = sprintf( 'border-width: %dpx;', get_attribute( $attributes, 'borderWeight', DEFAULT_BORDER_WEIGHT_VALUE ) );
+	$border_width          = get_attribute( $attributes, 'borderWeight' );
+	$style                 = ( $border_width && $border_width !== DEFAULT_BORDER_WEIGHT_VALUE ) ? sprintf( 'border-width: %dpx;', $border_width ) : '';
 	$submit_button_styles .= $style;
 	$email_field_styles   .= $style;
 
@@ -811,19 +813,14 @@ function render_for_website( $data, $classes, $styles ) {
 									type="email"
 									name="email"
 									%1$s
-									style="%2$s"
-									placeholder="%3$s"
-									value="%4$s"
-									id="%5$s"
-									%6$s
+									placeholder="%2$s"
+									value="%3$s"
+									id="%4$s"
+									%5$s
 								/>',
 								( ! empty( $classes['email_field'] )
 									? 'class="' . esc_attr( $classes['email_field'] ) . '"'
 									: ''
-								),
-								( ! empty( $styles['email_field'] )
-									? esc_attr( $styles['email_field'] )
-									: 'width: 95%; padding: 1px 10px'
 								),
 								esc_attr( $data['subscribe_placeholder'] ),
 								esc_attr( $data['subscribe_email'] ),

@@ -139,3 +139,10 @@
 		margin-top: 0 !important;
 	}
 }
+
+:where(.wp-block-jetpack-subscriptions input[type="email"]) {
+	font-size: 16px;
+	padding: 15px 23px 15px 23px;
+	border-radius: 0px;
+	border-width: 1px;
+}
