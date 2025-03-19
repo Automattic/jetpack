@@ -1862,7 +1862,7 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Get Calypso URL for Publicize connections.
+	 * Get the URL to the connections management page.
 	 *
 	 * @return string
 	 */
