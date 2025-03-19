@@ -19,23 +19,26 @@ import './style.scss';
 import { PromptType } from './types';
 
 export function SeoSummary( { onEdit }: { onEdit: () => void } ) {
-	const { enabledFeatures, title, description, isTitleBusy, isDescriptionBusy, isAnyImageBusy } =
-		useSelect( select => {
-			const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
-			const features = select( seoEnhancerStore ).getEnabledFeatures();
-			const titleBusy = select( seoEnhancerStore ).isTitleBusy();
-			const descriptionBusy = select( seoEnhancerStore ).isDescriptionBusy();
-			const anyImageBusy = select( seoEnhancerStore ).isAnyImageBusy();
+	const { title, description } = useSelect( select => {
+		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
 
-			return {
-				enabledFeatures: features,
-				title: meta?.jetpack_seo_html_title ?? '',
-				description: meta?.advanced_seo_description ?? '',
-				isTitleBusy: titleBusy,
-				isDescriptionBusy: descriptionBusy,
-				isAnyImageBusy: anyImageBusy,
-			};
-		}, [] );
+		return {
+			title: meta?.jetpack_seo_html_title ?? '',
+			description: meta?.advanced_seo_description ?? '',
+		};
+	}, [] );
+
+	const { enabledFeatures, titleBusy, descriptionBusy, imageBusy } = useSelect( select => {
+		const { getEnabledFeatures, isTitleBusy, isDescriptionBusy, isAnyImageBusy } =
+			select( seoEnhancerStore );
+
+		return {
+			enabledFeatures: getEnabledFeatures(),
+			titleBusy: isTitleBusy(),
+			descriptionBusy: isDescriptionBusy(),
+			imageBusy: isAnyImageBusy(),
+		};
+	}, [] );
 
 	const helpTexts = useMemo( () => {
 		return {
@@ -46,16 +49,16 @@ export function SeoSummary( { onEdit }: { onEdit: () => void } ) {
 	}, [ description, title ] );
 
 	const getIcon = ( feature: PromptType ) => {
-		if ( feature === 'images-alt-text' ) {
-			return isAnyImageBusy ? <Spinner /> : check;
-		}
-
 		if ( feature === 'seo-title' ) {
-			return isTitleBusy ? <Spinner /> : check;
+			return titleBusy ? <Spinner /> : check;
 		}
 
 		if ( feature === 'seo-meta-description' ) {
-			return isDescriptionBusy ? <Spinner /> : check;
+			return descriptionBusy ? <Spinner /> : check;
+		}
+
+		if ( feature === 'images-alt-text' ) {
+			return imageBusy ? <Spinner /> : check;
 		}
 
 		return null;
