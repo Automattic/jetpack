@@ -192,14 +192,35 @@ export const SlideshowEdit = ( {
 	);
 };
 
+const memoCache = new Map();
+
 export default compose(
 	withSelect( ( select, props ) => {
-		const imageSizes = select( 'core/editor' ).getEditorSettings().imageSizes;
-		const resizedImages = props.attributes.ids.reduce( ( currentResizedImages, id ) => {
-			const image = select( 'core' ).getMedia( id );
+		const { getEditorSettings } = select( 'core/editor' );
+		const { ids } = props.attributes;
+
+		const imageSizes = getEditorSettings().imageSizes;
+
+		// Create cache key
+		const memoKey = ids.join( ',' );
+
+		if ( memoCache.has( memoKey ) ) {
+			return {
+				imageSizes,
+				resizedImages: memoCache.get( memoKey ),
+			};
+		}
+
+		// If not in cache, calculate new value
+		const { getMedia } = select( 'core' );
+		const resizedImages = ids.reduce( ( currentResizedImages, id ) => {
+			const image = getMedia( id );
 			const sizes = get( image, [ 'media_details', 'sizes' ] );
 			return [ ...currentResizedImages, { id, sizes } ];
 		}, [] );
+
+		memoCache.set( memoKey, resizedImages );
+
 		return {
 			imageSizes,
 			resizedImages,
