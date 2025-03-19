@@ -2,9 +2,11 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
+use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
+use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
@@ -18,14 +20,13 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logg
  * @since $$next-version$$
  * @package Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache
  */
-class Cache_Preload implements Pluggable, Is_Always_On {
+class Cache_Preload implements Pluggable, Has_Activate, Is_Always_On {
 
 	/**
 	 * @since $$next-version$$
 	 */
 	public function setup() {
 		add_action( 'update_option_jetpack_boost_ds_cornerstone_pages_list', array( $this, 'schedule_cornerstone_rebuild' ) );
-		add_action( 'jetpack_boost_page_cache_activate', array( $this, 'schedule_cornerstone_rebuild_cronjob' ) );
 		add_action( 'jetpack_boost_rebuild', array( $this, 'rebuild' ) );
 		add_action( 'jetpack_boost_preload_pages', array( $this, 'preload_pages' ) );
 
@@ -98,6 +99,16 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 		foreach ( $urls as $url ) {
 			$boost_cache->invalidate_cache_for_url( $url, Filesystem_Utils::REBUILD_FILES );
 		}
+	}
+
+	/**
+	 * As this is a submodule, this activate is triggered when the parent module is activated,
+	 * despite the module having Is_Always_On.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function activate() {
+		Setup::get_or_create_instance_of( self::class )->schedule_cornerstone_preload();
 	}
 
 	/**
