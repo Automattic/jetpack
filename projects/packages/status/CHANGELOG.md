@@ -5,9 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.9] - 2025-03-18
+### Changed
+- Internal updates.
+
+## [5.0.8] - 2025-03-17
+### Changed
+- Internal updates.
+
+## [5.0.7] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [5.0.6] - 2025-03-05
+### Changed
+- Internal updates.
+
 ## [5.0.5] - 2025-03-03
 ### Fixed
-- Hosting provider checks: avoid PHP warnings in local environments. [#41994]
+- Hosting provider checks: Avoid PHP warnings in local environments. [#41994]
 
 ## [5.0.4] - 2025-02-24
 ### Changed
@@ -429,6 +445,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[5.0.9]: https://github.com/Automattic/jetpack-status/compare/v5.0.8...v5.0.9
+[5.0.8]: https://github.com/Automattic/jetpack-status/compare/v5.0.7...v5.0.8
+[5.0.7]: https://github.com/Automattic/jetpack-status/compare/v5.0.6...v5.0.7
+[5.0.6]: https://github.com/Automattic/jetpack-status/compare/v5.0.5...v5.0.6
 [5.0.5]: https://github.com/Automattic/jetpack-status/compare/v5.0.4...v5.0.5
 [5.0.4]: https://github.com/Automattic/jetpack-status/compare/v5.0.3...v5.0.4
 [5.0.3]: https://github.com/Automattic/jetpack-status/compare/v5.0.2...v5.0.3

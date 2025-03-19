@@ -39,6 +39,11 @@
     }
   }
 
+	.group .components-base-control:nth-child(2) {
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+
   .components-unit-control .components-input-control__container {
     max-height: 30px;
 

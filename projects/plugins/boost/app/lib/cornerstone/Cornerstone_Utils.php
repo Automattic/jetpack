@@ -23,20 +23,28 @@ class Cornerstone_Utils {
 	}
 
 	/**
-	 * Check if a post is a cornerstone page.
+	 * Checks if a URL is a cornerstone page.
 	 *
-	 * @param int $post_id The ID of the post to check.
-	 * @return bool True if the post is a cornerstone page, false otherwise.
+	 * @param string $url The URL to check.
+	 * @return bool True if the URL is a cornerstone page, false otherwise.
 	 */
-	public static function is_cornerstone_page( $post_id ) {
+	public static function is_cornerstone_page_by_url( $url ) {
 		$cornerstone_pages = self::get_list();
 		if ( empty( $cornerstone_pages ) ) {
 			return false;
 		}
 
-		$post_url          = untrailingslashit( get_permalink( $post_id ) );
 		$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
+		return in_array( untrailingslashit( $url ), $cornerstone_pages, true );
+	}
 
-		return in_array( $post_url, $cornerstone_pages, true );
+	/**
+	 * Check if a post ID is a cornerstone page.
+	 *
+	 * @param int $post_id The ID of the post to check.
+	 * @return bool True if the post is a cornerstone page, false otherwise.
+	 */
+	public static function is_cornerstone_page( $post_id ) {
+		return self::is_cornerstone_page_by_url( get_permalink( $post_id ) );
 	}
 }

@@ -1,9 +1,10 @@
 <?php
 /**
+ * This is WP_Test_REST_Controller_Testcase without the unneeded abstract methods.
+ *
  * @package automattic/jetpack
  */
 
-// This is REST_Controller_Testcase without the unneeded abstract methods.
 require_once __DIR__ . '/class-jptest-spy-rest-server.php';
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -11,6 +12,8 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 }
 
 abstract class Jetpack_REST_TestCase extends WP_Test_REST_TestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	protected $server;
 
 	/**

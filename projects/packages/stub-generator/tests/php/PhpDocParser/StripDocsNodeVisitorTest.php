@@ -67,7 +67,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 	/**
 	 * Data provider for testIntegration.
 	 */
-	public function provideIntegration() {
+	public static function provideIntegration() {
 		return array(
 			'Simple doc comment'                     => array(
 				<<<'PHPDOC'

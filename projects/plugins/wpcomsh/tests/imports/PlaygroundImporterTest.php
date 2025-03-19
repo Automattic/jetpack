@@ -14,6 +14,7 @@ use Imports\Playground_Importer;
  * Class PlaygroundImporterTest
  */
 class PlaygroundImporterTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Open an empty path.

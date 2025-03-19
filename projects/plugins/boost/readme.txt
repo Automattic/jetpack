@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.6
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 3.9.0
+Stable tag: 3.10.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,19 +183,19 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.9.0 - 2025-02-17
+### 3.11.0-beta - 2025-03-18
 #### Added
-- Cloud CSS: Handle prioritized cloud CSS regeneration for cornerstone pages updates.
-- Concatenate JS: Add compatibility with "Depay Payments for WooCommerce".
-- Speed Scores: Add tracking for speed score pop-out CTA.
+- Page Cache: Add more cookies to the ignore-list for better caching.
 
 #### Changed
-- Admin Panel: Cleanup CSS styles.
-- Concatenate JS/CSS: Update concatenated assets to be stored on the server as files.
-- Updated package dependencies.
+- Cache: Hide conflicting notice about cache setup on WoA.
+- Concatenate JS/CSS: Ensure delivery method tester is only tested once per network on Multisite.
+- UI: Change style of pills.
+- UI: Upgrade CTAs on the Jetpack Boost admin now opens a modal instead of navigating to the upgrade page.
+- Update package dependencies.
 
 #### Fixed
-- UI: Fix UI discrepancy in Boost settings page upon toggling multiple Modules at same time.
+- Critical CSS: Prevent the process from failing when a single provider fails storing its CSS.
 
 --------
 

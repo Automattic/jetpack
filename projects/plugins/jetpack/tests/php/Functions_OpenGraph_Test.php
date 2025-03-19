@@ -107,7 +107,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	/**
 	 * Potential descriptions given to OG description.
 	 */
-	public function jetpack_og_get_description_data_provider() {
+	public static function jetpack_og_get_description_data_provider() {
 		return array(
 			'empty'                  => array(
 				'',

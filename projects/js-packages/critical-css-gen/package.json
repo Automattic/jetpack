@@ -1,7 +1,7 @@
 {
 	"type": "module",
 	"name": "@automattic/jetpack-critical-css-gen",
-	"version": "1.0.6",
+	"version": "1.0.8",
 	"description": "A flexible Critical CSS Generator that supports multiple URLs and viewports, with both server-side and client-side generation capabilities.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/critical-css-gen/#readme",
 	"bugs": {
@@ -20,13 +20,14 @@
 		"clean": "rm -rf build/",
 		"clean:test": "rm -rf tests/build/",
 		"test": "pnpm build && pnpm build:test && NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js",
-		"test-coverage": "pnpm run test --coverage"
+		"test-coverage": "pnpm run test --coverage",
+		"watch": "tsc --watch"
 	},
 	"main": "./build/browser.js",
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.26.0",
-		"@babel/preset-env": "7.26.0",
+		"@babel/core": "7.26.10",
+		"@babel/preset-env": "7.26.9",
 		"@babel/preset-typescript": "7.26.0",
 		"@types/clean-css": "4.2.11",
 		"@types/css-tree": "2.3.10",

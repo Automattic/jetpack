@@ -732,6 +732,16 @@ export function isBlazeDashboardEnabled( state ) {
 }
 
 /**
+ * Returns true if the wp-admin Subscriber dashboard is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the Subscriber dashboard is enabled.
+ */
+export function isWpAdminSubscriberManagementEnabled( state ) {
+	return !! state.jetpack.initialState.isWpAdminSubscriberManagementEnabled;
+}
+
+/**
  * Check if the Sharing block is available on the site.
  *
  * @param {object} state - Global state tree.
@@ -779,4 +789,14 @@ export function getNewsetterDateExample( state ) {
  */
 export function subscriptionSiteEditSupported( state ) {
 	return !! state.jetpack.initialState.subscriptionSiteEditSupported;
+}
+
+/**
+ * Returns true if the wp-admin SEO Enhancer setting/feature is available.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the SEO Enhancer is available.
+ */
+export function isSeoEnhancerAvailable( state ) {
+	return 'ai_seo_enhancer_enabled' in state.jetpack.initialState.getModules[ 'seo-tools' ].options;
 }

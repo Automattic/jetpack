@@ -3,6 +3,7 @@
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemaps.php';
 
 class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Constructor does not throw any fatal errors.

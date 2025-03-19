@@ -20,7 +20,6 @@ use RegexIterator;
  * Tests for the Jetpack phpcs standard.
  */
 class JetpackStandardTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Run phpcs on a file.
@@ -96,7 +95,7 @@ class JetpackStandardTest extends TestCase {
 		$actual = $this->run_phpcs( $file, $fix );
 		if ( getenv( 'UPDATE_SNAPSHOTS' ) && $expect !== $actual ) {
 			file_put_contents( $snapfile, $actual );
-			$this->addWarning( "Updated snapshot in $snapfile" );
+			trigger_error( "Updated snapshot in $snapfile", E_USER_WARNING );
 		} else {
 			$this->assertEquals( $expect, $actual, '(Run with UPDATE_SNAPSHOTS=1 to update snapshots)' );
 		}
@@ -107,7 +106,7 @@ class JetpackStandardTest extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function provide_files() {
+	public static function provide_files() {
 		$dir_iterator = new RecursiveDirectoryIterator( __DIR__ . '/files', RecursiveDirectoryIterator::CURRENT_AS_PATHNAME );
 		$iterator     = new RegexIterator(
 			new RecursiveIteratorIterator( $dir_iterator ),

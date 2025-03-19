@@ -1,3 +1,4 @@
+import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { VideoBlockAttributes, VideoGUID } from '../../block-editor/blocks/video/types';
 
@@ -159,6 +160,37 @@ export function buildVideoPressURL(
 	return {};
 }
 
+/**
+ * Search for a VideoPress video by filename in the media library
+ *
+ * @param {string}               fileName   - The name of the video file to search for
+ * @param {VideoBlockAttributes} attributes - Optional VideoPress URL attributes
+ * @return {Promise<BuildVideoPressURLProps | null>} The VideoPress URL and GUID if found, null otherwise
+ */
+export async function buildVideoPressVideoByFileName(
+	fileName: string,
+	attributes: VideoBlockAttributes = {}
+): Promise< BuildVideoPressURLProps | null > {
+	try {
+		const results = await apiFetch< Array< { jetpack_videopress_guid?: string } > >( {
+			path: `/wp/v2/media?mime_type=video&search=${ encodeURIComponent( fileName ) }`,
+		} );
+
+		const videoFile = results.find( item => item.jetpack_videopress_guid );
+
+		if ( videoFile?.jetpack_videopress_guid ) {
+			return {
+				url: getVideoPressUrl( videoFile.jetpack_videopress_guid, attributes ),
+				guid: videoFile.jetpack_videopress_guid,
+			};
+		}
+
+		return null;
+	} catch {
+		return null;
+	}
+}
+
 export const removeFileNameExtension = ( name: string ) => {
 	return name.replace( /\.[^/.]+$/, '' );
 };
@@ -177,6 +209,26 @@ export function getVideoUrlBasedOnPrivacy( guid: VideoGUID, isPrivate: boolean )
 	}
 
 	return `https://videopress.com/v/${ guid }`;
+}
+
+/**
+ * Extract the video filename with extension from a URL
+ *
+ * @param {string} url - The URL containing the video filename
+ * @return {string}    The video filename with extension, or empty string if not found
+ */
+export function getVideoNameFromUrl( url: string ): string {
+	try {
+		const urlObj = new URL( url );
+
+		// Split the pathname by '/' and get the last segment
+		const segments = urlObj.pathname.split( '/' );
+		const fileName = segments[ segments.length - 1 ];
+
+		return fileName || '';
+	} catch {
+		return '';
+	}
 }
 
 /**

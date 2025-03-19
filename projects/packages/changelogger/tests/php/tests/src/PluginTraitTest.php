@@ -23,7 +23,9 @@ class PluginTraitTest extends TestCase {
 	 * Test the trait.
 	 */
 	public function testTrait() {
-		$mock = $this->getMockBuilder( PluginTrait::class )->getMockForTrait();
+		$mock = new class() {
+			use PluginTrait;
+		};
 		$w    = TestingAccessWrapper::newFromObject( $mock );
 
 		$this->assertSame( array(), $mock->getOptions() );

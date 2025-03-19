@@ -19,7 +19,6 @@ use PHPUnit\Framework\TestCase;
  * @covers Automattic\Jetpack\Partner_Coupon
  */
 class Partner_Coupon_Test extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	const PRODUCT = array(
 		'title'       => 'Jetpack Backup',
@@ -225,7 +224,7 @@ class Partner_Coupon_Test extends TestCase {
 	 *
 	 * @return array[]
 	 */
-	public function dataprovider_purge_dates() {
+	public static function dataprovider_purge_dates() {
 		return array(
 			array(
 				strtotime( '-31 days' ),
@@ -266,17 +265,10 @@ class Partner_Coupon_Test extends TestCase {
 			$mock_response['body'] = wp_json_encode( $mock_response['body'] );
 		}
 
-		$mock_client = $this->getMockBuilder( \stdClass::class )
-							->addMethods( array( 'wpcom_json_api_request_as_blog' ) )
-							->getMock();
+		$callback = $this->getMockBuilder( \CallableMock::class )->getMock();
+		$callback->expects( $this->once() )->method( '__invoke' )->willReturn( $mock_response );
 
-		$mock_client
-			->expects( $this->once() )
-			->method( 'wpcom_json_api_request_as_blog' )
-			->willReturn( $mock_response );
-
-		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
-		$instance = new Partner_Coupon( array( $mock_client, 'wpcom_json_api_request_as_blog' ) );
+		$instance = new Partner_Coupon( $callback );
 		$class    = new \ReflectionClass( $instance );
 		$method   = $class->getMethod( 'maybe_purge_coupon_by_availability_check' );
 		$method->setAccessible( true );
@@ -290,7 +282,7 @@ class Partner_Coupon_Test extends TestCase {
 	 *
 	 * @return array[]
 	 */
-	public function dataprovider_availability_check_scenarios() {
+	public static function dataprovider_availability_check_scenarios() {
 		return array(
 			'successful remote request | unavailable coupon' => array(
 				array(

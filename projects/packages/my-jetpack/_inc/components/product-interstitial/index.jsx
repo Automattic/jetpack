@@ -9,6 +9,7 @@ import {
 	Text,
 	TermsOfService,
 } from '@automattic/jetpack-components';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -87,7 +88,7 @@ export default function ProductInterstitial( {
 		redirectUri = detail.postActivationUrlsByFeature[ feature ];
 	}
 
-	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
+	const { isUpgradableByBundle, pricingForUi, isTieredPricing } = detail;
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
@@ -210,7 +211,11 @@ export default function ProductInterstitial( {
 	);
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ false }
+			useInternalLinks={ shouldUseInternalLinks() }
+		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } />
@@ -235,7 +240,7 @@ export default function ProductInterstitial( {
 					) }
 				</Col>
 				<Col>
-					{ tiers && tiers.length ? (
+					{ isTieredPricing ? (
 						<ProductDetailTable
 							slug={ slug }
 							clickHandler={ clickHandler }

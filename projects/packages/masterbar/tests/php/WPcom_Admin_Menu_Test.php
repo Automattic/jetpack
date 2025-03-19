@@ -85,11 +85,16 @@ class WPcom_Admin_Menu_Test extends TestCase {
 
 		wp_set_current_user( static::$user_id );
 
-		$admin_menu = $this->getMockBuilder( WPcom_Admin_Menu::class )
-							->disableOriginalConstructor()
-							->onlyMethods( array( 'should_link_to_wp_admin' ) )
-							->getMock();
-		$admin_menu->method( 'should_link_to_wp_admin' )->willReturn( false );
+		$admin_menu = new class() extends WPcom_Admin_Menu {
+			// phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found -- Not useless, changes visibility.
+			public function __construct() {
+				parent::__construct();
+			}
+
+			public function should_link_to_wp_admin() {
+				return false;
+			}
+		};
 
 		// Initialize in setUp so it registers hooks for every test.
 		static::$admin_menu = $admin_menu::get_instance();

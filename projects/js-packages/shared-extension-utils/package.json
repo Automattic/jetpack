@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "0.17.4",
+	"version": "0.18.4",
 	"description": "Utility functions used by the block editor extensions",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/shared-extension-utils/#readme",
 	"bugs": {
@@ -18,17 +18,20 @@
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
-		"@automattic/color-studio": "4.0.0",
+		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@wordpress/api-fetch": "7.19.0",
 		"@wordpress/block-editor": "14.14.0",
 		"@wordpress/components": "29.5.0",
 		"@wordpress/compose": "7.19.0",
 		"@wordpress/data": "10.19.0",
+		"@wordpress/dom-ready": "4.19.0",
 		"@wordpress/element": "6.19.0",
+		"@wordpress/hooks": "4.19.0",
 		"@wordpress/i18n": "5.19.0",
 		"@wordpress/plugins": "7.19.0",
 		"@wordpress/url": "4.19.0",
@@ -38,10 +41,10 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.26.0",
+		"@babel/core": "7.26.10",
 		"@babel/plugin-transform-react-jsx": "7.25.9",
 		"@babel/preset-react": "7.26.3",
-		"@babel/runtime": "7.26.0",
+		"@babel/runtime": "7.26.10",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.2.0",
 		"@testing-library/user-event": "14.6.1",
