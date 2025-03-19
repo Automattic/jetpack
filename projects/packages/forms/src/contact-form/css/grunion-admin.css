@@ -194,15 +194,6 @@
 	color: inherit;
 }
 
-.export-card__body-description-footer {
-	font-style: normal;
-	font-weight: 400;
-	font-size: 12px;
-	line-height: 150%;
-	color: #757575;
-	margin-bottom: 0px;
-}
-
 .export-card__body-cta {
 	align-self: flex-end;
 }
@@ -215,19 +206,4 @@
 	background: #000000;
 	border: 1px solid #FFFFFF;
 	border-radius: 4px;
-}
-
-.export-card__beta-badge {
-	background: #2FB41F;
-	border-radius: 2px;
-	font-style: normal;
-	font-weight: 600;
-	font-size: 11px;
-	line-height: 150%;
-	/* identical to box height, or 16px */
-
-	text-align: right;
-	text-transform: uppercase;
-	padding: 4px 8px;
-	color: #FFFFFF;
 }
