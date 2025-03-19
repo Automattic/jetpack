@@ -67,7 +67,9 @@ class Setup {
 
 		$instance = new $class_name();
 
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- T implements Has_Setup per template definition
 		self::add( $instance );
+
 		return $instance;
 	}
 }
