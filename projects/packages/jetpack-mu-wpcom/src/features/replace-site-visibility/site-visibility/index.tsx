@@ -45,6 +45,10 @@ const SiteVisibility = ( {
 	const isPublicChecked = ( blogPublic === 0 && ! wpcomPublicComingSoon ) || blogPublic === 1;
 	const showPreviewLink =
 		Number( defaultWpcomPublicComingSoon ) === 1 && isAnyComingSoonEnabled && hasSitePreviewLink;
+	const showPublicDetails =
+		( ( Number( defaultBlogPublic ) === 0 && Number( defaultWpcomPublicComingSoon ) === 0 ) ||
+			Number( defaultBlogPublic ) === 1 ) &&
+		isPublicChecked;
 	const discourageSearchChecked = 0 === blogPublic && ! wpcomPublicComingSoon;
 
 	return (
@@ -123,7 +127,7 @@ const SiteVisibility = ( {
 							  )
 							: __( 'Your site is visible to everyone.', 'jetpack-mu-wpcom', 0 ) }
 					</p>
-					{ ! isWpcomStagingSite && (
+					{ showPublicDetails && ! isWpcomStagingSite && (
 						<ul>
 							<li>
 								<label htmlFor="wpcom_site_visibility_discourage_search">
