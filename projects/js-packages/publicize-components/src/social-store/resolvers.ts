@@ -63,7 +63,7 @@ export function getPostShareStatus( _postId ) {
 		try {
 			dispatch( fetchPostShareStatus( postId ) );
 			let result = await apiFetch< PostShareStatus >( {
-				path: `jetpack/v4/social/share-status/${ postId }`,
+				path: `/wpcom/v2/publicize/share-status?post_id=${ postId }`,
 			} );
 
 			result = normalizeShareStatus( result );
