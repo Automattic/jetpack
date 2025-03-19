@@ -12,9 +12,19 @@ namespace Automattic\Jetpack\VideoPress;
  **/
 class Block_Replacement {
 	/**
+	 * Whether the class has been initiated.
+	 *
+	 * @var bool
+	 */
+	private static $initiated = false;
+
+	/**
 	 * Initialize replacement.
 	 */
 	public static function init() {
+		if ( self::$initiated ) {
+			return;
+		}
 		add_filter( 'render_block', array( self::class, 'replace_media_text_with_videopress' ), 10, 2 );
 	}
 

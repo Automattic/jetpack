@@ -2,7 +2,6 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\VideoPress\Attachment_Handler;
-use Automattic\Jetpack\VideoPress\Block_Replacement;
 use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
 use Automattic\Jetpack\VideoPress\Options as VideoPress_Options;
 /**
@@ -53,8 +52,6 @@ class Jetpack_VideoPress {
 
 		if ( $this->is_videopress_enabled() ) {
 			add_action( 'admin_notices', array( $this, 'media_new_page_admin_notice' ) );
-
-			Block_Replacement::init();
 		}
 	}
 
