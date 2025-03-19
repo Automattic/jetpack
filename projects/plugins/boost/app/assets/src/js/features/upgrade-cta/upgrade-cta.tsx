@@ -4,7 +4,6 @@ import RightArrow from '$svg/right-arrow';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './upgrade-cta.module.scss';
 import { usePricing } from '$lib/stores/pricing';
-import { useNavigate } from 'react-router-dom';
 
 type UpgradeCTAProps = {
 	description: string;
@@ -24,17 +23,12 @@ const UpgradeCTA = ( {
 		return null;
 	}
 
-	const navigate = useNavigate();
-
 	const onClickHandler = () => {
 		recordBoostEvent( eventName, { identifier } );
 
 		if ( onClick ) {
 			onClick();
-			return;
 		}
-
-		navigate( '/upgrade' );
 	};
 
 	const pricing = usePricing();
