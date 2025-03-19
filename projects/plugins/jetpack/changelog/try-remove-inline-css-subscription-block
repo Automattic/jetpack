@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Moves inline CSS to a stylesheet so themes can better override it
