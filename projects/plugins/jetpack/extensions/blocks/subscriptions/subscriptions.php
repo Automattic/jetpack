@@ -466,7 +466,6 @@ function get_element_styles_from_attributes( $attributes ) {
 		? get_attribute( $attributes, 'customButtonGradient' )
 		: get_attribute( $attributes, 'customButtonBackgroundColor' );
 
-	$email_field_styles           = '';
 	$submit_button_wrapper_styles = '';
 	$submit_button_styles         = '';
 
@@ -492,13 +491,10 @@ function get_element_styles_from_attributes( $attributes ) {
 	$style     = ( $font_size && $font_size !== DEFAULT_FONTSIZE_VALUE ) ? sprintf( 'font-size: %s%s;', $font_size, is_numeric( $font_size ) ? 'px' : '' ) : '';
 
 	$submit_button_styles .= $style;
-	$email_field_styles   .= $style;
 
-	$padding = get_attribute( $attributes, 'padding' );
-	$style   = ( $padding && $padding !== DEFAULT_PADDING_VALUE ) ? sprintf( 'padding: %1$dpx %2$dpx %1$dpx %2$dpx;', $padding, round( $padding * 1.5 ) ) : '';
-
+	$padding               = get_attribute( $attributes, 'padding' );
+	$style                 = ( $padding && $padding !== DEFAULT_PADDING_VALUE ) ? sprintf( 'padding: %1$dpx %2$dpx %1$dpx %2$dpx;', $padding, round( $padding * 1.5 ) ) : '';
 	$submit_button_styles .= $style;
-	$email_field_styles   .= $style;
 
 	if ( ! $is_button_only_style ) {
 		$button_spacing = get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE );
@@ -513,24 +509,19 @@ function get_element_styles_from_attributes( $attributes ) {
 	if ( has_attribute( $attributes, 'borderColor' ) ) {
 		$style                 = sprintf( 'border-color: %s;', get_attribute( $attributes, 'borderColor', '' ) );
 		$submit_button_styles .= $style;
-		$email_field_styles   .= $style;
 	}
 
 	$border_radius         = get_attribute( $attributes, 'borderRadius' );
 	$style                 = ( $border_radius && $border_radius !== DEFAULT_BORDER_RADIUS_VALUE ) ? sprintf( 'border-radius: %dpx;', $border_radius ) : '';
 	$submit_button_styles .= $style;
-	$email_field_styles   .= $style;
 
 	$border_width          = get_attribute( $attributes, 'borderWeight' );
 	$style                 = ( $border_width && $border_width !== DEFAULT_BORDER_WEIGHT_VALUE ) ? sprintf( 'border-width: %dpx;', $border_width ) : '';
 	$submit_button_styles .= $style;
-	$email_field_styles   .= $style;
 
 	if ( has_attribute( $attributes, 'customBorderColor' ) ) {
-		$style = sprintf( 'border-color: %s; border-style: solid;', get_attribute( $attributes, 'customBorderColor' ) );
-
+		$style                 = sprintf( 'border-color: %s; border-style: solid;', get_attribute( $attributes, 'customBorderColor' ) );
 		$submit_button_styles .= $style;
-		$email_field_styles   .= $style;
 	}
 
 	if ( ! jetpack_is_frontend() ) {
@@ -540,7 +531,6 @@ function get_element_styles_from_attributes( $attributes ) {
 	}
 
 	return array(
-		'email_field'           => $email_field_styles,
 		'submit_button'         => $submit_button_styles,
 		'submit_button_wrapper' => $submit_button_wrapper_styles,
 	);
