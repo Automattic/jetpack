@@ -45,7 +45,7 @@ class Social_Image_Generator_Controller extends Base_Controller {
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/generate-preview-token',
+			'/' . $this->rest_base . '/generate-token',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'generate_preview_token' ),
@@ -113,7 +113,7 @@ class Social_Image_Generator_Controller extends Base_Controller {
 	public function generate_preview_token( $request ) {
 		if ( ! Utils::is_wpcom() ) {
 			return rest_ensure_response(
-				$this->proxy_request_to_wpcom_as_blog( $request, 'generate-preview-token' )
+				$this->proxy_request_to_wpcom_as_blog( $request, 'generate-token' )
 			);
 		}
 
