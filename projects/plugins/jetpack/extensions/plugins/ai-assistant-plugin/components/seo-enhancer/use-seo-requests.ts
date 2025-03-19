@@ -10,6 +10,7 @@ import {
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -48,6 +49,7 @@ export const useSeoRequests = (
 	const { setBusy, setTitleBusy, setDescriptionBusy } = useDispatch( store );
 	const { isImageBusy, hasImageFailed } = useSelect( select => select( store ), [] );
 	const { setImageBusy, setImageFailed } = useDispatch( store );
+	const { createInfoNotice } = useDispatch( 'core/notices' );
 
 	const request = useCallback(
 		async ( type: PromptType, block?: Block, useBase64Image: boolean = false ) => {
@@ -100,7 +102,7 @@ export const useSeoRequests = (
 				!! globalSelect( 'core/editor' ).getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title;
 
 			if ( hasTitle && force !== true ) {
-				return;
+				return null;
 			}
 
 			try {
@@ -113,8 +115,11 @@ export const useSeoRequests = (
 						jetpack_seo_html_title: title,
 					},
 				} );
+
+				return true;
 			} catch ( error ) {
 				debug( 'Error updating title', error );
+				return false;
 			} finally {
 				setTitleBusy( false );
 			}
@@ -128,7 +133,7 @@ export const useSeoRequests = (
 				!! globalSelect( 'core/editor' ).getEditedPostAttribute( 'meta' )?.advanced_seo_description;
 
 			if ( hasDescription && force !== true ) {
-				return;
+				return null;
 			}
 
 			try {
@@ -140,8 +145,11 @@ export const useSeoRequests = (
 						advanced_seo_description: description,
 					},
 				} );
+
+				return true;
 			} catch ( error ) {
 				debug( 'Error updating description', error );
+				return false;
 			} finally {
 				setDescriptionBusy( false );
 			}
@@ -153,12 +161,12 @@ export const useSeoRequests = (
 		async ( block: Block, useBase64Image: boolean = false ) => {
 			if ( isImageBusy( block.clientId ) ) {
 				debug( 'Already updating alt text, skipping' );
-				return;
+				return null;
 			}
 
 			if ( hasImageFailed( block.clientId ) ) {
 				debug( 'Image failed, skipping' );
-				return;
+				return null;
 			}
 
 			try {
@@ -167,6 +175,8 @@ export const useSeoRequests = (
 				const altText = parseResponse( response ).texts?.[ 0 ];
 				await updateBlockAttributes( block.clientId, { alt: altText } );
 				setImageBusy( block.clientId, false );
+
+				return true;
 			} catch ( error ) {
 				setImageBusy( block.clientId, false );
 
@@ -180,6 +190,7 @@ export const useSeoRequests = (
 					setImageFailed( block.clientId, true );
 				}
 				debug( 'Error updating alt text', error );
+				return false;
 			}
 		},
 		[ isImageBusy, hasImageFailed, setImageBusy, request, updateBlockAttributes, setImageFailed ]
@@ -191,9 +202,11 @@ export const useSeoRequests = (
 			const imageBlocksWithoutAltText = imageBlocks.filter( block => ! block.attributes.alt );
 			const blocks = force ? imageBlocks : imageBlocksWithoutAltText;
 
-			blocks.forEach( async block => {
-				await updateAltText( block );
+			const promises = blocks.map( async block => {
+				return await updateAltText( block );
 			} );
+
+			return await Promise.all( promises );
 		},
 		[ updateAltText ]
 	);
@@ -214,9 +227,14 @@ export const useSeoRequests = (
 			}
 		} );
 
-		await Promise.all( promises );
+		const result = ( await Promise.all( promises ) ).flat();
 		setBusy( false );
-	}, [ features, updateTitle, updateDescription, updateAltTexts, setBusy ] );
+
+		// The notice is only shown if at least one value was updated
+		if ( result.some( value => value === true ) ) {
+			createInfoNotice( __( 'SEO metadata added', 'jetpack' ), { type: 'snackbar' } );
+		}
+	}, [ setBusy, features, createInfoNotice, updateTitle, updateDescription, updateAltTexts ] );
 
 	return { updateSeoData, updateAltText, isBusy };
 };
