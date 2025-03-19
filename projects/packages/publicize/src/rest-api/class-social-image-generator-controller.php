@@ -117,17 +117,16 @@ class Social_Image_Generator_Controller extends Base_Controller {
 			);
 		}
 
-		$text      = $request->get_param( 'text' );
-		$image_url = $request->get_param( 'image_url' );
-		$template  = $request->get_param( 'template' );
-
 		require_lib( 'social-image-generator-token' );
-		$token            = new \Social_Image_Generator\Token();
-		$token->text      = $text;
-		$token->image_url = $image_url ?? utf8_uri_encode( $image_url );
-		$token->template  = $template;
-		$token->blog_id   = get_current_blog_id();
 
-		return rest_ensure_response( \Social_Image_Generator\encode_token( $token, constant( 'SIG_TOKEN_SECRET' ) ) );
+		$token = \Social_Image_Generator\generate_token(
+			array(
+				'text'      => $request->get_param( 'text' ),
+				'image_url' => $request->get_param( 'image_url' ),
+				'template'  => $request->get_param( 'template' ),
+			)
+		);
+
+		return rest_ensure_response( $token );
 	}
 }
