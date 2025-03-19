@@ -56,10 +56,10 @@ class Setup {
 	 * Get an instance of a class, or create a new one, and add it to the instances array if it doesn't exist.
 	 *
 	 * @template T of Has_Setup
-	 * @param Has_Setup $class_name
+	 * @param class-string<T> $class_name
 	 * @return T
 	 */
-	public static function get_or_create_instance_of( Has_Setup $class_name ) {
+	public static function get_or_create_instance_of( $class_name ) {
 		$instance = self::get_instance_of( $class_name );
 		if ( $instance ) {
 			return $instance;
