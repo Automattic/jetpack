@@ -53,6 +53,8 @@ const isSeoEnhancerEnabled =
 	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
 	supportsPublishSidebar;
 
+const canHaveAutoEnhance = ! isSimpleSite();
+
 const Seo = () => {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
@@ -74,11 +76,13 @@ const Seo = () => {
 
 	useEffect( () => {
 		if (
+			isSeoEnhancerEnabled &&
 			isPrePublishPanelOpen &&
 			! previousIsOpenRef.current &&
 			! isBusy &&
 			isAutoEnhanceEnabled &&
 			! isToggling &&
+			canHaveAutoEnhance &&
 			supportsPublishSidebar
 		) {
 			updateSeoData();
@@ -167,7 +171,7 @@ const Seo = () => {
 							<SeoAssistantSidebarEntrypoint disabled={ false } placement="jetpack-sidebar" />
 						</PanelRow>
 					) }
-					{ isSeoEnhancerEnabled && <SeoEnhancer /> }
+					{ isSeoEnhancerEnabled && <SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } /> }
 					<PanelRow
 						className={ clsx( {
 							'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled,
@@ -194,7 +198,7 @@ const Seo = () => {
 
 			<PluginPrePublishPanel { ...jetpackSeoPublishPanelsProps }>
 				<>
-					{ isSeoEnhancerEnabled && <SeoEnhancer /> }
+					{ isSeoEnhancerEnabled && <SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } /> }
 					<PanelRow>
 						<SeoTitlePanel />
 					</PanelRow>
@@ -207,7 +211,7 @@ const Seo = () => {
 				</>
 			</PluginPrePublishPanel>
 
-			{ isSeoEnhancerEnabled && isAutoEnhanceEnabled && (
+			{ isSeoEnhancerEnabled && isAutoEnhanceEnabled && canHaveAutoEnhance && (
 				<PluginPostPublishPanel { ...jetpackSeoPublishPanelsProps }>
 					<SeoSummary onEdit={ handleSummaryEdit } />
 				</PluginPostPublishPanel>

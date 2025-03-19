@@ -28,7 +28,7 @@ class Jetpack_Shortcodes_Instagram_Test extends WP_UnitTestCase {
 		Constants::set_constant( 'JETPACK_INSTAGRAM_EMBED_TOKEN', 'test' );
 
 		// PHPUnit 10+ renamed `getGroups()` to `groups()`.
-		// @phan-suppress-next-line PhanUndeclaredMethodInCallable, PhanUndeclaredMethod -- Being tested before use.
+		// @phan-suppress-next-line PhanUndeclaredMethod -- `getGroups()` exists (PHPUnit <10) if `groups()` doesn't (PHPUnit 10+).
 		$groups = is_callable( array( $this, 'groups' ) ) ? $this->groups() : $this->getGroups();
 		if ( in_array( 'external-http', $groups, true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.
