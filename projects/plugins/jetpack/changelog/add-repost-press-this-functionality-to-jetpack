@@ -1,4 +1,4 @@
 Significance: minor
 Type: other
 
-add reader reopost and blogging prompt functionality to jetpack editor extension
+- add reader reopost functionality to jetpack editor extension, fix bug with blogging prompt.
