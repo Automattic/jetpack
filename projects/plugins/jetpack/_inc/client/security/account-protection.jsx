@@ -15,11 +15,12 @@ const MODULE_NAME = 'account-protection';
 const AccountProtectionComponent = class extends Component {
 	render() {
 		const { isSupported, isActive, unavailableInOfflineMode } = this.props;
+		const module = this.props.getModule( MODULE_NAME );
 
 		return (
 			<SettingsCard
 				{ ...this.props }
-				module="account-protection"
+				module={ MODULE_NAME }
 				header={ _x( 'Account protection', 'Settings header', 'jetpack' ) }
 				hideButton={ true }
 			>
@@ -62,7 +63,11 @@ const AccountProtectionComponent = class extends Component {
 					hasChild
 					disableInOfflineMode
 					disableInSiteConnectionMode
-					module={ this.props.getModule( MODULE_NAME ) }
+					module={ module }
+					support={ {
+						text: module.long_description,
+						link: module.learn_more_button,
+					} }
 				>
 					<ModuleToggle
 						slug="account-protection"
