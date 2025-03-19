@@ -67,9 +67,10 @@ class SearchResults extends Component {
 		}
 
 		const num = new Intl.NumberFormat().format( total );
-		if ( hasQuery && hasCorrectedQuery ) {
+		if ( hasQuery ) {
+			const queryToShow = hasCorrectedQuery ? corrected_query : this.props.searchQuery;
 			return sprintf(
-				/* translators: %1$s: number of results. %2$s: the corrected search query. */
+				/* translators: %1$s: number of results. %2$s: the search query. */
 				_n(
 					'Found %1$s result for "%2$s"',
 					'Found %1$s results for "%2$s"',
@@ -77,7 +78,7 @@ class SearchResults extends Component {
 					'jetpack-search-pkg'
 				),
 				num,
-				corrected_query
+				queryToShow
 			);
 		} else if ( isMultiSite ) {
 			const group = getAvailableStaticFilters().find( item => item.filter_id === 'group_id' );
