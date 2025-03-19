@@ -675,15 +675,21 @@ class REST_Connector {
 		)
 		: false );
 
+		// Check for possible account mismatch
+		$possible_mismatch = false;
+		if ( $is_user_connected && ! empty( $wpcom_user_data['email'] ) ) {
+			$possible_mismatch = self::possible_account_mismatch( $current_user->user_email, $wpcom_user_data['email'] );
+		}
+
 		$current_user_connection_data = array(
-			'isConnected' => $is_user_connected,
-			'isMaster'    => $is_master_user,
-			'username'    => $current_user->user_login,
-			'id'          => $current_user->ID,
-			'blogId'      => $blog_id,
-			'wpcomUser'   => $wpcom_user_data,
-			'gravatar'    => get_avatar_url( $current_user->ID ),
-			'permissions' => array(
+			'isConnected'             => $is_user_connected,
+			'isMaster'                => $is_master_user,
+			'username'                => $current_user->user_login,
+			'id'                      => $current_user->ID,
+			'blogId'                  => $blog_id,
+			'wpcomUser'               => $wpcom_user_data,
+			'gravatar'                => get_avatar_url( $current_user->ID ),
+			'permissions'             => array(
 				'connect'        => current_user_can( 'jetpack_connect' ),
 				'connect_user'   => current_user_can( 'jetpack_connect_user' ),
 				// This is a mapped capability
@@ -692,6 +698,7 @@ class REST_Connector {
 				'disconnect'     => current_user_can( 'jetpack_disconnect' ),
 				'manage_options' => current_user_can( 'manage_options' ),
 			),
+			'possibleAccountMismatch' => $possible_mismatch,
 		);
 
 		/**
@@ -714,6 +721,40 @@ class REST_Connector {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Check if there is a possible account mismatch between the local user and WPCOM account.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $current_user_email The email of the current WordPress user.
+	 * @param string $wpcom_user_email The email of the connected WordPress.com account.
+	 *
+	 * @return bool Whether there is a possible account mismatch.
+	 */
+	private static function possible_account_mismatch( $current_user_email, $wpcom_user_email ) {
+		// If emails are the same, there's no mismatch
+		if ( $current_user_email === $wpcom_user_email ) {
+			return false;
+		}
+
+		// Check if we already have a cached result in a transient
+		$transient_key = 'jetpack_account_mismatch_' . md5( $wpcom_user_email );
+		$cached_result = get_transient( $transient_key );
+
+		if ( false !== $cached_result ) {
+			return (bool) $cached_result;
+		}
+
+		// Check if there's a WordPress user with the WPCOM email
+		$wpcom_email_user = get_user_by( 'email', $wpcom_user_email );
+		$mismatch_exists  = false !== $wpcom_email_user;
+
+		// Store the result in a transient for 24 hours
+		set_transient( $transient_key, $mismatch_exists, DAY_IN_SECONDS );
+
+		return $mismatch_exists;
 	}
 
 	/**
