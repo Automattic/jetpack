@@ -1812,7 +1812,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$files = array();
 		foreach ( $unauth_file_token_array as $unauth_file_token ) {
-			$unauth_file_token = sanitize_text_field( wp_unslash( $unauth_file_token ) );
 			// Process the file token using the file handler
 			$result = $file_handler->process_file_upload( $unauth_file_token );
 			if ( is_wp_error( $result ) ) {
