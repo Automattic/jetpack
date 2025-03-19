@@ -5,9 +5,9 @@ import {
 	ToggleControl,
 	AdminSectionHero,
 	Notice,
-	ExternalLink,
 	Button,
 } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
