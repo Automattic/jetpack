@@ -2,6 +2,7 @@
 require __DIR__ . '/../../../../modules/likes.php';
 
 class Likes_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Test that the actions are not added if likes are not visible.

@@ -559,3 +559,39 @@ function wpcomsh_remove_managed_plugins_from_update_plugins( $current ) {
 }
 
 add_filter( 'site_transient_update_plugins', 'wpcomsh_remove_managed_plugins_from_update_plugins' );
+
+/**
+ * Save the list of managed plugins to an option after the active plugins are updated.
+ * This is used to determine if a plugin is symlinked and should be auto-updated.
+ *
+ * @return void
+ */
+function wpcomsh_update_managed_plugins(): void {
+	if ( ! function_exists( 'get_plugins' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+
+	if ( ! function_exists( 'wpcomsh_is_managed_plugin' ) ) {
+		return;
+	}
+
+	$plugin_files    = array_keys( get_plugins() );
+	$managed_plugins = array_filter( $plugin_files, 'wpcomsh_is_managed_plugin' );
+
+	update_option( 'wpcomsh_at_managed_plugins', $managed_plugins );
+}
+add_action( 'deleted_plugin', 'wpcomsh_update_managed_plugins', 100 );
+
+/**
+ * Update the list of managed plugins after a plugin is installed.
+ *
+ * @param WP_Upgrader $upgrader The upgrader object.
+ * @param array       $hook_extra Extra arguments passed to hooked filters.
+ * @return void
+ */
+function wpcomsh_handle_update_managed_plugins_list( $upgrader, $hook_extra ): void {
+	if ( isset( $hook_extra['type'] ) && $hook_extra['type'] === 'plugin' && isset( $hook_extra['action'] ) && $hook_extra['action'] === 'install' ) {
+		wpcomsh_update_managed_plugins();
+	}
+}
+add_action( 'upgrader_process_complete', 'wpcomsh_handle_update_managed_plugins_list', 10, 2 );

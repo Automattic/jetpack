@@ -8,6 +8,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/widgets/contact-info.php';
  * @covers Jetpack_Contact_Info_Widget
  */
 class Contact_Info_Widget_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	const TEST_API_KEY = '12345abcde';
 

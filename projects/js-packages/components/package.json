@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.68.2",
+	"version": "0.69.1",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -40,12 +40,12 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.26.0",
+		"@babel/core": "7.26.10",
 		"@babel/preset-react": "7.26.3",
 		"@jest/globals": "29.4.3",
-		"@storybook/addon-actions": "8.5.8",
-		"@storybook/blocks": "8.5.8",
-		"@storybook/react": "8.5.8",
+		"@storybook/addon-actions": "8.6.7",
+		"@storybook/blocks": "8.6.7",
+		"@storybook/react": "8.6.7",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.2.0",
 		"@testing-library/user-event": "14.6.1",
@@ -58,7 +58,7 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"require-from-string": "2.0.2",
-		"storybook": "8.5.8",
+		"storybook": "8.6.7",
 		"ts-dedent": "2.2.0",
 		"typescript": "5.0.4",
 		"webpack": "5.94.0",
@@ -73,15 +73,24 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"exports": {
-		".": "./index.ts",
-		"./tools/jp-redirect": "./tools/jp-redirect/index.ts"
+		".": {
+			"jetpack:src": "./index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		},
+		"./tools/jp-redirect": {
+			"jetpack:src": "./tools/jp-redirect/index.ts",
+			"types": "./build/tools/jp-redirect/index.d.ts",
+			"default": "./build/tools/jp-redirect/index.js"
+		}
 	},
 	"sideEffects": [
 		"*.css",
 		"*.scss"
 	],
 	"scripts": {
-		"build": "pnpm run compile-ts",
+		"build": "pnpm run clean && pnpm run compile-ts",
+		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage"

@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import useProduct from '../../../data/products/use-product';
-import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import numberFormat from '../../../utils/format-number';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
@@ -10,50 +9,46 @@ import baseStyles from '../style.module.scss';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
+import type { FC } from 'react';
 
-export const LoginsBlockedStatus = () => {
+interface LoginsBlockedStatusProps {
+	data: ProtectData;
+}
+
+export const LoginsBlockedStatus: FC< LoginsBlockedStatusProps > = ( { data } ) => {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { isPluginActive: isProtectPluginActive = false } = detail || {};
 	const { isSiteConnected } = useMyJetpackConnection();
-	const {
-		protect: { wafConfig: wafData },
-	} = getMyJetpackWindowInitialState();
 	const { blocked_logins: blockedLoginsCount, brute_force_protection: hasBruteForceProtection } =
-		wafData || {};
+		data?.wafConfig || {};
 
 	// The Brute Force Protection module is available when either the Jetpack plugin Or the Protect plugin is active.
 	const isPluginActive = isProtectPluginActive || isJetpackPluginActive();
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( hasBruteForceProtection ) {
-			return <BlockedStatus status="active" />;
+			return <BlockedStatus data={ data } status="active" />;
 		}
 
-		return <BlockedStatus status="inactive" />;
+		return <BlockedStatus data={ data } status="inactive" />;
 	}
 	if ( isSiteConnected && blockedLoginsCount > 0 ) {
 		// logins have been blocked previoulsy, but either the Jetpack or Protect plugin is not active
-		return <BlockedStatus status="inactive" />;
+		return <BlockedStatus data={ data } status="inactive" />;
 	}
-	return <BlockedStatus status="off" />;
+	return <BlockedStatus data={ data } status="off" />;
 };
 
-/**
- * BlockedStatus component
- *
- * @param props        - The component props
- * @param props.status - The status of Brute Force Protection
- *
- * @return rendered component
- */
-function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
-	const {
-		protect: { wafConfig: wafData },
-	} = getMyJetpackWindowInitialState();
-	const { blocked_logins: blockedLoginsCount } = wafData || {};
+interface BlockedStatusProps {
+	status: 'active' | 'inactive' | 'off';
+	data: ProtectData;
+}
 
-	const tooltipContent = useProtectTooltipCopy();
+const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
+	const { blocked_logins: blockedLoginsCount } = data?.wafConfig || {};
+
+	const tooltipContent = useProtectTooltipCopy( data );
 	const { blockedLoginsTooltip } = tooltipContent;
 
 	if ( status === 'active' ) {
@@ -163,4 +158,4 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 			</div>
 		</>
 	);
-}
+};

@@ -8,6 +8,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * @covers Jetpack_Recipes
  */
 class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
@@ -394,7 +395,7 @@ EOT;
 	 *
 	 * @return array The test data.
 	 */
-	public function get_data_recipe_amp() {
+	public static function get_data_recipe_amp() {
 		return array(
 			'only_recipe_shortcode'       => array(
 				'[recipe title="Mediterranean Panini" servings="5-8" preptime="50 mins" cooktime="25 mins" difficulty="hard" rating="★★★★"]',

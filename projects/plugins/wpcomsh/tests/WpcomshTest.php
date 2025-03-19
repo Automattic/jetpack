@@ -9,6 +9,7 @@
  * Class WpcomshTest.
  */
 class WpcomshTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Tests wpcomsh_make_content_clickable

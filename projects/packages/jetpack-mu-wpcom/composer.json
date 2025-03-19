@@ -17,7 +17,8 @@
 		"automattic/scheduled-updates": "@dev",
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-google-analytics": "@dev",
-		"scssphp/scssphp": "1.12.0"
+		"scssphp/scssphp": "1.12.0",
+		"automattic/jetpack-subscribers-dashboard": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",

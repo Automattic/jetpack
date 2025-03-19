@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Critical CSS: Mask CSS to prevent WAF false-positives during generation.

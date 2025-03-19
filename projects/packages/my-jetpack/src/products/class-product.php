@@ -162,15 +162,6 @@ abstract class Product {
 	}
 
 	/**
-	 * This method will be called in the class initializer to perform any necessary initialization
-	 *
-	 * @return void
-	 */
-	public static function initialize() {
-		// This method should be implemented in the child class.
-	}
-
-	/**
 	 * This method will be called in the class initializer to register the product's endpoints
 	 *
 	 * @return void
@@ -225,6 +216,13 @@ abstract class Product {
 			'name'                            => static::get_name(),
 			'title'                           => static::get_title(),
 			'category'                        => static::$category,
+			/* Maintain legacy compatibility with the old product info structure. See: #42271 */
+			'description'                     => static::get_description(),
+			'long_description'                => static::get_long_description(),
+			'tiers'                           => static::get_tiers(),
+			'features'                        => static::get_features(),
+			'features_by_tier'                => static::get_features_by_tier(),
+			/* End of legacy compatibility fields. */
 			'disclaimers'                     => static::get_disclaimers(),
 			'is_bundle'                       => static::is_bundle_product(),
 			'is_plugin_active'                => static::is_plugin_active(),

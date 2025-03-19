@@ -2,6 +2,46 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.5-a.7 - 2025-03-18
+### Enhancements
+- Forms: Add quick link in the admin bar for form entries. [#42474]
+
+### Bug fixes
+- Forms: Add a default label for textarea fields. [#42480]
+- Forms: Remove Google Drive beta badge. [#42481]
+- Forms: Remove Salesforce beta badge. [#42482]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Backup: Prevent PHP warnings by moving admin menu addition to a function hooked into `admin_menu`. [#42396]
+- OpenTable block: Remove the ability to search restaurants by name. [#41162]
+- SEO Enhancer: Persist features on store and update UI. [#42491]
+- SEO Enhancer: Respect alt text feature toggle and only request alt text on URL change. [#42518]
+- Update package dependencies. [#42511]
+
+## 14.5-a.5 - 2025-03-17
+### Enhancements
+- Social: Add "Schedule" functionality to the Share Post modal. [#42376]
+
+### Bug fixes
+- Forms: Fix core list bullets not showing. [#42440]
+- Slideshow: Fix misaligned controls in site editor. [#42370]
+- Social: Resolve connection issues with LinkedIn company pages and Tumblr additional blogs. [#42352]
+- Twitter Timeline Widget: Prevent broken links when using Twitter's deprecated data-widget-id approach. [#42398]
+- VideoPress Block: Fix broken undo functionality. [#42332]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add subscribers in WP Admin starting page. [#42066]
+- Fix Publicize unit test. [#42451]
+- JSON API: Add REST support for `/users` endpoint. [#42475]
+- Like Block: Fix layout shift when loading. [#42361]
+- Newsletter: Add spacing to settings. [#42373]
+- SEO Enhancer: Auto-generate alt text for images if enabled. [#42445]
+- SEO Enhancer: Auto-run on pre-publish if enabled. [#42407]
+- SEO Enhancer: Fix function call on P2. [#42431]
+- Social: Move the URL query param handling for opening sidebar to Publicize package. [#42364]
+- Social: Remove the old unused initial state. [#42390]
+- Use `wpcom/v2/jitm` endpoint as a consistent way to fetch JITMs from the WordPress.com public API. [#41993]
+
 ## 14.5-a.3 - 2025-03-12
 ### Enhancements
 - Feature suggestions: Do not automatically load when a site is connected to WordPress.com. [#42337]

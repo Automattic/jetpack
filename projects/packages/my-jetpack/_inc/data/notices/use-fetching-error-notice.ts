@@ -4,6 +4,8 @@ import { NOTICE_PRIORITY_LOW } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import {
 	QUERY_ACTIVATE_PRODUCT_KEY,
+	QUERY_GET_PROTECT_DATA_KEY,
+	QUERY_GET_VIDEOPRESS_DATA_KEY,
 	QUERY_INSTALL_PRODUCT_KEY,
 	QUERY_PURCHASES_KEY,
 } from '../constants';
@@ -19,6 +21,8 @@ const errorNoticeWhitelist = [
 	QUERY_PURCHASES_KEY,
 	QUERY_ACTIVATE_PRODUCT_KEY,
 	QUERY_INSTALL_PRODUCT_KEY,
+	QUERY_GET_PROTECT_DATA_KEY,
+	QUERY_GET_VIDEOPRESS_DATA_KEY,
 ];
 
 export const useFetchingErrorNotice = ( { infoName, isError, overrideMessage }: ErrorNotice ) => {

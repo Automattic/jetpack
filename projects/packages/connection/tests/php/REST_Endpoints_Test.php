@@ -772,7 +772,7 @@ class REST_Endpoints_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_user_connection_data_route_is_registered_with_jp_version_provider() {
+	public static function get_user_connection_data_route_is_registered_with_jp_version_provider() {
 		return array(
 			'jp_version_null'       => array(
 				null,

@@ -415,6 +415,65 @@ type Purchase = {
 	check_dns: boolean;
 };
 
+type ProtectData = {
+	scanData: {
+		core: ScanItem;
+		current_progress?: string;
+		data_source: string;
+		database: string[];
+		error: boolean;
+		error_code?: string;
+		error_message?: string;
+		files: string[];
+		has_unchecked_items: boolean;
+		last_checked: string;
+		num_plugins_threats: number;
+		num_themes_threats: number;
+		num_threats: number;
+		plugins: ScanItem[];
+		status: string;
+		themes: ScanItem[];
+		threats?: ThreatItem[];
+	};
+	wafConfig: {
+		automatic_rules_available: boolean;
+		blocked_logins: number;
+		bootstrap_path: string;
+		brute_force_protection: boolean;
+		jetpack_waf_automatic_rules: '1' | '';
+		jetpack_waf_ip_allow_list: '1' | '';
+		jetpack_waf_ip_block_list: boolean;
+		jetpack_waf_ip_list: boolean;
+		jetpack_waf_share_data: '1' | '';
+		jetpack_waf_share_debug_data: boolean;
+		standalone_mode: boolean;
+		waf_supported: boolean;
+		waf_enabled: boolean;
+	};
+};
+
+type VideopressData = {
+	featuredStats?: {
+		label: string;
+		period: 'day' | 'year';
+		data: {
+			views: {
+				current: number;
+				previous: number;
+			};
+			impressions: {
+				current: number;
+				previous: number;
+			};
+			watch_time: {
+				current: number;
+				previous: number;
+			};
+		};
+	};
+	videoCount: number;
+};
+
 interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
@@ -578,63 +637,6 @@ interface Window {
 						  };
 				};
 			};
-		};
-		protect: {
-			scanData: {
-				core: ScanItem;
-				current_progress?: string;
-				data_source: string;
-				database: string[];
-				error: boolean;
-				error_code?: string;
-				error_message?: string;
-				files: string[];
-				has_unchecked_items: boolean;
-				last_checked: string;
-				num_plugins_threats: number;
-				num_themes_threats: number;
-				num_threats: number;
-				plugins: ScanItem[];
-				status: string;
-				themes: ScanItem[];
-				threats?: ThreatItem[];
-			};
-			wafConfig: {
-				automatic_rules_available: boolean;
-				blocked_logins: number;
-				bootstrap_path: string;
-				brute_force_protection: boolean;
-				jetpack_waf_automatic_rules: '1' | '';
-				jetpack_waf_ip_allow_list: '1' | '';
-				jetpack_waf_ip_block_list: boolean;
-				jetpack_waf_ip_list: boolean;
-				jetpack_waf_share_data: '1' | '';
-				jetpack_waf_share_debug_data: boolean;
-				standalone_mode: boolean;
-				waf_supported: boolean;
-				waf_enabled: boolean;
-			};
-		};
-		videopress: {
-			featuredStats?: {
-				label: string;
-				period: 'day' | 'year';
-				data: {
-					views: {
-						current: number;
-						previous: number;
-					};
-					impressions: {
-						current: number;
-						previous: number;
-					};
-					watch_time: {
-						current: number;
-						previous: number;
-					};
-				};
-			};
-			videoCount: number;
 		};
 		recommendedModules: {
 			modules: JetpackModule[] | null;
