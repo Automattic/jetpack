@@ -6,6 +6,7 @@ import {
 	AdminSectionHero,
 	Notice,
 	Button,
+	getRedirectUrl,
 } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -20,8 +21,6 @@ import usePlan from '../../hooks/use-plan';
 import styles from './styles.module.scss';
 
 const SettingsPage = () => {
-	const SUPPORT_LINK = 'https://jetpack.com/?post_type=jetpack_support&p=324199';
-
 	const { hasPlan } = usePlan();
 	const { data: accountProtection } = useAccountProtectionQuery();
 	const toggleAccountProtectionMutation = useToggleAccountProtectionMutation();
@@ -79,7 +78,9 @@ const SettingsPage = () => {
 							<Button
 								variant="link"
 								isExternalLink
-								href={ SUPPORT_LINK + '#unsupported-environments' }
+								href={ getRedirectUrl( 'jetpack-account-protection', {
+									anchor: 'unsupported-environments',
+								} ) }
 								key="learn-more"
 							>
 								{ __( 'Learn more', 'jetpack-protect' ) }
@@ -104,7 +105,9 @@ const SettingsPage = () => {
 							<Button
 								variant="link"
 								isExternalLink
-								href={ SUPPORT_LINK + '#requirements' }
+								href={ getRedirectUrl( 'jetpack-account-protection', {
+									anchor: 'requirements',
+								} ) }
 								key="learn-more"
 							>
 								{ __( 'Learn more', 'jetpack-protect' ) }
@@ -119,7 +122,7 @@ const SettingsPage = () => {
 							'jetpack-protect'
 						),
 						{
-							link: <ExternalLink href={ SUPPORT_LINK } />,
+							link: <ExternalLink href={ getRedirectUrl( 'jetpack-account-protection' ) } />,
 						}
 					) }
 				</Text>
@@ -138,7 +141,9 @@ const SettingsPage = () => {
 								'jetpack-protect'
 							),
 							{
-								link: <ExternalLink href={ SUPPORT_LINK + '#risks-of-using-a-weak-password' } />,
+								link: (
+									<ExternalLink href={ getRedirectUrl( 'jetpack-account-protection-risks' ) } />
+								),
 							}
 						) }
 					</Text>

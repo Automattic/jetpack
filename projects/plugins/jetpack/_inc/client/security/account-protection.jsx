@@ -1,4 +1,5 @@
 import { __, _x } from '@wordpress/i18n';
+import { getRedirectUrl } from 'node_modules/@automattic/jetpack-components';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -10,7 +11,6 @@ import SimpleNotice from '../components/notice';
 import NoticeAction from '../components/notice/notice-action';
 
 const MODULE_NAME = 'account-protection';
-const SUPPORT_LINK = 'https://jetpack.com/?post_type=jetpack_support&p=324199';
 
 const AccountProtectionComponent = class extends Component {
 	render() {
@@ -32,7 +32,12 @@ const AccountProtectionComponent = class extends Component {
 							'jetpack'
 						) }
 						children={
-							<NoticeAction external href={ SUPPORT_LINK + '#unsupported-environments' }>
+							<NoticeAction
+								external
+								href={ getRedirectUrl( 'jetpack-account-protection', {
+									anchor: 'unsupported-environments',
+								} ) }
+							>
 								{ __( 'Learn more', 'jetpack' ) }
 							</NoticeAction>
 						}
@@ -47,7 +52,7 @@ const AccountProtectionComponent = class extends Component {
 							'jetpack'
 						) }
 						children={
-							<NoticeAction external href={ SUPPORT_LINK + '#risks-of-using-a-weak-password' }>
+							<NoticeAction external href={ getRedirectUrl( 'jetpack-account-protection-risks' ) }>
 								{ __( 'Learn about the risks', 'jetpack' ) }
 							</NoticeAction>
 						}
@@ -58,13 +63,6 @@ const AccountProtectionComponent = class extends Component {
 					disableInOfflineMode
 					disableInSiteConnectionMode
 					module={ this.props.getModule( MODULE_NAME ) }
-					support={ {
-						text: __(
-							'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed.',
-							'jetpack'
-						),
-						link: SUPPORT_LINK,
-					} }
 				>
 					<ModuleToggle
 						slug="account-protection"
