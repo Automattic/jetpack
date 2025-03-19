@@ -126,20 +126,16 @@
 /**
  * Site badge and plan info in the dropdown
  */
-#wp-admin-bar-site-badge > .ab-item {
-	height: auto !important;
-}
-
-#wpadminbar .wp-admin-bar__site-infos {
-	box-sizing: border-box;
-	min-width: 260px;
-	margin: 6px -10px -6px;
-	padding: 12px;
-	color: #fff;
-	background-color: color-mix( in srgb, currentColor 10%, transparent );
+#wp-admin-bar-site-badge {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
+	min-width: 260px;
+}
+
+#wp-admin-bar-site-badge-status .ab-item,
+#wp-admin-bar-site-badge-plan .ab-item {
+	height: auto !important;
 }
 
 #wpadminbar .wp-admin-bar__site-info {
@@ -157,7 +153,7 @@
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px;
-	background-color: $gray-800;
+	background-color: $gray-900;
 	color: $white;
 	border-radius: 4px;
 	box-sizing: border-box;

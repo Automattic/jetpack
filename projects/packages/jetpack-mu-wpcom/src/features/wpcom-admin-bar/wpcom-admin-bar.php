@@ -425,7 +425,7 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 	$is_staging = (bool) get_option( 'wpcom_is_staging_site' );
 	if ( ! $is_staging ) {
 		$current_plan = Current_Plan::get();
-		$plan_name    = isset( $current_plan['product_name_short'] ) ?? '';
+		$plan_name    = $current_plan['product_name_short'] ?? '';
 		if ( $plan_name ) {
 			$plan_text = '<div class="wp-admin-bar__site-info">
 							<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
@@ -435,13 +435,33 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 	}
 
 	if ( $status_text || $plan_text ) {
-		$wp_admin_bar->add_node(
+		$wp_admin_bar->add_group(
 			array(
 				'parent' => 'site-name',
 				'id'     => 'site-badge',
-				'title'  => '<div class="wp-admin-bar__site-infos">' . $status_text . $plan_text . '</div>',
+				'meta'   => array(
+					'class' => 'ab-sub-secondary',
+				),
 			)
 		);
+		if ( $status_text ) {
+			$wp_admin_bar->add_node(
+				array(
+					'parent' => 'site-badge',
+					'id'     => 'site-badge-status',
+					'title'  => $status_text,
+				)
+			);
+		}
+		if ( $plan_text ) {
+			$wp_admin_bar->add_node(
+				array(
+					'parent' => 'site-badge',
+					'id'     => 'site-badge-plan',
+					'title'  => $plan_text,
+				)
+			);
+		}
 	}
 }
 add_action( 'admin_bar_menu', 'wpcom_add_site_badges_and_plan', 35 );
