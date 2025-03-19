@@ -52,8 +52,15 @@
 }
 
 .onboarding-screen {
+	--max-container-width: 100%;
+	width: 100%;
 	height: 100vh;
 	overflow-y: hidden;
+	background-color: var(--jp-white, #fff);
+}
+
+.column {
+	overflow: hidden;
 }
 
 .primary-column {
@@ -62,20 +69,21 @@
 	justify-content: center;
 	align-items: center;
 	height: 100%;
-	padding: 72px 24px 0 24px;
 
 	@media screen and (max-width: 600px) {
 		justify-content: flex-start;
+		padding-top: 72px;
 	}
 }
 
 .seconday-column {
+	max-height: 100%;
+	border-radius: 12px;
+
 	img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		border-radius: 12px;
 		display: block;
+		object-fit: cover;
+		width: 100%;
 	}
 }
 
