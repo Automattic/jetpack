@@ -850,7 +850,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<div
 			data-wp-interactive="jetpack/field-file"
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
-			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
 			<?php echo wp_interactivity_data_wp_context( $context ); ?>
 			data-wp-on--dragover="actions.dragOver"
 			data-wp-on--dragleave="actions.dragLeave"
@@ -859,21 +858,27 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		>
 			<div class="jetpack-form-file-field__dropzone" data-wp-class--is_dropping="context.isDropping"  >
 				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker"></div>
-				<a href="#" class="wp-block-button__link wp-element-button"><?php esc_html_e( 'Select a file', 'jetpack-forms' ); ?></a>
-				<span class="jetpack-form-file-field__short"><?php esc_html_e( '....or drag and drop a file.', 'jetpack-forms' ); ?></span>
+				<div>
+					<a href="#" ><?php esc_html_e( 'Select a file', 'jetpack-forms' ); ?></a>
+					<span class="jetpack-form-file-field__short"><?php esc_html_e( 'or drag and drop a file.', 'jetpack-forms' ); ?></span>
+				</div>
 				<input id="<?php echo esc_attr( $id ); ?>" type="file" class="jetpack-form-file-field" data-wp-on--change="actions.fileAdded" />
 			</div>
 			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="context.hasFiles">
 				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
 					<div class="jetpack-form-file-field__preview">
-						<div class="jetpack-form-file-field__progress" data-wp-bind--data-progress-id='context.file.id' data-wp-class--is-complete="context.file.hasToken" data-wp-bind--aria-valuenow="context.file.progress" data-wp-style----progress="context.file.progress" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+						<div class="jetpack-form-file-field__progress" data-wp-bind--data-progress-id='context.file.id' data-wp-bind--aria-valuenow="context.file.progress" data-wp-style----progress="context.file.progress" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
 						<input type="hidden" name="<?php echo esc_attr( $id ); ?>_token[]" data-wp-bind--value='context.file.token' value="">
 						<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
 						<div class="jetpack-form-file-field__file-wrap">
 							<strong class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></strong>
-							<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
+							<div class="jetpack-form-file-field__file-info" data-wp-class--is-complete="context.file.hasToken">
+								<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
+								<span class="jetpack-form-file-field__seperator"> &middot; </span>
+								<span class="jetpack-form-file-field__success"><?php esc_html_e( 'Uploaded', 'jetpack-forms' ); ?></span>
+							</div>
 						</div>
-						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="<?php esc_attr_e( 'Remove file', 'jetpack-forms' ); ?>" data-wp-on--click="actions.removeFile"><?php esc_html_e( 'Remove', 'jetpack-forms' ); ?></a>
+						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="<?php esc_attr_e( 'Remove file', 'jetpack-forms' ); ?>" data-wp-on--click="actions.removeFile" title="<?php esc_attr_e( 'Remove', 'jetpack-forms' ); ?>"> </a>
 					</div>
 				</template>
 			</div>
@@ -906,7 +911,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			\JETPACK__VERSION
 		);
 	}
-  /**
+	/**
 	 * Returns the URL for the unauthenticated file upload endpoint.
 	 *
 	 * @return string
@@ -916,7 +921,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/unauth-file-upload', get_current_blog_id() );
 		}
 		return rest_url( 'wpcom/v2/unauth-file-upload' );
-  }
+	}
 
 	/**
 	 * Return the HTML for the multiple checkbox field.
@@ -1292,6 +1297,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				break;
 			case 'number':
 				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
+				break;
+			case 'file':
+				$field .= $this->render_file_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
