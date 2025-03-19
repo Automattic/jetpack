@@ -1869,7 +1869,7 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
-		if ( current_user_can( 'manage_options' ) ) {
+		if ( $this->current_user_can_access_publicize_data() ) {
 			$has_social_admin_page = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) || Publicize_Script_Data::has_feature_flag( 'admin-page' );
 
 			$page = $has_social_admin_page ? 'jetpack-social' : 'jetpack#/sharing';
