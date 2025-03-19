@@ -96,6 +96,8 @@ class Social_Image_Generator_Controller extends Base_Controller {
 
 		// On WPCOM, need to check for the feature.
 		if ( Utils::is_wpcom() ) {
+			require_lib( 'publicize/util/social-image-generator' );
+
 			return \Publicize\Social_Image_Generator\is_enabled();
 		}
 
