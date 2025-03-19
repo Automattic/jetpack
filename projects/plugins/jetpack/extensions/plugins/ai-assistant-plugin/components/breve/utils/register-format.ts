@@ -90,6 +90,8 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 				// causes an issue with the block inserter. ref p1721746774569699-slack-C054LN8RNVA
 				const currentMd5 = getBlockMd5( blockClientId );
 
+				//console.log( text, isProofreadEnabled, isFeatureEnabled, isFeatureDictionaryLoading );
+
 				if ( text && isProofreadEnabled && isFeatureEnabled && ! isFeatureDictionaryLoading ) {
 					const block = getBlock( blockClientId );
 					// Only use block content for complex blocks like tables

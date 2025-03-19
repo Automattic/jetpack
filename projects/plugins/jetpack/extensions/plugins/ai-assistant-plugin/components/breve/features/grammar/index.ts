@@ -23,23 +23,26 @@ export const GRAMMAR: BreveFeatureConfig = {
 export default function grammar( text: string ): Array< HighlightedText > {
 	const highlightedTexts: Array< HighlightedText > = [];
 
-	CheckGrammar( text ).then( suggestions => {
-		const resultLints = [];
-		for ( const lint of suggestions ) {
-			resultLints.push( {
-				text,
-				suggestion: lint.suggestions.length > 0 ? lint.suggestions[ 0 ] : '',
-				startIndex: lint.startIndex,
-				endIndex: lint.endIndex,
-			} );
-		}
+	CheckGrammar( text );
 
-		// save to a store here
-		localStorage.setItem(
-			'grammar-poc-test', // TODO: add post ID
-			JSON.stringify( resultLints )
-		);
-	} );
+	const grammarData = JSON.parse(
+		localStorage.getItem(
+			'grammar-poc-test' // TODO: add post ID
+		)
+	);
+
+	if ( ! grammarData ) {
+		return highlightedTexts;
+	}
+
+	for ( const lint of grammarData ) {
+		highlightedTexts.push( {
+			text: lint.text,
+			suggestion: lint.suggestions.length > 0 ? lint.suggestions[ 0 ] : '',
+			startIndex: lint.startIndex,
+			endIndex: lint.endIndex,
+		} );
+	}
 
 	return highlightedTexts;
 }

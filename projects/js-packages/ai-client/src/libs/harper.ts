@@ -14,8 +14,11 @@ export async function CheckGrammar( text: string ) {
 
 	const items = [];
 
+	//console.log( 'called CheckGrammar:', lints );
+
 	for ( const lint of lints ) {
 		items.push( {
+			text,
 			message: lint.message(),
 			startIndex: lint.span().start,
 			endIndex: lint.span().end,
@@ -24,5 +27,5 @@ export async function CheckGrammar( text: string ) {
 		} );
 	}
 
-	return items;
+	localStorage.setItem( 'grammar-poc-test', JSON.stringify( items ) );
 }
