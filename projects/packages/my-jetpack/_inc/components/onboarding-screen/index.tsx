@@ -7,7 +7,7 @@ import styles from './styles.module.scss';
 import type { FC } from 'react';
 
 const OnboardingScreen: FC = () => {
-	useFullScreen( [] );
+	useFullScreen();
 
 	return (
 		<Container
