@@ -27,7 +27,6 @@ class Cache_Preload implements Pluggable, Has_Activate, Is_Always_On {
 	 */
 	public function setup() {
 		add_action( 'update_option_jetpack_boost_ds_cornerstone_pages_list', array( $this, 'schedule_cornerstone_preload' ) );
-		add_action( 'jetpack_boost_page_cache_activate', array( $this, 'schedule_cornerstone_preload' ) );
 		add_action( 'jetpack_boost_preload_pages', array( $this, 'preload_pages' ) );
 
 		add_action( 'post_updated', array( $this, 'handle_post_update' ), 10, 1 );
