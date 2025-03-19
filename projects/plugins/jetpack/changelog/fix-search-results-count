@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Ensure returned result count is shown
