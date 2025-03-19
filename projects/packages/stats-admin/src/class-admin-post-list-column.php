@@ -177,7 +177,12 @@ class Admin_Post_List_Column {
 		$post_ids = wp_list_pluck( $wp_query->posts, 'ID' );
 
 		$wpcom_stats = $this->get_stats();
-		$post_views  = $wpcom_stats->get_total_post_views( array( 'post_ids' => implode( ',', $post_ids ) ) );
+		$post_views  = $wpcom_stats->get_total_post_views(
+			array(
+				'num'      => 30,
+				'post_ids' => implode( ',', $post_ids ),
+			)
+		);
 
 		if ( is_wp_error( $post_views ) || empty( $post_views ) ) {
 			return array();
