@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.11.0-beta - 2025-03-18
+### 3.11.0 - 2025-03-19
 #### Added
 - Page Cache: Add more cookies to the ignore-list for better caching.
 
