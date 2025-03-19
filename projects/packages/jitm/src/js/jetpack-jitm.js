@@ -5,7 +5,7 @@ import '../css/jetpack-admin-jitm.scss';
 
 jQuery( document ).ready( function ( $ ) {
 	// Site ID will be automatically added to the request.
-	const JITM_ENDPOINT_URL = `/wpcom/v2/jitm-v2`;
+	const JITM_ENDPOINT_URL = `/wpcom/v3/jitm`;
 
 	var templates = {
 		default: function ( envelope ) {
