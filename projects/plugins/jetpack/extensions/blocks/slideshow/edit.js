@@ -161,6 +161,7 @@ export const SlideshowEdit = ( {
 							onChange={ uploadFromFiles }
 							accept="image/*"
 							icon="insert"
+							__next40pxDefaultSize={ true }
 						>
 							{ __( 'Upload an image', 'jetpack' ) }
 						</FormFileUpload>
