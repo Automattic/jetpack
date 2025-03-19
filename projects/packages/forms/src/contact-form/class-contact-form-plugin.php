@@ -134,6 +134,11 @@ class Contact_Form_Plugin {
 		$data_without_tags = array();
 		if ( is_array( $data_with_tags ) ) {
 			foreach ( $data_with_tags as $index => $value ) {
+				if ( is_array( $value ) ) {
+					$data_without_tags[ $index ] = self::strip_tags( $value );
+					continue;
+				}
+
 				$index = sanitize_text_field( (string) $index );
 				$value = wp_kses_post( (string) $value );
 				$value = str_replace( '&amp;', '&', $value ); // undo damage done by wp_kses_normalize_entities()
@@ -1225,7 +1230,7 @@ class Contact_Form_Plugin {
 		foreach ( $md as $key => $value ) {
 			if ( is_array( $value ) ) {
 				if ( Contact_Form::is_file_upload_field( $value ) ) {
-					$value = $value['name'];
+					$value = Contact_Form::is_file_upload_field_to_string( $value );
 				} else {
 					$value = implode( ', ', $value );
 				}

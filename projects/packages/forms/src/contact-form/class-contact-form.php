@@ -757,11 +757,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $value === null ) {
 			return '';
 		}
-
 		// Check if this is file upload data
 		if ( self::is_file_upload_field( $value ) ) {
 			// This is a file upload, so just return the file name
-			$value = $value['name'];
+			$value = self::is_file_upload_field_to_string( $value );
 		}
 
 		$value = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value );
@@ -946,7 +945,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return bool True if the field is a file upload field, false otherwise.
 	 */
 	public static function is_file_upload_field( $field ) {
-		return ! empty( $field['file_id'] ) && ! empty( $field['name'] );
+		$is = ! empty( $field[0]['file_id'] ) && ! empty( $field[0]['name'] );
+		return $is;
+	}
+
+	/**
+	 * Takes a file field value and returns a string of the file names.
+	 *
+	 * @param array $file_field_values The file field value to convert to a string.
+	 * @return string The file names. That were uploaded.
+	 */
+	public static function is_file_upload_field_to_string( $file_field_values ) {
+		return implode( ', ', wp_list_pluck( $file_field_values, 'name' ) );
 	}
 
 	/**
@@ -1314,7 +1324,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			// Skip any fields that are just a choice from a pre-defined list. They wouldn't have any value
 			// from a spam-filtering point of view.
-			if ( in_array( $field->get_attribute( 'type' ), array( 'select', 'checkbox', 'checkbox-multiple', 'radio' ), true ) ) {
+			if ( in_array( $field->get_attribute( 'type' ), array( 'select', 'checkbox', 'checkbox-multiple', 'radio', 'file' ), true ) ) {
 				continue;
 			}
 
@@ -1787,22 +1797,32 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$token_field_name = $field_id . '_token';
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$unauth_file_token = isset( $_POST[ $token_field_name ] ) ? sanitize_text_field( wp_unslash( $_POST[ $token_field_name ] ) ) : '';
+		$unauth_file_token_array = isset( $_POST[ $token_field_name ] ) && is_array( $_POST[ $token_field_name ] )
+			? map_deep(
+				$_POST[ $token_field_name ],  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing
+				function ( $token ) {
+					return sanitize_text_field( wp_unslash( $token ) );
+				}
+			) : array();
 
-		if ( empty( $unauth_file_token ) ) {
+		if ( empty( $unauth_file_token_array ) ) {
 			$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
 			return;
 		}
 
-		// Process the file token using the file handler
-		$result = $file_handler->process_file_upload( $unauth_file_token );
+		$files = array();
+		foreach ( $unauth_file_token_array as $unauth_file_token ) {
+			$unauth_file_token = sanitize_text_field( wp_unslash( $unauth_file_token ) );
+			// Process the file token using the file handler
+			$result = $file_handler->process_file_upload( $unauth_file_token );
+			if ( is_wp_error( $result ) ) {
+				$field->add_error( $result->get_error_message() );
+				continue;
+			}
 
-		if ( is_wp_error( $result ) ) {
-			$field->add_error( $result->get_error_message() );
-			return;
+			$files[] = $result;
 		}
-
-		return $result;
+		return $files;
 	}
 
 	/**

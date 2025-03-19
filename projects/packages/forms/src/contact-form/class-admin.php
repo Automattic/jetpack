@@ -761,15 +761,17 @@ class Admin {
 		foreach ( $response_fields as $key => $display_value ) {
 			if ( is_array( $display_value ) ) {
 				if ( Contact_Form::is_file_upload_field( $display_value ) ) {
-					// This is a file upload field, display a link instead of raw data
-					$file_url = $file_handler->get_file_url( $display_value['file_id'] );
+					foreach ( $display_value as $file_value ) {
+						// This is a file upload field, display a link instead of raw data
+						$file_url = $file_handler->get_file_url( $file_value['file_id'] );
+						printf(
+							'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value"><a href="%s" target="_blank">%s</a></div>',
+							esc_html( preg_replace( '#^\d+_#', '', $key ) ),
+							esc_url( $file_url ),
+							esc_html( $file_value['name'] )
+						);
+					}
 
-					printf(
-						'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value"><a href="%s" target="_blank">%s</a></div>',
-						esc_html( preg_replace( '#^\d+_#', '', $key ) ),
-						esc_url( $file_url ),
-						esc_html( $display_value['name'] )
-					);
 					continue;
 				}
 				// Regular array, just join the values
