@@ -2849,16 +2849,16 @@
 		},
 		{
 			"name": "phpunit/phpunit",
-			"version": "11.5.13",
+			"version": "11.5.14",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/sebastianbergmann/phpunit.git",
-				"reference": "3bbb8d54b3a6718e51fd48cd478079f5f49b82bd"
+				"reference": "9d6046153c2893b521784069e6b5249ce7d2acae"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3bbb8d54b3a6718e51fd48cd478079f5f49b82bd",
-				"reference": "3bbb8d54b3a6718e51fd48cd478079f5f49b82bd",
+				"url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/9d6046153c2893b521784069e6b5249ce7d2acae",
+				"reference": "9d6046153c2893b521784069e6b5249ce7d2acae",
 				"shasum": ""
 			},
 			"require": {
@@ -2878,7 +2878,7 @@
 				"phpunit/php-text-template": "^4.0.1",
 				"phpunit/php-timer": "^7.0.1",
 				"sebastian/cli-parser": "^3.0.2",
-				"sebastian/code-unit": "^3.0.2",
+				"sebastian/code-unit": "^3.0.3",
 				"sebastian/comparator": "^6.3.1",
 				"sebastian/diff": "^6.0.2",
 				"sebastian/environment": "^7.2.0",
@@ -2930,7 +2930,7 @@
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/phpunit/issues",
 				"security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-				"source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.13"
+				"source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.14"
 			},
 			"funding": [
 				{
@@ -2946,7 +2946,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-03-18T13:41:57+00:00"
+			"time": "2025-03-19T13:45:48+00:00"
 		},
 		{
 			"name": "psr/container",
@@ -3060,16 +3060,16 @@
 		},
 		{
 			"name": "sebastian/code-unit",
-			"version": "3.0.2",
+			"version": "3.0.3",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/sebastianbergmann/code-unit.git",
-				"reference": "ee88b0cdbe74cf8dd3b54940ff17643c0d6543ca"
+				"reference": "54391c61e4af8078e5b276ab082b6d3c54c9ad64"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/sebastianbergmann/code-unit/zipball/ee88b0cdbe74cf8dd3b54940ff17643c0d6543ca",
-				"reference": "ee88b0cdbe74cf8dd3b54940ff17643c0d6543ca",
+				"url": "https://api.github.com/repos/sebastianbergmann/code-unit/zipball/54391c61e4af8078e5b276ab082b6d3c54c9ad64",
+				"reference": "54391c61e4af8078e5b276ab082b6d3c54c9ad64",
 				"shasum": ""
 			},
 			"require": {
@@ -3105,7 +3105,7 @@
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/code-unit/issues",
 				"security": "https://github.com/sebastianbergmann/code-unit/security/policy",
-				"source": "https://github.com/sebastianbergmann/code-unit/tree/3.0.2"
+				"source": "https://github.com/sebastianbergmann/code-unit/tree/3.0.3"
 			},
 			"funding": [
 				{
@@ -3113,7 +3113,7 @@
 					"type": "github"
 				}
 			],
-			"time": "2024-12-12T09:59:06+00:00"
+			"time": "2025-03-19T07:56:08+00:00"
 		},
 		{
 			"name": "sebastian/code-unit-reverse-lookup",

@@ -24,7 +24,7 @@
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
-		"@automattic/calypso-color-schemes": "3.1.3",
+		"@automattic/calypso-color-schemes": "4.0.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",

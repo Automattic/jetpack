@@ -6,8 +6,8 @@
  * Replaces projects/packages/jitm/src/class-rest-api-endpoints.php.
  *
  * Available on:
- * - Simple - via Dotcom Public API (https://public-api.wordpress.com/wpcom/v2/sites/{site_id}/jitm-v2).
- * - WoA and Jetpack connected sites - via local site REST API (https://myjetpackconnectedsite.com/wp-json/wpcom/v2/jitm-v2)
+ * - Simple - via Dotcom Public API (https://public-api.wordpress.com/wpcom/v3/sites/{site_id}/jitm).
+ * - WoA and Jetpack connected sites - via local site REST API (https://myjetpackconnectedsite.com/wp-json/wpcom/v3/jitm)
  *
  * Utilises Jetpack classes to orchestrate the request and response handling.
  * All JITM configuration happens on the Dotcom Simple codebase.
@@ -18,33 +18,33 @@
 use Automattic\Jetpack\Connection\REST_Connector;
 
 /**
- * Class WPCOM_REST_API_V2_Endpoint_JITM_V2
+ * Class WPCOM_REST_API_V3_Endpoint_JITM
  */
-class WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_REST_Controller {
+class WPCOM_REST_API_V3_Endpoint_JITM extends WP_REST_Controller {
 
 	/**
 	 * Namespace prefix.
 	 *
 	 * @var string
 	 */
-	public $namespace = 'wpcom/v2';
+	public $namespace = 'wpcom/v3';
 
 	/**
 	 * Endpoint base route.
 	 *
 	 * @var string
 	 */
-	public $rest_base = 'jitm-v2';
+	public $rest_base = 'jitm';
 
 	/**
-	 * WPCOM_REST_API_V2_Endpoint_JITM_V2 constructor.
+	 * WPCOM_REST_API_V3_Endpoint_JITM constructor.
 	 */
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
 	/**
-	 * Register JITM V2 routes.
+	 * Register JITM routes.
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -112,7 +112,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_REST_Controller {
 		$query_param = $request['query'] ?? '';
 
 		// Disable the jetpack_user_auth_check filter on Dotcom Simple codebase.
-		// This allows the wpcom/v2/jitm endpoint to work for Simple sites.
+		// This allows the wpcom/v3/jitm endpoint to work for Simple sites.
 		// See fbhepr%2Skers%2Sjcpbz%2Sjc%2Qpbagrag%2Serfg%2Qncv%2Qcyhtvaf%2Sraqcbvagf%2Swrgcnpx.cuc%3Se%3Q4580oq59%2374-og.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_filter( 'rest_api_jitm_jetpack_user_auth_check', '__return_true' );
@@ -183,7 +183,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_REST_Controller {
 		}
 
 		// Disable the jetpack_user_auth_check filter on Dotcom Simple codebase.
-		// This allows the wpcom/v2/jitm endpoint to work for Simple sites.
+		// This allows the wpcom/v3/jitm endpoint to work for Simple sites.
 		// See fbhepr%2Skers%2Sjcpbz%2Sjc%2Qpbagrag%2Serfg%2Qncv%2Qcyhtvaf%2Sraqcbvagf%2Swrgcnpx.cuc%3Se%3Q4580oq59%2374-og.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_filter( 'rest_api_jitm_jetpack_user_auth_check', '__return_true' );
@@ -199,4 +199,5 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2 extends WP_REST_Controller {
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_JITM_V2' );
+// This function is badly named since it works for all versions of the REST API.
+wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V3_Endpoint_JITM' );

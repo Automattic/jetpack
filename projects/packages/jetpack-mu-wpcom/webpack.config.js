@@ -41,6 +41,7 @@ module.exports = [
 				'./src/features/wpcom-comments/wpcom-comment-like.js',
 				'./src/features/wpcom-comments/wpcom-comment-like.css',
 			],
+			'wpcom-hotfixes-colors-modern': './src/features/wpcom-hotfixes/colors/modern/colors.css',
 			'wpcom-dashboard-widgets':
 				'./src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.js',
 			'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.js',
