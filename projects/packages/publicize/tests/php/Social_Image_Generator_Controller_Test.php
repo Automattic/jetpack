@@ -1,9 +1,10 @@
 <?php
 
-namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
+namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Publicize\REST_API\Social_Image_Generator_Controller;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -12,11 +13,11 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 /**
- * Unit tests for the REST_Token_Controller class.
+ * Unit tests for the Social_Image_Generator_Controller class.
  *
  * @package automattic/jetpack-publicize
  */
-class REST_Token_Controller_Test extends TestCase {
+class Social_Image_Generator_Controller_Test extends TestCase {
 
 	/**
 	 * Admin user ID.
@@ -57,7 +58,7 @@ class REST_Token_Controller_Test extends TestCase {
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 
 		// Register REST routes.
-		add_action( 'rest_api_init', array( new REST_Token_Controller(), 'register_routes' ) );
+		add_action( 'rest_api_init', array( new Social_Image_Generator_Controller(), 'register_routes' ) );
 
 		do_action( 'rest_api_init' );
 	}
@@ -77,10 +78,10 @@ class REST_Token_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/social-image-generater/generate-preview-token` endpoint without proper permissions.
+	 * Testing the `POST /wpcom/v2/publicize/social-image-generater/generate-token` endpoint without proper permissions.
 	 */
 	public function test_generate_preview_token_without_proper_permission() {
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/social-image-generator/generate-preview-token' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/social-image-generator/generate-token' );
 		$request->set_body_params(
 			array(
 				'text' => 'Testing the token generation',
@@ -88,14 +89,14 @@ class REST_Token_Controller_Test extends TestCase {
 		);
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
-		$this->assertEquals( 'Sorry, you are not allowed to access this endpoint.', $response->get_data()['message'] );
+		$this->assertEquals( 'Sorry, you are not allowed to access Jetpack Social data on this site.', $response->get_data()['message'] );
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/social-image-generater/generate-preview-token` endpoint without required parameter.
+	 * Testing the `POST /wpcom/v2/publicize/social-image-generater/generate-token` endpoint without required parameter.
 	 */
 	public function test_generate_preview_token_without_required_parameters() {
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/social-image-generator/generate-preview-token' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/social-image-generator/generate-token' );
 		wp_set_current_user( $this->admin_id );
 		$user = wp_get_current_user();
 		$user->add_cap( 'manage_options' );
@@ -105,10 +106,10 @@ class REST_Token_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/social-image-generater/generate-preview-token` endpoint with the happy path.
+	 * Testing the `POST /wpcom/v2/publicize/social-image-generater/generate-token` endpoint with the happy path.
 	 */
 	public function test_generate_preview_token() {
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/social-image-generator/generate-preview-token' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/social-image-generator/generate-token' );
 		$request->set_body_params(
 			array(
 				'text' => 'Testing the token generation',
@@ -130,19 +131,6 @@ class REST_Token_Controller_Test extends TestCase {
 	public function mock_success_response() {
 		return array(
 			'body'     => wp_json_encode( 'dummy-token' ),
-			'response' => array(
-				'code'    => 200,
-				'message' => '',
-			),
-		);
-	}
-
-	/**
-	 * Mock fixture for publicize connections.
-	 */
-	public function mock_success_data() {
-		return array(
-			'body'     => wp_json_encode( array( 'facebook' => array( 'connection_id' => 1234 ) ) ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',

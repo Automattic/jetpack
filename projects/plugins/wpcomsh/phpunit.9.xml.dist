@@ -1,16 +1,15 @@
-<?xml version="1.0"?>
-<phpunit
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
 	bootstrap="tests/bootstrap.php"
-	backupGlobals="false"
+	cacheResultFile=".phpunit.cache/test-results"
 	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
+	executionOrder="depends"
+	beStrictAboutOutputDuringTests="true"
+	failOnRisky="true"
+	failOnWarning="true"
 >
 	<testsuites>
-		<testsuite name="wpcomsh">
-			<directory suffix="Test.php">./tests/</directory>
-		</testsuite>
 		<testsuite name="wpcloud">
 			<directory suffix="Test.php">tests/</directory>
 			<exclude>tests/feature-manager/FeatureHookTest.php</exclude>
@@ -20,54 +19,18 @@
 			<exclude>tests/PlanNoticesTest.php</exclude>
 			<exclude>tests/WpcomFeaturesTest.php</exclude>
 		</testsuite>
+		<testsuite name="other">
+			<file>tests/feature-manager/FeatureHookTest.php</file>
+			<file>tests/BlogTokenResilienceTest.php</file>
+			<file>tests/FrontendNoticesTest.php</file>
+			<file>tests/FunctionsTest.php</file>
+			<file>tests/PlanNoticesTest.php</file>
+			<file>tests/WpcomFeaturesTest.php</file>
+		</testsuite>
 	</testsuites>
+
 	<php>
 		<ini name="display_errors" value="On" />
 		<ini name="display_startup_errors" value="On" />
 	</php>
-	<filter>
-		<whitelist processUncoveredFilesFromWhitelist="false">
-			<!-- Better to only include "src" than to add "." and then exclude "tests", "vendor", and so on, as PHPUnit still scans the excluded directories. -->
-			<!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
-			<!-- Can't just <directory>.</directory> because PHPUnit is dumb about scanning before applying any exclusions, and can't glob in <file>. Sigh. -->
-			<file>class-atomic-persistent-data.php</file>
-			<file>class-jetpack-plugin-compatibility.php</file>
-			<file>class-wpcomsh-cli-commands.php</file>
-			<file>class-wpcomsh-log.php</file>
-			<file>constants.php</file>
-			<file>functions.php</file>
-			<file>i18n.php</file>
-			<file>plugin-hotfixes.php</file>
-			<file>support-session.php</file>
-			<file>woa.php</file>
-			<file>wpcomsh-loader.php</file>
-			<file>wpcomsh.php</file>
-			<directory suffix=".php">custom-colors</directory>
-			<directory suffix=".php">customizer-fixes</directory>
-			<directory suffix=".php">endpoints</directory>
-			<directory suffix=".php">feature-plugins</directory>
-			<directory suffix=".php">footer-credit</directory>
-			<directory suffix=".php">frontend-notices</directory>
-			<directory suffix=".php">imports</directory>
-			<directory suffix=".php">jetpack-require-connection-owner</directory>
-			<directory suffix=".php">jetpack-token-error-header</directory>
-			<directory suffix=".php">jetpack-token-resilience</directory>
-			<directory suffix=".php">lib</directory>
-			<directory suffix=".php">logo-tool</directory>
-			<directory suffix=".php">mailpoet</directory>
-			<directory suffix=".php">notices</directory>
-			<directory suffix=".php">performance-profiler</directory>
-			<directory suffix=".php">privacy</directory>
-			<directory suffix=".php">private-site</directory>
-			<directory suffix=".php">safeguard</directory>
-			<directory suffix=".php">share-post</directory>
-			<directory suffix=".php">storage</directory>
-			<directory suffix=".php">storefront</directory>
-			<directory suffix=".php">widgets</directory>
-			<directory suffix=".php">wpcom-features</directory>
-			<directory suffix=".php">wpcom-marketplace</directory>
-			<directory suffix=".php">wpcom-migration-helpers</directory>
-			<directory suffix=".php">wpcom-themes</directory>
-		</whitelist>
-	</filter>
 </phpunit>

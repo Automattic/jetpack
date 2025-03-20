@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
@@ -13,13 +14,14 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
 
-class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Page_Output, Optimization {
+class Cloud_CSS implements Pluggable, Has_Activate, Has_Always_Available_Endpoints, Changes_Page_Output, Optimization {
 
 	/** User has requested regeneration manually or through activating the module. */
 	const REGENERATE_REASON_USER_REQUEST = 'user_request';
@@ -66,6 +68,10 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 		Cloud_CSS_Followup::init();
 
 		return true;
+	}
+
+	public static function activate() {
+		( new Regenerate() )->start();
 	}
 
 	/**

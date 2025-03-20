@@ -17,6 +17,12 @@ export function reducer( state: SeoEnhancerState, action: SeoEnhancerAction ) {
 		case 'SET_BUSY':
 			return { ...state, isBusy: action.isBusy };
 
+		case 'SET_TITLE_BUSY':
+			return { ...state, isTitleBusy: action.isBusy };
+
+		case 'SET_DESCRIPTION_BUSY':
+			return { ...state, isDescriptionBusy: action.isBusy };
+
 		case 'SET_IS_TOGGLING_AUTO_ENHANCE':
 			return { ...state, isTogglingAutoEnhance: action.isToggling };
 
