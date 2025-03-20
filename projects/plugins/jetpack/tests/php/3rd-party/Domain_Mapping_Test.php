@@ -62,11 +62,11 @@ class Domain_Mapping_Test extends \WP_UnitTestCase {
 		// Both of these methods should not be called.
 		$stub->expects( $this->exactly( 0 ) )
 			->method( 'hook_wordpress_mu_domain_mapping' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$stub->expects( $this->exactly( 0 ) )
 			->method( 'hook_wpmu_dev_domain_mapping' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$stub->attempt_to_hook_domain_mapping_plugins();
 	}
@@ -87,11 +87,11 @@ class Domain_Mapping_Test extends \WP_UnitTestCase {
 		// The first method in the array should be the only one called.
 		$stub->expects( $this->exactly( 1 ) )
 			->method( 'hook_wordpress_mu_domain_mapping' )
-			->will( $this->returnValue( true ) );
+			->willReturn( true );
 
 		$stub->expects( $this->exactly( 0 ) )
 			->method( 'hook_wpmu_dev_domain_mapping' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$stub->attempt_to_hook_domain_mapping_plugins();
 	}
@@ -111,7 +111,7 @@ class Domain_Mapping_Test extends \WP_UnitTestCase {
 
 		$stub->expects( $this->once() )
 			->method( 'function_exists' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$this->assertFalse( $stub->hook_wordpress_mu_domain_mapping() );
 
@@ -135,7 +135,7 @@ class Domain_Mapping_Test extends \WP_UnitTestCase {
 
 		$stub->expects( $this->once() )
 			->method( 'function_exists' )
-			->will( $this->returnValue( true ) );
+			->willReturn( true );
 
 		$this->assertTrue( $stub->hook_wordpress_mu_domain_mapping() );
 
@@ -157,11 +157,11 @@ class Domain_Mapping_Test extends \WP_UnitTestCase {
 
 		$stub->expects( $this->once() )
 			->method( 'class_exists' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$stub->expects( $this->exactly( 0 ) )
 			->method( 'method_exists' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$this->assertFalse( $stub->hook_wpmu_dev_domain_mapping() );
 
@@ -183,15 +183,15 @@ class Domain_Mapping_Test extends \WP_UnitTestCase {
 
 		$stub->expects( $this->once() )
 			->method( 'class_exists' )
-			->will( $this->returnValue( true ) );
+			->willReturn( true );
 
 		$stub->expects( $this->once() )
 			->method( 'method_exists' )
-			->will( $this->returnValue( true ) );
+			->willReturn( true );
 
 		$stub->expects( $this->once() )
 			->method( 'get_domain_mapping_utils_instance' )
-			->will( $this->returnValue( new \stdClass() ) );
+			->willReturn( new \stdClass() );
 
 		$this->assertTrue( $stub->hook_wpmu_dev_domain_mapping() );
 

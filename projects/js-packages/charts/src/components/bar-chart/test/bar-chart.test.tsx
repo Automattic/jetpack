@@ -16,6 +16,7 @@ describe( 'BarChart', () => {
 				data: [
 					{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
 					{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+					{ date: new Date( '2024-01-03' ), value: 30 },
 				],
 				options: {},
 			},
@@ -172,6 +173,33 @@ describe( 'BarChart', () => {
 				</ThemeProvider>
 			);
 			expect( screen.getByRole( 'img', { name: /bar chart/i } ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Custom tickFormat', () => {
+		test( 'renders with custom tickFormat', () => {
+			renderWithTheme( {
+				options: {
+					axis: {
+						x: {
+							tickFormat: ( timestamp: number ) => {
+								const date = new Date( timestamp );
+								return date.toLocaleDateString( 'en-US', { dateStyle: 'short' } );
+							},
+						},
+					},
+				},
+			} );
+
+			// Get all tspan elements in the document
+			const tspans = screen.getAllByText( /./i, {
+				selector: '.visx-axis-bottom .visx-axis-tick tspan',
+			} );
+
+			// Check if any of these tspans contains our target text
+			const hasTargetDate = tspans.some( element => element.textContent.trim() === '1/3/24' );
+
+			expect( hasTargetDate ).toBe( true );
 		} );
 	} );
 } );

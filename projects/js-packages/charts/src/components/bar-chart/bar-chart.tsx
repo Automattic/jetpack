@@ -82,8 +82,8 @@ const BarChart: FC< BarChartProps > = ( {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< BarChartTooltipData >();
+	// If we are to spread the options to axis, we need to get rid of tickFormat as it wouldn't work with band scales.
 	const tickFormat = options.axis?.x?.tickFormat ?? formatDateTick;
-	delete options.axis?.x?.tickFormat;
 
 	const handleMouseMove = useCallback(
 		(

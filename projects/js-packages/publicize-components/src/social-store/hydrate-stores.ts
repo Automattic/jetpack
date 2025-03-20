@@ -61,6 +61,17 @@ export async function hydrateStores() {
 		await finishResolution( 'getEntityRecords', [ 'wpcom/v2', 'publicize/services' ] );
 	}
 
+	if ( ! wpcomEntities.some( ( { name } ) => name === 'publicize/shares-data' ) ) {
+		await addEntities( [
+			{
+				kind: 'wpcom/v2',
+				name: 'publicize/shares-data',
+				baseURL: '/wpcom/v2/publicize/shares-data',
+				label: __( 'Publicize shares data', 'jetpack-publicize-components' ),
+			},
+		] );
+	}
+
 	if ( ! wpcomEntities.some( ( { name } ) => name === 'publicize/scheduled-actions' ) ) {
 		await addEntities( [
 			{

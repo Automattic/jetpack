@@ -241,7 +241,7 @@ function make_phan_config( $dir, $options = array() ) {
 					'wordpress/',
 					'\.cache/',
 				),
-				// PHPUnit 9.6 has some broken phpdocs and missing `@template` annotations. We provide corrected stubs.
+				// PHPUnit 11.5 has some stuff that doesn't work with Phan. We provide corrected stubs.
 				// This file holds the vendor paths we stubbed.
 				explode( "\n", trim( (string) file_get_contents( "$root/.phan/stubs/phpunit-dirs.txt" ) ) ),
 				$options['exclude_file_regex']

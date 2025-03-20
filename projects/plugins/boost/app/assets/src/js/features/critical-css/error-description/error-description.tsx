@@ -30,7 +30,7 @@ export function stripCacheParams( url: string ): string {
 const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > = ( {
 	errorSet,
 	showSuggestion = true,
-	foldRawErrors = true,
+	expandRawErrors = true,
 	showClosingParagraph = true,
 } ) => {
 	// Keep a set of URLs in an easy-to-render {href:, label:} format.
@@ -51,7 +51,7 @@ const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > 
 
 	return (
 		<div className={ styles[ 'error-description' ] }>
-			<span>{ createInterpolateElement( describeErrorSet( errorSet ), intepolateVars ) }</span>
+			<p>{ createInterpolateElement( describeErrorSet( errorSet ), intepolateVars ) }</p>
 
 			<MoreList entries={ displayUrls } />
 
@@ -63,17 +63,15 @@ const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > 
 				/>
 			) }
 
-			{ !! rawErrors &&
-				( foldRawErrors ? (
-					<FoldingElement
-						labelExpandedText={ __( 'See error message', 'jetpack-boost' ) }
-						labelCollapsedText={ __( 'Hide error message', 'jetpack-boost' ) }
-					>
-						<p className={ clsx( styles[ 'raw-error' ], styles[ 'no-spacing' ] ) }>{ rawErrors }</p>
-					</FoldingElement>
-				) : (
-					<p className={ clsx( styles[ 'raw-error' ], styles[ 'fade-in' ] ) }>{ rawErrors }</p>
-				) ) }
+			{ !! rawErrors && (
+				<FoldingElement
+					labelExpandedText={ __( 'See error message', 'jetpack-boost' ) }
+					labelCollapsedText={ __( 'Hide error message', 'jetpack-boost' ) }
+					isExpanded={ expandRawErrors }
+				>
+					<p className={ clsx( styles[ 'raw-error' ], styles[ 'no-spacing' ] ) }>{ rawErrors }</p>
+				</FoldingElement>
+			) }
 		</div>
 	);
 };

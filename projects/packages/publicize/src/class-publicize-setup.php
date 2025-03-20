@@ -43,7 +43,9 @@ class Publicize_Setup {
 			REST_API\Connections_Controller::class,
 			REST_API\Scheduled_Actions_Controller::class,
 			REST_API\Services_Controller::class,
+			REST_API\Shares_Data_Controller::class,
 			REST_API\Share_Post_Controller::class,
+			REST_API\Social_Image_Generator_Controller::class,
 		);
 
 		// Load the REST controllers.
@@ -56,6 +58,11 @@ class Publicize_Setup {
 		}
 
 		Social_Admin_Page::init();
+
+		// We need this only on Jetpack sites for Google Site auto-verification.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			add_action( 'init', array( Keyring_Helper::class, 'init' ), 9 );
+		}
 	}
 
 	/**
@@ -86,8 +93,6 @@ class Publicize_Setup {
 			// Load the settings page.
 			new Jetpack_Social_Settings\Settings();
 		}
-
-		add_action( 'init', array( Keyring_Helper::class, 'init' ), 9, 0 );
 
 		( new Social_Image_Generator\Setup() )->init();
 	}
