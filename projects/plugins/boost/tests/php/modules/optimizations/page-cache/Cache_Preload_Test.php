@@ -71,7 +71,7 @@ class Cache_Preload_Test extends TestCase {
 
 		Functions\expect( 'wp_schedule_single_event' )
 			->once()
-			->with( Mockery::type( 'int' ), 'jetpack_boost_preload_pages', array( $cornerstone_pages ) );
+			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( $cornerstone_pages ) );
 
 		// Create a mock that doesn't call schedule_cornerstone_preload but verifies its behavior
 		$preload = new Cache_Preload();
@@ -81,34 +81,34 @@ class Cache_Preload_Test extends TestCase {
 	}
 
 	/**
-	 * Test schedule_preload_cronjob correctly schedules the cron event.
+	 * Test schedule correctly schedules the event.
 	 */
-	public function test_schedule_preload_cronjob() {
+	public function test_schedule() {
 		$posts = array( 'https://example.com', 'https://example.com/page' );
 		Functions\expect( 'wp_schedule_single_event' )
 			->once()
-			->with( Mockery::type( 'int' ), 'jetpack_boost_preload_pages', array( $posts ) );
+			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( $posts ) );
 
 		$preload = new Cache_Preload();
-		$preload->schedule_preload_cronjob( $posts );
+		$preload->schedule( $posts );
 		$this->expectNotToPerformAssertions();
 	}
 
 	/**
-	 * Test preload_pages with an empty queue.
+	 * Test preload with an empty queue.
 	 */
-	public function test_preload_pages_empty_posts() {
+	public function test_preload_empty_posts() {
 		// Set up the mock
 		$preload = new Cache_Preload();
 
-		$preload->preload_pages( array() );
+		$preload->request_pages( array() );
 		$this->expectNotToPerformAssertions();
 	}
 
 	/**
-	 * Test preload_pages with posts in the queue.
+	 * Test request_pages with posts in the queue.
 	 */
-	public function test_preload_pages_with_posts() {
+	public function test_request_pages_with_posts() {
 		$posts = array( 'https://example.com', 'https://example.com/page' );
 
 		// Set up the mock
@@ -125,15 +125,15 @@ class Cache_Preload_Test extends TestCase {
 				->andReturn( 200 );
 		}
 
-		$preload->preload_pages( $posts );
+		$preload->request_pages( $posts );
 
 		$this->expectNotToPerformAssertions();
 	}
 
 	/**
-	 * Test schedule_preload_cronjob with a single URL.
+	 * Test schedule with a single URL.
 	 */
-	public function test_schedule_preload_single() {
+	public function test_schedule_single() {
 		$new_url = array( 'https://example.com/new' );
 
 		// Set up the mock
@@ -141,16 +141,16 @@ class Cache_Preload_Test extends TestCase {
 
 		Functions\expect( 'wp_schedule_single_event' )
 			->once()
-			->with( Mockery::type( 'int' ), 'jetpack_boost_preload_pages', array( $new_url ) );
+			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( $new_url ) );
 
-		$preload->schedule_preload_cronjob( $new_url );
+		$preload->schedule( $new_url );
 		$this->expectNotToPerformAssertions();
 	}
 
 	/**
-	 * Test schedule_preload_cronjob with multiple URLs.
+	 * Test schedule with multiple URLs.
 	 */
-	public function test_schedule_preload_multiple() {
+	public function test_schedule_multiple() {
 		$new_urls = array( 'https://example.com/new1', 'https://example.com/new2' );
 
 		// Set up the mock
@@ -158,9 +158,9 @@ class Cache_Preload_Test extends TestCase {
 
 		Functions\expect( 'wp_schedule_single_event' )
 			->once()
-			->with( Mockery::type( 'int' ), 'jetpack_boost_preload_pages', array( $new_urls ) );
+			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( $new_urls ) );
 
-		$preload->schedule_preload_cronjob( $new_urls );
+		$preload->schedule( $new_urls );
 		$this->expectNotToPerformAssertions();
 	}
 
@@ -185,7 +185,7 @@ class Cache_Preload_Test extends TestCase {
 
 		Functions\expect( 'wp_schedule_single_event' )
 			->once()
-			->with( Mockery::type( 'int' ), 'jetpack_boost_preload_pages', array( array( $permalink ) ) );
+			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( array( $permalink ) ) );
 
 		$preload = new Cache_Preload();
 		$preload->handle_post_update( $post_id );
@@ -208,7 +208,7 @@ class Cache_Preload_Test extends TestCase {
 		// Set up the mock
 		$preload = new Cache_Preload();
 
-		// The schedule_preload_cronjob should never be called because the post is not a cornerstone page
+		// The schedule should never be called because the post is not a cornerstone page
 		Functions\expect( 'get_permalink' )->never();
 		Functions\expect( 'wp_schedule_single_event' )->never();
 
@@ -231,7 +231,7 @@ class Cache_Preload_Test extends TestCase {
 
 		Functions\expect( 'wp_schedule_single_event' )
 			->once()
-			->with( Mockery::type( 'int' ), 'jetpack_boost_preload_pages', array( $cornerstone_pages ) );
+			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( $cornerstone_pages ) );
 
 		// Set up the mock
 		$preload = new Cache_Preload();
@@ -254,7 +254,7 @@ class Cache_Preload_Test extends TestCase {
 
 		Functions\expect( 'wp_schedule_single_event' )
 			->once()
-			->with( Mockery::type( 'int' ), 'jetpack_boost_preload_pages', array( array( $path ) ) );
+			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( array( $path ) ) );
 
 		$preload = new Cache_Preload();
 		$preload->handle_cache_invalidation( $path, Filesystem_Utils::DELETE_FILE );
@@ -292,7 +292,7 @@ class Cache_Preload_Test extends TestCase {
 
 		Functions\expect( 'add_action' )
 			->once()
-			->withArgs( array( 'jetpack_boost_preload_pages', Mockery::type( 'array' ) ) );
+			->withArgs( array( 'jetpack_boost_preload', Mockery::type( 'array' ) ) );
 
 		Functions\expect( 'add_action' )
 			->once()
@@ -304,6 +304,68 @@ class Cache_Preload_Test extends TestCase {
 
 		$preload = new Cache_Preload();
 		$preload->setup();
+		$this->expectNotToPerformAssertions();
+	}
+
+	/**
+	 * Test the activate method.
+	 */
+	public function test_activate() {
+		$cornerstone_pages = array( 'https://example.com', 'https://example.com/page' );
+
+		// Mock the Cornerstone_Utils::get_list method
+		$cornerstone_utils = Mockery::mock( 'alias:' . Cornerstone_Utils::class );
+		$cornerstone_utils->shouldReceive( 'get_list' )
+			->once()
+			->andReturn( $cornerstone_pages );
+
+		Functions\expect( 'wp_schedule_single_event' )
+			->once()
+			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( $cornerstone_pages ) );
+
+		Cache_Preload::activate();
+		$this->expectNotToPerformAssertions();
+	}
+
+	/**
+	 * Test schedule_cornerstone method.
+	 */
+	public function test_schedule_cornerstone() {
+		$cornerstone_pages = array( 'https://example.com', 'https://example.com/page' );
+
+		// Mock the Cornerstone_Utils::get_list method
+		$cornerstone_utils = Mockery::mock( 'alias:' . Cornerstone_Utils::class );
+		$cornerstone_utils->shouldReceive( 'get_list' )
+			->once()
+			->andReturn( $cornerstone_pages );
+
+		Functions\expect( 'wp_schedule_single_event' )
+			->once()
+			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( $cornerstone_pages ) );
+
+		$preload = new Cache_Preload();
+		$preload->schedule_cornerstone();
+		$this->expectNotToPerformAssertions();
+	}
+
+	/**
+	 * Test schedule_cornerstone_cronjob method.
+	 */
+	public function test_schedule_cornerstone_cronjob() {
+		$cornerstone_pages = array( 'https://example.com', 'https://example.com/page' );
+
+		// Mock the Cornerstone_Utils::get_list method
+		$cornerstone_utils = Mockery::mock( 'alias:' . Cornerstone_Utils::class );
+		$cornerstone_utils->shouldReceive( 'get_list' )
+			->once()
+			->andReturn( $cornerstone_pages );
+
+		Functions\expect( 'wp_schedule_event' )
+			->once()
+			->with( Mockery::type( 'int' ), 'hourly', 'jetpack_boost_preload', $cornerstone_pages );
+
+		$preload = new Cache_Preload();
+		$preload->schedule_cornerstone_cronjob();
 		$this->expectNotToPerformAssertions();
 	}
 }

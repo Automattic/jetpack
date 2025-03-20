@@ -108,8 +108,8 @@ class Cache_Preload implements Pluggable, Has_Activate, Is_Always_On {
 	public function preload( array $urls ) {
 		Logger::debug( sprintf( 'Preload started for %d pages', count( $urls ) ) );
 
-		// We pause the hook here to avoid an infinite loop of invalidation → preload → invalidation.
-		remove_action( 'jetpack_boost_invalidate_cache_success', array( $this, 'handle_cache_invalidation' ), 10, 2 );
+		// Pause the hook here to avoid an infinite loop of: invalidation → preload → invalidation.
+		remove_action( 'jetpack_boost_invalidate_cache_success', array( $this, 'handle_cache_invalidation' ) );
 		$boost_cache = new Boost_Cache();
 		foreach ( $urls as $url ) {
 			$boost_cache->invalidate_cache_for_url( $url, Filesystem_Utils::REBUILD_FILES );
