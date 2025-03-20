@@ -81,6 +81,11 @@ export function changelogDefine( yargs ) {
 								describe:
 									'Never ask whether affected plugins without direct changes should have change entries added.',
 								type: 'boolean',
+							} )
+							.option( 'base-ref', {
+								describe: 'Git ref to compare to.',
+								type: 'string',
+								default: 'origin/trunk',
 							} );
 					},
 					async argv => {
@@ -321,7 +326,7 @@ async function changelogAdd( argv ) {
 
 	// If we weren't passed a project, check if any projects need changelogs.
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
-		changelogInfo = await checkChangelogFiles();
+		changelogInfo = await checkChangelogFiles( argv.baseRef );
 		needChangelog = changelogInfo.need;
 	}
 	if ( needChangelog.length === 0 ) {
@@ -336,7 +341,7 @@ async function changelogAdd( argv ) {
 	}
 
 	if ( argv.checkIndirectPlugins ?? needChangelog.length > 0 ) {
-		changelogInfo ??= await checkChangelogFiles();
+		changelogInfo ??= await checkChangelogFiles( argv.baseRef );
 		await addIndirectPlugins(
 			argv,
 			argv.checkIndirectPlugins ? changelogInfo.touched : needChangelog,
@@ -531,6 +536,8 @@ async function changelogArgs( argv ) {
 		...projectTypes,
 		'--check-indirect-plugins',
 		'--no-check-indirect-plugins',
+		'--base-ref',
+		'--base-ref=' + argv.baseRef,
 	];
 	let file;
 
@@ -682,12 +689,13 @@ async function gitAdd( argv ) {
 /**
  * Checks if changelog files are required.
  *
+ * @param {string} baseRef - Git reference to compare with.
  * @return {object} as follows:
  * - {string[]}             touched - Touched projects.
  * - {Map<string,string[]>} files   - Change files by project.
  * - {string[]}             need    - Projects needing changelogs.
  */
-async function checkChangelogFiles() {
+async function checkChangelogFiles( baseRef ) {
 	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
 	// Bail if we're pushing to a release branch, like boost/branch-1.3.0
@@ -714,7 +722,7 @@ async function checkChangelogFiles() {
 		`--no-renames`,
 		`--name-only`,
 		`--merge-base`,
-		`origin/trunk`,
+		baseRef,
 	] );
 	touchedFiles = touchedFiles.stdout.toString().trim().split( '\n' );
 
