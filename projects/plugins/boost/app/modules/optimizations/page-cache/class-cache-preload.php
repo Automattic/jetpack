@@ -69,7 +69,7 @@ class Cache_Preload implements Pluggable, Has_Activate, Has_Deactivate, Is_Alway
 	 * @since $$next-version$$
 	 */
 	public static function deactivate() {
-		wp_unschedule_event( time(), 'twicehourly', 'jetpack_boost_preload_cornerstone' );
+		wp_unschedule_hook( 'jetpack_boost_preload_cornerstone' );
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Cache_Preload implements Pluggable, Has_Activate, Has_Deactivate, Is_Alway
 	 * @return void
 	 */
 	public static function uninstall() {
-		wp_unschedule_event( time(), 'twicehourly', 'jetpack_boost_preload_cornerstone' );
+		self::deactivate();
 	}
 
 	/**
