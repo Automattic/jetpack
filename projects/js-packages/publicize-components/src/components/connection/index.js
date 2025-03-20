@@ -7,7 +7,7 @@
 
 import { withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
-import { SOCIAL_STORE_ID } from '../../social-store';
+import { store as socialStore } from '../../social-store';
 import ConnectionToggle from '../connection-toggle';
 import styles from './styles.module.scss';
 
@@ -57,5 +57,5 @@ class PublicizeConnection extends Component {
 }
 
 export default withSelect( select => ( {
-	failedConnections: select( SOCIAL_STORE_ID ).getFailedConnections(),
+	failedConnections: select( socialStore ).getFailedConnections(),
 } ) )( PublicizeConnection );

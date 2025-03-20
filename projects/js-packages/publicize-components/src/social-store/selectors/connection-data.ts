@@ -1,6 +1,6 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { store as coreStore } from '@wordpress/core-data';
-import { createRegistrySelector } from '@wordpress/data';
+import { createRegistrySelector, createSelector } from '@wordpress/data';
 import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
 import type { Connection, SocialStoreState } from '../types';
 
@@ -69,11 +69,14 @@ export function hasConnections( state: SocialStoreState ) {
  * @param state - State object.
  * @return List of connections.
  */
-export function getFailedConnections( state: SocialStoreState ) {
-	const connections = getConnections( state );
+export const getFailedConnections = createSelector(
+	( state: SocialStoreState ) => {
+		const connections = getConnections( state );
 
-	return connections.filter( connection => 'broken' === connection.status );
-}
+		return connections.filter( connection => 'broken' === connection.status );
+	},
+	( state: SocialStoreState ) => [ state.connectionData?.connections ]
+);
 
 /**
  * Returns a list of Publicize connection service names that require reauthentication from users.
