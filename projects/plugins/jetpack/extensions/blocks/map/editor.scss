@@ -76,3 +76,26 @@
 		}
 	}
 }
+
+.jetpack-map-token-settings {
+	.jetpack-update-token-button {
+		box-shadow: inset 0 0 0 1px #1e1e1e;
+		border-radius: 3px 0 0 2px;
+	}
+
+	.components-button.is-secondary {
+		border-radius: 0 2px 2px 0;
+		margin-left: -1px;
+	}
+
+	.components-toggle-group-control {
+		border: none;
+		outline: none;
+		box-shadow: none;
+
+		&:focus, &:focus-within {
+			outline: none;
+			box-shadow: none;
+		}
+	}
+}
