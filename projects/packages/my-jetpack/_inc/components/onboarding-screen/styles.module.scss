@@ -1,7 +1,11 @@
 :global(body) {
 	font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Avenir Next", "Avenir", "Segoe UI", "Helvetica Neue", "Helvetica", "Cantarell", "Ubuntu", "Roboto", "Noto Sans", "Arial", sans-serif;
+}
+
+:global(#wpwrap) {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
 }
 
 .jetpack-logo {
