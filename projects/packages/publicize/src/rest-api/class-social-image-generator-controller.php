@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize\REST_API;
 
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
+use Automattic\Jetpack\Publicize\Social_Image_Generator as SIG;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
 use WP_Error;
 use WP_REST_Request;
@@ -111,22 +112,12 @@ class Social_Image_Generator_Controller extends Base_Controller {
 	 * @return WP_REST_Response The response.
 	 */
 	public function generate_preview_token( $request ) {
-		if ( ! Utils::is_wpcom() ) {
-			return rest_ensure_response(
-				$this->proxy_request_to_wpcom_as_blog( $request, 'generate-token' )
-			);
-		}
-
-		require_lib( 'social-image-generator-token' );
-
-		$token = \Social_Image_Generator\generate_token(
-			array(
-				'text'      => $request->get_param( 'text' ),
-				'image_url' => $request->get_param( 'image_url' ),
-				'template'  => $request->get_param( 'template' ),
+		return rest_ensure_response(
+			SIG\fetch_token(
+				$request->get_param( 'text' ),
+				$request->get_param( 'image_url' ),
+				$request->get_param( 'template' )
 			)
 		);
-
-		return rest_ensure_response( $token );
 	}
 }
