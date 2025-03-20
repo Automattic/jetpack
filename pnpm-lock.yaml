@@ -1292,8 +1292,8 @@ importers:
         version: 4.0.1
     devDependencies:
       '@automattic/color-studio':
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: 4.1.0
+        version: 4.1.0
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../base-styles
@@ -1476,8 +1476,8 @@ importers:
   projects/js-packages/shared-extension-utils:
     dependencies:
       '@automattic/color-studio':
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: 4.1.0
+        version: 4.1.0
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../analytics
@@ -2149,8 +2149,8 @@ importers:
   projects/packages/calypsoify:
     dependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.1.3
-        version: 3.1.3
+        specifier: 4.0.0
+        version: 4.0.0
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -2510,8 +2510,8 @@ importers:
         version: 6.0.1(webpack@5.94.0)
     devDependencies:
       '@automattic/color-studio':
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: 4.1.0
+        version: 4.1.0
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
@@ -2590,11 +2590,11 @@ importers:
   projects/packages/jetpack-mu-wpcom:
     dependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.1.3
-        version: 3.1.3
-      '@automattic/color-studio':
         specifier: 4.0.0
         version: 4.0.0
+      '@automattic/color-studio':
+        specifier: 4.1.0
+        version: 4.1.0
       '@automattic/components':
         specifier: 2.2.0
         version: 2.2.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.19.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2775,11 +2775,11 @@ importers:
   projects/packages/masterbar:
     dependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.1.3
-        version: 3.1.3
-      '@automattic/color-studio':
         specifier: 4.0.0
         version: 4.0.0
+      '@automattic/color-studio':
+        specifier: 4.1.0
+        version: 4.1.0
       postcss-custom-properties:
         specifier: 12.1.7
         version: 12.1.7(postcss@8.4.47)
@@ -3040,11 +3040,11 @@ importers:
         version: 5.19.0
     devDependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.1.3
-        version: 3.1.3
-      '@automattic/color-studio':
         specifier: 4.0.0
         version: 4.0.0
+      '@automattic/color-studio':
+        specifier: 4.1.0
+        version: 4.1.0
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
@@ -3094,11 +3094,11 @@ importers:
   projects/packages/search:
     dependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.1.3
-        version: 3.1.3
-      '@automattic/color-studio':
         specifier: 4.0.0
         version: 4.0.0
+      '@automattic/color-studio':
+        specifier: 4.1.0
+        version: 4.1.0
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
@@ -3280,8 +3280,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
       '@automattic/color-studio':
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: 4.1.0
+        version: 4.1.0
       '@automattic/components':
         specifier: 2.2.0
         version: 2.2.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.17.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3548,8 +3548,8 @@ importers:
         version: 4.2.3
     devDependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.1.3
-        version: 3.1.3
+        specifier: 4.0.0
+        version: 4.0.0
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
@@ -3650,11 +3650,11 @@ importers:
   projects/packages/wordads:
     dependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.1.3
-        version: 3.1.3
-      '@automattic/color-studio':
         specifier: 4.0.0
         version: 4.0.0
+      '@automattic/color-studio':
+        specifier: 4.1.0
+        version: 4.1.0
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3867,8 +3867,8 @@ importers:
   projects/plugins/automattic-for-agencies-client:
     dependencies:
       '@automattic/color-studio':
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: 4.1.0
+        version: 4.1.0
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../../js-packages/api
@@ -4394,8 +4394,8 @@ importers:
   projects/plugins/jetpack:
     dependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.1.3
-        version: 3.1.3
+        specifier: 4.0.0
+        version: 4.0.0
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
@@ -4635,8 +4635,8 @@ importers:
         version: 6.0.1(webpack@5.94.0)
     devDependencies:
       '@automattic/color-studio':
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: 4.1.0
+        version: 4.1.0
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
@@ -5501,6 +5501,9 @@ packages:
   '@automattic/calypso-color-schemes@3.1.3':
     resolution: {integrity: sha512-nzs36yfxUOcsD3HvB72IHgdUfIzTRnT7QmF78CBXEREawTEs0uDyELdx/rAOtW/PauxRYRGQ4zeK5c67FWqLxw==}
 
+  '@automattic/calypso-color-schemes@4.0.0':
+    resolution: {integrity: sha512-HPF4RvqYDC1bCwCFCS1SX6gCYbckA7nEQlWk3RLwKzCrTtRbslx2C1KUIUcGaVh4ilzHVwVVgNPYQOZrO0JnbA==}
+
   '@automattic/calypso-config@1.2.0':
     resolution: {integrity: sha512-7NE5oVOEyQ4KRz1VNnPIHgW+mcwxnkcs/+Cymba7OA7SYKARiTg3ETGlZGX19S0F7gjYZMq+IeLHeAZSrNjz/Q==}
 
@@ -5516,8 +5519,8 @@ packages:
   '@automattic/color-studio@3.0.3':
     resolution: {integrity: sha512-2GXkwfu4ndGEWWSlQQamCdXIQ9qJ1zbqbGROxJzE6F4kS2EXGgXvkMolpaa6X7ZjosqlGhtTTvYOwgIw/2qD7A==}
 
-  '@automattic/color-studio@4.0.0':
-    resolution: {integrity: sha512-L49rqIzCLnqLFoNJsANUXfmIWqlfgsEaDWcgXHt+lUbpZYDtWphUCVS/kIkSlAPHo3LmcRRzCTIq/DyU5C/nEA==}
+  '@automattic/color-studio@4.1.0':
+    resolution: {integrity: sha512-1iWNsCHANeVDjBeXnlslaf7zoWheGbFxGDYu/cXj5FhV6TJBm2QF4KzHfQ7FDinkJCPpL0IbZpnXzpn0IZudxA==}
 
   '@automattic/components@2.2.0':
     resolution: {integrity: sha512-AMuCD49xEPqR5b68l5MsVq/Lv/r8CpfXd/xJzZixhAFxTROtX+pcSaq7bR6SvMXuVhq+Mx+R+M7S2igS1H2L/g==}
@@ -15597,6 +15600,8 @@ snapshots:
 
   '@automattic/calypso-color-schemes@3.1.3': {}
 
+  '@automattic/calypso-color-schemes@4.0.0': {}
+
   '@automattic/calypso-config@1.2.0': {}
 
   '@automattic/calypso-products@1.2.1(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.19.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
@@ -15624,7 +15629,7 @@ snapshots:
 
   '@automattic/color-studio@3.0.3': {}
 
-  '@automattic/color-studio@4.0.0': {}
+  '@automattic/color-studio@4.1.0': {}
 
   '@automattic/components@2.2.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.17.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:

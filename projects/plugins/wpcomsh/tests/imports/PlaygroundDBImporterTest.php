@@ -378,7 +378,6 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 
 		try {
 			$tmp_db = new SQLite3( $tmp_db_path );
-			$tmp_db->enableExceptions( false );
 
 			if ( $options['cache_table'] ) {
 				// Create the cache table.

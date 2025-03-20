@@ -13,13 +13,10 @@ class Jetpack_Deprecation_Test extends WP_UnitTestCase {
 
 		$this->setExpectedDeprecated( $file_path );
 
-		$mock = $this->getMockBuilder( stdClass::class )
-			->addMethods( array( 'action' ) )
-			->getMock();
-		$mock->expects( $this->once() )->method( 'action' )->with( $file_path, $replacement_path );
+		$action = $this->getMockBuilder( \CallableMock::class )->getMock();
+		$action->expects( $this->once() )->method( '__invoke' )->with( $file_path, $replacement_path );
 
-		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
-		add_action( 'deprecated_file_included', array( $mock, 'action' ), 10, 2 );
+		add_action( 'deprecated_file_included', $action, 10, 2 );
 		add_filter( 'deprecated_file_trigger_error', '__return_false' );
 
 		require_once JETPACK__PLUGIN_DIR . $file_path;
