@@ -695,6 +695,8 @@ function render_block( $attributes ) {
 		'preselected_newsletter_categories' => get_attribute( $attributes, 'preselectNewsletterCategories', false ),
 	);
 
+	error_log( print_r( compact( 'data' ), true ) );
+
 	if ( ! jetpack_is_frontend() ) {
 		return render_for_email( $data, $styles );
 	}
