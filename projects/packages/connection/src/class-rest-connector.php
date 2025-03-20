@@ -261,6 +261,29 @@ class REST_Connector {
 			)
 		);
 
+		// Provider-specific authorization URL endpoint
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/authorize_url/(?P<provider>[a-zA-Z]+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'connection_authorize_url_provider' ),
+				'permission_callback' => '__return_true', // Just for testing, it should be user_connection_data_permission_check
+				'args'                => array(
+					'provider'     => array(
+						'description' => __( 'Authentication provider (google, github, apple)', 'jetpack-connection' ),
+						'type'        => 'string',
+						'required'    => true,
+						'enum'        => array( 'google', 'github', 'apple' ),
+					),
+					'redirect_uri' => array(
+						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
+						'type'        => 'string',
+					),
+				),
+			)
+		);
+
 		register_rest_route(
 			'jetpack/v4',
 			'/user-token',
@@ -1109,5 +1132,25 @@ class REST_Connector {
 		return Rest_Authentication::is_signed_with_blog_token()
 			? true
 			: new WP_Error( 'invalid_permission_connection_check', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Provider-specific authorization URL endpoint
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function connection_authorize_url_provider( $request ) {
+		$provider     = $request['provider'];
+		$redirect_uri = $request['redirect_uri'];
+
+		$authorize_url = ( new Authorize_Redirect( $this->connection ) )->build_authorize_url( $redirect_uri, false, false, $provider );
+
+		return rest_ensure_response(
+			array(
+				'authorizeUrl' => $authorize_url,
+			)
+		);
 	}
 }
