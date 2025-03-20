@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Some `phpcs:ignoreFile`d tests missed in #42114.
-
-
