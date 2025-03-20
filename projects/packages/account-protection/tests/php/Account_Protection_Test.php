@@ -37,6 +37,11 @@ class Account_Protection_Test extends BaseTestCase {
 	}
 
 	public function test_init_registers_hooks_but_not_runtime_hooks_if_module_disabled(): void {
+		$reflection = new \ReflectionClass( Account_Protection::class );
+		$property   = $reflection->getProperty( 'hooks_registered' );
+		$property->setAccessible( true );
+		$property->setValue( false );
+
 		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_enabled', 'register_hooks', 'register_runtime_hooks' ) );
 		$sut->expects( $this->once() )
 			->method( 'is_enabled' )
