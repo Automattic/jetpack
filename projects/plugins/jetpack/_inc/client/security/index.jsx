@@ -84,6 +84,7 @@ export class Security extends Component {
 			return null;
 		}
 
+		const foundAccountProtection = this.props.isModuleFound( 'account-protection' );
 		const foundWaf = this.props.isModuleFound( 'waf' );
 
 		const backupsContent = this.props.backupsOnly ? (
@@ -113,7 +114,9 @@ export class Security extends Component {
 						<QueryAkismetKeyCheck />
 					</>
 				) }
-				<AccountProtection isModuleFound={ this.props.isModuleFound } { ...commonProps } />
+				{ foundAccountProtection && (
+					<AccountProtection isModuleFound={ this.props.isModuleFound } { ...commonProps } />
+				) }
 				{ foundWaf && <Waf { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ ( foundWaf || foundProtect ) && <AllowList { ...commonProps } /> }

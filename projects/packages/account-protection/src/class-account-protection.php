@@ -73,6 +73,12 @@ class Account_Protection {
 	 * @return void
 	 */
 	public function init(): void {
+		// Temporary short-circuit
+		// TODO: Remove this once Atomic beta is released Monday, March 28th, 2025
+		if ( ! defined( 'DISABLE_JETPACK_ACCOUNT_PROTECTION' ) ) {
+			define( 'DISABLE_JETPACK_ACCOUNT_PROTECTION', true );
+		}
+
 		if ( self::$hooks_registered ) {
 			return;
 		}
