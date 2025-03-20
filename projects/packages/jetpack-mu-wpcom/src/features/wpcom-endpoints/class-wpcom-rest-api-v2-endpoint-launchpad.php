@@ -62,12 +62,6 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 							'required'    => false,
 							'default'     => array(),
 						),
-						'updated_write_tasklist'     => array(
-							'description' => 'Enable the updated write tasklist, for testing purposes',
-							'type'        => 'boolean',
-							'required'    => false,
-							'default'     => false,
-						),
 					),
 				),
 				array(
@@ -179,20 +173,12 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			$switched_locale = switch_to_locale( $locale );
 		}
 
-		$checklist_slug         = isset( $request['checklist_slug'] ) ? $request['checklist_slug'] : get_option( 'site_intent' );
-		$use_goals              = isset( $request['use_goals'] ) ? $request['use_goals'] : false;
-		$updated_write_tasklist = isset( $request['updated_write_tasklist'] ) ? $request['updated_write_tasklist'] : false;
+		$checklist_slug = isset( $request['checklist_slug'] ) ? $request['checklist_slug'] : get_option( 'site_intent' );
+		$use_goals      = isset( $request['use_goals'] ) ? $request['use_goals'] : false;
 
 		$launchpad_context = isset( $request['launchpad_context'] )
 			? $request['launchpad_context']
 			: null;
-
-		if ( $updated_write_tasklist && $checklist_slug === 'write' ) {
-			// The updated_write_tasklist param facilitates a call-for-testing where we want
-			// to try out changes to the write tasks. The intention is that `updated-write-tasklist`
-			// will replace `write`, at which point updated_write_tasklist should be removed.
-			$checklist_slug = 'updated-write-tasklist';
-		}
 
 		if ( $use_goals ) {
 			// The user must be part of a cohort which should deterine which checklist to show soley on
@@ -205,7 +191,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			'site_intent'        => get_option( 'site_intent' ),
 			'launchpad_screen'   => get_option( 'launchpad_screen' ),
 			'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
-			'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context, $updated_write_tasklist ),
+			'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context ),
 			'is_enabled'         => wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ),
 			'is_dismissed'       => wpcom_launchpad_is_task_list_dismissed( $checklist_slug ),
 			'is_dismissible'     => wpcom_launchpad_is_task_list_dismissible( $checklist_slug ),
