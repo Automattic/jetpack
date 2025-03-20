@@ -114,6 +114,11 @@ $jetpack_dev_debug_modules = array(
 		'name'        => 'XMLRPC Logger',
 		'description' => 'Logs incoming XMLRPC requests into the debug.log file.',
 	),
+	'coverage-logger'           => array(
+		'file'        => 'class-coverage-logger.php',
+		'name'        => 'Coverage Logger',
+		'description' => 'Logs coverage data.',
+	),
 	'xmlrpc-blocker'            => array(
 		'file'        => 'class-xmlrpc-blocker.php',
 		'name'        => 'Broken XML-RPC',
