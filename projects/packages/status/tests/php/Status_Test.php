@@ -305,21 +305,25 @@ class Status_Test extends TestCase {
 	 * Mock $wpdb->get_var() and make it return a certain value.
 	 *
 	 * @param mixed $return_value  Return value of the function.
-	 *
-	 * PHPUnit\Framework\MockObject\MockObject The mock object.
 	 */
 	protected function mock_wpdb_get_var( $return_value = null ) {
 		global $wpdb;
 
-		$wpdb = $this->getMockBuilder( \stdClass::class )
-					->addMethods( array( 'get_var' ) )
-					->getMock();
-		$wpdb->method( 'get_var' )
-			->willReturn( $return_value );
+		$wpdb = new class( $return_value ) {
+			public $prefix   = 'wp_';
+			public $site     = 'wp_site';
+			public $usermeta = 'wp_usermeta';
 
-		$wpdb->prefix   = 'wp_';
-		$wpdb->site     = 'wp_site';
-		$wpdb->usermeta = 'wp_usermeta';
+			private $return_value;
+
+			public function __construct( $return_value ) {
+				$this->return_value = $return_value;
+			}
+
+			public function get_var() {
+				return $this->return_value;
+			}
+		};
 	}
 
 	/**

@@ -8,7 +8,11 @@ import styles from './styles.module.scss';
 
 export const UnsupportedConnectionsNotice: React.FC = () => {
 	const unsupportedServices = useSelect( select => {
-		return select( socialStore ).getServicesBy( 'status', 'unsupported' );
+		const { getServicesBy, getConnectionsByService } = select( socialStore );
+
+		return getServicesBy( 'status', 'unsupported' ).filter(
+			service => getConnectionsByService( service.id ).length
+		);
 	}, [] );
 
 	if ( ! unsupportedServices.length ) {
