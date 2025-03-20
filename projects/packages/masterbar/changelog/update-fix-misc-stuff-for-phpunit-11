@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Replace a weird mock that can't seem to work with both PHPUnit 11 and 8/9 with an anonymous class.
-
-

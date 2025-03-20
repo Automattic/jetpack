@@ -198,6 +198,9 @@ const LineChart: FC< LineChartProps > = ( {
 
 				{ dataSorted.map( ( seriesData, index ) => {
 					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
+					const lineProps =
+						providerTheme?.seriesLineStyles?.[ index % providerTheme.seriesLineStyles.length ] ||
+						{};
 					return (
 						<g key={ seriesData?.label || index }>
 							{ withGradientFill && (
@@ -221,6 +224,7 @@ const LineChart: FC< LineChartProps > = ( {
 								}
 								renderLine={ true }
 								curve={ smoothing ? curveCatmullRom : curveLinear }
+								lineProps={ lineProps }
 							/>
 						</g>
 					);

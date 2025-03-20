@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit f5460bc365e7807b2942f902676d52fd931541df.
+ * Stubs automatically generated from WordPress.com commit b09ff6236a0ff02858c8e057ff1d3e0a3992ba9e.
  */
 
 namespace {
@@ -1564,7 +1564,14 @@ namespace ExPlat {
     function assign_given_user(string $experiment_name, \WP_User $user): ?string
     {
     }
-    function get_user_assignment(string $experiment_name, \WP_User $user): ?string
+    /**
+     * @param string $experiment_name
+     * @return string|null
+     */
+    function assign_maybe_anon_user(string $experiment_name): ?string
+    {
+    }
+    function assign_maybe_anon_with_prioritised_user_attribute_store(string $experiment_name, \WP_User $user = null): ?string
     {
     }
 }
@@ -1609,32 +1616,21 @@ namespace Newsletter_Categories {
     {
     }
 }
-namespace Social_Image_Generator {
-    class Token
-    {
-        /**
-         * @var string|null
-         */
-        public $image_url = null;
-        /**
-         * @var string
-         */
-        public $text = '';
-        /**
-         * @var string|null
-         */
-        public $template = null;
-        /**
-         * @var int|null
-         */
-        public $blog_id = null;
-    }
+namespace Publicize\Social_Image_Generator {
     /**
-     * @param Token $token
-     * @param string $secret
+     * @param int $blog_id
+     * @return bool
+     */
+    function is_enabled($blog_id = 0)
+    {
+    }
+}
+namespace Social_Image_Generator {
+    /**
+     * @param array $args
      * @return string
      */
-    function encode_token($token, $secret)
+    function generate_token($args)
     {
     }
 }

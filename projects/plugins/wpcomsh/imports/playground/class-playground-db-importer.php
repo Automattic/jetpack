@@ -102,7 +102,6 @@ class Playground_DB_Importer {
 		try {
 			// Try to open the database file.
 			$this->db = new SQLite3( $database_file_path, SQLITE3_OPEN_READONLY );
-			$this->db->enableExceptions( false );
 
 			$ret = $this->parse_database();
 

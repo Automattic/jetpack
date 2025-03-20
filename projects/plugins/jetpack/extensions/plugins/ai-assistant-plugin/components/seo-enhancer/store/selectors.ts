@@ -7,6 +7,14 @@ export function isBusy( state: SeoEnhancerState ) {
 	return state.isBusy;
 }
 
+export function isTitleBusy( state: SeoEnhancerState ) {
+	return state.isTitleBusy;
+}
+
+export function isDescriptionBusy( state: SeoEnhancerState ) {
+	return state.isDescriptionBusy;
+}
+
 export function isTogglingAutoEnhance( state: SeoEnhancerState ) {
 	return state.isTogglingAutoEnhance;
 }
