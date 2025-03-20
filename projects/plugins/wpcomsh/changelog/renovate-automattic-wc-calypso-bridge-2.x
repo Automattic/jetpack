@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Update package dependencies.
+Update wc-calypso-bridge dependency to 2.9.1
