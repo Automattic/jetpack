@@ -487,12 +487,12 @@ function get_element_styles_from_attributes( $attributes ) {
 			: sprintf( 'width: calc(100%% - %dpx);', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) );
 	}
 
-	$font_size = get_attribute( $attributes, 'customFontSize' );
+	$font_size = (string) get_attribute( $attributes, 'customFontSize' );
 	$style     = ( $font_size && $font_size !== DEFAULT_FONTSIZE_VALUE ) ? sprintf( 'font-size: %s%s;', $font_size, is_numeric( $font_size ) ? 'px' : '' ) : '';
 
 	$submit_button_styles .= $style;
 
-	$padding               = get_attribute( $attributes, 'padding' );
+	$padding               = (int) get_attribute( $attributes, 'padding' );
 	$style                 = ( $padding && $padding !== DEFAULT_PADDING_VALUE ) ? sprintf( 'padding: %1$dpx %2$dpx %1$dpx %2$dpx;', $padding, round( $padding * 1.5 ) ) : '';
 	$submit_button_styles .= $style;
 
@@ -511,11 +511,11 @@ function get_element_styles_from_attributes( $attributes ) {
 		$submit_button_styles .= $style;
 	}
 
-	$border_radius         = get_attribute( $attributes, 'borderRadius' );
+	$border_radius         = (int) get_attribute( $attributes, 'borderRadius' );
 	$style                 = ( $border_radius && $border_radius !== DEFAULT_BORDER_RADIUS_VALUE ) ? sprintf( 'border-radius: %dpx;', $border_radius ) : '';
 	$submit_button_styles .= $style;
 
-	$border_width          = get_attribute( $attributes, 'borderWeight' );
+	$border_width          = (int) get_attribute( $attributes, 'borderWeight' );
 	$style                 = ( $border_width && $border_width !== DEFAULT_BORDER_WEIGHT_VALUE ) ? sprintf( 'border-width: %dpx;', $border_width ) : '';
 	$submit_button_styles .= $style;
 
