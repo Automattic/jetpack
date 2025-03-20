@@ -106,6 +106,42 @@ class Cache_Preload_Test extends TestCase {
 	}
 
 	/**
+	 * Test preload method rebuilds cache for provided URLs.
+	 */
+	public function test_preload() {
+		define( 'JETPACK_BOOST_CACHE_DURATION', 1 );
+		define( 'ABSPATH', '/pseudo' );
+
+		$urls = array( 'https://example.com', 'https://example.com/page' );
+
+		$preload = new Cache_Preload();
+		// Mock wp_remote_get
+		foreach ( $urls as $url ) {
+			Functions\expect( 'wp_remote_get' )
+				->once()
+				->with( $url, Mockery::type( 'array' ) );
+			Functions\expect( 'wp_remote_retrieve_response_code' )
+				->once()
+				->withAnyArgs()
+				->andReturn( 200 );
+		}
+
+		// Mock WordPress functions
+		Functions\expect( 'remove_action' )
+			->once()
+			->withArgs( array( 'jetpack_boost_invalidate_cache_success', array( $preload, 'handle_cache_invalidation' ) ) );
+
+		Functions\expect( 'add_action' )
+			->once()
+			->withArgs( array( 'jetpack_boost_invalidate_cache_success', array( $preload, 'handle_cache_invalidation' ), 10, 2 ) );
+
+		// Execute the method being tested
+		$preload->preload( $urls );
+
+		$this->expectNotToPerformAssertions();
+	}
+
+	/**
 	 * Test request_pages with posts in the queue.
 	 */
 	public function test_request_pages_with_posts() {
