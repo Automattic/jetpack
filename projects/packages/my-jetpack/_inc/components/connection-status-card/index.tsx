@@ -11,6 +11,7 @@ import getProductSlugsThatRequireUserConnection from '../../data/utils/get-produ
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectSite from '../../hooks/use-connect-site';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { InfoTooltip } from '../info-tooltip';
 import cloud from './cloud.svg';
 import emptyAvatar from './empty-avatar.svg';
 import jetpackGray from './jetpack-gray.svg';
@@ -190,23 +191,71 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 
 	let userConnectionText = null;
 	if ( userConnectionData.currentUser?.isMaster ) {
-		userConnectionText = userConnectionData.currentUser?.wpcomUser?.display_name
-			? sprintf(
-					/* translators: %1$s is user name, %2$s is the user email */
-					__( 'Connected as %1$s (Owner) (%2$s).', 'jetpack-my-jetpack' ),
-					userConnectionData.currentUser?.wpcomUser?.display_name,
-					userConnectionData.currentUser?.wpcomUser?.email
-			  )
-			: __( 'User connected (Owner).', 'jetpack-my-jetpack' );
+		if ( userConnectionData.currentUser?.wpcomUser?.display_name ) {
+			userConnectionText = (
+				<>
+					{ sprintf(
+						/* translators: %s is user name */
+						__( 'Connected as %s (Owner) (', 'jetpack-my-jetpack' ),
+						userConnectionData.currentUser?.wpcomUser?.display_name
+					) }
+					{ userConnectionData.currentUser?.wpcomUser?.email }
+					{ ').' }
+					{ userConnectionData.currentUser?.possibleAccountMismatch && (
+						<InfoTooltip
+							tracksEventName="my_jetpack_account_mismatch_tooltip_open"
+							tracksEventProps={ {
+								location: 'connection_status_card',
+								context: 'owner',
+							} }
+							iconSize={ 16 }
+							className="account-mismatch-tooltip"
+						>
+							<p>
+								{ __(
+									'We noticed a possible mismatch between your site account and WordPress.com account emails. This might lead to connection issues.',
+									'jetpack-my-jetpack'
+								) }
+							</p>
+						</InfoTooltip>
+					) }
+				</>
+			);
+		} else {
+			userConnectionText = __( 'User connected (Owner).', 'jetpack-my-jetpack' );
+		}
+	} else if ( userConnectionData.currentUser?.wpcomUser?.display_name ) {
+		userConnectionText = (
+			<>
+				{ sprintf(
+					/* translators: %s is user name */
+					__( 'Connected as %s (', 'jetpack-my-jetpack' ),
+					userConnectionData.currentUser?.wpcomUser?.display_name
+				) }
+				{ userConnectionData.currentUser?.wpcomUser?.email }
+				{ ').' }
+				{ userConnectionData.currentUser?.possibleAccountMismatch && (
+					<InfoTooltip
+						tracksEventName="my_jetpack_account_mismatch_tooltip_open"
+						tracksEventProps={ {
+							location: 'connection_status_card',
+							context: 'non_owner',
+						} }
+						iconSize={ 16 }
+						className="account-mismatch-tooltip"
+					>
+						<p>
+							{ __(
+								'We noticed a possible mismatch between your site account and WordPress.com account emails. This might lead to connection issues.',
+								'jetpack-my-jetpack'
+							) }
+						</p>
+					</InfoTooltip>
+				) }
+			</>
+		);
 	} else {
-		userConnectionText = userConnectionData.currentUser?.wpcomUser?.display_name
-			? sprintf(
-					/* translators: %1$s is user name, %2$s is the user email */
-					__( 'Connected as %1$s (%2$s).', 'jetpack-my-jetpack' ),
-					userConnectionData.currentUser?.wpcomUser?.display_name,
-					userConnectionData.currentUser?.wpcomUser?.email
-			  )
-			: __( 'User connected.', 'jetpack-my-jetpack' );
+		userConnectionText = __( 'User connected.', 'jetpack-my-jetpack' );
 	}
 
 	return {
