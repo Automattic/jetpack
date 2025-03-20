@@ -107,18 +107,14 @@ class Unauth_File_Upload_Handler {
 
 		$this->cleanup_old_uploads();
 
-		$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+		$uploads = $this->get_unauth_uploads();
 
 		// Check number of files limit.
 		if ( count( $uploads ) >= self::MAX_FILES ) {
-			// Try to remove old files.
-			$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
-			if ( count( $uploads ) >= self::MAX_FILES ) {
-				return new WP_Error(
-					'max_files_limit',
-					\__( 'Maximum number of temporary files reached.', 'jetpack' )
-				);
-			}
+			return new WP_Error(
+				'max_files_limit',
+				\__( 'Maximum number of temporary files reached.', 'jetpack' )
+			);
 		}
 
 		// Check total size and try to free up space if needed.
@@ -176,25 +172,9 @@ class Unauth_File_Upload_Handler {
 			'context'       => $context,
 		);
 
-		$this->update_file_info( $token, $file_data );
+		$this->add_unauth_upload( $token, $file_data );
 
 		return $token;
-	}
-
-	/**
-	 * Store the information about the temporary uploaded file.
-	 * This information is used to retrieve the file later.
-	 * As well as helps us figure out what needs to be deleted.
-	 *
-	 * @param string $token The token for the file.
-	 * @param array  $file_data The data about the file.
-	 *
-	 * @return bool True if the file info was updated, false otherwise.
-	 */
-	private function update_file_info( $token, $file_data ) {
-		$uploads           = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
-		$uploads[ $token ] = $file_data;
-		return update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
 	}
 
 	/*
@@ -279,7 +259,7 @@ class Unauth_File_Upload_Handler {
 	 * @return int Total size in bytes.
 	 */
 	private function get_total_size() {
-		$uploads    = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+		$uploads    = $this->get_unauth_uploads();
 		$temp_path  = $this->get_secret_temp_path();
 		$total_size = 0;
 
@@ -304,7 +284,7 @@ class Unauth_File_Upload_Handler {
 	 * @return bool True if space was freed, false if unable to free enough space.
 	 */
 	private function free_up_space( $required_space ) {
-		$uploads   = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+		$uploads   = $this->get_unauth_uploads();
 		$temp_path = $this->get_secret_temp_path();
 
 		if ( is_wp_error( $temp_path ) ) {
@@ -349,7 +329,7 @@ class Unauth_File_Upload_Handler {
 	public function checkout_file( $token, $destination ) {
 		global $wp_filesystem;
 
-		$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+		$uploads = $this->get_unauth_uploads();
 
 		if ( ! isset( $uploads[ $token ] ) ) {
 			return new WP_Error(
@@ -416,7 +396,7 @@ class Unauth_File_Upload_Handler {
 	 * @return bool True if the token was removed, false otherwise.
 	 */
 	public function remove_file( $token ) {
-		$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+		$uploads = $this->get_unauth_uploads();
 
 		if ( ! isset( $uploads[ $token ] ) ) {
 			return true;
@@ -432,27 +412,11 @@ class Unauth_File_Upload_Handler {
 	}
 
 	/**
-	 * Removes the token from the list of unauthenticated uploads.
-	 *
-	 * @param string $token The token to remove.
-	 *
-	 * @return bool True if the token was removed, false otherwise.
-	 */
-	private function unset_token( $token ) {
-		$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
-		unset( $uploads[ $token ] );
-		if ( empty( $uploads ) ) {
-			return \delete_option( self::UNAUTH_UPLOADS_OPTION );
-		}
-		return \update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
-	}
-
-	/**
 	 * Cleanup old uploads that are no longer needed.
 	 * This runs daily via wp-cron.
 	 */
 	public function cleanup_old_uploads() {
-		$uploads      = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+		$uploads      = $this->get_unauth_uploads();
 		$current_time = time();
 		$max_age      = DAY_IN_SECONDS;
 		$temp_path    = $this->get_secret_temp_path();
@@ -468,11 +432,102 @@ class Unauth_File_Upload_Handler {
 				if ( file_exists( $file_path ) ) {
 					wp_delete_file_from_directory( $file_path, $temp_path );
 				}
-				unset( $uploads[ $token ] );
+				$this->unset_token( $token );
 			}
 		}
+	}
+	/**
+	 * Gets the unauthenticated uploads data.
+	 *
+	 * @return array The unauthenticated uploads data.
+	 */
+	private function get_unauth_uploads() {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery  -- To make sure that we always get the non cached values.
+		$value = $wpdb->get_row( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", self::UNAUTH_UPLOADS_OPTION ), ARRAY_A );
+		return empty( $value['option_value'] ) ? array() : maybe_unserialize( $value['option_value'] );
+	}
 
-		\update_option( self::UNAUTH_UPLOADS_OPTION, $uploads, false );
+	/**
+	 * Store the information about the temporary uploaded file.
+	 * This information is used to retrieve the file later.
+	 * As well as helps us figure out what needs to be deleted.
+	 *
+	 * @param string $token The token for the file.
+	 * @param array  $file_data The data about the file.
+	 *
+	 * @return bool True if the file info was updated, false otherwise.
+	 */
+	private function add_unauth_upload( $token, $file_data ) {
+		$lock              = $this->get_lock();
+		$uploads           = $this->get_unauth_uploads();
+		$uploads[ $token ] = $file_data;
+		return $this->update_unauth_uploads( $uploads, $lock );
+	}
+
+	/**
+	 * Removes the token from the list of unauthenticated uploads.
+	 *
+	 * @param string $token The token to remove.
+	 *
+	 * @return bool True if the token was removed, false otherwise.
+	 */
+	private function unset_token( $token ) {
+		$lock    = $this->get_lock();
+		$uploads = $this->get_unauth_uploads();
+		unset( $uploads[ $token ] );
+		if ( empty( $uploads ) ) {
+			return $this->delete_unauth_uploads( $lock );
+		}
+
+		return $this->update_unauth_uploads( $uploads, $lock );
+	}
+	/**
+	 * Deletes the unauthenticated uploads data.
+	 *
+	 * @param bool $lock Whether to release the lock after deleting the uploads.
+	 *
+	 * @return bool True if the file info was deleted, false otherwise.
+	 */
+	private function delete_unauth_uploads( $lock ) {
+		delete_option( self::UNAUTH_UPLOADS_OPTION );
+		if ( $lock ) {
+			$this->release_lock();
+		}
+		return true;
+	}
+
+	/**
+	 * Update the file uploads data.
+	 *
+	 * @param array $uploads All the file uploads data.
+	 * @param bool  $lock    Whether to release the lock after updating the uploads.
+	 *
+	 * @return bool True if the file info was updated, false otherwise.
+	 */
+	private function update_unauth_uploads( $uploads, $lock ) {
+		global $wpdb;
+
+		$update_args = array(
+			'option_value' => maybe_serialize( $uploads ),
+			'autoload'     => 'off',
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$worked = $wpdb->update( $wpdb->options, $update_args, array( 'option_name' => self::UNAUTH_UPLOADS_OPTION ) );
+		if ( $worked === 0 ) {
+			$update_args['option_name'] = self::UNAUTH_UPLOADS_OPTION;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$result = $wpdb->insert( $wpdb->options, $update_args );
+			if ( $lock ) {
+				$this->release_lock();
+			}
+			return $result;
+		}
+		if ( $lock ) {
+			$this->release_lock();
+		}
+		return $worked;
 	}
 
 	/**
@@ -482,7 +537,37 @@ class Unauth_File_Upload_Handler {
 	 * @return array|false Array of file information if found, false if not found.
 	 */
 	public function get_file_info_by_token( $token ) {
-		$uploads = \get_option( self::UNAUTH_UPLOADS_OPTION, array() );
+		$uploads = $this->get_unauth_uploads();
 		return isset( $uploads[ $token ] ) ? $uploads[ $token ] : false;
+	}
+
+	/**
+	 * Get the lock. This is used to make sure that we don't have multiple processes trying to update the same data.
+	 * We wait for the lock to be released before we can update the data.
+	 */
+	private function get_lock() {
+
+		$lock = get_option( 'jetpack_unauth_upload_lock', false );
+		if ( empty( $lock ) ) {
+			return update_option( 'jetpack_unauth_upload_lock', time(), false );
+		}
+
+		$tries = 0;
+		while ( $tries < 100 ) { // Max 100 seconds tries to get the lock.
+			usleep( 100000 ); // 100ms retry delay.
+			++$tries;
+			$lock = get_option( 'jetpack_unauth_upload_lock', false );
+			if ( '0' === $lock ) {
+				return update_option( 'jetpack_unauth_upload_lock', time(), false );
+			}
+		}
+		return false; // we failed to get the lock.
+	}
+
+	/**
+	 * Release the lock.
+	 */
+	private function release_lock() {
+		update_option( 'jetpack_unauth_upload_lock', '0', false );
 	}
 }
