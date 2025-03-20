@@ -1,5 +1,4 @@
-import { useBlockProps } from '@wordpress/block-editor';
-import { SVG, Path } from '@wordpress/components';
+import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { useFormWrapper } from '../../util/form';
@@ -8,6 +7,101 @@ import JetpackFieldControls from '../jetpack-field-controls';
 import JetpackFieldLabel from '../jetpack-field-label';
 import { useJetpackFieldStyles } from '../use-jetpack-field-styles';
 import './editor.css';
+
+// Base64 encoded version of our upload icon SVG
+const DEFAULT_ICON =
+	'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIHZpZXdCb3g9IjAgMCAxNiAxNyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTQuNSAxMlYxNS41SDlWMy43MDAwMkwxMy41IDcuODAwMDJMMTQuNSA2LjcwMDAyTDguMyAwLjkwMDAyNEwyLjUgNi43MDAwMkwzLjUgNy44MDAwMkw3LjUgMy44MDAwMlYxNS41SDEuNVYxMkgwVjE3SDE2VjEySDE0LjVaIiBmaWxsPSIjMUUxRTFFIi8+PC9zdmc+';
+
+const BLOCKS_TEMPLATE = [
+	[
+		'core/group',
+		{
+			style: {
+				spacing: {
+					padding: {
+						top: '48px',
+						bottom: '48px',
+						left: '48px',
+						right: '48px',
+					},
+					margin: {
+						top: '8px',
+						bottom: '8px',
+					},
+				},
+				border: {
+					style: 'dashed',
+					width: '1px',
+				},
+				color: {
+					background: 'var(--wp--preset--color--background)',
+				},
+			},
+			borderColor: {
+				color: 'primary',
+				opacity: 30,
+			},
+		},
+		[
+			[
+				'core/image',
+				{
+					url: DEFAULT_ICON,
+					width: 24,
+					height: 24,
+					align: 'center',
+					className: 'is-style-default',
+					style: {
+						spacing: {
+							margin: {
+								bottom: '20px',
+							},
+						},
+					},
+				},
+			],
+			[
+				'core/paragraph',
+				{
+					align: 'center',
+					content: __(
+						'<strong><u>Select a file</u></strong> or drag and drop your file here',
+						'jetpack-forms'
+					),
+					style: {
+						spacing: {
+							padding: {
+								top: '8px',
+								bottom: '8px',
+							},
+						},
+						typography: {
+							fontSize: '16px',
+						},
+						color: {
+							text: 'var(--wp--preset--color--primary)',
+						},
+					},
+				},
+			],
+			[
+				'core/paragraph',
+				{
+					align: 'center',
+					content: __( 'JPEG, PNG, PDF, and MP4 formats', 'jetpack-forms' ),
+					style: {
+						typography: {
+							fontSize: '14px',
+						},
+						color: {
+							text: 'var(--wp--preset--color--secondary)',
+						},
+					},
+				},
+			],
+		],
+	],
+];
 
 const JetpackFieldFile = props => {
 	const { attributes, clientId, isSelected, setAttributes } = props;
@@ -32,32 +126,9 @@ const JetpackFieldFile = props => {
 					setAttributes={ setAttributes }
 				/>
 				<div className="jetpack-form-file-field__dropzone">
-					<div className="jetpack-form-file-field__content">
-						<div className="jetpack-form-file-field__icon">
-							<SVG
-								width="16"
-								height="17"
-								viewBox="0 0 16 17"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<Path
-									d="M14.5 12V15.5H9V3.70002L13.5 7.80002L14.5 6.70002L8.3 0.900024L2.5 6.70002L3.5 7.80002L7.5 3.80002V15.5H1.5V12H0V17H16V12H14.5Z"
-									fill="#1E1E1E"
-								/>
-							</SVG>
-						</div>
-						<div className="jetpack-form-file-field__text">
-							<span>
-								<span className="jetpack-form-file-field__select-link">
-									{ __( 'Select a file', 'jetpack-forms' ) }
-								</span>
-								{ __( 'or drag and drop your file here', 'jetpack-forms' ) }
-							</span>
-							<span className="jetpack-form-file-field__formats">
-								{ __( 'JPEG, PNG, PDF, and MP4 formats', 'jetpack-forms' ) }
-							</span>
-						</div>
+					<div className="jetpack-form-file-field__dropzone-inner">
+						<input type="file" style={ { display: 'none' } } aria-hidden="true" />
+						<InnerBlocks template={ BLOCKS_TEMPLATE } templateLock={ false } />
 					</div>
 				</div>
 			</div>
@@ -73,17 +144,6 @@ const JetpackFieldFile = props => {
 	);
 };
 
-export default compose(
-	withSharedFieldAttributes( [
-		'borderRadius',
-		'borderWidth',
-		'labelFontSize',
-		'fieldFontSize',
-		'lineHeight',
-		'labelLineHeight',
-		'inputColor',
-		'labelColor',
-		'fieldBackgroundColor',
-		'borderColor',
-	] )
-)( JetpackFieldFile );
+export default compose( withSharedFieldAttributes( [ 'label', 'required', 'filetype' ] ) )(
+	JetpackFieldFile
+);

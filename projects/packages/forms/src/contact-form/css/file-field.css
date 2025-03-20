@@ -1,9 +1,21 @@
 .jetpack-form-file-field__dropzone {
-	background-color: var(--jetpack--contact-form--input-background, white);
-	border: var(--jetpack--contact-form--border-size, 1px) dashed color-mix(in srgb, var(--jetpack--contact-form--border-color) 30%, transparent);
-	padding: 40px 20px 50px;
-	text-align: center;
 	position: relative;
+}
+
+.jetpack-form-file-field__dropzone-inner {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+	cursor: pointer;
+}
+
+.jetpack-form-file-field__dropzone input[type="file"] {
+	display: none;
 }
 
 .jetpack-form-file-field__dropzone.is_dropping {
@@ -17,23 +29,6 @@
 .jetpack-form-file-field__dropzone:hover {
 	outline: var(--b) solid var(--c);
 	outline-offset: var(--g);
-}
-
-.jetpack-form-file-field__dropzone-inner {
-	content: ' ';
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	width: 100%;
-	height: 100%;
-	z-index: 2;
-	cursor: pointer;
-}
-
-.jetpack-form-file-field__dropzone .jetpack-form-file-field {
-	display: none;
 }
 
 .jetpack-form-file-field__content {

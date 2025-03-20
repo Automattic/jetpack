@@ -1,4 +1,4 @@
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Path, Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
@@ -587,6 +587,17 @@ export const childBlocks = [
 				src: <Icon icon={ upload } />,
 			},
 			edit: JetpackFieldFile,
+			save: () => {
+				const blockProps = useBlockProps.save();
+				const innerBlocksProps = useInnerBlocksProps.save( {
+					className: 'jetpack-form-file-field__content-wrap',
+				} );
+				return (
+					<div { ...blockProps }>
+						<div { ...innerBlocksProps } />
+					</div>
+				);
+			},
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {

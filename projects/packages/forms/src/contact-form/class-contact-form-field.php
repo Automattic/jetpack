@@ -784,11 +784,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $label - the field label.
 	 * @param string $class - the field CSS class.
 	 * @param bool   $required - if the field is marked as required.
-	 * @param string $required_field_text - the text in the required text field.
 	 *
 	 * @return string HTML for the file upload field.
 	 */
-	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
+	private function render_file_field( $id, $label, $class, $required ) {
 		// Enqueue necessary scripts and styles.
 		$this->enqueue_file_field_assets();
 
@@ -844,7 +843,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'hasFiles'   => false,
 		);
 
-		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text );
 		ob_start();
 		?>
 		<div
@@ -856,24 +854,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			data-wp-on--mouseleave="actions.dragLeave"
 			data-wp-on--drop="actions.fileDropped"
 		>
-			<div class="jetpack-form-file-field__dropzone" data-wp-class--is_dropping="context.isDropping"  >
+			<div class="jetpack-form-file-field__dropzone" data-wp-class--is_dropping="context.isDropping">
 				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker"></div>
-				<div class="jetpack-form-file-field__content">
-					<div class="jetpack-form-file-field__icon">
-						<svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M14.5 12V15.5H9V3.70002L13.5 7.80002L14.5 6.70002L8.3 0.900024L2.5 6.70002L3.5 7.80002L7.5 3.80002V15.5H1.5V12H0V17H16V12H14.5Z" fill="#1E1E1E"/>
-						</svg>
-					</div>
-					<div class="jetpack-form-file-field__text">
-						<span><a href="#" class="jetpack-form-file-field__select-link" data-wp-on--click="actions.openFilePicker"><?php esc_html_e( 'Select a file', 'jetpack-forms' ); ?></a> <?php esc_html_e( 'or drag and drop your file here', 'jetpack-forms' ); ?></span>
-						<span class="jetpack-form-file-field__formats">
-						<?php
-						/* translators: %s: Maximum upload size in human readable format (e.g. 64 MB) */
-						printf( esc_html__( 'JPEG, PNG, PDF, and MP4 formats, up to %s', 'jetpack-forms' ), esc_html( size_format( wp_max_upload_size() ) ) );
-						?>
-						</span>
-					</div>
-				</div>
+				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
+				<?php echo html_entity_decode( $this->content ); ?>
 				<input id="<?php echo esc_attr( $id ); ?>" type="file" class="jetpack-form-file-field" data-wp-on--change="actions.fileAdded" />
 			</div>
 			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="context.hasFiles">
@@ -897,7 +881,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		</div>
 		<?php
 
-		return $field . ob_get_clean();
+		return ob_get_clean();
 	}
 
 	/**
@@ -1311,7 +1295,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
 				break;
 			case 'file':
-				$field .= $this->render_file_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_file_field( $id, $label, $value, $field_class, $required );
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );

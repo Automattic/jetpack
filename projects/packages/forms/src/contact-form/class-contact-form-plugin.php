@@ -527,7 +527,16 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_file( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file' );
-		return Contact_Form::parse_contact_field( $atts, $content );
+
+		// Create wrapper div for the file field
+		$output = '<div class="jetpack-form-file-field">';
+
+		// Render the file field
+		$output .= Contact_Form::parse_contact_field( $atts, $content );
+
+		$output .= '</div>';
+
+		return $output;
 	}
 
 	/**
