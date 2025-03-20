@@ -67,20 +67,7 @@ class SearchResults extends Component {
 		}
 
 		const num = new Intl.NumberFormat().format( total );
-		if ( hasQuery ) {
-			const queryToShow = hasCorrectedQuery ? corrected_query : this.props.searchQuery;
-			return sprintf(
-				/* translators: %1$s: number of results. %2$s: the search query. */
-				_n(
-					'Found %1$s result for "%2$s"',
-					'Found %1$s results for "%2$s"',
-					total,
-					'jetpack-search-pkg'
-				),
-				num,
-				queryToShow
-			);
-		} else if ( isMultiSite ) {
+		if ( isMultiSite ) {
 			const group = getAvailableStaticFilters().find( item => item.filter_id === 'group_id' );
 			const filterKey = group?.filter_id;
 
@@ -106,6 +93,25 @@ class SearchResults extends Component {
 					),
 					num,
 					selectedItem?.name
+				);
+			}
+			return sprintf(
+				/* translators: %s: number of results. */
+				_n( 'Found %s result', 'Found %s results', total, 'jetpack-search-pkg' ),
+				num
+			);
+		} else if ( hasQuery ) {
+			if ( hasCorrectedQuery ) {
+				return sprintf(
+					/* translators: %1$s: number of results. %2$s: the corrected search query. */
+					_n(
+						'Found %1$s result for "%2$s"',
+						'Found %1$s results for "%2$s"',
+						total,
+						'jetpack-search-pkg'
+					),
+					num,
+					corrected_query
 				);
 			}
 			return sprintf(
