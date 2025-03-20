@@ -67,8 +67,8 @@ abstract class Blocked_Login_Page {
 	 * @return object
 	 */
 	public static function instance( $ip_address ) {
-		if ( ! is_a( self::$instance, 'Blocked_Login_Page' ) ) {
-			self::$instance = new Blocked_Login_Page( $ip_address );
+		if ( ! self::$instance ) {
+			self::$instance = new static( $ip_address );
 		}
 
 		return self::$instance;
