@@ -173,7 +173,7 @@ class File_Handler {
 		}
 
 		// Get the standard REST API URL without the file_id in the path
-		$base_url = get_rest_url( null, 'wpcom/v2/forms/files' );
+		$base_url = get_rest_url( null, '/wp/v2/feedback/files' );
 
 		// Create a nonce based directly on the file_id
 		$file_nonce = wp_create_nonce( 'jetpack_forms_view_file_' . $file_id );
