@@ -53,7 +53,7 @@ if ( ! function_exists( 'add_logotool_button' ) ) {
 			return;
 		}
 
-		$logo_control->description = fixme__( 'Add a logo to display on your site. No logo? Buy a pro one today, powered by Fiverr — Click “Create logo” to start.', __( 'Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start.', 'jetpack-mu-wpcom' ) );
+		$logo_control->description = __( 'Add a logo to display on your site. No logo? Buy a pro one today, powered by Fiverr — Click “Create logo” to start.', 'jetpack-mu-wpcom' );
 		// Adding it back just overwrites the previous control instance.
 		$wp_customize->add_control( $logo_control );
 
@@ -66,7 +66,7 @@ if ( ! function_exists( 'add_logotool_button' ) ) {
 					'jetpack-mu-wpcom-logo-tool',
 					'_LogoTool_',
 					array(
-						'l10n'         => array( 'create' => fixme__( 'Create logo in minutes', __( 'Create logo', 'jetpack-mu-wpcom' ) ) ),
+						'l10n'         => array( 'create' => __( 'Create logo in minutes', 'jetpack-mu-wpcom' ) ),
 						'controlId'    => $logo_control->id,
 						'settingId'    => $logo_control->setting->id,
 						'referralLink' => 'https://wp.me/logo-maker/?utm_campaign=customizer' . defined( 'IS_ATOMIC' ) && IS_ATOMIC ? '-atomic' : '',
