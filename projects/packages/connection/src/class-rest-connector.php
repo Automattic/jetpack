@@ -675,21 +675,21 @@ class REST_Connector {
 		)
 		: false );
 
-		// Check for possible account mismatch
-		$possible_mismatch = false;
+		// Check for possible account errors between the local user and WPCOM account.
+		$possible_errors = array();
 		if ( $is_user_connected && ! empty( $wpcom_user_data['email'] ) ) {
-			$possible_mismatch = self::possible_account_mismatch( $current_user->user_email, $wpcom_user_data['email'] );
+			$possible_errors = self::check_account_errors( $current_user->user_email, $wpcom_user_data['email'] );
 		}
 
 		$current_user_connection_data = array(
-			'isConnected'             => $is_user_connected,
-			'isMaster'                => $is_master_user,
-			'username'                => $current_user->user_login,
-			'id'                      => $current_user->ID,
-			'blogId'                  => $blog_id,
-			'wpcomUser'               => $wpcom_user_data,
-			'gravatar'                => get_avatar_url( $current_user->ID ),
-			'permissions'             => array(
+			'isConnected'           => $is_user_connected,
+			'isMaster'              => $is_master_user,
+			'username'              => $current_user->user_login,
+			'id'                    => $current_user->ID,
+			'blogId'                => $blog_id,
+			'wpcomUser'             => $wpcom_user_data,
+			'gravatar'              => get_avatar_url( $current_user->ID ),
+			'permissions'           => array(
 				'connect'        => current_user_can( 'jetpack_connect' ),
 				'connect_user'   => current_user_can( 'jetpack_connect_user' ),
 				// This is a mapped capability
@@ -698,7 +698,7 @@ class REST_Connector {
 				'disconnect'     => current_user_can( 'jetpack_disconnect' ),
 				'manage_options' => current_user_can( 'manage_options' ),
 			),
-			'possibleAccountMismatch' => $possible_mismatch,
+			'possibleAccountErrors' => $possible_errors,
 		);
 
 		/**
@@ -755,6 +755,37 @@ class REST_Connector {
 		set_transient( $transient_key, $mismatch_exists, DAY_IN_SECONDS );
 
 		return $mismatch_exists;
+	}
+
+	/**
+	 * Check for possible account errors between the local user and WPCOM account.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $current_user_email The email of the current WordPress user.
+	 * @param string $wpcom_user_email The email of the connected WordPress.com account.
+	 *
+	 * @return array An array of possible account errors, empty if no errors.
+	 */
+	private static function check_account_errors( $current_user_email, $wpcom_user_email ) {
+		$errors = array();
+
+		// Check for email mismatch error
+		$has_mismatch = self::possible_account_mismatch( $current_user_email, $wpcom_user_email );
+		if ( $has_mismatch ) {
+			$errors['mismatch'] = array(
+				'type'    => 'mismatch',
+				'message' => __( 'We noticed there is another WordPress account using this email address. While this is not an issue for your site, it might lead to confusion.', 'jetpack-connection' ),
+				'details' => array(
+					'site_email'  => $current_user_email,
+					'wpcom_email' => $wpcom_user_email,
+				),
+			);
+		}
+
+		// Additional error checks can be added here in the future
+
+		return $errors;
 	}
 
 	/**

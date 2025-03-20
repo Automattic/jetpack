@@ -26,6 +26,12 @@ import type {
 } from './types';
 import type { MouseEvent } from 'react';
 
+interface AccountError {
+	type: string;
+	message: string;
+	details?: Record< string, unknown >;
+}
+
 const ConnectionListItem: ConnectionListItemType = ( {
 	text,
 	actionText,
@@ -199,26 +205,39 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 						__( 'Connected as %s (Owner) (', 'jetpack-my-jetpack' ),
 						userConnectionData.currentUser?.wpcomUser?.display_name
 					) }
-					{ userConnectionData.currentUser?.wpcomUser?.email }
+					<span style={ { display: 'inline-flex', alignItems: 'center', gap: '4px' } }>
+						{ userConnectionData.currentUser?.wpcomUser?.email }
+						{ userConnectionData.currentUser?.possibleAccountErrors &&
+							Object.keys( userConnectionData.currentUser.possibleAccountErrors ).length > 0 && (
+								<InfoTooltip
+									tracksEventName="my_jetpack_account_error_tooltip_open"
+									tracksEventProps={ {
+										location: 'connection_status_card',
+										context: 'owner',
+										error_types: Object.keys(
+											userConnectionData.currentUser.possibleAccountErrors
+										).join( ',' ),
+									} }
+									iconSize={ 16 }
+									className="account-error-tooltip"
+								>
+									<div>
+										{ Object.values( userConnectionData.currentUser.possibleAccountErrors ).map(
+											( error: AccountError, index ) => (
+												<p key={ `error-${ index }` }>
+													{ error.message ||
+														__(
+															'We noticed a possible issue with your account connection that might lead to connection issues.',
+															'jetpack-my-jetpack'
+														) }
+												</p>
+											)
+										) }
+									</div>
+								</InfoTooltip>
+							) }
+					</span>
 					{ ').' }
-					{ userConnectionData.currentUser?.possibleAccountMismatch && (
-						<InfoTooltip
-							tracksEventName="my_jetpack_account_mismatch_tooltip_open"
-							tracksEventProps={ {
-								location: 'connection_status_card',
-								context: 'owner',
-							} }
-							iconSize={ 16 }
-							className="account-mismatch-tooltip"
-						>
-							<p>
-								{ __(
-									'We noticed a possible mismatch between your site account and WordPress.com account emails. This might lead to connection issues.',
-									'jetpack-my-jetpack'
-								) }
-							</p>
-						</InfoTooltip>
-					) }
 				</>
 			);
 		} else {
@@ -232,26 +251,39 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 					__( 'Connected as %s (', 'jetpack-my-jetpack' ),
 					userConnectionData.currentUser?.wpcomUser?.display_name
 				) }
-				{ userConnectionData.currentUser?.wpcomUser?.email }
+				<span style={ { display: 'inline-flex', alignItems: 'center', gap: '4px' } }>
+					{ userConnectionData.currentUser?.wpcomUser?.email }
+					{ userConnectionData.currentUser?.possibleAccountErrors &&
+						Object.keys( userConnectionData.currentUser.possibleAccountErrors ).length > 0 && (
+							<InfoTooltip
+								tracksEventName="my_jetpack_account_error_tooltip_open"
+								tracksEventProps={ {
+									location: 'connection_status_card',
+									context: 'non_owner',
+									error_types: Object.keys(
+										userConnectionData.currentUser.possibleAccountErrors
+									).join( ',' ),
+								} }
+								iconSize={ 16 }
+								className="account-error-tooltip"
+							>
+								<div>
+									{ Object.values( userConnectionData.currentUser.possibleAccountErrors ).map(
+										( error: AccountError, index ) => (
+											<p key={ `error-${ index }` }>
+												{ error.message ||
+													__(
+														'We noticed a possible issue with your account connection that might lead to connection issues.',
+														'jetpack-my-jetpack'
+													) }
+											</p>
+										)
+									) }
+								</div>
+							</InfoTooltip>
+						) }
+				</span>
 				{ ').' }
-				{ userConnectionData.currentUser?.possibleAccountMismatch && (
-					<InfoTooltip
-						tracksEventName="my_jetpack_account_mismatch_tooltip_open"
-						tracksEventProps={ {
-							location: 'connection_status_card',
-							context: 'non_owner',
-						} }
-						iconSize={ 16 }
-						className="account-mismatch-tooltip"
-					>
-						<p>
-							{ __(
-								'We noticed a possible mismatch between your site account and WordPress.com account emails. This might lead to connection issues.',
-								'jetpack-my-jetpack'
-							) }
-						</p>
-					</InfoTooltip>
-				) }
 			</>
 		);
 	} else {

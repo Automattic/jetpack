@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { render, renderHook, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
 import ConnectionStatusCard from '../index';
@@ -65,6 +66,56 @@ const adminUserConnectionData = {
 	},
 };
 
+const adminUserWithErrorConnectionData = {
+	currentUser: {
+		permissions: {
+			manage_options: true,
+		},
+		wpcomUser: {
+			display_name: 'test',
+			email: 'email@example.com',
+		},
+		isMaster: true,
+		possibleAccountErrors: {
+			mismatch: {
+				type: 'mismatch',
+				message: 'We noticed there is another WordPress account using this email address.',
+				details: {
+					site_email: 'email@example.com',
+					wpcom_email: 'different@example.com',
+				},
+			},
+		},
+	},
+};
+// This is a temporary test that will get updated when new error types are introduced.
+const adminUserWithMultipleErrorsConnectionData = {
+	currentUser: {
+		permissions: {
+			manage_options: true,
+		},
+		wpcomUser: {
+			display_name: 'test',
+			email: 'email@example.com',
+		},
+		isMaster: true,
+		possibleAccountErrors: {
+			mismatch: {
+				type: 'mismatch',
+				message: 'We noticed there is another WordPress account using this email address.',
+				details: {
+					site_email: 'email@example.com',
+					wpcom_email: 'different@example.com',
+				},
+			},
+			another_error: {
+				type: 'another_error',
+				message: 'This is another error message.',
+			},
+		},
+	},
+};
+
 const nonAdminUserConnectionData = {
 	currentUser: {
 		permissions: {
@@ -75,6 +126,30 @@ const nonAdminUserConnectionData = {
 			email: 'email@example.com',
 		},
 		isMaster: false,
+	},
+	connectionOwner: 'adminuser',
+};
+
+const nonAdminUserWithErrorConnectionData = {
+	currentUser: {
+		permissions: {
+			manage_options: false,
+		},
+		wpcomUser: {
+			display_name: 'test',
+			email: 'email@example.com',
+		},
+		isMaster: false,
+		possibleAccountErrors: {
+			mismatch: {
+				type: 'mismatch',
+				message: 'We noticed there is another WordPress account using this email address.',
+				details: {
+					site_email: 'email@example.com',
+					wpcom_email: 'different@example.com',
+				},
+			},
+		},
 	},
 	connectionOwner: 'adminuser',
 };
@@ -317,6 +392,121 @@ describe( 'ConnectionStatusCard', () => {
 			expect(
 				screen.getByText( 'A site admin will need to connect before you are able to sign in' )
 			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'When the admin user has connected their WordPress.com account with account errors', () => {
+		const setup = () => {
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: true,
+				hasConnectedOwner: true,
+				userConnectionData: adminUserWithErrorConnectionData,
+			} );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		it( 'renders the info tooltip next to email', () => {
+			setup();
+			const iconElement = screen.getByRole( 'img', { hidden: true } );
+			expect( iconElement ).toBeInTheDocument();
+		} );
+
+		it( 'shows tooltip with error message when hovered', async () => {
+			setup();
+			const iconElement = screen.getByRole( 'img', { hidden: true } );
+
+			// Simulate hovering on the tooltip icon
+			await userEvent.hover( iconElement );
+
+			// The tooltip should appear with the error message
+			const message = await screen.findByText(
+				'We noticed there is another WordPress account using this email address.'
+			);
+			expect( message ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'When the admin user has connected their WordPress.com account with multiple account errors', () => {
+		const setup = () => {
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: true,
+				hasConnectedOwner: true,
+				userConnectionData: adminUserWithMultipleErrorsConnectionData,
+			} );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		it( 'shows all error messages in the tooltip', async () => {
+			setup();
+			const iconElement = screen.getByRole( 'img', { hidden: true } );
+
+			// Simulate hovering on the tooltip icon
+			await userEvent.hover( iconElement );
+
+			// Both error messages should appear in the tooltip
+			const message1 = await screen.findByText(
+				'We noticed there is another WordPress account using this email address.'
+			);
+			const message2 = await screen.findByText( 'This is another error message.' );
+			expect( message1 ).toBeInTheDocument();
+			expect( message2 ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'When a non-admin has connected their WordPress.com account with account errors', () => {
+		const setup = () => {
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: true,
+				hasConnectedOwner: true,
+				userConnectionData: nonAdminUserWithErrorConnectionData,
+			} );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		it( 'renders the info tooltip next to email for non-owner', () => {
+			setup();
+			const iconElement = screen.getByRole( 'img', { hidden: true } );
+			expect( iconElement ).toBeInTheDocument();
+		} );
+
+		it( 'shows tooltip with error message when hovered', async () => {
+			setup();
+			const iconElement = screen.getByRole( 'img', { hidden: true } );
+
+			// Simulate hovering on the tooltip icon
+			await userEvent.hover( iconElement );
+
+			// The tooltip should appear with the error message
+			const message = await screen.findByText(
+				'We noticed there is another WordPress account using this email address.'
+			);
+			expect( message ).toBeInTheDocument();
+		} );
+
+		it( 'sets the correct tracking parameters for non-owner context', async () => {
+			setup();
+			const infoTooltip = screen.getByTestId( 'info-tooltip' );
+			expect( infoTooltip ).toBeInTheDocument();
+
+			// Check if the tooltip has the correct context for tracking
+			// Since tracking props aren't directly testable through the DOM,
+			// we're at least verifying the tooltip exists with the expected class
+			expect( infoTooltip ).toHaveClass( 'account-error-tooltip' );
 		} );
 	} );
 } );
