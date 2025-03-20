@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Add embed block sidebar notice to transform it to a VideoPress block

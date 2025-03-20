@@ -29,3 +29,28 @@
 		list-style: inside;
 	}
 }
+
+.jetpack-seo-enhancer-summary-feature {
+	display: flex;
+
+	+ .jetpack-seo-enhancer-summary-feature {
+		margin-top: 12px;
+	}
+
+	.jetpack-seo-enhancer-summary-feature__control {
+		flex-grow: 1;
+	}
+
+	.jetpack-seo-enhancer-summary-feature__icon-container {
+		flex-shrink: 0;
+		width: 40px;
+	}
+
+	.components-spinner.jetpack-seo-enhancer-summary-feature__icon {
+		margin: 4px 4px 4px 0;
+	}
+}
+
+.jetpack-seo-enhancer-summary__edit-button {
+	margin-top: 12px;
+}
