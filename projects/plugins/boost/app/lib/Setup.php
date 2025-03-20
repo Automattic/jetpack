@@ -51,25 +51,4 @@ class Setup {
 
 		return null;
 	}
-
-	/**
-	 * Get an instance of a class, or create a new one, and add it to the instances array if it doesn't exist.
-	 *
-	 * @template T of Has_Setup
-	 * @param class-string<T> $class_name
-	 * @return T
-	 */
-	public static function get_or_create_instance_of( $class_name ) {
-		$instance = self::get_instance_of( $class_name );
-		if ( $instance ) {
-			return $instance;
-		}
-
-		$instance = new $class_name();
-
-		// @phan-suppress-next-line PhanTypeMismatchArgument -- T implements Has_Setup per template definition
-		self::add( $instance );
-
-		return $instance;
-	}
 }
