@@ -6,7 +6,7 @@ use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Can_Check_If_Optimizing;
-use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
@@ -95,7 +95,7 @@ class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submod
 	 */
 	public function clear_cache_on_output_changing_module_toggle( $module_slug, $status ) {
 		// Get a list of modules that can change the HTML output.
-		$output_changing_modules = Modules_Index::get_modules_implementing( Changes_Page_Output::class );
+		$output_changing_modules = Modules_Index::get_modules_implementing( Changes_Output_On_Activation::class );
 
 		// Special case: don't clear when enabling Critical or Cloud CSS, as they will
 		// be handled after generation.

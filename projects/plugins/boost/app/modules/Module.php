@@ -3,7 +3,8 @@
 namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack_Boost\Contracts\Can_Check_If_Optimizing;
-use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
@@ -28,11 +29,29 @@ class Module {
 	}
 
 	public function on_activate() {
+		if ( $this->feature instanceof Changes_Output_On_Activation ) {
+			$this->indicate_page_output_changed();
+		}
+
 		return $this->feature instanceof Has_Activate ? $this->feature::activate() : true;
 	}
 
 	public function on_deactivate() {
+		// If the module changes the page output, with or without preparation, deactivating the module should indicate a page output change.
+		if ( $this->feature instanceof Changes_Output_On_Activation || $this->feature instanceof Changes_Output_After_Activation ) {
+			$this->indicate_page_output_changed();
+		}
+
 		return $this->feature instanceof Has_Deactivate ? $this->feature::deactivate() : true;
+	}
+
+	private function indicate_page_output_changed() {
+		/**
+			 * Indicate that the HTML output of front-end has changed.
+			 *
+			 * If there is any page cache, it should be invalidated when this action is triggered.
+			 */
+			do_action( 'jetpack_boost_page_output_changed' );
 	}
 
 	public function get_slug() {
@@ -93,7 +112,7 @@ class Module {
 			return true;
 		}
 
-		if ( $this->feature instanceof Changes_Page_Output && $this->feature->is_ready() ) {
+		if ( $this->feature instanceof Changes_Output_After_Activation && $this->feature->is_ready() ) {
 			return true;
 		}
 
