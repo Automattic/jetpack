@@ -355,6 +355,11 @@ class Cache_Preload_Test extends TestCase {
 			->once()
 			->andReturn( $cornerstone_pages );
 
+		Functions\expect( 'wp_next_scheduled' )
+			->once()
+			->with( 'jetpack_boost_preload', $cornerstone_pages )
+			->andReturn( false );
+
 		Functions\expect( 'wp_schedule_event' )
 			->once()
 			->with( Mockery::type( 'int' ), 'twicehourly', 'jetpack_boost_preload', $cornerstone_pages );

@@ -59,7 +59,8 @@ class Cache_Preload implements Pluggable, Has_Activate, Has_Deactivate, Is_Alway
 	 * @since $$next-version$$
 	 */
 	public static function activate() {
-		wp_schedule_event( time(), 'twicehourly', 'jetpack_boost_preload', Cornerstone_Utils::get_list() );
+		$instance = new self();
+		$instance->schedule_cornerstone_cronjob();
 	}
 
 	/**
@@ -68,6 +69,19 @@ class Cache_Preload implements Pluggable, Has_Activate, Has_Deactivate, Is_Alway
 	 */
 	public static function deactivate() {
 		wp_unschedule_event( time(), 'twicehourly', 'jetpack_boost_preload', Cornerstone_Utils::get_list() );
+	}
+
+	/**
+	 * Schedule the cronjob to preload the cache for Cornerstone Pages.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public function schedule_cornerstone_cronjob() {
+		$cornerstone_pages = Cornerstone_Utils::get_list();
+		if ( ! wp_next_scheduled( 'jetpack_boost_preload', $cornerstone_pages ) ) {
+			wp_schedule_event( time(), 'twicehourly', 'jetpack_boost_preload', $cornerstone_pages );
+		}
 	}
 
 	/**
