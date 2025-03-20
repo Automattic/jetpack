@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
+use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
@@ -20,7 +21,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logg
  * @since 3.11.0
  * @package Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache
  */
-class Cache_Preload implements Pluggable, Has_Activate, Is_Always_On {
+class Cache_Preload implements Pluggable, Has_Activate, Has_Deactivate, Is_Always_On {
 
 	/**
 	 * @since 3.11.0
@@ -58,19 +59,15 @@ class Cache_Preload implements Pluggable, Has_Activate, Is_Always_On {
 	 * @since $$next-version$$
 	 */
 	public static function activate() {
-		$instance = new self();
-		$instance->schedule_cornerstone_preload();
+		wp_schedule_event( time(), 'twicehourly', 'jetpack_boost_preload', Cornerstone_Utils::get_list() );
 	}
 
 	/**
-	 * Schedules a regular cronjob to rebuild the Cornerstone Pages every 30 minutes.
 	 *
 	 * @since $$next-version$$
-	 * @return void
 	 */
-	public function schedule_cornerstone_cronjob() {
-		// TODO: Update this to run every 30 minutes.
-		wp_schedule_event( time(), 'hourly', 'jetpack_boost_preload', Cornerstone_Utils::get_list() );
+	public static function deactivate() {
+		wp_unschedule_event( time(), 'twicehourly', 'jetpack_boost_preload', Cornerstone_Utils::get_list() );
 	}
 
 	/**
