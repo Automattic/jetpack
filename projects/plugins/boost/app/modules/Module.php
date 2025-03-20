@@ -108,14 +108,14 @@ class Module {
 			return false;
 		}
 
-		if ( $this->feature instanceof Can_Check_If_Optimizing && $this->feature->is_optimizing() ) {
-			return true;
+		if ( $this->feature instanceof Can_Check_If_Optimizing && ! $this->feature->is_optimizing() ) {
+			return false;
 		}
 
-		if ( $this->feature instanceof Changes_Output_After_Activation && $this->feature->is_ready() ) {
-			return true;
+		if ( $this->feature instanceof Changes_Output_After_Activation && ! $this->feature->is_ready() ) {
+			return false;
 		}
 
-		return false;
+		return true;
 	}
 }
