@@ -39,16 +39,19 @@ class Modules_Index {
 		Critical_CSS::class,
 		Cloud_CSS::class,
 		Image_Size_Analysis::class,
-		Minify_Common::class,
 		Minify_JS::class,
 		Minify_CSS::class,
 		Render_Blocking_JS::class,
 		Image_Guide::class,
 		Image_CDN::class,
-		Liar::class,
-		Quality_Settings::class,
 		Performance_History::class,
 		Page_Cache::class,
+	);
+
+	const SUB_FEATURES = array(
+		Minify_Common::class,
+		Liar::class,
+		Quality_Settings::class,
 	);
 
 	/**

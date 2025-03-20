@@ -133,7 +133,7 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 			)
 		)->fallback( array() );
 
-		$entry = new Modules_State_Entry( Modules_Index::FEATURES );
+		$entry = new Modules_State_Entry( array_merge( Modules_Index::FEATURES, Modules_Index::SUB_FEATURES ) );
 		$instance->register( 'modules_state', $modules_state_schema, $entry );
 	}
 
