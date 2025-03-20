@@ -1,7 +1,13 @@
 import clsx from 'clsx';
-import { Children, useState, useLayoutEffect, useRef, useCallback } from 'react';
+import React, { Children, useState, useLayoutEffect, useRef, useCallback } from 'react';
 
 import './style.scss';
+
+interface PageStyle {
+	transitionDuration: string;
+	height?: number;
+	transform?: string;
+}
 
 const OFFSET_THRESHOLD_PERCENTAGE = 0.35; // Percentage of width to travel before we trigger the slider to move to the desired slide.
 const VELOCITY_THRESHOLD = 0.2; // Speed of drag above, before we trigger the slider to move to the desired slide.
@@ -11,12 +17,15 @@ const TRANSITION_DURATION = '300ms';
 /**
  * Custom hook to observe and handle resize events on a DOM element.
  *
- * @return {Array} An array containing the node setter function and the observer entry
+ * @return {[React.Dispatch<React.SetStateAction<HTMLElement | null>>, ResizeObserverEntry | null]} Tuple containing setter and entry
  */
-function useResizeObserver() {
-	const [ observerEntry, setObserverEntry ] = useState( {} );
-	const [ node, setNode ] = useState( null );
-	const observer = useRef( null );
+function useResizeObserver(): [
+	React.Dispatch< React.SetStateAction< HTMLElement | null > >,
+	ResizeObserverEntry | null,
+] {
+	const [ observerEntry, setObserverEntry ] = useState< ResizeObserverEntry | null >( null );
+	const [ node, setNode ] = useState< HTMLElement | null >( null );
+	const observer = useRef< ResizeObserver | null >( null );
 
 	const disconnect = useCallback( () => observer.current?.disconnect(), [] );
 
@@ -83,18 +92,18 @@ export const Swipeable = ( {
 	isClickEnabled,
 	...otherProps
 } ) => {
-	const [ swipeableArea, setSwipeableArea ] = useState();
+	const [ swipeableArea, setSwipeableArea ] = useState< DOMRect | null >( null );
 	const isRtl = false;
 
 	const [ resizeObserverRef, entry ] = useResizeObserver();
 
-	const [ pagesStyle, setPagesStyle ] = useState( {
+	const [ pagesStyle, setPagesStyle ] = useState< PageStyle >( {
 		transitionDuration: TRANSITION_DURATION,
 	} );
 
 	const [ dragData, setDragData ] = useState( null );
 
-	const pagesRef = useRef();
+	const pagesRef = useRef< HTMLDivElement >( null );
 	const numPages = Children.count( children );
 	const containerWidth = entry?.contentRect?.width;
 
@@ -120,7 +129,8 @@ export const Swipeable = ( {
 			}
 			return;
 		}
-		const targetHeight = pagesRef.current?.querySelector( '.is-current' )?.offsetHeight;
+		const targetHeight = ( pagesRef.current?.querySelector( '.is-current' ) as HTMLElement )
+			?.offsetHeight;
 
 		if ( targetHeight && pagesStyle?.height !== targetHeight ) {
 			setPagesStyle( { ...pagesStyle, height: targetHeight } );
