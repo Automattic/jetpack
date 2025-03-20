@@ -140,6 +140,25 @@ class Unauth_File_Upload_Handler {
 	}
 
 	/**
+	 * Filters the upload directory to store files in the temporary directory.
+	 *
+	 * @param array $upload_dir The upload directory data.
+	 * @return array The modified upload directory data.
+	 */
+	public function upload_overwrites_temp( $upload_dir ) {
+		$secret_dir = '/jetpack-upload/' . $this->get_secret_directory() . '/temp';
+		$upload_dir = array(
+			'path'    => untrailingslashit( $upload_dir['basedir'] ) . $secret_dir,
+			'url'     => untrailingslashit( $upload_dir['baseurl'] ) . $secret_dir,
+			'subdir'  => '',
+			'basedir' => untrailingslashit( $upload_dir['basedir'] ) . $secret_dir,
+			'baseurl' => untrailingslashit( $upload_dir['baseurl'] ) . $secret_dir,
+			'error'   => false,
+		);
+		return $upload_dir;
+	}
+
+	/**
 	 * Stores an uploaded file in the temporary directory.
 	 *
 	 * @param array  $file      The uploaded file data.
@@ -152,22 +171,28 @@ class Unauth_File_Upload_Handler {
 		if ( is_wp_error( $temp_path ) ) {
 			return $temp_path;
 		}
+		$original_filename = $file['name'];
+		$file['name']      = Filesystem_Utils::generate_secure_filename( $file['name'] );
 
-		$new_secret_filename = Filesystem_Utils::generate_secure_filename( $file['name'] );
-
+		$upload_overrides = array(
+			'test_form' => false,
+		);
+		add_filter( 'upload_dir', array( $this, 'upload_overwrites_temp' ) );
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		$move_result = \wp_handle_upload( $file, $upload_overrides );
+		remove_filter( 'upload_dir', array( $this, 'upload_overwrites_temp' ) );
 		// Move uploaded file.
-		$move_result = move_uploaded_file( $file['tmp_name'], $temp_path . '/' . $new_secret_filename );
 		if ( ! $move_result ) {
 			return new WP_Error( 'file_move', \__( 'Unable to process file upload.', 'jetpack' ) );
 		}
 
 		// Generate a secure token for file retrieval.
-		$token = \wp_hash( $new_secret_filename . \wp_rand() . microtime() );
+		$token = \wp_hash( $file['name'] . \wp_rand() . microtime() );
 
 		// Store file details.
 		$file_data = array(
-			'filename'      => $new_secret_filename,
-			'original_name' => $file['name'],
+			'filename'      => $file['name'],
+			'original_name' => $original_filename,
 			'created'       => time(),
 			'context'       => $context,
 		);
@@ -546,14 +571,13 @@ class Unauth_File_Upload_Handler {
 	 * We wait for the lock to be released before we can update the data.
 	 */
 	private function get_lock() {
-
 		$lock = get_option( 'jetpack_unauth_upload_lock', false );
 		if ( empty( $lock ) ) {
 			return update_option( 'jetpack_unauth_upload_lock', time(), false );
 		}
 
 		$tries = 0;
-		while ( $tries < 100 ) { // Max 100 seconds tries to get the lock.
+		while ( $tries < 100 ) { // Max 10 seconds tries to get the lock.
 			usleep( 100000 ); // 100ms retry delay.
 			++$tries;
 			$lock = get_option( 'jetpack_unauth_upload_lock', false );
