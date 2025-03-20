@@ -17,6 +17,17 @@ use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\TestingAccessWrapper;
 
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+
+// Unfortunately PHPUnit deprecated addMethods with no replacement. Create an interface for it to "mock".
+// phpcs:ignore PEAR.NamingConventions.ValidClassName.Invalid
+interface AssetsTest_test_wp_default_scripts_hook {
+	public function add();
+	public function add_inline_script();
+	public function add_data();
+	public function get_data();
+}
+
 /**
  * Assets test suite.
  */
@@ -342,9 +353,7 @@ class AssetsTest extends TestCase {
 			$this->expectExceptionMessage( $extra['exception']->getMessage() );
 		}
 		if ( isset( $extra['enqueue'] ) ) {
-			$obj = $this->getMockBuilder( \stdClass::class )
-				->addMethods( array( 'get_data' ) )
-				->getMock();
+			$obj = $this->getMockBuilder( AssetsTest_test_wp_default_scripts_hook::class )->getMock();
 			$obj->method( 'get_data' )->with( ...$extra['enqueue'][0] )->willReturn( $extra['enqueue'][1] );
 			Functions\expect( 'wp_scripts' )->andReturn( $obj );
 		}
@@ -725,9 +734,7 @@ class AssetsTest extends TestCase {
 			$obj->andReturn( $options['filter'] );
 		}
 
-		$mock = $this->getMockBuilder( \stdClass::class )
-			->addMethods( array( 'add', 'add_inline_script', 'add_data' ) )
-			->getMock();
+		$mock = $this->getMockBuilder( AssetsTest_test_wp_default_scripts_hook::class )->getMock();
 
 		// Unfortunately PHPUnit deprecated withConsecutive with no replacement, so we have to roll our own version.
 		// https://github.com/sebastianbergmann/phpunit/issues/4026

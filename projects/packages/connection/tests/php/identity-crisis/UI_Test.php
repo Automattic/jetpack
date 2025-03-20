@@ -61,7 +61,7 @@ class UI_Test extends TestCase {
 	 */
 	public function get_mock_consumers( $consumers ) {
 		// PHPUnit 10+ renamed `getName()` to `name()`.
-		// @phan-suppress-next-line PhanUndeclaredMethodInCallable, PhanUndeclaredMethod -- Being tested before use.
+		// @phan-suppress-next-line PhanUndeclaredMethod -- `getName()` exists (PHPUnit <10) if `name()` doesn't (PHPUnit 10+).
 		$test_name = is_callable( array( $this, 'name' ) ) ? $this->name() : $this->getName();
 
 		// The mock consumers array will be determined by the current test

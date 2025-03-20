@@ -337,14 +337,20 @@ class WordpressVersioningTest extends TestCase {
 	public function testNextVersion( $version, array $changes, array $extra, $expect, $expectPoint = null ) {
 		$obj = new WordpressVersioning();
 
-		$out1 = $this->getMockBuilder( BufferedOutput::class )
-			->addMethods( array( 'getErrorOutput' ) )
-			->getMock();
-		$out2 = new BufferedOutput();
-		$out1->method( 'getErrorOutput' )->willReturn( $out2 );
+		$out = new class() extends BufferedOutput {
+			public $err;
+
+			public function __construct() {
+				$this->err = new BufferedOutput();
+			}
+
+			public function getErrorOutput() {
+				return $this->err;
+			}
+		};
 
 		$def = new InputDefinition( $obj->getOptions() );
-		$obj->setIO( new ArrayInput( array(), $def ), $out1 );
+		$obj->setIO( new ArrayInput( array(), $def ), $out );
 
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );
@@ -352,13 +358,13 @@ class WordpressVersioningTest extends TestCase {
 			$obj->nextVersion( $version, $changes, $extra );
 		} else {
 			$this->assertSame( $expect, $obj->nextVersion( $version, $changes, $extra ) );
-			$this->assertSame( '', $out1->fetch() );
-			$this->assertSame( '', $out2->fetch() );
+			$this->assertSame( '', $out->fetch() );
+			$this->assertSame( '', $out->err->fetch() );
 
-			$obj->setIO( new ArrayInput( array( '--point-release' => true ), $def ), $out1 );
+			$obj->setIO( new ArrayInput( array( '--point-release' => true ), $def ), $out );
 			$this->assertSame( $expectPoint, $obj->nextVersion( $version, $changes, $extra ) );
-			$this->assertSame( '', $out1->fetch() );
-			$this->assertSame( '', $out2->fetch() );
+			$this->assertSame( '', $out->fetch() );
+			$this->assertSame( '', $out->err->fetch() );
 		}
 	}
 

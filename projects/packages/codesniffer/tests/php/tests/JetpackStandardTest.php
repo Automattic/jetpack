@@ -95,7 +95,7 @@ class JetpackStandardTest extends TestCase {
 		$actual = $this->run_phpcs( $file, $fix );
 		if ( getenv( 'UPDATE_SNAPSHOTS' ) && $expect !== $actual ) {
 			file_put_contents( $snapfile, $actual );
-			$this->addWarning( "Updated snapshot in $snapfile" );
+			trigger_error( "Updated snapshot in $snapfile", E_USER_WARNING );
 		} else {
 			$this->assertEquals( $expect, $actual, '(Run with UPDATE_SNAPSHOTS=1 to update snapshots)' );
 		}
