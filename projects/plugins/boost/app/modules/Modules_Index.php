@@ -67,24 +67,6 @@ class Modules_Index {
 	}
 
 	/**
-	 * Get all modules that implement a specific interface.
-	 *
-	 * @param string $interface - The interface to search for.
-	 * @return array - An array of module classes indexed by slug that implement the interface.
-	 */
-	public static function get_modules_implementing( string $interface ): array {
-		$matching_features = array();
-
-		foreach ( self::FEATURES as $feature ) {
-			if ( in_array( $interface, class_implements( $feature ), true ) ) {
-				$matching_features[ $feature::get_slug() ] = $feature;
-			}
-		}
-
-		return $matching_features;
-	}
-
-	/**
 	 * Fetches all modules.
 	 *
 	 * @return Module[]
@@ -117,18 +99,6 @@ class Modules_Index {
 		}
 
 		return $available_modules;
-	}
-
-	public function is_module_available( $slug ) {
-		$available_modules = $this->available_modules();
-
-		if ( ! array_key_exists( $slug, $available_modules ) ) {
-			return false;
-		}
-
-		$module = $available_modules[ $slug ];
-
-		return $module->is_available();
 	}
 
 	/**

@@ -83,6 +83,25 @@ class Module {
 		return $available_submodules;
 	}
 
+	/**
+	 * Get the active parent modules.
+	 *
+	 * @return Module[] The active parent modules.
+	 */
+	public function get_active_parent_modules() {
+		$modules               = ( new Modules_Index() )->get_modules();
+		$active_parent_modules = array();
+		foreach ( $modules as $module ) {
+			// Check if the feature is a parent of the current module.
+			if ( $module->feature instanceof Has_Submodules && in_array( $this->feature::class, $module->feature->get_submodules(), true ) ) {
+				if ( $module->is_enabled() ) {
+					$active_parent_modules[ $module->get_slug() ] = $module;
+				}
+			}
+		}
+		return $active_parent_modules;
+	}
+
 	public function update( $new_status ) {
 		return $this->status->set( $new_status );
 	}

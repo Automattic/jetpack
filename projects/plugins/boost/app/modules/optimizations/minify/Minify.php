@@ -7,10 +7,11 @@ use Automattic\Jetpack_Boost\Admin\Config as Boost_Admin_Config;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
+use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
-class Minify implements Pluggable, Optimization, Has_Activate, Has_Deactivate, Has_Data_Sync {
+class Minify implements Pluggable, Optimization, Is_Always_On, Has_Activate, Has_Deactivate, Has_Data_Sync {
 
 	/**
 	 * Setup the module. This runs on every page load.
@@ -20,13 +21,6 @@ class Minify implements Pluggable, Optimization, Has_Activate, Has_Deactivate, H
 
 	public static function get_slug() {
 		return 'minify';
-	}
-
-	/**
-	 * The module is ready when at least one child module is active
-	 */
-	public function is_ready() {
-		return jetpack_boost_minify_is_enabled();
 	}
 
 	public function register_data_sync( Data_Sync $instance ) {
@@ -74,8 +68,6 @@ class Minify implements Pluggable, Optimization, Has_Activate, Has_Deactivate, H
 	 * This is called when either minify module is deactivated.
 	 */
 	public static function deactivate() {
-		if ( ! jetpack_boost_minify_is_enabled() ) {
-			jetpack_boost_minify_clear_scheduled_events();
-		}
+		jetpack_boost_minify_clear_scheduled_events();
 	}
 }

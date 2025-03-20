@@ -213,24 +213,31 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 
 		if ( $is_activated ) {
 			$module->on_activate();
-		}
-
-		if ( ! $is_activated ) {
+		} else {
 			$module->on_deactivate();
 		}
 
+		// Now run the activation/deactivation for all submodules that are effected by this modules status change.
 		$submodules = $module->get_available_submodules();
-		if ( is_array( $submodules ) && ! empty( $submodules ) ) {
-			foreach ( $submodules as $sub_module ) {
-				// Only run activate/deactivate if the submodule is enabled.
-				if ( ! $sub_module->is_enabled() ) {
+		if ( is_array( $submodules ) ) {
+			foreach ( $submodules as $submodule ) {
+				// Only worry about submodules that are enabled.
+				if ( ! $submodule->is_enabled() ) {
 					continue;
 				}
 
-				if ( $is_activated ) {
-					$sub_module->on_activate();
-				} else {
-					$sub_module->on_deactivate();
+				$active_parent_modules = $submodule->get_active_parent_modules();
+
+				if ( $is_activated && count( $active_parent_modules ) === 1 ) {
+					// If current module is the only active parent module, run activation on the submodule.
+					// If this submodule has other parent modules, we can assume they are already activated.
+					$submodule->on_activate();
+				}
+
+				// If submodule has no active parent modules left, run deactivate on the submodule.
+				// If this submodule still has other parent modules, we can assume they are not ready to be deactivated.
+				if ( ! $is_activated && empty( $active_parent_modules ) ) {
+					$submodule->on_deactivate();
 				}
 			}
 		}
