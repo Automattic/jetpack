@@ -10,13 +10,12 @@ import Notice from '../notice';
 import styles from './styles.module.scss';
 
 export const BrokenConnectionsNotice: React.FC = () => {
-	const { brokenConnections, reauthConnections } = useSelect( select => {
-		const store = select( socialStore );
-		return {
-			brokenConnections: store.getBrokenConnections(),
-			reauthConnections: store.getMustReauthConnections(),
-		};
-	}, [] );
+	const brokenConnections = useSelect( select => select( socialStore ).getBrokenConnections(), [] );
+
+	const reauthConnections = useSelect(
+		select => select( socialStore ).getMustReauthConnections(),
+		[]
+	);
 
 	const { connectionsPageUrl } = usePublicizeConfig();
 
