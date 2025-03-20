@@ -25,7 +25,7 @@ import './style.scss';
  */
 const debug = debugFactory( 'seo-enhancer:index' );
 
-export function SeoEnhancer() {
+export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhance?: boolean } ) {
 	const { isEnabled, toggleEnhancer, isToggling } = useSeoModuleSettings();
 	const isLoading = useSelect( select => {
 		const isBusy = select( store ).isBusy();
@@ -64,22 +64,24 @@ export function SeoEnhancer() {
 					<BaseControl.VisualLabel className="ai-seo-enhancer-label">
 						{ __( 'Metadata AI Generator', 'jetpack' ) }
 					</BaseControl.VisualLabel>
-					<ToggleControl
-						checked={ isEnabled }
-						disabled={ isToggling }
-						onChange={ toggleSeoEnhancer }
-						label={ __( 'Auto-generate metadata', 'jetpack' ) }
-						__nextHasNoMarginBottom={ true }
-						help={ __(
-							'When enabled, missing metadata will be automatically generated when you publish a post.',
-							'jetpack'
-						) }
-					/>
+					{ ! disableAutoEnhance && (
+						<ToggleControl
+							checked={ isEnabled }
+							disabled={ isToggling }
+							onChange={ toggleSeoEnhancer }
+							label={ __( 'Auto-generate metadata', 'jetpack' ) }
+							__nextHasNoMarginBottom={ true }
+							help={ __(
+								'When enabled, missing metadata will be automatically generated when you publish a post.',
+								'jetpack'
+							) }
+						/>
+					) }
 				</BaseControl>
 			</PanelRow>
 			<PanelRow className="jetpack-seo-sidebar__feature-section">
 				<BaseControl __nextHasNoMarginBottom={ true }>
-					{ ! isEnabled && (
+					{ ( ! isEnabled || disableAutoEnhance ) && (
 						<div className="feature-checkboxes-container">
 							{ FEATURES.map( feature => (
 								<CheckboxControl
@@ -94,7 +96,7 @@ export function SeoEnhancer() {
 							) ) }
 						</div>
 					) }
-					{ isEnabled && (
+					{ isEnabled && ! disableAutoEnhance && (
 						<div className="jetpack-seo-sidebar__feature-list-container">
 							{ enabledFeatures.length > 0 ? (
 								<>
