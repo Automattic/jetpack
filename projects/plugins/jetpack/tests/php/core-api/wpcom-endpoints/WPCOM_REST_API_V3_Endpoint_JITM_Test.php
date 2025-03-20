@@ -3,11 +3,11 @@
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
 /**
- * Tests for JITM V2 REST API Endpoints.
+ * Tests for JITM V3 REST API Endpoints.
  *
  * @package automattic/jetpack
  */
-class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
+class WPCOM_REST_API_V3_Endpoint_JITM_Test extends Jetpack_REST_TestCase {
 
 	/**
 	 * Mock user ID.
@@ -105,7 +105,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 
 		$message_path = 'test_message_path';
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/jitm-v2' );
+		$request = new WP_REST_Request( 'GET', '/wpcom/v3/jitm' );
 		$request->set_query_params(
 			array(
 				'message_path'        => $message_path,
@@ -143,11 +143,11 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	public function test_schema_request() {
 		wp_set_current_user( 0 );
 
-		$request  = new WP_REST_Request( 'OPTIONS', '/wpcom/v2/jitm-v2' );
+		$request  = new WP_REST_Request( 'OPTIONS', '/wpcom/v3/jitm' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( 'wpcom/v2', $data['namespace'] );
+		$this->assertEquals( 'wpcom/v3', $data['namespace'] );
 		$this->assertEquals( array( 'GET', 'POST' ), $data['methods'] );
 	}
 
@@ -155,7 +155,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	 * Tests the permission check for GET requests.
 	 */
 	public function test_get_item_permissions_check() {
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/jitm-v2' );
+		$request = new WP_REST_Request( 'GET', '/wpcom/v3/jitm' );
 		$request->set_query_params(
 			array(
 				'message_path'        => '/test_message_path/',
@@ -184,7 +184,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	 * Tests the permission check for POST (dismiss) requests.
 	 */
 	public function test_dismiss_item_permissions_check() {
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/jitm-v2' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v3/jitm' );
 		$request->set_body_params(
 			array(
 				'id'            => 'test-jitm',
@@ -212,7 +212,7 @@ class WPCOM_REST_API_V2_Endpoint_JITM_V2_Test extends Jetpack_REST_TestCase {
 	 * Tests dismissing a JITM.
 	 */
 	public function test_dismiss_jitm() {
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/jitm-v2' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v3/jitm' );
 		$request->set_body_params(
 			array(
 				'id'            => 'test-jitm',

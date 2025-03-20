@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Update Phan suppressions for new PHPUnit stubs.
+
+
