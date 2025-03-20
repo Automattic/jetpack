@@ -90,6 +90,10 @@ class Tracking_Pixel {
 		if ( $is_not_post ) {
 			if ( $wp_the_query->is_home() ) {
 				$view_data['home'] = '1';
+			} elseif ( $wp_the_query->is_search() ) {
+				$view_data['arch_search']  = sanitize_text_field( $wp_the_query->query['s'] );
+				$view_data['arch_filters'] = sanitize_text_field( self::build_search_filters( $wp_the_query ) );
+				$view_data['arch_results'] = $wp_the_query->posts ? count( $wp_the_query->posts ) : 0;
 			} elseif ( $wp_the_query->is_archive() ) {
 				if ( $wp_the_query->is_date ) {
 					$query                  = $wp_the_query->query;
@@ -115,15 +119,47 @@ class Tracking_Pixel {
 				$view_data['arch_results'] = $wp_the_query->posts ? count( $wp_the_query->posts ) : 0;
 			} elseif ( $wp_the_query->is_404() ) {
 				$view_data['arch_err'] = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
-			} elseif ( $wp_the_query->is_search() ) {
-				$view_data['arch_search']  = sanitize_text_field( $wp_the_query->query['s'] );
-				$view_data['arch_results'] = $wp_the_query->posts ? count( $wp_the_query->posts ) : 0;
 			} else {
 				$view_data['arch_other'] = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
 			}
 		}
 
 		return $view_data;
+	}
+
+	/**
+	 * Collect the tracking data for a search page.
+	 *
+	 * @access private
+	 * @param  WP_Query $query The WP_Query object to parse all the filters from.
+	 * @return string The search filters in a URL query string format.
+	 */
+	private static function build_search_filters( $query ) {
+		$data = array(
+			'posts_per_page' => $query->get( 'posts_per_page' ),
+			'paged'          => ( $query->get( 'paged' ) ) ? absint( $query->get( 'paged' ) ) : 1,
+			'orderby'        => $query->get( 'orderby' ),
+			'order'          => $query->get( 'order' ),
+		);
+
+		if ( $query->get( 'author_name' ) ) {
+			$data['author_name'] = $query->get( 'author_name' );
+		}
+
+		$the_tax_query = $query->tax_query;
+		if ( ! empty( $the_tax_query->queried_terms ) && is_array( $the_tax_query->queried_terms ) ) {
+			foreach ( $the_tax_query->queries as $tax_query ) {
+				if ( ! is_array( $tax_query ) || 'slug' !== $tax_query['field'] ) {
+					continue;
+				}
+				$taxonomy = $tax_query['taxonomy'];
+				if ( ! isset( $data['terms'][ $taxonomy ] ) || ! is_array( $data['terms'][ $taxonomy ] ) ) {
+					$data['terms'][ $taxonomy ] = array();
+				}
+				$data['terms'][ $taxonomy ] = array_merge( $data['terms'][ $taxonomy ], $tax_query['terms'] );
+			}
+		}
+		return http_build_query( $data );
 	}
 
 	/**
