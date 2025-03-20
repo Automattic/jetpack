@@ -18,17 +18,17 @@
 }
 
 .social-button {
-    display: flex;
-    justify-content: center;
+	display: flex;
+	justify-content: center;
 	align-items: center;
-    align-self: stretch;
-    margin-bottom: 0;
-    padding: 14px 16px;
+	align-self: stretch;
+	margin-bottom: 0;
+	padding: 14px 16px;
 	width: 100%;
 	border: 1px solid #CCC;
 	box-shadow: none;
 	border-radius: var( --jp-button-radius );
-    background: transparent;
+	background: transparent;
 
 	&:hover {
 		cursor: pointer;
