@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
+use Automattic\Jetpack_Boost\Contracts\Can_Check_If_Optimizing;
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
@@ -83,8 +85,18 @@ class Module {
 	 * Check if the module is active and ready to serve optimized output.
 	 */
 	public function is_optimizing() {
-		if ( $this->feature instanceof Optimization && $this->is_enabled() && $this->feature->is_ready() ) {
+		if ( ! ( $this->feature instanceof Optimization ) || ! $this->is_enabled() ) {
+			return false;
+		}
+
+		if ( $this->feature instanceof Can_Check_If_Optimizing && $this->feature->is_optimizing() ) {
 			return true;
 		}
+
+		if ( $this->feature instanceof Changes_Page_Output && $this->feature->is_ready() ) {
+			return true;
+		}
+
+		return false;
 	}
 }

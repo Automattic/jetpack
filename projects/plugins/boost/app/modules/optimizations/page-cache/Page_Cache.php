@@ -5,6 +5,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Contracts\Can_Check_If_Optimizing;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
@@ -22,7 +23,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
-class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submodules, Optimization {
+class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submodules, Optimization, Can_Check_If_Optimizing {
 	/**
 	 * @var array - The errors that occurred when removing the cache.
 	 */
@@ -129,7 +130,7 @@ class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submod
 	 *
 	 * @return bool
 	 */
-	public function is_ready() {
+	public function is_optimizing() {
 		return Boost_Cache::is_loaded();
 	}
 
