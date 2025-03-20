@@ -9,6 +9,7 @@ import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldConsent from './components/jetpack-field-consent';
 import JetpackDatePicker from './components/jetpack-field-datepicker';
 import JetpackDropdown from './components/jetpack-field-dropdown';
+import JetpackFieldFile from './components/jetpack-field-file';
 import JetpackFieldMultipleChoice from './components/jetpack-field-multiple-choice';
 import JetpackFieldMultipleChoiceItem from './components/jetpack-field-multiple-choice/item';
 import JetpackFieldNumber from './components/jetpack-field-number';
@@ -585,7 +586,7 @@ export const childBlocks = [
 				foreground: getIconColor(),
 				src: <Icon icon={ upload } />,
 			},
-			edit: editField( 'file' ),
+			edit: JetpackFieldFile,
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
