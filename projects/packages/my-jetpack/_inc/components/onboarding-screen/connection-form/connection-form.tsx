@@ -30,7 +30,7 @@ const ConnectionForm = () => {
 				{ preventWidows( socialConnectionTitle ) }
 			</Text>
 
-			<Text variant="body" mb={ 3 } className={ styles.description }>
+			<Text variant="body" className={ styles.description }>
 				{ preventWidows( socialConnectionDescription ) }
 			</Text>
 
