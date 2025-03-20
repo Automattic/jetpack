@@ -3,7 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, arrowRight } from '@wordpress/icons';
 import clsx from 'clsx';
 import React, { Children, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
-import { Swipeable } from '../swipeable';
+import { Swipeable } from '../swipeable/index.js';
 
 import './style.scss';
 
