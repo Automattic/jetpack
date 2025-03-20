@@ -22,7 +22,7 @@ class Share_Status {
 		// If the data is in an associative array format, we fetch it without true to get all the shares.
 		// This is needed to support the old WPCOM format.
 		if ( isset( $shares ) && is_array( $shares ) && ! array_is_list( $shares ) ) {
-			$shares = get_post_meta( $post_id, REST_CONTROLLER::SOCIAL_SHARES_POST_META_KEY );
+			$shares = get_post_meta( $post_id, REST_Controller::SOCIAL_SHARES_POST_META_KEY );
 		}
 
 		// If the data is not an array, it means that sharing is not done yet.
