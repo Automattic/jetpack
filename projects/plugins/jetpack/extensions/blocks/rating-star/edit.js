@@ -87,18 +87,18 @@ export default Symbol =>
 							max={ 10 }
 							__nextHasNoMarginBottom={ true }
 						/>
-						<PanelColorSettings
-							title={ __( 'Color Settings', 'jetpack' ) }
-							initialOpen
-							colorSettings={ [
-								{
-									value: color,
-									onChange: setNewColor,
-									label: __( 'Color', 'jetpack' ),
-								},
-							] }
-						/>
 					</PanelBody>
+					<PanelColorSettings
+						title={ __( 'Color', 'jetpack' ) }
+						initialOpen
+						colorSettings={ [
+							{
+								value: color,
+								onChange: setNewColor,
+								label: __( 'Color', 'jetpack' ),
+							},
+						] }
+					/>
 				</InspectorControls>
 			</div>
 		);
