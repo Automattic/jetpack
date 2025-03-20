@@ -74,7 +74,7 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 
 # Set up PNPM global directory
 RUN mkdir -p "${PNPM_HOME}" \
-    && chmod 777 "${PNPM_HOME}"
+    && chmod 755 "${PNPM_HOME}"
 
 RUN npm install --global pnpm@$PNPM_VERSION \
     && SHELL=/bin/bash pnpm setup
