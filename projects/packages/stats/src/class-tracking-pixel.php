@@ -131,7 +131,7 @@ class Tracking_Pixel {
 	 * Collect the tracking data for a search page.
 	 *
 	 * @access private
-	 * @param  WP_Query $query The WP_Query object to parse all the filters from.
+	 * @param  \WP_Query $query The WP_Query object to parse all the filters from.
 	 * @return string The search filters in a URL query string format.
 	 */
 	private static function build_search_filters( $query ) {

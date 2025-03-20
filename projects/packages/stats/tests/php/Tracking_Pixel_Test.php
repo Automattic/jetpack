@@ -226,7 +226,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 	public function test_build_view_data_with_search() {
 		global $wp_the_query;
 		$wp_the_query->is_search = true;
-		$wp_the_query->parse_query( 's=term' );
+		$wp_the_query->parse_query( 's=term&posts_per_page=10&paged=2&orderby=date&order=ASC' );
 		$wp_the_query->posts = array( 'post1', 'post2' );
 		$view_data           = Tracking_Pixel::build_view_data();
 		$expected_view_data  = array(
@@ -238,6 +238,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_id'       => 'some_id',
 			'utm_source'   => 'a_source',
 			'arch_search'  => 'term',
+			'arch_filters' => 'posts_per_page=10&paged=2&orderby=date&order=ASC',
 			'arch_results' => 2,
 		);
 		$this->assertSame( $expected_view_data, $view_data );
