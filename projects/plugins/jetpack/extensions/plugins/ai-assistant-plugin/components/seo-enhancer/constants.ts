@@ -12,5 +12,5 @@ export const FEATURES: PromptType[] = [ 'seo-title', 'seo-meta-description', 'im
 export const FEATURE_LABELS = {
 	'seo-title': __( 'SEO title', 'jetpack' ),
 	'seo-meta-description': __( 'SEO description', 'jetpack' ),
-	'images-alt-text': __( 'Alt text for images', 'jetpack' ),
+	'images-alt-text': __( 'Image alt text', 'jetpack' ),
 } as const;
