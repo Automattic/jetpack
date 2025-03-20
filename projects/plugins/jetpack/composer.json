@@ -60,8 +60,7 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
 		"automattic/phpunit-select-config": "@dev",
-		"johnkary/phpunit-speedtrap": "^4.0.0",
-		"yoast/phpunit-polyfills": "^1.1.1"
+		"yoast/phpunit-polyfills": "^3.0.0"
 	},
 	"scripts": {
 		"build-production": [
@@ -110,7 +109,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ14_5_a_5",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ14_5_a_7",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

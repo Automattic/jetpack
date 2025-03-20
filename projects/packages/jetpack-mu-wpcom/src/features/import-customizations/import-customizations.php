@@ -11,7 +11,10 @@
 function import_page_customizations_init() {
 	$screen = get_current_screen();
 
-	if ( $screen && $screen->id === 'import' ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site.
+	$has_import_param = ! isset( $_GET['import'] );
+
+	if ( $screen && $screen->id === 'import' && $has_import_param ) {
 		// Only add the banner if the user is using the wp-admin interface.
 		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 			add_action( 'admin_notices', 'import_admin_banner' );

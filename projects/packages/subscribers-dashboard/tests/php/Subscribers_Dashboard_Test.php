@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class Subscribers_Dashboard_Test.
  *
- * @covers Automattic\Jetpack\Subscribers_Dashboard
+ * @covers Automattic\Jetpack\Subscribers_Dashboard\Dashboard
  */
 class Subscribers_Dashboard_Test extends TestCase {
 

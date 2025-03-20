@@ -23,7 +23,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"yoast/phpunit-polyfills": "^1.1.1",
+		"yoast/phpunit-polyfills": "^3.0.0",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {
