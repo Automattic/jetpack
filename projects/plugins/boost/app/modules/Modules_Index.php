@@ -10,7 +10,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Image_CDN;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Liar;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Quality_Settings;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_Common;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
@@ -39,7 +39,7 @@ class Modules_Index {
 		Critical_CSS::class,
 		Cloud_CSS::class,
 		Image_Size_Analysis::class,
-		Minify::class,
+		Minify_Common::class,
 		Minify_JS::class,
 		Minify_CSS::class,
 		Render_Blocking_JS::class,

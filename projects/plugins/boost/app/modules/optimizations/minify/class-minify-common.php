@@ -3,24 +3,27 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
-use Automattic\Jetpack_Boost\Admin\Config as Boost_Admin_Config;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
+use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
-class Minify implements Pluggable, Optimization, Is_Always_On, Has_Activate, Has_Deactivate, Has_Data_Sync {
+class Minify_Common implements Pluggable, Optimization, Has_Setup, Is_Always_On, Has_Activate, Has_Deactivate, Has_Data_Sync {
 
 	/**
 	 * Setup the module. This runs on every page load.
 	 */
 	public function setup() {
+		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
+
+		jetpack_boost_minify_init();
 	}
 
 	public static function get_slug() {
-		return 'minify';
+		return 'minify_common';
 	}
 
 	public function register_data_sync( Data_Sync $instance ) {
@@ -60,8 +63,7 @@ class Minify implements Pluggable, Optimization, Is_Always_On, Has_Activate, Has
 	 * This is called when either minify module is activated
 	 */
 	public static function activate() {
-		$setup_404_tester = Boost_Admin_Config::get_hosting_provider() !== 'atomic' && Boost_Admin_Config::get_hosting_provider() !== 'woa';
-		jetpack_boost_minify_activation( $setup_404_tester );
+		jetpack_boost_minify_activation();
 	}
 
 	/**
