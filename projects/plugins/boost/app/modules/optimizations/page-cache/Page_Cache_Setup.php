@@ -317,6 +317,7 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			return $result->to_wp_error();
 		}
 
+		Cache_Preload::uninstall();
 		return true;
 	}
 
