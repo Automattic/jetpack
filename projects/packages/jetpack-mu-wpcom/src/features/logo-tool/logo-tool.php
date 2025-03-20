@@ -14,7 +14,7 @@ if ( ! function_exists( 'add_logotool_button' ) ) {
 	 * @param WP_Customize_Manager $wp_customize Control manager for the Customizer.
 	 */
 	function add_logotool_button( $wp_customize ) {
-		if ( ! is_admin() ) {
+		if ( ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) || ! is_admin() ) {
 			return;
 		}
 
@@ -60,10 +60,10 @@ if ( ! function_exists( 'add_logotool_button' ) ) {
 		add_action(
 			'customize_controls_enqueue_scripts',
 			function () use ( $logo_control ) {
-				wp_enqueue_script( 'wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), array( 'customize-controls' ), '20210706', true );
-				wp_enqueue_style( 'wpcom-logo-tool', plugins_url( 'css/logo-tool.css', __FILE__ ), null, '20220108' );
+				wp_enqueue_script( 'jetpack-mu-wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), array( 'customize-controls' ), '20210706', true );
+				wp_enqueue_style( 'jetpack-mu-wpcom-logo-tool', plugins_url( 'css/logo-tool.css', __FILE__ ), null, '20220108' );
 				wp_localize_script(
-					'wpcom-logo-tool',
+					'jetpack-mu-wpcom-logo-tool',
 					'_LogoTool_',
 					array(
 						'l10n'      => array( 'create' => fixme__( 'Create logo in minutes', __( 'Create logo', 'jetpack-mu-wpcom' ) ) ),
