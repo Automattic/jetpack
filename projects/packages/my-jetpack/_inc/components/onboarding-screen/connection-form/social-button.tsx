@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
+import appleIcon from '../icons/apple.svg';
+import githubIcon from '../icons/github.svg';
+import googleIcon from '../icons/google.svg';
+import jetpackIcon from '../icons/jetpack.svg';
 import styles from './connection-form.module.scss';
-import appleIcon from './icons/apple.svg';
-import githubIcon from './icons/github.svg';
-import googleIcon from './icons/google.svg';
-import jetpackIcon from './icons/jetpack.svg';
 
 type SocialButtonProps = {
 	service: 'google' | 'apple' | 'github' | 'jetpack';

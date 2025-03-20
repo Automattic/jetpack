@@ -1,7 +1,7 @@
 import { Container, Col, JetpackLogo } from '@automattic/jetpack-components';
 import clsx from 'clsx';
 import { useFullScreen } from '../../hooks/use-fullscreen';
-import ConnectionForm from './connection-form';
+import ConnectionForm from './connection-form/connection-form';
 import exampleImage from './grow-your-audience.png';
 import styles from './styles.module.scss';
 import type { FC } from 'react';
