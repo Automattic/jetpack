@@ -319,9 +319,9 @@ class Cache_Preload_Test extends TestCase {
 			->once()
 			->andReturn( $cornerstone_pages );
 
-		Functions\expect( 'wp_schedule_single_event' )
+		Functions\expect( 'wp_schedule_event' )
 			->once()
-			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( $cornerstone_pages ) );
+			->with( Mockery::type( 'int' ), 'twicehourly', 'jetpack_boost_preload', $cornerstone_pages );
 
 		Cache_Preload::activate();
 		$this->expectNotToPerformAssertions();
