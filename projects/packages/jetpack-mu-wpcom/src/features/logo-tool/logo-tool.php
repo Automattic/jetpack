@@ -66,9 +66,10 @@ if ( ! function_exists( 'add_logotool_button' ) ) {
 					'jetpack-mu-wpcom-logo-tool',
 					'_LogoTool_',
 					array(
-						'l10n'      => array( 'create' => fixme__( 'Create logo in minutes', __( 'Create logo', 'jetpack-mu-wpcom' ) ) ),
-						'controlId' => $logo_control->id,
-						'settingId' => $logo_control->setting->id,
+						'l10n'         => array( 'create' => fixme__( 'Create logo in minutes', __( 'Create logo', 'jetpack-mu-wpcom' ) ) ),
+						'controlId'    => $logo_control->id,
+						'settingId'    => $logo_control->setting->id,
+						'referralLink' => 'https://wp.me/logo-maker/?utm_campaign=customizer' . defined( 'IS_ATOMIC' ) && IS_ATOMIC ? '-atomic' : '',
 					)
 				);
 			}
