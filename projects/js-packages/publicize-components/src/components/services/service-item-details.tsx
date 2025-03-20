@@ -24,14 +24,15 @@ export type ServicesItemDetailsProps = {
 export function ServiceItemDetails( { service, serviceConnections }: ServicesItemDetailsProps ) {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const { deletingConnections, updatingConnections } = useSelect( select => {
-		const { getDeletingConnections, getUpdatingConnections } = select( socialStore );
+	const deletingConnections = useSelect(
+		select => select( socialStore ).getDeletingConnections(),
+		[]
+	);
 
-		return {
-			deletingConnections: getDeletingConnections(),
-			updatingConnections: getUpdatingConnections(),
-		};
-	}, [] );
+	const updatingConnections = useSelect(
+		select => select( socialStore ).getUpdatingConnections(),
+		[]
+	);
 
 	const canMarkAsShared = useUserCanShareConnection();
 
