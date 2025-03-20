@@ -44,7 +44,7 @@ if ( ! function_exists( 'add_logotool_button' ) ) {
 		}
 
 		// Make sure we have a valid Customize Control.
-		if ( ! is_a( $logo_control, 'WP_Customize_Control' ) ) {
+		if ( $logo_control === null || ! is_a( $logo_control, 'WP_Customize_Control' ) ) {
 			return;
 		}
 
