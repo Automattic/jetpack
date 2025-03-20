@@ -99,6 +99,7 @@ class Status_Test extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_default() {
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( false );
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
 		$this->assertFalse( $this->status_obj->is_offline_mode() );
@@ -110,6 +111,7 @@ class Status_Test extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_filter_true() {
+		Functions\expect( 'get_option' )->never();
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( true );
 
 		$this->assertTrue( $this->status_obj->is_offline_mode() );
@@ -121,6 +123,7 @@ class Status_Test extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_filter_bool() {
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( false );
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( 0 );
 
 		$this->assertFalse( $this->status_obj->is_offline_mode() );
@@ -134,6 +137,7 @@ class Status_Test extends TestCase {
 	public function test_is_offline_mode_localhost() {
 		$this->site_url = 'localhost';
 
+		Functions\expect( 'get_option' )->never();
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( true )->andReturn( true );
 
 		$this->assertTrue( $this->status_obj->is_offline_mode() );
@@ -212,10 +216,33 @@ class Status_Test extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_is_offline_mode_constant() {
+		Functions\expect( 'get_option' )->never();
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( true )->andReturn( true );
 		$this->mocked_constants['\\JETPACK_DEV_DEBUG'] = true;
 
 		$this->assertTrue( $this->status_obj->is_offline_mode() );
+	}
+
+	/**
+	 * Test that `is_offline_mode()` returns true when the `jetpack_offline_mode` option is set.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_offline_mode
+	 */
+	public function test_is_offline_mode_option() {
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( '1' );
+
+		$this->assertTrue( $this->status_obj->is_offline_mode() );
+	}
+
+	/**
+	 * Test that `is_offline_mode()` returns false when the `jetpack_offline_mode` option exists, but set to '0'.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_offline_mode
+	 */
+	public function test_is_offline_mode_option_inactive() {
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( '0' );
+
+		$this->assertFalse( $this->status_obj->is_offline_mode() );
 	}
 
 	/**
@@ -473,7 +500,7 @@ class Status_Test extends TestCase {
 	/** Data provider for test_cached */
 	public static function provide_cached() {
 		return array(
-			array( 'is_offline_mode', null, 'jetpack_offline_mode' ),
+			array( 'is_offline_mode', 'get_option', 'jetpack_offline_mode' ),
 			array( 'is_multi_network', 'is_multisite', null ),
 			array( 'is_single_user_site', 'get_transient', null ),
 			array( 'is_local_site', null, 'jetpack_is_local_site' ),
