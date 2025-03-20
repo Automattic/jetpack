@@ -233,18 +233,11 @@ class Cache_Preload_Test extends TestCase {
 	 * Test handle_cache_invalidation when all cache is invalidated.
 	 */
 	public function test_handle_cache_invalidation_all() {
-		$path              = '/';
-		$cornerstone_pages = array( 'https://example.com/page1', 'https://example.com/page2' );
-
-		// Mock the Cornerstone_Utils class
-		$cornerstone_utils = Mockery::mock( 'alias:' . Cornerstone_Utils::class );
-		$cornerstone_utils->shouldReceive( 'get_list' )
-			->once()
-			->andReturn( $cornerstone_pages );
+		$path = '/';
 
 		Functions\expect( 'wp_schedule_single_event' )
 			->once()
-			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( $cornerstone_pages ) );
+			->with( Mockery::type( 'int' ), 'jetpack_boost_preload_cornerstone' );
 
 		// Set up the mock
 		$preload = new Cache_Preload();
@@ -324,22 +317,14 @@ class Cache_Preload_Test extends TestCase {
 	 * Test the activate method.
 	 */
 	public function test_activate() {
-		$cornerstone_pages = array( 'https://example.com', 'https://example.com/page' );
-
-		// Mock the Cornerstone_Utils::get_list method
-		$cornerstone_utils = Mockery::mock( 'alias:' . Cornerstone_Utils::class );
-		$cornerstone_utils->shouldReceive( 'get_list' )
-			->once()
-			->andReturn( $cornerstone_pages );
-
 		Functions\expect( 'wp_next_scheduled' )
 			->once()
-			->with( 'jetpack_boost_preload', $cornerstone_pages )
+			->with( 'jetpack_boost_preload_cornerstone' )
 			->andReturn( false );
 
 		Functions\expect( 'wp_schedule_event' )
 			->once()
-			->with( Mockery::type( 'int' ), 'twicehourly', 'jetpack_boost_preload', $cornerstone_pages );
+			->with( Mockery::type( 'int' ), 'twicehourly', 'jetpack_boost_preload_cornerstone' );
 
 		Cache_Preload::activate();
 		$this->expectNotToPerformAssertions();
@@ -349,17 +334,9 @@ class Cache_Preload_Test extends TestCase {
 	 * Test schedule_cornerstone method.
 	 */
 	public function test_schedule_cornerstone() {
-		$cornerstone_pages = array( 'https://example.com', 'https://example.com/page' );
-
-		// Mock the Cornerstone_Utils::get_list method
-		$cornerstone_utils = Mockery::mock( 'alias:' . Cornerstone_Utils::class );
-		$cornerstone_utils->shouldReceive( 'get_list' )
-			->once()
-			->andReturn( $cornerstone_pages );
-
 		Functions\expect( 'wp_schedule_single_event' )
 			->once()
-			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( $cornerstone_pages ) );
+			->with( Mockery::type( 'int' ), 'jetpack_boost_preload_cornerstone' );
 
 		$preload = new Cache_Preload();
 		$preload->schedule_cornerstone();
