@@ -462,7 +462,7 @@ for PROJECT in projects/*/*; do
 	if jq -e '.require["automattic/wordbless"] // .["require-dev"]["automattic/wordbless"]' "$PROJECT/composer.json" >/dev/null; then
 		while IFS=$'\t' read -r LINE; do
 			EXIT=1
-			echo "::error file=$PROJECT/composer.json,line=${LINE}::Do not use \`automattic/wordbless\` directly, use \`automattic/jetpack-test-environment\` instead. See #41057 for details."
+			echo "::error file=$PROJECT/composer.json,line=${LINE}::Do not use \`automattic/wordbless\` directly; use \`automattic/jetpack-test-environment\` instead. See #41057 for details."
 		done < <( jq --stream -r 'if length == 2 and ( .[0] == ["require","automattic/wordbless"] or .[0] == ["require-dev","automattic/wordbless"] ) then [input_line_number] | @tsv else empty end' "$PROJECT/composer.json" )
 	fi
 
