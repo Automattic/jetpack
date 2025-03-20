@@ -7,10 +7,11 @@
 
 namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Publicize\REST_Controller;
+use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
+use Automattic\Jetpack\Publicize\REST_API\Proxy_Requests;
 use Automattic\Jetpack\Redirect;
 use WP_Error;
+use WP_REST_Request;
 
 /**
  * Given a post ID, returns the image URL for the generated image.
@@ -57,17 +58,20 @@ function get_token_body( $text, $image_url, $template ) {
  * @return string|WP_Error  The generated token or a WP_Error object if there's been a problem.
  */
 function fetch_token( $text, $image_url, $template ) {
-	$body            = get_token_body( $text, $image_url, $template );
-	$rest_controller = new REST_Controller();
-	$response        = Client::wpcom_json_api_request_as_blog(
-		sprintf( 'sites/%d/jetpack-social/generate-image-token', absint( \Jetpack_Options::get_option( 'id' ) ) ),
-		'2',
-		array(
-			'headers' => array( 'content-type' => 'application/json' ),
-			'method'  => 'POST',
-		),
-		wp_json_encode( array_filter( $body ) ),
-		'wpcom'
-	);
-	return $rest_controller->make_proper_response( $response );
+
+	$args = get_token_body( $text, $image_url, $template );
+
+	if ( Utils::is_wpcom() ) {
+		require_lib( 'social-image-generator-token' );
+
+		return \Social_Image_Generator\generate_token( $args );
+	}
+
+	$proxy = new Proxy_Requests( 'publicize/social-image-generator' );
+
+	$request = new WP_REST_Request( 'POST' );
+
+	$request->set_body( wp_json_encode( $args ) );
+
+	return $proxy->proxy_request_to_wpcom_as_blog( $request, 'generate-token' );
 }
