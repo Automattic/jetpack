@@ -9,9 +9,10 @@ export default function usePassthroughAttributes( { attributes, clientId, setAtt
 	const { passthroughAttributes } = attributes;
 	const attributesToSync = useSelect(
 		select => {
-			const { getBlockAttributes, getBlockRootClientId } = select( 'core/block-editor' );
-			const parentClientId = getBlockRootClientId( clientId );
-			const parentAttributes = getBlockAttributes( parentClientId ) || {};
+			// Get store instance once
+			const store = select( 'core/block-editor' );
+			const parentClientId = store.getBlockRootClientId( clientId );
+			const parentAttributes = store.getBlockAttributes( parentClientId ) || {};
 
 			// Only compute if we have both parent attributes and passthrough mappings
 			if ( ! parentClientId || ! passthroughAttributes ) {
