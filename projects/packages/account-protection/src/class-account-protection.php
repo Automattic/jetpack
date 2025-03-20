@@ -26,6 +26,13 @@ class Account_Protection {
 	private static $instance = null;
 
 	/**
+	 * Flag to track if hooks have been registered.
+	 *
+	 * @var bool
+	 */
+	private static $hooks_registered = false;
+
+	/**
 	 * Modules instance.
 	 *
 	 * @var Modules
@@ -72,11 +79,17 @@ class Account_Protection {
 	 * @return void
 	 */
 	public function initialize(): void {
+		if ( self::$hooks_registered ) {
+			return;
+		}
+
 		$this->register_hooks();
 
 		if ( $this->is_enabled() ) {
 			$this->register_runtime_hooks();
 		}
+
+		self::$hooks_registered = true;
 	}
 
 	/**
