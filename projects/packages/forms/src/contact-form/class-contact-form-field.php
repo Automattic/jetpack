@@ -858,12 +858,23 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		>
 			<div class="jetpack-form-file-field__dropzone" data-wp-class--is_dropping="context.isDropping"  >
 				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker"></div>
-				<div>
-					<a href="#" ><?php esc_html_e( 'Select a file', 'jetpack-forms' ); ?></a>
-					<span class="jetpack-form-file-field__short"><?php esc_html_e( 'or drag and drop a file.', 'jetpack-forms' ); ?></span>
+				<div class="jetpack-form-file-field__content">
+					<div class="jetpack-form-file-field__icon">
+						<svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M14.5 12V15.5H9V3.70002L13.5 7.80002L14.5 6.70002L8.3 0.900024L2.5 6.70002L3.5 7.80002L7.5 3.80002V15.5H1.5V12H0V17H16V12H14.5Z" fill="#1E1E1E"/>
+						</svg>
+					</div>
+					<div class="jetpack-form-file-field__text">
+						<span><a href="#" class="jetpack-form-file-field__select-link" data-wp-on--click="actions.openFilePicker"><?php esc_html_e( 'Select a file', 'jetpack-forms' ); ?></a> <?php esc_html_e( 'or drag and drop your file here', 'jetpack-forms' ); ?></span>
+						<span class="jetpack-form-file-field__formats">
+						<?php
+						/* translators: %s: Maximum upload size in human readable format (e.g. 64 MB) */
+						printf( esc_html__( 'JPEG, PNG, PDF, and MP4 formats, up to %s', 'jetpack-forms' ), esc_html( size_format( wp_max_upload_size() ) ) );
+						?>
+						</span>
+					</div>
 				</div>
-				<div class="jetpack-form-file-field__helper">JPEG, PNG, PDG, and MP4 formats, up to 500MB</div> <!-- todo update to be dynamic and translatable.-->
-				<input id="<?php echo esc_attr( $id ); ?>" multiple="true" type="file" class="jetpack-form-file-field" data-wp-on--change="actions.fileAdded" />
+				<input id="<?php echo esc_attr( $id ); ?>" type="file" class="jetpack-form-file-field" data-wp-on--change="actions.fileAdded" />
 			</div>
 			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="context.hasFiles">
 				<template data-wp-each--file="context.files" data-wp-key="context.file.id">

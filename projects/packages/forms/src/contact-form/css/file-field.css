@@ -1,15 +1,8 @@
 .jetpack-form-file-field__dropzone {
 	background-color: var(--jetpack--contact-form--input-background, white);
-	border: var(--jetpack--contact-form--border-size, 1px) dashed var(--jetpack--contact-form--border-color);
-	display: flex;
-	flex-direction: column;
-	gap: var(--jetpack--contact-form--input-padding, 16px);
-	padding: calc(var(--jetpack--contact-form--input-padding, 16px) * 2) var(--jetpack--contact-form--input-padding, 16px) var(--jetpack--contact-form--input-padding, 16px);
-	position: relative;
+	border: var(--jetpack--contact-form--border-size, 1px) dashed color-mix(in srgb, var(--jetpack--contact-form--border-color) 30%, transparent);
+	padding: 40px 20px 50px;
 	text-align: center;
-	opacity: 0.8;
-	min-height: 200px;
-	justify-content: center;
 }
 
 .jetpack-form-file-field__dropzone.is_dropping {
@@ -42,9 +35,32 @@
 	display: none;
 }
 
-.jetpack-form-file-field__helper {
-	font-size: 14px;
-	color: #AAA;
+.jetpack-form-file-field__content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--jetpack--contact-form--input-padding, 16px);
+}
+
+.jetpack-form-file-field__icon {
+	color: currentColor;
+}
+
+.jetpack-form-file-field__text {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	font-size: min(var(--jetpack--contact-form--font-size, inherit), 16px);
+}
+
+.jetpack-form-file-field__select-link {
+	text-decoration: underline;
+	font-weight: bold;
+}
+
+.jetpack-form-file-field__formats {
+	opacity: 0.4;
+	font-size: min(var(--jetpack--contact-form--font-size, inherit), 14px);
 }
 
 .jetpack-form-file-field__preview-wrap {
