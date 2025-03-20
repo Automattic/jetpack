@@ -1131,6 +1131,8 @@ class Actions {
 		delete_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
 		// Lock for disabling Sync sending temporarily.
 		delete_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME );
+		// Lock for disabling Full Sync sending temporarily.
+		delete_transient( Sender::TEMP_FULL_SYNC_DISABLE_TRANSIENT_NAME );
 
 		// Queue locks.
 		// Note that we are just unlocking the queues here, not reseting them.

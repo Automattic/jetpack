@@ -134,6 +134,8 @@ class Actions_Test extends BaseTestCase {
 		$this->assertTrue( $full_sync_queue->lock() );
 		// Lock for disabling Sync sending temporarily.
 		set_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME, time() );
+		// Lock for disabling Sync sending temporarily.
+		set_transient( Sender::TEMP_FULL_SYNC_DISABLE_TRANSIENT_NAME, time() );
 
 		Actions::reset_sync_locks();
 
@@ -145,6 +147,7 @@ class Actions_Test extends BaseTestCase {
 		$this->assertFalse( $sync_queue->is_locked() );
 		$this->assertFalse( $full_sync_queue->is_locked() );
 		$this->assertFalse( get_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME ) );
+		$this->assertFalse( get_transient( Sender::TEMP_FULL_SYNC_DISABLE_TRANSIENT_NAME ) );
 	}
 
 	/**
