@@ -31,6 +31,9 @@ export function usePromptTags( promptId, tagsAdded, setTagsAdded ) {
 	// Statuses are 'not-started', 'pending', 'fulfilled', or 'rejected'.
 	const promptTagRequestStatus = useRef( 'not-started' );
 
+	// Get the selector function for use in the Promise chain
+	const { getEditedPostAttribute } = useSelect( select => select( 'core/editor' ), [] );
+
 	// Split into separate selectors to maintain referential equality
 	const postType = useSelect(
 		select => select( 'core/editor' ).getEditedPostAttribute( 'type' ),
@@ -118,7 +121,8 @@ export function usePromptTags( promptId, tagsAdded, setTagsAdded ) {
 				] )
 					.then( tagResponses => {
 						const promptTagIds = tagResponses.map( tagResponse => tagResponse.id );
-						editPost( { tags: [ ...tagIds, ...promptTagIds ] } );
+						const currentTags = getEditedPostAttribute( 'tags' ) || [];
+						editPost( { tags: [ ...currentTags, ...promptTagIds ] } );
 						promptTagRequestStatus.current = 'fulfilled';
 					} )
 					.catch( error => {
@@ -145,5 +149,6 @@ export function usePromptTags( promptId, tagsAdded, setTagsAdded ) {
 		tagIds,
 		tagsAdded,
 		tagsHaveResolved,
+		getEditedPostAttribute,
 	] );
 }
