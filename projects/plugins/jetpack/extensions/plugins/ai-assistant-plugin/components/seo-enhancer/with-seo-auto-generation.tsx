@@ -3,6 +3,7 @@
  */
 import {
 	getJetpackExtensionAvailability,
+	isSimpleSite,
 	useModuleStatus,
 } from '@automattic/jetpack-shared-extension-utils';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -21,7 +22,7 @@ import { useSeoRequests } from './use-seo-requests';
 import type { Block } from '@automattic/jetpack-ai-client';
 
 const isSeoEnhancerEnabled =
-	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true;
+	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true && ! isSimpleSite();
 
 function isPossibleToExtendImageBlock( blockName: string ): boolean {
 	return blockName === 'core/image' && isSeoEnhancerEnabled;

@@ -85,7 +85,6 @@ const GoogleDriveExport = ( { onExport } ) => {
 				<div className="jp-forms__export-modal-card-header-title">
 					{ __( 'Google Sheets', 'jetpack-forms' ) }
 				</div>
-				<div className="jp-forms__export-modal-card-beta-badge">BETA</div>
 			</div>
 			<div className="jp-forms__export-modal-card-body">
 				<div className="jp-forms__export-modal-card-body-description">
@@ -101,9 +100,6 @@ const GoogleDriveExport = ( { onExport } ) => {
 							{ __( 'You need to connect to Google Drive.', 'jetpack-forms' ) }
 						</a>
 					</div>
-					<p className="jp-forms__export-modal-card-body-description-footer">
-						{ __( 'This premium feature is currently free to use in beta.', 'jetpack-forms' ) }
-					</p>
 				</div>
 				<div className="jp-forms__export-modal-card-body-cta">
 					{ isConnected && (

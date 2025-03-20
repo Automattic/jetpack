@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Sync\Settings;
 use PHPMailer\PHPMailer\PHPMailer;
 use WP_Error;
@@ -247,6 +248,29 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static function style_on() {
 		return self::style( true );
 	}
+	/**
+	 * Adds a quick link to the admin bar for the contact form entries.
+	 *
+	 * @param \WP_Admin_Bar $admin_bar The admin bar object.
+	 */
+	public static function add_quick_link_to_admin_bar( \WP_Admin_Bar $admin_bar ) {
+
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			return;
+		}
+
+		$url = ( new Dashboard_View_Switch() )->get_forms_admin_url();
+
+		$admin_bar->add_menu(
+			array(
+				'id'     => 'jetpack-forms',
+				'parent' => null,
+				'group'  => null,
+				'title'  => '<span class="dashicons dashicons-feedback ab-icon" style="top: 2px;"></span><span class="ab-label">' . esc_html__( 'Form Responses', 'jetpack-forms' ) . '</span>',
+				'href'   => $url,
+			)
+		);
+	}
 
 	/**
 	 * The contact-form shortcode processor
@@ -266,6 +290,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( is_array( $attributes ) ) {
 				$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
 			}
+		}
+
+		if ( is_singular() ) {
+			add_action( 'admin_bar_menu', array( __CLASS__, 'add_quick_link_to_admin_bar' ), 100 ); // We use priority 100 so that the link that is added gets added after the "Edit Page" link.
 		}
 		// Create a new Contact_Form object (this class)
 		$form = new Contact_Form( $attributes, $content );
