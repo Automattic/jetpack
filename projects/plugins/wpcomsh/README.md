@@ -106,8 +106,8 @@ In order for WordPress to load the test site correctly, you'll need to access th
 - Browse to http://nginx:8989 in your favorite web client / browser
 
 ## Deployment
-
-- Use the Monorepo deployment tools available in the `tools` folder in the root. For more information on releasing a plugin go to [the Monorepo deployment docs](../../../docs/monorepo.md#plugin-release-tooling).
+- After PR is merged, the CI will automatically create a rolling release for you. You can find [automatic release here](https://github.com/Automattic/wpcom-site-helper/releases). The atomic infrastructure monitor releases on this page and pick up the new release and deploy it to all the sites.
+- If you are in hurry and need to deploy a urgent release, you can do it manually by creating a new release on GitHub and the atomic infrastructure will pick it up and deploy it to all the sites. To created manual release, You need to use the Monorepo deployment tools available in the `tools` folder in the root. For more information on releasing a plugin go to [the Monorepo deployment docs](../../../docs/monorepo.md#plugin-release-tooling).
 - You can view your [successful release here](https://github.com/Automattic/wpcom-site-helper/releases).
 - New versions are deployed when our monitoring detects its release.
   - Note: You can monitor [#atomic-alerts](https://a8c.slack.com/archives/C05GLGHLM8U) channel to see when the new version is deployed.
