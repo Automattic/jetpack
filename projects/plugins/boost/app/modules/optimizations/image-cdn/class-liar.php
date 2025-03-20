@@ -21,11 +21,11 @@ class Liar implements Pluggable, Changes_Output_On_Activation, Has_Data_Sync {
 	}
 
 	public static function get_slug() {
-		return Premium_Features::IMAGE_CDN_LIAR;
+		return 'image_cdn_liar';
 	}
 
 	public static function is_available() {
-		return Premium_Features::has_feature( self::get_slug() );
+		return Premium_Features::has_feature( Premium_Features::IMAGE_CDN_LIAR );
 	}
 
 	/**

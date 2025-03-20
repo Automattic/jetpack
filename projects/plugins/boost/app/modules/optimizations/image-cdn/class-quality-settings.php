@@ -17,11 +17,11 @@ class Quality_Settings implements Pluggable, Is_Always_On, Has_Data_Sync, Change
 	}
 
 	public static function get_slug() {
-		return Premium_Features::IMAGE_CDN_QUALITY;
+		return 'image_cdn_quality';
 	}
 
 	public static function is_available() {
-		return Premium_Features::has_feature( self::get_slug() );
+		return Premium_Features::has_feature( Premium_Features::IMAGE_CDN_QUALITY );
 	}
 
 	public function register_data_sync( Data_Sync $instance ) {
