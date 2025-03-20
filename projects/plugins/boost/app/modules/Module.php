@@ -92,8 +92,13 @@ class Module {
 		$modules               = ( new Modules_Index() )->get_modules();
 		$active_parent_modules = array();
 		foreach ( $modules as $module ) {
+			$module_feature = $module->feature;
+			if ( ! $module_feature instanceof Has_Submodules ) {
+				continue;
+			}
+
 			// Check if the feature is a parent of the current module.
-			if ( $module->feature instanceof Has_Submodules && in_array( get_class( $this->feature ), $module->feature->get_submodules(), true ) ) {
+			if ( in_array( get_class( $this->feature ), $module_feature->get_submodules(), true ) ) {
 				if ( $module->is_enabled() ) {
 					$active_parent_modules[ $module->get_slug() ] = $module;
 				}
