@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
 use WP_User;
@@ -16,7 +15,7 @@ use WP_User;
  *
  * Class will only be instantiated if a hard blocked IP address is detected.
  */
-class Blocked_Login_Page {
+abstract class Blocked_Login_Page {
 
 	/**
 	 * Instance of the class.
@@ -38,13 +37,6 @@ class Blocked_Login_Page {
 	 * @var string
 	 */
 	public $ip_address;
-
-	/**
-	 * The context.
-	 *
-	 * @var string
-	 */
-	public $context;
 
 	/**
 	 * Valid blocked user ID.
@@ -71,13 +63,12 @@ class Blocked_Login_Page {
 	 * Singleton implementation
 	 *
 	 * @param string $ip_address - the IP address.
-	 * @param string $context - The current context the blocked login page is being executed by. Example: "protect" or "waf".
 	 *
 	 * @return object
 	 */
-	public static function instance( $ip_address, $context ) {
+	public static function instance( $ip_address ) {
 		if ( ! is_a( self::$instance, 'Blocked_Login_Page' ) ) {
-			self::$instance = new Blocked_Login_Page( $ip_address, $context );
+			self::$instance = new Blocked_Login_Page( $ip_address );
 		}
 
 		return self::$instance;
@@ -87,9 +78,8 @@ class Blocked_Login_Page {
 	 * Singleton implementation
 	 *
 	 * @param string $ip_address - the IP address.
-	 * @param string $context - The current context the blocked login page is being executed by. Example: "protect" or "waf".
 	 */
-	public function __construct( $ip_address, $context ) {
+	public function __construct( $ip_address ) {
 		/**
 		 * Filter controls if an email recovery form is shown to blocked IPs.
 		 *
@@ -104,7 +94,6 @@ class Blocked_Login_Page {
 		 */
 		$this->can_send_recovery_emails = apply_filters( 'jetpack_protect_can_send_recovery_emails', true );
 		$this->ip_address               = $ip_address;
-		$this->context                  = $context;
 
 		add_filter( 'wp_authenticate_user', array( $this, 'check_valid_blocked_user' ), 10, 1 );
 		add_filter( 'site_url', array( $this, 'add_args_to_login_post_url' ), 10, 3 );
@@ -121,13 +110,7 @@ class Blocked_Login_Page {
 	 *
 	 * @return string
 	 */
-	public function get_help_url() {
-		if ( 'protect' === $this->context ) {
-			return Redirect::get_url( 'jetpack-support-protect-troubleshooting-protect' );
-		}
-		// TODO: Updated WAF docs to include the new context
-		return Redirect::get_url( 'jetpack-support-jetpack-waf', array( 'anchor' => 'troubleshooting' ) );
-	}
+	abstract public function get_help_url();
 
 	/**
 	 * Add arguments to lost password redirect url.
