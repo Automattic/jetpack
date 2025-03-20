@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Critical CSS: Prevent the process from failing when a single provider fails storing its CSS.

@@ -16,6 +16,8 @@ export type JetpackModuleSelector = {
 
 export type SeoEnhancerState = {
 	isBusy?: boolean;
+	isTitleBusy?: boolean;
+	isDescriptionBusy?: boolean;
 	isTogglingAutoEnhance?: boolean;
 	isAutoEnhanceEnabled?: boolean;
 	busyImages?: Record< string, boolean >;
@@ -26,6 +28,8 @@ export type SeoEnhancerState = {
 export type SeoEnhancerAction = {
 	type:
 		| 'SET_BUSY'
+		| 'SET_TITLE_BUSY'
+		| 'SET_DESCRIPTION_BUSY'
 		| 'SET_IS_TOGGLING_AUTO_ENHANCE'
 		| 'SET_IS_AUTO_ENHANCE_ENABLED'
 		| 'SET_IMAGE_BUSY'

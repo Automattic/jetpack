@@ -9,7 +9,7 @@
 	},
 	"require-dev": {
 		"brain/monkey": "^2.6.2",
-		"yoast/phpunit-polyfills": "^1.1.1",
+		"yoast/phpunit-polyfills": "^3.0.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-plans": "@dev",
