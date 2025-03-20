@@ -1,12 +1,13 @@
+/* global wp, _LogoTool_ */
 ( function ( $, wp, LogoTool ) {
 	wp.customize.bind( 'ready', function () {
-		let logoThumbnail,
-			logoControlId = '#customize-control-' + LogoTool.controlId;
+		let logoThumbnail;
+		const logoControlId = '#customize-control-' + LogoTool.controlId;
 
 		// Could be a Core custom-logo, Jetpack site-logo, or a theme specific logo that uses the same image control.
 		if ( wp.customize( LogoTool.settingId ) ) {
 			logoThumbnail = $( logoControlId + ' .thumbnail' );
-			wp.customize( LogoTool.settingId ).bind( 'change', function ( to, from ) {
+			wp.customize( LogoTool.settingId ).bind( 'change', function ( to ) {
 				if ( ! to ) {
 					insertLogoButton( logoControlId );
 					showLogoDescription( logoControlId );
@@ -27,8 +28,9 @@
 	} );
 
 	/**
+	 * Insert the logo creation button.
 	 *
-	 * @param id
+	 * @param {string} id - The control ID.
 	 */
 	function insertLogoButton( id ) {
 		const externalIcon =
@@ -44,16 +46,18 @@
 	}
 
 	/**
+	 * Show the logo description.
 	 *
-	 * @param id
+	 * @param {string} id - The control ID.
 	 */
 	function showLogoDescription( id ) {
 		$( id + ' .description' ).show();
 	}
 
 	/**
+	 * Hide the logo description.
 	 *
-	 * @param id
+	 * @param {string} id - The control ID.
 	 */
 	function hideLogoDescription( id ) {
 		$( id + ' .description' ).hide();
