@@ -51,7 +51,6 @@ class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submod
 		Garbage_Collection::setup();
 
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'clear_cache_on_output_changing_module_toggle' ), 10, 2 );
-		add_action( 'jetpack_boost_module_status_updated', array( $this, 'delete_advanced_cache' ), 10, 2 );
 		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'invalidate_cache' ) );
 		add_action( 'jetpack_boost_critical_css_generated', array( $this, 'invalidate_cache' ) );
 		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_js_excludes', array( $this, 'invalidate_cache' ) );
@@ -111,15 +110,6 @@ class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submod
 		}
 	}
 
-	/**
-	 * Handles the deactivation of the module by removing the advanced-cache.php file.
-	 */
-	public function delete_advanced_cache( $module_slug, $status ) {
-		if ( $module_slug === 'page_cache' && ! $status ) {
-			Page_Cache_Setup::delete_advanced_cache();
-		}
-	}
-
 	public function invalidate_cache() {
 		$cache = new Boost_Cache();
 		$cache->get_storage()->invalidate( home_url(), Filesystem_Utils::DELETE_ALL );
@@ -131,6 +121,7 @@ class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submod
 	public static function deactivate() {
 		Garbage_Collection::deactivate();
 		Boost_Cache_Settings::get_instance()->set( array( 'enabled' => false ) );
+		Page_Cache_Setup::delete_advanced_cache();
 	}
 
 	/**

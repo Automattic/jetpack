@@ -7,6 +7,20 @@ export function setBusy( isBusy: boolean ) {
 	};
 }
 
+export function setTitleBusy( isBusy: boolean ) {
+	return {
+		type: 'SET_TITLE_BUSY',
+		isBusy,
+	};
+}
+
+export function setDescriptionBusy( isBusy: boolean ) {
+	return {
+		type: 'SET_DESCRIPTION_BUSY',
+		isBusy,
+	};
+}
+
 export function setIsTogglingAutoEnhance( isToggling: boolean ) {
 	return {
 		type: 'SET_IS_TOGGLING_AUTO_ENHANCE',

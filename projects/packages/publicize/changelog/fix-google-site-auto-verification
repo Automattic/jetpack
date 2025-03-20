@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keyring Helper: Moved the initialization to pre_initialization to let it work even when Publicize is off.

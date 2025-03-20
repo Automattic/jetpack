@@ -213,6 +213,7 @@ export const TimestampInput = ( {
 						__unstableStateReducer={ buildPadInputStateReducer( 2 ) }
 						value={ String( time.value.hh ).padStart( 2, '0' ) }
 						onChange={ computeTimeValue( 'hh' ) }
+						__next40pxDefaultSize={ true }
 					/>
 					<TimeDivider />
 				</>
@@ -235,6 +236,7 @@ export const TimestampInput = ( {
 						__unstableStateReducer={ buildPadInputStateReducer( 2 ) }
 						value={ String( time.value.mm ).padStart( 2, '0' ) }
 						onChange={ computeTimeValue( 'mm' ) }
+						__next40pxDefaultSize={ true }
 					/>
 					<TimeDivider />
 				</>
@@ -255,6 +257,7 @@ export const TimestampInput = ( {
 				__unstableStateReducer={ buildPadInputStateReducer( 2 ) }
 				value={ String( time.value.ss ).padStart( 2, '0' ) }
 				onChange={ computeTimeValue( 'ss' ) }
+				__next40pxDefaultSize={ true }
 			/>
 
 			{ decimalPlaces && (
@@ -276,6 +279,7 @@ export const TimestampInput = ( {
 						__unstableStateReducer={ buildPadInputStateReducer( decimalPlaces ) }
 						value={ String( time.value.decimal ).padStart( decimalPlaces, '0' ) }
 						onChange={ computeTimeValue( 'decimal' ) }
+						__next40pxDefaultSize={ true }
 					/>
 				</>
 			) }
