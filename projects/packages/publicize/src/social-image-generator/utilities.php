@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
+use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Publicize\REST_API\Proxy_Requests;
 use Automattic\Jetpack\Redirect;
 use WP_Error;
@@ -58,11 +59,19 @@ function get_token_body( $text, $image_url, $template ) {
  */
 function fetch_token( $text, $image_url, $template ) {
 
+	$args = get_token_body( $text, $image_url, $template );
+
+	if ( Utils::is_wpcom() ) {
+		require_lib( 'social-image-generator-token' );
+
+		return \Social_Image_Generator\generate_token( $args );
+	}
+
 	$proxy = new Proxy_Requests( 'publicize/social-image-generator' );
 
 	$request = new WP_REST_Request( 'POST' );
 
-	$request->set_body( wp_json_encode( get_token_body( $text, $image_url, $template ) ) );
+	$request->set_body( wp_json_encode( $args ) );
 
 	return $proxy->proxy_request_to_wpcom_as_blog( $request, 'generate-token' );
 }
