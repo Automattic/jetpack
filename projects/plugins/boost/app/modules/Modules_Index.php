@@ -115,18 +115,6 @@ class Modules_Index {
 		return $available_modules;
 	}
 
-	public function is_module_enabled( $slug ) {
-		$available_modules = $this->available_modules();
-
-		if ( ! array_key_exists( $slug, $available_modules ) ) {
-			return false;
-		}
-
-		$module = $available_modules[ $slug ];
-
-		return $module->is_enabled();
-	}
-
 	public function is_module_available( $slug ) {
 		$available_modules = $this->available_modules();
 
