@@ -1,5 +1,6 @@
 import { Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import preventWidows from '../../../utils/prevent-widows';
 import styles from './connection-form.module.scss';
 import SocialButton from './social-button';
 
@@ -16,17 +17,20 @@ const Separator = () => {
 };
 
 const ConnectionForm = () => {
+	const socialConnectionTitle = __( 'Start with Jetpack for free', 'jetpack-my-jetpack' );
+	const socialConnectionDescription = __(
+		'Log in with your WordPress.com account to supercharge your site with powerful growth, performance, and security tools.',
+		'jetpack-my-jetpack'
+	);
+
 	return (
 		<div className={ styles[ 'connection-form' ] }>
 			<Text variant="headline-medium" className={ styles.title }>
-				{ __( 'Start with Jetpack for free', 'jetpack-my-jetpack' ) }
+				{ preventWidows( socialConnectionTitle ) }
 			</Text>
 
 			<Text variant="body" mb={ 3 } className={ styles.description }>
-				{ __(
-					'Log in with your WordPress.com account to supercharge your site with powerful growth, performance, and security tools.',
-					'jetpack-my-jetpack'
-				) }
+				{ preventWidows( socialConnectionDescription ) }
 			</Text>
 
 			<SocialButton service="google" />
