@@ -18,6 +18,7 @@ namespace Automattic\Jetpack;
 use WP_Error;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-filesystem-utils.php';
+require_once ABSPATH . 'wp-admin/includes/file.php';
 
 /**
  * Class Unauth_File_Upload_Handler
@@ -45,6 +46,13 @@ class Unauth_File_Upload_Handler {
 	 * @var string
 	 */
 	const UNAUTH_UPLOADS_DIR_OPTION = 'jetpack_unauth_upload_dir';
+
+	/**
+	 * Temporary storage for the current destination path during upload.
+	 *
+	 * @var string|null
+	 */
+	private $current_destination;
 
 	/**
 	 * Maximum allowed file size (20MB).
@@ -177,10 +185,10 @@ class Unauth_File_Upload_Handler {
 		$upload_overrides = array(
 			'test_form' => false,
 		);
-		add_filter( 'upload_dir', array( $this, 'upload_overwrites_temp' ) );
+		\add_filter( 'upload_dir', array( $this, 'upload_overwrites_temp' ) );
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		$move_result = \wp_handle_upload( $file, $upload_overrides );
-		remove_filter( 'upload_dir', array( $this, 'upload_overwrites_temp' ) );
+		\remove_filter( 'upload_dir', array( $this, 'upload_overwrites_temp' ) );
 		// Move uploaded file.
 		if ( ! $move_result ) {
 			return new WP_Error( 'file_move', \__( 'Unable to process file upload.', 'jetpack' ) );
@@ -331,7 +339,7 @@ class Unauth_File_Upload_Handler {
 			$file_path = \trailingslashit( $temp_path ) . $file_data['filename'];
 			if ( file_exists( $file_path ) ) {
 				$file_size = filesize( $file_path );
-				wp_delete_file_from_directory( $file_path, $temp_path );
+				\wp_delete_file_from_directory( $file_path, $temp_path );
 				$freed_space += $file_size;
 				$this->unset_token( $token );
 				if ( $freed_space >= $total_needed ) {
@@ -344,6 +352,24 @@ class Unauth_File_Upload_Handler {
 	}
 
 	/**
+	 * Filter the upload directory to use our custom path.
+	 *
+	 * @param array $uploads WordPress upload directory data.
+	 * @return array Modified upload directory data.
+	 */
+	public function filter_upload_dir_for_destination( $uploads ) {
+		$file_path = dirname( $this->current_destination );
+		$base_dir  = dirname( $this->current_destination, 2 );
+
+		$uploads['path']    = $file_path;
+		$uploads['url']     = '#';
+		$uploads['subdir']  = str_replace( $base_dir, '', $file_path );
+		$uploads['basedir'] = $base_dir;
+
+		return $uploads;
+	}
+
+	/**
 	 * Retrieves file details using a token.
 	 *
 	 * @param string $token The file token.
@@ -352,8 +378,6 @@ class Unauth_File_Upload_Handler {
 	 * @return array|WP_Error Array with file data on success, WP_Error object on failure.
 	 */
 	public function checkout_file( $token, $destination ) {
-		global $wp_filesystem;
-
 		$uploads = $this->get_unauth_uploads();
 
 		if ( ! isset( $uploads[ $token ] ) ) {
@@ -363,17 +387,11 @@ class Unauth_File_Upload_Handler {
 			);
 		}
 
-		$temp_path = $this->get_secret_temp_path();
-		if ( is_wp_error( $temp_path ) ) {
-			return $temp_path;
-		}
-
 		$file_data = $uploads[ $token ];
+		$temp_path = \trailingslashit( $this->get_secret_temp_path() ) . $file_data['filename'];
 
-		$file_path = \trailingslashit( $temp_path ) . $file_data['filename'];
-
-		if ( ! file_exists( $file_path ) ) {
-			// Remove the entry if file doesn't exist.
+		if ( ! file_exists( $temp_path ) ) {
+			// Remove the entry if file doesn't exist
 			$this->unset_token( $token );
 
 			return new WP_Error(
@@ -382,30 +400,50 @@ class Unauth_File_Upload_Handler {
 			);
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-
-		$initialized = \WP_Filesystem();
-
-		if ( ! $initialized ) {
+		// Create destination directory if it doesn't exist
+		$destination_dir = dirname( $destination );
+		if ( ! \wp_mkdir_p( $destination_dir ) ) {
 			return new WP_Error(
-				'filesystem_error',
-				\__( 'Could not initialize filesystem.', 'jetpack' )
+				'fs_error',
+				\__( 'Could not create destination directory.', 'jetpack' )
 			);
 		}
 
-		if ( ! $wp_filesystem || ! is_object( $wp_filesystem ) ) {
-			return new WP_Error(
-				'filesystem_error',
-				\__( 'Filesystem object not available.', 'jetpack' )
-			);
+		// Store destination for the filter
+		$this->current_destination = $destination;
+
+		// Add filter to modify upload directory
+		\add_filter( 'upload_dir', array( $this, 'filter_upload_dir_for_destination' ) );
+
+		// Prepare file data for wp_handle_upload
+		$file = array(
+			'name'     => basename( $destination ),
+			'type'     => \wp_check_filetype( $file_data['original_name'] )['type'],
+			'tmp_name' => $temp_path,
+			'error'    => 0,
+			'size'     => filesize( $temp_path ),
+		);
+
+		// Use wp_handle_upload to handle the file upload
+		$upload = \wp_handle_upload(
+			$file,
+			array(
+				'test_form' => false,
+				'action'    => 'jetpack_forms_upload',
+			)
+		);
+
+		// Remove the upload directory filter
+		\remove_filter( 'upload_dir', array( $this, 'filter_upload_dir_for_destination' ) );
+
+		// Clear the destination
+		$this->current_destination = null;
+
+		if ( isset( $upload['error'] ) ) {
+			return new WP_Error( 'upload_error', $upload['error'] );
 		}
 
-		$move_result = $wp_filesystem->move( $file_path, $destination );
-
-		if ( is_wp_error( $move_result ) ) {
-			return $move_result;
-		}
-
+		// Clean up the temporary file and token
 		$this->unset_token( $token );
 
 		return array(
@@ -414,6 +452,7 @@ class Unauth_File_Upload_Handler {
 			'context'       => $file_data['context'],
 		);
 	}
+
 	/**
 	 * Removes the file from the server that was temprary added.
 	 *
@@ -431,7 +470,7 @@ class Unauth_File_Upload_Handler {
 		$file_data        = $uploads[ $token ];
 		$file_path        = \trailingslashit( $secret_temp_path ) . $file_data['filename'];
 
-		wp_delete_file_from_directory( $file_path, $secret_temp_path );
+		\wp_delete_file_from_directory( $file_path, $secret_temp_path );
 
 		return $this->unset_token( $token );
 	}
@@ -455,12 +494,13 @@ class Unauth_File_Upload_Handler {
 			if ( ( $current_time - $file_data['created'] ) > $max_age ) {
 				$file_path = \trailingslashit( $temp_path ) . $file_data['filename'];
 				if ( file_exists( $file_path ) ) {
-					wp_delete_file_from_directory( $file_path, $temp_path );
+					\wp_delete_file_from_directory( $file_path, $temp_path );
 				}
 				$this->unset_token( $token );
 			}
 		}
 	}
+
 	/**
 	 * Gets the unauthenticated uploads data.
 	 *
@@ -507,6 +547,7 @@ class Unauth_File_Upload_Handler {
 
 		return $this->update_unauth_uploads( $uploads, $lock );
 	}
+
 	/**
 	 * Deletes the unauthenticated uploads data.
 	 *

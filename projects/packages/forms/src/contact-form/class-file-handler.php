@@ -121,8 +121,8 @@ class File_Handler {
 		}
 
 		// Generate a unique filename for permanent storage
-		$new_secret_name = Filesystem_Utils::generate_secure_filename( $original_file_name, false );
-		$permanent_path  = $permanent_dir . $new_secret_name;
+		$new_filename   = Filesystem_Utils::generate_secure_filename( $original_file_name );
+		$permanent_path = $permanent_dir . $new_filename;
 
 		// Use the unauth handler's checkout_file method to move the file from temp to permanent storage
 		$checkout_result = $this->unauth_handler->checkout_file( $unauth_file_token, $permanent_path );
@@ -132,12 +132,12 @@ class File_Handler {
 		}
 
 		// Create a file identifier that doesn't depend on the full server path
-		$relative_path = $year . '/' . $month . '/' . $new_secret_name;
+		$relative_path = $year . '/' . $month . '/' . $new_filename;
 
-		// Return the file data for the permanent storage - remove url and hash fields
+		// Return the file data for the permanent storage
 		$result = array(
 			'name'    => $original_file_name,
-			'file_id' => $relative_path, // Store relative path as file_id instead of full path
+			'file_id' => $relative_path,
 			'size'    => wp_filesize( $permanent_path ),
 		);
 
