@@ -63,7 +63,7 @@ class Critical_CSS implements Pluggable, Changes_Output_After_Activation, Optimi
 	 * @return string[]
 	 */
 	public static function get_change_output_action_names() {
-		return array( Critical_CSS_State::GENERATION_ACTION_NAME );
+		return array( Critical_CSS_Invalidator::INVALIDATE_ACTION_NAME, Critical_CSS_State::GENERATION_ACTION_NAME );
 	}
 
 	public static function is_available() {

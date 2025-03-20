@@ -4,12 +4,13 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
-class Quality_Settings implements Pluggable, Is_Always_On, Has_Data_Sync {
+class Quality_Settings implements Pluggable, Is_Always_On, Has_Data_Sync, Changes_Output_After_Activation {
 
 	public function setup() {
 		add_filter( 'jetpack_photon_pre_args', array( $this, 'add_quality_args' ), 10, 2 );
@@ -63,6 +64,14 @@ class Quality_Settings implements Pluggable, Is_Always_On, Has_Data_Sync {
 		);
 
 		$instance->register( 'image_cdn_quality', $image_cdn_quality_schema );
+	}
+
+	public function is_ready() {
+		return true;
+	}
+
+	public static function get_change_output_action_names() {
+		return array( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_image_cdn_quality' );
 	}
 
 	/**

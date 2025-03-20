@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
@@ -13,7 +14,7 @@ use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_CSS;
 
-class Minify_CSS implements Pluggable, Changes_Output_On_Activation, Optimization, Has_Deactivate, Has_Submodules, Has_Data_Sync {
+class Minify_CSS implements Pluggable, Changes_Output_On_Activation, Changes_Output_After_Activation, Optimization, Has_Deactivate, Has_Submodules, Has_Data_Sync {
 
 	public static $default_excludes = array( 'admin-bar', 'dashicons', 'elementor-app' );
 
@@ -57,6 +58,10 @@ class Minify_CSS implements Pluggable, Changes_Output_On_Activation, Optimizatio
 	 */
 	public function is_ready() {
 		return true;
+	}
+
+	public static function get_change_output_action_names() {
+		return array( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_css_excludes' );
 	}
 
 	public static function is_available() {

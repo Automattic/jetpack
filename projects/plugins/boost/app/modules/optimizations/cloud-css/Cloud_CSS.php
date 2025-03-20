@@ -60,7 +60,7 @@ class Cloud_CSS implements Pluggable, Has_Activate, Has_Always_Available_Endpoin
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
-		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'handle_critical_css_invalidated' ) );
+		add_action( Critical_CSS_Invalidator::INVALIDATE_ACTION_NAME, array( $this, 'handle_critical_css_invalidated' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
 
 		Generator::init();
@@ -89,7 +89,7 @@ class Cloud_CSS implements Pluggable, Has_Activate, Has_Always_Available_Endpoin
 	 * @return string[]
 	 */
 	public static function get_change_output_action_names() {
-		return array( Critical_CSS_State::GENERATION_ACTION_NAME );
+		return array( Critical_CSS_Invalidator::INVALIDATE_ACTION_NAME, Critical_CSS_State::GENERATION_ACTION_NAME );
 	}
 
 	public static function is_available() {
