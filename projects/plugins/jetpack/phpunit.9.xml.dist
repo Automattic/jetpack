@@ -1,10 +1,22 @@
-<phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true"  convertDeprecationsToExceptions="true">
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+	bootstrap="tests/php/bootstrap.php"
+	cacheResultFile=".phpunit.cache/test-results"
+	colors="true"
+	executionOrder="depends"
+	beStrictAboutOutputDuringTests="true"
+	failOnRisky="true"
+	failOnWarning="true"
+>
 	<php>
 		<const name="PHPUNIT_JETPACK_TESTSUITE" value="true"/>
 	</php>
+
 	<testsuites>
 		<testsuite name="general">
 			<directory suffix="Test.php">tests/php/general</directory>
+			<exclude>tests/php/general/Jetpack_Network_Test.php</exclude>
 		</testsuite>
 		<testsuite name="core-api">
 			<directory suffix="Test.php">tests/php/core-api</directory>
@@ -72,6 +84,8 @@
 		</testsuite>
 		<testsuite name="lib">
 			<directory suffix="Test.php">tests/php/_inc/lib</directory>
+			<exclude>tests/php/_inc/lib/Jetpack_REST_API_Authentication_Test.php</exclude>
+			<exclude>tests/php/_inc/lib/Jetpack_REST_API_endpoints_Test.php</exclude>
 		</testsuite>
 		<testsuite name="restapi">
 			<directory prefix="Jetpack_REST_API" suffix="Test.php">tests/php/_inc/lib</directory>
@@ -101,6 +115,7 @@
 			<directory suffix="Test.php">tests/php/src</directory>
 		</testsuite>
 	</testsuites>
+
 	<groups>
 		<exclude>
 			<group>external-http</group>
@@ -108,66 +123,4 @@
 			<group>legacy-full-sync</group>
 		</exclude>
 	</groups>
-	<filter>
-		<whitelist>
-			<!-- Can't just <directory>.</directory> because PHPUnit is dumb about scanning before applying any exclusions, and can't glob in <file>. Sigh. -->
-			<file>class.frame-nonce-preview.php</file>
-			<file>class.jetpack-admin.php</file>
-			<file>class.jetpack-affiliate.php</file>
-			<file>class.jetpack-autoupdate.php</file>
-			<file>class.jetpack-bbpress-json-api.compat.php</file>
-			<file>class.jetpack-client-server.php</file>
-			<file>class.jetpack-cli.php</file>
-			<file>class-jetpack-connection-status.php</file>
-			<file>class-jetpack-gallery-settings.php</file>
-			<file>class.jetpack-gutenberg.php</file>
-			<file>class.jetpack-heartbeat.php</file>
-			<file>class.jetpack-modules-list-table.php</file>
-			<file>class.jetpack-network.php</file>
-			<file>class.jetpack-network-sites-list-table.php</file>
-			<file>class.jetpack.php</file>
-			<file>class.jetpack-plan.php</file>
-			<file>class.jetpack-post-images.php</file>
-			<file>class-jetpack-pre-connection-jitms.php</file>
-			<file>class-jetpack-stats-dashboard-widget.php</file>
-			<file>class.jetpack-twitter-cards.php</file>
-			<file>class.jetpack-user-agent.php</file>
-			<file>class-jetpack-xmlrpc-methods.php</file>
-			<file>class.json-api-endpoints.php</file>
-			<file>class.json-api.php</file>
-			<file>class.photon.php</file>
-			<file>enhanced-open-graph.php</file>
-			<file>functions.compat.php</file>
-			<file>functions.cookies.php</file>
-			<file>functions.global.php</file>
-			<file>functions.is-mobile.php</file>
-			<file>functions.opengraph.php</file>
-			<file>functions.photon.php</file>
-			<file>jetpack.php</file>
-			<file>json-api-config.php</file>
-			<file>json-endpoints.php</file>
-			<file>load-jetpack.php</file>
-			<file>locales.php</file>
-			<file>uninstall.php</file>
-			<directory suffix=".php">3rd-party</directory>
-			<directory suffix=".php">extensions</directory>
-			<directory suffix=".php">_inc</directory>
-			<directory suffix=".php">json-endpoints</directory>
-			<directory suffix=".php">modules</directory>
-			<directory suffix=".php">sal</directory>
-			<directory suffix=".php">src</directory>
-			<directory suffix=".php">views</directory>
-		</whitelist>
-	</filter>
-	<listeners>
-		<listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener">
-			<arguments>
-				<array>
-					<element key="slowThreshold">
-						<integer>150</integer>
-					</element>
-				</array>
-			</arguments>
-		</listener>
-	</listeners>
 </phpunit>
