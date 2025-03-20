@@ -9,15 +9,15 @@
  */
 return [
     // # Issue statistics:
+    // PhanPluginMixedKeyNoKey : 8 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 6 occurrences
-    // PhanPluginMixedKeyNoKey : 6 occurrences
-    // PhanTypeMismatchArgument : 6 occurrences
     // PhanPluginUnreachableCode : 4 occurrences
     // PhanTypeMismatchArgument : 4 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
+    // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
     // PhanImpossibleCondition : 1 occurrence
@@ -25,7 +25,6 @@ return [
     // PhanPluginDuplicateExpressionAssignmentOperation : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanSuspiciousMagicConstant : 1 occurrence
-    // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchDimFetch : 1 occurrence
@@ -42,10 +41,12 @@ return [
         'src/class-publicize-ui.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-publicize.php' => ['PhanParamSignatureMismatch', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-share-status.php' => ['PhanTypeMismatchArgumentNullableInternal'],
         'src/rest-api/class-connections-controller.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeSuspiciousNonTraversableForeach'],
         'src/rest-api/class-connections-post-field.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/rest-api/class-scheduled-actions-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-services-controller.php' => ['PhanPluginMixedKeyNoKey'],
+        'src/rest-api/class-share-status-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-shares-data-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/social-image-generator/class-post-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/social-image-generator/class-rest-settings-controller.php' => ['PhanPluginMixedKeyNoKey'],
