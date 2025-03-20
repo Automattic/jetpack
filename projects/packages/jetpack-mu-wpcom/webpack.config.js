@@ -19,10 +19,6 @@ module.exports = [
 			'jetpack-global-styles': './src/features/jetpack-global-styles/index.js',
 			'jetpack-global-styles-customizer-fonts':
 				'./src/features/jetpack-global-styles/customizer-fonts/index.js',
-			'logo-tool': [
-				'./src/features/logo-tool/js/customizer.js',
-				'./src/features/logo-tool/css/logo-tool.css',
-			],
 			'mailerlite-subscriber-popup': './src/features/mailerlite/subscriber-popup.js',
 			'newspack-blocks-blog-posts-editor': './src/features/newspack-blocks/blog-posts/editor.js',
 			'newspack-blocks-blog-posts-view': './src/features/newspack-blocks/blog-posts/view.js',

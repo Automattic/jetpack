@@ -60,8 +60,8 @@ if ( ! function_exists( 'add_logotool_button' ) ) {
 		add_action(
 			'customize_controls_enqueue_scripts',
 			function () use ( $logo_control ) {
-				wp_enqueue_script( 'jetpack-mu-wpcom-logo-tool-script', plugins_url( 'js/customizer.js', __FILE__ ), array( 'customize-controls' ), '20210706', true );
-				wp_enqueue_style( 'jetpack-mu-wpcom-logo-tool-style', plugins_url( 'css/logo-tool.css', __FILE__ ), array(), '20220108' );
+				wp_enqueue_script( 'jetpack-mu-wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), array( 'customize-controls' ), '20210706', true );
+				wp_enqueue_style( 'jetpack-mu-wpcom-logo-tool', plugins_url( 'css/logo-tool.css', __FILE__ ), array(), '20220108' );
 				wp_localize_script(
 					'jetpack-mu-wpcom-logo-tool',
 					'_LogoTool_',
