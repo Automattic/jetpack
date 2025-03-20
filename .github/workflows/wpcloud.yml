@@ -28,6 +28,9 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          # Match PHP version on wpcloud so the right vendor packages get installed.
+          php: 8.1
       - name: Monorepo install
         run: |
           echo "::group::Pnpm"
@@ -45,6 +48,7 @@ jobs:
         run: |
           find . -path ./.github -prune -o -type f -print | sort > /tmp/before.txt
           echo "::group::Installing and building wpcomsh"
+          rm projects/plugins/wpcomsh/composer.lock
           pnpm jetpack build -v --deps plugins/wpcomsh
           echo "::endgroup::"
 
@@ -127,6 +131,7 @@ jobs:
           pnpm jetpack rsync wpcomsh jpwpcomsh:~/htdocs/wp-content/mu-plugins
           scp -r projects/plugins/wpcomsh/bin jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh
           scp -r projects/plugins/wpcomsh/tests jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/
+          # The test on wpcloud won't use `phpunit-select-config`, select config manually.
           scp projects/plugins/wpcomsh/phpunit.9.xml.dist jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/phpunit.xml.dist
 
           echo "::engroup::"

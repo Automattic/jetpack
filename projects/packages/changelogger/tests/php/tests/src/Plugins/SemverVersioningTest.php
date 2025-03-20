@@ -254,13 +254,19 @@ class SemverVersioningTest extends TestCase {
 	public function testNextVersion( $version, array $changes, array $extra, $expect, $expectOutput = '' ) {
 		$obj = new SemverVersioning();
 
-		$out1 = $this->getMockBuilder( BufferedOutput::class )
-			->addMethods( array( 'getErrorOutput' ) )
-			->getMock();
-		$out2 = new BufferedOutput();
-		$out1->method( 'getErrorOutput' )->willReturn( $out2 );
+		$out = new class() extends BufferedOutput {
+			public $err;
 
-		$obj->setIO( new ArrayInput( array() ), $out1 );
+			public function __construct() {
+				$this->err = new BufferedOutput();
+			}
+
+			public function getErrorOutput() {
+				return $this->err;
+			}
+		};
+
+		$obj->setIO( new ArrayInput( array() ), $out );
 
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );
@@ -268,8 +274,8 @@ class SemverVersioningTest extends TestCase {
 			$obj->nextVersion( $version, $changes, $extra );
 		} else {
 			$this->assertSame( $expect, $obj->nextVersion( $version, $changes, $extra ) );
-			$this->assertSame( '', $out1->fetch() );
-			$this->assertSame( $expectOutput, $out2->fetch() );
+			$this->assertSame( '', $out->fetch() );
+			$this->assertSame( $expectOutput, $out->err->fetch() );
 		}
 	}
 
