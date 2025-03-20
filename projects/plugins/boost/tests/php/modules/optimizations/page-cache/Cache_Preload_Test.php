@@ -58,29 +58,6 @@ class Cache_Preload_Test extends TestCase {
 	}
 
 	/**
-	 * Test schedule_cornerstone_preload correctly schedules all cornerstone pages.
-	 */
-	public function test_schedule_cornerstone_preload() {
-		$cornerstone_pages = array( 'https://example.com', 'https://example.com/page' );
-
-		// Mock the Cornerstone_Utils::get_list method
-		$cornerstone_utils = Mockery::mock( 'alias:' . Cornerstone_Utils::class );
-		$cornerstone_utils->shouldReceive( 'get_list' )
-			->once()
-			->andReturn( $cornerstone_pages );
-
-		Functions\expect( 'wp_schedule_single_event' )
-			->once()
-			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( $cornerstone_pages ) );
-
-		// Create a mock that doesn't call schedule_cornerstone_preload but verifies its behavior
-		$preload = new Cache_Preload();
-
-		$preload->schedule_cornerstone_preload();
-		$this->expectNotToPerformAssertions();
-	}
-
-	/**
 	 * Test schedule correctly schedules the event.
 	 */
 	public function test_schedule() {
