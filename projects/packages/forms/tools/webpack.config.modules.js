@@ -1,17 +1,17 @@
 /**
  * Webpack configuration for building JavaScript/CSS modules.
  */
-
+const fs = require( 'fs' );
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 const { glob } = require( 'glob' );
 
 const moduleSrcDir = path.join( __dirname, '../src/modules' );
 
 // Check if modules directory exists
-const fs = require( 'fs' );
 if ( ! fs.existsSync( moduleSrcDir ) ) {
-	console.warn( `Modules directory not found: ${ moduleSrcDir }` );
+	console.warn( `Modules directory not found: ${ moduleSrcDir }` ); // eslint-disable-line no-console
 	// Return empty config if no modules directory
 	module.exports = {};
 } else {
@@ -28,7 +28,7 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 	}, {} );
 
 	if ( Object.keys( entry ).length === 0 ) {
-		console.warn( 'No module files found to build.' );
+		console.warn( 'No module files found to build.' ); // eslint-disable-line no-console
 		module.exports = {};
 	} else {
 		const moduleWebpackConfig = {
@@ -109,6 +109,7 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 					I18nLoaderPlugin: false,
 					I18nCheckPlugin: false,
 				} ),
+				new DependencyExtractionWebpackPlugin(),
 			],
 		};
 
