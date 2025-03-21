@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+ScheduleButton: Updated the tests to correctly `await` the asynchronous calls
