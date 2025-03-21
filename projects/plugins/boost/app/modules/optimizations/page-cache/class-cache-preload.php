@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
+use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
@@ -18,7 +19,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logg
  * @since 3.11.0
  * @package Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache
  */
-class Cache_Preload implements Pluggable, Is_Always_On {
+class Cache_Preload implements Pluggable, Has_Activate, Is_Always_On {
 
 	/**
 	 * @since 3.11.0
@@ -47,6 +48,17 @@ class Cache_Preload implements Pluggable, Is_Always_On {
 		}
 
 		return false;
+	}
+
+	/**
+	 * As this is a submodule, this activate is triggered when the parent module is activated,
+	 * despite the module having Is_Always_On.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function activate() {
+		$instance = new self();
+		$instance->schedule_cornerstone_preload();
 	}
 
 	/**
