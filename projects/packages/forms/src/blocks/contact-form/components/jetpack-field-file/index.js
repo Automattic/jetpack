@@ -144,6 +144,6 @@ const JetpackFieldFile = props => {
 	);
 };
 
-export default compose( withSharedFieldAttributes( [ 'label', 'required', 'filetype' ] ) )(
-	JetpackFieldFile
-);
+export default compose(
+	withSharedFieldAttributes( [ 'labelFontSize', 'labelLineHeight', 'labelColor' ] )
+)( JetpackFieldFile );
