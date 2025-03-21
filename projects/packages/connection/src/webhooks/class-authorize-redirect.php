@@ -137,14 +137,14 @@ class Authorize_Redirect {
 				}
 
 				// Add magic link specific parameters if provider is 'link'
-				if ( 'link' === $provider && is_array( $provider_args ) ) {
-					if ( ! empty( $provider_args['email_address'] ) ) {
-						$query_params['email_address'] = $provider_args['email_address'];
-					}
-
+				if ( 'link' === $provider && is_array( $provider_args ) && ! empty( $provider_args['email_address'] ) ) {
+					$query_params['email_address'] = $provider_args['email_address'];
 					// Add flag to trigger magic link flow
 					$query_params['auto_trigger'] = '1';
 				}
+
+				// URL encode all parameter values
+				$query_params = array_map( 'rawurlencode', $query_params );
 
 				// Rebuild the URL
 				$url = 'https://' . $url_parts['host'] . $url_parts['path'];
