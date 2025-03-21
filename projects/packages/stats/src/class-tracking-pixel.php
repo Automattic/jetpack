@@ -123,7 +123,6 @@ class Tracking_Pixel {
 				$view_data['arch_other'] = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
 			}
 		}
-
 		return $view_data;
 	}
 
@@ -145,21 +144,26 @@ class Tracking_Pixel {
 		if ( $query->get( 'author_name' ) ) {
 			$data['author_name'] = $query->get( 'author_name' );
 		}
+		$filters = http_build_query( $data );
 
 		$the_tax_query = $query->tax_query;
+		$terms         = array();
 		if ( ! empty( $the_tax_query->queried_terms ) && is_array( $the_tax_query->queried_terms ) ) {
 			foreach ( $the_tax_query->queries as $tax_query ) {
 				if ( ! is_array( $tax_query ) || 'slug' !== $tax_query['field'] ) {
 					continue;
 				}
 				$taxonomy = $tax_query['taxonomy'];
-				if ( ! isset( $data['terms'][ $taxonomy ] ) || ! is_array( $data['terms'][ $taxonomy ] ) ) {
-					$data['terms'][ $taxonomy ] = array();
+				if ( ! isset( $terms[ $taxonomy ] ) || ! is_array( $terms[ $taxonomy ] ) ) {
+					$terms[ $taxonomy ] = array();
 				}
-				$data['terms'][ $taxonomy ] = array_merge( $data['terms'][ $taxonomy ], $tax_query['terms'] );
+				$terms[ $taxonomy ] = array_merge( $terms[ $taxonomy ], $tax_query['terms'] );
 			}
 		}
-		return http_build_query( $data );
+		if ( ! empty( $terms ) ) {
+			$filters .= '&terms=' . wp_json_encode( $terms );
+		}
+		return $filters;
 	}
 
 	/**
