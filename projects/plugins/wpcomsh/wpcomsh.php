@@ -256,6 +256,21 @@ function wpcomsh_bypass_jetpack_sso_login() {
 add_filter( 'jetpack_sso_bypass_login_forward_wpcom', 'wpcomsh_bypass_jetpack_sso_login' );
 
 /**
+ * Add 'loggedout' to the list of actions that allow the wpcom login form to be used.
+ *
+ * This means that the login screen the user sees immediately after logging out is consistent
+ * with the login screen the user sees when they are not logged in: the wpcom login form.
+ *
+ * @param array $allowed_actions The allowed actions.
+ * @return array The modified allowed actions.
+ */
+function wpcomsh_modify_jetpack_sso_allowed_actions( $allowed_actions ) {
+	$allowed_actions[] = 'loggedout';
+	return $allowed_actions;
+}
+add_filter( 'jetpack_sso_allowed_actions', 'wpcomsh_modify_jetpack_sso_allowed_actions' );
+
+/**
  * Overwrite the default value of SSO "Match by Email" setting.
  * p9o2xV-2zY-p2
  */
