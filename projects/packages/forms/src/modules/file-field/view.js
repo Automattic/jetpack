@@ -37,16 +37,23 @@ const addFileToContext = file => {
 	reader.readAsDataURL( file );
 	reader.onload = withScope( () => {
 		const context = getContext();
+		const config = getConfig( NAMESPACE );
 		const fileId = performance.now() + '-' + Math.random();
+
+		let error = null;
+		if ( file.size > config.maxUploadSize ) {
+			error = config.i18n.fileTooLarge;
+		}
 		context.files.push( {
 			name: file.name,
 			url: 'url(' + reader.result + ')',
 			formattedSize: formatBytes( file.size, 2 ),
 			hasToken: false,
 			id: fileId,
+			error,
 		} );
 		context.hasFiles = true;
-		uploadFile( file, fileId );
+		! error && uploadFile( file, fileId );
 	} );
 };
 
