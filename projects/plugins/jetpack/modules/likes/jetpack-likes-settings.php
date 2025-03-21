@@ -1,5 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings;
 
 /**
@@ -8,17 +9,17 @@ use Automattic\Jetpack\Sync\Settings;
 class Jetpack_Likes_Settings {
 
 	/**
-	 * False if running on WPCOM Simple
+	 * Determines whether the module runs in the Jetpack plugin, as opposed to WP.com Simple site environment
 	 *
 	 * @var bool
 	 */
-	public $in_jetpack;
+	public $in_jetpack = true;
 
 	/**
 	 * Constructor function.
 	 */
 	public function __construct() {
-		$this->in_jetpack = ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+		$this->in_jetpack = ! ( new Host() )->is_wpcom_simple();
 	}
 
 	/**
