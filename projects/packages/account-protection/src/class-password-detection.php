@@ -61,8 +61,8 @@ class Password_Detection {
 		}
 
 		$auth_code                = $this->email_service->generate_auth_code();
-		$existing_transient_token = get_transient( Config::TRANSIENT_PREFIX . "_last_valid_token_{$user->ID}" );
-		$existing_transient       = $existing_transient_token ? get_transient( Config::TRANSIENT_PREFIX . "_{$existing_transient_token}" ) : null;
+		$existing_transient_token = get_transient( Config::PREFIX . "_last_valid_token_{$user->ID}" );
+		$existing_transient       = $existing_transient_token ? get_transient( Config::PREFIX . "_{$existing_transient_token}" ) : null;
 
 		if ( $existing_transient && isset( $existing_transient['requests'] ) &&
 			$existing_transient['requests'] >= Config::PASSWORD_DETECTION_EMAIL_REQUEST_LIMIT ) {
@@ -103,7 +103,7 @@ class Password_Detection {
 				$existing_transient['auth_code'] = $auth_code;
 				$existing_transient['requests']  = ( $existing_transient['requests'] ?? 0 ) + 1;
 
-				if ( ! set_transient( Config::TRANSIENT_PREFIX . "_{$existing_transient_token}", $existing_transient, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION ) ) {
+				if ( ! set_transient( Config::PREFIX . "_{$existing_transient_token}", $existing_transient, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION ) ) {
 					$this->set_transient_error(
 						$user->ID,
 						array(
@@ -182,7 +182,7 @@ class Password_Detection {
 		}
 
 		$token          = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : null;
-		$transient_data = get_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
+		$transient_data = get_transient( Config::PREFIX . "_{$token}" );
 		if ( ! $transient_data ) {
 			$this->redirect_to_login();
 			// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
@@ -280,8 +280,8 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function render_content( \WP_User $user, string $token ): void {
-		$error_transient_key   = Config::TRANSIENT_PREFIX . "_error_{$user->ID}";
-		$success_transient_key = Config::TRANSIENT_PREFIX . "_success_{$user->ID}";
+		$error_transient_key   = Config::PREFIX . "_error_{$user->ID}";
+		$success_transient_key = Config::PREFIX . "_success_{$user->ID}";
 
 		$error_data   = $this->extract_and_clear_transient_data( $error_transient_key );
 		$success_data = $this->extract_and_clear_transient_data( $success_transient_key );
@@ -408,6 +408,21 @@ class Password_Detection {
 			return false;
 		}
 
+		/**
+		 * Filter which determines whether or not password detection should be applied for the provided user.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool     $requires_protection Whether or not password detection should be applied.
+		 * @param \WP_User $user                The user object to apply the filter against.
+		 */
+
+		$user_requires_protection = apply_filters( 'jetpack_account_protection_user_requires_protection', true, $user );
+
+		if ( ! $user_requires_protection ) {
+			return false;
+		}
+
 		return wp_check_password( $password, $user->user_pass, $user->ID );
 	}
 
@@ -428,8 +443,8 @@ class Password_Detection {
 			'requests'  => 1,
 		);
 
-		$set_token_transient = set_transient( Config::TRANSIENT_PREFIX . "_{$token}", $data, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION );
-		$set_user_transient  = set_transient( Config::TRANSIENT_PREFIX . "_last_valid_token_{$user_id}", $token, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION );
+		$set_token_transient = set_transient( Config::PREFIX . "_{$token}", $data, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION );
+		$set_user_transient  = set_transient( Config::PREFIX . "_last_valid_token_{$user_id}", $token, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION );
 		if ( ! $set_token_transient || ! $set_user_transient ) {
 			$this->set_transient_error(
 				$user_id,
@@ -483,8 +498,8 @@ class Password_Detection {
 				)
 			);
 
-			delete_transient( Config::TRANSIENT_PREFIX . "_{$token}" );
-			delete_transient( Config::TRANSIENT_PREFIX . "_last_valid_token_{$user->ID}" );
+			delete_transient( Config::PREFIX . "_{$token}" );
+			delete_transient( Config::PREFIX . "_last_valid_token_{$user->ID}" );
 			wp_set_auth_cookie( $user->ID, true );
 			wp_set_current_user( $user->ID );
 		} else {
@@ -508,7 +523,7 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function set_transient_success( int $user_id, array $success, int $expiration = 60 ): void {
-		set_transient( Config::TRANSIENT_PREFIX . "_success_{$user_id}", $success, $expiration );
+		set_transient( Config::PREFIX . "_success_{$user_id}", $success, $expiration );
 	}
 
 	/**
@@ -521,7 +536,7 @@ class Password_Detection {
 	 * @return void
 	 */
 	public function set_transient_error( int $user_id, array $error, int $expiration = 60 ): void {
-		set_transient( Config::TRANSIENT_PREFIX . "_error_{$user_id}", $error, $expiration );
+		set_transient( Config::PREFIX . "_error_{$user_id}", $error, $expiration );
 	}
 
 	/**
