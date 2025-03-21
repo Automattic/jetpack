@@ -66,10 +66,6 @@ class Quality_Settings implements Pluggable, Is_Always_On, Has_Data_Sync, Change
 		$instance->register( 'image_cdn_quality', $image_cdn_quality_schema );
 	}
 
-	public function is_ready() {
-		return true;
-	}
-
 	public static function get_change_output_action_names() {
 		return array( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_image_cdn_quality' );
 	}

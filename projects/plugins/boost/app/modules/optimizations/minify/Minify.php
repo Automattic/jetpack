@@ -22,13 +22,6 @@ class Minify implements Pluggable, Optimization, Has_Activate, Has_Deactivate, H
 		return 'minify';
 	}
 
-	/**
-	 * The module is ready when at least one child module is active
-	 */
-	public function is_ready() {
-		return jetpack_boost_minify_is_enabled();
-	}
-
 	public function register_data_sync( Data_Sync $instance ) {
 		$instance->register_readonly(
 			'minify_legacy_notice',

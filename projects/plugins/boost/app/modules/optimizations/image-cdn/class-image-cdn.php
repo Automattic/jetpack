@@ -18,15 +18,6 @@ class Image_CDN implements Pluggable, Changes_Output_On_Activation, Optimization
 		return 'image_cdn';
 	}
 
-	/**
-	 * The module starts serving as soon as it's enabled.
-	 *
-	 * @return bool
-	 */
-	public function is_ready() {
-		return true;
-	}
-
 	public static function is_available() {
 		return true;
 	}

@@ -2,12 +2,12 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
-use Automattic\Jetpack_Boost\Contracts\Can_Check_If_Optimizing;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
+use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -108,11 +108,7 @@ class Module {
 			return false;
 		}
 
-		if ( $this->feature instanceof Can_Check_If_Optimizing && ! $this->feature->is_optimizing() ) {
-			return false;
-		}
-
-		if ( $this->feature instanceof Changes_Output_After_Activation && ! $this->feature->is_ready() ) {
+		if ( $this->feature instanceof Needs_To_Be_Ready && ! $this->feature->is_ready() ) {
 			return false;
 		}
 

@@ -75,15 +75,6 @@ class Render_Blocking_JS implements Pluggable, Changes_Output_On_Activation, Opt
 		add_filter( 'do_shortcode_tag', array( $this, 'add_ignore_attribute' ) );
 	}
 
-	/**
-	 * The module starts serving as soon as it's enabled.
-	 *
-	 * @return bool
-	 */
-	public function is_ready() {
-		return true;
-	}
-
 	public static function is_available() {
 		return true;
 	}
