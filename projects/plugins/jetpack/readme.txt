@@ -326,16 +326,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.5-a.5 - 2025-03-17
+### 14.5-a.7 - 2025-03-18
 #### Enhancements
-- Social: Add "Schedule" functionality to the Share Post modal.
+- Forms: Add quick link in the admin bar for form entries.
 
 #### Bug fixes
-- Forms: Fix core list bullets not showing.
-- Slideshow: Fix misaligned controls in site editor.
-- Social: Resolve connection issues with LinkedIn company pages and Tumblr additional blogs.
-- Twitter Timeline Widget: Prevent broken links when using Twitter's deprecated data-widget-id approach.
-- VideoPress Block: Fix broken undo functionality.
+- Forms: Add a default label for textarea fields.
+- Forms: Remove Google Drive beta badge.
+- Forms: Remove Salesforce beta badge.
 
 --------
 

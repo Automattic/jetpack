@@ -144,6 +144,54 @@ class Password_Detection_Test extends BaseTestCase {
 		remove_filter( 'check_password', '__return_true' );
 	}
 
+	public function test_set_transient_success_sets_correct_transient() {
+		$sut          = new Password_Detection();
+		$user_id      = 1;
+		$success_data = array(
+			'code'    => 'success_code',
+			'message' => 'Success message',
+		);
+
+		$sut->set_transient_success( $user_id, $success_data );
+
+		$this->assertSame(
+			$success_data,
+			get_transient( Config::TRANSIENT_PREFIX . "_success_{$user_id}" )
+		);
+	}
+
+	public function test_set_transient_error_sets_correct_transient() {
+		$sut        = new Password_Detection();
+		$user_id    = 1;
+		$error_data = array(
+			'code'    => 'error_code',
+			'message' => 'Error message',
+		);
+
+		$sut->set_transient_error( $user_id, $error_data );
+
+		$this->assertSame(
+			$error_data,
+			get_transient( Config::TRANSIENT_PREFIX . "_error_{$user_id}" )
+		);
+	}
+
+	public function test_extract_and_clear_transient_data_retrieves_and_deletes_transient() {
+		$transient_key  = 'test_transient';
+		$transient_data = array(
+			'message' => 'Test Message',
+			'code'    => 'test_code',
+		);
+
+		set_transient( $transient_key, $transient_data );
+
+		$sut    = new Password_Detection();
+		$result = $sut->extract_and_clear_transient_data( $transient_key );
+
+		$this->assertSame( $transient_data, $result );
+		$this->assertFalse( get_transient( $transient_key ) );
+	}
+
 	public function test_render_page_redirects_to_admin_page_if_user_already_logged_in(): void {
 		$sut = $this->createPartialMock( Password_Detection::class, array( 'redirect_and_exit' ) );
 		$sut->expects( $this->once() )

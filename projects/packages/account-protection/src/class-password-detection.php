@@ -259,7 +259,7 @@ class Password_Detection {
 	 * @param string $transient_key The transient key.
 	 * @return array An array containing 'message' and 'code'.
 	 */
-	private function extract_and_clear_transient_data( string $transient_key ): array {
+	public function extract_and_clear_transient_data( string $transient_key ): array {
 		$data = get_transient( $transient_key );
 		delete_transient( $transient_key );
 
@@ -501,7 +501,7 @@ class Password_Detection {
 	 *
 	 * @return void
 	 */
-	private function set_transient_success( int $user_id, array $success, int $expiration = 60 ): void {
+	public function set_transient_success( int $user_id, array $success, int $expiration = 60 ): void {
 		set_transient( Config::TRANSIENT_PREFIX . "_success_{$user_id}", $success, $expiration );
 	}
 
@@ -514,7 +514,7 @@ class Password_Detection {
 	 *
 	 * @return void
 	 */
-	private function set_transient_error( int $user_id, array $error, int $expiration = 60 ): void {
+	public function set_transient_error( int $user_id, array $error, int $expiration = 60 ): void {
 		set_transient( Config::TRANSIENT_PREFIX . "_error_{$user_id}", $error, $expiration );
 	}
 
@@ -529,7 +529,7 @@ class Password_Detection {
 			return;
 		}
 		// No nonce verification necessary - reading only
-		// phpcs:disable WordPress.Security.NonceVerification
+		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $_GET['action'] ) && $_GET['action'] === 'password-detection' ) {
 			wp_enqueue_style(
 				'password-detection-styles',

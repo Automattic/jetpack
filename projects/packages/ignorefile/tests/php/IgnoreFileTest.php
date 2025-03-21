@@ -181,7 +181,7 @@ class IgnoreFileTest extends TestCase {
 				$this->assertEquals( $expect, $actual, "Testing $path" );
 			}
 			if ( $skip ) {
-				$this->addWarning( 'This test is marked as "nogit" but passes. Maybe the "nogit" can be removed?' );
+				trigger_error( 'This test is marked as "nogit" but passes. Maybe the "nogit" can be removed?', E_USER_WARNING );
 			}
 		} catch ( Exception $ex ) {
 			if ( $skip && $ex instanceof ExpectationFailedException ) {

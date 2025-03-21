@@ -275,6 +275,12 @@
 	color: #4f3500;
 }
 
+.site__info > .site__badge.site__badge-private {
+	background: transparent;
+	color: inherit;
+	border: solid 1px color-mix( in srgb, currentColor 50%, transparent );
+}
+
 /**
  * Inline text in a menu title
  */
