@@ -1,4 +1,4 @@
-import { Text } from '@automattic/jetpack-components';
+import { TermsOfService, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import preventWidows from '../../../utils/prevent-widows';
 import styles from './connection-form.module.scss';
@@ -41,7 +41,9 @@ const ConnectionForm = () => {
 
 			<Separator />
 
-			<EmailInput />
+			<EmailInput isDisabled={ false } />
+
+			<TermsOfService isTextOnly={ true } className={ styles.tos } />
 		</div>
 	);
 };
