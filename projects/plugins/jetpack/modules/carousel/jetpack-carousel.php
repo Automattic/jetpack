@@ -8,6 +8,8 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Jetpack_Carousel class.
  */
@@ -43,7 +45,7 @@ class Jetpack_Carousel {
 	public $in_gallery = false;
 
 	/**
-	 * Determines whether the Jetpack class and method exists. Default is true.
+	 * Determines whether the module runs in the Jetpack plugin, as opposed to WP.com Simple site environment
 	 *
 	 * @var bool
 	 */
@@ -78,7 +80,7 @@ class Jetpack_Carousel {
 			return;
 		}
 
-		$this->in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
+		$this->in_jetpack = ! ( new Host() )->is_wpcom_simple();
 
 		$this->single_image_gallery_enabled            = ! $this->maybe_disable_jp_carousel_single_images();
 		$this->single_image_gallery_enabled_media_file = $this->maybe_enable_jp_carousel_single_images_media_file();
