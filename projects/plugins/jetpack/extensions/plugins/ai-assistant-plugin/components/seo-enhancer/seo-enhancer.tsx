@@ -114,19 +114,21 @@ export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhanc
 					) }
 				</BaseControl>
 			</PanelRow>
-			<PanelRow className="jetpack-seo-sidebar__feature-section">
-				<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
-					<Button
-						isBusy={ isLoading }
-						disabled={ isLoading }
-						onClick={ generateHandler }
-						variant="secondary"
-						__next40pxDefaultSize
-					>
-						{ __( 'Generate metadata', 'jetpack' ) }
-					</Button>
-				</BaseControl>
-			</PanelRow>
+			{ ! isEnabled && (
+				<PanelRow className="jetpack-seo-sidebar__feature-section">
+					<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
+						<Button
+							isBusy={ isLoading }
+							disabled={ isLoading }
+							onClick={ generateHandler }
+							variant="secondary"
+							__next40pxDefaultSize
+						>
+							{ __( 'Generate metadata', 'jetpack' ) }
+						</Button>
+					</BaseControl>
+				</PanelRow>
+			) }
 		</>
 	);
 }
