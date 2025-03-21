@@ -170,7 +170,7 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
 
-		// Add a hook to fire page output changed action when a module that Changes_Output_After_Activation indicate something has changed.
+		// Add a hook to fire page output changed action when a module that Changes_Output_After_Activation indicates something has changed.
 		foreach ( $this->available_modules as $module ) {
 			$feature = $module->feature;
 			if ( $module->is_enabled() && $feature instanceof Changes_Output_After_Activation ) {
