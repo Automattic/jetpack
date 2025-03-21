@@ -402,6 +402,21 @@ class Password_Detection {
 			return false;
 		}
 
+		/**
+		 * Filter which determines whether or not password detection should be applied for the provided user.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool     $requires_protection Whether or not password detection should be applied.
+		 * @param \WP_User $user                The user object to apply the filter against.
+		 */
+
+		$user_requires_protection = apply_filters( 'jetpack_account_protection_user_requires_protection', true, $user );
+
+		if ( ! $user_requires_protection ) {
+			return false;
+		}
+
 		return wp_check_password( $password, $user->user_pass, $user->ID );
 	}
 
