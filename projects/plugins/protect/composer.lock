@@ -66,7 +66,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/account-protection",
-                "reference": "6533d089f80896e3a692c8e69a947eebc7caf4e3"
+                "reference": "f28f8f4f15238256f9f5ea8c22aac22113dff87d"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
