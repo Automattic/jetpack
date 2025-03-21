@@ -49,7 +49,7 @@ const SiteVisibility = ( {
 
 	return (
 		<>
-			<p>
+			<p className="description">
 				{ __( 'Control who can view your site.', 'jetpack-mu-wpcom' ) }
 				&nbsp;
 				<a
