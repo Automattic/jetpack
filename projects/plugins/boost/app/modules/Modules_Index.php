@@ -33,6 +33,11 @@ class Modules_Index {
 	protected $available_modules = array();
 
 	/**
+	 * @var Module[] - Associative array of available Jetpack Boost submodules.
+	 */
+	protected $available_submodules = array();
+
+	/**
 	 * @var class-string<Pluggable>[] - Classes that handle all Jetpack Boost features.
 	 */
 	const FEATURES = array(
@@ -65,6 +70,12 @@ class Modules_Index {
 			$this->modules[ $feature::get_slug() ] = new Module( new $feature() );
 			if ( $feature::is_available() ) {
 				$this->available_modules[ $feature::get_slug() ] = $this->modules[ $feature::get_slug() ];
+			}
+		}
+
+		foreach ( self::SUB_FEATURES as $feature ) {
+			if ( $feature::is_available() ) {
+				$this->available_submodules[ $feature::get_slug() ] = new Module( new $feature() );
 			}
 		}
 	}
@@ -123,6 +134,13 @@ class Modules_Index {
 	}
 
 	public function get_module_instance_by_slug( $slug ) {
-		return $this->available_modules[ $slug ] ?? false;
+		if ( isset( $this->available_modules[ $slug ] ) ) {
+			return $this->available_modules[ $slug ];
+		}
+
+		if ( isset( $this->available_submodules[ $slug ] ) ) {
+			return $this->available_submodules[ $slug ];
+		}
+		return false;
 	}
 }
