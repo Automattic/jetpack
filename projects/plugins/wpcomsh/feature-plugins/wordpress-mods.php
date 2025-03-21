@@ -219,7 +219,7 @@ function wpcomsh_site_status_tests_disable( $tests ) {
 	unset( $tests['direct']['plugin_version'] );
 	unset( $tests['direct']['theme_version'] );
 	unset( $tests['direct']['wordpress_version'] );
-	
+
 	return $tests;
 }
 add_filter( 'site_status_tests', 'wpcomsh_site_status_tests_disable' );
