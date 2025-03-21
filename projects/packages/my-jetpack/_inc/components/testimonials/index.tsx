@@ -1,6 +1,6 @@
 import { DotPager } from '@automattic/jetpack-components';
 
-import './testimonial-style.scss';
+import './style.scss';
 
 const Testimonials: React.FC = () => {
 	return (
@@ -8,11 +8,9 @@ const Testimonials: React.FC = () => {
 			<DotPager>
 				<div className="testimonial1">
 					<div className="testimonial-content">
-						<p className="header">
-							<div>Grow your audience with Jetpack.</div>
-							<div>Speed up your site.</div>
-							<div>Keep it secure.</div>
-						</p>
+						<p className="header">Grow your audience with Jetpack.</p>
+						<p className="header">Speed up your site</p>
+						<p className="header">Keep it secure.</p>
 					</div>
 				</div>
 				<div className="testimonial2">
