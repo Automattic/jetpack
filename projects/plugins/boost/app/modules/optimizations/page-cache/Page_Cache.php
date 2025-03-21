@@ -48,7 +48,7 @@ class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submod
 	public function setup() {
 		Garbage_Collection::setup();
 
-		add_action( 'jetpack_boost_page_output_changed', array( $this, 'invalidate_cache' ) );
+		add_action( 'jetpack_boost_page_output_changed', array( $this, 'handle_page_output_change' ) );
 	}
 
 	public function register_data_sync( Data_Sync $instance ) {
@@ -79,7 +79,14 @@ class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submod
 		$instance->register_action( 'page_cache', 'deactivate-wpsc', Schema::as_void(), new Deactivate_WPSC() );
 	}
 
-	public function invalidate_cache() {
+	public function handle_page_output_change() {
+		$this->invalidate_cache();
+
+		// Remove the action so it doesn't run again during the same request.
+		remove_action( 'jetpack_boost_page_output_changed', array( $this, 'handle_page_output_change' ) );
+	}
+
+	private function invalidate_cache() {
 		$cache = new Boost_Cache();
 		$cache->get_storage()->invalidate( home_url(), Filesystem_Utils::DELETE_ALL );
 	}

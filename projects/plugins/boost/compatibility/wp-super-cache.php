@@ -38,5 +38,8 @@ function clear_cache() {
 	if ( function_exists( 'wp_cache_clear_cache' ) ) {
 		wp_cache_clear_cache( $wpdb->blogid );
 	}
+
+	// Remove the action so it doesn't run again during the same request.
+	remove_action( 'jetpack_boost_page_output_changed', __NAMESPACE__ . '\clear_cache' );
 }
 add_action( 'jetpack_boost_page_output_changed', __NAMESPACE__ . '\clear_cache' );
