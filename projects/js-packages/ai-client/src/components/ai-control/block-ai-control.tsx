@@ -224,7 +224,7 @@ export function BlockAIControl(
 			{ showAccept && ! editRequest && (
 				<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 					{ ( value?.length > 0 || lastValue === null ) && (
-						<Flex gap={ 1 } className="jetpack-components-ai-control__button-group">
+						<Flex gap={ 1 } role="group" className="jetpack-components-ai-control__button-group">
 							<Button
 								className="jetpack-components-ai-control__controls-prompt_button"
 								label={ __( 'Discard', 'jetpack-ai-client' ) }
