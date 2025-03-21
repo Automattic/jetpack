@@ -190,7 +190,7 @@ export function ExtensionAIControl(
 					) }
 					{ isDone && (
 						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
-							<Flex gap={ 1 } className="jetpack-components-ai-control__button-group">
+							<Flex gap={ 1 } role="group" className="jetpack-components-ai-control__button-group">
 								<Button
 									className="jetpack-components-ai-control__controls-prompt_button"
 									label={ __( 'Undo', 'jetpack-ai-client' ) }
