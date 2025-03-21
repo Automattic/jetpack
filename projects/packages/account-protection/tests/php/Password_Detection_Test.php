@@ -33,7 +33,7 @@ class Password_Detection_Test extends BaseTestCase {
 	}
 
 	public function test_login_form_password_detection_does_not_ask_validation_service_if_user_requires_protection_filter_applied(): void {
-		add_filter( Config::TRANSIENT_PREFIX . '_user_requires_protection', '__return_false' );
+		add_filter( Config::PREFIX . '_user_requires_protection', '__return_false' );
 
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->never() )
@@ -47,7 +47,7 @@ class Password_Detection_Test extends BaseTestCase {
 		$return = $sut->login_form_password_detection( $user, 'pw' );
 		$this->assertSame( $user, $return, 'User should be returned.' );
 
-		remove_filter( Config::TRANSIENT_PREFIX . '_user_requires_protection', '__return_false' );
+		remove_filter( Config::PREFIX . '_user_requires_protection', '__return_false' );
 	}
 
 	public function test_login_form_password_detection_does_not_ask_validation_service_if_user_has_wrong_password(): void {
