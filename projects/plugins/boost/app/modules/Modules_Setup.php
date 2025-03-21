@@ -7,6 +7,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -171,24 +172,39 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
 
 		// Add a hook to fire page output changed action when a module that Changes_Output_After_Activation indicates something has changed.
+		$sub_features_to_check = array();
 		foreach ( $this->available_modules as $module ) {
-			if ( ! $module->is_enabled() ) {
-				continue;
-			}
+			$this->notice_page_output_change_of_module( $module );
 
-			$feature = $module->feature;
-			if ( ! ( $feature instanceof Changes_Output_After_Activation ) ) {
-				continue;
+			if ( $module->feature instanceof Has_Submodules ) {
+				$sub_features_to_check = array_merge( $sub_features_to_check, $module->feature->get_submodules() );
 			}
+		}
+		$sub_features_to_check = array_unique( $sub_features_to_check );
+		foreach ( $sub_features_to_check as $sub_feature_class ) {
+			$sub_feature = new $sub_feature_class();
+			$module      = new Module( $sub_feature );
+			$this->notice_page_output_change_of_module( $module );
+		}
+	}
 
-			$action_names = $feature::get_change_output_action_names();
-			if ( empty( $action_names ) ) {
-				continue;
-			}
+	private function notice_page_output_change_of_module( $module ) {
+		if ( ! $module->is_enabled() ) {
+			return;
+		}
 
-			foreach ( $action_names as $action ) {
-				add_action( $action, array( $module, 'indicate_page_output_changed' ), 10, 1 );
-			}
+		$feature = $module->feature;
+		if ( ! ( $feature instanceof Changes_Output_After_Activation ) ) {
+			return;
+		}
+
+		$action_names = $feature::get_change_output_action_names();
+		if ( empty( $action_names ) ) {
+			return;
+		}
+
+		foreach ( $action_names as $action ) {
+			add_action( $action, array( $module, 'indicate_page_output_changed' ), 10, 1 );
 		}
 	}
 
