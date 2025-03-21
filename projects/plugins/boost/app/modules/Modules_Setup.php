@@ -7,7 +7,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
-use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
+use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -16,28 +16,46 @@ use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 class Modules_Setup implements Has_Setup, Has_Data_Sync {
-	/**
-	 * @var Modules_Index
-	 */
-	protected $modules_index = array();
 
 	/**
-	 * @var Module[] - Associative array of all Jetpack Boost modules currently available.
+	 * @var Module[]
 	 */
 	protected $available_modules = array();
 
+	/**
+	 * @var Module[]
+	 */
+	protected $available_submodules = array();
+
 	public function __construct() {
-		$this->modules_index     = new Modules_Index();
-		$this->available_modules = $this->modules_index->available_modules();
+		$this->available_modules    = $this->get_available_modules();
+		$this->available_submodules = $this->get_available_submodules();
 	}
 
-	public function have_enabled_modules() {
-		foreach ( $this->available_modules as $module ) {
-			if ( $module->is_enabled() ) {
-				return true;
+	public function get_available_modules() {
+		$available_modules = array();
+		foreach ( Features_Index::FEATURES as $feature ) {
+			$module = new Module( new $feature() );
+			if ( $module->is_available() ) {
+				$available_modules[ $feature::get_slug() ] = $module;
 			}
 		}
-		return false;
+		return $available_modules;
+	}
+
+	public function get_available_submodules() {
+		$available_submodules = array();
+		foreach ( Features_Index::SUB_FEATURES as $feature ) {
+			$module = new Module( new $feature() );
+			if ( $module->is_available() ) {
+				$available_submodules[ $feature::get_slug() ] = $module;
+			}
+		}
+		return $available_submodules;
+	}
+
+	public function get_available_modules_and_submodules() {
+		return array_merge( $this->available_modules, $this->available_submodules );
 	}
 
 	/**
@@ -47,7 +65,7 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	 */
 	public function get_ready_active_optimization_modules() {
 		$working_modules = array();
-		foreach ( $this->available_modules as $slug => $module ) {
+		foreach ( $this->get_available_modules_and_submodules() as $slug => $module ) {
 			if ( $module->is_optimizing() ) {
 				$working_modules[] = $slug;
 			}
@@ -57,7 +75,7 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 
 	public function get_status() {
 		$status = array();
-		foreach ( $this->available_modules as $slug => $module ) {
+		foreach ( $this->get_available_modules_and_submodules() as $slug => $module ) {
 			$status[ $slug ] = $module->is_enabled();
 		}
 		return $status;
@@ -69,19 +87,29 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	 *
 	 * @return bool|void
 	 */
-	public function register_always_available_endpoints( $feature ) {
-		if ( ! $feature instanceof Has_Always_Available_Endpoints ) {
-			return false;
-		}
+	public function register_always_available_endpoints() {
+		$features = array_merge( Features_Index::FEATURES, Features_Index::SUB_FEATURES );
+		foreach ( $features as $feature_class ) {
+			$feature = new $feature_class();
 
-		if ( empty( $feature->get_always_available_endpoints() ) ) {
-			return false;
-		}
+			if ( ! $feature instanceof Has_Always_Available_Endpoints || ! $feature instanceof Pluggable ) {
+				continue;
+			}
 
-		REST_API::register( $feature->get_always_available_endpoints() );
+			if ( empty( $feature->get_always_available_endpoints() ) ) {
+				return false;
+			}
+
+			$module = new Module( $feature );
+			if ( ! $module->is_available() ) {
+				continue;
+			}
+
+			REST_API::register( $feature->get_always_available_endpoints() );
+		}
 	}
 
-	public function setup_modules_data_sync( $modules ) {
+	private function setup_modules_data_sync( $modules ) {
 		foreach ( $modules as $module ) {
 			$this->register_feature_data_sync( $module->feature );
 
@@ -134,15 +162,17 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 			)
 		)->fallback( array() );
 
-		$entry = new Modules_State_Entry( array_merge( Modules_Index::FEATURES, Modules_Index::SUB_FEATURES ) );
+		$entry = new Modules_State_Entry( array_merge( Features_Index::FEATURES, Features_Index::SUB_FEATURES ) );
 		$instance->register( 'modules_state', $modules_state_schema, $entry );
 	}
 
-	private function init_modules( $modules ) {
+	/**
+	 * Initialize the modules.
+	 *
+	 * @param Module[] $modules The modules to initialize.
+	 */
+	private function init_modules( array $modules ) {
 		foreach ( $modules as $slug => $module ) {
-
-			$this->register_always_available_endpoints( $module->feature );
-
 			if ( ! $module->is_enabled() ) {
 				continue;
 			}
@@ -167,23 +197,13 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	public function setup() {
 		// We need to setup data sync outside of plugins_loaded to prevent side effects on other classes that are loaded from other actions earlier.
 		self::register_data_sync( Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE ) );
-		$this->setup_modules_data_sync( $this->modules_index->get_modules() );
+		$this->setup_modules_data_sync( $this->available_modules );
+		$this->register_always_available_endpoints();
 		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
 
 		// Add a hook to fire page output changed action when a module that Changes_Output_After_Activation indicates something has changed.
-		$sub_features_to_check = array();
-		foreach ( $this->available_modules as $module ) {
-			$this->notice_page_output_change_of_module( $module );
-
-			if ( $module->feature instanceof Has_Submodules ) {
-				$sub_features_to_check = array_merge( $sub_features_to_check, $module->feature->get_submodules() );
-			}
-		}
-		$sub_features_to_check = array_unique( $sub_features_to_check );
-		foreach ( $sub_features_to_check as $sub_feature_class ) {
-			$sub_feature = new $sub_feature_class();
-			$module      = new Module( $sub_feature );
+		foreach ( $this->get_available_modules_and_submodules() as $module ) {
 			$this->notice_page_output_change_of_module( $module );
 		}
 	}
@@ -215,7 +235,8 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	 * @param bool   $is_activated The new status.
 	 */
 	public function on_module_status_update( $module_slug, $is_activated ) {
-		$module = $this->modules_index->get_module_instance_by_slug( $module_slug );
+		$modules = $this->get_available_modules_and_submodules();
+		$module  = $modules[ $module_slug ];
 
 		if ( ! $module ) {
 			return;

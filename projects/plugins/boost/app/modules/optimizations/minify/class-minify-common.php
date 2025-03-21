@@ -8,10 +8,11 @@ use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
+use Automattic\Jetpack_Boost\Contracts\Is_Sub_Feature;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
-class Minify_Common implements Pluggable, Optimization, Has_Setup, Is_Always_On, Has_Activate, Has_Deactivate, Has_Data_Sync {
+class Minify_Common implements Pluggable, Optimization, Has_Setup, Is_Always_On, Has_Activate, Has_Deactivate, Has_Data_Sync, Is_Sub_Feature {
 
 	/**
 	 * Setup the module. This runs on every page load.
@@ -71,5 +72,12 @@ class Minify_Common implements Pluggable, Optimization, Has_Setup, Is_Always_On,
 	 */
 	public static function deactivate() {
 		jetpack_boost_minify_clear_scheduled_events();
+	}
+
+	public static function get_parent_features(): array {
+		return array(
+			Minify_JS::class,
+			Minify_CSS::class,
+		);
 	}
 }
