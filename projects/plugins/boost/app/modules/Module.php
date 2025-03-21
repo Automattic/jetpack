@@ -45,7 +45,7 @@ class Module {
 		return $this->feature instanceof Has_Deactivate ? $this->feature::deactivate() : true;
 	}
 
-	private function indicate_page_output_changed() {
+	public function indicate_page_output_changed() {
 		/**
 		 * Indicate that the HTML output of front-end has changed.
 		 *

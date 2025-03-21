@@ -187,21 +187,9 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 			}
 
 			foreach ( $action_names as $action ) {
-				add_action( $action, array( $this, 'handle_module_output_change' ), 10, 1 );
+				add_action( $action, array( $module, 'indicate_page_output_changed' ), 10, 1 );
 			}
 		}
-	}
-
-	/**
-	 * Called by action hooks added to the actions of each module that implements Changes_Output_After_Activation.
-	 */
-	public function handle_module_output_change() {
-		/**
-		 * Indicate that the HTML output of front-end has changed.
-		 *
-		 * If there is any page cache, it should be invalidated when this action is triggered.
-		 */
-		do_action( 'jetpack_boost_page_output_changed' );
 	}
 
 	/**
