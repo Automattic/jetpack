@@ -34,6 +34,7 @@ export type BreveState = {
 			};
 		};
 	};
+	lints?: Array< GrammarLint >;
 };
 
 export type BreveSelect = {
@@ -69,6 +70,7 @@ export type BreveSelect = {
 	};
 	getIgnoredSuggestions: ( { blockId }: { blockId: string } ) => Array< string >;
 	getReloadFlag: () => boolean;
+	getLints: () => Array< GrammarLint >;
 };
 
 export type BreveDispatch = {
@@ -92,6 +94,7 @@ export type BreveDispatch = {
 		blockId: string;
 		occurrence: string;
 	} ) => void;
+	setLints: ( lints: Array< GrammarLint >, feature: string ) => void;
 };
 
 export type PlansSelect = {
@@ -141,4 +144,13 @@ export type FeatureControl = {
 	enabled: boolean;
 	'min-jetpack-version': string;
 	[ key: string ]: FeatureControl | boolean | string;
+};
+
+export type GrammarLint = {
+	text: string;
+	message: string;
+	startIndex: number;
+	endIndex: number;
+	suggestions: Array< string >;
+	numSuggestions: number;
 };

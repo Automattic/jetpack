@@ -4311,6 +4311,9 @@ importers:
       gridicons:
         specifier: 3.4.1
         version: 3.4.1(react@18.3.1)
+      harper.js:
+        specifier: 0.23.0
+        version: 0.23.0
       jsdom:
         specifier: 20.0.3
         version: 20.0.3

@@ -1,16 +1,13 @@
 /**
  * External dependencies
  */
-import { CheckGrammar } from '@automattic/jetpack-ai-client';
+import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
-//import { store as grammerStore } from '../../store';
+import { WorkerLinter } from 'harper.js';
 /**
  * Types
  */
-import type { BreveFeatureConfig, HighlightedText } from '../../types';
+import type { BreveFeatureConfig, HighlightedText, BreveDispatch } from '../../types';
 
 export const GRAMMAR: BreveFeatureConfig = {
 	name: 'grammar',
@@ -25,11 +22,7 @@ export default function grammar( text: string ): Array< HighlightedText > {
 
 	CheckGrammar( text );
 
-	const grammarData = JSON.parse(
-		localStorage.getItem(
-			'grammar-poc-test' // TODO: add post ID
-		)
-	);
+	const grammarData = select( 'jetpack/ai-breve' ).getLints();
 
 	if ( ! grammarData ) {
 		return highlightedTexts;
@@ -45,4 +38,37 @@ export default function grammar( text: string ): Array< HighlightedText > {
 	}
 
 	return highlightedTexts;
+}
+
+// init Harper's linter
+const worker = new WorkerLinter();
+
+/**
+ * This is a very small Harper wraper
+ * @param text - The text to check the grammar of.
+ * @return array A list of suggestions.
+ */
+async function CheckGrammar( text: string ) {
+	const { setDictionaryLoading, setLints } = dispatch( 'jetpack/ai-breve' ) as BreveDispatch;
+
+	setDictionaryLoading( GRAMMAR, true );
+
+	const lints = await worker.lint( text );
+
+	const items = [];
+
+	for ( const lint of lints ) {
+		items.push( {
+			text,
+			message: lint.message(),
+			startIndex: lint.span().start,
+			endIndex: lint.span().end,
+			suggestions: lint.suggestions(),
+			numSuggestions: lint.suggestion_count(),
+		} );
+	}
+
+	setLints( { lints: items, feature: GRAMMAR } );
+
+	setDictionaryLoading( GRAMMAR, false );
 }

@@ -242,4 +242,31 @@ export function suggestions(
 	return state;
 }
 
-export default combineReducers( { popover, configuration, suggestions } );
+export function lints(
+	state = {},
+	action: {
+		type: string;
+		feature?: string;
+		lints?: Array< {
+			text: string;
+			message: string;
+			startIndex: number;
+			endIndex: number;
+			suggestions: Array< string >;
+			numSuggestions: number;
+		} >;
+	}
+) {
+	switch ( action.type ) {
+		case 'SET_LINTS': {
+			return {
+				...state,
+				lints: action?.lints,
+			};
+		}
+	}
+
+	return state;
+}
+
+export default combineReducers( { popover, configuration, suggestions, lints } );

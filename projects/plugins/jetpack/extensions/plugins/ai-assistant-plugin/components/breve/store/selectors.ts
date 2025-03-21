@@ -66,3 +66,8 @@ export function getSuggestions(
 export function getIgnoredSuggestions( state: BreveState, { blockId }: { blockId: string } ) {
 	return state.suggestions?.[ blockId ]?.ignored;
 }
+
+export function getLints( state: BreveState ) {
+	// TODO: for some reason lints are in state.lints.lints
+	return state.lints?.lints ?? [];
+}

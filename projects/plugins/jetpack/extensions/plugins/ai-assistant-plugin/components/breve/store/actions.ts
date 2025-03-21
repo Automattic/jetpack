@@ -171,3 +171,13 @@ export function setSuggestions( {
 			} );
 	};
 }
+
+export function setLints( { lints, feature } ) {
+	return ( { dispatch } ) => {
+		dispatch( {
+			type: 'SET_LINTS',
+			feature,
+			lints,
+		} );
+	};
+}
