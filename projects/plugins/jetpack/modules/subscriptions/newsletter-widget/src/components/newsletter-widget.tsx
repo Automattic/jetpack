@@ -1,9 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import '../style.scss';
 import { ExternalLink, Icon } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, createElement } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
+import React from 'react';
 import { buildJPRedirectSource, formatNumber, getSubscriberStatsUrl } from '../helpers';
 import { SubscribersChart } from './subscribers-chart';
 import type { SubscriberTotalsByDate } from '../types';
@@ -31,6 +32,24 @@ export const NewsletterWidget = ( {
 	const showChart = Object.values( subscriberTotalsByDate ).some(
 		day => day?.all >= 5 || day?.paid > 0
 	);
+
+	const learnMoreLink = isWpcomSite ? (
+		<a
+			href={ getRedirectUrl(
+				buildJPRedirectSource( 'learn/courses/newsletters-101/wordpress-com-newsletter' )
+			) }
+		/>
+	) : (
+		<ExternalLink
+			href={ getRedirectUrl(
+				buildJPRedirectSource( 'learn/courses/newsletters-101/wordpress-com-newsletter' )
+			) }
+		/>
+	);
+
+	const newsletterSettingsLink = isWpcomSite
+		? getRedirectUrl( buildJPRedirectSource( 'settings/newsletter/' + site ) )
+		: `${ adminUrl }admin.php?page=jetpack#newsletter`;
 
 	return (
 		<div className="newsletter-widget">
@@ -92,15 +111,7 @@ export const NewsletterWidget = ( {
 							'jetpack'
 						),
 						{
-							link: (
-								<ExternalLink
-									href={ getRedirectUrl(
-										buildJPRedirectSource(
-											'learn/courses/newsletters-101/wordpress-com-newsletter'
-										)
-									) }
-								/>
-							),
+							link: learnMoreLink,
 						}
 					) }
 				</p>
@@ -113,54 +124,54 @@ export const NewsletterWidget = ( {
 							</a>
 						</li>
 						<li>
-							<ExternalLink href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }>
-								{ __( 'View subscriber stats', 'jetpack' ) }
-							</ExternalLink>
+							{ createElement(
+								isWpcomSite ? 'a' : ExternalLink,
+								{ href: getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) },
+								__( 'View subscriber stats', 'jetpack' )
+							) }
 						</li>
 						<li>
-							<ExternalLink
-								href={ getRedirectUrl(
-									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite ),
-									{ anchor: 'add-subscribers' }
-								) }
-							>
-								{ __( 'Import subscribers', 'jetpack' ) }
-							</ExternalLink>
+							{ createElement(
+								isWpcomSite ? 'a' : ExternalLink,
+								{
+									href: getRedirectUrl(
+										buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite ),
+										{ anchor: 'add-subscribers' }
+									),
+								},
+								__( 'Import subscribers', 'jetpack' )
+							) }
 						</li>
 						<li>
-							<ExternalLink
-								href={ getRedirectUrl(
-									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite )
-								) }
-							>
-								{ __( 'Manage subscribers', 'jetpack' ) }
-							</ExternalLink>
+							{ createElement(
+								isWpcomSite ? 'a' : ExternalLink,
+								{
+									href: getRedirectUrl(
+										buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite )
+									),
+								},
+								__( 'Manage subscribers', 'jetpack' )
+							) }
 						</li>
 						<li>
-							<ExternalLink
-								href={ getRedirectUrl(
-									buildJPRedirectSource(
-										`${ isWpcomSite ? 'earn' : 'monetize' }/${ site }`,
-										isWpcomSite
-									)
-								) }
-							>
-								{ __( 'Monetize', 'jetpack' ) }
-							</ExternalLink>
+							{ createElement(
+								isWpcomSite ? 'a' : ExternalLink,
+								{
+									href: getRedirectUrl(
+										buildJPRedirectSource(
+											`${ isWpcomSite ? 'earn' : 'monetize' }/${ site }`,
+											isWpcomSite
+										)
+									),
+								},
+								__( 'Monetize', 'jetpack' )
+							) }
 						</li>
 						<li>
-							{ isWpcomSite ? (
-								<ExternalLink
-									href={ getRedirectUrl(
-										buildJPRedirectSource( `settings/newsletter/${ site }` )
-									) }
-								>
-									{ __( 'Newsletter settings', 'jetpack' ) }
-								</ExternalLink>
-							) : (
-								<a href={ `${ adminUrl }admin.php?page=jetpack#newsletter` }>
-									{ __( 'Newsletter settings', 'jetpack' ) }
-								</a>
+							{ createElement(
+								isWpcomSite ? 'a' : ExternalLink,
+								{ href: newsletterSettingsLink },
+								__( 'Newsletter settings', 'jetpack' )
 							) }
 						</li>
 					</ul>
