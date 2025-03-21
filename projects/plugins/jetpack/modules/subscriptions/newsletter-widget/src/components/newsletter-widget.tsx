@@ -4,7 +4,6 @@ import { ExternalLink, Icon } from '@wordpress/components';
 import { createInterpolateElement, createElement } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
-import React from 'react';
 import { buildJPRedirectSource, formatNumber, getSubscriberStatsUrl } from '../helpers';
 import { SubscribersChart } from './subscribers-chart';
 import type { SubscriberTotalsByDate } from '../types';
