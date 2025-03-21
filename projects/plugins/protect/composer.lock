@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "938b1a7486c9ea7b908f5af2de00f02f",
+    "content-hash": "033b342022c958cbb691844363c0f1b2",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -66,10 +66,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/account-protection",
-                "reference": "e200350054139efd813b50c396e59edffac3fc8c"
+                "reference": "c72ef7050a92f8da1cfd375f9a90d3fd1a438262"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.2"
             },
@@ -77,7 +78,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -569,12 +570,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "19a6cbf9c48b95d5801bf8ac55c8bba15d910488"
+                "reference": "abccbd9d783f75a22978fddb26ef5cc3d7405bc8"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
+                "automattic/jetpack-account-protection": "@dev",
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-import": "@dev",
@@ -616,6 +618,7 @@
                         "packages/stats-admin",
                         "packages/sync",
                         "packages/videopress",
+                        "packages/account-protection",
                         "packages/waf",
                         "packages/wordads",
                         "packages/yoast-promo"

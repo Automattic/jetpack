@@ -348,7 +348,7 @@ class REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function api_toggle_account_protection() {
-		$account_protection = new Account_Protection();
+		$account_protection = Account_Protection::instance();
 		if ( $account_protection->is_enabled() ) {
 			$disabled = $account_protection->disable();
 			if ( ! $disabled ) {

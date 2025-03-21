@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Account_Protection;
  */
 class Settings {
 	/**
-	 * Account Protection instance.
+	 * Account protection instance.
 	 *
 	 * @var Account_Protection
 	 */
@@ -24,7 +24,7 @@ class Settings {
 	 * @param ?Account_Protection|null $account_protection Account protection dependency.
 	 */
 	public function __construct( ?Account_Protection $account_protection = null ) {
-		$this->account_protection = $account_protection ?? new Account_Protection();
+		$this->account_protection = $account_protection ?? Account_Protection::instance();
 	}
 
 	/**
