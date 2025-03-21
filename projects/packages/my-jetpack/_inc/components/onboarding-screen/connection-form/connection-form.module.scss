@@ -76,6 +76,7 @@
 
 	.email-input {
 		width: 100%;
+		margin: 0;
 		padding: 12px 16px;
 		border: 1px solid var(--jp-gray-60, #949494);
 		border-radius: var( --jp-button-radius );
@@ -122,7 +123,7 @@
 	line-height: 20px;
 	color: var(--jp-gray-50, #646970);
 
-	:global(a) {
+	:global(.terms-of-service__link) {
 		color: var(--jp-gray-50, #646970);
 		text-decoration: underline;
 	}
