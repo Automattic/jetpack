@@ -6,7 +6,9 @@ import {
 	AdminSectionHero,
 	Notice,
 	Button,
+	getRedirectUrl,
 } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
@@ -19,8 +21,6 @@ import usePlan from '../../hooks/use-plan';
 import styles from './styles.module.scss';
 
 const SettingsPage = () => {
-	const SUPPORT_LINK = 'https://jetpack.com/?post_type=jetpack_support&p=324199';
-
 	const { hasPlan } = usePlan();
 	const { data: accountProtection } = useAccountProtectionQuery();
 	const toggleAccountProtectionMutation = useToggleAccountProtectionMutation();
@@ -78,7 +78,9 @@ const SettingsPage = () => {
 							<Button
 								variant="link"
 								isExternalLink
-								href={ SUPPORT_LINK + '#unsupported-environments' }
+								href={ getRedirectUrl( 'jetpack-account-protection', {
+									anchor: 'unsupported-environments',
+								} ) }
 								key="learn-more"
 							>
 								{ __( 'Learn more', 'jetpack-protect' ) }
@@ -94,7 +96,7 @@ const SettingsPage = () => {
 						title={
 							<Text>
 								{ __(
-									'This feature has been disabled because Jetpack Protect is installed with an unsupported version of Jetpack. Please update Jetpack to version 14.5 or later to enable this feature.',
+									'This feature has been disabled because the Jetpack Protect plugin is installed with an unsupported version of the Jetpack plugin. Please update the Jetpack plugin to version 14.5 or later to enable this feature.',
 									'jetpack-protect'
 								) }
 							</Text>
@@ -103,7 +105,9 @@ const SettingsPage = () => {
 							<Button
 								variant="link"
 								isExternalLink
-								href={ SUPPORT_LINK + '#requirements' }
+								href={ getRedirectUrl( 'jetpack-account-protection', {
+									anchor: 'requirements',
+								} ) }
 								key="learn-more"
 							>
 								{ __( 'Learn more', 'jetpack-protect' ) }
@@ -118,7 +122,7 @@ const SettingsPage = () => {
 							'jetpack-protect'
 						),
 						{
-							link: <a href={ SUPPORT_LINK } target="_blank" rel="noopener noreferrer" />,
+							link: <ExternalLink href={ getRedirectUrl( 'jetpack-account-protection' ) } />,
 						}
 					) }
 				</Text>
@@ -133,16 +137,12 @@ const SettingsPage = () => {
 						<Icon icon={ info } />
 						{ createInterpolateElement(
 							__(
-								'Jetpack recommends enabling this feature. <link>Learn about the risks</link>.',
+								'Jetpack recommends enabling this feature to enhance account security. <link>Learn about the risks</link>.',
 								'jetpack-protect'
 							),
 							{
 								link: (
-									<a
-										href={ SUPPORT_LINK + '#risks-of-using-a-weak-password' }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
+									<ExternalLink href={ getRedirectUrl( 'jetpack-account-protection-risks' ) } />
 								),
 							}
 						) }

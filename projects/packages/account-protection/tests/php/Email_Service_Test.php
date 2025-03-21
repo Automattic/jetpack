@@ -23,7 +23,7 @@ class Email_Service_Test extends BaseTestCase {
 		$this->assertEquals( $expected_masked_email, $sut->mask_email_address( $plain_email ) );
 	}
 
-	public function email_masking_data_provider(): array {
+	public static function email_masking_data_provider(): array {
 		return array(
 			'john.doe@example.com'    => array( 'john.doe@example.com', 'j*******@e******.com' ),
 			'mary.smith@gmail.com'    => array( 'mary.smith@gmail.com', 'm*********@g****.com' ),
