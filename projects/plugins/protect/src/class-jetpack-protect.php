@@ -9,7 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-use Automattic\Jetpack\Account_Protection\Account_Protection;
 use Automattic\Jetpack\Account_Protection\Settings as Account_Protection_Settings;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
@@ -139,7 +138,6 @@ class Jetpack_Protect {
 		REST_Controller::init();
 		My_Jetpack_Initializer::init();
 		Site_Health::init();
-		( new Account_Protection() )->init();
 
 		// Sets up JITMS.
 		JITM::configure();

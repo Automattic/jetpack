@@ -85,7 +85,8 @@ class Password_Strength_Meter {
 			$user_specific = filter_var( sanitize_text_field( wp_unslash( $_POST['user_specific'] ) ), FILTER_VALIDATE_BOOLEAN );
 		}
 
-		$password = sanitize_text_field( wp_unslash( $_POST['password'] ) );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$password = wp_unslash( $_POST['password'] );
 		// phpcs:enable WordPress.Security.NonceVerification
 		$state = $this->validation_service->get_validation_state( $password, $user_specific );
 

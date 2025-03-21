@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Account_Protection;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 
@@ -16,6 +17,13 @@ use Automattic\Jetpack\Status\Host;
 class Account_Protection {
 	const PACKAGE_VERSION                = '0.1.0-alpha';
 	const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
+
+	/**
+	 * Account_Protection instance
+	 *
+	 * @var Account_Protection
+	 */
+	private static $instance = null;
 
 	/**
 	 * Flag to track if hooks have been registered.
@@ -46,11 +54,43 @@ class Account_Protection {
 	private $password_manager;
 
 	/**
-	 * Password_Strength_Meter instance
+	 * Password strength meter instance
 	 *
 	 * @var Password_Strength_Meter
 	 */
 	private $password_strength_meter;
+
+	/**
+	 * Initialize the Account_Protection instance
+	 *
+	 * @return Account_Protection
+	 */
+	public static function instance(): Account_Protection {
+		if ( self::$instance === null ) {
+			self::$instance = new Account_Protection();
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Initializes the configurations needed for the account protection module.
+	 *
+	 * @return void
+	 */
+	public function initialize(): void {
+		if ( self::$hooks_registered ) {
+			return;
+		}
+
+		$this->register_hooks();
+
+		if ( $this->is_enabled() ) {
+			$this->register_runtime_hooks();
+		}
+
+		self::$hooks_registered = true;
+	}
 
 	/**
 	 * Account_Protection constructor.
@@ -68,34 +108,11 @@ class Account_Protection {
 	}
 
 	/**
-	 * Initializes the configurations needed for the account protection module.
-	 *
-	 * @return void
-	 */
-	public function init(): void {
-		if ( self::$hooks_registered ) {
-			return;
-		}
-
-		$this->register_hooks();
-
-		if ( $this->is_enabled() ) {
-			$this->register_runtime_hooks();
-		}
-
-		self::$hooks_registered = true;
-	}
-
-	/**
 	 * Register hooks for module activation and environment validation.
 	 *
 	 * @return void
 	 */
 	protected function register_hooks(): void {
-		// Account protection activation/deactivation hooks
-		add_action( 'jetpack_activate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_activation' ) );
-		add_action( 'jetpack_deactivate_module_' . self::ACCOUNT_PROTECTION_MODULE_NAME, array( $this, 'on_account_protection_deactivation' ) );
-
 		// Do not run in unsupported environments
 		add_filter( 'jetpack_get_available_modules', array( $this, 'remove_module_on_unsupported_environments' ) );
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'remove_standalone_module_on_unsupported_environments' ) );
@@ -107,49 +124,54 @@ class Account_Protection {
 	 * @return void
 	 */
 	protected function register_runtime_hooks(): void {
-		// Validate password after successful login
+		$this->register_password_detection_hooks();
+		$this->register_strong_passwords_hooks();
+	}
+
+	/**
+	 * Register hooks for password detection.
+	 *
+	 * @return void
+	 */
+	public function register_password_detection_hooks(): void {
 		add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
-
-		// Handle password detection login failure
 		add_action( 'wp_login_failed', array( $this->password_detection, 'handle_password_detection_validation_error' ), 10, 2 );
-
-		// Add password detection flow
 		add_action( 'login_form_password-detection', array( $this->password_detection, 'render_page' ), 10, 2 );
 		add_action( 'wp_enqueue_scripts', array( $this->password_detection, 'enqueue_styles' ) );
+	}
 
-		// Add password validation
+	/**
+	 * Register hooks for password manager.
+	 *
+	 * @return void
+	 */
+	public function register_password_manager_hooks(): void {
 		add_action( 'user_profile_update_errors', array( $this->password_manager, 'validate_profile_update' ), 10, 3 );
 		add_action( 'validate_password_reset', array( $this->password_manager, 'validate_password_reset' ), 10, 2 );
-
-		// Update recent passwords list
 		add_action( 'profile_update', array( $this->password_manager, 'on_profile_update' ), 10, 2 );
 		add_action( 'after_password_reset', array( $this->password_manager, 'on_password_reset' ), 10, 1 );
+	}
 
-		// Enqueue password strength meter scripts
+	/**
+	 * Register hooks for password strength meter.
+	 *
+	 * @return void
+	 */
+	public function register_password_strength_meter_hooks(): void {
 		add_action( 'admin_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_profile_script' ) );
 		add_action( 'login_enqueue_scripts', array( $this->password_strength_meter, 'enqueue_jetpack_password_strength_meter_reset_script' ) );
-
-		// AJAX endpoint for password validation
 		add_action( 'wp_ajax_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
 		add_action( 'wp_ajax_nopriv_validate_password_ajax', array( $this->password_strength_meter, 'validate_password_ajax' ) );
 	}
 
 	/**
-	 * Activate the account protection on module activation.
+	 * Register hooks for strong passwords.
 	 *
 	 * @return void
 	 */
-	public function on_account_protection_activation(): void {
-		// Activation logic can be added here
-	}
-
-	/**
-	 * Deactivate the account protection on module deactivation.
-	 *
-	 * @return void
-	 */
-	public function on_account_protection_deactivation(): void {
-		// Deactivation logic can be added here
+	public function register_strong_passwords_hooks(): void {
+		$this->register_password_manager_hooks();
+		$this->register_password_strength_meter_hooks();
 	}
 
 	/**
@@ -213,12 +235,9 @@ class Account_Protection {
 	 */
 	public function has_unsupported_jetpack_version(): bool {
 		// Do not run when Jetpack version is less than 14.5
-		if ( defined( 'JETPACK__VERSION' ) ) {
-			$jetpack_version = JETPACK__VERSION;
-
-			if ( is_string( $jetpack_version ) && version_compare( $jetpack_version, '14.5', '<' ) ) {
-				return true;
-			}
+		$jetpack_version = Constants::get_constant( 'JETPACK__VERSION' );
+		if ( $jetpack_version && version_compare( $jetpack_version, '14.5', '<' ) ) {
+			return true;
 		}
 
 		return false;

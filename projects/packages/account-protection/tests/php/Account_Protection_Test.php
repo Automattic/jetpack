@@ -33,7 +33,7 @@ class Account_Protection_Test extends BaseTestCase {
 		$sut->expects( $this->once() )
 			->method( 'register_runtime_hooks' );
 
-		$sut->init();
+		$sut->initialize();
 	}
 
 	public function test_init_registers_hooks_but_not_runtime_hooks_if_module_disabled(): void {
@@ -53,7 +53,7 @@ class Account_Protection_Test extends BaseTestCase {
 		$sut->expects( $this->never() )
 			->method( 'register_runtime_hooks' );
 
-		$sut->init();
+		$sut->initialize();
 	}
 
 	public function test_enable_activates_module_if_not_activated_yet(): void {
