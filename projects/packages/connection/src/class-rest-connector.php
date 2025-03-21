@@ -270,15 +270,20 @@ class REST_Connector {
 				'callback'            => array( $this, 'connection_authorize_url_provider' ),
 				'permission_callback' => '__return_true', // Just for testing, it should be user_connection_data_permission_check
 				'args'                => array(
-					'provider'     => array(
-						'description' => __( 'Authentication provider (google, github, apple)', 'jetpack-connection' ),
+					'provider'      => array(
+						'description' => __( 'Authentication provider (google, github, apple, link)', 'jetpack-connection' ),
 						'type'        => 'string',
 						'required'    => true,
-						'enum'        => array( 'google', 'github', 'apple' ),
+						'enum'        => array( 'google', 'github', 'apple', 'link' ),
 					),
-					'redirect_uri' => array(
+					'redirect_uri'  => array(
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
 						'type'        => 'string',
+					),
+					'email_address' => array(
+						'description' => __( 'Email address for magic link authentication', 'jetpack-connection' ),
+						'type'        => 'string',
+						'format'      => 'email',
 					),
 				),
 			)
@@ -1145,7 +1150,36 @@ class REST_Connector {
 		$provider     = $request['provider'];
 		$redirect_uri = $request['redirect_uri'];
 
-		$authorize_url = ( new Authorize_Redirect( $this->connection ) )->build_authorize_url( $redirect_uri, false, false, $provider );
+		// Validate magic link parameters if provider is 'link'
+		if ( 'link' === $provider ) {
+			if ( empty( $request['email_address'] ) ) {
+				return new WP_Error(
+					'missing_email',
+					__( 'Email address is required for magic link authentication.', 'jetpack-connection' ),
+					array( 'status' => 400 )
+				);
+			}
+
+			// Sanitize email address
+			$email = sanitize_email( $request['email_address'] );
+			if ( ! is_email( $email ) ) {
+				return new WP_Error(
+					'invalid_email',
+					__( 'Invalid email address format.', 'jetpack-connection' ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		$authorize_url = ( new Authorize_Redirect( $this->connection ) )->build_authorize_url(
+			$redirect_uri,
+			false,
+			false,
+			$provider,
+			array(
+				'email_address' => isset( $email ) ? $email : null,
+			)
+		);
 
 		return rest_ensure_response(
 			array(
