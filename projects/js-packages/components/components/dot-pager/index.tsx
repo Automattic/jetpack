@@ -116,25 +116,23 @@ const DotPager = ( {
 
 	return (
 		<div className={ clsx( 'dot-pager', className ) } { ...props }>
-			<div className="dot-pager__content">
-				<Swipeable
-					hasDynamicHeight={ hasDynamicHeight }
-					onPageSelect={ handleSelectPage }
-					currentPage={ currentPage }
-					pageClassName="dot-pager__page"
-					containerClassName="dot-pager__pages"
-					isClickEnabled={ isClickEnabled }
-				>
-					{ normalizedChildren }
-				</Swipeable>
-				<Controls
-					currentPage={ currentPage }
-					numberOfPages={ numPages }
-					setCurrentPage={ handleSelectPage }
-					tracksPrefix={ tracksPrefix }
-					tracksFn={ tracksFn }
-				/>
-			</div>
+			<Swipeable
+				hasDynamicHeight={ hasDynamicHeight }
+				onPageSelect={ handleSelectPage }
+				currentPage={ currentPage }
+				pageClassName="dot-pager__page"
+				containerClassName="dot-pager__pages"
+				isClickEnabled={ isClickEnabled }
+			>
+				{ normalizedChildren }
+			</Swipeable>
+			<Controls
+				currentPage={ currentPage }
+				numberOfPages={ numPages }
+				setCurrentPage={ handleSelectPage }
+				tracksPrefix={ tracksPrefix }
+				tracksFn={ tracksFn }
+			/>
 		</div>
 	);
 };

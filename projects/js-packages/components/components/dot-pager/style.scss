@@ -6,12 +6,6 @@
 	position: relative;
 }
 
-.dot-pager__content {
-	position: relative;
-	width: 100%;
-	height: 100%;
-}
-
 .dot-pager__page {
 	transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
 	//@include reduce-motion( "transition" );
