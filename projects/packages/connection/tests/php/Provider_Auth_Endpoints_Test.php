@@ -33,6 +33,13 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 	private $connection;
 
 	/**
+	 * The REST Connector instance.
+	 *
+	 * @var REST_Connector
+	 */
+	private $rest_connector;
+
+	/**
 	 * Setting up the test.
 	 *
 	 * @before
@@ -51,7 +58,7 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 
 		// Initialize REST routes properly
 		do_action( 'rest_api_init' );
-		new REST_Connector( new Manager() );
+		$this->rest_connector = new REST_Connector( new Manager() );
 		Heartbeat::init()->initialize_rest_api();
 
 		// Create an admin user and set as current.
