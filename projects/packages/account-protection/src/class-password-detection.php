@@ -54,7 +54,7 @@ class Password_Detection {
 			return $user;
 		}
 
-		if ( ! $this->validation_service->is_weak_password( $password ) ) {
+		if ( ! $this->validation_service->is_leaked_password( $password ) ) {
 			return $user;
 		}
 
