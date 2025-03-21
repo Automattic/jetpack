@@ -641,18 +641,16 @@ function render_block( $attributes ) {
 		return '';
 	}
 
+	// Prefill the email field with the current user's email if they are logged in via Memberships premium content token
 	$subscribe_email = Jetpack_Memberships::get_current_user_email();
-	error_log( print_r( compact( 'subscribe_email' ), true ) );
 
-	/** This filter is documented in \Automattic\Jetpack\Forms\ContactForm\Contact_Form */
-	if ( false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
-		error_log( 'jetpack_auto_fill_logged_in_user' );
+	// If no email, then prefill the email field with the current user's email if they are logged in
+	if ( empty( $subscribe_email ) ) {
 		$current_user = wp_get_current_user();
 		if ( ! empty( $current_user->user_email ) ) {
 			$subscribe_email = $current_user->user_email;
 		}
 	}
-	error_log( print_r( compact( 'subscribe_email' ), true ) );
 
 	// The block is using the Jetpack_Subscriptions_Widget backend, hence the need to increase the instance count.
 	++Jetpack_Subscriptions_Widget::$instance_count;
@@ -697,8 +695,6 @@ function render_block( $attributes ) {
 		'selected_newsletter_categories'    => get_attribute( $attributes, 'selectedNewsletterCategoryIds', array() ),
 		'preselected_newsletter_categories' => get_attribute( $attributes, 'preselectNewsletterCategories', false ),
 	);
-
-	error_log( print_r( compact( 'data' ), true ) );
 
 	if ( ! jetpack_is_frontend() ) {
 		return render_for_email( $data, $styles );
