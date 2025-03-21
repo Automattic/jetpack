@@ -7,9 +7,10 @@ import styles from './styles.module.scss';
 
 type SocialButtonProps = {
 	service: 'google' | 'apple' | 'github' | 'jetpack';
+	disabled: boolean;
 };
 
-const SocialButton = ( { service }: SocialButtonProps ) => {
+const SocialButton = ( { service, disabled }: SocialButtonProps ) => {
 	const buttonText = {
 		google: { label: __( 'Start with Google', 'jetpack-my-jetpack' ), icon: googleIcon },
 		apple: { label: __( 'Start with Apple', 'jetpack-my-jetpack' ), icon: appleIcon },
@@ -18,7 +19,7 @@ const SocialButton = ( { service }: SocialButtonProps ) => {
 	};
 
 	return (
-		<button className={ styles[ 'social-button' ] }>
+		<button className={ styles[ 'social-button' ] } disabled={ disabled }>
 			<img src={ buttonText[ service ].icon } alt={ buttonText[ service ].label } />
 			<span className={ styles[ 'social-button-text' ] }>{ buttonText[ service ].label }</span>
 		</button>

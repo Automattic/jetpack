@@ -84,6 +84,18 @@
 		font-size: 15px;
 		line-height: 20px;
 		color: var(--jp-gray-50, #646970);
+
+		&.email-input-error {
+			border-color: var(--jp-red-50, #D63638);
+			background-color: var(--jp-red-0, #FCF0F1);
+		}
+	}
+
+	.email-error-message {
+		color: var(--jp-red-50, #D63638);
+		font-size: 14px;
+		line-height: 20px;
+		margin-top: -8px;
 	}
 
 	.submit-button {
