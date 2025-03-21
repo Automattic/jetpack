@@ -51,7 +51,7 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 		}
 
 		if ( $this->is_preflight() ) { // phpcs:ignore
-			$server->send_header( 'Access-Control-Allow-Origin', '*' );
+			$server->send_header( 'Access-Control-Allow-Origin', '*' ); // Todo: Should we allow only some origins?
 			$server->send_header( 'Access-Control-Allow-Methods', 'POST, OPTIONS' );
 			$server->send_header( 'Access-Control-Allow-Headers', 'Authorization, Content-Type,Referer, X-Requested-With, X-WP-Nonce, X-Jetpack-Upload-Nonce' );
 			$server->send_header( 'Access-Control-Allow-Credentials', 'true' );
