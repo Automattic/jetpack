@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "c24223aa513bcfa173747f9b7fd7271c",
+	"content-hash": "5e69ba2b2a874f5a8c870ac8bfc0687b",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -66,7 +66,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/account-protection",
-				"reference": "0c2024c93eaec4df79c3332b3dd360006b4a0b3f"
+				"reference": "c72ef7050a92f8da1cfd375f9a90d3fd1a438262"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -78,7 +78,7 @@
 				"automattic/jetpack-changelogger": "@dev",
 				"automattic/jetpack-test-environment": "@dev",
 				"automattic/phpunit-select-config": "@dev",
-				"yoast/phpunit-polyfills": "^1.1.1"
+				"yoast/phpunit-polyfills": "^3.0.0"
 			},
 			"suggest": {
 				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
