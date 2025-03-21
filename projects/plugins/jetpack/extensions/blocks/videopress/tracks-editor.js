@@ -417,6 +417,7 @@ export default function TracksEditor( { tracks = [], onChange, guid } ) {
 									} )
 								);
 							} }
+							__next40pxDefaultSize={ true }
 						/>
 					);
 				}
