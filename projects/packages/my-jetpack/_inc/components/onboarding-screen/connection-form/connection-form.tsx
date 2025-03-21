@@ -1,9 +1,9 @@
 import { TermsOfService, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import preventWidows from '../../../utils/prevent-widows';
-import styles from './connection-form.module.scss';
 import EmailInput from './email-input';
 import SocialButton from './social-button';
+import styles from './styles.module.scss';
 
 const Separator = () => {
 	return (

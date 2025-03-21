@@ -3,7 +3,7 @@ import appleIcon from '../icons/apple.svg';
 import githubIcon from '../icons/github.svg';
 import googleIcon from '../icons/google.svg';
 import jetpackIcon from '../icons/jetpack.svg';
-import styles from './connection-form.module.scss';
+import styles from './styles.module.scss';
 
 type SocialButtonProps = {
 	service: 'google' | 'apple' | 'github' | 'jetpack';

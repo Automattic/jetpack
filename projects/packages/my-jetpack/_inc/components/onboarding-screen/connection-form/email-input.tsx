@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { ChangeEvent, FormEvent, useCallback, useState } from 'react';
-import styles from './connection-form.module.scss';
+import styles from './styles.module.scss';
 
 interface EmailInputProps {
 	isDisabled: boolean;
