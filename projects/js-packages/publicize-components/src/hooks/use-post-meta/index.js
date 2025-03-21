@@ -4,6 +4,11 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { useShareMessageMaxLength } from '../../utils';
 
 /**
+ * This is to avoid creating a new empty array each time the value is requested.
+ */
+const DEFAULT_ATTACHED_MEDIA = [];
+
+/**
  * Returns the post meta values.
  *
  * @return {import('../../utils/types').UsePostMeta} The post meta values.
@@ -18,7 +23,7 @@ export function usePostMeta() {
 
 			const isPublicizeEnabled = meta.jetpack_publicize_feature_enabled ?? true;
 			const jetpackSocialOptions = meta.jetpack_social_options || {};
-			const attachedMedia = jetpackSocialOptions.attached_media || [];
+			const attachedMedia = jetpackSocialOptions.attached_media || DEFAULT_ATTACHED_MEDIA;
 			const imageGeneratorSettings = jetpackSocialOptions.image_generator_settings ?? {
 				enabled: false,
 			};
