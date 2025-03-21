@@ -1,5 +1,5 @@
 import { select, dispatch } from '@wordpress/data';
-import { PluginBlockSettingsMenuItem } from '@wordpress/edit-post';
+import { PluginBlockSettingsMenuItem } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import metadata from '../block.json';
 import { transformToCoreGroup } from './transform-to-core-group';

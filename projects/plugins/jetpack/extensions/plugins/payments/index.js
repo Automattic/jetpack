@@ -2,8 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { PluginPostPublishPanel } from '@wordpress/edit-post';
-import { store as editorStore } from '@wordpress/editor';
+import { PluginPostPublishPanel, store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { currencyDollar } from '@wordpress/icons';
 

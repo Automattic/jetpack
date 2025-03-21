@@ -1,6 +1,6 @@
 import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { createSlotFill } from '@wordpress/components';
-import { PluginSidebar, PluginSidebarMoreMenuItem } from '@wordpress/edit-post';
+import { PluginSidebar, PluginSidebarMoreMenuItem } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { registerPlugin } from '@wordpress/plugins';
 

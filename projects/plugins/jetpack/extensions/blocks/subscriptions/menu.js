@@ -2,7 +2,7 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelBody, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useSelect } from '@wordpress/data';
-import { PluginSidebar } from '@wordpress/edit-post';
+import { PluginSidebar } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
 import { META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS } from '../../shared/memberships/constants';

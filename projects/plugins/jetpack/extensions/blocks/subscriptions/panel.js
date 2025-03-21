@@ -12,8 +12,8 @@ import {
 	PluginPrePublishPanel,
 	PluginDocumentSettingPanel,
 	PluginPostPublishPanel,
-} from '@wordpress/edit-post';
-import { store as editorStore } from '@wordpress/editor';
+	store as editorStore,
+} from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';

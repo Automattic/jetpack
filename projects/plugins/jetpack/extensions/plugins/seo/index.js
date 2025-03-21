@@ -12,8 +12,11 @@ import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-uti
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, select as globalSelect, useDispatch } from '@wordpress/data';
-import { PluginPrePublishPanel, PluginPostPublishPanel } from '@wordpress/edit-post';
-import { store as editorStore } from '@wordpress/editor';
+import {
+	PluginPrePublishPanel,
+	PluginPostPublishPanel,
+	store as editorStore,
+} from '@wordpress/editor';
 import { createPortal, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
