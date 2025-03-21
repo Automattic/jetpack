@@ -511,13 +511,25 @@ async function getUntrackedFiles( pluginPath ) {
 /**
  * Function that does the actual work of rsync.
  *
- * @param {string} source - Source path.
+ * @param {string} source - Source path with trailing slash.
  * @param {string} dest   - Final destination path, including plugin slug.
  * @return {Promise<Set>} Synced path set.
  */
 async function rsyncToDest( source, dest ) {
 	const paths = await collectPaths( source );
 	const tmpFile = await createFilterFile( paths );
+
+	// Create a temporary file with exclude patterns for circular dependencies
+	const excludeFile = tmp.fileSync();
+	const excludePatterns = [
+		'**/node_modules/**/node_modules/**',
+		'**/vendor/**/vendor/**',
+		'**/jetpack_vendor/**/**/vendor/**',
+		'**/jetpack_vendor/**/**/node_modules/**',
+		'**/.cache/**', // Skip babel cache directories
+		'**/.phpunit.result.cache', // Skip PHPUnit cache files
+	];
+	await fs.writeFile( excludeFile.name, excludePatterns.join( '\n' ) );
 
 	try {
 		await runCommand( 'rsync', [
@@ -527,14 +539,17 @@ async function rsyncToDest( source, dest ) {
 			'--delete-after',
 			'--delete-excluded',
 			`--include-from=${ tmpFile.name }`,
+			`--exclude-from=${ excludeFile.name }`,
 			source,
 			dest,
 		] );
 		tmpFile.removeCallback();
+		excludeFile.removeCallback();
 	} catch ( e ) {
 		console.log( e );
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
 		tmpFile.removeCallback();
+		excludeFile.removeCallback();
 		process.exit( 1 );
 	}
 
