@@ -3,6 +3,8 @@ import { createRegistrySelector } from '@wordpress/data';
 import { getSocialScriptData } from '../../utils';
 import { SharesData } from '../types';
 
+const EMPTY_OBJECT = {};
+
 /**
  * Get the shares data from the store or script data
  * @param select - Select function
@@ -10,7 +12,7 @@ import { SharesData } from '../types';
  */
 const getSharesData = ( select ): SharesData => {
 	const data = select( coreStore ).getEntityRecord( 'wpcom/v2', 'publicize/shares-data' );
-	return data || getSocialScriptData().shares_data || {};
+	return data || getSocialScriptData().shares_data || EMPTY_OBJECT;
 };
 
 /**
