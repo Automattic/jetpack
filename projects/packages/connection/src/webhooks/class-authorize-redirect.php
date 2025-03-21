@@ -122,15 +122,35 @@ class Authorize_Redirect {
 
 		// If a provider is specified, modify the URL to use the provider-specific endpoint
 		if ( $provider && in_array( $provider, array( 'google', 'github', 'apple', 'link' ), true ) ) {
-			$url = add_query_arg( array( 'provider' => $provider ), $url );
-			$url = str_replace( 'jetpack.wordpress.com/jetpack.authorize/1', 'wordpress.com/log-in/jetpack/' . $provider, $url );
+			// Parse the URL to modify it safely
+			$url_parts = wp_parse_url( $url );
 
-			// Add magic link specific parameters if provider is 'link'
-			if ( 'link' === $provider && is_array( $provider_args ) ) {
-				if ( ! empty( $provider_args['email_address'] ) ) {
-					$url = add_query_arg( 'email_address', rawurlencode( $provider_args['email_address'] ), $url );
+			if ( ! empty( $url_parts['host'] ) && ! empty( $url_parts['path'] ) ) {
+				// Build the new URL using wordpress.com as the host
+				$url_parts['host'] = 'wordpress.com';
+				$url_parts['path'] = '/log-in/jetpack/' . $provider;
+
+				// Preserve the query parameters
+				$query_params = array();
+				if ( ! empty( $url_parts['query'] ) ) {
+					parse_str( $url_parts['query'], $query_params );
 				}
-				$url = add_query_arg( 'auto_trigger', '', $url );
+
+				// Add magic link specific parameters if provider is 'link'
+				if ( 'link' === $provider && is_array( $provider_args ) ) {
+					if ( ! empty( $provider_args['email_address'] ) ) {
+						$query_params['email_address'] = $provider_args['email_address'];
+					}
+
+					// Add flag to trigger magic link flow
+					$query_params['auto_trigger'] = '1';
+				}
+
+				// Rebuild the URL
+				$url = 'https://' . $url_parts['host'] . $url_parts['path'];
+				if ( ! empty( $query_params ) ) {
+					$url = add_query_arg( $query_params, $url );
+				}
 			}
 		}
 
