@@ -39,10 +39,15 @@ class Coverage_Logger {
 
 		$coverage_data = xdebug_get_code_coverage();
 
-		$sql = $wpdb->prepare( 'INSERT INTO %s (path, line) VALUES ', self::DATABASE_NAME );
+		$sql = sprintf( 'INSERT INTO `%s` (path, line) VALUES ', $wpdb->prefix . self::DATABASE_NAME );
 
 		foreach ( $coverage_data as $file => $lines ) {
 			$path = substr( $file, strlen( ABSPATH ) );
+
+			if ( ! str_starts_with( $path, 'wp-content/plugins/jetpack' ) ) {
+				continue;
+			}
+
 			foreach ( $lines as $line => $count ) {
 				for ( $i = 0; $i < $count; $i++ ) {
 					$sql .= $wpdb->prepare( '( %s, %d ),', $path, $line );
