@@ -40,7 +40,7 @@ class Account_Protection_Test extends BaseTestCase {
 		$reflection = new \ReflectionClass( Account_Protection::class );
 		$property   = $reflection->getProperty( 'hooks_registered' );
 		$property->setAccessible( true );
-		$property->setValue( false );
+		$property->setValue( null, false );
 
 		$sut = $this->createPartialMock( Account_Protection::class, array( 'is_enabled', 'register_hooks', 'register_runtime_hooks' ) );
 		$sut->expects( $this->once() )
