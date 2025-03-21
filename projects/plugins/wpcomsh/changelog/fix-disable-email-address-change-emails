@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: When a user's email address is changed from wordpress.com/me/account they receive email notifications from all atomic sites under their account.
+
+
