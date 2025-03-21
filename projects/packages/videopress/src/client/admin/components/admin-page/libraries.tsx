@@ -33,7 +33,7 @@ const LibraryType = {
 
 type LibraryType = ( typeof LibraryType )[ keyof typeof LibraryType ];
 
-const VideoLibraryWrapper = ( {
+export const VideoLibraryWrapper = ( {
 	children,
 	totalVideos = 0,
 	libraryType = LibraryType.List,
