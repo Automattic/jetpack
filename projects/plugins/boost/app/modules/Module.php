@@ -47,11 +47,11 @@ class Module {
 
 	private function indicate_page_output_changed() {
 		/**
-			 * Indicate that the HTML output of front-end has changed.
-			 *
-			 * If there is any page cache, it should be invalidated when this action is triggered.
-			 */
-			do_action( 'jetpack_boost_page_output_changed' );
+		 * Indicate that the HTML output of front-end has changed.
+		 *
+		 * If there is any page cache, it should be invalidated when this action is triggered.
+		 */
+		do_action( 'jetpack_boost_page_output_changed' );
 	}
 
 	public function get_slug() {
