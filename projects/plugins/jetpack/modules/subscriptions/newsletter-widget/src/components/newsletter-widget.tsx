@@ -88,7 +88,7 @@ export const NewsletterWidget = ( {
 				<p className="newsletter-widget__footer-msg">
 					{ createInterpolateElement(
 						__(
-							'Effortlessly turn posts into emails with our Newsletter feature-expand your reach, engage readers, and monetize your writing. No coding required. <link>Learn more</link>',
+							'Effortlessly turn posts into emails with our Newsletter feature. Expand your reach, engage readers, and monetize your writing. No coding required. <link>Learn more</link>',
 							'jetpack'
 						),
 						{
