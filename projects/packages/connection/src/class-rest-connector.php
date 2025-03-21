@@ -734,13 +734,15 @@ class REST_Connector {
 	 * @return bool Whether there is a possible account mismatch.
 	 */
 	private static function possible_account_mismatch( $current_user_email, $wpcom_user_email ) {
-		// If emails are the same, there's no mismatch
-		if ( $current_user_email === $wpcom_user_email ) {
+		// If emails are the same or there's no WPCOM email, there's no mismatch
+		if ( $current_user_email === $wpcom_user_email || ! $wpcom_user_email ) {
 			return false;
 		}
 
-		// Check if we already have a cached result in a transient
-		$transient_key = 'jetpack_account_mismatch_' . md5( $wpcom_user_email );
+		// Generate transient key with both wpcom email and user ID if available
+		$transient_key  = 'jetpack_account_mismatch_';
+		$transient_key .= md5( $wpcom_user_email );
+
 		$cached_result = get_transient( $transient_key );
 
 		if ( false !== $cached_result ) {
@@ -775,15 +777,13 @@ class REST_Connector {
 		if ( $has_mismatch ) {
 			$errors['mismatch'] = array(
 				'type'    => 'mismatch',
-				'message' => __( 'We noticed there is another WordPress account using this email address. While this is not an issue for your site, it might lead to confusion.', 'jetpack-connection' ),
+				'message' => __( 'Your WordPress.com email also used by another user account. This won’t affect functionality but may cause confusion about which user account is connected. ', 'jetpack-connection' ),
 				'details' => array(
 					'site_email'  => $current_user_email,
 					'wpcom_email' => $wpcom_user_email,
 				),
 			);
 		}
-
-		// Additional error checks can be added here in the future
 
 		return $errors;
 	}
