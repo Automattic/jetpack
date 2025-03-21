@@ -26,6 +26,18 @@ if ( explode( '.', \PHPUnit\Runner\Version::id() )[0] >= 10 ) {
 			);
 		}
 	}
+
+	// Also define these removed classes that nothing uses except a `class_alias()` from core's `tests/phpunit/includes/phpunit6/compat.php`.
+	/** Unusable dummy class. */
+	final class Bogus {
+		private function __construct() {}
+	}
+	class_alias( Bogus::class, \PHPUnit\Framework\Error\Deprecated::class );
+	class_alias( Bogus::class, \PHPUnit\Framework\Error\Notice::class );
+	class_alias( Bogus::class, \PHPUnit\Framework\Error\Warning::class );
+	class_alias( Bogus::class, \PHPUnit\Framework\Warning::class );
+	class_alias( Bogus::class, \PHPUnit\Framework\TestListener::class );
+
 } else {
 	trait WP_UnitTestCase_Fix {
 	}

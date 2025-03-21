@@ -195,8 +195,8 @@ class Validation_Service {
 	/**
 	 * Check if the password matches any user data.
 	 *
-	 * @param \WP_User|\stdClass $user The user.
-	 * @param string             $password The password to check.
+	 * @param \WP_User|\stdClass|null $user The user.
+	 * @param string                  $password The password to check.
 	 *
 	 * @return bool True if the password matches any user data, false otherwise.
 	 */

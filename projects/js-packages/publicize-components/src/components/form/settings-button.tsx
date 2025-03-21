@@ -24,7 +24,7 @@ type SettingsButtonProps = {
  *
  * @return {import('react').ReactNode} The button/link component.
  */
-export function SettingsButton( { label, variant = 'primary' }: SettingsButtonProps ) {
+export function SettingsButton( { label, variant = 'secondary' }: SettingsButtonProps ) {
 	const { useAdminUiV1 } = getSocialScriptData().feature_flags;
 
 	const { connections } = useSelect( select => {
@@ -42,7 +42,6 @@ export function SettingsButton( { label, variant = 'primary' }: SettingsButtonPr
 		<Button
 			onClick={ openConnectionsModal }
 			variant={ hasConnections ? 'link' : variant }
-			size={ hasConnections ? 'default' : 'small' }
 			className={ styles[ 'settings-button' ] }
 		>
 			{ text }

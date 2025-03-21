@@ -14,7 +14,9 @@ export const SCAN_STATUS_SCANNING = 'scanning';
 export const SCAN_STATUS_OPTIMISTICALLY_SCANNING = 'optimistically_scanning';
 export const SCAN_STATUS_IDLE = 'idle';
 export const SCAN_STATUS_UNAVAILABLE = 'unavailable';
+export const SCAN_STATUS_PROVISIONING = 'provisioning';
 export const SCAN_IN_PROGRESS_STATUSES = [
+	SCAN_STATUS_PROVISIONING,
 	SCAN_STATUS_SCHEDULED,
 	SCAN_STATUS_SCANNING,
 	SCAN_STATUS_OPTIMISTICALLY_SCANNING,
