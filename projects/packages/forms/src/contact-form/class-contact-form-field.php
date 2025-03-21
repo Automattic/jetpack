@@ -784,10 +784,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $label - the field label.
 	 * @param string $class - the field CSS class.
 	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
 	 *
 	 * @return string HTML for the file upload field.
 	 */
-	private function render_file_field( $id, $label, $class, $required ) {
+	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
 		// Enqueue necessary scripts and styles.
 		$this->enqueue_file_field_assets();
 
@@ -843,6 +844,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'hasFiles'   => false,
 		);
 
+		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text );
 		ob_start();
 		?>
 		<div
@@ -881,8 +883,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			</div>
 		</div>
 		<?php
-
-		return ob_get_clean();
+		return $field . ob_get_clean();
 	}
 
 	/**
@@ -1296,7 +1297,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
 				break;
 			case 'file':
-				$field .= $this->render_file_field( $id, $label, $value, $field_class, $required );
+				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
