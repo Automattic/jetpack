@@ -1,0 +1,4 @@
+jetpack_vendor/
+node_modules/
+vendor/
+*
