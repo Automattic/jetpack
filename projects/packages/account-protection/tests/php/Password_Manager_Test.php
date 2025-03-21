@@ -106,7 +106,7 @@ class Password_Manager_Test extends BaseTestCase {
 		$password_manager_mock->on_password_reset( $user );
 	}
 
-	public function test_save_recent_password_hash_stores_last_10_passwords() {
+	public function test_save_recent_password_hash_stores_last_10_hashes() {
 		$user_id         = 1;
 		$password_hashes = array(
 			'hash1',
