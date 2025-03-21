@@ -134,6 +134,8 @@ class Password_Strength_Meter {
 	 * @return void
 	 */
 	public function localize_jetpack_data( bool $user_specific = false ): void {
+		$jetpack_logo = new Jetpack_Logo();
+
 		wp_localize_script(
 			'jetpack-password-strength-meter',
 			'jetpackData',
@@ -141,7 +143,7 @@ class Password_Strength_Meter {
 				'ajaxurl'                => admin_url( 'admin-ajax.php' ),
 				'nonce'                  => wp_create_nonce( 'validate_password_nonce' ),
 				'userSpecific'           => $user_specific,
-				'logo'                   => htmlspecialchars( ( new Jetpack_Logo() )->get_jp_emblem( true ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
+				'logo'                   => htmlspecialchars( $jetpack_logo->get_jp_emblem( true ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
 				'validationInitialState' => $this->validation_service->get_validation_initial_state( $user_specific ),
 			)
 		);
