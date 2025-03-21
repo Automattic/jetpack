@@ -34,7 +34,7 @@
 	#wpadminbar li.hover .ab-item:before,
 	#wpadminbar li:hover #adminbarsearch:before,
 	#wpadminbar li #adminbarsearch.adminbar-focused:before {
-		color: $studio-blue-30;
+		color: $deprecated-studio-blue-30;
 	}
 
 	#wpadminbar .ab-submenu .ab-item,
@@ -47,6 +47,6 @@
 	}
 
 	#wpadminbar #wp-admin-bar-user-info a:hover .display-name {
-		color: $studio-blue-30;
+		color: $deprecated-studio-blue-30;
 	}
 }
