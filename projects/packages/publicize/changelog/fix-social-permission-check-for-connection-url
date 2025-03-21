@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social: Fix permission check for connection url

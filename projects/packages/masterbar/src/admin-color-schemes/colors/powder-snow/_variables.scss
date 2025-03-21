@@ -1,12 +1,13 @@
 // make use of color studio variables for consistency across products
 @import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
 @import 'node_modules/@automattic/color-studio/dist/color-variables-rgb.scss';
+@import '../deprecated-color-variables.scss';
 
 // core variables (core _variables.scss)
 $base-color: $studio-gray-100; // Calypso --color-masterbar-background
 $icon-color: $studio-gray-50; // Calypso --color-sidebar-gridicon-fill
-$highlight-color: $studio-blue-50; // Calypso --color-accent
-$notification-color: $studio-blue-30; // Calypso --color-masterbar-unread-dot-background
+$highlight-color: $deprecated-studio-blue-50; // Calypso --color-accent
+$notification-color: $deprecated-studio-blue-30; // Calypso --color-masterbar-unread-dot-background
 
 // global (core _variables.scss)
 $body-background: $studio-gray-0; // Calypso --color-surface-backdrop
@@ -14,15 +15,15 @@ $body-background: $studio-gray-0; // Calypso --color-surface-backdrop
 // admin menu & admin-bar (core _variables.scss)
 $menu-text: $studio-gray-80; // Calypso --color-sidebar-text
 $menu-background: $studio-gray-5; // Calypso --color-sidebar-background
-$menu-highlight-text: $studio-blue-60; // Calypso --color-sidebar-menu-hover-text
-$menu-highlight-icon: $studio-blue-60;
+$menu-highlight-text: $deprecated-studio-blue-60; // Calypso --color-sidebar-menu-hover-text
+$menu-highlight-icon: $deprecated-studio-blue-60;
 $menu-highlight-background: $studio-white; // Calypso --color-sidebar-menu-hover-background
 $menu-current-text: $studio-white; // Calypso --color-sidebar-menu-selected-text
 $menu-current-icon: $menu-current-text;
 $menu-current-background: $studio-gray-60; // Calypso --color-sidebar-menu-selected-background
 $menu-submenu-text: $studio-gray-80; // Calypso --color-sidebar-submenu-text
 $menu-submenu-background: $studio-gray-10; // Calypso --color-sidebar-submenu-background
-$menu-submenu-focus-text: $studio-blue-60; // Calypso --color-sidebar-submenu-hover-text
+$menu-submenu-focus-text: $deprecated-studio-blue-60; // Calypso --color-sidebar-submenu-hover-text
 $menu-submenu-current-text: $studio-gray-80; // Calypso --color-sidebar-submenu-selected-text
 $adminbar-avatar-frame: $studio-gray-90;
 
@@ -49,4 +50,4 @@ $menu-nudge-background: $studio-white;
 $menu-nudge-text-color: $studio-black;
 $menu-nudge-cta-background: $highlight-color;
 $menu-nudge-cta-color: $studio-white;
-$menu-nudge-cta-background-hover: $studio-blue-60;
+$menu-nudge-cta-background-hover: $deprecated-studio-blue-60;
