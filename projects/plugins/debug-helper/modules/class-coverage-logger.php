@@ -39,7 +39,7 @@ class Coverage_Logger {
 
 		$coverage_data = xdebug_get_code_coverage();
 
-		$sql = sprintf( 'INSERT INTO `%s` (path, line) VALUES ', $wpdb->prefix . self::DATABASE_NAME );
+		$sql = sprintf( 'INSERT IGNORE INTO `%s` (path, line) VALUES ', $wpdb->prefix . self::DATABASE_NAME );
 
 		foreach ( $coverage_data as $file => $lines ) {
 			$path = substr( $file, strlen( ABSPATH ) );
@@ -72,7 +72,8 @@ class Coverage_Logger {
   id mediumint(9) NOT NULL AUTO_INCREMENT,
   path varchar(255),
   line int,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  UNIQUE KEY `unique_path` (path, line)
 ) $charset_collate;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
