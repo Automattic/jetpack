@@ -23,7 +23,7 @@ class Password_Detection_Test extends BaseTestCase {
 	public function test_login_form_password_detection_does_not_ask_validation_service_if_user_doesnt_require_protection(): void {
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->never() )
-			->method( 'is_weak_password' );
+			->method( 'is_leaked_password' );
 
 		$sut = new Password_Detection( null, $validation_service_mock );
 
@@ -35,7 +35,7 @@ class Password_Detection_Test extends BaseTestCase {
 	public function test_login_form_password_detection_does_not_ask_validation_service_if_user_has_wrong_password(): void {
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->never() )
-			->method( 'is_weak_password' );
+			->method( 'is_leaked_password' );
 
 		$sut = new Password_Detection( null, $validation_service_mock );
 
@@ -51,7 +51,7 @@ class Password_Detection_Test extends BaseTestCase {
 
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->once() )
-			->method( 'is_weak_password' )
+			->method( 'is_leaked_password' )
 			->with( 'pw' )
 			->willReturn( false );
 
@@ -67,12 +67,12 @@ class Password_Detection_Test extends BaseTestCase {
 		remove_filter( 'check_password', '__return_true' );
 	}
 
-	public function test_login_form_password_detection_sends_email_and_returns_error_for_weak_password(): void {
+	public function test_login_form_password_detection_sends_email_and_returns_error_for_leaked_password(): void {
 		add_filter( 'check_password', '__return_true' );
 
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->once() )
-			->method( 'is_weak_password' )
+			->method( 'is_leaked_password' )
 			->with( 'pw' )
 			->willReturn( true );
 
@@ -109,7 +109,7 @@ class Password_Detection_Test extends BaseTestCase {
 
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->once() )
-			->method( 'is_weak_password' )
+			->method( 'is_leaked_password' )
 			->with( 'pw' )
 			->willReturn( true );
 
@@ -142,6 +142,54 @@ class Password_Detection_Test extends BaseTestCase {
 		);
 
 		remove_filter( 'check_password', '__return_true' );
+	}
+
+	public function test_set_transient_success_sets_correct_transient() {
+		$sut          = new Password_Detection();
+		$user_id      = 1;
+		$success_data = array(
+			'code'    => 'success_code',
+			'message' => 'Success message',
+		);
+
+		$sut->set_transient_success( $user_id, $success_data );
+
+		$this->assertSame(
+			$success_data,
+			get_transient( Config::TRANSIENT_PREFIX . "_success_{$user_id}" )
+		);
+	}
+
+	public function test_set_transient_error_sets_correct_transient() {
+		$sut        = new Password_Detection();
+		$user_id    = 1;
+		$error_data = array(
+			'code'    => 'error_code',
+			'message' => 'Error message',
+		);
+
+		$sut->set_transient_error( $user_id, $error_data );
+
+		$this->assertSame(
+			$error_data,
+			get_transient( Config::TRANSIENT_PREFIX . "_error_{$user_id}" )
+		);
+	}
+
+	public function test_extract_and_clear_transient_data_retrieves_and_deletes_transient() {
+		$transient_key  = 'test_transient';
+		$transient_data = array(
+			'message' => 'Test Message',
+			'code'    => 'test_code',
+		);
+
+		set_transient( $transient_key, $transient_data );
+
+		$sut    = new Password_Detection();
+		$result = $sut->extract_and_clear_transient_data( $transient_key );
+
+		$this->assertSame( $transient_data, $result );
+		$this->assertFalse( get_transient( $transient_key ) );
 	}
 
 	public function test_render_page_redirects_to_admin_page_if_user_already_logged_in(): void {

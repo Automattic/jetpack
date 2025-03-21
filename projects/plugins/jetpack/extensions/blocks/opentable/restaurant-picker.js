@@ -43,6 +43,7 @@ export default function RestaurantPicker( props ) {
 			{ ...props }
 			onChange={ onChange }
 			__nextHasNoMarginBottom={ true }
+			__next40pxDefaultSize={ true }
 		/>
 	);
 

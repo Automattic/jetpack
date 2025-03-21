@@ -1,3 +1,4 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -10,16 +11,16 @@ import SimpleNotice from '../components/notice';
 import NoticeAction from '../components/notice/notice-action';
 
 const MODULE_NAME = 'account-protection';
-const SUPPORT_LINK = 'https://jetpack.com/?post_type=jetpack_support&p=324199';
 
 const AccountProtectionComponent = class extends Component {
 	render() {
 		const { isSupported, isActive, unavailableInOfflineMode } = this.props;
+		const module = this.props.getModule( MODULE_NAME );
 
 		return (
 			<SettingsCard
 				{ ...this.props }
-				module="account-protection"
+				module={ MODULE_NAME }
 				header={ _x( 'Account protection', 'Settings header', 'jetpack' ) }
 				hideButton={ true }
 			>
@@ -32,7 +33,12 @@ const AccountProtectionComponent = class extends Component {
 							'jetpack'
 						) }
 						children={
-							<NoticeAction external href={ SUPPORT_LINK + '#unsupported-environments' }>
+							<NoticeAction
+								external
+								href={ getRedirectUrl( 'jetpack-account-protection', {
+									anchor: 'unsupported-environments',
+								} ) }
+							>
 								{ __( 'Learn more', 'jetpack' ) }
 							</NoticeAction>
 						}
@@ -42,9 +48,12 @@ const AccountProtectionComponent = class extends Component {
 					<SimpleNotice
 						showDismiss={ false }
 						status={ 'is-info' }
-						text={ __( 'Jetpack recommends enabling this feature.', 'jetpack' ) }
+						text={ __(
+							'Jetpack recommends enabling this feature to enhance account security.',
+							'jetpack'
+						) }
 						children={
-							<NoticeAction external href={ SUPPORT_LINK + '#risks-of-using-a-weak-password' }>
+							<NoticeAction external href={ getRedirectUrl( 'jetpack-account-protection-risks' ) }>
 								{ __( 'Learn about the risks', 'jetpack' ) }
 							</NoticeAction>
 						}
@@ -54,13 +63,10 @@ const AccountProtectionComponent = class extends Component {
 					hasChild
 					disableInOfflineMode
 					disableInSiteConnectionMode
-					module={ this.props.getModule( MODULE_NAME ) }
+					module={ module }
 					support={ {
-						text: __(
-							'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed.',
-							'jetpack'
-						),
-						link: SUPPORT_LINK,
+						text: module.long_description,
+						link: module.learn_more_button,
 					} }
 				>
 					<ModuleToggle

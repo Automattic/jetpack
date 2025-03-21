@@ -73,7 +73,7 @@ class Validation_Service {
 				'message' => __( 'Between 6 and 150 characters', 'jetpack-account-protection' ),
 				'info'    => null,
 			),
-			'weak'               => array(
+			'leaked'             => array(
 				'status'  => null,
 				'message' => __( 'Not a leaked password', 'jetpack-account-protection' ),
 				'info'    => __( 'If found in a public breach, this password may already be known to attackers.', 'jetpack-account-protection' ),
@@ -113,7 +113,7 @@ class Validation_Service {
 
 		$validation_state['contains_backslash']['status'] = $this->contains_backslash( $password );
 		$validation_state['invalid_length']['status']     = $this->is_invalid_length( $password );
-		$validation_state['weak']['status']               = $this->is_weak_password( $password );
+		$validation_state['leaked']['status']             = $this->is_leaked_password( $password );
 
 		if ( ! $user_specific ) {
 			return $validation_state;
@@ -122,7 +122,7 @@ class Validation_Service {
 		// Run checks on existing user data
 		$user = wp_get_current_user();
 		$validation_state['matches_user_data']['status'] = $this->matches_user_data( $user, $password );
-		$validation_state['recent']['status']            = $this->is_recent_password( $user, $password );
+		$validation_state['recent']['status']            = $this->is_recent_password_hash( $user, $password );
 
 		return $validation_state;
 	}
@@ -151,7 +151,7 @@ class Validation_Service {
 			$errors[] = __( '<strong>Error:</strong> The password must be between 6 and 150 characters.', 'jetpack-account-protection' );
 		}
 
-		if ( $this->is_weak_password( $password ) ) {
+		if ( $this->is_leaked_password( $password ) ) {
 			$errors[] = __( '<strong>Error:</strong> The password was found in a public leak.', 'jetpack-account-protection' );
 		}
 
@@ -161,7 +161,7 @@ class Validation_Service {
 			if ( $this->matches_user_data( $user, $password ) ) {
 				$errors[] = __( '<strong>Error:</strong> The password matches new user data.', 'jetpack-account-protection' );
 			}
-			if ( $this->is_recent_password( $user, $password ) ) {
+			if ( $this->is_recent_password_hash( $user, $password ) ) {
 				$errors[] = __( '<strong>Error:</strong> The password was used recently.', 'jetpack-account-protection' );
 			}
 		}
@@ -195,8 +195,8 @@ class Validation_Service {
 	/**
 	 * Check if the password matches any user data.
 	 *
-	 * @param \WP_User|\stdClass $user The user.
-	 * @param string             $password The password to check.
+	 * @param \WP_User|\stdClass|null $user The user.
+	 * @param string                  $password The password to check.
 	 *
 	 * @return bool True if the password matches any user data, false otherwise.
 	 */
@@ -244,7 +244,7 @@ class Validation_Service {
 	 *
 	 * @return bool True if the password is in the list of compromised/common passwords, false otherwise.
 	 */
-	public function is_weak_password( string $password ): bool {
+	public function is_leaked_password( string $password ): bool {
 		if ( ! $this->connection_manager->is_connected() ) {
 			return false;
 		}
@@ -299,7 +299,7 @@ class Validation_Service {
 	 *
 	 * @return bool True if the password was recently used, false otherwise.
 	 */
-	public function is_recent_password( $user, string $password ): bool {
+	public function is_recent_password_hash( $user, string $password ): bool {
 		// Skip on user creation
 		if ( empty( $user->ID ) ) {
 			return false;
