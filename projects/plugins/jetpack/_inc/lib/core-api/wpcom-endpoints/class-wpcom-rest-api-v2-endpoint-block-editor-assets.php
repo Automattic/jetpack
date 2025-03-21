@@ -15,7 +15,7 @@ if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller'
 	 *
 	 * @see WP_REST_Controller
 	 */
-	class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller extends WP_REST_Controller {
+	class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller {
 		const CACHE_BUSTER = '2025-02-28';
 
 		/**
@@ -202,7 +202,7 @@ if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller'
 
 			return new WP_Error(
 				'rest_cannot_read_block_editor_assets',
-				__( 'Sorry, you are not allowed to read the block editor assets.', 'jetpack-mu-wpcom' ),
+				__( 'Sorry, you are not allowed to read the block editor assets.', 'jetpack' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -221,11 +221,11 @@ if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller'
 				'type'       => 'object',
 				'properties' => array(
 					'styles'  => array(
-						'description' => esc_html__( 'Style link tags for the block editor.', 'jetpack-mu-wpcom' ),
+						'description' => esc_html__( 'Style link tags for the block editor.', 'jetpack' ),
 						'type'        => 'string',
 					),
 					'scripts' => array(
-						'description' => esc_html__( 'Script tags for the block editor.', 'jetpack-mu-wpcom' ),
+						'description' => esc_html__( 'Script tags for the block editor.', 'jetpack' ),
 						'type'        => 'string',
 					),
 				),
@@ -238,11 +238,11 @@ if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller'
 	}
 
 	// Ensure conditional admin- and editor-only dependencies are registered
-	if ( WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller::is_editor_assets_request() ) {
+	if ( WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets::is_editor_assets_request() ) {
 		require_once ABSPATH . '/wp-admin/includes/class-wp-screen.php';
 		require_once ABSPATH . '/wp-admin/includes/screen.php';
 		set_current_screen( 'core/edit-post' );
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller' );
+wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets' );
