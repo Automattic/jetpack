@@ -93,6 +93,7 @@ export const Swipeable = ( {
 	...otherProps
 } ) => {
 	const [ swipeableArea, setSwipeableArea ] = useState< DOMRect | null >( null );
+	// TODO: Needs to be added RTL support
 	const isRtl = false;
 
 	const [ resizeObserverRef, entry ] = useResizeObserver();
@@ -347,6 +348,7 @@ export const Swipeable = ( {
 								'is-next': index > currentPage,
 							} ) }
 							key={ `page-${ index }` }
+							data-testid={ `swipeable-page-${ index + 1 }` }
 						>
 							{ child }
 						</div>
