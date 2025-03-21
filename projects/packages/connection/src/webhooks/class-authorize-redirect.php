@@ -161,6 +161,7 @@ class Authorize_Redirect {
 		 * Filter the URL used when authorizing a user to a WordPress.com account.
 		 *
 		 * @since jetpack-8.9.0
+		 * @since 2.7.6 Added $raw parameter.
 		 * @since $$next-version$$ Added $provider and $provider_args parameters.
 		 *
 		 * @param string      $url           Connection URL.
