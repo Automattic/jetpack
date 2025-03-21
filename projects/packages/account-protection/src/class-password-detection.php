@@ -402,6 +402,12 @@ class Password_Detection {
 			return false;
 		}
 
+		$user_requires_protection = apply_filters( Config::TRANSIENT_PREFIX . '_user_requires_protection', true, $user );
+
+		if ( ! $user_requires_protection ) {
+			return false;
+		}
+
 		return wp_check_password( $password, $user->user_pass, $user->ID );
 	}
 
