@@ -1177,7 +1177,7 @@ class REST_Connector {
 			false,
 			$provider,
 			array(
-				'email_address' => isset( $email ) ? $email : null,
+				'email_address' => $email ?? null,
 			)
 		);
 
