@@ -109,6 +109,10 @@
 		}
 	}
 
+	label[for='verbum-email-form-email'].verbum__label {
+		display: flex;
+	}
+
 	&.loading label[for='verbum-email-form-email'] {
 		svg {
 			animation: spin 1s linear infinite;
