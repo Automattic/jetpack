@@ -12,6 +12,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Unauth_File_Upload_Handler;
 
 /**
@@ -35,19 +36,25 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 		add_filter( 'rest_pre_serve_request', array( $this, 'add_cors_headers' ), 10, 4 );
 	}
 
+	/**
+	 * Adds CORS headers to the preflight response.
+	 *
+	 * @param bool             $served Whether the request has been served.
+	 * @param WP_HTTP_Response $result Result to send to the client. Usually a WP_REST_Response.
+	 * @param WP_REST_Request  $request Request used to generate the response.
+	 * @param WP_REST_Server   $server Server instance.
+	 * @return bool
+	 */
 	public function add_cors_headers( bool $served, WP_HTTP_Response $result, WP_REST_Request $request, WP_REST_Server $server ): bool {
-		l( 'add_cors_headers >>>>>>>>>>>>>>>>>>>>>>>>>>>' );
 		if ( ! $this->matches_endpoint_route( $request->get_route() ) ) {
 			return $served;
 		}
 
 		if ( $this->is_preflight() ) { // phpcs:ignore
-			l( 'PREFLIGHT request! >>>' );
-			header( 'Access-Control-Allow-Origin: *', true, 204 );
-			header( 'Access-Control-Allow-Methods: POST, OPTIONS', true, 204 );
-			header( 'Access-Control-Allow-Headers: Authorization, Content-Type,Referer, X-Requested-With, X-WP-Nonce, X-Jetpack-Upload-Nonce', true, 204 );
-			header( 'Access-Control-Allow-Credentials: true', true, 204 );
-			return $served;
+			$server->send_header( 'Access-Control-Allow-Origin', '*' );
+			$server->send_header( 'Access-Control-Allow-Methods', 'POST, OPTIONS' );
+			$server->send_header( 'Access-Control-Allow-Headers', 'Authorization, Content-Type,Referer, X-Requested-With, X-WP-Nonce, X-Jetpack-Upload-Nonce' );
+			$server->send_header( 'Access-Control-Allow-Credentials', 'true' );
 		}
 
 		return $served;
@@ -59,9 +66,21 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 * @return boolean
 	 */
 	protected function is_preflight() {
-		return isset( $_SERVER['REQUEST_METHOD'], $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'], $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'], $_SERVER['HTTP_ORIGIN'] ) && 'OPTIONS' === $_SERVER['REQUEST_METHOD'];
+		return (
+			isset( $_SERVER['REQUEST_METHOD'] ) &&
+			isset( $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] ) &&
+			isset( $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'] ) &&
+			isset( $_SERVER['HTTP_ORIGIN'] ) &&
+			'OPTIONS' === $_SERVER['REQUEST_METHOD']
+		);
 	}
-
+	/**
+	 * Checks that the endpoint is the one that we want.
+	 *
+	 * @param string $route The route to check.
+	 * @param string $path The path to check.
+	 * @return bool
+	 */
 	private function matches_endpoint_route( string $route, string $path = '(/remove)?' ): bool {
 		$endpoint_route         = $this->namespace . '/sites/\d+' . $this->rest_base . $path;
 		$endpoint_route_pattern = '/' . ltrim( $endpoint_route, '/' );
@@ -121,7 +140,6 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 * @return bool|WP_Error True if the request has permission, WP_Error object otherwise.
 	 */
 	public function permissions_check( $request ) {
-		l( 'permissions_check ...' );
 		$this->served = true;
 		// First check if we have a file at all
 		$files = $request->get_file_params();
@@ -135,8 +153,19 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 
 		return $this->permissions_check_params( $request );
 	}
-
+	/**
+	 * Set the user id from the cookie if the user is not logged in.
+	 *
+	 * @param int    $uid The user id.
+	 * @param string $action The action.
+	 *
+	 * @return int|null The user id.
+	 */
 	public function set_uid_from_cookie( $uid, $action ) {
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			return $uid;
+		}
+
 		// Only check the jetpack_file_upload_ action.
 		if ( ! str_starts_with( $action, 'jetpack_file_upload_' ) ) {
 			return $uid;
@@ -151,8 +180,8 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 			return $uid;
 		}
 
-		l( 'set_uid_from_cookie ...' );
-		return wp_validate_auth_cookie( $_COOKIE['wp_api_sec'], 'secure_auth' );
+		$wp_api_sec_cookie = wp_unslash( $_COOKIE['wp_api_sec'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		return wp_validate_auth_cookie( $wp_api_sec_cookie, 'secure_auth' );
 	}
 
 	/**
@@ -163,12 +192,10 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 */
 	public function permissions_check_params( $request ) {
 		add_filter( 'nonce_user_logged_out', array( $this, 'set_uid_from_cookie' ), 10, 2 );
-		l( 'START permissions_check_params ...' );
 		// Check the wp_rest upload nonce
 		$upload_nonce = $request->get_header( 'X-WP-Nonce' );
 
 		if ( ! $upload_nonce ) {
-			l( 'FAIL:permissions_check_params ... missing_WP_nonce' );
 			return new WP_Error(
 				'missing_upload_nonce',
 				__( 'wp rest nonce is required.', 'jetpack' ),
@@ -181,7 +208,6 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 		$upload_nonce = $request->get_header( 'X-Jetpack-Upload-Nonce' );
 
 		if ( ! $upload_nonce ) {
-			l( 'FAIL:permissions_check_params ... missing_upload_nonce' );
 			return new WP_Error(
 				'missing_upload_nonce',
 				__( 'Jetpack upload nonce is required.', 'jetpack' ),
@@ -190,7 +216,6 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 		}
 
 		if ( ! wp_verify_nonce( $upload_nonce, 'jetpack_file_upload_' . $context ) ) {
-			l( 'FAIL: permissions_check_params ... invalid_upload_nonce' );
 			return new WP_Error(
 				'invalid_upload_nonce',
 				__( 'Invalid Jetpack upload nonce.', 'jetpack' ),
@@ -200,15 +225,14 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 
 		remove_filter( 'nonce_user_logged_out', array( $this, 'set_uid_from_cookie' ), 10 );
 
-		// // Check if this is a WPCOM Simple site
-		// if ( ( new Host() )->is_wpcom_simple() ) {
-		// l( 'permissions_check_params ... is_wpcom_simple' );
-		// return new WP_Error(
-		// 'rest_forbidden',
-		// __( 'Jetpack sites only endpoint.', 'jetpack' ),
-		// array( 'status' => 403 )
-		// );
-		// }
+		// Check if this is a WPCOM Simple site
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Jetpack sites only endpoint.', 'jetpack' ),
+				array( 'status' => 403 )
+			);
+		}
 
 		/**
 		 * Filter whether to allow the file upload based on IP or other criteria.
@@ -220,7 +244,6 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 		 */
 		$ip_check = apply_filters( 'jetpack_unauth_file_upload_ip_check', true, $request );
 		if ( is_wp_error( $ip_check ) ) {
-			l( 'FAIL: permissions_check_params ... ip_check' );
 			$ip_check->add_data( array( 'status' => 429 ) ); // Rate limit exceeded
 			return $ip_check;
 		}
@@ -235,7 +258,6 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function handle_upload( $request ) {
-		l( 'handle_upload ...' );
 		$files   = $request->get_file_params();
 		$file    = $files['file'];
 		$context = $request->get_param( 'context' );
@@ -243,17 +265,7 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
 
 		$upload_handler = new Unauth_File_Upload_Handler();
-		// $result = $upload_handler->handle_local_file_upload( $file, $context );
-		l( $file );
-
-		// Return a 200 OK response with a success message
-		return new WP_REST_Response(
-			array(
-				'success' => true,
-				'message' => 'File uploaded successfully.',
-			),
-			200
-		);
+		$result         = $upload_handler->handle_local_file_upload( $file, $context );
 
 		if ( is_wp_error( $result ) ) {
 			// Add proper HTTP status codes based on error type
@@ -293,7 +305,6 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function remove_file( $request ) {
-		l( 'remove_file ...' );
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
 		$upload_handler = new Unauth_File_Upload_Handler();
 
