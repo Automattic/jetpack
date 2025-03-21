@@ -172,14 +172,22 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 
 		// Add a hook to fire page output changed action when a module that Changes_Output_After_Activation indicates something has changed.
 		foreach ( $this->available_modules as $module ) {
+			if ( ! $module->is_enabled() ) {
+				continue;
+			}
+
 			$feature = $module->feature;
-			if ( $module->is_enabled() && $feature instanceof Changes_Output_After_Activation ) {
-				$action_names = $feature::get_change_output_action_names();
-				if ( ! empty( $action_names ) ) {
-					foreach ( $action_names as $action ) {
-						add_action( $action, array( $this, 'handle_module_output_change' ), 10, 1 );
-					}
-				}
+			if ( ! ( $feature instanceof Changes_Output_After_Activation ) ) {
+				continue;
+			}
+
+			$action_names = $feature::get_change_output_action_names();
+			if ( empty( $action_names ) ) {
+				continue;
+			}
+
+			foreach ( $action_names as $action ) {
+				add_action( $action, array( $this, 'handle_module_output_change' ), 10, 1 );
 			}
 		}
 	}
