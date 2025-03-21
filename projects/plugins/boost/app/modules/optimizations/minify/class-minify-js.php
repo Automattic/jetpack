@@ -47,15 +47,6 @@ class Minify_JS implements Pluggable, Changes_Output_On_Activation, Changes_Outp
 		return 'minify_js';
 	}
 
-	/**
-	 * The module starts serving as soon as it's enabled.
-	 *
-	 * @return bool
-	 */
-	public function is_ready() {
-		return true;
-	}
-
 	public static function get_change_output_action_names() {
 		return array( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_js_excludes' );
 	}

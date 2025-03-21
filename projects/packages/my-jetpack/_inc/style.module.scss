@@ -31,4 +31,40 @@
 		background-color: var(--jp-white-off);
 	}
 
+	.is-wp-toolbar-disabled {
+		#wpadminbar {
+			display: none;
+		}
+	}
+
+	.jetpack-admin-full-screen {
+		#wpwrap {
+			top: 0;
+		}
+
+		#wpbody-content {
+			min-height: 100vh !important;
+			padding-bottom: 0;
+		}
+
+		#wpcontent > *,
+		#wpfooter,
+		#adminmenumain,
+		.notice,
+		.error,
+		.updated {
+			display: none;
+		}
+
+		#wpcontent {
+			margin-left: 0 !important;
+			padding-left: 0 !important;
+
+			> #wpbody {
+				display: block;
+				margin-top: 0 !important;
+				padding-top: 0 !important;
+			}
+		}
+	}
 }
