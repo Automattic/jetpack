@@ -268,7 +268,7 @@ class REST_Connector {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'connection_authorize_url_provider' ),
-				'permission_callback' => '__return_true', // Just for testing, it should be user_connection_data_permission_check
+				'permission_callback' => __CLASS__ . '::user_connection_data_permission_check',
 				'args'                => array(
 					'provider'      => array(
 						'description' => __( 'Authentication provider (google, github, apple, link)', 'jetpack-connection' ),
@@ -1148,7 +1148,7 @@ class REST_Connector {
 	 */
 	public function connection_authorize_url_provider( $request ) {
 		$provider     = $request['provider'];
-		$redirect_uri = $request['redirect_uri'];
+		$redirect_uri = $request['redirect_uri'] ?? '';
 
 		// Validate magic link parameters if provider is 'link'
 		if ( 'link' === $provider ) {
@@ -1177,7 +1177,7 @@ class REST_Connector {
 			false,
 			$provider,
 			array(
-				'email_address' => $email ?? null,
+				'email_address' => $email ?? '',
 			)
 		);
 
