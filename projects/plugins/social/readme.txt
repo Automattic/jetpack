@@ -104,9 +104,9 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 6.2.1 - 2025-03-19
-#### Changed
-- Internal updates.
+### 6.3.0 - 2025-03-21
+#### Added
+- My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack.
 
 == Upgrade Notice ==
 
