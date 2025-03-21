@@ -1,7 +1,6 @@
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { useSelect } from '@wordpress/data';
-import { PluginPostPublishPanel } from '@wordpress/edit-post';
-import { store as editorStore } from '@wordpress/editor';
+import { PluginPostPublishPanel, store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { ManualSharingInfo } from '../manual-sharing/info';
 import { ShareButtons } from '../share-buttons/share-buttons';
@@ -22,7 +21,6 @@ export default function PostPublishManualSharing() {
 		<PluginPostPublishPanel
 			initialOpen
 			title={ __( 'Manual sharing', 'jetpack-publicize-components' ) }
-			id="publicize-manual-sharing"
 			icon={ <JetpackEditorPanelLogo /> }
 		>
 			<ManualSharingInfo className={ styles.description } variant="body-small" />

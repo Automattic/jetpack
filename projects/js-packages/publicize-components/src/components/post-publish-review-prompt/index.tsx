@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
-import { PluginPostPublishPanel } from '@wordpress/edit-post';
+import { PluginPostPublishPanel } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { usePostStartedPublishing } from '../../hooks/use-saving-post';
@@ -44,7 +44,7 @@ const PostPublishReviewPrompt = () => {
 	}
 
 	return (
-		<PluginPostPublishPanel id="publicize-title">
+		<PluginPostPublishPanel>
 			<ReviewPrompt
 				href={ getRedirectUrl( 'jetpack-social-plugin-reviews' ) }
 				onClose={ handleReviewDismiss }
