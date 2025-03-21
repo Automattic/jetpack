@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hides the Import banner when actually running the import tool.
