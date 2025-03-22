@@ -80,6 +80,10 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 	);
 
 	const getErrorMessage = () => {
+		if ( ! isValidEmail ) {
+			return __( 'Please enter a valid email address', 'jetpack-my-jetpack' );
+		}
+
 		return __( 'An error occurred. Please try again.', 'jetpack-my-jetpack' );
 	};
 
