@@ -1,6 +1,6 @@
 .testimonial-base {
     background-size: cover;
-    background-position: center;
+    background-position: center top;
     background-repeat: no-repeat;
     font-family: 'Open Sans', sans-serif;
     width: 100%;
@@ -24,6 +24,7 @@
     @extend .testimonial-base;
     background-image: url('./grow-your-audience.png');
     background-color: #1f1f1f;
+    font-family: 'Open Sans', sans-serif;
 }
 
 .testimonial2 {
