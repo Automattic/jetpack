@@ -14,6 +14,10 @@ interface EmailInputProps {
 }
 
 const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
+	const { handleRegisterSite, isSiteConnected, siteIsRegistering, siteIsRegistered } =
+		useMyJetpackConnection( {
+			skipUserConnection: true,
+		} );
 	const [ userEmail, setUserEmail ] = useState( '' );
 	const [ isValidEmail, setIsValidEmail ] = useState( true );
 	const [ shouldFetchUrl, setShouldFetchUrl ] = useState( false );
@@ -34,15 +38,11 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 				userEmail
 			) }`,
 		},
-		options: { enabled: shouldFetchUrl && validateEmail( userEmail ) },
+		options: { enabled: shouldFetchUrl && validateEmail( userEmail ) && isSiteConnected },
 		errorMessage: __(
 			'Something went wrong while sending the login link. Please try again. If the issue persists, contact support.',
 			'jetpack-my-jetpack'
 		),
-	} );
-
-	const { handleRegisterSite, siteIsRegistering, siteIsRegistered } = useMyJetpackConnection( {
-		skipUserConnection: true,
 	} );
 
 	const handleOnInput = useCallback(
