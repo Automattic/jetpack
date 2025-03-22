@@ -37,9 +37,8 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 		),
 	} );
 
-	const { handleRegisterSite, siteIsRegistered, isRegistering } = useMyJetpackConnection( {
+	const { handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
-		redirectUri: data?.authorizeUrl,
 	} );
 
 	const handleOnInput = useCallback(
@@ -61,10 +60,18 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 				return;
 			}
 
+			try {
+				await handleRegisterSite();
+			} catch ( error ) {
+				// eslint-disable-next-line no-console
+				console.error( error );
+				// Fail silently
+			}
+
 			setShouldFetchUrl( true );
 			onSubmit?.();
 		},
-		[ userEmail, onSubmit ]
+		[ userEmail, onSubmit, handleRegisterSite ]
 	);
 
 	const getErrorMessage = () => {
@@ -73,12 +80,8 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 
 	// Handle redirection when we get the authorize URL
 	useEffect( () => {
-		if ( data?.authorizeUrl && ! siteIsRegistered && ! isRegistering ) {
-			handleRegisterSite().then( () => {
-				window.location.href = data.authorizeUrl;
-			} );
-		}
-	}, [ data, handleRegisterSite, isRegistering, siteIsRegistered ] );
+		window.location.href = data.authorizeUrl;
+	}, [ data ] );
 
 	return (
 		<form onSubmit={ handleOnSubmit } className={ styles[ 'email-input-container' ] }>
