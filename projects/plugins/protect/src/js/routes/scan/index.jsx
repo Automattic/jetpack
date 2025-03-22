@@ -1,14 +1,18 @@
 import { AdminSection, Container, Col } from '@automattic/jetpack-components';
+import { ThreatsDataViews } from '@automattic/jetpack-scan';
+import { useState } from 'react';
 import AdminPage from '../../components/admin-page';
-import ThreatsList from '../../components/threats-list';
-import useScanStatusQuery from '../../data/scan/use-scan-status-query';
+import OnboardingPopover from '../../components/onboarding-popover';
+import useHistoryQuery from '../../data/scan/use-history-query';
+import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
 import usePlan from '../../hooks/use-plan';
-import useProtectData from '../../hooks/use-protect-data';
+import ScanContextProvider from './context-provider';
 import onboardingSteps from './onboarding-steps';
 import ScanAdminSectionHero from './scan-admin-section-hero';
-import ScanFooter from './scan-footer';
+import ScanToggleGroupControl from './scan-toggle-group-control';
+import styles from './styles.module.scss';
 
 /**
  * Scan Page
@@ -19,22 +23,23 @@ import ScanFooter from './scan-footer';
  */
 const ScanPage = () => {
 	const { hasPlan } = usePlan();
-	const {
-		counts: {
-			current: { threats: numThreats },
-		},
-		lastChecked,
-	} = useProtectData();
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
+	const { data: history } = useHistoryQuery();
+
+	const [ scanResultsAnchor, setScanResultsAnchor ] = useState( null );
 
 	let currentScanStatus;
 	if ( status.error ) {
 		currentScanStatus = 'error';
-	} else if ( ! lastChecked ) {
+	} else if ( ! status.lastChecked ) {
 		currentScanStatus = 'in_progress';
 	} else {
 		currentScanStatus = 'active';
 	}
+
+	const hasActiveThreats = status && !! status.threats.length;
+	const hasHistory = history && !! history.threats.length;
+	const showResults = hasActiveThreats || hasHistory;
 
 	// Track view for Protect admin page.
 	useAnalyticsTracks( {
@@ -47,19 +52,43 @@ const ScanPage = () => {
 
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
-			<AdminPage>
-				<ScanAdminSectionHero />
-				{ ( ! status.error || numThreats ) && (
-					<AdminSection>
-						<Container horizontalSpacing={ 7 } horizontalGap={ 4 }>
-							<Col>
-								<ThreatsList />
-							</Col>
-						</Container>
-					</AdminSection>
-				) }
-				<ScanFooter />
-			</AdminPage>
+			<ScanContextProvider>
+				<AdminPage>
+					<ScanAdminSectionHero size={ showResults ? 'normal' : 'large' } />
+					{ showResults && (
+						<AdminSection>
+							<Container
+								className={ styles[ 'scan-results-container' ] }
+								horizontalSpacing={ 3 }
+								horizontalGap={ 4 }
+							>
+								<Col>
+									<div ref={ setScanResultsAnchor }>
+										<ThreatsDataViews
+											data={ status ? status.threats : [] }
+											header={ <ScanToggleGroupControl /> }
+										/>
+									</div>
+									{ !! status && ! isScanInProgress( status ) && (
+										<OnboardingPopover
+											id={ hasPlan ? 'paid-scan-results' : 'free-scan-results' }
+											anchor={ scanResultsAnchor }
+											position={ 'top' }
+										/>
+									) }
+									{ !! status && ! isScanInProgress( status ) && hasPlan && (
+										<OnboardingPopover
+											id={ 'paid-understand-severity' }
+											anchor={ scanResultsAnchor }
+											position={ 'top' }
+										/>
+									) }
+								</Col>
+							</Container>
+						</AdminSection>
+					) }
+				</AdminPage>
+			</ScanContextProvider>
 		</OnboardingContext.Provider>
 	);
 };

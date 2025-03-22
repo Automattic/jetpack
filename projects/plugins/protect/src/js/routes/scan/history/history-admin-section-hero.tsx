@@ -1,85 +1,80 @@
-import { Status, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
 import AdminSectionHero from '../../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../../components/error-admin-section-hero';
-import ScanNavigation from '../../../components/scan-navigation';
-import useThreatsList from '../../../components/threats-list/use-threats-list';
-import useProtectData from '../../../hooks/use-protect-data';
+import useHistoryQuery from '../../../data/scan/use-history-query';
 import styles from './styles.module.scss';
 
-const HistoryAdminSectionHero: React.FC = () => {
-	const { filter = 'all' } = useParams();
-	const { list } = useThreatsList( {
-		source: 'history',
-		status: filter,
-	} );
-	const { counts, error } = useProtectData( {
-		sourceType: 'history',
-		filter: { status: filter },
-	} );
-	const { threats: numAllThreats } = counts.all;
+const HistoryAdminSectionHero: React.FC = ( {
+	size = 'normal',
+}: {
+	size?: 'normal' | 'large';
+} ) => {
+	const { data: history } = useHistoryQuery();
+	const numThreats = history ? history.threats.length : 0;
 
 	const oldestFirstDetected = useMemo( () => {
-		if ( ! list.length ) {
+		if ( ! history || ! history.threats.length ) {
 			return null;
 		}
 
-		return list.reduce( ( oldest, current ) => {
+		return history.threats.reduce( ( oldest, current ) => {
 			return new Date( current.firstDetected ) < new Date( oldest.firstDetected )
 				? current
 				: oldest;
 		} ).firstDetected;
-	}, [ list ] );
+	}, [ history ] );
 
-	if ( error ) {
+	if ( history && history.error ) {
 		return (
 			<ErrorAdminSectionHero
 				baseErrorMessage={ __( 'We are having problems loading your history.', 'jetpack-protect' ) }
-				errorMessage={ error?.message }
-				errorCode={ error?.code }
+				errorMessage={ history.errorMessage }
+				errorCode={ history.errorMessage }
 			/>
 		);
 	}
 
 	return (
-		<AdminSectionHero
-			main={
-				<>
-					<Status status="active" label={ __( 'Active', 'jetpack-protect' ) } />
-					<AdminSectionHero.Heading showIcon>
-						{ numAllThreats > 0
-							? sprintf(
-									/* translators: %s: Total number of threats  */
-									__( '%1$s previously active %2$s', 'jetpack-protect' ),
-									numAllThreats,
-									numAllThreats === 1 ? 'threat' : 'threats'
-							  )
-							: __( 'No previously active threats', 'jetpack-protect' ) }
-					</AdminSectionHero.Heading>
-					<AdminSectionHero.Subheading>
-						<Text>
-							{ oldestFirstDetected ? (
-								<span className={ styles[ 'subheading-content' ] }>
-									{ sprintf(
-										/* translators: %s: Oldest first detected date */
-										__( '%s - Today', 'jetpack-protect' ),
-										dateI18n( 'F jS g:i A', oldestFirstDetected, false )
-									) }
-								</span>
-							) : (
-								__( 'Most recent results', 'jetpack-protect' )
+		<AdminSectionHero>
+			<AdminSectionHero.Main
+				className={ clsx( styles[ 'hero-main' ], {
+					[ styles[ 'hero-main--large' ] ]: size === 'large',
+				} ) }
+			>
+				<Text mb={ 3 }>
+					{ oldestFirstDetected ? (
+						<span className={ styles[ 'subheading-content' ] }>
+							{ sprintf(
+								/* translators: %s: Oldest first detected date */
+								__( '%s – Today', 'jetpack-protect' ),
+								dateI18n( 'F jS g:i A', oldestFirstDetected, false )
 							) }
-						</Text>
-					</AdminSectionHero.Subheading>
-					<div className={ styles[ 'scan-navigation' ] }>
-						<ScanNavigation />
-					</div>
-				</>
-			}
-		/>
+						</span>
+					) : (
+						__( 'Most recent results', 'jetpack-protect' )
+					) }
+				</Text>
+				<AdminSectionHero.Heading
+					icon={ numThreats > 0 ? 'default' : 'success' }
+					iconOutline={ numThreats > 0 }
+					mb={ 2 }
+				>
+					{ numThreats > 0
+						? sprintf(
+								/* translators: %s: Total number of threats  */
+								__( '%1$s previously active %2$s', 'jetpack-protect' ),
+								numThreats,
+								numThreats === 1 ? 'threat' : 'threats'
+						  )
+						: __( 'No previously active threats', 'jetpack-protect' ) }
+				</AdminSectionHero.Heading>
+				<Text>{ __( 'Here you can view all of your threats to date.', 'jetpack-protect' ) }</Text>
+			</AdminSectionHero.Main>
+		</AdminSectionHero>
 	);
 };
 

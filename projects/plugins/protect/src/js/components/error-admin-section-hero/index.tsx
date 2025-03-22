@@ -1,8 +1,7 @@
 import { Text } from '@automattic/jetpack-components';
+import { ShieldIcon } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
-import { Icon, warning } from '@wordpress/icons';
 import AdminSectionHero from '../admin-section-hero';
-import ScanNavigation from '../scan-navigation';
 import styles from './styles.module.scss';
 
 interface ErrorAdminSectionHeroProps {
@@ -20,25 +19,17 @@ const ErrorAdminSectionHero: React.FC< ErrorAdminSectionHeroProps > = ( {
 	displayErrorMessage += ' ' + __( 'Try again in a few minutes.', 'jetpack-protect' );
 
 	return (
-		<AdminSectionHero
-			main={
-				<>
-					<AdminSectionHero.Heading>
-						<div className={ styles.heading }>
-							<Icon className={ styles.warning } icon={ warning } size={ 54 } />
-							{ __( 'An error occurred', 'jetpack-protect' ) }
-						</div>
-					</AdminSectionHero.Heading>
-					<AdminSectionHero.Subheading>
-						<Text>{ displayErrorMessage }</Text>
-					</AdminSectionHero.Subheading>
-					<div className={ styles[ 'scan-navigation' ] }>
-						<ScanNavigation />
+		<AdminSectionHero>
+			<AdminSectionHero.Main>
+				<AdminSectionHero.Heading>
+					<div className={ styles.heading }>
+						{ __( 'An error occurred', 'jetpack-protect' ) }
+						<ShieldIcon className={ styles.warning } variant="error" height={ 38 } outline />
 					</div>
-				</>
-			}
-			preserveSecondaryOnMobile={ false }
-		/>
+				</AdminSectionHero.Heading>
+				<Text>{ displayErrorMessage }</Text>
+			</AdminSectionHero.Main>
+		</AdminSectionHero>
 	);
 };
 

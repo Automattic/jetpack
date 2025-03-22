@@ -1,39 +1,96 @@
-import { Text, Status, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import { ThreatsContext } from '@automattic/jetpack-scan';
+import { Tooltip } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useState } from 'react';
+import clsx from 'clsx';
+import { useCallback, useState, useMemo, useContext } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../components/error-admin-section-hero';
 import OnboardingPopover from '../../components/onboarding-popover';
-import ScanNavigation from '../../components/scan-navigation';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useFixers from '../../hooks/use-fixers';
 import usePlan from '../../hooks/use-plan';
-import useProtectData from '../../hooks/use-protect-data';
+import useWafData from '../../hooks/use-waf-data';
 import ScanningAdminSectionHero from './scanning-admin-section-hero';
 import styles from './styles.module.scss';
 
-const ScanAdminSectionHero: React.FC = () => {
-	const { hasPlan } = usePlan();
+const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' | 'large' } ) => {
+	const { recordEvent } = useAnalyticsTracks();
+	const { hasPlan, upgradePlan } = usePlan();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const {
-		counts: {
-			current: { threats: numThreats },
-		},
-		lastChecked,
-	} = useProtectData();
 	const { data: status } = useScanStatusQuery();
+	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
+
+	const { setActionToConfirm } = useContext( ThreatsContext );
+
+	const getScan = useCallback( () => {
+		recordEvent( 'jetpack_protect_scan_header_get_scan_link_click' );
+		upgradePlan();
+	}, [ recordEvent, upgradePlan ] );
+
+	const { globalStats } = useWafData();
+	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
+	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
+		? '50,000'
+		: totalVulnerabilities.toLocaleString();
+
+	const numThreats = status.threats.length;
 
 	// Popover anchor
 	const [ dailyScansPopoverAnchor, setDailyScansPopoverAnchor ] = useState( null );
+	const [ showAutoFixersPopoverAnchor, setShowAutoFixersPopoverAnchor ] = useState( null );
+
+	// List of fixable threats that do not have a fix in progress
+	const fixableList = useMemo( () => {
+		return status.threats.filter( threat => {
+			const threatId = typeof threat.id === 'string' ? parseInt( threat.id ) : threat.id;
+			return (
+				threat.fixable && ! isThreatFixInProgress( threatId ) && ! isThreatFixStale( threatId )
+			);
+		} );
+	}, [ status.threats, isThreatFixInProgress, isThreatFixStale ] );
+
+	const scanning = isScanInProgress( status );
 
 	let lastCheckedLocalTimestamp = null;
-	if ( lastChecked ) {
+	if ( status.lastChecked ) {
 		// Convert the lastChecked UTC date to a local timestamp
-		lastCheckedLocalTimestamp = new Date( lastChecked + ' UTC' ).getTime();
+		lastCheckedLocalTimestamp = new Date( status.lastChecked + ' UTC' ).getTime();
 	}
 
-	if ( isScanInProgress( status ) ) {
-		return <ScanningAdminSectionHero />;
+	let heading = __( "Don't worry about a thing", 'jetpack-protect' );
+	if ( numThreats > 0 ) {
+		if ( hasPlan ) {
+			heading = sprintf(
+				/* translators: %s: Total number of threats */
+				_n( '%1$s active threat', '%1$s active threats', numThreats, 'jetpack-protect' ),
+				numThreats
+			);
+		} else {
+			heading = sprintf(
+				/* translators: %s: Total number of vulnerabilities */
+				_n(
+					'%1$s active vulnerability',
+					'%1$s active vulnerabilities',
+					numThreats,
+					'jetpack-protect'
+				),
+				numThreats
+			);
+		}
+	}
+
+	const handleShowAutoFixersClick = threatList => {
+		return event => {
+			event.preventDefault();
+			setActionToConfirm( { id: 'fix', items: threatList } );
+		};
+	};
+
+	if ( scanning ) {
+		return <ScanningAdminSectionHero size={ size } />;
 	}
 
 	if ( status.error ) {
@@ -47,62 +104,87 @@ const ScanAdminSectionHero: React.FC = () => {
 	}
 
 	return (
-		<AdminSectionHero
-			main={
-				<>
-					<Status status={ 'active' } label={ __( 'Active', 'jetpack-protect' ) } />
-					<AdminSectionHero.Heading showIcon>
-						{ numThreats > 0
+		<>
+			<AdminSectionHero>
+				<AdminSectionHero.Main
+					className={ clsx( styles[ 'hero-main' ], {
+						[ styles[ 'hero-main--large' ] ]: size === 'large',
+					} ) }
+				>
+					<Text className={ styles[ 'last-checked' ] } mb={ 3 } ref={ setDailyScansPopoverAnchor }>
+						{ lastCheckedLocalTimestamp
 							? sprintf(
-									/* translators: %s: Total number of threats/vulnerabilities */
-									__( '%1$s %2$s found', 'jetpack-protect' ),
-									numThreats,
-									hasPlan
-										? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
-										: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' )
+									// translators: %s: date and time of the last scan
+									__( '%s results', 'jetpack-protect' ),
+									dateI18n( 'F jS, g:i A', lastCheckedLocalTimestamp, false )
 							  )
-							: sprintf(
-									/* translators: %s: Pluralized type of threat/vulnerability */
-									__( 'No %s found', 'jetpack-protect' ),
-									hasPlan
-										? __( 'threats', 'jetpack-protect' )
-										: __(
-												'vulnerabilities',
-												'jetpack-protect',
-												/* dummy arg to avoid bad minification */ 0
-										  )
-							  ) }
+							: __( 'Most recent results', 'jetpack-protect' ) }
+					</Text>
+					<OnboardingPopover
+						id={ hasPlan ? 'paid-daily-and-manual-scans' : 'free-daily-scans' }
+						position={ isSm ? 'bottom right' : 'middle right' }
+						anchor={ dailyScansPopoverAnchor }
+					/>
+					<AdminSectionHero.Heading icon={ numThreats > 0 ? 'error' : 'success' } mb={ 2 }>
+						{ heading }
 					</AdminSectionHero.Heading>
-					<AdminSectionHero.Subheading>
+					{ hasPlan ? (
+						<Text>
+							{ __(
+								"We actively review your site's files line-by-line to identify threats and vulnerabilities.",
+								'jetpack-protect'
+							) }
+						</Text>
+					) : (
 						<>
-							<Text ref={ setDailyScansPopoverAnchor }>
-								{ lastCheckedLocalTimestamp ? (
-									<>
-										<span className={ styles[ 'subheading-content' ] }>
-											{ dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp, false ) }
-										</span>
-										&nbsp;
-										{ __( 'results', 'jetpack-protect' ) }
-									</>
-								) : (
-									__( 'Most recent results', 'jetpack-protect' )
+							<Text mb={ 4 } className={ styles[ 'vulnerabilities-text' ] }>
+								{ sprintf(
+									// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+									__(
+										'Every day we check your plugins, themes, and WordPress version against our %s listed vulnerabilities powered by WPScan, an Automattic brand.',
+										'jetpack-protect'
+									),
+									totalVulnerabilitiesFormatted
 								) }
 							</Text>
-							{ ! hasPlan && (
-								<OnboardingPopover
-									id="free-daily-scans"
-									position={ isSm ? 'bottom' : 'middle right' }
-									anchor={ dailyScansPopoverAnchor }
-								/>
-							) }
+							<Tooltip
+								text={ __(
+									'Upgrade Jetpack Protect to get access to advanced malware scanning with one-click fixes for most threats.',
+									'jetpack-protect'
+								) }
+							>
+								<Button onClick={ getScan }>
+									{ __( 'Upgrade to unlock malware scanning', 'jetpack-protect' ) }
+								</Button>
+							</Tooltip>
 						</>
-					</AdminSectionHero.Subheading>
-					<div className={ styles[ 'scan-navigation' ] }>
-						<ScanNavigation />
-					</div>
-				</>
-			}
-		/>
+					) }
+					{ fixableList.length > 0 && (
+						<>
+							<div className={ styles[ 'auto-fixers' ] } ref={ setShowAutoFixersPopoverAnchor }>
+								<Button onClick={ handleShowAutoFixersClick( fixableList ) }>
+									{ sprintf(
+										/* translators: Translates to Show auto fixers $s: Number of fixable threats. */
+										_n(
+											'Show Auto-Fixer (%s)',
+											'Show Auto-Fixers (%s)',
+											fixableList.length,
+											'jetpack-protect'
+										),
+										fixableList.length
+									) }
+								</Button>
+							</div>
+							<OnboardingPopover
+								id="paid-fix-all-threats"
+								position={ isSm ? 'bottom right' : 'middle right' }
+								anchor={ showAutoFixersPopoverAnchor }
+							/>
+						</>
+					) }
+				</AdminSectionHero.Main>
+			</AdminSectionHero>
+		</>
 	);
 };
 

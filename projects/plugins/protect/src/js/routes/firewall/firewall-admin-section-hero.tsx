@@ -5,6 +5,7 @@ import AdminSectionHero from '../../components/admin-section-hero';
 import useWafData from '../../hooks/use-waf-data';
 import FirewallStatCards from './firewall-statcards';
 import FirewallSubheading from './firewall-subheading';
+import styles from './styles.module.scss';
 
 const FirewallAdminSectionHero = () => {
 	const {
@@ -29,7 +30,12 @@ const FirewallAdminSectionHero = () => {
 		if ( status === 'on' ) {
 			return standaloneMode
 				? __( 'Standalone mode', 'jetpack-protect' )
-				: __( 'Active', 'jetpack-protect', 0 );
+				: __(
+						'Active',
+						'jetpack-protect',
+						// @ts-expect-error TS2554 - dummy arg to avoid bad minification
+						0
+				  );
 		}
 
 		return __( 'Inactive', 'jetpack-protect' );
@@ -46,7 +52,8 @@ const FirewallAdminSectionHero = () => {
 							: __(
 									'Firewall is on',
 									'jetpack-protect',
-									/* dummy arg to avoid bad minification */ 0
+									// @ts-expect-error TS2554 - dummy arg to avoid bad minification
+									0
 							  ) ) }
 				</>
 			);
@@ -62,7 +69,8 @@ const FirewallAdminSectionHero = () => {
 							: __(
 									'Firewall is off',
 									'jetpack-protect',
-									/* dummy arg to avoid bad minification */ 0
+									// @ts-expect-error TS2554 - dummy arg to avoid bad minification
+									0
 							  ) ) }
 				</>
 			);
@@ -84,16 +92,22 @@ const FirewallAdminSectionHero = () => {
 	}, [ status ] );
 
 	return (
-		<AdminSectionHero
-			main={
-				<>
-					<Status status={ 'on' === status ? 'active' : 'inactive' } label={ statusLabel } />
-					<AdminSectionHero.Heading>{ heading }</AdminSectionHero.Heading>
-					<AdminSectionHero.Subheading>{ subheading }</AdminSectionHero.Subheading>
-				</>
-			}
-			secondary={ wafSupported && <FirewallStatCards /> }
-		/>
+		<AdminSectionHero>
+			<AdminSectionHero.Main>
+				<Status
+					className={ styles.status }
+					status={ 'on' === status ? 'active' : 'inactive' }
+					label={ statusLabel }
+				/>
+				<AdminSectionHero.Heading>{ heading }</AdminSectionHero.Heading>
+				{ subheading }
+			</AdminSectionHero.Main>
+			{ wafSupported && (
+				<AdminSectionHero.Aside>
+					<FirewallStatCards />
+				</AdminSectionHero.Aside>
+			) }
+		</AdminSectionHero>
 	);
 };
 
