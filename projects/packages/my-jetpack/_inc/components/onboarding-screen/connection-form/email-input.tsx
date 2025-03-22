@@ -6,6 +6,7 @@ import {
 	REST_API_GET_MAGIC_LINK_AUTHORIZE_URL,
 } from '../../../data/constants';
 import useSimpleQuery from '../../../data/use-simple-query';
+import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import styles from './styles.module.scss';
 interface EmailInputProps {
 	onSubmit?: () => void;
@@ -13,6 +14,9 @@ interface EmailInputProps {
 }
 
 const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
+	const { handleRegisterSite, isSiteConnected } = useMyJetpackConnection( {
+		skipUserConnection: true,
+	} );
 	const [ userEmail, setUserEmail ] = useState( '' );
 	const [ isValidEmail, setIsValidEmail ] = useState( true );
 	const [ shouldFetchUrl, setShouldFetchUrl ] = useState( false );
@@ -29,7 +33,7 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 				userEmail
 			) }`,
 		},
-		options: { enabled: shouldFetchUrl && validateEmail( userEmail ) },
+		options: { enabled: shouldFetchUrl && validateEmail( userEmail ) && isSiteConnected },
 		errorMessage: __(
 			'Something went wrong while sending the login link. Please try again. If the issue persists, contact support.',
 			'jetpack-my-jetpack'
@@ -62,19 +66,21 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 	);
 
 	const getErrorMessage = () => {
-		if ( ! isValidEmail ) {
-			return __( 'Please enter a valid email address', 'jetpack-my-jetpack' );
-		}
-
 		return __( 'An error occurred. Please try again.', 'jetpack-my-jetpack' );
 	};
 
 	// Handle redirection when we get the authorize URL
 	useEffect( () => {
-		if ( data?.authorizeUrl ) {
-			window.location.href = data.authorizeUrl;
-		}
-	}, [ data ] );
+		handleRegisterSite()
+			.then( () => {
+				if ( data?.authorizeUrl ) {
+					window.location.href = data.authorizeUrl;
+				}
+			} )
+			.catch( () => {
+				setIsValidEmail( true );
+			} );
+	}, [ data, handleRegisterSite ] );
 
 	return (
 		<form onSubmit={ handleOnSubmit } className={ styles[ 'email-input-container' ] }>
