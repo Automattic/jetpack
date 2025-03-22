@@ -14,9 +14,6 @@ interface EmailInputProps {
 }
 
 const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
-	const { handleRegisterSite, isSiteConnected } = useMyJetpackConnection( {
-		skipUserConnection: true,
-	} );
 	const [ userEmail, setUserEmail ] = useState( '' );
 	const [ isValidEmail, setIsValidEmail ] = useState( true );
 	const [ shouldFetchUrl, setShouldFetchUrl ] = useState( false );
@@ -33,11 +30,16 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 				userEmail
 			) }`,
 		},
-		options: { enabled: shouldFetchUrl && validateEmail( userEmail ) && isSiteConnected },
+		options: { enabled: shouldFetchUrl && validateEmail( userEmail ) },
 		errorMessage: __(
 			'Something went wrong while sending the login link. Please try again. If the issue persists, contact support.',
 			'jetpack-my-jetpack'
 		),
+	} );
+
+	const { handleRegisterSite, siteIsRegistered, isRegistering } = useMyJetpackConnection( {
+		skipUserConnection: true,
+		redirectUri: data?.authorizeUrl,
 	} );
 
 	const handleOnInput = useCallback(
@@ -71,16 +73,12 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 
 	// Handle redirection when we get the authorize URL
 	useEffect( () => {
-		handleRegisterSite()
-			.then( () => {
-				if ( data?.authorizeUrl ) {
-					window.location.href = data.authorizeUrl;
-				}
-			} )
-			.catch( () => {
-				setIsValidEmail( true );
+		if ( data?.authorizeUrl && ! siteIsRegistered && ! isRegistering ) {
+			handleRegisterSite().then( () => {
+				window.location.href = data.authorizeUrl;
 			} );
-	}, [ data, handleRegisterSite ] );
+		}
+	}, [ data, handleRegisterSite, isRegistering, siteIsRegistered ] );
 
 	return (
 		<form onSubmit={ handleOnSubmit } className={ styles[ 'email-input-container' ] }>
