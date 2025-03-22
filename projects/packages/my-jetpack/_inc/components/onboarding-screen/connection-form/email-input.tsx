@@ -30,15 +30,18 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 			) }`,
 		},
 		options: { enabled: shouldFetchUrl && validateEmail( userEmail ) },
-		errorMessage: __( 'Failed to get authorization URL', 'jetpack-my-jetpack' ),
+		errorMessage: __(
+			'Something went wrong while sending the login link. Please try again. If the issue persists, contact support.',
+			'jetpack-my-jetpack'
+		),
 	} );
 
 	const handleOnInput = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
 			const email = event.target.value;
 			setUserEmail( email );
-			setIsValidEmail( true ); // Reset validation on input
-			setShouldFetchUrl( false ); // Reset fetch trigger
+			setIsValidEmail( true );
+			setShouldFetchUrl( false );
 		},
 		[ setUserEmail ]
 	);
@@ -57,6 +60,14 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 		},
 		[ userEmail, onSubmit ]
 	);
+
+	const getErrorMessage = () => {
+		if ( ! isValidEmail ) {
+			return __( 'Please enter a valid email address', 'jetpack-my-jetpack' );
+		}
+
+		return __( 'An error occurred. Please try again.', 'jetpack-my-jetpack' );
+	};
 
 	// Handle redirection when we get the authorize URL
 	useEffect( () => {
@@ -81,16 +92,10 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 				disabled={ isDisabled }
 				onInput={ handleOnInput }
 			/>
-			{ ! isValidEmail && (
-				<div className={ styles[ 'email-error-message' ] }>
-					{ __( 'Please enter a valid email address', 'jetpack-my-jetpack' ) }
-				</div>
-			) }
-			{ isError && (
-				<div className={ styles[ 'email-error-message' ] }>
-					{ __( 'An error occurred. Please try again.', 'jetpack-my-jetpack' ) }
-				</div>
-			) }
+			{ ! isValidEmail ||
+				( isError && (
+					<div className={ styles[ 'email-error-message' ] }>{ getErrorMessage() }</div>
+				) ) }
 			<button
 				className={ styles[ 'submit-button' ] }
 				disabled={ isDisabled || ! userEmail || isLoading }
