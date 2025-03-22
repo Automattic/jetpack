@@ -13,7 +13,7 @@ declare global {
 			apiRoot: string;
 			apiNonce: string;
 			registrationNonce: string;
-			credentials: [ Record< string, unknown > ];
+			credentials: false | [] | [ Record< string, unknown > ];
 			status: ScanStatus;
 			fixerStatus: FixersStatus;
 			scanHistory: ScanStatus;

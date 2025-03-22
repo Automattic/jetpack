@@ -1,4 +1,4 @@
-import { type FixersStatus, type ThreatFixStatus } from '@automattic/jetpack-scan';
+import { Threat, type FixersStatus, type ThreatFixStatus } from '@automattic/jetpack-scan';
 import { useCallback } from 'react';
 import useFixersMutation from '../data/scan/use-fixers-mutation';
 import useFixersQuery from '../data/scan/use-fixers-query';
@@ -23,10 +23,10 @@ export const fixerStatusIsStale = ( fixerStatus: ThreatFixStatus ) => {
 type UseFixersResult = {
 	fixableThreatIds: number[];
 	fixersStatus: FixersStatus;
-	fixThreats: ( threatIds: number[] ) => Promise< unknown >;
+	fixThreats: ( threatIds: Array< Threat[ 'id' ] > ) => Promise< unknown >;
 	isLoading: boolean;
-	isThreatFixInProgress: ( threatId: number ) => boolean;
-	isThreatFixStale: ( threatId: number ) => boolean;
+	isThreatFixInProgress: ( threatId: Threat[ 'id' ] ) => boolean;
+	isThreatFixStale: ( threatId: Threat[ 'id' ] ) => boolean;
 };
 
 /**

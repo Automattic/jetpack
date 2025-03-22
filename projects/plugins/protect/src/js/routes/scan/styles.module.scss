@@ -1,12 +1,59 @@
-.subheading-content {
-    font-weight: bold;
+.scan-results-container {
+	:global {
+		@media ( max-width: 599px ) {
+			div.dataviews-wrapper .dataviews__view-actions {
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: calc( var( --spacing-base ) * 1.5 ); // 12px;
+			}
+		}
+	}
 }
 
-.product-section, .info-section {
-	margin-top: calc( var( --spacing-base ) * 7 ); // 56px
-	margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
+.hero-main--large {
+	flex: 1 auto;
+	align-content: center;
+	height: calc( 100vh - 408px );
 }
 
-.scan-navigation {
-	margin-top: calc( var( --spacing-base ) * 3 ); // 24px
+.auto-fixers {
+	margin-top: calc( var( --spacing-base ) * 4 ); // 32px
+	width: fit-content;
+}
+
+.scan-results-container {
+	padding-left: 0;
+	padding-right: 0;
+	overflow: hidden;
+
+	> * {
+		margin-left: -24px;
+		margin-right: -24px;
+	}
+}
+
+.progress-animation {
+	@media (max-width: 1099px) {
+		display: none;
+	}
+}
+
+.last-checked {
+	width: fit-content;
+}
+
+.toggle-group-control {
+	min-width: 300px;
+}
+
+.vulnerabilities-text {
+	max-width: 550px;
+}
+
+.scanning-text {
+	max-width: 550px;
+}
+
+.progress {
+	max-width: 575px;
 }
