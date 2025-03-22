@@ -115,12 +115,14 @@
     gap: 4px;
 }
 
-.branding .powered-by {
-    font-size: 12px;
-    color: black;
-    margin: 0;
-}
+.branding {
+    .powered-by {
+        font-size: 12px;
+        color: black;
+        margin: 0;
+    }
 
-.branding img {
-    height: 18px;
+    #jetpack-logo__icon {
+        height: 18px;
+    }
 }

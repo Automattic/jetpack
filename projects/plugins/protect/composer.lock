@@ -66,11 +66,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/account-protection",
-                "reference": "c72ef7050a92f8da1cfd375f9a90d3fd1a438262"
+                "reference": "f28f8f4f15238256f9f5ea8c22aac22113dff87d"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-logo": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.2"
             },

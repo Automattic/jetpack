@@ -56,10 +56,9 @@ jQuery( document ).ready( function ( $ ) {
 			text: 'Validating...',
 		} );
 
-		const branding = $( '<div>', { class: 'branding' } ).append(
-			$( '<p>', { class: 'powered-by', text: 'Powered by ' } ),
-			$( '<img>', { src: jetpackData.logo, alt: 'Jetpack Logo' } )
-		);
+		const branding = $( '<div>', { class: 'branding' } )
+			.append( $( '<p>', { class: 'powered-by', text: 'Powered by ' } ) )
+			.append( jetpackData.logo );
 
 		strengthMeterWrapper.append( strengthText, branding );
 		UIComponents.validationCheckList.before( strengthMeterWrapper );
