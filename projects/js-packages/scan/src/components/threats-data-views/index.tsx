@@ -8,7 +8,7 @@ import {
 	type View,
 	DataViews,
 	filterSortAndPaginate,
-} from '@wordpress/dataviews';
+} from '@wordpress/dataviews/wp';
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
