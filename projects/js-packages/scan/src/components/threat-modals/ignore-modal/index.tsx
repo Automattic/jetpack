@@ -13,7 +13,9 @@ const ThreatIgnoreModal = ( props: React.ComponentProps< typeof Modal > ) => {
 
 	const [ isLoading, setIsLoading ] = useState( false );
 
-	const threat = actionToConfirm && actionToConfirm?.items[ 0 ];
+	const threat = useMemo( () => {
+		return actionToConfirm && actionToConfirm?.items[ 0 ];
+	}, [ actionToConfirm ] );
 
 	const onIgnoreClick = useCallback( () => {
 		setIsLoading( true );

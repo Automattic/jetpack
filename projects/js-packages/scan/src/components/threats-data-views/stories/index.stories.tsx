@@ -1,12 +1,7 @@
-import { ThreatsContextProvider } from '@automattic/jetpack-scan';
+import { storybookThreat, ThreatsContextProvider } from '@automattic/jetpack-scan';
 import { HISTORIC_TABLE_FIELDS } from '../constants.js';
 import ThreatsDataViews from '../index.js';
 import { currentData, historicData } from './data.js';
-
-/**
- * No Op.
- */
-function noop() {}
 
 export default {
 	title: 'JS Packages/Scan/Threats Data Views',
@@ -17,28 +12,32 @@ export default {
 			values: [ { name: 'light', value: 'white' } ],
 		},
 	},
+	argTypes: {
+		connection: storybookThreat.argTypes.connection,
+		credentials: storybookThreat.argTypes.credentials,
+		referToCodeable: storybookThreat.argTypes.referToCodeable,
+	},
+	args: {
+		connection: storybookThreat.args.connection,
+		credentials: storybookThreat.args.credentials,
+		referToCodeable: true,
+	},
 	decorators: [
-		Story => (
-			<ThreatsContextProvider
-				actionCallbacks={ {} }
-				credentials={ {
-					available: true,
-					fetching: false,
-					redirectUrl: '#',
-				} }
-				connection={ {
-					connected: true,
-					connecting: false,
-					connect: () => {},
-				} }
-				referToCodeable={ true }
-				upgradePlan={ noop }
-			>
-				<div style={ { maxWidth: '100%', backgroundColor: 'white' } }>
-					<Story />
-				</div>
-			</ThreatsContextProvider>
-		),
+		( Story, context ) => {
+			const { referToCodeable, credentials, connection } = context.args;
+			return (
+				<ThreatsContextProvider
+					actionCallbacks={ {} }
+					credentials={ credentials }
+					connection={ connection }
+					referToCodeable={ referToCodeable }
+				>
+					<div style={ { maxWidth: '100%', backgroundColor: 'white' } }>
+						<Story />
+					</div>
+				</ThreatsContextProvider>
+			);
+		},
 	],
 };
 

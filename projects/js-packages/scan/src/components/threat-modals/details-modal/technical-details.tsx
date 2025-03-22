@@ -151,13 +151,13 @@ const ThreatDetailsModalTechnicalDetails = ( { threat }: { threat: Threat } ): J
 					) }
 
 					{ !! threat.vulnerabilities?.length && (
-						<div>
+						<div className={ styles.vulnerabilities }>
 							<Panel>
 								{ threat.vulnerabilities.map( ( vulnerability, index ) => (
 									<PanelBody title={ vulnerability.title } key={ index } initialOpen={ false }>
 										<PanelRow>
 											<div>
-												<Text variant="body-small" mb={ vulnerability.source ? 2 : 0 }>
+												<Text mb={ vulnerability.source ? 2 : 0 }>
 													{ vulnerability.description }
 												</Text>
 												{ vulnerability.source && (
@@ -165,13 +165,9 @@ const ThreatDetailsModalTechnicalDetails = ( { threat }: { threat: Threat } ): J
 														variant="link"
 														isExternalLink={ true }
 														weight="regular"
-														size="small"
 														href={ vulnerability.source }
 													>
-														{ __(
-															'See more technical details of this vulnerability',
-															'jetpack-scan'
-														) }
+														{ __( 'Source', 'jetpack-scan' ) }
 													</Button>
 												) }
 											</div>

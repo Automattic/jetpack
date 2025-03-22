@@ -14,23 +14,19 @@ export default {
 	},
 	decorators: [
 		( Story, context ) => {
-			const { actionsEnabled, credentials, connection, referToCodeable } = context.args;
+			const { credentials, connection, referToCodeable, threatPreset } = context.args;
 			const noop = useCallback( () => {}, [] );
 			return (
 				<ThreatsContextProvider
 					credentials={ credentials }
 					connection={ connection }
 					referToCodeable={ referToCodeable }
-					upgradePlan={ actionsEnabled ? undefined : noop }
-					actionCallbacks={
-						actionsEnabled
-							? {
-									ignore: () => {},
-									unignore: () => {},
-									fix: () => {},
-							  }
-							: null
-					}
+					upgradePlan={ ! threatPreset.signature ? noop : undefined }
+					actionCallbacks={ {
+						ignore: () => {},
+						unignore: () => {},
+						fix: () => {},
+					} }
 				>
 					<Story { ...context.args } />
 				</ThreatsContextProvider>

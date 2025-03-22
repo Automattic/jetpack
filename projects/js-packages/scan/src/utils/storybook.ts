@@ -1,4 +1,13 @@
-const VULNERABLE_PLUGIN_THREAT = {
+/**
+ * Commonly used mock data and utilities for Storybooks.
+ */
+
+/**
+ * Vulnerable Plugin Threat
+ *
+ * A mock vulnerable plugin threat that would be returned by the free Protect report.
+ */
+export const VULNERABLE_PLUGIN_THREAT = {
 	id: 'plugin_woocommerce_3.4.5',
 	signature: null,
 	title: 'Vulnerable Plugin: WooCommerce (version 3.4.5)',
@@ -33,7 +42,12 @@ const VULNERABLE_PLUGIN_THREAT = {
 	],
 };
 
-const FILE_THREAT = {
+/**
+ * File Threat
+ *
+ * A mock file threat that would be returned by the paid Scan API.
+ */
+export const FILE_THREAT = {
 	id: 185869885,
 	signature: 'EICAR_AV_Test',
 	title: 'Malicious code found in file: index.php',
@@ -42,9 +56,9 @@ const FILE_THREAT = {
 	firstDetected: '2024-10-07T20:45:06.000Z',
 	fixedIn: null,
 	severity: 8,
-	fixable: { fixer: 'rollback', target: 'January 26, 2024, 6:49 am', extensionStatus: '' },
-	fixer: { status: 'not_started' },
-	status: 'current',
+	fixable: { fixer: 'rollback' as const, target: 'January 26, 2024, 6:49 am', extensionStatus: '' },
+	fixer: { status: 'not_started' as const },
+	status: 'current' as const,
 	filename: '/var/www/html/wp-content/index.php',
 	context: {
 		'1': 'echo <<<HTML',
@@ -54,6 +68,11 @@ const FILE_THREAT = {
 	},
 };
 
+/**
+ * Storybook Threat Config Object
+ *
+ * @see https://storybook.js.org/docs/essentials/controls
+ */
 export const storybookThreat = {
 	argTypes: {
 		threatPreset: {
@@ -130,13 +149,6 @@ export const storybookThreat = {
 				custom: null,
 			},
 		},
-		actionsEnabled: {
-			name: 'Enable Threat Actions',
-			description: "Enable the user's ability to auto-fix, ignore, and unignore threats.",
-			control: {
-				type: 'boolean',
-			},
-		},
 		referToCodeable: {
 			name: 'Refer to Codeable',
 			description: 'Whether to refer to Codeable when auto-fix unavailable.',
@@ -158,7 +170,6 @@ export const storybookThreat = {
 			fetching: false,
 			redirectUrl: '#',
 		},
-		actionsEnabled: true,
 		referToCodeable: true,
 	},
 };

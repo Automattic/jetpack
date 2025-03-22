@@ -162,3 +162,14 @@ svg.spinner {
 		}
     }
 }
+
+.vulnerabilities {
+	:global {
+		.components-panel__row {
+			p, .components-button {
+				font-size: inherit;
+				line-height: inherit;
+			}
+		}
+	}
+}

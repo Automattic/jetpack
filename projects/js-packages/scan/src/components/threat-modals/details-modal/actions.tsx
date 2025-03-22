@@ -2,7 +2,13 @@ import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { seen, unseen } from '@wordpress/icons';
 import { useContext, useMemo } from 'react';
-import { Threat, THREAT_ACTION_UNIGNORE, ThreatsContext } from '@automattic/jetpack-scan';
+import {
+	Threat,
+	THREAT_ACTION_FIX,
+	THREAT_ACTION_IGNORE,
+	THREAT_ACTION_UNIGNORE,
+	ThreatsContext,
+} from '@automattic/jetpack-scan';
 
 /**
  * Threat Modal Header Actions
@@ -18,21 +24,21 @@ export default function ThreatDetailsModalActions( { threat }: { threat: Threat 
 	const controls = useMemo( () => {
 		const result = [];
 
-		if ( threat.status === 'current' ) {
+		if ( actions?.[ THREAT_ACTION_IGNORE ]?.isEligible?.( threat ) ) {
 			result.push( {
-				id: 'ignore',
+				id: THREAT_ACTION_IGNORE,
 				icon: unseen,
 				title: __( 'Ignore', 'jetpack-scan' ),
 				onClick: () => {
-					setActionToConfirm( { id: 'ignore', items: [ threat ] } );
+					setActionToConfirm( { id: THREAT_ACTION_IGNORE, items: [ threat ] } );
 				},
 				variant: 'secondary',
 			} );
 		}
 
-		if ( threat.status === 'ignored' ) {
+		if ( actions?.[ THREAT_ACTION_UNIGNORE ]?.isEligible?.( threat ) ) {
 			result.push( {
-				id: 'unignore',
+				id: THREAT_ACTION_UNIGNORE,
 				icon: seen,
 				title: __( 'Stop Ignoring', 'jetpack-scan' ),
 				onClick: () => {
@@ -47,13 +53,13 @@ export default function ThreatDetailsModalActions( { threat }: { threat: Threat 
 			} );
 		}
 
-		if ( threat.fixable ) {
+		if ( actions?.[ THREAT_ACTION_FIX ]?.isEligible?.( threat ) ) {
 			result.push( {
-				id: 'fix',
+				id: THREAT_ACTION_FIX,
 				icon: seen,
 				title: __( 'Show Auto-Fix', 'jetpack-scan' ),
 				onClick: () => {
-					setActionToConfirm( { id: 'fix', items: [ threat ] } );
+					setActionToConfirm( { id: THREAT_ACTION_FIX, items: [ threat ] } );
 				},
 				variant: 'primary',
 			} );

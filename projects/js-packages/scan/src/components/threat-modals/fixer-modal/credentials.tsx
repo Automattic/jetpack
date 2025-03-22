@@ -18,10 +18,10 @@ export default function CredentialsNeededContent(): JSX.Element {
 	 * Poll for the latest credentials status as long as this component is mounted.
 	 */
 	useEffect( () => {
-		credentials?.startPolling();
+		credentials?.startPolling?.();
 
 		return () => {
-			credentials?.stopPolling();
+			credentials?.stopPolling?.();
 		};
 	}, [ credentials ] );
 

@@ -26,7 +26,8 @@ export function ThreatFixerModalContent() {
 	const [ isLoading, setIsLoading ] = useState( false );
 
 	const threat = actionToConfirm.items[ 0 ];
-	const fixerState = fixersStatus.ok && getFixerState( fixersStatus.threats[ threat.id ] );
+	const fixerState =
+		fixersStatus && fixersStatus.ok && getFixerState( fixersStatus.threats[ threat.id ] );
 
 	const buttonProps: React.ComponentProps< typeof Button > = useMemo( () => {
 		const props = {
@@ -39,15 +40,15 @@ export function ThreatFixerModalContent() {
 			props.isDestructive = true;
 		}
 
-		if ( fixerState.inProgress ) {
+		if ( fixerState?.inProgress ) {
 			props.children = __( 'Fixing…', 'jetpack-scan' );
 		}
-		if ( fixerState.error || fixerState.stale ) {
+		if ( fixerState?.error || fixerState?.stale ) {
 			props.children = __( 'Retry Auto-Fix', 'jetpack-scan' );
 		}
 
 		return props;
-	}, [ fixerState.error, fixerState.inProgress, fixerState.stale, threat.fixable ] );
+	}, [ fixerState, threat.fixable ] );
 
 	const fixerDescription = useMemo( () => {
 		// The threat has a fixed version available, but no auto-fix is available.
@@ -90,7 +91,7 @@ export function ThreatFixerModalContent() {
 			};
 		}
 
-		if ( fixerState.error ) {
+		if ( fixerState?.error ) {
 			return {
 				icon: <ShieldIcon variant="error" height={ 24 } />,
 				title: __( 'An error occurred auto-fixing this threat', 'jetpack-scan' ),
@@ -106,7 +107,7 @@ export function ThreatFixerModalContent() {
 			};
 		}
 
-		if ( fixerState.stale ) {
+		if ( fixerState?.stale ) {
 			return {
 				icon: <ShieldIcon variant="error" height={ 24 } />,
 				title: __( 'The auto-fixer is taking longer than expected', 'jetpack-scan' ),
@@ -122,7 +123,7 @@ export function ThreatFixerModalContent() {
 			};
 		}
 
-		if ( fixerState.inProgress ) {
+		if ( fixerState?.inProgress ) {
 			return {
 				icon: <Spinner color="var( --jp-green )" size={ 24 } />,
 				title: __( 'Auto-fixing this threat with Jetpack…', 'jetpack-scan' ),
@@ -130,7 +131,7 @@ export function ThreatFixerModalContent() {
 			};
 		}
 
-		if ( fixerState.success ) {
+		if ( fixerState?.success ) {
 			return {
 				icon: <ShieldIcon variant="success" height={ 24 } />,
 				title: __( 'Jetpack successfully fixed the threat', 'jetpack-scan' ),
@@ -143,16 +144,7 @@ export function ThreatFixerModalContent() {
 			title: __( 'How can Jetpack fix this threat?', 'jetpack-scan' ),
 			description: <Text>{ fixerDescription }</Text>,
 		};
-	}, [
-		threat.status,
-		threat.fixedOn,
-		fixerState.error,
-		fixerState.stale,
-		fixerState.inProgress,
-		fixerState.success,
-		fixerDescription,
-		supportMessage,
-	] );
+	}, [ threat.status, threat.fixedOn, fixerState, fixerDescription, supportMessage ] );
 
 	// Callback function for the fixer action.
 	const onFixClick = useCallback( () => {
@@ -184,7 +176,7 @@ export function ThreatFixerModalContent() {
 						isPrimary
 						onClick={ onFixClick }
 						isLoading={ isLoading }
-						disabled={ fixerState.inProgress && ! fixerState.stale }
+						disabled={ fixerState?.inProgress && ! fixerState?.stale }
 						{ ...buttonProps }
 					/>
 				</div>

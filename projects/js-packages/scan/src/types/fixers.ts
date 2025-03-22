@@ -11,7 +11,7 @@ export type ThreatFixStatusError = {
 
 export type ThreatFixStatusSuccess = {
 	status: FixerStatus;
-	lastUpdated: string;
+	lastUpdated?: string;
 };
 
 export type ThreatFixStatus = ThreatFixStatusError | ThreatFixStatusSuccess;
