@@ -80,7 +80,9 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 
 	// Handle redirection when we get the authorize URL
 	useEffect( () => {
-		window.location.href = data.authorizeUrl;
+		if ( data?.authorizeUrl ) {
+			window.location.href = data.authorizeUrl;
+		}
 	}, [ data ] );
 
 	return (
