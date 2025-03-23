@@ -90,12 +90,20 @@ const VideoPressEdit = CoreVideoEdit =>
 				newState.interactive = false;
 			}
 
+			// Ensure we preserve isEditingWhileUploading state during upload
 			if ( state.fileForUpload && ! state.isEditingWhileUploading ) {
 				const isResumableUploading =
 					null !== state.fileForUpload && state.fileForUpload instanceof File;
 				if ( isResumableUploading ) {
 					newState.isEditingWhileUploading = true;
 				}
+			} else if (
+				state.isEditingWhileUploading &&
+				! state.fileForUpload &&
+				state.pendingVideoAttributes
+			) {
+				// Keep editing state active if we have pending attributes
+				newState.isEditingWhileUploading = true;
 			}
 
 			return Object.keys( newState ).length ? newState : null;
