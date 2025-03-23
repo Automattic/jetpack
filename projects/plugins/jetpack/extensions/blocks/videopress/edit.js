@@ -94,7 +94,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			if ( state.fileForUpload && ! state.isEditingWhileUploading ) {
 				const isResumableUploading =
 					null !== state.fileForUpload && state.fileForUpload instanceof File;
-				if ( isResumableUploading ) {
+				if ( isResumableUploading || state.pendingVideoAttributes ) {
 					newState.isEditingWhileUploading = true;
 				}
 			} else if (
