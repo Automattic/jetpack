@@ -46,6 +46,7 @@ import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
 import LoadingBlock from '../loading-block';
+import OnboardingTour from '../onboarding-tour';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
 import WelcomeFlow from '../welcome-flow';
@@ -245,6 +246,8 @@ export default function MyJetpackScreen() {
 			{ ! isWelcomeBannerVisible && isSectionVisible && userIsAdmin && (
 				<EvaluationRecommendations />
 			) }
+
+			<OnboardingTour />
 
 			<ProductCardsSection />
 

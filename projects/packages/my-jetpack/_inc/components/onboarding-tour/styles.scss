@@ -1,0 +1,54 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.myjetpack-onboarding-welcome-tour {
+	width: 400px;
+
+	&__image {
+		background: #00a0d2;
+		margin: 0 0 $grid-unit-20;
+		> img {
+			display: block;
+			max-width: 100%;
+			object-fit: cover;
+		}
+	}
+
+	&__heading {
+		// font-family: $default-font;
+		font-size: 24px;
+		line-height: 1.4;
+		margin: $grid-unit-20 0 $grid-unit-20 0;
+		padding: 0 $grid-unit-20;
+	}
+
+	&__text {
+		// font-size: $default-font-size;
+		line-height: 1.4;
+		margin: 0 0 $grid-unit-30 0;
+		padding: 0 $grid-unit-20;
+	}
+
+    .components-modal__header {
+        button {
+            color: var(--jp-gray-0);
+        }
+    }
+
+    .components-guide__footer {
+        height: 40px;
+        justify-content: flex-end;
+        gap: 8px;
+
+        & > button {
+            position: relative;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+
+            &.is-primary {
+                background-color: var( --jp-green-60);
+            }
+        }
+    }
+}
