@@ -1080,6 +1080,7 @@ class WPCOM_Features {
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_SOCIAL_PLANS,
 			self::JETPACK_GROWTH_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		self::SOCIAL_ADMIN_PAGE                 => array(
 			self::WPCOM_ALL_SITES,
