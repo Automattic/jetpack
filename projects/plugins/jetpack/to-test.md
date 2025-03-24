@@ -17,7 +17,7 @@ You can see a [full list of changes in this release here](https://github.com/Aut
 The image block extension now has alt text and caption generation options via Jetpack AI.
 
 1. In the block editor, add an image block.
-2. You should be able to see the AI stars icon, but if there is no image, the icon must be disabled.
+2. You should be able to see the AI stars icon, which should be disabled because the block has no image selected yet.
 3. Add an image to the block. It can be from your media library, external or generated (the source should not matter).
 4. The AI stars icon should be enabled now, and you can click on "Generate alt text" or "Generate caption".
 5. The selected option will have its icon changed to a spinner while the generation is happening. The generation is not streamed, so it can take some seconds to finish.
