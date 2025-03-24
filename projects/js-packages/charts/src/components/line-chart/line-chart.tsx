@@ -29,24 +29,22 @@ const X_TICK_WIDTH = 100;
  * @return The curve function to use for the line
  */
 const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
-	// Early return for non-smooth lines when no type is specified
-	if ( ! type && ! smoothing ) {
-		return curveLinear;
+	// If no type specified, use legacy smoothing behavior
+	if ( ! type ) {
+		return smoothing ? curveCatmullRom : curveLinear;
 	}
 
-	// Early returns for explicit curve types
-	if ( type === 'smooth' ) {
-		return curveCatmullRom;
+	// Handle explicit curve types
+	switch ( type ) {
+		case 'smooth':
+			return curveCatmullRom;
+		case 'monotone':
+			return curveMonotoneX;
+		case 'linear':
+			return curveLinear;
+		default:
+			return curveLinear;
 	}
-	if ( type === 'monotone' ) {
-		return curveMonotoneX;
-	}
-	if ( type === 'linear' ) {
-		return curveLinear;
-	}
-
-	// Fall back to legacy smoothing prop
-	return smoothing ? curveCatmullRom : curveLinear;
 };
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
