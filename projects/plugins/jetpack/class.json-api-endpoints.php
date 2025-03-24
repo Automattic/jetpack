@@ -1859,7 +1859,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				if ( isset( $info->guid ) ) {
 					$response['videopress_guid']            = $info->guid;
 					$response['videopress_processing_done'] = true;
-					if ( '0000-00-00 00:00:00' === $info->finish_date_gmt ) {
+					if ( ! isset( $info->finish_date_gmt ) || '0000-00-00 00:00:00' === $info->finish_date_gmt ) {
 						$response['videopress_processing_done'] = false;
 					}
 				}
