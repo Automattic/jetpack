@@ -23,7 +23,11 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 		return emailRegex.test( email );
 	};
 
-	const { data, isError, isLoading } = useSimpleQuery< { authorizeUrl: string } >( {
+	const {
+		data,
+		isError,
+		isLoading: isLoadingAuthorizeUrl,
+	} = useSimpleQuery< { authorizeUrl: string } >( {
 		name: QUERY_GET_MAGIC_LINK_AUTHORIZE_URL_KEY,
 		query: {
 			path: `${ REST_API_GET_MAGIC_LINK_AUTHORIZE_URL }?email_address=${ encodeURIComponent(
@@ -37,7 +41,7 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 		),
 	} );
 
-	const { handleRegisterSite } = useMyJetpackConnection( {
+	const { handleRegisterSite, siteIsRegistering, siteIsRegistered } = useMyJetpackConnection( {
 		skipUserConnection: true,
 	} );
 
@@ -52,8 +56,10 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 	);
 
 	const handleOnSubmit = useCallback(
-		async ( event: FormEvent< HTMLFormElement > ) => {
+		( event: FormEvent< HTMLFormElement > ) => {
 			event.preventDefault();
+
+			onSubmit?.();
 
 			if ( ! validateEmail( userEmail ) ) {
 				setIsValidEmail( false );
@@ -61,7 +67,7 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 			}
 
 			try {
-				await handleRegisterSite();
+				handleRegisterSite();
 			} catch ( error ) {
 				// eslint-disable-next-line no-console
 				console.error( error );
@@ -69,7 +75,6 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 			}
 
 			setShouldFetchUrl( true );
-			onSubmit?.();
 		},
 		[ userEmail, onSubmit, handleRegisterSite ]
 	);
@@ -80,10 +85,12 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 
 	// Handle redirection when we get the authorize URL
 	useEffect( () => {
-		if ( data?.authorizeUrl ) {
+		if ( data?.authorizeUrl && siteIsRegistered ) {
 			window.location.href = data.authorizeUrl;
 		}
-	}, [ data ] );
+	}, [ data, siteIsRegistered ] );
+
+	const isLoading = isLoadingAuthorizeUrl || siteIsRegistering;
 
 	return (
 		<form onSubmit={ handleOnSubmit } className={ styles[ 'email-input-container' ] }>
