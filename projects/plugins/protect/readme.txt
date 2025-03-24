@@ -181,13 +181,13 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 ### 4.0.0 - 2025-03-24
 
 #### Changed
-- Scanner: add threat count to tab
-- Scanner: animated the "scan in progress" placeholder image
-- General: indicate compatibility with the upcoming version of WordPress - 6.7.
+- Scanner: Add threat count to tab.
+- Scanner: Animated the "scan in progress" placeholder image.
+- General: Indicate compatibility with WordPress 6.7.
 - General: Update package dependencies.
 
 #### Removed
-- Firewall: removed "new" badge from tab.
+- Firewall: Remove "new" badge from tab.
 - General: Update minimum PHP version to 7.2.
 - General: Update minimum WordPress version to 6.6.
 
