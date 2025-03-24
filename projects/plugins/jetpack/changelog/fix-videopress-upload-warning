@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix undefined property error on VideoPress upload endpoint. This error did not cause any functional issues and was not visible to the user.
+
+
