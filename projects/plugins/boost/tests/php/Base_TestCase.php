@@ -5,8 +5,6 @@ namespace Automattic\Jetpack_Boost\Tests;
 use Brain\Monkey;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
-require_once __DIR__ . '/mocks.php';
-
 if ( ! defined( 'JETPACK_BOOST_DIR_PATH' ) ) {
 	define( 'JETPACK_BOOST_DIR_PATH', __DIR__ . '/../..' );
 }
@@ -24,6 +22,8 @@ abstract class Base_TestCase extends TestCase {
 		Monkey\setUp();
 		Monkey\Functions\stubEscapeFunctions();
 
+		$this->apply_mocks();
+
 		add_filter(
 			'jetpack_boost_module_enabled',
 			function ( $enabled, $module_slug ) {
@@ -36,6 +36,10 @@ abstract class Base_TestCase extends TestCase {
 			10,
 			2
 		);
+	}
+
+	protected function apply_mocks() {
+		require __DIR__ . '/mocks.php';
 	}
 
 	/**
