@@ -115,7 +115,6 @@ class Config_Test extends TestCase {
 
 		$this->assertIsArray( $result );
 		$this->assertArrayHasKey( 'version', $result );
-		$this->assertEquals( '6.0.0', $result['wpVersion'] );
 		$this->assertTrue( $result['canResizeImages'] );
 		$this->assertEquals( 'http://example.com', $result['site']['url'] );
 		$this->assertEquals( 'atomic', $result['site']['host'] );

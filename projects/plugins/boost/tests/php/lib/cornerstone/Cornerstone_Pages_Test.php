@@ -36,7 +36,7 @@ class Cornerstone_Pages_Test extends TestCase {
 	public function test_setup_registers_hooks() {
 		// Mock WordPress functions
 		Functions\expect( 'jetpack_boost_register_option' )->twice();
-		Functions\expect( 'jetpack_boost_register_readonly_option' )->once();
+		Functions\expect( 'jetpack_boost_register_readonly_option' )->twice();
 
 		// Run setup
 		$this->cornerstone_pages->setup();
