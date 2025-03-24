@@ -156,7 +156,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
 					</PanelBody>
-					<PanelBody title={ __( 'Submission Settings', 'jetpack-forms' ) } initialOpen={ false }>
+					<PanelBody title={ __( 'Action after submit', 'jetpack-forms' ) } initialOpen={ false }>
 						<InspectorHint>
 							{ __( 'Customize the view after form submission:', 'jetpack-forms' ) }
 						</InspectorHint>

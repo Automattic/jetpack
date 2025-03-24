@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+An email input has been added to the social login form for connections on the onboarding screen. This input will help users log into Jetpack seamlessly through a magic link.

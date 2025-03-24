@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, ButtonGroup } from '@wordpress/components';
+import { Button, Flex } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useImperativeHandle, useRef, useEffect, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -190,7 +190,7 @@ export function ExtensionAIControl(
 					) }
 					{ isDone && (
 						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
-							<ButtonGroup>
+							<Flex gap={ 1 } role="group" className="jetpack-components-ai-control__button-group">
 								<Button
 									className="jetpack-components-ai-control__controls-prompt_button"
 									label={ __( 'Undo', 'jetpack-ai-client' ) }
@@ -207,7 +207,7 @@ export function ExtensionAIControl(
 								>
 									{ __( 'Close', 'jetpack-ai-client' ) }
 								</Button>
-							</ButtonGroup>
+							</Flex>
 						</div>
 					) }
 				</>
