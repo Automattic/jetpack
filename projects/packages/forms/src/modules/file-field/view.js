@@ -69,13 +69,13 @@ const uploadFile = ( file, fileId ) => {
 	const formData = new FormData();
 	xhr.open( 'POST', endpoint, true );
 	xhr.withCredentials = true;
-	xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-	xhr.setRequestHeader( 'X-WP-Nonce', wp_nonce );
-	xhr.setRequestHeader( 'X-Jetpack-Upload-Nonce', jp_nonce );
 	xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, fileId ) ) );
 	xhr.addEventListener( 'readystatechange', withScope( onReadyStateChange.bind( this, fileId ) ) );
 	formData.append( 'context', 'jetpack-form' );
 	formData.append( 'file', file );
+	// Send nonces in FormData instead of headers to avoid CORS preflight requests
+	formData.append( 'wp_nonce', wp_nonce );
+	formData.append( 'jp_upload_nonce', jp_nonce );
 	xhr.send( formData );
 };
 
@@ -139,11 +139,14 @@ const removeFile = token => {
 	const request = new Request( endpoint + '/remove', {
 		method: 'POST',
 		headers: {
-			'X-WP-Nonce': wp_nonce,
-			'X-Jetpack-Upload-Nonce': jp_nonce,
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify( { token, context: 'jetpack-form' } ),
+		body: JSON.stringify( {
+			token,
+			context: 'jetpack-form',
+			wp_nonce: wp_nonce,
+			jp_upload_nonce: jp_nonce,
+		} ),
 	} );
 	fetch( request );
 };
