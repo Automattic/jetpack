@@ -71,6 +71,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 					] }
 					onChange={ setEditedImageType }
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				/>
 
 				{ localImageType === 'custom' && (
@@ -94,6 +95,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 						'jetpack-publicize-components'
 					) }
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				/>
 				<BaseControl __nextHasNoMarginBottom={ true } className={ styles.templateControl }>
 					<BaseControl.VisualLabel>

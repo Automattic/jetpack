@@ -375,6 +375,7 @@ const EditVideoDetails = () => {
 											},
 										] }
 										__nextHasNoMarginBottom={ true }
+										__next40pxDefaultSize={ true }
 									/>
 								) }
 								{ isFetchingData ? (

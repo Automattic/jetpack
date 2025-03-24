@@ -85,6 +85,7 @@ export default function PrivacyAndRatingSettings( {
 				} }
 				disabled={ ! videoBelongToSite }
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 
 			<SelectControl
@@ -106,6 +107,7 @@ export default function PrivacyAndRatingSettings( {
 				options={ [ privacyOptionSiteDefault, privacyOptionPublic, privacyOptionPrivate ] }
 				disabled={ ! videoBelongToSite }
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 
 			<ToggleControl
