@@ -18,7 +18,6 @@ declare global {
 	// Constants provided by the plugin.
 	const Jetpack_Boost: {
 		version: string;
-		wpVersion: string;
 		api: {
 			namespace: string;
 			prefix: string;
