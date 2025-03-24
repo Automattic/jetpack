@@ -88,7 +88,7 @@ export default function ProductInterstitial( {
 		redirectUri = detail.postActivationUrlsByFeature[ feature ];
 	}
 
-	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
+	const { isUpgradableByBundle, pricingForUi, isTieredPricing } = detail;
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
@@ -240,7 +240,7 @@ export default function ProductInterstitial( {
 					) }
 				</Col>
 				<Col>
-					{ tiers && tiers.length ? (
+					{ isTieredPricing ? (
 						<ProductDetailTable
 							slug={ slug }
 							clickHandler={ clickHandler }

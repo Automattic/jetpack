@@ -10,6 +10,8 @@
  */
 // phpcs:disable Squiz.Commenting.FunctionComment.WrongStyle
 class WPCOMSH_RUM_Functions_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Test that the script function is hooked correctly
 	 */

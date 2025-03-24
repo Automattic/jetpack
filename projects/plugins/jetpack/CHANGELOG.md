@@ -2,6 +2,103 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.5-a.9 - 2025-03-24
+### Enhancements
+- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
+
+### Improved compatibility
+- VideoPress: Add block sidebar notice to transform embed into a block. [#42443]
+- AI Assistant: Improve performance by optimizing state management in the AI feature hook. [#42536]
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42576]
+
+### Bug fixes
+- Admin Color Scheme: Fix colors in the Aquatic color scheme. [#42632]
+- Newsletter: Ensure external links are marked as such in the Newsletter widget. [#42571]
+- Search: Ensure the count of returned results is shown after searching. [#42570]
+- Site Badge: Update styles of the Coming Soon badge. [#42496]
+- Site Verification: Fix auto-verification via Google when Social is disabled. [#42604]
+- Stats: Ensure the Stats widget is automatically disabled when the Stats module is disabled. [#42603]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Controls: Prevent console warnings by increasing compatibility of buttons. [#42636]
+- Compatibility: Ensuring performance best practices and reducing console warnings. [#42435]
+- Fix bug with blogging prompt. [#42539]
+- Jetpack SEO Enhancer: Hide trigger button when auto-generate toggle is on. [#42653]
+- Likes: Make module compatible with WordPress.com Simple sites. [#42515]
+- Reader: Add repost functionality to Jetpack editor extension.
+- Rename the JITM endpoint from v2, which already exists, to v3, which is new. [#42568]
+- SEO Enhancer: Add post-publish summary. [#42557]
+- SEO Enhancer: Disable auto-enhance and toggle on WordPress.com Simple sites. [#42597]
+- SEO Enhancer: Do not request Jetpack modules data on WordPress.com Simple sites. [#42650]
+- Update dependencies. [#42564]
+
+## 14.5-a.7 - 2025-03-18
+### Enhancements
+- Forms: Add quick link in the admin bar for form entries. [#42474]
+
+### Bug fixes
+- Forms: Add a default label for textarea fields. [#42480]
+- Forms: Remove Google Drive beta badge. [#42481]
+- Forms: Remove Salesforce beta badge. [#42482]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Backup: Prevent PHP warnings by moving admin menu addition to a function hooked into `admin_menu`. [#42396]
+- OpenTable block: Remove the ability to search restaurants by name. [#41162]
+- SEO Enhancer: Persist features on store and update UI. [#42491]
+- SEO Enhancer: Respect alt text feature toggle and only request alt text on URL change. [#42518]
+- Update package dependencies. [#42511]
+
+## 14.5-a.5 - 2025-03-17
+### Enhancements
+- Social: Add "Schedule" functionality to the Share Post modal. [#42376]
+
+### Bug fixes
+- Forms: Fix core list bullets not showing. [#42440]
+- Slideshow: Fix misaligned controls in site editor. [#42370]
+- Social: Resolve connection issues with LinkedIn company pages and Tumblr additional blogs. [#42352]
+- Twitter Timeline Widget: Prevent broken links when using Twitter's deprecated data-widget-id approach. [#42398]
+- VideoPress Block: Fix broken undo functionality. [#42332]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add subscribers in WP Admin starting page. [#42066]
+- Fix Publicize unit test. [#42451]
+- JSON API: Add REST support for `/users` endpoint. [#42475]
+- Like Block: Fix layout shift when loading. [#42361]
+- Newsletter: Add spacing to settings. [#42373]
+- SEO Enhancer: Auto-generate alt text for images if enabled. [#42445]
+- SEO Enhancer: Auto-run on pre-publish if enabled. [#42407]
+- SEO Enhancer: Fix function call on P2. [#42431]
+- Social: Move the URL query param handling for opening sidebar to Publicize package. [#42364]
+- Social: Remove the old unused initial state. [#42390]
+- Use `wpcom/v2/jitm` endpoint as a consistent way to fetch JITMs from the WordPress.com public API. [#41993]
+
+## 14.5-a.3 - 2025-03-12
+### Enhancements
+- Feature suggestions: Do not automatically load when a site is connected to WordPress.com. [#42337]
+- Publicize Components: Add a schedule button. [#42313]
+- Sharing block: Improve the description of the "Native Share" feature. [#42336]
+
+### Bug fixes
+- Button: Fix contrast checker for user-specified colors. [#41294]
+- Fix error with videos uploaded through the Video block. [#42400]
+- Forms: Remove default padding around form block. [#42340]
+- Forms: Update the variation previews to match the current structures. [#42366]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Donation block: Add additional information about accepting donations. [#42214]
+- Handle singular/plural forms of labels. [#42319]
+- Jetpack SEO: Add action trigger when toggle is off. [#42331]
+- Jetpack SEO: Add settings toggle for automated SEO props generation. [#42350]
+- Jetpack SEO Enhancer: Add global setting toggle on the sidebar.
+- JSON API: Add REST support to `site` endpoint. [#42382]
+- JSON API: Fix post encoding. [#42377]
+- Provide connection data to footer component. [#42000]
+- SEO Enhancer: Add SEO requests. [#42383]
+- SEO Enhancer: Update UI. [#42347]
+- Tiled Gallery: Ensure custom links aren't restricted to just URLs - allows anchor links as well. [#42363]
+- Update package dependencies. [#42384]
+- Allow API authorization with Jetpack token. [#42300]
+
 ## 14.5-a.1 - 2025-03-10
 ### Enhancements
 - AI Assistant: Add image block extension with alt text and caption generation. [#42160]

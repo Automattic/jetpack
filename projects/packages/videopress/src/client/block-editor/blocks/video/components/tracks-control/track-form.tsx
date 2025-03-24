@@ -160,6 +160,7 @@ export default function TrackForm( {
 										</Button>
 									);
 								} }
+								__next40pxDefaultSize={ true }
 							/>
 						</MediaUploadCheck>
 					</div>

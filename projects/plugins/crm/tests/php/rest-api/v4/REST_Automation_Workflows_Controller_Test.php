@@ -53,7 +53,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_TestCase {
 	/**
 	 * DataProvider: Roles.
 	 */
-	public function dataprovider_user_roles(): array {
+	public static function dataprovider_user_roles(): array {
 		return array(
 			'subscriber'    => array( 'subscriber', false ),
 			'administrator' => array( 'administrator', true ),
@@ -145,7 +145,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_TestCase {
 	 *
 	 * @return array Pagination criteria.
 	 */
-	public function dataprovider_pagination() {
+	public static function dataprovider_pagination() {
 		return array(
 			'page: 1 | per_page: 4 | expect: 4/5'     => array(
 				array(

@@ -70,7 +70,7 @@ class Status_Test extends BaseTestCase {
 	 *
 	 * @return object
 	 */
-	public function get_sample_empty_response() {
+	public static function get_sample_empty_response() {
 		return new Status_Model(
 			array(
 				'last_checked' => '',
@@ -83,7 +83,7 @@ class Status_Test extends BaseTestCase {
 	 *
 	 * @return string
 	 */
-	public function get_sample_invalid_response() {
+	public static function get_sample_invalid_response() {
 		return 'Invalid response';
 	}
 
@@ -92,7 +92,7 @@ class Status_Test extends BaseTestCase {
 	 *
 	 * @return object
 	 */
-	public function get_sample_api_response() {
+	public static function get_sample_api_response() {
 		global $wp_version;
 
 		return (object) array(
@@ -158,7 +158,7 @@ class Status_Test extends BaseTestCase {
 	 * @return object
 	 */
 	public function get_broken_sample_api_response() {
-		$response                                       = $this->get_sample_api_response();
+		$response                                       = static::get_sample_api_response();
 		$response->themes['theme-1']->vulnerabilities   = new \WP_Error( 'broken', 'Broken' );
 		$response->plugins['plugin-1']->vulnerabilities = new \WP_Error( 'broken', 'Broken' );
 		$response->core->vulnerabilities                = new \WP_Error( 'broken', 'Broken' );
@@ -322,7 +322,7 @@ class Status_Test extends BaseTestCase {
 	 */
 	public function return_sample_response() {
 		return array(
-			'body'     => wp_json_encode( $this->get_sample_api_response() ),
+			'body'     => wp_json_encode( static::get_sample_api_response() ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
@@ -384,7 +384,7 @@ class Status_Test extends BaseTestCase {
 	 */
 	public function return_sample_empty_response() {
 		return array(
-			'body'     => wp_json_encode( $this->get_sample_empty_response() ),
+			'body'     => wp_json_encode( static::get_sample_empty_response() ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
@@ -430,7 +430,7 @@ class Status_Test extends BaseTestCase {
 		$this->assertEquals( $this->get_sample_status(), $status );
 
 		// Make sure this was cached
-		$this->assertEquals( $this->get_sample_api_response(), Protect_Status::get_from_options() );
+		$this->assertEquals( static::get_sample_api_response(), Protect_Status::get_from_options() );
 	}
 
 	/**
@@ -458,7 +458,7 @@ class Status_Test extends BaseTestCase {
 	/**
 	 * Data provider for test_is_cache_expired
 	 */
-	public function is_cache_expired_data() {
+	public static function is_cache_expired_data() {
 		return array(
 			'empty'         => array( true, null ),
 			'one sec ago'   => array( true, time() - 1 ),
@@ -481,7 +481,7 @@ class Status_Test extends BaseTestCase {
 	/**
 	 * Data provider for test_get_cache_end_date_by_status
 	 */
-	public function get_cache_end_date_by_status_data() {
+	public static function get_cache_end_date_by_status_data() {
 		return array(
 			'null'    => array(
 				'initial',
@@ -489,15 +489,15 @@ class Status_Test extends BaseTestCase {
 			),
 			'empty'   => array(
 				'initial',
-				$this->get_sample_empty_response(),
+				static::get_sample_empty_response(),
 			),
 			'invalid' => array(
 				'initial',
-				$this->get_sample_invalid_response(),
+				static::get_sample_invalid_response(),
 			),
 			'full'    => array(
 				'full',
-				$this->get_sample_api_response(),
+				static::get_sample_api_response(),
 			),
 		);
 	}

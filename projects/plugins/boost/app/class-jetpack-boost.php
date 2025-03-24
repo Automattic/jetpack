@@ -34,8 +34,10 @@ use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Speculation_Rules\Speculation_Rules;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
+use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
@@ -125,13 +127,14 @@ class Jetpack_Boost {
 		$this->init_sync();
 
 		add_action( 'admin_init', array( $this, 'schedule_version_change' ) );
-		add_action( 'admin_enqueue_scripts', array( My_Jetpack_Initializer::class, 'enqueue_scripts' ) );
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
 		add_action( 'jetpack_boost_critical_css_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
 
 		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
+
+		add_filter( 'cron_schedules', array( $this, 'custom_cron_intervals' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -184,6 +187,31 @@ class Jetpack_Boost {
 			jetpack_boost_minify_clear_scheduled_events();
 			jetpack_boost_minify_activation( ! $is_atomic && ! $is_woa );
 		}
+
+		$page_cache = new Module( new Page_Cache() );
+		if ( $page_cache->is_enabled() ) {
+			// Schedule the cronjob to preload the cache for Cornerstone Pages.
+			( new Cache_Preload() )->schedule_cornerstone_cronjob();
+		}
+	}
+
+	/**
+	 * Adds custom cron intervals used by Boost.
+	 *
+	 * @param array $schedules The existing cron schedules.
+	 * @return array The modified cron schedules.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function custom_cron_intervals( $schedules ) {
+		// The "twicehourly" name maintains the same pattern as the default "twicedaily" name.
+		if ( ! isset( $schedules['twicehourly'] ) ) {
+			$schedules['twicehourly'] = array(
+				'interval' => 30 * MINUTE_IN_SECONDS,
+				'display'  => __( 'Twice Hourly', 'jetpack-boost' ),
+			);
+		}
+		return $schedules;
 	}
 
 	/**

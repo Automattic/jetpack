@@ -136,7 +136,7 @@ class Host_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_calypso_env_data_provider() {
+	public static function get_calypso_env_data_provider() {
 		return array(
 			'development' => array( 'development' ),
 			'wpcalypso'   => array( 'wpcalypso' ),
@@ -231,7 +231,7 @@ class Host_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_source_query_params() {
+	public static function get_source_query_params() {
 		return array(
 			'empty'        => array( '', '' ),
 			'valid_manage' => array( 'jetpack-manage', 'jetpack-manage' ),

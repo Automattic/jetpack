@@ -1,10 +1,17 @@
 /**
  * External dependencies
  */
-import { askQuestionSync, getAllBlocks, usePostContent } from '@automattic/jetpack-ai-client';
+import {
+	askQuestionSync,
+	getAllBlocks,
+	getBase64Image,
+	useAiFeature,
+	usePostContent,
+} from '@automattic/jetpack-ai-client';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -40,10 +47,14 @@ export const useSeoRequests = (
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const { getPostContent } = usePostContent();
 	const isBusy = useSelect( select => select( store ).isBusy(), [] );
-	const setBusy = useDispatch( store ).setBusy;
+	const { setBusy, setTitleBusy, setDescriptionBusy } = useDispatch( store );
+	const { isImageBusy, hasImageFailed } = useSelect( select => select( store ), [] );
+	const { setImageBusy, setImageFailed } = useDispatch( store );
+	const { createInfoNotice } = useDispatch( 'core/notices' );
+	const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
 
 	const request = useCallback(
-		async ( type: PromptType, block?: Block ) => {
+		async ( type: PromptType, block?: Block, useBase64Image: boolean = false ) => {
 			let context: Record< string, unknown > = { type };
 			let feature = 'jetpack-seo-assistant';
 
@@ -59,8 +70,13 @@ export const useSeoRequests = (
 				context = {
 					...context,
 					content: getPostContent( preprocessImageContent ),
-					// TODO: Check if site is private and use base64 image instead of url
-					images: [ { url: block?.attributes.url } ],
+					images: [
+						{
+							url: useBase64Image
+								? await getBase64Image( block?.attributes.url as string )
+								: block?.attributes.url,
+						},
+					],
 				};
 
 				feature = 'jetpack-ai-image-extension';
@@ -88,10 +104,11 @@ export const useSeoRequests = (
 				!! globalSelect( 'core/editor' ).getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title;
 
 			if ( hasTitle && force !== true ) {
-				return;
+				return null;
 			}
 
 			try {
+				setTitleBusy( true );
 				const response = await request( 'seo-title' );
 				const title = parseResponse( response ).titles?.[ 0 ];
 
@@ -100,11 +117,16 @@ export const useSeoRequests = (
 						jetpack_seo_html_title: title,
 					},
 				} );
+
+				return true;
 			} catch ( error ) {
 				debug( 'Error updating title', error );
+				return false;
+			} finally {
+				setTitleBusy( false );
 			}
 		},
-		[ request, editPost ]
+		[ setTitleBusy, request, editPost ]
 	);
 
 	const updateDescription = useCallback(
@@ -113,10 +135,11 @@ export const useSeoRequests = (
 				!! globalSelect( 'core/editor' ).getEditedPostAttribute( 'meta' )?.advanced_seo_description;
 
 			if ( hasDescription && force !== true ) {
-				return;
+				return null;
 			}
 
 			try {
+				setDescriptionBusy( true );
 				const response = await request( 'seo-meta-description' );
 				const description = parseResponse( response ).descriptions?.[ 0 ];
 				editPost( {
@@ -124,11 +147,76 @@ export const useSeoRequests = (
 						advanced_seo_description: description,
 					},
 				} );
+
+				return true;
 			} catch ( error ) {
 				debug( 'Error updating description', error );
+				return false;
+			} finally {
+				setDescriptionBusy( false );
 			}
 		},
-		[ request, editPost ]
+		[ setDescriptionBusy, request, editPost ]
+	);
+
+	const updateAltText = useCallback(
+		async ( block: Block, useBase64Image: boolean = false ) => {
+			if ( requireUpgrade ) {
+				debug( 'Upgrade required, skipping' );
+				return null;
+			}
+
+			if ( isImageBusy( block.clientId ) ) {
+				debug( 'Already updating alt text, skipping' );
+				return null;
+			}
+
+			if ( hasImageFailed( block.clientId ) ) {
+				debug( 'Image failed, skipping' );
+				return null;
+			}
+
+			try {
+				setImageBusy( block.clientId, true );
+				dequeueAsyncRequest();
+
+				const response = await request( 'images-alt-text', block, useBase64Image );
+
+				increaseRequestsCount();
+
+				const altText = parseResponse( response ).texts?.[ 0 ];
+
+				await updateBlockAttributes( block.clientId, { alt: altText } );
+				setImageBusy( block.clientId, false );
+
+				return true;
+			} catch ( error ) {
+				setImageBusy( block.clientId, false );
+
+				// If the image URL is invalid, try again with a base64 image.
+				if ( error?.message.includes( 'The image URL is invalid' ) && ! useBase64Image ) {
+					debug( 'Retrying with base64 image' );
+					return updateAltText( block, true );
+				}
+
+				if ( error?.code !== 'fetch_error' ) {
+					setImageFailed( block.clientId, true );
+				}
+				debug( 'Error updating alt text', error );
+				return false;
+			}
+		},
+		[
+			requireUpgrade,
+			isImageBusy,
+			hasImageFailed,
+			setImageBusy,
+			dequeueAsyncRequest,
+			request,
+			increaseRequestsCount,
+			updateBlockAttributes,
+			setImageFailed,
+		]
 	);
 
 	const updateAltTexts = useCallback(
@@ -137,18 +225,13 @@ export const useSeoRequests = (
 			const imageBlocksWithoutAltText = imageBlocks.filter( block => ! block.attributes.alt );
 			const blocks = force ? imageBlocks : imageBlocksWithoutAltText;
 
-			blocks.forEach( async block => {
-				try {
-					const response = await request( 'images-alt-text', block );
-					const altText = parseResponse( response ).texts?.[ 0 ];
-
-					await updateBlockAttributes( block.clientId, { alt: altText } );
-				} catch ( error ) {
-					debug( 'Error updating alt texts', error );
-				}
+			const promises = blocks.map( async block => {
+				return await updateAltText( block );
 			} );
+
+			return await Promise.all( promises );
 		},
-		[ request, updateBlockAttributes ]
+		[ updateAltText ]
 	);
 
 	const updateSeoData = useCallback( async () => {
@@ -167,9 +250,14 @@ export const useSeoRequests = (
 			}
 		} );
 
-		await Promise.all( promises );
+		const result = ( await Promise.all( promises ) ).flat();
 		setBusy( false );
-	}, [ features, updateTitle, updateDescription, updateAltTexts, setBusy ] );
 
-	return { updateSeoData, isBusy };
+		// The notice is only shown if at least one value was updated
+		if ( result.some( value => value === true ) ) {
+			createInfoNotice( __( 'SEO metadata added', 'jetpack' ), { type: 'snackbar' } );
+		}
+	}, [ setBusy, features, createInfoNotice, updateTitle, updateDescription, updateAltTexts ] );
+
+	return { updateSeoData, updateAltText, isBusy };
 };

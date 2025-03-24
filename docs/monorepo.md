@@ -532,3 +532,37 @@ In a checkout of the monorepo:
 See p9dueE-2on-p2 for past uses of this process.
 
 While a private repo could be imported similarly, you'd have a lot of auditing to do to make sure no old commit exposes any private information.
+
+## External Automattic npm packages
+
+Some npm packages are maintained by Automattic but are not part of the Jetpack monorepo. These are typically packages that are used by multiple teams or projects, and are not specific to Jetpack.
+
+### `@automattic/social-previews`
+
+This package is used to display Social Previews in the block editor and other Jetpack SEO settings pages.
+
+This package is maintained in [`Automattic/wp-calypso`](https://github.com/Automattic/wp-calypso/tree/4883414a0ede8adbd38737657bb5649367da4bf3/packages/social-previews).
+
+#### Development process
+
+If you need to update something in that package that is used by Jetpack, you should:
+
+- Make the necessary changes in the `wp-calypso` repository.
+- Use pnpm link to link the package in Jetpack to the local version in `wp-calypso`. Like this
+  - `cd wp-calypso/packages/social-previews`
+  - `pnpm link --global`
+- Then in Jetpack
+  - `cd projects/js-packages/publicize-components`
+  - `pnpm link --global @automattic/social-previews`
+  - Do the same for `projects/plugins/jetpack`
+- Test your changes
+- Create a branch/PR in `wp-calypso`
+- Bump the package version and commit the changes.
+- Publish a beta version of the package by following the appropriate [instructions](https://github.com/Automattic/wp-calypso/blob/4883414a0ede8adbd38737657bb5649367da4bf3/docs/monorepo.md#publishing). Like this
+  - `git tag "@automattic/social-previews@2.1.0-beta.10"`
+  - `git push --tags`
+  - `cd packages/social-previews`
+  - `yarn npm publish`
+- Update the package version in Jetpack to the beta version.
+- Create a PR in Jetpack which should now have the beta version of the package.
+- Follow the instructions in Calypso to publish the package to npm after merging the PR to trunk

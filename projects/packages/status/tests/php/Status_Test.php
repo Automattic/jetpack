@@ -305,22 +305,25 @@ class Status_Test extends TestCase {
 	 * Mock $wpdb->get_var() and make it return a certain value.
 	 *
 	 * @param mixed $return_value  Return value of the function.
-	 *
-	 * PHPUnit\Framework\MockObject\MockObject The mock object.
 	 */
 	protected function mock_wpdb_get_var( $return_value = null ) {
 		global $wpdb;
 
-		$wpdb = $this->getMockBuilder( \stdClass::class )
-					->setMockClassName( 'wpdb' )
-					->addMethods( array( 'get_var' ) )
-					->getMock();
-		$wpdb->method( 'get_var' )
-			->willReturn( $return_value );
+		$wpdb = new class( $return_value ) {
+			public $prefix   = 'wp_';
+			public $site     = 'wp_site';
+			public $usermeta = 'wp_usermeta';
 
-		$wpdb->prefix   = 'wp_';
-		$wpdb->site     = 'wp_site';
-		$wpdb->usermeta = 'wp_usermeta';
+			private $return_value;
+
+			public function __construct( $return_value ) {
+				$this->return_value = $return_value;
+			}
+
+			public function get_var() {
+				return $this->return_value;
+			}
+		};
 	}
 
 	/**
@@ -358,7 +361,7 @@ class Status_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_is_local_site_known_tld() {
+	public static function get_is_local_site_known_tld() {
 		return array(
 			'vvv'            => array(
 				'http://jetpack.test',
@@ -409,7 +412,7 @@ class Status_Test extends TestCase {
 	 *
 	 * @covers Automattic\Jetpack\Status::get_site_suffix
 	 */
-	public function get_site_suffix_examples() {
+	public static function get_site_suffix_examples() {
 		return array(
 			'no_site_home_url' => array(
 				'',
@@ -468,7 +471,7 @@ class Status_Test extends TestCase {
 	}
 
 	/** Data provider for test_cached */
-	public function provide_cached() {
+	public static function provide_cached() {
 		return array(
 			array( 'is_offline_mode', null, 'jetpack_offline_mode' ),
 			array( 'is_multi_network', 'is_multisite', null ),
@@ -509,7 +512,7 @@ class Status_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_coming_soon_status() {
+	public static function get_coming_soon_status() {
 		return array(
 			'Jetpack public site'       => array( null, false, false ),
 			'WoA public site'           => array( false, false, false ),

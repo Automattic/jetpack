@@ -1,14 +1,17 @@
-<?xml version="1.0"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true" convertDeprecationsToExceptions="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
-  <coverage processUncoveredFiles="true">
-    <include>
-      <directory suffix=".php">src</directory>
-      <directory suffix=".php">legacy</directory>
-    </include>
-  </coverage>
-  <testsuites>
-    <testsuite name="general">
-      <directory suffix="Test.php">tests/php</directory>
-    </testsuite>
-  </testsuites>
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+	bootstrap="tests/php/bootstrap.php"
+	cacheResultFile=".phpunit.cache/test-results"
+	colors="true"
+	executionOrder="depends"
+	beStrictAboutOutputDuringTests="true"
+	failOnRisky="true"
+	failOnWarning="true"
+>
+	<testsuites>
+		<testsuite name="general">
+			<directory suffix="Test.php">tests/php</directory>
+		</testsuite>
+	</testsuites>
 </phpunit>

@@ -12,28 +12,26 @@ return [
     // PhanTypeMismatchArgumentNullable : 60+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanAbstractStaticMethodCallInStatic : 8 occurrences
-    // PhanTypeMismatchReturnProbablyReal : 8 occurrences
+    // PhanTypeMismatchReturnProbablyReal : 7 occurrences
     // PhanNoopNew : 6 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanTypeMismatchReturnNullable : 3 occurrences
-    // PhanUndeclaredClassMethod : 3 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanRedundantCondition : 2 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
-    // PhanTypeMismatchReturn : 2 occurrences
     // PhanPluginMixedKeyNoKey : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
+    // PhanTypeMismatchReturn : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-activitylog.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'src/class-initializer.php' => ['PhanImpossibleCondition', 'PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod'],
+        'src/class-initializer.php' => ['PhanImpossibleCondition', 'PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchReturnNullable'],
         'src/class-jetpack-manage.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/class-products.php' => ['PhanNonClassMethodCall'],
         'src/class-rest-products.php' => ['PhanPluginMixedKeyNoKey'],
-        'src/class-rest-purchases.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-wpcom-products.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/products/class-anti-spam.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-backup.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault', 'PhanTypeSuspiciousNonTraversableForeach'],

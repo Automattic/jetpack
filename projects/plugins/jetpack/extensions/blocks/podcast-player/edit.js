@@ -344,6 +344,7 @@ const PodcastPlayerEdit = ( {
 								label={ __( 'Episode', 'jetpack' ) }
 								onFilterValueChange={ noop }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						) }
 						<ToggleControl

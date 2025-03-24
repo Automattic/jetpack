@@ -89,7 +89,7 @@ class XMLRPC_Connector_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function is_request_signed_by_jetpack_debugger_data() {
+	public static function is_request_signed_by_jetpack_debugger_data() {
 		return array(
 			'empty get'                    => array(
 				array(),

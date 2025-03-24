@@ -24,6 +24,7 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 						isUnitSelectTabbable
 						value={ prepTime }
 						units={ units }
+						__next40pxDefaultSize={ true }
 					/>
 				</div>
 				<div className="group">
@@ -40,6 +41,7 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 						isUnitSelectTabbable
 						value={ cookTime }
 						units={ units }
+						__next40pxDefaultSize={ true }
 					/>
 				</div>
 				<div className="group">
