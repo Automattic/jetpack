@@ -852,21 +852,22 @@ class REST_Endpoints_Test extends TestCase {
 
 		$expected = array(
 			'currentUser'     => array(
-				'isConnected' => false,
-				'isMaster'    => false,
-				'username'    => $user->user_login,
-				'id'          => $user->ID,
-				'blogId'      => false,
-				'wpcomUser'   => array(
+				'isConnected'           => false,
+				'isMaster'              => false,
+				'username'              => $user->user_login,
+				'id'                    => $user->ID,
+				'blogId'                => self::BLOG_ID,
+				'wpcomUser'             => array(
 					'avatar' => false,
 				),
-				'permissions' => array(
+				'permissions'           => array(
 					'connect'        => true,
 					'connect_user'   => true,
 					'unlink_user'    => true,
 					'disconnect'     => true,
 					'manage_options' => true,
 				),
+				'possibleAccountErrors' => array(),
 			),
 			'connectionOwner' => null,
 			'isRegistered'    => false,
@@ -898,21 +899,22 @@ class REST_Endpoints_Test extends TestCase {
 
 		$expected = array(
 			'currentUser'     => array(
-				'isConnected' => false,
-				'isMaster'    => false,
-				'username'    => $user->user_login,
-				'id'          => $user->ID,
-				'blogId'      => self::BLOG_ID,
-				'wpcomUser'   => array(
+				'isConnected'           => false,
+				'isMaster'              => false,
+				'username'              => $user->user_login,
+				'id'                    => $user->ID,
+				'blogId'                => self::BLOG_ID,
+				'wpcomUser'             => array(
 					'avatar' => false,
 				),
-				'permissions' => array(
+				'permissions'           => array(
 					'connect'        => true,
 					'connect_user'   => true,
 					'unlink_user'    => true,
 					'disconnect'     => true,
 					'manage_options' => true,
 				),
+				'possibleAccountErrors' => array(),
 			),
 			'connectionOwner' => null,
 			'isRegistered'    => true,
@@ -952,19 +954,20 @@ class REST_Endpoints_Test extends TestCase {
 
 		$expected = array(
 			'currentUser'     => array(
-				'isConnected' => true,
-				'isMaster'    => true,
-				'username'    => $user->user_login,
-				'id'          => $user->ID,
-				'blogId'      => self::BLOG_ID,
-				'wpcomUser'   => $dummy_wpcom_user_data,
-				'permissions' => array(
+				'isConnected'           => true,
+				'isMaster'              => true,
+				'username'              => $user->user_login,
+				'id'                    => $user->ID,
+				'blogId'                => self::BLOG_ID,
+				'wpcomUser'             => $dummy_wpcom_user_data,
+				'permissions'           => array(
 					'connect'        => true,
 					'connect_user'   => true,
 					'unlink_user'    => true,
 					'disconnect'     => true,
 					'manage_options' => true,
 				),
+				'possibleAccountErrors' => array(),
 			),
 			'connectionOwner' => $user->user_login,
 			'isRegistered'    => true,

@@ -972,7 +972,7 @@ class ManagerTest extends TestCase {
 		// Check that the email-based transient was deleted
 		$this->assertFalse( get_transient( $email_transient_key ) );
 		// The user ID-based one should still exist
-		$this->assertTrue( get_transient( $id_transient_key ) !== false );
+		$this->assertNotFalse( get_transient( $id_transient_key ) );
 
 		// Reset the email transient
 		set_transient( $email_transient_key, true, DAY_IN_SECONDS );
