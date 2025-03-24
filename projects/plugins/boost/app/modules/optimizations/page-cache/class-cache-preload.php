@@ -73,16 +73,6 @@ class Cache_Preload implements Pluggable, Has_Activate, Has_Deactivate, Is_Alway
 	}
 
 	/**
-	 * Handle cleanup for preloading when the plugin is uninstalled.
-	 *
-	 * @since $$next-version$$
-	 * @return void
-	 */
-	public static function uninstall() {
-		self::deactivate();
-	}
-
-	/**
 	 * Schedule the cronjob to preload the cache for Cornerstone Pages.
 	 *
 	 * @since $$next-version$$
