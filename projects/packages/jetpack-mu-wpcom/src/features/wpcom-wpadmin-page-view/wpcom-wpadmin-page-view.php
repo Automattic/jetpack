@@ -118,23 +118,12 @@ add_action( 'customize_controls_print_footer_scripts', __NAMESPACE__ . '\wpcom_m
  */
 function do_not_track_a11ns() {
 	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-	$is_atomic_site = ! $is_simple_site;
 
 	if ( $is_simple_site ) {
-		// Since we view so many screens to offer support and do feature dev, I think it's best not to count us.
-		if ( is_automattician() ) {
-			return true;
-		}
-
-		// Shouldn't hit this because of the is_automattician() check above, but let's be cautious.
-		if ( is_network_admin() ) {
-			return true;
-		}
+		return is_automattician() || is_network_admin();
 	}
 
-	if ( $is_atomic_site ) {
-		return wpcom_atomic_maybe_is_a11n();
-	}
+	return wpcom_atomic_maybe_is_a11n();
 }
 
 /**
