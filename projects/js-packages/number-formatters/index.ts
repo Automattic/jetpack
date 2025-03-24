@@ -1,1 +1,1 @@
-export { default as formatNumber } from './src/format-number';
+export { default as formatNumber } from './src/format-number.js';
