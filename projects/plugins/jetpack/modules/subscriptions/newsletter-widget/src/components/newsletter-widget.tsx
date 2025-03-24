@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import '../style.scss';
-import { Icon } from '@wordpress/components';
+import { ExternalLink, Icon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
@@ -93,7 +93,7 @@ export const NewsletterWidget = ( {
 						),
 						{
 							link: (
-								<a
+								<ExternalLink
 									href={ getRedirectUrl(
 										buildJPRedirectSource(
 											'learn/courses/newsletters-101/wordpress-com-newsletter'
@@ -108,34 +108,36 @@ export const NewsletterWidget = ( {
 					<h3 className="newsletter-widget__heading">{ __( 'Quick Links', 'jetpack' ) }</h3>
 					<ul className="newsletter-widget__footer-list">
 						<li>
-							<a href={ `${ adminUrl }edit.php` }>{ __( 'Publish your next post', 'jetpack' ) }</a>
-						</li>
-						<li>
-							<a href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }>
-								{ __( 'View subscriber stats', 'jetpack' ) }
+							<a href={ `${ adminUrl }post-new.php` }>
+								{ __( 'Publish your next post', 'jetpack' ) }
 							</a>
 						</li>
 						<li>
-							<a
+							<ExternalLink href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }>
+								{ __( 'View subscriber stats', 'jetpack' ) }
+							</ExternalLink>
+						</li>
+						<li>
+							<ExternalLink
 								href={ getRedirectUrl(
 									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite ),
 									{ anchor: 'add-subscribers' }
 								) }
 							>
 								{ __( 'Import subscribers', 'jetpack' ) }
-							</a>
+							</ExternalLink>
 						</li>
 						<li>
-							<a
+							<ExternalLink
 								href={ getRedirectUrl(
 									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite )
 								) }
 							>
 								{ __( 'Manage subscribers', 'jetpack' ) }
-							</a>
+							</ExternalLink>
 						</li>
 						<li>
-							<a
+							<ExternalLink
 								href={ getRedirectUrl(
 									buildJPRedirectSource(
 										`${ isWpcomSite ? 'earn' : 'monetize' }/${ site }`,
@@ -144,18 +146,22 @@ export const NewsletterWidget = ( {
 								) }
 							>
 								{ __( 'Monetize', 'jetpack' ) }
-							</a>
+							</ExternalLink>
 						</li>
 						<li>
-							<a
-								href={
-									isWpcomSite
-										? getRedirectUrl( buildJPRedirectSource( `settings/newsletter/${ site }` ) )
-										: `${ adminUrl }admin.php?page=jetpack#newsletter`
-								}
-							>
-								{ __( 'Newsletter settings', 'jetpack' ) }
-							</a>
+							{ isWpcomSite ? (
+								<ExternalLink
+									href={ getRedirectUrl(
+										buildJPRedirectSource( `settings/newsletter/${ site }` )
+									) }
+								>
+									{ __( 'Newsletter settings', 'jetpack' ) }
+								</ExternalLink>
+							) : (
+								<a href={ `${ adminUrl }admin.php?page=jetpack#newsletter` }>
+									{ __( 'Newsletter settings', 'jetpack' ) }
+								</a>
+							) }
 						</li>
 					</ul>
 				</div>

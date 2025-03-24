@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Update component that render the terms of service to have a text-only version
