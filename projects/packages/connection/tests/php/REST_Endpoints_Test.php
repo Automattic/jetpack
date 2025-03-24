@@ -856,7 +856,7 @@ class REST_Endpoints_Test extends TestCase {
 				'isMaster'              => false,
 				'username'              => $user->user_login,
 				'id'                    => $user->ID,
-				'blogId'                => self::BLOG_ID,
+				'blogId'                => false,
 				'wpcomUser'             => array(
 					'avatar' => false,
 				),
