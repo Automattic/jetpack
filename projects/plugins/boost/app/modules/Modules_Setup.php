@@ -176,8 +176,9 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 		foreach ( $this->available_modules as $module ) {
 			$this->notice_page_output_change_of_module( $module );
 
-			if ( $module->feature instanceof Has_Submodules ) {
-				$sub_features_to_check = array_merge( $sub_features_to_check, $module->feature->get_submodules() );
+			$feature = $module->feature;
+			if ( $feature instanceof Has_Submodules ) {
+				$sub_features_to_check = array_merge( $sub_features_to_check, $feature->get_submodules() );
 			}
 		}
 		$sub_features_to_check = array_unique( $sub_features_to_check );
