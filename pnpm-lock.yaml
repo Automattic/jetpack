@@ -15,9 +15,6 @@ importers:
 
   .:
     devDependencies:
-      '@wordpress/stylelint-config':
-        specifier: 23.12.0
-        version: 23.12.0(postcss@8.5.3)(stylelint@16.16.0)
       eslint:
         specifier: 9.22.0
         version: 9.22.0
@@ -30,12 +27,6 @@ importers:
       jetpack-js-tools:
         specifier: workspace:*
         version: link:tools/js-tools
-      postcss:
-        specifier: ^8.4
-        version: 8.5.3
-      stylelint:
-        specifier: ^16.8
-        version: 16.16.0
 
   .github/files/coverage-munger:
     devDependencies:
@@ -5350,6 +5341,9 @@ importers:
       '@wordpress/jest-console':
         specifier: 8.19.0
         version: 8.19.0(jest@29.7.0)
+      '@wordpress/stylelint-config':
+        specifier: 23.12.0
+        version: 23.12.0(postcss@8.4.47)(stylelint@16.16.0(typescript@5.0.4))
       babel-jest:
         specifier: 29.4.3
         version: 29.4.3(@babel/core@7.26.10)
@@ -5437,6 +5431,9 @@ importers:
       parse-diff:
         specifier: 0.8.1
         version: 0.8.1
+      postcss:
+        specifier: 8.4.47
+        version: 8.4.47
       prettier:
         specifier: npm:wp-prettier@3.0.3
         version: wp-prettier@3.0.3
@@ -5449,6 +5446,12 @@ importers:
       sort-package-json:
         specifier: 1.50.0
         version: 1.50.0
+      stylelint:
+        specifier: 16.16.0
+        version: 16.16.0(typescript@5.0.4)
+      stylelint-scss:
+        specifier: 6.11.1
+        version: 6.11.1(stylelint@16.16.0(typescript@5.0.4))
       svelte:
         specifier: 4.2.19
         version: 4.2.19
@@ -18748,7 +18751,7 @@ snapshots:
     dependencies:
       storybook: 8.6.7
 
-  '@stylistic/stylelint-plugin@3.1.2(stylelint@16.16.0)':
+  '@stylistic/stylelint-plugin@3.1.2(stylelint@16.16.0(typescript@5.0.4))':
     dependencies:
       '@csstools/css-parser-algorithms': 3.0.4(@csstools/css-tokenizer@3.0.3)
       '@csstools/css-tokenizer': 3.0.3
@@ -18757,7 +18760,7 @@ snapshots:
       postcss-selector-parser: 6.1.2
       postcss-value-parser: 4.2.0
       style-search: 0.1.0
-      stylelint: 16.16.0
+      stylelint: 16.16.0(typescript@5.0.4)
 
   '@svgr/babel-plugin-add-jsx-attribute@7.0.0(@babel/core@7.26.10)':
     dependencies:
@@ -22645,12 +22648,12 @@ snapshots:
       '@babel/runtime': 7.26.10
       change-case: 4.1.2
 
-  '@wordpress/stylelint-config@23.12.0(postcss@8.5.3)(stylelint@16.16.0)':
+  '@wordpress/stylelint-config@23.12.0(postcss@8.4.47)(stylelint@16.16.0(typescript@5.0.4))':
     dependencies:
-      '@stylistic/stylelint-plugin': 3.1.2(stylelint@16.16.0)
-      stylelint: 16.16.0
-      stylelint-config-recommended: 14.0.1(stylelint@16.16.0)
-      stylelint-config-recommended-scss: 14.1.0(postcss@8.5.3)(stylelint@16.16.0)
+      '@stylistic/stylelint-plugin': 3.1.2(stylelint@16.16.0(typescript@5.0.4))
+      stylelint: 16.16.0(typescript@5.0.4)
+      stylelint-config-recommended: 14.0.1(stylelint@16.16.0(typescript@5.0.4))
+      stylelint-config-recommended-scss: 14.1.0(postcss@8.4.47)(stylelint@16.16.0(typescript@5.0.4))
     transitivePeerDependencies:
       - postcss
 
@@ -23982,12 +23985,14 @@ snapshots:
     optionalDependencies:
       typescript: 5.7.2
 
-  cosmiconfig@9.0.0:
+  cosmiconfig@9.0.0(typescript@5.0.4):
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
       js-yaml: 4.1.0
       parse-json: 5.2.0
+    optionalDependencies:
+      typescript: 5.0.4
 
   crc32@0.2.2: {}
 
@@ -24103,7 +24108,7 @@ snapshots:
   css-tree@3.1.0:
     dependencies:
       mdn-data: 2.12.2
-      source-map-js: 1.2.1
+      source-map-js: 1.2.0
 
   css-what@6.1.0: {}
 
@@ -28341,10 +28346,6 @@ snapshots:
     dependencies:
       postcss: 8.4.47
 
-  postcss-scss@4.0.9(postcss@8.5.3):
-    dependencies:
-      postcss: 8.5.3
-
   postcss-selector-parser@6.1.2:
     dependencies:
       cssesc: 3.0.0
@@ -29731,20 +29732,20 @@ snapshots:
       postcss: 8.4.47
       postcss-selector-parser: 6.1.2
 
-  stylelint-config-recommended-scss@14.1.0(postcss@8.5.3)(stylelint@16.16.0):
+  stylelint-config-recommended-scss@14.1.0(postcss@8.4.47)(stylelint@16.16.0(typescript@5.0.4)):
     dependencies:
-      postcss-scss: 4.0.9(postcss@8.5.3)
-      stylelint: 16.16.0
-      stylelint-config-recommended: 14.0.1(stylelint@16.16.0)
-      stylelint-scss: 6.11.1(stylelint@16.16.0)
+      postcss-scss: 4.0.9(postcss@8.4.47)
+      stylelint: 16.16.0(typescript@5.0.4)
+      stylelint-config-recommended: 14.0.1(stylelint@16.16.0(typescript@5.0.4))
+      stylelint-scss: 6.11.1(stylelint@16.16.0(typescript@5.0.4))
     optionalDependencies:
-      postcss: 8.5.3
+      postcss: 8.4.47
 
-  stylelint-config-recommended@14.0.1(stylelint@16.16.0):
+  stylelint-config-recommended@14.0.1(stylelint@16.16.0(typescript@5.0.4)):
     dependencies:
-      stylelint: 16.16.0
+      stylelint: 16.16.0(typescript@5.0.4)
 
-  stylelint-scss@6.11.1(stylelint@16.16.0):
+  stylelint-scss@6.11.1(stylelint@16.16.0(typescript@5.0.4)):
     dependencies:
       css-tree: 3.1.0
       is-plain-object: 5.0.0
@@ -29754,9 +29755,9 @@ snapshots:
       postcss-resolve-nested-selector: 0.1.6
       postcss-selector-parser: 7.1.0
       postcss-value-parser: 4.2.0
-      stylelint: 16.16.0
+      stylelint: 16.16.0(typescript@5.0.4)
 
-  stylelint@16.16.0:
+  stylelint@16.16.0(typescript@5.0.4):
     dependencies:
       '@csstools/css-parser-algorithms': 3.0.4(@csstools/css-tokenizer@3.0.3)
       '@csstools/css-tokenizer': 3.0.3
@@ -29765,7 +29766,7 @@ snapshots:
       '@dual-bundle/import-meta-resolve': 4.1.0
       balanced-match: 2.0.0
       colord: 2.9.3
-      cosmiconfig: 9.0.0
+      cosmiconfig: 9.0.0(typescript@5.0.4)
       css-functions-list: 3.2.3
       css-tree: 3.1.0
       debug: 4.4.0
