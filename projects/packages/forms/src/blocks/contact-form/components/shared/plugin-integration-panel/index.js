@@ -25,26 +25,21 @@ const PluginIntegrationPanel = ( {
 	const { invalidateResolution } = useDispatch( coreStore );
 	const { tracks } = useAnalytics();
 
-	const { pluginStatus, isLoading } = useSelect(
-		select => {
-			const installedPlugins = select( coreStore ).getPlugins();
+	const { plugins, isLoading } = useSelect( select => {
+		const installedPlugins = select( coreStore ).getPlugins();
+		return {
+			isLoading: ! installedPlugins,
+			plugins: installedPlugins || [],
+		};
+	}, [] );
 
-			if ( ! installedPlugins ) {
-				return { isLoading: true };
-			}
-
-			const plugin = installedPlugins.find( p => p.plugin === pluginPath );
-
-			return {
-				isLoading: false,
-				pluginStatus: {
-					isInstalled: !! plugin,
-					isActive: plugin?.status === 'active',
-				},
-			};
-		},
-		[ pluginPath ]
-	);
+	const plugin = plugins.find( p => p.plugin === pluginPath );
+	const pluginStatus = plugin
+		? {
+				isInstalled: true,
+				isActive: plugin.status === 'active',
+		  }
+		: null;
 
 	const { isInstalled = false, isActive = false } = pluginStatus || {};
 
