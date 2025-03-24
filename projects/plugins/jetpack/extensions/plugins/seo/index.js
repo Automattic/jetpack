@@ -85,7 +85,7 @@ const Seo = () => {
 			canHaveAutoEnhance &&
 			supportsPublishSidebar
 		) {
-			updateSeoData();
+			updateSeoData( { trigger: 'auto' } );
 		}
 
 		previousIsOpenRef.current = isPrePublishPanelOpen;
