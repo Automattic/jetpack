@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
+use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Garbage_Collection;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
@@ -114,7 +115,7 @@ class CLI {
 	private function set_module_status( $module_slug, $status ) {
 		$modules = ( new Modules_Setup() )->get_available_modules_and_submodules();
 		$module  = $modules[ $module_slug ] ?? false;
-		if ( $module === false ) {
+		if ( ! ( $module instanceof Module ) ) {
 			\WP_CLI::error(
 				/* translators: %s refers to the module slug like 'critical-css' */
 				sprintf( __( "The '%s' module slug is invalid", 'jetpack-boost' ), $module_slug )
