@@ -58,6 +58,8 @@ module.exports = [
 			'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
 			'wpcom-profile-settings-link-to-wpcom':
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
+			'wpcom-replace-site-visibility':
+				'./src/features/replace-site-visibility/replace-site-visibility.tsx',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
 			'adminbar-launch-button': './src/features/launch-button/index.js',
 		},

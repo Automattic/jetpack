@@ -187,7 +187,6 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 			$this->register_endpoints( $module->feature );
 
 			do_action( "jetpack_boost_{$slug}_initialized", $this );
-
 		}
 	}
 
