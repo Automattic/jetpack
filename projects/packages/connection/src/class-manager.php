@@ -159,7 +159,6 @@ class Manager {
 		// Add hooks for cleaning up account mismatch transients
 		add_action( 'delete_user', array( $manager, 'clean_account_mismatch_transients' ), 9, 1 );
 		add_action( 'remove_user_from_blog', array( $manager, 'clean_account_mismatch_transients' ), 9, 1 );
-		add_action( 'email_change_email', array( $manager, 'clean_account_mismatch_transients' ), 9, 1 );
 		add_action( 'user_register', array( $manager, 'clean_account_mismatch_transients' ), 9, 1 );
 
 		$manager->add_connection_status_invalidation_hooks();

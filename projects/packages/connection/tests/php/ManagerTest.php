@@ -952,27 +952,25 @@ class ManagerTest extends TestCase {
 		// Create a test user
 		$user_id = wp_insert_user(
 			array(
-				'user_login' => 'testuser',
-				'user_pass'  => 'password',
+				'user_login' => 'test_user_clean_mismatch',
 				'user_email' => 'test@example.com',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
 			)
 		);
 
-		// Set up test transients - one with the old email-based format
-		$email_transient_key = 'jetpack_account_mismatch_' . md5( 'test@example.com' );
-		set_transient( $email_transient_key, true, DAY_IN_SECONDS );
+		// Set up transient keys the same way the REST_Connector class does
+		$email               = 'test@example.com';
+		$email_transient_key = 'jetpack_account_mismatch_' . md5( $email );
 
-		// And one with the new user ID-based format
-		$id_transient_key = 'jetpack_account_mismatch_user_' . $user_id;
-		set_transient( $id_transient_key, true, DAY_IN_SECONDS );
+		// Set up test transient
+		set_transient( $email_transient_key, true, DAY_IN_SECONDS );
 
 		// Test cleaning by email
 		$this->manager->clean_account_mismatch_transients( 'test@example.com' );
 
 		// Check that the email-based transient was deleted
 		$this->assertFalse( get_transient( $email_transient_key ) );
-		// The user ID-based one should still exist
-		$this->assertNotFalse( get_transient( $id_transient_key ) );
 
 		// Reset the email transient
 		set_transient( $email_transient_key, true, DAY_IN_SECONDS );
@@ -980,9 +978,11 @@ class ManagerTest extends TestCase {
 		// Test cleaning by user ID
 		$this->manager->clean_account_mismatch_transients( $user_id );
 
-		// Check that both transients were deleted
+		// Check that the transient was deleted
 		$this->assertFalse( get_transient( $email_transient_key ) );
-		$this->assertFalse( get_transient( $id_transient_key ) );
+
+		// Reset the email transient
+		set_transient( $email_transient_key, true, DAY_IN_SECONDS );
 
 		// Clean up
 		wp_delete_user( $user_id );

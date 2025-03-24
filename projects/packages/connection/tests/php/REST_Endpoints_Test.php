@@ -938,6 +938,7 @@ class REST_Endpoints_Test extends TestCase {
 		$dummy_wpcom_user_data = array(
 			'ID'           => 999,
 			'email'        => 'jane.doe@foobar.com',
+			'login'        => 'janedoe',
 			'display_name' => 'Jane Doe',
 		);
 		$transient_key         = 'jetpack_connected_user_data_' . self::$user_id;
