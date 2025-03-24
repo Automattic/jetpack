@@ -101,7 +101,7 @@ class Authorize_Redirect {
 	 * Create the Jetpack authorization URL.
 	 *
 	 * @since 2.7.6 Added optional $from and $raw parameters.
-	 * @since $$next-version$$ Added optional $provider and $provider_args parameters.
+	 * @since 6.8.0 Added optional $provider and $provider_args parameters.
 	 *
 	 * @param bool|string $redirect URL to redirect to.
 	 * @param bool|string $from     If not false, adds 'from=$from' param to the connect URL.
@@ -162,7 +162,7 @@ class Authorize_Redirect {
 		 *
 		 * @since jetpack-8.9.0
 		 * @since 2.7.6 Added $raw parameter.
-		 * @since $$next-version$$ Added $provider and $provider_args parameters.
+		 * @since 6.8.0 Added $provider and $provider_args parameters.
 		 *
 		 * @param string      $url           Connection URL.
 		 * @param bool        $raw           If true, URL will not be escaped.

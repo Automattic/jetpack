@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.8.0] - 2025-03-24
+### Added
+- Add support for provider-specific authentication. [#42602]
+
 ## [6.7.7] - 2025-03-21
 ### Changed
 - Internal updates.
@@ -1362,6 +1366,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[6.8.0]: https://github.com/Automattic/jetpack-connection/compare/v6.7.7...v6.8.0
 [6.7.7]: https://github.com/Automattic/jetpack-connection/compare/v6.7.6...v6.7.7
 [6.7.6]: https://github.com/Automattic/jetpack-connection/compare/v6.7.5...v6.7.6
 [6.7.5]: https://github.com/Automattic/jetpack-connection/compare/v6.7.4...v6.7.5

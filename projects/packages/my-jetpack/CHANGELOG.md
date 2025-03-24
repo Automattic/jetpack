@@ -5,12 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.9.0] - 2025-03-24
+### Added
+- Add an email input to the social login form, allowing users to log into Jetpack seamlessly through a magic link. [#42600]
+- Add a new social login form to the onboarding screen for first-time Jetpack connections. [#42561]
+
 ## [5.8.0] - 2025-03-21
 ### Added
-- My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
+- Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
 
 ### Fixed
-- Enable screen readers to read Boost score [#42306]
+- Enable screen readers to read Boost score. [#42306]
 
 ## [5.7.3] - 2025-03-19
 ### Changed
@@ -2044,6 +2049,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.8.0...5.9.0
 [5.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.3...5.8.0
 [5.7.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.2...5.7.3
 [5.7.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.1...5.7.2
