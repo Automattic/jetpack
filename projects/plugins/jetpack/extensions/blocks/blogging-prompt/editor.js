@@ -38,7 +38,7 @@ async function insertTemplate( promptId ) {
 
 	const { insertBlocks } = dispatch( 'core/block-editor' );
 	const bloggingPromptBlocks = [
-		createBlock( `jetpack/${ name }`, { promptFetched: false, promptId, tagsAdded: true } ),
+		createBlock( 'jetpack/blogging-prompt', { promptFetched: false, promptId, tagsAdded: true } ),
 		createBlock( 'core/paragraph' ),
 	];
 
