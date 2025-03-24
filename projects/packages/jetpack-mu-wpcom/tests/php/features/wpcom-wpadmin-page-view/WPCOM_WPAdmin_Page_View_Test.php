@@ -64,7 +64,7 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function wpcom_nosara_track_admin_page_views_does_not_track_a11ns_provider() {
+	public static function wpcom_nosara_track_admin_page_views_does_not_track_a11ns_provider() {
 		return array(
 			array( true, true, null ),
 			array( true, false, true ),
