@@ -147,12 +147,12 @@ class Module {
 			return false;
 		}
 
-		// If the module is not a child module, and it already passed the availability check, it is available.
+		// If the module is not a sub-module, and it already passed the availability check, it is available.
 		if ( ! $this->feature instanceof Sub_Feature ) {
 			return true;
 		}
 
-		// If the module is a child module, it is available if at least one of its parent modules is available.
+		// If the module is a sub-module, it is available if at least one of its parent modules is available.
 		foreach ( $this->feature::get_parent_features() as $parent_feature ) {
 			if ( ( new Module( new $parent_feature() ) )->is_available() ) {
 				return true;
