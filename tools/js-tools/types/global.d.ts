@@ -70,7 +70,6 @@ interface Window {
 			connectionOwner: null;
 		};
 		connectedPlugins: object;
-		wpVersion: string;
 		siteSuffix: string;
 		connectionErrors: Array;
 	};
