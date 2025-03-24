@@ -13,8 +13,6 @@ use PHPUnit\Framework\TestCase;
 
 // Needed to load Class "WPCOMSH_Support_Session_Detect"
 require_once Jetpack_Mu_Wpcom::PKG_DIR . '../../plugins/wpcomsh/support-session.php';
-// Needed to load function "wpcomsh_get_wpcom_active_subscriptions"
-require_once Jetpack_Mu_Wpcom::PKG_DIR . '../../plugins/wpcomsh/functions.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
 /**

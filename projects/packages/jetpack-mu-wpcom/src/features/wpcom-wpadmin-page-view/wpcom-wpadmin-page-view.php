@@ -150,6 +150,7 @@ function wpcom_atomic_get_user_types() {
 		$user_types[] = 'New User';
 	}
 
+	// @phan-suppress-next-line PhanUndeclaredFunction
 	$subscriptions = wpcomsh_get_wpcom_active_subscriptions();
 	if ( count( $subscriptions ) > 0 ) {
 		$user_types[] = 'Paid';
