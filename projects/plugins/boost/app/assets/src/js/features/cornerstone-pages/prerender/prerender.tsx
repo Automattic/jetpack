@@ -22,8 +22,6 @@ const Prerender = () => {
 		successMessage: prerenderedEnabled.data ? enabledMessage : disabledMessage,
 	} );
 
-	const isWordPressVersionSupported = Jetpack_Boost.wpVersion >= '6.8.0';
-
 	const handleToggle = ( value: boolean ) => {
 		setPrerenderedEnabled.mutate( value );
 		recordBoostEvent( 'cornerstone_pages_prerender_toggle', { enabled: Number( value ) } );
@@ -37,24 +35,21 @@ const Prerender = () => {
 					className={ styles[ 'toggle-control' ] }
 					checked={ prerenderedEnabled.data }
 					onChange={ handleToggle }
-					disabled={ ! isWordPressVersionSupported }
 					__nextHasNoMarginBottom={ true }
 				/>
 			</div>
 			<div className={ styles.description }>
-				{ isWordPressVersionSupported
-					? createInterpolateElement(
-							__(
-								'Prerender these pages to improve their loading performance, but <help>be mindful</help> of potential drawbacks.',
-								'jetpack-boost'
-							),
-							{
-								help: <PrerenderWarningMessage />,
-								// eslint-disable-next-line jsx-a11y/anchor-has-content
-								link: <a href={ unsafeSpeculationRulesLink } target="_blank" rel="noreferrer" />,
-							}
-					  )
-					: __( 'This feature requires WordPress 6.8.0 or later.', 'jetpack-boost' ) }
+				{ createInterpolateElement(
+					__(
+						'Prerender these pages to improve their loading performance, but <help>be mindful</help> of potential drawbacks.',
+						'jetpack-boost'
+					),
+					{
+						help: <PrerenderWarningMessage />,
+						// eslint-disable-next-line jsx-a11y/anchor-has-content
+						link: <a href={ unsafeSpeculationRulesLink } target="_blank" rel="noreferrer" />,
+					}
+				) }
 			</div>
 		</div>
 	);
