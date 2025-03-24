@@ -16,7 +16,7 @@ namespace Automattic\Jetpack\Debug_Helper;
  */
 class Coverage_Logger {
 
-	const DATABASE_NAME = 'jetpack_coverage_data';
+	const RUNTIME_TABLE_NAME = 'jetpack_runtime_coverage_data';
 
 	/**
 	 * XMLRPC_Logger constructor.
@@ -39,13 +39,24 @@ class Coverage_Logger {
 
 		$coverage_data = xdebug_get_code_coverage();
 
-		$sql = sprintf( 'INSERT IGNORE INTO `%s` (path, line) VALUES ', $wpdb->prefix . self::DATABASE_NAME );
+		$sql = sprintf( 'INSERT IGNORE INTO `%s` (path, line) VALUES ', $wpdb->prefix . self::RUNTIME_TABLE_NAME );
 
 		foreach ( $coverage_data as $file => $lines ) {
 			$path = substr( $file, strlen( ABSPATH ) );
 
 			if ( ! str_starts_with( $path, 'wp-content/plugins/jetpack' ) ) {
 				continue;
+			}
+
+			if ( false !== strpos( $path, '/vendor/' ) ) {
+				continue;
+			}
+
+			$path = substr( $path, strlen( 'wp-content/plugins/' ) );
+
+			$vendor_pos = strpos( $path, 'jetpack_vendor' );
+			if ( false !== $vendor_pos ) {
+				$path = substr( $path, $vendor_pos + strlen( 'jetpack_vendor/automattic/' ) );
 			}
 
 			foreach ( $lines as $line => $count ) {
@@ -66,18 +77,53 @@ class Coverage_Logger {
 		global $wpdb;
 
 		$charset_collate = $wpdb->get_charset_collate();
-		$table_name      = $wpdb->prefix . self::DATABASE_NAME;
+		$table_name      = $wpdb->prefix . self::RUNTIME_TABLE_NAME;
 
-		$sql = "CREATE TABLE $table_name (
+		$sql = array(
+			"CREATE TABLE $table_name (
   id mediumint(9) NOT NULL AUTO_INCREMENT,
   path varchar(255),
   line int,
   PRIMARY KEY (id),
   UNIQUE KEY `unique_path` (path, line)
-) $charset_collate;";
+) $charset_collate;",
+		);
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
+	}
+
+	/**
+	 * Returns an SQL string for getting the coverage diff results.
+	 */
+	protected function get_coverage_diff() {
+		return '
+SELECT
+    runtime.path AS file_path,
+    runtime.lines_covered AS runtime_coverage,
+    test.line AS test_coverage,
+    runtime.lines_covered - test.line AS coverage_difference
+        FROM
+    (
+        SELECT
+            path,
+            COUNT(DISTINCT line) AS lines_covered
+        FROM
+            wp_jetpack_runtime_coverage_data
+        GROUP BY
+            path
+    ) AS runtime
+    INNER JOIN
+    (
+        SELECT
+            path,
+            line
+        FROM
+            wp_jetpack_test_coverage_data
+    ) AS test
+    ON runtime.path = test.path
+    ORDER BY coverage_difference
+';
 	}
 }
 
