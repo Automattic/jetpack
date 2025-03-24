@@ -2,8 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Modules;
 
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_Common;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
@@ -15,7 +15,7 @@ use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 class Module_Test extends Base_TestCase {
 	public function test_module_should_be_enabled_if_always_on() {
 		$module = new Module(
-			new class() implements Is_Always_On, Pluggable {
+			new class() implements Is_Always_On, Feature {
 				public static function get_slug() {
 					return 'always_on';
 				}

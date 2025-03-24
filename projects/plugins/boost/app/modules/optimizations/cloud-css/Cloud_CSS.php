@@ -4,10 +4,10 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
@@ -22,7 +22,7 @@ use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
 
-class Cloud_CSS implements Pluggable, Has_Activate, Has_Always_Available_Endpoints, Changes_Output_After_Activation, Optimization, Needs_To_Be_Ready {
+class Cloud_CSS implements Feature, Has_Activate, Has_Always_Available_Endpoints, Changes_Output_After_Activation, Optimization, Needs_To_Be_Ready {
 
 	/** User has requested regeneration manually or through activating the module. */
 	const REGENERATE_REASON_USER_REQUEST = 'user_request';

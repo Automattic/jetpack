@@ -2,8 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
-use Automattic\Jetpack_Boost\Contracts\Is_Sub_Feature;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
+use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Contracts\Sub_Feature;
 use Automattic\Jetpack_Boost\Modules\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
@@ -22,7 +22,7 @@ use Automattic\Jetpack_Boost\Modules\Performance_History\Performance_History;
 class Features_Index {
 
 	/**
-	 * @var class-string<Pluggable>[] - Classes that handle all Jetpack Boost features.
+	 * @var class-string<Feature>[] - Classes that handle all Jetpack Boost features.
 	 */
 	const FEATURES = array(
 		Critical_CSS::class,
@@ -38,7 +38,7 @@ class Features_Index {
 	);
 
 	/**
-	 * @var class-string<Pluggable&Is_Sub_Feature>[] - Classes that handle all Jetpack Boost subfeatures.
+	 * @var class-string<Sub_Feature>[] - Classes that handle all Jetpack Boost subfeatures.
 	 */
 	const SUB_FEATURES = array(
 		Minify_Common::class,
@@ -50,10 +50,10 @@ class Features_Index {
 	/**
 	 * Get the subfeatures of a feature.
 	 *
-	 * @param Pluggable $feature The feature to get the subfeatures of.
-	 * @return class-string<Pluggable>[] The subfeatures of the feature.
+	 * @param Feature $feature The feature to get the subfeatures of.
+	 * @return class-string<Feature>[] The subfeatures of the feature.
 	 */
-	public static function get_sub_features_of( Pluggable $feature ) {
+	public static function get_sub_features_of( Feature $feature ) {
 		$subfeatures = array();
 		foreach ( self::SUB_FEATURES as $subfeature ) {
 			if ( in_array( $feature::class, $subfeature::get_parent_features(), true ) ) {

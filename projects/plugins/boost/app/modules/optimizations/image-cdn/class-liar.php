@@ -3,11 +3,10 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN;
 
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
-use Automattic\Jetpack_Boost\Contracts\Is_Sub_Feature;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
+use Automattic\Jetpack_Boost\Contracts\Sub_Feature;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
-class Liar implements Pluggable, Changes_Output_On_Activation, Is_Sub_Feature {
+class Liar implements Sub_Feature, Changes_Output_On_Activation {
 
 	public function setup() {
 		add_action( 'wp_footer', array( $this, 'inject_image_cdn_liar_script' ) );

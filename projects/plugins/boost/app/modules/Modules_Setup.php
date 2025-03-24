@@ -5,9 +5,9 @@ namespace Automattic\Jetpack_Boost\Modules;
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -92,7 +92,7 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 		foreach ( $features as $feature_class ) {
 			$feature = new $feature_class();
 
-			if ( ! $feature instanceof Has_Always_Available_Endpoints || ! $feature instanceof Pluggable ) {
+			if ( ! $feature instanceof Has_Always_Available_Endpoints || ! $feature instanceof Feature ) {
 				continue;
 			}
 

@@ -4,9 +4,9 @@ namespace Automattic\Jetpack_Boost\Modules\Image_Size_Analysis;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync\Data_Sync_Schema;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync\Image_Size_Analysis_Entry;
@@ -15,7 +15,7 @@ use Automattic\Jetpack_Boost\REST_API\Endpoints\Image_Analysis_Action_Fix;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Image_Size_Analysis_Summary_Action_Paginate;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Image_Size_Analysis_Summary_Action_Start;
 
-class Image_Size_Analysis implements Pluggable, Is_Always_On, Has_Data_Sync {
+class Image_Size_Analysis implements Feature, Is_Always_On, Has_Data_Sync {
 
 	public function setup() {
 		Image_Size_Analysis_Fixer::setup();

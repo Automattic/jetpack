@@ -4,12 +4,12 @@ namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
-use Automattic\Jetpack_Boost\Contracts\Is_Sub_Feature;
 use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
+use Automattic\Jetpack_Boost\Contracts\Sub_Feature;
 use Automattic\Jetpack_Boost\Lib\Status;
 
 class Module {
@@ -21,11 +21,11 @@ class Module {
 	private $status;
 
 	/**
-	 * @var Pluggable
+	 * @var Feature
 	 */
 	public $feature;
 
-	public function __construct( Pluggable $feature ) {
+	public function __construct( Feature $feature ) {
 		$this->feature = $feature;
 		$this->status  = new Status( $feature::get_slug() );
 	}
@@ -96,7 +96,7 @@ class Module {
 	 * @return Module[] The active parent modules.
 	 */
 	public function get_active_parent_modules() {
-		if ( ! $this->feature instanceof Is_Sub_Feature ) {
+		if ( ! $this->feature instanceof Sub_Feature ) {
 			return array();
 		}
 
@@ -148,7 +148,7 @@ class Module {
 		}
 
 		// If the module is not a child module, and it already passed the availability check, it is available.
-		if ( ! $this->feature instanceof Is_Sub_Feature ) {
+		if ( ! $this->feature instanceof Sub_Feature ) {
 			return true;
 		}
 
@@ -193,7 +193,7 @@ class Module {
 			return false;
 		}
 
-		if ( $this->feature instanceof Is_Sub_Feature ) {
+		if ( $this->feature instanceof Sub_Feature ) {
 			$parent_modules = $this->get_active_parent_modules();
 			if ( empty( $parent_modules ) ) {
 				return false;
