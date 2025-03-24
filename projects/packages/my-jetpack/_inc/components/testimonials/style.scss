@@ -1,10 +1,13 @@
+
 .testimonial-base {
+    flex: 1;
     background-size: cover;
     background-position: center top;
     background-repeat: no-repeat;
     font-family: 'Open Sans', sans-serif;
     width: 100%;
-    min-height: 500px;
+    height: 100%;
+    min-height: 200px;
     position: relative;
     display: flex;
     align-items: flex-end;
