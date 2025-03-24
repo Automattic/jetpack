@@ -59,7 +59,7 @@ const BLOCKS_TEMPLATE = [
 				{
 					align: 'center',
 					content: __(
-						'<strong><u>Select a file</u></strong> or drag and drop your file here',
+						'<strong><a href="#">Select a file</a></strong> or drag and drop your file here',
 						'jetpack-forms'
 					),
 					style: {
