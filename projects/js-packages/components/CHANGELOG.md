@@ -4,7 +4,7 @@
 
 ## [0.70.1] - 2025-03-24
 ### Fixed
-- Fixes admin panel header component layout [#42614]
+- Fix admin panel header component layout. [#42614]
 
 ## [0.70.0] - 2025-03-24
 ### Changed
