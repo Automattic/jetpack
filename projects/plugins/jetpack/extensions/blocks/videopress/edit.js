@@ -94,14 +94,10 @@ const VideoPressEdit = CoreVideoEdit =>
 			if ( state.fileForUpload && ! state.isEditingWhileUploading ) {
 				const isResumableUploading =
 					null !== state.fileForUpload && state.fileForUpload instanceof File;
-				if ( isResumableUploading || state.pendingVideoAttributes ) {
+				if ( isResumableUploading ) {
 					newState.isEditingWhileUploading = true;
 				}
-			} else if (
-				state.isEditingWhileUploading &&
-				! state.fileForUpload &&
-				state.pendingVideoAttributes
-			) {
+			} else if ( state.pendingVideoAttributes ) {
 				// Keep editing state active if we have pending attributes
 				newState.isEditingWhileUploading = true;
 			}
