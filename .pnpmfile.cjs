@@ -270,6 +270,13 @@ function afterAllResolved( lockfile ) {
 	}
 
 	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
+		// Forbid `@wordpress/scripts`. Brings in too many different versions of deps, like (as of March 2025) eslint 8 when we've already updated to eslint 9.
+		if ( k.startsWith( '@wordpress/scripts@' ) ) {
+			throw new Error(
+				"Please don't bring in `@wordpress/scripts`. It brings in different versions of a lot of dependencies, and we generally have our own way to do the things that it tries to do.\nFor example, instead of `wp-scripts build`, run `webpack` directly with a config based on our monorepo-internal `@automattic/jetpack-webpack-config` package."
+			);
+		}
+
 		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
 		// https://github.com/pnpm/pnpm/issues/3935
 		if ( k.startsWith( 'webpack@' ) && ! v.optionalDependencies?.[ 'webpack-cli' ] ) {

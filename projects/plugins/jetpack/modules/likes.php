@@ -21,6 +21,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status\Host;
 
 Assets::add_resource_hint(
 	array(
@@ -40,7 +41,6 @@ require_once __DIR__ . '/likes/jetpack-likes-settings.php';
  * Jetpack Like Class
  */
 class Jetpack_Likes {
-
 	/**
 	 * Jetpack_Likes_Settings object
 	 *
@@ -76,20 +76,25 @@ class Jetpack_Likes {
 		add_action( 'jetpack_activate_module_likes', array( $this, 'set_social_notifications_like' ) );
 		add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
 
-		Jetpack::enable_module_configurable( __FILE__ );
+		// The `enable_module_configurable` method doesn't exist in the WP.com loader implementation.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			Jetpack::enable_module_configurable( __FILE__ );
+		}
+
 		add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
 		add_action( 'admin_print_scripts-settings_page_sharing', array( $this, 'load_jp_css' ) );
 		add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
 
-		$active = Jetpack::get_active_modules();
+		$publicize_active  = Jetpack::is_module_active( 'publicize' );
+		$sharedaddy_active = Jetpack::is_module_active( 'sharedaddy' );
 
-		if ( in_array( 'publicize', $active, true ) && ! in_array( 'sharedaddy', $active, true ) ) {
+		if ( $publicize_active && ! $sharedaddy_active ) {
 			// we have a sharing page but not the global options area.
 			add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
 			add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
 		}
 
-		if ( ! in_array( 'sharedaddy', $active, true ) ) {
+		if ( ! $sharedaddy_active ) {
 			add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharedaddy_not_loaded' ) );
 			add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_showbuttonon_init' ), 19 );
 			add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_showbuttonon_callback' ), 19 );

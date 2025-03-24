@@ -2,9 +2,12 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
+use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -26,11 +29,29 @@ class Module {
 	}
 
 	public function on_activate() {
+		if ( $this->feature instanceof Changes_Output_On_Activation ) {
+			$this->indicate_page_output_changed();
+		}
+
 		return $this->feature instanceof Has_Activate ? $this->feature::activate() : true;
 	}
 
 	public function on_deactivate() {
+		// If the module changes the page output, with or without preparation, deactivating the module should indicate a page output change.
+		if ( $this->feature instanceof Changes_Output_On_Activation || $this->feature instanceof Changes_Output_After_Activation ) {
+			$this->indicate_page_output_changed();
+		}
+
 		return $this->feature instanceof Has_Deactivate ? $this->feature::deactivate() : true;
+	}
+
+	public function indicate_page_output_changed() {
+		/**
+		 * Indicate that the HTML output of front-end has changed.
+		 *
+		 * If there is any page cache, it should be invalidated when this action is triggered.
+		 */
+		do_action( 'jetpack_boost_page_output_changed' );
 	}
 
 	public function get_slug() {
@@ -83,8 +104,14 @@ class Module {
 	 * Check if the module is active and ready to serve optimized output.
 	 */
 	public function is_optimizing() {
-		if ( $this->feature instanceof Optimization && $this->is_enabled() && $this->feature->is_ready() ) {
-			return true;
+		if ( ! ( $this->feature instanceof Optimization ) || ! $this->is_enabled() ) {
+			return false;
 		}
+
+		if ( $this->feature instanceof Needs_To_Be_Ready && ! $this->feature->is_ready() ) {
+			return false;
+		}
+
+		return true;
 	}
 }

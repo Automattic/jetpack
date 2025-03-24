@@ -104,12 +104,10 @@ function NewProduct( { onClose } ) {
 export default function ProductManagementToolbarControl() {
 	const { products, productType, selectedProductIds } = useProductManagementContext();
 
-	const { selectedProducts } = useSelect( select => {
-		const { getSelectedProducts } = select( membershipProductsStore );
-		return {
-			selectedProducts: getSelectedProducts( selectedProductIds ),
-		};
-	} );
+	const selectedProducts = useSelect(
+		select => select( membershipProductsStore ).getSelectedProducts( selectedProductIds ),
+		[ selectedProductIds ]
+	);
 
 	let productDescription = null;
 	let subscriptionIcon = update;

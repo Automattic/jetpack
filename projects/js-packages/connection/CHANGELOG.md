@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.39.4] - 2025-03-24
+### Changed
+- Update dependencies.
+
 ## [0.39.3] - 2025-03-18
 ### Changed
 - Update package dependencies. [#42509] [#42511]
@@ -968,6 +972,7 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.39.4]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.3...v0.39.4
 [0.39.3]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.2...v0.39.3
 [0.39.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.1...v0.39.2
 [0.39.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.0...v0.39.1
