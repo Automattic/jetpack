@@ -12,6 +12,8 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 }
 
 abstract class Jetpack_REST_TestCase extends WP_Test_REST_TestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	protected $server;
 
 	/**

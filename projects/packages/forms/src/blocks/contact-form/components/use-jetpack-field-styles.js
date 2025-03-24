@@ -27,8 +27,8 @@ export const useJetpackFieldStyles = attributes => {
 
 	const labelStyle = {
 		color: attributes.labelColor,
-		fontSize: attributes.labelFontSize,
 		lineHeight: attributes.labelLineHeight,
+		'--jetpack--contact-form--label--font-size': attributes.labelFontSize,
 	};
 
 	const fieldStyle = {

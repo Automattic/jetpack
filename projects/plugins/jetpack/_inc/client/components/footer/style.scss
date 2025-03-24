@@ -101,8 +101,13 @@
 			&.is-external {
 				padding-right: 20px;
 			}
-		
+
 			&:focus {
+				box-shadow: none;
+				outline-width: 0;
+			}
+		
+			&:focus-visible {
 				border-radius: 2px;
 				outline-offset: 3px;
 				outline: 1.5px solid var( --jp-black );

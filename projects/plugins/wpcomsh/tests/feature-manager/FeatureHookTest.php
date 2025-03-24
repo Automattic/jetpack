@@ -9,6 +9,8 @@
  * Class FeatureHookTest.
  */
 class FeatureHookTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Tests that map_atomic_plan_cap returns the capabilities unchanged when the site has
 	 * an atomic supported plan.

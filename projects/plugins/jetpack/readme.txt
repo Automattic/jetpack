@@ -326,17 +326,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.5-a.3 - 2025-03-12
+### 14.5-a.7 - 2025-03-18
 #### Enhancements
-- Feature suggestions: Do not automatically load when a site is connected to WordPress.com.
-- Publicize Components: Add a schedule button.
-- Sharing block: Improve the description of the "Native Share" feature.
+- Forms: Add quick link in the admin bar for form entries.
 
 #### Bug fixes
-- Button: Fix contrast checker for user-specified colors.
-- Fix error with videos uploaded through the Video block.
-- Forms: Remove default padding around form block.
-- Forms: Update the variation previews to match the current structures.
+- Forms: Add a default label for textarea fields.
+- Forms: Remove Google Drive beta badge.
+- Forms: Remove Salesforce beta badge.
 
 --------
 

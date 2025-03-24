@@ -6,17 +6,16 @@ import {
 	ToggleControl,
 	Button,
 	PanelRow,
-	Card,
-	CardBody,
 	CheckboxControl,
 } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import { FEATURE_LABELS, FEATURES } from './constants';
 import { store } from './store';
 import { useSeoModuleSettings } from './use-seo-module-settings';
 import { useSeoRequests } from './use-seo-requests';
@@ -24,46 +23,31 @@ import './style.scss';
 /**
  * Types
  */
-import type { PromptType } from './types';
 const debug = debugFactory( 'seo-enhancer:index' );
 
-export function SeoEnhancer() {
+export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhance?: boolean } ) {
 	const { isEnabled, toggleEnhancer, isToggling } = useSeoModuleSettings();
-	const isLoading = useSelect( select => select( store ).isBusy(), [] );
-	const [ features, setFeatures ] = useState<
-		{ name: PromptType; label: string; checked: boolean }[]
-	>( [
-		{
-			name: 'seo-title',
-			label: __( 'Meta title', 'jetpack' ),
-			checked: true,
-		},
-		{
-			name: 'seo-meta-description',
-			label: __( 'Meta description', 'jetpack' ),
-			checked: true,
-		},
-		{
-			name: 'images-alt-text',
-			label: __( 'Image alt text', 'jetpack' ),
-			checked: true,
-		},
-	] );
-	const { updateSeoData } = useSeoRequests(
-		features.filter( feature => feature.checked ).map( feature => feature.name )
-	);
+	const isLoading = useSelect( select => {
+		const isBusy = select( store ).isBusy();
+		const isAnyImageBusy = select( store ).isAnyImageBusy();
+
+		return isBusy || isAnyImageBusy;
+	}, [] );
+	const enabledFeatures = useSelect( select => select( store ).getEnabledFeatures(), [] );
+	const { setFeatureEnabled } = useDispatch( store );
+
+	const { updateSeoData } = useSeoRequests( enabledFeatures );
 
 	const toggleSeoEnhancer = useCallback( async () => {
 		await toggleEnhancer();
 	}, [ toggleEnhancer ] );
 
-	const toggleFeature = useCallback( name => {
-		setFeatures( prevFeatures =>
-			prevFeatures.map( feature =>
-				feature.name === name ? { ...feature, checked: ! feature.checked } : feature
-			)
-		);
-	}, [] );
+	const toggleFeature = useCallback(
+		name => {
+			setFeatureEnabled( name, ! enabledFeatures.includes( name ) );
+		},
+		[ enabledFeatures, setFeatureEnabled ]
+	);
 
 	const generateHandler = async () => {
 		try {
@@ -77,53 +61,74 @@ export function SeoEnhancer() {
 		<>
 			<PanelRow className="jetpack-seo-sidebar__feature-section jetpack-seo-sidebar__feature-section--toggle">
 				<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
-					<ToggleControl
-						checked={ isEnabled }
-						disabled={ isToggling }
-						onChange={ toggleSeoEnhancer }
-						label={ __( 'Auto-fill missing metatags', 'jetpack' ) }
-						__nextHasNoMarginBottom={ true }
-						help={ __(
-							"Automattically generate SEO title, SEO description and images' alt text before publishing.",
-							'jetpack'
-						) }
-					/>
+					<BaseControl.VisualLabel className="ai-seo-enhancer-label">
+						{ __( 'Metadata AI Generator', 'jetpack' ) }
+					</BaseControl.VisualLabel>
+					{ ! disableAutoEnhance && (
+						<ToggleControl
+							checked={ isEnabled }
+							disabled={ isToggling }
+							onChange={ toggleSeoEnhancer }
+							label={ __( 'Auto-generate metadata', 'jetpack' ) }
+							__nextHasNoMarginBottom={ true }
+							help={ __(
+								'When enabled, missing metadata will be automatically generated when you publish a post.',
+								'jetpack'
+							) }
+						/>
+					) }
 				</BaseControl>
 			</PanelRow>
 			<PanelRow className="jetpack-seo-sidebar__feature-section">
-				<Card size="small">
-					<CardBody size="small">
-						<BaseControl __nextHasNoMarginBottom={ true }>
-							<div className="feature-checkboxes-container">
-								{ features.map( feature => (
-									<CheckboxControl
-										key={ feature.name }
-										label={ feature.label }
-										checked={ feature.checked }
-										onChange={ () => toggleFeature( feature.name ) }
-										__nextHasNoMarginBottom={ true }
-										disabled={ isLoading }
-										className={ isLoading ? 'is-disabled' : '' }
-									/>
-								) ) }
-							</div>
-						</BaseControl>
-					</CardBody>
-				</Card>
-			</PanelRow>
-			<PanelRow className="jetpack-seo-sidebar__feature-section">
-				<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
-					<Button
-						isBusy={ isLoading }
-						disabled={ isLoading }
-						onClick={ generateHandler }
-						variant="secondary"
-						__next40pxDefaultSize
-					>
-						{ __( 'Generate SEO properties', 'jetpack' ) }
-					</Button>
+				<BaseControl __nextHasNoMarginBottom={ true }>
+					{ ( ! isEnabled || disableAutoEnhance ) && (
+						<div className="feature-checkboxes-container">
+							{ FEATURES.map( feature => (
+								<CheckboxControl
+									key={ feature }
+									label={ FEATURE_LABELS[ feature ] }
+									checked={ enabledFeatures.includes( feature ) }
+									onChange={ () => toggleFeature( feature ) }
+									__nextHasNoMarginBottom={ true }
+									disabled={ isLoading }
+									className={ isLoading ? 'is-disabled' : '' }
+								/>
+							) ) }
+						</div>
+					) }
+					{ isEnabled && ! disableAutoEnhance && (
+						<div className="jetpack-seo-sidebar__feature-list-container">
+							{ enabledFeatures.length > 0 ? (
+								<>
+									<p>{ __( "We'll auto-generate:", 'jetpack' ) }</p>
+									<ul className="jetpack-seo-sidebar__feature-list">
+										{ enabledFeatures.map( feature => (
+											<li key={ feature }>{ FEATURE_LABELS[ feature ] }</li>
+										) ) }
+									</ul>
+								</>
+							) : (
+								<p>{ __( 'No features selected to auto-generate', 'jetpack' ) }</p>
+							) }
+						</div>
+					) }
 				</BaseControl>
 			</PanelRow>
+			{ ! isEnabled && (
+				<PanelRow className="jetpack-seo-sidebar__feature-section">
+					<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
+						<Button
+							isBusy={ isLoading }
+							disabled={ isLoading }
+							onClick={ generateHandler }
+							variant="secondary"
+							__next40pxDefaultSize
+						>
+							{ __( 'Generate metadata', 'jetpack' ) }
+						</Button>
+					</BaseControl>
+				</PanelRow>
+			) }
 		</>
 	);
 }

@@ -27,3 +27,4 @@ export * from './src/modules-state';
 export { default as isMyJetpackAvailable } from './src/is-my-jetpack-available';
 export * from './src/libs';
 export { default as useUpgradeFlow } from './src/hooks/use-upgrade-flow';
+export * from './src/block-editor-actions';

@@ -7,10 +7,8 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -179,33 +177,37 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	 * @param bool   $is_activated The new status.
 	 */
 	public function on_module_status_update( $module_slug, $is_activated ) {
+		$module = $this->modules_index->get_module_instance_by_slug( $module_slug );
+
+		if ( ! $module ) {
+			return;
+		}
+
 		$status = new Status( $module_slug );
 		$status->on_update( $is_activated );
 
-		$module = $this->modules_index->get_module_instance_by_slug( $module_slug );
-		if ( $is_activated && $module ) {
+		if ( $is_activated ) {
 			$module->on_activate();
 		}
 
-		if ( ! $is_activated && $module ) {
+		if ( ! $is_activated ) {
 			$module->on_deactivate();
 		}
 
-		if ( $module ) {
-			$submodules = $module->get_available_submodules();
-			if ( is_array( $submodules ) && ! empty( $submodules ) ) {
-				foreach ( $submodules as $sub_module ) {
-					if ( $is_activated ) {
-						$sub_module->on_activate();
-					} else {
-						$sub_module->on_deactivate();
-					}
+		$submodules = $module->get_available_submodules();
+		if ( is_array( $submodules ) && ! empty( $submodules ) ) {
+			foreach ( $submodules as $sub_module ) {
+				// Only run activate/deactivate if the submodule is enabled.
+				if ( ! $sub_module->is_enabled() ) {
+					continue;
+				}
+
+				if ( $is_activated ) {
+					$sub_module->on_activate();
+				} else {
+					$sub_module->on_deactivate();
 				}
 			}
-		}
-
-		if ( $module_slug === Cloud_CSS::get_slug() && $is_activated ) {
-			( new Regenerate() )->start();
 		}
 	}
 }

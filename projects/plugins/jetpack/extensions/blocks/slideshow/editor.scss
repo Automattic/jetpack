@@ -67,3 +67,51 @@
 		opacity: 0.3;
 	}
 }
+
+// SWIPER WORKAROUND - START
+//
+// swiper.css is loaded only once no matter how many times the `createSwiper` JS function is called
+// (this might be related to how webpack caches assets dynamically imported). That becomes an issue
+// in the context of the site editor because when we leave a template page that contains a slideshow,
+// the swiper assets are unlinked from the site editor iframe but never added back when revisiting
+// the page (without a hard refresh).
+// See https://github.com/Automattic/vulcan/issues/615
+//
+// I haven't been able to come up with a proper fix to make sure the swiper assets are loaded when needed.
+// The next best solution is to include the minimum set of rules to align the slideshow controls properly,
+// which has minimal impact on the user experience.
+
+.swiper-button-white {
+	position: absolute;
+}
+
+.swiper-button-prev {
+	left: 10px;
+}
+
+.swiper-button-next {
+	right: 10px;
+}
+
+.swiper-notification {
+	display: none;
+}
+
+.swiper-pagination-bullet {
+	display: inline-block;
+
+	width: 8px;
+	height: 8px;
+	margin: 0;
+  padding: 0;
+
+	background: currentColor;
+	color: currentColor;
+	border-radius: 50%;
+	border: none;
+	
+	opacity: 0.5;
+	transition: opacity 250ms, transform 250ms;
+}
+
+// SWIPER WORKAROUND - END

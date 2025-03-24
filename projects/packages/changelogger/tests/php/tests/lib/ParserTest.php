@@ -26,7 +26,9 @@ class ParserTest extends TestCase {
 	 * @return Parser&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private function getMockParser() {
-		return $this->getMockBuilder( Parser::class )->getMockForAbstractClass();
+		return $this->getMockBuilder( Parser::class )
+			->onlyMethods( array( 'parse', 'format' ) )
+			->getMock();
 	}
 
 	/**

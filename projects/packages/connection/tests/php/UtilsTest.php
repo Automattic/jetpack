@@ -46,7 +46,7 @@ class UtilsTest extends TestCase {
 	 *    'constant_name'   => The name of the constant.
 	 *    'expected_output' => The expected output of Utils::jetpack_api_constant_filter().
 	 */
-	public function jetpack_api_constant_filter_data_provider() {
+	public static function jetpack_api_constant_filter_data_provider() {
 		return array(
 			'jetpack__api_base_without_constant'     =>
 				array(

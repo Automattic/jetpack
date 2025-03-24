@@ -31,6 +31,7 @@ import {
 } from '../../data/constants';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useUpdateHistoricallyActiveModules from '../../data/products/use-update-historically-active-modules';
+import useRedBubbleQuery from '../../data/use-red-bubble-query';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
@@ -97,7 +98,6 @@ export default function MyJetpackScreen() {
 		isAtomic = false,
 		adminUrl,
 		sandboxedDomain,
-		redBubbleAlerts,
 		isDevVersion,
 		userIsAdmin,
 	} = getMyJetpackWindowInitialState();
@@ -127,6 +127,13 @@ export default function MyJetpackScreen() {
 		name: QUERY_GET_JETPACK_MANAGE_DATA_KEY,
 		query: { path: REST_API_GET_JETPACK_MANAGE_DATA },
 	} );
+
+	const {
+		data: redBubbleAlerts,
+		isLoading: isRedBubbleAlertsLoading,
+		isError: isRedBubbleAlertsError,
+	} = useRedBubbleQuery();
+
 	const updateHistoricallyActiveModules = useUpdateHistoricallyActiveModules();
 
 	useEffect( () => {
@@ -147,10 +154,20 @@ export default function MyJetpackScreen() {
 	// useLayoutEffect gets called before useEffect.
 	// We are using it here to ensure the `page_view` event gets triggered first.
 	useLayoutEffect( () => {
-		recordEvent( 'jetpack_myjetpack_page_view', {
-			red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
-		} );
-	}, [ recordEvent, redBubbleAlerts ] );
+		let customTracksData = {};
+
+		if ( ! isRedBubbleAlertsError && Object.keys( redBubbleAlerts )?.length ) {
+			customTracksData = {
+				red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
+			};
+		}
+
+		if ( ! isRedBubbleAlertsLoading ) {
+			recordEvent( 'jetpack_myjetpack_page_view', {
+				...customTracksData,
+			} );
+		}
+	}, [ recordEvent, redBubbleAlerts, isRedBubbleAlertsError, isRedBubbleAlertsLoading ] );
 
 	if ( window.location.hash.includes( '?reload=true' ) ) {
 		// Clears the query string and reloads the page.

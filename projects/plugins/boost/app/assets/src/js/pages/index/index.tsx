@@ -12,7 +12,6 @@ import PageCacheModule from '$features/page-cache/page-cache';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Pill from '$features/ui/pill/pill';
 import Upgraded from '$features/ui/upgraded/upgraded';
-import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
@@ -191,7 +190,7 @@ const Index = () => {
 				}
 			>
 				{ ! hasPremiumCdnFeatures && (
-					<UpgradeCTA
+					<InterstitialModalCTA
 						identifier="image-cdn"
 						description={ __(
 							'Auto-resize lazy images and adjust their quality.',
@@ -216,7 +215,7 @@ const Index = () => {
 								) }
 							</p>
 							{ ! isaState?.available && (
-								<UpgradeCTA
+								<InterstitialModalCTA
 									identifier="image-guide"
 									description={ __(
 										'Upgrade to scan your site for issues - automatically!',

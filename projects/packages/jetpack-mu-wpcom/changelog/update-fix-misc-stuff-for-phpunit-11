@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: PHPUnit 11 lacks `->withConsecutive()`; PHP warning about what can be passed to `reset()`; and use of a deprecated class.
+
+

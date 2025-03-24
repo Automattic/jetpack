@@ -17,6 +17,17 @@ use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\TestingAccessWrapper;
 
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+
+// Unfortunately PHPUnit deprecated addMethods with no replacement. Create an interface for it to "mock".
+// phpcs:ignore PEAR.NamingConventions.ValidClassName.Invalid
+interface AssetsTest_test_wp_default_scripts_hook {
+	public function add();
+	public function add_inline_script();
+	public function add_data();
+	public function get_data();
+}
+
 /**
  * Assets test suite.
  */
@@ -146,7 +157,7 @@ class AssetsTest extends TestCase {
 	/**
 	 * Possible values for test_get_file_url_for_environment.
 	 */
-	public function get_file_url_for_environment_data_provider() {
+	public static function get_file_url_for_environment_data_provider() {
 		return array(
 			'script-debug-true'  => array(
 				'_inc/build/shortcodes/js/recipes.js',
@@ -168,7 +179,7 @@ class AssetsTest extends TestCase {
 	/**
 	 * Possible values for test_get_file_url_for_environment.
 	 */
-	public function get_file_url_for_environment_full_urls_data_provider() {
+	public static function get_file_url_for_environment_full_urls_data_provider() {
 		return array(
 			'full_url'          => array( 'https://jetpack.com/scripts/test.js' ),
 			'protocol_relative' => array( '//jetpack.com/styles/test.css' ),
@@ -178,7 +189,7 @@ class AssetsTest extends TestCase {
 	/**
 	 * Possible values for test_get_file_url_for_environment.
 	 */
-	public function get_file_url_for_environment_package_path_data_provider() {
+	public static function get_file_url_for_environment_package_path_data_provider() {
 		$min_path     = 'src/js/test.min.js';
 		$non_min_path = 'src/js/test.js';
 		$package_path = dirname( __DIR__, 4 ) . '/packages/test-package/test-package.php';
@@ -227,7 +238,7 @@ class AssetsTest extends TestCase {
 	/**
 	 * Data provider to test staticize_subdomain
 	 */
-	public function get_resources_urls() {
+	public static function get_resources_urls() {
 		return array(
 			'non_wpcom_domain'  => array(
 				'https://example.org/thing.jpg',
@@ -342,9 +353,7 @@ class AssetsTest extends TestCase {
 			$this->expectExceptionMessage( $extra['exception']->getMessage() );
 		}
 		if ( isset( $extra['enqueue'] ) ) {
-			$obj = $this->getMockBuilder( \stdClass::class )
-				->addMethods( array( 'get_data' ) )
-				->getMock();
+			$obj = $this->getMockBuilder( AssetsTest_test_wp_default_scripts_hook::class )->getMock();
 			$obj->method( 'get_data' )->with( ...$extra['enqueue'][0] )->willReturn( $extra['enqueue'][1] );
 			Functions\expect( 'wp_scripts' )->andReturn( $obj );
 		}
@@ -725,9 +734,7 @@ class AssetsTest extends TestCase {
 			$obj->andReturn( $options['filter'] );
 		}
 
-		$mock = $this->getMockBuilder( \stdClass::class )
-			->addMethods( array( 'add', 'add_inline_script', 'add_data' ) )
-			->getMock();
+		$mock = $this->getMockBuilder( AssetsTest_test_wp_default_scripts_hook::class )->getMock();
 
 		// Unfortunately PHPUnit deprecated withConsecutive with no replacement, so we have to roll our own version.
 		// https://github.com/sebastianbergmann/phpunit/issues/4026
@@ -788,7 +795,7 @@ class AssetsTest extends TestCase {
 	}
 
 	/** Data provider for test_wp_default_scripts_hook. */
-	public function provide_wp_default_scripts_hook() {
+	public static function provide_wp_default_scripts_hook() {
 		$expect_filter = array(
 			'baseUrl'     => 'http://example.com/wp-content/languages/',
 			'locale'      => 'en_US',
@@ -1087,7 +1094,7 @@ class AssetsTest extends TestCase {
 	 *
 	 * @return array{array{false|string,string,string},array<string,bool>,string|false}[]
 	 */
-	public function provide_filter_load_script_translation_file() {
+	public static function provide_filter_load_script_translation_file() {
 		return array(
 			'Passed false'                 => array(
 				array( false, 'handle', 'one' ),

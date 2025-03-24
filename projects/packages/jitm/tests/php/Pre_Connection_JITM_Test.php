@@ -222,7 +222,7 @@ class Pre_Connection_JITM_Test extends TestCase {
 	 *             { the expected icon value input for the generate_icon method },
 	 *         )
 	 */
-	public function data_provider_test_message_icon_values() {
+	public static function data_provider_test_message_icon_values() {
 		return array(
 			'default icon'     => array(
 				null,

@@ -94,11 +94,11 @@ class StdinBootstrapTest extends TestCase {
 		$this->assertSame( $expect, $ret );
 	}
 
-	public function provideFiles() {
+	public static function provideFiles() {
 		$dir = __DIR__ . '/../fixtures/perdir';
 
 		$expect = json_decode( file_get_contents( "$dir/expect.json" ), true );
-		$this->assertIsArray( $expect, 'expect.json contains a JSON object' );
+		self::assertIsArray( $expect, 'expect.json contains a JSON object' );
 
 		$l    = strlen( $dir ) + 1;
 		$iter = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::CURRENT_AS_PATHNAME ) );

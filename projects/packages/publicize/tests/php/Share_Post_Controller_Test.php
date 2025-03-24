@@ -215,7 +215,7 @@ class Share_Post_Controller_Test extends TestCase {
 	 *
 	 * @return array[]
 	 */
-	public function rest_missing_callback_params() {
+	public static function rest_missing_callback_params() {
 		return array(
 			'message can not be null.' => array(
 				array(
@@ -236,7 +236,7 @@ class Share_Post_Controller_Test extends TestCase {
 	 *
 	 * @return array[]
 	 */
-	public function rest_invalid_params() {
+	public static function rest_invalid_params() {
 		return array(
 			'message can not be an int.'               => array(
 				array(

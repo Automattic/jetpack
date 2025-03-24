@@ -5,12 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.84.2] - 2025-03-21
+### Changed
+- Social: SIG on WPCOM - Update the endpoint used on the front-end [#42567]
+
+### Fixed
+- Jetpack Social: fix sidebar panel toggle and connection button styles [#42622]
+- ScheduleButton: Updated the tests to correctly `await` the asynchronous calls [#42589]
+- Social: Fix Twitter unsupported notice shown in the editor [#42569]
+
+## [0.84.1] - 2025-03-19
+### Changed
+- Update dependencies [#42564]
+
+## [0.84.0] - 2025-03-18
+### Changed
+- Move the `jetpack-social` endpoint to the Publicize package. [#42187]
+- Use service status to display unsupported networks notice. [#42418]
+- Update package dependencies. [#42509] [#42511]
+
+## [0.83.1] - 2025-03-17
+### Changed
+- Update dependencies. [#39855]
+
+## [0.83.0] - 2025-03-17
+### Added
+- Add "Schedule" functionality to the Share Post modal. [#42376]
+- Add Scheduled Posts panel. [#42297]
+
+### Changed
+- Schedule Button: Prevent date/times in the past from being selected. [#42381]
+- Change the query parameter to open Jetpack sidebar on editor load. [#42364]
+- Migrate review prompt initial state to script data. [#42389]
+
+### Removed
+- Connections schema: Remove the deprecated fields. [#42454]
+
+### Fixed
+- Fixed a deadlock with the media picker. [#42455]
+- Resolve connection issues with LinkedIn company pages and Tumblr additional blogs. [#42352]
+
 ## [0.82.0] - 2025-03-12
 ### Added
-- Add a helper function to get the max message length [#42325]
-- Add internal state for the ScheduleButton component [#42372]
+- Add a helper function to get the max message length. [#42325]
+- Add internal state for the ScheduleButton component. [#42372]
 - Provide connection data to footer component. [#42000]
-- Publicize Components: Add the schedule button [#42313]
+- Publicize Components: Add the schedule button. [#42313]
 - Social: Configure data store to handle scheduled shares. [#42296]
 
 ### Changed
@@ -1144,6 +1184,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.84.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.1...v0.84.2
+[0.84.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.0...v0.84.1
+[0.84.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.83.1...v0.84.0
+[0.83.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.83.0...v0.83.1
+[0.83.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.82.0...v0.83.0
 [0.82.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.81.0...v0.82.0
 [0.81.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.80.0...v0.81.0
 [0.80.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.79.0...v0.80.0

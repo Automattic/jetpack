@@ -25,7 +25,7 @@ return [
         'src/class-speed-score-request.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal'],
         'src/class-speed-score.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnNullable'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
-        'tests/php/lib/test-class-speed-score-history.php' => ['PhanTypeExpectedObjectPropAccess'],
+        'tests/php/lib/Speed_Score_History_Test.php' => ['PhanTypeExpectedObjectPropAccess'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

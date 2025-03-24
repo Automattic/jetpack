@@ -101,6 +101,7 @@ if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 }
 
 require __DIR__ . '/lib/mock-functions.php';
+require __DIR__ . '/lib/CallableMock.php';
 require __DIR__ . '/_inc/lib/mocks/simplepie.php';
 require $test_root . '/includes/functions.php';
 
@@ -189,6 +190,9 @@ if ( '1' === getenv( 'LEGACY_FULL_SYNC' ) ) {
 if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
 	define( 'WP_TESTS_CONFIG_FILE_PATH', getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) );
 }
+
+// Load trait for WP_UnitTestCase PHPUnit 10 compat.
+require_once __DIR__ . '/WP_UnitTestCase_Fix.php';
 
 require $test_root . '/includes/bootstrap.php';
 

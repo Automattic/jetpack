@@ -79,7 +79,7 @@ export function PreviewSection() {
 		<div className={ styles[ 'preview-section' ] }>
 			<TabPanel tabs={ connections }>
 				{ ( tab: ( typeof connections )[ number ] ) => {
-					const isEnabled = canBeTurnedOn( tab ) && tab.enabled;
+					const isEnabled = Boolean( canBeTurnedOn( tab ) && tab.enabled );
 
 					return (
 						<div className={ styles[ 'preview-content' ] }>
