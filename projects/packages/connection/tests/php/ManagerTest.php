@@ -942,4 +942,49 @@ class ManagerTest extends TestCase {
 		$this->assertTrue( $this->manager->is_user_connected( $owner_id ) );
 		$this->assertTrue( $this->manager->is_user_connected( $editor_id ) );
 	}
+
+	/**
+	 * Test the clean_account_mismatch_transients method cleans transients properly.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::clean_account_mismatch_transients
+	 */
+	public function test_clean_account_mismatch_transients() {
+		// Create a test user
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'testuser',
+				'user_pass'  => 'password',
+				'user_email' => 'test@example.com',
+			)
+		);
+
+		// Set up test transients - one with the old email-based format
+		$email_transient_key = 'jetpack_account_mismatch_' . md5( 'test@example.com' );
+		set_transient( $email_transient_key, true, DAY_IN_SECONDS );
+
+		// And one with the new user ID-based format
+		$id_transient_key = 'jetpack_account_mismatch_user_' . $user_id;
+		set_transient( $id_transient_key, true, DAY_IN_SECONDS );
+
+		// Test cleaning by email
+		$this->manager->clean_account_mismatch_transients( 'test@example.com' );
+
+		// Check that the email-based transient was deleted
+		$this->assertFalse( get_transient( $email_transient_key ) );
+		// The user ID-based one should still exist
+		$this->assertTrue( get_transient( $id_transient_key ) !== false );
+
+		// Reset the email transient
+		set_transient( $email_transient_key, true, DAY_IN_SECONDS );
+
+		// Test cleaning by user ID
+		$this->manager->clean_account_mismatch_transients( $user_id );
+
+		// Check that both transients were deleted
+		$this->assertFalse( get_transient( $email_transient_key ) );
+		$this->assertFalse( get_transient( $id_transient_key ) );
+
+		// Clean up
+		wp_delete_user( $user_id );
+	}
 }
