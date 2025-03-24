@@ -32,14 +32,8 @@ const BLOCKS_TEMPLATE = [
 				border: {
 					style: 'dashed',
 					width: '1px',
+					color: 'rgba(125,125,125,0.3)',
 				},
-				color: {
-					background: 'var(--wp--preset--color--background)',
-				},
-			},
-			borderColor: {
-				color: 'primary',
-				opacity: 30,
 			},
 		},
 		[
@@ -78,9 +72,6 @@ const BLOCKS_TEMPLATE = [
 						typography: {
 							fontSize: '16px',
 						},
-						color: {
-							text: 'var(--wp--preset--color--primary)',
-						},
 					},
 				},
 			],
@@ -92,9 +83,6 @@ const BLOCKS_TEMPLATE = [
 					style: {
 						typography: {
 							fontSize: '14px',
-						},
-						color: {
-							text: 'var(--wp--preset--color--secondary)',
 						},
 					},
 				},
