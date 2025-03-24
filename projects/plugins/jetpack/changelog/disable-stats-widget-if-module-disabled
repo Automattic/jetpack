@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats: Ensure the Stats widget is automatically disabled when the Stats module is disabled.

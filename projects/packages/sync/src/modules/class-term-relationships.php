@@ -178,11 +178,14 @@ class Term_Relationships extends Module {
 
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT object_id, term_taxonomy_id 
-				FROM $wpdb->term_relationships 
-				WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) 
-				ORDER BY object_id DESC, term_taxonomy_id 
-				DESC LIMIT %d",
+				"SELECT tr.object_id, tr.term_taxonomy_id 				
+				FROM $wpdb->term_relationships tr INNER JOIN $wpdb->term_taxonomy tt 
+				ON tr.term_taxonomy_id=tt.term_taxonomy_id
+				WHERE " .
+				Settings::get_whitelisted_taxonomies_sql() // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				. ' AND ( ( tr.object_id = %d AND tr.term_taxonomy_id < %d ) OR ( tr.object_id < %d ) )
+				ORDER BY tr.object_id DESC, tr.term_taxonomy_id 
+				DESC LIMIT %d',
 				$status['last_sent']['object_id'],
 				$status['last_sent']['term_taxonomy_id'],
 				$status['last_sent']['object_id'],
