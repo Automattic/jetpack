@@ -43,6 +43,7 @@ export const ProfileImage = ( { profile } ) => {
 				scope: [ 'avatars' ],
 				email: profile?.email,
 				locale: getLocale( VerbumComments?.currentLocale || '' ),
+				utm: 'jetpack-comments',
 				onProfileUpdated: () => {
 					setIsLoading( true );
 

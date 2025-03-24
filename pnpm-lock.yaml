@@ -2669,8 +2669,8 @@ importers:
         specifier: 0.10.8
         version: 0.10.8
       '@gravatar-com/quick-editor':
-        specifier: 0.7.0
-        version: 0.7.0
+        specifier: 0.8.0
+        version: 0.8.0
       '@popperjs/core':
         specifier: ^2.11.8
         version: 2.11.8
@@ -6709,8 +6709,8 @@ packages:
     resolution: {integrity: sha512-P/PYqIF8SDlPiG3TgFKsTFJDwqahx8ojX+d4Cb9ThA3+0Nw5olNtKexklRafJBKDSySMEOttu+EGgigtxiE8dw==}
     engines: {node: '>=20'}
 
-  '@gravatar-com/quick-editor@0.7.0':
-    resolution: {integrity: sha512-taZ3dK7gH/iHA5VJJSS1Gw4liX4wL8MC7V6xb2+OA4tXRaQ0MTUYz/dKgO15sirx5r0kyUAPCEhKxnhvRerkPQ==}
+  '@gravatar-com/quick-editor@0.8.0':
+    resolution: {integrity: sha512-z9t6aOaP9i3x5aJGtQUfaXoO7YxHZd+h49E13qZFJQ4RNId8Qe7FcoT+TFXuvVry6+dqL44aYtUXiGl+890oxw==}
     engines: {node: '>=20'}
 
   '@hapi/hoek@9.3.0':
@@ -17287,7 +17287,7 @@ snapshots:
 
   '@gravatar-com/hovercards@0.10.8': {}
 
-  '@gravatar-com/quick-editor@0.7.0': {}
+  '@gravatar-com/quick-editor@0.8.0': {}
 
   '@hapi/hoek@9.3.0': {}
 
