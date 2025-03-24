@@ -8,13 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 4.0.0 - 2025-03-24
 
 ### Changed
-- Scanner: add threat count to tab [#40056]
-- Scanner: animated the "scan in progress" placeholder image [#39825]
-- General: indicate compatibility with the upcoming version of WordPress - 6.7. [#39786]
+- Scanner: Add threat count to tab. [#40056]
+- Scanner: Animate the "scan in progress" placeholder image. [#39825]
+- General: Indicate compatibility with WordPress 6.7. [#39786]
 - General: Update package dependencies. [#42511]
 
 ### Removed
-- Firewall: removed "new" badge from tab. [#41902]
+- Firewall: Remove "new" badge from tab. [#41902]
 - General: Update minimum PHP version to 7.2. [#40147]
 - General: Update minimum WordPress version to 6.6. [#40146]
 
