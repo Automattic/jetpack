@@ -107,6 +107,10 @@
 	flex: 1;
 }
 
+.contact-form label[style*="--jetpack--contact-form--label--font-size"] {
+	font-size: var(--jetpack--contact-form--label--font-size);
+}
+
 .contact-form .grunion-checkbox-multiple-options,
 .contact-form .grunion-radio-options {
 	display: flex;
@@ -522,6 +526,16 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: 0.8em;
 }
 
+/* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"] {
+	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.8);
+}
+
 .contact-form .is-style-outlined .grunion-field-wrap > input,
 .contact-form .is-style-outlined .grunion-field-wrap > textarea,
 .contact-form .is-style-outlined .grunion-field-wrap select
@@ -588,6 +602,14 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: 0.75em;
 	transform: translateY(0);
 	top: calc(2px + var(--jetpack--contact-form--border-size));
+}
+
+/* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field:focus ~ .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"] {
+	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.75);
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options ~ .animated-label__label,

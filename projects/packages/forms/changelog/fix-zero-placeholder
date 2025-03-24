@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Placeholder should always display if it's a non-empty string
