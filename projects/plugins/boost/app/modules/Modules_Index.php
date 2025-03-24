@@ -8,6 +8,8 @@ use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Image_CDN;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Liar;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Quality_Settings;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
@@ -43,6 +45,8 @@ class Modules_Index {
 		Render_Blocking_JS::class,
 		Image_Guide::class,
 		Image_CDN::class,
+		Liar::class,
+		Quality_Settings::class,
 		Performance_History::class,
 		Page_Cache::class,
 	);
@@ -113,18 +117,6 @@ class Modules_Index {
 		}
 
 		return $available_modules;
-	}
-
-	public function is_module_enabled( $slug ) {
-		$available_modules = $this->available_modules();
-
-		if ( ! array_key_exists( $slug, $available_modules ) ) {
-			return false;
-		}
-
-		$module = $available_modules[ $slug ];
-
-		return $module->is_enabled();
 	}
 
 	public function is_module_available( $slug ) {

@@ -27,8 +27,43 @@
 			display: none !important;
 		}
 	}
+
 	#wpwrap {
 		background-color: var(--jp-white-off);
 	}
 
+	.jetpack-admin-full-screen {
+		#wpwrap {
+			top: 0;
+		}
+
+		#wpadminbar {
+			display: none;
+		}
+
+		#wpbody-content {
+			min-height: 100vh !important;
+			padding-bottom: 0;
+		}
+
+		#wpcontent > *,
+		#wpfooter,
+		#adminmenumain,
+		.notice,
+		.error,
+		.updated {
+			display: none;
+		}
+
+		#wpcontent {
+			margin-left: 0 !important;
+			padding-left: 0 !important;
+
+			> #wpbody {
+				display: block;
+				margin-top: 0 !important;
+				padding-top: 0 !important;
+			}
+		}
+	}
 }

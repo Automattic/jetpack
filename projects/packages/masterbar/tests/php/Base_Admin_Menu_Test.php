@@ -212,6 +212,19 @@ class Base_Admin_Menu_Test extends TestCase {
 	 * @return Base_Admin_Menu
 	 */
 	private function get_concrete_menu_admin() {
-		return $this->getMockBuilder( Base_Admin_Menu::class )->disableOriginalConstructor()->getMockForAbstractClass();
+		return new class() extends Base_Admin_Menu {
+			// phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found -- Not useless, changes visibility.
+			public function __construct() {
+				parent::__construct();
+			}
+
+			/**
+			 * @return never
+			 * @throws \RuntimeException Always.
+			 */
+			public function reregister_menu_items() {
+				throw new \RuntimeException( 'Unexpected call to ' . __METHOD__ );
+			}
+		};
 	}
 }

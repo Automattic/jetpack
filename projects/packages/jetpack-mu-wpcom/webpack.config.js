@@ -9,7 +9,6 @@ module.exports = [
 		entry: {
 			'a8c-posts-list': './src/features/wpcom-blocks/a8c-posts-list/blocks/posts-list/index.js',
 			'block-inserter-modifications': './src/features/block-inserter-modifications/index.js',
-			'block-theme-previews': './src/features/block-theme-previews/index.js',
 			'core-customizer-css':
 				'./src/features/custom-css/custom-css/js/core-customizer-css.core-4.9.js',
 			'core-customizer-css-preview':
@@ -42,6 +41,7 @@ module.exports = [
 				'./src/features/wpcom-comments/wpcom-comment-like.js',
 				'./src/features/wpcom-comments/wpcom-comment-like.css',
 			],
+			'wpcom-hotfixes-colors-modern': './src/features/wpcom-hotfixes/colors/modern/colors.css',
 			'wpcom-dashboard-widgets':
 				'./src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.js',
 			'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.js',
@@ -58,6 +58,8 @@ module.exports = [
 			'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
 			'wpcom-profile-settings-link-to-wpcom':
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
+			'wpcom-replace-site-visibility':
+				'./src/features/replace-site-visibility/replace-site-visibility.tsx',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
 			'adminbar-launch-button': './src/features/launch-button/index.js',
 		},

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+i18n: load javascript translations from WP_LANG_DIR

@@ -1,28 +1,17 @@
-<?xml version="1.0"?>
-<phpunit
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
 	bootstrap="tests/bootstrap.php"
-	backupGlobals="false"
+	cacheResultFile=".phpunit.cache/test-results"
 	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
-	convertDeprecationsToExceptions="true"
-	>
-
+	executionOrder="depends"
+	beStrictAboutOutputDuringTests="true"
+	failOnRisky="true"
+	failOnWarning="true"
+>
 	<testsuites>
 		<testsuite name="unit">
-			<directory suffix=".php">./tests/php/</directory>
+			<directory suffix="Test.php">tests/php</directory>
 		</testsuite>
 	</testsuites>
-
-	<filter>
-		<whitelist processUncoveredFilesFromWhitelist="false">
-			<file>index.php</file>
-			<file>jetpack-boost.php</file>
-			<file>serve-minified-content.php</file>
-			<file>wp-js-data-sync.php</file>
-			<directory suffix=".php">app</directory>
-			<directory suffix=".php">compatibility</directory>
-		</whitelist>
-	</filter>
 </phpunit>

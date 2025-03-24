@@ -463,7 +463,7 @@ class Admin_Menu_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function hide_menu_based_on_submenu_provider() {
+	public static function hide_menu_based_on_submenu_provider() {
 		return array(
 			array(
 				array(

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+i18n: use translations from WP_LANG_DIR

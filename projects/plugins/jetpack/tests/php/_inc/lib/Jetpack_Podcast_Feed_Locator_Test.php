@@ -14,6 +14,8 @@ require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-feed-locator
  * @coversDefaultClass Jetpack_Podcast_Feed_Locator
  */
 class Jetpack_Podcast_Feed_Locator_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Tests that class extends SimplePie\Locator, so that it can be set as the locator
 	 * class, e.g. `$feed->set_locator_class( 'Jetpack_Podcast_Feed_Locator' )`.

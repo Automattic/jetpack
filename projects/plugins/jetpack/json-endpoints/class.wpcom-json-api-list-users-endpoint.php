@@ -14,6 +14,8 @@ new WPCOM_JSON_API_List_Users_Endpoint(
 		'path_labels'          => array(
 			'$site' => '(int|string) Site ID or domain',
 		),
+		'rest_route'           => '/users',
+		'rest_min_jp_version'  => '14.5-a.2',
 
 		'query_parameters'     => array(
 			'number'          => '(int=20) Limit the total number of authors returned.',

@@ -87,7 +87,7 @@ class Tracking_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function data_provider_test_should_enable_tracking() {
+	public static function data_provider_test_should_enable_tracking() {
 		return array(
 			'offline: true, has agreed: true, connected: true' => array(
 				array(

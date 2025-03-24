@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Renaming the endpoint from v2, which already exists, to v3 which is new

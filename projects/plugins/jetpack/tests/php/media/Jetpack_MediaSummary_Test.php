@@ -5,6 +5,7 @@ if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 }
 
 class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @author scotchfield

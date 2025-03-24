@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.6
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 3.10.4
+Stable tag: 3.11.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,9 +183,19 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.10.4 - 2025-03-12
+### 3.11.0 - 2025-03-19
+#### Added
+- Page Cache: Add more cookies to the ignore-list for better caching.
+
+#### Changed
+- Cache: Hide conflicting notice about cache setup on WoA.
+- Concatenate JS/CSS: Ensure delivery method tester is only tested once per network on Multisite.
+- UI: Change style of pills.
+- UI: Upgrade CTAs on the Jetpack Boost admin now opens a modal instead of navigating to the upgrade page.
+- Update package dependencies.
+
 #### Fixed
-- Critical CSS: Mask CSS to prevent WAF false-positives during generation.
+- Critical CSS: Prevent the process from failing when a single provider fails storing its CSS.
 
 --------
 

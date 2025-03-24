@@ -268,7 +268,7 @@ class REST_Endpoints_Test extends TestCase {
 	 *
 	 * @return int[][]
 	 */
-	public function endpoint_provider() {
+	public static function endpoint_provider() {
 		return array(
 			array( 'sync/full-sync', 'POST', null ),
 			array( 'sync/settings', 'POST', null ),

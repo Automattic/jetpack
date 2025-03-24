@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix `source` filtering in classic view for responses management

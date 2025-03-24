@@ -11,6 +11,7 @@
  * @group uninstall
  */
 class Unistall_Jetpack_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Confirms presence of the uninstall file.

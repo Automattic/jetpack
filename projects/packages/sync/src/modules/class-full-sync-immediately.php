@@ -392,6 +392,8 @@ class Full_Sync_Immediately extends Module {
 
 		$progress = $this->get_status()['progress'];
 
+		$started = $this->get_status()['started'];
+
 		foreach ( $this->get_remaining_modules_to_send() as $module ) {
 			$progress[ $module->name() ] = $module->send_full_sync_actions( $config[ $module->name() ], $progress[ $module->name() ], $send_until );
 			if ( isset( $progress[ $module->name() ]['error'] ) ) {
@@ -401,6 +403,10 @@ class Full_Sync_Immediately extends Module {
 			} elseif ( ! $progress[ $module->name() ]['finished'] ) {
 				$this->update_status( array( 'progress' => $progress ) );
 				return true;
+			}
+			if ( $this->get_status()['started'] !== $started ) {
+				// Full sync was restarted, stop sending.
+				return false;
 			}
 		}
 

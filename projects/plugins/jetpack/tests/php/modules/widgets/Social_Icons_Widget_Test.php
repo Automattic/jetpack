@@ -8,6 +8,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/widgets/social-icons.php';
  * @covers Jetpack_Widget_Social_Icons
  */
 class Social_Icons_Widget_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	private $social_icon_widget;
 

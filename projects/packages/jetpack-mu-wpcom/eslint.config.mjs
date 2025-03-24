@@ -2,7 +2,10 @@ import makeBaseConfig, { makeEnvConfig } from 'jetpack-js-tools/eslintrc/base.mj
 
 export default [
 	...makeBaseConfig( import.meta.url ),
-	makeEnvConfig( 'jquery', [ 'src/features/custom-css/custom-css/js/**' ] ),
+	makeEnvConfig( 'jquery', [
+		'src/features/custom-css/custom-css/js/**',
+		'src/features/logo-tool/js/**',
+	] ),
 	{
 		rules: {
 			'testing-library/prefer-screen-queries': 'off',

@@ -11,6 +11,7 @@ use Automattic\Jetpack\WordAds\Dashboard as WordAdsDashboard;
  * Class Jetpack_Admin_Menu_Test
  */
 class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Set up.

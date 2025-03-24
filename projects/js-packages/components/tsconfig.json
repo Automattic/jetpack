@@ -1,5 +1,11 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.base.json",
-	// List all sources and source-containing subdirs.
-	"include": [ "./index.ts", "./components", "./lib", "./tools" ]
+	"extends": "jetpack-js-tools/tsconfig.tsc.json",
+	"include": [ "./index.ts", "./tools/jp-redirect/index.ts" ],
+	"compilerOptions": {
+		"typeRoots": [ "./node_modules/@types/" ],
+		"sourceMap": false,
+		"outDir": "./build/",
+		"target": "es2022",
+		"rootDir": "./"
+	}
 }

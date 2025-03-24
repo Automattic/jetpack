@@ -326,21 +326,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.5-a.1 - 2025-03-10
+### 14.5-a.7 - 2025-03-18
 #### Enhancements
-- AI Assistant: Add image block extension with alt text and caption generation.
-- AI Assistant: Use base64 on image extension requests.
-- Connection: Add modal for disconnecting owner account in Dashboard.
-- Feature suggestions: Improve the design of cards to better match WordPress Core's design.
-- Forms: Add Akismet panel to Form Block.
-- Social: Move resharing into the Share Post modal.
-- Newsletter Dashboard Widget: Remove feature flag and enable widget.
-
-#### Improved compatibility
-- Carousel: Enable core lightbox on single image blocks.
+- Forms: Add quick link in the admin bar for form entries.
 
 #### Bug fixes
-- VideoPress Block: Fix error in the core Video block.
+- Forms: Add a default label for textarea fields.
+- Forms: Remove Google Drive beta badge.
+- Forms: Remove Salesforce beta badge.
 
 --------
 
