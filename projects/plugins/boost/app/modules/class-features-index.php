@@ -54,9 +54,10 @@ class Features_Index {
 	 * @return class-string<Feature>[] The subfeatures of the feature.
 	 */
 	public static function get_sub_features_of( Feature $feature ) {
-		$subfeatures = array();
+		$subfeatures   = array();
+		$feature_class = get_class( $feature );
 		foreach ( self::SUB_FEATURES as $subfeature ) {
-			if ( in_array( $feature::class, $subfeature::get_parent_features(), true ) ) {
+			if ( in_array( $feature_class, $subfeature::get_parent_features(), true ) ) {
 				$subfeatures[] = $subfeature;
 			}
 		}
