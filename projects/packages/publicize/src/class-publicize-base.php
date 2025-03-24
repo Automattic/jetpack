@@ -1133,14 +1133,18 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
+		$social_settings = new Jetpack_Social_Settings\Settings();
+
+		$sig_settings = $social_settings->get_image_generator_settings();
+
 		$jetpack_social_options_args = array(
 			'type'          => 'object',
 			'description'   => __( 'Post options related to Jetpack Social.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
 			'default'       => array(
 				'image_generator_settings' => array(
-					'template' => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_template(),
-					'enabled'  => false,
+					'template' => $social_settings->sig_get_default_template(),
+					'enabled'  => ! empty( $sig_settings['enabled'] ),
 				),
 				'version'                  => 2,
 			),
