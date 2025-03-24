@@ -311,6 +311,8 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	 */
 	public static function uninstall() {
 		self::deactivate();
+		// Call the Cache Preload module deactivation here to ensure it's cleaned up properly.
+		Cache_Preload::deactivate();
 
 		$result = Filesystem_Utils::walk_directory( WP_CONTENT_DIR . '/boost-cache', Filesystem_Utils::DELETE_ALL );
 		if ( $result instanceof Boost_Cache_Error ) {

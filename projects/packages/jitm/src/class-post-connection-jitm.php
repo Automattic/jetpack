@@ -225,7 +225,11 @@ class Post_Connection_JITM extends JITM {
 	}
 
 	/**
-	 * Asks the wpcom API for the current message to display keyed on query string and message path
+	 * Asks the wpcom API for the current message to display keyed on query string and message path.
+	 *
+	 * For sites running on the Dotcom Simple codebase, the network request is bypassed
+	 * via Client::wpcom_json_api_request_as_blog allowing for the JITM\Engine to be called
+	 * directly.
 	 *
 	 * @param string $message_path The message path to ask for.
 	 * @param string $query The query string originally from the front end.

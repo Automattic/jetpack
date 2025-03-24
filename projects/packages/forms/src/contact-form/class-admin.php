@@ -862,8 +862,13 @@ class Admin {
 			return;
 		}
 
-		// Don't apply to the filter dropdown query
-		if ( $query->query_vars['fields'] === 'id=>parent' ) {
+		/**
+		 * In the wp-admin list we perform two queries that trigger the `pre_get_posts` hook.
+		 * One is for the main list and the other is for the `source` dropdown filter.
+		 * We need to explicitly check one unique parameter between the two queries to avoid
+		 * filtering the dropdown query. The dropdown query is in `get_all_parent_post_ids`.
+		 */
+		if ( $query->query_vars['posts_per_page'] === 100000 ) {
 			return;
 		}
 
