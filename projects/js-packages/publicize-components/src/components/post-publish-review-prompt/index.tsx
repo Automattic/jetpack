@@ -1,12 +1,15 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
-import { PluginPostPublishPanel } from '@wordpress/editor';
+import { PluginPostPublishPanel as DeprecatedPluginPostPublishPanel } from '@wordpress/edit-post';
+import { PluginPostPublishPanel as EditorPluginPostPublishPanel } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { usePostStartedPublishing } from '../../hooks/use-saving-post';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { getSocialScriptData } from '../../utils';
 import ReviewPrompt from '../review-prompt';
+
+const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginPostPublishPanel;
 
 const PostPublishReviewPrompt = () => {
 	const { review } = getSocialScriptData();

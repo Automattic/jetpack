@@ -1,5 +1,6 @@
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
-import { PluginPrePublishPanel } from '@wordpress/editor';
+import { PluginPrePublishPanel as DeprecatedPluginPrePublishPanel } from '@wordpress/edit-post';
+import { PluginPrePublishPanel as EditorPluginPrePublishPanel } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { usePostCanUseSig } from '../../../hooks/use-post-can-use-sig';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
@@ -7,6 +8,8 @@ import { useSyncPostDataToStore } from '../../../hooks/use-sync-post-data-to-sto
 import PublicizePanel from '../../panel';
 import SocialImageGeneratorPanel from '../../social-image-generator/panel';
 import { UpsellNotice } from './upsell';
+
+const PluginPrePublishPanel = EditorPluginPrePublishPanel || DeprecatedPluginPrePublishPanel;
 
 const PrePublishPanels = () => {
 	useSyncPostDataToStore();

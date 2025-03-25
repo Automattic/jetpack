@@ -504,6 +504,7 @@ class REST_Connector {
 				/** This filter is documented in packages/status/src/class-status.php */
 				'filter'          => ( apply_filters( 'jetpack_development_mode', false ) || apply_filters( 'jetpack_offline_mode', false ) ), // jetpack_development_mode is deprecated.
 				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,
+				'option'          => get_option( 'jetpack_offline_mode' ),
 			),
 			'isPublic'          => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 		);
