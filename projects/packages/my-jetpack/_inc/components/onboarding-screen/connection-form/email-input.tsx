@@ -1,15 +1,16 @@
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { ChangeEvent, FormEvent, useCallback } from 'react';
+import { useCallback } from 'react';
 import useOauthConnection from '../../../hooks/use-oauth-connection';
 import styles from './styles.module.scss';
+import type { ChangeEvent, FC, FormEvent } from 'react';
 
 interface EmailInputProps {
 	onSubmit?: () => void;
 	isDisabled: boolean;
 }
 
-const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
+const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 	const {
 		userEmail,
 		setUserEmail,
@@ -58,21 +59,36 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 				autoCorrect="off"
 				name="user-email"
 				placeholder={ __( 'Enter your email address', 'jetpack-my-jetpack' ) }
+				aria-label={ __( 'Email address', 'jetpack-my-jetpack' ) }
+				aria-invalid={ ! isValidEmail || isError }
+				aria-describedby={ ! isValidEmail || isError ? 'email-error-message' : undefined }
 				value={ userEmail }
 				disabled={ isDisabled }
 				onInput={ handleOnInput }
 			/>
-			{ ! isValidEmail ||
-				( isError && (
-					<div className={ styles[ 'email-error-message' ] }>{ getErrorMessage() }</div>
-				) ) }
+			{ ( ! isValidEmail || isError ) && (
+				<div
+					id="email-error-message"
+					role="alert"
+					aria-live="polite"
+					className={ styles[ 'email-error-message' ] }
+				>
+					{ getErrorMessage() }
+				</div>
+			) }
 			<button
 				className={ styles[ 'submit-button' ] }
 				disabled={ isDisabled || ! userEmail || isLoading }
+				aria-busy={ isLoading }
+				aria-label={
+					isLoading
+						? __( 'Connecting…', 'jetpack-my-jetpack' )
+						: __( 'Start with email', 'jetpack-my-jetpack' )
+				}
 				type="submit"
 			>
 				{ isLoading ? (
-					<Spinner />
+					<Spinner className={ styles.spinner } />
 				) : (
 					<span>{ __( 'Start with email', 'jetpack-my-jetpack' ) }</span>
 				) }
