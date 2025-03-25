@@ -25,6 +25,15 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 		super();
 	}
 
+	async cleanup() {
+		if ( this.tabs ) {
+			await Promise.all(
+				Object.values( this.tabs ).map( tab => tab.page.close().catch( () => {} ) )
+			);
+		}
+		this.tabs = undefined;
+	}
+
 	private async getTabs() {
 		if ( typeof this.tabs === 'undefined' ) {
 			await this.openUrls( this.context, this.urls );
@@ -59,19 +68,25 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	 * @return {Promise<Page>} Promise resolving to the page instance.
 	 */
 	private async newTab( browserContext: BrowserContext, url: string ): Promise< Tab > {
-		const tab = {
-			page: await browserContext.newPage(),
-			statusCode: null,
-		};
-		tab.page.on( 'response', async response => {
-			if ( response.url() === url ) {
-				tab.statusCode = response.status();
-			}
-		} );
+		const page = await browserContext.newPage();
+		try {
+			const tab = {
+				page,
+				statusCode: null,
+			};
 
-		await tab.page.goto( url, { timeout: PAGE_GOTO_TIMEOUT_MS } );
+			tab.page.on( 'response', async response => {
+				if ( response.url() === url ) {
+					tab.statusCode = response.status();
+				}
+			} );
 
-		return tab;
+			await tab.page.goto( url, { timeout: PAGE_GOTO_TIMEOUT_MS } );
+			return tab;
+		} catch ( error ) {
+			await page.close().catch( () => {} ); // Cleanup on error
+			throw error;
+		}
 	}
 
 	async runInPage< ReturnType >(

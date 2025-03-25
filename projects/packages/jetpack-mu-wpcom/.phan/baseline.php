@@ -11,7 +11,7 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 15+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 8 occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
     // PhanNoopNew : 6 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
@@ -24,7 +24,6 @@ return [
     // PhanTypeMismatchDefault : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
     // PhanUndeclaredFunction : 2 occurrences
-    // PhanDeprecatedFunction : 1 occurrence
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanNonClassMethodCall : 1 occurrence
     // PhanNoopArrayAccess : 1 occurrence
@@ -34,7 +33,6 @@ return [
     // PhanTypeComparisonToArray : 1 occurrence
     // PhanTypeMismatchDimFetch : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
-    // PhanTypeNonVarPassByRef : 1 occurrence
     // PhanTypeVoidArgument : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -57,10 +55,9 @@ return [
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-migrate-guru-key.php' => ['PhanUndeclaredClassMethod'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-wpcom-migration-key.php' => ['PhanUndeclaredClassMethod'],
         'tests/lib/functions-wordpress.php' => ['PhanRedefineFunction'],
-        'tests/php/features/block-patterns/Wpcom_Block_Patterns_From_Api_Test.php' => ['PhanDeprecatedFunction'],
         'tests/php/features/coming-soon/Coming_Soon_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/features/launchpad/Launchpad_Task_List_Validation_Test.php' => ['PhanNonClassMethodCall'],
-        'tests/php/features/launchpad/Launchpad_Task_Lists_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeNonVarPassByRef'],
+        'tests/php/features/launchpad/Launchpad_Task_Lists_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/features/launchpad/Launchpad_WPCOM_Requests_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/features/launchpad/class-launchpad-jetpack-connection-client-mock.php' => ['PhanTypeMissingReturn'],
     ],

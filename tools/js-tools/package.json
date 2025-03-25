@@ -12,7 +12,7 @@
 	"devDependencies": {
 		"@automattic/eslint-changed": "workspace:*",
 		"@automattic/eslint-config-target-es": "workspace:*",
-		"@babel/core": "7.26.0",
+		"@babel/core": "7.26.10",
 		"@babel/eslint-parser": "7.26.8",
 		"@babel/preset-react": "7.26.3",
 		"@babel/preset-typescript": "7.26.0",

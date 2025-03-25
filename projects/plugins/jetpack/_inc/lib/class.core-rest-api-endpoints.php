@@ -2335,7 +2335,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_posint',
 				'jp_group'          => 'settings',
 			),
-
 			// WAF.
 			'jetpack_waf_automatic_rules'               => array(
 				'description'       => esc_html__( 'Enable automatic rules - Protect your site against untrusted traffic sources with automatic security rules.', 'jetpack' ),

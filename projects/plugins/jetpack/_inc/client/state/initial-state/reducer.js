@@ -732,6 +732,16 @@ export function isBlazeDashboardEnabled( state ) {
 }
 
 /**
+ * Returns true if the wp-admin Subscriber dashboard is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the Subscriber dashboard is enabled.
+ */
+export function isWpAdminSubscriberManagementEnabled( state ) {
+	return !! state.jetpack.initialState.isWpAdminSubscriberManagementEnabled;
+}
+
+/**
  * Check if the Sharing block is available on the site.
  *
  * @param {object} state - Global state tree.

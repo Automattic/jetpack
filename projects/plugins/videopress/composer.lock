@@ -12,14 +12,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "1e282f47bac09d3106bc3fc6e3c39c3284f073a7"
+                "reference": "5c10fd1a50834e9d28af3136f79a35617b497dae"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -42,10 +43,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -65,7 +66,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "5dcb65f740d88a7e41ad08bb5a3a855103a2ef46"
+                "reference": "5faef0e6453cac07042d46af33d9a5318c353ca1"
             },
             "require": {
                 "php": ">=7.2"
@@ -74,7 +75,8 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-logo": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -101,10 +103,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -124,7 +126,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "bf838ffc731b0bdc56072a21b50b92aed9a2251d"
+                "reference": "110b0ff2aa88f9904c6260c3e399dbfdd7544fa6"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -132,9 +134,10 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -167,10 +170,10 @@
                     "pnpm run build-production"
                 ],
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
+                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
                 ],
                 "test-js": [
                     "pnpm run test"
@@ -193,7 +196,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "f7e1805706259c207e22548a1de3f94cc5e14e71"
+                "reference": "54d6c42f16aec2a60a4dc0133f0444fe1b164a33"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
@@ -201,8 +204,9 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "composer/composer": "^2.2",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "type": "composer-plugin",
             "extra": {
@@ -229,10 +233,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"./tests/php/tmp/coverage-report.php\"",
                     "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
@@ -261,7 +265,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-core",
-                "reference": "f29fb32cba33427db5d3930bf6e0d7206b44d3c3"
+                "reference": "7e2d719bc4842331a0709458595f2c480a7aa6b0"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -269,7 +273,8 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -293,10 +298,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -316,7 +321,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-speed-score",
-                "reference": "6c5f2fce242a09a6cec0d26328026664046dd17a"
+                "reference": "5d0a1075da9e8da4c90e8c0e92b3c5faf5a0993d"
             },
             "require": {
                 "automattic/jetpack-boost-core": "@dev",
@@ -324,8 +329,9 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -357,10 +363,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -380,7 +386,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "8bc70ad510c3f54b6fa962b2be1ad442422f50b5"
+                "reference": "16772cbb568bc8fc8550671a1bd12aa4705738dc"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
@@ -388,8 +394,9 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "composer/composer": "^2.2",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "type": "composer-plugin",
             "extra": {
@@ -411,10 +418,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -440,12 +447,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "19a6cbf9c48b95d5801bf8ac55c8bba15d910488"
+                "reference": "abccbd9d783f75a22978fddb26ef5cc3d7405bc8"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
+                "automattic/jetpack-account-protection": "@dev",
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-import": "@dev",
@@ -487,6 +495,7 @@
                         "packages/stats-admin",
                         "packages/sync",
                         "packages/videopress",
+                        "packages/account-protection",
                         "packages/waf",
                         "packages/wordads",
                         "packages/yoast-promo"
@@ -512,7 +521,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "c8cfc35c80950a107b54c9f7f455454579f4c683"
+                "reference": "9b50c28fd1324cf91e9bacd291d10899f28ea7be"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -529,8 +538,9 @@
                 "automattic/jetpack-licensing": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -547,7 +557,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.7.x-dev"
+                    "dev-trunk": "6.8.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -575,10 +585,10 @@
                     "pnpm run build"
                 ],
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -598,15 +608,16 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "e715b43a76eeb5847166871e7e0d192469ddeb32"
+                "reference": "e6cbca1d3b01d10d771d2af899cd6ffb65090549"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -629,10 +640,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -652,14 +663,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "ee16773def7c4276f0e31490d4ca9d71f6ead185"
+                "reference": "dedb91e962e445e3ea344493e298b31125d6c175"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -682,10 +694,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -705,7 +717,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/explat",
-                "reference": "e39bb8229fe667063abdc3695afa0af016e4fc0c"
+                "reference": "318352a036de9c75b76b7383509929d98cac8425"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -713,7 +725,8 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -740,10 +753,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
+                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -780,15 +793,16 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "55173099d713a5a77463e99b6ceb212574712475"
+                "reference": "ab83ce4e4fa0bcc7fa87600a8b60c7dab8bfe191"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -815,10 +829,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -838,7 +852,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "50c4061739eda658ce35b9264f75a729923e9c85"
+                "reference": "e5ec23b1ab540b0eb208d2568e98a3395ad00e99"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -852,8 +866,9 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -886,10 +901,10 @@
                     "pnpm run build"
                 ],
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -913,7 +928,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "6a29d2658a205d7da8c61b322838c82d40c869e9"
+                "reference": "80b7f7af100212cf2f2cc07cd2201c8ed9207842"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -922,7 +937,8 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -946,10 +962,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -969,14 +985,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "dc710cc3d6cce153be0912ee941e8dc254e0b4aa"
+                "reference": "f08fffc0458c5acac0686368b005e049435d5e35"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -999,10 +1016,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1022,7 +1039,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "8dbbe800248d9163f169984ae3c47b42842f669b"
+                "reference": "44847e64430baee4e65b2206a7af902c5f8b10ef"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1046,7 +1063,8 @@
                 "automattic/jetpack-search": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/jetpack-videopress": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1060,7 +1078,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.5.x-dev"
+                    "dev-trunk": "5.9.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1080,10 +1098,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
+                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1120,7 +1138,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
-                "reference": "5651c6a1b24587aea568b936cbd5c7cc794ae00c"
+                "reference": "63e9b52f2c3a5b69c30115e21c02ecf7e4a23e00"
             },
             "require": {
                 "php": ">=7.2"
@@ -1128,7 +1146,8 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1152,10 +1171,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1175,7 +1194,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "663a13258cf8724ac7f7836ab44c7d1f1759802e"
+                "reference": "5ddd1b589eb56ce4049f3c63f35a8cd679f82833"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1185,7 +1204,8 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1198,7 +1218,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 }
             },
             "autoload": {
@@ -1208,10 +1228,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1237,7 +1257,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugins-installer",
-                "reference": "bd0d4d24f6514182940106d5739fb2feaa0e09f2"
+                "reference": "a937c79953c77d994a88e7722683a4d1bbe75968"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1246,7 +1266,8 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1270,10 +1291,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1293,7 +1314,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect-models",
-                "reference": "39c60f757e5fbfecb8a1b9cb35bccf9b3752e9af"
+                "reference": "9aa24e036a4736f9bff3ced06d144323e3d4ccd3"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -1302,7 +1323,8 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1335,10 +1357,10 @@
                     "echo 'Add your build step to composer.json, please!'"
                 ],
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1358,7 +1380,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect-status",
-                "reference": "de3b1715798e5c6fc17ecbb0c2495da9fd700e58"
+                "reference": "e229b1ae776d046d10281475b3a89cefa464253a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1371,7 +1393,8 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1404,10 +1427,10 @@
                     "echo 'Add your build step to composer.json, please!'"
                 ],
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1427,7 +1450,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "8c08601a206cf1cb8b62416a4b6613dd96c06704"
+                "reference": "4738fce156b0b8008bdea47fb52d8c5d3d24e2ae"
             },
             "require": {
                 "automattic/jetpack-status": "@dev",
@@ -1435,8 +1458,9 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1459,10 +1483,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1482,15 +1506,16 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
-                "reference": "3d127129f23b1a5bc796913ac009a40af8e663bd"
+                "reference": "0606b853fc28d9fbcc013187c626d0a8e2de84b6"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1513,10 +1538,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1536,7 +1561,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "347a36e47e47f389682efc2a6d77b1f6ecfe2136"
+                "reference": "40062d88695fcbc0df2044f4747f16d978cb9e6f"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1547,8 +1572,9 @@
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-plans": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1577,10 +1603,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1600,7 +1626,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "614e8080c65490680b5ed287519fab6676ae6f45"
+                "reference": "fbfec2aa9fe080aa4a376cce1c9f91b3e9b7f4f0"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1616,7 +1642,8 @@
                 "automattic/jetpack-search": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/jetpack-waf": "@dev",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1633,7 +1660,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.8.x-dev"
+                    "dev-trunk": "4.9.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1649,10 +1676,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1672,7 +1699,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "56348a232515e511678495d979ba88f3f7f0c813"
+                "reference": "e53d35eae4e726b22a055a606daca4b1fc6a7ba7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1685,8 +1712,9 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "2.6.2",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1713,10 +1741,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
+                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1751,7 +1779,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "b3837a86715f3e839cb78d454f032612e408c0b6"
+                "reference": "06b85c8f44fdccebce0bb12823f2d3f1e87e037a"
             },
             "require": {
                 "composer-runtime-api": "^2.2.0",
@@ -1760,8 +1788,9 @@
                 "symfony/process": "^5.4 || ^6.4 || ^7.1"
             },
             "require-dev": {
+                "automattic/phpunit-select-config": "@dev",
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
-                "yoast/phpunit-polyfills": "^1.1.1"
+                "yoast/phpunit-polyfills": "^3.0.0"
             },
             "bin": [
                 "bin/changelogger"
@@ -1778,6 +1807,11 @@
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-changelogger/compare/${old}...${new}"
+                },
+                "dependencies": {
+                    "test-only": [
+                        "packages/phpunit-select-config"
+                    ]
                 }
             },
             "autoload": {
@@ -1794,10 +1828,10 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"

@@ -5,6 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.9.1] - 2025-03-24
+### Changed
+- Update dependencies. [#38910]
+
+## [5.9.0] - 2025-03-24
+### Added
+- Add an email input to the social login form, allowing users to log into Jetpack seamlessly through a magic link. [#42600]
+- Add a new social login form to the onboarding screen for first-time Jetpack connections. [#42561]
+
+## [5.8.0] - 2025-03-21
+### Added
+- Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
+
+### Fixed
+- Enable screen readers to read Boost score. [#42306]
+
+## [5.7.3] - 2025-03-19
+### Changed
+- Update dependencies. [#38910]
+
+## [5.7.2] - 2025-03-18
+### Changed
+- Update package dependencies. [#42509] [#42511]
+
+### Fixed
+- My Jetpack: Add legacy properties back to `get_info()` function. [#42542]
+- Product Interstitial Modal: Fix not running custom onClick events if a customModalTrigger was used. [#42527]
+
+## [5.7.1] - 2025-03-17
+### Fixed
+- Allow screen readers to read stats. [#42275]
+
+## [5.7.0] - 2025-03-17
+### Changed
+- Call Protect and VideoPress product data on the frontend and remove from window state. [#42411]
+- My Jetpack: Move Red Bubble notifications out of myJetpackInitialState. [#42271]
+- UI: Upgrade CTAs on the Jetpack Boost admin now opens a modal instead of navigating to the upgrade page. [#42309]
+
+### Fixed
+- My Jetpack: Fix interstitial modal that was displaying the discounted price when user had already used up the discount. [#42349]
+
+## [5.6.0] - 2025-03-12
+### Added
+- Add QueryProvider to ProductInterstitialModal for extendability. [#42307]
+- Provide connection data to footer component. [#42000]
+- Stats: Add highlights heading level as prop. [#42165]
+
+### Changed
+- Load agency data from frontend instead of backend. [#42330]
+
 ## [5.5.3] - 2025-03-10
 ### Changed
 - Persist cookies for dismissable banners longer than session. [#42305]
@@ -16,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.5.1] - 2025-03-03
 ### Added
-- Updated interstitial modal to accept custom trigger. [#41621]
+- Update interstitial modal to accept custom trigger. [#41621]
 
 ### Changed
 - Load product data requiring an http request async on the frontend. [#41965]
@@ -2003,6 +2053,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.9.0...5.9.1
+[5.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.8.0...5.9.0
+[5.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.3...5.8.0
+[5.7.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.2...5.7.3
+[5.7.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.1...5.7.2
+[5.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.0...5.7.1
+[5.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.6.0...5.7.0
+[5.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.5.3...5.6.0
 [5.5.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.5.2...5.5.3
 [5.5.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.5.1...5.5.2
 [5.5.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.5.0...5.5.1

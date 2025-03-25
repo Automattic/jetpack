@@ -11,6 +11,7 @@ use Imports\SQL_Generator;
  * Class SQLGeneratorTest.
  */
 class SQLGeneratorTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * The SQL Generator instance.

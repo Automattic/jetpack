@@ -10,16 +10,25 @@ const TermsOfService: React.FC< TermsOfServiceProps > = ( {
 	className,
 	multipleButtons,
 	agreeButtonLabel,
+	isTextOnly,
 	...textProps
-} ) => (
-	<Text className={ clsx( className, 'terms-of-service' ) } { ...textProps }>
-		{ multipleButtons ? (
-			<MultipleButtonsText multipleButtonsLabels={ multipleButtons } />
-		) : (
-			<SingleButtonText agreeButtonLabel={ agreeButtonLabel } />
-		) }
-	</Text>
-);
+} ) => {
+	const getTOSContent = () => {
+		if ( isTextOnly ) {
+			return <TermsOfServiceTextOnly />;
+		}
+		if ( multipleButtons ) {
+			return <MultipleButtonsText multipleButtonsLabels={ multipleButtons } />;
+		}
+		return <SingleButtonText agreeButtonLabel={ agreeButtonLabel } />;
+	};
+
+	return (
+		<Text className={ clsx( className, 'terms-of-service' ) } { ...textProps }>
+			{ getTOSContent() }
+		</Text>
+	);
+};
 
 const MultipleButtonsText = ( { multipleButtonsLabels } ) => {
 	if ( Array.isArray( multipleButtonsLabels ) && multipleButtonsLabels.length > 1 ) {
@@ -65,6 +74,18 @@ const SingleButtonText = ( { agreeButtonLabel } ) =>
 		),
 		{
 			strong: <strong />,
+			tosLink: <Link slug="wpcom-tos" />,
+			shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+		}
+	);
+
+const TermsOfServiceTextOnly = () =>
+	createInterpolateElement(
+		__(
+			'By continuing you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site’s data</shareDetailsLink> with us. We’ll check if that email is linked to an existing WordPress.com account or create a new one instantly.',
+			'jetpack-components'
+		),
+		{
 			tosLink: <Link slug="wpcom-tos" />,
 			shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
 		}

@@ -6,6 +6,7 @@ jest.mock( '@wordpress/components', () => {
 	const actualModule = jest.requireActual( '@wordpress/components' );
 	const mockModule = {
 		Icon: jest.fn( () => null ),
+		ExternalLink: jest.fn( ( { href, children } ) => <a href={ href }>{ children }</a> ),
 	};
 
 	return new Proxy( actualModule, {
@@ -69,7 +70,7 @@ describe( 'NewsletterWidget', () => {
 		const expectedLinks = [
 			{
 				text: 'Publish your next post',
-				href: 'https://example.com/wp-admin/edit.php',
+				href: 'https://example.com/wp-admin/post-new.php',
 			},
 			{
 				text: 'View subscriber stats',
@@ -113,7 +114,7 @@ describe( 'NewsletterWidget', () => {
 		const expectedLinks = [
 			{
 				text: 'Publish your next post',
-				href: `https://${ defaultProps.site }/wp-admin/edit.php`,
+				href: `https://${ defaultProps.site }/wp-admin/post-new.php`,
 			},
 			{
 				text: 'View subscriber stats',

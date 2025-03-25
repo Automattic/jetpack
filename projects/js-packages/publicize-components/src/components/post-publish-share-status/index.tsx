@@ -1,6 +1,5 @@
 import { useDispatch, useSelect } from '@wordpress/data';
-import { PluginPostPublishPanel } from '@wordpress/edit-post';
-import { store as editorStore } from '@wordpress/editor';
+import { PluginPostPublishPanel, store as editorStore } from '@wordpress/editor';
 import { useIsSharingPossible } from '../../hooks/use-is-sharing-possible';
 import { usePostMeta } from '../../hooks/use-post-meta';
 import { usePostPrePublishValue } from '../../hooks/use-post-pre-publish-value';
@@ -52,7 +51,7 @@ export function PostPublishShareStatus() {
 	}
 
 	return (
-		<PluginPostPublishPanel id="publicize-share-status">
+		<PluginPostPublishPanel>
 			<ShareStatus />
 		</PluginPostPublishPanel>
 	);

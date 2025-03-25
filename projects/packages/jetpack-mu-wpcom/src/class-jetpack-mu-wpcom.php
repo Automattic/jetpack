@@ -50,7 +50,6 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -125,6 +124,7 @@ class Jetpack_Mu_Wpcom {
 		$plugins_request_data              = array();
 		$plugin_language_pack_destinations = array(
 			'jetpack-mu-wpcom' => WP_LANG_DIR . '/mu-plugins/',
+			'wpcomsh'          => WP_LANG_DIR . '/mu-plugins/',
 		);
 
 		foreach ( array_keys( $plugin_language_pack_destinations ) as $plugin_slug ) {
@@ -271,6 +271,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/holiday-snow/class-holiday-snow.php';
 		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
 		require_once __DIR__ . '/features/launch-button/index.php';
+		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
@@ -431,7 +432,6 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
 			require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
-			require_once __DIR__ . '/features/starter-page-templates/class-starter-page-templates.php';
 		}
 	}
 
@@ -565,18 +565,6 @@ class Jetpack_Mu_Wpcom {
 
 		$newsletter_categories_location = apply_filters( 'wpcom_newsletter_categories_location', 'block' );
 		wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_Subscriptions', array( 'newsletter_categories_location' => $newsletter_categories_location ) );
-	}
-
-	/**
-	 * Load Gutenberg's Block Theme Previews feature.
-	 */
-	public static function load_block_theme_previews() {
-		if ( defined( 'IS_GUTENBERG_PLUGIN' ) && IS_GUTENBERG_PLUGIN ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( ! empty( $_GET['wp_theme_preview'] ) ) {
-				require_once __DIR__ . '/features/block-theme-previews/block-theme-previews.php';
-			}
-		}
 	}
 
 	/**

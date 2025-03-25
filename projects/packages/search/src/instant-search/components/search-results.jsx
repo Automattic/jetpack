@@ -107,6 +107,25 @@ class SearchResults extends Component {
 				_n( 'Found %s result', 'Found %s results', total, 'jetpack-search-pkg' ),
 				num
 			);
+		} else if ( hasQuery ) {
+			if ( hasCorrectedQuery ) {
+				return sprintf(
+					/* translators: %1$s: number of results. %2$s: the corrected search query. */
+					_n(
+						'Found %1$s result for "%2$s"',
+						'Found %1$s results for "%2$s"',
+						total,
+						'jetpack-search-pkg'
+					),
+					num,
+					corrected_query
+				);
+			}
+			return sprintf(
+				/* translators: %s: number of results. */
+				_n( 'Found %s result', 'Found %s results', total, 'jetpack-search-pkg' ),
+				num
+			);
 		}
 
 		return __( 'Showing popular results', 'jetpack-search-pkg' );

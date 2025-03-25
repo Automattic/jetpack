@@ -13,6 +13,8 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-sta
  * @coversDefaultClass Jetpack_Redux_State_Helper
  */
 class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Theme features.
 	 *

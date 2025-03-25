@@ -58,7 +58,7 @@ class REST_Purchases {
 	/**
 	 * Site purchases endpoint.
 	 *
-	 * @return array of site purchases.
+	 * @return array|WP_Error of site purchases.
 	 */
 	public static function get_site_current_purchases() {
 		$site_id           = \Jetpack_Options::get_option( 'id' );

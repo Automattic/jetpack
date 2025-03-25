@@ -143,21 +143,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
-				'setup_write',
-				'design_completed',
-				'plan_selected',
-				'verify_email',
-				'add_first_subscribers',
-				'first_post_published',
-				'site_launched',
-			),
-			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
-		),
-		'updated-write-tasklist'  => array(
-			'get_title'           => function () {
-				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
-			},
-			'task_ids'            => array(
 				'verify_email',
 				'site_title',
 				'start_building_your_audience',
@@ -504,16 +489,15 @@ function wpcom_is_checklist_task_complete( $task_id ) {
  *
  * @param string      $checklist_slug Checklist slug.
  * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
- * @param bool        $updated_write_tasklist Optional. Whether we're using the updated `write` task list.
  *
  * @return Task[] Collection of tasks for a given checklist
  */
-function wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context = null, $updated_write_tasklist = false ) {
+function wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context = null ) {
 	if ( ! $checklist_slug ) {
 		return array();
 	}
 
-	return wpcom_launchpad_checklists()->build( $checklist_slug, $launchpad_context, $updated_write_tasklist );
+	return wpcom_launchpad_checklists()->build( $checklist_slug, $launchpad_context );
 }
 
 // TODO: Write code p2 post or dotcom post

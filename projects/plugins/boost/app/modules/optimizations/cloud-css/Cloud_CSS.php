@@ -3,7 +3,9 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
-use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
+use Automattic\Jetpack_Boost\Contracts\Has_Activate;
+use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
@@ -13,13 +15,14 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
 
-class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Page_Output, Optimization {
+class Cloud_CSS implements Pluggable, Has_Activate, Has_Always_Available_Endpoints, Changes_Output_After_Activation, Optimization, Needs_To_Be_Ready {
 
 	/** User has requested regeneration manually or through activating the module. */
 	const REGENERATE_REASON_USER_REQUEST = 'user_request';
@@ -58,7 +61,7 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
-		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'handle_critical_css_invalidated' ) );
+		add_action( Critical_CSS_Invalidator::INVALIDATE_ACTION_NAME, array( $this, 'handle_critical_css_invalidated' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
 
 		Generator::init();
@@ -68,6 +71,10 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 		return true;
 	}
 
+	public static function activate() {
+		( new Regenerate() )->start();
+	}
+
 	/**
 	 * Check if the module is ready and already serving critical CSS.
 	 *
@@ -75,6 +82,15 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 	 */
 	public function is_ready() {
 		return ( new Critical_CSS_State() )->is_generated();
+	}
+
+	/**
+	 * Get the action names that will be triggered when the module is ready and serving critical CSS.
+	 *
+	 * @return string[]
+	 */
+	public static function get_change_output_action_names() {
+		return array( Critical_CSS_Invalidator::INVALIDATE_ACTION_NAME, Critical_CSS_State::GENERATION_ACTION_NAME );
 	}
 
 	public static function is_available() {
