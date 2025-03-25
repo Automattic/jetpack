@@ -1,6 +1,6 @@
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import useOauthConnection from '../../../hooks/use-oauth-connection';
 import appleIcon from '../icons/apple.svg';
 import githubIcon from '../icons/github.svg';
@@ -35,13 +35,21 @@ const SocialButton: FC< SocialButtonProps > = ( { service, disabled, onSubmit } 
 	const serviceText = buttonText[ service ];
 	const { label, icon } = serviceText;
 
+	const getAriaLabel = useMemo( () => {
+		if ( isLoading ) {
+			return __( 'Connecting…', 'jetpack-my-jetpack', 0 );
+		}
+
+		return label;
+	}, [ isLoading, label ] );
+
 	return (
 		<button
 			className={ styles[ 'social-button' ] }
 			disabled={ disabled || isLoading }
 			onClick={ handleOnClick }
 			aria-busy={ isLoading }
-			aria-label={ isLoading ? __( 'Connecting…', 'jetpack-my-jetpack', 0 ) : label }
+			aria-label={ getAriaLabel() }
 		>
 			<img src={ icon } alt="" aria-hidden="true" />
 			<span className={ styles[ 'social-button-text' ] }>

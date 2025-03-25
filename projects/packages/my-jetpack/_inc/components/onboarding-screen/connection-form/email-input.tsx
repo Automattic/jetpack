@@ -1,6 +1,6 @@
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import useOauthConnection from '../../../hooks/use-oauth-connection';
 import styles from './styles.module.scss';
 import type { ChangeEvent, FC, FormEvent } from 'react';
@@ -48,6 +48,14 @@ const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 
 	const isLoading = isLoadingAuthorizeUrl || isRedirecting;
 
+	const getAriaLabel = useMemo( () => {
+		if ( isLoading ) {
+			return __( 'Connecting…', 'jetpack-my-jetpack', 0 );
+		}
+
+		return __( 'Start with email', 'jetpack-my-jetpack', 0 );
+	}, [ isLoading ] );
+
 	return (
 		<form onSubmit={ handleOnSubmit } className={ styles[ 'email-input-container' ] }>
 			<input
@@ -81,11 +89,7 @@ const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 				className={ styles[ 'submit-button' ] }
 				disabled={ isDisabled || ! userEmail || isLoading }
 				aria-busy={ isLoading }
-				aria-label={
-					isLoading
-						? __( 'Connecting…', 'jetpack-my-jetpack', 0 )
-						: __( 'Start with email', 'jetpack-my-jetpack', 0 )
-				}
+				aria-label={ getAriaLabel() }
 				type="submit"
 			>
 				{ isLoading ? (
