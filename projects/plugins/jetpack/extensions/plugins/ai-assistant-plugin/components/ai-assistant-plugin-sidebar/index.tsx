@@ -18,8 +18,12 @@ import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpre
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import {
-	PluginPrePublishPanel as BasePrePublishPanel,
-	PluginDocumentSettingPanel as BaseDocumentPanel,
+	PluginPrePublishPanel as DeprecatedPluginPrePublishPanel,
+	PluginDocumentSettingPanel as DeprecatedPluginDocumentSettingPanel,
+} from '@wordpress/edit-post';
+import {
+	PluginPrePublishPanel as EditorPluginPrePublishPanel,
+	PluginDocumentSettingPanel as EditorPluginDocumentSettingPanel,
 	store as editorStore,
 } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
@@ -47,6 +51,9 @@ import './style.scss';
  * Types
  */
 import type { CoreSelect, JetpackSettingsContentProps, PanelProps } from './types';
+
+const BasePrePublishPanel = EditorPluginPrePublishPanel || DeprecatedPluginPrePublishPanel;
+const BaseDocumentPanel = EditorPluginDocumentSettingPanel || DeprecatedPluginDocumentSettingPanel;
 
 const PrePublishPanel = BasePrePublishPanel as ComponentType< PanelProps >;
 const DocumentPanel = BaseDocumentPanel as ComponentType< PanelProps >;
