@@ -48,6 +48,15 @@ class Features_Index {
 	);
 
 	/**
+	 * Get all features and subfeatures.
+	 *
+	 * @return Feature[]
+	 */
+	public static function get_all_features() {
+		return array_merge( self::FEATURES, self::SUB_FEATURES );
+	}
+
+	/**
 	 * Get the subfeatures of a feature.
 	 *
 	 * @param Feature $feature The feature to get the subfeatures of.

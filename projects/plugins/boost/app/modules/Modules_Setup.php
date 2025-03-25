@@ -88,8 +88,7 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	 * @return bool|void
 	 */
 	public function register_always_available_endpoints() {
-		$features = array_merge( Features_Index::FEATURES, Features_Index::SUB_FEATURES );
-		foreach ( $features as $feature_class ) {
+		foreach ( Features_Index::get_all_features() as $feature_class ) {
 			$feature = new $feature_class();
 
 			if ( ! $feature instanceof Has_Always_Available_Endpoints || ! $feature instanceof Feature ) {
@@ -109,31 +108,18 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 		}
 	}
 
-	private function setup_modules_data_sync( $modules ) {
-		foreach ( $modules as $module ) {
-			$this->register_feature_data_sync( $module->feature );
-
-			$submodules = $module->get_available_submodules();
-			if ( ! empty( $submodules ) ) {
-				$this->setup_modules_data_sync( $submodules );
+	private function setup_features_data_sync() {
+		foreach ( Features_Index::get_all_features() as $feature_class ) {
+			$feature = new $feature_class();
+			if ( ! $feature instanceof Has_Data_Sync ) {
+				continue;
 			}
+
+			$feature->register_data_sync( Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE ) );
 		}
 	}
 
-	/**
-	 * Used to register data sync for the module.
-	 *
-	 * @return bool|void
-	 */
-	public function register_feature_data_sync( $feature ) {
-		if ( ! $feature instanceof Has_Data_Sync ) {
-			return false;
-		}
-
-		$feature->register_data_sync( Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE ) );
-	}
-
-	public function register_endpoints( $feature ) {
+	private function register_endpoints( $feature ) {
 		if ( ! $feature instanceof Has_Endpoints ) {
 			return false;
 		}
@@ -196,7 +182,7 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	public function setup() {
 		// We need to setup data sync outside of plugins_loaded to prevent side effects on other classes that are loaded from other actions earlier.
 		self::register_data_sync( Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE ) );
-		$this->setup_modules_data_sync( $this->available_modules );
+		$this->setup_features_data_sync();
 		$this->register_always_available_endpoints();
 		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
