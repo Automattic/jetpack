@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Clean up the remnants of the registration nonce we no longer use.

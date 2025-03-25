@@ -23,7 +23,6 @@ const ContextualizedConnection = props => {
 		buttonLabel,
 		apiRoot,
 		apiNonce,
-		registrationNonce,
 		redirectUri,
 		redirectTo,
 		autoTrigger,
@@ -66,7 +65,7 @@ const ContextualizedConnection = props => {
 							autoTrigger={ autoTrigger }
 							apiRoot={ apiRoot }
 							apiNonce={ apiNonce }
-							registrationNonce={ registrationNonce }
+							registrationNonce=""
 							redirectUri={ redirectUri }
 							connectLabel={ buttonLabel }
 						/>
@@ -166,8 +165,6 @@ ContextualizedConnection.propTypes = {
 	apiRoot: PropTypes.string.isRequired,
 	/** API nonce. */
 	apiNonce: PropTypes.string.isRequired,
-	/** Registration nonce. */
-	registrationNonce: PropTypes.string.isRequired,
 	/** The redirect admin URI. */
 	redirectUri: PropTypes.string.isRequired,
 	/** Where the user will be redirected to after clicking to continue to Jetpack */

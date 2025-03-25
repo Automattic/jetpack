@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS;
 
-use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
@@ -17,7 +17,7 @@ use Automattic\Jetpack_Boost\Lib\Output_Filter;
 /**
  * Class Render_Blocking_JS
  */
-class Render_Blocking_JS implements Pluggable, Changes_Page_Output, Optimization {
+class Render_Blocking_JS implements Pluggable, Changes_Output_On_Activation, Optimization {
 	/**
 	 * Holds the script tags removed from the output buffer.
 	 *
@@ -73,15 +73,6 @@ class Render_Blocking_JS implements Pluggable, Changes_Page_Output, Optimization
 		 * Shortcodes can sometimes output script to embed widget. It's safer to ignore them.
 		 */
 		add_filter( 'do_shortcode_tag', array( $this, 'add_ignore_attribute' ) );
-	}
-
-	/**
-	 * The module starts serving as soon as it's enabled.
-	 *
-	 * @return bool
-	 */
-	public function is_ready() {
-		return true;
 	}
 
 	public static function is_available() {

@@ -24,10 +24,8 @@ return [
     // PhanPluginUseReturnValueInternalKnown : 2 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanCoalescingNeverNull : 1 occurrence
-    // PhanImpossibleTypeComparisonInGlobalScope : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
-    // PhanTypeComparisonToArray : 1 occurrence
     // PhanTypeInvalidUnaryOperandIncOrDec : 1 occurrence
     // PhanTypeMismatchArgumentInternal : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
@@ -61,7 +59,6 @@ return [
         'app/modules/optimizations/render-blocking-js/class-render-blocking-js.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault'],
         'compatibility/elementor.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/page-optimize.php' => ['PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
-        'compatibility/score-prompt.php' => ['PhanImpossibleTypeComparisonInGlobalScope', 'PhanTypeComparisonToArray'],
         'compatibility/web-stories.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/woocommerce.php' => ['PhanTypeArraySuspicious'],
         'jetpack-boost.php' => ['PhanNoopNew'],

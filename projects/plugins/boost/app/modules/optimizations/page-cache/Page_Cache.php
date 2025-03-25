@@ -5,14 +5,12 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
-use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
+use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
-use Automattic\Jetpack_Boost\Modules\Modules_Index;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Liar;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync\Page_Cache_Entry;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Clear_Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Deactivate_WPSC;
@@ -22,7 +20,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
-class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submodules, Optimization {
+class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submodules, Optimization, Needs_To_Be_Ready {
 	/**
 	 * @var array - The errors that occurred when removing the cache.
 	 */
@@ -50,13 +48,7 @@ class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submod
 	public function setup() {
 		Garbage_Collection::setup();
 
-		add_action( 'jetpack_boost_module_status_updated', array( $this, 'clear_cache_on_output_changing_module_toggle' ), 10, 2 );
-		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'invalidate_cache' ) );
-		add_action( 'jetpack_boost_critical_css_generated', array( $this, 'invalidate_cache' ) );
-		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_js_excludes', array( $this, 'invalidate_cache' ) );
-		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_css_excludes', array( $this, 'invalidate_cache' ) );
-		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_image_cdn_quality', array( $this, 'invalidate_cache' ) );
-		add_action( 'update_option_jetpack_boost_status_' . Liar::get_slug(), array( $this, 'invalidate_cache' ) );
+		add_action( 'jetpack_boost_page_output_changed', array( $this, 'handle_page_output_change' ) );
 	}
 
 	public function register_data_sync( Data_Sync $instance ) {
@@ -87,30 +79,14 @@ class Page_Cache implements Pluggable, Has_Deactivate, Has_Data_Sync, Has_Submod
 		$instance->register_action( 'page_cache', 'deactivate-wpsc', Schema::as_void(), new Deactivate_WPSC() );
 	}
 
-	/**
-	 * Handles the module status updated event.
-	 *
-	 * @param string $module_slug The slug of the module that was updated.
-	 */
-	public function clear_cache_on_output_changing_module_toggle( $module_slug, $status ) {
-		// Get a list of modules that can change the HTML output.
-		$output_changing_modules = Modules_Index::get_modules_implementing( Changes_Page_Output::class );
+	public function handle_page_output_change() {
+		$this->invalidate_cache();
 
-		// Special case: don't clear when enabling Critical or Cloud CSS, as they will
-		// be handled after generation.
-		if ( $status === true ) {
-			unset( $output_changing_modules['critical_css'] );
-			unset( $output_changing_modules['cloud_css'] );
-		}
-
-		$slugs = array_keys( $output_changing_modules );
-
-		if ( in_array( $module_slug, $slugs, true ) ) {
-			$this->invalidate_cache();
-		}
+		// Remove the action so it doesn't run again during the same request.
+		remove_action( 'jetpack_boost_page_output_changed', array( $this, 'handle_page_output_change' ) );
 	}
 
-	public function invalidate_cache() {
+	private function invalidate_cache() {
 		$cache = new Boost_Cache();
 		$cache->get_storage()->invalidate( home_url(), Filesystem_Utils::DELETE_ALL );
 	}

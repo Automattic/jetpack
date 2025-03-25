@@ -1,3 +1,4 @@
+import React from 'react';
 import LineChart from '../line-chart';
 import sampleData from './sample-data';
 import webTrafficData from './site-traffic-sample';
@@ -225,4 +226,72 @@ WithPointerEvents.args = {
 	...Default.args,
 	// eslint-disable-next-line no-alert
 	onPointerDown: ( { datum } ) => alert( 'Pointer down:' + JSON.stringify( datum ) ),
+};
+
+export const CurveTypes: StoryObj< typeof LineChart > = {
+	render: () => {
+		// Create sample data that highlights the difference between curve types
+		// Monotone X will prevent overshooting on steep changes followed by gradual changes
+		const curveData = [
+			{
+				label: 'Sample Series',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 10 },
+					{ date: new Date( '2024-01-02' ), value: 90 }, // Sharp rise
+					{ date: new Date( '2024-01-03' ), value: 85 }, // Slight decline
+					{ date: new Date( '2024-01-04' ), value: 82 }, // Gradual decline
+					{ date: new Date( '2024-01-05' ), value: 5 }, // Sharp drop
+					{ date: new Date( '2024-01-06' ), value: 8 }, // Slight rise
+					{ date: new Date( '2024-01-07' ), value: 10 }, // Gradual rise
+				],
+				options: {},
+			},
+		];
+
+		return (
+			<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(3, 1fr)' } }>
+				<div>
+					<h3>Linear Curve</h3>
+					<LineChart
+						width={ 300 }
+						height={ 200 }
+						data={ curveData }
+						curveType="linear"
+						showLegend={ false }
+						withGradientFill={ false }
+					/>
+				</div>
+				<div>
+					<h3>Smooth Curve (Catmull-Rom)</h3>
+					<LineChart
+						width={ 300 }
+						height={ 200 }
+						data={ curveData }
+						curveType="smooth"
+						showLegend={ false }
+						withGradientFill={ false }
+					/>
+				</div>
+				<div>
+					<h3>Monotone X Curve</h3>
+					<LineChart
+						width={ 300 }
+						height={ 200 }
+						data={ curveData }
+						curveType="monotone"
+						showLegend={ false }
+						withGradientFill={ false }
+					/>
+				</div>
+			</div>
+		);
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Examples of the three different curve types available. The data points are designed to highlight how Monotone X prevents overshooting (going above/below data points) compared to Catmull-Rom smoothing, while still maintaining a smooth curve. Linear shows the raw connections between points.',
+			},
+		},
+	},
 };

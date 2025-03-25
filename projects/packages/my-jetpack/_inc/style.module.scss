@@ -27,19 +27,18 @@
 			display: none !important;
 		}
 	}
+
 	#wpwrap {
 		background-color: var(--jp-white-off);
-	}
-
-	.is-wp-toolbar-disabled {
-		#wpadminbar {
-			display: none;
-		}
 	}
 
 	.jetpack-admin-full-screen {
 		#wpwrap {
 			top: 0;
+		}
+
+		#wpadminbar {
+			display: none;
 		}
 
 		#wpbody-content {
