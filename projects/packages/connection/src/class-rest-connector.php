@@ -285,6 +285,10 @@ class REST_Connector {
 						'type'        => 'string',
 						'format'      => 'email',
 					),
+					'from'          => array(
+						'description' => __( 'Optional "from" arg to distinguish where (which flow) the user is coming from when connecting', 'jetpack-connection' ),
+						'type'        => 'string',
+					),
 				),
 			)
 		);
