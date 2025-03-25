@@ -1150,6 +1150,7 @@ class REST_Connector {
 	public function connection_authorize_url_provider( $request ) {
 		$provider     = $request['provider'];
 		$redirect_uri = $request['redirect_uri'] ?? '';
+		$from         = $request['from'] ?? false;
 
 		// Validate magic link parameters if provider is 'link'
 		if ( 'link' === $provider ) {
@@ -1174,7 +1175,7 @@ class REST_Connector {
 
 		$authorize_url = ( new Authorize_Redirect( $this->connection ) )->build_authorize_url(
 			$redirect_uri,
-			false,
+			$from,
 			false,
 			$provider,
 			array(

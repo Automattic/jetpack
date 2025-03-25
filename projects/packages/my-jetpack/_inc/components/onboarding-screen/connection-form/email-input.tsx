@@ -32,7 +32,7 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 		query: {
 			path: `${ REST_API_GET_MAGIC_LINK_AUTHORIZE_URL }?email_address=${ encodeURIComponent(
 				userEmail
-			) }`,
+			) }&from=jetpack-onboarding`,
 		},
 		options: { enabled: shouldFetchUrl && validateEmail( userEmail ) },
 		errorMessage: __(
