@@ -1,6 +1,7 @@
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useOauthConnection from '../../../hooks/use-oauth-connection';
 import styles from './styles.module.scss';
 import type { ChangeEvent, FC, FormEvent } from 'react';
@@ -11,6 +12,7 @@ interface EmailInputProps {
 }
 
 const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
+	const [ isClicked, setIsClicked ] = useState( false );
 	const {
 		userEmail,
 		setUserEmail,
@@ -19,8 +21,9 @@ const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 		isLoadingAuthorizeUrl,
 		isError,
 		isRedirecting,
-		siteIsRegistering,
 	} = useOauthConnection();
+
+	const { siteIsRegistering } = useMyJetpackConnection();
 
 	const handleOnInput = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
@@ -31,6 +34,7 @@ const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 
 	const handleOnSubmit = useCallback(
 		async ( event: FormEvent< HTMLFormElement > ) => {
+			setIsClicked( true );
 			event.preventDefault();
 			onSubmit?.();
 			handleSubmitEmail();
@@ -47,7 +51,7 @@ const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 		return __( 'An error occurred. Please try again.', 'jetpack-my-jetpack' );
 	};
 
-	const isLoading = isLoadingAuthorizeUrl || isRedirecting || siteIsRegistering;
+	const isLoading = isLoadingAuthorizeUrl || isRedirecting || ( isClicked && siteIsRegistering );
 
 	const getAriaLabel = useMemo( () => {
 		if ( isLoading ) {

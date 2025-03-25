@@ -1,6 +1,7 @@
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useOauthConnection from '../../../hooks/use-oauth-connection';
 import appleIcon from '../icons/apple.svg';
 import githubIcon from '../icons/github.svg';
@@ -17,8 +18,10 @@ type SocialButtonProps = {
 };
 
 const SocialButton: FC< SocialButtonProps > = ( { service, disabled, onSubmit } ) => {
-	const { handleSocialLogin, isLoadingAuthorizeUrl, isRedirecting, siteIsRegistering } =
-		useOauthConnection();
+	const [ isClicked, setIsClicked ] = useState( false );
+	const { handleSocialLogin, isLoadingAuthorizeUrl, isRedirecting } = useOauthConnection();
+
+	const { siteIsRegistering } = useMyJetpackConnection();
 
 	const buttonText: Record< SocialService, { label: string; icon: string } > = {
 		google: { label: __( 'Start with Google', 'jetpack-my-jetpack' ), icon: googleIcon },
@@ -28,11 +31,12 @@ const SocialButton: FC< SocialButtonProps > = ( { service, disabled, onSubmit } 
 	};
 
 	const handleOnClick = useCallback( () => {
+		setIsClicked( true );
 		onSubmit?.();
 		handleSocialLogin( service );
 	}, [ service, onSubmit, handleSocialLogin ] );
 
-	const isLoading = isLoadingAuthorizeUrl || isRedirecting || siteIsRegistering;
+	const isLoading = isLoadingAuthorizeUrl || isRedirecting || ( isClicked && siteIsRegistering );
 	const serviceText = buttonText[ service ];
 	const { label, icon } = serviceText;
 

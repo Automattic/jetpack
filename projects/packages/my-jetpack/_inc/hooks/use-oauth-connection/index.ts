@@ -20,7 +20,6 @@ type UseOauthConnectionReturn = {
 	isError: boolean;
 	authorizeUrl: string | null;
 	isRedirecting: boolean;
-	siteIsRegistering: boolean;
 };
 
 const useOauthConnection = (): UseOauthConnectionReturn => {
@@ -35,7 +34,7 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 		return emailRegex.test( email );
 	}, [] );
 
-	const { handleRegisterSite, siteIsRegistered, siteIsRegistering } = useMyJetpackConnection( {
+	const { handleRegisterSite, siteIsRegistered } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri: '',
 	} );
@@ -122,7 +121,6 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 		isError,
 		authorizeUrl: data?.authorizeUrl || null,
 		isRedirecting,
-		siteIsRegistering,
 	};
 };
 
