@@ -25,7 +25,7 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 						isUnitSelectTabbable
 						value={ prepTime }
 						units={ units }
-						__next40pxDefaultSize={ false }
+						__next40pxDefaultSize={ true }
 					/>
 				</div>
 				<div className="group">
@@ -58,7 +58,7 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 						value={ servings }
 						onChange={ val => setAttributes( { servings: parseInt( val ) } ) }
 						__nextHasNoMarginBottom={ true }
-						__next40pxDefaultSize={ false }
+						__next40pxDefaultSize={ true }
 					/>
 				</div>
 				<div className="group">
