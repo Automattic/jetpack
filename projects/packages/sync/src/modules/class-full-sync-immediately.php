@@ -100,7 +100,7 @@ class Full_Sync_Immediately extends Module {
 			$full_sync_config['users'] = $users_module->get_initial_sync_user_config();
 		}
 
-		$range = $this->get_content_range();
+		$range = $this->get_content_range( $full_sync_config );
 
 		$this->update_status(
 			array(
@@ -263,7 +263,7 @@ class Full_Sync_Immediately extends Module {
 			}
 			$status[ $name ] = array(
 				// If we have a range for the module, use the count from the range to avoid querying the database again.
-				'total'    => ( isset( $range[ $name ]['count'] ) ) ? $range[ $name ]['count'] : $module->total( $config ),
+				'total'    => ( isset( $range[ $name ]->count ) ) ? $range[ $name ]->count : $module->total( $config ),
 				'sent'     => 0,
 				'finished' => false,
 			);
@@ -277,11 +277,12 @@ class Full_Sync_Immediately extends Module {
 	 *
 	 * @access private
 	 *
+	 * @param array $config Full sync configuration.
+	 *
 	 * @return array Array of range (min ID, max ID, total items) for all content types.
 	 */
-	private function get_content_range() {
-		$range  = array();
-		$config = $this->get_status()['config'];
+	private function get_content_range( $config ) {
+		$range = array();
 		foreach ( array_keys( $config ) as $module_name ) {
 			// Calculate ranges only for modules that get chunked.
 			if ( in_array( $module_name, array( 'constants', 'functions', 'network_options', 'options', 'themes', 'updates' ), true ) ) {
@@ -447,7 +448,7 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 */
 	public function send_full_sync_end() {
-		$range = $this->get_content_range();
+		$range = $this->get_content_range( $this->get_status()['config'] );
 
 		/**
 		 * Fires when a full sync ends. This action is serialized
