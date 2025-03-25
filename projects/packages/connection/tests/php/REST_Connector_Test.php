@@ -21,14 +21,14 @@ class REST_Connector_Test extends TestCase {
 	/**
 	 * The current user ID.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	private static $user_id;
 
 	/**
 	 * The admin user ID.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	private static $admin_user_id;
 

@@ -47,21 +47,21 @@ class REST_Endpoints_Test extends TestCase {
 	/**
 	 * The current user id.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	private static $user_id;
 
 	/**
 	 * The secondary user id.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	private static $secondary_user_id;
 
 	/**
 	 * ID of a non-admin user
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	private static $non_admin_user_id;
 
