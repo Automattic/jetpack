@@ -56,7 +56,7 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 	);
 
 	const handleOnSubmit = useCallback(
-		( event: FormEvent< HTMLFormElement > ) => {
+		async ( event: FormEvent< HTMLFormElement > ) => {
 			event.preventDefault();
 
 			onSubmit?.();
@@ -67,7 +67,7 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 			}
 
 			try {
-				handleRegisterSite();
+				await handleRegisterSite();
 			} catch ( error ) {
 				// eslint-disable-next-line no-console
 				console.error( error );
