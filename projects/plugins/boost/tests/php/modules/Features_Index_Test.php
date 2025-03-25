@@ -17,6 +17,10 @@ class Features_Index_Test extends Base_TestCase {
 		$this->assertCount( 4, Features_Index::SUB_FEATURES );
 	}
 
+	public function test_get_all_features() {
+		$this->assertCount( 14, Features_Index::get_all_features() );
+	}
+
 	public function test_get_sub_features_of() {
 		$this->assertEquals( array( Minify_Common::class ), Features_Index::get_sub_features_of( new Minify_JS() ) );
 	}
