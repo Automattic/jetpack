@@ -334,6 +334,7 @@ const PodcastPlayerEdit = ( {
 								required
 								disabled={ !! selectedGuid }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						) }
 						{ ComboboxControl && (
