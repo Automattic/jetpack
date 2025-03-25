@@ -19,6 +19,7 @@ const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 		isLoadingAuthorizeUrl,
 		isError,
 		isRedirecting,
+		siteIsRegistering,
 	} = useOauthConnection();
 
 	const handleOnInput = useCallback(
@@ -46,7 +47,7 @@ const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 		return __( 'An error occurred. Please try again.', 'jetpack-my-jetpack' );
 	};
 
-	const isLoading = isLoadingAuthorizeUrl || isRedirecting;
+	const isLoading = isLoadingAuthorizeUrl || isRedirecting || siteIsRegistering;
 
 	const getAriaLabel = useMemo( () => {
 		if ( isLoading ) {

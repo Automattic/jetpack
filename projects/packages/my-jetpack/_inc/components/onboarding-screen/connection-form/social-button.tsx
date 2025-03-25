@@ -17,7 +17,8 @@ type SocialButtonProps = {
 };
 
 const SocialButton: FC< SocialButtonProps > = ( { service, disabled, onSubmit } ) => {
-	const { handleSocialLogin, isLoadingAuthorizeUrl, isRedirecting } = useOauthConnection();
+	const { handleSocialLogin, isLoadingAuthorizeUrl, isRedirecting, siteIsRegistering } =
+		useOauthConnection();
 
 	const buttonText: Record< SocialService, { label: string; icon: string } > = {
 		google: { label: __( 'Start with Google', 'jetpack-my-jetpack' ), icon: googleIcon },
@@ -31,7 +32,7 @@ const SocialButton: FC< SocialButtonProps > = ( { service, disabled, onSubmit } 
 		handleSocialLogin( service );
 	}, [ service, onSubmit, handleSocialLogin ] );
 
-	const isLoading = isLoadingAuthorizeUrl || isRedirecting;
+	const isLoading = isLoadingAuthorizeUrl || isRedirecting || siteIsRegistering;
 	const serviceText = buttonText[ service ];
 	const { label, icon } = serviceText;
 
