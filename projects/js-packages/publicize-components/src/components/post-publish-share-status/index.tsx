@@ -1,5 +1,9 @@
 import { useDispatch, useSelect } from '@wordpress/data';
-import { PluginPostPublishPanel, store as editorStore } from '@wordpress/editor';
+import { PluginPostPublishPanel as DeprecatedPluginPostPublishPanel } from '@wordpress/edit-post';
+import {
+	store as editorStore,
+	PluginPostPublishPanel as EditorPluginPostPublishPanel,
+} from '@wordpress/editor';
 import { useIsSharingPossible } from '../../hooks/use-is-sharing-possible';
 import { usePostMeta } from '../../hooks/use-post-meta';
 import { usePostPrePublishValue } from '../../hooks/use-post-pre-publish-value';
@@ -7,6 +11,8 @@ import { usePostJustPublished } from '../../hooks/use-saving-post';
 import { store as socialStore } from '../../social-store';
 import { getSocialScriptData } from '../../utils/script-data';
 import { ShareStatus } from './share-status';
+
+const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginPostPublishPanel;
 
 /**
  * Post publish share status component.

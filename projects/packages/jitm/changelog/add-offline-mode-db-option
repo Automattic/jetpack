@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Adjust unit tests for the new Offline Mode DB option.
