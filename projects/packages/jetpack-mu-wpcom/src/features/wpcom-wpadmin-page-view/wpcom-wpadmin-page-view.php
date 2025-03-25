@@ -46,8 +46,7 @@ function wpcom_nosara_track_admin_page_views() {
 			return;
 		}
 
-		$blog_id = $current_blog->blog_id;
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- This class is available in simple sites.
+		$blog_id    = $current_blog->blog_id;
 		$user_types = \WPCOM_User::get_types();
 	}
 
