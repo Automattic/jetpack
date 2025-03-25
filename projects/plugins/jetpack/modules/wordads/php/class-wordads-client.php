@@ -10,11 +10,19 @@ use Automattic\Jetpack\Assets;
 // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 
 require_once WORDADS_ROOT . '/php/class-wordads-array-utils.php';
+require_once WORDADS_ROOT . '/php/class-wordads-client-config.php';
+require_once WORDADS_ROOT . '/php/class-wordads-format.php';
 
 /**
  * Contains all the implementation details for WATL ads
  */
 class WordAds_Client {
+	/**
+	 * WordAds Client Configuration settings.
+	 *
+	 * @var WordAds_Client_Config
+	 */
+	private $config;
 
 	/**
 	 * The single instance of the class.
@@ -36,54 +44,6 @@ class WordAds_Client {
 	 * @var bool True if asset has been enqueued.
 	 */
 	private $is_asset_enqueued = false;
-
-	/**
-	 * Supported formats.
-	 * sidebar_widget formats represents the legacy Jetpack sidebar widget.
-	 *
-	 * @var array
-	 */
-	private $formats = array(
-		'top'                            => array(
-			'enabled' => false,
-		),
-		'inline'                         => array(
-			'enabled' => false,
-		),
-		'belowpost'                      => array(
-			'enabled' => false,
-		),
-		'bottom_sticky'                  => array(
-			'enabled' => false,
-		),
-		'sidebar_sticky_right'           => array(
-			'enabled' => false,
-		),
-		'gutenberg_rectangle'            => array(
-			'enabled' => false,
-		),
-		'gutenberg_leaderboard'          => array(
-			'enabled' => false,
-		),
-		'gutenberg_mobile_leaderboard'   => array(
-			'enabled' => false,
-		),
-		'gutenberg_skyscraper'           => array(
-			'enabled' => false,
-		),
-		'sidebar_widget_mediumrectangle' => array(
-			'enabled' => false,
-		),
-		'sidebar_widget_leaderboard'     => array(
-			'enabled' => false,
-		),
-		'sidebar_widget_wideskyscraper'  => array(
-			'enabled' => false,
-		),
-		'shortcode'                      => array(
-			'enabled' => false,
-		),
-	);
 
 	/**
 	 * Private constructor.
@@ -114,11 +74,9 @@ class WordAds_Client {
 	 */
 	public function init( WordAds_Params $params ) {
 		$this->params = $params;
+		$this->config = new WordAds_Client_Config( $this->params );
 
-		$this->enable_formats();
-		$this->override_formats_from_query_string();
-
-		if ( $this->has_any_format_enabled() ) {
+		if ( $this->config->has_any_format_enabled() ) {
 			$this->insert_ads();
 		}
 	}
@@ -150,7 +108,7 @@ class WordAds_Client {
 
 		wp_enqueue_script(
 			'adflow_config',
-			esc_url( $this->get_config_url() ),
+			$this->config->get_server_config_url(),
 			array( 'adflow_script_loader' ),
 			JETPACK__VERSION,
 			false
@@ -183,7 +141,7 @@ class WordAds_Client {
 		$is_static_front_page = is_front_page() && 'page' === get_option( 'show_on_front' );
 
 		if ( ! ( $is_static_front_page || is_home() ) ) {
-			if ( $this->formats['inline']['enabled'] ) {
+			if ( $this->config->is_format_enabled( WordAds_Format::INLINE ) ) {
 				add_filter(
 					'the_content',
 					array( $this, 'insert_inline_marker' ),
@@ -192,12 +150,12 @@ class WordAds_Client {
 			}
 		}
 
-		if ( $this->formats['bottom_sticky']['enabled'] ) {
+		if ( $this->config->is_format_enabled( WordAds_Format::BOTTOM_STICKY ) ) {
 			// Disable IPW slot.
 			add_filter( 'wordads_iponweb_bottom_sticky_ad_disable', '__return_true', 10 );
 		}
 
-		if ( $this->formats['sidebar_sticky_right']['enabled'] ) {
+		if ( $this->config->is_format_enabled( WordAds_Format::SIDEBAR_STICKY_RIGHT ) ) {
 			// Disable IPW slot.
 			add_filter( 'wordads_iponweb_sidebar_sticky_right_ad_disable', '__return_true', 10 );
 		}
@@ -209,20 +167,11 @@ class WordAds_Client {
 	 * @return void
 	 */
 	public function insert_config() {
-		global $post;
-
-		$config = array(
-			'post_id' => ( $post instanceof WP_Post ) && is_singular( 'post' ) ? $post->ID : null,
-			'origin'  => 'jetpack',
-			'theme'   => get_stylesheet(),
-			'target'  => $this->target_keywords(),
-		) + $this->formats;
-
 		// Do conversion.
-		$js_config = WordAds_Array_Utils::array_to_js_object( $config );
+		$js_config = WordAds_Array_Utils::array_to_js_object( $this->config->get_config() );
 
 		// Output script.
-		wp_print_inline_script_tag( "var wa_smart = $js_config; wa_smart.cmd = [];" );
+		wp_print_inline_script_tag( "var wa_client = {}; wa_client.cmd = []; wa_client.config = $js_config;" );
 	}
 
 	/**
@@ -242,18 +191,6 @@ class WordAds_Client {
 	}
 
 	/**
-	 * Gets the URL to a JSONP endpoint with configuration data.
-	 *
-	 * @return string The URL.
-	 */
-	private function get_config_url(): string {
-		return sprintf(
-			'https://public-api.wordpress.com/wpcom/v2/sites/%1$d/adflow/conf/?_jsonp=a8c_adflow_callback',
-			$this->params->blog_id
-		);
-	}
-
-	/**
 	 * Places marker at the end of the content so inline can identify the post content container.
 	 *
 	 * @param string|null $content The post content.
@@ -267,78 +204,5 @@ class WordAds_Client {
 
 		// Append the ad to the post content.
 		return $content . $inline_ad_marker;
-	}
-
-	/**
-	 * Gets a formatted list of target keywords.
-	 *
-	 * @return string Formatted list of target keywords.
-	 */
-	private function target_keywords(): string {
-		$target_keywords = array_merge(
-			$this->get_blog_keywords(),
-			$this->get_language_keywords()
-		);
-
-		return implode( ';', $target_keywords );
-	}
-
-	/**
-	 * Gets a formatted list of blog keywords.
-	 *
-	 * @return array The list of blog keywords.
-	 */
-	private function get_blog_keywords(): array {
-		return array( 'wp_blog_id=' . $this->params->blog_id );
-	}
-
-	/**
-	 * Gets the site language formatted as a keyword.
-	 *
-	 * @return array The language as a keyword.
-	 */
-	private function get_language_keywords(): array {
-		return array( 'language=' . explode( '-', get_locale() )[0] );
-	}
-
-	/**
-	 * Enable formats by post types and the display options.
-	 *
-	 * @return void
-	 */
-	private function enable_formats(): void {
-		$this->formats['top']['enabled']                  = $this->params->options['enable_header_ad'];
-		$this->formats['inline']['enabled']               = is_singular( 'post' ) && $this->params->options['wordads_inline_enabled'];
-		$this->formats['belowpost']['enabled']            = $this->params->should_show();
-		$this->formats['bottom_sticky']['enabled']        = $this->params->options['wordads_bottom_sticky_enabled'];
-		$this->formats['sidebar_sticky_right']['enabled'] = $this->params->options['wordads_sidebar_sticky_right_enabled'];
-	}
-
-	/**
-	 * Allow format enabled override from query string, eg. ?inline=true.
-	 *
-	 * @return void
-	 */
-	private function override_formats_from_query_string(): void {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['wordads-logging'] ) ) {
-			return;
-		}
-
-		foreach ( $this->formats as $format_type => $_ ) {
-			// phpcs:disable WordPress.Security.NonceVerification.Recommended
-			if ( isset( $_GET[ $format_type ] ) && 'true' === $_GET[ $format_type ] ) {
-				$this->formats[ $format_type ]['enabled'] = true;
-			}
-		}
-	}
-
-	/**
-	 * Check if has any format enabled.
-	 *
-	 * @return bool True if enabled, false otherwise.
-	 */
-	private function has_any_format_enabled(): bool {
-		return in_array( true, array_column( $this->formats, 'enabled' ), true );
 	}
 }

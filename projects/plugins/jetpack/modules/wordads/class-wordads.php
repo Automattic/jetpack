@@ -20,7 +20,6 @@ require_once WORDADS_ROOT . '/php/class-wordads-cron.php';
 require_once WORDADS_ROOT . '/php/class-wordads-california-privacy.php';
 require_once WORDADS_ROOT . '/php/class-wordads-ccpa-do-not-sell-link-widget.php';
 require_once WORDADS_ROOT . '/php/class-wordads-consent-management-provider.php';
-require_once WORDADS_ROOT . '/php/class-wordads-smart.php';
 require_once WORDADS_ROOT . '/php/class-wordads-shortcode.php';
 
 /**
@@ -220,7 +219,12 @@ class WordAds {
 		WordAds_Shortcode::init();
 
 		// Initialize Smart.
-		WordAds_Smart::instance()->init( $this->params );
+		// require_once WORDADS_ROOT . '/php/class-wordads-smart.php';
+		// WordAds_Smart::instance()->init( $this->params );
+
+		// Initialize WordAds client.
+		require_once WORDADS_ROOT . '/php/class-wordads-client.php';
+		WordAds_Client::instance()->init( $this->params );
 
 		if ( ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] )
 			|| ( site_url( 'ads.txt', 'relative' ) === $_SERVER['REQUEST_URI'] ) ) {
