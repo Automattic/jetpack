@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: Ensure the count of returned results is shown after searching, i.e., "Found 3 results for...", "Found 1 result for...".

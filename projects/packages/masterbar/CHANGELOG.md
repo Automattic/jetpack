@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.2] - 2025-03-24
+### Changed
+- Update dependencies. [#42564]
+
+### Fixed
+- Admin Color Scheme: Fix colors in the Aquatic color scheme. [#42632]
+- Site Badge: Update styles of the Coming Soon badge. [#42496]
+
 ## [0.14.1] - 2025-03-18
 ### Changed
 - Update package dependencies. [#42511]
@@ -261,6 +269,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.14.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.13.2...v0.14.0
 [0.13.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.13.1...v0.13.2

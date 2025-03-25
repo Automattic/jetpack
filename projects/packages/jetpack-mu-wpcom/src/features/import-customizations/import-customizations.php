@@ -40,8 +40,8 @@ function import_admin_banner() {
 	$import_url = esc_url( "https://wordpress.com/setup/hosted-site-migration/site-migration-import-or-migrate?siteId={$blog_id}&ref=wp-admin" );
 
 	$banner_content = sprintf(
-		'<p>%s</p><a href="%s" class="button">%s</a>',
-		esc_html__( 'Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more.', 'jetpack-mu-wpcom' ),
+		'<p>%s</p><a href="%s" class="button button-primary">%s</a>',
+		esc_html__( 'Use WordPress.com’s guided importer to migrate your entire WordPress site or simply import posts and comments from WordPress, Medium, Substack, Squarespace, Wix, and more.', 'jetpack-mu-wpcom' ),
 		$import_url,
 		esc_html__( 'Get started', 'jetpack-mu-wpcom' )
 	);
