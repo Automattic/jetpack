@@ -1,4 +1,9 @@
-import { THREAT_ACTION_FIX, ThreatsContextProvider } from '@automattic/jetpack-scan';
+import {
+	FixersStatus,
+	Threat,
+	THREAT_ACTION_FIX,
+	ThreatsContextProvider,
+} from '@automattic/jetpack-scan';
 import ThreatFixerButton from '../index.js';
 
 export default {
@@ -6,11 +11,11 @@ export default {
 	component: ThreatFixerButton,
 	decorators: [
 		( Story, context ) => {
-			const { threat } = context.args;
+			const { fixersStatus } = context.args;
 			return (
 				<div style={ { height: '175px' } }>
 					<ThreatsContextProvider
-						initialSelectedThreat={ threat }
+						fixersStatus={ fixersStatus }
 						actionCallbacks={ {
 							[ THREAT_ACTION_FIX ]: () => {},
 						} }
@@ -100,23 +105,66 @@ ReplaceFile.args = {
 	onClick: () => alert( 'Replace fixer callback triggered' ), // eslint-disable-line no-alert
 };
 
-export const Loading = args => <ThreatFixerButton { ...args } />;
+export const Loading = ( {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	fixersStatus,
+	...args
+}: {
+	fixersStatus: FixersStatus;
+	threat: Threat;
+	onClick: () => void;
+} ) => <ThreatFixerButton { ...args } />;
 Loading.args = {
-	threat: { fixable: { fixer: 'update' }, fixer: { status: 'in_progress' } },
+	threat: { id: 1, fixable: { fixer: 'update' }, fixer: { status: 'in_progress' } },
+	fixersStatus: {
+		ok: true,
+		threats: {
+			1: { status: 'in_progress', lastUpdated: new Date().toISOString() },
+		},
+	},
 	onClick: () => alert( 'In progress fixer callback triggered' ), // eslint-disable-line no-alert
 };
 
-export const StaleFixer = args => <ThreatFixerButton { ...args } />;
+export const StaleFixer = ( {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	fixersStatus,
+	...args
+}: {
+	fixersStatus: FixersStatus;
+	threat: Threat;
+	onClick: () => void;
+} ) => <ThreatFixerButton { ...args } />;
 StaleFixer.args = {
 	threat: {
+		id: 1,
 		fixable: { fixer: 'update' },
 		fixer: { status: 'in_progress', lastUpdated: new Date( '1999-01-01' ).toISOString() },
+	},
+	fixersStatus: {
+		ok: true,
+		threats: {
+			1: { status: 'in_progress', lastUpdated: new Date( '1999-01-01' ).toISOString() },
+		},
 	},
 	onClick: () => alert( 'Stale fixer callback triggered.' ), // eslint-disable-line no-alert
 };
 
-export const ErrorFixer = args => <ThreatFixerButton { ...args } />;
+export const ErrorFixer = ( {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	fixersStatus,
+	...args
+}: {
+	fixersStatus: FixersStatus;
+	threat: Threat;
+	onClick: () => void;
+} ) => <ThreatFixerButton { ...args } />;
 ErrorFixer.args = {
-	threat: { fixable: { fixer: 'update' }, fixer: { error: 'error' } },
+	threat: { id: 1, fixable: { fixer: 'update' }, fixer: { error: 'error' } },
+	fixersStatus: {
+		ok: true,
+		threats: {
+			1: { status: 'error', error: 'error' },
+		},
+	},
 	onClick: () => alert( 'Error fixer callback triggered.' ), // eslint-disable-line no-alert
 };
