@@ -20,7 +20,7 @@ class Publicize_Assets {
 	public static function configure() {
 		Publicize_Script_Data::configure();
 
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_scripts' ), 15 );
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_block_editor_scripts' ), 15 );
 	}
 
 	/**
@@ -47,6 +47,11 @@ class Publicize_Assets {
 	 */
 	public static function enqueue_block_editor_scripts() {
 		if ( ! self::should_enqueue_block_editor_scripts() ) {
+			return;
+		}
+
+		// We need the assets only in the editor, not on the frontend.
+		if ( ! is_admin() ) {
 			return;
 		}
 
