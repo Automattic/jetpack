@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix arguments for jetpack_open_graph_tags filter

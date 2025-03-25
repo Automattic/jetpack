@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
+use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
@@ -20,13 +21,14 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logg
  * @since 3.11.0
  * @package Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache
  */
-class Cache_Preload implements Pluggable, Has_Activate, Is_Always_On {
+class Cache_Preload implements Pluggable, Has_Activate, Has_Deactivate, Is_Always_On {
 
 	/**
 	 * @since 3.11.0
 	 */
 	public function setup() {
 		add_action( 'update_option_jetpack_boost_ds_cornerstone_pages_list', array( $this, 'schedule_cornerstone' ) );
+		add_action( 'jetpack_boost_preload_cornerstone', array( $this, 'preload_cornerstone' ) );
 		add_action( 'jetpack_boost_preload', array( $this, 'preload' ) );
 
 		add_action( 'post_updated', array( $this, 'handle_post_update' ), 10, 1 );
@@ -59,20 +61,40 @@ class Cache_Preload implements Pluggable, Has_Activate, Is_Always_On {
 	 */
 	public static function activate() {
 		$instance = new self();
-		$instance->schedule_cornerstone_preload();
+		$instance->schedule_cornerstone_cronjob();
 	}
 
 	/**
-	 * Schedule rebuild for all Cornerstone Pages.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function deactivate() {
+		wp_unschedule_hook( 'jetpack_boost_preload_cornerstone' );
+	}
+
+	/**
+	 * Schedule the cronjob to preload the cache for Cornerstone Pages.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public function schedule_cornerstone_cronjob() {
+		if ( ! wp_next_scheduled( 'jetpack_boost_preload_cornerstone' ) ) {
+			wp_schedule_event( time(), 'twicehourly', 'jetpack_boost_preload_cornerstone' );
+		}
+	}
+
+	/**
+	 * Schedule Preload for all Cornerstone Pages.
 	 *
 	 * This method is triggered when the Cornerstone Pages list is updated,
-	 * ensuring all Cornerstone Pages have their cache rebuilt, and hence preloaded.
+	 * ensuring all Cornerstone Pages have their cache rebuilt.
 	 *
 	 * @since $$next-version$$
 	 * @return void
 	 */
 	public function schedule_cornerstone() {
-		$this->schedule( Cornerstone_Utils::get_list() );
+		wp_schedule_single_event( time(), 'jetpack_boost_preload_cornerstone' );
 	}
 
 	/**
@@ -88,10 +110,21 @@ class Cache_Preload implements Pluggable, Has_Activate, Is_Always_On {
 	}
 
 	/**
+	 * Rebuild the cache for all Cornerstone Pages.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public function preload_cornerstone() {
+		$urls = Cornerstone_Utils::get_list();
+		$this->preload( $urls );
+	}
+
+	/**
 	 * Rebuild the cache for the given URLs.
 	 *
 	 * @since $$next-version$$
-	 * @param array $urls The URLs of the Cornerstone Pages to preload.
+	 * @param array $urls The URLs of the pages to preload.
 	 * @return void
 	 */
 	public function preload( array $urls ) {
@@ -107,19 +140,6 @@ class Cache_Preload implements Pluggable, Has_Activate, Is_Always_On {
 		add_action( 'jetpack_boost_invalidate_cache_success', array( $this, 'handle_cache_invalidation' ), 10, 2 );
 
 		Logger::debug( sprintf( 'Preload completed for %d pages', count( $urls ) ) );
-	}
-
-	/**
-	 * Schedule preload for all Cornerstone Pages.
-	 *
-	 * This method is triggered when the Cornerstone Pages list is updated,
-	 * ensuring all Cornerstone Pages have their cache preloaded.
-	 *
-	 * @since 3.11.0
-	 * @return void
-	 */
-	public function schedule_cornerstone_preload() {
-		$this->schedule( Cornerstone_Utils::get_list() );
 	}
 
 	/**
@@ -196,7 +216,7 @@ class Cache_Preload implements Pluggable, Has_Activate, Is_Always_On {
 	public function handle_cache_invalidation( string $path, string $type ) {
 		if ( $type === Filesystem_Utils::DELETE_ALL ) {
 			// If the cache is invalidated for all files, schedule preload for all Cornerstone Pages.
-			$this->schedule_cornerstone_preload();
+			$this->schedule_cornerstone();
 			return;
 		}
 

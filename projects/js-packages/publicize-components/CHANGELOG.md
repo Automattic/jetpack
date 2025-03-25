@@ -5,14 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.84.3] - 2025-03-24
+### Changed
+- Update dependencies. [#39855]
+
 ## [0.84.2] - 2025-03-21
 ### Changed
-- Social: SIG on WPCOM - Update the endpoint used on the front-end [#42567]
+- Update the endpoint used on the frontend to get Social Image Generator token from WordPress.com. [#42567]
 
 ### Fixed
-- Jetpack Social: fix sidebar panel toggle and connection button styles [#42622]
-- ScheduleButton: Updated the tests to correctly `await` the asynchronous calls [#42589]
-- Social: Fix Twitter unsupported notice shown in the editor [#42569]
+- Fix sidebar panel toggle and connection button styles. [#42622]
+- ScheduleButton: Update the tests to correctly `await` asynchronous calls. [#42589]
+- Fix incorrect "unsupported" notice in the editor about Twitter. [#42569]
 
 ## [0.84.1] - 2025-03-19
 ### Changed
@@ -1184,6 +1188,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.84.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.2...v0.84.3
 [0.84.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.1...v0.84.2
 [0.84.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.0...v0.84.1
 [0.84.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.83.1...v0.84.0

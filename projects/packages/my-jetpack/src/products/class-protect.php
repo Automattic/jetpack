@@ -233,6 +233,13 @@ class Protect extends Hybrid_Product {
 				),
 			),
 			array(
+				'name'  => __( 'Account protection', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => true ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
 				'name'  => __( 'Access to scan on Cloud', 'jetpack-my-jetpack' ),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array( 'included' => false ),
