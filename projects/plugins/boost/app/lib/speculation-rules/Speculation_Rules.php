@@ -8,13 +8,12 @@
 
 namespace Automattic\Jetpack_Boost\Lib\Speculation_Rules;
 
-use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 
 /**
  * Class to handle speculation rules for cornerstone pages
  */
-class Speculation_Rules implements Has_Setup, Changes_Page_Output {
+class Speculation_Rules implements Has_Setup {
 
 	/**
 	 * Initialize the speculation rules
