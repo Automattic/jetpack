@@ -25,10 +25,13 @@ import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
+import AkismetPanel from './components/jetpack-akismet-panel';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
+import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
+import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
@@ -69,6 +72,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		customThankyouMessage,
 		customThankyouRedirect,
 		salesforceData,
+		jetpackCRM,
 		formTitle,
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
@@ -149,11 +153,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		elt = (
 			<>
 				<InspectorControls>
-					<PanelBody title={ __( 'Manage Form', 'jetpack-forms' ) }>
-						<JetpackManageResponsesSettings
-							setAttributes={ setAttributes }
-							attributes={ attributes }
-						/>
+					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
+						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
 					</PanelBody>
 					<PanelBody title={ __( 'Action after submit', 'jetpack-forms' ) } initialOpen={ false }>
 						<InspectorHint>
@@ -223,6 +224,27 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							setAttributes={ setAttributes }
 							instanceId={ instanceId }
 						/>
+					) }
+					{ ! isSimpleSite() && (
+						<>
+							{ canUserInstallPlugins && (
+								<>
+									<AkismetPanel />
+									<PanelBody
+										title={ __( 'CRM Connection', 'jetpack-forms' ) }
+										initialOpen={ false }
+									>
+										<CRMIntegrationSettings
+											jetpackCRM={ jetpackCRM }
+											setAttributes={ setAttributes }
+										/>
+									</PanelBody>
+									<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
+										<NewsletterIntegrationSettings />
+									</PanelBody>
+								</>
+							) }
+						</>
 					) }
 					{ ! isSimpleSite() && <>{ canUserInstallPlugins && <></> }</> }
 				</InspectorControls>
