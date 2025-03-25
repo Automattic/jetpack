@@ -2,23 +2,72 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN;
 
-use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
+use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
-class Quality_Settings implements Pluggable, Changes_Page_Output, Is_Always_On {
+class Quality_Settings implements Pluggable, Is_Always_On, Has_Data_Sync, Changes_Output_After_Activation {
 
 	public function setup() {
 		add_filter( 'jetpack_photon_pre_args', array( $this, 'add_quality_args' ), 10, 2 );
 	}
 
 	public static function get_slug() {
-		return Premium_Features::IMAGE_CDN_QUALITY;
+		return 'image_cdn_quality';
 	}
 
 	public static function is_available() {
-		return Premium_Features::has_feature( self::get_slug() );
+		return Premium_Features::has_feature( Premium_Features::IMAGE_CDN_QUALITY );
+	}
+
+	public function register_data_sync( Data_Sync $instance ) {
+		$image_cdn_quality_schema = Schema::as_assoc_array(
+			array(
+				'jpg'  => Schema::as_assoc_array(
+					array(
+						'quality'  => Schema::as_number(),
+						'lossless' => Schema::as_boolean(),
+					)
+				),
+				'png'  => Schema::as_assoc_array(
+					array(
+						'quality'  => Schema::as_number(),
+						'lossless' => Schema::as_boolean(),
+					)
+				),
+				'webp' => Schema::as_assoc_array(
+					array(
+						'quality'  => Schema::as_number(),
+						'lossless' => Schema::as_boolean(),
+					)
+				),
+			)
+		)->fallback(
+			array(
+				'jpg'  => array(
+					'quality'  => 89,
+					'lossless' => false,
+				),
+				'png'  => array(
+					'quality'  => 80,
+					'lossless' => false,
+				),
+				'webp' => array(
+					'quality'  => 80,
+					'lossless' => false,
+				),
+			)
+		);
+
+		$instance->register( 'image_cdn_quality', $image_cdn_quality_schema );
+	}
+
+	public static function get_change_output_action_names() {
+		return array( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_image_cdn_quality' );
 	}
 
 	/**

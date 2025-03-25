@@ -347,7 +347,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$this->label_styles .= 'color: ' . esc_attr( $this->get_attribute( 'labelcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'labelfontsize' ) ) ) {
-			$this->label_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'labelfontsize' ) ) . ';';
+			$this->label_styles .= '--jetpack--contact-form--label--font-size:' . esc_attr( $this->get_attribute( 'labelfontsize' ) ) . ';';
 		}
 		if ( is_numeric( $this->get_attribute( 'labellineheight' ) ) ) {
 			$this->label_styles .= 'line-height: ' . (int) $this->get_attribute( 'labellineheight' ) . ';';
@@ -1066,14 +1066,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$form_style = $this->get_form_style();
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
-			if ( empty( $placeholder ) ) {
+			if ( ! isset( $placeholder ) || '' === $placeholder ) {
 				$placeholder .= ' ';
 			} else {
 				$class .= ' has-placeholder';
 			}
 		}
 
-		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
+		$field_placeholder = ( '' !== $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 		$field_class       = "class='" . trim( esc_attr( $type ) . ' ' . esc_attr( $class ) ) . "' ";
 		$wrap_classes      = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap'; // this adds
 		$has_inset_label   = $this->has_inset_label();

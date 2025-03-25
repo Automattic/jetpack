@@ -4,6 +4,9 @@ import { addQueryArgs } from '@wordpress/url';
 import '../css/jetpack-admin-jitm.scss';
 
 jQuery( document ).ready( function ( $ ) {
+	// Site ID will be automatically added to the request.
+	const JITM_ENDPOINT_URL = `/wpcom/v3/jitm`;
+
 	var templates = {
 		default: function ( envelope ) {
 			const EXTERNAL_LINK_ICON = `
@@ -156,8 +159,8 @@ jQuery( document ).ready( function ( $ ) {
 				$my_template.hide();
 
 				apiFetch( {
-					path: '/jetpack/v4/jitm',
-					method: 'POST', // using DELETE without permalinks is broken in default nginx configuration
+					path: JITM_ENDPOINT_URL,
+					method: 'POST',
 					data: {
 						id: response.id,
 						feature_class: response.feature_class,
@@ -302,7 +305,7 @@ jQuery( document ).ready( function ( $ ) {
 			var full_jp_logo_exists = $( '.jetpack-logo__masthead' ).length ? true : false;
 
 			apiFetch( {
-				path: addQueryArgs( 'jetpack/v4/jitm', {
+				path: addQueryArgs( JITM_ENDPOINT_URL, {
 					message_path,
 					query,
 					full_jp_logo_exists,

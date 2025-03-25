@@ -63,7 +63,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 		<div className={ rootClassName }>
 			{ showHeader && (
 				<Container horizontalSpacing={ 5 }>
-					<Col className={ styles[ 'admin-page-header' ] }>
+					<Col className={ clsx( styles[ 'admin-page-header' ], 'jp-admin-page-header' ) }>
 						{ header ? header : <JetpackLogo /> }
 						{ sandboxedDomain && (
 							<code
