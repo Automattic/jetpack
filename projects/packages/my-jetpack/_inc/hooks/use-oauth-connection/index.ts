@@ -51,9 +51,9 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 	} = useSimpleQuery< { authorizeUrl: string } >( {
 		name: `${ QUERY_GET_OAUTH_AUTHORIZE_URL_KEY }_${ userEmail ? 'link' : socialService }`,
 		query: {
-			path: `${ REST_API_GET_OAUTH_AUTHORIZE_URL }/${
-				userEmail ? 'link' : socialService
-			}?email_address=${ encodeURIComponent( userEmail ) }`,
+			path: `${ REST_API_GET_OAUTH_AUTHORIZE_URL }/${ userEmail ? 'link' : socialService }${
+				userEmail ? `?email_address=${ encodeURIComponent( userEmail ) }` : ''
+			}`,
 		},
 		options: {
 			enabled: shouldFetchUrl && ( !! socialService || validateEmail( userEmail ) ),
