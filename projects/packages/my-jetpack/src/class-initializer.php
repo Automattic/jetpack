@@ -276,6 +276,7 @@ class Initializer {
 				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'latestBoostSpeedScores' => $latest_score,
+				'isWelcomeTourActive'    => ! \Jetpack_Options::get_option( 'dismissed_welcome_tour', false ),
 			)
 		);
 
@@ -445,6 +446,16 @@ class Initializer {
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'site/dismiss-welcome-tour',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::dismiss_welcome_tour',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
 	}
 
 	/**
@@ -589,6 +600,16 @@ class Initializer {
 	 */
 	public static function dismiss_welcome_banner() {
 		\Jetpack_Options::update_option( 'dismissed_welcome_banner', true );
+		return rest_ensure_response( array( 'success' => true ) );
+	}
+
+	/**
+	 * Dismiss the welcome tour.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function dismiss_welcome_tour() {
+		\Jetpack_Options::update_option( 'dismissed_welcome_tour', true );
 		return rest_ensure_response( array( 'success' => true ) );
 	}
 

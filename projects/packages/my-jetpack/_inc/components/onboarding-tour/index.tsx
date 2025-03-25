@@ -1,5 +1,4 @@
 import { Guide } from '@wordpress/components';
-// import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -9,17 +8,16 @@ import TourImage2 from './images/jp_onboarding_tour_2.png';
 import TourImage3 from './images/jp_onboarding_tour_3.png';
 import TourImage4 from './images/jp_onboarding_tour_4.png';
 import './styles.scss';
+import useWelcomeTour from './use-welcome-tour';
 
-const storageKey = `jetpack_onboarding_guide_${ globalThis._currentSiteId }_is_dismissed`;
-
-const OnboardingGuide = () => {
-	const [ isOpen, setOpen ] = useState( true );
+const OnboardingTour = () => {
+	const { dismissWelcomeTour, isWelcomeTourVisible } = useWelcomeTour();
+	const [ isOpen, setOpen ] = useState( isWelcomeTourVisible );
 
 	const closeGuide = useCallback( () => {
-		globalThis.localStorage.setItem( storageKey, 'true' );
-
+		dismissWelcomeTour();
 		setOpen( false );
-	}, [ setOpen ] );
+	}, [ dismissWelcomeTour, setOpen ] );
 
 	return (
 		<>
@@ -106,12 +104,4 @@ const OnboardingGuide = () => {
 	);
 };
 
-// const guideDismissed = globalThis.localStorage.getItem( storageKey );
-
-// if ( hasQueryArg( globalThis.location.href, 'in-editor-deprecation-group' ) && ! guideDismissed ) {
-// 	registerPlugin( 'wpcom-classic-block-editor-nux', {
-// 		render: () => <OnboardingGuide />,
-// 	} );
-// }
-
-export default OnboardingGuide;
+export default OnboardingTour;

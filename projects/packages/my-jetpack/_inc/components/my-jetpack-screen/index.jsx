@@ -47,6 +47,7 @@ import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
 import LoadingBlock from '../loading-block';
 import OnboardingTour from '../onboarding-tour';
+import useWelcomeTour from '../onboarding-tour/use-welcome-tour';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
 import WelcomeFlow from '../welcome-flow';
@@ -104,6 +105,7 @@ export default function MyJetpackScreen() {
 	} = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
+	const { isWelcomeTourVisible } = useWelcomeTour();
 	const { isSectionVisible } = useEvaluationRecommendations();
 	const { siteIsRegistered, apiRoot, apiNonce } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
@@ -247,7 +249,7 @@ export default function MyJetpackScreen() {
 				<EvaluationRecommendations />
 			) }
 
-			<OnboardingTour />
+			{ isWelcomeTourVisible && <OnboardingTour /> }
 
 			<ProductCardsSection />
 
