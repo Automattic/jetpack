@@ -25,6 +25,7 @@ test( 'Click on the sidebar Boost Jetpack submenu should navigate to Boost setti
 	page,
 } ) => {
 	await DashboardPage.visit( page );
+	await page.click( '.components-modal__header .components-button' );
 	await ( await Sidebar.init( page ) ).selectJetpackBoost();
 	expect( page.url(), "URL should contain 'page=jetpack-boost" ).toContain( 'page=jetpack-boost' );
 } );
