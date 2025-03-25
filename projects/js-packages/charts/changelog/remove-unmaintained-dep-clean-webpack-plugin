@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove dep on unmaintained (and currently unused, and unnecessary) package `clean-webpack-plugin`.
+
+
