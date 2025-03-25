@@ -69,7 +69,7 @@ test.describe( 'Cache module', () => {
 		await newPage.close();
 	} );
 
-	// Make sure there's an error message when trying to enable Page Cache with plain permalinks.
+	// Make sure there's an error message when trying to enable Page Cache with plain permalinks. This test is failing
 	test( 'Enabling Page Cache should show error notice when plain permalinks are enabled', async () => {
 		const loginPage = await WPLoginPage.visit( page );
 		await loginPage.login();
