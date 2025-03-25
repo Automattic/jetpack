@@ -24,8 +24,6 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 	/**
 	 * Set up before each test
-	 *
-	 * @before
 	 */
 	protected function set_up() {
 		parent::set_up();
