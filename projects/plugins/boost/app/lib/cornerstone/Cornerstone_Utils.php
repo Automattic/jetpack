@@ -54,6 +54,6 @@ class Cornerstone_Utils {
 	 * @return bool True if the Speculation Rules API is supported, false otherwise.
 	 */
 	public static function get_speculation_rules_api_support_status() {
-		return version_compare( get_bloginfo( 'version' ), '6.8.0', '>=' );
+		return version_compare( get_bloginfo( 'version' ), '6.8-beta3', '>=' );
 	}
 }
