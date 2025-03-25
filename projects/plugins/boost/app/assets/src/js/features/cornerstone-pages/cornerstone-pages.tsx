@@ -1,5 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import Meta from './meta/meta';
+import Meta, { CornerstonePagesUpgradeCTA } from './meta/meta';
 import { Panel, PanelBody, PanelRow } from '@wordpress/components';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import styles from './cornerstone-pages.module.scss';
@@ -51,6 +51,7 @@ const CornerstonePages = () => {
 							<Prerender />
 						</PanelRow>
 					) }
+					<CornerstonePagesUpgradeCTA />
 				</PanelBody>
 			</Panel>
 		</div>
