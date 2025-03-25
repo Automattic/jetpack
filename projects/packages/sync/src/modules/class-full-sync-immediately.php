@@ -293,7 +293,7 @@ class Full_Sync_Immediately extends Module {
 				continue;
 			}
 			// Add range only when syncing all objects.
-			if ( true === isset( $config ) && $config ) {
+			if ( true === isset( $config ) && $config && ! is_array( $config ) ) {
 				$range[ $module_name ] = $this->get_range( $module_name, $config );
 			}
 		}
