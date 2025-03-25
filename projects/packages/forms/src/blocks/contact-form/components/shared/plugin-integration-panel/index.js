@@ -1,5 +1,5 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Icon, Spinner, PanelBody } from '@wordpress/components';
+import { Spinner, PanelBody } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -25,23 +25,20 @@ const PluginIntegrationPanel = ( {
 	const { invalidateResolution } = useDispatch( coreStore );
 	const { tracks } = useAnalytics();
 
-	const { plugins, isLoading } = useSelect( select => {
-		const installedPlugins = select( coreStore ).getPlugins();
-		return {
-			isLoading: ! installedPlugins,
-			plugins: installedPlugins || [],
-		};
-	}, [] );
-
-	const plugin = plugins.find( p => p.plugin === pluginPath );
-	const pluginStatus = plugin
-		? {
-				isInstalled: true,
-				isActive: plugin.status === 'active',
-		  }
-		: null;
-
-	const { isInstalled = false, isActive = false } = pluginStatus || {};
+	const { isLoading, isInstalled, isActive } = useSelect(
+		select => {
+			const installedPlugins = select( coreStore ).getPlugins();
+			const plugin = installedPlugins
+				? installedPlugins.find( p => p.plugin === pluginPath )
+				: null;
+			return {
+				isLoading: ! installedPlugins,
+				isInstalled: !! plugin,
+				isActive: plugin && plugin.status === 'active',
+			};
+		},
+		[ pluginPath ]
+	);
 
 	const handleButtonClick = useCallback( () => {
 		const func = isInstalled ? activatePlugin : installAndActivatePlugin;
@@ -83,19 +80,7 @@ const PluginIntegrationPanel = ( {
 					</div>
 				) }
 
-				{ ! isLoading && ! pluginStatus && (
-					<div className="jetpack-plugin-integration__status">
-						<Icon icon="warning" />
-						<span>
-							{ __(
-								'Unable to determine plugin status. Please refresh the page.',
-								'jetpack-forms'
-							) }
-						</span>
-					</div>
-				) }
-
-				{ ! isLoading && pluginStatus && ! isInstalled && (
+				{ ! isLoading && ! isInstalled && (
 					<div className="jetpack-plugin-integration__panel">
 						<div className="jetpack-plugin-integration__panel-content">
 							<div>{ description }</div>
