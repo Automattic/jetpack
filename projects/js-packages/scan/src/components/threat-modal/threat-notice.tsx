@@ -1,8 +1,8 @@
+import { Text, Button } from '@automattic/jetpack-components';
 import { Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, warning } from '@wordpress/icons';
 import { useContext } from 'react';
-import { Text, Button } from '@automattic/jetpack-components';
 import styles from './styles.module.scss';
 import { ThreatModalContext } from './index.js';
 
@@ -60,7 +60,7 @@ const ThreatNotice = ( {
 								isLoading={ userIsConnecting }
 								onClick={ handleConnectUser }
 							>
-								{ __( 'Connect your user account', 'jetpack-components' ) }
+								{ __( 'Connect your user account', 'jetpack-scan' ) }
 							</Button>
 						) }
 						{ siteCredentialsNeeded && (
@@ -71,7 +71,7 @@ const ThreatNotice = ( {
 								href={ credentialsRedirectUrl }
 								isLoading={ credentialsIsFetching }
 							>
-								{ __( 'Enter server credentials', 'jetpack-components' ) }
+								{ __( 'Enter server credentials', 'jetpack-scan' ) }
 							</Button>
 						) }
 					</div>

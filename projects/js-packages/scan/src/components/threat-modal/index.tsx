@@ -1,7 +1,7 @@
-import { type Threat } from '@automattic/jetpack-scan';
+import { Text } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { createContext } from 'react';
-import Text from '../text/index.js';
+import { type Threat } from '@automattic/jetpack-scan';
 import ThreatSeverityBadge from '../threat-severity-badge/index.js';
 import styles from './styles.module.scss';
 import ThreatFixConfirmation from './threat-fix-confirmation.js';

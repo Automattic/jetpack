@@ -1,9 +1,7 @@
+import { Text, Button, DiffViewer, MarkedLines } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp, Icon } from '@wordpress/icons';
 import { useState, useCallback, useContext } from 'react';
-import { Text, Button } from '@automattic/jetpack-components';
-import DiffViewer from '../diff-viewer/index.js';
-import MarkedLines from '../marked-lines/index.js';
 import styles from './styles.module.scss';
 import { ThreatModalContext } from './index.js';
 
@@ -38,8 +36,8 @@ const ThreatTechnicalDetails = (): JSX.Element => {
 					<div className={ styles.section__toggle__content }>
 						<Text variant="title-small" mb={ 0 }>
 							{ open
-								? __( 'Hide the technical details', 'jetpack-components' )
-								: __( 'Show the technical details', 'jetpack-components' ) }
+								? __( 'Hide the technical details', 'jetpack-scan' )
+								: __( 'Show the technical details', 'jetpack-scan' ) }
 						</Text>
 						<Icon icon={ open ? chevronUp : chevronDown } size={ 24 } />
 					</div>
@@ -52,7 +50,7 @@ const ThreatTechnicalDetails = (): JSX.Element => {
 				>
 					{ threat.filename && (
 						<>
-							<Text>{ __( 'Threat found in file:', 'jetpack-components' ) }</Text>
+							<Text>{ __( 'Threat found in file:', 'jetpack-scan' ) }</Text>
 							<pre className={ styles.filename }>{ threat.filename }</pre>
 						</>
 					) }
