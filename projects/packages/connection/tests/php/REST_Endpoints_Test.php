@@ -83,7 +83,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		self::$user_id = wp_insert_user(
 			array(
-				'user_login' => 'test_user',
+				'user_login' => 'endpoints_test_user',
 				'user_pass'  => '123',
 				'role'       => 'administrator',
 			)
@@ -104,7 +104,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		self::$secondary_user_id = wp_insert_user(
 			array(
-				'user_login' => 'test_is_user_connected_with_user_id_logged_in',
+				'user_login' => 'endpoints_test_secondary_user',
 				'user_pass'  => '123',
 				'role'       => 'administrator',
 			)
@@ -112,7 +112,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		self::$non_admin_user_id = wp_insert_user(
 			array(
-				'user_login' => 'test_non_admin_user',
+				'user_login' => 'endpoints_test_non_admin_user',
 				'user_pass'  => '123',
 				'role'       => 'editor',
 			)
@@ -138,15 +138,50 @@ class REST_Endpoints_Test extends TestCase {
 		parent::tearDown();
 		remove_action( 'jetpack_disabled_raw_options', array( $this, 'bypass_raw_options' ) );
 
+		// Only remove caps if user is still valid
 		$user = wp_get_current_user();
-		$user->remove_cap( 'jetpack_reconnect' );
-		$user->remove_cap( 'jetpack_connect' );
-		$user->remove_cap( 'jetpack_disconnect' );
-		$user->remove_cap( 'jetpack_connect_user' );
-		$user->remove_cap( 'jetpack_unlink_user' );
+		if ( $user && $user->ID ) {
+			$user->remove_cap( 'jetpack_reconnect' );
+			$user->remove_cap( 'jetpack_connect' );
+			$user->remove_cap( 'jetpack_disconnect' );
+			$user->remove_cap( 'jetpack_connect_user' );
+			$user->remove_cap( 'jetpack_unlink_user' );
+		}
 
-		$non_admin_user = get_user_by( 'id', self::$non_admin_user_id );
-		$non_admin_user->remove_cap( 'jetpack_unlink_user' );
+		// Only remove cap if non-admin user is still valid
+		if ( ! is_wp_error( self::$non_admin_user_id ) ) {
+			$non_admin_user = get_user_by( 'id', self::$non_admin_user_id );
+			if ( $non_admin_user ) {
+				$non_admin_user->remove_cap( 'jetpack_unlink_user' );
+			}
+		}
+
+		// Reset current user
+		wp_set_current_user( 0 );
+
+		// Explicitly delete the users we created
+		if ( isset( self::$user_id ) && ! is_wp_error( self::$user_id ) ) {
+			wp_delete_user( self::$user_id );
+			self::$user_id = null;
+		}
+
+		if ( isset( self::$secondary_user_id ) && ! is_wp_error( self::$secondary_user_id ) ) {
+			wp_delete_user( self::$secondary_user_id );
+			self::$secondary_user_id = null;
+		}
+
+		if ( isset( self::$non_admin_user_id ) && ! is_wp_error( self::$non_admin_user_id ) ) {
+			wp_delete_user( self::$non_admin_user_id );
+			self::$non_admin_user_id = null;
+		}
+
+		// Also clean up any other users that might have been created
+		$users = get_users();
+		foreach ( $users as $user ) {
+			if ( $user->ID > 0 ) {
+				wp_delete_user( $user->ID );
+			}
+		}
 
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $this->api_host_original;
 
@@ -160,6 +195,15 @@ class REST_Endpoints_Test extends TestCase {
 
 		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 		$this->reset_connection_status();
+
+		// Clean up user meta and options
+		global $wpdb;
+		if ( isset( $wpdb->usermeta ) ) {
+			$wpdb->query( "DELETE FROM $wpdb->usermeta" );
+		}
+		if ( isset( $wpdb->users ) ) {
+			$wpdb->query( "DELETE FROM $wpdb->users" );
+		}
 	}
 
 	/**

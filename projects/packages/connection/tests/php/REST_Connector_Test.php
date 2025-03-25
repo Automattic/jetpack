@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Connection;
 
 use PHPUnit\Framework\TestCase;
+use WorDBless\Options as WorDBless_Options;
+use WorDBless\Users as WorDBless_Users;
 use WP_Error;
 use WP_REST_Request;
 
@@ -36,12 +38,16 @@ class REST_Connector_Test extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
+		// Make sure WorDBless is initialized
+		WorDBless_Options::init()->clear_options();
+		WorDBless_Users::init()->clear_all_users();
+
 		// Create an admin user for testing
 		self::$admin_user_id = wp_insert_user(
 			array(
-				'user_login' => 'admin_user',
+				'user_login' => 'connector_admin_user',
 				'user_pass'  => 'password',
-				'user_email' => 'admin@example.com',
+				'user_email' => 'connector_admin@example.com',
 				'role'       => 'administrator',
 			)
 		);
@@ -49,9 +55,9 @@ class REST_Connector_Test extends TestCase {
 		// Create a regular user for testing
 		self::$user_id = wp_insert_user(
 			array(
-				'user_login' => 'test_user',
+				'user_login' => 'connector_test_user',
 				'user_pass'  => 'password',
-				'user_email' => 'test@example.com',
+				'user_email' => 'connector_test@example.com',
 				'role'       => 'subscriber',
 			)
 		);
@@ -75,15 +81,44 @@ class REST_Connector_Test extends TestCase {
 	 * @after
 	 */
 	public function tear_down() {
+		// Reset current user
 		wp_set_current_user( 0 );
+
+		// Explicitly delete the users we created
+		if ( self::$user_id ) {
+			wp_delete_user( self::$user_id );
+			self::$user_id = null;
+		}
+
+		if ( self::$admin_user_id ) {
+			wp_delete_user( self::$admin_user_id );
+			self::$admin_user_id = null;
+		}
+
+		// Also clean up any other users that might have been created
 		$users = get_users();
 		foreach ( $users as $user ) {
-			wp_delete_user( $user->ID );
+			if ( $user->ID > 0 ) {
+				wp_delete_user( $user->ID );
+			}
 		}
 
 		// Clean up transients
 		delete_transient( 'jetpack_account_mismatch_' . md5( 'wpcom@example.com' ) );
 		delete_transient( 'jetpack_account_mismatch_' . md5( 'another_wpcom@example.com' ) );
+
+		// Clean up user meta and options
+		global $wpdb;
+		if ( isset( $wpdb->usermeta ) ) {
+			$wpdb->query( "DELETE FROM $wpdb->usermeta" );
+		}
+		if ( isset( $wpdb->users ) ) {
+			$wpdb->query( "DELETE FROM $wpdb->users" );
+		}
+
+		// Reset WorDBless state
+		WorDBless_Options::init()->clear_options();
+		WorDBless_Users::init()->clear_all_users();
 	}
 
 	/**
@@ -143,7 +178,7 @@ class REST_Connector_Test extends TestCase {
 		// Create a user with the WPCOM email
 		wp_insert_user(
 			array(
-				'user_login' => 'wpcom_user',
+				'user_login' => 'connector_wpcom_user',
 				'user_pass'  => 'password',
 				'user_email' => 'another_wpcom@example.com',
 				'role'       => 'subscriber',
