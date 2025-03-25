@@ -1,19 +1,22 @@
+import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import useOauthConnection, { SocialService } from '../../../hooks/use-oauth-connection';
+import useOauthConnection from '../../../hooks/use-oauth-connection';
 import appleIcon from '../icons/apple.svg';
 import githubIcon from '../icons/github.svg';
 import googleIcon from '../icons/google.svg';
 import jetpackIcon from '../icons/jetpack.svg';
 import styles from './styles.module.scss';
+import type { SocialService } from '../../../hooks/use-oauth-connection';
+import type { FC } from 'react';
 
 type SocialButtonProps = {
-	service: SocialService; // TODO: Add jetpack
+	service: SocialService;
 	disabled: boolean;
 	onSubmit?: () => void;
 };
 
-const SocialButton = ( { service, disabled, onSubmit }: SocialButtonProps ) => {
+const SocialButton: FC< SocialButtonProps > = ( { service, disabled, onSubmit } ) => {
 	const { handleSocialLogin, isLoadingAuthorizeUrl, isRedirecting } = useOauthConnection();
 
 	const buttonText: Record< SocialService, { label: string; icon: string } > = {
@@ -29,15 +32,21 @@ const SocialButton = ( { service, disabled, onSubmit }: SocialButtonProps ) => {
 	}, [ service, onSubmit, handleSocialLogin ] );
 
 	const isLoading = isLoadingAuthorizeUrl || isRedirecting;
+	const serviceText = buttonText[ service ];
+	const { label, icon } = serviceText;
 
 	return (
 		<button
 			className={ styles[ 'social-button' ] }
 			disabled={ disabled || isLoading }
 			onClick={ handleOnClick }
+			aria-busy={ isLoading }
+			aria-label={ isLoading ? __( 'Connecting…', 'jetpack-my-jetpack' ) : label }
 		>
-			<img src={ buttonText[ service ].icon } alt={ buttonText[ service ].label } />
-			<span className={ styles[ 'social-button-text' ] }>{ buttonText[ service ].label }</span>
+			<img src={ icon } alt="" aria-hidden="true" />
+			<span className={ styles[ 'social-button-text' ] }>
+				{ isLoading ? <Spinner className={ styles.spinner } /> : label }
+			</span>
 		</button>
 	);
 };
