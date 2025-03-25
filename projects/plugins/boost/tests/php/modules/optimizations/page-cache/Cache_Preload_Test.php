@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 class Cache_Preload_Test extends TestCase {
 
 	/**
-	 * Set up tests.
+	 * Set up tests. Trigger Test
 	 */
 	protected function setUp(): void {
 		parent::setUp();
