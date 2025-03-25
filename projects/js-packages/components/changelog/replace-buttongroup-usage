@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Split Button: Increase compatibility of components, preventing console warnings.

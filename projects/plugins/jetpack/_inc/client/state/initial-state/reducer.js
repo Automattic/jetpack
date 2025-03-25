@@ -287,11 +287,12 @@ export function getApiRootUrl( state ) {
 /**
  * Returns the registration nonce.
  *
- * @param {object} state - Global state tree
- * @return {string} The registration nonce
+ * @deprecated since $$next-version$$
+ *
+ * @return {string} The empty string for backward compatibility.
  */
-export function getRegistrationNonce( state ) {
-	return get( state.jetpack.initialState, 'registrationNonce' );
+export function getRegistrationNonce() {
+	return '';
 }
 
 /**
