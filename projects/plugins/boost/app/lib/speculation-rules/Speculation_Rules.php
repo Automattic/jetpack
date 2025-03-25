@@ -33,6 +33,13 @@ class Speculation_Rules implements Has_Setup {
 		add_action( 'wp_load_speculation_rules', array( $this, 'add_cornerstone_rules' ) );
 	}
 
+	/**
+	 * Add speculation rules for cornerstone pages
+	 *
+	 * @param \WP_Speculation_Rules $speculation_rules The speculation rules instance.
+	 * @since $$next-version$$
+	 * @return void
+	 */
 	public function add_cornerstone_rules( $speculation_rules ) {
 		// Get cornerstone URLs
 		$cornerstone_urls = $this->get_cornerstone_urls();
