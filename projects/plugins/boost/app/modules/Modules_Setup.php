@@ -20,12 +20,12 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	/**
 	 * @var Module[]
 	 */
-	protected $available_modules = array();
+	protected $available_modules;
 
 	/**
 	 * @var Module[]
 	 */
-	protected $available_submodules = array();
+	protected $available_submodules;
 
 	public function __construct() {
 		$this->available_modules    = $this->get_available_modules();
