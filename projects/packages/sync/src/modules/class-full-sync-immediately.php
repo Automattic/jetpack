@@ -292,9 +292,8 @@ class Full_Sync_Immediately extends Module {
 			if ( ! $module ) {
 				continue;
 			}
-			// Add range only when syncing all objects.
-			if ( true === isset( $config ) && $config && ! is_array( $config ) ) {
-				$range[ $module_name ] = $this->get_range( $module_name, $config );
+			if ( true === isset( $config ) && $config ) {
+				$range[ $module_name ] = $this->get_range( $module_name );
 			}
 		}
 
@@ -307,11 +306,10 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 *
 	 * @param string $type Type of sync item to get the range for.
-	 * @param array  $config Configuration for the sync item.
 	 *
 	 * @return array Array of min ID, max ID and total items in the range.
 	 */
-	public function get_range( $type, $config ) {
+	public function get_range( $type ) {
 		global $wpdb;
 		$module = Modules::get_module( $type );
 		if ( ! $module ) {
@@ -320,7 +318,7 @@ class Full_Sync_Immediately extends Module {
 
 		$table     = $module->table();
 		$id        = $module->id_field();
-		$where_sql = $module->get_where_sql( $config );
+		$where_sql = $module->get_where_sql( array() );
 
 		// TODO: Call $wpdb->prepare on the following query.
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared

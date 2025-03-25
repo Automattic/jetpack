@@ -204,7 +204,7 @@ class Terms extends Module {
 	public function get_where_sql( $config ) {
 		$where_sql = Settings::get_blacklisted_taxonomies_sql();
 
-		if ( is_array( $config ) ) {
+		if ( is_array( $config ) && ! empty( $config ) ) {
 			$where_sql .= ' AND term_taxonomy_id IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		}
 
