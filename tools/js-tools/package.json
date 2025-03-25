@@ -7,7 +7,6 @@
 		"prettier": "prettier",
 		"semver": "semver",
 		"sort-package-json": "sort-package-json",
-		"stylelint": "stylelint",
 		"validate-es": "validate-es"
 	},
 	"devDependencies": {

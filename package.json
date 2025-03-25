@@ -33,8 +33,7 @@
 		"husky": "9.1.7",
 		"jetpack-cli": "workspace:*",
 		"jetpack-js-tools": "workspace:*",
-		"stylelint": "16.16.0",
-		"stylelint-scss": "6.11.1"
+		"stylelint": "16.16.0"
 	},
 	"engines": {
 		"node": "^22.9.0",
