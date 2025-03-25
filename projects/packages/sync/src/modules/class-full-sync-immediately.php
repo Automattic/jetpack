@@ -100,15 +100,15 @@ class Full_Sync_Immediately extends Module {
 			$full_sync_config['users'] = $users_module->get_initial_sync_user_config();
 		}
 
+		$range = $this->get_content_range();
+
 		$this->update_status(
 			array(
 				'started'  => time(),
 				'config'   => $full_sync_config,
-				'progress' => $this->get_initial_progress( $full_sync_config ),
+				'progress' => $this->get_initial_progress( $full_sync_config, $range ),
 			)
 		);
-
-		$range = $this->get_content_range();
 		/**
 		 * Fires when a full sync begins. This action is serialized
 		 * and sent to the server so that it knows a full sync is coming.
@@ -249,10 +249,11 @@ class Full_Sync_Immediately extends Module {
 	 * Given an initial Full Sync configuration get the initial status.
 	 *
 	 * @param array $full_sync_config Full sync configuration.
+	 * @param array $range Range of the sync items, containing min, max and count IDs for some item types.
 	 *
 	 * @return array Initial Sent status.
 	 */
-	public function get_initial_progress( $full_sync_config ) {
+	public function get_initial_progress( $full_sync_config, $range = null ) {
 		// Set default configuration, calculate totals, and save configuration if totals > 0.
 		$status = array();
 		foreach ( $full_sync_config as $name => $config ) {
@@ -261,7 +262,8 @@ class Full_Sync_Immediately extends Module {
 				continue;
 			}
 			$status[ $name ] = array(
-				'total'    => $module->total( $config ),
+				// If we have a range for the module, use the count from the range to avoid querying the database again.
+				'total'    => ( isset( $range[ $name ]['count'] ) ) ? $range[ $name ]['count'] : $module->total( $config ),
 				'sent'     => 0,
 				'finished' => false,
 			);
