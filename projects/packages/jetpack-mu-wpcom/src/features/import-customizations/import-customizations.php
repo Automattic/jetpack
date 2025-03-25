@@ -35,7 +35,7 @@ function import_admin_banner() {
 		return;
 	}
 
-	$import_url = esc_url( "https://wordpress.com/setup/hosted-site-migration/site-migration-import-or-migrate?siteId={$blog_id}&ref=wp-admin" );
+	$import_url = esc_url( "https://wordpress.com/setup/site-setup/importList?siteId={$blog_id}&ref=wp-admin" );
 
 	$banner_content = sprintf(
 		'<p>%s</p><a href="%s" class="button button-primary">%s</a>',
