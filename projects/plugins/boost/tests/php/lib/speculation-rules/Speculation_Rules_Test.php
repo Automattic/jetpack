@@ -38,32 +38,35 @@ class Speculation_Rules_Test extends MockeryTestCase {
 	 * Test setup() when prerender is enabled
 	 */
 	public function test_setup_when_prerender_enabled() {
-		// Mock the data store get function
-		Monkey\Functions\stubs(
-			array(
-				'jetpack_boost_ds_get' => true,
-			)
-		);
+		// Mock the data store get function with explicit return value
+		Monkey\Functions\expect( 'jetpack_boost_ds_get' )
+			->once()
+			->with( 'prerender_cornerstone_pages' )  // Add explicit parameter
+			->andReturn( true );
 
-		// Expect add_action to be called with specific parameters
+		// Ensure WordPress functions are available
+		if ( ! function_exists( 'add_action' ) ) {
+			Monkey\Functions\when( 'add_action' )->justReturn( true );
+		}
+
+		// More specific expectation for add_action
 		Monkey\Functions\expect( 'add_action' )
 			->once()
 			->with(
 				'wp_load_speculation_rules',
-				$this->callback(
+				Mockery::on(
 					function ( $callback ) {
 						return is_array( $callback )
-						&& $callback[0] instanceof Speculation_Rules
-						&& $callback[1] === 'add_cornerstone_rules';
+							&& isset( $callback[0] )
+							&& $callback[0] instanceof Speculation_Rules
+							&& isset( $callback[1] )
+							&& $callback[1] === 'add_cornerstone_rules';
 					}
 				)
 			);
 
 		$speculation_rules = new Speculation_Rules();
 		$speculation_rules->setup();
-
-		// Brain\Monkey verifies expectations automatically at the end of each test
-		// No need for explicit assertion as the test will fail if expectations aren't met
 	}
 
 	/**
