@@ -24,19 +24,17 @@ class Visitor_Test extends TestCase {
 
 	/**
 	 * Test setup.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->visitor_obj = new Visitor();
 	}
 
 	/**
 	 * Test teardown.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		unset( $_SERVER['REMOTE_ADDR'] );
 		unset( $_SERVER['HTTP_CF_CONNECTING_IP'] );
 		unset( $_SERVER['HTTP_CLIENT_IP'] );

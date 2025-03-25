@@ -25,10 +25,9 @@ class Host_Test extends TestCase {
 
 	/**
 	 * Test setup.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Monkey\setUp();
 
 		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
@@ -39,10 +38,9 @@ class Host_Test extends TestCase {
 
 	/**
 	 * Test teardown.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 		Constants::clear_constants();
 		Cache::clear();

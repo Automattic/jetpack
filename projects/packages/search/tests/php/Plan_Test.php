@@ -20,10 +20,9 @@ class Plan_Test extends Search_TestCase {
 
 	/**
 	 * Initialize static member `$plan`
-	 *
-	 * @beforeClass
 	 */
-	public static function set_up_before_class() {
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
 		static::$plan = new Plan();
 		static::$plan->init_hooks();
 	}

@@ -41,10 +41,9 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $wp_rest_server;
 
 		// Suppress deprecation warning for urlencode(null)
@@ -72,10 +71,9 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		delete_transient( 'jetpack_assumed_site_creation_date' );
 	}
 

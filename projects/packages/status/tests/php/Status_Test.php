@@ -39,10 +39,9 @@ class Status_Test extends TestCase {
 
 	/**
 	 * Setup before running any of the tests.
-	 *
-	 * @beforeClass
 	 */
-	public static function set_up_before_class() {
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
 		if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
 			define( 'HOUR_IN_SECONDS', 60 * 60 );
 		}
@@ -50,10 +49,9 @@ class Status_Test extends TestCase {
 
 	/**
 	 * Test setup.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Monkey\setUp();
 
 		// Set defaults for Core functionality.
@@ -85,10 +83,9 @@ class Status_Test extends TestCase {
 
 	/**
 	 * Test teardown.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 		Status\Cache::clear();
 	}
