@@ -22,11 +22,6 @@ type UseOauthConnectionReturn = {
 	isRedirecting: boolean;
 };
 
-/**
- * React custom hook to handle OAuth connection via magic link or social login
- *
- * @return {object}                             - OAuth connection utilities and state
- */
 const useOauthConnection = (): UseOauthConnectionReturn => {
 	const [ userEmail, setUserEmail ] = useState( '' );
 	const [ isValidEmail, setIsValidEmail ] = useState( true );
@@ -49,9 +44,9 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 		isError,
 		isLoading: isLoadingAuthorizeUrl,
 	} = useSimpleQuery< { authorizeUrl: string } >( {
-		name: `${ QUERY_GET_OAUTH_AUTHORIZE_URL_KEY }_${ userEmail ? 'link' : socialService }`,
+		name: `${ QUERY_GET_OAUTH_AUTHORIZE_URL_KEY }_${ userEmail ? 'link' : socialService ?? '' }`,
 		query: {
-			path: `${ REST_API_GET_OAUTH_AUTHORIZE_URL }/${ userEmail ? 'link' : socialService }${
+			path: `${ REST_API_GET_OAUTH_AUTHORIZE_URL }/${ userEmail ? 'link' : socialService ?? '' }${
 				userEmail ? `?email_address=${ encodeURIComponent( userEmail ) }` : ''
 			}`,
 		},
