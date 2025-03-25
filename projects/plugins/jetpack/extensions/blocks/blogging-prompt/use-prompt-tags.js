@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect, useRef, useMemo } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 
 // Tries to create a tag or fetch it if it already exists.
@@ -31,30 +31,62 @@ export function usePromptTags( promptId, tagsAdded, setTagsAdded ) {
 	// Statuses are 'not-started', 'pending', 'fulfilled', or 'rejected'.
 	const promptTagRequestStatus = useRef( 'not-started' );
 
-	// Get information about tags for the edited post.
-	const { postType, postsSupportTags, tags, tagIds, tagsHaveResolved } = useSelect( select => {
-		const { getEditedPostAttribute } = select( 'core/editor' );
-		const { getEntityRecords, getPostType, hasFinishedResolution } = select( 'core' );
-		const _termIds = getEditedPostAttribute( 'tags' );
+	// Get the selector function for use in the Promise chain
+	const { getEditedPostAttribute } = useSelect( select => select( 'core/editor' ), [] );
 
-		const query = {
+	// Split into separate selectors to maintain referential equality
+	const postType = useSelect(
+		select => select( 'core/editor' ).getEditedPostAttribute( 'type' ),
+		[]
+	);
+
+	const tagIds = useSelect(
+		select => select( 'core/editor' ).getEditedPostAttribute( 'tags' ) || [],
+		[]
+	);
+
+	const postsSupportTags = useSelect(
+		select => select( 'core' ).getPostType( 'post' )?.taxonomies?.includes( 'post_tag' ),
+		[]
+	);
+
+	// Memoize the query object
+	const query = useMemo( () => {
+		if ( tagIds.length === 0 ) {
+			return null;
+		}
+		return {
 			_fields: 'id,name',
 			context: 'view',
-			include: _termIds?.join( ',' ),
+			include: tagIds.join( ',' ),
 			per_page: -1,
 		};
+	}, [ tagIds ] );
 
-		return {
-			postType: getEditedPostAttribute( 'type' ),
-			postsSupportTags: getPostType( 'post' )?.taxonomies.includes( 'post_tag' ),
-			tagIds: _termIds || [],
-			tags: _termIds && _termIds.length ? getEntityRecords( 'taxonomy', 'post_tag', query ) : [],
-			tagsHaveResolved:
-				_termIds && _termIds.length
-					? hasFinishedResolution( 'getEntityRecords', [ 'taxonomy', 'post_tag', query ] )
-					: true,
-		};
-	}, [] );
+	// Get tags with memoized query
+	const tags = useSelect(
+		select => {
+			if ( tagIds.length === 0 ) {
+				return [];
+			}
+			return select( 'core' ).getEntityRecords( 'taxonomy', 'post_tag', query ) || [];
+		},
+		[ query, tagIds.length ]
+	);
+
+	const tagsHaveResolved = useSelect(
+		select => {
+			if ( tagIds.length === 0 ) {
+				return true;
+			}
+			return select( 'core' ).hasFinishedResolution( 'getEntityRecords', [
+				'taxonomy',
+				'post_tag',
+				query,
+			] );
+		},
+		[ query, tagIds.length ]
+	);
 
 	// Add the related prompt tags, if we're able and they haven't been added already.
 	useEffect( () => {
@@ -89,7 +121,8 @@ export function usePromptTags( promptId, tagsAdded, setTagsAdded ) {
 				] )
 					.then( tagResponses => {
 						const promptTagIds = tagResponses.map( tagResponse => tagResponse.id );
-						editPost( { tags: [ ...tagIds, ...promptTagIds ] } );
+						const currentTags = getEditedPostAttribute( 'tags' ) || [];
+						editPost( { tags: [ ...currentTags, ...promptTagIds ] } );
 						promptTagRequestStatus.current = 'fulfilled';
 					} )
 					.catch( error => {
@@ -116,5 +149,6 @@ export function usePromptTags( promptId, tagsAdded, setTagsAdded ) {
 		tagIds,
 		tagsAdded,
 		tagsHaveResolved,
+		getEditedPostAttribute,
 	] );
 }

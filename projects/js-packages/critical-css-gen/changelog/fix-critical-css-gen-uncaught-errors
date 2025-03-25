@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix throwing exceptions during ATF selector collection causing the whole generation to fail.

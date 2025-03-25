@@ -5,9 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.44.0] - 2025-03-24
+### Changed
+- Update editor sidebar copy. [#42642]
+- Update dependencies. [#42564]
+
+### Fixed
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42576]
+- Fix `source` filtering in classic view for responses management. [#42641]
+- Prevent custom label font sizes from breaking animated label font size reduction. [#42248]
+- Placeholder should always display if it's a non-empty string. [#42173]
+
 ## [0.43.0] - 2025-03-18
 ### Added
-- Forms: Add a quick link to the admin bar to form entries [#42474]
+- Add a quick link to the admin bar to form entries. [#42474]
 
 ### Changed
 - Remove Google Drive beta badge. [#42481]
@@ -908,6 +919,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.44.0]: https://github.com/automattic/jetpack-forms/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/automattic/jetpack-forms/compare/v0.42.1...v0.43.0
 [0.42.1]: https://github.com/automattic/jetpack-forms/compare/v0.42.0...v0.42.1
 [0.42.0]: https://github.com/automattic/jetpack-forms/compare/v0.41.0...v0.42.0

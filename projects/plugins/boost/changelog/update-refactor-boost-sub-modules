@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed some module initialization logic to make the behaviour more predictable.
+
+

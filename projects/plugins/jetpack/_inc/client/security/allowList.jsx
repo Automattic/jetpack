@@ -155,7 +155,7 @@ const AllowList = class extends Component {
 								label={
 									<span className="jp-form-toggle-explanation">
 										{ __(
-											"Prevent Jetpack's security features from blocking specific IP addresses",
+											"Prevent Jetpack's security features from blocking specific IP addresses.",
 											'jetpack'
 										) }
 									</span>

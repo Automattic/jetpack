@@ -5,6 +5,7 @@ import {
 	askQuestionSync,
 	getAllBlocks,
 	getBase64Image,
+	useAiFeature,
 	usePostContent,
 } from '@automattic/jetpack-ai-client';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
@@ -50,6 +51,7 @@ export const useSeoRequests = (
 	const { isImageBusy, hasImageFailed } = useSelect( select => select( store ), [] );
 	const { setImageBusy, setImageFailed } = useDispatch( store );
 	const { createInfoNotice } = useDispatch( 'core/notices' );
+	const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
 
 	const request = useCallback(
 		async ( type: PromptType, block?: Block, useBase64Image: boolean = false ) => {
@@ -159,6 +161,11 @@ export const useSeoRequests = (
 
 	const updateAltText = useCallback(
 		async ( block: Block, useBase64Image: boolean = false ) => {
+			if ( requireUpgrade ) {
+				debug( 'Upgrade required, skipping' );
+				return null;
+			}
+
 			if ( isImageBusy( block.clientId ) ) {
 				debug( 'Already updating alt text, skipping' );
 				return null;
@@ -171,8 +178,14 @@ export const useSeoRequests = (
 
 			try {
 				setImageBusy( block.clientId, true );
+				dequeueAsyncRequest();
+
 				const response = await request( 'images-alt-text', block, useBase64Image );
+
+				increaseRequestsCount();
+
 				const altText = parseResponse( response ).texts?.[ 0 ];
+
 				await updateBlockAttributes( block.clientId, { alt: altText } );
 				setImageBusy( block.clientId, false );
 
@@ -193,7 +206,17 @@ export const useSeoRequests = (
 				return false;
 			}
 		},
-		[ isImageBusy, hasImageFailed, setImageBusy, request, updateBlockAttributes, setImageFailed ]
+		[
+			requireUpgrade,
+			isImageBusy,
+			hasImageFailed,
+			setImageBusy,
+			dequeueAsyncRequest,
+			request,
+			increaseRequestsCount,
+			updateBlockAttributes,
+			setImageFailed,
+		]
 	);
 
 	const updateAltTexts = useCallback(
