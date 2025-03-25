@@ -101,14 +101,12 @@ class Speculation_Rules_Test extends MockeryTestCase {
 			)
 		);
 
-		// Create a proper mock for WP_Speculation_Rules
-		$wp_speculation_rules = Mockery::mock( 'WP_Speculation_Rules' );
-		$wp_speculation_rules->shouldReceive( 'add_rule' )->never();
-
-		$speculation_rules = new Speculation_Rules();
+		$speculation_rules    = new Speculation_Rules();
+		$wp_speculation_rules = new \WP_Speculation_Rules();
 		$speculation_rules->add_cornerstone_rules( $wp_speculation_rules );
 
-		// No need for explicit assertion - Mockery will verify expectations automatically
+		// Assert that no rules were added
+		$this->assertEmpty( $wp_speculation_rules->get_rules() );
 	}
 
 	/**
@@ -124,19 +122,22 @@ class Speculation_Rules_Test extends MockeryTestCase {
 			)
 		);
 
-		// Create a proper mock for WP_Speculation_Rules
-		$wp_speculation_rules = Mockery::mock( 'WP_Speculation_Rules' );
-		$wp_speculation_rules->expects()->add_rule(
-			'prerender',
-			'cornerstone-pages-prerender',
+		$speculation_rules    = new Speculation_Rules();
+		$wp_speculation_rules = new \WP_Speculation_Rules();
+		$speculation_rules->add_cornerstone_rules( $wp_speculation_rules );
+
+		// Assert that the rule was added correctly
+		$rules = $wp_speculation_rules->get_rules();
+		$this->assertCount( 1, $rules );
+		$this->assertEquals( 'prerender', $rules[0]['type'] );
+		$this->assertEquals( 'cornerstone-pages-prerender', $rules[0]['name'] );
+		$this->assertEquals(
 			array(
 				'source'    => 'list',
 				'urls'      => $test_urls,
 				'eagerness' => 'moderate',
-			)
-		)->once();
-
-		$speculation_rules = new Speculation_Rules();
-		$speculation_rules->add_cornerstone_rules( $wp_speculation_rules );
+			),
+			$rules[0]['args']
+		);
 	}
 }
