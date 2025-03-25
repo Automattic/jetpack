@@ -1,5 +1,4 @@
-
-.testimonial-base {
+.testimonial {
     flex: 1;
     background-size: cover;
     background-position: center top;
@@ -11,6 +10,7 @@
     position: relative;
     display: flex;
     align-items: flex-end;
+    padding-bottom: 50px;
 
     // This is to make the image darker and let read the text
     &::before {
@@ -22,54 +22,57 @@
         bottom: -16px;
         background-color: rgba(0, 0, 0, 0.5);
     }
-}
 
-.testimonial1 {
-    @extend .testimonial-base;
-    background-image: url('./grow-your-audience.png');
-    background-color: #1f1f1f;
-}
+    // Specific testimonial variations
+    &--1 {
+        background-image: url('./grow-your-audience.png');
+    }
 
-.testimonial2 {
-    @extend .testimonial-base;
-    background-image: url('./sasha-endoh.png');
-    background-color: #2f2f2f;
-}
+    &--2 {
+        background-image: url('./sasha-endoh.png');
+    }
 
-.testimonial3 {
-    @extend .testimonial-base;
-    background-image: url('./tim-ferriss-testimonial.png');
-    background-color: #3f3f3f;
-}
+    &--3 {
+        background-image: url('./tim-ferriss-testimonial.png');
+    }
 
-.testimonial-content {
-    width: 100%;
-    padding: 40px 30px;
-    color: white;
-    text-align: left;
-    position: relative;
-    margin-bottom: 10px;
-}
+    &__content {
+        width: 100%;
+        padding-top: 40px;
+        padding-left: 50px;
+        padding-right: 50px;
+        color: white;
+        text-align: left;
+        position: relative;
+        margin-bottom: 10px;
+    }
 
-.header {
-    font-size: 2.0em;
-    font-weight: 300;
-    margin-top: 0px;
-    margin-bottom: 0px;
-}
+    &__message {
+        font-family: "Sohne Breit";
+        font-weight: 400;
+        font-size: 53px;
+        letter-spacing: 0px;
+        margin-top: 0px;
+        margin-bottom: 0px;
+        color: #DAFFDC
+    }
 
-.quote {
-    font-size: 1.2em;
-    margin-bottom: 20px;
-}
+    &__quote {
+        margin-bottom: 20px;
+        font-family: "SF Pro";
+        font-weight: normal;
+        font-size: 24px;
+        letter-spacing: 0px;
+    }
 
-.author {
-    font-size: 1.2em;
-    margin-bottom: 8px;
-}
+    &__author {
+        font-size: 1.2em;
+        margin-bottom: 8px;
+    }
 
-.title {
-    font-size: 0.9em;
-    margin: 0;
-    opacity: 0.9;
+    &__title {
+        font-size: 0.9em;
+        margin: 0;
+        opacity: 0.9;
+    }
 }
