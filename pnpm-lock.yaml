@@ -1125,6 +1125,34 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
 
+  projects/js-packages/number-formatters:
+    dependencies:
+      '@babel/runtime':
+        specifier: ^7
+        version: 7.26.10
+    devDependencies:
+      '@babel/core':
+        specifier: 7.26.10
+        version: 7.26.10
+      '@babel/preset-react':
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.10)
+      '@jest/globals':
+        specifier: 29.4.3
+        version: 29.4.3
+      '@types/jest':
+        specifier: 29.5.14
+        version: 29.5.14
+      jest:
+        specifier: 29.7.0
+        version: 29.7.0
+      jest-environment-jsdom:
+        specifier: 29.7.0
+        version: 29.7.0
+      typescript:
+        specifier: 5.0.4
+        version: 5.0.4
+
   projects/js-packages/partner-coupon:
     dependencies:
       '@automattic/jetpack-components':
