@@ -41,7 +41,7 @@ const SocialButton: FC< SocialButtonProps > = ( { service, disabled, onSubmit } 
 			disabled={ disabled || isLoading }
 			onClick={ handleOnClick }
 			aria-busy={ isLoading }
-			aria-label={ isLoading ? __( 'Connecting…', 'jetpack-my-jetpack' ) : label }
+			aria-label={ isLoading ? __( 'Connecting…', 'jetpack-my-jetpack', 0 ) : label }
 		>
 			<img src={ icon } alt="" aria-hidden="true" />
 			<span className={ styles[ 'social-button-text' ] }>

@@ -83,8 +83,8 @@ const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 				aria-busy={ isLoading }
 				aria-label={
 					isLoading
-						? __( 'Connecting…', 'jetpack-my-jetpack' )
-						: __( 'Start with email', 'jetpack-my-jetpack' )
+						? __( 'Connecting…', 'jetpack-my-jetpack', 0 )
+						: __( 'Start with email', 'jetpack-my-jetpack', 0 )
 				}
 				type="submit"
 			>
