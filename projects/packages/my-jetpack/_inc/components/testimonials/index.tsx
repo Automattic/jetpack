@@ -5,7 +5,7 @@ import './style.scss';
 const Testimonials: React.FC = () => {
 	return (
 		<>
-			<DotPager>
+			<DotPager rotateTime={ 5 }>
 				<div className="testimonial1">
 					<div className="testimonial-content">
 						<p className="header">Grow your audience with Jetpack.</p>

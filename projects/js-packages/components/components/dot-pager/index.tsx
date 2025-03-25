@@ -85,9 +85,8 @@ const DotPager = ( {
 	...props
 }: DotPagerProps ) => {
 	const normalizedChildren = Children.toArray( children ).filter( Boolean );
-
 	const [ currentPage, setCurrentPage ] = useState( 0 );
-
+	const [ isPaused, setIsPaused ] = useState( false );
 	const numPages = Children.count( normalizedChildren );
 
 	useEffect( () => {
@@ -97,14 +96,14 @@ const DotPager = ( {
 	}, [ numPages, currentPage ] );
 
 	useEffect( () => {
-		if ( rotateTime > 0 && numPages > 1 ) {
+		if ( rotateTime > 0 && numPages > 1 && ! isPaused ) {
 			const timerId = setTimeout( () => {
 				setCurrentPage( ( currentPage + 1 ) % numPages );
-			}, rotateTime );
+			}, rotateTime * 1000 );
 
 			return () => clearTimeout( timerId );
 		}
-	}, [ currentPage, numPages, rotateTime ] );
+	}, [ currentPage, numPages, rotateTime, isPaused ] );
 
 	const handleSelectPage = useCallback(
 		( index: number ) => {
@@ -114,8 +113,21 @@ const DotPager = ( {
 		[ onPageSelected ]
 	);
 
+	const handleMouseEnter = useCallback( () => {
+		setIsPaused( true );
+	}, [] );
+
+	const handleMouseLeave = useCallback( () => {
+		setIsPaused( false );
+	}, [] );
+
 	return (
-		<div className={ clsx( 'dot-pager', className ) } { ...props }>
+		<div
+			className={ clsx( 'dot-pager', className ) }
+			onMouseEnter={ handleMouseEnter }
+			onMouseLeave={ handleMouseLeave }
+			{ ...props }
+		>
 			<Controls
 				currentPage={ currentPage }
 				numberOfPages={ numPages }
