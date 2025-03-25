@@ -160,7 +160,6 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 		$this->assertStringContainsString( 'email_address=test%40example.com', $data['authorizeUrl'] );
 		$this->assertStringContainsString( 'auto_trigger=1', $data['authorizeUrl'] );
 		$this->assertStringContainsString( 'redirect_uri', $data['authorizeUrl'] );
-		$this->assertStringContainsString( 'redirect_uri', $data['authorizeUrl'] );
 		$this->assertStringContainsString( urlencode( 'from=foo-bar' ), $data['authorizeUrl'] );
 	}
 
