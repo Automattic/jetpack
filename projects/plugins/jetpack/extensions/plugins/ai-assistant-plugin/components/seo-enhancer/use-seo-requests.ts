@@ -40,15 +40,18 @@ const parseResponse = ( response: string ) => {
 	return parsedResponse;
 };
 
-export const useSeoRequests = (
-	features: PromptType[] = [ 'seo-title', 'seo-meta-description', 'images-alt-text' ]
-) => {
+export const useSeoRequests = () => {
 	const { tracks } = useAnalytics();
 	const { editPost } = useDispatch( editorStore );
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const { getPostContent } = usePostContent();
-	const isBusy = useSelect( select => select( store ).isBusy(), [] );
+	const { isBusy, enabledFeatures } = useSelect( select => {
+		const busy = select( store ).isBusy();
+		const features = select( store ).getEnabledFeatures();
+
+		return { isBusy: busy, enabledFeatures: features };
+	}, [] );
 	const { setBusy, setTitleBusy, setDescriptionBusy } = useDispatch( store );
 	const { isImageBusy, hasImageFailed } = useSelect( select => select( store ), [] );
 	const { setImageBusy, setImageFailed } = useDispatch( store );
@@ -248,7 +251,7 @@ export const useSeoRequests = (
 				images_alt_text: false,
 			};
 
-			features.forEach( feature => {
+			enabledFeatures.forEach( feature => {
 				if ( feature === 'seo-title' ) {
 					promises.push( updateTitle() );
 					trackData.seo_title = true;
@@ -273,7 +276,15 @@ export const useSeoRequests = (
 				createInfoNotice( __( 'SEO metadata added', 'jetpack' ), { type: 'snackbar' } );
 			}
 		},
-		[ setBusy, features, createInfoNotice, updateTitle, updateDescription, updateAltTexts, tracks ]
+		[
+			setBusy,
+			enabledFeatures,
+			createInfoNotice,
+			updateTitle,
+			updateDescription,
+			updateAltTexts,
+			tracks,
+		]
 	);
 
 	return { updateSeoData, updateAltText, isBusy };

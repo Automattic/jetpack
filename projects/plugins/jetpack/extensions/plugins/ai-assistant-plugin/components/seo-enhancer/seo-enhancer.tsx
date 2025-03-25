@@ -38,7 +38,7 @@ export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhanc
 	const enabledFeatures = useSelect( select => select( store ).getEnabledFeatures(), [] );
 	const { setFeatureEnabled } = useDispatch( store );
 
-	const { updateSeoData } = useSeoRequests( enabledFeatures );
+	const { updateSeoData } = useSeoRequests();
 
 	const toggleSeoEnhancer = useCallback( async () => {
 		await toggleEnhancer();
