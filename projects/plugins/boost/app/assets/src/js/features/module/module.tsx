@@ -1,4 +1,4 @@
-import { ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl, Notice, ToggleControl } from '@automattic/jetpack-components';
 import { useEffect } from 'react';
 import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
@@ -6,6 +6,7 @@ import ErrorBoundary from '$features/error-boundary/error-boundary';
 import { __ } from '@wordpress/i18n';
 import { isWoaHosting } from '$lib/utils/hosting';
 import { useNotices } from '$features/notice/context';
+import { createInterpolateElement } from '@wordpress/element';
 
 type ModuleProps = {
 	title: React.ReactNode;
@@ -111,11 +112,32 @@ export default ( props: ModuleProps ) => {
 		<ErrorBoundary
 			fallback={
 				<div>
-					<div className={ styles.content }>
+					<div className={ styles[ 'failed-module' ] }>
 						<h3>{ props.title }</h3>
 
-						<div className={ styles.description }>
-							{ __( `Failed to load module.`, 'jetpack-boost' ) }
+						<div className={ styles[ 'failed-module-notice' ] }>
+							<Notice
+								level="error"
+								hideCloseButton={ true }
+								title={ __( 'Failed to load module', 'jetpack-boost' ) }
+							>
+								{ createInterpolateElement(
+									__(
+										'We encountered a JavaScript error while loading this module. Please refresh the page and try again. If the issue persists, <link>click here</link> to get help.',
+										'jetpack-boost'
+									),
+									{
+										link: (
+											// eslint-disable-next-line jsx-a11y/anchor-has-content
+											<a
+												target="_blank"
+												rel="noopener noreferrer"
+												href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
+											/>
+										),
+									}
+								) }
+							</Notice>
 						</div>
 					</div>
 				</div>
