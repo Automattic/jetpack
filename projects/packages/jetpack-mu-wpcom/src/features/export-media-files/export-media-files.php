@@ -34,13 +34,16 @@ function wpcom_render_export_media_files_page() {
 	// Check if this is an Atomic site
 	$is_atomic = ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 
-	// For Atomic sites, we recommend VaultPress
+	// For Atomic sites, point to WordPress.com backup instead of wp-admin VaultPress
 	if ( $is_atomic ) {
+		// Get the site domain for the WordPress.com backup URL
+		$site_domain = wp_parse_url( home_url(), PHP_URL_HOST );
+		$backup_url  = 'https://wordpress.com/backup/' . $site_domain;
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Export Media Files', 'jetpack-mu-wpcom' ); ?></h1>
-			<p><?php esc_html_e( 'For Business and eCommerce plans, we recommend using VaultPress Backup to export your media files.', 'jetpack-mu-wpcom' ); ?></p>
-			<a href="<?php echo esc_url( admin_url( 'admin.php?page=vaultpress' ) ); ?>" class="button"><?php esc_html_e( 'Go to VaultPress Backup', 'jetpack-mu-wpcom' ); ?></a>
+			<p><?php esc_html_e( 'This site is using the more advanced Jetpack VaultPress feature to seamlessly export your files and manage your backups.', 'jetpack-mu-wpcom' ); ?></p>
+			<a href="<?php echo esc_url( $backup_url ); ?>" class="button"><?php esc_html_e( 'Go to Backup', 'jetpack-mu-wpcom' ); ?></a>
 		</div>
 		<?php
 		return;
