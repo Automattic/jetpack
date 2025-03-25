@@ -211,7 +211,7 @@ const Seo = () => {
 				</div>
 			</PluginPrePublishPanel>
 
-			{ isSeoEnhancerEnabled && isAutoEnhanceEnabled && canHaveAutoEnhance && (
+			{ isSeoEnhancerEnabled && (
 				<PluginPostPublishPanel { ...jetpackSeoPublishPanelsProps }>
 					<div className="jetpack-seo-panel">
 						<SeoSummary onEdit={ handleSummaryEdit } />
