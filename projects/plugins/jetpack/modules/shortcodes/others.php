@@ -17,6 +17,9 @@ wp_oembed_add_provider( '#https?://(www\.)?icloud\.com/keynote/.*#i', 'https://i
 wp_oembed_add_provider( '#https?://(www\.)?icloud\.com\.cn/keynote/.*#i', 'https://iwmb.icloud.com.cn/iwmb/oembed', true );
 wp_oembed_add_provider( '#https?://((song|album|artist|pods|playlist)\.link|odesli\.com?|mylink\.page)/.*#', 'https://odesli.co/oembed', true );
 wp_oembed_add_provider( '#https?://(www\.)?loom\.com/share/.*#i', 'https://www.loom.com/v1/oembed', true );
+wp_oembed_add_provider( '#https?://(www\.)?loom\.com/share/.*#i', 'https://www.loom.com/v1/oembed', true );
+// Map x.com to twitter oembed.
+wp_oembed_add_provider( '#https?://(www\.)?x\.com/status/.*#i', 'https://publish.twitter.com/oembed', true );
 
 /**
  * Filters the HTTP request timeout value so that we can increase the timeout for iCloud oEmbeds.

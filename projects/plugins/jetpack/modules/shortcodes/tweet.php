@@ -14,6 +14,7 @@
  *
  * More parameters and another tweet syntax admitted:
  * [tweet tweet="https://twitter.com/jack/statuses/20" align="left" width="350" align="center" lang="es"]
+ * [tweet tweet="https://x.com/jack/statuses/20" align="left" width="350" align="center" lang="es"]
  *
  * @package automattic/jetpack
  */
@@ -67,13 +68,13 @@ class Jetpack_Tweet {
 		}
 
 		if ( ctype_digit( $attr['tweet'] ) ) {
-			$id       = 'https://twitter.com/jetpack/status/' . $attr['tweet'];
+			$id       = 'https://x.com/jetpack/status/' . $attr['tweet'];
 			$tweet_id = (int) $attr['tweet'];
 		} else {
-			preg_match( '/^http(s|):\/\/twitter\.com(\/\#\!\/|\/)([a-zA-Z0-9_]{1,20})\/status(es)*\/(\d+)$/', $attr['tweet'], $urlbits );
+			preg_match( '/^http(s|):\/\/twitter|x\.com(\/\#\!\/|\/)([a-zA-Z0-9_]{1,20})\/status(es)*\/(\d+)$/', $attr['tweet'], $urlbits );
 
 			if ( isset( $urlbits[5] ) && (int) $urlbits[5] ) {
-				$id       = 'https://twitter.com/' . $urlbits[3] . '/status/' . (int) $urlbits[5];
+				$id       = 'https://x.com/' . $urlbits[3] . '/status/' . (int) $urlbits[5];
 				$tweet_id = (int) $urlbits[5];
 			} else {
 				return '<!-- Invalid tweet id -->';
