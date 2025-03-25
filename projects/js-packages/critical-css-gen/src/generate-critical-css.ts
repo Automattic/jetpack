@@ -96,7 +96,7 @@ async function getAboveFoldSelectors( {
 	viewports: Viewport[];
 	maxPages: number;
 	updateProgress: () => void;
-} ): Promise< Set< string > > {
+} ): Promise< [ Set< string >, { [ url: string ]: UrlError } ] > {
 	// For each selector string, create a "trimmed" version with the stuff JavaScript can't handle cut out.
 	const trimmedSelectors = Object.keys( selectorPages ).reduce( ( set, selector ) => {
 		set[ selector ] = removeIgnoredPseudoElements( selector );
@@ -108,26 +108,38 @@ async function getAboveFoldSelectors( {
 	const aboveFoldSelectors = new Set< string >();
 	const dangerousSelectors = new Set< string >();
 
+	const errors = {};
+
 	for ( const url of validUrls.slice( 0, maxPages ) ) {
-		// Work out which CSS selectors match any element on this page.
-		const pageSelectors = await browserInterface.runInPage<
-			ReturnType< typeof BrowserInterface.innerFindMatchingSelectors >
-		>( url, null, BrowserInterface.innerFindMatchingSelectors, trimmedSelectors );
+		try {
+			// Work out which CSS selectors match any element on this page.
+			const pageSelectors = await browserInterface.runInPage<
+				ReturnType< typeof BrowserInterface.innerFindMatchingSelectors >
+			>( url, null, BrowserInterface.innerFindMatchingSelectors, trimmedSelectors );
 
-		// Check for selectors which may match this page, but are not included in this page's CSS.
-		pageSelectors
-			.filter( s => ! selectorPages[ s ].has( url ) )
-			.forEach( s => dangerousSelectors.add( s ) );
+			// Check for selectors which may match this page, but are not included in this page's CSS.
+			pageSelectors
+				.filter( s => ! selectorPages[ s ].has( url ) )
+				.forEach( s => dangerousSelectors.add( s ) );
 
-		// Collate all above-fold selectors for all viewport sizes.
-		for ( const size of viewports ) {
-			updateProgress();
+			// Collate all above-fold selectors for all viewport sizes.
+			for ( const size of viewports ) {
+				updateProgress();
 
-			const pageAboveFold = await browserInterface.runInPage<
-				ReturnType< typeof BrowserInterface.innerFindAboveFoldSelectors >
-			>( url, size, BrowserInterface.innerFindAboveFoldSelectors, trimmedSelectors, pageSelectors );
+				const pageAboveFold = await browserInterface.runInPage<
+					ReturnType< typeof BrowserInterface.innerFindAboveFoldSelectors >
+				>(
+					url,
+					size,
+					BrowserInterface.innerFindAboveFoldSelectors,
+					trimmedSelectors,
+					pageSelectors
+				);
 
-			pageAboveFold.forEach( s => aboveFoldSelectors.add( s ) );
+				pageAboveFold.forEach( s => aboveFoldSelectors.add( s ) );
+			}
+		} catch ( err ) {
+			errors[ url ] = err;
 		}
 	}
 
@@ -136,7 +148,7 @@ async function getAboveFoldSelectors( {
 		aboveFoldSelectors.delete( dangerousSelector );
 	}
 
-	return aboveFoldSelectors;
+	return [ aboveFoldSelectors, errors ];
 }
 
 /**
@@ -197,7 +209,7 @@ export async function generateCriticalCSS( {
 		const selectorPages = cssFiles.collateSelectorPages();
 
 		// Get CSS selectors for above the fold.
-		const aboveFoldSelectors = await getAboveFoldSelectors( {
+		const [ aboveFoldSelectors, aboveFoldErrors ] = await getAboveFoldSelectors( {
 			browserInterface,
 			selectorPages,
 			validUrls,
@@ -205,6 +217,14 @@ export async function generateCriticalCSS( {
 			maxPages,
 			updateProgress,
 		} );
+
+		// During getAboveFoldSelectors, pages are loaded again and might error.
+		// We can't continue if there are not enough valid URLs to carry on with.
+		const validUrlsPostAboveFold = browserInterface.filterValidUrls( urls );
+
+		if ( validUrlsPostAboveFold.length < successUrlsThreshold ) {
+			throw new SuccessTargetError( aboveFoldErrors );
+		}
 
 		// Prune each AST for above-fold selector list. Note: this prunes a clone.
 		const asts = cssFiles.prunedAsts( aboveFoldSelectors );

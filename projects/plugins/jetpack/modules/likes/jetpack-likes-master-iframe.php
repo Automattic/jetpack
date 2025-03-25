@@ -20,7 +20,10 @@ function jetpack_likes_master_iframe() {
 	require_once JETPACK__GLOTPRESS_LOCALES_PATH;
 
 	$gp_locale = GP_Locales::by_field( 'wp_locale', $_locale );
-	$_locale   = isset( $gp_locale->slug ) ? $gp_locale->slug : '';
+	if ( ! $gp_locale ) {
+		$gp_locale = GP_Locales::by_slug( $_locale );
+	}
+	$_locale = isset( $gp_locale->slug ) ? $gp_locale->slug : '';
 
 	$likes_locale = ( '' === $_locale || 'en' === $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
 
