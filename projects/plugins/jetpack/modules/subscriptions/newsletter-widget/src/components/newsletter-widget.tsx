@@ -1,10 +1,17 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import '../style.scss';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink, Icon } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
-import { buildJPRedirectSource, formatNumber, getSubscriberStatsUrl } from '../helpers';
+import { TRACKS_EVENT_NAME_PREFIX } from '../constants';
+import {
+	buildJPRedirectSource,
+	createTracksEventHandler,
+	formatNumber,
+	getSubscriberStatsUrl,
+} from '../helpers';
 import { SubscribersChart } from './subscribers-chart';
 import type { SubscriberTotalsByDate } from '../types';
 
@@ -32,6 +39,12 @@ export const NewsletterWidget = ( {
 		day => day?.all >= 5 || day?.paid > 0
 	);
 
+	const { tracks } = useAnalytics();
+
+	useEffect( () => {
+		tracks.recordEvent( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
+	}, [ tracks ] );
+
 	return (
 		<div className="newsletter-widget">
 			{ showHeader && (
@@ -43,7 +56,10 @@ export const NewsletterWidget = ( {
 							</span>
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
-									<a href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }>
+									<a
+										href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }
+										onClick={ createTracksEventHandler( tracks, 'all_subscribers_click' ) }
+									>
 										{ sprintf(
 											//translators: %1$s is the total number of subscribers, %2$s is the number of email subscribers
 											_n(
@@ -65,7 +81,10 @@ export const NewsletterWidget = ( {
 							</span>
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
-									<a href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }>
+									<a
+										href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }
+										onClick={ createTracksEventHandler( tracks, 'paid_subscribers_click' ) }
+									>
 										{ sprintf(
 											//translators: %s is the number of paid subscribers
 											_n( '%s paid subscriber', '%s paid subscribers', paidSubscribers, 'jetpack' ),
@@ -94,6 +113,7 @@ export const NewsletterWidget = ( {
 						{
 							link: (
 								<ExternalLink
+									onClick={ createTracksEventHandler( tracks, 'learn_more_click' ) }
 									href={ getRedirectUrl(
 										buildJPRedirectSource(
 											'learn/courses/newsletters-101/wordpress-com-newsletter'
@@ -108,12 +128,18 @@ export const NewsletterWidget = ( {
 					<h3 className="newsletter-widget__heading">{ __( 'Quick Links', 'jetpack' ) }</h3>
 					<ul className="newsletter-widget__footer-list">
 						<li>
-							<a href={ `${ adminUrl }post-new.php` }>
+							<a
+								href={ `${ adminUrl }post-new.php` }
+								onClick={ createTracksEventHandler( tracks, 'publish_post_click' ) }
+							>
 								{ __( 'Publish your next post', 'jetpack' ) }
 							</a>
 						</li>
 						<li>
-							<ExternalLink href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }>
+							<ExternalLink
+								href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }
+								onClick={ createTracksEventHandler( tracks, 'view_stats_click' ) }
+							>
 								{ __( 'View subscriber stats', 'jetpack' ) }
 							</ExternalLink>
 						</li>
@@ -123,6 +149,7 @@ export const NewsletterWidget = ( {
 									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite ),
 									{ anchor: 'add-subscribers' }
 								) }
+								onClick={ createTracksEventHandler( tracks, 'import_subscribers_click' ) }
 							>
 								{ __( 'Import subscribers', 'jetpack' ) }
 							</ExternalLink>
@@ -132,6 +159,7 @@ export const NewsletterWidget = ( {
 								href={ getRedirectUrl(
 									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite )
 								) }
+								onClick={ createTracksEventHandler( tracks, 'manage_subscribers_click' ) }
 							>
 								{ __( 'Manage subscribers', 'jetpack' ) }
 							</ExternalLink>
@@ -144,6 +172,7 @@ export const NewsletterWidget = ( {
 										isWpcomSite
 									)
 								) }
+								onClick={ createTracksEventHandler( tracks, 'monetize_click' ) }
 							>
 								{ __( 'Monetize', 'jetpack' ) }
 							</ExternalLink>
@@ -154,11 +183,15 @@ export const NewsletterWidget = ( {
 									href={ getRedirectUrl(
 										buildJPRedirectSource( `settings/newsletter/${ site }` )
 									) }
+									onClick={ createTracksEventHandler( tracks, 'newsletter_settings_click' ) }
 								>
 									{ __( 'Newsletter settings', 'jetpack' ) }
 								</ExternalLink>
 							) : (
-								<a href={ `${ adminUrl }admin.php?page=jetpack#newsletter` }>
+								<a
+									href={ `${ adminUrl }admin.php?page=jetpack#newsletter` }
+									onClick={ createTracksEventHandler( tracks, 'newsletter_settings_click' ) }
+								>
 									{ __( 'Newsletter settings', 'jetpack' ) }
 								</a>
 							) }

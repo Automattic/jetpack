@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Protect: ensure plan is checked on load of plugin's admin page.
-
-

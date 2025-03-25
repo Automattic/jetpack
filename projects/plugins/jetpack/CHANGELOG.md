@@ -2,6 +2,36 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.5-a.9 - 2025-03-24
+### Enhancements
+- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
+
+### Improved compatibility
+- VideoPress: Add block sidebar notice to transform embed into a block. [#42443]
+- AI Assistant: Improve performance by optimizing state management in the AI feature hook. [#42536]
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42576]
+
+### Bug fixes
+- Admin Color Scheme: Fix colors in the Aquatic color scheme. [#42632]
+- Newsletter: Ensure external links are marked as such in the Newsletter widget. [#42571]
+- Search: Ensure the count of returned results is shown after searching. [#42570]
+- Site Badge: Update styles of the Coming Soon badge. [#42496]
+- Site Verification: Fix auto-verification via Google when Social is disabled. [#42604]
+- Stats: Ensure the Stats widget is automatically disabled when the Stats module is disabled. [#42603]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Controls: Prevent console warnings by increasing compatibility of buttons. [#42636]
+- Compatibility: Ensuring performance best practices and reducing console warnings. [#42435]
+- Fix bug with blogging prompt. [#42539]
+- Jetpack SEO Enhancer: Hide trigger button when auto-generate toggle is on. [#42653]
+- Likes: Make module compatible with WordPress.com Simple sites. [#42515]
+- Reader: Add repost functionality to Jetpack editor extension.
+- Rename the JITM endpoint from v2, which already exists, to v3, which is new. [#42568]
+- SEO Enhancer: Add post-publish summary. [#42557]
+- SEO Enhancer: Disable auto-enhance and toggle on WordPress.com Simple sites. [#42597]
+- SEO Enhancer: Do not request Jetpack modules data on WordPress.com Simple sites. [#42650]
+- Update dependencies. [#42564]
+
 ## 14.5-a.7 - 2025-03-18
 ### Enhancements
 - Forms: Add quick link in the admin bar for form entries. [#42474]

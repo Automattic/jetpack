@@ -6,6 +6,8 @@ use WP_Error;
 
 class Critical_CSS_State {
 
+	public const GENERATION_ACTION_NAME = 'jetpack_boost_critical_css_generated';
+
 	const GENERATION_STATES = array(
 		'not_generated' => 'not_generated',
 		'pending'       => 'pending',
@@ -149,7 +151,7 @@ class Critical_CSS_State {
 
 		if ( $is_done ) {
 			$this->state['status'] = self::GENERATION_STATES['generated'];
-			do_action( 'jetpack_boost_critical_css_generated' );
+			do_action( self::GENERATION_ACTION_NAME );
 		}
 	}
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Uses jetpack-config package for Account Protection initialization

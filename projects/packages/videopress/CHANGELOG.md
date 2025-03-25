@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.5] - 2025-03-24
+### Changed
+- Update dependencies. [#42564]
+
+### Fixed
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42576]
+
 ## [0.27.4] - 2025-03-18
 ### Changed
 - Update package dependencies. [#42509] [#42511]
@@ -1580,6 +1587,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.27.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.4...v0.27.5
 [0.27.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.3...v0.27.4
 [0.27.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.2...v0.27.3
 [0.27.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.1...v0.27.2
