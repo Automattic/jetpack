@@ -139,6 +139,8 @@ final class WordAds_Client_Config {
 	 * @return string The URL.
 	 */
 	public function get_server_config_url(): string {
+		// TODO: WPCOM needs to be updated to not rely on wordads-logging=true&aditude=true on the adflow endpoint as it's not going to be carried over from the browser and we don't want to include that here
+		// using the jetpack version `ver` included in the enqueued script or adding specific `api_version` query param is preferred.
 		return sprintf(
 			'https://public-api.wordpress.com/wpcom/v2/sites/%1$d/adflow/conf/?_jsonp=a8c_adflow_callback&api_version=2&wordads-logging=true&aditude=true',
 			$this->params->blog_id
