@@ -53,7 +53,7 @@ const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 			return __( 'Connecting…', 'jetpack-my-jetpack', 0 );
 		}
 
-		return __( 'Start with email', 'jetpack-my-jetpack', 0 );
+		return __( 'Start with email', 'jetpack-my-jetpack' );
 	}, [ isLoading ] );
 
 	return (
