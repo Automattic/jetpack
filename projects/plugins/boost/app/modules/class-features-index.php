@@ -50,7 +50,7 @@ class Features_Index {
 	/**
 	 * Get all features and subfeatures.
 	 *
-	 * @return Feature[]
+	 * @return class-string<Feature>[]
 	 */
 	public static function get_all_features() {
 		return array_merge( self::FEATURES, self::SUB_FEATURES );
