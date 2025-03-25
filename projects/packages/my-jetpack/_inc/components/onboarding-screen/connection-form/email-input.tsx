@@ -1,56 +1,28 @@
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { ChangeEvent, FormEvent, useCallback, useState, useEffect } from 'react';
-import {
-	QUERY_GET_MAGIC_LINK_AUTHORIZE_URL_KEY,
-	REST_API_GET_MAGIC_LINK_AUTHORIZE_URL,
-} from '../../../data/constants';
-import useSimpleQuery from '../../../data/use-simple-query';
-import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
+import { ChangeEvent, FormEvent, useCallback } from 'react';
+import useOauthConnection from '../../../hooks/use-oauth-connection';
 import styles from './styles.module.scss';
+
 interface EmailInputProps {
 	onSubmit?: () => void;
 	isDisabled: boolean;
 }
 
 const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
-	const { handleRegisterSite, isSiteConnected, siteIsRegistering, siteIsRegistered } =
-		useMyJetpackConnection( {
-			skipUserConnection: true,
-		} );
-	const [ userEmail, setUserEmail ] = useState( '' );
-	const [ isValidEmail, setIsValidEmail ] = useState( true );
-	const [ shouldFetchUrl, setShouldFetchUrl ] = useState( false );
-
-	const validateEmail = ( email: string ) => {
-		const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-		return emailRegex.test( email );
-	};
-
 	const {
-		data,
+		userEmail,
+		setUserEmail,
+		isValidEmail,
+		handleSubmitEmail,
+		isLoadingAuthorizeUrl,
 		isError,
-		isLoading: isLoadingAuthorizeUrl,
-	} = useSimpleQuery< { authorizeUrl: string } >( {
-		name: QUERY_GET_MAGIC_LINK_AUTHORIZE_URL_KEY,
-		query: {
-			path: `${ REST_API_GET_MAGIC_LINK_AUTHORIZE_URL }?email_address=${ encodeURIComponent(
-				userEmail
-			) }`,
-		},
-		options: { enabled: shouldFetchUrl && validateEmail( userEmail ) && isSiteConnected },
-		errorMessage: __(
-			'Something went wrong while sending the login link. Please try again. If the issue persists, contact support.',
-			'jetpack-my-jetpack'
-		),
-	} );
+		isRedirecting,
+	} = useOauthConnection();
 
 	const handleOnInput = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
-			const email = event.target.value;
-			setUserEmail( email );
-			setIsValidEmail( true );
-			setShouldFetchUrl( false );
+			setUserEmail( event.target.value );
 		},
 		[ setUserEmail ]
 	);
@@ -58,25 +30,10 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 	const handleOnSubmit = useCallback(
 		async ( event: FormEvent< HTMLFormElement > ) => {
 			event.preventDefault();
-
 			onSubmit?.();
-
-			if ( ! validateEmail( userEmail ) ) {
-				setIsValidEmail( false );
-				return;
-			}
-
-			try {
-				await handleRegisterSite();
-			} catch ( error ) {
-				// eslint-disable-next-line no-console
-				console.error( error );
-				// Fail silently
-			}
-
-			setShouldFetchUrl( true );
+			handleSubmitEmail();
 		},
-		[ userEmail, onSubmit, handleRegisterSite ]
+		[ onSubmit, handleSubmitEmail ]
 	);
 
 	const getErrorMessage = () => {
@@ -87,14 +44,7 @@ const EmailInput = ( { isDisabled, onSubmit }: EmailInputProps ) => {
 		return __( 'An error occurred. Please try again.', 'jetpack-my-jetpack' );
 	};
 
-	// Handle redirection when we get the authorize URL
-	useEffect( () => {
-		if ( data?.authorizeUrl && siteIsRegistered ) {
-			window.location.href = data.authorizeUrl;
-		}
-	}, [ data, siteIsRegistered ] );
-
-	const isLoading = isLoadingAuthorizeUrl || siteIsRegistering;
+	const isLoading = isLoadingAuthorizeUrl || isRedirecting;
 
 	return (
 		<form onSubmit={ handleOnSubmit } className={ styles[ 'email-input-container' ] }>
