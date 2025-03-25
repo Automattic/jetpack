@@ -1,5 +1,5 @@
 const config = {
-	extends: '@wordpress/stylelint-config/scss',
+	extends: 'jetpack-js-tools/stylelint.config.base.mjs',
 };
 
 export default config;
