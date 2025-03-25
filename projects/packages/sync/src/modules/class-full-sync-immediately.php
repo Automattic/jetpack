@@ -280,13 +280,19 @@ class Full_Sync_Immediately extends Module {
 	private function get_content_range() {
 		$range  = array();
 		$config = $this->get_status()['config'];
-		// Add range only when syncing all objects.
-		if ( true === isset( $config['posts'] ) && $config['posts'] ) {
-			$range['posts'] = $this->get_range( 'posts' );
-		}
-
-		if ( true === isset( $config['comments'] ) && $config['comments'] ) {
-			$range['comments'] = $this->get_range( 'comments' );
+		foreach ( array_keys( $config ) as $module_name ) {
+			// Calculate ranges only for modules that get chunked.
+			if ( in_array( $module_name, array( 'constants', 'functions', 'network_options', 'options', 'themes', 'updates' ), true ) ) {
+				continue;
+			}
+			$module = Modules::get_module( $module_name );
+			if ( ! $module ) {
+				continue;
+			}
+			// Add range only when syncing all objects.
+			if ( true === isset( $config[ $module_name ] ) && $config[ $module_name ] ) {
+				$range[ $module_name ] = $this->get_range( $module_name );
+			}
 		}
 
 		return $range;
@@ -303,23 +309,14 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function get_range( $type ) {
 		global $wpdb;
-		if ( ! in_array( $type, array( 'comments', 'posts' ), true ) ) {
+		$module = Modules::get_module( $type );
+		if ( ! $module ) {
 			return array();
 		}
 
-		switch ( $type ) {
-			case 'posts':
-				$table     = $wpdb->posts;
-				$id        = 'ID';
-				$where_sql = Settings::get_blacklisted_post_types_sql();
-
-				break;
-			case 'comments':
-				$table     = $wpdb->comments;
-				$id        = 'comment_ID';
-				$where_sql = Settings::get_comments_filter_sql();
-				break;
-		}
+		$table     = $module->table();
+		$id        = $module->id_field();
+		$where_sql = $module->get_where_sql( null );
 
 		// TODO: Call $wpdb->prepare on the following query.
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
