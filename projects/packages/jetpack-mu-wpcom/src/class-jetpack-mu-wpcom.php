@@ -265,6 +265,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
+		require_once __DIR__ . '/features/export-media-files/export-media-files.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
 		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
