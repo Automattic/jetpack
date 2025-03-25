@@ -66,6 +66,9 @@ function fixDeps( pkg ) {
 			'@use-gesture/react',
 			'use-memo-one',
 			'uuid',
+			// Needed for storybook to build with the /wp endpoint. Normal builds don't need them due to dependency extraction.
+			'@wordpress/date',
+			'@wordpress/hooks',
 		] ) {
 			pkg.optionalDependencies[ dep ] = '*';
 		}
