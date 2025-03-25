@@ -39,7 +39,8 @@ const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 
 	const getErrorMessage = () => {
 		if ( ! isValidEmail ) {
-			return __( 'Please enter a valid email address', 'jetpack-my-jetpack' );
+			// Third argument is to avoid a compilation issue with ternary operator
+			return __( 'Please enter a valid email address', 'jetpack-my-jetpack', 0 );
 		}
 
 		return __( 'An error occurred. Please try again.', 'jetpack-my-jetpack' );
