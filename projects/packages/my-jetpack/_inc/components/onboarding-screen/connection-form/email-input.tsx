@@ -89,7 +89,7 @@ const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 				className={ styles[ 'submit-button' ] }
 				disabled={ isDisabled || ! userEmail || isLoading }
 				aria-busy={ isLoading }
-				aria-label={ getAriaLabel() }
+				aria-label={ getAriaLabel }
 				type="submit"
 			>
 				{ isLoading ? (

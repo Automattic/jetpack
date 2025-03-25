@@ -49,7 +49,7 @@ const SocialButton: FC< SocialButtonProps > = ( { service, disabled, onSubmit } 
 			disabled={ disabled || isLoading }
 			onClick={ handleOnClick }
 			aria-busy={ isLoading }
-			aria-label={ getAriaLabel() }
+			aria-label={ getAriaLabel }
 		>
 			<img src={ icon } alt="" aria-hidden="true" />
 			<span className={ styles[ 'social-button-text' ] }>
