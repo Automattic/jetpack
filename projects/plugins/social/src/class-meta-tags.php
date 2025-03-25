@@ -342,32 +342,13 @@ class Meta_Tags {
 			);
 		}
 
-		/**
-		 * Filter the minimum width of the images used in Jetpack Open Graph Meta Tags.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param int 200 Minimum image width used in Jetpack Open Graph Meta Tags.
-		 */
+		/** This filter is documented in projects/plugins/jetpack/functions.opengraph.php */
 		$image_width = absint( apply_filters( 'jetpack_open_graph_image_width', 200 ) );
 
-		/**
-		 * Filter the minimum height of the images used in Jetpack Open Graph Meta Tags.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param int 200 Minimum image height used in Jetpack Open Graph Meta Tags.
-		 */
+		/** This filter is documented in projects/plugins/jetpack/functions.opengraph.php */
 		$image_height = absint( apply_filters( 'jetpack_open_graph_image_height', 200 ) );
 
-		/**
-		 * Allow the addition of additional Open Graph Meta tags, or modify the existing tags.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param array $tags Array of Open Graph Meta tags.
-		 * @param array $args Array of image size parameters.
-		 */
+		/** This filter is documented in projects/plugins/jetpack/functions.opengraph.php */
 		$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ) );
 		if ( empty( trim( $tags['og:title'] ) ) ) {
 				$tags['og:title'] = __( '(no title)', 'jetpack-social' );
