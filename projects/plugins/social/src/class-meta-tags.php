@@ -342,8 +342,14 @@ class Meta_Tags {
 			);
 		}
 
-		// Add SIG image if enabled.
-		$tags = apply_filters( 'jetpack_open_graph_tags', $tags );
+		/** This filter is documented in projects/plugins/jetpack/functions.opengraph.php */
+		$image_width = absint( apply_filters( 'jetpack_open_graph_image_width', 200 ) );
+
+		/** This filter is documented in projects/plugins/jetpack/functions.opengraph.php */
+		$image_height = absint( apply_filters( 'jetpack_open_graph_image_height', 200 ) );
+
+		/** This filter is documented in projects/plugins/jetpack/functions.opengraph.php */
+		$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ) );
 		if ( empty( trim( $tags['og:title'] ) ) ) {
 				$tags['og:title'] = __( '(no title)', 'jetpack-social' );
 		}

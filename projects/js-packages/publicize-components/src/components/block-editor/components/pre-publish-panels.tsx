@@ -1,5 +1,5 @@
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
-import { PluginPrePublishPanel } from '@wordpress/edit-post';
+import { PluginPrePublishPanel } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { usePostCanUseSig } from '../../../hooks/use-post-can-use-sig';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
@@ -18,12 +18,7 @@ const PrePublishPanels = () => {
 		<>
 			<PluginPrePublishPanel
 				initialOpen={ hasEnabledConnections }
-				id="publicize-title"
-				title={
-					<span id="publicize-defaults" key="publicize-title-span">
-						{ __( 'Share this post', 'jetpack-publicize-components' ) }
-					</span>
-				}
+				title={ __( 'Share this post', 'jetpack-publicize-components' ) }
 				icon={ <JetpackEditorPanelLogo /> }
 			>
 				<PublicizePanel prePublish={ true }>
