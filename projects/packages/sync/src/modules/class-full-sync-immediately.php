@@ -263,7 +263,7 @@ class Full_Sync_Immediately extends Module {
 			}
 			$status[ $name ] = array(
 				// If we have a range for the module, use the count from the range to avoid querying the database again.
-				'total'    => ( isset( $range[ $name ]->count ) ) ? $range[ $name ]->count : $module->total( $config ),
+				'total'    => $range[ $name ]->count ?? $module->total( $config ),
 				'sent'     => 0,
 				'finished' => false,
 			);
@@ -277,13 +277,13 @@ class Full_Sync_Immediately extends Module {
 	 *
 	 * @access private
 	 *
-	 * @param array $config Full sync configuration.
+	 * @param array $full_sync_config Full sync configuration.
 	 *
 	 * @return array Array of range (min ID, max ID, total items) for all content types.
 	 */
-	private function get_content_range( $config ) {
+	private function get_content_range( $full_sync_config ) {
 		$range = array();
-		foreach ( array_keys( $config ) as $module_name ) {
+		foreach ( $full_sync_config as $module_name => $config ) {
 			// Calculate ranges only for modules that get chunked.
 			if ( in_array( $module_name, array( 'constants', 'functions', 'network_options', 'options', 'themes', 'updates' ), true ) ) {
 				continue;
@@ -293,8 +293,8 @@ class Full_Sync_Immediately extends Module {
 				continue;
 			}
 			// Add range only when syncing all objects.
-			if ( true === isset( $config[ $module_name ] ) && $config[ $module_name ] ) {
-				$range[ $module_name ] = $this->get_range( $module_name );
+			if ( true === isset( $config ) && $config ) {
+				$range[ $module_name ] = $this->get_range( $module_name, $config );
 			}
 		}
 
@@ -307,10 +307,11 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 *
 	 * @param string $type Type of sync item to get the range for.
+	 * @param array  $config Configuration for the sync item.
 	 *
 	 * @return array Array of min ID, max ID and total items in the range.
 	 */
-	public function get_range( $type ) {
+	public function get_range( $type, $config ) {
 		global $wpdb;
 		$module = Modules::get_module( $type );
 		if ( ! $module ) {
@@ -319,7 +320,7 @@ class Full_Sync_Immediately extends Module {
 
 		$table     = $module->table();
 		$id        = $module->id_field();
-		$where_sql = $module->get_where_sql( null );
+		$where_sql = $module->get_where_sql( $config );
 
 		// TODO: Call $wpdb->prepare on the following query.
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
