@@ -102,11 +102,18 @@ export function SeoSummary( { onEdit }: { onEdit: () => void } ) {
 
 	const helpTexts = useMemo( () => {
 		return {
-			'seo-title': seoTitleHelpText,
-			'seo-meta-description': seoDescriptionHelpText,
-			'images-alt-text': imageAltTextHelpText,
+			'seo-title': titleBusy ? null : seoTitleHelpText,
+			'seo-meta-description': descriptionBusy ? null : seoDescriptionHelpText,
+			'images-alt-text': imageBusy ? null : imageAltTextHelpText,
 		};
-	}, [ imageAltTextHelpText, seoDescriptionHelpText, seoTitleHelpText ] );
+	}, [
+		descriptionBusy,
+		imageAltTextHelpText,
+		imageBusy,
+		seoDescriptionHelpText,
+		seoTitleHelpText,
+		titleBusy,
+	] );
 
 	const getIcon = ( feature: PromptType ) => {
 		if ( feature === 'seo-title' ) {
