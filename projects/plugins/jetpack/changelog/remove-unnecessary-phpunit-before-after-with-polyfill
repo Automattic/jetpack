@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: PHPUnit: Remove unnecessary `@before` and `@after` annotations from tests based on `Yoast\PHPUnitPolyfills\TestCases\TestCase`.
+
+

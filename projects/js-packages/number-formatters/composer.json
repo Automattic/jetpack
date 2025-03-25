@@ -1,0 +1,41 @@
+{
+	"name": "automattic/js-number-formatters",
+	"description": "Number formatting utilities.",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"scripts": {
+		"build-production": [
+			"pnpm run build"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-coverage": [
+			"pnpm run test-coverage"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"extra": {
+		"autotagger": true,
+		"npmjs-autopublish": true,
+		"mirror-repo": "Automattic/number-formatters",
+		"textdomain": "number-formatters",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/number-formatters/compare/${old}...${new}"
+		}
+	}
+}

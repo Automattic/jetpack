@@ -39,7 +39,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * Set up before class.
 	 *
 	 * @see Restrictions here: https://github.com/php-mock/php-mock-phpunit?tab=readme-ov-file#restrictions
-	 * @beforeClass
 	 */
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
@@ -48,8 +47,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
 	protected function set_up() {
 		parent::set_up_wordbless();
@@ -74,8 +71,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Clean up after test
-	 *
-	 * @after
 	 */
 	protected function tear_down() {
 		$this->wp_filesystem->delete( WP_PLUGIN_DIR . '/deleted-plugin-0', true );
