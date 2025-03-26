@@ -221,7 +221,12 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	 */
 	public function on_module_status_update( $module_slug, $is_activated ) {
 		$modules = $this->get_available_modules_and_submodules();
-		$module  = $modules[ $module_slug ];
+
+		if ( ! isset( $modules[ $module_slug ] ) ) {
+			return;
+		}
+
+		$module = $modules[ $module_slug ];
 
 		if ( ! $module ) {
 			return;
