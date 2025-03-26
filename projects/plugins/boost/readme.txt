@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.12.0-beta - 2025-03-26
+### 3.12.0-beta2 - 2025-03-26
 #### Added
 - Add Account Protection initialization
 - Cache: Add Page Cache Preloading for Cornerstone Pages
