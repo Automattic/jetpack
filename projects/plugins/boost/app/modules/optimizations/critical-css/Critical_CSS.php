@@ -64,7 +64,7 @@ class Critical_CSS implements Feature, Changes_Output_After_Activation, Optimiza
 	 * @return string[]
 	 */
 	public static function get_change_output_action_names() {
-		return array( Critical_CSS_Invalidator::INVALIDATE_ACTION_NAME, Critical_CSS_State::GENERATION_ACTION_NAME );
+		return array( 'jetpack_boost_critical_css_invalidated', 'jetpack_boost_critical_css_generated' );
 	}
 
 	public static function is_available() {
