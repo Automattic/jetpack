@@ -305,12 +305,12 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 export default () => {
 	return (
 		<ErrorBoundary
-			fallback={
+			fallback={ _error => (
 				<ErrorNotice
 					title={ __( 'Error', 'jetpack-boost' ) }
 					error={ new Error( __( 'Unable to load Cache settings.', 'jetpack-boost' ) ) }
 				/>
-			}
+			) }
 		>
 			<Meta />
 		</ErrorBoundary>
