@@ -1,11 +1,5 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
-
-$studio-gray-10: #c3c4c7;
-$studio-gray-20: #a7aaad;
-$studio-gray-80: #2c3338;
-$studio-gray-90: #1d2327;
-$color-neutral-10: #f0f0f0;
-$color-primary: $studio-gray-90;
+@import '@automattic/jetpack-base-styles/root-variables';
 
 .dot-pager {
 	width: 100%;
@@ -59,7 +53,7 @@ $color-primary: $studio-gray-90;
 	}
 
 	&:focus-visible {
-		box-shadow: 0 0 0 2px $color-primary;
+		box-shadow: 0 0 0 2px var(--jp-gray-90);
 	}
 }
 
@@ -68,14 +62,14 @@ $color-primary: $studio-gray-90;
 	width: 6px;
 	height: 6px;
 	padding: 0px;
-	background-color: $color-neutral-10;
+	background-color: var(--jp-white-off);
 
 	&:hover {
-		background-color: $studio-gray-20;
+		background-color: var(--jp-gray-20);
 	}
 
 	&.dot-pager__control-current {
-		background-color: $studio-gray-80;
+		background-color: var(--jp-gray-80);
 	}
 }
 
