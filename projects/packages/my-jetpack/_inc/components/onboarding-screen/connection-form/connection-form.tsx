@@ -40,10 +40,10 @@ const ConnectionForm = () => {
 				{ preventWidows( socialConnectionDescription ) }
 			</Text>
 
-			<SocialButton service="google" disabled={ isButtonDisabled } />
-			<SocialButton service="apple" disabled={ isButtonDisabled } />
-			<SocialButton service="github" disabled={ isButtonDisabled } />
-			<SocialButton service="jetpack" disabled={ isButtonDisabled } />
+			<SocialButton service="google" disabled={ isButtonDisabled } onSubmit={ handleSubmit } />
+			<SocialButton service="apple" disabled={ isButtonDisabled } onSubmit={ handleSubmit } />
+			<SocialButton service="github" disabled={ isButtonDisabled } onSubmit={ handleSubmit } />
+			<SocialButton service="jetpack" disabled={ isButtonDisabled } onSubmit={ handleSubmit } />
 
 			<Separator />
 
