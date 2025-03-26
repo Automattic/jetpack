@@ -192,7 +192,7 @@ class Jetpack_Boost {
 	 * @param array $schedules The existing cron schedules.
 	 * @return array The modified cron schedules.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.12.0
 	 */
 	public function custom_cron_intervals( $schedules ) {
 		// The "twicehourly" name maintains the same pattern as the default "twicedaily" name.
