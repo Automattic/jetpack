@@ -21,7 +21,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.25.16';
+	const PACKAGE_VERSION = '0.25.17';
 
 	/**
 	 * List of dependencies needed to render the dashboard in wp-admin.
