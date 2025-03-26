@@ -19,11 +19,13 @@
 }
 
 #jetpack_summary_widget {
+
 	* {
 		box-sizing: border-box;
 	}
 
 	h2.hndle {
+
 		span {
 			display: flex;
 			align-items:center;
@@ -106,6 +108,7 @@
 					font-size: 1.25em;
 					margin: 0 0 .5em 0;
 				}
+
 				p {
 					margin: 0 0 .25em;
 					color: var(--jp-gray-40);
@@ -123,9 +126,11 @@
 						color: var(--jp-black);
 						display: block;
 						text-decoration: none;
+
 						&.button {
 							display: inline;
 						}
+
 						&:active, &:focus, &:hover {
 							text-decoration: underline;
 						}
@@ -200,6 +205,7 @@
 
 	#top-search {
 		grid-area: searches;
+
 		p {
 			color: #999;
 		}
@@ -222,6 +228,7 @@
 		svg {
 			width: 40px;
 			height: 40px;
+
 			path {
 				fill: $green-primary;
 			}
@@ -247,8 +254,10 @@
 		.actions {
 			text-align: center;
 			padding: 15px 0 10px 0;
+
 			small {
 				display: block;
+
 				a {
 					color: #999;
 				}
@@ -310,6 +319,7 @@
 			svg {
 				height: 20px;
 			}
+
 			span {
 				float: right;
 			}
@@ -325,8 +335,11 @@
 
 /* Hide the widget title's SVG in the Screen Options tab */
 .metabox-prefs {
+
 	label[for="jetpack_summary_widget-hide"] {
+
 		span {
+
  			svg {
 				 height: 1.2rem;
 				 vertical-align: text-bottom;

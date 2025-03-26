@@ -51,6 +51,7 @@
 .dops-chart__bar-marker,
 .dops-chart__y-axis-label,
 .dops-chart .dops-chart__y-axis-marker {
+
 	&.is-fifty {
 		top: 50%;
 	}
@@ -300,6 +301,7 @@
 }
 
 @include breakpoint( "<480px" ) {
+
 	.dops-chart__legend-option:first-child .dops-chart__legend-color {
 		margin-left: 2px; // 2
 	}
@@ -452,6 +454,7 @@
 						font-weight: bold;
 					}
 				}
+
 				.value {
 					float: none;
 				}

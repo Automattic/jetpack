@@ -157,6 +157,7 @@
 }
 
 @media ( max-width: 599px ) {
+
 	.accordion-header {
 		display: grid;
 		grid-auto-rows: minmax( auto, auto );
@@ -192,6 +193,7 @@
 }
 
 @media ( max-width: 1200px ) {
+
 	.accordion-header-status {
 		display: grid;
 	}

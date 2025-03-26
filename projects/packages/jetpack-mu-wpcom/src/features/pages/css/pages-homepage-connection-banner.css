@@ -39,6 +39,7 @@
 }
 
 @media screen and (max-width: 782px) {
+
     .wpcom-homepage-notice-content {
         flex-direction: column;
         align-items: flex-start;

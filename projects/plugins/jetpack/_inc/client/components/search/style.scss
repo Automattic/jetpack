@@ -49,6 +49,7 @@
 
 	.dops-search__icon-navigation,
 	.dops-search__clear-btn {
+
 		&:focus-visible {
 			outline: solid 2px var(--jp-green-50);
 		}
@@ -161,6 +162,7 @@
 		position: relative;
 		font-size: 16px;
 		border-radius: inherit;
+
 		&::before {
 
 			@include long-content-fade( $size: 32px, $color: $white, $z-index: z-index( '.dops-search', '.dops-search__input' ) + 2 );

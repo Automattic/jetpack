@@ -3,9 +3,11 @@
 .infinite-scroll #wrapper {
 	margin-bottom: 40px;
 }
+
 .infinite-scroll #content {
 	margin-bottom: 50px;
 }
+
 .infinite-scroll #content .infinite-wrap {
 	padding-top: 0;
 	border-top: 0;
@@ -22,6 +24,7 @@
 .infinity-end.neverending #footer {
 	display: block;
 }
+
 #infinite-footer .blog-info a {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }

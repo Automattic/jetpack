@@ -26,12 +26,14 @@
 	}
 
 	.cta {
+
 		svg, img {
 			max-width: 100%;
 		}
 	}
 
 	@include breakpoint( xs ) {
+
 		.content {
 			padding: $spacing-unit * 3;
 		}

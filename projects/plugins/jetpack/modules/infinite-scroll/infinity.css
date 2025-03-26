@@ -7,6 +7,7 @@
 	height: 28px;
 	text-align: center;
 }
+
 #infinite-handle span {
 	background: #333;
 	border-radius: 1px;
@@ -20,9 +21,12 @@
  * CSS Spinner Styles
  */
 @keyframes spinner-inner {
+
 	0% { opacity: 1 }
+
 	100% { opacity: 0 }
 }
+
 .infinite-loader .spinner-inner div {
 	left: 47px;
 	top: 24px;
@@ -35,66 +39,79 @@
 	border-radius: 3px / 6px;
 	transform-origin: 3px 26px;
 }
+
 .infinite-loader .spinner-inner div:nth-child(1) {
 	transform: rotate(0deg);
 	animation-delay: -0.9166666666666666s;
 	background: #000000;
 }
+
 .infinite-loader .spinner-inner div:nth-child(2) {
 	transform: rotate(30deg);
 	animation-delay: -0.8333333333333334s;
 	background: #000000;
 }
+
 .infinite-loader .spinner-inner div:nth-child(3) {
 	transform: rotate(60deg);
 	animation-delay: -0.75s;
 	background: #000000;
 }
+
 .infinite-loader .spinner-inner div:nth-child(4) {
 	transform: rotate(90deg);
 	animation-delay: -0.6666666666666666s;
 	background: #000000;
 }
+
 .infinite-loader .spinner-inner div:nth-child(5) {
 	transform: rotate(120deg);
 	animation-delay: -0.5833333333333334s;
 	background: #000000;
 }
+
 .infinite-loader .spinner-inner div:nth-child(6) {
 	transform: rotate(150deg);
 	animation-delay: -0.5s;
 	background: #000000;
 }
+
 .infinite-loader .spinner-inner div:nth-child(7) {
 	transform: rotate(180deg);
 	animation-delay: -0.4166666666666667s;
 	background: #000000;
 }
+
 .infinite-loader .spinner-inner div:nth-child(8) {
 	transform: rotate(210deg);
 	animation-delay: -0.3333333333333333s;
 	background: #000000;
 }
+
 .infinite-loader .spinner-inner div:nth-child(9) {
 	transform: rotate(240deg);
 	animation-delay: -0.25s;
 	background: #000000;
 }
+
 .infinite-loader .spinner-inner div:nth-child(10) {
 	transform: rotate(270deg);
 	animation-delay: -0.16666666666666666s;
 	background: #000000;
 }
+
 .infinite-loader .spinner-inner div:nth-child(11) {
 	transform: rotate(300deg);
 	animation-delay: -0.08333333333333333s;
 	background: #000000;
 }
+
 .infinite-loader .spinner-inner div:nth-child(12) {
 	transform: rotate(330deg);
 	animation-delay: 0s;
 	background: #000000;
 }
+
 .infinite-loader .spinner {
 	width: 28px;
 	height: 28px;
@@ -102,6 +119,7 @@
 	overflow: hidden;
 	background: none;
 }
+
 .infinite-loader .spinner-inner {
 	width: 100%;
 	height: 100%;
@@ -110,6 +128,7 @@
 	backface-visibility: hidden;
 	transform-origin: 0 0; /* see note above */
 }
+
 .infinite-loader .spinner-inner div {
 	box-sizing: content-box;
 }
@@ -149,9 +168,11 @@
  * the button into a block element, spanning the content's full width.
  */
 @media (max-width: 800px) {
+
 	#infinite-handle span:before {
 		display: none;
 	}
+
 	#infinite-handle span {
 		display: block;
 	}
@@ -166,14 +187,17 @@
 		left: 0;
 	width: 100%;
 }
+
 #infinite-footer a {
 	text-decoration: none;
 }
+
 #infinite-footer .blog-info a:hover,
 #infinite-footer .blog-credits a:hover {
 	color: #444;
 	text-decoration: underline;
 }
+
 #infinite-footer .container {
 	background: rgba( 255, 255, 255, 0.8 );
 	border-color: #ccc;
@@ -187,6 +211,7 @@
 	padding: 1px 20px;
 	width: 780px;
 }
+
 #infinite-footer .blog-info,
 #infinite-footer .blog-credits {
 	-moz-box-sizing: border-box;
@@ -194,6 +219,7 @@
 	box-sizing: border-box;
 	line-height: 25px;
 }
+
 #infinite-footer .blog-info {
 	float: left;
 	overflow: hidden;
@@ -202,21 +228,25 @@
 	white-space: nowrap;
 	width: 40%;
 }
+
 #infinite-footer .blog-credits {
 	font-weight: normal;
 	float: right;
 	width: 60%;
 }
+
 #infinite-footer .blog-info a {
 	color: #111;
 	font-size: 14px;
 	font-weight: bold;
 }
+
 #infinite-footer .blog-credits {
 	color: #888;
 	font-size: 12px;
 	text-align: right;
 }
+
 #infinite-footer .blog-credits a {
 	color: #646970;
 }
@@ -232,18 +262,22 @@
  * Responsive structure for the footer
  */
 @media (max-width: 640px) {
+
 	#infinite-footer .container {
 		-moz-box-sizing: border-box;
 		-webkit-box-sizing: border-box;
 		box-sizing: border-box;
 		width: 100%;
 	}
+
 	#infinite-footer .blog-info {
 		width: 30%;
 	}
+
 	#infinite-footer .blog-credits {
 		width: 70%;
 	}
+
 	#infinite-footer .blog-info a,
 	#infinite-footer .blog-credits {
 		font-size: 10px;
@@ -254,6 +288,7 @@
  * No fixed footer on small viewports
  */
 @media ( max-width: 640px ) {
+
 	#infinite-footer {
 		position: static;
 	}

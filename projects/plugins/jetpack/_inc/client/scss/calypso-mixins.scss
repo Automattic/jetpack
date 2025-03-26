@@ -117,6 +117,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 }
 
 @mixin clear-fix {
+
 	&:after {
 		content: ".";
 		display: block;
@@ -361,9 +362,11 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 
 // Simple animation to make elements appear
 @keyframes appear {
+
 	0% {
 		opacity: 0;
 	}
+
 	100% {
 		opacity: 1;
 	}

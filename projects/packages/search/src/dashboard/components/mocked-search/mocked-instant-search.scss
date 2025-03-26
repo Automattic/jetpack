@@ -30,6 +30,7 @@ $color-text-lighter: $studio-gray-50;
 	align-items: center;
 	border-bottom: 1px solid $color-layout-borders;
 }
+
 .jp-mocked-instant-search__search-icon {
 	display: flex;
 	justify-content: center;
@@ -42,9 +43,11 @@ $color-text-lighter: $studio-gray-50;
 		height: $close-button-size-mobile;
 	}
 }
+
 .jp-mocked-instant-search__search-mock-input {
 	width: calc( 100% - #{$close-button-size} - #{$close-button-size} );
 }
+
 .jp-mocked-instant-search__close-button {
 	display: flex;
 	align-items: center;
@@ -71,6 +74,7 @@ $color-text-lighter: $studio-gray-50;
 	position: relative;
 	height: 100%;
 }
+
 .jp-mocked-instant-search__search-results-primary {
 	width: 100%;
 	padding: 1em 4em;
@@ -83,6 +87,7 @@ $color-text-lighter: $studio-gray-50;
 		padding: 2em;
 	}
 }
+
 .jp-mocked-instant-search__search-results-header {
 	display: flex;
 	flex-flow: row wrap;
@@ -97,14 +102,18 @@ $color-text-lighter: $studio-gray-50;
 			width: 100%;
 		}
 	}
+
 	.jp-mocked-instant-search__result-sort-list {
+
 		span {
 			font-size: 1em;
 			margin-left: 0.5em;
+
 			&:first-child {
 				margin-left: 0;
 			}
 		}
+
 		.jp-mocked-instant-search__result-sort-selected {
 			color: $color-plan;
 		}
@@ -114,6 +123,7 @@ $color-text-lighter: $studio-gray-50;
 		}
 	}
 }
+
 .jp-mocked-instant-search__search-result {
 	margin-top: 1em;
 }
@@ -138,18 +148,23 @@ $color-text-lighter: $studio-gray-50;
 		display: none;
 	}
 }
+
 .jp-mocked-instant-search__search-filter-header {
 	font-weight: bold;
 }
+
 .jp-mocked-instant-search__search-filter {
+
 	label {
 		cursor: default;
+
 		input[type='checkbox'] {
 			border: 1px solid lavender;
 			border-radius: 5px;
 			cursor: default;
 		}
 	}
+
 	span {
 		display: inline-block;
 		margin-left: 1em;
@@ -157,11 +172,13 @@ $color-text-lighter: $studio-gray-50;
 		background-color: lavender;
 		width: 50em;
 	}
+
 	input[type='checkbox'] {
 		height: 1em;
 		width: 1em;
 	}
 }
+
 .jp-mocked-instant-search__search-filter-list {
 	margin-top: 1em;
 }

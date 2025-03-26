@@ -69,6 +69,7 @@
 	}
 
 	.learn-more {
+
 		&:global(.components-button) {
 			padding-inline: 6px;
 			font-size: 14px;
@@ -167,6 +168,7 @@
 
 
 	.disconnect {
+
 		&:global(.components-button.is-tertiary) {
 			font-size: 1rem;
 			font-weight: 400;
@@ -189,6 +191,7 @@
 	width: 100%;
 
 	.connect-button {
+
 		&:global(.components-button) {
 			padding: 6px 16px;
 			font-size: 14px;
@@ -224,6 +227,7 @@
 		}
 
 		@include break-small {
+
 			button {
 				align-self: flex-end;
 			}

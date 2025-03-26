@@ -17,6 +17,7 @@
 	/* customize your Goodreads header here*/
 	display: none;
 }
+
 .jetpack-goodreads-legacy-widget div[class^="gr_custom_each_container"] {
 
 	/* customize each individual book container here */
@@ -27,6 +28,7 @@
 	padding-bottom: 4px;
 	border-bottom: 1px solid #a7aaad;
 }
+
 .jetpack-goodreads-legacy-widget div[class^="gr_custom_book_container"] {
 
 	/* customize your book covers here */
@@ -36,11 +38,13 @@
 	margin-left: 4px;
 	width: 39px;
 }
+
 .jetpack-goodreads-legacy-widget div[class^="gr_custom_author"] {
 
 	/* customize your author names here */
 	font-size: 10px;
 }
+
 .jetpack-goodreads-legacy-widget div[class^="gr_custom_tags"] {
 
 	/* customize your tags here */

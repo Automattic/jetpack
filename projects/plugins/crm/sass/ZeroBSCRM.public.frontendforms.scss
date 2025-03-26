@@ -9,13 +9,17 @@
 @import 'ZeroBSCRM.frontendforms';
 
 .widget, .mh-sidebar{
+
 	.content{
+
 		h3{
 			margin-top:10px !important;
 			margin-bottom:10px;
 		}
 	}
+
 	.simple{
+
 	    .input{
 			width:90% !important;
 			float:left;
@@ -26,6 +30,7 @@
 			font-weight: 100;
 			background:white;
 		}
+
 		.send, input[type="submit"]{
 			width: 80% !important;
 			background: #0d6db8;
@@ -50,6 +55,7 @@
     margin-bottom: 8px;
     
 }
+
 .naked, .simple {
 
 	.zbscrmReCaptcha {

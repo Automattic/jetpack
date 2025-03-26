@@ -21,6 +21,7 @@
 }
 
 @media ( min-width: 481px ) {
+
 	.card {
 		padding: 24px;
 	}
@@ -342,6 +343,7 @@ input[type="radio"] + span {
 }
 
 @keyframes grow {
+
 	0% {
 		transform: scale(0.3);
 	}
@@ -356,6 +358,7 @@ input[type="radio"] + span {
 }
 
 @keyframes grow {
+
 	0% {
 		transform: scale(0.3);
 	}

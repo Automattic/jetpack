@@ -79,6 +79,7 @@ $jetpack-podcast-player-error: $alert-red;
 			text-decoration: none;
 			border: none;
 		}
+
 		a:focus {
 			outline: 1px solid;
 			outline-color: $jetpack-podcast-player-secondary;
@@ -87,6 +88,7 @@ $jetpack-podcast-player-error: $alert-red;
 		}
 
 		a.jetpack-podcast-player__link {
+
 			&,
 			&:active,
 			&:visited {
@@ -329,6 +331,7 @@ $jetpack-podcast-player-error: $alert-red;
 	}
 
 	@supports ( mask-image: none ) or ( -webkit-mask-image: none ) {
+
 		.jetpack-podcast-player__track-status-icon--playing {
 			background-image: none;
 
@@ -347,6 +350,7 @@ $jetpack-podcast-player-error: $alert-red;
 				max-width: 20px;
 				margin: 4px 2px 0 0;
 			}
+
 			svg {
 
 				/**
@@ -364,6 +368,7 @@ $jetpack-podcast-player-error: $alert-red;
 	 * Style the block to hide dynamic UI and show just its default style (no-js).
 	 */
 	&.is-default {
+
 		.jetpack-podcast-player__track-title {
 			padding-inline-start: 0; // Account for missing space for status-icon.
 		}

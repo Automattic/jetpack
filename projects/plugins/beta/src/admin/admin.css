@@ -37,6 +37,7 @@ html {
 .jetpack-beta__wrap {
 	margin-bottom: 32px;
 }
+
 .jetpack-beta__wrap h2 {
 	font-weight: 400;
 	margin-bottom: 8px;
@@ -61,6 +62,7 @@ html {
 	top: -5px;
 	left: 5px;
 }
+
 .jetpack-beta__bleeding-edge-head .jetpack-beta-container {
 	padding: 11px 0 6px;
 }
@@ -107,6 +109,7 @@ html {
 }
 
 @media ( min-width: 481px ) {
+
 	.dops-card {
 		margin-bottom: 1rem;
 		padding: 1.5rem;
@@ -118,6 +121,7 @@ html {
 }
 
 @media ( min-width: 481px ) {
+
 	.dops-card.is-compact {
 		margin-bottom: 1px;
 		padding: 1rem 1.5rem;
@@ -137,6 +141,7 @@ html {
 }
 
 @media ( min-width: 481px ) {
+
 	.dops-card-title {
 		padding: 16px 24px;
 	}
@@ -162,6 +167,7 @@ html {
 }
 
 @media ( min-width: 481px ) {
+
 	.dops-card-section {
 		padding: 24px;
 	}
@@ -188,6 +194,7 @@ html {
 }
 
 @media all and ( max-width: 590px ) {
+
 	.dops-card-section .dops-card-section-orient-horizontal .dops-card-section-label {
 		margin-bottom: 10px;
 		float: none;
@@ -201,6 +208,7 @@ html {
 }
 
 @media all and ( max-width: 590px ) {
+
 	.dops-card-section .dops-card-section-orient-horizontal .dops-card-section-content {
 		float: none;
 		width: 100%;
@@ -367,9 +375,11 @@ html {
 }
 
 @keyframes appear {
+
 	0% {
 		opacity: 0;
 	}
+
 	100% {
 		opacity: 1;
 	}
@@ -383,10 +393,12 @@ html {
 	color: #124964;
 	margin-left: 10px;
 }
+
 .form-toggle__label:focus {
 	-webkit-box-shadow: none;
 	box-shadow: none;
 }
+
 .form-toggle-explanation {
 	text-transform: uppercase;
 	color: #87a6bc;
@@ -394,6 +406,7 @@ html {
 	line-height: 20px;
 	vertical-align: top;
 }
+
 .form-toggle__switch {
 	margin-top: 2px;
 	border-radius: 8px;
@@ -416,10 +429,12 @@ html {
 	display: block;
 	content: '';
 }
+
 .form-toggle__label:active .form-toggle__switch,
 .form-toggle__label.is-active .form-toggle__switch {
 	background: #00aadc;
 }
+
 .form-toggle__label:active .form-toggle__switch:after,
 .form-toggle__label.is-active .form-toggle__switch:after {
 	left: 10px;
@@ -428,6 +443,7 @@ html {
 .form-toggle__label.is-active:active .form-toggle__switch {
 	background: #a8bece;
 }
+
 .form-toggle__label.is-active:active .form-toggle__switch:after {
 	left: 2px;
 }
@@ -634,6 +650,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 480px ) {
+
 	.dops-foldable-card__summary,
 	.dops-foldable-card__summary_expanded {
 		display: none;
@@ -673,6 +690,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 660px ) {
+
 	.dops-search {
 		width: 50px;
 	}
@@ -692,6 +710,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 660px ) {
+
 	.dops-search .dops-search-open__icon {
 		width: 50px;
 	}
@@ -731,6 +750,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 660px ) {
+
 	.dops-search .dops-search-close__icon::before {
 		font-size: 14px;
 		margin-top: -7px;
@@ -738,6 +758,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 660px ) {
+
 	.dops-search .dops-search-close__icon {
 		width: 50px;
 	}
@@ -780,6 +801,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 660px ) {
+
 	.dops-search__input[type='search'] {
 		opacity: 0;
 		left: 0;
@@ -828,6 +850,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 660px ) {
+
 	.dops-search .dops-spinner {
 		left: 25px;
 	}
@@ -843,6 +866,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 660px ) {
+
 	.animating.dops-search-opening .dops-search input {
 		opacity: 1;
 	}
@@ -867,24 +891,28 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 480px ) {
+
 	.dops-section-nav.is-open {
 		box-shadow: 0 0 0 1px #87a6bc, 0 2px 4px #c8d7e1;
 	}
 }
 
 @media ( min-width: 481px ) {
+
 	.dops-section-nav.has-pinned-items {
 		padding-right: 60px;
 	}
 }
 
 @media ( min-width: 481px ) and ( max-width: 660px ) {
+
 	.dops-section-nav.has-pinned-items {
 		padding-right: 50px;
 	}
 }
 
 @media ( max-width: 660px ) {
+
 	.dops-section-nav {
 		height: 46px;
 		margin-bottom: 9px;
@@ -931,6 +959,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( min-width: 481px ) {
+
 	.dops-section-nav__mobile-header {
 		display: none;
 	}
@@ -965,6 +994,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 480px ) {
+
 	.dops-section-nav.is-open .dops-section-nav__panel {
 		padding-bottom: 15px;
 		border-top: solid 1px #c8d7e1;
@@ -973,6 +1003,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( min-width: 481px ) {
+
 	.dops-section-nav__panel {
 		display: -ms-flexbox;
 		display: flex;
@@ -1000,6 +1031,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 480px ) {
+
 	.dops-section-nav-group {
 		display: none;
 	}
@@ -1010,6 +1042,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( min-width: 481px ) {
+
 	.dops-section-nav-group {
 		margin-top: 0;
 		padding-top: 0;
@@ -1046,6 +1079,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 480px ) {
+
 	.has-siblings .dops-section-nav-group__label {
 		display: block;
 	}
@@ -1062,6 +1096,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( min-width: 481px ) {
+
 	.dops-section-nav-tabs {
 		width: 0;
 		-ms-flex: 1 0 auto;
@@ -1083,6 +1118,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( min-width: 481px ) {
+
 	.dops-section-nav-tabs__list {
 		display: -ms-flexbox;
 		display: flex;
@@ -1100,6 +1136,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( min-width: 481px ) {
+
 	.dops-section-nav-tab {
 		width: auto;
 		-ms-flex: none;
@@ -1174,6 +1211,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( min-width: 481px ) {
+
 	.dops-section-nav-tab__link {
 		display: block;
 		width: auto;
@@ -1209,6 +1247,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( min-width: 481px ) {
+
 	.dops-section-nav-tab__text {
 		display: inline;
 		-ms-flex: none;
@@ -1240,6 +1279,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 480px ) {
+
 	.dops-section-nav .dops-search.is-pinned {
 		height: 46px;
 	}
@@ -1269,12 +1309,15 @@ button.dops-foldable-card__action {
 .branch-card.branch-card-hide {
 	display: none;
 }
+
 .branch-card.branch-card-active.branch-card-hide {
 	display: block;
 }
+
 .branch-card-active .activate-branch {
 	display: none;
 }
+
 .branch-card-active .dops-foldable-card__secondary .dops-foldable-card__summary::before {
 	content: attr( data-active );
 }

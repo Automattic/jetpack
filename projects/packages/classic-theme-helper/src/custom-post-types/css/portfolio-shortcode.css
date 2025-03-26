@@ -41,22 +41,27 @@
 	margin-right: 2%;
 	width: 15%;
 }
+
 .portfolio-entry-first-item-row {
 	clear: both;
 }
+
 .portfolio-entry-last-item-row {
 	margin-right: 0;
 }
 
 @media screen and (max-width:768px) {
+
 	.portfolio-entry-mobile-first-item-row{
 		margin-right: 4%;
 		width: 48%;
 		clear:both;
 	}
+
 	.portfolio-entry-first-item-row {
 		clear:none;
 	}
+
 	.portfolio-entry-mobile-last-item-row{
 		width: 48%;
 		margin-right: 0;

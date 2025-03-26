@@ -89,6 +89,7 @@ body.infinity-end .site-main > div:last-of-type > article:last-of-type .entry-fo
 }
 
 @media only screen and (min-width: 1024px) {
+
 	.widget-area {
 
 		/*
@@ -103,6 +104,7 @@ body.infinity-end .site-main > div:last-of-type > article:last-of-type .entry-fo
 
 /* See https: //core.trac.wordpress.org/browser/trunk/src/wp-content/themes/twentytwentyone/style.css?rev=58726#L1276 */
 @supports (-webkit-appearance: none) or (-moz-appearance: none) {
+
 	.contact-form input.grunion-field[type=checkbox],
 	.contact-form input.grunion-field[type=radio] {
 		width: 25px;

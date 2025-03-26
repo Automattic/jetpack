@@ -285,11 +285,13 @@ button.jetpack-instant-search__overlay-close {
 	svg.gridicon {
 		fill: $color-text-lighter;
 	}
+
 	&:focus,
 	&:hover,
 	&:active {
 		border-color: $color-layout-borders;
 		background-color: transparent !important;
+
 		svg.gridicon {
 			fill: $color-text-light;
 		}
@@ -304,6 +306,7 @@ button.jetpack-instant-search__overlay-close {
 
 // Only show animation to users who have not chosen reduced motion
 @media ( prefers-reduced-motion: no-preference ) {
+
 	.jetpack-instant-search__search-results-filter-button {
 		transition: background-color 0.25s ease-in-out;
 	}

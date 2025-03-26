@@ -2,6 +2,7 @@ $myjetpack-connection-avatar-width: 32px;
 $myjetpack-connection-avatar-overlap: 10px;
 
 .connection-status-card {
+
 	.status {
 		display: flex;
 		align-items: center;
@@ -75,6 +76,7 @@ $myjetpack-connection-avatar-overlap: 10px;
 			}
 
 			&.success {
+
 				svg {
 					fill: var( --jp-green-50 );
 				}

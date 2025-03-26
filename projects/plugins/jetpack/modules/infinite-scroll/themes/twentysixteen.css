@@ -105,6 +105,7 @@ body #infinite-footer .blog-credits a:focus {
 }
 
 @media screen and (min-width: 44.375em) {
+
 	.infinite-wrap > article,
 	.site-main .infinite-loader {
 		margin-bottom: 5.25em;
@@ -135,6 +136,7 @@ body #infinite-footer .blog-credits a:focus {
 }
 
 @media screen and (min-width: 56.875em) {
+
 	.infinite-loader .spinner {
 		left: 0 !important;
 	}
@@ -154,6 +156,7 @@ body #infinite-footer .blog-credits a:focus {
 }
 
 @media screen and (min-width: 61.5625em) {
+
 	.infinite-wrap > article,
 	.site-main .infinite-loader {
 		margin-bottom: 7.0em;

@@ -76,21 +76,25 @@
 	}
 
 	@include for-tablet-up {
+
 		.lg-col-span-0 {
 			display: none;
 		}
 	}
 
 	@include for-tablet-down {
+
 		.md-col-span-0 {
 			display: none;
 		}
 	}
 
 	@include for-phone-down {
+
 		.sm-col-span-0 {
 			display: none;
 		}
+
 		.sm-col-span-1 {
 			display: block;
 		}

@@ -148,6 +148,7 @@ textarea:focus {
 	}
 
 	@if ( $low-contrast-theme != "true" ) {
+
 		.button,
 		.button-secondary {
 			color: $highlight-color;
@@ -170,6 +171,7 @@ textarea:focus {
 		}
 
 		.button-primary {
+
 			&:hover {
 				color: #fff;
 			}
@@ -189,6 +191,7 @@ textarea:focus {
 		color: $text-color;
 		background-color: $base-color;
 	}
+
 	.wp-ui-text-primary {
 		color: $base-color;
 	}
@@ -197,6 +200,7 @@ textarea:focus {
 		color: $menu-highlight-text;
 		background-color: $menu-highlight-background;
 	}
+
 	.wp-ui-text-highlight {
 		color: $menu-highlight-background;
 	}
@@ -205,6 +209,7 @@ textarea:focus {
 		color: $menu-bubble-text;
 		background-color: $menu-bubble-background;
 	}
+
 	.wp-ui-text-notification {
 		color: $menu-bubble-background;
 	}
@@ -217,11 +222,13 @@ textarea:focus {
 
 /* List tables */
 @if $low-contrast-theme == "true" {
+
 	.wrap .page-title-action:hover {
 		color: $menu-text;
 		background-color: $menu-background;
 	}
 } @else {
+
 	.wrap .page-title-action,
 	.wrap .page-title-action:active {
 		border: 1px solid $highlight-color;

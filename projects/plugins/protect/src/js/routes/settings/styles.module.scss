@@ -28,6 +28,7 @@
 
     &__description,
     &__info {
+
         a {
             color: inherit;
     
@@ -38,6 +39,7 @@
     }
 
     &__info {
+
         svg {
             fill: var( --jp-gray-70 );
             margin-bottom: calc( -0.75 * var( --spacing-base ) ); // -6px

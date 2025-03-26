@@ -16,6 +16,7 @@
 
 	/* when users first click the block, we don't want them to select child blocks */
 	&:not(.is-selected) {
+
 		* {
 			pointer-events: none;
 		}

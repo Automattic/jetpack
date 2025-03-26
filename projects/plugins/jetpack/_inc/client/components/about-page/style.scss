@@ -51,6 +51,7 @@ $color__back-link: #787c82;
 		width: 100%;
 	}
 }
+
 .jetpack-about__content {
 	display: flex;
 
@@ -75,6 +76,7 @@ $color__back-link: #787c82;
 			margin-bottom: 0;
 		}
 	}
+
 	a {
 	  color: black;
 	  font-weight: 400;
@@ -86,6 +88,7 @@ $color__back-link: #787c82;
 	  &:hover {
 		text-decoration-thickness: 3px;
 	  }
+
 	  &:focus {
 		text-decoration-line: none;
 		border-radius: 2px;
@@ -177,6 +180,7 @@ $color__back-link: #787c82;
 		color: black;
 	  }
 	}
+
 	.star-rating .star {
 	  color: black;
 	}
@@ -190,6 +194,7 @@ $color__back-link: #787c82;
 	  color: black;
 	  text-decoration: underline;
 	}
+
   	& :hover {
 	  text-decoration-thickness: 3px;
 	}

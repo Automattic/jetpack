@@ -16,6 +16,7 @@ $jetpack-blogroll-item-container: bitem;
 	}
 
 	.block-editor-inner-blocks {
+
 		h3 {
 			font-size: 20px;
 			font-style: normal;
@@ -27,12 +28,14 @@ $jetpack-blogroll-item-container: bitem;
 	}
 
 	&.hide-avatar {
+
 		figure {
 			display: none;
 		}
 	}
 
 	&.hide-description {
+
 		.jetpack-blogroll-item-description {
 			display: none;
 		}
@@ -57,6 +60,7 @@ $jetpack-blogroll-item-container: bitem;
 	}
 
 	.wp-block-jetpack-blogroll-item + .wp-block-jetpack-blogroll-item {
+
 		.jetpack-blogroll-item-divider {
 			display: block;
 		}

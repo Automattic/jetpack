@@ -2,12 +2,14 @@
   Common styles for swal2 modals 
 */
 body[class*='zbs'] { 
+
 	.swal2-title {
 		font-size: 1.38rem;
 		font-weight: 600;
 		color: rgba(8,0,138,.87);
 		margin-bottom: 1rem;
 	}
+
 	p.jpcrm-export-success,
 	p.jpcrm-export-complete {
 		max-width: 21rem;

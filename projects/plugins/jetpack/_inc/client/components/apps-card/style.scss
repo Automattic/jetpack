@@ -114,6 +114,7 @@
 	align-items: center;
 
 	@include breakpoint( '<480px' ) {
+
 		.apps-badge:first-child {
 			margin-right: 0;
 		}

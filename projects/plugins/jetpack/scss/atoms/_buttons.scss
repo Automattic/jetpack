@@ -6,6 +6,7 @@
 .download-jetpack {
 	transition: all .1s ease-in-out;
 }
+
 .jp-button {
 	display: inline-block;
 	position: relative;
@@ -21,16 +22,19 @@
 	&:visited {
 		color: #efefef;
 	}
+
 	&:hover,
 	&:focus {
 		color: #fff;
 		background: #57972d;
 	}
+
 	&:active {
 		background: #57972d;
 		opacity: 0.8;
 	}
 }
+
 .jp-button--settings {
 
 	@extend .jp-button;
@@ -40,11 +44,13 @@
 	&:visited {
 		color: #e8eedf
 	}
+
 	&:hover,
 	&:focus {
 		background: #9fbd72;
 		color: #fff;
 	}
+
 	&.current {
 		background: #3c6621;
 		color: #fff;
@@ -53,6 +59,7 @@
 			inset 0 1px 3px #3c6621;
 	}
 }
+
 .download-jetpack {
 	display: inline-block;
 	position: relative;
@@ -71,6 +78,7 @@
 	&:visited {
 		color: #fff;
 	}
+
 	&:hover,
 	&:focus {
 		color: #fff;
@@ -79,6 +87,7 @@
 			0 6px 0 #3e6c20,
 			0 6px 3px rgba(0,0,0,.4);
 	}
+
 	&:active {
 		top: 6px;
 		box-shadow:
@@ -90,6 +99,7 @@
 			top: -6px;
 		}
 	}
+
 	&:before {
 		content: '';
 		display: inline-block;
@@ -102,6 +112,7 @@
 		background: url('../images/connect-plug.svg') center center no-repeat;
 		background-size: 100%;
 	}
+
 	&:after {
 		// fixes buggy clicks
 		content: '';
@@ -123,6 +134,7 @@
 	};
 
 	@include breakpoint(desktop){
+
 		&:active {
 			top: 0;
 		}

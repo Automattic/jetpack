@@ -86,6 +86,7 @@
 }
 
 @media (prefers-reduced-motion) {
+
 	.jetpack-form-file-field__preview {
 		animation: none;
 	}
@@ -107,6 +108,7 @@
 }
 
 @media (prefers-reduced-motion) {
+
 	.jetpack-form-file-field__preview > *,
 	.jetpack-form-file-field__preview:hover::before {
 		transition: none;
@@ -131,6 +133,7 @@
 }
 
 @media (prefers-reduced-motion) {
+
 	.jetpack-form-file-field__preview.fade-out {
 		animation: none;
 	}
@@ -158,6 +161,7 @@
 	height: 32px;
 	margin-right: 10px;
 }
+
 .jetpack-form-file-field__remove:before, .jetpack-form-file-field__remove:after {
 	position: absolute;
 	left: 15px;
@@ -167,9 +171,11 @@
 	top: 8px;
 	background-color: #000;
 }
+
 .jetpack-form-file-field__remove:before {
 	transform: rotate(45deg);
 }
+
 .jetpack-form-file-field__remove:after {
 	transform: rotate(-45deg);
 }
@@ -214,6 +220,7 @@
 	mask-image: radial-gradient(transparent var(--holesize),
 			black calc(var(--holesize) + 0.5px));
 }
+
 .jetpack-form-file-field__progress.is-complete::before {
 	display: none;
 	position: absolute;
@@ -268,6 +275,7 @@
 	display: inline-flex;
 	gap: 4px;
 }
+
 .jetpack-form-file-field__success {
 	color: #008A20;
 }
@@ -286,6 +294,7 @@
 }
 
 @keyframes jpShowFileField {
+
 	100% {
 		opacity: 1;
 		transform: none;
@@ -293,10 +302,12 @@
 }
 
 @keyframes jpFadeOutFileField {
+
 	0% {
 		opacity: 1;
 		transform: scale(1);
 	}
+
 	100% {
 		opacity: 0;
 		transform: scale(0.98);

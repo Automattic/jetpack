@@ -2,6 +2,7 @@
 @import "@wordpress/base-styles/mixins";
 
 .wpcom-site-editor-seller-celebration-modal {
+
 	.components-modal__content {
 
 		@include break-small {
@@ -10,6 +11,7 @@
 	}
 
 	.wpcom-block-editor-nux-modal__image-container {
+
 		img {
 			width: 158px;
 			height: 85px;
@@ -17,8 +19,10 @@
 	}
 
 	.wpcom-block-editor-nux-modal__buttons {
+
 		.components-button {
 			min-width: 113px;
+
 			&:not(.is-primary) {
 				border: 1px solid #c3c4c7;
 				border-radius: 4px;

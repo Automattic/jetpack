@@ -39,6 +39,7 @@
 }
 
 .broken-connection-btn {
+
 	&:global(.components-button.is-link.components-button.is-link) {
 		font-size: inherit;
 		font-weight: inherit;
@@ -50,6 +51,7 @@
 }
 
 .broken-connection-service {
+
 	.broken-connection {
 		font-weight: bold;
 		font-style: italic;

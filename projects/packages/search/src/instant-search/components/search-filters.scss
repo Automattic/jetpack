@@ -72,10 +72,12 @@
 		height: initial;
 		margin: 0;
 		width: initial;
+
 		&::after,
 		&::before {
 			display: none !important; // always hide custom selected checkbox styling.
 		}
+
 		&:focus {
 
 			@include apply-overlay-focus-styling();

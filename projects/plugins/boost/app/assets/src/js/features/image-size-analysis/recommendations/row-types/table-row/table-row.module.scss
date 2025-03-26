@@ -73,7 +73,9 @@
 	cursor: pointer;
 	text-align: center;
 	grid-column: expand;
+
 	.expanded & {
+
 		svg {
 			transform: rotate(180deg);
 		}

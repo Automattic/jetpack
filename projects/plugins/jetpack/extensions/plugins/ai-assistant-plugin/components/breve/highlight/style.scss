@@ -111,6 +111,7 @@
 			width: 100%;
 
 			.jetpack-ai-breve__spelling-suggestion {
+
 				& + .jetpack-ai-breve__spelling-suggestion {
 					border-top: 1px solid #dcdcde;
 				}
@@ -163,7 +164,9 @@
 			}
 
 			.ai-assistant-feedback {
+
 				&__selection {
+
 					.components-button:not(:disabled):hover {
 						color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #3858e9 ) );
 					}

@@ -39,6 +39,7 @@ $wp-gray-dark: #23282d;
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu',
 		'Cantarell', 'Helvetica Neue', sans-serif;
 }
+
 .jp-wrap {
 	display: flex;
 	align-items: center;
@@ -91,12 +92,14 @@ $wp-gray-dark: #23282d;
 }
 
 @include for-tablet-down {
+
 	.md-col-span-0 {
 		display: none;
 	}
 }
 
 @include for-phone-down {
+
 	.sm-col-span-0 {
 		display: none;
 	}

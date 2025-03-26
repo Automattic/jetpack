@@ -9,7 +9,9 @@
 }
 
 .jetpack-seo-panel {
+
 	.components-panel__row {
+
 		&:not(:last-child) {
 			margin-bottom: 2em;
 		}
@@ -26,6 +28,7 @@
 	}
 
 	.is-disabled {
+
 		input[type="checkbox"]:checked,
 		input[type="checkbox"]:indeterminate {
 			background-color: var( --jp-gray-5 );

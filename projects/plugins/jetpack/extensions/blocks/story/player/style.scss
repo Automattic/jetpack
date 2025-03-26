@@ -37,6 +37,7 @@
 	&:hover {
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 		transform: scale3d(1.03, 1.03, 1);
+
 		figure {
 			transform: scale3d(1.07, 1.07, 1);
 		}
@@ -113,6 +114,7 @@
 			}
 
 			@keyframes rotate-spinner {
+
 				100% {
 					transform: rotate( 360deg );
 				}
@@ -231,6 +233,7 @@
 
 	&.wp-story-ended,
 	&.wp-story-disabled {
+
 		.wp-story-overlay {
 			background-color: rgba(255, 255, 255, 0.4);
 		}
@@ -243,6 +246,7 @@
 
 		button {
 			border-width: 0;
+
 			&:hover {
 				border-width: 2px;
 			}
@@ -345,6 +349,7 @@
 		&:hover {
 			transform: none !important;
 			box-shadow: none !important;
+
 			figure {
 				transform: none;
 			}
@@ -378,6 +383,7 @@
 }
 
 .wp-story-fullscreen {
+
 	&.wp-story-app {
 		position: fixed;
 		// can force redraw on mobile safari
@@ -526,6 +532,7 @@
 
 		&.wp-story-ended,
 		&.wp-story-disabled {
+
 			.wp-story-overlay {
 
 				@media ( max-width: $break-medium ) {

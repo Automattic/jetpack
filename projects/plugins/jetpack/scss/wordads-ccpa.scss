@@ -39,6 +39,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 		box-shadow: 0 3px 30px rgba(25, 30, 35, 0.2) !important;
 		overflow: auto !important;
 	}
+
 	.ccpa__loading-message {
 		position: absolute !important;
 		top: 50% !important;
@@ -52,6 +53,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 	}
 
 	@media (min-width: 600px) {
+
 		.components-modal__frame {
 			top: 50% !important;
 			right: auto !important;
@@ -67,9 +69,11 @@ body.admin-bar .cleanslate .components-modal__frame {
 	}
 
 	@keyframes components-modal__appear-animation {
+
 		from {
 			margin-top: 32px !important;
 		}
+
 		to {
 			margin-top: 0 !important;
 		}
@@ -184,6 +188,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 	}
 
 	.components-icon-button:not(:disabled):not([aria-disabled="true"]):not(.is-default) {
+
 		&:hover, &:focus {
 			background-color: #fff !important;
 			color: #1d2327 !important;
@@ -256,6 +261,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 	}
 
 	@media (prefers-reduced-motion: reduce) {
+
 		.components-form-toggle .components-form-toggle__track {
 			transition-duration: 0s !important;
 		}
@@ -276,6 +282,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 	}
 
 	@media (prefers-reduced-motion: reduce) {
+
 		.components-form-toggle .components-form-toggle__thumb {
 			transition-duration: 0s !important;
 		}

@@ -93,6 +93,7 @@
 }
 
 @media (min-width: 700px) {
+
 	.entry-content div.sharedaddy h3.sd-title,
 	.entry-content h3.sd-title,
 	.entry-content #jp-relatedposts h3.jp-relatedposts-headline {
@@ -149,6 +150,7 @@
 }
 
 @media (max-width: 600px) {
+
 	.widget_eu_cookie_law_widget #eu-cookie-law {
 		font-size: 1.4rem;
 		padding: 1.5rem 1.5rem 6.5rem;
@@ -173,6 +175,7 @@
 }
 
 @media ( min-width: 700px ) {
+
 	.jetpack_subscription_widget .widget-title label {
 			font-size: 4rem;
 	}
@@ -196,6 +199,7 @@
 }
 
 @media (min-width: 700px) {
+
 	.entry-content #jp-relatedposts {
 		width: calc(100% - 8rem);
 	}
@@ -217,6 +221,7 @@
 }
 
 @media only screen and (max-width: 640px) {
+
 	#jp-relatedposts .jp-relatedposts-grid {
 		flex-direction: column;
 	}

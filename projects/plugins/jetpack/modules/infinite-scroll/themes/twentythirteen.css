@@ -10,14 +10,17 @@
 	background-color: #e8e5ce;
 	padding: 40px 0;
 }
+
 .infinite-loader .spinner {
 	margin: 0 auto;
 	width: 34px;
 	height: 34px;
 }
+
 .sidebar .infinite-loader .spinner {
 	padding-right: 376px;
 }
+
 .rtl.sidebar .infinite-loader .spinner {
 	padding-left: 376px;
 	padding-right: 0;
@@ -29,13 +32,16 @@
 	padding: 40px 0;
 	text-align: center;
 }
+
 .sidebar #infinite-handle {
 	padding-right: 376px;
 }
+
 .rtl.sidebar #infinite-handle {
 	padding-left: 376px;
 	padding-right: 0;
 }
+
 #infinite-handle span {
 	background: #e05d22; /* Old browsers */
 	background: -webkit-linear-gradient(top, #e05d22 0%, #d94412 100%); /* Chrome 10+, Safari 5.1+ */
@@ -49,12 +55,14 @@
 	padding: 11px 24px 10px;
 	text-decoration: none;
 }
+
 #infinite-handle span:hover {
 	background: #ed6a31; /* Old browsers */
 	background: -webkit-linear-gradient(top, #ed6a31 0%, #e55627 100%); /* Chrome 10+, Safari 5.1+ */
 	background:   linear-gradient(to bottom, #ed6a31 0%, #e55627 100%); /* W3C */
 	outline: none;
 }
+
 #infinite-handle span:active {
 	background: #d94412; /* Old browsers */
 	background: -webkit-linear-gradient(top, #d94412 0%, #e05d22 100%); /* Chrome 10+, Safari 5.1+ */
@@ -77,11 +85,13 @@
 
 /* For small viewports. */
 @media (max-width: 999px) {
+
 	.sidebar .infinite-loader .spinner,
 	.rtl.sidebar .infinite-loader .spinner {
 		padding-right: 0;
 		padding-left: 0;
 	}
+
 	.infinite-scroll #infinite-handle,
 	.rtl.sidebar #infinite-handle {
 		padding-right: 0;

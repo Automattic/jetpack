@@ -1,6 +1,7 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-simple-payments {
+
 	.simple-payments__wrapper {
 		display: grid;
 		grid-template-columns: 200px auto;
@@ -11,6 +12,7 @@
 	}
 
 	.simple-payments__field {
+
 		.components-base-control__field {
 			margin-bottom: 1em;
 		}
@@ -21,6 +23,7 @@
 	}
 
 	.simple-payments__field {
+
 		input,
 		textarea {
 			font: inherit;
@@ -35,6 +38,7 @@
 	.simple-payments__field.simple-payments__field-title,
 	.simple-payments__field.simple-payments__field-content,
 	.simple-payments__field.simple-payments__field-email {
+
 		.components-base-control__label {
 			clip: rect( 0 0 0 0 );
 			clip-path: inset( 50% );
@@ -47,6 +51,7 @@
 	}
 
 	.simple-payments__field-has-error {
+
 		.components-text-control__input,
 		.components-textarea-control__input {
 			border-color: var( --color-error );
@@ -79,6 +84,7 @@
 
 		.simple-payments__field-currency {
 			margin-right: 5px;
+
 			.components-input-control__container {
 				width: calc( 100% - 5px );
 			}
@@ -109,6 +115,7 @@
 	}
 
 	.simple-payments__field-email {
+
 		.components-text-control__input {
 			max-width: 400px;
 		}
@@ -130,6 +137,7 @@
 }
 
 .jetpack-simple-payments__purchase-link-text {
+
 	.components-base-control {
 		margin-bottom: 0;
 	}

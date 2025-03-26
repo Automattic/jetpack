@@ -41,6 +41,7 @@
     right: 10px;
 
   }
+
   .jpcrm-modal-close:hover {
     cursor: pointer;
   }
@@ -217,6 +218,7 @@
 
 /* Fix an apparent bug in Semantic UI CSS, which had the width larger than the screen min-width */
 @media only screen and (min-width: 768px) and (max-width: 1199px) {
+
 	#jpcrm-first-use-dash.ui.large.modal {
 		height: 720px;
 		width: 95%;
@@ -225,6 +227,7 @@
 }
 
 @media only screen and (min-width: 1200px) {
+
 	#jpcrm-first-use-dash.ui.large.modal {
 		height: 700px;
 	}
@@ -315,6 +318,7 @@
         padding-right: 30px;
 
       }
+
       .jpcrm-modal-paragraph {
 
         font-size: 14px;

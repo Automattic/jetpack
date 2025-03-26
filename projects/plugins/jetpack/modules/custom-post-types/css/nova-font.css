@@ -26,6 +26,7 @@
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
+
 #dashboard_right_now .nova-menu-count a:before, #dashboard_right_now .nova-menu-count span:before {
 	content: '\e603';
 }

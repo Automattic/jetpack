@@ -1,6 +1,7 @@
 @import '../../scss/calypso-colors';
 
 .dops-notice {
+
 	ul {
 
 		@include breakpoint( "<480px" ) {
@@ -10,6 +11,7 @@
 }
 
 .jp-license-activation-notice__external-link {
+
 	svg.gridicons-external {
 		margin-left: 0.25rem;
 	}

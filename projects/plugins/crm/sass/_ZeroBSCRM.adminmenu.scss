@@ -4,9 +4,11 @@
  */
 
 .mobile {
+
 	#zbscrm-wpadminbar {
 		display:none;
 	}
+
 	#adminmenu {
 	    margin-top: 12px !important;
 	}
@@ -24,10 +26,12 @@
 
 // open
 body.zbs-fullscreen {
+
 	#wpcontent, #wpfooter{
 		margin-left:0px !important; 
 		margin-top:-32px !important;
 	}
+
 	#wpadminbar, #adminmenuback, #adminmenuwrap{
 		display:none !important;
 	}

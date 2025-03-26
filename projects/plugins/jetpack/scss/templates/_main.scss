@@ -74,16 +74,21 @@
 	right: 0;
 	background: $green;
 }
+
 .header-nav {
+
 	li {
 		line-height: 60px;
 
 	}
+
 	a {
 		padding: 0 em(10px);
 		line-height: 24px;
 	}
+
 	.jetpack-logo {
+
 		a {
 			display: inline-block;
 			position: relative;
@@ -114,6 +119,7 @@
 			}
 		}
 	}
+
 	.jetpack-modules + .jetpack-modules {
 		margin-left: 15px;
 	}
@@ -133,15 +139,19 @@
 
 // Help tab
 .jetpack-pagestyles {
+
 	#screen-meta {
 		margin: 0;
 	}
+
 	#screen-meta-links .screen-meta-toggle {
 		z-index: 2;
 	}
+
 	#screen-options-link-wrap, #contextual-help-link-wrap {
 		border: none;
 	}
+
 	.update-nag {
 		display: none;
 	}
@@ -161,6 +171,7 @@
 		color: #999;
 	}
 }
+
 .modal {
 	background: #fff;
 	position: fixed;
@@ -188,11 +199,13 @@
 			background: #f0f0f1;
 			opacity: 0.8;
 		}
+
 		&:active {
 			background: #f0f0f1;
 			opacity: 0.4;
 		}
 	}
+
 	.content-container {
 		position: absolute;
 		top: 0;
@@ -202,11 +215,13 @@
 		overflow: auto;
 		padding: em(30px, 14px);
 	}
+
 	.content {
 		margin: 0 auto;
 		max-width: 900px;
 		text-align: left;
 	}
+
 	h2 {
 		text-align: left;
 		margin-top: 0;
@@ -219,12 +234,15 @@
 			font-size: 26px;
 		};
 	}
+
 	h5 {
 		clear: left;
 	}
+
 	p {
 		font-size: em(16px, 13px);
 	}
+
 	footer {
 		position: absolute;
 		left: 0;
@@ -238,11 +256,13 @@
 		ul {
 			margin: 0;
 		}
+
 		li {
 			display: inline-block;
 			margin: 0;
 		}
 	}
+
 	.button-secondary,
 	.button-primary:active {
 		// fixing weird core bug thingy
@@ -271,6 +291,7 @@
 		left: 10px;
 	}
 }
+
 .jp-info-img {
 	float: right;
 	margin: 0 0 8px 30px;
@@ -290,9 +311,11 @@
 		margin: 0 0 15px;
 	};
 }
+
 .content-container.modal-footer {
 	bottom: 53px;
 }
+
 .shade {
 	background: #000;
 	bottom: 0;
@@ -324,15 +347,18 @@
 		left: 0;
 		pointer-events: none;
 	}
+
 	&:before {
 		top: 0;
 		margin-top: -1px; // Removes subpixel gap on retina landscape
 		width: 100%;
 		height: 195px;
 	}
+
 	&:after {
 		display: none;
 	}
+
 	.download-jetpack {
 		margin-bottom: 33px;
 	}
@@ -348,6 +374,7 @@
 		&:before {
 			background-size: 160% auto;
 		}
+
 		ul {
 			float: none;
 			overflow: hidden; // Clears the float
@@ -371,6 +398,7 @@
 		padding-top: 76px;
 	};
 }
+
 .footer nav {
 	max-width: 100%;
 
@@ -386,8 +414,10 @@
 	}
 
 	@include breakpoint(large-desktop){
+
 		a,
 		a:visited {
+
 			&:hover,
 			&:focus {
 				color: $green;
@@ -396,12 +426,14 @@
 	};
 
 	@include breakpoint(large-phone){
+
 		li {
 			display: block;
 			float: none;
 			margin: 0;
 			text-align: left;
 		}
+
 		a {
 			display: block;
 			padding: 0 16px;
@@ -409,10 +441,12 @@
 		}
 	};
 }
+
 .primary {
 	padding: 25px 15px 10px 15px;
 	border-bottom: 1px solid #f0f0f1;
 }
+
 .secondary-footer {
 	margin: 0 auto;
 
@@ -446,6 +480,7 @@
 		}
 	};
 }
+
 .footer .a8c-attribution {
 	margin: 0;
 	padding: 0 6px;
@@ -475,13 +510,16 @@
 			font-family: $automatticons;
 			text-align: center;
 		}
+
 		&:hover {
+
 			&:after {
 				animation: jetpack-candy .4s ease-in-out;
 			}
 		}
 	}
 }
+
 .secondary {
 
 		@include minbreakpoint(tablet){
@@ -529,28 +567,35 @@
 				display: inline-block;
 			}
 		}
+
 		p {
 			color: #3c4549;
 		}
+
 		.jp-button {
 			margin-top: 15px;
 			display: none;
 		}
 	}
+
 	.squeezer {
+
 		h2 {
 			font-size: 1em;
 		}
 	}
+
 	h2 {
 		color: #fff;
 		margin: 0;
 	}
+
 	p {
 		color: #fff;
 		margin: 0;
 		opacity: 0.7;
 	}
+
 	.squeezer {
 		padding: 23px 23px 23px 80px;
 		position: relative;
@@ -576,13 +621,17 @@
 				display: none;
 			}
 		}
+
 		a {
 			color:#FFF;
 			border-bottom:1px solid #D5E4BD;
-		} a:hover{
+		}
+
+ a:hover{
 			border-bottom:1px solid #F1F6E9;
 		}
 	}
+
 	&.error .squeezer:before,
 	&.jetpack-err .squeezer:before {
 		content: '\f414';
@@ -598,6 +647,7 @@
 // ==========================================================================
 
 @include breakpoint(large-phone){
+
 	.wrap.inner.jp-support { // Used anywhere?
 		.jp-support-column-left {
 			width: 100%;
@@ -607,6 +657,7 @@
 				width: 100%;
 			}
 		}
+
 		.jp-support-column-right {
 			width: 100%;
 		}
@@ -618,30 +669,37 @@
 // ==========================================================================
 
 @media screen and (max-width: 515px) {
+
 	.jp-frame {
+
 		.header-nav {
 			padding-bottom: 10px;
 
 			li {
 				line-height: 30px;
 			}
+
 			.jetpack-logo {
 				width: 100%;
 				text-align: center;
 			}
+
 			.jetpack-modules {
 				margin: 0;
 				width: 50%;
 				text-align: right;
 				padding: 0 5px;
 			}
+
 			.jetpack-modules + .jetpack-modules {
 				text-align: left;
 			}
+
 			.jetpack-modules:nth-child(4) {
 				text-align: center;
 				margin: 0 auto;
 				width: 100%;
+
 				a {
 					padding: 0 10px;
 				}
