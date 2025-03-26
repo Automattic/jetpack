@@ -1,7 +1,61 @@
-import { formatAxisTickDate, formatDate, getXAxisTickValues, transformData } from '../src/helpers';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import {
+	formatAxisTickDate,
+	formatDate,
+	getXAxisTickValues,
+	transformData,
+	DashboardLink,
+	getNewsletterSettingsUrl,
+	buildJPRedirectSource,
+	getSubscriberStatsUrl,
+	formatNumber,
+	calcLeftAxisMargin,
+} from '../src/helpers';
 import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../src/types';
 
 describe( 'helpers', () => {
+	describe( 'DashboardLink', () => {
+		const testHref = 'https://example.com';
+		const testText = 'Click me';
+
+		it( 'renders as a regular anchor tag for WordPress.com sites', () => {
+			const link = DashboardLink( true, testHref, testText );
+			expect( link.type ).toBe( 'a' );
+			expect( link.props.href ).toBe( testHref );
+			expect( link.props.children ).toBe( testText );
+		} );
+
+		it( 'renders as ExternalLink for non-WordPress.com sites', () => {
+			const link = DashboardLink( false, testHref, testText );
+			expect( link.type ).toBe( ExternalLink );
+			expect( link.props.href ).toBe( testHref );
+			expect( link.props.children ).toBe( testText );
+		} );
+
+		it( 'handles not being passed a text prop', () => {
+			const link = DashboardLink( true, testHref );
+			expect( link.props.children ).toBeUndefined();
+		} );
+	} );
+
+	describe( 'getNewsletterSettingsUrl', () => {
+		const testSite = 'example.com';
+		const testAdminUrl = 'https://example.com/wp-admin/';
+
+		it( 'returns WordPress.com URL for WordPress.com sites', () => {
+			const url = getNewsletterSettingsUrl( testSite, true, testAdminUrl );
+			expect( url ).toBe(
+				getRedirectUrl( 'https://wordpress.com/settings/newsletter/' + testSite )
+			);
+		} );
+
+		it( 'returns WP-admin URL for self-hosted sites', () => {
+			const url = getNewsletterSettingsUrl( testSite, false, testAdminUrl );
+			expect( url ).toBe( `${ testAdminUrl }admin.php?page=jetpack#newsletter` );
+		} );
+	} );
+
 	describe( 'formatDate', () => {
 		const testDate = new Date( '2025-03-01' );
 

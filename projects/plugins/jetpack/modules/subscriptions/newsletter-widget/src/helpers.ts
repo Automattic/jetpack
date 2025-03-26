@@ -1,6 +1,30 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
+import { createElement } from '@wordpress/element';
 import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
+
+/**
+ * Generates a Link component, that will be displayed differently
+ * whether the link is external or stays within the platform.
+ *
+ * @param {boolean} isWpcomSite - Whether the site is on WordPress.com
+ * @param {string}  href        - Link target URL
+ * @param {string}  text        - The link text
+ * @returns {React.ReactElement} The link component
+ */
+export const DashboardLink = (
+	isWpcomSite: boolean,
+	href: string,
+	text?: string
+): React.ReactElement => {
+	let elementType = ExternalLink;
+	if ( isWpcomSite ) {
+		elementType = 'a';
+	}
+
+	return createElement( elementType, { href }, text ? text : undefined );
+};
 
 /**
  * Helper function to build the Jetpack redirect source URL.
