@@ -5,3 +5,18 @@
 # Unignore css and scss files too.
 !**/*.css
 !**/*.scss
+
+# CSS copied in from elsewhere
+projects/plugins/crm/sass/semantic-ui
+projects/plugins/crm/css/lib
+projects/plugins/crm/css/semantic-ui
+projects/plugins/crm/sass/_daterangepicker.scss
+projects/plugins/crm/sass/font-awesome.scss
+projects/plugins/crm/sass/_color_studio.scss
+projects/plugins/jetpack/scss/cleanslate.scss
+projects/packages/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks
+
+# Test-related CSS files that need further investigation
+projects/plugins/boost/tests/e2e/plugins/e2e-concatenate-enqueue/assets
+projects/js-packages/critical-css-gen/tests/data/page-a
+projects/js-packages/i18n-check-webpack-plugin/tests/fixtures/complex-test/src
