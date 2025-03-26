@@ -125,9 +125,6 @@ export type FormatNumber = (
 	options?: Omit< NumberFormatParams, 'browserSafeLocale' >
 ) => string;
 
-/**
- * Formats a number as a currency string.
- */
 export type FormatCurrency = (
 	number: number,
 	currency: string,

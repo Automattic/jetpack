@@ -10,36 +10,33 @@ import type {
 	GetCurrencyObject,
 } from '../types/index.js';
 
-interface Formatter {
-	setLocale: ( locale: string ) => void;
-	setGeoLocation: ( geoLocation: string ) => void;
-	formatNumber: FormatNumber;
-	formatNumberCompact: FormatNumber;
-	formatCurrency: FormatCurrency;
-	getCurrencyObject: GetCurrencyObject;
-}
-
 /**
- * A closure that bundles number formatters with locale and geoLocation state.
- *
- * @return {Formatter} The formatter.
+ * A class that provides number and currency formatting functionality with locale awareness
  */
-const createNumberFormatters = (): Formatter => {
-	let browserSafeLocale: string | undefined;
-	let geoLocation: string | undefined;
+export class NumberFormatter {
+	private browserSafeLocale?: string; // TODO clk probably need a fallback locale here
+	private geoLocation?: string;
 
-	const setLocale = ( locale: string ) => {
+	/**
+	 * Sets the locale for number formatting
+	 * @param locale - The locale to use for formatting
+	 */
+	setLocale( locale: string ): void {
 		/**
 		 * The `Intl.NumberFormat` constructor fails only when there is a variant, divided by `_`.
 		 * These suffixes should be removed. Values like `de-at` or `es-mx`
 		 * should all be valid inputs for the constructor.
 		 */
-		browserSafeLocale = locale.split( '_' )[ 0 ] ?? locale;
-	};
+		this.browserSafeLocale = locale.split( '_' )[ 0 ] ?? locale;
+	}
 
-	const setGeoLocation = ( _geoLocation: string ) => {
-		geoLocation = _geoLocation;
-	};
+	/**
+	 * Sets the user's geo location for currency formatting if available
+	 * @param _geoLocation - The geo location to use for formatting
+	 */
+	setGeoLocation( _geoLocation: string ): void {
+		this.geoLocation = _geoLocation;
+	}
 
 	/**
 	 * Formats numbers using locale settings and/or passed options.
@@ -50,12 +47,12 @@ const createNumberFormatters = (): Formatter => {
 	 * @param  params.numberFormatOptions - Additional options to pass to the formatter.
 	 * @return {string} Formatted number as string, or original number as string if formatting fails.
 	 */
-	const formatNumber: FormatNumber = (
+	formatNumber: FormatNumber = (
 		number,
 		{ decimals = 0, forceLatin = true, numberFormatOptions = {} } = {}
 	): string => {
 		const formatter = numberFormat( {
-			browserSafeLocale,
+			browserSafeLocale: this.browserSafeLocale,
 			decimals,
 			forceLatin,
 			numberFormatOptions,
@@ -81,12 +78,12 @@ const createNumberFormatters = (): Formatter => {
 	 * @param  params.numberFormatOptions - Additional options to pass to the formatter.
 	 * @return {string} Formatted number as string, or original number as string if formatting fails.
 	 */
-	const formatNumberCompact: FormatNumber = (
+	formatNumberCompact: FormatNumber = (
 		number,
 		{ decimals = 0, forceLatin = true, numberFormatOptions = {} } = {}
 	): string => {
 		const formatter = numberFormatCompact( {
-			browserSafeLocale,
+			browserSafeLocale: this.browserSafeLocale,
 			decimals,
 			forceLatin,
 			numberFormatOptions,
@@ -135,7 +132,7 @@ const createNumberFormatters = (): Formatter => {
 	 * @param  options.forceLatin      - Whether to force the latin locale.
 	 * @return {string} A formatted string.
 	 */
-	const formatCurrency: FormatCurrency = (
+	formatCurrency: FormatCurrency = (
 		number,
 		currency,
 		{ stripZeros = false, isSmallestUnit = false, signForPositive = false, forceLatin = true } = {}
@@ -143,11 +140,11 @@ const createNumberFormatters = (): Formatter => {
 		return numberFormatCurrency( {
 			number,
 			currency,
-			browserSafeLocale,
+			browserSafeLocale: this.browserSafeLocale,
 			stripZeros,
 			isSmallestUnit,
 			signForPositive,
-			geoLocation,
+			geoLocation: this.geoLocation,
 			forceLatin,
 		} );
 	};
@@ -196,7 +193,7 @@ const createNumberFormatters = (): Formatter => {
 	 * @param  options.forceLatin      - Whether to force the latin locale.
 	 * @return {CurrencyObject} A formatted price object.
 	 */
-	const getCurrencyObject: GetCurrencyObject = (
+	getCurrencyObject: GetCurrencyObject = (
 		number,
 		currency,
 		{ stripZeros = false, isSmallestUnit = false, signForPositive = false, forceLatin = true } = {}
@@ -204,23 +201,14 @@ const createNumberFormatters = (): Formatter => {
 		return getCurrencyObjectFromCurrencyFormatter( {
 			number,
 			currency,
-			browserSafeLocale,
+			browserSafeLocale: this.browserSafeLocale,
 			stripZeros,
 			isSmallestUnit,
 			signForPositive,
-			geoLocation,
+			geoLocation: this.geoLocation,
 			forceLatin,
 		} );
 	};
+}
 
-	return {
-		setLocale,
-		setGeoLocation,
-		formatNumber,
-		formatNumberCompact,
-		formatCurrency,
-		getCurrencyObject,
-	};
-};
-
-export default createNumberFormatters;
+export default NumberFormatter;
