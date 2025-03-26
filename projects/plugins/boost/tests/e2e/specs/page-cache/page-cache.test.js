@@ -48,7 +48,8 @@ test.describe( 'Cache module', () => {
 	test( 'Page Cache header should not be present when module is inactive', async ( {
 		browser,
 	} ) => {
-		const newContext = await browser.newContext();
+		// Ensure default storageState is empty.
+		const newContext = await browser.newContext( { storageState: {} } );
 		const newPage = await newContext.newPage();
 
 		newPage.on( 'response', response => {
@@ -100,7 +101,8 @@ test.describe( 'Cache module', () => {
 	test( 'Page Cache header should be present when module is active', async ( { browser } ) => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'page_cache' ] ).build();
 
-		const newContext = await browser.newContext();
+		// Ensure default storageState is empty.
+		const newContext = await browser.newContext( { storageState: {} } );
 		const newPage = await newContext.newPage();
 
 		let totalVisits = 0;
