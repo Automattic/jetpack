@@ -28,15 +28,22 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		parent::set_up();
 		$this->instance = new WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets();
 
-		// Prevent asset loading during tests by filtering the asset file path
-		add_filter( 'jetpack_mu_wpcom_asset_path', array( $this, 'mock_asset_path' ), 10, 2 );
+		// Remove enqueue actions dependent upon build assets
+		/** @phan-suppress-next-line PhanUndeclaredFunctionInCallable */
+		remove_action( 'enqueue_block_editor_assets', 'wpcom_enqueue_block_inserter_modifications_assets', 0 );
+		/** @phan-suppress-next-line PhanUndeclaredFunctionInCallable */
+		remove_action( 'enqueue_block_editor_assets', 'enqueue_font_loader_script_in_gutenberg' );
 	}
 
 	/**
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
-		remove_filter( 'jetpack_mu_wpcom_asset_path', array( $this, 'mock_asset_path' ), 10 );
+		// Re-add enqueue actions to restore normal behavior
+		/** @phan-suppress-next-line PhanUndeclaredFunctionInCallable */
+		add_action( 'enqueue_block_editor_assets', 'wpcom_enqueue_block_inserter_modifications_assets', 0 );
+		/** @phan-suppress-next-line PhanUndeclaredFunctionInCallable */
+		add_action( 'enqueue_block_editor_assets', 'enqueue_font_loader_script_in_gutenberg' );
 		parent::tear_down();
 	}
 
