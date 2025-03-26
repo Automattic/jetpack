@@ -59,10 +59,9 @@ class Scheduled_Actions_Controller_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $publicize;
 
 		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'save_meta' ) )->getMock();
@@ -139,10 +138,9 @@ class Scheduled_Actions_Controller_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		wp_set_current_user( 0 );
 
 		WorDBless_Options::init()->clear_options();

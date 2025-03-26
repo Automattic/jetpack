@@ -754,17 +754,36 @@ class Admin {
 
 		echo '<hr class="feedback_response__mobile-separator" />';
 		echo '<div class="feedback_response__item">';
-		foreach ( $response_fields as $key => $value ) {
-			if ( is_array( $value ) ) {
-				$value = implode( ', ', $value );
+
+		foreach ( $response_fields as $key => $display_value ) {
+			if ( is_array( $display_value ) ) {
+				if ( Contact_Form::is_file_upload_field( $display_value ) ) {
+						// This is a file upload field, display a link instead of raw data
+						$file_url = sprintf(
+							'%s?file_id=%s&file_nonce=%s',
+							get_rest_url( null, '/wp/v2/feedback/files' ),
+							rawurlencode( $display_value['file_id'] ),
+							rawurlencode( wp_create_nonce( 'jetpack_forms_view_file_' . $display_value['file_id'] ) )
+						);
+						printf(
+							'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value"><a href="%s" target="_blank">%s</a></div>',
+							esc_html( preg_replace( '#^\d+_#', '', $key ) ),
+							esc_url( $file_url ),
+							esc_html( $display_value['name'] )
+						);
+					continue;
+				}
+				// Regular array, just join the values
+				$display_value = implode( ', ', $display_value );
 			}
 
 			printf(
 				'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">%s</div>',
 				esc_html( preg_replace( '#^\d+_#', '', $key ) ),
-				nl2br( esc_html( $value ) )
+				nl2br( esc_html( $display_value ) )
 			);
 		}
+
 		echo '</div>';
 		echo '<hr />';
 
@@ -862,8 +881,13 @@ class Admin {
 			return;
 		}
 
-		// Don't apply to the filter dropdown query
-		if ( $query->query_vars['fields'] === 'id=>parent' ) {
+		/**
+		 * In the wp-admin list we perform two queries that trigger the `pre_get_posts` hook.
+		 * One is for the main list and the other is for the `source` dropdown filter.
+		 * We need to explicitly check one unique parameter between the two queries to avoid
+		 * filtering the dropdown query. The dropdown query is in `get_all_parent_post_ids`.
+		 */
+		if ( $query->query_vars['posts_per_page'] === 100000 ) {
 			return;
 		}
 

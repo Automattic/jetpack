@@ -185,6 +185,7 @@ export default function AiImageModal( {
 								<div>
 									<SelectControl
 										__nextHasNoMarginBottom
+										__next40pxDefaultSize={ true }
 										value={ style }
 										options={ styles }
 										onChange={ updateStyle }

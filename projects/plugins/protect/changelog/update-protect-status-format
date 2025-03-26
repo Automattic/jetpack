@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Added phan ignore doc blocks for use of deprecated properties.

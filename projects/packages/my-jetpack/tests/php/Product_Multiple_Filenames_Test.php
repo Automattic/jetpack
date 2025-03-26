@@ -41,10 +41,9 @@ class Product_Multiple_Filenames_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		if ( file_exists( WP_PLUGIN_DIR . '/jetpack/jetpack.php' ) ) {
 			unlink( WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
 			rmdir( WP_PLUGIN_DIR . '/jetpack' );
@@ -83,10 +82,9 @@ class Product_Multiple_Filenames_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		WorDBless_Options::init()->clear_options();
 	}
 

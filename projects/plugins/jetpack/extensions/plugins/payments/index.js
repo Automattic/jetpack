@@ -2,10 +2,15 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { PluginPostPublishPanel } from '@wordpress/edit-post';
-import { store as editorStore } from '@wordpress/editor';
+import { PluginPostPublishPanel as DeprecatedPluginPostPublishPanel } from '@wordpress/edit-post';
+import {
+	PluginPostPublishPanel as EditorPluginPostPublishPanel,
+	store as editorStore,
+} from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { currencyDollar } from '@wordpress/icons';
+
+const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginPostPublishPanel;
 
 const PaymentsPostPublish = () => {
 	const { tracks } = useAnalytics();

@@ -17,6 +17,7 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 						value={ prepTimeLabel }
 						onChange={ val => setAttributes( { prepTimeLabel: val } ) }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<UnitControl
 						onChange={ val => setAttributes( { prepTime: val } ) }
@@ -24,6 +25,7 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 						isUnitSelectTabbable
 						value={ prepTime }
 						units={ units }
+						__next40pxDefaultSize={ true }
 					/>
 				</div>
 				<div className="group">
@@ -31,6 +33,7 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 						value={ cookTimeLabel }
 						onChange={ val => setAttributes( { cookTimeLabel: val } ) }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<UnitControl
 						onChange={ val => setAttributes( { cookTime: val } ) }
@@ -40,6 +43,7 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 						isUnitSelectTabbable
 						value={ cookTime }
 						units={ units }
+						__next40pxDefaultSize={ true }
 					/>
 				</div>
 				<div className="group">
@@ -47,12 +51,14 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 						value={ servingsLabel }
 						onChange={ val => setAttributes( { servingsLabel: val } ) }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<TextControl
 						type="number"
 						value={ servings }
 						onChange={ val => setAttributes( { servings: parseInt( val ) } ) }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 				</div>
 				<div className="group">

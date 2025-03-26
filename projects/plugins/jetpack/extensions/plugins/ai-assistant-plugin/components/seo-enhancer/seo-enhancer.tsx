@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	BaseControl,
 	ToggleControl,
@@ -26,6 +27,7 @@ import './style.scss';
 const debug = debugFactory( 'seo-enhancer:index' );
 
 export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhance?: boolean } ) {
+	const { tracks } = useAnalytics();
 	const { isEnabled, toggleEnhancer, isToggling } = useSeoModuleSettings();
 	const isLoading = useSelect( select => {
 		const isBusy = select( store ).isBusy();
@@ -36,7 +38,7 @@ export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhanc
 	const enabledFeatures = useSelect( select => select( store ).getEnabledFeatures(), [] );
 	const { setFeatureEnabled } = useDispatch( store );
 
-	const { updateSeoData } = useSeoRequests( enabledFeatures );
+	const { updateSeoData } = useSeoRequests();
 
 	const toggleSeoEnhancer = useCallback( async () => {
 		await toggleEnhancer();
@@ -44,9 +46,14 @@ export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhanc
 
 	const toggleFeature = useCallback(
 		name => {
-			setFeatureEnabled( name, ! enabledFeatures.includes( name ) );
+			const isFeatureEnabled = enabledFeatures.includes( name );
+			tracks.recordEvent( 'jetpack_seo_enhancer_feature_toggle', {
+				feature: name,
+				toggled: ! isFeatureEnabled ? 'on' : 'off',
+			} );
+			setFeatureEnabled( name, ! isFeatureEnabled );
 		},
-		[ enabledFeatures, setFeatureEnabled ]
+		[ enabledFeatures, setFeatureEnabled, tracks ]
 	);
 
 	const generateHandler = async () => {
@@ -114,19 +121,21 @@ export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhanc
 					) }
 				</BaseControl>
 			</PanelRow>
-			<PanelRow className="jetpack-seo-sidebar__feature-section">
-				<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
-					<Button
-						isBusy={ isLoading }
-						disabled={ isLoading }
-						onClick={ generateHandler }
-						variant="secondary"
-						__next40pxDefaultSize
-					>
-						{ __( 'Generate metadata', 'jetpack' ) }
-					</Button>
-				</BaseControl>
-			</PanelRow>
+			{ ! isEnabled && (
+				<PanelRow className="jetpack-seo-sidebar__feature-section">
+					<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
+						<Button
+							isBusy={ isLoading }
+							disabled={ isLoading }
+							onClick={ generateHandler }
+							variant="secondary"
+							__next40pxDefaultSize
+						>
+							{ __( 'Generate metadata', 'jetpack' ) }
+						</Button>
+					</BaseControl>
+				</PanelRow>
+			) }
 		</>
 	);
 }

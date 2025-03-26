@@ -32,10 +32,9 @@ class Plugin_Test extends TestCase {
 
 	/**
 	 * Initialization of the test class
-	 *
-	 * @before
 	 */
-	protected function set_up() {
+	protected function setUp(): void {
+		parent::setUp();
 		Plugin_Storage::configure();
 	}
 

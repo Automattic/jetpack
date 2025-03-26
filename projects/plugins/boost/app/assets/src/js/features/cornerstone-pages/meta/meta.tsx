@@ -143,6 +143,29 @@ type ListProps = {
 	inputRows?: number;
 };
 
+export const CornerstonePagesUpgradeCTA = () => {
+	const cornerstonePagesProperties = useCornerstonePagesProperties();
+	const premiumFeatures = usePremiumFeatures();
+	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
+
+	if ( isPremium || ! cornerstonePagesProperties ) {
+		return null;
+	}
+
+	return (
+		<div className={ styles.wrapper }>
+			<InterstitialModalCTA
+				identifier="cornerstone-10-pages"
+				description={ sprintf(
+					/* translators: %d is the number of cornerstone pages. */
+					__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
+					cornerstonePagesProperties.max_pages_premium
+				) }
+			/>
+		</div>
+	);
+};
+
 const List: React.FC< ListProps > = ( {
 	items,
 	setItems,
@@ -154,9 +177,6 @@ const List: React.FC< ListProps > = ( {
 	const [ inputValue, setInputValue ] = useState( items );
 	const [ inputInvalid, setInputInvalid ] = useState( false );
 	const [ validationError, setValidationError ] = useState< Error | null >( null );
-	const premiumFeatures = usePremiumFeatures();
-	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
-	const cornerstonePagesProperties = useCornerstonePagesProperties();
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
 		try {
@@ -258,19 +278,6 @@ const List: React.FC< ListProps > = ( {
 					{ __( 'Load default pages', 'jetpack-boost' ) }
 				</Button>
 			</div>
-			{ ! isPremium && cornerstonePagesProperties && (
-				<div className={ styles.wrapper }>
-					<InterstitialModalCTA
-						eventName="cornerstone_pages_upgrade_link_clicked"
-						identifier="cornerstone-10-pages"
-						description={ sprintf(
-							/* translators: %d is the number of cornerstone pages. */
-							__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
-							cornerstonePagesProperties.max_pages_premium
-						) }
-					/>
-				</div>
-			) }
 		</>
 	);
 };

@@ -1,0 +1,7 @@
+# Ignore everything
+**/*
+# Unignore directories.
+!**/*/
+# Unignore css and scss files too.
+!**/*.css
+!**/*.scss

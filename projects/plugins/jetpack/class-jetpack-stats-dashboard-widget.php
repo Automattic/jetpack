@@ -58,7 +58,7 @@ class Jetpack_Stats_Dashboard_Widget {
 			return;
 		}
 
-		if ( Jetpack::is_connection_ready() ) {
+		if ( Jetpack::is_connection_ready() && Jetpack::is_module_active( 'stats' ) ) {
 			add_action( 'admin_head', array( static::class, 'admin_head' ) );
 
 			$widget_title = sprintf(

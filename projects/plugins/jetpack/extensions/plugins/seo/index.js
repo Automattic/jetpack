@@ -12,8 +12,15 @@ import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-uti
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, select as globalSelect, useDispatch } from '@wordpress/data';
-import { PluginPrePublishPanel, PluginPostPublishPanel } from '@wordpress/edit-post';
-import { store as editorStore } from '@wordpress/editor';
+import {
+	PluginPrePublishPane as DeprecatedPluginPrePublishPanel,
+	PluginPostPublishPanel as DeprecatedPluginPostPublishPanel,
+} from '@wordpress/edit-post';
+import {
+	PluginPrePublishPanel as EditorPluginPrePublishPanel,
+	PluginPostPublishPanel as EditorPluginPostPublishPanel,
+	store as editorStore,
+} from '@wordpress/editor';
 import { createPortal, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -41,6 +48,9 @@ import SeoTitlePanel from './title-panel';
 import './editor.scss';
 
 export const name = 'seo';
+
+const PluginPrePublishPanel = EditorPluginPrePublishPanel || DeprecatedPluginPrePublishPanel;
+const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginPostPublishPanel;
 
 // On P2 this function is not available, causing an error
 const supportsPublishSidebar =
@@ -85,7 +95,7 @@ const Seo = () => {
 			canHaveAutoEnhance &&
 			supportsPublishSidebar
 		) {
-			updateSeoData();
+			updateSeoData( { trigger: 'auto' } );
 		}
 
 		previousIsOpenRef.current = isPrePublishPanelOpen;
@@ -197,7 +207,7 @@ const Seo = () => {
 			</JetpackPluginSidebar>
 
 			<PluginPrePublishPanel { ...jetpackSeoPublishPanelsProps }>
-				<>
+				<div className="jetpack-seo-panel">
 					{ isSeoEnhancerEnabled && <SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } /> }
 					<PanelRow>
 						<SeoTitlePanel />
@@ -208,12 +218,14 @@ const Seo = () => {
 					<PanelRow>
 						<SeoNoindexPanel />
 					</PanelRow>
-				</>
+				</div>
 			</PluginPrePublishPanel>
 
-			{ isSeoEnhancerEnabled && isAutoEnhanceEnabled && canHaveAutoEnhance && (
+			{ isSeoEnhancerEnabled && (
 				<PluginPostPublishPanel { ...jetpackSeoPublishPanelsProps }>
-					<SeoSummary onEdit={ handleSummaryEdit } />
+					<div className="jetpack-seo-panel">
+						<SeoSummary onEdit={ handleSummaryEdit } />
+					</div>
 				</PluginPostPublishPanel>
 			) }
 		</>
