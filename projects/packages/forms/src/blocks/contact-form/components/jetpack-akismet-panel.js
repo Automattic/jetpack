@@ -3,7 +3,6 @@ import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
 	ExternalLink,
-	Spinner,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { createInterpolateElement, useState, useCallback, useEffect } from '@wordpress/element';
@@ -20,34 +19,24 @@ const AkismetPanel = () => {
 	const [ akismetUrl, setAkismetUrl ] = useState(
 		window?.jpFormsBlocks?.defaults?.akismetUrl || ''
 	);
-	const [ isChecking, setIsChecking ] = useState( false );
 
 	// Method to check Akismet status from API
 	const checkAkismetStatus = useCallback( async () => {
-		setIsChecking( true );
 		try {
 			const response = await apiFetch( {
 				path: '/wp/v2/feedback/integration-status?slug=akismet',
 			} );
 			setAkismetActiveWithKey( response.isConnected );
-			// Update the URL from the endpoint response
 			if ( response.configurationUrl ) {
 				setAkismetUrl( response.configurationUrl );
 			}
-			setIsChecking( false );
 		} catch {
-			// Silent error - don't log to avoid linting issues
-			setIsChecking( false );
+			setAkismetActiveWithKey( false );
 		}
 	}, [] );
 
-	// Check status on component mount if plugin is active
 	useEffect( () => {
-		// Check Akismet status on mount if the plugin is installed and active
-		const isAkismetActive = window?.jpFormsBlocks?.defaults?.akismetActiveWithKey;
-		if ( isAkismetActive ) {
-			checkAkismetStatus();
-		}
+		checkAkismetStatus();
 	}, [ checkAkismetStatus ] );
 
 	return (
@@ -71,14 +60,7 @@ const AkismetPanel = () => {
 			initialOpen={ false }
 			onPluginActivated={ checkAkismetStatus }
 		>
-			{ /* Use individual if blocks to avoid nested ternary */ }
-			{ isChecking && (
-				<HStack justify="flex-start" spacing={ 2 }>
-					<Spinner />
-					<span>{ __( 'Checking Akismet status…', 'jetpack-forms' ) }</span>
-				</HStack>
-			) }
-			{ ! isChecking && akismetActiveWithKey && (
+			{ akismetActiveWithKey ? (
 				<>
 					<p>
 						{ createInterpolateElement(
@@ -109,8 +91,7 @@ const AkismetPanel = () => {
 						</Button>
 					</HStack>
 				</>
-			) }
-			{ ! isChecking && ! akismetActiveWithKey && (
+			) : (
 				<>
 					<p>
 						{ createInterpolateElement(
