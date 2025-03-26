@@ -528,7 +528,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 			case 'creative-mail':
 			case 'jetpack-crm':
-				// These just need basic plugin status
 				return $this->get_plugin_status( $slug );
 
 			default:
@@ -543,7 +542,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
 	 * Get basic plugin status (installed/active).
 	 *
-	 * @since $$next-version$$
 	 * @param string $plugin_slug The plugin slug (e.g. 'akismet' or 'creative-mail').
 	 * @return array Plugin status data.
 	 */
@@ -586,7 +584,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
 	 * Get Akismet plugin status including key configuration.
 	 *
-	 * @since $$next-version$$
 	 * @return WP_REST_Response Response object.
 	 */
 	public function get_akismet_status() {

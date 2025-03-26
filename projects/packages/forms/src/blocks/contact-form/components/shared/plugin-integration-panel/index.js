@@ -58,7 +58,6 @@ const PluginIntegrationPanel = ( {
 			setIsInstalling( false );
 			setIsActivating( false );
 
-			// Call onPluginActivated callback after plugin is activated
 			if ( isActivationCall && onPluginActivated ) {
 				onPluginActivated();
 			}

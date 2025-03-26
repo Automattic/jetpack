@@ -20,7 +20,6 @@ const AkismetPanel = () => {
 		window?.jpFormsBlocks?.defaults?.akismetUrl || ''
 	);
 
-	// Method to check Akismet status from API
 	const checkAkismetStatus = useCallback( async () => {
 		try {
 			const response = await apiFetch( {
