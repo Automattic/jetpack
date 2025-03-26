@@ -94,7 +94,7 @@ export type BreveDispatch = {
 		blockId: string;
 		occurrence: string;
 	} ) => void;
-	setLints: ( lints: Array< GrammarLint >, feature: string ) => void;
+	setLints: ( lints: Array< GrammarLint >, feature: string, blockId: string ) => void;
 };
 
 export type PlansSelect = {

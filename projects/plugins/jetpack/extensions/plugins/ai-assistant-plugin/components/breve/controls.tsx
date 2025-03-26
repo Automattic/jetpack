@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-//import { rawHandler } from '@wordpress/blocks';
 import {
 	BaseControl,
 	PanelRow,
@@ -73,52 +72,6 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 	// Calculating the grade level is expensive, so debounce it to avoid recalculating it on every keypress.
 	const debouncedGradeLevelUpdate = useDebounce( updateGradeLevel, 250 );
 
-	/*
-	const updateGrammar = useCallback( () => {
-		if ( ! isProofreadEnabled ) {
-			return;
-		}
-
-		// for now use the first block
-		const blockClientId = blocks[ 0 ].clientId;
-
-		const record = create( { html: blocks[ 0 ].originalContent } );
-
-		const applied = highlight( {
-			content: record,
-			type: 'jetpack/ai-proofread-grammar',
-			indexes: grammarData,
-
-			// TODO???
-			attributes: {
-				'data-breve-type': 'grammar',
-				'data-identifier': 'none',
-				'data-block': blockClientId,
-			},
-
-			// TODO
-			ignored: [],
-		} );
-
-		const newContent = toHTMLString( { value: applied } );
-
-		//const [ newBlock ] = rawHandler( { HTML: newContent } );
-
-		updateBlock(
-			//updateBlockAttributes(
-			blockClientId,
-			{
-				attributes: {
-					//content: newBlock.attributes.content,
-					content: newContent,
-				},
-			}
-		);
-	}, [ blocks, updateBlock, isProofreadEnabled ] );
-	*/
-
-	//const debouncedGrammar = useDebounce( updateGrammar, 50 );
-
 	const handleToggleFeature = useCallback(
 		( feature: string ) => ( checked: boolean ) => {
 			tracks.recordEvent( 'jetpack_ai_breve_feature_toggle', { type: feature, on: checked } );
@@ -134,8 +87,7 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 
 	useEffect( () => {
 		debouncedGradeLevelUpdate();
-		//debouncedGrammar();
-	}, [ debouncedGradeLevelUpdate /*debouncedGrammar*/ ] );
+	}, [ debouncedGradeLevelUpdate ] );
 
 	// Update the grade level immediately on first load.
 	useInit( updateGradeLevel );

@@ -257,6 +257,8 @@ export function lints(
 		} >;
 	}
 ) {
+	//const currentLints = state.lints;
+
 	switch ( action.type ) {
 		case 'SET_LINTS': {
 			return {

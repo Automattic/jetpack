@@ -4,7 +4,7 @@
 import { askQuestionSync } from '@automattic/jetpack-ai-client';
 import { select } from '@wordpress/data';
 import { BREVE_FEATURE_NAME } from '../constants';
-import { Anchor } from '../types';
+import { Anchor, GrammarLint } from '../types';
 import { getRequestMessages } from '../utils/get-request-messages';
 
 // ACTIONS
@@ -172,12 +172,29 @@ export function setSuggestions( {
 	};
 }
 
-export function setLints( { lints, feature } ) {
+export function setLints( {
+	lints,
+	feature,
+	blockId,
+}: {
+	lints: Array< GrammarLint >;
+	feature: string;
+	blockId: string;
+} ) {
 	return ( { dispatch } ) => {
 		dispatch( {
 			type: 'SET_LINTS',
 			feature,
 			lints,
+			blockId,
 		} );
+
+		/*
+		dispatch( {
+			type: 'SET_SUGGESTIONS',
+			feature,
+			lints,
+		} );
+		*/
 	};
 }
