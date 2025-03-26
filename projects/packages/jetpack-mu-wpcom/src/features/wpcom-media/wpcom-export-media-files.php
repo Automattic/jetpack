@@ -49,14 +49,16 @@ function wpcom_render_export_media_files_page() {
 		return;
 	}
 
+	// Load the WPCOM media export library
+	require_once WP_CONTENT_DIR . '/lib/wpcom-media-export.php';
+
 	// Get media export URL for Simple sites
-	$media_export_url = function_exists( 'wpcom_get_media_export_url' ) ? wpcom_get_media_export_url( $site_id ) : false;
-	$has_media_files  = function_exists( 'wpcom_site_has_media_files' ) ? wpcom_site_has_media_files( $site_id ) : false;
+	$media_export_url = wpcom_get_media_export_url( $site_id );
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Export Media Files', 'jetpack-mu-wpcom' ); ?></h1>
 		
-		<?php if ( $has_media_files && $media_export_url ) : ?>
+		<?php if ( $media_export_url ) : ?>
 			<p><?php esc_html_e( 'Download all the media library files (images, videos, audio, and documents) from your site.', 'jetpack-mu-wpcom' ); ?></p>
 			
 			<p class="description"><?php esc_html_e( 'Depending on your media library size and/or connection speed, you might need to use a download manager.', 'jetpack-mu-wpcom' ); ?> 
@@ -66,10 +68,8 @@ function wpcom_render_export_media_files_page() {
 			
 			<p><?php esc_html_e( 'To export your entire site content—including posts and pages—please use the', 'jetpack-mu-wpcom' ); ?> 
 			<a href="<?php echo esc_url( admin_url( 'export.php' ) ); ?>"><?php esc_html_e( 'Export tool', 'jetpack-mu-wpcom' ); ?></a>.</p>
-		<?php elseif ( ! $has_media_files ) : ?>
-			<p><?php esc_html_e( 'Your site does not have any media files to export.', 'jetpack-mu-wpcom' ); ?></p>
 		<?php else : ?>
-			<p><?php esc_html_e( 'Unable to generate media export URL. Please try again later.', 'jetpack-mu-wpcom' ); ?></p>
+			<p><?php esc_html_e( 'Your site does not have any media files to export.', 'jetpack-mu-wpcom' ); ?></p>
 		<?php endif; ?>
 	</div>
 	<?php
