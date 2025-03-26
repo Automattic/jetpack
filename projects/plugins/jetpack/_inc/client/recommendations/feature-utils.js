@@ -622,6 +622,7 @@ export const getStepContent = ( state, stepSlug ) => {
 				ctaLink: getAdminUrl( 'admin.php?page=jetpack-social' ),
 				illustration: 'assistant-jetpack-social',
 				skipText: __( 'Next', 'jetpack' ),
+				ctaForceExternal: true,
 			};
 		case 'social-v1-activated':
 			return {
@@ -634,6 +635,7 @@ export const getStepContent = ( state, stepSlug ) => {
 				ctaLink: getAdminUrl( 'admin.php?page=jetpack-social' ),
 				illustration: 'assistant-social-image-post',
 				skipText: __( 'Next', 'jetpack' ),
+				ctaForceExternal: true,
 			};
 		case 'antispam-activated':
 			return {
