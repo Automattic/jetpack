@@ -27,11 +27,9 @@ class Module_Control_Test extends Search_TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
-		parent::set_up();
+	public function setUp(): void {
+		parent::setUp();
 
 		$plan = $this->createMock( Plan::class );
 		$plan->method( 'supports_search' )->willReturn( true );

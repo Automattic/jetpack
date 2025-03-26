@@ -25,10 +25,9 @@ class Host_Test extends TestCase {
 
 	/**
 	 * Test setup.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Monkey\setUp();
 
 		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
@@ -39,10 +38,9 @@ class Host_Test extends TestCase {
 
 	/**
 	 * Test teardown.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 		Constants::clear_constants();
 		Cache::clear();
@@ -136,7 +134,7 @@ class Host_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_calypso_env_data_provider() {
+	public static function get_calypso_env_data_provider() {
 		return array(
 			'development' => array( 'development' ),
 			'wpcalypso'   => array( 'wpcalypso' ),
@@ -231,7 +229,7 @@ class Host_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_source_query_params() {
+	public static function get_source_query_params() {
 		return array(
 			'empty'        => array( '', '' ),
 			'valid_manage' => array( 'jetpack-manage', 'jetpack-manage' ),

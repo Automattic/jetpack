@@ -6,6 +6,8 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	private static $super_admin_user_id;
 
 	public static function wpSetUpBeforeClass( $factory ) {

@@ -1,32 +1,25 @@
 import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { createSlotFill } from '@wordpress/components';
-import { dispatch } from '@wordpress/data';
-import domReady from '@wordpress/dom-ready';
-import { PluginSidebar, PluginSidebarMoreMenuItem } from '@wordpress/edit-post';
+import {
+	PluginSidebar as DeprecatedPluginSidebar,
+	PluginSidebarMoreMenuItem as DeprecatedPluginSidebarMoreMenuItem,
+} from '@wordpress/edit-post';
+import {
+	PluginSidebar as EditorPluginSidebar,
+	PluginSidebarMoreMenuItem as EditorPluginSidebarMoreMenuItem,
+} from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { registerPlugin } from '@wordpress/plugins';
-import { getQueryArg } from '@wordpress/url';
 
 import './jetpack-plugin-sidebar.scss';
+
+const PluginSidebar = EditorPluginSidebar || DeprecatedPluginSidebar;
+const PluginSidebarMoreMenuItem =
+	EditorPluginSidebarMoreMenuItem || DeprecatedPluginSidebarMoreMenuItem;
 
 const { Fill, Slot } = createSlotFill( 'JetpackPluginSidebar' );
 
 export { Fill as default };
-
-/**
- * Open Jetpack plugin sidebar by default when URL includes jetpackSidebarIsOpen=true.
- */
-function openJetpackSidebar() {
-	if ( getQueryArg( window.location.search, 'jetpackSidebarIsOpen' ) !== 'true' ) {
-		return;
-	}
-
-	dispatch( 'core/interface' ).enableComplementaryArea(
-		'core/edit-post',
-		'jetpack-sidebar/jetpack'
-	);
-}
-domReady( openJetpackSidebar );
 
 registerPlugin( 'jetpack-sidebar', {
 	render: () => (

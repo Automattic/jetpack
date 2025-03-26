@@ -110,7 +110,7 @@ class IntegrationTest extends TestCase {
 	/**
 	 * Data provider for testExecute.
 	 */
-	public function provideExecute() {
+	public static function provideExecute() {
 		$dir = __DIR__;
 
 		return array(

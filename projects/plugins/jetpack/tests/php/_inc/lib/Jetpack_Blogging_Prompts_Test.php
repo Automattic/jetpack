@@ -11,6 +11,8 @@ require_once JETPACK__PLUGIN_DIR . '/_inc/blogging-prompts.php';
  * Class for testing Jetpack Blogging Prompt functions.
  */
 class Jetpack_Blogging_Prompts_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	public function test_adds_post_meta_and_tags_when_answering_prompt() {
 		$prompt_id = 1234;
 

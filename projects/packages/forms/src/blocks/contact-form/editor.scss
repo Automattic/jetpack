@@ -41,7 +41,8 @@
 		}
 	}
 
-	.block-editor-block-list__layout {
+	.jetpack-contact-form,
+	[class*="wp-block-jetpack-field-option"] {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: flex-start;
@@ -108,8 +109,8 @@
 		}
 	}
 
-	.block-editor-block-list__layout.wp-block-jetpack-field-option-radio,
-	.block-editor-block-list__layout.wp-block-jetpack-field-option-checkbox  {
+	.wp-block-jetpack-field-option-radio,
+	.wp-block-jetpack-field-option-checkbox {
 		gap: 0;
 
 		> .wp-block {
@@ -117,7 +118,7 @@
 		}
 	}
 
-	.block-editor-block-list__layout.wp-block-jetpack-field-option-checkbox {
+	.wp-block-jetpack-field-option-checkbox {
 		align-items: center;
 	}
 
@@ -264,7 +265,8 @@
 		margin-bottom: -3px;
 	}
 
-	.rich-text.jetpack-field-label__input {
+	// Duplicated classname to preserve specificity level.
+	.jetpack-field-label__input.jetpack-field-label__input {
 		cursor: text;
 		font-weight: bold;
 		margin-bottom: 0.25em;
@@ -287,6 +289,10 @@
 
 	.components-toggle-control .components-base-control__field {
 		margin-bottom: 0;
+	}
+
+	&[style*="--jetpack--contact-form--label--font-size"] {
+		font-size: var(--jetpack--contact-form--label--font-size);
 	}
 }
 
@@ -940,4 +946,14 @@
 
 .block-editor-block-inspector .components-base-control .components-base-control:last-child {
 	margin-bottom: 0;
+}
+
+.is-style-outlined .jetpack-field.is-selected .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.is-style-outlined .jetpack-field.has-placeholder .notched-label__label[style*="--jetpack--contact-form--label--font-size"] {
+    font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.8);
+}
+
+.is-style-animated .jetpack-field.is-selected .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
+.is-style-animated .jetpack-field.has-placeholder .animated-label__label[style*="--jetpack--contact-form--label--font-size"] {
+    font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.75);
 }

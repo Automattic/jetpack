@@ -3,15 +3,19 @@
 	grid-template-columns: 1fr;
 }
 .import-php .wrap > h1, .wrap > p:first-of-type {
-	order: 1; /* h1 and first p are placed first */
+	order: 2; /* h1 and p are placed after the banner */
+}
+.wrap > p:last-of-type {
+	order: 3;
 }
 .import-php .wpcom-import-banner {
-	order: 2; /* Banner is placed second */
+	order: 1; /* Banner is placed as the first element */
 	padding: 20px;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	max-width: 726px;
+	margin-top: 15px;
 }
 .import-php .wpcom-import-banner p {
 	margin: 0;

@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.14.18 - 2025-03-26
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.17 - 2025-03-24
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.16 - 2025-03-24
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.15 - 2025-03-18
+### Changed
+- Update package dependencies. [#42511]
+
+## 0.14.14 - 2025-03-17
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.13 - 2025-03-12
+### Changed
+- Update dependencies. [#37982]
+
 ## 0.14.12 - 2025-03-10
 ### Fixed
 - My Jetpack: Add a margin between select and input license fields and titles. [#42075]

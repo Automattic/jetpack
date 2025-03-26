@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 311fc0d0b8034a506d58c9e385abfcfdf5e81614.
+ * Stubs automatically generated from WordPress.com commit c22f73891d57eb5a187e4bd104fd972cd42b977e.
  */
 
 namespace {
@@ -191,6 +191,9 @@ namespace {
          * @return array
          */
         public static function get_from_cache()
+        {
+        }
+        public static function get()
         {
         }
         /**
@@ -586,6 +589,12 @@ namespace {
     function get_user_following_recommendations($user, $number_of_recommendations)
     {
     }
+    class WPCOM_User
+    {
+        public static function get_types()
+        {
+        }
+    }
     /**
      * @param string $url
      * @return array{0:int,1:int,2:int,3:string,mime:string,channels?:int,bits?:int}|false
@@ -748,6 +757,12 @@ namespace {
      */
     function comment_like_button($comment_content = '', $comment_object = \null)
     {
+    }
+    class Jetpack_Custom_CSS_Customizer
+    {
+        public static function customize_register($wp_customize)
+        {
+        }
     }
     class Jetpack_Custom_CSS
     {
@@ -1555,7 +1570,14 @@ namespace ExPlat {
     function assign_given_user(string $experiment_name, \WP_User $user): ?string
     {
     }
-    function get_user_assignment(string $experiment_name, \WP_User $user): ?string
+    /**
+     * @param string $experiment_name
+     * @return string|null
+     */
+    function assign_maybe_anon_user(string $experiment_name): ?string
+    {
+    }
+    function assign_maybe_anon_with_prioritised_user_attribute_store(string $experiment_name, \WP_User $user = null): ?string
     {
     }
 }
@@ -1597,6 +1619,24 @@ namespace Newsletter_Categories {
      * @return int
      */
     function get_blog_subscriptions_aggregate_count(?int $blog_id = null, $post_term_ids = []): int
+    {
+    }
+}
+namespace Publicize\Social_Image_Generator {
+    /**
+     * @param int $blog_id
+     * @return bool
+     */
+    function is_enabled($blog_id = 0)
+    {
+    }
+}
+namespace Social_Image_Generator {
+    /**
+     * @param array $args
+     * @return string
+     */
+    function generate_token($args)
     {
     }
 }

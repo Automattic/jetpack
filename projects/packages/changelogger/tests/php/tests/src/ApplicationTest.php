@@ -22,14 +22,12 @@ use Wikimedia\TestingAccessWrapper;
  */
 class ApplicationTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->useTempDir();
 		file_put_contents( 'composer.json', "{}\n" );
 	}

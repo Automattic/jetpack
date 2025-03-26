@@ -21,9 +21,8 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS_Followup;
  * Critical CSS can respond to the invalidation.
  */
 class Critical_CSS_Invalidator {
-	/**
-	 * Register hooks.
-	 */
+	public const INVALIDATE_ACTION_NAME = 'jetpack_boost_critical_css_invalidated';
+
 	public static function init() {
 		add_action( 'jetpack_boost_deactivate', array( __CLASS__, 'reset_data' ) );
 		add_action( 'jetpack_boost_critical_css_environment_changed', array( __CLASS__, 'handle_environment_change' ) );
@@ -64,7 +63,7 @@ class Critical_CSS_Invalidator {
 		if ( $is_major_change ) {
 			self::reset_data();
 
-			do_action( 'jetpack_boost_critical_css_invalidated' );
+			do_action( self::INVALIDATE_ACTION_NAME );
 		}
 	}
 

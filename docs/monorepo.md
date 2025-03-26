@@ -86,13 +86,13 @@ The Jetpack Generate Wizard includes the following for each project:
 - bootstrap.php
 - .gitkeep
 - .gitattributes
-- phpunit.xml.dist
+- phpunit.*.xml.dist
 #### Plugins
 
 - bootstrap.php
 - .gitkeep
 - .gitattributes
-- phpunit.xml.dist
+- phpunit.*.xml.dist
 - readme.txt
 - A main plugin.php (plugin_name.php), with filled in header
 
@@ -265,7 +265,7 @@ For all project types other than WordPress plugins, the necessary version of PHP
 We currently make use of the following packages in testing; it's encouraged to use these rather than introducing other tools that serve the same purpose.
 
 * [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 8.5 to 9.6, to support PHP 7.2 to 8.4.
-  * Do not use `Yoast\PHPUnitPolyfills\TestCases\TestCase` or `Yoast\PHPUnitPolyfills\TestCases\XTestCase`. Just use the `@before`, `@after`, `@beforeClass`, and `@afterClass` annotations directly.
+* [automattic/phpunit-select-config](https://packagist.org/packages/automattic/phpunit-select-config) allows for selecting a configuration file based on the version of PHPUnit in use, since configs are often not compatible across major versions since PHPUnit 9.
 * PHPUnit's built-in mocking is used for class mocks.
 * [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
 * [automattic/jetpack-test-environment](../projects/packages/test-environment/README.md) is used to pull in WordPress for testing.
@@ -301,7 +301,7 @@ If a project contains PHP or JavaScript tests, it should also define `.scripts.t
 
 Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
 
-For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. "$(command -v phpunit)" --coverage-php "$COVERAGE_DIR/php.cov"`. If you have multiple runs (e.g. unit and integration), be sure to write the `php.cov` files to separate subdirectories of `$COVERAGE_DIR`.
+For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php "$COVERAGE_DIR/php.cov"`. If you have multiple runs (e.g. unit and integration), be sure to write the `php.cov` files to separate subdirectories of `$COVERAGE_DIR`.
 
 For JS tests, you'll probably have a `test` script in package.json that runs `jest` with any needed options, and then a `test-coverage` script that does `pnpm run test --coverage`. If you have multiple runs (e.g. unit and integration), be sure each run writes to a different subdirectory of `$COVERAGE_DIR`.
 
@@ -363,7 +363,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
    2. The default branch should be `trunk`, matching the monorepo.
       * Note that you can't set the default branch until at least one branch is created in the repo.
    3. In the repo's settings, turn off wikis, issues, projects, and so on.
-   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. You would do this here: `https://github.com/Automattic/example-repository-name/settings/branches` - creating a new branch protection rule where only Matticbot (and whoever needs access to push, for example Garage) can push to that repository.
+   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. Usually no special configuration is needed for repos under the Automattic organization.
    5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
    6. Create any secrets needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
 2. For a PHP package (or a plugin listed in Packagist) you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it.
@@ -531,3 +531,37 @@ In a checkout of the monorepo:
 See p9dueE-2on-p2 for past uses of this process.
 
 While a private repo could be imported similarly, you'd have a lot of auditing to do to make sure no old commit exposes any private information.
+
+## External Automattic npm packages
+
+Some npm packages are maintained by Automattic but are not part of the Jetpack monorepo. These are typically packages that are used by multiple teams or projects, and are not specific to Jetpack.
+
+### `@automattic/social-previews`
+
+This package is used to display Social Previews in the block editor and other Jetpack SEO settings pages.
+
+This package is maintained in [`Automattic/wp-calypso`](https://github.com/Automattic/wp-calypso/tree/4883414a0ede8adbd38737657bb5649367da4bf3/packages/social-previews).
+
+#### Development process
+
+If you need to update something in that package that is used by Jetpack, you should:
+
+- Make the necessary changes in the `wp-calypso` repository.
+- Use pnpm link to link the package in Jetpack to the local version in `wp-calypso`. Like this
+  - `cd wp-calypso/packages/social-previews`
+  - `pnpm link --global`
+- Then in Jetpack
+  - `cd projects/js-packages/publicize-components`
+  - `pnpm link --global @automattic/social-previews`
+  - Do the same for `projects/plugins/jetpack`
+- Test your changes
+- Create a branch/PR in `wp-calypso`
+- Bump the package version and commit the changes.
+- Publish a beta version of the package by following the appropriate [instructions](https://github.com/Automattic/wp-calypso/blob/4883414a0ede8adbd38737657bb5649367da4bf3/docs/monorepo.md#publishing). Like this
+  - `git tag "@automattic/social-previews@2.1.0-beta.10"`
+  - `git push --tags`
+  - `cd packages/social-previews`
+  - `yarn npm publish`
+- Update the package version in Jetpack to the beta version.
+- Create a PR in Jetpack which should now have the beta version of the package.
+- Follow the instructions in Calypso to publish the package to npm after merging the PR to trunk

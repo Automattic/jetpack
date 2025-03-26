@@ -19,7 +19,6 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
-use Automattic\Jetpack_Boost\Admin\Config as Boost_Admin_Config;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
@@ -33,8 +32,10 @@ use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
+use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
@@ -128,6 +129,8 @@ class Jetpack_Boost {
 
 		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
 
+		add_filter( 'cron_schedules', array( $this, 'custom_cron_intervals' ) );
+
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
 
@@ -167,18 +170,39 @@ class Jetpack_Boost {
 	}
 
 	public function handle_version_change() {
-		$is_atomic = Boost_Admin_Config::get_hosting_provider() === 'atomic';
-		$is_woa    = Boost_Admin_Config::get_hosting_provider() === 'woa';
-		if ( $is_atomic || $is_woa ) {
-			// Remove this option to prevent the notice from showing up.
-			delete_site_option( 'jetpack_boost_static_minification' );
-		}
+		// Remove this option to prevent the notice from showing up.
+		delete_site_option( 'jetpack_boost_static_minification' );
 
 		if ( jetpack_boost_minify_is_enabled() ) {
 			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
 			jetpack_boost_minify_clear_scheduled_events();
-			jetpack_boost_minify_activation( ! $is_atomic && ! $is_woa );
+			jetpack_boost_minify_activation();
 		}
+
+		$page_cache = new Module( new Page_Cache() );
+		if ( $page_cache->is_enabled() ) {
+			// Schedule the cronjob to preload the cache for Cornerstone Pages.
+			( new Cache_Preload() )->schedule_cornerstone_cronjob();
+		}
+	}
+
+	/**
+	 * Adds custom cron intervals used by Boost.
+	 *
+	 * @param array $schedules The existing cron schedules.
+	 * @return array The modified cron schedules.
+	 *
+	 * @since 3.12.0
+	 */
+	public function custom_cron_intervals( $schedules ) {
+		// The "twicehourly" name maintains the same pattern as the default "twicedaily" name.
+		if ( ! isset( $schedules['twicehourly'] ) ) {
+			$schedules['twicehourly'] = array(
+				'interval' => 30 * MINUTE_IN_SECONDS,
+				'display'  => __( 'Twice Hourly', 'jetpack-boost' ),
+			);
+		}
+		return $schedules;
 	}
 
 	/**

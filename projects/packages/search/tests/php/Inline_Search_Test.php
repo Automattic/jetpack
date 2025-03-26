@@ -94,7 +94,7 @@ class Inline_Search_Test extends TestCase {
 	 *
 	 * @return array[]
 	 */
-	public function data_provider(): array {
+	public static function data_provider(): array {
 		return array(
 			'hello_world'      => array(
 				'wp_query_args'     => array(

@@ -213,6 +213,7 @@ function OpenTableEdit( {
 						onChange={ newLang => setAttributes( { lang: newLang } ) }
 						options={ languageOptions }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<ToggleControl
 						label={ __( 'Open in a new window', 'jetpack' ) }
@@ -235,7 +236,7 @@ function OpenTableEdit( {
 			label={ __( 'OpenTable Reservation', 'jetpack' ) }
 			icon={ icon }
 			instructions={ __(
-				'Enter your restaurant name, or paste an OpenTable Reservation Widget embed code.',
+				'Enter your restaurants IDs, separated by comma, or paste an OpenTable Reservation Widget embed code.',
 				'jetpack'
 			) }
 			notices={ noticeUI }

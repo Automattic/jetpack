@@ -13,6 +13,7 @@ import {
 	siteHasFeature,
 	currentUserCan,
 } from '@automattic/jetpack-script-data';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
@@ -62,7 +63,12 @@ export const SocialAdminPage = () => {
 
 	if ( showConnectionCard ) {
 		return (
-			<AdminPage moduleName={ moduleName } showHeader={ false } showBackground={ false }>
+			<AdminPage
+				moduleName={ moduleName }
+				showHeader={ false }
+				showBackground={ false }
+				useInternalLinks={ shouldUseInternalLinks() }
+			>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col>
 						<ConnectionScreen />
@@ -77,6 +83,7 @@ export const SocialAdminPage = () => {
 			moduleName={ moduleName }
 			header={ <AdminPageHeader /> }
 			showFooter={ isJetpackSite }
+			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<GlobalNotices />
 			{ ( isJetpackSite && ! hasSocialPaidFeatures() && showPricingPage ) ||

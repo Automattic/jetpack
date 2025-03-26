@@ -12,6 +12,8 @@ require_once JETPACK__PLUGIN_DIR . '3rd-party/atomic.php';
  * Class Atomic_Override_Support_Test
  */
 class Atomic_Override_Support_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Clean up tests.
 	 */

@@ -39,10 +39,9 @@ class Status_Test extends TestCase {
 
 	/**
 	 * Setup before running any of the tests.
-	 *
-	 * @beforeClass
 	 */
-	public static function set_up_before_class() {
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
 		if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
 			define( 'HOUR_IN_SECONDS', 60 * 60 );
 		}
@@ -50,10 +49,9 @@ class Status_Test extends TestCase {
 
 	/**
 	 * Test setup.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Monkey\setUp();
 
 		// Set defaults for Core functionality.
@@ -85,10 +83,9 @@ class Status_Test extends TestCase {
 
 	/**
 	 * Test teardown.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 		Status\Cache::clear();
 	}
@@ -99,6 +96,7 @@ class Status_Test extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_default() {
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( false );
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
 		$this->assertFalse( $this->status_obj->is_offline_mode() );
@@ -110,6 +108,7 @@ class Status_Test extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_filter_true() {
+		Functions\expect( 'get_option' )->never();
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( true );
 
 		$this->assertTrue( $this->status_obj->is_offline_mode() );
@@ -121,6 +120,7 @@ class Status_Test extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_filter_bool() {
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( false );
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( 0 );
 
 		$this->assertFalse( $this->status_obj->is_offline_mode() );
@@ -134,6 +134,7 @@ class Status_Test extends TestCase {
 	public function test_is_offline_mode_localhost() {
 		$this->site_url = 'localhost';
 
+		Functions\expect( 'get_option' )->never();
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( true )->andReturn( true );
 
 		$this->assertTrue( $this->status_obj->is_offline_mode() );
@@ -212,10 +213,33 @@ class Status_Test extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_is_offline_mode_constant() {
+		Functions\expect( 'get_option' )->never();
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( true )->andReturn( true );
 		$this->mocked_constants['\\JETPACK_DEV_DEBUG'] = true;
 
 		$this->assertTrue( $this->status_obj->is_offline_mode() );
+	}
+
+	/**
+	 * Test that `is_offline_mode()` returns true when the `jetpack_offline_mode` option is set.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_offline_mode
+	 */
+	public function test_is_offline_mode_option() {
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( '1' );
+
+		$this->assertTrue( $this->status_obj->is_offline_mode() );
+	}
+
+	/**
+	 * Test that `is_offline_mode()` returns false when the `jetpack_offline_mode` option exists, but set to '0'.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_offline_mode
+	 */
+	public function test_is_offline_mode_option_inactive() {
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( '0' );
+
+		$this->assertFalse( $this->status_obj->is_offline_mode() );
 	}
 
 	/**
@@ -305,22 +329,25 @@ class Status_Test extends TestCase {
 	 * Mock $wpdb->get_var() and make it return a certain value.
 	 *
 	 * @param mixed $return_value  Return value of the function.
-	 *
-	 * PHPUnit\Framework\MockObject\MockObject The mock object.
 	 */
 	protected function mock_wpdb_get_var( $return_value = null ) {
 		global $wpdb;
 
-		$wpdb = $this->getMockBuilder( \stdClass::class )
-					->setMockClassName( 'wpdb' )
-					->addMethods( array( 'get_var' ) )
-					->getMock();
-		$wpdb->method( 'get_var' )
-			->willReturn( $return_value );
+		$wpdb = new class( $return_value ) {
+			public $prefix   = 'wp_';
+			public $site     = 'wp_site';
+			public $usermeta = 'wp_usermeta';
 
-		$wpdb->prefix   = 'wp_';
-		$wpdb->site     = 'wp_site';
-		$wpdb->usermeta = 'wp_usermeta';
+			private $return_value;
+
+			public function __construct( $return_value ) {
+				$this->return_value = $return_value;
+			}
+
+			public function get_var() {
+				return $this->return_value;
+			}
+		};
 	}
 
 	/**
@@ -358,7 +385,7 @@ class Status_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_is_local_site_known_tld() {
+	public static function get_is_local_site_known_tld() {
 		return array(
 			'vvv'            => array(
 				'http://jetpack.test',
@@ -409,7 +436,7 @@ class Status_Test extends TestCase {
 	 *
 	 * @covers Automattic\Jetpack\Status::get_site_suffix
 	 */
-	public function get_site_suffix_examples() {
+	public static function get_site_suffix_examples() {
 		return array(
 			'no_site_home_url' => array(
 				'',
@@ -468,9 +495,9 @@ class Status_Test extends TestCase {
 	}
 
 	/** Data provider for test_cached */
-	public function provide_cached() {
+	public static function provide_cached() {
 		return array(
-			array( 'is_offline_mode', null, 'jetpack_offline_mode' ),
+			array( 'is_offline_mode', 'get_option', 'jetpack_offline_mode' ),
 			array( 'is_multi_network', 'is_multisite', null ),
 			array( 'is_single_user_site', 'get_transient', null ),
 			array( 'is_local_site', null, 'jetpack_is_local_site' ),
@@ -509,7 +536,7 @@ class Status_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_coming_soon_status() {
+	public static function get_coming_soon_status() {
 		return array(
 			'Jetpack public site'       => array( null, false, false ),
 			'WoA public site'           => array( false, false, false ),

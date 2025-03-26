@@ -32,7 +32,7 @@ const setupMocks = ( title = 'Title', customText = 'Custom text' ) => {
 };
 
 const getPostBody = ( text, template ) => ( {
-	path: '/jetpack/v4/social-image-generator/generate-preview-token',
+	path: 'wpcom/v2/publicize/social-image-generator/generate-token',
 	method: 'POST',
 	data: {
 		text: text,

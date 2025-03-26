@@ -28,7 +28,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	/**
 	 * Data provider for testStaticPrintReversal
 	 */
-	public function arrayReversals() {
+	public static function arrayReversals() {
 		return array(
 			'nested array' => array(
 				array(

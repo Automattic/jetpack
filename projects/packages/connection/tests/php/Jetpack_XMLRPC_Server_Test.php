@@ -11,7 +11,6 @@ use WorDBless\BaseTestCase;
  * Class to test the legacy Jetpack_XMLRPC_Server class.
  */
 class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * The test user ID
@@ -41,8 +40,6 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Constants::clear_constants();

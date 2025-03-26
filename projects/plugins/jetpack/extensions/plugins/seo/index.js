@@ -11,11 +11,19 @@ import {
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
-import { PluginPrePublishPanel } from '@wordpress/edit-post';
-import { store as editorStore } from '@wordpress/editor';
-import { createPortal } from '@wordpress/element';
+import { useSelect, select as globalSelect, useDispatch } from '@wordpress/data';
+import {
+	PluginPrePublishPane as DeprecatedPluginPrePublishPanel,
+	PluginPostPublishPanel as DeprecatedPluginPostPublishPanel,
+} from '@wordpress/edit-post';
+import {
+	PluginPrePublishPanel as EditorPluginPrePublishPanel,
+	PluginPostPublishPanel as EditorPluginPostPublishPanel,
+	store as editorStore,
+} from '@wordpress/editor';
+import { createPortal, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -27,33 +35,77 @@ import {
 } from '../ai-assistant-plugin/components/seo-assistant';
 import { STORE_NAME } from '../ai-assistant-plugin/components/seo-assistant/store';
 import { SeoEnhancer } from '../ai-assistant-plugin/components/seo-enhancer';
+import { SeoSummary } from '../ai-assistant-plugin/components/seo-enhancer/seo-summary';
+import { useSeoModuleSettings } from '../ai-assistant-plugin/components/seo-enhancer/use-seo-module-settings';
+import { useSeoRequests } from '../ai-assistant-plugin/components/seo-enhancer/use-seo-requests';
 import { SeoPlaceholder } from './components/placeholder';
 import { SeoSkeletonLoader } from './components/skeleton-loader';
 import UpsellNotice from './components/upsell';
 import SeoDescriptionPanel from './description-panel';
 import SeoNoindexPanel from './noindex-panel';
+import { showSeoSection } from './show-seo-section';
 import SeoTitlePanel from './title-panel';
 import './editor.scss';
 
 export const name = 'seo';
 
+const PluginPrePublishPanel = EditorPluginPrePublishPanel || DeprecatedPluginPrePublishPanel;
+const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginPostPublishPanel;
+
+// On P2 this function is not available, causing an error
+const supportsPublishSidebar =
+	typeof globalSelect( editorStore ).isPublishSidebarOpened === 'function';
+
 const isSeoAssistantEnabled =
 	getJetpackExtensionAvailability( 'ai-seo-assistant' )?.available === true;
 
 const isSeoEnhancerEnabled =
-	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true;
+	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
+	supportsPublishSidebar;
+
+const canHaveAutoEnhance = ! isSimpleSite();
 
 const Seo = () => {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
+	const isPrePublishPanelOpen = useSelect(
+		select => select( editorStore ).isPublishSidebarOpened?.(),
+		[]
+	);
 	const isSeoAssistantOpen = useSelect( select => select( STORE_NAME ).isOpen(), [] );
-
+	const { updateSeoData, isBusy } = useSeoRequests();
 	const isViewable = useSelect( select => {
 		const postTypeName = select( editorStore ).getCurrentPostType();
 		const postTypeObject = select( coreStore ).getPostType( postTypeName );
 
 		return postTypeObject?.viewable;
 	}, [] );
+	const previousIsOpenRef = useRef( false );
+	const { isEnabled: isAutoEnhanceEnabled, isToggling } = useSeoModuleSettings();
+	const { closePublishSidebar } = useDispatch( editorStore );
+
+	useEffect( () => {
+		if (
+			isSeoEnhancerEnabled &&
+			isPrePublishPanelOpen &&
+			! previousIsOpenRef.current &&
+			! isBusy &&
+			isAutoEnhanceEnabled &&
+			! isToggling &&
+			canHaveAutoEnhance &&
+			supportsPublishSidebar
+		) {
+			updateSeoData( { trigger: 'auto' } );
+		}
+
+		previousIsOpenRef.current = isPrePublishPanelOpen;
+	}, [ isPrePublishPanelOpen, updateSeoData, isBusy, isAutoEnhanceEnabled, isToggling ] );
+
+	const handleSummaryEdit = async () => {
+		await closePublishSidebar();
+		showSeoSection();
+	};
+
 	// If the post type is not viewable, do not render my plugin.
 	if ( ! isViewable ) {
 		return null;
@@ -106,21 +158,21 @@ const Seo = () => {
 		);
 	}
 
-	const jetpackSeoPrePublishPanelProps = {
+	const jetpackSeoPublishPanelsProps = {
 		icon: <JetpackEditorPanelLogo />,
 		title: __( 'SEO', 'jetpack' ),
+		initialOpen: isSeoEnhancerEnabled,
 	};
 
 	// TODO: remove all code related to the SeoAssistantWizard if it's a no-go
 	return (
 		<>
 			{ isSeoAssistantEnabled &&
-				isViewable &&
 				isSeoAssistantOpen &&
 				createPortal( <SeoAssistantWizard />, document.body ) }
 			<JetpackPluginSidebar>
 				<PanelBody className="jetpack-seo-panel" { ...jetpackSeoPanelProps }>
-					{ isSeoAssistantEnabled && isViewable && (
+					{ isSeoAssistantEnabled && (
 						<PanelRow
 							className={ `jetpack-ai-sidebar__feature-section ${
 								isBetaExtension( 'ai-seo-assistant' ) ? 'is-beta-extension' : ''
@@ -129,30 +181,34 @@ const Seo = () => {
 							<SeoAssistantSidebarEntrypoint disabled={ false } placement="jetpack-sidebar" />
 						</PanelRow>
 					) }
-					{ isSeoEnhancerEnabled && isViewable && (
-						<PanelRow>
-							<SeoEnhancer />
-						</PanelRow>
-					) }
-					<PanelRow>
+					{ isSeoEnhancerEnabled && <SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } /> }
+					<PanelRow
+						className={ clsx( {
+							'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled,
+						} ) }
+					>
 						<SeoTitlePanel />
 					</PanelRow>
-					<PanelRow>
+					<PanelRow
+						className={ clsx( {
+							'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled,
+						} ) }
+					>
 						<SeoDescriptionPanel />
 					</PanelRow>
-					<PanelRow>
+					<PanelRow
+						className={ clsx( {
+							'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled,
+						} ) }
+					>
 						<SeoNoindexPanel />
 					</PanelRow>
 				</PanelBody>
 			</JetpackPluginSidebar>
 
-			<PluginPrePublishPanel { ...jetpackSeoPrePublishPanelProps }>
-				<>
-					{ isSeoEnhancerEnabled && isViewable && (
-						<PanelRow>
-							<SeoEnhancer />
-						</PanelRow>
-					) }
+			<PluginPrePublishPanel { ...jetpackSeoPublishPanelsProps }>
+				<div className="jetpack-seo-panel">
+					{ isSeoEnhancerEnabled && <SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } /> }
 					<PanelRow>
 						<SeoTitlePanel />
 					</PanelRow>
@@ -162,8 +218,16 @@ const Seo = () => {
 					<PanelRow>
 						<SeoNoindexPanel />
 					</PanelRow>
-				</>
+				</div>
 			</PluginPrePublishPanel>
+
+			{ isSeoEnhancerEnabled && (
+				<PluginPostPublishPanel { ...jetpackSeoPublishPanelsProps }>
+					<div className="jetpack-seo-panel">
+						<SeoSummary onEdit={ handleSummaryEdit } />
+					</div>
+				</PluginPostPublishPanel>
+			) }
 		</>
 	);
 };

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Append to existing .env file instead of overwriting it.

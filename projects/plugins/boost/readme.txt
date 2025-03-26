@@ -3,9 +3,9 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dili
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.6
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 3.10.3
+Stable tag: 3.11.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,9 +183,20 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.10.3 - 2025-03-06
+### 3.12.0-beta - 2025-03-26
+#### Added
+- Cache: Add Page Cache Preloading for Cornerstone Pages
+- Add Account Protection initialization
+- My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack.
+
+#### Changed
+- Connection: Allow pre-selected login providers
+
+#### Removed
+- Compatibility: Remove redundant compatibility code.
+
 #### Fixed
-- Critical CSS: Fix generation.
+- Critical CSS: Prevent the generation process from failing when an individual page fails to load.
 
 --------
 

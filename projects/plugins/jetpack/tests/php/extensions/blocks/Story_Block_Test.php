@@ -19,6 +19,8 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/story/story.php';
  * The goal is to catch when changes to serialized markup affects server rendering of the block.
  */
 class Story_Block_Test extends \WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * A variable to track whether or not the block was already registered before the test was run.
 	 *
@@ -30,8 +32,6 @@ class Story_Block_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Setup and ensure the block is registered before running the tests.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		parent::set_up();
@@ -42,8 +42,6 @@ class Story_Block_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Teardown and unregister the block if it wasn't registered before running these tests.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		if ( ! $this->was_registered ) {

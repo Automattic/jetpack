@@ -1,6 +1,7 @@
 // API
 const REST_API_NAMESPACE = 'my-jetpack/v1';
 const ODYSSEY_STATS_API_NAMESPACE = 'jetpack/v4/stats-app';
+const JETPACK_V4_NAMESPACE = 'jetpack/v4';
 
 export const REST_API_SITE_PURCHASES_ENDPOINT = `${ REST_API_NAMESPACE }/site/purchases`;
 export const REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT = `${ REST_API_NAMESPACE }/site/backup/undo-event`;
@@ -13,6 +14,11 @@ export const REST_API_SITE_DISMISS_BANNER = `${ REST_API_NAMESPACE }/site/dismis
 export const REST_API_EVALUATE_SITE_RECOMMENDATIONS = `${ REST_API_NAMESPACE }/site/recommendations/evaluation`;
 export const REST_API_SITE_EVALUATION_RESULT = `${ REST_API_NAMESPACE }/site/recommendations/evaluation/result`;
 export const REST_API_UPDATE_HISTORICALLY_ACTIVE_MODULES = `${ REST_API_NAMESPACE }/site/update-historically-active-modules`;
+export const REST_API_GET_JETPACK_MANAGE_DATA = `${ REST_API_NAMESPACE }/jetpack-manage/data`;
+export const REST_API_RED_BUBBLE_ALERTS = `${ REST_API_NAMESPACE }/red-bubble-notifications`;
+export const REST_API_GET_PROTECT_DATA = `${ REST_API_NAMESPACE }/site/protect/data`;
+export const REST_API_GET_VIDEOPRESS_DATA = `${ REST_API_NAMESPACE }/site/videopress/data`;
+export const REST_API_GET_OAUTH_AUTHORIZE_URL = `${ JETPACK_V4_NAMESPACE }/connection/authorize_url`;
 
 export const getStatsHighlightsEndpoint = ( blogId: string ) =>
 	`${ ODYSSEY_STATS_API_NAMESPACE }/sites/${ blogId }/stats/highlights`;
@@ -34,7 +40,11 @@ export const QUERY_EVALUATE_KEY = 'evaluate site recommendations';
 export const QUERY_SAVE_EVALUATION_KEY = 'save site evaluation result';
 export const QUERY_REMOVE_EVALUATION_KEY = 'remove site evaluation result';
 export const QUERY_UPDATE_HISTORICALLY_ACTIVE_MODULES_KEY = 'update historically active modules';
-
+export const QUERY_GET_JETPACK_MANAGE_DATA_KEY = 'get jetpack manage data';
+export const QUERY_RED_BUBBLE_ALERTS_KEY = 'red bubble alerts';
+export const QUERY_GET_PROTECT_DATA_KEY = 'get protect data';
+export const QUERY_GET_VIDEOPRESS_DATA_KEY = 'get videopress data';
+export const QUERY_GET_OAUTH_AUTHORIZE_URL_KEY = 'get oauth authorize url';
 // Product Slugs
 export const PRODUCT_SLUGS = {
 	ANTI_SPAM: 'anti-spam',

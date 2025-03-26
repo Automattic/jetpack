@@ -14,7 +14,6 @@ use Automattic\Jetpack\Constants;
 use WorDBless\BaseTestCase;
 
 class Helpers_Test extends BaseTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	protected $user_data;
 
@@ -38,8 +37,6 @@ class Helpers_Test extends BaseTestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Constants::clear_constants();

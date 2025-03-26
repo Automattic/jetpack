@@ -5,8 +5,9 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS;
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
-use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
+use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
@@ -24,7 +25,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
-class Critical_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Data_Sync {
+class Critical_CSS implements Pluggable, Changes_Output_After_Activation, Optimization, Has_Data_Sync, Needs_To_Be_Ready {
 
 	/**
 	 * Critical CSS storage class instance.
@@ -55,6 +56,15 @@ class Critical_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_
 	 */
 	public function is_ready() {
 		return ( new Critical_CSS_State() )->is_generated();
+	}
+
+	/**
+	 * Get the action names that will be triggered when the module is ready and serving critical CSS.
+	 *
+	 * @return string[]
+	 */
+	public static function get_change_output_action_names() {
+		return array( Critical_CSS_Invalidator::INVALIDATE_ACTION_NAME, Critical_CSS_State::GENERATION_ACTION_NAME );
 	}
 
 	public static function is_available() {

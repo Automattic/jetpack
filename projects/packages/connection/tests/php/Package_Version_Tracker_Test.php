@@ -42,10 +42,9 @@ class Package_Version_Tracker_Test extends TestCase {
 
 	/**
 	 * Setting up the testing environment.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		Sync_Settings::update_settings( array( 'disable' => true ) );
 		$this->reset_connection_status();
@@ -53,10 +52,9 @@ class Package_Version_Tracker_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		global $wp_actions;
 		// Restore `init` in global $wp_actions.
 		$wp_actions['init'] = true;
@@ -138,7 +136,7 @@ class Package_Version_Tracker_Test extends TestCase {
 	 *    'expected_value' => The expected value of the option after maybe_update_package_versions is called.
 	 *    'updated'        => Whether the option should be updated.
 	 */
-	public function jetpack_maybe_update_package_versions_data_provider() {
+	public static function jetpack_maybe_update_package_versions_data_provider() {
 		$added_version = array_merge( self::PACKAGE_VERSIONS, array( 'test' => '4.0' ) );
 
 		$removed_version = self::PACKAGE_VERSIONS;
@@ -147,112 +145,112 @@ class Package_Version_Tracker_Test extends TestCase {
 		return array(
 			'versions did not change'        =>
 				array(
-					'option_value'    => self::PACKAGE_VERSIONS,
-					'filter_value'    => self::PACKAGE_VERSIONS,
-					'expected_option' => self::PACKAGE_VERSIONS,
-					'updated'         => false,
+					'option_value'   => self::PACKAGE_VERSIONS,
+					'filter_value'   => self::PACKAGE_VERSIONS,
+					'expected_value' => self::PACKAGE_VERSIONS,
+					'updated'        => false,
 				),
 			'option is empty'                =>
 				array(
-					'option_value'    => array(),
-					'filter_value'    => self::PACKAGE_VERSIONS,
-					'expected_option' => self::PACKAGE_VERSIONS,
-					'updated'         => true,
+					'option_value'   => array(),
+					'filter_value'   => self::PACKAGE_VERSIONS,
+					'expected_value' => self::PACKAGE_VERSIONS,
+					'updated'        => true,
 				),
 			'filter is empty'                =>
 				array(
-					'option_value'    => self::PACKAGE_VERSIONS,
-					'filter_value'    => array(),
-					'expected_option' => array(),
-					'updated'         => true,
+					'option_value'   => self::PACKAGE_VERSIONS,
+					'filter_value'   => array(),
+					'expected_value' => array(),
+					'updated'        => true,
 				),
 			'versions changed'               =>
 				array(
-					'option_value'    => self::PACKAGE_VERSIONS,
-					'filter_value'    => self::CHANGED_VERSIONS,
-					'expected_option' => self::CHANGED_VERSIONS,
-					'updated'         => true,
+					'option_value'   => self::PACKAGE_VERSIONS,
+					'filter_value'   => self::CHANGED_VERSIONS,
+					'expected_value' => self::CHANGED_VERSIONS,
+					'updated'        => true,
 				),
 			'filter added new package'       =>
 				array(
-					'option_value'    => self::PACKAGE_VERSIONS,
-					'filter_value'    => $added_version,
-					'expected_option' => $added_version,
-					'updated'         => true,
+					'option_value'   => self::PACKAGE_VERSIONS,
+					'filter_value'   => $added_version,
+					'expected_value' => $added_version,
+					'updated'        => true,
 				),
 			'filter removed a package'       =>
 				array(
-					'option_value'    => self::PACKAGE_VERSIONS,
-					'filter_value'    => $removed_version,
-					'expected_option' => $removed_version,
-					'updated'         => true,
+					'option_value'   => self::PACKAGE_VERSIONS,
+					'filter_value'   => $removed_version,
+					'expected_value' => $removed_version,
+					'updated'        => true,
 				),
 			'filter not an array'            =>
 				array(
-					'option_value'    => self::PACKAGE_VERSIONS,
-					'filter_value'    => 'not an array',
-					'expected_option' => self::PACKAGE_VERSIONS,
-					'updated'         => false,
+					'option_value'   => self::PACKAGE_VERSIONS,
+					'filter_value'   => 'not an array',
+					'expected_value' => self::PACKAGE_VERSIONS,
+					'updated'        => false,
 				),
 			'option not an array'            =>
 				array(
-					'option_value'    => 'not an array',
-					'filter_value'    => self::PACKAGE_VERSIONS,
-					'expected_option' => self::PACKAGE_VERSIONS,
-					'updated'         => true,
+					'option_value'   => 'not an array',
+					'filter_value'   => self::PACKAGE_VERSIONS,
+					'expected_value' => self::PACKAGE_VERSIONS,
+					'updated'        => true,
 				),
 			'option, filter both not arrays' =>
 				array(
-					'option_value'    => 'option not an array',
-					'filter_value'    => 'filter not an array',
-					'expected_option' => 'option not an array',
-					'updated'         => false,
+					'option_value'   => 'option not an array',
+					'filter_value'   => 'filter not an array',
+					'expected_value' => 'option not an array',
+					'updated'        => false,
 				),
 			'filter version not string, option version is string' =>
 				array(
-					'option_value'    => self::PACKAGE_VERSIONS,
-					'filter_value'    => array(
+					'option_value'   => self::PACKAGE_VERSIONS,
+					'filter_value'   => array(
 						'connection' => 1,
 						'backup'     => '1.0',
 						'sync'       => '2.0',
 					),
-					'expected_option' => array(
+					'expected_value' => array(
 						'backup' => '1.0',
 						'sync'   => '2.0',
 					),
-					'updated'         => true,
+					'updated'        => true,
 				),
 			'filter version not string, option version also not string' =>
 				array(
-					'option_value'    => array(
+					'option_value'   => array(
 						'connection' => 1,
 						'backup'     => '1.0',
 						'sync'       => '2.0',
 					),
-					'filter_value'    => array(
+					'filter_value'   => array(
 						'connection' => 2,
 						'backup'     => '1.0',
 						'sync'       => '2.0',
 					),
-					'expected_option' => array(
+					'expected_value' => array(
 						'backup' => '1.0',
 						'sync'   => '2.0',
 					),
-					'updated'         => true,
+					'updated'        => true,
 				),
 			'filter version not string, option version does not exist, no update' =>
 				array(
-					'option_value'    => self::PACKAGE_VERSIONS,
-					'filter_value'    => array_merge( self::PACKAGE_VERSIONS, array( 'test' => 5 ) ),
-					'expected_option' => self::PACKAGE_VERSIONS,
-					'updated'         => false,
+					'option_value'   => self::PACKAGE_VERSIONS,
+					'filter_value'   => array_merge( self::PACKAGE_VERSIONS, array( 'test' => 5 ) ),
+					'expected_value' => self::PACKAGE_VERSIONS,
+					'updated'        => false,
 				),
 			'filter version not string, option version does not exist, with update' =>
 				array(
-					'option_value'    => self::PACKAGE_VERSIONS,
-					'filter_value'    => array_merge( self::CHANGED_VERSIONS, array( 'test' => 5 ) ),
-					'expected_option' => self::CHANGED_VERSIONS,
-					'updated'         => true,
+					'option_value'   => self::PACKAGE_VERSIONS,
+					'filter_value'   => array_merge( self::CHANGED_VERSIONS, array( 'test' => 5 ) ),
+					'expected_value' => self::CHANGED_VERSIONS,
+					'updated'        => true,
 				),
 		);
 	}
