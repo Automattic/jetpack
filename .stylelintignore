@@ -6,6 +6,9 @@
 !**/*.css
 !**/*.scss
 
+# Ignore minifed CSS
+**/*.min.css
+
 # Ignore CSS copied in from elsewhere
 projects/packages/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks
 projects/plugins/crm/css/lib
