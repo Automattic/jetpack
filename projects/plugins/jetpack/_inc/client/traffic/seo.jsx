@@ -224,7 +224,7 @@ export const SEO = withModuleSettingsFormHelpers(
 								{ __( 'Customize your SEO settings', 'jetpack' ) }
 							</span>
 						</ModuleToggle>
-						{ this.props.seoEnhancerAvailable && (
+						{ this.props.seoEnhancerAvailable && this.props.hasSeoEnhancer && (
 							<FormFieldset>
 								<ToggleControl
 									id="seo-enhancer"
