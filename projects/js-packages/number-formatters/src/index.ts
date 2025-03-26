@@ -1,0 +1,226 @@
+import {
+	numberFormatCurrency,
+	getCurrencyObject as getCurrencyObjectFromCurrencyFormatter,
+} from './number-format-currency/index.js';
+import { numberFormat, numberFormatCompact } from './number-format.js';
+import type {
+	CurrencyObject,
+	FormatCurrency,
+	FormatNumber,
+	GetCurrencyObject,
+} from '../types/index.js';
+
+interface Formatter {
+	setLocale: ( locale: string ) => void;
+	setGeoLocation: ( geoLocation: string ) => void;
+	formatNumber: FormatNumber;
+	formatNumberCompact: FormatNumber;
+	formatCurrency: FormatCurrency;
+	getCurrencyObject: GetCurrencyObject;
+}
+
+/**
+ * A closure that bundles number formatters with locale and geoLocation state.
+ *
+ * @return {Formatter} The formatter.
+ */
+const createNumberFormatters = (): Formatter => {
+	let browserSafeLocale: string | undefined;
+	let geoLocation: string | undefined;
+
+	const setLocale = ( locale: string ) => {
+		/**
+		 * The `Intl.NumberFormat` constructor fails only when there is a variant, divided by `_`.
+		 * These suffixes should be removed. Values like `de-at` or `es-mx`
+		 * should all be valid inputs for the constructor.
+		 */
+		browserSafeLocale = locale.split( '_' )[ 0 ] ?? locale;
+	};
+
+	const setGeoLocation = ( _geoLocation: string ) => {
+		geoLocation = _geoLocation;
+	};
+
+	/**
+	 * Formats numbers using locale settings and/or passed options.
+	 * @param  number                     - The number to format.
+	 * @param  params                     - The parameters for the formatter.
+	 * @param  params.decimals            - The number of decimal places to display.
+	 * @param  params.forceLatin          - Whether to force the Latin script.
+	 * @param  params.numberFormatOptions - Additional options to pass to the formatter.
+	 * @return {string} Formatted number as string, or original number as string if formatting fails.
+	 */
+	const formatNumber: FormatNumber = (
+		number,
+		{ decimals = 0, forceLatin = true, numberFormatOptions = {} } = {}
+	): string => {
+		const formatter = numberFormat( {
+			browserSafeLocale,
+			decimals,
+			forceLatin,
+			numberFormatOptions,
+		} );
+
+		try {
+			return formatter.format( number );
+		} catch {
+			return String( number );
+		}
+	};
+
+	/**
+	 * Formats numbers using locale settings and/or passed options, with a compact notation.
+	 * Convenience method for formatting numbers in a compact notation e.g. 1K, 1M, etc.
+	 * Basically sets `notation: 'compact'` and `maximumFractionDigits: 1` in the options.
+	 * Everything is overridable by passing the `numberFormatOptions` option.
+	 * If you want more digits, pass `maximumFractionDigits: 2`.
+	 * @param  number                     - The number to format.
+	 * @param  params                     - The parameters for the formatter.
+	 * @param  params.decimals            - The number of decimal places to display.
+	 * @param  params.forceLatin          - Whether to force the Latin script.
+	 * @param  params.numberFormatOptions - Additional options to pass to the formatter.
+	 * @return {string} Formatted number as string, or original number as string if formatting fails.
+	 */
+	const formatNumberCompact: FormatNumber = (
+		number,
+		{ decimals = 0, forceLatin = true, numberFormatOptions = {} } = {}
+	): string => {
+		const formatter = numberFormatCompact( {
+			browserSafeLocale,
+			decimals,
+			forceLatin,
+			numberFormatOptions,
+		} );
+
+		try {
+			return formatter.format( number );
+		} catch {
+			return String( number );
+		}
+	};
+
+	/**
+	 * Formats money with a given currency code.
+	 *
+	 * The currency will define the properties to use for this formatting, but
+	 * those properties can be overridden using the options. Be careful when doing
+	 * this.
+	 *
+	 * For currencies that include decimals, this will always return the amount
+	 * with decimals included, even if those decimals are zeros. To exclude the
+	 * zeros, use the `stripZeros` option. For example, the function will normally
+	 * format `10.00` in `USD` as `$10.00` but when this option is true, it will
+	 * return `$10` instead.
+	 *
+	 * Since rounding errors are common in floating point math, sometimes a price
+	 * is provided as an integer in the smallest unit of a currency (eg: cents in
+	 * USD or yen in JPY). Set the `isSmallestUnit` to change the function to
+	 * operate on integer numbers instead. If this option is not set or false, the
+	 * function will format the amount `1025` in `USD` as `$1,025.00`, but when the
+	 * option is true, it will return `$10.25` instead.
+	 *
+	 * If the number is NaN, it will be treated as 0.
+	 *
+	 * If the currency code is not known, this will assume a default currency
+	 * similar to USD.
+	 *
+	 * If `isSmallestUnit` is set and the number is not an integer, it will be
+	 * rounded to an integer.
+	 * @param  number                  - The number to format.
+	 * @param  currency                - The currency to format.
+	 * @param  options                 - The options for the formatter.
+	 * @param  options.stripZeros      - Whether to strip zeros.
+	 * @param  options.isSmallestUnit  - Whether the number is the smallest unit of a currency.
+	 * @param  options.signForPositive - Whether to show the sign for positive numbers.
+	 * @param  options.forceLatin      - Whether to force the latin locale.
+	 * @return {string} A formatted string.
+	 */
+	const formatCurrency: FormatCurrency = (
+		number,
+		currency,
+		{ stripZeros = false, isSmallestUnit = false, signForPositive = false, forceLatin = true } = {}
+	): string => {
+		return numberFormatCurrency( {
+			number,
+			currency,
+			browserSafeLocale,
+			stripZeros,
+			isSmallestUnit,
+			signForPositive,
+			geoLocation,
+			forceLatin,
+		} );
+	};
+
+	/**
+	 *
+	 * Returns a formatted price object which can be used to manually render a
+	 * formatted currency (eg: if you wanted to render the currency symbol in a
+	 * different font size).
+	 *
+	 * The currency will define the properties to use for this formatting, but
+	 * those properties can be overridden using the options. Be careful when doing
+	 * this.
+	 *
+	 * For currencies that include decimals, this will always return the amount
+	 * with decimals included, even if those decimals are zeros. To exclude the
+	 * zeros, use the `stripZeros` option. For example, the function will normally
+	 * format `10.00` in `USD` as `$10.00` but when this option is true, it will
+	 * return `$10` instead.
+	 *
+	 * Since rounding errors are common in floating point math, sometimes a price
+	 * is provided as an integer in the smallest unit of a currency (eg: cents in
+	 * USD or yen in JPY). Set the `isSmallestUnit` to change the function to
+	 * operate on integer numbers instead. If this option is not set or false, the
+	 * function will format the amount `1025` in `USD` as `$1,025.00`, but when the
+	 * option is true, it will return `$10.25` instead.
+	 *
+	 * Note that the `integer` return value of this function is not a number, but a
+	 * locale-formatted string which may include symbols like spaces, commas, or
+	 * periods as group separators. Similarly, the `fraction` property is a string
+	 * that contains the decimal separator.
+	 *
+	 * If the number is NaN, it will be treated as 0.
+	 *
+	 * If the currency code is not known, this will assume a default currency
+	 * similar to USD.
+	 *
+	 * If `isSmallestUnit` is set and the number is not an integer, it will be
+	 * rounded to an integer.
+	 * @param  number                  - The number to format.
+	 * @param  currency                - The currency to format.
+	 * @param  options                 - The options for the formatter.
+	 * @param  options.stripZeros      - Whether to strip zeros.
+	 * @param  options.isSmallestUnit  - Whether the number is the smallest unit of a currency.
+	 * @param  options.signForPositive - Whether to show the sign for positive numbers.
+	 * @param  options.forceLatin      - Whether to force the latin locale.
+	 * @return {CurrencyObject} A formatted price object.
+	 */
+	const getCurrencyObject: GetCurrencyObject = (
+		number,
+		currency,
+		{ stripZeros = false, isSmallestUnit = false, signForPositive = false, forceLatin = true } = {}
+	): CurrencyObject => {
+		return getCurrencyObjectFromCurrencyFormatter( {
+			number,
+			currency,
+			browserSafeLocale,
+			stripZeros,
+			isSmallestUnit,
+			signForPositive,
+			geoLocation,
+			forceLatin,
+		} );
+	};
+
+	return {
+		setLocale,
+		setGeoLocation,
+		formatNumber,
+		formatNumberCompact,
+		formatCurrency,
+		getCurrencyObject,
+	};
+};
+
+export default createNumberFormatters;
