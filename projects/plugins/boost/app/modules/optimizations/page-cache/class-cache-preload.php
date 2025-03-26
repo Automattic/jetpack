@@ -45,11 +45,7 @@ class Cache_Preload implements Sub_Feature, Has_Activate, Is_Always_On {
 	 * @since 3.11.0
 	 */
 	public static function is_available() {
-		if ( defined( 'JETPACK_BOOST_ALPHA_FEATURES' ) ) {
-			return \JETPACK_BOOST_ALPHA_FEATURES === true;
-		}
-
-		return false;
+		return true;
 	}
 
 	/**

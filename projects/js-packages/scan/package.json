@@ -18,7 +18,7 @@
 		"build": "pnpm run clean && pnpm run compile-ts",
 		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty",
-		"test": "jest",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"type": "module",
@@ -48,9 +48,14 @@
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
 		"@wordpress/api-fetch": "7.19.0",
+		"@wordpress/components": "29.5.0",
+		"@wordpress/dataviews": "4.15.0",
+		"@wordpress/date": "5.19.0",
 		"@wordpress/element": "6.19.0",
 		"@wordpress/i18n": "5.19.0",
+		"@wordpress/icons": "10.19.0",
 		"@wordpress/url": "4.19.0",
 		"debug": "4.4.0",
 		"react": "^18.2.0",
