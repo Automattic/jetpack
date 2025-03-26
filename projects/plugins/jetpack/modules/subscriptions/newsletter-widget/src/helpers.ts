@@ -1,7 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { createElement } from '@wordpress/element';
+import { createElement, useEffect } from '@wordpress/element';
+import { TRACKS_EVENT_NAME_PREFIX } from './constants';
 import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
 
 /**
@@ -16,14 +18,48 @@ import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
 export const DashboardLink = (
 	isWpcomSite: boolean,
 	href: string,
+	eventName: string,
 	text?: string
 ): React.ReactElement => {
+	const { tracks } = useAnalytics();
+
+	useEffect( () => {
+		tracks.recordEvent( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
+	}, [ tracks ] );
+
 	let elementType = ExternalLink;
 	if ( isWpcomSite ) {
 		elementType = 'a';
 	}
 
-	return createElement( elementType, { href }, text ? text : undefined );
+	return createElement(
+		elementType,
+		{ href, onClick: createTracksEventHandler( tracks, eventName ) },
+		text ? text : undefined
+	);
+};
+
+/**
+ * Creates an event handler function for tracking user interactions
+ *
+ * @param tracks          - The tracks analytics object
+ * @param eventName       - The "action" part of the event name. Will be appended to "jetpack_newsletter_widget_"
+ * @param eventProperties - Additional properties to include in the event
+ * @returns A callback function that records the event when triggered. To primarily be used as an onClick prop.
+ *
+ * @example
+ * const handleClick = createTracksEventHandler( tracks, 'learn_more_click', { locale: 'en' } );
+ */
+export const createTracksEventHandler = (
+	tracks: typeof analytics.tracks,
+
+	eventAction: string,
+
+	eventProperties: Record< string, unknown > = {}
+) => {
+	return () => {
+		tracks.recordEvent( `jetpack_newsletter_widget_${ eventAction }`, eventProperties );
+	};
 };
 
 /**
