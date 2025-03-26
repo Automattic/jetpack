@@ -243,7 +243,7 @@
 		height: auto;
 		font-size: var(--font-body);
 		line-height: 22px;
-		padding: var(--spacing-base) calc(var(--spacing-base)* 3); // To make the inputs of the same size as the Connect button
+		padding: var(--spacing-base) calc(var(--spacing-base) * 3); // To make the inputs of the same size as the Connect button
 
 		// Override the default input styles for small screens
 		@media (max-width: #{ ($break-medium) }) {
