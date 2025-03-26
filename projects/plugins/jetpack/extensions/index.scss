@@ -43,3 +43,10 @@
 		margin-bottom: 10px;
 	}
 }
+
+// To match the new default height of the Range Control input field.
+// Affects RangeControl components using the allowReset prop.
+.components-range-control__reset.is-secondary.is-small {
+	height: 40px;
+	min-height: 40px;
+}

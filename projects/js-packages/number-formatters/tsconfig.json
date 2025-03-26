@@ -1,0 +1,10 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.tsc.json",
+	"include": [ "./index.ts" ],
+	"compilerOptions": {
+		"typeRoots": [ "./node_modules/@types/" ],
+		"sourceMap": false,
+		"outDir": "./dist/",
+		"target": "es2022"
+	}
+}

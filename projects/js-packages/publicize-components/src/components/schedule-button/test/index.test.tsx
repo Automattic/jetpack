@@ -42,10 +42,12 @@ describe( 'ScheduleButton', () => {
 		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
 		await user.click( scheduleButton );
 
-		expect(
-			screen.getByRole( 'button', { name: 'October 1, 2023. Selected' } )
-		).toBeInTheDocument();
-		const datePicker = screen.getByRole( 'button', { name: 'October 2, 2023' } );
+		const selectedDateButton = await screen.findByRole( 'button', {
+			name: 'October 1, 2023. Selected',
+		} );
+		expect( selectedDateButton ).toBeInTheDocument();
+
+		const datePicker = await screen.findByRole( 'button', { name: 'October 2, 2023' } );
 		await user.click( datePicker );
 
 		expect( mockOnChange ).toHaveBeenCalledWith( expectedUnixTimestamp );
@@ -67,15 +69,17 @@ describe( 'ScheduleButton', () => {
 		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
 		await user.click( scheduleButton );
 
-		const hoursInput = screen.getByLabelText( 'Hours' );
-		const minutesInput = screen.getByLabelText( 'Minutes' );
+		const hoursInput = await screen.findByLabelText( 'Hours' );
+		const minutesInput = await screen.findByLabelText( 'Minutes' );
+		const selectedDateButton = await screen.findByRole( 'button', {
+			name: 'October 1, 2023. Selected',
+		} );
 
-		expect(
-			screen.getByRole( 'button', { name: 'October 1, 2023. Selected' } )
-		).toBeInTheDocument();
+		expect( selectedDateButton ).toBeInTheDocument();
 		expect( hoursInput ).toHaveValue( 12 );
 		expect( minutesInput ).toHaveValue( 0 );
-		const datePicker = screen.getByRole( 'button', { name: 'October 2, 2023' } );
+
+		const datePicker = await screen.findByRole( 'button', { name: 'October 2, 2023' } );
 		await user.click( datePicker );
 
 		expect( mockOnChange ).toHaveBeenCalledWith( expectedUnixTimestamp );
@@ -93,12 +97,12 @@ describe( 'ScheduleButton', () => {
 		await user.click( scheduleButton );
 
 		// Button will be disabled initially
-		const confirmButton = screen.getByText( 'Confirm' );
+		const confirmButton = await screen.findByText( 'Confirm' );
 		await user.click( confirmButton );
 		expect( mockOnConfirm ).not.toHaveBeenCalled();
 
 		// Ensure we've selected a future date so the button is enabled.
-		const datePicker = screen.getByRole( 'button', { name: 'October 2, 2023' } );
+		const datePicker = await screen.findByRole( 'button', { name: 'October 2, 2023' } );
 		await user.click( datePicker );
 
 		await user.click( confirmButton );
@@ -119,7 +123,7 @@ describe( 'ScheduleButton', () => {
 		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
 		await user.click( scheduleButton );
 
-		const pastDateButton = screen.getByRole( 'button', { name: 'October 14, 2023' } );
+		const pastDateButton = await screen.findByRole( 'button', { name: 'October 14, 2023' } );
 		expect( pastDateButton ).toBeDisabled();
 	} );
 } );

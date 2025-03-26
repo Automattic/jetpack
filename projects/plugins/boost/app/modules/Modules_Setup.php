@@ -4,13 +4,13 @@ namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -134,7 +134,7 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 			)
 		)->fallback( array() );
 
-		$entry = new Modules_State_Entry( Modules_Index::FEATURES );
+		$entry = new Modules_State_Entry( array_merge( Modules_Index::FEATURES, Modules_Index::SUB_FEATURES ) );
 		$instance->register( 'modules_state', $modules_state_schema, $entry );
 	}
 
@@ -170,6 +170,43 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 		$this->setup_modules_data_sync( $this->modules_index->get_modules() );
 		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
+
+		// Add a hook to fire page output changed action when a module that Changes_Output_After_Activation indicates something has changed.
+		$sub_features_to_check = array();
+		foreach ( $this->available_modules as $module ) {
+			$this->notice_page_output_change_of_module( $module );
+
+			$feature = $module->feature;
+			if ( $feature instanceof Has_Submodules ) {
+				$sub_features_to_check = array_merge( $sub_features_to_check, $feature->get_submodules() );
+			}
+		}
+		$sub_features_to_check = array_unique( $sub_features_to_check );
+		foreach ( $sub_features_to_check as $sub_feature_class ) {
+			$sub_feature = new $sub_feature_class();
+			$module      = new Module( $sub_feature );
+			$this->notice_page_output_change_of_module( $module );
+		}
+	}
+
+	private function notice_page_output_change_of_module( $module ) {
+		if ( ! $module->is_enabled() ) {
+			return;
+		}
+
+		$feature = $module->feature;
+		if ( ! ( $feature instanceof Changes_Output_After_Activation ) ) {
+			return;
+		}
+
+		$action_names = $feature::get_change_output_action_names();
+		if ( empty( $action_names ) ) {
+			return;
+		}
+
+		foreach ( $action_names as $action ) {
+			add_action( $action, array( $module, 'indicate_page_output_changed' ), 10, 1 );
+		}
 	}
 
 	/**
@@ -179,33 +216,44 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	 * @param bool   $is_activated The new status.
 	 */
 	public function on_module_status_update( $module_slug, $is_activated ) {
+		$module = $this->modules_index->get_module_instance_by_slug( $module_slug );
+
+		if ( ! $module ) {
+			return;
+		}
+
 		$status = new Status( $module_slug );
 		$status->on_update( $is_activated );
 
-		$module = $this->modules_index->get_module_instance_by_slug( $module_slug );
-		if ( $is_activated && $module ) {
+		if ( $is_activated ) {
 			$module->on_activate();
-		}
-
-		if ( ! $is_activated && $module ) {
+		} else {
 			$module->on_deactivate();
 		}
 
-		if ( $module ) {
-			$submodules = $module->get_available_submodules();
-			if ( is_array( $submodules ) && ! empty( $submodules ) ) {
-				foreach ( $submodules as $sub_module ) {
-					if ( $is_activated ) {
-						$sub_module->on_activate();
-					} else {
-						$sub_module->on_deactivate();
-					}
+		// Now run the activation/deactivation for all submodules that are effected by this modules status change.
+		$submodules = $module->get_available_submodules();
+		if ( is_array( $submodules ) ) {
+			foreach ( $submodules as $submodule ) {
+				// Only worry about submodules that are enabled.
+				if ( ! $submodule->is_enabled() ) {
+					continue;
+				}
+
+				$active_parent_modules = $submodule->get_active_parent_modules();
+
+				if ( $is_activated && count( $active_parent_modules ) === 1 ) {
+					// If current module is the only active parent module, run activation on the submodule.
+					// If this submodule has other parent modules, we can assume they are already activated.
+					$submodule->on_activate();
+				}
+
+				// If submodule has no active parent modules left, run deactivate on the submodule.
+				// If this submodule still has other parent modules, we can assume they are not ready to be deactivated.
+				if ( ! $is_activated && empty( $active_parent_modules ) ) {
+					$submodule->on_deactivate();
 				}
 			}
-		}
-
-		if ( $module_slug === Cloud_CSS::get_slug() && $is_activated ) {
-			( new Regenerate() )->start();
 		}
 	}
 }

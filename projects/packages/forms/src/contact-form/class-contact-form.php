@@ -748,13 +748,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Escape and sanitize the field value.
 	 *
-	 * @param string $value - the value we're escaping and sanitizing.
+	 * @param string|array $value - the value we're escaping and sanitizing.
 	 *
 	 * @return string
 	 */
 	public static function escape_and_sanitize_field_value( $value ) {
 		if ( $value === null ) {
 			return '';
+		}
+		// Check if this is file upload data
+		if ( self::is_file_upload_field( $value ) ) {
+			$value = $value['name'];
 		}
 
 		$value = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value );
@@ -770,6 +774,40 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public static function remove_empty( $single_value ) {
 		return ( $single_value !== '' );
+	}
+
+	/**
+	 * Get file upload fields
+	 *
+	 * @param int $post_id The feedback post ID.
+	 * @return array Array of file attachments or empty array.
+	 */
+	public static function get_file_upload_fields( $post_id ) {
+		$content_fields     = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+		$file_upload_fields = array();
+		if ( isset( $content_fields['_feedback_all_fields'] ) ) {
+			foreach ( $content_fields['_feedback_all_fields'] as $field_value ) {
+				if ( self::is_file_upload_field( $field_value ) ) {
+					$file_upload_fields[] = $field_value;
+				}
+			}
+		}
+
+		return $file_upload_fields;
+	}
+
+	/**
+	 * Delete files
+	 *
+	 * @param int $post_id The post ID being deleted.
+	 * @return void
+	 */
+	public static function delete_feedback_files( $post_id ) {
+		if ( get_post_type( $post_id ) !== 'feedback' ) {
+			return;
+		}
+		// $file_upload_fields = self::get_file_upload_fields( $post_id );
+		// TODO: Implement delete_feedback_files() method.
 	}
 
 	/**
@@ -892,6 +930,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Output HTML
 		return $field->render();
+	}
+
+	/**
+	 * Check if the field is a file upload field.
+	 *
+	 * @param array $field The field to check.
+	 * @return bool True if the field is a file upload field, false otherwise.
+	 */
+	public static function is_file_upload_field( $field ) {
+		return ! empty( $field['file_id'] ) && ! empty( $field['name'] );
 	}
 
 	/**
@@ -1205,8 +1253,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			$label = $i . '_' . $field->get_attribute( 'label' );
+			if ( $field->get_attribute( 'type' ) === 'file' ) {
+				$field->value = $this->process_file_upload( $field );
+			}
 			$value = $field->value;
-
+			if ( is_array( $value ) && ! ( $field->get_attribute( 'type' ) === 'file' ) ) {
+				$value = implode( ', ', $value );
+			}
 			$all_values[ $label ] = $value;
 			++$i; // Increment prefix counter for the next field
 		}
@@ -1222,11 +1275,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
-
-			if ( is_array( $value ) ) {
-				$value = implode( ', ', $value );
+			if ( ! ( $field->get_attribute( 'type' ) === 'file' ) ) {
+				if ( is_array( $value ) ) {
+					$value = implode( ', ', $value );
+				}
 			}
-
 			$extra_values[ $label ] = $value;
 			++$i; // Increment prefix counter for the next extra field
 		}
@@ -1254,7 +1307,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			// Skip any fields that are just a choice from a pre-defined list. They wouldn't have any value
 			// from a spam-filtering point of view.
-			if ( in_array( $field->get_attribute( 'type' ), array( 'select', 'checkbox', 'checkbox-multiple', 'radio' ), true ) ) {
+			if ( in_array( $field->get_attribute( 'type' ), array( 'select', 'checkbox', 'checkbox-multiple', 'radio', 'file' ), true ) ) {
 				continue;
 			}
 
@@ -1710,6 +1763,47 @@ class Contact_Form extends Contact_Form_Shortcode {
 		wp_redirect( $redirect );
 		exit( 0 );
 	}
+
+	/**
+	 * Process a file upload.
+	 *
+	 * @param string $unauth_file_token The unauthenticated file upload token.
+	 * @return array|WP_Error File data array on success, WP_Error on failure.
+	 */
+	private function process_file_upload( $unauth_file_token ) {
+		if ( empty( $unauth_file_token ) ) {
+			return new \WP_Error( 'file_upload_failed', __( 'Failed to upload file.', 'jetpack-forms' ) );
+		}
+
+		// Generate a realistic file path structure
+		$year  = gmdate( 'Y' );
+		$month = gmdate( 'm' );
+		$hash  = substr( wp_hash( $unauth_file_token ), 0, 8 );
+
+		// Return dummy file data for testing
+		return array(
+			'name'    => 'test-upload-' . $hash . '.txt',
+			'file_id' => $year . '/' . $month . '/test-upload-' . $hash . '.txt',
+			'size'    => wp_rand( 1024, 102400 ), // Random size between 1KB and 100KB
+		);
+	}
+
+	/**
+	 * Delete a file using its identifier.
+	 *
+	 * @param string $file_id The file identifier to delete.
+	 * @return bool True on success, false on failure.
+	 */
+	private function delete_file( $file_id ) {
+		// Basic validation to maintain API consistency
+		if ( empty( $file_id ) ) {
+			return false;
+		}
+
+		// Always return true for testing
+		return true;
+	}
+
 	/**
 	 * Get the permalink for the post ID that include the page query parameter if it was set.
 	 *
@@ -1898,5 +1992,67 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 		return $align_to_class_map[ $attributes['align'] ];
+	}
+
+	/**
+	 * Handle the cleanup of files when a feedback is deleted.
+	 *
+	 * @param int $post_id The post ID.
+	 * @return void
+	 */
+	public function handle_feedback_deletion( $post_id ) {
+		$feedback_meta = get_post_meta( $post_id, '_feedback_all_fields', true );
+		if ( empty( $feedback_meta ) ) {
+			return;
+		}
+
+		foreach ( $feedback_meta as $field_value ) {
+			if ( ! self::is_file_upload_field( $field_value ) ) {
+				continue;
+			}
+
+			foreach ( $field_value as $file_upload_field ) {
+				$this->delete_file( $file_upload_field['file_id'] );
+			}
+		}
+	}
+
+	/**
+	 * Process a file upload field.
+	 *
+	 * @param string $field_id The field ID.
+	 * @param object $field The field object.
+	 *
+	 * @return array An array of uploaded files or errors.
+	 */
+	private function process_file_upload_field( $field_id, $field ) {
+		$field_id         = sanitize_key( $field_id );
+		$token_field_name = $field_id . '_token';
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$unauth_file_token_array = isset( $_POST[ $token_field_name ] ) && is_array( $_POST[ $token_field_name ] )
+			? map_deep(
+				$_POST[ $token_field_name ],  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing
+				function ( $token ) {
+					return sanitize_text_field( wp_unslash( $token ) );
+				}
+			) : array();
+
+		if ( empty( $unauth_file_token_array ) ) {
+			$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
+			return array();
+		}
+
+		$files = array();
+		foreach ( $unauth_file_token_array as $unauth_file_token ) {
+			$result = $this->process_file_upload( $unauth_file_token );
+			if ( is_wp_error( $result ) ) {
+				$field->add_error( $result->get_error_message() );
+				continue;
+			}
+
+			$files[] = $result;
+		}
+		return $files;
 	}
 }

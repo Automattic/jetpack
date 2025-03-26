@@ -45,7 +45,6 @@ require_once __DIR__ . '/customizer-fixes/customizer-fixes.php';
 
 require_once __DIR__ . '/class-wpcomsh-log.php';
 require_once __DIR__ . '/safeguard/plugins.php';
-require_once __DIR__ . '/logo-tool/logo-tool.php';
 require_once __DIR__ . '/jetpack-token-error-header/class-atomic-record-jetpack-token-errors.php';
 
 /**
@@ -256,6 +255,21 @@ function wpcomsh_bypass_jetpack_sso_login() {
 add_filter( 'jetpack_sso_bypass_login_forward_wpcom', 'wpcomsh_bypass_jetpack_sso_login' );
 
 /**
+ * Add 'loggedout' to the list of actions that allow the wpcom login form to be used.
+ *
+ * This means that the login screen the user sees immediately after logging out is consistent
+ * with the login screen the user sees when they are not logged in: the wpcom login form.
+ *
+ * @param array $allowed_actions The allowed actions.
+ * @return array The modified allowed actions.
+ */
+function wpcomsh_modify_jetpack_sso_allowed_actions( $allowed_actions ) {
+	$allowed_actions[] = 'loggedout';
+	return $allowed_actions;
+}
+add_filter( 'jetpack_sso_allowed_actions', 'wpcomsh_modify_jetpack_sso_allowed_actions' );
+
+/**
  * Overwrite the default value of SSO "Match by Email" setting.
  * p9o2xV-2zY-p2
  */
@@ -289,6 +303,7 @@ function wpcomsh_allow_custom_wp_options( $options ) {
 	$options[] = 'jetpack_fonts';
 	$options[] = 'site_logo';
 	$options[] = 'footercredit';
+	$options[] = 'wpcomsh_at_managed_plugins';
 
 	return $options;
 }
@@ -650,6 +665,20 @@ function wpcomsh_get_woo_rum_data( $rum_kv = array() ) {
 
 add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
 add_action( 'admin_footer', 'wpcomsh_footer_rum_js' );
+
+/**
+ * Adds Atomic site ID to WooCommerce tracker data.
+ *
+ * @param array $data The WooCommerce tracker data.
+ *
+ * @return array The WooCommerce tracker data with Atomic site ID added.
+ */
+function wpcomsh_woocommerce_tracker_data( $data ) {
+	$data['atomic_site_id'] = wpcomsh_get_atomic_site_id();
+	return $data;
+}
+
+add_filter( 'woocommerce_tracker_data', 'wpcomsh_woocommerce_tracker_data' );
 
 add_filter( 'amp_dev_tools_user_default_enabled', '__return_false' );
 

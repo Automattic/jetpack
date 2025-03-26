@@ -14,6 +14,30 @@ const getDisplayName = response => {
 	return decodeEntities( author_name || author_email || author_url || ip );
 };
 
+const isFileUploadField = value => {
+	return value && typeof value === 'object' && 'file_id' in value && 'name' in value;
+};
+
+const renderFieldValue = value => {
+	if ( isFileUploadField( value ) ) {
+		const fileUrl = sprintf(
+			'%1$s?file_id=%2$s&file_nonce=%3$s',
+			'/wp/v2/feedback/files',
+			encodeURIComponent( value.file_id ),
+			encodeURIComponent( value.nonce || '' )
+		);
+		return (
+			<div className="file-field">
+				<a href={ fileUrl } target="_blank" rel="noopener noreferrer">
+					{ value.name }
+				</a>
+				{ value.size && <span className="file-size"> ({ value.size })</span> }
+			</div>
+		);
+	}
+	return value;
+};
+
 const InboxResponse = ( { loading, response } ) => {
 	const [ emailCopied, setEmailCopied ] = useState( false );
 
@@ -101,7 +125,7 @@ const InboxResponse = ( { loading, response } ) => {
 				{ map( response.fields, ( value, key ) => (
 					<div key={ key } className="jp-forms__inbox-response-item">
 						<div className="jp-forms__inbox-response-data-label">{ key }:</div>
-						<div className="jp-forms__inbox-response-data-value">{ value }</div>
+						<div className="jp-forms__inbox-response-data-value">{ renderFieldValue( value ) }</div>
 					</div>
 				) ) }
 			</div>

@@ -17,9 +17,6 @@ if ( ! defined( 'JETPACK_BOOST_DIR_PATH' ) ) {
  * @package Automattic\Jetpack_Boost\Tests
  */
 abstract class Base_TestCase extends TestCase {
-	/**
-	 * @before
-	 */
 	protected function set_up() {
 		Monkey\setUp();
 		Monkey\Functions\stubEscapeFunctions();
@@ -38,9 +35,6 @@ abstract class Base_TestCase extends TestCase {
 		);
 	}
 
-	/**
-	 * @after
-	 */
 	protected function tear_down() {
 		Monkey\tearDown();
 	}

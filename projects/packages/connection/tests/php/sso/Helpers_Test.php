@@ -37,8 +37,6 @@ class Helpers_Test extends BaseTestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Constants::clear_constants();

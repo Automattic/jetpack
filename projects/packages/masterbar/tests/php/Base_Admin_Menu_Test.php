@@ -50,10 +50,9 @@ class Base_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Set up each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $menu, $submenu;
 
 		static::$menu_data    = get_menu_fixture();
@@ -79,10 +78,9 @@ class Base_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		wp_deregister_script( 'jetpack-admin-menu' );
 		wp_deregister_style( 'jetpack-admin-menu' );
 		WorDBless_Options::init()->clear_options();
@@ -212,6 +210,19 @@ class Base_Admin_Menu_Test extends TestCase {
 	 * @return Base_Admin_Menu
 	 */
 	private function get_concrete_menu_admin() {
-		return $this->getMockBuilder( Base_Admin_Menu::class )->disableOriginalConstructor()->getMockForAbstractClass();
+		return new class() extends Base_Admin_Menu {
+			// phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found -- Not useless, changes visibility.
+			public function __construct() {
+				parent::__construct();
+			}
+
+			/**
+			 * @return never
+			 * @throws \RuntimeException Always.
+			 */
+			public function reregister_menu_items() {
+				throw new \RuntimeException( 'Unexpected call to ' . __METHOD__ );
+			}
+		};
 	}
 }

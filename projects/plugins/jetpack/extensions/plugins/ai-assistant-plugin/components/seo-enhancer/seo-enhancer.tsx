@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	BaseControl,
 	ToggleControl,
@@ -25,7 +26,8 @@ import './style.scss';
  */
 const debug = debugFactory( 'seo-enhancer:index' );
 
-export function SeoEnhancer() {
+export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhance?: boolean } ) {
+	const { tracks } = useAnalytics();
 	const { isEnabled, toggleEnhancer, isToggling } = useSeoModuleSettings();
 	const isLoading = useSelect( select => {
 		const isBusy = select( store ).isBusy();
@@ -36,7 +38,7 @@ export function SeoEnhancer() {
 	const enabledFeatures = useSelect( select => select( store ).getEnabledFeatures(), [] );
 	const { setFeatureEnabled } = useDispatch( store );
 
-	const { updateSeoData } = useSeoRequests( enabledFeatures );
+	const { updateSeoData } = useSeoRequests();
 
 	const toggleSeoEnhancer = useCallback( async () => {
 		await toggleEnhancer();
@@ -44,9 +46,14 @@ export function SeoEnhancer() {
 
 	const toggleFeature = useCallback(
 		name => {
-			setFeatureEnabled( name, ! enabledFeatures.includes( name ) );
+			const isFeatureEnabled = enabledFeatures.includes( name );
+			tracks.recordEvent( 'jetpack_seo_enhancer_feature_toggle', {
+				feature: name,
+				toggled: ! isFeatureEnabled ? 'on' : 'off',
+			} );
+			setFeatureEnabled( name, ! isFeatureEnabled );
 		},
-		[ enabledFeatures, setFeatureEnabled ]
+		[ enabledFeatures, setFeatureEnabled, tracks ]
 	);
 
 	const generateHandler = async () => {
@@ -64,22 +71,24 @@ export function SeoEnhancer() {
 					<BaseControl.VisualLabel className="ai-seo-enhancer-label">
 						{ __( 'Metadata AI Generator', 'jetpack' ) }
 					</BaseControl.VisualLabel>
-					<ToggleControl
-						checked={ isEnabled }
-						disabled={ isToggling }
-						onChange={ toggleSeoEnhancer }
-						label={ __( 'Auto-generate metadata', 'jetpack' ) }
-						__nextHasNoMarginBottom={ true }
-						help={ __(
-							'When enabled, missing metadata will be automatically generated when you publish a post.',
-							'jetpack'
-						) }
-					/>
+					{ ! disableAutoEnhance && (
+						<ToggleControl
+							checked={ isEnabled }
+							disabled={ isToggling }
+							onChange={ toggleSeoEnhancer }
+							label={ __( 'Auto-generate metadata', 'jetpack' ) }
+							__nextHasNoMarginBottom={ true }
+							help={ __(
+								'When enabled, missing metadata will be automatically generated when you publish a post.',
+								'jetpack'
+							) }
+						/>
+					) }
 				</BaseControl>
 			</PanelRow>
 			<PanelRow className="jetpack-seo-sidebar__feature-section">
 				<BaseControl __nextHasNoMarginBottom={ true }>
-					{ ! isEnabled && (
+					{ ( ! isEnabled || disableAutoEnhance ) && (
 						<div className="feature-checkboxes-container">
 							{ FEATURES.map( feature => (
 								<CheckboxControl
@@ -94,7 +103,7 @@ export function SeoEnhancer() {
 							) ) }
 						</div>
 					) }
-					{ isEnabled && (
+					{ isEnabled && ! disableAutoEnhance && (
 						<div className="jetpack-seo-sidebar__feature-list-container">
 							{ enabledFeatures.length > 0 ? (
 								<>
@@ -112,19 +121,21 @@ export function SeoEnhancer() {
 					) }
 				</BaseControl>
 			</PanelRow>
-			<PanelRow className="jetpack-seo-sidebar__feature-section">
-				<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
-					<Button
-						isBusy={ isLoading }
-						disabled={ isLoading }
-						onClick={ generateHandler }
-						variant="secondary"
-						__next40pxDefaultSize
-					>
-						{ __( 'Generate metadata', 'jetpack' ) }
-					</Button>
-				</BaseControl>
-			</PanelRow>
+			{ ! isEnabled && (
+				<PanelRow className="jetpack-seo-sidebar__feature-section">
+					<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
+						<Button
+							isBusy={ isLoading }
+							disabled={ isLoading }
+							onClick={ generateHandler }
+							variant="secondary"
+							__next40pxDefaultSize
+						>
+							{ __( 'Generate metadata', 'jetpack' ) }
+						</Button>
+					</BaseControl>
+				</PanelRow>
+			) }
 		</>
 	);
 }

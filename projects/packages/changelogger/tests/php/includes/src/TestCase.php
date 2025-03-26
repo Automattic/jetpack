@@ -39,20 +39,18 @@ abstract class TestCase extends PHPUnit_TestCase {
 
 	/**
 	 * Setup test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->oldenv = getenv( 'COMPOSER' );
 		$this->resetConfigCache();
 	}
 
 	/**
 	 * Teardown test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		$this->cleanupTempDir();
 		$this->resetConfigCache();
 		putenv( false === $this->oldenv ? 'COMPOSER' : "COMPOSER=$this->oldenv" );

@@ -38,19 +38,17 @@ class AutoloaderLocatorTest extends TestCase {
 
 	/**
 	 * Setup before class runs before the class.
-	 *
-	 * @beforeClass
 	 */
-	public static function set_up_before_class() {
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
 		self::$older_plugin_dir = Test_Plugin_Factory::create_test_plugin( false, self::OLDER_VERSION )->make();
 	}
 
 	/**
 	 * Setup executes before each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->autoloader_locator = new Autoloader_Locator( new Version_Selector() );
 	}
 

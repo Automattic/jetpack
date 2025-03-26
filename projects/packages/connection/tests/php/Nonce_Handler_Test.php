@@ -26,10 +26,9 @@ class Nonce_Handler_Test extends TestCase {
 
 	/**
 	 * Reset the environment after each test.
-	 *
-	 * @after
 	 */
-	protected function tear_down() {
+	protected function tearDown(): void {
+		parent::tearDown();
 		Nonce_Handler::invalidate_request_nonces();
 	}
 

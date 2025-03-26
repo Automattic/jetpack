@@ -14,6 +14,7 @@ interface useConnectSiteProps {
 		event: TracksEvent;
 		properties: TracksProperties;
 	};
+	skipPricing?: boolean;
 }
 
 const useConnectSite = ( { tracksInfo }: useConnectSiteProps ) => {

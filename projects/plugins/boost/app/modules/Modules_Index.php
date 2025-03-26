@@ -8,7 +8,9 @@ use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Image_CDN;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Liar;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Quality_Settings;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_Common;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
@@ -31,20 +33,32 @@ class Modules_Index {
 	protected $available_modules = array();
 
 	/**
+	 * @var Module[] - Associative array of available Jetpack Boost submodules.
+	 */
+	protected $available_submodules = array();
+
+	/**
 	 * @var class-string<Pluggable>[] - Classes that handle all Jetpack Boost features.
 	 */
 	const FEATURES = array(
 		Critical_CSS::class,
 		Cloud_CSS::class,
 		Image_Size_Analysis::class,
-		Minify::class,
 		Minify_JS::class,
 		Minify_CSS::class,
 		Render_Blocking_JS::class,
 		Image_Guide::class,
 		Image_CDN::class,
+		Liar::class,
+		Quality_Settings::class,
 		Performance_History::class,
 		Page_Cache::class,
+	);
+
+	const SUB_FEATURES = array(
+		Minify_Common::class,
+		Liar::class,
+		Quality_Settings::class,
 	);
 
 	/**
@@ -60,24 +74,12 @@ class Modules_Index {
 				$this->available_modules[ $feature::get_slug() ] = $this->modules[ $feature::get_slug() ];
 			}
 		}
-	}
 
-	/**
-	 * Get all modules that implement a specific interface.
-	 *
-	 * @param string $interface - The interface to search for.
-	 * @return array - An array of module classes indexed by slug that implement the interface.
-	 */
-	public static function get_modules_implementing( string $interface ): array {
-		$matching_features = array();
-
-		foreach ( self::FEATURES as $feature ) {
-			if ( in_array( $interface, class_implements( $feature ), true ) ) {
-				$matching_features[ $feature::get_slug() ] = $feature;
+		foreach ( self::SUB_FEATURES as $feature ) {
+			if ( $feature::is_available() ) {
+				$this->available_submodules[ $feature::get_slug() ] = new Module( new $feature() );
 			}
 		}
-
-		return $matching_features;
 	}
 
 	/**
@@ -115,30 +117,6 @@ class Modules_Index {
 		return $available_modules;
 	}
 
-	public function is_module_enabled( $slug ) {
-		$available_modules = $this->available_modules();
-
-		if ( ! array_key_exists( $slug, $available_modules ) ) {
-			return false;
-		}
-
-		$module = $available_modules[ $slug ];
-
-		return $module->is_enabled();
-	}
-
-	public function is_module_available( $slug ) {
-		$available_modules = $this->available_modules();
-
-		if ( ! array_key_exists( $slug, $available_modules ) ) {
-			return false;
-		}
-
-		$module = $available_modules[ $slug ];
-
-		return $module->is_available();
-	}
-
 	/**
 	 * Get the lists of modules explicitly disabled from the 'jb-disable-modules' query string.
 	 * The parameter is a comma separated value list of module slug.
@@ -158,6 +136,13 @@ class Modules_Index {
 	}
 
 	public function get_module_instance_by_slug( $slug ) {
-		return $this->available_modules[ $slug ] ?? false;
+		if ( isset( $this->available_modules[ $slug ] ) ) {
+			return $this->available_modules[ $slug ];
+		}
+
+		if ( isset( $this->available_submodules[ $slug ] ) ) {
+			return $this->available_submodules[ $slug ];
+		}
+		return false;
 	}
 }

@@ -1,5 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import Meta from './meta/meta';
+import Meta, { CornerstonePagesUpgradeCTA } from './meta/meta';
 import { Panel, PanelBody, PanelRow } from '@wordpress/components';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import styles from './cornerstone-pages.module.scss';
@@ -7,10 +7,19 @@ import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useCornerstonePages } from './lib/stores/cornerstone-pages';
 import Pill from '$features/ui/pill/pill';
+import Prerender from './prerender/prerender';
+import { z } from 'zod';
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 
 const CornerstonePages = () => {
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
+
+	const [ isSpeculationRulesApiSupported ] = useDataSync(
+		'jetpack_boost_ds',
+		'speculation_rules_api_support',
+		z.boolean().catch( false )
+	);
 
 	return (
 		<div className={ styles.wrapper }>
@@ -37,6 +46,12 @@ const CornerstonePages = () => {
 					<PanelRow>
 						<Meta />
 					</PanelRow>
+					{ isSpeculationRulesApiSupported.data && (
+						<PanelRow>
+							<Prerender />
+						</PanelRow>
+					) }
+					<CornerstonePagesUpgradeCTA />
 				</PanelBody>
 			</Panel>
 		</div>
