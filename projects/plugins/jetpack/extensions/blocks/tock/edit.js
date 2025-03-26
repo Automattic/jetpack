@@ -99,6 +99,7 @@ const UrlDropdown = ( { tockUrl, setEditedUrl, setUrl, cancel } ) => {
 								onKeyDownCapture={ event => handleSubmitOrCancel( event, onClose ) }
 								className="jetpack-tock-url-input"
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 							<div className="jetpack-tock-url-input-action">
 								<Button

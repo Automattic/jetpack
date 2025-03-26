@@ -1,3 +1,4 @@
+import analytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
@@ -140,4 +141,25 @@ export const calcLeftAxisMargin = ( subs: ChartSubscriptionDataPoint[] ): number
 	// Each digit is roughly 8px, plus add some padding
 	const digitCount = maxValue.toString().length;
 	return Math.max( DEFAULT_MARGIN, digitCount * CHAR_PX_WIDTH + PADDING );
+};
+
+/**
+ * Creates an event handler function for tracking user interactions
+ *
+ * @param tracks          - The tracks analytics object
+ * @param eventName       - The "action" part of the event name. Will be appended to "jetpack_newsletter_widget_"
+ * @param eventProperties - Additional properties to include in the event
+ * @returns A callback function that records the event when triggered. To primarily be used as an onClick prop.
+ *
+ * @example
+ * const handleClick = createTracksEventHandler( tracks, 'learn_more_click', { locale: 'en' } );
+ */
+export const createTracksEventHandler = (
+	tracks: typeof analytics.tracks,
+	eventAction: string,
+	eventProperties: Record< string, unknown > = {}
+) => {
+	return () => {
+		tracks.recordEvent( `jetpack_newsletter_widget_${ eventAction }`, eventProperties );
+	};
 };

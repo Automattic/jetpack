@@ -180,6 +180,22 @@ HTML;
 add_action( 'blog_privacy_selector', 'replace_site_visibility' );
 
 /**
+ * Filter out the settings related to the site visibility.
+ *
+ * @param array $allowed_options The allowed options list.
+ * @return array
+ */
+function allowed_options_remove_site_visibility( $allowed_options ) {
+	$del_options = array(
+		'reading' => array( 'blog_public' ),
+	);
+
+	$allowed_options = remove_allowed_options( $del_options, $allowed_options );
+
+	return $allowed_options;
+}
+
+/**
  * Update the site options that are related to the site visibility.
  */
 function load_options_update_site_visibility() {
@@ -207,6 +223,7 @@ function load_options_update_site_visibility() {
 	}
 
 	if ( empty( $data ) ) {
+		add_filter( 'allowed_options', 'allowed_options_remove_site_visibility' );
 		return;
 	}
 

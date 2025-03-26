@@ -22,10 +22,6 @@ class Minify_CSS implements Pluggable, Changes_Output_On_Activation, Changes_Out
 	 * Setup the module. This runs on every page load.
 	 */
 	public function setup() {
-		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
-
-		jetpack_boost_minify_init();
-
 		if ( jetpack_boost_page_optimize_bail() ) {
 			return;
 		}
@@ -76,7 +72,7 @@ class Minify_CSS implements Pluggable, Changes_Output_On_Activation, Changes_Out
 
 	public function get_submodules() {
 		return array(
-			Minify::class,
+			Minify_Common::class,
 		);
 	}
 }

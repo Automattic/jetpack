@@ -32,8 +32,6 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Constants::clear_constants();

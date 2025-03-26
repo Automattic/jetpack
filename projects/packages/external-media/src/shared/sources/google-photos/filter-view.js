@@ -94,6 +94,7 @@ function GoogleFilterView( props ) {
 				options={ remainingFilters }
 				onChange={ setCurrentFilter }
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 
 			<Button disabled={ isLoading || isCopying } variant="secondary" isSmall onClick={ setFilter }>

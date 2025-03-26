@@ -41,7 +41,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 	 * Set up before class.
 	 *
 	 * @see Restrictions here: https://github.com/php-mock/php-mock-phpunit?tab=readme-ov-file#restrictions
-	 * @beforeClass
 	 */
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
@@ -51,8 +50,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		parent::set_up_wordbless();
@@ -77,8 +74,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 
 	/**
 	 * Clean up after test
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		wp_delete_user( $this->admin_id );

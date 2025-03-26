@@ -12,6 +12,7 @@
 		"ext-json": "*",
 		"ext-openssl": "*",
 		"automattic/jetpack-a8c-mc-stats": "@dev",
+		"automattic/jetpack-account-protection": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
