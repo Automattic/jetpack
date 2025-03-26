@@ -54,8 +54,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 				@media ( max-width: $breakpoint ) {
 					@content;
 				}
-			}
-			@else {
+			} @else {
 
 				@if $size == $and-larger {
 					$approved-value: 2;
@@ -63,8 +62,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 					@media ( min-width: $breakpoint + 1 ) {
 						@content;
 					}
-				}
-				@else {
+				} @else {
 
 					@each $breakpoint-end in $breakpoints {
 						$range: $breakpoint + "-" + $breakpoint-end;
@@ -90,8 +88,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 			// TODO - change this to use @error, when it is supported by node-sass
 			@warn "ERROR in breakpoint( #{ $size } ): You can only use these sizes[ #{$sizes} ] using the following syntax [ <#{ nth( $breakpoints, 1 ) } >#{ nth( $breakpoints, 1 ) } #{ nth( $breakpoints, 1 ) }-#{ nth( $breakpoints, 2 ) } ]";
 		}
-	}
-	@else {
+	} @else {
 		$sizes: "";
 
 		@each $breakpoint in $breakpoints {

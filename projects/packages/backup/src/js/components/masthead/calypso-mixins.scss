@@ -11,12 +11,10 @@ $sidebar-width:	269px;
 	@if $width == full-width {
 
 		@media only screen and (max-width: $full-width) { @content; }
-	}
-	@else if $width == one-col {
+	} @else if $width == one-col {
 
 		@media only screen and (max-width: $one-col) { @content; }
-	}
-	@else if $width == mobile {
+	} @else if $width == mobile {
 
 		@media only screen and (max-width: $mobile) { @content; }
 	}
@@ -27,12 +25,10 @@ $sidebar-width:	269px;
 	@if $width == full-width {
 
 		@media only screen and (min-width: $one-col) { @content; }
-	}
-	@else if $width == full-width-really {
+	} @else if $width == full-width-really {
 
 		@media only screen and (min-width: $full-width) { @content; }
-	}
-	@else if $width == one-col {
+	} @else if $width == one-col {
 
 		@media only screen and (min-width: $mobile) { @content; }
 	}
@@ -60,8 +56,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 				@media ( max-width: $breakpoint ) {
 					@content;
 				}
-			}
-			@else {
+			} @else {
 
 				@if $size == $and-larger {
 					$approved-value: 2;
@@ -69,8 +64,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 					@media ( min-width: $breakpoint + 1 ) {
 						@content;
 					}
-				}
-				@else {
+				} @else {
 
 					@each $breakpoint-end in $breakpoints {
 						$range: $breakpoint + "-" + $breakpoint-end;
@@ -96,8 +90,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 			// TODO - change this to use @error, when it is supported by node-sass
 			@warn "ERROR in breakpoint( #{ $size } ): You can only use these sizes[ #{$sizes} ] using the following syntax [ <#{ nth( $breakpoints, 1 ) } >#{ nth( $breakpoints, 1 ) } #{ nth( $breakpoints, 1 ) }-#{ nth( $breakpoints, 2 ) } ]";
 		}
-	}
-	@else {
+	} @else {
 		$sizes: "";
 
 		@each $breakpoint in $breakpoints {
