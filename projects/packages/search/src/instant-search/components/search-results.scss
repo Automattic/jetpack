@@ -223,51 +223,6 @@ $colophon-height: 40px;
 	}
 }
 
-.jetpack-instant-search__search-results-corrected-query {
-	margin: 0 $results-margin-lg 1.5em;
-	color: var(--jp-gray-60);
-
-	@include multiple-breaks-for-customberg( '<l', '<xl' ) {
-		margin-left: $results-margin-md;
-		margin-right: $results-margin-md;
-	}
-	@include break( '<m' ) {
-		margin-left: $results-margin-sm;
-		margin-right: $results-margin-sm;
-	}
-
-	a {
-		color: var(--jp-gray-80);
-		text-decoration: underline;
-
-		&:hover {
-			color: var(--jp-black);
-		}
-	}
-}
-
-.jetpack-instant-search__search-results-corrected-query-link {
-	display: block;
-	margin: 0 $results-margin-lg 1.5em;
-	font-style: italic;
-	color: var(--jp-gray-60);
-	text-decoration: none;
-
-	@include multiple-breaks-for-customberg( '<l', '<xl' ) {
-		margin-left: $results-margin-md;
-		margin-right: $results-margin-md;
-	}
-	@include break( '<m' ) {
-		margin-left: $results-margin-sm;
-		margin-right: $results-margin-sm;
-	}
-
-	&:hover {
-		color: var(--jp-black);
-		text-decoration: underline;
-	}
-}
-
 .jetpack-instant-search__search-results-list {
 	color: $color-text;
 	list-style: none;

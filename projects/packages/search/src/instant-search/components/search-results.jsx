@@ -62,15 +62,8 @@ class SearchResults extends Component {
 			return __( 'Searching…', 'jetpack-search-pkg', /* dummy arg to avoid bad minification */ 0 );
 		}
 
-		if ( total === 0 || this.props.hasError || ( hasQuery && hasCorrectedQuery ) ) {
-			return (
-				hasCorrectedQuery &&
-				sprintf(
-					/* translators: %s: suggested search query */
-					__( 'Showing results for "%s"', 'jetpack-search-pkg' ),
-					corrected_query
-				)
-			);
+		if ( total === 0 || this.props.hasError ) {
+			return __( 'No results found', 'jetpack-search-pkg' );
 		}
 
 		const num = new Intl.NumberFormat().format( total );
@@ -131,27 +124,11 @@ class SearchResults extends Component {
 		return __( 'Showing popular results', 'jetpack-search-pkg' );
 	}
 
-	getCorrectedSearchQuery() {
-		const { corrected_query = false } = this.props.response;
-		const hasCorrectedQuery = corrected_query !== false;
-
-		if ( ! hasCorrectedQuery ) {
-			return '';
-		}
-		return (
-			<p className="jetpack-instant-search__search-results-corrected-query">
-				{
-					/* translators: %s: Original search query */
-					sprintf( __( 'No results found for "%s"', 'jetpack-search-pkg' ), this.props.searchQuery )
-				}
-			</p>
-		);
-	}
-
 	renderPrimarySection() {
-		const { highlightColor } = this.props;
-		const { results = [], total = 0 } = this.props.response;
+		const { highlightColor, searchQuery } = this.props;
+		const { results = [], total = 0, corrected_query = false } = this.props.response;
 		const textColor = getConstrastingColor( highlightColor );
+		const hasCorrectedQuery = corrected_query !== false;
 		const hasResults = total > 0;
 
 		const isMultiSite =
@@ -178,8 +155,14 @@ class SearchResults extends Component {
 
 				<h2 className="jetpack-instant-search__search-results-title">{ this.getSearchTitle() }</h2>
 
-				{ this.getCorrectedSearchQuery() }
-
+				{ hasResults && hasCorrectedQuery && (
+					<p className="jetpack-instant-search__search-results-unused-query">
+						{
+							/* translators: %s: Search query. */
+							sprintf( __( 'No results for "%s"', 'jetpack-search-pkg' ), searchQuery )
+						}
+					</p>
+				) }
 				{ this.props.hasError && (
 					<Notice type="warning">{ getErrorMessage( this.props.response.error ) }</Notice>
 				) }
