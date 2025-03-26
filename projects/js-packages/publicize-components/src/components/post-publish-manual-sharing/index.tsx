@@ -1,10 +1,17 @@
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { useSelect } from '@wordpress/data';
-import { PluginPostPublishPanel, store as editorStore } from '@wordpress/editor';
+import { PluginPostPublishPanel as DeprecatedPluginPostPublishPanel } from '@wordpress/edit-post';
+import {
+	PluginPostPublishPanel as EditorPluginPostPublishPanel,
+	store as editorStore,
+} from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { ManualSharingInfo } from '../manual-sharing/info';
 import { ShareButtons } from '../share-buttons/share-buttons';
 import styles from './styles.module.scss';
+
+const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginPostPublishPanel;
+
 /**
  * Post Publish Manual Sharing component.
  *

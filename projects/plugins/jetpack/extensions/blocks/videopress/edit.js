@@ -577,6 +577,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								] }
 								help={ this.getPreloadHelp() }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 							<MediaUploadCheck>
 								<BaseControl className="editor-video-poster-control">
@@ -662,6 +663,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								] }
 								onChange={ this.onChangeRating }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -698,6 +700,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								] }
 								disabled={ isFetchingMedia || isUpdatingPrivacySetting }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						</PanelBody>
 					</InspectorControls>

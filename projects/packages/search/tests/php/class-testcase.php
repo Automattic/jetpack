@@ -36,10 +36,9 @@ abstract class TestCase extends PHPUnit_TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		// Clear any existing data.
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Posts::init()->clear_all_posts();
@@ -68,10 +67,9 @@ abstract class TestCase extends PHPUnit_TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		wp_set_current_user( 0 );
 
 		WorDBless_Options::init()->clear_options();

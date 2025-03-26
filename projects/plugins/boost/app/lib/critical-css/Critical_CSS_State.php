@@ -33,6 +33,10 @@ class Critical_CSS_State {
 	public function save() {
 		$this->state['updated'] = microtime( true );
 		jetpack_boost_ds_set( 'critical_css_state', $this->state );
+
+		if ( $this->is_generated() ) {
+			do_action( 'jetpack_boost_critical_css_generated' );
+		}
 	}
 
 	public function set_error( $message ) {
@@ -151,7 +155,6 @@ class Critical_CSS_State {
 
 		if ( $is_done ) {
 			$this->state['status'] = self::GENERATION_STATES['generated'];
-			do_action( self::GENERATION_ACTION_NAME );
 		}
 	}
 

@@ -45,18 +45,14 @@ class Cache_Preload implements Sub_Feature, Has_Activate, Is_Always_On {
 	 * @since 3.11.0
 	 */
 	public static function is_available() {
-		if ( defined( 'JETPACK_BOOST_ALPHA_FEATURES' ) ) {
-			return \JETPACK_BOOST_ALPHA_FEATURES === true;
-		}
-
-		return false;
+		return true;
 	}
 
 	/**
 	 * As this is a submodule, this activate is triggered when the parent module is activated,
 	 * despite the module having Is_Always_On.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.12.0
 	 */
 	public static function activate() {
 		$instance = new self();
@@ -65,7 +61,7 @@ class Cache_Preload implements Sub_Feature, Has_Activate, Is_Always_On {
 
 	/**
 	 *
-	 * @since $$next-version$$
+	 * @since 3.12.0
 	 */
 	public static function deactivate() {
 		wp_unschedule_hook( 'jetpack_boost_preload_cornerstone' );
@@ -74,7 +70,7 @@ class Cache_Preload implements Sub_Feature, Has_Activate, Is_Always_On {
 	/**
 	 * Schedule the cronjob to preload the cache for Cornerstone Pages.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.12.0
 	 * @return void
 	 */
 	public function schedule_cornerstone_cronjob() {
@@ -89,7 +85,7 @@ class Cache_Preload implements Sub_Feature, Has_Activate, Is_Always_On {
 	 * This method is triggered when the Cornerstone Pages list is updated,
 	 * ensuring all Cornerstone Pages have their cache rebuilt.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.12.0
 	 * @return void
 	 */
 	public function schedule_cornerstone() {
@@ -99,7 +95,7 @@ class Cache_Preload implements Sub_Feature, Has_Activate, Is_Always_On {
 	/**
 	 * Schedule a rebuild for the given URLs.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.12.0
 	 * @param array $urls The URLs of the Cornerstone Pages to rebuild.
 	 * @return void
 	 */
@@ -111,7 +107,7 @@ class Cache_Preload implements Sub_Feature, Has_Activate, Is_Always_On {
 	/**
 	 * Rebuild the cache for all Cornerstone Pages.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.12.0
 	 * @return void
 	 */
 	public function preload_cornerstone() {
@@ -122,7 +118,7 @@ class Cache_Preload implements Sub_Feature, Has_Activate, Is_Always_On {
 	/**
 	 * Rebuild the cache for the given URLs.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.12.0
 	 * @param array $urls The URLs of the pages to preload.
 	 * @return void
 	 */

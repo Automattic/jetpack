@@ -773,6 +773,170 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Return the HTML for the file field.
+	 *
+	 * Renders a file upload field with drag-and-drop functionality.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id - the field ID.
+	 * @param string $label - the field label.
+	 * @param string $class - the field CSS class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return string HTML for the file upload field.
+	 */
+	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
+		// Enqueue necessary scripts and styles.
+		$this->enqueue_file_field_assets();
+
+		// Get allowed MIME types for display in the field.
+		$accepted_file_types = implode(
+			', ',
+			array(
+				'image/jpeg',
+				'image/gif',
+				'image/png',
+				'image/webp',
+				'application/pdf',
+				'application/msword',
+				'application/vnd.ms-excel',
+				'application/vnd.ms-powerpoint',
+				'text/plain',
+				'text/csv',
+				'text/calendar',
+				'text/css',
+				'text/html',
+			)
+		);
+
+		// Add accessibility attributes and required status if needed.
+		$input_attrs = array(
+			'type'       => 'file',
+			'class'      => 'jetpack-form-file-field ' . esc_attr( $class ),
+			'name'       => esc_attr( $id ),
+			'id'         => esc_attr( $id ),
+			'accept'     => esc_attr( $accepted_file_types ),
+			'aria-label' => esc_attr( $label ),
+		);
+
+		if ( $required ) {
+			$input_attrs['required']      = 'required';
+			$input_attrs['aria-required'] = 'true';
+		}
+
+		$max_file_size   = wp_max_upload_size();
+		$file_size_units = array(
+			_x( 'B', 'unit symbol', 'jetpack-forms' ),
+			_x( 'KB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'MB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'GB', 'unit symbol', 'jetpack-forms' ),
+		);
+
+		$global_state = array(
+			'i18n'          => array(
+				'language'           => get_bloginfo( 'language' ),
+				'fileSizeUnits'      => $file_size_units,
+				'zeroBytes'          => __( '0 Bytes', 'jetpack-forms' ),
+				'uploadError'        => __( 'Error uploading file', 'jetpack-forms' ),
+				'folderNotSupported' => __( 'Folder uploads are not supported', 'jetpack-forms' ),
+				// translators: %s is the formatted maximum file size.
+				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_file_size ) ),
+				'invalidType'        => __( 'This file type is not allowed', 'jetpack-forms' ),
+			),
+			'maxUploadSize' => $max_file_size,
+			'endpoint'      => $this->get_unauth_endpoint_url(),
+			'wp_nonce'      => wp_create_nonce( 'wp_rest' ),
+			'jp_nonce'      => wp_create_nonce( 'jetpack_file_upload_jetpack-form' ),
+		);
+
+		wp_interactivity_config( 'jetpack/field-file', $global_state );
+
+		$context = array(
+			'isDropping' => false,
+			'files'      => array(),
+			'hasFiles'   => false,
+		);
+
+		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text );
+		ob_start();
+		?>
+		<div
+			data-wp-interactive="jetpack/field-file"
+			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
+			<?php echo wp_interactivity_data_wp_context( $context ); ?>
+			data-wp-on--dragover="actions.dragOver"
+			data-wp-on--dragleave="actions.dragLeave"
+			data-wp-on--mouseleave="actions.dragLeave"
+			data-wp-on--drop="actions.fileDropped"
+		>
+			<div class="jetpack-form-file-field__dropzone" data-wp-class--is_dropping="context.isDropping">
+				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker"></div>
+				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
+				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
+				<input id="<?php echo esc_attr( $id ); ?>" type="file" class="jetpack-form-file-field" data-wp-on--change="actions.fileAdded" />
+			</div>
+			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="context.hasFiles">
+				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
+					<div class="jetpack-form-file-field__preview">
+						<div class="jetpack-form-file-field__progress" data-wp-bind--data-progress-id='context.file.id' data-wp-bind--aria-valuenow="context.file.progress" data-wp-style----progress="context.file.progress" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+						<input type="hidden" name="<?php echo esc_attr( $id ); ?>_token[]" data-wp-bind--value='context.file.token' value="">
+						<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
+						<div class="jetpack-form-file-field__file-wrap">
+							<strong class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></strong>
+							<div class="jetpack-form-file-field__file-info" date-wp-class--is-error="context.file.error" data-wp-class--is-complete="context.file.hasToken">
+								<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
+								<span class="jetpack-form-file-field__seperator"> &middot; </span>
+								<span class="jetpack-form-file-field__success"><?php esc_html_e( 'Uploaded', 'jetpack-forms' ); ?></span>
+								<span class="jetpack-form-file-field__error" data-wp-text="context.file.error"></span>
+							</div>
+						</div>
+						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="<?php esc_attr_e( 'Remove file', 'jetpack-forms' ); ?>" data-wp-on--click="actions.removeFile" title="<?php esc_attr_e( 'Remove', 'jetpack-forms' ); ?>"> </a>
+					</div>
+				</template>
+			</div>
+		</div>
+		<?php
+		return $field . ob_get_clean();
+	}
+
+	/**
+	 * Enqueues scripts and styles needed for the file field.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	private function enqueue_file_field_assets() {
+
+		\wp_enqueue_script_module(
+			'jetpack-form-file-field',
+			plugins_url( '../../dist/modules/file-field/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			\JETPACK__VERSION
+		);
+
+		\wp_enqueue_style(
+			'jetpack-form-file-field',
+			plugins_url( '../../dist/contact-form/css/file-field.css', __FILE__ ),
+			array(),
+			\JETPACK__VERSION
+		);
+	}
+	/**
+	 * Returns the URL for the unauthenticated file upload endpoint.
+	 *
+	 * @return string
+	 */
+	private function get_unauth_endpoint_url() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/unauth-file-upload', get_current_blog_id() );
+		}
+		return rest_url( 'wpcom/v2/unauth-file-upload' );
+	}
+
+	/**
 	 * Return the HTML for the multiple checkbox field.
 	 *
 	 * @param string $id - the ID (starts with 'g' - see constructor).
@@ -1146,6 +1310,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				break;
 			case 'number':
 				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
+				break;
+			case 'file':
+				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
