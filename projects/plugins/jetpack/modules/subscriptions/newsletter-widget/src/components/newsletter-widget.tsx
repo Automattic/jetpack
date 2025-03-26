@@ -136,7 +136,7 @@ export const NewsletterWidget = ( {
 						</li>
 						<li>
 							{ DashboardLink(
-								isWpcomSite,
+								true,
 								getSubscriberStatsUrl( site, isWpcomSite, adminUrl ),
 								'view_stats_click',
 								__( 'View subscriber stats', 'jetpack' )
@@ -175,7 +175,7 @@ export const NewsletterWidget = ( {
 						</li>
 						<li>
 							{ DashboardLink(
-								isWpcomSite,
+								true,
 								getNewsletterSettingsUrl( site, isWpcomSite, adminUrl ),
 								'newsletter_settings_click',
 								__( 'Newsletter settings', 'jetpack' )
