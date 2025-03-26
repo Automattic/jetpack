@@ -5,14 +5,14 @@
  * @package Jetpack
  */
 
-require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-block-editor-assets.php';
+use WpOrg\Requests\Requests;
+
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
 /**
  * Test class for WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets.
  */
 class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_TestCase {
-	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Instance of WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets.
@@ -86,7 +86,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test the is_editor_assets_request method with various URIs.
 	 */
 	public function test_is_editor_assets_request() {
-		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['REQUEST_METHOD'] = Requests::GET;
 
 		// Test WPCOM style URI
 		$_SERVER['REQUEST_URI'] = '/wpcom/v2/sites/123/editor-assets';
@@ -101,7 +101,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$this->assertFalse( WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets::is_editor_assets_request() );
 
 		// Test OPTIONS request
-		$_SERVER['REQUEST_METHOD'] = 'OPTIONS';
+		$_SERVER['REQUEST_METHOD'] = Requests::OPTIONS;
 		$_SERVER['REQUEST_URI']    = '/wpcom/v2/sites/123/editor-assets';
 		$this->assertFalse( WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets::is_editor_assets_request() );
 	}
@@ -111,7 +111,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 */
 	public function test_get_items_permissions_check_with_edit_posts_capability() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
-		$this->assertTrue( $this->instance->get_items_permissions_check( new WP_REST_Request() ) );
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$this->assertTrue( $this->instance->get_items_permissions_check( $request ) );
 	}
 
 	/**
@@ -119,7 +120,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 */
 	public function test_get_items_permissions_check_without_edit_posts_capability() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
-		$result = $this->instance->get_items_permissions_check( new WP_REST_Request() );
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$result  = $this->instance->get_items_permissions_check( $request );
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'rest_cannot_read_block_editor_assets', $result->get_error_code() );
 	}
@@ -128,13 +130,15 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test that the schema is returned correctly.
 	 */
 	public function test_get_item_schema() {
-		$schema = $this->instance->get_item_schema();
+		$request  = new WP_REST_Request( Requests::OPTIONS, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
 
-		$this->assertIsArray( $schema );
-		$this->assertSame( 'object', $schema['type'] );
-		$this->assertArrayHasKey( 'properties', $schema );
-		$this->assertArrayHasKey( 'styles', $schema['properties'] );
-		$this->assertArrayHasKey( 'scripts', $schema['properties'] );
+		$schema = ( new WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets() )->get_public_item_schema();
+
+		$this->assertEquals( $schema, $data['schema'] );
+		$this->assertEquals( 'wpcom/v2', $data['namespace'] );
+		$this->assertEquals( array( Requests::GET ), $data['methods'] );
 	}
 
 	/**
@@ -143,8 +147,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	public function test_get_items() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 
-		$request  = new WP_REST_Request( 'GET', '/wpcom/v2/editor-assets' );
-		$response = $this->instance->get_items( $request );
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
 
 		$this->assertInstanceOf( WP_REST_Response::class, $response );
 		$data = $response->get_data();
