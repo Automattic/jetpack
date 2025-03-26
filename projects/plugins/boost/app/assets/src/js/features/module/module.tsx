@@ -112,7 +112,7 @@ export default ( props: ModuleProps ) => {
 		<ErrorBoundary
 			fallback={ error => (
 				<div>
-					<div className={ styles[ 'failed-module' ] }>
+					<div>
 						<h3>{ props.title }</h3>
 
 						<div className={ styles[ 'failed-module-notice' ] }>
