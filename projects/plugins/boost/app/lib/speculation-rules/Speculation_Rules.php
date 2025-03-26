@@ -9,7 +9,7 @@
 namespace Automattic\Jetpack_Boost\Lib\Speculation_Rules;
 
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
-
+use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 /**
  * Class to handle speculation rules for cornerstone pages
  */
@@ -53,7 +53,7 @@ class Speculation_Rules implements Has_Setup {
 		$protocol         = $home_url['scheme'];
 		$cornerstone_urls = array_map(
 			function ( $url ) use ( $protocol, $domain ) {
-				return trailingslashit( str_replace( $protocol . '://' . $domain, '', $url ) ) . '?';
+				return trailingslashit( str_replace( $protocol . '://' . $domain, '', $url ) );
 			},
 			$cornerstone_urls
 		);
@@ -79,7 +79,7 @@ class Speculation_Rules implements Has_Setup {
 	 * @return array Array of cornerstone page URLs
 	 */
 	private function get_cornerstone_urls() {
-		$cornerstone_urls = jetpack_boost_ds_get( 'cornerstone_pages_list' );
+		$cornerstone_urls = Cornerstone_Utils::get_list();
 		if ( empty( $cornerstone_urls ) ) {
 			return array();
 		}
