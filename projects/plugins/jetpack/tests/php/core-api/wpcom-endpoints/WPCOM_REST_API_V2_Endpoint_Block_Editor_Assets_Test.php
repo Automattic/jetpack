@@ -6,11 +6,12 @@
  */
 
 require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-block-editor-assets.php';
+require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
 /**
  * Test class for WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets.
  */
-class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends WP_UnitTestCase {
+class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_TestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
