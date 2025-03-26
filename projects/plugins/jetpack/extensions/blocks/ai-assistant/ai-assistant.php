@@ -131,7 +131,7 @@ add_action(
 			}
 
 			if ( apply_filters( 'ai_seo_enhancer_enabled', false ) ) {
-				Jetpack_Gutenberg::set_extension_available( 'ai-seo-enhancer' );
+				Jetpack_Gutenberg::set_availability_for_plan( 'ai-seo-enhancer' );
 			}
 		}
 	}

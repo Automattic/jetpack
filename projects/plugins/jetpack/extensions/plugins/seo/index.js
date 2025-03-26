@@ -113,6 +113,7 @@ const Seo = () => {
 
 	const requiredPlan = getRequiredPlan( 'advanced-seo' );
 	const canShowUpsell = isAtomicSite() || isSimpleSite();
+	const hasRequiredPlanForEnhancer = ! getRequiredPlan( 'ai-seo-enhancer' );
 
 	const jetpackSeoPanelProps = {
 		title: __( 'SEO', 'jetpack' ),
@@ -181,7 +182,9 @@ const Seo = () => {
 							<SeoAssistantSidebarEntrypoint disabled={ false } placement="jetpack-sidebar" />
 						</PanelRow>
 					) }
-					{ isSeoEnhancerEnabled && <SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } /> }
+					{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
+						<SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } />
+					) }
 					<PanelRow
 						className={ clsx( {
 							'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled,
@@ -208,7 +211,9 @@ const Seo = () => {
 
 			<PluginPrePublishPanel { ...jetpackSeoPublishPanelsProps }>
 				<div className="jetpack-seo-panel">
-					{ isSeoEnhancerEnabled && <SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } /> }
+					{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
+						<SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } />
+					) }
 					<PanelRow>
 						<SeoTitlePanel />
 					</PanelRow>
