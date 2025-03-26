@@ -11,13 +11,13 @@ import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
  * Generates a Link component, that will be displayed differently
  * whether the link is external or stays within the platform.
  *
- * @param {boolean} isWpcomSite - Whether the site is on WordPress.com
- * @param {string}  href        - Link target URL
- * @param {string}  text        - The link text
+ * @param {boolean} internal - Whether the link points to an internal resource
+ * @param {string}  href     - Link target URL
+ * @param {string}  text     - The link text
  * @returns {React.ReactElement} The link component
  */
 export const DashboardLink = (
-	isWpcomSite: boolean,
+	internal: boolean,
 	href: string,
 	eventName: string,
 	text?: string
@@ -29,7 +29,7 @@ export const DashboardLink = (
 	}, [ tracks ] );
 
 	let elementType = ExternalLink;
-	if ( isWpcomSite ) {
+	if ( internal ) {
 		elementType = 'a';
 	}
 
