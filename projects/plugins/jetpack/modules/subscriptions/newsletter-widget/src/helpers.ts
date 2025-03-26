@@ -61,6 +61,24 @@ export const getSubscriberStatsUrl = (
 };
 
 /**
+ * Generates the URL for newsletter settings based on site context.
+ *
+ * @param {string}  site        - The site identifier
+ * @param {boolean} isWpcomSite - Whether the site is on WordPress.com
+ * @param {string}  adminUrl    - The admin URL for self-hosted sites
+ * @returns {string} The appropriate newsletter settings URL
+ */
+export const getNewsletterSettingsUrl = (
+	site: string,
+	isWpcomSite: boolean,
+	adminUrl: string
+): string => {
+	return isWpcomSite
+		? getRedirectUrl( buildJPRedirectSource( 'settings/newsletter/' + site ) )
+		: `${ adminUrl }admin.php?page=jetpack#newsletter`;
+};
+
+/**
  * Formats a number into a localized string representation.
  *
  * @param {number} num - The number to format.
@@ -158,6 +176,10 @@ export const calcLeftAxisMargin = ( subs: ChartSubscriptionDataPoint[] ): number
 	const DEFAULT_MARGIN = 30;
 	const CHAR_PX_WIDTH = 8;
 	const PADDING = 10;
+
+	if ( subs.length === 0 ) {
+		return DEFAULT_MARGIN;
+	}
 
 	const maxValue = Math.max( ...subs.map( d => Math.max( d.all || 0, d.paid || 0 ) ) );
 	// Estimate character width (in pixels) and calculate margin

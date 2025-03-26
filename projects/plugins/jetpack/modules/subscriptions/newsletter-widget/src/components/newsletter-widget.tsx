@@ -1,10 +1,16 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import '../style.scss';
-import { ExternalLink, Icon } from '@wordpress/components';
-import { createInterpolateElement, createElement } from '@wordpress/element';
+import { Icon } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { envelope, payment } from '@wordpress/icons';
-import { buildJPRedirectSource, formatNumber, getSubscriberStatsUrl } from '../helpers';
+import {
+	buildJPRedirectSource,
+	formatNumber,
+	getSubscriberStatsUrl,
+	DashboardLink,
+	getNewsletterSettingsUrl,
+} from '../helpers';
 import { SubscribersChart } from './subscribers-chart';
 import type { SubscriberTotalsByDate } from '../types';
 
@@ -31,24 +37,6 @@ export const NewsletterWidget = ( {
 	const showChart = Object.values( subscriberTotalsByDate ).some(
 		day => day?.all >= 5 || day?.paid > 0
 	);
-
-	const learnMoreLink = isWpcomSite ? (
-		<a
-			href={ getRedirectUrl(
-				buildJPRedirectSource( 'learn/courses/newsletters-101/wordpress-com-newsletter' )
-			) }
-		/>
-	) : (
-		<ExternalLink
-			href={ getRedirectUrl(
-				buildJPRedirectSource( 'learn/courses/newsletters-101/wordpress-com-newsletter' )
-			) }
-		/>
-	);
-
-	const newsletterSettingsLink = isWpcomSite
-		? getRedirectUrl( buildJPRedirectSource( 'settings/newsletter/' + site ) )
-		: `${ adminUrl }admin.php?page=jetpack#newsletter`;
 
 	return (
 		<div className="newsletter-widget">
@@ -110,7 +98,12 @@ export const NewsletterWidget = ( {
 							'jetpack'
 						),
 						{
-							link: learnMoreLink,
+							link: DashboardLink(
+								isWpcomSite,
+								getRedirectUrl(
+									buildJPRedirectSource( 'learn/courses/newsletters-101/wordpress-com-newsletter' )
+								)
+							),
 						}
 					) }
 				</p>
@@ -123,53 +116,44 @@ export const NewsletterWidget = ( {
 							</a>
 						</li>
 						<li>
-							{ createElement(
-								isWpcomSite ? 'a' : ExternalLink,
-								{ href: getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) },
+							{ DashboardLink(
+								isWpcomSite,
+								getSubscriberStatsUrl( site, isWpcomSite, adminUrl ),
 								__( 'View subscriber stats', 'jetpack' )
 							) }
 						</li>
 						<li>
-							{ createElement(
-								isWpcomSite ? 'a' : ExternalLink,
-								{
-									href: getRedirectUrl(
-										buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite ),
-										{ anchor: 'add-subscribers' }
-									),
-								},
+							{ DashboardLink(
+								isWpcomSite,
+								getRedirectUrl( buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite ), {
+									anchor: 'add-subscribers',
+								} ),
 								__( 'Import subscribers', 'jetpack' )
 							) }
 						</li>
 						<li>
-							{ createElement(
-								isWpcomSite ? 'a' : ExternalLink,
-								{
-									href: getRedirectUrl(
-										buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite )
-									),
-								},
+							{ DashboardLink(
+								isWpcomSite,
+								getRedirectUrl( buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite ) ),
 								__( 'Manage subscribers', 'jetpack' )
 							) }
 						</li>
 						<li>
-							{ createElement(
-								isWpcomSite ? 'a' : ExternalLink,
-								{
-									href: getRedirectUrl(
-										buildJPRedirectSource(
-											`${ isWpcomSite ? 'earn' : 'monetize' }/${ site }`,
-											isWpcomSite
-										)
-									),
-								},
+							{ DashboardLink(
+								isWpcomSite,
+								getRedirectUrl(
+									buildJPRedirectSource(
+										`${ isWpcomSite ? 'earn' : 'monetize' }/${ site }`,
+										isWpcomSite
+									)
+								),
 								__( 'Monetize', 'jetpack' )
 							) }
 						</li>
 						<li>
-							{ createElement(
-								isWpcomSite ? 'a' : ExternalLink,
-								{ href: newsletterSettingsLink },
+							{ DashboardLink(
+								isWpcomSite,
+								getNewsletterSettingsUrl( site, isWpcomSite, adminUrl ),
 								__( 'Newsletter settings', 'jetpack' )
 							) }
 						</li>
