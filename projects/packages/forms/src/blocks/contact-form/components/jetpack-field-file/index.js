@@ -8,9 +8,7 @@ import JetpackFieldLabel from '../jetpack-field-label';
 import { useJetpackFieldStyles } from '../use-jetpack-field-styles';
 import './editor.css';
 
-// Base64 encoded version of our upload icon SVG
-const DEFAULT_ICON =
-	'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIHZpZXdCb3g9IjAgMCAxNiAxNyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTQuNSAxMlYxNS41SDlWMy43MDAwMkwxMy41IDcuODAwMDJMMTQuNSA2LjcwMDAyTDguMyAwLjkwMDAyNEwyLjUgNi43MDAwMkwzLjUgNy44MDAwMkw3LjUgMy44MDAwMlYxNS41SDEuNVYxMkgwVjE3SDE2VjEySDE0LjVaIiBmaWxsPSIjMUUxRTFFIi8+PC9zdmc+';
+const DEFAULT_ICON = `${ window?.jpFormsBlocks?.defaults?.assetsUrl }/images/upload-icon.svg`;
 
 const BLOCKS_TEMPLATE = [
 	[
