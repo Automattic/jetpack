@@ -40,10 +40,9 @@ class Contact_Form_Endpoint_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $wp_rest_server;
 
 		$this->plugin = Contact_Form_Plugin::init();
@@ -65,10 +64,9 @@ class Contact_Form_Endpoint_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 

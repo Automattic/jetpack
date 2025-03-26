@@ -31,11 +31,9 @@ class REST_Controller_Test extends Search_TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
-		parent::set_up();
+	public function setUp(): void {
+		parent::setUp();
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
@@ -57,12 +55,10 @@ class REST_Controller_Test extends Search_TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
 		remove_action( 'rest_api_init', array( $this->rest_controller, 'register_rest_routes' ) );
-		parent::tear_down();
+		parent::tearDown();
 	}
 
 	/**

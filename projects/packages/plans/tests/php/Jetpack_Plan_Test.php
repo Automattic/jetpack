@@ -17,10 +17,9 @@ class Jetpack_Plan_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		delete_option( 'jetpack_active_plan' );
 	}
 

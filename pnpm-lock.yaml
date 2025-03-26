@@ -2485,6 +2485,9 @@ importers:
       '@wordpress/dataviews':
         specifier: 4.15.0
         version: 4.15.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(react@18.3.1)
+      '@wordpress/dependency-extraction-webpack-plugin':
+        specifier: 6.19.0
+        version: 6.19.0(webpack@5.94.0)
       '@wordpress/element':
         specifier: 6.19.0
         version: 6.19.0
@@ -2497,6 +2500,9 @@ importers:
       '@wordpress/icons':
         specifier: 10.19.0
         version: 10.19.0(react@18.3.1)
+      '@wordpress/interactivity':
+        specifier: 6.19.0
+        version: 6.19.0
       '@wordpress/notices':
         specifier: 5.19.0
         version: 5.19.0(react@18.3.1)
