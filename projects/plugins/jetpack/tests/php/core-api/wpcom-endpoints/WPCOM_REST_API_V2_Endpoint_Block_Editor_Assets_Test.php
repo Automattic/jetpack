@@ -27,6 +27,31 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	public function set_up() {
 		parent::set_up();
 		$this->instance = new WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets();
+
+		// Prevent asset loading during tests by filtering the asset file path
+		add_filter( 'jetpack_mu_wpcom_asset_path', array( $this, 'mock_asset_path' ), 10, 2 );
+	}
+
+	/**
+	 * Clean up after each test.
+	 */
+	public function tear_down() {
+		remove_filter( 'jetpack_mu_wpcom_asset_path', array( $this, 'mock_asset_path' ), 10 );
+		parent::tear_down();
+	}
+
+	/**
+	 * Mock the asset path to prevent actual file loading
+	 *
+	 * @param string $path The original asset path.
+	 * @param string $filename The asset filename.
+	 * @return string
+	 */
+	public function mock_asset_path( $path, $filename ) {
+		if ( strpos( $filename, 'block-inserter-modifications' ) !== false ) {
+			return __DIR__ . '/fixtures/mock-asset.php';
+		}
+		return $path;
 	}
 
 	/**
