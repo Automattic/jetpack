@@ -67,6 +67,7 @@
 		opacity: 1;
 	}
 }
+
 @keyframes pulse {
 	0% {
 		opacity: 1;
@@ -100,6 +101,7 @@
 }
 
 @supports ( display: grid ) {
+
 	@media ( max-width: $break-small ) {
 		.wp-block-jetpack-instagram-gallery__grid.is-stacked-on-mobile {
 			.wp-block-jetpack-instagram-gallery__placeholder {

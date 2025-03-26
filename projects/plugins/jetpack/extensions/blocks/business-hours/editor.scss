@@ -4,6 +4,7 @@
 	overflow: hidden;
 
 	dd, dt {
+
 		@media (min-width: 480px ) {
 			display: inline-block;
 		}
@@ -16,6 +17,7 @@
 
 	dd {
 		margin: 0;
+
 		@media (min-width: 480px ) {
 			max-width: calc( 70% - 0.5em );
 		}
@@ -129,11 +131,13 @@
  * In these cases we'll apply small screen styles.
  */
 @mixin editor-area-is-small {
+
 	@media ( max-width: $break-xlarge ) {
 		.is-sidebar-opened {
 			@content;
 		}
 	}
+
 	@media ( max-width: $break-small ) {
 		@content;
 	}

@@ -10,6 +10,7 @@
 .infinite-scroll .pagination-wrapper,
 .infinite-scroll.neverending .footer-nav-widgets-wrapper,
 .infinite-scroll.neverending #site-footer {
+
 	/* Theme Footer (when set to scrolling) */
 	display: none;
 }
@@ -170,6 +171,7 @@
 	font-weight: 700;
 	margin: 0;
 }
+
 @media ( min-width: 700px ) {
 	.jetpack_subscription_widget .widget-title label {
 			font-size: 4rem;
@@ -273,6 +275,7 @@
 
 /* GIF Block */
 .wp-block-jetpack-gif {
+
 	/* Uses !important because the gif block styles are loaded in the footer after this file */
 	margin: 1em auto !important;
 }
@@ -300,6 +303,7 @@
 }
 
 /* Contact form */
+
 /* See https: //core.trac.wordpress.org/browser/trunk/src/wp-content/themes/twentytwenty/style.css?rev=58726#L710 */
 .contact-form input.grunion-field[type="checkbox"] {
 	padding: 0;

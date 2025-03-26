@@ -98,14 +98,17 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 	}
 
 	&.filter__1977 {
+
 		@include _1977;
 	}
 
 	&.filter__clarendon {
+
 		@include clarendon;
 	}
 
 	&.filter__gingham {
+
 		@include gingham;
 	}
 

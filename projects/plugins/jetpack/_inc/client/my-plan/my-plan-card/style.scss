@@ -5,6 +5,7 @@
 
 // My Plan Card
 .my-plan-card {
+
 	@include breakpoint( '>960px' ) {
 		display: flex;
 		flex-flow: row nowrap;

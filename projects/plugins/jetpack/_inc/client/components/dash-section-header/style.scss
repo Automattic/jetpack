@@ -52,6 +52,7 @@
 
 	// need to clean up ClassName nesting
 	.jp-dash-section-header__label {
+
 		@include breakpoint( "<480px" ) {
 			display: inline-block;
 		}

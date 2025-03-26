@@ -137,6 +137,7 @@
 .wp-customizer .widget-conditional .condition-control a {
 	top: 15px;
 }
+
 @media screen and ( max-width: 782px ) {
 	.widget-conditional .condition-control a {
 		top: 20px;
@@ -144,6 +145,7 @@
 }
 
 .wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional-inner {
+
 	/*
 	 * fonts of labels are reset to 13px in gutenberg editor for legacy widgets, ensure a consistent look on non-labels
 	 */

@@ -226,13 +226,16 @@ $jp-gray-20:             #a7aaad;
 	@include jitm-banner-color( $alert-green );
 
 	&.is-upgrade-personal {
+
 		@include jitm-banner-color( $alert-yellow );
 	}
 	&.is-upgrade-premium {
+
 		@include jitm-banner-color( #069e08 );
 	}
 	&.is-upgrade-business,
 	&.woo-jitm {
+
 		@include jitm-banner-color( $alert-purple );
 	}
 

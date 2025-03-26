@@ -108,6 +108,7 @@
 	cursor: pointer;
 	background-image: none;
 }
+
 /*
 	This will be dynamic: get form setting (if there is one)
 	Or pull themecolors array
@@ -185,6 +186,7 @@ a.revert {
 	width: 260px;
 	z-index: 2;
 }
+
 /* override new-customizer.css */
 .color-picker .the-picker {
 	border: none;
@@ -218,6 +220,7 @@ a.revert {
 	font-size: 13px;
 	margin: 10px 0 10px;
 }
+
 /* override new-customizer.css */
 .color-picker .the-picker p:not(.iris-launch) {
 	margin-top: 0;
@@ -250,6 +253,7 @@ a.revert {
 	cursor: pointer;
 	opacity: 1;
 }
+
 /* Background Choices */
 #the-bg-picker-prompt {
 	border-top: 2px dashed #eee;
@@ -314,6 +318,7 @@ a.revert {
 	width: 20%;
 	height: 100%;
 }
+
 /* Displays theme color palettes of < five colors */
 .colour-lovers.items-1 li {
 	width: 100%;
@@ -353,9 +358,11 @@ a.revert {
 .color-picker #colourlovers-palettes-container .previous, .color-picker #colourlovers-palettes-container .next {
 	margin-top: 10px;
 }
+
 /*.color-picker .previous {
 	margin-left: 10px;
 }*/
+
 /* Theme featured palettes */
 .colour-lovers.featured:before {
 	content: 'Featured';
@@ -666,6 +673,7 @@ input#iris {
 .nux #more-palettes {
 	display: none !important;
 }
+
 /* only show theme palettes */
 .nux .color-grid:not(.featured),
 .nux .colour-lovers.featured:before {

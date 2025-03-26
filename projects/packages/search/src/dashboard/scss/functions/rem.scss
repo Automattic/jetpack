@@ -12,5 +12,6 @@
 $root-font-size: 16px;
 
 @function rem( $pixels, $context: $root-font-size ) {
+
 	@return math.div($pixels, $context) * 1rem;
 }

@@ -3,6 +3,7 @@
 // ==========================================================================
 
 .configure .frame.top.fixed {
+
 	@include breakpoint(tablet){
 		padding-left: 0;
 	};
@@ -23,16 +24,19 @@
 }
 
 .page-content {
+
 	@include breakpoint(large-phone){
 		margin-top: 0;
 	};
 }
 
 .wrap.inner {
+
 	@include breakpoint(large-desktop) {
 		background: $clouds;
 		padding: 15px;
 	};
+
 	@include breakpoint(large-phone) {
 		margin-top: em(24px);
 	};
@@ -49,6 +53,7 @@
 }
 
 .page-content.configure {
+
 	@include breakpoint(large-desktop){
 		background: $clouds;
 	};
@@ -120,6 +125,7 @@
 	li {
 		margin: 0;
 	}
+
 	@include breakpoint(desktop){
 		font-size: 13px;
 	};
@@ -242,6 +248,7 @@
 		// fixing weird core bug thingy
 		vertical-align: baseline;
 	}
+
 	@include breakpoint(desktop){
 		bottom: 5%;
 		margin-left: 36px;
@@ -251,10 +258,12 @@
 			top: 38px;
 		}
 	};
+
 	@include breakpoint(tablet){
 		top: 66px;
 		margin-left: 0;
 	};
+
 	@include breakpoint(phablet){
 		top: 10px;
 		right: 10px;
@@ -275,6 +284,7 @@
 			margin-top: 0;
 		}
 	}
+
 	@include breakpoint(tablet){
 		float: none;
 		margin: 0 0 15px;
@@ -326,9 +336,11 @@
 	.download-jetpack {
 		margin-bottom: 33px;
 	}
+
 	@include minbreakpoint(large-desktop){
 			padding-bottom: 35px;
 	};
+
 	@include breakpoint(large-desktop) {
 		padding-top: 165px;
 		padding-bottom: 0;
@@ -341,16 +353,20 @@
 			overflow: hidden; // Clears the float
 		}
 	};
+
 	@include breakpoint(desktop){
 		padding-top: 146px;
 	};
+
 	@include breakpoint(tablet){
 		margin-top: 0;
 	};
+
 	@include breakpoint(large-phone){
 		margin-top: 0;
 		padding-top: 135px;
 	};
+
 	@include breakpoint(phone){
 		padding-top: 76px;
 	};
@@ -368,6 +384,7 @@
 			color: $green;
 		}
 	}
+
 	@include breakpoint(large-desktop){
 		a,
 		a:visited {
@@ -377,6 +394,7 @@
 			}
 		}
 	};
+
 	@include breakpoint(large-phone){
 		li {
 			display: block;
@@ -401,18 +419,22 @@
 	li {
 		margin-right: 5px;
 	}
+
 	@include minbreakpoint(tablet){
 		padding: 8px 15px 10px;
 		margin-bottom: 30px;
 		border-bottom: 1px solid #f0f0f1;
 	};
+
 	@include minbreakpoint(large-desktop){
 			margin-bottom: 0;
 	};
+
 	@include breakpoint(tablet){
 		padding: 8px 15px 8px;
 		border-bottom: none;
 	};
+
 	@include breakpoint(large-phone){
 		margin: 0;
 		padding: 0;
@@ -461,10 +483,12 @@
 	}
 }
 .secondary {
+
 		@include minbreakpoint(tablet){
 			padding: 0 15px 10px 15px;
 			border-bottom: 1px solid #f0f0f1;
 		}
+
 		@include minbreakpoint(large-desktop){
 			padding: 0 15px 10px 15px;
 			border-bottom: none;
@@ -544,6 +568,7 @@
 			top: 23px;
 			top: calc( 50% - 22px );
 		}
+
 		@include breakpoint(large-phone){
 			padding: 23px;
 

@@ -216,6 +216,7 @@
 }
 
 .jp-product-card--has-media {
+
 	@include breakpoint( '>480px' ) {
 		display: block;
 	}

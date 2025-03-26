@@ -50,6 +50,7 @@
 		margin-left: auto;
 		button {
 			margin-left: 0;
+
 			@include breakpoint(sm) {
 				margin-left: 20px;
 			}
@@ -78,6 +79,7 @@
 		}
 
 		li {
+
 			@include word-wrap();
 		}
 	}

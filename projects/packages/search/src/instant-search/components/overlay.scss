@@ -48,6 +48,7 @@ $overlay-horizontal-padding-lg: 3em;
 	h4,
 	h5,
 	h6 {
+
 		@include remove-header-styling();
 	}
 

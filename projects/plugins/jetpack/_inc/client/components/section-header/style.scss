@@ -44,6 +44,7 @@
 	min-width: 0; // weird fix for overflowing items
 
 	&:before {
+
 		@include long-content-fade( $size: 8px, $color : $white );
 	}
 	.has-card-badge & {

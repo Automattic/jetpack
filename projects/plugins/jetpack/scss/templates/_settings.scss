@@ -36,6 +36,7 @@
 				position: relative;
 				top: auto;
 			}
+
 			@media (max-width: 600px) {
 				top: 0;
 			}
@@ -55,6 +56,7 @@
 	@media (max-width: 782px) {
 		display: block;
 	}
+
 	@media (max-width: 530px) {
 		display: none;
 	}
@@ -280,6 +282,7 @@
 			}
 		}
 		.button-group {
+
 			@media (max-width: 782px) {
 				white-space: normal;
 			}

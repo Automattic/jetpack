@@ -61,6 +61,7 @@
 	cursor: pointer;
 
 	&:after {
+
 		@include dashicons;
 		content: '\f347';
 		line-height: 16px;
@@ -69,6 +70,7 @@
 
 	.dops-section-nav.is-open & {
 		&:after {
+
 			@include dashicons;
 			content: '\f343';
 		}
@@ -205,6 +207,7 @@
 // -------- Nav Tabs --------
 // which contain items
 .dops-section-nav-tabs {
+
 	@include breakpoint( ">660px" ) {
 		width: 0;
 		flex: 1 0 auto;
@@ -410,6 +413,7 @@
 
 // -------- Search --------
 .dops-section-nav {
+
 	@include breakpoint( "<660px" ) {
 		.dops-search.is-pinned {
 			height: 46px;

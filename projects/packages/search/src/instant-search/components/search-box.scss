@@ -58,6 +58,7 @@ input.jetpack-instant-search__box-input.search-field {
 }
 
 .jetpack-instant-search__box input[type='button'] {
+
 	@include remove-button-styling();
 	color: $color-text-lighter;
 	cursor: pointer;
@@ -75,6 +76,7 @@ input.jetpack-instant-search__box-input.search-field {
 	}
 
 	&:focus {
+
 		@include apply-overlay-focus-styling();
 	}
 }

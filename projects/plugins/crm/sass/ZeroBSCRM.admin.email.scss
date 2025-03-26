@@ -134,6 +134,7 @@ html,body{
 }
 .push-down{
    bottom: 0px;
+
    /* wh fix to put at bottom even when not fullscreen
    position:fixed !important;
    left: 0px;
@@ -180,6 +181,7 @@ html,body{
     width: 0px;  /* remove scrollbar space */
     background: transparent;  /* optional: just make scrollbar invisible */
 }
+
 /* optional: show position indicator in red */
 .zbs-email-list::-webkit-scrollbar-thumb, #zbs-email-body::-webkit-scrollbar-thumb {
     background: #FF0000;

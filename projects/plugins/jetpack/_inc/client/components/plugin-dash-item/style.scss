@@ -4,6 +4,7 @@
 @import '../../scss/mixins/ui';
 
 .plugin-dash-item {
+
 	@include dashboard-card-shadow;
 
 	p {

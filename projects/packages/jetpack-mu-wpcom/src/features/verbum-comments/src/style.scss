@@ -90,6 +90,7 @@
 		}
 
 		.comment-form__verbum {
+
 			@include color-schemes;
 
 			&.dark {
@@ -120,6 +121,7 @@
 			// Fixes the alt text for the close button
 			.screen-reader-text {
 				clip: rect(1px 1px 1px 1px);
+
 				/* IE6, IE7 */
 				clip: rect(1px, 1px, 1px, 1px);
 				position: absolute !important;
@@ -189,6 +191,7 @@
 			}
 
 			.comment-form__subscription-options {
+
 				@include sliding-animation;
 
 				border-bottom: 1px solid var(--verbum-border-color);
@@ -409,6 +412,7 @@
 						}
 
 						.verbum-form {
+
 							@include sliding-animation;
 						}
 					}
@@ -472,6 +476,7 @@
 				}
 
 				.verbum-footer__submit {
+
 					@keyframes button__busy-animation {
 						0% {
 							background-position: 240px 0;

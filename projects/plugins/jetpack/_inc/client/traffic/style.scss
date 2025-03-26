@@ -249,6 +249,7 @@ $twitter-pofile-image-padding: 17px;
 }
 
 .jp-stats-odyssey-disabled-notice {
+
 	@include breakpoint('<480px') {
 		a.dops-notice__action {
 			white-space: initial;
@@ -258,6 +259,7 @@ $twitter-pofile-image-padding: 17px;
 			display: none;
 		}
 	}
+
 	@include breakpoint('>480px') {
 		width: calc(100% - 26px);
 	}

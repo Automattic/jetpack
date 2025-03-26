@@ -660,6 +660,7 @@ Tabs
 ========================================================================== */
 
 #vp-tabs { /* WAT */
+
 	/* IE 7 specific */
 	*position: relative;
 	*z-index: 1;
@@ -800,6 +801,7 @@ Progress Bars
 ========================================================================== */
 
 #vp_progress:after {
+
 	/* clearfix */
 	content: ".";
 	display: block;
@@ -826,6 +828,7 @@ Progress Bars
 }
 
 .vp_graphs:after {
+
 	/* clearfix */
 	content: ".";
 	display: block;

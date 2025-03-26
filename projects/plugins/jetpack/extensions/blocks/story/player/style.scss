@@ -1,5 +1,4 @@
 @use "sass:math";
-
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 @import '../../../shared/styles/jetpack-variables.scss';
 @import './variables.scss';
@@ -528,6 +527,7 @@
 		&.wp-story-ended,
 		&.wp-story-disabled {
 			.wp-story-overlay {
+
 				@media ( max-width: $break-medium ) {
 					top: 0;
 					bottom: 0;
@@ -553,6 +553,7 @@
 		}
 
 		.wp-story-prev-slide {
+
 			@media ( max-width: $break-medium ) {
 				left: 0;
 				width: 33.33%;
@@ -560,6 +561,7 @@
 		}
 
 		.wp-story-next-slide {
+
 			@media ( max-width: $break-medium ) {
 				right: 0;
 				width: 66.66%;

@@ -47,6 +47,7 @@ $breakpoint-mobile: 782px; //Mobile size.
 		justify-content: center;
 		align-items: center;
 		max-width: 100%;
+
 		@media (min-width: $breakpoint-mobile) {
 			max-width: 75%;
 		}
@@ -83,6 +84,7 @@ $breakpoint-mobile: 782px; //Mobile size.
 		flex-direction: column;
 		justify-content: space-between;
 		align-items: center;
+
 		@media (min-width: $breakpoint-mobile) {
 			flex-direction: row;
 		}
@@ -124,6 +126,7 @@ $breakpoint-mobile: 782px; //Mobile size.
 		padding: 32px 48px;
 		gap: 32px;
 		flex-direction: column;
+
 		@media (min-width: $breakpoint-mobile) {
 			flex-direction: row;
 		}

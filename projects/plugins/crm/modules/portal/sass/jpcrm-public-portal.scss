@@ -338,6 +338,7 @@
 .zerobs-proposal-poweredby {
    margin-top:2em 
 }
+
 /* Few tweaks as provided by Alvaro in slack ... wh selectively added those which made sense for multi-theme userbase JIRA-ZBS-531 */
 .zbs-portal-wrapper {
    .zbs-portal-login .login-form input[type='text'], .zbs-portal-login .login-form input[type='password'], .form-control.widetext, .form-control.zbs-tel, .form-control.zbs-email, .form-control.zbs-date, input[type=text], input[type=password], input[type=tel], input[type=email], input.text, input.title, textarea, select {
@@ -348,12 +349,14 @@
        height:50px;
   }
 }
+
 /* Fixes for Astra Theme and general poor display on WP.org themes */
 .zbs-portal-wrapper{
    label{
      clear: left;
    }
 }
+
 /* WH added for Your details page additions of checkbox radio buttons 2.98.5 */
 // edit pages checkbox custom fields 
 .zbs-portal-wrapper {
@@ -496,6 +499,7 @@
   }
 
   .zbs-responsive-table {
+
     @media (max-width: 1100px) {
       table, thead, tbody, th, td, tr {
         display: block;

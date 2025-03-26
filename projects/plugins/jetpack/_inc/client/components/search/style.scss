@@ -162,12 +162,14 @@
 		font-size: 16px;
 		border-radius: inherit;
 		&::before {
+
 			@include long-content-fade( $size: 32px, $color: $white, $z-index: z-index( '.dops-search', '.dops-search__input' ) + 2 );
 			border-radius: inherit;
 		}
 
 		&.ltr { /*rtl:ignore*/
 			&::before {
+
 				@include long-content-fade( $direction: right, $size: 32px, $color: $white, $z-index: z-index( '.dops-search', '.dops-search__input' ) + 2 );
 				border-radius: inherit;
 			}

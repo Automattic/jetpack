@@ -39,6 +39,7 @@
 .wp-block-jetpack-button {
 	&.is-style-outline {
 		.wp-block-button__link {
+
 			@extend %button-outline-style;
 		}
 	}

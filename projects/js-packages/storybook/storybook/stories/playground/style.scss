@@ -4,11 +4,11 @@
 @import "@wordpress/base-styles/breakpoints";
 @import "@wordpress/base-styles/animations";
 @import "@wordpress/base-styles/z-index";
-
 @import "./reset";
 @import "./editor-styles";
 
 .playground {
+
 	@include break-small() {
 		width: calc(100% - #{$sidebar-width});
 	}
@@ -42,6 +42,7 @@
 
 	// Temporarily disable the sidebar on mobile
 	display: none;
+
 	@include break-small() {
 		display: block;
 	}

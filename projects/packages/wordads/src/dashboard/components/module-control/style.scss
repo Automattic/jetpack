@@ -27,6 +27,7 @@ $toggle-width: 3em;
 	}
 	.jp-form-wordads-settings-group__toggle-container {
 		display: flex;
+
 		@include for-tablet-down {
 			justify-content: center;
 		}

@@ -8,6 +8,7 @@
 }
 
 .jp-recommendations-question__main--with-sidebar .jp-recommendations-question__content {
+
 	@include breakpoint( '>660px' ) {
 		padding-right: 48px;
 	}

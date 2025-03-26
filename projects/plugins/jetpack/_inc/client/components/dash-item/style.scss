@@ -2,6 +2,7 @@
 @import '../../scss/mixins/ui';
 
 .jp-dash-item {
+
 	@include dashboard-card-shadow;
 
 	.dops-section-header__actions {
@@ -175,6 +176,7 @@
 	}
 	.dops-section-header__label-text {
 		&:before {
+
 			@include long-content-fade( $size: 8px, $color : $white );
 		}
 	}

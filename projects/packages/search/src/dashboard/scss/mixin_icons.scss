@@ -6,11 +6,13 @@
 }
 
 @mixin dashicons {
+
 	@include clear-text-icon;
 	font: normal 16px/1 'Dashicons';
 }
 
 @mixin noticons {
+
 	@include clear-text-icon;
 	font: normal 16px/1 'Noticons';
 }

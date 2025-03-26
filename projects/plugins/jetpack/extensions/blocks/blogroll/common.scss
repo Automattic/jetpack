@@ -3,12 +3,14 @@
 $jetpack-blogroll-item-container: bitem;
 
 @mixin break-bloroll-container-mobile() {
+
 	@container #{ ($jetpack-blogroll-item-container)} (min-width: #{ ($break-mobile) }) {
 		@content;
 	}
 }
 
 .wp-block-jetpack-blogroll {
+
 	@include break-bloroll-container-mobile() {
 		padding: 24px;
 	}

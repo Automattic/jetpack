@@ -20,6 +20,7 @@
 .jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
 	background-image: none;
 }
+
 /* end of temporary fix */
 
 [data-carousel-extra]:not( .jp-carousel-wrap ) img, [data-carousel-extra]:not( .jp-carousel-wrap ) img + figcaption {
@@ -361,6 +362,7 @@ div.jp-carousel-buttons a:hover {
 	background: var(--jp-carousel-primary-color);
 	opacity: 0.5;
 }
+
 /** Pagination End **/
 
 /** Title and Desc Start **/
@@ -758,6 +760,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		transform: rotate( 360deg );
 	}
 }
+
 @keyframes load8 {
 	0% {
 		-webkit-transform: rotate( 0deg );

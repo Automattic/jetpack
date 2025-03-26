@@ -101,6 +101,7 @@
 // fullscreen-mode
 //
 body.js.is-fullscreen-mode {
+
 	@include break-medium {
 		// Reset the html.wp-topbar padding.
 		// Because this uses negative margins, we have to compensate for the height.
@@ -196,6 +197,7 @@ html.interface-interface-skeleton__html-container {
 }
 
 .interface-interface-skeleton__secondary-sidebar {
+
 	@include break-medium() {
 		border-right: $border-width solid $gray-200;
 	}
@@ -223,6 +225,7 @@ html.interface-interface-skeleton__html-container {
 
 	// On Mobile the footer is hidden
 	display: none;
+
 	@include break-medium() {
 		display: flex;
 	}

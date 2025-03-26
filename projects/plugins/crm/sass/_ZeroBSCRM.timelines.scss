@@ -48,6 +48,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
 
         color: #737373cf;
     }
+
     /*----- TIMELINE MARKER -----*/
 
     .zbs-timeline-marker {
@@ -221,6 +222,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
     ----------------------------------------------*/
 
         .zbs-timeline-split {
+
             @media (min-width: 768px) {
                 .zbs-timeline {
                     display: table;
@@ -257,7 +259,9 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
     ----------------------------------------------*/
 
         .zbs-timeline-centered {
+
             @extend .zbs-timeline-split;
+
             @media (min-width: 992px) {
                 &,
                 .zbs-timeline-item,

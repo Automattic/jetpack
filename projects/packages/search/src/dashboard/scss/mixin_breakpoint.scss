@@ -6,30 +6,38 @@
 $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding a new breakpoint
 
 @mixin breakpoint( $size ){
+
 	@if type-of($size) == string {
 	  $approved-value: 0;
+
 		@each $breakpoint in $breakpoints {
 			$and-larger: ">" + $breakpoint;
 			$and-smaller: "<" + $breakpoint;
 
 			@if $size == $and-smaller {
 				$approved-value: 1;
+
 				@media ( max-width: $breakpoint ) {
 					@content;
 				}
 			}
 			@else {
+
 				@if $size == $and-larger {
 					$approved-value: 2;
+
 					@media ( min-width: $breakpoint + 1 ) {
 						@content;
 					}
 				}
 				@else {
+
 					@each $breakpoint-end in $breakpoints {
 						$range: $breakpoint + "-" + $breakpoint-end;
+
 						@if $size == $range {
 							$approved-value: 3;
+
 							@media ( min-width: $breakpoint + 1 ) and ( max-width: $breakpoint-end ) {
 								@content;
 							}
@@ -38,8 +46,10 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 				}
 			}
 		}
+
 		@if $approved-value == 0 {
 			$sizes: "";
+
 			@each $breakpoint in $breakpoints {
 				$sizes: $sizes + " " + $breakpoint;
 			}
@@ -49,6 +59,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	}
 	@else {
 		$sizes: "";
+
 		@each $breakpoint in $breakpoints {
 			$sizes: $sizes + " " + $breakpoint;
 		}

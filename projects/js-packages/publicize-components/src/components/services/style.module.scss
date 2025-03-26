@@ -218,6 +218,7 @@
 		flex-direction: column;
 		gap: 0.5rem;
 		flex-basis: 100%;
+
 		@include break-medium {
 			flex-basis: 50%;
 		}

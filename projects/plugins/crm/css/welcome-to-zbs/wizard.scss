@@ -154,6 +154,7 @@ input[type=checkbox], input[type=radio]{
 
 /* Layout */
   .ck_form.ck_minimal {
+
   /* divider image */
   background: #f9f9f9;
   font-family: 'Helvetica Neue', Helvetica, Arial, Verdana, sans-serif;
@@ -202,6 +203,7 @@ input[type=checkbox], input[type=radio]{
   float: left;
   padding: 5%;
 }
+
 /* Form fields */
 
 .ck_errorArea {
@@ -466,6 +468,7 @@ $darkenColor: darken($activeColor, 20%);
     }
   }    
 }
+
 /* end .switchCheckbox */
 
 
@@ -479,11 +482,13 @@ $darkenColor: darken($activeColor, 20%);
     margin-right: auto;
 
 }
+
 @media (min-width: 992px) {
     .container {
         width: 100%;
     }
 }
+
 @media (min-width: 768px) {
     .container {
         width: 100%;

@@ -9,6 +9,7 @@
 
   // overriding annoying jquery modal (maybe mike included? or I did ages ago)
   .modal, .ui.modal {
+
     /* max-width: 500px; */
     max-width: 1400px !important;
     padding: 0 !important;
@@ -88,6 +89,7 @@
 
 
       img {
+
         /*
 
         original:
@@ -389,9 +391,12 @@
 
 
 // Safari workarounds
+
 /* Safari 10.1+ (alternate method) */
 @media not all and (min-resolution:.001dpcm)
-{ @supports (-webkit-appearance:none) {
+{
+
+ @supports (-webkit-appearance:none) {
 
     // fixed footer was borked in safari
     .jpcrm-modal-footer { 

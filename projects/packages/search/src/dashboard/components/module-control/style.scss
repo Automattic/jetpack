@@ -42,6 +42,7 @@ $toggle-width: 3em;
 	}
 	.jp-form-search-settings-group__toggle-container {
 		display: flex;
+
 		@include for-tablet-down {
 			justify-content: center;
 		}

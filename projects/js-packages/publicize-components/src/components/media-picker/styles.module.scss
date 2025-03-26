@@ -103,6 +103,7 @@
 }
 
 .remove-loading {
+
 	@extend .remove;
 	// This is to make the close button appear in the right place when we are loading the image.
 	// With this it is possible to close/stop loading images if the request takes too long.

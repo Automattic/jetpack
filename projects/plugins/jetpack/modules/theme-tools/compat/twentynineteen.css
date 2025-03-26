@@ -4,6 +4,7 @@
 .infinite-scroll .pagination,
 .infinite-scroll .posts-navigation,
 .infinite-scroll.neverending .site-footer {
+
 	/* Theme Footer (when set to scrolling) */
 	display: none;
 }

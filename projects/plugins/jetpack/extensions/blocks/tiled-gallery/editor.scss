@@ -72,6 +72,7 @@
 			border: 1px solid $dark-gray-placeholder;
 			border-radius: $radius-block-ui;
 			transition: box-shadow 0.2s ease-out;
+
 			@include reduce-motion("transition");
 
 			&:hover {

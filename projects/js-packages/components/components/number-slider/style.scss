@@ -22,6 +22,7 @@ $track-height: 8px;
 }
 
 .jp-components-number-slider__track {
+
 	@include adjust-track-rail-styles;
 	top: calc(($thumb-height / 2) - ($track-height / 2));
 	background: var(--jp-gray);

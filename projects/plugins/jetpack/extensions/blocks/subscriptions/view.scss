@@ -1,4 +1,5 @@
 @function x($var-name, $fallback) {
+
 	@return unquote("var(#{$var-name}, #{$fallback})");
 }
 
@@ -50,6 +51,7 @@
 		button {
 			line-height: 1.3;
 			box-sizing: border-box;
+
 			/*
 			 * These next two rules override the default styles for RichText component
 			 * which is used for the button label coming from

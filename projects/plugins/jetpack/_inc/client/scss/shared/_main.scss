@@ -6,6 +6,7 @@
 // TODO Extract into other files
 
 .jp-hidden-on-mobile {
+
 	@include breakpoint( "<660px" ) {
 		display: none;
 	}

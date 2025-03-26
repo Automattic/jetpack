@@ -693,6 +693,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button {
+
 	/* visually-hidden */
 	clip: rect(0 0 0 0);
   clip-path: inset(50%);
@@ -860,6 +861,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .contact-form__spinner svg {
+
 	/* Ensure container is of the exact same dimension */
 	display: block;
 }

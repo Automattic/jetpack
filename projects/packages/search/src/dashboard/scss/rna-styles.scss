@@ -58,6 +58,7 @@
 	}
 
 	@include for-phone-up {
+
 		@for $i from 1 through 8 {
 			.md-col-span-#{$i} {
 				grid-column-end: span #{$i};
@@ -66,6 +67,7 @@
 	}
 
 	@include for-tablet-up {
+
 		@for $i from 1 through 12 {
 			.lg-col-span-#{$i} {
 				grid-column-end: span #{$i};

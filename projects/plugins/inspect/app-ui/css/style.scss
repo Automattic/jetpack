@@ -31,16 +31,19 @@
 	border: none;
 	font-weight: 400;
 	cursor: pointer;
+
 	@extend .button-effects;
 }
 
 .ji-button--alt {
+
 	@extend .ji-button;
 	background-color: hsl(77, 43%, 90%);
 	color: var(--jetpack_green_40);
 }
 
 .ji-button--altii {
+
 	@extend .ji-button;
 	background-color: hsl(77, 43%, 90%);
 	color: var(--jetpack_green_40);

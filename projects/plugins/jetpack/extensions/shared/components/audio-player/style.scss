@@ -7,6 +7,7 @@ $jetpack-audio-player-background: $white;
 
 //Bit of a hack to check for the existence of the podcast player values
 $jetpack-podcast-player-primary: false !default;
+
 @if $jetpack-podcast-player-primary {
 	$jetpack-audio-player-primary: $jetpack-podcast-player-primary;
 	$jetpack-audio-player-secondary: $jetpack-podcast-player-secondary;
@@ -32,6 +33,7 @@ $gutter-m: 15px !default;
 }
 
 .jetpack-audio-player {
+
 	/**
 	 * Set default values for our CSS variables.
 	 */
@@ -53,6 +55,7 @@ $gutter-m: 15px !default;
 	}
 
 	.mejs-container:focus {
+
 		@include focus-outline();
 		box-shadow: none; // Reset the editor canvas box-shadow focus indicator for mejs-container.
 	}
@@ -60,6 +63,7 @@ $gutter-m: 15px !default;
 	.mejs-controls {
 		position: static;
 		padding: 0;
+
 		/**
 		* Lines up the mejs player padding with our wrapper spacing.
 		* Magic numbers are due to needing to line-up the player spacing with buttons
@@ -112,19 +116,23 @@ $gutter-m: 15px !default;
 	}
 
 	.mejs-controls .mejs-time-rail .mejs-time-slider:focus {
+
 		@include focus-outline();
 	}
+
 	/**
 	 * Helper function that escapes the value of the color variable in the SVG.
 	 * This way we can change the value in one place and easily add style
 	 * variations.
 	 */
 	@function encodecolor( $string ) {
+
 		@if type-of( $string ) == 'color' {
 			$hex: str-slice( ie-hex-str( $string ), 4 );
 			$string: unquote( '#{$hex}' );
 		}
 		$string: '%23' + $string;
+
 		@return $string;
 	}
 
@@ -190,6 +198,7 @@ $gutter-m: 15px !default;
 		}
 
 		.mejs-button > button:focus {
+
 			@include focus-outline();
 		}
 

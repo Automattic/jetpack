@@ -182,6 +182,7 @@ body.highlander-dark h3.sd-title:before {
 	vertical-align: top;
 	text-align: center;
 }
+
 /* text + icon styles should have relative and top position */
 .sd-social-icon-text ul li a.sd-button:before {
 	position: relative;
@@ -200,6 +201,7 @@ body.highlander-dark h3.sd-title:before {
 	position: relative;
 	top: -2px;
 }
+
 /* Make it look great in Chrome and Safari */
 @media screen and (-webkit-min-device-pixel-ratio:0) {
 	.sd-social-official ul li a.sd-button:before {
@@ -211,6 +213,7 @@ body.highlander-dark h3.sd-title:before {
 	margin: 0 8px 12px 0;
 	padding: 0;
 }
+
 /* Add more pading on touch devices */
 .jp-sharing-input-touch .sd-content ul li { padding-left: 10px; }
 
@@ -237,11 +240,13 @@ body .sd-content ul li.share-custom.no-icon a span {
 	position: relative;
 	top: -4px;
 }
+
 @media screen and (-webkit-min-device-pixel-ratio:0) {
 	.sd-social-icon .sd-content ul li a.share-more {
 		top: 2px;
 	}
 }
+
 /* Firefox specific hack to make the share more button look better on Firefox. */
 @-moz-document url-prefix() {
 	.sd-social-icon .sd-content ul li a.share-more {

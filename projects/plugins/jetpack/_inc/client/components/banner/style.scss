@@ -32,30 +32,38 @@
 	@include banner-color( $blue-wordpress );
 
 	&.is-jetpack-info {
+
 		@include banner-color( $green-primary );
 	}
 
 	&.is-product {
+
 		@include banner-color( $color-product );
 	}
 
 	&.is-plan {
+
 		@include banner-color( $color-plan );
 
 		&.is-upgrade-personal {
+
 			@include banner-color( $alert-yellow );
 		}
 		&.is-upgrade-premium {
+
 			@include banner-color( $alert-green );
 		}
 		&.is-upgrade-business {
+
 			@include banner-color( $alert-purple );
 		}
 		&.is-bundle {
+
 			@include banner-color( $color-bundle );
 		}
 
 		&.is-jetpack-warning {
+
 			@include banner-color( $alert-yellow );
 		}
 	}

@@ -87,6 +87,7 @@
 			}
 
 			#stats-info {
+
 				@include widget-card-background-container;
 				padding-bottom: 0;
 				border-top: 1px solid #dcdcde;
@@ -135,6 +136,7 @@
 	}
 
 	#stats-info-container {
+
 		@include widget-card;
 		overflow: hidden;
 
@@ -176,6 +178,7 @@
 
 			// Use emerald button style.
 			.wp-core-ui & .button-primary {
+
 				@include emerald-button-colors();
 			}
 		}
@@ -258,6 +261,7 @@
 		overflow: hidden;
 
 		.blocked-container {
+
 			@include widget-card-background-container();
 			display: grid;
 			gap: 0 1em;
@@ -266,6 +270,7 @@
 
 		.protect,
 		.akismet {
+
 			@include widget-card;
 		}
 
@@ -311,6 +316,7 @@
 		}
 
 		.button {
+
 			@include emerald-button-colors();
 			margin-top: 8px;
 		}

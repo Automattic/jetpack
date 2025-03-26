@@ -77,6 +77,7 @@
 		}
 
 		.jetpack-blogroll-item-subscribe-button {
+
 			@include break-bloroll-container-mobile() {
 				margin-left: auto;
 				align-self: center;

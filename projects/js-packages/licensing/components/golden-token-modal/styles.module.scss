@@ -3,6 +3,7 @@
 $tablet-width: 760px;
 
 @mixin tablet {
+
 	@media (min-width: #{$tablet-width}) {
 		@content;
 	}
@@ -55,6 +56,7 @@ $tablet-width: 760px;
 .button {
 	align-self: flex-start;
 	width: 100%;
+
 	/*
 	* We have to use !important to add additional styling compared to the Jetpack
 	* button component.
@@ -160,6 +162,7 @@ $tablet-width: 760px;
 }
 
 @include tablet {
+
 	@keyframes slidein {
 		0% {
 			left: 60%;
@@ -267,6 +270,7 @@ $tablet-width: 760px;
 		.button {
 			align-self: flex-start;
 			width: auto;
+
 			/*
 			 * We have to use !important to add additional styling compared to the Jetpack
 			 * button component.

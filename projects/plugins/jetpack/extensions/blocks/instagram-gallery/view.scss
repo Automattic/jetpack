@@ -25,6 +25,7 @@
 		width: calc( 100% / #{$i} );
 	}
 }
+
 @media ( max-width: $break-small ) {
 	.wp-block-jetpack-instagram-gallery__grid.is-stacked-on-mobile
 		.wp-block-jetpack-instagram-gallery__grid-post {

@@ -1,7 +1,9 @@
 /* eslint-disable */
+
 /* If a new version is imported from swiper the selectors should all be namespaced with .jp-carousel-overlay 
 /* to prevent clashes with other plugins that are overrding swiperjs css
 */
+
 /**
  * Swiper 6.7.0
  * Most modern mobile touch slider and framework with hardware accelerated transitions
@@ -31,6 +33,7 @@
 	overflow: hidden;
 	list-style: none;
 	padding: 0;
+
 	/* Fix of Webkit flickering */
 	z-index: 1;
 }
@@ -77,6 +80,7 @@
 .jp-carousel-overlay .swiper-slide-invisible-blank {
 	visibility: hidden;
 }
+
 /* Auto Height */
 .jp-carousel-overlay .swiper-container-autoheight,
 .jp-carousel-overlay .swiper-container-autoheight .swiper-slide {
@@ -86,6 +90,7 @@
 	align-items: flex-start;
 	transition-property: transform, height;
 }
+
 /* 3D Effects */
 .jp-carousel-overlay .swiper-container-3d {
 	perspective: 1200px;
@@ -123,12 +128,15 @@
 .jp-carousel-overlay .swiper-container-3d .swiper-slide-shadow-bottom {
 	background-image: linear-gradient( to bottom, rgba( 0, 0, 0, 0.5 ), rgba( 0, 0, 0, 0 ) );
 }
+
 /* CSS Mode */
 .jp-carousel-overlay .swiper-container-css-mode > .swiper-wrapper {
 	overflow: auto;
 	scrollbar-width: none;
+
 	/* For Firefox */
 	-ms-overflow-style: none;
+
 	/* For Internet Explorer and Edge */
 }
 .jp-carousel-overlay .swiper-container-css-mode > .swiper-wrapper::-webkit-scrollbar {
@@ -145,6 +153,7 @@
 }
 :root {
 	--swiper-navigation-size: 44px;
+
 	/*
   --swiper-navigation-color: var(--swiper-theme-color);
   */
@@ -209,6 +218,7 @@
 	display: none;
 }
 :root {
+
 	/*
   --swiper-pagination-color: var(--swiper-theme-color);
   */
@@ -223,6 +233,7 @@
 .jp-carousel-overlay .swiper-pagination.swiper-pagination-hidden {
 	opacity: 0;
 }
+
 /* Common Styles */
 .jp-carousel-overlay .swiper-pagination-fraction,
 .jp-carousel-overlay .swiper-pagination-custom,
@@ -231,6 +242,7 @@
 	left: 0;
 	width: 100%;
 }
+
 /* Bullets */
 .jp-carousel-overlay .swiper-pagination-bullets-dynamic {
 	overflow: hidden;
@@ -332,6 +344,7 @@
 	.swiper-pagination-bullet {
 	transition: 200ms transform, 200ms right;
 }
+
 /* Progress */
 .jp-carousel-overlay .swiper-pagination-progressbar {
 	background: rgba( 0, 0, 0, 0.25 );
@@ -398,6 +411,7 @@
 .jp-carousel-overlay .swiper-slide-zoomed {
 	cursor: move;
 }
+
 /* a11y */
 .jp-carousel-overlay .swiper-container .swiper-notification {
 	position: absolute;

@@ -3,8 +3,10 @@
 .jetpack-ai-proofread {
 	.components-checkbox-control {
 		&__input:not( :disabled ) {
+
 			@include features-colors( ( 'border-color' ) );
 			&:checked {
+
 				@include features-colors( ( 'background-color' ) );
 			}
 		}

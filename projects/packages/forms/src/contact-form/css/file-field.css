@@ -129,6 +129,7 @@
 .jetpack-form-file-field__preview.fade-out {
 	animation: jpFadeOutFileField 0.3s forwards;
 }
+
 @media (prefers-reduced-motion) {
 	.jetpack-form-file-field__preview.fade-out {
 		animation: none;
