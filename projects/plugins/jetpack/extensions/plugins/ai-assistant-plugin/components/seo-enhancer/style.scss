@@ -1,12 +1,21 @@
 .jetpack-seo-sidebar__feature-section--toggle {
-	min-height: unset;
+	// min-height: unset;
 
 	.ai-seo-enhancer-label {
 		margin-bottom: 24px;
 	}
 }
 
+.jetpack-seo-panel {
+	.components-panel__row {
+		&:not(:last-child) {
+			margin-bottom: 2em;
+		}
+	}
+}
+
 .jetpack-seo-sidebar__feature-section {
+
 	.feature-checkboxes-container {
 		display: flex;
 		flex-direction: column;
@@ -32,9 +41,10 @@
 
 .jetpack-seo-enhancer-summary-feature {
 	display: flex;
+	margin-bottom: 12px;
 
-	+ .jetpack-seo-enhancer-summary-feature {
-		margin-top: 12px;
+	&:last-child {
+		margin-bottom: 2em;
 	}
 
 	.jetpack-seo-enhancer-summary-feature__control {

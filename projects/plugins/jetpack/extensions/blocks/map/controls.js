@@ -1,7 +1,5 @@
 import { BlockAlignmentToolbar, PanelColorSettings } from '@wordpress/block-editor';
 import {
-	Button,
-	ButtonGroup,
 	ExternalLink,
 	PanelBody,
 	TextControl,
@@ -15,6 +13,10 @@ import {
 	Path,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalNumberControl as NumberControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import Locations from './locations';
@@ -181,23 +183,24 @@ export default ( {
 						value={ apiKeyControl }
 						onChange={ onKeyChange }
 					/>
-					<ButtonGroup>
-						<Button
-							type="button"
-							onClick={ updateAPIKey }
-							disabled={ ! apiKeyControl || apiKeyControl === apiKey }
-						>
-							{ __( 'Update Token', 'jetpack' ) }
-						</Button>
-						<Button
-							type="button"
-							onClick={ removeAPIKey }
-							disabled={ 'wpcom' === apiKeySource }
-							variant="secondary"
-						>
-							{ __( 'Remove Token', 'jetpack' ) }
-						</Button>
-					</ButtonGroup>
+					<div className="jetpack-map-token-settings">
+						<ToggleGroupControl isBlock __next40pxDefaultSize __nextHasNoMarginBottom>
+							<ToggleGroupControlOption
+								className="components-button jetpack-update-token-button"
+								label={ __( 'Update Token', 'jetpack' ) }
+								value="update"
+								onClick={ updateAPIKey }
+								disabled={ ! apiKeyControl || apiKeyControl === apiKey }
+							/>
+							<ToggleGroupControlOption
+								className="components-button is-secondary"
+								label={ __( 'Remove Token', 'jetpack' ) }
+								value="remove"
+								onClick={ removeAPIKey }
+								disabled={ 'wpcom' === apiKeySource }
+							/>
+						</ToggleGroupControl>
+					</div>
 				</PanelBody>
 			) : null }
 		</>

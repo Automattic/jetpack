@@ -364,7 +364,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
    2. The default branch should be `trunk`, matching the monorepo.
       * Note that you can't set the default branch until at least one branch is created in the repo.
    3. In the repo's settings, turn off wikis, issues, projects, and so on.
-   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. You would do this here: `https://github.com/Automattic/example-repository-name/settings/branches` - creating a new branch protection rule where only Matticbot (and whoever needs access to push, for example Garage) can push to that repository.
+   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. Usually no special configuration is needed for repos under the Automattic organization.
    5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
    6. Create any secrets needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
 2. For a PHP package (or a plugin listed in Packagist) you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it.

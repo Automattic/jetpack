@@ -7,7 +7,12 @@ import './clipboard-input.scss';
 const ClipboardInput = ( { link } ) => {
 	return (
 		<div className="jetpack-clipboard-input">
-			<TextControl readOnly value={ link } __nextHasNoMarginBottom={ true } />
+			<TextControl
+				readOnly
+				value={ link }
+				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
+			/>
 			<CopyToClipboard
 				buttonStyle="icon-text"
 				className="components-clipboard-button"

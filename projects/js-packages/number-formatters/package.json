@@ -1,0 +1,43 @@
+{
+	"name": "@automattic/number-formatters",
+	"version": "0.1.0",
+	"description": "Number formatting utilities",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/number-formatters/#readme",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/number-formatters"
+	},
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Number Formatters"
+	},
+	"dependencies": {
+		"@babel/runtime": "^7"
+	},
+	"devDependencies": {
+		"@babel/core": "7.26.10",
+		"@babel/preset-react": "7.26.3",
+		"@jest/globals": "29.4.3",
+		"@types/jest": "29.5.14",
+		"jest": "29.7.0",
+		"jest-environment-jsdom": "29.7.0",
+		"typescript": "5.0.4"
+	},
+	"type": "module",
+	"exports": {
+		".": {
+			"jetpack:src": "./index.ts",
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "pnpm run clean && pnpm run compile-ts",
+		"clean": "rm -rf dist/",
+		"compile-ts": "tsc --pretty",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverage"
+	}
+}

@@ -173,9 +173,11 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 		$url  = $data['authorizeUrl'];
 
 		// Check that essential Jetpack parameters are preserved
-		$this->assertStringContainsString( 'state=', $url );
-		$this->assertStringContainsString( 'secret=', $url );
-		$this->assertStringContainsString( 'redirect_uri=', $url );
+		// The parameters are embedded within the encoded redirect_to URL
+		$decoded_url = urldecode( $url );
+		$this->assertStringContainsString( 'state=', $decoded_url );
+		$this->assertStringContainsString( 'secret=', $decoded_url );
+		$this->assertStringContainsString( 'redirect_uri=', $decoded_url );
 	}
 
 	/**
@@ -191,11 +193,13 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 		$url  = $data['authorizeUrl'];
 
 		// Check that essential Jetpack parameters are preserved
-		$this->assertStringContainsString( 'state=', $url );
-		$this->assertStringContainsString( 'secret=', $url );
-		$this->assertStringContainsString( 'redirect_uri=', $url );
-		$this->assertStringContainsString( 'email_address=', $url );
-		$this->assertStringContainsString( 'auto_trigger=1', $url );
+		// The parameters are embedded within the encoded redirect_to URL
+		$decoded_url = urldecode( $url );
+		$this->assertStringContainsString( 'state=', $decoded_url );
+		$this->assertStringContainsString( 'secret=', $decoded_url );
+		$this->assertStringContainsString( 'redirect_uri=', $decoded_url );
+		$this->assertStringContainsString( 'email_address=', $decoded_url );
+		$this->assertStringContainsString( 'auto_trigger=1', $decoded_url );
 	}
 
 	/**

@@ -95,7 +95,7 @@ const Seo = () => {
 			canHaveAutoEnhance &&
 			supportsPublishSidebar
 		) {
-			updateSeoData();
+			updateSeoData( { trigger: 'auto' } );
 		}
 
 		previousIsOpenRef.current = isPrePublishPanelOpen;
@@ -207,7 +207,7 @@ const Seo = () => {
 			</JetpackPluginSidebar>
 
 			<PluginPrePublishPanel { ...jetpackSeoPublishPanelsProps }>
-				<>
+				<div className="jetpack-seo-panel">
 					{ isSeoEnhancerEnabled && <SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } /> }
 					<PanelRow>
 						<SeoTitlePanel />
@@ -218,12 +218,14 @@ const Seo = () => {
 					<PanelRow>
 						<SeoNoindexPanel />
 					</PanelRow>
-				</>
+				</div>
 			</PluginPrePublishPanel>
 
-			{ isSeoEnhancerEnabled && isAutoEnhanceEnabled && canHaveAutoEnhance && (
+			{ isSeoEnhancerEnabled && (
 				<PluginPostPublishPanel { ...jetpackSeoPublishPanelsProps }>
-					<SeoSummary onEdit={ handleSummaryEdit } />
+					<div className="jetpack-seo-panel">
+						<SeoSummary onEdit={ handleSummaryEdit } />
+					</div>
 				</PluginPostPublishPanel>
 			) }
 		</>
