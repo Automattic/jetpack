@@ -47,13 +47,26 @@ class Speculation_Rules implements Has_Setup {
 			return;
 		}
 
+		// remove the protocol and domain from the list of cornerstone urls
+		$home_url         = wp_parse_url( home_url() );
+		$domain           = $home_url['host'];
+		$protocol         = $home_url['scheme'];
+		$cornerstone_urls = array_map(
+			function ( $url ) use ( $protocol, $domain ) {
+				return trailingslashit( str_replace( $protocol . '://' . $domain, '', $url ) ) . '?';
+			},
+			$cornerstone_urls
+		);
+
 		// Add prerender rule for cornerstone pages with moderate eagerness
 		$speculation_rules->add_rule(
 			'prerender',
 			'cornerstone-pages-prerender',
 			array(
-				'source'    => 'list',
-				'urls'      => $cornerstone_urls,
+				'source'    => 'document',
+				'where'     => array(
+					'href_matches' => $cornerstone_urls,
+				),
 				'eagerness' => 'moderate',
 			)
 		);
