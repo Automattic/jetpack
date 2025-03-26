@@ -124,21 +124,6 @@
 	}
 }
 
-// top vitals section
-#zbs-vitals-box {
-
-	// custom fields tab -> table
-	.zbs-view-vital-customfields {
-
-		// specifically allow textarea field types to expand beyond overflow:
-		tr td.zbs-view-vital-customfields-textarea {
-
-		}
-	}
-
-
-}
-
 .zbs-view-vital-label {
 	width:160px;
 	text-align:right !important;
