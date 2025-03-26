@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack\Protect;
 
+use Automattic\Jetpack\Account_Protection\Account_Protection;
+use Automattic\Jetpack\Account_Protection\Settings as Account_Protection_Settings;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Protect_Status\REST_Controller as Protect_Status_REST_Controller;
@@ -111,6 +113,30 @@ class REST_Controller {
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::api_scan',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'toggle-account-protection',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::api_toggle_account_protection',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'account-protection',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::api_get_account_protection',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
@@ -314,6 +340,47 @@ class REST_Controller {
 		}
 
 		return new WP_REST_Response( 'Scan enqueued.' );
+	}
+
+	/**
+	 * Toggles the Account Protection module on or off for the API endpoint
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function api_toggle_account_protection() {
+		$account_protection = Account_Protection::instance();
+		if ( $account_protection->is_enabled() ) {
+			$disabled = $account_protection->disable();
+			if ( ! $disabled ) {
+				return new WP_Error(
+					'account_protection_disable_failed',
+					__( 'An error occurred disabling account protection.', 'jetpack-protect' ),
+					array( 'status' => 500 )
+				);
+			}
+
+			return rest_ensure_response( true );
+		}
+
+		$enabled = $account_protection->enable();
+		if ( ! $enabled ) {
+			return new WP_Error(
+				'account_protection_enable_failed',
+				__( 'An error occurred enabling account protection.', 'jetpack-protect' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response( true );
+	}
+
+	/**
+	 * Get Account Protection data for the API endpoint
+	 *
+	 * @return WP_Rest_Response
+	 */
+	public static function api_get_account_protection() {
+		return new WP_REST_Response( ( new Account_Protection_Settings() )->get() );
 	}
 
 	/**

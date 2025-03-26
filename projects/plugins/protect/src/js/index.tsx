@@ -13,6 +13,7 @@ import { CheckoutProvider } from './hooks/use-plan';
 import FirewallRoute from './routes/firewall';
 import ScanRoute from './routes/scan';
 import ScanHistoryRoute from './routes/scan/history';
+import SettingsRoute from './routes/settings';
 import SetupRoute from './routes/setup';
 import './styles.module.scss';
 
@@ -56,6 +57,7 @@ function render() {
 								<HashRouter>
 									<ScrollToTop />
 									<Routes>
+										<Route path="/settings" element={ <SettingsRoute /> } />
 										<Route path="/setup" element={ <SetupRoute /> } />
 										<Route path="/scan" element={ <ScanRoute /> } />
 										<Route

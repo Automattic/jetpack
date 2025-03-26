@@ -170,7 +170,7 @@ const main = async () => {
 					fs.mkdirSync( resolve( monorepoRoot, 'tools/docker/wordpress' ), { recursive: true } );
 
 					// Create empty .env file
-					fs.writeFileSync( resolve( monorepoRoot, 'tools/docker/.env' ), '' );
+					fs.closeSync( fs.openSync( resolve( monorepoRoot, 'tools/docker/.env' ), 'a' ) );
 
 					const configResult = spawnSync(
 						resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),

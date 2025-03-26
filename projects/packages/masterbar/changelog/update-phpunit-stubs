@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: PHPUnit: Replace deprecated `->getMockForAbstractClass()` and calling of a static method on the mock.
-
-

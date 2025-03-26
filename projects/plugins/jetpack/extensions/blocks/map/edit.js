@@ -74,7 +74,7 @@ const MapEdit = ( {
 		const { getSettings } = select( blockEditorStore );
 		const settings = getSettings();
 		return {
-			isPreviewMode: settings.__unstableIsPreviewMode,
+			isPreviewMode: settings.isPreviewMode,
 		};
 	}, [] );
 

@@ -1,3 +1,4 @@
+import analytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink } from '@wordpress/components';

@@ -15,8 +15,6 @@ namespace Automattic\Jetpack\Stats;
 class Options_Test extends StatsBaseTestCase {
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\Options' );
