@@ -59,6 +59,9 @@ const supportsPublishSidebar =
 const isSeoAssistantEnabled =
 	getJetpackExtensionAvailability( 'ai-seo-assistant' )?.available === true;
 
+const isSeoEnhancerEnabledUnrestricted =
+	getJetpackExtensionAvailability( 'ai-seo-enhancer-enabled-unrestricted' )?.available === true;
+
 const isSeoEnhancerEnabled =
 	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
 	supportsPublishSidebar;
@@ -113,7 +116,8 @@ const Seo = () => {
 
 	const requiredPlan = getRequiredPlan( 'advanced-seo' );
 	const canShowUpsell = isAtomicSite() || isSimpleSite();
-	const hasRequiredPlanForEnhancer = ! getRequiredPlan( 'ai-seo-enhancer' );
+	const hasRequiredPlanForEnhancer =
+		isSeoEnhancerEnabledUnrestricted || ! getRequiredPlan( 'ai-seo-enhancer' );
 
 	const jetpackSeoPanelProps = {
 		title: __( 'SEO', 'jetpack' ),
