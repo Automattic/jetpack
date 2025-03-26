@@ -7,12 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.12.0-beta] - 2025-03-26
 ### Added
-- Cache: Add Page Cache Preloading for Cornerstone Pages [#42549]
 - Add Account Protection initialization [#40925]
+- Cache: Add Page Cache Preloading for Cornerstone Pages [#42549]
 - My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
 
 ### Changed
 - Connection: Allow pre-selected login providers [#42662]
+- Critical CSS: Improve reliability of generation by running hooks after saving the state.
+- UI: Show module loading errors with details.
 
 ### Removed
 - Compatibility: Remove redundant compatibility code. [#42629]

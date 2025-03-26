@@ -185,12 +185,14 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 == Changelog ==
 ### 3.12.0-beta - 2025-03-26
 #### Added
-- Cache: Add Page Cache Preloading for Cornerstone Pages
 - Add Account Protection initialization
+- Cache: Add Page Cache Preloading for Cornerstone Pages
 - My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack.
 
 #### Changed
 - Connection: Allow pre-selected login providers
+- Critical CSS: Improve reliability of generation by running hooks after saving the state.
+- UI: Show module loading errors with details.
 
 #### Removed
 - Compatibility: Remove redundant compatibility code.
