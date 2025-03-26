@@ -79,8 +79,8 @@ if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller'
 						'methods'             => WP_REST_Server::READABLE,
 						'callback'            => array( $this, 'get_items' ),
 						'permission_callback' => array( $this, 'get_items_permissions_check' ),
+						'schema'              => array( $this, 'get_public_item_schema' ),
 					),
-					'schema' => array( $this, 'get_public_item_schema' ),
 				)
 			);
 		}
@@ -125,7 +125,7 @@ if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller'
 
 			// Enqueue the admin-only `postbox` asset required for the block editor.
 			$suffix = wp_scripts_get_suffix();
-			wp_enqueue_script( 'postbox', "/wp-admin/js/postbox$suffix.js", array( 'jquery-ui-sortable', 'wp-a11y' ), self::CACHE_BUSTER, 1 );
+			wp_enqueue_script( 'postbox', "/wp-admin/js/postbox$suffix.js", array( 'jquery-ui-sortable', 'wp-a11y' ), self::CACHE_BUSTER, true );
 
 			// Enqueue foundational post editor assets.
 			wp_enqueue_script( 'wp-edit-post' );
@@ -176,9 +176,11 @@ if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller'
 			$wp_styles  = $current_wp_styles;
 			$wp_scripts = $current_wp_scripts;
 
-			return array(
-				'styles'  => $styles,
-				'scripts' => $scripts,
+			return rest_ensure_response(
+				array(
+					'styles'  => $styles,
+					'scripts' => $scripts,
+				)
 			);
 		}
 

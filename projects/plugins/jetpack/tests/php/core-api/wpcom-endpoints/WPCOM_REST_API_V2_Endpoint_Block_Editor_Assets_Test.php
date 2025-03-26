@@ -113,10 +113,12 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends WP_UnitTestCas
 		$request  = new WP_REST_Request( 'GET', '/wpcom/v2/editor-assets' );
 		$response = $this->instance->get_items( $request );
 
-		$this->assertIsArray( $response );
-		$this->assertArrayHasKey( 'styles', $response );
-		$this->assertArrayHasKey( 'scripts', $response );
-		$this->assertIsString( $response['styles'] );
-		$this->assertIsString( $response['scripts'] );
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$data = $response->get_data();
+		$this->assertIsArray( $data );
+		$this->assertArrayHasKey( 'styles', $data );
+		$this->assertArrayHasKey( 'scripts', $data );
+		$this->assertIsString( $data['styles'] );
+		$this->assertIsString( $data['scripts'] );
 	}
 }
