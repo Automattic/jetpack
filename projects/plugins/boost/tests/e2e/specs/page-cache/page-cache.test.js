@@ -48,7 +48,7 @@ test.describe( 'Cache module', () => {
 	test( 'Page Cache header should not be present when module is inactive', async ( {
 		browser,
 	} ) => {
-		const newContext = await browser.newContext( { storageState: {} } );
+		const newContext = await browser.newContext();
 		const newPage = await newContext.newPage();
 
 		newPage.on( 'response', response => {
@@ -68,7 +68,7 @@ test.describe( 'Cache module', () => {
 		await newContext.close();
 	} );
 
-	// Make sure there's an error message when trying to enable Page Cache with plain permalinks. This test is failing
+	// Make sure there's an error message when trying to enable Page Cache with plain permalinks.
 	test( 'Enabling Page Cache should show error notice when plain permalinks are enabled', async () => {
 		const permalinksPage = await PermalinksPage.visit( page );
 		await permalinksPage.usePlainStructure();
@@ -100,7 +100,7 @@ test.describe( 'Cache module', () => {
 	test( 'Page Cache header should be present when module is active', async ( { browser } ) => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'page_cache' ] ).build();
 
-		const newContext = await browser.newContext( { storageState: {} } );
+		const newContext = await browser.newContext();
 		const newPage = await newContext.newPage();
 
 		let totalVisits = 0;
