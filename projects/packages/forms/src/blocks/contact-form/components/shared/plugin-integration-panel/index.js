@@ -19,6 +19,7 @@ const PluginIntegrationPanel = ( {
 	tracksEventName,
 	children,
 	initialOpen = false,
+	onPluginActivated,
 } ) => {
 	const [ isInstalling, setIsInstalling ] = useState( false );
 	const [ isActivating, setIsActivating ] = useState( false );
@@ -56,6 +57,11 @@ const PluginIntegrationPanel = ( {
 			invalidateResolution( 'getPlugins' );
 			setIsInstalling( false );
 			setIsActivating( false );
+
+			// Call onPluginActivated callback after plugin is activated
+			if ( isActivationCall && onPluginActivated ) {
+				onPluginActivated();
+			}
 		} );
 	}, [
 		isInstalled,
@@ -66,6 +72,7 @@ const PluginIntegrationPanel = ( {
 		setIsActivating,
 		invalidateResolution,
 		tracks,
+		onPluginActivated,
 	] );
 
 	return (
