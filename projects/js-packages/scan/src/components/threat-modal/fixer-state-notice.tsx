@@ -23,10 +23,10 @@ const FixerStateNotice = ( {
 		if ( fixerState.error ) {
 			return {
 				status: 'error' as const,
-				title: __( 'An error occurred auto-fixing this threat', 'jetpack-components' ),
+				title: __( 'An error occurred auto-fixing this threat', 'jetpack-scan' ),
 				content: __(
 					'Jetpack encountered a filesystem error while attempting to auto-fix this threat. Please try again later or contact support.',
-					'jetpack-components'
+					'jetpack-scan'
 				),
 			};
 		}
@@ -34,10 +34,10 @@ const FixerStateNotice = ( {
 		if ( fixerState.stale ) {
 			return {
 				status: 'error' as const,
-				title: __( 'The auto-fixer is taking longer than expected', 'jetpack-components' ),
+				title: __( 'The auto-fixer is taking longer than expected', 'jetpack-scan' ),
 				content: __(
 					'Jetpack has been attempting to auto-fix this threat for too long, and something may have gone wrong. Please try again later or contact support.',
-					'jetpack-components'
+					'jetpack-scan'
 				),
 			};
 		}
@@ -45,8 +45,8 @@ const FixerStateNotice = ( {
 		if ( fixerState.inProgress ) {
 			return {
 				status: 'success' as const,
-				title: __( 'An auto-fixer is in progress', 'jetpack-components' ),
-				content: __( 'Please wait while Jetpack auto-fixes the threat.', 'jetpack-components' ),
+				title: __( 'An auto-fixer is in progress', 'jetpack-scan' ),
+				content: __( 'Please wait while Jetpack auto-fixes the threat.', 'jetpack-scan' ),
 			};
 		}
 

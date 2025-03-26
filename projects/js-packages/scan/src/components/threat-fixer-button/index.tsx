@@ -1,13 +1,13 @@
+import { Button } from '@automattic/jetpack-components';
+import { Tooltip } from '@wordpress/components';
+import { useCallback, useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import {
 	type Threat,
 	getFixerState,
 	getFixerAction,
 	getFixerDescription,
 } from '@automattic/jetpack-scan';
-import { Tooltip } from '@wordpress/components';
-import { useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { Button } from '@automattic/jetpack-components';
 import styles from './styles.module.scss';
 
 /**
@@ -39,15 +39,15 @@ export default function ThreatFixerButton( {
 		}
 
 		if ( fixerState.error ) {
-			return __( 'An error occurred auto-fixing this threat.', 'jetpack-components' );
+			return __( 'An error occurred auto-fixing this threat.', 'jetpack-scan' );
 		}
 
 		if ( fixerState.stale ) {
-			return __( 'The auto-fixer is taking longer than expected.', 'jetpack-components' );
+			return __( 'The auto-fixer is taking longer than expected.', 'jetpack-scan' );
 		}
 
 		if ( fixerState.inProgress ) {
-			return __( 'An auto-fixer is in progress.', 'jetpack-components' );
+			return __( 'An auto-fixer is in progress.', 'jetpack-scan' );
 		}
 
 		return getFixerDescription( threat );
@@ -59,7 +59,7 @@ export default function ThreatFixerButton( {
 		}
 
 		if ( fixerState.error ) {
-			return __( 'Error', 'jetpack-components' );
+			return __( 'Error', 'jetpack-scan' );
 		}
 
 		return getFixerAction( threat );

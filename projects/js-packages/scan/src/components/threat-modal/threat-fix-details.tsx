@@ -1,8 +1,7 @@
-import { getFixerDescription } from '@automattic/jetpack-scan';
+import { ContextualUpgradeTrigger, Text } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useMemo, useContext } from 'react';
-import ContextualUpgradeTrigger from '../contextual-upgrade-trigger/index.js';
-import Text from '../text/index.js';
+import { getFixerDescription } from '@automattic/jetpack-scan';
 import styles from './styles.module.scss';
 import { ThreatModalContext } from './index.js';
 
@@ -16,12 +15,12 @@ const ThreatFixDetails = (): JSX.Element => {
 
 	const title = useMemo( () => {
 		if ( threat.status === 'fixed' ) {
-			return __( 'How did Jetpack fix it?', 'jetpack-components' );
+			return __( 'How did Jetpack fix it?', 'jetpack-scan' );
 		}
 		if ( threat.status === 'current' && threat.fixable ) {
-			return __( 'How can Jetpack auto-fix this threat?', 'jetpack-components' );
+			return __( 'How can Jetpack auto-fix this threat?', 'jetpack-scan' );
 		}
-		return __( 'How to fix it?', 'jetpack-components' );
+		return __( 'How to fix it?', 'jetpack-scan' );
 	}, [ threat ] );
 
 	const fix = useMemo( () => {
@@ -30,7 +29,7 @@ const ThreatFixDetails = (): JSX.Element => {
 		if ( ! threat.fixable && threat.fixedIn ) {
 			return sprintf(
 				/* translators: Translates to Updates to version. %1$s: Name. %2$s: Fixed version */
-				__( 'Update %1$s to version %2$s.', 'jetpack-components' ),
+				__( 'Update %1$s to version %2$s.', 'jetpack-scan' ),
 				threat.extension.name,
 				threat.fixedIn
 			);
@@ -52,9 +51,9 @@ const ThreatFixDetails = (): JSX.Element => {
 				<ContextualUpgradeTrigger
 					description={ __(
 						'Looking for advanced scan results and one-click fixes?',
-						'jetpack-components'
+						'jetpack-scan'
 					) }
-					cta={ __( 'Upgrade Jetpack now', 'jetpack-components' ) }
+					cta={ __( 'Upgrade Jetpack now', 'jetpack-scan' ) }
 					onClick={ handleUpgradeClick }
 				/>
 			) }

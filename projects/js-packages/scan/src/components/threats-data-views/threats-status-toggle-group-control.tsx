@@ -1,4 +1,3 @@
-import { type Threat, type ThreatStatus } from '@automattic/jetpack-scan';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -6,6 +5,7 @@ import {
 import { type View } from '@wordpress/dataviews';
 import { useMemo, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { type Threat, type ThreatStatus } from '@automattic/jetpack-scan';
 import styles from './styles.module.scss';
 
 /**
@@ -135,7 +135,7 @@ export default function ThreatsStatusToggleGroupControl( {
 							label={ sprintf(
 								/* translators: %d: number of active threats */ __(
 									'Active threats (%d)',
-									'jetpack-components'
+									'jetpack-scan'
 								),
 								activeThreatsCount
 							) }
@@ -144,7 +144,7 @@ export default function ThreatsStatusToggleGroupControl( {
 							value="historic"
 							label={ sprintf(
 								/* translators: %d: number of historic threats */
-								__( 'History (%d)', 'jetpack-components' ),
+								__( 'History (%d)', 'jetpack-scan' ),
 								historicThreatsCount
 							) }
 						/>

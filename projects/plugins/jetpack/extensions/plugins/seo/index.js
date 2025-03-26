@@ -197,7 +197,7 @@ const Seo = () => {
 			</JetpackPluginSidebar>
 
 			<PluginPrePublishPanel { ...jetpackSeoPublishPanelsProps }>
-				<>
+				<div className="jetpack-seo-panel">
 					{ isSeoEnhancerEnabled && <SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } /> }
 					<PanelRow>
 						<SeoTitlePanel />
@@ -208,12 +208,14 @@ const Seo = () => {
 					<PanelRow>
 						<SeoNoindexPanel />
 					</PanelRow>
-				</>
+				</div>
 			</PluginPrePublishPanel>
 
 			{ isSeoEnhancerEnabled && isAutoEnhanceEnabled && canHaveAutoEnhance && (
 				<PluginPostPublishPanel { ...jetpackSeoPublishPanelsProps }>
-					<SeoSummary onEdit={ handleSummaryEdit } />
+					<div className="jetpack-seo-panel">
+						<SeoSummary onEdit={ handleSummaryEdit } />
+					</div>
 				</PluginPostPublishPanel>
 			) }
 		</>

@@ -18,7 +18,7 @@ export const REST_API_GET_JETPACK_MANAGE_DATA = `${ REST_API_NAMESPACE }/jetpack
 export const REST_API_RED_BUBBLE_ALERTS = `${ REST_API_NAMESPACE }/red-bubble-notifications`;
 export const REST_API_GET_PROTECT_DATA = `${ REST_API_NAMESPACE }/site/protect/data`;
 export const REST_API_GET_VIDEOPRESS_DATA = `${ REST_API_NAMESPACE }/site/videopress/data`;
-export const REST_API_GET_MAGIC_LINK_AUTHORIZE_URL = `${ JETPACK_V4_NAMESPACE }/connection/authorize_url/link`;
+export const REST_API_GET_OAUTH_AUTHORIZE_URL = `${ JETPACK_V4_NAMESPACE }/connection/authorize_url`;
 
 export const getStatsHighlightsEndpoint = ( blogId: string ) =>
 	`${ ODYSSEY_STATS_API_NAMESPACE }/sites/${ blogId }/stats/highlights`;
@@ -44,7 +44,7 @@ export const QUERY_GET_JETPACK_MANAGE_DATA_KEY = 'get jetpack manage data';
 export const QUERY_RED_BUBBLE_ALERTS_KEY = 'red bubble alerts';
 export const QUERY_GET_PROTECT_DATA_KEY = 'get protect data';
 export const QUERY_GET_VIDEOPRESS_DATA_KEY = 'get videopress data';
-export const QUERY_GET_MAGIC_LINK_AUTHORIZE_URL_KEY = 'get magic link authorize url';
+export const QUERY_GET_OAUTH_AUTHORIZE_URL_KEY = 'get oauth authorize url';
 // Product Slugs
 export const PRODUCT_SLUGS = {
 	ANTI_SPAM: 'anti-spam',

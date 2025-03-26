@@ -58,8 +58,6 @@ class Repeat_Visitor_Block_Test extends \Jetpack_Block_Fixture_TestCase {
 
 	/**
 	 * Setup and ensure the block is registered before running the tests.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		parent::set_up();
@@ -73,8 +71,6 @@ class Repeat_Visitor_Block_Test extends \Jetpack_Block_Fixture_TestCase {
 
 	/**
 	 * Teardown and unregister the block if it wasn't registered before running these tests.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		if ( ! $this->was_registered ) {

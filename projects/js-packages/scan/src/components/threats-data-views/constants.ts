@@ -9,16 +9,16 @@ import {
 
 export const THREAT_STATUSES: { value: string; label: string; variant?: 'success' | 'warning' }[] =
 	[
-		{ value: 'current', label: __( 'Active', 'jetpack-components' ), variant: 'warning' },
-		{ value: 'fixed', label: __( 'Fixed', 'jetpack-components' ), variant: 'success' },
-		{ value: 'ignored', label: __( 'Ignored', 'jetpack-components' ) },
+		{ value: 'current', label: __( 'Active', 'jetpack-scan' ), variant: 'warning' },
+		{ value: 'fixed', label: __( 'Fixed', 'jetpack-scan' ), variant: 'success' },
+		{ value: 'ignored', label: __( 'Ignored', 'jetpack-scan' ) },
 	];
 
 export const THREAT_TYPES = [
-	{ value: 'plugins', label: __( 'Plugin', 'jetpack-components' ) },
-	{ value: 'themes', label: __( 'Theme', 'jetpack-components' ) },
-	{ value: 'core', label: __( 'WordPress', 'jetpack-components' ) },
-	{ value: 'file', label: __( 'File', 'jetpack-components' ) },
+	{ value: 'plugins', label: __( 'Plugin', 'jetpack-scan' ) },
+	{ value: 'themes', label: __( 'Theme', 'jetpack-scan' ) },
+	{ value: 'core', label: __( 'WordPress', 'jetpack-scan' ) },
+	{ value: 'file', label: __( 'File', 'jetpack-scan' ) },
 ];
 
 export const THREAT_ICONS = {
