@@ -81,12 +81,12 @@ const OnboardingTour = () => {
 							content: (
 								<>
 									<h1 className="myjetpack-onboarding-welcome-tour__heading">
-										{ __( 'Your site goes wherever you go.', 'jetpack-my-jetpack' ) }
+										{ __( 'Your site goes wherever you go', 'jetpack-my-jetpack' ) }
 									</h1>
 									<p className="myjetpack-onboarding-welcome-tour__text">
 										{ createInterpolateElement(
 											__(
-												'Install the Jetpack app for iOS or Android and stay connected to your site from anywhere!<br />We sent you an email with the download link!',
+												'Install the Jetpack app for iOS or Android and stay connected to your site from anywhere!<br />We sent you an email with the download link.',
 												'jetpack-my-jetpack'
 											),
 											{
