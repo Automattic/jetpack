@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-General: Fixed intermittent error during module loading.
