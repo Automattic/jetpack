@@ -427,3 +427,10 @@ add_filter( 'wpcom_newsletter_categories_location', 'wpcomsh_newsletter_categori
  * Enables new likes layout on Atomic.
  */
 add_filter( 'likes_new_layout', '__return_true' );
+
+/**
+ * Disable email notification when a user's email address is changed.
+ *
+ * @see https://github.com/Automattic/wp-calypso/issues/100279
+ */
+add_filter( 'send_email_change_email', '__return_false' );

@@ -27,11 +27,9 @@ class SquashCommandTest extends CommandTestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
-	public function set_up() {
-		parent::set_up();
+	public function setUp(): void {
+		parent::setUp();
 		$this->useTempDir();
 	}
 

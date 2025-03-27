@@ -39,6 +39,7 @@ function SubscriberLoginEdit( { attributes, setAttributes } ) {
 							onChange={ value => setAttributes( { logInLabel: value } ) }
 							value={ logInLabel }
 							id={ logInInputId }
+							__next40pxDefaultSize={ true }
 							__nextHasNoMarginBottom={ true }
 						/>
 					</BaseControl>
@@ -53,6 +54,7 @@ function SubscriberLoginEdit( { attributes, setAttributes } ) {
 							value={ logOutLabel }
 							id={ logOutInputId }
 							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
 						/>
 					</BaseControl>
 					<ToggleControl
@@ -75,6 +77,7 @@ function SubscriberLoginEdit( { attributes, setAttributes } ) {
 								value={ manageSubscriptionsLabel }
 								id={ manageSubscriptionsInputId }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						</BaseControl>
 					) }

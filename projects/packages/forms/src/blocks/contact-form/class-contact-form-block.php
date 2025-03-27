@@ -12,6 +12,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
+use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Jetpack;
 
 /**
@@ -247,6 +248,7 @@ class Contact_Form_Block {
 				'formsAdminUrl'        => $admin_url,
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,
+				'assetsUrl'            => Jetpack_Forms::assets_url(),
 			),
 		);
 

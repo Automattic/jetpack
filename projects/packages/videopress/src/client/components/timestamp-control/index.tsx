@@ -377,6 +377,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 					renderTooltipContent={ renderTooltipHandler }
 					{ ...( renderTooltip === false ? { showTooltip: false } : {} ) }
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				/>
 			</div>
 		</BaseControl>

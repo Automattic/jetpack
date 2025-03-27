@@ -26,8 +26,6 @@ class Dismissed_Notices_Test extends BaseTestCase {
 	protected $notices;
 	/**
 	 * Initialize tests
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		add_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
@@ -37,8 +35,6 @@ class Dismissed_Notices_Test extends BaseTestCase {
 
 	/**
 	 * Tear down
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		wp_set_current_user( 0 );

@@ -15,7 +15,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build:blocks && pnpm run build:contact-form && pnpm run build:dashboard",
+		"build": "pnpm run clean && pnpm run build:blocks && pnpm run build:contact-form && pnpm run build:dashboard && pnpm run module:build",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"build:blocks": "webpack --config ./tools/webpack.config.blocks.js",
 		"build:contact-form": "webpack --config ./tools/webpack.config.contact-form.js",
@@ -25,7 +25,9 @@
 		"test:contact-form": "jest --testPathPattern=tests/js/contact-form",
 		"test-coverage": "pnpm run test --coverage",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
-		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch'"
+		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch' 'pnpm:module:watch'",
+		"module:build": "webpack --config ./tools/webpack.config.modules.js",
+		"module:watch": "webpack --watch --config ./tools/webpack.config.modules.js"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -42,12 +44,14 @@
 		"@wordpress/core-data": "7.19.0",
 		"@wordpress/data": "10.19.0",
 		"@wordpress/dataviews": "4.15.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "6.19.0",
 		"@wordpress/element": "6.19.0",
 		"@wordpress/hooks": "4.19.0",
 		"@wordpress/i18n": "5.19.0",
 		"@wordpress/icons": "10.19.0",
-		"@wordpress/primitives": "4.19.0",
+		"@wordpress/interactivity": "6.19.0",
 		"@wordpress/notices": "5.19.0",
+		"@wordpress/primitives": "4.19.0",
 		"clsx": "2.1.1",
 		"copy-webpack-plugin": "11.0.0",
 		"email-validator": "2.0.4",

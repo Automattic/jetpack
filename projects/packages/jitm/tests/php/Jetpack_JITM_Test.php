@@ -15,10 +15,9 @@ class Jetpack_JITM_Test extends TestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Monkey\setUp();
 
 		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
@@ -30,10 +29,9 @@ class Jetpack_JITM_Test extends TestCase {
 
 	/**
 	 * Tear down.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 	}
 

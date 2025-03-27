@@ -36,6 +36,18 @@
 	&:hover {
 		cursor: pointer;
 	}
+
+	&:disabled {
+		background: var(--jp-gray, #dcdcde);
+		border-color: var(--jp-gray, #dcdcde);
+		color: var(--jp-gray-50, #646970);
+		cursor: unset;
+	}
+
+	img {
+		min-width: 20px;
+		min-height: 20px;
+	}
 }
 
 .social-button-text {
@@ -47,6 +59,7 @@
 	font-weight: 500;
 	line-height: 20px;
 	text-align: center;
+	max-height: 20px;
 }
 
 .separator {
@@ -139,4 +152,10 @@
 		color: var(--jp-gray-50, #646970);
 		text-decoration: underline;
 	}
+}
+
+svg.spinner {
+	margin: 0;
+	vertical-align: middle;
+	bottom: 2px;
 }

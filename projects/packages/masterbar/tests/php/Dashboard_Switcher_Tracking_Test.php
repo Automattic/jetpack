@@ -34,10 +34,9 @@ class Dashboard_Switcher_Tracking_Test extends TestCase {
 
 	/**
 	 * Set up each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		static::$user_id = wp_insert_user(
 			array(
 				'user_login' => 'test_admin',
@@ -51,10 +50,9 @@ class Dashboard_Switcher_Tracking_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}
