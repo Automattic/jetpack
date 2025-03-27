@@ -5,6 +5,8 @@ import {
 	REST_API_GET_OAUTH_AUTHORIZE_URL,
 } from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
+import sideloadTracks from '../../utils/side-load-tracks';
+import useAnalytics from '../use-analytics';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 
 export type SocialService = 'google' | 'apple' | 'github' | 'jetpack';
@@ -29,6 +31,9 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 	const [ isRedirecting, setIsRedirecting ] = useState( false );
 	const [ socialService, setSocialService ] = useState< SocialService | null >( null );
 	const [ errorType, setErrorType ] = useState< OauthErrorType | null >( null );
+
+	const { recordEvent } = useAnalytics();
+
 	const validateEmail = useCallback( ( email: string ) => {
 		const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 		return emailRegex.test( email );
@@ -70,11 +75,15 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 
 	useEffect( () => {
 		if ( isErrorAuthorizeUrl ) {
+			recordEvent( 'jetpack_my_jetpack_onboarding_error', {
+				error_type: 'authorization-url',
+				service: socialService ?? 'email',
+			} );
 			setErrorType( 'authorization-url' );
 		} else {
 			setErrorType( null );
 		}
-	}, [ isErrorAuthorizeUrl ] );
+	}, [ isErrorAuthorizeUrl, recordEvent, socialService ] );
 
 	const handleSetUserEmail = useCallback(
 		( email: string ) => {
@@ -91,6 +100,12 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 		async ( service: SocialService | null = null ) => {
 			try {
 				await handleRegisterSite();
+				await sideloadTracks();
+				recordEvent( 'jetpack_my_jetpack_onboarding_click', {
+					service: service ?? 'email',
+					// Overriding this value as we're waiting for the site to be registered to run this event.
+					is_site_connected: true,
+				} );
 			} catch ( error ) {
 				// eslint-disable-next-line no-console
 				console.error( error );
@@ -101,7 +116,7 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 			setSocialService( service );
 			setShouldFetchUrl( true );
 		},
-		[ handleRegisterSite ]
+		[ handleRegisterSite, recordEvent ]
 	);
 
 	const handleSubmitEmail = useCallback(
