@@ -77,7 +77,7 @@ export const THREAT_ACTIONS: ThreatActionsObject = {
 	},
 	[ THREAT_ACTION_UNIGNORE ]: {
 		id: THREAT_ACTION_UNIGNORE,
-		label: __( 'Stop Ignoring', 'jetpack-scan' ),
+		label: __( 'Un-ignore', 'jetpack-scan' ),
 		isEligible( threat ) {
 			return threat.status === 'ignored';
 		},

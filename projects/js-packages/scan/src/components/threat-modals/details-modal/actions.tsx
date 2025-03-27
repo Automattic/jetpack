@@ -40,7 +40,7 @@ export default function ThreatDetailsModalActions( { threat }: { threat: Threat 
 			result.push( {
 				id: THREAT_ACTION_UNIGNORE,
 				icon: seen,
-				title: __( 'Stop Ignoring', 'jetpack-scan' ),
+				title: __( 'Un-ignore', 'jetpack-scan' ),
 				onClick: () => {
 					actions?.[ THREAT_ACTION_UNIGNORE ]?.callback( [ threat ], {
 						onActionPerformed: () => {
