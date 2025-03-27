@@ -41,6 +41,7 @@ import useAnalytics from '../../hooks/use-analytics';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
+import { useQueryParameter } from '../../hooks/use-query-parameter';
 import ConnectionsSection from '../connections-section';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
@@ -105,7 +106,7 @@ export default function MyJetpackScreen() {
 	} = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
-	const { isWelcomeTourVisible } = useWelcomeTour();
+	const { isWelcomeTourVisible, enableWelcomeTour } = useWelcomeTour();
 	const { isSectionVisible } = useEvaluationRecommendations();
 	const { siteIsRegistered, apiRoot, apiNonce } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
@@ -180,6 +181,15 @@ export default function MyJetpackScreen() {
 		setReloading( true );
 	}
 
+	// show welcome tour if user is redirected from onboarding and
+	// use it to set isWelcomeTourActive to true in case they navigate away from onboarding
+	const isRedirectingFromOnboarding = useQueryParameter( 'from' ) === 'jetpack-onboarding';
+	useEffect( () => {
+		if ( isRedirectingFromOnboarding ) {
+			enableWelcomeTour();
+		}
+	}, [ isRedirectingFromOnboarding, enableWelcomeTour ] );
+
 	if ( reloading ) {
 		return null;
 	}
@@ -249,7 +259,7 @@ export default function MyJetpackScreen() {
 				<EvaluationRecommendations />
 			) }
 
-			{ isWelcomeTourVisible && <OnboardingTour /> }
+			{ ( isWelcomeTourVisible || isRedirectingFromOnboarding ) && <OnboardingTour /> }
 
 			<ProductCardsSection />
 

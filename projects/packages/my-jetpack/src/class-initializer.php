@@ -276,7 +276,7 @@ class Initializer {
 				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'latestBoostSpeedScores' => $latest_score,
-				'isWelcomeTourActive'    => ! \Jetpack_Options::get_option( 'dismissed_welcome_tour', false ),
+				'isWelcomeTourActive'    => \Jetpack_Options::get_option( 'is_welcome_tour_active', false ),
 			)
 		);
 
@@ -449,10 +449,10 @@ class Initializer {
 
 		register_rest_route(
 			'my-jetpack/v1',
-			'site/dismiss-welcome-tour',
+			'site/update-welcome-tour-status',
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::dismiss_welcome_tour',
+				'callback'            => __CLASS__ . '::update_welcome_tour_status',
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
@@ -604,12 +604,19 @@ class Initializer {
 	}
 
 	/**
-	 * Dismiss the welcome tour.
+	 * Enable or disable the welcome tour.
 	 *
-	 * @return \WP_REST_Response
+	 * @param \WP_REST_Request $request Query request.
+	 *
+	 * @return \WP_REST_Response|WP_Error success response.
 	 */
-	public static function dismiss_welcome_tour() {
-		\Jetpack_Options::update_option( 'dismissed_welcome_tour', true );
+	public static function update_welcome_tour_status( $request ) {
+		$enable_welcome_tour = $request->get_param( 'enable' );
+
+		if ( isset( $enable_welcome_tour ) ) {
+			\Jetpack_Options::update_option( 'is_welcome_tour_active', (bool) $enable_welcome_tour );
+		}
+
 		return rest_ensure_response( array( 'success' => true ) );
 	}
 

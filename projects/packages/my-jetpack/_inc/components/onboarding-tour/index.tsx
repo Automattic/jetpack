@@ -1,7 +1,7 @@
 import { Guide } from '@wordpress/components';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import WelcomeTourImage from './image';
 import TourImage1 from './images/jp_onboarding_tour_1.png';
 import TourImage2 from './images/jp_onboarding_tour_2.png';
@@ -13,6 +13,10 @@ import useWelcomeTour from './use-welcome-tour';
 const OnboardingTour = () => {
 	const { dismissWelcomeTour, isWelcomeTourVisible } = useWelcomeTour();
 	const [ isOpen, setOpen ] = useState( isWelcomeTourVisible );
+
+	useEffect( () => {
+		setOpen( isWelcomeTourVisible );
+	}, [ isWelcomeTourVisible ] );
 
 	const closeGuide = useCallback( () => {
 		dismissWelcomeTour();
