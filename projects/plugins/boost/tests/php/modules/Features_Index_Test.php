@@ -10,7 +10,7 @@ use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 class Features_Index_Test extends Base_TestCase {
 
 	public function test_features_count() {
-		$this->assertCount( 10, Features_Index::FEATURES );
+		$this->assertCount( 11, Features_Index::FEATURES );
 	}
 
 	public function test_sub_features_count() {
@@ -18,7 +18,7 @@ class Features_Index_Test extends Base_TestCase {
 	}
 
 	public function test_get_all_features() {
-		$this->assertCount( 14, Features_Index::get_all_features() );
+		$this->assertCount( 15, Features_Index::get_all_features() );
 	}
 
 	public function test_get_sub_features_of() {
