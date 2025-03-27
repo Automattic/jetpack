@@ -11,12 +11,12 @@ interface Params {
 
 /**
  * Get a cached formatter for a given locale and options.
- * @param params                - The parameters for the formatter.
- * @param params.locale         - The locale to format the number in.
- * @param params.options        - Intl.NumberFormatOptions to pass to the formatter.
- * @param params.fallbackLocale - The locale to fallback to if the locale is not supported.
- * @param params.retries        - The number of retries to attempt if the formatter is not created.
- * @return A cached formatter for the given locale and options.
+ * @param  params                - The parameters for the formatter.
+ * @param  params.locale         - The locale to format the number in.
+ * @param  params.options        - Intl.NumberFormatOptions to pass to the formatter.
+ * @param  params.fallbackLocale - The locale to fallback to if the locale is not supported.
+ * @param  params.retries        - The number of retries to attempt if the formatter is not created.
+ * @return {Intl.NumberFormat} A cached formatter for the given locale and options.
  */
 export function getCachedFormatter( {
 	locale,

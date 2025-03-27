@@ -3,7 +3,7 @@ import { numberFormatCurrency, getCurrencyObject } from '../src/number-format-cu
 
 const browserSafeLocale = 'en-US';
 
-describe( 'numberFormatCurrency default export', () => {
+describe( 'numberFormatCurrency() default export', () => {
 	it( 'formats a number to localized currency', () => {
 		const money = numberFormatCurrency( {
 			number: 99.32,
@@ -14,7 +14,7 @@ describe( 'numberFormatCurrency default export', () => {
 	} );
 } );
 
-describe( 'getCurrencyObject default export', () => {
+describe( 'getCurrencyObject() default export', () => {
 	it( 'handles negative values', () => {
 		const money = getCurrencyObject( {
 			number: -1234.56789,
@@ -32,7 +32,7 @@ describe( 'getCurrencyObject default export', () => {
 	} );
 } );
 
-describe( 'numberFormatCurrency', () => {
+describe( 'numberFormatCurrency()', () => {
 	it( 'formats a number to localized currency', () => {
 		const money = numberFormatCurrency( {
 			number: 99.32,

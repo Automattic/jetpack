@@ -5,7 +5,7 @@ type IntlType = typeof Intl & {
 	NumberFormat: typeof Intl.NumberFormat;
 };
 
-describe( 'numberFormat', () => {
+describe( 'numberFormat()', () => {
 	it( 'should format number with default options', () => {
 		const result = numberFormat( { browserSafeLocale: 'en-US' } ).format( 1234.56 );
 		expect( result ).toBe( '1,235' );
@@ -46,7 +46,7 @@ describe( 'numberFormat', () => {
 	} );
 } );
 
-describe( 'numberFormatCompact', () => {
+describe( 'numberFormatCompact()', () => {
 	it( 'should format number in compact notation', () => {
 		const result = numberFormatCompact( { browserSafeLocale: 'en-US' } ).format( 1234567 );
 		expect( result ).toBe( '1.2M' );
