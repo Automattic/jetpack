@@ -6,14 +6,36 @@
  * @since $$next-version$$
  */
 
-namespace Automattic\Jetpack_Boost\Lib\Speculation_Rules;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules;
 
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Contracts\Optimization;
+use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 /**
  * Class to handle speculation rules for cornerstone pages
  */
-class Speculation_Rules implements Has_Setup {
+class Speculation_Rules implements Has_Setup, Changes_Output_On_Activation, Optimization, Pluggable {
+
+	/**
+	 * Get the slug for this module.
+	 *
+	 * @return string
+	 */
+	public static function get_slug() {
+		return 'speculation_rules';
+	}
+
+	/**
+	 * Check if the feature is available
+	 *
+	 * @return bool
+	 */
+	public static function is_available() {
+		global $wp_version;
+		return version_compare( $wp_version, '6.8-beta3', '>=' );
+	}
 
 	/**
 	 * Initialize the speculation rules
@@ -22,13 +44,6 @@ class Speculation_Rules implements Has_Setup {
 	 * @return void
 	 */
 	public function setup() {
-
-		// Check if prerender cornerstone pages is enabled
-		$is_prerender_cornerstone_pages = jetpack_boost_ds_get( 'prerender_cornerstone_pages' );
-		if ( ! $is_prerender_cornerstone_pages ) {
-			return;
-		}
-
 		// Use WP core action to add speculation rules
 		add_action( 'wp_load_speculation_rules', array( $this, 'add_cornerstone_rules' ) );
 	}
@@ -41,7 +56,6 @@ class Speculation_Rules implements Has_Setup {
 	 * @return void
 	 */
 	public function add_cornerstone_rules( $speculation_rules ) {
-		// Get cornerstone URLs
 		$cornerstone_urls = $this->get_cornerstone_urls();
 		if ( empty( $cornerstone_urls ) ) {
 			return;

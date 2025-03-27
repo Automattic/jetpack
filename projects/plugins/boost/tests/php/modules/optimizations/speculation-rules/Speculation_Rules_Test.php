@@ -5,9 +5,9 @@
  * @package automattic/jetpack-boost
  */
 
-namespace Automattic\Jetpack_Boost\Tests\Lib\Speculation_Rules;
+namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Speculation_Rules;
 
-use Automattic\Jetpack_Boost\Lib\Speculation_Rules\Speculation_Rules;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules\Speculation_Rules;
 use Brain\Monkey;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
@@ -42,21 +42,15 @@ class Speculation_Rules_Test extends MockeryTestCase {
 	}
 
 	/**
-	 * Test setup() when prerender is enabled
+	 * Test setup() when feature is available
 	 */
-	public function test_setup_when_prerender_enabled() {
-		// Mock the data store get function with explicit return value
-		Monkey\Functions\expect( 'jetpack_boost_ds_get' )
-			->once()
-			->with( 'prerender_cornerstone_pages' )  // Add explicit parameter
-			->andReturn( true );
-
+	public function test_setup() {
 		// Ensure WordPress functions are available
 		if ( ! function_exists( 'add_action' ) ) {
 			Monkey\Functions\when( 'add_action' )->justReturn( true );
 		}
 
-		// More specific expectation for add_action
+		// Expect add_action to be called once with correct parameters
 		Monkey\Functions\expect( 'add_action' )
 			->once()
 			->with(
@@ -74,27 +68,6 @@ class Speculation_Rules_Test extends MockeryTestCase {
 
 		$speculation_rules = new Speculation_Rules();
 		$speculation_rules->setup();
-	}
-
-	/**
-	 * Test setup() when prerender is disabled
-	 */
-	public function test_setup_when_prerender_disabled() {
-		// Mock the data store get function to return false
-		Monkey\Functions\stubs(
-			array(
-				'jetpack_boost_ds_get' => false,
-			)
-		);
-
-		// Expect add_action to never be called
-		Monkey\Functions\expect( 'add_action' )->never();
-
-		$speculation_rules = new Speculation_Rules();
-		$speculation_rules->setup();
-
-		// Brain\Monkey verifies expectations automatically at the end of each test
-		// No need for explicit assertion as the test will fail if expectations aren't met
 	}
 
 	/**

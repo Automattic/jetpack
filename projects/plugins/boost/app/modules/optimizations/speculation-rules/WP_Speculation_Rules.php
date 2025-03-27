@@ -2,7 +2,7 @@
 /**
  * Polyfill for WP_Speculation_Rules class that will be available in WordPress 6.8.0
  *
- * @package Automattic\Jetpack_Boost\Lib\Speculation_Rules
+ * @package Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules
  */
 
 if ( ! class_exists( 'WP_Speculation_Rules' ) ) {

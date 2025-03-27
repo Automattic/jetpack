@@ -59,6 +59,9 @@ const supportsPublishSidebar =
 const isSeoAssistantEnabled =
 	getJetpackExtensionAvailability( 'ai-seo-assistant' )?.available === true;
 
+const isSeoEnhancerEnabledUnrestricted =
+	getJetpackExtensionAvailability( 'ai-seo-enhancer-enabled-unrestricted' )?.available === true;
+
 const isSeoEnhancerEnabled =
 	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
 	supportsPublishSidebar;
@@ -113,6 +116,8 @@ const Seo = () => {
 
 	const requiredPlan = getRequiredPlan( 'advanced-seo' );
 	const canShowUpsell = isAtomicSite() || isSimpleSite();
+	const hasRequiredPlanForEnhancer =
+		isSeoEnhancerEnabledUnrestricted || ! getRequiredPlan( 'ai-seo-enhancer' );
 
 	const jetpackSeoPanelProps = {
 		title: __( 'SEO', 'jetpack' ),
@@ -181,7 +186,9 @@ const Seo = () => {
 							<SeoAssistantSidebarEntrypoint disabled={ false } placement="jetpack-sidebar" />
 						</PanelRow>
 					) }
-					{ isSeoEnhancerEnabled && <SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } /> }
+					{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
+						<SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } />
+					) }
 					<PanelRow
 						className={ clsx( {
 							'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled,
@@ -208,7 +215,9 @@ const Seo = () => {
 
 			<PluginPrePublishPanel { ...jetpackSeoPublishPanelsProps }>
 				<div className="jetpack-seo-panel">
-					{ isSeoEnhancerEnabled && <SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } /> }
+					{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
+						<SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } />
+					) }
 					<PanelRow>
 						<SeoTitlePanel />
 					</PanelRow>

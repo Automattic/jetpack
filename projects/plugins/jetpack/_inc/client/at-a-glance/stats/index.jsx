@@ -77,6 +77,12 @@ export class DashStats extends Component {
 				chartLabel = '',
 				tooltipLabel = '';
 
+			// Dates from API are GMT so we want to make sure that is properly observed.
+			if ( 'week' === unit ) {
+				date = date.replace( /W/g, '-' );
+			}
+			date = new Date( `${ date }T00:00:00Z` ).toISOString();
+
 			// Increment total views for the period
 			totalViews += views;
 
@@ -84,7 +90,6 @@ export class DashStats extends Component {
 				chartLabel = dateI18n( shortMonthFormat, date );
 				tooltipLabel = dateI18n( longMonthFormat, date );
 			} else if ( 'week' === unit ) {
-				date = date.replace( /W/g, '-' );
 				chartLabel = dateI18n( shortMonthFormat, date );
 				tooltipLabel = sprintf(
 					/* translators: placeholder is a date. */

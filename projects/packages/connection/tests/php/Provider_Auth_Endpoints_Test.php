@@ -147,6 +147,7 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 		$request->set_param( 'email_address', 'test@example.com' );
 		$request->set_param( 'auto_trigger', true );
 		$request->set_param( 'redirect_uri', '/wp-admin/admin.php?page=jetpack' );
+		$request->set_param( 'from', 'foo-bar' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 200, $response->get_status() );
@@ -157,6 +158,7 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 		$this->assertStringContainsString( 'email_address=test%40example.com', $data['authorizeUrl'] );
 		$this->assertStringContainsString( 'auto_trigger=1', $data['authorizeUrl'] );
 		$this->assertStringContainsString( 'redirect_uri', $data['authorizeUrl'] );
+		$this->assertStringContainsString( urlencode( 'from=foo-bar' ), $data['authorizeUrl'] );
 	}
 
 	/**
