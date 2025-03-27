@@ -37,11 +37,10 @@ class Blocks {
 	 *     @type array $version_requirements Array containing required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
 	 *     @type bool  $plan_check           Should we check for a specific plan before registering the block.
 	 * }
-	 * @param string $dist_path Optional. The path to the directory containing the blocks built files. Default empty.
 	 *
 	 * @return \WP_Block_Type|false The registered block type on success, or false on failure.
 	 */
-	public static function jetpack_register_block( $slug, $args = array(), $dist_path = '' ) {
+	public static function jetpack_register_block( $slug, $args = array() ) {
 		// Slug doesn't start with `jetpack/`, isn't an absolute path, or doesn't contain a slash
 		// (synonym of a namespace) at all.
 		if ( ! str_starts_with( $slug, 'jetpack/' ) && ! path_is_absolute( $slug ) && ! strpos( $slug, '/' ) ) {
@@ -54,7 +53,7 @@ class Blocks {
 		// If a path is passed, make sure to get the block.json file from the build directory and get
 		// the block name from that file.
 		if ( path_is_absolute( $slug ) ) {
-			$block_type = self::get_path_to_block_metadata( $slug, $dist_path );
+			$block_type = self::get_path_to_block_metadata( $slug );
 			$slug       = self::get_block_name_from_path_convention( $slug );
 		}
 
@@ -450,8 +449,9 @@ class Blocks {
 	 * @return string The path to the directory.
 	 */
 	public static function get_path_to_block_metadata( $block_src_dir, $package_dist_dir = '' ) {
+		$dir       = basename( $block_src_dir );
 		$dist_path = empty( $package_dist_dir ) ? dirname( Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ) . '/_inc/blocks' : $package_dist_dir;
-		$result    = realpath( $dist_path );
+		$result    = realpath( "$dist_path/$dir" );
 
 		return false === $result ? $block_src_dir : $result;
 	}

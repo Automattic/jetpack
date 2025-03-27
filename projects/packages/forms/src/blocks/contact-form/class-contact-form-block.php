@@ -27,11 +27,10 @@ class Contact_Form_Block {
 	 */
 	public static function register_block() {
 		Blocks::jetpack_register_block(
-			__DIR__,
+			dirname( __DIR__, 3 ) . '/dist/blocks',
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
-			),
-			dirname( __DIR__, 3 ) . '/dist/blocks'
+			)
 		);
 
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
