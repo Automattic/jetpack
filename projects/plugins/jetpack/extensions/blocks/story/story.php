@@ -467,6 +467,7 @@ function render_block( $attributes ) {
 		)
 	);
 
+	/* translators: Placehodlder if the Story block can't find a post title to use. */
 	$story_title = in_the_loop() ? get_the_title() : __( 'Story', 'jetpack' );
 
 	return sprintf(
