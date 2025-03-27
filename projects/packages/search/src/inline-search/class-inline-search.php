@@ -39,6 +39,9 @@ class Inline_Search extends Classic_Search {
 			}
 			self::$instance = new static();
 			self::$instance->setup( $blog_id );
+
+			// Add hooks for displaying corrected query notice
+			add_action( 'pre_get_posts', array( self::$instance, 'setup_corrected_query_hooks' ) );
 		}
 
 		return self::$instance;
@@ -423,34 +426,182 @@ class Inline_Search extends Classic_Search {
 	}
 
 	/**
-	 * Initialize hooks for handling corrected query functionality.
-	 */
-	public function init_corrected_query_hooks() {
-		parent::init_hooks();
-
-		// Add hook to update search options with corrected query
-		add_action( 'pre_get_posts', array( $this, 'update_search_options_with_correction' ) );
-	}
-
-	/**
-	 * Updates Instant Search options with corrected query if one exists.
+	 * Setup hooks for displaying corrected query notice.
 	 *
-	 * @param \WP_Query $query The WP_Query instance.
+	 * @param \WP_Query $query The current query.
 	 */
-	public function update_search_options_with_correction( $query ) {
-		if ( ! $this->should_handle_query( $query ) ) {
+	public function setup_corrected_query_hooks( $query ) {
+		if ( ! $query->is_search() || ! $query->is_main_query() ) {
 			return;
 		}
 
-		if ( isset( $this->search_result['corrected_query'] ) && $this->search_result['corrected_query'] ) {
-			// Add the corrected query to the Instant Search options
-			add_filter(
-				'jetpack_instant_search_options',
-				function ( $options ) {
-					$options['correctedQuery'] = $this->search_result['corrected_query'];
-					return $options;
+		// Only add the hooks once
+		static $hooks_added = false;
+		if ( $hooks_added ) {
+			return;
+		}
+		$hooks_added = true;
+
+		// Try multiple hooks to ensure our notice appears
+		add_filter( 'get_the_archive_title', array( $this, 'append_corrected_query_to_title' ) );
+		add_filter( 'the_title', array( $this, 'prepend_corrected_query_to_first_result' ), 10, 2 );
+
+		// Update the search title with corrected query
+		add_filter( 'get_search_query', array( $this, 'maybe_use_corrected_query' ) );
+
+		// This is our fallback to ensure the notice appears somewhere
+		add_action( 'wp_footer', array( $this, 'output_corrected_query_script' ) );
+	}
+
+	/**
+	 * Replaces the search query with the corrected query in the title.
+	 *
+	 * @param string $query The original search query.
+	 * @return string The corrected query if available, otherwise the original query.
+	 */
+	public function maybe_use_corrected_query( $query ) {
+		if ( ! is_search() ) {
+			return $query;
+		}
+
+		// Return the corrected query if available
+		if ( ! empty( $this->search_result['corrected_query'] ) ) {
+			return $this->search_result['corrected_query'];
+		}
+
+		return $query;
+	}
+
+	/**
+	 * Add corrected query notice before the first search result title.
+	 *
+	 * @param string $title The post title.
+	 * @param int    $id    The post ID.
+	 * @return string The modified title.
+	 */
+	public function prepend_corrected_query_to_first_result( $title, $id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Only modify search page titles of the first result
+		if ( ! is_search() || ! in_the_loop() ) {
+			return $title;
+		}
+
+		// Only append once
+		static $modified = false;
+		if ( $modified ) {
+			return $title;
+		}
+		$modified = true;
+
+		// Get the notice HTML
+		$notice_html = $this->get_corrected_query_html();
+		if ( empty( $notice_html ) ) {
+			return $title;
+		}
+
+		return $notice_html . $title;
+	}
+
+	/**
+	 * Append corrected query notice to the search page title.
+	 *
+	 * @param string $title The archive title.
+	 * @return string The modified title.
+	 */
+	public function append_corrected_query_to_title( $title ) {
+		// Only modify search page titles
+		if ( ! is_search() ) {
+			return $title;
+		}
+
+		// Only append once
+		static $modified = false;
+		if ( $modified ) {
+			return $title;
+		}
+		$modified = true;
+
+		// Get the notice HTML
+		$notice_html = $this->get_corrected_query_html();
+		if ( empty( $notice_html ) ) {
+			return $title;
+		}
+
+		return $title . $notice_html;
+	}
+
+	/**
+	 * Output JavaScript to inject the corrected query notice after the search title.
+	 * This is a fallback in case the filters don't work.
+	 */
+	public function output_corrected_query_script() {
+		if ( ! is_search() ) {
+			return;
+		}
+
+		// Get the notice HTML
+		$notice_html = $this->get_corrected_query_html();
+		if ( empty( $notice_html ) ) {
+			return;
+		}
+
+		// Escape the HTML for JavaScript
+		$escaped_html = str_replace(
+			array( "'", "\n", "\r" ),
+			array( "\'", "\\n", '' ),
+			$notice_html
+		);
+
+		?>
+		<script>
+		(function() {
+			// Simple injection targeting only the wp-block-query-title element
+			document.addEventListener('DOMContentLoaded', function() {
+				var noticeHTML = '<?php echo wp_kses_post( $escaped_html ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped for JS ?>';
+
+				// Create a temporary container to hold our HTML
+				var temp = document.createElement('div');
+				temp.innerHTML = noticeHTML;
+
+				// Get the h3 element from the container
+				var noticeElement = temp.firstChild;
+
+				// Target only the specified selector
+				var element = document.querySelector('.wp-block-query-title');
+
+				if (element) {
+					if (element.nextSibling) {
+						element.parentNode.insertBefore(noticeElement, element.nextSibling);
+					} else {
+						element.parentNode.appendChild(noticeElement);
+					}
+				} else {
+					console.log('Jetpack Search: Element with selector .wp-block-query-title not found');
 				}
+			});
+		})();
+		</script>
+		<?php
+	}
+
+	/**
+	 * Generate the HTML for the corrected query notice.
+	 *
+	 * @return string The HTML for the corrected query notice or empty string if none.
+	 */
+	private function get_corrected_query_html() {
+		// Real implementation using search results
+		if ( ! empty( $this->search_result['corrected_query'] ) ) {
+			// Store the original search query before it was potentially replaced by maybe_use_corrected_query
+			$original_query = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+			return sprintf(
+				'<h2 class="jetpack-search-corrected-query-original" style="line-height:1; padding-bottom:var(--wp--preset--spacing--20);">
+				%s<strong>%s</strong>
+				</h2>',
+				esc_html( $original_query )
 			);
 		}
+
+		return '';
 	}
 }
