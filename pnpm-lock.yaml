@@ -4613,6 +4613,9 @@ importers:
       gridicons:
         specifier: 3.4.1
         version: 3.4.1(react@18.3.1)
+      harper.js:
+        specifier: 0.26.0
+        version: 0.26.0
       jsdom:
         specifier: 20.0.3
         version: 20.0.3
@@ -11255,6 +11258,9 @@ packages:
     resolution: {integrity: sha512-KC2BzPDh3F0vJzYa7KYBWJOO9gTHoKoFiHNazZEU9Gq2jIJ2zObOA67wlZjZkPHPCjZiLQrko3AYFLrMrHXKrA==}
     peerDependencies:
       react: 15 - 18
+
+  harper.js@0.26.0:
+    resolution: {integrity: sha512-FggtgtD5OIjzcxF5KdWbWoRbdn/TOtjtsW4wqArPfhdGnlvL/vxMs8bduJKDqlN7ClgUYdXNyij0ecQ/s8h6Ww==}
 
   has-ansi@2.0.0:
     resolution: {integrity: sha512-C8vBJ8DwUCx19vhm7urhTuUsr4/IyP6l4VzNQDv+ryHQObW3TTTp9yB68WpYgRe2bbaGuZ/se74IqFeVnMnLZg==}
@@ -24480,6 +24486,8 @@ snapshots:
     dependencies:
       prop-types: 15.8.1
       react: 18.3.1
+
+  harper.js@0.26.0: {}
 
   has-ansi@2.0.0:
     dependencies:
