@@ -328,6 +328,7 @@ class WPCOM_Features {
 	 * Public const for every mapped feature, sorted alphabetically.
 	 */
 	public const AI_ASSISTANT                      = 'ai-assistant';
+	public const AI_SEO_ENHANCER                   = 'ai-seo-enhancer';
 	public const AD_CREDIT_VOUCHERS                = 'ad-credit';
 	public const ADVANCED_SEO                      = 'advanced-seo';
 	public const AKISMET                           = 'akismet';
@@ -476,6 +477,10 @@ class WPCOM_Features {
 		self::AI_ASSISTANT                      => array(
 			self::JETPACK_AI_PLANS,
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+		),
+		self::AI_SEO_ENHANCER                   => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::AD_CREDIT_VOUCHERS                => array(

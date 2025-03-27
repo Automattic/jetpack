@@ -6,15 +6,14 @@ use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
-use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_CSS;
 
-class Minify_CSS implements Pluggable, Changes_Output_On_Activation, Changes_Output_After_Activation, Optimization, Has_Deactivate, Has_Submodules, Has_Data_Sync {
+class Minify_CSS implements Feature, Changes_Output_On_Activation, Changes_Output_After_Activation, Optimization, Has_Deactivate, Has_Data_Sync {
 
 	public static $default_excludes = array( 'admin-bar', 'dashicons', 'elementor-app' );
 
@@ -68,11 +67,5 @@ class Minify_CSS implements Pluggable, Changes_Output_On_Activation, Changes_Out
 	 */
 	public static function deactivate() {
 		jetpack_boost_page_optimize_cleanup_cache( 'css' );
-	}
-
-	public function get_submodules() {
-		return array(
-			Minify_Common::class,
-		);
 	}
 }

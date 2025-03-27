@@ -19,6 +19,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { isSeoEnhancerAvailable } from 'state/initial-state';
+import { siteHasFeature } from 'state/site';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
 
@@ -223,13 +224,18 @@ export const SEO = withModuleSettingsFormHelpers(
 								{ __( 'Customize your SEO settings', 'jetpack' ) }
 							</span>
 						</ModuleToggle>
-						{ this.props.seoEnhancerAvailable && (
+						{ this.props.seoEnhancerAvailable && this.props.hasSeoEnhancer && (
 							<FormFieldset>
 								<ToggleControl
 									id="seo-enhancer"
-									disabled={ ! this.props.getOptionValue( 'seo-tools' ) }
+									disabled={
+										! this.props.getOptionValue( 'seo-tools' ) || ! this.props.hasSeoEnhancer
+									}
 									toggling={ this.props.isSavingAnyOption( 'ai_seo_enhancer_enabled' ) }
-									checked={ this.props.getOptionValue( 'ai_seo_enhancer_enabled' ) }
+									checked={
+										this.props.hasSeoEnhancer &&
+										this.props.getOptionValue( 'ai_seo_enhancer_enabled' )
+									}
 									onChange={ this.toggleSeoEnhancer }
 									label={
 										<span className="jp-form-toggle-explanation">
@@ -368,5 +374,6 @@ export default connect( state => {
 		siteData: state.jetpack.siteData.data,
 		seoEnhancerAvailable: isSeoEnhancerAvailable( state ),
 		state,
+		hasSeoEnhancer: siteHasFeature( state, 'ai-seo-enhancer' ),
 	};
 } )( SEO );

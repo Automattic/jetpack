@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Not user facing: Added '&from=jetpack-onboarding' query arg to the request to get the connection authorization url, in the new Jetpack onboarding flow.
+
+

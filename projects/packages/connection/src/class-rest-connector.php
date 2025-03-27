@@ -285,6 +285,10 @@ class REST_Connector {
 						'type'        => 'string',
 						'format'      => 'email',
 					),
+					'from'          => array(
+						'description' => __( 'Optional "from" arg to distinguish where (which flow) the user is coming from when connecting', 'jetpack-connection' ),
+						'type'        => 'string',
+					),
 				),
 			)
 		);
@@ -1150,6 +1154,7 @@ class REST_Connector {
 	public function connection_authorize_url_provider( $request ) {
 		$provider     = $request['provider'];
 		$redirect_uri = $request['redirect_uri'] ?? '';
+		$from         = $request['from'] ?? false;
 
 		// Validate magic link parameters if provider is 'link'
 		if ( 'link' === $provider ) {
@@ -1174,7 +1179,7 @@ class REST_Connector {
 
 		$authorize_url = ( new Authorize_Redirect( $this->connection ) )->build_authorize_url(
 			$redirect_uri,
-			false,
+			$from,
 			false,
 			$provider,
 			array(

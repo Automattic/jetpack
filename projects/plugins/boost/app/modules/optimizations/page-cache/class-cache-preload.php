@@ -3,9 +3,8 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
-use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
+use Automattic\Jetpack_Boost\Contracts\Sub_Feature;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
@@ -21,7 +20,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logg
  * @since 3.11.0
  * @package Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache
  */
-class Cache_Preload implements Pluggable, Has_Activate, Has_Deactivate, Is_Always_On {
+class Cache_Preload implements Sub_Feature, Has_Activate, Is_Always_On {
 
 	/**
 	 * @since 3.11.0
@@ -223,5 +222,11 @@ class Cache_Preload implements Pluggable, Has_Activate, Has_Deactivate, Is_Alway
 		if ( in_array( untrailingslashit( $path ), $cornerstone_pages, true ) ) {
 			$this->schedule( array( $path ) );
 		}
+	}
+
+	public static function get_parent_features(): array {
+		return array(
+			Page_Cache::class,
+		);
 	}
 }

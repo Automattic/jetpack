@@ -2,28 +2,29 @@ import { __ } from '@wordpress/i18n';
 import { ToggleControl } from '@wordpress/components';
 import styles from './prerender.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { useMutationNotice } from '$features/ui';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { getRedirectUrl, IconTooltip } from '@automattic/jetpack-components';
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
-import { z } from 'zod';
+import { useSingleModuleState } from '$features/module/lib/stores';
+import { useNotices } from '$features/notice/context';
 const unsafeSpeculationRulesLink = getRedirectUrl( 'jetpack-boost-unsafe-speculation-rules' );
 
 const Prerender = () => {
-	const [ prerenderedEnabled, setPrerenderedEnabled ] = useDataSync(
-		'jetpack_boost_ds',
-		'prerender_cornerstone_pages',
-		z.boolean().catch( false )
-	);
+	const { setNotice } = useNotices();
+	const [ moduleState, setModuleState ] = useSingleModuleState( 'speculation_rules', active => {
+		const activatedMessage = __( 'Prerender enabled', 'jetpack-boost' );
+		const deactivatedMessage = __( 'Prerender disabled', 'jetpack-boost' );
 
-	const enabledMessage = __( 'Prerender enabled.', 'jetpack-boost' );
-	const disabledMessage = __( 'Prerender disabled.', 'jetpack-boost' );
-	useMutationNotice( 'prerender-cornerstone-pages', setPrerenderedEnabled, {
-		successMessage: prerenderedEnabled.data ? enabledMessage : disabledMessage,
+		setNotice( {
+			id: 'update-module-state',
+			type: 'success',
+			message: active ? activatedMessage : deactivatedMessage,
+		} );
 	} );
 
+	const speculationRulesEnabled = moduleState?.active ?? false;
+
 	const handleToggle = ( value: boolean ) => {
-		setPrerenderedEnabled.mutate( value );
+		setModuleState( value );
 		recordBoostEvent( 'cornerstone_pages_prerender_toggle', { enabled: Number( value ) } );
 	};
 
@@ -33,7 +34,7 @@ const Prerender = () => {
 				<h4>{ __( 'Prerender Cornerstone Pages', 'jetpack-boost' ) }</h4>
 				<ToggleControl
 					className={ styles[ 'toggle-control' ] }
-					checked={ prerenderedEnabled.data }
+					checked={ speculationRulesEnabled }
 					onChange={ handleToggle }
 					__nextHasNoMarginBottom={ true }
 				/>
