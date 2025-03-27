@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
-use Automattic\Jetpack_Boost\Lib\Speculation_Rules\Speculation_Rules;
 use Automattic\Jetpack_Boost\Modules\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
@@ -16,6 +15,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules\Speculation_Rules;
 use Automattic\Jetpack_Boost\Modules\Performance_History\Performance_History;
 
 class Modules_Index {

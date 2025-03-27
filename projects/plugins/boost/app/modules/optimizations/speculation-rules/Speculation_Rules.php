@@ -6,7 +6,7 @@
  * @since $$next-version$$
  */
 
-namespace Automattic\Jetpack_Boost\Lib\Speculation_Rules;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules;
 
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;

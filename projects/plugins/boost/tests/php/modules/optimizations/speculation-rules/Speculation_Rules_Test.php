@@ -5,9 +5,9 @@
  * @package automattic/jetpack-boost
  */
 
-namespace Automattic\Jetpack_Boost\Tests\Lib\Speculation_Rules;
+namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Speculation_Rules;
 
-use Automattic\Jetpack_Boost\Lib\Speculation_Rules\Speculation_Rules;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules\Speculation_Rules;
 use Brain\Monkey;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
