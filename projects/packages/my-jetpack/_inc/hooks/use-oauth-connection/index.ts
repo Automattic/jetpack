@@ -47,7 +47,9 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 		name: `${ QUERY_GET_OAUTH_AUTHORIZE_URL_KEY }_${ userEmail ? 'link' : socialService ?? '' }`,
 		query: {
 			path: `${ REST_API_GET_OAUTH_AUTHORIZE_URL }/${ userEmail ? 'link' : socialService ?? '' }${
-				userEmail ? `?email_address=${ encodeURIComponent( userEmail ) }` : ''
+				userEmail
+					? `?email_address=${ encodeURIComponent( userEmail ) }&from=jetpack-onboarding`
+					: ''
 			}`,
 		},
 		options: {
