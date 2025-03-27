@@ -210,7 +210,7 @@ function prepareNumberForFormatting(
  * @param  params.signForPositive   - Whether to show the sign for positive numbers.
  * @param  params.geoLocation       - The geo location of the user.
  * @param  params.forceLatin        - Whether to force the latin locale.
- * @return    {string}                  A formatted string.
+ * @return {string} A formatted string.
  */
 const numberFormatCurrency = ( {
 	number,
@@ -308,7 +308,7 @@ const numberFormatCurrency = ( {
  * @param  params.signForPositive   - Whether to show the sign for positive numbers.
  * @param  params.geoLocation       - The geo location of the user.
  * @param  params.forceLatin        - Whether to force the latin locale.
- * @return    {CurrencyObject}          A formatted string e.g. { symbol:'$', integer: '$99', fraction: '.99', sign: '-' }
+ * @return {CurrencyObject} A formatted string e.g. { symbol:'$', integer: '$99', fraction: '.99', sign: '-' }
  */
 const getCurrencyObject = ( {
 	number,
