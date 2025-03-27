@@ -29,7 +29,13 @@ const OnboardingTour = () => {
 					finishButtonText={ __( 'Done', 'jetpack-my-jetpack' ) }
 					pages={ [
 						{
-							image: <WelcomeTourImage nonAnimatedSrc={ TourImage1 } animatedSrc={ TourImage1 } />,
+							image: (
+								<WelcomeTourImage
+									className="myjetpack-onboarding-welcome-tour__image"
+									nonAnimatedSrc={ TourImage1 }
+									animatedSrc={ TourImage1 }
+								/>
+							),
 							content: (
 								<>
 									<h1 className="myjetpack-onboarding-welcome-tour__heading">
@@ -45,7 +51,13 @@ const OnboardingTour = () => {
 							),
 						},
 						{
-							image: <WelcomeTourImage nonAnimatedSrc={ TourImage2 } animatedSrc={ TourImage2 } />,
+							image: (
+								<WelcomeTourImage
+									className="myjetpack-onboarding-welcome-tour__image"
+									nonAnimatedSrc={ TourImage2 }
+									animatedSrc={ TourImage2 }
+								/>
+							),
 							content: (
 								<>
 									<h1 className="myjetpack-onboarding-welcome-tour__heading">
@@ -61,7 +73,13 @@ const OnboardingTour = () => {
 							),
 						},
 						{
-							image: <WelcomeTourImage nonAnimatedSrc={ TourImage3 } animatedSrc={ TourImage3 } />,
+							image: (
+								<WelcomeTourImage
+									className="myjetpack-onboarding-welcome-tour__image"
+									nonAnimatedSrc={ TourImage3 }
+									animatedSrc={ TourImage3 }
+								/>
+							),
 							content: (
 								<>
 									<h1 className="myjetpack-onboarding-welcome-tour__heading">

@@ -60,7 +60,8 @@
             &.is-primary {
                 background-color: var( --jp-green-60);
 
-                &:hover {
+                &:hover,
+                &:active {
                     background-color: var( --jp-green-70);
                 }
             }
@@ -68,7 +69,8 @@
             &.is-tertiary {
                 color: var(--jp-gray-100);
 
-                &:hover {
+                &:hover,
+                &:active {
                     color: var(--jp-gray-100);
                 }
             }
