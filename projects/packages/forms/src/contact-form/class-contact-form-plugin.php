@@ -2347,12 +2347,12 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Check if the block modal interface should be enabled.
+	 * Check if the form modal interface should be enabled.
 	 * This is a development-only feature flag.
 	 *
 	 * @return bool
 	 */
-	public static function is_block_modal_enabled() {
-		return defined( 'JETPACK_ENABLE_BLOCK_MODAL' ) && JETPACK_ENABLE_BLOCK_MODAL;
+	public static function is_form_modal_enabled() {
+		return defined( 'JETPACK_IS_FORM_MODAL_ENABLED' ) && JETPACK_IS_FORM_MODAL_ENABLED;
 	}
 }

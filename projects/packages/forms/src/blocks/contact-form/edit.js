@@ -127,7 +127,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			'contact-form/salesforce-lead-form'
 		];
 
-	const isModalEnabled = !! window?.jpFormsBlocks?.defaults?.enableModal;
+	const isFormModalEnabled = !! window?.jpFormsBlocks?.defaults?.isFormModalEnabled;
 
 	let elt;
 
@@ -221,7 +221,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						/>
 					</PanelBody>
 
-					{ isModalEnabled && (
+					{ isFormModalEnabled && (
 						<PanelBody title={ __( 'Integrations', 'jetpack-forms' ) }>
 							<IntegrationPanel attributes={ attributes } setAttributes={ setAttributes } />
 						</PanelBody>
@@ -234,7 +234,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							instanceId={ instanceId }
 						/>
 					) }
-					{ ! isModalEnabled && ! isSimpleSite() && canUserInstallPlugins && (
+					{ ! isFormModalEnabled && ! isSimpleSite() && canUserInstallPlugins && (
 						<>
 							<AkismetPanel />
 							<PanelBody title={ __( 'CRM Connection', 'jetpack-forms' ) } initialOpen={ false }>
