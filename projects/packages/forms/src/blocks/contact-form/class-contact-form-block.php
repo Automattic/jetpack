@@ -27,10 +27,11 @@ class Contact_Form_Block {
 	 */
 	public static function register_block() {
 		Blocks::jetpack_register_block(
-			'jetpack/contact-form',
+			__DIR__,
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
-			)
+			),
+			dirname( __DIR__, 3 ) . '/dist/blocks'
 		);
 
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
@@ -231,6 +232,8 @@ class Contact_Form_Block {
 				'in_footer'  => true,
 				'textdomain' => 'jetpack-forms',
 				'enqueue'    => true,
+				// Editor styles are declared in the block.json metadata file.
+				'css_path'   => null,
 			)
 		);
 

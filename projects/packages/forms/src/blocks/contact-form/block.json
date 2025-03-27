@@ -22,5 +22,6 @@
 		"align": [ "wide", "full" ]
 	},
 	"attributes": {},
-	"editorScript": "file:./editor.js"
+	"editorScript": "file:./editor.js",
+	"editorStyle": "file:./editor.css"
 }

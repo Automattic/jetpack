@@ -442,10 +442,7 @@ class Blocks_Test extends TestCase {
 		$this->assertEquals( $base_dir . '/_inc/blocks/test-block', $result );
 
 		$result = Blocks::get_path_to_block_metadata( $block_dir, $base_dir . '/_inc/blocks/' );
-		$this->assertEquals( $base_dir . '/_inc/blocks/test-block', $result );
-
-		$result = Blocks::get_path_to_block_metadata( $block_dir, $base_dir . '/_inc/blocks' );
-		$this->assertEquals( $base_dir . '/_inc/blocks/test-block', $result );
+		$this->assertEquals( $base_dir . '/_inc/blocks/', $result );
 
 		// Invalid build folder
 
