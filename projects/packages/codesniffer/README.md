@@ -41,6 +41,11 @@ The Jetpack standard includes the following other standards:
 * [VariableAnalysis](https://packagist.org/packages/sirbrillig/phpcs-variable-analysis)
 * Selected sniffs from [MediaWiki](https://packagist.org/packages/mediawiki/mediawiki-codesniffer)
 
+Included Sniffs
+---------------
+
+Custom sniffs defined by this standard are documented in [the docs subdirectory](./docs).
+
 Per-dir Compatibility
 ---------------------
 

@@ -64,7 +64,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "c8eea0b7f2d6052a61a6e562eeeb0e33c6dcc096"
+                "reference": "9ccb8df4465d1c2bb644474291348219b936f3ef"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -108,7 +108,8 @@
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
-                    "@composer phpunit"
+                    "@composer phpunit",
+                    "./check-docs.sh"
                 ]
             },
             "license": [
