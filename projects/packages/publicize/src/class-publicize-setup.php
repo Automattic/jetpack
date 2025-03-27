@@ -95,11 +95,12 @@ class Publicize_Setup {
 
 		$rest_controllers = array(
 			REST_API\Connections_Controller::class,
+			REST_API\Connections_Post_Field::class,
 			REST_API\Scheduled_Actions_Controller::class,
 			REST_API\Services_Controller::class,
-			REST_API\Shares_Data_Controller::class,
 			REST_API\Share_Post_Controller::class,
 			REST_API\Share_Status_Controller::class,
+			REST_API\Shares_Data_Controller::class,
 			REST_API\Social_Image_Generator_Controller::class,
 		);
 
@@ -112,11 +113,6 @@ class Publicize_Setup {
 			}
 		}
 
-		if ( ! $is_wpcom_simple ) {
-			// Adding on a higher priority to make sure we're the first field registered.
-			// The priority parameter can be removed once we deprecate WPCOM_REST_API_V2_Post_Publicize_Connections_Field.
-			add_action( 'rest_api_init', array( new REST_API\Connections_Post_Field(), 'register_fields' ), 5 );
-		}
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
 

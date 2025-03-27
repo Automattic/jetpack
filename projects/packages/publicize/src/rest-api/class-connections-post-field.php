@@ -34,6 +34,15 @@ class Connections_Post_Field {
 	public $memoized_updates = array();
 
 	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		// Adding on a higher priority to make sure we're the first field registered.
+		// The priority parameter can be removed once we deprecate WPCOM_REST_API_V2_Post_Publicize_Connections_Field.
+		add_action( 'rest_api_init', array( $this, 'register_fields' ), 5 );
+	}
+
+	/**
 	 * Registers the jetpack_publicize_connections field. Called
 	 * automatically on `rest_api_init()`.
 	 */
