@@ -1,3 +1,8 @@
+/**
+ * Types
+ */
+import type { Suggestion } from 'harper.js';
+
 export type BreveControls = () => React.JSX.Element;
 
 export type Anchor = {
@@ -5,6 +10,23 @@ export type Anchor = {
 	virtual: {
 		getBoundingClientRect: () => DOMRect;
 		contextElement?: HTMLElement;
+	};
+};
+
+export type GrammarLint = {
+	text: string;
+	message: string;
+	startIndex: number;
+	endIndex: number;
+	suggestions: Array< Suggestion >;
+	numSuggestions: number;
+	kind: string; // TODO: List all possible values
+};
+
+export type LintState = {
+	[ blockId: string ]: {
+		hasChanged: boolean;
+		[ feature: string ]: Array< GrammarLint > | boolean;
 	};
 };
 
@@ -34,6 +56,7 @@ export type BreveState = {
 			};
 		};
 	};
+	lints?: LintState;
 };
 
 export type BreveSelect = {
@@ -69,6 +92,9 @@ export type BreveSelect = {
 	};
 	getIgnoredSuggestions: ( { blockId }: { blockId: string } ) => Array< string >;
 	getReloadFlag: () => boolean;
+	getLints: ( blockId: string ) => LintState;
+	getLintsByFeature: ( blockId: string, feature: string ) => Array< GrammarLint >;
+	getLintVersion: ( blockId: string ) => number;
 };
 
 export type BreveDispatch = {
@@ -92,6 +118,15 @@ export type BreveDispatch = {
 		blockId: string;
 		occurrence: string;
 	} ) => void;
+	setLints: ( {
+		lints,
+		feature,
+		blockId,
+	}: {
+		lints: Array< GrammarLint >;
+		feature: string;
+		blockId: string;
+	} ) => void;
 };
 
 export type PlansSelect = {
@@ -113,7 +148,7 @@ export type BreveFeatureConfig = {
 
 export type BreveFeature = {
 	config: BreveFeatureConfig;
-	highlight: ( text: string ) => Array< HighlightedText >;
+	highlight: ( text: string, blockClientId: string ) => Array< HighlightedText >;
 	dictionary?: { [ key: string ]: string };
 	description: string;
 };
