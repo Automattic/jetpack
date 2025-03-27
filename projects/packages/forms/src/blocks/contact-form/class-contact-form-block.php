@@ -249,6 +249,7 @@ class Contact_Form_Block {
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
+				'enableModal'          => Contact_Form_Plugin::is_block_modal_enabled(),
 			),
 		);
 

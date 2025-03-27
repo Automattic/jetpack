@@ -2345,4 +2345,14 @@ class Contact_Form_Plugin {
 
 		return $is_wpcom || $should_enable_tracking;
 	}
+
+	/**
+	 * Check if the block modal interface should be enabled.
+	 * This is a development-only feature flag.
+	 *
+	 * @return bool
+	 */
+	public static function is_block_modal_enabled() {
+		return defined( 'JETPACK_ENABLE_BLOCK_MODAL' ) && JETPACK_ENABLE_BLOCK_MODAL;
+	}
 }

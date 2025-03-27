@@ -30,6 +30,7 @@ import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeh
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
+import IntegrationPanel from './components/jetpack-integration-panel';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
@@ -126,6 +127,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			'contact-form/salesforce-lead-form'
 		];
 
+	const isModalEnabled = !! window?.jpFormsBlocks?.defaults?.enableModal;
+
 	let elt;
 
 	if ( ! isModuleActive ) {
@@ -218,6 +221,12 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						/>
 					</PanelBody>
 
+					{ isModalEnabled && (
+						<PanelBody title={ __( 'Integrations', 'jetpack-forms' ) }>
+							<IntegrationPanel attributes={ attributes } setAttributes={ setAttributes } />
+						</PanelBody>
+					) }
+
 					{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (
 						<SalesforceLeadFormSettings
 							salesforceData={ salesforceData }
@@ -225,25 +234,15 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							instanceId={ instanceId }
 						/>
 					) }
-					{ ! isSimpleSite() && (
+					{ ! isModalEnabled && ! isSimpleSite() && canUserInstallPlugins && (
 						<>
-							{ canUserInstallPlugins && (
-								<>
-									<AkismetPanel />
-									<PanelBody
-										title={ __( 'CRM Connection', 'jetpack-forms' ) }
-										initialOpen={ false }
-									>
-										<CRMIntegrationSettings
-											jetpackCRM={ jetpackCRM }
-											setAttributes={ setAttributes }
-										/>
-									</PanelBody>
-									<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
-										<NewsletterIntegrationSettings />
-									</PanelBody>
-								</>
-							) }
+							<AkismetPanel />
+							<PanelBody title={ __( 'CRM Connection', 'jetpack-forms' ) } initialOpen={ false }>
+								<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
+							</PanelBody>
+							<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
+								<NewsletterIntegrationSettings />
+							</PanelBody>
 						</>
 					) }
 				</InspectorControls>
