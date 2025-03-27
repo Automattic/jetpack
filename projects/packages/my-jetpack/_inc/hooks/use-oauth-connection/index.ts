@@ -104,7 +104,7 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 				recordEvent( 'jetpack_my_jetpack_onboarding_click', {
 					service: service ?? 'email',
 					// Overriding this value as we're waiting for the site to be registered to run this event.
-					site_connected: true,
+					is_site_connected: true,
 				} );
 			} catch ( error ) {
 				// eslint-disable-next-line no-console
