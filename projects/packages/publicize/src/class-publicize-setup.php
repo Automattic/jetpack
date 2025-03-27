@@ -71,7 +71,7 @@ class Publicize_Setup {
 			 * Publicize is always enabled on WPCOM,
 			 * we can call the initialization method directly.
 			 */
-			self::on_jetpack_feature_publicize_enabled();
+			add_action( 'plugins_loaded', array( self::class, 'on_jetpack_feature_publicize_enabled' ) );
 		}
 	}
 
@@ -87,10 +87,6 @@ class Publicize_Setup {
 
 		global $publicize_ui;
 
-		if ( ! isset( $publicize_ui ) ) {
-			$publicize_ui = new Publicize_UI();
-		}
-
 		$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
 
 		$rest_controllers = array(
@@ -102,6 +98,7 @@ class Publicize_Setup {
 			REST_API\Share_Status_Controller::class,
 			REST_API\Shares_Data_Controller::class,
 			REST_API\Social_Image_Generator_Controller::class,
+			Jetpack_Social_Settings\Settings::class,
 		);
 
 		// Load the REST controllers.
@@ -113,22 +110,20 @@ class Publicize_Setup {
 			}
 		}
 
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
-		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
-
-		add_action( 'rest_api_init', array( static::class, 'register_core_options' ) );
-		add_action( 'admin_init', array( static::class, 'register_core_options' ) );
 		add_action( 'current_screen', array( self::class, 'add_filters_and_actions_for_screen' ), 5 );
 
-		if ( $is_wpcom_simple ) {
-
-			wpcom_rest_api_v2_load_plugin( Jetpack_Social_Settings\Settings::class );
-		} else {
-			// Load the settings page.
-			new Jetpack_Social_Settings\Settings();
-		}
-
 		( new Social_Image_Generator\Setup() )->init();
+
+		// Things that should not happen on WPCOM.
+		if ( ! $is_wpcom_simple ) {
+			add_action( 'rest_api_init', array( static::class, 'register_core_options' ) );
+			add_action( 'admin_init', array( static::class, 'register_core_options' ) );
+			add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+			add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
+			if ( ! isset( $publicize_ui ) ) {
+				$publicize_ui = new Publicize_UI();
+			}
+		}
 	}
 
 	/**
