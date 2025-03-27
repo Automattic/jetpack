@@ -1,27 +1,27 @@
 import { Guide } from '@wordpress/components';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useEffect } from 'react';
+import { FC, useCallback } from 'react';
 import WelcomeTourImage from './image';
 import TourImage1 from './images/jp_onboarding_tour_1.png';
 import TourImage2 from './images/jp_onboarding_tour_2.png';
 import TourImage3 from './images/jp_onboarding_tour_3.png';
 import TourImage4 from './images/jp_onboarding_tour_4.png';
 import './styles.scss';
-import useWelcomeTour from './use-welcome-tour';
 
-const OnboardingTour = () => {
-	const { dismissWelcomeTour, isWelcomeTourVisible } = useWelcomeTour();
-	const [ isOpen, setOpen ] = useState( isWelcomeTourVisible );
+const removeQueryParam = ( paramName: string ) => {
+	const url = new URL( window.location.href );
+	url.searchParams.delete( paramName );
+	window.history.replaceState( {}, '', url );
+};
 
-	useEffect( () => {
-		setOpen( isWelcomeTourVisible );
-	}, [ isWelcomeTourVisible ] );
+const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
+	const [ isOpen, setOpen ] = useState( open );
 
 	const closeGuide = useCallback( () => {
-		dismissWelcomeTour();
 		setOpen( false );
-	}, [ dismissWelcomeTour, setOpen ] );
+		removeQueryParam( 'from' );
+	}, [ setOpen ] );
 
 	return (
 		<>

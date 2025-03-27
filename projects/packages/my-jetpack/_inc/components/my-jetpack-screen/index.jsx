@@ -48,7 +48,6 @@ import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
 import LoadingBlock from '../loading-block';
 import OnboardingTour from '../onboarding-tour';
-import useWelcomeTour from '../onboarding-tour/use-welcome-tour';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
 import WelcomeFlow from '../welcome-flow';
@@ -106,7 +105,6 @@ export default function MyJetpackScreen() {
 	} = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
-	const { isWelcomeTourVisible, enableWelcomeTour } = useWelcomeTour();
 	const { isSectionVisible } = useEvaluationRecommendations();
 	const { siteIsRegistered, apiRoot, apiNonce } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
@@ -181,14 +179,8 @@ export default function MyJetpackScreen() {
 		setReloading( true );
 	}
 
-	// show welcome tour if user is redirected from onboarding and
-	// use it to set isWelcomeTourActive to true in case they navigate away from onboarding
+	// show welcome tour if user is redirected from the onboarding flow
 	const isRedirectingFromOnboarding = useQueryParameter( 'from' ) === 'jetpack-onboarding';
-	useEffect( () => {
-		if ( isRedirectingFromOnboarding ) {
-			enableWelcomeTour();
-		}
-	}, [ isRedirectingFromOnboarding, enableWelcomeTour ] );
 
 	if ( reloading ) {
 		return null;
@@ -259,7 +251,7 @@ export default function MyJetpackScreen() {
 				<EvaluationRecommendations />
 			) }
 
-			{ ( isWelcomeTourVisible || isRedirectingFromOnboarding ) && <OnboardingTour /> }
+			{ isRedirectingFromOnboarding && <OnboardingTour /> }
 
 			<ProductCardsSection />
 
