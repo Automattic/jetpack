@@ -83,6 +83,7 @@ class TestMethodCoversSniff implements Sniff {
 		);
 
 		// If we're going to potentially move anything to the class level, we need to collect some data from the class comment.
+		$classDocPtr = false; // Make Phan happy.
 		if ( $preserveAny ) {
 			$classDocPtr = DocBlocks::findDocBlockForDeclaration( $phpcsFile, $stackPtr );
 			if ( $classDocPtr !== false ) {
@@ -203,6 +204,9 @@ class TestMethodCoversSniff implements Sniff {
 
 		if ( $classDocPtr !== false ) {
 			$indent = DocBlocks::getIndent( $phpcsFile, $classDocPtr );
+			// Make Phan happy.
+			$newComment     = '';
+			$classDocInsert = 0;
 		} else {
 			$idx    = DocBlocks::findDocBlockInsertionPointForDeclaration( $phpcsFile, $stackPtr );
 			$line   = $tokens[ $idx ]['line'];

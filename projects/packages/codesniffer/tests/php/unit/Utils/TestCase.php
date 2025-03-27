@@ -19,6 +19,7 @@ abstract class TestCase extends BaseTestCase {
 		parent::setUp();
 
 		// Clear the cache, we tend to reuse filenames.
+		// @phan-suppress-next-line PhanAccessMethodInternal
 		\PHPCSUtils\Internal\Cache::clear();
 	}
 
