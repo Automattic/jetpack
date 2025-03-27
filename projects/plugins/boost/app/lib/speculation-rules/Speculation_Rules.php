@@ -44,10 +44,6 @@ class Speculation_Rules implements Has_Setup, Changes_Output_On_Activation, Opti
 	 * @return void
 	 */
 	public function setup() {
-		if ( ! self::is_available() ) {
-			return;
-		}
-
 		// Use WP core action to add speculation rules
 		add_action( 'wp_load_speculation_rules', array( $this, 'add_cornerstone_rules' ) );
 	}
