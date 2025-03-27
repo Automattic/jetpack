@@ -1,6 +1,6 @@
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import ErrorMessage from './error-message';
 import styles from './styles.module.scss';
 import type { SubmitType, UseOauthConnectionReturn } from '../../../hooks/use-oauth-connection';
@@ -21,7 +21,6 @@ const EmailInput: FC< EmailInputProps > = ( {
 	oauthConnectionData,
 } ) => {
 	const { userEmail, setUserEmail, errorType } = oauthConnectionData;
-	const inputRef = useRef< HTMLInputElement >( null );
 
 	const handleOnInput = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
@@ -67,7 +66,6 @@ const EmailInput: FC< EmailInputProps > = ( {
 	return (
 		<form onSubmit={ handleOnSubmit } className={ styles[ 'email-input-container' ] }>
 			<input
-				ref={ inputRef }
 				className={ `${ styles[ 'email-input' ] } ${
 					errorType === 'email-validation' ? styles[ 'email-input-error' ] : ''
 				}` }
