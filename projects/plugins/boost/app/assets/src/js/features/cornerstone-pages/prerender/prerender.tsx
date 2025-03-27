@@ -2,32 +2,29 @@ import { __ } from '@wordpress/i18n';
 import { ToggleControl } from '@wordpress/components';
 import styles from './prerender.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { useMutationNotice } from '$features/ui';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { getRedirectUrl, IconTooltip } from '@automattic/jetpack-components';
-import { useModulesState } from '$features/module/lib/stores';
+import { useSingleModuleState } from '$features/module/lib/stores';
+import { useNotices } from '$features/notice/context';
 const unsafeSpeculationRulesLink = getRedirectUrl( 'jetpack-boost-unsafe-speculation-rules' );
 
 const Prerender = () => {
-	const [ modulesState, setModulesState ] = useModulesState();
+	const { setNotice } = useNotices();
+	const [ moduleState, setModuleState ] = useSingleModuleState( 'speculation_rules', active => {
+		const activatedMessage = __( 'Prerender enabled', 'jetpack-boost' );
+		const deactivatedMessage = __( 'Prerender disabled', 'jetpack-boost' );
 
-	const enabledMessage = __( 'Prerender enabled.', 'jetpack-boost' );
-	const disabledMessage = __( 'Prerender disabled.', 'jetpack-boost' );
-
-	const speculationRulesEnabled = modulesState.data?.speculation_rules.active;
-	const enableSpeculationRules = ( value: boolean ) => {
-		setModulesState.mutate( {
-			...modulesState.data,
-			speculation_rules: { active: value, available: true },
+		setNotice( {
+			id: 'update-module-state',
+			type: 'success',
+			message: active ? activatedMessage : deactivatedMessage,
 		} );
-	};
-
-	useMutationNotice( 'speculation-rules', setModulesState, {
-		successMessage: speculationRulesEnabled ? enabledMessage : disabledMessage,
 	} );
 
+	const speculationRulesEnabled = moduleState?.active ?? false;
+
 	const handleToggle = ( value: boolean ) => {
-		enableSpeculationRules( value );
+		setModuleState( value );
 		recordBoostEvent( 'cornerstone_pages_prerender_toggle', { enabled: Number( value ) } );
 	};
 
