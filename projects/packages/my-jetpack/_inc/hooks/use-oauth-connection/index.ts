@@ -5,6 +5,7 @@ import {
 	REST_API_GET_OAUTH_AUTHORIZE_URL,
 } from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
+import sideloadTracks from '../../utils/side-load-tracks';
 import useAnalytics from '../use-analytics';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 
@@ -99,6 +100,7 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 		async ( service: SocialService | null = null ) => {
 			try {
 				await handleRegisterSite();
+				await sideloadTracks();
 				recordEvent( 'jetpack_my_jetpack_onboarding_click', {
 					service: service ?? 'email',
 				} );
