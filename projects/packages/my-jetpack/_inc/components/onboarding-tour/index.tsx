@@ -99,7 +99,13 @@ const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
 							),
 						},
 						{
-							image: <WelcomeTourImage nonAnimatedSrc={ TourImage4 } animatedSrc={ TourImage4 } />,
+							image: (
+								<WelcomeTourImage
+									className="myjetpack-onboarding-welcome-tour__image"
+									nonAnimatedSrc={ TourImage4 }
+									animatedSrc={ TourImage4 }
+								/>
+							),
 							content: (
 								<>
 									<h1 className="myjetpack-onboarding-welcome-tour__heading">
