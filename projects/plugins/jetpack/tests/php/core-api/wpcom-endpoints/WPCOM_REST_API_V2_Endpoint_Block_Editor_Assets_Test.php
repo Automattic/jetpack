@@ -29,23 +29,32 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		parent::set_up();
 		$this->instance = new WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets();
 
-		// Remove enqueue actions dependent upon build assets
-		/** @phan-suppress-next-line PhanUndeclaredFunctionInCallable */
-		remove_action( 'enqueue_block_editor_assets', 'wpcom_enqueue_block_inserter_modifications_assets', 0 );
-		/** @phan-suppress-next-line PhanUndeclaredFunctionInCallable */
-		remove_action( 'enqueue_block_editor_assets', 'enqueue_font_loader_script_in_gutenberg' );
+		// Mock the enqueue_block_editor_assets action to prevent loading non-existent files
+		remove_all_actions( 'enqueue_block_editor_assets' );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_block_editor_assets' ) );
 	}
 
 	/**
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
-		// Re-add enqueue actions to restore normal behavior
-		/** @phan-suppress-next-line PhanUndeclaredFunctionInCallable */
-		add_action( 'enqueue_block_editor_assets', 'wpcom_enqueue_block_inserter_modifications_assets', 0 );
-		/** @phan-suppress-next-line PhanUndeclaredFunctionInCallable */
-		add_action( 'enqueue_block_editor_assets', 'enqueue_font_loader_script_in_gutenberg' );
+		// Remove our mock action
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_block_editor_assets' ) );
 		parent::tear_down();
+	}
+
+	/**
+	 * Mock function for block editor assets.
+	 * This provides minimal required assets without loading actual files.
+	 */
+	public function mock_block_editor_assets() {
+		// Register minimal mock assets that don't require actual files
+		wp_register_script( 'mock-editor-script', 'http://example.org/mock-editor.js', array(), '1.0', true );
+		wp_register_style( 'mock-editor-style', 'http://example.org/mock-editor.css', array(), '1.0' );
+
+		// Enqueue our mock assets
+		wp_enqueue_script( 'mock-editor-script' );
+		wp_enqueue_style( 'mock-editor-style' );
 	}
 
 	/**
