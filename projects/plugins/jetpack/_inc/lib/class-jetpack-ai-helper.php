@@ -254,7 +254,7 @@ class Jetpack_AI_Helper {
 			return $response;
 		}
 
-		$response = Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/jetpack-ai/completions', $site_id ),
 			2,
 			array(
@@ -328,7 +328,7 @@ class Jetpack_AI_Helper {
 			return $result;
 		}
 
-		$response = Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/jetpack-ai/images/generations', $site_id ),
 			2,
 			array(
@@ -428,7 +428,7 @@ class Jetpack_AI_Helper {
 
 		$request_path = sprintf( '/sites/%d/jetpack-ai/ai-assistant-feature', $blog_id );
 
-		$wpcom_request = Client::wpcom_json_api_request_as_user(
+		$wpcom_request = Client::wpcom_json_api_request_as_blog(
 			$request_path,
 			'v2',
 			array(
