@@ -462,7 +462,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
-						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email', $this->get_wpcom_featured_image_in_email_default() ),
+						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email', $this->get_wpcom_featured_image_in_email_default( $site->get_registered_date() ) ),
 						'jetpack_gravatar_in_email'        => (bool) get_option( 'jetpack_gravatar_in_email', true ),
 						'jetpack_author_in_email'          => (bool) get_option( 'jetpack_author_in_email', true ),
 						'jetpack_post_date_in_email'       => (bool) get_option( 'jetpack_post_date_in_email', true ),
@@ -619,18 +619,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * This function updates the default value to enabled for new sites created after March 25, 2025.
 	 * This prevents existing sites from having their featured images enabled by default without users taking action.
 	 *
+	 * @param string $registered_date The date/time string the site was registered.
 	 * @return int 1 for new sites, 0 for existing sites
 	 */
-	protected function get_wpcom_featured_image_in_email_default() {
-		$blog_id      = get_current_blog_id();
-		$blog_details = get_blog_details( $blog_id );
-
-		$registered_timestamp = is_numeric( $blog_details->registered )
-			? $blog_details->registered
-			: strtotime( $blog_details->registered );
-
-		// If site was registered after March 25, 2025, it's a new site
-		if ( $registered_timestamp >= strtotime( '2025-03-25' ) ) {
+	protected function get_wpcom_featured_image_in_email_default( $registered_date ) {
+		// If site was registered after March 25, 2025, we're considering it a new site.
+		if ( strtotime( $registered_date ) >= strtotime( '2025-03-25' ) ) {
 			return 1;
 		}
 
