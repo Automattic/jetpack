@@ -9,7 +9,7 @@ interface ErrorMessageProps {
 	service?: SocialService;
 }
 
-const ErrorMessage: FC< ErrorMessageProps > = ( { errorType, service = 'Wordpress.com' } ) => {
+const ErrorMessage: FC< ErrorMessageProps > = ( { errorType, service = 'Wordpress' } ) => {
 	if ( ! errorType ) {
 		return null;
 	}
