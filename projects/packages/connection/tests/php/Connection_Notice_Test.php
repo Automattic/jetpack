@@ -61,12 +61,10 @@ class Connection_Notice_Test extends TestCase {
 
 	/**
 	 * Set up the environment.
-	 *
-	 * @before
-	 *
-	 * @return void
 	 */
-	protected function set_up() {
+	protected function setUp(): void {
+		parent::setUp();
+
 		global $current_screen;
 
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
@@ -134,12 +132,10 @@ class Connection_Notice_Test extends TestCase {
 
 	/**
 	 * Clean up.
-	 *
-	 * @after
-	 *
-	 * @return void
 	 */
-	protected function tear_down() {
+	protected function tearDown(): void {
+		parent::tearDown();
+
 		global $current_screen;
 
 		delete_transient( 'jetpack_connected_user_data_' . get_current_user_id() );

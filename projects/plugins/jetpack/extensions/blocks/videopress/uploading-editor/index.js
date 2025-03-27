@@ -124,6 +124,7 @@ export const UploadingEditor = props => {
 						onChange={ onChangeTitle }
 						value={ title }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<div className="uploading-editor__content">
 						<BaseControl __nextHasNoMarginBottom={ true }>
@@ -165,6 +166,7 @@ export const UploadingEditor = props => {
 											withInputField={ false }
 											onChange={ onRangeChange }
 											__nextHasNoMarginBottom={ true }
+											__next40pxDefaultSize={ true }
 										/>
 									</span>
 									<span className="uploading-editor__scrubber-help" style={ posterSelectedStyle }>

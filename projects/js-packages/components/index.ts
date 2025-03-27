@@ -44,9 +44,6 @@ export { default as CopyToClipboard } from './components/copy-to-clipboard/index
 export * from './components/icons/index.js';
 export { default as SplitButton } from './components/split-button/index.js';
 export { default as ThemeProvider } from './components/theme-provider/index.js';
-export { default as ThreatFixerButton } from './components/threat-fixer-button/index.js';
-export { default as ThreatSeverityBadge } from './components/threat-severity-badge/index.js';
-export { default as ThreatsDataViews } from './components/threats-data-views/index.js';
 export { default as Text, H2, H3, Title } from './components/text/index.js';
 export { default as ToggleControl } from './components/toggle-control/index.js';
 export { default as NumberControl } from './components/number-control/index.js';
@@ -56,6 +53,7 @@ export { default as Button } from './components/button/index.js';
 export type { ButtonProps } from './components/button/types.js';
 export { default as LoadingPlaceholder } from './components/loading-placeholder/index.js';
 export { default as TermsOfService } from './components/terms-of-service/index.js';
+export { default as Badge } from './components/badge/index.js';
 export { default as Chip } from './components/chip/index.js';
 export {
 	default as PricingTable,

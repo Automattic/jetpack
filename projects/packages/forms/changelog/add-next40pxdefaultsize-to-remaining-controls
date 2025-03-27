@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Components: Add __next40pxDefaultSize and __nextHasNoMarginBottom to controls, preventing deprecation notices.

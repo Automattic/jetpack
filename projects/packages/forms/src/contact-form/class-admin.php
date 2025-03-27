@@ -754,17 +754,36 @@ class Admin {
 
 		echo '<hr class="feedback_response__mobile-separator" />';
 		echo '<div class="feedback_response__item">';
-		foreach ( $response_fields as $key => $value ) {
-			if ( is_array( $value ) ) {
-				$value = implode( ', ', $value );
+
+		foreach ( $response_fields as $key => $display_value ) {
+			if ( is_array( $display_value ) ) {
+				if ( Contact_Form::is_file_upload_field( $display_value ) ) {
+						// This is a file upload field, display a link instead of raw data
+						$file_url = sprintf(
+							'%s?file_id=%s&file_nonce=%s',
+							get_rest_url( null, '/wp/v2/feedback/files' ),
+							rawurlencode( $display_value['file_id'] ),
+							rawurlencode( wp_create_nonce( 'jetpack_forms_view_file_' . $display_value['file_id'] ) )
+						);
+						printf(
+							'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value"><a href="%s" target="_blank">%s</a></div>',
+							esc_html( preg_replace( '#^\d+_#', '', $key ) ),
+							esc_url( $file_url ),
+							esc_html( $display_value['name'] )
+						);
+					continue;
+				}
+				// Regular array, just join the values
+				$display_value = implode( ', ', $display_value );
 			}
 
 			printf(
 				'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">%s</div>',
 				esc_html( preg_replace( '#^\d+_#', '', $key ) ),
-				nl2br( esc_html( $value ) )
+				nl2br( esc_html( $display_value ) )
 			);
 		}
+
 		echo '</div>';
 		echo '<hr />';
 
