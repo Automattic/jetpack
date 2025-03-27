@@ -11,32 +11,20 @@ import type {
 } from '../types/index.js';
 
 /**
- * A class that provides number and currency formatting functionality with locale awareness
+ * Interface defining the shape of a NumberFormatter instance
  */
-export class NumberFormatter {
-	private browserSafeLocale?: string; // TODO clk probably need a fallback locale here
-	private geoLocation?: string;
-
+export interface NumberFormatter {
 	/**
 	 * Sets the locale for number formatting
 	 * @param locale - The locale to use for formatting
 	 */
-	setLocale( locale: string ): void {
-		/**
-		 * The `Intl.NumberFormat` constructor fails only when there is a variant, divided by `_`.
-		 * These suffixes should be removed. Values like `de-at` or `es-mx`
-		 * should all be valid inputs for the constructor.
-		 */
-		this.browserSafeLocale = locale.split( '_' )[ 0 ] ?? locale;
-	}
+	setLocale( locale: string ): void;
 
 	/**
 	 * Sets the user's geo location for currency formatting if available
-	 * @param _geoLocation - The geo location to use for formatting
+	 * @param geoLocation - The geo location to use for formatting
 	 */
-	setGeoLocation( _geoLocation: string ): void {
-		this.geoLocation = _geoLocation;
-	}
+	setGeoLocation( geoLocation: string ): void;
 
 	/**
 	 * Formats numbers using locale settings and/or passed options.
@@ -47,23 +35,7 @@ export class NumberFormatter {
 	 * @param  params.numberFormatOptions - Additional options to pass to the formatter.
 	 * @return {string} Formatted number as string, or original number as string if formatting fails.
 	 */
-	formatNumber: FormatNumber = (
-		number,
-		{ decimals = 0, forceLatin = true, numberFormatOptions = {} } = {}
-	): string => {
-		const formatter = numberFormat( {
-			browserSafeLocale: this.browserSafeLocale,
-			decimals,
-			forceLatin,
-			numberFormatOptions,
-		} );
-
-		try {
-			return formatter.format( number );
-		} catch {
-			return String( number );
-		}
-	};
+	formatNumber: FormatNumber;
 
 	/**
 	 * Formats numbers using locale settings and/or passed options, with a compact notation.
@@ -78,23 +50,7 @@ export class NumberFormatter {
 	 * @param  params.numberFormatOptions - Additional options to pass to the formatter.
 	 * @return {string} Formatted number as string, or original number as string if formatting fails.
 	 */
-	formatNumberCompact: FormatNumber = (
-		number,
-		{ decimals = 0, forceLatin = true, numberFormatOptions = {} } = {}
-	): string => {
-		const formatter = numberFormatCompact( {
-			browserSafeLocale: this.browserSafeLocale,
-			decimals,
-			forceLatin,
-			numberFormatOptions,
-		} );
-
-		try {
-			return formatter.format( number );
-		} catch {
-			return String( number );
-		}
-	};
+	formatNumberCompact: FormatNumber;
 
 	/**
 	 * Formats money with a given currency code.
@@ -132,25 +88,9 @@ export class NumberFormatter {
 	 * @param  options.forceLatin      - Whether to force the latin locale.
 	 * @return {string} A formatted string.
 	 */
-	formatCurrency: FormatCurrency = (
-		number,
-		currency,
-		{ stripZeros = false, isSmallestUnit = false, signForPositive = false, forceLatin = true } = {}
-	): string => {
-		return numberFormatCurrency( {
-			number,
-			currency,
-			browserSafeLocale: this.browserSafeLocale,
-			stripZeros,
-			isSmallestUnit,
-			signForPositive,
-			geoLocation: this.geoLocation,
-			forceLatin,
-		} );
-	};
+	formatCurrency: FormatCurrency;
 
 	/**
-	 *
 	 * Returns a formatted price object which can be used to manually render a
 	 * formatted currency (eg: if you wanted to render the currency symbol in a
 	 * different font size).
@@ -193,7 +133,84 @@ export class NumberFormatter {
 	 * @param  options.forceLatin      - Whether to force the latin locale.
 	 * @return {CurrencyObject} A formatted price object.
 	 */
-	getCurrencyObject: GetCurrencyObject = (
+	getCurrencyObject: GetCurrencyObject;
+}
+
+/**
+ * Creates a number formatter instance that provides number and currency formatting functionality with locale awareness
+ * @return {NumberFormatter} A number formatter instance
+ */
+export function createNumberFormatter(): NumberFormatter {
+	let browserSafeLocale: string | undefined;
+	let geoLocation: string | undefined;
+
+	const setLocale = ( locale: string ): void => {
+		/**
+		 * The `Intl.NumberFormat` constructor fails only when there is a variant, divided by `_`.
+		 * These suffixes should be removed. Values like `de-at` or `es-mx`
+		 * should all be valid inputs for the constructor.
+		 */
+		browserSafeLocale = locale.split( '_' )[ 0 ] ?? locale;
+	};
+
+	const setGeoLocation = ( newGeoLocation: string ): void => {
+		geoLocation = newGeoLocation;
+	};
+
+	const formatNumber: FormatNumber = (
+		number,
+		{ decimals = 0, forceLatin = true, numberFormatOptions = {} } = {}
+	): string => {
+		const formatter = numberFormat( {
+			browserSafeLocale,
+			decimals,
+			forceLatin,
+			numberFormatOptions,
+		} );
+
+		try {
+			return formatter.format( number );
+		} catch {
+			return String( number );
+		}
+	};
+
+	const formatNumberCompact: FormatNumber = (
+		number,
+		{ decimals = 0, forceLatin = true, numberFormatOptions = {} } = {}
+	): string => {
+		const formatter = numberFormatCompact( {
+			browserSafeLocale,
+			decimals,
+			forceLatin,
+			numberFormatOptions,
+		} );
+
+		try {
+			return formatter.format( number );
+		} catch {
+			return String( number );
+		}
+	};
+
+	const formatCurrency: FormatCurrency = (
+		number,
+		currency,
+		{ stripZeros = false, isSmallestUnit = false, signForPositive = false, forceLatin = true } = {}
+	): string => {
+		return numberFormatCurrency( {
+			number,
+			currency,
+			browserSafeLocale,
+			stripZeros,
+			isSmallestUnit,
+			signForPositive,
+			geoLocation,
+			forceLatin,
+		} );
+	};
+
+	const getCurrencyObject: GetCurrencyObject = (
 		number,
 		currency,
 		{ stripZeros = false, isSmallestUnit = false, signForPositive = false, forceLatin = true } = {}
@@ -201,14 +218,23 @@ export class NumberFormatter {
 		return getCurrencyObjectFromCurrencyFormatter( {
 			number,
 			currency,
-			browserSafeLocale: this.browserSafeLocale,
+			browserSafeLocale,
 			stripZeros,
 			isSmallestUnit,
 			signForPositive,
-			geoLocation: this.geoLocation,
+			geoLocation,
 			forceLatin,
 		} );
 	};
+
+	return {
+		setLocale,
+		setGeoLocation,
+		formatNumber,
+		formatNumberCompact,
+		formatCurrency,
+		getCurrencyObject,
+	};
 }
 
-export default NumberFormatter;
+export default createNumberFormatter;

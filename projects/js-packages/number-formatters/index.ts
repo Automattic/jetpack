@@ -1,6 +1,6 @@
-import NumberFormatter from './src/index.js';
+import createNumberFormatter from './src/index.js';
 
-const defaultFormatter = new NumberFormatter();
+const defaultFormatter = createNumberFormatter();
 
 export const {
 	setLocale,
@@ -10,7 +10,5 @@ export const {
 	formatCurrency,
 	getCurrencyObject,
 } = defaultFormatter;
-
-export { NumberFormatter };
 
 export * from './types/index.js';
