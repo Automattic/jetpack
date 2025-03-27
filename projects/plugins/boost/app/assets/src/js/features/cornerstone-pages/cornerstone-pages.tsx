@@ -8,18 +8,14 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import { useCornerstonePages } from './lib/stores/cornerstone-pages';
 import Pill from '$features/ui/pill/pill';
 import Prerender from './prerender/prerender';
-import { z } from 'zod';
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { useModulesState } from '$features/module/lib/stores';
 
 const CornerstonePages = () => {
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
 
-	const [ isSpeculationRulesApiSupported ] = useDataSync(
-		'jetpack_boost_ds',
-		'speculation_rules_api_support',
-		z.boolean().catch( false )
-	);
+	const [ modulesState ] = useModulesState();
+	const isSpeculationRulesApiSupported = modulesState.data?.speculation_rules.available;
 
 	return (
 		<div className={ styles.wrapper }>
@@ -46,7 +42,7 @@ const CornerstonePages = () => {
 					<PanelRow>
 						<Meta />
 					</PanelRow>
-					{ isSpeculationRulesApiSupported.data && (
+					{ isSpeculationRulesApiSupported && (
 						<PanelRow>
 							<Prerender />
 						</PanelRow>

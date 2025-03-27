@@ -30,7 +30,6 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
-use Automattic\Jetpack_Boost\Lib\Speculation_Rules\Speculation_Rules;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
 use Automattic\Jetpack_Boost\Modules\Module;
@@ -115,9 +114,6 @@ class Jetpack_Boost {
 
 		$cornerstone_pages = new Cornerstone_Pages();
 		Setup::add( $cornerstone_pages );
-
-		$speculation_rules = new Speculation_Rules();
-		Setup::add( $speculation_rules );
 
 		// Initialize the Admin experience.
 		$this->init_admin( $modules_setup );

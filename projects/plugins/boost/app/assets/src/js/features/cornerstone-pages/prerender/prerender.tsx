@@ -5,25 +5,29 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import { useMutationNotice } from '$features/ui';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { getRedirectUrl, IconTooltip } from '@automattic/jetpack-components';
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
-import { z } from 'zod';
+import { useModulesState } from '$features/module/lib/stores';
 const unsafeSpeculationRulesLink = getRedirectUrl( 'jetpack-boost-unsafe-speculation-rules' );
 
 const Prerender = () => {
-	const [ prerenderedEnabled, setPrerenderedEnabled ] = useDataSync(
-		'jetpack_boost_ds',
-		'prerender_cornerstone_pages',
-		z.boolean().catch( false )
-	);
+	const [ modulesState, setModulesState ] = useModulesState();
 
 	const enabledMessage = __( 'Prerender enabled.', 'jetpack-boost' );
 	const disabledMessage = __( 'Prerender disabled.', 'jetpack-boost' );
-	useMutationNotice( 'prerender-cornerstone-pages', setPrerenderedEnabled, {
-		successMessage: prerenderedEnabled.data ? enabledMessage : disabledMessage,
+
+	const speculationRulesEnabled = modulesState.data?.speculation_rules.active;
+	const enableSpeculationRules = ( value: boolean ) => {
+		setModulesState.mutate( {
+			...modulesState.data,
+			speculation_rules: { active: value, available: true },
+		} );
+	};
+
+	useMutationNotice( 'speculation-rules', setModulesState, {
+		successMessage: speculationRulesEnabled ? enabledMessage : disabledMessage,
 	} );
 
 	const handleToggle = ( value: boolean ) => {
-		setPrerenderedEnabled.mutate( value );
+		enableSpeculationRules( value );
 		recordBoostEvent( 'cornerstone_pages_prerender_toggle', { enabled: Number( value ) } );
 	};
 
@@ -33,7 +37,7 @@ const Prerender = () => {
 				<h4>{ __( 'Prerender Cornerstone Pages', 'jetpack-boost' ) }</h4>
 				<ToggleControl
 					className={ styles[ 'toggle-control' ] }
-					checked={ prerenderedEnabled.data }
+					checked={ speculationRulesEnabled }
 					onChange={ handleToggle }
 					__nextHasNoMarginBottom={ true }
 				/>

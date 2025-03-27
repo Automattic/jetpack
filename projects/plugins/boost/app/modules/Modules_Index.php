@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
+use Automattic\Jetpack_Boost\Lib\Speculation_Rules\Speculation_Rules;
 use Automattic\Jetpack_Boost\Modules\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
@@ -53,6 +54,7 @@ class Modules_Index {
 		Quality_Settings::class,
 		Performance_History::class,
 		Page_Cache::class,
+		Speculation_Rules::class,
 	);
 
 	const SUB_FEATURES = array(

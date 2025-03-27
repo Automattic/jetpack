@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Lib\Cornerstone;
 
+use Automattic\Jetpack_Boost\Lib\Speculation_Rules\Speculation_Rules;
+
 class Cornerstone_Utils {
 
 	/**
@@ -54,6 +56,6 @@ class Cornerstone_Utils {
 	 * @return bool True if the Speculation Rules API is supported, false otherwise.
 	 */
 	public static function get_speculation_rules_api_support_status() {
-		return version_compare( get_bloginfo( 'version' ), '6.8-beta3', '>=' );
+		return Speculation_Rules::is_available();
 	}
 }
