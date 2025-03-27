@@ -11,6 +11,7 @@ use PHP_CodeSniffer\Config;
 use PHP_CodeSniffer\Files\DummyFile;
 use PHP_CodeSniffer\Reporter;
 use PHP_CodeSniffer\Ruleset;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -88,6 +89,7 @@ class JetpackStandardTest extends TestCase {
 	 * @param string $file Base filename, without the ".tolint", ".report", or ".fixed" extension.
 	 * @param bool   $fix Run as phpcbf rather than phpcs.
 	 */
+	#[DataProvider( 'provide_files' )]
 	public function test_phpcs( $file, $fix ) {
 		$snapfile = $fix ? "$file.fixed" : "$file.report";
 		$expect   = file_get_contents( $snapfile );

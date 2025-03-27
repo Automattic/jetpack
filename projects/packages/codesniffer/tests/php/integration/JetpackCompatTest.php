@@ -11,6 +11,7 @@ use PHP_CodeSniffer\Config;
 use PHP_CodeSniffer\Files\DummyFile;
 use PHP_CodeSniffer\Reporter;
 use PHP_CodeSniffer\Ruleset;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -47,6 +48,7 @@ EOF;
 	 * @param string $src Source to check.
 	 * @param string $expect Expected output.
 	 */
+	#[DataProvider( 'provide_standards' )]
 	public function test_phpcs( $standard, $src, $expect ) {
 		$config = new Config();
 
