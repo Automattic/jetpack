@@ -1,9 +1,8 @@
 <?php
 /**
- * REST API: WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller class
+ * Retrieve resources (styles and scripts) loaded by the block editor.
  *
- * @package WordPress
- * @subpackage REST_API
+ * @package automattic/jetpack
  */
 
 declare( strict_types = 1 );
@@ -12,8 +11,6 @@ if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller'
 
 	/**
 	 * Core class used to retrieve the block editor assets via the REST API.
-	 *
-	 * @see WP_REST_Controller
 	 */
 	class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller {
 		const CACHE_BUSTER = '2025-02-28';
