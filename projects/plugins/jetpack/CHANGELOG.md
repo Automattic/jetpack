@@ -74,7 +74,6 @@
 
 ## 14.5-a.3 - 2025-03-12
 ### Enhancements
-- Feature suggestions: Do not automatically load when a site is connected to WordPress.com. [#42337]
 - Publicize Components: Add a schedule button. [#42313]
 - Sharing block: Improve the description of the "Native Share" feature. [#42336]
 
