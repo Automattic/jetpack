@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Unauth_File_Upload_Handler;
 
 /**
  * Class for the contact-field shortcode.
@@ -834,6 +835,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			_x( 'GB', 'unit symbol', 'jetpack-forms' ),
 		);
 
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-unauth-file-upload-handler.php';
 		$global_state = array(
 			'i18n'          => array(
 				'language'           => get_bloginfo( 'language' ),
@@ -847,8 +849,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			),
 			'maxUploadSize' => $max_file_size,
 			'endpoint'      => $this->get_unauth_endpoint_url(),
-			'wp_nonce'      => wp_create_nonce( 'wp_rest' ),
-			'jp_nonce'      => wp_create_nonce( 'jetpack_file_upload_jetpack-form' ),
+			'uploadToken'   => ( new Unauth_File_Upload_Handler() )->generate_upload_token(),
 		);
 
 		wp_interactivity_config( 'jetpack/field-file', $global_state );

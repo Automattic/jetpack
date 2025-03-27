@@ -64,18 +64,16 @@ const addFileToContext = file => {
  * @param {string} fileId - The file ID.
  */
 const uploadFile = ( file, fileId ) => {
-	const { endpoint, wp_nonce, jp_nonce } = getConfig( NAMESPACE );
+	const { endpoint, uploadToken } = getConfig( NAMESPACE );
 	const xhr = new XMLHttpRequest();
 	const formData = new FormData();
+
 	xhr.open( 'POST', endpoint, true );
-	xhr.withCredentials = true;
 	xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, fileId ) ) );
 	xhr.addEventListener( 'readystatechange', withScope( onReadyStateChange.bind( this, fileId ) ) );
-	formData.append( 'context', 'jetpack-form' );
+
 	formData.append( 'file', file );
-	// Send nonces in FormData instead of headers to avoid CORS preflight requests
-	formData.append( 'wp_nonce', wp_nonce );
-	formData.append( 'jp_upload_nonce', jp_nonce );
+	formData.append( 'upload_token', uploadToken );
 	xhr.send( formData );
 };
 
@@ -131,24 +129,18 @@ const updateFileContext = ( updatedFile, fileId ) => {
 /**
  * Remove file from the temporary folder.
  *
- * @param {string} token - The token of the file to remove.
+ * @param {string} fileId - The file ID to remove.
  */
-const removeFile = token => {
-	const { endpoint, wp_nonce, jp_nonce } = getConfig( NAMESPACE );
+const removeFile = fileId => {
+	const { endpoint, uploadToken } = getConfig( NAMESPACE );
+	const formData = new FormData();
+	formData.append( 'file_id', fileId );
+	formData.append( 'upload_token', uploadToken );
 
-	const request = new Request( endpoint + '/remove', {
+	fetch( `${ endpoint }/remove`, {
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify( {
-			token,
-			context: 'jetpack-form',
-			wp_nonce: wp_nonce,
-			jp_upload_nonce: jp_nonce,
-		} ),
-	} );
-	fetch( request );
+		body: formData,
+	} ).then( response => response.json() );
 };
 
 store( NAMESPACE, {
@@ -220,11 +212,10 @@ store( NAMESPACE, {
 		removeFile: event => {
 			const context = getContext();
 			const fileId = event.target.dataset.id;
-			const file = context.files.find( fileObject => fileObject.id === fileId );
 			context.files = context.files.filter( fileObject => fileObject.id !== fileId );
 			context.hasFiles = context.files.length > 0;
 
-			removeFile( file.token );
+			removeFile( fileId );
 		},
 	},
 
