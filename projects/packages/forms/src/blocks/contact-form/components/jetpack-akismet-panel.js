@@ -23,7 +23,7 @@ const AkismetPanel = () => {
 	const checkAkismetStatus = useCallback( async () => {
 		try {
 			const response = await apiFetch( {
-				path: '/wp/v2/feedback/integration-status?slug=akismet',
+				path: '/wp/v2/feedback/integration-status/akismet',
 			} );
 			setAkismetActiveWithKey( response.isConnected );
 			if ( response.configurationUrl ) {

@@ -36,15 +36,19 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/integration-status',
+			$this->rest_base . '/integration-status/(?P<slug>[\w-]+)',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_integration_status' ),
 				'permission_callback' => array( $this, 'get_items_permissions_check' ),
 				'args'                => array(
 					'slug' => array(
-						'type'     => 'string',
-						'required' => true,
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => function ( $param ) {
+							return preg_match( '/^[\w-]+$/', $param );
+						},
 					),
 				),
 			)
@@ -574,10 +578,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$is_installed      = isset( $installed_plugins[ $plugin_file ] );
 		$is_active         = is_plugin_active( $plugin_file );
 
-		return array(
-			'type'        => 'plugin',
-			'isInstalled' => $is_installed,
-			'isActive'    => $is_active,
+		return rest_ensure_response(
+			array(
+				'type'        => 'plugin',
+				'isInstalled' => $is_installed,
+				'isActive'    => $is_active,
+			)
 		);
 	}
 
@@ -591,7 +597,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		return rest_ensure_response(
 			array_merge(
-				$plugin_status,
+				$plugin_status->get_data(),
 				array(
 					'isConnected'      => class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active(),
 					'configurationUrl' => admin_url( 'admin.php?page=akismet-key-config' ),
