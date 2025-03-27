@@ -1,10 +1,12 @@
 import { TermsOfService, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import useOauthConnection from '../../../hooks/use-oauth-connection';
 import preventWidows from '../../../utils/prevent-widows';
 import EmailInput from './email-input';
 import SocialButton from './social-button';
 import styles from './styles.module.scss';
+import type { SocialService, SubmitType } from '../../../hooks/use-oauth-connection';
 
 const Separator = () => {
 	return (
@@ -19,16 +21,54 @@ const Separator = () => {
 };
 
 const ConnectionForm = () => {
-	const [ isButtonDisabled, setIsButtonDisabled ] = useState( false );
+	const [ isActionInitiated, setIsActionInitiated ] = useState( false );
+	const [ lastClicked, setLastClicked ] = useState< SubmitType | null >( null );
+	const oauthConnectionData = useOauthConnection();
+	const {
+		errorType,
+		handleSubmitEmail,
+		handleSocialLogin,
+		isLoading: isLoadingOauth,
+		resetState,
+	} = oauthConnectionData;
+
 	const socialConnectionTitle = __( 'Start with Jetpack for free', 'jetpack-my-jetpack' );
 	const socialConnectionDescription = __(
 		'Log in with your WordPress.com account to supercharge your site with powerful growth, performance, and security tools.',
 		'jetpack-my-jetpack'
 	);
 
-	const handleSubmit = useCallback( () => {
-		setIsButtonDisabled( true );
-	}, [] );
+	useEffect( () => {
+		if ( errorType && lastClicked ) {
+			setIsActionInitiated( false );
+		}
+	}, [ errorType, lastClicked ] );
+
+	const handleSubmit: ( submitType: SubmitType ) => void = useCallback(
+		submitType => {
+			resetState();
+			setLastClicked( submitType );
+
+			if ( submitType === 'email' ) {
+				handleSubmitEmail();
+			} else {
+				handleSocialLogin( submitType );
+			}
+
+			setIsActionInitiated( true );
+		},
+		[ handleSubmitEmail, handleSocialLogin, resetState ]
+	);
+
+	const isLoading = useMemo( () => {
+		if ( errorType ) {
+			return false;
+		}
+
+		return isLoadingOauth || isActionInitiated;
+	}, [ isLoadingOauth, isActionInitiated, errorType ] );
+
+	const services = [ 'google', 'apple', 'github', 'jetpack' ];
 
 	return (
 		<div className={ styles[ 'connection-form' ] }>
@@ -40,14 +80,27 @@ const ConnectionForm = () => {
 				{ preventWidows( socialConnectionDescription ) }
 			</Text>
 
-			<SocialButton service="google" disabled={ isButtonDisabled } onSubmit={ handleSubmit } />
-			<SocialButton service="apple" disabled={ isButtonDisabled } onSubmit={ handleSubmit } />
-			<SocialButton service="github" disabled={ isButtonDisabled } onSubmit={ handleSubmit } />
-			<SocialButton service="jetpack" disabled={ isButtonDisabled } onSubmit={ handleSubmit } />
+			{ services.map( ( service: SocialService ) => (
+				<SocialButton
+					key={ service }
+					service={ service }
+					disabled={ isActionInitiated }
+					onSubmit={ handleSubmit }
+					loading={ isLoading }
+					lastClicked={ lastClicked }
+					errorType={ errorType }
+				/>
+			) ) }
 
 			<Separator />
 
-			<EmailInput isDisabled={ isButtonDisabled } onSubmit={ handleSubmit } />
+			<EmailInput
+				isDisabled={ isActionInitiated }
+				loading={ isLoading }
+				onSubmit={ handleSubmit }
+				lastClicked={ lastClicked }
+				oauthConnectionData={ oauthConnectionData }
+			/>
 
 			<TermsOfService isTextOnly={ true } className={ styles.tos } />
 		</div>
