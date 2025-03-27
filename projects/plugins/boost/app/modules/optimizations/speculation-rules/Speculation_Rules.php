@@ -9,14 +9,13 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules;
 
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
-use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 /**
  * Class to handle speculation rules for cornerstone pages
  */
-class Speculation_Rules implements Has_Setup, Changes_Output_On_Activation, Optimization, Pluggable {
+class Speculation_Rules implements Feature, Changes_Output_On_Activation, Optimization {
 
 	/**
 	 * Get the slug for this module.
