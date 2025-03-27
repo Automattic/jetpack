@@ -547,30 +547,29 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * Get basic plugin status (installed/active).
 	 *
 	 * @param string $plugin_slug The plugin slug (e.g. 'akismet' or 'creative-mail').
-	 * @return array Plugin status data.
+	 * @return WP_REST_Response Plugin status data.
 	 */
 	private function get_plugin_status( $plugin_slug ) {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		// WordPress core functions like get_plugins() and is_plugin_active() require the full plugin path
-		// (e.g. 'akismet/akismet.php'). Since we expose simpler slugs in our API, we maintain a mapping
-		// of slugs to their full plugin paths. You'll need to update this mapping as you add new integrations.
 		$plugin_files = array(
 			'akismet'       => 'akismet/akismet.php',
 			'creative-mail' => 'creative-mail-by-constant-contact/creative-mail-by-constant-contact.php',
 			'jetpack-crm'   => 'zero-bs-crm/ZeroBSCRM.php',
 		);
 
-		$plugin_file = isset( $plugin_files[ $plugin_slug ] ) ? $plugin_files[ $plugin_slug ] : '';
+		$plugin_file = $plugin_files[ $plugin_slug ] ?? '';
 		if ( empty( $plugin_file ) ) {
-			return array(
-				'type'        => 'plugin',
-				'isInstalled' => false,
-				'isActive'    => false,
-				/* translators: %s: plugin slug */
-				'error'       => sprintf( __( 'Unknown plugin: %s', 'jetpack-forms' ), $plugin_slug ),
+			return rest_ensure_response(
+				array(
+					'type'        => 'plugin',
+					'isInstalled' => false,
+					'isActive'    => false,
+					/* translators: %s: plugin slug */
+					'error'       => sprintf( __( 'Unknown plugin: %s', 'jetpack-forms' ), $plugin_slug ),
+				)
 			);
 		}
 
@@ -594,10 +593,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	public function get_akismet_status() {
 		$plugin_status = $this->get_plugin_status( 'akismet' );
+		$status_data   = $plugin_status->get_data();
 
 		return rest_ensure_response(
 			array_merge(
-				$plugin_status->get_data(),
+				$status_data,
 				array(
 					'isConnected'      => class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active(),
 					'configurationUrl' => admin_url( 'admin.php?page=akismet-key-config' ),
