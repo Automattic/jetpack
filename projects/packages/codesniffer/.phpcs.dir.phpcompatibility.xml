@@ -2,4 +2,9 @@
 <ruleset>
 	<rule ref="Jetpack-Compat-NoWP" />
 	<rule ref="Jetpack-Compat-80" />
+
+	<!-- https://github.com/PHPCompatibility/PHPCompatibility/issues/1696 -->
+	<rule ref="PHPCompatibility.Syntax.NewFlexibleHeredocNowdoc">
+		<exclude name="PHPCompatibility.Syntax.NewFlexibleHeredocNowdoc.ClosingMarkerNoNewLine" />
+	</rule>
 </ruleset>

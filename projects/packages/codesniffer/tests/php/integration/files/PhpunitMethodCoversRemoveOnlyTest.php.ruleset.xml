@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ruleset>
+
+	<rule ref="./default.xml" />
+
+	<rule ref="Jetpack.PHPUnit.TestMethodCovers">
+		<properties>
+			<property name="fixCovers" value="remove" />
+			<property name="fixUses" value="remove" />
+		</properties>
+	</rule>
+
+</ruleset>

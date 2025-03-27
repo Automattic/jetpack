@@ -20,6 +20,9 @@
 	failOnWarning="true"
 >
 	<testsuites>
+		<testsuite name="unit">
+			<directory suffix="Test.php">tests/php/unit</directory>
+		</testsuite>
 		<testsuite name="integration">
 			<directory suffix="Test.php">tests/php/integration</directory>
 		</testsuite>
@@ -30,6 +33,7 @@
 			<!-- Better to only include "src" than to add "." and then exclude "tests", "vendor", and so on, as PHPUnit still scans the excluded directories. -->
 			<!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
 			<directory suffix=".php">hacks</directory>
+			<directory suffix=".php">src</directory>
 			<directory suffix=".php">Jetpack</directory>
 		</include>
 	</source>

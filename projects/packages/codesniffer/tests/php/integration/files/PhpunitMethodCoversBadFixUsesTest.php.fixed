@@ -1,0 +1,1 @@
+PHP_CodeSniffer\Exceptions\RuntimeException: Invalid value 'bogus' for fixUses. Valid values are: remove preserve preserve-class

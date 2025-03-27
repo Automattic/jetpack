@@ -1,0 +1,6 @@
+ 16 | WARNING | [x] Use of `@covers` on test methods is deprecated in PHPUnit 11 and removed in PHPUnit 12. (Jetpack.PHPUnit.TestMethodCovers.CoversFound)
+ 17 | WARNING | [x] Use of `@covers` on test methods is deprecated in PHPUnit 11 and removed in PHPUnit 12. (Jetpack.PHPUnit.TestMethodCovers.CoversFound)
+ 18 | WARNING | [x] Use of `@covers` on test methods is deprecated in PHPUnit 11 and removed in PHPUnit 12. (Jetpack.PHPUnit.TestMethodCovers.CoversFound)
+ 19 | WARNING | [x] Use of `@uses` on test methods is deprecated in PHPUnit 11 and removed in PHPUnit 12. (Jetpack.PHPUnit.TestMethodCovers.UsesFound)
+ 20 | WARNING | [x] Use of `@uses` on test methods is deprecated in PHPUnit 11 and removed in PHPUnit 12. (Jetpack.PHPUnit.TestMethodCovers.UsesFound)
+ 21 | WARNING | [x] Use of `@uses` on test methods is deprecated in PHPUnit 11 and removed in PHPUnit 12. (Jetpack.PHPUnit.TestMethodCovers.UsesFound)

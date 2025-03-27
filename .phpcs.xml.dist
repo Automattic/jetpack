@@ -46,4 +46,9 @@
 		<exclude name="Generic.PHP.Syntax" />
 	</rule>
 
+	<!-- Disable temporarily. Will remove along with fixes in a future PR. -->
+	<rule ref="Jetpack.PHPUnit.TestMethodCovers">
+		<exclude name="Jetpack.PHPUnit.TestMethodCovers" />
+	</rule>
+
 </ruleset>

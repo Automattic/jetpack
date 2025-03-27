@@ -64,7 +64,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "c8eea0b7f2d6052a61a6e562eeeb0e33c6dcc096"
+                "reference": "87713a98e41616a03a3e8ee02edfed234f32e538"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -97,7 +97,13 @@
                     "hacks/"
                 ],
                 "psr-4": {
-                    "Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs"
+                    "Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs",
+                    "Automattic\\Jetpack\\Codesniffer\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Codesniffer\\Tests\\": "tests/php/unit/"
                 }
             },
             "scripts": {
