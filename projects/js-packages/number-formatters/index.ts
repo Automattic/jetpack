@@ -12,3 +12,6 @@ export const {
 } = defaultFormatter;
 
 export * from './types/index.js';
+
+// We can optionally export the formatters individually if we want to use them in a more granular way.
+// export { numberFormat, numberFormatCompact, numberFormatCurrency, getCurrencyObject };
