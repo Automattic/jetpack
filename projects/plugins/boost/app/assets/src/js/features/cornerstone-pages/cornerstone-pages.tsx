@@ -8,14 +8,14 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import { useCornerstonePages } from './lib/stores/cornerstone-pages';
 import Pill from '$features/ui/pill/pill';
 import Prerender from './prerender/prerender';
-import { useModulesState } from '$features/module/lib/stores';
+import { useSingleModuleState } from '$features/module/lib/stores';
 
 const CornerstonePages = () => {
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
 
-	const [ modulesState ] = useModulesState();
-	const isSpeculationRulesAvailable = modulesState.data?.speculation_rules.available;
+	const [ moduleState ] = useSingleModuleState( 'speculation_rules' );
+	const isSpeculationRulesAvailable = moduleState?.available ?? false;
 
 	return (
 		<div className={ styles.wrapper }>
