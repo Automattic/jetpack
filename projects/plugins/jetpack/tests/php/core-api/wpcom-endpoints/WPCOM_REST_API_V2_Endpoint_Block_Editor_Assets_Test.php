@@ -13,6 +13,7 @@ require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
  * Test class for WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets.
  */
 class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_TestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Instance of WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets.
@@ -66,44 +67,6 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 */
 	public function test_class_implements_rest_controller() {
 		$this->assertInstanceOf( WP_REST_Controller::class, $this->instance );
-	}
-
-	/**
-	 * Test that the route namespace is set correctly.
-	 */
-	public function test_route_namespace() {
-		$this->assertSame( 'wpcom/v2', WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets::$route_namespace );
-	}
-
-	/**
-	 * Test that the route base is set correctly.
-	 */
-	public function test_route_base() {
-		$this->assertSame( 'editor-assets', WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets::$route );
-	}
-
-	/**
-	 * Test the is_editor_assets_request method with various URIs.
-	 */
-	public function test_is_editor_assets_request() {
-		$_SERVER['REQUEST_METHOD'] = Requests::GET;
-
-		// Test WPCOM style URI
-		$_SERVER['REQUEST_URI'] = '/wpcom/v2/sites/123/editor-assets';
-		$this->assertTrue( WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets::is_editor_assets_request() );
-
-		// Test WP-JSON style URI
-		$_SERVER['REQUEST_URI'] = '/wp-json/wpcom/v2/editor-assets';
-		$this->assertTrue( WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets::is_editor_assets_request() );
-
-		// Test invalid URI
-		$_SERVER['REQUEST_URI'] = '/some-other-path';
-		$this->assertFalse( WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets::is_editor_assets_request() );
-
-		// Test OPTIONS request
-		$_SERVER['REQUEST_METHOD'] = Requests::OPTIONS;
-		$_SERVER['REQUEST_URI']    = '/wpcom/v2/sites/123/editor-assets';
-		$this->assertFalse( WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets::is_editor_assets_request() );
 	}
 
 	/**

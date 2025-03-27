@@ -19,52 +19,12 @@ if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller'
 		const CACHE_BUSTER = '2025-02-28';
 
 		/**
-		 * Namespace for the REST API.
-		 *
-		 * @var string
-		 */
-		public static $route_namespace = 'wpcom/v2';
-
-		/**
-		 * REST base for the endpoint.
-		 *
-		 * @var string
-		 */
-		public static $route = 'editor-assets';
-
-		/**
 		 * Constructor.
 		 */
 		public function __construct() {
-			$this->namespace = self::$route_namespace;
-			$this->rest_base = self::$route;
+			$this->namespace = 'wpcom/v2';
+			$this->rest_base = 'editor-assets';
 			add_action( 'rest_api_init', array( $this, 'register_routes' ) );
-		}
-
-		/**
-		 * Checks if the current request is for editor assets.
-		 *
-		 * @return bool
-		 */
-		public static function is_editor_assets_request() {
-			return isset( $_SERVER['REQUEST_URI'] ) &&
-				isset( $_SERVER['REQUEST_METHOD'] ) &&
-				'OPTIONS' !== $_SERVER['REQUEST_METHOD'] &&
-				(
-					// Match the format: /wpcom/v2/sites/{site_id}/editor-assets
-					preg_match(
-						'/\/' . preg_quote( self::$route_namespace, '/' ) .
-						'\/sites\/[^\/]+\/' .
-						preg_quote( self::$route, '/' ) . '/',
-						sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ) )
-					) ||
-					// Match the format: /wp-json/wpcom/v2/editor-assets
-					preg_match(
-						'/\/wp-json\/' . preg_quote( self::$route_namespace, '/' ) .
-						'\/' . preg_quote( self::$route, '/' ) . '\/?$/',
-						sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ) )
-					)
-				);
 		}
 
 		/**
@@ -237,13 +197,6 @@ if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Controller'
 
 			return $this->add_additional_fields_schema( $this->schema );
 		}
-	}
-
-	// Ensure conditional admin- and editor-only dependencies are registered
-	if ( WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets::is_editor_assets_request() ) {
-		require_once ABSPATH . '/wp-admin/includes/class-wp-screen.php';
-		require_once ABSPATH . '/wp-admin/includes/screen.php';
-		set_current_screen( 'core/edit-post' );
 	}
 }
 
