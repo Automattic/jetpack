@@ -178,6 +178,8 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$skip_redirect = isset( $_GET['skip_redirect'] ) && sanitize_text_field( wp_unslash( $_GET['skip_redirect'] ) ) === 'true';
 
+		// If the user is not connected, redirect to the onboarding page
+		// (skip_redirect is used to prevent infinite redirect)
 		if ( ! $connection->is_connected() && ! $skip_redirect ) {
 			$admin_page = add_query_arg(
 				array(
@@ -196,6 +198,12 @@ class Initializer {
 			exit( 0 );
 		}
 
+		// If the user reaches the onboarding page, add a class to the body
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
+		if ( $skip_redirect && isset( $_GET['page'] ) && $_GET['page'] === 'my-jetpack' ) {
+			add_filter( 'admin_body_class', array( __CLASS__, 'add_onboarding_admin_body_class' ) );
+		}
+
 		self::$site_info = self::get_site_info();
 		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
@@ -203,6 +211,18 @@ class Initializer {
 		header( 'Cache-Control: no-cache, no-store, must-revalidate' );
 		header( 'Pragma: no-cache' );
 		header( 'Expires: 0' );
+	}
+
+	/**
+	 * Add a body class to the My Jetpack onboarding page.
+	 * This class hides the WP Admin toolbar and the sidebar menu.
+	 *
+	 * @param string $classes The body classes.
+	 * @return string The modified body classes.
+	 */
+	public static function add_onboarding_admin_body_class( $classes ) {
+		$classes .= 'jetpack-admin-full-screen';
+		return $classes;
 	}
 
 	/**
