@@ -15,7 +15,7 @@ const CornerstonePages = () => {
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
 
 	const [ modulesState ] = useModulesState();
-	const isSpeculationRulesApiSupported = modulesState.data?.speculation_rules.available;
+	const isSpeculationRulesAvailable = modulesState.data?.speculation_rules.available;
 
 	return (
 		<div className={ styles.wrapper }>
@@ -42,7 +42,7 @@ const CornerstonePages = () => {
 					<PanelRow>
 						<Meta />
 					</PanelRow>
-					{ isSpeculationRulesApiSupported && (
+					{ isSpeculationRulesAvailable && (
 						<PanelRow>
 							<Prerender />
 						</PanelRow>
