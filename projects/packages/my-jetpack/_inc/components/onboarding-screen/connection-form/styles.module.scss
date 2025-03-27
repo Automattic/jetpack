@@ -149,7 +149,7 @@
 
 .error-message {
 	color: var(--jp-red-50, #d63638);
-	font-size: 14px;
+	font-size: var(--font-body-small);
 	line-height: 20px;
 	margin-top: -8px;
 }

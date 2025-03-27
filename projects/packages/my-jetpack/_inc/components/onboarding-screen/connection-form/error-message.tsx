@@ -1,5 +1,6 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { useCallback } from 'react';
 import styles from './styles.module.scss';
 import type { OauthErrorType, SocialService } from '../../../hooks/use-oauth-connection';
 import type { FC } from 'react';
@@ -10,11 +11,7 @@ interface ErrorMessageProps {
 }
 
 const ErrorMessage: FC< ErrorMessageProps > = ( { errorType, service = 'Wordpress' } ) => {
-	if ( ! errorType ) {
-		return null;
-	}
-
-	const getMessage = () => {
+	const getMessage = useCallback( () => {
 		switch ( errorType ) {
 			case 'email-validation':
 				// Third argument is to avoid a compilation issue with ternary operator
@@ -38,7 +35,11 @@ const ErrorMessage: FC< ErrorMessageProps > = ( { errorType, service = 'Wordpres
 			default:
 				return __( 'An error occurred. Please try again.', 'jetpack-my-jetpack' );
 		}
-	};
+	}, [ errorType, service ] );
+
+	if ( ! errorType ) {
+		return null;
+	}
 
 	return (
 		<div
