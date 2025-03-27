@@ -23,6 +23,13 @@ class Publicize_Setup {
 	public static $refresh_plan_info = false;
 
 	/**
+	 * Whether the class has been initialized.
+	 *
+	 * @var bool
+	 */
+	public static $initialized = false;
+
+	/**
 	 * To configure the publicize package, when called via the Config package.
 	 */
 	public static function configure() {
@@ -30,14 +37,61 @@ class Publicize_Setup {
 	}
 
 	/**
-	 * Initialization of publicize logic that should always be loaded.
+	 * Initialization of publicize logic that should always be loaded,
+	 * regardless of whether Publicize is enabled or not.
+	 *
+	 * You should justify everyting that is done here, as it will be loaded on every pageload.
 	 */
 	public static function pre_initialization() {
 
-		$is_wpcom = ( new Host() )->is_wpcom_simple();
+		$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
 
-		// Assets are to be loaded in all cases.
+		/**
+		 * Assets are to be loaded in all cases.
+		 *
+		 * To allow loading of admin page and
+		 * the editor placeholder when publicize is OFF.
+		 */
 		Publicize_Assets::configure();
+
+		/**
+		 * Social admin page is to be always registered.
+		 */
+		Social_Admin_Page::init();
+
+		if ( ! $is_wpcom_simple ) {
+			/**
+			 * We need this only on Jetpack sites for Google Site auto-verification.
+			 */
+			add_action( 'init', array( Keyring_Helper::class, 'init' ), 9 );
+		}
+
+		if ( $is_wpcom_simple ) {
+			/**
+			 * Publicize is always enabled on WPCOM,
+			 * we can call the initialization method directly.
+			 */
+			self::on_jetpack_feature_publicize_enabled();
+		}
+	}
+
+	/**
+	 * To configure the publicize package, when called via the Config package.
+	 */
+	public static function on_jetpack_feature_publicize_enabled() {
+		if ( self::$initialized ) {
+			return;
+		}
+
+		self::$initialized = true;
+
+		global $publicize_ui;
+
+		if ( ! isset( $publicize_ui ) ) {
+			$publicize_ui = new Publicize_UI();
+		}
+
+		$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
 
 		$rest_controllers = array(
 			REST_API\Connections_Controller::class,
@@ -51,34 +105,15 @@ class Publicize_Setup {
 
 		// Load the REST controllers.
 		foreach ( $rest_controllers as $controller ) {
-			if ( $is_wpcom ) {
+			if ( $is_wpcom_simple ) {
 				wpcom_rest_api_v2_load_plugin( $controller );
 			} else {
 				new $controller();
 			}
 		}
 
-		Social_Admin_Page::init();
-
-		// We need this only on Jetpack sites for Google Site auto-verification.
-		if ( ! ( new Host() )->is_wpcom_simple() ) {
-			add_action( 'init', array( Keyring_Helper::class, 'init' ), 9 );
-		}
-	}
-
-	/**
-	 * To configure the publicize package, when called via the Config package.
-	 */
-	public static function on_jetpack_feature_publicize_enabled() {
-		global $publicize_ui;
-
-		if ( ! isset( $publicize_ui ) ) {
-			$publicize_ui = new Publicize_UI();
-
-		}
-
 		// Adding on a higher priority to make sure we're the first field registered.
-		// The priority parameter can be removed once we deprecate WPCOM_REST_API_V2_Post_Publicize_Connections_Field
+		// The priority parameter can be removed once we deprecate WPCOM_REST_API_V2_Post_Publicize_Connections_Field.
 		add_action( 'rest_api_init', array( new REST_API\Connections_Post_Field(), 'register_fields' ), 5 );
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
@@ -87,7 +122,7 @@ class Publicize_Setup {
 		add_action( 'admin_init', array( static::class, 'register_core_options' ) );
 		add_action( 'current_screen', array( self::class, 'add_filters_and_actions_for_screen' ), 5 );
 
-		if ( ( new Host() )->is_wpcom_simple() ) {
+		if ( $is_wpcom_simple ) {
 
 			wpcom_rest_api_v2_load_plugin( Jetpack_Social_Settings\Settings::class );
 		} else {
@@ -135,7 +170,7 @@ class Publicize_Setup {
 	public static function init_sharing_limits() {
 		$current_screen = get_current_screen();
 
-		if ( empty( $current_screen ) || $current_screen->base !== 'post' ) {
+		if ( empty( $current_screen ) || 'post' !== $current_screen->base ) {
 			return;
 		}
 
