@@ -1,6 +1,6 @@
-import createNumberFormatter from './src/index.js';
+import createNumberFormatters from './src/create-number-formatters.js';
 
-const defaultFormatter = createNumberFormatter();
+const defaultFormatter = createNumberFormatters();
 
 export const {
 	setLocale,

@@ -1,3 +1,4 @@
+import { FALLBACK_LOCALE } from './constants.js';
 import {
 	numberFormatCurrency,
 	getCurrencyObject as getCurrencyObjectFromCurrencyFormatter,
@@ -10,10 +11,7 @@ import type {
 	GetCurrencyObject,
 } from '../types/index.js';
 
-/**
- * Interface defining the shape of a NumberFormatter instance
- */
-export interface NumberFormatter {
+export interface NumberFormatters {
 	/**
 	 * Sets the locale for number formatting
 	 * @param locale - The locale to use for formatting
@@ -22,9 +20,9 @@ export interface NumberFormatter {
 
 	/**
 	 * Sets the user's geo location for currency formatting if available
-	 * @param geoLocation - The geo location to use for formatting
+	 * @param newGeoLocation - The geo location to use for formatting
 	 */
-	setGeoLocation( geoLocation: string ): void;
+	setGeoLocation( newGeoLocation: string ): void;
 
 	/**
 	 * Formats numbers using locale settings and/or passed options.
@@ -137,11 +135,11 @@ export interface NumberFormatter {
 }
 
 /**
- * Creates a number formatter instance that provides number and currency formatting functionality with locale awareness
- * @return {NumberFormatter} A number formatter instance
+ * Creates a NumberFormatters instance that provides number and currency formatting functionality with locale awareness
+ * @return {NumberFormatters} A NumberFormatters instance
  */
-export function createNumberFormatter(): NumberFormatter {
-	let browserSafeLocale: string | undefined;
+function createNumberFormatters(): NumberFormatters {
+	let browserSafeLocale = FALLBACK_LOCALE;
 	let geoLocation: string | undefined;
 
 	const setLocale = ( locale: string ): void => {
@@ -150,7 +148,7 @@ export function createNumberFormatter(): NumberFormatter {
 		 * These suffixes should be removed. Values like `de-at` or `es-mx`
 		 * should all be valid inputs for the constructor.
 		 */
-		browserSafeLocale = locale.split( '_' )[ 0 ] ?? locale;
+		browserSafeLocale = locale.split( '_' )[ 0 ];
 	};
 
 	const setGeoLocation = ( newGeoLocation: string ): void => {
@@ -237,4 +235,4 @@ export function createNumberFormatter(): NumberFormatter {
 	};
 }
 
-export default createNumberFormatter;
+export default createNumberFormatters;
