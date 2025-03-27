@@ -42,8 +42,8 @@ function wpcom_render_export_media_files_page() {
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Export Media Files', 'jetpack-mu-wpcom' ); ?></h1>
-			<p><?php esc_html_e( 'This site is using the more advanced Jetpack VaultPress feature to seamlessly export your files and manage your backups.', 'jetpack-mu-wpcom' ); ?></p>
-			<a href="<?php echo esc_url( $backup_url ); ?>" class="button"><?php esc_html_e( 'Go to Backup', 'jetpack-mu-wpcom' ); ?></a>
+			<p><?php esc_html_e( 'Export your site’s media files and manage backups from Jetpack VaultPress Backup.', 'jetpack-mu-wpcom' ); ?></p>
+			<a href="<?php echo esc_url( $backup_url ); ?>" class="button button-primary"><?php esc_html_e( 'Go to Backup', 'jetpack-mu-wpcom' ); ?></a>
 		</div>
 		<?php
 		return;
@@ -60,8 +60,6 @@ function wpcom_render_export_media_files_page() {
 		
 		<?php if ( $media_export_url ) : ?>
 			<p><?php esc_html_e( 'Download all the media library files (images, videos, audio, and documents) from your site.', 'jetpack-mu-wpcom' ); ?></p>
-			
-			<p class="description"><?php esc_html_e( 'Depending on your media library size and/or connection speed, you might need to use a download manager.', 'jetpack-mu-wpcom' ); ?> 
 			<a href="https://wordpress.com/support/export/#exporting-media-library" target="_blank"><?php esc_html_e( 'Learn more', 'jetpack-mu-wpcom' ); ?></a>.</p>
 			
 			<p><a href="<?php echo esc_url( $media_export_url ); ?>" class="button button-primary"><?php esc_html_e( 'Download', 'jetpack-mu-wpcom' ); ?></a></p>
