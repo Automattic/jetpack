@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Specify block assets dir in jetpack_register_block
