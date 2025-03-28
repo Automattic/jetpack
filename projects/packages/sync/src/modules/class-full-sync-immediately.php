@@ -100,15 +100,15 @@ class Full_Sync_Immediately extends Module {
 			$full_sync_config['users'] = $users_module->get_initial_sync_user_config();
 		}
 
+		$range = $this->get_content_range( $full_sync_config );
+
 		$this->update_status(
 			array(
 				'started'  => time(),
 				'config'   => $full_sync_config,
-				'progress' => $this->get_initial_progress( $full_sync_config ),
+				'progress' => $this->get_initial_progress( $full_sync_config, $range ),
 			)
 		);
-
-		$range = $this->get_content_range();
 		/**
 		 * Fires when a full sync begins. This action is serialized
 		 * and sent to the server so that it knows a full sync is coming.
@@ -249,10 +249,11 @@ class Full_Sync_Immediately extends Module {
 	 * Given an initial Full Sync configuration get the initial status.
 	 *
 	 * @param array $full_sync_config Full sync configuration.
+	 * @param array $range Range of the sync items, containing min, max and count IDs for some item types.
 	 *
 	 * @return array Initial Sent status.
 	 */
-	public function get_initial_progress( $full_sync_config ) {
+	public function get_initial_progress( $full_sync_config, $range = null ) {
 		// Set default configuration, calculate totals, and save configuration if totals > 0.
 		$status = array();
 		foreach ( $full_sync_config as $name => $config ) {
@@ -261,7 +262,8 @@ class Full_Sync_Immediately extends Module {
 				continue;
 			}
 			$status[ $name ] = array(
-				'total'    => $module->total( $config ),
+				// If we have a range for the module, use the count from the range to avoid querying the database again.
+				'total'    => $range[ $name ]->count ?? $module->total( $config ),
 				'sent'     => 0,
 				'finished' => false,
 			);
@@ -275,18 +277,24 @@ class Full_Sync_Immediately extends Module {
 	 *
 	 * @access private
 	 *
+	 * @param array $full_sync_config Full sync configuration.
+	 *
 	 * @return array Array of range (min ID, max ID, total items) for all content types.
 	 */
-	private function get_content_range() {
-		$range  = array();
-		$config = $this->get_status()['config'];
-		// Add range only when syncing all objects.
-		if ( true === isset( $config['posts'] ) && $config['posts'] ) {
-			$range['posts'] = $this->get_range( 'posts' );
-		}
-
-		if ( true === isset( $config['comments'] ) && $config['comments'] ) {
-			$range['comments'] = $this->get_range( 'comments' );
+	private function get_content_range( $full_sync_config ) {
+		$range = array();
+		foreach ( $full_sync_config as $module_name => $config ) {
+			// Calculate ranges only for modules that get chunked.
+			if ( in_array( $module_name, array( 'constants', 'functions', 'network_options', 'options', 'themes', 'updates' ), true ) ) {
+				continue;
+			}
+			$module = Modules::get_module( $module_name );
+			if ( ! $module ) {
+				continue;
+			}
+			if ( true === isset( $config ) && $config ) {
+				$range[ $module_name ] = $this->get_range( $module_name );
+			}
 		}
 
 		return $range;
@@ -303,23 +311,14 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function get_range( $type ) {
 		global $wpdb;
-		if ( ! in_array( $type, array( 'comments', 'posts' ), true ) ) {
+		$module = Modules::get_module( $type );
+		if ( ! $module ) {
 			return array();
 		}
 
-		switch ( $type ) {
-			case 'posts':
-				$table     = $wpdb->posts;
-				$id        = 'ID';
-				$where_sql = Settings::get_blacklisted_post_types_sql();
-
-				break;
-			case 'comments':
-				$table     = $wpdb->comments;
-				$id        = 'comment_ID';
-				$where_sql = Settings::get_comments_filter_sql();
-				break;
-		}
+		$table     = $module->table();
+		$id        = $module->id_field();
+		$where_sql = $module->get_where_sql( array() );
 
 		// TODO: Call $wpdb->prepare on the following query.
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -448,7 +447,7 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 */
 	public function send_full_sync_end() {
-		$range = $this->get_content_range();
+		$range = $this->get_content_range( $this->get_status()['config'] );
 
 		/**
 		 * Fires when a full sync ends. This action is serialized

@@ -66,8 +66,8 @@ class Admin {
 		// Clear premium features cache when the plugin settings page is loaded.
 		Premium_Features::clear_cache();
 
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( My_Jetpack_Initializer::class, 'enqueue_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -88,6 +88,7 @@ class Admin {
 		$admin_js_dependencies = array(
 			'wp-i18n',
 			'wp-components',
+			'my_jetpack_main_app',
 		);
 
 		Assets::register_script(

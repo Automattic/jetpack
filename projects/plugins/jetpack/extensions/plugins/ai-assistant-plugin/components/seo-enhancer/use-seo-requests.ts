@@ -5,8 +5,10 @@ import {
 	askQuestionSync,
 	getAllBlocks,
 	getBase64Image,
+	useAiFeature,
 	usePostContent,
 } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
@@ -38,18 +40,23 @@ const parseResponse = ( response: string ) => {
 	return parsedResponse;
 };
 
-export const useSeoRequests = (
-	features: PromptType[] = [ 'seo-title', 'seo-meta-description', 'images-alt-text' ]
-) => {
+export const useSeoRequests = () => {
+	const { tracks } = useAnalytics();
 	const { editPost } = useDispatch( editorStore );
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const { getPostContent } = usePostContent();
-	const isBusy = useSelect( select => select( store ).isBusy(), [] );
+	const { isBusy, enabledFeatures } = useSelect( select => {
+		const busy = select( store ).isBusy();
+		const features = select( store ).getEnabledFeatures();
+
+		return { isBusy: busy, enabledFeatures: features };
+	}, [] );
 	const { setBusy, setTitleBusy, setDescriptionBusy } = useDispatch( store );
 	const { isImageBusy, hasImageFailed } = useSelect( select => select( store ), [] );
 	const { setImageBusy, setImageFailed } = useDispatch( store );
 	const { createInfoNotice } = useDispatch( 'core/notices' );
+	const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
 
 	const request = useCallback(
 		async ( type: PromptType, block?: Block, useBase64Image: boolean = false ) => {
@@ -159,6 +166,11 @@ export const useSeoRequests = (
 
 	const updateAltText = useCallback(
 		async ( block: Block, useBase64Image: boolean = false ) => {
+			if ( requireUpgrade ) {
+				debug( 'Upgrade required, skipping' );
+				return null;
+			}
+
 			if ( isImageBusy( block.clientId ) ) {
 				debug( 'Already updating alt text, skipping' );
 				return null;
@@ -171,8 +183,14 @@ export const useSeoRequests = (
 
 			try {
 				setImageBusy( block.clientId, true );
+				dequeueAsyncRequest();
+
 				const response = await request( 'images-alt-text', block, useBase64Image );
+
+				increaseRequestsCount();
+
 				const altText = parseResponse( response ).texts?.[ 0 ];
+
 				await updateBlockAttributes( block.clientId, { alt: altText } );
 				setImageBusy( block.clientId, false );
 
@@ -193,7 +211,17 @@ export const useSeoRequests = (
 				return false;
 			}
 		},
-		[ isImageBusy, hasImageFailed, setImageBusy, request, updateBlockAttributes, setImageFailed ]
+		[
+			requireUpgrade,
+			isImageBusy,
+			hasImageFailed,
+			setImageBusy,
+			dequeueAsyncRequest,
+			request,
+			increaseRequestsCount,
+			updateBlockAttributes,
+			setImageFailed,
+		]
 	);
 
 	const updateAltTexts = useCallback(
@@ -211,30 +239,53 @@ export const useSeoRequests = (
 		[ updateAltText ]
 	);
 
-	const updateSeoData = useCallback( async () => {
-		const promises = [];
-		setBusy( true );
+	const updateSeoData = useCallback(
+		async ( { trigger = 'manual' }: { trigger?: 'manual' | 'auto' } = {} ) => {
+			const promises = [];
+			setBusy( true );
 
-		features.forEach( feature => {
-			if ( feature === 'seo-title' ) {
-				promises.push( updateTitle() );
-			}
-			if ( feature === 'seo-meta-description' ) {
-				promises.push( updateDescription() );
-			}
-			if ( feature === 'images-alt-text' ) {
-				promises.push( updateAltTexts() );
-			}
-		} );
+			const trackData = {
+				trigger,
+				seo_title: false,
+				seo_meta_description: false,
+				images_alt_text: false,
+			};
 
-		const result = ( await Promise.all( promises ) ).flat();
-		setBusy( false );
+			enabledFeatures.forEach( feature => {
+				if ( feature === 'seo-title' ) {
+					promises.push( updateTitle() );
+					trackData.seo_title = true;
+				}
+				if ( feature === 'seo-meta-description' ) {
+					promises.push( updateDescription() );
+					trackData.seo_meta_description = true;
+				}
+				if ( feature === 'images-alt-text' ) {
+					promises.push( updateAltTexts() );
+					trackData.images_alt_text = true;
+				}
+			} );
 
-		// The notice is only shown if at least one value was updated
-		if ( result.some( value => value === true ) ) {
-			createInfoNotice( __( 'SEO metadata added', 'jetpack' ), { type: 'snackbar' } );
-		}
-	}, [ setBusy, features, createInfoNotice, updateTitle, updateDescription, updateAltTexts ] );
+			tracks.recordEvent( 'jetpack_seo_enhancer_trigger', trackData );
+
+			const result = ( await Promise.all( promises ) ).flat();
+			setBusy( false );
+
+			// The notice is only shown if at least one value was updated
+			if ( result.some( value => value === true ) ) {
+				createInfoNotice( __( 'SEO metadata added', 'jetpack' ), { type: 'snackbar' } );
+			}
+		},
+		[
+			setBusy,
+			enabledFeatures,
+			createInfoNotice,
+			updateTitle,
+			updateDescription,
+			updateAltTexts,
+			tracks,
+		]
+	);
 
 	return { updateSeoData, updateAltText, isBusy };
 };

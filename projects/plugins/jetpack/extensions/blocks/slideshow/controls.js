@@ -42,6 +42,7 @@ export function PanelControls( {
 				{ autoplay && (
 					<RangeControl
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 						label={ __( 'Delay between transitions (in seconds)', 'jetpack' ) }
 						value={ delay }
 						onChange={ value => {

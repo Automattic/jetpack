@@ -28,23 +28,18 @@ function fixDeps( pkg ) {
 
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
-	// https://github.com/WordPress/gutenberg/issues/68694
 	if (
-		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/upload-media' ) &&
+		pkg.name === '@wordpress/icons' &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
 		pkg.peerDependencies.react = '^18';
 	}
 
-	// Missing dep or peer dep on @babel/runtime and react
-	// https://github.com/WordPress/gutenberg/issues/68694
-	if (
-		pkg.name === '@wordpress/upload-media' &&
-		! pkg.dependencies?.[ '@babel/runtime' ] &&
-		! pkg.peerDependencies?.[ '@babel/runtime' ]
-	) {
-		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
+	// Unused deprecated dependency.
+	// https://github.com/WordPress/gutenberg/issues/69254
+	if ( pkg.name === '@wordpress/upload-media' ) {
+		delete pkg.dependencies?.[ '@shopify/web-worker' ];
 	}
 
 	// We need to add the missing deps for `@wordpress/dataviews` because
@@ -76,8 +71,8 @@ function fixDeps( pkg ) {
 		}
 	}
 
-	// Missing dep or peer dep.
-	// https://github.com/actions/toolkit/issues/1684
+	// Missing dep or peer dep. Fixed in main, but needs a release.
+	// https://github.com/actions/toolkit/issues/1993
 	if (
 		pkg.name === '@actions/github' &&
 		! pkg.dependencies?.undici &&
@@ -150,7 +145,7 @@ function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency. And it doesn't really use it in our configuration anyway.
-	// No upstream bug link yet.
+	// Looks like it's updated in master but has had no release since.
 	if ( pkg.name === 'rollup-plugin-svelte-svg' && pkg.dependencies.svgo === '^2.3.1' ) {
 		pkg.dependencies.svgo = '*';
 	}
@@ -188,6 +183,21 @@ function fixDeps( pkg ) {
 				pkg.dependencies[ k ] = '*';
 			}
 		}
+	}
+
+	// Outdated, deprecated dependency.
+	// https://github.com/fontello/svg2ttf/issues/123
+	if ( pkg.name === 'svg2ttf' && pkg.dependencies?.[ '@xmldom/xmldom' ] === '^0.7.2' ) {
+		pkg.dependencies[ '@xmldom/xmldom' ] = '^0.9';
+	}
+
+	// Outdated, deprecated dependency.
+	// https://github.com/hipstersmoothie/react-docgen-typescript-plugin/issues/93
+	if (
+		pkg.name === '@storybook/react-docgen-typescript-plugin' &&
+		pkg.dependencies?.[ 'flat-cache' ] === '^3.0.4'
+	) {
+		pkg.dependencies[ 'flat-cache' ] = '^4';
 	}
 
 	return pkg;

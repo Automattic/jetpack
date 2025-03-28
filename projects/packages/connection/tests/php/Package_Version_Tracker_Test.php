@@ -42,10 +42,9 @@ class Package_Version_Tracker_Test extends TestCase {
 
 	/**
 	 * Setting up the testing environment.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		Sync_Settings::update_settings( array( 'disable' => true ) );
 		$this->reset_connection_status();
@@ -53,10 +52,9 @@ class Package_Version_Tracker_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		global $wp_actions;
 		// Restore `init` in global $wp_actions.
 		$wp_actions['init'] = true;

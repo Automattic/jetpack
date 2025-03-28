@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack_Boost\Admin\Config as Boost_Admin_Config;
 use Automattic\Jetpack_Boost\Lib\Minify;
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\File_Paths;
@@ -116,11 +117,10 @@ add_action( 'jetpack_boost_404_tester_cron', 'jetpack_boost_404_tester_cron' );
  * Schedule the 404 tester if the concatenation modules
  * haven't been toggled since this feature was released.
  * Only run this in wp-admin to avoid excessive updates to the option.
- *
- * @param bool $setup_404_tester Whether to setup the 404 tester or not.
  */
-function jetpack_boost_404_setup( $setup_404_tester = true ) {
-	if ( ! $setup_404_tester ) {
+function jetpack_boost_404_setup() {
+	// If we're on Atomic or Woa, don't setup the 404 tester.
+	if ( in_array( Boost_Admin_Config::get_hosting_provider(), array( 'atomic', 'woa' ), true ) ) {
 		return;
 	}
 

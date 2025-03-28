@@ -6,7 +6,6 @@ use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Data_Sync\Cornerstone_Pages_Entry;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
-
 class Cornerstone_Pages implements Has_Setup {
 
 	const PREMIUM_MAX_PAGES = 10;

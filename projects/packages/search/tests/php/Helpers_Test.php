@@ -64,10 +64,9 @@ class Helpers_Test extends TestCase {
 
 	/**
 	 * Setup test instance
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$GLOBALS['wp_customize']  = new Test_Helpers_Customize();
 		$this->request_uri        = isset( $_SERVER['REQUEST_URI'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : null;
 		$this->get                = $_GET;
@@ -81,10 +80,9 @@ class Helpers_Test extends TestCase {
 
 	/**
 	 * Cleanup test instance.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		$_SERVER['REQUEST_URI'] = $this->request_uri;
 		$_GET                   = $this->get;
 		$_POST                  = $this->post;

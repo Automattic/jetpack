@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface Props {
-	fallback: React.ReactNode;
+	fallback: ( error: Error ) => React.ReactNode;
 	children: React.ReactNode;
 }
 
@@ -26,8 +26,8 @@ class ErrorBoundary extends React.Component< Props, State > {
 	}
 
 	render(): React.ReactNode {
-		if ( this.state.hasError ) {
-			return this.props.fallback || null;
+		if ( this.state.hasError && this.state.error ) {
+			return this.props.fallback( this.state.error );
 		}
 		return this.props.children;
 	}

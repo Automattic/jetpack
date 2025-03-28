@@ -4,7 +4,7 @@ Tags: Security, backup, malware, scan, performance
 Stable tag: 14.4
 Requires at least: 6.6
 Requires PHP: 7.2
-Tested up to: 6.7
+Tested up to: 6.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -326,14 +326,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.5-a.7 - 2025-03-18
+### 14.5-a.9 - 2025-03-24
 #### Enhancements
-- Forms: Add quick link in the admin bar for form entries.
+- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack.
+
+#### Improved compatibility
+- VideoPress: Add block sidebar notice to transform embed into a block.
+- AI Assistant: Improve performance by optimizing state management in the AI feature hook.
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls.
 
 #### Bug fixes
-- Forms: Add a default label for textarea fields.
-- Forms: Remove Google Drive beta badge.
-- Forms: Remove Salesforce beta badge.
+- Admin Color Scheme: Fix colors in the Aquatic color scheme.
+- Newsletter: Ensure external links are marked as such in the Newsletter widget.
+- Search: Ensure the count of returned results is shown after searching.
+- Site Badge: Update styles of the Coming Soon badge.
+- Site Verification: Fix auto-verification via Google when Social is disabled.
+- Stats: Ensure the Stats widget is automatically disabled when the Stats module is disabled.
 
 --------
 

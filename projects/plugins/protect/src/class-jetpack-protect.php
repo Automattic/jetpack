@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+use Automattic\Jetpack\Account_Protection\Settings as Account_Protection_Settings;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -58,6 +59,7 @@ class Jetpack_Protect {
 	);
 	const JETPACK_WAF_MODULE_SLUG                    = 'waf';
 	const JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG = 'protect';
+	const JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG     = 'account-protection';
 	const JETPACK_PROTECT_ACTIVATION_OPTION          = JETPACK_PROTECT_SLUG . '_activated';
 
 	/**
@@ -112,6 +114,9 @@ class Jetpack_Protect {
 
 				// Web application firewall package.
 				$config->ensure( 'waf' );
+
+				// Account protection package.
+				$config->ensure( 'account_protection' );
 			},
 			1
 		);
@@ -228,6 +233,7 @@ class Jetpack_Protect {
 			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
 			'hasPlan'            => $has_plan,
 			'onboardingProgress' => Onboarding::get_current_user_progress(),
+			'accountProtection'  => ( new Account_Protection_Settings() )->get(),
 			'waf'                => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),
@@ -280,6 +286,7 @@ class Jetpack_Protect {
 	 */
 	public static function activate_modules() {
 		delete_option( self::JETPACK_PROTECT_ACTIVATION_OPTION );
+		( new Modules() )->activate( self::JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG, false, false );
 		( new Modules() )->activate( self::JETPACK_WAF_MODULE_SLUG, false, false );
 		( new Modules() )->activate( self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG, false, false );
 	}
@@ -339,7 +346,7 @@ class Jetpack_Protect {
 	 * @return array
 	 */
 	public function protect_filter_available_modules( $modules ) {
-		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG, self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG ), $modules );
+		return array_merge( array( self::JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG, self::JETPACK_WAF_MODULE_SLUG, self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG ), $modules );
 	}
 
 	/**

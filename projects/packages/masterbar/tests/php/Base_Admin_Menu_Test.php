@@ -50,10 +50,9 @@ class Base_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Set up each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $menu, $submenu;
 
 		static::$menu_data    = get_menu_fixture();
@@ -79,10 +78,9 @@ class Base_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		wp_deregister_script( 'jetpack-admin-menu' );
 		wp_deregister_style( 'jetpack-admin-menu' );
 		WorDBless_Options::init()->clear_options();

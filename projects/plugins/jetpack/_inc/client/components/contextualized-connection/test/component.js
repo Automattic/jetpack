@@ -6,7 +6,6 @@ import ContextualizedConnection from '../index';
 describe( 'ContextualizedConnection', () => {
 	const testProps = {
 		apiNonce: 'test',
-		registrationNonce: 'test',
 		apiRoot: 'https://example.org/wp-json/',
 		redirectUri: 'https://example.org',
 		redirectTo: 'Elsewhere',

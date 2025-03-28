@@ -74,6 +74,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				isEditingWhileUploading: false,
 				isUploadComplete: false,
 				lastPosterValueSource: '',
+				pendingVideoAttributes: null,
 			};
 			this.posterImageButton = createRef();
 			this.previewCacheReloadTimer = null;
@@ -89,12 +90,16 @@ const VideoPressEdit = CoreVideoEdit =>
 				newState.interactive = false;
 			}
 
+			// Ensure we preserve isEditingWhileUploading state during upload
 			if ( state.fileForUpload && ! state.isEditingWhileUploading ) {
 				const isResumableUploading =
 					null !== state.fileForUpload && state.fileForUpload instanceof File;
 				if ( isResumableUploading ) {
 					newState.isEditingWhileUploading = true;
 				}
+			} else if ( state.pendingVideoAttributes ) {
+				// Keep editing state active if we have pending attributes
+				newState.isEditingWhileUploading = true;
 			}
 
 			return Object.keys( newState ).length ? newState : null;
@@ -572,6 +577,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								] }
 								help={ this.getPreloadHelp() }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 							<MediaUploadCheck>
 								<BaseControl className="editor-video-poster-control">
@@ -657,6 +663,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								] }
 								onChange={ this.onChangeRating }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -693,6 +700,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								] }
 								disabled={ isFetchingMedia || isUpdatingPrivacySetting }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						</PanelBody>
 					</InspectorControls>
@@ -748,11 +756,12 @@ const VideoPressEdit = CoreVideoEdit =>
 					fileForUpload: null,
 					isUploadComplete: !! mediaId,
 					isEditingWhileUploading: mediaId ? this.state.isEditingWhileUploading : false,
+					// Store video attributes to apply them later when user clicks Done
+					pendingVideoAttributes:
+						mediaId && videoGuid && videoSrc
+							? { id: mediaId, guid: videoGuid, src: videoSrc }
+							: null,
 				} );
-
-				if ( mediaId && videoGuid && videoSrc ) {
-					setAttributes( { id: mediaId, guid: videoGuid, src: videoSrc } );
-				}
 			};
 
 			const onChangeTitle = newTitle => {
@@ -857,7 +866,15 @@ const VideoPressEdit = CoreVideoEdit =>
 			};
 
 			const dismissEditor = () => {
-				this.setState( { isEditingWhileUploading: false } );
+				// Apply any pending video attributes before dismissing
+				if ( this.state.pendingVideoAttributes ) {
+					setAttributes( this.state.pendingVideoAttributes );
+				}
+
+				this.setState( {
+					isEditingWhileUploading: false,
+					pendingVideoAttributes: null,
+				} );
 				saveEditorData();
 			};
 
