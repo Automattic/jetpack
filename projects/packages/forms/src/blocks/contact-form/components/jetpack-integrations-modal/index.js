@@ -5,7 +5,7 @@ import AkismetCard from './akismet-card';
 import CreativeMailCard from './creative-mail-card';
 import JetpackCRMCard from './jetpack-crm-card';
 
-const JetpackIntegrationsModal = ( { isOpen, onClose, attributes, setAttributes } ) => {
+const IntegrationsModal = ( { isOpen, onClose, attributes, setAttributes } ) => {
 	const [ expandedCards, setExpandedCards ] = useState( {
 		akismet: false,
 		crm: false,
@@ -49,4 +49,4 @@ const JetpackIntegrationsModal = ( { isOpen, onClose, attributes, setAttributes 
 	);
 };
 
-export default JetpackIntegrationsModal;
+export default IntegrationsModal;

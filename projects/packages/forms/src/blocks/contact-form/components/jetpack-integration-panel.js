@@ -1,7 +1,7 @@
 import { Button } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import JetpackIntegrationsModal from './jetpack-integrations-modal';
+import IntegrationsModal from './jetpack-integrations-modal';
 
 /**
  * Integration Panel component.
@@ -23,7 +23,7 @@ export default function IntegrationPanel( { attributes, setAttributes } ) {
 			>
 				{ __( 'Manage Integrations', 'jetpack-forms' ) }
 			</Button>
-			<JetpackIntegrationsModal
+			<IntegrationsModal
 				isOpen={ isModalOpen }
 				onClose={ () => setIsModalOpen( false ) }
 				attributes={ attributes }
