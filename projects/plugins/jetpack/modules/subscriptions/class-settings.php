@@ -69,7 +69,7 @@ class Settings {
 		$default_date = new DateTimeImmutable( '0000-00-00 00:00:00.000', wp_timezone() );
 		$blog_id      = get_current_blog_id();
 
-		if ( ! function_exists( 'get_blog_details' ) || is_wp_error( $blog_id ) ) {
+		if ( ! function_exists( 'get_blog_details' ) || ! $blog_id ) {
 			return $default_date;
 		}
 
