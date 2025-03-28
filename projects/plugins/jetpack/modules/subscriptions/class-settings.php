@@ -66,7 +66,7 @@ class Settings {
 			if ( ! $site_data || ! isset( $site_data->options->created_at ) ) {
 				return false;
 			}
-			l( $site_data->options->created_at );
+
 			$site_creation_date = new DateTimeImmutable(
 				$site_data->options->created_at,
 				wp_timezone()
