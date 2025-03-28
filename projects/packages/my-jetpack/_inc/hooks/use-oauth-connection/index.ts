@@ -49,7 +49,7 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 			path: `${ REST_API_GET_OAUTH_AUTHORIZE_URL }/${ userEmail ? 'link' : socialService ?? '' }${
 				userEmail
 					? `?email_address=${ encodeURIComponent( userEmail ) }&from=jetpack-onboarding`
-					: ''
+					: '?from=jetpack-onboarding'
 			}`,
 		},
 		options: {
