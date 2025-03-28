@@ -55,7 +55,7 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 				'permission_callback' => array( $this, 'permissions_check' ),
 				'callback'            => array( $this, 'remove_file' ),
 				'args'                => array(
-					'file_id' => array(
+					'token' => array(
 						'required' => true,
 						'type'     => 'string',
 					),
@@ -128,12 +128,37 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 			);
 		}
 
-		// Return dummy response for testing
+		$upload_handler = new Unauth_File_Upload_Handler();
+		$result         = $upload_handler->handle_file_upload( $file, 'jetpack-form' );
+
+		if ( is_wp_error( $result ) ) {
+			// Add proper HTTP status codes based on error type
+			$status = 400; // Default to 400 Bad Request
+			switch ( $result->get_error_code() ) {
+				case 'upload_error':
+				case 'invalid_file_type':
+				case 'file_size_limit':
+					$status = 400; // Bad Request
+					break;
+				case 'max_files_limit':
+				case 'total_size_limit':
+					$status = 507; // Insufficient Storage
+					break;
+				case 'dir_error':
+				case 'dir_create':
+				case 'file_move':
+					$status = 500; // Internal Server Error
+					break;
+			}
+			$result->add_data( array( 'status' => $status ) );
+			return $result;
+		}
+
 		return rest_ensure_response(
 			array(
 				'success' => true,
 				'data'    => array(
-					'token'         => wp_hash( uniqid( 'test_upload_', true ) ),
+					'token'         => $result['token'],
 					'original_name' => $file['name'],
 					'size'          => $file['size'],
 					'mime_type'     => $file['type'],
@@ -149,20 +174,20 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function remove_file( $request ) {
-		$file_id = $request->get_param( 'file_id' );
-		if ( empty( $file_id ) ) {
+		$token = $request->get_param( 'token' );
+		if ( empty( $token ) ) {
 			return new WP_Error(
-				'missing_file_id',
-				__( 'File ID is required.', 'jetpack' ),
+				'missing_token',
+				__( 'Token is required.', 'jetpack' ),
 				array( 'status' => 400 )
 			);
 		}
 
-		// TODO: Implement actual file removal logic here
-		// For now, just return success response
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-unauth-file-upload-handler.php';
+		$upload_handler = new Unauth_File_Upload_Handler();
 		return rest_ensure_response(
 			array(
-				'success' => true,
+				'success' => $upload_handler->remove_file( $token ),
 			)
 		);
 	}

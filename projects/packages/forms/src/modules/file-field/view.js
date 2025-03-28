@@ -146,23 +146,6 @@ const updateFileContext = ( updatedFile, fileId ) => {
 	context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
 };
 
-/**
- * Remove file from the temporary folder.
- *
- * @param {string} fileId - The file ID to remove.
- */
-const removeFile = fileId => {
-	const { endpoint, uploadToken } = getConfig( NAMESPACE );
-	const formData = new FormData();
-	formData.append( 'file_id', fileId );
-	formData.append( 'upload_token', uploadToken );
-
-	fetch( `${ endpoint }/remove`, {
-		method: 'POST',
-		body: formData,
-	} ).then( response => response.json() );
-};
-
 store( NAMESPACE, {
 	state: {
 		get hasFiles() {
@@ -244,8 +227,23 @@ store( NAMESPACE, {
 			event.preventDefault();
 			const context = getContext();
 			const fileId = event.target.dataset.id;
+
+			const file = context.files.find( fileObject => fileObject.id === fileId );
+
+			if ( file && file.token ) {
+				const { endpoint, uploadToken } = getConfig( NAMESPACE );
+				const formData = new FormData();
+
+				formData.append( 'token', file.token );
+				formData.append( 'upload_token', uploadToken );
+
+				fetch( `${ endpoint }/remove`, {
+					method: 'POST',
+					body: formData,
+				} );
+			}
 			context.files = context.files.filter( fileObject => fileObject.id !== fileId );
-			removeFile( fileId );
+			context.hasFiles = context.files.length > 0;
 		},
 	},
 
