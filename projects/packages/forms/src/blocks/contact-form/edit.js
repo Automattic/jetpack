@@ -156,7 +156,10 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		elt = (
 			<>
 				<InspectorControls>
-					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
+					<PanelBody
+						title={ __( 'Manage Responses', 'jetpack-forms' ) }
+						className="jetpack-manage-responses-panel"
+					>
 						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
 					</PanelBody>
 					<PanelBody title={ __( 'Action after submit', 'jetpack-forms' ) } initialOpen={ false }>
@@ -222,7 +225,10 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					</PanelBody>
 
 					{ isFormModalEnabled && (
-						<PanelBody title={ __( 'Integrations', 'jetpack-forms' ) }>
+						<PanelBody
+							title={ __( 'Integrations', 'jetpack-forms' ) }
+							className="jetpack-integrations-panel"
+						>
 							<IntegrationPanel attributes={ attributes } setAttributes={ setAttributes } />
 						</PanelBody>
 					) }
