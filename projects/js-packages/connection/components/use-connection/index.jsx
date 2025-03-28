@@ -20,7 +20,7 @@ const initialState = window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.con
  * @param {boolean} [props.skipPricingPage]    - Whether to skip the pricing page.
  * @return {object} The connection state and handlers.
  */
-export default ( {
+export default function useConnection( {
 	registrationNonce = initialState.registrationNonce,
 	apiRoot = initialState.apiRoot,
 	apiNonce = initialState.apiNonce,
@@ -29,7 +29,7 @@ export default ( {
 	from,
 	skipUserConnection,
 	skipPricingPage,
-} = {} ) => {
+} = {} ) {
 	const { registerSite, connectUser, refreshConnectedPlugins } = useDispatch( STORE_ID );
 
 	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError() );
@@ -125,4 +125,4 @@ export default ( {
 		connectionErrors,
 		isOfflineMode,
 	};
-};
+}
