@@ -65,7 +65,7 @@ class Settings {
 	 *
 	 * @return DateTimeImmutable The site creation date or default date if not available.
 	 */
-	protected function get_wpcom_site_creation_date() {
+	protected static function get_wpcom_site_creation_date() {
 		$default_date = new DateTimeImmutable( '0000-00-00 00:00:00.000', wp_timezone() );
 		$blog_id      = get_current_blog_id();
 
@@ -78,7 +78,7 @@ class Settings {
 			return $default_date;
 		}
 
-		return $details->registered;
+		return new DateTimeImmutable( $details->registered, wp_timezone() );
 	}
 
 	/**
