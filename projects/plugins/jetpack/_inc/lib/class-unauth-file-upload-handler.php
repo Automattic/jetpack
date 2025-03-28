@@ -40,7 +40,7 @@ class Unauth_File_Upload_Handler {
 	/**
 	 * Get the secret key for signing upload tokens.
 	 *
-	 * @return string The secret key.
+	 * @return string|false The secret key or false if not available.
 	 */
 	private function get_upload_token_secret() {
 		if ( ( new Host() )->is_wpcom_simple() ) {
