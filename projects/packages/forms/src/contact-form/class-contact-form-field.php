@@ -789,6 +789,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML for the file upload field.
 	 */
 	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
+		if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			// Jetpack is not active, so we don't need to render the file field
+			// TODO: Move upload field and jwt token to their own packages, so we can use them in other projects.
+			return '';
+		}
+
 		// Enqueue necessary scripts and styles.
 		$this->enqueue_file_field_assets();
 
@@ -835,7 +841,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			_x( 'GB', 'unit symbol', 'jetpack-forms' ),
 		);
 
-		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-unauth-file-upload-handler.php';
+		// Only include the file handler if we're sure it exists
+		if ( file_exists( JETPACK__PLUGIN_DIR . '/_inc/lib/class-unauth-file-upload-handler.php' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-unauth-file-upload-handler.php';
+			$upload_token = ( new Unauth_File_Upload_Handler() )->generate_upload_token();
+		} else {
+			$upload_token = '';
+		}
+
 		$global_state = array(
 			'i18n'          => array(
 				'language'           => get_bloginfo( 'language' ),
@@ -849,7 +862,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			),
 			'maxUploadSize' => $max_file_size,
 			'endpoint'      => $this->get_unauth_endpoint_url(),
-			'uploadToken'   => ( new Unauth_File_Upload_Handler() )->generate_upload_token(),
+			'uploadToken'   => $upload_token,
 		);
 
 		wp_interactivity_config( 'jetpack/field-file', $global_state );
@@ -910,19 +923,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	private function enqueue_file_field_assets() {
+		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
 
 		\wp_enqueue_script_module(
 			'jetpack-form-file-field',
 			plugins_url( '../../dist/modules/file-field/view.js', __FILE__ ),
 			array( '@wordpress/interactivity' ),
-			\JETPACK__VERSION
+			$version
 		);
 
 		\wp_enqueue_style(
 			'jetpack-form-file-field',
 			plugins_url( '../../dist/contact-form/css/file-field.css', __FILE__ ),
 			array(),
-			\JETPACK__VERSION
+			$version
 		);
 	}
 	/**
@@ -931,6 +945,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string
 	 */
 	private function get_unauth_endpoint_url() {
+		// Return a placeholder URL if Jetpack is not active
+		if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			return '#jetpack-not-active';
+		}
+
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/unauth-file-upload', get_current_blog_id() );
 		}
@@ -1397,6 +1416,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				}
 			);
 			return count( $non_empty_options ) > 0;
+		}
+
+		// File field requires Jetpack to be active
+		if ( $type === 'file' && ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			return false;
 		}
 
 		return true;
