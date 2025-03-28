@@ -88,6 +88,12 @@ class Publicize_Setup {
 		$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
 
 		global $publicize;
+		/**
+		 * If publicize is not initialzed on WPCOM,
+		 * it means that we are either on a public facing page
+		 * or a page where Publicize is not needed.
+		 * So, we will skip the whole set up here.
+		 */
 		if ( $is_wpcom_simple && ! $publicize ) {
 			return;
 		}
