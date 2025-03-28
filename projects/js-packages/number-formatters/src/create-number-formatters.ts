@@ -159,14 +159,14 @@ function createNumberFormatters(): NumberFormatters {
 		number,
 		{ decimals = 0, forceLatin = true, numberFormatOptions = {} } = {}
 	): string => {
-		const formatter = numberFormat( {
-			browserSafeLocale,
-			decimals,
-			forceLatin,
-			numberFormatOptions,
-		} );
-
 		try {
+			const formatter = numberFormat( {
+				browserSafeLocale,
+				decimals,
+				forceLatin,
+				numberFormatOptions,
+			} );
+
 			return formatter.format( number );
 		} catch {
 			return String( number );
@@ -177,14 +177,14 @@ function createNumberFormatters(): NumberFormatters {
 		number,
 		{ decimals = 0, forceLatin = true, numberFormatOptions = {} } = {}
 	): string => {
-		const formatter = numberFormatCompact( {
-			browserSafeLocale,
-			decimals,
-			forceLatin,
-			numberFormatOptions,
-		} );
-
 		try {
+			const formatter = numberFormatCompact( {
+				browserSafeLocale,
+				decimals,
+				forceLatin,
+				numberFormatOptions,
+			} );
+
 			return formatter.format( number );
 		} catch {
 			return String( number );

@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import createNumberFormatters from '../src/create-number-formatters';
 
+type IntlType = typeof Intl & {
+	NumberFormat: typeof Intl.NumberFormat;
+};
+
 describe( 'createNumberFormatters()', () => {
 	const numberFormatters = createNumberFormatters();
 
@@ -13,13 +17,32 @@ describe( 'createNumberFormatters()', () => {
 	} );
 
 	describe( 'formatNumber()', function () {
+		beforeEach( () => {
+			jest.clearAllMocks();
+		} );
+
+		it( 'should return original number as string if formatting fails', () => {
+			// mock `Intl.NumberFormat` to throw an error
+			const originalIntlNumberFormat = Intl.NumberFormat;
+			jest.spyOn( Intl as IntlType, 'NumberFormat' ).mockImplementation( () => {
+				throw new Error( 'Invalid locale' );
+			} );
+
+			expect( numberFormatters.formatNumber( 1234567 ) ).toBe( '1234567' );
+
+			// restore original `Intl.NumberFormat`
+			( Intl as IntlType ).NumberFormat = originalIntlNumberFormat;
+		} );
+
 		describe( 'default formatNumber', function () {
 			it( 'should truncate decimals', function () {
 				expect( numberFormatters.formatNumber( 150.15 ) ).toBe( '150' );
 			} );
+
 			it( 'should round up', function () {
 				expect( numberFormatters.formatNumber( 150.5 ) ).toBe( '151' );
 			} );
+
 			it( 'should default to locale thousands separator (. for German in test)', function () {
 				expect( numberFormatters.formatNumber( 1500 ) ).toBe( '1.500' );
 			} );
@@ -50,7 +73,7 @@ describe( 'createNumberFormatters()', () => {
 		describe( 'formatNumberCompact()', function () {
 			describe( 'ar', () => {
 				beforeEach( function () {
-					numberFormatters.setLocale( 'ar' );
+					numberFormatters.setLocale( 'ar-EG' );
 				} );
 				it( 'defaults to latin notation and localised unit', () => {
 					expect(
