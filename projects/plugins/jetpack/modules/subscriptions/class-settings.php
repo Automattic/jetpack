@@ -50,7 +50,7 @@ class Settings {
 		}
 
 		$site_creation_date = get_transient( 'jetpack_subscriptions_site_creation' );
-		if ( false !== $site_creation_date ) {
+		if ( false === $site_creation_date ) {
 			$site_id       = Manager::get_site_id();
 			$site_response = Client::wpcom_json_api_request_as_blog(
 				sprintf( '/sites/%d', $site_id ) . '?force=wpcom&options=created_at',
