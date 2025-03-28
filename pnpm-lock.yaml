@@ -1056,7 +1056,7 @@ importers:
         version: 7.19.0
       '@wordpress/components':
         specifier: 29.5.0
-        version: 29.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 29.5.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/element':
         specifier: 6.19.0
         version: 6.19.0
@@ -1093,10 +1093,13 @@ importers:
         version: 10.4.0
       '@testing-library/react':
         specifier: 16.2.0
-        version: 16.2.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
         specifier: 14.6.1
         version: 14.6.1(@testing-library/dom@10.4.0)
+      '@types/react':
+        specifier: 18.3.18
+        version: 18.3.18
       '@wordpress/babel-plugin-import-jsx-pragma':
         specifier: 5.19.0
         version: 5.19.0(@babel/core@7.26.10)
