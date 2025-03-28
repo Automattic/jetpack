@@ -69,7 +69,7 @@ const ConnectionForm = () => {
 	}, [ isLoadingOauth, isActionInitiated, errorType ] );
 
 	// Jetpack app is not supported for login yet.
-	const services = [ 'google', 'apple', 'github' /* 'jetpack' */ ];
+	const services = [ 'google', 'apple', 'github' ];
 
 	return (
 		<div className={ styles[ 'connection-form' ] }>
