@@ -2647,7 +2647,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'wpcom_featured_image_in_email'             => array(
 				'description'       => esc_html__( 'Whether to include the featured image in the email or not', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 0,
+				'default'           => Automattic\Jetpack\Modules\Subscriptions\Settings::get_wpcom_featured_image_in_email_default(),
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),

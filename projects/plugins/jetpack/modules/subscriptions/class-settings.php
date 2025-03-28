@@ -40,13 +40,57 @@ class Settings {
 
 	/**
 	 * Check if Featured Images in emails should be automatically enabled.
-	 * We currently only automatically enabled this for sites that were connected to WordPress.com after 2025-03-28.
+	 * We currently only automatically enabled this for sites that were created on or connected to WordPress.com after 2025-03-28.
 	 *
 	 * @return bool Whether Featured Images in emails should be automatically enabled.
 	 */
 	public static function should_auto_enable_featured_images_emails() {
+		$creation_date = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? self::get_wpcom_site_creation_date() : self::get_cache_site_creation_date();
+
+		// Check if the site was created after 2025-03-28.
+		return $creation_date > new DateTimeImmutable( '2025-03-28 00:00:00.000', wp_timezone() );
+	}
+
+	/**
+	 * Get the default setting for wpcom_featured_image_in_email.
+	 *
+	 * @return int 1 if featured images should be enabled by default, 0 otherwise.
+	 */
+	public static function get_wpcom_featured_image_in_email_default() {
+		return (int) self::should_auto_enable_featured_images_emails();
+	}
+
+	/**
+	 * Get the WordPress.com site creation date.
+	 *
+	 * @return DateTimeImmutable The site creation date or default date if not available.
+	 */
+	protected function get_wpcom_site_creation_date() {
+		$default_date = new DateTimeImmutable( '0000-00-00 00:00:00.000', wp_timezone() );
+		$blog_id      = get_current_blog_id();
+
+		if ( ! function_exists( 'get_blog_details' ) || ! $blog_id ) {
+			return $default_date;
+		}
+
+		$details = get_blog_details( $blog_id );
+		if ( ! $details || ! isset( $details->registered ) ) {
+			return $default_date;
+		}
+
+		return $details->registered;
+	}
+
+	/**
+	 * Get the Jetpack cache site's creation date.
+	 *
+	 * @return DateTimeImmutable The site creation date or default date if not available.
+	 */
+	protected static function get_cache_site_creation_date() {
+		$default_date = new DateTimeImmutable( '0000-00-00 00:00:00.000', wp_timezone() );
+
 		if ( ! ( new Manager() )->is_connected() ) {
-			return false;
+			return $default_date;
 		}
 
 		$site_creation_date = get_transient( 'jetpack_subscriptions_site_creation' );
@@ -58,13 +102,13 @@ class Settings {
 			);
 
 			if ( is_wp_error( $site_response ) ) {
-				return false;
+				return $default_date;
 			}
 
 			$site_data = json_decode( wp_remote_retrieve_body( $site_response ) );
 
 			if ( ! $site_data || ! isset( $site_data->options->created_at ) ) {
-				return false;
+				return $default_date;
 			}
 
 			$site_creation_date = new DateTimeImmutable(
@@ -75,7 +119,6 @@ class Settings {
 			set_transient( 'jetpack_subscriptions_site_creation', $site_creation_date, DAY_IN_SECONDS );
 		}
 
-		// Check if the site was created after 2025-03-28.
-		return $site_creation_date > new DateTimeImmutable( '2025-03-28 00:00:00.000', wp_timezone() );
+		return $site_creation_date;
 	}
 }
