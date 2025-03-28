@@ -1,0 +1,86 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.components-guide {
+    &.myjetpack-onboarding-welcome-tour {
+        width: 400px;
+        border-radius: 8px; // maintain the same border radius for all breakpoints
+
+        .myjetpack-onboarding-welcome-tour__image {
+            background: var( --jp-green-60);
+            margin: 0 0 $grid-unit-20;
+            > img {
+                display: block;
+                max-width: 100%;
+                object-fit: cover;
+            }
+        }
+
+        .myjetpack-onboarding-welcome-tour__heading {
+            font-size: 24px;
+            line-height: 1.4;
+            margin: $grid-unit-20 0 $grid-unit-20 0;
+            padding: 0 $grid-unit-20;
+        }
+
+        .myjetpack-onboarding-welcome-tour__text {
+            line-height: 1.4;
+            margin: 0 0 $grid-unit-30 0;
+            padding: 0 $grid-unit-20;
+        }
+
+        .components-guide__footer {
+            height: 40px;
+            justify-content: flex-end;
+            gap: 8px;
+
+            & > button {
+                position: relative;
+                top: 0;
+                right: 0;
+                left: 0;
+                bottom: 0;
+            }
+        }
+
+        /* Applying Jetpack colors to the tour */
+        li[aria-current=step] {
+            // carousel button color
+            svg {
+                fill: var(--jp-green-60);
+            }
+        }
+
+        button {
+            &:focus,
+            &:active {
+                &:not(:disabled) {
+                    box-shadow: inset 0 0 0 1px var(--jp-gray-0), 0 0 0 1px var(--jp-green-70);
+                }
+            }
+
+            &.is-primary {
+                background-color: var( --jp-green-60);
+
+                &:hover,
+                &:active {
+                    background-color: var( --jp-green-70);
+                }
+            }
+
+            &.is-tertiary {
+                color: var(--jp-gray-100);
+
+                &:hover,
+                &:active {
+                    color: var(--jp-gray-100);
+                }
+            }
+        }
+
+        .components-modal__header {
+            button {
+                color: var(--jp-gray-0);
+            }
+        }
+    }
+}

@@ -47,13 +47,4 @@ class Cornerstone_Utils {
 	public static function is_cornerstone_page( $post_id ) {
 		return self::is_cornerstone_page_by_url( get_permalink( $post_id ) );
 	}
-
-	/**
-	 * Is WordPress 6.8.0+ Speculation Rules API supported?
-	 *
-	 * @return bool True if the Speculation Rules API is supported, false otherwise.
-	 */
-	public static function get_speculation_rules_api_support_status() {
-		return version_compare( get_bloginfo( 'version' ), '6.8-beta3', '>=' );
-	}
 }

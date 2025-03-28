@@ -1,10 +1,11 @@
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useMemo } from 'react';
 import { store as socialStore } from '../../social-store';
 
 /**
  * Hooks to deal with the social media connections.
  *
- * @return {object} Social media connection handler.
+ * @return Social media connection handler.
  */
 export default function useSocialMediaConnections() {
 	const { refreshConnectionTestResults, toggleConnectionById } = useDispatch( socialStore );
@@ -13,9 +14,7 @@ export default function useSocialMediaConnections() {
 		const store = select( socialStore );
 		const connections = store.getConnections();
 		const enabledConnections = store.getEnabledConnections();
-		const skippedConnections = store
-			.getDisabledConnections()
-			.map( connection => connection.connection_id );
+		const disabledConnections = store.getDisabledConnections();
 
 		const hasConnections = connections.length > 0;
 		const hasEnabledConnections = enabledConnections.length > 0;
@@ -24,14 +23,23 @@ export default function useSocialMediaConnections() {
 			connections,
 			hasConnections,
 			hasEnabledConnections,
-			skippedConnections,
+			disabledConnections,
 			enabledConnections,
 		};
 	}, [] );
 
-	return {
-		...connectionsData,
-		toggleById: toggleConnectionById,
-		refresh: refreshConnectionTestResults,
-	};
+	const skippedConnections = useMemo(
+		() => connectionsData.disabledConnections.map( connection => connection.connection_id ),
+		[ connectionsData.disabledConnections ]
+	);
+
+	return useMemo(
+		() => ( {
+			...connectionsData,
+			skippedConnections,
+			toggleById: toggleConnectionById,
+			refresh: refreshConnectionTestResults,
+		} ),
+		[ connectionsData, refreshConnectionTestResults, skippedConnections, toggleConnectionById ]
+	);
 }
