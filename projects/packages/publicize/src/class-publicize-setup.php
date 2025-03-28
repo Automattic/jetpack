@@ -85,8 +85,6 @@ class Publicize_Setup {
 
 		self::$initialized = true;
 
-		global $publicize_ui;
-
 		$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
 
 		$rest_controllers = array(
@@ -120,6 +118,9 @@ class Publicize_Setup {
 			add_action( 'admin_init', array( static::class, 'register_core_options' ) );
 			add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 			add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
+
+			global $publicize_ui;
+
 			if ( ! isset( $publicize_ui ) ) {
 				$publicize_ui = new Publicize_UI();
 			}
