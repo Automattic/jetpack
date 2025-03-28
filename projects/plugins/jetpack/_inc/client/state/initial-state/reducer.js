@@ -40,10 +40,18 @@ export function getCurrentVersion( state ) {
 	return get( state.jetpack.initialState, 'currentVersion', '' );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getSiteRoles( state ) {
 	return get( state.jetpack.initialState.stats, 'roles', {} );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getInitialStateStatsData( state ) {
 	return get( state.jetpack.initialState.stats, 'data' );
 }
@@ -78,34 +86,66 @@ export function getCurrenUserEmailAddress( state ) {
 	return get( state.jetpack.initialState, [ 'userData', 'currentUser', 'email' ] );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getSiteRawUrl( state ) {
 	return get( state.jetpack.initialState, 'rawUrl', {} );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getSiteAdminUrl( state ) {
 	return get( state.jetpack.initialState, 'adminUrl', {} );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getSiteTitle( state ) {
 	return get( state.jetpack.initialState, 'siteTitle', '' );
 }
 
+/**
+ *
+ * @param state
+ */
 export function isSitePublic( state ) {
 	return get( state.jetpack.initialState, [ 'connectionStatus', 'isPublic' ] );
 }
 
+/**
+ *
+ * @param state
+ */
 export function isGutenbergAvailable( state ) {
 	return get( state.jetpack.initialState, 'is_gutenberg_available', false );
 }
 
+/**
+ *
+ * @param state
+ */
 export function userIsSubscriber( state ) {
 	return ! get( state.jetpack.initialState.userData.currentUser.permissions, 'edit_posts', false );
 }
 
+/**
+ *
+ * @param state
+ */
 export function userCanPublish( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'publish_posts', false );
 }
 
+/**
+ *
+ * @param state
+ */
 export function userCanManageModules( state ) {
 	return get(
 		state.jetpack.initialState.userData.currentUser.permissions,
@@ -114,6 +154,10 @@ export function userCanManageModules( state ) {
 	);
 }
 
+/**
+ *
+ * @param state
+ */
 export function userCanManageOptions( state ) {
 	return get(
 		state.jetpack.initialState.userData.currentUser.permissions,
@@ -148,10 +192,18 @@ export function userCanManagePlugins( state ) {
 	);
 }
 
+/**
+ *
+ * @param state
+ */
 export function userCanDisconnectSite( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'disconnect', false );
 }
 
+/**
+ *
+ * @param state
+ */
 export function userCanConnectSite( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'connect', false );
 }
@@ -179,6 +231,10 @@ export function userIsMaster( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, 'isMaster', false );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getUserWpComLogin( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'login' ], '' );
 }
@@ -193,18 +249,34 @@ export function getUserWpComId( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'ID' ], '' );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getUserWpComEmail( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'email' ], '' );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getUserWpComAvatar( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'avatar' ] );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getUserGravatar( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'gravatar' ] );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getUsername( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'username' ] );
 }
@@ -230,6 +302,10 @@ export function getUserId( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, 'id', '' );
 }
 
+/**
+ *
+ * @param state
+ */
 export function userCanViewStats( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'view_stats', false );
 }
@@ -276,10 +352,18 @@ export function getLatestBoostSpeedScores( state ) {
 	return get( state.jetpack.initialState.siteData, [ 'latestBoostSpeedScores' ] );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getApiNonce( state ) {
 	return get( state.jetpack.initialState, 'WP_API_nonce' );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getApiRootUrl( state ) {
 	return get( state.jetpack.initialState, 'WP_API_root' );
 }
@@ -327,10 +411,18 @@ export function getCalypsoEnv( state ) {
 	return get( state.jetpack.initialState, 'calypsoEnv' );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getTracksUserData( state ) {
 	return get( state.jetpack.initialState, 'tracksUserData' );
 }
 
+/**
+ *
+ * @param state
+ */
 export function getCurrentIp( state ) {
 	return get( state.jetpack.initialState, 'currentIp' );
 }
@@ -733,16 +825,6 @@ export function isBlazeDashboardEnabled( state ) {
 }
 
 /**
- * Returns true if the wp-admin Subscriber dashboard is enabled.
- *
- * @param {object} state - Global state tree.
- * @return {boolean} True if the Subscriber dashboard is enabled.
- */
-export function isWpAdminSubscriberManagementEnabled( state ) {
-	return !! state.jetpack.initialState.isWpAdminSubscriberManagementEnabled;
-}
-
-/**
  * Check if the Sharing block is available on the site.
  *
  * @param {object} state - Global state tree.
@@ -769,7 +851,7 @@ export function getJetpackManageInfo( state ) {
  * @return {boolean} True if Subscription Site feature is enabled on the site.
  */
 export function isSubscriptionSiteEnabled( state ) {
-	return !! state.jetpack.initialState.isSubscriptionSiteEnabled;
+	return !! state.jetpack.initialState.subscriptions.isSubscriptionSiteEnabled;
 }
 
 /**
@@ -779,7 +861,7 @@ export function isSubscriptionSiteEnabled( state ) {
  * @return {string} Newsletter date example.
  */
 export function getNewsletterDateExample( state ) {
-	return state.jetpack.initialState.newsletterDateExample;
+	return state.jetpack.initialState.subscriptions.newsletterDateExample;
 }
 
 /**
@@ -789,7 +871,27 @@ export function getNewsletterDateExample( state ) {
  * @return {boolean} True if Subscription Site editing feature is supported.
  */
 export function subscriptionSiteEditSupported( state ) {
-	return !! state.jetpack.initialState.subscriptionSiteEditSupported;
+	return !! state.jetpack.initialState.subscriptions.subscriptionSiteEditSupported;
+}
+
+/**
+ * Returns true if the wp-admin Subscriber dashboard is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the Subscriber dashboard is enabled.
+ */
+export function isWpAdminSubscriberManagementEnabled( state ) {
+	return !! state.jetpack.initialState.subscriptions.isWpAdminSubscriberManagementEnabled;
+}
+
+/**
+ * Returns true if the Featured Images in emails feature is automatically enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the Featured Images in emails feature is automatically enabled.
+ */
+export function isFeaturedImagesInEmailsAutoEnabled( state ) {
+	return !! state.jetpack.initialState.subscriptions.isFeaturedImagesInEmailsAutoEnabled;
 }
 
 /**
