@@ -58,7 +58,7 @@ class Settings {
 	 */
 	public static function get_wpcom_featured_image_in_email_default() {
 		$res = self::should_auto_enable_featured_images_emails();
-		l( $res );
+		error_log( $res );
 		return (int) $res;
 	}
 
