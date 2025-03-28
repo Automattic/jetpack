@@ -56,10 +56,11 @@ export function SeoEnhancer( {
 			tracks.recordEvent( 'jetpack_seo_enhancer_feature_toggle', {
 				feature: name,
 				toggled: ! isFeatureEnabled ? 'on' : 'off',
+				placement,
 			} );
 			setFeatureEnabled( name, ! isFeatureEnabled );
 		},
-		[ enabledFeatures, setFeatureEnabled, tracks ]
+		[ enabledFeatures, setFeatureEnabled, tracks, placement ]
 	);
 
 	const generateHandler = async () => {
