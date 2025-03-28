@@ -221,7 +221,6 @@ class Contact_Form_Plugin {
 				'query_var'             => false,
 				'capability_type'       => 'page',
 				'show_in_rest'          => true,
-				'hierarchical'          => true,
 				'rest_controller_class' => '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint',
 				'capabilities'          => array(
 					'create_posts'        => 'do_not_allow',
