@@ -4,6 +4,15 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { useShareMessageMaxLength } from '../../utils';
 
 /**
+ * This is to avoid creating a new empty array each time the value is requested.
+ */
+const DEFAULT_ATTACHED_MEDIA = [];
+const EMPTY_OBJECT = {};
+const DEFAULT_IMAGE_GENERATOR_SETTINGS = {
+	enabled: false,
+};
+
+/**
  * Returns the post meta values.
  *
  * @return {import('../../utils/types').UsePostMeta} The post meta values.
@@ -14,14 +23,13 @@ export function usePostMeta() {
 
 	const metaValues = useSelect(
 		select => {
-			const meta = select( editorStore ).getEditedPostAttribute( 'meta' ) || {};
+			const meta = select( editorStore ).getEditedPostAttribute( 'meta' ) || EMPTY_OBJECT;
 
 			const isPublicizeEnabled = meta.jetpack_publicize_feature_enabled ?? true;
-			const jetpackSocialOptions = meta.jetpack_social_options || {};
-			const attachedMedia = jetpackSocialOptions.attached_media || [];
-			const imageGeneratorSettings = jetpackSocialOptions.image_generator_settings ?? {
-				enabled: false,
-			};
+			const jetpackSocialOptions = meta.jetpack_social_options || EMPTY_OBJECT;
+			const attachedMedia = jetpackSocialOptions.attached_media || DEFAULT_ATTACHED_MEDIA;
+			const imageGeneratorSettings =
+				jetpackSocialOptions.image_generator_settings ?? DEFAULT_IMAGE_GENERATOR_SETTINGS;
 			const isPostAlreadyShared = meta.jetpack_social_post_already_shared ?? false;
 
 			const shareMessage = `${ meta.jetpack_publicize_message || '' }`.substring(

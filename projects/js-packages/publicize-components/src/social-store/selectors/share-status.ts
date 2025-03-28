@@ -1,5 +1,6 @@
 import { createRegistrySelector } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { EMPTY_ARRAY } from '../constants';
 import { PostShareStatus, SocialStoreState } from '../types';
 
 /**
@@ -11,7 +12,7 @@ export const getPostShareStatus = createRegistrySelector(
 			// Default to the current post ID if none is provided.
 			const id = postId || select( editorStore ).getCurrentPostId();
 
-			return state.shareStatus?.[ id ] ?? { shares: [] };
+			return state.shareStatus?.[ id ] ?? { shares: EMPTY_ARRAY };
 		}
 );
 

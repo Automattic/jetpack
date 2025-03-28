@@ -1,11 +1,11 @@
 import { useCallback } from '@wordpress/element';
 import { useMemo } from 'react';
-import { usePublicizeConfig } from '../../..';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions/constants';
+import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { Connection } from '../../social-store/types';
 
