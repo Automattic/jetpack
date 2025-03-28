@@ -5,7 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Modules\Subscriptions\Settings;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 new WPCOM_JSON_API_Site_Settings_Endpoint(
@@ -463,7 +462,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
-						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email', Settings::get_wpcom_featured_image_in_email_default() ),
+						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email', $this->get_wpcom_featured_image_in_email_default( $blog_id ) ),
 						'jetpack_gravatar_in_email'        => (bool) get_option( 'jetpack_gravatar_in_email', true ),
 						'jetpack_author_in_email'          => (bool) get_option( 'jetpack_author_in_email', true ),
 						'jetpack_post_date_in_email'       => (bool) get_option( 'jetpack_post_date_in_email', true ),
@@ -1300,6 +1299,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return Automattic\Jetpack\Modules\Subscriptions\Settings::$default_reply_to;
 		}
 		return $reply_to;
+	}
+
+	/**
+	 * Get the default value for the wpcom_featured_image_in_email option.
+	 *
+	 * @return int The default value for showing featured images in emails.
+	 */
+	protected function get_wpcom_featured_image_in_email_default() {
+		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
+		return Automattic\Jetpack\Modules\Subscriptions\Settings::get_wpcom_featured_image_in_email_default();
 	}
 
 	/**
