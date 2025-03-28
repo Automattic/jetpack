@@ -25,7 +25,6 @@ export const MyJetpackRoutes = {
 	AddStats: '/add-stats',
 	AddLicense: '/add-license',
 	JetpackAi: '/jetpack-ai',
-	Onboarding: '/onboarding',
 	RedeemToken: '/redeem-token',
 } as const;
 

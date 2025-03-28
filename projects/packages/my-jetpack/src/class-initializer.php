@@ -175,19 +175,20 @@ class Initializer {
 	 */
 	public static function admin_init() {
 		$connection = new Connection_Manager();
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
-		$skip_redirect = isset( $_GET['skip_redirect'] ) && sanitize_text_field( wp_unslash( $_GET['skip_redirect'] ) ) === 'true';
+		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
 		// If the user is not connected, redirect to the onboarding page
 		// (skip_redirect is used to prevent infinite redirect)
-		if ( ! $connection->is_connected() && ! $skip_redirect ) {
+		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
 			$admin_page = add_query_arg(
 				array(
-					'page'          => 'my-jetpack',
-					'skip_redirect' => 'true',
+					'page' => 'my-jetpack',
+					'step' => 'onboarding',
 				),
 				admin_url( 'admin.php' )
-			) . '#/onboarding';
+			);
 
 			$location = wp_sanitize_redirect( $admin_page );
 
@@ -200,7 +201,7 @@ class Initializer {
 
 		// If the user reaches the onboarding page, add a class to the body
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
-		if ( $skip_redirect && isset( $_GET['page'] ) && $_GET['page'] === 'my-jetpack' ) {
+		if ( $step === 'onboarding' ) {
 			add_filter( 'admin_body_class', array( __CLASS__, 'add_onboarding_admin_body_class' ) );
 		}
 
@@ -448,7 +449,11 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_page() {
-		echo '<div id="my-jetpack-container"></div>';
+		$step          = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$is_onboarding = $step === 'onboarding';
+
+		// Add data attribute for onboarding, otherwise render normal container
+		echo '<div id="my-jetpack-container" ' . ( $is_onboarding ? 'data-route="onboarding"' : '' ) . '></div>';
 	}
 
 	/**

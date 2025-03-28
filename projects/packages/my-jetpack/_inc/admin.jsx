@@ -49,7 +49,19 @@ function ScrollToTop() {
 
 const MyJetpack = () => {
 	const { loadAddLicenseScreen } = getMyJetpackWindowInitialState();
+	const container = document.getElementById( 'my-jetpack-container' );
+	const isOnboarding = container?.dataset?.route === 'onboarding';
 
+	// If we're on the onboarding route, render just the onboarding screen
+	if ( isOnboarding ) {
+		return (
+			<Providers>
+				<OnboardingScreen />
+			</Providers>
+		);
+	}
+
+	// Otherwise render the normal hash router with all other routes
 	return (
 		<Providers>
 			<HashRouter>
@@ -81,7 +93,6 @@ const MyJetpack = () => {
 					<Route path={ MyJetpackRoutes.AddSecurity } element={ <SecurityInterstitial /> } />
 					<Route path={ MyJetpackRoutes.AddGrowth } element={ <GrowthInterstitial /> } />
 					<Route path={ MyJetpackRoutes.AddComplete } element={ <CompleteInterstitial /> } />
-					<Route path={ MyJetpackRoutes.Onboarding } element={ <OnboardingScreen /> } />
 					<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
 					{ /* Fallback route. Required to prevent visiting `?page=my-jetpack#wpbody-content` from raising an exception. */ }
 					<Route path="*" element={ <MyJetpackScreen /> } />
