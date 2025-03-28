@@ -19,22 +19,83 @@ class Coverage_Logger {
 	const RUNTIME_TABLE_NAME = 'jetpack_runtime_coverage_data';
 
 	/**
+	 * Starts the coverage logging process in case the needed criteria match.
+	 */
+	public static function maybe_start_logging() {
+		if ( function_exists( 'xdebug_start_code_coverage' ) ) {
+			self::maybe_upsert_database();
+
+			xdebug_start_code_coverage();
+			add_action( 'shutdown', array( self::class, 'log_coverage_results' ), 100000 );
+		}
+	}
+
+	/**
 	 * XMLRPC_Logger constructor.
 	 * Hooks the XML-RPC logging function into WordPress's init action.
 	 */
 	public function __construct() {
-		if ( function_exists( 'xdebug_start_code_coverage' ) ) {
-			$this->maybe_upsert_database();
 
-			xdebug_start_code_coverage();
-			add_action( 'shutdown', array( $this, 'log_coverage_results' ), 100000 );
+		add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+	}
+
+	/**
+	 * Add submenu item.
+	 */
+	public function register_submenu_page() {
+		add_submenu_page(
+			'jetpack-debug-tools',
+			'Coverage Logger',
+			'Coverage Logger',
+			'manage_options',
+			'coverage-logger',
+			array( $this, 'render_ui' ),
+			99
+		);
+	}
+
+	/**
+	 * Some custom style.
+	 */
+	public function enqueue_scripts() {
+		$screen = get_current_screen();
+		if ( $screen->id !== 'jetpack-debug_page_modules-helper' ) {
+			return;
 		}
+		?>
+			<style>
+				table {
+					width: 50%;
+					float: left;
+					margin-bottom: 50px;
+				}
+				th {
+					text-align: left;
+					font-size: 110%;
+				}
+			</style>
+		<?php
+	}
+
+	/**
+	 * Renders the UI.
+	 */
+	public function render_ui() {
+		$html  = '<h1>Coverage difference logger</h1>';
+		$html .= '<p>Allows you to see what code gets actually run and compare it to existing test coverage.</p><hr />';
+
+		?>
+
+		<div><?php echo wp_kses_post( $html ); ?></div>
+
+		<?php
 	}
 
 	/**
 	 * Saves coverage results into a file.
 	 */
-	public function log_coverage_results() {
+	public static function log_coverage_results() {
 		global $wpdb;
 
 		$coverage_data = xdebug_get_code_coverage();
@@ -73,7 +134,7 @@ class Coverage_Logger {
 	 * Uses the dbDelta function to either update, create, or leave the existing
 	 * database in peace.
 	 */
-	protected function maybe_upsert_database() {
+	protected static function maybe_upsert_database() {
 		global $wpdb;
 
 		$charset_collate = $wpdb->get_charset_collate();
@@ -128,5 +189,13 @@ SELECT
 }
 
 if ( isset( $_COOKIE['jetpack_enable_coverage_logging'] ) ) {
-	new Coverage_Logger();
+	Coverage_Logger::maybe_start_logging();
 }
+
+add_action(
+	'plugins_loaded',
+	function () {
+		new Coverage_Logger();
+	},
+	1000
+);
