@@ -158,7 +158,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				<InspectorControls>
 					<PanelBody
 						title={ __( 'Manage Responses', 'jetpack-forms' ) }
-						className="jetpack-manage-responses-panel"
+						className="jetpack-contact-form__manage-responses-panel"
 					>
 						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
 					</PanelBody>
@@ -227,7 +227,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					{ isFormModalEnabled && (
 						<PanelBody
 							title={ __( 'Integrations', 'jetpack-forms' ) }
-							className="jetpack-integrations-panel"
+							className="jetpack-contact-form__integrations-panel"
 						>
 							<IntegrationPanel attributes={ attributes } setAttributes={ setAttributes } />
 						</PanelBody>
