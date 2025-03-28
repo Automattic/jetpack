@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Unauth_File_Upload_Handler;
 
 /**
  * Class for the contact-field shortcode.
@@ -789,10 +788,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML for the file upload field.
 	 */
 	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
+		// Check if Jetpack is active
 		if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
-			// Jetpack is not active, so we don't need to render the file field
-			// TODO: Move upload field and jwt token to their own packages, so we can use them in other projects.
-			return '';
+			return '<div class="jetpack-form-field-error">' .
+				esc_html__( 'File upload field requires Jetpack to be active.', 'jetpack-forms' ) .
+				'</div>';
 		}
 
 		// Enqueue necessary scripts and styles.
@@ -841,13 +841,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			_x( 'GB', 'unit symbol', 'jetpack-forms' ),
 		);
 
-		// Only include the file handler if we're sure it exists
-		if ( file_exists( JETPACK__PLUGIN_DIR . '/_inc/lib/class-unauth-file-upload-handler.php' ) ) {
-			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-unauth-file-upload-handler.php';
-			$upload_token = ( new Unauth_File_Upload_Handler() )->generate_upload_token();
-		} else {
-			$upload_token = '';
-		}
+		/**
+		 * Filters the upload token for the file field.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $upload_token Default empty token.
+		 */
+		$upload_token = apply_filters( 'jetpack_forms_file_upload_token', '' );
 
 		$global_state = array(
 			'i18n'          => array(
