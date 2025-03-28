@@ -180,7 +180,6 @@ class Initializer {
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
 		// If the user is not connected, redirect to the onboarding page
-		// (skip_redirect is used to prevent infinite redirect)
 		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
 			$admin_page = add_query_arg(
 				array(
@@ -192,7 +191,7 @@ class Initializer {
 
 			$location = wp_sanitize_redirect( $admin_page );
 
-			// Remove all filters to prevent wp_get_referer filter applied in `fix_redirect` method of `Jetpack_Admin` class
+			// Remove wp_get_referer filter applied in `fix_redirect` method of `Jetpack_Admin` class
 			remove_filter( 'wp_redirect', 'wp_get_referer' );
 			wp_safe_redirect( $location );
 
@@ -200,7 +199,6 @@ class Initializer {
 		}
 
 		// If the user reaches the onboarding page, add a class to the body
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		if ( $step === 'onboarding' ) {
 			add_filter( 'admin_body_class', array( __CLASS__, 'add_onboarding_admin_body_class' ) );
 		}
