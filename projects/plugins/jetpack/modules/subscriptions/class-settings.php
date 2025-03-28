@@ -57,8 +57,7 @@ class Settings {
 	 * @return int 1 if featured images should be enabled by default, 0 otherwise.
 	 */
 	public static function get_wpcom_featured_image_in_email_default() {
-		$res = self::should_auto_enable_featured_images_emails();
-		return $res;
+		return (int) self::should_auto_enable_featured_images_emails();
 	}
 
 	/**
@@ -96,7 +95,12 @@ class Settings {
 
 		$site_creation_date = get_transient( 'jetpack_subscriptions_site_creation' );
 		if ( false === $site_creation_date ) {
-			$site_id       = Manager::get_site_id();
+			$site_id = Manager::get_site_id();
+
+			if ( is_wp_error( $site_id ) || ! $site_id ) {
+				return $default_date;
+			}
+
 			$site_response = Client::wpcom_json_api_request_as_blog(
 				sprintf( '/sites/%d', $site_id ) . '?force=wpcom&options=created_at',
 				'1.1'
