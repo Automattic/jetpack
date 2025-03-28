@@ -1,3 +1,4 @@
+import debugFactory from 'debug';
 import { FALLBACK_CURRENCY } from '../constants.js';
 import { getCachedFormatter } from '../get-cached-formatter.js';
 import { defaultCurrencyOverrides } from './currencies.js';
@@ -6,6 +7,8 @@ import type {
 	CurrencyObject,
 	NumberFormatCurrencyParams,
 } from '../../types/index.js';
+
+const debug = debugFactory( 'number-formatters:number-format-currency' );
 
 /**
  * Retrieves the currency override for a given currency.
@@ -33,8 +36,7 @@ function getCurrencyOverride(
  */
 function getValidCurrency( currency: string, geoLocation?: string ): string {
 	if ( ! getCurrencyOverride( currency, geoLocation ) ) {
-		// eslint-disable-next-line no-console
-		console.warn(
+		debug(
 			`getValidCurrency was called with a non-existent currency "${ currency }"; falling back to ${ FALLBACK_CURRENCY }`
 		);
 		return FALLBACK_CURRENCY;
@@ -153,15 +155,13 @@ function prepareNumberForFormatting(
 	isSmallestUnit?: boolean
 ): number {
 	if ( isNaN( number ) ) {
-		// eslint-disable-next-line no-console
-		console.warn( 'formatCurrency was called with NaN' );
+		debug( 'formatCurrency was called with NaN' );
 		return 0;
 	}
 
 	if ( isSmallestUnit ) {
 		if ( ! Number.isInteger( number ) ) {
-			// eslint-disable-next-line no-console
-			console.warn(
+			debug(
 				'formatCurrency was called with isSmallestUnit and a float which will be rounded',
 				number
 			);

@@ -1,4 +1,7 @@
+import debugFactory from 'debug';
 import { FALLBACK_LOCALE } from './constants.js';
+
+const debug = debugFactory( 'number-formatters:get-cached-formatter' );
 
 const formatterCache = new Map();
 
@@ -33,8 +36,7 @@ export function getCachedFormatter( {
 		);
 	} catch ( error ) {
 		// If the locale is invalid, creating the NumberFormat will throw.
-		// eslint-disable-next-line no-console
-		console.warn(
+		debug(
 			`Intl.NumberFormat was called with a non-existent locale "${ locale }"; falling back to ${ fallbackLocale }`
 		);
 

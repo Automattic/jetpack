@@ -14,7 +14,8 @@
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Number Formatters"
 	},
 	"dependencies": {
-		"@babel/runtime": "^7"
+		"@babel/runtime": "^7",
+		"debug": "4.4.0"
 	},
 	"devDependencies": {
 		"@babel/core": "7.26.10",

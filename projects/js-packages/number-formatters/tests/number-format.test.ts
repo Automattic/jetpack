@@ -1,4 +1,4 @@
-import { describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { numberFormat, numberFormatCompact } from '../src/number-format.js';
 
 type IntlType = typeof Intl & {
@@ -6,6 +6,10 @@ type IntlType = typeof Intl & {
 };
 
 describe( 'numberFormat()', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+	} );
+
 	it( 'should format number with default options', () => {
 		const result = numberFormat( { browserSafeLocale: 'en-US' } ).format( 1234.56 );
 		expect( result ).toBe( '1,235' );
