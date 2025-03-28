@@ -26,7 +26,13 @@ import './style.scss';
  */
 const debug = debugFactory( 'seo-enhancer:index' );
 
-export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhance?: boolean } ) {
+export function SeoEnhancer( {
+	disableAutoEnhance = false,
+	placement = null,
+}: {
+	disableAutoEnhance?: boolean;
+	placement?: 'jetpack-sidebar' | 'jetpack-prepublish-sidebar';
+} ) {
 	const { tracks } = useAnalytics();
 	const { isEnabled, toggleEnhancer, isToggling } = useSeoModuleSettings();
 	const isLoading = useSelect( select => {
@@ -41,8 +47,8 @@ export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhanc
 	const { updateSeoData } = useSeoRequests();
 
 	const toggleSeoEnhancer = useCallback( async () => {
-		await toggleEnhancer();
-	}, [ toggleEnhancer ] );
+		await toggleEnhancer( { placement } );
+	}, [ toggleEnhancer, placement ] );
 
 	const toggleFeature = useCallback(
 		name => {
