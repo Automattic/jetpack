@@ -6,6 +6,8 @@ const CreativeMailCard = ( { isExpanded, onToggle } ) => {
 	return (
 		<IntegrationCard
 			title={ __( 'Creative Mail', 'jetpack-forms' ) }
+			description={ __( 'Manage email contacts and campaigns', 'jetpack-forms' ) }
+			icon="email"
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 		>

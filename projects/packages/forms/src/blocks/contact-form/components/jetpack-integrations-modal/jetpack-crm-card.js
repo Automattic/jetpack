@@ -6,6 +6,8 @@ const JetpackCRMCard = ( { isExpanded, onToggle, jetpackCRM, setAttributes } ) =
 	return (
 		<IntegrationCard
 			title={ __( 'Jetpack CRM', 'jetpack-forms' ) }
+			description={ __( 'Keep on top of leads as they are added to your CRM', 'jetpack-forms' ) }
+			icon="groups"
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 		>

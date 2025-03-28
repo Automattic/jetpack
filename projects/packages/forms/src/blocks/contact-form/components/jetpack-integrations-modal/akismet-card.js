@@ -12,7 +12,9 @@ const AkismetCard = ( { isExpanded, onToggle } ) => {
 
 	return (
 		<IntegrationCard
-			title={ __( 'Akismet', 'jetpack-forms' ) }
+			title={ __( 'Akismet Spam Protection', 'jetpack-forms' ) }
+			description={ __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ) }
+			icon="shield"
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 		>
