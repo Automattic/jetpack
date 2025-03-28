@@ -87,6 +87,11 @@ class Publicize_Setup {
 
 		$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
 
+		global $publicize;
+		if ( $is_wpcom_simple && ! $publicize ) {
+			return;
+		}
+
 		$rest_controllers = array(
 			REST_API\Connections_Controller::class,
 			REST_API\Connections_Post_Field::class,
