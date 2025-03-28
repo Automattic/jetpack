@@ -132,9 +132,7 @@ function wpcom_add_hosting_menu() {
 		esc_attr__( 'Site Settings', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Site Settings', 'jetpack-mu-wpcom' ),
 		'manage_options',
-		function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && wpcom_is_duplicate_views_experiment_enabled() ?
-			esc_url( "https://wordpress.com/sites/settings/site/$domain" ) :
-			esc_url( "https://wordpress.com/settings/general/$domain" ),
+		esc_url( "https://wordpress.com/sites/settings/site/$domain" ),
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 	);
 
@@ -246,17 +244,15 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
-	if ( function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && wpcom_is_duplicate_views_experiment_enabled() ) {
-		// Jetpack > Podcasting
-		add_submenu_page(
-			'jetpack',
-			__( 'Podcasting', 'jetpack-mu-wpcom' ),
-			__( 'Podcasting', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			$podcasting_url,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
-	}
+	// Jetpack > Podcasting
+	add_submenu_page(
+		'jetpack',
+		__( 'Podcasting', 'jetpack-mu-wpcom' ),
+		__( 'Podcasting', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		$podcasting_url,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	);
 
 	// Re-order menu.
 	global $submenu;
