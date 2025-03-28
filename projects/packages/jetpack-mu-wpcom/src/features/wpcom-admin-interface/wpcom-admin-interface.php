@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Masterbar\Admin_Menu;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -336,96 +335,14 @@ const RDV_EXPERIMENT_FORCE_ASSIGN_OPTION = 'remove_duplicate_views_experiment_as
  * @return boolean
  */
 function wpcom_is_duplicate_views_experiment_enabled() {
-	$experiment_platform = 'calypso';
-	$experiment_name     = "{$experiment_platform}_post_onboarding_holdout_160125";
-	$aa_test_name        = "{$experiment_platform}_post_onboarding_aa_150125";
-
-	static $is_enabled = null;
-	if ( $is_enabled !== null ) {
-		return $is_enabled;
-	}
-
-	$host = new Host();
-
-	if ( $host->is_wpcom_simple() && is_automattician() || $host->is_atomic_platform() && wpcom_atomic_rdv_maybe_is_a11n() ) {
-		wpcom_rdv_reset_cache_if_needed();
-	}
-
+	// Check the forced assignment option.
 	$variation = get_user_option( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, get_current_user_id() );
-
-	/**
-	 * We cache it for both AT and Simple because we want to give a12s to be able to switch between variations for their accounts - this can be useful during support.
-	 * Note that switching the variations can only be achieved through the escape hatch, not via ExPlat.
-	 *
-	 * If we don't cache it, the is_automattician conditions will force treatment every time.
-	 */
 	if ( false !== $variation ) {
-		$is_enabled = 'treatment' === $variation;
-		return $is_enabled;
+		return 'treatment' === $variation;
 	}
 
-	if ( $host->is_wpcom_simple() ) {
-		\ExPlat\assign_current_user( $aa_test_name );
-		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
-
-		if ( is_automattician() ) {
-			$is_enabled = true;
-			update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
-			wpcom_set_rdv_calypso_preference( 'treatment' );
-		}
-
-		return $is_enabled;
-	}
-
-	if ( wpcom_atomic_rdv_maybe_is_a11n() ) {
-		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
-		wpcom_set_rdv_calypso_preference( 'treatment' );
-		$is_enabled = true;
-
-		return true;
-	}
-
-	if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
-		$is_enabled = false;
-		return $is_enabled;
-	}
-
-	$aa_test_request_path = add_query_arg(
-		array( 'experiment_name' => $aa_test_name ),
-		"/experiments/0.1.0/assignments/{$experiment_platform}"
-	);
-	Client::wpcom_json_api_request_as_user( $aa_test_request_path, 'v2' );
-
-	$request_path = add_query_arg(
-		array( 'experiment_name' => $experiment_name ),
-		"/experiments/0.1.0/assignments/{$experiment_platform}"
-	);
-	$response     = Client::wpcom_json_api_request_as_user( $request_path, 'v2' );
-
-	if ( is_wp_error( $response ) ) {
-		$is_enabled = false;
-		return $is_enabled;
-	}
-
-	$response_code = wp_remote_retrieve_response_code( $response );
-
-	if ( 200 !== $response_code ) {
-		$is_enabled = false;
-		return $is_enabled;
-	}
-
-	$data = json_decode( wp_remote_retrieve_body( $response ), true );
-
-	if ( isset( $data['variations'] ) && array_key_exists( $experiment_name, $data['variations'] ) ) {
-		$variation = $data['variations'][ $experiment_name ];
-		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, $variation, true );
-
-		$is_enabled = 'treatment' === $variation;
-		return $is_enabled;
-	} else {
-		$is_enabled = false;
-		return $is_enabled;
-	}
+	// We default to true for everyone else.
+	return true;
 }
 
 /**
