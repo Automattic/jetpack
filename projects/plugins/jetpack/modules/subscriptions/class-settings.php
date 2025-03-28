@@ -57,7 +57,9 @@ class Settings {
 	 * @return int 1 if featured images should be enabled by default, 0 otherwise.
 	 */
 	public static function get_wpcom_featured_image_in_email_default() {
-		return (int) self::should_auto_enable_featured_images_emails();
+		$res = self::should_auto_enable_featured_images_emails();
+		l( $res );
+		return (int) $res;
 	}
 
 	/**
