@@ -33,4 +33,32 @@ class Settings {
 		}
 		return false;
 	}
+
+	/**
+	 * Get the default value for the wpcom_featured_image_in_email option.
+	 * This function updates the default value to "enabled" for sites created after $new_default_after_date.
+	 * This is an attempt to make the new default backwards compatible.
+	 * Otherwise, existing sites implicitly relying on the "unset" (disabled) value would have their setting enabled.
+	 *
+	 * @return int 1 for sites created on or after cuttoff date, 0 for existing sites
+	 */
+	public static function get_wpcom_featured_image_in_email_default() {
+		$new_default_after_date = '2025-03-27';
+
+		$creation_date = '';
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$blog_id       = get_current_blog_id();
+			$details       = get_blog_details( $blog_id );
+			$creation_date = $details->registered;
+		} else {
+			$manager       = new \Automattic\Jetpack\Connection\Manager();
+			$creation_date = $manager->get_assumed_site_creation_date();
+		}
+
+		if ( strtotime( $creation_date ) >= strtotime( $new_default_after_date ) ) {
+			return 1;
+		}
+
+		return 0;
+	}
 }

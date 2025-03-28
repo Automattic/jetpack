@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Jetpack_CRM_Data;
+use Automattic\Jetpack\Modules\Subscriptions\Settings;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Host;
@@ -2647,7 +2648,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'wpcom_featured_image_in_email'             => array(
 				'description'       => esc_html__( 'Whether to include the featured image in the email or not', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 1,
+				'default'           => Settings::get_wpcom_featured_image_in_email_default(),
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),

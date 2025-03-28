@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Modules\Subscriptions\Settings;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 new WPCOM_JSON_API_Site_Settings_Endpoint(
@@ -462,7 +463,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
-						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email', $this->get_wpcom_featured_image_in_email_default( $site->get_registered_date() ) ),
+						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email', Settings::get_wpcom_featured_image_in_email_default() ),
 						'jetpack_gravatar_in_email'        => (bool) get_option( 'jetpack_gravatar_in_email', true ),
 						'jetpack_author_in_email'          => (bool) get_option( 'jetpack_author_in_email', true ),
 						'jetpack_post_date_in_email'       => (bool) get_option( 'jetpack_post_date_in_email', true ),
@@ -612,23 +613,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Get the default value for the wpcom_featured_image_in_email option.
-	 * This function updates the default value to enabled for new sites created after March 25, 2025.
-	 * This prevents existing sites from having their featured images enabled by default without users taking action.
-	 *
-	 * @param string $registered_date The date/time string the site was registered.
-	 * @return int 1 for new sites, 0 for existing sites
-	 */
-	protected function get_wpcom_featured_image_in_email_default( $registered_date ) {
-		// If site was registered after March 25, 2025, we're considering it a new site.
-		if ( strtotime( $registered_date ) >= strtotime( '2025-03-25' ) ) {
-			return 1;
-		}
-
-		return 0;
 	}
 
 	/**
