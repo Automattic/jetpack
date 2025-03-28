@@ -2,64 +2,58 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { TabPanel, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
 import { useConnectionState } from '../form/use-connection-state';
-import { useService } from '../services/use-service';
 import { PostPreview } from './post-preview';
 import styles from './styles.module.scss';
 
 /**
  * Preview section of the social post modal.
  *
- * @return {import('react').ReactNode} - Preview section of the social post modal.
+ * @return - Preview section of the social post modal.
  */
 export function PreviewSection() {
 	const { recordEvent } = useAnalytics();
 
-	const getService = useService();
-
 	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
 
-	const connections = useSelect(
-		select => {
-			const store = select( socialStore );
-
-			return (
-				store
-					.getConnections()
-					// Ensure the service is supported
-					// to avoid errors for old connections like Twitter
-					.filter( ( { service_name } ) => getService( service_name ) )
-					.map( connection => {
-						const title = connection.display_name;
-						const name = `${ connection.service_name }-${ connection.connection_id }`;
-						const icon = (
-							<ConnectionIcon
-								label={ title }
-								serviceName={ connection.service_name }
-								profilePicture={ connection.profile_picture }
-							/>
-						);
-						const disabled =
-							shouldBeDisabled( connection ) ||
-							! canBeTurnedOn( connection ) ||
-							! connection.enabled;
-
-						return {
-							...connection,
-							// Add the props needed for the TabPanel component
-							className: disabled ? styles[ 'disabled-tab' ] : '',
-							name,
-							title,
-							icon,
-						};
-					} )
-			);
-		},
-		[ canBeTurnedOn, getService, shouldBeDisabled ]
+	const allConnections = useSelect( select => select( socialStore ).getConnections(), [] );
+	const unsupportedServices = useSelect(
+		select => select( socialStore ).getServicesBy( 'status', 'unsupported' ),
+		[]
 	);
+
+	const connections = useMemo( () => {
+		const unsupportedServiceIds = unsupportedServices.map( service => service.id );
+		// Ensure the service is supported
+		// to avoid errors for old connections like Twitter
+		return allConnections
+			.filter( ( { service_name } ) => ! unsupportedServiceIds.includes( service_name ) )
+			.map( connection => {
+				const title = connection.display_name;
+				const name = `${ connection.service_name }-${ connection.connection_id }`;
+				const icon = (
+					<ConnectionIcon
+						label={ title }
+						serviceName={ connection.service_name }
+						profilePicture={ connection.profile_picture }
+					/>
+				);
+				const disabled =
+					shouldBeDisabled( connection ) || ! canBeTurnedOn( connection ) || ! connection.enabled;
+
+				return {
+					...connection,
+					// Add the props needed for the TabPanel component
+					className: disabled ? styles[ 'disabled-tab' ] : '',
+					name,
+					title,
+					icon,
+				};
+			} );
+	}, [ allConnections, canBeTurnedOn, shouldBeDisabled, unsupportedServices ] );
 
 	const { toggleConnectionById } = useDispatch( socialStore );
 
