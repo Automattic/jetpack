@@ -961,8 +961,8 @@
 /* Styles for form inspector panels */
 .jetpack-contact-form__manage-responses-panel,
 .jetpack-contact-form__integrations-panel {
-	button {
+	.components-button.is-secondary {
 		width: 100%;
-		display: block;
+		justify-content: center;
 	}
 }
