@@ -188,8 +188,6 @@ class Unauth_File_Upload_Handler {
 	private function add_unauth_upload( $token, $file_data ) {
 		$uploads           = $this->get_unauth_uploads();
 		$uploads[ $token ] = $file_data;
-		l( 'add_unauth_upload', $uploads );
-		l( $token );
 		return update_option( self::UNAUTH_UPLOADS_OPTION, $uploads );
 	}
 
