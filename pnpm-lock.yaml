@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-zCxWVmeqIVdzVzgWqWEctKVmBIozYb01nBTVlyTN+ps=
+pnpmfileChecksum: sha256-vsSLfJFMcv7GYtNElbicbg3ukYfUNh3r8B4Wm2GpQv0=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -20698,6 +20698,8 @@ snapshots:
       '@emotion/utils': 1.4.2
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@use-gesture/react': 10.3.1(react@18.3.1)
+      '@wordpress/date': 5.19.0
+      '@wordpress/hooks': 4.19.0
       change-case: 4.1.2
       colord: 2.9.3
       date-fns: 3.6.0
@@ -20739,6 +20741,8 @@ snapshots:
       '@emotion/utils': 1.4.2
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@use-gesture/react': 10.3.1(react@18.3.1)
+      '@wordpress/date': 5.19.0
+      '@wordpress/hooks': 4.19.0
       change-case: 4.1.2
       colord: 2.9.3
       date-fns: 3.6.0
@@ -20780,6 +20784,8 @@ snapshots:
       '@emotion/utils': 1.4.2
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@use-gesture/react': 10.3.1(react@18.3.1)
+      '@wordpress/date': 5.19.0
+      '@wordpress/hooks': 4.19.0
       change-case: 4.1.2
       colord: 2.9.3
       date-fns: 3.6.0

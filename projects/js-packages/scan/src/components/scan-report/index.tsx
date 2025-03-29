@@ -5,7 +5,7 @@ import {
 	type Field,
 	DataViews,
 	filterSortAndPaginate,
-} from '@wordpress/dataviews';
+} from '@wordpress/dataviews/wp';
 import { __, _n } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';

@@ -1,6 +1,6 @@
 import { Badge } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import { getSeverityLabel, getSeverityVariant } from '@automattic/jetpack-scan';
+import { getSeverityLabel, getSeverityVariant } from '../../utils/severity.js';
 
 const ThreatSeverityBadge = ( { severity, showLabel = false } ) => {
 	const title = getSeverityLabel( severity );
