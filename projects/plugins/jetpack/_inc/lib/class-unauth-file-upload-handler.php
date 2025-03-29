@@ -70,7 +70,7 @@ class Unauth_File_Upload_Handler {
 	 *
 	 * @param array  $file    The uploaded file data.
 	 * @param string $context The context of the upload.
-	 * @return array|WP_Error Array with token on success, WP_Error object on failure.
+	 * @return array|\WP_Error Array with token on success, WP_Error object on failure.
 	 */
 	public function handle_file_upload( $file, $context ) {
 		// First check for basic upload errors.
