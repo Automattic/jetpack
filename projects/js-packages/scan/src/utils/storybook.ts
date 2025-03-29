@@ -1,6 +1,7 @@
 /**
  * Commonly used mock data and utilities for Storybooks.
  */
+import { type Meta } from '@storybook/react';
 
 /**
  * Vulnerable Plugin Threat
@@ -73,7 +74,7 @@ export const FILE_THREAT = {
  *
  * @see https://storybook.js.org/docs/essentials/controls
  */
-export const storybookThreat = {
+export const storybookThreat: Meta = {
 	argTypes: {
 		threatPreset: {
 			name: 'Threat Type',
@@ -109,13 +110,29 @@ export const storybookThreat = {
 				},
 			},
 		},
+		hasPlan: {
+			name: 'Jetpack Plan',
+			control: {
+				type: 'select',
+			},
+			options: {
+				Free: false,
+				Scan: true,
+			},
+		},
 		connection: {
 			name: 'Jetpack Connection',
 			description: 'Select a connection state to add to ThreatsContext.',
 			control: {
 				type: 'select',
+				labels: {
+					connected: 'Connected',
+					disconnected: 'Disconnected',
+					custom: 'Custom',
+				},
 			},
-			options: {
+			options: [ 'connected', 'disconnected', 'custom' ],
+			mapping: {
 				connected: {
 					connected: true,
 					connecting: false,
@@ -134,8 +151,14 @@ export const storybookThreat = {
 			description: 'Select a credentials state to add to ThreatsContext.',
 			control: {
 				type: 'select',
+				labels: {
+					connected: 'Connected',
+					disconnected: 'Disconnected',
+					custom: 'Custom',
+				},
 			},
-			options: {
+			options: [ 'connected', 'disconnected', 'custom' ],
+			mapping: {
 				connected: {
 					available: true,
 					fetching: false,
@@ -160,16 +183,9 @@ export const storybookThreat = {
 	args: {
 		threatPreset: VULNERABLE_PLUGIN_THREAT,
 		threatFixerProps: null,
-		connection: {
-			connected: true,
-			connecting: false,
-			connect: () => {},
-		},
-		credentials: {
-			available: true,
-			fetching: false,
-			redirectUrl: '#',
-		},
+		hasPlan: false,
+		connection: 'connected',
+		credentials: 'connected',
 		referToCodeable: true,
 	},
 };
