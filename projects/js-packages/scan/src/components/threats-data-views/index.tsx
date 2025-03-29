@@ -13,13 +13,10 @@ import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useContext, useMemo, useState } from 'react';
-import {
-	getThreatType,
-	THREAT_ACTION_FIX,
-	THREAT_ACTION_IGNORE,
-	ThreatsContext,
-	type Threat,
-} from '@automattic/jetpack-scan';
+import { THREAT_ACTION_FIX, THREAT_ACTION_IGNORE } from '../../actions/index.js';
+import { ThreatsContext } from '../../context/index.js';
+import { type Threat } from '../../types/threats.js';
+import { getThreatType } from '../../utils/threats.js';
 import ThreatFixerButton from '../threat-fixer-button/index.js';
 import ThreatDetailsModal from '../threat-modals/details-modal/index.js';
 import ThreatFixerModal from '../threat-modals/fixer-modal/index.js';
