@@ -83,7 +83,7 @@ class Dashboard {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
 			// Jetpack uses 998 and 'Admin_Menu' uses 1000.
-			add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), $this->search_menu_priority );
+			add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we use 1 to ensure both menus are added when only they exist .
 			// Check if the site plan changed and deactivate module accordingly.
 			add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
 		}
