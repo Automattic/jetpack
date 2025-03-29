@@ -1,6 +1,7 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.tsc.json",
 	"include": [ "./src/**/*" ],
+	"exclude": [ "**/test/**", "**/stories/**" ],
 	"compilerOptions": {
 		"typeRoots": [ "./node_modules/@types/", "src/*" ],
 		"sourceMap": false,
