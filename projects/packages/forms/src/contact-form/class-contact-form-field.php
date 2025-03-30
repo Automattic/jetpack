@@ -848,6 +848,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 *
 		 * @param string $upload_token Default empty token.
 		 */
+		l( 'BEFORE PROVIDE UPLOAD TOKEN' );
 		$upload_token = apply_filters( 'jetpack_forms_file_upload_token', '' );
 
 		$global_state = array(

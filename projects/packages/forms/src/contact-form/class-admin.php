@@ -183,7 +183,7 @@ class Admin {
 			|| ! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ), 'feedback_export' )
 		) {
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack-forms' ),
+				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -350,7 +350,7 @@ class Admin {
 			! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ), 'feedback_export' )
 		) {
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack-forms' ),
+				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -708,14 +708,11 @@ class Admin {
 		$content      = explode( '<!--more-->', $post_content );
 		$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
 		$chunks       = explode( "\nJSON_DATA", $content );
+		// Get content fields.
+		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post->ID );
 
-		$response_fields = array();
-
-		if ( is_array( $chunks ) && isset( $chunks[1] ) ) {
-			$rearray = json_decode( $chunks[1], true );
-			if ( is_array( $rearray ) && isset( $rearray['feedback_id'] ) ) {
-				$response_fields = $rearray;
-			}
+		if ( empty( $content_fields ) ) {
+			return;
 		}
 
 		if ( empty( $response_fields ) ) {
@@ -756,25 +753,52 @@ class Admin {
 		echo '<div class="feedback_response__item">';
 
 		foreach ( $response_fields as $key => $display_value ) {
-			if ( is_array( $display_value ) ) {
-				if ( Contact_Form::is_file_upload_field( $display_value ) ) {
-						// This is a file upload field, display a link instead of raw data
-						$file_url = sprintf(
-							'%s?file_id=%s&file_nonce=%s',
-							get_rest_url( null, '/wp/v2/feedback/files' ),
-							rawurlencode( $display_value['file_id'] ),
-							rawurlencode( wp_create_nonce( 'jetpack_forms_view_file_' . $display_value['file_id'] ) )
-						);
-						printf(
-							'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value"><a href="%s" target="_blank">%s</a></div>',
-							esc_html( preg_replace( '#^\d+_#', '', $key ) ),
-							esc_url( $file_url ),
-							esc_html( $display_value['name'] )
-						);
-					continue;
+			if ( Contact_Form::is_file_upload_field( $display_value ) ) {
+				// This is a file upload field, display links for all files
+				require_once __DIR__ . '/../class-file-handler.php';
+				$file_handler = new \Automattic\Jetpack\Forms\File_Handler();
+
+				printf(
+					'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">',
+					esc_html( preg_replace( '#^\d+_#', '', $key ) )
+				);
+
+				// Get the files array from the new structure
+				$files = $display_value['files'];
+
+				$file_count = 0;
+
+				foreach ( $files as $file_data ) {
+					// Add a separator between files if not the first file
+					if ( $file_count > 0 ) {
+						echo '<br>';
+					}
+
+					$file_url = $file_handler->get_file_url( $display_value['field_id'], $file_data['file_id'], $post->ID );
+					// If we have a valid URL, show the file link with additional details
+					$file_name = isset( $file_data['name'] ) ? $file_data['name'] : __( 'Attached file', 'jetpack-forms' );
+					$file_size = isset( $file_data['size'] ) ? size_format( $file_data['size'] ) : '';
+					$file_info = $file_name;
+
+					// Add file size if available
+					if ( ! empty( $file_size ) ) {
+						$file_info .= ' (' . $file_size . ')';
+					}
+
+					printf(
+						'<a href="%s" target="_blank">%s</a>',
+						esc_url( $file_url ),
+						esc_html( $file_info )
+					);
+
+					++$file_count;
 				}
-				// Regular array, just join the values
-				$display_value = implode( ', ', $display_value );
+
+				echo '</div>';
+				continue;
+			} elseif ( is_array( $display_value ) ) {
+				// Regular array, format it nicely for display
+				$display_value = Contact_Form_Plugin::format_value_for_display( $display_value );
 			}
 
 			printf(
@@ -1462,7 +1486,7 @@ class Admin {
 			|| ! wp_verify_nonce( sanitize_key( $_POST[ 'jetpack_check_feedback_spam_' . (string) $blog_id ] ), 'grunion_recheck_queue' )
 		) {
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack-forms' ),
+				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -1471,7 +1495,7 @@ class Admin {
 
 		if ( ! current_user_can( 'delete_others_posts' ) ) {
 			wp_send_json_error(
-				__( 'You don’t have permission to do that.', 'jetpack-forms' ),
+				__( 'You don\'t have permission to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -1535,7 +1559,7 @@ class Admin {
 	public function grunion_delete_spam_feedbacks() {
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'jetpack_delete_spam_feedbacks' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- core doesn't sanitize nonce checks either.
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack-forms' ),
+				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -1544,7 +1568,7 @@ class Admin {
 
 		if ( ! current_user_can( 'delete_others_posts' ) ) {
 			wp_send_json_error(
-				__( 'You don’t have permission to do that.', 'jetpack-forms' ),
+				__( 'You don\'t have permission to do that.', 'jetpack-forms' ),
 				403
 			);
 

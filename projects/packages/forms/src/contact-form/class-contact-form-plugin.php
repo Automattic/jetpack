@@ -184,6 +184,9 @@ class Contact_Form_Plugin {
 		add_action( 'loop_start', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'style_on' ) );
 		add_action( 'pre_amp_render_post', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'style_on' ) );
 
+		// Add action to delete attached files when a feedback post is deleted
+		add_action( 'before_delete_post', array( $this, 'delete_feedback_attachments' ) );
+
 		add_action( 'wp_ajax_grunion-contact-form', array( $this, 'ajax_request' ) );
 		add_action( 'wp_ajax_nopriv_grunion-contact-form', array( $this, 'ajax_request' ) );
 
@@ -889,17 +892,48 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Sanitize the value.
+	 * Sanitizes the value of a field.
 	 *
-	 * @param string $value - the value to sanitize.
-	 *
-	 * @return string
+	 * @param string|array|null $value The value to sanitize.
+	 * @return string The sanitized value.
 	 */
 	public static function sanitize_value( $value ) {
 		if ( null === $value ) {
 			return '';
 		}
+
+		// If value is an array, convert it to a comma-separated string
+		if ( is_array( $value ) ) {
+			return implode( ', ', array_map( array( __CLASS__, 'sanitize_value' ), $value ) );
+		}
+
 		return preg_replace( '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i', '', $value );
+	}
+
+	/**
+	 * Sanitizes and formats values for display, ensuring arrays are properly converted to strings.
+	 *
+	 * @param mixed $value The value to format.
+	 * @return string|array The formatted value ready for display or file array for upload fields.
+	 */
+	public static function format_value_for_display( $value ) {
+		if ( is_array( $value ) ) {
+			// Check if this is a file upload field
+			if ( isset( $value['file_id'] ) && isset( $value['name'] ) ) {
+				// This is a file upload field, return as is to be handled by the proper renderer
+				return $value;
+			}
+
+			// Process each array element recursively and join with commas
+			$formatted_values = array();
+			foreach ( $value as $key => $item ) {
+				$formatted_values[] = is_numeric( $key ) ? self::format_value_for_display( $item ) : "$key: " . self::format_value_for_display( $item );
+			}
+			return implode( ', ', $formatted_values );
+		}
+
+		// Simple value, just convert to string
+		return (string) $value;
 	}
 
 	/**
@@ -2354,5 +2388,24 @@ class Contact_Form_Plugin {
 	 */
 	public static function is_form_modal_enabled() {
 		return defined( 'JETPACK_IS_FORM_MODAL_ENABLED' ) && JETPACK_IS_FORM_MODAL_ENABLED;
+	}
+
+	/**
+	 * Delete file attachments when a feedback post is deleted.
+	 *
+	 * @param int $post_id The post ID being deleted.
+	 */
+	public function delete_feedback_attachments( $post_id ) {
+		$post_type = get_post_type( $post_id );
+
+		// Only process feedback post type
+		if ( 'feedback' !== $post_type ) {
+			return;
+		}
+
+		// Use the File_Handler to delete attached files
+		require_once dirname( __DIR__ ) . '/class-file-handler.php';
+		$file_handler = new \Automattic\Jetpack\Forms\File_Handler();
+		$file_handler->delete_attached_files( $post_id );
 	}
 }

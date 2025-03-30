@@ -506,24 +506,45 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string $message
 	 */
 	public static function success_message( $feedback_id, $form ) {
+		error_log( "DEBUG: success_message called for feedback ID: $feedback_id" );
+
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
 			$message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
+			error_log( 'DEBUG: Using custom thank you message: ' . $message );
 		} else {
-			$message = '<p>' . implode( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>';
+			$compiled_form = self::get_compiled_form( $feedback_id, $form );
+			error_log( 'DEBUG: Compiled form items count: ' . count( $compiled_form ) );
+			$message = '<p>' . implode( '</p><p>', $compiled_form ) . '</p>';
+			error_log( 'DEBUG: Generated success message (pre-kses): ' . $message );
 		}
 
-		return wp_kses(
-			$message,
-			array(
-				'br'         => array(),
-				'blockquote' => array( 'class' => array() ),
-				'p'          => array(),
-				'div'        => array(
-					'class' => array(),
-					'style' => array(),
-				),
-			)
+		// Add more allowed HTML elements for file download links
+		$allowed_html = array(
+			'br'         => array(),
+			'blockquote' => array( 'class' => array() ),
+			'p'          => array(),
+			'div'        => array(
+				'class' => array(),
+				'style' => array(),
+			),
+			'a'          => array(
+				'href'     => array(),
+				'class'    => array(),
+				'target'   => array(),
+				'rel'      => array(),
+				'download' => array(),
+				'title'    => array(),
+			),
+			'span'       => array(
+				'class' => array(),
+				'style' => array(),
+			),
 		);
+
+		$filtered_message = wp_kses( $message, $allowed_html );
+		error_log( 'DEBUG: Final filtered success message: ' . $filtered_message );
+
+		return $filtered_message;
 	}
 
 	/**
@@ -536,9 +557,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form( $feedback_id, $form ) {
+		error_log( "DEBUG: get_compiled_form called for feedback ID: $feedback_id" );
 		$feedback       = get_post( $feedback_id );
 		$field_ids      = $form->get_field_ids();
 		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $feedback_id );
+		error_log( 'DEBUG: Content fields from parse_fields_from_content: ' . print_r( $content_fields, true ) );
 
 		// Maps field_ids to post_meta keys
 		$field_value_map = array(
@@ -596,6 +619,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $field_ids['extra'] ) {
 			// array indexed by field label (not field id)
 			$extra_fields = get_post_meta( $feedback_id, '_feedback_extra_fields', true );
+			error_log( 'DEBUG: Extra fields from post meta: ' . print_r( $extra_fields, true ) );
 
 			/**
 			 * Only get data for the compiled form if `$extra_fields` is a valid and non-empty array.
@@ -611,6 +635,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 					$label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
 
+					error_log( 'DEBUG: Processing extra field: ' . $field->get_attribute( 'label' ) . " (ID: $field_id)" );
+					error_log( 'DEBUG: Field type: ' . $field->get_attribute( 'type' ) );
+
+					if ( $field->get_attribute( 'type' ) === 'file' ) {
+						error_log( 'DEBUG: This is a file field. Value from extra_fields: ' . print_r( $extra_fields[ $extra_field_keys[ $i ] ], true ) );
+					}
+
 					$compiled_form[ $field_index ] = sprintf(
 						'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
 						wp_kses( $label, array() ),
@@ -624,6 +655,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Sorting lines by the field index
 		ksort( $compiled_form );
+
+		error_log( 'DEBUG: Final compiled form: ' . print_r( $compiled_form, true ) );
 
 		return $compiled_form;
 	}
@@ -746,19 +779,43 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Escape and sanitize the field value.
+	 * Escape and sanitize a field value.
 	 *
-	 * @param string|array $value - the value we're escaping and sanitizing.
+	 * @param mixed $value - the value to sanitize.
 	 *
-	 * @return string
+	 * @return mixed|string
 	 */
 	public static function escape_and_sanitize_field_value( $value ) {
-		if ( $value === null ) {
-			return '';
-		}
-		// Check if this is file upload data
+		// Handle file upload field (new structure with field_id and files array)
 		if ( self::is_file_upload_field( $value ) ) {
-			$value = $value['name'];
+			$files = $value['files'];
+			if ( empty( $files ) ) {
+				return '';
+			}
+
+			$file_links = array();
+			foreach ( $files as $file ) {
+				if ( ! empty( $file['file_id'] ) ) {
+					$file_name = isset( $file['name'] ) ? $file['name'] : __( 'Attached file', 'jetpack-forms' );
+					$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
+
+					$html = esc_html( $file_name );
+					if ( ! empty( $file_size ) ) {
+						$html .= sprintf( ' <span class="jetpack-forms-file-size">(%s)</span>', esc_html( $file_size ) );
+					}
+
+					$file_links[] = $html;
+				}
+			}
+
+			return implode( '<br>', $file_links );
+		}
+
+		if ( is_array( $value ) ) {
+			if ( is_array( reset( $value ) ) ) {
+				return '';
+			}
+			return implode( ', ', array_map( 'strval', $value ) );
 		}
 
 		$value = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value );
@@ -939,7 +996,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return bool True if the field is a file upload field, false otherwise.
 	 */
 	public static function is_file_upload_field( $field ) {
-		return ! empty( $field['file_id'] ) && ! empty( $field['name'] );
+		// New structure: check for field_id and files keys
+		return is_array( $field ) &&
+				! empty( $field ) &&
+				isset( $field['field_id'] ) &&
+				isset( $field['files'] ) &&
+				is_array( $field['files'] );
 	}
 
 	/**
@@ -1254,7 +1316,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			if ( $field->get_attribute( 'type' ) === 'file' ) {
-				$field->value = $this->process_file_upload( $field );
+				error_log( 'DEBUG: Processing file field: ' . $field->get_attribute( 'label' ) . " (ID: $field_id)" );
+				$field->value = $this->process_file_upload_field( $field_id, $field );
+				error_log( 'DEBUG: After processing, file field value: ' . print_r( $field->value, true ) );
 			}
 			$value = $field->value;
 			if ( is_array( $value ) && ! ( $field->get_attribute( 'type' ) === 'file' ) ) {
@@ -1529,10 +1593,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 			)
 		);
 
+		error_log( "DEBUG: Created feedback post with ID: $post_id" );
+		error_log( 'DEBUG: Extra values to be saved as meta: ' . print_r( $extra_values, true ) );
+
 		// once insert has finished we don't need this filter any more
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
+		error_log( 'DEBUG: Saved _feedback_extra_fields meta' );
 
 		if ( 'publish' === $feedback_status ) {
 			// Increase count of unread feedback.
@@ -1771,37 +1839,29 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array|WP_Error File data array on success, WP_Error on failure.
 	 */
 	private function process_file_upload( $unauth_file_token ) {
+		error_log( "DEBUG: process_file_upload called with token: $unauth_file_token" );
+
 		if ( empty( $unauth_file_token ) ) {
+			error_log( 'DEBUG: Empty token provided' );
 			return new \WP_Error( 'file_upload_failed', __( 'Failed to upload file.', 'jetpack-forms' ) );
 		}
 
-		// Generate a realistic file path structure
-		$year  = gmdate( 'Y' );
-		$month = gmdate( 'm' );
-		$hash  = substr( wp_hash( $unauth_file_token ), 0, 8 );
+		// Directly require the File_Handler class
+		require_once dirname( __DIR__ ) . '/class-file-handler.php';
+		$file_handler = new \Automattic\Jetpack\Forms\File_Handler();
 
-		// Return dummy file data for testing
-		return array(
-			'name'    => 'test-upload-' . $hash . '.txt',
-			'file_id' => $year . '/' . $month . '/test-upload-' . $hash . '.txt',
-			'size'    => wp_rand( 1024, 102400 ), // Random size between 1KB and 100KB
-		);
-	}
+		error_log( "DEBUG: Calling save_file_from_token with token: $unauth_file_token" );
 
-	/**
-	 * Delete a file using its identifier.
-	 *
-	 * @param string $file_id The file identifier to delete.
-	 * @return bool True on success, false on failure.
-	 */
-	private function delete_file( $file_id ) {
-		// Basic validation to maintain API consistency
-		if ( empty( $file_id ) ) {
-			return false;
+		// The filename will be retrieved from the token data
+		$result = $file_handler->save_file_from_token( $unauth_file_token );
+
+		if ( is_wp_error( $result ) ) {
+			error_log( 'DEBUG: Error saving file from token: ' . $result->get_error_message() );
+		} else {
+			error_log( 'DEBUG: File saved successfully from token. Result: ' . print_r( $result, true ) );
 		}
 
-		// Always return true for testing
-		return true;
+		return $result;
 	}
 
 	/**
@@ -2006,15 +2066,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return;
 		}
 
-		foreach ( $feedback_meta as $field_value ) {
-			if ( ! self::is_file_upload_field( $field_value ) ) {
-				continue;
-			}
-
-			foreach ( $field_value as $file_upload_field ) {
-				$this->delete_file( $file_upload_field['file_id'] );
-			}
-		}
+		// Let the File_Handler handle file deletions
+		require_once dirname( __DIR__ ) . '/class-file-handler.php';
+		$file_handler = new \Automattic\Jetpack\Forms\File_Handler();
+		$file_handler->delete_attached_files( $post_id );
 	}
 
 	/**
@@ -2023,11 +2078,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string $field_id The field ID.
 	 * @param object $field The field object.
 	 *
-	 * @return array An array of uploaded files or errors.
+	 * @return array A structured array with field_id and files array.
 	 */
 	private function process_file_upload_field( $field_id, $field ) {
 		$field_id         = sanitize_key( $field_id );
 		$token_field_name = $field_id . '_token';
+
+		// Debug: Log the field info
+		error_log( "DEBUG: Processing file upload field: $field_id" );
+		error_log( "DEBUG: Token field name: $token_field_name" );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$unauth_file_token_array = isset( $_POST[ $token_field_name ] ) && is_array( $_POST[ $token_field_name ] )
@@ -2038,21 +2097,36 @@ class Contact_Form extends Contact_Form_Shortcode {
 				}
 			) : array();
 
+		// Debug: Log tokens
+		error_log( 'DEBUG: File tokens: ' . print_r( $unauth_file_token_array, true ) );
+
 		if ( empty( $unauth_file_token_array ) ) {
+			error_log( "DEBUG: No file tokens found for field $field_id" );
 			$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
-			return array();
+			return array(
+				'field_id' => $field_id,
+				'files'    => array(),
+			);
 		}
 
 		$files = array();
 		foreach ( $unauth_file_token_array as $unauth_file_token ) {
+			error_log( "DEBUG: Processing token: $unauth_file_token" );
 			$result = $this->process_file_upload( $unauth_file_token );
+
 			if ( is_wp_error( $result ) ) {
+				error_log( 'DEBUG: Error processing file upload: ' . $result->get_error_message() );
 				$field->add_error( $result->get_error_message() );
 				continue;
 			}
 
 			$files[] = $result;
 		}
-		return $files;
+
+		// Return a structured array with field_id and files array
+		return array(
+			'field_id' => $field_id,
+			'files'    => $files,
+		);
 	}
 }

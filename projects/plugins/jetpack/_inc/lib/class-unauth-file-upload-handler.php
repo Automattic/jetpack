@@ -438,4 +438,31 @@ class Unauth_File_Upload_Handler {
 			return false;
 		}
 	}
+
+	/**
+	 * Gets file data for a specific token.
+	 *
+	 * @param string $token The token for the file.
+	 * @return array|false Array with file data on success, false on failure.
+	 */
+	public function get_file_data( $token ) {
+		$uploads = $this->get_unauth_uploads();
+
+		if ( empty( $uploads ) || ! isset( $uploads[ $token ] ) ) {
+			return false;
+		}
+
+		$file_data = $uploads[ $token ];
+
+		// Add file path information
+		$upload_dir = wp_upload_dir();
+		if ( empty( $upload_dir['error'] ) ) {
+			$secret_dir             = $this->get_secret_directory();
+			$file_data['file_path'] = trailingslashit(
+				untrailingslashit( $upload_dir['basedir'] ) . '/' . self::UNAUTH_UPLOADS_DIR . '/' . $secret_dir
+			) . $file_data['filename'];
+		}
+
+		return $file_data;
+	}
 }
