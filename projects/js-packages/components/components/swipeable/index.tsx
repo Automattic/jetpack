@@ -112,17 +112,20 @@ export const Swipeable = ( {
 
 	useEffect( () => {
 		let timeoutId: ReturnType< typeof setTimeout >;
-		if ( currentPage > prevPageRef.current && currentPage === numPages ) {
-			// In the last clone slide. Start the transition to the first real slide
-			setIsTransitioning( true );
-		} else if ( prevPageRef.current === numPages && currentPage === 0 ) {
-			// After the transition from the last clone to the first real slide,
+		if (
+			( currentPage === 0 && prevPageRef.current === numPages ) ||
+			( currentPage === numPages - 1 && prevPageRef.current === -1 )
+		) {
+			// We are in a real slide after being transitioned from a clone
 			// we need to set again the transitionDuration to TRANSITION_DURATION
 			// But we need to wait a little bit to avoid enabling it before
-			// we moved to the first real slide
+			// we moved to the real slide
 			timeoutId = setTimeout( () => {
 				setPagesStyle( prev => ( { ...prev, transitionDuration: TRANSITION_DURATION } ) );
 			}, 500 );
+		} else if ( currentPage === numPages || currentPage < 0 ) {
+			// In a clone slide. Start the transition to the real slide
+			setIsTransitioning( true );
 		}
 
 		prevPageRef.current = currentPage;
@@ -166,23 +169,22 @@ export const Swipeable = ( {
 	}, [ pagesRef, currentPage, pagesStyle, updateEnabled, containerWidth, childrenOrder ] );
 
 	const resetDragData = useCallback( () => {
-		setPagesStyle( prev => {
-			const newStyle = { ...prev };
-			delete newStyle.transform;
-			return {
-				...newStyle,
-				transitionDuration: TRANSITION_DURATION,
-			};
-		} );
+		setPagesStyle( prev => ( {
+			...prev,
+			transitionDuration: TRANSITION_DURATION,
+		} ) );
 		setDragData( null );
 	}, [ setPagesStyle, setDragData ] );
 
-	const handleDragStart = useCallback( event => {
-		const position = getDragPositionAndTime( event );
-		setSwipeableArea( pagesRef.current?.getBoundingClientRect() );
-		setDragData( { start: position } );
-		setPagesStyle( prev => ( { ...prev, transitionDuration: `0ms` } ) );
-	}, [] );
+	const handleDragStart = useCallback(
+		event => {
+			const position = getDragPositionAndTime( event );
+			setSwipeableArea( pagesRef.current?.getBoundingClientRect() );
+			setDragData( { start: position } );
+			setPagesStyle( prev => ( { ...prev, transitionDuration: `0ms` } ) ); // Set transition Duration to 0 for smooth dragging.
+		},
+		[ setPagesStyle, setDragData ]
+	);
 
 	const hasSwipedToNextPage = useCallback( delta => ( isRtl ? delta > 0 : delta < 0 ), [ isRtl ] );
 	const hasSwipedToPreviousPage = useCallback(
@@ -198,12 +200,13 @@ export const Swipeable = ( {
 		setIsTransitioning( false );
 
 		// If we're on the clone slides, jump to the corresponding real slide
+		// We set the transitionDuration to 0ms to make invisible the
+		// change from the clone to the real slide
 		if ( currentPage >= numPages ) {
-			// We set the transitionDuration to 0ms to make invisible the
-			// change from the last clone to the first real slide
 			setPagesStyle( prev => ( { ...prev, transitionDuration: '0ms' } ) );
 			onPageSelect( 0 );
 		} else if ( currentPage < 0 ) {
+			setPagesStyle( prev => ( { ...prev, transitionDuration: '0ms' } ) );
 			onPageSelect( numPages - 1 );
 		}
 	}, [ currentPage, numPages, onPageSelect, isTransitioning ] );
@@ -211,7 +214,7 @@ export const Swipeable = ( {
 	const handleDragEnd = useCallback(
 		event => {
 			if ( ! dragData ) {
-				return;
+				return; // End early if we are not dragging any more.
 			}
 
 			let dragPosition = getDragPositionAndTime( event );
@@ -227,12 +230,14 @@ export const Swipeable = ( {
 			const verticalAbsoluteDelta = Math.abs( dragPosition.y - dragData.start.y );
 			const angle = ( Math.atan2( verticalAbsoluteDelta, absoluteDelta ) * 180 ) / Math.PI;
 
+			// Is click or tap?
 			if ( velocity === 0 && isClickEnabled ) {
 				onPageSelect( ( currentPage + 1 ) % numPages );
 				resetDragData();
 				return;
 			}
 
+			// Is vertical scroll detected?
 			if ( angle > VERTICAL_THRESHOLD_ANGLE ) {
 				resetDragData();
 				return;
@@ -258,15 +263,11 @@ export const Swipeable = ( {
 				}
 			}
 
-			setPagesStyle( prev => {
-				const newStyle = { ...prev };
-				delete newStyle.transform;
-				return {
-					...newStyle,
-					transform: `translate3d(${ getOffset( newIndex ) }px, 0px, 0px)`,
-					transitionDuration: TRANSITION_DURATION,
-				};
-			} );
+			setPagesStyle( prev => ( {
+				...prev,
+				transform: `translate3d(${ getOffset( newIndex ) }px, 0px, 0px)`,
+				transitionDuration: TRANSITION_DURATION,
+			} ) );
 
 			onPageSelect( newIndex );
 			setDragData( null );
@@ -298,6 +299,8 @@ export const Swipeable = ( {
 			const offset = getOffset( currentPage ) + delta;
 			setDragData( { ...dragData, last: dragPosition } );
 
+			// The user needs to swipe horizontally more then 2 px in order for the canvase to be dragging.
+			// We do this so that the user can scroll vertically smother.
 			if ( absoluteDelta < 3 ) {
 				return;
 			}
@@ -312,6 +315,7 @@ export const Swipeable = ( {
 				return;
 			}
 
+			// Did the user swipe out of the swipeable area?
 			if (
 				dragPosition.x < swipeableArea.left ||
 				dragPosition.x > swipeableArea.right ||
