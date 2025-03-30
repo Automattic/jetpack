@@ -377,28 +377,21 @@ export const Swipeable = ( {
 					onTransitionEnd={ handleTransitionEnd }
 				>
 					{ /* Clone of the last element */ }
-					{ Children.map( children, ( child, index ) => {
-						if ( index === numPages - 1 ) {
-							return (
-								<div
-									style={ { width: `${ containerWidth }px` } }
-									className={ clsx( 'swipeable__page', pageClassName, {
-										'is-clone': true,
-										'is-prev': currentPage === 0,
-									} ) }
-									key={ `clone-prev-${ index }` }
-								>
-									{ child }
-								</div>
-							);
-						}
-						return null;
-					} ) }
+					<div
+						style={ { width: `${ containerWidth }px` } }
+						className={ clsx( 'swipeable__page', pageClassName, {
+							'is-clone': true,
+							'is-prev': currentPage === 0,
+						} ) }
+						key={ `clone-prev-${ numPages - 1 }` }
+					>
+						{ Children.toArray( children )[ numPages - 1 ] }
+					</div>
 
 					{ /* Original elements */ }
 					{ Children.map( children, ( child, index ) => (
 						<div
-							style={ { width: `${ containerWidth }px` } } // Setting the page width is important for iOS browser.
+							style={ { width: `${ containerWidth }px` } }
 							className={ clsx( 'swipeable__page', pageClassName, {
 								'is-current': index === currentPage,
 								'is-prev': index < currentPage,
@@ -412,23 +405,16 @@ export const Swipeable = ( {
 					) ) }
 
 					{ /* Clone of the first element */ }
-					{ Children.map( children, ( child, index ) => {
-						if ( index === 0 ) {
-							return (
-								<div
-									style={ { width: `${ containerWidth }px` } }
-									className={ clsx( 'swipeable__page', pageClassName, {
-										'is-clone': true,
-										'is-next': currentPage === numPages - 1,
-									} ) }
-									key={ `clone-next-${ index }` }
-								>
-									{ child }
-								</div>
-							);
-						}
-						return null;
-					} ) }
+					<div
+						style={ { width: `${ containerWidth }px` } }
+						className={ clsx( 'swipeable__page', pageClassName, {
+							'is-clone': true,
+							'is-next': currentPage === numPages - 1,
+						} ) }
+						key={ `clone-next-0` }
+					>
+						{ Children.toArray( children )[ 0 ] }
+					</div>
 				</div>
 			</div>
 			<div ref={ resizeObserverRef } className="swipeable__resize-observer"></div>
