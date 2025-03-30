@@ -298,7 +298,6 @@ export const Swipeable = ( {
 			const absoluteDelta = Math.abs( delta );
 			const offset = getOffset( currentPage ) + delta;
 			setDragData( { ...dragData, last: dragPosition } );
-
 			// The user needs to swipe horizontally more then 2 px in order for the canvase to be dragging.
 			// We do this so that the user can scroll vertically smother.
 			if ( absoluteDelta < 3 ) {
@@ -314,7 +313,6 @@ export const Swipeable = ( {
 			if ( ! swipeableArea ) {
 				return;
 			}
-
 			// Did the user swipe out of the swipeable area?
 			if (
 				dragPosition.x < swipeableArea.left ||
@@ -360,6 +358,7 @@ export const Swipeable = ( {
 	}, [ handleDragStart, handleDrag, handleDragEnd ] );
 
 	const offset = getOffset( currentPage );
+
 	return (
 		<>
 			<div
