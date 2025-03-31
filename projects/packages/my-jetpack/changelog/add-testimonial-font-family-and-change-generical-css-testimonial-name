@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Replace generic testimonial CSS class to prevent collisions and set font-family
