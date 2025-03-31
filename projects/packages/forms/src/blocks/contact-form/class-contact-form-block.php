@@ -184,6 +184,8 @@ class Contact_Form_Block {
 			'jetpack/field-file',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
+				// See https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#paid-blocks
+				'plan_check'      => true,
 			)
 		);
 	}
