@@ -160,6 +160,8 @@ class Unauth_File_Upload_Handler {
 			return new \WP_Error( 'file_move', \__( 'Unable to process file upload.', 'jetpack' ) );
 		}
 
+		l( 'move_result', $move_result );
+
 		// Generate a secure token for file retrieval.
 		$token = \wp_hash( $file['name'] . \wp_rand() . microtime() );
 
@@ -198,15 +200,25 @@ class Unauth_File_Upload_Handler {
 	 * @return array The modified upload directory data.
 	 */
 	public function upload_overwrites_temp( $upload_dir ) {
-		$secret_dir = '/' . self::UNAUTH_UPLOADS_DIR . '/' . $this->get_secret_directory();
-		$upload_dir = array(
-			'path'    => untrailingslashit( $upload_dir['basedir'] ) . $secret_dir,
-			'url'     => untrailingslashit( $upload_dir['baseurl'] ) . $secret_dir,
-			'subdir'  => '',
-			'basedir' => untrailingslashit( $upload_dir['basedir'] ) . $secret_dir,
-			'baseurl' => untrailingslashit( $upload_dir['baseurl'] ) . $secret_dir,
-			'error'   => false,
-		);
+		$secret_base_dir = '/' . self::UNAUTH_UPLOADS_DIR . '/' . $this->get_secret_directory();
+
+		if ( empty( $upload_dir['subdir'] ) ) {
+			$upload_dir['path']   = $upload_dir['basedir'] . $secret_base_dir;
+			$upload_dir['url']    = $upload_dir['baseurl'] . $secret_base_dir;
+			$upload_dir['subdir'] = $secret_base_dir;
+		} else {
+			$new_subdir = $secret_base_dir . $upload_dir['subdir'];
+
+			$upload_dir['path']   = str_replace( $upload_dir['subdir'], $new_subdir, $upload_dir['path'] );
+			$upload_dir['url']    = str_replace( $upload_dir['subdir'], $new_subdir, $upload_dir['url'] );
+			$upload_dir['subdir'] = str_replace( $upload_dir['subdir'], $new_subdir, $upload_dir['subdir'] );
+		}
+
+		$upload_dir['basedir'] = $upload_dir['path'];
+		$upload_dir['baseurl'] = $upload_dir['url'];
+		$upload_dir['error']   = false;
+
+		l( 'unauth upload_overwrites_temp', $upload_dir );
 		return $upload_dir;
 	}
 
