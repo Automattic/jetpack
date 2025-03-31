@@ -198,10 +198,6 @@ class Filesystem_Utils {
 		}
 		closedir( $handle );
 
-		if ( $action === self::REBUILD ) {
-			return $count;
-		}
-
 		// If the directory is empty after processing its files, delete it.
 		$is_dir_empty = self::is_dir_empty( $directory );
 		if ( $is_dir_empty instanceof Boost_Cache_Error ) {
