@@ -174,6 +174,8 @@ const VisibilityRule = props => {
 						value={ rule.major }
 						options={ majorOptions }
 						onChange={ setMajor }
+						__next40pxDefaultSize={ true }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</div>
 			</div>
@@ -194,6 +196,8 @@ const VisibilityRule = props => {
 							value={ rule.minor }
 							options={ minorOptions }
 							onChange={ setMinor }
+							__next40pxDefaultSize={ true }
+							__nextHasNoMarginBottom={ true }
 						/>
 					</div>
 				</div>
@@ -347,6 +351,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 						'No visibility rules yet. Add at least one rule to use this feature.',
 						'jetpack'
 					) }
+					__nextHasNoMarginBottom={ true }
 				>
 					<Button variant="secondary" onClick={ addNewRule } className="widget-vis__add-new-rule">
 						{ __( 'Add new rule', 'jetpack' ) }
@@ -359,6 +364,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 					className="widget-vis__wrapper"
 					id="widget-vis__wrapper"
 					label={ __( 'Visibility', 'jetpack' ) }
+					__nextHasNoMarginBottom={ true }
 				>
 					<SelectControl
 						className="widget-vis__show-hide"
@@ -370,6 +376,8 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 							{ label: __( 'Hide this block', 'jetpack' ), value: 'hide' },
 						] }
 						onChange={ setAction }
+						__next40pxDefaultSize={ true }
+						__nextHasNoMarginBottom={ true }
 					/>
 					{ rules.map( ( rule, i ) => (
 						<VisibilityRule
@@ -413,6 +421,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 								'Please select the top level block of this widget to apply visibility rules.',
 								'jetpack'
 							) }
+							__nextHasNoMarginBottom={ true }
 						></BaseControl>
 					</InspectorAdvancedControls>
 				) }

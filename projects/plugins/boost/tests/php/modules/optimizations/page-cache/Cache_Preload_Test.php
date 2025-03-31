@@ -26,11 +26,6 @@ class Cache_Preload_Test extends TestCase {
 		parent::setUp();
 		// Set up Brain Monkey to mock WordPress functions.
 		\Brain\Monkey\setUp();
-
-		// Define the constant as true for testing availability.
-		if ( ! defined( 'JETPACK_BOOST_ALPHA_FEATURES' ) ) {
-			define( 'JETPACK_BOOST_ALPHA_FEATURES', true );
-		}
 	}
 
 	/**

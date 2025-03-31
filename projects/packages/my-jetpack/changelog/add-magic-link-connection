@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Connect the frontend of the magic link input with the backend. This functionality is used on the new onboarding screen.

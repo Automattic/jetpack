@@ -1,0 +1,62 @@
+import { DotPager } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
+
+import './style.scss';
+
+const Testimonials: React.FC = () => {
+	return (
+		<>
+			<DotPager rotateTime={ 5 }>
+				<div className="testimonial testimonial--1">
+					<div className="testimonial__content">
+						<div className="testimonial__messages">
+							<p className="testimonial__message">
+								{ __( 'Grow your audience.', 'jetpack-my-jetpack' ) }
+							</p>
+							<p className="testimonial__message">
+								{ __( 'Speed up your site', 'jetpack-my-jetpack' ) }
+							</p>
+							<p className="testimonial__message">
+								{ __( 'Keep it secure.', 'jetpack-my-jetpack' ) }
+							</p>
+						</div>
+					</div>
+				</div>
+				<div className="testimonial testimonial--2">
+					<div className="testimonial__content">
+						<p className="testimonial__quote">
+							{ __(
+								"Jetpack's performance features are no-brainers for the sites I build. With one-click CDN, there's no need to sacrifice performance for style. I know that it just automagically works once I toggle that button.",
+								'jetpack-my-jetpack'
+							) }
+						</p>
+						<p className="testimonial__author">
+							<strong>{ __( 'Sasha Endoh', 'jetpack-my-jetpack' ) }</strong>
+						</p>
+						<p className="testimonial__title">
+							{ __( 'Multidisciplinary Designed', 'jetpack-my-jetpack' ) }
+						</p>
+					</div>
+				</div>
+				<div className="testimonial testimonial--3">
+					<div className="testimonial__content">
+						<p className="testimonial__quote">
+							{ __(
+								"Millions of people depend on my site, and downtime isn't an option. Jetpack handles my site security and backups so I can focus on creation.",
+								'jetpack-my-jetpack'
+							) }
+						</p>
+						<p className="testimonial__author">
+							<strong>{ __( 'Tim Ferriss', 'jetpack-my-jetpack' ) }</strong>
+						</p>
+						<p className="testimonial__title">
+							{ __( 'Author, Investor, Podcaster', 'jetpack-my-jetpack' ) }
+						</p>
+					</div>
+				</div>
+			</DotPager>
+		</>
+	);
+};
+
+export default Testimonials;

@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Previously, when a user changed their email address from WordPress.com Account Settings, they received email notifications from all Atomic sites linked to their account. This update prevents unnecessary notifications by disabling the send_email_change_email filter.

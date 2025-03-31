@@ -41,10 +41,9 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $wp_rest_server;
 
 		// Suppress deprecation warning for urlencode(null)
@@ -72,10 +71,9 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		delete_transient( 'jetpack_assumed_site_creation_date' );
 	}
 
@@ -149,6 +147,7 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 		$request->set_param( 'email_address', 'test@example.com' );
 		$request->set_param( 'auto_trigger', true );
 		$request->set_param( 'redirect_uri', '/wp-admin/admin.php?page=jetpack' );
+		$request->set_param( 'from', 'foo-bar' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 200, $response->get_status() );
@@ -159,6 +158,7 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 		$this->assertStringContainsString( 'email_address=test%40example.com', $data['authorizeUrl'] );
 		$this->assertStringContainsString( 'auto_trigger=1', $data['authorizeUrl'] );
 		$this->assertStringContainsString( 'redirect_uri', $data['authorizeUrl'] );
+		$this->assertStringContainsString( urlencode( 'from=foo-bar' ), $data['authorizeUrl'] );
 	}
 
 	/**

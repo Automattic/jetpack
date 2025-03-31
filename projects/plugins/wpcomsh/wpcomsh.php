@@ -666,6 +666,20 @@ function wpcomsh_get_woo_rum_data( $rum_kv = array() ) {
 add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
 add_action( 'admin_footer', 'wpcomsh_footer_rum_js' );
 
+/**
+ * Adds Atomic site ID to WooCommerce tracker data.
+ *
+ * @param array $data The WooCommerce tracker data.
+ *
+ * @return array The WooCommerce tracker data with Atomic site ID added.
+ */
+function wpcomsh_woocommerce_tracker_data( $data ) {
+	$data['atomic_site_id'] = wpcomsh_get_atomic_site_id();
+	return $data;
+}
+
+add_filter( 'woocommerce_tracker_data', 'wpcomsh_woocommerce_tracker_data' );
+
 add_filter( 'amp_dev_tools_user_default_enabled', '__return_false' );
 
 /**

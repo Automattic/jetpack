@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Critical CSS: Prevent the generation process from failing when an individual page fails to load.

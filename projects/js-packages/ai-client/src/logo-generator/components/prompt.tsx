@@ -268,6 +268,7 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 				{ showStyleSelector && (
 					<SelectControl
 						__nextHasNoMarginBottom
+						__next40pxDefaultSize={ true }
 						value={ style }
 						options={ styles }
 						onChange={ updateStyle }
