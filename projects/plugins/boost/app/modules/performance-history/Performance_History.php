@@ -4,13 +4,13 @@ namespace Automattic\Jetpack_Boost\Modules\Performance_History;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Data_Sync\Performance_History_Entry;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
-class Performance_History implements Pluggable, Is_Always_On, Has_Data_Sync {
+class Performance_History implements Feature, Is_Always_On, Has_Data_Sync {
 
 	public function setup() {
 		// noop

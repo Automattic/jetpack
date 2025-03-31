@@ -1,3 +1,14 @@
+@import '@wordpress/base-styles/mixins';
+
+/**
+ * Allow to apply the modern scheme to elements.
+ */
+#wpadminbar {
+	.admin-color-modern {
+		@include admin-scheme(#3858e9);
+	}
+}
+
 /**
  * Always shows WP logo (All Sites)
  */

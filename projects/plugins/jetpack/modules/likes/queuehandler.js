@@ -470,11 +470,6 @@ function jetpackUnloadScrolledOutWidgets() {
 			widgetWrapper.classList.remove( 'jetpack-likes-widget-loading' );
 			widgetWrapper.classList.add( 'jetpack-likes-widget-unloaded' );
 
-			// Bring back the loading placeholder into view.
-			widgetWrapper
-				.querySelectorAll( '.comment-likes-widget-placeholder' )
-				.forEach( item => ( item.style.display = 'block' ) );
-
 			// Remove it from the list of loaded widgets.
 			jetpackCommentLikesLoadedWidgets.splice( i, 1 );
 

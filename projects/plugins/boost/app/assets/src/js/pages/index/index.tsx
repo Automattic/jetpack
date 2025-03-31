@@ -13,7 +13,6 @@ import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Pill from '$features/ui/pill/pill';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
-import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -33,9 +32,10 @@ const Index = () => {
 	};
 	const { canResizeImages } = Jetpack_Boost;
 
-	const premiumFeatures = usePremiumFeatures();
-	const hasPremiumCdnFeatures =
-		premiumFeatures.includes( 'image-cdn-liar' ) && premiumFeatures.includes( 'image-cdn-quality' );
+	const [ imageCdnQualityState ] = useSingleModuleState( 'image_cdn_quality' );
+	const [ imageCdnLiarState ] = useSingleModuleState( 'image_cdn_liar' );
+
+	const hasPremiumCdnFeatures = imageCdnQualityState?.available && imageCdnLiarState?.available;
 
 	const handleCriticalCssLink = () => {
 		recordBoostEvent( 'critical_css_link_clicked', {} );
@@ -198,8 +198,8 @@ const Index = () => {
 						) }
 					/>
 				) }
-				<ImageCdnLiar isPremium={ premiumFeatures.includes( 'image-cdn-liar' ) } />
-				<QualitySettings isPremium={ premiumFeatures.includes( 'image-cdn-quality' ) } />
+				<ImageCdnLiar isPremium={ imageCdnLiarState?.available ?? false } />
+				<QualitySettings isPremium={ imageCdnQualityState?.available ?? false } />
 			</Module>
 
 			<div className={ styles.settings }>

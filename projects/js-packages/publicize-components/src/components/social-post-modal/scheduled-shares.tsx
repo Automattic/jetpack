@@ -1,5 +1,6 @@
 import { PanelBody, PanelRow, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useMemo } from '@wordpress/element';
 import { _x, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { ScheduledPostsList } from '../scheduled-posts/list';
@@ -24,26 +25,27 @@ export function ScheduledShares( { postId }: ScheduledSharesProps ) {
 
 	const { deleteScheduledShare } = useDispatch( socialStore );
 
-	const items = useSelect(
-		select => {
-			const { getConnectionById, isDeletingScheduledShare, getScheduledSharesForPost } =
-				select( socialStore );
+	const { getConnectionById, isDeletingScheduledShare } = useSelect( socialStore, [] );
 
-			return (
-				getScheduledSharesForPost( postId )
-					.map( ( { id, connection_id, timestamp } ) => {
-						return {
-							id,
-							connection: getConnectionById( connection_id.toString() ),
-							scheduledAt: timestamp,
-						};
-					} )
-					// Filter out items without a connection and items that are being deleted.
-					.filter( ( { id, connection } ) => connection && ! isDeletingScheduledShare( id ) )
-			);
-		},
+	const scheduledShares = useSelect(
+		select => select( socialStore ).getScheduledSharesForPost( postId ),
 		[ postId ]
 	);
+
+	const items = useMemo( () => {
+		return (
+			scheduledShares
+				.map( ( { id, connection_id, timestamp } ) => {
+					return {
+						id,
+						connection: getConnectionById( connection_id.toString() ),
+						scheduledAt: timestamp,
+					};
+				} )
+				// Filter out items without a connection and items that are being deleted.
+				.filter( ( { id, connection } ) => connection && ! isDeletingScheduledShare( id ) )
+		);
+	}, [ getConnectionById, isDeletingScheduledShare, scheduledShares ] );
 
 	// We want to show the spinner only at the beginning, when we don't have any items yet.
 	// We don't want to show it after the list gets refreshed after an item is deleted.

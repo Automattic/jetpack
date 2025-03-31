@@ -47,7 +47,6 @@ return [
         'app/lib/minify/Concatenate_JS.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanPossiblyUndeclaredVariable', 'PhanTypeInvalidUnaryOperandIncOrDec', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset'],
         'app/lib/minify/Dependency_Path_Mapping.php' => ['PhanUndeclaredConstant'],
         'app/lib/minify/functions-helpers.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant'],
-        'app/modules/Modules_Setup.php' => ['PhanTypeMismatchPropertyDefault'],
         'app/modules/image-guide/Image_Guide_Proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/image-size-analysis/data-sync/Image_Size_Analysis_Action_Fix.php' => ['PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition'],
         'app/modules/optimizations/critical-css/CSS_Proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],

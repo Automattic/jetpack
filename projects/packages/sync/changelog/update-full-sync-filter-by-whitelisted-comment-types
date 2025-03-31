@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Full Sync: Ensure we take comment type whitelisting when full syncing

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Story Block: avoid PHP warnings with specific media files.

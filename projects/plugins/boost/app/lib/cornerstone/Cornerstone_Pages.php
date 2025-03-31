@@ -6,7 +6,6 @@ use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Data_Sync\Cornerstone_Pages_Entry;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
-
 class Cornerstone_Pages implements Has_Setup {
 
 	const PREMIUM_MAX_PAGES = 10;
@@ -31,8 +30,6 @@ class Cornerstone_Pages implements Has_Setup {
 		$schema = Schema::as_array( Schema::as_string() )->fallback( array() );
 		jetpack_boost_register_option( 'cornerstone_pages_list', $schema, new Cornerstone_Pages_Entry( 'cornerstone_pages_list' ) );
 		jetpack_boost_register_readonly_option( 'cornerstone_pages_properties', array( $this, 'get_properties' ) );
-		jetpack_boost_register_option( 'prerender_cornerstone_pages', Schema::as_boolean()->fallback( false ) );
-		jetpack_boost_register_readonly_option( 'speculation_rules_api_support', array( Cornerstone_Utils::class, 'get_speculation_rules_api_support_status' ) );
 	}
 
 	public function remove_ccss_front_page_provider( $providers ) {
