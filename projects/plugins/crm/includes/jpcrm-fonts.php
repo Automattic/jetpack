@@ -411,9 +411,16 @@ class JPCRM_Fonts {
 				
 				if ($debug) echo "Generating Adobe Font Metrics for $entry_name...\n";
 				
-				$font_obj = Font::load($dest);
-				$font_obj->saveAdobeFontMetrics("$entry_name.ufm");
-				$font_obj->close();
+				try {
+					$font_obj = Font::load( $dest );
+					if ( $font_obj === null ) {
+						throw new Exception( "Failed to load font from '$dest'. Please check the file path and ensure the font file exists." );
+					}
+					$font_obj->saveAdobeFontMetrics( "$entry_name.ufm" );
+					$font_obj->close();
+				} catch ( Exception $e ) {
+					throw new Exception( 'An error occurred while processing the font: ' . $e->getMessage() );
+				}
 
 				$entry[$var] = $entry_name;
 
