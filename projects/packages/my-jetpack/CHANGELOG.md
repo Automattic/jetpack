@@ -5,13 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.10.0] - 2025-03-31
+### Added
+- Add error handling to onboarding form. [#42753]
+- Add an option for the new onboarding tour. [#42684]
+- Add a Testimonials component to onboarding screen. [#42625]
+- Show onboarding screen to disconnected that explains Jetpack. [#42757]
+
 ## [5.9.2] - 2025-03-26
 ### Added
-- Add support for oauth social login [#42700]
-- Connect the frontend of the magic link input with the backend. This functionality is used on the new onboarding screen. [#42662]
+- Add support for OAuth social login. [#42700]
+- Connect the frontend of the magic link input with the backend (for use on new onboarding screen). [#42662]
 
 ### Changed
-- Adds Account Protection to Protect product details [#40925]
+- Add Account Protection to Protect product details. [#40925]
 
 ## [5.9.1] - 2025-03-24
 ### Changed
@@ -2061,6 +2068,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.9.2...5.10.0
 [5.9.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.9.1...5.9.2
 [5.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.9.0...5.9.1
 [5.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.8.0...5.9.0

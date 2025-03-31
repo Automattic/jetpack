@@ -777,7 +777,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *
 	 * Renders a file upload field with drag-and-drop functionality.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.45.0
 	 *
 	 * @param string $id - the field ID.
 	 * @param string $label - the field label.
@@ -844,7 +844,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		/**
 		 * Filters the upload token for the file field.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.45.0
 		 *
 		 * @param string $upload_token Default empty token.
 		 */
@@ -919,7 +919,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Enqueues scripts and styles needed for the file field.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.45.0
 	 *
 	 * @return void
 	 */

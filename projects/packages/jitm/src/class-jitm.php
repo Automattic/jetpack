@@ -21,7 +21,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '4.2.8';
+	const PACKAGE_VERSION = '4.2.9';
 
 	/**
 	 * List of screen IDs where JITMs are allowed to display.

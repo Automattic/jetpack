@@ -411,7 +411,7 @@ class Password_Detection {
 		/**
 		 * Filter which determines whether or not password detection should be applied for the provided user.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param bool     $requires_protection Whether or not password detection should be applied.
 		 * @param \WP_User $user                The user object to apply the filter against.

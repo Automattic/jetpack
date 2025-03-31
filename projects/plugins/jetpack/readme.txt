@@ -326,22 +326,25 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.5-a.9 - 2025-03-24
+### 14.5-beta - 2025-03-31
 #### Enhancements
-- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack.
+- Add page view count in the post and page list.
+- Add the Account Protection module toggle.
+- Connection: Allow pre-selected login providers.
+- Forms: Add block integrations modal with feature flag.
+- Forms: Add third-party integration endpoint.
+- Improve the onboarding experience of Jetpack.
 
 #### Improved compatibility
-- VideoPress: Add block sidebar notice to transform embed into a block.
-- AI Assistant: Improve performance by optimizing state management in the AI feature hook.
-- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls.
+- Components: Update controls to prevent more deprecation notices.
 
 #### Bug fixes
-- Admin Color Scheme: Fix colors in the Aquatic color scheme.
-- Newsletter: Ensure external links are marked as such in the Newsletter widget.
-- Search: Ensure the count of returned results is shown after searching.
-- Site Badge: Update styles of the Coming Soon badge.
-- Site Verification: Fix auto-verification via Google when Social is disabled.
-- Stats: Ensure the Stats widget is automatically disabled when the Stats module is disabled.
+- Fix display name when listing gravatar accounts.
+- Map block: Increase compatibility of components, preventing console warnings.
+- Newsletter: Ensure aria-label attribute on dashboard welcome message section is correctly spelled.
+- Stats: Fix date processing for "At a Glance" chart.
+- Story block: Avoid PHP warnings when using video files.
+- Video: Fix auto-reload after upload completes.
 
 --------
 
