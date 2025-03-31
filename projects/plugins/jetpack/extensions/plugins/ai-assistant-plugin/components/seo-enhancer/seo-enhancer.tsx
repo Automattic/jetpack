@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getAllBlocks } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	BaseControl,
@@ -10,7 +11,8 @@ import {
 	CheckboxControl,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { store as editorStore } from '@wordpress/editor';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
@@ -41,7 +43,44 @@ export function SeoEnhancer( {
 
 		return isBusy || isAnyImageBusy;
 	}, [] );
+
 	const enabledFeatures = useSelect( select => select( store ).getEnabledFeatures(), [] );
+	const blocks = useSelect( select => select( editorStore ).getBlocks(), [] );
+	const seoTitle = useSelect(
+		select => select( editorStore ).getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title,
+		[]
+	);
+	const seoDescription = useSelect(
+		select => select( editorStore ).getEditedPostAttribute( 'meta' )?.advanced_seo_description,
+		[]
+	);
+
+	const imageBlocks = useMemo( () => {
+		return blocks.length
+			? getAllBlocks().filter(
+					block => block.name === 'core/image' && block.attributes.url && ! block.attributes.alt
+			  )
+			: [];
+	}, [ blocks ] );
+
+	const neededFeatures = useMemo( () => {
+		const features = [];
+
+		if ( ! seoTitle ) {
+			features.push( { name: 'seo-title', enabled: !! seoTitle } );
+		}
+
+		if ( ! seoDescription ) {
+			features.push( { name: 'seo-meta-description', enabled: !! seoDescription } );
+		}
+
+		if ( imageBlocks.length > 0 ) {
+			features.push( { name: 'images-alt-text', enabled: true, count: imageBlocks.length } );
+		}
+
+		return features;
+	}, [ seoTitle, seoDescription, imageBlocks ] );
+
 	const { setFeatureEnabled } = useDispatch( store );
 
 	const { updateSeoData } = useSeoRequests();
@@ -98,41 +137,48 @@ export function SeoEnhancer( {
 					) }
 				</BaseControl>
 			</PanelRow>
-			<PanelRow className="jetpack-seo-sidebar__feature-section">
-				<BaseControl __nextHasNoMarginBottom={ true }>
-					{ ( ! isEnabled || disableAutoEnhance ) && (
-						<div className="feature-checkboxes-container">
-							{ FEATURES.map( feature => (
-								<CheckboxControl
-									key={ feature }
-									label={ FEATURE_LABELS[ feature ] }
-									checked={ enabledFeatures.includes( feature ) }
-									onChange={ () => toggleFeature( feature ) }
-									__nextHasNoMarginBottom={ true }
-									disabled={ isLoading }
-									className={ isLoading ? 'is-disabled' : '' }
-								/>
-							) ) }
-						</div>
-					) }
-					{ isEnabled && ! disableAutoEnhance && (
-						<div className="jetpack-seo-sidebar__feature-list-container">
-							{ enabledFeatures.length > 0 ? (
-								<>
-									<p>{ __( "We'll auto-generate:", 'jetpack' ) }</p>
-									<ul className="jetpack-seo-sidebar__feature-list">
-										{ enabledFeatures.map( feature => (
-											<li key={ feature }>{ FEATURE_LABELS[ feature ] }</li>
-										) ) }
-									</ul>
-								</>
-							) : (
-								<p>{ __( 'No features selected to auto-generate', 'jetpack' ) }</p>
-							) }
-						</div>
-					) }
-				</BaseControl>
-			</PanelRow>
+			{ ( disableAutoEnhance || ( isEnabled && neededFeatures.length > 0 ) ) && (
+				<PanelRow className="jetpack-seo-sidebar__feature-section">
+					<BaseControl __nextHasNoMarginBottom={ true }>
+						{ ( ! isEnabled || disableAutoEnhance ) && (
+							<div className="feature-checkboxes-container">
+								{ FEATURES.map( feature => {
+									const extraLabel =
+										feature === 'images-alt-text' ? ` (${ imageBlocks.length })` : '';
+
+									return (
+										<CheckboxControl
+											key={ feature }
+											label={ FEATURE_LABELS[ feature ] + extraLabel }
+											checked={ enabledFeatures.includes( feature ) }
+											onChange={ () => toggleFeature( feature ) }
+											__nextHasNoMarginBottom={ true }
+											disabled={ isLoading }
+											className={ isLoading ? 'is-disabled' : '' }
+										/>
+									);
+								} ) }
+							</div>
+						) }
+						{ isEnabled && ! disableAutoEnhance && neededFeatures.length > 0 && (
+							<div className="jetpack-seo-sidebar__feature-list-container">
+								<p>{ __( "We'll auto-generate:", 'jetpack' ) }</p>
+								<ul className="jetpack-seo-sidebar__feature-list">
+									{ neededFeatures.map( feature => {
+										const extraLabel =
+											feature.name === 'images-alt-text' && feature.count > 0
+												? ` (${ feature.count })`
+												: '';
+										return (
+											<li key={ feature.name }>{ FEATURE_LABELS[ feature.name ] + extraLabel }</li>
+										);
+									} ) }
+								</ul>
+							</div>
+						) }
+					</BaseControl>
+				</PanelRow>
+			) }
 			{ ! isEnabled && (
 				<PanelRow className="jetpack-seo-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
