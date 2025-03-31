@@ -75,6 +75,24 @@ class Waf_Request {
 	}
 
 	/**
+	 * Returns the list of trusted headers.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array
+	 */
+	public function get_trusted_headers() {
+		/**
+		 * Filter the list of trusted headers.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $headers List of trusted headers.
+		 */
+		return apply_filters( 'jetpack_waf_trusted_headers', $this->trusted_headers );
+	}
+
+	/**
 	 * Determines the users real IP address based on the settings passed to set_trusted_proxies() and
 	 * set_trusted_headers() before. On CLI, this will be null.
 	 *
@@ -84,7 +102,7 @@ class Waf_Request {
 		$remote_addr = ! empty( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		if ( in_array( $remote_addr, $this->trusted_proxies, true ) ) {
-			$ip_by_header = $this->get_ip_by_header( array_merge( $this->trusted_headers, array( 'REMOTE_ADDR' ) ) );
+			$ip_by_header = $this->get_ip_by_header( array_merge( $this->get_trusted_headers(), array( 'REMOTE_ADDR' ) ) );
 			if ( ! empty( $ip_by_header ) ) {
 				return $ip_by_header;
 			}
