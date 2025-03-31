@@ -5,7 +5,7 @@ set -eo pipefail
 source "$GITHUB_WORKSPACE/trunk/.github/files/gh-funcs.sh"
 
 # Based on Automattic/pre-receive-hooks/blob/8bf13a23/common/050-stop-underscores.sh
-IGNORE_UNDERSCORE_RULE_FOR='bin/wp-cli|bin/atoum|bin/wp-cli-wpcom|wp-includes/random_compat|wp-includes/sodium_compat|wp-content/plugins/glotpress|.phabricator-linter|wp-content/lib/customer-lists/|wp-content/lib/feature-store/vendor/|wp-content/lib/nosara/ThriftSQL.src/ThriftGenerated/|wp-content/mu-plugins/jetpack-plugin/vendor/|wp-content/lib/aws/vendor/|wp-content/mu-plugins/crowdsignal-forms/vendor/|wp-content/plugins/woocommerce/|wp-content/plugins/amp-2.0/|wp-content/plugins/woocommerce-payments/|wp-content/plugins/woocommerce-subscriptions/|wp-content/plugins/p2(-wpcom)?|wp-content/lib/google/|wp-content/lib/tus-php/|wp-content/vip-plugins/facebook-instant-articles-3.2/|wp-content/vip-plugins/facebook-instant-articles-4.0/|wp-content/mu-plugins/jetpack-packages/|wp-content/plugins/woo-gutenberg-products-block/vendor/|/autoload_|/vendor/composer/'
+IGNORE_UNDERSCORE_RULE_FOR='bin/wp-cli|bin/wp-cli-wpcom|wp-includes/sodium_compat|wp-content/plugins/glotpress|.phabricator-linter|wp-content/lib/nosara/ThriftSQL.src/ThriftGenerated/|wp-content/lib/aws/vendor/|wp-content/plugins/woocommerce/|wp-content/plugins/woocommerce-payments/|wp-content/plugins/woocommerce-subscriptions/|wp-content/plugins/p2(-wpcom)?|wp-content/lib/google/|wp-content/plugins/woo-gutenberg-products-block/vendor/|/autoload_|/vendor/composer/|wp-content/a8c-plugins/one-offs/a8cmaileditor/'
 function check_underscores {
 	local FILE="$1"
 	if echo "$PREFIX/$FILE" |
