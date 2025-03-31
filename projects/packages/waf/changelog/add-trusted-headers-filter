@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add jetpack_waf_trusted_headers filter
