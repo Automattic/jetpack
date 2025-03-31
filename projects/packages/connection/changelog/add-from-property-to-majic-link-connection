@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Not a user facing change. Added an option "from" query arg to the REST_Connector '/connection/authorize_url/(?P<provider>)' endpoint.
+
+

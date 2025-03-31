@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.12.0-beta] - 2025-03-26
+## [3.12.1] - 2025-03-27
+### Fixed
+- General: Fixed intermittent error during module loading. [#42742]
+
+## [3.12.0] - 2025-03-27
 ### Added
 - Cache: Add Page Cache Preloading for Cornerstone Pages [#42549]
 - Add Account Protection initialization [#40925]
@@ -652,7 +656,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[3.12.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/3.11.0...3.12.0-beta
+[3.12.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.12.0...3.12.1
+[3.12.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.11.0...3.12.0
 [3.11.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.10.4...3.11.0
 [3.10.4]: https://github.com/Automattic/jetpack-boost-production/compare/3.10.3...3.10.4
 [3.10.3]: https://github.com/Automattic/jetpack-boost-production/compare/3.10.2...3.10.3

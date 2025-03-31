@@ -27,10 +27,9 @@ class VersionLoadingFromManifestTest extends TestCase {
 
 	/**
 	 * Setup runs before each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->manifest_handler = new Manifest_Reader( new Version_Selector() );
 	}
 

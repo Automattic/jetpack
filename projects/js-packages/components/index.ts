@@ -66,6 +66,7 @@ export { default as BoostScoreGraph } from './components/boost-score-graph/index
 export { default as ProductPrice } from './components/product-price/index.js';
 export { default as ProductOffer, IconsCard } from './components/product-offer/index.js';
 export { default as Dialog } from './components/dialog/index.js';
+export { default as DotPager } from './components/dot-pager/index.js';
 export { default as DonutMeter } from './components/donut-meter/index.js';
 export { default as RecordMeterBar } from './components/record-meter-bar/index.js';
 export { default as ContextualUpgradeTrigger } from './components/contextual-upgrade-trigger/index.js';
