@@ -7,11 +7,106 @@
 
 declare( strict_types = 1 );
 
-	/**
-	 * Core class used to retrieve the block editor assets via the REST API.
-	 */
+/**
+ * Core class used to retrieve the block editor assets via the REST API.
+ */
 class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller {
 	const CACHE_BUSTER = '2025-02-28';
+
+	/**
+	 * List of allowed plugin-provided, non-core block types.
+	 *
+	 * @var array
+	 */
+	const ALLOWED_PLUGIN_BLOCKS = array(
+		'jetpack/ai-assistant',
+		'jetpack/ai-chat',
+		'jetpack/blogging-prompt',
+		'jetpack/business-hours',
+		'jetpack/button',
+		'jetpack/calendly',
+		'jetpack/cookie-consent',
+		'jetpack/contact-info',
+		'jetpack/address',
+		'jetpack/email',
+		'jetpack/phone',
+		'jetpack/donations',
+		'jetpack/eventbrite',
+		'jetpack/gif',
+		'jetpack/google-calendar',
+		'jetpack/image-compare',
+		'jetpack/instagram-gallery',
+		'jetpack/like',
+		'jetpack/mailchimp',
+		'jetpack/map',
+		'jetpack/markdown',
+		'jetpack/opentable',
+		'jetpack/pinterest',
+		'jetpack/podcast-player',
+		'premium-content/container',
+		'premium-content/logged-out-view',
+		'premium-content/subscriber-view',
+		'premium-content/buttons',
+		'premium-content/login-button',
+		'jetpack/rating-star',
+		'jetpack/recurring-payments',
+		'jetpack/related-posts',
+		'jetpack/repeat-visitor',
+		'jetpack/send-a-message',
+		'jetpack/whatsapp-button',
+		'jetpack/simple-payments',
+		'jetpack/slideshow',
+		'jetpack/story',
+		'jetpack/subscriber-login',
+		'jetpack/subscriptions',
+		'jetpack/tiled-gallery',
+		'jetpack/tock',
+		'jetpack/payments-intro',
+		'jetpack/payment-buttons',
+		'jetpack/paywall',
+		'jetpack/blogroll',
+		'jetpack/blogroll-item',
+		'jetpack/nextdoor',
+		'jetpack/sharing-button',
+		'jetpack/sharing-buttons',
+		'jetpack/goodreads',
+		'syntaxhighlighter/code',
+		'jetpack/contact-form',
+		'jetpack/field-text',
+		'jetpack/field-number',
+		'jetpack/field-name',
+		'jetpack/field-email',
+		'jetpack/field-url',
+		'jetpack/field-date',
+		'jetpack/field-telephone',
+		'jetpack/field-textarea',
+		'jetpack/field-checkbox',
+		'jetpack/field-consent',
+		'jetpack/field-radio',
+		'jetpack/field-option-radio',
+		'jetpack/field-checkbox-multiple',
+		'jetpack/field-option-checkbox',
+		'jetpack/field-select',
+		'a8c/blog-posts',
+		'a8c/posts-carousel',
+		'jetpack/event-countdown',
+		'jetpack/timeline',
+		'jetpack/timeline-item',
+	);
+
+	/**
+	 * Get the list of allowed core block types.
+	 *
+	 * @return array List of core block types.
+	 */
+	private function get_core_block_types() {
+		return array_filter(
+			array_keys( WP_Block_Type_Registry::get_instance()->get_all_registered() ),
+			function ( $block_name ) {
+				return strpos( $block_name, 'core/' ) === 0;
+			}
+		);
+	}
 
 	/**
 	 * Constructor.
@@ -135,8 +230,12 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 
 		return rest_ensure_response(
 			array(
-				'styles'  => $styles,
-				'scripts' => $scripts,
+				'allowed_block_types' => array_merge(
+					$this->get_core_block_types(),
+					self::ALLOWED_PLUGIN_BLOCKS
+				),
+				'scripts'             => $scripts,
+				'styles'              => $styles,
 			)
 		);
 	}
@@ -179,12 +278,19 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		$schema = array(
 			'type'       => 'object',
 			'properties' => array(
-				'styles'  => array(
-					'description' => esc_html__( 'Style link tags for the block editor.', 'jetpack' ),
+				'allowed_block_types' => array(
+					'description' => esc_html__( 'List of allowed block types for the editor.', 'jetpack' ),
+					'type'        => 'array',
+					'items'       => array(
+						'type' => 'string',
+					),
+				),
+				'scripts'             => array(
+					'description' => esc_html__( 'Script tags for the block editor.', 'jetpack' ),
 					'type'        => 'string',
 				),
-				'scripts' => array(
-					'description' => esc_html__( 'Script tags for the block editor.', 'jetpack' ),
+				'styles'              => array(
+					'description' => esc_html__( 'Style link tags for the block editor.', 'jetpack' ),
 					'type'        => 'string',
 				),
 			),
