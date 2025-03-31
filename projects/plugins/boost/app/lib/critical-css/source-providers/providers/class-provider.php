@@ -63,7 +63,7 @@ abstract class Provider {
 	/**
 	 * Returns true if the key looks like it belongs to this provider.
 	 *
-	 * @param boolean $key The key.
+	 * @param string $key The key.
 	 */
 	public static function owns_key( $key ) {
 		return strncmp( static::$name, $key, strlen( static::$name ) ) === 0;
