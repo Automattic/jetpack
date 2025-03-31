@@ -70,19 +70,11 @@ class Jetpack_AI_Helper {
 	public static function get_status_permission_check( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		/*
-		 * This may need to be updated
-		 * to take into account the different ways we can make requests
-		 * (from a WordPress.com site, from a Jetpack site).
+		 * We should think more about which users should be able to access this.
+		 * Right now, we check only if site is connected.
 		 */
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new WP_Error(
-				'rest_forbidden',
-				__( 'Sorry, you are not allowed to access Jetpack AI help on this site.', 'jetpack' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
-		}
-
-		return true;
+		$connection = new Manager();
+		return $connection->is_connected();
 	}
 
 	/**
