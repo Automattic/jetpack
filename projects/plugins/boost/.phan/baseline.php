@@ -17,12 +17,12 @@ return [
     // PhanUndeclaredConstant : 5 occurrences
     // PhanUndeclaredFunction : 4 occurrences
     // PhanPossiblyUndeclaredVariable : 3 occurrences
-    // PhanTypeMismatchPropertyDefault : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanUndeclaredClassConstant : 3 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanPluginUseReturnValueInternalKnown : 2 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
+    // PhanTypeMismatchPropertyDefault : 2 occurrences
     // PhanCoalescingNeverNull : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
@@ -50,7 +50,7 @@ return [
         'app/modules/image-guide/class-image-guide-proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/image-size-analysis/data-sync/class-image-analysis-action-fix.php' => ['PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition'],
         'app/modules/optimizations/critical-css/class-css-proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'app/modules/optimizations/page-cache/Page_Cache_class-setup.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
+        'app/modules/optimizations/page-cache/class-page-cache-setup.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
         'app/modules/optimizations/page-cache/pre-wordpress/class-boost-cache.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'app/modules/optimizations/page-cache/pre-wordpress/class-logger.php' => ['PhanCoalescingNeverNull', 'PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/optimizations/page-cache/pre-wordpress/class-request.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault'],
