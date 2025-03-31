@@ -112,7 +112,7 @@ class Admin_Post_List_Column {
 
 				?>
 				<a href="<?php echo esc_url( $stats_post_url ); ?>"
-					title="<?php echo esc_html__( 'Views stats for last 30 days', 'jetpack-stats-admin' ); ?>">
+					title="<?php echo esc_html__( 'Views for the last thirty days. Click for detailed stats', 'jetpack-stats-admin' ); ?>">
 					<span
 						class="dashicons dashicons-visibility"></span>&nbsp;<span><?php echo null !== $views ? esc_html( $formatted_views ) : ''; ?></span>
 				</a>
