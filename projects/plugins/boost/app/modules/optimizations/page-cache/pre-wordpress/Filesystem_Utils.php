@@ -39,7 +39,10 @@ class Filesystem_Utils {
 
 		switch ( $type ) {
 			case self::DELETE_ALL: // delete all files and directories in the given directory.
-				$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ) );
+				$iterator = new \RecursiveIteratorIterator(
+					new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ),
+					\RecursiveIteratorIterator::CHILD_FIRST
+				);
 				foreach ( $iterator as $file ) {
 					if ( $file->isDir() ) {
 						Logger::debug( 'rmdir: ' . $file->getPathname() );
