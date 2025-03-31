@@ -11,6 +11,7 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;
 
@@ -405,7 +406,39 @@ class Jetpack_Plugin_Search {
 				}
 			}
 
-			if ( isset( $matching_module ) && $this->should_display_hint( $matching_module ) ) {
+			/*
+			 * If we have a Jetpack standalone plugin amongst the returned results,
+			 * and if that plugin is active,
+			 * do not proceed with the module suggestion logic.
+			 * A Jetpack result is already returned, no need to add another one.
+			 */
+			$has_standalone_plugin_result = false;
+			foreach ( $result->plugins as $plugin ) {
+				if (
+					is_array( $plugin )
+					&& isset( $plugin['slug'] )
+					&& str_starts_with( $plugin['slug'], 'jetpack-' )
+				) {
+					// Get the plugin's path from its slug.
+					$plugin_id = Plugins_Installer::get_plugin_id_by_slug( $plugin['slug'] );
+					if ( ! $plugin_id ) {
+						continue;
+					}
+
+					// Get the plugin's status (active or network-active on multisite networks).
+					$plugin_status = Plugins_Installer::get_plugin_status( $plugin_id );
+					if ( in_array( $plugin_status, array( 'active', 'network-active' ), true ) ) {
+						$has_standalone_plugin_result = true;
+						break;
+					}
+				}
+			}
+
+			if (
+				isset( $matching_module )
+				&& $this->should_display_hint( $matching_module )
+				&& ! $has_standalone_plugin_result
+			) {
 				// Record event when a matching feature is found.
 				$tracking->record_user_event( 'wpa_plugin_search_match_found', array( 'feature' => $matching_module ) );
 
