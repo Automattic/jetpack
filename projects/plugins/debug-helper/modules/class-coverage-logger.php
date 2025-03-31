@@ -38,6 +38,9 @@ class Coverage_Logger {
 
 		add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
+		// POST actions
+		add_action( 'admin_post_clear_real_coverage', array( $this, 'admin_post_clear_real_coverage' ) );
 	}
 
 	/**
@@ -89,7 +92,38 @@ class Coverage_Logger {
 
 		<div><?php echo wp_kses_post( $html ); ?></div>
 
+		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+			<p>Clear existing real coverage data:
+				<input type="hidden" name="action" value="clear_real_coverage">
+				<?php wp_nonce_field( 'clear-real-coverage' ); ?>
+				<input type="submit" value="Clear" class="button button-secondary button-small">
+			</p>
+		</form>
 		<?php
+	}
+
+	/**
+	 * Purge real coverage data from the coverage table.
+	 */
+	public function admin_post_clear_real_coverage() {
+		global $wpdb;
+
+		check_admin_referer( 'clear-real-coverage' );
+
+		$wpdb->query( sprintf( 'TRUNCATE TABLE `%s`', $wpdb->prefix . self::RUNTIME_TABLE_NAME ) ); // phpcs:ignore WordPress.DB
+
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Redirect back to the referrer.
+	 */
+	public function admin_post_redirect_referrer() {
+		if ( wp_get_referer() ) {
+			wp_safe_redirect( wp_get_referer() );
+		} else {
+			wp_safe_redirect( get_home_url() );
+		}
 	}
 
 	/**
