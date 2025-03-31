@@ -73,7 +73,11 @@ function enrich_media_files( $media_files ) {
 				}
 				// VideoPress videos can sometimes have type 'file', and mime 'video/videopress' or 'video/mp4'.
 				// Let's fix `type` for those.
-				if ( 'file' === $media_file['type'] &&  isset( $media_file['mime'] ) && str_starts_with( $media_file['mime'], 'video' ) ) {
+				if (
+					'file' === $media_file['type']
+					&& isset( $media_file['mime'] )
+					&& str_starts_with( $media_file['mime'], 'video' )
+				) {
 					$media_file['type'] = 'video';
 				}
 				if ( 'video' !== $media_file['type'] ) { // we only support images and videos at this point.
