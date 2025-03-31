@@ -462,7 +462,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
-						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email', $this->get_wpcom_featured_image_in_email_default() ),
+						'wpcom_featured_image_in_email'    => $this->get_wpcom_featured_image_in_email_option(),
 						'jetpack_gravatar_in_email'        => (bool) get_option( 'jetpack_gravatar_in_email', true ),
 						'jetpack_author_in_email'          => (bool) get_option( 'jetpack_author_in_email', true ),
 						'jetpack_post_date_in_email'       => (bool) get_option( 'jetpack_post_date_in_email', true ),
@@ -1304,11 +1304,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Get the default value for the wpcom_featured_image_in_email option.
 	 *
-	 * @return int The default value for showing featured images in emails.
+	 * @return bool The default value for showing featured images in emails.
 	 */
-	protected function get_wpcom_featured_image_in_email_default() {
+	protected function get_wpcom_featured_image_in_email_option() {
+		$is_enabled = get_option( 'wpcom_featured_image_in_email', null );
+		if ( $is_enabled !== null ) {
+			return (bool) $is_enabled;
+		}
+		// If the option is not set, we need to check which default value to provide based on site creation date.
 		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
-		return Automattic\Jetpack\Modules\Subscriptions\Settings::get_wpcom_featured_image_in_email_default();
+		return (bool) Automattic\Jetpack\Modules\Subscriptions\Settings::get_wpcom_featured_image_in_email_default();
 	}
 
 	/**

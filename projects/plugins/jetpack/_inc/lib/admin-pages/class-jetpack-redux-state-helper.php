@@ -20,6 +20,7 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Image;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
+use Automattic\Jetpack\Modules\Subscriptions\Settings as Subscriptions_Settings;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
 use Automattic\Jetpack\Partner;
@@ -249,7 +250,7 @@ class Jetpack_Redux_State_Helper {
 				'subscriptionSiteEditSupported'        => $current_theme->is_block_theme(),
 				'newsletterDateExample'                => gmdate( get_option( 'date_format' ), time() ),
 				'isWpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ),
-				'isFeaturedImagesInEmailsAutoEnabled'  => Automattic\Jetpack\Modules\Subscriptions\Settings::should_auto_enable_featured_images_emails(),
+				'isFeaturedImagesInEmailsAutoEnabled'  => (bool) Subscriptions_Settings::get_wpcom_featured_image_in_email_default(),
 			),
 		);
 	}

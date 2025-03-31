@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Jetpack_CRM_Data;
+use Automattic\Jetpack\Modules\Subscriptions\Settings as Subscriptions_Settings;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Host;
@@ -2647,7 +2648,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'wpcom_featured_image_in_email'             => array(
 				'description'       => esc_html__( 'Whether to include the featured image in the email or not', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => Automattic\Jetpack\Modules\Subscriptions\Settings::get_wpcom_featured_image_in_email_default(),
+				'default'           => Subscriptions_Settings::get_wpcom_featured_image_in_email_default(),
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
@@ -2682,7 +2683,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack_subscriptions_reply_to'            => array(
 				'description'       => esc_html__( 'Reply to email behaviour for newsletters emails', 'jetpack' ),
 				'type'              => 'string',
-				'default'           => Automattic\Jetpack\Modules\Subscriptions\Settings::$default_reply_to,
+				'default'           => Subscriptions_Settings::$default_reply_to,
 				'validate_callback' => __CLASS__ . '::validate_subscriptions_reply_to',
 				'jp_group'          => 'subscriptions',
 			),
