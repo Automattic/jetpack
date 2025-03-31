@@ -90,15 +90,10 @@ const DotPager = ( {
 	const numPages = Children.count( normalizedChildren );
 
 	useEffect( () => {
-		if ( currentPage >= numPages ) {
-			setCurrentPage( numPages - 1 );
-		}
-	}, [ numPages, currentPage ] );
-
-	useEffect( () => {
 		if ( rotateTime > 0 && numPages > 1 && ! isPaused ) {
 			const timerId = setTimeout( () => {
-				setCurrentPage( ( currentPage + 1 ) % numPages );
+				// Add 1 to numPages to account for the clones
+				setCurrentPage( ( currentPage + 1 ) % ( numPages + 1 ) );
 			}, rotateTime * 1000 );
 
 			return () => clearTimeout( timerId );

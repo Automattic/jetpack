@@ -35,7 +35,7 @@ class Admin_UI {
 	 */
 	public static function init() {
 
-		add_action( 'admin_menu', array( __CLASS__, 'enable_menu' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'enable_menu' ), 1 ); // Akismet uses 4, so we use 1 to ensure both menus are added when only they exist.
 
 		add_action( 'admin_footer-upload.php', array( __CLASS__, 'attachment_details_two_column_template' ) );
 		add_action( 'admin_footer-post.php', array( __CLASS__, 'attachment_details_template' ), 20 );

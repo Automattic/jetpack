@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: My Jetpack: Added 'from=jetpack-onboarding' to authorization request for social logins.
+
+

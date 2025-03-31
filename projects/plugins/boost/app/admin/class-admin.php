@@ -31,7 +31,7 @@ class Admin {
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
-		add_action( 'admin_menu', array( $this, 'handle_admin_menu' ) );
+		add_action( 'admin_menu', array( $this, 'handle_admin_menu' ), 1 ); // Akismet uses 4, so we use 1 to ensure both menus are added when only they exist.
 	}
 
 	public function handle_admin_menu() {

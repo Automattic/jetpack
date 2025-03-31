@@ -22,9 +22,13 @@ describe( 'Swipeable', () => {
 	it( 'renders all pages', () => {
 		renderSwipeable();
 
-		expect( screen.getByText( 'Page 1 Content' ) ).toBeInTheDocument();
+		const elementPage1 = screen.getAllByText( 'Page 1 Content' );
+		expect( elementPage1 ).toHaveLength( 2 ); // Clone first element at the end
+
 		expect( screen.getByText( 'Page 2 Content' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Page 3 Content' ) ).toBeInTheDocument();
+
+		const elementPage3 = screen.getAllByText( 'Page 3 Content' );
+		expect( elementPage3 ).toHaveLength( 2 ); // Clone last element at the beginning
 	} );
 
 	it( 'applies correct classes to pages based on currentPage', () => {
