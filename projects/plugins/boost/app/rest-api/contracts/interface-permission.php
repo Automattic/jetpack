@@ -12,7 +12,7 @@ namespace Automattic\Jetpack_Boost\REST_API\Contracts;
  * And in the case of nonces - they also need to interact with the rest of the application.
  * Permission contract helps make the permission callbacks more predictable.
  * This is especially necessary to deal with nonces
- * (or more on that, read `permissions/Nonce.php`
+ * (or more on that, read `permissions/class-nonce.php`
  */
 interface Permission {
 	/**

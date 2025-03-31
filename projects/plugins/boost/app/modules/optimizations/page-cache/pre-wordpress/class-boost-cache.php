@@ -14,14 +14,14 @@ use WP_Post;
  * pre-wordpress files assume all other pre-wordpress files are loaded here.
  */
 require_once __DIR__ . '/Boost_Cache_Actions.php';
-require_once __DIR__ . '/Boost_Cache_Error.php';
-require_once __DIR__ . '/Boost_Cache_Settings.php';
-require_once __DIR__ . '/Boost_Cache_Utils.php';
-require_once __DIR__ . '/Filesystem_Utils.php';
-require_once __DIR__ . '/Logger.php';
-require_once __DIR__ . '/Request.php';
-require_once __DIR__ . '/storage/Storage.php';
-require_once __DIR__ . '/storage/File_Storage.php';
+require_once __DIR__ . '/class-boost-cache-error.php';
+require_once __DIR__ . '/class-boost-cache-settings.php';
+require_once __DIR__ . '/class-boost-cache-utils.php';
+require_once __DIR__ . '/class-filesystem-utils.php';
+require_once __DIR__ . '/class-logger.php';
+require_once __DIR__ . '/class-request.php';
+require_once __DIR__ . '/storage/interface-storage.php';
+require_once __DIR__ . '/storage/class-file-storage.php';
 
 // Define how many seconds the cache should last for each cached page.
 if ( ! defined( 'JETPACK_BOOST_CACHE_DURATION' ) ) {
