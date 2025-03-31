@@ -55,7 +55,6 @@ require_once __DIR__ . '/widgets/class-gravatar-widget.php';
 require_once __DIR__ . '/widgets/class-jetpack-i-voted-widget.php';
 require_once __DIR__ . '/widgets/class-jetpack-posts-i-like-widget.php';
 require_once __DIR__ . '/widgets/class-music-player-widget.php';
-require_once __DIR__ . '/widgets/class-widget-authors-grid.php';
 require_once __DIR__ . '/widgets/class-wpcom-freshly-pressed-widget.php';
 require_once __DIR__ . '/widgets/class-wpcom-widget-recent-comments.php';
 require_once __DIR__ . '/widgets/class-wpcom-widget-reservations.php';
