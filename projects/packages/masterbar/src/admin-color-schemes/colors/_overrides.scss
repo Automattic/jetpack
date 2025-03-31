@@ -104,55 +104,6 @@
 	#wpadminbar .ab-top-menu > li.wpnt-show > .ab-item {
 		background: $masterbar-active-background !important; // important used in masterbar.css
 	}
-
-	// Site Card - Border around Site Card
-	#adminmenu li.toplevel_page_site-card {
-		border-bottom: 1px solid $nav-unification-sidebar-border;
-		border-top: 1px solid $nav-unification-sidebar-border;
-	}
-
-	// Site Card - Keep background the same color on hover
-	#adminmenu li.toplevel_page_site-card:hover,
-	#adminmenu li.toplevel_page_site-card a:hover {
-		background: $menu-background;
-	}
-
-	// Site Card - Site title
-	.site__info .site__title {
-		color: $menu-text;
-	}
-
-	// Site Card - Site domain
-	.site__info .site__domain {
-		color: $nav-unification-sidebar-text-alternative;
-	}
-
-	// Site Card - Site icon placeholder image background on hover/focus
-	#adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
-	#adminmenu .toplevel_page_site-card a:focus div.wp-menu-image {
-		background-color: $menu-current-background;
-	}
-
-	// Site Card - Fade out for content overflowing the Site Card
-	.site__info .site__title::after,
-	.site__info .site__domain::after {
-		background: linear-gradient( 90deg, rgba( $color: $menu-background, $alpha: 0 ), rgba( $color: $menu-background, $alpha: 1 ) 90% );
-	}
-
-	// Site Card - Browse Sites button text & arrow
-	#adminmenuwrap > #adminmenu .site-switcher {
-		color: $nav-unification-sidebar-text-alternative;
-
-		div.wp-menu-image:before {
-			color: $nav-unification-sidebar-text-alternative;
-		}
-
-		&:hover,
-		&:hover div.wp-menu-image:before {
-			color: $menu-highlight-text;
-		}
-	}
-
 }
 
 // Ensure sidebar is visually separate from the content in the Contrast color scheme
