@@ -939,7 +939,7 @@ class ManagerTest extends TestCase {
 	/**
 	 * Test the clean_account_mismatch_transients method cleans transients properly.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::clean_account_mismatch_transients
+	 * @covers \Automattic\Jetpack\Connection\User_Account_Status::clean_account_mismatch_transients
 	 */
 	public function test_clean_account_mismatch_transients() {
 		// Create a test user
@@ -959,8 +959,11 @@ class ManagerTest extends TestCase {
 		// Set up test transient
 		set_transient( $email_transient_key, true, DAY_IN_SECONDS );
 
+		// Create an instance of User_Account_Status
+		$user_account_status = new User_Account_Status();
+
 		// Test cleaning by email
-		$this->manager->clean_account_mismatch_transients( 'test@example.com' );
+		$user_account_status->clean_account_mismatch_transients( 'test@example.com' );
 
 		// Check that the email-based transient was deleted
 		$this->assertFalse( get_transient( $email_transient_key ) );
@@ -969,7 +972,7 @@ class ManagerTest extends TestCase {
 		set_transient( $email_transient_key, true, DAY_IN_SECONDS );
 
 		// Test cleaning by user ID
-		$this->manager->clean_account_mismatch_transients( $user_id );
+		$user_account_status->clean_account_mismatch_transients( $user_id );
 
 		// Check that the transient was deleted
 		$this->assertFalse( get_transient( $email_transient_key ) );

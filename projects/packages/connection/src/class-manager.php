@@ -1038,7 +1038,8 @@ class Manager {
 
 				// Clean up account mismatch transients for this user
 				if ( $wpcom_email ) {
-					$this->clean_account_mismatch_transients( $wpcom_email );
+					$user_account_status = new User_Account_Status();
+					$user_account_status->clean_account_mismatch_transients( $wpcom_email );
 				}
 
 				/**
@@ -2780,17 +2781,5 @@ class Manager {
 
 		return empty( $active_plugins ) || ! is_array( $active_plugins )
 			|| ( count( $active_plugins ) === 1 && array_key_exists( $current_plugin_slug, $active_plugins ) );
-	}
-
-	/**
-	 * Cleans up the account mismatch transients when a user's email is changed or their account is disconnected.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param int|string $user_id_or_email User ID or email address.
-	 */
-	public function clean_account_mismatch_transients( $user_id_or_email ) {
-		$user_account_status = new User_Account_Status();
-		$user_account_status->clean_account_mismatch_transients( $user_id_or_email );
 	}
 }
