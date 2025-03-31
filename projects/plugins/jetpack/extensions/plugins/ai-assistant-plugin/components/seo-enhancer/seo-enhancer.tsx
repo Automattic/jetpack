@@ -26,7 +26,13 @@ import './style.scss';
  */
 const debug = debugFactory( 'seo-enhancer:index' );
 
-export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhance?: boolean } ) {
+export function SeoEnhancer( {
+	disableAutoEnhance = false,
+	placement = null,
+}: {
+	disableAutoEnhance?: boolean;
+	placement?: 'jetpack-sidebar' | 'jetpack-prepublish-sidebar';
+} ) {
 	const { tracks } = useAnalytics();
 	const { isEnabled, toggleEnhancer, isToggling } = useSeoModuleSettings();
 	const isLoading = useSelect( select => {
@@ -41,8 +47,8 @@ export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhanc
 	const { updateSeoData } = useSeoRequests();
 
 	const toggleSeoEnhancer = useCallback( async () => {
-		await toggleEnhancer();
-	}, [ toggleEnhancer ] );
+		await toggleEnhancer( { placement } );
+	}, [ toggleEnhancer, placement ] );
 
 	const toggleFeature = useCallback(
 		name => {
@@ -50,10 +56,11 @@ export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhanc
 			tracks.recordEvent( 'jetpack_seo_enhancer_feature_toggle', {
 				feature: name,
 				toggled: ! isFeatureEnabled ? 'on' : 'off',
+				placement,
 			} );
 			setFeatureEnabled( name, ! isFeatureEnabled );
 		},
-		[ enabledFeatures, setFeatureEnabled, tracks ]
+		[ enabledFeatures, setFeatureEnabled, tracks, placement ]
 	);
 
 	const generateHandler = async () => {

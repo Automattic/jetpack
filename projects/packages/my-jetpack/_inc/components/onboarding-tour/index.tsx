@@ -3,9 +3,13 @@ import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { FC, useCallback } from 'react';
 import WelcomeTourImage from './image';
+import TourImage1x2 from './images/jp_onboarding_tour_1-2x.png';
 import TourImage1 from './images/jp_onboarding_tour_1.png';
+import TourImage2x2 from './images/jp_onboarding_tour_2-2x.png';
 import TourImage2 from './images/jp_onboarding_tour_2.png';
+import TourImage3x2 from './images/jp_onboarding_tour_3-2x.png';
 import TourImage3 from './images/jp_onboarding_tour_3.png';
+import TourImage4x2 from './images/jp_onboarding_tour_4-2x.png';
 import TourImage4 from './images/jp_onboarding_tour_4.png';
 import './styles.scss';
 
@@ -37,7 +41,9 @@ const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
 								<WelcomeTourImage
 									className="myjetpack-onboarding-welcome-tour__image"
 									nonAnimatedSrc={ TourImage1 }
+									nonAnimatedSrc2x={ TourImage1x2 }
 									animatedSrc={ TourImage1 }
+									animatedSrc2x={ TourImage1x2 }
 								/>
 							),
 							content: (
@@ -59,7 +65,9 @@ const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
 								<WelcomeTourImage
 									className="myjetpack-onboarding-welcome-tour__image"
 									nonAnimatedSrc={ TourImage2 }
+									nonAnimatedSrc2x={ TourImage2x2 }
 									animatedSrc={ TourImage2 }
+									animatedSrc2x={ TourImage2x2 }
 								/>
 							),
 							content: (
@@ -81,7 +89,9 @@ const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
 								<WelcomeTourImage
 									className="myjetpack-onboarding-welcome-tour__image"
 									nonAnimatedSrc={ TourImage3 }
+									nonAnimatedSrc2x={ TourImage3x2 }
 									animatedSrc={ TourImage3 }
+									animatedSrc2x={ TourImage3x2 }
 								/>
 							),
 							content: (
@@ -103,7 +113,9 @@ const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
 								<WelcomeTourImage
 									className="myjetpack-onboarding-welcome-tour__image"
 									nonAnimatedSrc={ TourImage4 }
+									nonAnimatedSrc2x={ TourImage4x2 }
 									animatedSrc={ TourImage4 }
+									animatedSrc2x={ TourImage4x2 }
 								/>
 							),
 							content: (

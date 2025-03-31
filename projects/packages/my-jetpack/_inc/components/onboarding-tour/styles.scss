@@ -7,7 +7,7 @@
 
         .myjetpack-onboarding-welcome-tour__image {
             background: var( --jp-green-60);
-            margin: 0 0 $grid-unit-20;
+            margin: 0 0 10px;
             > img {
                 display: block;
                 max-width: 100%;
@@ -26,6 +26,16 @@
             line-height: 1.4;
             margin: 0 0 $grid-unit-30 0;
             padding: 0 $grid-unit-20;
+        }
+
+        .components-modal__header {
+            // close button - overwrite the size to make the X 10px
+            .components-button {
+                svg {
+                    width: 14px;
+                    height: 14px;
+                }
+            }
         }
 
         .components-guide__footer {

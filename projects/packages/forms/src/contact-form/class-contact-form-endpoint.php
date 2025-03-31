@@ -36,6 +36,26 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			$this->rest_base . '/integration-status/(?P<slug>[\w-]+)',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_integration_status' ),
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'args'                => array(
+					'slug' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => function ( $param ) {
+							return preg_match( '/^[\w-]+$/', $param );
+						},
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			$this->rest_base . '/bulk_actions',
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
@@ -154,6 +174,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	public function get_item_schema() {
 		$schema = parent::get_item_schema();
+
+		$schema['properties']['parent'] = array(
+			'description' => __( 'The ID for the parent of the post. This refers to the post/page where the feedback was created.', 'jetpack-forms' ),
+			'type'        => 'integer',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'readonly'    => true,
+		);
 
 		$schema['properties']['uid'] = array(
 			'description' => __( 'Unique identifier for the form response.', 'jetpack-forms' ),
@@ -345,6 +372,35 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Retrieves the query params for the feedback collection.
+	 *
+	 * @return array Collection parameters.
+	 */
+	public function get_collection_params() {
+		$query_params = parent::get_collection_params();
+
+		// Add parent related query parameters since the `feedback` post type is not hierarchical, but
+		// it uses the `parent` field to store the ID of the post/page where the feedback was created.
+		$query_params['parent']         = array(
+			'description' => __( 'Limit result set to items with particular parent IDs.', 'jetpack-forms' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+			'default'     => array(),
+		);
+		$query_params['parent_exclude'] = array(
+			'description' => __( 'Limit result set to all items except those of a particular parent ID.', 'jetpack-forms' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+			'default'     => array(),
+		);
+		return $query_params;
+	}
+
+	/**
 	 * Handles bulk actions for Jetpack Forms responses.
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
@@ -493,6 +549,95 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'Content-Transfer-Encoding' => 'binary',
 				'X-Robots-Tag'              => 'noindex',
 				'Cache-Control'             => 'no-cache, must-revalidate, max-age=0',
+			)
+		);
+	}
+
+	/**
+	 * Get the status of a forms integration.
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function get_integration_status( WP_REST_Request $request ) {
+		$slug = $request->get_param( 'slug' );
+
+		switch ( $slug ) {
+			case 'akismet':
+				return $this->get_akismet_status();
+
+			case 'creative-mail':
+			case 'jetpack-crm':
+				return $this->get_plugin_status( $slug );
+
+			default:
+				return new WP_Error(
+					'invalid_integration',
+					/* translators: %s: integration slug */
+					sprintf( __( 'Unknown integration: %s', 'jetpack-forms' ), $slug )
+				);
+		}
+	}
+
+	/**
+	 * Get basic plugin status (installed/active).
+	 *
+	 * @param string $plugin_slug The plugin slug (e.g. 'akismet' or 'creative-mail').
+	 * @return WP_REST_Response Plugin status data.
+	 */
+	private function get_plugin_status( $plugin_slug ) {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$plugin_files = array(
+			'akismet'       => 'akismet/akismet.php',
+			'creative-mail' => 'creative-mail-by-constant-contact/creative-mail-by-constant-contact.php',
+			'jetpack-crm'   => 'zero-bs-crm/ZeroBSCRM.php',
+		);
+
+		$plugin_file = $plugin_files[ $plugin_slug ] ?? '';
+		if ( empty( $plugin_file ) ) {
+			return rest_ensure_response(
+				array(
+					'type'        => 'plugin',
+					'isInstalled' => false,
+					'isActive'    => false,
+					/* translators: %s: plugin slug */
+					'error'       => sprintf( __( 'Unknown plugin: %s', 'jetpack-forms' ), $plugin_slug ),
+				)
+			);
+		}
+
+		$installed_plugins = get_plugins();
+		$is_installed      = isset( $installed_plugins[ $plugin_file ] );
+		$is_active         = is_plugin_active( $plugin_file );
+
+		return rest_ensure_response(
+			array(
+				'type'        => 'plugin',
+				'isInstalled' => $is_installed,
+				'isActive'    => $is_active,
+			)
+		);
+	}
+
+	/**
+	 * Get Akismet plugin status including key configuration.
+	 *
+	 * @return WP_REST_Response Response object.
+	 */
+	public function get_akismet_status() {
+		$plugin_status = $this->get_plugin_status( 'akismet' );
+		$status_data   = $plugin_status->get_data();
+
+		return rest_ensure_response(
+			array_merge(
+				$status_data,
+				array(
+					'isConnected'      => class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active(),
+					'configurationUrl' => admin_url( 'admin.php?page=akismet-key-config' ),
+				)
 			)
 		);
 	}
