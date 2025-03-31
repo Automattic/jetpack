@@ -1,9 +1,9 @@
 import { useConnection } from '@automattic/jetpack-connection';
 
 const useAiAssistantConnection = () => {
-	const { hasConnectedOwner } = useConnection();
+	const { isRegistered } = useConnection();
 	return {
-		connected: hasConnectedOwner,
+		connected: isRegistered,
 	};
 };
 
