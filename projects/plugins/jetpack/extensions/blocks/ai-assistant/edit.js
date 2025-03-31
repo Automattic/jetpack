@@ -12,6 +12,7 @@ import {
 	useAICheckout,
 	useAiFeature,
 } from '@automattic/jetpack-ai-client';
+import { useConnection } from '@automattic/jetpack-connection';
 import {
 	useAnalytics,
 	PLAN_TYPE_FREE,
@@ -38,7 +39,6 @@ import clsx from 'clsx';
 import UsagePanel from '../../plugins/ai-assistant-plugin/components/usage-panel';
 import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-assistant-plugin/components/usage-panel/types';
 import ConnectBanner from '../../shared/components/connect-banner';
-import useAiAssistantConnection from '../../shared/hooks/use-ai-assistant-connection';
 import FeedbackControl from './components/feedback-control';
 import ToolbarControls from './components/toolbar-controls';
 import useAIAssistant from './hooks/use-ai-assistant';
@@ -140,7 +140,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const isWaitingResponse = requestingState === 'requesting';
 	const isLoadingCompletion = [ 'requesting', 'suggesting' ].includes( requestingState );
 
-	const { connected } = useAiAssistantConnection();
+	const { isRegistered: connected } = useConnection();
 
 	const { productPageUrl } = useAiProductPage();
 
