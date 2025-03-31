@@ -15,11 +15,11 @@ function import_page_customizations_init() {
 	$has_import_param = ! isset( $_GET['import'] );
 
 	if ( $screen && $screen->id === 'import' && $has_import_param ) {
-		// Only add the banner if the user is using the wp-admin interface.
 			add_action( 'admin_notices', 'import_admin_banner' );
 			add_action( 'admin_enqueue_scripts', 'import_admin_banner_css' );
 	}
 }
+
 add_action( 'current_screen', 'import_page_customizations_init' );
 
 /**
@@ -35,7 +35,7 @@ function import_admin_banner() {
 		return;
 	}
 
-	$import_url = esc_url( "https://wordpress.com/setup/hosted-site-migration/site-migration-import-or-migrate?siteId={$blog_id}&ref=wp-admin" );
+	$import_url = esc_url( "https://wordpress.com/setup/site-setup/importList?siteId={$blog_id}&ref=wp-admin-importers-list" );
 
 	$banner_content = sprintf(
 		'<p>%s</p><a href="%s" class="button button-primary">%s</a>',
