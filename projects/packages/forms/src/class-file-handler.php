@@ -51,13 +51,21 @@ class File_Handler {
 			error_log( "DEBUG: Using filename from token data: $filename" );
 		}
 
-		// Get the path to the uploaded temporary file
-		if ( empty( $file_data['file_path'] ) || ! file_exists( $file_data['file_path'] ) ) {
-			error_log( 'DEBUG: Error - Temporary file not found at path: ' . ( $file_data['file_path'] ?? 'not set' ) );
-			return new WP_Error( 'file_not_found', __( 'The temporary file could not be found.', 'jetpack-forms' ) );
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			\WP_Filesystem();
 		}
 
-		error_log( 'DEBUG: Temporary file exists at: ' . $file_data['file_path'] );
+		l( 'wp_filesystem', $wp_filesystem );
+
+		// // Get the path to the uploaded temporary file
+		// if ( empty( $file_data['file_path'] ) || ! $wp_filesystem->exists( $file_data['file_path'] ) ) {
+		// error_log( 'DEBUG: Error - Temporary file not found at path: ' . ( $file_data['file_path'] ?? 'not set' ) );
+		// return new WP_Error( 'file_not_found', __( 'The temporary file could not be found.', 'jetpack-forms' ) );
+		// }
+
+		// error_log( 'DEBUG: Temporary file exists at: ' . $file_data['file_path'] );
 
 		// Create file data array that wp_handle_upload expects
 		$file = array(
@@ -65,7 +73,7 @@ class File_Handler {
 			'type'     => wp_check_filetype( $filename )['type'],
 			'tmp_name' => $file_data['file_path'],
 			'error'    => 0,
-			'size'     => filesize( $file_data['file_path'] ),
+			'size'     => wp_filesize( $file_data['file_path'] ),
 		);
 
 		error_log( 'DEBUG: File array prepared for wp_handle_upload: ' . print_r( $file, true ) );
@@ -133,42 +141,23 @@ class File_Handler {
 	public function modify_upload_dir( $upload_dir ) {
 		error_log( 'DEBUG: modify_upload_dir called with: ' . print_r( $upload_dir, true ) );
 
-		$forms_dir  = 'jetpack-forms';
-		$forms_path = untrailingslashit( $upload_dir['basedir'] ) . '/' . $forms_dir;
+		$forms_base_dir = '/jetpack-forms';
 
-		error_log( "DEBUG: Setting forms path to: $forms_path" );
-
-		// Check if the directory exists, if not try to create it
-		if ( ! file_exists( $forms_path ) ) {
-			error_log( "DEBUG: Forms directory doesn't exist, attempting to create it" );
-			if ( ! wp_mkdir_p( $forms_path ) ) {
-				error_log( "DEBUG: ERROR - Failed to create forms directory: $forms_path" );
-			} else {
-				error_log( 'DEBUG: Successfully created forms directory' );
-			}
+		if ( empty( $upload_dir['subdir'] ) ) {
+			$upload_dir['path']   = path_join( $upload_dir['basedir'], ltrim( $forms_base_dir, '/' ) );
+			$upload_dir['url']    = trailingslashit( $upload_dir['baseurl'] ) . ltrim( $forms_base_dir, '/' );
+			$upload_dir['subdir'] = $forms_base_dir;
 		} else {
-			error_log( 'DEBUG: Forms directory already exists' );
+			$new_subdir = $forms_base_dir . $upload_dir['subdir'];
+
+			$upload_dir['path']   = str_replace( $upload_dir['subdir'], $new_subdir, $upload_dir['path'] );
+			$upload_dir['url']    = str_replace( $upload_dir['subdir'], $new_subdir, $upload_dir['url'] );
+			$upload_dir['subdir'] = str_replace( $upload_dir['subdir'], $new_subdir, $upload_dir['subdir'] );
 		}
 
-		// Check directory permissions
-		$perms = fileperms( $forms_path );
-		error_log( 'DEBUG: Forms directory permissions: ' . decoct( $perms & 0777 ) );
-
-		// Check if directory is writable
-		if ( ! is_writable( $forms_path ) ) {
-			error_log( "DEBUG: ERROR - Forms directory is not writable: $forms_path" );
-		} else {
-			error_log( 'DEBUG: Forms directory is writable' );
-		}
-
-		$upload_dir = array(
-			'path'    => $forms_path,
-			'url'     => untrailingslashit( $upload_dir['baseurl'] ) . '/' . $forms_dir,
-			'subdir'  => '',
-			'basedir' => $forms_path,
-			'baseurl' => untrailingslashit( $upload_dir['baseurl'] ) . '/' . $forms_dir,
-			'error'   => false,
-		);
+		$upload_dir['basedir'] = $upload_dir['path'];
+		$upload_dir['baseurl'] = $upload_dir['url'];
+		$upload_dir['error']   = false;
 
 		error_log( 'DEBUG: Returning modified upload_dir: ' . print_r( $upload_dir, true ) );
 		return $upload_dir;
