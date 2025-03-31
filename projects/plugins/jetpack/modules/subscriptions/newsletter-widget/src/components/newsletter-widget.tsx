@@ -10,10 +10,10 @@ import {
 	buildJPRedirectSource,
 	formatNumber,
 	getSubscriberStatsUrl,
-	DashboardLink,
 	getNewsletterSettingsUrl,
 	createTracksEventHandler,
 } from '../helpers';
+import { DashboardLink } from './dashboard-link';
 import { SubscribersChart } from './subscribers-chart';
 import type { SubscriberTotalsByDate } from '../types';
 
