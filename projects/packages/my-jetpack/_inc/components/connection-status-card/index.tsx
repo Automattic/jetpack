@@ -202,9 +202,57 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 				<>
 					{ sprintf(
 						/* translators: %s is user name */
-						__( 'Connected as %s (Owner) (', 'jetpack-my-jetpack' ),
+						__( 'Connected as %s (Owner)', 'jetpack-my-jetpack' ),
 						userConnectionData.currentUser?.wpcomUser?.display_name
 					) }
+					<span style={ { display: 'block', marginTop: '4px' } }>
+						<span style={ { display: 'inline-flex', alignItems: 'center', gap: '4px' } }>
+							{ userConnectionData.currentUser?.wpcomUser?.email }
+							{ userConnectionData.currentUser?.possibleAccountErrors &&
+								Object.keys( userConnectionData.currentUser.possibleAccountErrors ).length > 0 && (
+									<InfoTooltip
+										tracksEventName="my_jetpack_account_error_tooltip_open"
+										tracksEventProps={ {
+											location: 'connection_status_card',
+											context: 'owner',
+											error_types: Object.keys(
+												userConnectionData.currentUser.possibleAccountErrors
+											).join( ',' ),
+										} }
+										iconSize={ 16 }
+										className="account-error-tooltip"
+									>
+										<div>
+											{ Object.values( userConnectionData.currentUser.possibleAccountErrors ).map(
+												( error: AccountError, index ) => (
+													<p key={ `error-${ index }` } style={ { marginBottom: '1em' } }>
+														{ error.message ||
+															__(
+																'We noticed a possible issue with your account connection that might lead to connection issues.',
+																'jetpack-my-jetpack'
+															) }
+													</p>
+												)
+											) }
+										</div>
+									</InfoTooltip>
+								) }
+						</span>
+					</span>
+				</>
+			);
+		} else {
+			userConnectionText = __( 'User connected (Owner).', 'jetpack-my-jetpack' );
+		}
+	} else if ( userConnectionData.currentUser?.wpcomUser?.display_name ) {
+		userConnectionText = (
+			<>
+				{ sprintf(
+					/* translators: %s is user name */
+					__( 'Connected as %s', 'jetpack-my-jetpack' ),
+					userConnectionData.currentUser?.wpcomUser?.display_name
+				) }
+				<span style={ { display: 'block', marginTop: '4px' } }>
 					<span style={ { display: 'inline-flex', alignItems: 'center', gap: '4px' } }>
 						{ userConnectionData.currentUser?.wpcomUser?.email }
 						{ userConnectionData.currentUser?.possibleAccountErrors &&
@@ -213,7 +261,7 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 									tracksEventName="my_jetpack_account_error_tooltip_open"
 									tracksEventProps={ {
 										location: 'connection_status_card',
-										context: 'owner',
+										context: 'non_owner',
 										error_types: Object.keys(
 											userConnectionData.currentUser.possibleAccountErrors
 										).join( ',' ),
@@ -224,7 +272,7 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 									<div>
 										{ Object.values( userConnectionData.currentUser.possibleAccountErrors ).map(
 											( error: AccountError, index ) => (
-												<p key={ `error-${ index }` }>
+												<p key={ `error-${ index }` } style={ { marginBottom: '1em' } }>
 													{ error.message ||
 														__(
 															'We noticed a possible issue with your account connection that might lead to connection issues.',
@@ -237,53 +285,7 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 								</InfoTooltip>
 							) }
 					</span>
-					{ ').' }
-				</>
-			);
-		} else {
-			userConnectionText = __( 'User connected (Owner).', 'jetpack-my-jetpack' );
-		}
-	} else if ( userConnectionData.currentUser?.wpcomUser?.display_name ) {
-		userConnectionText = (
-			<>
-				{ sprintf(
-					/* translators: %s is user name */
-					__( 'Connected as %s (', 'jetpack-my-jetpack' ),
-					userConnectionData.currentUser?.wpcomUser?.display_name
-				) }
-				<span style={ { display: 'inline-flex', alignItems: 'center', gap: '4px' } }>
-					{ userConnectionData.currentUser?.wpcomUser?.email }
-					{ userConnectionData.currentUser?.possibleAccountErrors &&
-						Object.keys( userConnectionData.currentUser.possibleAccountErrors ).length > 0 && (
-							<InfoTooltip
-								tracksEventName="my_jetpack_account_error_tooltip_open"
-								tracksEventProps={ {
-									location: 'connection_status_card',
-									context: 'non_owner',
-									error_types: Object.keys(
-										userConnectionData.currentUser.possibleAccountErrors
-									).join( ',' ),
-								} }
-								iconSize={ 16 }
-								className="account-error-tooltip"
-							>
-								<div>
-									{ Object.values( userConnectionData.currentUser.possibleAccountErrors ).map(
-										( error: AccountError, index ) => (
-											<p key={ `error-${ index }` }>
-												{ error.message ||
-													__(
-														'We noticed a possible issue with your account connection that might lead to connection issues.',
-														'jetpack-my-jetpack'
-													) }
-											</p>
-										)
-									) }
-								</div>
-							</InfoTooltip>
-						) }
 				</span>
-				{ ').' }
 			</>
 		);
 	} else {
