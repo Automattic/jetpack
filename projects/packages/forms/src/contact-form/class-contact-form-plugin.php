@@ -221,7 +221,6 @@ class Contact_Form_Plugin {
 				'query_var'             => false,
 				'capability_type'       => 'page',
 				'show_in_rest'          => true,
-				'hierarchical'          => true,
 				'rest_controller_class' => '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint',
 				'capabilities'          => array(
 					'create_posts'        => 'do_not_allow',
@@ -2344,5 +2343,15 @@ class Contact_Form_Plugin {
 		$should_enable_tracking = $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
 
 		return $is_wpcom || $should_enable_tracking;
+	}
+
+	/**
+	 * Check if the form modal interface should be enabled.
+	 * This is a development-only feature flag.
+	 *
+	 * @return bool
+	 */
+	public static function is_form_modal_enabled() {
+		return defined( 'JETPACK_IS_FORM_MODAL_ENABLED' ) && JETPACK_IS_FORM_MODAL_ENABLED;
 	}
 }

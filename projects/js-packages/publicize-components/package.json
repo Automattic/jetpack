@@ -77,7 +77,6 @@
 		"storybook": "8.6.7"
 	},
 	"exports": {
-		".": "./index.ts",
 		"./social-admin-page": "./src/components/admin-page/entry-point.tsx",
 		"./editor-jetpack-sidebar": "./src/components/block-editor/jetpack-sidebar.tsx",
 		"./editor-social-sidebar": "./src/components/block-editor/social-sidebar.tsx"

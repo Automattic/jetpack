@@ -56,6 +56,10 @@ function loadScript( src: string ): Promise< void > {
  * @return {Promise<void>} A promise that resolves once the Tracks has been side loaded.
  */
 export default function sideloadTracks(): Promise< void > {
+	if ( window._tkq && document.querySelector( 'script[src*="stats.wp.com/w.js"]' ) ) {
+		return Promise.resolve();
+	}
+
 	window._tkq = window._tkq || [];
 	return loadScript( `//stats.wp.com/w.js?${ getCurrentYearAndWeek() }` );
 }

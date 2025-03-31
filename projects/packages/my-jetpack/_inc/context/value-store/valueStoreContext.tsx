@@ -3,7 +3,9 @@ import type { Dispatch, SetStateAction } from 'react';
 
 type ValueStoreType = {
 	isDismissingWelcomeBanner: boolean;
+	isDismissingWelcomeTour: boolean;
 	isWelcomeBannerVisible: boolean;
+	isWelcomeTourVisible: boolean;
 	isLoadingWelcomeFlowExperiment?: boolean;
 	recommendedModules: JetpackModule[] | null;
 	recommendedModulesVisible: boolean;

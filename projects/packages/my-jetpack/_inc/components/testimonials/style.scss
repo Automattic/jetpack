@@ -12,6 +12,8 @@
     display: flex;
     align-items: flex-end;
     padding-bottom: 50px;
+    border-radius: 12px;
+    overflow: hidden;
 
     // This is to make the image darker and let read the text
     &::before {

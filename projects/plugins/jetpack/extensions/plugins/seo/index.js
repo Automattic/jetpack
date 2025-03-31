@@ -187,7 +187,7 @@ const Seo = () => {
 						</PanelRow>
 					) }
 					{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
-						<SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } />
+						<SeoEnhancer placement="jetpack-sidebar" disableAutoEnhance={ ! canHaveAutoEnhance } />
 					) }
 					<PanelRow
 						className={ clsx( {
@@ -216,7 +216,10 @@ const Seo = () => {
 			<PluginPrePublishPanel { ...jetpackSeoPublishPanelsProps }>
 				<div className="jetpack-seo-panel">
 					{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
-						<SeoEnhancer disableAutoEnhance={ ! canHaveAutoEnhance } />
+						<SeoEnhancer
+							placement="jetpack-prepublish-sidebar"
+							disableAutoEnhance={ ! canHaveAutoEnhance }
+						/>
 					) }
 					<PanelRow>
 						<SeoTitlePanel />

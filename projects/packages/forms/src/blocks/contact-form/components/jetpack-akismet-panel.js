@@ -1,13 +1,42 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { createInterpolateElement } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
+import {
+	Button,
+	ExternalLink,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+import { createInterpolateElement, useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PluginIntegrationPanel from './shared/plugin-integration-panel';
 
 const AkismetPanel = () => {
 	const adminUrl = window?.jpFormsBlocks?.defaults?.formsAdminUrl || '';
-	const akismetActiveWithKey = window?.jpFormsBlocks?.defaults?.akismetActiveWithKey || false;
-	const akismetUrl = window?.jpFormsBlocks?.defaults?.akismetUrl || '';
+
+	// Initialize from global defaults, but will be updated from API
+	const [ akismetActiveWithKey, setAkismetActiveWithKey ] = useState(
+		window?.jpFormsBlocks?.defaults?.akismetActiveWithKey || false
+	);
+	const [ akismetUrl, setAkismetUrl ] = useState(
+		window?.jpFormsBlocks?.defaults?.akismetUrl || ''
+	);
+
+	const checkAkismetStatus = useCallback( async () => {
+		try {
+			const response = await apiFetch( {
+				path: '/wp/v2/feedback/integration-status/akismet',
+			} );
+			setAkismetActiveWithKey( response.isConnected );
+			if ( response.configurationUrl ) {
+				setAkismetUrl( response.configurationUrl );
+			}
+		} catch {
+			setAkismetActiveWithKey( false );
+		}
+	}, [] );
+
+	useEffect( () => {
+		checkAkismetStatus();
+	}, [ checkAkismetStatus ] );
 
 	return (
 		<PluginIntegrationPanel
@@ -28,6 +57,7 @@ const AkismetPanel = () => {
 			) }
 			tracksEventName="jetpack_forms_upsell_akismet_click"
 			initialOpen={ false }
+			onPluginActivated={ checkAkismetStatus }
 		>
 			{ akismetActiveWithKey ? (
 				<>
