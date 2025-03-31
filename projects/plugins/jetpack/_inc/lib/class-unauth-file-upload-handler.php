@@ -200,25 +200,19 @@ class Unauth_File_Upload_Handler {
 	 * @return array The modified upload directory data.
 	 */
 	public function upload_overwrites_temp( $upload_dir ) {
-		$secret_base_dir = '/' . self::UNAUTH_UPLOADS_DIR . '/' . $this->get_secret_directory();
+		error_log( 'DEBUG: modify_upload_dir called with: ' . print_r( $upload_dir, true ) );
 
-		if ( empty( $upload_dir['subdir'] ) ) {
-			$upload_dir['path']   = $upload_dir['basedir'] . $secret_base_dir;
-			$upload_dir['url']    = $upload_dir['baseurl'] . $secret_base_dir;
-			$upload_dir['subdir'] = $secret_base_dir;
-		} else {
-			$new_subdir = $secret_base_dir . $upload_dir['subdir'];
+		$forms_base_dir = '/' . self::UNAUTH_UPLOADS_DIR . '/' . $this->get_secret_directory();
 
-			$upload_dir['path']   = str_replace( $upload_dir['subdir'], $new_subdir, $upload_dir['path'] );
-			$upload_dir['url']    = str_replace( $upload_dir['subdir'], $new_subdir, $upload_dir['url'] );
-			$upload_dir['subdir'] = str_replace( $upload_dir['subdir'], $new_subdir, $upload_dir['subdir'] );
-		}
-
+		// Always set our custom path, ignoring any WordPress default subdirectories
+		$upload_dir['path']    = path_join( $upload_dir['basedir'], ltrim( $forms_base_dir, '/' ) );
+		$upload_dir['url']     = trailingslashit( $upload_dir['baseurl'] ) . ltrim( $forms_base_dir, '/' );
+		$upload_dir['subdir']  = $forms_base_dir;
 		$upload_dir['basedir'] = $upload_dir['path'];
 		$upload_dir['baseurl'] = $upload_dir['url'];
 		$upload_dir['error']   = false;
 
-		l( 'unauth upload_overwrites_temp', $upload_dir );
+		error_log( 'DEBUG: Returning modified upload_dir: ' . print_r( $upload_dir, true ) );
 		return $upload_dir;
 	}
 
