@@ -462,32 +462,64 @@ class Inline_Search extends Classic_Search {
 			return;
 		}
 
-		// Escape the HTML for JavaScript
-		$escaped_html = str_replace(
-			array( "'", "\n", "\r" ),
-			array( "\'", "\\n", '' ),
-			$corrected_query_html
+		$selectors = $this->get_title_selectors();
+		$this->enqueue_corrected_query_script( $corrected_query_html, $selectors );
+	}
+
+	/**
+	 * Get selectors for finding the search title element, with filter applied.
+	 *
+	 * @since $$next-version$$
+	 * @return array Array of CSS selectors to target the search title element.
+	 */
+	private function get_title_selectors() {
+		// Default selectors for search title elements
+		$default_selectors = array(
+			'.wp-block-query-title',
+			'.page-title',
+			'.archive-title',
 		);
 
-		?>
-		<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			var element = document.querySelector('.wp-block-query-title');
-			if ( ! element ) {
-				return;
-			}
+		/**
+		 * Filter the CSS selectors used to find the search title element.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $default_selectors Array of CSS selectors to target the search title element.
+		 */
+		return apply_filters( 'jetpack_search_title_selectors', $default_selectors );
+	}
 
-			var notice = document.createElement('div');
-			notice.innerHTML = '<?php echo wp_kses_post( $escaped_html ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped for JS ?>';
+	/**
+	 * Enqueue the JavaScript for displaying the corrected query notice.
+	 *
+	 * @since $$next-version$$
+	 * @param string $html      The HTML content to display.
+	 * @param array  $selectors CSS selectors for finding the element to place the notice after.
+	 */
+	private function enqueue_corrected_query_script( $html, $selectors ) {
+		// Load the script using a path relative to this file
+		$script_url = plugins_url( 'js/corrected-query.js', __FILE__ );
 
-			if (element.nextSibling) {
-				element.parentNode.insertBefore(notice.firstChild, element.nextSibling);
-			} else {
-				element.parentNode.appendChild(notice.firstChild);
-			}
-		});
-		</script>
-		<?php
+		// Register and enqueue the script
+		wp_register_script(
+			'jetpack-search-inline-corrected-query',
+			$script_url,
+			array(),
+			Package::VERSION,
+			true
+		);
+		wp_enqueue_script( 'jetpack-search-inline-corrected-query' );
+
+		// Pass the HTML and selectors as JavaScript variables
+		wp_localize_script(
+			'jetpack-search-inline-corrected-query',
+			'JetpackSearchCorrectedQuery',
+			array(
+				'html'      => $html,
+				'selectors' => $selectors,
+			)
+		);
 	}
 
 	/**
@@ -496,16 +528,19 @@ class Inline_Search extends Classic_Search {
 	 * @return string The HTML for the corrected query notice or empty string if none.
 	 */
 	private function get_corrected_query_html() {
-		$original_query  = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$corrected_query = $this->search_result['corrected_query'];
-		$search_results  = $this->search_result['results'];
+		$original_query = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		if ( ! empty( $corrected_query ) && ! count( $search_results ) ) {
+		// Show message when there's a corrected query
+		if ( ! empty( $this->search_result['corrected_query'] ) ) {
+			$message = ! empty( $this->search_result['results'] )
+				? esc_html__( 'Search term corrected from: ', 'jetpack-search-pkg' )
+				: esc_html__( 'No results found for: ', 'jetpack-search-pkg' );
+
 			return sprintf(
-				'<h2 class="jetpack-search-corrected-query-original" style="line-height:1; padding-bottom:var(--wp--preset--spacing--20);">
+				'<h2 class="jetpack-search-corrected-query">
 				%s<strong>%s</strong>
 				</h2>',
-				esc_html__( 'No results found for: ', 'jetpack-search-pkg' ),
+				$message,
 				esc_html( $original_query )
 			);
 		}
