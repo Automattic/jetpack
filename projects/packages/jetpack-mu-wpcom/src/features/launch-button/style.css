@@ -5,7 +5,17 @@
 #wpadminbar #wp-toolbar .ab-top-menu li.launch-site .ab-item {
 	display: flex;
 	padding-inline: 8px;
+	color: #fff;
 }
+
+#wpadminbar #wp-toolbar .ab-top-menu li.launch-site span.ab-label {
+	color: currentColor;
+}
+
+#wpadminbar #wp-toolbar .ab-top-menu li.launch-site span.ab-icon {
+	color: currentColor;
+}
+
 
 #wpadminbar #wp-toolbar .ab-top-menu li.launch-site svg {
 	width: 15px;
@@ -18,7 +28,7 @@
 }
 
 #wpadminbar #wp-toolbar .ab-top-menu li.launch-site:hover .ab-item {
-	color: currentColor;
+	color: #fff;
 	background: transparent;
 }
 
