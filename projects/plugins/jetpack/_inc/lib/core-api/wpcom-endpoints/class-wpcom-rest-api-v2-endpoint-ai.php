@@ -178,7 +178,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'request_get_ai_assistance_feature' ),
-					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
+					'permission_callback' => '__return_true',
 				),
 			)
 		);
