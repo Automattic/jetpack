@@ -2917,6 +2917,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@tanstack/react-query':
         specifier: 5.75.1
         version: 5.75.1(react@18.3.1)
@@ -4481,6 +4484,9 @@ importers:
       '@automattic/jetpack-subscribers-dashboard':
         specifier: workspace:*
         version: link:../../packages/subscribers-dashboard
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@automattic/popup-monitor':
         specifier: 1.0.2
         version: 1.0.2

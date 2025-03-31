@@ -1,3 +1,4 @@
+import { initializeNumberFormatters } from '@automattic/number-formatters';
 import apiFetch from '@wordpress/api-fetch';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
@@ -17,6 +18,8 @@ import './store/media-source';
 import './store/membership-products';
 import extensionList from './index.json';
 import './index.scss';
+
+initializeNumberFormatters();
 
 // Register middleware for @wordpress/api-fetch to indicate the fetch is coming from the editor.
 apiFetch.use( ( options, next ) => {
