@@ -237,7 +237,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	 * Displays the "Verified Services" accounts.
 	 *
 	 * @param array  $accounts     Array of social accounts.
-	 * @param string $display_name Display name of the user.
+	 * @param string $display_name Gravatar display name of the user.
 	 */
 	public function display_accounts( $accounts = array(), $display_name = '' ) {
 		if ( empty( $accounts ) ) {
