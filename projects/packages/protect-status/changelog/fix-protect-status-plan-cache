@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ensure correct data returned on first request after upgrading plan.
