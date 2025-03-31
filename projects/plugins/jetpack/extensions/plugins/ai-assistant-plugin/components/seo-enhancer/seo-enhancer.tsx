@@ -47,8 +47,13 @@ export function SeoEnhancer( {
 	const { updateSeoData } = useSeoRequests();
 
 	const toggleSeoEnhancer = useCallback( async () => {
+		const isEnabling = ! isEnabled;
 		await toggleEnhancer( { placement } );
-	}, [ toggleEnhancer, placement ] );
+		// If the feature is being enabled while in the pre-publish panel, trigger the tool.
+		if ( placement === 'jetpack-prepublish-sidebar' && isEnabling ) {
+			updateSeoData();
+		}
+	}, [ toggleEnhancer, placement, updateSeoData, isEnabled ] );
 
 	const toggleFeature = useCallback(
 		name => {
@@ -81,7 +86,7 @@ export function SeoEnhancer( {
 					{ ! disableAutoEnhance && (
 						<ToggleControl
 							checked={ isEnabled }
-							disabled={ isToggling }
+							disabled={ isToggling || isLoading }
 							onChange={ toggleSeoEnhancer }
 							label={ __( 'Auto-generate metadata', 'jetpack' ) }
 							__nextHasNoMarginBottom={ true }
