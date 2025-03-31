@@ -4,8 +4,7 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev",
-		"phpunit/phpcov": "^10.0"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"repositories": [
 		{
@@ -28,5 +27,8 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-debug-helper/compare/v${old}...v${new}"
 		}
+	},
+	"require": {
+		"phpunit/php-code-coverage": "^11.0"
 	}
 }
