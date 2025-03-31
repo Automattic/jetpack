@@ -13,7 +13,7 @@ use WP_Post;
  * Require all pre-wordpress files here. These files aren't autoloaded as they are loaded before WordPress is fully initialized.
  * pre-wordpress files assume all other pre-wordpress files are loaded here.
  */
-require_once __DIR__ . '/Boost_Cache_Actions.php';
+require_once __DIR__ . '/boost-cache-actions.php';
 require_once __DIR__ . '/class-boost-cache-error.php';
 require_once __DIR__ . '/class-boost-cache-settings.php';
 require_once __DIR__ . '/class-boost-cache-utils.php';
