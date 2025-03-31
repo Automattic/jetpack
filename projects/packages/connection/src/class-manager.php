@@ -157,9 +157,11 @@ class Manager {
 		add_action( 'remove_user_from_blog', array( $manager, 'disconnect_user_force' ), 9, 1 );
 
 		// Add hooks for cleaning up account mismatch transients
-		add_action( 'delete_user', array( $manager, 'clean_account_mismatch_transients' ), 9, 1 );
-		add_action( 'remove_user_from_blog', array( $manager, 'clean_account_mismatch_transients' ), 9, 1 );
-		add_action( 'user_register', array( $manager, 'clean_account_mismatch_transients' ), 9, 1 );
+		$user_account_status = new User_Account_Status();
+		add_action( 'delete_user', array( $user_account_status, 'clean_account_mismatch_transients' ), 9, 1 );
+		add_action( 'remove_user_from_blog', array( $user_account_status, 'clean_account_mismatch_transients' ), 9, 1 );
+		add_action( 'user_register', array( $user_account_status, 'clean_account_mismatch_transients' ), 9, 1 );
+		add_action( 'profile_update', array( $user_account_status, 'clean_account_mismatch_transients' ), 9, 1 );
 
 		$manager->add_connection_status_invalidation_hooks();
 
@@ -2788,17 +2790,7 @@ class Manager {
 	 * @param int|string $user_id_or_email User ID or email address.
 	 */
 	public function clean_account_mismatch_transients( $user_id_or_email ) {
-		if ( is_numeric( $user_id_or_email ) ) {
-			$user = get_userdata( $user_id_or_email );
-			if ( ! $user ) {
-				return;
-			}
-			$email = $user->user_email;
-		} else {
-			$email = $user_id_or_email;
-		}
-		// Delete the account mismatch transient with user ID
-		$transient_key = 'jetpack_account_mismatch_' . md5( $email );
-		delete_transient( $transient_key );
+		$user_account_status = new User_Account_Status();
+		$user_account_status->clean_account_mismatch_transients( $user_id_or_email );
 	}
 }
