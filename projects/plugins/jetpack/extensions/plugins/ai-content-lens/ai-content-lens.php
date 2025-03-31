@@ -25,7 +25,7 @@ function register_plugin() {
 	// Connection check.
 	if (
 		( new Host() )->is_wpcom_simple()
-		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
+		|| ( ( new Connection_Manager( 'jetpack' ) )->is_connected() && ! ( new Status() )->is_offline_mode() )
 	) {
 		// Register AI Content lens plugin.
 		\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );
