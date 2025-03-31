@@ -27,7 +27,6 @@ return [
     // PhanRedefineFunction : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
     // PhanTypeInvalidUnaryOperandIncOrDec : 1 occurrence
-    // PhanTypeMismatchArgumentInternal : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMissingReturn : 1 occurrence
     // PhanUndeclaredClassMethod : 1 occurrence
@@ -42,7 +41,6 @@ return [
         'app/data-sync/class-performance-history-entry.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious'],
         'app/lib/class-cli.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
         'app/lib/critical-css/class-critical-css-state.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
-        'app/lib/critical-css/source-providers/providers/Provider.php' => ['PhanTypeMismatchArgumentInternal'],
         'app/lib/minify/class-concatenate-css.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument'],
         'app/lib/minify/class-concatenate-js.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanPossiblyUndeclaredVariable', 'PhanTypeInvalidUnaryOperandIncOrDec', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset'],
         'app/lib/minify/class-dependency-path-mapping.php' => ['PhanUndeclaredConstant'],
