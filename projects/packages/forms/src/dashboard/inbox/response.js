@@ -15,23 +15,30 @@ const getDisplayName = response => {
 };
 
 const isFileUploadField = value => {
-	return value && typeof value === 'object' && 'file_id' in value && 'name' in value;
+	return value && typeof value === 'object' && 'files' in value && 'field_id' in value;
 };
 
 const renderFieldValue = value => {
 	if ( isFileUploadField( value ) ) {
-		const fileUrl = sprintf(
-			'%1$s?file_id=%2$s&file_nonce=%3$s',
-			'/wp/v2/feedback/files',
-			encodeURIComponent( value.file_id ),
-			encodeURIComponent( value.nonce || '' )
-		);
 		return (
 			<div className="file-field">
-				<a href={ fileUrl } target="_blank" rel="noopener noreferrer">
-					{ value.name }
-				</a>
-				{ value.size && <span className="file-size"> ({ value.size })</span> }
+				{ value.files.map( ( file, index ) => {
+					const fileUrl = sprintf(
+						'%1$s?file_id=%2$s&file_nonce=%3$s',
+						'/wp/v2/feedback/files',
+						encodeURIComponent( file.file_id ),
+						encodeURIComponent( file.nonce || '' )
+					);
+					const fileName = decodeEntities( file.name );
+					const fileSize = file.size ? sprintf( '%s KB', ( file.size / 1024 ).toFixed( 2 ) ) : '';
+					return (
+						<div key={ index } className="file-field__item">
+							<a href={ fileUrl } target="_blank" rel="noopener noreferrer">
+								{ fileName } | { fileSize }
+							</a>
+						</div>
+					);
+				} ) }
 			</div>
 		);
 	}
