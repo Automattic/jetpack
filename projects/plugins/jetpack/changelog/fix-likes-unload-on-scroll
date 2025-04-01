@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Likes: when unloading, don't set display:block style on the placeholder

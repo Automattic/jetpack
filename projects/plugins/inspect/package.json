@@ -42,7 +42,7 @@
 		"svelte": "4.2.19",
 		"svelte-preprocess": "6.0.2",
 		"tslib": "2.5.0",
-		"typescript": "5.0.4",
+		"typescript": "5.8.2",
 		"zod": "3.22.3"
 	}
 }

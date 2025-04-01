@@ -23,7 +23,7 @@ class Cornerstone_Pages_Test extends TestCase {
 		\Brain\Monkey\setUp();
 
 		// Load the mock Premium_Features class
-		require_once __DIR__ . '/../mocks/Mock_Premium_Features.php';
+		require_once __DIR__ . '/../mocks/class-mock-premium-features.php';
 		$this->cornerstone_pages = new Cornerstone_Pages();
 	}
 
