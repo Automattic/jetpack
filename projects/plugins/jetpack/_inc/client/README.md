@@ -119,7 +119,7 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getUsername( state )**
 * **getDisplayName( state )**
 * **isGutenbergAvailable( state )**
-* **getNewsetterDateExample( state )**
+* **getNewsletterDateExample( state )**
 
 ### Available action creators (thunks)
 

@@ -778,7 +778,7 @@ export function isSubscriptionSiteEnabled( state ) {
  * @param {object} state - Global state tree.
  * @return {string} Newsletter date example.
  */
-export function getNewsetterDateExample( state ) {
+export function getNewsletterDateExample( state ) {
 	return state.jetpack.initialState.newsletterDateExample;
 }
 
