@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix potential `wp_login_failed` action conflicts.
