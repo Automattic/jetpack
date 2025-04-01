@@ -628,7 +628,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'isActive'    => $is_active,
 		);
 
-		if ( $is_active && isset( $plugin_config['settings_url'] ) ) {
+		if ( $is_active ) {
 			$response['settingsUrl'] = admin_url( $plugin_config['settings_url'] );
 		}
 
