@@ -14,6 +14,31 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	const CACHE_BUSTER = '2025-02-28';
 
 	/**
+	 * List of allowed plugins whose assets should be preserved.
+	 * Each entry should be a unique identifier that appears in the asset URL.
+	 *
+	 * @var array
+	 */
+	const ALLOWED_PLUGINS = array(
+		'/jetpack/',
+		'/plugins/jetpack/',
+		'/gutenberg/',
+		'/gutenberg-core/',
+		'/mu-plugins/jetpack-plugin/',
+		'/mu-plugins/jetpack-mu-wpcom-plugin/',
+	);
+
+	/**
+	 * List of core-provided handles that should never be unregistered.
+	 *
+	 * @var array
+	 */
+	const PROTECTED_HANDLES = array(
+		'jquery',
+		'mediaelement',
+	);
+
+	/**
 	 * List of allowed plugin-provided, non-core block types.
 	 *
 	 * @var array
@@ -138,6 +163,69 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	}
 
 	/**
+	 * Unregisters all assets except those from core or allowed plugins.
+	 */
+	private function unregister_disallowed_plugin_assets() {
+		global $wp_scripts, $wp_styles;
+
+		// Helper function to check if an asset is from an allowed plugin
+		$is_allowed_plugin_asset = function ( $src ) {
+			if ( ! is_string( $src ) || empty( $src ) ) {
+				return false;
+			}
+
+			foreach ( self::ALLOWED_PLUGINS as $allowed_plugin ) {
+				if ( strpos( $src, $allowed_plugin ) !== false ) {
+					return true;
+				}
+			}
+
+			return false;
+		};
+
+			// Helper function to check if an asset is a core asset
+			$is_core_asset = function ( $src ) {
+				if ( ! is_string( $src ) ) {
+					return false;
+				}
+
+				return empty( $src ) ||
+					$src[0] === '/' ||
+					strpos( $src, 'wp-includes/' ) !== false ||
+					strpos( $src, 'wp-admin/' ) !== false;
+			};
+
+			// Helper function to check if a handle should be protected
+			$is_protected_handle = function ( $handle ) {
+				return in_array( $handle, self::PROTECTED_HANDLES, true );
+			};
+
+			// Unregister disallowed plugin scripts
+		foreach ( $wp_scripts->registered as $handle => $script ) {
+			// Skip core scripts and protected handles
+			if ( $is_core_asset( $script->src ) || $is_protected_handle( $handle ) ) {
+				continue;
+			}
+
+			if ( ! $is_allowed_plugin_asset( $script->src ) ) {
+				unset( $wp_scripts->registered[ $handle ] );
+			}
+		}
+
+			// Unregister disallowed plugin styles
+		foreach ( $wp_styles->registered as $handle => $style ) {
+			// Skip core styles and protected handles
+			if ( $is_core_asset( $style->src ) || $is_protected_handle( $handle ) ) {
+				continue;
+			}
+
+			if ( ! $is_allowed_plugin_asset( $style->src ) ) {
+				unset( $wp_styles->registered[ $handle ] );
+			}
+		}
+	}
+
+	/**
 	 * Retrieves a collection of items.
 	 *
 	 * @param WP_REST_Request $request The request object.
@@ -156,6 +244,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 
 		// Trigger an action frequently used by plugins to enqueue assets.
 		do_action( 'wp_loaded' );
+
+		// Unregister disallowed plugin assets before proceeding with asset collection
+		$this->unregister_disallowed_plugin_assets();
 
 		// We generally do not need reset styles for the block editor. However, if
 		// it's a classic theme, margins will be added to every block, which is
