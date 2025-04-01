@@ -202,6 +202,30 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Scenario: WPCOM, blog_id is not valid.
+	 */
+	public function test_get_wpcom_site_creation_date_returns_default_date_if_no_blog_id() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'WPCOM helper tests require a multisite environment.' );
+		}
+		if ( ! function_exists( '\Patchwork\redefine' ) ) {
+			$this->markTestSkipped( 'Patchwork not available.' );
+		}
+
+		$test_blog_id = 0;
+
+		$this->patchwork_handles[] = \Patchwork\redefine(
+			'get_current_blog_id',
+			\Patchwork\always( $test_blog_id )
+		);
+
+		$result_date = Settings::get_wpcom_site_creation_date();
+
+		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
+		$this->assertLessThan( 0, $result_date->getTimestamp() );
+	}
+
+	/**
 	 * Scenario: Connected, Cache Miss, API returns RECENT date.
 	 */
 	public function test_get_jetpack_cache_site_creation_date_returns_recent_date() {
@@ -260,7 +284,6 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 
 		$mock_manager = $this->get_mock_manager( true );
 
-		// Mock static Manager::get_site_id
 		$this->patchwork_handles[] = \Patchwork\redefine(
 			'\Automattic\Jetpack\Connection\Manager::get_site_id',
 			\Patchwork\always( $test_site_id )
@@ -291,6 +314,71 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 
 		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
 		$this->assertEquals( $expected_date_object->getTimestamp(), $result_date->getTimestamp() );
+	}
+
+	/**
+	 * Scenario: Connected, bad response
+	 */
+	public function test_get_jetpack_cache_site_creation_date_returns_default_date_with_bad_response() {
+		if ( ! function_exists( '\Patchwork\redefine' ) ) {
+			$this->markTestSkipped( 'Patchwork not available.' );
+		}
+
+		$test_site_id = 1;
+
+		$mock_manager              = $this->get_mock_manager( true );
+		$this->patchwork_handles[] = \Patchwork\redefine(
+			'\Automattic\Jetpack\Connection\Manager::get_site_id',
+			\Patchwork\always( $test_site_id )
+		);
+
+		$mock_http_response        = new WP_Error();
+		$this->patchwork_handles[] = \Patchwork\redefine(
+			'\Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog',
+			\Patchwork\always( $mock_http_response )
+		);
+
+		$result_date = Settings::get_jetpack_cache_site_creation_date( $mock_manager );
+
+		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
+		$this->assertLessThan( 0, $result_date->getTimestamp() );
+	}
+
+	/**
+	 * Scenario: Connected, bad site data
+	 */
+	public function test_get_jetpack_cache_site_creation_date_returns_default_date_with_bad_site_data() {
+		if ( ! function_exists( '\Patchwork\redefine' ) ) {
+			$this->markTestSkipped( 'Patchwork not available.' );
+		}
+
+		$test_site_id = 1;
+
+		$mock_manager              = $this->get_mock_manager( true );
+		$this->patchwork_handles[] = \Patchwork\redefine(
+			'\Automattic\Jetpack\Connection\Manager::get_site_id',
+			\Patchwork\always( $test_site_id )
+		);
+
+		$mock_http_response        = array(
+			'headers'  => array( 'content-type' => 'application/json' ),
+			'body'     => json_encode( array() ),
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+			'cookies'  => array(),
+			'filename' => null,
+		);
+		$this->patchwork_handles[] = \Patchwork\redefine(
+			'\Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog',
+			\Patchwork\always( $mock_http_response )
+		);
+
+		$result_date = Settings::get_jetpack_cache_site_creation_date( $mock_manager );
+
+		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
+		$this->assertLessThan( 0, $result_date->getTimestamp() );
 	}
 
 	/**
