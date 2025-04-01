@@ -258,13 +258,13 @@ new WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint(
     "found": 2,
     "sharing_buttons": [
         {
-            "ID": "twitter",
-            "name": "Twitter",
-            "shortname": "twitter",
+            "ID": "x",
+            "name": "X",
+            "shortname": "x",
             "custom": false,
             "enabled": true,
             "visibility": "visible",
-            "genericon": "\\f202"
+            "genericon": "\\f10e"
         },
         {
             "ID": "facebook",

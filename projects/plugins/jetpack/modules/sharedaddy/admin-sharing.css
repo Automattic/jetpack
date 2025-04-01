@@ -135,8 +135,9 @@ li.service.share-email span:before {
 li.service.share-linkedin span:before {
 	content: '\f207';
 }
+li.service.share-x span:before,
 li.service.share-twitter span:before {
-	content: '\f202';
+	content: '\f10e';
 }
 li.service.share-reddit span:before {
 	content: '\f222';
@@ -170,9 +171,6 @@ li.service.share-mastodon span:before {
 }
 li.service.share-nextdoor span:before {
 	content: '\f10c';
-}
-li.service.share-x span:before {
-	content: '\f10e';
 }
 li.service.share-bluesky span:before {
 	content: '\f10f';

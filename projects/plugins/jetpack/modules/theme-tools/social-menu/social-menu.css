@@ -190,9 +190,10 @@ Genericons
 	content: "\f516";
 }
 
-/* Twitter */
-.jetpack-social-navigation-genericons a[href*="twitter.com"]:before {
-	content: "\f202";
+/* Twitter, X */
+.jetpack-social-navigation-genericons a[href*="twitter.com"]::before,
+.jetpack-social-navigation-genericons a[href*="x.com"]::before {
+	content: "\f10e";
 }
 
 /* Vimeo */
@@ -209,11 +210,6 @@ Genericons
 .jetpack-social-navigation-genericons a[href*="wordpress.com"]:before,
 .jetpack-social-navigation-genericons a[href*="wordpress.org"]:before {
 	content: "\f205";
-}
-
-/* X */
-.jetpack-social-navigation-genericons a[href*="x.com"]:before {
-	content: "\f10e";
 }
 
 /* YouTube */

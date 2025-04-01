@@ -279,9 +279,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-icon .sd-content ul li.share-twitter a:before,
 .sd-social-text .sd-content ul li.share-twitter a:before,
 .sd-content ul li.share-twitter div.option.option-smart-off a:before,
-.sd-social-icon-text .sd-content li.share-twitter a:before {
-	content: '\f202';
-}
+.sd-social-icon-text .sd-content li.share-twitter a:before,
 .sd-social-icon .sd-content ul li.share-x a:before,
 .sd-social-text .sd-content ul li.share-x a:before,
 .sd-content ul li.share-x div.option.option-smart-off a:before,

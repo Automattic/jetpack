@@ -67,7 +67,7 @@ amp-social-share[type='twitter'] {
 }
 
 amp-social-share[type='twitter']::before {
-	content: '\f202';
+	content: '\f10e';
 }
 
 amp-social-share[type='pinterest'] {
