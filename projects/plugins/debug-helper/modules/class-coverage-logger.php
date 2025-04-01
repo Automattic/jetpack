@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Debug_Helper;
 
+require_once __DIR__ . '/inc/class-coverage-data-loader.php';
+
 /**
  * Class Coverage_Logger
  *
@@ -17,6 +19,7 @@ namespace Automattic\Jetpack\Debug_Helper;
 class Coverage_Logger {
 
 	const RUNTIME_TABLE_NAME = 'jetpack_runtime_coverage_data';
+	const TEST_TABLE_NAME    = 'jetpack_test_coverage_data';
 
 	/**
 	 * Starts the coverage logging process in case the needed criteria match.
@@ -41,6 +44,7 @@ class Coverage_Logger {
 
 		// POST actions
 		add_action( 'admin_post_clear_real_coverage', array( $this, 'admin_post_clear_real_coverage' ) );
+		add_action( 'admin_post_clear_test_coverage', array( $this, 'admin_post_clear_test_coverage' ) );
 	}
 
 	/**
@@ -92,13 +96,21 @@ class Coverage_Logger {
 
 		<div><?php echo wp_kses_post( $html ); ?></div>
 
+		<hr />
+		<p>Here you can clear the existing stored coverage data. Click the button to truncate the corresponding table.</p>
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
-			<p>Clear existing real coverage data:
+			<p>Clear the data that gets observed on this site:
 				<input type="hidden" name="action" value="clear_real_coverage">
 				<?php wp_nonce_field( 'clear-real-coverage' ); ?>
-				<input type="submit" value="Clear" class="button button-secondary button-small">
+				<input type="submit" value="Clear real coverage data" class="button button-secondary button-small">
+			</p>
+			<p>Clear the data that you submit via this tool:
+				<input type="hidden" name="action" value="clear_test_coverage">
+				<?php wp_nonce_field( 'clear-test-coverage' ); ?>
+				<input type="submit" value="Clear test coverage data" class="button button-secondary button-small">
 			</p>
 		</form>
+		<hr />
 		<?php
 	}
 
@@ -111,6 +123,19 @@ class Coverage_Logger {
 		check_admin_referer( 'clear-real-coverage' );
 
 		$wpdb->query( sprintf( 'TRUNCATE TABLE `%s`', $wpdb->prefix . self::RUNTIME_TABLE_NAME ) ); // phpcs:ignore WordPress.DB
+
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Purge test coverage data from the coverage table.
+	 */
+	public function admin_post_clear_test_coverage() {
+		global $wpdb;
+
+		check_admin_referer( 'clear-test-coverage' );
+
+		$wpdb->query( sprintf( 'TRUNCATE TABLE `%s`', $wpdb->prefix . self::TEST_TABLE_NAME ) ); // phpcs:ignore WordPress.DB
 
 		$this->admin_post_redirect_referrer();
 	}
