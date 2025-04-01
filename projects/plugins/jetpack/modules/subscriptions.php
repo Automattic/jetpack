@@ -130,7 +130,7 @@ class Jetpack_Subscriptions {
 
 		// Set "social_notifications_subscribe" option during the first-time activation.
 		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_social_notifications_subscribe' ) );
-		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_social_notifications_subscribe' ) );
+		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_featured_image_in_email_default' ) );
 
 		// Hide subscription messaging in Publish panel for posts that were published in the past
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
