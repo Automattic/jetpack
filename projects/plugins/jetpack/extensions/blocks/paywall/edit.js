@@ -28,7 +28,8 @@ function PaywallEdit() {
 			// Reset access level to "everybody" when the paywall block is removed
 			setAccess( accessOptions.everybody.key );
 		};
-	}, [ setAccess ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
 		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
