@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Remove Account Protection error check when logging failed attempts
