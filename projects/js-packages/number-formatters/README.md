@@ -132,7 +132,7 @@ src/
 ├── create-number-formatters.ts { formatNumber, formatNumberCompact, formatCurrency, etc.}
 ```
 
-- a closure to handle `locale` state, returning abstractions over the number formatters from above, called `formaNumber`, `formatNumberCompact`, etc.
+- a closure to handle `locale` state, returning abstractions over the number formatters from above, called `formatNumber`, `formatNumberCompact`, etc.
 - the methods accept arguments to parameterise the underlying formatters and enable conveniences over common usages (e.g. a convenient `decimals` prop)
 
 Adding a new formatter to the mix, say "formatPercentage", would basically just repeat what we've done for "compact" numbers: a method returned from `create-number-formatters.ts` and a function in `number-format.ts` (or separate file if anything deeper than a few simple defaults).
