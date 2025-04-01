@@ -669,7 +669,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-twitter a.sd-button {
-	background: #00acee;
+	background: #000;
 	color: #fff !important;
 }
 

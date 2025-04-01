@@ -63,7 +63,7 @@ amp-social-share[type='facebook']::before {
 }
 
 amp-social-share[type='twitter'] {
-	background: #00acee;
+	background: #000;
 }
 
 amp-social-share[type='twitter']::before {
