@@ -53,14 +53,13 @@ class Protect_Status extends Status {
 	 * @return Status_Model
 	 */
 	public static function get_status( $refresh_from_wpcom = false ) {
-		if ( self::$status !== null && self::$status->data_source === 'protect_report' && ! $refresh_from_wpcom ) {
-			// We already have a result from the correct data source, and we're not forcing a refresh, so return the memoized result.
-			$status = self::$status;
-		} elseif ( $refresh_from_wpcom || ! self::should_use_cache() || self::is_cache_expired() ) {
-			// We are forcing a refresh, or the cache is expired, so fetch from the API.
+		if ( ! $refresh_from_wpcom && self::$status !== null && self::$status->data_source === 'protect_report' ) {
+			return self::$status;
+		}
+
+		if ( $refresh_from_wpcom || ! self::should_use_cache() || self::is_cache_expired() ) {
 			$status = self::fetch_from_server();
 		} else {
-			// We have a valid cached status, so use that.
 			$status = self::get_from_options();
 		}
 
