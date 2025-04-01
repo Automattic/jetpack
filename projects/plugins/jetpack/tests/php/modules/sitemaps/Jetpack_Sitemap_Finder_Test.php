@@ -13,6 +13,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-finder.php';
  * Test class for Jetpack_Sitemap_Finder.
  *
  * @since 4.7.0
+ * @covers \Jetpack_Sitemap_Finder
  */
 class Jetpack_Sitemap_Finder_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -20,7 +21,6 @@ class Jetpack_Sitemap_Finder_Test extends WP_UnitTestCase {
 	/**
 	 * Recognize the default master sitemap URI.
 	 *
-	 * @covers Jetpack_Sitemap_Finder::recognize_sitemap_uri
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */

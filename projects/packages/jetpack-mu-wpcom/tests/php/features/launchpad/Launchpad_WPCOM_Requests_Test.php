@@ -11,12 +11,12 @@ require_once __DIR__ . '/class-launchpad-jetpack-connection-client-mock.php';
 
 /**
  * Test class for requests to the WPCOM api.
+ *
+ * @covers ::wpcom_launchpad_request_user_attributes
  */
 class Launchpad_WPCOM_Requests_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Test that the request to the WPCOM api returns the expected result.
-	 *
-	 * @covers ::wpcom_launchpad_request_user_attributes
 	 */
 	public function test_wpcom_launchpad_request_user_attributes() {
 		$attributes = array( 'attribute1', 'attribute2' );

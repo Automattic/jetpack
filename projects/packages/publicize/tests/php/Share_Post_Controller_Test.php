@@ -17,7 +17,7 @@ use WpOrg\Requests\Requests;
 /**
  * Class Test_Share_Post_Controller
  *
- * @coversDefaultClass Automattic\Jetpack\Publicize\REST_API\Share_Post_Controller
+ * @covers \Automattic\Jetpack\Publicize\REST_API\Share_Post_Controller
  */
 class Share_Post_Controller_Test extends TestCase {
 
@@ -127,8 +127,6 @@ class Share_Post_Controller_Test extends TestCase {
 
 	/**
 	 * Test if the user has a valid token for this blog.
-	 *
-	 * @covers ::permissions_check
 	 */
 	public function test_publicize_share_post_permissions_check_wrong_user() {
 		wp_set_current_user( 0 );
@@ -148,8 +146,6 @@ class Share_Post_Controller_Test extends TestCase {
 
 	/**
 	 * Test if the user can publish posts on this blog.
-	 *
-	 * @covers ::permissions_check
 	 */
 	public function test_publicize_share_post_permissions_check_wrong_role() {
 		wp_set_current_user( static::$user_id_subscriber );

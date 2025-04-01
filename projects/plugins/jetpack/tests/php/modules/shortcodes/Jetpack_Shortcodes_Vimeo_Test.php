@@ -12,6 +12,9 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
  * Test our Vimeo embed feature (shortcode as well as embed code).
+ *
+ * @covers ::jetpack_shortcode_get_vimeo_dimensions()
+ * @covers ::vimeo_shortcode
  */
 class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -31,7 +34,6 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 * Test whether the shortcode is registered and can be used.
 	 *
 	 * @author scotchfield
-	 * @covers ::vimeo_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vimeo_exists() {
@@ -42,7 +44,6 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 * Test whether a shortcode without any attributes doesn't get output in the content.
 	 *
 	 * @author scotchfield
-	 * @covers ::vimeo_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vimeo() {
@@ -170,7 +171,6 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_vimeo_urls
 	 *
-	 * @covers ::vimeo_shortcode
 	 * @since 3.9
 	 *
 	 * @param string $url      The URL to test.
@@ -211,7 +211,6 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 * Test replacing vimeo content in comments.
 	 *
 	 * @author Automattic
-	 * @covers ::vimeo_shortcode
 	 * @since 4.0.0
 	 */
 	public function test_replace_in_comments() {
@@ -392,8 +391,6 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 * Tests jetpack_shortcode_get_vimeo_dimensions, when there is no global $content_width.
 	 *
 	 * @dataProvider get_vimeo_dimensions_data
-	 * @covers ::jetpack_shortcode_get_vimeo_dimensions()
-	 *
 	 * @param array $attr The shortcode attributes.
 	 * @param array $expected The expected dimensions.
 	 */
@@ -404,8 +401,6 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 
 	/**
 	 * Tests jetpack_shortcode_get_vimeo_dimensions, when there is a global $content_width.
-	 *
-	 * @covers ::jetpack_shortcode_get_vimeo_dimensions()
 	 */
 	public function test_jetpack_shortcode_get_vimeo_dimensions_with_global_content_width() {
 		$width                    = 500;

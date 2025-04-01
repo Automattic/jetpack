@@ -11,6 +11,8 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
  * Unit test for Inline PDF embeds.
+ *
+ * @covers ::jetpack_inline_pdf_embed_handler
  */
 class Jetpack_Shortcodes_Inline_Pdfs_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -28,7 +30,6 @@ class Jetpack_Shortcodes_Inline_Pdfs_Test extends WP_UnitTestCase {
 	 * Unit test for Inline PDF embeds.
 	 *
 	 * @author lancewillett
-	 * @covers ::jetpack_inline_pdf_embed_handler
 	 * @since  8.4.0
 	 */
 	public function test_shortcodes_inline_pdf() {
