@@ -1336,7 +1336,7 @@ importers:
         version: 7.26.10
       '@storybook/react':
         specifier: 8.6.7
-        version: 8.6.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.7)
+        version: 8.6.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.7)(typescript@5.8.2)
       '@testing-library/dom':
         specifier: 10.4.0
         version: 10.4.0
@@ -1373,6 +1373,9 @@ importers:
       storybook:
         specifier: 8.6.7
         version: 8.6.7
+      typescript:
+        specifier: 5.8.2
+        version: 5.8.2
 
   projects/js-packages/react-data-sync-client:
     devDependencies:
@@ -18570,18 +18573,6 @@ snapshots:
       - supports-color
       - uglify-js
       - webpack-cli
-
-  '@storybook/react@8.6.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.7)':
-    dependencies:
-      '@storybook/components': 8.6.7(storybook@8.6.7)
-      '@storybook/global': 5.0.0
-      '@storybook/manager-api': 8.6.7(storybook@8.6.7)
-      '@storybook/preview-api': 8.6.7(storybook@8.6.7)
-      '@storybook/react-dom-shim': 8.6.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.7)
-      '@storybook/theming': 8.6.7(storybook@8.6.7)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      storybook: 8.6.7
 
   '@storybook/react@8.6.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.7)(typescript@5.8.2)':
     dependencies:
