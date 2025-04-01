@@ -135,7 +135,6 @@ class Account_Protection {
 	 */
 	public function register_password_detection_hooks(): void {
 		add_action( 'wp_authenticate_user', array( $this->password_detection, 'login_form_password_detection' ), 10, 2 );
-		add_action( 'wp_login_failed', array( $this->password_detection, 'handle_password_detection_validation_error' ), 10, 2 );
 		add_action( 'login_form_password-detection', array( $this->password_detection, 'render_page' ), 10, 2 );
 		add_action( 'wp_enqueue_scripts', array( $this->password_detection, 'enqueue_styles' ) );
 	}

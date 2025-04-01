@@ -76,11 +76,8 @@ class Password_Detection {
 				)
 			);
 
-			return new \WP_Error(
-				Config::PASSWORD_DETECTION_ERROR_CODE,
-				__( 'Password validation failed.', 'jetpack-account-protection' ),
-				array( 'token' => $existing_transient_token )
-			);
+			$this->redirect_and_exit( $this->get_redirect_url( $existing_transient_token ) );
+
 		}
 
 		$email_sent = $this->email_service->api_send_auth_email( $user->ID, $auth_code );
@@ -117,11 +114,7 @@ class Password_Detection {
 			$new_transient_token = $this->generate_and_store_transient_data( $user->ID, $auth_code );
 		}
 
-		return new \WP_Error(
-			Config::PASSWORD_DETECTION_ERROR_CODE,
-			__( 'Password validation failed.', 'jetpack-account-protection' ),
-			array( 'token' => $new_transient_token ? $new_transient_token : $existing_transient_token )
-		);
+		$this->redirect_and_exit( $this->get_redirect_url( $new_transient_token ? $new_transient_token : $existing_transient_token ) );
 	}
 
 	/**
@@ -143,21 +136,6 @@ class Password_Detection {
 	 */
 	protected function exit() {
 		exit;
-	}
-
-	/**
-	 * Handle password detection validation error.
-	 *
-	 * @param string         $username The username.
-	 * @param \WP_Error|null $error The error object.
-	 *
-	 * @return void
-	 */
-	public function handle_password_detection_validation_error( string $username, ?\WP_Error $error = null ): void {
-		if ( isset( $error->errors['password_detection_validation_error'] ) ) {
-			$token = $error->get_error_data()['token'];
-			$this->redirect_and_exit( $this->get_redirect_url( $token ) );
-		}
 	}
 
 	/**
