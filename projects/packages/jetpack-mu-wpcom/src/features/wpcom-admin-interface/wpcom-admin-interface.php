@@ -156,6 +156,7 @@ const WPCOM_DUPLICATED_VIEW = array(
 	'edit-comments.php',
 	'edit-tags.php?taxonomy=category',
 	'edit-tags.php?taxonomy=post_tag',
+	'export.php',
 	'options-general.php',
 	'options-writing.php',
 	'options-reading.php',

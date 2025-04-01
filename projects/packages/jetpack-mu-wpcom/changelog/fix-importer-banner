@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Importer: Fix guided importer banner URL to use site-migration flow

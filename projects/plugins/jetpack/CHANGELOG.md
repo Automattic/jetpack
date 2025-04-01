@@ -2,6 +2,51 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.5-beta - 2025-03-31
+### Enhancements
+- Add page view count in the post and page list. [#42218]
+- Add the Account Protection module toggle. [#40925]
+- Connection: Allow pre-selected login providers. [#42662]
+- Forms: Add block integrations modal with feature flag. [#42747]
+- Forms: Add third-party integration endpoint. [#42730]
+- Improve the onboarding experience of Jetpack. [#42757]
+
+### Improved compatibility
+- Components: Update controls to prevent more deprecation notices. [#42677]
+
+### Bug fixes
+- Fix display name when listing gravatar accounts. [#42791]
+- Map block: Increase compatibility of components, preventing console warnings. [#42627]
+- Newsletter: Ensure aria-label attribute on dashboard welcome message section is correctly spelled. [#42727]
+- Stats: Fix date processing for "At a Glance" chart. [#42711]
+- Story block: Avoid PHP warnings when using video files. [#42783]
+- Video: Fix auto-reload after upload completes. [#42655]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Autofill logged-in email. [#42626]
+- Changes to File Field block (in beta). [#42695]
+- Clean up the remnants of the registration nonce we no longer use. [#42552]
+- Display proper Offline Mode notices if enabled via DB option. [#42630]
+- E2E Tests: Add test coverage for Account Protection features. [#40925]
+- General: Indicate compatibility with WordPress 6.8. [#42701]
+- Jetpack SEO Enhancer: Add Business plan restriction. [#42731]
+- Jetpack SEO Enhancer: Add placement prop for component and track event/ [#42768]
+- Jetpack SEO Enhancer: Normalize vertical spacing throughout Jetpack sidebar, pre and post publish panels. [#42686]
+- Jetpack SEO Enhancer: Track settings change and triggers. [#42682]
+- Likes: Fix compatibility with WP.com locales. [#42668]
+- Likes: Do not set display:block style on the placeholder when unloading. [#42739]
+- Move donation modal links to Jetpack redirect service. [#42680]
+- Newsletter Widget: Add Tracks events. [#42660]
+- SEO Enhancer: Count requests for image alt text. [#42659]
+- SEO Enhancer: Enable SEO summary when auto-enhance is disabled. [#42709]
+- Shortcodes: Proxy Twitter/X oEmbed through WordPress.com to minimize 404 errors. [#42315]
+- Social: Replace the Social UI in Sharing settings with a link to the Social admin page. [#42761]
+- Social: Update recommendation CTAs to point to social admin page. [#42690]
+- Testing: Add instructions prior to Jetpack 14.5 release. [#42679]
+- Use jetpack-config package for Account Protection initialization. [#40925]
+- Use jetpack-logo package for Account Protection logos. [#40925]
+- Utilities: Change from Post Editor to Site Editor for better compatibility and to prevent console warnings. [#42652]
+
 ## 14.5-a.9 - 2025-03-24
 ### Enhancements
 - My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]

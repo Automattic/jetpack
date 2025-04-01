@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-forms",
-	"version": "0.44.0",
+	"version": "0.45.0",
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
 	"bugs": {
@@ -90,7 +90,7 @@
 		"postcss-loader": "6.2.0",
 		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
-		"typescript": "5.0.4"
+		"typescript": "5.8.2"
 	},
 	"optionalDependencies": {
 		"react": "18.3.1",
