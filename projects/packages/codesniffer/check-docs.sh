@@ -13,22 +13,22 @@ while IFS= read -r FILE; do
 	SNIFF=${FILE%Sniff.php}
 	SNIFF=${SNIFF/\/Sniffs\//\/}
 	SNIFF=${SNIFF//\//.}
-	if [[ ! -f "docs/$SNIFF.md" ]]; then
+	SNIFFDOC="docs/$SNIFF.md"
+	if [[ ! -f "$SNIFFDOC" ]]; then
 		EXIT=1
-		echo "File $FILE presumably defines $SNIFF. Please create docs/$SNIFF.md to document it."
+		echo "File $FILE presumably defines $SNIFF. Please create $SNIFFDOC to document it."
 	else
-		F="docs/$SNIFF.md"
-		if ! grep -q --fixed-strings --line-regexp "## $SNIFF" "$F"; then
+		if ! grep -q --fixed-strings --line-regexp "## $SNIFF" "$SNIFFDOC"; then
 			EXIT=1
-			echo "$F lacks the expected \`## $SNIFF\` header."
+			echo "$SNIFFDOC lacks the expected \`## $SNIFF\` header."
 		fi
-		if ! grep -q --fixed-strings --line-regexp "### Messages" "$F"; then
+		if ! grep -q --fixed-strings --line-regexp "### Messages" "$SNIFFDOC"; then
 			EXIT=1
-			echo "$F lacks the expected "Messages" section."
+			echo "$SNIFFDOC lacks the expected "Messages" section."
 		fi
-		if ! grep -q --fixed-strings --line-regexp "### Configuration" "$F"; then
+		if ! grep -q --fixed-strings --line-regexp "### Configuration" "$SNIFFDOC"; then
 			EXIT=1
-			echo "$F lacks the expected "Configuration" section."
+			echo "$SNIFFDOC lacks the expected "Configuration" section."
 		fi
 	fi
 done < <( git ls-files './*Sniff.php' )
