@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { numberFormatCurrency, getCurrencyObject } from '../src/number-format-currency/index.js';
+import { numberFormatCurrency, getCurrencyObject } from '../number-format-currency/index.js';
 
 const browserSafeLocale = 'en-US';
 

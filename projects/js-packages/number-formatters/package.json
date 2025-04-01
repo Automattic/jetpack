@@ -29,7 +29,7 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"jetpack:src": "./index.ts",
+			"jetpack:src": "./src/index.ts",
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
 		}

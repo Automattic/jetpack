@@ -20,7 +20,7 @@ In a future version, we may expose the internal methods/formatters that accept a
 
 ## Methods
 
-For the various TS types mentioned below, see our [type definitions](./types/index.ts).
+For the various TS types mentioned below, see our [type definitions](./src/types.ts).
 
 ### formatNumber()
 

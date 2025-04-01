@@ -1,5 +1,5 @@
 import { getCachedFormatter } from './get-cached-formatter.js';
-import type { NumberFormatParams } from '../types/index.js';
+import type { NumberFormatParams } from './types.js';
 
 /**
  * Formats numbers using locale settings and/or passed options.

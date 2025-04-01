@@ -4,12 +4,7 @@ import {
 	getCurrencyObject as getCurrencyObjectFromCurrencyFormatter,
 } from './number-format-currency/index.js';
 import { numberFormat, numberFormatCompact } from './number-format.js';
-import type {
-	CurrencyObject,
-	FormatCurrency,
-	FormatNumber,
-	GetCurrencyObject,
-} from '../types/index.js';
+import type { CurrencyObject, FormatCurrency, FormatNumber, GetCurrencyObject } from './types.js';
 
 export interface NumberFormatters {
 	/**

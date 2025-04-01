@@ -1,4 +1,4 @@
-import type { CurrencyOverride } from '../../types/index.js';
+import type { CurrencyOverride } from '../types.js';
 
 export const defaultCurrencyOverrides: Record< string, CurrencyOverride > = {
 	AED: {
