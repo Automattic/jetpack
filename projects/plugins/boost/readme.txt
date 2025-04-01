@@ -183,9 +183,23 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.12.1 - 2025-03-27
+### 3.13.0 - 2025-04-01
+#### Added
+- Cornerstone Pages: Add speculation rules toggle to prerender those URLs
+- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
+- Speculation rules: Add Cornerstone Pages to the WP speculation rules for displaying
+
+#### Changed
+- General: Update interstitial modal secondary button to use URL from Jetpack Redirect
+- Critical CSS: Improve reliability of generation by running hooks after saving the state.
+- General: Indicate compatibility with the upcoming version of WordPress - 6.8.
+- General: Update Class/Interface file names to adhere to WordPress Convention
+- UI: Show module loading errors with details.
+- Update package dependencies.
+
 #### Fixed
-- General: Fixed intermittent error during module loading.
+- Admin Menu: Ensure Akismet menu item display alongside standalone.
+- Misc: Fix incorrectly registering plugin text domain.
 
 --------
 

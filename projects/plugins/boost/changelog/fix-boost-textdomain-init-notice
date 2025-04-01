@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Misc: Fix incorrectly registering plugin text domain.
