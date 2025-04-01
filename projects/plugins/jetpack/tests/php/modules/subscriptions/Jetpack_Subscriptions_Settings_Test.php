@@ -9,6 +9,7 @@ use Automattic\Jetpack\Modules\Subscriptions\Settings;
  * Tests for Automattic\Jetpack\Modules\Subscriptions\Settings.
  */
 class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Holds filters added by tests to be removed in tear_down.
@@ -103,7 +104,7 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 		$transient_key            = 'jetpack_subscriptions_site_creation';
 
 		// Mock Manager
-		$mock_manager = $this->getMockBuilder( Connection_Manager::class )
+		$mock_manager = $this->getMockBuilder( Manager::class )
 								->disableOriginalConstructor()->onlyMethods( array( 'is_connected' ) )->getMock();
 		$mock_manager->method( 'is_connected' )->willReturn( true );
 
