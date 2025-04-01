@@ -148,12 +148,12 @@ class Password_Detection {
 	/**
 	 * Handle password detection validation error.
 	 *
-	 * @param string    $username The username.
-	 * @param \WP_Error $error The error object.
+	 * @param string         $username The username.
+	 * @param \WP_Error|null $error The error object.
 	 *
 	 * @return void
 	 */
-	public function handle_password_detection_validation_error( string $username, \WP_Error $error ): void {
+	public function handle_password_detection_validation_error( string $username, ?\WP_Error $error = null ): void {
 		if ( isset( $error->errors['password_detection_validation_error'] ) ) {
 			$token = $error->get_error_data()['token'];
 			$this->redirect_and_exit( $this->get_redirect_url( $token ) );
