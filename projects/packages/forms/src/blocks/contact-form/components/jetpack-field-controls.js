@@ -177,7 +177,7 @@ const JetpackFieldControls = ( {
 					colorSettings={ colorSettings }
 				/>
 				<PanelBody title={ stylesPanelTitle } initialOpen={ false }>
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<FontSizePicker
 							withReset={ true }
 							size="__unstable-large"
@@ -186,7 +186,7 @@ const JetpackFieldControls = ( {
 							value={ attributes.fieldFontSize }
 						/>
 					</BaseControl>
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<LineHeightControl
 							__nextHasNoMarginBottom={ true }
 							__unstableInputWidth="100%"
@@ -205,6 +205,7 @@ const JetpackFieldControls = ( {
 								min={ 0 }
 								max={ 100 }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 							<RangeControl
 								label={ __( 'Button Border Radius', 'jetpack-forms' ) }
@@ -214,6 +215,7 @@ const JetpackFieldControls = ( {
 								min={ 0 }
 								max={ 100 }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						</>
 					) }
@@ -227,6 +229,7 @@ const JetpackFieldControls = ( {
 								min={ 0 }
 								max={ 100 }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 							<RangeControl
 								label={ __( 'Border Radius', 'jetpack-forms' ) }
@@ -236,12 +239,13 @@ const JetpackFieldControls = ( {
 								min={ 0 }
 								max={ 100 }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						</>
 					) }
 				</PanelBody>
 				<PanelBody title={ __( 'Label Styles', 'jetpack-forms' ) } initialOpen={ false }>
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<FontSizePicker
 							withReset={ true }
 							size="__unstable-large"
@@ -250,7 +254,7 @@ const JetpackFieldControls = ( {
 							value={ attributes.labelFontSize }
 						/>
 					</BaseControl>
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<LineHeightControl
 							__unstableInputWidth="100%"
 							__nextHasNoMarginBottom={ true }

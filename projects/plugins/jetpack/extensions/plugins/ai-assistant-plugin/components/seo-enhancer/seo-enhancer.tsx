@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	BaseControl,
 	ToggleControl,
@@ -25,7 +26,14 @@ import './style.scss';
  */
 const debug = debugFactory( 'seo-enhancer:index' );
 
-export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhance?: boolean } ) {
+export function SeoEnhancer( {
+	disableAutoEnhance = false,
+	placement = null,
+}: {
+	disableAutoEnhance?: boolean;
+	placement?: 'jetpack-sidebar' | 'jetpack-prepublish-sidebar';
+} ) {
+	const { tracks } = useAnalytics();
 	const { isEnabled, toggleEnhancer, isToggling } = useSeoModuleSettings();
 	const isLoading = useSelect( select => {
 		const isBusy = select( store ).isBusy();
@@ -36,17 +44,28 @@ export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhanc
 	const enabledFeatures = useSelect( select => select( store ).getEnabledFeatures(), [] );
 	const { setFeatureEnabled } = useDispatch( store );
 
-	const { updateSeoData } = useSeoRequests( enabledFeatures );
+	const { updateSeoData } = useSeoRequests();
 
 	const toggleSeoEnhancer = useCallback( async () => {
-		await toggleEnhancer();
-	}, [ toggleEnhancer ] );
+		const isEnabling = ! isEnabled;
+		await toggleEnhancer( { placement } );
+		// If the feature is being enabled while in the pre-publish panel, trigger the tool.
+		if ( placement === 'jetpack-prepublish-sidebar' && isEnabling ) {
+			updateSeoData();
+		}
+	}, [ toggleEnhancer, placement, updateSeoData, isEnabled ] );
 
 	const toggleFeature = useCallback(
 		name => {
-			setFeatureEnabled( name, ! enabledFeatures.includes( name ) );
+			const isFeatureEnabled = enabledFeatures.includes( name );
+			tracks.recordEvent( 'jetpack_seo_enhancer_feature_toggle', {
+				feature: name,
+				toggled: ! isFeatureEnabled ? 'on' : 'off',
+				placement,
+			} );
+			setFeatureEnabled( name, ! isFeatureEnabled );
 		},
-		[ enabledFeatures, setFeatureEnabled ]
+		[ enabledFeatures, setFeatureEnabled, tracks, placement ]
 	);
 
 	const generateHandler = async () => {
@@ -67,7 +86,7 @@ export function SeoEnhancer( { disableAutoEnhance = false }: { disableAutoEnhanc
 					{ ! disableAutoEnhance && (
 						<ToggleControl
 							checked={ isEnabled }
-							disabled={ isToggling }
+							disabled={ isToggling || isLoading }
 							onChange={ toggleSeoEnhancer }
 							label={ __( 'Auto-generate metadata', 'jetpack' ) }
 							__nextHasNoMarginBottom={ true }

@@ -37,10 +37,9 @@ class XMLRPC_Connector_Test extends TestCase {
 
 	/**
 	 * Initialize tests
-	 *
-	 * @beforeClass
 	 */
-	public static function set_up_before_class() {
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
 		$keys = openssl_pkey_new();
 		openssl_pkey_export( $keys, $private_key );
 		$public_key       = openssl_pkey_get_details( $keys );

@@ -1,8 +1,19 @@
 @import "@wordpress/base-styles/breakpoints";
 @import "@wordpress/base-styles/mixins";
+@import "@wordpress/base-styles/variables";
 
 .wpcom-block-editor-post-published-modal {
+	border-radius: $radius-large;
+	margin: auto 16px;
+
+	@include break-small {
+		margin: auto;
+	}
+
 	.components-modal__content {
+		text-align: center;
+		padding: 60px 30px;
+
 		@include break-small {
 			padding: 48px 90px;
 		}
@@ -13,6 +24,10 @@
 			width: 158px;
 			height: 85px;
 		}
+	}
+
+	.wpcom-block-editor-nux-modal__title {
+		font-size: $font-size-2x-large;
 	}
 
 	.wpcom-block-editor-nux-modal__buttons {

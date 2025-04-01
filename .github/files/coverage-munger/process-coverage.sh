@@ -36,7 +36,15 @@ fi
 TMP=$( find "$PWD/coverage" -name '*.json' )
 if [[ -n "$TMP" ]]; then
 	echo "::group::Combining JS coverage"
-	pnpm --filter=./.github/files/coverage-munger/ exec istanbul-merge --out "$PWD"/artifacts/js-combined.json $TMP
+
+	# nyc needs all input files in a single directory, not in subdirs.
+	mkdir "$TMP_DIR/jsraw"
+	IDX=10000
+	while IFS= read -r F; do
+		cp "$F" "$TMP_DIR/jsraw/$(( IDX++ )).json"
+	done < <( find "$PWD/coverage" -name '*.json' )
+
+	pnpm --filter=./.github/files/coverage-munger/ exec nyc merge "$TMP_DIR/jsraw" "$PWD"/artifacts/js-combined.json
 	perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; } s!"$re!"!g' "$GITHUB_WORKSPACE" artifacts/js-combined.json
 	echo '::endgroup::'
 

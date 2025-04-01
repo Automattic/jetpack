@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-publicize-components",
-	"version": "0.84.3",
+	"version": "0.84.4",
 	"description": "A library of JS components required by the Publicize editor plugin",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/publicize-components/#readme",
 	"bugs": {
@@ -77,7 +77,6 @@
 		"storybook": "8.6.7"
 	},
 	"exports": {
-		".": "./index.ts",
 		"./social-admin-page": "./src/components/admin-page/entry-point.tsx",
 		"./editor-jetpack-sidebar": "./src/components/block-editor/jetpack-sidebar.tsx",
 		"./editor-social-sidebar": "./src/components/block-editor/social-sidebar.tsx"

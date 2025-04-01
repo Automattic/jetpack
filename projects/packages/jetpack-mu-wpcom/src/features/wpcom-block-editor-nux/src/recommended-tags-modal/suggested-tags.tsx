@@ -108,6 +108,8 @@ function SuggestedTags( props: SuggestedTagsProps ): JSX.Element {
 			value={ selectedTags }
 			onChange={ onChangeSelectedTags }
 			label={ __( 'Tags', 'jetpack-mu-wpcom' ) }
+			__next40pxDefaultSize={ true }
+			__nextHasNoMarginBottom={ true }
 		/>
 	);
 

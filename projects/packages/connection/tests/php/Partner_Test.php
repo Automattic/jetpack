@@ -21,10 +21,9 @@ class Partner_Test extends TestCase {
 
 	/**
 	 * Reset the environment after each test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Partner::reset();
 	}
 

@@ -1,7 +1,15 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, Button } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const FirstTimeModal = ( { onClose } ) => {
+	// Configure the redirect URLs in the Jetpack Redirects service (see the README in jetpack-redirects).
+	const supportLinkSource =
+		isSimpleSite() || isAtomicSite()
+			? 'wpcom-support-donation-block'
+			: 'jetpack-support-donation-block';
 	return (
 		<Modal
 			className="jetpack-donations-first-time-modal"
@@ -10,17 +18,21 @@ const FirstTimeModal = ( { onClose } ) => {
 		>
 			<div className="jetpack-donations-first-time-modal__content">
 				<p>
-					{ __(
-						"To accept donations on your site, you'll need to connect your Stripe account. Here's what you need to do:",
-						'jetpack'
-					) }{ ' ' }
-					<a
-						href="https://wordpress.com/support/wordpress-editor/blocks/donations/#about-donations"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						{ __( 'Learn more about donations.', 'jetpack' ) }
-					</a>
+					{ createInterpolateElement(
+						__(
+							"To accept donations on your site, you'll need to connect your Stripe account. Here's what you need to do: <docLink>Learn more about donations</docLink>.",
+							'jetpack'
+						),
+						{
+							docLink: (
+								<a
+									href={ getRedirectUrl( supportLinkSource ) }
+									target="_blank"
+									rel="noopener noreferrer"
+								/>
+							),
+						}
+					) }
 				</p>
 				<ol>
 					<li>{ __( 'Connect your Stripe account to your WordPress.com account', 'jetpack' ) }</li>
@@ -34,19 +46,21 @@ const FirstTimeModal = ( { onClose } ) => {
 					) }
 				</p>
 				<p>
-					{ __(
-						'Please note that accepting donations has additional requirements from Stripe. Learn more about',
-						'jetpack'
+					{ createInterpolateElement(
+						__(
+							'Please note that accepting donations has additional requirements from Stripe. Learn more about <requirementsLink>requirements for accepting donations</requirementsLink>.',
+							'jetpack'
+						),
+						{
+							requirementsLink: (
+								<a
+									href={ getRedirectUrl( 'jetpack-support-donation-block-stripe-reqs' ) }
+									target="_blank"
+									rel="noopener noreferrer"
+								/>
+							),
+						}
 					) }
-					&nbsp;
-					<a
-						href="https://support.stripe.com/questions/requirements-for-accepting-tips-or-donations"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						{ __( 'requirements for accepting donations', 'jetpack' ) }
-					</a>
-					.
 				</p>
 
 				<div className="jetpack-donations-first-time-modal__actions">
