@@ -326,22 +326,60 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.5-a.9 - 2025-03-24
+### 14.5-beta - 2025-03-31
 #### Enhancements
+- Add page view count in the post and page list.
+- Add the Account Protection module toggle.
+- AI Assistant: Add image block extension with alt text and caption generation.
+- AI Assistant: Use base64 on image extension requests.
+- Connection: Add modal for disconnecting owner account in Dashboard.
+- Connection: Allow pre-selected login providers.
+- Feature suggestions: Improve the design of cards to better match WordPress Core's design.
+- Forms: Add Akismet panel to Form Block.
+- Forms: Add block integrations modal with feature flag.
+- Forms: Add quick link in the admin bar for form entries.
+- Forms: Add third-party integration endpoint.
+- Improve the onboarding experience of Jetpack.
 - My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack.
+- Newsletter Dashboard Widget: Remove feature flag and enable widget.
+- Publicize Components: Add a schedule button.
+- Sharing block: Improve the description of the "Native Share" feature.
+- Social: Add "Schedule" functionality to the Share Post modal.
+- Social: Move resharing into the Share Post modal.
 
 #### Improved compatibility
-- VideoPress: Add block sidebar notice to transform embed into a block.
 - AI Assistant: Improve performance by optimizing state management in the AI feature hook.
+- Carousel: Enable core lightbox on single image blocks.
 - Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls.
+- Components: Update controls to prevent more deprecation notices.
+- VideoPress: Add block sidebar notice to transform embed into a block.
 
 #### Bug fixes
 - Admin Color Scheme: Fix colors in the Aquatic color scheme.
+- Button: Fix contrast checker for user-specified colors.
+- Fix display name when listing gravatar accounts.
+- Fix error with videos uploaded through the Video block.
+- Forms: Add a default label for textarea fields.
+- Forms: Fix core list bullets not showing.
+- Forms: Remove default padding around form block.
+- Forms: Remove Google Drive beta badge.
+- Forms: Remove Salesforce beta badge.
+- Forms: Update the variation previews to match the current structures.
+- Map block: Increase compatibility of components, preventing console warnings.
+- Newsletter: Ensure aria-label attribute on dashboard welcome message section is correctly spelled.
 - Newsletter: Ensure external links are marked as such in the Newsletter widget.
 - Search: Ensure the count of returned results is shown after searching.
 - Site Badge: Update styles of the Coming Soon badge.
 - Site Verification: Fix auto-verification via Google when Social is disabled.
+- Slideshow: Fix misaligned controls in site editor.
+- Social: Resolve connection issues with LinkedIn company pages and Tumblr additional blogs.
 - Stats: Ensure the Stats widget is automatically disabled when the Stats module is disabled.
+- Stats: Fix date processing for "At a Glance" chart.
+- Story block: Avoid PHP warnings when using video files.
+- Twitter Timeline Widget: Prevent broken links when using Twitter's deprecated data-widget-id approach.
+- Video: Fix auto-reload after upload completes.
+- VideoPress Block: Fix broken undo functionality.
+- VideoPress Block: Fix error in the core Video block.
 
 --------
 

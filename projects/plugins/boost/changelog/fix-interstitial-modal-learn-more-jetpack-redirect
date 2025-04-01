@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Boost: update interstitial modal secondary button to use URL from Jetpack Redirect

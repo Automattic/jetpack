@@ -982,6 +982,28 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test the `add_secret_to_url_validation_response()` method in Offline Mode.
+	 *
+	 * @return void
+	 */
+	public static function test_add_secret_to_url_validation_response_offline_mode() {
+		$data = array(
+			'key1' => 'value1',
+			'key2' => 'value2',
+		);
+
+		update_option( 'jetpack_offline_mode', '1' );
+		$data_updated = Identity_Crisis::add_secret_to_url_validation_response( $data );
+		delete_option( 'jetpack_offline_mode' );
+
+		$data['offline_mode'] = '1';
+
+		static::assertEquals( $data, $data_updated );
+		static::assertArrayNotHasKey( 'url_secret_error', $data_updated );
+		static::assertArrayNotHasKey( 'url_secret', $data_updated );
+	}
+
+	/**
 	 * Test the `reverse_wpcom_urls_for_idc()` method.
 	 *
 	 * @return void

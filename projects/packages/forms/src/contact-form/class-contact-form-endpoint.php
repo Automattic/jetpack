@@ -175,6 +175,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	public function get_item_schema() {
 		$schema = parent::get_item_schema();
 
+		$schema['properties']['parent'] = array(
+			'description' => __( 'The ID for the parent of the post. This refers to the post/page where the feedback was created.', 'jetpack-forms' ),
+			'type'        => 'integer',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'readonly'    => true,
+		);
+
 		$schema['properties']['uid'] = array(
 			'description' => __( 'Unique identifier for the form response.', 'jetpack-forms' ),
 			'type'        => 'string',
@@ -362,6 +369,35 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			);
 		}
 		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Retrieves the query params for the feedback collection.
+	 *
+	 * @return array Collection parameters.
+	 */
+	public function get_collection_params() {
+		$query_params = parent::get_collection_params();
+
+		// Add parent related query parameters since the `feedback` post type is not hierarchical, but
+		// it uses the `parent` field to store the ID of the post/page where the feedback was created.
+		$query_params['parent']         = array(
+			'description' => __( 'Limit result set to items with particular parent IDs.', 'jetpack-forms' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+			'default'     => array(),
+		);
+		$query_params['parent_exclude'] = array(
+			'description' => __( 'Limit result set to all items except those of a particular parent ID.', 'jetpack-forms' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+			'default'     => array(),
+		);
+		return $query_params;
 	}
 
 	/**
