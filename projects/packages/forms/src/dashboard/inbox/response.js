@@ -8,6 +8,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { map } from 'lodash';
+import { handleFormFileClick } from './form-file-handler';
 
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -18,24 +19,32 @@ const isFileUploadField = value => {
 	return value && typeof value === 'object' && 'files' in value && 'field_id' in value;
 };
 
-const renderFieldValue = value => {
+const renderFieldValue = ( value, response ) => {
 	if ( isFileUploadField( value ) ) {
 		return (
 			<div className="file-field">
 				{ value.files.map( ( file, index ) => {
-					const fileUrl = sprintf(
-						'%1$s?file_id=%2$s&file_nonce=%3$s',
-						'/wp/v2/feedback/files',
-						encodeURIComponent( file.file_id ),
-						encodeURIComponent( file.nonce || '' )
-					);
 					const fileName = decodeEntities( file.name );
 					const fileSize = file.size ? sprintf( '%s KB', ( file.size / 1024 ).toFixed( 2 ) ) : '';
+
+					const handleClick = useCallback(
+						event => {
+							event.preventDefault();
+							handleFormFileClick( {
+								fileId: file.file_id,
+								postId: response.id,
+								fieldId: value.field_id,
+								fileName: fileName,
+							} );
+						},
+						[ file.file_id, file.post_id, value.field_id, fileName ]
+					);
+
 					return (
 						<div key={ index } className="file-field__item">
-							<a href={ fileUrl } target="_blank" rel="noopener noreferrer">
+							<Button variant="link" onClick={ handleClick }>
 								{ fileName } | { fileSize }
-							</a>
+							</Button>
 						</div>
 					);
 				} ) }
@@ -79,7 +88,7 @@ const InboxResponse = ( { loading, response } ) => {
 			<div className="jp-forms__inbox-response-avatar">
 				<img
 					src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"
-					alt={ __( 'Respondent’s gravatar', 'jetpack-forms' ) }
+					alt={ __( "Respondent's gravatar", 'jetpack-forms' ) }
 				/>
 			</div>
 
@@ -132,7 +141,9 @@ const InboxResponse = ( { loading, response } ) => {
 				{ map( response.fields, ( value, key ) => (
 					<div key={ key } className="jp-forms__inbox-response-item">
 						<div className="jp-forms__inbox-response-data-label">{ key }:</div>
-						<div className="jp-forms__inbox-response-data-value">{ renderFieldValue( value ) }</div>
+						<div className="jp-forms__inbox-response-data-value">
+							{ renderFieldValue( value, response ) }
+						</div>
 					</div>
 				) ) }
 			</div>

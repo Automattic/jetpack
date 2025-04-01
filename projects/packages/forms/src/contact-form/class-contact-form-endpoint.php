@@ -84,22 +84,23 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$this->namespace,
 			$this->rest_base . '/files',
 			array(
-				'methods'             => \WP_REST_Server::READABLE,
+				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'get_file' ),
-				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'permission_callback' => array( $this, 'get_item_permissions_check' ),
 				'args'                => array(
 					'file_id' => array(
 						'required'          => true,
-						'validate_callback' => function ( $param ) {
-							if ( empty( $param ) ) {
-								return new \WP_Error(
-									'missing_file_id',
-									esc_html__( 'File ID is required.', 'jetpack-forms' ),
-									array( 'status' => 400 )
-								);
-							}
-							return true;
-						},
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'post_id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+					),
+					'field_id' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
 					),
 				),
 			)
@@ -262,10 +263,55 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		$schema['properties']['fields'] = array(
 			'description' => __( 'The custom form fields and their submitted values.', 'jetpack-forms' ),
-			'type'        => 'string',
+			'type'        => 'object',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'arg_options' => array(
 				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'properties'  => array(
+				'files' => array(
+					'type'       => 'object',
+					'properties' => array(
+						'field_id' => array(
+							'type'        => 'string',
+							'arg_options' => array(
+								'sanitize_callback' => 'sanitize_text_field',
+							),
+						),
+						'files'    => array(
+							'type'  => 'array',
+							'items' => array(
+								'type'       => 'object',
+								'properties' => array(
+									'file_id' => array(
+										'type'        => 'string',
+										'arg_options' => array(
+											'sanitize_callback' => 'sanitize_text_field',
+										),
+									),
+									'name'    => array(
+										'type'        => 'string',
+										'arg_options' => array(
+											'sanitize_callback' => 'sanitize_text_field',
+										),
+									),
+									'size'    => array(
+										'type'        => 'integer',
+										'arg_options' => array(
+											'sanitize_callback' => 'absint',
+										),
+									),
+									'url'     => array(
+										'type'        => 'string',
+										'arg_options' => array(
+											'sanitize_callback' => 'esc_url_raw',
+										),
+									),
+								),
+							),
+						),
+					),
+				),
 			),
 			'readonly'    => true,
 		);
@@ -341,10 +387,25 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['subject'] = $feedback_data['_feedback_subject'];
 		}
 		if ( rest_is_field_included( 'fields', $fields ) ) {
-			$data['fields'] = array_diff_key(
-				$all_fields,
-				$base_fields
-			);
+			$fields_data = array_diff_key( $all_fields, $base_fields );
+
+			// Add file URLs to file fields
+			require_once dirname( __DIR__ ) . '/class-file-handler.php';
+			$file_handler = new \Automattic\Jetpack\Forms\File_Handler();
+			foreach ( $fields_data as $key => &$field ) {
+				if ( \Automattic\Jetpack\Forms\ContactForm\Contact_Form::is_file_upload_field( $field ) ) {
+					foreach ( $field['files'] as &$file ) {
+						$url = $file_handler->get_file_url( $field['field_id'], $file['file_id'], $item->ID );
+						// Add credentials parameter to URL
+						$url = add_query_arg( array(
+							'credentials' => 'include',
+						), $url );
+						$file['url'] = $url;
+					}
+				}
+			}
+
+			$data['fields'] = $fields_data;
 		}
 		return rest_ensure_response( $data );
 	}
@@ -440,6 +501,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_Error|boolean
 	 */
 	public function get_item_permissions_check( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		l( 'get_item_permissions_check user', get_current_user_id() );
 		if ( ! current_user_can( 'edit_pages' ) ) {
 			return false;
 		}
@@ -466,76 +528,107 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$post_id  = $request->get_param( 'post_id' );
 		$field_id = $request->get_param( 'field_id' );
 
-		l( 'FILE_ID', $file_id );
-		l( 'POST_ID', $post_id );
-		l( 'FIELD_ID', $field_id );
 		$fields = \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::parse_fields_from_content( $post_id );
 
+		// Find the file in the fields
+		$file = false;
 		foreach ( $fields['_feedback_all_fields'] as $field ) {
 			if ( isset( $field['field_id'] ) && $field['field_id'] === $field_id ) {
-				$files = $field['files'];
+				foreach ( $field['files'] as $_file ) {
+					if ( $_file['file_id'] === $file_id ) {
+						$file = $_file;
+						break 2;
+					}
+				}
 			}
 		}
 
-		l( 'FIELDS', $fields );
-
-		l( 'FILES', $files );
-		$file = false;
-		foreach ( $files as $_file ) {
-			if ( $_file['file_id'] === $file_id ) {
-				$file = $_file;
-				break;
-			}
+		if ( ! $file ) {
+			return new WP_Error(
+				'file_not_found',
+				esc_html__( 'The requested file could not be found.', 'jetpack-forms' ),
+				array( 'status' => 404 )
+			);
 		}
 
 		$file_path = $file['path'];
 		$file_name = $file['name'];
-		$mime_type = $file['type'];
 
+		// Verify file exists and is readable
+		if ( ! file_exists( $file_path ) || ! is_readable( $file_path ) ) {
+			return new WP_Error(
+				'file_not_accessible',
+				esc_html__( 'The file cannot be accessed.', 'jetpack-forms' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		// Get file type and mime type
 		$file_type = wp_check_filetype( $file_path );
 		$mime_type = $file_type['type'];
 
 		if ( empty( $mime_type ) ) {
-			// Return an error if we can't determine the mime type
 			return new WP_Error(
 				'unknown_file_type',
-				esc_html__( 'Unable to determine the file type. The file cannot be served.', 'jetpack-forms' ),
+				esc_html__( 'Unable to determine the file type.', 'jetpack-forms' ),
 				array( 'status' => 415 )
 			);
 		}
 
+		// Set up WordPress filesystem
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		WP_Filesystem();
 		global $wp_filesystem;
 
+		// Get file content
 		$file_content = $wp_filesystem->get_contents( $file_path );
-		$file_size    = $wp_filesystem->size( $file_path );
-		$file_name    = wp_basename( $file_path );
+		if ( false === $file_content ) {
+			return new WP_Error(
+				'file_read_error',
+				esc_html__( 'Unable to read the file.', 'jetpack-forms' ),
+				array( 'status' => 500 )
+			);
+		}
 
-		// Set up file-specific headers
-		$headers = array(
-			'Content-Type'              => $mime_type,
-			'Content-Disposition'       => 'inline; filename="' . $file_name . '"',
-			'Content-Length'            => $file_size,
-			'Content-Transfer-Encoding' => 'binary',
-			'X-Robots-Tag'              => 'noindex',
+		// Clean output buffer
+		if ( ob_get_length() ) {
+			ob_clean();
+		}
+
+		// Set up response headers
+		$valid_headers = array(
+			'content-type',
+			'content-length',
+			'content-disposition',
 		);
 
-		// Use WordPress core function for cache control headers
-		nocache_headers();
+		$headers = array(
+			'content-type'              => $mime_type,
+			'content-disposition'       => 'inline; filename="' . sanitize_file_name( $file_name ) . '"',
+			'content-length'            => $wp_filesystem->size( $file_path ),
+			'content-transfer-encoding' => 'binary',
+			'x-robots-tag'             => 'noindex',
+			'accept-ranges'            => 'bytes',
+			'cache-control'            => 'no-cache, must-revalidate, max-age=0',
+			'pragma'                   => 'no-cache',
+			'expires'                  => '0',
+		);
 
-		// Clear previous output buffers
-		while ( ob_get_level() ) {
-			ob_end_clean();
+		// Set content headers
+		foreach ( $valid_headers as $header ) {
+			if ( ! empty( $headers[ $header ] ) ) {
+				header( ucwords( $header, '-' ) . ': ' . $headers[ $header ] );
+			}
 		}
 
-		// Set file-specific headers
-		foreach ( $headers as $name => $value ) {
-			header( "{$name}: {$value}" );
-		}
+		// Set cache headers
+		header( 'Cache-Control: no-cache, no-store, must-revalidate' );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
 
 		// Output file content and exit
-		echo $file_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- File contents should not be escaped
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Media binary data
+		echo $file_content;
 		exit;
 	}
 
