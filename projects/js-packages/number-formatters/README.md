@@ -139,6 +139,6 @@ Adding a new formatter to the mix, say "formatPercentage", would basically just 
 
 ### Workflow
 
-When making changes, the package can be built individually via `npm run build` and the latest version linked via npm/yarn to a respective outside repo to test e.g. wp-calypso.
+When making changes, the package can be built individually via `pnpm run build` and the latest version linked via npm/yarn to a respective outside repo to test e.g. wp-calypso.
 
 Once changes are submitted/merged, the typical Jetpack workflow should be followed to publish the changes to NPM.
