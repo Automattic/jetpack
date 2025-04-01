@@ -449,6 +449,8 @@ class REST_Controller {
 	/**
 	 * Gets information about the current social product plans.
 	 *
+	 * @deprecated $$next-version$$ Swapped to using the /my-jetpack/v1/site/products endpoint instead.
+	 *
 	 * @return string|WP_Error A JSON object of the current social product being if the request was successful, or a WP_Error otherwise.
 	 */
 	public static function get_social_product_info() {
