@@ -82,7 +82,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 * Test the permissions check for users who can edit posts.
 	 */
 	public function test_get_items_permissions_check_with_edit_posts_capability() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'contributor' ) ) );
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$this->assertTrue( $this->instance->get_items_permissions_check( $request ) );
 	}
