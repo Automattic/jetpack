@@ -5587,10 +5587,10 @@ packages:
   '@automattic/create-calypso-config@1.0.0-alpha.0':
     resolution: {integrity: sha512-Ocu115MSPqekHIkjX0zoduA1OOicb2PdtZERIaRD9xH5s83GRVbL1Y4qDKVNDDN5fBjQtn4mmSUoqz9lZI1Usg==}
 
-  '@automattic/data-stores@3.1.1':
-    resolution: {integrity: sha512-Bl5Js2S+etGhLQNTdYv1tC9piyEAxVOXxV067P3vt88slvjhPyHbtmlysgVhe5FATXSKvgm8xnh682r3XrCPjQ==}
+  '@automattic/data-stores@3.1.0':
+    resolution: {integrity: sha512-Z1FaeGAgzVFhOPkcdFS/sjWqZMEFoqs+roer3h535Auqn+Apzf9bw86nJkFFaP2hbYMIUvq5nE7bKAlL5KAGLA==}
     peerDependencies:
-      '@wordpress/data': ^10.20.0
+      '@wordpress/data': ^10.8.0
       react: ^18.3.1
       react-dom: ^18.3.1
 
@@ -15866,11 +15866,12 @@ snapshots:
       cookie: 0.7.2
       tslib: 2.5.0
 
-  '@automattic/data-stores@3.1.1(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.21.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/data-stores@3.1.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.21.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@automattic/calypso-analytics': 1.1.3
       '@automattic/calypso-config': 1.0.0-alpha.0
       '@automattic/calypso-products': 1.2.1(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.21.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/format-currency': 2.1.0
       '@automattic/i18n-utils': 1.2.3
       '@automattic/js-utils': 0.1.0
       '@automattic/load-script': 1.0.0
@@ -15891,7 +15892,7 @@ snapshots:
       qs: 6.12.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      redux: 5.0.1
+      redux: 4.2.1
       tslib: 2.5.0
       use-debounce: 3.4.3(react@18.3.1)
       utility-types: 3.11.0
@@ -15950,7 +15951,7 @@ snapshots:
       '@automattic/calypso-analytics': 1.1.3
       '@automattic/calypso-config': 1.0.0-alpha.0
       '@automattic/components': 2.2.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.21.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@automattic/data-stores': 3.1.1(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.21.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/data-stores': 3.1.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.21.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/i18n-utils': 1.2.3
       '@automattic/typography': 1.0.0
       '@automattic/viewport': 1.1.0
