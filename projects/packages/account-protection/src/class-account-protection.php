@@ -15,7 +15,7 @@ use Automattic\Jetpack\Status\Host;
  * Class Account_Protection
  */
 class Account_Protection {
-	const PACKAGE_VERSION                = '0.1.0';
+	const PACKAGE_VERSION                = '0.2.0';
 	const ACCOUNT_PROTECTION_MODULE_NAME = 'account-protection';
 
 	/**
