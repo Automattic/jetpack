@@ -59,9 +59,14 @@ class Publicize_Setup {
 
 		Social_Admin_Page::init();
 
+		$host = new Host();
+
 		// We need this only on Jetpack sites for Google Site auto-verification.
-		if ( ! ( new Host() )->is_wpcom_simple() ) {
+		if ( ! $host->is_wpcom_simple() ) {
 			add_action( 'init', array( Keyring_Helper::class, 'init' ), 9 );
+		}
+
+		if ( ! $host->is_wpcom_platform() ) {
 			add_action( 'rest_api_init', array( new REST_Controller(), 'register_product_info_route' ) );
 		}
 	}
