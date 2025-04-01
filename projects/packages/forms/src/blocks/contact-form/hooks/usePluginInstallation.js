@@ -29,9 +29,8 @@ export const usePluginInstallation = ( pluginSlug, pluginPath, isInstalled, trac
 				await installAndActivatePlugin( pluginSlug );
 			}
 			return true;
-		} catch ( error ) {
-			// eslint-disable-next-line no-console
-			console.error( 'Plugin installation failed:', error );
+		} catch {
+			// Let the component handle the error state
 			return false;
 		} finally {
 			setIsInstalling( false );
