@@ -886,7 +886,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			data-wp-on--mouseleave="actions.dragLeave"
 			data-wp-on--drop="actions.fileDropped"
 		>
-			<div class="jetpack-form-file-field__dropzone" data-wp-class--is_dropping="context.isDropping">
+			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--has-files="context.hasFiles">
 				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker"></div>
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
 				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
@@ -894,20 +894,27 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			</div>
 			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="context.hasFiles">
 				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
-					<div class="jetpack-form-file-field__preview">
-						<div class="jetpack-form-file-field__progress" data-wp-bind--data-progress-id='context.file.id' data-wp-bind--aria-valuenow="context.file.progress" data-wp-style----progress="context.file.progress" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+					<div class="jetpack-form-file-field__preview" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.hasToken">
 						<input type="hidden" name="<?php echo esc_attr( $id ); ?>_token[]" data-wp-bind--value='context.file.token' value="">
-						<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
+
+						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress">
+							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
+							<div class="jetpack-form-file-field__progress-bar" ></div>
+						</div>
+
 						<div class="jetpack-form-file-field__file-wrap">
 							<strong class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></strong>
-							<div class="jetpack-form-file-field__file-info" date-wp-class--is-error="context.file.error" data-wp-class--is-complete="context.file.hasToken">
+							<div class="jetpack-form-file-field__file-info">
 								<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
 								<span class="jetpack-form-file-field__seperator"> &middot; </span>
+								<span class="jetpack-form-file-field__uploading"><?php esc_html_e( 'Uploading...', 'jetpack-forms' ); ?></span>
 								<span class="jetpack-form-file-field__success"><?php esc_html_e( 'Uploaded', 'jetpack-forms' ); ?></span>
 								<span class="jetpack-form-file-field__error" data-wp-text="context.file.error"></span>
 							</div>
 						</div>
+
 						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="<?php esc_attr_e( 'Remove file', 'jetpack-forms' ); ?>" data-wp-on--click="actions.removeFile" title="<?php esc_attr_e( 'Remove', 'jetpack-forms' ); ?>"> </a>
+
 					</div>
 				</template>
 			</div>
