@@ -1,3 +1,31 @@
+// Packages we need to copy versions from for `@wordpress/dataviews/wp`.
+const wpPkgs = {
+	'@wordpress/components': [
+		'change-case',
+		'colord',
+		'date-fns',
+		'deepmerge',
+		'@emotion/cache',
+		'@emotion/css',
+		'@emotion/react',
+		'@emotion/styled',
+		'@emotion/utils',
+		'fast-deep-equal',
+		'@floating-ui/react-dom',
+		'framer-motion',
+		'highlight-words-core',
+		'is-plain-object',
+		'memize',
+		'@use-gesture/react',
+		'uuid',
+		'@wordpress/date',
+		'@wordpress/hooks',
+	],
+	'@wordpress/element': [ 'react-dom' ],
+	'@wordpress/data': [ 'use-memo-one' ],
+};
+const wpPkgFetches = {};
+
 /**
  * Fix package dependencies.
  *
@@ -6,7 +34,7 @@
  * @param {object} pkg - Dependency package.json contents.
  * @return {object} Modified pkg.
  */
-function fixDeps( pkg ) {
+async function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` and hope any breaking changes will not really break.
 	if ( pkg.name === '@automattic/social-previews' ) {
@@ -46,30 +74,22 @@ function fixDeps( pkg ) {
 	// the build fails when using pnpm with hoisting.
 	// @see https://github.com/WordPress/gutenberg/issues/67864
 	if ( pkg.name === '@wordpress/dataviews' ) {
-		for ( const dep of [
-			'change-case',
-			'colord',
-			'date-fns',
-			'deepmerge',
-			'@emotion/cache',
-			'@emotion/css',
-			'@emotion/react',
-			'@emotion/styled',
-			'@emotion/utils',
-			'fast-deep-equal',
-			'@floating-ui/react-dom',
-			'framer-motion',
-			'highlight-words-core',
-			'is-plain-object',
-			'memize',
-			'react-dom',
-			'@use-gesture/react',
-			'use-memo-one',
-			'uuid',
-		] ) {
-			pkg.optionalDependencies[ dep ] = '*';
+		for ( const fromPkg of Object.keys( wpPkgs ) ) {
+			if ( ! wpPkgFetches[ fromPkg ] ) {
+				wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>
+					r.json()
+				);
+			}
+			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' );
+			const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
+			for ( const dep of wpPkgs[ fromPkg ] ) {
+				if ( deps[ dep ] === undefined ) {
+					// prettier-ignore
+					throw new Error( `pnpmfile hack needs updating, ${ fromPkg } ${ ver } doesn't depend on ${ dep } anymore?` );
+				}
+				pkg.optionalDependencies[ dep ] = deps[ dep ];
+			}
 		}
-		pkg.optionalDependencies[ 'change-case' ] = '^4';
 	}
 
 	// Missing dep or peer dep. Fixed in main, but needs a release.
@@ -259,9 +279,9 @@ function fixPeerDeps( pkg ) {
  * @param {object} context - Pnpm object of some sort.
  * @return {object} Modified pkg.
  */
-function readPackage( pkg, context ) {
+async function readPackage( pkg, context ) {
 	if ( pkg.name ) {
-		pkg = fixDeps( pkg, context );
+		pkg = await fixDeps( pkg, context );
 		pkg = fixPeerDeps( pkg, context );
 	}
 	return pkg;
