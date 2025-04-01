@@ -44,3 +44,24 @@ export const getThreatSubtitle = ( threat: Threat ) => {
 			return __( 'Threat', 'jetpack-scan' );
 	}
 };
+
+/**
+ * Determines if the threat should be referred to as a "vulnerability" and not a "threat".
+ *
+ * @param {Threat} threat - The threat to check.
+ * @return {boolean} True if the threat should be phrased as a vulnerability, false otherwise.
+ */
+export const shouldUseVulnerabilityPhrasingForThreat = ( threat: Threat ): boolean => {
+	if ( threat.signature ) {
+		if (
+			threat.signature === 'Vulnerable.WP.Core' ||
+			threat.signature === 'Vulnerable.WP.Extension'
+		) {
+			return true;
+		}
+	} else if ( [ 'plugins', 'themes', 'core' ].includes( getThreatType( threat ) ) ) {
+		return true;
+	}
+
+	return false;
+};

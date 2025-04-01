@@ -4,7 +4,11 @@ import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronDown, chevronUp, Icon } from '@wordpress/icons';
 import { useState, useCallback } from 'react';
-import { getSeverityLabel, Threat } from '@automattic/jetpack-scan';
+import {
+	getSeverityLabel,
+	shouldUseVulnerabilityPhrasingForThreat,
+	Threat,
+} from '@automattic/jetpack-scan';
 import styles from '../styles.module.scss';
 
 /**
@@ -43,7 +47,9 @@ const ThreatDetailsModalTechnicalDetails = ( { threat }: { threat: Threat } ): J
 		return (
 			<div>
 				<Button variant="link" isExternalLink={ true } weight="regular" href={ threat.source }>
-					{ __( 'See more technical details of this threat', 'jetpack-scan' ) }
+					{ shouldUseVulnerabilityPhrasingForThreat( threat )
+						? __( 'See more technical details of this vulnerability', 'jetpack-scan' )
+						: __( 'See more technical details of this threat', 'jetpack-scan' ) }
 				</Button>
 			</div>
 		);
@@ -141,7 +147,9 @@ const ThreatDetailsModalTechnicalDetails = ( { threat }: { threat: Threat } ): J
 												weight="regular"
 												href={ threat.source }
 											>
-												{ __( 'See more technical details of this threat', 'jetpack-scan' ) }
+												{ shouldUseVulnerabilityPhrasingForThreat( threat )
+													? __( 'See more technical details of this vulnerability', 'jetpack-scan' )
+													: __( 'See more technical details of this threat', 'jetpack-scan' ) }
 											</Button>
 										</div>
 									</>

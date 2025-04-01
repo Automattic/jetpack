@@ -2,7 +2,11 @@ import { ContextualUpgradeTrigger, Text, ThemeProvider } from '@automattic/jetpa
 import { Modal } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext } from 'react';
-import { Threat, ThreatsContext } from '@automattic/jetpack-scan';
+import {
+	shouldUseVulnerabilityPhrasingForThreat,
+	Threat,
+	ThreatsContext,
+} from '@automattic/jetpack-scan';
 import styles from '../styles.module.scss';
 import ThreatDetailsModalActions from './actions.js';
 import ThreatDetailsModalTechnicalDetails from './technical-details.js';
@@ -51,10 +55,15 @@ const ThreatDetailsModal = ( {
 									</Text>
 								) : (
 									<Text>
-										{ __(
-											'Jetpack cannot automatically fix this threat. We suggest that you resolve the threat manually: ensure that WordPress, your theme, and all of your plugins are up to date, and remove the offending code, theme, or plugin from your site.',
-											'jetpack-scan'
-										) }
+										{ shouldUseVulnerabilityPhrasingForThreat( threat )
+											? __(
+													'Jetpack cannot automatically fix this vulnerability. We suggest that you resolve the vulnerability manually: ensure that WordPress, your theme, and all of your plugins are up to date, and remove the offending code, theme, or plugin from your site.',
+													'jetpack-scan'
+											  )
+											: __(
+													'Jetpack cannot automatically fix this threat. We suggest that you resolve the threat manually: ensure that WordPress, your theme, and all of your plugins are up to date, and remove the offending code, theme, or plugin from your site.',
+													'jetpack-scan'
+											  ) }
 									</Text>
 								) }
 							</>
