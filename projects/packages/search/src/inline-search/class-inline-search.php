@@ -535,7 +535,6 @@ class Inline_Search extends Classic_Search {
 			$message = ! empty( $this->search_result['results'] )
 				? esc_html__( 'Search term corrected from: ', 'jetpack-search-pkg' )
 				: esc_html__( 'No results found for: ', 'jetpack-search-pkg' );
-
 			return sprintf(
 				'<h2 class="jetpack-search-corrected-query">
 				%s<strong>%s</strong>
