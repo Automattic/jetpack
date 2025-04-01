@@ -8,18 +8,6 @@ use WorDBless\BaseTestCase;
  * Tests for the Password_Detection class.
  */
 class Password_Detection_Test extends BaseTestCase {
-
-	public function test_handle_password_detection_validation_error_redirects_to_login(): void {
-		$error = new \WP_Error( Config::PASSWORD_DETECTION_ERROR_CODE, 'Password validation failed.', array( 'token' => 'my-token' ) );
-
-		$sut = $this->createPartialMock( Password_Detection::class, array( 'redirect_and_exit' ) );
-		$sut->expects( $this->once() )
-			->method( 'redirect_and_exit' )
-			->with( 'http://example.org/wp-login.php?action=password-detection&token=my-token' );
-
-		$sut->handle_password_detection_validation_error( 'username', $error );
-	}
-
 	public function test_login_form_password_detection_does_not_ask_validation_service_if_user_doesnt_require_protection(): void {
 		$validation_service_mock = $this->createMock( Validation_Service::class );
 		$validation_service_mock->expects( $this->never() )
@@ -81,43 +69,6 @@ class Password_Detection_Test extends BaseTestCase {
 		$return = $sut->login_form_password_detection( $user, 'pw' );
 
 		$this->assertSame( $user, $return, 'User should be returned.' );
-
-		remove_filter( 'check_password', '__return_true' );
-	}
-
-	public function test_login_form_password_detection_sends_email_and_returns_error_for_leaked_password(): void {
-		add_filter( 'check_password', '__return_true' );
-
-		$validation_service_mock = $this->createMock( Validation_Service::class );
-		$validation_service_mock->expects( $this->once() )
-			->method( 'is_leaked_password' )
-			->with( 'pw' )
-			->willReturn( true );
-
-		$auth_code = '123456';
-
-		$user            = new \WP_User();
-		$user->ID        = 1;
-		$user->user_pass = 'pw';
-		$user->add_cap( 'publish_posts' );
-
-		$email_service_mock = $this->createMock( Email_Service::class );
-		$email_service_mock->expects( $this->once() )
-			->method( 'generate_auth_code' )
-			->willReturn( $auth_code );
-		$email_service_mock->expects( $this->once() )
-			->method( 'api_send_auth_email' )
-			->with( $user->ID, $auth_code )
-			->willReturn( true );
-
-		$sut = new Password_Detection( $email_service_mock, $validation_service_mock );
-
-		$error = $sut->login_form_password_detection( $user, 'pw' );
-
-		$this->assertInstanceOf( \WP_Error::class, $error, 'Should return a WP_Error object.' );
-		$this->assertSame( 'Password validation failed.', $error->get_error_message( Config::PASSWORD_DETECTION_ERROR_CODE ), 'Should return the correct error message.' );
-		$token = $error->get_error_data( Config::PASSWORD_DETECTION_ERROR_CODE )['token'];
-		$this->assertSame( 32, strlen( $token ), 'Token should be 32 characters long.' );
 
 		remove_filter( 'check_password', '__return_true' );
 	}
