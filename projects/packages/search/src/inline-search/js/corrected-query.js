@@ -1,32 +1,26 @@
 /**
  * Script to display corrected query notice after search titles.
  */
-document.addEventListener( 'DOMContentLoaded', function () {
-	// Only proceed if we have corrected query data
-	if ( ! window.JetpackSearchCorrectedQuery || ! window.JetpackSearchCorrectedQuery.html ) {
+document.addEventListener( 'DOMContentLoaded', () => {
+	if ( ! window.JetpackSearchCorrectedQuery?.html ) {
 		return;
 	}
 
-	// Get the selectors and join them for querySelector
-	const selectors = window.JetpackSearchCorrectedQuery.selectors;
-	const selectorString = selectors.join( ', ' );
+	const { selectors, html } = window.JetpackSearchCorrectedQuery;
+	const titleElement = document.querySelector( selectors.join( ', ' ) );
 
-	// Find the title element using the selectors
-	const titleElement = document.querySelector( selectorString );
 	if ( ! titleElement ) {
 		return;
 	}
 
-	const tempDiv = document.createElement( 'div' );
-	tempDiv.innerHTML = window.JetpackSearchCorrectedQuery.html;
-	const notice = tempDiv.firstChild;
+	const notice = document.createElement( 'div' );
+	notice.innerHTML = html;
 
-	// Apply styling and insert
-	const originalClass = notice.className;
-	notice.className = titleElement.className + ' ' + originalClass;
-	notice.style.fontSize = '0.9em';
-	notice.style.marginTop = '10px';
-	notice.style.paddingTop = '0';
+	notice.className = `${ titleElement.className } ${ notice.className }`;
+	notice.style.cssText = 'font-size: 0.9em; margin-top: 10px; padding-top: 0;';
+
+	notice.setAttribute( 'role', 'status' );
+	notice.setAttribute( 'aria-live', 'polite' );
 
 	titleElement.insertAdjacentElement( 'afterend', notice );
 } );
