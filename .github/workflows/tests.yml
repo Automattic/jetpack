@@ -415,6 +415,18 @@ jobs:
           echo "Running tools/check-plugin-monorepo-deps.sh ${ARGS[@]}"
           tools/check-plugin-monorepo-deps.sh "${ARGS[@]}"
 
+  typecheck:
+    name: Type checking
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+      - name: Pnpm install
+        run: pnpm install
+      - name: Run type checking
+        run: pnpm typecheck
+
   # Probably this should be a linting test too, but we don't run linting on trunk or release branches.
   phan:
     name: Static analysis
