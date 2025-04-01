@@ -35,24 +35,28 @@ const formatBytes = ( size, decimals = 2 ) => {
 const addFileToContext = file => {
 	const reader = new FileReader();
 	reader.readAsDataURL( file );
-	reader.onload = withScope( () => {
-		const context = getContext();
-		const config = getConfig( NAMESPACE );
-		const fileId = performance.now() + '-' + Math.random();
 
-		let error = null;
-		if ( file.size > config.maxUploadSize ) {
-			error = config.i18n.fileTooLarge;
-		}
-		context.files.push( {
-			name: file.name,
-			url: 'url(' + reader.result + ')',
-			formattedSize: formatBytes( file.size, 2 ),
-			hasToken: false,
-			id: fileId,
-			error,
-		} );
-		context.hasFiles = true;
+	const config = getConfig( NAMESPACE );
+	const context = getContext();
+
+	let error = null;
+	if ( file.size > config.maxUploadSize ) {
+		error = config.i18n.fileTooLarge;
+	}
+	const fileId = performance.now() + '-' + Math.random();
+
+	context.files.push( {
+		name: file.name,
+		formattedSize: formatBytes( file.size, 2 ),
+		hasToken: false,
+		hasError: !! error,
+		id: fileId,
+		error,
+	} );
+	context.hasFiles = true;
+
+	reader.onload = withScope( () => {
+		updateFileContext( { url: 'url(' + reader.result + ')' }, fileId );
 		! error && uploadFile( file, fileId );
 	} );
 };
@@ -108,8 +112,7 @@ const onReadyStateChange = ( fileId, event ) => {
 		}
 		if ( xhr.responseText ) {
 			const response = JSON.parse( xhr.responseText );
-			// eslint-disable-next-line no-console
-			console.error( 'Error uploading file', response );
+			updateFileContext( { error: response.message, hasError: true }, fileId );
 		}
 	}
 };

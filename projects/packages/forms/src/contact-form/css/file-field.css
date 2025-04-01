@@ -2,6 +2,10 @@
 	position: relative;
 }
 
+.jetpack-form-file-field__dropzone.has-files {
+	display: none;
+}
+
 .jetpack-form-file-field__dropzone-inner {
 	position: absolute;
 	top: 0;
@@ -18,12 +22,11 @@
 	display: none;
 }
 
-.jetpack-form-file-field__dropzone.is_dropping {
+.jetpack-form-file-field__dropzone.is-dropping {
 	cursor: pointer;
 	transition: .2s;
 	opacity: 1;
 	background-color: #EEE;
-	border: var(--jetpack--contact-form--border-size, 1px) solid var(--jetpack--contact-form--border-color);
 }
 
 .jetpack-form-file-field__dropzone:hover {
@@ -39,7 +42,7 @@
 }
 
 .jetpack-form-file-field__icon {
-	color: currentColor;
+	color: currentcolor;
 }
 
 .jetpack-form-file-field__text {
@@ -51,7 +54,7 @@
 
 .jetpack-form-file-field__select-link {
 	text-decoration: underline;
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .jetpack-form-file-field__formats {
@@ -115,18 +118,6 @@
 	}
 }
 
-.jetpack-form-file-field__image {
-	aspect-ratio: 1 / 1;
-	background-position: center;
-	background-size: cover;
-	border-radius: var(--jetpack--contact-form--border-radius, 0);
-	outline: 2px solid  var( --jetpack--contact-form--button-primary--text-color, #FFF );
-	background-color: #333;
-	border-radius: 50%;
-	outline-offset:0;
-	width: 40px;
-	min-width: 40px;
-}
 
 .jetpack-form-file-field__preview.fade-out {
 	animation: jpFadeOutFileField 0.3s forwards;
@@ -180,36 +171,44 @@
 	transform: rotate(-45deg);
 }
 
-.jetpack-form-file-field__progress {
-	opacity: 0.5;
-	--hue: 220;
-	--holesize: 64;  /* 64 */
-	--track-bg: #333;
-	height: 44px;
-	width: 44px;
-	display: block;
-	align-items: center;
-	justify-items: center;
-	place-items: center;
-	position: absolute;
-	z-index: 3;
-	left: 14px;
+.jetpack-form-file-field__image-wrap {
+	width: 46px;
+	height: 46px;
+	border-radius: calc(infinity * 1px);
+	position: relative;
 }
 
-.jetpack-form-file-field__progress.is-complete,
-.jetpack-form-file-field__progress.is-error {
-	opacity: 1;
-	transform: opacity 0.5s ease;
-}
-
-.jetpack-form-file-field__progress::before {
+.jetpack-form-file-field__image {
 	content: '';
+	aspect-ratio: 1 / 1;
+	background-position: center;
+	background-size: cover;
+	outline: 1 solid  var( --jetpack--contact-form--button-primary--text-color, #FFF );
+	background-color: #333;
+	border-radius: 50%;
+	outline-offset:0;
+	width: 40px;
+	min-width: 40px;
+	left: 3px;
+	position: absolute;
+	top: 3px;
+	z-index: 2;
+}
+
+.jetpack-form-file-field__progress-bar {
+	content:'';
 	position: absolute;
 	top: 0;
 	bottom: 0;
 	left: 0;
 	right: 0;
 	border-radius: 50%;
+	background: conic-gradient(
+		var(--outline, #333 )
+		calc(var(--progress, 3) * 1%),
+		transparent calc(var(--progress, 3) * 1%)
+	);
+
 	z-index: -1;
 	background: conic-gradient(transparent var(--progress, 0%),
 			var(--track-bg) var(--progress, 0%) 100%);
@@ -247,27 +246,17 @@
 	box-shadow: 1px 1px 0px 0px #333;
 }
 
-.jetpack-form-file-field__progress.is-error:before,
-.jetpack-form-file-field__progress.is-error:after {
-	position: absolute;
-	top: 12px;
-	left: 21px;
-	height: 20px;
-	width: 2px;
-	background-color: #FFF;
-	-webkit-mask-image: none;
-	mask-image: none;
-	z-index: 4;
-	content: "";
-	border-radius: 0;
+.jetpack-form-file-field__preview.is-error .jetpack-form-file-field__progress-bar,
+.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__progress-bar {
+	animation: none;
+	opacity: 0;
 }
 
-.jetpack-form-file-field__progress.is-error:before {
-	transform: rotate(45deg);
-}
+@keyframes spin {
 
-.jetpack-form-file-field__progress.is-error:after {
-	transform: rotate(-45deg);
+    from {transform:rotate(0deg);}
+
+    to {transform:rotate(360deg);}
 }
 
 .jetpack-form-file-field__file-info {
@@ -288,8 +277,12 @@
 	display: none;
 }
 
-.is-error .jetpack-form-file-field__seperator,
-.is-complete .jetpack-form-file-field__success {
+.jetpack-form-file-field__preview.is-error .jetpack-form-file-field__uploading,
+.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__uploading {
+	display: none;
+}
+
+.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__success {
 	display: inline;
 }
 
