@@ -49,20 +49,20 @@
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
-		"@wordpress/api-fetch": "7.19.0",
-		"@wordpress/components": "29.5.0",
+		"@wordpress/api-fetch": "7.21.0",
+		"@wordpress/components": "29.7.0",
 		"@wordpress/dataviews": "4.15.0",
-		"@wordpress/date": "5.19.0",
-		"@wordpress/element": "6.19.0",
-		"@wordpress/i18n": "5.19.0",
-		"@wordpress/icons": "10.19.0",
-		"@wordpress/url": "4.19.0",
+		"@wordpress/date": "5.21.0",
+		"@wordpress/element": "6.21.0",
+		"@wordpress/i18n": "5.21.0",
+		"@wordpress/icons": "10.21.0",
+		"@wordpress/url": "4.21.0",
 		"debug": "4.4.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	},
 	"peerDependencies": {
-		"@wordpress/i18n": "5.19.0",
+		"@wordpress/i18n": "5.21.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	}
