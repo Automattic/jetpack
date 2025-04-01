@@ -134,7 +134,7 @@ class Brute_Force_Protection {
 		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
 		add_filter( 'jetpack_has_login_ability', array( $this, 'has_login_ability' ) );
 		add_action( 'wp_login', array( $this, 'log_successful_login' ), 10, 2 );
-		add_action( 'wp_login_failed', array( $this, 'log_failed_attempt' ), 10, 2 );
+		add_action( 'wp_login_failed', array( $this, 'log_failed_attempt' ), 10, 1 );
 		add_action( 'admin_init', array( $this, 'maybe_update_headers' ) );
 		add_action( 'admin_init', array( $this, 'maybe_display_security_warning' ) );
 
@@ -515,18 +515,11 @@ class Brute_Force_Protection {
 	 *
 	 * Fires custom, plugable action jpp_log_failed_attempt with the IP
 	 *
-	 * @param string         $username - The username or email address attempting to log in.
-	 * @param \WP_Error|null $error    - A WP_Error object with the authentication failure details.
+	 * @param string $username - The username or email address attempting to log in.
 	 *
 	 * @return void
 	 */
-	public function log_failed_attempt( string $username, ?\WP_Error $error = null ) {
-
-		// Skip if Account protection password validation error.
-		if ( isset( $error->errors['password_detection_validation_error'] ) ) {
-			return;
-		}
-
+	public function log_failed_attempt( string $username ) {
 		/**
 		 * Fires before every failed login attempt.
 		 *
