@@ -207,7 +207,7 @@ abstract class Sharing_Source {
 	 *
 	 * @param string      $url             Post URL to share.
 	 * @param string      $text            Sharing display text.
-	 * @param string      $title           The title for the link.
+	 * @param string      $accessible_name Accessible name for the link.
 	 * @param string      $query           Additional query arguments to add to the link. They should be in 'foo=bar&baz=1' format.
 	 * @param bool|string $id              Sharing ID to include in the data-shared attribute.
 	 * @param array       $data_attributes The keys are used as additional attribute names with 'data-' prefix.
@@ -215,7 +215,7 @@ abstract class Sharing_Source {
 	 *
 	 * @return string The HTML for the link.
 	 */
-	public function get_link( $url, $text, $title, $query = '', $id = false, $data_attributes = array() ) {
+	public function get_link( $url, $text, $accessible_name = '', $query = '', $id = false, $data_attributes = array() ) {
 		$args    = func_get_args();
 		$klasses = array( 'share-' . $this->get_class(), 'sd-button' );
 
@@ -224,12 +224,11 @@ abstract class Sharing_Source {
 		}
 
 		if ( 'icon' === $this->button_style ) {
-			$text      = $title;
 			$klasses[] = 'no-text';
+		}
 
-			if ( true === $this->open_link_in_new ) {
-				$text .= __( ' (Opens in new window)', 'jetpack' );
-			}
+		if ( true === $this->open_link_in_new ) {
+			$accessible_name .= __( ' (Opens in new window)', 'jetpack' );
 		}
 
 		/**
@@ -315,13 +314,33 @@ abstract class Sharing_Source {
 		 * @module sharedaddy
 		 *
 		 * @since 3.4.0
+		 * @deprecated $$next-version$$ Use jetpack_sharing_accessible_name instead.
 		 *
 		 * @param string $title Sharing service title.
 		 * @param object $this Sharing service properties.
 		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
-		$title = apply_filters( 'jetpack_sharing_display_title', $title, $this, $id, $args );
+		$accessible_name = apply_filters_deprecated(
+			'jetpack_sharing_display_title',
+			array( $accessible_name, $this, $id, $args ),
+			'$$next-version$$',
+			'jetpack_sharing_accessible_name'
+		);
+
+		/**
+		 * Filter the sharing accessible name.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $accessible_name Sharing service accessible name.
+		 * @param object $this Sharing service properties.
+		 * @param string|false $id Sharing ID.
+		 * @param array $args Array of sharing service options.
+		 */
+		$accessible_name = apply_filters( 'jetpack_sharing_accessible_name', $accessible_name, $this, $id, $args );
 		/**
 		 * Filter the sharing display text.
 		 *
@@ -370,17 +389,32 @@ abstract class Sharing_Source {
 			);
 		}
 
+		$rel_attr    = ( true === $this->open_link_in_new ) ? 'noopener noreferrer' : '';
+		$target_attr = ( true === $this->open_link_in_new ) ? 'target="_blank"' : '';
+		$id_attr     = $id ? esc_attr( $id ) : '';
+		$classes     = implode( ' ', $klasses );
+
 		return sprintf(
-			'<a rel="nofollow%s" data-shared="%s" class="%s" href="%s"%s title="%s" %s><span%s>%s</span></a>',
-			( true === $this->open_link_in_new ) ? ' noopener noreferrer' : '',
-			( $id ? esc_attr( $id ) : '' ),
-			implode( ' ', $klasses ),
-			$url,
-			( true === $this->open_link_in_new ) ? ' target="_blank"' : '',
-			$title,
+			'<a rel="nofollow %s" 
+				data-shared="%s" 
+				class="%s" 
+				href="%s"
+				%s
+				aria-labelledby="%s"
+				%s>
+				<span id="%s" hidden>%s</span>
+				<span>%s</span>
+			</a>',
+			$rel_attr,
+			$id_attr,
+			esc_attr( $classes ),
+			esc_url( $url ),
+			$target_attr,
+			$id_attr,
 			$encoded_data_attributes,
-			( 'icon' === $this->button_style ) ? '></span><span class="sharing-screen-reader-text"' : '',
-			$text
+			$id_attr,
+			esc_html( $accessible_name ),
+			esc_html( $text )
 		);
 	}
 
