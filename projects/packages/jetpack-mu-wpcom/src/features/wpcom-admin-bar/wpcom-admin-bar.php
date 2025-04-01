@@ -424,8 +424,12 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 	$plan_text  = '';
 	$is_staging = (bool) get_option( 'wpcom_is_staging_site' );
 	if ( ! $is_staging ) {
-		$current_plan = Current_Plan::get();
-		$plan_name    = $current_plan['product_name_short'] ?? '';
+		if ( class_exists( '\WPCOM_Store_API' ) ) {
+			$current_plan = WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+		} else {
+			$current_plan = Current_Plan::get();
+		}
+		$plan_name = $current_plan['product_name_short'] ?? '';
 		if ( $plan_name ) {
 			$plan_text = '<div class="wp-admin-bar__site-info">
 							<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
