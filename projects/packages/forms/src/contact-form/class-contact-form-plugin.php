@@ -2134,26 +2134,16 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Parse the contact form fields.
+	 * Helper function to parse the post content.
 	 *
-	 * @param int $post_id - the post ID.
-	 * @return array Fields.
+	 * @param string $post_content The post content to parse.
+	 * @return array Parsed fields.
 	 */
-	public static function parse_fields_from_content( $post_id ) {
-		static $post_fields;
+	public static function parse_feedback_content( $post_content ) {
+		$all_values = array();
 
-		if ( ! is_array( $post_fields ) ) {
-			$post_fields = array();
-		}
-
-		if ( isset( $post_fields[ $post_id ] ) ) {
-			return $post_fields[ $post_id ];
-		}
-
-		$all_values   = array();
-		$post_content = get_post_field( 'post_content', $post_id );
-		$content      = explode( '<!--more-->', $post_content );
-		$lines        = array();
+		$content = explode( '<!--more-->', $post_content );
+		$lines   = array();
 
 		if ( count( $content ) > 1 ) {
 			$content = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
@@ -2201,6 +2191,29 @@ class Contact_Form_Plugin {
 		}
 
 		$fields['_feedback_all_fields'] = $all_values;
+
+		return $fields;
+	}
+
+	/**
+	 * Parse the contact form fields.
+	 *
+	 * @param int $post_id - the post ID.
+	 * @return array Fields.
+	 */
+	public static function parse_fields_from_content( $post_id ) {
+		static $post_fields;
+
+		if ( ! is_array( $post_fields ) ) {
+			$post_fields = array();
+		}
+
+		if ( isset( $post_fields[ $post_id ] ) ) {
+			return $post_fields[ $post_id ];
+		}
+
+		$post_content = get_post_field( 'post_content', $post_id );
+		$fields       = self::parse_feedback_content( $post_content );
 
 		$post_fields[ $post_id ] = $fields;
 
