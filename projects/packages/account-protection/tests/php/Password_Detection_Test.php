@@ -96,12 +96,23 @@ class Password_Detection_Test extends BaseTestCase {
 			->with( $user->ID, '123456' )
 			->willReturn( new \WP_Error( 'email_send_error', 'Failed to send authentication code. Please try again.' ) );
 
-		$sut = $this->createPartialMock( Password_Detection::class, array( 'redirect_and_exit' ) );
-		$sut->expects( $this->once() )
-			->method( 'redirect_and_exit' )
-			->with( 'http://example.org/wp-login.php?action=password-detection&token=my-token' );
+			$sut = $this->createPartialMock( Password_Detection::class, array( 'redirect_and_exit' ) );
+			$sut->__construct( $email_service_mock, $validation_service_mock );
 
-		$sut = new Password_Detection( $email_service_mock, $validation_service_mock );
+			// Now set expectations
+			$sut->expects( $this->once() )
+				->method( 'redirect_and_exit' )
+				->with(
+					$this->callback(
+						function ( $url ) {
+							$parsed = wp_parse_url( $url );
+							parse_str( $parsed['query'], $query );
+							return isset( $query['token'] ) &&
+							strlen( $query['token'] ) === 32 &&
+							str_starts_with( $url, 'http://example.org/wp-login.php?action=password-detection&token=' );
+						}
+					)
+				);
 
 		$sut->login_form_password_detection( $user, 'pw' );
 
