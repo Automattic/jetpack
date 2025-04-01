@@ -77,7 +77,7 @@
 			"tests/action-test-coverage.sh"
 		],
 		"test-js": [
-			"pnpm concurrently 'pnpm:compile-ts' 'pnpm:test-adminpage' 'pnpm:test-extensions'"
+			"pnpm concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions'"
 		],
 		"test-php": [
 			"@php tools/build-module-headings-translations.php",

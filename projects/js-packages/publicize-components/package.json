@@ -16,7 +16,8 @@
 	"author": "Automattic",
 	"scripts": {
 		"test": "jest",
-		"test-coverage": "pnpm run test --coverage"
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
