@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Inline Search class
  */
@@ -436,7 +438,44 @@ class Inline_Search extends Classic_Search {
 		}
 
 		add_filter( 'get_search_query', array( $this, 'maybe_use_corrected_query' ) );
-		add_action( 'wp_footer', array( $this, 'output_corrected_query_script' ) );
+		add_action( 'wp_footer', array( $this, 'register_corrected_query_script' ) );
+	}
+
+	/**
+	 * Register and configure the JavaScript for displaying the corrected query notice.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function register_corrected_query_script() {
+		$corrected_query_html = $this->get_corrected_query_html();
+		if ( empty( $corrected_query_html ) ) {
+			return;
+		}
+
+		$handle = 'jetpack-search-inline-corrected-query';
+
+		Assets::register_script(
+			$handle,
+			'js/corrected-query.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-search-pkg',
+				'enqueue'    => true,
+			)
+		);
+
+		wp_localize_script(
+			$handle,
+			'JetpackSearchCorrectedQuery',
+			array(
+				'html'      => $corrected_query_html,
+				'selectors' => $this->get_title_selectors(),
+				'i18n'      => array(
+					'error' => esc_html__( 'Error displaying search correction', 'jetpack-search-pkg' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -454,26 +493,12 @@ class Inline_Search extends Classic_Search {
 	}
 
 	/**
-	 * Output JavaScript to inject the corrected query notice after the search title.
-	 */
-	public function output_corrected_query_script() {
-		$corrected_query_html = $this->get_corrected_query_html();
-		if ( empty( $corrected_query_html ) ) {
-			return;
-		}
-
-		$selectors = $this->get_title_selectors();
-		$this->enqueue_corrected_query_script( $corrected_query_html, $selectors );
-	}
-
-	/**
-	 * Get selectors for finding the search title element, with filter applied.
+	 * Get selectors where corrected query notice will be displayed.
 	 *
 	 * @since $$next-version$$
-	 * @return array Array of CSS selectors to target the search title element.
+	 * @return array CSS selectors for search title elements.
 	 */
 	private function get_title_selectors() {
-		// Default selectors for search title elements
 		$default_selectors = array(
 			'.wp-block-query-title',
 			'.page-title',
@@ -481,45 +506,12 @@ class Inline_Search extends Classic_Search {
 		);
 
 		/**
-		 * Filter the CSS selectors used to find the search title element.
+		 * Filter the selectors where corrected query notice appears.
 		 *
 		 * @since $$next-version$$
-		 *
-		 * @param array $default_selectors Array of CSS selectors to target the search title element.
+		 * @param array $default_selectors CSS selectors for search title elements.
 		 */
 		return apply_filters( 'jetpack_search_title_selectors', $default_selectors );
-	}
-
-	/**
-	 * Enqueue the JavaScript for displaying the corrected query notice.
-	 *
-	 * @since $$next-version$$
-	 * @param string $html      The HTML content to display.
-	 * @param array  $selectors CSS selectors for finding the element to place the notice after.
-	 */
-	private function enqueue_corrected_query_script( $html, $selectors ) {
-		// Load the script using a path relative to this file
-		$script_url = plugins_url( 'js/corrected-query.js', __FILE__ );
-
-		// Register and enqueue the script
-		wp_register_script(
-			'jetpack-search-inline-corrected-query',
-			$script_url,
-			array(),
-			Package::VERSION,
-			true
-		);
-		wp_enqueue_script( 'jetpack-search-inline-corrected-query' );
-
-		// Pass the HTML and selectors as JavaScript variables
-		wp_localize_script(
-			'jetpack-search-inline-corrected-query',
-			'JetpackSearchCorrectedQuery',
-			array(
-				'html'      => $html,
-				'selectors' => $selectors,
-			)
-		);
 	}
 
 	/**
@@ -530,7 +522,6 @@ class Inline_Search extends Classic_Search {
 	private function get_corrected_query_html() {
 		$original_query = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		// Show message when there's a corrected query
 		if ( ! empty( $this->search_result['corrected_query'] ) ) {
 			$message = ! empty( $this->search_result['results'] )
 				? esc_html__( 'Search term corrected from: ', 'jetpack-search-pkg' )
