@@ -67,7 +67,6 @@ require_once __DIR__ . '/widgets/class-wpcom-tag-cloud-widget.php';
 
 require_once __DIR__ . '/widgets/tlkio/class-tlkio-widget.php';
 require_once __DIR__ . '/widgets/class-widget-top-clicks.php';
-require_once __DIR__ . '/widgets/class-pd-top-rated.php';
 require_once __DIR__ . '/widgets/class-jetpack-widget-twitter.php';
 
 // autoload composer sourced plugins
