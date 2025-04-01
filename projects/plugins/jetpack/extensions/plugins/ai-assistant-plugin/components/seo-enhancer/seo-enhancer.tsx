@@ -137,14 +137,16 @@ export function SeoEnhancer( {
 					) }
 				</BaseControl>
 			</PanelRow>
-			{ ( disableAutoEnhance || ( isEnabled && neededFeatures.length > 0 ) ) && (
+			{ ( ! isEnabled || disableAutoEnhance || ( isEnabled && neededFeatures.length > 0 ) ) && (
 				<PanelRow className="jetpack-seo-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						{ ( ! isEnabled || disableAutoEnhance ) && (
 							<div className="feature-checkboxes-container">
 								{ FEATURES.map( feature => {
 									const extraLabel =
-										feature === 'images-alt-text' ? ` (${ imageBlocks.length })` : '';
+										feature === 'images-alt-text' && imageBlocks.length > 0
+											? ` (${ imageBlocks.length })`
+											: '';
 
 									return (
 										<CheckboxControl
