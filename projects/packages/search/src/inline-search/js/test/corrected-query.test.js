@@ -2,293 +2,146 @@
  * @jest-environment jsdom
  */
 
+import {
+	setupJetpackSearchCorrectedQuery,
+	resetJetpackSearchCorrectedQuery,
+	createElementFromHtml,
+	applyStyles,
+} from '../helpers';
+
 describe( 'Corrected Query Notice', () => {
+	// Test constants
+	const TEST_HTML = '<div class="corrected-query">Did you mean: example?</div>';
+	const TEST_SELECTORS = [ '.search-title' ];
+	const TEST_TITLE_HTML = '<h1 class="search-title">Search Results</h1>';
+	const TEST_TITLE_WITH_CLASS_HTML = '<h1 class="search-title custom-class">Search Results</h1>';
+	const NOTICE_STYLES = {
+		fontSize: '0.9em',
+		marginTop: '10px',
+		paddingTop: '0',
+	};
+
 	let originalJetpackSearchCorrectedQuery;
 
+	/**
+	 * Adds a corrected query notice after search titles when correction data is available.
+	 */
+	function correctedQueryFunction() {
+		// Get query data and validate
+		const queryData = window.JetpackSearchCorrectedQuery;
+		if ( ! queryData?.html || ! queryData?.selectors?.length ) {
+			return;
+		}
+
+		// Find title element using selectors
+		const titleElement = document.querySelector( queryData.selectors.join( ', ' ) );
+		if ( ! titleElement ) {
+			return;
+		}
+
+		// Create and configure notice element
+		const noticeElement = createElementFromHtml( queryData.html );
+		noticeElement.className = `${ titleElement.className } ${ noticeElement.className }`;
+		applyStyles( noticeElement, NOTICE_STYLES );
+
+		// Insert notice after title
+		titleElement.insertAdjacentElement( 'afterend', noticeElement );
+	}
+
 	beforeEach( () => {
-		// Store original JetpackSearchCorrectedQuery
+		// Store original state
 		originalJetpackSearchCorrectedQuery = window.JetpackSearchCorrectedQuery;
-
-		// Reset the DOM
+		// Reset test environment
 		document.body.innerHTML = '';
-
-		// Reset window.JetpackSearchCorrectedQuery
-		delete window.JetpackSearchCorrectedQuery;
+		resetJetpackSearchCorrectedQuery();
 	} );
 
 	afterEach( () => {
-		// Restore original JetpackSearchCorrectedQuery
+		// Restore original state
 		if ( originalJetpackSearchCorrectedQuery ) {
-			Object.defineProperty( window, 'JetpackSearchCorrectedQuery', {
-				value: originalJetpackSearchCorrectedQuery,
-				configurable: true,
-			} );
+			setupJetpackSearchCorrectedQuery( originalJetpackSearchCorrectedQuery );
 		} else {
-			delete window.JetpackSearchCorrectedQuery;
+			resetJetpackSearchCorrectedQuery();
 		}
 	} );
 
-	test( 'should not add notice when JetpackSearchCorrectedQuery is not defined', () => {
-		// Setup
-		document.body.innerHTML = '<h1 class="search-title">Search Results</h1>';
-
-		// Execute the function directly instead of relying on the event
-		// This is the function from corrected-query.js
-		/**
-		 * Adds a corrected query notice after search titles when correction data is available.
-		 */
-		function correctedQueryFunction() {
-			// Only proceed if we have corrected query data
-			if ( ! window.JetpackSearchCorrectedQuery || ! window.JetpackSearchCorrectedQuery.html ) {
-				return;
-			}
-
-			// Get the selectors and join them for querySelector
-			const selectors = window.JetpackSearchCorrectedQuery.selectors;
-			const selectorString = selectors.join( ', ' );
-
-			// Find the title element using the selectors
-			const titleElement = document.querySelector( selectorString );
-			if ( ! titleElement ) {
-				return;
-			}
-
-			const tempDiv = document.createElement( 'div' );
-			tempDiv.innerHTML = window.JetpackSearchCorrectedQuery.html;
-			const notice = tempDiv.firstChild;
-
-			// Apply styling and insert
-			const originalClass = notice.className;
-			notice.className = titleElement.className + ' ' + originalClass;
-			notice.style.fontSize = '0.9em';
-			notice.style.marginTop = '10px';
-			notice.style.paddingTop = '0';
-
-			titleElement.insertAdjacentElement( 'afterend', notice );
-		}
-
-		correctedQueryFunction();
-
-		// Assert
-		expect( document.querySelectorAll( '.search-title' ) ).toHaveLength( 1 );
-		expect( document.querySelectorAll( '.search-title + div' ) ).toHaveLength( 0 );
-	} );
-
-	test( 'should not add notice when JetpackSearchCorrectedQuery has no html', () => {
-		// Setup
-		Object.defineProperty( window, 'JetpackSearchCorrectedQuery', {
-			value: { selectors: [ '.search-title' ] },
-			configurable: true,
+	describe( 'when JetpackSearchCorrectedQuery is not properly configured', () => {
+		test( 'should not add notice when JetpackSearchCorrectedQuery is not defined', () => {
+			document.body.innerHTML = TEST_TITLE_HTML;
+			correctedQueryFunction();
+			expect( document.querySelector( '.corrected-query' ) ).toBeNull();
 		} );
-		document.body.innerHTML = '<h1 class="search-title">Search Results</h1>';
 
-		// Execute the function directly instead of relying on the event
-		// This is the function from corrected-query.js
-		/**
-		 * Adds a corrected query notice after search titles when correction data is available.
-		 */
-		function correctedQueryFunction() {
-			// Only proceed if we have corrected query data
-			if ( ! window.JetpackSearchCorrectedQuery || ! window.JetpackSearchCorrectedQuery.html ) {
-				return;
-			}
+		test( 'should not add notice when JetpackSearchCorrectedQuery has no html', () => {
+			setupJetpackSearchCorrectedQuery( { selectors: TEST_SELECTORS } );
+			document.body.innerHTML = TEST_TITLE_HTML;
+			correctedQueryFunction();
+			expect( document.querySelector( '.corrected-query' ) ).toBeNull();
+		} );
 
-			// Get the selectors and join them for querySelector
-			const selectors = window.JetpackSearchCorrectedQuery.selectors;
-			const selectorString = selectors.join( ', ' );
-
-			// Find the title element using the selectors
-			const titleElement = document.querySelector( selectorString );
-			if ( ! titleElement ) {
-				return;
-			}
-
-			const tempDiv = document.createElement( 'div' );
-			tempDiv.innerHTML = window.JetpackSearchCorrectedQuery.html;
-			const notice = tempDiv.firstChild;
-
-			// Apply styling and insert
-			const originalClass = notice.className;
-			notice.className = titleElement.className + ' ' + originalClass;
-			notice.style.fontSize = '0.9em';
-			notice.style.marginTop = '10px';
-			notice.style.paddingTop = '0';
-
-			titleElement.insertAdjacentElement( 'afterend', notice );
-		}
-
-		correctedQueryFunction();
-
-		// Assert
-		expect( document.querySelectorAll( '.search-title' ) ).toHaveLength( 1 );
-		expect( document.querySelectorAll( '.search-title + div' ) ).toHaveLength( 0 );
-	} );
-
-	test( 'should not add notice when no matching selector is found', () => {
-		// Setup
-		Object.defineProperty( window, 'JetpackSearchCorrectedQuery', {
-			value: {
+		test( 'should not add notice when no matching selector is found', () => {
+			setupJetpackSearchCorrectedQuery( {
 				selectors: [ '.non-existent-selector' ],
-				html: '<div class="corrected-query">Did you mean: example?</div>',
-			},
-			configurable: true,
+				html: TEST_HTML,
+			} );
+			document.body.innerHTML = TEST_TITLE_HTML;
+			correctedQueryFunction();
+			expect( document.querySelector( '.corrected-query' ) ).toBeNull();
 		} );
-		document.body.innerHTML = '<h1 class="search-title">Search Results</h1>';
 
-		// Execute the function directly instead of relying on the event
-		// This is the function from corrected-query.js
-		/**
-		 * Adds a corrected query notice after search titles when correction data is available.
-		 */
-		function correctedQueryFunction() {
-			// Only proceed if we have corrected query data
-			if ( ! window.JetpackSearchCorrectedQuery || ! window.JetpackSearchCorrectedQuery.html ) {
-				return;
-			}
-
-			// Get the selectors and join them for querySelector
-			const selectors = window.JetpackSearchCorrectedQuery.selectors;
-			const selectorString = selectors.join( ', ' );
-
-			// Find the title element using the selectors
-			const titleElement = document.querySelector( selectorString );
-			if ( ! titleElement ) {
-				return;
-			}
-
-			const tempDiv = document.createElement( 'div' );
-			tempDiv.innerHTML = window.JetpackSearchCorrectedQuery.html;
-			const notice = tempDiv.firstChild;
-
-			// Apply styling and insert
-			const originalClass = notice.className;
-			notice.className = titleElement.className + ' ' + originalClass;
-			notice.style.fontSize = '0.9em';
-			notice.style.marginTop = '10px';
-			notice.style.paddingTop = '0';
-
-			titleElement.insertAdjacentElement( 'afterend', notice );
-		}
-
-		correctedQueryFunction();
-
-		// Assert
-		expect( document.querySelectorAll( '.corrected-query' ) ).toHaveLength( 0 );
+		test( 'should not add notice when selectors array is empty', () => {
+			setupJetpackSearchCorrectedQuery( {
+				selectors: [],
+				html: TEST_HTML,
+			} );
+			document.body.innerHTML = TEST_TITLE_HTML;
+			correctedQueryFunction();
+			expect( document.querySelector( '.corrected-query' ) ).toBeNull();
+		} );
 	} );
 
-	test( 'should add notice with correct styling when all conditions are met', () => {
-		// Setup
-		Object.defineProperty( window, 'JetpackSearchCorrectedQuery', {
-			value: {
-				selectors: [ '.search-title' ],
-				html: '<div class="corrected-query">Did you mean: example?</div>',
-			},
-			configurable: true,
+	describe( 'when JetpackSearchCorrectedQuery is properly configured', () => {
+		test( 'should add notice with correct styling when all conditions are met', () => {
+			setupJetpackSearchCorrectedQuery( {
+				selectors: TEST_SELECTORS,
+				html: TEST_HTML,
+			} );
+			document.body.innerHTML = TEST_TITLE_WITH_CLASS_HTML;
+			correctedQueryFunction();
+
+			const notice = document.querySelector( '.corrected-query' );
+			expect( notice ).not.toBeNull();
+			expect( notice ).toHaveClass( 'custom-class', 'corrected-query' );
+			expect( notice ).toHaveStyle( NOTICE_STYLES );
+			expect( notice ).toHaveTextContent( 'Did you mean: example?' );
 		} );
-		document.body.innerHTML = '<h1 class="search-title custom-class">Search Results</h1>';
 
-		// Execute the function directly instead of relying on the event
-		// This is the function from corrected-query.js
-		/**
-		 * Adds a corrected query notice after search titles when correction data is available.
-		 */
-		function correctedQueryFunction() {
-			// Only proceed if we have corrected query data
-			if ( ! window.JetpackSearchCorrectedQuery || ! window.JetpackSearchCorrectedQuery.html ) {
-				return;
-			}
-
-			// Get the selectors and join them for querySelector
-			const selectors = window.JetpackSearchCorrectedQuery.selectors;
-			const selectorString = selectors.join( ', ' );
-
-			// Find the title element using the selectors
-			const titleElement = document.querySelector( selectorString );
-			if ( ! titleElement ) {
-				return;
-			}
-
-			const tempDiv = document.createElement( 'div' );
-			tempDiv.innerHTML = window.JetpackSearchCorrectedQuery.html;
-			const notice = tempDiv.firstChild;
-
-			// Apply styling and insert
-			const originalClass = notice.className;
-			notice.className = titleElement.className + ' ' + originalClass;
-			notice.style.fontSize = '0.9em';
-			notice.style.marginTop = '10px';
-			notice.style.paddingTop = '0';
-
-			titleElement.insertAdjacentElement( 'afterend', notice );
-		}
-
-		correctedQueryFunction();
-
-		// Get the notice element
-		const notice = document.querySelector( '.search-title + div' );
-
-		// Assert
-		expect( notice ).not.toBeNull();
-		expect( notice ).toHaveClass( 'custom-class', 'corrected-query' );
-		expect( notice ).toHaveStyle( {
-			fontSize: '0.9em',
-			marginTop: '10px',
-			paddingTop: '0',
-		} );
-		expect( notice ).toHaveTextContent( 'Did you mean: example?' );
-	} );
-
-	test( 'should handle multiple selectors', () => {
-		// Setup
-		Object.defineProperty( window, 'JetpackSearchCorrectedQuery', {
-			value: {
+		test( 'should handle multiple selectors', () => {
+			setupJetpackSearchCorrectedQuery( {
 				selectors: [ '.non-existent', '.search-title' ],
-				html: '<div class="corrected-query">Did you mean: example?</div>',
-			},
-			configurable: true,
+				html: TEST_HTML,
+			} );
+			document.body.innerHTML = TEST_TITLE_HTML;
+			correctedQueryFunction();
+
+			const notice = document.querySelector( '.corrected-query' );
+			expect( notice ).not.toBeNull();
+			expect( notice ).toHaveClass( 'corrected-query' );
+			expect( notice ).toHaveStyle( NOTICE_STYLES );
 		} );
-		document.body.innerHTML = '<h1 class="search-title">Search Results</h1>';
 
-		// Execute the function directly instead of relying on the event
-		// This is the function from corrected-query.js
-		/**
-		 * Adds a corrected query notice after search titles when correction data is available.
-		 */
-		function correctedQueryFunction() {
-			// Only proceed if we have corrected query data
-			if ( ! window.JetpackSearchCorrectedQuery || ! window.JetpackSearchCorrectedQuery.html ) {
-				return;
-			}
+		test( 'should preserve original notice class when adding title classes', () => {
+			setupJetpackSearchCorrectedQuery( {
+				selectors: TEST_SELECTORS,
+				html: TEST_HTML,
+			} );
+			document.body.innerHTML = TEST_TITLE_WITH_CLASS_HTML;
+			correctedQueryFunction();
 
-			// Get the selectors and join them for querySelector
-			const selectors = window.JetpackSearchCorrectedQuery.selectors;
-			const selectorString = selectors.join( ', ' );
-
-			// Find the title element using the selectors
-			const titleElement = document.querySelector( selectorString );
-			if ( ! titleElement ) {
-				return;
-			}
-
-			const tempDiv = document.createElement( 'div' );
-			tempDiv.innerHTML = window.JetpackSearchCorrectedQuery.html;
-			const notice = tempDiv.firstChild;
-
-			// Apply styling and insert
-			const originalClass = notice.className;
-			notice.className = titleElement.className + ' ' + originalClass;
-			notice.style.fontSize = '0.9em';
-			notice.style.marginTop = '10px';
-			notice.style.paddingTop = '0';
-
-			titleElement.insertAdjacentElement( 'afterend', notice );
-		}
-
-		correctedQueryFunction();
-
-		// Assert
-		const notice = document.querySelector( '.search-title + div' );
-		expect( notice ).not.toBeNull();
-		expect( notice ).toHaveClass( 'corrected-query' );
+			const notice = document.querySelector( '.corrected-query' );
+			expect( notice.className ).toContain( 'search-title' );
+			expect( notice.className ).toContain( 'custom-class' );
+			expect( notice.className ).toContain( 'corrected-query' );
+		} );
 	} );
 } );
