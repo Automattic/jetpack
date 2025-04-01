@@ -20,12 +20,10 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	 * @var array
 	 */
 	const ALLOWED_PLUGINS = array(
-		'/jetpack/',
+		'/plugins/gutenberg/',
+		'/plugins/gutenberg-core/', // WPCOM Simple site
 		'/plugins/jetpack/',
-		'/gutenberg/',
-		'/gutenberg-core/',
-		'/mu-plugins/jetpack-plugin/',
-		'/mu-plugins/jetpack-mu-wpcom-plugin/',
+		'/mu-plugins/jetpack-mu-wpcom-plugin/', // WPCOM Simple site
 	);
 
 	/**
