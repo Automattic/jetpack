@@ -106,19 +106,19 @@
 
 #wpadminbar #wp-admin-bar-site-name {
 
-    > .ab-item:before {
+	> .ab-item:before {
 
-        /**
-    	 * Always show the House icon by the site name.
-    	 */
-	    content: "\f102" !important;
-    }
+		/**
+		 * Always show the House icon by the site name.
+		 */
+		content:"\f102" !important;
+	}
 
 	@media (max-width: 480px) {
 
-        > a.ab-item,
+		> a.ab-item,
 		> a.ab-item:before {
-    		width: 46px;
+			width: 46px;
 		}
 	}
 }
@@ -144,11 +144,11 @@
 	justify-content: space-between;
 	align-items: center;
 }
-	
+
 #wpadminbar .wp-admin-bar__site-info-label {
 	margin-bottom: 4px;
 }
-	
+
 #wpadminbar .wp-admin-bar__info-badges {
 	display: flex;
 	flex-wrap: wrap;
@@ -157,11 +157,11 @@
 	border-radius: 4px;
 	box-sizing: border-box;
 	padding: 0 8px;
-    min-height: 24px;
-    border-radius: 2px;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 20px;
+	min-height: 24px;
+	border-radius: 2px;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 20px;
 	display: flex;
 	align-items: center;
 }
