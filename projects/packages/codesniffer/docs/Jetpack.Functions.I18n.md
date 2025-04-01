@@ -5,7 +5,7 @@ This sniff augments `WordPress.WP.I18n` by checking text domains passed to some 
 * `wp_set_script_translations()`
 * `Automattic\Jetpack\Assets::register_script()`
 
-If a single value is configured for `text_domain`, this sniff can auto-fix.
+If a single value (as a string or a single-element array) is configured for `text_domain`, this sniff can auto-fix.
 
 ### Messages
 
