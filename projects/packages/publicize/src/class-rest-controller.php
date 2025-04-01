@@ -46,9 +46,12 @@ class REST_Controller {
 	}
 
 	/**
-	 * Registers the endpoint to get the plan information for Social.
+	 * Registers the REST routes for Social.
+	 *
+	 * @access public
+	 * @static
 	 */
-	public function register_product_info_route() {
+	public function register_rest_routes() {
 		// Get current social product from the product's endpoint.
 		register_rest_route(
 			'jetpack/v4',
@@ -59,15 +62,7 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
-	}
 
-	/**
-	 * Registers the REST routes for Search.
-	 *
-	 * @access public
-	 * @static
-	 */
-	public function register_rest_routes() {
 		register_rest_route(
 			'jetpack/v4',
 			'/publicize/connection-test-results',
@@ -457,6 +452,13 @@ class REST_Controller {
 	 * @return string|WP_Error A JSON object of the current social product being if the request was successful, or a WP_Error otherwise.
 	 */
 	public static function get_social_product_info() {
+		Publicize_Utils::endpoint_deprecated_warning(
+			__METHOD__,
+			'jetpack-14.6, jetpack-social-6.4.0',
+			'jetpack/v4/social-product-info',
+			'my-jetpack/v1/site/products?products=social'
+		);
+
 		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?locale=' . get_user_locale() . '&type=jetpack';
 		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
