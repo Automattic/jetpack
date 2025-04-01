@@ -520,7 +520,7 @@ class Brute_Force_Protection {
 	 *
 	 * @return void
 	 */
-	public function log_failed_attempt( string $username, \WP_Error $error ) {
+	public function log_failed_attempt( string $username, ?\WP_Error $error = null ) {
 
 		// Skip if Account protection password validation error.
 		if ( isset( $error->errors['password_detection_validation_error'] ) ) {
