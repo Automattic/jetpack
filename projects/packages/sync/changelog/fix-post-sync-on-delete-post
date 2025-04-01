@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+fix an issue where deleting posts would not sync as expected
