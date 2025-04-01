@@ -32,16 +32,12 @@ const AkismetCard = ( { isExpanded, onToggle } ) => {
 	};
 
 	const getButtonText = () => {
-		if ( isInstalling ) {
-			if ( isInstalled ) {
-				return __( 'Activating…', 'jetpack-forms' );
-			}
-			return __( 'Installing…', 'jetpack-forms' );
-		}
-		if ( isInstalled ) {
-			return __( 'Activate', 'jetpack-forms' );
-		}
-		return __( 'Install', 'jetpack-forms' );
+		return (
+			( isInstalling && isInstalled && __( 'Activating…', 'jetpack-forms' ) ) ||
+			( isInstalling && __( 'Installing…', 'jetpack-forms' ) ) ||
+			( isInstalled && __( 'Activate', 'jetpack-forms' ) ) ||
+			__( 'Install', 'jetpack-forms' )
+		);
 	};
 
 	const renderContent = () => {
