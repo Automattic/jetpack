@@ -20,7 +20,7 @@ export const useIntegrationStatus = slug => {
 	const checkStatus = useCallback( async () => {
 		try {
 			const response = await apiFetch( {
-				path: `/wp/v2/feedback/integration-status/${ slug }`,
+				path: `/wp/v2/feedback/integrations/${ slug }`,
 			} );
 
 			setStatus( {
@@ -28,7 +28,7 @@ export const useIntegrationStatus = slug => {
 				isInstalled: response.isInstalled,
 				isActive: response.isActive,
 				isConnected: response.isConnected || false,
-				settingsUrl: response.configurationUrl || '',
+				settingsUrl: response.settingsUrl || '',
 				error: null,
 			} );
 		} catch ( error ) {
