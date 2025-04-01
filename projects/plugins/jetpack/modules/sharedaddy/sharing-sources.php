@@ -291,6 +291,7 @@ abstract class Sharing_Source {
 			}
 		}
 
+		// @phan-suppress-next-line PhanSuspiciousValueComparison
 		if ( 'text' === $this->button_style ) {
 			$klasses[] = 'no-icon';
 		}
