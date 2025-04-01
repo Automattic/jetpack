@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Block editor: Assets endpoint can control the allowed blocks types and assets enqueued via an allow list.
