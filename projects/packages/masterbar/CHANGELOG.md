@@ -5,10 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.3] - 2025-03-31
+### Changed
+- Internal updates.
+
+## [0.14.2] - 2025-03-24
+### Changed
+- Update dependencies. [#42564]
+
+### Fixed
+- Admin Color Scheme: Fix colors in the Aquatic color scheme. [#42632]
+- Site Badge: Update styles of the Coming Soon badge. [#42496]
+
+## [0.14.1] - 2025-03-18
+### Changed
+- Update package dependencies. [#42511]
+
+## [0.14.0] - 2025-03-17
+### Added
+- Add subscribers in WP Admin boilerplate. [#42066]
+
+### Fixed
+- Upsell to correct plan in Additional CSS customizer menu when running the Global Styles experiment. [#42471]
+
+## [0.13.2] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [0.13.1] - 2025-03-10
+### Changed
+- Internal updates.
+
+## [0.13.0] - 2025-03-03
+### Changed
+- Admin Color Schemes: Update color schemes to match Calypso. [#40908]
+- Update package dependencies. [#42163]
+
+### Removed
+- Masterbar: Remove My Mailboxes admin link. [#40885]
+
+### Fixed
+- Admin menu: do not display the dashboard switcher button twice. [#42068]
+
+## [0.12.4] - 2025-02-24
+### Changed
+- Internal updates.
+
+## [0.12.3] - 2025-02-17
+### Fixed
+- JITMs: Ensure we offer the same shortcircuit as in other elements where JITMs can be injected. [#41380]
+
+## [0.12.2] - 2025-02-10
+### Changed
+- Update package dependencies. [#41491]
+
 ## [0.12.1] - 2025-02-03
 ### Changed
 - Phan: Update baselines. [#41263]
-- Updated package dependencies. [#41286]
+- Update package dependencies. [#41286]
 
 ## [0.12.0] - 2025-01-27
 ### Added
@@ -219,6 +273,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.14.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.14.2...v0.14.3
+[0.14.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.14.1...v0.14.2
+[0.14.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.13.2...v0.14.0
+[0.13.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.13.1...v0.13.2
+[0.13.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.13.0...v0.13.1
+[0.13.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.12.4...v0.13.0
+[0.12.4]: https://github.com/Automattic/jetpack-masterbar/compare/v0.12.3...v0.12.4
+[0.12.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.12.2...v0.12.3
+[0.12.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.6...v0.11.0

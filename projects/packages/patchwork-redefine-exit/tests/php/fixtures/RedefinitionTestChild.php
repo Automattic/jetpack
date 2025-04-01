@@ -14,12 +14,11 @@ use PHPUnit\Framework\TestCase;
  *
  * This should not be run normally.
  */
+// phpcs:ignore Jetpack.PHPUnit.TestClassName.DoesNotEndWithTest
 class RedefinitionTestChild extends TestCase {
 
-	/**
-	 * @after
-	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		\Patchwork\restoreAll();
 	}
 

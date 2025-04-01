@@ -3,7 +3,7 @@ Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk
 Tags: social media automation, social media scheduling, auto share, social sharing, social media marketing
 Requires at least: 6.6
 Requires PHP: 7.2
-Tested up to: 6.7
+Tested up to: 6.8
 Stable tag: 4.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -104,18 +104,9 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 6.1.0 - 2025-01-27
-#### Changed
-- Code: Use function-style exit() and die() with a default status code of 0.
-- License: Social admin page header hides license link on WoA sites.
-- Moved the Social admin page to the publicize-components package
-- Refactored Social Note settings to use core
-- Updated package dependencies.
-
-#### Fixed
-- Fixed profile links for LinkedIn connections
-- Fixed wordpress.com log in error when connecting Social accounts
-- Fix publicize error in the editor due to malformed connections data
+### 6.3.0 - 2025-03-21
+#### Added
+- My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack.
 
 == Upgrade Notice ==
 

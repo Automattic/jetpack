@@ -58,12 +58,9 @@ class Rest_Api_Endpoints {
 		}
 
 		// add the search term to the query params if it exists
-		$query = $request['query'];
-		if ( ! empty( $request['s'] ) ) {
-			$query['s'] = $request['s'];
-		}
+		$query_param = $request['query'] ?? '';
 
-		return $jitm->get_messages( $request['message_path'], urldecode_deep( $query ), 'true' === $request['full_jp_logo_exists'] );
+		return $jitm->get_messages( $request['message_path'], urldecode_deep( array( 'query' => $query_param ) ), 'true' === $request['full_jp_logo_exists'] );
 	}
 
 	/**

@@ -9,7 +9,6 @@ module.exports = [
 		entry: {
 			'a8c-posts-list': './src/features/wpcom-blocks/a8c-posts-list/blocks/posts-list/index.js',
 			'block-inserter-modifications': './src/features/block-inserter-modifications/index.js',
-			'block-theme-previews': './src/features/block-theme-previews/index.js',
 			'core-customizer-css':
 				'./src/features/custom-css/custom-css/js/core-customizer-css.core-4.9.js',
 			'core-customizer-css-preview':
@@ -38,6 +37,11 @@ module.exports = [
 			'wpcom-blocks-timeline-view': './src/features/wpcom-blocks/timeline/view.js',
 			'wpcom-block-description-links': './src/features/wpcom-block-description-links/index.tsx',
 			'wpcom-block-editor-nux': './src/features/wpcom-block-editor-nux/index.js',
+			'wpcom-comment-like': [
+				'./src/features/wpcom-comments/wpcom-comment-like.js',
+				'./src/features/wpcom-comments/wpcom-comment-like.css',
+			],
+			'wpcom-hotfixes-colors-modern': './src/features/wpcom-hotfixes/colors/modern/colors.css',
 			'wpcom-dashboard-widgets':
 				'./src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.js',
 			'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.js',
@@ -54,10 +58,9 @@ module.exports = [
 			'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
 			'wpcom-profile-settings-link-to-wpcom':
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
+			'wpcom-replace-site-visibility':
+				'./src/features/replace-site-visibility/replace-site-visibility.tsx',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
-			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
-			'removed-calypso-screen-notice':
-				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',
 			'adminbar-launch-button': './src/features/launch-button/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,
@@ -74,7 +77,6 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 			alias: {
 				...jetpackWebpackConfig.resolve.alias,
-				'@automattic/calypso-config': '@automattic/calypso-config/src/client.js',
 				/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
 				classnames: findPackage( 'clsx' ),
 			},

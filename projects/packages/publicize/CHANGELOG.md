@@ -5,6 +5,111 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.62.4] - 2025-03-31
+### Changed
+- Internal updates.
+
+## [0.62.3] - 2025-03-24
+### Fixed
+- Publicize: Update the Jetpack plugin version check. [#42649]
+
+## [0.62.2] - 2025-03-21
+### Added
+- Social: Add `wpcom/v2` endpoint for Social Image Generator token generation. [#42534]
+
+### Deprecated
+- Social: Deprecate `jetpack/v4` endpoint for Social Image Generator token. [#42574]
+
+### Fixed
+- Keyring Helper: Move initialization to pre_initialization to let it work even when Publicize is off. [#42604]
+- Social: Fix permission check for connection url. [#42572]
+
+## [0.62.1] - 2025-03-19
+### Changed
+- Update dependencies. [#42564]
+
+## [0.62.0] - 2025-03-18
+### Changed
+- Move the `jetpack-social` endpoint to the Publicize package. [#42187]
+- Update package dependencies. [#42511]
+
+### Fixed
+- Fix compatibility with older versions of Jetpack. [#42503]
+
+## [0.61.5] - 2025-03-17
+### Changed
+- Internal updates.
+
+## [0.61.4] - 2025-03-17
+### Changed
+- Improve scheduled-actions endpoint permission checks. [#42318]
+- Social: Change the query parameter to open Jetpack sidebar on editor load. [#42364]
+
+### Removed
+- Remove the useAdminUiV1 feature flag. [#42451]
+- Social: Connections schema: Remove the deprecated fields. [#42454]
+- Social: Removed the old unused initial state. [#42390]
+- Social: Remove unused scheduled-actions endpoint routes. [#42415]
+
+## [0.61.3] - 2025-03-12
+### Changed
+- Update package dependencies. [#42384]
+
+## [0.61.2] - 2025-03-10
+### Changed
+- Move share post endpoint from Jetpack to publicize package. [#42179]
+- Social: Move JS editor code from Jetpack and Social to Publicize package. [#41836]
+- Make scheduled-actions endpoint compatible with getEntityRecords. [#42283]
+
+### Fixed
+- Social: Fix stylesheets loaded on the front-end when not needed. [#42289]
+- Social: Fix the share date schema for scheduled actions endpoint. [#42244]
+
+## [0.61.1] - 2025-03-03
+### Added
+- Move publicize/scheduled-actions enpoint from WPCOM to publicize. [#42136]
+
+### Changed
+- Social: Improve connect URL generation. [#42019]
+- Update package dependencies. [#42163]
+
+### Deprecated
+- Deprecate jetpack/v4 connection endpoints. [#41911]
+
+### Fixed
+- Social: Fix PHP warnings on WPCOM. [#42107]
+- Social: Fix Social post UI not showing connections. [#42095]
+
+## [0.61.0] - 2025-02-24
+### Added
+- Social: Update the admin page for use by Editors and Authors. [#41859]
+
+### Changed
+- Script data: Extract less host information. [#41890]
+- Social: Use new connections class for share status. [#41905]
+- Update the connections schema for classic editor. [#41778]
+- Update Keyring_Helper class and enable publicize services caching [#41460]
+
+### Removed
+- Remove the deprecated "dismiss notice" functionality. [#41987]
+
+### Fixed
+- Code: Prevent dynamic class properties. [#41857]
+- Fix social connection toggle. [#41912]
+
+## [0.60.1] - 2025-02-17
+### Changed
+- Internal updates.
+
+## [0.60.0] - 2025-02-11
+### Changed
+- Register social/settings endpoint only if Jetpack version does not have it. [#41596]
+- Use social admin for connections URL. [#41541]
+
+## [0.59.1] - 2025-02-10
+### Changed
+- Update package dependencies. [#41491]
+
 ## [0.59.0] - 2025-02-03
 ### Added
 - Enable Social Post UI for WordPress.com. [#41219]
@@ -15,7 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Phan: Update baselines. [#41263]
 - Move Social settings endpoint to publicize package. [#41456]
 - Use feature flag for Social admin page. [#41413]
-- Updated package dependencies. [#41286]
+- Update package dependencies. [#41286]
 - Update the settings endpoint to use existing endpoints. [#41461]
 - Use Admin_Menu::remove_menu to handle old Social menu item. [#41422]
 
@@ -847,6 +952,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.62.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.3...v0.62.4
+[0.62.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.2...v0.62.3
+[0.62.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.1...v0.62.2
+[0.62.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.0...v0.62.1
+[0.62.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.5...v0.62.0
+[0.61.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.4...v0.61.5
+[0.61.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.3...v0.61.4
+[0.61.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.2...v0.61.3
+[0.61.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.1...v0.61.2
+[0.61.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.0...v0.61.1
+[0.61.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.60.1...v0.61.0
+[0.60.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.60.0...v0.60.1
+[0.60.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.59.1...v0.60.0
+[0.59.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.59.0...v0.59.1
 [0.59.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.4...v0.58.0
 [0.57.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.3...v0.57.4

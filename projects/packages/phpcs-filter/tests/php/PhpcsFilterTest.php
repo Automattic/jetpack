@@ -20,7 +20,6 @@ use RecursiveIteratorIterator;
  * Tests for PhpcsFilter.php.
  */
 class PhpcsFilterTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Old CWD to restore after the test.
@@ -31,20 +30,18 @@ class PhpcsFilterTest extends TestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->oldcwd = getcwd();
 		Config::setConfigData( 'jetpack-filter-basedir', null, true );
 	}
 
 	/**
 	 * Tear down.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		chdir( $this->oldcwd );
 	}
 
@@ -245,7 +242,7 @@ class PhpcsFilterTest extends TestCase {
 	}
 
 	/** Data provider for testRun(). */
-	public function provideRun() {
+	public static function provideRun() {
 		return array(
 			'General tests'                  => array( __DIR__ . '/../../tests/fixtures/perdir' ),
 			'Custom per-directory file name' => array( __DIR__ . '/../../tests/fixtures/perdir-custom' ),

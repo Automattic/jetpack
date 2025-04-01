@@ -5,6 +5,130 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.45.0] - 2025-03-31
+### Added
+- Add third-party integration endpoint. [#42730]
+- Add File Upload field prototype. [#42695]
+
+### Changed
+- Add block integrations modal with feature flag. [#42747]
+- Create IntegrationCard component. [#42771]
+- Update button styles in inspector controls. [#42769]
+- Update IntegrationCard header markup and style. [#42772]
+- Update dependencies. [#42678]
+
+### Fixed
+- Components: Update controls to prevent more deprecation notices. [#42677]
+- Fix sorting of responses in Classic view. [#42764]
+- Fix WordPress `useSelect` warning. [#42675]
+
+## [0.44.0] - 2025-03-24
+### Changed
+- Update editor sidebar copy. [#42642]
+- Update dependencies. [#42564]
+
+### Fixed
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42576]
+- Fix `source` filtering in Classic view for responses management. [#42641]
+- Prevent custom label font sizes from breaking animated label font size reduction. [#42248]
+- Placeholder should always display if it's a non-empty string. [#42173]
+
+## [0.43.0] - 2025-03-18
+### Added
+- Add a quick link to the admin bar to form entries. [#42474]
+
+### Changed
+- Remove Google Drive beta badge. [#42481]
+- Remove Salesforce beta badge. [#42482]
+- Update package dependencies. [#42511]
+
+## [0.42.1] - 2025-03-17
+### Fixed
+- Fix core list bullets not showing. [#42440]
+
+## [0.42.0] - 2025-03-12
+### Added
+- Provide connection data to footer component. [#42000]
+
+### Changed
+- Remove default padding around forms. [#42340]
+- Remove the Jetpack footer on modal. [#42341]
+- Update response management with DataViews. [#41602]
+- Update package dependencies. [#42384]
+
+### Fixed
+- Adjust spacing around DataViews table. [#42348]
+- Fix issue where multiple contact forms on the same page would fail to submit correctly. [#42345]
+- Update date validation method by removing jQuery. [#41698]
+- Update the preview for the different block variations. [#42366]
+
+## [0.41.0] - 2025-03-10
+### Added
+- Add Akismet panel to form block. [#41826]
+
+## [0.40.0] - 2025-03-03
+### Added
+- Add min/max options to number field. [#41783]
+
+### Changed
+- Contact Form: Updated editor styles for improved UI consistency and better alignment of form elements. [#42112]
+- Add accessible name field to advanced settings. [#42101]
+- Simplify placeholder block. [#42141]
+- Use placeholder attribute in editor instead of value. [#41712]
+- Update package dependencies. [#42163]
+
+### Fixed
+- Fix warnings when post author is not available. [#42115]
+- Ensure fields that skip rendering (like empty options fields) do not trigger validation or show value in form submission response. [#41979]
+- Fix 404 error when a user submits an invalid form with JavaScript disabled. [#41947]
+- Fix field name set as label when trying to empty label. [#42125]
+- Show plugin integrations on Atomic. [#42073]
+
+## [0.39.0] - 2025-02-24
+### Changed
+- Add Tracks when connecting Google Drive. [#41825]
+
+### Fixed
+- Fix `empty form` check for select elements. [#41846]
+- Update block editor tracks events. [#41824]
+
+## [0.38.0] - 2025-02-17
+### Added
+- Forms block: Add number input. [#40962]
+
+### Changed
+- Add tracking for plugin installations. [#41732]
+
+### Fixed
+- Fix error setting for field. [#41715]
+- Fix missing translations in choice field settings. [#41719]
+- Fix syncing of shared styles for nested fields. [#41708]
+- Vertically align submit button in single row. [#41576]
+
+## [0.37.1] - 2025-02-11
+### Fixed
+- Fix missing translations. [#41671]
+
+## [0.37.0] - 2025-02-10
+### Added
+- Add a new file upload field block to allow visitors to upload files through contact forms. [#41582]
+- Add support for having multiple forms across paginated pages. [#41407]
+- Update fields and button blocks to support contentOnly editing. [#41411]
+- Tests: Verify empty forms do not submit. [#41504]
+
+### Changed
+- File Upload Field block: Use WordPress upload icon and follow consistent field patterns (currently in beta). [#41586]
+- Track forms submissions in order to improve the product. [#41307]
+- Update package dependencies. [#41491]
+
+### Fixed
+- Fix submit button width and alignment. [#41139]
+- Fix block style variations not showing in the editor. [#41457]
+- Fix the date format input if multiple date pickers are used with different date formats. [#41611]
+- Fix invalid HTML IDs. [#41564]
+- Hide fields without options. [#41443]
+- Improve the styling options of the separator block when placed inside the form block. [#40967]
+
 ## [0.36.0] - 2025-02-03
 ### Added
 - Prevent empty client-side form submission. [#41464]
@@ -12,7 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Remove legacy code and improve code quality. [#41348]
 - Rename contact form block placeholder to "Forms". [#41384]
-- Updated package dependencies. [#41286]
+- Update package dependencies. [#41286]
 
 ### Fixed
 - Add wrapping div to the core HTML block when inserted inside the form block. [#41269]
@@ -31,18 +155,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.35.1] - 2025-01-27
 ### Added
 - Add Checkbox and Consent field enter action to create a new block. [#41297]
-- Forms: Create new default block when pressing Enter on text inputs. [#41177]
+- Create new default block when pressing Enter on text inputs. [#41177]
 
 ### Changed
-- Forms: Remove wrapping <div> element from form block. [#41274]
+- Remove wrapping <div> element from form block. [#41274]
 
 ### Fixed
-- Adds missing deprecation for checkboxes and radio fields. [#41198]
-- Form: fix the default checkstate for admins. [#40847]
-- Forms: Add unique ids to each form. [#40998]
-- Forms: fix send to settings for multiple authors. [#41290]
-- Forms: Make the icons show up as expected in the style editor. [#41314]
-- Updates the icon colours to the new standard. [#41250]
+- Add missing deprecation for checkboxes and radio fields. [#41198]
+- Fix the default checkstate for admins. [#40847]
+- Add unique ids to each form. [#40998]
+- Fix send to settings for multiple authors. [#41290]
+- Make the icons show up as expected in the style editor. [#41314]
+- Update the icon colours to the new standard. [#41250]
 
 ## [0.35.0] - 2025-01-20
 ### Added
@@ -812,6 +936,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.45.0]: https://github.com/automattic/jetpack-forms/compare/v0.44.0...v0.45.0
+[0.44.0]: https://github.com/automattic/jetpack-forms/compare/v0.43.0...v0.44.0
+[0.43.0]: https://github.com/automattic/jetpack-forms/compare/v0.42.1...v0.43.0
+[0.42.1]: https://github.com/automattic/jetpack-forms/compare/v0.42.0...v0.42.1
+[0.42.0]: https://github.com/automattic/jetpack-forms/compare/v0.41.0...v0.42.0
+[0.41.0]: https://github.com/automattic/jetpack-forms/compare/v0.40.0...v0.41.0
+[0.40.0]: https://github.com/automattic/jetpack-forms/compare/v0.39.0...v0.40.0
+[0.39.0]: https://github.com/automattic/jetpack-forms/compare/v0.38.0...v0.39.0
+[0.38.0]: https://github.com/automattic/jetpack-forms/compare/v0.37.1...v0.38.0
+[0.37.1]: https://github.com/automattic/jetpack-forms/compare/v0.37.0...v0.37.1
+[0.37.0]: https://github.com/automattic/jetpack-forms/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/automattic/jetpack-forms/compare/v0.35.1...v0.36.0
 [0.35.1]: https://github.com/automattic/jetpack-forms/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/automattic/jetpack-forms/compare/v0.34.6...v0.35.0

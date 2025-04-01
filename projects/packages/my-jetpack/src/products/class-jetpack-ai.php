@@ -29,6 +29,13 @@ class Jetpack_Ai extends Product {
 	public static $slug = 'jetpack-ai';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'create';
+
+	/**
 	 * Whether this product has a free offering
 	 *
 	 * @var bool
@@ -41,22 +48,6 @@ class Jetpack_Ai extends Product {
 	 * @var string
 	 */
 	public static $feature_identifying_paid_plan = 'ai-assistant';
-
-	/**
-	 * Get the Product info for the API
-	 *
-	 * @throws \Exception If required attribute is not declared in the child class.
-	 * @return array
-	 */
-	public static function get_info() {
-		// Call parent method to get the default info.
-		$info = parent::get_info();
-
-		// Populate the product with the feature data.
-		$info['ai-assistant-feature'] = self::get_ai_assistant_feature();
-
-		return $info;
-	}
 
 	/**
 	 * Get the plugin slug - ovewrite it and return Jetpack's

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+ When we receive empty preferences we intitialize the value to an empty array

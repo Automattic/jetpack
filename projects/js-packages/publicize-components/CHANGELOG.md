@@ -5,6 +5,129 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.84.4] - 2025-03-31
+### Changed
+- Social: Replace the Social UI in Sharing settings with a link to the Social admin page. [#42761]
+- Update dependencies. [#42678]
+
+### Fixed
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42677]
+- Fix deprecation warnings by replacing `@wordpress/edit-post` package. [#42634]
+- Fix performance issues with Social store. [#42633]
+- Social: Fix editor crash on p2 with old package versions. [#42694]
+
+## [0.84.3] - 2025-03-24
+### Changed
+- Update dependencies. [#39855]
+
+## [0.84.2] - 2025-03-21
+### Changed
+- Update the endpoint used on the frontend to get Social Image Generator token from WordPress.com. [#42567]
+
+### Fixed
+- Fix sidebar panel toggle and connection button styles. [#42622]
+- ScheduleButton: Update the tests to correctly `await` asynchronous calls. [#42589]
+- Fix incorrect "unsupported" notice in the editor about Twitter. [#42569]
+
+## [0.84.1] - 2025-03-19
+### Changed
+- Update dependencies. [#42564]
+
+## [0.84.0] - 2025-03-18
+### Changed
+- Move the `jetpack-social` endpoint to the Publicize package. [#42187]
+- Use service status to display unsupported networks notice. [#42418]
+- Update package dependencies. [#42509] [#42511]
+
+## [0.83.1] - 2025-03-17
+### Changed
+- Update dependencies. [#39855]
+
+## [0.83.0] - 2025-03-17
+### Added
+- Add "Schedule" functionality to the Share Post modal. [#42376]
+- Add Scheduled Posts panel. [#42297]
+
+### Changed
+- Schedule Button: Prevent date/times in the past from being selected. [#42381]
+- Change the query parameter to open Jetpack sidebar on editor load. [#42364]
+- Migrate review prompt initial state to script data. [#42389]
+
+### Removed
+- Connections schema: Remove the deprecated fields. [#42454]
+
+### Fixed
+- Fixed a deadlock with the media picker. [#42455]
+- Resolve connection issues with LinkedIn company pages and Tumblr additional blogs. [#42352]
+
+## [0.82.0] - 2025-03-12
+### Added
+- Add a helper function to get the max message length. [#42325]
+- Add internal state for the ScheduleButton component. [#42372]
+- Provide connection data to footer component. [#42000]
+- Publicize Components: Add the schedule button. [#42313]
+- Social: Configure data store to handle scheduled shares. [#42296]
+
+### Changed
+- Update package dependencies. [#42384]
+
+## [0.81.0] - 2025-03-10
+### Added
+- Social: Add the ConnectionList and Item components. [#42233]
+- Social: Add the TabbedModal pure component. [#42298]
+- Social: Add scheduled post components. [#42221]
+
+### Changed
+- Social: Clean up the MessageBoxControl component. [#42253]
+- Social: Move resharing into the post modal. [#42224]
+- Social: Move JS editor code from Jetpack and Social to Publicize package. [#41836]
+- Update package dependencies. [#42162]
+
+## [0.80.0] - 2025-03-03
+### Security
+- Social: Moved Mastodon input form to start. [#41986]
+
+### Added
+- Added unit tests for the admin page. [#41951]
+- Publicize Components: Add Storybook support. [#42167]
+
+### Changed
+- Social: Improve connect URL generation. [#42019]
+- Update package dependencies. [#42081] [#42163]
+
+### Fixed
+- Clean up Social admin page unit tests. [#42064]
+- Social: Avoid calling the settings endpoint on Social admin page if not relevant. [#42102]
+
+## [0.79.0] - 2025-02-24
+### Added
+- Add support for Bluesky video selection. [#41669]
+- Social: Updated the admin page for use by Editors and Authors [#41859]
+
+### Fixed
+- Prevent custom message box from showing up for custom notes. [#41948]
+- Prevent unsupported connection from showing up. [#41907]
+- Social Previews: Fix distorted image for Tumblr preview. [#41844]
+- Social: Fix plugin version in admin page footer. [#41888]
+- Social: Hide upgrade nudge for Atomic sites. [#41713]
+
+## [0.78.0] - 2025-02-17
+### Added
+- Added a utility to get the link to Social admin page. [#41741]
+- Added more clarity on how the Bluesky handle is set up. [#41782]
+
+### Changed
+- Social: Hide mark as shared UI if the user cannot share connection. [#41806]
+
+## [0.77.2] - 2025-02-11
+### Changed
+- Hide Social Notes if Social plugin is not active. [#41393]
+
+## [0.77.1] - 2025-02-10
+### Changed
+- External Media: Move the external-media to the new @automattic/jetpack-external-media package [#41078]
+- Updated package dependencies. [#41486] [#41491] [#41577]
+
 ## [0.77.0] - 2025-02-03
 ### Added
 - Social Connections: Handle LinkedIn connections requiring reauthentication. [#41494]
@@ -1076,6 +1199,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.84.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.3...v0.84.4
+[0.84.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.2...v0.84.3
+[0.84.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.1...v0.84.2
+[0.84.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.0...v0.84.1
+[0.84.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.83.1...v0.84.0
+[0.83.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.83.0...v0.83.1
+[0.83.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.82.0...v0.83.0
+[0.82.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.81.0...v0.82.0
+[0.81.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.80.0...v0.81.0
+[0.80.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.79.0...v0.80.0
+[0.79.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.78.0...v0.79.0
+[0.78.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.77.2...v0.78.0
+[0.77.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.77.1...v0.77.2
+[0.77.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.77.0...v0.77.1
 [0.77.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.76.0...v0.77.0
 [0.76.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.4...v0.76.0
 [0.75.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.3...v0.75.4

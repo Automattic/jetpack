@@ -7,6 +7,13 @@ use Automattic\Jetpack\Analyzer\Scripts;
 class PluginDownloader {
 	private $type;
 
+	/**
+	 * Path to output directory.
+	 *
+	 * @var string
+	 */
+	public $output_dir;
+
 	public function __construct($type) {
 		$this->type = $type;
 		$this->output_dir = realpath( dirname( __DIR__ ) . '/../output' ) . '/';

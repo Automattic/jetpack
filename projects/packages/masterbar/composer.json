@@ -13,15 +13,16 @@
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-plans": "@dev",
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-subscribers-dashboard": "@dev"
 	},
 	"require-dev": {
 		"brain/monkey": "^2.6.2",
-		"yoast/phpunit-polyfills": "^1.1.1",
+		"yoast/phpunit-polyfills": "^3.0.0",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/jetpack-mu-wpcom": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
-		"automattic/jetpack-test-environment": "@dev"
+		"automattic/jetpack-test-environment": "@dev",
+		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -36,11 +37,11 @@
 			"pnpm run build"
 		],
 		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
 		"test-coverage": [
 			"pnpm run build-production",
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"pnpm run build-production",
@@ -70,15 +71,10 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.12.x-dev"
+			"dev-trunk": "0.14.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
-		},
-		"dependencies": {
-			"test-only": [
-				"packages/jetpack-mu-wpcom"
-			]
 		},
 		"mirror-repo": "Automattic/jetpack-masterbar",
 		"textdomain": "jetpack-masterbar",

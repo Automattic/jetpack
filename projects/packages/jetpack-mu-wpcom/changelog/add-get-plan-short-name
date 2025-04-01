@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Added Plans::get_plan_short_name() for WPCOM environments.

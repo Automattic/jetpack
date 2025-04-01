@@ -829,6 +829,22 @@ function jetpack_more_info_google_fonts() {
 add_action( 'jetpack_module_more_info_google-fonts', 'jetpack_more_info_google_fonts' );
 
 /**
+ * Account Protection support link.
+ */
+function jetpack_account_protection_more_link() {
+	echo esc_url( Redirect::get_url( 'jetpack-account-protection' ) );
+}
+add_action( 'jetpack_learn_more_button_account-protection', 'jetpack_account_protection_more_link' );
+
+/**
+ * Account Protection description.
+ */
+function jetpack_more_info_account_protection() {
+	esc_html_e( 'Enabling this setting enhances account security by detecting compromised passwords and enforcing additional verification when needed.', 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_account-protection', 'jetpack_more_info_account_protection' );
+
+/**
  * WAF support link.
  */
 function jetpack_waf_more_link() {

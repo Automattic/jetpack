@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.66.0",
+	"version": "0.72.1",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -17,18 +17,17 @@
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
-		"@automattic/jetpack-scan": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@babel/runtime": "^7",
-		"@wordpress/browserslist-config": "6.17.0",
-		"@wordpress/components": "29.3.0",
-		"@wordpress/compose": "7.17.0",
-		"@wordpress/data": "10.17.0",
-		"@wordpress/dataviews": "4.13.0",
-		"@wordpress/date": "5.17.0",
-		"@wordpress/element": "6.17.0",
-		"@wordpress/i18n": "5.17.0",
-		"@wordpress/icons": "10.17.0",
-		"@wordpress/notices": "5.17.0",
+		"@wordpress/browserslist-config": "6.21.0",
+		"@wordpress/components": "29.7.0",
+		"@wordpress/compose": "7.21.0",
+		"@wordpress/data": "10.21.0",
+		"@wordpress/date": "5.21.0",
+		"@wordpress/element": "6.21.0",
+		"@wordpress/i18n": "5.21.0",
+		"@wordpress/icons": "10.21.0",
+		"@wordpress/notices": "5.21.0",
 		"clsx": "2.1.1",
 		"prop-types": "^15.7.2",
 		"qrcode.react": "4.2.0",
@@ -39,12 +38,12 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.26.0",
+		"@babel/core": "7.26.10",
 		"@babel/preset-react": "7.26.3",
 		"@jest/globals": "29.4.3",
-		"@storybook/addon-actions": "8.4.7",
-		"@storybook/blocks": "8.4.7",
-		"@storybook/react": "8.4.7",
+		"@storybook/addon-actions": "8.6.7",
+		"@storybook/blocks": "8.6.7",
+		"@storybook/react": "8.6.7",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.2.0",
 		"@testing-library/user-event": "14.6.1",
@@ -57,9 +56,9 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"require-from-string": "2.0.2",
-		"storybook": "8.4.7",
+		"storybook": "8.6.7",
 		"ts-dedent": "2.2.0",
-		"typescript": "5.0.4",
+		"typescript": "5.8.2",
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1"
 	},
@@ -72,15 +71,24 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"exports": {
-		".": "./index.ts",
-		"./tools/jp-redirect": "./tools/jp-redirect/index.ts"
+		".": {
+			"jetpack:src": "./index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		},
+		"./tools/jp-redirect": {
+			"jetpack:src": "./tools/jp-redirect/index.ts",
+			"types": "./build/tools/jp-redirect/index.d.ts",
+			"default": "./build/tools/jp-redirect/index.js"
+		}
 	},
 	"sideEffects": [
 		"*.css",
 		"*.scss"
 	],
 	"scripts": {
-		"build": "pnpm run compile-ts",
+		"build": "pnpm run clean && pnpm run compile-ts",
+		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage"

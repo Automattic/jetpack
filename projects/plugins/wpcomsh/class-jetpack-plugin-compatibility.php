@@ -73,6 +73,7 @@ class Jetpack_Plugin_Compatibility {
 		'comet-cache/comet-cache.php'                      => '"comet-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'hyper-cache/plugin.php'                           => '"hyper-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'jch-optimize/jch-optimize.php'                    => '"jch-optimize" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'object-cache-pro/object-cache-pro.php'            => '"object-cache-pro" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'performance-lab/load.php'                         => '"performance-lab" has been deactivated, WordPress.com automatically handles caching and database optimization for your site.',
 		'powered-cache/powered-cache.php'                  => '"powered-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'quick-cache/quick-cache.php'                      => '"quick-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
@@ -127,6 +128,7 @@ class Jetpack_Plugin_Compatibility {
 		'wp-hide-security-enhancer/wp-hide.php'            => '"wp-hide-security-enhancer" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',
 		'wp-security-hardening/wp-hardening.php'           => '"wp-security-hardening" has been deactivated. It breaks WordPress.com required plugins.', // p9F6qB-66o-p2
 		'wp-simple-firewall/wp-simple-firewall.php'        => '"wp-simple-firewall" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-simple-firewall/icwp-wpsf.php'                 => '"wp-simple-firewall" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 
 		// Spam.
 		'e-mail-broadcasting/e-mail-broadcasting.php'      => '"e-mail-broadcasting" has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',

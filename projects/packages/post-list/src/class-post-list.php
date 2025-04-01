@@ -16,7 +16,7 @@ use WP_Screen;
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.8.0';
+	const PACKAGE_VERSION = '0.8.10';
 	const FEATURE         = 'enhanced_post_list';
 
 	/**
@@ -230,12 +230,12 @@ class Post_List {
 	 */
 	public function add_share_action( $post_actions, $post ) {
 		$edit_url = get_edit_post_link( $post->ID, 'raw' );
-		if ( ! $edit_url ) {
+		if ( ! $edit_url || 'publish' !== $post->post_status ) {
 			// Do nothing since we do not have an edit URL to work with.
 			return $post_actions;
 		}
 
-		$url   = add_query_arg( 'jetpackSidebarIsOpen', 'true', $edit_url );
+		$url   = add_query_arg( 'jetpack-editor-action', 'share_post', $edit_url );
 		$text  = _x( 'Share', 'Share the post on social networks', 'jetpack-post-list' );
 		$title = _draft_or_post_title( $post );
 		/* translators: post title */

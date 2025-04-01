@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Jetpack just in time messaging through out the admin
@@ -20,7 +21,19 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '4.0.5';
+	const PACKAGE_VERSION = '4.2.10';
+
+	/**
+	 * List of screen IDs where JITMs are allowed to display.
+	 *
+	 * @var string[]
+	 */
+	const APPROVED_SCREEN_IDS = array(
+		'jetpack',
+		'woo',
+		'shop',
+		'product',
+	);
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -36,7 +49,7 @@ class JITM {
 	 * @return Post_Connection_JITM|Pre_Connection_JITM JITM instance.
 	 */
 	public static function get_instance() {
-		if ( ( new Connection_Manager() )->is_connected() ) {
+		if ( self::is_connected() ) {
 			$jitm = new Post_Connection_JITM();
 		} else {
 			$jitm = new Pre_Connection_JITM();
@@ -156,7 +169,10 @@ class JITM {
 		return (
 			$current_screen
 			&& $current_screen->id
-			&& (bool) preg_match( '/jetpack|woo|shop|product/', $current_screen->id )
+			&& (bool) preg_match(
+				'/' . implode( '|', self::APPROVED_SCREEN_IDS ) . '/',
+				$current_screen->id
+			)
 		);
 	}
 
@@ -226,7 +242,7 @@ class JITM {
 			return;
 		}
 
-		// Only add this to Jetpack or Woo admin pages.
+		// Only add this to specifically allowed pages.
 		if ( ! $this->is_a8c_admin_page() ) {
 			return;
 		}
@@ -378,5 +394,20 @@ class JITM {
 		}
 
 		return $params;
+	}
+
+	/**
+	 * Check if the current site is connected.
+	 * On WordPress.com Simple, it is always connected.
+	 *
+	 * @return bool true if the site is connected, false otherwise.
+	 */
+	private static function is_connected() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return true;
+		}
+
+		$connection = new Connection_Manager();
+		return $connection->is_connected();
 	}
 }

@@ -113,6 +113,7 @@ function JetpackFieldCheckbox( props ) {
 							__nextHasNoMarginBottom
 							onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
 							value={ attributes.labelFontSize }
+							__next40pxDefaultSize={ true }
 						/>
 					</PanelBody>
 				</InspectorControls>

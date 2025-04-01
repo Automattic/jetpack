@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { Icon, starFilled as star } from '@wordpress/icons';
-import Text from '../text/index';
+import Text from '../text/index.js';
 import styles from './style.module.scss';
-import { ProductOfferHeaderProps } from './types';
+import { ProductOfferHeaderProps } from './types.js';
 import type React from 'react';
 
 /**

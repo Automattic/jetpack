@@ -41,7 +41,6 @@ type AiImageModalProps = {
 	isUnlimited: boolean;
 	upgradeDescription: string;
 	hasError: boolean;
-	postContent?: string | boolean | null;
 	handlePreviousImage: () => void;
 	handleNextImage: () => void;
 	acceptButton: React.JSX.Element;
@@ -186,6 +185,7 @@ export default function AiImageModal( {
 								<div>
 									<SelectControl
 										__nextHasNoMarginBottom
+										__next40pxDefaultSize={ true }
 										value={ style }
 										options={ styles }
 										onChange={ updateStyle }

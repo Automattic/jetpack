@@ -1,4 +1,5 @@
-import { Button, Text, ThreatSeverityBadge } from '@automattic/jetpack-components';
+import { Button, Text } from '@automattic/jetpack-components';
+import { ThreatSeverityBadge } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useState } from 'react';

@@ -14,7 +14,7 @@ use Wikimedia\TestingAccessWrapper;
 /**
  * Base test case for the changelogger tool.
  */
-class TestCase extends PHPUnit_TestCase {
+abstract class TestCase extends PHPUnit_TestCase {
 
 	/**
 	 * Value of COMPOSER environment variable to restore in tear_down.
@@ -39,20 +39,18 @@ class TestCase extends PHPUnit_TestCase {
 
 	/**
 	 * Setup test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->oldenv = getenv( 'COMPOSER' );
 		$this->resetConfigCache();
 	}
 
 	/**
 	 * Teardown test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		$this->cleanupTempDir();
 		$this->resetConfigCache();
 		putenv( false === $this->oldenv ? 'COMPOSER' : "COMPOSER=$this->oldenv" );

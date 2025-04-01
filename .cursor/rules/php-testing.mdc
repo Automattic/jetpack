@@ -9,6 +9,11 @@ When developing Unit Tests in PHP, follow these guidelines:
 - Use WordPress fixtures and mocks
 - Test WordPress hooks and filters
 
+Regardless of WordPress conventions, the following naming conventions must be followed for PHPUnit tests:
+
+- Test class names must end in "Test".
+- Every test class must be contained in a file with a matching name. For example, test class `My_Unit_Test` must be in a file named `My_Unit_Test.php`.
+
 Check [test_Manager_integration.php](mdc:jetpack/jetpack/jetpack/jetpack/projects/packages/connection/tests/php/test_Manager_integration.php) for an example.
 
 Find out more rules on how to write tests at [automated-testing.md](mdc:jetpack/jetpack/docs/automated-testing.md)

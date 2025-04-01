@@ -11,6 +11,7 @@ namespace Automattic\Jetpack_Boost\Admin;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
@@ -30,7 +31,7 @@ class Admin {
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
-		add_action( 'admin_menu', array( $this, 'handle_admin_menu' ) );
+		add_action( 'admin_menu', array( $this, 'handle_admin_menu' ), 1 ); // Akismet uses 4, so we use 1 to ensure both menus are added when only they exist.
 	}
 
 	public function handle_admin_menu() {
@@ -65,6 +66,7 @@ class Admin {
 		// Clear premium features cache when the plugin settings page is loaded.
 		Premium_Features::clear_cache();
 
+		add_action( 'admin_enqueue_scripts', array( My_Jetpack_Initializer::class, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
@@ -86,6 +88,7 @@ class Admin {
 		$admin_js_dependencies = array(
 			'wp-i18n',
 			'wp-components',
+			'my_jetpack_main_app',
 		);
 
 		Assets::register_script(

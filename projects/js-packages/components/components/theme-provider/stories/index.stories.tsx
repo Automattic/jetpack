@@ -1,8 +1,8 @@
 import { Button } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
-import Col from '../../layout/col';
-import Container from '../../layout/container';
-import ThemeProvider, { typography, colors, borders, spacing } from '../index';
+import Col from '../../layout/col/index.js';
+import Container from '../../layout/container/index.js';
+import ThemeProvider, { typography, colors, borders, spacing } from '../index.js';
 import styles from './style.module.scss';
 import type { StoryFn, Meta } from '@storybook/react';
 
@@ -41,9 +41,11 @@ function getContrast( hexcolor ) {
 	// Check contrast
 	return yiq >= 128 ? 'black' : 'white';
 }
-export default {
+const meta: Meta< typeof ThemeProvider > = {
 	title: 'JS Packages/Components/Theme Provider',
-} as Meta< typeof ThemeProvider >;
+};
+
+export default meta;
 
 const noop = () => {
 	//

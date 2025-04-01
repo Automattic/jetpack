@@ -5,9 +5,70 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.10] - 2025-04-01
+### Changed
+- Update dependencies. [#42554]
+
+## [4.2.9] - 2025-03-31
+### Changed
+- Internal updates.
+
+## [4.2.8] - 2025-03-26
+### Changed
+- Adjust unit tests for the new Offline Mode DB option. [#42630]
+
+## [4.2.7] - 2025-03-24
+### Changed
+- Allow JITM functionality to be enabled on Simple sites. [#41252]
+
+## [4.2.6] - 2025-03-21
+### Changed
+- Internal updates.
+
+## [4.2.5] - 2025-03-18
+### Changed
+- Update dependencies. [#42545]
+
+## [4.2.4] - 2025-03-17
+### Changed
+- Internal updates.
+
+## [4.2.3] - 2025-03-17
+### Changed
+- Internal updates.
+
+## [4.2.2] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [4.2.1] - 2025-03-05
+### Changed
+- Internal updates.
+
+## [4.2.0] - 2025-03-03
+### Changed
+- Replace more JITM jQuery Ajax calls with `@wordpress/api-fetch`. [#41990]
+- Update package dependencies. [#42163]
+
+## [4.1.1] - 2025-02-24
+### Changed
+- Refactor handling of JITM-approved screens. [#41748]
+
+## [4.1.0] - 2025-02-17
+### Changed
+- Update AJAX calls to utilise @wordpress/api-fetch. [#41745]
+
+## [4.0.7] - 2025-02-12
+### Fixed
+- Fix the query parameter used for JITM query strings. [#41542]
+
+## [4.0.6] - 2025-02-10
+### Changed
+- Update package dependencies. [#41491]
+
 ## [4.0.5] - 2025-02-03
 ### Changed
-- Updated package dependencies. [#41286]
+- Update package dependencies. [#41286]
 - Update the WooCommerce logo in Woo JITMs. [#41322]
 
 ## [4.0.4] - 2025-01-20
@@ -820,6 +881,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[4.2.10]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.9...v4.2.10
+[4.2.9]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.8...v4.2.9
+[4.2.8]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.7...v4.2.8
+[4.2.7]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.6...v4.2.7
+[4.2.6]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.5...v4.2.6
+[4.2.5]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.4...v4.2.5
+[4.2.4]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.3...v4.2.4
+[4.2.3]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.2...v4.2.3
+[4.2.2]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.1...v4.2.2
+[4.2.1]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.0...v4.2.1
+[4.2.0]: https://github.com/Automattic/jetpack-jitm/compare/v4.1.1...v4.2.0
+[4.1.1]: https://github.com/Automattic/jetpack-jitm/compare/v4.1.0...v4.1.1
+[4.1.0]: https://github.com/Automattic/jetpack-jitm/compare/v4.0.7...v4.1.0
+[4.0.7]: https://github.com/Automattic/jetpack-jitm/compare/v4.0.6...v4.0.7
+[4.0.6]: https://github.com/Automattic/jetpack-jitm/compare/v4.0.5...v4.0.6
 [4.0.5]: https://github.com/Automattic/jetpack-jitm/compare/v4.0.4...v4.0.5
 [4.0.4]: https://github.com/Automattic/jetpack-jitm/compare/v4.0.3...v4.0.4
 [4.0.3]: https://github.com/Automattic/jetpack-jitm/compare/v4.0.2...v4.0.3

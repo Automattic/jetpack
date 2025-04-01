@@ -6,7 +6,21 @@ import { STORE_ID } from '../../state/store';
 
 const initialState = window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
 
-export default ( {
+/**
+ * Hook to handle the connection process.
+ *
+ * @param {object}  [props]                    - The props.
+ * @param {string}  [props.registrationNonce]  - The registration nonce.
+ * @param {string}  [props.apiRoot]            - The API root URL.
+ * @param {string}  [props.apiNonce]           - The API nonce.
+ * @param {string}  [props.redirectUri]        - The redirect URI.
+ * @param {boolean} [props.autoTrigger]        - Whether to auto-trigger the connection process.
+ * @param {string}  [props.from]               - Value that represents the redirect origin.
+ * @param {boolean} [props.skipUserConnection] - Whether to skip user connection.
+ * @param {boolean} [props.skipPricingPage]    - Whether to skip the pricing page.
+ * @return {object} The connection state and handlers.
+ */
+export default function useConnection( {
 	registrationNonce = initialState.registrationNonce,
 	apiRoot = initialState.apiRoot,
 	apiNonce = initialState.apiNonce,
@@ -15,7 +29,7 @@ export default ( {
 	from,
 	skipUserConnection,
 	skipPricingPage,
-} = {} ) => {
+} = {} ) {
 	const { registerSite, connectUser, refreshConnectedPlugins } = useDispatch( STORE_ID );
 
 	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError() );
@@ -111,4 +125,4 @@ export default ( {
 		connectionErrors,
 		isOfflineMode,
 	};
-};
+}

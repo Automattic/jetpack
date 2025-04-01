@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.1.1] - 2025-03-31
+### Changed
+- Internal updates.
+
+## [5.1.0] - 2025-03-26
+### Added
+- Add database option to enable Offline Mode. [#42630]
+
+## [5.0.10] - 2025-03-21
+### Changed
+- Internal updates.
+
+## [5.0.9] - 2025-03-18
+### Changed
+- Internal updates.
+
+## [5.0.8] - 2025-03-17
+### Changed
+- Internal updates.
+
+## [5.0.7] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [5.0.6] - 2025-03-05
+### Changed
+- Internal updates.
+
+## [5.0.5] - 2025-03-03
+### Fixed
+- Hosting provider checks: Avoid PHP warnings in local environments. [#41994]
+
+## [5.0.4] - 2025-02-24
+### Changed
+- Host detection: Look for specific external hosting provider only when required. [#41890]
+
 ## [5.0.3] - 2025-02-03
 ### Fixed
 - Code: Remove extra params on function calls. [#41263]
@@ -421,6 +457,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[5.1.1]: https://github.com/Automattic/jetpack-status/compare/v5.1.0...v5.1.1
+[5.1.0]: https://github.com/Automattic/jetpack-status/compare/v5.0.10...v5.1.0
+[5.0.10]: https://github.com/Automattic/jetpack-status/compare/v5.0.9...v5.0.10
+[5.0.9]: https://github.com/Automattic/jetpack-status/compare/v5.0.8...v5.0.9
+[5.0.8]: https://github.com/Automattic/jetpack-status/compare/v5.0.7...v5.0.8
+[5.0.7]: https://github.com/Automattic/jetpack-status/compare/v5.0.6...v5.0.7
+[5.0.6]: https://github.com/Automattic/jetpack-status/compare/v5.0.5...v5.0.6
+[5.0.5]: https://github.com/Automattic/jetpack-status/compare/v5.0.4...v5.0.5
+[5.0.4]: https://github.com/Automattic/jetpack-status/compare/v5.0.3...v5.0.4
 [5.0.3]: https://github.com/Automattic/jetpack-status/compare/v5.0.2...v5.0.3
 [5.0.2]: https://github.com/Automattic/jetpack-status/compare/v5.0.1...v5.0.2
 [5.0.1]: https://github.com/Automattic/jetpack-status/compare/v5.0.0...v5.0.1

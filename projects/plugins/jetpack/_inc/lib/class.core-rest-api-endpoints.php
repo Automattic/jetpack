@@ -197,17 +197,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		// Disconnect/unlink user from WordPress.com servers.
-		register_rest_route(
-			'jetpack/v4',
-			'/connection/user',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::unlink_user',
-				'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
-			)
-		);
-
 		// Get current site data.
 		register_rest_route(
 			'jetpack/v4',
@@ -1353,22 +1342,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that a user can use the /connection/user endpoint. Has to be a registered user and be currently linked.
 	 *
-	 * @since 4.3.0
-	 *
 	 * @uses Automattic\Jetpack\Connection\Manager::is_user_connected();)
+	 *
+	 * @deprecated since Jetpack 14.4.0
+	 * @see Automattic\Jetpack\Connection\REST_Connector::unlink_user_permission_callback()
+	 *
+	 * @since 4.3.0
 	 *
 	 * @return bool|WP_Error True if user is able to unlink.
 	 */
 	public static function unlink_user_permission_callback() {
-		if ( current_user_can( 'jetpack_connect_user' ) && ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() ) ) {
-			return true;
-		}
-
-		return new WP_Error(
-			'invalid_user_permission_unlink_user',
-			REST_Connector::get_user_permissions_error_msg(),
-			array( 'status' => rest_authorization_required_code() )
-		);
+		_deprecated_function( __METHOD__, 'jetpack-14.4.0', 'Automattic\Jetpack\Connection\REST_Connector::unlink_user_permission_callback()' );
+		return REST_Connector::unlink_user_permission_callback();
 	}
 
 	/**
@@ -1860,28 +1845,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Unlinks current user from the WordPress.com Servers.
 	 *
-	 * @since 4.3.0
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @uses  Automattic\Jetpack\Connection\Manager->disconnect_user
 	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @deprecated since Jetpack 14.4.0
+	 * @see Automattic\Jetpack\Connection\REST_Connector::unlink_user()
+	 *
+	 * @since 4.3.0
 	 *
 	 * @return bool|WP_Error True if user successfully unlinked.
 	 */
 	public static function unlink_user( $request ) {
-
-		if ( ! isset( $request['linked'] ) || false !== $request['linked'] ) {
-			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
-		}
-
-		if ( ( new Connection_Manager( 'jetpack' ) )->disconnect_user() ) {
-			return rest_ensure_response(
-				array(
-					'code' => 'success',
-				)
-			);
-		}
-
-		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user. Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+		_deprecated_function( __METHOD__, 'jetpack-14.4.0', 'Automattic\Jetpack\Connection\REST_Connector::unlink_user()' );
+		return REST_Connector::unlink_user( $request );
 	}
 
 	/**
@@ -2359,7 +2335,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_posint',
 				'jp_group'          => 'settings',
 			),
-
 			// WAF.
 			'jetpack_waf_automatic_rules'               => array(
 				'description'       => esc_html__( 'Enable automatic rules - Protect your site against untrusted traffic sources with automatic security rules.', 'jetpack' ),
@@ -2664,13 +2639,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 			'wpcom_newsletter_categories_enabled'       => array(
 				'description'       => esc_html__( 'Whether the newsletter categories are enabled or not', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'subscriptions',
-			),
-			'wpcom_newsletter_categories_modal_hidden'  => array(
-				'description'       => esc_html__( 'Whether the newsletter categories modal is hidden or not', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
@@ -3126,6 +3094,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'videopress',
 			),
 		);
+
+		// SEO Tools - SEO Enhancer. Only available to Automatticians.
+		// TODO: either remove this or make it available to all users by moving it to the main options array.
+		if ( apply_filters( 'ai_seo_enhancer_enabled', false ) || apply_filters( 'ai_seo_enhancer_enabled_unrestricted', false ) ) {
+			$options['ai_seo_enhancer_enabled'] = array(
+				'description'       => esc_html__( 'Automatically generate SEO title, SEO description, and image alt text for new posts.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'seo-tools',
+			);
+		}
 
 		// Add modules to list so they can be toggled.
 		$modules = Jetpack::get_available_modules();

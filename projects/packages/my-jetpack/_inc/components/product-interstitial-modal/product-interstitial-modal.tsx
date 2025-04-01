@@ -2,8 +2,8 @@ import { Text, Button, ThemeProvider, Col, Container } from '@automattic/jetpack
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useState, type FC } from 'react';
-import React from 'react';
+import { useCallback, useState, cloneElement, type FC } from 'react';
+import LoadingBlock from '../loading-block';
 import styles from './style.module.scss';
 
 interface BaseProductInterstitialModalProps {
@@ -16,13 +16,17 @@ interface BaseProductInterstitialModalProps {
 	 */
 	description?: string;
 	/**
+	 * Custom trigger component to replace default button. It also handles the onOpen callback like the regular button.
+	 */
+	customModalTrigger?: React.ReactElement;
+	/**
 	 * Trigger button of the modal
 	 */
-	triggerButton?: React.ReactNode;
+	modalTriggerButtonLabel?: string;
 	/**
 	 * Variant of the trigger button
 	 */
-	triggerButtonVariant?: 'primary' | 'secondary';
+	modalTriggerButtonVariant?: 'primary' | 'secondary';
 	/**
 	 * Class name of the modal
 	 */
@@ -44,6 +48,10 @@ interface BaseProductInterstitialModalProps {
 	 */
 	additionalColumn?: React.ReactNode;
 	/**
+	 * Loading state of the modal
+	 */
+	isLoading: boolean;
+	/**
 	 * On open callback of the modal
 	 */
 	onOpen?: () => void;
@@ -52,9 +60,9 @@ interface BaseProductInterstitialModalProps {
 	 */
 	onClose?: () => void;
 	/**
-	 * On click callback of the modal
+	 * On click callback of the main modal button
 	 */
-	onClick?: () => void;
+	onModalMainButtonClick?: () => void;
 	/**
 	 * Is CTA button disabled
 	 */
@@ -77,7 +85,7 @@ type WithMainCTAButton = BaseProductInterstitialModalProps & {
 	/**
 	 * Main button of the modal
 	 */
-	modalMainButton: React.ReactNode;
+	modalMainButton: React.ReactElement;
 	/**
 	 * Href of the CTA button in the modal
 	 */
@@ -119,11 +127,12 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		description,
 		className,
 		children,
-		triggerButton,
-		triggerButtonVariant = 'primary',
+		customModalTrigger,
+		modalTriggerButtonLabel,
+		modalTriggerButtonVariant = 'primary',
 		onOpen,
 		onClose,
-		onClick,
+		onModalMainButtonClick,
 		modalMainButton,
 		isButtonDisabled,
 		buttonHasExternalLink = false,
@@ -135,6 +144,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		isWithVideo = true,
 		additionalColumn = false,
 		priceComponent,
+		isLoading,
 	} = props;
 
 	const [ isOpen, setOpen ] = useState( false );
@@ -147,16 +157,40 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 		setOpen( false );
 	}, [ onClose ] );
 
-	if ( ! title || ! children || ! triggerButton ) {
+	if ( ! title || ( ! modalTriggerButtonLabel && ! customModalTrigger ) ) {
 		return null;
 	}
+
+	// Render trigger element
+	const triggerElement = customModalTrigger ? (
+		// Clone custom trigger and inject onClick handler
+		cloneElement( customModalTrigger, {
+			onClick: () => {
+				customModalTrigger.props.onClick?.();
+				openModal();
+			},
+		} )
+	) : (
+		// Default button behavior
+		<Button variant={ modalTriggerButtonVariant } onClick={ openModal }>
+			{ modalTriggerButtonLabel }
+		</Button>
+	);
+
+	const PrimaryButton =
+		modalMainButton &&
+		cloneElement( modalMainButton, {
+			onClick: onModalMainButtonClick,
+			buttonLabel,
+			disabled: isButtonDisabled,
+			isExternalLink: buttonHasExternalLink,
+			href: buttonHref,
+		} );
 
 	return (
 		<>
 			<ThemeProvider>
-				<Button variant={ triggerButtonVariant } onClick={ openModal }>
-					{ triggerButton }
-				</Button>
+				{ triggerElement }
 				{ isOpen && (
 					<Modal
 						onRequestClose={ closeModal }
@@ -165,7 +199,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 					>
 						<Container
 							className={ styles.wrapper }
-							horizontalSpacing={ 0 }
+							horizontalSpacing={ 1 }
 							horizontalGap={ 2 }
 							fluid={ false }
 						>
@@ -179,29 +213,26 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 											{ title }
 										</Text>
 									</div>
-									{ description && (
-										<Text variant="body" className={ styles.description }>
-											{ description }
-										</Text>
+									{ isLoading ? (
+										<LoadingBlock height="50px" width="100%" />
+									) : (
+										description && (
+											<Text variant="body" className={ styles.description }>
+												{ description }
+											</Text>
+										)
 									) }
 									{ children }
-									{ priceComponent && (
-										<div className={ styles[ 'price-container' ] }>{ priceComponent }</div>
+									{ isLoading ? (
+										<LoadingBlock height="100px" width="100%" />
+									) : (
+										priceComponent && (
+											<div className={ styles[ 'price-container' ] }>{ priceComponent }</div>
+										)
 									) }
 								</div>
 								<div className={ styles[ 'primary-footer' ] }>
-									{ modalMainButton ?? (
-										<Button
-											variant="primary"
-											className={ styles[ 'action-button' ] }
-											disabled={ isButtonDisabled }
-											onClick={ onClick }
-											isExternalLink={ buttonHasExternalLink }
-											href={ buttonHref }
-										>
-											{ buttonLabel }
-										</Button>
-									) }
+									{ PrimaryButton }
 									<Button
 										variant="link"
 										isExternalLink={ secondaryButtonHasExternalLink }

@@ -26,24 +26,32 @@ const refetchProducts = async (
 		options?: RefetchOptions
 	) => Promise< QueryObserverResult< { [ key: string ]: ProductSnakeCase }, WP_Error > >
 ) => {
-	const { data: refetchedProducts } = await refetch();
+	const { data: refetchedProducts, isError, isLoading } = await refetch();
+	const prevProducts = window.myJetpackInitialState.products.items;
+
+	if ( isError || isLoading ) {
+		return;
+	}
 
 	Object.keys( refetchedProducts ).forEach( productSlug => {
-		window.myJetpackInitialState.products.items[ productSlug ] = refetchedProducts[ productSlug ];
+		window.myJetpackInitialState.products.items[ productSlug ] = {
+			...prevProducts[ productSlug ],
+			...refetchedProducts[ productSlug ],
+		};
 	} );
 };
 
 const useProducts = ( productSlugs: string | string[] ) => {
 	const productIds = Array.isArray( productSlugs ) ? productSlugs : [ productSlugs ];
 
-	const allProducts = useAllProducts();
+	const { data: allProducts, isLoading: isAllProductsLoading } = useAllProducts();
 	const products = productIds?.map( productId => allProducts?.[ productId ] );
 	const { refetch, isLoading } = useFetchProducts( productIds );
 
 	return {
 		products,
 		refetch: useCallback( () => refetchProducts( refetch ), [ refetch ] ),
-		isLoading,
+		isLoading: isLoading || isAllProductsLoading,
 	};
 };
 

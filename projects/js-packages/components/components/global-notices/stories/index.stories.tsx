@@ -1,13 +1,15 @@
 import { useCallback } from 'react';
-import Button from '../../button';
-import { GlobalNotices, useGlobalNotices } from '../index';
+import Button from '../../button/index.js';
+import { GlobalNotices, useGlobalNotices } from '../index.js';
 import type { Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof GlobalNotices > = {
 	title: 'JS Packages/Components/GlobalNotices',
 	component: GlobalNotices,
 	decorators: [ story => <div style={ { padding: '3rem' } }>{ story() }</div> ],
-} satisfies Meta< typeof GlobalNotices >;
+};
+
+export default meta;
 
 const Template = args => {
 	const { createErrorNotice, createSuccessNotice, createInfoNotice, createWarningNotice } =

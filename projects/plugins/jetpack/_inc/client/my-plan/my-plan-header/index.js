@@ -1,6 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { isInTheFuture } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -61,6 +60,7 @@ class MyPlanHeader extends React.Component {
 					// Add key because this goes to `details` as array.
 					key="product-expiration"
 					dateFormat={ dateFormat }
+					expiryStatus={ purchase.expiry_status }
 					expiryDate={ purchase.expiry_date }
 					purchaseDate={ purchase.subscribed_date }
 					isRefundable={ purchase.is_refundable }
@@ -71,7 +71,7 @@ class MyPlanHeader extends React.Component {
 			if ( purchase.active === '1' ) {
 				// Purchases might not have an expiration date, so we need to check
 				// for their existence (e.g.: lifetime plan like Golden Token).
-				if ( ! isInTheFuture( purchase.expiry_date ) && purchase.expiry_date !== null ) {
+				if ( purchase.expiry_status === 'expired' && purchase.expiry_date !== null ) {
 					activation = <ProductActivated key="product-expired" type="product-expired" />;
 				} else {
 					activation = (

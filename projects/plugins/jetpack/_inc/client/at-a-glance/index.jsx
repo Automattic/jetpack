@@ -18,7 +18,6 @@ import {
 	getApiRootUrl,
 	getPartnerCoupon,
 	getPluginBaseUrl,
-	getRegistrationNonce,
 	getTracksUserData,
 	isMultisite,
 	userCanManageModules,
@@ -172,7 +171,7 @@ class AtAGlance extends Component {
 			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
 				<PartnerCouponRedeem
 					apiNonce={ this.props.apiNonce }
-					registrationNonce={ this.props.registrationNonce }
+					registrationNonce=""
 					apiRoot={ this.props.apiRoot }
 					assetBaseUrl={ this.props.pluginBaseUrl }
 					connectionStatus={ this.props.connectionStatus }
@@ -277,7 +276,6 @@ export default connect( state => {
 		tracksUserData: getTracksUserData( state ),
 		apiRoot: getApiRootUrl( state ),
 		apiNonce: getApiNonce( state ),
-		registrationNonce: getRegistrationNonce( state ),
 	};
 } )( withModuleSettingsFormHelpers( AtAGlance ) );
 

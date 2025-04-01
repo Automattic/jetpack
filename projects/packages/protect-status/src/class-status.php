@@ -14,7 +14,7 @@ use Automattic\Jetpack\Protect_Models\Status_Model;
  */
 class Status {
 
-	const PACKAGE_VERSION = '0.4.3';
+	const PACKAGE_VERSION = '0.5.9';
 	/**
 	 * Name of the option where status is stored
 	 *
@@ -57,7 +57,7 @@ class Status {
 	 * @return Status_Model
 	 */
 	public static function get_status( $refresh_from_wpcom = false ) {
-		$use_scan_status = Plan::has_required_plan();
+		$use_scan_status = Plan::has_required_plan( $refresh_from_wpcom );
 
 		if ( defined( 'JETPACK_PROTECT_DEV__DATA_SOURCE' ) ) {
 			if ( 'scan_api' === JETPACK_PROTECT_DEV__DATA_SOURCE ) {

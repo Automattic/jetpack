@@ -2,6 +2,71 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.72.1] - 2025-04-01
+### Changed
+- Update package dependencies. [#42762]
+
+## [0.72.0] - 2025-03-31
+### Added
+- Add dot-page component. [#42625]
+
+### Changed
+- Implement a continuous loop in testimonial slider. [#42781]
+
+### Fixed
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42677]
+
+## [0.71.0] - 2025-03-26
+### Removed
+- Remove threat components. [#41654]
+
+### Fixed
+- Split Button: Increase compatibility of components, preventing console warnings. [#42627]
+
+## [0.70.1] - 2025-03-24
+### Fixed
+- Fix admin panel header component layout. [#42614]
+
+## [0.70.0] - 2025-03-24
+### Changed
+- Update component that renders the terms of service to have a text-only version. [#42600]
+
+## [0.69.1] - 2025-03-18
+### Changed
+- Update package dependencies. [#42509] [#42511]
+
+## [0.69.0] - 2025-03-17
+### Added
+- Add build. [#41536]
+
+## [0.68.2] - 2025-03-12
+### Added
+- Add role to Jetpack footer. [#42156]
+- Provide connection data to footer component. [#42000]
+
+## [0.68.1] - 2025-03-05
+### Changed
+- Update package dependencies. [#42162]
+
+## [0.68.0] - 2025-03-03
+### Added
+- Stat Card: add hideValue prop. [#41454]
+
+### Changed
+- Update package dependencies. [#42081] [#42163]
+
+## [0.67.1] - 2025-02-24
+### Changed
+- Update package dependencies. [#41955]
+
+## [0.67.0] - 2025-02-17
+### Added
+- Use full import paths with JS extensions. [#41524]
+
+## [0.66.1] - 2025-02-11
+### Changed
+- Internal updates.
+
 ## [0.66.0] - 2025-02-05
 ### Added
 - jetpack-components: Export the getRedirectUrl function with subpath [#41078]
@@ -1282,6 +1347,19 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.72.1]: https://github.com/Automattic/jetpack-components/compare/0.72.0...0.72.1
+[0.72.0]: https://github.com/Automattic/jetpack-components/compare/0.71.0...0.72.0
+[0.71.0]: https://github.com/Automattic/jetpack-components/compare/0.70.1...0.71.0
+[0.70.1]: https://github.com/Automattic/jetpack-components/compare/0.70.0...0.70.1
+[0.70.0]: https://github.com/Automattic/jetpack-components/compare/0.69.1...0.70.0
+[0.69.1]: https://github.com/Automattic/jetpack-components/compare/0.69.0...0.69.1
+[0.69.0]: https://github.com/Automattic/jetpack-components/compare/0.68.2...0.69.0
+[0.68.2]: https://github.com/Automattic/jetpack-components/compare/0.68.1...0.68.2
+[0.68.1]: https://github.com/Automattic/jetpack-components/compare/0.68.0...0.68.1
+[0.68.0]: https://github.com/Automattic/jetpack-components/compare/0.67.1...0.68.0
+[0.67.1]: https://github.com/Automattic/jetpack-components/compare/0.67.0...0.67.1
+[0.67.0]: https://github.com/Automattic/jetpack-components/compare/0.66.1...0.67.0
+[0.66.1]: https://github.com/Automattic/jetpack-components/compare/0.66.0...0.66.1
 [0.66.0]: https://github.com/Automattic/jetpack-components/compare/0.65.5...0.66.0
 [0.65.5]: https://github.com/Automattic/jetpack-components/compare/0.65.4...0.65.5
 [0.65.4]: https://github.com/Automattic/jetpack-components/compare/0.65.3...0.65.4

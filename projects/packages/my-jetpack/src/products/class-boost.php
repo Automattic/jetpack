@@ -45,6 +45,20 @@ class Boost extends Product {
 	public static $plugin_slug = 'jetpack-boost';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'performance';
+
+	/**
+	 * Defines whether or not to show a product interstitial as tiered pricing or not
+	 *
+	 * @var bool
+	 */
+	public static $is_tiered_pricing = true;
+
+	/**
 	 * Boost has a standalone plugin
 	 *
 	 * @var bool

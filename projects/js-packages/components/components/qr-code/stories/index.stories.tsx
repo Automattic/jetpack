@@ -1,4 +1,4 @@
-import QRCode from '../index';
+import QRCode from '../index.js';
 
 export default {
 	title: 'JS Packages/Components/QRCode',

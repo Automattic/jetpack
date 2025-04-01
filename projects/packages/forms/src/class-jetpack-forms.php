@@ -15,7 +15,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '0.36.0';
+	const PACKAGE_VERSION = '0.45.0';
 
 	/**
 	 * Load the contact form module.
@@ -36,7 +36,8 @@ class Jetpack_Forms {
 
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Util::register_pattern' );
 
-		add_action( 'rest_api_init', array( new WPCOM_REST_API_V2_Endpoint_Forms(), 'register_rest_routes' ) );
+		// Add hook to delete file attachments when a feedback post is deleted
+		add_action( 'before_delete_post', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'delete_feedback_files' ) );
 	}
 
 	/**

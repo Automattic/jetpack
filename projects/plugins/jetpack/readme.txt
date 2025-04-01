@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 14.2
+Stable tag: 14.4
 Requires at least: 6.6
 Requires PHP: 7.2
-Tested up to: 6.7
+Tested up to: 6.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -326,43 +326,60 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.3 - 2025-02-04
+### 14.5-beta - 2025-03-31
 #### Enhancements
-- Blocks: Improve performance.
-- Forms: Add Checkbox and Consent field enter action to create a new block.
-- Forms: Allow HTML block within forms.
-- Show Infinite Scroll options in Simple Classic.
-- Social: Enable Social post UI for WordPress.com sites.
-- Social: Post character limits are now dynamic based on selected connections.
+- Add page view count in the post and page list.
+- Add the Account Protection module toggle.
+- AI Assistant: Add image block extension with alt text and caption generation.
+- AI Assistant: Use base64 on image extension requests.
+- Connection: Add modal for disconnecting owner account in Dashboard.
+- Connection: Allow pre-selected login providers.
+- Feature suggestions: Improve the design of cards to better match WordPress Core's design.
+- Forms: Add Akismet panel to Form Block.
+- Forms: Add block integrations modal with feature flag.
+- Forms: Add quick link in the admin bar for form entries.
+- Forms: Add third-party integration endpoint.
+- Improve the onboarding experience of Jetpack.
+- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack.
+- Newsletter Dashboard Widget: Remove feature flag and enable widget.
+- Publicize Components: Add a schedule button.
+- Sharing block: Improve the description of the "Native Share" feature.
+- Social: Add "Schedule" functionality to the Share Post modal.
+- Social: Move resharing into the Share Post modal.
 
 #### Improved compatibility
-- Nova Restaurant: ensure that the custom post type is now loaded via the Classic Theme Helper package.
-- Open Graph Meta Tags: Do not display Jetpack's tags when the SEOPress plugin is active.
-- Social: Remove "Your post" section from previews in favor of newer Social Post UI.
+- AI Assistant: Improve performance by optimizing state management in the AI feature hook.
+- Carousel: Enable core lightbox on single image blocks.
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls.
+- Components: Update controls to prevent more deprecation notices.
+- VideoPress: Add block sidebar notice to transform embed into a block.
 
 #### Bug fixes
-- Authors widget: Fix saving of unchecked "Display all authors" checkbox in the legacy widget editor.
-- Copy Post: Ensure Copy option is still available on all CPTs after quick edit in post list.
-- Fix: Newsletter toggle in editor sidebar has a visually broken active state.
-- Forms: Fix datepicker appearance on dark themes.
-- Forms: Fix dropdown icon style.
-- Forms: Fix field spacing and widths.
-- Forms: Fix permanent deletion of form reponses via quicklinks.
-- Forms: Hide empty radio fields.
-- Forms: Keep content as-is when switching Feedback status between spam and publish.
-- Forms: Make the icons show up as expected in the style editor.
-- Forms: Prevent error in block placeholder when the Forms module is disabled.
-- Pages and Posts: Fix the layout on mobile when details are open.
-- Photon: Fix double encoding image urls.
-- Sharing: Fix the location of the sharing dialog so it is not always the first sharing element on the page.
-- Sitemaps: Ensure a valid news sitemap is present even if no posts are eligible.
-- Social: Fix profile links for LinkedIn connections.
-- Social: Fix Publicize error in the editor due to malformed connections data.
-- Social: Fix wordpress.com login error when connecting Social accounts.
-- Stats: Fix saving of custom roles settings.
-- Testimonials: Fix shortcode-related bug.
-- Tiled Gallery block: Ensure icons are visible when selecting image in editor.
-- VideoPress: Fix issue with VideoPress block with zero height and width.
+- Admin Color Scheme: Fix colors in the Aquatic color scheme.
+- Button: Fix contrast checker for user-specified colors.
+- Fix display name when listing gravatar accounts.
+- Fix error with videos uploaded through the Video block.
+- Forms: Add a default label for textarea fields.
+- Forms: Fix core list bullets not showing.
+- Forms: Remove default padding around form block.
+- Forms: Remove Google Drive beta badge.
+- Forms: Remove Salesforce beta badge.
+- Forms: Update the variation previews to match the current structures.
+- Map block: Increase compatibility of components, preventing console warnings.
+- Newsletter: Ensure aria-label attribute on dashboard welcome message section is correctly spelled.
+- Newsletter: Ensure external links are marked as such in the Newsletter widget.
+- Search: Ensure the count of returned results is shown after searching.
+- Site Badge: Update styles of the Coming Soon badge.
+- Site Verification: Fix auto-verification via Google when Social is disabled.
+- Slideshow: Fix misaligned controls in site editor.
+- Social: Resolve connection issues with LinkedIn company pages and Tumblr additional blogs.
+- Stats: Ensure the Stats widget is automatically disabled when the Stats module is disabled.
+- Stats: Fix date processing for "At a Glance" chart.
+- Story block: Avoid PHP warnings when using video files.
+- Twitter Timeline Widget: Prevent broken links when using Twitter's deprecated data-widget-id approach.
+- Video: Fix auto-reload after upload completes.
+- VideoPress Block: Fix broken undo functionality.
+- VideoPress Block: Fix error in the core Video block.
 
 --------
 

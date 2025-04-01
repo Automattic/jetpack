@@ -9,7 +9,7 @@
  * Load the composer autoloader.
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/class-test-case.php';
+require_once __DIR__ . '/class-testcase.php';
 
 use Automattic\Jetpack\Constants;
 

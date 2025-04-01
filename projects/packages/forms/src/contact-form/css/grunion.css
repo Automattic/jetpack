@@ -33,6 +33,7 @@
 	.contact-form input[type='email'],
 	.contact-form input[type='tel'],
 	.contact-form input[type='url'],
+	.contact-form input[type='number'],
 	.contact-form textarea
 ) {
 	box-sizing: border-box;
@@ -44,6 +45,7 @@
 }
 
 :where(.contact-form textarea) {
+	display: block;
 	height: 200px;
 }
 
@@ -103,6 +105,10 @@
 	margin-bottom: 0;
 	font-weight: normal;
 	flex: 1;
+}
+
+.contact-form label[style*="--jetpack--contact-form--label--font-size"] {
+	font-size: var(--jetpack--contact-form--label--font-size);
 }
 
 .contact-form .grunion-checkbox-multiple-options,
@@ -203,11 +209,13 @@
 .textwidget .contact-form input[type='email'],
 .textwidget .contact-form input[type='tel'],
 .textwidget .contact-form input[type='url'],
+.textwidget .contact-form input[type='number'],
 .textwidget .contact-form textarea,
 .wp-block-column .contact-form input[type='text'],
 .wp-block-column .contact-form input[type='email'],
 .wp-block-column .contact-form input[type='tel'],
 .wp-block-column .contact-form input[type='url'],
+.wp-block-column .contact-form input[type='number'],
 .wp-block-column .contact-form textarea {
 	width: 100%;
 }
@@ -253,6 +261,7 @@
 
 .wp-block-jetpack-contact-form .wp-block-jetpack-button {
 	width: fit-content;
+	align-self: flex-end;
 }
 
 .wp-block-jetpack-contact-form .wp-block-jetpack-button.aligncenter {
@@ -309,7 +318,8 @@
 	.contact-form input[type='text'],
 	.contact-form input[type='email'],
 	.contact-form input[type='tel'],
-	.contact-form input[type='url'] {
+	.contact-form input[type='url'],
+	.contact-form input[type='number'] {
 		width: 50%;
 	}
 
@@ -321,7 +331,8 @@
 	.wp-block-jetpack-contact-form input[type='text'],
 	.wp-block-jetpack-contact-form input[type='email'],
 	.wp-block-jetpack-contact-form input[type='tel'],
-	.wp-block-jetpack-contact-form input[type='url'] {
+	.wp-block-jetpack-contact-form input[type='url'],
+	.wp-block-jetpack-contact-form input[type='number'] {
 		width: 100%;
 	}
 }
@@ -515,6 +526,16 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: 0.8em;
 }
 
+/* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"] {
+	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.8);
+}
+
 .contact-form .is-style-outlined .grunion-field-wrap > input,
 .contact-form .is-style-outlined .grunion-field-wrap > textarea,
 .contact-form .is-style-outlined .grunion-field-wrap select
@@ -581,6 +602,14 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: 0.75em;
 	transform: translateY(0);
 	top: calc(2px + var(--jetpack--contact-form--border-size));
+}
+
+/* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field:focus ~ .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"] {
+	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.75);
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options ~ .animated-label__label,

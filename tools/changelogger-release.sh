@@ -280,10 +280,10 @@ for DS in $( git -c core.quotepath=off diff --name-only projects | sed -E -e 's!
 		debug "  $DS already has an uncommitted change entry file, skipping"
 	elif ! git diff --quiet -- . ":!./composer.lock"; then
 		debug "  $DS has non-lockfile changes"
-		changelogger_add 'Updated package dependencies.'
+		changelogger_add 'Update package dependencies.'
 	else
 		debug "  $DS has lockfile changes only"
-		changelogger_add '' 'Updated composer.lock.'
+		changelogger_add '' 'Update composer.lock.'
 	fi
 done
 cd "$BASE"
@@ -293,10 +293,14 @@ pnpm install --silent
 
 cat <<-EOM
 
-	You can examine the changelogs with
+	You can examine the changelogs directly with the following:
 
 	  git diff '**/CHANGELOG.md'
 
-	Feel free to edit them as needed.
+	To get a list of the files that changed, use the following:
+
+	  git diff --name-only '**/CHANGELOG.md'
+
+	Feel free to edit and save them as needed.
 
 EOM

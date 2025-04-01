@@ -17,7 +17,7 @@ declare global {
 				link: string;
 				text: string;
 			};
-			isWpcomAtomicClassic: boolean;
+			isWpcomAtomic: boolean;
 		};
 	}
 }

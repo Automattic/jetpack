@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+use Automattic\Jetpack\Account_Protection\Settings as Account_Protection_Settings;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -58,6 +59,7 @@ class Jetpack_Protect {
 	);
 	const JETPACK_WAF_MODULE_SLUG                    = 'waf';
 	const JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG = 'protect';
+	const JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG     = 'account-protection';
 	const JETPACK_PROTECT_ACTIVATION_OPTION          = JETPACK_PROTECT_SLUG . '_activated';
 
 	/**
@@ -112,6 +114,9 @@ class Jetpack_Protect {
 
 				// Web application firewall package.
 				$config->ensure( 'waf' );
+
+				// Account protection package.
+				$config->ensure( 'account_protection' );
 			},
 			1
 		);
@@ -205,9 +210,11 @@ class Jetpack_Protect {
 	 */
 	public function initial_state() {
 		global $wp_version;
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$refresh_status_from_wpcom = isset( $_GET['checkPlan'] );
-		$status                    = Status::get_status( $refresh_status_from_wpcom );
+
+		// Always fetch the latest plan status from WPCOM.
+		$has_plan = Plan::has_required_plan( true );
+
+		$status = Status::get_status();
 
 		$initial_state = array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
@@ -216,7 +223,7 @@ class Jetpack_Protect {
 			'credentials'        => Credentials::get_credential_array(),
 			'status'             => $status,
 			'fixerStatus'        => Threats::fix_threats_status( $status->fixable_threat_ids ),
-			'scanHistory'        => Scan_History::get_scan_history( $refresh_status_from_wpcom ),
+			'scanHistory'        => Scan_History::get_scan_history(),
 			'installedPlugins'   => Plugins_Installer::get_plugins(),
 			'installedThemes'    => Sync_Functions::get_themes(),
 			'wpVersion'          => $wp_version,
@@ -224,12 +231,12 @@ class Jetpack_Protect {
 			'siteSuffix'         => ( new Jetpack_Status() )->get_site_suffix(),
 			'blogID'             => Connection_Manager::get_site_id( true ),
 			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
-			'hasPlan'            => Plan::has_required_plan(),
+			'hasPlan'            => $has_plan,
 			'onboardingProgress' => Onboarding::get_current_user_progress(),
+			'accountProtection'  => ( new Account_Protection_Settings() )->get(),
 			'waf'                => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),
-				'isSeen'              => self::get_waf_seen_status(),
 				'upgradeIsSeen'       => self::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => self::get_waf_upgrade_badge_display_status(),
 				'isEnabled'           => Waf_Runner::is_enabled(),
@@ -279,6 +286,7 @@ class Jetpack_Protect {
 	 */
 	public static function activate_modules() {
 		delete_option( self::JETPACK_PROTECT_ACTIVATION_OPTION );
+		( new Modules() )->activate( self::JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG, false, false );
 		( new Modules() )->activate( self::JETPACK_WAF_MODULE_SLUG, false, false );
 		( new Modules() )->activate( self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG, false, false );
 	}
@@ -338,7 +346,7 @@ class Jetpack_Protect {
 	 * @return array
 	 */
 	public function protect_filter_available_modules( $modules ) {
-		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG, self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG ), $modules );
+		return array_merge( array( self::JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG, self::JETPACK_WAF_MODULE_SLUG, self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG ), $modules );
 	}
 
 	/**
@@ -369,24 +377,6 @@ class Jetpack_Protect {
 		}
 
 		return $license_found;
-	}
-
-	/**
-	 * Get WAF "Seen" Status
-	 *
-	 * @return bool Whether the current user has viewed the WAF screen.
-	 */
-	public static function get_waf_seen_status() {
-		return (bool) get_user_meta( get_current_user_id(), 'jetpack_protect_waf_seen', true );
-	}
-
-	/**
-	 * Set WAF "Seen" Status
-	 *
-	 * @return bool True if seen status updated to true, false on failure.
-	 */
-	public static function set_waf_seen_status() {
-		return (bool) update_user_meta( get_current_user_id(), 'jetpack_protect_waf_seen', true );
 	}
 
 	/**

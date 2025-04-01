@@ -9,10 +9,7 @@
 function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` and hope any breaking changes will not really break.
-	if (
-		pkg.name === '@automattic/social-previews' ||
-		pkg.name === '@automattic/page-pattern-modal'
-	) {
+	if ( pkg.name === '@automattic/social-previews' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
 				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
@@ -20,29 +17,62 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Outdated dependency version causing dependabot warnings.
+	// https://github.com/WordPress/gutenberg/issues/69557
+	if (
+		pkg.name.startsWith( '@wordpress/' ) &&
+		pkg.dependencies?.[ '@babel/runtime' ] === '7.25.7'
+	) {
+		pkg.dependencies[ '@babel/runtime' ] = '^7.26.10';
+	}
+
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
-	// https://github.com/WordPress/gutenberg/issues/68694
 	if (
-		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/upload-media' ) &&
+		pkg.name === '@wordpress/icons' &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
 		pkg.peerDependencies.react = '^18';
 	}
 
-	// Missing dep or peer dep on @babel/runtime and react
-	// https://github.com/WordPress/gutenberg/issues/68694
-	if (
-		pkg.name === '@wordpress/upload-media' &&
-		! pkg.dependencies?.[ '@babel/runtime' ] &&
-		! pkg.peerDependencies?.[ '@babel/runtime' ]
-	) {
-		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
+	// Unused deprecated dependency.
+	// https://github.com/WordPress/gutenberg/issues/69254
+	if ( pkg.name === '@wordpress/upload-media' ) {
+		delete pkg.dependencies?.[ '@shopify/web-worker' ];
 	}
 
-	// Missing dep or peer dep.
-	// https://github.com/actions/toolkit/issues/1684
+	// We need to add the missing deps for `@wordpress/dataviews` because
+	// the build fails when using pnpm with hoisting.
+	// @see https://github.com/WordPress/gutenberg/issues/67864
+	if ( pkg.name === '@wordpress/dataviews' ) {
+		for ( const dep of [
+			'change-case',
+			'colord',
+			'date-fns',
+			'deepmerge',
+			'@emotion/cache',
+			'@emotion/css',
+			'@emotion/react',
+			'@emotion/styled',
+			'@emotion/utils',
+			'fast-deep-equal',
+			'@floating-ui/react-dom',
+			'framer-motion',
+			'highlight-words-core',
+			'is-plain-object',
+			'memize',
+			'react-dom',
+			'@use-gesture/react',
+			'use-memo-one',
+			'uuid',
+		] ) {
+			pkg.optionalDependencies[ dep ] = '*';
+		}
+	}
+
+	// Missing dep or peer dep. Fixed in main, but needs a release.
+	// https://github.com/actions/toolkit/issues/1993
 	if (
 		pkg.name === '@actions/github' &&
 		! pkg.dependencies?.undici &&
@@ -115,7 +145,7 @@ function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency. And it doesn't really use it in our configuration anyway.
-	// No upstream bug link yet.
+	// Looks like it's updated in master but has had no release since.
 	if ( pkg.name === 'rollup-plugin-svelte-svg' && pkg.dependencies.svgo === '^2.3.1' ) {
 		pkg.dependencies.svgo = '*';
 	}
@@ -153,6 +183,21 @@ function fixDeps( pkg ) {
 				pkg.dependencies[ k ] = '*';
 			}
 		}
+	}
+
+	// Outdated, deprecated dependency.
+	// https://github.com/fontello/svg2ttf/issues/123
+	if ( pkg.name === 'svg2ttf' && pkg.dependencies?.[ '@xmldom/xmldom' ] === '^0.7.2' ) {
+		pkg.dependencies[ '@xmldom/xmldom' ] = '^0.9';
+	}
+
+	// Outdated, deprecated dependency.
+	// https://github.com/hipstersmoothie/react-docgen-typescript-plugin/issues/93
+	if (
+		pkg.name === '@storybook/react-docgen-typescript-plugin' &&
+		pkg.dependencies?.[ 'flat-cache' ] === '^3.0.4'
+	) {
+		pkg.dependencies[ 'flat-cache' ] = '^4';
 	}
 
 	return pkg;
@@ -235,6 +280,13 @@ function afterAllResolved( lockfile ) {
 	}
 
 	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
+		// Forbid `@wordpress/scripts`. Brings in too many different versions of deps, like (as of March 2025) eslint 8 when we've already updated to eslint 9.
+		if ( k.startsWith( '@wordpress/scripts@' ) ) {
+			throw new Error(
+				"Please don't bring in `@wordpress/scripts`. It brings in different versions of a lot of dependencies, and we generally have our own way to do the things that it tries to do.\nFor example, instead of `wp-scripts build`, run `webpack` directly with a config based on our monorepo-internal `@automattic/jetpack-webpack-config` package."
+			);
+		}
+
 		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
 		// https://github.com/pnpm/pnpm/issues/3935
 		if ( k.startsWith( 'webpack@' ) && ! v.optionalDependencies?.[ 'webpack-cli' ] ) {

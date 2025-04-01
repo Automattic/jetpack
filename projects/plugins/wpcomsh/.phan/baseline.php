@@ -22,7 +22,6 @@ return [
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanTypeVoidArgument : 2 occurrences
-    // PhanUndeclaredProperty : 2 occurrences
     // PhanContextNotObject : 1 occurrence
     // PhanDeprecatedFunction : 1 occurrence
     // PhanDeprecatedProperty : 1 occurrence
@@ -52,25 +51,24 @@ return [
         'footer-credit/theme-optimizations.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredStaticMethod'],
         'functions.php' => ['PhanImpossibleCondition', 'PhanUndeclaredClassStaticProperty'],
         'imports/playground/class-sql-importer.php' => ['PhanUndeclaredConstant'],
-        'logo-tool/logo-tool.php' => ['PhanTypeMismatchArgumentNullableInternal'],
         'notices/plan-notices.php' => ['PhanImpossibleCondition'],
         'private-site/access-denied-coming-soon-template.php' => ['PhanTypeSuspiciousEcho'],
         'private-site/access-denied-preview-login-template.php' => ['PhanTypeSuspiciousEcho'],
         'private-site/access-denied-private-site-template.php' => ['PhanTypeSuspiciousEcho'],
         'safeguard/utils.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],
         'support-session.php' => ['PhanNoopNew'],
-        'tests/feature-manager/test-feature-hooks.php' => ['PhanUndeclaredStaticMethod'],
-        'tests/imports/test-sql-generator.php' => ['PhanTypeObjectUnsetDeclaredProperty'],
-        'tests/test-anyone-can-register-notice.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
-        'tests/test-blog-token-resilience.php' => ['PhanUndeclaredStaticMethod'],
-        'tests/test-frontend-notices.php' => ['PhanUndeclaredStaticMethod'],
-        'tests/test-plan-notices.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanTypeVoidAssignment', 'PhanUndeclaredStaticMethod'],
-        'tests/test-wpcom-features.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredStaticMethod'],
+        'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
+        'tests/BlogTokenResilienceTest.php' => ['PhanUndeclaredStaticMethod'],
+        'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],
+        'tests/PlanNoticesTest.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanTypeVoidAssignment', 'PhanUndeclaredStaticMethod'],
+        'tests/WpcomFeaturesTest.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredStaticMethod'],
+        'tests/feature-manager/FeatureHookTest.php' => ['PhanUndeclaredStaticMethod'],
+        'tests/imports/SQLGeneratorTest.php' => ['PhanTypeObjectUnsetDeclaredProperty'],
         'widgets/class-jetpack-posts-i-like-widget.php' => ['PhanRedundantCondition'],
         'widgets/class-pd-top-rated.php' => ['PhanRedundantCondition'],
         'widgets/class-widget-top-clicks.php' => ['PhanDeprecatedFunction'],
         'wpcom-features/class-wpcom-features.php' => ['PhanPluginMixedKeyNoKey'],
-        'wpcom-features/functions-wpcom-features.php' => ['PhanImpossibleCondition', 'PhanTypeMismatchArgument', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty'],
+        'wpcom-features/functions-wpcom-features.php' => ['PhanImpossibleCondition', 'PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

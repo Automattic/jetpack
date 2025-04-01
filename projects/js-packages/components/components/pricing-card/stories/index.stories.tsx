@@ -1,14 +1,16 @@
 import { action } from '@storybook/addon-actions';
-import PricingCard from '../index';
+import PricingCard from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof PricingCard > = {
 	title: 'JS Packages/Components/Pricing Card',
 	component: PricingCard,
 	argTypes: {
 		onCtaClick: { action: 'clicked' },
 	},
-} as Meta< typeof PricingCard >;
+};
+
+export default meta;
 
 // Export additional stories using pre-defined values
 const Template: StoryFn< typeof PricingCard > = args => <PricingCard { ...args } />;

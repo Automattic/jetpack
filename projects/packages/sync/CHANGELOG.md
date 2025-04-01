@@ -5,9 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.10.0] - 2025-03-31
+### Changed
+- Full Sync: Calculate ranges for all chunked modules. [#42692]
+- Full Sync: Ensure comment type whitelisting is used when full syncing. [#42777]
+- Full Sync: Use term_id to determine ranges in terms module. [#42740]
+
+## [4.9.2] - 2025-03-21
+### Added
+- Sync: Consider blacklisted taxonomies when doing full sync for term relationships. [#42618]
+
+## [4.9.1] - 2025-03-17
+### Changed
+- Internal updates.
+
+## [4.9.0] - 2025-03-17
+### Added
+- Add `_wp_old_date` to meta sync. [#42405]
+
+### Changed
+- Sync: Don't send any old full sync actions if full sync has been restarted. [#42433]
+
+## [4.8.4] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [4.8.3] - 2025-03-05
+### Changed
+- Internal updates.
+
+## [4.8.2] - 2025-02-24
+### Added
+- Modules: Move custom capabilities from the Jetpack plugin. [#41859]
+
+### Fixed
+- Code: Prevent dynamic class properties. [#41857]
+
+## [4.8.1] - 2025-02-17
+### Changed
+- Jetpack Sync: Optimize performance for the 'terms' module. [#41809]
+
+## [4.8.0] - 2025-02-12
+### Removed
+- Remove unused setting. [#41658]
+
+## [4.7.0] - 2025-02-10
+### Added
+- Add setting to hide newsletter category modal. [#41552]
+
+### Changed
+- Sync: Use dynamic chunk size for Woo modules in Full Sync if default is too large. [#41433]
+
+### Deprecated
+- Sync: Full sync for posts not sending term relationships. [#41597]
+
 ## [4.6.0] - 2025-02-03
 ### Added
-- Sync: Full Sync comments now send dynamic chunks if chunk size default is too big. [#41350]
+- Sync: Use dynamic chunk size for Full Sync comments if default is too large. [#41350]
 
 ### Changed
 - Jetpack Sync: Checksum performance optimizations for meta sync module. [#41390]
@@ -1388,6 +1442,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.10.0]: https://github.com/Automattic/jetpack-sync/compare/v4.9.2...v4.10.0
+[4.9.2]: https://github.com/Automattic/jetpack-sync/compare/v4.9.1...v4.9.2
+[4.9.1]: https://github.com/Automattic/jetpack-sync/compare/v4.9.0...v4.9.1
+[4.9.0]: https://github.com/Automattic/jetpack-sync/compare/v4.8.4...v4.9.0
+[4.8.4]: https://github.com/Automattic/jetpack-sync/compare/v4.8.3...v4.8.4
+[4.8.3]: https://github.com/Automattic/jetpack-sync/compare/v4.8.2...v4.8.3
+[4.8.2]: https://github.com/Automattic/jetpack-sync/compare/v4.8.1...v4.8.2
+[4.8.1]: https://github.com/Automattic/jetpack-sync/compare/v4.8.0...v4.8.1
+[4.8.0]: https://github.com/Automattic/jetpack-sync/compare/v4.7.0...v4.8.0
+[4.7.0]: https://github.com/Automattic/jetpack-sync/compare/v4.6.0...v4.7.0
 [4.6.0]: https://github.com/Automattic/jetpack-sync/compare/v4.5.0...v4.6.0
 [4.5.0]: https://github.com/Automattic/jetpack-sync/compare/v4.4.0...v4.5.0
 [4.4.0]: https://github.com/Automattic/jetpack-sync/compare/v4.3.0...v4.4.0

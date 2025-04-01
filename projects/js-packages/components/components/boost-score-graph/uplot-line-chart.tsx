@@ -2,15 +2,15 @@ import { __ } from '@wordpress/i18n';
 import React, { useMemo, useRef, useCallback } from 'react';
 import uPlot from 'uplot';
 import UplotReact from 'uplot-react';
-import { getUserLocale } from '../../lib/locale';
-import numberFormat from '../number-format';
-import { annotationsPlugin } from './annotations-plugin';
-import { dayHighlightPlugin } from './day-highlight-plugin';
-import getDateFormat from './get-date-format';
-import { tooltipsPlugin } from './tooltips-plugin';
-import { useBoostScoreTransform } from './use-boost-score-transform';
-import useResize from './use-resize';
-import { type Annotation, Period } from '.';
+import { getUserLocale } from '../../lib/locale/index.js';
+import numberFormat from '../number-format/index.js';
+import { annotationsPlugin } from './annotations-plugin.js';
+import { dayHighlightPlugin } from './day-highlight-plugin.js';
+import getDateFormat from './get-date-format.js';
+import { tooltipsPlugin } from './tooltips-plugin.js';
+import { useBoostScoreTransform } from './use-boost-score-transform.js';
+import useResize from './use-resize.js';
+import { type Annotation, Period } from './index.js';
 import './style-uplot.scss';
 
 const DEFAULT_DIMENSIONS = {
@@ -26,6 +26,15 @@ interface UplotChartProps {
 	solidFill?: boolean;
 	period?: string;
 	range?: { startDate: number; endDate: number };
+}
+
+interface UplotReactProps {
+	options: uPlot.Options;
+	data: uPlot.AlignedData;
+	target?: HTMLElement | ( ( self: uPlot, init: () => void ) => void );
+	onDelete?: ( chart: uPlot ) => void;
+	onCreate?: ( chart: uPlot ) => void;
+	resetScales?: boolean;
 }
 
 /**
@@ -202,9 +211,15 @@ export default function UplotLineChart( { range, periods, annotations = [] }: Up
 		return ( uplot.current = chart );
 	}, [] );
 
+	/**
+	 * Type casting to prevent TypeScript error:
+	 * TS2604: JSX element type 'UplotReact' does not have any construct or call signatures.
+	 */
+	const TypedUplotReact = UplotReact as unknown as React.ComponentType< UplotReactProps >;
+
 	return (
 		<div ref={ uplotContainer } className="boost-uplot-container">
-			<UplotReact data={ data } onCreate={ onCreate } options={ options } />
+			<TypedUplotReact data={ data } onCreate={ onCreate } options={ options } />
 		</div>
 	);
 }

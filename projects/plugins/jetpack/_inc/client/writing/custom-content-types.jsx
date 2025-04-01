@@ -84,6 +84,16 @@ export class CustomContentTypes extends React.Component {
 					}
 			  );
 
+		const siteShouldDisplayTestimonials = window?.CUSTOM_CONTENT_TYPE__INITIAL_STATE
+			?.should_show_testimonials
+			? window.CUSTOM_CONTENT_TYPE__INITIAL_STATE.should_show_testimonials
+			: false;
+
+		const siteShouldDisplayPortfolios = window?.CUSTOM_CONTENT_TYPE__INITIAL_STATE
+			?.should_show_portfolios
+			? window.CUSTOM_CONTENT_TYPE__INITIAL_STATE.should_show_portfolios
+			: false;
+
 		const woa_theme_supports_jetpack_testimonial =
 			typeof jetpack_testimonial_theme_supports !== 'undefined'
 				? jetpack_testimonial_theme_supports // eslint-disable-line no-undef
@@ -119,36 +129,38 @@ export class CustomContentTypes extends React.Component {
 				header="Custom content types"
 				hideButton
 			>
-				<SettingsGroup
-					hasChild
-					module={ { module: 'custom-content-types' } }
-					support={ {
-						link: getRedirectUrl( 'jetpack-support-custom-content-types' ),
-					} }
-				>
-					<p> { testimonialText } </p>
-					<ToggleControl
-						checked={
-							this.props.getOptionValue( 'jetpack_testimonial' )
-								? this.props.getOptionValue( 'jetpack_testimonial' )
-								: false
-						}
-						disabled={ disabledByOverride || woa_theme_supports_jetpack_testimonial }
-						toggling={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
-						onChange={ this.handleTestimonialToggleChange }
-						disabledReason={ testimonialDisabledReason }
-						label={
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Testimonials', 'jetpack' ) }
-							</span>
-						}
-						help={
-							<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
-								{ __( 'Testimonials shortcode: [testimonials]', 'jetpack' ) }
-							</span>
-						}
-					/>
-				</SettingsGroup>
+				{ siteShouldDisplayTestimonials && (
+					<SettingsGroup
+						hasChild
+						module={ { module: 'custom-content-types' } }
+						support={ {
+							link: getRedirectUrl( 'jetpack-support-custom-content-types' ),
+						} }
+					>
+						<p> { testimonialText } </p>
+						<ToggleControl
+							checked={
+								this.props.getOptionValue( 'jetpack_testimonial' )
+									? this.props.getOptionValue( 'jetpack_testimonial' )
+									: false
+							}
+							disabled={ disabledByOverride || woa_theme_supports_jetpack_testimonial }
+							toggling={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
+							onChange={ this.handleTestimonialToggleChange }
+							disabledReason={ testimonialDisabledReason }
+							label={
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Testimonials', 'jetpack' ) }
+								</span>
+							}
+							help={
+								<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
+									{ __( 'Testimonials shortcode: [testimonials]', 'jetpack' ) }
+								</span>
+							}
+						/>
+					</SettingsGroup>
+				) }
 				{ this.props.getOptionValue( 'jetpack_testimonial' ) && (
 					<CompactCard
 						className="jp-settings-card__configure-link"
@@ -157,34 +169,38 @@ export class CustomContentTypes extends React.Component {
 						{ __( 'Add a testimonial', 'jetpack' ) }
 					</CompactCard>
 				) }
-				<SettingsGroup
-					hasChild
-					module={ { module: 'custom-content-types' } }
-					support={ {
-						link: getRedirectUrl( 'jetpack-support-custom-content-types' ),
-					} }
-				>
-					<p>{ portfolioText }</p>
-					<ToggleControl
-						checked={
-							this.props.getOptionValue( 'jetpack_portfolio' )
-								? this.props.getOptionValue( 'jetpack_portfolio' )
-								: false
-						}
-						disabled={ disabledByOverride || woa_theme_supports_jetpack_portfolio }
-						toggling={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
-						onChange={ this.handlePortfolioToggleChange }
-						disabledReason={ portfolioDisabledReason }
-						label={
-							<span className="jp-form-toggle-explanation">{ __( 'Portfolios', 'jetpack' ) }</span>
-						}
-						help={
-							<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
-								{ __( 'Portfolios shortcode: [portfolio]', 'jetpack' ) }
-							</span>
-						}
-					/>
-				</SettingsGroup>
+				{ siteShouldDisplayPortfolios && (
+					<SettingsGroup
+						hasChild
+						module={ { module: 'custom-content-types' } }
+						support={ {
+							link: getRedirectUrl( 'jetpack-support-custom-content-types' ),
+						} }
+					>
+						<p>{ portfolioText }</p>
+						<ToggleControl
+							checked={
+								this.props.getOptionValue( 'jetpack_portfolio' )
+									? this.props.getOptionValue( 'jetpack_portfolio' )
+									: false
+							}
+							disabled={ disabledByOverride || woa_theme_supports_jetpack_portfolio }
+							toggling={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
+							onChange={ this.handlePortfolioToggleChange }
+							disabledReason={ portfolioDisabledReason }
+							label={
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Portfolios', 'jetpack' ) }
+								</span>
+							}
+							help={
+								<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
+									{ __( 'Portfolios shortcode: [portfolio]', 'jetpack' ) }
+								</span>
+							}
+						/>
+					</SettingsGroup>
+				) }
 				{ this.props.getOptionValue( 'jetpack_portfolio' ) && (
 					<CompactCard
 						className="jp-settings-card__configure-link"

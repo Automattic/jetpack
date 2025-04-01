@@ -7,18 +7,7 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-/**
- * Check if the site is a WordPress.com Atomic site.
- *
- * @return bool
- */
-function is_woa_site() {
-	if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
-		return false;
-	}
-	$host = new Automattic\Jetpack\Status\Host();
-	return $host->is_woa_site();
-}
+require_once __DIR__ . '/../../utils.php';
 
 /**
  * Adds a link to the WordPress.com profile settings page.
@@ -33,37 +22,37 @@ function wpcom_profile_settings_add_links_to_wpcom() {
 		true
 	);
 
-	$is_wpcom_atomic_classic = is_woa_site() && get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+	$is_wpcom_atomic = is_woa_site();
 
 	wp_localize_script(
 		'wpcom-profile-settings-link-to-wpcom',
 		'wpcomProfileSettingsLinkToWpcom',
 		array(
-			'language'             => array(
+			'language'      => array(
 				'link' => esc_url( 'https://wordpress.com/me/account' ),
-				'text' => __( 'Manage your WordPress.com account language ↗', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
-			'name'                 => array(
+			'name'          => array(
 				'link' => esc_url( 'https://wordpress.com/me' ),
-				'text' => __( 'Manage your WordPress.com profile ↗', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
-			'website'              => array(
+			'website'       => array(
 				'link' => esc_url( 'https://wordpress.com/me' ),
-				'text' => __( 'Manage your WordPress.com profile website ↗', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
-			'bio'                  => array(
+			'bio'           => array(
 				'link' => esc_url( 'https://wordpress.com/me' ),
-				'text' => __( 'Manage your WordPress.com profile bio ↗', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
-			'email'                => array(
+			'email'         => array(
 				'link' => esc_url( 'https://wordpress.com/me/account' ),
-				'text' => __( 'Manage your WordPress.com account email ↗', 'jetpack-mu-wpcom' ),
+				'text' => $is_wpcom_atomic ? __( 'Or manage your WP.com account email ↗', 'jetpack-mu-wpcom' ) : __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
-			'password'             => array(
+			'password'      => array(
 				'link' => esc_url( 'https://wordpress.com/me/security' ),
-				'text' => __( 'Manage your WordPress.com password ↗', 'jetpack-mu-wpcom' ),
+				'text' => $is_wpcom_atomic ? __( 'Or manage your WP.com account password ↗', 'jetpack-mu-wpcom' ) : __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 			),
-			'isWpcomAtomicClassic' => $is_wpcom_atomic_classic,
+			'isWpcomAtomic' => $is_wpcom_atomic,
 		)
 	);
 }

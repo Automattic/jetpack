@@ -1,11 +1,11 @@
 import React from 'react';
-import JetpackLogo from '../../jetpack-logo/index';
-import Text from '../../text/index';
-import AdminPage from '../index';
+import JetpackLogo from '../../jetpack-logo/index.js';
+import Text from '../../text/index.js';
+import AdminPage from '../index.js';
 import styles from './style.module.scss';
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof AdminPage > = {
 	title: 'JS Packages/Components/Admin Page',
 	component: AdminPage,
 	argTypes: {
@@ -14,7 +14,9 @@ export default {
 		showFooter: { control: 'boolean', defaultValue: true },
 		showBackground: { control: 'boolean', defaultValue: true },
 	},
-} as Meta< typeof AdminPage >;
+};
+
+export default meta;
 
 // Export additional stories using pre-defined values
 const Template: StoryFn< typeof AdminPage > = args => <AdminPage { ...args } />;

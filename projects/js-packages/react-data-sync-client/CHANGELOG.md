@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.13] - 2025-04-01
+### Changed
+- Update package dependencies. [#42762]
+
+## [0.1.12] - 2025-03-18
+### Changed
+- Return more detailed error messages when an action fails. [#42110]
+- Update dependencies. [#42406]
+
+## [0.1.11] - 2025-03-05
+### Changed
+- Update dependencies. [#41847]
+
+## [0.1.10] - 2025-02-12
+### Added
+- Add React Query Devtools. [#41357]
+
+### Changed
+- Updated package dependencies. [#41286]
+
+### Fixed
+- Fix potential race condition if multiple requests are triggered. [#41472]
+
 ## [0.1.9] - 2025-01-23
 ### Changed
 - Internal updates.
@@ -66,6 +89,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Added default param for callbacks to prevent crashes when none provided [#34910]
 
+[0.1.13]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.12...v0.1.13
+[0.1.12]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.11...v0.1.12
+[0.1.11]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.10...v0.1.11
+[0.1.10]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.6...v0.1.7

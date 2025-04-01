@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -40,6 +41,11 @@ class Publicize_Setup {
 
 		$rest_controllers = array(
 			REST_API\Connections_Controller::class,
+			REST_API\Scheduled_Actions_Controller::class,
+			REST_API\Services_Controller::class,
+			REST_API\Shares_Data_Controller::class,
+			REST_API\Share_Post_Controller::class,
+			REST_API\Social_Image_Generator_Controller::class,
 		);
 
 		// Load the REST controllers.
@@ -52,6 +58,11 @@ class Publicize_Setup {
 		}
 
 		Social_Admin_Page::init();
+
+		// We need this only on Jetpack sites for Google Site auto-verification.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			add_action( 'init', array( Keyring_Helper::class, 'init' ), 9 );
+		}
 	}
 
 	/**
@@ -73,6 +84,7 @@ class Publicize_Setup {
 
 		add_action( 'rest_api_init', array( static::class, 'register_core_options' ) );
 		add_action( 'admin_init', array( static::class, 'register_core_options' ) );
+		add_action( 'current_screen', array( self::class, 'add_filters_and_actions_for_screen' ), 5 );
 
 		if ( ( new Host() )->is_wpcom_simple() ) {
 
@@ -90,6 +102,21 @@ class Publicize_Setup {
 	 */
 	public static function register_core_options() {
 		( new Jetpack_Social_Settings\Dismissed_Notices() )->register();
+	}
+
+	/**
+	 * If the current_screen has 'edit' as the base, add filter to change the post list tables.
+	 *
+	 * @param object $current_screen The current screen.
+	 */
+	public static function add_filters_and_actions_for_screen( $current_screen ) {
+		if ( 'edit' !== $current_screen->base ) {
+			return;
+		}
+
+		if ( Current_Plan::supports( 'republicize' ) ) {
+			add_filter( 'jetpack_post_list_display_share_action', '__return_true' );
+		}
 	}
 
 	/**

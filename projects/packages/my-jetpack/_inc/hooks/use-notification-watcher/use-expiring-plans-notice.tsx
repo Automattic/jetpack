@@ -1,20 +1,22 @@
 import { __ } from '@wordpress/i18n';
-import { useContext, useEffect, useCallback } from 'react';
+import { useContext, useEffect, useCallback, useMemo } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
+import createCookie from '../../utils/create-cookie';
 import useAnalytics from '../use-analytics';
 import { useGetExpiringNoticeContent } from './use-get-expiring-notice-content';
+import type { NoticeHookType } from './types';
 import type { NoticeOptions } from '../../context/notices/types';
 
-type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
-
-const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
-	const { setNotice } = useContext( NoticeContext );
+const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) => {
+	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { recordEvent } = useAnalytics();
 
-	const planExpiredAlerts = Object.keys( redBubbleAlerts ).filter(
-		key => key.endsWith( '--plan_expiring_soon' ) || key.endsWith( '--plan_expired' )
-	) as Array< `${ string }--plan_expiring_soon` | `${ string }--plan_expired` >;
+	const planExpiredAlerts = isLoading
+		? []
+		: ( Object.keys( redBubbleAlerts ).filter(
+				key => key.endsWith( '--plan_expiring_soon' ) || key.endsWith( '--plan_expired' )
+		  ) as Array< `${ string }--plan_expiring_soon` | `${ string }--plan_expired` > );
 
 	const expiredAlerts =
 		planExpiredAlerts.length &&
@@ -35,7 +37,7 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		expiry_date: expiryDate,
 		manage_url: manageUrl,
 		products_effected: productsEffected,
-	} = redBubbleAlerts[ alertToDisplay ] || {};
+	} = redBubbleAlerts?.[ alertToDisplay ] || {};
 
 	const { noticeTitle, noticeMessage, learnMoreUrl } =
 		useGetExpiringNoticeContent( {
@@ -45,6 +47,19 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			expiryDate,
 			productsEffected,
 		} ) || {};
+
+	const cookieKey = useMemo( () => {
+		return isExpiredAlert
+			? `${ productSlug }--plan_expired`
+			: `${ productSlug }--plan_expiring_soon`;
+	}, [ isExpiredAlert, productSlug ] );
+
+	const onCloseClick = useCallback( () => {
+		// Session cookie. Expires when session ends.
+		createCookie( `${ cookieKey }_dismissed`, 7 );
+		delete redBubbleAlerts[ alertToDisplay ];
+		resetNotice();
+	}, [ alertToDisplay, redBubbleAlerts, resetNotice, cookieKey ] );
 
 	const onPrimaryCtaClick = useCallback( () => {
 		window.location.href = manageUrl;
@@ -93,24 +108,32 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 					isExternalLink: true,
 				},
 			],
+			onClose: onCloseClick,
+			hideCloseButton: false,
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
-		setNotice( {
-			title: noticeTitle,
-			message: noticeMessage,
-			options: noticeOptions,
-		} );
+		if ( ! isLoading ) {
+			setNotice( {
+				title: noticeTitle,
+				message: noticeMessage,
+				options: noticeOptions,
+			} );
+		}
 	}, [
 		redBubbleAlerts,
 		setNotice,
 		recordEvent,
 		alertToDisplay,
+		onCloseClick,
 		onPrimaryCtaClick,
 		onSecondaryCtaClick,
 		noticeTitle,
 		noticeMessage,
 		isExpiredAlert,
+		productSlug,
+		cookieKey,
+		isLoading,
 	] );
 };
 

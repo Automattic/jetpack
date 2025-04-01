@@ -3,9 +3,9 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dili
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.6
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 3.8.0
+Stable tag: 3.13.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,21 +183,23 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.8.0 - 2025-01-23
+### 3.13.0 - 2025-04-01
 #### Added
-- Critical CSS: Flag a site-health issue for Critical CSS when a page from the Cornerstone Pages list is modified.
-- Page Cache: Add extra PHP file the site owner can use to modify how the cache works.
-- Page Cache: Filter cookies and GET parameters so they do not cause a cache miss.
+- Cornerstone Pages: Add speculation rules toggle to prerender those URLs
+- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
+- Speculation rules: Add Cornerstone Pages to the WP speculation rules for displaying
 
 #### Changed
-- Critical CSS: Reduce unnecessary regenerations.
+- General: Update interstitial modal secondary button to use URL from Jetpack Redirect
+- Critical CSS: Improve reliability of generation by running hooks after saving the state.
+- General: Indicate compatibility with the upcoming version of WordPress - 6.8.
+- General: Update Class/Interface file names to adhere to WordPress Convention
+- UI: Show module loading errors with details.
+- Update package dependencies.
 
 #### Fixed
-- Page Cache: Clear Page Cache when Image CDN Auto Resize Lazy Images is toggled.
-- Page Cache: Fix issue where exceptions were incorrectly applied to the entire URL.
-- Concatenate JS: Improve compatibility with WooCommerce Shipping.
-- Concatenate CSS: Fix cases where minification might cause a file to load slower.
-- Image CDN: Ensure that double encoding doesn't happen.
+- Admin Menu: Ensure Akismet menu item display alongside standalone.
+- Misc: Fix incorrectly registering plugin text domain.
 
 --------
 

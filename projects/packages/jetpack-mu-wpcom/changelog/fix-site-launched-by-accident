@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Site Visibility: Prevent accidental changes to blog_public on the Settings > Reading page

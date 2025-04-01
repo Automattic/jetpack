@@ -111,7 +111,7 @@ const sbconfig = {
 
 		// For tsc
 		config.resolve.extensionAlias = {
-			'.js': [ '.js', '.ts', '.tsx' ],
+			'.js': [ '.js', '.jsx', '.ts', '.tsx' ],
 			'.cjs': [ '.cjs', '.cts' ],
 			'.mjs': [ '.mjs', '.mts' ],
 		};

@@ -14,7 +14,6 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Dismissed_Notices;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -740,10 +739,10 @@ class Jetpack_Gutenberg {
 
 		$jetpack_plan  = Jetpack_Plan::get();
 		$initial_state = array(
-			'available_blocks'    => self::get_availability(),
-			'blocks_variation'    => $blocks_variation,
-			'modules'             => $modules,
-			'jetpack'             => array(
+			'available_blocks' => self::get_availability(),
+			'blocks_variation' => $blocks_variation,
+			'modules'          => $modules,
+			'jetpack'          => array(
 				'is_active'                     => Jetpack::is_connection_ready(),
 				'is_current_user_connected'     => $is_current_user_connected,
 				/** This filter is documented in class.jetpack-gutenberg.php */
@@ -770,46 +769,16 @@ class Jetpack_Gutenberg {
 				 */
 				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 			),
-			'siteFragment'        => $status->get_site_suffix(),
-			'adminUrl'            => esc_url( admin_url() ),
-			'tracksUserData'      => $user_data,
-			'wpcomBlogId'         => $blog_id,
-			'allowedMimeTypes'    => wp_get_mime_types(),
-			'siteLocale'          => str_replace( '_', '-', get_locale() ),
-			'ai-assistant'        => $ai_assistant_state,
-			'screenBase'          => $screen_base,
-			'pluginBasePath'      => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
-			'next40pxDefaultSize' => self::site_supports_next_default_size(),
+			'siteFragment'     => $status->get_site_suffix(),
+			'adminUrl'         => esc_url( admin_url() ),
+			'tracksUserData'   => $user_data,
+			'wpcomBlogId'      => $blog_id,
+			'allowedMimeTypes' => wp_get_mime_types(),
+			'siteLocale'       => str_replace( '_', '-', get_locale() ),
+			'ai-assistant'     => $ai_assistant_state,
+			'screenBase'       => $screen_base,
+			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
 		);
-
-		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
-			$publicize               = publicize_init();
-			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
-			$social_initial_state    = $jetpack_social_settings->get_initial_state();
-
-			$initial_state['social'] = array(
-				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
-				'hasPaidPlan'                     => $publicize->has_paid_plan(),
-				'hasPaidFeatures'                 => $publicize->has_paid_features(),
-				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
-				'isSocialImageGeneratorAvailable' => $social_initial_state['socialImageGeneratorSettings']['available'],
-				'isSocialImageGeneratorEnabled'   => $social_initial_state['socialImageGeneratorSettings']['enabled'],
-				'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
-				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
-				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
-				'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),
-				'useAdminUiV1'                    => $social_initial_state['useAdminUiV1'],
-			);
-
-			// Add connectionData if we are using the new Connection UI.
-			if ( $social_initial_state['useAdminUiV1'] ) {
-				$initial_state['social']['connectionData'] = $social_initial_state['connectionData'];
-
-				$initial_state['social']['connectionRefreshPath'] = $social_initial_state['connectionRefreshPath'];
-			}
-
-			$initial_state['social']['featureFlags'] = $social_initial_state['featureFlags'];
-		}
 
 		wp_localize_script(
 			'jetpack-blocks-editor',
@@ -1319,44 +1288,6 @@ class Jetpack_Gutenberg {
 		}
 
 		return $block_content;
-	}
-
-	/**
-	 * Check whether the environment supports the newer default size of elements, gradually introduced starting with WP 6.4.
-	 *
-	 * @since 14.0
-	 *
-	 * @see https://make.wordpress.org/core/2023/10/16/editor-components-updates-in-wordpress-6-4/#improving-size-consistency-for-ui-components
-	 *
-	 * @to-do: Deprecate this method and the logic around it when Jetpack requires WordPress 6.7.
-	 *
-	 * @return bool
-	 */
-	public static function site_supports_next_default_size() {
-		/*
-		 * If running a local dev build of gutenberg,
-		 * let's assume it supports the newest changes included in Gutenberg.
-		 */
-		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
-			return true;
-		}
-
-		// Let's now check if the Gutenberg plugin is installed on the site.
-		if (
-			defined( 'GUTENBERG_VERSION' )
-			&& version_compare( GUTENBERG_VERSION, '19.4', '>=' )
-		) {
-			return true;
-		}
-
-		// Finally, let's check for the WordPress version.
-		global $wp_version;
-		if ( version_compare( $wp_version, '6.7', '>=' ) ) {
-			return true;
-		}
-
-		// Final fallback.
-		return false;
 	}
 
 	/**

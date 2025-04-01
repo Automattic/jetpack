@@ -5,6 +5,141 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.10.1] - 2025-04-01
+### Changed
+- Update package dependencies. [#42762]
+
+## [5.10.0] - 2025-03-31
+### Added
+- Add error handling to onboarding form. [#42753]
+- Add an option for the new onboarding tour. [#42684]
+- Add a Testimonials component to onboarding screen. [#42625]
+- Show onboarding screen to disconnected that explains Jetpack. [#42757]
+
+## [5.9.2] - 2025-03-26
+### Added
+- Add support for OAuth social login. [#42700]
+- Connect the frontend of the magic link input with the backend (for use on new onboarding screen). [#42662]
+
+### Changed
+- Add Account Protection to Protect product details. [#40925]
+
+## [5.9.1] - 2025-03-24
+### Changed
+- Update dependencies. [#38910]
+
+## [5.9.0] - 2025-03-24
+### Added
+- Add an email input to the social login form, allowing users to log into Jetpack seamlessly through a magic link. [#42600]
+- Add a new social login form to the onboarding screen for first-time Jetpack connections. [#42561]
+
+## [5.8.0] - 2025-03-21
+### Added
+- Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
+
+### Fixed
+- Enable screen readers to read Boost score. [#42306]
+
+## [5.7.3] - 2025-03-19
+### Changed
+- Update dependencies. [#38910]
+
+## [5.7.2] - 2025-03-18
+### Changed
+- Update package dependencies. [#42509] [#42511]
+
+### Fixed
+- My Jetpack: Add legacy properties back to `get_info()` function. [#42542]
+- Product Interstitial Modal: Fix not running custom onClick events if a customModalTrigger was used. [#42527]
+
+## [5.7.1] - 2025-03-17
+### Fixed
+- Allow screen readers to read stats. [#42275]
+
+## [5.7.0] - 2025-03-17
+### Changed
+- Call Protect and VideoPress product data on the frontend and remove from window state. [#42411]
+- My Jetpack: Move Red Bubble notifications out of myJetpackInitialState. [#42271]
+- UI: Upgrade CTAs on the Jetpack Boost admin now opens a modal instead of navigating to the upgrade page. [#42309]
+
+### Fixed
+- My Jetpack: Fix interstitial modal that was displaying the discounted price when user had already used up the discount. [#42349]
+
+## [5.6.0] - 2025-03-12
+### Added
+- Add QueryProvider to ProductInterstitialModal for extendability. [#42307]
+- Provide connection data to footer component. [#42000]
+- Stats: Add highlights heading level as prop. [#42165]
+
+### Changed
+- Load agency data from frontend instead of backend. [#42330]
+
+## [5.5.3] - 2025-03-10
+### Changed
+- Persist cookies for dismissable banners longer than session. [#42305]
+
+## [5.5.2] - 2025-03-05
+### Changed
+- Remove purchases from window state and query entirely using state query on front end. [#42154]
+- Update package dependencies. [#42162]
+
+## [5.5.1] - 2025-03-03
+### Added
+- Update interstitial modal to accept custom trigger. [#41621]
+
+### Changed
+- Load product data requiring an http request async on the frontend. [#41965]
+- Move the getting of product ownership data entirely to the frontend. [#42080]
+- Move update to historically active modules to frontend. [#42133]
+- Update package dependencies. [#42081] [#42163]
+
+### Fixed
+- Fix skip to main content feature [#42042]
+
+## [5.5.0] - 2025-02-24
+### Changed
+- Allow users to manage user connection in My Jetpack. [#41398]
+- Move backup endpoint to product class. [#41730]
+- Update package dependencies. [#41955]
+
+### Removed
+- Script data: Remove unused property. [#41890]
+
+### Fixed
+- Code: Prevent dynamic class properties. [#41857]
+- Fix My Jetpack display for non-admin users. [#41398]
+- Improve accessibility for product card actions with ARIA labelling. [#41896]
+- Increase product card status contrast ratio. [#41896]
+- Move product card status before action for screen readers. [#41896]
+
+## [5.4.5] - 2025-02-17
+### Changed
+- Social: Update manage module link to point to the new Social admin page. [#41741]
+
+## [5.4.4] - 2025-02-12
+### Changed
+- Performance: Cache scan calls if no threats are found. [#41614]
+
+## [5.4.3] - 2025-02-11
+### Added
+- My Jetpack: Allow product notices to be closed with persistence. [#41617]
+
+### Changed
+- Make entire row of dataview clickable when on mobile [#41643]
+
+## [5.4.2] - 2025-02-10
+### Added
+- Add filter to unowned list of products. [#41312]
+- Add mobile CTA to DataViews table. [#41554]
+
+### Changed
+- Cache calls to backup API in My Jetpack. [#41608]
+- Update package dependencies. [#41491] [#41577]
+- Update the unowned section from a product grid to a product list. [#41312]
+
+### Fixed
+- Fix bug where firewall was displayed as active if automatic rules were enabled but firewall was off. [#41560]
+
 ## [5.4.1] - 2025-02-03
 ### Added
 - My Jetpack: Add red bubble and notice when pain plan is missing plugin. [#41013]
@@ -12,7 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Make Action Button component more reusable. [#41361]
 - Replace Jetpack AI upgrade page with a modal. [#41301]
-- Updated package dependencies. [#41286]
+- Update package dependencies. [#41286]
 - Update My Jetpack interstitial modal with new styles and layout. [#41300]
 
 ### Fixed
@@ -1937,6 +2072,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.10.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.10.0...5.10.1
+[5.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.9.2...5.10.0
+[5.9.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.9.1...5.9.2
+[5.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.9.0...5.9.1
+[5.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.8.0...5.9.0
+[5.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.3...5.8.0
+[5.7.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.2...5.7.3
+[5.7.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.1...5.7.2
+[5.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.0...5.7.1
+[5.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.6.0...5.7.0
+[5.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.5.3...5.6.0
+[5.5.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.5.2...5.5.3
+[5.5.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.5.1...5.5.2
+[5.5.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.5.0...5.5.1
+[5.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.5...5.5.0
+[5.4.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.4...5.4.5
+[5.4.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.3...5.4.4
+[5.4.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.2...5.4.3
+[5.4.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.1...5.4.2
 [5.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.4.0...5.4.1
 [5.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.3.3...5.4.0
 [5.3.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.3.2...5.3.3

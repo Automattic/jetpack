@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React from 'react';
-import { JetpackProtectLogoProps } from './types';
+import { JetpackProtectLogoProps } from './types.js';
 
 const JetpackProtectLogo: React.FC< JetpackProtectLogoProps > = ( {
 	logoColor = '#069e08',
