@@ -582,10 +582,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Get basic plugin status (installed/active).
+	 * Get plugin status.
 	 *
-	 * @param string $plugin_slug The plugin slug (e.g. 'akismet' or 'creative-mail').
-	 * @return WP_REST_Response Plugin status data.
+	 * @param string $plugin_slug Plugin slug.
+	 * @return WP_REST_Response Response object.
 	 */
 	private function get_plugin_status( $plugin_slug ) {
 		if ( ! function_exists( 'get_plugins' ) ) {
@@ -629,6 +629,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'isInstalled' => $is_installed,
 			'isActive'    => $is_active,
 		);
+
+		if ( $is_installed ) {
+			$response['version'] = $installed_plugins[ $plugin_config['file'] ]['Version'];
+		}
 
 		if ( $is_active ) {
 			$response['settingsUrl'] = admin_url( $plugin_config['settings_url'] );
