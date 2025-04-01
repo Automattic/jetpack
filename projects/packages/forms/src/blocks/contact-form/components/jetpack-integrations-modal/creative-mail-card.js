@@ -5,11 +5,9 @@ import ConsentBlockSettings from '../jetpack-newsletter-integration-settings-con
 import IntegrationCard from './integration-card';
 
 const CreativeMailCard = ( { isExpanded, onToggle } ) => {
-	// Integration Status Hook
 	const { isCheckingStatus, isInstalled, isActive, settingsUrl, refreshStatus } =
 		useIntegrationStatus( 'creative-mail' );
 
-	// Plugin Installation Hook
 	const { isInstalling, installPlugin } = usePluginInstallation(
 		'creative-mail-by-constant-contact',
 		'creative-mail-by-constant-contact/creative-mail-plugin.php',
@@ -17,7 +15,6 @@ const CreativeMailCard = ( { isExpanded, onToggle } ) => {
 		'jetpack_forms_upsell_creative_mail_click'
 	);
 
-	// Handle Install/Activate
 	const handleInstallAction = async () => {
 		const success = await installPlugin();
 		if ( success ) {
@@ -25,7 +22,6 @@ const CreativeMailCard = ( { isExpanded, onToggle } ) => {
 		}
 	};
 
-	// Render Content Based on State
 	const renderContent = () => {
 		if ( isCheckingStatus ) {
 			return <Spinner />;
@@ -69,7 +65,6 @@ const CreativeMailCard = ( { isExpanded, onToggle } ) => {
 			);
 		}
 
-		// Active state
 		return (
 			<>
 				<p>
