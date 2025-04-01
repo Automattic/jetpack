@@ -325,7 +325,7 @@ abstract class Sharing_Source {
 		$accessible_name = apply_filters_deprecated(
 			'jetpack_sharing_display_title',
 			array( $accessible_name, $this, $id, $args ),
-			'$$next-version$$',
+			'jetpack-14.6',
 			'jetpack_sharing_accessible_name'
 		);
 
