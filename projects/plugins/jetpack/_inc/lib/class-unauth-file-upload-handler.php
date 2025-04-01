@@ -398,15 +398,18 @@ class Unauth_File_Upload_Handler {
 	 */
 	public function generate_upload_token( $claims = array() ) {
 		$default_claims = array(
-			'exp' => time() + 3600, // 1 hour expiration
-			'ip'  => isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '',
-			'iat' => time(),
+			'exp'     => time() + 3600, // 1 hour expiration
+			'ip'      => isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '',
+			'iat'     => time(),
+			'site_id' => \Jetpack_Options::get_option( 'id' ),
 		);
 
 		$claims = wp_parse_args( $claims, $default_claims );
 
 		// Get the secret key for signing
 		$secret = $this->get_upload_token_secret();
+
+		l( 'DEBUG: secret', $secret );
 
 		// Generate and return the token
 		return JWT::encode( $claims, $secret, 'HS256' );
@@ -418,16 +421,15 @@ class Unauth_File_Upload_Handler {
 	 * @return string|false The secret key or false if not available.
 	 */
 	private function get_upload_token_secret() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
-			// TODO: This is a temporary solution to get the secret key for the upload token.
-			return defined( 'EARN_JWT_SIGNING_KEY' ) ? EARN_JWT_SIGNING_KEY : false;
-		}
 		$token = ( new Tokens() )->get_access_token();
+		l( 'DEBUG: token', $token );
 		if ( ! isset( $token->secret ) ) {
+			if ( ( new Host() )->is_wpcom_simple() ) {
+				return defined( 'EARN_JWT_SIGNING_KEY' ) ? EARN_JWT_SIGNING_KEY : false;
+			}
 			return false;
 		}
-		return $token->secret;
+		return apply_filters( 'jetpack_unauth_file_upload_secret', $token->secret );
 	}
 
 	/**

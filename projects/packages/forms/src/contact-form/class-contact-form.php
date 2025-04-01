@@ -77,6 +77,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $allowed_html_tags_for_submit_button = array( 'br' => array() );
 
 	/**
+	 * Stores file tokens for processing after post save
+	 *
+	 * @since $$next-version$$
+	 * @var array
+	 */
+	private $file_tokens = array();
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
@@ -2112,24 +2120,33 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 		}
 
-		$files = array();
-		foreach ( $unauth_file_token_array as $unauth_file_token ) {
-			error_log( "DEBUG: Processing token: $unauth_file_token" );
-			$result = $this->process_file_upload( $unauth_file_token );
-
-			if ( is_wp_error( $result ) ) {
-				error_log( 'DEBUG: Error processing file upload: ' . $result->get_error_message() );
-				$field->add_error( $result->get_error_message() );
-				continue;
-			}
-
-			$files[] = $result;
-		}
-
-		// Return a structured array with field_id and files array
+		// Return a structured array with field_id but no files yet
 		return array(
 			'field_id' => $field_id,
-			'files'    => $files,
+			'files'    => $unauth_file_token_array,
+		);
+	}
+
+	/**
+	 * Handle the uploading of files.
+	 *
+	 * @param string $field_id The field ID for the uploaded files.
+	 * @param array  $unauth_file_token_array Array of unauthorized file tokens.
+	 * @param object $field The field object.
+	 * @return array Array containing field_id and files array, or empty array if no files to process.
+	 */
+	public function handle_files( $field_id, $unauth_file_token_array, $field ) {
+		if ( empty( $unauth_file_token_array ) ) {
+			return array();
+		}
+
+		// Store the tokens to be processed after the post is saved
+		$this->file_tokens[ $field_id ] = $unauth_file_token_array;
+
+		// Return a structured array with field_id but no files yet
+		return array(
+			'field_id' => $field_id,
+			'files'    => array(),
 		);
 	}
 }

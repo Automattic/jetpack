@@ -971,10 +971,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return '#jetpack-not-active';
 		}
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/unauth-file-upload', get_current_blog_id() );
-		}
-		return rest_url( 'wpcom/v2/unauth-file-upload' );
+		return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/unauth-file-upload', \Jetpack_Options::get_option( 'id' ) );
 	}
 
 	/**

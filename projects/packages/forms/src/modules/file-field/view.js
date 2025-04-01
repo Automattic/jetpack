@@ -94,7 +94,7 @@ const uploadFile = ( file, fileId ) => {
 	xhr.addEventListener( 'readystatechange', withScope( onReadyStateChange.bind( this, fileId ) ) );
 
 	formData.append( 'file', file );
-	formData.append( 'upload_token', uploadToken );
+	formData.append( 'token', uploadToken );
 	xhr.send( formData );
 };
 
