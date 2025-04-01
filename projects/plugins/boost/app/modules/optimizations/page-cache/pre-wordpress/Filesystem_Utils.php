@@ -17,7 +17,7 @@ class Filesystem_Utils {
 	 * Recursively walk a directory, deleting or rebuilding files.
 	 *
 	 * @param string $path - The directory to delete or rebuild.
-	 * @param bool   $type - The type of action to take, see constants above.
+	 * @param string $type - The type of action to take, see constants above.
 	 * @return bool|Boost_Cache_Error
 	 */
 	public static function walk_directory( $path, $type ) {
