@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Updating the method of loading WordPress for testing. No functional change and the tests don't currently exist either way :)
-
-

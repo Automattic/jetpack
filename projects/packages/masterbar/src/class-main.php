@@ -14,7 +14,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.14.2';
+	const PACKAGE_VERSION = '0.14.3';
 
 	/**
 	 * Initializer.

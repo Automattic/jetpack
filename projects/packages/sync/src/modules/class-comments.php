@@ -219,6 +219,18 @@ class Comments extends Module {
 	}
 
 	/**
+	 * Returns escaped SQL for whitelisted comment types.
+	 * Can be injected directly into a WHERE clause.
+	 *
+	 * @access public
+	 *
+	 * @return string SQL WHERE clause.
+	 */
+	public function get_whitelisted_comment_types_sql() {
+		return 'comment_type IN (\'' . implode( '\', \'', array_map( 'esc_sql', $this->get_whitelisted_comment_types() ) ) . '\')';
+	}
+
+	/**
 	 * Prevents any comment types that are not in the whitelist from being enqueued and sent to WordPress.com.
 	 *
 	 * @param array $args Arguments passed to wp_insert_comment, deleted_comment, spammed_comment, etc.
@@ -378,11 +390,13 @@ class Comments extends Module {
 	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
 	 */
 	public function get_where_sql( $config ) {
+		$where_sql = $this->get_whitelisted_comment_types_sql();
+
 		if ( is_array( $config ) && ! empty( $config ) ) {
 			return 'comment_ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		}
 
-		return '1=1';
+		return $where_sql;
 	}
 
 	/**

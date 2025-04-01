@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.62.4] - 2025-03-31
+### Changed
+- Internal updates.
+
 ## [0.62.3] - 2025-03-24
 ### Fixed
 - Publicize: Update the Jetpack plugin version check. [#42649]
@@ -948,6 +952,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.62.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.3...v0.62.4
 [0.62.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.2...v0.62.3
 [0.62.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.1...v0.62.2
 [0.62.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.0...v0.62.1

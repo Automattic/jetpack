@@ -226,7 +226,7 @@ function include_compatibility_files() {
 	}
 
 	if ( function_exists( 'amp_is_request' ) ) {
-		require_once __DIR__ . '/compatibility/amp.php';
+		require_once __DIR__ . '/compatibility/class-amp.php';
 	}
 
 	if ( function_exists( 'wp_cache_is_enabled' ) ) {

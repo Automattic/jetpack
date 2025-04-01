@@ -287,7 +287,7 @@ export function getApiRootUrl( state ) {
 /**
  * Returns the registration nonce.
  *
- * @deprecated since $$next-version$$
+ * @deprecated since 14.5
  *
  * @return {string} The empty string for backward compatibility.
  */
