@@ -40,7 +40,7 @@ export default ( { siteDomain, siteIntent } ) => {
 				<Launchpad
 					siteSlug={ siteDomain }
 					checklistSlug={ siteIntent }
-					launchpadContext="customer-home"
+					launchpadContext="wpadmin-dashboard-widget"
 					onSiteLaunched={ () => {
 						const url = new URL( window.location.href );
 						url.searchParams.set( 'celebrate-launch', 'true' );
