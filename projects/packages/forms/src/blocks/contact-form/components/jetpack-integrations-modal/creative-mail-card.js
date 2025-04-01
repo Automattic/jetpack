@@ -1,4 +1,4 @@
-import { Button, ExternalLink, Spinner } from '@wordpress/components';
+import { Button, ExternalLink, Spinner, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useIntegrationStatus, usePluginInstallation } from '../hooks';
 import ConsentBlockSettings from '../jetpack-newsletter-integration-settings-consent-block';
@@ -10,7 +10,7 @@ const CreativeMailCard = ( { isExpanded, onToggle } ) => {
 
 	const { isInstalling, installPlugin } = usePluginInstallation(
 		'creative-mail-by-constant-contact',
-		'creative-mail-by-constant-contact/creative-mail-plugin.php',
+		'creative-mail-by-constant-contact/creative-mail-plugin',
 		isInstalled,
 		'jetpack_forms_upsell_creative_mail_click'
 	);
@@ -22,6 +22,15 @@ const CreativeMailCard = ( { isExpanded, onToggle } ) => {
 		}
 	};
 
+	const getButtonText = () => {
+		return (
+			( isInstalling && isInstalled && __( 'Activating…', 'jetpack-forms' ) ) ||
+			( isInstalling && __( 'Installing…', 'jetpack-forms' ) ) ||
+			( isInstalled && __( 'Activate Creative Mail Plugin', 'jetpack-forms' ) ) ||
+			__( 'Install Creative Mail plugin', 'jetpack-forms' )
+		);
+	};
+
 	const renderContent = () => {
 		if ( isCheckingStatus ) {
 			return <Spinner />;
@@ -29,44 +38,54 @@ const CreativeMailCard = ( { isExpanded, onToggle } ) => {
 
 		if ( ! isInstalled ) {
 			return (
-				<p>
-					<em style={ { color: 'rgba(38, 46, 57, 0.7)' } }>
-						{ __(
-							'To start sending email campaigns, install the Creative Mail plugin for WordPress.',
-							'jetpack-forms'
-						) }
-						<br />
-						<Button variant="secondary" onClick={ handleInstallAction } disabled={ isInstalling }>
-							{ isInstalling
-								? __( 'Installing…', 'jetpack-forms' )
-								: __( 'Install Creative Mail plugin', 'jetpack-forms' ) }
-						</Button>
-					</em>
-				</p>
+				<div>
+					<p>
+						<em style={ { color: 'rgba(38, 46, 57, 0.7)' } }>
+							{ __(
+								'To start sending email campaigns, install the Creative Mail plugin for WordPress.',
+								'jetpack-forms'
+							) }
+						</em>
+					</p>
+					<Button
+						variant="primary"
+						onClick={ handleInstallAction }
+						disabled={ isInstalling }
+						icon={ isInstalling ? <Icon icon="update" className="is-spinning" /> : undefined }
+						__next40pxDefaultSize={ true }
+					>
+						{ getButtonText() }
+					</Button>
+				</div>
 			);
 		}
 
 		if ( ! isActive ) {
 			return (
-				<p>
-					<em>
-						{ __(
-							'To start sending email campaigns, activate the Creative Mail plugin for WordPress.',
-							'jetpack-forms'
-						) }
-						<br />
-						<Button variant="secondary" onClick={ handleInstallAction } disabled={ isInstalling }>
-							{ isInstalling
-								? __( 'Activating…', 'jetpack-forms' )
-								: __( 'Activate Creative Mail Plugin', 'jetpack-forms' ) }
-						</Button>
-					</em>
-				</p>
+				<div>
+					<p>
+						<em>
+							{ __(
+								'To start sending email campaigns, activate the Creative Mail plugin for WordPress.',
+								'jetpack-forms'
+							) }
+						</em>
+					</p>
+					<Button
+						variant="primary"
+						onClick={ handleInstallAction }
+						disabled={ isInstalling }
+						icon={ isInstalling ? <Icon icon="update" className="is-spinning" /> : undefined }
+						__next40pxDefaultSize={ true }
+					>
+						{ getButtonText() }
+					</Button>
+				</div>
 			);
 		}
 
 		return (
-			<>
+			<div>
 				<p>
 					<em>
 						{ __( "You're all setup for email marketing with Creative Mail.", 'jetpack-forms' ) }
@@ -77,7 +96,7 @@ const CreativeMailCard = ( { isExpanded, onToggle } ) => {
 					</em>
 				</p>
 				<ConsentBlockSettings />
-			</>
+			</div>
 		);
 	};
 
