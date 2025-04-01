@@ -1,11 +1,11 @@
-import { Button, Icon, Spinner } from '@wordpress/components';
+import { Button, Icon, Spinner, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
 import { useIntegrationStatus, usePluginInstallation } from '../hooks';
 import IntegrationCard from './integration-card';
 
-const JetpackCRMCard = ( { isExpanded, onToggle } ) => {
+const JetpackCRMCard = ( { isExpanded, onToggle, jetpackCRM, setAttributes } ) => {
 	const {
 		isCheckingStatus,
 		isInstalled,
@@ -41,13 +41,14 @@ const JetpackCRMCard = ( { isExpanded, onToggle } ) => {
 	};
 
 	const crmVersion = semver.coerce( version );
-	const isVersion491OrHigher = crmVersion && semver.gte( crmVersion, '4.9.1' );
+	const isRecentVersion = crmVersion && semver.gte( crmVersion, '4.9.1' );
 
 	const renderContent = () => {
 		if ( isCheckingStatus ) {
 			return <Spinner />;
 		}
 
+		// Jetpack CRM not installed
 		if ( ! isInstalled ) {
 			return (
 				<div>
@@ -70,6 +71,7 @@ const JetpackCRMCard = ( { isExpanded, onToggle } ) => {
 			);
 		}
 
+		// Jetpack CRM installed but not active
 		if ( ! isActive ) {
 			return (
 				<div>
@@ -92,8 +94,8 @@ const JetpackCRMCard = ( { isExpanded, onToggle } ) => {
 			);
 		}
 
-		// First, check version
-		if ( ! isVersion491OrHigher ) {
+		// Jetpack CRM installed and active, but not recent version
+		if ( ! isRecentVersion ) {
 			return (
 				<div>
 					<p>
@@ -109,7 +111,7 @@ const JetpackCRMCard = ( { isExpanded, onToggle } ) => {
 			);
 		}
 
-		// Then, check extension status
+		// Jetpack CRM installed, active, and recent, but no extension
 		if ( ! hasExtension ) {
 			return (
 				<div>
@@ -141,11 +143,17 @@ const JetpackCRMCard = ( { isExpanded, onToggle } ) => {
 			);
 		}
 
-		// Only show storage message when both version and extension requirements are met
+		// All conditions met - show toggle and link to CRM settings
 		return (
 			<div>
-				<p>{ __( 'Contacts from this form will be stored in Jetpack CRM.', 'jetpack-forms' ) }</p>
-				<Button variant="primary" href={ settingsUrl } __next40pxDefaultSize={ true }>
+				<ToggleControl
+					className="jetpack-contact-form__crm_toggle"
+					label={ __( 'Jetpack CRM', 'jetpack-forms' ) }
+					checked={ jetpackCRM }
+					onChange={ value => setAttributes( { jetpackCRM: value } ) }
+					help={ __( 'Store contact form submissions in your CRM.', 'jetpack-forms' ) }
+				/>
+				<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
 					{ __( 'Open CRM Settings', 'jetpack-forms' ) }
 				</Button>
 			</div>
