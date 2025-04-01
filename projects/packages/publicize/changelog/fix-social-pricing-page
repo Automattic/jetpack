@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social: Always regester the product info endpoint regardless of Publicize being active

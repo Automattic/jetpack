@@ -46,6 +46,22 @@ class REST_Controller {
 	}
 
 	/**
+	 * Registers the endpoint to get the plan information for Social.
+	 */
+	public function register_product_info_route() {
+		// Get current social product from the product's endpoint.
+		register_rest_route(
+			'jetpack/v4',
+			'/social-product-info',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_social_product_info' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
+	}
+
+	/**
 	 * Registers the REST routes for Search.
 	 *
 	 * @access public
@@ -69,17 +85,6 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_publicize_connections' ),
 				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
-			)
-		);
-
-		// Get current social product from the product's endpoint.
-		register_rest_route(
-			'jetpack/v4',
-			'/social-product-info',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_social_product_info' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
 

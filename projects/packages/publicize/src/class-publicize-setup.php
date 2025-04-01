@@ -62,6 +62,7 @@ class Publicize_Setup {
 		// We need this only on Jetpack sites for Google Site auto-verification.
 		if ( ! ( new Host() )->is_wpcom_simple() ) {
 			add_action( 'init', array( Keyring_Helper::class, 'init' ), 9 );
+			add_action( 'rest_api_init', array( new REST_Controller(), 'register_product_info_route' ) );
 		}
 	}
 
