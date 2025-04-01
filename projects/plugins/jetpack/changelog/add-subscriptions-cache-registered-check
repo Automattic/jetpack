@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: other
 
-Subscriptions: add method to check if the site was recently connected to WordPress.com.
+Subscriptions: change the default value for the Featured Image in Email setting to true for sites created/registered after 2025-04-01.
