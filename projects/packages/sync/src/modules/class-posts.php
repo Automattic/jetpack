@@ -146,7 +146,6 @@ class Posts extends Module {
 
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_published_post', $callable, 10, 3 );
-		add_filter( 'jetpack_sync_before_enqueue_deleted_post', array( $this, 'filter_blacklisted_post_types_deleted' ) );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 
