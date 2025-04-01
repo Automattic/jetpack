@@ -522,15 +522,10 @@ class Inline_Search extends Classic_Search {
 	private function get_corrected_query_html() {
 		$original_query = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		if ( ! empty( $this->search_result['corrected_query'] ) ) {
-			$message = ! empty( $this->search_result['results'] )
-				? esc_html__( 'Search term corrected from: ', 'jetpack-search-pkg' )
-				: esc_html__( 'No results found for: ', 'jetpack-search-pkg' );
+		if ( ! empty( $this->search_result['corrected_query'] ) && ! empty( $this->search_result['results'] ) ) {
 			return sprintf(
-				'<h2 class="jetpack-search-corrected-query">
-				%s<strong>%s</strong>
-				</h2>',
-				$message,
+				'<h2 class="jetpack-search-corrected-query">%s<strong>%s</strong></h2>',
+				esc_html__( 'Search term corrected from: ', 'jetpack-search-pkg' ),
 				esc_html( $original_query )
 			);
 		}
