@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Fix potential wp_login_failed action conflicts
