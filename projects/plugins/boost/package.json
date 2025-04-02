@@ -9,6 +9,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-my-jetpack": "workspace:*",
 		"@automattic/jetpack-react-data-sync-client": "workspace:*",
+		"@automattic/number-formatters": "workspace:*",
 		"@react-spring/core": "9.7.5",
 		"@react-spring/web": "9.7.5",
 		"@types/react": "18.3.18",

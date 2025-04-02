@@ -4036,6 +4036,9 @@ importers:
       '@automattic/jetpack-react-data-sync-client':
         specifier: workspace:*
         version: link:../../js-packages/react-data-sync-client
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@react-spring/core':
         specifier: 9.7.5
         version: 9.7.5(react@18.3.1)
