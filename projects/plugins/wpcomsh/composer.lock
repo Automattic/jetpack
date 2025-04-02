@@ -53,23 +53,26 @@
         },
         {
             "name": "automattic/custom-fonts-typekit",
-            "version": "v2.0.0",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/custom-fonts-typekit.git",
-                "reference": "0be6c997f3c576fc86844b5d57130d6ed81fe624"
+                "reference": "d576a78495b78d0d6acc465beecaf4079463d24c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts-typekit/zipball/0be6c997f3c576fc86844b5d57130d6ed81fe624",
-                "reference": "0be6c997f3c576fc86844b5d57130d6ed81fe624",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts-typekit/zipball/d576a78495b78d0d6acc465beecaf4079463d24c",
+                "reference": "d576a78495b78d0d6acc465beecaf4079463d24c",
                 "shasum": ""
             },
             "require-dev": {
                 "10up/wp_mock": "dev-master"
             },
-            "type": "library",
-            "time": "2023-05-01T20:00:28+00:00"
+            "type": "wordpress-plugin",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "time": "2025-04-02T12:48:49+00:00"
         },
         {
             "name": "automattic/jetpack-a8c-mc-stats",
