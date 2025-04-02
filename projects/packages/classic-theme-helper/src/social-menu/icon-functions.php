@@ -208,7 +208,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) {
 			'tiktok.com'        => 'tiktok',
 			'tumblr.com'        => 'tumblr',
 			'twitch.tv'         => 'twitch',
-			'twitter.com'       => 'twitter',
+			'twitter.com'       => 'x',
 			'vimeo.com'         => 'vimeo',
 			'vk.com'            => 'vk',
 			'whatsapp.com'      => 'whatsapp',
