@@ -433,6 +433,7 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
 			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
+			require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
 		}
 	}
 
