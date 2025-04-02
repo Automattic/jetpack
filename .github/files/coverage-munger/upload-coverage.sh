@@ -19,6 +19,12 @@ mkdir coverage-data
 cp coverage/summary.tsv coverage-data/summary.tsv
 gzip -9 coverage-data/summary.tsv
 
+# We only need the combined coverage data serialized object for trunk.
+if [[ "$PR_ID" == "trunk" ]]; then
+	cp coverage/php-combined.cov coverage-data/php-combined.cov
+	gzip -9 coverage-data/php-combined.cov
+fi
+
 if [[ -f coverage/js-combined.json ]]; then
 	echo '::group::Pnpm install'
 	pnpm install
