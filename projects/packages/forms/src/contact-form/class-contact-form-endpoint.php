@@ -131,14 +131,14 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'callback'            => array( $this, 'get_file' ),
 				'permission_callback' => array( $this, 'get_item_permissions_check' ),
 				'args'                => array(
-					'file_id' => array(
+					'file_id'  => array(
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'post_id' => array(
-						'required'          => true,
-						'type'              => 'integer',
+					'post_id'  => array(
+						'required' => true,
+						'type'     => 'integer',
 					),
 					'field_id' => array(
 						'required'          => true,
@@ -439,21 +439,18 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( rest_is_field_included( 'fields', $fields ) ) {
 			$fields_data = array_diff_key( $all_fields, $base_fields );
 
-			// Add file URLs to file fields
-			require_once dirname( __DIR__ ) . '/class-file-handler.php';
-			$file_handler = new \Automattic\Jetpack\Forms\File_Handler();
-			foreach ( $fields_data as $key => &$field ) {
-				if ( \Automattic\Jetpack\Forms\ContactForm\Contact_Form::is_file_upload_field( $field ) ) {
-					foreach ( $field['files'] as &$file ) {
-						$url = $file_handler->get_file_url( $field['field_id'], $file['file_id'], $item->ID );
-						// Add credentials parameter to URL
-						$url = add_query_arg( array(
-							'credentials' => 'include',
-						), $url );
-						$file['url'] = $url;
-					}
-				}
-			}
+			// // Add file URLs to file fields
+			// require_once dirname( __DIR__ ) . '/class-file-handler.php';
+			// $file_handler = new \Automattic\Jetpack\Forms\File_Handler();
+			// foreach ( $fields_data as $key => &$field ) {
+			// if ( \Automattic\Jetpack\Forms\ContactForm\Contact_Form::is_file_upload_field( $field ) ) {
+			// foreach ( $field['files'] as &$file ) {
+			// $url = $file_handler->get_file_url( $field['field_id'], $file['file_id'], $item->ID );
+			// Add credentials parameter to URL
+			// $file['url'] = '#';
+			// }
+			// }
+			// }
 
 			$data['fields'] = $fields_data;
 		}
@@ -686,11 +683,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'content-disposition'       => 'inline; filename="' . sanitize_file_name( $file_name ) . '"',
 			'content-length'            => $wp_filesystem->size( $file_path ),
 			'content-transfer-encoding' => 'binary',
-			'x-robots-tag'             => 'noindex',
-			'accept-ranges'            => 'bytes',
-			'cache-control'            => 'no-cache, must-revalidate, max-age=0',
-			'pragma'                   => 'no-cache',
-			'expires'                  => '0',
+			'x-robots-tag'              => 'noindex',
+			'accept-ranges'             => 'bytes',
+			'cache-control'             => 'no-cache, must-revalidate, max-age=0',
+			'pragma'                    => 'no-cache',
+			'expires'                   => '0',
 		);
 
 		// Set content headers
