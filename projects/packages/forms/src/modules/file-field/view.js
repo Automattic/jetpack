@@ -123,7 +123,17 @@ const onReadyStateChange = ( fileId, event ) => {
 		if ( xhr.status === 200 ) {
 			const response = JSON.parse( xhr.responseText );
 			if ( response.success ) {
-				updateFileContext( { token: response.data.token, hasToken: true }, fileId );
+				updateFileContext(
+					{
+						token: response.data.token,
+						hasToken: true,
+						name: response.data.file?.name,
+						type: response.data.file?.type,
+						size: response.data.file?.size,
+						error: response.data.file?.error || 0,
+					},
+					fileId
+				);
 				return;
 			}
 		}
