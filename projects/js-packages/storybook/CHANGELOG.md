@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.6.1 - 2025-04-02
+### Added
+- Publicize Components: Add Storybook support [#42167]
+
+### Changed
+- Added .jsx extension alias support. [#41524]
+- Update dependencies. [#41723]
+- Update package dependencies. [#41819] [#41955] [#42163] [#42384] [#42509] [#42511] [#42762] [#42809]
+
 ## 0.6.0 - 2025-02-05
 ### Added
 - Charts: adds Barchart functionality and storybook item [#40353]
