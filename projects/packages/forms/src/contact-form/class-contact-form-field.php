@@ -899,7 +899,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					id="<?php echo esc_attr( $id ); ?>"
 					type="file" class="jetpack-form-file-field"
 					accept="<?php echo esc_attr( $accepted_file_types ); ?>"
-					<?php echo ( $max_files > 1 ) ? 'multiple="multiple"' : ''; ?>
+					<?php echo ( $max_files > 1 ? 'multiple="multiple"' : '' ); ?>
 					data-wp-on--change="actions.fileAdded"  />
 			</div>
 			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="state.hasFiles">
