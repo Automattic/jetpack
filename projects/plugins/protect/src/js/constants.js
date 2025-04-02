@@ -11,6 +11,7 @@ export const PAID_PLUGIN_SUPPORT_URL = 'https://jetpack.com/contact-support/?rel
  */
 export const SCAN_STATUS_SCHEDULED = 'scheduled';
 export const SCAN_STATUS_SCANNING = 'scanning';
+export const SCAN_STATUS_IN_PROGRESS = 'in_progress';
 export const SCAN_STATUS_OPTIMISTICALLY_SCANNING = 'optimistically_scanning';
 export const SCAN_STATUS_IDLE = 'idle';
 export const SCAN_STATUS_UNAVAILABLE = 'unavailable';
@@ -19,6 +20,7 @@ export const SCAN_IN_PROGRESS_STATUSES = [
 	SCAN_STATUS_PROVISIONING,
 	SCAN_STATUS_SCHEDULED,
 	SCAN_STATUS_SCANNING,
+	SCAN_STATUS_IN_PROGRESS,
 	SCAN_STATUS_OPTIMISTICALLY_SCANNING,
 ];
 

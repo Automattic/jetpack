@@ -2,7 +2,7 @@ import { Threat } from './threats.js';
 
 export type ScanStatus = {
 	/** The current status of the scanner. */
-	status: 'unavailable' | 'provisioning' | 'idle' | 'scanning' | 'scheduled';
+	status: 'unavailable' | 'provisioning' | 'idle' | 'scanning' | 'in_progress' | 'scheduled';
 
 	/** The IDs of fixable threats. */
 	fixableThreatIds: number[];
