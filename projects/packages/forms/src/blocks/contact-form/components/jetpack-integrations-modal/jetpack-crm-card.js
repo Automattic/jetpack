@@ -1,3 +1,4 @@
+import colorStudio from '@automattic/color-studio';
 import { JetpackIcon } from '@automattic/jetpack-components';
 import { Button, Icon, Spinner, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -5,6 +6,8 @@ import { __ } from '@wordpress/i18n';
 import semver from 'semver';
 import { useIntegrationStatus, usePluginInstallation } from '../hooks';
 import IntegrationCard from './integration-card';
+
+const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
 const JetpackCRMCard = ( { isExpanded, onToggle, jetpackCRM, setAttributes } ) => {
 	const {
@@ -164,8 +167,11 @@ const JetpackCRMCard = ( { isExpanded, onToggle, jetpackCRM, setAttributes } ) =
 	return (
 		<IntegrationCard
 			title={ __( 'Jetpack CRM', 'jetpack-forms' ) }
-			description={ __( 'Keep on top of leads as they are added to your CRM', 'jetpack-forms' ) }
-			icon={ <JetpackIcon color="#069E08" /> }
+			description={ __(
+				'Connect your form to Jetpack CRM to collect leads and organize contacts.',
+				'jetpack-forms'
+			) }
+			icon={ <JetpackIcon color={ COLOR_JETPACK } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 		>
