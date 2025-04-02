@@ -8,16 +8,16 @@ const Testimonials: React.FC = () => {
 	return (
 		<>
 			<DotPager rotateTime={ 5 }>
-				<div className="testimonial testimonial--1">
-					<div className="testimonial__content">
-						<div className="testimonial__messages">
-							<p className="testimonial__message">
+				<div className="jetpack-onboarding-testimonial jetpack-onboarding-testimonial--1">
+					<div className="jetpack-onboarding-testimonial__content">
+						<div className="jetpack-onboarding-testimonial__messages">
+							<p className="jetpack-onboarding-testimonial__message">
 								{ __( 'Grow your audience.', 'jetpack-my-jetpack' ) }
 							</p>
 							<p className="testimonial__message">
 								{ __( 'Speed up your site.', 'jetpack-my-jetpack' ) }
 							</p>
-							<p className="testimonial__message">
+							<p className="jetpack-onboarding-testimonial__message">
 								{ __( 'Keep it secure.', 'jetpack-my-jetpack' ) }
 							</p>
 						</div>
@@ -33,7 +33,7 @@ const Testimonials: React.FC = () => {
 								)
 							) }
 						</p>
-						<p className="testimonial__author">
+						<p className="jetpack-onboarding-testimonial__author">
 							<strong>{ __( 'Sasha Endoh', 'jetpack-my-jetpack' ) }</strong>
 						</p>
 						<p className="testimonial__title">
@@ -51,10 +51,10 @@ const Testimonials: React.FC = () => {
 								)
 							) }
 						</p>
-						<p className="testimonial__author">
+						<p className="jetpack-onboarding-testimonial__author">
 							<strong>{ __( 'Tim Ferriss', 'jetpack-my-jetpack' ) }</strong>
 						</p>
-						<p className="testimonial__title">
+						<p className="jetpack-onboarding-testimonial__title">
 							{ __( 'Author, Investor, Podcaster', 'jetpack-my-jetpack' ) }
 						</p>
 					</div>

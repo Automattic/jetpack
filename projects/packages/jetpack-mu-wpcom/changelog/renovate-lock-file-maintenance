@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove no-longer-needed webpack override for `@automattic/calypso-config`.
+
+

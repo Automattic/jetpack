@@ -1,6 +1,6 @@
 @import '@automattic/jetpack-base-styles/root-variables';
 
-.testimonial {
+.jetpack-onboarding-testimonial {
     flex: 1;
     background-size: cover;
     background-position: center top;
@@ -48,6 +48,8 @@
         text-align: left;
         position: relative;
         margin-bottom: 10px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu',
+		'Cantarell', 'Helvetica Neue', sans-serif;
     }
 
     &__message {

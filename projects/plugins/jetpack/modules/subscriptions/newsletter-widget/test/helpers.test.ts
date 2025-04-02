@@ -1,7 +1,35 @@
-import { formatAxisTickDate, formatDate, getXAxisTickValues, transformData } from '../src/helpers';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import {
+	formatAxisTickDate,
+	formatDate,
+	getXAxisTickValues,
+	transformData,
+	getNewsletterSettingsUrl,
+	buildJPRedirectSource,
+	getSubscriberStatsUrl,
+	formatNumber,
+	calcLeftAxisMargin,
+} from '../src/helpers';
 import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../src/types';
 
 describe( 'helpers', () => {
+	describe( 'getNewsletterSettingsUrl', () => {
+		const testSite = 'example.com';
+		const testAdminUrl = 'https://example.com/wp-admin/';
+
+		it( 'returns WordPress.com URL for WordPress.com sites', () => {
+			const url = getNewsletterSettingsUrl( testSite, true, testAdminUrl );
+			expect( url ).toBe(
+				getRedirectUrl( 'https://wordpress.com/settings/newsletter/' + testSite )
+			);
+		} );
+
+		it( 'returns WP-admin URL for self-hosted sites', () => {
+			const url = getNewsletterSettingsUrl( testSite, false, testAdminUrl );
+			expect( url ).toBe( `${ testAdminUrl }admin.php?page=jetpack#newsletter` );
+		} );
+	} );
+
 	describe( 'formatDate', () => {
 		const testDate = new Date( '2025-03-01' );
 
@@ -102,6 +130,74 @@ describe( 'helpers', () => {
 			expect( transformedData[ 0 ].date ).toEqual( new Date( '2025-03-01' ) );
 			expect( transformedData[ 1 ].date ).toEqual( new Date( '2025-03-02' ) );
 			expect( transformedData[ 2 ].date ).toEqual( new Date( '2025-03-03' ) );
+		} );
+	} );
+
+	describe( 'buildJPRedirectSource', () => {
+		const testUrl = 'test/path';
+
+		it( 'returns WordPress.com URL for WordPress.com sites', () => {
+			const url = buildJPRedirectSource( testUrl, true );
+			expect( url ).toBe( 'https://wordpress.com/test/path' );
+		} );
+
+		it( 'returns cloud.jetpack.com URL for self-hosted sites', () => {
+			const url = buildJPRedirectSource( testUrl, false );
+			expect( url ).toBe( 'https://cloud.jetpack.com/test/path' );
+		} );
+
+		it( 'defaults to WordPress.com URL when isWpcomSite is not provided', () => {
+			const url = buildJPRedirectSource( testUrl );
+			expect( url ).toBe( 'https://wordpress.com/test/path' );
+		} );
+	} );
+
+	describe( 'getSubscriberStatsUrl', () => {
+		const testSite = 'example.com';
+		const testAdminUrl = 'https://example.com/wp-admin/';
+
+		it( 'returns WordPress.com URL for WordPress.com sites', () => {
+			const url = getSubscriberStatsUrl( testSite, true, testAdminUrl );
+			expect( url ).toBe( getRedirectUrl( 'https://wordpress.com/stats/subscribers/' + testSite ) );
+		} );
+
+		it( 'returns WP-admin URL for self-hosted sites', () => {
+			const url = getSubscriberStatsUrl( testSite, false, testAdminUrl );
+			expect( url ).toBe(
+				`${ testAdminUrl }admin.php?page=stats#!/stats/subscribers/${ testSite }`
+			);
+		} );
+	} );
+
+	describe( 'formatNumber', () => {
+		it( 'formats numbers with locale-specific formatting', () => {
+			expect( formatNumber( 1234 ) ).toBe( '1,234' );
+			expect( formatNumber( 1234567 ) ).toBe( '1,234,567' );
+			expect( formatNumber( 0 ) ).toBe( '0' );
+		} );
+	} );
+
+	describe( 'calcLeftAxisMargin', () => {
+		it( 'returns default margin for empty data', () => {
+			expect( calcLeftAxisMargin( [] ) ).toBe( 30 ); // DEFAULT_MARGIN
+		} );
+
+		it( 'calculates margin based on largest number length', () => {
+			const data: ChartSubscriptionDataPoint[] = [
+				{ date: new Date(), all: 1000, paid: 100 },
+				{ date: new Date(), all: 100, paid: 10000 },
+			];
+			// For 10000 (5 digits): 5 * 8 + 10 = 50
+			expect( calcLeftAxisMargin( data ) ).toBe( 50 );
+		} );
+
+		it( 'handles null or undefined values', () => {
+			const data: ChartSubscriptionDataPoint[] = [
+				{ date: new Date(), all: undefined, paid: null },
+				{ date: new Date(), all: 100, paid: undefined },
+			];
+			// For 100 (3 digits): 3 * 8 + 10 = 34
+			expect( calcLeftAxisMargin( data ) ).toBe( 34 );
 		} );
 	} );
 } );

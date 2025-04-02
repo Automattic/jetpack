@@ -5,6 +5,10 @@ import { rawError } from '../lib/describe-critical-css-recommendations';
 export default function RawError( { errorSet }: { errorSet: ErrorSet } ) {
 	const rawErrorMessage = rawError( errorSet );
 
+	if ( ! rawErrorMessage ) {
+		return null;
+	}
+
 	return (
 		<p>
 			{ sprintf(
