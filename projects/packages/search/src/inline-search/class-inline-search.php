@@ -520,16 +520,21 @@ class Inline_Search extends Classic_Search {
 	 * @return string The HTML for the corrected query notice or empty string if none.
 	 */
 	private function get_corrected_query_html() {
-		$original_query = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$original_query = sanitize_text_field( wp_unslash( $_GET['s'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a search query.
 
-		if ( ! empty( $this->search_result['corrected_query'] ) && ! empty( $this->search_result['results'] ) ) {
-			return sprintf(
-				'<h2 class="jetpack-search-corrected-query">%s<strong>%s</strong></h2>',
-				esc_html__( 'Search term corrected from: ', 'jetpack-search-pkg' ),
-				esc_html( $original_query )
-			);
+		if ( empty( $this->search_result['corrected_query'] ) || empty( $this->search_result['results'] ) ) {
+			return '';
 		}
 
-		return '';
+		$message = sprintf(
+			/* translators: %s: Original search term the user entered */
+			esc_html__( 'No results for %s', 'jetpack-search-pkg' ),
+			esc_html( $original_query )
+		);
+
+		return sprintf(
+			'<h2 class="jetpack-search-corrected-query">%s</h2>',
+			$message
+		);
 	}
 }
