@@ -20,6 +20,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 12px;
+		margin-top: 24px;
 	}
 
 	.is-disabled {
@@ -31,11 +32,17 @@
 	}
 
 	.jetpack-seo-sidebar__feature-list-container {
+		margin-top: 16px;
 		margin-left: 40px;
+		font-size: 13px;
+	}
+
+	.jetpack-seo-sidebar__feature-list-title {
+		font-weight: 500;
 	}
 
 	.jetpack-seo-sidebar__feature-list {
-		list-style: inside;
+		margin-top: 8px;
 	}
 }
 
