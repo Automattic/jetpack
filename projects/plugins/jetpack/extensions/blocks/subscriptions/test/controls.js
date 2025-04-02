@@ -148,7 +148,7 @@ describe( 'Inspector controls', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			await user.click( screen.getByRole( 'button', { name: 'Typography' } ) );
 			await user.click( screen.getByRole( 'button', { name: 'Set custom size' } ) );
-			await user.type( screen.getByRole( 'spinbutton', { name: 'Custom' } ), '18' );
+			await user.type( screen.getByRole( 'spinbutton', { name: 'Font size' } ), '18' );
 
 			expect( setAttributes ).toHaveBeenLastCalledWith( {
 				fontSize: 18,

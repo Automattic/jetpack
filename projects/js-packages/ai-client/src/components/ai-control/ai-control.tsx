@@ -27,7 +27,7 @@ type AIControlProps = {
 	error?: ReactElement;
 	actions?: ReactElement;
 	message?: ReactElement;
-	promptUserInputRef?: React.MutableRefObject< HTMLInputElement >;
+	promptUserInputRef?: PlainText.Props[ 'ref' ];
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 };
 

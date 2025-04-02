@@ -1,9 +1,9 @@
 <?php
 
 // Load minify library code.
-require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/Utils.php';
-require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/Config.php';
-require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/Dependency_Path_Mapping.php';
+require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/class-utils.php';
+require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/class-config.php';
+require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/class-dependency-path-mapping.php';
 require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
 require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-service-fallback.php';
 require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-service.php';
