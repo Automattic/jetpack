@@ -323,13 +323,15 @@ To get started, there are several ways to run the unit tests, depending on how y
 
 ## JavaScript unit tests
 
-The `jetpack test` command can be run from the monorepo's root to run a specific project's tests. However, this may be of limited benefit locally since it isn't possible to pass command line options, so it wouldn't be possible to use watch mode or run only tests for an individual file.
+The `jetpack test` command can be run from the monorepo's root to run a specific project's tests.
 
-A project within the monorepo may also have its own test commands, so an alternative is to `cd` into the project's root, and run the commands from there.
+This may be of limited benefit locally during development since it isn't possible to use watch mode or run tests only for an individual file.
+
+Each project within the monorepo may also have its own test commands, so an alternative is to `cd` into the project's root, and run the test commands from there.
 
 ### Packages
 
-Projects that are packages may have a package.json in the root that has a `scripts` entry, and this details the different types of test commands that can be run, `pnpm run test` is the usual command for JavaScript unit tests.
+Packages may have a package.json in the root that has a `scripts` entry, and this details the different types of test commands that can be run, `pnpm run test` is the usual command for JavaScript unit tests.
 
 For example, to run an individual test file in watch mode:
 ```sh
@@ -350,7 +352,7 @@ cd projects/plugins/jetpack
 pnpm test-adminpage
 ```
 
-This runs both the `client` and `gui` tests, but they can also be run individually.
+This runs both the `client` and `gui` tests, but they can also be run individually using `pnpm test-gui` or `pnpm test-client`.
 
 You can also only run tests matching a specific pattern. To do that, use the argument `-g, --grep <pattern>`:
 
