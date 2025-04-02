@@ -22,5 +22,4 @@ projects/plugins/jetpack/scss/cleanslate.scss
 
 # Ignore test-related CSS files that need further investigation
 projects/js-packages/critical-css-gen/tests/data/page-a
-projects/js-packages/i18n-check-webpack-plugin/tests/fixtures/complex-test/src
 projects/plugins/boost/tests/e2e/plugins/e2e-concatenate-enqueue/assets
