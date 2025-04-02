@@ -331,12 +331,12 @@ Each project within the monorepo may also have its own test commands, so an alte
 
 ### Packages
 
-Packages may have a package.json in the root that has a `scripts` entry, and this details the different types of test commands that can be run, `pnpm run test` is the usual command for JavaScript unit tests.
+Packages may have a package.json in the root that has a `scripts` entry, and this details the different types of test commands that can be run, `pnpm test` is the usual command for JavaScript unit tests.
 
 For example, to run an individual test file in watch mode:
 ```sh
 cd projects/packages/forms
-pnpm run test --watch -- path/to/test/file.js
+pnpm test --watch -- path/to/test/file.js
 ```
 
 ### Jetpack Plugin
