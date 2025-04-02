@@ -850,7 +850,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 */
 		$upload_token = apply_filters( 'jetpack_forms_file_upload_token', '' );
 
-		$global_state = array(
+		$global_config = array(
 			'i18n'          => array(
 				'language'           => get_bloginfo( 'language' ),
 				'fileSizeUnits'      => $file_size_units,
@@ -859,19 +859,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'folderNotSupported' => __( 'Folder uploads are not supported', 'jetpack-forms' ),
 				// translators: %s is the formatted maximum file size.
 				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_file_size ) ),
-				'invalidType'        => __( 'This file type is not allowed', 'jetpack-forms' ),
+				'invalidType'        => __( 'This file type is not allowed.', 'jetpack-forms' ),
 			),
 			'maxUploadSize' => $max_file_size,
 			'endpoint'      => $this->get_unauth_endpoint_url(),
 			'uploadToken'   => $upload_token,
 		);
 
-		wp_interactivity_config( 'jetpack/field-file', $global_state );
+		wp_interactivity_config( 'jetpack/field-file', $global_config );
 
 		$context = array(
-			'isDropping' => false,
-			'files'      => array(),
-			'hasFiles'   => false,
+			'isDropping'       => false,
+			'files'            => array(),
+			'hasFiles'         => false,
+			'allowedMimeTypes' => $accepted_file_types,
 		);
 
 		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text );
@@ -890,7 +891,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker"></div>
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
 				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
-				<input id="<?php echo esc_attr( $id ); ?>" type="file" class="jetpack-form-file-field" data-wp-on--change="actions.fileAdded" />
+				<input id="<?php echo esc_attr( $id ); ?>" type="file" class="jetpack-form-file-field" data-wp-on--change="actions.fileAdded" accept="<?php echo esc_attr( $accepted_file_types ); ?>" />
 			</div>
 			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="context.hasFiles">
 				<template data-wp-each--file="context.files" data-wp-key="context.file.id">

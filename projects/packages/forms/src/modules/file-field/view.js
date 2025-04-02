@@ -43,6 +43,12 @@ const addFileToContext = file => {
 	if ( file.size > config.maxUploadSize ) {
 		error = config.i18n.fileTooLarge;
 	}
+
+	// Check that the file type is allowed.
+	if ( ! context.allowedMimeTypes.includes( file.type ) ) {
+		error = config.i18n.invalidType;
+	}
+
 	const fileId = performance.now() + '-' + Math.random();
 
 	context.files.push( {
@@ -53,12 +59,15 @@ const addFileToContext = file => {
 		id: fileId,
 		error,
 	} );
+
 	context.hasFiles = true;
 
 	reader.onload = withScope( () => {
 		updateFileContext( { url: 'url(' + reader.result + ')' }, fileId );
-		! error && uploadFile( file, fileId );
 	} );
+
+	// start the upload if we don't have any errors.
+	! error && uploadFile( file, fileId );
 };
 
 /**
