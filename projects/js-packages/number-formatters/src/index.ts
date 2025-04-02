@@ -11,6 +11,8 @@ export const {
 	getCurrencyObject,
 } = defaultFormatter;
 
+export { createNumberFormatters };
+
 export * from './types.js';
 
 // We can optionally export the formatters individually if we want to use them in a more granular way.

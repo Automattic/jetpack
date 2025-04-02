@@ -22,6 +22,14 @@ In a future version, we may expose the internal methods/formatters that accept a
 
 For the various TS types mentioned below, see our [type definitions](./src/types.ts).
 
+### createNumberFormatters()
+
+```typescript
+createNumberFormatters(): NumberFormatters
+```
+
+The main factory method that returns an instance/object with all of the methods mentioned below. For the most part, calling this wouldn't be necessary as the package already creates a default formatter. It would be useful for cases where consumer needs more control i.e. multiple instances of the formatter for separate locale state handling.
+
 ### formatNumber()
 
 ```typescript
