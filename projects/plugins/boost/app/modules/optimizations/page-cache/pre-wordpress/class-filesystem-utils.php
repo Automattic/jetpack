@@ -47,8 +47,8 @@ class Filesystem_Utils {
 					if ( $file->isDir() ) {
 						Logger::debug( 'rmdir: ' . $file->getPathname() );
 						@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-					} elseif ( $file->getFilename() !== 'index.html' ) {
-						// Delete all files except index.html. index.html is used to prevent directory listing.
+					} else {
+						// Delete all files in the directory
 						Logger::debug( 'unlink: ' . $file->getPathname() );
 						@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 					}
