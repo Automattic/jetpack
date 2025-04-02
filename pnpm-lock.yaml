@@ -527,6 +527,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../number-formatters
       '@babel/runtime':
         specifier: ^7
         version: 7.26.10
