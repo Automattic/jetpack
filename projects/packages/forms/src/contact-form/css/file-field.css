@@ -198,6 +198,16 @@
 	z-index: 2;
 }
 
+.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__image {
+	width: 46px;
+	min-width: 46px;
+	height: 46px;
+	left: 0;
+	top: 0;
+	outline: 1 solid  var( --jetpack--contact-form--button-primary--text-color, #FFF );
+	transition: width 0.5s ease-in-out;
+}
+
 .jetpack-form-file-field__progress-bar {
 	content:'';
 	position: absolute;
