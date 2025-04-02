@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix alignment of multiple choice checkbox input with label.
