@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React, { useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -71,7 +71,7 @@ function Newsletter( props ) {
 		);
 	};
 
-	const toggleModule = useMemo(
+	const toggleModule = useCallback(
 		module => {
 			const status = getOptionValue( module );
 			updateOptions( { [ module ]: ! status } ).then( () => {
