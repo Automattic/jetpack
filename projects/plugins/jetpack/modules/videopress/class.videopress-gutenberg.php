@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\VideoPress\Block_Replacement;
 
 /**
  * Register a VideoPress extension to replace the default Core Video block.
@@ -37,6 +38,7 @@ class VideoPress_Gutenberg {
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'set_extension_availability' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'override_video_upload' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'add_resumable_upload_support' ) );
+		Block_Replacement::init();
 	}
 
 	/**

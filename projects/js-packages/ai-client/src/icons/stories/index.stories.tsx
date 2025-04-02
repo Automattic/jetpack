@@ -15,14 +15,14 @@ import type { Meta } from '@storybook/react';
 
 interface AIControlStoryMeta extends Meta< typeof allIcons > {
 	title?: string;
-	component?: React.ReactElement;
+	component?: React.ComponentType;
 }
 
 const meta: AIControlStoryMeta = {
 	title: 'JS Packages/AI Client/Icons',
-	component: allIcons,
+	component: allIcons as unknown as React.ComponentType,
 	parameters: {},
-} as Meta< typeof allIcons >;
+} satisfies Meta< typeof allIcons >;
 
 /**
  * Icons story components.

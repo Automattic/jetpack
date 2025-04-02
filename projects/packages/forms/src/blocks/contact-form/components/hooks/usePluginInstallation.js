@@ -1,0 +1,44 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { useState, useCallback } from '@wordpress/element';
+import { installAndActivatePlugin, activatePlugin } from '../../util/plugin-management';
+
+/**
+ * Custom hook to handle plugin installation and activation flows.
+ *
+ * @param {string}  pluginSlug      - The plugin slug (e.g., 'akismet')
+ * @param {string}  pluginPath      - The plugin path (e.g., 'akismet/akismet')
+ * @param {boolean} isInstalled     - Whether the plugin is installed
+ * @param {string}  tracksEventName - The name of the tracks event to record
+ * @return {object} Plugin installation states and handlers
+ */
+export const usePluginInstallation = ( pluginSlug, pluginPath, isInstalled, tracksEventName ) => {
+	const [ isInstalling, setIsInstalling ] = useState( false );
+	const { tracks } = useAnalytics();
+
+	const installPlugin = useCallback( async () => {
+		setIsInstalling( true );
+
+		if ( tracksEventName ) {
+			tracks.recordEvent( tracksEventName );
+		}
+
+		try {
+			if ( isInstalled ) {
+				await activatePlugin( pluginPath );
+			} else {
+				await installAndActivatePlugin( pluginSlug );
+			}
+			return true;
+		} catch {
+			// Let the component handle the error state
+			return false;
+		} finally {
+			setIsInstalling( false );
+		}
+	}, [ pluginSlug, pluginPath, isInstalled, tracks, tracksEventName ] );
+
+	return {
+		isInstalling,
+		installPlugin,
+	};
+};

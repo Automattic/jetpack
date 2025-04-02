@@ -18,6 +18,7 @@
 	align-items: flex-start;
 	transition: all 0.5s ease-in-out;
 	transition-property: transform, height;
+
 	@include reduce-motion( "transition" );
 }
 
@@ -25,4 +26,9 @@
 	width: 100%;
 	flex-shrink: 0;
 	margin-left: 0;
+
+	&.is-clone {
+		position: relative;
+		pointer-events: none; // Prevent interactions with cloned elements
+	}
 }

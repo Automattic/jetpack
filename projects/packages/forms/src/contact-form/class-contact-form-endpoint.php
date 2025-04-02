@@ -36,7 +36,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/integration-status/(?P<slug>[\w-]+)',
+			$this->rest_base . '/integrations/(?P<slug>[\w-]+)',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_integration_status' ),
@@ -174,6 +174,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	public function get_item_schema() {
 		$schema = parent::get_item_schema();
+
+		$schema['properties']['parent'] = array(
+			'description' => __( 'The ID for the parent of the post. This refers to the post/page where the feedback was created.', 'jetpack-forms' ),
+			'type'        => 'integer',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'readonly'    => true,
+		);
 
 		$schema['properties']['uid'] = array(
 			'description' => __( 'Unique identifier for the form response.', 'jetpack-forms' ),
@@ -362,6 +369,35 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			);
 		}
 		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Retrieves the query params for the feedback collection.
+	 *
+	 * @return array Collection parameters.
+	 */
+	public function get_collection_params() {
+		$query_params = parent::get_collection_params();
+
+		// Add parent related query parameters since the `feedback` post type is not hierarchical, but
+		// it uses the `parent` field to store the ID of the post/page where the feedback was created.
+		$query_params['parent']         = array(
+			'description' => __( 'Limit result set to items with particular parent IDs.', 'jetpack-forms' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+			'default'     => array(),
+		);
+		$query_params['parent_exclude'] = array(
+			'description' => __( 'Limit result set to all items except those of a particular parent ID.', 'jetpack-forms' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+			'default'     => array(),
+		);
+		return $query_params;
 	}
 
 	/**
@@ -554,14 +590,23 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$plugin_files = array(
-			'akismet'       => 'akismet/akismet.php',
-			'creative-mail' => 'creative-mail-by-constant-contact/creative-mail-by-constant-contact.php',
-			'jetpack-crm'   => 'zero-bs-crm/ZeroBSCRM.php',
+		$plugin_configs = array(
+			'akismet'       => array(
+				'file'         => 'akismet/akismet.php',
+				'settings_url' => 'admin.php?page=akismet-key-config',
+			),
+			'creative-mail' => array(
+				'file'         => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
+				'settings_url' => 'admin.php?page=creativemail',
+			),
+			'jetpack-crm'   => array(
+				'file'         => 'zero-bs-crm/ZeroBSCRM.php',
+				'settings_url' => 'admin.php?page=zerobscrm-plugin-settings',
+			),
 		);
 
-		$plugin_file = $plugin_files[ $plugin_slug ] ?? '';
-		if ( empty( $plugin_file ) ) {
+		$plugin_config = $plugin_configs[ $plugin_slug ] ?? null;
+		if ( empty( $plugin_config ) ) {
 			return rest_ensure_response(
 				array(
 					'type'        => 'plugin',
@@ -574,16 +619,20 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 
 		$installed_plugins = get_plugins();
-		$is_installed      = isset( $installed_plugins[ $plugin_file ] );
-		$is_active         = is_plugin_active( $plugin_file );
+		$is_installed      = isset( $installed_plugins[ $plugin_config['file'] ] );
+		$is_active         = is_plugin_active( $plugin_config['file'] );
 
-		return rest_ensure_response(
-			array(
-				'type'        => 'plugin',
-				'isInstalled' => $is_installed,
-				'isActive'    => $is_active,
-			)
+		$response = array(
+			'type'        => 'plugin',
+			'isInstalled' => $is_installed,
+			'isActive'    => $is_active,
 		);
+
+		if ( $is_active ) {
+			$response['settingsUrl'] = admin_url( $plugin_config['settings_url'] );
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -599,8 +648,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			array_merge(
 				$status_data,
 				array(
-					'isConnected'      => class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active(),
-					'configurationUrl' => admin_url( 'admin.php?page=akismet-key-config' ),
+					'isConnected' => class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active(),
 				)
 			)
 		);

@@ -667,6 +667,12 @@ class Identity_Crisis {
 	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
 	 */
 	public static function add_secret_to_url_validation_response( array $response ) {
+		// Only checking the database option to limit the effect.
+		if ( get_option( 'jetpack_offline_mode' ) ) {
+			$response['offline_mode'] = '1';
+			return $response;
+		}
+
 		try {
 			$secret = new URL_Secret();
 

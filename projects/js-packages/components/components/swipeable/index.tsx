@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { Children, useState, useLayoutEffect, useRef, useCallback } from 'react';
+import React, { Children, useState, useLayoutEffect, useRef, useCallback, useEffect } from 'react';
 
 import './style.scss';
 
@@ -92,11 +92,13 @@ export const Swipeable = ( {
 	isClickEnabled,
 	...otherProps
 } ) => {
+	const prevPageRef = useRef( currentPage );
 	const [ swipeableArea, setSwipeableArea ] = useState< DOMRect | null >( null );
 	// TODO: Needs to be added RTL support
 	const isRtl = false;
 
 	const [ resizeObserverRef, entry ] = useResizeObserver();
+	const [ isTransitioning, setIsTransitioning ] = useState( false );
 
 	const [ pagesStyle, setPagesStyle ] = useState< PageStyle >( {
 		transitionDuration: TRANSITION_DURATION,
@@ -108,9 +110,37 @@ export const Swipeable = ( {
 	const numPages = Children.count( children );
 	const containerWidth = entry?.contentRect?.width;
 
+	useEffect( () => {
+		let timeoutId: ReturnType< typeof setTimeout >;
+		if (
+			( currentPage === 0 && prevPageRef.current === numPages ) ||
+			( currentPage === numPages - 1 && prevPageRef.current === -1 )
+		) {
+			// We are in a real slide after being transitioned from a clone
+			// we need to set again the transitionDuration to TRANSITION_DURATION
+			// But we need to wait a little bit to avoid enabling it before
+			// we moved to the real slide
+			timeoutId = setTimeout( () => {
+				setPagesStyle( prev => ( { ...prev, transitionDuration: TRANSITION_DURATION } ) );
+			}, 500 );
+		} else if ( currentPage === numPages || currentPage < 0 ) {
+			// In a clone slide. Start the transition to the real slide
+			setIsTransitioning( true );
+		}
+
+		prevPageRef.current = currentPage;
+		return () => {
+			if ( timeoutId ) {
+				clearTimeout( timeoutId );
+			}
+		};
+	}, [ currentPage, numPages ] );
+
 	const getOffset = useCallback(
 		index => {
-			const offset = containerWidth * index;
+			// Adjust offset to account for the cloned element at the beginning
+			const adjustedIndex = index + 1;
+			const offset = containerWidth * adjustedIndex;
 			return isRtl ? offset : -offset;
 		},
 		[ isRtl, containerWidth ]
@@ -139,22 +169,21 @@ export const Swipeable = ( {
 	}, [ pagesRef, currentPage, pagesStyle, updateEnabled, containerWidth, childrenOrder ] );
 
 	const resetDragData = useCallback( () => {
-		delete pagesStyle.transform;
-		setPagesStyle( {
-			...pagesStyle,
+		setPagesStyle( prev => ( {
+			...prev,
 			transitionDuration: TRANSITION_DURATION,
-		} );
+		} ) );
 		setDragData( null );
-	}, [ pagesStyle, setPagesStyle, setDragData ] );
+	}, [ setPagesStyle, setDragData ] );
 
 	const handleDragStart = useCallback(
 		event => {
 			const position = getDragPositionAndTime( event );
 			setSwipeableArea( pagesRef.current?.getBoundingClientRect() );
 			setDragData( { start: position } );
-			setPagesStyle( { ...pagesStyle, transitionDuration: `0ms` } ); // Set transition Duration to 0 for smooth dragging.
+			setPagesStyle( prev => ( { ...prev, transitionDuration: `0ms` } ) ); // Set transition Duration to 0 for smooth dragging.
 		},
-		[ pagesStyle ]
+		[ setPagesStyle, setDragData ]
 	);
 
 	const hasSwipedToNextPage = useCallback( delta => ( isRtl ? delta > 0 : delta < 0 ), [ isRtl ] );
@@ -162,6 +191,25 @@ export const Swipeable = ( {
 		delta => ( isRtl ? delta < 0 : delta > 0 ),
 		[ isRtl ]
 	);
+
+	const handleTransitionEnd = useCallback( () => {
+		if ( ! isTransitioning ) {
+			return;
+		}
+
+		setIsTransitioning( false );
+
+		// If we're on the clone slides, jump to the corresponding real slide
+		// We set the transitionDuration to 0ms to make invisible the
+		// change from the clone to the real slide
+		if ( currentPage >= numPages ) {
+			setPagesStyle( prev => ( { ...prev, transitionDuration: '0ms' } ) );
+			onPageSelect( 0 );
+		} else if ( currentPage < 0 ) {
+			setPagesStyle( prev => ( { ...prev, transitionDuration: '0ms' } ) );
+			onPageSelect( numPages - 1 );
+		}
+	}, [ currentPage, numPages, onPageSelect, isTransitioning ] );
 
 	const handleDragEnd = useCallback(
 		event => {
@@ -184,11 +232,7 @@ export const Swipeable = ( {
 
 			// Is click or tap?
 			if ( velocity === 0 && isClickEnabled ) {
-				if ( numPages !== currentPage + 1 ) {
-					onPageSelect( currentPage + 1 );
-				} else {
-					onPageSelect( 0 );
-				}
+				onPageSelect( ( currentPage + 1 ) % numPages );
 				resetDragData();
 				return;
 			}
@@ -204,20 +248,27 @@ export const Swipeable = ( {
 				velocity > VELOCITY_THRESHOLD;
 
 			let newIndex = currentPage;
-			if ( hasSwipedToNextPage( delta ) && hasMetThreshold && numPages !== currentPage + 1 ) {
-				newIndex = currentPage + 1;
+
+			if ( hasMetThreshold ) {
+				if ( hasSwipedToNextPage( delta ) ) {
+					newIndex = currentPage + 1;
+					if ( newIndex >= numPages ) {
+						setIsTransitioning( true );
+					}
+				} else if ( hasSwipedToPreviousPage( delta ) ) {
+					newIndex = currentPage - 1;
+					if ( newIndex < 0 ) {
+						setIsTransitioning( true );
+					}
+				}
 			}
 
-			if ( hasSwipedToPreviousPage( delta ) && hasMetThreshold && currentPage !== 0 ) {
-				newIndex = currentPage - 1;
-			}
-
-			delete pagesStyle.transform;
-
-			setPagesStyle( {
-				...pagesStyle,
+			setPagesStyle( prev => ( {
+				...prev,
+				transform: `translate3d(${ getOffset( newIndex ) }px, 0px, 0px)`,
 				transitionDuration: TRANSITION_DURATION,
-			} );
+			} ) );
+
 			onPageSelect( newIndex );
 			setDragData( null );
 		},
@@ -228,10 +279,11 @@ export const Swipeable = ( {
 			hasSwipedToPreviousPage,
 			numPages,
 			onPageSelect,
-			pagesStyle,
+			setPagesStyle,
 			containerWidth,
 			isClickEnabled,
 			resetDragData,
+			getOffset,
 		]
 	);
 
@@ -252,17 +304,11 @@ export const Swipeable = ( {
 				return;
 			}
 
-			// Allow for swipe left or right
-			if (
-				( numPages !== currentPage + 1 && hasSwipedToNextPage( delta ) ) ||
-				( currentPage !== 0 && hasSwipedToPreviousPage( delta ) )
-			) {
-				setPagesStyle( {
-					...pagesStyle,
-					transform: `translate3d(${ offset }px, 0px, 0px)`,
-					transitionDuration: `0ms`,
-				} );
-			}
+			setPagesStyle( prev => ( {
+				...prev,
+				transform: `translate3d(${ offset }px, 0px, 0px)`,
+				transitionDuration: '0ms',
+			} ) );
 
 			if ( ! swipeableArea ) {
 				return;
@@ -277,17 +323,7 @@ export const Swipeable = ( {
 				handleDragEnd( event );
 			}
 		},
-		[
-			dragData,
-			getOffset,
-			currentPage,
-			numPages,
-			hasSwipedToNextPage,
-			hasSwipedToPreviousPage,
-			swipeableArea,
-			pagesStyle,
-			handleDragEnd,
-		]
+		[ dragData, getOffset, currentPage, swipeableArea, handleDragEnd ]
 	);
 
 	const getTouchEvents = useCallback( () => {
@@ -334,14 +370,28 @@ export const Swipeable = ( {
 				<div
 					className={ clsx( 'swipeable__pages', containerClassName ) }
 					style={ {
-						transform: `translate3d(${ offset }px, 0px, 0px)`,
 						...pagesStyle,
-						width: getPagesWidth( containerWidth, numPages ),
+						width: getPagesWidth( containerWidth, numPages + 2 ),
+						transform: `translate3d(${ offset }px, 0px, 0px)`,
 					} }
+					onTransitionEnd={ handleTransitionEnd }
 				>
+					{ /* Clone of the last element */ }
+					<div
+						style={ { width: `${ containerWidth }px` } }
+						className={ clsx( 'swipeable__page', pageClassName, {
+							'is-clone': true,
+							'is-prev': currentPage === 0,
+						} ) }
+						key={ `clone-prev-${ numPages - 1 }` }
+					>
+						{ Children.toArray( children )[ numPages - 1 ] }
+					</div>
+
+					{ /* Original elements */ }
 					{ Children.map( children, ( child, index ) => (
 						<div
-							style={ { width: `${ containerWidth }px` } } // Setting the page width is important for iOS browser.
+							style={ { width: `${ containerWidth }px` } }
 							className={ clsx( 'swipeable__page', pageClassName, {
 								'is-current': index === currentPage,
 								'is-prev': index < currentPage,
@@ -353,6 +403,18 @@ export const Swipeable = ( {
 							{ child }
 						</div>
 					) ) }
+
+					{ /* Clone of the first element */ }
+					<div
+						style={ { width: `${ containerWidth }px` } }
+						className={ clsx( 'swipeable__page', pageClassName, {
+							'is-clone': true,
+							'is-next': currentPage === numPages - 1,
+						} ) }
+						key={ `clone-next-0` }
+					>
+						{ Children.toArray( children )[ 0 ] }
+					</div>
 				</div>
 			</div>
 			<div ref={ resizeObserverRef } className="swipeable__resize-observer"></div>

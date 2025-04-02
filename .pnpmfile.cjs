@@ -69,6 +69,7 @@ function fixDeps( pkg ) {
 		] ) {
 			pkg.optionalDependencies[ dep ] = '*';
 		}
+		pkg.optionalDependencies[ 'change-case' ] = '^4';
 	}
 
 	// Missing dep or peer dep. Fixed in main, but needs a release.
