@@ -725,11 +725,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Twitch',
 			),
 			array(
-				'url'   => array( 'twitter.com' ),
-				'icon'  => 'twitter',
-				'label' => 'Twitter',
-			),
-			array(
 				'url'   => array( 'vimeo.com' ),
 				'icon'  => 'vimeo',
 				'label' => 'Vimeo',
@@ -760,7 +755,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Yelp',
 			),
 			array(
-				'url'   => array( 'x.com' ),
+				'url'   => array( '#^https?:\/\/(www\.)?(twitter|x)\.com#' ),
 				'icon'  => 'x',
 				'label' => 'X',
 			),
