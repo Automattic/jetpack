@@ -1051,7 +1051,8 @@ class Share_Email extends Sharing_Source {
 }
 
 /**
- * Twitter sharing button.
+ * Legacy Twitter sharing button.
+ * Share_X is the new Twitter sharing button.
  */
 class Share_Twitter extends Sharing_Source {
 	/**
