@@ -60,11 +60,6 @@
 			cursor: pointer;
 		}
 
-		// Prevent white-space issues on Firefox
-		.wp-block-jetpack-subscriptions__button[contenteditable="true"] {
-			white-space: pre-wrap !important;
-		}
-
 		input[type="email"]::placeholder,
 		input[type="email"]:disabled {
 			color: currentColor;
