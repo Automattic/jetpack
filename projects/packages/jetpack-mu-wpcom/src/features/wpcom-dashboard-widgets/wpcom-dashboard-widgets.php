@@ -64,7 +64,7 @@ function load_wpcom_dashboard_widgets() {
 		),
 	);
 
-	$launchpad_context = 'customer-home';
+	$launchpad_context = 'wpadmin-dashboard-widget';
 	$checklist_slug    = get_option( 'site_intent' );
 
 	if (
