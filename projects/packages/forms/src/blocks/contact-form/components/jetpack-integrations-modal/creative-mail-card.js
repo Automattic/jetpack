@@ -1,11 +1,24 @@
-import { Button, ExternalLink, Spinner, Icon } from '@wordpress/components';
+import { createBlock } from '@wordpress/blocks';
+import { Button, ExternalLink, Spinner, Icon, ToggleControl } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { usePluginInstallation } from '../hooks';
-import ConsentBlockSettings from '../jetpack-newsletter-integration-settings-consent-block';
 import IntegrationCard from './integration-card';
 
 const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const { isInstalled = false, isActive = false, settingsUrl = '' } = data || {};
+
+	const selectedBlock = useSelect( select => select( 'core/block-editor' ).getSelectedBlock(), [] );
+
+	const { insertBlock, removeBlock } = useDispatch( 'core/block-editor' );
+
+	const hasEmailBlock = selectedBlock?.innerBlocks?.some(
+		( { name } ) => name === 'jetpack/field-email'
+	);
+
+	const consentBlock = selectedBlock?.innerBlocks?.find(
+		( { name } ) => name === 'jetpack/field-consent'
+	);
 
 	const { isInstalling, installPlugin } = usePluginInstallation(
 		'creative-mail-by-constant-contact',
@@ -18,6 +31,18 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		const success = await installPlugin();
 		if ( success ) {
 			refreshStatus();
+		}
+	};
+
+	const toggleConsent = async () => {
+		if ( consentBlock ) {
+			await removeBlock( consentBlock.clientId, false );
+		} else {
+			const buttonBlockIndex = selectedBlock.innerBlocks.findIndex(
+				( { name } ) => name === 'jetpack/button'
+			);
+			const newConsentBlock = await createBlock( 'jetpack/field-consent' );
+			await insertBlock( newConsentBlock, buttonBlockIndex, selectedBlock.clientId, false );
 		}
 	};
 
@@ -94,7 +119,13 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						</ExternalLink>
 					</em>
 				</p>
-				<ConsentBlockSettings />
+				{ hasEmailBlock && (
+					<ToggleControl
+						label={ __( 'Add email permission request before submit button', 'jetpack-forms' ) }
+						checked={ !! consentBlock }
+						onChange={ toggleConsent }
+					/>
+				) }
 			</div>
 		);
 	};
