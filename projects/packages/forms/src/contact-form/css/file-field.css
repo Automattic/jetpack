@@ -70,6 +70,7 @@
 
 .jetpack-form-file-field__preview-wrap.is-active {
 	visibility: visible;
+
 }
 
 .jetpack-form-file-field__preview {
@@ -81,8 +82,10 @@
 	padding: 16px;
 	position: relative;
 	justify-content:start;
+	border-radius: var( --jetpack--contact-form--border-radius, 0 );
 	background-color: var(--jetpack--contact-form--input-background, white);
-	border: var(--jetpack--contact-form--border-size, 1px) solid var(--jetpack--contact-form--border-color);
+	color: var(--jetpack--contact-form--input-color, #333);
+	border: var(--jetpack--contact-form--border-size, 1px) var( --jetpack--contact-form--border-style, solid) var(--jetpack--contact-form--border-color, #333 );
 	margin-top: 8px;
 	font-size: 12px;
 	line-height: 18px;
@@ -148,7 +151,7 @@
 
 .jetpack-form-file-field__remove {
 	position: relative;
-	width: 32px;
+	min-width: 32px;
 	height: 32px;
 	margin-right: 10px;
 }
@@ -172,7 +175,7 @@
 }
 
 .jetpack-form-file-field__image-wrap {
-	width: 46px;
+	min-width: 46px;
 	height: 46px;
 	border-radius: calc(infinity * 1px);
 	position: relative;
@@ -204,7 +207,7 @@
 	right: 0;
 	border-radius: 50%;
 	background: conic-gradient(
-		var(--outline, #333 )
+		var(--jetpack--contact-form--border-color, #333 )
 		calc(var(--progress, 3) * 1%),
 		transparent calc(var(--progress, 3) * 1%)
 	);
@@ -260,7 +263,7 @@
 }
 
 .jetpack-form-file-field__file-info {
-	color: #6D6D6D;
+	opacity: 0.8;
 	display: inline-flex;
 	gap: 4px;
 }
