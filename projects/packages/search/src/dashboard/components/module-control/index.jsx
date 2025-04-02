@@ -279,11 +279,10 @@ const SearchToggle = ( {
 	const isSearchToggleChecked = isModuleEnabled && supportsSearch && ! isDisabledFromOverLimit;
 	const isSearchToggleDisabled =
 		isSavingEitherOption || ! supportsSearch || isDisabledFromOverLimit;
-	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	return (
 		<div className="jp-form-search-settings-group__toggle is-search jp-search-dashboard-wrap">
-			{ ! isWpcom && (
+			{
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 					<CompactFormToggle
@@ -300,7 +299,7 @@ const SearchToggle = ( {
 					</CompactFormToggle>
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				</div>
-			) }
+			}
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
 				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">
