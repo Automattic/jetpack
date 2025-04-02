@@ -184,9 +184,6 @@ class Contact_Form_Plugin {
 		add_action( 'loop_start', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'style_on' ) );
 		add_action( 'pre_amp_render_post', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'style_on' ) );
 
-		// Add action to delete attached files when a feedback post is deleted
-		add_action( 'before_delete_post', array( $this, 'delete_feedback_attachments' ) );
-
 		add_action( 'wp_ajax_grunion-contact-form', array( $this, 'ajax_request' ) );
 		add_action( 'wp_ajax_nopriv_grunion-contact-form', array( $this, 'ajax_request' ) );
 
