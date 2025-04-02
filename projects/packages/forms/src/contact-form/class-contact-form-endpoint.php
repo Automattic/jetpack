@@ -670,8 +670,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$status_data   = $plugin_status->get_data();
 
 		if ( $status_data['isActive'] ) {
-			// @phan-suppress-next-line UndefError
-			$has_extension = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' );
+			$has_extension = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
 
 			return rest_ensure_response(
 				array_merge(
