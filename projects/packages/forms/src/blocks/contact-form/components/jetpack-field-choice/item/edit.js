@@ -95,9 +95,9 @@ export default function JetpackFieldChoiceItemEdit( {
 	};
 
 	const supportsSplitting = supportsParagraphSplitting();
-	const classes = clsx( 'jetpack-field-option', `field-option-${ type }`, blockProps.className );
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		className: classes,
+	const innerBlocksProps = useInnerBlocksProps( {
+		...blockProps,
+		className: clsx( 'jetpack-field-option', `field-option-${ type }`, blockProps.className ),
 		style: optionStyle,
 	} );
 	const useEnterRef = useEnter( { content: attributes.label, clientId } );
