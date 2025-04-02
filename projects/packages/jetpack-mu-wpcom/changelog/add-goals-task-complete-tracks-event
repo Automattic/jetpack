@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Add goals prop to wpcom_launchpad_mark_task_complete event
