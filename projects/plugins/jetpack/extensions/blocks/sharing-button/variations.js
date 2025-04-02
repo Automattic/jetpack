@@ -100,13 +100,6 @@ export const variations = [
 		icon: <SocialLogo icon={ 'x' } size={ 24 } />,
 	},
 	{
-		name: 'twitter',
-		attributes: { service: 'twitter', label: 'Twitter' },
-		keywords: [ 'twitter' ],
-		title: 'Twitter',
-		icon: <SocialLogo icon={ 'twitter' } size={ 24 } />,
-	},
-	{
 		name: 'nextdoor',
 		attributes: { service: 'nextdoor', label: 'Nextdoor' },
 		title: 'Nextdoor',
