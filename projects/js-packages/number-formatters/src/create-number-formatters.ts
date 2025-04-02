@@ -168,8 +168,7 @@ function createNumberFormatters(): NumberFormatters {
 
 		return (
 			localeState ??
-			localeFromUserSettings ??
-			global?.window?.navigator?.language ??
+			( localeFromUserSettings || global?.window?.navigator?.language ) ??
 			FALLBACK_LOCALE
 		).split( '_' )[ 0 ];
 	};
