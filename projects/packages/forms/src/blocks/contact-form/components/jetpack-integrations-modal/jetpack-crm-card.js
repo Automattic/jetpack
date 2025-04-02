@@ -3,6 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
 import { useIntegrationStatus, usePluginInstallation } from '../hooks';
+import JetpackCRMIcon from '../../../../icons/jetpack-crm-icon';
 import IntegrationCard from './integration-card';
 
 const JetpackCRMCard = ( { isExpanded, onToggle, jetpackCRM, setAttributes } ) => {
@@ -164,7 +165,7 @@ const JetpackCRMCard = ( { isExpanded, onToggle, jetpackCRM, setAttributes } ) =
 		<IntegrationCard
 			title={ __( 'Jetpack CRM', 'jetpack-forms' ) }
 			description={ __( 'Keep on top of leads as they are added to your CRM', 'jetpack-forms' ) }
-			icon="groups"
+			icon={ <JetpackCRMIcon /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 		>
