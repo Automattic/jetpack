@@ -193,7 +193,7 @@ Genericons
 /* Twitter, X */
 .jetpack-social-navigation-genericons a[href*="x.com"]:before,
 .jetpack-social-navigation-genericons a[href*="twitter.com"]:before {
-	content: "\f10e";
+	content: "\f202";
 }
 
 /* Vimeo */
