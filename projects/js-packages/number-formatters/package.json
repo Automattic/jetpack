@@ -15,6 +15,7 @@
 	},
 	"dependencies": {
 		"@babel/runtime": "^7",
+		"@wordpress/date": "5.19.0",
 		"debug": "4.4.0"
 	},
 	"devDependencies": {
