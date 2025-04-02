@@ -1,6 +1,6 @@
 import { SVG } from '@wordpress/primitives';
 
-const JetpackCRMIcon = props => (
+const JetpackIcon = props => (
 	<SVG
 		width="28"
 		height="28"
@@ -22,4 +22,4 @@ const JetpackCRMIcon = props => (
 	</SVG>
 );
 
-export default JetpackCRMIcon;
+export default JetpackIcon;
