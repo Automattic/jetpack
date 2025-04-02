@@ -40,6 +40,8 @@ const addFileToContext = file => {
 	const context = getContext();
 
 	let error = null;
+
+	// Check that the file not more then the max size.
 	if ( file.size > config.maxUploadSize ) {
 		error = config.i18n.fileTooLarge;
 	}
@@ -49,8 +51,15 @@ const addFileToContext = file => {
 		error = config.i18n.invalidType;
 	}
 
+	// Check if the user is trying to add more files then allowed.
+	if ( context.maxFiles < context.files.length + 1 ) {
+		error = config.i18n.maxFiles;
+	}
+
 	const fileId = performance.now() + '-' + Math.random();
 
+	// Update the context.
+	context.hasFiles = true;
 	context.files.push( {
 		name: file.name,
 		formattedSize: formatBytes( file.size, 2 ),
@@ -60,14 +69,13 @@ const addFileToContext = file => {
 		error,
 	} );
 
-	context.hasFiles = true;
+	// Start the upload if we don't have any errors.
+	! error && uploadFile( file, fileId );
 
+	// Load the file so we can display it. In case it is an image.
 	reader.onload = withScope( () => {
 		updateFileContext( { url: 'url(' + reader.result + ')' }, fileId );
 	} );
-
-	// start the upload if we don't have any errors.
-	! error && uploadFile( file, fileId );
 };
 
 /**
@@ -156,6 +164,17 @@ const removeFile = fileId => {
 };
 
 store( NAMESPACE, {
+	state: {
+		get hasFiles() {
+			return !! getContext().files.length > 0;
+		},
+
+		get hasMaxFiles() {
+			const context = getContext();
+			return context.maxFiles <= context.files.length;
+		},
+	},
+
 	actions: {
 		/**
 		 * Open the file picker dialog.
@@ -225,8 +244,6 @@ store( NAMESPACE, {
 			const context = getContext();
 			const fileId = event.target.dataset.id;
 			context.files = context.files.filter( fileObject => fileObject.id !== fileId );
-			context.hasFiles = context.files.length > 0;
-
 			removeFile( fileId );
 		},
 	},

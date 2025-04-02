@@ -2,7 +2,7 @@
 	position: relative;
 }
 
-.jetpack-form-file-field__dropzone.has-files {
+.jetpack-form-file-field__dropzone.is-hidden {
 	display: none;
 }
 
