@@ -794,6 +794,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return mixed|string
 	 */
 	public static function escape_and_sanitize_field_value( $value ) {
+		l( 'Value: ' . var_export( $value, true ) );
 		// Handle file upload field (new structure with field_id and files array)
 		if ( self::is_file_upload_field( $value ) ) {
 			$files = $value['files'];
@@ -2091,28 +2092,40 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * @return array A structured array with field_id and files array.
 	 */
-	private function process_file_upload_field( $field_id, $field ) {
-		$field_id         = sanitize_key( $field_id );
-		$token_field_name = $field_id . '_token';
+	public function process_file_upload_field( $field_id, $field ) {
+		$field_id = sanitize_key( $field_id );
 
 		// Debug: Log the field info
 		error_log( "DEBUG: Processing file upload field: $field_id" );
-		error_log( "DEBUG: Token field name: $token_field_name" );
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$unauth_file_token_array = isset( $_POST[ $token_field_name ] ) && is_array( $_POST[ $token_field_name ] )
-			? map_deep(
-				$_POST[ $token_field_name ],  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing
-				function ( $token ) {
-					return sanitize_text_field( wp_unslash( $token ) );
-				}
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verification happens in the parent form submission handler
+		$raw_data = array();
+		if ( isset( $_POST[ sanitize_key( $field_id ) ] ) ) {
+			$raw_post_data = wp_unslash( $_POST[ sanitize_key( $field_id ) ] );
+			if ( is_array( $raw_post_data ) ) {
+				$raw_data = array_map( 'sanitize_text_field', $raw_post_data );
+			}
+		}
+
+		$file_data_array = is_array( $raw_data )
+			? array_map(
+				function ( $json_str ) {
+					$decoded = json_decode( $json_str, true );
+					return array(
+						'token' => isset( $decoded['token'] ) ? sanitize_text_field( $decoded['token'] ) : '',
+						'name'  => isset( $decoded['name'] ) ? sanitize_text_field( $decoded['name'] ) : '',
+						'size'  => isset( $decoded['size'] ) ? absint( $decoded['size'] ) : 0,
+						'type'  => isset( $decoded['type'] ) ? sanitize_text_field( $decoded['type'] ) : '',
+					);
+				},
+				$raw_data
 			) : array();
 
-		// Debug: Log tokens
-		error_log( 'DEBUG: File tokens: ' . print_r( $unauth_file_token_array, true ) );
+		// Debug: Log file data
+		error_log( 'DEBUG: File data: ' . print_r( $file_data_array, true ) );
 
-		if ( empty( $unauth_file_token_array ) ) {
-			error_log( "DEBUG: No file tokens found for field $field_id" );
+		if ( empty( $file_data_array ) ) {
+			error_log( "DEBUG: No file data found for field $field_id" );
 			$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
 			return array(
 				'field_id' => $field_id,
@@ -2120,10 +2133,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 		}
 
-		// Return a structured array with field_id but no files yet
 		return array(
 			'field_id' => $field_id,
-			'files'    => $unauth_file_token_array,
+			'files'    => $file_data_array,
 		);
 	}
 

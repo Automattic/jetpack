@@ -933,8 +933,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="state.hasFiles">
 				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
 					<div class="jetpack-form-file-field__preview" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.hasToken">
-						<input type="hidden" name="<?php echo esc_attr( $id ); ?>_token[]" data-wp-bind--value='context.file.token' value="">
-
+						<input type="hidden" name="<?php echo esc_attr( $id ); ?>[]" data-wp-bind--value='context.file.fileJson' value="">
 						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress">
 							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
 							<div class="jetpack-form-file-field__progress-bar" ></div>

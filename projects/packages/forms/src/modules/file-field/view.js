@@ -60,6 +60,7 @@ const addFileToContext = file => {
 
 	// Update the context.
 	context.hasFiles = true;
+
 	context.files.push( {
 		name: file.name,
 		formattedSize: formatBytes( file.size, 2 ),
@@ -127,10 +128,15 @@ const onReadyStateChange = ( fileId, event ) => {
 					{
 						token: response.data.token,
 						hasToken: true,
-						name: response.data.file?.name,
-						type: response.data.file?.type,
-						size: response.data.file?.size,
-						error: response.data.file?.error || 0,
+						name: response.data.name,
+						type: response.data.type,
+						size: response.data.size,
+						fileJson: JSON.stringify( {
+							token: response.data.token,
+							name: response.data.name,
+							size: response.data.size,
+							type: response.data.type,
+						} ),
 					},
 					fileId
 				);
