@@ -11,7 +11,6 @@ namespace Automattic\Jetpack\Modules\Subscriptions;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
-use DateTimeImmutable;
 
 /**
  * Class Settings
@@ -50,64 +49,60 @@ class Settings {
 	 * Get the default setting value for wpcom_featured_image_in_email.
 	 *
 	 * This method determines the site environment (WPCOM vs Jetpack),
-	 * retrieves the appropriate site creation date, and compares it
+	 * retrieves the appropriate site creation timestamp, and compares it
 	 * against a cutoff date to determine the default setting.
 	 *
 	 * @return int 1 if featured images should be enabled by default, 0 otherwise.
 	 */
 	public static function get_wpcom_featured_image_in_email_default() {
-		$creation_date = null;
+		$creation_timestamp = null;
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$creation_date = self::get_wpcom_site_creation_date();
+			$creation_timestamp = self::get_wpcom_site_registered_timestamp();
 		} else {
-			$manager       = new Manager();
-			$creation_date = self::get_jetpack_cache_site_creation_date( $manager );
+			$manager            = new Manager();
+			$creation_timestamp = self::get_jetpack_cache_site_creation_timestamp( $manager );
 		}
 
-		// If $creation_date remained null for some reason, fallback to the default value.
-		if ( ! $creation_date instanceof DateTimeImmutable ) {
+		// If $creation_timestamp remained null for some reason, fallback to the default value.
+		if ( ! is_int( $creation_timestamp ) ) {
 			return 0;
 		}
 
-		return (int) self::is_site_eligible_for_new_default( $creation_date );
+		return (int) self::is_site_eligible_for_new_default( $creation_timestamp );
 	}
 
 	/**
 	 * Checks if a site, based on its creation date, qualifies for the new default.
 	 *
-	 * @param DateTimeImmutable $creation_date The site's creation date.
+	 * @param int $creation_timestamp The site's creation date as a Unix timestamp.
 	 * @return bool True if the site date is after the cutoff, false otherwise.
 	 */
-	public static function is_site_eligible_for_new_default( DateTimeImmutable $creation_date ) {
+	public static function is_site_eligible_for_new_default( $creation_timestamp ) {
+		$cutoff_timestamp = strtotime( self::FEATURED_IMAGE_EMAIL_CUTOFF_DATE );
 
-		$cutoff_date = new DateTimeImmutable(
-			self::FEATURED_IMAGE_EMAIL_CUTOFF_DATE,
-			wp_timezone()
-		);
-
-		return $creation_date > $cutoff_date;
+		return $creation_timestamp > $cutoff_timestamp;
 	}
 
 	/**
-	 * Get the WordPress.com site creation date.
+	 * Get the WordPress.com site registered date.
 	 *
-	 * @return DateTimeImmutable The site creation date or default fallback date.
+	 * @return int The site creation date as a Unix timestamp or 0 for default fallback.
 	 */
-	public static function get_wpcom_site_creation_date() {
-		$default_date = new DateTimeImmutable( '0000-00-00 00:00:00.000', wp_timezone() );
-		$blog_id      = get_current_blog_id();
+	public static function get_wpcom_site_registered_timestamp() {
+		$default_timestamp = 0;
+		$blog_id           = get_current_blog_id();
 
 		if ( ! function_exists( 'get_blog_details' ) || ! $blog_id ) {
-			return $default_date;
+			return $default_timestamp;
 		}
 
 		$details = get_blog_details( $blog_id );
 		if ( ! $details || empty( $details->registered ) ) {
-			return $default_date;
+			return $default_timestamp;
 		}
 
-		return new DateTimeImmutable( $details->registered, wp_timezone() );
+		return strtotime( $details->registered );
 	}
 
 	/**
@@ -115,26 +110,26 @@ class Settings {
 	 * Requires an instantiated Connection_Manager.
 	 *
 	 * @param Manager $manager Instantiated Connection Manager.
-	 * @return DateTimeImmutable The site creation date or default fallback date.
+	 * @return int The site creation date as a Unix timestamp or 0 for default fallback.
 	 */
-	public static function get_jetpack_cache_site_creation_date( Manager $manager ) {
-		$default_date = new DateTimeImmutable( '0000-00-00 00:00:00.000', wp_timezone() );
+	public static function get_jetpack_cache_site_creation_timestamp( Manager $manager ) {
+		$default_timestamp = 0;
 
 		if ( ! $manager->is_connected() ) {
-			return $default_date;
+			return $default_timestamp;
 		}
 
-		$transient_key        = 'jetpack_subscriptions_site_creation';
-		$cached_creation_date = get_transient( $transient_key );
+		$transient_key             = 'jetpack_subscriptions_site_creation';
+		$cached_creation_timestamp = get_transient( $transient_key );
 
-		if ( false !== $cached_creation_date ) {
-			return $cached_creation_date;
+		if ( false !== $cached_creation_timestamp ) {
+			return $cached_creation_timestamp;
 		}
 
 		$site_id = Manager::get_site_id();
 
 		if ( is_wp_error( $site_id ) || ! $site_id ) {
-			return $default_date;
+			return $default_timestamp;
 		}
 
 		$site_response = Client::wpcom_json_api_request_as_blog(
@@ -143,23 +138,20 @@ class Settings {
 		);
 
 		if ( is_wp_error( $site_response ) ) {
-			return $default_date;
+			return $default_timestamp;
 		}
 
 		$body      = wp_remote_retrieve_body( $site_response );
 		$site_data = json_decode( $body );
 
 		if ( ! $site_data || ! isset( $site_data->options->created_at ) ) {
-			return $default_date;
+			return $default_timestamp;
 		}
 
-		$site_creation_date = new DateTimeImmutable(
-			$site_data->options->created_at,
-			wp_timezone()
-		);
+		$site_creation_timestamp = strtotime( $site_data->options->created_at );
 
-		set_transient( $transient_key, $site_creation_date, DAY_IN_SECONDS );
+		set_transient( $transient_key, $site_creation_timestamp, DAY_IN_SECONDS );
 
-		return $site_creation_date;
+		return $site_creation_timestamp;
 	}
 }

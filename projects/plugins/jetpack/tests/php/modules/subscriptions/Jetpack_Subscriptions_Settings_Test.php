@@ -45,10 +45,9 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 	 * Scenario: Comparison check with a date AFTER the cutoff.
 	 */
 	public function test_is_site_eligible_returns_true_for_recent_date() {
-		$recent_date = new DateTimeImmutable( '2025-07-01 11:00:00', wp_timezone() );
-		// Timezone mock is handled by set_up()
+		$recent_timestamp = strtotime( '2025-07-01 11:00:00' );
 
-		$is_eligible = Settings::is_site_eligible_for_new_default( $recent_date );
+		$is_eligible = Settings::is_site_eligible_for_new_default( $recent_timestamp );
 
 		$this->assertTrue( $is_eligible );
 	}
@@ -57,20 +56,20 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 	 * Scenario: Comparison check with a date BEFORE the cutoff.
 	 */
 	public function test_is_site_eligible_returns_false_for_old_date() {
-		$old_date = new DateTimeImmutable( '2024-01-01 11:00:00', wp_timezone() );
+		$old_timestamp = strtotime( '2024-01-01 11:00:00' );
 
-		$is_eligible = Settings::is_site_eligible_for_new_default( $old_date );
+		$is_eligible = Settings::is_site_eligible_for_new_default( $old_timestamp );
 
 		$this->assertFalse( $is_eligible );
 	}
 
 	/**
-	 * Scenario: Comparison check with the default '0000' date.
+	 * Scenario: Comparison check with the default '0' timestamp.
 	 */
 	public function test_is_site_eligible_returns_false_for_default_date() {
-		$default_date = new DateTimeImmutable( '0000-00-00 00:00:00.000', wp_timezone() );
+		$default_timestamp = 0;
 
-		$is_eligible = Settings::is_site_eligible_for_new_default( $default_date );
+		$is_eligible = Settings::is_site_eligible_for_new_default( $default_timestamp );
 
 		$this->assertFalse( $is_eligible );
 	}
@@ -78,7 +77,7 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 	/**
 	 * Scenario: WPCOM, Recent Date returned via mocked get_blog_details.
 	 */
-	public function test_get_wpcom_site_creation_date_returns_recent_date() {
+	public function test_get_wpcom_site_registered_timestamp_returns_recent_date() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'WPCOM helper tests require a multisite environment.' );
 		}
@@ -88,7 +87,7 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 		}
 
 		$recent_creation_date_string = '2025-08-01 12:00:00'; // Date AFTER cutoff
-		$expected_date_object        = new DateTimeImmutable( $recent_creation_date_string, wp_timezone() );
+		$expected_timestamp          = strtotime( $recent_creation_date_string );
 		$test_blog_id                = 1;
 
 		$this->patchwork_handles[] = \Patchwork\redefine(
@@ -103,16 +102,16 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 			\Patchwork\always( $mock_details )
 		);
 
-		$result_date = Settings::get_wpcom_site_creation_date();
+		$result_timestamp = Settings::get_wpcom_site_registered_timestamp();
 
-		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
-		$this->assertEquals( $expected_date_object->getTimestamp(), $result_date->getTimestamp() );
+		$this->assertIsInt( $result_timestamp );
+		$this->assertEquals( $expected_timestamp, $result_timestamp );
 	}
 
 	/**
 	 * Scenario: WPCOM, Old Date returned via mocked get_blog_details.
 	 */
-	public function test_get_wpcom_site_creation_date_returns_old_date() {
+	public function test_get_wpcom_site_registered_timestamp_returns_old_date() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'WPCOM helper tests require a multisite environment.' );
 		}
@@ -121,7 +120,7 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 		}
 
 		$old_creation_date_string = '2023-01-01 12:00:00'; // Date BEFORE cutoff
-		$expected_date_object     = new DateTimeImmutable( $old_creation_date_string, wp_timezone() );
+		$expected_timestamp       = strtotime( $old_creation_date_string );
 		$test_blog_id             = 1;
 
 		$this->patchwork_handles[] = \Patchwork\redefine(
@@ -136,16 +135,16 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 			\Patchwork\always( $mock_details )
 		);
 
-		$result_date = Settings::get_wpcom_site_creation_date();
+		$result_timestamp = Settings::get_wpcom_site_registered_timestamp();
 
-		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
-		$this->assertEquals( $expected_date_object->getTimestamp(), $result_date->getTimestamp() );
+		$this->assertIsInt( $result_timestamp );
+		$this->assertEquals( $expected_timestamp, $result_timestamp );
 	}
 
 	/**
 	 * Scenario: WPCOM, get_blog_details returns null.
 	 */
-	public function test_get_wpcom_site_creation_date_returns_default_date_if_details_null() {
+	public function test_get_wpcom_site_registered_timestamp_returns_default_date_if_details_null() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'WPCOM helper tests require a multisite environment.' );
 		}
@@ -165,16 +164,16 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 			\Patchwork\always( null )
 		);
 
-		$result_date = Settings::get_wpcom_site_creation_date();
+		$result_timestamp = Settings::get_wpcom_site_registered_timestamp();
 
-		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
-		$this->assertLessThan( 0, $result_date->getTimestamp() );
+		$this->assertIsInt( $result_timestamp );
+		$this->assertSame( 0, $result_timestamp );
 	}
 
 	/**
 	 * Scenario: WPCOM, get_blog_details returns object without 'registered' property.
 	 */
-	public function test_get_wpcom_site_creation_date_returns_default_date_if_registered_missing() {
+	public function test_get_wpcom_site_registered_timestamp_returns_default_timestamp_if_registered_missing() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'WPCOM helper tests require a multisite environment.' );
 		}
@@ -195,16 +194,16 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 			\Patchwork\always( $mock_details )
 		);
 
-		$result_date = Settings::get_wpcom_site_creation_date();
+		$result_timestamp = Settings::get_wpcom_site_registered_timestamp();
 
-		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
-		$this->assertLessThan( 0, $result_date->getTimestamp() );
+		$this->assertIsInt( $result_timestamp );
+		$this->assertSame( 0, $result_timestamp );
 	}
 
 	/**
 	 * Scenario: WPCOM, blog_id is not valid.
 	 */
-	public function test_get_wpcom_site_creation_date_returns_default_date_if_no_blog_id() {
+	public function test_get_wpcom_site_registered_timestamp_returns_default_timestamp_if_no_blog_id() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'WPCOM helper tests require a multisite environment.' );
 		}
@@ -219,21 +218,22 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 			\Patchwork\always( $test_blog_id )
 		);
 
-		$result_date = Settings::get_wpcom_site_creation_date();
+		$result_timestamp = Settings::get_wpcom_site_registered_timestamp();
 
-		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
-		$this->assertLessThan( 0, $result_date->getTimestamp() );
+		$this->assertIsInt( $result_timestamp );
+		$this->assertSame( 0, $result_timestamp );
 	}
 
 	/**
 	 * Scenario: Connected, Cache Miss, API returns RECENT date.
 	 */
-	public function test_get_jetpack_cache_site_creation_date_returns_recent_date() {
+	public function test_get_jetpack_cache_site_creation_timestamp_returns_recent_date() {
 		if ( ! function_exists( '\Patchwork\redefine' ) ) {
 			$this->markTestSkipped( 'Patchwork not available.' );
 		}
 
 		$recent_creation_date_string = '2025-08-01 12:00:00'; // Date AFTER cutoff
+		$expected_timestamp          = strtotime( $recent_creation_date_string );
 		$test_site_id                = 1;
 
 		$mock_manager = $this->get_mock_manager( true );
@@ -263,23 +263,22 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 			\Patchwork\always( $mock_http_response )
 		);
 
-		$expected_date_object = new DateTimeImmutable( $recent_creation_date_string, wp_timezone() );
+		$result_timestamp = Settings::get_jetpack_cache_site_creation_timestamp( $mock_manager );
 
-		$result_date = Settings::get_jetpack_cache_site_creation_date( $mock_manager );
-
-		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
-		$this->assertEquals( $expected_date_object->getTimestamp(), $result_date->getTimestamp() );
+		$this->assertIsInt( $result_timestamp );
+		$this->assertEquals( $expected_timestamp, $result_timestamp );
 	}
 
 	/**
 	 * Scenario: Connected, Cache Miss, API returns OLD date.
 	 */
-	public function test_get_jetpack_cache_site_creation_date_returns_old_date() {
+	public function test_get_jetpack_cache_site_creation_timestamp_returns_old_date() {
 		if ( ! function_exists( '\Patchwork\redefine' ) ) {
 			$this->markTestSkipped( 'Patchwork not available.' );
 		}
 
 		$old_creation_date_string = '2023-01-01 12:00:00'; // Date BEFORE cutoff
+		$expected_timestamp       = strtotime( $old_creation_date_string );
 		$test_site_id             = 1;
 
 		$mock_manager = $this->get_mock_manager( true );
@@ -308,18 +307,16 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 			\Patchwork\always( $mock_http_response )
 		);
 
-		$expected_date_object = new DateTimeImmutable( $old_creation_date_string, wp_timezone() );
+		$result_timestamp = Settings::get_jetpack_cache_site_creation_timestamp( $mock_manager );
 
-		$result_date = Settings::get_jetpack_cache_site_creation_date( $mock_manager );
-
-		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
-		$this->assertEquals( $expected_date_object->getTimestamp(), $result_date->getTimestamp() );
+		$this->assertIsInt( $result_timestamp );
+		$this->assertEquals( $expected_timestamp, $result_timestamp );
 	}
 
 	/**
 	 * Scenario: Connected, bad response
 	 */
-	public function test_get_jetpack_cache_site_creation_date_returns_default_date_with_bad_response() {
+	public function test_get_jetpack_cache_site_creation_timestamp_returns_default_date_with_bad_response() {
 		if ( ! function_exists( '\Patchwork\redefine' ) ) {
 			$this->markTestSkipped( 'Patchwork not available.' );
 		}
@@ -338,16 +335,16 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 			\Patchwork\always( $mock_http_response )
 		);
 
-		$result_date = Settings::get_jetpack_cache_site_creation_date( $mock_manager );
+		$result_timestamp = Settings::get_jetpack_cache_site_creation_timestamp( $mock_manager );
 
-		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
-		$this->assertLessThan( 0, $result_date->getTimestamp() );
+		$this->assertIsInt( $result_timestamp );
+		$this->assertSame( 0, $result_timestamp );
 	}
 
 	/**
 	 * Scenario: Connected, bad site data
 	 */
-	public function test_get_jetpack_cache_site_creation_date_returns_default_date_with_bad_site_data() {
+	public function test_get_jetpack_cache_site_creation_timestamp_returns_default_date_with_bad_site_data() {
 		if ( ! function_exists( '\Patchwork\redefine' ) ) {
 			$this->markTestSkipped( 'Patchwork not available.' );
 		}
@@ -375,25 +372,25 @@ class Jetpack_Subscriptions_Settings_Test extends WP_UnitTestCase {
 			\Patchwork\always( $mock_http_response )
 		);
 
-		$result_date = Settings::get_jetpack_cache_site_creation_date( $mock_manager );
+		$result_timestamp = Settings::get_jetpack_cache_site_creation_timestamp( $mock_manager );
 
-		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
-		$this->assertLessThan( 0, $result_date->getTimestamp() );
+		$this->assertIsInt( $result_timestamp );
+		$this->assertSame( 0, $result_timestamp );
 	}
 
 	/**
 	 * Scenario: Not connected
 	 */
-	public function test_get_jetpack_cache_site_creation_date_returns_default_date_with_no_connection() {
+	public function test_get_jetpack_cache_site_creation_timestamp_returns_default_date_with_no_connection() {
 		if ( ! function_exists( '\Patchwork\redefine' ) ) {
 			$this->markTestSkipped( 'Patchwork not available.' );
 		}
 
 		$mock_manager = $this->get_mock_manager( false );
 
-		$result_date = Settings::get_jetpack_cache_site_creation_date( $mock_manager );
+		$result_timestamp = Settings::get_jetpack_cache_site_creation_timestamp( $mock_manager );
 
-		$this->assertInstanceOf( DateTimeImmutable::class, $result_date );
-		$this->assertLessThan( 0, $result_date->getTimestamp() );
+		$this->assertIsInt( $result_timestamp );
+		$this->assertSame( 0, $result_timestamp );
 	}
 }
