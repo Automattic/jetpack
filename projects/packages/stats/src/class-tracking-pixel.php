@@ -102,13 +102,13 @@ class Tracking_Pixel {
 					$view_data['arch_date'] = $date;
 				}
 				if ( $wp_the_query->is_category ) {
-					$view_data['arch_cat'] = $wp_the_query->query['category_name'];
+					$view_data['arch_cat'] = $wp_the_query->query['category_name'] ?? '-';
 				}
 				if ( $wp_the_query->is_tag ) {
 					$view_data['arch_tag'] = $wp_the_query->query['tag'];
 				}
 				if ( $wp_the_query->is_author ) {
-					$view_data['arch_author'] = $wp_the_query->query['author_name'];
+					$view_data['arch_author'] = $wp_the_query->query['author_name'] ?? '-';
 				}
 				if ( $wp_the_query->is_tax ) {
 					$query = $wp_the_query->query;
