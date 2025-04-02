@@ -1238,7 +1238,7 @@ class Share_Twitter extends Sharing_Source {
 			) {
 				sharing_register_post_for_share_counts( $post->ID );
 			}
-			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Twitter', 'share to', 'jetpack' ), __( 'Click to share on Twitter', 'jetpack' ), 'share=twitter', 'sharing-twitter-' . $post->ID );
+			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'X', 'share to', 'jetpack' ), __( 'Click to share on X', 'jetpack' ), 'share=twitter', 'sharing-twitter-' . $post->ID );
 		}
 	}
 
