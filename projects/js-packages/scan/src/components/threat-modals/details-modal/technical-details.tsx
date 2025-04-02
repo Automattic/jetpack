@@ -100,7 +100,7 @@ const ThreatDetailsModalTechnicalDetails = ( { threat }: { threat: Threat } ): J
 										<Text>{ __( 'Severity', 'jetpack-scan' ) }</Text>
 										<Text>
 											{ sprintf(
-												'%1$s (%2$s)',
+												'%1$s/5 (%2$s)',
 												threat.severity,
 												getSeverityLabel( threat.severity )
 											) }
