@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { isSimpleSite, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	InspectorAdvancedControls,
 	InspectorControls,
@@ -25,14 +25,11 @@ import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
-import AkismetPanel from './components/jetpack-akismet-panel';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
-import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import IntegrationPanel from './components/jetpack-integration-panel';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
-import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
@@ -72,16 +69,15 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		customThankyouHeading,
 		customThankyouMessage,
 		customThankyouRedirect,
-		jetpackCRM,
 		salesforceData,
 		formTitle,
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
-	const { postTitle, canUserInstallPlugins, hasInnerBlocks, postAuthorEmail } = useSelect(
+	const { postTitle, hasInnerBlocks, postAuthorEmail } = useSelect(
 		select => {
 			const { getBlocks } = select( blockEditorStore );
 			const { getEditedPostAttribute } = select( editorStore );
-			const { getUser, canUser } = select( coreStore );
+			const { getUser } = select( coreStore );
 			const innerBlocks = getBlocks( clientId );
 
 			const title = getEditedPostAttribute( 'title' );
@@ -95,7 +91,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 			return {
 				postTitle: title,
-				canUserInstallPlugins: canUser( 'create', 'plugins' ),
 				hasInnerBlocks: innerBlocks.length > 0,
 				postAuthorEmail: authorEmail,
 			};
@@ -239,17 +234,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							setAttributes={ setAttributes }
 							instanceId={ instanceId }
 						/>
-					) }
-					{ ! isFormModalEnabled && ! isSimpleSite() && canUserInstallPlugins && (
-						<>
-							<AkismetPanel />
-							<PanelBody title={ __( 'CRM Connection', 'jetpack-forms' ) } initialOpen={ false }>
-								<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
-							</PanelBody>
-							<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
-								<NewsletterIntegrationSettings />
-							</PanelBody>
-						</>
 					) }
 				</InspectorControls>
 				<InspectorAdvancedControls>
