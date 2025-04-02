@@ -48,12 +48,12 @@ class Dashboard {
 
 	/**
 	 * Priority for the dashboard menu
-	 * For Jetpack sites: Jetpack uses 998 and 'Admin_Menu' uses 1000, so we need to use 999.
-	 * For simple site: the value is overriden in a child class with value 100000 to wait for all menus to be registered.
+	 * For Jetpack sites: Akismet uses 4, so we use 1 to ensure both menus are added when only they exist.
+	 * For Simple sites: the value is overriden in a child class with value 100000 to wait for all menus to be registered.
 	 *
 	 * @var int
 	 */
-	protected $search_menu_priority = 999;
+	protected $search_menu_priority = 1;
 
 	/**
 	 * Contructor
@@ -82,7 +82,6 @@ class Dashboard {
 	public function init_hooks() {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
-			// Jetpack uses 998 and 'Admin_Menu' uses 1000.
 			add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), $this->search_menu_priority );
 			// Check if the site plan changed and deactivate module accordingly.
 			add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );

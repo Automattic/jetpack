@@ -33,7 +33,6 @@ use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
 use Automattic\Jetpack_Boost\Modules\Module;
-use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
@@ -98,9 +97,6 @@ class Jetpack_Boost {
 
 		$this->connection = new Connection();
 		$this->connection->init();
-
-		// Require plugin features.
-		$this->init_textdomain();
 
 		$this->register_deactivation_hook();
 
@@ -192,7 +188,7 @@ class Jetpack_Boost {
 	 * @param array $schedules The existing cron schedules.
 	 * @return array The modified cron schedules.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.12.0
 	 */
 	public function custom_cron_intervals( $schedules ) {
 		// The "twicehourly" name maintains the same pattern as the default "twicedaily" name.
@@ -214,7 +210,7 @@ class Jetpack_Boost {
 	 */
 	public static function whitelist_query_args( $allowed_query_args ) {
 		$allowed_query_args[] = Generator::GENERATE_QUERY_ACTION;
-		$allowed_query_args[] = Modules_Index::DISABLE_MODULE_QUERY_VAR;
+		$allowed_query_args[] = Module::DISABLE_MODULE_QUERY_VAR;
 		return $allowed_query_args;
 	}
 
@@ -267,7 +263,7 @@ class Jetpack_Boost {
 					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
 					'boost_sub_modules_state'      => array( new Modules_Setup(), 'get_all_sub_modules_state' ),
 					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
-					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Modules_Index::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
+					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Module::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
 					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),
 				),
 			)

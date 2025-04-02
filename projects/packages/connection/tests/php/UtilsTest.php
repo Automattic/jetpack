@@ -17,10 +17,9 @@ class UtilsTest extends TestCase {
 
 	/**
 	 * This method is called after each test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Constants::clear_constants();
 	}
 

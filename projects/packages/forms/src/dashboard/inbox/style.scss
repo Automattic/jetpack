@@ -282,6 +282,13 @@ $action-bar-height: 88px;
 .jp-forms__inbox-response-data-value {
 	white-space: pre-wrap;
 }
+.jp-forms__inbox-response-data-value .file-field {
+	display: flex;
+	gap: 12px;
+}
+.jp-forms__inbox-response-data-value .file-field svg {
+	min-width: 24px;
+}
 
 .jp-forms__header-subtext {
 	margin-bottom: 0;

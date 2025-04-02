@@ -1,4 +1,5 @@
 import { useSelect } from '@wordpress/data';
+import { useMemo } from '@wordpress/element';
 import { store } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import { ServiceItem } from './service-item';
@@ -13,10 +14,13 @@ import { useSupportedServices } from './use-supported-services';
 export function ServicesList() {
 	const supportedServices = useSupportedServices();
 
-	const connections = useSelect( select => {
-		return select( store )
-			.getConnections()
-			.reduce< Record< string, Array< Connection > > >( ( bucket, connection ) => {
+	const allConnections = useSelect( select => {
+		return select( store ).getConnections();
+	}, [] );
+
+	const connections = useMemo( () => {
+		return allConnections.reduce< Record< string, Array< Connection > > >(
+			( bucket, connection ) => {
 				if ( ! bucket[ connection.service_name ] ) {
 					bucket[ connection.service_name ] = [];
 				}
@@ -24,8 +28,10 @@ export function ServicesList() {
 				bucket[ connection.service_name ].push( connection );
 
 				return bucket;
-			}, {} );
-	}, [] );
+			},
+			{}
+		);
+	}, [ allConnections ] );
 
 	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
 

@@ -1,3 +1,4 @@
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/components/product-interstitial-modal';
 import boostImage from '@automattic/jetpack-my-jetpack/components/product-interstitial/boost.png';
 import { __ } from '@wordpress/i18n';
@@ -14,6 +15,8 @@ const InterstitialModalCTA = ( {
 	identifier,
 	customModalTrigger,
 }: InterstitialModalCTAProps ) => {
+	const learnMoreUrl = getRedirectUrl( 'jetpack-boost-interstitial-modal-learn-more' );
+
 	return (
 		<ProductInterstitialMyJetpack
 			slug="boost"
@@ -27,7 +30,7 @@ const InterstitialModalCTA = ( {
 					<img src={ boostImage } alt="Boost" />
 				</div>
 			}
-			secondaryButtonHref="https://jetpack.com/boost/"
+			secondaryButtonHref={ learnMoreUrl }
 			description={ __(
 				'Unlock the full potential of Jetpack Boost with automated performance optimization tools and more.',
 				'jetpack-boost'

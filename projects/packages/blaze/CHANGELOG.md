@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.18] - 2025-03-31
+### Changed
+- Update dependencies. [#42678]
+
+### Fixed
+- Utilities: Changing from Post Editor to Site Editor for better compatibility and preventing console warnings. [#42652]
+
 ## [0.25.17] - 2025-03-24
 ### Changed
 - Update dependencies. [#42565]
@@ -557,6 +564,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.25.18]: https://github.com/automattic/jetpack-blaze/compare/v0.25.17...v0.25.18
 [0.25.17]: https://github.com/automattic/jetpack-blaze/compare/v0.25.16...v0.25.17
 [0.25.16]: https://github.com/automattic/jetpack-blaze/compare/v0.25.15...v0.25.16
 [0.25.15]: https://github.com/automattic/jetpack-blaze/compare/v0.25.14...v0.25.15

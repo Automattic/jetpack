@@ -27,10 +27,9 @@ class CSS_Customizer_Nudge_Test extends TestCase {
 
 	/**
 	 * Set up each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->wp_customize = new \WP_Customize_Manager();
 		register_css_nudge_control( $this->wp_customize );
 	}

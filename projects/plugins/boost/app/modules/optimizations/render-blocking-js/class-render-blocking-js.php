@@ -10,14 +10,14 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS;
 
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
 
 /**
  * Class Render_Blocking_JS
  */
-class Render_Blocking_JS implements Pluggable, Changes_Output_On_Activation, Optimization {
+class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optimization {
 	/**
 	 * Holds the script tags removed from the output buffer.
 	 *

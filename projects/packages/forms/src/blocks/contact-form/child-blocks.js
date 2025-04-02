@@ -1,4 +1,4 @@
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Path, Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
@@ -9,6 +9,7 @@ import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldConsent from './components/jetpack-field-consent';
 import JetpackDatePicker from './components/jetpack-field-datepicker';
 import JetpackDropdown from './components/jetpack-field-dropdown';
+import JetpackFieldFile from './components/jetpack-field-file';
 import JetpackFieldMultipleChoice from './components/jetpack-field-multiple-choice';
 import JetpackFieldMultipleChoiceItem from './components/jetpack-field-multiple-choice/item';
 import JetpackFieldNumber from './components/jetpack-field-number';
@@ -585,7 +586,18 @@ export const childBlocks = [
 				foreground: getIconColor(),
 				src: <Icon icon={ upload } />,
 			},
-			edit: editField( 'file' ),
+			edit: JetpackFieldFile,
+			save: () => {
+				const blockProps = useBlockProps.save();
+				const innerBlocksProps = useInnerBlocksProps.save( {
+					className: 'jetpack-form-file-field__content-wrap',
+				} );
+				return (
+					<div { ...blockProps }>
+						<div { ...innerBlocksProps } />
+					</div>
+				);
+			},
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {

@@ -277,6 +277,7 @@ const PodcastPlayerEdit = ( {
 						className={ 'components-placeholder__input' }
 						onChange={ editedUrl => dispatch( { type: actions.EDIT_URL, payload: editedUrl } ) }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<Button variant="primary" type="submit">
 						{ __( 'Embed', 'jetpack' ) }
@@ -333,6 +334,7 @@ const PodcastPlayerEdit = ( {
 								required
 								disabled={ !! selectedGuid }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						) }
 						{ ComboboxControl && (

@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.72.2] - 2025-04-01
+### Changed
+- Update package dependencies. [#42809]
+
+## [0.72.1] - 2025-04-01
+### Changed
+- Update package dependencies. [#42762]
+
+## [0.72.0] - 2025-03-31
+### Added
+- Add dot-page component. [#42625]
+
+### Changed
+- Implement a continuous loop in testimonial slider. [#42781]
+
+### Fixed
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42677]
+
+## [0.71.0] - 2025-03-26
+### Removed
+- Remove threat components. [#41654]
+
+### Fixed
+- Split Button: Increase compatibility of components, preventing console warnings. [#42627]
+
 ## [0.70.1] - 2025-03-24
 ### Fixed
 - Fix admin panel header component layout. [#42614]
@@ -1326,6 +1351,10 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.72.2]: https://github.com/Automattic/jetpack-components/compare/0.72.1...0.72.2
+[0.72.1]: https://github.com/Automattic/jetpack-components/compare/0.72.0...0.72.1
+[0.72.0]: https://github.com/Automattic/jetpack-components/compare/0.71.0...0.72.0
+[0.71.0]: https://github.com/Automattic/jetpack-components/compare/0.70.1...0.71.0
 [0.70.1]: https://github.com/Automattic/jetpack-components/compare/0.70.0...0.70.1
 [0.70.0]: https://github.com/Automattic/jetpack-components/compare/0.69.1...0.70.0
 [0.69.1]: https://github.com/Automattic/jetpack-components/compare/0.69.0...0.69.1

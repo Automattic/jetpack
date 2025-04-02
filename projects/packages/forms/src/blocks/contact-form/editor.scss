@@ -957,3 +957,12 @@
 .is-style-animated .jetpack-field.has-placeholder .animated-label__label[style*="--jetpack--contact-form--label--font-size"] {
     font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.75);
 }
+
+/* Styles for form inspector panels */
+.jetpack-contact-form__manage-responses-panel,
+.jetpack-contact-form__integrations-panel {
+	.components-button.is-secondary {
+		width: 100%;
+		justify-content: center;
+	}
+}

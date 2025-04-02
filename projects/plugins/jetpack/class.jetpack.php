@@ -1506,6 +1506,8 @@ class Jetpack {
 			/** This filter is documented in packages/status/src/class-status.php */
 		} elseif ( has_filter( 'jetpack_development_mode' ) && apply_filters( 'jetpack_development_mode', false ) ) { // This is a deprecated filter name.
 			$notice = __( 'The jetpack_development_mode filter is set to true.', 'jetpack' );
+		} elseif ( get_option( 'jetpack_offline_mode' ) ) {
+			$notice = __( 'The jetpack_offline_mode option is set to true.', 'jetpack' );
 		} else {
 			$notice = __( 'The jetpack_offline_mode filter is set to true.', 'jetpack' );
 		}

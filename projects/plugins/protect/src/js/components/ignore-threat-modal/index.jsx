@@ -1,4 +1,5 @@
-import { Button, getRedirectUrl, Text, ThreatSeverityBadge } from '@automattic/jetpack-components';
+import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
+import { ThreatSeverityBadge } from '@automattic/jetpack-scan';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';

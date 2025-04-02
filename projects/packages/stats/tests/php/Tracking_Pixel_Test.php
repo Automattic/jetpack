@@ -26,8 +26,6 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		parent::tear_down();

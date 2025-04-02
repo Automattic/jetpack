@@ -16,8 +16,6 @@ class Pre_Rest_Api_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
 	protected function set_up() {
 		parent::set_up_wordbless();
