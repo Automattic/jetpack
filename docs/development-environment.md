@@ -323,7 +323,7 @@ To get started, there are several ways to run the unit tests, depending on how y
 
 ## JavaScript unit tests
 
-The `jetpack test` command can be run from the monorepo's root to run a specific project's tests.
+The `jetpack test` command can be used from the monorepo's root to run a specific project's tests.
 
 This may be of limited benefit locally during development since it isn't possible to use watch mode or run tests only for an individual file.
 
