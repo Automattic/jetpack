@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+We were not showing the Jetpack Search toggle to Simple sites but now we do.
