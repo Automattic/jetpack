@@ -16,9 +16,6 @@ use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID
 
 define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 
-/**
- * @covers ::\Automattic\Jetpack\Extensions\Subscriptions\maybe_close_comments
- */
 class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
