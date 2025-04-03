@@ -84,7 +84,7 @@
 	justify-content:start;
 	border-radius: var( --jetpack--contact-form--border-radius, 0 );
 	background-color: var(--jetpack--contact-form--input-background, white);
-	color: var(--jetpack--contact-form--input-color, #333);
+	color: var(--jetpack--contact-form--text-color, #333);
 	border: var(--jetpack--contact-form--border-size, 1px) var( --jetpack--contact-form--border-style, solid) var(--jetpack--contact-form--border-color, #333 );
 	margin-top: 8px;
 	font-size: 12px;
@@ -151,19 +151,19 @@
 
 .jetpack-form-file-field__remove {
 	position: relative;
-	min-width: 32px;
-	height: 32px;
+	min-width: 33px;
+	height: 33px;
 	margin-right: 10px;
 }
 
 .jetpack-form-file-field__remove:before, .jetpack-form-file-field__remove:after {
 	position: absolute;
-	left: 15px;
+	left: 16px;
 	content: ' ';
 	height: 18px;
 	width: 1px;
-	top: 8px;
-	background-color: #000;
+	top: 7px;
+	background-color: var(--jetpack--contact-form--text-color, #333 );
 }
 
 .jetpack-form-file-field__remove:before {
