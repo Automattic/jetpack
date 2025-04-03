@@ -117,11 +117,13 @@ export const useSeoRequests = () => {
 				const response = await request( 'seo-title' );
 				const title = parseResponse( response ).titles?.[ 0 ];
 
-				editPost( {
-					meta: {
-						jetpack_seo_html_title: title,
-					},
-				} );
+				if ( ! globalSelect( editorStore ).isCurrentPostPublished() ) {
+					editPost( {
+						meta: {
+							jetpack_seo_html_title: title,
+						},
+					} );
+				}
 
 				return true;
 			} catch ( error ) {
@@ -147,11 +149,14 @@ export const useSeoRequests = () => {
 				setDescriptionBusy( true );
 				const response = await request( 'seo-meta-description' );
 				const description = parseResponse( response ).descriptions?.[ 0 ];
-				editPost( {
-					meta: {
-						advanced_seo_description: description,
-					},
-				} );
+
+				if ( ! globalSelect( editorStore ).isCurrentPostPublished() ) {
+					editPost( {
+						meta: {
+							advanced_seo_description: description,
+						},
+					} );
+				}
 
 				return true;
 			} catch ( error ) {
@@ -191,7 +196,10 @@ export const useSeoRequests = () => {
 
 				const altText = parseResponse( response ).texts?.[ 0 ];
 
-				await updateBlockAttributes( block.clientId, { alt: altText } );
+				if ( ! globalSelect( editorStore ).isCurrentPostPublished() ) {
+					await updateBlockAttributes( block.clientId, { alt: altText } );
+				}
+
 				setImageBusy( block.clientId, false );
 
 				return true;
