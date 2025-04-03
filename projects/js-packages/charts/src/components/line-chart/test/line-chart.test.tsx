@@ -25,7 +25,6 @@ describe( 'LineChart', () => {
 	const renderWithTheme = ( props = {} ) => {
 		return render(
 			<ThemeProvider>
-				{ /* @ts-expect-error TODO Fix the missing props */ }
 				<LineChart { ...defaultProps } { ...props } />
 			</ThemeProvider>
 		);
