@@ -246,13 +246,11 @@ store( NAMESPACE, {
 
 			const file = context.files.find( fileObject => fileObject.id === fileId );
 
-			if ( file && file.token ) {
+			if ( file && file.file_id ) {
 				const { endpoint, uploadToken } = getConfig( NAMESPACE );
 				const formData = new FormData();
-
-				formData.append( 'token', file.token );
-				formData.append( 'upload_token', uploadToken );
-
+				formData.append( 'token', uploadToken );
+				formData.append( 'file_id', file.file_id );
 				fetch( `${ endpoint }/remove`, {
 					method: 'POST',
 					body: formData,
