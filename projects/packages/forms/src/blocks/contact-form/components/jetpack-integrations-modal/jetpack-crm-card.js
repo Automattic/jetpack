@@ -4,22 +4,27 @@ import { Button, Icon, Spinner, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
-import { useIntegrationStatus, usePluginInstallation } from '../hooks';
+import { usePluginInstallation } from '../hooks';
 import IntegrationCard from './integration-card';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
-const JetpackCRMCard = ( { isExpanded, onToggle, jetpackCRM, setAttributes } ) => {
+const JetpackCRMCard = ( {
+	isExpanded,
+	onToggle,
+	jetpackCRM,
+	setAttributes,
+	data,
+	refreshStatus,
+} ) => {
 	const {
-		isCheckingStatus,
-		isInstalled,
-		isActive,
-		settingsUrl,
-		hasExtension,
-		canActivateExtension,
-		version,
-		refreshStatus,
-	} = useIntegrationStatus( 'jetpack-crm' );
+		isInstalled = false,
+		isActive = false,
+		settingsUrl = '',
+		hasExtension = false,
+		canActivateExtension = false,
+		version = '',
+	} = data || {};
 
 	const { isInstalling, installPlugin } = usePluginInstallation(
 		'zero-bs-crm',
@@ -48,7 +53,7 @@ const JetpackCRMCard = ( { isExpanded, onToggle, jetpackCRM, setAttributes } ) =
 	const isRecentVersion = crmVersion && semver.gte( crmVersion, '4.9.1' );
 
 	const renderContent = () => {
-		if ( isCheckingStatus ) {
+		if ( ! data ) {
 			return <Spinner />;
 		}
 

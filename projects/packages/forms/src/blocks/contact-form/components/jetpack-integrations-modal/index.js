@@ -5,7 +5,14 @@ import AkismetCard from './akismet-card';
 import CreativeMailCard from './creative-mail-card';
 import JetpackCRMCard from './jetpack-crm-card';
 
-const IntegrationsModal = ( { isOpen, onClose, attributes, setAttributes } ) => {
+const IntegrationsModal = ( {
+	isOpen,
+	onClose,
+	attributes,
+	setAttributes,
+	integrationsData,
+	refreshIntegrations,
+} ) => {
 	const [ expandedCards, setExpandedCards ] = useState( {
 		akismet: false,
 		crm: false,
@@ -33,16 +40,22 @@ const IntegrationsModal = ( { isOpen, onClose, attributes, setAttributes } ) => 
 				<AkismetCard
 					isExpanded={ expandedCards.akismet }
 					onToggle={ () => toggleCard( 'akismet' ) }
+					data={ integrationsData?.akismet }
+					refreshStatus={ refreshIntegrations }
 				/>
 				<JetpackCRMCard
 					isExpanded={ expandedCards.crm }
 					onToggle={ () => toggleCard( 'crm' ) }
 					jetpackCRM={ attributes.jetpackCRM }
 					setAttributes={ setAttributes }
+					data={ integrationsData?.[ 'jetpack-crm' ] }
+					refreshStatus={ refreshIntegrations }
 				/>
 				<CreativeMailCard
 					isExpanded={ expandedCards.creativemail }
 					onToggle={ () => toggleCard( 'creativemail' ) }
+					data={ integrationsData?.[ 'creative-mail' ] }
+					refreshStatus={ refreshIntegrations }
 				/>
 			</div>
 		</Modal>

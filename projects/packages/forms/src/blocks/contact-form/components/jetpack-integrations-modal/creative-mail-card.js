@@ -1,12 +1,11 @@
 import { Button, ExternalLink, Spinner, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useIntegrationStatus, usePluginInstallation } from '../hooks';
+import { usePluginInstallation } from '../hooks';
 import ConsentBlockSettings from '../jetpack-newsletter-integration-settings-consent-block';
 import IntegrationCard from './integration-card';
 
-const CreativeMailCard = ( { isExpanded, onToggle } ) => {
-	const { isCheckingStatus, isInstalled, isActive, settingsUrl, refreshStatus } =
-		useIntegrationStatus( 'creative-mail' );
+const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
+	const { isInstalled = false, isActive = false, settingsUrl = '' } = data || {};
 
 	const { isInstalling, installPlugin } = usePluginInstallation(
 		'creative-mail-by-constant-contact',
@@ -32,7 +31,7 @@ const CreativeMailCard = ( { isExpanded, onToggle } ) => {
 	};
 
 	const renderContent = () => {
-		if ( isCheckingStatus ) {
+		if ( ! data ) {
 			return <Spinner />;
 		}
 
