@@ -733,10 +733,6 @@ class Admin {
 
 		foreach ( $response_fields as $key => $display_value ) {
 			if ( Contact_Form::is_file_upload_field( $display_value ) ) {
-				// This is a file upload field, display links for all files
-				require_once __DIR__ . '/../class-file-handler.php';
-				$file_handler = new \Automattic\Jetpack\Forms\File_Handler();
-
 				printf(
 					'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">',
 					esc_html( preg_replace( '#^\d+_#', '', $key ) )
@@ -753,7 +749,7 @@ class Admin {
 						echo '<br>';
 					}
 
-					$file_url = $file_handler->get_file_url( $display_value['field_id'], $file_data['file_id'], $post->ID );
+					$file_url = '#'; // TODO: add same file url as in response.js
 					// If we have a valid URL, show the file link with additional details
 					$file_name = isset( $file_data['name'] ) ? $file_data['name'] : __( 'Attached file', 'jetpack-forms' );
 					$file_size = isset( $file_data['size'] ) ? size_format( $file_data['size'] ) : '';
