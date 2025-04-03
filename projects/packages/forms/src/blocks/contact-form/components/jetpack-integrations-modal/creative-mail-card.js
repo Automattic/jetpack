@@ -1,9 +1,9 @@
 import { createBlock } from '@wordpress/blocks';
-import { Button, ExternalLink, Spinner, Icon, ToggleControl } from '@wordpress/components';
+import { ExternalLink, Spinner, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { usePluginInstallation } from '../hooks';
 import IntegrationCard from './integration-card';
+import PluginActionButton from './plugin-action-button';
 
 const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const { isInstalled = false, isActive = false, settingsUrl = '' } = data || {};
@@ -20,20 +20,6 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		( { name } ) => name === 'jetpack/field-consent'
 	);
 
-	const { isInstalling, installPlugin } = usePluginInstallation(
-		'creative-mail-by-constant-contact',
-		'creative-mail-by-constant-contact/creative-mail-plugin',
-		isInstalled,
-		'jetpack_forms_upsell_creative_mail_click'
-	);
-
-	const handleInstallAction = async () => {
-		const success = await installPlugin();
-		if ( success ) {
-			refreshStatus();
-		}
-	};
-
 	const toggleConsent = async () => {
 		if ( consentBlock ) {
 			await removeBlock( consentBlock.clientId, false );
@@ -44,15 +30,6 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			const newConsentBlock = await createBlock( 'jetpack/field-consent' );
 			await insertBlock( newConsentBlock, buttonBlockIndex, selectedBlock.clientId, false );
 		}
-	};
-
-	const getButtonText = () => {
-		return (
-			( isInstalling && isInstalled && __( 'Activating…', 'jetpack-forms' ) ) ||
-			( isInstalling && __( 'Installing…', 'jetpack-forms' ) ) ||
-			( isInstalled && __( 'Activate Creative Mail Plugin', 'jetpack-forms' ) ) ||
-			__( 'Install Creative Mail plugin', 'jetpack-forms' )
-		);
 	};
 
 	const renderContent = () => {
@@ -71,15 +48,13 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 							) }
 						</em>
 					</p>
-					<Button
-						variant="primary"
-						onClick={ handleInstallAction }
-						disabled={ isInstalling }
-						icon={ isInstalling ? <Icon icon="update" className="is-spinning" /> : undefined }
-						__next40pxDefaultSize={ true }
-					>
-						{ getButtonText() }
-					</Button>
+					<PluginActionButton
+						pluginSlug="creative-mail-by-constant-contact"
+						pluginFile="creative-mail-by-constant-contact/creative-mail-plugin"
+						isInstalled={ isInstalled }
+						refreshStatus={ refreshStatus }
+						trackEventName="jetpack_forms_upsell_creative_mail_click"
+					/>
 				</div>
 			);
 		}
@@ -95,15 +70,13 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 							) }
 						</em>
 					</p>
-					<Button
-						variant="primary"
-						onClick={ handleInstallAction }
-						disabled={ isInstalling }
-						icon={ isInstalling ? <Icon icon="update" className="is-spinning" /> : undefined }
-						__next40pxDefaultSize={ true }
-					>
-						{ getButtonText() }
-					</Button>
+					<PluginActionButton
+						pluginSlug="creative-mail-by-constant-contact"
+						pluginFile="creative-mail-by-constant-contact/creative-mail-plugin"
+						isInstalled={ isInstalled }
+						refreshStatus={ refreshStatus }
+						trackEventName="jetpack_forms_upsell_creative_mail_click"
+					/>
 				</div>
 			);
 		}
