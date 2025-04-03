@@ -351,9 +351,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 										),
 									),
 									'size'    => array(
-										'type'        => 'integer',
+										'type'        => 'string',
 										'arg_options' => array(
-											'sanitize_callback' => 'absint',
+											'sanitize_callback' => 'sanitize_text_field',
 										),
 									),
 									'url'     => array(
@@ -444,18 +444,15 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( rest_is_field_included( 'fields', $fields ) ) {
 			$fields_data = array_diff_key( $all_fields, $base_fields );
 
-			// // Add file URLs to file fields
-			// require_once dirname( __DIR__ ) . '/class-file-handler.php';
-			// $file_handler = new \Automattic\Jetpack\Forms\File_Handler();
-			// foreach ( $fields_data as $key => &$field ) {
-			// if ( \Automattic\Jetpack\Forms\ContactForm\Contact_Form::is_file_upload_field( $field ) ) {
-			// foreach ( $field['files'] as &$file ) {
-			// $url = $file_handler->get_file_url( $field['field_id'], $file['file_id'], $item->ID );
-			// Add credentials parameter to URL
-			// $file['url'] = '#';
-			// }
-			// }
-			// }
+			foreach ( $fields_data as $key => &$field ) {
+				if ( Contact_Form::is_file_upload_field( $field ) ) {
+					$field_id = $field['field_id'];
+					foreach ( $field['files'] as &$file ) {
+						$file['size'] = size_format( $file['size'] );
+						$file['url']  = get_admin_url( null, 'admin-ajax.php' ) . '?action=jetpack_unauth_file_download&file_id=' . $file['file_id'] . '&post_id=' . $item->ID . '&field_id=' . $field_id;
+					}
+				}
+			}
 
 			$data['fields'] = $fields_data;
 		}
