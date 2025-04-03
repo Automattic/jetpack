@@ -3,7 +3,6 @@
  */
 import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import * as ReactRouterDom from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -23,9 +22,10 @@ jest.mock( '../../index', () => ( {
 	config: jest.fn(),
 } ) );
 
+const mockNavigate = jest.fn();
 jest.mock( 'react-router-dom', () => ( {
 	...jest.requireActual( 'react-router-dom' ),
-	useNavigate: jest.fn(),
+	useNavigate: () => mockNavigate,
 } ) );
 
 // Mock dependencies
@@ -35,9 +35,6 @@ describe( 'LandingPage', () => {
 	} );
 
 	it( 'redirects to responses page when hasFeedback is true', () => {
-		const mockNavigate = jest.fn();
-		jest.spyOn( ReactRouterDom, 'useNavigate' ).mockImplementation( () => mockNavigate );
-
 		configModule.config.mockImplementation( key => ( key === 'hasFeedback' ? true : null ) );
 
 		render(
@@ -55,9 +52,6 @@ describe( 'LandingPage', () => {
 	} );
 
 	it( 'does not redirect when hasFeedback is false', () => {
-		const mockNavigate = jest.fn();
-		jest.spyOn( ReactRouterDom, 'useNavigate' ).mockImplementation( () => mockNavigate );
-
 		configModule.config.mockImplementation( key => ( key === 'hasFeedback' ? false : null ) );
 
 		render(
