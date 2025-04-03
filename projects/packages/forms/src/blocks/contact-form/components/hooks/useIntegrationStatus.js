@@ -14,6 +14,9 @@ export const useIntegrationStatus = slug => {
 		isActive: false,
 		isConnected: false,
 		settingsUrl: '',
+		version: '',
+		hasExtension: false,
+		canActivateExtension: false,
 		error: null,
 	} );
 
@@ -29,6 +32,9 @@ export const useIntegrationStatus = slug => {
 				isActive: response.isActive,
 				isConnected: response.isConnected || false,
 				settingsUrl: response.settingsUrl || '',
+				version: response.version || '',
+				hasExtension: response.hasExtension || false,
+				canActivateExtension: response.canActivateExtension || false,
 				error: null,
 			} );
 		} catch ( error ) {
@@ -38,6 +44,9 @@ export const useIntegrationStatus = slug => {
 				isActive: false,
 				isConnected: false,
 				settingsUrl: '',
+				version: '',
+				hasExtension: false,
+				canActivateExtension: false,
 				error,
 			} );
 		}

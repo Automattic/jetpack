@@ -2,20 +2,19 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button, ExternalLink, Icon, Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useIntegrationStatus, usePluginInstallation } from '../hooks';
+import AkismetIcon from '../../../../icons/akismet-icon';
+import { usePluginInstallation } from '../hooks';
 import IntegrationCard from './integration-card';
 
-const AkismetCard = ( { isExpanded, onToggle } ) => {
+const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const formSubmissionsUrl = window?.jpFormsBlocks?.defaults?.formsAdminUrl || '';
 
 	const {
-		isCheckingStatus,
-		isInstalled,
-		isActive,
-		isConnected: akismetActiveWithKey,
-		settingsUrl,
-		refreshStatus,
-	} = useIntegrationStatus( 'akismet' );
+		isInstalled = false,
+		isActive = false,
+		isConnected: akismetActiveWithKey = false,
+		settingsUrl = '',
+	} = data || {};
 
 	const { isInstalling, installPlugin } = usePluginInstallation(
 		'akismet',
@@ -41,7 +40,7 @@ const AkismetCard = ( { isExpanded, onToggle } ) => {
 	};
 
 	const renderContent = () => {
-		if ( isCheckingStatus ) {
+		if ( ! data ) {
 			return <Spinner />;
 		}
 
@@ -156,7 +155,7 @@ const AkismetCard = ( { isExpanded, onToggle } ) => {
 		<IntegrationCard
 			title={ __( 'Akismet Spam Protection', 'jetpack-forms' ) }
 			description={ __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ) }
-			icon="shield"
+			icon={ <AkismetIcon /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 		>

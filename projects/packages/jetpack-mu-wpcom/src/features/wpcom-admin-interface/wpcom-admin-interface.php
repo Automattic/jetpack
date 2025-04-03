@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Masterbar\Admin_Menu;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -122,27 +121,6 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 		);
 	}
 
-	// We want to redirect to Calypso if the user has switched interface options to 'calypso'
-	// Unfortunately we need to run this side-effect in the option updating filter because
-	// the general settings page doesn't give us a good point to hook into the form submission.
-	if ( 'calypso' === $new_value && $on_wp_admin_options_page ) {
-		add_filter(
-			'wp_redirect',
-			/**
-			 * Filters the existing redirect in wp-admin/options.php so we go to Calypso instead
-			 * of to a GET version of the WP Admin general options page.
-			 */
-			function ( $location ) {
-				$updated_settings_page = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
-				if ( $location === $updated_settings_page && ! wpcom_is_duplicate_views_experiment_enabled() ) {
-					return 'https://wordpress.com/settings/general/' . wpcom_get_site_slug();
-				} else {
-					return $location;
-				}
-			}
-		);
-	}
-
 	return $new_value;
 }
 add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_update_option', 10, 2 );
@@ -198,6 +176,7 @@ function wpcom_admin_get_current_screen() {
 function wpcom_admin_interface_pre_get_option( $default_value ) {
 	$current_screen = wpcom_admin_get_current_screen();
 
+	// We need to keep the experiment check here so that we can use the re-share feature on Calypso until it's ported to wp-admin.
 	if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
 		return 'wp-admin';
 	}
@@ -213,10 +192,6 @@ function wpcom_admin_interface_pre_get_option( $default_value ) {
  * @return array Filtered preferred views.
  */
 function wpcom_admin_get_user_option_jetpack( $value ) {
-	if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
-		return $value;
-	}
-
 	if ( ! is_array( $value ) ) {
 		$value = array();
 	}
@@ -247,7 +222,7 @@ add_action(
 	PHP_INT_MAX
 );
 /**
- * Hides the "View" switcher on WP Admin screens enforced by the "Remove duplicate views" experiment.
+ * Hides the "View" switcher on WP Admin screens that have been untangled.
  */
 function wpcom_duplicate_views_hide_view_switcher() {
 	$admin_menu_class = wpcom_get_custom_admin_menu_class();
@@ -255,7 +230,7 @@ function wpcom_duplicate_views_hide_view_switcher() {
 		$admin_menu = $admin_menu_class::get_instance();
 
 		$current_screen = wpcom_admin_get_current_screen();
-		if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+		if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) ) {
 			remove_filter( 'in_admin_header', array( $admin_menu, 'add_dashboard_switcher' ) );
 		}
 	}
@@ -296,37 +271,6 @@ function wpcom_show_admin_interface_notice() {
 add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
 
 /**
- * Force a cache purge.
- *
- * @return void
- */
-function wpcom_rdv_reset_cache_if_needed() {
-	if ( ! get_user_option( 'rdv_force_cache_is_deleted', get_current_user_id() ) ) {
-		update_user_option( get_current_user_id(), 'rdv_force_cache_is_deleted', true, true );
-		delete_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, true );
-	}
-}
-
-/**
- * Check if the might be an a11n on Atomic sites.
- *
- * @return bool
- */
-function wpcom_atomic_rdv_maybe_is_a11n() {
-	$is_proxy_atomic    = defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
-	$is_support_session = WPCOMSH_Support_Session_Detect::is_probably_support_session();
-	$admin_menu_is_a11n = isset( $_GET['admin_menu_is_a11n'] ) && function_exists( 'wpcomsh_is_admin_menu_api_request' ) && wpcomsh_is_admin_menu_api_request();
-
-	/**
-	 * This handles two contexts: Calypso and WP-Admin.
-	 *
-	 * Calypso: WPCOM admin-menu API endpoint mapper sends a "admin_menu_is_a11n" param for a12s. If the param exists, then we'll switch to treatment.
-	 * WP-Admin: We check if the user is proxied and if it's not in a support session.
-	 */
-	return $admin_menu_is_a11n || ( $is_proxy_atomic && ! $is_support_session );
-}
-
-/**
  * Option to force and cache the Remove duplicate Views experiment assigned variation.
  */
 const RDV_EXPERIMENT_FORCE_ASSIGN_OPTION = 'remove_duplicate_views_experiment_assignment_160125';
@@ -336,97 +280,15 @@ const RDV_EXPERIMENT_FORCE_ASSIGN_OPTION = 'remove_duplicate_views_experiment_as
  *
  * @return boolean
  */
-function wpcom_is_duplicate_views_experiment_enabled() {
-	$experiment_platform = 'calypso';
-	$experiment_name     = "{$experiment_platform}_post_onboarding_holdout_160125";
-	$aa_test_name        = "{$experiment_platform}_post_onboarding_aa_150125";
-
-	static $is_enabled = null;
-	if ( $is_enabled !== null ) {
-		return $is_enabled;
-	}
-
-	$host = new Host();
-
-	if ( $host->is_wpcom_simple() && is_automattician() || $host->is_atomic_platform() && wpcom_atomic_rdv_maybe_is_a11n() ) {
-		wpcom_rdv_reset_cache_if_needed();
-	}
-
+function wpcom_is_duplicate_views_experiment_enabled(): bool {
+	// Check the forced assignment option.
 	$variation = get_user_option( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, get_current_user_id() );
-
-	/**
-	 * We cache it for both AT and Simple because we want to give a12s to be able to switch between variations for their accounts - this can be useful during support.
-	 * Note that switching the variations can only be achieved through the escape hatch, not via ExPlat.
-	 *
-	 * If we don't cache it, the is_automattician conditions will force treatment every time.
-	 */
 	if ( false !== $variation ) {
-		$is_enabled = 'treatment' === $variation;
-		return $is_enabled;
+		return 'treatment' === $variation;
 	}
 
-	if ( $host->is_wpcom_simple() ) {
-		\ExPlat\assign_current_user( $aa_test_name );
-		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
-
-		if ( is_automattician() ) {
-			$is_enabled = true;
-			update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
-			wpcom_set_rdv_calypso_preference( 'treatment' );
-		}
-
-		return $is_enabled;
-	}
-
-	if ( wpcom_atomic_rdv_maybe_is_a11n() ) {
-		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, 'treatment', true );
-		wpcom_set_rdv_calypso_preference( 'treatment' );
-		$is_enabled = true;
-
-		return true;
-	}
-
-	if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
-		$is_enabled = false;
-		return $is_enabled;
-	}
-
-	$aa_test_request_path = add_query_arg(
-		array( 'experiment_name' => $aa_test_name ),
-		"/experiments/0.1.0/assignments/{$experiment_platform}"
-	);
-	Client::wpcom_json_api_request_as_user( $aa_test_request_path, 'v2' );
-
-	$request_path = add_query_arg(
-		array( 'experiment_name' => $experiment_name ),
-		"/experiments/0.1.0/assignments/{$experiment_platform}"
-	);
-	$response     = Client::wpcom_json_api_request_as_user( $request_path, 'v2' );
-
-	if ( is_wp_error( $response ) ) {
-		$is_enabled = false;
-		return $is_enabled;
-	}
-
-	$response_code = wp_remote_retrieve_response_code( $response );
-
-	if ( 200 !== $response_code ) {
-		$is_enabled = false;
-		return $is_enabled;
-	}
-
-	$data = json_decode( wp_remote_retrieve_body( $response ), true );
-
-	if ( isset( $data['variations'] ) && array_key_exists( $experiment_name, $data['variations'] ) ) {
-		$variation = $data['variations'][ $experiment_name ];
-		update_user_option( get_current_user_id(), RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, $variation, true );
-
-		$is_enabled = 'treatment' === $variation;
-		return $is_enabled;
-	} else {
-		$is_enabled = false;
-		return $is_enabled;
-	}
+	// We default to true for everyone else.
+	return true;
 }
 
 /**
@@ -540,20 +402,12 @@ function wpcom_get_custom_admin_menu_class() {
 }
 
 /**
- * Enable the Blaze dashboard (WP-Admin) for users that have the RDV experiment enabled.
+ * Enable the Blaze dashboard (WP-Admin) for users.
  *
  * @param bool $activation_status The activation status - use WP-Admin or Calypso.
  * @return mixed|true
  */
-function wpcom_enable_blaze_dashboard_for_experiment( $activation_status ) {
-	if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
-		return $activation_status;
-	}
-
-	return true;
-}
-
-add_filter( 'jetpack_blaze_dashboard_enable', 'wpcom_enable_blaze_dashboard_for_experiment' );
+add_filter( 'jetpack_blaze_dashboard_enable', '__return_true' );
 
 /**
  * Make the Jetpack Stats page to point to the Calypso Stats Admin menu - temporary. This is needed because WP-Admin pages are rolled-out individually.
@@ -571,7 +425,7 @@ function wpcom_select_calypso_admin_menu_stats_for_jetpack_post_stats( $file ) {
 
 	$is_on_stats_page = 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'stats' === $_GET['page'];
 
-	if ( ! $is_on_stats_page || ! wpcom_is_duplicate_views_experiment_enabled() ) {
+	if ( ! $is_on_stats_page ) {
 		return $file;
 	}
 

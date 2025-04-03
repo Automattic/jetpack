@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Tests: Prevent warning when asset file doesn't exist.

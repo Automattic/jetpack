@@ -46,9 +46,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
-		if ( function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && ! wpcom_is_duplicate_views_experiment_enabled() ) {
-			$this->add_my_mailboxes_menu();
-		}
 		$this->remove_gutenberg_menu();
 
 		// Not needed outside of wp-admin.

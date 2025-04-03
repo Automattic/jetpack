@@ -1,8 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { useEvent } from '@wordpress/compose';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { useSearchParams } from 'react-router-dom';
 
 const LAYOUT_TABLE = 'table';
@@ -31,30 +30,37 @@ export const defaultLayouts = {
 export function useView() {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const urlSearch = searchParams.get( 'search' );
+	const urlSearchRef = useRef();
+	useEffect( () => {
+		urlSearchRef.current = urlSearch;
+	}, [ urlSearch ] );
 	const [ view, setView ] = useState( () => ( {
 		...defaultView,
 		search: urlSearch ?? '',
 	} ) );
 	// When view changes, update the URL params if needed.
-	const setViewWithUrlUpdate = useEvent( newView => {
-		setView( newView );
-		if ( newView.search !== urlSearch ) {
-			setSearchParams( previousSearchParams => {
-				const _searchParams = new URLSearchParams( previousSearchParams );
-				if ( newView.search ) {
-					_searchParams.set( 'search', newView.search );
-				} else {
-					_searchParams.delete( 'search' );
-				}
-				return _searchParams;
-			} );
-		}
-	} );
+	const setViewWithUrlUpdate = useCallback(
+		newView => {
+			setView( newView );
+			if ( newView.search !== urlSearchRef?.current ) {
+				setSearchParams( previousSearchParams => {
+					const _searchParams = new URLSearchParams( previousSearchParams );
+					if ( newView.search ) {
+						_searchParams.set( 'search', newView.search );
+					} else {
+						_searchParams.delete( 'search' );
+					}
+					return _searchParams;
+				} );
+			}
+		},
+		[ setSearchParams ]
+	);
 	// When search URL param changes, update the view's search filter
 	// without affecting any other config.
-	const onUrlSearchChange = useEvent( () => {
+	const onUrlSearchChange = useCallback( () => {
 		setView( previousView => {
-			const newValue = urlSearch ?? '';
+			const newValue = urlSearchRef?.current ?? '';
 			if ( newValue === previousView.search ) {
 				return previousView;
 			}
@@ -63,7 +69,7 @@ export function useView() {
 				search: newValue,
 			};
 		} );
-	} );
+	}, [] );
 	useEffect( () => {
 		onUrlSearchChange();
 	}, [ onUrlSearchChange, urlSearch ] );
