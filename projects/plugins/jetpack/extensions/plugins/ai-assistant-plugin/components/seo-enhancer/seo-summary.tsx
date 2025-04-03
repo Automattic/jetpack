@@ -68,10 +68,7 @@ export function SeoSummary( { onEdit }: { onEdit: () => void } ) {
 		}
 
 		if ( imageBlocksWithAlt.length === imageBlocks.length ) {
-			setImageAltTextHelpText(
-				// Translators: %d is the number of images.
-				sprintf( __( 'Alt text added to all %d images', 'jetpack' ), imageBlocks.length )
-			);
+			setImageAltTextHelpText( __( 'Alt text added to all images', 'jetpack' ) );
 
 			return;
 		}
