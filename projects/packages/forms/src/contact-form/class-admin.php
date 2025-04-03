@@ -739,7 +739,8 @@ class Admin {
 				);
 
 				// Get the files array from the new structure
-				$files = $display_value['files'];
+				$files    = $display_value['files'];
+				$field_id = $display_value['field_id'];
 
 				$file_count = 0;
 
@@ -754,6 +755,7 @@ class Admin {
 					$file_name = isset( $file_data['name'] ) ? $file_data['name'] : __( 'Attached file', 'jetpack-forms' );
 					$file_size = isset( $file_data['size'] ) ? size_format( $file_data['size'] ) : '';
 					$file_info = $file_name;
+					$file_url  = get_admin_url( null, 'admin-ajax.php' ) . '?action=jetpack_unauth_file_download&file_id=' . $file_data['file_id'] . '&post_id=' . $post->ID . '&field_id=' . $field_id;
 
 					// Add file size if available
 					if ( ! empty( $file_size ) ) {
