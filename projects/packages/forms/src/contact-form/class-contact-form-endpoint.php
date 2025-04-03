@@ -605,6 +605,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$integrations = array();
 
 		foreach ( array_keys( $this->get_supported_integrations() ) as $slug ) {
+			// For now, we only have plugin integrations.
+			// When needed, handle other integration types here.
 			$integrations[ $slug ] = $this->get_plugin_status( $slug );
 		}
 
@@ -618,7 +620,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response Response object.
 	 */
 	public function get_single_integration_status( $request ) {
+		// Slug validation is handled in endpoint registration.
 		$slug = $request->get_param( 'slug' );
+		// For now, we only have plugin integrations.
+		// When needed, handle other integration types here.
 		return rest_ensure_response( $this->get_plugin_status( $slug ) );
 	}
 
