@@ -40,7 +40,13 @@ window.addEventListener( 'load', () => {
 	const root = createRoot( container );
 	root.render(
 		<>
-			<RouterProvider router={ router } />
+			<RouterProvider
+				router={ router }
+				future={ {
+					v7_relativeSplatPath: true,
+					v7_startTransition: true,
+				} }
+			/>
 			<DashboardNotices />
 		</>
 	);
