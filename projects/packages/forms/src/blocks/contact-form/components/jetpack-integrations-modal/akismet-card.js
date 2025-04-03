@@ -1,67 +1,48 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, ExternalLink, Spinner } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import AkismetIcon from '../../../../icons/akismet-icon';
 import IntegrationCard from './integration-card';
-import PluginActionButton from './plugin-action-button';
 
 const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const formSubmissionsUrl = window?.jpFormsBlocks?.defaults?.formsAdminUrl || '';
 
-	const {
-		isInstalled = false,
-		isActive = false,
-		isConnected: akismetActiveWithKey = false,
-		settingsUrl = '',
-	} = data || {};
+	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
 
-	const pluginInfo = {
-		pluginSlug: 'akismet',
-		pluginFile: 'akismet/akismet',
-		isInstalled,
-		isActive,
+	const cardData = {
+		...data,
 		onComplete: refreshStatus,
 		trackingId: 'jetpack_forms_upsell_akismet_click',
 	};
 
-	const renderContent = () => {
-		if ( ! data ) {
-			return <Spinner />;
+	const installDescription = createInterpolateElement(
+		__(
+			"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
+			'jetpack-forms'
+		),
+		{
+			a: <ExternalLink href={ getRedirectUrl( 'akismet-wordpress-org' ) } />,
 		}
+	);
 
-		if ( ! isInstalled ) {
-			return (
-				<div>
-					<p>
-						{ createInterpolateElement(
-							__(
-								"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
-								'jetpack-forms'
-							),
-							{
-								a: <ExternalLink href={ getRedirectUrl( 'akismet-wordpress-org' ) } />,
-							}
-						) }
-					</p>
-					<PluginActionButton { ...pluginInfo } />
-				</div>
-			);
-		}
+	const activateDescription = __(
+		"You already have Akismet installed, but it's not activated.",
+		'jetpack-forms'
+	);
 
-		if ( ! isActive ) {
-			return (
-				<div>
-					<p>
-						{ __( "You already have Akismet installed, but it's not activated.", 'jetpack-forms' ) }
-					</p>
-					<PluginActionButton { ...pluginInfo } />
-				</div>
-			);
-		}
-
-		if ( ! akismetActiveWithKey ) {
-			return (
+	return (
+		<IntegrationCard
+			title={ __( 'Akismet Spam Protection', 'jetpack-forms' ) }
+			description={ __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ) }
+			icon={ <AkismetIcon /> }
+			isExpanded={ isExpanded }
+			onToggle={ onToggle }
+			data={ cardData }
+			installDescription={ installDescription }
+			activateDescription={ activateDescription }
+		>
+			{ ! akismetActiveWithKey ? (
 				<div>
 					<p>
 						{ createInterpolateElement(
@@ -84,53 +65,38 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						{ __( 'Add Akismet key', 'jetpack-forms' ) }
 					</Button>
 				</div>
-			);
-		}
-
-		return (
-			<div>
-				<p>
-					{ createInterpolateElement(
-						__( 'Your forms are protected from spam with <a>Akismet</a>!', 'jetpack-forms' ),
-						{
-							a: <ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) } />,
-						}
-					) }
-				</p>
-				<div style={ { display: 'flex', gap: '8px', justifyContent: 'flex-start' } }>
-					<Button
-						variant="primary"
-						href={ formSubmissionsUrl }
-						target="_blank"
-						rel="noopener noreferrer"
-						__next40pxDefaultSize={ true }
-					>
-						{ __( 'View spam', 'jetpack-forms' ) }
-					</Button>
-					<Button
-						variant="primary"
-						href={ settingsUrl }
-						target="_blank"
-						rel="noopener noreferrer"
-						__next40pxDefaultSize={ true }
-					>
-						{ __( 'View stats', 'jetpack-forms' ) }
-					</Button>
+			) : (
+				<div>
+					<p>
+						{ createInterpolateElement(
+							__( 'Your forms are protected from spam with <a>Akismet</a>!', 'jetpack-forms' ),
+							{
+								a: <ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) } />,
+							}
+						) }
+					</p>
+					<div style={ { display: 'flex', gap: '8px', justifyContent: 'flex-start' } }>
+						<Button
+							variant="primary"
+							href={ formSubmissionsUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+							__next40pxDefaultSize={ true }
+						>
+							{ __( 'View spam', 'jetpack-forms' ) }
+						</Button>
+						<Button
+							variant="primary"
+							href={ settingsUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+							__next40pxDefaultSize={ true }
+						>
+							{ __( 'View stats', 'jetpack-forms' ) }
+						</Button>
+					</div>
 				</div>
-			</div>
-		);
-	};
-
-	return (
-		<IntegrationCard
-			title={ __( 'Akismet Spam Protection', 'jetpack-forms' ) }
-			description={ __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ) }
-			icon={ <AkismetIcon /> }
-			isExpanded={ isExpanded }
-			onToggle={ onToggle }
-			pluginInfo={ pluginInfo }
-		>
-			{ renderContent() }
+			) }
 		</IntegrationCard>
 	);
 };

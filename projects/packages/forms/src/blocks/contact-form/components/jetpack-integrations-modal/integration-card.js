@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Icon } from '@wordpress/components';
+import { Card, CardHeader, CardBody, Icon, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import PluginActionButton from './plugin-action-button';
 import './integration-card.scss';
@@ -6,13 +6,41 @@ import './integration-card.scss';
 const IntegrationCard = ( {
 	title,
 	description,
-	icon = 'admin-plugins', // Default to admin-plugins icon if none provided
+	icon = 'admin-plugins',
 	isExpanded,
 	onToggle,
 	children,
-	pluginInfo,
+	data,
+	installDescription,
+	activateDescription,
 } ) => {
-	const showPluginAction = pluginInfo && ( ! pluginInfo.isInstalled || ! pluginInfo.isActive );
+	const showPluginAction = data && ( ! data.isInstalled || ! data.isActive );
+
+	const renderContent = () => {
+		if ( ! data ) {
+			return <Spinner />;
+		}
+
+		if ( ! data.isInstalled ) {
+			return (
+				<div>
+					<p>{ installDescription }</p>
+					<PluginActionButton { ...data } />
+				</div>
+			);
+		}
+
+		if ( ! data.isActive ) {
+			return (
+				<div>
+					<p>{ activateDescription }</p>
+					<PluginActionButton { ...data } />
+				</div>
+			);
+		}
+
+		return children;
+	};
 
 	return (
 		<Card className="integration-card">
@@ -37,13 +65,7 @@ const IntegrationCard = ( {
 					<div className="integration-card__header-actions">
 						{ showPluginAction && (
 							<div className="integration-card__button-container">
-								<PluginActionButton
-									pluginSlug={ pluginInfo.pluginSlug }
-									pluginFile={ pluginInfo.pluginFile }
-									isInstalled={ pluginInfo.isInstalled }
-									onComplete={ pluginInfo.onComplete }
-									trackingId={ pluginInfo.trackingId }
-								/>
+								<PluginActionButton { ...data } />
 							</div>
 						) }
 						<Icon
@@ -53,7 +75,7 @@ const IntegrationCard = ( {
 					</div>
 				</div>
 			</CardHeader>
-			{ isExpanded && <CardBody>{ children }</CardBody> }
+			{ isExpanded && <CardBody>{ renderContent() }</CardBody> }
 		</Card>
 	);
 };
