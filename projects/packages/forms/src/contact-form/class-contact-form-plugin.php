@@ -188,7 +188,7 @@ class Contact_Form_Plugin {
 		add_action( 'wp_ajax_nopriv_grunion-contact-form', array( $this, 'ajax_request' ) );
 
 		add_action( 'wp_ajax_jetpack_form_download_file', array( $this, 'handle_file_download' ) );
-		add_filter( 'jetpack_forms_get_file_content', array( $this, 'get_file_content' ), 10, 2 );
+		add_filter( 'jetpack_unauth_file_upload_get_file_content', array( $this, 'get_file_content' ), 10, 2 );
 
 		// GDPR: personal data exporter & eraser.
 		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_personal_data_exporter' ) );
