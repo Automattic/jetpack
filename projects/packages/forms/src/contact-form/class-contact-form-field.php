@@ -115,6 +115,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'fieldfontsize'          => null,
 				'min'                    => null,
 				'max'                    => null,
+				'maxfiles'               => null,
 			),
 			$attributes,
 			'contact-field'
@@ -833,7 +834,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$input_attrs['aria-required'] = 'true';
 		}
 
-		$max_files       = 2; // max number of files.
+		$max_files       = $this->get_attribute( 'maxfiles' ); // max number of files.
 		$max_file_size   = wp_max_upload_size();
 		$file_size_units = array(
 			_x( 'B', 'unit symbol', 'jetpack-forms' ),
