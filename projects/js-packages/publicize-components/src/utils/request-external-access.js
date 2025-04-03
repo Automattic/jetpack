@@ -1,4 +1,6 @@
-import PopupMonitor from '@automattic/popup-monitor';
+// import PopupMonitor from '@automattic/popup-monitor';
+
+import { PopupMonitor } from './popup-monitor';
 
 /**
  * The callback function of the requestExternalAccess utility.
@@ -11,21 +13,16 @@ import PopupMonitor from '@automattic/popup-monitor';
  * @param {string}          url - The URL to be loaded in the newly opened window.
  * @param {requestCallback} cb  - The callback that handles the response.
  */
-export const requestExternalAccess = ( url, cb ) => {
-	const popupMonitor = new PopupMonitor();
-	let lastMessage;
+export const requestExternalAccess = async ( url, cb ) => {
+	const popupMonitor = new PopupMonitor( url );
 
-	popupMonitor.open(
+	const data = await popupMonitor.start(
 		url,
 		null,
 		'toolbar=0,location=0,status=0,menubar=0,' + popupMonitor.getScreenCenterSpecs( 780, 700 )
 	);
 
-	popupMonitor.once( 'close', () => {
-		cb( lastMessage?.ID ? lastMessage : {} );
-	} );
+	console.log( 'requestExternalAccess data', data );
 
-	popupMonitor.on( 'message', message => {
-		lastMessage = message?.data;
-	} );
+	cb( data );
 };

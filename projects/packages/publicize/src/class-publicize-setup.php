@@ -63,6 +63,39 @@ class Publicize_Setup {
 		if ( ! ( new Host() )->is_wpcom_simple() ) {
 			add_action( 'init', array( Keyring_Helper::class, 'init' ), 9 );
 		}
+
+		add_action( 'admin_post_publicize_connection', array( self::class, 'handle_connection_request' ) );
+	}
+
+	public static function handle_connection_request() {
+		if ( ! empty( $_REQUEST['data'] ) ) {
+			// Render a script to pass the data to the JS using broadcastChannel.
+
+			$data = json_decode( wp_unslash( $_REQUEST['data'] ), true );
+
+			if ( ! empty( $data ) ) {
+				?>
+				<script>
+					console.log( {origin: window.origin} );
+
+					function sendOAuthData(oauthData) {
+						console.log("[Popup] Sending OAuth data via BroadcastChannel...");
+						const channel = new BroadcastChannel("jetpack_publicize");
+						channel.postMessage({ type: "keyring-result", payload: oauthData });
+
+						window.postMessage({ type: "keyring-result-2", payload: oauthData });
+
+						setTimeout(() => {
+							console.log("[Popup] OAuth data sent. Closing popup.");
+							// window.close();
+						}, 500);
+					}
+
+					sendOAuthData(<?php echo wp_json_encode( $data ); ?>);
+				</script>
+				<?php
+			}
+		}
 	}
 
 	/**

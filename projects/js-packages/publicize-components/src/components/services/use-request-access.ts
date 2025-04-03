@@ -127,6 +127,10 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 					break;
 			}
 
+			url.searchParams.set( 'redirect_to', 'admin-post.php?action=publicize_connection' );
+
+			console.log( url.toString() );
+
 			requestExternalAccess( url.toString(), onConfirm );
 		},
 		[
