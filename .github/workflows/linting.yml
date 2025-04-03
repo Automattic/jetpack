@@ -342,6 +342,24 @@ jobs:
           FILES: ${{ needs.changed_files.outputs.js_excluded_files }}
         run: pnpm run lint-changed --git-base=$SHA $(jq -rn --argjson files "$FILES" '$files[]')
 
+  ### Runs lint-style on all CSS/SCSS files in the monorepo except those ignored in .stylelintignore.
+  # Local equivalent: `pnpm run lint-style .`
+  lint_style:
+    name: Stylelint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2025-04-03: Should be less than a minute.
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Monorepo pnpm install
+        run: pnpm install
+      - name: Run lint-style
+        run: pnpm lint-style .
+
   ### Lints GitHub Actions yaml files.
   # Local equivalent: `./tools/js-tools/lint-gh-actions.mjs <files>`
   lint_gh_actions:
