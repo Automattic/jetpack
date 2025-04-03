@@ -210,12 +210,14 @@ class Cache_Preload implements Sub_Feature, Has_Activate, Is_Always_On {
 	 */
 	public function handle_cache_invalidation( string $path, string $type, string $scope ) {
 		if ( $path === home_url() && $scope === 'recursive' ) {
+			Logger::debug( 'Invalidating all files, scheduling preload for all Cornerstone Pages.' );
 			// If the cache is invalidated for all files, schedule preload for all Cornerstone Pages.
 			$this->schedule_cornerstone();
 			return;
 		}
 
 		// Otherwise identify if a Cornerstone Page cache file is being deleted and schedule preload that page if it is.
+		Logger::debug( 'Invalidating a specific page, scheduling preload for that page if it is a Cornerstone Page.' );
 		$cornerstone_pages = Cornerstone_Utils::get_list();
 		$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
 		// If the $path is in the Cornerstone Page list, add it to the preload list.

@@ -122,7 +122,11 @@ class File_Storage implements Storage {
 			return false;
 		}
 
-		$count = Filesystem_Utils::iterate_directory( $this->root_path, new Manage_Expired( JETPACK_BOOST_CACHE_DURATION, Manage_Expired::ACTION_REBUILD ) );
+		$count = Filesystem_Utils::iterate_directory( $this->root_path, new Manage_Expired( JETPACK_BOOST_CACHE_DURATION, new Rebuild_File() ) );
+		if ( $count instanceof Boost_Cache_Error ) {
+			Logger::debug( 'Garbage collection failed: ' . $count->get_error_message() );
+			return false;
+		}
 
 		Logger::debug( "Garbage collected $count files" );
 	}

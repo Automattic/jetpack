@@ -151,7 +151,7 @@ class Filesystem_Utils_Test extends TestCase {
 		// Set file1 to be expired
 		touch( $file1, time() - 3600 );
 
-		$count = Filesystem_Utils::iterate_directory( $test_dir, new Manage_Expired( 1800, Manage_Expired::ACTION_DELETE ) );
+		$count = Filesystem_Utils::iterate_directory( $test_dir, new Manage_Expired( 1800, new Simple_Delete() ) );
 		$this->assertSame( 1, $count );
 		$this->assertFalse( file_exists( $file1 ) );
 		$this->assertTrue( file_exists( $file2 ) );

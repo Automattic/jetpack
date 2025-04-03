@@ -3,23 +3,19 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions;
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 use SplFileInfo;
 
 class Manage_Expired implements Path_Action {
 	private $ttl;
-	private $action;
-
-	const ACTION_DELETE  = 'delete';
-	const ACTION_REBUILD = 'rebuild';
+	private $sub_action;
 
 	/**
-	 * @param int    $ttl The time to live for the file.
-	 * @param string $action The action to perform on the file. Can be 'delete' or 'rebuild'.
+	 * @param int         $ttl The time to live for the file.
+	 * @param Path_Action $action The action to perform on the file. Can be 'delete' or 'rebuild'.
 	 */
-	public function __construct( $ttl, $action ) {
-		$this->ttl    = $ttl;
-		$this->action = $action;
+	public function __construct( $ttl, Path_Action $action ) {
+		$this->ttl        = $ttl;
+		$this->sub_action = $action;
 	}
 
 	/**
@@ -46,41 +42,34 @@ class Manage_Expired implements Path_Action {
 			Filesystem_Utils::is_rebuild_file( $file->getFilename() )
 			&& ( $filemtime + $this->ttl ) <= $now
 		) {
-			Logger::debug( 'Deleting expired rebuilt file: ' . $file_path );
 			$expired = true;
 		} else {
 			$expired = ( $filemtime + $this->ttl ) <= $now;
 		}
 
 		if ( $expired ) {
-			if ( $this->action === self::ACTION_REBUILD && ! Filesystem_Utils::is_rebuild_file( $file->getFilename() ) ) {
-				if ( Filesystem_Utils::rebuild_file( $file_path ) ) {
-					return 1;
-				} else {
-					Logger::debug( 'Could not rebuild file: ' . $file_path );
-					return false;
-				}
-			} elseif ( $this->action === self::ACTION_DELETE ) {
-				if ( Filesystem_Utils::delete_file( $file_path ) ) {
-					return 1;
-				} else {
-					Logger::debug( 'Could not delete file: ' . $file_path );
-					return false;
-				}
+			if ( Filesystem_Utils::is_rebuild_file( $file->getFilename() ) ) {
+				$count = $this->delete( $file );
+				return $count;
 			}
-		}
 
+			return $this->sub_action->apply_to_path( $file );
+		}
 		return 0;
 	}
 
 	private function delete_dir( SplFileInfo $file ) {
+		$count = 0;
 		if ( Filesystem_Utils::is_dir_empty( $file->getPathname() ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
-			@unlink( $file->getPathname() . '/index.html' );
-
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-			@rmdir( $file->getPathname() );
-			return 1;
+			$count += $this->delete( new SplFileInfo( $file->getPathname() . '/index.html' ) );
+			$count += $this->delete( new SplFileInfo( $file->getPathname() ) );
 		}
+
+		return $count;
+	}
+
+	private function delete( SplFileInfo $file ) {
+		$action = new Simple_Delete();
+		return $action->apply_to_path( $file );
 	}
 }

@@ -45,8 +45,6 @@ class Filesystem_Utils {
 			$count += $action->apply_to_path( $file );
 		}
 
-		$count += $action->apply_to_path( new SplFileInfo( $path ) );
-
 		return $count;
 	}
 
@@ -73,8 +71,6 @@ class Filesystem_Utils {
 			$fileinfo = new SplFileInfo( $path . '/' . $file );
 			$count   += (int) $action->apply_to_path( $fileinfo );
 		}
-
-		$action->apply_to_path( new SplFileInfo( $path ) );
 
 		return $count;
 	}
