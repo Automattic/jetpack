@@ -4,6 +4,7 @@ use Automattic\Jetpack\Blocks;
 
 /**
  * @covers \Automattic\Jetpack\Blocks
+ * @covers \Jetpack_Gutenberg
  */
 class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
