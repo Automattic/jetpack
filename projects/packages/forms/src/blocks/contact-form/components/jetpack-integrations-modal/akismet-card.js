@@ -1,68 +1,36 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, ExternalLink, Spinner } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import AkismetIcon from '../../../../icons/akismet-icon';
 import IntegrationCard from './integration-card';
-import PluginActionButton from './plugin-action-button';
 
 const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const formSubmissionsUrl = window?.jpFormsBlocks?.defaults?.formsAdminUrl || '';
 
-	const {
-		isInstalled = false,
-		isActive = false,
-		isConnected: akismetActiveWithKey = false,
-		settingsUrl = '',
-	} = data || {};
+	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
 
-	const renderContent = () => {
-		if ( ! data ) {
-			return <Spinner />;
-		}
+	const cardData = {
+		pluginSlug: 'akismet',
+		pluginFile: 'akismet/akismet',
+		refreshStatus,
+		trackEventName: 'jetpack_forms_upsell_akismet_click',
+		notInstalledMessage: createInterpolateElement(
+			__(
+				"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
+				'jetpack-forms'
+			),
+			{
+				a: <ExternalLink href={ getRedirectUrl( 'akismet-wordpress-org' ) } />,
+			}
+		),
+		notActivatedMessage: __(
+			"You already have Akismet installed, but it's not activated.",
+			'jetpack-forms'
+		),
+	};
 
-		if ( ! isInstalled ) {
-			return (
-				<div>
-					<p>
-						{ createInterpolateElement(
-							__(
-								"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
-								'jetpack-forms'
-							),
-							{
-								a: <ExternalLink href={ getRedirectUrl( 'akismet-wordpress-org' ) } />,
-							}
-						) }
-					</p>
-					<PluginActionButton
-						pluginSlug="akismet"
-						pluginFile="akismet/akismet"
-						isInstalled={ isInstalled }
-						refreshStatus={ refreshStatus }
-						trackEventName="jetpack_forms_upsell_akismet_click"
-					/>
-				</div>
-			);
-		}
-
-		if ( ! isActive ) {
-			return (
-				<div>
-					<p>
-						{ __( "You already have Akismet installed, but it's not activated.", 'jetpack-forms' ) }
-					</p>
-					<PluginActionButton
-						pluginSlug="akismet"
-						pluginFile="akismet/akismet"
-						isInstalled={ isInstalled }
-						refreshStatus={ refreshStatus }
-						trackEventName="jetpack_forms_upsell_akismet_click"
-					/>
-				</div>
-			);
-		}
-
+	const renderActiveContent = () => {
 		if ( ! akismetActiveWithKey ) {
 			return (
 				<div>
@@ -131,8 +99,10 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			icon={ <AkismetIcon /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
+			data={ data }
+			cardData={ cardData }
 		>
-			{ renderContent() }
+			{ renderActiveContent() }
 		</IntegrationCard>
 	);
 };

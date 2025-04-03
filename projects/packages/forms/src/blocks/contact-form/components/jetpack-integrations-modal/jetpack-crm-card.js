@@ -1,11 +1,10 @@
 import colorStudio from '@automattic/color-studio';
 import { JetpackIcon } from '@automattic/jetpack-components';
-import { Button, Spinner, ToggleControl } from '@wordpress/components';
+import { Button, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
 import IntegrationCard from './integration-card';
-import PluginActionButton from './plugin-action-button';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
@@ -17,66 +16,29 @@ const JetpackCRMCard = ( {
 	data,
 	refreshStatus,
 } ) => {
-	const {
-		isInstalled = false,
-		isActive = false,
-		settingsUrl = '',
-		version = '',
-		details = {},
-	} = data || {};
+	const { settingsUrl = '', version = '', details = {} } = data || {};
 
 	const { hasExtension = false, canActivateExtension = false } = details;
 
 	const crmVersion = semver.coerce( version );
 	const isRecentVersion = crmVersion && semver.gte( crmVersion, '4.9.1' );
 
-	const renderContent = () => {
-		if ( ! data ) {
-			return <Spinner />;
-		}
+	const cardData = {
+		pluginSlug: 'zero-bs-crm',
+		pluginFile: 'zero-bs-crm/ZeroBSCRM',
+		refreshStatus,
+		trackEventName: 'jetpack_forms_upsell_crm_click',
+		notInstalledMessage: __(
+			'You can save contacts from Jetpack contact forms in Jetpack CRM.',
+			'jetpack-forms'
+		),
+		notActivatedMessage: __(
+			"You already have the Jetpack CRM plugin installed, but it's not activated.",
+			'jetpack-forms'
+		),
+	};
 
-		// Jetpack CRM not installed
-		if ( ! isInstalled ) {
-			return (
-				<div>
-					<p>
-						{ __(
-							'You can save contacts from Jetpack contact forms in Jetpack CRM.',
-							'jetpack-forms'
-						) }
-					</p>
-					<PluginActionButton
-						pluginSlug="zero-bs-crm"
-						pluginFile="zero-bs-crm/ZeroBSCRM"
-						isInstalled={ isInstalled }
-						refreshStatus={ refreshStatus }
-						trackEventName="jetpack_forms_upsell_crm_click"
-					/>
-				</div>
-			);
-		}
-
-		// Jetpack CRM installed but not active
-		if ( ! isActive ) {
-			return (
-				<div>
-					<p>
-						{ __(
-							"You already have the Jetpack CRM plugin installed, but it's not activated.",
-							'jetpack-forms'
-						) }
-					</p>
-					<PluginActionButton
-						pluginSlug="zero-bs-crm"
-						pluginFile="zero-bs-crm/ZeroBSCRM"
-						isInstalled={ isInstalled }
-						refreshStatus={ refreshStatus }
-						trackEventName="jetpack_forms_upsell_crm_click"
-					/>
-				</div>
-			);
-		}
-
+	const renderActiveContent = () => {
 		// Jetpack CRM installed and active, but not recent version
 		if ( ! isRecentVersion ) {
 			return (
@@ -150,8 +112,10 @@ const JetpackCRMCard = ( {
 			icon={ <JetpackIcon color={ COLOR_JETPACK } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
+			data={ data }
+			cardData={ cardData }
 		>
-			{ renderContent() }
+			{ renderActiveContent() }
 		</IntegrationCard>
 	);
 };

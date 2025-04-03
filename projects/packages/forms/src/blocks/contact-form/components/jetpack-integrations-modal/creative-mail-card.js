@@ -1,12 +1,11 @@
 import { createBlock } from '@wordpress/blocks';
-import { ExternalLink, Spinner, ToggleControl } from '@wordpress/components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import IntegrationCard from './integration-card';
-import PluginActionButton from './plugin-action-button';
 
 const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
-	const { isInstalled = false, isActive = false, settingsUrl = '' } = data || {};
+	const { settingsUrl = '' } = data || {};
 
 	const selectedBlock = useSelect( select => select( 'core/block-editor' ).getSelectedBlock(), [] );
 
@@ -20,6 +19,21 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		( { name } ) => name === 'jetpack/field-consent'
 	);
 
+	const cardData = {
+		pluginSlug: 'creative-mail-by-constant-contact',
+		pluginFile: 'creative-mail-by-constant-contact/creative-mail-plugin',
+		refreshStatus,
+		trackEventName: 'jetpack_forms_upsell_creative_mail_click',
+		notInstalledMessage: __(
+			'To start sending email campaigns, install the Creative Mail plugin for WordPress.',
+			'jetpack-forms'
+		),
+		notActivatedMessage: __(
+			'To start sending email campaigns, activate the Creative Mail plugin for WordPress.',
+			'jetpack-forms'
+		),
+	};
+
 	const toggleConsent = async () => {
 		if ( consentBlock ) {
 			await removeBlock( consentBlock.clientId, false );
@@ -32,55 +46,7 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		}
 	};
 
-	const renderContent = () => {
-		if ( ! data ) {
-			return <Spinner />;
-		}
-
-		if ( ! isInstalled ) {
-			return (
-				<div>
-					<p>
-						<em style={ { color: 'rgba(38, 46, 57, 0.7)' } }>
-							{ __(
-								'To start sending email campaigns, install the Creative Mail plugin for WordPress.',
-								'jetpack-forms'
-							) }
-						</em>
-					</p>
-					<PluginActionButton
-						pluginSlug="creative-mail-by-constant-contact"
-						pluginFile="creative-mail-by-constant-contact/creative-mail-plugin"
-						isInstalled={ isInstalled }
-						refreshStatus={ refreshStatus }
-						trackEventName="jetpack_forms_upsell_creative_mail_click"
-					/>
-				</div>
-			);
-		}
-
-		if ( ! isActive ) {
-			return (
-				<div>
-					<p>
-						<em>
-							{ __(
-								'To start sending email campaigns, activate the Creative Mail plugin for WordPress.',
-								'jetpack-forms'
-							) }
-						</em>
-					</p>
-					<PluginActionButton
-						pluginSlug="creative-mail-by-constant-contact"
-						pluginFile="creative-mail-by-constant-contact/creative-mail-plugin"
-						isInstalled={ isInstalled }
-						refreshStatus={ refreshStatus }
-						trackEventName="jetpack_forms_upsell_creative_mail_click"
-					/>
-				</div>
-			);
-		}
-
+	const renderActiveContent = () => {
 		return (
 			<div>
 				<p>
@@ -110,8 +76,10 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			icon="email"
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
+			data={ data }
+			cardData={ cardData }
 		>
-			{ renderContent() }
+			{ renderActiveContent() }
 		</IntegrationCard>
 	);
 };
