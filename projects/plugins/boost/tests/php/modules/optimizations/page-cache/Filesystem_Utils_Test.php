@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Page_Cache;
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Manage_Expired;
 use PHPUnit\Framework\TestCase;
 
 class Filesystem_Utils_Test extends TestCase {
@@ -148,7 +149,7 @@ class Filesystem_Utils_Test extends TestCase {
 		// Set file1 to be expired
 		touch( $file1, time() - 3600 );
 
-		$count = Filesystem_Utils::gc_expired_files( $test_dir, 1800 );
+		$count = Filesystem_Utils::iterate_directory( $test_dir, new Manage_Expired( 1800, Manage_Expired::ACTION_DELETE ) );
 		$this->assertSame( 1, $count );
 		$this->assertFalse( file_exists( $file1 ) );
 		$this->assertTrue( file_exists( $file2 ) );

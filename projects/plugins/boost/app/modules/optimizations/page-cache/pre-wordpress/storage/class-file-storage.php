@@ -9,6 +9,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Manage_Expired;
 
 /**
  * File Storage - handles writing to disk, reading from disk, purging and pruning old content.
@@ -119,7 +120,7 @@ class File_Storage implements Storage {
 			return false;
 		}
 
-		$count = Filesystem_Utils::gc_expired_files( $this->root_path, JETPACK_BOOST_CACHE_DURATION, Filesystem_Utils::REBUILD );
+		$count = Filesystem_Utils::iterate_directory( $this->root_path, new Manage_Expired( JETPACK_BOOST_CACHE_DURATION, Manage_Expired::ACTION_REBUILD ) );
 
 		Logger::debug( "Garbage collected $count files" );
 	}

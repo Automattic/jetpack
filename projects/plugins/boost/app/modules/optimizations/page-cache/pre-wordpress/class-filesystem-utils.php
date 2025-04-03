@@ -2,6 +2,11 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Path_Action;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Rebuild_File;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Simple_Delete;
+use SplFileInfo;
+
 class Filesystem_Utils {
 
 	const DELETE_ALL             = 'delete-all'; // delete all files and directories in a given directory, recursively.
@@ -13,14 +18,64 @@ class Filesystem_Utils {
 	const REBUILD                = 'rebuild'; // rebuild mode for managing expired files
 	const DELETE                 = 'delete'; // delete mode for managing expired files
 	const REBUILD_FILE_EXTENSION = '.rebuild.html'; // The extension used for rebuilt files.
+
 	/**
-	 * Recursively walk a directory, deleting or rebuilding files.
+	 * Iterate over a directory and apply an action to each file.
 	 *
-	 * @param string $path - The directory to delete or rebuild.
-	 * @param string $type - The action to take, see constants above.
-	 * @return bool|Boost_Cache_Error
+	 * This applies the action to all files and subdirectories in the given directory.
+	 *
+	 * @param string      $path - The directory to iterate over.
+	 * @param Path_Action $action - The action to apply to each file.
+	 * @return bool|Boost_Cache_Error - true on success, Boost_Cache_Error on failure.
 	 */
-	public static function walk_directory( $path, $type ) {
+	public static function iterate_directory( $path, Path_Action $action ) {
+		clearstatcache();
+		$validation_error = self::validate_path( $path );
+		if ( $validation_error instanceof Boost_Cache_Error ) {
+			return $validation_error;
+		}
+
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::CHILD_FIRST
+		);
+
+		$count = 0;
+		foreach ( $iterator as $file ) {
+			$count += $action->apply_to_path( $file );
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Iterate over a directory and apply an action to each file.
+	 *
+	 * This applies the action to all files in the directory, except index.html. And doesn't go into subdirectories.
+	 *
+	 * @param string      $path - The directory to iterate over.
+	 * @param Path_Action $action - The action to apply to each file.
+	 * @return bool|Boost_Cache_Error - true on success, Boost_Cache_Error on failure.
+	 */
+	public static function iterate_files( $path, Path_Action $action ) {
+		clearstatcache();
+		$validation_error = self::validate_path( $path );
+		if ( $validation_error instanceof Boost_Cache_Error ) {
+			return $validation_error;
+		}
+
+		// Files to delete are all files in the given directory, except index.html. index.html is used to prevent directory listing.
+		$files = array_diff( scandir( $path ), array( '.', '..', 'index.html' ) );
+		$count = 0;
+		foreach ( $files as $file ) {
+			$fileinfo = new SplFileInfo( $path . '/' . $file );
+			$count   += (int) $action->apply_to_path( $fileinfo );
+		}
+
+		return $count;
+	}
+
+	private static function validate_path( $path ) {
 		$path = realpath( $path );
 		if ( ! $path ) {
 			// translators: %s is the directory that does not exist.
@@ -37,56 +92,25 @@ class Filesystem_Utils {
 			return new Boost_Cache_Error( 'not-a-directory', 'Not a directory' );
 		}
 
+		return true;
+	}
+
+	/**
+	 * Recursively walk a directory, deleting or rebuilding files.
+	 *
+	 * @param string $path - The directory to delete or rebuild.
+	 * @param string $type - The action to take, see constants above.
+	 * @return bool|Boost_Cache_Error
+	 */
+	public static function walk_directory( $path, $type ) {
+
 		switch ( $type ) {
 			case self::DELETE_ALL: // delete all files and directories in the given directory.
-				$iterator = new \RecursiveIteratorIterator(
-					new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ),
-					\RecursiveIteratorIterator::CHILD_FIRST
-				);
-				foreach ( $iterator as $file ) {
-					if ( $file->isDir() ) {
-						Logger::debug( 'rmdir: ' . $file->getPathname() );
-						@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-					} else {
-						// Delete all files in the directory
-						Logger::debug( 'unlink: ' . $file->getPathname() );
-						@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
-					}
-				}
-				@rmdir( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged,
-				break;
-			case self::DELETE_FILES: // delete all files in the given directory.
-				// Files to delete are all files in the given directory, except index.html. index.html is used to prevent directory listing.
-				$files = array_diff( scandir( $path ), array( '.', '..', 'index.html' ) );
-				foreach ( $files as $file ) {
-					$file = $path . '/' . $file;
-					if ( is_file( $file ) ) {
-						Logger::debug( "unlink: $file" );
-						@unlink( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink
-					}
-				}
-				break;
+				return self::iterate_directory( $path, new Simple_Delete() );
 			case self::REBUILD_ALL: // rebuild all files and directories in the given directory.
-				$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ) );
-				foreach ( $iterator as $file ) {
-					if ( ! $file->isDir() && $file->getFilename() !== 'index.html' ) {
-						// Rebuild all files except index.html. index.html is used to prevent directory listing.
-						Logger::debug( 'rebuild: ' . $file->getPathname() );
-						self::rebuild_file( $file->getPathname() );
-					}
-				}
-				break;
+				return self::iterate_directory( $path, new Rebuild_File() );
 			case self::REBUILD_FILES: // rebuild all files in the given directory.
-				// Files to delete are all files in the given directory, except index.html. index.html is used to prevent directory listing.
-				$files = array_diff( scandir( $path ), array( '.', '..', 'index.html' ) );
-				foreach ( $files as $file ) {
-					$file = $path . '/' . $file;
-					if ( is_file( $file ) ) {
-						Logger::debug( "rebuild: $file" );
-						self::rebuild_file( $file );
-					}
-				}
-				break;
+				return self::iterate_files( $path, new Rebuild_File() );
 		}
 		return true;
 	}
@@ -130,93 +154,6 @@ class Filesystem_Utils {
 	 */
 	public static function is_rebuild_file( $file ) {
 		return substr( $file, -strlen( self::REBUILD_FILE_EXTENSION ) ) === self::REBUILD_FILE_EXTENSION;
-	}
-
-	/**
-	 * Recursively garbage collect a directory.
-	 *
-	 * @param string $directory - The directory to garbage collect.
-	 * @param int    $file_ttl  - Specify number of seconds after which a file is considered expired.
-	 * @param string $action    - (optional) The action to take on expired files. DELETE to delete expired files, REBUILD to rebuild expired files. Default is DELETE.
-	 * @return int - The number of files deleted.
-	 */
-	public static function gc_expired_files( $directory, $file_ttl, $action = self::DELETE ) {
-		clearstatcache();
-
-		$count  = 0;
-		$now    = time();
-		$handle = is_readable( $directory ) && is_dir( $directory ) ? opendir( $directory ) : false;
-
-		// Could not open directory, exit early.
-		if ( ! $handle ) {
-			return $count;
-		}
-
-		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-		while ( false !== ( $file = readdir( $handle ) ) ) {
-			if ( $file === '.' || $file === '..' || $file === 'index.html' ) {
-				// Skip and continue to next file
-				continue;
-			}
-
-			$file_path = $directory . '/' . $file;
-
-			if ( ! file_exists( $file_path ) ) {
-				// File doesn't exist, skip and continue to next file
-				continue;
-			}
-
-			// Handle directories recursively.
-			if ( is_dir( $file_path ) ) {
-				$count += self::gc_expired_files( $file_path, $file_ttl, $action );
-				continue;
-			}
-
-			$filemtime = filemtime( $file_path );
-
-			// if the file ends with the rebuild file extension, it is a rebuilt file and the ttl is different.
-			if (
-				self::is_rebuild_file( $file )
-				&& ( $filemtime + JETPACK_BOOST_CACHE_REBUILD_DURATION ) <= $now
-			) {
-				Logger::debug( 'Deleting expired rebuilt file: ' . $file_path );
-				$expired = true;
-			} else {
-				$expired = ( $filemtime + $file_ttl ) <= $now;
-			}
-
-			if ( $expired ) {
-				if ( $action === self::REBUILD && ! self::is_rebuild_file( $file_path ) ) {
-					if ( self::rebuild_file( $file_path ) ) {
-						++$count;
-					} else {
-						Logger::debug( 'Could not rebuild file: ' . $file_path );
-					}
-				} elseif ( self::delete_file( $file_path ) ) {
-						++$count;
-				} else {
-					Logger::debug( 'Could not delete file: ' . $file_path );
-				}
-			}
-		}
-		closedir( $handle );
-
-		// If the directory is empty after processing its files, delete it.
-		$is_dir_empty = self::is_dir_empty( $directory );
-		if ( $is_dir_empty instanceof Boost_Cache_Error ) {
-			Logger::debug( 'Could not check directory emptiness: ' . $is_dir_empty->get_error_message() );
-			return $count;
-		}
-
-		if ( $is_dir_empty === true ) {
-			// Directory is considered empty even if it has an index.html file. Delete it first.
-			self::delete_file( $directory . '/index.html' );
-
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-			@rmdir( $directory );
-		}
-
-		return $count;
 	}
 
 	/**

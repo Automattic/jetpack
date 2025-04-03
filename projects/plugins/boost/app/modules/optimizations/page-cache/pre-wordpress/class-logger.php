@@ -5,6 +5,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Manage_Expired;
+
 /**
  * A utility that manages logging for the boost cache.
  */
@@ -186,6 +188,6 @@ class Logger {
 	}
 
 	public static function delete_old_logs() {
-		Filesystem_Utils::gc_expired_files( self::LOG_DIRECTORY, 24 * 60 * 60 );
+		Filesystem_Utils::iterate_directory( self::LOG_DIRECTORY, new Manage_Expired( 24 * 60 * 60, Manage_Expired::ACTION_DELETE ) );
 	}
 }
