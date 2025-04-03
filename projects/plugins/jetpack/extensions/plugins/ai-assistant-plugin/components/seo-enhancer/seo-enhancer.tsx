@@ -3,6 +3,7 @@
  */
 import { getAllBlocks } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BaseControl,
 	ToggleControl,
@@ -11,7 +12,6 @@ import {
 	CheckboxControl,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -23,6 +23,7 @@ import { SeoEnhancerTaskList } from './seo-enhancer-task-list';
 import { store } from './store';
 import { useSeoModuleSettings } from './use-seo-module-settings';
 import { useSeoRequests } from './use-seo-requests';
+import type { BlockInstance } from '@wordpress/blocks';
 import './style.scss';
 /**
  * Types
@@ -46,7 +47,10 @@ export function SeoEnhancer( {
 	}, [] );
 
 	const enabledFeatures = useSelect( select => select( store ).getEnabledFeatures(), [] );
-	const blocks = useSelect( select => select( editorStore ).getBlocks(), [] );
+	const blocks = useSelect(
+		select => ( select( blockEditorStore ) as { getBlocks: () => BlockInstance[] } ).getBlocks(),
+		[]
+	);
 
 	const imageBlocks = useMemo( () => {
 		return blocks.length
