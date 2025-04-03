@@ -2,6 +2,10 @@
 	.ai-seo-enhancer-label {
 		margin-bottom: 24px;
 	}
+
+	.ai-seo-enhancer-toggle > p {
+		margin-top: 16px;
+	}
 }
 
 .jetpack-seo-panel {
@@ -64,23 +68,27 @@
 
 .jetpack-seo-enhancer-summary-feature {
 	display: flex;
-	margin-bottom: 12px;
+	margin-bottom: 8px;
+	gap: 6px;
 
 	&:last-child {
-		margin-bottom: 2em;
+		// margin-bottom: 2em;
 	}
 
 	.jetpack-seo-enhancer-summary-feature__control {
 		flex-grow: 1;
+
+		& .components-base-control__label {
+			text-transform: none;
+			font-size: 13px;
+			margin-top: 3px;
+		}
 	}
 
 	.jetpack-seo-enhancer-summary-feature__icon-container {
 		flex-shrink: 0;
-		width: 40px;
-	}
-
-	.components-spinner.jetpack-seo-enhancer-summary-feature__icon {
-		margin: 4px 4px 4px 0;
+		width: 34px;
+		text-align: end;
 	}
 }
 
