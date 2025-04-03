@@ -1,5 +1,7 @@
-import { Card, CardHeader, CardBody, Icon } from '@wordpress/components';
+import { Card } from '@wordpress/components';
 import './integration-card.scss';
+import IntegrationCardBody from './integration-card-body';
+import IntegrationCardHeader from './integration-card-header';
 
 const IntegrationCard = ( {
 	title,
@@ -11,24 +13,14 @@ const IntegrationCard = ( {
 } ) => {
 	return (
 		<Card className="integration-card">
-			<CardHeader onClick={ onToggle } className="integration-card__header">
-				<div className="integration-card__header-content">
-					<div className="integration-card__header-main">
-						<Icon icon={ icon } className="integration-card__service-icon" size={ 30 } />
-						<div className="integration-card__title-section">
-							<h3 className="integration-card__title">{ title }</h3>
-							{ description && (
-								<span className="integration-card__description">{ description }</span>
-							) }
-						</div>
-					</div>
-					<Icon
-						icon={ isExpanded ? 'arrow-up-alt2' : 'arrow-down-alt2' }
-						className="integration-card__toggle-icon"
-					/>
-				</div>
-			</CardHeader>
-			{ isExpanded && <CardBody>{ children }</CardBody> }
+			<IntegrationCardHeader
+				title={ title }
+				description={ description }
+				icon={ icon }
+				isExpanded={ isExpanded }
+				onToggle={ onToggle }
+			/>
+			<IntegrationCardBody isExpanded={ isExpanded }>{ children }</IntegrationCardBody>
 		</Card>
 	);
 };
