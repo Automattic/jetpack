@@ -6,7 +6,7 @@ const PluginActionButton = ( {
 	pluginSlug,
 	pluginFile,
 	isInstalled,
-	onSuccess,
+	refreshStatus,
 	trackEventName,
 } ) => {
 	const { isInstalling, installPlugin } = usePluginInstallation(
@@ -18,8 +18,8 @@ const PluginActionButton = ( {
 
 	const handleAction = async () => {
 		const success = await installPlugin();
-		if ( success && onSuccess ) {
-			onSuccess();
+		if ( success && refreshStatus ) {
+			refreshStatus();
 		}
 	};
 

@@ -39,7 +39,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						pluginSlug="akismet"
 						pluginFile="akismet/akismet"
 						isInstalled={ isInstalled }
-						onSuccess={ refreshStatus }
+						refreshStatus={ refreshStatus }
 						trackEventName="jetpack_forms_upsell_akismet_click"
 					/>
 				</div>
@@ -56,7 +56,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						pluginSlug="akismet"
 						pluginFile="akismet/akismet"
 						isInstalled={ isInstalled }
-						onSuccess={ refreshStatus }
+						refreshStatus={ refreshStatus }
 						trackEventName="jetpack_forms_upsell_akismet_click"
 					/>
 				</div>

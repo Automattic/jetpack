@@ -52,7 +52,7 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						pluginSlug="creative-mail-by-constant-contact"
 						pluginFile="creative-mail-by-constant-contact/creative-mail-plugin"
 						isInstalled={ isInstalled }
-						onSuccess={ refreshStatus }
+						refreshStatus={ refreshStatus }
 						trackEventName="jetpack_forms_upsell_creative_mail_click"
 					/>
 				</div>
@@ -74,7 +74,7 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						pluginSlug="creative-mail-by-constant-contact"
 						pluginFile="creative-mail-by-constant-contact/creative-mail-plugin"
 						isInstalled={ isInstalled }
-						onSuccess={ refreshStatus }
+						refreshStatus={ refreshStatus }
 						trackEventName="jetpack_forms_upsell_creative_mail_click"
 					/>
 				</div>

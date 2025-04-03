@@ -49,7 +49,7 @@ const JetpackCRMCard = ( {
 						pluginSlug="zero-bs-crm"
 						pluginFile="zero-bs-crm/ZeroBSCRM"
 						isInstalled={ isInstalled }
-						onSuccess={ refreshStatus }
+						refreshStatus={ refreshStatus }
 						trackEventName="jetpack_forms_upsell_crm_click"
 					/>
 				</div>
@@ -70,7 +70,7 @@ const JetpackCRMCard = ( {
 						pluginSlug="zero-bs-crm"
 						pluginFile="zero-bs-crm/ZeroBSCRM"
 						isInstalled={ isInstalled }
-						onSuccess={ refreshStatus }
+						refreshStatus={ refreshStatus }
 						trackEventName="jetpack_forms_upsell_crm_click"
 					/>
 				</div>
