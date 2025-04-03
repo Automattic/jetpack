@@ -92,53 +92,163 @@ class Contact_Form_Block {
 			return;
 		}
 
+		// Field inner block types.
+		Blocks::jetpack_register_block(
+			'jetpack/input',
+			array(
+				'supports'     => array(
+					'__experimentalBorder' => array(
+						'color'  => true,
+						'radius' => true,
+						'style'  => true,
+						'width'  => true,
+					),
+					'color'                => array(
+						'text'       => true,
+						'background' => true,
+						'gradient'   => true,
+					),
+					'typography'           => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+				'uses_context' => array( 'jetpack/field-defaultValue' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/label',
+			array(
+				'supports'     => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => true,
+						'gradient'   => false,
+					),
+					'typography' => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+				'uses_context' => array(
+					'jetpack/field-required',
+					'jetpack/field-dateFormat',
+				),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/options',
+			array(
+				'supports'         => array(
+					'spacing' => array(
+						'blockGap' => true,
+					),
+				),
+				'provides_context' => array(
+					'jetpack/field-options-type' => 'type',
+				),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/option',
+			array(
+				'supports'     => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
+						'gradient'   => false,
+					),
+					'typography' => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+				'uses_context' => array(
+					'jetpack/field-defaultValue',
+					'jetpack/field-options-type',
+					'jetpack/field-required',
+				),
+			)
+		);
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_text' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_text' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-name',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_name' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_name' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-email',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_email' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_email' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-url',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_url' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_url' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-date',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_date' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_date' ),
+				'provides_context' => array(
+					'jetpack/field-required'   => 'required',
+					'jetpack/field-dateFormat' => 'dateFormat',
+				),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-telephone',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_telephone' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_telephone' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-textarea',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_textarea' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_textarea' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-checkbox',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_checkbox' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_checkbox' ),
+				'provides_context' => array(
+					'jetpack/field-required'     => 'required',
+					'jetpack/field-defaultValue' => 'defaultValue',
+				),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -168,7 +278,8 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/field-select',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_select' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_select' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -181,7 +292,8 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/field-number',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_number' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_number' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 

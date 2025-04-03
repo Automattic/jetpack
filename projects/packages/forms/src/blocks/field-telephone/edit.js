@@ -1,0 +1,24 @@
+import JetpackField from '../shared/components/jetpack-field';
+import useFormWrapper from '../shared/hooks/use-form-wrapper';
+
+export default function TelephoneFieldEdit( props ) {
+	useFormWrapper( props );
+
+	return (
+		<JetpackField
+			clientId={ props.clientId }
+			type="tel"
+			label={ props.attributes.label }
+			required={ props.attributes.required }
+			requiredText={ props.attributes.requiredText }
+			setAttributes={ props.setAttributes }
+			isSelected={ props.isSelected }
+			defaultValue={ props.attributes.defaultValue }
+			placeholder={ props.attributes.placeholder }
+			id={ props.attributes.id }
+			width={ props.attributes.width }
+			attributes={ props.attributes }
+			insertBlocksAfter={ props.insertBlocksAfter }
+		/>
+	);
+}

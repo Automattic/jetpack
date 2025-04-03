@@ -14,6 +14,7 @@
 	clear: both;
 }
 
+/* TODO: Should the placeholders actually honor user color selections? */
 .contact-form input::placeholder {
 	transition: opacity 0.3s ease-out;
 }
@@ -80,10 +81,13 @@
 }
 
 .contact-form label {
-	margin-bottom: 0.25em;
 	float: none;
-	font-weight: 700;
 	display: block;
+}
+
+.contact-form :where(label) {
+	margin-bottom: 0.25em;
+	font-weight: 700;
 }
 
 .contact-form label.consent {
@@ -389,24 +393,25 @@
 	pointer-events: none;
 }
 
+.contact-form :where( .contact-form__select-wrapper select ) {
+	background-color: var(--jetpack--contact-form--input-background);
+	border-color: var(--jetpack--contact-form--border-color);
+	border-radius: var(--jetpack--contact-form--border-radius);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
+	border: var(--jetpack--contact-form--border);
+	color: var(--jetpack--contact-form--text-color);
+	font-family: var(--jetpack--contact-form--font-family);
+	font-size: var(--jetpack--contact-form--font-size);
+	line-height: var(--jetpack--contact-form--line-height);
+	padding-inline-end: calc(var(--jetpack--contact-form--input-padding) * 3);
+	padding: var(--jetpack--contact-form--input-padding);
+}
+
 .contact-form .contact-form__select-wrapper select {
 	box-sizing: border-box;
 	width: 100%;
-	padding: var(--jetpack--contact-form--input-padding);
-	padding-inline-end: calc(var(--jetpack--contact-form--input-padding) * 3);
-
 	appearance: none;
-	background-color: var(--jetpack--contact-form--input-background);
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
-	border-radius: var(--jetpack--contact-form--border-radius);
-	color: var(--jetpack--contact-form--text-color);
-
-	font-size: var(--jetpack--contact-form--font-size);
-	font-family: var(--jetpack--contact-form--font-family);
-	line-height: var(--jetpack--contact-form--line-height);
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
@@ -554,6 +559,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap select
 {
 	border-color: transparent !important; /* Need to override styles coming from the style attribute*/
+	border-radius: 0 !important; /* Need to override styles coming from the style attribute*/
 	outline: none;
 	padding-left: calc(var(--notch-width) + 4px);
 	padding-right: calc(var(--notch-width) + 4px);
@@ -860,6 +866,10 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form__checkbox-wrap {
 	display: inline-flex;
 	align-items: baseline;
+
+	:where( .grunion-field-label ) {
+		margin: 0;
+	}
 }
 
 .contact-form :is([type="submit"],button:not([type="reset"])) {
