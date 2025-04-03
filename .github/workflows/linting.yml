@@ -347,7 +347,7 @@ jobs:
   lint_style:
     name: Stylelint
     runs-on: ubuntu-latest
-    timeout-minutes: 5  # 2025-04-03: Should be less than a minute.
+    timeout-minutes: 5  # 2025-04-03: Takes about a minute, so give a little wiggle room.
 
     steps:
       - uses: actions/checkout@v4
