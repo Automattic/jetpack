@@ -734,7 +734,7 @@ class Admin {
 		foreach ( $response_fields as $key => $display_value ) {
 			if ( Contact_Form::is_file_upload_field( $display_value ) ) {
 				printf(
-					'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">',
+					'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value"><div>',
 					esc_html( preg_replace( '#^\d+_#', '', $key ) )
 				);
 
@@ -742,36 +742,22 @@ class Admin {
 				$files    = $display_value['files'];
 				$field_id = $display_value['field_id'];
 
-				$file_count = 0;
-
 				foreach ( $files as $file_data ) {
-					// Add a separator between files if not the first file
-					if ( $file_count > 0 ) {
-						echo '<br>';
-					}
-
-					$file_url = '#'; // TODO: add same file url as in response.js
 					// If we have a valid URL, show the file link with additional details
 					$file_name = isset( $file_data['name'] ) ? $file_data['name'] : __( 'Attached file', 'jetpack-forms' );
 					$file_size = isset( $file_data['size'] ) ? size_format( $file_data['size'] ) : '';
-					$file_info = $file_name;
-					$file_url  = get_admin_url( null, 'admin-ajax.php' ) . '?action=jetpack_unauth_file_download&file_id=' . $file_data['file_id'] . '&post_id=' . $post->ID . '&field_id=' . $field_id;
 
-					// Add file size if available
-					if ( ! empty( $file_size ) ) {
-						$file_info .= ' (' . $file_size . ')';
-					}
+					$file_url  = get_admin_url( null, 'admin-ajax.php' ) . '?action=jetpack_unauth_file_download&file_id=' . $file_data['file_id'] . '&post_id=' . $post->ID . '&field_id=' . $field_id;
+					$file_info = empty( $file_size ) ? $file_name : $file_name . ' (' . $file_size . ')';
 
 					printf(
-						'<a href="%s" target="_blank">%s</a>',
+						'<div><a href="%s" target="_blank">%s</a></div>',
 						esc_url( $file_url ),
 						esc_html( $file_info )
 					);
-
-					++$file_count;
 				}
 
-				echo '</div>';
+				echo '</div></div>';
 				continue;
 			} elseif ( is_array( $display_value ) ) {
 				// Regular array, format it nicely for display
