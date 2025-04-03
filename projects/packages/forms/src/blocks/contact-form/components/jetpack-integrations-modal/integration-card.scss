@@ -5,21 +5,20 @@
 
 	&__header-content {
 		display: flex;
-		align-items: center;
 		justify-content: space-between;
+		align-items: center;
 		width: 100%;
 	}
 
 	&__header-main {
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
 		gap: 16px;
+		flex: 1;
 	}
 
 	&__title-section {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
+		flex: 1;
 	}
 
 	&__title-row {
@@ -28,27 +27,42 @@
 		gap: 8px;
 	}
 
-	&__service-icon {
-		color: var(--jp-gray-80);
-		flex-shrink: 0;
-		margin-top: 2px;
-	}
-
 	&__title {
 		margin: 0;
-		font-size: var(--font-body);
-		font-weight: 600;
+		font-size: 16px;
+		font-weight: 500;
+	}
+
+	&__plugin-badge {
+		background-color: #f0f0f0;
+		color: #1e1e1e;
+		padding: 2px 6px;
+		border-radius: 2px;
+		font-size: 11px;
+		font-weight: 500;
+		text-transform: uppercase;
 		line-height: 1.4;
 	}
 
 	&__description {
-		color: var(--jp-gray-50);
+		color: #757575;
 		font-size: 13px;
-		line-height: 1.4;
+		display: block;
+		margin-top: 4px;
+	}
+
+	&__header-actions {
+		display: flex;
+		align-items: center;
+		gap: 16px;
 	}
 
 	&__toggle-icon {
-		display: block;
+		flex-shrink: 0;
+	}
+
+	&__service-icon {
+		flex-shrink: 0;
 	}
 
 	.is-spinning {

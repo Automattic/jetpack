@@ -1,11 +1,11 @@
 import colorStudio from '@automattic/color-studio';
 import { JetpackIcon } from '@automattic/jetpack-components';
-import { Button, Icon, Spinner, ToggleControl } from '@wordpress/components';
+import { Button, Spinner, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
-import { usePluginInstallation } from '../hooks';
 import IntegrationCard from './integration-card';
+import PluginActionButton from './plugin-action-button';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
@@ -27,27 +27,13 @@ const JetpackCRMCard = ( {
 
 	const { hasExtension = false, canActivateExtension = false } = details;
 
-	const { isInstalling, installPlugin } = usePluginInstallation(
-		'zero-bs-crm',
-		'zero-bs-crm/ZeroBSCRM',
+	const pluginInfo = {
+		pluginSlug: 'zero-bs-crm',
+		pluginFile: 'zero-bs-crm/ZeroBSCRM',
 		isInstalled,
-		'jetpack_forms_upsell_crm_click'
-	);
-
-	const handleInstallAction = async () => {
-		const success = await installPlugin();
-		if ( success ) {
-			refreshStatus();
-		}
-	};
-
-	const getButtonText = () => {
-		return (
-			( isInstalling && isInstalled && __( 'Activating…', 'jetpack-forms' ) ) ||
-			( isInstalling && __( 'Installing…', 'jetpack-forms' ) ) ||
-			( isInstalled && __( 'Activate', 'jetpack-forms' ) ) ||
-			__( 'Install', 'jetpack-forms' )
-		);
+		isActive,
+		onComplete: refreshStatus,
+		trackingId: 'jetpack_forms_upsell_crm_click',
 	};
 
 	const crmVersion = semver.coerce( version );
@@ -68,15 +54,7 @@ const JetpackCRMCard = ( {
 							'jetpack-forms'
 						) }
 					</p>
-					<Button
-						variant="primary"
-						onClick={ handleInstallAction }
-						disabled={ isInstalling }
-						icon={ isInstalling ? <Icon icon="update" className="is-spinning" /> : undefined }
-						__next40pxDefaultSize={ true }
-					>
-						{ getButtonText() }
-					</Button>
+					<PluginActionButton { ...pluginInfo } />
 				</div>
 			);
 		}
@@ -91,15 +69,7 @@ const JetpackCRMCard = ( {
 							'jetpack-forms'
 						) }
 					</p>
-					<Button
-						variant="primary"
-						onClick={ handleInstallAction }
-						disabled={ isInstalling }
-						icon={ isInstalling ? <Icon icon="update" className="is-spinning" /> : undefined }
-						__next40pxDefaultSize={ true }
-					>
-						{ getButtonText() }
-					</Button>
+					<PluginActionButton { ...pluginInfo } />
 				</div>
 			);
 		}
@@ -177,6 +147,7 @@ const JetpackCRMCard = ( {
 			icon={ <JetpackIcon color={ COLOR_JETPACK } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
+			pluginInfo={ pluginInfo }
 		>
 			{ renderContent() }
 		</IntegrationCard>

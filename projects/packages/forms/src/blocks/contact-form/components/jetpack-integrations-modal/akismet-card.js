@@ -1,10 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, ExternalLink, Icon, Spinner } from '@wordpress/components';
+import { Button, ExternalLink, Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import AkismetIcon from '../../../../icons/akismet-icon';
-import { usePluginInstallation } from '../hooks';
 import IntegrationCard from './integration-card';
+import PluginActionButton from './plugin-action-button';
 
 const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const formSubmissionsUrl = window?.jpFormsBlocks?.defaults?.formsAdminUrl || '';
@@ -16,27 +16,13 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		settingsUrl = '',
 	} = data || {};
 
-	const { isInstalling, installPlugin } = usePluginInstallation(
-		'akismet',
-		'akismet/akismet',
+	const pluginInfo = {
+		pluginSlug: 'akismet',
+		pluginFile: 'akismet/akismet',
 		isInstalled,
-		'jetpack_forms_upsell_akismet_click'
-	);
-
-	const handleInstallAction = async () => {
-		const success = await installPlugin();
-		if ( success ) {
-			refreshStatus();
-		}
-	};
-
-	const getButtonText = () => {
-		return (
-			( isInstalling && isInstalled && __( 'Activating…', 'jetpack-forms' ) ) ||
-			( isInstalling && __( 'Installing…', 'jetpack-forms' ) ) ||
-			( isInstalled && __( 'Activate', 'jetpack-forms' ) ) ||
-			__( 'Install', 'jetpack-forms' )
-		);
+		isActive,
+		onComplete: refreshStatus,
+		trackingId: 'jetpack_forms_upsell_akismet_click',
 	};
 
 	const renderContent = () => {
@@ -58,15 +44,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 							}
 						) }
 					</p>
-					<Button
-						variant="primary"
-						onClick={ handleInstallAction }
-						disabled={ isInstalling }
-						icon={ isInstalling ? <Icon icon="update" className="is-spinning" /> : undefined }
-						__next40pxDefaultSize={ true }
-					>
-						{ getButtonText() }
-					</Button>
+					<PluginActionButton { ...pluginInfo } />
 				</div>
 			);
 		}
@@ -77,15 +55,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 					<p>
 						{ __( "You already have Akismet installed, but it's not activated.", 'jetpack-forms' ) }
 					</p>
-					<Button
-						variant="primary"
-						onClick={ handleInstallAction }
-						disabled={ isInstalling }
-						icon={ isInstalling ? <Icon icon="update" className="is-spinning" /> : undefined }
-						__next40pxDefaultSize={ true }
-					>
-						{ getButtonText() }
-					</Button>
+					<PluginActionButton { ...pluginInfo } />
 				</div>
 			);
 		}
@@ -158,6 +128,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			icon={ <AkismetIcon /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
+			pluginInfo={ pluginInfo }
 		>
 			{ renderContent() }
 		</IntegrationCard>
