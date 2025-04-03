@@ -13,8 +13,10 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 /**
  * Test our Vimeo embed feature (shortcode as well as embed code).
  *
- * @covers ::jetpack_shortcode_get_vimeo_dimensions()
+ * @covers ::jetpack_shortcode_get_vimeo_id
+ * @covers ::jetpack_shortcode_get_vimeo_dimensions
  * @covers ::vimeo_shortcode
+ * @covers ::vimeo_embed_to_shortcode
  */
 class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;

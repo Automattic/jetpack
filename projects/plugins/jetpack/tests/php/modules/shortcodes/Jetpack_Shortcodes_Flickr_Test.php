@@ -3,7 +3,10 @@
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
+ * @covers ::flickr_embed_to_shortcode
  * @covers ::flickr_shortcode_handler
+ * @covers ::flickr_shortcode_video_markup
+ * @covers ::jetpack_flickr_video_to_shortcode
  */
 class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
