@@ -10,6 +10,8 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Manage_Expired;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Rebuild_File;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Simple_Delete;
 
 /**
  * File Storage - handles writing to disk, reading from disk, purging and pruning old content.
@@ -152,34 +154,35 @@ class File_Storage implements Storage {
 		return $path;
 	}
 
-	/**
-	 * Delete all cached data for the given path.
-	 *
-	 * @param string $path - The path to delete. File or directory.
-	 * @param string $type - defines what files/directories are deleted or rebuilt.
-	 * @return bool|Boost_Cache_Error True on success, error object on failure
-	 */
-	public function invalidate( $path, $type ) {
-		Logger::debug( "invalidate: $path $type" );
+	public function delete_page( $path ) {
 		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
 
-		$response = null;
-		if ( ! in_array( $type, array( Filesystem_Utils::DELETE_FILE, Filesystem_Utils::REBUILD_FILE ), true ) && is_dir( $normalized_path ) ) {
-			$response = Filesystem_Utils::walk_directory( $normalized_path, $type );
-		} elseif ( $type === Filesystem_Utils::DELETE_FILE && is_file( $normalized_path ) ) {
-			$response = Filesystem_Utils::delete_file( $normalized_path );
-		} elseif ( $type === Filesystem_Utils::REBUILD_FILE && is_file( $normalized_path ) ) {
-			$response = Filesystem_Utils::rebuild_file( $normalized_path );
-		}
+		$result = Filesystem_Utils::iterate_files( $normalized_path, new Simple_Delete() );
 
-		if ( $response === null ) {
-			return new Boost_Cache_Error( 'no-cache-files-to-delete', 'No cache files to delete.' );
-		}
+		return $result;
+	}
 
-		if ( $response === true ) {
-			do_action( 'jetpack_boost_invalidate_cache_success', $path, $type );
-		}
+	public function rebuild_page( $path ) {
+		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
 
-		return $response;
+		$result = Filesystem_Utils::iterate_files( $normalized_path, new Rebuild_File() );
+
+		return $result;
+	}
+
+	public function delete_recursive( $path ) {
+		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
+
+		$result = Filesystem_Utils::iterate_directory( $normalized_path, new Simple_Delete() );
+
+		return $result;
+	}
+
+	public function rebuild_recursive( $path ) {
+		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
+
+		$result = Filesystem_Utils::iterate_directory( $normalized_path, new Rebuild_File() );
+
+		return $result;
 	}
 }

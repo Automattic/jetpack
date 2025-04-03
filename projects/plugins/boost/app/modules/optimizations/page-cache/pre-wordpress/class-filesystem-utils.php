@@ -45,6 +45,8 @@ class Filesystem_Utils {
 			$count += $action->apply_to_path( $file );
 		}
 
+		$count += $action->apply_to_path( new SplFileInfo( $path ) );
+
 		return $count;
 	}
 
@@ -71,6 +73,8 @@ class Filesystem_Utils {
 			$fileinfo = new SplFileInfo( $path . '/' . $file );
 			$count   += (int) $action->apply_to_path( $fileinfo );
 		}
+
+		$action->apply_to_path( new SplFileInfo( $path ) );
 
 		return $count;
 	}
@@ -203,6 +207,7 @@ class Filesystem_Utils {
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
 				@rename( $file_path, $file_path . self::REBUILD_FILE_EXTENSION );
 				@touch( $file_path . self::REBUILD_FILE_EXTENSION ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+				return true;
 			}
 		}
 

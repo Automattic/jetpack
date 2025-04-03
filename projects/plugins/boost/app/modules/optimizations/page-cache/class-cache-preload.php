@@ -7,7 +7,6 @@ use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Sub_Feature;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
 /**
@@ -31,7 +30,7 @@ class Cache_Preload implements Sub_Feature, Has_Activate, Is_Always_On {
 		add_action( 'jetpack_boost_preload', array( $this, 'preload' ) );
 
 		add_action( 'post_updated', array( $this, 'handle_post_update' ), 10, 1 );
-		add_action( 'jetpack_boost_invalidate_cache_success', array( $this, 'handle_cache_invalidation' ), 10, 2 );
+		add_action( 'jetpack_boost_invalidate_cache_success', array( $this, 'handle_cache_invalidation' ), 10, 3 );
 	}
 
 	/**
@@ -129,10 +128,10 @@ class Cache_Preload implements Sub_Feature, Has_Activate, Is_Always_On {
 		remove_action( 'jetpack_boost_invalidate_cache_success', array( $this, 'handle_cache_invalidation' ) );
 		$boost_cache = new Boost_Cache();
 		foreach ( $urls as $url ) {
-			$boost_cache->invalidate_cache_for_url( $url, Filesystem_Utils::REBUILD_FILES );
+			$boost_cache->rebuild_page( $url );
 			$this->request_page( $url );
 		}
-		add_action( 'jetpack_boost_invalidate_cache_success', array( $this, 'handle_cache_invalidation' ), 10, 2 );
+		add_action( 'jetpack_boost_invalidate_cache_success', array( $this, 'handle_cache_invalidation' ), 10, 3 );
 
 		Logger::debug( sprintf( 'Preload completed for %d pages', count( $urls ) ) );
 	}
@@ -205,11 +204,12 @@ class Cache_Preload implements Sub_Feature, Has_Activate, Is_Always_On {
 	 *
 	 * @since 3.11.0
 	 * @param string $path The path that was invalidated.
-	 * @param string $type The type of invalidation that occurred (e.g., Filesystem_Utils::DELETE_ALL).
+	 * @param string $type The type of invalidation that occurred (rebuild or delete).
+	 * @param string $scope The scope of the invalidation (page or recursive).
 	 * @return void
 	 */
-	public function handle_cache_invalidation( string $path, string $type ) {
-		if ( $type === Filesystem_Utils::DELETE_ALL ) {
+	public function handle_cache_invalidation( string $path, string $type, string $scope ) {
+		if ( $path === home_url() && $scope === 'recursive' ) {
 			// If the cache is invalidated for all files, schedule preload for all Cornerstone Pages.
 			$this->schedule_cornerstone();
 			return;

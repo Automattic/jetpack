@@ -9,7 +9,6 @@ namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Page_Cache;
 
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Brain\Monkey\Functions;
 use Mockery;
 use PHPUnit\Framework\TestCase;
@@ -26,6 +25,10 @@ class Cache_Preload_Test extends TestCase {
 		parent::setUp();
 		// Set up Brain Monkey to mock WordPress functions.
 		\Brain\Monkey\setUp();
+
+		// Mock home_url to return a test URL
+		Functions\expect( 'home_url' )
+			->andReturn( 'https://example.com' );
 	}
 
 	/**
@@ -105,7 +108,7 @@ class Cache_Preload_Test extends TestCase {
 
 		Functions\expect( 'add_action' )
 			->once()
-			->withArgs( array( 'jetpack_boost_invalidate_cache_success', array( $preload, 'handle_cache_invalidation' ), 10, 2 ) );
+			->withArgs( array( 'jetpack_boost_invalidate_cache_success', array( $preload, 'handle_cache_invalidation' ), 10, 3 ) );
 
 		// Execute the method being tested
 		$preload->preload( $urls );
@@ -228,7 +231,12 @@ class Cache_Preload_Test extends TestCase {
 	 * Test handle_cache_invalidation when all cache is invalidated.
 	 */
 	public function test_handle_cache_invalidation_all() {
-		$path = '/';
+		$path = 'https://example.com';
+
+		// Mock the Cornerstone_Utils class
+		$cornerstone_utils = Mockery::mock( 'alias:' . Cornerstone_Utils::class );
+		$cornerstone_utils->shouldReceive( 'get_list' )
+			->andReturn( array() );
 
 		Functions\expect( 'wp_schedule_single_event' )
 			->once()
@@ -236,7 +244,7 @@ class Cache_Preload_Test extends TestCase {
 
 		// Set up the mock
 		$preload = new Cache_Preload();
-		$preload->handle_cache_invalidation( $path, Filesystem_Utils::DELETE_ALL );
+		$preload->handle_cache_invalidation( $path, 'delete', 'recursive' );
 		$this->expectNotToPerformAssertions();
 	}
 
@@ -258,7 +266,7 @@ class Cache_Preload_Test extends TestCase {
 			->with( Mockery::type( 'int' ), 'jetpack_boost_preload', array( array( $path ) ) );
 
 		$preload = new Cache_Preload();
-		$preload->handle_cache_invalidation( $path, Filesystem_Utils::DELETE_FILE );
+		$preload->handle_cache_invalidation( $path, 'delete', 'page' );
 		$this->expectNotToPerformAssertions();
 	}
 
@@ -279,7 +287,7 @@ class Cache_Preload_Test extends TestCase {
 		Functions\expect( 'wp_schedule_single_event' )->never();
 
 		$preload = new Cache_Preload();
-		$preload->handle_cache_invalidation( $path, Filesystem_Utils::DELETE_FILE );
+		$preload->handle_cache_invalidation( $path, 'delete', 'page' );
 		$this->expectNotToPerformAssertions();
 	}
 
@@ -301,7 +309,7 @@ class Cache_Preload_Test extends TestCase {
 
 		Functions\expect( 'add_action' )
 			->once()
-			->withArgs( array( 'jetpack_boost_invalidate_cache_success', Mockery::type( 'array' ), 10, 2 ) );
+			->withArgs( array( 'jetpack_boost_invalidate_cache_success', Mockery::type( 'array' ), 10, 3 ) );
 
 		$preload = new Cache_Preload();
 		$preload->setup();

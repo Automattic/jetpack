@@ -13,6 +13,11 @@ interface Storage {
 	public function write( $request_uri, $parameters, $data );
 	public function read( $request_uri, $parameters );
 	public function reset_rebuild_file( $request_uri, $parameters );
-	public function invalidate( $request_uri, $type );
+
+	public function delete_page( $path );
+	public function delete_recursive( $path );
+	public function rebuild_page( $path );
+	public function rebuild_recursive( $path );
+
 	public function garbage_collect();
 }

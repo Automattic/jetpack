@@ -5,6 +5,8 @@ namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Manage_Expired;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Rebuild_File;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Simple_Delete;
 use PHPUnit\Framework\TestCase;
 
 class Filesystem_Utils_Test extends TestCase {
@@ -119,8 +121,8 @@ class Filesystem_Utils_Test extends TestCase {
 		mkdir( $test_dir . '/subdir', 0755, true );
 		file_put_contents( $test_dir . '/subdir/test3.html', 'Test 3' );
 
-		$result = Filesystem_Utils::walk_directory( $test_dir, Filesystem_Utils::DELETE_ALL );
-		$this->assertTrue( $result );
+		$result = Filesystem_Utils::iterate_directory( $test_dir, new Simple_Delete() );
+		$this->assertTrue( $result === 3 );
 		$this->assertFalse( file_exists( $test_dir ) );
 	}
 
@@ -130,8 +132,8 @@ class Filesystem_Utils_Test extends TestCase {
 		file_put_contents( $test_dir . '/test1.html', 'Test 1' );
 		file_put_contents( $test_dir . '/test2.html', 'Test 2' );
 
-		$result = Filesystem_Utils::walk_directory( $test_dir, Filesystem_Utils::REBUILD_ALL );
-		$this->assertTrue( $result );
+		$result = Filesystem_Utils::iterate_directory( $test_dir, new Rebuild_File() );
+		$this->assertTrue( $result === 2 );
 		$this->assertTrue( file_exists( $test_dir . '/test1.html.rebuild.html' ) );
 		$this->assertTrue( file_exists( $test_dir . '/test2.html.rebuild.html' ) );
 	}
@@ -160,12 +162,12 @@ class Filesystem_Utils_Test extends TestCase {
 		$invalid_dir      = $this->test_dir;
 
 		// Test walk_directory with non-existent directory
-		$result = Filesystem_Utils::walk_directory( $non_existent_dir, Filesystem_Utils::DELETE_ALL );
+		$result = Filesystem_Utils::iterate_directory( $non_existent_dir, new Simple_Delete() );
 		$this->assertInstanceOf( Boost_Cache_Error::class, $result );
 		$this->assertEquals( 'directory-missing', $result->get_error_code() );
 
 		// Test walk_directory with invalid directory
-		$result = Filesystem_Utils::walk_directory( $invalid_dir, Filesystem_Utils::DELETE_ALL );
+		$result = Filesystem_Utils::iterate_directory( $invalid_dir, new Simple_Delete() );
 		$this->assertInstanceOf( Boost_Cache_Error::class, $result );
 		$this->assertEquals( 'invalid-directory', $result->get_error_code() );
 	}
