@@ -106,7 +106,7 @@ export const useSeoRequests = () => {
 	const updateTitle = useCallback(
 		async ( force: boolean = false ) => {
 			const hasTitle =
-				!! globalSelect( 'core/editor' ).getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title;
+				!! globalSelect( editorStore ).getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title;
 
 			if ( hasTitle && force !== true ) {
 				return null;
@@ -139,7 +139,7 @@ export const useSeoRequests = () => {
 	const updateDescription = useCallback(
 		async ( force: boolean = false ) => {
 			const hasDescription =
-				!! globalSelect( 'core/editor' ).getEditedPostAttribute( 'meta' )?.advanced_seo_description;
+				!! globalSelect( editorStore ).getEditedPostAttribute( 'meta' )?.advanced_seo_description;
 
 			if ( hasDescription && force !== true ) {
 				return null;
