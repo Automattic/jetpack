@@ -21,10 +21,11 @@ const JetpackCRMCard = ( {
 		isInstalled = false,
 		isActive = false,
 		settingsUrl = '',
-		hasExtension = false,
-		canActivateExtension = false,
 		version = '',
+		details = {},
 	} = data || {};
+
+	const { hasExtension = false, canActivateExtension = false } = details;
 
 	const { isInstalling, installPlugin } = usePluginInstallation(
 		'zero-bs-crm',
