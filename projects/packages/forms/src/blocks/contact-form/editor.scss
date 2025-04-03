@@ -289,7 +289,6 @@
 	// Duplicated classname to preserve specificity level.
 	.jetpack-field-label__input.jetpack-field-label__input {
 		cursor: text;
-		font-weight: 700;
 		margin-bottom: 0.25em;
 	}
 
@@ -299,6 +298,17 @@
 		font-weight: 700;
 	}
 
+	.components-toggle-control .components-base-control__field {
+		margin-bottom: 0;
+	}
+
+	&[style*="--jetpack--contact-form--label--font-size"] {
+		font-size: var(--jetpack--contact-form--label--font-size);
+	}
+}
+
+.jetpack-field-label,
+.jetpack-field-option {
 	.required {
 		word-break: normal;
 		color: unset;
@@ -306,14 +316,6 @@
 		font-size: 85%;
 		margin-inline-start: 0.25em;
 		font-weight: 400;
-	}
-
-	.components-toggle-control .components-base-control__field {
-		margin-bottom: 0;
-	}
-
-	&[style*="--jetpack--contact-form--label--font-size"] {
-		font-size: var(--jetpack--contact-form--label--font-size);
 	}
 }
 
@@ -335,10 +337,13 @@
 		font: inherit;
 		box-sizing: border-box;
 		box-shadow: unset;
-		border: 1px solid #8c8f94;
-		border-radius: 0;
 		padding: 16px;
 		margin: 0;
+	}
+
+	:where( .jetpack-field__input, .jetpack-field__textarea ) {
+		border: 1px solid #8c8f94;
+		border-radius: 0;
 	}
 
 	.jetpack-field__textarea {
@@ -801,7 +806,7 @@
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				margin: 0;
 
-				label {
+				:where( label, .jetpack-field-label__suffix ) {
 					font-weight: 300;
 				}
 			}
@@ -838,7 +843,9 @@
 				&.jetpack-field-dropdown {
 
 					.jetpack-field-dropdown__toggle {
-						border-color: transparent;
+						/* TODO: Find way around these !important hacks due to label rendering input borders for Outlined style. */
+						border-color: transparent !important;
+						border-radius: transparent !important;
 						padding-left: calc(var(--notch-width) + 4px);
 						padding-right: calc(var(--notch-width) + 4px);
 					}
@@ -885,7 +892,9 @@
 
 			.jetpack-field__input, .jetpack-field__textarea {
 				display: flex;
-				border-top-color: transparent !important; //Need to override styles coming from the style attribute
+				/* TODO: Find a way around these !important hacks due to use of the label to render input borders for Outlined style. */
+				border-color: transparent !important; //Need to override styles coming from the style attribute
+				border-radius: 0 !important; //Need to override styles coming from the style attribute
 				outline: none;
 				padding-left: calc(var(--notch-width) + 4px);
 				padding-right: calc(var(--notch-width) + 4px);
@@ -948,7 +957,7 @@
 				z-index: 1;
 				top: 50%;
 				left: var(--label-left);
-				width: 100%;
+				width: calc( 100% - var(--label-left));
 				max-width: 100%;
 				box-sizing: border-box;
 				margin: 0;
@@ -1007,4 +1016,34 @@
 		width: 100%;
 		justify-content: center;
 	}
+}
+
+:where(.wp-block-jetpack-input) {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.wp-block-jetpack-checkbox {
+	align-items: center;
+}
+
+.jetpack-field-option__label-wrapper {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	align-items: baseline;
+}
+
+.notched-label,
+.notched-label__notch,
+.notched-label__leading,
+.notched-label__trailing {
+    pointer-events: none;
+}
+
+.jetpack-field-label__input {
+    pointer-events: auto;
+}
+
+:where(.wp-block-jetpack-label) {
+	font-weight: 700;
 }
