@@ -48,13 +48,13 @@ const IntegrationsModal = ( {
 					onToggle={ () => toggleCard( 'crm' ) }
 					jetpackCRM={ attributes.jetpackCRM }
 					setAttributes={ setAttributes }
-					data={ integrationsData?.[ 'jetpack-crm' ] }
+					data={ integrationsData?.[ 'zero-bs-crm' ] }
 					refreshStatus={ refreshIntegrations }
 				/>
 				<CreativeMailCard
 					isExpanded={ expandedCards.creativemail }
 					onToggle={ () => toggleCard( 'creativemail' ) }
-					data={ integrationsData?.[ 'creative-mail' ] }
+					data={ integrationsData?.[ 'creative-mail-by-constant-contact' ] }
 					refreshStatus={ refreshIntegrations }
 				/>
 			</div>

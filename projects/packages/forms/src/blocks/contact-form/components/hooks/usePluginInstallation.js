@@ -5,13 +5,13 @@ import { installAndActivatePlugin, activatePlugin } from '../../util/plugin-mana
 /**
  * Custom hook to handle plugin installation and activation flows.
  *
- * @param {string}  pluginSlug      - The plugin slug (e.g., 'akismet')
+ * @param {string}  slug            - The plugin slug (e.g., 'akismet')
  * @param {string}  pluginPath      - The plugin path (e.g., 'akismet/akismet')
  * @param {boolean} isInstalled     - Whether the plugin is installed
  * @param {string}  tracksEventName - The name of the tracks event to record
  * @return {object} Plugin installation states and handlers
  */
-export const usePluginInstallation = ( pluginSlug, pluginPath, isInstalled, tracksEventName ) => {
+export const usePluginInstallation = ( slug, pluginPath, isInstalled, tracksEventName ) => {
 	const [ isInstalling, setIsInstalling ] = useState( false );
 	const { tracks } = useAnalytics();
 
@@ -26,7 +26,7 @@ export const usePluginInstallation = ( pluginSlug, pluginPath, isInstalled, trac
 			if ( isInstalled ) {
 				await activatePlugin( pluginPath );
 			} else {
-				await installAndActivatePlugin( pluginSlug );
+				await installAndActivatePlugin( slug );
 			}
 			return true;
 		} catch {
@@ -35,7 +35,7 @@ export const usePluginInstallation = ( pluginSlug, pluginPath, isInstalled, trac
 		} finally {
 			setIsInstalling( false );
 		}
-	}, [ pluginSlug, pluginPath, isInstalled, tracks, tracksEventName ] );
+	}, [ slug, pluginPath, isInstalled, tracks, tracksEventName ] );
 
 	return {
 		isInstalling,

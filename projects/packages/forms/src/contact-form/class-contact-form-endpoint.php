@@ -23,17 +23,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @var array
 	 */
 	private $supported_integrations = array(
-		'akismet'       => array(
+		'akismet'                           => array(
 			'type'         => 'plugin',
 			'file'         => 'akismet/akismet.php',
 			'settings_url' => 'admin.php?page=akismet-key-config',
 		),
-		'creative-mail' => array(
+		'creative-mail-by-constant-contact' => array(
 			'type'         => 'plugin',
 			'file'         => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
 			'settings_url' => 'admin.php?page=creativemail',
 		),
-		'jetpack-crm'   => array(
+		'zero-bs-crm'                       => array(
 			'type'         => 'plugin',
 			'file'         => 'zero-bs-crm/ZeroBSCRM.php',
 			'settings_url' => 'admin.php?page=zerobscrm-plugin-settings',
@@ -648,7 +648,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$response = array(
 			'type'        => 'plugin',
 			'slug'        => $plugin_slug,
-			'pluginFile'  => $plugin_config['file'],
+			'pluginFile'  => str_replace( '.php', '', $plugin_config['file'] ),
 			'isInstalled' => $is_installed,
 			'isActive'    => $is_active,
 			'isConnected' => false,

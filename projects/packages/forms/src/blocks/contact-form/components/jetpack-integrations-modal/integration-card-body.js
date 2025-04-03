@@ -7,15 +7,15 @@ const IntegrationCardBody = ( { isExpanded, children, cardData = {} } ) => {
 	}
 
 	const {
-		pluginSlug = '',
-		pluginFile = '',
-		refreshStatus = () => {},
-		trackEventName = '',
-		notInstalledMessage = '',
-		notActivatedMessage = '',
+		slug,
+		pluginFile,
+		refreshStatus,
+		trackEventName,
+		notInstalledMessage,
+		notActivatedMessage,
 		isInstalled,
 		isActive,
-		isLoading = false,
+		isLoading,
 	} = cardData;
 
 	const renderContent = () => {
@@ -25,12 +25,12 @@ const IntegrationCardBody = ( { isExpanded, children, cardData = {} } ) => {
 		}
 
 		// Not installed state
-		if ( ! isInstalled && pluginSlug && pluginFile ) {
+		if ( ! isInstalled ) {
 			return (
 				<div>
 					<p>{ notInstalledMessage }</p>
 					<PluginActionButton
-						pluginSlug={ pluginSlug }
+						slug={ slug }
 						pluginFile={ pluginFile }
 						isInstalled={ isInstalled }
 						refreshStatus={ refreshStatus }
@@ -41,12 +41,12 @@ const IntegrationCardBody = ( { isExpanded, children, cardData = {} } ) => {
 		}
 
 		// Not activated state
-		if ( ! isActive && pluginSlug && pluginFile ) {
+		if ( ! isActive ) {
 			return (
 				<div>
 					<p>{ notActivatedMessage }</p>
 					<PluginActionButton
-						pluginSlug={ pluginSlug }
+						slug={ slug }
 						pluginFile={ pluginFile }
 						isInstalled={ isInstalled }
 						refreshStatus={ refreshStatus }
@@ -56,12 +56,7 @@ const IntegrationCardBody = ( { isExpanded, children, cardData = {} } ) => {
 			);
 		}
 
-		// Default content when plugin is active
-		if ( isInstalled && isActive ) {
-			return children;
-		}
-
-		return null;
+		return children;
 	};
 
 	return <CardBody>{ renderContent() }</CardBody>;
