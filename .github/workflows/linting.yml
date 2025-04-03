@@ -377,7 +377,7 @@ jobs:
       - name: Monorepo pnpm install
         run: pnpm install
       - name: Run lint-style
-        run: pnpm lint-style . && echo 'Everything checks out!'
+        run: pnpm lint-style --formatter=compact . && echo 'Everything checks out!'
 
   ### Lints GitHub Actions yaml files.
   # Local equivalent: `./tools/js-tools/lint-gh-actions.mjs <files>`
