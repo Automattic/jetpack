@@ -26,7 +26,7 @@
 	cursor: pointer;
 	transition: .2s;
 	opacity: 1;
-	background-color: #EEE;
+	filter: invert(0.1);
 }
 
 .jetpack-form-file-field__dropzone:hover {
@@ -276,6 +276,10 @@
 	opacity: 0.8;
 	display: inline-flex;
 	gap: 4px;
+}
+
+.jetpack-form-file-field__file-info .jetpack-form-file-field__file-size {
+	white-space: nowrap;
 }
 
 .jetpack-form-file-field__success {
