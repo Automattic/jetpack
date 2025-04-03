@@ -797,6 +797,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		l( 'Value: ' . var_export( $value, true ) );
 		// Handle file upload field (new structure with field_id and files array)
 		if ( self::is_file_upload_field( $value ) ) {
+			l( 'File upload field detected' );
 			$files = $value['files'];
 			if ( empty( $files ) ) {
 				return '';
@@ -1005,12 +1006,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return bool True if the field is a file upload field, false otherwise.
 	 */
 	public static function is_file_upload_field( $field ) {
-		// New structure: check for field_id and files keys
-		return is_array( $field ) &&
+		return ( is_array( $field ) &&
 				! empty( $field ) &&
 				isset( $field['field_id'] ) &&
 				isset( $field['files'] ) &&
-				is_array( $field['files'] );
+				is_array( $field['files'] ) );
 	}
 
 	/**
@@ -1359,6 +1359,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$extra_values[ $label ] = $value;
 			++$i; // Increment prefix counter for the next extra field
 		}
+
+		l( 'All values: ' . var_export( $all_values, true ) );
+		l( 'Extra values: ' . var_export( $extra_values, true ) );
 
 		if ( ! empty( $_REQUEST['is_block'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not changing the site.
 			$extra_values['is_block'] = true;
@@ -1845,38 +1848,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Process a file upload.
-	 *
-	 * @param string $unauth_file_token The unauthenticated file upload token.
-	 * @return array|WP_Error File data array on success, WP_Error on failure.
-	 */
-	private function process_file_upload( $unauth_file_token ) {
-		error_log( "DEBUG: process_file_upload called with token: $unauth_file_token" );
-
-		if ( empty( $unauth_file_token ) ) {
-			error_log( 'DEBUG: Empty token provided' );
-			return new \WP_Error( 'file_upload_failed', __( 'Failed to upload file.', 'jetpack-forms' ) );
-		}
-
-		// Directly require the File_Handler class
-		require_once dirname( __DIR__ ) . '/class-file-handler.php';
-		$file_handler = new \Automattic\Jetpack\Forms\File_Handler();
-
-		error_log( "DEBUG: Calling save_file_from_token with token: $unauth_file_token" );
-
-		// The filename will be retrieved from the token data
-		$result = $file_handler->save_file_from_token( $unauth_file_token );
-
-		if ( is_wp_error( $result ) ) {
-			error_log( 'DEBUG: Error saving file from token: ' . $result->get_error_message() );
-		} else {
-			error_log( 'DEBUG: File saved successfully from token. Result: ' . print_r( $result, true ) );
-		}
-
-		return $result;
-	}
-
-	/**
 	 * Get the permalink for the post ID that include the page query parameter if it was set.
 	 *
 	 * @param int $post_id The post ID.
@@ -2112,10 +2083,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				function ( $json_str ) {
 					$decoded = json_decode( $json_str, true );
 					return array(
-						'token' => isset( $decoded['token'] ) ? sanitize_text_field( $decoded['token'] ) : '',
-						'name'  => isset( $decoded['name'] ) ? sanitize_text_field( $decoded['name'] ) : '',
-						'size'  => isset( $decoded['size'] ) ? absint( $decoded['size'] ) : 0,
-						'type'  => isset( $decoded['type'] ) ? sanitize_text_field( $decoded['type'] ) : '',
+						'file_id' => isset( $decoded['file_id'] ) ? sanitize_text_field( $decoded['file_id'] ) : '',
+						'name'    => isset( $decoded['name'] ) ? sanitize_text_field( $decoded['name'] ) : '',
+						'size'    => isset( $decoded['size'] ) ? absint( $decoded['size'] ) : 0,
+						'type'    => isset( $decoded['type'] ) ? sanitize_text_field( $decoded['type'] ) : '',
 					);
 				},
 				$raw_data

@@ -97,7 +97,11 @@ class Dashboard {
 
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
-			'window.jetpackFormsData = ' . wp_json_encode( array( 'apiRoot' => $api_root ) ) . ';',
+			'window.jetpackFormsData = ' . wp_json_encode(
+				array(
+					'apiRoot' => $api_root,
+				)
+			) . ';',
 			'before'
 		);
 	}
@@ -159,6 +163,7 @@ class Dashboard {
 			'siteURL'                 => ( new Status() )->get_site_suffix(),
 			'hasFeedback'             => $this->has_feedback(),
 			'hasAI'                   => $has_ai,
+			'fileDownloadNonce'       => wp_create_nonce( 'jetpack_form_download_file' ),
 		);
 		?>
 		<div id="jp-forms-dashboard" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>

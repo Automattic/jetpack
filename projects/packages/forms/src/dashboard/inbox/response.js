@@ -8,7 +8,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { map } from 'lodash';
-import { handleFormFileClick } from './form-file-handler';
+import { config } from '..';
 
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -26,23 +26,15 @@ const renderFieldValue = ( value, response ) => {
 				{ value.files.map( ( file, index ) => {
 					const fileName = decodeEntities( file.name );
 					const fileSize = file.size ? sprintf( '%s KB', ( file.size / 1024 ).toFixed( 2 ) ) : '';
-
-					const handleClick = useCallback(
-						event => {
-							event.preventDefault();
-							handleFormFileClick( {
-								fileId: file.file_id,
-								postId: response.id,
-								fieldId: value.field_id,
-								fileName: fileName,
-							} );
-						},
-						[ file.file_id, file.post_id, value.field_id, fileName ]
-					);
+					const fileUrl = `/wp-admin/admin-ajax.php?action=jetpack_form_download_file&file_id=${
+						file.file_id
+					}&post_id=${ response.id }&field_id=${ value.field_id }&_wpnonce=${ config(
+						'fileDownloadNonce'
+					) }`;
 
 					return (
 						<div key={ index } className="file-field__item">
-							<Button variant="link" onClick={ handleClick }>
+							<Button variant="link" href={ fileUrl } target="_blank">
 								{ fileName } | { fileSize }
 							</Button>
 						</div>

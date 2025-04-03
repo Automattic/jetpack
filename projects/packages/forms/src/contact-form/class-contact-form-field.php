@@ -844,43 +844,49 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			_x( 'GB', 'unit symbol', 'jetpack-forms' ),
 		);
 
-		// TODO: MOVE TOKEN RETRIEVAL TO A HELPER FUNCTION
-		$blog_id     = \Jetpack_Options::get_option( 'id' );
-		$request_url = sprintf( '/sites/%d/unauth-file-upload/token', $blog_id );
+		if ( ! ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
+			// TODO: MOVE TOKEN RETRIEVAL TO A HELPER FUNCTION
+			$blog_id     = \Jetpack_Options::get_option( 'id' );
+			$request_url = sprintf( '/sites/%d/unauth-file-upload/token', $blog_id );
 
-		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
-			$request_url,
-			'v2',
-			array(
-				'method'  => 'POST',
-				'headers' => array(
-					'Content-Type' => 'application/json',
-				),
-			),
-			wp_json_encode(
+			$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+				$request_url,
+				'v2',
 				array(
-					'context' => 'jetpack-form',
-				)
-			),
-			'wpcom'
-		);
+					'method'  => 'POST',
+					'headers' => array(
+						'Content-Type' => 'application/json',
+					),
+				),
+				wp_json_encode(
+					array(
+						'context' => 'jetpack-form',
+					)
+				),
+				'wpcom'
+			);
 
-		if ( is_wp_error( $response ) ) {
-			error_log( 'Error getting upload token: ' . $response->get_error_message() );
-			return '';
+			if ( is_wp_error( $response ) ) {
+				error_log( 'Error getting upload token: ' . $response->get_error_message() );
+				return '';
+			}
+
+			$body = json_decode( wp_remote_retrieve_body( $response ), true );
+			l( 'Body: ' . var_export( $body, true ) );
+
+			if ( ! isset( $body['token'] ) ) {
+				error_log( 'Invalid response from upload token endpoint' );
+				return '';
+			}
+
+			$upload_token = $body['token'];
+		} else {
+			require_once WP_CONTENT_DIR . '/rest-api-plugins/endpoints/unauth-file-upload/lib.php';
+			$upload_handler = new \Automattic\Jetpack\Unauth_File_Upload_Handler();
+			$upload_token   = $upload_handler->generate_upload_token();
 		}
-
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( ! isset( $body['token'] ) ) {
-			error_log( 'Invalid response from upload token endpoint' );
-			return '';
-		}
-
-		$upload_token = $body['token'];
-
-		$global_config = array(
-			'i18n'        => array(
+		global_config = array(
+			'i18n'          => array(
 				'language'           => get_bloginfo( 'language' ),
 				'fileSizeUnits'      => $file_size_units,
 				'zeroBytes'          => __( '0 Bytes', 'jetpack-forms' ),
@@ -941,7 +947,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 						<div class="jetpack-form-file-field__file-wrap">
 							<strong class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></strong>
-							<div class="jetpack-form-file-field__file-info">
+							<div class="jetpack-form-file-field__file-info" date-wp-class--is-error="context.file.error" data-wp-class--is-complete="context.file.file_id">
 								<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
 								<span class="jetpack-form-file-field__seperator"> &middot; </span>
 								<span class="jetpack-form-file-field__uploading"><?php esc_html_e( 'Uploading...', 'jetpack-forms' ); ?></span>

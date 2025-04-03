@@ -190,6 +190,9 @@ class Contact_Form_Plugin {
 		add_action( 'wp_ajax_grunion-contact-form', array( $this, 'ajax_request' ) );
 		add_action( 'wp_ajax_nopriv_grunion-contact-form', array( $this, 'ajax_request' ) );
 
+		l( 'registering jetpack_form_download_file' );
+		add_action( 'wp_ajax_jetpack_form_download_file', array( $this, 'handle_file_download' ) );
+
 		// GDPR: personal data exporter & eraser.
 		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_personal_data_exporter' ) );
 		add_filter( 'wp_privacy_personal_data_erasers', array( $this, 'register_personal_data_eraser' ) );

@@ -126,13 +126,13 @@ const onReadyStateChange = ( fileId, event ) => {
 			if ( response.success ) {
 				updateFileContext(
 					{
-						token: response.data.token,
+						file_id: response.data.token,
 						hasToken: true,
 						name: response.data.name,
 						type: response.data.type,
 						size: response.data.size,
 						fileJson: JSON.stringify( {
-							token: response.data.token,
+							file_id: response.data.token,
 							name: response.data.name,
 							size: response.data.size,
 							type: response.data.type,

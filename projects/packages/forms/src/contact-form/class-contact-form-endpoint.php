@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -17,6 +19,9 @@ use WP_REST_Response;
  * registered in \Automattic\Jetpack\Forms\ContactForm\Contact_Form.
  */
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
+
+	use WPCOM_REST_API_Proxy_Request;
+
 	/**
 	 * Supported integrations configuration
 	 *
@@ -600,6 +605,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object or error.
 	 */
 	public function get_file( $request ) {
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			return $this->proxy_request_to_wpcom_as_user( $request );
+		}
 		$file_id  = $request->get_param( 'file_id' );
 		$post_id  = $request->get_param( 'post_id' );
 		$field_id = $request->get_param( 'field_id' );
@@ -632,6 +640,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		// Verify file exists and is readable
 		if ( ! file_exists( $file_path ) || ! is_readable( $file_path ) ) {
+			l( 'File not accessible: ', $file );
 			return new WP_Error(
 				'file_not_accessible',
 				esc_html__( 'The file cannot be accessed.', 'jetpack-forms' ),
