@@ -118,15 +118,18 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 				'post_parent'    => 0,
 				'post_mime_type' => 'image/jpeg',
 				'post_title'     => 'Test Image',
+				'post_content'   => 'Test Image Description',
+				'post_excerpt'   => 'Test Image Caption',
+				'post_status'    => 'publish',
 			)
 		);
 
 		// Add image metadata
 		$attachment_metadata = array(
-			'width'  => 100,
-			'height' => 100,
-			'file'   => 'test-image.jpg',
-			'sizes'  => array(
+			'width'      => 100,
+			'height'     => 100,
+			'file'       => 'test-image.jpg',
+			'sizes'      => array(
 				'thumbnail' => array(
 					'file'      => 'test-image-150x150.jpg',
 					'width'     => 150,
@@ -134,8 +137,30 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 					'mime-type' => 'image/jpeg',
 				),
 			),
+			'image_meta' => array(
+				'title'   => 'Test Image',
+				'caption' => 'Test Image Caption',
+			),
 		);
 		wp_update_attachment_metadata( $attachment_id, $attachment_metadata );
+
+		// Add a filter to transform image:image to images format
+		add_filter(
+			'jetpack_sitemap_image_sitemap_item',
+			function ( $item_array ) use ( $attachment_id ) {
+				if ( isset( $item_array['url']['image:image'] ) ) {
+					$item_array['url']['images'] = array(
+						array(
+							'loc'     => $item_array['url']['image:image']['image:loc'],
+							'title'   => get_the_title( $attachment_id ),
+							'caption' => get_the_excerpt( $attachment_id ),
+						),
+					);
+					unset( $item_array['url']['image:image'] );
+				}
+				return $item_array;
+			}
+		);
 
 		// Run updates until we reach master sitemap generation
 		for ( $i = 0; $i < 10; $i++ ) {
@@ -156,6 +181,22 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 		if ( file_exists( $filename ) && strpos( $filename, 'test-image-' ) !== false ) {
 			unlink( $filename );
 		}
+		remove_filter(
+			'jetpack_sitemap_image_sitemap_item',
+			function ( $item_array ) use ( $attachment_id ) {
+				if ( isset( $item_array['url']['image:image'] ) ) {
+					$item_array['url']['images'] = array(
+						array(
+							'loc'     => $item_array['url']['image:image']['image:loc'],
+							'title'   => get_the_title( $attachment_id ),
+							'caption' => get_the_excerpt( $attachment_id ),
+						),
+					);
+					unset( $item_array['url']['image:image'] );
+				}
+				return $item_array;
+			}
+		);
 	}
 
 	/**
