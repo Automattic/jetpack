@@ -660,7 +660,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		// Plugin-specific customizations
 		if ( 'akismet' === $plugin_slug ) {
 			$response['isConnected'] = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
-		} elseif ( 'jetpack-crm' === $plugin_slug && $is_active ) {
+		} elseif ( 'zero-bs-crm' === $plugin_slug && $is_active ) {
 			$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
 			$response['details'] = array(
 				'hasExtension'         => $has_extension,
