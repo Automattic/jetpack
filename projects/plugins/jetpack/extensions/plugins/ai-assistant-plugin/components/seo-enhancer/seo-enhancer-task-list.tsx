@@ -18,7 +18,6 @@ import type { PromptType } from './types';
 
 export function SeoEnhancerTaskList( {
 	isPrePublish,
-	imageBlocks,
 }: {
 	isPrePublish: boolean;
 	imageBlocks: Block[];
@@ -56,15 +55,11 @@ export function SeoEnhancerTaskList( {
 			</div>
 			<div className="jetpack-seo-sidebar__feature-list">
 				{ FEATURES.map( feature => {
-					const extraLabel =
-						feature === 'images-alt-text' && imageBlocks.length > 0
-							? ` (${ imageBlocks.length })`
-							: '';
 					if ( ! isPrePublish ) {
 						return (
 							<div className="jetpack-seo-enhancer__feature-list-item" key={ feature }>
 								<div className="jetpack-seo-enhancer__feature-list-item-icon-container" />
-								<div>{ FEATURE_LABELS[ feature ] + extraLabel }</div>
+								<div>{ FEATURE_LABELS[ feature ] }</div>
 							</div>
 						);
 					}
@@ -79,7 +74,7 @@ export function SeoEnhancerTaskList( {
 								/>
 							</div>
 							<div className="jetpack-seo-enhancer__feature-list-item-label">
-								{ FEATURE_LABELS[ feature ] + extraLabel }
+								{ FEATURE_LABELS[ feature ] }
 							</div>
 						</div>
 					);
