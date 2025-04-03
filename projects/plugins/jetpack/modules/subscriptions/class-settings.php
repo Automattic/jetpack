@@ -22,7 +22,7 @@ class Settings {
 	 *
 	 * @var string
 	 */
-	public const FEATURED_IMAGE_EMAIL_CUTOFF_DATE = '2025-04-01 00:00:00.000';
+	public const FEATURED_IMAGE_EMAIL_CUTOFF_DATE = '2025-04-04 00:00:00.000';
 
 	/**
 	 * The default reply-to option.
