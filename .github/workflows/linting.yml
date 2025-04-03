@@ -139,6 +139,7 @@ jobs:
               # If Stylelint config changed, there may be new checks.
               - .stylelintignore
               - stylelint.config.mjs
+              - '**/stylelint.config.{js,mjs,cjs}'
               - tools/js-tools/stylelint.config.base.mjs
             misc_excludelist:
               - 'tools/cleanup-excludelists.sh'
