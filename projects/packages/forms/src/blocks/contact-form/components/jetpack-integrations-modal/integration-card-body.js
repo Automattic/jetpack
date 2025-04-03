@@ -1,7 +1,7 @@
 import { CardBody, Spinner } from '@wordpress/components';
 import PluginActionButton from './plugin-action-button';
 
-const IntegrationCardBody = ( { isExpanded, children, data = null, cardData = {} } ) => {
+const IntegrationCardBody = ( { isExpanded, children, cardData = {} } ) => {
 	if ( ! isExpanded ) {
 		return null;
 	}
@@ -13,15 +13,16 @@ const IntegrationCardBody = ( { isExpanded, children, data = null, cardData = {}
 		trackEventName = '',
 		notInstalledMessage = '',
 		notActivatedMessage = '',
+		isInstalled,
+		isActive,
+		isLoading = false,
 	} = cardData;
 
 	const renderContent = () => {
 		// Loading state
-		if ( ! data ) {
+		if ( isLoading ) {
 			return <Spinner />;
 		}
-
-		const { isInstalled = false, isActive = false } = data || {};
 
 		// Not installed state
 		if ( ! isInstalled && pluginSlug && pluginFile ) {

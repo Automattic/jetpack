@@ -20,8 +20,8 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	);
 
 	const cardData = {
-		pluginSlug: 'creative-mail-by-constant-contact',
-		pluginFile: 'creative-mail-by-constant-contact/creative-mail-plugin',
+		...data,
+		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_creative_mail_click',
 		notInstalledMessage: __(
@@ -76,7 +76,6 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			icon="email"
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
-			data={ data }
 			cardData={ cardData }
 		>
 			{ renderActiveContent() }

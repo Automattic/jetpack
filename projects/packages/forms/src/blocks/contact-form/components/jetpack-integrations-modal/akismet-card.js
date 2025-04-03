@@ -11,8 +11,8 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
 
 	const cardData = {
-		pluginSlug: 'akismet',
-		pluginFile: 'akismet/akismet',
+		...data,
+		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_akismet_click',
 		notInstalledMessage: createInterpolateElement(
@@ -99,7 +99,6 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			icon={ <AkismetIcon /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
-			data={ data }
 			cardData={ cardData }
 		>
 			{ renderActiveContent() }

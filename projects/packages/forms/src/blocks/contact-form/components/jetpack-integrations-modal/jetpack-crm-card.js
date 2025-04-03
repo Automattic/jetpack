@@ -24,8 +24,8 @@ const JetpackCRMCard = ( {
 	const isRecentVersion = crmVersion && semver.gte( crmVersion, '4.9.1' );
 
 	const cardData = {
-		pluginSlug: 'zero-bs-crm',
-		pluginFile: 'zero-bs-crm/ZeroBSCRM',
+		...data,
+		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_crm_click',
 		notInstalledMessage: __(
@@ -112,7 +112,6 @@ const JetpackCRMCard = ( {
 			icon={ <JetpackIcon color={ COLOR_JETPACK } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
-			data={ data }
 			cardData={ cardData }
 		>
 			{ renderActiveContent() }

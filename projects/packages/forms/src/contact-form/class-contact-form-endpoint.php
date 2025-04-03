@@ -647,6 +647,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		$response = array(
 			'type'        => 'plugin',
+			'slug'        => $plugin_slug,
+			'pluginFile'  => $plugin_config['file'],
 			'isInstalled' => $is_installed,
 			'isActive'    => $is_active,
 			'isConnected' => false,
