@@ -4,7 +4,7 @@ This patches miscellaneous CSS issues that occur when plugins don't interplay we
 
 This started because of https://github.com/elementor/elementor/pull/30540.
 
-# File naming rule
+# Important Note
 
 Please include the link to the GitHub issue of each CSS patch you add. This increases the odds of removing the patch later.
 
