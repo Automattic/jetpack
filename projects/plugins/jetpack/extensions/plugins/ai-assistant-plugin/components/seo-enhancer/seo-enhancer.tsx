@@ -19,6 +19,7 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { FEATURE_LABELS, FEATURES } from './constants';
+import { SeoEnhancerTaskList } from './seo-enhancer-task-list';
 import { store } from './store';
 import { useSeoModuleSettings } from './use-seo-module-settings';
 import { useSeoRequests } from './use-seo-requests';
@@ -132,20 +133,10 @@ export function SeoEnhancer( {
 						</div>
 					) }
 					{ isEnabled && ! disableAutoEnhance && (
-						<div className="jetpack-seo-sidebar__feature-list-container">
-							<span className="jetpack-seo-sidebar__feature-list-title">
-								{ __( "If not provided we'll automatically generate:", 'jetpack' ) }
-							</span>
-							<ul className="jetpack-seo-sidebar__feature-list">
-								{ enabledFeatures.map( feature => {
-									const extraLabel =
-										feature === 'images-alt-text' && imageBlocks.length > 0
-											? ` (${ imageBlocks.length })`
-											: '';
-									return <li key={ feature }>{ FEATURE_LABELS[ feature ] + extraLabel }</li>;
-								} ) }
-							</ul>
-						</div>
+						<SeoEnhancerTaskList
+							isPrePublish={ placement === 'jetpack-prepublish-sidebar' }
+							imageBlocks={ imageBlocks }
+						/>
 					) }
 				</BaseControl>
 			</PanelRow>
