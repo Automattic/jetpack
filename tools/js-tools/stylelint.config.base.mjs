@@ -9,7 +9,7 @@ const baseConfig = {
 		'selector-pseudo-class-no-unknown': [
 			true,
 			{
-				ignorePseudoClasses: [ 'global' ],
+				ignorePseudoClasses: [ 'export', 'global' ],
 			},
 		],
 	},
