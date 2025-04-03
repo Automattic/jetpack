@@ -259,20 +259,29 @@ export const useSeoRequests = () => {
 				images_alt_text: false,
 			};
 
-			enabledFeatures.forEach( feature => {
-				if ( feature === 'seo-title' ) {
-					promises.push( updateTitle() );
-					trackData.seo_title = true;
-				}
-				if ( feature === 'seo-meta-description' ) {
-					promises.push( updateDescription() );
-					trackData.seo_meta_description = true;
-				}
-				if ( feature === 'images-alt-text' ) {
-					promises.push( updateAltTexts() );
-					trackData.images_alt_text = true;
-				}
-			} );
+			if ( trigger === 'auto' ) {
+				promises.push( updateTitle() );
+				promises.push( updateDescription() );
+				promises.push( updateAltTexts() );
+				trackData.seo_title = true;
+				trackData.seo_meta_description = true;
+				trackData.images_alt_text = true;
+			} else {
+				enabledFeatures.forEach( feature => {
+					if ( feature === 'seo-title' ) {
+						promises.push( updateTitle() );
+						trackData.seo_title = true;
+					}
+					if ( feature === 'seo-meta-description' ) {
+						promises.push( updateDescription() );
+						trackData.seo_meta_description = true;
+					}
+					if ( feature === 'images-alt-text' ) {
+						promises.push( updateAltTexts() );
+						trackData.images_alt_text = true;
+					}
+				} );
+			}
 
 			tracks.recordEvent( 'jetpack_seo_enhancer_trigger', trackData );
 
