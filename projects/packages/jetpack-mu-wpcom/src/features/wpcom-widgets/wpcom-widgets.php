@@ -8,7 +8,7 @@
 /**
  * WP.com Widgets (in alphabetical order)
  */
-require_once __DIR__ . 'class-jetpack-i-voted-widget.php';
+require_once __DIR__ . '/class-jetpack-i-voted-widget.php';
 
 /**
  * Tracks widget being added or deleted.
@@ -44,9 +44,11 @@ add_action( 'widgets.php', 'jetpack_mu_wpcom_ajax_save_widget_stats' );
  * Some widgets are getting long in the tooth, hardly used, or just not very useful.
  * Disable these widgets on sites where they're not active.
  */
-$retired_widgets = array( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	// widget_id     => Widget_Class
-	'i_voted' => 'Jetpack_I_Voted_Widget',
+define(
+	'JETPACK_MU_WPCOM_RETIRED_WIDGETS',
+	array(
+		'i_voted' => 'Jetpack_I_Voted_Widget',
+	)
 );
 
 /**
@@ -56,7 +58,6 @@ $retired_widgets = array( // phpcs:ignore VariableAnalysis.CodeAnalysis.Variable
  * @return void
  */
 function jetpack_mu_wpcom_unregister_retired_widgets() {
-	global $retired_widgets;
 
 	if ( ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) || ! is_admin() ) {
 		return;
@@ -73,11 +74,10 @@ function jetpack_mu_wpcom_unregister_retired_widgets() {
 		return;
 	}
 
-	foreach ( $retired_widgets as $widget_id => $widget_class ) {
+	foreach ( JETPACK_MU_WPCOM_RETIRED_WIDGETS as $widget_id => $widget_class ) {
 		if ( is_active_widget( false, false, $widget_id ) ) {
 			continue;
 		}
-
 		unregister_widget( $widget_class );
 	}
 }
@@ -92,9 +92,7 @@ add_action( 'widgets_init', 'jetpack_mu_wpcom_unregister_retired_widgets', 20 );
  * @return array Modified array of widget types.
  */
 function jetpack_mu_wpcom_hide_retired_widgets_from_legacy_block( $widget_types ) {
-	global $retired_widgets;
-
-	foreach ( $retired_widgets as $widget_id => $widget_class ) {
+	foreach ( JETPACK_MU_WPCOM_RETIRED_WIDGETS as $widget_id => $widget_class ) {
 		$widget_types[] = $widget_id;
 	}
 
