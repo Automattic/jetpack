@@ -345,16 +345,16 @@ The Jetpack plugin project also has some additional test commands that can be ru
 
 #### Admin Page unit tests
 
-TODO - explain the purpose of these tests.
+Tests for the Jetpack dashboard and settings pages can be run using the following command:
 
 ```sh
 cd projects/plugins/jetpack
 pnpm test-adminpage
 ```
 
-This runs both the `client` and `gui` tests, but they can also be run individually using `pnpm test-gui` or `pnpm test-client`.
+This runs both the `client` (stores and other business logic) and `gui` (react component) tests, but they can also be run individually using `pnpm test-client` or `pnpm test-gui`.
 
-You can also only run tests matching a specific pattern. To do that, use the argument `-g, --grep <pattern>`:
+You can also run only tests that match a specific pattern. To do that, use the argument `-g, --grep <pattern>`:
 
 ```sh
 pnpm test-gui -g 'my custom pattern to filter tests'
@@ -368,7 +368,7 @@ pnpm test-client -R 'my_reporter'
 
 #### Extension unit tests
 
-TODO - explain the purpose of these tests.
+Tests for editor extensions (including blocks, sidebars and more) can be run using the following command:
 
 ```sh
 cd projects/plugins/jetpack
