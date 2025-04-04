@@ -20,6 +20,7 @@ const IntegrationCard = ( {
 				icon={ icon }
 				isExpanded={ isExpanded }
 				onToggle={ onToggle }
+				cardData={ cardData }
 			/>
 			<IntegrationCardBody isExpanded={ isExpanded } cardData={ cardData }>
 				{ children }

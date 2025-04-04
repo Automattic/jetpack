@@ -10,7 +10,8 @@ const PluginActionButton = ( { slug, pluginFile, isInstalled, refreshStatus, tra
 		trackEventName
 	);
 
-	const handleAction = async () => {
+	const handleAction = async event => {
+		event.stopPropagation();
 		const success = await installPlugin();
 		if ( success && refreshStatus ) {
 			refreshStatus();
@@ -32,7 +33,6 @@ const PluginActionButton = ( { slug, pluginFile, isInstalled, refreshStatus, tra
 			onClick={ handleAction }
 			disabled={ isInstalling }
 			icon={ isInstalling ? <Icon icon="update" className="is-spinning" /> : undefined }
-			__next40pxDefaultSize={ true }
 		>
 			{ getButtonText() }
 		</Button>
