@@ -421,11 +421,8 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Add a new page', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post-new.php?post_type=page' );
-				}
-				return '/page/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'post-new.php?post_type=page' );
 			},
 		),
 
