@@ -20,8 +20,7 @@ In a future version, we may expose the internal methods/formatters that accept a
 
 ### Notes: On locale state / `setLocale`
 
-The package exports a `setLocale` method (see "Methods" below), which allows for setting the locale variable used for localising the numbers. There is a fallback chain for a default value, which may suffice for many cases (hence not neeeding to set this manually in the code through `setLocale`).
-
+The package exports a `setLocale` method (see "Methods" below), which allows for setting the locale variable used for localising the numbers. There is a fallback chain for a default value, which may suffice for many cases (hence not needing to set this manually in the code through `setLocale`).
 The fallback locale is defined as either/or:
 
 1. the current WordPress user locale, if available through `@wordpress/date` settings (assuming this runs in a WordPress context). Note that this is derived from **user settings**, not the site's.
