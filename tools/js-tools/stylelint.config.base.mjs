@@ -14,8 +14,6 @@ const baseConfig = {
 		],
 
 		// Disable all other rules for now.
-		'color-hex-length': null,
-		'color-named': null,
 		'declaration-block-no-duplicate-custom-properties': null,
 		'declaration-block-no-duplicate-properties': null,
 		'declaration-block-no-shorthand-property-overrides': null,
