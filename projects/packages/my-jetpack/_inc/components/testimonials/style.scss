@@ -79,3 +79,15 @@
         opacity: 0.9;
     }
 }
+
+.jetpack-onboarding-testimonials-pager {
+    .dot-pager__control-choose-page {
+        background-color: var(--jp-gray);
+        opacity: 0.2;
+
+        &.dot-pager__control-current {
+            background-color: var(--jp-green-mint);
+            opacity: 1;
+        }
+    }
+}

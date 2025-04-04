@@ -7,7 +7,7 @@ import './style.scss';
 const Testimonials: React.FC = () => {
 	return (
 		<>
-			<DotPager rotateTime={ 5 }>
+			<DotPager rotateTime={ 5 } className="jetpack-onboarding-testimonials-pager">
 				<div className="jetpack-onboarding-testimonial jetpack-onboarding-testimonial--1">
 					<div className="jetpack-onboarding-testimonial__content">
 						<div className="jetpack-onboarding-testimonial__messages">
