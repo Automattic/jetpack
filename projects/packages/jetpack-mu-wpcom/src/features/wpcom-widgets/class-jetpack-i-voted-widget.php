@@ -5,8 +5,7 @@
  *
  * @hide-in-jetpack
  * @package automattic/jetpack-mu-wpcom
- *
- * [DEPRECATION]: This widget was deprecated.
+ * @deprecated
  */
 
 if ( ! class_exists( 'Jetpack_I_Voted_Widget' ) ) {
@@ -88,16 +87,10 @@ if ( ! class_exists( 'Jetpack_I_Voted_Widget' ) ) {
 	}
 
 	/**
-	 * Register the widget (only if active).
+	 * Register the widget
 	 */
-	function jetpack_i_voted_widget_init() { // phpcs:ignore Universal.Files.SeparateFunctionsFromOO.Mixed
-		// [DEPRECATION]: Only register widget if active widget exists already
-		$has_widget = is_active_widget( false, false, 'aboutme_widget', false );
-		if ( false === $has_widget ) {
-			return;
-		}
-
+	function jetpack_mu_wpcom_i_voted_widget_init() { // phpcs:ignore Universal.Files.SeparateFunctionsFromOO.Mixed
 		register_widget( 'Jetpack_I_Voted_Widget' );
 	}
-	add_action( 'widgets_init', 'jetpack_i_voted_widget_init' );
+	add_action( 'widgets_init', 'jetpack_mu_wpcom_i_voted_widget_init' );
 }
