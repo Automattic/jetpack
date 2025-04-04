@@ -9,8 +9,9 @@ const IntegrationCardHeader = ( {
 	onToggle,
 	cardData = {},
 } ) => {
-	const { isInstalled, isActive } = cardData;
-	const showPluginAction = ! isInstalled || ! isActive;
+	const { isInstalled, isActive, isConnected, type } = cardData;
+	const showPluginAction = type === 'plugin' && ( ! isInstalled || ! isActive );
+	const showConnectedBadge = isActive && isConnected;
 
 	return (
 		<CardHeader onClick={ onToggle } className="integration-card__header">
@@ -21,6 +22,12 @@ const IntegrationCardHeader = ( {
 						<div className="integration-card__title-row">
 							<h3 className="integration-card__title">{ title }</h3>
 							{ showPluginAction && <span className="integration-card__plugin-badge">Plugin</span> }
+							{ showConnectedBadge && (
+								<span className="integration-card__connected-badge">
+									<Icon icon="yes-alt" size={ 16 } />
+									Connected
+								</span>
+							) }
 						</div>
 						{ description && (
 							<span className="integration-card__description">{ description }</span>
