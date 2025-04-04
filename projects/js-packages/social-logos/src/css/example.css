@@ -93,7 +93,7 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		border: 2px solid gray;
+		border: 2px solid #808080;
 		border-radius: 10px;
 		transition: .4s;
 		box-sizing: border-box;
@@ -106,7 +106,7 @@
 		width: 12px;
 		left: 2px;
 		bottom: 2px;
-		background: gray;
+		background: #808080;
 		border-radius: 50%;
 		transition: .4s;
 	}

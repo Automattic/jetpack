@@ -55,6 +55,6 @@ Slyling up the Jetpack State
 
 .jetpack-debug-cookie-state #cookie-state-response {
 	margin-top: 30px;
-	border: 4px dashed grey;
+	border: 4px dashed #808080;
 	padding: 10px;
 }

@@ -59,6 +59,6 @@ Slyling up the REST API Tester
 
 .jetpack-debug-mocker #mocker-response {
 	margin-top: 30px;
-	border: 4px dashed grey;
+	border: 4px dashed #808080;
 	padding: 10px;
 }

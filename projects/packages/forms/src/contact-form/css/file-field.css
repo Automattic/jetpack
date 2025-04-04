@@ -159,7 +159,7 @@
 .jetpack-form-file-field__remove:hover {
 	cursor: pointer;
 	border-radius: 50%;
-	background-color: var(--jetpack--contact-form--input-background, white );
+	background-color: var(--jetpack--contact-form--input-background, #fff );
 	filter: invert(0.1);
 	transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
