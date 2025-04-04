@@ -34,10 +34,9 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	public function tear_down() {
-		// Clean up.
+		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
-		delete_option( 'wpcom_featured_image_in_email' );
 
 		parent::tear_down();
 	}
@@ -690,48 +689,5 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 			// Removing filter.
 			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
 		}
-	}
-
-	/**
-	 * Test setting featured image in email default option
-	 */
-	public function test_set_featured_image_in_email_default() {
-		// Ensure option doesn't exist.
-		delete_option( 'wpcom_featured_image_in_email' );
-		$this->assertFalse( get_option( 'wpcom_featured_image_in_email' ) );
-
-		// Call the method.
-		$this->subscriptions->set_featured_image_in_email_default();
-
-		// Verify option was set to 1.
-		$this->assertSame( 1, get_option( 'wpcom_featured_image_in_email' ) );
-	}
-
-	/**
-	 * Test that setting featured image default doesn't override existing value
-	 */
-	public function test_set_featured_image_in_email_default_does_not_override_existing() {
-		// Set an existing value.
-		update_option( 'wpcom_featured_image_in_email', 0 );
-
-		// Call the method.
-		$this->subscriptions->set_featured_image_in_email_default();
-
-		// Verify value wasn't changed.
-		$this->assertSame( 0, get_option( 'wpcom_featured_image_in_email' ) );
-	}
-
-	/**
-	 * Test featured image default is set on module activation
-	 */
-	public function test_module_activation_sets_featured_image_default() {
-		// Ensure option doesn't exist.
-		delete_option( 'wpcom_featured_image_in_email' );
-
-		// Trigger module activation.
-		do_action( 'jetpack_activate_module_subscriptions' );
-
-		// Verify option was set.
-		$this->assertSame( 1, get_option( 'wpcom_featured_image_in_email' ) );
 	}
 }
