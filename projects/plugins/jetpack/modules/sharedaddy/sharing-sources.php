@@ -322,12 +322,7 @@ abstract class Sharing_Source {
 		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
-		$accessible_name = apply_filters_deprecated(
-			'jetpack_sharing_display_title',
-			array( $accessible_name, $this, $id, $args ),
-			'jetpack-14.6',
-			'jetpack_sharing_accessible_name'
-		);
+		$accessible_name = apply_filters_deprecated( 'jetpack_sharing_display_title', array( $accessible_name, $this, $id, $args ), '$$next-version$$', 'jetpack_sharing_accessible_name' );
 
 		/**
 		 * Filter the sharing accessible name.
