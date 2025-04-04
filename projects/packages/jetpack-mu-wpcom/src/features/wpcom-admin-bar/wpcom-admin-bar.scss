@@ -4,7 +4,9 @@
  * Allow to apply the modern scheme to elements.
  */
 #wpadminbar {
+
 	.admin-color-modern {
+
 		@include admin-scheme(#3858e9);
 	}
 }
