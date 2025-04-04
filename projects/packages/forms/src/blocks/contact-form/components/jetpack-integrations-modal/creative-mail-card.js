@@ -22,6 +22,7 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 
 	const cardData = {
 		...data,
+		showHeaderToggle: false,
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_creative_mail_click',

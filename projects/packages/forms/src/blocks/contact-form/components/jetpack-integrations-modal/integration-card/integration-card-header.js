@@ -1,4 +1,4 @@
-import { CardHeader, Icon } from '@wordpress/components';
+import { CardHeader, Icon, ToggleControl } from '@wordpress/components';
 import PluginActionButton from './plugin-action-button';
 
 const IntegrationCardHeader = ( {
@@ -9,12 +9,34 @@ const IntegrationCardHeader = ( {
 	onToggle,
 	cardData = {},
 } ) => {
-	const { isInstalled, isActive, isConnected, type } = cardData;
+	const {
+		isInstalled,
+		isActive,
+		isConnected,
+		type,
+		showHeaderToggle,
+		headerToggleValue,
+		isHeaderToggleEnabled,
+		onHeaderToggleChange,
+	} = cardData;
 	const showPluginAction = type === 'plugin' && ( ! isInstalled || ! isActive );
 	const showConnectedBadge = isActive && isConnected;
 
+	const handleToggleChange = value => {
+		if ( onHeaderToggleChange ) {
+			onHeaderToggleChange( value );
+		}
+	};
+
+	const handleHeaderClick = e => {
+		if ( e.target.closest( '.components-form-toggle' ) ) {
+			return;
+		}
+		onToggle( e );
+	};
+
 	return (
-		<CardHeader onClick={ onToggle } className="integration-card__header">
+		<CardHeader onClick={ handleHeaderClick } className="integration-card__header">
 			<div className="integration-card__header-content">
 				<div className="integration-card__header-main">
 					<Icon icon={ icon } className="integration-card__service-icon" size={ 30 } />
@@ -42,6 +64,14 @@ const IntegrationCardHeader = ( {
 							isInstalled={ isInstalled }
 							refreshStatus={ cardData.refreshStatus }
 							trackEventName={ cardData.trackEventName }
+						/>
+					) }
+					{ showHeaderToggle && (
+						<ToggleControl
+							checked={ headerToggleValue }
+							onChange={ handleToggleChange }
+							disabled={ ! isHeaderToggleEnabled }
+							onMouseDown={ e => e.stopPropagation() }
 						/>
 					) }
 					<Icon
