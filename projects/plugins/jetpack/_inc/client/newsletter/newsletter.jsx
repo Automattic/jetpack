@@ -74,6 +74,13 @@ function Newsletter( props ) {
 	const toggleModule = useCallback(
 		module => {
 			const status = getOptionValue( module );
+			// Track the toggle (analytics)
+			analytics.tracks.recordEvent( 'jetpack_wpa_settings_toggle', {
+				module: module,
+				setting: module,
+				toggled: status ? 'off' : 'on',
+			} );
+
 			updateOptions( { [ module ]: ! status } ).then( () => {
 				// Refresh settings if the module is being activated
 				if ( ! status ) {
