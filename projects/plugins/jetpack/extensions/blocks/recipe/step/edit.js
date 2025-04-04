@@ -1,13 +1,12 @@
 /**
  * External dependencies
  */
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 
 function RecipeStepEdit( { className } ) {
-	const blockProps = useBlockProps( { className } );
 	return (
 		<li>
-			<div { ...blockProps }>
+			<div className={ className }>
 				<InnerBlocks
 					allowedBlocks={ [
 						'core/image',

@@ -6,7 +6,6 @@ import save from './save';
 
 const name = 'premium-content/subscriber-view';
 const settings = {
-	apiVersion: 3,
 	title: __( 'Subscriber View', 'jetpack' ),
 	description: __( 'The container for all content shown to subscribers.', 'jetpack' ),
 	icon,

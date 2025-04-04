@@ -1,11 +1,10 @@
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 
 import './editor.scss';
 
 function RecipeIngredientsListEdit( { className } ) {
-	const blockProps = useBlockProps( { className } );
 	return (
-		<div { ...blockProps }>
+		<div className={ className }>
 			<InnerBlocks
 				allowedBlocks={ [ 'jetpack/recipe-ingredient-item' ] }
 				renderAppender={ InnerBlocks.ButtonBlockAppender }

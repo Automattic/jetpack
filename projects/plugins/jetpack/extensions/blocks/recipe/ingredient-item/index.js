@@ -8,7 +8,6 @@ import save from './save';
 export const name = 'recipe-ingredient-item';
 export const title = __( 'Recipe Ingredient Item', 'jetpack' );
 export const settings = {
-	apiVersion: 3,
 	title,
 	description: __( 'A single ingredient associated with a recipe.', 'jetpack' ),
 	keywords: [],

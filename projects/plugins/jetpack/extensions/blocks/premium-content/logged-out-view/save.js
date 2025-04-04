@@ -1,4 +1,4 @@
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 
 /**
  * Block Save function
@@ -6,12 +6,8 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
  * @return {string} HTML markup.
  */
 export default function Save() {
-	const blockProps = useBlockProps.save( {
-		className: 'wp-block-premium-content-logged-out-view entry-content',
-	} );
-
 	return (
-		<div { ...blockProps }>
+		<div className="wp-block-premium-content-logged-out-view entry-content">
 			<InnerBlocks.Content />
 		</div>
 	);

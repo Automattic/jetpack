@@ -1,8 +1,7 @@
 import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import PlaceholderSiteIcon from '../placeholder-site-icon.svg';
-import { default as deprecated } from './deprecated';
 import edit from './edit';
 import icon from './icon';
 import './editor.scss';
@@ -10,7 +9,6 @@ import './editor.scss';
 export const name = 'blogroll-item';
 export const title = __( 'Blogroll Item', 'jetpack' );
 export const settings = {
-	apiVersion: 3,
 	title,
 	description: __( 'Blogroll Item', 'jetpack' ),
 	icon: {
@@ -67,19 +65,10 @@ export const settings = {
 			type: 'string',
 		},
 	},
-	save: () => {
-		const blockProps = useBlockProps.save();
-
-		return (
-			<div { ...blockProps }>
-				<InnerBlocks.Content />
-			</div>
-		);
-	},
+	save: () => <InnerBlocks.Content />,
 	example: {
 		attributes: {
 			// @TODO: Add default values for block attributes, for generating the block preview.
 		},
 	},
-	deprecated,
 };

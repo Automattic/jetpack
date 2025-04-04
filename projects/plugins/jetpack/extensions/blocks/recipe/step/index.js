@@ -7,7 +7,6 @@ import save from './save';
 export const name = 'recipe-step';
 export const title = __( 'Recipe Step', 'jetpack' );
 export const settings = {
-	apiVersion: 3,
 	title,
 	description: __( 'A single recipe step.', 'jetpack' ),
 	keywords: [],

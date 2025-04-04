@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 
 function RecipeHeroEdit( { className, hasInnerBlocks } ) {
-	const blockProps = useBlockProps( { className } );
 	return (
-		<div { ...blockProps }>
+		<div className={ className }>
 			<InnerBlocks
 				allowedBlocks={ [ 'core/image', 'jetpack/slideshow', 'core/cover' ] }
 				renderAppender={ ! hasInnerBlocks && InnerBlocks.ButtonBlockAppender }

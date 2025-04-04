@@ -14,7 +14,6 @@ const attributes = {
 export const name = 'phone';
 
 export const settings = {
-	apiVersion: 3,
 	title: __( 'Phone Number', 'jetpack' ),
 	description: __(
 		'Lets you add a phone number with an automatically generated click-to-call link.',

@@ -1,13 +1,11 @@
 /**
  * External dependencies
  */
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 
 const RecipeStepSave = () => {
-	const blockProps = useBlockProps.save();
-
 	return (
-		<li itemProp="step" itemScope itemType="https://schema.org/HowToStep" { ...blockProps }>
+		<li itemProp="step" itemScope itemType="https://schema.org/HowToStep">
 			<InnerBlocks.Content />
 		</li>
 	);

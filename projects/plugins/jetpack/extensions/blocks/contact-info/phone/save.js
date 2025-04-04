@@ -1,5 +1,3 @@
-import { useBlockProps } from '@wordpress/block-editor';
-
 export function renderPhone( inputText ) {
 	const arrayOfNumbers = inputText.match( /\d+\.\d+|\d+\b|\d+(?=\w)/g );
 	if ( ! arrayOfNumbers ) {
@@ -39,14 +37,7 @@ export function renderPhone( inputText ) {
 	];
 }
 
-const save = ( { attributes: { phone } } ) => {
-	if ( ! phone ) {
-		return null;
-	}
-
-	const blockProps = useBlockProps.save();
-
-	return <div { ...blockProps }>{ renderPhone( phone ) }</div>;
-};
+const save = ( { attributes: { phone }, className } ) =>
+	phone && <div className={ className }>{ renderPhone( phone ) }</div>;
 
 export default save;

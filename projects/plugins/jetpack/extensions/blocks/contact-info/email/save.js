@@ -1,4 +1,3 @@
-import { useBlockProps } from '@wordpress/block-editor';
 import { Fragment } from '@wordpress/element';
 import emailValidator from 'email-validator';
 
@@ -28,14 +27,7 @@ const renderEmail = inputText => {
 	return explodedInput;
 };
 
-const save = ( { attributes: { email } } ) => {
-	if ( ! email ) {
-		return null;
-	}
-
-	const blockProps = useBlockProps.save();
-
-	return <div { ...blockProps }>{ renderEmail( email ) }</div>;
-};
+const save = ( { attributes: { email }, className } ) =>
+	email && <div className={ className }>{ renderEmail( email ) }</div>;
 
 export default save;

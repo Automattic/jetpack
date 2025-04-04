@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-import { RichText, useBlockProps } from '@wordpress/block-editor';
+import { RichText } from '@wordpress/block-editor';
 
-const RecipeIngredientItemSave = ( { attributes } ) => {
+const RecipeIngredientItemSave = ( { className, attributes } ) => {
 	const { ingredient } = attributes;
-	const blockProps = useBlockProps.save();
 
 	return (
-		<div { ...blockProps }>
+		<div className={ className }>
 			<RichText.Content tagName="p" itemprop="recipeIngredient" value={ ingredient } />
 		</div>
 	);

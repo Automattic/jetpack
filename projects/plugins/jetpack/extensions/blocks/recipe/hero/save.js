@@ -1,15 +1,12 @@
 /**
  * External dependencies
  */
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 
-const RecipeHeroSave = () => {
-	const blockProps = useBlockProps.save();
-	return (
-		<div { ...blockProps }>
-			<InnerBlocks.Content />
-		</div>
-	);
-};
+const RecipeHeroSave = ( { className } ) => (
+	<div className={ className }>
+		<InnerBlocks.Content />
+	</div>
+);
 
 export default RecipeHeroSave;

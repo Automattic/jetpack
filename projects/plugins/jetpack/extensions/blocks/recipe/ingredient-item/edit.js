@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-import { RichText, useBlockProps } from '@wordpress/block-editor';
+import { RichText } from '@wordpress/block-editor';
 
 function RecipeIngredientItemEdit( { className, attributes, setAttributes } ) {
 	const { ingredient } = attributes;
-	const blockProps = useBlockProps( { className } );
 
 	return (
-		<div { ...blockProps }>
+		<div className={ className }>
 			<RichText
 				tagName="p"
 				className="ingredientText"
