@@ -15,7 +15,7 @@
 }
 
 .widget_wpcom_social_media_icons_widget .genericon {
-    font-family: Genericons;
+    font-family: Genericons, sans-serif;
 }
 
 .widget_wpcom_social_media_icons_widget .screen-reader-text {

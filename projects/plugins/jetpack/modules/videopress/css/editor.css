@@ -29,7 +29,7 @@
 	display: inline-block;
 	vertical-align: middle;
 	width: 16px;
-	font: 400 21px/1 dashicons;
+	font: 400 21px/1 dashicons, sans-serif;
 	speak: none;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;

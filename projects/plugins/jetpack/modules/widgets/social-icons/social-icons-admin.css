@@ -86,7 +86,7 @@ html[class*='wordpress_com'] .jetpack-social-icons-widget-item.ui-sortable-helpe
 	position: relative;
 	left: -2px;
 	top: -1px;
-	font: 400 20px/1 dashicons;
+	font: 400 20px/1 dashicons, sans-serif;
 	vertical-align: middle;
 	transition: all 0.2s;
 	-webkit-font-smoothing: antialiased;

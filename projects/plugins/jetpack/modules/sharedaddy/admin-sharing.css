@@ -116,7 +116,7 @@ body.settings_page_sharing ul.services-hidden {
 /* Generic style icons */
 li.service span:before {
 	-webkit-font-smoothing: antialiased;
-	font: 400 18px/1 social-logos;
+	font: 400 18px/1 social-logos, sans-serif;
 	position: relative;
 	top: -1px;
 	margin-right: 6px;

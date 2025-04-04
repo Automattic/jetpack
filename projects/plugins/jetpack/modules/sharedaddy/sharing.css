@@ -180,7 +180,7 @@ body.highlander-dark h3.sd-title:before {
 	display: inline-block;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	font: 400 18px/1 social-logos;
+	font: 400 18px/1 social-logos, sans-serif;
 	vertical-align: top;
 	text-align: center;
 }

@@ -141,13 +141,13 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 .jpcrm-customer-file-upload:before {
   content: "\f0ee"; 
   display: inline-block;
-  font-family: FontAwesome;
+  font-family: FontAwesome, sans-serif;
 }
 
 .jpcrm-customer-file-upload-remove:before {
   content: "\f00d"; 
   display: inline-block;
-  font-family: FontAwesome;
+  font-family: FontAwesome, sans-serif;
 }
 
 .jpcrm-customer-file-upload, 

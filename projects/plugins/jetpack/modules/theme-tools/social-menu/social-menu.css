@@ -38,7 +38,7 @@ Genericons
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	display: inline-block;
-	font-family: Genericons;
+	font-family: Genericons, sans-serif;
 	font-size: 1em;
 	font-style: normal;
 	font-weight: 400;

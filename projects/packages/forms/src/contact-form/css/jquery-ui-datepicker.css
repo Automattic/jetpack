@@ -92,7 +92,7 @@
 
 .ui-datepicker .ui-datepicker-prev:before,
 .ui-datepicker .ui-datepicker-next:before {
-	font: 400 20px/34px dashicons;
+	font: 400 20px/34px dashicons, sans-serif;
 	padding-left: 7px;
 	speak: none;
 	-webkit-font-smoothing: antialiased;

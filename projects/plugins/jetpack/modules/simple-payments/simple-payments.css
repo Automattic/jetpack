@@ -90,7 +90,7 @@ input[type=number].jetpack-simple-payments-items-number::-webkit-outer-spin-butt
 }
 
 .jetpack-simple-payments-purchase-message:before {
-	font-family: dashicons !important;
+	font-family: dashicons, sans-serif !important;
 	font-size: 48px !important;
 	line-height: 1 !important;
 	position: absolute;

@@ -84,7 +84,7 @@
 .nova-move-menu-up:before,
 .nova-move-menu-down:before {
 	margin-right: 5px;
-	font: 400 10px/1 dashicons !important;
+	font: 400 10px/1 dashicons, sans-serif !important;
 	speak: none;
 }
 
@@ -97,7 +97,7 @@
 }
 
 .dashicon:before {
-	font: 400 20px/1 dashicons;
+	font: 400 20px/1 dashicons, sans-serif;
 	speak: none;
 	top: 5px;
 	display: inline-block;

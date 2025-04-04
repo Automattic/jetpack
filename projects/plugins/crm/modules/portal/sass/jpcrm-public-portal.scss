@@ -82,7 +82,7 @@
    color: #FFF;
    padding: 1em;
    margin: 2em;
-   font-family: helvetica;
+   font-family: helvetica, sans-serif;
    border-radius: 0.5em;
 
    img, a img {
@@ -731,19 +731,19 @@
 i.icon.child:before {
   content: "\f1ae"; // f1ae = fontawesome 'child' icon code
   display: inline-block;
-  font-family: FontAwesome;
+  font-family: FontAwesome, sans-serif;
 }
 
 .client-portal-file-upload:before {
   content: "\f0ee"; // f0ee = fontawesome 'cloud upload' icon code
   display: inline-block;
-  font-family: FontAwesome;
+  font-family: FontAwesome, sans-serif;
 }
 
 .client-portal-file-upload-remove:before {
   content: "\f00d"; // f00d = fontawesome 'icon-remove' icon code
   display: inline-block;
-  font-family: FontAwesome;
+  font-family: FontAwesome, sans-serif;
 }
 
 .client-portal-file-upload {
