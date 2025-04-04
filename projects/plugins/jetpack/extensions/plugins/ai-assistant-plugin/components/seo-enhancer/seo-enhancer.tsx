@@ -116,24 +116,17 @@ export function SeoEnhancer( {
 					) }
 					{ ( ! isEnabled || disableAutoEnhance ) && (
 						<div className="feature-checkboxes-container">
-							{ FEATURES.map( feature => {
-								const extraLabel =
-									feature === 'images-alt-text' && imageBlocks.length > 0
-										? ` (${ imageBlocks.length })`
-										: '';
-
-								return (
-									<CheckboxControl
-										key={ feature }
-										label={ FEATURE_LABELS[ feature ] + extraLabel }
-										checked={ enabledFeatures.includes( feature ) }
-										onChange={ () => toggleFeature( feature ) }
-										__nextHasNoMarginBottom={ true }
-										disabled={ isLoading }
-										className={ isLoading ? 'is-disabled' : '' }
-									/>
-								);
-							} ) }
+							{ FEATURES.map( feature => (
+								<CheckboxControl
+									key={ feature }
+									label={ FEATURE_LABELS[ feature ] }
+									checked={ enabledFeatures.includes( feature ) }
+									onChange={ () => toggleFeature( feature ) }
+									__nextHasNoMarginBottom={ true }
+									disabled={ isLoading }
+									className={ isLoading ? 'is-disabled' : '' }
+								/>
+							) ) }
 						</div>
 					) }
 					{ isEnabled && ! disableAutoEnhance && (
