@@ -33,9 +33,13 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
+### 2.0.0-a.1 - 2025-04-04
+#### Added
+- Added an initial version of Jetpack Inspect to the Jetpack Monorepo.
 
-<!-- When you do a release, use the monorepo script tools/plugin-changelog-to-readme.sh to copy from CHANGELOG.md to here. -->
-
+#### Changed
+- General: Update minimum PHP version to 7.2.
+- General: Indicate compatibility with WordPress 6.8.
 == Arbitrary section ==
 
 You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
