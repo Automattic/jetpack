@@ -69,19 +69,20 @@
     }
 
     &__quote {
-        margin-bottom: 20px;
+        margin-bottom: 24px;
         font-weight: normal;
         font-size: var(--font-title-small);
         letter-spacing: 0px;
+		line-height: 1.4;
     }
 
     &__author {
-        font-size: var(--font-body);
-        margin-bottom: 8px;
+        font-size: 1.25rem;
+		margin-bottom: 0;
     }
 
     &__title {
-        font-size: var(--font-label);
+        font-size: var(--font-body);
         margin: 0;
         opacity: 0.9;
     }
