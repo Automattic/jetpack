@@ -17,7 +17,7 @@ class SeoDescriptionPanel extends Component {
 
 		const placeholder = __( 'Write a description…', 'jetpack' );
 		const enhancerPlaceholder = __(
-			'Add a compelling, keyword-rich summary that appears in search results (max 156 characters)',
+			'Add a compelling, keyword-rich summary that appears in search results (ideally under 156 characters)',
 			'jetpack'
 		);
 
