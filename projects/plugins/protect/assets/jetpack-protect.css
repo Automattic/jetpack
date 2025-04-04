@@ -1,5 +1,5 @@
 @font-face {
-	font-family: 'jetpack-protect';
+	font-family: jetpack-protect;
 	src:  url('fonts/jetpack-protect.eot?31wpn');
 	src:  url('fonts/jetpack-protect.eot?31wpn#iefix') format('embedded-opentype'),
 	  url('fonts/jetpack-protect.ttf?31wpn') format('truetype'),
@@ -13,7 +13,7 @@
 [class^="jp-protect-icon"], [class*=" jp-protect-icon"] {
 
 	/* use !important to prevent issues with browser extensions that change fonts */
-	font-family: 'jetpack-protect' !important;
+	font-family: jetpack-protect !important;
 	speak: never;
 	font-style: normal;
 	font-weight: 400;

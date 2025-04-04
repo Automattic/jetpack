@@ -935,7 +935,7 @@ button.dops-foldable-card__action {
 	-moz-osx-font-smoothing: grayscale;
 	display: inline-block;
 	vertical-align: middle;
-	font: 400 16px/1 'Dashicons';
+	font: 400 16px/1 Dashicons;
 	content: '\F347';
 	line-height: 16px;
 	color: rgba( 135, 166, 188, 0.5 );
@@ -946,7 +946,7 @@ button.dops-foldable-card__action {
 	-moz-osx-font-smoothing: grayscale;
 	display: inline-block;
 	vertical-align: middle;
-	font: 400 16px/1 'Dashicons';
+	font: 400 16px/1 Dashicons;
 	content: '\F343';
 }
 
