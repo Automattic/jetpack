@@ -1,7 +1,7 @@
 import { Card } from '@wordpress/components';
-import './integration-card.scss';
 import IntegrationCardBody from './integration-card-body';
 import IntegrationCardHeader from './integration-card-header';
+import './index.scss';
 
 const IntegrationCard = ( {
 	title,

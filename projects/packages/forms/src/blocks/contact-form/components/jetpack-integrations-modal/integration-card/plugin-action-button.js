@@ -1,6 +1,6 @@
 import { Button, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { usePluginInstallation } from '../hooks';
+import { usePluginInstallation } from '../hooks/usePluginInstallation';
 
 const PluginActionButton = ( { slug, pluginFile, isInstalled, refreshStatus, trackEventName } ) => {
 	const { isInstalling, installPlugin } = usePluginInstallation(

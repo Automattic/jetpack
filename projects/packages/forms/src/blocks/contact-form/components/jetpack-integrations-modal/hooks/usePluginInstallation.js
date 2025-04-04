@@ -1,6 +1,6 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useState, useCallback } from '@wordpress/element';
-import { installAndActivatePlugin, activatePlugin } from '../../util/plugin-management';
+import { installAndActivatePlugin, activatePlugin } from '../../../util/plugin-management';
 
 /**
  * Custom hook to handle plugin installation and activation flows.
