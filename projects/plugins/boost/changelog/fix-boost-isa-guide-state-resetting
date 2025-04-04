@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Image Size Analysis: Fix Image Guide state not resetting to Active if Image Guide was disabled, and enabled.
+Image Guide: Fix front-end state not being in sync with Boost settings.
