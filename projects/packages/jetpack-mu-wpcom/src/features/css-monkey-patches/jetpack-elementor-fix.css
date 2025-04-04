@@ -2,7 +2,9 @@
  * Fix for: https://github.com/Automattic/jetpack/issues/42901
  */
 .toplevel_page_elementor {
+
 	@media screen and ( min-width: 782px ) {
+
 		div#e-admin-top-bar-root {
 			position: relative;
 			margin-inline-start: -20px;
@@ -12,12 +14,14 @@
 	}
 
 	@media screen and ( max-width: 782px ) {
+
 		div#e-admin-top-bar-root {
 			margin-inline-start: -10px;
 		}
 	}
 
 	@media screen and ( max-width: 600px ) {
+
 		div#e-admin-top-bar-root {
 			position: relative;
 			left: unset;
