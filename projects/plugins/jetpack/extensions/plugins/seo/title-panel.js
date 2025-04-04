@@ -17,7 +17,7 @@ class SeoTitlePanel extends Component {
 
 		const placeholder = __( 'Write a title…', 'jetpack' );
 		const enhancerPlaceholder = __(
-			'Enter a clear, keyword-focused title (max 70 characters)',
+			'Enter a clear, keyword-focused title (ideally under 70 characters)',
 			'jetpack'
 		);
 
