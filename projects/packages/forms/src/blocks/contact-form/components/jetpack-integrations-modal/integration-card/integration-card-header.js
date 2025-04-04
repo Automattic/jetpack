@@ -29,6 +29,7 @@ const IntegrationCardHeader = ( {
 	};
 
 	const handleHeaderClick = e => {
+		// Without this, toggle click bubbles and opens/closes the card.
 		if ( e.target.closest( '.components-form-toggle' ) ) {
 			return;
 		}
