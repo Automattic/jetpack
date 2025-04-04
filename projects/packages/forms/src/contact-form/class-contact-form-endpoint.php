@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
-use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -122,33 +121,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'type'     => 'array',
 						'items'    => array( 'type' => 'integer' ),
 						'required' => true,
-					),
-				),
-			)
-		);
-
-		// Register the file endpoint route
-		register_rest_route(
-			$this->namespace,
-			$this->rest_base . '/files',
-			array(
-				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'get_file' ),
-				'permission_callback' => array( $this, 'get_item_permissions_check' ),
-				'args'                => array(
-					'file_id'  => array(
-						'required'          => true,
-						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'post_id'  => array(
-						'required' => true,
-						'type'     => 'integer',
-					),
-					'field_id' => array(
-						'required'          => true,
-						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_text_field',
 					),
 				),
 			)
@@ -573,149 +545,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Check whether a given request has proper authorization to view feedback item.
-	 *
-	 * @param  WP_REST_Request $request Full details about the request.
-	 * @return WP_Error|boolean
-	 */
-	public function get_item_permissions_check( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		l( 'get_item_permissions_check user', get_current_user_id() );
-		if ( ! current_user_can( 'edit_pages' ) ) {
-			return false;
-		}
-		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
-			return new WP_Error(
-				'rest_cannot_view',
-				esc_html__( 'Sorry, you cannot view this resource.', 'jetpack-forms' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		return true;
-	}
-
-	/**
-	 * Retrieves a file using the file_id and serves it to the client.
-	 *
-	 * @param \WP_REST_Request $request The current request object.
-	 *
-	 * @return \WP_REST_Response|\WP_Error Response object or error.
-	 */
-	public function get_file( $request ) {
-		if ( ! ( new Host() )->is_wpcom_simple() ) {
-			return $this->proxy_request_to_wpcom_as_user( $request );
-		}
-		$file_id  = $request->get_param( 'file_id' );
-		$post_id  = $request->get_param( 'post_id' );
-		$field_id = $request->get_param( 'field_id' );
-
-		$fields = \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::parse_fields_from_content( $post_id );
-
-		// Find the file in the fields
-		$file = false;
-		foreach ( $fields['_feedback_all_fields'] as $field ) {
-			if ( isset( $field['field_id'] ) && $field['field_id'] === $field_id ) {
-				foreach ( $field['files'] as $_file ) {
-					if ( $_file['file_id'] === $file_id ) {
-						$file = $_file;
-						break 2;
-					}
-				}
-			}
-		}
-
-		if ( ! $file ) {
-			return new WP_Error(
-				'file_not_found',
-				esc_html__( 'The requested file could not be found.', 'jetpack-forms' ),
-				array( 'status' => 404 )
-			);
-		}
-
-		$file_path = $file['path'];
-		$file_name = $file['name'];
-
-		// Verify file exists and is readable
-		if ( ! file_exists( $file_path ) || ! is_readable( $file_path ) ) {
-			l( 'File not accessible: ', $file );
-			return new WP_Error(
-				'file_not_accessible',
-				esc_html__( 'The file cannot be accessed.', 'jetpack-forms' ),
-				array( 'status' => 404 )
-			);
-		}
-
-		// Get file type and mime type
-		$file_type = wp_check_filetype( $file_path );
-		$mime_type = $file_type['type'];
-
-		if ( empty( $mime_type ) ) {
-			return new WP_Error(
-				'unknown_file_type',
-				esc_html__( 'Unable to determine the file type.', 'jetpack-forms' ),
-				array( 'status' => 415 )
-			);
-		}
-
-		// Set up WordPress filesystem
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		WP_Filesystem();
-		global $wp_filesystem;
-
-		// Get file content
-		$file_content = $wp_filesystem->get_contents( $file_path );
-		if ( false === $file_content ) {
-			return new WP_Error(
-				'file_read_error',
-				esc_html__( 'Unable to read the file.', 'jetpack-forms' ),
-				array( 'status' => 500 )
-			);
-		}
-
-		// Clean output buffer
-		if ( ob_get_length() ) {
-			ob_clean();
-		}
-
-		// Set up response headers
-		$valid_headers = array(
-			'content-type',
-			'content-length',
-			'content-disposition',
-		);
-
-		$headers = array(
-			'content-type'              => $mime_type,
-			'content-disposition'       => 'inline; filename="' . sanitize_file_name( $file_name ) . '"',
-			'content-length'            => $wp_filesystem->size( $file_path ),
-			'content-transfer-encoding' => 'binary',
-			'x-robots-tag'              => 'noindex',
-			'accept-ranges'             => 'bytes',
-			'cache-control'             => 'no-cache, must-revalidate, max-age=0',
-			'pragma'                    => 'no-cache',
-			'expires'                   => '0',
-		);
-
-		// Set content headers
-		foreach ( $valid_headers as $header ) {
-			if ( ! empty( $headers[ $header ] ) ) {
-				header( ucwords( $header, '-' ) . ': ' . $headers[ $header ] );
-			}
-		}
-
-		// Set cache headers
-		header( 'Cache-Control: no-cache, no-store, must-revalidate' );
-		header( 'Pragma: no-cache' );
-		header( 'Expires: 0' );
-
-		// Output file content and exit
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Media binary data
-		echo $file_content;
-		exit;
-	}
-
-	/**
-	 * Get status for all supported integrations.
+	 * Get the status of a forms integration.
 	 *
 	 * @return WP_REST_Response Response object.
 	 */
