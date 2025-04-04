@@ -240,12 +240,12 @@
 
 .jp-carousel-overlay .swiper-button-prev.swiper-button-white,
 .jp-carousel-overlay .swiper-button-next.swiper-button-white {
-	--swiper-navigation-color: #ffffff;
+	--swiper-navigation-color: #fff;
 }
 
 .jp-carousel-overlay .swiper-button-prev.swiper-button-black,
 .jp-carousel-overlay .swiper-button-next.swiper-button-black {
-	--swiper-navigation-color: #000000;
+	--swiper-navigation-color: #000;
 }
 
 .jp-carousel-overlay .swiper-button-lock {
@@ -446,11 +446,11 @@
 }
 
 .jp-carousel-overlay .swiper-pagination-white {
-	--swiper-pagination-color: #ffffff;
+	--swiper-pagination-color: #fff;
 }
 
 .jp-carousel-overlay .swiper-pagination-black {
-	--swiper-pagination-color: #000000;
+	--swiper-pagination-color: #000;
 }
 
 .jp-carousel-overlay .swiper-pagination-lock {

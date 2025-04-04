@@ -361,7 +361,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 }
 
 .sd-social-official .sd-content li.share-telegram a:before {
-	color: #0088cc;
+	color: #08c;
 }
 
 .sd-social-icon .sd-content ul li.share-threads a:before,
@@ -720,7 +720,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-digg a.sd-button {
-	color: #555555 !important;
+	color: #555 !important;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-press-this a.sd-button {
@@ -729,7 +729,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-telegram a.sd-button {
-	background: #0088cc;
+	background: #08c;
 	color: #fff !important;
 }
 
@@ -745,7 +745,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-reddit a.sd-button {
 	background: #cee3f8;
-	color: #555555 !important;
+	color: #555 !important;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-mastodon a.sd-button {

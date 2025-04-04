@@ -12,12 +12,12 @@ $notification-color: $highlight-color;
 $body-background: $studio-gray-0; // Calypso --color-surface-backdrop
 
 // admin menu & admin-bar (core _variables.scss)
-$menu-text: #eeeeee; // Calypso --color-sidebar-text
+$menu-text: #eee; // Calypso --color-sidebar-text
 $menu-background: #23282d; // Calypso --color-sidebar-background
 $menu-highlight-text: #00b9eb; // Calypso --color-sidebar-menu-hover-text
 $menu-highlight-icon: $menu-highlight-text;
 $menu-highlight-background: #1a1e23; // Calypso --color-sidebar-menu-hover-background
-$menu-current-text: #ffffff; // Calypso --color-sidebar-menu-selected-text
+$menu-current-text: #fff; // Calypso --color-sidebar-menu-selected-text
 $menu-current-icon: $menu-current-text;
 $menu-current-background: #0073aa; // Calypso --color-sidebar-menu-selected-background
 $menu-submenu-text: #b4b9be; // Calypso --color-sidebar-submenu-text
@@ -32,7 +32,7 @@ $masterbar-highlight-background: #333; // Calypso --color-masterbar-item-hover-b
 $masterbar-active-background: #23282d; // Calypso --color-masterbar-item-active-background
 
 // nav unification overrides
-$nav-unification-sidebar-border: #333333; // Calypso --color-sidebar-border
+$nav-unification-sidebar-border: #333; // Calypso --color-sidebar-border
 $nav-unification-sidebar-text-alternative: #a2aab2; // Calypso --color-sidebar-text-alternative
 
 // Calypso color variables used in e.g. inline help

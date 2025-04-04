@@ -34,7 +34,7 @@
 }
 
 #available-services, #enabled-services {
-	border-bottom: 2px solid #cccccc;
+	border-bottom: 2px solid #ccc;
 }
 
 #live-preview {

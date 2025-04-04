@@ -129,7 +129,7 @@
 	font-size: 16px;
 	line-height: 24px;
 	letter-spacing: -0.02em;
-	color: #000000;
+	color: #000;
 	padding: 0;
 	margin-top: 8px;
 }
@@ -192,7 +192,7 @@
 	font-size: 14px;
 	line-height: 24px;
 	letter-spacing: -0.02em;
-	color: #000000;
+	color: #000;
 	max-width: 60%;
 }
 
@@ -208,8 +208,8 @@
 	font-style: normal;
 	font-weight: 400;
 	letter-spacing: -0.01em;
-	color: #FFFFFF;
-	background: #000000;
-	border: 1px solid #FFFFFF;
+	color: #FFF;
+	background: #000;
+	border: 1px solid #FFF;
 	border-radius: 4px;
 }
