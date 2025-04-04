@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
-use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -18,8 +17,6 @@ use WP_REST_Response;
  * registered in \Automattic\Jetpack\Forms\ContactForm\Contact_Form.
  */
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
-
-	use WPCOM_REST_API_Proxy_Request;
 
 	/**
 	 * Supported integrations configuration
@@ -416,7 +413,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( rest_is_field_included( 'fields', $fields ) ) {
 			$fields_data = array_diff_key( $all_fields, $base_fields );
 
-			foreach ( $fields_data as $key => &$field ) {
+			foreach ( $fields_data as &$field ) {
 				if ( Contact_Form::is_file_upload_field( $field ) ) {
 					$field_id = $field['field_id'];
 					foreach ( $field['files'] as &$file ) {
