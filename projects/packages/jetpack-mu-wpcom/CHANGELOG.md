@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.3.0] - 2025-04-04
+### Added
+- Enabled the RDV treatment group for everyone. [#42765]
+
+### Removed
+- Removing unused files from the "What's New" package. [#42893]
+
 ## [6.2.0] - 2025-04-02
 ### Security
 - Verbum: Call `wp_die` if nonce check fails. [#41466]
@@ -1516,6 +1523,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[6.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.2.0...v6.3.0
 [6.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.1.0...v6.2.0
 [6.1.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.0.0...v6.1.0
 [6.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.66.0...v6.0.0
