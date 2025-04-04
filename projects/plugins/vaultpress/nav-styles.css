@@ -13,7 +13,7 @@
 #toplevel_page_vaultpress div.wp-menu-image:before {
 	content: '\f219';
 	font-size: 18px !important;
-	font-family: vaultpressregular !important;
+	font-family: vaultpressregular, sans-serif !important;
 }
 
 /**
