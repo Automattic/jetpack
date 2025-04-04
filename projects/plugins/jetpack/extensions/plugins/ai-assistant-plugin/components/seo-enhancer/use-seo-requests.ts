@@ -117,7 +117,7 @@ export const useSeoRequests = () => {
 				const response = await request( 'seo-title' );
 				const title = parseResponse( response ).titles?.[ 0 ];
 
-				if ( title.length > 70 ) {
+				if ( title && title.length > 70 ) {
 					tracks.recordEvent( 'jetpack_seo_enhancer_title_too_long', {
 						character_count: title.length,
 					} );
@@ -156,7 +156,7 @@ export const useSeoRequests = () => {
 				const response = await request( 'seo-meta-description' );
 				const description = parseResponse( response ).descriptions?.[ 0 ];
 
-				if ( description.length > 156 ) {
+				if ( description && description.length > 156 ) {
 					tracks.recordEvent( 'jetpack_seo_enhancer_description_too_long', {
 						character_count: description.length,
 					} );
