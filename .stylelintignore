@@ -5,3 +5,21 @@
 # Unignore css and scss files too.
 !**/*.css
 !**/*.scss
+
+# Ignore minifed CSS
+**/*.min.css
+
+# Ignore CSS copied in from elsewhere
+projects/js-packages/components/components/boost-score-graph/style-uplot.scss
+projects/packages/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks
+projects/plugins/crm/css/lib
+projects/plugins/crm/css/semantic-ui
+projects/plugins/crm/sass/_color_studio.scss
+projects/plugins/crm/sass/_daterangepicker.scss
+projects/plugins/crm/sass/font-awesome.scss
+projects/plugins/crm/sass/semantic-ui
+projects/plugins/jetpack/scss/cleanslate.scss
+
+# Ignore test-related CSS files that need further investigation
+projects/js-packages/critical-css-gen/tests/data/page-a
+projects/plugins/boost/tests/e2e/plugins/e2e-concatenate-enqueue/assets

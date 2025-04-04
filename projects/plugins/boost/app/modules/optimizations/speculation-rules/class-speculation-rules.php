@@ -3,7 +3,7 @@
  * Speculation Rules implementation for cornerstone pages
  *
  * @package Boost
- * @since $$next-version$$
+ * @since 3.13.0
  */
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules;
@@ -39,7 +39,7 @@ class Speculation_Rules implements Feature, Changes_Output_On_Activation, Optimi
 	/**
 	 * Initialize the speculation rules
 	 *
-	 * @since $$next-version$$
+	 * @since 3.13.0
 	 * @return void
 	 */
 	public function setup() {
@@ -51,7 +51,7 @@ class Speculation_Rules implements Feature, Changes_Output_On_Activation, Optimi
 	 * Add speculation rules for cornerstone pages
 	 *
 	 * @param \WP_Speculation_Rules $speculation_rules The speculation rules instance.
-	 * @since $$next-version$$
+	 * @since 3.13.0
 	 * @return void
 	 */
 	public function add_cornerstone_rules( $speculation_rules ) {
@@ -88,7 +88,7 @@ class Speculation_Rules implements Feature, Changes_Output_On_Activation, Optimi
 	/**
 	 * Get the list of cornerstone page URLs
 	 *
-	 * @since $$next-version$$
+	 * @since 3.13.0
 	 * @return array Array of cornerstone page URLs
 	 */
 	private function get_cornerstone_urls() {

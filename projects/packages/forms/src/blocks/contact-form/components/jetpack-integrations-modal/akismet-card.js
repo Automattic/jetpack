@@ -1,98 +1,138 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button, ExternalLink, Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import PluginIntegrationPanel from '../shared/plugin-integration-panel';
+import AkismetIcon from '../../../../icons/akismet-icon';
 import IntegrationCard from './integration-card';
+import PluginActionButton from './plugin-action-button';
 
-const AkismetCard = ( { isExpanded, onToggle } ) => {
-	const adminUrl = window?.jpFormsBlocks?.defaults?.formsAdminUrl || '';
-	const akismetActiveWithKey = window?.jpFormsBlocks?.defaults?.akismetActiveWithKey || false;
-	const akismetUrl = window?.jpFormsBlocks?.defaults?.akismetUrl || '';
+const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
+	const formSubmissionsUrl = window?.jpFormsBlocks?.defaults?.formsAdminUrl || '';
+
+	const {
+		isInstalled = false,
+		isActive = false,
+		isConnected: akismetActiveWithKey = false,
+		settingsUrl = '',
+	} = data || {};
+
+	const renderContent = () => {
+		if ( ! data ) {
+			return <Spinner />;
+		}
+
+		if ( ! isInstalled ) {
+			return (
+				<div>
+					<p>
+						{ createInterpolateElement(
+							__(
+								"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
+								'jetpack-forms'
+							),
+							{
+								a: <ExternalLink href={ getRedirectUrl( 'akismet-wordpress-org' ) } />,
+							}
+						) }
+					</p>
+					<PluginActionButton
+						pluginSlug="akismet"
+						pluginFile="akismet/akismet"
+						isInstalled={ isInstalled }
+						refreshStatus={ refreshStatus }
+						trackEventName="jetpack_forms_upsell_akismet_click"
+					/>
+				</div>
+			);
+		}
+
+		if ( ! isActive ) {
+			return (
+				<div>
+					<p>
+						{ __( "You already have Akismet installed, but it's not activated.", 'jetpack-forms' ) }
+					</p>
+					<PluginActionButton
+						pluginSlug="akismet"
+						pluginFile="akismet/akismet"
+						isInstalled={ isInstalled }
+						refreshStatus={ refreshStatus }
+						trackEventName="jetpack_forms_upsell_akismet_click"
+					/>
+				</div>
+			);
+		}
+
+		if ( ! akismetActiveWithKey ) {
+			return (
+				<div>
+					<p>
+						{ createInterpolateElement(
+							__(
+								'Akismet is active! There is one step left. Please add your <a>Akismet key</a>.',
+								'jetpack-forms'
+							),
+							{
+								a: <ExternalLink href={ settingsUrl } />,
+							}
+						) }
+					</p>
+					<Button
+						variant="primary"
+						href={ settingsUrl }
+						target="_blank"
+						rel="noopener noreferrer"
+						__next40pxDefaultSize={ true }
+					>
+						{ __( 'Add Akismet key', 'jetpack-forms' ) }
+					</Button>
+				</div>
+			);
+		}
+
+		return (
+			<div>
+				<p>
+					{ createInterpolateElement(
+						__( 'Your forms are protected from spam with <a>Akismet</a>!', 'jetpack-forms' ),
+						{
+							a: <ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) } />,
+						}
+					) }
+				</p>
+				<div style={ { display: 'flex', gap: '8px', justifyContent: 'flex-start' } }>
+					<Button
+						variant="primary"
+						href={ formSubmissionsUrl }
+						target="_blank"
+						rel="noopener noreferrer"
+						__next40pxDefaultSize={ true }
+					>
+						{ __( 'View spam', 'jetpack-forms' ) }
+					</Button>
+					<Button
+						variant="primary"
+						href={ settingsUrl }
+						target="_blank"
+						rel="noopener noreferrer"
+						__next40pxDefaultSize={ true }
+					>
+						{ __( 'View stats', 'jetpack-forms' ) }
+					</Button>
+				</div>
+			</div>
+		);
+	};
 
 	return (
 		<IntegrationCard
 			title={ __( 'Akismet Spam Protection', 'jetpack-forms' ) }
 			description={ __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ) }
-			icon="shield"
+			icon={ <AkismetIcon /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 		>
-			<PluginIntegrationPanel
-				title={ __( 'Spam protection', 'jetpack-forms' ) }
-				pluginSlug="akismet"
-				pluginPath="akismet/akismet"
-				pluginTitle="Akismet"
-				installText={ __( 'Install Akismet', 'jetpack-forms' ) }
-				activateText={ __( 'Activate Akismet', 'jetpack-forms' ) }
-				description={ createInterpolateElement(
-					__(
-						"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
-						'jetpack-forms'
-					),
-					{
-						a: <ExternalLink href={ getRedirectUrl( 'akismet-wordpress-org' ) } />,
-					}
-				) }
-				tracksEventName="jetpack_forms_upsell_akismet_click"
-				hideWrapper
-			>
-				{ akismetActiveWithKey ? (
-					<>
-						<p>
-							{ createInterpolateElement(
-								__( 'Your forms are protected from spam with <a>Akismet</a>!', 'jetpack-forms' ),
-								{
-									a: <ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) } />,
-								}
-							) }
-						</p>
-						<div style={ { display: 'flex', gap: '8px', justifyContent: 'flex-start' } }>
-							<Button
-								variant="secondary"
-								href={ adminUrl }
-								target="_blank"
-								rel="noopener noreferrer"
-								__next40pxDefaultSize={ true }
-							>
-								{ __( 'View spam', 'jetpack-forms' ) }
-							</Button>
-							<Button
-								variant="secondary"
-								href={ akismetUrl }
-								target="_blank"
-								rel="noopener noreferrer"
-								__next40pxDefaultSize={ true }
-							>
-								{ __( 'View stats', 'jetpack-forms' ) }
-							</Button>
-						</div>
-					</>
-				) : (
-					<>
-						<p>
-							{ createInterpolateElement(
-								__(
-									'Akismet is active! There is one step left. Please add your <a>Akismet key</a>.',
-									'jetpack-forms'
-								),
-								{
-									a: <ExternalLink href={ akismetUrl } />,
-								}
-							) }
-						</p>
-						<Button
-							variant="secondary"
-							href={ akismetUrl }
-							target="_blank"
-							rel="noopener noreferrer"
-							__next40pxDefaultSize={ true }
-						>
-							{ __( 'Add Akismet key', 'jetpack-forms' ) }
-						</Button>
-					</>
-				) }
-			</PluginIntegrationPanel>
+			{ renderContent() }
 		</IntegrationCard>
 	);
 };

@@ -98,9 +98,6 @@ class Jetpack_Boost {
 		$this->connection = new Connection();
 		$this->connection->init();
 
-		// Require plugin features.
-		$this->init_textdomain();
-
 		$this->register_deactivation_hook();
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {

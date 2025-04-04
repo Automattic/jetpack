@@ -11,8 +11,8 @@
 	failOnWarning="true"
 >
 	<testsuites>
-		<testsuite name="main">
-			<directory suffix="Test.php">tests/php/tests</directory>
+		<testsuite name="integration">
+			<directory suffix="Test.php">tests/php/integration</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>
