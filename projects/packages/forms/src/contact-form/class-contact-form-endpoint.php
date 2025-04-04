@@ -23,17 +23,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @var array
 	 */
 	private $supported_integrations = array(
-		'akismet'       => array(
+		'akismet'                           => array(
 			'type'         => 'plugin',
 			'file'         => 'akismet/akismet.php',
 			'settings_url' => 'admin.php?page=akismet-key-config',
 		),
-		'creative-mail' => array(
+		'creative-mail-by-constant-contact' => array(
 			'type'         => 'plugin',
 			'file'         => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
 			'settings_url' => 'admin.php?page=creativemail',
 		),
-		'jetpack-crm'   => array(
+		'zero-bs-crm'                       => array(
 			'type'         => 'plugin',
 			'file'         => 'zero-bs-crm/ZeroBSCRM.php',
 			'settings_url' => 'admin.php?page=zerobscrm-plugin-settings',
@@ -647,6 +647,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		$response = array(
 			'type'        => 'plugin',
+			'slug'        => $plugin_slug,
+			'pluginFile'  => str_replace( '.php', '', $plugin_config['file'] ),
 			'isInstalled' => $is_installed,
 			'isActive'    => $is_active,
 			'isConnected' => false,
@@ -658,7 +660,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		// Plugin-specific customizations
 		if ( 'akismet' === $plugin_slug ) {
 			$response['isConnected'] = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
-		} elseif ( 'jetpack-crm' === $plugin_slug && $is_active ) {
+		} elseif ( 'zero-bs-crm' === $plugin_slug && $is_active ) {
 			$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
 			$response['details'] = array(
 				'hasExtension'         => $has_extension,

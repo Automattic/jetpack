@@ -117,6 +117,12 @@ export const useSeoRequests = () => {
 				const response = await request( 'seo-title' );
 				const title = parseResponse( response ).titles?.[ 0 ];
 
+				if ( title && title.length > 70 ) {
+					tracks.recordEvent( 'jetpack_seo_enhancer_title_too_long', {
+						character_count: title.length,
+					} );
+				}
+
 				if ( ! globalSelect( editorStore ).isCurrentPostPublished() ) {
 					editPost( {
 						meta: {
@@ -133,7 +139,7 @@ export const useSeoRequests = () => {
 				setTitleBusy( false );
 			}
 		},
-		[ setTitleBusy, request, editPost ]
+		[ setTitleBusy, request, editPost, tracks ]
 	);
 
 	const updateDescription = useCallback(
@@ -149,6 +155,12 @@ export const useSeoRequests = () => {
 				setDescriptionBusy( true );
 				const response = await request( 'seo-meta-description' );
 				const description = parseResponse( response ).descriptions?.[ 0 ];
+
+				if ( description && description.length > 156 ) {
+					tracks.recordEvent( 'jetpack_seo_enhancer_description_too_long', {
+						character_count: description.length,
+					} );
+				}
 
 				if ( ! globalSelect( editorStore ).isCurrentPostPublished() ) {
 					editPost( {
@@ -166,7 +178,7 @@ export const useSeoRequests = () => {
 				setDescriptionBusy( false );
 			}
 		},
-		[ setDescriptionBusy, request, editPost ]
+		[ setDescriptionBusy, request, editPost, tracks ]
 	);
 
 	const updateAltText = useCallback(
