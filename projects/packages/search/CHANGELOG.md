@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.20] - 2025-04-04
+### Changed
+- Update dependencies. [#42820]
+- Update package dependencies. [#42809]
+
+### Fixed
+- Admin menu registration: Allow child classes to overwrite priority. [#42814]
+
 ## [0.47.19] - 2025-03-31
 ### Changed
 - Update dependencies. [#42678]
@@ -1174,6 +1182,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.47.20]: https://github.com/Automattic/jetpack-search/compare/v0.47.19...v0.47.20
 [0.47.19]: https://github.com/Automattic/jetpack-search/compare/v0.47.18...v0.47.19
 [0.47.18]: https://github.com/Automattic/jetpack-search/compare/v0.47.17...v0.47.18
 [0.47.17]: https://github.com/Automattic/jetpack-search/compare/v0.47.16...v0.47.17
