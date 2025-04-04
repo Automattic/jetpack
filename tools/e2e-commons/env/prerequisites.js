@@ -94,12 +94,8 @@ async function buildPrerequisites( state, page ) {
 
 	for ( const [ key, func ] of functions ) {
 		if ( state[ key ] !== undefined ) {
-			if ( func ) {
-				logger.prerequisites( `Ensuring '${ key }' prerequisite state` );
-				await func();
-			} else {
-				throw Error( `Unknown state "${ key }: ${ state[ key ] }"!` );
-			}
+			logger.prerequisites( `Ensuring '${ key }' prerequisite state` );
+			await func();
 		}
 	}
 }
