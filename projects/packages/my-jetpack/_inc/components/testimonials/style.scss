@@ -12,7 +12,6 @@
     display: flex;
     align-items: flex-end;
     padding-bottom: 50px;
-    border-radius: 12px;
     overflow: hidden;
 
     // Specific testimonial variations
@@ -98,4 +97,8 @@
             opacity: 1;
         }
     }
+
+	.swipeable__container {
+		border-radius: 12px;
+	}
 }
