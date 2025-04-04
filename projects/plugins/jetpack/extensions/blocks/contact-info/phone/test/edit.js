@@ -2,6 +2,15 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PhoneEdit from '../edit';
 
+jest.mock( '@wordpress/block-editor', () => {
+	const useBlockProps = () => ( {} );
+	useBlockProps.save = () => ( {} );
+	return {
+		...jest.requireActual( '@wordpress/block-editor' ),
+		useBlockProps,
+	};
+} );
+
 const setAttributes = jest.fn();
 
 const defaultAttributes = {

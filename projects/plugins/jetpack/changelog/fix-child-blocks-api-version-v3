@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Blocks: ensure all child blocks use the latest version of the Blocks API.
