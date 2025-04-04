@@ -241,6 +241,7 @@ store( NAMESPACE, {
 		 * @param {Event} event - The event object.
 		 */
 		removeFile: event => {
+			event.preventDefault();
 			const context = getContext();
 			const fileId = event.target.dataset.id;
 			context.files = context.files.filter( fileObject => fileObject.id !== fileId );
