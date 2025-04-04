@@ -343,7 +343,7 @@ pnpm test --watch -- path/to/test/file.js
 
 The Jetpack plugin project also has some additional test commands that can be run from its root.
 
-### Admin Page unit tests
+#### Admin Page unit tests
 
 TODO - explain the purpose of these tests.
 
@@ -366,7 +366,7 @@ To use a custom reporter, pass the argument `-R, --reporter <name>`:
 pnpm test-client -R 'my_reporter'
 ```
 
-### Extension unit tests
+#### Extension unit tests
 
 TODO - explain the purpose of these tests.
 
