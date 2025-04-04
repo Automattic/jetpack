@@ -30,9 +30,16 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		),
 	};
 
-	const renderActiveContent = () => {
-		if ( ! akismetActiveWithKey ) {
-			return (
+	return (
+		<IntegrationCard
+			title={ __( 'Akismet Spam Protection', 'jetpack-forms' ) }
+			description={ __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ) }
+			icon={ <AkismetIcon /> }
+			isExpanded={ isExpanded }
+			onToggle={ onToggle }
+			cardData={ cardData }
+		>
+			{ ! akismetActiveWithKey ? (
 				<div>
 					<p>
 						{ createInterpolateElement(
@@ -55,53 +62,38 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						{ __( 'Add Akismet key', 'jetpack-forms' ) }
 					</Button>
 				</div>
-			);
-		}
-
-		return (
-			<div>
-				<p>
-					{ createInterpolateElement(
-						__( 'Your forms are protected from spam with <a>Akismet</a>!', 'jetpack-forms' ),
-						{
-							a: <ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) } />,
-						}
-					) }
-				</p>
-				<div style={ { display: 'flex', gap: '8px', justifyContent: 'flex-start' } }>
-					<Button
-						variant="primary"
-						href={ formSubmissionsUrl }
-						target="_blank"
-						rel="noopener noreferrer"
-						__next40pxDefaultSize={ true }
-					>
-						{ __( 'View spam', 'jetpack-forms' ) }
-					</Button>
-					<Button
-						variant="primary"
-						href={ settingsUrl }
-						target="_blank"
-						rel="noopener noreferrer"
-						__next40pxDefaultSize={ true }
-					>
-						{ __( 'View stats', 'jetpack-forms' ) }
-					</Button>
+			) : (
+				<div>
+					<p>
+						{ createInterpolateElement(
+							__( 'Your forms are protected from spam with <a>Akismet</a>!', 'jetpack-forms' ),
+							{
+								a: <ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) } />,
+							}
+						) }
+					</p>
+					<div style={ { display: 'flex', gap: '8px', justifyContent: 'flex-start' } }>
+						<Button
+							variant="primary"
+							href={ formSubmissionsUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+							__next40pxDefaultSize={ true }
+						>
+							{ __( 'View spam', 'jetpack-forms' ) }
+						</Button>
+						<Button
+							variant="primary"
+							href={ settingsUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+							__next40pxDefaultSize={ true }
+						>
+							{ __( 'View stats', 'jetpack-forms' ) }
+						</Button>
+					</div>
 				</div>
-			</div>
-		);
-	};
-
-	return (
-		<IntegrationCard
-			title={ __( 'Akismet Spam Protection', 'jetpack-forms' ) }
-			description={ __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ) }
-			icon={ <AkismetIcon /> }
-			isExpanded={ isExpanded }
-			onToggle={ onToggle }
-			cardData={ cardData }
-		>
-			{ renderActiveContent() }
+			) }
 		</IntegrationCard>
 	);
 };

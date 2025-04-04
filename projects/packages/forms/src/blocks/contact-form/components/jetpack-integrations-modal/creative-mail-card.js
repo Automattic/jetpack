@@ -46,8 +46,15 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		}
 	};
 
-	const renderActiveContent = () => {
-		return (
+	return (
+		<IntegrationCard
+			title={ __( 'Creative Mail', 'jetpack-forms' ) }
+			description={ __( 'Manage email contacts and campaigns', 'jetpack-forms' ) }
+			icon="email"
+			isExpanded={ isExpanded }
+			onToggle={ onToggle }
+			cardData={ cardData }
+		>
 			<div>
 				<p>
 					<em>
@@ -66,19 +73,6 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 					/>
 				) }
 			</div>
-		);
-	};
-
-	return (
-		<IntegrationCard
-			title={ __( 'Creative Mail', 'jetpack-forms' ) }
-			description={ __( 'Manage email contacts and campaigns', 'jetpack-forms' ) }
-			icon="email"
-			isExpanded={ isExpanded }
-			onToggle={ onToggle }
-			cardData={ cardData }
-		>
-			{ renderActiveContent() }
 		</IntegrationCard>
 	);
 };

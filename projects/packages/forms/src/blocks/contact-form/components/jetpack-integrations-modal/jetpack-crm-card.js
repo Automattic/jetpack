@@ -38,7 +38,7 @@ const JetpackCRMCard = ( {
 		),
 	};
 
-	const renderActiveContent = () => {
+	const renderContent = () => {
 		// Jetpack CRM installed and active, but not recent version
 		if ( ! isRecentVersion ) {
 			return (
@@ -114,7 +114,7 @@ const JetpackCRMCard = ( {
 			onToggle={ onToggle }
 			cardData={ cardData }
 		>
-			{ renderActiveContent() }
+			{ renderContent() }
 		</IntegrationCard>
 	);
 };
