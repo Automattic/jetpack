@@ -80,25 +80,25 @@ export function prerequisitesBuilder( page ) {
  * @param {page}    page            - Playwright page instance.
  */
 async function buildPrerequisites( state, page ) {
-	const functions = {
-		plugins: () => ensurePluginsState( state.plugins ),
-		loggedIn: () => ensureUserIsLoggedIn( page ),
-		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( page ),
-		connected: () => ensureConnectedState( state.connected ),
-		plan: () => ensurePlan( state.plan, page ),
-		modules: () => ensureModulesState( state.modules ),
-		clean: () => ensureCleanState( state.clean ),
-	};
+	const functions = [
+		[ 'clean', () => ensureCleanState( state.clean ) ],
+		[ 'plugins', () => ensurePluginsState( state.plugins ) ],
+		[ 'loggedIn', () => ensureUserIsLoggedIn( page ) ],
+		[ 'wpComLoggedIn', () => ensureWpComUserIsLoggedIn( page ) ],
+		[ 'connected', () => ensureConnectedState( state.connected ) ],
+		[ 'plan', () => ensurePlan( state.plan, page ) ],
+		[ 'modules', () => ensureModulesState( state.modules ) ],
+	];
 
 	logger.prerequisites( JSON.stringify( state, null, 2 ) );
 
-	for ( const option of Object.keys( state ) ) {
-		if ( state[ option ] !== undefined ) {
-			if ( functions[ option ] ) {
-				logger.prerequisites( `Ensuring '${ option }' prerequisite state` );
-				await functions[ option ]();
+	for ( const [ key, func ] of functions ) {
+		if ( state[ key ] !== undefined ) {
+			if ( func ) {
+				logger.prerequisites( `Ensuring '${ key }' prerequisite state` );
+				await func();
 			} else {
-				throw Error( `Unknown state "${ option }: ${ state[ option ] }"!` );
+				throw Error( `Unknown state "${ key }: ${ state[ key ] }"!` );
 			}
 		}
 	}
