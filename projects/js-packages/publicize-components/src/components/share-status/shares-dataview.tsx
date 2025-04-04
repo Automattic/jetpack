@@ -22,7 +22,7 @@ type SharesDataViewProps = {
  *
  * @param {SharesDataViewProps} props - The component props.
  *
- * @return {import('react').ReactNode} - The shares data view component.
+ * @return - The shares data view component.
  */
 export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 	return (
