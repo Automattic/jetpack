@@ -49,7 +49,7 @@ $action-bar-height: 88px;
 .jp-forms__inbox-tab-item {
 	border-bottom: 2px solid transparent;
 	font-size: var(--jp-forms-font-size-regular);
-	font-weight: normal;
+	font-weight: 400;
 	height: $tab-item-height;
 	padding: 8px 16px;
 
@@ -167,7 +167,7 @@ $action-bar-height: 88px;
 
 .jp-forms__inbox-response-title {
 	font-size: 24px;
-	font-weight: bold;
+	font-weight: 700;
 	line-height: normal;
 	margin: 24px 0 0;
 	padding: 0 32px;

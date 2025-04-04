@@ -22,7 +22,7 @@ $border_radius: math.div($bar-height, 2);
     &--letter {
         all: unset;
         font-size: var(--font-title-small);
-        font-weight: bold;
+        font-weight: 700;
         line-height: $bar_height;
         color: var(--jp-green);
         padding: 0 5px;

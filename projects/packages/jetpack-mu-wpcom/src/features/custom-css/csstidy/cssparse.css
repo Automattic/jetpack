@@ -74,7 +74,7 @@ cursor:help;
 
 p.important {
 border:solid 1px red;
-font-weight:bold;
+font-weight:700;
 padding:1em;
 background:white;
 }
@@ -88,7 +88,7 @@ padding-left:0.5em;
 }
 
 dt {
-font-weight:bold;
+font-weight:700;
 margin:0;
 float:left;
 clear:both;

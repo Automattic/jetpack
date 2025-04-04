@@ -96,7 +96,7 @@ $color-text-lighter: $studio-gray-50;
 
 	.jp-mocked-instant-search__result-statistics {
 		font-size: 1em;
-		font-weight: bold;
+		font-weight: 700;
 
 		@include breakpoint( '<480px' ) {
 			width: 100%;
@@ -150,7 +150,7 @@ $color-text-lighter: $studio-gray-50;
 }
 
 .jp-mocked-instant-search__search-filter-header {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .jp-mocked-instant-search__search-filter {

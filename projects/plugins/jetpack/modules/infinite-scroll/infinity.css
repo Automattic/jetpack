@@ -230,7 +230,7 @@
 }
 
 #infinite-footer .blog-credits {
-	font-weight: normal;
+	font-weight: 400;
 	float: right;
 	width: 60%;
 }
@@ -238,7 +238,7 @@
 #infinite-footer .blog-info a {
 	color: #111;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: 700;
 }
 
 #infinite-footer .blog-credits {

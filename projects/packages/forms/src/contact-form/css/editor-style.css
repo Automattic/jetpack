@@ -253,7 +253,7 @@ input[type="checkbox"]:disabled:hover {
 
 input[type="checkbox"] + span {
 	display: block;
-	font-weight: normal;
+	font-weight: 400;
 	margin-left: 24px;
 }
 
@@ -338,7 +338,7 @@ input[type="radio"]:disabled:checked:before {
 
 input[type="radio"] + span {
 	display: block;
-	font-weight: normal;
+	font-weight: 400;
 	margin-left: 24px;
 }
 

@@ -347,7 +347,7 @@ a.button.right-pill {
 }
 
 #the-bg-picker-prompt h4 strong {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .choose-color,
@@ -726,7 +726,7 @@ input#iris {
 }
 
 .background-options p.radios input:checked + label {
-	font-weight: bold;
+	font-weight: 700;
 	background: white;
 }
 

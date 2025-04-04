@@ -18,7 +18,7 @@ Slyling up the Jetpack State
 
 .jetpack-debug-cookie-state .cookie-state-block label {
 	display: inline-block;
-	font-weight: bold;
+	font-weight: 700;
 	width: 120px;
 	vertical-align: top;
 	margin-top: 5px;
