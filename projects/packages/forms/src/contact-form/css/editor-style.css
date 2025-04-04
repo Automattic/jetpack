@@ -8,7 +8,7 @@
 	margin: 0 auto;
 	padding: 16px;
 	box-sizing: border-box;
-	background: white;
+	background: #fff;
 	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 }
 
@@ -473,7 +473,7 @@ input[type="submit"] {
 	-moz-appearance: none;
 			 appearance: none;
 	vertical-align: baseline;
-	background: white;
+	background: #fff;
 	border-color: #c8d7e1;
 	border-style: solid;
 	border-width: 1px 1px 2px;
@@ -513,7 +513,7 @@ input[type="submit"]:visited {
 input[type="submit"][disabled],
 input[type="submit"]:disabled {
 	color: #e9eff3;
-	background: white;
+	background: #fff;
 	border-color: #e9eff3;
 	cursor: default;
 }

@@ -48,7 +48,7 @@
 .wpcom-themes-banner a,
 .wpcom-themes-banner a:visited {
 	background-color: #101517;
-	color: white;
+	color: #fff;
 	border-radius: 4px;
 	padding: 14px 24px;
 	font-size: 14px;
@@ -62,7 +62,7 @@
 .wpcom-themes-banner a:hover,
 .wpcom-themes-banner a:focus {
 	background-color: #1d2327;
-	color: white;
+	color: #fff;
 }
 
 @media ( max-width: 1260px ) {

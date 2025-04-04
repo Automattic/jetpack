@@ -27,10 +27,10 @@ body {
 
 .btn-jetpack{
   background: $jetpack_green;
-  color: white;
+  color: #fff;
 
   &:hover{
-    color:white;
+    color: #fff;
   }
   font-size:16px;
 }
@@ -77,12 +77,12 @@ body {
 .stepwizard-step .btn-default{
   color: $jetpack_green!important;
   border-color: $jetpack_green;
-  background:white;
+  background: #fff;
   opacity: 1;
 }
 
 .stepwizard-step .btn-primary{
-  color:white !important;
+  color: #fff !important;
   background: $jetpack_green !important;
   border-color:$jetpack_green;
 }
@@ -143,7 +143,7 @@ input[type=checkbox], input[type=radio]{
     position: absolute;
     top: 7px;
     left: 30px;
-    color: white;
+    color: #fff;
 }
 
 #zbs_other_details{

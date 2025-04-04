@@ -26,7 +26,7 @@
 	margin-bottom: 24px;
 	box-sizing: border-box;
 	background: #414141;
-	color: white;
+	color: #fff;
 	border-radius: 3px;
 	line-height: 1.5;
 }
@@ -57,7 +57,7 @@
 
 .dops-notice__icon-wrapper {
 	background: #747474;
-	color: white;
+	color: #fff;
 	display: flex;
 	align-items: baseline;
 	width: 47px;
@@ -99,12 +99,12 @@
 .dops-notice__text a,
 .dops-notice__text a:visited {
 	text-decoration: underline;
-	color: white;
+	color: #fff;
 }
 
 .dops-notice__text a:hover,
 .dops-notice__text a:visited:hover {
-	color: white;
+	color: #fff;
 	text-decoration: none;
 }
 
@@ -162,7 +162,7 @@
 }
 
 .dops-notice .dops-notice__dismiss:hover, .dops-notice .dops-notice__dismiss:focus {
-	color: white;
+	color: #fff;
 }
 
 a.dops-notice__action {
@@ -200,7 +200,7 @@ a.dops-notice__action:visited {
 }
 
 a.dops-notice__action:hover {
-	color: white;
+	color: #fff;
 }
 
 a.dops-notice__action .gridicon {

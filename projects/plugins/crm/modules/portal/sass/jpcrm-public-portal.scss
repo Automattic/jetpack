@@ -116,7 +116,7 @@
 .zbs_alert {
    padding: 10px;
    background: #8BC34A;
-   color: white;
+   color: #fff;
    display: block;
    text-align: center;
 }
@@ -187,29 +187,29 @@
   }
 
   .paid {
-     background: green;
-     color: white;
+     background: #008000;
+     color: #fff;
      font-weight: 700;
      line-height: 21px;
   }
 
   .unpaid {
      background: #d0d012;
-     color: white;
+     color: #fff;
      font-weight: 700;
      line-height: 21px;
   }
 
   .draft {
      background: #999;
-     color: white;
+     color: #fff;
      font-weight: 700;
      line-height:21px;
   }
 
   .overdue {
-     background: red;
-     color: white;
+     background: #ff2c2c;
+     color: #fff;
      font-weight: 700;
      line-height:21px;
   }
@@ -316,7 +316,7 @@
 
   .zbs-invoice-portal-inner .zbs-invoice-box .zbs-portal-label {
      background: #546273;
-     color: white;
+     color: #fff;
      display: inline;
      padding: 5px;
      border-radius: 4px;
@@ -503,7 +503,7 @@
            a:hover{
                box-shadow:none;
                background: #000;
-               color:white;
+               color: #fff;
           }
       }
 

@@ -14,8 +14,8 @@
 .jpdebug-waf-filecontents:disabled {
     width: 90%;
     height: 220px;
-    color: black;
-    background-color: white;
+    color: #000;
+    background-color: #fff;
     font-family: monospace;
     line-height: 1.75;
     padding: 1em;

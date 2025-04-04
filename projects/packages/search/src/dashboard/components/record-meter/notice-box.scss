@@ -4,8 +4,8 @@
 @import '~@automattic/color-studio/dist/color-variables';
 
 .jp-search-notice-box {
-	background-color: white;
-	color: black;
+	background-color: #fff;
+	color: #000;
 	border: $studio-gray-5 0.5px solid;
 	border-radius: 5px;
 	padding: 24px;
@@ -43,7 +43,7 @@
 }
 
 .jp-search-notice-box .dops-notice__action {
-	color: black;
+	color: #000;
 	display: block;
 	font-weight: bold;
 	padding: 0 0 6px 0;
@@ -56,7 +56,7 @@
 	&:visited,
 	&:hover,
 	&:active {
-		color: black;
+		color: #000;
 		text-decoration: underline;
 	}
 }

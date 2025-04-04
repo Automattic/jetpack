@@ -197,7 +197,7 @@ Mini normalize
 /* Form */
 
 .dops-button {
-	background: white;
+	background: #fff;
 	border: solid #d5d5d5;
 	border-width: 1px 1px 2px;
 	color: #414141;
@@ -231,7 +231,7 @@ Mini normalize
 
 .dops-button[disabled], .dops-button:disabled {
 	color: #eee;
-	background: white;
+	background: #fff;
 	border-color: #eee;
 	cursor: default;
 }
@@ -261,22 +261,22 @@ Mini normalize
 .dops-button.is-primary {
 	background: #00aadc;
 	border-color: #0087be;
-	color: white;
+	color: #fff;
 }
 
 .dops-button.is-primary:hover, .dops-button.is-primary:focus {
 	border-color: #005082;
-	color: white;
+	color: #fff;
 }
 
 .dops-button.is-primary[disabled], .dops-button.is-primary:disabled {
 	background: #bceefd;
 	border-color: #8cc9e2;
-	color: white;
+	color: #fff;
 }
 
 .dops-button.is-primary.is-compact {
-	color: white;
+	color: #fff;
 	white-space: nowrap;
 }
 
@@ -375,7 +375,7 @@ Mini normalize
 	margin: 0 auto 10px auto;
 	padding: 16px;
 	box-sizing: border-box;
-	background: white;
+	background: #fff;
 	box-shadow: 0 0 0 1px rgba(213, 213, 213, 0.5), 0 1px 2px #eee;
 }
 

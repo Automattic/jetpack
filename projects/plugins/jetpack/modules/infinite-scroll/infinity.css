@@ -33,7 +33,7 @@
 	position: absolute;
 	animation: spinner-inner linear 1s infinite;
 	background: #000;
-	outline: 1px solid white;
+	outline: 1px solid #fff;
 	width: 6px;
 	height: 12px;
 	border-radius: 3px / 6px;

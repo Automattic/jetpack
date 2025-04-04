@@ -27,12 +27,12 @@ tr.wh-large input[type="radio"] {
 
 tr.wh-large th, tr.wh-large td {
   padding: 6px 20px;
-  color: black;
+  color: #000;
 }
 
 table.wh-metatab tr th label {
   padding: 6px 20px;
-  color: black;
+  color: #000;
 }
 
 table.wh-metatab tr.wh-large th label, table.wh-metatab tr.wh-large td label {
@@ -65,7 +65,7 @@ span.wh-info {
 
 .zbs-prominent {
   font-size: 14px;
-    color: green;
+    color: #008000;
 }
 
 .widetext {
@@ -167,7 +167,7 @@ textarea.form-control{
 
 .wh-large label {
     font-size: 15px;
-    color: black;
+    color: #000;
     font-weight: 400;
 }
 
@@ -206,7 +206,7 @@ textarea.form-control{
 // id fields + autonumbers
 .zbs-field-id {
   font-size: 14px !important;
-  color: black !important;
+  color: #000 !important;
   vertical-align: top !important;
 }
 

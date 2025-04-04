@@ -12,7 +12,7 @@ color:gray;
 }
 
 .property {
-color:green;
+color:#008000;
 }
 
 .selector {
@@ -20,7 +20,7 @@ color:blue;
 }
 
 .value {
-color:red;
+color:#ff2c2c;
 left: 500px;
 }
 

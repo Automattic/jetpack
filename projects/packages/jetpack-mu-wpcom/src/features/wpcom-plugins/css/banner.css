@@ -52,7 +52,7 @@
 .wpcom-plugins-banner a,
 .wpcom-plugins-banner a:visited {
 	background-color: #3858E9;
-	color: white;
+	color: #fff;
 	border-radius: 4px;
 	padding: 10px 24px;
 	font-size: 14px;
@@ -65,7 +65,7 @@
 
 .wpcom-plugins-banner a:hover,
 .wpcom-plugins-banner a:focus {
-	background-color: white;
+	background-color: #fff;
 	color: #1d2327;
 }
 

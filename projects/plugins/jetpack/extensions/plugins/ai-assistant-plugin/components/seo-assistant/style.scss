@@ -5,7 +5,7 @@
 	transform: translateX(-50%);
 	width: 440px;
 	height: 434px;
-	background: white;
+	background: #fff;
 	border-radius: 24px;
 	outline: 0.5px solid var( --jp-gray-5 );
 	z-index: 1000;
@@ -33,7 +33,7 @@
 		align-items: center;
 		justify-content: space-between;
 		padding-bottom: 24px;
-		background: white;
+		background: #fff;
 		border-radius: 24px 24px 0 0;
 
 		h2 {
@@ -74,7 +74,7 @@
 		flex-direction: column;
 		height: 100%;
 		overflow: auto;
-		mask-image: linear-gradient( 180deg, transparent, white 24px );
+		mask-image: linear-gradient( 180deg, transparent, #fff 24px );
 
 		& > :first-child {
 			margin-top: auto;
@@ -156,7 +156,7 @@
 	&__input-container {
 		flex: 0 0 auto;
 		padding-top: 16px;
-		background: white;
+		background: #fff;
 		border-radius: 0 0 24px 24px;
 	}
 
@@ -210,7 +210,7 @@
 		width: 100%;
 		padding: 16px 20px;
 		background: #f3f4f6;
-		border: 2px solid white;
+		border: 2px solid #fff;
 		border-radius: 16px;
 		text-align: left;
 		font-size: 14px;

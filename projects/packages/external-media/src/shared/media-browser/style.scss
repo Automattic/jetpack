@@ -3,7 +3,7 @@
 $grid-size: 8px;
 
 .jetpack-external-media-browser {
-	background: white;
+	background: #fff;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
@@ -90,7 +90,7 @@ $grid-size: 8px;
 			}
 
 			&::after {
-				background: white;
+				background: #fff;
 				opacity: 0.8;
 			}
 		}
@@ -137,7 +137,7 @@ $grid-size: 8px;
 		width: 100%;
 		height: 76px;
 		padding: 0 32px;
-		background: white;
+		background: #fff;
 		display: flex;
 		align-items: center;
 		justify-content: flex-end;
