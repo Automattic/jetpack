@@ -417,7 +417,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				if ( Contact_Form::is_file_upload_field( $field ) ) {
 					$field_id = $field['field_id'];
 					foreach ( $field['files'] as &$file ) {
-						if ( ! isset( $file['size'] ) || ! isset( $file['url'] ) || ! isset( $file['file_id'] ) ) {
+						if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
 							// this shouldn't happen, todo: log this
 							continue;
 						}
