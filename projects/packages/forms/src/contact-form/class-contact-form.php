@@ -77,14 +77,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $allowed_html_tags_for_submit_button = array( 'br' => array() );
 
 	/**
-	 * Stores file tokens for processing after post save
-	 *
-	 * @since $$next-version$$
-	 * @var array
-	 */
-	private $file_tokens = array();
-
-	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
@@ -2038,24 +2030,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Handle the cleanup of files when a feedback is deleted.
-	 *
-	 * @param int $post_id The post ID.
-	 * @return void
-	 */
-	public function handle_feedback_deletion( $post_id ) {
-		$feedback_meta = get_post_meta( $post_id, '_feedback_all_fields', true );
-		if ( empty( $feedback_meta ) ) {
-			return;
-		}
-
-		// Let the File_Handler handle file deletions
-		require_once dirname( __DIR__ ) . '/class-file-handler.php';
-		$file_handler = new \Automattic\Jetpack\Forms\File_Handler();
-		$file_handler->delete_attached_files( $post_id );
-	}
-
-	/**
 	 * Process a file upload field.
 	 *
 	 * @param string $field_id The field ID.
@@ -2107,29 +2081,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		return array(
 			'field_id' => $field_id,
 			'files'    => $file_data_array,
-		);
-	}
-
-	/**
-	 * Handle the uploading of files.
-	 *
-	 * @param string $field_id The field ID for the uploaded files.
-	 * @param array  $unauth_file_token_array Array of unauthorized file tokens.
-	 * @param object $field The field object.
-	 * @return array Array containing field_id and files array, or empty array if no files to process.
-	 */
-	public function handle_files( $field_id, $unauth_file_token_array, $field ) {
-		if ( empty( $unauth_file_token_array ) ) {
-			return array();
-		}
-
-		// Store the tokens to be processed after the post is saved
-		$this->file_tokens[ $field_id ] = $unauth_file_token_array;
-
-		// Return a structured array with field_id but no files yet
-		return array(
-			'field_id' => $field_id,
-			'files'    => array(),
 		);
 	}
 }
