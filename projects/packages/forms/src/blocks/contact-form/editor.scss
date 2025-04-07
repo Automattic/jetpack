@@ -309,6 +309,7 @@
 
 .jetpack-field-label,
 .jetpack-field-option {
+
 	.required {
 		word-break: normal;
 		color: unset;
@@ -843,6 +844,7 @@
 				&.jetpack-field-dropdown {
 
 					.jetpack-field-dropdown__toggle {
+
 						/* TODO: Find way around these !important hacks due to label rendering input borders for Outlined style. */
 						border-color: transparent !important;
 						border-radius: transparent !important;
@@ -892,6 +894,7 @@
 
 			.jetpack-field__input, .jetpack-field__textarea {
 				display: flex;
+
 				/* TODO: Find a way around these !important hacks due to use of the label to render input borders for Outlined style. */
 				border-color: transparent !important; //Need to override styles coming from the style attribute
 				border-radius: 0 !important; //Need to override styles coming from the style attribute
