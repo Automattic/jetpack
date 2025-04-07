@@ -306,14 +306,14 @@ class Boost_Cache {
 			$parameters = $this->request->get_parameters();
 
 			/*
-			 * if there are no cookies, then visitor did not click "remember me".
-			 * No need to delete the cache for this visitor as they'll be
-			 * redirected to a page with a hash in the URL for the moderation
-			 * message.
+			 * If there are no cookies, then visitor did not click "remember me".
+			 * They'll be redirected to a page with a hash in the URL for the
+			 * moderation message.
+			 * Only delete the cache for visitors who clicked "remember me".
 			 */
 			if ( isset( $parameters['cookies'] ) && ! empty( $parameters['cookies'] ) ) {
 				$filename = trailingslashit( get_permalink( $post->ID ) ) . Filesystem_Utils::get_request_filename( $parameters );
-				$this->rebuild_page( $filename );
+				$this->delete_page( $filename );
 			}
 			return;
 		}
