@@ -44,7 +44,7 @@ test.afterEach( async ( { requestUtils } ) => {
 } );
 
 test.describe( 'Forms: Submission', () => {
-	test( 'Can submit a simple contact form', async ( { editor, page } ) => {
+	test( 'Submits a simple contact form', async ( { editor, page } ) => {
 		const formTitle = 'E2E Test Form';
 		await test.step( 'Visit the block editor and insert a form', async () => {
 			const blockEditor = await BlockEditorPage.visit( page );
@@ -84,7 +84,7 @@ test.describe( 'Forms: Submission', () => {
 		} );
 	} );
 
-	test( 'submits the correct from when multiple forms are on the same page', async ( {
+	test( 'Submits the correct from when multiple forms are on the same page', async ( {
 		editor,
 		page,
 	} ) => {
