@@ -39,6 +39,9 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_user_features' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features' ) );
 
+		// Load features that only apply to a4a sites.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_a4a_features' ) );
+
 		// Load ETK features flag to turn off the features in the ETK plugin.
 		// It needs higher priority than the ETK plugin.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features_flags' ), 0 );
@@ -435,6 +438,17 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
 		}
+	}
+
+	/**
+	 * Load A4A features.
+	 */
+	public static function load_a4a_features() {
+		if ( ! get_option( 'is_a4a_dev_site' ) ) {
+			return;
+		}
+
+		require_once __DIR__ . '/features/a4a-settings/a4a-options-general.php';
 	}
 
 	/**
