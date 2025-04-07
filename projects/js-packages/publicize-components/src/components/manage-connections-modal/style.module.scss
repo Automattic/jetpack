@@ -19,3 +19,23 @@
 .manual-share {
 	padding-block: 2rem;
 }
+
+.polling-notice-wrapper {
+	background-color: #fff;
+	position: absolute;
+	width: calc(100% - 5rem);
+    bottom: 0.5rem;
+}
+
+.polling-notice {
+
+	:global(.components-notice__content) {
+		display: flex;
+		gap: 0.5rem;
+		align-items: center;
+	}
+
+	:global(.components-spinner) {
+		margin: 0;
+	}
+}

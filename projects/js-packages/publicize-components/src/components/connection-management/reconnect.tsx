@@ -3,7 +3,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
-import { Connection, KeyringResult } from '../../social-store/types';
+import { Connection } from '../../social-store/types';
 import { useRequestAccess } from '../services/use-request-access';
 import { SupportedService } from '../services/use-supported-services';
 
@@ -21,8 +21,12 @@ export type ReconnectProps = {
  * @return {import('react').ReactNode} - React element
  */
 export function Reconnect( { connection, service, variant = 'link' }: ReconnectProps ) {
-	const { deleteConnectionById, setKeyringResult, openConnectionsModal, setReconnectingAccount } =
-		useDispatch( socialStore );
+	const {
+		deleteConnectionById,
+		pollForKeyringResult,
+		openConnectionsModal,
+		setReconnectingAccount,
+	} = useDispatch( socialStore );
 
 	const { isDisconnecting, canManageConnection } = useSelect(
 		select => {
@@ -37,14 +41,17 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 	);
 
 	const onConfirm = useCallback(
-		( result: KeyringResult ) => {
-			setKeyringResult( result );
-
-			if ( result?.ID ) {
-				openConnectionsModal();
-			}
+		( requestId: string ) => {
+			pollForKeyringResult( {
+				requestId,
+				onRequestComplete( { data } ) {
+					if ( data.ID ) {
+						openConnectionsModal();
+					}
+				},
+			} );
 		},
-		[ openConnectionsModal, setKeyringResult ]
+		[ openConnectionsModal, pollForKeyringResult ]
 	);
 
 	const requestAccess = useRequestAccess( { service, onConfirm } );

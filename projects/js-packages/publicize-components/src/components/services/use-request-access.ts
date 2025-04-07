@@ -33,7 +33,7 @@ function isValidBlueskyHandle( handle: string ) {
 
 export type RequestAccessOptions = {
 	service: SupportedService;
-	onConfirm: ( data: unknown ) => void;
+	onConfirm: ( requestId: string ) => void | Promise< void >;
 };
 
 /**
@@ -127,7 +127,13 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 					break;
 			}
 
-			requestExternalAccess( url.toString(), onConfirm );
+			// Generate a random alphanumeric request ID
+			const requestId = Math.random().toString( 36 ).slice( 2, 12 );
+
+			url.searchParams.set( 'auth_flow', 'v1' );
+			url.searchParams.set( 'request_id', requestId );
+
+			requestExternalAccess( url.toString(), () => onConfirm( requestId ) );
 		},
 		[
 			createErrorNotice,

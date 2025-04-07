@@ -4,7 +4,6 @@ import { useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { store } from '../../social-store';
-import { KeyringResult } from '../../social-store/types';
 import { SupportedService } from '../services/use-supported-services';
 import { CustomInputs } from './custom-inputs';
 import styles from './style.module.scss';
@@ -34,7 +33,7 @@ export function ConnectForm( {
 	hasConnections,
 	buttonLabel,
 }: ConnectFormProps ) {
-	const { setKeyringResult } = useDispatch( store );
+	const { pollForKeyringResult } = useDispatch( store );
 
 	const { isConnectionsModalOpen } = useSelect( select => select( store ), [] );
 
@@ -46,13 +45,13 @@ export function ConnectForm( {
 	);
 
 	const onConfirm = useCallback(
-		( result: KeyringResult ) => {
+		( requestId: string ) => {
 			// Set the keyring result only if the modal is open
 			if ( isConnectionsModalOpen() ) {
-				setKeyringResult( result );
+				pollForKeyringResult( { requestId } );
 			}
 		},
-		[ setKeyringResult, isConnectionsModalOpen ]
+		[ pollForKeyringResult, isConnectionsModalOpen ]
 	);
 
 	const requestAccess = useRequestAccess( {

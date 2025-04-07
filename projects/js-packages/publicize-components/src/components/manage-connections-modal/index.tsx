@@ -13,26 +13,22 @@ import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connec
 import { store } from '../../social-store';
 import { ServicesList } from '../services/services-list';
 import { ConfirmationForm } from './confirmation-form';
+import { PollingNotice } from './polling-notice';
 import styles from './style.module.scss';
 
 export const ManageConnectionsModal = () => {
-	const { keyringResult } = useSelect( select => {
-		const { getKeyringResult } = select( store );
+	const keyringResult = useSelect( select => select( store ).getKeyringResult(), [] );
 
-		return {
-			keyringResult: getKeyringResult(),
-		};
-	}, [] );
-
-	const { setKeyringResult, closeConnectionsModal, setReconnectingAccount } = useDispatch( store );
+	const { clearKeyringRequests, closeConnectionsModal, setReconnectingAccount } =
+		useDispatch( store );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const closeModal = useCallback( () => {
-		setKeyringResult( null );
+		clearKeyringRequests();
 		setReconnectingAccount( undefined );
 		closeConnectionsModal();
-	}, [ closeConnectionsModal, setKeyringResult, setReconnectingAccount ] );
+	}, [ closeConnectionsModal, clearKeyringRequests, setReconnectingAccount ] );
 
 	const hasKeyringResult = Boolean( keyringResult?.ID );
 
@@ -80,6 +76,7 @@ export const ManageConnectionsModal = () => {
 									</Text>
 								</em>
 							</div>
+							<PollingNotice />
 						</>
 					);
 				} )()
