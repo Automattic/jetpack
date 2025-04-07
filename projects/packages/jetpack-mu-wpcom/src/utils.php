@@ -5,8 +5,67 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
+/**
+ * Get the wpcom agency blog data.
+ */
+function get_wpcom_agency_blog_data() {
+	if ( ! is_woa_site() ) {
+		return null;
+	}
+
+	$blog_id                = get_wpcom_blog_id();
+	$cache_group            = 'wpcom_agency';
+	$cache_key              = "wpcom_agency_blog_$blog_id";
+	$found_in_cache         = false;
+	$wpcom_agency_blog_data = wp_cache_get( $cache_key, $cache_group, false, $found_in_cache );
+	if ( ! $found_in_cache ) {
+		$response = Client::wpcom_json_api_request_as_user( "/agency/blog/$blog_id" );
+		if ( wp_remote_retrieve_response_code( $response ) !== 200 ) {
+			$wpcom_agency_blog_data = null;
+		} else {
+			$wpcom_agency_blog_data = json_decode( wp_remote_retrieve_body( $response ) );
+		}
+
+		wp_cache_set( $cache_key, $wpcom_agency_blog_data, $cache_group, DAY_IN_SECONDS );
+	}
+
+	return $wpcom_agency_blog_data;
+}
+
+/**
+ * Whether the site is an agency site.
+ */
+function is_wpcom_agency_site() {
+	return (bool) get_wpcom_agency_blog_data();
+}
+
+/**
+ * Whether the site is an agency site for development.
+ */
+function is_wpcom_agency_dev_site() {
+	$blog_id      = get_wpcom_blog_id();
+	$blog_sticker = 'a4a-is-dev-site';
+	if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( $blog_sticker, $blog_id ) ) {
+		return true;
+	}
+
+	if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( $blog_sticker ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Whether the user is the owner of the agency site.
+ */
+function is_wpcom_agency_owner() {
+	return ! empty( get_wpcom_agency_blog_data() );
+}
 
 /**
  * Whether the site is fully managed agency site.

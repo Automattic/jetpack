@@ -444,7 +444,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load A4A features.
 	 */
 	public static function load_a4a_features() {
-		if ( ! get_option( 'is_a4a_dev_site' ) ) {
+		if ( ! is_wpcom_agency_site() ) {
 			return;
 		}
 

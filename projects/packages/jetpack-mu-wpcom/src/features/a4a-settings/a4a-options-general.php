@@ -14,32 +14,58 @@ require_once __DIR__ . '/../../utils.php';
  * Render the Agency settings.
  */
 function a4a_render_agency_settings() {
-	$is_fully_managed_agency_site_label = sprintf(
-		wp_kses(
-			/* translators: Placeholder is a link to a support document. */
-			__( 'Allow clients to use the <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Help Center ↗</a> and <a href="%1$s" target="_blank" rel="noopener noreferrer">hosting features ↗</a>.', 'jetpack-mu-wpcom' ),
-			array(
-				'a' => array(
-					'href'   => array(),
-					'target' => array(),
-					'rel'    => array(),
-				),
-			)
-		),
-		esc_url( 'https://wordpress.com/support/help-support-options/#how-to-contact-us' ),
-		esc_url( 'https://developer.wordpress.com/docs/developer-tools/web-server-settings/' )
-	);
+	if ( is_wpcom_agency_dev_site() ) {
+		$description = sprintf(
+			wp_kses(
+				/* translators: Placeholder is a link to a support document. */
+				__( 'Clients can\'t access the <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Help Center ↗</a> or <a href="%2$s" target="_blank" rel="noopener noreferrer">hosting features ↗</a> on development sites. You may configure access after the site is launched.', 'jetpack-mu-wpcom' ),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
+				)
+			),
+			esc_url( 'https://wordpress.com/support/help-support-options/#how-to-contact-us' ),
+			esc_url( 'https://developer.wordpress.com/docs/developer-tools/web-server-settings/' )
+		);
 
-	?>
-	<ul id="a4a-agency-settings">
-		<li>
-			<label>
-				<input name="is_fully_managed_agency_site" type="checkbox" value="1" <?php checked( is_fully_managed_agency_site(), true, false ); ?> />
+		?>
+		<p class="description">
+			<?php echo $description; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we escape things above. ?>
+			<a href="<?php echo esc_url( 'https://agencieshelp.automattic.com/knowledge-base/free-development-licenses-for-wordpress-com-hosting/' ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Learn more', 'jetpack-mu-wpcom' ); ?></a>.
+		</p>
+		<?php
+	} else {
+		$is_fully_managed_agency_site_label = sprintf(
+			wp_kses(
+				/* translators: Placeholder is a link to a support document. */
+				__( 'Allow clients to use the <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Help Center ↗</a> and <a href="%2$s" target="_blank" rel="noopener noreferrer">hosting features ↗</a>.', 'jetpack-mu-wpcom' ),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
+				)
+			),
+			esc_url( 'https://wordpress.com/support/help-support-options/#how-to-contact-us' ),
+			esc_url( 'https://developer.wordpress.com/docs/developer-tools/web-server-settings/' )
+		);
+
+		$is_fully_managed_agency_site_value = checked( is_fully_managed_agency_site(), true, false );
+
+		?>
+		<fieldset id="a4a-agency-settings">
+			<legend class="screen-reader-text"><?php esc_html_e( 'Agency settings', 'jetpack-mu-wpcom' ); ?></legend>
+			<label for="is_fully_managed_agency_site">
+				<input name="is_fully_managed_agency_site" type="checkbox" value="1" <?php $is_fully_managed_agency_site_value; ?> />
 				<?php echo $is_fully_managed_agency_site_label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we escape things above. ?>
 			</label>
-		</li>
-	</ul>
-	<?php
+		</fieldset>
+		<?php
+	}
 }
 
 /**
