@@ -18,7 +18,7 @@ class Simple_Delete implements Path_Action {
 			@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 			return false;
 		} else {
-			// Delete all files in the directory
+			// Delete a file in the directory
 			Logger::debug( 'unlink: ' . $file->getPathname() );
 			@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 			return true;
