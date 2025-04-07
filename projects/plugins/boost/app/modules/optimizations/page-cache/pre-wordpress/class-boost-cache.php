@@ -312,8 +312,7 @@ class Boost_Cache {
 			 * Only delete the cache for visitors who clicked "remember me".
 			 */
 			if ( isset( $parameters['cookies'] ) && ! empty( $parameters['cookies'] ) ) {
-				$filename = trailingslashit( get_permalink( $post->ID ) ) . Filesystem_Utils::get_request_filename( $parameters );
-				$this->delete_page( $filename );
+				$this->delete_page( get_permalink( $post->ID ), $parameters );
 			}
 			return;
 		}
@@ -473,13 +472,13 @@ class Boost_Cache {
 		}
 	}
 
-	public function rebuild_page( $path ) {
-		$this->storage->rebuild_page( $path );
+	public function rebuild_page( $path, $parameters = false ) {
+		$this->storage->rebuild_page( $path, $parameters );
 		$this->invalidate_cache_success( $path, 'rebuild', 'page' );
 	}
 
-	public function delete_page( $path ) {
-		$this->storage->delete_page( $path );
+	public function delete_page( $path, $parameters = false ) {
+		$this->storage->delete_page( $path, $parameters );
 		$this->invalidate_cache_success( $path, 'delete', 'page' );
 	}
 

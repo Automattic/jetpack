@@ -158,18 +158,42 @@ class File_Storage implements Storage {
 		return $path;
 	}
 
-	public function delete_page( $path ) {
+	/**
+	 * Delete the cache for a specific page.
+	 *
+	 * @param string $path - The path to delete the cache for.
+	 * @param array  $parameters - The parameters defining the cache filename.
+	 */
+	public function delete_page( $path, $parameters = false ) {
 		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
 
-		$result = Filesystem_Utils::iterate_files( $normalized_path, new Simple_Delete() );
+		if ( $parameters ) {
+			// If parameters are provided, use DELETE_FILE for specific file
+			$result = Filesystem_Utils::delete_file( $normalized_path . Filesystem_Utils::get_request_filename( $parameters ) );
+		} else {
+			// Otherwise use the default behavior
+			$result = Filesystem_Utils::iterate_files( $normalized_path, new Simple_Delete() );
+		}
 
 		return $result;
 	}
 
-	public function rebuild_page( $path ) {
+	/**
+	 * Rebuild the cache for a specific page.
+	 *
+	 * @param string $path - The path to rebuild the cache for.
+	 * @param array  $parameters - The parameters defining the cache filename.
+	 */
+	public function rebuild_page( $path, $parameters = false ) {
 		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
 
-		$result = Filesystem_Utils::iterate_files( $normalized_path, new Rebuild_File() );
+		if ( $parameters ) {
+			// If parameters are provided, use REBUILD_FILE for specific file
+			$result = Filesystem_Utils::rebuild_file( $normalized_path . Filesystem_Utils::get_request_filename( $parameters ) );
+		} else {
+			// Otherwise use the default behavior
+			$result = Filesystem_Utils::iterate_files( $normalized_path, new Rebuild_File() );
+		}
 
 		return $result;
 	}

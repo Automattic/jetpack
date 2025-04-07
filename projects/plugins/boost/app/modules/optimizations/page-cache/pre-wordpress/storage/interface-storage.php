@@ -14,9 +14,9 @@ interface Storage {
 	public function read( $request_uri, $parameters );
 	public function reset_rebuild_file( $request_uri, $parameters );
 
-	public function delete_page( $path );
+	public function delete_page( $path, $parameters = false );
 	public function delete_recursive( $path );
-	public function rebuild_page( $path );
+	public function rebuild_page( $path, $parameters = false );
 	public function rebuild_recursive( $path );
 
 	public function garbage_collect();
