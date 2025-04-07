@@ -267,7 +267,7 @@ input[type="checkbox"] {
 .checkbox:checked:before,
 input[type="checkbox"]:checked:before {
 	content: '\f147';
-	font-family: Dashicons;
+	font-family: dashicons;
 	margin: -3px 0 0 -4px;
 	float: left;
 	display: inline-block;
@@ -731,7 +731,7 @@ input[type="submit"].button-primary {
 
 .delete-option:before,
 .delete-field:before {
-	font-family: Dashicons;
+	font-family: dashicons;
 /*	content: "\f158"; /* This is the bolder X */
 	content: "\f335"; /* This is the thinner X */
 	display: inline-block;

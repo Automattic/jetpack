@@ -212,7 +212,7 @@ input[type="checkbox"] {
 
 input[type="checkbox"]:checked:before {
 	content: '\f147';
-	font-family: Dashicons;
+	font-family: dashicons;
 	margin: -3px 0 0 -4px;
 	float: left;
 	display: inline-block;
