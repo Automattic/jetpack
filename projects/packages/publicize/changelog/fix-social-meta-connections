@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Created an endpoint to retrieve the last keyring result

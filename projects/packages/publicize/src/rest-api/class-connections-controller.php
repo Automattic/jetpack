@@ -113,6 +113,25 @@ class Connections_Controller extends Base_Controller {
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/keyring-result',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_keyring_result' ),
+					'permission_callback' => array( $this, 'get_keyring_result_permissions_check' ),
+					'args'                => array(
+						'request_id' => array(
+							'type'        => 'string',
+							'required'    => true,
+							'description' => __( 'ID of the connection request.', 'jetpack-publicize-pkg' ),
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -485,5 +504,75 @@ class Connections_Controller extends Base_Controller {
 		$response->set_status( 201 );
 
 		return $response;
+	}
+
+	/**
+	 * Verify that the request has the access.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error
+	 */
+	public function get_keyring_result_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return $this->publicize_permissions_check() && get_current_user_id();
+	}
+
+	/**
+	 * Get the keyring result.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return WP_REST_Response The response object.
+	 */
+	public function get_keyring_result( $request ) {
+		if ( ! Publicize_Utils::is_wpcom() ) {
+			return rest_ensure_response(
+				$this->proxy_request_to_wpcom_as_user( $request, 'keyring-result' )
+			);
+		}
+
+		$response = array(
+			'code' => 'unknown',
+			'data' => null,
+		);
+
+		require_lib( 'external-connections' );
+
+		$external_connections = \WPCOM_External_Connections::init();
+
+		$data = $external_connections->get_last_keyring_token_details();
+
+		l( 'DATA', $data );
+
+		if ( ! $data ) {
+			$response['code'] = 'no_data_found';
+			return rest_ensure_response( $response );
+		}
+
+		$request_id = $request->get_param( 'request_id' );
+
+		$request_matches = $request_id && isset( $data['request_id'] ) && $data['request_id'] === $request_id;
+
+		if ( ! $request_matches ) {
+			$response['code'] = 'invalid_request_id';
+			return rest_ensure_response( $response );
+		}
+
+		$token_id = $data['token_id'] ?? null;
+
+		if ( ! $token_id ) {
+			$response['code'] = 'token_id_missing';
+			return rest_ensure_response( $response );
+		}
+
+		$data = $external_connections->get_keyring_connection_item( $token_id );
+
+		if ( ! $data ) {
+			$response['code'] = 'token_not_found';
+			return rest_ensure_response( $response );
+		}
+
+		$response['code'] = 'success';
+		$response['data'] = $data;
+		return rest_ensure_response( $response );
 	}
 }
