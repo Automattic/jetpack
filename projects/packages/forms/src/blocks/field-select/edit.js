@@ -68,8 +68,8 @@ export default function DropdownFieldEdit( props ) {
 
 	// Note: Border styles aren't rendered on the frontend select dropdown so are
 	// omitted from the styles applied to the dropdown options wrapper here.
-	const inputColorStyles = getColorClassesAndStyles( inputBlockAttributes );
-	const inputTypographyStyles = getTypographyClassesAndStyles( inputBlockAttributes );
+	const inputColorStyles = getColorClassesAndStyles( inputBlockAttributes ?? {} );
+	const inputTypographyStyles = getTypographyClassesAndStyles( inputBlockAttributes ?? {} );
 
 	const optionWrapperStyles = {
 		className: clsx(
