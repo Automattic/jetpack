@@ -1,6 +1,5 @@
 import { Plans, prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.js';
-import logger from '_jetpack-e2e-commons/logger.js';
 import { BlockEditorPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from '../../playwright.config.mjs';
 
@@ -18,23 +17,128 @@ test.beforeEach( async ( { browser } ) => {
 
 test.describe( 'Forms: Submission', () => {
 	test( 'Can submit a simple contact form', async ( { editor, page } ) => {
-		logger.sync( 'Creating new post' );
+		const formTitle = 'E2E Test Form';
+		await test.step( 'Visit the block editor and insert a form', async () => {
+			const blockEditor = await BlockEditorPage.visit( page );
+			await page.waitForURL( '**/post-new.php' );
+			await blockEditor.waitForEditor();
+			await blockEditor.closeWelcomeGuide();
+			await editor.insertBlock( {
+				name: 'jetpack/contact-form',
+				attributes: { formTitle },
+			} );
 
-		/**
-		 * @type {BlockEditorPage}
-		 */
-		const blockEditor = await BlockEditorPage.visit( page );
+			// TODO: Ideally it'd be possible to use `editor.canvas` from the `@wordpress/e2e-test-utils-playwright` package.
+			// This doesn't work for a non-iframed canvas - see https://github.com/WordPress/gutenberg/issues/69840.
+			const canvas = blockEditor.canvasPage.canvas();
+			const formBlock = canvas.getByRole( 'document', { name: 'Block: Form' } );
+			await formBlock.getByRole( 'button', { name: 'Add a contact form to your page.' } ).click();
 
-		await page.waitForURL( '**/post-new.php' );
-		await blockEditor.waitForEditor();
+			await expect( formBlock ).toBeVisible();
+		} );
 
-		logger.action( 'Close "Welcome to the block editor" dialog' );
-		await blockEditor.closeWelcomeGuide();
+		await test.step( 'Visit the post on the frontend and submit the form', async () => {
+			const editorPage = page;
+			const previewPage = await editor.openPreviewPage( editorPage );
 
-		logger.action( 'Insert a contact form' );
-		await editor.insertBlock( { name: 'jetpack/contact-form' } );
+			const form = previewPage.getByRole( 'form', { name: formTitle } );
+			await form.getByRole( 'textbox', { name: 'Name' } ).fill( 'John Doe' );
+			await form.getByRole( 'textbox', { name: 'Email' } ).fill( 'john@doe.com' );
+			await form.getByRole( 'textbox', { name: 'Message' } ).fill( 'Hello, world!' );
+			await form.getByRole( 'button', { name: 'Contact Us' } ).click();
 
-		const formBlock = editor.canvas.getByRole( 'document', { name: 'Block: Form' } );
-		await expect( formBlock ).toBeVisible();
+			await expect(
+				previewPage.getByRole( 'heading', { name: 'Your message has been sent' } )
+			).toBeVisible();
+			await expect( previewPage.getByText( 'John Doe' ) ).toBeVisible();
+			await expect( previewPage.getByText( 'john@doe.com' ) ).toBeVisible();
+			await expect( previewPage.getByText( 'Hello, world!' ) ).toBeVisible();
+		} );
+	} );
+
+	test( 'submits the correct from when multiple forms are on the same page', async ( {
+		editor,
+		page,
+	} ) => {
+		const contactFormInnerBlocks = [
+			{
+				name: 'jetpack/field-name',
+				attributes: { required: true },
+			},
+			{
+				name: 'jetpack/field-email',
+				attributes: { required: true },
+			},
+			{
+				name: 'jetpack/field-textarea',
+			},
+			{
+				name: 'jetpack/button',
+				attributes: { element: 'button', text: 'Contact Us' },
+			},
+		];
+
+		await test.step( 'Visit the block editor and insert three forms', async () => {
+			const blockEditor = await BlockEditorPage.visit( page );
+			await page.waitForURL( '**/post-new.php' );
+			await blockEditor.waitForEditor();
+			await blockEditor.closeWelcomeGuide();
+
+			await editor.insertBlock( {
+				name: 'jetpack/contact-form',
+				attributes: { formTitle: 'First form' },
+				innerBlocks: contactFormInnerBlocks,
+			} );
+			await editor.insertBlock( {
+				name: 'jetpack/contact-form',
+				attributes: { formTitle: 'Submit this form' },
+				innerBlocks: contactFormInnerBlocks,
+			} );
+			await editor.insertBlock( {
+				name: 'jetpack/contact-form',
+				attributes: { formTitle: 'Last form' },
+				innerBlocks: contactFormInnerBlocks,
+			} );
+
+			// TODO: Ideally it'd be possible to use `editor.canvas` from the `@wordpress/e2e-test-utils-playwright` package.
+			// This doesn't work for a non-iframed canvas - see https://github.com/WordPress/gutenberg/issues/69840.
+			const canvas = blockEditor.canvasPage.canvas();
+			const formBlock = canvas.getByRole( 'document', { name: 'Block: Form' } );
+			await expect( formBlock ).toHaveCount( 3 );
+		} );
+
+		await test.step( 'Visit the post on the frontend and submit one of the forms', async () => {
+			const editorPage = page;
+			const previewPage = await editor.openPreviewPage( editorPage );
+
+			const formToSubmit = previewPage.getByRole( 'form', { name: 'Submit this form' } );
+			// Get the form ID from the wrapping element, this will allow us to check the contents
+			// of the exact form that was submitted after submission.
+			const formId = await previewPage
+				.locator( '.wp-block-jetpack-contact-form-container' )
+				.filter( { has: formToSubmit } )
+				.getAttribute( 'id' );
+			await formToSubmit.getByRole( 'textbox', { name: 'Name' } ).fill( 'John Doe' );
+			await formToSubmit.getByRole( 'textbox', { name: 'Email' } ).fill( 'john@doe.com' );
+			await formToSubmit.getByRole( 'textbox', { name: 'Message' } ).fill( 'Hello, world!' );
+			await formToSubmit.getByRole( 'button', { name: 'Contact Us' } ).click();
+
+			// Check the correct form was submitted.
+			const submittedForm = previewPage.locator( `#${ formId }` );
+			await expect(
+				submittedForm.getByRole( 'heading', { name: 'Your message has been sent' } )
+			).toBeVisible();
+			await expect( submittedForm.getByText( 'John Doe' ) ).toBeVisible();
+			await expect( submittedForm.getByText( 'john@doe.com' ) ).toBeVisible();
+			await expect( submittedForm.getByText( 'Hello, world!' ) ).toBeVisible();
+
+			// Check the other forms were not submitted.
+			const firstForm = previewPage.getByRole( 'form', { name: 'First form' } );
+			await expect( firstForm.getByRole( 'textbox' ) ).toHaveCount( 3 );
+			await expect( firstForm.getByRole( 'button', { name: 'Contact Us' } ) ).toBeVisible();
+			const lastForm = previewPage.getByRole( 'form', { name: 'Last form' } );
+			await expect( lastForm.getByRole( 'textbox' ) ).toHaveCount( 3 );
+			await expect( lastForm.getByRole( 'button', { name: 'Contact Us' } ) ).toBeVisible();
+		} );
 	} );
 } );
