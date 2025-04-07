@@ -19,7 +19,10 @@ export const usePluginInstallation = ( slug, pluginPath, isInstalled, tracksEven
 		setIsInstalling( true );
 
 		if ( tracksEventName ) {
-			tracks.recordEvent( tracksEventName );
+			tracks.recordEvent( tracksEventName, {
+				screen: 'block-editor',
+				intent: isInstalled ? 'activate-plugin' : 'install-plugin',
+			} );
 		}
 
 		try {
