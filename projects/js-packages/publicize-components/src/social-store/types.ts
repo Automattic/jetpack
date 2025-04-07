@@ -15,6 +15,39 @@ export type Connection = {
 	wpcom_user_id: number;
 };
 
+export type KeyringResponse = {
+	code: 'success' | ( string & {} );
+	data: KeyringResult | null;
+};
+
+export type KeyringRequest = {
+	/**
+	 * Whether an API request is in flight.
+	 */
+	fetching?: boolean;
+
+	/**
+	 * Whether the polling is in progress, which includes
+	 * - the API request wait time
+	 * - the polling interval/delay
+	 */
+	polling?: boolean;
+
+	/**
+	 * The abort controller to cancel polling
+	 */
+	abortController?: AbortController;
+
+	response?: KeyringResponse;
+};
+
+export type KeyringData = {
+	lastRequest?: string;
+	requests?: {
+		[ requestId: string ]: KeyringRequest;
+	};
+};
+
 export type ConnectionData = {
 	connections: Connection[];
 	deletingConnections?: Array< number | string >;
@@ -66,6 +99,7 @@ export type SharePost = {
 
 export type SocialStoreState = {
 	connectionData: ConnectionData;
+	keyringData?: KeyringData;
 	shareStatus?: ShareStatus;
 	sharePost?: SharePost;
 };

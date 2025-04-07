@@ -1,4 +1,5 @@
 import * as connectionDataSelectors from './connection-data';
+import * as keyringDataSelectors from './keyring-data';
 import * as scheduledSharesSelectors from './scheduled-shares';
 import * as servicesSelectors from './services';
 import * as sharepostSelectors from './share-post';
@@ -9,6 +10,7 @@ import * as socialSettingsSelectors from './social-settings';
 
 const selectors = {
 	...connectionDataSelectors,
+	...keyringDataSelectors,
 	...shareStatusSelectors,
 	...sharepostSelectors,
 	...socialModuleSelectors,

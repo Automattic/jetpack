@@ -1,4 +1,5 @@
 import * as connectionData from './connection-data';
+import * as keyringData from './keyring-data';
 import * as pricingPageSettings from './pricing-page';
 import * as scheduledSharesActions from './scheduled-shares';
 import * as servicesActions from './services';
@@ -13,6 +14,7 @@ const actions = {
 	...shareStatus,
 	...sharePost,
 	...connectionData,
+	...keyringData,
 	...sigActions,
 	...utmActions,
 	...socialNoteSettings,
