@@ -532,11 +532,15 @@ body .sd-content ul li.share-custom a.share-icon span
 }
 
 body .sd-content ul li.share-custom a span[hidden] {
-    display: none;
+	display: none;
 }
 
-body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.no-text span {
-    display: none;
+body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.no-text span:not(.custom-sharing-span) {
+	display: none;
+}
+
+body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.no-text .custom-sharing-span {
+	color: transparent;
 }
 
 body .sd-social-icon .sd-content li.share-custom a span {
@@ -640,7 +644,6 @@ body .sd-social-icon .sd-content li.share-custom a span {
 
 .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-custom {
 	padding: 8px 8px 6px 8px;
-	top: 5px;
 }
 
 .sd-social-icon .sd-content ul li a.sd-button.share-more {

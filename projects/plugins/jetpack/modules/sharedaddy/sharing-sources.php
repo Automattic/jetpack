@@ -2341,7 +2341,10 @@ class Share_Custom extends Sharing_Advanced_Source {
 			'share=' . $this->id,
 			'sharing-custom-' . $post->ID
 		);
-		return str_replace( '<span>', '<span style="' . esc_attr( 'background-image:url("' . addcslashes( esc_url_raw( $this->icon ), '"' ) . '");' ) . '">', $str );
+
+		$style = 'background-image:url("' . addcslashes( esc_url_raw( $this->icon ), '"' ) . '");';
+		$class = ( 'icon' === $this->button_style ) ? ' class="custom-sharing-span"' : '';
+		return str_replace( '<span>', '<span' . $class . ' style="' . esc_attr( $style ) . '">', $str );
 	}
 
 	/**
