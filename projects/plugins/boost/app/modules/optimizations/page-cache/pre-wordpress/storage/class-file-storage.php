@@ -9,7 +9,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Manage_Expired;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Filter_Older;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Rebuild_File;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Simple_Delete;
 use SplFileInfo;
@@ -117,13 +117,13 @@ class File_Storage implements Storage {
 	/**
 	 * Garbage collect expired files.
 	 */
-	public function garbage_collect() {
-		if ( JETPACK_BOOST_CACHE_DURATION === 0 ) {
+	public function garbage_collect( $created_before = JETPACK_BOOST_CACHE_DURATION ) {
+		if ( $created_before === 0 ) {
 			// Garbage collection is disabled.
 			return false;
 		}
 
-		$count = Filesystem_Utils::iterate_directory( $this->root_path, new Manage_Expired( JETPACK_BOOST_CACHE_DURATION, new Rebuild_File() ) );
+		$count = Filesystem_Utils::iterate_directory( $this->root_path, new Filter_Older( $created_before, new Rebuild_File() ) );
 		if ( $count instanceof Boost_Cache_Error ) {
 			Logger::debug( 'Garbage collection failed: ' . $count->get_error_message() );
 			return false;
