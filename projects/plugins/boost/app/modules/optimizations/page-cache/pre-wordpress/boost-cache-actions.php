@@ -5,7 +5,6 @@
  */
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
 /**
@@ -73,31 +72,9 @@ function jetpack_boost_delete_cache_for_url( $url ) {
  */
 function jetpack_boost_delete_cache_by_post_id( $post_id ) {
 	$post = get_post( (int) $post_id );
-	if ( ! $post ) {
-		return;
-	}
-	static $already_deleted = -1;
-	if ( $already_deleted === $post->ID ) {
-		return;
-	}
 
-	/**
-	 * Don't invalidate the cache for post types that are not public.
-	 */
-	if ( ! Boost_Cache_Utils::is_visible_post_type( $post ) ) {
-		return;
-	}
-
-	$already_deleted = $post->ID;
-
-	/**
-	 * If a post is unpublished, the permalink will be deleted. In that case,
-	 * get_sample_permalink() will return a permalink with ?p=123 instead of
-	 * the post name. We need to get the post name from the post object.
-	 */
-	$permalink = get_permalink( $post->ID );
-	Logger::debug( "invalidate_cache_for_post: $permalink" );
+	Logger::debug( 'invalidate_cache_for_post: ' . $post->ID );
 
 	$boost_cache = new Boost_Cache();
-	$boost_cache->delete_page( $permalink );
+	$boost_cache->delete_post_cache( $post );
 }
