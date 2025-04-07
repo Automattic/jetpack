@@ -732,6 +732,7 @@ input[type="submit"].button-primary {
 .delete-option:before,
 .delete-field:before {
 	font-family: dashicons;
+
 /*	content: "\f158"; /* This is the bolder X */
 	content: "\f335"; /* This is the thinner X */
 	display: inline-block;
