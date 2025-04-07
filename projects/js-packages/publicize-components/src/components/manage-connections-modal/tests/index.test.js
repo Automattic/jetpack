@@ -11,11 +11,11 @@ jest.mock( '../../../hooks/use-user-can-share-connection', () => ( {
 } ) );
 
 describe( 'ManageConnectionsModal', () => {
-	let stubSetKeyringResult, stubGetKeyringResult;
+	let stubClearKeyringRequests, stubGetKeyringResult;
 
 	beforeEach( () => {
 		jest.clearAllMocks();
-		( { stubSetKeyringResult, stubGetKeyringResult } = setup() );
+		( { stubClearKeyringRequests, stubGetKeyringResult } = setup() );
 		jest.useFakeTimers();
 	} );
 
@@ -52,6 +52,6 @@ describe( 'ManageConnectionsModal', () => {
 			jest.runAllTimers();
 		} );
 
-		expect( stubSetKeyringResult ).toHaveBeenCalledWith( null );
+		expect( stubClearKeyringRequests ).toHaveBeenCalled();
 	} );
 } );

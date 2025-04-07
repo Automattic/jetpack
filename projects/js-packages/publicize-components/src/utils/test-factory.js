@@ -52,7 +52,9 @@ export const setup = ( {
 	const stubUpdateConnectionById = jest
 		.spyOn( dispatch.current, 'updateConnectionById' )
 		.mockReset();
-	const stubSetKeyringResult = jest.spyOn( dispatch.current, 'setKeyringResult' ).mockReset();
+	const stubClearKeyringRequests = jest
+		.spyOn( dispatch.current, 'clearKeyringRequests' )
+		.mockReset();
 	const stubCreateConnection = jest.spyOn( dispatch.current, 'createConnection' ).mockReset();
 
 	useSocialMediaConnections.mockReturnValue( {
@@ -63,7 +65,7 @@ export const setup = ( {
 		stubDeleteConnectionById,
 		stubUpdateConnectionById,
 		stubGetKeyringResult,
-		stubSetKeyringResult,
+		stubClearKeyringRequests,
 		stubCreateConnection,
 	};
 };
