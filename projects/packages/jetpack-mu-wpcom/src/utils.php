@@ -61,13 +61,6 @@ function is_wpcom_agency_dev_site() {
 }
 
 /**
- * Whether the user is the owner of the agency site.
- */
-function is_wpcom_agency_owner() {
-	return ! empty( get_wpcom_agency_blog_data() );
-}
-
-/**
  * Whether the site is fully managed agency site.
  *
  * @return bool True if the site is fully managed agency site.
