@@ -13,7 +13,8 @@
 #toplevel_page_vaultpress div.wp-menu-image:before {
 	content: '\f219';
 	font-size: 18px !important;
-	font-family: vaultpressregular, sans-serif !important;
+	/* stylelint-disable-next-line font-family-no-missing-generic-family-keyword -- this is a one-off icon font. */
+	font-family: vaultpressregular !important;
 }
 
 /**
