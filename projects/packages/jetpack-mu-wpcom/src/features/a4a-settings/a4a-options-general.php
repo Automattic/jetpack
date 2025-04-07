@@ -60,7 +60,7 @@ function a4a_render_agency_settings() {
 		<fieldset id="a4a-agency-settings">
 			<legend class="screen-reader-text"><?php esc_html_e( 'Agency settings', 'jetpack-mu-wpcom' ); ?></legend>
 			<label for="is_fully_managed_agency_site">
-				<input name="is_fully_managed_agency_site" type="checkbox" value="1" <?php $is_fully_managed_agency_site_value; ?> />
+				<input name="is_fully_managed_agency_site" type="checkbox" value="1" <?php echo $is_fully_managed_agency_site_value; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we escape things above. ?> />
 				<?php echo $is_fully_managed_agency_site_label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we escape things above. ?>
 			</label>
 		</fieldset>
