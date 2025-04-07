@@ -376,7 +376,7 @@ abstract class Sharing_Source {
 		$id_attr                 = $id ? esc_attr( $id ) : '';
 		$encoded_data_attributes = '';
 		if ( ! empty( $data_attributes ) ) {
-			// Check for arialabelled-by first, and separate this out.
+			// Check for aria-labelledby first, and separate this out.
 			if ( isset( $data_attributes['aria-labelledby'] ) ) {
 				$id_attr = $data_attributes['aria-labelledby'];
 				unset( $data_attributes['aria-labelledby'] );
@@ -2456,6 +2456,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 		$name = trim( wp_html_excerpt( wp_kses( stripslashes( $data['name'] ), array() ), 30 ) );
 		$url  = trim( esc_url_raw( $data['url'] ) );
 		$icon = trim( esc_url_raw( $data['icon'] ) );
+
 		if ( $name ) {
 			$this->name = $name;
 		}

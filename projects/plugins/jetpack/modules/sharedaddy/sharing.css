@@ -135,6 +135,10 @@ body.highlander-dark h3.sd-title:before {
 	margin-left: 0;
 }
 
+body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.no-text span:not(.custom-sharing-span) {
+	display: none;
+}
+
 /* Text Only */
 .sd-social-text .sd-content ul li a.sd-button span {
 	margin-left: 3px;
@@ -566,10 +570,6 @@ body .sd-content ul li.share-custom a.share-icon span
 }
 
 body .sd-content ul li.share-custom a span[hidden] {
-	display: none;
-}
-
-body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.no-text span:not(.custom-sharing-span) {
 	display: none;
 }
 
