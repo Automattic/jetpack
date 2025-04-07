@@ -126,7 +126,7 @@ const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
 									<p className="myjetpack-onboarding-welcome-tour__text">
 										{ createInterpolateElement(
 											__(
-												'Install the Jetpack app for iOS or Android and stay connected to your site from anywhere!<br />We sent you an email with the download link.',
+												'Install the Jetpack app for iOS or Android and stay connected to your site from anywhere!<br /><br />We sent you an email with the download link.',
 												'jetpack-my-jetpack'
 											),
 											{

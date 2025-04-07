@@ -29,6 +29,7 @@ $tour-footer-spacing: 16px;
             line-height: 1.4;
             margin: 0 0 $grid-unit-30 0;
             padding: 0 $grid-unit-20;
+            min-height: 74px; // avoid layout shift when the text is short
         }
 
         .components-modal__header {
