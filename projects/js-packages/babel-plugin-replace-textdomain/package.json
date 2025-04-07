@@ -6,6 +6,15 @@
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Babel Plugin Replace Textdomain"
 	},
+	"keywords": [
+		"babel",
+		"plugin",
+		"babel-plugin",
+		"wordpress",
+		"gettext",
+		"i18n",
+		"textdomain"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
