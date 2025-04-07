@@ -107,7 +107,7 @@
 }
 
 .wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional .widget-conditional-inner a.dashicons {
-	font-family: dashicons, sans-serif;
+	font-family: dashicons;
 }
 
 .wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional-inner select {

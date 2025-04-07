@@ -14,7 +14,7 @@
 #menu-posts-nova_menu_item:before,
 #dashboard_right_now .nova-menu-count a:before,
 #dashboard_right_now .nova-menu-count span:before {
-	font-family: nova-font, sans-serif;
+	font-family: nova-font;
 	speak: none;
 	font-style: normal;
 	font-weight: 400;

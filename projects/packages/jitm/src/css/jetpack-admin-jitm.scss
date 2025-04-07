@@ -504,7 +504,7 @@ $jp-gray-20:             #a7aaad;
 
 	&::before {
 		color: darken($gray, 20%);
-		font: 400 20px/1 dashicons, sans-serif;
+		font: 400 20px/1 dashicons;
 		content: '\f335';
 	}
 

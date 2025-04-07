@@ -1,6 +1,6 @@
 i.mce-i-grunion {
 	font-size: 20px;
-	font-family: dashicons, sans-serif;
+	font-family: dashicons;
 }
 
 i.mce-i-grunion:before,
@@ -14,5 +14,5 @@ i.mce-i-grunion:before,
 	vertical-align: text-top;
 	display: inline-block;
 	height: 18px;
-	font: 18px/1 dashicons, sans-serif;
+	font: 18px/1 dashicons;
 }

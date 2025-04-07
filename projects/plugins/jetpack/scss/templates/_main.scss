@@ -188,7 +188,7 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		font: 300 em(24px) genericons, sans-serif !important;
+		font: 300 em(24px) genericons !important;
 		color: #777;
 		content: '\f405';
 		display: inline-block;
@@ -604,7 +604,7 @@
 		&:before {
 			color: #fff;
 			content: '\f418';
-			font-family: Genericons, sans-serif;
+			font-family: Genericons;
 			font-size: 33px;
 			height: 33px;
 			left: 25px;
