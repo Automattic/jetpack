@@ -3,7 +3,7 @@ import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.js';
 import { BlockEditorPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from '../../playwright.config.mjs';
 
-test.beforeEach( async ( { browser } ) => {
+test.beforeAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );
 	await prerequisitesBuilder( page )
 		.withCleanEnv()
@@ -13,6 +13,34 @@ test.beforeEach( async ( { browser } ) => {
 		.withPlan( Plans.Free )
 		.build();
 	await page.close();
+} );
+
+test.afterEach( async ( { requestUtils } ) => {
+	// List all feedback submissions.
+	// https://developer.wordpress.org/rest-api/reference/posts/#list-posts
+	const feedbackSubmissions = await requestUtils.rest( {
+		path: '/wp/v2/feedback',
+		params: {
+			per_page: 100,
+			// All possible statuses.
+			status: 'publish,future,draft,pending,private,trash',
+		},
+	} );
+
+	// Delete all feedback submissions one by one.
+	// https://developer.wordpress.org/rest-api/reference/posts/#delete-a-post
+	// "/wp/v2/feedback" does not yet support batch requests.
+	await Promise.all(
+		feedbackSubmissions.map( feedback =>
+			requestUtils.rest( {
+				method: 'DELETE',
+				path: `/wp/v2/feedback/${ feedback.id }`,
+				params: {
+					force: true,
+				},
+			} )
+		)
+	);
 } );
 
 test.describe( 'Forms: Submission', () => {
