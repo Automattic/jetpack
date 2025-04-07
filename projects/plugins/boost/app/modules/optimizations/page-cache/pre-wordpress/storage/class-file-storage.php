@@ -117,10 +117,14 @@ class File_Storage implements Storage {
 	/**
 	 * Garbage collect expired files.
 	 */
-	public function garbage_collect( $created_before = JETPACK_BOOST_CACHE_DURATION ) {
+	public function garbage_collect( $created_before = null ) {
 		if ( $created_before === 0 ) {
 			// Garbage collection is disabled.
 			return false;
+		}
+
+		if ( $created_before === null ) {
+			$created_before = time() - JETPACK_BOOST_CACHE_DURATION;
 		}
 
 		$count = Filesystem_Utils::iterate_directory( $this->root_path, new Filter_Older( $created_before, new Rebuild_File() ) );

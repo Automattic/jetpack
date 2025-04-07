@@ -13,9 +13,17 @@ class Garbage_Collection {
 	 * Register hooks.
 	 */
 	public static function setup() {
-		$cache = new Boost_Cache();
-		add_action( self::ACTION, array( $cache->get_storage(), 'garbage_collect' ) );
+		add_action( self::ACTION, array( self::class, 'garbage_collect' ) );
 		add_action( self::ACTION, array( Logger::class, 'delete_old_logs' ) );
+	}
+
+	public static function schedule_single_garbage_collection() {
+		wp_schedule_single_event( time(), self::ACTION, array( 'created_before' => time() ) );
+	}
+
+	public static function garbage_collect( $created_before = null ) {
+		$cache = new Boost_Cache();
+		$cache->get_storage()->garbage_collect( $created_before );
 	}
 
 	/**

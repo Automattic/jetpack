@@ -15,5 +15,5 @@ interface Storage {
 	public function reset_rebuild_file( $request_uri, $parameters );
 
 	public function clear( $path, $args = array() );
-	public function garbage_collect();
+	public function garbage_collect( $created_before );
 }
