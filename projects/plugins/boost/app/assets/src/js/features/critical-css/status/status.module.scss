@@ -48,6 +48,7 @@
 	}
 
 	button {
+
 		&:global(.components-button.has-icon) {
 			min-width: auto;
 		}
@@ -58,6 +59,7 @@
 	}
 
 	.regenerate-button:global(.components-button) {
+
 		&:disabled {
 			background: transparent;
 			opacity: .5;

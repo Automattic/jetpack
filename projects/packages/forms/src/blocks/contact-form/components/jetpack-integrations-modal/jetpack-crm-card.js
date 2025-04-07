@@ -25,6 +25,10 @@ const JetpackCRMCard = ( {
 
 	const cardData = {
 		...data,
+		showHeaderToggle: true,
+		headerToggleValue: jetpackCRM,
+		isHeaderToggleEnabled: true,
+		onHeaderToggleChange: value => setAttributes( { jetpackCRM: value } ),
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_crm_click',

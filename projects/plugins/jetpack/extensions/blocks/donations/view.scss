@@ -1,14 +1,16 @@
 @use "sass:math";
-
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 @import './common';
 @import '../../shared/memberships';
 
 .wp-block-jetpack-donations {
+
 	@keyframes spinner {
+
 		from {
 			transform: rotate( 0deg );
 		}
+
 		to {
 			transform: rotate( 360deg );
 		}
@@ -53,6 +55,7 @@
 	}
 
 	.donations__tab.is-one-time {
+
 		.donations__monthly-item,
 		.donations__annual-item {
 			display: none;
@@ -60,12 +63,15 @@
 	}
 
 	.donations__tab.is-monthly {
+
 		.donations__one-time-item,
 		.donations__annual-item {
 			display: none;
 		}
 	}
+
 	.donations__tab.is-annual {
+
 		.donations__one-time-item,
 		.donations__monthly-item {
 			display: none;

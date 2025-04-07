@@ -4,7 +4,9 @@
  * Allow to apply the modern scheme to elements.
  */
 #wpadminbar {
+
 	.admin-color-modern {
+
 		@include admin-scheme(#3858e9);
 	}
 }
@@ -27,11 +29,14 @@
  * Hides certain icons on smaller viewports.
  */
 @media (max-width: 480px) {
+
 	#wpadminbar #wp-admin-bar-new-content {
 		display: none !important;
 	}
 }
+
 @media (max-width: 360px) {
+
 	#wpadminbar .wp-admin-bar-reader {
 		display: none !important;
 	}
@@ -41,6 +46,7 @@
  * Hamburger menu
  */
 #wpadminbar #wp-admin-bar-menu-toggle>.ab-item .ab-icon {
+
 	@media (max-width: 480px) {
 		width: 48px;
 	}
@@ -56,6 +62,7 @@
 		padding: 0;
 	}
 }
+
 #wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon {
 	margin-right: 0 !important;
 
@@ -63,6 +70,7 @@
 		width: 44px;
 	}
 }
+
 #wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon:before {
 	display: flex;
 	content: "";
@@ -84,9 +92,11 @@
 	}
 
 }
+
 #wpadminbar #wp-admin-bar-wpcom-logo:not(:first-child) {
 	// Site admin on mobile viewport (the first child is the hamburger menu)
 	@media (max-width: 480px) {
+
 		>.ab-item .ab-icon:before {
 			margin: 0 7px 0 5px;
 		}
@@ -94,7 +104,9 @@
 }
 
 #wpadminbar #wp-admin-bar-site-name {
+
     > .ab-item:before {
+
         /**
     	 * Always show the House icon by the site name.
     	 */
@@ -102,6 +114,7 @@
     }
 
 	@media (max-width: 480px) {
+
         > a.ab-item,
 		> a.ab-item:before {
     		width: 46px;
@@ -116,6 +129,7 @@
 	// Add background color to the right side of the admin bar for the mobile view
 	.quicklinks {
 		background-color: inherit;
+
 		#wp-admin-bar-top-secondary {
 			background-color: inherit;
 		}
@@ -123,6 +137,7 @@
 
 	// Move the secondary admin bar to the left side if the site is RTL.
 	body.rtl & {
+
 		#wp-admin-bar-top-secondary {
 			left: 0;
 			right: inherit;
@@ -135,13 +150,16 @@
 		right: 0;
 
 		@media (max-width: 600px) {
+
 			&.ab-top-menu > .menupop > .ab-sub-wrapper {
 				left: unset;
 			}
 		}
 
 		#wp-admin-bar-my-account {
+
 			.ab-item {
+
 				> .display-name {
 					color: currentColor;
 				}
@@ -211,6 +229,7 @@
 
 		/* Reader menu item */
 		#wp-admin-bar-reader {
+
 			.ab-item {
 				padding: 0px;
 			}
@@ -241,6 +260,7 @@
 		}
 
 		#wp-admin-bar-cart {
+
 			.cart-icon__dot {
 				margin-left: 17px;
 				position: absolute;
@@ -343,6 +363,7 @@
 			#wp-admin-bar-notes {
 				display: block !important;
 				width: 52px !important;
+
 				.ab-item {
 					justify-content: center;
 
@@ -367,7 +388,9 @@
 				}
 			}
 		}
+
 		@media (max-width: 480px) {
+
 			#wp-admin-bar-reader {
 				width: 46px;
 
@@ -375,13 +398,17 @@
 					max-width: 40px;
 				}
 			}
+
 			#wp-admin-bar-help-center {
 				width: 46px !important;
 			}
+
 			#wp-admin-bar-notes {
 				width: 46px !important;
 			}
+
 			#wp-admin-bar-my-account {
+
 				.ab-item {
 					width: 46px;
 

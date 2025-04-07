@@ -24,6 +24,7 @@
         position: absolute;
         right: calc(var(--spacing-base) * 3);
         width: calc(57% - (var(--spacing-base) * 3));
+
         div {
             font-size: var(--font-body-extra-small);
             line-height: var(--font-body);
@@ -33,6 +34,7 @@
     }
 
     @media ( max-width: 480px ) {
+
         &__last-scan {
             width: calc(53% - (var(--spacing-base) * 3));
         }
@@ -63,6 +65,7 @@
 }
 
 .scan-threats {
+
     &__threat-count {
         font-size: calc(var(--font-title-large) - 4px);
         line-height: var(--font-title-large);
@@ -77,6 +80,7 @@
 
     &__critical-threat-container {
         margin-left: 1px;
+
         > button > svg {
             fill: var(--jp-red-50);
         }
@@ -89,6 +93,7 @@
 }
 
 .logins_blocked {
+
     &__count {
         font-size: calc(var(--font-headline-small) - 4px);
         line-height: var(--font-title-large);

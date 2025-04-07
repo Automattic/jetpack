@@ -11,6 +11,7 @@
 	}
 	
 	@supports ( display: grid ) {
+
 		> * + * {
 			margin-top: 0;
 		}

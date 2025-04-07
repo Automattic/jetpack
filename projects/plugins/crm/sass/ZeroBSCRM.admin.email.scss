@@ -11,22 +11,26 @@ html,body{
 .ui.inverted.menu .grey.active.item, .ui.inverted.grey.menu {
     background-color: #2d3133;
 }
+
 .nav-men .label{
     position: absolute;
     right: 10px;
     top: 6px;
 }
+
 .inbox-wrap, .inbox-nav{
     min-height:100%;
     height: calc(100vh - 110px);
     padding-bottom: 0px !important;
     margin-bottom: 0px !important;
 }
+
 .inbox-wrap {
     background:white;
     height: 100%; margin: 0px; padding: 0px;
 
     .ui.menu.inverted.inbox-nav {
+
         a.item.active, a.item:hover {
             background: #e0e0e0;
         }
@@ -36,6 +40,7 @@ html,body{
 #wpbody-content{
     padding-bottom:0px;
 }
+
 .ui.vertical.menu {
     width: 15%;
     border-radius: 0px;
@@ -72,9 +77,11 @@ html,body{
     display:none;
     border-left: 1px solid #dededf;
 }
+
 .item{
     border-radius: 0% !important;
 }
+
 .zbs-email-list img, .zbs-email-list .zbs-default-avatar{
     width:25px;
     border-radius:50%;
@@ -82,6 +89,7 @@ html,body{
     margin-right:5px;
     height:auto;
 }
+
 .zbs-email-list-item{
     max-height:100px;
     height:100px;
@@ -112,10 +120,12 @@ html,body{
     float: left;
     margin-right: 8px;
 }
+
 .zbs-contact{
     width: 100%;
     height: 30px;
 }
+
 .the_content{
     padding: 10px 0px 10px 0px;
     color: #787e7d;
@@ -124,16 +134,20 @@ html,body{
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .header{
     font-weight: 500 !important;
 }
+
 .zbs-who{
     line-height: 30px;
     font-weight: 900;
     font-size: 16px;
 }
+
 .push-down{
    bottom: 0px;
+
    /* wh fix to put at bottom even when not fullscreen
    position:fixed !important;
    left: 0px;
@@ -142,6 +156,7 @@ html,body{
     left: 0px;
     width: 100%;
 }
+
 .zbs-ajax-loading{
     text-align: center;
     margin-top: 250px;
@@ -151,27 +166,33 @@ html,body{
     display:none;
     width:25%;
 }
+
 .spinner-gif{
     display:none;
 }
+
 .click-email-to-load{
     color: #ccc;
     font-size:18px;
     margin-top:-50px;
 }
+
 .zbs-email-list-item{
     border-top: 0px solid white !important;
     border-bottom: 1px solid #dededf;
 }
+
 .zbs-click-email-icon{
     font-size: 10px;
     font-weight: 100;
     margin-bottom: -30px;
 }
+
 .click-email{
     font-size:20px;
     margin-top:-10px;
 }
+
 .spinner-gif{
     margin-top:-55px;
 }
@@ -180,6 +201,7 @@ html,body{
     width: 0px;  /* remove scrollbar space */
     background: transparent;  /* optional: just make scrollbar invisible */
 }
+
 /* optional: show position indicator in red */
 .zbs-email-list::-webkit-scrollbar-thumb, #zbs-email-body::-webkit-scrollbar-thumb {
     background: #FF0000;
@@ -188,6 +210,7 @@ html,body{
 .customer-panel-header{
     text-align:center;
 }
+
 .customer-panel-header img, .customer-panel-header .zbs-default-avatar{
     padding:20px;
     border-radius:50%;
@@ -199,12 +222,14 @@ html,body{
     font-weight:900;
     margin-top:-15px;
 }
+
 .Customer{
     background-color: #21ba45!important;
     border-color: #21ba45!important;
     color: #fff!important;
     margin-top: 5px !important;
 }
+
 .Lead{
     background-color: #2085d0 !important;
     color: white !important;
@@ -216,6 +241,7 @@ html,body{
     font-size: 16px;
     text-align: center;
 }
+
 .total-paid-wrap .cell{
     width:50%;
     float:left;
@@ -223,19 +249,23 @@ html,body{
     color: black;
     font-weight: 900;
 }
+
 .simple-actions{
     color: white !important; 
     margin-top:15px;
 }
+
 .simple-actions .label{
     background: #ccc;
     margin-left:10px;
 }
+
 .simple-actions .label .icon {
 margin: 0px;
 font-size: 12px;
 color: white;
 }
+
 .panel-h4{
     margin-left:0px;
     margin-top:20px;
@@ -243,28 +273,34 @@ color: white;
     text-transform:uppercase;
     font-size:15px;
 }
+
 .customer-panel-task-summary{
     text-align:center;
     margin-top:20px;
     margin-bottom:20px;
 }
+
 .task-cell{
     width: 33%;
     float: left;
 }
+
 .the-number{
     font-weight:900;
     color:black;
     font-size:18px;
 }
+
 .the-type{
     color: #798b95;
 }
+
 .cell .heading{
     color: #798b98;
 font-size: 14px;
 font-weight:300;
 }
+
 .the-tasks{
     text-align:left;
     padding-left:20px;
@@ -292,19 +328,23 @@ font-weight:300;
     overflow-y: scroll;
     padding-top: 40px;
     border-top: 1px solid #dededf;
+
     img{
         max-width:90%;
         margin-left:5%;
     }
+
     .zbs-email-date{
         color: #ccc;
     }
+
     .zbs-email-subject{
         font-size:24px;
         color:black;
         margin-top:0px;
         font-weight:900;
     }
+
     .zbs-email-body-content{
         font-size: 15px;
         line-height: 19px;
@@ -314,6 +354,7 @@ font-weight:300;
         position:relative;
         min-height:40px;
     }
+
     .zbs-email-read-date{
         position: absolute;
         bottom: 10px;
@@ -321,6 +362,7 @@ font-weight:300;
         font-weight: 900;
         color: #807e7d;
     }
+
     .zbs-email-actions{
         color: #7b8587;
         position: absolute;
@@ -342,15 +384,18 @@ font-weight:300;
 }
 
 .zbs-contact{
+
     .zbs-open{
         float:right;
     }
 }
 
 .zbs-email-thread{
+
     .zbs-message{
         position:relative;
     }
+
     .sent{
         background: #efefef;
         padding:5px;
@@ -359,6 +404,7 @@ font-weight:300;
         float: right;
         padding-left:10px;
     }
+
     .avatar-inbox{
         width: 35px;
         height: 35px;
@@ -366,6 +412,7 @@ font-weight:300;
         margin-top: 12px;
         border-radius: 50%;
     }
+
     .avatar-sent{
         width: 35px;
         height: 35px;
@@ -373,6 +420,7 @@ font-weight:300;
         margin-top: 12px;
         border-radius: 50%;
     }
+
     .pointerinbox{
         border: solid 6px transparent;
         border-left-color: #e7f3fd;
@@ -380,6 +428,7 @@ font-weight:300;
         right: -12px;
         top: 10px;
     }
+
     .pointersent{
         border: solid 6px transparent;
         border-right-color: #efefef;
@@ -389,6 +438,7 @@ font-weight:300;
     }
 
     .email-avatar{
+
         img{
             border-radius:50%;
             max-width:100% !important;
@@ -435,6 +485,7 @@ font-weight:300;
 #zbs-send-single-email .input{
     width:100% !important;
 }
+
 .mce-content-body{
     font-size:13px !important;
 }
@@ -442,6 +493,7 @@ font-weight:300;
 .reply-sent{
     font-size:30px;
     margin-top:-60px;
+
     h3{
         font-size: 18px;
         margin-top: 6px;
@@ -450,15 +502,18 @@ font-weight:300;
 }
 
 #zbs-email-body{
+
     .zbs-email-subject{
         display:none;
     }
+
     .em-sub-0{
         display:block;
     }
 }
 
 .zbs-email-body-content{
+
     ul{
         list-style-type: disc !important;
         margin-left: 20px;
@@ -469,6 +524,7 @@ font-weight:300;
     text-align:left;
     padding-left:20px;
     color: #798b95;
+
     .icon{
         color: #b6bac4;
     }
@@ -486,9 +542,11 @@ font-weight:300;
     font-weight: 900;
     color: black;
     border-right: 7px solid #f25333;
+
     .header{
         font-weight: 900 !important;
     }
+
     .the_content{
         color:black;
     }
@@ -509,6 +567,7 @@ font-weight:300;
     font-size:13px;
     text-align:right;
     color: #ccc;
+
     .bold{
         font-weight:900;
     }

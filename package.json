@@ -26,6 +26,7 @@
 		"php:lint": "composer phpcs:lint",
 		"prepare": "husky",
 		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,svelte,json,json5}\"",
+		"typecheck": "pnpm --recursive --if-present --no-bail run typecheck",
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {

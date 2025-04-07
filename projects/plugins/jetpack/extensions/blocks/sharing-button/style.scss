@@ -53,22 +53,39 @@ a.jetpack-sharing-button__button {
 		color: #fff;
 
 		&.share-bluesky { background: var( --color-bluesky ); }
+
 		&.share-x { background: #000; }
+
 		&.share-print { background: #c5c2c2; }
+
 		&.share-reddit { background: var( --color-reddit ); }
+
 		&.share-skype { background: var( --color-skype ); }
+
 		&.share-facebook { background: var( --color-facebook ); }
+
 		&.share-linkedin { background: var( --color-linkedin ); }
+
 		&.share-mail { background: #c5c2c2; }
+
 		&.share-twitter { background: var( --color-twitter ); }
+
 		&.share-tumblr { background: var( --color-tumblr ); }
+
 		&.share-pinterest { background: var( --color-pinterest ); }
+
 		&.share-pocket { background: var( --color-pocket ); }
+
 		&.share-telegram { background: var( --color-telegram ); }
+
 		&.share-threads { background: var( --color-threads ); }
+
 		&.share-whatsapp { background: var( --color-whatsapp ); }
+
 		&.share-mastodon { background: var( --color-mastodon ); }
+
 		&.share-nextdoor { background: var( --color-nextdoor ); }
+
 		&.share-share { background: #000; }
 	}
 
@@ -98,6 +115,7 @@ a.jetpack-sharing-button__button {
 	gap: 5px;
 
 	&:first-child {
+
 		.jetpack-sharing-button__button {
 			margin-inline-start: 0px;
 		}

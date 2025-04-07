@@ -12,17 +12,6 @@ const baseConfig = {
 				ignorePseudoClasses: [ 'export', 'global' ],
 			},
 		],
-		// Disabled for a very short while.
-		'at-rule-empty-line-before': null,
-		'block-no-empty': null,
-		'comment-empty-line-before': null,
-		'rule-empty-line-before': null,
-		'scss/at-else-closing-brace-newline-after': null,
-		'scss/at-else-closing-brace-space-after': null,
-		'scss/at-else-empty-line-before': null,
-		'scss/at-if-closing-brace-newline-after': null,
-		'scss/at-if-closing-brace-space-after': null,
-		'scss/operator-no-unspaced': null,
 
 		// Disable all other rules for now.
 		'color-hex-length': null,

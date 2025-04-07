@@ -247,19 +247,24 @@
 }
 
 @keyframes messageAppear {
+
 	from {
 		opacity: 0;
 		transform: translateY(10px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateY(0);
 	}
 }
+
 @keyframes assistantInputAppear {
+
 	from {
 		opacity: 0;
 	}
+
 	to {
 		opacity: 1;
 	}
@@ -267,15 +272,21 @@
 
 // Keep this around for magic:
 @keyframes typing-blink {
+
 	30% { cy: 30; }
+
 	50% { cy: 25; fill: lightgrey }
+
 	70% { cy: 30; }
 }
+
 .typing-dot {
 	animation: 1s typing-blink linear infinite;
 	fill: grey;
 }
+
 .typing-dot:nth-child(2) { animation-delay: 150ms }
+
 .typing-dot:nth-child(3) { animation-delay: 250ms }
 
 .typing-loader {

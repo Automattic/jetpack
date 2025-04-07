@@ -22,18 +22,21 @@
 	}
 
 	&.dops-external-link {
+
 		.dops-external-link__text {
 			box-shadow: $resting-shadow;
 		}
 
 		&:hover,
 		&:active {
+
 			.dops-external-link__text {
 				box-shadow: $hover-shadow;
 			}
 		}
 
 		&:focus {
+
 			.dops-external-link__text {
 				box-shadow: none !important;
 			}
@@ -54,6 +57,7 @@
 	}
 
 	@if $has-focus-state {
+
 		&:focus {
 			border-radius: 2px;
 			box-shadow: none !important;

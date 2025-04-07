@@ -10,15 +10,19 @@
 	}
 
 	&.wp-amp-block {
+
 		& > .wp-block-jetpack-slideshow_container {
 			opacity: 1;
 		}
 	}
+
 	&.wp-amp-block.wp-block-jetpack-slideshow__autoplay {
+
 		&.wp-block-jetpack-slideshow__autoplay-playing .wp-block-jetpack-slideshow_button-pause,
 		.wp-block-jetpack-slideshow_button-play {
 			display: block;
 		}
+
 		&.wp-block-jetpack-slideshow__autoplay-playing .wp-block-jetpack-slideshow_button-play {
 			display: none;
 		}
@@ -46,6 +50,7 @@
 			margin: 0;
 			line-height: normal;
 		}
+
 		ul.wp-block-jetpack-slideshow_swiper-wrapper {
 			display: flex;
 		}
@@ -55,6 +60,7 @@
 		display: flex;
 		height: 100%;
 		width: 100%;
+
 		figure {
 			align-items: center;
 			display: flex;
@@ -63,6 +69,7 @@
 			margin: 0;
 			position: relative;
 			width: 100%;
+
 			.wp-block-jetpack-slideshow_image {
 				pointer-events: none;
 				user-select: none;
@@ -193,6 +200,7 @@
 		right: 0;
 		text-align: initial;
 		z-index: 1;
+
 		a {
 			color: inherit;
 		}
@@ -252,6 +260,7 @@
 
 .wp-block-jetpack-slideshow_pagination.amp-pagination {
 	text-align: center;
+
 	.swiper-pagination-bullet {
 		margin: 0 4px;
 		border-radius: 100%;
@@ -262,7 +271,9 @@
 }
 
 @media ( min-width: $break-small ) {
+
 	.wp-block-jetpack-slideshow {
+
 		.wp-block-jetpack-slideshow_button-prev,
 		.wp-block-jetpack-slideshow_button-next {
 			display: block;
@@ -271,23 +282,27 @@
 }
 
 .is-email {
+
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_container {
 		overflow: visible;
 		opacity: 1;
 		width: auto;
 		height: auto;
 	}
+
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_container ul.wp-block-jetpack-slideshow_swiper-wrapper,
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_slide figure {
 		display: block;
 		margin-bottom: 12px;
 	}
+
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_container ul.wp-block-jetpack-slideshow_swiper-wrapper,
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_slide {
 		list-style: none;
 		margin-left: auto;
 		margin-right: auto;
 	}
+
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_slide {
 		display: inline-block;
 		width: 42%;
@@ -296,6 +311,7 @@
 		height: auto;
 		vertical-align: top;
 	}
+
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_caption.gallery-caption {
 		position: relative;
 		inset-inline-end: auto;

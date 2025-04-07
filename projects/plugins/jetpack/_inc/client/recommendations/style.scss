@@ -41,6 +41,7 @@
 }
 
 .jp-recommendations-question__sidebar {
+
 	@include recommendation-sidebar-blob;
 
 	@include breakpoint( '<1040px' ) {

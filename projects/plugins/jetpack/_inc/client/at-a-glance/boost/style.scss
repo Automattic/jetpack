@@ -13,6 +13,7 @@ $border: 1px solid $gray-5;
 }
 
 .boost-grade-info {
+
     &__grades-description {
         margin-top: 0;
     }
@@ -24,12 +25,14 @@ $border: 1px solid $gray-5;
 }
 
 .boost-conversion-loss-info {
+
     &__source {
         margin: 0;
     }
 }
 
 .boost-critical-css-info {
+
     &__title {
         margin-top: 0;
     }

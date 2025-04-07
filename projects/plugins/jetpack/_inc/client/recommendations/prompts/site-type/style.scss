@@ -25,6 +25,7 @@
 	}
 
 	.dops-button {
+
 		@include breakpoint( '<480px' ) {
 			width: 100%;
 		}

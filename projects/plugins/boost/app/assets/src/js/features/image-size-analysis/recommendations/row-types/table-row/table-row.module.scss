@@ -39,6 +39,7 @@
 	}
 
 	&:last-child {
+
 		@include bottom-border-radius;
 	}
 }
@@ -46,21 +47,25 @@
 // Expanded view, but not the one at the very top.
 .table-row-container + .table-row-container.expanded {
 	margin-top: var(--expanded-gap);
+
 	@include top-border-radius;
 }
 
 // The row after the expanded view.
 .expanded + .table-row-container {
+
 	@include top-border-radius;
 }
 
 // The row before the expanded view.
 .table-row-container:has(+ .expanded) {
+
 	@include bottom-border-radius;
 }
 
 .table-row-container.expanded {
 	margin-bottom: var(--expanded-gap);
+
 	@include bottom-border-radius;
 }
 
@@ -68,7 +73,9 @@
 	cursor: pointer;
 	text-align: center;
 	grid-column: expand;
+
 	.expanded & {
+
 		svg {
 			transform: rotate(180deg);
 		}
@@ -82,6 +89,7 @@
 	padding-left: calc(var(--thumbnail-size) + var(--gap) * 2);
 
 	.expanded & {
+
 		@include bottom-border-radius;
 	}
 

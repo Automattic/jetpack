@@ -1,6 +1,7 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .global-notices {
+
 	&:global(.components-snackbar-list) {
 		position: fixed;
 		inset-block-start: auto; // top

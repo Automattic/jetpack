@@ -18,6 +18,7 @@
 
 // Color Schemes
 @mixin color-schemes {
+
 	&.dark {
 		--verbum-font-color: rgba(255, 255, 255, 0.8);
 		--verbum-border-color: rgba(255, 255, 255, 0.2);
@@ -90,10 +91,13 @@
 		}
 
 		.comment-form__verbum {
+
 			@include color-schemes;
 
 			&.dark {
+
 				.comment-form__subscription-options .verbum-subscriptions.logged-out .verbum-logins button.social-button {
+
 					&:focus-visible {
 						box-shadow: inset 0 0 0 0 var(--verbum-focus-background-color),
 							0 0 0 var(--verbum-border-focus-width) var(--verbum-focus-color);
@@ -101,6 +105,7 @@
 				}
 
 				.verbum-footer .verbum-footer__submit #comment-submit {
+
 					&:not(:disabled) {
 
 						&:focus,
@@ -120,6 +125,7 @@
 			// Fixes the alt text for the close button
 			.screen-reader-text {
 				clip: rect(1px 1px 1px 1px);
+
 				/* IE6, IE7 */
 				clip: rect(1px, 1px, 1px, 1px);
 				position: absolute !important;
@@ -189,11 +195,13 @@
 			}
 
 			.comment-form__subscription-options {
+
 				@include sliding-animation;
 
 				border-bottom: 1px solid var(--verbum-border-color);
 
 				.verbum-subscriptions {
+
 					.logout-link {
 						// protect the button from style leaks from the site; reset all.
 						all: unset;
@@ -242,7 +250,9 @@
 					* Logged In
 					*/
 					&.logged-in {
+
 						.verbum-subscriptions__wrapper {
+
 							.verbum-subscriptions__content {
 								background-color: var(--verbum-content-background-color);
 								border: 1px solid var(--verbum-border-color);
@@ -292,6 +302,7 @@
 
 						// Styling when there are no subscription options visible.
 						&.no-options {
+
 							.verbum-subscriptions__wrapper {
 								border-top: 1px solid var(--verbum-border-color);
 								width: 100%;
@@ -314,6 +325,7 @@
 					* Logged Out
 					*/
 					&.logged-out {
+
 						.verbum-subscriptions__login-header {
 							font-size: 18px;
 							font-weight: 400;
@@ -325,11 +337,13 @@
 							align-items: center;
 
 							&.logging-in {
+
 								.verbum-logins__social-buttons.show-form-content {
 									margin-bottom: 25px;
 								}
 
 								button.social-button {
+
 									&:not(.active) {
 										background-color: #5C5C5C;
 										opacity: .6;
@@ -395,6 +409,7 @@
 									animation: spin 1s linear infinite;
 
 									@keyframes spin {
+
 										to {
 											transform: rotate(360deg);
 										}
@@ -409,6 +424,7 @@
 						}
 
 						.verbum-form {
+
 							@include sliding-animation;
 						}
 					}
@@ -472,7 +488,9 @@
 				}
 
 				.verbum-footer__submit {
+
 					@keyframes button__busy-animation {
+
 						0% {
 							background-position: 240px 0;
 						}
@@ -563,6 +581,7 @@
 				}
 
 				&.is-error {
+
 					p {
 						border-left: 4px solid #f0b849;
 						background-color: #f9ecec;
@@ -583,12 +602,14 @@
     }
 
 	@keyframes customLoadingSpinner {
+
         to {
           -webkit-transform: rotate(360deg);
         }
     }
 
     @-webkit-keyframes customLoadingSpinner {
+
         to {
           -webkit-transform: rotate(360deg);
         }
@@ -596,6 +617,7 @@
 }
 
 @keyframes button__busy-animation {
+
 	0% {
 		background-position: 240px 0;
 	}

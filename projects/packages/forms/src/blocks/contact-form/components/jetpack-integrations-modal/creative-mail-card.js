@@ -1,3 +1,4 @@
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -7,9 +8,9 @@ import IntegrationCard from './integration-card';
 const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const { settingsUrl = '' } = data || {};
 
-	const selectedBlock = useSelect( select => select( 'core/block-editor' ).getSelectedBlock(), [] );
+	const selectedBlock = useSelect( select => select( blockEditorStore ).getSelectedBlock(), [] );
 
-	const { insertBlock, removeBlock } = useDispatch( 'core/block-editor' );
+	const { insertBlock, removeBlock } = useDispatch( blockEditorStore );
 
 	const hasEmailBlock = selectedBlock?.innerBlocks?.some(
 		( { name } ) => name === 'jetpack/field-email'
@@ -21,6 +22,7 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 
 	const cardData = {
 		...data,
+		showHeaderToggle: false,
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_creative_mail_click',

@@ -52,6 +52,7 @@
 		}
 
 		.dops-notice__text {
+
 			&, a {
 				color: var(--jp-white);
 			}
@@ -107,6 +108,7 @@
 		}
 
 		.dops-foldable-card__main {
+
 			@include breakpoint( ">480px" ) {
 				max-width: 85%;
 			}
@@ -115,6 +117,7 @@
 		.jp-support-info {
 			right: rem( -21px );
 			top: rem( 7px );
+
 			@include breakpoint( "<480px" ) {
 				right: rem( -30px );
 			}
@@ -166,9 +169,11 @@
 	}
 
 	@include breakpoint( ">480px" ) {
+
 		.dops-foldable-card__action {
 			right: rem( 10px );
 		}
+
 		.jp-form-settings-group .jp-support-info {
 			right: rem( 2px );
 			top: 0;
@@ -176,6 +181,7 @@
 	}
 
 	@include breakpoint( "<480px" ) {
+
 		.jp-form-settings-group .jp-support-info {
 			right: rem( -31px );
 			top: rem( 6px );

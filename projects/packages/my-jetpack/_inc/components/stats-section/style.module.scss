@@ -34,6 +34,7 @@ $actions-size: 28px;
 	// Add horizontal scrolling, but without the scrollbar.
 	overflow-x: scroll;
 	scrollbar-width: none;
+
 	&::-webkit-scrollbar {
 		display: none;
 	}
@@ -53,6 +54,7 @@ $actions-size: 28px;
 		}
 
 		margin-right: 1.5rem;
+
 		&:last-child {
 			margin-right: 0;
 		}

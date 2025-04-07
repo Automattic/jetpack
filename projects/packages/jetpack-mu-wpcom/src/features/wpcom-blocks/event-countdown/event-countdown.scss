@@ -71,7 +71,9 @@
 
 // Font size beyond mobile.
 @media only screen and (min-width: 600px) {
+
 	.wp-block-jetpack-event-countdown {
+
 		.event-countdown__counter span strong {
 			/* stylelint-disable-next-line declaration-property-unit-allowed-list */
 			font-size: 36px;
@@ -185,12 +187,14 @@ $ecf_color6: #b82806;
 }
 
 @keyframes event_countdown_bang {
+
 	from {
 		box-shadow: 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white), 0 0 var(--studio-white);
 	}
 }
 
 @keyframes event_countdown_gravity {
+
 	to {
 		transform: translateY(200px);
 		-webkit-transform: translateY(200px);
@@ -199,6 +203,7 @@ $ecf_color6: #b82806;
 }
 
 @keyframes event_countdown_position {
+
 	0%,
 	19.9% {
 		margin-top: 10%;
