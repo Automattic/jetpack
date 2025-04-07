@@ -32,8 +32,6 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
@@ -87,7 +85,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 *     [1] => 'blog_id'         int|boolean The blog id or false if the blog id does not exist.
 	 *     [2] => 'expected_output' boolean The expected output of the call to is_connected.
 	 */
-	public function is_connected_data_provider() {
+	public static function is_connected_data_provider() {
 
 		return array(
 			'blog token, blog id'       => array( true, 1234, true ),
@@ -321,7 +319,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function get_access_token_data_provider() {
+	public static function get_access_token_data_provider() {
 		return array(
 			'no tokens'                        => array(
 				false, // blog token.
@@ -542,7 +540,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 *     [2] => 'master_user_option_is_set' boolean If the master_user option is set.
 	 *     [3] => 'expected'                  boolean The expected output of the call to is_site_connection.
 	 */
-	public function data_provider_for_test_is_site_connection() {
+	public static function data_provider_for_test_is_site_connection() {
 
 		return array(
 			'connected, has connected_user, master_user option is set'         => array( true, true, true, false ),
@@ -704,7 +702,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function get_disconnect_user_outcomes() {
+	public static function get_disconnect_user_outcomes() {
 		return array(
 			'success' => array(
 				true,

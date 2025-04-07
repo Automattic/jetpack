@@ -9,6 +9,8 @@
  * Class Jetpack_User_Agent_Test
  */
 class Jetpack_User_Agent_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Confirm an old improper static use of Jetpack_User_Agent_Info still functions.
 	 */

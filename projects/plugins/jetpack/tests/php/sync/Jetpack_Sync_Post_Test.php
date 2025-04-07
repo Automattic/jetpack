@@ -1388,13 +1388,16 @@ That was a cool video.';
 	 *
 	 * @return array[] Test parameters.
 	 */
-	public function provider_jetpack_published_post_no_action() {
-		// @todo This seems somewhat broken, $this->post isn't set yet when this runs.
+	public static function provider_jetpack_published_post_no_action() {
+		// @todo Provide a usable post here. $this->post isn't set yet when the data provider is called.
+		$post = null;
+		'@phan-var ?WP_Post $post';
+
 		return array(
-			array( null, $this->post ),
-			array( 'alpha', $this->post ),
-			array( isset( $this->post->ID ) ? $this->post->ID : null, null ),
-			array( -1111, $this->post ),
+			array( null, $post ),
+			array( 'alpha', $post ),
+			array( isset( $post->ID ) ? $post->ID : null, null ),
+			array( -1111, $post ),
 		);
 	}
 
@@ -1423,15 +1426,9 @@ That was a cool video.';
 	public function test_sync_jetpack_posts_akismet_post_meta_delete_is_chunked() {
 		$ids = array_fill( 0, 1450, 1234 );
 
-		$mocked = $this->getMockBuilder( stdClass::class )
-						->addMethods( array( 'chunked_call' ) )
-						->getMock();
-
-		$mocked->expects( $this->exactly( 15 ) )
-				->method( 'chunked_call' );
-
-		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
-		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
+		$callback = $this->getMockBuilder( \CallableMock::class )->getMock();
+		$callback->expects( $this->exactly( 15 ) )->method( '__invoke' );
+		add_action( 'jetpack_post_meta_batch_delete', $callback, 10, 2 );
 
 		/**
 		 * Override `action_handler` private property as it's used directly in the method and it's not initialized
@@ -1454,15 +1451,9 @@ That was a cool video.';
 	public function test_sync_jetpack_posts_akismet_post_meta_delete_invalid_data() {
 		$ids = 'test_invalid_value';
 
-		$mocked = $this->getMockBuilder( stdClass::class )
-						->addMethods( array( 'chunked_call' ) )
-						->getMock();
-
-		$mocked->expects( $this->never() )
-				->method( 'chunked_call' );
-
-		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
-		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
+		$callback = $this->getMockBuilder( \CallableMock::class )->getMock();
+		$callback->expects( $this->never() )->method( '__invoke' );
+		add_action( 'jetpack_post_meta_batch_delete', $callback, 10, 2 );
 
 		/**
 		 * Override `action_handler` private property as it's used directly in the method and it's not initialized
@@ -1485,15 +1476,9 @@ That was a cool video.';
 	public function test_sync_jetpack_posts_akismet_post_meta_delete_empty() {
 		$ids = array();
 
-		$mocked = $this->getMockBuilder( stdClass::class )
-						->addMethods( array( 'chunked_call' ) )
-						->getMock();
-
-		$mocked->expects( $this->never() )
-			->method( 'chunked_call' );
-
-		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
-		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
+		$callback = $this->getMockBuilder( \CallableMock::class )->getMock();
+		$callback->expects( $this->never() )->method( '__invoke' );
+		add_action( 'jetpack_post_meta_batch_delete', $callback, 10, 2 );
 
 		/**
 		 * Override `action_handler` private property as it's used directly in the method and it's not initialized

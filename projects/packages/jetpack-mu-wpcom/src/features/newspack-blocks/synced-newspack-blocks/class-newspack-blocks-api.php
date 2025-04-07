@@ -28,7 +28,7 @@ class Newspack_Blocks_API {
 			'large',
 			false
 		);
-		$featured_image_set['large'] = $feat_img_array_large[0];
+		$featured_image_set['large'] = $feat_img_array_large[0] ?? null;
 
 		// Landscape image.
 		$landscape_size = Newspack_Blocks::image_size_for_orientation( 'landscape' );
@@ -38,7 +38,7 @@ class Newspack_Blocks_API {
 			$landscape_size,
 			false
 		);
-		$featured_image_set['landscape'] = $feat_img_array_landscape[0];
+		$featured_image_set['landscape'] = $feat_img_array_landscape[0] ?? null;
 
 		// Portrait image.
 		$portrait_size = Newspack_Blocks::image_size_for_orientation( 'portrait' );
@@ -48,7 +48,7 @@ class Newspack_Blocks_API {
 			$portrait_size,
 			false
 		);
-		$featured_image_set['portrait'] = $feat_img_array_portrait[0];
+		$featured_image_set['portrait'] = $feat_img_array_portrait[0] ?? null;
 
 		// Square image.
 		$square_size = Newspack_Blocks::image_size_for_orientation( 'square' );
@@ -58,7 +58,7 @@ class Newspack_Blocks_API {
 			$square_size,
 			false
 		);
-		$featured_image_set['square'] = $feat_img_array_square[0];
+		$featured_image_set['square'] = $feat_img_array_square[0] ?? null;
 
 		// Uncropped image.
 		$uncropped_size = 'newspack-article-block-uncropped';
@@ -68,7 +68,7 @@ class Newspack_Blocks_API {
 			$uncropped_size,
 			false
 		);
-		$featured_image_set['uncropped'] = $feat_img_array_uncropped[0];
+		$featured_image_set['uncropped'] = $feat_img_array_uncropped[0] ?? null;
 
 		return $featured_image_set;
 	}

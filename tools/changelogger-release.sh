@@ -293,10 +293,14 @@ pnpm install --silent
 
 cat <<-EOM
 
-	You can examine the changelogs with
+	You can examine the changelogs directly with the following:
 
 	  git diff '**/CHANGELOG.md'
 
-	Feel free to edit them as needed.
+	To get a list of the files that changed, use the following:
+
+	  git diff --name-only '**/CHANGELOG.md'
+
+	Feel free to edit and save them as needed.
 
 EOM

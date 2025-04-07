@@ -11,6 +11,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/carousel/jetpack-carousel.php';
  * Class Jetpack_Carousel_Test
  */
 class Jetpack_Carousel_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * The tested instance.
@@ -34,7 +35,7 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_data_img_tags() {
+	public static function get_data_img_tags() {
 		return array(
 			'amp_gallery_block'                          => array(
 				'<figure class="wp-block-gallery columns-3 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img src="https://example.com/wp-content/uploads/2020/01/568-1000x1000-1.jpg" alt="" data-id="8" data-full-url="https://example.com/wp-content/uploads/2020/01/568-1000x1000-1.jpg" data-link="https://example.com/?attachment_id=8" class="wp-image-8" srcset="https://example.com/wp-content/uploads/2020/01/568-1000x1000-1.jpg 1000wj" sizes="(max-width: 1000px) 100vw, 1000px" /></figure></li><li class="blocks-gallery-item"><figure><img src="https://example.com/wp-content/uploads/2013/03/image-alignment-1200x4002-1-1024x341.jpg" alt="Image Alignment 1200x4002" data-id="1029" data-full-url="https://example.com/wp-content/uploads/2013/03/image-alignment-1200x4002-1.jpg" data-link="https://example.com/?attachment_id=1029" class="wp-image-1029" srcset="https://example.com/wp-content/uploads/2013/03/image-alignment-1200x4002-1-1024x341.jpg 1024w, https://example.com/wp-content/uploads/2013/03/image-alignment-1200x4002-1-300x100.jpg 300w, https://example.com/wp-content/uploads/2013/03/image-alignment-1200x4002-1-768x256.jpg 768w, https://example.com/wp-content/uploads/2013/03/image-alignment-1200x4002-1.jpg 1200w" sizes="(max-width: 1024px) 100vw, 1024px" /></figure></li><li class="blocks-gallery-item"><figure><img src="https://example.com/wp-content/uploads/2020/01/858-600x400-1.jpg" alt="" data-id="10" data-full-url="https://example.com/wp-content/uploads/2020/01/858-600x400-1.jpg" data-link="https://example.com/?attachment_id=10" class="wp-image-10" srcset="https://example.com/wp-content/uploads/2020/01/858-600x400-1.jpg 600w, https://example.com/wp-content/uploads/2020/01/858-600x400-1-300x200.jpg 300w" sizes="(max-width: 600px) 100vw, 600px" /></figure></li><li class="blocks-gallery-item"><figure><img src="https://example.com/wp-content/uploads/2020/03/448-1600x1200-1-1024x768.jpg" alt="" data-id="549" data-full-url="https://example.com/wp-content/uploads/2020/03/448-1600x1200-1.jpg" data-link="https://example.com/?attachment_id=549" class="wp-image-549" srcset="https://example.com/wp-content/uploads/2020/03/448-1600x1200-1-1024x768.jpg 1024w, https://example.com/wp-content/uploads/2020/03/448-1600x1200-1-300x225.jpg 300w" sizes="(max-width: 1024px) 100vw, 1024px" /></figure></li><li class="blocks-gallery-item"><figure><img src="https://example.com/wp-content/uploads/2020/03/4-150x150-1.jpg" alt="" data-id="571" data-full-url="https://example.com/wp-content/uploads/2020/03/4-150x150-1.jpg" data-link="https://example.com/?attachment_id=571" class="wp-image-571"/></figure></li></ul></figure>',

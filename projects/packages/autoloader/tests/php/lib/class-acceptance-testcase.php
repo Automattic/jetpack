@@ -35,10 +35,10 @@ abstract class Acceptance_TestCase extends TestCase {
 
 	/**
 	 * Setup runs before each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
+
 		// Ensure that the current autoloader is always installed.
 		$this->installed_autoloaders = array( Test_Plugin_Factory::CURRENT => TEST_PLUGIN_DIR );
 		$this->symlinked_autoloaders = array();
@@ -49,13 +49,13 @@ abstract class Acceptance_TestCase extends TestCase {
 
 	/**
 	 * Teardown runs after each test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
+
 		// Erase all of the directory symlinks since we're done with them.
 		foreach ( $this->symlinked_autoloaders as $dir ) {
-            // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			@unlink( $dir );
 		}
 	}

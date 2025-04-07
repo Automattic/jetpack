@@ -524,7 +524,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function data_provider_test_check_response_for_idc_no_error_code() {
+	public static function data_provider_test_check_response_for_idc_no_error_code() {
 		return array(
 			'input is null'               => array( null ),
 			'input is empty array'        => array( array() ),
@@ -583,7 +583,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 *     'option_updated' => Whether the check_response_for_idc method should update
 	 *                         the sync_error_idc option.
 	 */
-	public function data_provider_test_check_response_for_idc_with_error_code() {
+	public static function data_provider_test_check_response_for_idc_with_error_code() {
 		return array(
 			'input has non-matching error code'     => array(
 				'input'          => array(
@@ -645,7 +645,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function data_provider_test_check_http_response_for_idc_detected_invalid_input() {
+	public static function data_provider_test_check_http_response_for_idc_detected_invalid_input() {
 		$no_idc_detected_body = wp_json_encode(
 			array(
 				'test1' => 'test 1',
@@ -687,7 +687,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 *     'option_updated' => Whether the check_response_for_idc method should update
 	 *                         the sync_error_idc option.
 	 */
-	public function data_provider_test_check_http_response_for_idc_detected_idc_detected() {
+	public static function data_provider_test_check_http_response_for_idc_detected_idc_detected() {
 		$nonmatching_error_code_body = wp_json_encode(
 			array(
 				'idc_detected' => array(
@@ -782,7 +782,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 *     'expected_result'       => (bool) The value expected to be returned by the call to the has_identity_crisis method.
 	 *   ]
 	 */
-	public function data_provider_test_has_identity_crisis() {
+	public static function data_provider_test_has_identity_crisis() {
 		return array(
 			'check idc is true and safe mode is true'   => array(
 				'check_identity_crisis' => true,
@@ -832,7 +832,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 *     'expected_result' => (mixed) The value that the get_mismatched_value method should return.
 	 *   ]
 	 */
-	public function data_provider_test_get_mismatched_urls() {
+	public static function data_provider_test_get_mismatched_urls() {
 		return array(
 			'false'                   => array(
 				'idc_error'       => false,
@@ -979,6 +979,28 @@ class Identity_Crisis_Test extends BaseTestCase {
 
 		static::assertEquals( $data, $data_updated );
 		static::assertArrayNotHasKey( 'url_secret_error', $data_updated );
+	}
+
+	/**
+	 * Test the `add_secret_to_url_validation_response()` method in Offline Mode.
+	 *
+	 * @return void
+	 */
+	public static function test_add_secret_to_url_validation_response_offline_mode() {
+		$data = array(
+			'key1' => 'value1',
+			'key2' => 'value2',
+		);
+
+		update_option( 'jetpack_offline_mode', '1' );
+		$data_updated = Identity_Crisis::add_secret_to_url_validation_response( $data );
+		delete_option( 'jetpack_offline_mode' );
+
+		$data['offline_mode'] = '1';
+
+		static::assertEquals( $data, $data_updated );
+		static::assertArrayNotHasKey( 'url_secret_error', $data_updated );
+		static::assertArrayNotHasKey( 'url_secret', $data_updated );
 	}
 
 	/**

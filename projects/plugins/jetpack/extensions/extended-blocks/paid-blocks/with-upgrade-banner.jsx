@@ -80,7 +80,7 @@ const withUpgradeBanner = createHigherOrderComponent(
 
 		const blockProps = useBlockProps();
 		// Fix for width of cover block because otherwise the div defaults to content-size as max width
-		const cssFixForCoverBlock = { 'max-width': 'unset' };
+		const cssFixForCoverBlock = { maxWidth: 'unset' };
 
 		return (
 			<PaidBlockProvider

@@ -3,6 +3,7 @@
 @import './components/display-error/style.scss';
 
 .wp-block-jetpack-ai-chat {
+
 	.jetpack-ai-chat-question-wrapper {
 		display: flex;
 		flex-direction: row;
@@ -12,6 +13,7 @@
 		.jetpack-ai-chat-question-input {
 			flex: auto;
 			flex-grow: 4;
+
 			input {
 				width: 100%;
 				font-size: 16px;
@@ -35,6 +37,7 @@
 		}
 
 	}
+
 	.jetpack-ai-chat-answer-references {
 		margin-top: 12px;
 		font-size: 1rem;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+i18n: load jetpack-mu-wpcom translations from WP_LANG_DIR/mu-plugins

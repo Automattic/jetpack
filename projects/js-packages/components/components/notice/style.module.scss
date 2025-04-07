@@ -24,6 +24,7 @@
 	border: none;
 	cursor: pointer;
 	outline: none;
+
 	svg {
 		display: block;
 	}
@@ -31,6 +32,7 @@
 
 // Mobile layout differences.
 @media screen and ( max-width: 600px ) {
+
 	.container {
 		position: relative;
 		padding-top: 68px;
@@ -71,6 +73,7 @@
 	}
 
 	a {
+
 		&, &:hover, &:active, &:focus {
 			color: var( --jp-black );
 		}

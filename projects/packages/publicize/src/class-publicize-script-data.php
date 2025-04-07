@@ -311,9 +311,7 @@ class Publicize_Script_Data {
 	public static function get_urls() {
 
 		$urls = array(
-			'connectionsManagementPage' => self::publicize()->publicize_connections_url(
-				'jetpack-social-connections-admin-page'
-			),
+			'connectionsManagementPage' => self::publicize()->publicize_connections_url(),
 		);
 
 		// Escape the URLs.

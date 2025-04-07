@@ -71,7 +71,7 @@ class Scan_Status_Test extends BaseTestCase {
 	 *
 	 * @return object
 	 */
-	public function get_sample_empty_response() {
+	public static function get_sample_empty_response() {
 		return new Status_Model(
 			array(
 				'last_checked' => '',
@@ -84,7 +84,7 @@ class Scan_Status_Test extends BaseTestCase {
 	 *
 	 * @return string
 	 */
-	public function get_sample_invalid_response() {
+	public static function get_sample_invalid_response() {
 		return 'Invalid response';
 	}
 
@@ -166,7 +166,7 @@ class Scan_Status_Test extends BaseTestCase {
 	 *
 	 * @return object
 	 */
-	public function get_sample_status() {
+	public static function get_sample_status() {
 		global $wp_version;
 
 		return new Status_Model(
@@ -374,7 +374,7 @@ class Scan_Status_Test extends BaseTestCase {
 	 */
 	public function return_sample_empty_response() {
 		return array(
-			'body'     => wp_json_encode( $this->get_sample_empty_response() ),
+			'body'     => wp_json_encode( static::get_sample_empty_response() ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
@@ -417,7 +417,7 @@ class Scan_Status_Test extends BaseTestCase {
 
 		$status = Scan_Status::get_status();
 
-		$this->assertEquals( $this->get_sample_status(), $status );
+		$this->assertEquals( static::get_sample_status(), $status );
 
 		// Make sure this was cached
 		$this->assertEquals( $this->get_sample_response(), Scan_Status::get_from_options() );
@@ -438,13 +438,13 @@ class Scan_Status_Test extends BaseTestCase {
 	public function test_get_all_threats() {
 		$this->mock_connection();
 
-		$this->assertEquals( $this->get_sample_status()->threats, Scan_Status::get_all_threats() );
+		$this->assertEquals( static::get_sample_status()->threats, Scan_Status::get_all_threats() );
 	}
 
 	/**
 	 * Data provider for test_is_cache_expired
 	 */
-	public function is_cache_expired_data() {
+	public static function is_cache_expired_data() {
 		return array(
 			'empty'         => array( true, null ),
 			'one sec ago'   => array( true, time() - 1 ),
@@ -467,7 +467,7 @@ class Scan_Status_Test extends BaseTestCase {
 	/**
 	 * Data provider for test_get_cache_end_date_by_status
 	 */
-	public function get_cache_end_date_by_status_data() {
+	public static function get_cache_end_date_by_status_data() {
 		return array(
 			'null'    => array(
 				'initial',
@@ -475,15 +475,15 @@ class Scan_Status_Test extends BaseTestCase {
 			),
 			'empty'   => array(
 				'initial',
-				$this->get_sample_empty_response(),
+				static::get_sample_empty_response(),
 			),
 			'invalid' => array(
 				'initial',
-				$this->get_sample_invalid_response(),
+				static::get_sample_invalid_response(),
 			),
 			'full'    => array(
 				'full',
-				$this->get_sample_status(),
+				static::get_sample_status(),
 			),
 		);
 	}

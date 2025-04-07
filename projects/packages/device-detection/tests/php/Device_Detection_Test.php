@@ -86,7 +86,7 @@ class Device_Detection_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function ua_provider() {
+	public static function ua_provider() {
 		return array(
 
 			// Nokia 6300, dumb phone.
@@ -189,7 +189,7 @@ class Device_Detection_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function ua_desktop_provider() {
+	public static function ua_desktop_provider() {
 		return array(
 
 			// Windows 10-based PC using Edge browser.

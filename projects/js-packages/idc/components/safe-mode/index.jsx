@@ -144,7 +144,7 @@ const SafeMode = props => {
 
 						<div>
 							{ createInterpolateElement(
-								customContent.startFreshCardBodyText ||
+								customContent.safeModeCardBodyText ||
 									/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
 									__(
 										'<p><strong>Recommended for</strong></p>' +

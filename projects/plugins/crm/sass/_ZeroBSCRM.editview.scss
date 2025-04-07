@@ -131,24 +131,25 @@
 			margin-top: 1em;
 			margin-bottom: 0.4em;
 		}
+
 		.ui.label {
 
     		margin-bottom: 0.4em;
 		}
-		.zbsTagSuggestion {
 
-		}
 		.zbsTagSuggestion:hover
 		 {
 			cursor: pointer;
 			color: #000 !important;
 		}
+
 		#zbs-tag-suggestions-show-more:hover,
 		#zbs-tag-suggestions-show-less:hover {
 			cursor: pointer;
 			color: #2284d1 !important;
 
 		}
+
 		#zbs-tag-suggestions-more-wrap {
 
 			display:none; // init
@@ -206,6 +207,7 @@
 // fix for zbs-hide not working at high res's
 // JIRA-ZBS-960
 @media (min-width: 1500px){
+
 	.zbs-hide,
 	tr.zbs-field-group-tr .zbs-field-group.zbs-hide {
 		display:none !important;

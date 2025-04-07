@@ -2,6 +2,7 @@
 @import "../scss/mixin_breakpoint";
 
 .jp-form-google-label-unverified {
+
 	.dops-button {
 		margin: 0 15px;
 
@@ -117,6 +118,7 @@
 }
 
 .jp-seo-front-page-description {
+
 	&-card {
 		margin-bottom: 0 !important;
 	}
@@ -165,6 +167,7 @@ $twitter-pofile-image-padding: 17px;
 		margin-inline: 0;
 		max-width: $previews-max-width;
 	}
+
 	.twitter-preview__wrapper {
 		// Remove padding for twitter preview
 		padding: 0;
@@ -187,6 +190,7 @@ $twitter-pofile-image-padding: 17px;
 }
 
 .jp-seo-custom-titles {
+
 	&-card {
 		margin-bottom: 0 !important;
 	}
@@ -237,6 +241,7 @@ $twitter-pofile-image-padding: 17px;
 	border-left-color: #A3286A !important;
 
 	.dops-banner__icon-plan {
+
 		& > img {
 			height: 32px;
 		}
@@ -249,7 +254,9 @@ $twitter-pofile-image-padding: 17px;
 }
 
 .jp-stats-odyssey-disabled-notice {
+
 	@include breakpoint('<480px') {
+
 		a.dops-notice__action {
 			white-space: initial;
 		}
@@ -258,6 +265,7 @@ $twitter-pofile-image-padding: 17px;
 			display: none;
 		}
 	}
+
 	@include breakpoint('>480px') {
 		width: calc(100% - 26px);
 	}

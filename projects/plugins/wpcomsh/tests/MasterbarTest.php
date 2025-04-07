@@ -9,6 +9,8 @@
  * Class MasterbarTest.
  */
 class MasterbarTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Test_wpcomsh_get_plugin_updated_submenus.
 	 */

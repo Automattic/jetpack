@@ -12,9 +12,10 @@ import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
-import { useGetReadableFailedBackupReason } from '../../../hooks/use-notification-watcher/use-get-readable-failed-backup-reason';
+import useGetReadableFailedBackupReason from '../../../hooks/use-notification-watcher/use-get-readable-failed-backup-reason';
 import ProductCard from '../../connected-product-card';
 import { InfoTooltip } from '../../info-tooltip';
+import LoadingBlock from '../../loading-block';
 import styles from './style.module.scss';
 
 const productSlug = PRODUCT_SLUGS.BACKUP;
@@ -78,7 +79,9 @@ const BackupCard = props => {
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const noDescription = () => null;
 
-	const { title: errorTitle, text: errorDescription } = useGetReadableFailedBackupReason() || {};
+	const { reasonContent, isLoading: isBackupFailedReasonLoading } =
+		useGetReadableFailedBackupReason() || {};
+	const { title: errorTitle, text: errorDescription } = reasonContent || {};
 
 	if ( hasBackups ) {
 		return <WithBackupsValueSection slug={ productSlug } { ...props } />;
@@ -88,7 +91,8 @@ const BackupCard = props => {
 
 	return (
 		<ProductCard slug={ productSlug } Description={ isError && noDescription } { ...props }>
-			{ isError && (
+			{ isBackupFailedReasonLoading && <LoadingBlock height="75px" width="100%" /> }
+			{ isError && ! isBackupFailedReasonLoading && (
 				<div className={ styles.backupErrorContainer }>
 					<div className={ styles.iconContainer }>
 						<Gridicon icon="notice" size={ 16 } className={ styles.iconError } />

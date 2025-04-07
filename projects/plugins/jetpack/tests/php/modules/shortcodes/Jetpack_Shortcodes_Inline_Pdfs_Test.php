@@ -13,6 +13,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * Unit test for Inline PDF embeds.
  */
 class Jetpack_Shortcodes_Inline_Pdfs_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**

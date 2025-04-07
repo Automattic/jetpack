@@ -173,7 +173,7 @@ class Actions_Test extends BaseTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function send_data_with_wpcom_rest_api_enabled_data_provider() {
+	public static function send_data_with_wpcom_rest_api_enabled_data_provider() {
 		return array(
 			'successful_response'               => array(
 				'data'     => array(

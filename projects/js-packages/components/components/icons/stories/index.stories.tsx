@@ -2,11 +2,13 @@ import * as allIcons from '../index.js';
 import styles from './style.module.scss';
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof allIcons > = {
 	title: 'JS Packages/Components/Icons',
 	component: allIcons,
 	parameters: {},
-} as Meta< typeof allIcons >;
+};
+
+export default meta;
 
 const sizes = [
 	{

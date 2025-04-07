@@ -11,7 +11,6 @@ use Automattic\Jetpack\Waf\Waf_Request;
  * Request test suite.
  */
 class WafRequestTest extends PHPUnit\Framework\TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Test for null on CLI.

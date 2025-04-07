@@ -7,13 +7,15 @@ import LoadingPlaceholder from '../index.js';
  */
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof LoadingPlaceholder > = {
 	title: 'JS Packages/Components/Loading Placeholder',
 	component: LoadingPlaceholder,
 	parameters: {
 		layout: 'centered',
 	},
-} as Meta< typeof LoadingPlaceholder >;
+};
+
+export default meta;
 
 const Template: StoryFn< typeof LoadingPlaceholder > = args => <LoadingPlaceholder { ...args } />;
 

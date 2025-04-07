@@ -9,11 +9,16 @@ import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-uti
 import { Button, Notice, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import {
-	PluginPrePublishPanel,
-	PluginDocumentSettingPanel,
-	PluginPostPublishPanel,
+	PluginPrePublishPanel as DeprecatedPluginPrePublishPanel,
+	PluginPostPublishPanel as DeprecatedPluginPostPublishPanel,
+	PluginDocumentSettingPanel as DeprecatedPluginDocumentSettingPanel,
 } from '@wordpress/edit-post';
-import { store as editorStore } from '@wordpress/editor';
+import {
+	PluginPrePublishPanel as EditorPluginPrePublishPanel,
+	PluginPostPublishPanel as EditorPluginPostPublishPanel,
+	PluginDocumentSettingPanel as EditorPluginDocumentSettingPanel,
+	store as editorStore,
+} from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
@@ -32,6 +37,11 @@ import { store as membershipProductsStore } from '../../store/membership-product
 import { NewsletterTestEmailModal } from './email-preview';
 
 import './panel.scss';
+
+const PluginPrePublishPanel = EditorPluginPrePublishPanel || DeprecatedPluginPrePublishPanel;
+const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginPostPublishPanel;
+const PluginDocumentSettingPanel =
+	EditorPluginDocumentSettingPanel || DeprecatedPluginDocumentSettingPanel;
 
 function NewsletterEditorSettingsPanel( { accessLevel } ) {
 	return (

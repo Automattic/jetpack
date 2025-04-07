@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+SSO: Use same login page after logging out as when already logged out

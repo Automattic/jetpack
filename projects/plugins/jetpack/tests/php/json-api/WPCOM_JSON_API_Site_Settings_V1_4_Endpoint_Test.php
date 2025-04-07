@@ -12,13 +12,14 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
  * Jetpack `sites/%s/settings` endpoint unit tests.
  */
 class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Example of woocommerce_onboarding_profile value.
 	 *
 	 * @var array
 	 */
-	private $onboarding_profile_example = array(
+	private static $onboarding_profile_example = array(
 		'is_agree_marketing'  => true,
 		'store_email'         => 'example@gmail.com',
 		'industry'            =>
@@ -288,7 +289,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 *
 	 * @return array<string,array{string, mixed}> [ $setting_name, $expected_default_value ]
 	 */
-	public function setting_default_key_values() {
+	public static function setting_default_key_values() {
 		return array(
 			'woocommerce_store_address'      => array( 'woocommerce_store_address', '' ),
 			'woocommerce_store_address_2'    => array( 'woocommerce_store_address_2', '' ),
@@ -304,7 +305,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 *
 	 * @return array<string,array{string,string,mixed}> [ $setting_name, $setting_value ]
 	 */
-	public function setting_value_pairs_get_request() {
+	public static function setting_value_pairs_get_request() {
 		return array(
 			'woocommerce_store_address'      => array( 'woocommerce_store_address', 'woocommerce_store_address', 'Street 34th 1/2' ),
 			'woocommerce_store_address_2'    => array( 'woocommerce_store_address_2', 'woocommerce_store_address_2', 'Apt #1' ),
@@ -320,7 +321,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 *
 	 * @return array<string,array{string,mixed,mixed}> [ $setting_name, $setting_value, $expected_value ]
 	 */
-	public function setting_value_pairs_post_request() {
+	public static function setting_value_pairs_post_request() {
 		return array(
 			'woocommerce_store_address'                 => array( 'woocommerce_store_address', '<h1>Street 34th 1/2</h1>', 'Street 34th 1/2' ),
 			'woocommerce_store_address_2'               => array( 'woocommerce_store_address_2', '<h2>Apt #1</h2>', 'Apt #1' ),
@@ -332,7 +333,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_onboarding_profile script tag' => array( 'woocommerce_onboarding_profile', array( 'test_key' => '<script>test value</script>' ), array( 'test_key' => '' ) ),
 			'woocommerce_onboarding_profile string'     => array( 'woocommerce_onboarding_profile', 'string', array( 'string' ) ),
 			'woocommerce_onboarding_profile bool'       => array( 'woocommerce_onboarding_profile', true, array( true ) ),
-			'woocommerce_onboarding_profile example'    => array( 'woocommerce_onboarding_profile', $this->onboarding_profile_example, $this->onboarding_profile_example ),
+			'woocommerce_onboarding_profile example'    => array( 'woocommerce_onboarding_profile', static::$onboarding_profile_example, static::$onboarding_profile_example ),
 			'show_on_front'                             => array( 'show_on_front', 'page', 'page' ),
 			'subscription_options html'                 => array(
 				'subscription_options',

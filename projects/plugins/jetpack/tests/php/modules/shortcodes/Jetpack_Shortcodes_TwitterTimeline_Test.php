@@ -11,6 +11,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * <a class="twitter-timeline" data-partner="jetpack" data-width="100" data-height="100" data-widget-id="297487559557251073" href="https://twitter.com/wordpressdotcom">Tweets by @wordpressdotcom</a>
  */
 class Jetpack_Shortcodes_TwitterTimeline_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**

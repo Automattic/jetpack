@@ -110,7 +110,7 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function get_upload_token_data() {
+	public static function get_upload_token_data() {
 		return array(
 			'error response' => array(
 				'error',

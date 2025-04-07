@@ -12,6 +12,7 @@
  * @since 13.4
  */
 class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * "lastmod" date from other URLs filter is considered when building a sitemap.

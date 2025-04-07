@@ -28,6 +28,8 @@ define( 'WP_DEBUG', true );
 // Preloading the file to reconcile Brain\Monkey with Wordbless.
 require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';
 
+require_once __DIR__ . '/CallableMock.php';
+
 // Initialize WordPress test environment
 \Automattic\Jetpack\Test_Environment::init();
 require_once ABSPATH . WPINC . '/class-IXR.php';

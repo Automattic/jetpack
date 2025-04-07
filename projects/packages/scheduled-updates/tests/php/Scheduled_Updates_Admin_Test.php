@@ -31,7 +31,7 @@ class Scheduled_Updates_Admin_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @return array[]
 	 */
-	public function update_text_provider() {
+	public static function update_text_provider() {
 		return array(
 			array(
 				(object) array(

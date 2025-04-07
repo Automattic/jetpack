@@ -59,7 +59,7 @@ const MessagesSetting = props => {
 					) }
 				</p>
 				<Textarea
-					ariaLabel={ __( 'Welcome email message', 'jetpack' ) }
+					aria-label={ __( 'Welcome email message', 'jetpack' ) }
 					disabled={ disabled }
 					name={ SUBSCRIPTION_OPTIONS }
 					value={ welcomeMessage }

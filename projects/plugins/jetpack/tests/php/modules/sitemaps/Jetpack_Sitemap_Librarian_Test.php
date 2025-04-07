@@ -16,6 +16,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-librarian.php';
  * @since 4.7.0
  */
 class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Constructor does not throw a fatal error.

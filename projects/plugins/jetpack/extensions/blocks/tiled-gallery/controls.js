@@ -7,9 +7,8 @@ import {
 	ToolbarItem,
 	TextControl,
 } from '@wordpress/components';
-import { Fragment, useEffect } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { isURL } from '@wordpress/url';
 import EditButton from '../../shared/edit-button';
 import { ALLOWED_MEDIA_TYPES, LAYOUT_CIRCLE, MAX_COLUMNS, MAX_ROUNDED_CORNERS } from './constants';
 import FilterToolbar from './filter-toolbar';
@@ -65,24 +64,6 @@ export const TiledGalleryInspectorControls = ( {
 	selectedImage,
 	setImageAttributes,
 } ) => {
-	useEffect( () => {
-		if ( ! isURL( images[ selectedImage ]?.customLink ) ) {
-			setImageAttributes( selectedImage )( {
-				customLink: '',
-			} );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- we only want to run this when the selected image changes
-	}, [ selectedImage ] );
-
-	const handleLinkValidity = () => {
-		// check if the URL is valid
-		if ( ! isURL( images[ selectedImage ]?.customLink ) ) {
-			setImageAttributes( selectedImage )( {
-				customLink: '',
-			} );
-		}
-	};
-
 	return (
 		<InspectorControls>
 			<PanelBody title={ __( 'Tiled Gallery settings', 'jetpack' ) }>
@@ -130,7 +111,6 @@ export const TiledGalleryInspectorControls = ( {
 							}
 						} }
 						placeholder={ __( 'Enter URL', 'jetpack' ) }
-						onBlur={ handleLinkValidity }
 						__nextHasNoMarginBottom={ true }
 						__next40pxDefaultSize={ true }
 					/>

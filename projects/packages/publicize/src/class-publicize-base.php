@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Redirect;
@@ -270,21 +269,6 @@ abstract class Publicize_Base {
 	 * @return array
 	 */
 	abstract public function get_services( $filter = 'all', $_blog_id = false, $_user_id = false );
-
-	/**
-	 * Whether to use the v1 admin UI.
-	 */
-	public function use_admin_ui_v1(): bool {
-
-		// If the option is set, use it.
-		if ( get_option( 'jetpack_social_use_admin_ui_v1', false ) ) {
-			return true;
-		}
-
-		// Otherwise, check the constant and the plan feature.
-		return ( defined( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1' ) && JETPACK_SOCIAL_USE_ADMIN_UI_V1 )
-			|| $this->has_connections_management_feature();
-	}
 
 	/**
 	 * Whether the site has the feature flag enabled.
@@ -1878,26 +1862,16 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Get Calypso URL for Publicize connections.
+	 * Get the URL to the connections management page.
 	 *
-	 * @param string $source The idenfitier of the place the function is called from.
 	 * @return string
 	 */
-	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
-		if ( $this->use_admin_ui_v1() && current_user_can( 'manage_options' ) ) {
-			$has_social_admin_page = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) || Publicize_Script_Data::has_feature_flag( 'admin-page' );
+	public function publicize_connections_url() {
+		$has_social_admin_page = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) || Publicize_Script_Data::has_feature_flag( 'admin-page' );
 
-			$page = $has_social_admin_page ? 'jetpack-social' : 'jetpack#/sharing';
+		$page = $has_social_admin_page ? 'jetpack-social' : 'jetpack#/sharing';
 
-			return ( new Paths() )->admin_url( array( 'page' => $page ) );
-		}
-
-		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
-		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
-		$blog_id         = Connection_Manager::get_site_id( true );
-		$site            = ( new Status() )->get_site_suffix();
-
-		return Redirect::get_url( $source, array( 'site' => $blog_id ? $blog_id : $site ) );
+		return ( new Paths() )->admin_url( array( 'page' => $page ) );
 	}
 
 	/**
@@ -1943,17 +1917,19 @@ abstract class Publicize_Base {
 	/**
 	 * Get the Publicize shares info.
 	 *
-	 * @param string $blog_id The WPCOM blog_id for the current blog.
+	 * This function is overwritten in class-publicize-wpcom.php
+	 *
+	 * @param int $blog_id The WPCOM blog_id for the current blog.
 	 * @return ?array
 	 */
-	public function get_publicize_shares_info( $blog_id ) {
-		$data = $this->get_api_data( $blog_id );
+	public function get_publicize_shares_info( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$shares_info = get_transient( 'jetpack_publicize_shares_info' );
 
-		if ( empty( $data ) ) {
-			return null;
+		if ( ! empty( $shares_info ) ) {
+			return $shares_info;
 		}
 
-		return $data;
+		return null;
 	}
 
 	/**

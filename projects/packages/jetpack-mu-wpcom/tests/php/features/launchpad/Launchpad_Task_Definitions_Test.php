@@ -122,7 +122,7 @@ class Launchpad_Task_Definitions_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @return array[]
 	 */
-	public function provide_update_task_status_id_map_handling_test_cases() {
+	public static function provide_update_task_status_id_map_handling_test_cases() {
 		return array(
 			// First key is requested task ID, second key is the option we expect to update.
 			'Request for unmapped task ID updates that task ID'                         => array(
@@ -171,7 +171,7 @@ class Launchpad_Task_Definitions_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @return array[]
 	 */
-	public function provide_non_boolean_task_status_updates() {
+	public static function provide_non_boolean_task_status_updates() {
 		return array(
 			'Truthy string 1'   => array( '1', true ),
 			'Truthy integer 1'  => array( 1, true ),

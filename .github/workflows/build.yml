@@ -65,6 +65,7 @@ jobs:
             return data;
 
       # We need the tree (but not the blob) for packages that will have -alpha version numbers so the timestamp appending works right.
+      # We also need the tree for js-packages/social-logos/src/svg so the font build will work right.
       - name: Deepen tree for packages
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
@@ -76,12 +77,19 @@ jobs:
             BASE=$PWD
             REF=$(git rev-parse HEAD)
             for SLUG in $(pnpm jetpack dependencies list --add-dependencies --extra="build" --ignore-root "${PROJECTS[@]}"); do
-              [[ "$SLUG" == packages/* ]] || continue
               cd "$BASE/projects/$SLUG/"
-              CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
-              [[ -d "$CHANGES_DIR" && -n "$(ls -- "$CHANGES_DIR")" ]] || continue
+              if [[ "$SLUG" == packages/* ]]; then
+                SUBDIR=.
+                # Only deepen if it'll be a -alpha, i.e. it has changelog entries
+                CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
+                [[ -d "$CHANGES_DIR" && -n "$(ls -- "$CHANGES_DIR")" ]] || continue
+              elif [[ "$SLUG" == js-packages/social-logos ]]; then
+                SUBDIR=./src/svg
+              else
+                continue
+              fi
               echo "Checking depth for $SLUG"
-              while git log --format='%h, %D,' -1 . | grep ', grafted,'; do
+              while git log --format='%h, %D,' -1 "$SUBDIR" | grep ', grafted,'; do
                 depth=$((depth * 2))
                 echo "::group::Deepen to $depth"
                 echo "/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth --filter=blob:none origin $REF"

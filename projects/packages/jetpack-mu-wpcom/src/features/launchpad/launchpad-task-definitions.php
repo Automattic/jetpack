@@ -380,13 +380,15 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 		),
 
-		// Write tasks.
-		'setup_write'                     => array(
+		// Publish a Blog tasks.
+		'complete_profile'                => array(
 			'get_title'            => function () {
-				return __( 'Set up your site', 'jetpack-mu-wpcom' );
+				return __( 'Complete your profile', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => '__return_true',
-			'is_disabled_callback' => '__return_true',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function () {
+				return '/me#complete-your-profile';
+			},
 		),
 
 		// Keep Building tasks.
@@ -664,18 +666,6 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'id_map'               => 'subscribers_added',
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'is_visible_callback'  => '__return_true',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
-			},
-		),
-		'add_first_subscribers'           => array(
-			// We do not want this mapped to the 'subscribers_added' task, since this task supports
-			// being marked as complete in situations where subscribers are not added.
-			'get_title'            => function () {
-				return __( 'Add subscribers', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => 'wpcom_launchpad_is_add_first_subscribers_completed',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
@@ -2407,7 +2397,11 @@ function wpcom_launchpad_is_front_page_updated_visible() {
  */
 function wpcom_launchpad_is_site_title_task_visible() {
 	// Hide the task if it's already completed on write intent
-	if ( get_option( 'site_intent' ) === 'write' && wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_title' ) ) ) {
+	if (
+		( 'launched' === get_option( 'launch-status' ) ) &&
+		get_option( 'site_intent' ) === 'write' &&
+		wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_title' ) )
+	) {
 		return false;
 	}
 	return true;
@@ -2779,25 +2773,6 @@ function wpcom_launchpad_is_domain_customize_completed( $task, $default ) {
 
 	// For everyone else, show the task as incomplete.
 	return $default;
-}
-
-/**
- * Determines whether the add_first_subscribers task is complete by checking both the task option
- * and related tasks like subscribers_added and import_subscribers.
- *
- * This exists because we need a 1-way relationship between these tasks: completion of other
- * subscriber tasks implies add_first_subscribers is completed, but completion of
- * add_first_subscribers does not imply completion of other subscriber tasks. This is because
- * add_first_subscribers is allowed to be marked complete at times when no subscribers are actually
- * added, and why using id_map here will not work since it creates a 2-way relationship.
- *
- * @param Task $task    The Task object.
- * @return bool True if either condition is met.
- */
-function wpcom_launchpad_is_add_first_subscribers_completed( $task ) {
-	return wpcom_launchpad_is_task_option_completed( $task )
-		|| wpcom_is_checklist_task_complete( 'subscribers_added' )
-		|| wpcom_is_checklist_task_complete( 'import_subscribers' );
 }
 
 /**

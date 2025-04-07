@@ -3,9 +3,9 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dili
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.6
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 3.9.0
+Stable tag: 3.13.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,18 +183,23 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.10.0 - 2025-03-05
+### 3.13.0 - 2025-04-01
 #### Added
-- Concatenate JS/CSS: Show a notice if legacy files are being served.
+- Cornerstone Pages: Add speculation rules toggle to prerender those URLs
+- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
+- Speculation rules: Add Cornerstone Pages to the WP speculation rules for displaying
 
 #### Changed
-- Concatenate JS/CSS: Improved handling of minification settings.
-- General: Improved the way modules are configured internally
+- General: Update interstitial modal secondary button to use URL from Jetpack Redirect
+- Critical CSS: Improve reliability of generation by running hooks after saving the state.
+- General: Indicate compatibility with the upcoming version of WordPress - 6.8.
+- General: Update Class/Interface file names to adhere to WordPress Convention
+- UI: Show module loading errors with details.
 - Update package dependencies.
 
 #### Fixed
-- Critical CSS: Fix showing empty error in some cases, when generation failed.
-- Critical CSS: Prevent invalid URLs from breaking the whole process.
+- Admin Menu: Ensure Akismet menu item display alongside standalone.
+- Misc: Fix incorrectly registering plugin text domain.
 
 --------
 

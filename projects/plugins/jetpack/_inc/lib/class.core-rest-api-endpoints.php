@@ -2335,7 +2335,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_posint',
 				'jp_group'          => 'settings',
 			),
-
 			// WAF.
 			'jetpack_waf_automatic_rules'               => array(
 				'description'       => esc_html__( 'Enable automatic rules - Protect your site against untrusted traffic sources with automatic security rules.', 'jetpack' ),
@@ -3095,6 +3094,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'videopress',
 			),
 		);
+
+		// SEO Tools - SEO Enhancer. Only available to Automatticians.
+		// TODO: either remove this or make it available to all users by moving it to the main options array.
+		if ( apply_filters( 'ai_seo_enhancer_enabled', false ) || apply_filters( 'ai_seo_enhancer_enabled_unrestricted', false ) ) {
+			$options['ai_seo_enhancer_enabled'] = array(
+				'description'       => esc_html__( 'Automatically generate SEO title, SEO description, and image alt text for new posts.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'seo-tools',
+			);
+		}
 
 		// Add modules to list so they can be toggled.
 		$modules = Jetpack::get_available_modules();

@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
 /**
  * Hotfix for a Gutenberg 19.8.0 bug preventing lower-capability users from editing pages.
  * See: p1734525664059729-slack-C02FMH4G8
@@ -49,4 +51,31 @@ if (
 		},
 		1
 	);
+}
+
+/**
+ * Hotfix for WP 6.7.x bug causing the font color on hover in the admin bar is not consistent with WP.org.
+ * See https://core.trac.wordpress.org/ticket/62219.
+ */
+if ( version_compare( get_bloginfo( 'version' ), '6.8', '<' ) ) {
+	/**
+	 * Overrides for the admin color schemes.
+	 */
+	function wpcom_override_admin_color_scheme() {
+		$suffix = is_rtl() ? '.rtl' : '';
+
+		wp_admin_css_color(
+			'modern',
+			_x( 'Modern', 'admin color scheme', 'jetpack-mu-wpcom' ),
+			plugins_url( "build/wpcom-hotfixes-colors-modern/wpcom-hotfixes-colors-modern$suffix.css", Jetpack_Mu_Wpcom::BASE_FILE ),
+			array( '#1e1e1e', '#3858e9', '#7b90ff' ),
+			array(
+				'base'    => '#f3f1f1',
+				'focus'   => '#fff',
+				'current' => '#fff',
+			)
+		);
+	}
+
+	add_action( 'admin_init', 'wpcom_override_admin_color_scheme' );
 }

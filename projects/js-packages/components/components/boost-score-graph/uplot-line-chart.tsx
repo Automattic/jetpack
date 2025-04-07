@@ -28,6 +28,15 @@ interface UplotChartProps {
 	range?: { startDate: number; endDate: number };
 }
 
+interface UplotReactProps {
+	options: uPlot.Options;
+	data: uPlot.AlignedData;
+	target?: HTMLElement | ( ( self: uPlot, init: () => void ) => void );
+	onDelete?: ( chart: uPlot ) => void;
+	onCreate?: ( chart: uPlot ) => void;
+	resetScales?: boolean;
+}
+
 /**
  * Creates a series information object for uPlot based on the label and color.
  *
@@ -202,9 +211,15 @@ export default function UplotLineChart( { range, periods, annotations = [] }: Up
 		return ( uplot.current = chart );
 	}, [] );
 
+	/**
+	 * Type casting to prevent TypeScript error:
+	 * TS2604: JSX element type 'UplotReact' does not have any construct or call signatures.
+	 */
+	const TypedUplotReact = UplotReact as unknown as React.ComponentType< UplotReactProps >;
+
 	return (
 		<div ref={ uplotContainer } className="boost-uplot-container">
-			<UplotReact data={ data } onCreate={ onCreate } options={ options } />
+			<TypedUplotReact data={ data } onCreate={ onCreate } options={ options } />
 		</div>
 	);
 }

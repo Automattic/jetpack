@@ -15,8 +15,8 @@ use WorDBless\BaseTestCase;
  */
 class Uploader_Test extends BaseTestCase {
 
-		/** Data provider for valid VideoPress oembed url tests */
-	public function provideUrlPresentData() {
+	/** Data provider for valid VideoPress oembed url tests */
+	public static function provideUrlPresentData() {
 		return array(
 			array(
 				'https://video.wordpress.com/v/GUID',

@@ -1,8 +1,39 @@
 import { renderHook } from '@testing-library/react';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { MAXIMUM_MESSAGE_LENGTH, useShareMessageMaxLength } from '../use-share-message-max-length';
+import {
+	MAXIMUM_MESSAGE_LENGTH,
+	useShareMessageMaxLength,
+	getShareMessageMaxLength,
+} from '../use-share-message-max-length';
 
 jest.mock( '../../hooks/use-social-media-connections', () => jest.fn() );
+
+describe( 'getShareMessageMaxLength', () => {
+	it( 'returns default max length when no services are provided', () => {
+		expect( getShareMessageMaxLength() ).toBe( MAXIMUM_MESSAGE_LENGTH );
+		expect( getShareMessageMaxLength( [] ) ).toBe( MAXIMUM_MESSAGE_LENGTH );
+	} );
+
+	it( 'returns character limit of a single service', () => {
+		const services = [ 'bluesky' ];
+		expect( getShareMessageMaxLength( services ) ).toBe( 300 );
+	} );
+
+	it( 'returns the minimum character limit among multiple services', () => {
+		const services = [ 'twitter', 'facebook' ];
+		expect( getShareMessageMaxLength( services ) ).toBe( 10000 );
+	} );
+
+	it( 'ignores undefined character limits', () => {
+		const services = [ 'twitter', 'linkedin' ];
+		expect( getShareMessageMaxLength( services ) ).toBe( 3000 );
+	} );
+
+	it( 'ignores services that are not in RESTRICTIONS', () => {
+		const services = [ 'twitter', 'unknown-service', 'linkedin' ];
+		expect( getShareMessageMaxLength( services ) ).toBe( 3000 );
+	} );
+} );
 
 describe( 'useShareMessageMaxLength', () => {
 	beforeEach( () => {

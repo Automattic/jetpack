@@ -20,11 +20,9 @@ class Notices_Test extends Stats_TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
-		parent::set_up();
+	public function setUp(): void {
+		parent::setUp();
 		Stats_Options::set_option( 'enable_odyssey_stats', true );
 		Stats_Options::set_option( 'notices', array() );
 		Stats_Options::set_option( 'views', 0 );

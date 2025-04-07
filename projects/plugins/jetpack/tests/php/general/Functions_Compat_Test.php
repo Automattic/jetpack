@@ -1,6 +1,7 @@
 <?php
 
 class Functions_Compat_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @author enkrates

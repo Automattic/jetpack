@@ -1,7 +1,6 @@
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
 import { resolveSiteUrl } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import { PostFrontendPage } from '_jetpack-e2e-commons/pages/index.js';
-import { WPLoginPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage, PermalinksPage } from '../../lib/pages/index.js';
@@ -49,9 +48,9 @@ test.describe( 'Cache module', () => {
 	test( 'Page Cache header should not be present when module is inactive', async ( {
 		browser,
 	} ) => {
-		const newPage = await browser.newPage( playwrightConfig.use );
-		const postFrontPage = await PostFrontendPage.visit( newPage );
-		await postFrontPage.logout();
+		// Ensure default storageState is empty.
+		const newContext = await browser.newContext( { storageState: {} } );
+		const newPage = await newContext.newPage();
 
 		newPage.on( 'response', response => {
 			if ( response.url().replace( /\/$/, '' ) !== resolveSiteUrl().replace( /\/$/, '' ) ) {
@@ -67,13 +66,11 @@ test.describe( 'Cache module', () => {
 		await PostFrontendPage.visit( newPage );
 
 		await newPage.close();
+		await newContext.close();
 	} );
 
 	// Make sure there's an error message when trying to enable Page Cache with plain permalinks.
 	test( 'Enabling Page Cache should show error notice when plain permalinks are enabled', async () => {
-		const loginPage = await WPLoginPage.visit( page );
-		await loginPage.login();
-
 		const permalinksPage = await PermalinksPage.visit( page );
 		await permalinksPage.usePlainStructure();
 
@@ -104,9 +101,9 @@ test.describe( 'Cache module', () => {
 	test( 'Page Cache header should be present when module is active', async ( { browser } ) => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'page_cache' ] ).build();
 
-		const newPage = await browser.newPage( playwrightConfig.use );
-		const postFrontPage = await PostFrontendPage.visit( newPage );
-		await postFrontPage.logout();
+		// Ensure default storageState is empty.
+		const newContext = await browser.newContext( { storageState: {} } );
+		const newPage = await newContext.newPage();
 
 		let totalVisits = 0;
 
@@ -139,5 +136,6 @@ test.describe( 'Cache module', () => {
 		await PostFrontendPage.visit( newPage );
 
 		await newPage.close();
+		await newContext.close();
 	} );
 } );

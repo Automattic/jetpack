@@ -393,6 +393,7 @@ iframe[id*="twitter-widget-"] {
  */
 
 @media screen and (min-width: 46.25em) {
+
 	.site .portfolio-entry {
 		margin-bottom: 1.6471em;
 	}
@@ -495,6 +496,7 @@ iframe[id*="twitter-widget-"] {
 }
 
 @media screen and (min-width: 55em) {
+
 	.site .portfolio-entry {
 		margin-bottom: 1.6842em
 	}
@@ -566,6 +568,7 @@ iframe[id*="twitter-widget-"] {
 }
 
 @media screen and (min-width: 59.6875em) {
+
 	.site .portfolio-entry {
 		margin-bottom: 1.6em
 	}
@@ -641,6 +644,7 @@ iframe[id*="twitter-widget-"] {
 }
 
 @media screen and (min-width: 68.75em) {
+
 	.site .portfolio-entry {
 		margin-bottom: 1.6471em
 	}
@@ -710,6 +714,7 @@ iframe[id*="twitter-widget-"] {
 }
 
 @media screen and (min-width: 77.5em) {
+
 	.site .portfolio-entry {
 		margin-bottom: 1.6842em
 	}

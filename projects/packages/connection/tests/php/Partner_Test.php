@@ -21,10 +21,9 @@ class Partner_Test extends TestCase {
 
 	/**
 	 * Reset the environment after each test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Partner::reset();
 	}
 
@@ -40,7 +39,7 @@ class Partner_Test extends TestCase {
 	 *
 	 * @return array[]
 	 */
-	public function code_provider() {
+	public static function code_provider() {
 		return array(
 			'subsidiary_code' =>
 				array(

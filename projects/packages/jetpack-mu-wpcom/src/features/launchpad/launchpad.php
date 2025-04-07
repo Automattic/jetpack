@@ -143,11 +143,10 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
-				'setup_write',
-				'design_completed',
-				'plan_selected',
 				'verify_email',
-				'add_first_subscribers',
+				'site_title',
+				'start_building_your_audience',
+				'complete_profile',
 				'first_post_published',
 				'site_launched',
 			),

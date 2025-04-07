@@ -40,10 +40,9 @@ class REST_Authentication_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		self::clear_auth_singleton();
 		$this->rest_authentication = Rest_Authentication::init();
 
@@ -59,10 +58,9 @@ class REST_Authentication_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		$_GET = null;
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$this->rest_authentication->reset_saved_auth_state();
@@ -129,14 +127,14 @@ class REST_Authentication_Test extends TestCase {
 	 *         ['request_method'] => (string) The request method. Optional.
 	 *         ['verified'] => (false|array) The mocked return value of Manager::verify_xml_rpc_signature. Required.
 	 *     ],
-	 *     ['test_outputs'] => [
+	 *     ['expected_outputs'] => [
 	 *         ['authenticate'] (int|null) The expected return value of wp_rest_authenticate. Required.
 	 *         ['errors'] (null|string|true) The expected return value of wp_rest_authenticate_errors. If the value is
 	 *                                       a string, this is the expected class of the object returned by
 	 *                                       wp_rest_authenticate_errors. Required.
 	 *     ]
 	 */
-	public function wp_rest_authenticate_data_provider() {
+	public static function wp_rest_authenticate_data_provider() {
 		$token_data = array(
 			'type'      => 'user',
 			'token_key' => '123abc',
@@ -151,7 +149,7 @@ class REST_Authentication_Test extends TestCase {
 
 		return array(
 			'no for parameter'                   => array(
-				'test_inputs'  => array(
+				'test_inputs'      => array(
 					'get_params'     => array(
 						'token'     => 'token',
 						'signature' => 'signature',
@@ -159,13 +157,13 @@ class REST_Authentication_Test extends TestCase {
 					'request_method' => 'GET',
 					'verified'       => $token_data,
 				),
-				'test_outputs' => array(
+				'expected_outputs' => array(
 					'authenticate' => null,
 					'errors'       => null,
 				),
 			),
 			'for parameter is not jetpack'       => array(
-				'test_inputs'  => array(
+				'test_inputs'      => array(
 					'get_params'     => array(
 						'_for'      => 'not_jetpack',
 						'token'     => 'token',
@@ -174,26 +172,26 @@ class REST_Authentication_Test extends TestCase {
 					'request_method' => 'GET',
 					'verified'       => $token_data,
 				),
-				'test_outputs' => array(
+				'expected_outputs' => array(
 					'authenticate' => null,
 					'errors'       => null,
 				),
 			),
 			'no token or signature parameter'    => array(
-				'test_inputs'  => array(
+				'test_inputs'      => array(
 					'get_params'     => array(
 						'_for' => 'jetpack',
 					),
 					'request_method' => 'GET',
 					'verified'       => $token_data,
 				),
-				'test_outputs' => array(
+				'expected_outputs' => array(
 					'authenticate' => null,
 					'errors'       => null,
 				),
 			),
 			'no request method'                  => array(
-				'test_inputs'  => array(
+				'test_inputs'      => array(
 					'get_params' => array(
 						'_for'      => 'jetpack',
 						'token'     => 'token',
@@ -201,13 +199,13 @@ class REST_Authentication_Test extends TestCase {
 					),
 					'verified'   => $token_data,
 				),
-				'test_outputs' => array(
+				'expected_outputs' => array(
 					'authenticate' => null,
 					'errors'       => 'WP_Error',
 				),
 			),
 			'invalid request method'             => array(
-				'test_inputs'  => array(
+				'test_inputs'      => array(
 					'get_params'     => array(
 						'_for'      => 'jetpack',
 						'token'     => 'token',
@@ -216,13 +214,13 @@ class REST_Authentication_Test extends TestCase {
 					'request_method' => 'DELETE',
 					'verified'       => $token_data,
 				),
-				'test_outputs' => array(
+				'expected_outputs' => array(
 					'authenticate' => null,
 					'errors'       => 'WP_Error',
 				),
 			),
 			'successful GET request'             => array(
-				'test_inputs'  => array(
+				'test_inputs'      => array(
 					'get_params'     => array(
 						'_for'      => 'jetpack',
 						'token'     => 'token',
@@ -231,13 +229,13 @@ class REST_Authentication_Test extends TestCase {
 					'request_method' => 'GET',
 					'verified'       => $token_data,
 				),
-				'test_outputs' => array(
+				'expected_outputs' => array(
 					'authenticate' => $token_data['user_id'],
 					'errors'       => true,
 				),
 			),
 			'successful POST request'            => array(
-				'test_inputs'  => array(
+				'test_inputs'      => array(
 					'get_params'     => array(
 						'_for'      => 'jetpack',
 						'token'     => 'token',
@@ -246,13 +244,13 @@ class REST_Authentication_Test extends TestCase {
 					'request_method' => 'POST',
 					'verified'       => $token_data,
 				),
-				'test_outputs' => array(
+				'expected_outputs' => array(
 					'authenticate' => $token_data['user_id'],
 					'errors'       => true,
 				),
 			),
 			'signature verification failed'      => array(
-				'test_inputs'  => array(
+				'test_inputs'      => array(
 					'get_params'     => array(
 						'_for'      => 'jetpack',
 						'token'     => 'token',
@@ -261,13 +259,13 @@ class REST_Authentication_Test extends TestCase {
 					'request_method' => 'GET',
 					'verified'       => false,
 				),
-				'test_outputs' => array(
+				'expected_outputs' => array(
 					'authenticate' => null,
 					'errors'       => 'WP_Error',
 				),
 			),
 			'successful GET request blog token'  => array(
-				'test_inputs'  => array(
+				'test_inputs'      => array(
 					'get_params'     => array(
 						'_for'      => 'jetpack',
 						'token'     => 'token',
@@ -276,13 +274,13 @@ class REST_Authentication_Test extends TestCase {
 					'request_method' => 'GET',
 					'verified'       => $blog_token_data,
 				),
-				'test_outputs' => array(
+				'expected_outputs' => array(
 					'authenticate' => null,
 					'errors'       => true,
 				),
 			),
 			'successful POST request blog token' => array(
-				'test_inputs'  => array(
+				'test_inputs'      => array(
 					'get_params'     => array(
 						'_for'      => 'jetpack',
 						'token'     => 'token',
@@ -291,7 +289,7 @@ class REST_Authentication_Test extends TestCase {
 					'request_method' => 'POST',
 					'verified'       => $blog_token_data,
 				),
-				'test_outputs' => array(
+				'expected_outputs' => array(
 					'authenticate' => null,
 					'errors'       => true,
 				),
@@ -337,7 +335,7 @@ class REST_Authentication_Test extends TestCase {
 	 *     ],
 	 *     ['expected'] => (bool) The expected return value of wp_rest_authenticate. Required.
 	 */
-	public function is_signed_with_blog_token_data_provider() {
+	public static function is_signed_with_blog_token_data_provider() {
 		$token_data = array(
 			'type'      => 'user',
 			'token_key' => '123abc',

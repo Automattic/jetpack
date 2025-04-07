@@ -1,6 +1,7 @@
 .milestone-widget {
 	margin-bottom: 1em;
 }
+
 .milestone-content {
 	line-height: 2;
 	margin-top: 5px;
@@ -8,6 +9,7 @@
 	padding: 0;
 	text-align: center;
 }
+
 .milestone-header {
 	background-color: var(--milestone-text-color, #111);
 	color: var(--milestone-bg-color, #fff);
@@ -15,19 +17,23 @@
 	margin: 0;
 	padding: .8em;
 }
+
 .milestone-header .event,
 .milestone-header .date {
 	display: block;
 }
+
 .milestone-header .event {
 	font-size: 120%;
 }
+
 .milestone-countdown .difference {
 	display: block;
 	font-size: 500%;
 	font-weight: bold;
 	line-height: 1.2;
 }
+
 .milestone-countdown,
 .milestone-message {
 	background-color: var(--milestone-bg-color, #fff);
@@ -36,6 +42,7 @@
 	color: var(--milestone-text-color, #111);
 	padding-bottom: 1em;
 }
+
 .milestone-message {
 	padding-top: 1em;
 }

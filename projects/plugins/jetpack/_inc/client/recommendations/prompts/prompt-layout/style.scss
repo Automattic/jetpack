@@ -8,12 +8,14 @@
 }
 
 .jp-recommendations-question__main--with-sidebar .jp-recommendations-question__content {
+
 	@include breakpoint( '>660px' ) {
 		padding-right: 48px;
 	}
 }
 
 .jp-recommendations-question__progress-bar {
+
 	.progress-bar {
 		--spacing-base: 8px;
 		width: 70px;
@@ -161,6 +163,7 @@
 }
 
 .jp-recommendations-question__settings-button {
+
 	.components-external-link {
 		display: flex;
 		align-items: center;

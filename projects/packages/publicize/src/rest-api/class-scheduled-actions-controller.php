@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize\REST_API;
 
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
+use Automattic\Jetpack\Publicize\Connections;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use WP_Error;
 use WP_REST_Request;
@@ -48,34 +49,41 @@ class Scheduled_Actions_Controller extends Base_Controller {
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_items' ),
 					'permission_callback' => array( $this, 'get_items_permissions_check' ),
-				),
-				'schema' => array( $this, 'get_public_item_schema' ),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/posts/(?P<postId>\d+)/',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_items_for_post' ),
-					'permission_callback' => array( $this, 'get_items_permissions_check' ),
+					'args'                => array(
+						'post_id' => array(
+							'type'        => 'integer',
+							'description' => __( 'The post ID to filter the items by.', 'jetpack-publicize-pkg' ),
+						),
+					),
 				),
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_item' ),
 					'permission_callback' => array( $this, 'create_item_permissions_check' ),
 					'args'                => array(
-						'message'       => array(
-							'type'     => 'string',
+						'post_id'       => array(
+							'type'     => 'integer',
 							'required' => true,
 						),
 						'connection_id' => array(
 							'type'     => 'integer',
 							'required' => true,
 						),
-						'share_date'    => array( 'type' => 'integer' ),
+						'message'       => array(
+							'type' => 'string',
+						),
+						'share_date'    => array(
+							'type'        => 'integer',
+							'description' => sprintf(
+								/* translators: %s is the new field name */
+								__( 'Deprecated in favor of %s.', 'jetpack-publicize-pkg' ),
+								'timestamp'
+							),
+						),
+						'timestamp'     => array(
+							'type'        => 'integer',
+							'description' => __( 'GMT/UTC Unix timestamp in seconds for the action.', 'jetpack-publicize-pkg' ),
+						),
 					),
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
@@ -84,7 +92,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/posts/(?P<postId>\d+)/(?P<actionId>\d+)',
+			'/' . $this->rest_base . '/(?P<action_id>\d+)',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
@@ -97,7 +105,18 @@ class Scheduled_Actions_Controller extends Base_Controller {
 					'permission_callback' => array( $this, 'update_item_permissions_check' ),
 					'args'                => array(
 						'message'    => array( 'type' => 'string' ),
-						'share_date' => array( 'type' => 'integer' ),
+						'share_date' => array(
+							'type'        => 'integer',
+							'description' => sprintf(
+								/* translators: %s is the new field name */
+								__( 'Deprecated in favor of %s.', 'jetpack-publicize-pkg' ),
+								'timestamp'
+							),
+						),
+						'timestamp'  => array(
+							'type'        => 'integer',
+							'description' => __( 'GMT/UTC Unix timestamp in seconds for the action.', 'jetpack-publicize-pkg' ),
+						),
 					),
 				),
 				array(
@@ -151,7 +170,15 @@ class Scheduled_Actions_Controller extends Base_Controller {
 				),
 				'share_date'    => array(
 					'type'        => 'string',
-					'description' => __( 'ISO 8601 formatted date for the action.', 'jetpack-publicize-pkg' ),
+					'description' => __( 'ISO 8601 formatted date for the action.', 'jetpack-publicize-pkg' ) . ' ' . sprintf(
+						/* translators: %s is the new field name */
+						__( 'Deprecated in favor of %s.', 'jetpack-publicize-pkg' ),
+						'timestamp'
+					),
+				),
+				'timestamp'     => array(
+					'type'        => 'integer',
+					'description' => __( 'GMT/UTC Unix timestamp in seconds for the action.', 'jetpack-publicize-pkg' ),
 				),
 				'wpcom_user_id' => array(
 					'type'        => 'integer',
@@ -166,7 +193,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	/**
 	 * Check if the user has the basic permissions to access the Publicize scheduled actions.
 	 *
-	 * @return WP_Error|boolean
+	 * @return bool|WP_Error
 	 */
 	public function basic_permissions_check() {
 		if ( ! current_user_can( 'edit_posts' ) ) {
@@ -176,13 +203,68 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	}
 
 	/**
+	 * Check if the user has the basic permissions
+	 * required to perform CRUD operations on an item related to a post
+	 *
+	 * @param int $post_id The post ID.
+	 * @return bool|WP_Error
+	 */
+	public function basic_post_permissions_check( $post_id ) {
+
+		if ( ! get_post( $post_id ) ) {
+			return new WP_Error(
+				'post_not_found',
+				__( 'Post not found.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Ensure that the user can edit the post.
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to view or scheduled shares for that post.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Verify that the request has access to connectoins list.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
-	 * @return true|WP_Error
+	 * @return bool|WP_Error
 	 */
-	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return $this->basic_permissions_check();
+	public function get_items_permissions_check( $request ) {
+		$basic_permissions = $this->basic_permissions_check();
+
+		if ( is_wp_error( $basic_permissions ) || ! $basic_permissions ) {
+			return $basic_permissions;
+		}
+
+		$post_id = $request->get_param( 'post_id' );
+
+		/**
+		 * The post_id is optional only for editors and above.
+		 * It means that authors can view the scheduled shares
+		 * only for the post they can edit but
+		 * cannot view all the scheduled shares for the site.
+		 */
+		if ( ! $post_id && ! current_user_can( 'edit_others_posts' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'You must pass a post ID to list scheduled shares.', 'jetpack-publicize-pkg' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		if ( $post_id ) {
+			return $this->basic_post_permissions_check( $post_id );
+		}
+
+		return true;
 	}
 
 	/**
@@ -193,13 +275,22 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 * @return WP_REST_Response|WP_Error The response
 	 */
 	public function get_items( $request ) {
+
 		if ( Utils::is_wpcom() ) {
+			$post_id = $request->get_param( 'post_id' );
 
 			require_lib( 'publicize/class.publicize-actions' );
 
-			$scheduled_actions = \Publicize_Actions::get_scheduled_actions_by_blog_id(
-				get_current_blog_id()
-			);
+			if ( $post_id ) {
+				$scheduled_actions = \Publicize_Actions::get_scheduled_actions_by_blog_and_post_id(
+					get_current_blog_id(),
+					$post_id
+				);
+			} else {
+				$scheduled_actions = \Publicize_Actions::get_scheduled_actions_by_blog_id(
+					get_current_blog_id()
+				);
+			}
 
 			if ( is_wp_error( $scheduled_actions ) ) {
 				return $scheduled_actions;
@@ -216,44 +307,70 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	}
 
 	/**
-	 * Fetch the list of scheduled actions for a post
-	 *
-	 * @param  WP_REST_Request $request Full details about the request.
-	 * @return WP_Error|array The actions (under `items`) and the count (under `total`)
-	 */
-	public function get_items_for_post( $request ) {
-		$post_id = $request['postId'];
-
-		if ( Utils::is_wpcom() ) {
-			require_lib( 'publicize/class.publicize-actions' );
-
-			$scheduled_actions = \Publicize_Actions::get_scheduled_actions_by_blog_and_post_id(
-				get_current_blog_id(),
-				$post_id
-			);
-
-			if ( is_wp_error( $scheduled_actions ) ) {
-				return $scheduled_actions;
-			}
-
-			return rest_ensure_response(
-				$this->prepare_items_for_response( $scheduled_actions, $request )
-			);
-		}
-
-		return rest_ensure_response(
-			$this->proxy_request_to_wpcom_as_user( $request, "/posts/{$post_id}" )
-		);
-	}
-
-	/**
 	 * Checks if a given request has access to create a connection.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
-	 * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
+	 * @return bool|WP_Error True if the request has access to create items, WP_Error object otherwise.
 	 */
-	public function create_item_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return $this->basic_permissions_check();
+	public function create_item_permissions_check( $request ) {
+		$basic_permissions = $this->basic_permissions_check();
+
+		if ( is_wp_error( $basic_permissions ) || ! $basic_permissions ) {
+			return $basic_permissions;
+		}
+
+		$post_id = $request->get_param( 'post_id' );
+
+		$basic_post_permissions = $this->basic_post_permissions_check( $post_id );
+
+		if ( is_wp_error( $basic_post_permissions ) || ! $basic_post_permissions ) {
+			return $basic_post_permissions;
+		}
+
+		$post = get_post( $post_id );
+
+		// Ensure that the post is published.
+		if ( 'publish' !== $post->post_status ) {
+			return new WP_Error(
+				'post_not_published',
+				__( 'The post must be published to schedule it for sharing.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		/**
+		 * We need to validate the passed connection_id
+		 * to ensure that it's valid and the user has access to the connection.
+		 */
+		$connection = Connections::get_by_id( (string) $request->get_param( 'connection_id' ) );
+
+		if ( ! $connection ) {
+			return new WP_Error(
+				'connection_not_found',
+				__( 'That connection does not exist.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			return true;
+		}
+
+		/**
+		 * If the user is not an editor or above, they can create
+		 * actions only for the connections they have access to.
+		 * So, we need to check if the user has access to the connection
+		 * that they are trying to use to create the action.
+		 */
+		if ( ! Connections::is_shared( $connection ) && ! Connections::user_owns_connection( $connection ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you cannot schedule shares to that connection.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
 	}
 
 	/**
@@ -263,16 +380,22 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
-		$post_id = $request['postId'];
 
 		if ( Utils::is_wpcom() ) {
 			require_lib( 'publicize/class.publicize-actions' );
 
+			$post_id       = $request['post_id'];
 			$blog_id       = get_current_blog_id();
 			$user_id       = get_current_user_id();
-			$connection_id = $request['connection_id'];
-			$message       = $request['message'];
-			$share_date    = empty( $request['share_date'] ) ? time() : $request['share_date'];
+			$connection_id = (int) $request['connection_id'];
+			$message       = sanitize_textarea_field( $request['message'] ?? '' );
+
+			$timestamp = time();
+			if ( ! empty( $request['timestamp'] ) ) {
+				$timestamp = (int) $request['timestamp'];
+			} elseif ( ! empty( $request['share_date'] ) ) { // Fallback for deprecated field.
+				$timestamp = $request['share_date']; // Calypso sends this as timestamp.
+			}
 
 			$action = array(
 				'post_id'            => $post_id,
@@ -280,7 +403,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 				'user_id'            => $user_id,
 				'connection_id'      => $connection_id,
 				'message'            => $message,
-				'scheduled_datetime' => $this->format_date_for_db( $share_date ),
+				'scheduled_datetime' => $this->format_date_for_db( $timestamp ),
 			);
 
 			$action_id = \Publicize_Actions::add_scheduled_action( $action );
@@ -299,7 +422,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 		}
 
 		return rest_ensure_response(
-			$this->proxy_request_to_wpcom_as_user( $request, "/posts/{$post_id}" )
+			$this->proxy_request_to_wpcom_as_user( $request )
 		);
 	}
 
@@ -310,9 +433,10 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 * @return bool|WP_Error True if the request has read access for the item, WP_Error object or false otherwise.
 	 */
 	public function get_item_permissions_check( $request ) {
+		$basic_permissions = $this->basic_permissions_check();
 
-		if ( ! $this->basic_permissions_check() ) {
-			return false;
+		if ( is_wp_error( $basic_permissions ) || ! $basic_permissions ) {
+			return $basic_permissions;
 		}
 
 		if ( ! Utils::is_wpcom() ) {
@@ -320,17 +444,18 @@ class Scheduled_Actions_Controller extends Base_Controller {
 			return true;
 		}
 
-		$post_id   = $request['postId'];
-		$action_id = $request['actionId'];
-
-		$action = $this->wpcom_get_action_by_post_id_and_action_id( $post_id, $action_id );
+		$action = $this->wpcom_get_action( $request['action_id'] );
 
 		if ( is_wp_error( $action ) ) {
 			return $action;
 		}
 
 		// Ensure that the action is for the current blog.
-		return get_current_blog_id() === $action['blog_id'];
+		if ( get_current_blog_id() !== $action['blog_id'] ) {
+			return false;
+		}
+
+		return $this->basic_post_permissions_check( $action['post_id'] );
 	}
 
 	/**
@@ -340,18 +465,17 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_item( $request ) {
-		$post_id   = $request['postId'];
-		$action_id = $request['actionId'];
+		$action_id = $request['action_id'];
 
 		if ( Utils::is_wpcom() ) {
 
 			return rest_ensure_response(
-				$this->wpcom_get_action_by_post_id_and_action_id( $post_id, $action_id )
+				$this->wpcom_get_action( $action_id )
 			);
 		}
 
 		return rest_ensure_response(
-			$this->proxy_request_to_wpcom_as_user( $request, "/posts/{$post_id}/$action_id" )
+			$this->proxy_request_to_wpcom_as_user( $request, $action_id )
 		);
 	}
 
@@ -374,20 +498,26 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 */
 	public function update_item( $request ) {
 
-		$post_id   = $request['postId'];
-		$action_id = $request['actionId'];
+		$action_id = $request['action_id'];
 
 		if ( Utils::is_wpcom() ) {
 			require_lib( 'publicize/class.publicize-actions' );
 
-			$action = $this->wpcom_get_action_by_post_id_and_action_id( $post_id, $action_id );
+			$action = $this->wpcom_get_action( $action_id );
 
 			if ( is_wp_error( $action ) ) {
 				return $action;
 			}
-			$action['message']            = ! empty( $request['message'] ) ? $request['message'] : $action['message'];
-			$action['scheduled_datetime'] = ! empty( $request['share_date'] ) ? $request['share_date'] : strtotime( $action['share_date'] );
-			$action['scheduled_datetime'] = $this->format_date_for_db( $action['scheduled_datetime'] );
+			$action['message'] = ! empty( $request['message'] ) ? sanitize_textarea_field( $request['message'] ) : $action['message'];
+
+			// Retain the original timestamp by default.
+			$timestamp = $action['timestamp'];
+			if ( ! empty( $request['timestamp'] ) ) {
+				$timestamp = (int) $request['timestamp'];
+			} elseif ( ! empty( $request['share_date'] ) ) { // Fallback for deprecated field.
+				$timestamp = strtotime( $request['share_date'] );
+			}
+			$action['scheduled_datetime'] = $this->format_date_for_db( $timestamp );
 
 			$action['publicize_scheduled_action_id'] = $action['id'];
 
@@ -401,7 +531,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 		}
 
 		return rest_ensure_response(
-			$this->proxy_request_to_wpcom_as_user( $request, "/posts/{$post_id}/$action_id" )
+			$this->proxy_request_to_wpcom_as_user( $request, $action_id )
 		);
 	}
 
@@ -424,13 +554,12 @@ class Scheduled_Actions_Controller extends Base_Controller {
 	 */
 	public function delete_item( $request ) {
 
-		$post_id   = $request['postId'];
-		$action_id = $request['actionId'];
+		$action_id = $request['action_id'];
 
 		if ( Utils::is_wpcom() ) {
 			require_lib( 'publicize/class.publicize-actions' );
 
-			$action = $this->wpcom_get_action_by_post_id_and_action_id( $post_id, $action_id );
+			$action = $this->wpcom_get_action( $action_id );
 			if ( is_wp_error( $action ) ) {
 				return $action;
 			}
@@ -445,7 +574,7 @@ class Scheduled_Actions_Controller extends Base_Controller {
 		}
 
 		return rest_ensure_response(
-			$this->proxy_request_to_wpcom_as_user( $request, "/posts/{$post_id}/$action_id" )
+			$this->proxy_request_to_wpcom_as_user( $request, $action_id )
 		);
 	}
 
@@ -490,18 +619,18 @@ class Scheduled_Actions_Controller extends Base_Controller {
 			'message'       => (string) $raw_action['message'],
 			'post_id'       => (int) $raw_action['post_id'],
 			'share_date'    => (string) $this->format_date_for_output( $raw_action['scheduled_datetime'] ),
+			'timestamp'     => strtotime( $raw_action['scheduled_datetime'] ),
 			'wpcom_user_id' => (int) $raw_action['user_id'],
 		);
 	}
 
 	/**
-	 * Return a formatted action by post_id and action_id
+	 * Return a formatted action by action_id
 	 *
-	 * @param int $post_id   The post ID.
 	 * @param int $action_id The action ID.
 	 * @return WP_Error|array The action
 	 */
-	private function wpcom_get_action_by_post_id_and_action_id( $post_id, $action_id ) {
+	private function wpcom_get_action( $action_id ) {
 		// Ensure that we are on WPCOM.
 		Utils::assert_is_wpcom( __METHOD__ );
 
@@ -511,11 +640,9 @@ class Scheduled_Actions_Controller extends Base_Controller {
 			return $action;
 		}
 		if ( ! isset( $action['publicize_scheduled_action_id'] ) ) {
-			return new WP_Error( 'not_found', 'Could not find that action', array( 'status' => 404 ) );
+			return new WP_Error( 'not_found', __( 'Could not find that scheduled action.', 'jetpack-publicize-pkg' ), array( 'status' => 404 ) );
 		}
-		if ( $action['post_id'] !== $post_id ) {
-			return new WP_Error( 'not_found', 'Could not find that action', array( 'status' => 404 ) );
-		}
+
 		return $this->prepare_action_for_response( $action );
 	}
 

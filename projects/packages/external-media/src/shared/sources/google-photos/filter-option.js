@@ -29,6 +29,7 @@ function CategoryOption( { value, updateFilter } ) {
 			options={ GOOGLE_PHOTOS_CATEGORIES }
 			onChange={ updateFilter }
 			__nextHasNoMarginBottom={ true }
+			__next40pxDefaultSize={ true }
 		/>
 	);
 }
@@ -55,6 +56,7 @@ function DateOption( { value, updateFilter } ) {
 				options={ GOOGLE_PHOTOS_DATE_PRESETS }
 				onChange={ range => updateFilter( { range } ) }
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 			{ selectedRange === DATE_RANGE_CUSTOM && (
 				<Fragment>
@@ -64,6 +66,7 @@ function DateOption( { value, updateFilter } ) {
 						options={ MONTH_SELECT_OPTIONS }
 						onChange={ setMonth }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<NumberControl
 						className="components-base-control"
@@ -115,6 +118,7 @@ function MediaTypeOption( { value, updateFilter } ) {
 			value={ value }
 			options={ options }
 			onChange={ updateFilter }
+			__next40pxDefaultSize={ true }
 		/>
 	);
 }

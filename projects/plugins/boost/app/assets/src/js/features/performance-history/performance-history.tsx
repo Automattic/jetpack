@@ -9,7 +9,6 @@ import { __ } from '@wordpress/i18n';
 import { Panel, PanelBody, PanelRow } from '@wordpress/components';
 import { PerformanceHistoryData } from './lib/types';
 import { Button } from '@automattic/jetpack-components';
-import { useNavigate } from 'react-router-dom';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import styles from './performance-history.module.scss';
 import { useEffect } from 'react';
@@ -23,7 +22,6 @@ const PerformanceHistoryBody = () => {
 	const [ freshStartCompleted, dismissFreshStart ] = useDismissibleAlertState(
 		'performance_history_fresh_start'
 	);
-	const navigate = useNavigate();
 
 	/*
 	 * Fetch new data on initial page-load. This is a lazy data-sync and initially empty.
@@ -48,7 +46,6 @@ const PerformanceHistoryBody = () => {
 
 	const handleUpgrade = () => {
 		recordBoostEvent( 'performance_history_upgrade_cta_click', {} );
-		navigate( '/upgrade' );
 	};
 
 	return (

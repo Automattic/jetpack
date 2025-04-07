@@ -431,11 +431,13 @@ class SQL_Generator {
 			$ret .= ' NOT NULL';
 		}
 
-		if ( array_key_exists( 'auto_increment', $column ) && $column['auto_increment'] ) {
+		$is_auto_increment = array_key_exists( 'auto_increment', $column ) && $column['auto_increment'];
+
+		if ( $is_auto_increment ) {
 			$ret .= ' AUTO_INCREMENT';
 		}
 
-		if ( array_key_exists( 'default', $column ) && $column['default'] !== null ) {
+		if ( ! $is_auto_increment && array_key_exists( 'default', $column ) && $column['default'] !== null ) {
 			$default = $column['default'];
 
 			if ( $column['sqlite_type'] === 'integer' ) {

@@ -14,8 +14,6 @@ use PHPUnit\Framework\TestCase;
  * Semver test suite.
  */
 class SemverTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Test parse.
@@ -37,7 +35,7 @@ class SemverTest extends TestCase {
 	/**
 	 * Data provider for testParse.
 	 */
-	public function provideParse() {
+	public static function provideParse() {
 		return array(
 			array(
 				'1.2.3',
@@ -185,7 +183,7 @@ class SemverTest extends TestCase {
 	/**
 	 * Data provider for testCompare.
 	 */
-	public function provideCompare() {
+	public static function provideCompare() {
 		return array(
 			array( '1.0.0', '==', '1.0.0' ),
 			array( '1.0.0', '<', '2.0.0' ),

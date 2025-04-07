@@ -11,6 +11,7 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
  * Test module related methods in Jetpack and Jetpack_Admin class.
  */
 class Get_Modules_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Store all available modules.
@@ -126,7 +127,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function get_test_connection_filters_data() {
+	public static function get_test_connection_filters_data() {
 		return array(
 			array(
 				true,

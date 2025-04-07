@@ -2,6 +2,8 @@
 require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
 
 class Jetpack_Core_Api_Xmlrpc_Consumer_Endpoint_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * @author zinigor
 	 * @covers Jetpack_Core_API_XMLRPC_Consumer_Endpoint
@@ -31,7 +33,7 @@ class Jetpack_Core_Api_Xmlrpc_Consumer_Endpoint_Test extends WP_UnitTestCase {
 		$this->assertEquals( $result, $endpoint->process( null ) );
 	}
 
-	public function true_false_provider() {
+	public static function true_false_provider() {
 		return array(
 			array( true, true ),
 			array( true, false ),

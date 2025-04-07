@@ -65,10 +65,9 @@ class WPcom_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Set up each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $menu, $submenu;
 
 		static::$domain       = ( new Status() )->get_site_suffix();
@@ -85,11 +84,16 @@ class WPcom_Admin_Menu_Test extends TestCase {
 
 		wp_set_current_user( static::$user_id );
 
-		$admin_menu = $this->getMockBuilder( WPcom_Admin_Menu::class )
-							->disableOriginalConstructor()
-							->onlyMethods( array( 'should_link_to_wp_admin' ) )
-							->getMock();
-		$admin_menu->method( 'should_link_to_wp_admin' )->willReturn( false );
+		$admin_menu = new class() extends WPcom_Admin_Menu {
+			// phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found -- Not useless, changes visibility.
+			public function __construct() {
+				parent::__construct();
+			}
+
+			public function should_link_to_wp_admin() {
+				return false;
+			}
+		};
 
 		// Initialize in setUp so it registers hooks for every test.
 		static::$admin_menu = $admin_menu::get_instance();
@@ -100,10 +104,9 @@ class WPcom_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}

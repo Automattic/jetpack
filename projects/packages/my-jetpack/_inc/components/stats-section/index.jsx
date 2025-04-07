@@ -68,7 +68,7 @@ const StatsSection = () => {
 			secondaryAction={ viewStatsButton }
 			showMenu
 		>
-			<StatsCards counts={ counts } previousCounts={ previousCounts } />
+			<StatsCards counts={ counts } previousCounts={ previousCounts } headingLevel={ 4 } />
 		</ProductCard>
 	);
 };

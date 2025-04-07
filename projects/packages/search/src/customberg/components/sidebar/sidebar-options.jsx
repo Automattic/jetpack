@@ -103,6 +103,7 @@ export default function SidebarOptions() {
 					options={ sortOptions }
 					onChange={ setSort }
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				/>
 				<SelectControl
 					className="jp-search-configure-overlay-trigger-select"
@@ -121,6 +122,7 @@ export default function SidebarOptions() {
 					] }
 					onChange={ setTrigger }
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				/>
 				<ToggleControl
 					className="jp-search-configure-filtering-opens-overlay-toggle"

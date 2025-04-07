@@ -25,7 +25,7 @@ html {
 	@for $i from 0 to $snow_density {
 		$v: nth($snow_sizes, $i + 1);
 		$alpha: nth($snow_alphas, $i + 1);
-		$grad: $grad, radial-gradient($v+px $v+px at (round(nth($snow_positions, $i * 2 + 1) * ($grid_width - $v * 2)) + $v)+px (round(nth($snow_positions, $i * 2 + 2) * ($grid_width - $v * 2)) + $v)+px,
+		$grad: $grad, radial-gradient($v + px $v + px at (round(nth($snow_positions, $i * 2 + 1) * ($grid_width - $v * 2)) + $v) + px (round(nth($snow_positions, $i * 2 + 2) * ($grid_width - $v * 2)) + $v) + px,
 				rgba(255, 255, 255, $alpha) 50%,
 				rgba(0, 0, 0, 0));
 	}
@@ -52,7 +52,7 @@ html {
 	}
 
 	#{$snow_selector}:after {
-		margin-left: -$grid_width/3 + px;
+		margin-left: -$grid_width / 3 + px;
 		opacity: .4;
 		animation-duration: $snow_speed * 2;
 		animation-direction: reverse;
@@ -62,12 +62,13 @@ html {
 	#{$snow_selector}:before {
 		animation-duration: $snow_speed * 3;
 		animation-direction: reverse;
-		margin-left: -$grid_width/2 + px;
+		margin-left: -$grid_width / 2 + px;
 		opacity: .65;
 		filter: blur(1.5px);
 	}
 
 	@keyframes snowstorm {
+
 		to {
 			transform: translateY($grid_width + px);
 		}

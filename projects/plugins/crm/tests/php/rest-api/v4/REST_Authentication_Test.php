@@ -19,7 +19,7 @@ class REST_Authentication_Test extends REST_Base_TestCase {
 	 *
 	 * @return string[][]
 	 */
-	public function auth_user_url_provider() {
+	public static function auth_user_url_provider() {
 		return array(
 			'contacts_controller::get_item'     => array(
 				WP_REST_Server::READABLE,
@@ -66,10 +66,10 @@ class REST_Authentication_Test extends REST_Base_TestCase {
 	 *
 	 * @return string[][]
 	 */
-	public function auth_all_urls_provider() {
+	public static function auth_all_urls_provider() {
 		// We don't have any POST/PATCH/DELETE requests yet, so we just return the
 		// dataProvider containing GET requests that requires authentication.
-		return $this->auth_user_url_provider();
+		return static::auth_user_url_provider();
 	}
 
 	/**

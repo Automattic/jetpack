@@ -5,6 +5,7 @@
  * @covers Jetpack_Client_Server
  */
 class Jetpack_Client_Server_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Set up before class.
@@ -36,9 +37,7 @@ class Jetpack_Client_Server_Test extends WP_UnitTestCase {
 		);
 		wp_set_current_user( $author_id );
 
-		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			->addMethods( array( 'do_exit' ) )
-			->getMock();
+		// @todo Does this actually test Jetpack_Client_Server at all after #14043?
 
 		$result = Jetpack::connection()->authorize();
 
@@ -58,9 +57,7 @@ class Jetpack_Client_Server_Test extends WP_UnitTestCase {
 		);
 		wp_set_current_user( $author_id );
 
-		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			->addMethods( array( 'do_exit' ) )
-			->getMock();
+		// @todo Does this actually test Jetpack_Client_Server at all after #14043?
 
 		$result = Jetpack::connection()->authorize();
 
@@ -79,9 +76,7 @@ class Jetpack_Client_Server_Test extends WP_UnitTestCase {
 		);
 		wp_set_current_user( $author_id );
 
-		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			->addMethods( array( 'do_exit' ) )
-			->getMock();
+		// @todo Does this actually test Jetpack_Client_Server at all after #14043?
 
 		$result = Jetpack::connection()->authorize( array( 'error' => 'test_error' ) );
 

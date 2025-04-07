@@ -3,6 +3,7 @@
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 class Jetpack_Shortcodes_Tweet_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
@@ -11,7 +12,10 @@ class Jetpack_Shortcodes_Tweet_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
+		// PHPUnit 10+ renamed `getGroups()` to `groups()`.
+		// @phan-suppress-next-line PhanUndeclaredMethod -- `getGroups()` exists (PHPUnit <10) if `groups()` doesn't (PHPUnit 10+).
+		$groups = is_callable( array( $this, 'groups' ) ) ? $this->groups() : $this->getGroups();
+		if ( in_array( 'external-http', $groups, true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.
 			add_filter( 'tests_allow_http_request', '__return_true' );
 		} else {
@@ -167,7 +171,7 @@ BODY;
 	 *
 	 * @return array The test data.
 	 */
-	public function get_tweet_amp_data() {
+	public static function get_tweet_amp_data() {
 		$tweet_id       = 95234262;
 		$default_height = 480;
 		$default_width  = 600;

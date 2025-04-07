@@ -1,6 +1,6 @@
 {
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^1.1.1",
-		"phpunit/phpcov": "^8.2"
+		"yoast/phpunit-polyfills": "^3.0.0",
+		"phpunit/phpcov": "^10.0.1"
 	}
 }

@@ -158,14 +158,14 @@ function get_path_transformation_map( $report_file_paths ) {
 }
 
 /**
- * Processes a v9 CodeCoverage report.
+ * Processes a v11 CodeCoverage report.
  *
  * @param SebastianBergmann\CodeCoverage\CodeCoverage $report The report to process.
  * @return SebastianBergmann\CodeCoverage\CodeCoverage The processed report.
  *
  * @phan-suppress PhanAccessMethodInternal -- There's not really a way to avoid this.
  */
-function process_coverage_9( $report ) {
+function process_coverage_11( $report ) {
 	$data      = $report->getData( true );
 	$classname = get_class( $data );
 
@@ -198,14 +198,19 @@ function process_coverage_9( $report ) {
 		$removed_files[] = $file;
 	}
 
+	// Unfortunately we have to use reflection (or else we have to reconstruct the whole stack of objects from scratch), since they deleted `excludeFile()` because PHPUnit itself didn't use it. Sigh.
+	$rp    = new \ReflectionProperty( $report->filter(), 'files' );
+	$files = $rp->getValue( $report->filter() );
+
 	// Remove all of the files that we've transformed from the coverage.
 	$line_coverage = $data->lineCoverage();
 	foreach ( $removed_files as $file ) {
 		// Make sure the uncovered file does not show up in the report.
-		$report->filter()->excludeFile( $file );
+		unset( $files[ realpath( $file ) ] );
 		unset( $line_coverage[ $file ] );
 	}
 	$data->setLineCoverage( $line_coverage );
+	$rp->setValue( $report->filter(), $files );
 
 	return $report;
 }

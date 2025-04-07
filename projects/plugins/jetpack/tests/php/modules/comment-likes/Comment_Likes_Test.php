@@ -15,6 +15,7 @@ require __DIR__ . '/../../../../modules/comment-likes.php';
  * @since 8.4.0
  */
 class Comment_Likes_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Test that the assets are not enqueued if likes are not visible.

@@ -40,6 +40,24 @@ describe( 'ConfirmationForm', () => {
 		],
 	};
 
+	const keyringResult2 = {
+		ID: 23456789,
+		service: 'linkedin',
+		external_ID: 'abcd',
+		external_name: 'social-testino',
+		external_display: 'Social Testino',
+		additional_external_users: [
+			{
+				external_ID: '123456789',
+				external_name: 'JP Social Test Company',
+			},
+			{
+				external_ID: '987654321',
+				external_name: 'Cats Company',
+			},
+		],
+	};
+
 	const renderComponent = ( props = {} ) => {
 		return render(
 			<ConfirmationForm keyringResult={ keyringResult } onComplete={ jest.fn() } { ...props } />
@@ -50,8 +68,20 @@ describe( 'ConfirmationForm', () => {
 		renderComponent();
 
 		expect( screen.getByText( /Select the account you'd like to connect/ ) ).toBeInTheDocument();
+		// Facebook should not show the main user account
+		expect( screen.queryByText( 'Test Account' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Additional User 1' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Additional User 2' ) ).toBeInTheDocument();
+	} );
+
+	test( 'renders the form with main and additional account options', () => {
+		render( <ConfirmationForm keyringResult={ keyringResult2 } onComplete={ jest.fn() } /> );
+
+		expect( screen.getByText( /Select the account you'd like to connect/ ) ).toBeInTheDocument();
+		// LinkedIn should show the main user account
+		expect( screen.getByText( 'Social Testino' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'JP Social Test Company' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Cats Company' ) ).toBeInTheDocument();
 	} );
 
 	test( 'submits the form successfully', async () => {

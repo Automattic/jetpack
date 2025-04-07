@@ -28,13 +28,34 @@ const usePostContent = () => {
 		};
 	}, [] );
 
-	const getPostContent = useCallback( () => {
+	const getSerializedPostContent = useCallback( () => {
 		const blocks = getBlocks();
 
-		return blocks?.length ? renderMarkdownFromHTML( { content: serialize( blocks ) } ) : '';
+		if ( blocks.length === 0 ) {
+			return '';
+		}
+
+		return serialize( blocks );
 	}, [ getBlocks ] );
 
-	return { getPostContent, isEditedPostEmpty };
+	const getPostContent = useCallback(
+		( preprocess?: ( serialized: string ) => string ) => {
+			let serialized = getSerializedPostContent();
+
+			if ( ! serialized ) {
+				return '';
+			}
+
+			if ( preprocess && typeof preprocess === 'function' ) {
+				serialized = preprocess( serialized );
+			}
+
+			return serialized ? renderMarkdownFromHTML( { content: serialized } ) : '';
+		},
+		[ getBlocks ]
+	);
+
+	return { getPostContent, isEditedPostEmpty, getSerializedPostContent };
 };
 
 export default usePostContent;

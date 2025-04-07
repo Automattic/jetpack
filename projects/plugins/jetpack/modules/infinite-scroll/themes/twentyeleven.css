@@ -5,19 +5,24 @@
 	content: '';
 	display: block;
 }
+
 .infinite-scroll #content {
 	margin-bottom: 40px;
 }
+
 .infinite-scroll.neverending #content {
 	margin-bottom: 70px;
 }
+
 .infinite-scroll .infinite-wrap {
 	border-top: none;
 	padding-top: 0;
 }
+
 .infinite-scroll .infinite-wrap .hentry:last-child {
 	border-bottom: 1px solid #dcdcde;
 }
+
 .infinite-scroll .infinite-wrap:last-of-type .hentry:last-child {
 	border-bottom: none;
 }
@@ -39,6 +44,7 @@
 
 /* For responsive CSS */
 @media (max-width: 800px) {
+
 	.infinite-scroll #infinite-handle {
 		padding-bottom: 40px;
 	}

@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Swap `{@html var ? 'str' : 'str'}` for `{#if var}str{: else}str{/if}` to avoid a linter warning about `@html`. No change to functionality.
-
-

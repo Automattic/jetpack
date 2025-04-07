@@ -1,119 +1,151 @@
 <?php
+/**
+ * Tests for Speculation_Rules class
+ *
+ * @package automattic/jetpack-boost
+ */
 
 namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Speculation_Rules;
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules\Speculation_Rules;
-use Automattic\Jetpack_Boost\Tests\Base_TestCase;
-use Brain\Monkey\Functions;
+use Brain\Monkey;
+use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class Speculation_Rules_Test extends Base_TestCase {
-	private $speculation_rules;
-	private $was_constant_defined;
-	private $original_constant_value;
+/**
+ * Class Test_Speculation_Rules
+ */
+class Speculation_Rules_Test extends MockeryTestCase {
 
-	public function set_up() {
-		parent::set_up();
-		$this->speculation_rules = new Speculation_Rules();
+	/**
+	 * Set up test environment
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		Monkey\setUp();
 
-		// Store the original state of the constant
-		$this->was_constant_defined    = defined( 'JETPACK_BOOST_ALPHA_FEATURES' );
-		$this->original_constant_value = $this->was_constant_defined ? constant( 'JETPACK_BOOST_ALPHA_FEATURES' ) : null;
+		// Reset Mockery container at the start of each test
+		Mockery::getContainer()->mockery_close();
 	}
 
 	/**
-	 * Test the is_available method with different constant states
-	 *
-	 * @since 3.10.0
+	 * Tear down test environment
 	 */
-	public function test_is_available() {
-		// Test the current behavior based on the actual constant state
-		if ( ! $this->was_constant_defined ) {
-			// If the constant wasn't defined, we can test both scenarios
-			$this->assertFalse( Speculation_Rules::is_available(), 'Should return false when constant is not defined' );
+	protected function tearDown(): void {
+		Mockery::close();
+		Monkey\tearDown();
 
-			// Define the constant as true and test again
-			define( 'JETPACK_BOOST_ALPHA_FEATURES', true );
-			$this->assertTrue( Speculation_Rules::is_available(), 'Should return true when constant is defined as true' );
-		} elseif ( $this->original_constant_value === true ) {
-			// Constant is already defined as true
-			$this->assertTrue( Speculation_Rules::is_available(), 'Should return true when constant is defined as true' );
-			$this->markTestIncomplete( 'Cannot test the false case because JETPACK_BOOST_ALPHA_FEATURES is already defined as true' );
-		} else {
-			// Constant is already defined as something other than true
-			$this->assertFalse( Speculation_Rules::is_available(), 'Should return false when constant is defined but not true' );
-			$this->markTestIncomplete( 'Cannot test the true case because JETPACK_BOOST_ALPHA_FEATURES is already defined as ' . $this->original_constant_value );
-		}
+		// Reset any loaded classes/mocks
+		Mockery::getContainer()->mockery_close();
+
+		parent::tearDown();
 	}
 
-	public function test_get_slug() {
-		$this->assertEquals( 'speculation_rules', Speculation_Rules::get_slug() );
-	}
-
-	public function test_is_ready() {
-		$this->assertTrue( $this->speculation_rules->is_ready() );
-	}
-
+	/**
+	 * Test setup() when feature is available
+	 */
 	public function test_setup() {
-		// Test that setup runs without errors
-		$this->speculation_rules->setup();
-		$this->assertNotFalse( has_action( 'wp_footer', array( $this->speculation_rules, 'inject_speculation_rules' ) ) );
+		// Ensure WordPress functions are available
+		if ( ! function_exists( 'add_action' ) ) {
+			Monkey\Functions\when( 'add_action' )->justReturn( true );
+		}
+
+		// Expect add_action to be called once with correct parameters
+		Monkey\Functions\expect( 'add_action' )
+			->once()
+			->with(
+				'wp_load_speculation_rules',
+				Mockery::on(
+					function ( $callback ) {
+						return is_array( $callback )
+							&& isset( $callback[0] )
+							&& $callback[0] instanceof Speculation_Rules
+							&& isset( $callback[1] )
+							&& $callback[1] === 'add_cornerstone_rules';
+					}
+				)
+			);
+
+		$speculation_rules = new Speculation_Rules();
+		$speculation_rules->setup();
 	}
 
 	/**
-	 * Test the inject_speculation_rules method with prefetch method
-	 *
-	 * @since 3.10.0
+	 * Test add_cornerstone_rules() with empty URLs
 	 */
-	public function test_inject_speculation_rules_prefetch() {
-		// Mock jetpack_boost_ds_get to return false (use prefetch)
-		Functions\when( 'jetpack_boost_ds_get' )->justReturn( false );
+	public function test_add_cornerstone_rules_with_empty_urls() {
+		// Set up Cornerstone_Utils mock for this test
+		$cornerstone_utils_mock = Mockery::mock( 'alias:Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils' );
+		$cornerstone_utils_mock->shouldReceive( 'get_list' )
+			->once()
+			->andReturn( array() );
 
-		// Start output buffering to capture the output
-		ob_start();
-		$this->speculation_rules->inject_speculation_rules();
-		$output = ob_get_clean();
+		Monkey\Functions\stubs(
+			array(
+				'jetpack_boost_ds_get' => array(),
+				'get_option'           => array(),
+			)
+		);
 
-		// Check that the output contains the expected script tag with prefetch method
-		$this->assertStringContainsString( '<script type="speculationrules">', $output );
-		$this->assertStringContainsString( '"prefetch"', $output );
-		$this->assertStringContainsString( '"source": "document"', $output );
-		$this->assertStringContainsString( '"href_matches": "/*"', $output );
+		$speculation_rules    = new Speculation_Rules();
+		$wp_speculation_rules = new \WP_Speculation_Rules();
+		$speculation_rules->add_cornerstone_rules( $wp_speculation_rules );
+
+		$this->assertEmpty( $wp_speculation_rules->get_rules() );
 	}
 
 	/**
-	 * Test the inject_speculation_rules method with prerender method
-	 *
-	 * @since 3.10.0
+	 * Test add_cornerstone_rules() with valid URLs
 	 */
-	public function test_inject_speculation_rules_prerender() {
-		// Mock jetpack_boost_ds_get to return true (use prerender)
-		Functions\when( 'jetpack_boost_ds_get' )->justReturn( true );
+	public function test_add_cornerstone_rules_with_valid_urls() {
+		$test_urls = array( 'https://example.com/page1', 'https://example.com/page2' );
 
-		// Start output buffering to capture the output
-		ob_start();
-		$this->speculation_rules->inject_speculation_rules();
-		$output = ob_get_clean();
+		// Set up Cornerstone_Utils mock for this test
+		$cornerstone_utils_mock = Mockery::mock( 'alias:Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils' );
+		$cornerstone_utils_mock->shouldReceive( 'get_list' )
+			->once()
+			->andReturn( $test_urls );
 
-		// Check that the output contains the expected script tag with prerender method
-		$this->assertStringContainsString( '<script type="speculationrules">', $output );
-		$this->assertStringContainsString( '"prerender"', $output );
-		$this->assertStringContainsString( '"source": "document"', $output );
-		$this->assertStringContainsString( '"href_matches": "/*"', $output );
-	}
+		// Rest of the test remains the same...
+		Monkey\Functions\stubs(
+			array(
+				'wp_parse_url' => array(
+					'host'   => 'example.com',
+					'scheme' => 'https',
+				),
+			)
+		);
 
-	/**
-	 * Test the register_data_sync method
-	 *
-	 * @since 3.10.0
-	 */
-	public function test_register_data_sync() {
-		// Since we can't mock the Data_Sync class directly, we'll skip the actual test
-		// and just verify that the method exists and can be called without errors
-		$this->assertTrue( method_exists( $this->speculation_rules, 'register_data_sync' ), 'The register_data_sync method should exist' );
+		Monkey\Functions\stubs(
+			array(
+				'home_url' => 'https://example.com/',
+			)
+		);
 
-		// Mark the test as skipped with an explanation
-		$this->markTestSkipped(
-			'Cannot fully test register_data_sync because Data_Sync is a final class and cannot be mocked.'
+		$speculation_rules    = new Speculation_Rules();
+		$wp_speculation_rules = new \WP_Speculation_Rules();
+		$speculation_rules->add_cornerstone_rules( $wp_speculation_rules );
+
+		$output_test_urls = array_map(
+			function ( $url ) {
+				return trailingslashit( str_replace( 'https://example.com', '', $url ) );
+			},
+			$test_urls
+		);
+		// Assert that the rule was added correctly
+		$rules = $wp_speculation_rules->get_rules();
+		$this->assertCount( 1, $rules );
+		$this->assertEquals( 'prerender', $rules[0]['type'] );
+		$this->assertEquals( 'cornerstone-pages-prerender', $rules[0]['name'] );
+		$this->assertEquals(
+			array(
+				'source'    => 'document',
+				'where'     => array(
+					'href_matches' => $output_test_urls,
+				),
+				'eagerness' => 'moderate',
+			),
+			$rules[0]['args']
 		);
 	}
 }

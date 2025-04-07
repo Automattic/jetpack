@@ -31,12 +31,10 @@ vendor/wikimedia/aho-corasick/**                production-include
 /.gitattributes                                 production-exclude
 /.gitignore                                     production-exclude
 /.phpcs.dir.xml                                 production-exclude
-/.phpunit.result.cache                          production-exclude
 /.prettierrc.js                                 production-exclude
 /babel.config.js                                production-exclude
 /composer.lock                                  production-exclude
 /package.json                                   production-exclude
-/phpunit.xml.dist                               production-exclude
 /README.md                                      production-exclude
 /rollup.config.js                               production-exclude
 /rollup-tsconfig.json                           production-exclude

@@ -16,5 +16,4 @@ vendor/scssphp/scssphp/**  production-include
 # Remember to end all directories with `/**` to properly tag every file.
 .gitignore        production-exclude
 changelog/**      production-exclude
-phpunit.xml.dist  production-exclude
 tests/**          production-exclude

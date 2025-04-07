@@ -36,7 +36,7 @@ describe( 'Newsletter Widget Initialization', () => {
 		expect( mockRender ).not.toHaveBeenCalled();
 	} );
 
-	it( 'does not create root when config data is missing', () => {
+	it( 'does not create root when required config data is missing', () => {
 		window.JetpackScriptData = { site: { admin_url: '', suffix: '' } } as JetpackScriptData;
 		document.body.innerHTML = '<div id="newsletter-widget-app"></div>';
 
@@ -45,7 +45,7 @@ describe( 'Newsletter Widget Initialization', () => {
 		expect( mockRender ).not.toHaveBeenCalled();
 	} );
 
-	it( 'creates root and renders component when container and config are present', () => {
+	it( 'creates root and renders component when container and required config are present', () => {
 		const container = document.createElement( 'div' );
 		container.id = 'newsletter-widget-app';
 		document.body.appendChild( container );

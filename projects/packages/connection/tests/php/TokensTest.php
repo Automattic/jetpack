@@ -18,7 +18,6 @@ use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
  * Tokens functionality testing.
  */
 class TokensTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Used by filters to set the current `site_url`.
@@ -36,10 +35,9 @@ class TokensTest extends TestCase {
 
 	/**
 	 * Initialize the object before running the test method.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
 			->onlyMethods( array( 'get_access_token' ) )
 			->getMock();
@@ -47,10 +45,9 @@ class TokensTest extends TestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		remove_all_filters( 'jetpack_options' );
 		unset( $this->tokens );
 		Constants::clear_constants();

@@ -9,6 +9,7 @@
  * Class FunctionsTest.
  */
 class FunctionsTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Tests that wpcomsh_get_atomic_client_id returns a default value of 0

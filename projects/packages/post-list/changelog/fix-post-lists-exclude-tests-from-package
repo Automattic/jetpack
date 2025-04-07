@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Exclude unit tests from published package.

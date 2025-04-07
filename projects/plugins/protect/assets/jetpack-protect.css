@@ -11,6 +11,7 @@
   }
 
 [class^="jp-protect-icon"], [class*=" jp-protect-icon"] {
+
 	/* use !important to prevent issues with browser extensions that change fonts */
 	font-family: 'jetpack-protect' !important;
 	speak: never;

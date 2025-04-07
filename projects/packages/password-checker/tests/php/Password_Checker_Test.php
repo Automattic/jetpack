@@ -80,7 +80,7 @@ class Password_Checker_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function rule_provider() {
+	public static function rule_provider() {
 		/**
 		 * Data format.
 		 *

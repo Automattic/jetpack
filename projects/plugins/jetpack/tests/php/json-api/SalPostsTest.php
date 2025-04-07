@@ -3,6 +3,8 @@
 require_once JETPACK__PLUGIN_DIR . 'sal/class.json-api-platform.php';
 
 class SalPostsTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	public static $token;
 	public static $site;
 

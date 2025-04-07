@@ -18,8 +18,6 @@ use WorDBless\BaseTestCase;
 class Main_Test extends BaseTestCase {
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Cache::clear();

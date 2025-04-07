@@ -1,20 +1,22 @@
 <?php
 
 class Jetpack_Deprecation_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @dataProvider provider_deprecated_file_paths
 	 */
 	public function test_deprecated_file_paths( $file_path, $replacement_path ) {
+		if ( $file_path === '' && $replacement_path === '' ) {
+			$this->markTestSkipped( 'No deprecated paths to test' );
+		}
+
 		$this->setExpectedDeprecated( $file_path );
 
-		$mock = $this->getMockBuilder( stdClass::class )
-			->addMethods( array( 'action' ) )
-			->getMock();
-		$mock->expects( $this->once() )->method( 'action' )->with( $file_path, $replacement_path );
+		$action = $this->getMockBuilder( \CallableMock::class )->getMock();
+		$action->expects( $this->once() )->method( '__invoke' )->with( $file_path, $replacement_path );
 
-		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
-		add_action( 'deprecated_file_included', array( $mock, 'action' ), 10, 2 );
+		add_action( 'deprecated_file_included', $action, 10, 2 );
 		add_filter( 'deprecated_file_trigger_error', '__return_false' );
 
 		require_once JETPACK__PLUGIN_DIR . $file_path;
@@ -27,7 +29,7 @@ class Jetpack_Deprecation_Test extends WP_UnitTestCase {
 		$this->assertTrue( method_exists( $class_name, $method_name ) );
 	}
 
-	public function provider_deprecated_method_stubs() {
+	public static function provider_deprecated_method_stubs() {
 		return array(
 			array( 'Jetpack_Options', 'get_option', array( 'Bogus' ), false ),
 			array( 'Jetpack_Options', 'get_option_and_ensure_autoload', array( 'Bogus', 'Bogus' ), false ),
@@ -63,7 +65,10 @@ class Jetpack_Deprecation_Test extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function provider_deprecated_file_paths() {
-		return array();
+	public static function provider_deprecated_file_paths() {
+		return array(
+			// PHPunit 11 doesn't allow an empty data provider and doesn't allow the provider to explicitly skip either, sigh. So we have to do BS like this instead.
+			array( '', '' ),
+		);
 	}
 }

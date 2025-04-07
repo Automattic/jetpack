@@ -32,7 +32,9 @@
 	}
 
 	:global {
+
 		.components-base-control {
+
 			&__field {
 				--wp-admin-theme-color: var(--jp-green-40);
 			}
@@ -42,6 +44,7 @@
 				font-weight: inherit;
 				font-size: inherit;
 			}
+
 			.components-input-control__container {
 				max-width: max-content;
 			}

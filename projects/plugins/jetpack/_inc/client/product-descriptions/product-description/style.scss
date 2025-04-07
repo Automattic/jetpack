@@ -8,6 +8,7 @@
 }
 
 .jp-product-description--split {
+
 	@include breakpoint( '>960px' ) {
 		display: grid;
 		grid-template-columns: 50% 50%;

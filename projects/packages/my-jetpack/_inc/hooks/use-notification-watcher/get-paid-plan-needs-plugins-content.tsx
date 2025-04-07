@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 
 type NeedsPluginsAlert =
-	Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ][ `${ string }--plugins_needing_installed_activated` ];
+	RedBubbleAlerts[ `${ JetpackPlanSlug }--plugins_needing_installed_activated` ];
 
 export const useGetPaidPlanNeedsPluginsContent = ( {
 	alert,

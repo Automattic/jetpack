@@ -35,7 +35,7 @@ class Post_Thumbnail_Test extends TestCase {
 	 *
 	 * @return array[]
 	 */
-	public function invalid_post_content() {
+	public static function invalid_post_content() {
 		return array(
 			'Name does not exist.'                  => array( '.' ),
 			'Name exists but outside of HTML.'      => array( 'wp-image-24' ),
@@ -68,7 +68,7 @@ class Post_Thumbnail_Test extends TestCase {
 	 *
 	 * @return array[]
 	 */
-	public function valid_post_content() {
+	public static function valid_post_content() {
 		$post_content_gallery_image = '<!-- wp:paragraph -->
 <p>Welcome to WordPress.</p>
 <!-- /wp:paragraph -->

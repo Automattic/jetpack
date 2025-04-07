@@ -26,6 +26,7 @@ function getCriticalCssErrorSetInterpolateVars( errorSet: ErrorSet ) {
 		}, 'retry' ),
 		...supportLinkInterpolateVar(),
 		b: <b />,
+		strong: <strong />,
 	};
 
 	if ( 'listLink' in suggestion( errorSet ) ) {

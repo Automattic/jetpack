@@ -20,6 +20,7 @@
 	}
 
 	&__layout {
+
 		@include break-medium {
 			display: grid;
 			grid-template-columns: auto 34%;
@@ -123,6 +124,7 @@
 	}
 
 	.jp-action-button {
+
 		button {
 			width: 100%;
 

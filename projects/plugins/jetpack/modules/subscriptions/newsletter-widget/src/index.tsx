@@ -1,12 +1,15 @@
 import * as jpDataUtils from '@automattic/jetpack-script-data';
 import { createRoot } from '@wordpress/element';
-import { NewsletterWidget } from './newsletter-widget';
+import { NewsletterWidget } from './components/newsletter-widget';
+import type { SubscriberTotalsByDate } from './types';
 
 declare global {
 	interface Window {
 		jetpackNewsletterWidgetConfigData?: {
 			emailSubscribers?: number;
 			paidSubscribers?: number;
+			allSubscribers?: number;
+			subscriberTotalsByDate?: SubscriberTotalsByDate;
 		};
 	}
 }
@@ -18,7 +21,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
-	const { emailSubscribers, paidSubscribers } = window.jetpackNewsletterWidgetConfigData || {};
+	const { emailSubscribers, paidSubscribers, allSubscribers, subscriberTotalsByDate } =
+		window.jetpackNewsletterWidgetConfigData || {};
 	const { suffix: site } = jpDataUtils.getSiteData();
 	const adminUrl = jpDataUtils.getAdminUrl();
 	const isWpcomSite = jpDataUtils.isWpcomPlatformSite();
@@ -35,6 +39,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			isWpcomSite={ isWpcomSite }
 			emailSubscribers={ emailSubscribers }
 			paidSubscribers={ paidSubscribers }
+			allSubscribers={ allSubscribers }
+			subscriberTotalsByDate={ subscriberTotalsByDate }
 		/>
 	);
 } );

@@ -47,11 +47,22 @@ Update `tests/e2e/package.json` to match your plugin description. Also, review `
 
 ### Update PNPM workspace definitions
 
-For monorepo to pick up additional dependencies in `e2e` folder, it should be added into `pnpm-workspace.yaml` definitions. Add `'projects/plugins/YOUR-PLUGIN/tests/e2e'` into the file.
+For monorepo to pick up additional dependencies in `e2e` folder, ensure that it is included in `pnpm-workspace.yaml` package definitions. By default, the workspace file will automatically include your project if it follows the `'projects/plugins/YOUR-PLUGIN/tests/e2e'` naming convention.
 
 ### Add your plugin tests into CI pipeline
 
-In `.github/files/create-e2e-projects-matrix.sh` we define list of E2E projects to run tests for. Add your plugin into `PROJECTS` list as follows: `'{"project":"PLUGIN NAME","path":"projects/plugins/YOUR-PLUGIN/tests/e2e","testArgs":[],"slackArgs":[]}`. Be aware of spaces between entries.
+In `.github/files/e2e-tests/e2e-matrix.js` we define list of E2E projects to run tests for. Add your plugin into `projects` list as follows: 
+
+```javascript
+{
+		project: 'PLUGIN NAME',
+		path: 'projects/plugins/YOUR-PLUGIN/tests/e2e',
+		testArgs: [],
+		targets: [ 'plugins/jetpack' ],
+		suite: '',
+		buildGroup: 'jetpack-core',
+}
+```
 
 ### Run the tests
 

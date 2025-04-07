@@ -95,7 +95,7 @@ const IDCScreenVisual = props => {
 
 IDCScreenVisual.propTypes = {
 	/** The screen logo, Jetpack by default. */
-	logo: PropTypes.object,
+	logo: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ),
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
 	/** The original site URL. */

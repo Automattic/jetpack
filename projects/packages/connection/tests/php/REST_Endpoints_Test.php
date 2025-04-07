@@ -26,7 +26,6 @@ use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
  * @see \Automattic\Jetpack\Connection\REST_Connector
  */
 class REST_Endpoints_Test extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	const BLOG_TOKEN = 'new.blogtoken';
 	const BLOG_ID    = 42;
@@ -68,10 +67,9 @@ class REST_Endpoints_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
@@ -135,10 +133,9 @@ class REST_Endpoints_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		remove_action( 'jetpack_disabled_raw_options', array( $this, 'bypass_raw_options' ) );
 
 		$user = wp_get_current_user();
@@ -773,7 +770,7 @@ class REST_Endpoints_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_user_connection_data_route_is_registered_with_jp_version_provider() {
+	public static function get_user_connection_data_route_is_registered_with_jp_version_provider() {
 		return array(
 			'jp_version_null'       => array(
 				null,

@@ -27,6 +27,7 @@ export function AiChatControls( {
 						onChange={ newPlaceholder => setAttributes( { placeholder: newPlaceholder } ) }
 						value={ placeholder }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>

@@ -12,7 +12,7 @@ import { useAvailableSerivces } from './use-available-services';
 import { usePostData } from './use-post-data';
 import './modal.scss';
 
-const SocialPreviewsModal = function SocialPreviewsModal( { onClose, initialTabName } ) {
+const SocialPreviewsModal = function SocialPreviewsModal( { onClose, initialTabName = null } ) {
 	const availableServices = useAvailableSerivces();
 	const { image, media, title, description, url, excerpt } = usePostData();
 

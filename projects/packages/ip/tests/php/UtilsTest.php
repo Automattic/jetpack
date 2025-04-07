@@ -15,10 +15,9 @@ use Brain\Monkey\Functions;
 final class UtilsTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Monkey\setUp();
 
 		Functions\when( 'wp_unslash' )->returnArg();
@@ -26,10 +25,9 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Tear down.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 	}
 
@@ -61,7 +59,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Data provider for `test_get_ip`.
 	 */
-	public function provide_get_ip() {
+	public static function provide_get_ip() {
 		return array(
 			'Basic IPv4 address'                    => array(
 				'192.0.2.1',

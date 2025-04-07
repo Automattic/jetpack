@@ -14,6 +14,8 @@ require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
  * @coversDefaultClass Jetpack_Podcast_Helper
  */
 class Jetpack_Podcast_Helper_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Tests get_track_data() when the feed cannot be retrieved.
 	 *

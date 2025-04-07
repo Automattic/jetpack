@@ -4,6 +4,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/slideshow/slideshow.php';
 
 class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
@@ -134,18 +135,21 @@ class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_slideshow_shortcode_amp() {
+	public static function get_slideshow_shortcode_amp() {
+		// @todo Why does this pass with no ids? (This used to try to use `$this->ids` before it was set)
+		$ids = '';
+
 		return array(
 			'amp_carousel'      => array(
-				'[gallery type="slideshow" size="thumbnail" ids="' . $this->ids . '"]',
+				'[gallery type="slideshow" size="thumbnail" ids="' . $ids . '"]',
 				'<amp-carousel width="800" height="600" layout="responsive" type="slides"',
 			),
 			'without_autostart' => array(
-				'[gallery type="slideshow" size="thumbnail" ids="' . $this->ids . ' autostart="false"]',
+				'[gallery type="slideshow" size="thumbnail" ids="' . $ids . ' autostart="false"]',
 				'wp-block-jetpack-slideshow wp-amp-block" id',
 			),
 			'with_autostart'    => array(
-				'[gallery type="slideshow" size="thumbnail" ids="' . $this->ids . '"]',
+				'[gallery type="slideshow" size="thumbnail" ids="' . $ids . '"]',
 				'wp-block-jetpack-slideshow wp-amp-block wp-block-jetpack-slideshow__autoplay wp-block-jetpack-slideshow__autoplay-playing" id',
 			),
 		);

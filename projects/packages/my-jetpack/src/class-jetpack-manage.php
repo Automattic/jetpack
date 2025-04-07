@@ -13,6 +13,8 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
+use WP_Error;
+use WP_Rest_Response;
 
 /**
  * Jetpack Manage features in My Jetpack.
@@ -23,6 +25,35 @@ class Jetpack_Manage {
 	 */
 	public static function init() {
 		add_action( 'admin_menu', array( self::class, 'add_submenu_jetpack' ) );
+	}
+
+	/**
+	 * Register the REST API routes.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_endpoints() {
+		register_rest_route(
+			'my-jetpack/v1',
+			'jetpack-manage/data',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_jetpack_manage_data',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+	}
+
+	/**
+	 * Check user capabilities to access historically active modules.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function permissions_callback() {
+		return current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -120,5 +151,22 @@ class Jetpack_Manage {
 		}
 
 		return $partner->partner_type === 'agency';
+	}
+
+	/**
+	 * Get Jetpack Manage data for REST API.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public static function get_jetpack_manage_data() {
+		$is_enabled        = self::could_use_jp_manage();
+		$is_agency_account = self::is_agency_account();
+
+		return rest_ensure_response(
+			array(
+				'isEnabled'       => $is_enabled,
+				'isAgencyAccount' => $is_agency_account,
+			)
+		);
 	}
 }

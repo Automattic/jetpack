@@ -9,7 +9,7 @@ import features from '../features';
 /**
  * Types
  */
-import type { Anchor, BreveState } from '../types';
+import type { Anchor, BreveState, GrammarLint, LintState } from '../types';
 
 const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-breve-enabled' );
 const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
@@ -242,4 +242,52 @@ export function suggestions(
 	return state;
 }
 
-export default combineReducers( { popover, configuration, suggestions } );
+function areLintsEqual( oldLints: GrammarLint[], newLints: GrammarLint[] ): boolean {
+	if ( oldLints.length !== newLints.length ) {
+		return false;
+	}
+
+	return oldLints.every( ( oldLint, index ) => {
+		const newLint = newLints[ index ];
+
+		return (
+			oldLint.startIndex === newLint.startIndex &&
+			oldLint.endIndex === newLint.endIndex &&
+			oldLint.message === newLint.message &&
+			oldLint.text === newLint.text
+		);
+	} );
+}
+
+export function lints(
+	state: LintState = {},
+	action: {
+		type: string;
+		feature?: string;
+		blockId: string;
+		lints?: Array< GrammarLint >;
+	}
+) {
+	switch ( action.type ) {
+		case 'SET_LINTS': {
+			const oldLints = ( state[ action.blockId ]?.[ action.feature ] ?? [] ) as GrammarLint[];
+			const newLints = action?.lints ?? [];
+			const lintVersion = ! areLintsEqual( oldLints, newLints )
+				? Date.now()
+				: state[ action.blockId ]?.lintVersion ?? 0;
+
+			return {
+				...state,
+				[ action.blockId ]: {
+					...( state[ action.blockId ] ?? {} ),
+					[ action.feature ]: action?.lints,
+					lintVersion,
+				},
+			};
+		}
+	}
+
+	return state;
+}
+
+export default combineReducers( { popover, configuration, suggestions, lints } );

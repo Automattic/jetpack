@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use PHPUnit\Framework\Constraint\Constraint;
 use WorDBless\BaseTestCase;
 
 /**
@@ -32,6 +33,40 @@ class Publicize_OG_Optimization_Test extends BaseTestCase {
 		'og:image:width'  => '100',
 		'og:image:height' => '100',
 	);
+
+	/**
+	 * Reimplement `withConsecutive` for PHPUnit.
+	 *
+	 * Unfortunately PHPUnit deprecated withConsecutive with no replacement, so we
+	 * have to roll our own version.
+	 *
+	 * @see https://github.com/sebastianbergmann/phpunit/issues/4026
+	 *
+	 * @param array ...$groups Sets of arguments as you'd have passed to `->withConsecutive()`.
+	 * @return Constraint[] Array of constraints to pass to `->with()`.
+	 */
+	private static function with_consecutive( ...$groups ) {
+		$ct         = count( $groups[0] );
+		$value_sets = array();
+		foreach ( $groups as $group ) {
+			for ( $i = 0; $i < $ct; $i++ ) {
+				$value_sets[ $i ][] = $group[ $i ] instanceof Constraint ? $group[ $i ] : static::equalTo( $group[ $i ] );
+			}
+		}
+		$funcs = array();
+		for ( $i = 0; $i < $ct; $i++ ) {
+			$funcs[] = static::callback(
+				function ( $value ) use ( $value_sets, $i ) {
+					static $set = null;
+					$set        = $set ?? $value_sets[ $i ]; // @phan-suppress-current-line PhanTypePossiblyInvalidDimOffset -- False positive.
+					$expect     = array_shift( $set );
+					$expect->evaluate( $value );
+					return true;
+				}
+			);
+		}
+		return $funcs;
+	}
 
 	/**
 	 * Mocks the publicize class and sets the return value for each function in $functions to the corresponding value in $mocks
@@ -169,7 +204,7 @@ class Publicize_OG_Optimization_Test extends BaseTestCase {
 		$publicize->method( 'get_social_opengraph_image' )->withAnyParameters()->willReturn( null );
 		// Mocking so compression will be enough
 		$publicize->method( 'get_remote_filesize' )
-			->withConsecutive( array( 'http://example.com/image.jpg' ), array( 'http://example.com/image_compressed.jpg' ) )
+			->with( ...static::with_consecutive( array( 'http://example.com/image.jpg' ), array( 'http://example.com/image_compressed.jpg' ) ) )
 			->willReturnOnConsecutiveCalls( 3000000, 1200 );
 		// Mocking so that the compression decreases the size enough
 		$publicize->method( 'compress_and_scale_og_image' )->withAnyParameters()->willReturn(
@@ -214,7 +249,7 @@ class Publicize_OG_Optimization_Test extends BaseTestCase {
 		$publicize->method( 'get_social_opengraph_image' )->withAnyParameters()->willReturn( null );
 		// Mocking so compression will be enough
 		$publicize->method( 'get_remote_filesize' )
-			->withConsecutive( array( 'http://example.com/image.jpg' ), array( 'http://example.com/image_compressed.jpg' ) )
+			->with( ...static::with_consecutive( array( 'http://example.com/image.jpg' ), array( 'http://example.com/image_compressed.jpg' ) ) )
 			->willReturnOnConsecutiveCalls( 3000000, 2500000 );
 		// Mocking so that the compression decreases the size enough
 		$publicize->method( 'compress_and_scale_og_image' )->withAnyParameters()->willReturn(

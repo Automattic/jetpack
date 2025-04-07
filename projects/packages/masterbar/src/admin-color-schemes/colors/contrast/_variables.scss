@@ -1,11 +1,12 @@
 // make use of color studio variables for consistency across products
 @import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
 @import 'node_modules/@automattic/color-studio/dist/color-variables-rgb.scss';
+@import '../deprecated-color-variables.scss';
 
 // core variables (core _variables.scss)
 $base-color: $studio-gray-100; // Calypso --color-masterbar-background
 $icon-color: $studio-gray-90; // Calypso --color-sidebar-gridicon-fill
-$highlight-color: $studio-blue-70;// Calypso --color-accent
+$highlight-color: $deprecated-studio-blue-70;// Calypso --color-accent
 $notification-color: $studio-yellow-20; // Calypso --color-masterbar-unread-dot-background
 
 // global (core _variables.scss)
@@ -47,4 +48,4 @@ $menu-nudge-background: $studio-gray-80;
 $menu-nudge-text-color: $studio-white;
 $menu-nudge-cta-background: $highlight-color;
 $menu-nudge-cta-color: $studio-white;
-$menu-nudge-cta-background-hover: $studio-blue-60;
+$menu-nudge-cta-background-hover: $deprecated-studio-blue-60;

@@ -64,7 +64,7 @@ class Admin_Menu_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function page_suffix_matches_data() {
+	public static function page_suffix_matches_data() {
 		return array(
 			'simple_string' => array( 'testmenu' ),
 			'dashes'        => array( 'test-menu' ),

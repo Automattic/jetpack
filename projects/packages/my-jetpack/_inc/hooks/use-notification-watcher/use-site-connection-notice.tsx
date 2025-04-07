@@ -11,21 +11,20 @@ import useAnalytics from '../use-analytics';
 import useConnectSite from '../use-connect-site';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 import useMyJetpackNavigate from '../use-my-jetpack-navigate';
+import type { NoticeHookType } from './types';
 import type { NoticeOptions } from '../../context/notices/types';
 import type { MouseEvent } from 'react';
 
-type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
-
-const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
+const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { siteIsRegistering, isSiteConnected } = useMyJetpackConnection( {
 		skipUserConnection: true,
 	} );
-	const { data: products, isLoading, isError } = useAllProducts();
+	const { data: products, isLoading: isAllProductsLoading, isError } = useAllProducts();
 	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
 	const redBubbleSlug = 'missing-connection';
-	const connectionError = redBubbleAlerts[ redBubbleSlug ];
+	const connectionError = redBubbleAlerts?.[ redBubbleSlug ];
 	const { connectSite } = useConnectSite( {
 		tracksInfo: {
 			event: 'jetpack_my_jetpack_site_connection_notice_cta',
@@ -36,11 +35,11 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { refetch: refetchOwnershipData } = useProductsByOwnership();
 
 	const productSlugsThatRequireUserConnection = useMemo( () => {
-		if ( isLoading || isError ) {
+		if ( isLoading || isAllProductsLoading || isError ) {
 			return [];
 		}
 		return getProductSlugsThatRequireUserConnection( products );
-	}, [ isError, isLoading, products ] );
+	}, [ isLoading, isError, isAllProductsLoading, products ] );
 
 	useEffect( () => {
 		if ( ! connectionError ) {
@@ -120,11 +119,13 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			</Col>
 		);
 
-		setNotice( {
-			message: messageContent,
-			title: requiresUserConnection ? userConnectionContent.title : siteConnectionContent.title,
-			options: noticeOptions,
-		} );
+		if ( ! isLoading ) {
+			setNotice( {
+				message: messageContent,
+				title: requiresUserConnection ? userConnectionContent.title : siteConnectionContent.title,
+				options: noticeOptions,
+			} );
+		}
 	}, [
 		isSiteConnected,
 		connectSite,
@@ -138,6 +139,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		connectionError,
 		refetchOwnershipData,
 		productSlugsThatRequireUserConnection,
+		isLoading,
 	] );
 };
 

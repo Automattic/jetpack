@@ -809,7 +809,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 	 *
 	 * @return array
 	 */
-	public function get_user_fields_and_flags() {
+	public static function get_user_fields_and_flags() {
 
 		return array(
 			array(

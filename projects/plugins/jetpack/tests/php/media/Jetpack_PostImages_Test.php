@@ -3,6 +3,7 @@
 require_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/slideshow.php';
 
 class Jetpack_PostImages_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @author blobaugh
@@ -846,7 +847,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function provider_gravatar_invalid_posts() {
+	public static function provider_gravatar_invalid_posts() {
 
 		return array(
 			'invalid (null) post id'                  => array(

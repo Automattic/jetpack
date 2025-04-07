@@ -4,16 +4,16 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
-use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
-use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_JS;
 
-class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Deactivate, Has_Submodules, Has_Data_Sync {
+class Minify_JS implements Feature, Changes_Output_On_Activation, Changes_Output_After_Activation, Optimization, Has_Deactivate, Has_Data_Sync {
 
 	public static $default_excludes = array( 'jquery', 'jquery-core', 'underscore', 'backbone' );
 
@@ -21,10 +21,6 @@ class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Dea
 	 * Setup the module. This runs on every page load.
 	 */
 	public function setup() {
-		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
-
-		jetpack_boost_minify_init();
-
 		if ( jetpack_boost_page_optimize_bail() ) {
 			return;
 		}
@@ -50,13 +46,8 @@ class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Dea
 		return 'minify_js';
 	}
 
-	/**
-	 * The module starts serving as soon as it's enabled.
-	 *
-	 * @return bool
-	 */
-	public function is_ready() {
-		return true;
+	public static function get_change_output_action_names() {
+		return array( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_js_excludes' );
 	}
 
 	public static function is_available() {
@@ -76,11 +67,5 @@ class Minify_JS implements Pluggable, Changes_Page_Output, Optimization, Has_Dea
 	 */
 	public static function deactivate() {
 		jetpack_boost_page_optimize_cleanup_cache( 'js' );
-	}
-
-	public function get_submodules() {
-		return array(
-			Minify::class,
-		);
 	}
 }

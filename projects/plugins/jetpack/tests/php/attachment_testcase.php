@@ -5,6 +5,7 @@
  * @since 3.9.2
  */
 abstract class Jetpack_Attachment_TestCase extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * A helper to create an upload object. This method was copied verbatim from WP Core's

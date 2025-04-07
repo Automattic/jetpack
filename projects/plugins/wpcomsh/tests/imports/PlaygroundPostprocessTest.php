@@ -17,6 +17,7 @@ use Imports\SQL_Postprocessor;
  * Class PlaygroundImporterTest
  */
 class PlaygroundPostprocessTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	const TEMPORARY_PREFIX = 'playground_';
 

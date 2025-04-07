@@ -86,12 +86,46 @@ export const salesforceLeadFormVariation = {
 			spacing: {
 				padding: {
 					top: '16px',
-					right: '16px',
 					bottom: '16px',
-					left: '16px',
 				},
 			},
 		},
+	},
+	example: {
+		innerBlocks: [
+			{
+				name: 'jetpack/field-email',
+				attributes: { required: true, label: __( 'Business Email', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/field-name',
+				attributes: { required: true, label: __( 'First Name', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/field-name',
+				attributes: { required: true, label: __( 'Last Name', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/field-text',
+				attributes: { required: true, label: __( 'Job Title', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/field-text',
+				attributes: { required: true, label: __( 'Company', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/field-telephone',
+				attributes: { required: true, label: __( 'Phone Number', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/button',
+				attributes: {
+					text: __( 'Submit', 'jetpack-forms' ),
+					element: 'button',
+					lock: { remove: true },
+				},
+			},
+		],
 	},
 };
 
@@ -114,16 +148,6 @@ export default ( { salesforceData, setAttributes, instanceId } ) => {
 
 	const onBlurOrgIdField = e => {
 		setOrganizationIdError( ! e.target.value.trim().match( /^[a-zA-Z0-9]{15,18}$/ ) );
-	};
-
-	const betaBadgeStyle = {
-		padding: '3px 6px',
-		'border-radius': '4px',
-		background: '#2FB41F',
-		color: 'white',
-		display: 'block',
-		'font-weight': 600,
-		'font-size': '11px',
 	};
 
 	return (
@@ -151,17 +175,6 @@ export default ( { salesforceData, setAttributes, instanceId } ) => {
 					<ExternalLink href="https://help.salesforce.com/s/articleView?id=000325251&type=1">
 						{ __( 'Where to find your Salesforce Organization ID', 'jetpack-forms' ) }
 					</ExternalLink>
-					<p style={ { 'margin-top': '32px', display: 'flex', 'font-size': '12px', gap: '8px' } }>
-						<div>
-							<span style={ betaBadgeStyle }>BETA</span>
-						</div>
-						<div>
-							{ __(
-								'This premium feature is currently free to use as it is in beta.',
-								'jetpack-forms'
-							) }
-						</div>
-					</p>
 				</BaseControl>
 			</PanelBody>
 		</Fragment>

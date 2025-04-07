@@ -13,7 +13,6 @@ use WorDBless\BaseTestCase;
  * Connection Manager functionality testing.
  */
 class Error_Handler_Test extends BaseTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Error_Handler instance.
@@ -218,7 +217,7 @@ class Error_Handler_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function get_user_id_from_token_data() {
+	public static function get_user_id_from_token_data() {
 		return array(
 			array(
 				'token'    => 'asdsaddasa:1:3',

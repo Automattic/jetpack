@@ -177,19 +177,6 @@ class Products {
 	}
 
 	/**
-	 * Inititializes all products with an initialize method.
-	 *
-	 * @return void
-	 */
-	public static function initialize_products() {
-		$classes = self::get_products_classes();
-
-		foreach ( $classes as $class ) {
-			$class::initialize();
-		}
-	}
-
-	/**
 	 * Register endpoints related to product classes
 	 *
 	 * @return void

@@ -4,18 +4,22 @@
 .widefat .menu-label-row td {
 	border-bottom-width: 1px;
 }
+
 .widefat .menu-label-row td h3 {
 	padding-left: 30px;
 }
+
 .widefat .menu-label-row td h3 .edit-nova-section {
 	font-size: .8em;
 	font-weight: normal;
 	margin-left: 5px;
 }
+
 .widefat .menu-order-value {
 	width: 2.5em;
 	text-align: center;
 }
+
 .widefat .menu-label-row, .widefat .menu-label-row td {
 	background-color: #f0f0f1;
 	color: #111;
@@ -23,20 +27,25 @@
 	-webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
 	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
 }
+
 .ui-sortable .type-nova_menu_item {
 	cursor: move;
 	background-color: #fff;
 }
+
 .ui-sortable .type-nova_menu_item:nth-child(even) {
 	background-color: #f6f7f7;
 }
+
 .ui-sortable .type-nova_menu_item.ui-sortable-helper {
 	-webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
 	box-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
 }
+
 .tablenav .button-reorder {
 	margin-top: 4px;
 }
+
 .tablenav .view-switch a, .tablenav div.tablenav-pages {
 	display: none;
 }

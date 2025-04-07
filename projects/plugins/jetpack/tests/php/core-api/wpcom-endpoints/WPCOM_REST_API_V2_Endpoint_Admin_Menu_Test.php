@@ -162,7 +162,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	 *
 	 * @return string[][][]
 	 */
-	public function menu_item_data() {
+	public static function menu_item_data() {
 		return array(
 			// User doesn't have necessary permissions.
 			array(
@@ -235,7 +235,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	 *
 	 * @return string[][][]
 	 */
-	public function submenu_item_data() {
+	public static function submenu_item_data() {
 		$plugin_slug = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'akismet/akismet.png' : 'jetpack/jetpack.php';
 
 		return array(
@@ -370,7 +370,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	 *
 	 * @return string[][]
 	 */
-	public function menu_item_icon_data() {
+	public static function menu_item_icon_data() {
 		return array(
 			// Empty icon.
 			array(
@@ -450,7 +450,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	 *
 	 * @return string[][]
 	 */
-	public function menu_item_url_data() {
+	public static function menu_item_url_data() {
 		$plugin_slug = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'akismet/akismet.png' : 'jetpack/jetpack.php';
 
 		return array(
@@ -578,7 +578,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	 *
 	 * @return string[][]
 	 */
-	public function menu_item_update_data() {
+	public static function menu_item_update_data() {
 		return array(
 			array(
 				'No Updates here',

@@ -451,7 +451,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	/**
 	 * Data provider for test_photon_banned_domains_banned
 	 */
-	public function get_photon_domains() {
+	public static function get_photon_domains() {
 		return array(
 			'Banned Facebook domain'     => array(
 				true,
@@ -495,7 +495,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function get_different_extensions() {
+	public static function get_different_extensions() {
 		return array(
 			'HEIC: supported'     => array(
 				'https://example.com/image.heic',

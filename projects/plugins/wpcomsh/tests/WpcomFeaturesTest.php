@@ -9,6 +9,7 @@
  * Class WpcomFeaturesTest.
  */
 class WpcomFeaturesTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Smoke-testing WPCOM Features.

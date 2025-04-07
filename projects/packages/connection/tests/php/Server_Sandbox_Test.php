@@ -66,59 +66,59 @@ class Server_Sandbox_Test extends BaseTestCase {
 	 *     'headers' => { An array containing the request headers },
 	 *     'output'  => { An array containing the expected output of the server_sandbox_request_parameters() }
 	 */
-	public function data_provider_test_server_sandbox_request_parameters() {
+	public static function data_provider_test_server_sandbox_request_parameters() {
 		return array(
 			'sandbox not a string'                   => array(
-				'sandbox' => 123,
-				'url'     => 'https://public-api.wordpress.com/test',
-				'headers' => array(
+				'sandbox'         => 123,
+				'url'             => 'https://public-api.wordpress.com/test',
+				'headers'         => array(
 					'Host' => 'example.com',
 				),
-				'output'  => array(
+				'expected_output' => array(
 					'url'           => 'https://public-api.wordpress.com/test',
 					'host'          => '',
 					'new_signature' => '',
 				),
 			),
 			'url not a string'                       => array(
-				'sandbox' => 'example.com',
-				'url'     => 123,
-				'headers' => array(
+				'sandbox'         => 'example.com',
+				'url'             => 123,
+				'headers'         => array(
 					'Host' => 'example.com',
 				),
-				'output'  => array(
+				'expected_output' => array(
 					'url'           => 123,
 					'host'          => '',
 					'new_signature' => '',
 				),
 			),
 			'sandbox, url valid, no host in headers' => array(
-				'sandbox' => 'example.com',
-				'url'     => 'https://public-api.wordpress.com/test',
-				'headers' => array(),
-				'output'  => array(
+				'sandbox'         => 'example.com',
+				'url'             => 'https://public-api.wordpress.com/test',
+				'headers'         => array(),
+				'expected_output' => array(
 					'url'           => 'https://example.com/test',
 					'host'          => 'public-api.wordpress.com',
 					'new_signature' => '',
 				),
 			),
 			'sandbox, url valid, host in headers'    => array(
-				'sandbox' => 'example.com',
-				'url'     => 'https://public-api.wordpress.com/test',
-				'headers' => array(
+				'sandbox'         => 'example.com',
+				'url'             => 'https://public-api.wordpress.com/test',
+				'headers'         => array(
 					'Host' => 'example.com',
 				),
-				'output'  => array(
+				'expected_output' => array(
 					'url'           => 'https://example.com/test',
 					'host'          => 'example.com',
 					'new_signature' => '',
 				),
 			),
 			'sandbox, url valid, host not wpcom'     => array(
-				'sandbox' => 'example.com',
-				'url'     => 'https://wordpress.org/test',
-				'headers' => array(),
-				'output'  => array(
+				'sandbox'         => 'example.com',
+				'url'             => 'https://wordpress.org/test',
+				'headers'         => array(),
+				'expected_output' => array(
 					'url'           => 'https://wordpress.org/test',
 					'host'          => '',
 					'new_signature' => '',
@@ -155,21 +155,21 @@ class Server_Sandbox_Test extends BaseTestCase {
 	/**
 	 * Data provider for test_server_sandbox_request_parameters. Provide test data with the format:
 	 * { test description } =>
-	 *     'constant'         => { sandbox url },
+	 *     'sandbox_constant' => { sandbox url },
 	 *     'url'              => { request url },
 	 *     'expected_url'     => { The value of $url after calling server_sandbox() },
 	 *     'expected_headers' => { The value of $headers after calling server_sandbox() }
 	 */
-	public function data_provider_test_server_sandbox() {
+	public static function data_provider_test_server_sandbox() {
 		return array(
 			'constant not set'                => array(
-				'constant'         => '',
+				'sandbox_constant' => '',
 				'url'              => 'https://public-api.wordpress.com/test',
 				'expected_url'     => 'https://public-api.wordpress.com/test',
 				'expected_headers' => array(),
 			),
 			'constant set, sandboxed url'     => array(
-				'constant'         => 'example.com',
+				'sandbox_constant' => 'example.com',
 				'url'              => 'https://public-api.wordpress.com/test',
 				'expected_url'     => 'https://example.com/test',
 				'expected_headers' => array(
@@ -177,7 +177,7 @@ class Server_Sandbox_Test extends BaseTestCase {
 				),
 			),
 			'constant set, not sandboxed url' => array(
-				'constant'         => 'example.com',
+				'sandbox_constant' => 'example.com',
 				'url'              => 'https://wordpress.org/test',
 				'expected_url'     => 'https://wordpress.org/test',
 				'expected_headers' => array(),
@@ -232,7 +232,7 @@ class Server_Sandbox_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function data_provider_test_server_sandbox_with_xdebug() {
+	public static function data_provider_test_server_sandbox_with_xdebug() {
 		return array(
 			'not filtered'         => array(
 				'url'          => 'https://public-api.wordpress.com/test',
@@ -297,7 +297,7 @@ class Server_Sandbox_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function data_provider_test_extract_authorization_headers() {
+	public static function data_provider_test_extract_authorization_headers() {
 		return array(
 			'happy_case'          => array(
 				array(

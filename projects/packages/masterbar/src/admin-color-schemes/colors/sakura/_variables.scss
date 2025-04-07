@@ -1,11 +1,12 @@
 // make use of color studio variables for consistency across products
 @import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
 @import 'node_modules/@automattic/color-studio/dist/color-variables-rgb.scss';
+@import '../deprecated-color-variables.scss';
 
 // core variables (core _variables.scss)
 $base-color: $studio-celadon-70; // Calypso --color-masterbar-background
 $icon-color: $studio-pink-70; // Calypso --color-sidebar-gridicon-fill
-$highlight-color: $studio-blue-50; // Calypso --color-accent
+$highlight-color: $deprecated-studio-blue-50; // Calypso --color-accent
 $notification-color: $studio-pink-20; // Calypso Classic Bright (!) --color-masterbar-unread-dot-background
 
 // global (core _variables.scss)
@@ -19,11 +20,11 @@ $menu-highlight-icon: $studio-pink-90;
 $menu-highlight-background: $studio-pink-10; // Calypso --color-sidebar-menu-hover-background
 $menu-current-text: $studio-white; // Calypso --color-sidebar-menu-selected-text
 $menu-current-icon: $studio-white;
-$menu-current-background: $studio-blue-50; // Calypso --color-sidebar-menu-selected-background
+$menu-current-background: $deprecated-studio-blue-50; // Calypso --color-sidebar-menu-selected-background
 $menu-submenu-text: $studio-pink-0; // Calypso --color-sidebar-submenu-text
 $menu-submenu-background: $studio-pink-90; // Calypso --color-sidebar-submenu-background
 $menu-submenu-background-alt: $studio-pink-70; // Calypso --color-sidebar-submenu-background-alt
-$menu-submenu-focus-text: $studio-blue-20; // Calypso --color-sidebar-submenu-hover-text
+$menu-submenu-focus-text: $deprecated-studio-blue-20; // Calypso --color-sidebar-submenu-hover-text
 $menu-submenu-current-text: $studio-pink-0; // Calypso --color-sidebar-submenu-selected-text
 $adminbar-avatar-frame: $studio-celadon-80;
 
@@ -50,4 +51,4 @@ $menu-nudge-background: $studio-white;
 $menu-nudge-text-color: $studio-black;
 $menu-nudge-cta-background: $highlight-color;
 $menu-nudge-cta-color: $studio-white;
-$menu-nudge-cta-background-hover: $studio-blue-60;
+$menu-nudge-cta-background-hover: $deprecated-studio-blue-60;

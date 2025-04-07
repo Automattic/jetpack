@@ -7,6 +7,8 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
 class Jetpack_Sync_Actions_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	public function test_get_sync_status() {
 		$no_checksum = Actions::get_sync_status();
 		$this->assertArrayNotHasKey( 'posts_checksum', $no_checksum );

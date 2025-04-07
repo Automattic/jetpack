@@ -24,8 +24,6 @@ class XMLRPC_Provider_Test extends StatsBaseTestCase {
 
 	/**
 	 * Set up before each test
-	 *
-	 * @before
 	 */
 	protected function set_up() {
 		parent::set_up();
@@ -35,8 +33,6 @@ class XMLRPC_Provider_Test extends StatsBaseTestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		parent::tear_down();

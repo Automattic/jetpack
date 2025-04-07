@@ -14,12 +14,14 @@ require_once JETPACK__PLUGIN_DIR . 'modules/videopress/class.videopress-video.ph
  * To run: jetpack docker phpunit -- --filter=videopress_player
  */
 class VideoPress_Player_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Gets the test data for test_output_html5_dynamic_next().
 	 *
 	 * @return array The test data.
 	 */
-	public function get_html_test_data() {
+	public static function get_html_test_data() {
 		return array(
 			'cover_enabled'  => array(
 				array(

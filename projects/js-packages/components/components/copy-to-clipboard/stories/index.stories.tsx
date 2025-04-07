@@ -1,10 +1,12 @@
 import CopyToClipboard from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof CopyToClipboard > = {
 	title: 'JS Packages/Components/CopyToClipboard',
 	component: CopyToClipboard,
-} as Meta< typeof CopyToClipboard >;
+};
+
+export default meta;
 
 const Template: StoryFn< typeof CopyToClipboard > = args => <CopyToClipboard { ...args } />;
 export const _default = Template.bind( {} );

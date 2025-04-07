@@ -12,7 +12,6 @@ use PHPUnit\Framework\TestCase;
  * Class Logo_Test
  */
 class Logo_Test extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Ensure the rendered logo has all the CSS classes needed for styling.

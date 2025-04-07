@@ -4,6 +4,8 @@
  * Tests for functions in functions.global.php
  */
 class Functions_Global_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Test string returned by jetpack_deprecated_function
 	 *
@@ -25,7 +27,7 @@ class Functions_Global_Test extends WP_UnitTestCase {
 	 *
 	 * @return Array test version numbers potentially passed to the function.
 	 */
-	public function jetpack_deprecated_function_versions() {
+	public static function jetpack_deprecated_function_versions() {
 		return array(
 			'no_version_number'                          => array(
 				'jetpack',
@@ -78,7 +80,7 @@ class Functions_Global_Test extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function get_test_headers() {
+	public static function get_test_headers() {
 		return array(
 			'no headers'                             => array(
 				array(),

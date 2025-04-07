@@ -3,6 +3,7 @@
 require __DIR__ . '/../../../../modules/related-posts.php';
 
 class Jetpack_RelatedPosts_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Set up.

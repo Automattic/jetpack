@@ -2,7 +2,9 @@
 
 .interface-pinned-items,
 .interface-more-menu-dropdown__content {
+
 	.components-button {
+
 		.jetpack-logo {
 			width: 20px;
 			height: 20px;
@@ -11,7 +13,9 @@
 }
 
 .edit-post-more-menu__content {
+
 	.components-icon-button {
+
 		.jetpack-logo {
 			margin-right: 4px;
 		}
@@ -19,11 +23,14 @@
 }
 
 .edit-post-pinned-plugins {
+
 	.components-button.has-icon {
+
 		&:not( .is-toggled ),
 		&:hover,
 		&.is-toggled,
 		&.is-toggled:hover {
+
 			.jetpack-logo,
 			.jetpack-logo__icon-circle,
 			.jetpack-logo__icon-triangle {

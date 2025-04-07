@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.0] - 2025-04-07
+### Added
+- Replace video embed with VideoPress block in Media & Text block. [#42522]
+
+### Changed
+- Code: First pass of style coding standards. [#42734]
+- Update package dependencies. [#42762] [#42809]
+
+## [0.27.6] - 2025-03-31
+### Fixed
+- Admin Menu: Ensure Akismet menu item shows alongside standalone plugin menus. [#42776]
+- Components: Update controls to prevent more deprecation notices. [#42677]
+- Fix admin panel header component layout. [#42614]
+- Preserve search query when navigating back from video details page. [#42612]
+
+## [0.27.5] - 2025-03-24
+### Changed
+- Update dependencies. [#42564]
+
+### Fixed
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42576]
+
+## [0.27.4] - 2025-03-18
+### Changed
+- Update package dependencies. [#42509] [#42511]
+
+## [0.27.3] - 2025-03-17
+### Fixed
+- VideoPress Block: Fix broken undo functionality. [#42332]
+
+## [0.27.2] - 2025-03-12
+### Added
+- Provide connection data to footer component. [#42000]
+
+### Fixed
+- VideoPress: Upload all files when video and non-video files are drag-and-dropped. [#42312]
+
+## [0.27.1] - 2025-03-10
+### Fixed
+- Handle case when the URL doesn't contain VideoPress GUID. [#42237]
+- CSS: Add missing space between CTAs. [#42237]
+- VideoPress: Add margins within tracks control modal to ensure space between elements. [#42075]
+
 ## [0.27.0] - 2025-03-03
 ### Added
 - VideoPress: Add title to the attachment details view. [#42023]
@@ -1559,6 +1602,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.28.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.6...v0.28.0
+[0.27.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.5...v0.27.6
+[0.27.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.4...v0.27.5
+[0.27.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.3...v0.27.4
+[0.27.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.2...v0.27.3
+[0.27.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.1...v0.27.2
+[0.27.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.25.12...v0.26.0
 [0.25.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.25.11...v0.25.12

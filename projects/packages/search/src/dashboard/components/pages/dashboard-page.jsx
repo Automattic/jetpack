@@ -7,6 +7,7 @@ import {
 	getProductCheckoutUrl,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
@@ -25,6 +26,7 @@ import './dashboard-page.scss';
  *
  * @param {object} props           - Component properties.
  * @param {string} props.isLoading - should page show Loading spinner.
+ *
  * @return {React.Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
@@ -245,6 +247,7 @@ const Footer = () => {
 				<JetpackFooter
 					moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 					className="lg-col-span-12 md-col-span-8 sm-col-span-4"
+					useInternalLinks={ shouldUseInternalLinks() }
 				/>
 			</div>
 		</div>

@@ -14,7 +14,7 @@ class WPCom_Themes_Api {
 	/**
 	 * The URL of the WordPress.com themes API.
 	 */
-	const WP_COM_THEMES_API_URL = 'https://public-api.wordpress.com/rest/v1.2/themes?http_envelope=1&page=1&number=1000';
+	const WP_COM_THEMES_API_URL = 'https://public-api.wordpress.com/wpcom/v2/themes?_envelope=1&page=1&number=1000';
 
 	/**
 	 * The URL of the WordPress.com theme API.

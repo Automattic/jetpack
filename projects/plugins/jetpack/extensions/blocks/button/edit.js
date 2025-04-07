@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { IS_GRADIENT_AVAILABLE } from './constants';
 import ButtonControls from './controls';
+import useFallbackColors from './use-fallback-colors';
 import usePassthroughAttributes from './use-passthrough-attributes';
 import './editor.scss';
 
@@ -36,6 +37,8 @@ export function ButtonEdit( props ) {
 		className: clsx( 'wp-block-button', className ),
 		style: { width },
 	} );
+
+	const [ fallbackColors, textRef ] = useFallbackColors();
 
 	const buttonClasses = clsx( 'wp-block-button__link', {
 		'has-background': backgroundColor.color || gradientValue,
@@ -65,6 +68,7 @@ export function ButtonEdit( props ) {
 				disableLineBreaks={ 'input' === element }
 				onChange={ value => setAttributes( { text: value } ) }
 				placeholder={ placeholder || __( 'Add text…', 'jetpack' ) }
+				ref={ textRef }
 				style={ buttonStyles }
 				value={ text }
 				withoutInteractiveFormatting
@@ -75,6 +79,7 @@ export function ButtonEdit( props ) {
 						gradientValue,
 						setGradient,
 						isGradientAvailable: IS_GRADIENT_AVAILABLE,
+						...fallbackColors,
 						...props,
 					} }
 				/>

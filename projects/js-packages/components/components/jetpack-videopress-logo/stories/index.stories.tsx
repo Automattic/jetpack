@@ -1,11 +1,13 @@
 import JetpackVideoPressLogo from '../index.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof JetpackVideoPressLogo > = {
 	title: 'JS Packages/Components/Jetpack VideoPress Logo',
 	component: JetpackVideoPressLogo,
 	argTypes: {},
-} as Meta< typeof JetpackVideoPressLogo >;
+};
+
+export default meta;
 
 const Template: StoryFn< typeof JetpackVideoPressLogo > = args => (
 	<JetpackVideoPressLogo { ...args } />

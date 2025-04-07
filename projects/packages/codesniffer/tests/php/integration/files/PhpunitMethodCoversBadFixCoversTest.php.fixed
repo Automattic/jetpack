@@ -1,0 +1,1 @@
+PHP_CodeSniffer\Exceptions\RuntimeException: Invalid value 'bogus' for fixCovers. Valid values are: remove preserve preserve-class

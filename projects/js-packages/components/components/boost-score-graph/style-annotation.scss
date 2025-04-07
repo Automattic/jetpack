@@ -33,6 +33,7 @@ $white: #ffffff;
 		}
 
 		&:hover {
+
 			&::after {
 				background: rgba(146, 175, 215, 1);
 			}
@@ -40,6 +41,7 @@ $white: #ffffff;
 	}
 
 	&__annotation {
+
 		&::after {
 			content: '';
 			width: 0;

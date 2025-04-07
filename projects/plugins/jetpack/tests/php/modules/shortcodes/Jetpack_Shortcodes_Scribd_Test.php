@@ -3,6 +3,7 @@
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 class Jetpack_Shortcodes_Scribd_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
@@ -19,7 +20,7 @@ class Jetpack_Shortcodes_Scribd_Test extends WP_UnitTestCase {
 	 *
 	 * @return array The test data.
 	 */
-	public function get_data_shortcodes_scribd() {
+	public static function get_data_shortcodes_scribd() {
 		return array(
 			'non_amp' => array(
 				'[scribd id=39027960 key=key-3kaiwcjqhtipf25m8tw mode=list]',

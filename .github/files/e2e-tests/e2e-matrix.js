@@ -122,6 +122,14 @@ const projects = [
 		suite: '',
 		buildGroup: 'jetpack-social',
 	},
+	{
+		project: 'Protect',
+		path: 'projects/plugins/protect/tests/e2e',
+		testArgs: [],
+		targets: [ 'plugins/protect' ],
+		suite: '',
+		buildGroup: 'jetpack-protect',
+	},
 ];
 
 const matrix = [];

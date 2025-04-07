@@ -1,4 +1,5 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { __ } from '@wordpress/i18n';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { features } from '../../utils/constants';
 import { useIsSocialNote } from '../../utils/use-is-social-note';
@@ -7,7 +8,11 @@ import MessageBoxControl from '../message-box-control';
 import styles from './styles.module.scss';
 
 type SharePostFormProps = {
-	analyticsData?: object;
+	/** Data for tracking analytics */
+	analyticsData?: {
+		/** The location of the analytics event */
+		location: string;
+	};
 };
 
 /**
@@ -24,6 +29,7 @@ export const SharePostForm: React.FC< SharePostFormProps > = ( { analyticsData =
 		<>
 			{ ! isSocialNote && (
 				<MessageBoxControl
+					label={ __( 'Message', 'jetpack-publicize-components' ) }
 					maxLength={ maxLength }
 					onChange={ updateMessage }
 					message={ message }

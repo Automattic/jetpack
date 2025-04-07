@@ -78,7 +78,7 @@ class Config {
 	 *
 	 * @return string The hosting provider.
 	 */
-	private static function get_hosting_provider() {
+	public static function get_hosting_provider() {
 		$host = new Host();
 
 		if ( $host->is_woa_site() ) {

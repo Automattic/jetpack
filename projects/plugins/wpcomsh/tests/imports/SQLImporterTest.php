@@ -11,6 +11,7 @@ use Imports\SQL_Importer;
  * Class SQLImporterTest.
  */
 class SQLImporterTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Temporary SQL file.

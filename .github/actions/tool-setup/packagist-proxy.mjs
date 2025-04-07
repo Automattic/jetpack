@@ -73,6 +73,10 @@ server.on( 'request', ( req, res ) => {
 	}
 
 	// Make remote request.
+	// If you're looking at this because some "security" scanner complained
+	// about this code using user input to build the request path, it's fine.
+	// This proxy only runs on localhost inside of CI, any attacker could just
+	// make their bad request directly.
 	const upstreamUrl = upstreamHost + req.url.replace( /^\//, '' );
 	console.log( `!![${ reqid }] Proxying to ${ upstreamUrl }` );
 	const upstreamReq = https.request( upstreamUrl, {
@@ -149,7 +153,7 @@ server.on( 'request', ( req, res ) => {
 	req.pipe( upstreamReq );
 } );
 
-server.listen( 3129, () => {
+server.listen( 3129, 'localhost', () => {
 	const addr = server.address();
 	console.log( `Server listening on ${ addr.address }:${ addr.port }` );
 } );

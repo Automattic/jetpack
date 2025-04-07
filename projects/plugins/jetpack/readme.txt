@@ -4,7 +4,7 @@ Tags: Security, backup, malware, scan, performance
 Stable tag: 14.4
 Requires at least: 6.6
 Requires PHP: 7.2
-Tested up to: 6.7
+Tested up to: 6.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -326,49 +326,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.4 - 2025-03-04
+### 14.6-a.1 - 2025-04-07
 #### Enhancements
-- Connection: Disconnect all other users before disconnecting connection owner account.
-- Connection: Display connection status on Users page independent of the SSO module.
-- Custom Post Types: do not display testimonials and portfolios on block themes where they are not in use.
-- Dashboard: Display connection owner to all users.
-- External Media: Add external media modal on the Media Import page.
-- Forms: Add support for having multiple forms accross paginated pages.
-- Forms: Update field and button blocks to support contentOnly editing.
-- Forms block: Add number input.
-- Media Page: Enable the "Untangle Calypso" feature.
-- My Jetpack: Update the unowned section from a product grid to a product list.
-- Newsletter: Add footer widget section.
-- Newsletter: Add new newsletter widget.
-- Newsletter: Add newsletter widget header row behind a feature flag.
-- Newsletter: Add setting to hide category selection modal.
-- Post actions: Rename Copy action to Duplicate, which is clearer.
-- Social: Update the admin page to be used by Editors and Authors.
-- Subscriptions: Pre-select newsletter categories.
-- Tiled Gallery block: Add ability to link to custom URLs from each image.
-- VideoPress: Add title to the attachment details view.
+- Replace video embed with VideoPress block in Media & Text block.
+- Forms: Add custom hooks for integrations.
+- Forms: Add endpoint for all integrations.
+- Forms: Update default forms view to dataviews.
+- Newsletter Widget: Improve the display of links in the Newsletter widget.
 
 #### Improved compatibility
-- Custom Content Types: Ensure feature works on Jetpack settings page without using module functionality.
+- Blocks: Ensure all child blocks use the latest version of the Blocks API.
 
 #### Bug fixes
-- External Media: Fix the button size in the editor for Gutenberg 18 or below.
-- Fix Social toggles.
-- Forms: Ensure non-rendering fields to not trigger validation or show value in form submission response.
-- Forms: Fix 404 error when a user submits an invalid form with JavaScript disabled.
-- Forms: Fix block style variations not showing in the editor.
-- Forms: Fix invalid html IDs.
-- Forms: Hide fields without options.
-- Forms: Improve the styling of the separator block when placed inside the form block.
-- Geo Location: Remove support from default themes to prevent deprecation notice.
-- Gravatar Widget: Fix linked accounts not showing.
-- Newsletter: Fix post placement not displaying on certain block themes.
-- Publicize: Fix disconnect command not working.
-- Related Posts: Ensure images using the AVIF format are properly displayed.
-- Sharing: Fix possible warnings related to plugin compatibility.
-- Social Previews: Fix distorted image for Tumblr preview.
-- Stats: Fix a problem where count roles weren't able to be updated.
-- Widget Visibility: Fix possible fatal errors for widgets using anonymous functions as callbacks.
+- Reset access level of the post to everyone when a paywall is removed.
+- Slideshow: Prevent images from appearing stuck to the mouse in block-based themes.
+- Star Rating: Fix padding and improve panel copy.
 
 --------
 

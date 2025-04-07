@@ -15,8 +15,6 @@ namespace Automattic\Jetpack\Stats;
 class Options_Test extends StatsBaseTestCase {
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\Options' );
@@ -85,7 +83,7 @@ class Options_Test extends StatsBaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function statsGetOptionDataProvider() {
+	public static function statsGetOptionDataProvider() {
 		return array(
 			'Blog ID'      => array(
 				'option_name'  => 'blog_id',
@@ -131,7 +129,7 @@ class Options_Test extends StatsBaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function statsSetOptionsDataProvider() {
+	public static function statsSetOptionsDataProvider() {
 		return array(
 			'not array'            => array(
 				'set_options'    => null,
@@ -139,7 +137,7 @@ class Options_Test extends StatsBaseTestCase {
 				'stored_options' => false,
 			),
 			'set only count roles' => array(
-				'options'        => array(
+				'set_options'    => array(
 					'count_roles' => array(),
 				),
 				'result'         => true,
@@ -160,7 +158,7 @@ class Options_Test extends StatsBaseTestCase {
 				),
 			),
 			'set version'          => array(
-				'options'        => array(
+				'set_options'    => array(
 					'version' => 'dummy',
 				),
 				'result'         => true,
@@ -181,7 +179,7 @@ class Options_Test extends StatsBaseTestCase {
 				),
 			),
 			'set blog blog_id'     => array(
-				'options'        => array(
+				'set_options'    => array(
 					'blog_id' => 999,
 				),
 				'result'         => true,
@@ -202,7 +200,7 @@ class Options_Test extends StatsBaseTestCase {
 				),
 			),
 			'multiple options'     => array(
-				'options'        => array(
+				'set_options'    => array(
 					'admin_bar'    => false,
 					'roles'        => array(
 						'administrator',
@@ -301,7 +299,7 @@ class Options_Test extends StatsBaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function statsSetOptionDataProvider() {
+	public static function statsSetOptionDataProvider() {
 		return array(
 			'Blog ID'      => array(
 				'option_name'    => 'blog_id',

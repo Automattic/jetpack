@@ -134,6 +134,7 @@ function GooglePhotosMedia( props ) {
 								options={ PATH_OPTIONS }
 								onChange={ setPath }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						}
 

@@ -9,6 +9,7 @@
  * Class AnyoneCanRegisterNoticeTest.
  */
 class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Run setup steps before each test.
@@ -47,7 +48,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function role_provider_show() {
+	public static function role_provider_show() {
 		return array(
 			array( 'administrator' ),
 			array( 'shop_manager' ),
@@ -75,7 +76,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function role_provider_hide() {
+	public static function role_provider_hide() {
 		return array(
 			array( 'contributor' ),
 			array( 'subscriber' ),

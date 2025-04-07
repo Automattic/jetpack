@@ -1143,18 +1143,18 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 *
 	 * @return array[]
 	 */
-	public function photon_attributes_when_filtered_data_provider() {
+	public static function photon_attributes_when_filtered_data_provider() {
 		$assert_details = function ( $details ) {
-			$this->assertIsArray( $details );
-			$this->assertArrayHasKey( 'tag', $details );
-			$this->assertArrayHasKey( 'src', $details );
-			$this->assertArrayHasKey( 'src_orig', $details );
-			$this->assertArrayHasKey( 'width', $details );
-			$this->assertArrayHasKey( 'width_orig', $details );
-			$this->assertArrayHasKey( 'height', $details );
-			$this->assertArrayHasKey( 'height_orig', $details );
-			$this->assertArrayHasKey( 'transform', $details );
-			$this->assertArrayHasKey( 'transform_orig', $details );
+			self::assertIsArray( $details );
+			self::assertArrayHasKey( 'tag', $details );
+			self::assertArrayHasKey( 'src', $details );
+			self::assertArrayHasKey( 'src_orig', $details );
+			self::assertArrayHasKey( 'width', $details );
+			self::assertArrayHasKey( 'width_orig', $details );
+			self::assertArrayHasKey( 'height', $details );
+			self::assertArrayHasKey( 'height_orig', $details );
+			self::assertArrayHasKey( 'transform', $details );
+			self::assertArrayHasKey( 'transform_orig', $details );
 		};
 
 		return array(
@@ -1298,7 +1298,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 *
 	 * @return array
 	 */
-	public function photon_attributes_when_amp_response() {
+	public static function photon_attributes_when_amp_response() {
 		return array(
 			'amp-img'  => array(
 				'<amp-img class="aligncenter wp-image-6372" title="Tube Bomber salmon dry fly" alt="Tube Bomber salmon dry fly" src="http://www.fishmadman.com/pages/wp-content/uploads/2012/02/Rav-fra-2004-2009-11-1024x611.jpg" width="102" height="61"></amp-img>',
@@ -1618,7 +1618,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	/**
 	 * Possible values for test_image_cdn_validate_image_url_file_types.
 	 */
-	public function get_test_image_cdn_validate_image_url_file_types_data_provider() {
+	public static function get_test_image_cdn_validate_image_url_file_types_data_provider() {
 		return array(
 			'gif'     => array( 'http://example.com/example-150x150.gif', true ),
 			'jpg'     => array( 'http://example.com/example-150x150.jpg', true ),

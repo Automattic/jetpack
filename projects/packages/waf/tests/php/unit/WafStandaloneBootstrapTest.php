@@ -7,6 +7,16 @@
 
 use Automattic\Jetpack\Waf\Waf_Standalone_Bootstrap;
 
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+
+// Unfortunately PHPUnit deprecated addMethods with no replacement. Create an interface for it to "mock".
+// phpcs:ignore PEAR.NamingConventions.ValidClassName.Invalid
+interface WafStandaloneBootstrapTest_filesystem_mock {
+	public function is_dir( $path );
+	public function mkdir( $path );
+	public function put_contents( $path, $contents );
+}
+
 /**
  * Runtime test suite.
  */
@@ -67,8 +77,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'ABSPATH', '/awesome' );
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );
 
-		$filesystem_mock_builder = $this->getMockBuilder( stdClass::class );
-		$filesystem_mock_builder->addMethods( array( 'is_dir', 'put_contents' ) );
+		$filesystem_mock_builder = $this->getMockBuilder( WafStandaloneBootstrapTest_filesystem_mock::class );
 
 		$filesystem_mock = $filesystem_mock_builder->getMock();
 
@@ -118,8 +127,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'ABSPATH', '/foo' );
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );
 
-		$filesystem_mock_builder = $this->getMockBuilder( stdClass::class );
-		$filesystem_mock_builder->addMethods( array( 'is_dir', 'put_contents' ) );
+		$filesystem_mock_builder = $this->getMockBuilder( WafStandaloneBootstrapTest_filesystem_mock::class );
 
 		$filesystem_mock = $filesystem_mock_builder->getMock();
 		$filesystem_mock->expects( $this->once() )
@@ -153,8 +161,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'ABSPATH', '/awesome' );
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );
 
-		$filesystem_mock_builder = $this->getMockBuilder( stdClass::class );
-		$filesystem_mock_builder->addMethods( array( 'is_dir', 'mkdir', 'put_contents' ) );
+		$filesystem_mock_builder = $this->getMockBuilder( WafStandaloneBootstrapTest_filesystem_mock::class );
 
 		$filesystem_mock = $filesystem_mock_builder->getMock();
 
@@ -192,8 +199,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'ABSPATH', '/awesome' );
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );
 
-		$filesystem_mock_builder = $this->getMockBuilder( stdClass::class );
-		$filesystem_mock_builder->addMethods( array( 'is_dir', 'mkdir' ) );
+		$filesystem_mock_builder = $this->getMockBuilder( WafStandaloneBootstrapTest_filesystem_mock::class );
 
 		$filesystem_mock = $filesystem_mock_builder->getMock();
 

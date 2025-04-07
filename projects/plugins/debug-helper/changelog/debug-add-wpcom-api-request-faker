@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Debug Helper: Added WPcom API request sending functionality to help testing specific requests manually.

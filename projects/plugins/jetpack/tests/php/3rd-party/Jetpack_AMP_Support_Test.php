@@ -15,6 +15,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
  * Class Jetpack_AMP_Support_Test
  */
 class Jetpack_AMP_Support_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Setup tests.

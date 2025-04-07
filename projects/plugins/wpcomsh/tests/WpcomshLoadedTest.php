@@ -9,6 +9,8 @@
  * Class WpcomshLoadedTest.
  */
 class WpcomshLoadedTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
 	/**
 	 * Test that it's loaded.
 	 */

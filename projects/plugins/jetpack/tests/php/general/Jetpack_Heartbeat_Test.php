@@ -1,6 +1,7 @@
 <?php
 
 class Jetpack_Heartbeat_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @covers Jetpack_Heartbeat::init

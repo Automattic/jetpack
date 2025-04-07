@@ -162,8 +162,7 @@ class UI {
 
 		$consumer_chosen     = null;
 		$consumer_url_length = 0;
-
-		foreach ( $consumers as $consumer ) {
+		foreach ( $consumers as &$consumer ) {
 			if ( empty( $consumer['admin_page'] ) || ! is_string( $consumer['admin_page'] ) ) {
 				continue;
 			}
@@ -177,6 +176,7 @@ class UI {
 				$consumer_url_length = strlen( $consumer['admin_page'] );
 			}
 		}
+		unset( $consumer );
 
 		static::$consumers = $consumer_chosen ? $consumer_chosen : array_shift( $consumers );
 

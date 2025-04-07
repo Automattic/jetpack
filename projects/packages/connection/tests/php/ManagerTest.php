@@ -18,7 +18,6 @@ use WP_Error;
  * Connection Manager functionality testing.
  */
 class ManagerTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Temporary stack for `wp_redirect`.
@@ -52,10 +51,9 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Initialize the object before running the test method.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
 			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id', 'unlink_user_from_wpcom', 'update_connection_owner_wpcom', 'disconnect_site_wpcom' ) )
 			->getMock();
@@ -77,10 +75,9 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		wp_set_current_user( 0 );
 		WorDBless_Users::init()->clear_all_users();
 		WorDBless_Options::init()->clear_options();
@@ -363,7 +360,7 @@ class ManagerTest extends TestCase {
 	 *     [2] => 'custom_cap'        string The custom capability that is being tested.
 	 *     [3] => 'expected_caps'     array The expected output of the call to jetpack_connection_custom_caps.
 	 */
-	public function jetpack_connection_custom_caps_data_provider() {
+	public static function jetpack_connection_custom_caps_data_provider() {
 
 		return array(
 			'offline mode, owner exists, jetpack_connect'  => array( true, true, 'jetpack_connect', array( 'do_not_allow' ) ),
@@ -450,7 +447,7 @@ class ManagerTest extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_disconnect_user_scenarios() {
+	public static function get_disconnect_user_scenarios() {
 		return array(
 			'Successful remote and local disconnection' => array(
 				true,
@@ -757,7 +754,7 @@ class ManagerTest extends TestCase {
 		$this->assertSame( $access_token, $error );
 	}
 
-	public function signature_data_provider() {
+	public static function signature_data_provider() {
 		return array(
 			array( 'abcde:1:aaa', 'bogus signature', 'malformed_user_id' ),
 			array( 'bogus token', 'bogus signature', 'malformed_token' ),
@@ -830,7 +827,7 @@ class ManagerTest extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_disconnect_user_force_scenarios() {
+	public static function get_disconnect_user_force_scenarios() {
 		return array(
 			'Successful remote and local disconnection' => array(
 				true,
