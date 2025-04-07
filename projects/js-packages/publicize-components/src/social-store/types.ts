@@ -53,13 +53,8 @@ export type ConnectionData = {
 	deletingConnections?: Array< number | string >;
 	updatingConnections?: Array< number | string >;
 	reconnectingAccount?: Connection;
-	keyringResult?: KeyringResult;
 	abortControllers?: Record< string, Array< AbortController > >;
 	isConnectionsModalOpen?: boolean;
-};
-
-export type JetpackSettings = {
-	showNudge?: boolean;
 };
 
 export type ShareStatusItem = Pick< Connection, 'profile_link' | 'profile_picture' > & {

@@ -4,7 +4,6 @@ import {
 	DELETING_CONNECTION,
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
-	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
 	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
@@ -122,12 +121,6 @@ const connectionData = ( state: ConnectionData = { connections: [] }, action ) =
 				},
 			};
 		}
-
-		case SET_KEYRING_RESULT:
-			return {
-				...state,
-				keyringResult: action.keyringResult,
-			};
 
 		case TOGGLE_CONNECTION:
 			return {

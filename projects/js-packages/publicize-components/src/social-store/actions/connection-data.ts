@@ -4,14 +4,13 @@ import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { getSocialScriptData } from '../../utils/script-data';
-import { Connection, KeyringResult } from '../types';
+import { Connection } from '../types';
 import {
 	ADD_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
-	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
 	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
@@ -30,20 +29,6 @@ export function setConnections( connections: Array< Connection > ) {
 	return {
 		type: SET_CONNECTIONS,
 		connections,
-	};
-}
-
-/**
- * Set keyring result
- *
- * @param keyringResult - keyring result
- *
- * @return An action object.
- */
-export function setKeyringResult( keyringResult?: KeyringResult ) {
-	return {
-		type: SET_KEYRING_RESULT,
-		keyringResult,
 	};
 }
 

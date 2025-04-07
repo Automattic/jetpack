@@ -208,17 +208,6 @@ export function isBlueskyAccountAlreadyConnected( state: SocialStoreState, handl
 }
 
 /**
- * Returns the latest KeyringResult from the store.
- *
- * @param state - State object.
- *
- * @return The KeyringResult
- */
-export function getKeyringResult( state: SocialStoreState ) {
-	return state.connectionData?.keyringResult;
-}
-
-/**
  * Whether the connections modal is open.
  * @param state - State object.
  *
