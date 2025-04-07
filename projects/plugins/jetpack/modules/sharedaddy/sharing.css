@@ -531,6 +531,14 @@ body .sd-content ul li.share-custom a.share-icon span
 	line-height: 16px;
 }
 
+body .sd-content ul li.share-custom a span[hidden] {
+    display: none;
+}
+
+body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.no-text span {
+    display: none;
+}
+
 body .sd-social-icon .sd-content li.share-custom a span {
 	width: 0;
 }
