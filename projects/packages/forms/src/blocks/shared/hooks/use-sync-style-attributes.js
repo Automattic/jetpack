@@ -1,4 +1,4 @@
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
 
 const collectAttributesToSync = ( block, attributes ) => {
@@ -7,13 +7,6 @@ const collectAttributesToSync = ( block, attributes ) => {
 		return acc;
 	}, {} );
 };
-
-// TODO: - Fix potential infinite loop due to syncing while block is being migrated via deprecations.
-//       - Confirm this hook syncs option styles and doesn't impact label/input styles in other fields.
-//
-// BUG: When some fields have already been migrated to inner blocks, if another legacy field is migrated
-//      this style syncing hook goes into an infinite loop. This only really an issue if legacy fields
-//      with syncing enabled is pasted into an already migrated form.
 
 /**
  * Hook to sync specified block attributes to others of the same block type
@@ -25,7 +18,9 @@ const collectAttributesToSync = ( block, attributes ) => {
  * @param {Array}  sharedAttributes - List of block attributes to sync.
  */
 export default function useSyncStyleAttributes( clientId, name, parentName, sharedAttributes ) {
-	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
+	const registry = useRegistry();
+	const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } =
+		useDispatch( 'core/block-editor' );
 	const lastSyncedAttributesRef = useRef( null );
 	const wasSyncEnabledRef = useRef( false );
 
@@ -45,7 +40,12 @@ export default function useSyncStyleAttributes( clientId, name, parentName, shar
 			// Get parent's `shareFieldAttributes` status
 			const parentClientIds = blockEditor.getBlockParents( clientId );
 			const parentId = parentClientIds?.[ parentClientIds.length - 1 ];
-			const parentBlock = blockEditor.getBlock( parentId );
+
+			let parentBlock = blockEditor.getBlock( parentId );
+			if ( parentBlock.name === 'jetpack/options' ) {
+				parentBlock = blockEditor.getBlock( parentClientIds[ parentClientIds.length - 2 ] );
+			}
+
 			const isSharingEnabled = parentBlock?.attributes.shareFieldAttributes || false;
 
 			// Only collect attributes if sharing is enabled for this block's parent
@@ -59,23 +59,59 @@ export default function useSyncStyleAttributes( clientId, name, parentName, shar
 
 			let blockWithSyncedAttributes = null;
 
+			// Recursive util to find all fields with style syncing regardless of how
+			// deeply nested in the form.
+			const getFieldsWithSharedAttributes = currentId => {
+				const blocks = blockEditor.getBlocks( currentId );
+				let result = [];
+
+				for ( const block of blocks ) {
+					if ( block.name.indexOf( 'jetpack/field' ) > -1 ) {
+						if ( block.attributes.shareFieldAttributes ) {
+							result.push( block );
+						}
+					} else {
+						result = result.concat( getFieldsWithSharedAttributes( block.clientId ) );
+					}
+				}
+
+				return result;
+			};
+
 			if ( parentFormId ) {
-				const fields = blockEditor
-					.getBlocks( parentFormId )
-					.filter(
-						block =>
-							block.name.indexOf( 'jetpack/field' ) > -1 && block.attributes.shareFieldAttributes
-					);
+				const fields = getFieldsWithSharedAttributes( parentFormId );
 
 				// Look for the first synced block that isn't this one
 				for ( const field of fields ) {
-					const blocks = blockEditor
-						.getBlocks( field.clientId )
-						.filter( block => block.name === name && block.clientId !== clientId );
+					const innerFieldBlocks = blockEditor.getBlocks( field.clientId );
+					const isChoiceField =
+						field.name === 'jetpack/field-radio' ||
+						field.name === 'jetpack/field-checkbox-multiple';
 
-					if ( blocks.length > 0 ) {
-						blockWithSyncedAttributes = blockWithSyncedAttributes || blocks[ 0 ];
-						ids.push( blocks[ 0 ].clientId );
+					// Single and multiple choice fields nest their individual option blocks
+					// within a `jetpack/options` block. If we're syncing option block styles
+					// all the individual options within a choice field need to be included.
+					if ( name === 'jetpack/option' && isChoiceField ) {
+						const optionsBlock = innerFieldBlocks.find( block => block.name === 'jetpack/options' );
+
+						blockEditor.getBlocks( optionsBlock.clientId ).forEach( block => {
+							blockWithSyncedAttributes = blockWithSyncedAttributes || block;
+							if ( block.clientId !== clientId ) {
+								ids.push( block.clientId );
+							}
+						} );
+					} else {
+						// Check for blocks to sync as normal. This will still allow
+						// `jetpack/option` blocks that are direct children of a field to be
+						// found e.g. checkbox and consent fields.
+						const blocks = innerFieldBlocks.filter(
+							block => block.name === name && block.clientId !== clientId
+						);
+
+						if ( blocks.length > 0 ) {
+							blockWithSyncedAttributes = blockWithSyncedAttributes || blocks[ 0 ];
+							ids.push( blocks[ 0 ].clientId );
+						}
 					}
 				}
 			}
@@ -105,7 +141,10 @@ export default function useSyncStyleAttributes( clientId, name, parentName, shar
 			JSON.stringify( syncAttributes ) !== JSON.stringify( lastSyncedAttributesRef.current )
 		) {
 			// Sync new style changes to other synced blocks.
-			updateBlockAttributes( syncedBlockIds, syncAttributes );
+			registry.batch( () => {
+				__unstableMarkNextChangeAsNotPersistent();
+				updateBlockAttributes( syncedBlockIds, syncAttributes );
+			} );
 			lastSyncedAttributesRef.current = syncAttributes;
 		}
 	}, [
@@ -116,5 +155,7 @@ export default function useSyncStyleAttributes( clientId, name, parentName, shar
 		updateBlockAttributes,
 		clientId,
 		sharedAttributes,
+		registry,
+		__unstableMarkNextChangeAsNotPersistent,
 	] );
 }
