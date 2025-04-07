@@ -4,6 +4,53 @@
 import { store, getContext, withScope, getElement, getConfig } from '@wordpress/interactivity';
 
 const NAMESPACE = 'jetpack/field-file';
+
+let uploadToken = null;
+let tokenExpiry = null;
+
+/**
+ * Retuns the upload token. Sometimes it has to fetch a new one if it expired. Or we haven't needed one just yet.
+ *
+ * @return {string} The upload token.
+ */
+const getUploadToken = async () => {
+	// Check if the token exists and is not expired
+	if ( uploadToken && tokenExpiry && Date.now() < tokenExpiry ) {
+		return uploadToken;
+	}
+
+	const { token, expiresAt } = await fetchUploadToken();
+	uploadToken = token;
+	tokenExpiry = expiresAt * 1000; // Convert expiry timestamp to milliseconds
+	return uploadToken;
+};
+/**
+ * Fetches the upload token from the server.
+ *
+ * @return {{ token: string, expiresAt: number }} The upload token and its expiration time.
+ */
+const fetchUploadToken = async () => {
+	const { endpoint } = getConfig( NAMESPACE );
+
+	const response = await fetch( `${ endpoint }/token`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify( { context: 'file-upload' } ),
+	} );
+
+	if ( ! response.ok ) {
+		throw new Error( 'Failed to fetch JWT token' );
+	}
+
+	const data = await response.json();
+	return {
+		token: data.token, // Assuming the token is in the `token` field
+		expiresAt: data.expiration,
+	};
+};
+
 /**
  * Format the file size to a human-readable string.
  *
@@ -70,8 +117,10 @@ const addFileToContext = file => {
 		error,
 	} );
 
+	const uploadFileWithScope = withScope( uploadFile.bind( this, file, fileId ) );
+
 	// Start the upload if we don't have any errors.
-	! error && uploadFile( file, fileId );
+	! error && uploadFileWithScope();
 
 	// Load the file so we can display it. In case it is an image.
 	reader.onload = withScope( () => {
@@ -81,12 +130,17 @@ const addFileToContext = file => {
 
 /**
  * Make the endpoint request.
+ * This function is a generator so that we can use the withScope function.
+ * And the context gets passed to the onProgress and onReadyStateChange functions.
  *
  * @param {File}   file   - The file to upload.
  * @param {string} fileId - The file ID.
+ * @yield {Promise<string>} The upload token.
  */
-const uploadFile = ( file, fileId ) => {
-	const { endpoint, uploadToken } = getConfig( NAMESPACE );
+function* uploadFile( file, fileId ) {
+	const { endpoint } = getConfig( NAMESPACE );
+
+	const token = yield getUploadToken();
 	const xhr = new XMLHttpRequest();
 	const formData = new FormData();
 
@@ -95,9 +149,9 @@ const uploadFile = ( file, fileId ) => {
 	xhr.addEventListener( 'readystatechange', withScope( onReadyStateChange.bind( this, fileId ) ) );
 
 	formData.append( 'file', file );
-	formData.append( 'token', uploadToken );
+	formData.append( 'token', token );
 	xhr.send( formData );
-};
+}
 
 /**
  * Responsible for updating the progress circle.
@@ -181,7 +235,9 @@ store( NAMESPACE, {
 		openFilePicker() {
 			const { ref } = getElement();
 			const fileInput = ref.parentNode.querySelector( '.jetpack-form-file-field' );
+
 			if ( fileInput ) {
+				fileInput.value = ''; // Reset the field so that we always get the onchange event.
 				fileInput.click();
 			}
 		},
@@ -191,7 +247,7 @@ store( NAMESPACE, {
 		 *
 		 * @param {Event} event - The event object.
 		 */
-		fileAdded: event => {
+		fileAdded( event ) {
 			const files = Array.from( event.target.files );
 			files.forEach( addFileToContext );
 		},
@@ -238,8 +294,9 @@ store( NAMESPACE, {
 		 * Remove a file from the context.
 		 *
 		 * @param {Event} event - The event object.
+		 * @yield {Promise<string>} The upload token.
 		 */
-		removeFile: event => {
+		removeFile: function* ( event ) {
 			event.preventDefault();
 			const context = getContext();
 			const fileId = event.target.dataset.id;
@@ -247,9 +304,10 @@ store( NAMESPACE, {
 			const file = context.files.find( fileObject => fileObject.id === fileId );
 
 			if ( file && file.file_id ) {
-				const { endpoint, uploadToken } = getConfig( NAMESPACE );
+				const { endpoint } = getConfig( NAMESPACE );
+				const token = yield getUploadToken();
 				const formData = new FormData();
-				formData.append( 'token', uploadToken );
+				formData.append( 'token', token );
 				formData.append( 'file_id', file.file_id );
 				fetch( `${ endpoint }/remove`, {
 					method: 'POST',

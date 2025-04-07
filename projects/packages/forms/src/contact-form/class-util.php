@@ -36,54 +36,6 @@ class Util {
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init', 9 );
 		add_action( 'grunion_scheduled_delete', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam' );
 		add_action( 'grunion_pre_message_sent', '\Automattic\Jetpack\Forms\ContactForm\Util::jetpack_tracks_record_grunion_pre_message_sent', 12, 3 );
-
-		add_filter( 'jetpack_unauth_file_upload_token', '\Automattic\Jetpack\Forms\ContactForm\Util::get_unauth_file_upload_token', 12 );
-	}
-	/**
-	 * Get the unauthenticated file upload token.
-	 *
-	 * @param string $token The token to use.
-	 * @return string The token to use.
-	 */
-	public static function get_unauth_file_upload_token( $token ) {
-
-		if ( ! empty( $token ) ) {
-			return $token;
-		}
-
-		$blog_id     = \Jetpack_Options::get_option( 'id' );
-		$request_url = sprintf( '/sites/%d/unauth-file-upload/token', $blog_id );
-
-		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
-			$request_url,
-			'v2',
-			array(
-				'method'  => 'POST',
-				'headers' => array(
-					'Content-Type' => 'application/json',
-				),
-			),
-			wp_json_encode(
-				array(
-					'context' => 'jetpack-form',
-				)
-			),
-			'wpcom'
-		);
-
-		if ( is_wp_error( $response ) ) {
-			error_log( 'Error getting upload token: ' . $response->get_error_message() );
-			return '';
-		}
-
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( ! isset( $body['token'] ) ) {
-			error_log( 'Invalid response from upload token endpoint' );
-			return '';
-		}
-
-		return $body['token'];
 	}
 
 	/**

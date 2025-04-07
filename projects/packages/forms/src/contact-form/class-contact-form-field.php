@@ -844,17 +844,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			_x( 'GB', 'unit symbol', 'jetpack-forms' ),
 		);
 
-		/**
-		 * Filters the upload token for the file field.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param string $upload_token Default empty token.
-		 */
-		$upload_token = apply_filters( 'jetpack_unauth_file_upload_token', '' );
-
 		$global_config = array(
-			'i18n'          => array(
+			'i18n'     => array(
 				'language'           => get_bloginfo( 'language' ),
 				'fileSizeUnits'      => $file_size_units,
 				'zeroBytes'          => __( '0 Bytes', 'jetpack-forms' ),
@@ -865,8 +856,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'invalidType'        => __( 'This file type is not allowed.', 'jetpack-forms' ),
 				'maxFiles'           => __( 'You have exeeded the number of files that you can upload.', 'jetpack-forms' ),
 			),
-			'endpoint'    => $this->get_unauth_endpoint_url(),
-			'uploadToken' => $upload_token,
+			'endpoint' => $this->get_unauth_endpoint_url(),
 		);
 
 		wp_interactivity_config( 'jetpack/field-file', $global_config );
