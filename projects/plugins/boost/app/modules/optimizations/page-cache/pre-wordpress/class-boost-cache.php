@@ -480,22 +480,46 @@ class Boost_Cache {
 	}
 
 	public function rebuild_page( $path, $parameters = false ) {
-		$this->storage->rebuild_page( $path, $parameters );
+		$this->storage->clear(
+			$path,
+			array(
+				'rebuild'    => true,
+				'parameters' => $parameters,
+			)
+		);
 		$this->invalidate_cache_success( $path, 'rebuild', 'page' );
 	}
 
 	public function delete_page( $path, $parameters = false ) {
-		$this->storage->delete_page( $path, $parameters );
+		$this->storage->clear(
+			$path,
+			array(
+				'rebuild'    => false,
+				'parameters' => $parameters,
+			)
+		);
 		$this->invalidate_cache_success( $path, 'delete', 'page' );
 	}
 
 	public function rebuild_recursive( $path ) {
-		$this->storage->rebuild_recursive( $path );
+		$this->storage->clear(
+			$path,
+			array(
+				'rebuild'   => true,
+				'recursive' => true,
+			)
+		);
 		$this->invalidate_cache_success( $path, 'rebuild', 'recursive' );
 	}
 
 	public function delete_recursive( $path ) {
-		$this->storage->delete_recursive( $path );
+		$this->storage->clear(
+			$path,
+			array(
+				'rebuild'   => false,
+				'recursive' => true,
+			)
+		);
 		$this->invalidate_cache_success( $path, 'delete', 'recursive' );
 	}
 
