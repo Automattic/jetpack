@@ -159,6 +159,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					<PanelBody
 						title={ __( 'Manage Responses', 'jetpack-forms' ) }
 						className="jetpack-contact-form__manage-responses-panel"
+						initialOpen={ false }
 					>
 						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
 					</PanelBody>
@@ -214,7 +215,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							</div>
 						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Email Connection', 'jetpack-forms' ) }>
+					<PanelBody title={ __( 'Email Connection', 'jetpack-forms' ) } initialOpen={ false }>
 						<JetpackEmailConnectionSettings
 							emailAddress={ to }
 							emailSubject={ subject }
@@ -228,6 +229,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						<PanelBody
 							title={ __( 'Manage Integrations', 'jetpack-forms' ) }
 							className="jetpack-contact-form__integrations-panel"
+							initialOpen={ false }
 						>
 							<IntegrationPanel attributes={ attributes } setAttributes={ setAttributes } />
 						</PanelBody>
