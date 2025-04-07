@@ -11,36 +11,6 @@
 require_once __DIR__ . '/class-jetpack-i-voted-widget.php';
 
 /**
- * Tracks widget being added or deleted.
- *
- * @see https://wpcom.trac.automattic.com/changeset/17565
- *
- * @global array $wp_registered_widgets Registered widgets.
- */
-function jetpack_mu_wpcom_ajax_save_widget_stats() {
-	if ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) {
-		return false;
-	}
-
-    // phpcs:disable WordPress.Security.NonceVerification.Missing
-	if ( ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) || ! is_admin() || ! isset( $_POST['id_base'] ) ) {
-		return false;
-	}
-
-	$id_base       = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
-	$add_new       = isset( $_POST['add_new'] ) ? (bool) $_POST['add_new'] : false;
-	$delete_widget = isset( $_POST['delete_widget'] ) ? (bool) $_POST['delete_widget'] : false;
-
-	if ( $delete_widget && isset( $_POST['widget-id'] ) && isset( $GLOBALS['wp_registered_widgets'][ sanitize_text_field( wp_unslash( $_POST['widget-id'] ) ) ] ) ) {
-		do_action( 'jetpack_bump_stats_extras', 'widget_removed', $id_base );
-	} elseif ( $add_new ) {
-		do_action( 'jetpack_bump_stats_extras', 'widget_added', $id_base );
-	}
-    // phpcs:enable WordPress.Security.NonceVerification.Missing
-}
-add_action( 'widgets.php', 'jetpack_mu_wpcom_ajax_save_widget_stats' );
-
-/**
  * Some widgets are getting long in the tooth, hardly used, or just not very useful.
  * Disable these widgets on sites where they're not active.
  */
