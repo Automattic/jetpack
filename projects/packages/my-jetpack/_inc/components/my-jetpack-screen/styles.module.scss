@@ -3,6 +3,7 @@
 }
 
 .notice {
+
 	& > div {
 		position: relative;
 		margin: 0;
@@ -28,7 +29,7 @@
 			color: var( --jp-black );
 			font-size: 16px;
 			font-weight: 600;
-			padding: var(--spacing-base) calc(var(--spacing-base)* 3) !important;
+			padding: var(--spacing-base) calc(var(--spacing-base) * 3) !important;
 			white-space: nowrap;
 		}
 
@@ -60,6 +61,7 @@
 		}
 
 		&.bigger-than-medium {
+
 			& :global(.components-notice__action) {
 				margin-left: 0;
 				margin-top: 0;
@@ -95,6 +97,7 @@
 
 	a {
 		color: var( --jp-black );
+
 		&:hover, &:focus {
 			text-decoration: underline;
 			text-decoration-thickness: 2px;
@@ -120,6 +123,7 @@
 
 	& :global(.products-list) {
 		margin: 10px 0;
+
 		& :global(.product-badge) {
 			display: inline-block;
 			padding: 2px 8px;
@@ -130,7 +134,9 @@
 	}
 
 	& :global(.plugins-list) {
+
 		& :global(.plugin-item) {
+
 			> span {
 				font-size: calc( var( --font-body-extra-small ) + 1px );
 				margin-inline-start: 5px;

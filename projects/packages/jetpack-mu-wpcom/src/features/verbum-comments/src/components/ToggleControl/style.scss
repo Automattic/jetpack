@@ -8,6 +8,7 @@
     cursor: pointer;
 
     .verbum-toggle-control__label {
+
         p {
             // protect the button from style leaks from the site; reset all.
             all: unset;

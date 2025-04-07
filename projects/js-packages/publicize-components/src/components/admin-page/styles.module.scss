@@ -1,11 +1,14 @@
 :global {
+
 	#wpbody-content {
+
 		& > .notice {
 			display: none;
 		}
 	}
 
 	.jetpack-social-jitm-card {
+
 		.jitm-card {
 			margin-right: 0;
 		}

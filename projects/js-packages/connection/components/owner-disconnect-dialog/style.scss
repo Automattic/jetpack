@@ -3,9 +3,11 @@
     .components-button.jp-connection__disconnect-dialog__btn-dismiss {
         background: var( --jp-black ) !important;
     }
+
    .jp-connection__disconnect-dialog__content {
         --spacing-base: 8px;
     }
+
     .components-modal__content > div:not(.components-modal__header) {
         display: flex;
         flex-direction: column;

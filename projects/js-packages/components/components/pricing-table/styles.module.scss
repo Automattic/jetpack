@@ -25,6 +25,7 @@
 	}
 
 	&.is-primary {
+
 		> * {
 			background: var(--jp-white);
 			position: relative;
@@ -78,6 +79,7 @@
 			left: var(--padding);
 			right: var(--padding);
 			height: 1px;
+
 			.is-viewport-large & {
 				width: calc(100% + var(--gap));
 				left: 0;

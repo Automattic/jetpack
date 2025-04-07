@@ -4,6 +4,7 @@
 	box-sizing: border-box;
 
 	.block-editor-block-variation-picker.has-many-variations {
+
 		.components-placeholder__fieldset {
 			max-width: unset;
 			margin: 0;
@@ -85,6 +86,7 @@
 			}
 
 			@media (max-width: #{ ($break-mobile) }) {
+
 				&[class*=jetpack-field__width-] {
 					flex-basis: 100%;
 					max-width: none;
@@ -101,6 +103,7 @@
 				margin-left: auto;
 				margin-right: auto;
 			}
+
 			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
 			&:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
 				max-width: inherit;
@@ -128,6 +131,7 @@
 
 	[data-type="jetpack/field-checkbox-multiple"],
 	[data-type="jetpack/field-radio"] {
+
 		.wp-block {
 			margin: unset;
 		}
@@ -176,6 +180,7 @@
 	}
 
 	.block-editor-block-variation-picker__variation {
+
 		svg path:not(.icon-filler) {
 			fill: currentColor;
 		}
@@ -195,9 +200,11 @@
 		width: calc(100% - #{ $grid-unit-20 * 2 });
 		height: calc(100% - #{ $header-height * 2 });
 	}
+
 	@include break-medium() {
 		width: $break-medium - $grid-unit-20 * 2;
 	}
+
 	@include break-large() {
 		height: 80%;
 		width: 80%;
@@ -209,6 +216,7 @@
 		margin-bottom: 60px;
 
 		.view-mode-carousel {
+
 			.carousel-container {
 				margin-bottom: 20px;
 			}
@@ -249,6 +257,7 @@
 }
 
 .jetpack-contact-form__integration-panel {
+
 	button {
 		margin-top: 1em;
 	}
@@ -308,6 +317,7 @@
 }
 
 .jetpack-field {
+
 	.jetpack-field__input, .jetpack-field__textarea {
 		width: 100%;
 		font: inherit;
@@ -385,6 +395,7 @@
 	&.jetpack-field-multiple {
 
 		&.is-style-button {
+
 			.jetpack-field-option,
 			.wp-block-jetpack-field-option-checkbox,
 			.wp-block-jetpack-field-option-radio {
@@ -414,6 +425,7 @@
 			}
 
 			.wp-block-jetpack-field-option-radio {
+
 				.jetpack-option__type {
 					display: none;
 				}
@@ -471,6 +483,7 @@
 
 	.jetpack-field-option.field-option-radio,
 	.wp-block-jetpack-field-option-radio {
+
 		.jetpack-option__type {
 			transform: translateY(5%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
 		}
@@ -478,6 +491,7 @@
 }
 
 :where(:not(.contact-form)) > .jetpack-field {
+
 	.jetpack-field__input, .jetpack-field__textarea {
 		padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 		padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
@@ -605,6 +619,7 @@
 	}
 
 	.form-settings-dropdown__item {
+
 		svg {
 			margin-right: 8px;
 			fill: none;
@@ -694,19 +709,23 @@
 }
 
 .jetpack-contact-form {
+
 	.jetpack-field {
+
 		.jetpack-field__input, .jetpack-field__textarea {
 			color: #787c82; //Simulates a placeholder color
 		}
 	}
 
 	.is-style-outlined &, .is-style-animated & {
+
 		.jetpack-field {
 			position: relative;
 		}
 	}
 
 	.is-style-outlined & {
+
 		.block-editor-block-list__block:not([contenteditable]):focus:after {
 			top: -10px;
 			left: -10px;
@@ -792,6 +811,7 @@
 			}
 
 			&.is-selected, &.has-placeholder {
+
 				.notched-label__notch {
 					border-top-color: transparent;
 				}
@@ -803,6 +823,7 @@
 				}
 
 				&.jetpack-field-dropdown {
+
 					.jetpack-field-dropdown__toggle {
 						border-color: transparent;
 						padding-left: calc(var(--notch-width) + 4px);
@@ -838,6 +859,7 @@
 			}
 
 			.jetpack-field-dropdown {
+
 				&__popover .rich-text {
 					padding-left: calc(var(--notch-width) + 4px);
 					padding-right: calc(var(--notch-width) + 4px);
@@ -859,6 +881,7 @@
 	}
 
 	.is-style-animated & {
+
 		.jetpack-field {
 			--left-offset: calc(var(--jetpack--contact-form--input-padding-left, 16px) + var(--jetpack--contact-form--border-size));
 			--label-left: max(var(--left-offset), var(--jetpack--contact-form--border-radius));
@@ -883,7 +906,9 @@
 			}
 
 			&.jetpack-field-dropdown {
+
 				.jetpack-field-dropdown__popover {
+
 					.rich-text {
 						padding-left: var(--field-padding);
 						padding-right: var(--field-padding);
@@ -896,6 +921,7 @@
 				padding-top: 1.8em;
 
 				&.has-placeholder {
+
 					.animated-label__label {
 						font-size: 1em;
 						top: 0;
@@ -927,6 +953,7 @@
 			}
 
 			&.is-selected, &.has-placeholder {
+
 				.animated-label__label {
 					font-size: 0.75em;
 					transform: translateY(0);
@@ -937,6 +964,7 @@
 	}
 
 	&.is-style-below {
+
 		.jetpack-field:not(.jetpack-field-checkbox) {
 			display: flex;
 			flex-direction: column-reverse;
@@ -961,6 +989,7 @@
 /* Styles for form inspector panels */
 .jetpack-contact-form__manage-responses-panel,
 .jetpack-contact-form__integrations-panel {
+
 	.components-button.is-secondary {
 		width: 100%;
 		justify-content: center;

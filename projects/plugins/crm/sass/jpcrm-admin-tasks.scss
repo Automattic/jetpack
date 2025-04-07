@@ -41,6 +41,7 @@
     border: 0px;
     box-shadow: none;
 }
+
 .fc-header-toolbar h2{
     font-size: 19px;
     margin-top: 8px;
@@ -48,6 +49,7 @@
     text-transform: uppercase;
     font-family: sans-serif;        
 }
+
 .fc-day-grid-event .fc-content {
     height: 24px;
     white-space: nowrap;
@@ -56,57 +58,72 @@
     color: rgba(0,0,0,0.95);
     padding: 2px;
 }
+
 .fc-title{
     line-height:24px;
 }
+
 .fc-today{
     background: #edf8ff !important;
 }
+
 .fc-event{
     border:0px;
     background:white;
     border: 1px solid #ddd;
 }
+
 .fc-content{
     color:black;
 }
+
 .fc-button{
     background:white;
 }
+
 .zbs-avatar{
     float:left;
     margin-right:3px;
 }
+
 .zbs-avatar img{
     border-radius:50%;
 }
+
 .fc-toolbar button:focus{
     outline:none;
 }
+
 .fc-unthemed .fc-divider, .fc-unthemed .fc-list-heading td, .fc-unthemed .fc-popover .fc-header {
 background: white;
 }
+
 .fc-toolbar .fc-state-active, .fc-toolbar .ui-state-active{
     z-index: 0px !important;
 }
+
 #zbs-add-task-ui{
     width: 39%;
     float: right;
     margin-right: 1%;
     display:none;
 }
+
 .zbs-adding-task{
     width: 60%;
     float: left;
 }
+
 .close-add-task{
     color: #767676;
     float: right;
     cursor: pointer;
 }
+
 .clear{
     clear:both;
 }
+
 #zbs-task-title{
 
     // take general rounding etc. from this
@@ -121,10 +138,12 @@ background: white;
     padding: 0.2em 0.5em;
     line-height: 1.4em;
 }
+
 .fc-event{
     border: 0px solid;
     background:transparent;
 }
+
 .zbs-show{
     border: 1px solid #ddd;
     background:white;
@@ -144,18 +163,21 @@ background: white;
     margin:0;
     padding:4px;
 }
+
 .show-on-calendar, .remind_task{
     color:black;
 
     div input {
         margin: 0.2em 0.5em !important;
     }
+
     label {
         font-size: 14px;
 		  line-height: 1.4em;
         font-weight: 400 !important;
     }
 }
+
 .remind_task{
     padding: 10px 4px;
     position: relative;
@@ -167,6 +189,7 @@ background: white;
     top: 5px;
     right: 5px;
 }
+
 .no-owner, .no-task-date{
     width: 48%;
 }
@@ -181,6 +204,7 @@ background: white;
         margin: -2px 0 0;
         line-height: normal;
 }
+
 .show-on-calendar span, .remind_task span{
     margin-left:5px;
 }
@@ -188,9 +212,11 @@ background: white;
 .no-owner{
     float: left;
 }
+
 .no-task-date{
     float:right;
 }
+
 .zbs-task-desc textarea{
 
     // take general rounding etc. from this
@@ -199,6 +225,7 @@ background: white;
     width: 100%;
     height:200px;
 }
+
 ::placeholder{
     color: #ccc;
 }
@@ -228,10 +255,12 @@ background: white;
     margin-right: 10px;
     float: left;
 }
+
 .no-task-date #daterange{
     border: 0px;
     box-shadow: none;
 }
+
 .zbs-unassigned{
     font-size: 25px !important;
     margin-top: 9px !important;
@@ -274,6 +303,7 @@ background: white;
 #task-mark-complete {
     margin-top:0;
 }
+
 #task-mark-complete ui .button:focus {
     border-color:none !important;
     box-shadow: none !important;

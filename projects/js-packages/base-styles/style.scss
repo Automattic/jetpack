@@ -2,22 +2,28 @@
 
 /********* Mixins *********/
 @mixin for-phone-up {
+
 	@media ( min-width: 600px ) {
 		@content;
 	}
 }
+
 @mixin for-tablet-up {
+
 	@media ( min-width: 960px ) {
 		@content;
 	}
 }
 
 @mixin for-phone-down {
+
 	@media ( max-width: 600px ) {
 		@content;
 	}
 }
+
 @mixin for-tablet-down {
+
 	@media ( max-width: 960px ) {
 		@content;
 	}
@@ -33,6 +39,7 @@ $wp-gray-dark: #23282d;
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu',
 		'Cantarell', 'Helvetica Neue', sans-serif;
 }
+
 .jp-wrap {
 	display: flex;
 	align-items: center;
@@ -67,6 +74,7 @@ $wp-gray-dark: #23282d;
 }
 
 @include for-phone-up {
+
 	@for $i from 1 through 8 {
 		.md-col-span-#{$i} {
 			grid-column-end: span #{$i};
@@ -75,6 +83,7 @@ $wp-gray-dark: #23282d;
 }
 
 @include for-tablet-up {
+
 	@for $i from 1 through 12 {
 		.lg-col-span-#{$i} {
 			grid-column-end: span #{$i};
@@ -83,12 +92,14 @@ $wp-gray-dark: #23282d;
 }
 
 @include for-tablet-down {
+
 	.md-col-span-0 {
 		display: none;
 	}
 }
 
 @include for-phone-down {
+
 	.sm-col-span-0 {
 		display: none;
 	}

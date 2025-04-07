@@ -1,6 +1,7 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .modal {
+
 	:global(.components-modal__header-heading) {
 		font-weight: 400;
 		font-size: 24px;
@@ -8,6 +9,7 @@
 }
 
 .wrapper{
+
 	:global(.components-tab-panel__tabs) {
 		height: 48px;
 		border-bottom: 1px solid var(--jp-gray-10);

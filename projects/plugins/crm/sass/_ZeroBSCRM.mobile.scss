@@ -8,14 +8,20 @@
 */
 
 /* Semantic UI has these classes, however they're only applicable to*/
+
 /* grids, containers, rows and columns.*/
+
 /* plus, there isn't any `mobile hidden`, `X hidden` class.*/
+
 /* this snippet is using the same class names and same approach*/
+
 /* plus a bit more but to all elements.*/
+
 /* see https://github.com/Semantic-Org/Semantic-UI/issues/1114/
 
 /* Mobile */
 @media only screen and (max-width: 767px) {
+
     [class*="mobile hidden"],
     [class*="tablet only"]:not(.mobile),
     [class*="computer only"]:not(.mobile),
@@ -28,6 +34,7 @@
   
   /* Tablet / iPad Portrait */
   @media only screen and (min-width: 768px) and (max-width: 991px) {
+
     [class*="mobile only"]:not(.tablet),
     [class*="tablet hidden"],
     [class*="computer only"]:not(.tablet),
@@ -40,6 +47,7 @@
   
   /* Computer / Desktop / iPad Landscape */
   @media only screen and (min-width: 992px) and (max-width: 1199px) {
+
     [class*="mobile only"]:not(.computer),
     [class*="tablet only"]:not(.computer),
     [class*="computer hidden"],
@@ -52,6 +60,7 @@
   
   /* Large Monitor */
   @media only screen and (min-width: 1200px) and (max-width: 1919px) {
+
     [class*="mobile only"]:not([class*="large screen"]),
     [class*="tablet only"]:not([class*="large screen"]),
     [class*="computer only"]:not([class*="large screen"]),
@@ -64,6 +73,7 @@
   
   /* Widescreen Monitor */
   @media only screen and (min-width: 1920px) {
+
     [class*="mobile only"]:not([class*="widescreen"]),
     [class*="tablet only"]:not([class*="widescreen"]),
     [class*="computer only"]:not([class*="widescreen"]),
@@ -78,8 +88,10 @@
 @media only screen and (max-width: 767px) {
 
     #zbs-doc-menu{
+
         .bottom{
             overflow-x:scroll;
+
             ::-webkit-scrollbar {
                 width: 0px;  /* remove scrollbar space */
                 background: transparent;  /* optional: just make scrollbar invisible */
@@ -113,6 +125,7 @@
 
 
         #zbs-main-logo-mobile{
+
             img{
                 width:85px;
                 cursor:pointer;
@@ -128,12 +141,15 @@
         .ui.grid>.row>[class*="five wide"].column, .ui.grid>.column.row>[class*="five wide"].column, .ui.grid>[class*="five wide"].column, .ui.column.grid>[class*="five wide"].column{
             width: 100% !important;
         }
+
         .ui.grid>.row>[class*="eleven wide"].column, .ui.grid>.column.row>[class*="eleven wide"].column, .ui.grid>[class*="eleven wide"].column, .ui.column.grid>[class*="eleven wide"].column{
             width:100% !important;
         }
+
         .ui.grid>.row>[class*="twelve wide"].column, .ui.grid>.column.row>[class*="twelve wide"].column, .ui.grid>[class*="twelve wide"].column, .ui.column.grid>[class*="twelve wide"].column{
             width: 100% !important;
         }
+
         .ui.grid>.row>[class*="four wide"].column, .ui.grid>.column.row>[class*="four wide"].column, .ui.grid>[class*="four wide"].column, .ui.column.grid>[class*="four wide"].column{
             width:100% !important;
         }
@@ -157,6 +173,7 @@
 
         //specific targets
         #email-template-submenu-admin{
+
             a{
                 font-size: 12px;
             }
@@ -208,7 +225,9 @@
 
 /* TINY old Mobile Style */
 @media only screen and (max-width: 600px) {
+
     #wpcontent {
+
             #zbs-mobile-nav.ui.mobile.only{
                 padding-top: 55px;
             }
@@ -218,6 +237,7 @@
 
 /* quick table fix */
 @media only screen and (max-width: 1120px) {
+
     table.wh-metatab {
         min-width:auto;
     }
@@ -231,6 +251,7 @@
 
 /* Tablet / iPad Portrait */
 @media only screen and (min-width: 768px) and (max-width: 991px) {
+
     #wpcontent {
 
         .label{
@@ -247,6 +268,7 @@
 
 
         #zbs-main-logo-mobile{
+
             img{
                 width:85px;
                 cursor:pointer;
@@ -262,12 +284,15 @@
         .ui.grid>.row>[class*="five wide"].column, .ui.grid>.column.row>[class*="five wide"].column, .ui.grid>[class*="five wide"].column, .ui.column.grid>[class*="five wide"].column{
             width: 100% !important;
         }
+
         .ui.grid>.row>[class*="eleven wide"].column, .ui.grid>.column.row>[class*="eleven wide"].column, .ui.grid>[class*="eleven wide"].column, .ui.column.grid>[class*="eleven wide"].column{
             width:100% !important;
         }
+
         .ui.grid>.row>[class*="twelve wide"].column, .ui.grid>.column.row>[class*="twelve wide"].column, .ui.grid>[class*="twelve wide"].column, .ui.column.grid>[class*="twelve wide"].column{
             width: 100% !important;
         }
+
         .ui.grid>.row>[class*="four wide"].column, .ui.grid>.column.row>[class*="four wide"].column, .ui.grid>[class*="four wide"].column, .ui.column.grid>[class*="four wide"].column{
             width:100% !important;
         }
@@ -281,6 +306,7 @@
 
         //specific targets
         #email-template-submenu-admin{
+
             a{
                 font-size: 12px;
             }

@@ -1,6 +1,7 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .components-guide {
+
     &.myjetpack-onboarding-welcome-tour {
         width: 400px;
         border-radius: 8px; // maintain the same border radius for all breakpoints
@@ -8,6 +9,7 @@
         .myjetpack-onboarding-welcome-tour__image {
             background: var( --jp-green-60);
             margin: 0 0 10px;
+
             > img {
                 display: block;
                 max-width: 100%;
@@ -31,6 +33,7 @@
         .components-modal__header {
             // close button - overwrite the size to make the X 10px
             .components-button {
+
                 svg {
                     width: 14px;
                     height: 14px;
@@ -61,8 +64,10 @@
         }
 
         button {
+
             &:focus,
             &:active {
+
                 &:not(:disabled) {
                     box-shadow: inset 0 0 0 1px var(--jp-gray-0), 0 0 0 1px var(--jp-green-70);
                 }
@@ -88,6 +93,7 @@
         }
 
         .components-modal__header {
+
             button {
                 color: var(--jp-gray-0);
             }

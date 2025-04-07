@@ -5,9 +5,11 @@
 	content: '';
 	display: block;
 }
+
 .infinite-wrap {
 	border-top: 0;
 }
+
 .infinite-scroll.neverending .site-content {
 	margin-bottom: 48px;
 	margin-bottom: 3.428571429rem;
@@ -26,6 +28,7 @@
 
 /* For responsive CSS */
 @media (max-width: 599px) {
+
 	.infinite-scroll #infinite-handle {
 		padding-bottom: 48px;
 		padding-bottom: 3.428571429rem;

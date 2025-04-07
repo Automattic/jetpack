@@ -27,6 +27,7 @@
 .jp-related-posts-i2__post {
 	display: flex;
 	flex-direction: column;
+
 	/* Default: 2 items by row */
 	flex-basis: calc( ( 100% - var(--hgap) ) / 2 );
 }
@@ -34,12 +35,14 @@
 /* Quantity qeuries: see https://alistapart.com/article/quantity-queries-for-css/ */
 .jp-related-posts-i2__post:nth-last-child(n+3):first-child,
 .jp-related-posts-i2__post:nth-last-child(n+3):first-child ~ * {
+
 	/* From 3 total items on, 3 items by row */
 	flex-basis: calc( ( 100% - var(--hgap) * 2 ) / 3 );
 }
 
 .jp-related-posts-i2__post:nth-last-child(4):first-child,
 .jp-related-posts-i2__post:nth-last-child(4):first-child ~ * {
+
 	/* Exception for 4 total items: 2 items by row */
 	flex-basis: calc( ( 100% - var(--hgap) ) / 2 );
 }
@@ -97,6 +100,7 @@
 /* Breakpoints */
 
 @media only screen and (max-width: 640px) {
+
 	.jp-related-posts-i2__list {
 		display: block;
 	}
@@ -200,9 +204,11 @@
 	line-height: 20px;
 	margin: 0;
 }
+
 #jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post-nothumbs {
 	position:relative;
 }
+
 #jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post-nothumbs a.jp-relatedposts-post-aoverlay {
 	position:absolute;
 	top:0;
@@ -272,6 +278,7 @@
 #jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post-nothumbs p.jp-relatedposts-post-excerpt {
 	overflow: hidden;
 }
+
 #jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post-nothumbs span {
 	margin-bottom: 1em;
 }
@@ -334,6 +341,7 @@
  */
 
 @media print {
+
 	.jp-relatedposts {
 		display:none !important;
 	}

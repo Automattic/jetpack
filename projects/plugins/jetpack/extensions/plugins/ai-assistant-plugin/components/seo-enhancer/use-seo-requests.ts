@@ -106,7 +106,7 @@ export const useSeoRequests = () => {
 	const updateTitle = useCallback(
 		async ( force: boolean = false ) => {
 			const hasTitle =
-				!! globalSelect( 'core/editor' ).getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title;
+				!! globalSelect( editorStore ).getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title;
 
 			if ( hasTitle && force !== true ) {
 				return null;
@@ -117,11 +117,19 @@ export const useSeoRequests = () => {
 				const response = await request( 'seo-title' );
 				const title = parseResponse( response ).titles?.[ 0 ];
 
-				editPost( {
-					meta: {
-						jetpack_seo_html_title: title,
-					},
-				} );
+				if ( title && title.length > 70 ) {
+					tracks.recordEvent( 'jetpack_seo_enhancer_title_too_long', {
+						character_count: title.length,
+					} );
+				}
+
+				if ( ! globalSelect( editorStore ).isCurrentPostPublished() ) {
+					editPost( {
+						meta: {
+							jetpack_seo_html_title: title,
+						},
+					} );
+				}
 
 				return true;
 			} catch ( error ) {
@@ -131,13 +139,13 @@ export const useSeoRequests = () => {
 				setTitleBusy( false );
 			}
 		},
-		[ setTitleBusy, request, editPost ]
+		[ setTitleBusy, request, editPost, tracks ]
 	);
 
 	const updateDescription = useCallback(
 		async ( force: boolean = false ) => {
 			const hasDescription =
-				!! globalSelect( 'core/editor' ).getEditedPostAttribute( 'meta' )?.advanced_seo_description;
+				!! globalSelect( editorStore ).getEditedPostAttribute( 'meta' )?.advanced_seo_description;
 
 			if ( hasDescription && force !== true ) {
 				return null;
@@ -147,11 +155,20 @@ export const useSeoRequests = () => {
 				setDescriptionBusy( true );
 				const response = await request( 'seo-meta-description' );
 				const description = parseResponse( response ).descriptions?.[ 0 ];
-				editPost( {
-					meta: {
-						advanced_seo_description: description,
-					},
-				} );
+
+				if ( description && description.length > 156 ) {
+					tracks.recordEvent( 'jetpack_seo_enhancer_description_too_long', {
+						character_count: description.length,
+					} );
+				}
+
+				if ( ! globalSelect( editorStore ).isCurrentPostPublished() ) {
+					editPost( {
+						meta: {
+							advanced_seo_description: description,
+						},
+					} );
+				}
 
 				return true;
 			} catch ( error ) {
@@ -161,7 +178,7 @@ export const useSeoRequests = () => {
 				setDescriptionBusy( false );
 			}
 		},
-		[ setDescriptionBusy, request, editPost ]
+		[ setDescriptionBusy, request, editPost, tracks ]
 	);
 
 	const updateAltText = useCallback(
@@ -191,7 +208,10 @@ export const useSeoRequests = () => {
 
 				const altText = parseResponse( response ).texts?.[ 0 ];
 
-				await updateBlockAttributes( block.clientId, { alt: altText } );
+				if ( ! globalSelect( editorStore ).isCurrentPostPublished() ) {
+					await updateBlockAttributes( block.clientId, { alt: altText } );
+				}
+
 				setImageBusy( block.clientId, false );
 
 				return true;
@@ -251,20 +271,29 @@ export const useSeoRequests = () => {
 				images_alt_text: false,
 			};
 
-			enabledFeatures.forEach( feature => {
-				if ( feature === 'seo-title' ) {
-					promises.push( updateTitle() );
-					trackData.seo_title = true;
-				}
-				if ( feature === 'seo-meta-description' ) {
-					promises.push( updateDescription() );
-					trackData.seo_meta_description = true;
-				}
-				if ( feature === 'images-alt-text' ) {
-					promises.push( updateAltTexts() );
-					trackData.images_alt_text = true;
-				}
-			} );
+			if ( trigger === 'auto' ) {
+				promises.push( updateTitle() );
+				promises.push( updateDescription() );
+				promises.push( updateAltTexts() );
+				trackData.seo_title = true;
+				trackData.seo_meta_description = true;
+				trackData.images_alt_text = true;
+			} else {
+				enabledFeatures.forEach( feature => {
+					if ( feature === 'seo-title' ) {
+						promises.push( updateTitle() );
+						trackData.seo_title = true;
+					}
+					if ( feature === 'seo-meta-description' ) {
+						promises.push( updateDescription() );
+						trackData.seo_meta_description = true;
+					}
+					if ( feature === 'images-alt-text' ) {
+						promises.push( updateAltTexts() );
+						trackData.images_alt_text = true;
+					}
+				} );
+			}
 
 			tracks.recordEvent( 'jetpack_seo_enhancer_trigger', trackData );
 

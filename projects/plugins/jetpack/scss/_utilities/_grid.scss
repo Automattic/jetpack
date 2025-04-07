@@ -6,6 +6,7 @@
 .j-row {
 	width: 100%;
 	margin: 0 auto;
+
 	&:before,
 	&:after {
 		content: " ";
@@ -64,9 +65,13 @@
 	// .j-lrg-2	{width: 16.66667%;}
 	// .j-lrg-3	{width: 25%;}
 	.j-lrg-4	{width: 33.33333%;}
+
 	.j-lrg-5	{width: 41.66667%;}
+
 	.j-lrg-6	{width: 50%;}
+
 	.j-lrg-7	{width: 58.33333%;}
+
 	.j-lrg-8	{width: 66.66667%;}
 	// .j-lrg-9	{width: 75%;}
 	// .j-lrg-10	{width: 83.33333%;}

@@ -6,6 +6,7 @@ $icon-background-color: #fff;
 
 // Upgrade Banner.
 .jetpack-upgrade-plan-banner {
+
 	.jetpack-upgrade-plan-banner__wrapper {
 		display: flex;
 		justify-content: space-between;
@@ -48,6 +49,7 @@ $icon-background-color: #fff;
 				&:hover {
 					background: $studio-pink-30;
 				}
+
 				&.is-busy {
 					background-size: 100px 100%;
 					background-image: linear-gradient(-45deg, $studio-pink-40 28%, $studio-pink-60 28%, $studio-pink-60 72%, $studio-pink-40 72%);
@@ -64,6 +66,7 @@ $icon-background-color: #fff;
 
 	&.wp-block[data-align=right],
 	&.wp-block[data-align=left] {
+
 		.jetpack-upgrade-plan-banner__wrapper {
 			max-width: $content-width;
 			width: 100%;

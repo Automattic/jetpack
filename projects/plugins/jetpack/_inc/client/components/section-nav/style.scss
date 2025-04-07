@@ -34,12 +34,14 @@
 	}
 
 	@include breakpoint( ">660px" ) {
+
 		&.has-pinned-items {
 			padding-right: 60px;
 		}
 	}
 
 	@include breakpoint( "660px-660px" ) {
+
 		&.has-pinned-items {
 			padding-right: 50px;
 		}
@@ -61,6 +63,7 @@
 	cursor: pointer;
 
 	&:after {
+
 		@include dashicons;
 		content: '\f347';
 		line-height: 16px;
@@ -68,7 +71,9 @@
 	}
 
 	.dops-section-nav.is-open & {
+
 		&:after {
+
 			@include dashicons;
 			content: '\f343';
 		}
@@ -113,6 +118,7 @@
 	width: 100%;
 
 	@include breakpoint( "<660px" ) {
+
 		.dops-section-nav.is-open & {
 			padding-bottom: 15px;
 			border-top: solid 1px lighten( $gray, 20% );
@@ -185,6 +191,7 @@
 	line-height: 12px;
 
 	@include breakpoint( "<660px" ) {
+
 		.has-siblings & {
 			display: block;
 		}
@@ -205,6 +212,7 @@
 // -------- Nav Tabs --------
 // which contain items
 .dops-section-nav-tabs {
+
 	@include breakpoint( ">660px" ) {
 		width: 0;
 		flex: 1 0 auto;
@@ -239,6 +247,7 @@
 	margin-bottom: 0;
 
 	a.dops-section-nav-tab__link {
+
 		span.components-external-link__contents {
 			text-decoration: none;
 		}
@@ -306,6 +315,7 @@
 	}
 
 	.is-external & {
+
 		svg {
 			color: currentColor;
 		}
@@ -318,6 +328,7 @@
 	}
 
 	.notouch .is-selected & {
+
 		&:hover {
 			color: $white;
 		}
@@ -344,6 +355,7 @@
 		}
 
 		.notouch .is-selected & {
+
 			&:hover {
 				color: $black;
 			}
@@ -410,7 +422,9 @@
 
 // -------- Search --------
 .dops-section-nav {
+
 	@include breakpoint( "<660px" ) {
+
 		.dops-search.is-pinned {
 			height: 46px;
 		}

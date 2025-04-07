@@ -84,9 +84,11 @@
 	content:"";
 	display:table;
 }
+
 .widgets-list-layout li:after {
 	clear:both;
 }
+
 .widgets-list-layout li {
 	zoom:1;
 	margin-bottom: 1em;

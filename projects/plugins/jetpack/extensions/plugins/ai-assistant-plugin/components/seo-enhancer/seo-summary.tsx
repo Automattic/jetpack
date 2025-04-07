@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { store as blockEditorStore } from '@wordpress/block-editor';
-import { PanelRow, Button, BaseControl, Spinner } from '@wordpress/components';
+import { getAllBlocks } from '@automattic/jetpack-ai-client';
+import { PanelRow, Button, BaseControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, check, closeSmall } from '@wordpress/icons';
+import { Icon, check } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -17,8 +17,6 @@ import './style.scss';
 /**
  * Types
  */
-import type { PromptType } from './types';
-import type { Block } from '@automattic/jetpack-ai-client';
 
 export function SeoSummary( { onEdit }: { onEdit: () => void } ) {
 	const { title, description } = useSelect( select => {
@@ -40,65 +38,52 @@ export function SeoSummary( { onEdit }: { onEdit: () => void } ) {
 		};
 	}, [] );
 
-	const { getBlocksByName, getBlock } = useSelect(
-		select =>
-			select( blockEditorStore ) as {
-				getBlocksByName: ( name: string ) => string[];
-				getBlock: ( id: string ) => Block;
-			},
-		[]
-	);
-
-	const [ allImagesHaveAltText, setAllImagesHaveAltText ] = useState( false );
-
 	const [ imageAltTextHelpText, setImageAltTextHelpText ] = useState( null );
 
 	const seoTitleHelpText = useMemo( () => {
-		return title
-			? title
-			: __( 'No title found. Add it for better search engine visibility.', 'jetpack' );
+		return title ? title : '';
 	}, [ title ] );
 
 	const seoDescriptionHelpText = useMemo( () => {
-		return description
-			? description
-			: __( 'No description found. Add it for better search engine visibility.', 'jetpack' );
+		return description ? description : '';
 	}, [ description ] );
 
 	useEffect( () => {
-		if ( ! imageBusy ) {
-			const imageBlockIds = getBlocksByName( 'core/image' );
+		const imageBlocks = getAllBlocks().filter(
+			block => block.name === 'core/image' && block.attributes.url
+		);
 
-			if ( imageBlockIds.length === 0 ) {
-				setImageAltTextHelpText( __( 'No images in the post.', 'jetpack' ) );
+		if ( imageBlocks.length === 0 ) {
+			setImageAltTextHelpText( '' );
 
-				setAllImagesHaveAltText( true );
-			} else {
-				const imageBlocks = imageBlockIds.map( blockId => getBlock( blockId ) );
-				const imageBlocksWithAltText = imageBlocks.filter( block => block.attributes.alt );
-
-				if ( imageBlocksWithAltText.length === imageBlockIds.length ) {
-					setImageAltTextHelpText(
-						// Translators: %d is the number of images.
-						sprintf( __( 'Alt text added to all %d images', 'jetpack' ), imageBlockIds.length )
-					);
-
-					setAllImagesHaveAltText( true );
-				} else {
-					setImageAltTextHelpText(
-						sprintf(
-							// Translators: %1$d is the number of images with alt text, %2$d is the total number of images.
-							__( 'Alt text added to %1$d of %2$d images', 'jetpack' ),
-							imageBlocksWithAltText.length,
-							imageBlockIds.length
-						)
-					);
-
-					setAllImagesHaveAltText( false );
-				}
-			}
+			return;
 		}
-	}, [ getBlock, getBlocksByName, imageBusy ] );
+
+		const imageBlocksWithAlt = imageBlocks.filter( block => !! block.attributes.alt );
+
+		if ( imageBlocksWithAlt.length === 0 ) {
+			setImageAltTextHelpText( '' );
+
+			return;
+		}
+
+		if ( imageBlocksWithAlt.length === imageBlocks.length ) {
+			setImageAltTextHelpText( __( 'Alt text added to all images', 'jetpack' ) );
+
+			return;
+		}
+
+		if ( imageBlocksWithAlt.length < imageBlocks.length ) {
+			setImageAltTextHelpText(
+				sprintf(
+					// Translators: %1$d is the number of images with alt text, %2$d is the total number of images.
+					__( 'Alt text added to %1$d of %2$d images', 'jetpack' ),
+					imageBlocksWithAlt.length,
+					imageBlocks.length
+				)
+			);
+		}
+	}, [] );
 
 	const helpTexts = useMemo( () => {
 		return {
@@ -115,39 +100,15 @@ export function SeoSummary( { onEdit }: { onEdit: () => void } ) {
 		titleBusy,
 	] );
 
-	const getIcon = ( feature: PromptType ) => {
-		if ( feature === 'seo-title' ) {
-			if ( titleBusy ) {
-				return <Spinner />;
-			}
+	const allHelpTextsEmpty = useMemo( () => {
+		return Object.values( helpTexts ).every( text => ! text );
+	}, [ helpTexts ] );
 
-			if ( title ) {
-				return check;
-			}
-		}
-
-		if ( feature === 'seo-meta-description' ) {
-			if ( descriptionBusy ) {
-				return <Spinner />;
-			}
-
-			if ( description ) {
-				return check;
-			}
-		}
-
-		if ( feature === 'images-alt-text' ) {
-			if ( imageBusy ) {
-				return <Spinner />;
-			}
-
-			if ( allImagesHaveAltText ) {
-				return check;
-			}
-		}
-
-		return closeSmall;
-	};
+	const editMetadataFurtherText = __( 'Want to fine-tune this metadata further?', 'jetpack' );
+	const noMetadataText = __(
+		'No metadata found. Add it to improve search engine visibility.',
+		'jetpack'
+	);
 
 	return (
 		<>
@@ -155,31 +116,34 @@ export function SeoSummary( { onEdit }: { onEdit: () => void } ) {
 				<BaseControl
 					__nextHasNoMarginBottom={ true }
 					className="ai-seo-enhancer-toggle"
-					help={ __( 'Want to fine-tune this metadata further?', 'jetpack' ) }
+					help={ allHelpTextsEmpty ? noMetadataText : editMetadataFurtherText }
 					label={ __( 'Metadata', 'jetpack' ) }
 					id="jetpack-seo-enhancer-generated-metadata"
 				>
-					{ FEATURES.map( feature => (
-						<div key={ feature } className="jetpack-seo-enhancer-summary-feature">
-							<div className="jetpack-seo-enhancer-summary-feature__icon-container">
-								<Icon
-									className="jetpack-seo-enhancer-summary-feature__icon"
-									icon={ getIcon( feature ) }
-								/>
-							</div>
+					{ ! allHelpTextsEmpty &&
+						FEATURES.map( feature => {
+							if ( ! helpTexts[ feature ] ) {
+								return null;
+							}
+							return (
+								<div key={ feature } className="jetpack-seo-enhancer-summary-feature">
+									<div className="jetpack-seo-enhancer-summary-feature__icon-container">
+										<Icon className="jetpack-seo-enhancer-summary-feature__icon" icon={ check } />
+									</div>
 
-							<BaseControl
-								className="jetpack-seo-enhancer-summary-feature__control"
-								key={ feature }
-								label={ FEATURE_LABELS[ feature ] }
-								id={ feature }
-								help={ helpTexts[ feature ] }
-								__nextHasNoMarginBottom={ true }
-							>
-								{ null }
-							</BaseControl>
-						</div>
-					) ) }
+									<BaseControl
+										className="jetpack-seo-enhancer-summary-feature__control"
+										key={ feature }
+										label={ FEATURE_LABELS[ feature ] }
+										id={ feature }
+										help={ helpTexts[ feature ] }
+										__nextHasNoMarginBottom={ true }
+									>
+										{ null }
+									</BaseControl>
+								</div>
+							);
+						} ) }
 				</BaseControl>
 
 				<Button

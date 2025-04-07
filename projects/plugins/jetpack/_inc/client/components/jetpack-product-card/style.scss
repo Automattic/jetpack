@@ -144,6 +144,7 @@
 			background: $black;
 			color: $white;
 		}
+
 		&:focus {
 			box-shadow: 0 0 0 1px $white, 0 0 0 3px $black;
 		}
@@ -161,6 +162,7 @@
 			background: $black;
 			color: $white;
 		}
+
 		&:focus {
 			box-shadow: 0 0 0 1px $white, 0 0 0 3px $black;
 		}
@@ -216,6 +218,7 @@
 }
 
 .jp-product-card--has-media {
+
 	@include breakpoint( '>480px' ) {
 		display: block;
 	}

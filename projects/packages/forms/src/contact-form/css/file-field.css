@@ -2,6 +2,10 @@
 	position: relative;
 }
 
+.jetpack-form-file-field__dropzone.is-hidden {
+	display: none;
+}
+
 .jetpack-form-file-field__dropzone-inner {
 	position: absolute;
 	top: 0;
@@ -18,12 +22,11 @@
 	display: none;
 }
 
-.jetpack-form-file-field__dropzone.is_dropping {
+.jetpack-form-file-field__dropzone.is-dropping {
 	cursor: pointer;
 	transition: .2s;
 	opacity: 1;
-	background-color: #EEE;
-	border: var(--jetpack--contact-form--border-size, 1px) solid var(--jetpack--contact-form--border-color);
+	filter: invert(0.1);
 }
 
 .jetpack-form-file-field__dropzone:hover {
@@ -39,7 +42,7 @@
 }
 
 .jetpack-form-file-field__icon {
-	color: currentColor;
+	color: currentcolor;
 }
 
 .jetpack-form-file-field__text {
@@ -51,7 +54,7 @@
 
 .jetpack-form-file-field__select-link {
 	text-decoration: underline;
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .jetpack-form-file-field__formats {
@@ -67,6 +70,7 @@
 
 .jetpack-form-file-field__preview-wrap.is-active {
 	visibility: visible;
+
 }
 
 .jetpack-form-file-field__preview {
@@ -78,14 +82,17 @@
 	padding: 16px;
 	position: relative;
 	justify-content:start;
+	border-radius: var( --jetpack--contact-form--border-radius, 0 );
 	background-color: var(--jetpack--contact-form--input-background, white);
-	border: var(--jetpack--contact-form--border-size, 1px) solid var(--jetpack--contact-form--border-color);
+	color: var(--jetpack--contact-form--text-color, #333);
+	border: var(--jetpack--contact-form--border-size, 1px) var( --jetpack--contact-form--border-style, solid) var(--jetpack--contact-form--border-color, #333 );
 	margin-top: 8px;
 	font-size: 12px;
 	line-height: 18px;
 }
 
 @media (prefers-reduced-motion) {
+
 	.jetpack-form-file-field__preview {
 		animation: none;
 	}
@@ -107,29 +114,20 @@
 }
 
 @media (prefers-reduced-motion) {
+
 	.jetpack-form-file-field__preview > *,
 	.jetpack-form-file-field__preview:hover::before {
 		transition: none;
 	}
 }
 
-.jetpack-form-file-field__image {
-	aspect-ratio: 1 / 1;
-	background-position: center;
-	background-size: cover;
-	border-radius: var(--jetpack--contact-form--border-radius, 0);
-	outline: 2px solid  var( --jetpack--contact-form--button-primary--text-color, #FFF );
-	background-color: #333;
-	border-radius: 50%;
-	outline-offset:0;
-	width: 40px;
-	min-width: 40px;
-}
 
 .jetpack-form-file-field__preview.fade-out {
 	animation: jpFadeOutFileField 0.3s forwards;
 }
+
 @media (prefers-reduced-motion) {
+
 	.jetpack-form-file-field__preview.fade-out {
 		animation: none;
 	}
@@ -153,120 +151,116 @@
 
 .jetpack-form-file-field__remove {
 	position: relative;
-	width: 32px;
-	height: 32px;
+	min-width: 33px;
+	height: 33px;
 	margin-right: 10px;
 }
-.jetpack-form-file-field__remove:before, .jetpack-form-file-field__remove:after {
+
+.jetpack-form-file-field__remove:hover {
+	cursor: pointer;
+	border-radius: 50%;
+	background-color: var(--jetpack--contact-form--input-background, white );
+	filter: invert(0.1);
+	transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.jetpack-form-file-field__remove::before,
+.jetpack-form-file-field__remove::after {
 	position: absolute;
-	left: 15px;
+	left: 16px;
 	content: ' ';
 	height: 18px;
 	width: 1px;
-	top: 8px;
-	background-color: #000;
+	top: 7px;
+	background-color: var(--jetpack--contact-form--text-color, #333 );
 }
-.jetpack-form-file-field__remove:before {
+
+.jetpack-form-file-field__remove::before {
 	transform: rotate(45deg);
 }
-.jetpack-form-file-field__remove:after {
+
+.jetpack-form-file-field__remove::after {
 	transform: rotate(-45deg);
 }
 
-.jetpack-form-file-field__progress {
-	opacity: 0.5;
-	--hue: 220;
-	--holesize: 64;  /* 64 */
-	--track-bg: #333;
-	height: 44px;
-	width: 44px;
-	display: block;
-	align-items: center;
-	justify-items: center;
-	place-items: center;
-	position: absolute;
-	z-index: 3;
-	left: 14px;
+.jetpack-form-file-field__image-wrap {
+	min-width: 46px;
+	height: 46px;
+	border-radius: calc(infinity * 1px);
+	position: relative;
 }
 
-.jetpack-form-file-field__progress.is-complete,
-.jetpack-form-file-field__progress.is-error {
-	opacity: 1;
-	transform: opacity 0.5s ease;
-}
-
-.jetpack-form-file-field__progress::before {
+.jetpack-form-file-field__image {
 	content: '';
+	aspect-ratio: 1 / 1;
+	background-position: center;
+	background-size: cover;
+	outline: 1 solid  var( --jetpack--contact-form--button-primary--text-color, #FFF );
+	background-color: #333;
+	border-radius: 50%;
+	outline-offset:0;
+	width: 40px;
+	min-width: 40px;
+	left: 3px;
+	position: absolute;
+	top: 3px;
+	z-index: 2;
+}
+
+.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__image {
+	width: 46px;
+	min-width: 46px;
+	height: 46px;
+	left: 0;
+	top: 0;
+	outline: 1 solid  var( --jetpack--contact-form--button-primary--text-color, #FFF );
+	transition: width 0.5s ease-in-out;
+}
+
+.jetpack-form-file-field__progress-bar {
+	content:'';
 	position: absolute;
 	top: 0;
 	bottom: 0;
 	left: 0;
 	right: 0;
 	border-radius: 50%;
+	background: conic-gradient(
+		var(--jetpack--contact-form--border-color, #333 )
+		calc(var(--progress, 3) * 1%),
+		transparent calc(var(--progress, 3) * 1%)
+	);
+
 	z-index: -1;
-	background: conic-gradient(transparent var(--progress, 0%),
-			var(--track-bg) var(--progress, 0%) 100%);
-
-	-webkit-mask-image: radial-gradient(transparent var(--holesize),
-			black calc(var(--holesize) + 0.5px));
-
-	mask-image: radial-gradient(transparent var(--holesize),
-			black calc(var(--holesize) + 0.5px));
-}
-.jetpack-form-file-field__progress.is-complete::before {
-	display: none;
-	position: absolute;
-	top: 10px;
-	bottom: 0;
-	left: 16px;
-	right: 0;
-	--borderWidth: 3px;
-	--height: 16px;
-	--width: 7px;
-	--borderColor: #FFF;
-	display: inline-block;
-	transform: rotate(45deg);
-	height: var(--height);
-	width: var(--width);
-	border-bottom: var(--borderWidth) solid var(--borderColor);
-	border-right: var(--borderWidth) solid var(--borderColor);
-	background: transparent;
-	-webkit-mask-image: none;
-	mask-image: none;
-	z-index: 4;
-	content: "";
-	border-radius: 0;
-	box-shadow: 1px 1px 0px 0px #333;
+	animation: spin 1.2s ease infinite;
+	opacity: 0.8;
+	width: 46px;
+	height: 46px;
 }
 
-.jetpack-form-file-field__progress.is-error:before,
-.jetpack-form-file-field__progress.is-error:after {
-	position: absolute;
-	top: 12px;
-	left: 21px;
-	height: 20px;
-	width: 2px;
-	background-color: #FFF;
-	-webkit-mask-image: none;
-	mask-image: none;
-	z-index: 4;
-	content: "";
-	border-radius: 0;
+.jetpack-form-file-field__preview.is-error .jetpack-form-file-field__progress-bar,
+.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__progress-bar {
+	animation: none;
+	opacity: 0;
 }
 
-.jetpack-form-file-field__progress.is-error:before {
-	transform: rotate(45deg);
-}
+@keyframes spin {
 
-.jetpack-form-file-field__progress.is-error:after {
-	transform: rotate(-45deg);
+    from {transform:rotate(0deg);}
+
+    to {transform:rotate(360deg);}
 }
 
 .jetpack-form-file-field__file-info {
-	color: #6D6D6D;
+	opacity: 0.8;
 	display: inline-flex;
 	gap: 4px;
 }
+
+.jetpack-form-file-field__file-info .jetpack-form-file-field__file-size {
+	white-space: nowrap;
+}
+
 .jetpack-form-file-field__success {
 	color: #008A20;
 }
@@ -279,12 +273,17 @@
 	display: none;
 }
 
-.is-error .jetpack-form-file-field__seperator,
-.is-complete .jetpack-form-file-field__success {
+.jetpack-form-file-field__preview.is-error .jetpack-form-file-field__uploading,
+.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__uploading {
+	display: none;
+}
+
+.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__success {
 	display: inline;
 }
 
 @keyframes jpShowFileField {
+
 	100% {
 		opacity: 1;
 		transform: none;
@@ -292,10 +291,12 @@
 }
 
 @keyframes jpFadeOutFileField {
+
 	0% {
 		opacity: 1;
 		transform: scale(1);
 	}
+
 	100% {
 		opacity: 0;
 		transform: scale(0.98);

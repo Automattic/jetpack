@@ -515,12 +515,12 @@ class Brute_Force_Protection {
 	 *
 	 * Fires custom, plugable action jpp_log_failed_attempt with the IP
 	 *
-	 * @param string    $username - The username or email address attempting to log in.
-	 * @param \WP_Error $error    - A WP_Error object with the authentication failure details.
+	 * @param string         $username - The username or email address attempting to log in.
+	 * @param \WP_Error|null $error    - A WP_Error object with the authentication failure details.
 	 *
 	 * @return void
 	 */
-	public function log_failed_attempt( string $username, \WP_Error $error ) {
+	public function log_failed_attempt( string $username, ?\WP_Error $error = null ) {
 
 		// Skip if Account protection password validation error.
 		if ( isset( $error->errors['password_detection_validation_error'] ) ) {

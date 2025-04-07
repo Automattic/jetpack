@@ -6,11 +6,14 @@ $features-colors: (
 	'unconfident-words': rgb( 9, 181, 133 ),
 	'long-sentences': rgb( 122, 0, 223 ),
 	'spelling-mistakes': rgb( 214, 54, 56 ),
+	'grammar-harper': rgb( 214, 54, 56 ),
 );
 
 @mixin properties( $feature, $color, $properties, $opacity: false ) {
 	&[data-breve-type='#{$feature}'] {
+
 		@each $property in $properties {
+
 			@if $opacity {
 				#{$property}: rgba( $color, $opacity );
 			} @else {
@@ -21,7 +24,9 @@ $features-colors: (
 }
 
 @mixin features-colors( $properties, $opacity: false ) {
+
 	@each $feature, $color in $features-colors {
+
 		@include properties( $feature, $color, $properties, $opacity );
 	}
 }
@@ -30,12 +35,15 @@ $features-colors: (
 	$name: jetpack-ai-breve-loading-pulse;
 
 	@keyframes #{$name} {
+
 		0% {
 			opacity: 1;
 		}
+
 		50% {
 			opacity: 0.3;
 		}
+
 		100% {
 			opacity: 1;
 		}

@@ -2,7 +2,9 @@
 @import "../breakpoints.module.scss";
 
 @mixin cols($size) {
+
 	@include media($size) using ($columns) {
+
 		@for $i from 1 through $columns {
 			.col-#{$size}-#{$i} {
 				grid-column-end: span #{$i};

@@ -27,18 +27,21 @@
 		}
 
 		&.no-warning {
+
 			.progress-bar__progress {
 				background-color: var(--jp-black);;
 			}
 		}
 
 		&.yellow-warning {
+
 			.progress-bar__progress {
 				background-color: var(--jp-yellow-20);
 			}
 		}
 
 		&.red-warning {
+
 			.progress-bar__progress {
 				background-color: var(--jp-red-40);
 			}
@@ -47,6 +50,7 @@
 		// When the bar is full, we can show the filled portion
 		// at full width, with a rounded right side
 		&.full-warning {
+
 			.progress-bar__progress {
 				max-width: initial;
 				background-color: var(--jp-red-40);

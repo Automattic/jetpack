@@ -67,6 +67,7 @@ $colophon-height: 40px;
 		clip: rect( 1px, 1px, 1px, 1px );
 
 		&:focus {
+
 			@include apply-overlay-focus-styling();
 			clip: auto !important;
 			clip-path: none;
@@ -110,9 +111,11 @@ $colophon-height: 40px;
 	}
 
 	#{$customberg-container-selector } & {
+
 		@include break( '>l' ) {
 			display: flex;
 		}
+
 		@include break( '>xl' ) {
 			display: none;
 		}
@@ -164,6 +167,7 @@ $colophon-height: 40px;
 	}
 
 	&.jetpack-instant-search__search-results-secondary--show-as-modal {
+
 		@include multiple-breaks-for-customberg( '<l', '<xl' ) {
 			position: absolute;
 			top: 0;
@@ -210,6 +214,7 @@ $colophon-height: 40px;
 		margin-right: $results-margin-md;
 		margin-bottom: 1em;
 	}
+
 	@include break( '<m' ) {
 		margin-left: $results-margin-sm;
 		margin-right: $results-margin-sm;
@@ -217,6 +222,7 @@ $colophon-height: 40px;
 }
 
 .jetpack-instant-search__search-results-title {
+
 	@include multiple-breaks-for-customberg( '>l', '>xl' ) {
 		// Account for .jetpack-instant-search__search-form-controls.
 		padding-right: 210px;
@@ -234,6 +240,7 @@ $colophon-height: 40px;
 		margin-left: $results-margin-md;
 		margin-right: $results-margin-md;
 	}
+
 	@include break( '<m' ) {
 		margin-left: $results-margin-sm;
 		margin-right: $results-margin-sm;
@@ -258,6 +265,7 @@ $colophon-height: 40px;
 
 // Applied to button. so we override any generic button styles from the theme
 button.jetpack-instant-search__overlay-close {
+
 	@include remove-button-styling();
 	align-items: center;
 	cursor: pointer;
@@ -270,17 +278,20 @@ button.jetpack-instant-search__overlay-close {
 	background-color: transparent !important;
 
 	&:focus {
+
 		@include apply-overlay-focus-styling();
 	}
 
 	svg.gridicon {
 		fill: $color-text-lighter;
 	}
+
 	&:focus,
 	&:hover,
 	&:active {
 		border-color: $color-layout-borders;
 		background-color: transparent !important;
+
 		svg.gridicon {
 			fill: $color-text-light;
 		}
@@ -295,6 +306,7 @@ button.jetpack-instant-search__overlay-close {
 
 // Only show animation to users who have not chosen reduced motion
 @media ( prefers-reduced-motion: no-preference ) {
+
 	.jetpack-instant-search__search-results-filter-button {
 		transition: background-color 0.25s ease-in-out;
 	}

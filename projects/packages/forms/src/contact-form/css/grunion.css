@@ -17,9 +17,11 @@
 .contact-form input::placeholder {
 	transition: opacity 0.3s ease-out;
 }
+
 .contact-form input:hover::placeholder {
 	opacity: 0.5;
 }
+
 .contact-form input:focus::placeholder {
 	opacity: 0.3;
 }
@@ -248,6 +250,7 @@
 	margin-top: 0;
 	margin-bottom: 0;
 }
+
 :where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
 :where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
 	max-width: inherit;
@@ -304,6 +307,7 @@
 }
 
 @media only screen and ( max-width: 480px ) {
+
 	.wp-block-jetpack-contact-form .grunion-field-wrap {
 		flex-basis: 100%;
 		max-width: none;
@@ -315,6 +319,7 @@
 }
 
 @media only screen and ( min-width: 600px ) {
+
 	.contact-form input[type='text'],
 	.contact-form input[type='email'],
 	.contact-form input[type='tel'],
@@ -341,9 +346,11 @@
 .jetpack-empty-spam-container {
 	display: inline-block;
 }
+
 .jetpack-empty-spam {
 	display: inline-block;
 }
+
 .jetpack-empty-spam-spinner {
 	display: inline-block;
 	margin-top: 7px;
@@ -693,6 +700,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button {
+
 	/* visually-hidden */
 	clip: rect(0 0 0 0);
   clip-path: inset(50%);
@@ -860,6 +868,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .contact-form__spinner svg {
+
 	/* Ensure container is of the exact same dimension */
 	display: block;
 }
