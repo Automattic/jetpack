@@ -47,6 +47,7 @@
 	}
 
 	:global {
+
 		.components-button.is-primary {
 			background-color: $studio-automattic-blue;
 			min-width: 178px;
@@ -87,6 +88,7 @@
 }
 
 .card__column--brand svg {
+
 	@media ( max-width: 959px ) {
 		height: 48px;
 		width: auto;

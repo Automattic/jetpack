@@ -9,6 +9,7 @@ $arrow-color: var( --jp-gray );
 
 // Namespace to avoid overriding global styles
 .icon-tooltip-helper {
+
 	/*
 	* Fix arrow placement - section start
 	*/
@@ -19,6 +20,7 @@ $arrow-color: var( --jp-gray );
 	.components-popover:not([data-y-axis=middle])[data-x-axis=right] .components-popover__content {
 		margin-left: -62px;	
 	}
+
 	/*
 	* Fix arrow placement - section end
 	*/
@@ -49,6 +51,7 @@ $arrow-color: var( --jp-gray );
 	.components-popover:not(.is-without-arrow)[data-y-axis=top]::after {
 		bottom: 4px;
 	}
+
 	/*
 	* Fix arrow position for legacy position option - section end
 	*/

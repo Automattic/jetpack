@@ -7,6 +7,7 @@
 
 // @TODO: Remove all these specific styles when related Gutenberg core styles become more generic
 .block-editor-block-list__block {
+
 	.wp-block-jetpack-markdown__preview {
 		min-height: 1.8em;
 		line-height: 1.8;
@@ -78,6 +79,7 @@
 		}
 
 		li {
+
 			p {
 				margin: 0;
 			}
@@ -131,6 +133,7 @@
 }
 
 .wp-block-jetpack-markdown {
+
 	.wp-block-jetpack-markdown__editor {
 		font-family: $editor-html-font;
 		font-size: $text-editor-font-size;

@@ -1,8 +1,11 @@
 /* TODO: Migrate to SCSS after adding build step to WPSC */
+
 /* TODO: Migrate CSS from wp-cache.php */
 
 #wpwrap {
+
 	/* Declare JP CSS variables */
+
 	/* TODO: Integrate root-variables.scss from base-styles package */
 	--jp-black: #000000;
 	--jp-gray: #dcdcde;
@@ -34,6 +37,7 @@
 }
 
 #wpsc-dashboard {
+
 	/* Remove default wp-admin spacing */
 	margin-left: -20px;
 	padding-top: 20px;

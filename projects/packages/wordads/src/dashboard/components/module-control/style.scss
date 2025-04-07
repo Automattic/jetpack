@@ -11,22 +11,27 @@ $toggle-width: 3em;
 
 .jp-form-wordads-settings-group {
 	width: 100%;
+
 	.dops-card {
 		box-shadow: none;
 		padding: 0;
 		padding-top: 4em;
 	}
+
 	.form-toggle__label {
 		margin: 0;
 	}
 }
 
 .jp-form-wordads-settings-group__toggle {
+
 	&.is-instant-search {
 		margin-top: 4em;
 	}
+
 	.jp-form-wordads-settings-group__toggle-container {
 		display: flex;
+
 		@include for-tablet-down {
 			justify-content: center;
 		}
@@ -37,6 +42,7 @@ $toggle-width: 3em;
 	font-size: 1.5em;
 	line-height: 1.167;
 	font-weight: 600;
+
 	span {
 		font-weight: 400;
 	}
@@ -85,6 +91,7 @@ p.jp-form-wordads-settings-group__toggle-explanation {
 	&.is-widgets-editor {
 		color: $color-button-background;
 		background: transparent;
+
 		&:disabled,
 		&[disabled] {
 			color: $color-button-text-disabled;
@@ -92,7 +99,9 @@ p.jp-form-wordads-settings-group__toggle-explanation {
 		}
 	}
 }
+
 .form-toggle.is-wordads-admin.is-compact {
+
 	+ .form-toggle__switch {
 		border-radius: calc( #{$toggle-height}/ 2 );
 		width: $toggle-width;
@@ -113,6 +122,7 @@ p.jp-form-wordads-settings-group__toggle-explanation {
 	}
 
 	&:checked {
+
 		+ .form-toggle__switch {
 			background: $color-plan;
 			border-color: $color-plan;
@@ -154,6 +164,7 @@ p.jp-form-wordads-settings-group__toggle-explanation {
 
 	&:hover,
 	&:focus {
+
 		span:last-of-type {
 			text-decoration: underline;
 			text-decoration-thickness: $jp-underline-thickness;

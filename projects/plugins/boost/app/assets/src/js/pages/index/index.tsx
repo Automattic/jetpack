@@ -3,6 +3,7 @@ import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-css-meta';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import { ImageCdnLiar, QualitySettings } from '$features/image-cdn';
+import ImageGuide from '$features/image-guide/image-guide';
 import { RecommendationsMeta } from '$features/image-size-analysis';
 import MinifyCss from '$features/minify-css/minify-css';
 import MinifyJs from '$features/minify-js/minify-js';
@@ -14,7 +15,7 @@ import Pill from '$features/ui/pill/pill';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styles from './index.module.scss';
@@ -30,7 +31,6 @@ const Index = () => {
 	const requestRegenerateCriticalCss = () => {
 		regenerateCssAction.mutate();
 	};
-	const { canResizeImages } = Jetpack_Boost;
 
 	const [ imageCdnQualityState ] = useSingleModuleState( 'image_cdn_quality' );
 	const [ imageCdnLiarState ] = useSingleModuleState( 'image_cdn_liar' );
@@ -203,56 +203,7 @@ const Index = () => {
 			</Module>
 
 			<div className={ styles.settings }>
-				<Module
-					slug="image_guide"
-					title={ __( 'Image Guide', 'jetpack-boost' ) }
-					description={
-						<>
-							<p>
-								{ __(
-									`This feature helps you discover images that are too large. When you browse your site, the image guide will show you an overlay with information about each image's size.`,
-									'jetpack-boost'
-								) }
-							</p>
-							{ ! isaState?.available && (
-								<InterstitialModalCTA
-									identifier="image-guide"
-									description={ __(
-										'Upgrade to scan your site for issues - automatically!',
-										'jetpack-boost'
-									) }
-								/>
-							) }
-						</>
-					}
-				>
-					{ false === canResizeImages && (
-						<Notice
-							level="warning"
-							title={ __( 'Image resizing is unavailable', 'jetpack-boost' ) }
-							hideCloseButton={ true }
-						>
-							<p>
-								{ __(
-									"It looks like your server doesn't have Imagick or GD extensions installed.",
-									'jetpack-boost'
-								) }
-							</p>
-							<p>
-								{ __(
-									"Jetpack Boost is able to work without these extensions, but it's likely that it's going to be difficult for you to optimize the images that the Image Guide will identify without one of these extensions.",
-									'jetpack-boost'
-								) }
-							</p>
-							<p>
-								{ __(
-									'Please contact your hosting provider or system administrator and ask them to install or activate one of these extensions.',
-									'jetpack-boost'
-								) }
-							</p>
-						</Notice>
-					) }
-				</Module>
+				<ImageGuide />
 
 				<Module
 					slug="image_size_analysis"

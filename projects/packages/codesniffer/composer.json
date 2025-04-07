@@ -31,7 +31,13 @@
 			"hacks/"
 		],
 		"psr-4": {
-			"Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs"
+			"Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs",
+			"Automattic\\Jetpack\\Codesniffer\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Automattic\\Jetpack\\Codesniffer\\Tests\\": "tests/php/unit/"
 		}
 	},
 	"scripts": {

@@ -1,103 +1,48 @@
 import colorStudio from '@automattic/color-studio';
 import { JetpackIcon } from '@automattic/jetpack-components';
-import { Button, Icon, Spinner, ToggleControl } from '@wordpress/components';
+import { Button, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
-import { useIntegrationStatus, usePluginInstallation } from '../hooks';
 import IntegrationCard from './integration-card';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
-const JetpackCRMCard = ( { isExpanded, onToggle, jetpackCRM, setAttributes } ) => {
-	const {
-		isCheckingStatus,
-		isInstalled,
-		isActive,
-		settingsUrl,
-		hasExtension,
-		canActivateExtension,
-		version,
-		refreshStatus,
-	} = useIntegrationStatus( 'jetpack-crm' );
+const JetpackCRMCard = ( {
+	isExpanded,
+	onToggle,
+	jetpackCRM,
+	setAttributes,
+	data,
+	refreshStatus,
+} ) => {
+	const { settingsUrl = '', version = '', details = {} } = data || {};
 
-	const { isInstalling, installPlugin } = usePluginInstallation(
-		'zero-bs-crm',
-		'zero-bs-crm/ZeroBSCRM',
-		isInstalled,
-		'jetpack_forms_upsell_crm_click'
-	);
-
-	const handleInstallAction = async () => {
-		const success = await installPlugin();
-		if ( success ) {
-			refreshStatus();
-		}
-	};
-
-	const getButtonText = () => {
-		return (
-			( isInstalling && isInstalled && __( 'Activating…', 'jetpack-forms' ) ) ||
-			( isInstalling && __( 'Installing…', 'jetpack-forms' ) ) ||
-			( isInstalled && __( 'Activate', 'jetpack-forms' ) ) ||
-			__( 'Install', 'jetpack-forms' )
-		);
-	};
+	const { hasExtension = false, canActivateExtension = false } = details;
 
 	const crmVersion = semver.coerce( version );
 	const isRecentVersion = crmVersion && semver.gte( crmVersion, '4.9.1' );
 
+	const cardData = {
+		...data,
+		showHeaderToggle: true,
+		headerToggleValue: jetpackCRM,
+		isHeaderToggleEnabled: true,
+		onHeaderToggleChange: value => setAttributes( { jetpackCRM: value } ),
+		isLoading: ! data || typeof data.isInstalled === 'undefined',
+		refreshStatus,
+		trackEventName: 'jetpack_forms_upsell_crm_click',
+		notInstalledMessage: __(
+			'You can save contacts from Jetpack contact forms in Jetpack CRM.',
+			'jetpack-forms'
+		),
+		notActivatedMessage: __(
+			"You already have the Jetpack CRM plugin installed, but it's not activated.",
+			'jetpack-forms'
+		),
+	};
+
 	const renderContent = () => {
-		if ( isCheckingStatus ) {
-			return <Spinner />;
-		}
-
-		// Jetpack CRM not installed
-		if ( ! isInstalled ) {
-			return (
-				<div>
-					<p>
-						{ __(
-							'You can save contacts from Jetpack contact forms in Jetpack CRM.',
-							'jetpack-forms'
-						) }
-					</p>
-					<Button
-						variant="primary"
-						onClick={ handleInstallAction }
-						disabled={ isInstalling }
-						icon={ isInstalling ? <Icon icon="update" className="is-spinning" /> : undefined }
-						__next40pxDefaultSize={ true }
-					>
-						{ getButtonText() }
-					</Button>
-				</div>
-			);
-		}
-
-		// Jetpack CRM installed but not active
-		if ( ! isActive ) {
-			return (
-				<div>
-					<p>
-						{ __(
-							"You already have the Jetpack CRM plugin installed, but it's not activated.",
-							'jetpack-forms'
-						) }
-					</p>
-					<Button
-						variant="primary"
-						onClick={ handleInstallAction }
-						disabled={ isInstalling }
-						icon={ isInstalling ? <Icon icon="update" className="is-spinning" /> : undefined }
-						__next40pxDefaultSize={ true }
-					>
-						{ getButtonText() }
-					</Button>
-				</div>
-			);
-		}
-
 		// Jetpack CRM installed and active, but not recent version
 		if ( ! isRecentVersion ) {
 			return (
@@ -171,6 +116,7 @@ const JetpackCRMCard = ( { isExpanded, onToggle, jetpackCRM, setAttributes } ) =
 			icon={ <JetpackIcon color={ COLOR_JETPACK } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
+			cardData={ cardData }
 		>
 			{ renderContent() }
 		</IntegrationCard>

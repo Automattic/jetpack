@@ -6,6 +6,7 @@
 }
 
 div.dataviews-wrapper {
+
     div.dataviews-filters__container {
         padding-left: 24px;
     }
@@ -49,6 +50,7 @@ div.dataviews-wrapper {
     }
     
     div.dataviews-view-list {
+
         div[role="row"] {
             border: none;
     
@@ -59,6 +61,7 @@ div.dataviews-wrapper {
             }
 
             @media ( min-width: 783px ) {
+
                 .dataviews-view-list__fields {
                     flex-wrap: wrap;
                     margin-right: 0;
@@ -77,6 +80,7 @@ div.dataviews-wrapper {
     }
 
     @media ( min-width: 783px ) {
+
         button.dataviews-view-list__item {
             display: none;
         }
@@ -84,6 +88,7 @@ div.dataviews-wrapper {
 }
 
 div.dataviews-filters__search-widget-listitem {
+
     span {
         text-transform: capitalize;
     }
@@ -100,10 +105,12 @@ div.dataviews-filters__search-widget-listitem[data-active-item] {
 }
 
 div.dataviews-filters__search-widget-listitem:hover {
+
     span.dataviews-filters__search-widget-listitem-check {
         fill: var(--jp-gray-70);
     }
 }
+
 div.dataviews-filters__summary-chip-container div.dataviews-filters__summary-chip.has-values[aria-expanded=true],
 div.dataviews-filters__summary-chip-container div.dataviews-filters__summary-chip.has-values:hover,
 div.dataviews-filters__summary-chip-container button.dataviews-filters__summary-chip-remove.has-values:hover {

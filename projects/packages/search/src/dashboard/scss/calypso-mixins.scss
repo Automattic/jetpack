@@ -7,25 +7,29 @@ $mobile:		480px;
 $sidebar-width:	269px;
 
 @mixin responsive($width) {
+
 	@if $width == full-width {
+
 		@media only screen and (max-width: $full-width) { @content; }
-	}
-	@else if $width == one-col {
+	} @else if $width == one-col {
+
 		@media only screen and (max-width: $one-col) { @content; }
-	}
-	@else if $width == mobile {
+	} @else if $width == mobile {
+
 		@media only screen and (max-width: $mobile) { @content; }
 	}
 }
 
 @mixin mobile-first-responsive($width) {
+
 	@if $width == full-width {
+
 		@media only screen and (min-width: $one-col) { @content; }
-	}
-	@else if $width == full-width-really {
+	} @else if $width == full-width-really {
+
 		@media only screen and (min-width: $full-width) { @content; }
-	}
-	@else if $width == one-col {
+	} @else if $width == one-col {
+
 		@media only screen and (min-width: $mobile) { @content; }
 	}
 }
@@ -38,30 +42,36 @@ $sidebar-width:	269px;
 $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding a new breakpoint
 
 @mixin breakpoint( $size ){
+
 	@if type-of($size) == string {
 	  $approved-value: 0;
+
 		@each $breakpoint in $breakpoints {
 			$and-larger: ">" + $breakpoint;
 			$and-smaller: "<" + $breakpoint;
 
 			@if $size == $and-smaller {
 				$approved-value: 1;
+
 				@media ( max-width: $breakpoint ) {
 					@content;
 				}
-			}
-			@else {
+			} @else {
+
 				@if $size == $and-larger {
 					$approved-value: 2;
+
 					@media ( min-width: $breakpoint + 1 ) {
 						@content;
 					}
-				}
-				@else {
+				} @else {
+
 					@each $breakpoint-end in $breakpoints {
 						$range: $breakpoint + "-" + $breakpoint-end;
+
 						@if $size == $range {
 							$approved-value: 3;
+
 							@media ( min-width: $breakpoint + 1 ) and ( max-width: $breakpoint-end ) {
 								@content;
 							}
@@ -70,17 +80,19 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 				}
 			}
 		}
+
 		@if $approved-value == 0 {
 			$sizes: "";
+
 			@each $breakpoint in $breakpoints {
 				$sizes: $sizes + " " + $breakpoint;
 			}
 			// TODO - change this to use @error, when it is supported by node-sass
 			@warn "ERROR in breakpoint( #{ $size } ): You can only use these sizes[ #{$sizes} ] using the following syntax [ <#{ nth( $breakpoints, 1 ) } >#{ nth( $breakpoints, 1 ) } #{ nth( $breakpoints, 1 ) }-#{ nth( $breakpoints, 2 ) } ]";
 		}
-	}
-	@else {
+	} @else {
 		$sizes: "";
+
 		@each $breakpoint in $breakpoints {
 			$sizes: $sizes + " " + $breakpoint;
 		}
@@ -98,6 +110,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 }
 
 @mixin clear-fix {
+
 	&:after {
 		content: ".";
 		display: block;
@@ -342,9 +355,11 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 
 // Simple animation to make elements appear
 @keyframes appear {
+
 	0% {
 		opacity: 0;
 	}
+
 	100% {
 		opacity: 1;
 	}

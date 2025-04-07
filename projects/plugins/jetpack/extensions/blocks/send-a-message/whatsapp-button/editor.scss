@@ -3,6 +3,7 @@
  */
 
 .jetpack-whatsapp-button__phonenumber {
+
 	.components-base-control {
 		margin-bottom: 0;
 	}
@@ -39,6 +40,7 @@
 
 // Make sure form settings dropdown looks good on older Gutenberg versions
 .jetpack-whatsapp-button__popover {
+
 	.components-popover__content {
 		padding: 12px;
 		min-width: 260px;
@@ -46,6 +48,7 @@
 }
 
 .wp-block[data-align="center"] {
+
 	.wp-block-jetpack-whatsapp-button {
 		justify-content: center;
 	}

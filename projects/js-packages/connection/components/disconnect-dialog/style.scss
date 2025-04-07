@@ -1,6 +1,7 @@
 @import '@automattic/jetpack-base-styles/style';
 
 .jp-connection__disconnect-dialog {
+
 	h1 {
 		margin-top: 0;
 		line-height: 1.2;
@@ -56,6 +57,7 @@
 	}
 
 	.components-modal{
+
 		&__content{
 			padding: 0;
 			display: flex;
@@ -158,7 +160,9 @@
 
 // When the screen height is shorter, hide the decorative cards to show the text and controls without scrolling.
 .jp-connection__disconnect-dialog__content {
+
 	@media (max-height: 900px) {
+
 		.jp-components__decorative-card {
 			display: none;
 		}
@@ -166,6 +170,7 @@
 }
 
 @media (min-width: 600px){
+
 	.jp-connection__disconnect-dialog,
 	.jp-connection__disconnect-dialog.components-modal__frame {
 		width: 100%;
@@ -173,6 +178,7 @@
 	}
 
 	.jp-connection__disconnect-dialog {
+
 		&__content {
 			padding: 2rem;
 		}
@@ -185,6 +191,7 @@
 
 
 @media (min-width: 960px){
+
 	.jp-connection__disconnect-dialog,
 	.jp-connection__disconnect-dialog.components-modal__frame {
 		width: 1200px;
@@ -194,6 +201,7 @@
 	}
 
 	.jp-connection__disconnect-dialog {
+
 		h1 {
 			font-size: var( --font-title-large );
 		}

@@ -5,11 +5,13 @@
 	display: flex;
 	align-items: center;
 }
+
 #wpadminbar .wp-admin-bar-all-sites a.ab-item:before {
 	content: "";
 	width: 16px;
 	height: 16px;
 	background-color: currentColor;
+
 	/**
 		* Using inline SVG since there is no equivalent dashicon.
 		* SVG is from https://github.com/WordPress/gutenberg/blob/ad487383ce80e0c762200e83ec2c372463ecc940/packages/icons/src/library/category.js
@@ -18,15 +20,19 @@
 	mask-position: center;
 	mask-repeat: no-repeat;
 }
+
 @media (max-width: 782px) {
+
 	#wpadminbar .wp-admin-bar-all-sites {
 		display: flex;
 	}
+
 	#wpadminbar .wp-admin-bar-all-sites a.ab-item {
 		justify-content: center;
 		text-indent: 0;
 		font-size: 0;
 	}
+
 	#wpadminbar .wp-admin-bar-all-sites a.ab-item:before {
 		width: 36px;
 		height: 36px;
@@ -39,7 +45,9 @@
  * Sidebar notice
  */
 #adminmenu li.toplevel_page_site-notices {
+
 	a {
+
 		&:hover,
 		&:focus {
 			box-shadow: none;
@@ -87,7 +95,9 @@
 }
 
 @mixin folded {
+
 	#adminmenu li.toplevel_page_site-notices {
+
 		a {
 			height: 42px;
 		}
@@ -114,6 +124,7 @@
 }
 
 .folded {
+
 	@include folded;
 }
 
@@ -123,7 +134,9 @@
 }
 
 @media only screen and (max-width: 960px) and (min-width: 783px) {
+
 	.auto-fold {
+
 		@include folded;
 	}
 }

@@ -55,6 +55,7 @@
 
 .jp-at-a-glance__stats-card {
 	padding: 0;
+
 	@include dashboard-card-shadow;
 	margin-bottom: 24px;
 
@@ -66,6 +67,7 @@
 }
 
 .dops-banner__content {
+
 	.jp-link-button {
 		background: $white;
 		border: none;
@@ -203,6 +205,7 @@
 		display: flex;
 		flex-direction: row;
 	}
+
 	@include breakpoint( '<660px' ) {
 		display: block;
 	}
@@ -251,6 +254,7 @@
 .jp-at-a-glance__stats-summary-bestday,
 .jp-at-a-glance__stats-summary-alltime-views,
 .jp-at-a-glance__stats-summary-alltime-comments {
+
 	@include breakpoint( '<660px' ) {
 		margin-top: rem( 1px );
 	}
@@ -265,12 +269,14 @@
 		flex-wrap: nowrap;
 		align-items: center;
 	}
+
 	@include breakpoint( '<660px' ) {
 		display: block;
 	}
 }
 
 .jp-at-a-glance__stats-cta-description {
+
 	@include breakpoint( '>660px' ) {
 		flex-basis: 30%;
 	}
@@ -388,6 +394,7 @@
 		flex-basis: 50%;
 		margin-bottom: rem( 16px );
 	}
+
 	@include breakpoint( '<660px' ) {
 		margin-bottom: rem( 12px );
 	}
@@ -399,10 +406,13 @@
 		display: flex;
 		flex-direction: column;
 	}
+
 	> div {
 		flex-basis: 100%;
 	}
+
 	.jp-dash-item {
+
 		.dops-card {
 			flex-grow: 1;
 			align-items: flex-start;
@@ -411,17 +421,21 @@
 				align-items: center
 			}
 		}
+
 		.dops-card.is-compact {
 			flex-grow: 0;
+
 			a.dops-notice__action {
 				margin-left: 0;
 				padding-left: 0;
+
 				@include breakpoint( '<480px' ) {
 					text-transform: none;
 				}
 			}
 		}
 	}
+
 	.jp-dash-item__card {
 		display: flex;
 	}
@@ -450,11 +464,13 @@
 
 // Connection Settings
 .jp-connection-type {
+
 	.jp-dash-item__card {
 		align-items: flex-start;
 		padding: 24px;
 	}
 }
+
 .jp-connection-settings__info {
 	display: flex;
 }
@@ -473,16 +489,19 @@
 }
 
 .jp-connection-settings__info {
+
 	.gridicon {
 		opacity: 0.6;
 		margin: 4px 0;
 	}
+
 	.gridicon,
 	.jp-connection-settings__site-icon {
 		background: #c8d7e1;
 		color: #fff;
 		min-width: rem( 64px );
 	}
+
 	.jp-connection-settings__gravatar {
 		display: inline-block;
 		min-width: rem( 64px );
@@ -581,6 +600,7 @@
 
 .jp-dash-item__videopress-storage {
 	margin-top: rem( 16px );
+
 	span {
 		margin-top: rem( 10px );
 		display: block;
@@ -600,6 +620,7 @@ a.jp-dash-item__manage-in-wpcom,
 .jp-dash-item a:not( .dops-button ),
 .dops-banner__description .jp-link-button,
 .jp-at-a-glance__stats-inactive-text a.components-external-link {
+
 	&, &:active, &:visited, &:hover, &:focus {
 		cursor: pointer;
 		font-weight: 400;
@@ -623,12 +644,14 @@ a.jp-dash-item__manage-in-wpcom,
 }
 
 .jp-connection-settings__actions a {
+
 	&, &:active, &:visited, &:hover, &:focus {
 		color: $gray-80;
 	}
 }
 
 .jp-dash-item.dash-backups {
+
 	@include dashboard-card-shadow;
 
 	.dops-section-header {
@@ -666,6 +689,7 @@ a.jp-dash-item__manage-in-wpcom,
 		.dash-backup-undo__activity-log-date {
 			color: $gray-60;
 		}
+
 		.dash-backup-undo__activity-log-action,
 		.dash-backup-undo__activity-log-description,
 		.dash-backup-undo__activity-log-user-meta {
@@ -712,6 +736,7 @@ a.jp-dash-item__manage-in-wpcom,
 }
 
 .jp-support-card {
+
 	.dops-banner {
 		margin-bottom: 0;
 		border-top: 1px solid $gray-5;
@@ -754,6 +779,7 @@ a.jp-dash-item__manage-in-wpcom,
 
 // We only underline part of the link to Critical CSS info.
 .dops-banner__title {
+
 	a.dash-boost-critical-css-info__text {
 		text-decoration: none;
 	}

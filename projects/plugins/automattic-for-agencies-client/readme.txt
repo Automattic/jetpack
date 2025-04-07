@@ -44,23 +44,17 @@ Once connected, your site will display within Automattic for Agencies.
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.4.0 - 2025-01-09
+### 0.5.0 - 2025-04-03
+#### Added
+- Add Account Protection initialization.
+- Connection: Disconnect all other users before disconnecting connection owner account.
+- Components: Export the `getRedirectUrl` function with subpath.
+
 #### Changed
-- Updated dependencies.
+- Code: Use function-style `exit()` and `die()` with a default status code of 0.
+- Connection: Allow pre-selected login providers.
+- Connection: Display connection status on Users page independent of the SSO module.
+- General: Indicate compatibility with WordPress 6.8.
+- Update dependencies.
 - Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-
-#### Removed
-- General: Update minimum PHP version to 7.2.
-- General: Update minimum WordPress version to 6.6.
-
-#### Fixed
-- E2E Tests: Only install single browser used by Playwright.
 

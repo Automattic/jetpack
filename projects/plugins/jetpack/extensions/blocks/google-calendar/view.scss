@@ -3,6 +3,7 @@
  */
 .wp-block-jetpack-google-calendar {
 	min-width: 420px;
+
 	iframe {
 		width: 100%;
 		border: none;
@@ -16,11 +17,13 @@
 	 */
 
 	> amp-iframe > [placeholder] {
+
 		/* Overrides https://github.com/ampproject/amphtml/blob/8fb1a06a49088fb87de9b24646dee2058d910a87/css/ampshared.css#L303 */
 		line-height: 1;
 	}
 
 	> amp-iframe > noscript {
+
 		/*
 		 * Overrides https://github.com/ampproject/amphtml/blob/8fb1a06a49088fb87de9b24646dee2058d910a87/css/ampshared.css#L283
 		 * Won't be necessary after https://github.com/ampproject/amphtml/pull/29846

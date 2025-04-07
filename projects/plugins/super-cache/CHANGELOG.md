@@ -5,13 +5,18 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2025-04-04
+### Changed
+- Code: Use function-style `exit()` and `die()` with a default status code of 0. [#41167]
+- Update package dependencies. [#40980] [#41659] [#42180] [#42308] [#42762] [#42815]
+
 ## [2.0.0] - 2025-01-10
 ### Added
 - Enable test coverage. [#39961]
 
 ### Changed
 - General: Indicate compatibility with the upcoming version of WordPress - 6.7. [#39786]
-- Updated package dependencies. [#38822] [#38870] [#39004] [#39278] [#39288] [#39653] [#40116] [#40515]
+- Update package dependencies. [#38822] [#38870] [#39004] [#39278] [#39288] [#39653] [#40116] [#40515]
 
 ### Removed
 - Cleaned up legacy code. [#40200]
@@ -784,6 +789,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Misc fixes
 
+[2.0.1]: https://github.com/Automattic/wp-super-cache/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/Automattic/wp-super-cache/compare/v1.12.4...v2.0.0
 [1.12.4]: https://github.com/Automattic/wp-super-cache/compare/v1.12.3...v1.12.4
 [1.12.3]: https://github.com/Automattic/wp-super-cache/compare/v1.12.2...v1.12.3

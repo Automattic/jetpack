@@ -735,6 +735,7 @@ iframe[src^="http://api.mixcloud.com/"] {
  */
 
 @media screen and (min-width: 56.875em) {
+
 	.widget-area .jetpack_subscription_widget #subscribe-email input {
 		padding: 0.4615384615em 0.5384615385em;
 	}
@@ -798,6 +799,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 }
 
 @media screen and (min-width: 61.5625em) {
+
 	body:not(.search-results) article:not(.type-page) .sharedaddy:last-child,
 	body:not(.search-results) article:not(.type-page) .jp-relatedposts:last-child {
 		padding-bottom: 0;

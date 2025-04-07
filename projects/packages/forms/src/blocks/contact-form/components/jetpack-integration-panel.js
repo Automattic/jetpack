@@ -2,6 +2,7 @@ import { Button } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import IntegrationsModal from './jetpack-integrations-modal';
+import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/useIntegrationsStatus';
 
 /**
  * Integration Panel component.
@@ -13,6 +14,7 @@ import IntegrationsModal from './jetpack-integrations-modal';
  */
 export default function IntegrationPanel( { attributes, setAttributes } ) {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
+	const { integrations, refreshIntegrations } = useIntegrationsStatus();
 
 	return (
 		<div className="jetpack-forms-integration-panel">
@@ -28,6 +30,8 @@ export default function IntegrationPanel( { attributes, setAttributes } ) {
 				onClose={ () => setIsModalOpen( false ) }
 				attributes={ attributes }
 				setAttributes={ setAttributes }
+				integrationsData={ integrations }
+				refreshIntegrations={ refreshIntegrations }
 			/>
 		</div>
 	);

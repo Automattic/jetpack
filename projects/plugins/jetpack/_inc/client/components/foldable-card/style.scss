@@ -6,6 +6,7 @@
 
 // Multisite
 .dops-foldable-card.dops-card {
+
 	@include clear-fix;
 	position: relative;
 	transition: margin .15s linear;
@@ -31,6 +32,7 @@
 	position: relative;
 
 	&.has-border{
+
 		.dops-foldable-card__summary,
 		.dops-foldable-card__summary_expanded {
 			margin-right: 48px;
@@ -129,6 +131,7 @@ button.dops-foldable-card__action {
 
 	&:focus,
 	&:hover {
+
 		.gridicon {
 			fill: $blue-medium;
 		}
@@ -196,6 +199,7 @@ button.dops-foldable-card__action {
 
 	.dops-foldable-card.is-expanded & {
 		display: none;
+
 		.has-expanded-summary & {
 			display: none;
 		}

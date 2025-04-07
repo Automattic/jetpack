@@ -12,19 +12,7 @@
     display: flex;
     align-items: flex-end;
     padding-bottom: 50px;
-    border-radius: 12px;
     overflow: hidden;
-
-    // This is to make the image darker and let read the text
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: -16px;
-        background-color: rgba(0, 0, 0, 0.5);
-    }
 
     // Specific testimonial variations
     &--1 {
@@ -39,6 +27,19 @@
         background-image: url('./tim-ferriss-testimonial.png');
     }
 
+	// This is to make the image darker and let read the text
+	&--2, &--3 {
+		&::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: -16px;
+			background: linear-gradient(0deg, rgba(0, 0, 0, 0.90) 0%, rgba(0, 0, 0, 0.60) 37.5%, rgba(0, 0, 0, 0.02) 100%);
+		}
+	}
+
     &__content {
         width: 100%;
         padding-top: 40px;
@@ -52,30 +53,52 @@
 		'Cantarell', 'Helvetica Neue', sans-serif;
     }
 
+    &__messages {
+        margin-bottom: 4rem;
+    }
+
     &__message {
+        color: var(--tag-color);
+        font-size: 3.35rem;
         font-weight: 400;
-        font-size: 53px;
-        letter-spacing: 0px;
-        margin-top: 0px;
+        line-height: 1.1;
         margin-bottom: 0px;
-        color: var(--jp-green-5);
+        margin-top: 0px;
+        
     }
 
     &__quote {
-        margin-bottom: 20px;
+        margin-bottom: 24px;
         font-weight: normal;
         font-size: var(--font-title-small);
         letter-spacing: 0px;
+		line-height: 1.4;
     }
 
     &__author {
-        font-size: var(--font-body);
-        margin-bottom: 8px;
+        font-size: 1.25rem;
+		margin-bottom: 0;
     }
 
     &__title {
-        font-size: var(--font-label);
+        font-size: var(--font-body);
         margin: 0;
         opacity: 0.9;
     }
+}
+
+.jetpack-onboarding-testimonials-pager {
+    .dot-pager__control-choose-page {
+        background-color: var(--jp-gray);
+        opacity: 0.2;
+
+        &.dot-pager__control-current {
+            background-color: var(--jp-green-mint);
+            opacity: 1;
+        }
+    }
+
+	.swipeable__container {
+		border-radius: 12px;
+	}
 }

@@ -4,6 +4,7 @@
 @import '../../scss/mixins/ui';
 
 .plugin-dash-item {
+
 	@include dashboard-card-shadow;
 
 	p {
@@ -43,6 +44,7 @@
 				.dops-banner__icon {
 					display: none;
 				}
+
 				.dops-banner__icon-circle {
 					display: block;
 				}

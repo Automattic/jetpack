@@ -1,3 +1,4 @@
+import { getSettings } from '@wordpress/date';
 import { FALLBACK_LOCALE } from './constants.js';
 import {
 	numberFormatCurrency,
@@ -5,6 +6,9 @@ import {
 } from './number-format-currency/index.js';
 import { numberFormat, numberFormatCompact } from './number-format.js';
 import type { CurrencyObject, FormatCurrency, FormatNumber, GetCurrencyObject } from './types.js';
+
+// Since global is used inside createNumberFormatters, we need to declare it for TS
+declare const global: typeof globalThis;
 
 export interface NumberFormatters {
 	/**
@@ -15,9 +19,9 @@ export interface NumberFormatters {
 
 	/**
 	 * Sets the user's geo location for currency formatting if available
-	 * @param newGeoLocation - The geo location to use for formatting
+	 * @param geoLocation - The geo location to use for formatting
 	 */
-	setGeoLocation( newGeoLocation: string ): void;
+	setGeoLocation( geoLocation: string ): void;
 
 	/**
 	 * Formats numbers using locale settings and/or passed options.
@@ -134,8 +138,8 @@ export interface NumberFormatters {
  * @return {NumberFormatters} A NumberFormatters instance
  */
 function createNumberFormatters(): NumberFormatters {
-	let browserSafeLocale = FALLBACK_LOCALE;
-	let geoLocation: string | undefined;
+	let localeState: string | undefined;
+	let geoLocationState: string | undefined;
 
 	const setLocale = ( locale: string ): void => {
 		/**
@@ -143,11 +147,34 @@ function createNumberFormatters(): NumberFormatters {
 		 * These suffixes should be removed. Values like `de-at` or `es-mx`
 		 * should all be valid inputs for the constructor.
 		 */
-		browserSafeLocale = locale.split( '_' )[ 0 ];
+		localeState = locale;
 	};
 
-	const setGeoLocation = ( newGeoLocation: string ): void => {
-		geoLocation = newGeoLocation;
+	/**
+	 * Returns the locale defined on the module instance (through `setLocale`)
+	 * or the "fallback locale" if no locale has been set.
+	 *
+	 * The "fallback locale" is defined as:
+	 * - the current WP user locale, if available through `@wordpress/date` settings (assuming this runs in a WordPress context)
+	 * - or the browser locale, if available through `window.navigator.language`
+	 * - or the fallback locale constant (`FALLBACK_LOCALE`)
+	 *
+	 * @return {string} The locale to use for formatting.
+	 */
+	const getBrowserSafeLocale = (): string => {
+		const {
+			l10n: { locale: localeFromUserSettings },
+		} = getSettings();
+
+		return (
+			localeState ??
+			( localeFromUserSettings || global?.window?.navigator?.language ) ??
+			FALLBACK_LOCALE
+		).split( '_' )[ 0 ];
+	};
+
+	const setGeoLocation = ( geoLocation: string ): void => {
+		geoLocationState = geoLocation;
 	};
 
 	const formatNumber: FormatNumber = (
@@ -156,7 +183,7 @@ function createNumberFormatters(): NumberFormatters {
 	): string => {
 		try {
 			const formatter = numberFormat( {
-				browserSafeLocale,
+				browserSafeLocale: getBrowserSafeLocale(),
 				decimals,
 				forceLatin,
 				numberFormatOptions,
@@ -174,7 +201,7 @@ function createNumberFormatters(): NumberFormatters {
 	): string => {
 		try {
 			const formatter = numberFormatCompact( {
-				browserSafeLocale,
+				browserSafeLocale: getBrowserSafeLocale(),
 				decimals,
 				forceLatin,
 				numberFormatOptions,
@@ -194,11 +221,11 @@ function createNumberFormatters(): NumberFormatters {
 		return numberFormatCurrency( {
 			number,
 			currency,
-			browserSafeLocale,
+			browserSafeLocale: getBrowserSafeLocale(),
 			stripZeros,
 			isSmallestUnit,
 			signForPositive,
-			geoLocation,
+			geoLocation: geoLocationState,
 			forceLatin,
 		} );
 	};
@@ -211,11 +238,11 @@ function createNumberFormatters(): NumberFormatters {
 		return getCurrencyObjectFromCurrencyFormatter( {
 			number,
 			currency,
-			browserSafeLocale,
+			browserSafeLocale: getBrowserSafeLocale(),
 			stripZeros,
 			isSmallestUnit,
 			signForPositive,
-			geoLocation,
+			geoLocation: geoLocationState,
 			forceLatin,
 		} );
 	};

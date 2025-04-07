@@ -8,9 +8,11 @@
 
 	// Unchecked state.
 	&.is-not-checked {
+
 		.components-connection-icon__picture img {
 			filter: saturate(0);
 		}
+
 		.jetpack-publicize-gutenberg-social-icon {
 			fill: $gray-600;
 			filter: saturate(0);

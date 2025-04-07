@@ -1,6 +1,7 @@
 @import '@automattic/jetpack-base-styles/style';
 
 .jetpack-ai-voice-to-content__modal {
+
 	.components-modal__header {
 		border-bottom: 1px solid var( --studio-gray-5, #dcdcde );
 		padding: 20px 24px;
@@ -32,11 +33,13 @@
 	gap: 8px;
 
 	.jetpack-ai-voice-to-content__button {
+
 		&.is-primary {
 			background-color: var( --jp-green-50 );
 			color: var( --jp-white );
 	
 			&:not(:disabled) {
+
 				&:hover {
 					background-color: var( --jp-green-60 );
 				}
@@ -56,6 +59,7 @@
   		color: var( --jp-green-50 );
 
 			&:not(:disabled) {
+
 				&:focus {
 					box-shadow: 0 0 0 var( --wp-admin-border-width-focus, 2px ) var( --jp-green-50 );
 				}

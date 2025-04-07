@@ -29,6 +29,7 @@
 	#support-form {
 		margin: 30px 0 10px 0;
 		color: #505050;
+
 		textarea {
 			height: 200px;
 		}
@@ -51,9 +52,11 @@
 		font-size: 18px;
 		padding: 10px 20px;
 	}
+
 	.btn.btn-primary {
 			background-color: #079E08;
 	}
+
 	.btn.btn-info {
 		background-color: #2185D0;
 	}
@@ -64,6 +67,7 @@
 
 	.btn-support-forum {
 		margin-top: 50px;
+
 		.ui.button {
 			background-color: #079E08;
 			color: #fff;
@@ -76,6 +80,7 @@
 		font-size: 16px;
 		color: #505050;
 		line-height: 1.5;
+
 		p {
 			margin: 10px 0 10px 0;
 		}
@@ -83,6 +88,7 @@
 	
 	h1 {
 		font-size: 24px;
+
 		img {
 			vertical-align: middle;
 			margin-right: 5px;
@@ -100,12 +106,15 @@
 	.license-status {
 		margin: 10px 0 40px 0;
 		color: #404040;
+
 		.label {
 			margin-left: 5px;	
 		}
+
 		b,span {
 			vertical-align: middle;
 		}
+
 		.license {
 			font-size: 12px;
 			margin-left:10px;
@@ -113,15 +122,18 @@
 			background-color: #f5f5f5;
 			color:#505050;
 		}
+
 		.invalid-license {
 			font-size: 13px;
 			margin-left: 5px;
 		}
+
 		.expires {
 			font-size: 12px;
 			margin-left: 5px;
 			color: #909090;
 		}
+
 		.account {
 			float: right;
 		}
