@@ -416,13 +416,14 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			foreach ( $fields_data as &$field ) {
 				if ( Contact_Form::is_file_upload_field( $field ) ) {
 					$field_id = $field['field_id'];
+					$nonce    = wp_create_nonce( 'jetpack_unauth_file_download_nonce_' . $item->ID );
 					foreach ( $field['files'] as &$file ) {
 						if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
 							// this shouldn't happen, todo: log this
 							continue;
 						}
 						$file['size'] = size_format( $file['size'] );
-						$file['url']  = get_admin_url( null, 'admin-ajax.php' ) . '?action=jetpack_unauth_file_download&file_id=' . $file['file_id'] . '&post_id=' . $item->ID . '&field_id=' . $field_id;
+						$file['url']  = get_admin_url( null, 'admin-ajax.php' ) . '?action=jetpack_unauth_file_download&file_id=' . rawurlencode( $file['file_id'] ) . '&post_id=' . absint( $item->ID ) . '&field_id=' . rawurlencode( $field_id ) . '&_wpnonce=' . rawurlencode( $nonce );
 					}
 				}
 			}
