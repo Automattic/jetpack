@@ -91,6 +91,7 @@
 		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverage"
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsc --noEmit"
 	}
 }

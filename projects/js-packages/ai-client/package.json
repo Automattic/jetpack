@@ -20,6 +20,7 @@
 		"compile-ts": "tsc --pretty",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsc --noEmit",
 		"watch": "tsc --watch --pretty"
 	},
 	"type": "module",

@@ -36,6 +36,7 @@
 				position: relative;
 				top: auto;
 			}
+
 			@media (max-width: 600px) {
 				top: 0;
 			}
@@ -55,6 +56,7 @@
 	@media (max-width: 782px) {
 		display: block;
 	}
+
 	@media (max-width: 530px) {
 		display: none;
 	}
@@ -136,6 +138,7 @@
 	border-collapse: collapse;
 
 	.check-column {
+
 		input[type="checkbox"] {
 			width: 20px;
 			height: 20px;
@@ -156,6 +159,7 @@
 	}
 
 	.row-actions {
+
 		a.dops-button.is-compact {
 			color: $black;
 			line-height: 20px;
@@ -206,6 +210,7 @@
 		table {
 			width: 100%;
 		}
+
 		th {
 			font-weight: 400;
 		}
@@ -214,6 +219,7 @@
 			width: 100%;
 		}
 	}
+
 	.manage-right {
 		margin-top: 24px;
 		padding: 0;
@@ -229,9 +235,11 @@
 			color: $gray-80;
 			margin: 16px 0 4px 0;
 		}
+
 		.bumper {
 			margin-left: 48px;
 		}
+
 		&.show {
 			display: block;
 			overflow-y: auto;
@@ -239,10 +247,12 @@
 			position: absolute;
 			z-index: 100000; // sits on top of wp-admin bar
 		}
+
 		.search-bar {
 			margin-bottom: 18px;
 			max-width: 300px;
 		}
+
 		p.search-box {
 			width: 100%;
 			height: auto;
@@ -275,11 +285,14 @@
 					max-width: 90%;
 				}
 			}
+
 			input[type="submit"] {
 				display: none;
 			}
 		}
+
 		.button-group {
+
 			@media (max-width: 782px) {
 				white-space: normal;
 			}
@@ -373,6 +386,7 @@
 			.bumper {
 				margin: 13px;
 			}
+
 			.navbar-form {
 				margin: 16px 0 0 0;
 				padding: 0;
@@ -388,6 +402,7 @@
 			padding: 11px 10px;
 			display: block;
 		}
+
 		.manage-right.show .subsubsub li {
 				padding: 5px;
 			}
@@ -420,6 +435,7 @@
 }
 
 .jetpack-module-list {
+
 	.widefat {
 		border: none;
 	}

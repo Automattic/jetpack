@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix responses management compatibility with 6.6

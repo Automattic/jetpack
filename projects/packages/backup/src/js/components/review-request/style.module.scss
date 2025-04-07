@@ -21,6 +21,7 @@
 	}
 
 	&:hover {
+
 		& .icon {
 			transform: translateX( calc( var(--spacing-base) * 2 ) );
 		}
@@ -50,6 +51,7 @@
 
 	&:hover,
 	&:focus {
+
 		&:after {
 		content: "\01F60D"; // 😍
 		}

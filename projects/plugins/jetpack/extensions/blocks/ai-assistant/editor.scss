@@ -22,10 +22,12 @@
 }
 
 .wp-block-jetpack-ai-assistant {
+
 	.jetpack-ai-assistant__content {
 		opacity: 1;
 		transition: opacity 0.2s ease-in-out;
 	}
+
 	&.is-waiting-response .jetpack-ai-assistant__content {
 		opacity: 0.5;
 	}
@@ -99,6 +101,7 @@
 	// from the table element that receives the border support props.
 
 	.has-border-color {
+
 		> *,
 		tr,
 		th,
@@ -108,6 +111,7 @@
 	}
 
 	table[style*='border-top-color'] {
+
 		> *,
 		tr:first-child {
 			border-top-color: inherit;
@@ -122,7 +126,9 @@
 			border-top-color: currentColor;
 		}
 	}
+
 	table[style*='border-right-color'] {
+
 		> *,
 		tr,
 		th,
@@ -130,7 +136,9 @@
 			border-right-color: inherit;
 		}
 	}
+
 	table[style*='border-bottom-color'] {
+
 		> *,
 		tr:last-child {
 			border-bottom-color: inherit;
@@ -150,7 +158,9 @@
 			border-bottom-color: currentColor;
 		}
 	}
+
 	table[style*='border-left-color'] {
+
 		> *,
 		tr,
 		th,
@@ -160,6 +170,7 @@
 	}
 
 	table[style*='border-style'] {
+
 		> *,
 		tr,
 		th,
@@ -169,6 +180,7 @@
 	}
 
 	table[style*='border-width'] {
+
 		> *,
 		tr,
 		th,
@@ -186,6 +198,7 @@
 }
 
 .jetpack-ai-assistant__templates-control {
+
 	svg {
 		padding-right: 4px;
 	}
@@ -193,6 +206,7 @@
 
 .jetpack-ai-upgrade-banner,
 .jetpack-ai-connect-banner {
+
 	.jetpack-upgrade-plan-banner__wrapper {
 		flex-wrap: nowrap;
 

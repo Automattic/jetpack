@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fixed type checking in the monorepo

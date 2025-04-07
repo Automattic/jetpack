@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Admin menu registration: allow child classes to overwrite priority.

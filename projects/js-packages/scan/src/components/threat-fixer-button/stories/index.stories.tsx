@@ -1,7 +1,7 @@
 import ThreatFixerButton from '../index.js';
 
 export default {
-	title: 'JS Packages/Components/Threat Fixer Button',
+	title: 'JS Packages/Scan/Threat Fixer Button',
 	component: ThreatFixerButton,
 	decorators: [
 		Story => (

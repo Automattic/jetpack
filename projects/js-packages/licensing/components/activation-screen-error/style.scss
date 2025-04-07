@@ -3,7 +3,7 @@
     flex-direction: row;
     align-items: flex-start;
     max-width: 500px;
-    margin-top: calc(var(--spacing-base)*.5);
+    margin-top: calc(var(--spacing-base) * .5);
 
     svg {
         margin-left: -3px;
@@ -19,6 +19,7 @@
 
 .activation-screen-error__message--error {
     color: var(--jp-red);
+
     svg {
         fill: var(--jp-red);
     }
@@ -26,6 +27,7 @@
 
 .activation-screen-error__message--success {
     color: var(--jp-green);
+
     svg {
         fill: var(--jp-green);
     }
@@ -45,6 +47,7 @@
         margin: 0 0 1em;
         font-size: var(--font-body-small);
     }
+
     > p:last-child {
         margin-bottom: 0;
     }
@@ -56,6 +59,7 @@
     a {
         color: var(--jp-green-50);
     }
+
     a:hover,
     a:active {
         color: var(--jp-green-70);
@@ -63,11 +67,14 @@
 }
 
 .jp-license-activation-screen-controls {
+
     .activation-screen-error__info {
+
         > p {
             margin: 0 0 1em;
             font-size: var(--font-body-small);
         }
+
         > p:last-child {
             margin-bottom: 0;
         }

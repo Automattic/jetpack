@@ -1,4 +1,5 @@
 .ai-image-modal {
+
 	&__content {
 		display: flex;
 		margin-top: 32px;
@@ -68,6 +69,7 @@
 	&__image-canvas {
 		width: 100%;
 		margin-top: 24px;
+
 		& > .jetpack-ai-upgrade-banner {
 			margin-bottom: 8px;
 		}

@@ -22,6 +22,7 @@
 	}
 
 	.jetpack-videopress-player__wrapper {
+
 		iframe.components-sandbox {
 			position: relative;
 			z-index: 2;
@@ -69,6 +70,7 @@
 }
 
 .is-videopress-placeholder {
+
 	.components-notice {
 		padding-right: 12px;
 
@@ -83,6 +85,8 @@
 }
 
 @keyframes fadeIn {
+
     from { opacity: 0.2; }
+
     to   { opacity: 0.8; }
 }

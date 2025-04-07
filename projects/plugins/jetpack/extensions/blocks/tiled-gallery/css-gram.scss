@@ -27,11 +27,13 @@
 	}
 
 	&::before {
+
 		@include pseudo-elem;
 		z-index: 2;
 	}
 
 	&::after {
+
 		@include pseudo-elem;
 		z-index: 3;
 	}
@@ -42,6 +44,7 @@
  * From https://github.com/una/CSSgram/blob/0.1.12/source/scss/1977.scss
  */
 @mixin _1977( $filters... ) {
+
 	@include filter-base;
 	filter: contrast( 1.1 ) brightness( 1.1 ) saturate( 1.3 ) $filters;
 
@@ -58,6 +61,7 @@
  * From https://github.com/una/CSSgram/blob/0.1.12/source/scss/clarendon.scss
  */
 @mixin clarendon( $filters... ) {
+
 	@include filter-base;
 	filter: contrast( 1.2 ) saturate( 1.35 ) $filters;
 
@@ -74,6 +78,7 @@
  * From https://github.com/una/CSSgram/blob/0.1.12/source/scss/gingham.scss
  */
 @mixin gingham( $filters... ) {
+
 	@include filter-base;
 	filter: brightness( 1.05 ) hue-rotate( -10deg ) $filters;
 

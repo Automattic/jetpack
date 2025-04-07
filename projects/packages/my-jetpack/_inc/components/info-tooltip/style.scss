@@ -6,12 +6,14 @@
     color: var(--jp-gray-50);
     padding: 2px;
     cursor: pointer;
+
     svg {
         margin: 0 auto;
     }
 }
 
 .info-tooltip__content {
+
     h3 {
         font-size: var(--font-title-small);
         line-height: calc(var(--font-title-small) + 6px);;
@@ -31,6 +33,7 @@
             color: var(--jp-black);
             text-decoration: underline;
         }
+
         a:hover, a:focus {
             text-decoration: none;
         }

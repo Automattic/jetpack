@@ -29,6 +29,7 @@
 	    margin: 0.3em;
 	    margin-top: 0.5em;
 	}
+
 	.three.wide.column img {
 		max-width:100%;
 	}
@@ -37,6 +38,7 @@
 	tr.wraplines {
 		white-space: normal;
 	}
+
 	tr.wraplines .ui.image.label {
 		margin: 0 4px 4px 0;
 	}
@@ -56,6 +58,7 @@
     	margin-left: 0.1em;
 
 	}
+
 	.zbs-sentence {
 
 	    font-size: 1.1em;
@@ -121,25 +124,11 @@
 	}
 }
 
-// top vitals section
-#zbs-vitals-box {
-
-	// custom fields tab -> table
-	.zbs-view-vital-customfields {
-
-		// specifically allow textarea field types to expand beyond overflow:
-		tr td.zbs-view-vital-customfields-textarea {
-
-		}
-	}
-
-
-}
-
 .zbs-view-vital-label {
 	width:160px;
 	text-align:right !important;
 }
+
 .zbs-view-vital-customfields-label {
 	min-width:160px;
 	text-align:right !important;
@@ -173,23 +162,29 @@
     border-radius: 0.2em;
 
 }
+
 i.zbs-show-longdesc,
 i.zbs-hide-longdesc {
 	color: #000;
 }
+
 i.zbs-show-longdesc:hover,
 i.zbs-hide-longdesc:hover {
 	cursor:pointer;
 }
+
 .zbs-long-desc-show .zbs-long-desc {
 	display: block;
 }
+
 i.zbs-hide-longdesc {
 	display:none; // init
 }
+
 .zbs-long-desc-show i.zbs-hide-longdesc {
 	display:inline-block;
 }
+
 .zbs-long-desc-show i.zbs-show-longdesc {
 	display:none;
 }
@@ -220,51 +215,63 @@ i.zbs-hide-longdesc {
 .zbs-social-buttons a{
 color:white;
 }
+
 .zbs-social-buttons .zbs-social-acc{
 float:left;
 margin:5px;
 width:30px;
 }
+
 .zbs-social-buttons .icon{
 margin: 0px !important;
 color:white;
 font-size:14px;
 }
+
 .zbs-social-buttons a:hover {
   background-color: none !important;
   border-color: none !important;
 }
+
 #contact-tab-social{
 display:none !important;
 }
+
 .zbs-view-card .zbs-sentence{
 padding-left:0px;
 color: #000;
 margin-top:5px;
 font-size:14px;
 }
+
 .zbs-sentence{
 line-height: 21px;
 }
+
 .zbs-contact-owner{
 position: absolute;
 top: 8px;
 right: 10px;
 color: #b4b4c5;
 }
+
 #zbs-side-sortables{
 padding-right: 1em;
 }
+
 .zbs-view-tags a{
 margin-bottom:3px !important;
 }
+
 .actvity-feed-view-box{
 margin-top: -15px !important;
 }
+
 .zbs-mini-tag{
 margin-top:10px !important;
 margin-right:10px !important;
 }
+
 .zbs-sentence{
 width:80%;
 }
@@ -275,6 +282,7 @@ width:80%;
 #jpcrm-pinned-logs-header {
 	margin-top: 0;
 }
+
 .jpcrm-pinned-logs {
 	
 	margin-bottom: 1em !important;

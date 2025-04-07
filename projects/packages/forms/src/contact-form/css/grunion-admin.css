@@ -13,6 +13,7 @@
 .widefat .column-feedback_source {
 	width: 17%;
 }
+
 .widefat .column-feedback_response {
 	width: 100%;
 }
@@ -22,6 +23,7 @@
 }
 
 @media screen and (max-width: 782px) {
+
 	.widefat .column-feedback_response {
 		padding-left: 8px !important;
 	}
@@ -41,12 +43,14 @@
 	grid-template-columns: 35% 1fr;
 	grid-row-gap: 8px;
 }
+
 .column-feedback_response .feedback_response__item-key,
 .column-feedback_response .feedback_response__item-value {
 	align-items: flex-start;
 	display: flex;
 	word-break: break-word;
 }
+
 .column-feedback_response .feedback_response__item-value {
 	font-weight: bold;
 }
@@ -56,6 +60,7 @@
 }
 
 @media screen and (min-width: 783px) {
+
 	.column-feedback_response .feedback_response__mobile-separator {
 		display: none;
 	}
@@ -100,6 +105,7 @@
 .feedback-export-modal__wrapper {
 	display: flex;
 	flex-direction: column;
+
 	/* These strange paddings to add 48px with TB defaults */
 	padding: 0 33px 9px 33px;
 	width: 100%;

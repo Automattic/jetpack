@@ -16,6 +16,7 @@ Mini normalize
 #jp-plugin-container hr {
 	display: none;
 }
+
 #jp-plugin-container #vp-wrap {
 	margin-bottom: 24px;
 }
@@ -55,6 +56,7 @@ Mini normalize
 }
 
 @media (max-width: 48.875rem) {
+
 	.jp-masthead {
 		padding: 0 1.5rem
 	}
@@ -74,6 +76,7 @@ Mini normalize
 }
 
 @media (max-width: 1250px) {
+
 	.jp-masthead__inside-container {
 		max-width: 95%
 	}
@@ -86,6 +89,7 @@ Mini normalize
 }
 
 @media (max-width: 480px) {
+
 	.jp-masthead__logo-container {
 		margin-right: 1rem
 	}
@@ -117,6 +121,7 @@ Mini normalize
 }
 
 @media (max-width: 480px) {
+
 	.jp-masthead__nav {
 		text-align: left
 	}
@@ -145,6 +150,7 @@ Mini normalize
 }
 
 @media only screen and (min-width: 660px) {
+
 	.vp-row {
 		display: flex;
 	}
@@ -164,6 +170,7 @@ Mini normalize
 }
 
 @media only screen and (max-width: 660px) {
+
 	.vp-notice__wide {
 		text-align: center;
 	}
@@ -381,6 +388,7 @@ Mini normalize
 }
 
 @media (min-width: 481px) {
+
 	.dops-card {
 		margin-bottom: 16px;
 		padding: 24px;
@@ -392,6 +400,7 @@ Mini normalize
 }
 
 @media (min-width: 481px) {
+
 	.dops-card.is-compact {
 		margin-bottom: 1px;
 		padding: 16px 24px;
@@ -407,12 +416,14 @@ Mini normalize
 }
 
 @media (max-width: 1040px) {
+
 	.jp-footer {
 		margin: 2rem 0 1.5rem
 	}
 }
 
 @media (max-width: 660px) {
+
 	.jp-footer {
 		margin: 1.5rem 0 1rem
 	}
@@ -438,6 +449,7 @@ Mini normalize
 }
 
 @media (max-width: 660px) {
+
 	.jp-footer__links {
 		border-bottom: none
 	}
@@ -449,12 +461,14 @@ Mini normalize
 }
 
 @media (min-width: 661px) {
+
 	.jp-footer__link-item {
 		display: inline-block
 	}
 }
 
 @media (max-width: 660px) {
+
 	.jp-footer__link-item {
 		display: block;
 		border-bottom: 1px #e1e1e1 solid
@@ -477,6 +491,7 @@ Mini normalize
 }
 
 @media (max-width: 660px) {
+
 	.jp-footer__link {
 		display: block;
 		padding: .5rem 0;
@@ -528,6 +543,7 @@ Helpers
 }
 
 @media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3, '/', 2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+
 	.trial-expiring p {
 		font-size: 16px;
 	}
@@ -567,6 +583,7 @@ Helpers
 }
 
 @media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3, '/', 2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+
 	#no-access-credentials:before {
 		background-image: url(images/dashboard-icon-sprite-2x.png) no-repeat;
 	}
@@ -614,6 +631,7 @@ Helpers
 }
 
 @media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3, '/', 2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+
 	#wpadminbar #wp-admin-bar-vp-notice .ab-icon:before {
 		background: url(images/vp-toolbar-icon-trans-2x.png) no-repeat;
 		background-size: 16px;
@@ -660,6 +678,7 @@ Tabs
 ========================================================================== */
 
 #vp-tabs { /* WAT */
+
 	/* IE 7 specific */
 	*position: relative;
 	*z-index: 1;
@@ -762,6 +781,7 @@ Tabs
 }
 
 @media (max-width: 700px) {
+
 	.col1,
 	.col2,
 	.col3 {
@@ -800,6 +820,7 @@ Progress Bars
 ========================================================================== */
 
 #vp_progress:after {
+
 	/* clearfix */
 	content: ".";
 	display: block;
@@ -818,6 +839,7 @@ Progress Bars
 }
 
 @media (max-width: 767px) {
+
 	.vp_graphs {
 		float: none;
 		margin-bottom: 20px;
@@ -826,6 +848,7 @@ Progress Bars
 }
 
 .vp_graphs:after {
+
 	/* clearfix */
 	content: ".";
 	display: block;
@@ -846,6 +869,7 @@ Progress Bars
 }
 
 @media (max-width: 767px) {
+
 	.vp_graphs h1 {
 		font-size: 18px;
 	}
@@ -899,12 +923,14 @@ Progress Bars
 }
 
 @media (max-width: 767px) {
+
 	#vp_progress .bar {
 		width: 76%;
 	}
 }
 
 @media (max-width: 500px) {
+
 	#vp_progress .bar {
 		width: 58%;
 	}
@@ -952,6 +978,7 @@ Progress Bars
 }
 
 @media (max-width: 767px) {
+
 	.vp_progress-description {
 		margin: 0;
 	}
@@ -999,6 +1026,7 @@ Progress Bars
 	justify-content: center;
 	align-items: center;
 }
+
 .jp-power__text {
 	color: #888;
 	margin-right: 10px;

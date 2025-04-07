@@ -7,9 +7,11 @@
 
 // Mikes addition
 .post-type-zerobs_customer, .post-type-zerobs_company, .post-type-zerobs_quote, .post-type-zerobs_invoice, .post-type-zerobs_transaction, .post-type-zerobs_quo_template {
+
 	#misc-publishing-actions, #minor-publishing{
 		display:none;
 	}
+
 	#postbox-container-2{
 		margin-top:0px;
 	}

@@ -2,13 +2,16 @@
 @import '../../scss/mixins/ui';
 
 .jp-dash-item {
+
 	@include dashboard-card-shadow;
 
 	.dops-section-header__actions {
+
 		.form-toggle__label {
 			position: relative;
 			right: 0;
 		}
+
 		.form-toggle__label-content {
 			margin: 0;
 		}
@@ -49,6 +52,7 @@
 	+ .jp-dash-item__description {
 		flex-basis: 100%
 	}
+
 	&.is-alert {
 		color: var( --jp-red-50 );
 	}
@@ -95,6 +99,7 @@
 		&:hover {
 			text-decoration-thickness: 3px;
 		}
+
 		&:focus {
 			text-decoration-line: none;
 			border-radius: 2px;
@@ -113,6 +118,7 @@
 
 	&.is-working,
 	&.is-premium-inactive {
+
 		.dops-section-header__actions {
 			color: $gray-text-min;
 		}
@@ -120,13 +126,16 @@
 }
 
 .jp-dash-item {
+
 	.dops-section-header__actions {
+
 		.dops-notice {
 			margin-top: rem( -1px );
 			margin-bottom: rem( -1px );
 		}
 	}
 }
+
 .jp-dash-item__active-label {
 	display: inline-block;
 	color: darken( $gray, 10% );
@@ -138,7 +147,9 @@
 
 .jp-at-a-glance__left,
 .jp-at-a-glance__right {
+
 	.jp-dash-item__is-inactive {
+
 		.dops-banner__content {
 			height: 100%;
 		}
@@ -147,6 +158,7 @@
 
 // conditional styles for content when items are inactive
 .jp-dash-item__is-inactive {
+
 	.jp-at-a-glance__left &,
 	.jp-at-a-glance__right & {
 		border: 1px solid $gray-5;
@@ -173,8 +185,11 @@
 	.dops-section-header__label {
 		padding-right: rem( 8px );
 	}
+
 	.dops-section-header__label-text {
+
 		&:before {
+
 			@include long-content-fade( $size: 8px, $color : $white );
 		}
 	}

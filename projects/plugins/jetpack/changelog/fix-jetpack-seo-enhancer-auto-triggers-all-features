@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Jetpack SEO: fix bug where auto generation would only trigger the last enabled features set by user on manual mode

@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.5-beta - 2025-03-31
+### 14.5 - 2025-04-02
 #### Enhancements
 - Add page view count in the post and page list.
 - Add the Account Protection module toggle.
@@ -355,10 +355,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - VideoPress: Add block sidebar notice to transform embed into a block.
 
 #### Bug fixes
+- Add a default value for the error param in the `wp_login_failed` action callback.
 - Admin Color Scheme: Fix colors in the Aquatic color scheme.
 - Button: Fix contrast checker for user-specified colors.
 - Fix display name when listing gravatar accounts.
 - Fix error with videos uploaded through the Video block.
+- Fix potential `wp_login_failed` action conflicts.
 - Forms: Add a default label for textarea fields.
 - Forms: Fix core list bullets not showing.
 - Forms: Remove default padding around form block.

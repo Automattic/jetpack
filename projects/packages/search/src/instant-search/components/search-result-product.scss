@@ -8,9 +8,11 @@ $item-spacing: 16px;
 	padding: 0 0 3em;
 
 	margin-right: $results-margin-lg - $item-spacing;
+
 	@include break-large-down() {
 		margin-right: $results-margin-md - $item-spacing;
 	}
+
 	@include break-medium-down() {
 		margin-right: $results-margin-sm - $item-spacing;
 	}
@@ -52,6 +54,7 @@ $item-spacing: 16px;
 		$column-count: 5;
 		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
 	}
+
 	.jetpack-instant-search__search-result-title-link {
 		display: initial;
 	}
@@ -76,6 +79,7 @@ $item-spacing: 16px;
 	// Use aspect ratio box trick
 	// See https://css-tricks.com/aspect-ratio-boxes/
 	position: relative;
+
 	&:before {
 		display: block;
 		content: '';
@@ -104,10 +108,12 @@ $item-spacing: 16px;
 		top: 50%;
 		transform: translate( -50%, -50% );
 	}
+
 	> .gridicons-image {
 		width: 25%;
 		height: 25%;
 	}
+
 	> .gridicons-block {
 		width: 50%;
 		height: 50%;

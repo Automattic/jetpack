@@ -11,6 +11,7 @@ $action-bar-height: 88px;
 	}
 
 	.components-dropdown-menu {
+
 		.components-menu-item__button {
 			font-size: var(--jp-forms-font-size-regular);
 		}
@@ -29,6 +30,7 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-tabs {
+
 	.components-tab-panel__tabs {
 		margin: 0;
 		padding: 16px 48px 0;
@@ -85,12 +87,14 @@ $action-bar-height: 88px;
 }
 
 @keyframes jp-forms__slide-in {
+
 	from {
 		transform: translateY(150px);
 	}
 }
 
 @keyframes jp-forms__fade-in {
+
 	from {
 		opacity: 0;
 	}
@@ -118,6 +122,7 @@ $action-bar-height: 88px;
 	}
 
 	@media (min-width: 1025px) {
+
 		&.enter,
 		&.enter-active {
 			animation: jp-forms__slide-in .2s ease-out forwards, jp-forms__fade-in .2s ease-in forwards;
@@ -126,6 +131,7 @@ $action-bar-height: 88px;
 				animation: none;
 			}
 		}
+
 		&.exit,
 		&.exit-active,
 		&.exit-done {
@@ -209,6 +215,7 @@ $action-bar-height: 88px;
 	}
 
 	@media (min-width: 1025px) {
+
 		&:hover {
 			background-color: #f6f6f7;
 
@@ -282,10 +289,12 @@ $action-bar-height: 88px;
 .jp-forms__inbox-response-data-value {
 	white-space: pre-wrap;
 }
+
 .jp-forms__inbox-response-data-value .file-field {
 	display: flex;
 	gap: 12px;
 }
+
 .jp-forms__inbox-response-data-value .file-field svg {
 	min-width: 24px;
 }
@@ -301,6 +310,7 @@ $action-bar-height: 88px;
 	padding: 35px;
 	box-sizing: border-box;
 	min-height: 400px;
+
 	@media (max-width: 660px) {
 		padding: 24px;
 	}
@@ -347,6 +357,7 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__layout.jp-forms__inbox {
+
 	.jp-forms__logo-wrapper,
 	.jp-forms__layout-header {
 		flex: 0 1 auto; /* Flex, but don't grow */

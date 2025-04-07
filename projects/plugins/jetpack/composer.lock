@@ -1805,7 +1805,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/masterbar",
-				"reference": "387a32f99c92a2c5a12c6a4d005f548062fe8623"
+				"reference": "d9c77496b5bf737b4b147c4932d04507349accbc"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1835,7 +1835,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.14.x-dev"
+					"dev-trunk": "0.15.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -1888,7 +1888,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "aa86997841a46215f641c2b8312a10eb237fb5c4"
+				"reference": "7d8a566ea2dc13d82127bf52c58b17be69ff47fe"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1927,7 +1927,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "5.10.x-dev"
+					"dev-trunk": "5.11.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"

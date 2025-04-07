@@ -1,4 +1,5 @@
 #loginform {
+
 	/* We set !important because sometimes static is added inline */
 	position: relative !important;
 	padding-bottom: 92px;

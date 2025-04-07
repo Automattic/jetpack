@@ -26,6 +26,7 @@
 	align-items: center;
 	justify-content: center;
 }
+
 .wp-block-premium-content-login-button.alignright {
 	float: right;
 }
@@ -37,8 +38,11 @@
 
 .wp-block-premium-content-login-button,
 .wp-block-jetpack-button {
+
 	&.is-style-outline {
+
 		.wp-block-button__link {
+
 			@extend %button-outline-style;
 		}
 	}
@@ -56,6 +60,7 @@
 }
 
 @media ( min-width: 660px ) {
+
 	.wp-block-premium-content-logged-out-view__buttons .wp-block-button__link {
 		min-width: 200px;
 	}

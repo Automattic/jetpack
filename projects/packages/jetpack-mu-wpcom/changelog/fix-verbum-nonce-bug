@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Verbum: wp_die if nonce check fails

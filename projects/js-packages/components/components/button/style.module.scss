@@ -14,6 +14,7 @@
 		padding: var( --spacing-base );
 		width: calc( var( --spacing-base ) * 5 );
 		height: calc( var( --spacing-base ) * 5 );
+
 		> svg:first-child {
 			margin: 0;
 			padding: 0;
@@ -170,6 +171,7 @@
 
 		// Link
 		&:global(.is-link) {
+
 			&:not(:disabled) {
 				color: var(--jp-red-50);
 			}

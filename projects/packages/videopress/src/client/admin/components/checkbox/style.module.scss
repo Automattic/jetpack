@@ -9,6 +9,7 @@
 	margin-top: var( --spacing-base );
 
 	.checkbox {
+
 		&[type="checkbox"] {
 			all: unset;
 			border: 1px solid var( --jp-green-40 );
@@ -51,6 +52,7 @@
 		height: 20px;
 		width: 20px;
 		box-sizing: border-box;
+
 		&::after {
 			position: absolute;
 			left: 0;
