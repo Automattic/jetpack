@@ -29,6 +29,7 @@
 
 	// This is to make the image darker and let read the text
 	&--2, &--3 {
+
 		&::before {
 			content: '';
 			position: absolute;
@@ -88,6 +89,7 @@
 }
 
 .jetpack-onboarding-testimonials-pager {
+
     .dot-pager__control-choose-page {
         background-color: var(--jp-gray);
         opacity: 0.2;
