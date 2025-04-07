@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Reset access level of  the post to everyone when a paywall is removed. 
