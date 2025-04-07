@@ -4,7 +4,6 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPres
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Path_Action;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Rebuild_File;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Simple_Delete;
 use SplFileInfo;
 
 class Filesystem_Utils {
@@ -94,26 +93,6 @@ class Filesystem_Utils {
 			return new Boost_Cache_Error( 'not-a-directory', 'Not a directory' );
 		}
 
-		return true;
-	}
-
-	/**
-	 * Recursively walk a directory, deleting or rebuilding files.
-	 *
-	 * @param string $path - The directory to delete or rebuild.
-	 * @param string $type - The action to take, see constants above.
-	 * @return bool|Boost_Cache_Error
-	 */
-	public static function walk_directory( $path, $type ) {
-
-		switch ( $type ) {
-			case self::DELETE_ALL: // delete all files and directories in the given directory.
-				return self::iterate_directory( $path, new Simple_Delete() );
-			case self::REBUILD_ALL: // rebuild all files and directories in the given directory.
-				return self::iterate_directory( $path, new Rebuild_File() );
-			case self::REBUILD_FILES: // rebuild all files in the given directory.
-				return self::iterate_files( $path, new Rebuild_File() );
-		}
 		return true;
 	}
 
