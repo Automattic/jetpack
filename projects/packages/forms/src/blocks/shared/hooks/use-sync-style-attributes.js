@@ -28,7 +28,9 @@ export default function useSyncStyleAttributes( clientId, name, parentName, shar
 		select => {
 			const blockEditor = select( 'core/block-editor' );
 			const currentBlock = blockEditor.getBlock( clientId );
-			if ( ! currentBlock ) {
+			const isPreviewMode = blockEditor.getSettings().templateMode === 'preview';
+
+			if ( ! currentBlock || isPreviewMode ) {
 				return {
 					syncAttributes: null,
 					isSyncEnabled: false,
