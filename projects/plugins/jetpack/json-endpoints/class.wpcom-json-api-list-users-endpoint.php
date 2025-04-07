@@ -36,7 +36,7 @@ new WPCOM_JSON_API_List_Users_Endpoint(
 			),
 			'authors_only'    => '(bool) Set to true to fetch authors only',
 			'include_viewers' => '(bool) Set to true to include viewers for Simple sites. When you pass in this parameter, order, order_by and search_columns are ignored. Currently, `search` is limited to the first page of results.',
-			'total_users'     => '(bool) Set to true to return the total number of site users.',
+			'total_users'     => '(bool) Set to true to return the total number of site users. This is only available to users with the `list_users` capability.',
 			'type'            => "(string) Specify the post type to query authors for. Only works when combined with the `authors_only` flag. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 			'search'          => '(string) Find matching users.',
 			'search_columns'  => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter.",
@@ -122,6 +122,8 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$authors_only = ( ! empty( $args['authors_only'] ) );
 
+		$can_list_users = current_user_can( 'list_users' );
+
 		if ( $args['number'] < 1 ) {
 			$args['number'] = 20;
 		} elseif ( 1000 < $args['number'] ) {
@@ -141,7 +143,7 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 			if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot view authors for specified post type', 403 );
 			}
-		} elseif ( ! current_user_can( 'list_users' ) ) {
+		} elseif ( ! $can_list_users ) {
 			return new WP_Error( 'unauthorized', 'User cannot view users for specified site', 403 );
 		}
 
@@ -248,9 +250,9 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					$return[ $key ] = $combined_users;
 					break;
-				// Total users from the site.
+				// Total users from the site. Only available to users with the `list_users` capability (Super admins and admins).
 				case 'total_users':
-					if ( ! empty( $args['total_users'] ) && true === $args['total_users'] ) {
+					if ( ! empty( $args['total_users'] ) && true === $args['total_users'] && $can_list_users ) {
 						$viewer_count = 0;
 						if ( $include_viewers ) {
 							$viewer_count = (int) get_count_private_blog_users( $blog_id );
