@@ -99,9 +99,16 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 	const handleConnectionSetup = useCallback(
 		async ( service: SocialService | null = null ) => {
 			try {
-				await handleRegisterSite();
 				await sideloadTracks();
-				recordEvent( 'jetpack_my_jetpack_onboarding_click', {
+			} catch ( error ) {
+				// Can't log anywhere without tracks but we need tracks to log registration errors.
+				// eslint-disable-next-line no-console
+				console.error( error );
+			}
+
+			try {
+				await handleRegisterSite();
+				recordEvent?.( 'jetpack_my_jetpack_onboarding_click', {
 					service: service ?? 'email',
 					// Overriding this value as we're waiting for the site to be registered to run this event.
 					is_site_connected: true,
@@ -109,6 +116,13 @@ const useOauthConnection = (): UseOauthConnectionReturn => {
 			} catch ( error ) {
 				// eslint-disable-next-line no-console
 				console.error( error );
+
+				recordEvent?.( 'jetpack_my_jetpack_onboarding_error', {
+					error_type: 'site-connection',
+					service: service ?? 'email',
+					error,
+				} );
+
 				setErrorType( 'site-connection' );
 				return;
 			}
