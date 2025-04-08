@@ -128,6 +128,9 @@ const addFileToContext = file => {
 	} );
 };
 
+// Map to store AbortControllers for each file upload
+const uploadControllers = new Map();
+
 /**
  * Make the endpoint request.
  * This function is a generator so that we can use the withScope function.
@@ -144,9 +147,19 @@ function* uploadFile( file, fileId ) {
 	const xhr = new XMLHttpRequest();
 	const formData = new FormData();
 
+	// Create an AbortController for this upload
+	const abortController = new AbortController();
+	uploadControllers.set( fileId, abortController );
+
 	xhr.open( 'POST', endpoint, true );
 	xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, fileId ) ) );
 	xhr.addEventListener( 'readystatechange', withScope( onReadyStateChange.bind( this, fileId ) ) );
+
+	// Handle abort signal
+	abortController.signal.addEventListener( 'abort', () => {
+		xhr.abort();
+		updateFileContext( { error: 'Upload canceled', hasError: true }, fileId );
+	} );
 
 	formData.append( 'file', file );
 	formData.append( 'token', token );
@@ -291,7 +304,7 @@ store( NAMESPACE, {
 		},
 
 		/**
-		 * Remove a file from the context.
+		 * Remove a file from the context and cancel its upload if in progress.
 		 *
 		 * @param {Event} event - The event object.
 		 * @yield {Promise<string>} The upload token.
@@ -300,6 +313,13 @@ store( NAMESPACE, {
 			event.preventDefault();
 			const context = getContext();
 			const fileId = event.target.dataset.id;
+
+			// Cancel the upload if it's in progress
+			if ( uploadControllers.has( fileId ) ) {
+				const abortController = uploadControllers.get( fileId );
+				abortController.abort(); // Cancel the upload
+				uploadControllers.delete( fileId ); // Clean up the controller
+			}
 
 			const file = context.files.find( fileObject => fileObject.id === fileId );
 
