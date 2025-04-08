@@ -1,9 +1,4 @@
-import {
-	RichText,
-	useBlockProps,
-	useInnerBlocksProps,
-	store as blockEditorStore,
-} from '@wordpress/block-editor';
+import { RichText, useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock, cloneBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { useRefEffect } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -76,7 +71,10 @@ export default function JetpackFieldChoiceItemEdit( {
 		},
 		[ clientId ]
 	);
-	const blockProps = useBlockProps();
+	const blockProps = useBlockProps( {
+		className: clsx( 'jetpack-field-option', `field-option-${ type }` ),
+		style: optionStyle,
+	} );
 
 	const handleSplit = label => {
 		return createBlock( name, {
@@ -95,15 +93,10 @@ export default function JetpackFieldChoiceItemEdit( {
 	};
 
 	const supportsSplitting = supportsParagraphSplitting();
-	const innerBlocksProps = useInnerBlocksProps( {
-		...blockProps,
-		className: clsx( 'jetpack-field-option', `field-option-${ type }`, blockProps.className ),
-		style: optionStyle,
-	} );
 	const useEnterRef = useEnter( { content: attributes.label, clientId } );
 	return (
 		<>
-			<li { ...innerBlocksProps }>
+			<li { ...blockProps }>
 				<input type={ type } className="jetpack-option__type" tabIndex="-1" />
 				<RichText
 					ref={ useEnterRef }
