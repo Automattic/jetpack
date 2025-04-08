@@ -322,21 +322,6 @@ function check_site_has_pending_automated_transfer() {
 add_filter( 'jetpack_site_pending_automated_transfer', 'check_site_has_pending_automated_transfer' );
 
 /**
- * Provides a fallback Google Maps API key when otherwise not configured by the
- * user. This is subject to a usage quota.
- *
- * @see p5j4vm-1gT-p2
- *
- * @param string $api_key Google Maps API key.
- * @return string Google Maps API key
- */
-function wpcomsh_google_maps_api_key( $api_key ) {
-	// Fall back to the dotcom API key if the user has not set their own.
-	return ( empty( $api_key ) ) ? 'AIzaSyCq4vWNv6eCGe2uvhPRGWQlv80IQp8dwTE' : $api_key;
-}
-add_filter( 'jetpack_google_maps_api_key', 'wpcomsh_google_maps_api_key' );
-
-/**
  * We have some instances where `track_number` of an audio attachment is `??0` and shows up as type string.
  * However the problem is, that if post has nested property attachments with this track_number, `json_serialize` fails silently.
  * Of course, this should be fixed during audio upload, but we need this fix until we can clean this up properly.
