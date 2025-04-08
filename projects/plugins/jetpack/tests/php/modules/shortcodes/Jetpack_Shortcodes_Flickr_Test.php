@@ -2,6 +2,12 @@
 
 require_once __DIR__ . '/trait.http-request-cache.php';
 
+/**
+ * @covers ::flickr_embed_to_shortcode
+ * @covers ::flickr_shortcode_handler
+ * @covers ::flickr_shortcode_video_markup
+ * @covers ::jetpack_flickr_video_to_shortcode
+ */
 class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -50,7 +56,6 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_exists() {
@@ -59,7 +64,6 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr() {
@@ -72,7 +76,6 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author carlosenamdev
-	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_photo() {
@@ -87,7 +90,6 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_video_link() {
@@ -103,7 +105,6 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_video_id() {
@@ -117,7 +118,6 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_video_id_width_height() {

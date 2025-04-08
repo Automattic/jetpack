@@ -2,13 +2,15 @@
 
 require_once __DIR__ . '/trait.http-request-cache.php';
 
+/**
+ * @covers ::jetpack_googlemaps_shortcode
+ */
 class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::jetpack_googlemaps_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_googlemaps_exists() {
@@ -45,7 +47,6 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_shortcode_googlemaps_data
 	 * @author scotchfield
-	 * @covers ::jetpack_googlemaps_shortcode
 	 * @since 3.2
 	 *
 	 * @param string $shortcode The shortcode to render.
