@@ -8,8 +8,4 @@
  * @package jetpack
  */
 
-_deprecated_file(
-	basename( __FILE__ ),
-	'$$next-version$$',
-	JETPACK__PLUGIN_DIR . '/modules/subscriptions/dashboard-widget/class-jetpack-newsletter-dashboard-widget.php' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-);
+_deprecated_file( __FILE__, 'jetpack-$$next-version$$', JETPACK__PLUGIN_DIR . '/modules/subscriptions/dashboard-widget/class-jetpack-newsletter-dashboard-widget.php' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
