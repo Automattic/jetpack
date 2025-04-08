@@ -30,7 +30,7 @@ div.jetpack-quiz div.jetpack-quiz-answer.correct {
 }
 
 div.jetpack-quiz div.jetpack-quiz-answer.wrong {
-	color: #ff2c2c;
+	color: #f00;
 }
 
 div.jetpack-quiz div.jetpack-quiz-answer div.jetpack-quiz-explanation {
