@@ -582,10 +582,8 @@ class REST_Controller {
 	 * @param WP_REST_Request $request The request object.
 	 */
 	public function get_post_share_status( WP_REST_Request $request ) {
-		global $publicize;
-
 		$post_id = $request->get_param( 'post_id' );
 
-		return rest_ensure_response( $publicize->get_post_share_status( $post_id ) );
+		return rest_ensure_response( SHare_Status::get_post_share_status( $post_id ) );
 	}
 }

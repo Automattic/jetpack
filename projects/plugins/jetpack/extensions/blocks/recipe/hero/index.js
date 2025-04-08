@@ -7,6 +7,7 @@ import save from './save';
 export const name = 'recipe-hero';
 export const title = __( 'Recipe Hero', 'jetpack' );
 export const settings = {
+	apiVersion: 3,
 	title,
 	description: __( 'Image area for the recipe.', 'jetpack' ),
 	keywords: [],

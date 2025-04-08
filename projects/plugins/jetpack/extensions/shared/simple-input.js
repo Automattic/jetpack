@@ -1,12 +1,16 @@
 import { PlainText } from '@wordpress/block-editor';
+import clsx from 'clsx';
 
-const simpleInput = ( type, props, label, view, onChange ) => {
+const simpleInput = ( type, props, label, view, onChange, rootProps = {} ) => {
 	const { isSelected } = props;
 	const value = props.attributes[ type ];
+
+	rootProps.className = clsx( rootProps.className, `jetpack-${ type }-block`, {
+		'is-selected': isSelected,
+	} );
+
 	return (
-		<div
-			className={ isSelected ? `jetpack-${ type }-block is-selected` : `jetpack-${ type }-block` }
-		>
+		<div { ...rootProps }>
 			{ ! isSelected && value !== '' && view( props ) }
 			{ ( isSelected || value === '' ) && (
 				<PlainText
