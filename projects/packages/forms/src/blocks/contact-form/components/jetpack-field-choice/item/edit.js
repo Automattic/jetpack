@@ -95,24 +95,22 @@ export default function JetpackFieldChoiceItemEdit( {
 	const supportsSplitting = supportsParagraphSplitting();
 	const useEnterRef = useEnter( { content: attributes.label, clientId } );
 	return (
-		<>
-			<li { ...blockProps }>
-				<input type={ type } className="jetpack-option__type" tabIndex="-1" />
-				<RichText
-					ref={ useEnterRef }
-					identifier="label"
-					tagName="div"
-					className="wp-block"
-					value={ attributes.label }
-					placeholder={ __( 'Add option…', 'jetpack-forms' ) }
-					__unstableDisableFormats
-					onChange={ newLabel => setAttributes( { label: newLabel } ) }
-					preserveWhiteSpace={ false }
-					onRemove={ handleDelete }
-					onReplace={ onReplace }
-					{ ...( supportsSplitting ? {} : { onSplit: handleSplit } ) }
-				/>
-			</li>
-		</>
+		<li { ...blockProps }>
+			<input type={ type } className="jetpack-option__type" tabIndex="-1" />
+			<RichText
+				ref={ useEnterRef }
+				identifier="label"
+				tagName="div"
+				className="wp-block"
+				value={ attributes.label }
+				placeholder={ __( 'Add option…', 'jetpack-forms' ) }
+				__unstableDisableFormats
+				onChange={ newLabel => setAttributes( { label: newLabel } ) }
+				preserveWhiteSpace={ false }
+				onRemove={ handleDelete }
+				onReplace={ onReplace }
+				{ ...( supportsSplitting ? {} : { onSplit: handleSplit } ) }
+			/>
+		</li>
 	);
 }
