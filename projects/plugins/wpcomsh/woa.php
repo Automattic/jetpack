@@ -393,3 +393,64 @@ function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $
 add_action( 'wpcomsh_woa_post_clone', 'wpcomsh_woa_post_process_store_woocommerce_connection_details', 10, 2 );
 add_action( 'wpcomsh_woa_post_reset', 'wpcomsh_woa_post_process_store_woocommerce_connection_details', 10, 2 );
 add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_process_store_woocommerce_connection_details', 10, 2 );
+
+/**
+ * Ensures that specific Jetpack modules are activated after a transfer.
+ * Addresses the issue where certain modules like blocks, account-protection and blaze
+ * may be disabled during the transfer process.
+ *
+ * @param array $args       Arguments.
+ * @param array $assoc_args Associated arguments.
+ */
+function wpcomsh_woa_post_process_activate_jetpack_modules( $args, $assoc_args ) {
+
+	if ( ! is_plugin_active( 'jetpack/jetpack.php' ) ) {
+		WP_CLI::warning( 'Jetpack plugin is not active, skipping module activation' );
+		return;
+	}
+
+	// First, make sure the jetpack_blocks_disabled option is deleted
+	delete_option( 'jetpack_blocks_disabled' );
+
+	// Array of modules to ensure are activated
+	$modules_to_activate = array(
+		'blocks',
+		'account-protection',
+		'blaze',
+	);
+
+	foreach ( $modules_to_activate as $module ) {
+		$result = WP_CLI::runcommand(
+			"jetpack module activate $module",
+			array(
+				'return'     => 'all',
+				'launch'     => false,
+				'exit_error' => false,
+			)
+		);
+
+		if ( 0 === $result->return_code ) {
+			WP_CLI::log( sprintf( 'Successfully activated Jetpack module: %s', $module ) );
+		} else {
+			WP_CLI::warning( sprintf( 'Failed to activate Jetpack module: %s - %s', $module, $result->stderr ) );
+		}
+	}
+
+	// Get a list of all active modules to verify
+	$active_modules_result = WP_CLI::runcommand(
+		'jetpack module list --status=active',
+		array(
+			'return'     => 'all',
+			'launch'     => false,
+			'exit_error' => false,
+		)
+	);
+
+	WP_CLI::log( 'Currently active Jetpack modules:' );
+	WP_CLI::log( $active_modules_result->stdout );
+
+	WP_CLI::success( 'Jetpack modules activation completed' );
+}
+
+// Add this action for all three operation types to ensure modules are always activated
+add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_process_activate_jetpack_modules', 10, 2 );
