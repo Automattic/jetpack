@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Enforce some jetpack modules to always be anbeld after a site transfer
