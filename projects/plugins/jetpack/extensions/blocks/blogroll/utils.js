@@ -5,7 +5,7 @@ export function createBlockFromRecommendation( attrs ) {
 	let trimmedURL;
 	try {
 		trimmedURL = new URL( attrs?.url )?.host.replace( /^www\./, '' );
-	} catch ( e ) {
+	} catch {
 		trimmedURL = attrs?.URL;
 	}
 
@@ -41,7 +41,7 @@ export function getValidDomain( siteURL ) {
 
 	try {
 		return new URL( siteURL )?.host;
-	} catch ( e ) {
+	} catch {
 		return siteURL.match( pattern )?.[ 2 ] ?? null;
 	}
 }

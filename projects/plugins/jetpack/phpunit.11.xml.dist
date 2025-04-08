@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+	bootstrap="tests/php/bootstrap.php"
+	cacheDirectory=".phpunit.cache"
+	colors="true"
+	executionOrder="depends"
+	beStrictAboutOutputDuringTests="true"
+	displayDetailsOnPhpunitDeprecations="false"
+	displayDetailsOnTestsThatTriggerDeprecations="true"
+	displayDetailsOnTestsThatTriggerErrors="true"
+	displayDetailsOnTestsThatTriggerNotices="true"
+	displayDetailsOnTestsThatTriggerWarnings="true"
+	failOnDeprecation="true"
+	failOnEmptyTestSuite="true"
+	failOnPhpunitDeprecation="false"
+	failOnNotice="true"
+	failOnRisky="true"
+	failOnWarning="true"
+>
+	<php>
+		<const name="PHPUNIT_JETPACK_TESTSUITE" value="true"/>
+	</php>
+
+	<testsuites>
+		<testsuite name="general">
+			<directory suffix="Test.php">tests/php/general</directory>
+			<exclude>tests/php/general/Jetpack_Network_Test.php</exclude>
+		</testsuite>
+		<testsuite name="core-api">
+			<directory suffix="Test.php">tests/php/core-api</directory>
+		</testsuite>
+		<testsuite name="media">
+			<directory suffix="Test.php">tests/php/media</directory>
+		</testsuite>
+		<testsuite name="json-api">
+			<directory suffix="Test.php">tests/php/json-api</directory>
+		</testsuite>
+		<testsuite name="infinite-scroll">
+			<directory suffix="Test.php">tests/php/modules/infinite-scroll</directory>
+		</testsuite>
+		<testsuite name="comment-likes">
+			<directory suffix="Test.php">tests/php/modules/comment-likes</directory>
+		</testsuite>
+		<testsuite name="likes">
+			<directory suffix="Test.php">tests/php/modules/likes</directory>
+		</testsuite>
+		<testsuite name="markdown">
+			<directory suffix="Test.php">tests/php/modules/markdown</directory>
+		</testsuite>
+		<testsuite name="publicize">
+			<directory suffix="Test.php">tests/php/modules/publicize</directory>
+		</testsuite>
+		<testsuite name="post-by-email">
+			<directory suffix="Test.php">tests/php/modules/post-by-email</directory>
+		</testsuite>
+		<testsuite name="related-posts">
+			<directory suffix="Test.php">tests/php/modules/related-posts</directory>
+		</testsuite>
+		<testsuite name="sharedaddy">
+			<directory suffix="Test.php">tests/php/modules/sharedaddy</directory>
+		</testsuite>
+		<testsuite name="shortcodes">
+			<directory suffix="Test.php">tests/php/modules/shortcodes</directory>
+		</testsuite>
+		<testsuite name="widgets">
+			<directory suffix="Test.php">tests/php/modules/widgets</directory>
+		</testsuite>
+		<testsuite name="widget-visibility">
+			<directory suffix="Test.php">tests/php/modules/widget-visibility</directory>
+		</testsuite>
+		<testsuite name="sitemaps">
+			<directory suffix="Test.php">tests/php/modules/sitemaps</directory>
+		</testsuite>
+		<testsuite name="subscriptions">
+			<directory suffix="Test.php">tests/php/modules/subscriptions</directory>
+		</testsuite>
+		<testsuite name="verification-tools">
+			<directory suffix="Test.php">tests/php/modules/verification-tools</directory>
+		</testsuite>
+		<testsuite name="videopress">
+			<directory suffix="Test.php">tests/php/modules/videopress</directory>
+		</testsuite>
+		<testsuite name="sync">
+			<directory suffix="Test.php">tests/php/sync</directory>
+			<exclude>tests/php/sync/Jetpack_Sync_Full_Test.php</exclude>
+		</testsuite>
+		<testsuite name="legacy-full-sync">
+			<file>tests/php/sync/Jetpack_Sync_Full_Test.php</file>
+		</testsuite>
+		<testsuite name="uninstall">
+			<directory suffix="Test.php">tests/php/uninstall</directory>
+		</testsuite>
+		<testsuite name="lib">
+			<directory suffix="Test.php">tests/php/_inc/lib</directory>
+			<exclude>tests/php/_inc/lib/Jetpack_REST_API_Authentication_Test.php</exclude>
+			<exclude>tests/php/_inc/lib/Jetpack_REST_API_endpoints_Test.php</exclude>
+		</testsuite>
+		<testsuite name="restapi">
+			<directory prefix="Jetpack_REST_API" suffix="Test.php">tests/php/_inc/lib</directory>
+		</testsuite>
+		<testsuite name="get_modules">
+			<file>tests/php/Get_Modules_Test.php</file>
+		</testsuite>
+		<testsuite name="3rd-party">
+			<directory suffix="Test.php">tests/php/3rd-party</directory>
+		</testsuite>
+		<testsuite name="carousel">
+			<directory suffix="Test.php">tests/php/modules/carousel</directory>
+		</testsuite>
+		<testsuite name="deprecation">
+			<file>tests/php/Jetpack_Deprecation_Test.php</file>
+		</testsuite>
+		<testsuite name="extensions">
+			<directory suffix="Test.php">tests/php/extensions</directory>
+		</testsuite>
+		<testsuite name="seo-tools">
+			<directory suffix="Test.php">tests/php/modules/seo-tools</directory>
+		</testsuite>
+		<testsuite name="compatfunctions">
+			<file>tests/php/Jetpack_Compat_Functions_Test.php</file>
+		</testsuite>
+		<testsuite name="autoloaded">
+			<directory suffix="Test.php">tests/php/src</directory>
+		</testsuite>
+	</testsuites>
+
+	<groups>
+		<exclude>
+			<group>external-http</group>
+			<group>uninstall</group>
+			<group>legacy-full-sync</group>
+		</exclude>
+	</groups>
+
+	<source>
+		<include>
+			<!-- Better to only include "src" than to add "." and then exclude "tests", "vendor", and so on, as PHPUnit still scans the excluded directories. -->
+			<!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
+			<file>class.frame-nonce-preview.php</file>
+			<file>class.jetpack-admin.php</file>
+			<file>class.jetpack-affiliate.php</file>
+			<file>class.jetpack-autoupdate.php</file>
+			<file>class.jetpack-bbpress-json-api.compat.php</file>
+			<file>class.jetpack-client-server.php</file>
+			<file>class.jetpack-cli.php</file>
+			<file>class-jetpack-connection-status.php</file>
+			<file>class-jetpack-gallery-settings.php</file>
+			<file>class.jetpack-gutenberg.php</file>
+			<file>class.jetpack-heartbeat.php</file>
+			<file>class.jetpack-modules-list-table.php</file>
+			<file>class.jetpack-network.php</file>
+			<file>class.jetpack-network-sites-list-table.php</file>
+			<file>class.jetpack.php</file>
+			<file>class.jetpack-plan.php</file>
+			<file>class.jetpack-post-images.php</file>
+			<file>class-jetpack-pre-connection-jitms.php</file>
+			<file>class-jetpack-stats-dashboard-widget.php</file>
+			<file>class.jetpack-twitter-cards.php</file>
+			<file>class.jetpack-user-agent.php</file>
+			<file>class-jetpack-xmlrpc-methods.php</file>
+			<file>class.json-api-endpoints.php</file>
+			<file>class.json-api.php</file>
+			<file>class.photon.php</file>
+			<file>enhanced-open-graph.php</file>
+			<file>functions.compat.php</file>
+			<file>functions.cookies.php</file>
+			<file>functions.global.php</file>
+			<file>functions.is-mobile.php</file>
+			<file>functions.opengraph.php</file>
+			<file>functions.photon.php</file>
+			<file>jetpack.php</file>
+			<file>json-api-config.php</file>
+			<file>json-endpoints.php</file>
+			<file>load-jetpack.php</file>
+			<file>locales.php</file>
+			<file>uninstall.php</file>
+			<directory suffix=".php">3rd-party</directory>
+			<directory suffix=".php">extensions</directory>
+			<directory suffix=".php">_inc</directory>
+			<directory suffix=".php">json-endpoints</directory>
+			<directory suffix=".php">modules</directory>
+			<directory suffix=".php">sal</directory>
+			<directory suffix=".php">src</directory>
+			<directory suffix=".php">views</directory>
+		</include>
+	</source>
+	<coverage ignoreDeprecatedCodeUnits="true">
+	</coverage>
+</phpunit>

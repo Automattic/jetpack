@@ -14,7 +14,7 @@ import * as noopCommand from './commands/noop.js';
 import * as phanCommand from './commands/phan.js';
 import { releaseDefine } from './commands/release.js';
 import { rsyncDefine } from './commands/rsync.js';
-import { testDefine } from './commands/test.js';
+import * as testCommand from './commands/test.js';
 import { watchDefine } from './commands/watch.js';
 
 /**
@@ -48,7 +48,7 @@ export async function cli() {
 	argv.command( phanCommand );
 	argv = releaseDefine( argv );
 	argv = rsyncDefine( argv );
-	argv = testDefine( argv );
+	argv.command( testCommand );
 	argv = watchDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.

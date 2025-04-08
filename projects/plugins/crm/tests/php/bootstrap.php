@@ -19,13 +19,13 @@ $_plugin_root = dirname( __DIR__, 2 );
  * Locate WordPress or wordpress-develop. We look in several places.
  */
 if ( defined( 'WP_DEV_LOCATION' ) ) {
-	$test_root = WP_DEVELOP_DIR;
+	$test_root = WORDPRESS_DEVELOP_DIR;
 	if ( file_exists( "$test_root/tests/phpunit/" ) ) {
 		$test_root .= '/tests/phpunit/';
 	}
-} elseif ( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
+} elseif ( false !== getenv( 'WORDPRESS_DEVELOP_DIR' ) ) {
 	// Jetpack Monorepo environment variable defined on command line.
-	$test_root = getenv( 'WP_DEVELOP_DIR' );
+	$test_root = getenv( 'WORDPRESS_DEVELOP_DIR' );
 	if ( file_exists( "$test_root/tests/phpunit/" ) ) {
 		$test_root .= '/tests/phpunit/';
 	}
@@ -52,7 +52,7 @@ if ( ! isset( $test_root ) || ! file_exists( $test_root . '/includes/bootstrap.p
 		<<<'EOF'
 Failed to automatically locate WordPress or wordpress-develop to run tests.
 
-Set the WP_DEVELOP_DIR environment variable to point to a copy of WordPress
+Set the WORDPRESS_DEVELOP_DIR environment variable to point to a copy of WordPress
 or wordpress-develop.
 
 EOF
@@ -63,7 +63,7 @@ EOF
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 echo "Using test root $test_root\n";
 
-if ( ! is_readable( $_plugin_root . '/vendor/autoload.php' ) ) {
+if ( ! is_readable( $_plugin_root . '/vendor/autoload_packages.php' ) ) {
 	echo 'The plugin is not ready for testing.' . PHP_EOL;
 	echo PHP_EOL;
 	echo 'Composer dependencies must be installed.' . PHP_EOL;
@@ -89,6 +89,15 @@ function _jpcrm_manually_load_plugin() {
 
 tests_add_filter( 'muplugins_loaded', '_jpcrm_manually_load_plugin' );
 
+// Override WP_TESTS_CONFIG_FILE_PATH via environment.
+// Important for monorepo CI, if you don't do this then different test runs might collide!
+if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
+	define( 'WP_TESTS_CONFIG_FILE_PATH', getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) );
+}
+
+// Load trait for WP_UnitTestCase PHPUnit 10 compat.
+require_once __DIR__ . '/WP_UnitTestCase_Fix.php';
+
 /**
  * Start up the WP testing environment.
  */
@@ -97,8 +106,8 @@ require $test_root . '/includes/bootstrap.php';
 /**
  * Make Jetpack CRM test case available for all tests.
  */
-require_once JETPACK_CRM_TESTS_ROOT . '/class-jpcrm-base-test-case.php';
-require_once JETPACK_CRM_TESTS_ROOT . '/class-jpcrm-base-integration-test-case.php';
+require_once JETPACK_CRM_TESTS_ROOT . '/class-jpcrm-base-testcase.php';
+require_once JETPACK_CRM_TESTS_ROOT . '/class-jpcrm-base-integration-testcase.php';
 
 /**
  * Load all feature flags, so they will be testable.

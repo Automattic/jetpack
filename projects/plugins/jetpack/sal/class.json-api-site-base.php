@@ -758,8 +758,8 @@ abstract class SAL_Site {
 		if ( ! $post || is_wp_error( $post ) ) {
 			return false;
 		}
-
-		if ( 'inherit' === $post->post_status ) {
+		// If the post is of status inherit, check if the parent exists ( different to 0 ) to check for the parent status object.
+		if ( 'inherit' === $post->post_status && 0 !== (int) $post->post_parent ) {
 			$parent_post     = get_post( $post->post_parent );
 			$post_status_obj = get_post_status_object( $parent_post->post_status );
 		} else {
@@ -1521,6 +1521,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get the option of site partner bundle which value is coming from the Partner Flow
+	 *
+	 * @return string
+	 */
+	public function get_site_partner_bundle() {
+		return get_option( 'site_partner_bundle', '' );
+	}
+
+	/**
 	 * Get site option to determine if and how to display launchpad onboarding
 	 *
 	 * @return string
@@ -1551,6 +1560,15 @@ abstract class SAL_Site {
 		}
 
 		return array();
+	}
+
+	/**
+	 * Get site option for migration source site domain
+	 *
+	 * @return string
+	 */
+	public function get_migration_source_site_domain() {
+		return get_option( 'migration_source_site_domain', '' );
 	}
 
 	/**

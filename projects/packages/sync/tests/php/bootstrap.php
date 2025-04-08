@@ -15,7 +15,5 @@ require_once __DIR__ . '/../../vendor/autoload.php';
  */
 require_once __DIR__ . '/data-test-data-settings.php';
 
-/**
- * Load WorDBless
- */
-\WorDBless\Load::load();
+// Initialize WordPress test environment
+\Automattic\Jetpack\Test_Environment::init();

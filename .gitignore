@@ -20,7 +20,7 @@ jetpack_vendor/
 /tools/docker/jetpack-docker-config.yml
 /tools/phpcs.log
 
-# File for personal customiziations, if desired.
+# File for personal customizations, if desired.
 /tools/docker/mu-plugins/0-sandbox.php
 .idea
 *.iml
@@ -30,6 +30,7 @@ npm-debug.log
 .phpcs.xml
 .pnpm-debug.log
 phpcs.xml
+.phpunit.cache
 .phpunit.result.cache
 
 ## Things for Docker compose
@@ -57,3 +58,6 @@ phpcs.xml
 # VS Code setting files
 *.code-workspace
 /.vscode/settings.json
+
+.pnpm-debug.log
+.pnpm-error.log

@@ -2,14 +2,14 @@ import { getRedirectUrl, ToggleControl, Status } from '@automattic/jetpack-compo
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import FoldableCard from 'components/foldable-card';
 import { FormFieldset } from 'components/forms';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import {
@@ -18,8 +18,6 @@ import {
 	PLAN_JETPACK_SCAN,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { getSitePlan, siteHasFeature } from 'state/site';
 import Card from '../components/card';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
@@ -501,18 +499,6 @@ export const Waf = class extends Component {
 				hideButton={ true }
 			>
 				{ isWafActive && <QueryWafSettings /> }
-				<SimpleNotice
-					showDismiss={ false }
-					status="is-info"
-					text={ __(
-						'The settings for the Firewall will be moved to Jetpack Protect in Jetpack version 13.10.',
-						'jetpack'
-					) }
-				>
-					<NoticeAction href={ this.props.getProtectUrl }>
-						{ __( 'Get Jetpack Protect', 'jetpack' ) }
-					</NoticeAction>
-				</SimpleNotice>
 				<SettingsGroup
 					disableInOfflineMode
 					module={ this.props.getModule( 'waf' ) }

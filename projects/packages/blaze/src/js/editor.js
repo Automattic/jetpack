@@ -2,14 +2,19 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
-import { PluginPostPublishPanel } from '@wordpress/edit-post';
-import { store as editorStore } from '@wordpress/editor';
+import { PluginPostPublishPanel as DeprecatedPluginPostPublishPanel } from '@wordpress/edit-post';
+import {
+	PluginPostPublishPanel as EditorPluginPostPublishPanel,
+	store as editorStore,
+} from '@wordpress/editor';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import { getPlugin, registerPlugin } from '@wordpress/plugins';
 import './editor.scss';
 import BlazeIcon from './icon';
+
+const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginPostPublishPanel;
 
 const BlazePostPublishPanel = () => {
 	const { blazeUrlTemplate } = window?.blazeInitialState || {};

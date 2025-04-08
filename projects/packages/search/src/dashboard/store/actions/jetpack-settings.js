@@ -33,7 +33,7 @@ export function* updateJetpackSettings( settings ) {
 		const updatedSettings = yield fetchJetpackSettings();
 		yield setJetpackSettings( updatedSettings );
 		return successNotice( __( 'Updated settings.', 'jetpack-search-pkg' ) );
-	} catch ( e ) {
+	} catch {
 		const oldSettings = pick( select( STORE_ID ).getSearchModuleStatus(), [
 			'module_active',
 			'instant_search_enabled',

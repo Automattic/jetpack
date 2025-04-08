@@ -32,6 +32,7 @@ const TreeSelector = props => {
 				checked={ selectedItems.includes( item.id ) }
 				onChange={ toggleCheckbox( item.id ) }
 				disabled={ disabled }
+				__nextHasNoMarginBottom={ true }
 			/>
 			<label htmlFor={ `jp-tree-item-${ item.id }` }>
 				{ item.name }

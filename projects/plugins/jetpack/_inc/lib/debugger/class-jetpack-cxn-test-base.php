@@ -511,8 +511,6 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Encrypt data for sending to WordPress.com.
 	 *
-	 * @todo When PHP minimum is 5.3+, add cipher detection to use an agreed better cipher than RC4. RC4 should be the last resort.
-	 *
 	 * @param string $data Data to encrypt with the WP.com Public Key.
 	 *
 	 * @return false|array False if functionality not available. Array of encrypted data, encryption key.

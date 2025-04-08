@@ -60,7 +60,6 @@ export default function useSubscriptions( { ignore_user_blogs } ) {
 				abortControllerRef.current = null;
 				setIsLoading( false );
 			} );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ ignore_user_blogs ] );
 
 	return { isLoading, errorMessage, subscriptions };

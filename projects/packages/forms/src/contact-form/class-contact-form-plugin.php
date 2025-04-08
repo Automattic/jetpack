@@ -8,9 +8,13 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use WP_Error;
 
@@ -51,6 +55,20 @@ class Contact_Form_Plugin {
 	 * @var string
 	 */
 	private $pde_email_address = '';
+
+	/*
+	 * Field keys that might be present in the entry json but we don't want to show to the admin
+	 * since they not something that the visitor entered into the form.
+	 *
+	 * @var array
+	 */
+	const NON_PRINTABLE_FIELDS = array(
+		'entry_title'             => '',
+		'email_marketing_consent' => '',
+		'entry_permalink'         => '',
+		'entry_page'              => '',
+		'feedback_id'             => '',
+	);
 
 	/**
 	 * Initializing function.
@@ -116,14 +134,19 @@ class Contact_Form_Plugin {
 		$data_without_tags = array();
 		if ( is_array( $data_with_tags ) ) {
 			foreach ( $data_with_tags as $index => $value ) {
+				if ( is_array( $value ) ) {
+					$data_without_tags[ $index ] = self::strip_tags( $value );
+					continue;
+				}
+
 				$index = sanitize_text_field( (string) $index );
-				$value = wp_kses( (string) $value, array() );
+				$value = wp_kses_post( (string) $value );
 				$value = str_replace( '&amp;', '&', $value ); // undo damage done by wp_kses_normalize_entities()
 
 				$data_without_tags[ $index ] = $value;
 			}
 		} else {
-			$data_without_tags = wp_kses( (string) $data_with_tags, array() );
+			$data_without_tags = wp_kses_post( (string) $data_with_tags );
 			$data_without_tags = str_replace( '&amp;', '&', $data_without_tags ); // undo damage done by wp_kses_normalize_entities()
 		}
 
@@ -494,6 +517,41 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Render the file upload field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the file upload field.
+	 */
+	public static function gutenblock_render_field_file( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file' );
+
+		// Create wrapper div for the file field
+		$output = '<div class="jetpack-form-file-field">';
+
+		// Render the file field
+		$output .= Contact_Form::parse_contact_field( $atts, $content );
+
+		$output .= '</div>';
+
+		return $output;
+	}
+
+	/**
+	 * Render the number field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the number field.
+	 */
+	public static function gutenblock_render_field_number( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'number' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
 	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
@@ -699,8 +757,16 @@ class Contact_Form_Plugin {
 
 			// Process the content to populate Contact_Form::$last
 			if ( $post ) {
+				if ( str_contains( $post->post_content, '<!--nextpage-->' ) ) {
+					$postdata = generate_postdata( $post );
+					$page     = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+					$paged    = isset( $page ) ? $page : 1;
+					$content  = isset( $postdata['pages'][ $paged - 1 ] ) ? $postdata['pages'][ $paged - 1 ] : $post->post_content;
+				} else {
+					$content = $post->post_content;
+				}
 				/** This filter is already documented in core. wp-includes/post-template.php */
-				apply_filters( 'the_content', $post->post_content );
+				apply_filters( 'the_content', $content );
 			}
 		}
 
@@ -776,7 +842,7 @@ class Contact_Form_Plugin {
 			);
 		}
 
-		die;
+		die( 0 );
 	}
 
 	/**
@@ -1135,7 +1201,7 @@ class Contact_Form_Plugin {
 		$content_fields = self::parse_fields_from_content( $post_id );
 		$all_fields     = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
 		$md             = $has_json_data
-			? array_diff_key( $all_fields, array_flip( array( 'entry_title', 'email_marketing_consent', 'entry_permalink', 'feedback_id' ) ) )
+			? array_diff_key( $all_fields, array_flip( array_keys( self::NON_PRINTABLE_FIELDS ) ) )
 			: (array) get_post_meta( $post_id, '_feedback_extra_fields', true );
 
 		$md['-3_response_date'] = get_the_date( 'Y-m-d H:i:s', $post_id );
@@ -1171,7 +1237,11 @@ class Contact_Form_Plugin {
 		$result = array();
 		foreach ( $md as $key => $value ) {
 			if ( is_array( $value ) ) {
-				$value = implode( ', ', $value );
+				if ( Contact_Form::is_file_upload_field( $value ) ) {
+					$value = $value['name'];
+				} else {
+					$value = implode( ', ', $value );
+				}
 			}
 			$result[ $key ] = html_entity_decode( $value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 		}
@@ -1713,12 +1783,22 @@ class Contact_Form_Plugin {
 			$args['s'] = sanitize_text_field( wp_unslash( $_POST['search'] ) );
 		}
 
+		// TODO: We can remove this when the wp-admin UI is removed.
 		if ( ! empty( $_POST['year'] ) && intval( $_POST['year'] ) > 0 ) {
 			$args['date_query']['year'] = intval( $_POST['year'] );
 		}
-
+		// TODO: We can remove this when the wp-admin UI is removed.
 		if ( ! empty( $_POST['month'] ) && intval( $_POST['month'] ) > 0 ) {
 			$args['date_query']['month'] = intval( $_POST['month'] );
+		}
+
+		if ( ! empty( $_POST['after'] ) && ! empty( $_POST['before'] ) ) {
+			$before = strtotime( sanitize_text_field( wp_unslash( $_POST['before'] ) ) );
+			$after  = strtotime( sanitize_text_field( wp_unslash( $_POST['after'] ) ) );
+			if ( $before && $after && $before < $after ) {
+				$args['date_query']['after']  = $after;
+				$args['date_query']['before'] = $before;
+			}
 		}
 
 		if ( ! empty( $_POST['selected'] ) && is_array( $_POST['selected'] ) ) {
@@ -1801,7 +1881,8 @@ class Contact_Form_Plugin {
 		/**
 		 * Print CSV headers
 		 */
-		fputcsv( $output, $fields );
+		// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
+		fputcsv( $output, $fields, ',', '"', '\\' );
 
 		/**
 		 * Print rows to the output.
@@ -1820,13 +1901,14 @@ class Contact_Form_Plugin {
 			/**
 			 * Output the complete CSV row
 			 */
-			fputcsv( $output, $current_row );
+			// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
+			fputcsv( $output, $current_row, ',', '"', '\\' );
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
 		$this->record_tracks_event( 'forms_export_responses', array( 'format' => 'csv' ) );
-		exit();
+		exit( 0 );
 	}
 
 	/**
@@ -1897,7 +1979,7 @@ class Contact_Form_Plugin {
 				}
 			}
 
-			$tracking = new \Automattic\Jetpack\Tracking();
+			$tracking = new Tracking();
 			$tracking->record_user_event( $event_name, $event_props, $event_user );
 		}
 	}
@@ -2044,14 +2126,17 @@ class Contact_Form_Plugin {
 			if ( str_contains( $content, 'JSON_DATA' ) ) {
 				$chunks     = explode( "\nJSON_DATA", $content );
 				$all_values = json_decode( $chunks[1], true );
-				if ( is_array( $all_values ) ) {
-					$fields_array = array_keys( $all_values );
-				}
-				$lines = array_filter( explode( "\n", $chunks[0] ) );
+				$lines      = array_filter( explode( "\n", $chunks[0] ) );
 			} else {
 				$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 
-				// TODO: some explanation on this regex could help
+				// This line of code is used to parse a string containing key-value pairs formatted as [Key] => Value and extract the keys and values into an array.
+				// The regular expression ensures that each key-value pair is correctly identified and captured.
+				// Given an input string
+				// [Key1] => Value1
+				// [Key2] => Value2
+				// it  $matches[1]: The keys (e.g., Key1, Key2 ).
+				// and $matches[2]: The values (e.g., Value1, Value2 ).
 				preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
 
 				if ( count( $matches ) > 1 ) {
@@ -2242,5 +2327,31 @@ class Contact_Form_Plugin {
 			return 'publish';
 		}
 		return $current_status;
+	}
+
+	/**
+	 * Returns whether we are in condition to track and use
+	 * analytics functionality like Tracks.
+	 *
+	 * @return bool Returns true if we can track analytics, else false.
+	 */
+	public static function can_use_analytics() {
+		$is_wpcom               = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$status                 = new Status();
+		$connection             = new Connection_Manager();
+		$tracking               = new Tracking( 'jetpack', $connection );
+		$should_enable_tracking = $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
+
+		return $is_wpcom || $should_enable_tracking;
+	}
+
+	/**
+	 * Check if the form modal interface should be enabled.
+	 * This is a development-only feature flag.
+	 *
+	 * @return bool
+	 */
+	public static function is_form_modal_enabled() {
+		return defined( 'JETPACK_IS_FORM_MODAL_ENABLED' ) && JETPACK_IS_FORM_MODAL_ENABLED;
 	}
 }

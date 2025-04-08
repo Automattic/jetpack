@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.0.0 - 2025-03-24
+
+### Changed
+- Scanner: Add threat count to tab. [#40056]
+- Scanner: Animate the "scan in progress" placeholder image. [#39825]
+- General: Indicate compatibility with WordPress 6.7. [#39786]
+- General: Update package dependencies. [#42511]
+
+### Removed
+- Firewall: Remove "new" badge from tab. [#41902]
+- General: Update minimum PHP version to 7.2. [#40147]
+- General: Update minimum WordPress version to 6.6. [#40146]
+
+## 3.1.1 - 2024-10-17
+### Changed
+- Firewall: Fix backwards compatibility for sites running standalone mode with outdated packages autoloaded.
+
+## 3.1.0 - 2024-10-15
+### Added
+- Firewall: Adds stat cards showing recent block counts [#35739]
+- Auto-Fixers: Adds handling for long-running fixers [#39301]
+
+### Changed
+- Firewall: added help text for IP list formatting rules [#39448]
+- Updated package dependencies. [#39707]
+
+### Removed
+- Security Scanning: disabled database threat category [#39467]
+
+### Fixed
+- Minor fixes and improvements.
+
 ## 3.0.2 - 2024-09-06
 ### Changed
 - Internal updates.

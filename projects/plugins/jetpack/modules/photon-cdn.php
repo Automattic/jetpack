@@ -18,7 +18,7 @@ use Automattic\Jetpack\Assets;
 
 $GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-Assets::add_resource_hint( '//c0.wp.com', 'dns-prefetch' );
+Assets::add_resource_hint( '//c0.wp.com', 'preconnect' );
 
 /**
  * Asset CDN module main class file.
@@ -226,7 +226,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 */
 	public static function get_plugin_assets( $plugin, $version ) {
 		if ( 'jetpack' === $plugin && JETPACK__VERSION === $version ) {
-			if ( ! self::is_public_version( $version ) ) {
+			if ( ! self::is_public_version( $version ) || ! file_exists( JETPACK__PLUGIN_DIR . 'modules/photon-cdn/jetpack-manifest.php' ) ) {
 				return false;
 			}
 

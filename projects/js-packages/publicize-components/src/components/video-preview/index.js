@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/media-has-caption */
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import styles from './styles.module.scss';
 

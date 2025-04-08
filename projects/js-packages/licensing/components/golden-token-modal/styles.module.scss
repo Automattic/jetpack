@@ -3,6 +3,7 @@
 $tablet-width: 760px;
 
 @mixin tablet {
+
 	@media (min-width: #{$tablet-width}) {
 		@content;
 	}
@@ -55,6 +56,7 @@ $tablet-width: 760px;
 .button {
 	align-self: flex-start;
 	width: 100%;
+
 	/*
 	* We have to use !important to add additional styling compared to the Jetpack
 	* button component.
@@ -74,6 +76,7 @@ $tablet-width: 760px;
 }
 
 @include tablet {
+
 	.modal {
 		height: 740px;
 		max-width: 1360px;
@@ -101,6 +104,7 @@ $tablet-width: 760px;
 			transition-delay: 0;
 
 			.jetpack-logo {
+
 				path, clipPath {
 					transition: 2s fill ease .5s;
 					fill: #fff;
@@ -119,8 +123,11 @@ $tablet-width: 760px;
  * Video wrap
  */
 @keyframes videoMove {
+
 	20%  { transform: translateY(0)   scale(1); }
+
 	65%  { transform: translateY(16%) scale(1.4); }
+
 	100% { transform: translateY(0)   scale(1); }
 }
 
@@ -160,7 +167,9 @@ $tablet-width: 760px;
 }
 
 @include tablet {
+
 	@keyframes slidein {
+
 		0% {
 			left: 60%;
 			top: 32px;
@@ -238,6 +247,7 @@ $tablet-width: 760px;
 }
 
 @include tablet {
+
 	.content-wrap {
 		bottom: 15%;
 		display: flex;
@@ -267,6 +277,7 @@ $tablet-width: 760px;
 		.button {
 			align-self: flex-start;
 			width: auto;
+
 			/*
 			 * We have to use !important to add additional styling compared to the Jetpack
 			 * button component.
@@ -304,6 +315,7 @@ $tablet-width: 760px;
 }
 
 @include tablet {
+
 	.powers-wrap {
 		align-items: flex-end;
 		container-type: inline-size;
@@ -380,6 +392,7 @@ $tablet-width: 760px;
 }
 
 @include tablet {
+
 	.jetpack-products {
 		flex-direction: row;
 		padding: var(--jp-modal-padding-large);
@@ -400,7 +413,9 @@ $tablet-width: 760px;
 }
 
 @container (max-width: 600px) {
+
 	.jetpack-products {
+
 		div {
 			padding: var(--jp-modal-padding-small);
 		}

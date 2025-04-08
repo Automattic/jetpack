@@ -18,7 +18,6 @@ use PHPUnit\Framework\TestCase;
  * @covers \Automattic\Jetpack\Changelog\ChangeEntry
  */
 class ChangeEntryTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Test general getters.
@@ -115,7 +114,7 @@ class ChangeEntryTest extends TestCase {
 	/**
 	 * Data provider for testCompare.
 	 */
-	public function provideCompare() {
+	public static function provideCompare() {
 		return array(
 			'Default config, equal'                        => array(
 				new ChangeEntry(
@@ -414,7 +413,7 @@ class ChangeEntryTest extends TestCase {
 	/**
 	 * Data provider for testJson.
 	 */
-	public function provideJson() {
+	public static function provideJson() {
 		return array(
 			'Basic serialization'              => array(
 				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-18T00:00:00+0000","subheading":"","author":"","content":""}',

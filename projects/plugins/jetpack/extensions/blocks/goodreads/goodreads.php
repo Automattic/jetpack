@@ -35,19 +35,27 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function load_assets( $attr ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	if ( isset( $attr['link'] ) && isset( $attr['id'] ) ) {
-		wp_enqueue_script(
-			'jetpack-goodreads-' . esc_attr( $attr['id'] ),
-			esc_url_raw( $attr['link'] ),
-			array(),
-			JETPACK__VERSION,
-			true
-		);
+	if ( isset( $attr['id'] ) ) {
+		if ( isset( $attr['link'] ) ) {
+			wp_enqueue_script(
+				'jetpack-goodreads-' . esc_attr( $attr['id'] ),
+				esc_url_raw( $attr['link'] ),
+				array(),
+				JETPACK__VERSION,
+				true
+			);
+		}
+
+		$id = esc_attr( $attr['id'] );
+	} else {
+		$id = '';
 	}
+
+	$classes = esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) );
 
 	return sprintf(
 		'<div id="%1$s" class="%2$s"></div>',
-		esc_attr( $attr['id'] ),
-		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) )
+		$id,
+		$classes
 	);
 }

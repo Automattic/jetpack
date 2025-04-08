@@ -48,6 +48,7 @@ export const HistoryCarousel: React.FC = () => {
 					<img height="48" width="48" src={ loader } alt={ 'loading' } />
 				</Button>
 			) }
+			{ ! logos.length && ! isLoadingHistory && <div>&nbsp;</div> }
 			{ logos.map( ( logo, index ) => (
 				<Button
 					key={ logo.url }

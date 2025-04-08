@@ -5,13 +5,15 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 
 /**
  * REST API endpoint wpcom/v3/sites/%s/blogging-prompts.
  */
 class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controller {
+
+	use WPCOM_REST_API_Proxy_Request;
+
 	const TEMPLATE_BLOG_ID = 205876834;
 
 	/**
@@ -42,7 +44,9 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 */
 	public function __construct() {
 		$this->post_type                       = 'post';
-		$this->namespace                       = 'wpcom/v3';
+		$this->base_api_path                   = 'wpcom';
+		$this->version                         = 'v3';
+		$this->namespace                       = $this->base_api_path . '/' . $this->version;
 		$this->rest_base                       = 'blogging-prompts';
 		$this->wpcom_is_wpcom_only_endpoint    = true;
 		$this->wpcom_is_site_specific_endpoint = true;
@@ -99,7 +103,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 */
 	public function get_items( $request ) {
 		if ( ! $this->is_wpcom ) {
-			return $this->proxy_request_to_wpcom( $request );
+			return $this->proxy_request_to_wpcom( $request, '', 'user', true );
 		}
 
 		if ( $request->get_param( 'force_year' ) ) {
@@ -125,7 +129,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 */
 	public function get_item( $request ) {
 		if ( ! $this->is_wpcom ) {
-			return $this->proxy_request_to_wpcom( $request, $request->get_param( 'id' ) );
+			return $this->proxy_request_to_wpcom( $request, $request->get_param( 'id' ), 'user', true );
 		}
 
 		if ( $request->get_param( 'force_year' ) ) {
@@ -330,12 +334,18 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	/**
 	 * Return true if the post is in "Bloganuary"
 	 *
-	 * @param string $post_date_gmt Post date in GMT.
-	 * @return bool True if the post is in "Bloganuary".
+	 * @param string $post_date_gmt Unused - Post date in GMT.
+	 * @return bool Always returns false as Bloganuary is disabled.
 	 */
-	protected function is_in_bloganuary( $post_date_gmt ) {
-		$post_month = gmdate( 'm', strtotime( $post_date_gmt ) );
-		return $post_month === '01';
+	protected function is_in_bloganuary( $post_date_gmt ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		/*
+		Disable for January 2025 and beyond (see https://wp.me/p5uIfZ-gxX).
+			Previously, this method would check if the post was published in January:
+			- Extract month from post_date_gmt -- $post_month = gmdate( 'm', strtotime( $post_date_gmt ) );
+			- Return true if month was '01' -- return $post_month === '01';
+		*/
+		return false;
 	}
 
 	/**
@@ -522,39 +532,6 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			__( 'Sorry, you are not allowed to access blogging prompts on this site.', 'jetpack' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
-	}
-
-	/**
-	 * Proxy request to wpcom servers for the site and user.
-	 *
-	 * @param  WP_Rest_Request $request Request to proxy.
-	 * @param  string          $path    Path to append to the rest base.
-	 * @return mixed|WP_Error           Response from wpcom servers or an error.
-	 */
-	public function proxy_request_to_wpcom( $request, $path = '' ) {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
-		$path    = '/sites/' . rawurldecode( $blog_id ) . '/' . rawurldecode( $this->rest_base ) . ( $path ? '/' . rawurldecode( $path ) : '' );
-		$api_url = add_query_arg( $request->get_query_params(), $path );
-
-		// Prefer request as user, if possible. Fall back to blog request to show prompt data for unconnected users.
-		$response = ( new Manager() )->is_user_connected()
-			? Client::wpcom_json_api_request_as_user( $api_url, '3', array(), null, 'wpcom' )
-			: Client::wpcom_json_api_request_as_blog( $api_url, 'v3', array(), null, 'wpcom' );
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		$response_status = wp_remote_retrieve_response_code( $response );
-		$response_body   = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( $response_status >= 400 ) {
-			$code    = isset( $response_body['code'] ) ? $response_body['code'] : 'unknown_error';
-			$message = isset( $response_body['message'] ) ? $response_body['message'] : __( 'An unknown error occurred.', 'jetpack' );
-			return new WP_Error( $code, $message, array( 'status' => $response_status ) );
-		}
-
-		return $response_body;
 	}
 
 	/**

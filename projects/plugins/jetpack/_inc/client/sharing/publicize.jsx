@@ -1,22 +1,18 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	ConnectionManagement,
-	RefreshJetpackSocialSettingsWrapper,
-} from '@automattic/jetpack-publicize-components';
-import { createInterpolateElement } from '@wordpress/element';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
+import { Component } from 'react';
 import Card from 'components/card';
-import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import React, { Component } from 'react';
-import './style.scss';
-import { FormFieldset } from '../components/forms';
-import SocialImageGeneratorSection from './features/social-image-generator-section';
+import { FEATURE_JETPACK_SOCIAL } from '../lib/plans/constants';
 
+/**
+ * Publicize module settings.
+ */
 export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
 		trackClickConfigure() {
@@ -24,14 +20,6 @@ export const Publicize = withModuleSettingsFormHelpers(
 				target: 'configure-publicize',
 				page: 'sharing',
 			} );
-		}
-
-		componentDidUpdate() {
-			const isActive = this.props.getOptionValue( 'publicize' );
-			// Reload the page if Publicize is enabled.
-			if ( isActive && ! window.Initial_State.socialInitialState.is_publicize_enabled ) {
-				window.location.reload();
-			}
 		}
 
 		render() {
@@ -42,52 +30,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 				return null;
 			}
 
-			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'publicize' ),
-				isLinked = this.props.isLinked,
-				isOfflineMode = this.props.isOfflineMode,
-				siteRawUrl = this.props.siteRawUrl,
-				blogID = this.props.blogID,
-				siteAdminUrl = this.props.siteAdminUrl,
-				hasPaidFeatures = this.props.hasPaidFeatures,
-				hasSocialImageGenerator = this.props.hasSocialImageGenerator,
-				isAtomicSite = this.props.isAtomicSite,
-				activeFeatures = this.props.activeFeatures,
-				useAdminUiV1 = this.props.useAdminUiV1;
-
-			const showUpgradeLink =
-				! isAtomicSite &&
-				activeFeatures &&
-				activeFeatures.length > 0 &&
-				isActive &&
-				! hasPaidFeatures &&
-				isLinked;
-
-			const shouldShowChildElements = isActive && ! this.props.isSavingAnyOption( 'publicize' );
-
-			// We need to strip off the trailing slash for the pricing modal to open correctly.
-			const redirectUrl = encodeURIComponent( siteAdminUrl.replace( /\/$/, '' ) );
-			const configCard = () => {
-				if ( unavailableInOfflineMode ) {
-					return;
-				}
-
-				return (
-					isLinked && (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							onClick={ this.trackClickConfigure }
-							target="_blank"
-							rel="noopener noreferrer"
-							href={ getRedirectUrl( 'calypso-marketing-connections', {
-								site: blogID ?? siteRawUrl,
-							} ) }
-						>
-							{ __( 'Connect your social media accounts', 'jetpack' ) }
-						</Card>
-					)
-				);
-			};
+			const isLinked = this.props.isLinked,
+				isOfflineMode = this.props.isOfflineMode;
 
 			return (
 				<SettingsCard
@@ -95,85 +39,50 @@ export const Publicize = withModuleSettingsFormHelpers(
 					header={ _x( 'Jetpack Social', 'Settings header', 'jetpack' ) }
 					module="publicize"
 					hideButton
+					feature={ FEATURE_JETPACK_SOCIAL }
+					isDisabled={ isOfflineMode || ! isLinked }
 				>
-					{ userCanManageModules && (
-						<SettingsGroup
-							hasChild
-							disableInOfflineMode
-							disableInSiteConnectionMode
-							module={ { module: 'publicize' } }
-							support={ {
-								text: __(
-									'Allows you to automatically share your newest content on social media sites, including Facebook and LinkedIn.',
-									'jetpack'
-								),
-								link: getRedirectUrl( 'jetpack-support-publicize' ),
-							} }
+					<SettingsGroup
+						hasChild
+						disableInOfflineMode
+						disableInSiteConnectionMode
+						module={ { module: 'publicize' } }
+						support={ {
+							text: __(
+								'Allows you to automatically share your newest content on social media sites, including Facebook and LinkedIn.',
+								'jetpack'
+							),
+							link: getRedirectUrl( 'jetpack-support-publicize' ),
+						} }
+					>
+						<p>
+							{ __(
+								'Enable Jetpack Social and connect your social accounts to automatically share your content with your followers with a single click. When you publish a post, you will be able to share it on all connected accounts.',
+								'jetpack'
+							) }
+						</p>
+
+						<ModuleToggle
+							slug="publicize"
+							disabled={ isOfflineMode || ! isLinked || ! userCanManageModules }
+							activated={ isActive }
+							toggling={ this.props.isSavingAnyOption( 'publicize' ) }
+							toggleModule={ this.props.toggleModuleNow }
 						>
-							<p>
-								{ __(
-									'Enable Jetpack Social and connect your social accounts to automatically share your content with your followers with a single click. When you publish a post, you will be able to share it on all connected accounts.',
-									'jetpack'
-								) }
-							</p>
-							{ showUpgradeLink ? (
-								<p>
-									{ createInterpolateElement(
-										__(
-											'<moreInfo>Upgrade to a Jetpack Social plan</moreInfo> to get advanced sharing options.',
-											'jetpack'
-										),
-										{
-											moreInfo: (
-												<a
-													href={ getRedirectUrl( 'jetpack-plugin-admin-page-sharings-screen', {
-														site: siteRawUrl,
-														query: 'redirect_to=' + redirectUrl,
-													} ) }
-												/>
-											),
-										}
-									) }
-								</p>
-							) : null }
-							<ModuleToggle
-								slug="publicize"
-								disabled={ unavailableInOfflineMode }
-								activated={ isActive }
-								toggling={ this.props.isSavingAnyOption( 'publicize' ) }
-								toggleModule={ this.props.toggleModuleNow }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
-								</span>
-							</ModuleToggle>
-							<RefreshJetpackSocialSettingsWrapper
-								shouldRefresh={ ! isActive && this.props.isSavingAnyOption( 'publicize' ) }
-							>
-								{ shouldShowChildElements && hasSocialImageGenerator && (
-									<SocialImageGeneratorSection />
-								) }
-								{ isActive &&
-								isLinked &&
-								useAdminUiV1 &&
-								! this.props.isSavingAnyOption( 'publicize' ) ? (
-									<FormFieldset className="jp-settings__connection-management">
-										<ConnectionManagement />
-									</FormFieldset>
-								) : null }
-							</RefreshJetpackSocialSettingsWrapper>
-						</SettingsGroup>
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
+							</span>
+						</ModuleToggle>
+					</SettingsGroup>
+					{ isActive && (
+						<Card
+							compact
+							onClick={ this.trackClickConfigure }
+							href={ getAdminUrl( 'admin.php?page=jetpack-social' ) }
+						>
+							{ __( 'Connect accounts and configure Social sharing', 'jetpack' ) }
+						</Card>
 					) }
-
-					{ ! isLinked && ! isOfflineMode && (
-						<ConnectUserBar
-							feature="publicize"
-							featureLabel={ __( 'Jetpack Social', 'jetpack' ) }
-							text={ __( 'Connect to add your social media accounts.', 'jetpack' ) }
-						/>
-					) }
-
-					{ isActive && ! useAdminUiV1 && configCard() }
 				</SettingsCard>
 			);
 		}

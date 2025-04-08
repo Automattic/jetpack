@@ -1,9 +1,9 @@
 import { _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import Button from 'components/button';
-import SelectDropdown from 'components/select-dropdown';
 import { isEmpty, forOwn, omit } from 'lodash';
 import React from 'react';
+import Button from 'components/button';
+import SelectDropdown from 'components/select-dropdown';
 
 export const FormFieldset = props => {
 	return (

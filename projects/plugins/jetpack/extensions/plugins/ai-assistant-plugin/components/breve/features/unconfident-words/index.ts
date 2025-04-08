@@ -5,8 +5,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { escapeRegExp } from '../../utils/escapeRegExp';
-import words from './words';
+import { escapeRegExp } from '../../utils/escape-regexp';
+import getFeatureData from '../../utils/get-feature-data';
 /**
  * Types
  */
@@ -20,11 +20,11 @@ export const UNCONFIDENT_WORDS: BreveFeatureConfig = {
 	defaultEnabled: true,
 };
 
-const list = new RegExp( `\\b(${ words.map( escapeRegExp ).join( '|' ) })\\b`, 'gi' );
-
 export default function unconfidentWords( blockText: string ): Array< HighlightedText > {
-	const matches = blockText.matchAll( list );
 	const highlightedTexts: Array< HighlightedText > = [];
+	const dictionary = getFeatureData( { feature: UNCONFIDENT_WORDS.name, language: 'en' } ) ?? [];
+	const list = new RegExp( `\\b(${ dictionary.map( escapeRegExp ).join( '|' ) })\\b`, 'gi' );
+	const matches = blockText.matchAll( list );
 
 	for ( const match of matches ) {
 		const text = match[ 0 ].trim();

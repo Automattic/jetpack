@@ -5,6 +5,246 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.62.5] - 2025-04-07
+### Changed
+- Update dependencies. [#42820]
+- Update package dependencies. [#42809]
+
+## [0.62.4] - 2025-03-31
+### Changed
+- Internal updates.
+
+## [0.62.3] - 2025-03-24
+### Fixed
+- Publicize: Update the Jetpack plugin version check. [#42649]
+
+## [0.62.2] - 2025-03-21
+### Added
+- Social: Add `wpcom/v2` endpoint for Social Image Generator token generation. [#42534]
+
+### Deprecated
+- Social: Deprecate `jetpack/v4` endpoint for Social Image Generator token. [#42574]
+
+### Fixed
+- Keyring Helper: Move initialization to pre_initialization to let it work even when Publicize is off. [#42604]
+- Social: Fix permission check for connection url. [#42572]
+
+## [0.62.1] - 2025-03-19
+### Changed
+- Update dependencies. [#42564]
+
+## [0.62.0] - 2025-03-18
+### Changed
+- Move the `jetpack-social` endpoint to the Publicize package. [#42187]
+- Update package dependencies. [#42511]
+
+### Fixed
+- Fix compatibility with older versions of Jetpack. [#42503]
+
+## [0.61.5] - 2025-03-17
+### Changed
+- Internal updates.
+
+## [0.61.4] - 2025-03-17
+### Changed
+- Improve scheduled-actions endpoint permission checks. [#42318]
+- Social: Change the query parameter to open Jetpack sidebar on editor load. [#42364]
+
+### Removed
+- Remove the useAdminUiV1 feature flag. [#42451]
+- Social: Connections schema: Remove the deprecated fields. [#42454]
+- Social: Removed the old unused initial state. [#42390]
+- Social: Remove unused scheduled-actions endpoint routes. [#42415]
+
+## [0.61.3] - 2025-03-12
+### Changed
+- Update package dependencies. [#42384]
+
+## [0.61.2] - 2025-03-10
+### Changed
+- Move share post endpoint from Jetpack to publicize package. [#42179]
+- Social: Move JS editor code from Jetpack and Social to Publicize package. [#41836]
+- Make scheduled-actions endpoint compatible with getEntityRecords. [#42283]
+
+### Fixed
+- Social: Fix stylesheets loaded on the front-end when not needed. [#42289]
+- Social: Fix the share date schema for scheduled actions endpoint. [#42244]
+
+## [0.61.1] - 2025-03-03
+### Added
+- Move publicize/scheduled-actions enpoint from WPCOM to publicize. [#42136]
+
+### Changed
+- Social: Improve connect URL generation. [#42019]
+- Update package dependencies. [#42163]
+
+### Deprecated
+- Deprecate jetpack/v4 connection endpoints. [#41911]
+
+### Fixed
+- Social: Fix PHP warnings on WPCOM. [#42107]
+- Social: Fix Social post UI not showing connections. [#42095]
+
+## [0.61.0] - 2025-02-24
+### Added
+- Social: Update the admin page for use by Editors and Authors. [#41859]
+
+### Changed
+- Script data: Extract less host information. [#41890]
+- Social: Use new connections class for share status. [#41905]
+- Update the connections schema for classic editor. [#41778]
+- Update Keyring_Helper class and enable publicize services caching [#41460]
+
+### Removed
+- Remove the deprecated "dismiss notice" functionality. [#41987]
+
+### Fixed
+- Code: Prevent dynamic class properties. [#41857]
+- Fix social connection toggle. [#41912]
+
+## [0.60.1] - 2025-02-17
+### Changed
+- Internal updates.
+
+## [0.60.0] - 2025-02-11
+### Changed
+- Register social/settings endpoint only if Jetpack version does not have it. [#41596]
+- Use social admin for connections URL. [#41541]
+
+## [0.59.1] - 2025-02-10
+### Changed
+- Update package dependencies. [#41491]
+
+## [0.59.0] - 2025-02-03
+### Added
+- Enable Social Post UI for WordPress.com. [#41219]
+
+### Changed
+- Move Social admin page code and assets logic to publicize package. [#41239]
+- Move initial state from Social plugin to publicize package. [#41381]
+- Phan: Update baselines. [#41263]
+- Move Social settings endpoint to publicize package. [#41456]
+- Use feature flag for Social admin page. [#41413]
+- Update package dependencies. [#41286]
+- Update the settings endpoint to use existing endpoints. [#41461]
+- Use Admin_Menu::remove_menu to handle old Social menu item. [#41422]
+
+### Fixed
+- Fix the default value for UTM settings schema. [#41386]
+- Fix connections cache when WordPress.com API call fails. [#41392]
+- Fix the API calls on WordPress.com for options. [#41420]
+
+## [0.58.0] - 2025-01-27
+### Changed
+- Refactored Social Note settings to use core. [#41153]
+- Unify connections management API schema. [#40679]
+- Use feature flag for share status data. [#41218]
+
+### Fixed
+- Fix profile links for LinkedIn connections. [#40873]
+- Fix editor invalid parameters error for old Jetpack versions. [#41199]
+- Fix feature check for social connections list initial state. [#40679]
+
+## [0.57.4] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- License: Social admin page header hides license link on WoA sites. [#41076]
+- Updated package dependencies. [#41099]
+
+### Fixed
+- Social Disable caching for publicize services list to avoid stale nonces [#41149]
+- Social | Fixed the status field for connections to allow null [#41114]
+
+## [0.57.3] - 2025-01-14
+### Fixed
+- Social: Fix failure on post save with LinkedIn connection enabled. [#41000]
+
+## [0.57.2] - 2025-01-13
+### Added
+- Publicize: Allow filtering of connections in publicize rest endpoint. [#40914]
+
+### Changed
+- Update connections post field rest endpoint to use the updated schema. [#40916]
+
+## [0.57.1] - 2024-12-30
+### Fixed
+- Social: Ensure that broken connection notices work fine on WoA sites. [#40732]
+
+## [0.57.0] - 2024-12-23
+### Changed
+- Move wpcom/v2/publicize/connections endpoint to publicize package. [#40607]
+- Script data: Don't call service endpoint on WP.com. [#40596]
+
+## [0.56.5] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## [0.56.4] - 2024-12-09
+### Changed
+- Updated package dependencies. [#40363]
+
+## [0.56.3] - 2024-12-02
+### Changed
+- Made resharing async in classic editor to fix timeout issues. [#40302]
+
+## [0.56.2] - 2024-11-26
+### Fixed
+- Fix undefined index error on Atomic sites. [#40337]
+
+## [0.56.1] - 2024-11-25
+### Added
+- Add initial post share status to the initial state. [#40301]
+
+### Changed
+- Updated package dependencies. [#40286] [#40288]
+
+### Fixed
+- Fix initial state error in the editor for Simple sites. [#40319]
+- Fix page-detection util methods to stop unnecessary API calls to WordPress.com. [#40311]
+- Fix call to undefined method on WordPress.com. [#40328]
+
+## [0.56.0] - 2024-11-18
+### Added
+- Add a new toggle for UTM tracking. [#39998]
+
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [0.55.2] - 2024-11-11
+### Changed
+- Social: Migrated social plugins settings to new script data. [#40032] [#40081]
+- Updated package dependencies. [#39999]
+
+## [0.55.1] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Changed
+- Social: Migrated Social Image Generator settings to new store [#39904]
+
+## [0.55.0] - 2024-10-25
+### Fixed
+- Social: Fix Bsky profile URL [#39849]
+
+## [0.54.4] - 2024-10-21
+### Changed
+- Initial State: Migrated URLs to script data. [#39797]
+
+### Fixed
+- Fixed the site features for Simple sites. [#39817]
+
+## [0.54.3] - 2024-10-14
+### Changed
+- Updated package dependencies. [#39707]
+
+## [0.54.2] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [0.54.1] - 2024-10-02
+### Fixed
+- Social: Fixed Bluesky not showing up on page load [#39597]
+
 ## [0.54.0] - 2024-09-23
 ### Added
 - Added tracking for the resharing action [#39408]
@@ -717,6 +957,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.62.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.4...v0.62.5
+[0.62.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.3...v0.62.4
+[0.62.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.2...v0.62.3
+[0.62.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.1...v0.62.2
+[0.62.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.0...v0.62.1
+[0.62.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.5...v0.62.0
+[0.61.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.4...v0.61.5
+[0.61.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.3...v0.61.4
+[0.61.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.2...v0.61.3
+[0.61.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.1...v0.61.2
+[0.61.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.0...v0.61.1
+[0.61.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.60.1...v0.61.0
+[0.60.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.60.0...v0.60.1
+[0.60.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.59.1...v0.60.0
+[0.59.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.59.0...v0.59.1
+[0.59.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.58.0...v0.59.0
+[0.58.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.4...v0.58.0
+[0.57.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.3...v0.57.4
+[0.57.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.2...v0.57.3
+[0.57.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.1...v0.57.2
+[0.57.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.57.0...v0.57.1
+[0.57.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.5...v0.57.0
+[0.56.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.4...v0.56.5
+[0.56.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.3...v0.56.4
+[0.56.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.2...v0.56.3
+[0.56.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.1...v0.56.2
+[0.56.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.0...v0.56.1
+[0.56.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.55.2...v0.56.0
+[0.55.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.55.1...v0.55.2
+[0.55.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.55.0...v0.55.1
+[0.55.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.4...v0.55.0
+[0.54.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.3...v0.54.4
+[0.54.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.2...v0.54.3
+[0.54.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.1...v0.54.2
+[0.54.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.0...v0.54.1
 [0.54.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.53.0...v0.54.0
 [0.53.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.3...v0.53.0
 [0.52.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.2...v0.52.3

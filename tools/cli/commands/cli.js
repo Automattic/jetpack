@@ -47,6 +47,8 @@ function cliLink( options ) {
 						[
 							{
 								title: chalkJetpackGreen( `Enabling global access to the CLI` ),
+								// Theoretically we shouldn't need the --global as of v10.0, but there was a bug until 10.5.
+								// It shouldn't hurt to leave this.
 								task: () => command( 'pnpm link --global', options.v, path.resolve( 'tools/cli' ) ),
 							},
 						],
@@ -87,7 +89,9 @@ function cliUnlink( options ) {
 						[
 							{
 								title: chalkJetpackGreen( `Removing global access to the CLI` ),
-								task: () => command( 'pnpm unlink', options.v, path.resolve( 'tools/cli' ) ),
+								// In theory unlink should work, but it doesn't (and there are dozens of issues related
+								// to link/unlink in the pnpm repo. This works well.
+								task: () => command( 'pnpm uninstall --global jetpack-cli', options.v ),
 							},
 						],
 						opts
@@ -132,6 +136,12 @@ export function cliDefine( yargs ) {
 				'Symlink the CLI for global use or development.',
 				() => {},
 				argv => {
+					if ( process.env.JETPACK_MONOREPO_ENV ) {
+						console.log(
+							chalk.yellow( 'CLI linking is not needed within the monorepo container.' )
+						);
+						return;
+					}
 					cliLink( argv );
 					if ( argv.v ) {
 						console.log( argv );
@@ -143,6 +153,12 @@ export function cliDefine( yargs ) {
 				'Unlink the CLI.',
 				() => {},
 				argv => {
+					if ( process.env.JETPACK_MONOREPO_ENV ) {
+						console.log(
+							chalk.yellow( 'CLI unlinking is not needed within the monorepo container.' )
+						);
+						return;
+					}
 					cliUnlink( argv );
 					if ( argv.v ) {
 						console.log( argv );

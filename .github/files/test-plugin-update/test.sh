@@ -14,19 +14,17 @@ for ZIP in *-dev.zip; do
 done
 
 FINISHED=false
-OUTPUT=()
 
 function onexit {
 	if ! "$FINISHED"; then
-		OUTPUT+=( "💣 The testing script exited unexpectedly." )
+		echo "💣 The testing script exited unexpectedly." >> "$GITHUB_STEP_SUMMARY"
 	fi
-	gh_set_output info "$( printf "%s\n" "${OUTPUT[@]}" )"
 }
 trap "onexit" EXIT
 
 function failed {
 	ERRMSG="$1"
-	OUTPUT+=( "❌ $ERRMSG" )
+	echo "❌ $ERRMSG" >> "$GITHUB_STEP_SUMMARY"
 	FAILED=1
 	EXIT=1
 }
@@ -143,7 +141,7 @@ for SLUG in "${SLUGS[@]}"; do
 			wp --allow-root --quiet option delete fake_plugin_update_url
 
 			if [[ -z "$FAILED" ]]; then
-				OUTPUT+=( "✅ Upgrade of $SLUG from $FROM via $HOW succeeded!" )
+				echo "✅ Upgrade of $SLUG from $FROM via $HOW succeeded!" >> "$GITHUB_STEP_SUMMARY"
 			fi
 		done
 	done

@@ -37,9 +37,10 @@ type SuggestedTagsProps = {
 /**
  * Display the suggested tags.
  *
- * @param props - The props of the component.
+ * @param  props - The props of the component.
+ * @return {JSX.Element} The SuggestedTags component.
  */
-function SuggestedTags( props: SuggestedTagsProps ) {
+function SuggestedTags( props: SuggestedTagsProps ): JSX.Element {
 	const localeSlug = useLocale();
 	const { id: postId, meta: postMeta } = useSelect(
 		select => ( select( 'core/editor' ) as CoreEditorPlaceholder ).getCurrentPost(),
@@ -107,6 +108,8 @@ function SuggestedTags( props: SuggestedTagsProps ) {
 			value={ selectedTags }
 			onChange={ onChangeSelectedTags }
 			label={ __( 'Tags', 'jetpack-mu-wpcom' ) }
+			__next40pxDefaultSize={ true }
+			__nextHasNoMarginBottom={ true }
 		/>
 	);
 

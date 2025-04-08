@@ -65,7 +65,7 @@ const CRMPluginData = ( { jetpackCRM, setAttributes } ) => {
 
 const CRMIntegrationSettings = ( { jetpackCRM, setAttributes } ) => {
 	return (
-		<BaseControl>
+		<BaseControl __nextHasNoMarginBottom={ true }>
 			<CRMPluginData jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
 		</BaseControl>
 	);

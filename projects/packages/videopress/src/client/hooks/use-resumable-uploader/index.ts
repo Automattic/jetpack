@@ -13,7 +13,6 @@ import type React from 'react';
 
 const debug = debugFactory( 'videopress:use-resumable-uploader' );
 
-// eslint-disable-next-line no-shadow
 type UploadingStatusProp = 'idle' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
 
 type UploadingDataProps = {

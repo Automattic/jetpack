@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/require-description */
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -7,7 +8,7 @@
  *
  * Date: 12/03/2019
  */
-
+/* global zeroBSCRMJS_genericLoaded, jpcrm, ucwords, zbscrm_JS_bindFieldValidators */
 // This file centralises all settings pages JS
 // WH started moving inline into here 12/3/19
 // ... starting with custom fields.
@@ -29,9 +30,7 @@ jQuery( function () {
  *
  */
 function zeroBSCRM_settingsPage_bindCustomFields() {
-	console.log( '======== CUSTOM FIELDS EDITOR =============' );
-
-	var cust_field_tables = [
+	const cust_field_tables = [
 		'addresses',
 		'customers',
 		'customersfiles',
@@ -42,19 +41,19 @@ function zeroBSCRM_settingsPage_bindCustomFields() {
 	];
 
 	// build init
-	for ( var i = 0; i < cust_field_tables.length; i++ ) {
-		let table_name = cust_field_tables[ i ];
+	for ( let i = 0; i < cust_field_tables.length; i++ ) {
+		const table_name = cust_field_tables[ i ];
 		if ( typeof window.wpzbscrmCustomFields[ table_name ] !== 'undefined' ) {
 			// cycle
 			jQuery.each( window.wpzbscrmCustomFields[ table_name ], function ( ind, ele ) {
-				if ( table_name == 'customersfiles' ) {
+				if ( table_name === 'customersfiles' ) {
 					zbscrmJS_customFields_buildLineFiles( 'customersfiles', ele[ 0 ] );
 				} else {
 					zbscrmJS_customFields_buildLineV3( table_name, ele );
 				}
 			} );
 			jQuery( '#zbscrm-addcustomfield-' + table_name ).on( 'click', function () {
-				if ( table_name == 'customersfiles' ) {
+				if ( table_name === 'customersfiles' ) {
 					zbscrmJS_customFields_buildLineFiles( table_name, '' );
 				} else {
 					zbscrmJS_customFields_buildLine( table_name, 'text', '', '' );
@@ -76,30 +75,30 @@ function zeroBSCRM_settingsPage_bindCustomFields() {
 // ... if DAL3+, all go out as per unpacked custom fields, with slugs :)
 // .. this uses zbs_root.dal to distinguish
 /**
- * @param key
- * @param ele
+ * @param {string} key - Custom field category.
+ * @param {Array}  ele - Custom field meta.
  */
 function zbscrmJS_customFields_buildLineV3( key, ele ) {
-	var dal = 1; // assume
+	let dal = 1; // assume
 	if ( typeof window.zbs_root.dal !== 'undefined' ) {
 		dal = parseInt( window.zbs_root.dal );
 	}
 
 	// this is a lazy sidestep. for the sake of "contacts", it's DAL3 whatever, if it's here.
 	// # LEGACY stuff.
-	if ( key == 'customers' ) {
+	if ( key === 'customers' ) {
 		dal = 3;
 	}
 
 	switch ( dal ) {
-		case 3:
-			var placeholder = ele[ 2 ];
-			if ( ele[ 0 ] == 'select' && ele[ 2 ] == '' && typeof ele[ 3 ] === 'object' ) {
+		case 3: {
+			let placeholder = ele[ 2 ];
+			if ( ele[ 0 ] === 'select' && ! ele[ 2 ] && typeof ele[ 3 ] === 'object' ) {
 				// this implodes the cf select array, because since DAL2 we store as array, not CSV
 				placeholder = ele[ 3 ].join();
 			}
 
-			var slug = '';
+			let slug = '';
 			if ( typeof ele[ 3 ] !== 'undefined' ) {
 				slug = ele[ 3 ];
 			}
@@ -108,6 +107,7 @@ function zbscrmJS_customFields_buildLineV3( key, ele ) {
 			zbscrmJS_customFields_buildLine( key, ele[ 0 ], ele[ 1 ], placeholder, slug );
 
 			break;
+		}
 
 		default:
 			zbscrmJS_customFields_buildLine( key, ele[ 0 ], ele[ 1 ], ele[ 2 ] );
@@ -116,18 +116,17 @@ function zbscrmJS_customFields_buildLineV3( key, ele ) {
 	}
 }
 
-// filebox specific:
-// ignores everything except name :)
 /**
- * @param area
- * @param namestr
+ * filebox specific: ignores everything except name :)
+ * @param {string} area    - Custom field category.
+ * @param {string} namestr - Custom field name.
  */
 function zbscrmJS_customFields_buildLineFiles( area, namestr ) {
 	if ( typeof namestr === 'undefined' ) {
 		namestr = zeroBSCRMJS_settingsLang( 'customfield', 'Custom Field' );
 	}
 
-	var html = '<tr class="zbscrm-cf"><td class="">';
+	let html = '<tr class="zbscrm-cf"><td class="">';
 	html +=
 		'<input type="text" class="form-control" name="wpzbscrm_cf[' +
 		area +
@@ -154,25 +153,19 @@ function zbscrmJS_customFields_buildLineFiles( area, namestr ) {
 
 // area = customers, quotes, invoices
 /**
- * @param area
- * @param typestr
- * @param namestr
- * @param placeholder
- * @param slug
+ * @param {string} area        - Custom field category.
+ * @param {string} typestr     - Custom field type.
+ * @param {string} namestr     - Custom field name.
+ * @param {string} placeholder - Custom field placeholder.
+ * @param {string} slug        - Custom field slug.
  */
-function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder, slug ) {
+function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder = '', slug = '' ) {
 	//if (typeof area == "undefined") area = 'customer';
 	if ( typeof typestr === 'undefined' ) {
 		typestr = 'text';
 	}
 	if ( typeof namestr === 'undefined' ) {
 		namestr = zeroBSCRMJS_settingsLang( 'customfield', 'Custom Field' );
-	}
-	if ( typeof placeholder === 'undefined' ) {
-		placeholder = '';
-	}
-	if ( typeof slug === 'undefined' ) {
-		slug = '';
 	}
 
 	/*
@@ -189,7 +182,7 @@ function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder, s
 	//'text','textarea','date','select','tel','price','numberfloat','numberint','email',
 	// select, radio, checkbox
 	// ^^ need all this except those below hidden
-	var html = '<tr class="zbscrm-cf"><td class="zbscrm-cf-n">';
+	let html = '<tr class="zbscrm-cf"><td class="zbscrm-cf-n">';
 	html +=
 		'<input type="text" class="form-control" name="wpzbscrm_cf[' +
 		area +
@@ -208,6 +201,7 @@ function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder, s
 		zeroBSCRMJS_settingsLang( 'fieldtype', 'Field Type:' ) +
 		'</label>';
 	// help link - shown for autonumber - not WL peeps
+	// eslint-disable-next-line eqeqeq
 	if ( typeof window.zbs_root.wl !== 'undefined' && window.zbs_root.wl != 1 ) {
 		html +=
 			'<a href="' +
@@ -218,7 +212,7 @@ function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder, s
 	}
 
 	// from 2.99.9.10 don't allow the CHANGING of custom field types after initial set
-	if ( namestr == '' && placeholder == '' && slug == '' ) {
+	if ( ! namestr && ! placeholder && ! slug ) {
 		// new addition
 		html += zbscrmJS_customFields_buildSelect( area, typestr );
 	} else {
@@ -230,7 +224,14 @@ function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder, s
 	html += '<div class="zbscrm-cf-settings-wrap">';
 	html += '<div class="zbs-placeholder-text"></div>';
 
-	html += '<input type="text" class="form-control zbs-generic-hide zbs-generic" name="wpzbscrm_cf[' + area + '][placeholder][]" value="' + jpcrm.esc_attr( placeholder ) + '" placeholder="' + zeroBSCRMJS_settingsLang('fieldplacehold','Field Placeholder Text') + '" />';
+	html +=
+		'<input type="text" class="form-control zbs-generic-hide zbs-generic" name="wpzbscrm_cf[' +
+		area +
+		'][placeholder][]" value="' +
+		jpcrm.esc_attr( placeholder ) +
+		'" placeholder="' +
+		zeroBSCRMJS_settingsLang( 'fieldplacehold', 'Field Placeholder Text' ) +
+		'" />';
 
 	// encrypted (only shows if )
 	// Removed encrypted (for now), see JIRA-ZBS-738
@@ -240,12 +241,12 @@ function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder, s
 	// autonumber (only shows if )
 
 	// for autonumbers, break placeholder str into autoslots :)
-	var autonumberPrefix = '',
+	let autonumberPrefix = '',
 		autonumberNumb = 1,
 		autonumberSuffix = '';
-	if ( typestr == 'autonumber' && typeof placeholder !== 'undefined' && placeholder !== '' ) {
-		var autoNumberArray = placeholder.split( '#' );
-		if ( autoNumberArray.length == 3 ) {
+	if ( typestr === 'autonumber' && typeof placeholder !== 'undefined' && placeholder !== '' ) {
+		const autoNumberArray = placeholder.split( '#' );
+		if ( autoNumberArray.length === 3 ) {
 			autonumberPrefix = autoNumberArray[ 0 ];
 			autonumberNumb = autoNumberArray[ 1 ];
 			autonumberSuffix = autoNumberArray[ 2 ];
@@ -320,43 +321,44 @@ function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder, s
 }
 
 /**
- * @param area
- * @param typestr
+ * @param {string} area    - Custom field category.
+ * @param {string} typestr - Custom field type.
+ * @return {string} - HTML string for custom field select.
  */
 function zbscrmJS_customFields_buildSelect( area, typestr ) {
-	var selectHTML =
+	let selectHTML =
 		'<select class="form-control zbscrm-customtype" name="wpzbscrm_cf[' +
 		area +
 		'][type][]" id="wpzbscrm_cf[' +
 		area +
 		'][type][]">';
 	jQuery.each( window.wpzbscrmAcceptableTypes, function ( ind, ele ) {
-		var show = true;
+		const show = true;
 		// for v2.98.5 only allow autonumber for contacts
 		// 3+ add to other objects, but needs them to go through the "buildFields()" func in the PHP
 		// DAL3 + allow for all: if (area != 'customers' && ele == 'autonumber') show = false;
 
 		// add?
 		if ( show ) {
-			var eleStr = ucwords( ele );
-			if ( eleStr == 'Tel' ) {
+			let eleStr = ucwords( ele );
+			if ( eleStr === 'Tel' ) {
 				eleStr = zeroBSCRMJS_settingsLang( 'tel', 'Telephone' );
 			}
-			if ( eleStr == 'Numberfloat' ) {
+			if ( eleStr === 'Numberfloat' ) {
 				eleStr = zeroBSCRMJS_settingsLang( 'numbdec', 'Numeric (Decimals)' );
 			}
-			if ( eleStr == 'Numberint' ) {
+			if ( eleStr === 'Numberint' ) {
 				eleStr = zeroBSCRMJS_settingsLang( 'numb', 'Numeric' );
 			}
-			if ( eleStr == 'Encrypted' ) {
+			if ( eleStr === 'Encrypted' ) {
 				eleStr = zeroBSCRMJS_settingsLang( 'encryptedtext', 'Encrypted' );
 			}
-			if ( eleStr == 'Radio' ) {
+			if ( eleStr === 'Radio' ) {
 				eleStr = zeroBSCRMJS_settingsLang( 'radiobuttons', 'Radio Buttons' );
 			}
 
 			selectHTML += '<option value="' + ele + '"';
-			if ( ele == typestr ) {
+			if ( ele === typestr ) {
 				selectHTML += ' selected="selected"';
 			}
 			selectHTML += '>' + eleStr + '</option>';
@@ -370,31 +372,32 @@ function zbscrmJS_customFields_buildSelect( area, typestr ) {
 
 // 2.99.9.10 existing custom fields cannot change type (zbscrmJS_customFields_buildNonSelect vs zbscrmJS_customFields_buildSelect)
 /**
- * @param area
- * @param typestr
+ * @param {string} area    - Custom field category.
+ * @param {string} typestr - Custom field type.
+ * @return {string} - HTML string for custom field input.
  */
 function zbscrmJS_customFields_buildNonSelect( area, typestr ) {
-	var html = '';
+	let html = '';
 
 	jQuery.each( window.wpzbscrmAcceptableTypes, function ( ind, ele ) {
-		var eleStr = ucwords( ele );
-		if ( eleStr == 'Tel' ) {
+		let eleStr = ucwords( ele );
+		if ( eleStr === 'Tel' ) {
 			eleStr = zeroBSCRMJS_settingsLang( 'tel', 'Telephone' );
 		}
-		if ( eleStr == 'Numberfloat' ) {
+		if ( eleStr === 'Numberfloat' ) {
 			eleStr = zeroBSCRMJS_settingsLang( 'numbdec', 'Numeric (Decimals)' );
 		}
-		if ( eleStr == 'Numberint' ) {
+		if ( eleStr === 'Numberint' ) {
 			eleStr = zeroBSCRMJS_settingsLang( 'numb', 'Numeric' );
 		}
-		if ( eleStr == 'Encrypted' ) {
+		if ( eleStr === 'Encrypted' ) {
 			eleStr = zeroBSCRMJS_settingsLang( 'encryptedtext', 'Encrypted' );
 		}
-		if ( eleStr == 'Radio' ) {
+		if ( eleStr === 'Radio' ) {
 			eleStr = zeroBSCRMJS_settingsLang( 'radiobuttons', 'Radio Buttons' );
 		}
 
-		if ( ele == typestr ) {
+		if ( ele === typestr ) {
 			html += '<div class="ui label blue">' + eleStr + '</div>';
 		}
 	} );
@@ -411,13 +414,13 @@ function zbscrmJS_customFields_buildNonSelect( area, typestr ) {
 	return html;
 }
 
-// fires after a row is built, and when a select is changed
 /**
- * @param ele
+ * Fires after a row is built, and when a select is changed
+ * @param {string} ele - Selector.
  */
 function zbscrmJS_customFields_updateRow( ele ) {
 	// get type str
-	var typestr = jQuery( 'select.zbscrm-customtype, input.zbscrm-customtype', ele ).val();
+	let typestr = jQuery( 'select.zbscrm-customtype, input.zbscrm-customtype', ele ).val();
 	if ( typeof typestr === 'undefined' ) {
 		typestr = 'text';
 	}
@@ -428,7 +431,7 @@ function zbscrmJS_customFields_updateRow( ele ) {
 	);
 
 	// hide/show if .zbs-cf-type-autonumber or .zbs-cf-type-autonumber-hide
-	if ( typestr == 'autonumber' || typestr == 'encrypted' ) {
+	if ( typestr === 'autonumber' || typestr === 'encrypted' ) {
 		// hide all
 		jQuery( '.zbs-generic-hide', jQuery( ele ) ).hide();
 
@@ -474,10 +477,11 @@ function zbscrmJS_customFields_bindRowControls() {
 }
 
 /**
- * @param typestr
+ * @param {string} typestr - Custom field type.
+ * @return {string} Placeholder string.
  */
 function zbscrmJS_customFieldTypePlaceholder( typestr ) {
-	placeholderstr = zeroBSCRMJS_settingsLang( 'placeholder', 'Placeholder' );
+	let placeholderstr = zeroBSCRMJS_settingsLang( 'placeholder', 'Placeholder' );
 
 	// PREP (language)
 	switch ( typestr ) {
@@ -509,16 +513,13 @@ function zbscrmJS_customFieldTypePlaceholder( typestr ) {
 // ====================== / Custom Fields
 // ========================================================================
 
-// passes language from window.wpzbscrm_settings_lang (js set in listview php)
 /**
- * @param key
- * @param fallback
+ * Passes language from window.wpzbscrm_settings_lang (js set in listview php).
+ * @param {string} key      - Key to look up language string.
+ * @param {string} fallback - Fallback string.
+ * @return {string}         - Language-aware string.
  */
-function zeroBSCRMJS_settingsLang( key, fallback ) {
-	if ( typeof fallback === 'undefined' ) {
-		var fallback = '';
-	}
-
+function zeroBSCRMJS_settingsLang( key, fallback = '' ) {
 	if ( typeof window.wpzbscrm_settings_lang[ key ] !== 'undefined' ) {
 		return window.wpzbscrm_settings_lang[ key ];
 	}
@@ -527,9 +528,16 @@ function zeroBSCRMJS_settingsLang( key, fallback ) {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zeroBSCRM_settingsPage_bindCustomFields, zbscrmJS_customFields_buildLineV3,
-	zbscrmJS_customFields_buildLineFiles, zbscrmJS_customFields_buildLine,
-	zbscrmJS_customFields_buildSelect, zbscrmJS_customFields_buildNonSelect,
-	zbscrmJS_customFields_updateRow, zbscrmJS_customFields_bindRowControls,
-	zbscrmJS_customFieldTypePlaceholder, zeroBSCRMJS_settingsLang };
-	}
+	module.exports = {
+		zeroBSCRM_settingsPage_bindCustomFields,
+		zbscrmJS_customFields_buildLineV3,
+		zbscrmJS_customFields_buildLineFiles,
+		zbscrmJS_customFields_buildLine,
+		zbscrmJS_customFields_buildSelect,
+		zbscrmJS_customFields_buildNonSelect,
+		zbscrmJS_customFields_updateRow,
+		zbscrmJS_customFields_bindRowControls,
+		zbscrmJS_customFieldTypePlaceholder,
+		zeroBSCRMJS_settingsLang,
+	};
+}

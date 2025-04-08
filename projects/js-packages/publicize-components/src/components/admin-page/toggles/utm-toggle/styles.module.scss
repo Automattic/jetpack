@@ -1,0 +1,11 @@
+.text {
+	grid-column: span 2;
+
+	a {
+		color: inherit;
+	}
+
+	@media ( min-width: 600px ) {
+		grid-column: 2;
+	}
+}

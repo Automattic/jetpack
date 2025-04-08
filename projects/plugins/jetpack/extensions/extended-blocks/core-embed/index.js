@@ -3,3 +3,4 @@ import './instagram';
 import './loom';
 import './smartframe';
 import './descript';
+import './videopress';

@@ -1,0 +1,24 @@
+@import '$css/main/variables.scss';
+
+.back-button {
+	text-decoration: none !important;
+	color: $gray_90;
+	line-height: 24px;
+
+	// Specify the global class for specificity so that it overrides the default styles.
+	&:global(.components-button) {
+		margin-bottom: 8px;
+	}
+	
+	span {
+		font-size: 14pt;
+		font-weight: 400;
+		display: inline-flex;
+		align-items: center;
+
+		svg {
+			margin: 4px 20px 2px 0;
+			height: 1.5rem;
+		}
+	}
+}

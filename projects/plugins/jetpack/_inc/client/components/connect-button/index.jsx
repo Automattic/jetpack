@@ -4,12 +4,13 @@ import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getFragment } from '@wordpress/url';
-import Button from 'components/button';
-import QuerySiteBenefits from 'components/data/query-site-benefits';
-import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import QuerySiteBenefits from 'components/data/query-site-benefits';
+import JetpackBanner from 'components/jetpack-banner';
+import analytics from 'lib/analytics';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
 	isDisconnectingSite as _isDisconnectingSite,
@@ -20,6 +21,7 @@ import {
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser,
 	isConnectingUser as _isConnectingUser,
+	isConnectionOwner,
 	fetchSiteConnectionStatus,
 	fetchConnectUrl,
 } from 'state/connection';
@@ -37,8 +39,9 @@ import {
 } from 'state/initial-state';
 import { getSiteBenefits } from 'state/site';
 import onKeyDownCallback from 'utils/onkeydown-callback';
-import './style.scss';
 import JetpackBenefits from '../jetpack-benefits';
+import OwnerDisconnectDialog from '../owner-disconnect-dialog';
+import './style.scss';
 
 export class ConnectButton extends React.Component {
 	static displayName = 'ConnectButton';
@@ -47,12 +50,14 @@ export class ConnectButton extends React.Component {
 		connectUser: PropTypes.bool,
 		from: PropTypes.string,
 		asLink: PropTypes.bool,
+		asBanner: PropTypes.bool,
 		connectLegend: PropTypes.string,
 		connectInPlace: PropTypes.bool,
 		customConnect: PropTypes.func,
 		autoOpenInDisconnectRoute: PropTypes.bool,
 		rna: PropTypes.bool,
 		compact: PropTypes.bool,
+		isConnectionOwner: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -63,6 +68,7 @@ export class ConnectButton extends React.Component {
 		autoOpenInDisconnectRoute: false,
 		rna: false,
 		compact: false,
+		isConnectionOwner: false,
 	};
 
 	constructor( props ) {
@@ -70,18 +76,30 @@ export class ConnectButton extends React.Component {
 		this.state = {
 			showModal:
 				props.autoOpenInDisconnectRoute && '#/disconnect' === getFragment( window.location.href ),
+			showOwnerDisconnectDialog: false,
 		};
 	}
 
 	handleOpenModal = e => {
+		if ( e ) {
+			e.preventDefault();
+		}
+
 		analytics.tracks.recordJetpackClick( 'manage_site_connection' );
-		e.preventDefault();
 		this.toggleVisibility();
 	};
 
+	handleUserDisconnectClick = () => {
+		if ( this.props.isConnectionOwner ) {
+			this.setState( { showOwnerDisconnectDialog: true } );
+		} else {
+			this.props.unlinkUser();
+		}
+	};
+
 	handleDisconnected = () => {
-		this.props.fetchConnectUrl();
-		this.props.fetchSiteConnectionStatus();
+		// Refresh the page or update UI state after successful disconnect
+		window.location.reload();
 	};
 
 	toggleVisibility = () => {
@@ -89,7 +107,9 @@ export class ConnectButton extends React.Component {
 	};
 
 	loadConnectionScreen = e => {
-		e.preventDefault();
+		if ( e ) {
+			e.preventDefault();
+		}
 		// If the iframe is already loaded or we don't have a connectUrl yet, return.
 		if ( this.props.isAuthorizing || this.props.fetchingConnectUrl ) {
 			return;
@@ -121,13 +141,42 @@ export class ConnectButton extends React.Component {
 						role="button"
 						tabIndex="0"
 						className="jp-jetpack-unlink__button"
-						onKeyDown={ onKeyDownCallback( this.props.unlinkUser ) }
-						onClick={ this.props.unlinkUser }
+						onKeyDown={ onKeyDownCallback( this.handleUserDisconnectClick ) }
+						onClick={ this.handleUserDisconnectClick }
 						disabled={ this.props.isUnlinking }
 					>
 						{ this.props.connectLegend || __( 'Disconnect your WordPress.com account', 'jetpack' ) }
 					</a>
+
+					{ this.props.isConnectionOwner && this.state.showOwnerDisconnectDialog && (
+						<OwnerDisconnectDialog
+							isOpen={ this.state.showOwnerDisconnectDialog }
+							onClose={ this.handleOwnerDialogClose }
+							apiRoot={ this.props.apiRoot }
+							apiNonce={ this.props.apiNonce }
+							onDisconnected={ this.handleDisconnected }
+							onUnlinked={ this.handleDisconnected }
+						/>
+					) }
 				</div>
+			);
+		}
+
+		if ( this.props.asBanner ) {
+			return (
+				<JetpackBanner
+					title={ __(
+						'Get the most out of Jetpack by connecting your WordPress.com account',
+						'jetpack'
+					) }
+					noIcon
+					callToAction={ __( 'Connect', 'jetpack' ) }
+					onClick={ this.loadConnectionScreen }
+					eventFeature="connect-account"
+					path="dashboard"
+					eventProps={ { type: 'connect' } }
+					isPromotion={ false }
+				/>
 			);
 		}
 
@@ -162,15 +211,16 @@ export class ConnectButton extends React.Component {
 
 		if ( this.props.isSiteConnected ) {
 			return (
-				<a
-					role="button"
-					tabIndex="0"
-					onKeyDown={ onKeyDownCallback( this.handleOpenModal ) }
+				<JetpackBanner
+					title={ __( 'Your site is connected to WordPress.com.', 'jetpack' ) }
+					noIcon
+					callToAction={ this.props.connectLegend || __( 'Manage', 'jetpack' ) }
 					onClick={ this.handleOpenModal }
-					disabled={ this.props.isDisconnecting }
-				>
-					{ this.props.connectLegend || __( 'Manage site connection', 'jetpack' ) }
-				</a>
+					eventFeature="manage-site-connection"
+					path="dashboard"
+					eventProps={ { type: 'manage' } }
+					isPromotion={ false }
+				/>
 			);
 		}
 
@@ -193,6 +243,10 @@ export class ConnectButton extends React.Component {
 		);
 	};
 
+	handleOwnerDialogClose = () => {
+		this.setState( { showOwnerDisconnectDialog: false } );
+	};
+
 	render() {
 		return (
 			<div>
@@ -201,7 +255,7 @@ export class ConnectButton extends React.Component {
 					<p className="jp-banner__tos-blurb">
 						{ createInterpolateElement(
 							__(
-								'By clicking the button below, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site‘s data</shareDetailsLink> with us.',
+								`By clicking the button below, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site's data</shareDetailsLink> with us.`,
 								'jetpack'
 							),
 							{
@@ -216,21 +270,23 @@ export class ConnectButton extends React.Component {
 					</p>
 				) }
 				{ this.renderContent() }
-				<DisconnectDialog
-					apiNonce={ this.props.apiNonce }
-					apiRoot={ this.props.apiRoot }
-					connectedPlugins={ this.props.connectedPlugins }
-					connectedUser={ {
-						ID: this.props.userWpComId,
-						login: this.props.userWpComLogin,
-					} }
-					connectedSiteId={ this.props.connectedSiteId }
-					disconnectStepComponent={ this.renderDisconnectStepComponent() }
-					onDisconnected={ this.handleDisconnected } // On disconnect, need to update the connection status in the app state.
-					isOpen={ this.state.showModal }
-					onClose={ this.toggleVisibility }
-					context={ 'jetpack' }
-				/>
+				{ ! this.state.showOwnerDisconnectDialog && (
+					<DisconnectDialog
+						apiNonce={ this.props.apiNonce }
+						apiRoot={ this.props.apiRoot }
+						connectedPlugins={ this.props.connectedPlugins }
+						connectedUser={ {
+							ID: this.props.userWpComId,
+							login: this.props.userWpComLogin,
+						} }
+						connectedSiteId={ this.props.connectedSiteId }
+						disconnectStepComponent={ this.renderDisconnectStepComponent() }
+						onDisconnected={ this.handleDisconnected }
+						isOpen={ this.state.showModal }
+						onClose={ this.toggleVisibility }
+						context={ 'jetpack' }
+					/>
+				) }
 			</div>
 		);
 	}
@@ -257,6 +313,7 @@ export default connect(
 			userWpComLogin: getUserWpComLogin( state ),
 			userWpComId: getUserWpComId( state ),
 			connectedSiteId: getSiteId( state ),
+			isConnectionOwner: isConnectionOwner( state ),
 		};
 	},
 	dispatch => {

@@ -1,11 +1,18 @@
 <?php
 // don't call the file directly
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die( 0 );
 
 class VaultPress_Database {
 
 	var $table = null;
 	var $pks = null;
+
+	/**
+	 * Table structure.
+	 *
+	 * @var ?object
+	 */
+	public $structure;
 
 	function __construct() {
 	}

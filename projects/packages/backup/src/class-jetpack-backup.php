@@ -9,15 +9,15 @@
 // order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
 // to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
 // are installed, or in some other cases).
-namespace Automattic\Jetpack\Backup\V0004;
+namespace Automattic\Jetpack\Backup\V0005;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Backup\V0004\Initial_State as Backup_Initial_State;
+use Automattic\Jetpack\Backup\V0005\Initial_State as Backup_Initial_State;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -119,15 +119,7 @@ class Jetpack_Backup {
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack VaultPress Backup', 'jetpack-backup-pkg' ),
-			_x( 'VaultPress Backup', 'The Jetpack VaultPress Backup product name, without the Jetpack prefix', 'jetpack-backup-pkg' ),
-			'manage_options',
-			'jetpack-backup',
-			array( __CLASS__, 'plugin_settings_page' ),
-			7
-		);
-		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
 
 		// Init Jetpack packages.
 		add_action(
@@ -162,6 +154,24 @@ class Jetpack_Backup {
 		 * @since 1.3.0
 		 */
 		do_action( 'jetpack_backup_initialized' );
+	}
+
+	/**
+	 * The page to be added to submenu
+	 */
+	public static function add_wp_admin_submenu() {
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'Jetpack VaultPress Backup', 'jetpack-backup-pkg' ),
+			_x( 'VaultPress Backup', 'The Jetpack VaultPress Backup product name, without the Jetpack prefix', 'jetpack-backup-pkg' ),
+			'manage_options',
+			'jetpack-backup',
+			array( __CLASS__, 'plugin_settings_page' ),
+			7
+		);
+
+		if ( $page_suffix ) {
+			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		}
 	}
 
 	/**
@@ -337,6 +347,17 @@ class Jetpack_Backup {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site_backup_size',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
+
+		// Get backup schedule time
+		register_rest_route(
+			'jetpack/v4',
+			'/site/backup/schedule',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_schedule_time',
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 			)
 		);
@@ -772,6 +793,31 @@ class Jetpack_Backup {
 			array(
 				'method' => 'POST',
 			),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		return rest_ensure_response(
+			json_decode( $response['body'], true )
+		);
+	}
+
+	/**
+	 * Get site backup schedule time
+	 *
+	 * @return string|WP_Error A JSON object with the backup schedule time if the request was successful, or a WP_Error otherwise.
+	 */
+	public static function get_site_backup_schedule_time() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/rewind/scheduled',
+			'v2',
+			array(),
 			null,
 			'wpcom'
 		);

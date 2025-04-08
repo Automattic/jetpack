@@ -109,6 +109,8 @@ const JetpackEmailConnectionSettings = ( {
 					'You can enter multiple email addresses separated by commas.',
 					'jetpack-forms'
 				) }
+				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 
 			<HelpMessage isError id={ `contact-form-${ instanceId }-email-error` }>
@@ -120,6 +122,8 @@ const JetpackEmailConnectionSettings = ( {
 				value={ emailSubject }
 				placeholder={ __( 'Enter a subject', 'jetpack-forms' ) }
 				onChange={ newSubject => setAttributes( { subject: newSubject } ) }
+				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 		</>
 	);

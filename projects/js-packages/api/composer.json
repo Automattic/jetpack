@@ -9,6 +9,9 @@
 	"scripts": {
 		"test-js": [
 			"pnpm run test"
+		],
+		"test-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [

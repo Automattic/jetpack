@@ -27,13 +27,21 @@ class SQL_Importer {
 			return new WP_Error( 'sql-file-not-exists', __( 'SQL file not exists', 'wpcomsh' ) );
 		}
 
+		$host = DB_HOST;
+		$port = '';
+		if ( preg_match( '/^(.+):(\d+)$/', $host, $m ) ) {
+			$host = $m[1];
+			$port = $m[2];
+		}
+
 		$output  = null;
 		$ret     = null;
 		$command = sprintf(
-			'mysql -u %s%s -h %s %s%s < %s',
+			'mysql -u %s%s -h %s%s %s%s < %s',
 			escapeshellarg( DB_USER ),
 			DB_PASSWORD === '' ? '' : ' -p' . escapeshellarg( DB_PASSWORD ),
-			escapeshellarg( DB_HOST ),
+			escapeshellarg( $host ),
+			$port === '' ? '' : ' --port=' . escapeshellarg( $port ),
 			escapeshellarg( DB_NAME ),
 			$verbose ? '' : ' 2>&1',
 			escapeshellarg( $sql_file_path )

@@ -1,10 +1,10 @@
 import { getRedirectUrl, JetpackFooter, ThemeProvider } from '@automattic/jetpack-components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import DevCard from 'components/dev-card';
-import analytics from 'lib/analytics';
 import React from 'react';
 import { connect } from 'react-redux';
+import DevCard from 'components/dev-card';
+import analytics from 'lib/analytics';
 import { isInIdentityCrisis, getSiteConnectionStatus } from 'state/connection';
 import { canDisplayDevCard, enableDevCard, resetOptions } from 'state/dev-version';
 import {
@@ -149,6 +149,7 @@ export class Footer extends React.Component {
 							onAboutClick={ this.trackAboutClick }
 							onPrivacyClick={ this.trackPrivacyClick }
 							onTermsClick={ this.trackTermsClick }
+							useInternalLinks={ this.props.siteConnectionStatus }
 						/>
 					</div>
 					{ this.props.isDevVersion && this.props.displayDevCard && <DevCard /> }

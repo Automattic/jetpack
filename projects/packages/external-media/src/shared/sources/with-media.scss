@@ -1,0 +1,50 @@
+.jetpack-external-media-browser__modal--visually-hidden {
+	position: absolute !important;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+	clip: rect( 1px, 1px, 1px, 1px );
+	white-space: nowrap; /* added line */
+}
+
+/**
+* Media item container
+*/
+.jetpack-external-media-browser__modal {
+
+	.is-error {
+		margin-bottom: 1em;
+		margin-left: 0;
+		margin-right: 0;
+	}
+
+	.components-placeholder {
+		background-color: transparent;
+	}
+
+	.components-modal__content {
+		overflow: auto;
+		padding-bottom: 0;
+		width: 100%;
+	}
+}
+
+.jetpack-external-media-browser__modal--is-copying {
+	pointer-events: none;
+}
+
+.jetpack-external-media-browser__modal-content {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	overflow: auto;
+
+	.jetpack-external-media-browser__modal.is-full-screen & {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 76px;
+		bottom: 0;
+		padding: 4px 32px 0;
+	}
+}

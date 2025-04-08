@@ -5,10 +5,11 @@ import './wpcom-documentation-links.css';
 /**
  * Override Core documentation that has matching WordPress.com documentation.
  *
- * @param translation - string Translated text.
- * @param text        - string Original text.
+ * @param {string} translation - string Translated text.
+ * @param {string} text        - string Original text.
+ * @return {string} - The localized URL if a match is found, otherwise the original translation.
  */
-function overrideCoreDocumentationLinksToWpcom( translation: string, text: string ) {
+function overrideCoreDocumentationLinksToWpcom( translation: string, text: string ): string {
 	const documentLinksMap = {
 		/**
 		 * Excerpts
@@ -73,10 +74,11 @@ function overrideCoreDocumentationLinksToWpcom( translation: string, text: strin
 /**
  * Override Core documentation that doesn't have matching WordPress.com documentation.
  *
- * @param translation - string Translated text.
- * @param text        - string Original text.
+ * @param {string} translation - string Translated text.
+ * @param {string} text        - string Original text.
+ * @return {string} - Empty string for specific text, otherwise translated string.
  */
-function hideSimpleSiteTranslations( translation: string, text: string ) {
+function hideSimpleSiteTranslations( translation: string, text: string ): string {
 	switch ( text ) {
 		case 'https://wordpress.org/plugins/classic-widgets/':
 			return '';

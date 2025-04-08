@@ -1,4 +1,3 @@
-/* eslint-disable react/react-in-jsx-scope */
 import { action } from '@storybook/addon-actions';
 import React from 'react';
 import ConnectScreenVisual from '../visual';
@@ -11,7 +10,7 @@ export default {
 // Export additional stories using pre-defined values
 const Template = props => (
 	<ConnectScreenVisual { ...props }>
-		<p>Secure and speed up your site for free with Jetpack's powerful WordPress tools</p>
+		<p>Secure and speed up your site for free with Jetpack&apos;s powerful WordPress tools</p>
 
 		<ul>
 			<li>Speed up your site with optimized images</li>
@@ -52,5 +51,5 @@ Errored.args = {
 export const Footer = Template.bind( {} );
 Footer.args = {
 	...DefaultArgs,
-	footer: <div>Hi I'm a Footer</div>,
+	footer: <div>Hi I&apos;m a Footer</div>,
 };

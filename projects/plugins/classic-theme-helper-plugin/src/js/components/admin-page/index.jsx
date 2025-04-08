@@ -5,22 +5,21 @@ import {
 	Col,
 	PricingCard,
 } from '@automattic/jetpack-components';
-import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import { useSelect } from '@wordpress/data';
+import { ConnectScreenRequiredPlan } from '@automattic/jetpack-connection';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
+import shouldUseInternalLinks from '../../../../../../js-packages/shared-extension-utils/src/should-use-internal-links';
 import styles from './styles.module.scss';
 
 const Admin = () => {
-	const connectionStatus = useSelect(
-		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
-		[]
-	);
+	const { connectionStatus } = getScriptData()?.connection ?? {};
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack Classic Theme Helper Plugin', 'classic-theme-helper-plugin' ) }
+			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<AdminSectionHero>
 				{ showConnectionCard ? (

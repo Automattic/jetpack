@@ -30,6 +30,8 @@ export type Props = {
 	assetBaseUrl?: string;
 	// Whether to not require a user connection and just redirect after site connection
 	skipUserConnection?: boolean;
+	// Whether to skip the pricing page after the connection screen
+	skipPricingPage?: boolean;
 	// Additional page elements to show after the call to action
 	footer?: React.ReactNode;
 	// The logo to display at the top of the component
@@ -54,6 +56,7 @@ const ConnectScreen: React.FC< Props > = ( {
 	autoTrigger,
 	footer,
 	skipUserConnection,
+	skipPricingPage,
 	logo,
 } ) => {
 	const {
@@ -70,6 +73,7 @@ const ConnectScreen: React.FC< Props > = ( {
 		autoTrigger,
 		from,
 		skipUserConnection,
+		skipPricingPage,
 	} );
 
 	const displayButtonError = Boolean( registrationError );
@@ -79,11 +83,12 @@ const ConnectScreen: React.FC< Props > = ( {
 	return (
 		<ConnectScreenVisual
 			title={
-				title || __( 'Over 5 million WordPress sites are faster and more secure', 'jetpack' )
+				title ||
+				__( 'Over 5 million WordPress sites are faster and more secure', 'jetpack-connection-js' )
 			}
 			images={ images || [] }
 			assetBaseUrl={ assetBaseUrl }
-			buttonLabel={ buttonLabel || __( 'Set up Jetpack', 'jetpack' ) }
+			buttonLabel={ buttonLabel || __( 'Set up Jetpack', 'jetpack-connection-js' ) }
 			loadingLabel={ loadingLabel }
 			handleButtonClick={ handleRegisterSite }
 			displayButtonError={ displayButtonError }

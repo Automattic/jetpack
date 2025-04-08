@@ -17,11 +17,22 @@ export type SuggestionErrorCode =
 	| typeof ERROR_UNCLEAR_PROMPT
 	| typeof ERROR_RESPONSE;
 
+export const ROLE_SYSTEM = 'system' as const;
+export const ROLE_USER = 'user' as const;
+export const ROLE_ASSISTANT = 'assistant' as const;
+export const ROLE_JETPACK_AI = 'jetpack-ai' as const;
+
+export type RoleType =
+	| typeof ROLE_SYSTEM
+	| typeof ROLE_USER
+	| typeof ROLE_ASSISTANT
+	| typeof ROLE_JETPACK_AI;
+
 /*
  * Prompt types
  */
 export type PromptItemProps = {
-	role: 'system' | 'user' | 'assistant' | 'jetpack-ai';
+	role: RoleType;
 	content?: string;
 	context?: object;
 };
@@ -120,4 +131,47 @@ export interface BlockEditorStore {
 	selectors: {
 		[ key in keyof typeof BlockEditorSelectors ]: ( typeof BlockEditorSelectors )[ key ];
 	};
+}
+
+declare global {
+	interface Window {
+		translation?: {
+			canTranslate: ( options: {
+				sourceLanguage: string;
+				targetLanguage: string;
+			} ) => Promise< 'no' | 'yes' | string >;
+			createTranslator: ( options: {
+				sourceLanguage: string;
+				targetLanguage: string;
+			} ) => Promise< {
+				translate: ( text: string ) => Promise< string >;
+			} >;
+		};
+		ai?: {
+			languageDetector: {
+				create: () => Promise< {
+					detect: ( text: string ) => Promise<
+						{
+							detectedLanguage: string;
+							confidence: number;
+						}[]
+					>;
+				} >;
+			};
+			summarizer?: {
+				capabilities: () => Promise< {
+					available: 'no' | 'yes' | 'after-download';
+				} >;
+				create: ( options: {
+					sharedContext?: string;
+					type?: string;
+					format?: string;
+					length?: string;
+				} ) => Promise< {
+					ready: Promise< void >;
+					summarize: ( text: string, summarizeOptions?: { context?: string } ) => Promise< string >;
+				} >;
+			};
+		};
+	}
 }

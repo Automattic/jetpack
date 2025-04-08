@@ -16,6 +16,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
         margin: 0;
         padding: 0;
         width: 100%;
+
         h1, h2, h3, h4, h5, h6 {
             line-height: inherit;
         }
@@ -26,6 +27,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
     .zbs-timeline-item {
         padding-left: 40px;
         position: relative;
+
         &:last-child {
             padding-bottom: 0;
         }
@@ -48,12 +50,14 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
 
         color: #737373cf;
     }
+
     /*----- TIMELINE MARKER -----*/
 
     .zbs-timeline-marker {
         position: absolute;
         top: 0; bottom: 0; left: 0;
         width: 15px;
+
         &:before {
             background: $primary-color;
             border: 3px solid transparent;
@@ -67,6 +71,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
             transition: background 0.3s ease-in-out,
                     border 0.3s ease-in-out;
         }
+
         &:after {
             content: "";
             width: 3px;
@@ -75,10 +80,12 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
             position: absolute;
             top: 24px; bottom: 0; left: 6px;
         }
+
         .zbs-timeline-item:last-child &:after {
             content: none;
         }
     }
+
     .zbs-timeline-item:not(.period):hover .zbs-timeline-marker:before {
         // no hover effect
         //background: transparent;
@@ -114,6 +121,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
     .zbs-timeline-item-contd {
         padding-left: 40px;
         position: relative;
+
         &:last-child {
             padding-bottom: 0;
         }
@@ -129,6 +137,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
 	        position: absolute;
 	        top: 0; bottom: 0; left: 0;
 	        width: 15px;
+
 	        &:before {
 	        	// Modified SMALLER version of marker for subsequent timeline events in 1 day
 	            background: $primary-color;
@@ -144,6 +153,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
 	                    border 0.3s ease-in-out;
 	            z-index: 10000;
 	        }
+
 	        &:after {
 	            content: "";
 	            width: 3px;
@@ -152,10 +162,12 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
 	            position: absolute;
 	            top: 0; bottom: 0; left: 6px;
 	        }
+
 	        .zbs-timeline-item:last-child &:after {
 	            content: none;
 	        }
 	    }
+
 	    .zbs-timeline-item:not(.period):hover .zbs-timeline-marker:before {
 	        // no hover effect
 	        //background: transparent;
@@ -176,6 +188,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
 
     .zbs-timeline-content {
         padding-bottom: 40px;
+
         p:last-child {
             margin-bottom: 0;
         }
@@ -185,10 +198,13 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
     
     .period {
         padding: 0;
+
         .zbs-timeline-info {
             display: none;
         }
+
         .zbs-timeline-marker {
+
             &:before {
                 background: transparent;
                 content: "";
@@ -202,15 +218,18 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
                 border-top: 3px solid #CCD5DB;
                 border-bottom: 3px solid #CCD5DB;
             }
+
             &:after {
                 content: "";
                 height: 32px;
                 top: auto;
             }
         }
+
         .zbs-timeline-content {
             padding: 40px 0 70px;
         }
+
         .zbs-timeline-title {
             margin: 0;
         }
@@ -221,14 +240,18 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
     ----------------------------------------------*/
 
         .zbs-timeline-split {
+
             @media (min-width: 768px) {
+
                 .zbs-timeline {
                     display: table;
                 }
+
                 .zbs-timeline-item {
                     display: table-row;
                     padding: 0;
                 }
+
                 .zbs-timeline-info,
                 .zbs-timeline-marker,
                 .zbs-timeline-content,
@@ -236,15 +259,19 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
                     display: table-cell;
                     vertical-align: top;
                 }
+
                 .zbs-timeline-marker {
                     position: relative;
                 }
+
                 .zbs-timeline-content {
                     padding-left: 30px;
                 }
+
                 .zbs-timeline-info {
                     padding-right: 30px;
                 }
+
                 .period .zbs-timeline-title {
                     position: relative;
                     left: -45px;
@@ -257,8 +284,11 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
     ----------------------------------------------*/
 
         .zbs-timeline-centered {
+
             @extend .zbs-timeline-split;
+
             @media (min-width: 992px) {
+
                 &,
                 .zbs-timeline-item,
                 .zbs-timeline-info,
@@ -268,53 +298,64 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
                     margin: 0;
                     padding: 0;
                 }
+
                 .zbs-timeline-item {
                     padding-bottom: 40px;
                     overflow: hidden;
                 }
+
                 .zbs-timeline-marker {
                     position: absolute;
                     left: 50%;
                     margin-left: -7.5px;
                 }
+
                 .zbs-timeline-info,
                 .zbs-timeline-content {
                     width: 50%;
                 }
+
                 > .zbs-timeline-item:nth-child(odd) .zbs-timeline-info {
                     float: left;
                     text-align: right;
                     padding-right: 30px;
                 }
+
                 > .zbs-timeline-item:nth-child(odd) .zbs-timeline-content {
                     float: right;
                     text-align: left;
                     padding-left: 30px;
                 }    
+
                 > .zbs-timeline-item:nth-child(even) .zbs-timeline-info {
                     float: right;
                     text-align: left;
                     padding-left: 30px;
                 }
+
                 > .zbs-timeline-item:nth-child(even) .zbs-timeline-content {
                     float: left;
                     text-align: right;
                     padding-right: 30px;
                 }
+
                 > .zbs-timeline-item.period .zbs-timeline-content {
                     float: none;
                     padding: 0;
                     width: 100%;
                     text-align: center;
                 }
+
                 .zbs-timeline-item.period {
                     padding: 50px 0 90px;
                 }
+
                 .period .zbs-timeline-marker:after {
                     height: 30px;
                     bottom: 0;
                     top: auto;
                 }
+
                 .period .zbs-timeline-title {
                     left: auto;
                 }
@@ -326,12 +367,15 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
     ----------------------------------------------*/
         
         .marker-outline {
+
             .zbs-timeline-marker {
+
                 &:before {
                     background: transparent;
                     border-color: $primary-color;
                 }
             }
+
             .zbs-timeline-item:hover .zbs-timeline-marker:before {
                 background: $primary-color;
             }

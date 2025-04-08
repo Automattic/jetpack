@@ -6,10 +6,10 @@ import clsx from 'clsx';
 /*
  * Internal dependencies
  */
-import Text from '../text';
-import { Price } from './price';
+import Text from '../text/index.js';
+import { Price } from './price.js';
 import styles from './style.module.scss';
-import type { ProductPriceProps } from './types';
+import type { ProductPriceProps } from './types.js';
 import type React from 'react';
 
 /**
@@ -25,7 +25,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	showNotOffPrice = true,
 	hideDiscountLabel = true,
 	promoLabel = '',
-	legend = __( '/month, paid yearly', 'jetpack' ),
+	legend = __( '/month, paid yearly', 'jetpack-components' ),
 	isNotConvenientPrice = false,
 	hidePriceFraction = false,
 	children,
@@ -43,7 +43,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 
 	const showDiscountLabel = ! hideDiscountLabel && discount && discount > 0;
 
-	const discountElt = showDiscountLabel ? discount + __( '% off', 'jetpack' ) : null;
+	const discountElt = showDiscountLabel ? discount + __( '% off', 'jetpack-components' ) : null;
 
 	return (
 		<>
@@ -87,4 +87,4 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 };
 
 export default ProductPrice;
-export * from './price';
+export * from './price.js';

@@ -15,7 +15,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -37,20 +37,17 @@ add_action( 'init', 'zeroBS_api_rewrite_endpoint' );
  * Process the query and get page and items per page
  */
 function jpcrm_api_process_pagination() {
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended
+	$page     = isset( $_GET['page'] ) ? max( (int) $_GET['page'], 1 ) : 1;
+	$per_page = isset( $_GET['perpage'] ) ? max( (int) $_GET['perpage'], 1 ) : 10;
+	$order    = strtoupper( $_GET['order'] ?? '' ) === 'ASC' ? 'ASC' : 'DESC'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended	
 
-	if ( isset( $_GET['page'] ) && (int) $_GET['page'] >= 0 ) {
-		$page = (int) $_GET['page'];
-	} else {
-		$page = 0;
-	}
-
-	if ( isset( $_GET['perpage'] ) && (int) $_GET['perpage'] >= 0 ) {
-		$per_page = (int) $_GET['perpage'];
-	} else {
-		$per_page = 10;
-	}
-
-	return array( $page, $per_page );
+	return array(
+		'page'     => $page,
+		'per_page' => $per_page,
+		'order'    => $order,
+	);
 }
 
 /**
@@ -248,21 +245,7 @@ function zeroBSCRM_API_get_api_endpoint( $template_name, $args = array(), $tempa
 
 // function similar to is_user_logged_in()
 function jpcrm_is_api_request_authorised() {
-
-	// WH - I've added api_secret here to bolster security,
 	// We should switch authentication method to "headers" not parameters - will be cleaner :)
-
-	// unclear if we're still needing this...
-	// we are coming from GROOVE HQ - define in wp-config.php
-	if ( defined( 'GROOVE_API_TOKEN' ) && ! empty( $_GET['api_token'] ) ) {
-		if ( hash_equals( sanitize_text_field( $_GET['api_token'], GROOVE_API_TOKEN ) ) ) {
-			// and define that we've checked
-			if ( ! defined( 'ZBSGROOVECHECKED' ) ) {
-				define( 'ZBSGROOVECHECKED', time() );
-			}
-			return true;
-		}
-	}
 
 	// the the API key/secret are currently in the URL
 	$possible_api_key    = isset( $_GET['api_key'] ) ? sanitize_text_field( $_GET['api_key'] ) : '';

@@ -1,6 +1,6 @@
 window.jetpackModules = window.jetpackModules || {};
 
-window.jetpackModules.models = ( function( window, $, _, Backbone ) {
+window.jetpackModules.models = ( function ( window, $, _, Backbone ) {
 	'use strict';
 
 	var models = {};
@@ -12,31 +12,29 @@ window.jetpackModules.models = ( function( window, $, _, Backbone ) {
 		 * Updates modules.items dataset to be a reflection of both the current
 		 * modules.raw data, as well as any filters or sorting that may be in effect.
 		 */
-		filter_and_sort: function() {
+		filter_and_sort: function () {
 			var subsubsub = $( '.subsubsub .current a' ),
 				items = this.get( 'raw' ),
 				m_filter = $( '.button-group.filter-active .active' ),
 				m_sort = $( '.button-group.sort .active' ),
-				m_search = $( '#srch-term-search-input' )
-					.val()
-					.toLowerCase(),
+				m_search = $( '#srch-term-search-input' ).val().toLowerCase(),
 				groups;
 
 			// If a module filter has been selected, filter it!
 			if ( ! subsubsub.closest( 'li' ).hasClass( 'all' ) ) {
-				items = _.filter( items, function( item ) {
+				items = _.filter( items, function ( item ) {
 					return _.contains( item.module_tags, subsubsub.data( 'title' ) );
 				} );
 			}
 
 			if ( m_filter.data( 'filter-by' ) ) {
-				items = _.filter( items, function( item ) {
+				items = _.filter( items, function ( item ) {
 					return item[ m_filter.data( 'filter-by' ) ] === m_filter.data( 'filter-value' );
 				} );
 			}
 
 			if ( m_search.length ) {
-				items = _.filter( items, function( item ) {
+				items = _.filter( items, function ( item ) {
 					var search_text =
 						item.name +
 						' ' +
@@ -61,7 +59,7 @@ window.jetpackModules.models = ( function( window, $, _, Backbone ) {
 			// Sort unavailable modules to the end if the user is running in local mode.
 			groups = _.groupBy( items, 'available' );
 			if ( _.has( groups, 'false' ) ) {
-				items = [].concat( groups[ true ], groups[ false ] );
+				items = [].concat( groups.true, groups.false );
 			}
 
 			// Now shove it back in.
@@ -70,7 +68,7 @@ window.jetpackModules.models = ( function( window, $, _, Backbone ) {
 			return this;
 		},
 
-		initialize: function() {
+		initialize: function () {
 			var items = this.get( 'items' );
 			this.set( 'raw', items );
 		},

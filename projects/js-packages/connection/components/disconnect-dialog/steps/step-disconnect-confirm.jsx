@@ -23,7 +23,7 @@ const StepDisconnectConfirm = props => {
 			<div className="jp-connection__disconnect-dialog__step-copy jp-connection__disconnect-dialog__step-copy--narrow">
 				<h1>
 					{ createInterpolateElement(
-						__( 'Jetpack has been <br/>successfully disconnected.', 'jetpack' ),
+						__( 'Jetpack has been <br/>successfully disconnected.', 'jetpack-connection-js' ),
 						{
 							br: <br />,
 						}
@@ -35,7 +35,7 @@ const StepDisconnectConfirm = props => {
 						<p>
 							{ __(
 								'We’re sorry to see you go. Here at Jetpack, we’re always striving to provide the best experience for our customers. Please take our short survey (2 minutes, promise).',
-								'jetpack'
+								'jetpack-connection-js'
 							) }
 						</p>
 						<p>
@@ -44,7 +44,7 @@ const StepDisconnectConfirm = props => {
 								onClick={ onProvideFeedback }
 								className="jp-connection__disconnect-dialog__btn-back-to-wp"
 							>
-								{ __( 'Help us improve', 'jetpack' ) }
+								{ __( 'Help us improve', 'jetpack-connection-js' ) }
 							</Button>
 						</p>
 						<a
@@ -52,7 +52,7 @@ const StepDisconnectConfirm = props => {
 							href="#"
 							onClick={ onExit }
 						>
-							{ __( 'No thank you', 'jetpack' ) }
+							{ __( 'No thank you', 'jetpack-connection-js' ) }
 						</a>
 					</>
 				) }
@@ -65,7 +65,7 @@ const StepDisconnectConfirm = props => {
 								onClick={ onExit }
 								className="jp-connection__disconnect-dialog__btn-back-to-wp"
 							>
-								{ __( 'Back to my website', 'jetpack' ) }
+								{ __( 'Back to my website', 'jetpack-connection-js' ) }
 							</Button>
 						</p>
 					</>

@@ -9,13 +9,7 @@
  * Date: 12/07/2019
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
    // WIP return of all error codes as array
    // hard-typed for v3.0 - note Do not change these lightly, programattically relied upon (at minimum for v2-3 migration)
@@ -143,5 +137,4 @@
             ),
 
    		);
-
-   }
+}

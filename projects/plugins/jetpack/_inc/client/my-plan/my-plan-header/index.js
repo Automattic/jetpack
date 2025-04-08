@@ -1,9 +1,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { isInTheFuture } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { find, isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import { ProductActivated } from 'components/product-activated';
@@ -17,10 +20,6 @@ import {
 	JETPACK_BACKUP_PRODUCTS,
 	JETPACK_SCAN_PRODUCTS,
 } from 'lib/plans/constants';
-import { find, isEmpty } from 'lodash';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
 import {
 	getUpgradeUrl,
 	getDateFormat,
@@ -61,6 +60,7 @@ class MyPlanHeader extends React.Component {
 					// Add key because this goes to `details` as array.
 					key="product-expiration"
 					dateFormat={ dateFormat }
+					expiryStatus={ purchase.expiry_status }
 					expiryDate={ purchase.expiry_date }
 					purchaseDate={ purchase.subscribed_date }
 					isRefundable={ purchase.is_refundable }
@@ -71,7 +71,7 @@ class MyPlanHeader extends React.Component {
 			if ( purchase.active === '1' ) {
 				// Purchases might not have an expiration date, so we need to check
 				// for their existence (e.g.: lifetime plan like Golden Token).
-				if ( ! isInTheFuture( purchase.expiry_date ) && purchase.expiry_date !== null ) {
+				if ( purchase.expiry_status === 'expired' && purchase.expiry_date !== null ) {
 					activation = <ProductActivated key="product-expired" type="product-expired" />;
 				} else {
 					activation = (
@@ -483,6 +483,13 @@ class MyPlanHeader extends React.Component {
 						'jetpack'
 					),
 					title: __( 'Jetpack Creator', 'jetpack' ),
+				};
+			case 'is-jetpack-growth-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Grow your audience effortlessly', 'jetpack' ),
+					title: __( 'Jetpack Growth', 'jetpack' ),
 				};
 
 			default:

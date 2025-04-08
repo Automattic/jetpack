@@ -8,6 +8,7 @@ import { addQueryArgs } from '@wordpress/url';
  * a first party context ( allowing us to avoid third party cookie issues )
  */
 async function overridePreviewButtonUrl() {
+	// eslint-disable-next-line react-hooks/rules-of-hooks -- Not a React hook.
 	use( registry => {
 		return {
 			dispatch: store => {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
 	createHashRouter,
 	redirect,
@@ -6,7 +5,6 @@ import {
 	useLocation,
 	useParams,
 } from 'react-router-dom';
-import Upgrade from './pages/upgrade/upgrade';
 import Index from './pages/index';
 import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 import GettingStarted from './pages/getting-started/getting-started';
@@ -76,14 +74,6 @@ const useBoostRouter = () => {
 			element: (
 				<Tracks>
 					<ISAPage />
-				</Tracks>
-			),
-		},
-		{
-			path: '/upgrade',
-			element: (
-				<Tracks>
-					<Upgrade />
 				</Tracks>
 			),
 		},

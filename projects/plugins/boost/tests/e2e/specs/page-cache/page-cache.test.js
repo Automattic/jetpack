@@ -1,10 +1,9 @@
-import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { resolveSiteUrl } from '_jetpack-e2e-commons/helpers/utils-helper.js';
+import { PostFrontendPage } from '_jetpack-e2e-commons/pages/index.js';
+import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage, PermalinksPage } from '../../lib/pages/index.js';
-import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
-import { WPLoginPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 test.describe( 'Cache module', () => {
 	let page;
@@ -12,6 +11,7 @@ test.describe( 'Cache module', () => {
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page )
+			.withLoggedIn( true )
 			.withInactiveModules( [
 				'page_cache', // Make sure it's inactive.
 			] )
@@ -48,9 +48,9 @@ test.describe( 'Cache module', () => {
 	test( 'Page Cache header should not be present when module is inactive', async ( {
 		browser,
 	} ) => {
-		const newPage = await browser.newPage( playwrightConfig.use );
-		const postFrontPage = await PostFrontendPage.visit( newPage );
-		await postFrontPage.logout();
+		// Ensure default storageState is empty.
+		const newContext = await browser.newContext( { storageState: {} } );
+		const newPage = await newContext.newPage();
 
 		newPage.on( 'response', response => {
 			if ( response.url().replace( /\/$/, '' ) !== resolveSiteUrl().replace( /\/$/, '' ) ) {
@@ -66,13 +66,11 @@ test.describe( 'Cache module', () => {
 		await PostFrontendPage.visit( newPage );
 
 		await newPage.close();
+		await newContext.close();
 	} );
 
 	// Make sure there's an error message when trying to enable Page Cache with plain permalinks.
 	test( 'Enabling Page Cache should show error notice when plain permalinks are enabled', async () => {
-		const loginPage = await WPLoginPage.visit( page );
-		await loginPage.login();
-
 		const permalinksPage = await PermalinksPage.visit( page );
 		await permalinksPage.usePlainStructure();
 
@@ -103,9 +101,9 @@ test.describe( 'Cache module', () => {
 	test( 'Page Cache header should be present when module is active', async ( { browser } ) => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'page_cache' ] ).build();
 
-		const newPage = await browser.newPage( playwrightConfig.use );
-		const postFrontPage = await PostFrontendPage.visit( newPage );
-		await postFrontPage.logout();
+		// Ensure default storageState is empty.
+		const newContext = await browser.newContext( { storageState: {} } );
+		const newPage = await newContext.newPage();
 
 		let totalVisits = 0;
 
@@ -120,19 +118,16 @@ test.describe( 'Cache module', () => {
 			const cacheHeaderName = 'X-Jetpack-Boost-Cache'.toLowerCase();
 
 			// First visit should always be a miss.
-			if ( totalVisits === 1 ) {
-				expect(
-					Object.hasOwn( responseHeaders, cacheHeaderName ) &&
-						responseHeaders[ cacheHeaderName ] === 'miss',
-					'Page Cache header should be set to miss on first visit.'
-				).toBeTruthy();
-			} else {
-				expect(
-					Object.hasOwn( responseHeaders, cacheHeaderName ) &&
-						responseHeaders[ cacheHeaderName ] === 'hit',
-					'Page Cache header should be set to hit on second visit.'
-				).toBeTruthy();
-			}
+			const expectValue = totalVisits === 1 ? 'miss' : 'hit';
+			const expectMessage =
+				totalVisits === 1
+					? 'Page Cache header should be set to miss on first visit.'
+					: 'Page Cache header should be set to hit on second visit.';
+			expect(
+				Object.hasOwn( responseHeaders, cacheHeaderName ) &&
+					responseHeaders[ cacheHeaderName ] === expectValue,
+				expectMessage
+			).toBeTruthy();
 		} );
 
 		await PostFrontendPage.visit( newPage );
@@ -141,5 +136,6 @@ test.describe( 'Cache module', () => {
 		await PostFrontendPage.visit( newPage );
 
 		await newPage.close();
+		await newContext.close();
 	} );
 } );

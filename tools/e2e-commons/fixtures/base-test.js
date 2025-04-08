@@ -1,9 +1,9 @@
-import { test as baseTest } from '@playwright/test';
+import { test as baseTest } from '@wordpress/e2e-test-utils-playwright';
 import { allure } from 'allure-playwright';
 import config from 'config';
 import { execWpCommand } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
-export { expect } from '@playwright/test';
+export { expect } from '@wordpress/e2e-test-utils-playwright';
 
 const test = baseTest.extend( {
 	page: async ( { page }, use ) => {

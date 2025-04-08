@@ -2,14 +2,14 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
 import { getSettings } from 'state/settings';
 import { fetchTrackingSettings, updateTrackingSettings } from 'state/tracking/actions';
 import {

@@ -1,8 +1,8 @@
 /* eslint-disable testing-library/no-container */
 /* eslint-disable testing-library/no-node-access */
 import { render, screen } from '@testing-library/react';
-import BoostScoreBar from '..';
-import type { BoostScoreBarProps } from '../types';
+import BoostScoreBar from '../index.js';
+import type { BoostScoreBarProps } from '../types.js';
 
 describe( 'BoostScrollBar', () => {
 	const defaultProps: BoostScoreBarProps = {
@@ -18,14 +18,12 @@ describe( 'BoostScrollBar', () => {
 	it( 'renders the boost scroll bar when active is true', () => {
 		const { container } = render( <BoostScoreBar { ...defaultProps } /> );
 
-		// eslint-disable-next-line testing-library/no-node-access
 		expect( container.firstChild ).toHaveAttribute( 'class', 'jb-score-bar jb-score-bar--desktop' );
 	} );
 
 	it( 'does not render the boost scroll bar when active is false', () => {
 		const { container } = render( <BoostScoreBar { ...defaultProps } active={ false } /> );
 
-		// eslint-disable-next-line testing-library/no-node-access
 		expect( container ).toBeEmptyDOMElement();
 	} );
 

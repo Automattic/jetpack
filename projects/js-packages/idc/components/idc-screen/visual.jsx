@@ -82,7 +82,7 @@ const IDCScreenVisual = props => {
 								em: <em />,
 								strong: <strong />,
 						  } )
-						: __( 'Safe Mode', 'jetpack' ) }
+						: __( 'Safe Mode', 'jetpack-idc' ) }
 				</div>
 			</div>
 
@@ -95,7 +95,7 @@ const IDCScreenVisual = props => {
 
 IDCScreenVisual.propTypes = {
 	/** The screen logo, Jetpack by default. */
-	logo: PropTypes.object,
+	logo: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ),
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
 	/** The original site URL. */

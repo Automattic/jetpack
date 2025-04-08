@@ -1,9 +1,9 @@
-import { signal, effect, batch, computed } from '@preact/signals';
+import { effect, batch, useSignal, useComputed } from '@preact/signals';
 import clsx from 'clsx';
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useContext } from 'preact/hooks';
 import { translate } from '../../i18n';
 import { Name, Website, Email } from '../../images';
-import { mailLoginData, isMailFormInvalid, shouldStoreEmailData } from '../../state';
+import { VerbumSignals } from '../../state';
 import { getUserInfoCookie, isAuthRequired } from '../../utils';
 import { NewCommentEmail } from '../new-comment-email';
 import { NewPostsEmail } from '../new-posts-email';
@@ -15,32 +15,34 @@ interface EmailFormProps {
 	shouldShowEmailForm: boolean;
 }
 
-const isValidEmail = signal( true );
-const isEmailTouched = signal( false );
-const isNameTouched = signal( false );
-const isValidAuthor = signal( true );
-const userEmail = computed( () => mailLoginData.value.email || '' );
-const userName = computed( () => mailLoginData.value.author || '' );
-const userUrl = computed( () => mailLoginData.value.url || '' );
-
-const validateFormData = () => {
-	const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-	batch( () => {
-		isValidEmail.value =
-			Boolean( userEmail.value ) && Boolean( emailRegex.test( userEmail.value ) );
-		isValidAuthor.value = Boolean( userName.value.length > 0 );
-	} );
-};
-
-const setFormData = ( event: ChangeEvent< HTMLInputElement > ) => {
-	mailLoginData.value = {
-		...mailLoginData.peek(),
-		[ event.currentTarget.name ]: event.currentTarget.value,
-	};
-	validateFormData();
-};
-
 export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
+	const { mailLoginData, isMailFormInvalid, shouldStoreEmailData } = useContext( VerbumSignals );
+
+	const isValidEmail = useSignal( true );
+	const isEmailTouched = useSignal( false );
+	const isNameTouched = useSignal( false );
+	const isValidAuthor = useSignal( true );
+	const userEmail = useComputed( () => mailLoginData.value.email || '' );
+	const userName = useComputed( () => mailLoginData.value.author || '' );
+	const userUrl = useComputed( () => mailLoginData.value.url || '' );
+
+	const validateFormData = () => {
+		const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+		batch( () => {
+			isValidEmail.value =
+				Boolean( userEmail.value ) && Boolean( emailRegex.test( userEmail.value ) );
+			isValidAuthor.value = Boolean( userName.value.length > 0 );
+		} );
+	};
+
+	const setFormData = ( event: ChangeEvent< HTMLInputElement > ) => {
+		mailLoginData.value = {
+			...mailLoginData.peek(),
+			[ event.currentTarget.name ]: event.currentTarget.value,
+		};
+		validateFormData();
+	};
+
 	const { subscribeToComment, subscribeToBlog } = VerbumComments;
 	const [ emailNewComment, setEmailNewComment ] = useState( false );
 	const [ emailNewPosts, setEmailNewPosts ] = useState( false );
@@ -84,10 +86,10 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 			{ shouldShowEmailForm && (
 				<div className="verbum-form__wrapper">
 					<div className="verbum-form__content">
-						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869 */ }
-						<label className="verbum__label">
+						<label htmlFor="verbum-email-form-email" className="verbum__label">
 							<Email />
 							<input
+								id="verbum-email-form-email"
 								className={ clsx( 'verbum-form__email', {
 									'invalid-form-data': isValidEmail.value === false && isEmailTouched.value,
 								} ) }
@@ -108,10 +110,10 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 							/>
 						</label>
 
-						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869 */ }
-						<label className="verbum__label">
+						<label htmlFor="verbum-email-form-name" className="verbum__label">
 							<Name />
 							<input
+								id="verbum-email-form-name"
 								className={ clsx( 'verbum-form__name', {
 									'invalid-form-data': isValidAuthor.value === false && isNameTouched.value,
 								} ) }
@@ -130,10 +132,10 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 							/>
 						</label>
 
-						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869 */ }
-						<label className="verbum__label">
+						<label htmlFor="verbum-email-form-website" className="verbum__label">
 							<Website />
 							<input
+								id="verbum-email-form-website"
 								className="verbum-form__website"
 								type="text"
 								spellCheck={ false }
@@ -178,6 +180,9 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 									<input type="hidden" name="delivery_frequency" value={ deliveryFrequency } />
 									<input type="hidden" name="sub-type" value="verbum-subscription-toggle" />
 								</>
+							) }
+							{ shouldStoreEmailData.value && (
+								<input type="hidden" name="wp-comment-cookies-consent" value="1" />
 							) }
 						</div>
 					</div>

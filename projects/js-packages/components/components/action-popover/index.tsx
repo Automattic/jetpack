@@ -4,18 +4,18 @@
 import { Popover } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import Button from '../button';
-import useBreakpointMatch from '../layout/use-breakpoint-match';
-import Text from '../text';
+import Button from '../button/index.js';
+import useBreakpointMatch from '../layout/use-breakpoint-match/index.js';
+import Text from '../text/index.js';
 /**
  * Internal dependencies
  */
-import ThemeProvider from '../theme-provider';
+import ThemeProvider from '../theme-provider/index.js';
 import styles from './styles.module.scss';
 /**
  * Types
  */
-import { ActionPopoverProps } from './types';
+import { ActionPopoverProps } from './types.js';
 import type React from 'react';
 
 const ActionPopover = ( {
@@ -54,7 +54,7 @@ const ActionPopover = ( {
 	if ( showSteps ) {
 		stepsText = sprintf(
 			/* translators: 1 Current step, 2 Total steps */
-			__( '%1$d of %2$d', 'jetpack' ),
+			__( '%1$d of %2$d', 'jetpack-components' ),
 			step,
 			totalSteps
 		);

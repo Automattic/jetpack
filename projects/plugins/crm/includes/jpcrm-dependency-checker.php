@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * 
@@ -40,7 +40,7 @@ class JPCRM_DependencyChecker {
 		}
 		global $zbs;
 		$this->all_plugins = get_plugins();
-		$this->core_ver    = $zbs->version ?? '';
+		$this->core_ver    = $zbs::VERSION ?? '';
 		$this->dal_ver     = $zbs->dal_version ?? '';
 	}
 

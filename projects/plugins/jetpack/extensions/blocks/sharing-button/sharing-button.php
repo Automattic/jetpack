@@ -202,7 +202,11 @@ function sharing_process_requests() {
 		}
 	}
 }
-add_action( 'template_redirect', __NAMESPACE__ . '\sharing_process_requests', 9 );
+
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking for the data being present.
+if ( isset( $_GET['share'] ) ) {
+	add_action( 'template_redirect', __NAMESPACE__ . '\sharing_process_requests', 9 );
+}
 
 /**
  * Automatically add the Sharing Buttons block to the end of the Single Posts template.

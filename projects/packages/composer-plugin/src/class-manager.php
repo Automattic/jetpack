@@ -33,7 +33,6 @@ class Manager extends LibraryInstaller {
 	 *
 	 * @param string $package_type a package type string.
 	 * @return boolean whether the package is supported.
-	 * @phan-suppress PhanParamSignatureRealMismatchHasNoParamType -- contravariant params are ok, and needed to continue to support Composer <2.3.
 	 */
 	public function supports( $package_type ) {
 		return 'jetpack-library' === $package_type;

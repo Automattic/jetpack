@@ -1,13 +1,13 @@
 /** @ssr-ready **/
 
 import clsx from 'clsx';
+import { filter, find, findIndex, map, result } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
 import Count from 'components/count';
 import DropdownItem from 'components/select-dropdown/item';
 import DropdownLabel from 'components/select-dropdown/label';
 import DropdownSeparator from 'components/select-dropdown/separator';
-import { filter, find, findIndex, map, result } from 'lodash';
-import PropTypes from 'prop-types';
-import React from 'react';
 
 import './style.scss';
 
@@ -312,7 +312,7 @@ class SelectDropdown extends Component {
 		if ( ! this.state.isOpen ) {
 			return this.openDropdown();
 		}
-		document.activeElement.click();
+		this.dropdownContainerRef.current.ownerDocument.activeElement.click();
 	}
 
 	focusSibling( direction ) {

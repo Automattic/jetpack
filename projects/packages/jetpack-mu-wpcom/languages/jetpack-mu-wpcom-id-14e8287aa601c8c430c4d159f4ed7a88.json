@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n > 1;",
+				"language": "id",
+				"project_id_version": "WordPress.com - jetpack-mu-wpcom"
+			},
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Kami telah mengadopsi tampilan utama %s WordPress untuk menghadirkan pengalaman yang lebih baik untuk Anda dan jutaan pengguna WordPress di seluruh dunia."
+			],
+			"The %s view just got better": [ "Tampilan %s kini lebih baik" ],
+			"Got it": [ "Berhasil!" ]
+		}
+	}
+}

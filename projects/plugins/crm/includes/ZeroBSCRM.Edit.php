@@ -9,13 +9,7 @@
  * Date: 26/02/18
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 class zeroBSCRM_Edit{
 
@@ -74,7 +68,7 @@ class zeroBSCRM_Edit{
         global $zbs;
 
         // we load from DAL defaults, if objTypeID passed (overriding anything passed, if empty/false)
-        if (isset($this->objTypeID)){ //$zbs->isDAL3() && 
+		if ( isset( $this->objTypeID ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
             $objTypeID = (int)$this->objTypeID;
             if ($objTypeID > 0){
@@ -96,9 +90,6 @@ class zeroBSCRM_Edit{
                 if ((!isset($this->listViewSlug) || $this->listViewSlug == false) && !empty($objSlug)) $this->listViewSlug = $objSlug;
 
             }
-
-            //echo 'loading from '.$this->objTypeID.':<pre>'.print_r(array($objTypeStr,$objSingular,$objPlural,$objSlug),1).'</pre>'; exit();
-
         } else $this->isNewRecord = true;
 
         // if objid - load $post

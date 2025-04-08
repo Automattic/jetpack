@@ -99,7 +99,7 @@ class Scan_Helper {
 		global $wp_filesystem;
 
 		if ( ! $this->has_credentials() ) {
-			die;
+			die( 0 );
 		}
 
 		return $wp_filesystem->get_contents_array( $file_path );
@@ -114,7 +114,7 @@ class Scan_Helper {
 		global $wp_filesystem;
 
 		if ( ! $this->has_credentials() ) {
-			die;
+			die( 0 );
 		}
 
 		return $wp_filesystem->get_contents( $file_path );
@@ -129,7 +129,7 @@ class Scan_Helper {
 		global $wp_filesystem;
 
 		if ( ! $this->has_credentials() ) {
-			die;
+			die( 0 );
 		}
 
 		return $wp_filesystem->exists( $file_path );
@@ -145,7 +145,7 @@ class Scan_Helper {
 		global $wp_filesystem;
 
 		if ( ! $this->has_credentials() ) {
-			die;
+			die( 0 );
 		}
 
 		// Create parent directory of the file if it does not already exist
@@ -166,7 +166,7 @@ class Scan_Helper {
 		global $wp_filesystem;
 
 		if ( ! $this->has_credentials() ) {
-			die;
+			die( 0 );
 		}
 
 		return $wp_filesystem->delete( $file, true );
@@ -431,7 +431,7 @@ class Scan_Helper {
 	 */
 	private function generate_infected_file_threat() {
 		$content = "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;";
-		if ( ! $this->write_file( $this->threats['infected_file'], $content, FILE_APPEND ) ) {
+		if ( ! $this->write_file( $this->threats['infected_file'], $content ) ) {
 			return new WP_Error( 'could-not-write', "Unable to write threat from {$this->threats['infected_file']}" );
 		}
 
@@ -581,14 +581,8 @@ class Scan_Helper {
 	 * @return string|WP_Error Success message on success, WP_Error object on failure.
 	 */
 	private function generate_fuzzy_hash_threat() {
-		$content = base64_decode(
-			'PEZpbGVzTWF0Y2ggIi4ocHl8ZXhlfHBocCkkIj4KIE9yZGVyIGFsbG93LGRlbnkKIERlbnkgZnJvbSBhbGwKPC9GaWxlc01hdG' .
-			'NoPgo8RmlsZXNNYXRjaCAiXihhYm91dC5waHB8cmFkaW8ucGhwfGluZGV4LnBocHxjb250ZW50LnBocHxsb2NrMzYwLnBocCkkIj4KIE' .
-			'9yZGVyIGFsbG93LGRlbnkKIEFsbG93IGZyb20gYWxsCjwvRmlsZXNNYXRjaD4KPElmTW9kdWxlIG1vZF9yZXdyaXRlLmM+ClJld3JpdG' .
-			'VFbmdpbmUgT24KUmV3cml0ZUJhc2UgLwpSZXdyaXRlUnVsZSBeaW5kZXhcLnBocCQgLSBbTF0KUmV3cml0ZUNvbmQgJXtSRVFVRVNUX0' .
-			'ZJTEVOQU1FfSAhLWYKUmV3cml0ZUNvbmQgJXtSRVFVRVNUX0ZJTEVOQU1FfSAhLWQKUmV3cml0ZVJ1bGUgLiAvaW5kZXgucGhwIFtMXQ' .
-			'o8L0lmTW9kdWxlPg=='
-		);
+		// We need at least 4 kilobyte, 201 * 20 = 4020 bytes
+		$content = str_repeat( 'JETPACK-TEST-THREAT-', 201 );
 
 		if ( ! $this->write_file( $this->threats['fuzzy_hash_file'], $content ) ) {
 			return new WP_Error( 'could-not-write', "Unable to write threat to {$this->threats['fuzzy_hash_file']}" );

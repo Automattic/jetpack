@@ -9,13 +9,7 @@
  * Date: 09/01/2017
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -69,11 +63,8 @@ function zeroBSCRM_mailTemplate_emailPreview($templateID=-1){
 			$replacements['email'] = 'your.user@email.com';
 			$replacements['login-url'] = site_url('clients/login');
 
-
-			//echo 'rep:<pre>'.print_r($replacements,1).'</pre>'; exit();
-	        // replace vars
-	        $html = $placeholder_templating->replace_placeholders( array( 'global', 'contact' ), $html, $replacements );
-
+			// replace vars
+			$html = $placeholder_templating->replace_placeholders( array( 'global', 'contact' ), $html, $replacements );
 
 		}
 
@@ -291,7 +282,7 @@ function zeroBSCRM_preview_email_template(){
 
 	    	}
 
-			die();
+			die( 0 );
 
 		}
 	}
@@ -339,18 +330,6 @@ function zeroBSCRM_mail_retrieveDefaultBodyTemplate($template='maintemplate'){
 
 	return $templatedHTML;
 }
-
-// v2.98.6 - change default from /html/notifications/email-default/ to /html/templates/_responsivewrap.html
-// v4.5.0 - deprecated in favour of core variant
-function zeroBSCRM_mail_retrieveWrapTemplate( $template = 'default' ) {
-
-	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_mail_retrieveWrapTemplate was deprecated in v4.5.0, please use the core function retrieve_template' );
-
-	return '';
-
-}
-
-
 
 /* ======================================================
 	/ ZBS Templating - Load Initial HTML
@@ -465,7 +444,7 @@ function zeroBSCRM_quote_generateNotificationHTML( $quoteID = -1, $return = true
 			if ( !$return ) {
 
 				echo $html;
-				exit();
+				exit( 0 );
 
 			}
 
@@ -569,7 +548,7 @@ function zeroBSCRM_quote_generateAcceptNotifHTML( $quoteID = -1, $quoteSignedBy 
 			if ( !$return ) {
 
 				echo $html;
-				exit();
+				exit( 0 );
 
 			}
 
@@ -628,7 +607,7 @@ function zeroBSCRM_invoice_generateNotificationHTML( $invoiceID = -1, $return = 
 			if ( !$return ) {
 
 				echo $html;
-				exit();
+				exit( 0 );
 
 			}
 
@@ -698,7 +677,7 @@ function zeroBSCRM_statement_generateNotificationHTML( $contact_id = -1, $return
 			if ( !$return ) {
 
 				echo $html;
-				exit();
+				exit( 0 );
 
 			}
 
@@ -761,7 +740,7 @@ function zeroBSCRM_Portal_generateNotificationHTML( $pwd = -1, $return = true, $
 			if ( !$return ) {
 
 				echo $html;
-				exit();
+				exit( 0 );
 
 			}
 
@@ -813,7 +792,7 @@ function zeroBSCRM_Portal_generatePWresetNotificationHTML( $pwd, $return, $conta
 			if ( !$return ) {
 
 				echo $html;
-				exit();
+				exit( 0 );
 
 			}
 
@@ -900,7 +879,7 @@ function jpcrm_task_generate_notification_html( $return = true, $email = false, 
 		if ( !$return ) {
 
 			echo $html;
-			exit();
+			exit( 0 );
 
 		}
 	}
@@ -919,17 +898,6 @@ function jpcrm_task_generate_notification_html( $return = true, $email = false, 
 /* ======================================================
 	ZBS Single Send Emails - Generate HTML
    ====================================================== */
-
-/*
-* Deprecated, included to avoid Error 500's in outdated extensions
-*/
-function zeroBSCRM_mailTemplates_directMsg( $return = true, $content = '', $title = '' ) {
-
-	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_mailTemplates_directMsg was deprecated in 4.4.0, Please use jpcrm_mailTemplates_single_send_templated()' );
-
-	return jpcrm_mailTemplates_single_send_templated( $return, $content, $title );
-
-}
 
 /**
  * Creates the html of a single send email based on passed details
@@ -961,21 +929,15 @@ function jpcrm_mailTemplates_single_send_templated( $return=true, $content='', $
 
         // enact replacements
         $html = $placeholder_templating->replace_placeholders( array(  'global', 'contact', 'company' ), $html, $replacements, array( ZBS_TYPE_CONTACT => $contact_object ) );
-						
-        // return
-        if ( !$return ) {
-        
-        	echo $html;
-        	exit();
 
-        }
-
-    }  
-
-    return $html;
-
-
-} 
+		// return
+		if ( ! $return ) {
+			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			exit( 0 );
+		}
+	}
+	return $html;
+}
 /* ======================================================
 	/ ZBS Single Send Emails - Generate HTML
    ====================================================== */
@@ -1008,20 +970,15 @@ function jpcrm_mailTemplates_generic_msg($return=true, $content='', $title = '')
 
         // replacements
         $html = $placeholder_templating->replace_placeholders( array(  'global', 'contact', 'company' ), $html, $replacements );
-						
-        // return
-        if ( !$return ) {
-        
-        	echo $html;
-        	exit();
 
-        }
-
-    }  
-    return $html;
-
-
-} 
+		// return
+		if ( ! $return ) {
+			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			exit( 0 );
+		}
+	}
+	return $html;
+}
 /* ======================================================
 	/ ZBS Generic Emails - Generate HTML
    ====================================================== */
@@ -1073,20 +1030,14 @@ function jpcrm_mailTemplates_generic_msg($return=true, $content='', $title = '')
 		        // replacements
 		        $html = $placeholder_templating->replace_placeholders( array(  'global', 'contact', 'company' ), $html, $replacements );	     
 
-            // return
-            if ( !$return ) {
-            
-            	echo $html;
-            	exit();
-
-            }
-
-        }  
-
-        return $html;
-
-
-	} 
+		// return
+		if ( ! $return ) {
+			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			exit( 0 );
+		}
+	}
+	return $html;
+}
 
 
 /* ======================================================

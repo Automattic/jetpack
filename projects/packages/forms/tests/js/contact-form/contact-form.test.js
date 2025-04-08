@@ -2,6 +2,8 @@
  * @jest-environment jsdom
  */
 
+import userEvent from '@testing-library/user-event';
+// eslint-disable-next-line testing-library/no-dom-import -- Not actually React code.
 const { screen, fireEvent } = require( '@testing-library/dom' );
 
 /*
@@ -75,9 +77,15 @@ describe( 'Contact Form', () => {
 		beforeEach( () => {
 			setFormContent( `
 				<label for="name">Name</label>
-				<input id="name" name="name" required />
+				<input id="name" name="name">
 				<button type="submit">Submit</button>
 			` );
+			// Mock offsetParent for all elements
+			Object.defineProperty( HTMLElement.prototype, 'offsetParent', {
+				get() {
+					return {};
+				}, // Return a truthy value
+			} );
 			fireDomReadyEvent();
 		} );
 
@@ -99,7 +107,18 @@ describe( 'Contact Form', () => {
 			expect( spy ).toHaveBeenCalledTimes( 1 );
 		} );
 
-		it( "shouldn't submit an invalid form", () => {
+		it( "shouldn't submit form with missing required fields", () => {
+			const form = screen.getByRole( 'form' );
+			const input = screen.getByLabelText( 'Name' );
+			input.setAttribute( 'required', '' );
+			const spy = jest.spyOn( form, 'submit' ).mockImplementation( () => {} );
+
+			fireEvent.submit( form );
+
+			expect( spy ).not.toHaveBeenCalled();
+		} );
+
+		it( "shouldn't submit when all fields are empty", () => {
 			const form = screen.getByRole( 'form' );
 			const spy = jest.spyOn( form, 'submit' ).mockImplementation( () => {} );
 
@@ -107,5 +126,37 @@ describe( 'Contact Form', () => {
 
 			expect( spy ).not.toHaveBeenCalled();
 		} );
+	} );
+	// @see https://github.com/Automattic/jetpack/issues/41834.
+	it( 'should properly handle `select` elements when checking if a form is empty', async () => {
+		setFormContent( `
+			<div style="" class="grunion-field-select-wrap grunion-field-wrap">
+				<label for="g-name" class="grunion-field-label select">Name</label>
+				<div class="contact-form__select-wrapper">
+					<select data-testid="select-test" name="g-name" id="g-name" class="select  grunion-field">
+						<option value="">Select one option</option>
+						<option value="0">zero</option>
+						<option value="1">one</option>
+					</select>
+				</div>
+			</div>
+			<button type="submit">Submit</button>
+		` );
+		fireDomReadyEvent();
+
+		const form = screen.getByRole( 'form' );
+		const spy = jest.spyOn( form, 'submit' ).mockImplementation( () => {} );
+		fireEvent.submit( form );
+		expect( spy ).not.toHaveBeenCalled();
+
+		// Select a value.
+		await userEvent.selectOptions(
+			screen.getByRole( 'combobox' ),
+			screen.getByRole( 'option', { name: 'zero' } )
+		);
+		fireEvent.submit( form );
+		expect( spy ).toHaveBeenCalled();
+
+		jest.restoreAllMocks();
 	} );
 } );

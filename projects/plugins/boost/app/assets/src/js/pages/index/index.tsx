@@ -1,20 +1,24 @@
+import CornerstonePages from '$features/cornerstone-pages/cornerstone-pages';
+import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-css-meta';
+import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
+import { ImageCdnLiar, QualitySettings } from '$features/image-cdn';
+import ImageGuide from '$features/image-guide/image-guide';
+import { RecommendationsMeta } from '$features/image-size-analysis';
+import MinifyCss from '$features/minify-css/minify-css';
+import MinifyJs from '$features/minify-js/minify-js';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
-import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
-import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
+import PageCacheModule from '$features/page-cache/page-cache';
+import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
+import Pill from '$features/ui/pill/pill';
+import Upgraded from '$features/ui/upgraded/upgraded';
+import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
+import { recordBoostEvent } from '$lib/utils/analytics';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { usePremiumFeatures } from '$lib/stores/premium-features';
-import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
-import MinifyMeta from '$features/minify-meta/minify-meta';
-import { QualitySettings, ImageCdnLiar } from '$features/image-cdn';
 import styles from './index.module.scss';
-import { RecommendationsMeta } from '$features/image-size-analysis';
-import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
-import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
-import Upgraded from '$features/ui/upgraded/upgraded';
-import PageCacheModule from '$features/page-cache/page-cache';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -22,20 +26,24 @@ const Index = () => {
 
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
-
 	const regenerateCssAction = useRegenerateCriticalCssAction();
+
 	const requestRegenerateCriticalCss = () => {
 		regenerateCssAction.mutate();
 	};
-	const { canResizeImages } = Jetpack_Boost;
 
-	const premiumFeatures = usePremiumFeatures();
+	const [ imageCdnQualityState ] = useSingleModuleState( 'image_cdn_quality' );
+	const [ imageCdnLiarState ] = useSingleModuleState( 'image_cdn_liar' );
 
-	const hasPremiumCdnFeatures =
-		premiumFeatures.includes( 'image-cdn-liar' ) && premiumFeatures.includes( 'image-cdn-quality' );
+	const hasPremiumCdnFeatures = imageCdnQualityState?.available && imageCdnLiarState?.available;
+
+	const handleCriticalCssLink = () => {
+		recordBoostEvent( 'critical_css_link_clicked', {} );
+	};
 
 	return (
 		<div className="jb-container--narrow">
+			<CornerstonePages />
 			<Module
 				slug="critical_css"
 				title={ __( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' ) }
@@ -49,8 +57,16 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									link: <a href={ criticalCssLink } target="_blank" rel="noopener noreferrer" />,
+									link: (
+										// eslint-disable-next-line jsx-a11y/anchor-has-content
+										<a
+											href={ criticalCssLink }
+											target="_blank"
+											onClick={ handleCriticalCssLink }
+											style={ { cursor: 'pointer' } }
+											rel="noopener noreferrer"
+										/>
+									),
 								}
 							) }
 						</p>
@@ -73,7 +89,7 @@ const Index = () => {
 			>
 				<CriticalCssMeta />
 
-				<UpgradeCTA
+				<InterstitialModalCTA
 					identifier="critical-css"
 					description={ __(
 						'Save time by upgrading to Automatic Critical CSS generation.',
@@ -99,8 +115,16 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									link: <a href={ criticalCssLink } target="_blank" rel="noopener noreferrer" />,
+									link: (
+										// eslint-disable-next-line jsx-a11y/anchor-has-content
+										<a
+											href={ criticalCssLink }
+											target="_blank"
+											onClick={ handleCriticalCssLink }
+											style={ { cursor: 'pointer' } }
+											rel="noopener noreferrer"
+										/>
+									),
 								}
 							) }
 						</p>
@@ -132,54 +156,22 @@ const Index = () => {
 								'jetpack-boost'
 							),
 							{
-								// eslint-disable-next-line jsx-a11y/anchor-has-content
-								link: <a href={ deferJsLink } target="_blank" rel="noopener noreferrer" />,
+								link: (
+									// eslint-disable-next-line jsx-a11y/anchor-has-content
+									<a
+										onClick={ () => recordBoostEvent( 'defer_js_link_clicked', {} ) }
+										href={ deferJsLink }
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
 							}
 						) }
 					</p>
 				}
 			></Module>
-			<Module
-				slug="minify_js"
-				title={ __( 'Concatenate JS', 'jetpack-boost' ) }
-				description={
-					<p>
-						{ __(
-							'Scripts are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
-							'jetpack-boost'
-						) }
-					</p>
-				}
-			>
-				<MinifyMeta
-					datasyncKey="minify_js_excludes"
-					inputLabel={ __( 'Exclude JS Strings:', 'jetpack-boost' ) }
-					buttonText={ __( 'Exclude JS Strings', 'jetpack-boost' ) }
-					placeholder={ __( 'Comma separated list of JS scripts to exclude', 'jetpack-boost' ) }
-				/>
-			</Module>
-			<Module
-				slug="minify_css"
-				title={ __( 'Concatenate CSS', 'jetpack-boost' ) }
-				description={
-					<p>
-						{ __(
-							'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
-							'jetpack-boost'
-						) }
-					</p>
-				}
-			>
-				<MinifyMeta
-					datasyncKey="minify_css_excludes"
-					inputLabel={ __( 'Exclude CSS Strings:', 'jetpack-boost' ) }
-					buttonText={ __( 'Exclude CSS Strings', 'jetpack-boost' ) }
-					placeholder={ __(
-						'Comma separated list of CSS stylesheets to exclude',
-						'jetpack-boost'
-					) }
-				/>
-			</Module>
+			<MinifyJs />
+			<MinifyCss />
 			<Module
 				slug="image_cdn"
 				title={
@@ -198,7 +190,7 @@ const Index = () => {
 				}
 			>
 				{ ! hasPremiumCdnFeatures && (
-					<UpgradeCTA
+					<InterstitialModalCTA
 						identifier="image-cdn"
 						description={ __(
 							'Auto-resize lazy images and adjust their quality.',
@@ -206,61 +198,12 @@ const Index = () => {
 						) }
 					/>
 				) }
-				<ImageCdnLiar isPremium={ premiumFeatures.includes( 'image-cdn-liar' ) } />
-				<QualitySettings isPremium={ premiumFeatures.includes( 'image-cdn-quality' ) } />
+				<ImageCdnLiar isPremium={ imageCdnLiarState?.available ?? false } />
+				<QualitySettings isPremium={ imageCdnQualityState?.available ?? false } />
 			</Module>
 
 			<div className={ styles.settings }>
-				<Module
-					slug="image_guide"
-					title={ __( 'Image Guide', 'jetpack-boost' ) }
-					description={
-						<>
-							<p>
-								{ __(
-									`This feature helps you discover images that are too large. When you browse your site, the image guide will show you an overlay with information about each image's size.`,
-									'jetpack-boost'
-								) }
-							</p>
-							{ ! isaState?.available && (
-								<UpgradeCTA
-									identifier="image-guide"
-									description={ __(
-										'Upgrade to scan your site for issues - automatically!',
-										'jetpack-boost'
-									) }
-								/>
-							) }
-						</>
-					}
-				>
-					{ false === canResizeImages && (
-						<Notice
-							level="warning"
-							title={ __( 'Image resizing is unavailable', 'jetpack-boost' ) }
-							hideCloseButton={ true }
-						>
-							<p>
-								{ __(
-									"It looks like your server doesn't have Imagick or GD extensions installed.",
-									'jetpack-boost'
-								) }
-							</p>
-							<p>
-								{ __(
-									"Jetpack Boost is able to work without these extensions, but it's likely that it's going to be difficult for you to optimize the images that the Image Guide will identify without one of these extensions.",
-									'jetpack-boost'
-								) }
-							</p>
-							<p>
-								{ __(
-									'Please contact your hosting provider or system administrator and ask them to install or activate one of these extensions.',
-									'jetpack-boost'
-								) }
-							</p>
-						</Notice>
-					) }
-				</Module>
+				<ImageGuide />
 
 				<Module
 					slug="image_size_analysis"
@@ -268,7 +211,7 @@ const Index = () => {
 					title={
 						<>
 							{ __( 'Image Size Analysis', 'jetpack-boost' ) }
-							<span className={ styles.beta }>Beta</span>
+							<Pill text={ __( 'Beta', 'jetpack-boost' ) } />
 						</>
 					}
 					description={

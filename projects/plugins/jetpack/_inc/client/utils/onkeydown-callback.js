@@ -4,7 +4,7 @@
  * Helper function which triggers a callback on a keydown event, only
  * if the key pressed is space or enter - to mirror button functionality.
  *
- * @param {Function} callback function to call after the keydown event
+ * @param {Function} callback - function to call after the keydown event
  * @return {Function}        a function ready to be used as event handler
  */
 export default function ( callback ) {

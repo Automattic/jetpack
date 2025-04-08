@@ -1,9 +1,10 @@
-import { globalNotices } from 'components/global-notices/state/notices/reducer';
 import { combineReducers } from 'redux';
+import { globalNotices } from 'components/global-notices/state/notices/reducer';
 import { dashboard } from 'state/at-a-glance/reducer';
 import { reducer as connection } from 'state/connection/reducer';
 import { reducer as devCard } from 'state/dev-version/reducer';
 import { reducer as disconnectSurvey } from 'state/disconnect-survey/reducer';
+import { reducer as featureCheck } from 'state/feature-check/reducer';
 import { initialState } from 'state/initial-state/reducer';
 import { reducer as introOffers } from 'state/intro-offers';
 import { reducer as jetpackNotices } from 'state/jetpack-notices/reducer';
@@ -43,6 +44,7 @@ const jetpackReducer = combineReducers( {
 	siteData,
 	siteProducts,
 	siteVerify,
+	featureCheck,
 	disconnectSurvey,
 	trackingSettings,
 	licensing,

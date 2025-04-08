@@ -43,7 +43,7 @@ window.wpPostLikeCount = window.wpPostLikeCount || {};
 						}
 					}
 				},
-				error: function (/*response*/) {},
+				error: function ( /*response*/ ) {},
 			};
 
 			var amp = '';
@@ -59,6 +59,6 @@ window.wpPostLikeCount = window.wpPostLikeCount || {};
 	} );
 } )( jQuery );
 
-jQuery( document ).ready( function (/*$*/) {
+jQuery( document ).ready( function ( /*$*/ ) {
 	window.wpPostLikeCount.wpPostLikeCount();
 } );

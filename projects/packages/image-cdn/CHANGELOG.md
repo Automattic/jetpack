@@ -5,6 +5,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.10] - 2025-03-24
+### Changed
+- Internal updates.
+
+## [0.7.9] - 2025-03-17
+### Changed
+- Internal updates.
+
+## [0.7.8] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [0.7.7] - 2025-03-05
+### Changed
+- Internal updates.
+
+## [0.7.6] - 2025-02-24
+### Changed
+- Internal updates.
+
+## [0.7.5] - 2025-02-17
+### Fixed
+- Do not serve images using unsupported extensions with the cdn_url method. [#41760]
+
+## [0.7.4] - 2025-02-03
+### Fixed
+- Code: Remove extra params on function calls. [#41263]
+
+## [0.7.3] - 2025-01-20
+### Fixed
+- General: Ensure that double encoding doesn't happen. [#40886]
+
+## [0.7.2] - 2024-12-16
+### Changed
+- Internal updates.
+
+## [0.7.1] - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+
+## [0.7.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [0.6.0] - 2024-11-11
+### Changed
+- Resource Hint: use preconnect instead of dns-prefetch [#39883]
+
+## [0.5.3] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- Fix PHPUnit coverage warnings. [#39989]
+
+## [0.5.2] - 2024-10-29
+### Changed
+- Internal updates. [#39303]
+
+## [0.5.1] - 2024-10-10
+### Fixed
+- Avoid deprecation notice when an image URL does not have an expected format. [#39685]
+- URL encode path parts of an image [#39560]
+
+## [0.5.0] - 2024-10-07
+### Added
+- Add a public method to check if a URL is CDN url. [#39635]
+
 ## [0.4.9] - 2024-09-09
 ### Changed
 - Update dependencies. [#39260]
@@ -126,6 +194,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add image CDN package. [#29561]
 
+[0.7.10]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.9...v0.7.10
+[0.7.9]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.8...v0.7.9
+[0.7.8]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.7...v0.7.8
+[0.7.7]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.6...v0.7.7
+[0.7.6]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.5...v0.7.6
+[0.7.5]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.4...v0.7.5
+[0.7.4]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.3...v0.7.4
+[0.7.3]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.2...v0.7.3
+[0.7.2]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.5.3...v0.6.0
+[0.5.3]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.9...v0.5.0
 [0.4.9]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.8...v0.4.9
 [0.4.8]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.7...v0.4.8
 [0.4.7]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.6...v0.4.7

@@ -27,7 +27,6 @@
 		"pinterest",
 		"podcast-player",
 		"premium-content",
-		"publicize",
 		"rating-star",
 		"recurring-payments",
 		"related-posts",
@@ -39,7 +38,6 @@
 		"shortlinks",
 		"simple-payments",
 		"slideshow",
-		"social-previews",
 		"story",
 		"subscriber-login",
 		"subscriptions",
@@ -71,7 +69,9 @@
 		"ai-general-purpose-image-generator",
 		"ai-proofread-breve",
 		"ai-assistant-site-logo-support",
-		"ai-title-optimization-keywords-support"
+		"ai-title-optimization-keywords-support",
+		"ai-response-feedback",
+		"ai-assistant-image-extension"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -79,7 +79,12 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
-		"ai-logo-style-selector-support"
+		"ai-list-to-table-transform",
+		"ai-seo-assistant",
+		"ai-use-chrome-ai-sometimes",
+		"ai-seo-enhancer",
+		"ai-seo-enhancer-enabled-unrestricted",
+		"ai-proofread-harper"
 	],
 	"experimental": [],
 	"no-post-editor": [

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack;
 use WP_Error;
 
@@ -80,11 +81,41 @@ abstract class Module_Product extends Product {
 	}
 
 	/**
+	 * Get the product status.
+	 * We don't use parent::get_status() to avoid complexity.
+	 *
+	 * @return string Product status.
+	 */
+	private static function get_feature_status() {
+		if ( ! static::is_plugin_installed() ) {
+			return Products::STATUS_PLUGIN_ABSENT;
+		}
+
+		if ( ! static::is_plugin_active() ) {
+			return Products::STATUS_INACTIVE;
+		}
+
+		if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
+			return Products::STATUS_USER_CONNECTION_ERROR;
+		}
+
+		if ( ! static::is_module_active() ) {
+			return Products::STATUS_MODULE_DISABLED;
+		}
+
+		return Products::STATUS_ACTIVE;
+	}
+
+	/**
 	 * Gets the current status of the product
 	 *
 	 * @return string
 	 */
 	public static function get_status() {
+		if ( static::$is_feature ) {
+			return static::get_feature_status();
+		}
+
 		$status = parent::get_status();
 		if ( Products::STATUS_INACTIVE === $status && ! static::is_module_active() ) {
 			$status = Products::STATUS_MODULE_DISABLED;

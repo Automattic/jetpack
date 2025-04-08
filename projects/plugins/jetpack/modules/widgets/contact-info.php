@@ -163,7 +163,10 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				}
 			}
 
-			if ( is_email( trim( $instance['email'] ) ) ) {
+			if (
+				$instance['email']
+				&& is_email( trim( $instance['email'] ) )
+			) {
 				printf(
 					'<div class="confit-email"><a href="mailto:%1$s">%1$s</a></div>',
 					esc_html( $instance['email'] )

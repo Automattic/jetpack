@@ -4,14 +4,14 @@ import { close } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
-import isJetpackUserNew from '../../data/utils/is-jetpack-user-new';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
+import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { CardWrapper } from '../card';
 import ConnectionStep from './ConnectionStep';
-import EvaluationProcessingStep from './EvaluationProcessingStep';
 import EvaluationStep, { EvaluationAreas } from './EvaluationStep';
+import LoadingStep from './LoadingStep';
 import styles from './style.module.scss';
 import type { FC, PropsWithChildren } from 'react';
 
@@ -20,35 +20,57 @@ export type WelcomeFlowExperiment = {
 	variation: 'control' | 'treatment';
 };
 
-const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
+interface Props extends PropsWithChildren {
+	welcomeFlowExperiment: WelcomeFlowExperiment;
+	setWelcomeFlowExperiment: React.Dispatch< React.SetStateAction< WelcomeFlowExperiment > >;
+}
+
+const WelcomeFlow: FC< Props > = ( {
+	welcomeFlowExperiment,
+	setWelcomeFlowExperiment,
+	children,
+} ) => {
 	const { recordEvent } = useAnalytics();
 	const { dismissWelcomeBanner } = useWelcomeBanner();
 	const { recommendedModules, submitEvaluation, saveEvaluationResult } =
 		useEvaluationRecommendations();
-	const {
-		siteIsRegistered,
-		siteIsRegistering,
-		isUserConnected,
-		isSiteConnected,
-		handleRegisterSite,
-	} = useMyJetpackConnection( {
-		skipUserConnection: true,
-	} );
+	const { siteIsRegistered, siteIsRegistering, isUserConnected, isSiteConnected } =
+		useMyJetpackConnection( {
+			skipUserConnection: true,
+		} );
 	const [ isProcessingEvaluation, setIsProcessingEvaluation ] = useState( false );
 	const [ prevStep, setPrevStep ] = useState( '' );
-	const [ welcomeFlowExperiment, setWelcomeFlowExperiment ] = useState< WelcomeFlowExperiment >( {
-		isLoading: false,
-		variation: 'control',
-	} );
+
+	const [ isConnectionReady, setIsConnectionReady ] = useState( null );
+	const isJetpackUserNew = useIsJetpackUserNew();
+
+	useEffect( () => {
+		if ( prevStep === 'site-connecting' && ! siteIsRegistering && siteIsRegistered ) {
+			setIsConnectionReady( true );
+
+			const timer = setTimeout( () => setIsConnectionReady( false ), 3000 );
+
+			return () => clearTimeout( timer );
+		}
+	}, [
+		isProcessingEvaluation,
+		prevStep,
+		recommendedModules,
+		siteIsRegistered,
+		siteIsRegistering,
+	] );
 
 	const currentStep = useMemo( () => {
-		if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
+		if (
+			siteIsRegistering ||
+			isConnectionReady ||
+			( siteIsRegistered && prevStep === 'site-connecting' && isConnectionReady === null )
+		) {
+			return 'site-connecting';
+		} else if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
-			if (
-				! recommendedModules &&
-				( welcomeFlowExperiment.variation === 'treatment' || ! isJetpackUserNew() )
-			) {
+			if ( ! recommendedModules && ! isJetpackUserNew ) {
 				// If user is not new but doesn't have recommendations, we skip evaluation
 				// If user has recommendations, it means they redo the evaluation
 				return null;
@@ -60,11 +82,14 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 
 		return 'evaluation-processing';
 	}, [
+		siteIsRegistered,
+		isConnectionReady,
+		siteIsRegistering,
+		prevStep,
+		welcomeFlowExperiment.isLoading,
 		isProcessingEvaluation,
 		recommendedModules,
-		siteIsRegistered,
-		welcomeFlowExperiment.isLoading,
-		welcomeFlowExperiment.variation,
+		isJetpackUserNew,
 	] );
 
 	useEffect( () => {
@@ -100,7 +125,7 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 				await saveEvaluationResult( recommendations );
 
 				dismissWelcomeBanner();
-			} catch ( error ) {
+			} catch {
 				setIsProcessingEvaluation( false );
 			}
 		},
@@ -134,7 +159,6 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 					>
 						{ 'connection' === currentStep && (
 							<ConnectionStep
-								onActivateSite={ handleRegisterSite }
 								onUpdateWelcomeFlowExperiment={ setWelcomeFlowExperiment }
 								isActivating={ siteIsRegistering || welcomeFlowExperiment.isLoading }
 							/>
@@ -145,7 +169,10 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 								onSubmitEvaluation={ handleEvaluation }
 							/>
 						) }
-						{ 'evaluation-processing' === currentStep && <EvaluationProcessingStep /> }
+						{ 'evaluation-processing' === currentStep && <LoadingStep type="recommendations" /> }
+						{ 'site-connecting' === currentStep && (
+							<LoadingStep type={ 'connecting' } isReady={ isSiteConnected } />
+						) }
 					</Container>
 				</CardWrapper>
 				<Button

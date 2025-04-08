@@ -4,11 +4,11 @@ import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import analytics from 'lib/analytics';
 import { isOdysseyStatsEnabled } from 'state/initial-state';
 
 class DashStatsBottom extends Component {

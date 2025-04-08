@@ -32,11 +32,9 @@ class Admin_Color_Schemes {
 			add_action( 'rest_api_init', array( $this, 'register_admin_color_meta' ) );
 		}
 
-		if ( ( defined( 'WPCOM_ADMIN_BAR_UNIFICATION' ) && WPCOM_ADMIN_BAR_UNIFICATION ) || get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) { // Simple and Atomic sites.
+		if ( ( new Host() )->is_wpcom_platform() ) { // Simple and Atomic sites.
 			add_filter( 'css_do_concat', array( $this, 'disable_css_concat_for_color_schemes' ), 10, 2 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_color_scheme_for_sidebar_notice' ) );
-		} else { // self-hosted sites.
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_color_schemes_overrides' ) );
 		}
 	}
 
@@ -206,21 +204,6 @@ class Admin_Color_Schemes {
 				'current' => '#4f3500',
 			)
 		);
-	}
-
-	/**
-	 * Enqueues current color-scheme overrides for core color schemes
-	 */
-	public function enqueue_core_color_schemes_overrides() {
-		$color_scheme = get_user_option( 'admin_color' );
-		if ( in_array( $color_scheme, static::CORE_COLOR_SCHEMES, true ) ) {
-			wp_enqueue_style(
-				'jetpack-core-color-schemes-overrides',
-				$this->get_admin_color_scheme_url( $color_scheme ),
-				array(),
-				Main::PACKAGE_VERSION
-			);
-		}
 	}
 
 	/**

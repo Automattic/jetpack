@@ -3,6 +3,10 @@ import { ExternalLink, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { forEach, get, isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import Chart from 'components/chart';
@@ -10,10 +14,6 @@ import DashSectionHeader from 'components/dash-section-header';
 import QueryStatsData from 'components/data/query-stats-data';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import analytics from 'lib/analytics';
-import { forEach, get, isEmpty } from 'lodash';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
 import { isOfflineMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
 import {
@@ -77,6 +77,12 @@ export class DashStats extends Component {
 				chartLabel = '',
 				tooltipLabel = '';
 
+			// Dates from API are GMT so we want to make sure that is properly observed.
+			if ( 'week' === unit ) {
+				date = date.replace( /W/g, '-' );
+			}
+			date = new Date( `${ date }T00:00:00Z` ).toISOString();
+
 			// Increment total views for the period
 			totalViews += views;
 
@@ -84,7 +90,6 @@ export class DashStats extends Component {
 				chartLabel = dateI18n( shortMonthFormat, date );
 				tooltipLabel = dateI18n( longMonthFormat, date );
 			} else if ( 'week' === unit ) {
-				date = date.replace( /W/g, '-' );
 				chartLabel = dateI18n( shortMonthFormat, date );
 				tooltipLabel = sprintf(
 					/* translators: placeholder is a date. */

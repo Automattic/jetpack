@@ -1,7 +1,6 @@
 import fs from 'fs';
 import chalk from 'chalk';
 
-// eslint-disable-next-line no-console
 const log = console.log;
 
 /**
@@ -17,7 +16,7 @@ function readJson( project, packageManager, output ) {
 	let data;
 	try {
 		data = fs.readFileSync( `projects/${ project }/${ file }`, 'utf8' );
-	} catch ( err ) {
+	} catch {
 		output && log( chalk.yellow( `This project does not have a ${ file } file.` ) );
 		return undefined;
 	}

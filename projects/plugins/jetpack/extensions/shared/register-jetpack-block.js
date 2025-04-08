@@ -36,6 +36,7 @@ export default function registerJetpackBlock(
 	const jpPrefix = prefix || isNamePrefixed ? JETPACK_PREFIX : '';
 
 	if ( ! available && ! requiredPlan ) {
+		// eslint-disable-next-line no-undef -- webpack sets process.env.NODE_ENV
 		if ( 'production' !== process.env.NODE_ENV ) {
 			// eslint-disable-next-line no-console
 			console.warn(

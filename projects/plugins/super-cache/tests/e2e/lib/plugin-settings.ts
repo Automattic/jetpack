@@ -50,7 +50,7 @@ const settingsHandlers = {
 };
 
 type SettingName = keyof typeof settingsHandlers;
-type SettingMethod< Name extends SettingName > = typeof settingsHandlers[ Name ];
+type SettingMethod< Name extends SettingName > = ( typeof settingsHandlers )[ Name ];
 type SettingParams< Name extends SettingName > = Parameters< SettingMethod< Name > >;
 type SettingValue< Name extends SettingName > = SettingParams< Name >[ 1 ];
 

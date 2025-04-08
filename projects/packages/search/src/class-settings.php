@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 // Exit if file is accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 /**

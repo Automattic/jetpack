@@ -301,6 +301,8 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 						value={ label }
 						help={ __( 'Title of track', 'jetpack' ) }
 						disabled={ isSavingTrack }
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<TextControl
 						onChange={ newSrcLang =>
@@ -313,6 +315,8 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 						value={ srcLang }
 						help={ __( 'Language tag (en, fr, etc.)', 'jetpack' ) }
 						disabled={ isSavingTrack }
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 				</div>
 				<SelectControl
@@ -330,6 +334,8 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 						} );
 					} }
 					disabled={ isSavingTrack }
+					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				/>
 				<div className="videopress-block-tracks-editor__single-track-editor-buttons-container">
 					{ isSavingTrack ? (
@@ -414,6 +420,7 @@ export default function TracksEditor( { tracks = [], onChange, guid } ) {
 									} )
 								);
 							} }
+							__next40pxDefaultSize={ true }
 						/>
 					);
 				}

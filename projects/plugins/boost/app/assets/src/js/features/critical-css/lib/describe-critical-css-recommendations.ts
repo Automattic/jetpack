@@ -464,6 +464,77 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			],
 		} ),
 	},
+
+	InvalidURLError: {
+		describeSet: set =>
+			_n(
+				'Jetpack Boost found an invalid URL:',
+				'Jetpack Boost found invalid URLs:',
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		suggestion: _set => ( {
+			paragraph: __(
+				'Jetpack Boost needs valid URLs in order to generate Critical CSS. It seems that one or more of the URLs you provided are invalid.',
+				'jetpack-boost'
+			),
+			list: [
+				__( 'It is okay to ignore URLs that are not meant to be shown publicly.', 'jetpack-boost' ),
+				__(
+					'If they are meant to be shown publicly, check if you have any plugins that modify your permalinks or URL structure.',
+					'jetpack-boost'
+				),
+				__(
+					'Verify your WordPress permalink settings are configured correctly in Settings → Permalinks.',
+					'jetpack-boost'
+				),
+				__(
+					'If you use custom post types, ensure they are properly registered and their permalinks are working.',
+					'jetpack-boost'
+				),
+				__(
+					'Try visiting the problematic URLs directly in your browser to confirm they work.',
+					'jetpack-boost'
+				),
+				__( '<retry>Try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),
+			],
+			closingParagraph: __(
+				'If the issue persists, you may want to check your theme and plugins for any custom code that modifies URLs or permalinks.',
+				'jetpack-boost'
+			),
+		} ),
+	},
+
+	ProviderError: {
+		describeSet: set =>
+			_n(
+				'Boost could not save Critical CSS for the following page:',
+				'Boost could not save Critical CSS for the following pages:',
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		rawError: set => Object.values( set.byUrl )[ 0 ].message,
+		suggestion: _set => ( {
+			paragraph: __(
+				"Jetpack Boost generated Critical CSS, but something blocked it from being saved. Until it's saved, it won't be applied to speed up your page. This is usually caused by the hosting provider's security settings (WAF) or a security plugin.",
+				'jetpack-boost'
+			),
+			list: [
+				__(
+					"<strong>Check your hosting security settings.</strong> Some hosts have a Web Application Firewall (WAF) that might block Boost. Ask your host if they can temporarily disable it or allow Boost's requests. Then, <retry>try again</retry>.",
+					'jetpack-boost'
+				),
+				__(
+					'<strong>Check your security plugins.</strong> If you have a firewall or security plugin, it might be blocking Boost. Look for any firewall, bot protection, or request-blocking settings and try temporarily turning them off. Then, <retry>try again</retry>.',
+					'jetpack-boost'
+				),
+				__(
+					'<strong>Still stuck?</strong> <support>Contact Jetpack Boost Support</support> and share this error message visible below, so we can look into this and assist.',
+					'jetpack-boost'
+				),
+			],
+		} ),
+	},
 };
 
 function getErrorSpec( type: string ): ErrorTypeSpec {

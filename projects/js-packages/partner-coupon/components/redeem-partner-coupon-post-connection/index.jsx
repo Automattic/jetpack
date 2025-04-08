@@ -72,7 +72,10 @@ const RedeemPartnerCouponPostConnection = props => {
 					src={ `${ assetBaseUrl }${ partnerCoupon.partner.logo.src }` }
 					alt={ sprintf(
 						/* translators: %s: Name of Jetpack partner. */
-						__( 'Logo of %s who are offering a coupon in partnership with Jetpack', 'jetpack' ),
+						__(
+							'Logo of %s who are offering a coupon in partnership with Jetpack',
+							'jetpack-partner-coupon'
+						),
 						partnerCoupon.partner.name
 					) }
 					width={ partnerCoupon.partner.logo.width }
@@ -93,7 +96,7 @@ const RedeemPartnerCouponPostConnection = props => {
 					</div>
 
 					<h2 className="jetpack-redeem-partner-coupon-post-connection__heading">
-						{ __( 'One free year of Jetpack Backup', 'jetpack' ) }
+						{ __( 'One free year of Jetpack Backup', 'jetpack-partner-coupon' ) }
 					</h2>
 				</div>
 				<div
@@ -110,7 +113,7 @@ const RedeemPartnerCouponPostConnection = props => {
 							/* translators: %s: Name of a Jetpack product. */
 							__(
 								'Redeem your coupon and get started with %s for free the first year! Never worry about losing your data, ever.',
-								'jetpack'
+								'jetpack-partner-coupon'
 							),
 							partnerCoupon.product.title
 						) }
@@ -127,7 +130,7 @@ const RedeemPartnerCouponPostConnection = props => {
 							<ActionButton
 								label={ sprintf(
 									/* translators: %s: Name of a Jetpack product. */
-									__( 'Redeem %s', 'jetpack' ),
+									__( 'Redeem %s', 'jetpack-partner-coupon' ),
 									partnerCoupon.product.title
 								) }
 								onClick={ onClick }
@@ -138,7 +141,7 @@ const RedeemPartnerCouponPostConnection = props => {
 								className="jetpack-redeem-partner-coupon-post-connection__remind-me-later"
 								onClick={ onRemindMeLater }
 							>
-								{ __( 'Remind me later', 'jetpack' ) }
+								{ __( 'Remind me later', 'jetpack-partner-coupon' ) }
 							</button>
 						</div>
 					</div>

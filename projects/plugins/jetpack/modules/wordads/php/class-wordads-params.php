@@ -72,6 +72,13 @@ class WordAds_Params {
 	public $page_type_ipw;
 
 	/**
+	 * Is this an AMP request?
+	 *
+	 * @var bool
+	 */
+	public $is_amp;
+
+	/**
 	 * Setup parameters for serving the ads
 	 *
 	 * @since 4.5.0
@@ -79,22 +86,24 @@ class WordAds_Params {
 	public function __construct() {
 		// WordAds setting => default.
 		$settings = array(
-			'wordads_approved'                => false,
-			'wordads_active'                  => false,
-			'wordads_house'                   => true,
-			'wordads_unsafe'                  => false,
-			'enable_header_ad'                => true,
-			'wordads_second_belowpost'        => true,
-			'wordads_inline_enabled'          => true,
-			'wordads_display_front_page'      => true,
-			'wordads_display_post'            => true,
-			'wordads_display_page'            => true,
-			'wordads_display_archive'         => true,
-			'wordads_custom_adstxt'           => '',
-			'wordads_custom_adstxt_enabled'   => false,
-			'wordads_ccpa_enabled'            => false,
-			'wordads_ccpa_privacy_policy_url' => get_option( 'wp_page_for_privacy_policy' ) ? get_permalink( (int) get_option( 'wp_page_for_privacy_policy' ) ) : '',
-			'wordads_cmp_enabled'             => false,
+			'wordads_approved'                     => false,
+			'wordads_active'                       => false,
+			'wordads_house'                        => true,
+			'wordads_unsafe'                       => false,
+			'enable_header_ad'                     => true,
+			'wordads_second_belowpost'             => true,
+			'wordads_inline_enabled'               => true,
+			'wordads_bottom_sticky_enabled'        => false,
+			'wordads_sidebar_sticky_right_enabled' => false,
+			'wordads_display_front_page'           => true,
+			'wordads_display_post'                 => true,
+			'wordads_display_page'                 => true,
+			'wordads_display_archive'              => true,
+			'wordads_custom_adstxt'                => '',
+			'wordads_custom_adstxt_enabled'        => false,
+			'wordads_ccpa_enabled'                 => false,
+			'wordads_ccpa_privacy_policy_url'      => get_option( 'wp_page_for_privacy_policy' ) ? get_permalink( (int) get_option( 'wp_page_for_privacy_policy' ) ) : '',
+			'wordads_cmp_enabled'                  => false,
 		);
 
 		// Grab settings, or set as default if it doesn't exist.
@@ -136,6 +145,7 @@ class WordAds_Params {
 			'LangId'  => str_contains( get_bloginfo( 'language' ), 'en' ) ? 1 : 0, // TODO something else?
 			'AdSafe'  => 1, // TODO.
 		);
+		$this->is_amp         = function_exists( 'amp_is_request' ) && amp_is_request();
 	}
 
 	/**

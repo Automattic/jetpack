@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.7] - 2025-03-21
+### Changed
+- Internal updates.
+
+## [0.5.6] - 2025-03-17
+### Changed
+- Internal updates.
+
+## [0.5.5] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [0.5.4] - 2025-03-05
+### Changed
+- Internal updates.
+
+## [0.5.3] - 2025-02-24
+### Changed
+- Update dependencies.
+
+## [0.5.2] - 2025-02-03
+### Added
+- Add `remove_menu` method to `Admin_Menu` class. [#41422]
+
+## [0.5.1] - 2024-11-25
+### Changed
+- Update dependencies. [#40286]
+
+## [0.5.0] - 2024-11-14
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [0.4.6] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
 ## [0.4.5] - 2024-09-05
 ### Changed
 - Jetpack menu: only register Jetpack admin page for contributor roles and above. [#39081]
@@ -160,6 +196,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing menu visibility issues.
 
+[0.5.7]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.6...0.5.7
+[0.5.6]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.5...0.5.6
+[0.5.5]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.4...0.5.5
+[0.5.4]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.3...0.5.4
+[0.5.3]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.2...0.5.3
+[0.5.2]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.1...0.5.2
+[0.5.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.0...0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.4.6...0.5.0
+[0.4.6]: https://github.com/Automattic/jetpack-admin-ui/compare/0.4.5...0.4.6
 [0.4.5]: https://github.com/Automattic/jetpack-admin-ui/compare/0.4.4...0.4.5
 [0.4.4]: https://github.com/Automattic/jetpack-admin-ui/compare/0.4.3...0.4.4
 [0.4.3]: https://github.com/Automattic/jetpack-admin-ui/compare/0.4.2...0.4.3

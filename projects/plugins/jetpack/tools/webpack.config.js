@@ -120,7 +120,10 @@ module.exports = [
 	// Build all the modules.
 	{
 		...sharedWebpackConfig,
-		entry: moduleEntries,
+		entry: {
+			...moduleEntries,
+			'newsletter-widget': './modules/subscriptions/newsletter-widget/src/index.tsx',
+		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin(),
@@ -147,7 +150,7 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
+			...jetpackWebpackConfig.DependencyExtractionPlugin(),
 		],
 		externals: {
 			...sharedWebpackConfig.externals,

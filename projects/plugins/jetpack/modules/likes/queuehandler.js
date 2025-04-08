@@ -24,7 +24,7 @@ function JetpackLikesPostMessage( message, target ) {
 	if ( typeof message === 'string' ) {
 		try {
 			message = JSON.parse( message );
-		} catch ( e ) {
+		} catch {
 			return;
 		}
 	}
@@ -38,8 +38,8 @@ function JetpackLikesPostMessage( message, target ) {
 				} ),
 				'*'
 			);
-		} catch ( e ) {
-			return;
+		} catch {
+			// Ignore error
 		}
 	}
 }
@@ -94,7 +94,7 @@ function JetpackLikesMessageListener( event ) {
 	if ( typeof message === 'string' ) {
 		try {
 			message = JSON.parse( message );
-		} catch ( err ) {
+		} catch {
 			return;
 		}
 	}
@@ -131,17 +131,17 @@ function JetpackLikesMessageListener( event ) {
 				}
 
 				stylesData.textStyles = {
-					color: sdTextColorStyles[ 'color' ],
+					color: sdTextColorStyles.color,
 					fontFamily: sdTextColorStyles[ 'font-family' ],
 					fontSize: sdTextColorStyles[ 'font-size' ],
-					direction: sdTextColorStyles[ 'direction' ],
+					direction: sdTextColorStyles.direction,
 					fontWeight: sdTextColorStyles[ 'font-weight' ],
 					fontStyle: sdTextColorStyles[ 'font-style' ],
 					textDecoration: sdTextColorStyles[ 'text-decoration' ],
 				};
 
 				stylesData.linkStyles = {
-					color: sdLinkColorStyles[ 'color' ],
+					color: sdLinkColorStyles.color,
 					fontFamily: sdLinkColorStyles[ 'font-family' ],
 					fontSize: sdLinkColorStyles[ 'font-size' ],
 					textDecoration: sdLinkColorStyles[ 'text-decoration' ],
@@ -156,21 +156,15 @@ function JetpackLikesMessageListener( event ) {
 
 			break;
 
-		case 'showLikeWidget': {
-			const placeholder = document.querySelector( `#${ data.id } .likes-widget-placeholder` );
-			if ( placeholder ) {
-				placeholder.style.display = 'none';
-			}
+		// We're keeping this for planned future follow ups.
+		// @see: https://github.com/Automattic/jetpack/pull/42361#discussion_r1995338815
+		case 'showLikeWidget':
 			break;
-		}
 
-		case 'showCommentLikeWidget': {
-			const placeholder = document.querySelector( `#${ data.id } .likes-widget-placeholder` );
-			if ( placeholder ) {
-				placeholder.style.display = 'none';
-			}
+		// We're keeping this for planned future follow ups.
+		// @see: https://github.com/Automattic/jetpack/pull/42361#discussion_r1995338815
+		case 'showCommentLikeWidget':
 			break;
-		}
 
 		case 'killCommentLikes':
 			// If kill switch for comment likes is enabled remove all widgets wrappers and `Loading...` placeholders.
@@ -197,22 +191,14 @@ function JetpackLikesMessageListener( event ) {
 				break;
 			}
 
-			const newLayout = container.classList.contains( 'wpl-new-layout' );
-
 			const list = container.querySelector( 'ul' );
 
 			container.style.display = 'none';
 			list.innerHTML = '';
 
-			if ( newLayout ) {
-				container
-					.querySelectorAll( '.likes-text span' )
-					.forEach( item => ( item.textContent = data.totalLikesLabel ) );
-			} else {
-				container
-					.querySelectorAll( '.likes-text span' )
-					.forEach( item => ( item.textContent = data.total ) );
-			}
+			container
+				.querySelectorAll( '.likes-text span' )
+				.forEach( item => ( item.textContent = data.totalLikesLabel ) );
 
 			( data.likers || [] ).forEach( async ( liker, index ) => {
 				if ( liker.profile_URL.substr( 0, 4 ) !== 'http' ) {
@@ -223,32 +209,19 @@ function JetpackLikesMessageListener( event ) {
 				const element = document.createElement( 'li' );
 				list.append( element );
 
-				if ( newLayout ) {
-					element.innerHTML = `
-					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-						<img src="${ encodeURI( liker.avatar_URL ) }"
+				const profileLink = encodeURI( liker.profile_URL );
+				const avatarLink = encodeURI( liker.avatar_URL );
+				element.innerHTML = `<a href="${ profileLink }" rel="nofollow" target="_parent" class="wpl-liker">
+						<img src="${ avatarLink }"
 							alt=""
 							style="width: 28px; height: 28px;" />
 						<span></span>
-					</a>
-				`;
-				} else {
-					element.innerHTML = `
-					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-						<img src="${ encodeURI( liker.avatar_URL ) }"
-							alt=""
-							style="width: 30px; height: 30px; padding-right: 3px;" />
-					</a>
-				`;
-				}
+					</a>`;
 
 				// Add some extra attributes through native methods, to ensure strings are sanitized.
 				element.classList.add( liker.css_class );
 				element.querySelector( 'img' ).alt = data.avatarAltTitle.replace( '%s', liker.name );
-
-				if ( newLayout ) {
-					element.querySelector( 'span' ).innerText = liker.name;
-				}
+				element.querySelector( 'span' ).innerText = liker.name;
 
 				if ( index === data.likers.length - 1 ) {
 					element.addEventListener( 'keydown', e => {
@@ -278,22 +251,17 @@ function JetpackLikesMessageListener( event ) {
 				};
 
 				let containerLeft = 0;
-				if ( newLayout ) {
-					container.style.top = offset.top + data.position.top - 1 + 'px';
+				container.style.top = offset.top + data.position.top - 1 + 'px';
 
-					if ( isRtl ) {
-						const visibleAvatarsCount = data && data.likers ? Math.min( data.likers.length, 5 ) : 0;
-						// 24px is the width of the avatar + 4px is the padding between avatars
-						containerLeft = offset.left + data.position.left + 24 * visibleAvatarsCount + 4;
-						container.style.transform = 'translateX(-100%)';
-					} else {
-						containerLeft = offset.left + data.position.left;
-					}
-					container.style.left = containerLeft + 'px';
+				if ( isRtl ) {
+					const visibleAvatarsCount = data && data.likers ? Math.min( data.likers.length, 5 ) : 0;
+					// 24px is the width of the avatar + 4px is the padding between avatars
+					containerLeft = offset.left + data.position.left + 24 * visibleAvatarsCount + 4;
+					container.style.transform = 'translateX(-100%)';
 				} else {
-					container.style.left = offset.left + data.position.left - 10 + 'px';
-					container.style.top = offset.top + data.position.top - 33 + 'px';
+					containerLeft = offset.left + data.position.left;
 				}
+				container.style.left = containerLeft + 'px';
 
 				// Container width - padding
 				const initContainerWidth = data.width - 20;
@@ -304,35 +272,21 @@ function JetpackLikesMessageListener( event ) {
 					height = 204;
 				}
 
-				if ( ! newLayout ) {
-					// Avatars + padding
-					const containerWidth = rowLength * 37 + 13;
-					container.style.height = height + 'px';
-					container.style.width = containerWidth + 'px';
+				// If the popup overflows viewport width, we should show it on the next line.
+				// Push it offscreen to calculated rendered width.
+				container.style.left = '-9999px';
+				container.style.display = 'block';
 
-					const listWidth = rowLength * 37;
-					list.style.width = listWidth + 'px';
+				// If the popup exceeds the viewport width,
+				// flip the position of the popup.
+				const containerWidth = container.offsetWidth;
+				const containerRight = containerLeft + containerWidth;
+				if ( containerRight > win.innerWidth ) {
+					containerLeft = rect.right - containerWidth;
 				}
 
-				// If the popup is overflows viewport width, we should show it on the next line
-				if ( newLayout ) {
-					// Push it offscreen to calculated rendered width
-					container.style.left = '-9999px';
-					container.style.display = 'block';
-
-					// If the popup exceeds the viewport width,
-					// flip the position of the popup.
-					const containerWidth = container.offsetWidth;
-					const containerRight = containerLeft + containerWidth;
-					if ( containerRight > win.innerWidth ) {
-						containerLeft = rect.right - containerWidth;
-					}
-
-					// Set the container left
-					container.style.left = containerLeft + 'px';
-				} else {
-					container.style.display = 'block';
-				}
+				// Set the container left
+				container.style.left = containerLeft + 'px';
 				container.setAttribute( 'aria-hidden', 'false' );
 			};
 
@@ -500,11 +454,6 @@ function jetpackUnloadScrolledOutWidgets() {
 			widgetWrapper.classList.remove( 'jetpack-likes-widget-loaded' );
 			widgetWrapper.classList.remove( 'jetpack-likes-widget-loading' );
 			widgetWrapper.classList.add( 'jetpack-likes-widget-unloaded' );
-
-			// Bring back the loading placeholder into view.
-			widgetWrapper
-				.querySelectorAll( '.comment-likes-widget-placeholder' )
-				.forEach( item => ( item.style.display = 'block' ) );
 
 			// Remove it from the list of loaded widgets.
 			jetpackCommentLikesLoadedWidgets.splice( i, 1 );

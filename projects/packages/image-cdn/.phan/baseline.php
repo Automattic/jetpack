@@ -11,9 +11,8 @@ return [
     // # Issue statistics:
     // PhanTypePossiblyInvalidDimOffset : 10+ occurrences
     // PhanPluginSimplifyExpressionBool : 6 occurrences
-    // PhanParamTooMany : 5 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
-    // PhanPossiblyUndeclaredVariable : 3 occurrences
+    // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanTypeMismatchPropertyProbablyReal : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
@@ -32,9 +31,9 @@ return [
         'src/class-image-cdn-core.php' => ['PhanTypeMismatchReturn'],
         'src/class-image-cdn-image-sizes.php' => ['PhanPluginSimplifyExpressionBool'],
         'src/class-image-cdn.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
-        'src/compatibility/photon.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgumentNullableInternal'],
-        'tests/php/test_class.image_cdn.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredMethod', 'PhanUndeclaredStaticMethod'],
-        'tests/php/test_class.image_cdn_core.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeObjectUnsetDeclaredProperty'],
+        'src/compatibility/photon.php' => ['PhanTypeMismatchArgumentNullableInternal'],
+        'tests/php/Image_CDN_Core_Test.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeObjectUnsetDeclaredProperty'],
+        'tests/php/Image_CDN_Test.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredMethod', 'PhanUndeclaredStaticMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

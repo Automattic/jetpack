@@ -19,6 +19,7 @@
 		}
 
 	}
+
 	#zbs-column-manager-available-cols {
 
 		// needed to drop into empty list:
@@ -70,7 +71,9 @@
 // company list contacts HTML..
 
 .zero-bs-crm_page_manage-companies-crm{
+
 	.zbs-co-img{
+
 		img{
 			width:30px;
 			height:auto;
@@ -147,4 +150,8 @@
 .jpcrm-listview-table-container .jpcrm-pagination-container {
 	text-align: right;
 	margin-bottom: 10px;
+}
+
+.jpcrm-listview-table-container .jpcrm-listview-table a.name{
+	font-weight: 700;
 }

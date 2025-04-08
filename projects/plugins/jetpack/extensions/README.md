@@ -301,10 +301,6 @@ In Jetpack the scenario that has been used historically is to create a deprecati
 - You can view the various build commands in `package.json`
 - You can see the build configuration in `webpack.config.extensions.js`
 
-If you need to modify the build process, bear in mind that config files are also
-synced to WordPress.com via Fusion. Consult with a Jetpack crew member to ensure
-you test the new build in both environments.
-
 ### Debugging
 
 Setting these might be useful for debugging with block editor:

@@ -7,7 +7,7 @@ const ExtrasCard = props => {
 };
 
 ExtrasCard.propTypes = {
-	admin: PropTypes.bool.isRequired,
+	admin: PropTypes.bool,
 };
 
 export default ExtrasCard;

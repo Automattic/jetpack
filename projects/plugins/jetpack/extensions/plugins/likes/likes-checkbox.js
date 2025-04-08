@@ -39,6 +39,7 @@ const LikesCheckbox = ( { areLikesEnabled, editPost } ) => {
 					onChange={ value => {
 						editPost( { jetpack_likes_enabled: value } );
 					} }
+					__nextHasNoMarginBottom={ true }
 				/>
 			</JetpackLikesAndSharingPanel>
 		</PostTypeSupportCheck>

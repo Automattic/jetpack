@@ -132,6 +132,7 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-purchase-message 
 }
 
 @media screen and (min-width: 400px) {
+
 	.jetpack-simple-payments-product {
 		flex-direction: row;
 	}

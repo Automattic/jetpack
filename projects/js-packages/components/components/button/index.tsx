@@ -10,7 +10,7 @@ import React, { forwardRef } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.scss';
-import type { ButtonProps } from './types';
+import type { ButtonProps } from './types.js';
 
 /**
  * Button component
@@ -55,7 +55,7 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 			<VisuallyHidden as="span">
 				{
 					/* translators: accessibility text */
-					__( '(opens in a new tab)', 'jetpack' )
+					__( '(opens in a new tab)', 'jetpack-components' )
 				}
 			</VisuallyHidden>
 		</>

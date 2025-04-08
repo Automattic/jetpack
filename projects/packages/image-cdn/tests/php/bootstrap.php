@@ -10,12 +10,10 @@
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-/**
- * Load WorDBless
- */
-\WorDBless\Load::load();
+// Initialize WordPress test environment
+\Automattic\Jetpack\Test_Environment::init( 'packages-image-cdn' );
 
 /**
  * Load helper base class
  */
-require_once __DIR__ . '/class-image-cdn-attachment-test-case.php';
+require_once __DIR__ . '/class-image-cdn-attachment-testcase.php';

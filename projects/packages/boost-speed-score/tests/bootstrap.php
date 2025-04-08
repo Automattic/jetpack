@@ -5,10 +5,12 @@
  * @package automattic/
  */
 
-/**
- * Include the composer autoloader.
- */
+// Include the composer autoloader.
 require_once __DIR__ . '/../vendor/autoload.php';
+
+// Include other files, because we don't set up the autoloader right.
+require_once __DIR__ . '/php/class-base-testcase.php';
+require_once __DIR__ . '/php/mocks.php';
 
 // Additional functions that brain/monkey doesn't currently define.
 if ( ! function_exists( 'wp_unslash' ) ) {

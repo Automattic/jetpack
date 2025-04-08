@@ -1,8 +1,7 @@
 
 ## Kebab Case
-In Svelte, files were named using Pascal case.
 
-As we migrate to React, we should migrate to Kebab case both in filenames and path names. Careful with case-sensitivity and committing to git.
+We are using kebab-case both in filenames and path names. Be careful with case sensitivity and committing to git. 
 
 
 ## React Component size
@@ -17,16 +16,17 @@ It's fine to have multiple components in a single file, but if the file is getti
 ```bash
 /
 	- index.ts # Public exports
-	- Main.svelte # The main component
 	- lib/ # App-wide code
 		- stores/ # App-wide stores
 		- utils/ # Utility functions
 	- features/ # Features
 		- ui # generic, reusable components
 			- back-button
-		- critical-css
-			- index.ts
-			- CriticalCssMeta.svelte
+			- ...
+		- critical-css # critical-css related components
+			- critical-css-meta # a component
+				- critical-css-meta.tsx # the main react component
+				- critical-css-meta.module.scss # styles related to this component
 			- lib # Features have their own lib to keep it nice and clean
 				- stores
 					- critical-css-state.ts
@@ -34,21 +34,23 @@ It's fine to have multiple components in a single file, but if the file is getti
 		- ...
 	- pages/ # Pages (a.k.a. routes)
 		- critical-css-advanced
-			- CriticalCssAdvanced.svelte
+			- critical-css-advanced.tsx # a component that represents a page in the UI.
 		- purchase-success
-			- purchase-success.tsx # react is kebab case now
-		- p2, etc.
+			- purchase-success.tsx
+		- p2
+		- ...
 	- layout/ # Global layout components
 		- header
 		- footer
-		- wrapper, etc.
+		- wrapper
+		- ...
 ```
 
-* `Main.svelte` and `index.ts` - The entry files for the app. `index.ts` is compiled into `/assets/dist/jetpack-boost.js`
-* `features/` - Most of the app's code goes here. Every feature should be placed in it's own directory.
-* `lib/` - Any code that's not Svelte or React. This includes utility functions, constants, stores, etc.
-	* `lib/stores/` - DataSync stores and their derivatives. In React this is probably going to be replaced with `lib/hooks`.
-* `pages/` - The pages of the app. Each page should be placed in it's own directory.
+* `index.tsx` and `main.tsx` - The entry files for the app. `main.tsx` has the router.
+* `features/` - Most of the app's code goes here. Every feature should be placed in its own directory.
+* `lib/` - Any generic code that is not directly tied to specific components.
+	* `lib/stores/` - Some shared hooks.
+* `pages/` - The pages of the app. Each page should be placed in its own directory.
 * `layout/` - Global layout components. These are components that are used in multiple pages, such as the header, footer, etc.
 
 ### Feature Structure
@@ -72,9 +74,3 @@ Every feature can be either a simple component like `my-feature/my-feature.tsx` 
 		- stores # Stores for this feature
 			- some-store.ts
 ```
-
-
-
-### Private & Public interfaces
-
-// TODO

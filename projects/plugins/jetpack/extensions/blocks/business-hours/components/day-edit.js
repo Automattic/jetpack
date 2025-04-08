@@ -20,6 +20,7 @@ class DayEdit extends Component {
 					<div className={ clsx( day.name, 'business-hours__hours' ) }>
 						<TextControl
 							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize
 							type="time"
 							label={ __( 'Opening', 'jetpack' ) }
 							value={ opening }
@@ -31,6 +32,7 @@ class DayEdit extends Component {
 						/>
 						<TextControl
 							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize
 							type="time"
 							label={ __( 'Closing', 'jetpack' ) }
 							value={ closing }

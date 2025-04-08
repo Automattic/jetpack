@@ -1,0 +1,13 @@
+.jetpack-subscribe-floating-button {
+	position: fixed;
+	z-index: 50000; /* Same as WP.com Action bar */
+	bottom: 0;
+	right: 0;
+}
+
+@media screen and (max-width: 640px) {
+
+	.jetpack-subscribe-floating-button {
+		display: none;
+	}
+}

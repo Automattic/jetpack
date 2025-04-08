@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type SearchParamNameProp = 'page' | 'q';
 
 export const useSearchParams = () => {
 	const location = useLocation();
-	const history = useHistory();
+	const navigate = useNavigate();
 	const searchParams = new URLSearchParams( location.search );
 
 	/**
@@ -46,8 +46,8 @@ export const useSearchParams = () => {
 	 */
 	const update = () => {
 		const searchFragment = '?' + searchParams.toString();
-		if ( searchFragment !== history.location.search ) {
-			history.push( {
+		if ( searchFragment !== location.search ) {
+			navigate( {
 				search: searchFragment,
 			} );
 		}
@@ -57,11 +57,14 @@ export const useSearchParams = () => {
 	 * Force an empty query string.
 	 */
 	const reset = () => {
-		if ( '' !== history.location.search ) {
-			history.replace( {
-				pathname: history.location.pathname,
-				search: '',
-			} );
+		if ( '' !== location.search ) {
+			navigate(
+				{
+					pathname: location.pathname,
+					search: '',
+				},
+				{ replace: true }
+			);
 		}
 	};
 

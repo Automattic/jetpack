@@ -1,9 +1,9 @@
-import { imagePath } from 'constants/urls';
 import { __ } from '@wordpress/i18n';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
 import React, { useCallback, useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 import { getIntroOffers, isFetchingIntroOffers } from 'state/intro-offers';
 import {
 	getProductSuggestions,

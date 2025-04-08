@@ -278,7 +278,7 @@ To get started, there are several ways to run the unit tests, depending on how y
 	This command runs the tests as a multi site install
 
 	```sh
-	jetpack docker phpunit-multisite -- --filter=Protect
+	jetpack docker phpunit-jp-multisite -- --filter=Protect
 	```
 
 	To run tests for specific packages, you can run the tests locally, from within the package's directory:
@@ -312,7 +312,7 @@ To get started, there are several ways to run the unit tests, depending on how y
 	To run multisite tests, run:
 
 	```sh
-	phpunit -c tests/php.multisite.xml
+	phpunit -c tests/php.multisite.${PHPUNIT_MAJOR_VERSION}.xml
 	```
 
 	To filter and run just a particular test, you can run:
@@ -323,39 +323,57 @@ To get started, there are several ways to run the unit tests, depending on how y
 
 ## JavaScript unit tests
 
-Jetpack includes also several [Jest](https://jestjs.io/) based unit tests.
-To execute them in your local environment, you can use the following commands.
+The `jetpack test` command can be used from the monorepo's root to run a specific project's tests.
 
-* ### Admin Page unit tests
+This may be of limited benefit locally during development since it isn't possible to use watch mode or run tests only for an individual file.
 
-	Standing on your jetpack directory, run
+Each project within the monorepo may also have its own test commands, so an alternative is to `cd` into the project's root, and run the test commands from there.
 
-	```sh
-	pnpm install
-	pnpm test-client
-	pnpm test-gui
-	```
+### Packages
 
-* ### Jetpack modules unit tests
+Packages may have a package.json in the root that has a `scripts` entry, and this details the different types of test commands that can be run, `pnpm test` is the usual command for JavaScript unit tests.
 
-	Standing on your jetpack directory, run
+For example, to run an individual test file in watch mode:
+```sh
+cd projects/packages/forms
+pnpm test --watch -- path/to/test/file.js
+```
 
-	```sh
-	pnpm install
-	pnpm test-modules
-	```
+### Jetpack Plugin
 
-	You can also only run tests matching a specific pattern. To do that, use the argument `-g, --grep <pattern>`:
+The Jetpack plugin project also has some additional test commands that can be run from its root.
 
-	```sh
-	pnpm test-gui -g 'my custom pattern to filter tests'
-	```
+#### Admin Page unit tests
 
-	To use a custom reporter, pass the argument `-R, --reporter <name>`:
+Tests for the Jetpack dashboard and settings pages can be run using the following command:
 
-	```sh
-	pnpm test-client -R 'my_reporter'
-	```
+```sh
+cd projects/plugins/jetpack
+pnpm test-adminpage
+```
+
+This runs both the `client` (stores and other business logic) and `gui` (react component) tests, but they can also be run individually using `pnpm test-client` or `pnpm test-gui`.
+
+You can also run only tests that match a specific pattern. To do that, use the argument `-g, --grep <pattern>`:
+
+```sh
+pnpm test-gui -g 'my custom pattern to filter tests'
+```
+
+To use a custom reporter, pass the argument `-R, --reporter <name>`:
+
+```sh
+pnpm test-client -R 'my_reporter'
+```
+
+#### Extension unit tests
+
+Tests for editor extensions (including blocks, sidebars and more) can be run using the following command:
+
+```sh
+cd projects/plugins/jetpack
+pnpm test-extensions
+```
 
 # Good code - linting, standards, compatibility, etc.
 
@@ -364,7 +382,7 @@ To execute them in your local environment, you can use the following commands.
 We strongly recommend that you install tools to review your code in your IDE. It will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it even easier.
 
 - Jetpack's custom Code Sniffer ruleset is located at `./projects/packages/codesniffer/Jetpack/ruleset.xml`. Depending on your IDE, you can use this path or you may need to use `.phpcs.xml.dist` in the monorepo root.
-- For JavaScript, we recommend installing ESLint. Most IDEs come with an ESLint plugin that you can use. Jetpack includes a `.eslintrc.js` file that defines our coding standards.
+- For JavaScript, we recommend installing ESLint. Most IDEs come with an ESLint plugin that you can use. Jetpack includes a `eslint.config.mjs` file that defines our coding standards.
 
 ## Linting
 
@@ -384,9 +402,9 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	composer phpcs:lint
 	```
 
-* ### Checking Jetpack's PHP for compatibility with different versions of PHP since 7.0
+* ### Checking Jetpack's PHP for compatibility with different versions of PHP
 
-	We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 7.0
+	We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with supported PHP versions:
 
 	```sh
 	composer phpcs:compatibility

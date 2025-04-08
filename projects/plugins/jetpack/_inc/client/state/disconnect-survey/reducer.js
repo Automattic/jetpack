@@ -39,8 +39,8 @@ export const reducer = combineReducers( {
 /**
  * Returns true if currently trying to send a login email
  *
- * @param {Object} state Global state tree
- * @return {Boolean}       Whether email is being sent
+ * @param {object} state - Global state tree
+ * @return {boolean}       Whether email is being sent
  */
 export function isSubmittingDisconnectSurvey( state ) {
 	return get( state, 'jetpack.disconnectSurvey.submitting', false );
@@ -49,8 +49,8 @@ export function isSubmittingDisconnectSurvey( state ) {
 /**
  * Returns true if a login email has been sent in the current state of the application.
  *
- * @param {Object} state Global state tree.
- * @return {Boolean}      Whether email has been sent.
+ * @param {object} state - Global state tree.
+ * @return {boolean}      Whether email has been sent.
  */
 export function hasSubmittedDisconnectSurvey( state ) {
 	return get( state, 'jetpack.disconnectSurvey.submitted', false );
@@ -59,7 +59,7 @@ export function hasSubmittedDisconnectSurvey( state ) {
 /**
  * Returns an error object for the last magic login link or null.
  *
- * @param {Object} state Global state tree.
+ * @param {object} state - Global state tree.
  * @return {Object|null}  The error object if there is one.
  */
 export function getDisconnectSurveySubmitError( state ) {

@@ -21,7 +21,7 @@ npm install social-logos --save
 #### Usage
 
 ```
-import SocialLogo from 'social-logos';
+import { SocialLogo } from 'social-logos';
 function MyComponent() {
 	return <SocialLogo icon="wordpress" size={ 48 } />;
 }

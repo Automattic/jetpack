@@ -29,6 +29,18 @@ async function guardedImport( path ) {
 					'*** Something is missing from your install. Please run `pnpm install` and try again. ***'
 				)
 			);
+		} else if (
+			error.name === 'SyntaxError' &&
+			( error.stack.match(
+				/Named export '.+?' not found. The requested module '.+?' is a CommonJS module/
+			) ||
+				error.stack.match( /The requested module '.+?' does not provide an export named '.+?'/ ) )
+		) {
+			console.error(
+				bold(
+					'*** Perhaps you have outdated dependencies. Please run `pnpm install` and try again. ***'
+				)
+			);
 		} else {
 			console.error( bold( '*** Something unexpected happened. See error above. ***' ) );
 		}

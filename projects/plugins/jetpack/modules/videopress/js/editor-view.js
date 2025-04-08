@@ -81,7 +81,7 @@
 			 * Override TextBox renderHtml to support html5 attrs.
 			 * @link https://github.com/tinymce/tinymce/pull/2784
 			 *
-			 * @returns {string}
+			 * @return {string}
 			 */
 			tinyMCE.ui.TextBox.prototype.renderHtml = function () {
 				var self = this,

@@ -1,9 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { useCallback, useEffect } from 'react';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
-import { useCallback, useEffect } from 'react';
 import RecommendedHeader from '../recommended-header';
 import { SidebarCard } from '../sidebar-card';
 

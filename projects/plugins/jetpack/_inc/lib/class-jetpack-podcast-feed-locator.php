@@ -1,20 +1,23 @@
 <?php
 /**
- * Extension of the SimplePie_Locator class, to detect podcast feeds
+ * Extension of the SimplePie\Locator class, to detect podcast feeds
  *
  * @package automattic/jetpack
  */
 
+// Dummy comment to make phpcs happy.
+require_once __DIR__ . '/jp-simplepie-alias.php';
+
 /**
  * Class Jetpack_Podcast_Feed_Locator
  */
-class Jetpack_Podcast_Feed_Locator extends SimplePie_Locator {
+class Jetpack_Podcast_Feed_Locator extends Jetpack\SimplePie\Locator {
 	/**
 	 * Overrides the locator is_feed function to check for
 	 * appropriate podcast elements.
 	 *
-	 * @param SimplePie_File $file The file being checked.
-	 * @param boolean        $check_html Adds text/html to the mimetypes checked.
+	 * @param Jetpack\SimplePie\File $file The file being checked.
+	 * @param boolean                $check_html Adds text/html to the mimetypes checked.
 	 */
 	public function is_feed( $file, $check_html = false ) {
 		return parent::is_feed( $file, $check_html ) && $this->is_podcast_feed( $file );
@@ -24,7 +27,7 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie_Locator {
 	 * Checks the contents of the file for elements that make
 	 * it a podcast feed.
 	 *
-	 * @param SimplePie_File $file The file being checked.
+	 * @param Jetpack\SimplePie\File $file The file being checked.
 	 */
 	private function is_podcast_feed( $file ) {
 		// If we can't read the DOM assume it's a podcast feed, we'll work

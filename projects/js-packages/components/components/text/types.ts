@@ -1,4 +1,4 @@
-import { VARIANTS_MAPPING } from './constants';
+import { VARIANTS_MAPPING } from './constants.js';
 import type React from 'react';
 
 export type SpacingValue = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
@@ -39,7 +39,6 @@ export type TextProps = {
 	children: React.ReactNode;
 	/** Force an specific tag (span, div) or use a custom component that will receive className and children */
 	component?: React.FC< { [ prop: string ]: unknown } > | React.ElementType;
-	[ prop: string ]: unknown;
 };
 
 export type H3Props = TextProps & {

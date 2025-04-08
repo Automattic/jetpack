@@ -2,6 +2,7 @@
 @import 'masthead/calypso-mixins';
 
 @include for-tablet-up {
+
 	.lg-col-span-0 {
 		display: none;
 	}
@@ -26,6 +27,7 @@
 }
 
 @media screen and (max-width: 959px) {
+
 	.backup__card {
 		display: flex;
 		flex-direction: row;
@@ -122,6 +124,21 @@
 	}
 }
 
+.backup__latest-time {
+	color: #1d2327;
+	font-size: var(--font-title-large);
+	font-weight: 700;
+	line-height: 40px;
+	margin-bottom: 4px;
+	margin-top: 0;
+	white-space: nowrap;
+}
+
+.backup__next-scheduled-time {
+	font-size: 13px;
+	margin-bottom: 24px;
+}
+
 .backup__restore-point-link {
 	font-size: 14px;
 	line-height: 22px;
@@ -170,22 +187,27 @@
 }
 
 @keyframes animation-el-1 {
+
 	0% {
 		opacity: 0;
 		transform: translateY( 32px );
 	}
+
 	20% {
 		opacity: 1;
 		transform: translateY( 0 );
 	}
+
 	50% {
 		opacity: 1;
 		transform: translateY( 0 );
 	}
+
 	60% {
 		opacity: 0;
 		transform: translateY( -96px );
 	}
+
 	100% {
 		opacity: 0;
 		transform: translateY( -96px );
@@ -193,22 +215,27 @@
 }
 
 @keyframes animation-el-2 {
+
 	0% {
 		opacity: 0;
 		transform: translateY( 64px );
 	}
+
 	20% {
 		opacity: 1;
 		transform: translateY( 0 );
 	}
+
 	50% {
 		opacity: 1;
 		transform: translateY( 0 );
 	}
+
 	60% {
 		opacity: 0;
 		transform: translateY( -96px );
 	}
+
 	100% {
 		opacity: 0;
 		transform: translateY( -96px );
@@ -216,22 +243,27 @@
 }
 
 @keyframes animation-el-3 {
+
 	0% {
 		opacity: 0;
 		transform: translateY( 44px );
 	}
+
 	20% {
 		opacity: 1;
 		transform: translateY( 0 );
 	}
+
 	50% {
 		opacity: 1;
 		transform: translateY( 0 );
 	}
+
 	60% {
 		opacity: 0;
 		transform: translateY( -84px );
 	}
+
 	100% {
 		opacity: 0;
 		transform: translateY( -84px );
@@ -264,6 +296,7 @@
 }
 
 .backup-segments {
+
 	h2 {
 		margin-bottom: 0;
 	}

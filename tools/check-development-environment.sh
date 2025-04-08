@@ -177,6 +177,10 @@ else
 	elif version_compare "$VER" "1.6"; then
 		success "ok (version $VER)"
 		JQOK=true
+	elif version_compare "$VER" "1.6-159-apple-gcff5336-dirty"; then
+		# As of macOS 10.15, Apple bundles a random version that should be good enough.
+		success "ok (version $VER)"
+		JQOK=true
 	else
 		failure "too old" '' "jq at $BIN is version $VER. Version 1.6 or later is required."
 	fi

@@ -20,7 +20,7 @@ export function useService() {
 
 	const servicesMap = useMemo( () => {
 		return supportedServices.reduce< SupportedServicesMap >( ( acc, service ) => {
-			acc[ service.ID ] = service;
+			acc[ service.id ] = service;
 			return acc;
 		}, {} );
 	}, [ supportedServices ] );

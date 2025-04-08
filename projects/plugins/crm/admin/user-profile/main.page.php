@@ -4,7 +4,7 @@
  * Main Page file for User Profile: This file renders views associated with the CRM user profile
  * Jetpack CRM - https://jetpackcrm.com
  */
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 // permissions check
 if ( ! zeroBSCRM_permsIsZBSBackendUser() ) {

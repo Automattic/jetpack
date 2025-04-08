@@ -59,7 +59,7 @@ class Jetpack_Mastodon_Modal {
 		// Render the modal.
 		self::render_modal();
 
-		die();
+		die( 0 );
 	}
 
 	/**

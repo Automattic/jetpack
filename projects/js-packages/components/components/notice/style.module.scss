@@ -19,17 +19,20 @@
 }
 
 .close-button {
-	width: calc( var( --spacing-base ) * 3 );
-	height: calc( var( --spacing-base ) * 3 );
-
+	padding: 0;
 	background-color: transparent;
 	border: none;
 	cursor: pointer;
 	outline: none;
+
+	svg {
+		display: block;
+	}
 }
 
 // Mobile layout differences.
 @media screen and ( max-width: 600px ) {
+
 	.container {
 		position: relative;
 		padding-top: 68px;
@@ -62,8 +65,15 @@
 	display: flex;
 	align-items: center;
 	margin-top: 20px;
+	row-gap: 20px;
+	flex-wrap: wrap;
+
+	@media screen and ( max-width: 600px ) {
+		justify-content: center;
+	}
 
 	a {
+
 		&, &:hover, &:active, &:focus {
 			color: var( --jp-black );
 		}

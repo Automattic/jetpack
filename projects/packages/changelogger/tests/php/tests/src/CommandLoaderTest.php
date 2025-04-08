@@ -17,7 +17,6 @@ use Symfony\Component\Console\Exception\CommandNotFoundException;
  * @covers \Automattic\Jetpack\Changelogger\CommandLoader
  */
 class CommandLoaderTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Test `has()`.

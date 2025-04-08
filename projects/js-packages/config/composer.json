@@ -7,14 +7,12 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev"
 	},
-	"autoload": {
-		"classmap": [
-			"src/"
-		]
-	},
 	"scripts": {
 		"test-js": [
 			"pnpm run test"
+		],
+		"test-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [

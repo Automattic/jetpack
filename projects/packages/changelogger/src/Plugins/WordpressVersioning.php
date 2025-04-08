@@ -50,7 +50,7 @@ class WordpressVersioning implements VersioningPlugin {
 	 * @phan-return array{major:float,point:int,version:string,prerelease:?string,buildinfo:?string}
 	 */
 	public function parseVersion( $version ) {
-		if ( ! preg_match( '/^(?P<major>\d+\.\d)(?:\.(?P<point>\d+))?(?:-(?P<prerelease>dev|(?:alpha|beta|rc)\d*|a\.\d+))?(?:\+(?P<buildinfo>[0-9a-zA-Z.-]+))?$/', $version, $m ) ) {
+		if ( ! preg_match( '/^(?P<major>\d+\.\d)(?:\.(?P<point>\d+))?(?:-(?P<prerelease>dev|(?:alpha|beta|rc)\d*|(?:a|beta)\.\d+))?(?:\+(?P<buildinfo>[0-9a-zA-Z.-]+))?$/', $version, $m ) ) {
 			throw new InvalidArgumentException( "Version number \"$version\" is not in a recognized format." );
 		}
 		$ret            = array(
@@ -178,7 +178,7 @@ class WordpressVersioning implements VersioningPlugin {
 			return array( 100, 0 );
 		}
 
-		foreach ( array( 'dev', 'alpha(\d*)', 'a\.(\d+)', 'beta(\d*)', 'rc(\d*)' ) as $i => $re ) {
+		foreach ( array( 'dev', 'alpha(\d*)', 'a\.(\d+)', 'beta(\d*)', 'beta\.(\d+)', 'rc(\d*)' ) as $i => $re ) {
 			if ( preg_match( "/^{$re}\$/", $s, $m ) ) {
 				$m[0] = $i;
 				return array_map( 'intval', $m );

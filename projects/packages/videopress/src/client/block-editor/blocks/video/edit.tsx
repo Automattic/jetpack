@@ -1,9 +1,10 @@
 /**
  * WordPress dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL, getBlobByURL } from '@wordpress/blob';
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
+	store as blockEditorStore,
 	BlockIcon,
 	useBlockProps,
 	InspectorControls,
@@ -23,6 +24,7 @@ import debugFactory from 'debug';
  */
 import {
 	isStandaloneActive,
+	isUserConnected,
 	isVideoPressActive,
 	isVideoPressModuleActive,
 } from '../../../lib/connection';
@@ -71,6 +73,7 @@ export const PlaceholderWrapper = withNotices( function ( {
 	noticeOperations,
 	instructions = description,
 	disableInstructions,
+	className,
 } ) {
 	useEffect( () => {
 		if ( ! errorMessage ) {
@@ -87,6 +90,7 @@ export const PlaceholderWrapper = withNotices( function ( {
 			label={ title }
 			instructions={ disableInstructions ? null : instructions }
 			notices={ noticeUI }
+			className={ className }
 		>
 			{ children }
 		</Placeholder>
@@ -148,11 +152,14 @@ export default function VideoPressEdit( {
 
 	// Get the redirect URI for the connection flow.
 	const [ isRedirectingToMyJetpack, setIsRedirectingToMyJetpack ] = useState( false );
+	const hasUserConnection = isUserConnected();
+	const { tracks: analyticsTracks } = useAnalytics();
 
 	// Detect if the chapter file is auto-generated.
 	const chapter = tracks?.filter( track => track.kind === 'chapters' )?.[ 0 ];
 
 	const [ showCaption, setShowCaption ] = useState( !! caption );
+	const { replaceBlock, __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
 
 	const {
 		videoData,
@@ -187,6 +194,7 @@ export default function VideoPressEdit( {
 			return;
 		}
 
+		__unstableMarkNextChangeAsNotPersistent();
 		setAttributes( { cacheHtml: previewHtml } );
 	}, [ previewHtml, cacheHtml, setAttributes ] );
 
@@ -203,6 +211,7 @@ export default function VideoPressEdit( {
 			return;
 		}
 
+		__unstableMarkNextChangeAsNotPersistent();
 		setAttributes( { videoRatio: ratio } );
 	}, [ videoRatio, previewWidth, previewHeight, setAttributes ] );
 
@@ -330,13 +339,13 @@ export default function VideoPressEdit( {
 		}
 
 		// Clean the src attribute.
+		__unstableMarkNextChangeAsNotPersistent();
 		setAttributes( { src: undefined } );
 
 		// Set state to start the upload process.
 		setIsUploadingFile( true );
 		setFileToUpload( file );
 	}, [ src ] );
-	const { replaceBlock } = useDispatch( blockEditorStore );
 
 	// Replace video state
 	const [ isReplacingFile, setIsReplacingFile ] = useState< {
@@ -388,6 +397,7 @@ export default function VideoPressEdit( {
 				return;
 			}
 
+			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( newVideoData );
 		};
 
@@ -395,15 +405,21 @@ export default function VideoPressEdit( {
 			<div { ...blockProps } className={ blockMainClassName }>
 				<>
 					<ConnectBanner
-						isConnected={ isActive }
+						isConnected={ hasUserConnection }
 						isModuleActive={ isModuleActive || isStandalonePluginActive }
 						isConnecting={ isRedirectingToMyJetpack }
 						onConnect={ () => {
 							setIsRedirectingToMyJetpack( true );
-							if ( ! isStandalonePluginActive ) {
-								return ( window.location.href = jetpackVideoPressSettingUrl );
+							if ( ! hasUserConnection ) {
+								analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
+									block: 'VideoPress',
+								} );
+								return ( window.location.href = myJetpackConnectUrl );
 							}
-							window.location.href = myJetpackConnectUrl;
+							analyticsTracks.recordEvent( 'jetpack_editor_activate_banner_click', {
+								block: 'VideoPress',
+							} );
+							window.location.href = jetpackVideoPressSettingUrl;
 						} }
 					/>
 
@@ -414,6 +430,7 @@ export default function VideoPressEdit( {
 						fileToUpload={ fileToUpload }
 						isReplacing={ isReplacingFile?.isReplacing }
 						onReplaceCancel={ cancelReplacingVideoFile }
+						isActive={ isActive }
 					/>
 				</>
 			</div>
@@ -592,15 +609,20 @@ export default function VideoPressEdit( {
 
 			<ConnectBanner
 				isModuleActive={ isModuleActive || isStandalonePluginActive }
-				isConnected={ isActive }
+				isConnected={ hasUserConnection }
 				isConnecting={ isRedirectingToMyJetpack }
 				onConnect={ () => {
 					setIsRedirectingToMyJetpack( true );
-					if ( ! isStandalonePluginActive ) {
-						return ( window.location.href = jetpackVideoPressSettingUrl );
+					if ( ! hasUserConnection ) {
+						analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
+							block: 'VideoPress',
+						} );
+						return ( window.location.href = myJetpackConnectUrl );
 					}
-
-					window.location.href = myJetpackConnectUrl;
+					analyticsTracks.recordEvent( 'jetpack_editor_activate_banner_click', {
+						block: 'VideoPress',
+					} );
+					window.location.href = jetpackVideoPressSettingUrl;
 				} }
 			/>
 

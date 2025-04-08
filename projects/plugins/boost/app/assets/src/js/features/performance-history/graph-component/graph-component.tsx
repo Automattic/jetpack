@@ -5,6 +5,7 @@ import {
 	Popover,
 	Spinner,
 } from '@automattic/jetpack-components';
+import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { __ } from '@wordpress/i18n';
 import styles from './graph-component.module.scss';
 import { PerformanceHistoryData } from '../lib/types';
@@ -52,7 +53,12 @@ const GraphComponent = ( {
 				<Popover
 					icon={ <Gridicon icon="lock" /> }
 					action={
-						<Button onClick={ handleUpgrade }>{ __( 'Upgrade now!', 'jetpack-boost' ) }</Button>
+						<InterstitialModalCTA
+							identifier="historical-performance"
+							customModalTrigger={
+								<Button onClick={ handleUpgrade }>{ __( 'Upgrade now!', 'jetpack-boost' ) }</Button>
+							}
+						/>
 					}
 				>
 					<p>

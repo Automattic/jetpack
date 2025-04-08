@@ -12,15 +12,15 @@ The main drawback by this solution is that we have some custom acceptance (codec
 
 To create a new test suite, you need to:
 
-* Add a new `<testsuite>` element to the `../phpunit.xml.dist` file.
-  * To make naming consistent with other test suites, you should end the file with `*-test.php` and end the class name with `_Test`.
-* Follow WordPress code standards (e.g.: name the file `class-my-test.php` if you create a `My_Test` class).
+* Add a new `<testsuite>` element to the `../phpunit.*.xml.dist` files.
+  * To make naming consistent with other test suites, you should end the class name with `_Test`.
+* Follow PHPUnit's naming requirements (e.g.: name the file `My_Test.php` if you create a `My_Test` class).
 
 #### Example
 
 ```xml
 <testsuite name="rest-api">
-	<directory suffix="test.php">tests/php/rest-api</directory>
+	<directory suffix="Test.php">tests/php/rest-api</directory>
 </testsuite>
 ```
 

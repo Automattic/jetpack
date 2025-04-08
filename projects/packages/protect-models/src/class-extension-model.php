@@ -36,6 +36,8 @@ class Extension_Model {
 	/**
 	 * A collection of threats related to this version of the extension.
 	 *
+	 * @deprecated 0.4.0 This property is deprecated. Use Threat_Model::$extension instead.
+	 *
 	 * @var array<Threat_Model>
 	 */
 	public $threats = array();
@@ -81,10 +83,13 @@ class Extension_Model {
 	/**
 	 * Set Threats
 	 *
+	 * @deprecated 0.4.0 This method is deprecated. Use Threat_Model::$extension instead.
+	 *
 	 * @param array<Threat_Model|array|object> $threats An array of threat data to add to the extension.
 	 */
 	public function set_threats( $threats ) {
 		if ( ! is_array( $threats ) ) {
+			// @phan-suppress-next-line PhanDeprecatedProperty -- Maintaining backwards compatibility.
 			$this->threats = array();
 			return;
 		}
@@ -105,6 +110,7 @@ class Extension_Model {
 			$threats
 		);
 
+		// @phan-suppress-next-line PhanDeprecatedProperty -- Maintaining backwards compatibility.
 		$this->threats = $threats;
 	}
 }

@@ -5,6 +5,12 @@ import './style.scss';
 domReady( function () {
 	const millisInDay = 86400000;
 	const container = document.querySelector( '.wp-block-jetpack-cookie-consent' );
+
+	// The consent block might not be always available
+	if ( ! container ) {
+		return;
+	}
+
 	const expiryDaysContainer = container.querySelector( 'span' );
 	const expireDays = parseInt( expiryDaysContainer.textContent );
 	const expireTimeDate = new Date( Date.now() + expireDays * millisInDay );
@@ -27,7 +33,7 @@ domReady( function () {
 			remove();
 			const dismissEvent = new Event( 'eucookielaw-dismissed' );
 			document.dispatchEvent( dismissEvent );
-		} catch ( err ) {
+		} catch {
 			// Avoid sending an error to the browser console.
 		}
 	}

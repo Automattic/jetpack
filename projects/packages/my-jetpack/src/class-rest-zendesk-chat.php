@@ -76,7 +76,7 @@ class REST_Zendesk_Chat {
 	public static function get_chat_authentication() {
 		$authentication = get_transient( self::ZENDESK_AUTH_TOKEN );
 		if ( $authentication ) {
-			return rest_ensure_response( $authentication, 200 );
+			return rest_ensure_response( $authentication );
 		}
 
 		$proxied           = function_exists( 'wpcom_is_proxied_request' ) ? wpcom_is_proxied_request() : false;
@@ -97,7 +97,7 @@ class REST_Zendesk_Chat {
 		}
 
 		set_transient( self::ZENDESK_AUTH_TOKEN, $body, self::TRANSIENT_EXPIRY );
-		return rest_ensure_response( $body, 200 );
+		return rest_ensure_response( $body );
 	}
 
 	/**
@@ -117,6 +117,6 @@ class REST_Zendesk_Chat {
 			return new WP_Error( 'chat_config_data_fetch_failed', 'Chat config data fetch failed', array( 'status' => $response_code ) );
 		}
 
-		return rest_ensure_response( $body, 200 );
+		return rest_ensure_response( $body );
 	}
 }

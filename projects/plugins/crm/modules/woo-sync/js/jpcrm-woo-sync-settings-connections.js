@@ -5,20 +5,19 @@
  * WooSync Settings and Connections pages JS
  */
 
-jQuery( function ( $ ) {
+/* global zeroBSCRMJS_globViewLang, swal, jpcrm_strip_trailing_slashes, ajaxurl, jpcrm_looks_like_URL */
+
+jQuery( function () {
 	// Bind add connection
 	jpcrm_woosync_bind_add_connection();
 } );
 
-/*
- * Bind add connection
- */
 /**
- *
+ * Bind add connection
  */
 function jpcrm_woosync_bind_add_connection() {
 	jQuery( '#jpcrm-woosync-connect-to-store' ).on( 'click', function () {
-		var swal_HTML =
+		const swal_HTML =
 			'<div style="font-size: 1.2em;padding: 0.3em;">' +
 			zeroBSCRMJS_globViewLang( 'connect-woo-site-url' ) +
 			'<br />' +
@@ -52,12 +51,13 @@ function jpcrm_woosync_bind_add_connection() {
 			showCancelButton: true,
 			confirmButtonColor: '#000',
 			cancelButtonColor: '#fff',
-			cancelButtonText: '<span style="color: #000">' + zeroBSCRMJS_globViewLang( 'cancel' ) + '</span>',
+			cancelButtonText:
+				'<span style="color: #000">' + zeroBSCRMJS_globViewLang( 'cancel' ) + '</span>',
 			confirmButtonText: zeroBSCRMJS_globViewLang( 'connect-woo-go' ),
 			customClass: 'swal-wide',
 			preConfirm: function () {
 				// get value
-				var site_url = jpcrm_strip_trailing_slashes(
+				let site_url = jpcrm_strip_trailing_slashes(
 					jQuery( '#jpcrm-connect-woocommerce-store-url' ).val()
 				);
 
@@ -108,7 +108,7 @@ function jpcrm_woosync_bind_add_connection() {
 						return false;
 					}
 					// post via AJAX to receive a new woo auth url (creates a transient to be caught)
-					var data = {
+					const data = {
 						action: 'jpcrm_woosync_get_auth_url',
 						sec: window.zbs_root.woosync_token,
 						site_url: site_url,
@@ -135,7 +135,7 @@ function jpcrm_woosync_bind_add_connection() {
 							// fini
 							resolve();
 						},
-						error: function ( response ) {
+						error: function () {
 							// error, show notice
 							jQuery( '#jpcrm-woosync-connect-to-store-ajax-error' ).removeClass( 'hidden' );
 
@@ -143,23 +143,21 @@ function jpcrm_woosync_bind_add_connection() {
 							resolve();
 						},
 					} );
-				} ).catch( err => {
+				} ).catch( () => {
 					return false;
 				} );
 			},
 		} ).then( function ( result ) {
 			// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
 			if ( result.value ) {
+				// Do nothing.
 			}
 		} );
 	} );
 }
 
-/*
- * Hides error notice when url is valid
- */
 /**
- *
+ * Hides error notice when url is valid
  */
 function jpcrm_woosync_bind_add_connection_inputchange() {
 	jQuery( '#jpcrm-connect-woocommerce-store-url' ).on( 'change', function () {
@@ -171,5 +169,8 @@ function jpcrm_woosync_bind_add_connection_inputchange() {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { jpcrm_woosync_bind_add_connection, jpcrm_woosync_bind_add_connection_inputchange };
+	module.exports = {
+		jpcrm_woosync_bind_add_connection,
+		jpcrm_woosync_bind_add_connection_inputchange,
+	};
 }

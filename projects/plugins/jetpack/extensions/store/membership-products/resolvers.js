@@ -222,8 +222,9 @@ export const getProducts =
 			dispatch( setConnectUrl( null ) );
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );
+		} finally {
+			executionLock.release( lock );
 		}
-		executionLock.release( lock );
 	};
 
 export const getSubscriberCounts =
@@ -244,8 +245,9 @@ export const getSubscriberCounts =
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );
+		} finally {
+			executionLock.release( lock );
 		}
-		executionLock.release( lock );
 	};
 
 export const getNewsletterCategories =
@@ -266,8 +268,9 @@ export const getNewsletterCategories =
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );
+		} finally {
+			executionLock.release( lock );
 		}
-		executionLock.release( lock );
 	};
 
 export const getNewsletterCategoriesSubscriptionsCount =
@@ -287,6 +290,7 @@ export const getNewsletterCategoriesSubscriptionsCount =
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );
+		} finally {
+			executionLock.release( lock );
 		}
-		executionLock.release( lock );
 	};

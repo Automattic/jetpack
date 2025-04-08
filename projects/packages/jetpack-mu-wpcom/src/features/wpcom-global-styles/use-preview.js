@@ -6,7 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Displays a loading placeholder before generating a preview in a given HTML document.
- * @param targetDocument - {HTMLDocument} The HTML document.
+ * @param {Document} targetDocument - The HTML document.
  */
 function writeInterstitialMessage( targetDocument ) {
 	let markup = renderToString(
@@ -89,6 +89,7 @@ function writeInterstitialMessage( targetDocument ) {
 
 /**
  * Custom hook to preview a site without custom Global Styles applied.
+ * @return {object} An object containing the previewPostWithoutCustomStyles function and canPreviewPost boolean.
  */
 export function usePreview() {
 	const {

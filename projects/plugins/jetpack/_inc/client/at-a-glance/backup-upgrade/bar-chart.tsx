@@ -1,8 +1,8 @@
 import { RecordMeterBar } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import React, { useEffect, useMemo, useRef } from 'react';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
-import React, { useEffect, useMemo, useRef } from 'react';
 import { Popup } from './popup';
 import { BarChartProps } from './types';
 

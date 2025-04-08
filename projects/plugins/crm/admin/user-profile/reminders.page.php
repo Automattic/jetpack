@@ -3,7 +3,7 @@
 !
  * User Profile -> Reminders page
  */
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 global $zbs;
 

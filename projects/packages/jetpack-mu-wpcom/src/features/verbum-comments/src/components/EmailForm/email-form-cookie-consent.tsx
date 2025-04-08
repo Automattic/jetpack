@@ -1,12 +1,18 @@
+import { useContext, useCallback } from 'preact/hooks';
 import { translate } from '../../i18n';
-import { shouldStoreEmailData } from '../../state';
+import { VerbumSignals } from '../../state';
 import { ToggleControl } from '../ToggleControl';
 
-const handleChange = ( e: boolean ) => {
-	shouldStoreEmailData.value = e;
-};
-
 export const EmailFormCookieConsent = () => {
+	const { shouldStoreEmailData } = useContext( VerbumSignals );
+
+	const handleChange = useCallback(
+		( e: boolean ) => {
+			shouldStoreEmailData.value = e;
+		},
+		[ shouldStoreEmailData ]
+	);
+
 	const label = (
 		<div className="verbum-toggle-control__label">
 			<p className="primary">

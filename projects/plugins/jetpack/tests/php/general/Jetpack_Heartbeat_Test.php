@@ -1,0 +1,26 @@
+<?php
+
+class Jetpack_Heartbeat_Test extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * @covers Jetpack_Heartbeat::init
+	 * @since 3.9.0
+	 */
+	public function test_init() {
+		$this->assertInstanceOf( 'Jetpack_Heartbeat', Jetpack_Heartbeat::init() );
+	}
+
+	/**
+	 * @covers Jetpack_Heartbeat::generate_stats_array
+	 * @since 3.9.0
+	 */
+	public function test_generate_stats_array() {
+		$prefix = 'test';
+
+		$result = Jetpack_Heartbeat::generate_stats_array( $prefix );
+
+		$this->assertNotEmpty( $result );
+		$this->assertArrayHasKey( $prefix . 'version', $result );
+	}
+}

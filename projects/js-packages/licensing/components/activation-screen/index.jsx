@@ -38,7 +38,10 @@ const parseAttachLicensesResult = result => {
 	}
 
 	throw new Error(
-		__( 'An unknown error occurred during license activation. Please try again.', 'jetpack' )
+		__(
+			'An unknown error occurred during license activation. Please try again.',
+			'jetpack-licensing'
+		)
 	);
 };
 
@@ -82,7 +85,9 @@ const ActivationScreen = props => {
 			return Promise.resolve();
 		}
 		if ( license.length < 1 ) {
-			setLicenseError( __( 'This is not a valid license key. Please try again.', 'jetpack' ) );
+			setLicenseError(
+				__( 'This is not a valid license key. Please try again.', 'jetpack-licensing' )
+			);
 			return Promise.resolve();
 		}
 
@@ -110,7 +115,7 @@ const ActivationScreen = props => {
 						createInterpolateElement(
 							__(
 								'You either do not have permissions to perform this action or a user account needs to be connected. <connectLink>Click here to connect your user account</connectLink> or contact your administrator.',
-								'jetpack'
+								'jetpack-licensing'
 							),
 							{
 								connectLink: (

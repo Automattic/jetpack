@@ -14,7 +14,7 @@
 
 // Breaking Checks ( stops direct access )
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 // Breaking Checks
@@ -37,7 +37,7 @@ foreach ( $required_fields as $field ) {
 				'message' => 'Missing required field: ' . $field,
 			)
 		);
-		exit();
+		exit( 0 );
 	}
 }
 
@@ -243,4 +243,4 @@ if ( ! empty( $orderid ) ) {
 	}
 }
 
-exit();
+exit( 0 );

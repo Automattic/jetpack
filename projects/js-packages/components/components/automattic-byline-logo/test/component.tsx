@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import AutomatticBylineLogo from '../index';
+import AutomatticBylineLogo from '../index.js';
 
 describe( 'AutomatticBylineLogo', () => {
 	const testProps = {

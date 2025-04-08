@@ -5,10 +5,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
-import { TierProp } from '../../../../store/wordpress-com/types';
+import type { TierProp } from '@automattic/jetpack-shared-extension-utils/store/wordpress-com/types';
 
 export default function Upgrade( {
 	onClick,

@@ -70,11 +70,18 @@ This action is intended to be triggered by the `pull_request_review` event.
     request-reviews: true
 
     # GitHub Access Token. The user associated with this token will show up
-    # as the "creator" of the status check, and must have access to read
-    # pull request data, create status checks (`repo:status`), and to read
-    # your organization's teams (`read:org`).
+    # as the "creator" of the status check, and must have the permissions
+    # documented below.
     token: ${{ secrets.SOME_TOKEN }}
 ```
+
+### Permissions required
+
+This action needs access to read pull request data, request reviewers, create status checks, and to read your organization's teams.
+
+For OAuth apps and classic access tokens, that's `repo:status` and `read:org`.
+
+For GitHub Apps and fine-grained access tokens, that's read and write for repository "Commit statuses" (`statuses`) and "Pull requests" (`pull-requests`), and read-only for organization "Members".
 
 ## Requirements Format
 
@@ -93,10 +100,10 @@ The requirements consist of an array of requirement objects. A requirement objec
 * `teams` is an array of strings that are GitHub team slugs in the organization or repository. A
   review is required from a member of any of these teams.
 
-  Instead of a string, a single-keyed object may be specified. The key is either `all-of` or
-  `any-of`, and the value is an array as for `teams`. When the key is `all-of`, a review is required
-  from every team (but if a person is a member of multiple teams, they can satisfy multiple
-  requirements). When it's `any-of`, one review from any team is needed.
+  Instead of a string, a single-keyed object may be specified. The key is `all-of`, `any-of`, or `is-author-or-reviewer`, and the value is an array as for `teams`.
+  When the key is `all-of`, a review is required from every team (but if a person is a member of multiple teams, they can satisfy multiple requirements).
+  When it's `any-of`, one review from any team is needed.
+  When it's `is-author-or-reviewer`, it works like `any-of` but the author of the PR is considered to have self-reviewed.
 
   Additionally, you can specify a single user by prefixing their username with `@`. For example,
   `@example` will be treated as a virtual team with one member; `example`.

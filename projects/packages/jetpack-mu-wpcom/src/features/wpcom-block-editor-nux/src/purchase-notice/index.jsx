@@ -6,6 +6,7 @@ import './style.scss';
 
 /**
  * Display the purchase notice snackbar
+ * @return {null} This component is non-rendering.
  */
 function PurchaseNotice() {
 	const hasPaymentNotice = useRef( false );

@@ -84,6 +84,8 @@ export default function PrivacyAndRatingSettings( {
 					setAttributes( { rating: value } );
 				} }
 				disabled={ ! videoBelongToSite }
+				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 
 			<SelectControl
@@ -104,6 +106,8 @@ export default function PrivacyAndRatingSettings( {
 				value={ String( privacySetting ) }
 				options={ [ privacyOptionSiteDefault, privacyOptionPublic, privacyOptionPrivate ] }
 				disabled={ ! videoBelongToSite }
+				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 
 			<ToggleControl
@@ -113,6 +117,7 @@ export default function PrivacyAndRatingSettings( {
 					setAttributes( { allowDownload: value } );
 				} }
 				disabled={ ! videoBelongToSite }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			<ToggleControl
@@ -126,6 +131,7 @@ export default function PrivacyAndRatingSettings( {
 					'jetpack-videopress-pkg'
 				) }
 				disabled={ ! videoBelongToSite }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			{ ! videoBelongToSite && <VideoNotOwnedWarning /> }

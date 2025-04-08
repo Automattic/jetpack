@@ -21,6 +21,7 @@
 	}
 
 	&.is-grid-layout {
+
 		.jetpack-top-posts-wrapper {
 			align-items: flex-start;
 			display: grid;
@@ -61,6 +62,7 @@
 
 		// These rows should display two items.
 		@for $i from 2 through 7 {
+
 			@if $i == 2 or $i == 4 {
 				&[data-item-count='#{$i}'] .jetpack-top-posts-item {
 					grid-column: span 3;

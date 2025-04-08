@@ -3,7 +3,7 @@
  * of the card with customized content.
  */
 
-/* global jetpackPluginSearch, JSON, jpTracksAJAX */
+/* global jetpackPluginSearch, jpTracksAJAX */
 
 var JetpackPSH = {};
 
@@ -13,7 +13,7 @@ var JetpackPSH = {};
 
 		/**
 		 * Get parent search hint element.
-		 * @returns {Element | null}
+		 * @return {Element | null}
 		 */
 		getCard: function () {
 			return document.querySelector( '.plugin-card-jetpack-plugin-search' );
@@ -35,38 +35,6 @@ var JetpackPSH = {};
 						window.location = target.getAttribute( 'href' );
 					}
 				} );
-		},
-
-		/**
-		 * Update title of the card to add a mention that the result is from the Jetpack plugin.
-		 */
-		updateCardTitle: function () {
-			var hint = JetpackPSH.getCard();
-
-			if ( 'object' === typeof hint && null !== hint ) {
-				var title = hint.querySelector( '.column-name h3' );
-				title.outerHTML =
-					title.outerHTML + '<strong>' + jetpackPluginSearch.poweredBy + '</strong>';
-			}
-		},
-
-		/**
-		 * Move action links below description.
-		 */
-		moveActionLinks: function () {
-			var hint = JetpackPSH.getCard();
-			if ( 'object' === typeof hint && null !== hint ) {
-				var descriptionContainer = hint.querySelector( '.column-description' );
-				// Keep only the first paragraph. The second is the plugin author.
-				var descriptionText = descriptionContainer.querySelector( 'p:first-child' );
-				var actionLinks = hint.querySelector( '.action-links' );
-
-				// Change the contents of the description, to keep the description text and the action links.
-				descriptionContainer.innerHTML = descriptionText.outerHTML + actionLinks.outerHTML;
-
-				// Remove the action links from their default location.
-				actionLinks.parentNode.removeChild( actionLinks );
-			}
 		},
 
 		/**
@@ -97,7 +65,7 @@ var JetpackPSH = {};
 		},
 
 		/**
-		 * Check if plugin card list nodes changed. If there's a Jetpack PSH card, replace the title and the bottom row.
+		 * Check if plugin card list nodes changed. If there's a Jetpack PSH card, replace the bottom row.
 		 * @param {array} mutationsList
 		 */
 		replaceOnNewResults: function ( mutationsList ) {
@@ -106,8 +74,6 @@ var JetpackPSH = {};
 					'childList' === mutation.type &&
 					1 === document.querySelectorAll( '.plugin-card-jetpack-plugin-search' ).length
 				) {
-					JetpackPSH.updateCardTitle();
-					JetpackPSH.moveActionLinks();
 					JetpackPSH.replaceCardBottom();
 				}
 			} );
@@ -213,12 +179,6 @@ var JetpackPSH = {};
 			if ( JetpackPSH.$pluginFilter.length < 1 ) {
 				return;
 			}
-
-			// Update title to show that the suggestion is from Jetpack.
-			JetpackPSH.updateCardTitle();
-
-			// Update the description and action links.
-			JetpackPSH.moveActionLinks();
 
 			// Replace PSH bottom row on page load
 			JetpackPSH.replaceCardBottom();

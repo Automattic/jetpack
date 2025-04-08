@@ -3,7 +3,6 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Redirect;
 
 /*
 Plugin Name: The Neverending Home Page.
@@ -432,34 +431,9 @@ class The_Neverending_Home_Page {
 			return;
 		}
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// This setting is no longer configurable in wp-admin on WordPress.com -- leave a pointer
-			add_settings_field(
-				self::$option_name_enabled,
-				'<span id="infinite-scroll-options">' . esc_html__( 'Infinite Scroll Behavior', 'jetpack' ) . '</span>',
-				array( $this, 'infinite_setting_html_calypso_placeholder' ),
-				'reading'
-			);
-			return;
-		}
-
 		// Add the setting field [infinite_scroll] and place it in Settings > Reading
 		add_settings_field( self::$option_name_enabled, '<span id="infinite-scroll-options">' . esc_html__( 'Infinite Scroll Behavior', 'jetpack' ) . '</span>', array( $this, 'infinite_setting_html' ), 'reading' );
 		register_setting( 'reading', self::$option_name_enabled, 'esc_attr' );
-	}
-
-	/**
-	 * Render the redirect link to the infinite scroll settings in Calypso.
-	 */
-	public function infinite_setting_html_calypso_placeholder() {
-		$details     = get_blog_details();
-		$writing_url = Redirect::get_url( 'calypso-settings-writing', array( 'site' => $details->domain ) );
-		echo '<span>' . sprintf(
-			/* translators: Variables are the enclosing link to the settings page */
-			esc_html__( 'This option has moved. You can now manage it %1$shere%2$s.', 'jetpack' ),
-			'<a href="' . esc_url( $writing_url ) . '">',
-			'</a>'
-		) . '</span>';
 	}
 
 	/**
@@ -753,11 +727,12 @@ class The_Neverending_Home_Page {
 
 			$sort_field = self::get_query_sort_field( $query );
 
-			if ( 'post_date' !== $sort_field || 'DESC' !== $_REQUEST['query_args']['order'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes made to the site.
+			if ( 'post_date' !== $sort_field ||
+			! isset( $_REQUEST['query_args']['order'] ) || 'DESC' !== $_REQUEST['query_args']['order'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site.
 				return $where;
 			}
 
-			$query_before = sanitize_text_field( wp_unslash( $_REQUEST['query_before'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes made to the site.
+			$query_before = isset( $_REQUEST['query_before'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['query_before'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site.
 
 			if ( empty( $query_before ) ) {
 				return $where;
@@ -771,6 +746,8 @@ class The_Neverending_Home_Page {
 			 * will always return results prior to (descending sort)
 			 * or before (ascending sort) the last post date.
 			 *
+			 * @deprecated 14.0
+			 *
 			 * @module infinite-scroll
 			 *
 			 * @param string $clause SQL Date query.
@@ -778,9 +755,9 @@ class The_Neverending_Home_Page {
 			 * @param string $operator @deprecated Query operator.
 			 * @param string $last_post_date @deprecated Last Post Date timestamp.
 			 */
-			$operator       = 'ASC' === $_REQUEST['query_args']['order'] ? '>' : '<'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes to the site.
-			$last_post_date = sanitize_text_field( wp_unslash( $_REQUEST['last_post_date'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes to the site.
-			$where         .= apply_filters( 'infinite_scroll_posts_where', $clause, $query, $operator, $last_post_date );
+			$operator       = '<';
+			$last_post_date = isset( $_REQUEST['last_post_date'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['last_post_date'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes to the site
+			$where         .= apply_filters_deprecated( 'infinite_scroll_posts_where', array( $clause, $query, $operator, $last_post_date ), '14.0', '' );
 		}
 
 		return $where;
@@ -1374,7 +1351,7 @@ class The_Neverending_Home_Page {
 	 */
 	public function query() {
 		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes to the site.
-			die;
+			die( 0 );
 		}
 
 		// @todo see if we should validate this nonce since we use it to form a query.
@@ -1432,7 +1409,7 @@ class The_Neverending_Home_Page {
 
 		$infinite_scroll_query->query( $query_args );
 
-		remove_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
+		remove_filter( 'posts_where', array( $this, 'query_time_filter' ), 10 );
 
 		$results = array();
 

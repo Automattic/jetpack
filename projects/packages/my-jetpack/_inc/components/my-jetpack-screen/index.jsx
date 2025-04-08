@@ -10,31 +10,42 @@ import {
 	ZendeskChat,
 	useBreakpointMatch,
 	ActionButton,
+	GlobalNotices,
 } from '@automattic/jetpack-components';
-import { useExperiment } from '@automattic/jetpack-explat';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
+import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 /*
  * Internal dependencies
  */
 import { NoticeContext } from '../../context/notices/noticeContext';
+import { NOTICE_SITE_CONNECTION_ERROR } from '../../context/notices/noticeTemplates';
 import {
 	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
 	QUERY_CHAT_AVAILABILITY_KEY,
 	QUERY_CHAT_AUTHENTICATION_KEY,
+	QUERY_GET_JETPACK_MANAGE_DATA_KEY,
+	REST_API_GET_JETPACK_MANAGE_DATA,
 } from '../../data/constants';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
+import useUpdateHistoricallyActiveModules from '../../data/products/use-update-historically-active-modules';
+import useRedBubbleQuery from '../../data/use-red-bubble-query';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
+import resetJetpackOptions from '../../data/utils/reset-jetpack-options';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
+import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import ConnectionsSection from '../connections-section';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
+import LoadingBlock from '../loading-block';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
 import WelcomeFlow from '../welcome-flow';
@@ -42,7 +53,6 @@ import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
 	const { recordEvent } = useAnalytics();
-
 	useEffect( () => {
 		const tracksArgs = options?.tracksArgs || {};
 
@@ -55,7 +65,9 @@ const GlobalNotice = ( { message, title, options } ) => {
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 
 	const actionButtons = options.actions?.map( action => {
-		return <ActionButton customClass={ styles.cta } { ...action } />;
+		return (
+			<ActionButton key={ action.key || action.label } customClass={ styles.cta } { ...action } />
+		);
 	} );
 
 	return (
@@ -77,14 +89,22 @@ const GlobalNotice = ( { message, title, options } ) => {
  * @return {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
-	useExperiment( 'explat_test_jetpack_implementation_aa_test' );
+	const [ welcomeFlowExperiment, setWelcomeFlowExperiment ] = useState( {
+		isLoading: false,
+		variation: 'control',
+	} );
 	useNotificationWatcher();
-	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
-	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
+	const {
+		isAtomic = false,
+		adminUrl,
+		sandboxedDomain,
+		isDevVersion,
+		userIsAdmin,
+	} = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
-	const { siteIsRegistered } = useMyJetpackConnection();
+	const { siteIsRegistered, apiRoot, apiNonce } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -99,13 +119,34 @@ export default function MyJetpackScreen() {
 		name: QUERY_CHAT_AUTHENTICATION_KEY,
 		query: { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT },
 	} );
+	const {
+		data: jetpackManageData,
+		isLoading: isJetpackManageLoading,
+		isError: isJetpackManageError,
+	} = useSimpleQuery( {
+		name: QUERY_GET_JETPACK_MANAGE_DATA_KEY,
+		query: { path: REST_API_GET_JETPACK_MANAGE_DATA },
+	} );
+
+	const {
+		data: redBubbleAlerts,
+		isLoading: isRedBubbleAlertsLoading,
+		isError: isRedBubbleAlertsError,
+	} = useRedBubbleQuery();
+
+	const updateHistoricallyActiveModules = useUpdateHistoricallyActiveModules();
+
+	useEffect( () => {
+		updateHistoricallyActiveModules();
+	}, [ updateHistoricallyActiveModules ] );
 
 	const isAvailable = availabilityData?.is_available;
 	const jwt = authData?.user?.jwt;
 
 	const shouldShowZendeskChatWidget =
 		! isJwtLoading && ! isChatAvailabilityLoading && isAvailable && jwt;
-	const isNewUser = getMyJetpackWindowInitialState( 'userIsNewToJetpack' ) === '1';
+
+	const isNewUser = useIsJetpackUserNew();
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
@@ -113,10 +154,20 @@ export default function MyJetpackScreen() {
 	// useLayoutEffect gets called before useEffect.
 	// We are using it here to ensure the `page_view` event gets triggered first.
 	useLayoutEffect( () => {
-		recordEvent( 'jetpack_myjetpack_page_view', {
-			red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
-		} );
-	}, [ recordEvent, redBubbleAlerts ] );
+		let customTracksData = {};
+
+		if ( ! isRedBubbleAlertsError && Object.keys( redBubbleAlerts )?.length ) {
+			customTracksData = {
+				red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
+			};
+		}
+
+		if ( ! isRedBubbleAlertsLoading ) {
+			recordEvent( 'jetpack_myjetpack_page_view', {
+				...customTracksData,
+			} );
+		}
+	}, [ recordEvent, redBubbleAlerts, isRedBubbleAlertsError, isRedBubbleAlertsLoading ] );
 
 	if ( window.location.hash.includes( '?reload=true' ) ) {
 		// Clears the query string and reloads the page.
@@ -130,11 +181,32 @@ export default function MyJetpackScreen() {
 		return null;
 	}
 
+	const resetOptionsMenuItem = {
+		label: _x(
+			'Reset Options (dev only)',
+			'Button for option to reset Jetpack Options',
+			'jetpack-my-jetpack'
+		),
+		title: __( 'Reset Options', 'jetpack-my-jetpack' ),
+		role: 'button',
+		onClick: () => resetJetpackOptions(),
+		onKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
+	};
+
 	return (
-		<AdminPage siteAdminUrl={ adminUrl }>
+		<AdminPage
+			siteAdminUrl={ adminUrl }
+			sandboxedDomain={ sandboxedDomain }
+			apiRoot={ apiRoot }
+			apiNonce={ apiNonce }
+			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
+			useInternalLinks={ shouldUseInternalLinks() }
+		>
+			<h1 className="screen-reader-text">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</h1>
 			<hr className={ styles.separator } />
 
 			<IDCModal />
+			<GlobalNotices />
 			{ ! isNewUser && (
 				<Container horizontalSpacing={ 0 }>
 					<Col>
@@ -142,15 +214,20 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 			) }
-			{ isWelcomeBannerVisible ? (
-				<WelcomeFlow>
-					{ noticeMessage && siteIsRegistered && (
-						<GlobalNotice
-							message={ noticeMessage }
-							title={ noticeTitle }
-							options={ noticeOptions }
-						/>
-					) }
+			{ isWelcomeBannerVisible && userIsAdmin ? (
+				<WelcomeFlow
+					welcomeFlowExperiment={ welcomeFlowExperiment }
+					setWelcomeFlowExperiment={ setWelcomeFlowExperiment }
+				>
+					{ noticeMessage &&
+						( siteIsRegistered ||
+							noticeOptions?.id === NOTICE_SITE_CONNECTION_ERROR.options.id ) && (
+							<GlobalNotice
+								message={ noticeMessage }
+								title={ noticeTitle }
+								options={ noticeOptions }
+							/>
+						) }
 				</WelcomeFlow>
 			) : (
 				noticeMessage && (
@@ -165,14 +242,23 @@ export default function MyJetpackScreen() {
 					</Container>
 				)
 			) }
-			{ ! isWelcomeBannerVisible && isSectionVisible && <EvaluationRecommendations /> }
+			{ ! isWelcomeBannerVisible && isSectionVisible && userIsAdmin && (
+				<EvaluationRecommendations />
+			) }
 
 			<ProductCardsSection />
 
-			{ jetpackManage.isEnabled && (
+			{ userIsAdmin && (
 				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col>
-						<JetpackManageBanner isAgencyAccount={ jetpackManage.isAgencyAccount } />
+						{ isJetpackManageLoading ? (
+							<LoadingBlock height="200px" width="100%" />
+						) : (
+							! isJetpackManageError &&
+							jetpackManageData.isEnabled && (
+								<JetpackManageBanner isAgencyAccount={ jetpackManageData.isAgencyAccount } />
+							)
+						) }
 					</Col>
 				</Container>
 			) }
@@ -183,7 +269,7 @@ export default function MyJetpackScreen() {
 						<PlansSection />
 					</Col>
 					<Col sm={ 4 } md={ 4 } lg={ 6 }>
-						<ConnectionsSection />
+						{ ! isAtomic && <ConnectionsSection /> }
 					</Col>
 				</Container>
 			</AdminSection>

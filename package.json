@@ -17,24 +17,40 @@
 		"cli-setup": "pnpm install && jetpack cli link",
 		"cli-unlink": "jetpack cli unlink",
 		"lint": "pnpm run lint-file .",
-		"lint-changed": "eslint-changed --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte --git",
-		"lint-file": "eslint --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte",
+		"lint-changed": "eslint-changed --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte --eslint-options flags='[\"unstable_config_lookup_from_file\"]' --git",
+		"lint-file": "eslint --flag unstable_config_lookup_from_file",
 		"lint-required": "ESLINT_IGNORE_REQUIRED=1 pnpm run lint --max-warnings=0",
+		"lint-style": "stylelint --globby-options '{\"gitignore\":true,\"ignore\":[\"tools/docker/data\",\"**/vendor/**\",\"**/jetpack_vendor/**\"]}'",
 		"php:autofix": "composer phpcs:fix",
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
-		"prepare": "husky install",
+		"prepare": "husky",
 		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,svelte,json,json5}\"",
+		"typecheck": "pnpm --recursive --if-present --no-bail run typecheck",
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
-		"eslint": "8.57.0",
-		"husky": "8.0.3",
+		"eslint": "9.22.0",
+		"husky": "9.1.7",
 		"jetpack-cli": "workspace:*",
-		"jetpack-js-tools": "workspace:*"
+		"jetpack-js-tools": "workspace:*",
+		"stylelint": "16.16.0"
 	},
 	"engines": {
-		"node": "^20.8.1",
-		"pnpm": "^9.3.0"
+		"node": "^22.9.0",
+		"pnpm": "^10.4.0"
+	},
+	"packageManager": "pnpm@10.4.0",
+	"pnpm": {
+		"patchedDependencies": {
+			"@wordpress/dataviews": ".pnpm-patches/@wordpress__dataviews@4.12.0.patch"
+		},
+		"ignoredBuiltDependencies": [
+			"@swc/core",
+			"core-js",
+			"esbuild",
+			"svelte-preprocess",
+			"swiper"
+		]
 	}
 }

@@ -121,7 +121,7 @@ export default {
 							<RichText.Content tagName="p" value={ chooseAmountText } />
 							<div className="donations__amounts donations__one-time-item">
 								{ oneTimeDonation.amounts.map( amount => (
-									<div className="donations__amount" data-amount={ amount }>
+									<div key={ amount } className="donations__amount" data-amount={ amount }>
 										{ formatCurrency( amount, currency ) }
 									</div>
 								) ) }
@@ -129,7 +129,7 @@ export default {
 							{ monthlyDonation.show && (
 								<div className="donations__amounts donations__monthly-item">
 									{ monthlyDonation.amounts.map( amount => (
-										<div className="donations__amount" data-amount={ amount }>
+										<div key={ amount } className="donations__amount" data-amount={ amount }>
 											{ formatCurrency( amount, currency ) }
 										</div>
 									) ) }
@@ -138,7 +138,7 @@ export default {
 							{ annualDonation.show && (
 								<div className="donations__amounts donations__annual-item">
 									{ annualDonation.amounts.map( amount => (
-										<div className="donations__amount" data-amount={ amount }>
+										<div key={ amount } className="donations__amount" data-amount={ amount }>
 											{ formatCurrency( amount, currency ) }
 										</div>
 									) ) }

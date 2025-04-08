@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Launchpad: Added isset to avoid Warnings when finding about page id

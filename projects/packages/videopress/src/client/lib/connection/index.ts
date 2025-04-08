@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import debugFactory from 'debug';
 
 // Get connection initial state from the global window object.
 const initialState = window?.JP_CONNECTION_INITIAL_STATE;
-
-const { siteType = '' } = window?.videoPressEditorState || {};
 
 const debug = debugFactory( 'videopress:connection' );
 
@@ -20,8 +19,13 @@ const debug = debugFactory( 'videopress:connection' );
  * @return {boolean} True if the user is connected, false otherwise.
  */
 export function isUserConnected(): boolean {
-	if ( siteType === 'simple' ) {
+	if ( isSimpleSite() ) {
 		debug( 'Simple site connected ✅' );
+		return true;
+	}
+
+	if ( isAtomicSite() ) {
+		debug( 'Atomic site connected ✅' );
 		return true;
 	}
 

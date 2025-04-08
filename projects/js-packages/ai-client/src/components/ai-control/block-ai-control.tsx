@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, ButtonGroup } from '@wordpress/components';
+import { Button, Flex } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useImperativeHandle, useRef, useEffect, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -46,6 +46,7 @@ type BlockAIControlProps = {
 	showRemove?: boolean;
 	banner?: ReactElement;
 	error?: ReactElement;
+	lastAction?: string;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:block-ai-control' );
@@ -77,6 +78,7 @@ export function BlockAIControl(
 		showRemove = false,
 		banner = null,
 		error = null,
+		lastAction,
 	}: BlockAIControlProps,
 	ref: React.MutableRefObject< HTMLInputElement >
 ): ReactElement {
@@ -222,7 +224,7 @@ export function BlockAIControl(
 			{ showAccept && ! editRequest && (
 				<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 					{ ( value?.length > 0 || lastValue === null ) && (
-						<ButtonGroup>
+						<Flex gap={ 1 } role="group" className="jetpack-components-ai-control__button-group">
 							<Button
 								className="jetpack-components-ai-control__controls-prompt_button"
 								label={ __( 'Discard', 'jetpack-ai-client' ) }
@@ -240,7 +242,7 @@ export function BlockAIControl(
 							>
 								<Icon icon={ regenerate } />
 							</Button>
-						</ButtonGroup>
+						</Flex>
 					) }
 					<Button
 						className="jetpack-components-ai-control__controls-prompt_button"
@@ -256,7 +258,19 @@ export function BlockAIControl(
 	);
 
 	const message =
-		showGuideLine && ! loading && ! editRequest && ( customFooter || <GuidelineMessage /> );
+		showGuideLine &&
+		! loading &&
+		! editRequest &&
+		( customFooter || (
+			<GuidelineMessage
+				aiFeedbackThumbsOptions={ {
+					showAIFeedbackThumbs: true,
+					ratedItem: 'ai-assistant',
+					prompt: lastAction,
+					block: 'ai-assistant',
+				} }
+			/>
+		) );
 
 	return (
 		<AIControl

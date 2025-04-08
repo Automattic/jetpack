@@ -11,6 +11,7 @@ export const EVENT_NAVIGATE = 'jetpack_ai_logo_generator_navigate';
 export const EVENT_FEEDBACK = 'jetpack_ai_logo_generator_feedback';
 export const EVENT_UPGRADE = 'jetpack_ai_upgrade_button';
 export const EVENT_SWITCH_STYLE = 'jetpack_ai_logo_generator_switch_style';
+export const EVENT_GUESS_STYLE = 'jetpack_ai_logo_generator_guess_style';
 
 // Event placement constants
 export const EVENT_PLACEMENT_QUICK_LINKS = 'quick_links';

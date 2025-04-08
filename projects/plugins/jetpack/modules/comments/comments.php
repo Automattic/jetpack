@@ -394,6 +394,7 @@ HTML;
 			'color_scheme'           => get_option( 'jetpack_comment_form_color_scheme', $this->default_color_scheme ),
 			'lang'                   => get_locale(),
 			'jetpack_version'        => JETPACK__VERSION,
+			'iframe_unique_id'       => wp_unique_id(),
 		);
 
 		// Extra parameters for logged in user.
@@ -594,12 +595,30 @@ HTML;
 				document.querySelector('#comment-reply-js')?.addEventListener( 'load', watchReply );
 
 				<?php endif; ?>
+				
+				const commentIframes = document.getElementsByClassName('jetpack_remote_comment');
 
-				window.addEventListener( 'message', function ( event ) {
-					if ( event.origin !== 'https://jetpack.wordpress.com' ) {
+				window.addEventListener('message', function(event) {
+					if (event.origin !== 'https://jetpack.wordpress.com') {
 						return;
 					}
-					iframe.style.height = event.data + 'px';
+
+					if (!event?.data?.iframeUniqueId && !event?.data?.height) {
+						return;
+					}
+
+					const eventDataUniqueId = event.data.iframeUniqueId;
+
+					// Change height for the matching comment iframe
+					for (let i = 0; i < commentIframes.length; i++) {
+						const iframe = commentIframes[i];
+						const url = new URL(iframe.src);
+						const iframeUniqueIdParam = url.searchParams.get('iframe_unique_id');
+						if (iframeUniqueIdParam == event.data.iframeUniqueId) {
+							iframe.style.height = event.data.height + 'px';
+							return;
+						}
+					}
 				});
 			})();
 		</script>
@@ -704,7 +723,7 @@ HTML;
 		</body>
 		</html>
 		<?php
-		exit;
+		exit( 0 );
 	}
 
 	/** Capabilities **********************************************************/
@@ -830,7 +849,7 @@ HTML;
 	 */
 	public function capture_comment_duplicate_trigger() {
 		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			exit;
+			exit( 0 );
 		}
 
 		?>
@@ -909,7 +928,7 @@ HTML;
 		</body>
 		</html>
 		<?php
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -1011,8 +1030,10 @@ HTML;
 		<script type="text/javascript">
 			try {
 				window.parent.location.href = <?php echo wp_json_encode( $url ); ?>;
+				window.parent.location.reload( true );
 			} catch (e) {
 				window.location.href = <?php echo wp_json_encode( $url ); ?>;
+				window.location.reload( true );
 			}
 			ellipsis = document.getElementById('ellipsis');
 
@@ -1046,7 +1067,7 @@ HTML;
 		</body>
 		</html>
 		<?php
-		exit;
+		exit( 0 );
 	}
 }
 

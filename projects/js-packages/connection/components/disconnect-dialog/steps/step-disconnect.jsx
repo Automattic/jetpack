@@ -69,12 +69,12 @@ const StepDisconnect = props => {
 	 * @return {React.Component} - Button used for disconnect.
 	 */
 	const renderDisconnectButton = () => {
-		let buttonText = __( 'Disconnect', 'jetpack' );
+		let buttonText = __( 'Disconnect', 'jetpack-connection-js' );
 		// When showing on the plugins page, this button should deactivate the plugin as well.
 		if ( isDisconnecting ) {
-			buttonText = __( 'Disconnecting…', 'jetpack' );
+			buttonText = __( 'Disconnecting…', 'jetpack-connection-js' );
 		} else if ( context === 'plugins' ) {
-			buttonText = __( 'Deactivate', 'jetpack' );
+			buttonText = __( 'Deactivate', 'jetpack-connection-js' );
 		}
 
 		return (
@@ -104,9 +104,15 @@ const StepDisconnect = props => {
 			return (
 				<div className="jp-connection__disconnect-dialog__step-copy">
 					<p className="jp-connection__disconnect-dialog__large-text">
-						{ __( 'Jetpack is currently powering multiple products on your site.', 'jetpack' ) }
+						{ __(
+							'Jetpack is currently powering multiple products on your site.',
+							'jetpack-connection-js'
+						) }
 						<br />
-						{ __( 'Once you disconnect Jetpack, these will no longer work.', 'jetpack' ) }
+						{ __(
+							'Once you disconnect Jetpack, these will no longer work.',
+							'jetpack-connection-js'
+						) }
 					</p>
 				</div>
 			);
@@ -134,7 +140,7 @@ const StepDisconnect = props => {
 							{ createInterpolateElement(
 								__(
 									'<strong>Need help?</strong> Learn more about the <jpConnectionInfoLink>Jetpack connection</jpConnectionInfoLink> or <jpSupportLink>contact Jetpack support</jpSupportLink>.',
-									'jetpack'
+									'jetpack-connection-js'
 								),
 								{
 									strong: <strong></strong>,
@@ -166,8 +172,12 @@ const StepDisconnect = props => {
 							className="jp-connection__disconnect-dialog__btn-dismiss"
 						>
 							{ context === 'plugins'
-								? __( 'Cancel', 'jetpack' )
-								: __( 'Stay connected', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
+								? __( 'Cancel', 'jetpack-connection-js' )
+								: __(
+										'Stay connected',
+										'jetpack-connection-js',
+										/* dummy arg to avoid bad minification */ 0
+								  ) }
 						</Button>
 						{ renderDisconnectButton() }
 					</div>

@@ -46,6 +46,13 @@ class iCalendarReader {
 	public $timezone = null;
 
 	/**
+	 * Last iCalendar keyword parsed.
+	 *
+	 * @var string
+	 */
+	public $last_keyword;
+
+	/**
 	 * Class constructor
 	 *
 	 * @return void
@@ -147,13 +154,13 @@ class iCalendarReader {
 				$start_time = preg_replace( '/Z$/', '', $event['DTSTART'] );
 				$start_time = new DateTime( $start_time, $this->timezone );
 				$start_time->setTimeZone( $timezone );
-
-				$end_time = preg_replace( '/Z$/', '', $event['DTEND'] );
-				$end_time = new DateTime( $end_time, $this->timezone );
-				$end_time->setTimeZone( $timezone );
-
 				$event['DTSTART'] = $start_time->format( 'YmdHis\Z' );
-				$event['DTEND']   = $end_time->format( 'YmdHis\Z' );
+				if ( isset( $event['DTEND'] ) ) {
+					$end_time = preg_replace( '/Z$/', '', $event['DTEND'] );
+					$end_time = new DateTime( $end_time, $this->timezone );
+					$end_time->setTimeZone( $timezone );
+					$event['DTEND'] = $end_time->format( 'YmdHis\Z' );
+				}
 			}
 
 			$offsetted_events[] = $event;
@@ -231,9 +238,9 @@ class iCalendarReader {
 
 			// Process events with RRULE before other events.
 			$rrule = isset( $event['RRULE'] ) ? $event['RRULE'] : false;
-			$uid   = $event['UID'];
+			$uid   = isset( $event['UID'] ) ? $event['UID'] : false;
 
-			if ( $rrule && ! in_array( $uid, $set_recurring_events, true ) ) {
+			if ( $rrule && $uid && ! in_array( $uid, $set_recurring_events, true ) ) {
 
 				// Break down the RRULE into digestible chunks.
 				$rrule_array = array();

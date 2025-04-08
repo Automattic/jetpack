@@ -1,0 +1,19 @@
+<?php
+/**
+ * A dummy file to test Jetpack.PHPUnit.TestClassName
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+/**
+ * A dummy test class.
+ */
+class PhpunitFilename extends TestCase {
+
+	/**
+	 * Test `true` is true.
+	 */
+	public function test_true() {
+		$this->assertTrue( true );
+	}
+}

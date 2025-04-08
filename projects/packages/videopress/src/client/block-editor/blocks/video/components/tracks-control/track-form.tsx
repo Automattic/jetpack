@@ -160,6 +160,7 @@ export default function TrackForm( {
 										</Button>
 									);
 								} }
+								__next40pxDefaultSize={ true }
 							/>
 						</MediaUploadCheck>
 					</div>
@@ -172,6 +173,8 @@ export default function TrackForm( {
 						value={ track.label }
 						help={ __( 'Title of track', 'jetpack-videopress-pkg' ) }
 						disabled={ isSavingTrack }
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<TextControl
 						className="video-tracks-control__track-form-language-tag"
@@ -180,6 +183,8 @@ export default function TrackForm( {
 						onChange={ setSourceLanguage }
 						help={ __( 'Language (en, fr, etc.)', 'jetpack-videopress-pkg' ) }
 						disabled={ isSavingTrack }
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 				</div>
 				<SelectControl
@@ -191,6 +196,8 @@ export default function TrackForm( {
 					}
 					onChange={ newKind => updateTrack( 'kind', newKind ) }
 					disabled={ isSavingTrack }
+					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				/>
 
 				{ error && (
@@ -210,6 +217,7 @@ export default function TrackForm( {
 							label={ __( 'Track exists. Replace?', 'jetpack-videopress-pkg' ) }
 							checked={ replaceTrack }
 							onChange={ setReplaceTrack }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 					<Button

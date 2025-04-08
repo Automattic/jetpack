@@ -54,7 +54,7 @@ class Scripts {
 		$warnings_folder = dirname( __DIR__ ) . '/output/warnings/';
 		$invocations_folder = dirname( __DIR__ ) . '/output/invocations/';
 
-		echo "Looking for invocations in:\n${folder_name}\n\n";
+		echo "Looking for invocations in:\n{$folder_name}\n\n";
 		$invocations = new Invocations();
 		$invocations->scan( $folder_name, $excludes );
 		$invocations->save( $invocations_folder . basename( $folder_name ) . '.json', false );

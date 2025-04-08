@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
-import numberFormat from '../number-format';
+import numberFormat from '../number-format/index.js';
 
 import './style.scss';
 
@@ -139,11 +139,11 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 				</ul>
 			</div>
 			<table className="screen-reader-text">
-				<caption>{ tableCaption || __( 'Summary of the records', 'jetpack' ) }</caption>
+				<caption>{ tableCaption || __( 'Summary of the records', 'jetpack-components' ) }</caption>
 				<tbody>
 					<tr>
-						<th scope="col">{ recordTypeLabel || __( 'Record type', 'jetpack' ) }</th>
-						<th scope="col">{ recordCountLabel || __( 'Record count', 'jetpack' ) }</th>
+						<th scope="col">{ recordTypeLabel || __( 'Record type', 'jetpack-components' ) }</th>
+						<th scope="col">{ recordCountLabel || __( 'Record count', 'jetpack-components' ) }</th>
 					</tr>
 					{ itemsToRender.map( ( { label, count } ) => {
 						return (

@@ -1,6 +1,6 @@
-import Search from 'components/search';
 import SearchCard from 'components/search-card';
 import React from 'react';
+import Search from 'components/search';
 
 /**
  * Globals

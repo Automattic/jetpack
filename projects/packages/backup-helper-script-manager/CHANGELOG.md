@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.6] - 2025-03-24
+### Changed
+- Internal updates.
+
+## [0.3.5] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [0.3.4] - 2025-03-10
+### Changed
+- Internal updates.
+
+## [0.3.3] - 2025-02-24
+### Changed
+- Update dependencies.
+
+## [0.3.2] - 2025-02-03
+### Changed
+- Internal updates.
+
+## [0.3.1] - 2024-11-25
+### Changed
+- Update dependencies. [#40286]
+
+## [0.3.0] - 2024-11-14
+### Changed
+- Backup: Add next daily backup schedule time on admin page. [#39914]
+
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [0.2.8] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
 ## [0.2.7] - 2024-08-26
 ### Changed
 - Updated package dependencies. [#39004]
@@ -41,6 +76,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Initial release (improved helper script installer logging). [#34297]
 
+[0.3.6]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.5...v0.3.6
+[0.3.5]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.4...v0.3.5
+[0.3.4]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.3...v0.3.4
+[0.3.3]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.2.8...v0.3.0
+[0.2.8]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.2.4...v0.2.5

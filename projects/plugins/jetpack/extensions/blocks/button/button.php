@@ -166,7 +166,6 @@ function get_button_styles( $attributes ) {
 	$has_named_gradient          = array_key_exists( 'gradient', $attributes );
 	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
 	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
-	$has_width                   = array_key_exists( 'width', $attributes );
 	$has_font_family             = array_key_exists( 'fontFamily', $attributes );
 	$has_typography_styles       = array_key_exists( 'style', $attributes ) && array_key_exists( 'typography', $attributes['style'] );
 	$has_custom_font_size        = $has_typography_styles && array_key_exists( 'fontSize', $attributes['style']['typography'] );
@@ -206,11 +205,6 @@ function get_button_styles( $attributes ) {
 		$styles[] = sprintf( 'border-radius: %spx;', $attributes['borderRadius'] );
 	}
 
-	if ( $has_width ) {
-		$styles[] = sprintf( 'width: %s;', $attributes['width'] );
-		$styles[] = 'max-width: 100%';
-	}
-
 	return implode( ' ', $styles );
 }
 
@@ -226,7 +220,7 @@ function get_button_wrapper_styles( $attributes ) {
 	$has_width = array_key_exists( 'width', $attributes );
 
 	if ( $has_width ) {
-		$styles[] = 'max-width: 100%';
+		$styles[] = sprintf( 'width: %s;', $attributes['width'] );
 	}
 
 	return implode( ' ', $styles );

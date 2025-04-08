@@ -81,6 +81,11 @@ export function changelogDefine( yargs ) {
 								describe:
 									'Never ask whether affected plugins without direct changes should have change entries added.',
 								type: 'boolean',
+							} )
+							.option( 'base-ref', {
+								describe: 'Git ref to compare to.',
+								type: 'string',
+								default: 'origin/trunk',
 							} );
 					},
 					async argv => {
@@ -311,7 +316,8 @@ async function changelogAdd( argv ) {
 		return;
 	}
 
-	let changelogInfo, needChangelog;
+	let changelogInfo,
+		needChangelog = [];
 
 	if ( argv.project ) {
 		needChangelog = [ argv.project ];
@@ -320,7 +326,7 @@ async function changelogAdd( argv ) {
 
 	// If we weren't passed a project, check if any projects need changelogs.
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
-		changelogInfo = await checkChangelogFiles();
+		changelogInfo = await checkChangelogFiles( argv.baseRef );
 		needChangelog = changelogInfo.need;
 	}
 	if ( needChangelog.length === 0 ) {
@@ -335,7 +341,7 @@ async function changelogAdd( argv ) {
 	}
 
 	if ( argv.checkIndirectPlugins ?? needChangelog.length > 0 ) {
-		changelogInfo ??= await checkChangelogFiles();
+		changelogInfo ??= await checkChangelogFiles( argv.baseRef );
 		await addIndirectPlugins(
 			argv,
 			argv.checkIndirectPlugins ? changelogInfo.touched : needChangelog,
@@ -362,14 +368,14 @@ async function addIndirectPlugins( argv, directProjects, changelogFiles ) {
 			continue;
 		}
 
-		// If it has a changelog file other than "Updated composer.lock" or "Updated dependencies", skip it.
+		// If it has a changelog file other than "Update composer.lock" or "Update dependencies", skip it.
 		// Either it's directly affected or we added an entry in a previous run.
 		if ( changelogFiles.has( proj ) ) {
 			for ( const file of changelogFiles.get( proj ) ) {
 				const contents = fs.readFileSync( file, 'utf-8' );
 				if (
-					! contents.match( /^Comment: Updated composer\.lock\.$/m ) ||
-					contents.match( /\r?\n\r?\n(?!Updated package dependencies\.[\r\n]*$)\s*\S/ )
+					! contents.match( /^Comment: Updated? composer\.lock\.$/m ) ||
+					contents.match( /\r?\n\r?\n(?!Updated? package dependencies\.[\r\n]*$)\s*\S/ )
 				) {
 					continue projloop;
 				}
@@ -522,7 +528,7 @@ async function changelogArgs( argv ) {
 	argv = await validateProject( argv );
 	argv.success = `Command '${ argv.cmd || argv._[ 1 ] }' for ${
 		argv.project
-	} completed succesfully!`;
+	} completed successfully!`;
 	argv.error = `Command '${ argv.cmd || argv._[ 1 ] }' for ${ argv.project } has failed! See error`;
 	argv.args = [ argv.cmd || argv._[ 1 ], ...process.argv.slice( 4 ) ];
 	const removeArg = [
@@ -530,6 +536,8 @@ async function changelogArgs( argv ) {
 		...projectTypes,
 		'--check-indirect-plugins',
 		'--no-check-indirect-plugins',
+		'--base-ref',
+		'--base-ref=' + argv.baseRef,
 	];
 	let file;
 
@@ -622,7 +630,7 @@ async function removeArgs( argv, removeArg ) {
  */
 export async function changeloggerCli( argv ) {
 	if ( ! changeloggerPath ) {
-		changeloggerPath = path.resolve( 'projects/packages/changelogger/bin/changelogger' );
+		changeloggerPath = path.resolve( 'projects/packages/changelogger/vendor/bin/changelogger' );
 		let data = child_process.spawnSync( changeloggerPath, [], {
 			stdio: 'ignore',
 		} );
@@ -681,12 +689,13 @@ async function gitAdd( argv ) {
 /**
  * Checks if changelog files are required.
  *
+ * @param {string} baseRef - Git reference to compare with.
  * @return {object} as follows:
  * - {string[]}             touched - Touched projects.
  * - {Map<string,string[]>} files   - Change files by project.
  * - {string[]}             need    - Projects needing changelogs.
  */
-async function checkChangelogFiles() {
+async function checkChangelogFiles( baseRef ) {
 	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
 	// Bail if we're pushing to a release branch, like boost/branch-1.3.0
@@ -695,7 +704,11 @@ async function checkChangelogFiles() {
 	const branchReg = /\/branch-/; // match example: jetpack/branch-1.2.3
 	if ( currentBranch.match( branchReg ) ) {
 		console.log( chalk.green( 'Release branch detected. No changelog required.' ) );
-		return [];
+		return {
+			touched: [],
+			files: new Map(),
+			need: [],
+		};
 	}
 
 	const re1 = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
@@ -709,7 +722,7 @@ async function checkChangelogFiles() {
 		`--no-renames`,
 		`--name-only`,
 		`--merge-base`,
-		`origin/trunk`,
+		baseRef,
 	] );
 	touchedFiles = touchedFiles.stdout.toString().trim().split( '\n' );
 

@@ -45,6 +45,7 @@ class SeekbarColorSettings extends Component {
 					help={ __( 'Colors adapt to the video as it plays', 'jetpack' ) }
 					onChange={ toggleAttribute( 'useAverageColor' ) }
 					checked={ useAverageColor }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<PanelColorSettings
 					opened={ ! useAverageColor }

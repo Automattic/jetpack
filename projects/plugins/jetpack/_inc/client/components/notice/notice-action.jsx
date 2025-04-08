@@ -1,6 +1,6 @@
-import Gridicon from 'components/gridicon';
 import PropTypes from 'prop-types';
 import React from 'react';
+import Gridicon from 'components/gridicon';
 
 import './style.scss';
 

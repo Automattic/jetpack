@@ -28,6 +28,7 @@
 			&:hover {
 				text-decoration-thickness: 3px;
 			}
+
 			&:focus {
 				text-decoration-line: none;
 				border-radius: 2px;
@@ -109,6 +110,7 @@
 		&.is-#{$side}-#{$cross-opposite-side} .dops-popover__arrow {
 
 			#{$opposite-side}: 0 #{"/*rtl:ignore*/"};
+
 			@include shared-between-base-and-before( $side );
 
 			&::before {
@@ -116,6 +118,7 @@
 				border: 10px solid $white;
 				content: " ";
 				position: absolute;
+
 				@include shared-between-base-and-before( $side );
 			}
 		}

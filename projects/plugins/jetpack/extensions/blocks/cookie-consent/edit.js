@@ -63,6 +63,8 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 							},
 						] }
 						onChange={ alignValue => updateAlignment( alignValue ) }
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<TextControl
 						label={ __( 'Consent Expiry Time (in days)', 'jetpack' ) }
@@ -71,6 +73,8 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 						min="1"
 						max="365"
 						onChange={ value => setAttributes( { consentExpiryDays: parseInt( value ) } ) }
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<p>
 						{ __(

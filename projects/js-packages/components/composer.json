@@ -15,6 +15,9 @@
 		],
 		"test-js": [
 			"pnpm run test"
+		],
+		"test-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [
@@ -30,6 +33,7 @@
 		"autotagger": true,
 		"npmjs-autopublish": true,
 		"mirror-repo": "Automattic/jetpack-components",
+		"textdomain": "jetpack-components",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-components/compare/${old}...${new}"
 		}

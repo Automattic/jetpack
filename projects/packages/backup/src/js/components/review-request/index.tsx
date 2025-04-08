@@ -30,7 +30,6 @@ const ReviewRequest: React.FC< ReviewRequestBaseProps > = ( {
 					<Text className={ styles.cta }>{ cta }</Text>
 				</div>
 			</ExternalLink>
-			{ /* eslint-disable-next-line react/jsx-no-bind */ }
 			<a role="button" href="#" onClick={ dismissMessage } className={ styles.dismiss }>
 				{ __( 'Maybe later', 'jetpack-backup-pkg' ) }
 			</a>

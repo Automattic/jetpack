@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Social;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Publicize\Publicize_Utils;
 use Jetpack_Social;
 use WP_Error;
 use WP_REST_Controller;
@@ -28,6 +29,24 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	public function register_rest_routes() {
 		register_rest_route(
 			'jetpack/v4',
+			'/social/review-dismiss',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_review_dismissed' ),
+					'permission_callback' => array( $this, 'require_publish_posts_permission_callback' ),
+					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
+				),
+			)
+		);
+
+		if ( Publicize_Utils::should_use_jetpack_module_endpoint() ) {
+			return;
+		}
+
+		// If the site has an older version of Jetpack we still need to register the route.
+		register_rest_route(
+			'jetpack/v4',
 			'/social/settings',
 			array(
 				array(
@@ -40,18 +59,6 @@ class REST_Settings_Controller extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_item' ),
 					'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
-					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
-				),
-			)
-		);
-		register_rest_route(
-			'jetpack/v4',
-			'/social/review-dismiss',
-			array(
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'update_review_dismissed' ),
-					'permission_callback' => array( $this, 'require_publish_posts_permission_callback' ),
 					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
 				),
 			)
@@ -102,22 +109,8 @@ class REST_Settings_Controller extends WP_REST_Controller {
 		$fields = $this->get_fields_for_response( $request );
 		$data   = array();
 
-		if ( rest_is_field_included( 'publicize_active', $fields ) ) {
-			$data['publicize_active'] = Jetpack_Social::is_publicize_active();
-		}
-
-		if ( rest_is_field_included( 'show_pricing_page', $fields ) ) {
-			$data['show_pricing_page'] = Jetpack_Social::should_show_pricing_page();
-		}
-
-		$note = new Note();
-
-		if ( rest_is_field_included( 'social_notes_enabled', $fields ) ) {
-			$data['social_notes_enabled'] = $note->enabled();
-		}
-
-		if ( rest_is_field_included( 'social_notes_config', $fields ) ) {
-			$data['social_notes_config'] = $note->get_config();
+		if ( rest_is_field_included( 'publicize', $fields ) ) {
+			$data['publicize'] = Jetpack_Social::is_publicize_active();
 		}
 
 		return $this->prepare_item_for_response( $data, $request );
@@ -132,28 +125,17 @@ class REST_Settings_Controller extends WP_REST_Controller {
 		$params   = $request->get_params();
 		$settings = $this->get_endpoint_args_for_item_schema( $request->get_method() );
 
-		$note = new Note();
-
 		foreach ( array_keys( $settings ) as $name ) {
 			if ( ! array_key_exists( $name, $params ) ) {
 				continue;
 			}
 
 			switch ( $name ) {
-				case 'publicize_active':
+				case 'publicize':
 					$updated = ( new Modules() )->update_status( \Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG, (bool) $params[ $name ], false, false );
 					if ( is_wp_error( $updated ) ) {
 						return $updated;
 					}
-					break;
-				case 'show_pricing_page':
-					update_option( Jetpack_Social::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, (int) $params[ $name ] );
-					break;
-				case 'social_notes_enabled':
-					$note->set_enabled( (bool) $params[ $name ] );
-					break;
-				case 'social_notes_config':
-					$note->update_config( $params[ $name ] );
 					break;
 			}
 		}
@@ -222,38 +204,10 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			'title'      => 'system_status',
 			'type'       => 'object',
 			'properties' => array(
-				'publicize_active'     => array(
+				'publicize' => array(
 					'description' => __( 'Is the publicize module enabled?', 'jetpack-social' ),
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
-				),
-				'show_pricing_page'    => array(
-					'description' => __( 'Should we show the pricing page?', 'jetpack-social' ),
-					'type'        => 'boolean',
-					'context'     => array( 'view', 'edit' ),
-				),
-				'social_notes_enabled' => array(
-					'description' => __( 'Is the social notes feature enabled?', 'jetpack-social' ),
-					'type'        => 'boolean',
-					'context'     => array( 'view', 'edit' ),
-				),
-				'social_notes_config'  => array(
-					'description' => __( 'The social notes configuration', 'jetpack-social' ),
-					'type'        => 'object',
-					'context'     => array( 'view', 'edit' ),
-					'properties'  => array(
-						'append_link' => array(
-							'description' => __( 'Whether to append the post link when sharing the note.', 'jetpack-social' ),
-							'type'        => 'boolean',
-							'context'     => array( 'view', 'edit' ),
-						),
-						'link_format' => array(
-							'description' => __( 'Link format', 'jetpack-social' ),
-							'type'        => 'string',
-							'enum'        => array( 'full_url', 'shortlink', 'permashortcitation' ),
-							'context'     => array( 'view', 'edit' ),
-						),
-					),
 				),
 			),
 		);

@@ -69,7 +69,7 @@ var PaypalExpressCheckout = {
 	 * Get the DOM element-placeholder used to show message
 	 * about the transaction. If it doesn't exist then the function will create a new one.
 	 *
-	 * @param  string domId id of the payment button placeholder
+	 * @param string domId id of the payment button placeholder
 	 * @return Element the dom element to print the message
 	 */
 	getMessageContainer: function ( domId ) {
@@ -81,9 +81,9 @@ var PaypalExpressCheckout = {
 	 * Use this function to give feedback to the user according
 	 * to the transaction result.
 	 *
-	 * @param  {String} message message to show
-	 * @param  {String} domId paypal-button element dom identifier
-	 * @param  {Boolean} [error] defines if it's a message error. Not TRUE as default.
+	 * @param {String}  message message to show
+	 * @param {String}  domId   paypal-button element dom identifier
+	 * @param {Boolean} [error] defines if it's a message error. Not TRUE as default.
 	 */
 	showMessage: function ( message, domId, isError ) {
 		var domEl = PaypalExpressCheckout.getMessageContainer( domId );

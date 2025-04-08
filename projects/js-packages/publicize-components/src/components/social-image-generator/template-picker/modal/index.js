@@ -33,14 +33,17 @@ const TemplatePickerModal = ( { onSelect, render, value = null } ) => {
 		<ThemeProvider targetDom={ document.body }>
 			{ render( { open: openPicker } ) }
 			{ isOpen && (
-				<Modal onRequestClose={ closePicker } title={ __( 'Pick a Template', 'jetpack' ) }>
+				<Modal
+					onRequestClose={ closePicker }
+					title={ __( 'Pick a Template', 'jetpack-publicize-components' ) }
+				>
 					<TemplatePicker value={ selectedTemplate } onTemplateSelected={ setSelectedTemplate } />
 					<div className={ styles.footer }>
 						<Button variant="tertiary" onClick={ closePicker }>
-							{ __( 'Cancel', 'jetpack' ) }
+							{ __( 'Cancel', 'jetpack-publicize-components' ) }
 						</Button>
 						<Button variant="primary" onClick={ saveAndClosePicker }>
-							{ __( 'Save', 'jetpack' ) }
+							{ __( 'Save', 'jetpack-publicize-components' ) }
 						</Button>
 					</div>
 				</Modal>

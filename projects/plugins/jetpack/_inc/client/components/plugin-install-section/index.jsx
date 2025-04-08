@@ -1,11 +1,11 @@
 import restApi from '@automattic/jetpack-api';
 import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { useState, useCallback } from 'react';
+import { connect } from 'react-redux';
 import Card from 'components/card';
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
-import { useState, useCallback } from 'react';
-import { connect } from 'react-redux';
 import {
 	fetchPluginsData as dispatchFetchPluginsData,
 	isPluginActive,
@@ -23,6 +23,7 @@ const PluginInstallSection = ( {
 	pluginLink,
 	installOrActivatePrompt,
 	installedPrompt,
+	plan,
 } ) => {
 	const [ isActivating, setIsActivating ] = useState( false );
 	const [ isInstalling, setIsInstalling ] = useState( false );
@@ -98,7 +99,7 @@ const PluginInstallSection = ( {
 				) }
 				title={ installOrActivatePrompt }
 				onClick={ activateOrInstallPlugin }
-				noIcon
+				plan={ plan }
 			/>
 		);
 	} else if ( ! aPluginIsActive ) {
@@ -111,7 +112,7 @@ const PluginInstallSection = ( {
 				) }
 				title={ installOrActivatePrompt }
 				onClick={ activateOrInstallPlugin }
-				noIcon
+				plan={ plan }
 			/>
 		);
 	}
@@ -124,7 +125,7 @@ const PluginInstallSection = ( {
 			) }
 			title={ installedPrompt ?? __( 'Plugin is installed & active.', 'jetpack' ) }
 			href={ pluginLink }
-			noIcon
+			plan={ plan }
 		/>
 	);
 };

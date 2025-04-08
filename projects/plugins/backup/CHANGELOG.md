@@ -4,6 +4,47 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.2] - 2025-04-03
+### Added
+- Adds Account Protection initialization. [#40925]
+- Components: Export the getRedirectUrl function with subpath [#41078]
+- Connection: Disconnect all other users before disconnecting connection owner account. [#41923]
+- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process. [#42757]
+- My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
+
+### Changed
+- Code: Use function-style `exit()` and `die()` with a default status code of 0. [#41167]
+- Connection: Allow pre-selected login providers. [#42662]
+- Connection: Display connection status on Users page independent of the SSO module. [#41794]
+- General: Indicate compatibility with WordPress 6.8. [#42701]
+- Update composer.lock [#40863]
+- Update package dependencies. [#40980] [#41659] [#42180] [#42815]
+- Update the unowned section from a product grid to a product list [#41312]
+
+### Fixed
+- Admin menu: Move backup admin menu addition to a function hooked into admin_menu, preventing PHP warnings. [#42396]
+
+## [3.1] - 2025-01-10
+### Changed
+- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation. [#40215]
+- Social: Change My Jetpack CTA for Social from "Learn more" to "Activate". [#40359]
+- Update backup plugin screenshots [#40386]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40515]
+
+## [3.0] - 2024-11-14
+### Added
+- Display next scheduled daily backup time on the admin page.
+
+### Changed
+- Exclude discarded backups from being counted as successful on the admin page.
+- General: Indicate compatibility with WordPress version 6.7.
+- Updated package dependencies.
+- Various internal updates and improvements.
+
+### Fixed
+- Resolved an issue on the pricing page where the loading placeholder remained visible after the price loaded.
+
 ## [2.9] - 2024-09-06
 ### Changed
 - Internal updates.
@@ -242,6 +283,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
 
 [2.2-beta]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.1...2.2-beta
+[3.2]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.1...3.2
+[3.1]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.0...3.1
+[3.0]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.9...3.0
 [2.9]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.8...2.9
 [2.8]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.7...2.8
 [2.7]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.6...2.7

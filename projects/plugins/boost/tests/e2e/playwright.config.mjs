@@ -1,4 +1,4 @@
-import config from 'jetpack-e2e-commons/config/playwright.config.default.mjs';
+import config from '_jetpack-e2e-commons/config/playwright.config.default.mjs';
 
 config.globalSetup = './lib/setupTests.js';
 

@@ -2,7 +2,7 @@
 /**
  * Stub config for PHPUnit.
  *
- * PHPUnit 9.6 that we currently use has various annotations for Psalm that Phan doesn't read but would be useful.
+ * PHPUnit 11.5 that we currently use has some stuff that doesn't work with Phan.
  * So we extract the stubs and then munge them appropriately.
  *
  * @package automattic/jetpack-monorepo

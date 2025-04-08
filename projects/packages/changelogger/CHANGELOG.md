@@ -3,6 +3,45 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.4] - 2025-04-02
+### Added
+- Allow beta.2 in WordPress-style versioning. [#42838]
+
+## [6.0.3] - 2025-03-31
+### Changed
+- Internal updates.
+
+## [6.0.2] - 2025-03-21
+### Changed
+- Internal updates.
+
+## [6.0.1] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [6.0.0] - 2025-02-24
+### Removed
+- Drop support for installation with Composer < 2.2. [#41876]
+
+## [5.1.0] - 2024-11-25
+### Changed
+- Bump minimum PHP version from implicitly-7.2.0 to 7.2.5. [#40297]
+
+### Deprecated
+- Using getChangesBySubheading() with a param now throws an exception. [#40200]
+
+## [5.0.0] - 2024-11-14
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [4.2.8] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [4.2.7] - 2024-10-25
+### Fixed
+- When amending, do not preserve a default link. We'll want the link to be updated to the new default. [#39868]
+
 ## [4.2.6] - 2024-08-22
 ### Changed
 - Updated package dependencies. [#39004]
@@ -244,6 +283,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[6.0.4]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.3...6.0.4
+[6.0.3]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.2...6.0.3
+[6.0.2]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.1...6.0.2
+[6.0.1]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.0...6.0.1
+[6.0.0]: https://github.com/Automattic/jetpack-changelogger/compare/5.1.0...6.0.0
+[5.1.0]: https://github.com/Automattic/jetpack-changelogger/compare/5.0.0...5.1.0
+[5.0.0]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.8...5.0.0
+[4.2.8]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.7...4.2.8
+[4.2.7]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.6...4.2.7
 [4.2.6]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.5...4.2.6
 [4.2.5]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.4...4.2.5
 [4.2.4]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.3...4.2.4

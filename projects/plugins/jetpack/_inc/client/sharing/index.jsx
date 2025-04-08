@@ -1,8 +1,7 @@
-import { getSocialScriptData } from '@automattic/jetpack-publicize-components';
 import { __ } from '@wordpress/i18n';
-import QuerySite from 'components/data/query-site';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import QuerySite from 'components/data/query-site';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -21,15 +20,13 @@ import {
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
-import { siteHasFeature, getActiveFeatures, siteUsesWpAdminInterface } from 'state/site';
+import { getActiveFeatures, siteUsesWpAdminInterface } from 'state/site';
 import { Likes } from './likes';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
 
 class Sharing extends Component {
 	render() {
-		const { useAdminUiV1 } = getSocialScriptData().feature_flags;
-
 		const commonProps = {
 			settings: this.props.settings,
 			getModule: this.props.module,
@@ -43,12 +40,9 @@ class Sharing extends Component {
 			siteAdminUrl: this.props.siteAdminUrl,
 			userCanManageModules: this.props.userCanManageModules,
 			activeFeatures: this.props.activeFeatures,
-			hasPaidFeatures: this.props.hasPaidFeatures,
-			hasSocialImageGenerator: this.props.hasSocialImageGenerator,
 			isAtomicSite: this.props.isAtomicSite,
 			hasSharingBlock: this.props.hasSharingBlock,
 			isBlockTheme: this.props.isBlockTheme,
-			useAdminUiV1,
 		};
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -97,8 +91,6 @@ export default connect( state => {
 		blogID: getSiteId( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 		activeFeatures: getActiveFeatures( state ),
-		hasPaidFeatures: siteHasFeature( state, 'social-enhanced-publishing' ),
-		hasSocialImageGenerator: siteHasFeature( state, 'social-image-generator' ),
 		userCanManageModules: userCanManageModules( state ),
 		isAtomicSite: isAtomicSite( state ),
 		hasSharingBlock: isSharingBlockAvailable( state ),

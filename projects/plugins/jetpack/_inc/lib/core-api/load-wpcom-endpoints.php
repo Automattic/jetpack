@@ -13,7 +13,7 @@
  * Disable direct access.
  */
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 /**

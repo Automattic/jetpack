@@ -20,7 +20,7 @@ class Visitor extends NodeVisitorAbstract {
 	public function enterNode( Node $node ) {
 
 		if ( $node instanceof Node\Stmt\Class_ ) {
-			$namespaced_name     = '\\' . implode( '\\', $node->namespacedName->parts );
+			$namespaced_name     = '\\' . implode( '\\', $node->namespacedName->getParts() );
 			$this->current_class = $namespaced_name;
 
 			$this->declarations->add( new Class_( $this->current_relative_path, $node->getLine(), $namespaced_name ) );

@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.7] - 2025-03-26
+### Changed
+- Internal updates.
+
+## [0.4.6] - 2025-03-21
+### Changed
+- Internal updates.
+
+## [0.4.5] - 2025-03-18
+### Changed
+- Internal updates.
+
+## [0.4.4] - 2025-03-17
+### Changed
+- Internal updates.
+
+## [0.4.3] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [0.4.2] - 2025-02-24
+### Changed
+- Internal updates.
+
+## [0.4.1] - 2025-01-23
+### Changed
+- Internal updates.
+
+## [0.4.0] - 2024-11-14
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [0.3.14] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [0.3.13] - 2024-10-29
+### Changed
+- Internal updates.
+
 ## [0.3.12] - 2024-08-26
 ### Changed
 - Updated package dependencies. [#39004]
@@ -88,6 +128,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a new package for Boost Speed Score [#30914]
 - Add a new argument to `Speed_Score` to identify where the request was made from (e.g. 'boost-plugin', 'jetpack-dashboard', etc). [#31012]
 
+[0.4.7]: https://github.com/Automattic/jetpack-boost-speed-score/compare/v0.4.6...v0.4.7
+[0.4.6]: https://github.com/Automattic/jetpack-boost-speed-score/compare/v0.4.5...v0.4.6
+[0.4.5]: https://github.com/Automattic/jetpack-boost-speed-score/compare/v0.4.4...v0.4.5
+[0.4.4]: https://github.com/Automattic/jetpack-boost-speed-score/compare/v0.4.3...v0.4.4
+[0.4.3]: https://github.com/Automattic/jetpack-boost-speed-score/compare/v0.4.2...v0.4.3
+[0.4.2]: https://github.com/Automattic/jetpack-boost-speed-score/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/Automattic/jetpack-boost-speed-score/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/Automattic/jetpack-boost-speed-score/compare/v0.3.14...v0.4.0
+[0.3.14]: https://github.com/Automattic/jetpack-boost-speed-score/compare/v0.3.13...v0.3.14
+[0.3.13]: https://github.com/Automattic/jetpack-boost-speed-score/compare/v0.3.12...v0.3.13
 [0.3.12]: https://github.com/Automattic/jetpack-boost-speed-score/compare/v0.3.11...v0.3.12
 [0.3.11]: https://github.com/Automattic/jetpack-boost-speed-score/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/Automattic/jetpack-boost-speed-score/compare/v0.3.9...v0.3.10

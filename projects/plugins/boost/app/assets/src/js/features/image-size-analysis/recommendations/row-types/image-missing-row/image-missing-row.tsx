@@ -6,7 +6,7 @@ import Pill from '$features/image-size-analysis/recommendations/ui/pill/pill';
 import RowTitle from '$features/image-size-analysis/recommendations/ui/row-title/row-title';
 import { removeGetParams } from '$lib/utils/remove-get-params';
 import TableRowHover from '../table-row-hover/table-row-hover';
-
+import rowStyles from '../../row.module.scss';
 interface ImageMissingRowProps {
 	enableTransition: boolean;
 	details: IsaImage;
@@ -17,23 +17,23 @@ const ImageMissingRow: React.FC< ImageMissingRowProps > = ( { details } ) => {
 
 	return (
 		<TableRow>
-			<div className="jb-thumbnail-image-missing">{ __( 'Image Missing', 'jetpack-boost' ) }</div>
+			<div>{ __( 'Image Missing', 'jetpack-boost' ) }</div>
 
-			<div className="jb-table-row-title">
+			<div className={ rowStyles[ 'table-row-title' ] }>
 				<RowTitle title={ removeGetParams( title ) } url={ details.page.url } />
 			</div>
 
-			<div className="jb-table-row-potential-size">
+			<div>
 				<Pill color="#facfd2">? KB</Pill>
 
-				<div className="jb-arrow">→</div>
+				<div>→</div>
 
 				<Pill color="#d0e6b8">? KB</Pill>
 			</div>
 
-			<div className="jb-table-row-hover-content">
+			<div>
 				<TableRowHover
-					edit_url={ details.page.edit_url }
+					edit_url={ details.page.edit_url || undefined }
 					device_type={ null }
 					instructions={ __(
 						'This image does not appear to load. Please check the URL in the relevant page.',
@@ -42,11 +42,11 @@ const ImageMissingRow: React.FC< ImageMissingRowProps > = ( { details } ) => {
 				/>
 			</div>
 
-			<div className="jb-table-row-device">
+			<div>
 				<Device device={ details.device_type } />
 			</div>
 
-			<div className="jb-table-row-page">
+			<div>
 				<a href={ details.page.url }>{ details.page.title }</a>
 			</div>
 		</TableRow>

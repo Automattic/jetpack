@@ -35,7 +35,7 @@ export type AskQuestionOptionsArgProps = {
 	functions?: Array< {
 		name?: string;
 		arguments?: string;
-		// eslint-disable-next-line @typescript-eslint/ban-types
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 		implementation?: Function;
 	} >;
 };

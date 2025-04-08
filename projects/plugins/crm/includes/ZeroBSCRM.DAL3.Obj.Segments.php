@@ -11,7 +11,7 @@
 
 use Automattic\JetpackCRM\Segment_Condition_Exception;
 
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
 * ZBS DAL >> Segments

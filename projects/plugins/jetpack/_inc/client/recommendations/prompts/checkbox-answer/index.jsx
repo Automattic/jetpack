@@ -1,9 +1,9 @@
 import clsx from 'clsx';
-import InfoPopover from 'components/info-popover';
-import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
+import InfoPopover from 'components/info-popover';
+import analytics from 'lib/analytics';
 import { getDataByKey, updateRecommendationsData } from 'state/recommendations';
 
 import './style.scss';

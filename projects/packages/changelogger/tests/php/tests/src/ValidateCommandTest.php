@@ -19,11 +19,9 @@ class ValidateCommandTest extends CommandTestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
-	public function set_up() {
-		parent::set_up();
+	public function setUp(): void {
+		parent::setUp();
 		$this->useTempDir();
 
 		mkdir( 'changelog' );
@@ -73,7 +71,7 @@ class ValidateCommandTest extends CommandTestCase {
 	/**
 	 * Data provider for testExecute.
 	 */
-	public function provideExecute() {
+	public static function provideExecute() {
 		$composerWithTypes   = array(
 			'extra' => array(
 				'changelogger' => array(

@@ -76,7 +76,7 @@ export default function GeneratedImagePreview( {
 				}
 
 				const sig_token = await apiFetch( {
-					path: '/jetpack/v4/social-image-generator/generate-preview-token',
+					path: 'wpcom/v2/publicize/social-image-generator/generate-token',
 					method: 'POST',
 					data: {
 						text: imageTitle,
@@ -113,17 +113,21 @@ export default function GeneratedImagePreview( {
 
 	return (
 		<ThemeProvider>
-			<BaseControl
-				__nextHasNoMarginBottom={ true }
-				label={ _x( 'Preview', 'Heading for the generated preview image', 'jetpack' ) }
-			>
+			<BaseControl __nextHasNoMarginBottom={ true }>
+				<BaseControl.VisualLabel>
+					{ _x(
+						'Preview',
+						'Heading for the generated preview image',
+						'jetpack-publicize-components'
+					) }
+				</BaseControl.VisualLabel>
 				<div className={ styles.container }>
 					<img
 						className={ clsx( {
 							[ styles.hidden ]: isLoading,
 						} ) }
 						src={ generatedImageUrl }
-						alt={ __( 'Generated preview', 'jetpack' ) }
+						alt={ __( 'Generated preview', 'jetpack-publicize-components' ) }
 						onLoad={ onImageLoad }
 					/>
 					{ isLoading && <Spinner data-testid="spinner" /> }

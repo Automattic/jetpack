@@ -8,7 +8,7 @@
 namespace Automattic\JetpackCRM;
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * Learn menu class

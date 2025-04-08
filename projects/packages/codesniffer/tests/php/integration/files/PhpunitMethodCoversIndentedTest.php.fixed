@@ -1,0 +1,47 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.ClassComment.Missing
+// phpcs:disable Squiz.Commenting.FunctionComment.Missing
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.DuplicateClassName.Found
+
+use PHPUnit\Framework\TestCase;
+
+if ( isset( $_SERVER['something'] ) ) {
+	/**
+	 * One thing.
+	 *
+	 * @uses \Foo::foofoo
+	 */
+	#[Attribute]
+	class PhpunitMethodCoversIndentedTest extends TestCase {
+		public function testFoo() {
+		}
+	}
+} elseif ( isset( $_SERVER['anotherthing'] ) ) {
+	/** Another thing.
+	 *
+	 * @uses \Foo
+	 */
+	class PhpunitMethodCoversIndentedTest extends TestCase {
+		public function testFoo() {
+		}
+	}
+} elseif ( isset( $_SERVER['dumb'] ) ) {
+	'Wat?'; /**
+ * @uses \Foo
+ */
+	#[Attribute]
+	class PhpunitMethodCoversIndentedTest extends TestCase {
+		public function testFoo() {
+		}
+	}
+} else {
+	/**
+	 * @uses \Foo::foobar
+	 */
+	#[Attribute]
+	class PhpunitMethodCoversIndentedTest extends TestCase {
+		public function testFoo() {
+		}
+	}
+}

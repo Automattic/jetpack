@@ -1,3 +1,4 @@
+import restApi from '@automattic/jetpack-api';
 import {
 	AdminPage,
 	Container,
@@ -15,6 +16,7 @@ import {
 	ThemeProvider,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -39,6 +41,7 @@ const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
  */
 export default function UpsellPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
+	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
@@ -47,10 +50,10 @@ export default function UpsellPage( { isLoading = false } ) {
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
-	const checkSiteHasSearchProduct = useCallback(
-		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
-		[ fetchSearchPlanInfo ]
-	);
+	const checkSiteHasSearchProduct = useCallback( () => {
+		restApi.setApiNonce( APINonce );
+		fetchSearchPlanInfo().then( response => response?.supports_search );
+	}, [ APINonce, fetchSearchPlanInfo ] );
 
 	const { run: sendToCartPaid, hasCheckoutStarted: hasCheckoutStartedPaid } =
 		useProductCheckoutWorkflow( {
@@ -95,6 +98,7 @@ export default function UpsellPage( { isLoading = false } ) {
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 						header={ <Header /> }
 						moduleNameHref={ JETPACK_SEARCH__LINK }
+						useInternalLinks={ shouldUseInternalLinks() }
 					>
 						<AdminSectionHero>
 							{ isNewPricing ? (
@@ -142,7 +146,6 @@ const OldPricingComponent = ( { sendToCart } ) => {
 					ctaText={ __( 'Get Jetpack Search', 'jetpack-search-pkg' ) }
 					icon="data:image/svg+xml,%3Csvg width='32' height='32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M21 19l-5.154-5.154C16.574 12.742 17 11.42 17 10c0-3.866-3.134-7-7-7s-7 3.134-7 7 3.134 7 7 7c1.42 0 2.742-.426 3.846-1.154L19 21l2-2zM5 10c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5z' fill='%23000'/%3E%3C/svg%3E"
 					infoText={ priceAfter === priceBefore ? basicInfoText : onSaleInfoText }
-					// eslint-disable-next-line react/jsx-no-bind
 					onCtaClick={ sendToCart }
 					priceAfter={ priceAfter }
 					priceBefore={ priceBefore }

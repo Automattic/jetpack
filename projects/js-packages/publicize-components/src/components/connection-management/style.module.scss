@@ -74,6 +74,11 @@
 	:global(.components-panel__body.is-opened) {
 		margin-top: 1rem;
 	}
+
+	.description {
+		font-size: 14px;
+		color: var(--jp-gray-50);
+	}
 }
 
 .connection-list {
@@ -107,6 +112,7 @@
 	}
 
 	.learn-more {
+
 		&:global(.components-button) {
 			padding-inline: 6px;
 			font-size: 14px;

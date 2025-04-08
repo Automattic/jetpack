@@ -1,0 +1,30 @@
+{
+	"name": "@automattic/jetpack-cli",
+	"version": "1.0.0",
+	"description": "Docker-based CLI for Jetpack development",
+	"bin": {
+		"jp": "bin/jp.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/jetpack-cli"
+	},
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Jetpack Cli"
+	},
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/jetpack-cli/#readme",
+	"files": [
+		"bin"
+	],
+	"type": "module",
+	"dependencies": {
+		"chalk": "^5.4.1",
+		"dotenv": "^16.3.1",
+		"prompts": "^2.4.2",
+		"update-notifier": "^7.0.0"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}

@@ -1,3 +1,4 @@
+/* global jQuery */
 import './additional-css.css';
 
 ( function ( $ ) {

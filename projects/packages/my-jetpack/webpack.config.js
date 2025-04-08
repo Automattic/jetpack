@@ -19,11 +19,7 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: [
-			...jetpackWebpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: { injectPolyfill: true },
-			} ),
-		],
+		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 		module: {
 			strictExportPresence: true,
 			rules: [
@@ -35,6 +31,20 @@ module.exports = [
 				// Transpile @automattic/jetpack-* in node_modules too.
 				jetpackWebpackConfig.TranspileRule( {
 					includeNodeModules: [ '@automattic/jetpack-' ],
+				} ),
+
+				// Add textdomains (but no other optimizations) for @wordpress/dataviews.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@wordpress/dataviews/' ],
+					babelOpts: {
+						configFile: false,
+						plugins: [
+							[
+								require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
+								{ textdomain: 'jetpack-my-jetpack' },
+							],
+						],
+					},
 				} ),
 
 				// Handle CSS.

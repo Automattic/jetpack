@@ -12,7 +12,7 @@
 
 // block access to this file
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 /*
@@ -1304,7 +1304,6 @@ function zeroBSCRM_menus_removeWPSubMenu( $slug = '', $subpage = '' ) {
 	// Global
 	global $submenu;
 
-	// Use this to debug:   print_r($submenu); exit();
 	if ( isset( $submenu[ $slug ] ) && is_array( $submenu[ $slug ] ) ) {
 
 		$newArr = array();

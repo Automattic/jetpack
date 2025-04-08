@@ -1,4 +1,4 @@
-/* global ajaxurl:true */
+/* global jQuery ajaxurl:true */
 jQuery( function ( $ ) {
 	$( '#customize-control-featured-content-tag-name input' ).suggest(
 		ajaxurl + '?action=ajax-tag-search&tax=post_tag',

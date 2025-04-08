@@ -9,15 +9,15 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS;
 
-use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
 
 /**
  * Class Render_Blocking_JS
  */
-class Render_Blocking_JS implements Pluggable, Changes_Page_Output, Optimization {
+class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optimization {
 	/**
 	 * Holds the script tags removed from the output buffer.
 	 *
@@ -68,15 +68,11 @@ class Render_Blocking_JS implements Pluggable, Changes_Page_Output, Optimization
 		$this->ignore_attribute = apply_filters( 'jetpack_boost_render_blocking_js_ignore_attribute', 'data-jetpack-boost' );
 
 		add_action( 'template_redirect', array( $this, 'start_output_filtering' ), -999999 );
-	}
 
-	/**
-	 * The module starts serving as soon as it's enabled.
-	 *
-	 * @return bool
-	 */
-	public function is_ready() {
-		return true;
+		/**
+		 * Shortcodes can sometimes output script to embed widget. It's safer to ignore them.
+		 */
+		add_filter( 'do_shortcode_tag', array( $this, 'add_ignore_attribute' ) );
 	}
 
 	public static function is_available() {
@@ -256,7 +252,7 @@ class Render_Blocking_JS implements Pluggable, Changes_Page_Output, Optimization
 		return preg_replace_callback(
 			$exclusions,
 			function ( $script_match ) {
-				return str_replace( '<script', sprintf( '<script %s="%s"', esc_html( $this->ignore_attribute ), esc_attr( $this->ignore_value ) ), $script_match[0] );
+				return $this->add_ignore_attribute( $script_match[0] );
 			},
 			$buffer
 		);
@@ -324,7 +320,18 @@ class Render_Blocking_JS implements Pluggable, Changes_Page_Output, Optimization
 			return $tag;
 		}
 
-		return str_replace( '<script', sprintf( '<script %s="%s"', esc_html( $this->ignore_attribute ), esc_attr( $this->ignore_value ) ), $tag );
+		return $this->add_ignore_attribute( $tag );
+	}
+
+	/**
+	 * Add the ignore attribute to the script tags
+	 *
+	 * @param string $html HTML code possibly containing a <script> opening tag.
+	 *
+	 * @return string
+	 */
+	public function add_ignore_attribute( $html ) {
+		return str_replace( '<script', sprintf( '<script %s="%s"', esc_html( $this->ignore_attribute ), esc_attr( $this->ignore_value ) ), $html );
 	}
 
 	/**

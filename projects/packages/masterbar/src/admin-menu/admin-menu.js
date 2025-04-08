@@ -1,5 +1,5 @@
 /* eslint-disable jsdoc/require-description,jsdoc/require-param-description,jsdoc/require-param-type,jsdoc/require-returns */
-/* global ajaxurl, jetpackAdminMenu */
+/* global ajaxurl, jetpackAdminMenu, jQuery */
 import './admin-menu.css';
 
 ( function ( $ ) {
@@ -151,7 +151,7 @@ import './admin-menu.css';
 									.insertAdjacentHTML( 'afterend', xhr.responseText );
 							}
 						}
-					} catch ( error ) {
+					} catch {
 						// On failure, we just won't display an upsell nudge
 					}
 				}

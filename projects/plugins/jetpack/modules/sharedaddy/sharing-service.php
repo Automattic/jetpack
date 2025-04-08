@@ -930,7 +930,11 @@ function sharing_process_requests() {
 		}
 	}
 }
-add_action( 'template_redirect', 'sharing_process_requests', 9 );
+
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking for the data being present.
+if ( isset( $_GET['share'] ) ) {
+	add_action( 'template_redirect', 'sharing_process_requests', 9 );
+}
 
 /**
  * Gets the url to customise the sharing buttons in Calypso.
@@ -956,7 +960,8 @@ function sharing_display( $text = '', $echo = false ) {
 		return $text;
 	}
 
-	if ( empty( $post ) ) {
+	// We require the post to not be empty and be an actual WordPress post object. If it's not - we just return.
+	if ( empty( $post ) || ! $post instanceof \WP_Post ) {
 		return $text;
 	}
 

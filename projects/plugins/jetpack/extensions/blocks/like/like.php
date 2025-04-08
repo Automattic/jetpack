@@ -62,24 +62,17 @@ function render_block( $attr, $content, $block ) {
 		return;
 	}
 
-	/**
-	 * Enable an alternate Likes layout.
-	 *
-	 * @since 12.9
-	 *
-	 * @module likes
-	 *
-	 * @param bool $new_layout Enable the new Likes layout. False by default.
-	 */
-	$new_layout = apply_filters( 'likes_new_layout', true ) ? '&amp;n=1' : '';
+	// make sure we have `jetpack_likes_master_iframe` defined
+	require_once JETPACK__PLUGIN_DIR . 'modules/likes/jetpack-likes-master-iframe.php';
 
-	add_action( 'wp_footer', __NAMESPACE__ . '\render_iframe', 25 );
+	if ( ! has_action( 'wp_footer', 'jetpack_likes_master_iframe' ) ) {
+		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
+	}
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$style_url  = content_url( 'mu-plugins/likes/jetpack-likes.css' );
 		$script_url = content_url( 'mu-plugins/likes/queuehandler.js' );
 	} else {
-		require_once JETPACK__PLUGIN_DIR . 'modules/likes.php';
 		$style_url  = plugins_url( 'modules/likes/style.css', dirname( __DIR__, 2 ) );
 		$script_url = Assets::get_file_url_for_environment(
 			'_inc/build/likes/queuehandler.min.js',
@@ -90,12 +83,14 @@ function render_block( $attr, $content, $block ) {
 	wp_enqueue_style( 'jetpack_likes', $style_url, array(), JETPACK__VERSION );
 
 	$show_reblog_button = $attr['showReblogButton'] ?? false;
+	$show_avatars       = $attr['showAvatars'] ?? true;
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$blog_id      = get_current_blog_id();
-		$bloginfo     = get_blog_details( (int) $blog_id );
-		$domain       = $bloginfo->domain;
-		$reblog_param = $show_reblog_button ? '&amp;reblog=1' : '';
-		$src          = sprintf( '//widgets.wp.com/likes/index.html?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s&amp;block=1%7$s', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid, $new_layout, $reblog_param );
+		$blog_id            = get_current_blog_id();
+		$bloginfo           = get_blog_details( (int) $blog_id );
+		$domain             = $bloginfo->domain;
+		$reblog_param       = $show_reblog_button ? '&amp;reblog=1' : '';
+		$show_avatars_param = $show_avatars ? '' : '&amp;slim=1';
+		$src                = sprintf( 'https://widgets.wp.com/likes/index.html?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s%7$s&amp;block=1', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid, $reblog_param, $show_avatars_param );
 
 		// provide the mapped domain when needed
 		if ( isset( $_SERVER['HTTP_HOST'] ) && strpos( sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ), '.wordpress.com' ) === false ) {
@@ -103,18 +98,19 @@ function render_block( $attr, $content, $block ) {
 			$src           .= '&amp;domain=' . rawurlencode( $sanitized_host );
 		}
 	} else {
-		$blog_id   = \Jetpack_Options::get_option( 'id' );
-		$url       = home_url();
-		$url_parts = wp_parse_url( $url );
-		$domain    = $url_parts['host'];
-		$src       = sprintf( 'https://widgets.wp.com/likes/?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s&amp;block=1', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid, $new_layout );
+		$blog_id            = \Jetpack_Options::get_option( 'id' );
+		$url                = home_url();
+		$url_parts          = wp_parse_url( $url );
+		$domain             = $url_parts['host'];
+		$show_avatars_param = $show_avatars ? '' : '&amp;slim=1';
+		$src                = sprintf( 'https://widgets.wp.com/likes/index.html?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s&amp;block=1', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid, $show_avatars_param );
 	}
 
 	$name    = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 	$wrapper = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 
 	$html = "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='" . esc_attr( $wrapper ) . "' data-src='" . esc_attr( $src ) . "' data-name='" . esc_attr( $name ) . "' data-title='" . esc_attr( $title ) . "'>"
-		. "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . "</span></span> <span class='loading'>" . esc_html__( 'Loading...', 'jetpack' ) . '</span></div>'
+		. "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='loading'>" . esc_html__( 'Loading…', 'jetpack' ) . '</span></div>'
 		. "<span class='sd-text-color'></span><a class='sd-link-color'></a>"
 		. '</div>';
 	return sprintf(
@@ -122,36 +118,4 @@ function render_block( $attr, $content, $block ) {
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		$html
 	);
-}
-
-/**
- * Helper function to determine whether the Like module has been disabled
- */
-function is_legacy_likes_disabled() {
-	$settings = new \Jetpack_Likes_Settings();
-
-	$is_wpcom                 = defined( 'IS_WPCOM' ) && IS_WPCOM;
-	$is_likes_module_inactive = ! \Jetpack::is_module_active( 'likes' );
-	$is_disabled_on_wpcom     = $is_wpcom && get_option( 'disabled_likes' ) && get_option( 'disabled_reblogs' );
-	$is_disabled_on_non_wpcom = ! $is_wpcom && get_option( 'disabled_likes' );
-	return $is_likes_module_inactive || $is_disabled_on_wpcom || $is_disabled_on_non_wpcom || ! $settings->is_likes_module_enabled();
-}
-
-/**
- * Renders the iframe and enqueues the necessary scripts.
- */
-function render_iframe() {
-	static $main_iframe_added = false;
-
-	if ( ! $main_iframe_added ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Can't do a stub for this one since Jetpack has its own class with the same name.
-			\Jetpack_Likes::likes_master();
-		} else {
-			require_once JETPACK__PLUGIN_DIR . 'modules/likes.php';
-			jetpack_likes_master_iframe();
-		}
-
-		$main_iframe_added = true;
-	}
 }

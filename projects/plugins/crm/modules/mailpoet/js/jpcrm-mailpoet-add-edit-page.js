@@ -5,10 +5,12 @@
  * MailPoet Add Edit page JS
  */
 
+/* global swal, zeroBSCRMJS_segmentLang, ajaxurl */
+
 /**
  * Export a segment to a mailpoet list
  *
- * @param exportButton
+ * @param {HTMLElement} exportButton - HTML element that one clicks to export the segment to MailPoet
  */
 function jpcrm_segment_export_to_mailpoet( exportButton ) {
 	// Segment must exist
@@ -23,7 +25,7 @@ function jpcrm_segment_export_to_mailpoet( exportButton ) {
 	}
 
 	// name
-	var segment_name = jQuery( '#zbs-segment-edit-var-title' ).val();
+	const segment_name = jQuery( '#zbs-segment-edit-var-title' ).val();
 
 	// first check if this has already been exported, if so show a warning that this'll overwrite the existing:
 	exportButton.addClass( 'loading' );
@@ -67,30 +69,31 @@ function jpcrm_segment_export_to_mailpoet( exportButton ) {
  * Begin export of segment -> MailPoet
  * (After user has agreed if overriding existing)
  *
- * @param exportButton
+ * @param {HTMLElement} exportButton - HTML element that one clicks to export the segment to MailPoet
  */
 function jpcrm_mailpoet_initiate_export( exportButton ) {
 	if ( ! window.zbsAJAXSending ) {
 		window.zbsAJAXSending = true;
 
 		// id's
-		var snameid = 'zbs-segment-edit-var-title';
-		var smatchtypeid = 'zbs-segment-edit-var-matchtype';
+		const snameid = 'zbs-segment-edit-var-title';
+		const smatchtypeid = 'zbs-segment-edit-var-matchtype';
 		//var sconditions = get_sconditions();
-		var sconditions = [];
+		const sconditions = [];
 		jQuery( '.zbs-segment-edit-condition' ).each( function ( ind, ele ) {
 			// get vars
-			var type = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ) ).val();
-			var operator = jQuery( '.zbs-segment-edit-var-condition-operator', jQuery( ele ) ).val();
-			var value1 = jQuery( '.zbs-segment-edit-var-condition-value', jQuery( ele ) ).val();
-			var value2 = jQuery( '.zbs-segment-edit-var-condition-value-2', jQuery( ele ) ).val();
+			const type = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ) ).val();
+			let operator = jQuery( '.zbs-segment-edit-var-condition-operator', jQuery( ele ) ).val();
+			const value1 = jQuery( '.zbs-segment-edit-var-condition-value', jQuery( ele ) ).val();
+			const value2 = jQuery( '.zbs-segment-edit-var-condition-value-2', jQuery( ele ) ).val();
 
 			// operator will be empty for those such as tagged
+			// eslint-disable-next-line eqeqeq
 			if ( typeof operator === 'undefined' || operator == 'undefined' ) {
 				operator = -1;
 			}
 
-			var condition = {
+			const condition = {
 				type: type,
 				operator: operator,
 				value: value1,
@@ -102,10 +105,10 @@ function jpcrm_mailpoet_initiate_export( exportButton ) {
 		} );
 
 		// pull through vars
-		var sname = jQuery( '#' + snameid ).val();
-		var smatchtype = jQuery( '#' + smatchtypeid ).val();
+		const sname = jQuery( '#' + snameid ).val();
+		const smatchtype = jQuery( '#' + smatchtypeid ).val();
 
-		var segment = {
+		const segment = {
 			id: window.zbsSegment.id,
 			title: sname,
 			matchtype: smatchtype,
@@ -126,6 +129,7 @@ function jpcrm_mailpoet_initiate_export( exportButton ) {
 			success: function ( response ) {
 				exportButton.removeClass( 'loading' );
 
+				// eslint-disable-next-line eqeqeq
 				if ( response.success == true && response.mailpoet_list_ID ) {
 					swal.fire( {
 						title: response.lang.export_in_progress,
@@ -165,14 +169,9 @@ function jpcrm_mailpoet_initiate_export( exportButton ) {
 				// unblock
 				window.zbsAJAXSending = false;
 
-				// any callback
-				if ( typeof callback === 'function' ) {
-					callback( response );
-				}
-
 				return true;
 			},
-			error: function ( response, cbfail ) {
+			error: function ( response ) {
 				swal(
 					zeroBSCRMJS_segmentLang( 'generalerrortitle' ),
 					zeroBSCRMJS_segmentLang( 'nosegmentid' ),
@@ -180,6 +179,7 @@ function jpcrm_mailpoet_initiate_export( exportButton ) {
 				);
 				exportButton.removeClass( 'loading' );
 				window.zbsAJAXSending = false;
+				// eslint-disable-next-line no-console
 				console.log( 'error', response );
 			},
 		} );
@@ -189,7 +189,7 @@ function jpcrm_mailpoet_initiate_export( exportButton ) {
 /**
  * Export a batch of contacts from a segment
  *
- * @param params
+ * @param {object} params - Export param.
  */
 function jpcrm_segment_batch_export( params ) {
 	const { mailpoet_id, segment_id, page, total } = params;
@@ -234,7 +234,7 @@ function jpcrm_segment_batch_export( params ) {
 				jQuery( '.swal2-cancel' ).hide();
 				jQuery( '.jpcrm-export-success' ).hide();
 
-				var completeTitle = jQuery( '#jpcrm_segment_mailpoet_modal' ).attr(
+				const completeTitle = jQuery( '#jpcrm_segment_mailpoet_modal' ).attr(
 					'data-complete-title'
 				);
 				jQuery( '.swal2-title' ).text( completeTitle );
@@ -264,6 +264,7 @@ function jpcrm_segment_batch_export( params ) {
 				} );
 			} else {
 				// hard fail
+				// eslint-disable-next-line no-console
 				console.log( 'Export to MailPoet Error', response );
 				swal(
 					zeroBSCRMJS_segmentLang( 'generalerrortitle' ),
@@ -280,9 +281,9 @@ function jpcrm_segment_batch_export( params ) {
 /**
  * Retrieve existing list summary for MailPoet List
  *
- * @param list_name
- * @param callback
- * @param error_callback
+ * @param {string}   list_name      - MailPoet list name.
+ * @param {Function} callback       - Callback on success
+ * @param {Function} error_callback - Callback on error
  */
 function jpcrm_mailpoet_retrieve_list_summary( list_name, callback, error_callback ) {
 	jQuery.ajax( {
@@ -302,6 +303,7 @@ function jpcrm_mailpoet_retrieve_list_summary( list_name, callback, error_callba
 		},
 		error: function ( response ) {
 			// hard fail
+			// eslint-disable-next-line no-console
 			console.log( 'MailPoet summary retrieve error', response );
 			swal(
 				zeroBSCRMJS_segmentLang( 'generalerrortitle' ),
@@ -318,6 +320,10 @@ function jpcrm_mailpoet_retrieve_list_summary( list_name, callback, error_callba
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { jpcrm_segment_export_to_mailpoet, jpcrm_mailpoet_initiate_export,
-		jpcrm_segment_batch_export, jpcrm_mailpoet_retrieve_list_summary };
+	module.exports = {
+		jpcrm_segment_export_to_mailpoet,
+		jpcrm_mailpoet_initiate_export,
+		jpcrm_segment_batch_export,
+		jpcrm_mailpoet_retrieve_list_summary,
+	};
 }

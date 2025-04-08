@@ -1,7 +1,7 @@
 import clsx from 'clsx';
-import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React from 'react';
+import analytics from 'lib/analytics';
 
 export class DashSectionHeader extends React.Component {
 	static displayName = 'DashSectionHeader';

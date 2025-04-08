@@ -12,7 +12,7 @@ async function fetchRelatedPostsStatus() {
 			path: `/wpcom/v2/related-posts`,
 		} );
 		return result?.enabled ?? false;
-	} catch ( error ) {
+	} catch {
 		return false;
 	}
 }
@@ -29,7 +29,7 @@ async function enableRelatedPosts() {
 			method: 'POST',
 		} );
 		return result;
-	} catch ( error ) {
+	} catch {
 		return false;
 	}
 }

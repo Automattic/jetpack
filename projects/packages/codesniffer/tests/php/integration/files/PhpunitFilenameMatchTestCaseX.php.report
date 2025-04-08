@@ -1,0 +1,1 @@
+ 11 | WARNING | PHPUnit test case custom base class name 'PhpunitFilenameMatchTest' should end with 'TestCase' or 'TestBase'. (Jetpack.PHPUnit.TestClassName.DoesNotEndWithTestCase)

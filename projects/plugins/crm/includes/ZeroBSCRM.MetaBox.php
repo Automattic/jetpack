@@ -9,13 +9,7 @@
  * Date: 27/02/18
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -315,7 +309,7 @@ function zeroBSCRM_add_meta_box( $id, $title, $callback, $screen = null, $contex
             zeroBSCRM_add_meta_box( $id, $title, $callback, $single_screen, $context, $priority, $callback_args, $headless, $extraClasses, $capabilities );
         }
     }
-    //  echo 'screen:<pre>'; print_r($screen); echo '</pre>!'; exit();
+
     if ( ! isset( $screen->id ) ) {
         return;
     }

@@ -18,7 +18,6 @@ use PHPUnit\Framework\TestCase;
  * @covers \Automattic\Jetpack\Changelog\Changelog
  */
 class ChangelogTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Test prologue and epilogue.
@@ -109,7 +108,7 @@ class ChangelogTest extends TestCase {
 	/**
 	 * Data provider for testJson.
 	 */
-	public function provideJson() {
+	public static function provideJson() {
 		return array(
 			'Basic serialization'              => array(
 				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\Changelog","prologue":"","epilogue":"","entries":[]}',

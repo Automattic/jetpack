@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import { userInfo } from '../state';
+import { useContext } from 'preact/hooks';
+import { VerbumSignals } from '../state';
 import { hasSubscriptionOptionsVisible } from '../utils';
 
 interface SettingsButtonProps {
@@ -8,6 +9,7 @@ interface SettingsButtonProps {
 }
 
 export const SettingsButton = ( { expanded, toggleSubscriptionTray }: SettingsButtonProps ) => {
+	const { userInfo } = useContext( VerbumSignals );
 	const subscriptionOptionsVisible = hasSubscriptionOptionsVisible();
 
 	const handleOnClick = ( event: MouseEvent ) => {

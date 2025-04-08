@@ -15,7 +15,7 @@
 function wpcom_redirect_to_woo_design_with_ai() {
 	delete_transient( '_wc_activation_redirect' );
 	wp_safe_redirect( wc_admin_url( '&path=%2Fcustomize-store%2Fdesign-with-ai&ref=entrepreneur-signup' ) );
-	exit();
+	exit( 0 );
 }
 
 /**

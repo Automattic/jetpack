@@ -2,9 +2,9 @@
 Contributors: automattic, annezazu, apokalyptik, bjorsch, briancolinger, dsmart, georgestephanis, initsogar, jeherve, josephscott, miguelxavierpenha, rachelsquirrel, rdcoll, sdixon194, shaunandrews, thingalon, viper007bond, williamvianas, xknown
 Tags: security, malware, virus, archive, back up, back ups, backup, backups, scanning, restore, wordpress backup, site backup, website backup
 Requires at least: 5.2
-Tested up to: 6.6
+Tested up to: 6.8
 Stable tag: 3.0.0
-Requires PHP: 7.0
+Requires PHP: 7.2
 License: GPLv2
 
 (DEPRECATED: Please install "Jetpack VaultPress Backup" instead) Jetpack VaultPress offers real-time backups, one-click restores, and premium support from WordPress experts.
@@ -32,11 +32,16 @@ View our full list of FAQs at [http://help.vaultpress.com/faq/](http://help.vaul
 A Jetpack VaultPress subscription is for a single WordPress site.
 
 == Changelog ==
-### 3.0.0 - 2024-02-21
+### 4.0.1 - 2025-04-07
 #### Changed
-- General: indicate compatibility with the upcoming version of WordPress, 6.5.
-- General: updated PHP requirement to PHP 7.0+
-- Updated package dependencies.
+- Code: First pass of style coding standards.
+- Code: Use function-style `exit()` and `die()` with a default status code of 0.
+- General: Indicate compatibility with WordPress 6.8.
+- Update package dependencies.
+
+#### Fixed
+- Code: Prevent dynamic class properties.
+- Code: Remove extra params on function calls.
 
 --------
 

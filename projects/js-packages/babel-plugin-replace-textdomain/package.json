@@ -1,11 +1,20 @@
 {
 	"name": "@automattic/babel-plugin-replace-textdomain",
-	"version": "1.0.36",
+	"version": "1.0.44",
 	"description": "A Babel plugin to replace the textdomain in gettext-style function calls.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/babel-plugin-replace-textdomain/#readme",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Babel Plugin Replace Textdomain"
 	},
+	"keywords": [
+		"babel",
+		"plugin",
+		"babel-plugin",
+		"wordpress",
+		"gettext",
+		"i18n",
+		"textdomain"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
@@ -14,13 +23,14 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"test": "jest tests"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
 		"debug": "^4.3.2"
 	},
 	"devDependencies": {
-		"@babel/core": "7.24.7",
+		"@babel/core": "7.26.10",
 		"babel-plugin-tester": "11.0.4",
 		"jest": "29.7.0"
 	},

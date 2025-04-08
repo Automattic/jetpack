@@ -5,6 +5,109 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.3.15 - 2025-04-07
+### Changed
+- Code: First pass of style coding standards. [#42734]
+- Update dependencies. [#42820]
+- Update package dependencies. [#42809]
+
+## 0.3.14 - 2025-03-31
+### Changed
+- Update dependencies. [#42678]
+
+## 0.3.13 - 2025-03-24
+### Changed
+- Update dependencies. [#42328]
+
+## 0.3.12 - 2025-03-18
+### Changed
+- Update package dependencies. [#42511]
+
+## 0.3.11 - 2025-03-17
+### Changed
+- Update dependencies. [#42328]
+
+## 0.3.10 - 2025-03-12
+### Changed
+- Update dependencies. [#42328]
+
+## 0.3.9 - 2025-03-10
+### Changed
+- Update dependencies. [#42222]
+
+## 0.3.8 - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+## 0.3.7 - 2025-02-24
+### Changed
+- Update dependencies. [#40231]
+
+## 0.3.6 - 2025-02-17
+### Changed
+- Update dependencies. [#40231]
+
+## 0.3.5 - 2025-02-11
+### Changed
+- Update dependencies. [#40231]
+
+## 0.3.4 - 2025-02-10
+### Changed
+- Update package dependencies. [#41491] [#41577]
+
+## 0.3.3 - 2025-01-20
+### Changed
+- Updated package dependencies. [#41099]
+
+## 0.3.2 - 2025-01-06
+### Changed
+- Updated package dependencies. [#40797] [#40813]
+
+## 0.3.1 - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## 0.3.0 - 2024-12-09
+### Changed
+- Changed text domain from 'jetpack' to 'jetpack-partner-coupon'. [#40368]
+- Updated package dependencies. [#40363]
+
+## 0.2.98 - 2024-11-26
+### Changed
+- Update dependencies. [#40231]
+
+## 0.2.97 - 2024-11-25
+### Changed
+- Updated package dependencies. [#40288]
+
+## 0.2.96 - 2024-11-18
+### Changed
+- Update dependencies. [#40194]
+
+## 0.2.95 - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## 0.2.94 - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## 0.2.93 - 2024-10-21
+### Changed
+- Update dependencies. [#39781]
+
+## 0.2.92 - 2024-10-14
+### Changed
+- Updated package dependencies. [#39707]
+
+## 0.2.91 - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## 0.2.90 - 2024-09-30
+### Changed
+- Update dependencies. [#39528]
+
 ## 0.2.89 - 2024-09-16
 ### Changed
 - Updated package dependencies. [#39332]
@@ -152,8 +255,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.2.54 - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## 0.2.53 - 2023-08-09
 ### Changed

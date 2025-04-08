@@ -1,6 +1,6 @@
 <?php
 /**
- * Boost product
+ * Backup product
  *
  * @package my-jetpack
  */
@@ -11,13 +11,13 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Redirect;
-use Jetpack_Options;
 use WP_Error;
 
 /**
  * Class responsible for handling the Backup product
  */
 class Backup extends Hybrid_Product {
+	public const BACKUP_STATUS_TRANSIENT_KEY = 'my-jetpack-backup-status';
 
 	/**
 	 * The product slug
@@ -45,6 +45,13 @@ class Backup extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-backup';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'security';
+
+	/**
 	 * Backup has a standalone plugin
 	 *
 	 * @var bool
@@ -64,6 +71,32 @@ class Backup extends Hybrid_Product {
 	 * @var bool
 	 */
 	public static $requires_plan = true;
+
+	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'backups';
+
+	/**
+	 * Backup initialization
+	 *
+	 * @return void
+	 */
+	public static function register_endpoints(): void {
+		parent::register_endpoints();
+		// Get backup undo event
+		register_rest_route(
+			'my-jetpack/v1',
+			'/site/backup/undo-event',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_undo_event',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+	}
 
 	/**
 	 * Get the product name
@@ -166,11 +199,81 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
+	 * Checks if the user has the correct permissions
+	 */
+	public static function permissions_callback() {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * This will fetch the last rewindable event from the Activity Log and
+	 * the last rewind_id prior to that.
+	 *
+	 * @return array|WP_Error|null
+	 */
+	public static function get_site_backup_undo_event() {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/activity/rewindable?force=wpcom',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		$body = json_decode( $response['body'], true );
+
+		if ( ! isset( $body['current'] ) ) {
+			return null;
+		}
+
+		// Preparing the response structure
+		$undo_event = array(
+			'last_rewindable_event' => null,
+			'undo_backup_id'        => null,
+		);
+
+		// List of events that will not be considered to be undo.
+		// Basically we should not `undo` a full backup event, but we could
+		// use them to undo any other action like plugin updates.
+		$last_event_exceptions = array(
+			'rewind__backup_only_complete_full',
+			'rewind__backup_only_complete_initial',
+			'rewind__backup_only_complete',
+			'rewind__backup_complete_full',
+			'rewind__backup_complete_initial',
+			'rewind__backup_complete',
+		);
+
+		// Looping through the events to find the last rewindable event and the last backup_id.
+		// The idea is to find the last rewindable event and then the last rewind_id before that.
+		$found_last_event = false;
+		foreach ( $body['current']['orderedItems'] as $event ) {
+			if ( $event['is_rewindable'] ) {
+				if ( ! $found_last_event && ! in_array( $event['name'], $last_event_exceptions, true ) ) {
+					$undo_event['last_rewindable_event'] = $event;
+					$found_last_event                    = true;
+				} elseif ( $found_last_event ) {
+					$undo_event['undo_backup_id'] = $event['rewind_id'];
+					break;
+				}
+			}
+		}
+
+		return rest_ensure_response( $undo_event );
+	}
+
+	/**
 	 * Hits the wpcom api to check rewind status.
 	 *
 	 * @todo Maybe add caching.
 	 *
-	 * @return Object|WP_Error
+	 * @return object|WP_Error
 	 */
 	private static function get_state_from_wpcom() {
 		static $status = null;
@@ -179,9 +282,15 @@ class Backup extends Hybrid_Product {
 			return $status;
 		}
 
-		$site_id = Jetpack_Options::get_option( 'id' );
+		$site_id = \Jetpack_Options::get_option( 'id' );
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom',
+			'2',
+			array( 'timeout' => 2 ),
+			null,
+			'wpcom'
+		);
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			$status = new WP_Error( 'rewind_state_fetch_failed' );
@@ -194,16 +303,98 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 * Hits the wpcom api to retrieve the last 10 backup records.
 	 *
-	 * @return boolean
+	 * @return object|WP_Error
 	 */
-	public static function has_paid_plan_for_product() {
-		$rewind_data = static::get_state_from_wpcom();
-		if ( is_wp_error( $rewind_data ) ) {
-			return false;
+	public static function get_latest_backups() {
+		static $backups = null;
+
+		if ( $backups !== null ) {
+			return $backups;
 		}
-		return is_object( $rewind_data ) && isset( $rewind_data->state ) && 'unavailable' !== $rewind_data->state;
+
+		$site_id  = \Jetpack_Options::get_option( 'id' );
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/rewind/backups', $site_id ) . '?force=wpcom',
+			'2',
+			array( 'timeout' => 2 ),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			$backups = new WP_Error( 'rewind_backups_fetch_failed' );
+			return $backups;
+		}
+
+		$body    = wp_remote_retrieve_body( $response );
+		$backups = json_decode( $body );
+		return $backups;
+	}
+
+	/**
+	 * Determines whether the module/plugin/product needs the users attention.
+	 * Typically due to some sort of error where user troubleshooting is needed.
+	 *
+	 * @return boolean|array
+	 */
+	public static function does_module_need_attention() {
+		$previous_backup_status = get_transient( self::BACKUP_STATUS_TRANSIENT_KEY );
+
+		// If we have a previous backup status, show it.
+		if ( ! empty( $previous_backup_status ) ) {
+			return $previous_backup_status === 'no_errors' ? false : $previous_backup_status;
+		}
+
+		$backup_failed_status = false;
+		// First check the status of Rewind for failure.
+		$rewind_state = self::get_state_from_wpcom();
+		if ( ! is_wp_error( $rewind_state ) ) {
+			if ( $rewind_state->state !== 'active' && $rewind_state->state !== 'provisioning' && $rewind_state->state !== 'awaiting_credentials' ) {
+				$backup_failed_status = array(
+					'type' => 'error',
+					'data' => array(
+						'source'       => 'rewind',
+						'status'       => isset( $rewind_state->reason ) && ! empty( $rewind_state->reason ) ? $rewind_state->reason : $rewind_state->state,
+						'last_updated' => $rewind_state->last_updated,
+					),
+				);
+			}
+		}
+		// Next check for a failed last backup.
+		$latest_backups = self::get_latest_backups();
+		if ( ! is_wp_error( $latest_backups ) ) {
+			// Get the last/latest backup record.
+			$last_backup = null;
+			foreach ( $latest_backups as $backup ) {
+				if ( $backup->is_backup ) {
+					$last_backup = $backup;
+					break;
+				}
+			}
+
+			if ( $last_backup && isset( $last_backup->status ) ) {
+				if ( $last_backup->status !== 'started' && ! preg_match( '/-will-retry$/', $last_backup->status ) && $last_backup->status !== 'finished' ) {
+					$backup_failed_status = array(
+						'type' => 'error',
+						'data' => array(
+							'source'       => 'last_backup',
+							'status'       => $last_backup->status,
+							'last_updated' => $last_backup->last_updated,
+						),
+					);
+				}
+			}
+		}
+
+		if ( is_array( $backup_failed_status ) && $backup_failed_status['type'] === 'error' ) {
+			set_transient( self::BACKUP_STATUS_TRANSIENT_KEY, $backup_failed_status, 5 * MINUTE_IN_SECONDS );
+		} else {
+			set_transient( self::BACKUP_STATUS_TRANSIENT_KEY, 'no_errors', HOUR_IN_SECONDS );
+		}
+
+		return $backup_failed_status;
 	}
 
 	/**
@@ -213,7 +404,7 @@ class Backup extends Hybrid_Product {
 	 * @return boolean|array Products bundle list.
 	 */
 	public static function is_upgradable_by_bundle() {
-		return array( 'security' );
+		return array( 'security', 'complete' );
 	}
 
 	/**
@@ -238,5 +429,27 @@ class Backup extends Hybrid_Product {
 		} elseif ( static::is_jetpack_plugin_active() ) {
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_backup_daily',
+			'jetpack_backup_daily_monthly',
+			'jetpack_backup_realtime',
+			'jetpack_backup_realtime_monthly',
+			'jetpack_backup_t1_yearly',
+			'jetpack_backup_t1_monthly',
+			'jetpack_backup_t1_bi_yearly',
+			'jetpack_backup_t2_yearly',
+			'jetpack_backup_t2_monthly',
+			'jetpack_backup_t0_yearly',
+			'jetpack_backup_t0_monthly',
+		);
 	}
 }

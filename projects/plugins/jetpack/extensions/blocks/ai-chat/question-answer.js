@@ -136,6 +136,8 @@ export default function QuestionAnswer( {
 						disabled={ ! animationDone || isLoading }
 						value={ question }
 						onChange={ newQuestion => setQuestion( newQuestion ) }
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 
 					<Button

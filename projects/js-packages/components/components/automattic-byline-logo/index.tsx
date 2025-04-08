@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React from 'react';
-import { AutomatticBylineLogoProps } from './types';
+import { AutomatticBylineLogoProps } from './types.js';
 
 /**
  * Automattic "By line" Logo component.
@@ -10,7 +10,7 @@ import { AutomatticBylineLogoProps } from './types';
  * @return {React.ReactNode} AutomatticBylineLogo component.
  */
 const AutomatticBylineLogo: React.FC< AutomatticBylineLogoProps > = ( {
-	title = __( 'An Automattic Airline', 'jetpack' ),
+	title = __( 'An Automattic Airline', 'jetpack-components' ),
 	height = 7,
 	className,
 	...otherProps

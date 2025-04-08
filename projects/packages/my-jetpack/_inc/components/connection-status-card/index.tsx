@@ -5,10 +5,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info, check, lockOutline } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useState, useCallback, useMemo } from 'react';
-import { useAllProducts } from '../../data/products/use-product';
+import { useAllProducts } from '../../data/products/use-all-products';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../../hooks/use-analytics';
+import useConnectSite from '../../hooks/use-connect-site';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import cloud from './cloud.svg';
 import emptyAvatar from './empty-avatar.svg';
@@ -33,6 +34,11 @@ const ConnectionListItem: ConnectionListItemType = ( {
 	let icon = check;
 	let statusStyles = '';
 
+	if ( status === 'info' ) {
+		icon = null;
+		statusStyles = '';
+	}
+
 	if ( status === 'success' ) {
 		icon = check;
 		statusStyles = styles.success;
@@ -50,14 +56,14 @@ const ConnectionListItem: ConnectionListItemType = ( {
 
 	if ( status === 'unlock' ) {
 		icon = lockOutline;
-		statusStyles = styles.unlock;
+		statusStyles = '';
 	}
 
 	return (
 		<div className={ styles[ 'list-item' ] }>
 			<Text className={ clsx( styles[ 'list-item-text' ], statusStyles ) }>
-				<Icon icon={ icon } />
-				{ text }
+				{ icon && <Icon icon={ icon } /> }
+				<span>{ text }</span>
 			</Text>
 			{ actionText && status !== 'success' && (
 				<ConnectionItemButton actionText={ actionText } onClick={ onClick } />
@@ -77,9 +83,17 @@ const ConnectionItemButton: ConnectionItemButtonType = ( { actionText, onClick }
 const getSiteConnectionLineData: getSiteConnectionLineDataType = ( {
 	isRegistered,
 	hasSiteConnectionBrokenModules,
-	handleConnectUser,
+	handleConnectSite,
+	siteIsRegistering,
 	openManageSiteConnectionDialog,
 } ) => {
+	if ( siteIsRegistering ) {
+		return {
+			text: __( 'Connecting your site…', 'jetpack-my-jetpack' ),
+			status: 'info',
+		};
+	}
+
 	if ( isRegistered ) {
 		return {
 			onClick: openManageSiteConnectionDialog,
@@ -91,7 +105,7 @@ const getSiteConnectionLineData: getSiteConnectionLineDataType = ( {
 
 	if ( hasSiteConnectionBrokenModules ) {
 		return {
-			onClick: handleConnectUser,
+			onClick: handleConnectSite,
 			text: __( 'Missing site connection to enable some features.', 'jetpack-my-jetpack' ),
 			actionText: __( 'Connect', 'jetpack-my-jetpack' ),
 			status: 'error',
@@ -99,7 +113,7 @@ const getSiteConnectionLineData: getSiteConnectionLineDataType = ( {
 	}
 
 	return {
-		onClick: handleConnectUser,
+		onClick: handleConnectSite,
 		text: __( 'Start with Jetpack.', 'jetpack-my-jetpack' ),
 		actionText: __( 'Connect your site with one click', 'jetpack-my-jetpack' ),
 		status: 'warning',
@@ -110,10 +124,26 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 	hasProductsThatRequireUserConnection,
 	hasUserConnectionBrokenModules,
 	isUserConnected,
+	hasConnectedOwner,
 	userConnectionData,
 	openManageUserConnectionDialog,
 	handleConnectUser,
 } ) => {
+	// If the user is not an admin and there is no connection owner present
+	if (
+		! userConnectionData.currentUser?.permissions?.manage_options &&
+		! isUserConnected &&
+		! hasConnectedOwner
+	) {
+		return {
+			text: __(
+				'A site admin will need to connect before you are able to sign in',
+				'jetpack-my-jetpack'
+			),
+			status: 'warning',
+		};
+	}
+
 	if (
 		! hasProductsThatRequireUserConnection &&
 		! hasUserConnectionBrokenModules &&
@@ -132,14 +162,23 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 		! isUserConnected &&
 		! hasUserConnectionBrokenModules
 	) {
+		let authText = __( 'Some features require authentication.', 'jetpack-my-jetpack' );
+		// If a non-admin is not connected while an admin is already connected,
+		// features needing a user connection are working for other users, but some features (like SSO or Shares) need each user to connect
+		// So we show the "unlock" language here since this user can do more with a user connection
+		if ( ! userConnectionData.currentUser?.permissions?.manage_options ) {
+			authText = __( 'Unlock more of Jetpack', 'jetpack-my-jetpack' );
+		}
+
 		return {
 			onClick: handleConnectUser,
-			text: __( 'Some features require authentication.', 'jetpack-my-jetpack' ),
+			text: authText,
 			actionText: __( 'Sign in', 'jetpack-my-jetpack' ),
 			status: 'warning',
 		};
 	}
 
+	// This condition should only occur when no admin users are connected
 	if ( hasUserConnectionBrokenModules ) {
 		return {
 			onClick: handleConnectUser,
@@ -153,17 +192,19 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 	if ( userConnectionData.currentUser?.isMaster ) {
 		userConnectionText = userConnectionData.currentUser?.wpcomUser?.display_name
 			? sprintf(
-					/* translators: placeholder is user name */
-					__( 'Connected as %1$s (Owner).', 'jetpack-my-jetpack' ),
-					userConnectionData.currentUser?.wpcomUser?.display_name
+					/* translators: %1$s is user name, %2$s is the user email */
+					__( 'Connected as %1$s (Owner) (%2$s).', 'jetpack-my-jetpack' ),
+					userConnectionData.currentUser?.wpcomUser?.display_name,
+					userConnectionData.currentUser?.wpcomUser?.email
 			  )
 			: __( 'User connected (Owner).', 'jetpack-my-jetpack' );
 	} else {
 		userConnectionText = userConnectionData.currentUser?.wpcomUser?.display_name
 			? sprintf(
-					/* translators: placeholder is user name */
-					__( 'Connected as %1$s.', 'jetpack-my-jetpack' ),
-					userConnectionData.currentUser?.wpcomUser?.display_name
+					/* translators: %1$s is user name, %2$s is the user email */
+					__( 'Connected as %1$s (%2$s).', 'jetpack-my-jetpack' ),
+					userConnectionData.currentUser?.wpcomUser?.display_name,
+					userConnectionData.currentUser?.wpcomUser?.email
 			  )
 			: __( 'User connected.', 'jetpack-my-jetpack' );
 	}
@@ -191,20 +232,29 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	context,
 	onConnectUser = null,
 } ) => {
-	const { isRegistered, isUserConnected, userConnectionData } = useMyJetpackConnection( {
+	const { isRegistered, isUserConnected, userConnectionData, hasConnectedOwner } =
+		useMyJetpackConnection( {
+			redirectUri,
+		} );
+	const { siteIsRegistering } = useMyJetpackConnection( {
+		skipUserConnection: true,
 		redirectUri,
 	} );
-
+	const { lifecycleStats } = getMyJetpackWindowInitialState();
 	const { recordEvent } = useAnalytics();
 	const [ isManageConnectionDialogOpen, setIsManageConnectionDialogOpen ] = useState( false );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
 	const connectUserFn = onConnectUser || setUserIsConnecting;
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
-	const { lifecycleStats } = getMyJetpackWindowInitialState();
+	const isCurrentUserAdmin = userConnectionData.currentUser?.permissions?.manage_options;
 	const { brokenModules } = lifecycleStats || {};
-	const products = useAllProducts();
-	const hasProductsThatRequireUserConnection =
-		getProductSlugsThatRequireUserConnection( products ).length > 0;
+	const { data: products, isLoading, isError } = useAllProducts();
+	const hasProductsThatRequireUserConnection = useMemo( () => {
+		if ( isLoading || isError ) {
+			return false;
+		}
+		return getProductSlugsThatRequireUserConnection( products ).length > 0;
+	}, [ isLoading, isError, products ] );
 	const hasUserConnectionBrokenModules = brokenModules?.needs_user_connection.length > 0;
 	const hasSiteConnectionBrokenModules = brokenModules?.needs_site_connection.length > 0;
 	const tracksEventData = useMemo( () => {
@@ -259,6 +309,15 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		[ onDisconnected, setConnectionStatus ]
 	);
 
+	const onUnlinkedCallback = useCallback(
+		( e: MouseEvent< HTMLButtonElement > ) => {
+			e && e.preventDefault();
+			setConnectionStatus( { isUserConnected: false } );
+			onDisconnected?.();
+		},
+		[ onDisconnected, setConnectionStatus ]
+	);
+
 	const onLearnMoreClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_connection_learnmore_link_click', tracksEventData );
 	}, [ recordEvent, tracksEventData ] );
@@ -272,6 +331,13 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		[ connectUserFn, recordEvent, tracksEventData ]
 	);
 
+	const { connectSite: handleConnectSite } = useConnectSite( {
+		tracksInfo: {
+			event: 'jetpack_myjetpack_connection_connect_site',
+			properties: tracksEventData,
+		},
+	} );
+
 	const getConnectionLineStyles = () => {
 		if ( isRegistered ) {
 			return '';
@@ -283,7 +349,8 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const siteConnectionLineData = getSiteConnectionLineData( {
 		isRegistered,
 		hasSiteConnectionBrokenModules,
-		handleConnectUser,
+		handleConnectSite,
+		siteIsRegistering,
 		openManageSiteConnectionDialog,
 	} );
 
@@ -291,13 +358,14 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		hasProductsThatRequireUserConnection,
 		hasUserConnectionBrokenModules,
 		isUserConnected,
+		hasConnectedOwner,
 		userConnectionData,
 		openManageUserConnectionDialog,
 		handleConnectUser,
 	} );
 
 	return (
-		<div id="dylan" className={ styles[ 'connection-status-card' ] }>
+		<div className={ styles[ 'connection-status-card' ] }>
 			<H3>{ title }</H3>
 
 			<Text variant="body" mb={ 3 }>
@@ -326,11 +394,11 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 						/>
 					) }
 				</div>
-				{ siteConnectionLineData?.status === 'success' && siteConnectionLineData?.actionText && (
+				{ ( ( isRegistered && isCurrentUserAdmin ) || isUserConnected ) && (
 					<div className={ styles[ 'connect-action' ] }>
 						<ConnectionItemButton
-							onClick={ siteConnectionLineData?.onClick }
-							actionText={ siteConnectionLineData?.actionText }
+							onClick={ openManageSiteConnectionDialog }
+							actionText={ __( 'Manage', 'jetpack-my-jetpack' ) }
 						/>
 					</div>
 				) }
@@ -338,24 +406,23 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 
 			<div>
 				{ <ConnectionListItem { ...siteConnectionLineData } /> }
+				{ userConnectionData?.connectionOwner && ! userConnectionData.currentUser?.isMaster && (
+					<ConnectionListItem
+						text={ sprintf(
+							/* translators: placeholder is the username of the Jetpack connection owner */
+							__( 'Also connected: %s (Owner).', 'jetpack-my-jetpack' ),
+							userConnectionData.connectionOwner
+						) }
+					/>
+				) }
 				{ isRegistered && <ConnectionListItem { ...userConnectionLineData } /> }
-				{ isUserConnected &&
-					userConnectionData?.connectionOwner &&
-					! userConnectionData.currentUser?.isMaster && (
-						<ConnectionListItem
-							text={ sprintf(
-								/* translators: placeholder is the username of the Jetpack connection owner */
-								__( 'Also connected: %s (Owner).', 'jetpack-my-jetpack' ),
-								userConnectionData.connectionOwner
-							) }
-						/>
-					) }
 			</div>
 
 			<ManageConnectionDialog
 				apiRoot={ apiRoot }
 				apiNonce={ apiNonce }
 				onDisconnected={ onDisconnectedCallback }
+				onUnlinked={ onUnlinkedCallback }
 				connectedPlugins={ connectedPlugins }
 				connectedSiteId={ connectedSiteId }
 				connectedUser={ userConnectionData }

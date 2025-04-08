@@ -2,6 +2,7 @@ import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import React from 'react';
 import Card from 'components/card';
 import { FormFieldset, FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -12,7 +13,6 @@ import TextInput from 'components/text-input';
 import Textarea from 'components/textarea';
 import analytics from 'lib/analytics';
 import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
-import React from 'react';
 
 export const Ads = withModuleSettingsFormHelpers(
 	class extends React.Component {

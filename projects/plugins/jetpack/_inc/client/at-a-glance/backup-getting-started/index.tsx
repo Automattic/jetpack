@@ -1,10 +1,10 @@
-import { imagePath, GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL } from 'constants/urls';
 import { __ } from '@wordpress/i18n';
-import Button from 'components/button';
-import Card from 'components/card';
-import analytics from 'lib/analytics';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import Card from 'components/card';
+import { imagePath, GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL } from 'constants/urls';
+import analytics from 'lib/analytics';
 import { backupGettingStartedDismissed, updateSettings } from 'state/settings';
 import './style.scss';
 

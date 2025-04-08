@@ -1,9 +1,9 @@
 === Jetpack Starter Plugin ===
 Contributors: automattic,
 Tags: jetpack, stuff
-Requires at least: 6.5
-Requires PHP: 7.0
-Tested up to: 6.6
+Requires at least: 6.6
+Requires PHP: 7.2
+Tested up to: 6.8
 Stable tag: 0.1.0-alpha
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -33,18 +33,17 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 0.4.0 - 2024-02-07
+### 0.6.0 - 2025-04-04
+
 #### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.3.
-- General: indicate full compatibility with the latest version of WordPress, 6.4.
-- General: remove WP 6.1 backwards compatibility checks
-- General: updated PHP requirement to PHP 7.0+
-- General: update WordPress version requirements to WordPress 6.2.
-- General: update WordPress version requirements to WordPress 6.3.
-- Updated Jetpack submenu sort order so individual features are alpha-sorted.
-- Updated package dependencies.
-- Update lockfile
-- Use the new method to render Connection initial state.
+- Code: Use function-style `exit()` and `die()` with a default status code of 0.
+- General: Indicate compatibility with WordPress 6.8.
+- Update composer.lock
+- Update package dependencies.
+
+#### Fixed
+- Code: Prevent dynamic class properties.
+- E2E Tests: Only install single browser used by Playwright.
 
 == Arbitrary section ==
 

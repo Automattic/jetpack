@@ -12,7 +12,7 @@
 /* ======================================================
   Breaking Checks ( stops direct access )
    ====================================================== */
-	if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+	defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 /* ======================================================
   / Breaking Checks
    ====================================================== */
@@ -2071,7 +2071,6 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 	/**
 	 * Returns content body against a quote
-	 * ... Replaces zeroBS_getQuoteBuilderContent() really
 	 *
 	 * @param int id quote ID
 	 *

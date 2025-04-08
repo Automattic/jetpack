@@ -9,13 +9,7 @@
  * Date: 01/11/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -187,8 +181,6 @@ function zeroBSCRM_html_contactTimeline($contactID=-1,$logs=false,$contactObj=fa
 		$logs = zeroBSCRM_getContactLogs($contactID,true,100,0,'',false);
 
 	}
-	//echo 'zeroBSCRM_html_contactTimeline<pre>'.print_r($logs,1).'</pre>'; exit();
-
 
 	// Compile a list of actions to show
 	// - if under 10, show them all
@@ -244,9 +236,11 @@ function zeroBSCRM_html_contactTimeline($contactID=-1,$logs=false,$contactObj=fa
 									   'Note'
 									   );
 
-			// convert to type stored in db
-			$x = array();
-			foreach ($logTypesToPrioritise as $lt) $x[] = zeroBSCRM_logTypeStrToDB($lt);
+		// convert to type stored in db
+		$x = array();
+		foreach ( $logTypesToPrioritise as $lt ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$x[] = $zbs->DAL->logs->logTypeIn( $lt ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		}
 			$logTypesToPrioritise = $x; unset($x);
 
 			// for now, abbreviated, just cycle through + pick any in prioritised group... could do this staggered by type/time later
@@ -278,7 +272,7 @@ function zeroBSCRM_html_contactTimeline($contactID=-1,$logs=false,$contactObj=fa
 		if ($creationLog == false){
 
 			// retrieve it
-			if ($zbs->isDAL2()) $creationLog = zeroBSCRM_getObjCreationLog($contactID,1);
+			$creationLog = zeroBSCRM_getObjCreationLog( $contactID, 1 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		}
 		if ( is_array( $creationLog ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -665,9 +659,11 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 									   );
 
 
-			// convert to type stored in db
-			$x = array();
-			foreach ($logTypesToPrioritise as $lt) $x[] = zeroBSCRM_logTypeStrToDB($lt);
+		// convert to type stored in db
+		$x = array();
+		foreach ( $logTypesToPrioritise as $lt ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$x[] = $zbs->DAL->logs->logTypeIn( $lt ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		}
 			$logTypesToPrioritise = $x; unset($x);
 
 
@@ -699,9 +695,7 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 		if ( $creationLog == false ) {
 
 			// retrieve it
-			if ( $zbs->isDAL2() ) {
-			    $creationLog = zeroBSCRM_getObjCreationLog( $companyID, 1 );
-            }
+			$creationLog = zeroBSCRM_getObjCreationLog( $companyID, 1 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		}
 		if ( is_array( $creationLog ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
@@ -792,12 +786,7 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
                         ?>
                         <h3 class="zbs-timeline-title"><?php
                          if (!empty($ico)) echo '<i class="fa '. esc_attr( $ico ) .'"></i> '; 
-                         // DAL 2 saves type as permalinked
-                         if ($zbs->isDAL2()){
                          	if (isset($zeroBSCRM_logTypes['zerobs_company'][$logKey])) echo esc_html( $zeroBSCRM_logTypes['zerobs_company'][$logKey]['label'] );
-                         } else {
-                         	if (isset($log['type'])) echo esc_html( $log['type'] ); 
-                         }
                          ?></h3>
 						<p>
 						<?php
@@ -1401,8 +1390,7 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 
 	            	$datevalue = ''; if ($value !== -99) $datevalue = $value; 
 
-	            	// if DAL3 we need to use translated dates here :)
-	            	if ($zbs->isDAL3()) $datevalue = zeroBSCRM_date_i18n_plusTime(-1,$datevalue,true);
+	            	$datevalue = zeroBSCRM_date_i18n_plusTime(-1,$datevalue,true);
 
 				?>
 						<div class="jpcrm-form-group jpcrm-form-group-span-2">
@@ -1887,8 +1875,7 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 
 	            	$datevalue = ''; if ($value !== -99) $datevalue = $value; 
 
-	            	// if DAL3 we need to use translated dates here :)
-	            	if ($zbs->isDAL3()) $datevalue = zeroBSCRM_date_i18n_plusTime(-1,$datevalue,true);
+	            	$datevalue = zeroBSCRM_date_i18n_plusTime(-1,$datevalue,true);
 
 	                ?><tr class="wh-large"><th><label for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e($fieldVal[1],"zero-bs-crm"); ?>:</label></th>
 	                <td>

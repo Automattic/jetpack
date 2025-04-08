@@ -1,12 +1,7 @@
 import clsx from 'clsx';
+import { useContext } from 'preact/hooks';
 import { translate } from '../i18n';
-import {
-	commentParent,
-	isReplyDisabled,
-	isSavingComment,
-	isTrayOpen,
-	userLoggedIn,
-} from '../state';
+import { VerbumSignals } from '../state';
 import { SettingsButton } from './settings-button';
 
 interface CommentFooterProps {
@@ -14,6 +9,8 @@ interface CommentFooterProps {
 }
 
 export const CommentFooter = ( { toggleTray }: CommentFooterProps ) => {
+	const { commentParent, isReplyDisabled, isSavingComment, isTrayOpen, userLoggedIn } =
+		useContext( VerbumSignals );
 	return (
 		<div
 			className={ clsx( 'verbum-footer', {

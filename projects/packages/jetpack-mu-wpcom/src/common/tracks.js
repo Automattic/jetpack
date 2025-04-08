@@ -1,12 +1,10 @@
-/* global JP_CONNECTION_INITIAL_STATE */
-
 export const wpcomTrackEvent = (
 	eventName,
 	eventProperties = {},
 	eventUserId = null,
 	eventUsername = null
 ) => {
-	const currentUser = JP_CONNECTION_INITIAL_STATE?.userConnectionData?.currentUser ?? {};
+	const currentUser = window.JP_CONNECTION_INITIAL_STATE?.userConnectionData?.currentUser ?? {};
 
 	const userId = eventUserId ?? currentUser.id;
 	const username = eventUsername ?? currentUser.username;

@@ -5,6 +5,7 @@
 	padding: 40px 0;
 	background-color: $white;
 	text-align: center;
+
 	@media (max-width: rem( 782px ) ) {
 		padding: 0 rem( 24px );
 
@@ -68,10 +69,13 @@
 	.dops-button-group {
 		flex-grow: 1;
 		align-self: center;
+
 		/* This fixes an unwanted space between the buttons in the network settings caused by a line break. */
+
 		/* Fixed here to keep PHP code readable. It's safe: .dops-button and .dops-button.is-compact specify a font size. */
 		font-size: 0;
 	}
+
 	@include breakpoint( "<480px" ) {
 		text-align: left;
 	}

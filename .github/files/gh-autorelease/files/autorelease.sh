@@ -28,7 +28,12 @@ elif [[ "$GITHUB_REF" == "refs/heads/trunk" ]]; then
 	fi
 	ROLLING_MODE=true
 	CURRENT_VER=$( sed -nEe 's/^## \[?([^]]*)\]? - .*/\1/;T;p;q' CHANGELOG.md || true )
-	GIT_SUFFIX=$( git log -1 --format=%h . )
+	if [[ "$CURRENT_VER" != *-alpha ]]; then
+		# Bump a non-alpha release to the next alpha to avoid confusing version_compare.
+		CURRENT_VER=${CURRENT_VER%%-*}
+		CURRENT_VER=${CURRENT_VER%.*}.$(( ${CURRENT_VER##*.} + 1 ))-alpha
+	fi
+	GIT_SUFFIX=$( git log -1 --format="%ct.g%h" . )
 	TAG="$CURRENT_VER+rolling.$GIT_SUFFIX"
 else
 	echo "::error::Expected GITHUB_REF like \`refs/tags/v1.2.3\` or \`refs/tags/1.2.3\` or \`refs/heads/trunk\` for rolling releases, got \`$GITHUB_REF\`"

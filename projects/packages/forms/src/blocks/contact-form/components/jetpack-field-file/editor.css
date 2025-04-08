@@ -1,0 +1,36 @@
+/* Editor-specific styles for file upload field */
+.jetpack-form-file-field__dropzone {
+	position: relative;
+}
+
+.jetpack-form-file-field__dropzone-inner {
+	position: relative;
+}
+
+.jetpack-form-file-field__content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--jetpack--contact-form--input-padding, 16px);
+}
+
+.jetpack-form-file-field__icon {
+	color: currentColor;
+}
+
+.jetpack-form-file-field__text {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	font-size: min(var(--jetpack--contact-form--font-size, inherit), 16px);
+}
+
+.jetpack-form-file-field__select-link {
+	text-decoration: underline;
+	font-weight: bold;
+}
+
+.jetpack-form-file-field__formats {
+	opacity: 0.4;
+	font-size: min(var(--jetpack--contact-form--font-size, inherit), 14px);
+} 

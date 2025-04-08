@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.5] - 2025-03-24
+### Changed
+- Internal updates.
+
+## [0.4.4] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [0.4.3] - 2025-03-10
+### Changed
+- Internal updates.
+
+## [0.4.2] - 2025-02-24
+### Changed
+- Update dependencies.
+
+## [0.4.1] - 2025-01-09
+### Fixed
+- Temporarily disable setcookie to avoid caching issues. [#40937]
+
+## [0.4.0] - 2025-01-06
+### Added
+- Add Search Event & landing Page support. [#40698]
+
+## [0.3.1] - 2024-12-25
+### Fixed
+- Fix fatal when WC()->cart returns null. [#40729]
+
+## [0.3.0] - 2024-12-23
+### Changed
+- Add common props, more events and bug fixing. [#40562]
+
+## [0.2.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [0.1.13] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [0.1.12] - 2024-10-29
+### Changed
+- Internal updates.
+
 ## [0.1.11] - 2024-09-23
 ### Changed
 - Update dependencies.
@@ -59,6 +103,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix namespace issue with WooCommerce class reference. [#35857]
 - General: bail early when WooCommerce is not active. [#36278]
 
+[0.4.5]: https://github.com/Automattic/woocommerce-analytics/compare/v0.4.4...v0.4.5
+[0.4.4]: https://github.com/Automattic/woocommerce-analytics/compare/v0.4.3...v0.4.4
+[0.4.3]: https://github.com/Automattic/woocommerce-analytics/compare/v0.4.2...v0.4.3
+[0.4.2]: https://github.com/Automattic/woocommerce-analytics/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/Automattic/woocommerce-analytics/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/Automattic/woocommerce-analytics/compare/v0.3.1...v0.4.0
+[0.3.1]: https://github.com/Automattic/woocommerce-analytics/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/Automattic/woocommerce-analytics/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/Automattic/woocommerce-analytics/compare/v0.1.13...v0.2.0
+[0.1.13]: https://github.com/Automattic/woocommerce-analytics/compare/v0.1.12...v0.1.13
+[0.1.12]: https://github.com/Automattic/woocommerce-analytics/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/Automattic/woocommerce-analytics/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/Automattic/woocommerce-analytics/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/Automattic/woocommerce-analytics/compare/v0.1.8...v0.1.9

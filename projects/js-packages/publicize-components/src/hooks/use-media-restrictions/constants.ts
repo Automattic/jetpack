@@ -14,10 +14,10 @@ export const DIMENSION_ERROR = 'DIMENSION_ERROR';
  */
 export function getErrorLabels() {
 	return {
-		[ FILE_SIZE_ERROR ]: __( 'File too big', 'jetpack' ),
-		[ VIDEO_LENGTH_TOO_LONG_ERROR ]: __( 'Video too long', 'jetpack' ),
-		[ VIDEO_LENGTH_TOO_SHORT_ERROR ]: __( 'Video too short', 'jetpack' ),
-		[ DIMENSION_ERROR ]: __( 'Invalid dimensions', 'jetpack' ),
+		[ FILE_SIZE_ERROR ]: __( 'File too big', 'jetpack-publicize-components' ),
+		[ VIDEO_LENGTH_TOO_LONG_ERROR ]: __( 'Video too long', 'jetpack-publicize-components' ),
+		[ VIDEO_LENGTH_TOO_SHORT_ERROR ]: __( 'Video too short', 'jetpack-publicize-components' ),
+		[ DIMENSION_ERROR ]: __( 'Invalid dimensions', 'jetpack-publicize-components' ),
 	};
 }
 
@@ -29,5 +29,5 @@ export function getErrorLabels() {
  * @return {string} The error label.
  */
 export function getErrorLabel( errorType: string ) {
-	return getErrorLabels()[ errorType ] || __( 'Invalid media', 'jetpack' );
+	return getErrorLabels()[ errorType ] || __( 'Invalid media', 'jetpack-publicize-components' );
 }

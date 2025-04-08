@@ -1,4 +1,5 @@
 :global {
+
 	#my-jetpack-container {
 		--wp-admin-theme-color: var(--jp-black);
 		--wp-admin-theme-color-darker-10: var(--jp-black-80);
@@ -8,15 +9,65 @@
 		.jp-dashboard-footer__jetpack-symbol {
 			height: 16px;
 		}
+
+		&:has(.my-jetpack-deprecate-notice-title) {
+
+			& .jetpack-deprecation-notice-link {
+				color: inherit;
+				font-weight: 600;
+				padding-right: 5px;
+			}
+		}
+	
+		.my-jetpack-deprecate-notice-title {
+			font-weight: 600;
+		}
 	}
 
 	#wpbody-content {
+
 		& > .notice {
 			display: none !important;
 		}
 	}
+
 	#wpwrap {
 		background-color: var(--jp-white-off);
 	}
 
+	.jetpack-admin-full-screen {
+
+		#wpwrap {
+			top: 0;
+		}
+
+		#wpadminbar {
+			display: none;
+		}
+
+		#wpbody-content {
+			min-height: 100vh !important;
+			padding-bottom: 0;
+		}
+
+		#wpcontent > *,
+		#wpfooter,
+		#adminmenumain,
+		.notice,
+		.error,
+		.updated {
+			display: none;
+		}
+
+		#wpcontent {
+			margin-left: 0 !important;
+			padding-left: 0 !important;
+
+			> #wpbody {
+				display: block;
+				margin-top: 0 !important;
+				padding-top: 0 !important;
+			}
+		}
+	}
 }

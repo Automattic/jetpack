@@ -976,13 +976,15 @@ class Jetpack_Widget_Conditions {
 						}
 						break;
 					case 'author':
-						$post = get_post();
 						if ( ! $rule['minor'] && is_author() ) {
 							$condition_result = true;
 						} elseif ( $rule['minor'] && is_author( $rule['minor'] ) ) {
 							$condition_result = true;
-						} elseif ( is_singular() && $rule['minor'] && $rule['minor'] === $post->post_author ) {
-							$condition_result = true;
+						} elseif ( is_singular() && $rule['minor'] ) {
+							$post = get_post();
+							if ( $post && $rule['minor'] === $post->post_author ) {
+								$condition_result = true;
+							}
 						}
 						break;
 					case 'role':
@@ -1130,7 +1132,8 @@ class Jetpack_Widget_Conditions {
 	 * @since 4.7.1
 	 */
 	public static function migrate_post_type_rules() {
-		global $wp_registered_widgets;
+		global $wp_widget_factory, $wp_registered_widgets;
+		'@phan-var \WP_Widget_Factory $wp_widget_factory';
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
 
@@ -1146,8 +1149,14 @@ class Jetpack_Widget_Conditions {
 					continue;
 				}
 
-				$opts      = $wp_registered_widgets[ $widget ];
-				$instances = get_option( $opts['callback'][0]->option_name );
+				$id_base       = wp_parse_widget_id( $widget )['id_base'];
+				$widget_object = $wp_widget_factory->get_widget_object( $id_base );
+
+				if ( ! $widget_object ) {
+					continue;
+				}
+
+				$instances = get_option( $widget_object->option_name );
 
 				if ( ! is_array( $instances ) || empty( $instances ) ) {
 					continue;
@@ -1190,7 +1199,7 @@ class Jetpack_Widget_Conditions {
 					}
 				}
 
-				update_option( $opts['callback'][0]->option_name, $instances );
+				update_option( $widget_object->option_name, $instances );
 			}
 		}
 	}

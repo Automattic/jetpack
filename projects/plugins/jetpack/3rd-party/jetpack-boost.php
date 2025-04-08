@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Jetpack_Boost;
 use Automattic\Jetpack\Plugins_Installer;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 const PLUGIN_SLUG = 'jetpack-boost';
@@ -65,7 +65,7 @@ function try_install() {
 
 	wp_safe_redirect( $redirect );
 
-	exit;
+	exit( 0 );
 }
 
 /**

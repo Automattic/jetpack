@@ -5,6 +5,139 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.14.22 - 2025-04-07
+### Changed
+- Code: First pass of style coding standards. [#42734]
+
+## 0.14.21 - 2025-04-02
+### Changed
+- Update package dependencies. [#42809]
+
+## 0.14.20 - 2025-04-01
+### Fixed
+- Fix Typescript configuration [#42762]
+
+## 0.14.19 - 2025-03-31
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.18 - 2025-03-26
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.17 - 2025-03-24
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.16 - 2025-03-24
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.15 - 2025-03-18
+### Changed
+- Update package dependencies. [#42511]
+
+## 0.14.14 - 2025-03-17
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.13 - 2025-03-12
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.12 - 2025-03-10
+### Fixed
+- My Jetpack: Add a margin between select and input license fields and titles. [#42075]
+
+## 0.14.11 - 2025-03-05
+### Changed
+- Update Golden Token modal to clarify optional properties. [#42154]
+
+## 0.14.10 - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+## 0.14.9 - 2025-02-24
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.8 - 2025-02-17
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.7 - 2025-02-11
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.6 - 2025-02-10
+### Changed
+- Updated package dependencies. [#41491] [#41577]
+
+## 0.14.5 - 2025-01-23
+### Changed
+- Internal updates.
+
+## 0.14.4 - 2025-01-20
+### Changed
+- Updated package dependencies. [#41099]
+
+## 0.14.3 - 2025-01-06
+### Changed
+- Updated package dependencies. [#40797] [#40813]
+
+## 0.14.2 - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## 0.14.1 - 2024-12-09
+### Changed
+- Internal updates.
+
+## 0.14.0 - 2024-12-04
+### Changed
+- Changed text domain from 'jetpack' to 'jetpack-licensing'. [#40368]
+- Updated package dependencies. [#40363]
+
+## 0.13.11 - 2024-11-26
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.10 - 2024-11-25
+### Changed
+- Updated package dependencies. [#40288]
+
+## 0.13.9 - 2024-11-18
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.8 - 2024-11-14
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.7 - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## 0.13.6 - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## 0.13.5 - 2024-10-15
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.4 - 2024-10-14
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.3 - 2024-10-10
+### Changed
+- Updated package dependencies. [#39707]
+
+## 0.13.2 - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
 ## 0.13.1 - 2024-09-25
 ### Changed
 - Update dependencies. [#37982]
@@ -202,8 +335,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.11.5 - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## 0.11.4 - 2023-08-23
 ### Changed

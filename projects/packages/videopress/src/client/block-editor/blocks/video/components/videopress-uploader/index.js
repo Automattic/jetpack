@@ -12,7 +12,13 @@ import { __ } from '@wordpress/i18n';
  */
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
-import { buildVideoPressURL, pickVideoBlockAttributesFromUrl } from '../../../../../lib/url';
+import { isUserConnected } from '../../../../../lib/connection';
+import {
+	buildVideoPressURL,
+	buildVideoPressVideoByFileName,
+	pickVideoBlockAttributesFromUrl,
+	getVideoNameFromUrl,
+} from '../../../../../lib/url';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { PlaceholderWrapper } from '../../edit';
 import { VideoPressIcon } from '../icons';
@@ -29,11 +35,14 @@ const VideoPressUploader = ( {
 	fileToUpload,
 	isReplacing,
 	onReplaceCancel,
+	isActive,
 } ) => {
 	const [ uploadPaused, setUploadPaused ] = useState( false );
 	const [ uploadedVideoData, setUploadedVideoData ] = useState( false );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const [ isVerifyingLocalMedia, setIsVerifyingLocalMedia ] = useState( false );
+
+	const hasUserConnection = isUserConnected();
 
 	/*
 	 * When the file to upload is set, start the upload process
@@ -107,15 +116,25 @@ const VideoPressUploader = ( {
 	function onSelectURL( videoSource, id ) {
 		// If the video source is a VideoPress URL, we can use it directly.
 		const { guid: guidFromSource, url: srcFromSource } = buildVideoPressURL( videoSource );
-		if ( ! guidFromSource ) {
-			setUploadErrorDataState( {
-				data: { message: __( 'Invalid VideoPress URL', 'jetpack-videopress-pkg' ) },
-			} );
-			return;
-		}
+		const invalidUrlMessage = __( 'Invalid VideoPress URL', 'jetpack-videopress-pkg' );
 
-		const attrs = pickVideoBlockAttributesFromUrl( srcFromSource );
-		handleDoneUpload( { ...attrs, guid: guidFromSource, id } );
+		if ( guidFromSource ) {
+			const attrs = pickVideoBlockAttributesFromUrl( srcFromSource );
+			handleDoneUpload( { ...attrs, guid: guidFromSource, id } );
+		} else {
+			// If the video source is not a VideoPress URL, try to build it from the file name.
+			const videoName = getVideoNameFromUrl( videoSource );
+
+			if ( ! videoName ) {
+				setUploadErrorDataState( { data: { message: invalidUrlMessage } } );
+			} else {
+				buildVideoPressVideoByFileName( videoName ).then( attrs => {
+					attrs
+						? handleDoneUpload( { ...attrs, id } )
+						: setUploadErrorDataState( { data: { message: invalidUrlMessage } } );
+				} );
+			}
+		}
 	}
 
 	const startUpload = file => {
@@ -310,6 +329,24 @@ const VideoPressUploader = ( {
 					<Spinner />
 					<span>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</span>
 				</div>
+			</PlaceholderWrapper>
+		);
+	}
+
+	if ( ! isActive ) {
+		const needsConnectionText = __(
+			'Connect your WordPress.com account to enable high-quality, ad-free video.',
+			'jetpack-videopress-pkg'
+		);
+
+		const needsActivationText = __(
+			'Activate the VideoPress module to enable high-quality, ad-free video.',
+			'jetpack-videopress-pkg'
+		);
+
+		return (
+			<PlaceholderWrapper disableInstructions className="disabled">
+				<span>{ ! hasUserConnection ? needsConnectionText : needsActivationText }</span>
 			</PlaceholderWrapper>
 		);
 	}

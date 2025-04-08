@@ -1,33 +1,39 @@
 import { ExternalLink } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { usePublicizeConfig } from '../../..';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { checkConnectionCode } from '../../utils/connections';
+import { useSelect } from '@wordpress/data';
+import { __, _x } from '@wordpress/i18n';
+import { store as socialStore } from '../../social-store';
+import { getSocialAdminPageUrl } from '../../utils';
 import Notice from '../notice';
+import styles from './styles.module.scss';
 
 export const UnsupportedConnectionsNotice: React.FC = () => {
-	const { connections } = useSocialMediaConnections();
+	const unsupportedServices = useSelect( select => {
+		const { getServicesBy, getConnectionsByService } = select( socialStore );
 
-	const { connectionsAdminUrl } = usePublicizeConfig();
+		return getServicesBy( 'status', 'unsupported' ).filter(
+			service => getConnectionsByService( service.id ).length
+		);
+	}, [] );
 
-	const unsupportedConnections = connections.filter( connection =>
-		checkConnectionCode( connection, 'unsupported' )
-	);
+	if ( ! unsupportedServices.length ) {
+		return null;
+	}
 
 	return (
-		unsupportedConnections.length > 0 && (
-			<Notice type={ 'error' }>
-				{ createInterpolateElement(
-					__(
-						'Twitter is not supported anymore. <moreInfo>Learn more here</moreInfo>.',
-						'jetpack'
-					),
-					{
-						moreInfo: <ExternalLink href={ connectionsAdminUrl } />,
-					}
-				) }
-			</Notice>
-		)
+		<Notice type="error">
+			{ _x(
+				'Following platforms are not supported anymore:',
+				'Followed by a list of social media platforms that are no longer supported by Publicize.',
+				'jetpack-publicize-components'
+			) }
+			<ul className={ styles[ 'unsupported-connections-list' ] }>
+				{ unsupportedServices.map( service => (
+					<li key={ service.id }>{ service.label }</li>
+				) ) }
+			</ul>
+			<ExternalLink href={ getSocialAdminPageUrl() }>
+				{ __( 'Learn more', 'jetpack-publicize-components' ) }
+			</ExternalLink>
+		</Notice>
 	);
 };

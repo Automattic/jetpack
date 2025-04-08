@@ -41,7 +41,7 @@ All GitHub Actions configuration for the monorepo, including CI, lives in `.gith
 
 ## Compatibility
 
-All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.0 to 8.3.
+All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.2 to 8.4.
 
 ## First Time
 
@@ -86,13 +86,13 @@ The Jetpack Generate Wizard includes the following for each project:
 - bootstrap.php
 - .gitkeep
 - .gitattributes
-- phpunit.xml.dist
+- phpunit.*.xml.dist
 #### Plugins
 
 - bootstrap.php
 - .gitkeep
 - .gitattributes
-- phpunit.xml.dist
+- phpunit.*.xml.dist
 - readme.txt
 - A main plugin.php (plugin_name.php), with filled in header
 
@@ -116,6 +116,8 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.repositories`: If you include a repository entry referencing monorepo packages, it must have `.options.monorepo` set to true. This allows the build tooling to recognize and remove it.
 * `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. See [Building](#building) for details.
 * `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. See [Building](#building) for details.
+* `.scripts.test-coverage`: If the package contains any tests, this must run the necessary commands to generate a coverage report. See [Code coverage](#code-coverage) for details.
+  * `.scripts.skip-test-coverage`: Run before `.scripts.test-coverage` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
 * `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
   * `.scripts.skip-test-js`: Run before `.scripts.test-js` in CI. If it exits with code 3, the test run will be skipped.
@@ -183,6 +185,8 @@ The following environment variables are available for all tests:
 
 - `ARTIFACTS_DIR`: If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified by this variable and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
 - `MONOREPO_BASE`: Path to the monorepo. Useful if you're using things in `tools/` from plugin tests.
+- `WORDPRESS_DIR`: Path to a copy of WordPress. Other than plugin tests, though, you should probably avoid using this.
+- `WORDPRESS_DEVELOP_DIR`: Path to a checkout of wordpress-develop. Other than plugin tests, though, you should probably avoid using this.
 - `NODE_VERSION`: The version of Node in use, as specified in `.github/versions.sh`.
 - `PHP_VERSION`: The version of PHP in use. Unless otherwise specified below, it will be the same as in `.github/versions.sh`.
 - `TEST_SCRIPT`: The test script being run.
@@ -191,17 +195,7 @@ The following environment variables are available for all tests:
 
 We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply with the [coding standards](development-environment.md#coding-standards) enforced by these tools.
 
-* Projects may include `.eslintrc.js` to adjust eslint configuration as necessary, but try to keep to the spirit of it.
-
-  Note we're using something of a hack to get eslint to read ignore rules from `.gitignore` and per-directory `.eslintignore` files.
-  Any eslintrc that does `root: true` or an `extends` that extends from an eslintrc that includes the hack will have to do like
-  ```js
-  const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
-  module.exports = {
-  	// Whatever stuff, including `root: true` or `extends`.
-  	ignorePatterns: loadIgnorePatterns( __dirname ),
-  };
-  ```
+* Projects may include `eslint.config.mjs` to adjust eslint configuration as necessary, but try to keep to the spirit of it. Configurations should generally start with `...makeBaseConfig( import.meta.url )` (imported from `jetpack-js-tools/eslintrc/base.mjs`) with any appropriate options, and override from there.
 * We're using a fork of phpcs and a custom filter that adds support for per-directory configuration (`.phpcs.dir.xml`) and use of `.gitignore` and `.phpcsignore` files. Again, try to keep to the spirit of things.
 
 ### Static Analysis
@@ -262,7 +256,7 @@ If a project contains PHP tests (typically PHPUnit), it must define `.scripts.te
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
-Tests are run with a variety of supported PHP versions from 7.0 to 8.3. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
+Tests are run with a variety of supported PHP versions from 7.2 to 8.4. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
 
 #### PHP tests for non-plugins
 
@@ -270,18 +264,20 @@ For all project types other than WordPress plugins, the necessary version of PHP
 
 We currently make use of the following packages in testing; it's encouraged to use these rather than introducing other tools that serve the same purpose.
 
-* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 6.5 to 9.0, to support PHP 7.0 to 8.3.
-  * Do not use `Yoast\PHPUnitPolyfills\TestCases\TestCase` or `Yoast\PHPUnitPolyfills\TestCases\XTestCase`. Just use the `@before`, `@after`, `@beforeClass`, and `@afterClass` annotations directly.
+* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 8.5 to 9.6, to support PHP 7.2 to 8.4.
+* [automattic/phpunit-select-config](https://packagist.org/packages/automattic/phpunit-select-config) allows for selecting a configuration file based on the version of PHPUnit in use, since configs are often not compatible across major versions since PHPUnit 9.
 * PHPUnit's built-in mocking is used for class mocks.
 * [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
-* [automattic/wordbless](https://packagist.org/packages/automattic/wordbless) is used to pull in WordPress for testing.
-  * If using both Brain Monkey and WorDBless, note the following requirements:
-    * You must `require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';` in `bootstrap.php` before WorDBless's setup, so Brain Monkey can mock WordPress functions.
+* [automattic/jetpack-test-environment](../projects/packages/test-environment/README.md) is used to pull in WordPress for testing.
+  * If using both Brain Monkey and the Jetpack Test Environment, note the following requirements:
+    * You must `require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';` in `bootstrap.php` before the Jetpack Test Environment's setup, so Brain Monkey can mock WordPress functions.
     * Follow Brain Monkey's [functions-setup.md](https://github.com/Brain-WP/BrainMonkey/blob/master/docs/functions-testing-tools/functions-setup.md) instead of [wordpress-setup.md](https://github.com/Brain-WP/BrainMonkey/blob/master/docs/wordpress-specific-tools/wordpress-setup.md); don't call `Monkey\setUp()` or try to use its WordPress-specific tools.
+	* To initiate the Jetpack Test Environment, call `\Automattic\Jetpack\Test_Environment\Bootstrap::init();` in `bootstrap.php`.
+	* See the [Jetpack Test Environment README](../projects/packages/test-environment/README.md) for more details.
 
 #### PHP tests for plugins
 
-WordPress plugins generally want to run within WordPress. All monorepo plugins are copied into place in a WordPress installation and tests are run from there.
+WordPress plugins may want to run within WordPress. All monorepo plugins are copied into place in a WordPress installation. Environment variable `WORDPRESS_DIR` points to this installation, and `WORDPRESS_DEVELOP_DIR` points a directory with WordPress's `tests/phpunit/`.
 
 Tests will be run against the latest version of WordPress using the variety of supported PHP versions, and against the previous and trunk versions of WordPress using the PHP version in `.github/versions.sh`. The environment variable `WP_BRANCH` will be set to 'latest', 'previous', or 'trunk' accordingly. If you have tests that only need to be run once, run them when `WP_BRANCH` is 'latest'.
 
@@ -299,6 +295,65 @@ JavaScript tests should use `jest`, not `mocha`/`chai`/`sinon`. For React testin
 
 If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
 
+### Code coverage
+
+If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output. The CI environment will run `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-coverage`.
+
+Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
+
+For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php "$COVERAGE_DIR/php.cov"`. If you have multiple runs (e.g. unit and integration), be sure to write the `php.cov` files to separate subdirectories of `$COVERAGE_DIR`.
+
+For JS tests, you'll probably have a `test` script in package.json that runs `jest` with any needed options, and then a `test-coverage` script that does `pnpm run test --coverage`. If you have multiple runs (e.g. unit and integration), be sure each run writes to a different subdirectory of `$COVERAGE_DIR`.
+
+There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
+
+If you want to generate coverage locally, e.g. with `jetpack test coverage`, note that generating PHP coverage requires the [pcov](https://pecl.php.net/package/pcov) or [xdebug](https://pecl.php.net/package/xdebug) extensions. We use `pcov` for the CI runs; results from `xdebug` may be slightly different.
+
+<details><summary>Installing the PHP pcov extension on Linux</summary>
+
+On most Linux distributions, you can install the PHP pcov extension using your package manager:
+
+- For Ubuntu/Debian-based systems:
+  ```
+  sudo apt-get install php8.2-pcov
+  ```
+- For Arch Linux:
+  Install the AUR package "php-pcov" from https://aur.archlinux.org/packages/php-pcov
+
+For other Linux distributions, consult your package manager's documentation or consider compiling from source.
+
+</details>
+
+Mac users have reported having trouble installing the PHP pcov extension. See the dropdown below for Mac-specific instructions.
+
+<details><summary>Installing the PHP pcov extension on Mac</summary>
+
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+
+1. First, check whether pcov is already installed by running `php --ri pcov`. If it prints something like this, you should already be good:
+   ```
+   pcov
+
+   PCOV support => Enabled
+   PCOV version => 1.0.11
+   pcov.directory => /some/path/
+   pcov.exclude => none
+   pcov.initial.memory => 65336 bytes
+   pcov.initial.files => 64
+   ```
+2. You may need to `brew install pkg-config zlib` to install some necessary dependencies.
+3. Update the list of available extensions: `pecl channel-update pecl.php.net`
+4. Build the extension: `pecl install pcov`
+   - If the build process fails due to mkdir errors with the pecl directory, you might try `mkdir -p /opt/homebrew/lib/php/pecl` and running the install again.
+5. You may also need to tell PHP where to find the newly-installed extension.
+   1. Run `pecl config-get ext_dir` to find where pecl installs extensions.
+   2. Run `php -r 'echo ini_get( "extension_dir" ) . "\n";'` to find where PHP currently expects extensions to live.
+   3. If those are the same, great! If not, you have two options:
+      * If PHP's current directory is empty, you could find your `php.ini` file (`php --ini`) and change `extension_dir` to pecl's location.
+      * Or else, pecl probably added `extension=pcov.so` to an ini file somewhere. You could change the `pcov.so` value to be the full path inside pecl's directory.
+
+</details>
+
 ## Mirror repositories
 
 Most projects in the monorepo should have a mirror repository holding a built version of the project, ready for deployment. Follow these steps to create the mirror repo and configure the monorepo tooling to push to it.
@@ -308,7 +363,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
    2. The default branch should be `trunk`, matching the monorepo.
       * Note that you can't set the default branch until at least one branch is created in the repo.
    3. In the repo's settings, turn off wikis, issues, projects, and so on.
-   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. You would do this here: `https://github.com/Automattic/example-repository-name/settings/branches` - creating a new branch protection rule where only Matticbot (and whoever needs access to push, for example Garage) can push to that repository.
+   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. Usually no special configuration is needed for repos under the Automattic organization.
    5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
    6. Create any secrets needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
 2. For a PHP package (or a plugin listed in Packagist) you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it.
@@ -476,3 +531,37 @@ In a checkout of the monorepo:
 See p9dueE-2on-p2 for past uses of this process.
 
 While a private repo could be imported similarly, you'd have a lot of auditing to do to make sure no old commit exposes any private information.
+
+## External Automattic npm packages
+
+Some npm packages are maintained by Automattic but are not part of the Jetpack monorepo. These are typically packages that are used by multiple teams or projects, and are not specific to Jetpack.
+
+### `@automattic/social-previews`
+
+This package is used to display Social Previews in the block editor and other Jetpack SEO settings pages.
+
+This package is maintained in [`Automattic/wp-calypso`](https://github.com/Automattic/wp-calypso/tree/4883414a0ede8adbd38737657bb5649367da4bf3/packages/social-previews).
+
+#### Development process
+
+If you need to update something in that package that is used by Jetpack, you should:
+
+- Make the necessary changes in the `wp-calypso` repository.
+- Use pnpm link to link the package in Jetpack to the local version in `wp-calypso`. Like this
+  - `cd wp-calypso/packages/social-previews`
+  - `pnpm link --global`
+- Then in Jetpack
+  - `cd projects/js-packages/publicize-components`
+  - `pnpm link --global @automattic/social-previews`
+  - Do the same for `projects/plugins/jetpack`
+- Test your changes
+- Create a branch/PR in `wp-calypso`
+- Bump the package version and commit the changes.
+- Publish a beta version of the package by following the appropriate [instructions](https://github.com/Automattic/wp-calypso/blob/4883414a0ede8adbd38737657bb5649367da4bf3/docs/monorepo.md#publishing). Like this
+  - `git tag "@automattic/social-previews@2.1.0-beta.10"`
+  - `git push --tags`
+  - `cd packages/social-previews`
+  - `yarn npm publish`
+- Update the package version in Jetpack to the beta version.
+- Create a PR in Jetpack which should now have the beta version of the package.
+- Follow the instructions in Calypso to publish the package to npm after merging the PR to trunk

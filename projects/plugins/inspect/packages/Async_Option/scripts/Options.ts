@@ -59,29 +59,32 @@ export class Options< T extends AO.Options > {
 			}
 
 			// Sync the setting to the server
-			debounce = setTimeout( async () => {
-				requestLock = true;
-				const result = await updateCallback( {
-					...this.options[ key ],
-					value,
-				} );
-				requestLock = false;
+			debounce = setTimeout(
+				async () => {
+					requestLock = true;
+					const result = await updateCallback( {
+						...this.options[ key ],
+						value,
+					} );
+					requestLock = false;
 
-				// Ensure that the database has the same value as the UI
-				if ( ! this.compare( result, value ) ) {
-					if ( attempt >= 3 ) {
-						/*  console.error(
+					// Ensure that the database has the same value as the UI
+					if ( ! this.compare( result, value ) ) {
+						if ( attempt >= 3 ) {
+							/*  console.error(
 							"Auto-retry failed because REST API keeps returning values that don't match the UI.",
 							result,
 							value
 						); */
-						pending.stop();
-						return;
+							pending.stop();
+							return;
+						}
+						send( value, attempt + 1 );
 					}
-					send( value, attempt + 1 );
-				}
-				pending.stop();
-			}, 200 * ( 1 + attempt * 2 ) );
+					pending.stop();
+				},
+				200 * ( 1 + attempt * 2 )
+			);
 		};
 
 		// Send the store value to the API

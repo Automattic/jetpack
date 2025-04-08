@@ -125,11 +125,14 @@ function wpcom_always_use_user_locale() {
 add_action( 'admin_bar_menu', 'wpcom_always_use_user_locale', -1 );
 
 /**
- * Replaces the WP logo as a link to /sites.
+ * Replaces the WP logo with WP.com logo.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
-function wpcom_replace_wp_logo_with_wpcom_all_sites_menu( $wp_admin_bar ) {
+function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
+	$about_node      = $wp_admin_bar->get_node( 'about' );
+	$contribute_node = $wp_admin_bar->get_node( 'contribute' );
+
 	foreach ( $wp_admin_bar->get_nodes() as $node ) {
 		if ( $node->parent === 'wp-logo' || $node->parent === 'wp-logo-external' ) {
 			$wp_admin_bar->remove_node( $node->id );
@@ -149,8 +152,47 @@ function wpcom_replace_wp_logo_with_wpcom_all_sites_menu( $wp_admin_bar ) {
 			),
 		)
 	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'wpcom-logo',
+			'id'     => 'wpcom-sites',
+			'title'  => __( 'Sites', 'jetpack-mu-wpcom' ),
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/sites' ),
+		)
+	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'wpcom-logo',
+			'id'     => 'wpcom-domains',
+			'title'  => __( 'Domains', 'jetpack-mu-wpcom' ),
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/domains/manage' ),
+		)
+	);
+
+	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+		$wp_admin_bar->add_group(
+			array(
+				'parent' => 'wpcom-logo',
+				'id'     => 'wpcom-logo-external',
+				'meta'   => array(
+					'class' => 'ab-sub-secondary',
+				),
+			)
+		);
+
+		if ( $about_node ) {
+			$about_node->parent = 'wpcom-logo-external';
+			$wp_admin_bar->add_node( (array) $about_node );
+		}
+		if ( $contribute_node ) {
+			$contribute_node->parent = 'wpcom-logo-external';
+			$wp_admin_bar->add_node( (array) $contribute_node );
+		}
+	}
 }
-add_action( 'admin_bar_menu', 'wpcom_replace_wp_logo_with_wpcom_all_sites_menu', 11 );
+add_action( 'admin_bar_menu', 'wpcom_replace_wp_logo_with_wpcom_logo_menu', 11 );
 
 /**
  * Adds the Cart menu to the WordPress admin bar.
@@ -169,8 +211,7 @@ function wpcom_add_shopping_cart( $wp_admin_bar ) {
 	// Get the current blog ID.
 	$blog_id = get_current_blog_id();
 
-	// Retrieve the current user's shopping cart for the current blog.
-	$cart = \Store_Shopping_Cart::get_existing_cart(
+	$is_empty = \Store_Shopping_Cart::is_cart_empty(
 		array(
 			'blog_id' => $blog_id,
 			'user_id' => get_current_user_id(),
@@ -178,7 +219,7 @@ function wpcom_add_shopping_cart( $wp_admin_bar ) {
 	);
 
 	// If the cart is empty (no products), do not add the cart menu.
-	if ( ! $cart->get_product_slugs() ) {
+	if ( $is_empty ) {
 		return;
 	}
 
@@ -221,11 +262,9 @@ function wpcom_add_reader_menu( $wp_admin_bar ) {
 	$wp_admin_bar->add_menu(
 		array(
 			'id'     => 'reader',
-			'title'  => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' .
-						/* translators: Hidden accessibility text. */
-						__( 'Reader', 'jetpack-mu-wpcom' ) .
-						'</span>',
-			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/read' ),
+			'title'  => '<span class="ab-icon" title="' . __( 'Read the blogs and topics you follow', 'jetpack-mu-wpcom' ) . '" aria-hidden="true"></span>' .
+						'<span class="ab-label">' . __( 'Reader', 'jetpack-mu-wpcom' ) . '</span>',
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/reader' ),
 			'meta'   => array(
 				'class' => 'wp-admin-bar-reader',
 			),
@@ -237,52 +276,59 @@ function wpcom_add_reader_menu( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 11 );
 
 /**
- * Points the "Edit Profile" and "Howdy,..." to /me when appropriate.
+ * Points the "Edit Profile" and "Howdy,..." to /me if the user is not member of the blog.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
-function wpcom_maybe_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
+function wpcom_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
+	if ( is_user_member_of_blog() ) {
+		return;
+	}
+
 	$edit_profile_node = $wp_admin_bar->get_node( 'user-info' );
 	if ( $edit_profile_node ) {
-		/**
-		 * The Edit Profile menu should point to /me, instead of the site's profile.php
-		 * if the user is not a member of the current site
-		 */
-		if ( ! is_user_member_of_blog() ) {
-			$edit_profile_node->href = maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' );
-			$wp_admin_bar->add_node( (array) $edit_profile_node );
-		}
+		$edit_profile_node->href  = maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' );
+		$edit_profile_node->title = preg_replace( "/(<span class='display-name edit-profile'>)(.*?)(<\/span>)/", '$1' . __( 'My Profile', 'jetpack-mu-wpcom' ) . '$3', $edit_profile_node->title );
+		$wp_admin_bar->add_node( (array) $edit_profile_node );
+	}
+	$my_account_node = $wp_admin_bar->get_node( 'my-account' );
+	if ( $my_account_node ) {
+		$my_account_node->href = maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' );
+		$wp_admin_bar->add_node( (array) $my_account_node );
 	}
 }
 // Run this function later than Core: https://github.com/WordPress/wordpress-develop/blob/5a30482419f1b0bcc713a7fdee3a14afd67a1bca/src/wp-includes/class-wp-admin-bar.php#L651
-add_action( 'admin_bar_menu', 'wpcom_maybe_replace_edit_profile_menu_to_me', 9999 );
+add_action( 'admin_bar_menu', 'wpcom_replace_edit_profile_menu_to_me', 9999 );
 
 /**
- * Adds (Profile) -> My Account menu pointing to /me.
+ * Adds "Howdy,..." -> My WP.com Account submenu pointing to /me/account.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
-function wpcom_add_my_account_item_to_profile_menu( $wp_admin_bar ) {
-	$logout_node = $wp_admin_bar->get_node( 'logout' );
-	if ( $logout_node ) {
-		// Adds the 'My Account' menu item before 'Log Out'.
-		$wp_admin_bar->remove_node( 'logout' );
-	}
-
-	$wp_admin_bar->add_node(
+function wpcom_add_my_wpcom_account_submenu( $wp_admin_bar ) {
+	$wp_admin_bar->add_group(
 		array(
-			'id'     => 'wpcom-profile',
-			'parent' => 'user-actions',
-			'title'  => __( 'My Account', 'jetpack-mu-wpcom' ),
-			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' ),
+			'parent' => 'my-account',
+			'id'     => 'wpcom-account',
+			'meta'   => array(
+				'class' => 'ab-sub-secondary',
+			),
 		)
 	);
 
-	if ( $logout_node ) {
-		$wp_admin_bar->add_node( (array) $logout_node );
-	}
+	/* translators: %s: WordPress.com logo */
+	$button_text = sprintf( __( 'My %s WordPress.com Account', 'jetpack-mu-wpcom' ), '<span class="wpcom-logo"></span>' );
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'wpcom-account',
+			'id'     => 'my-wpcom-account',
+			'title'  => '<span class="button wpcom-button">' . $button_text . '</span>',
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/me/account' ),
+		)
+	);
 }
-add_action( 'admin_bar_menu', 'wpcom_add_my_account_item_to_profile_menu' );
+add_action( 'admin_bar_menu', 'wpcom_add_my_wpcom_account_submenu' );
 
 /**
  * Replaces the default admin bar class with our own.
@@ -291,7 +337,11 @@ add_action( 'admin_bar_menu', 'wpcom_add_my_account_item_to_profile_menu' );
  * @return string Name of the admin bar class.
  */
 function wpcom_custom_wpcom_admin_bar_class( $wp_admin_bar_class ) {
-	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
+	$is_wp_admin = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+
+	if ( $is_wp_admin ) {
 		return $wp_admin_bar_class;
 	}
 
@@ -299,3 +349,20 @@ function wpcom_custom_wpcom_admin_bar_class( $wp_admin_bar_class ) {
 	return '\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Admin_Bar';
 }
 add_filter( 'wp_admin_bar_class', 'wpcom_custom_wpcom_admin_bar_class' );
+
+/**
+ * Changes the edit site menu to point to the top-level site editor.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
+ */
+function wpcom_edit_site_menu_override( $wp_admin_bar ) {
+	if ( $wp_admin_bar->get_node( 'site-editor' ) ) {
+		$args = array(
+			'id'   => 'site-editor',
+			'href' => admin_url( 'site-editor.php' ),
+		);
+
+		$wp_admin_bar->add_node( $args );
+	}
+}
+add_action( 'admin_bar_menu', 'wpcom_edit_site_menu_override', 41 );

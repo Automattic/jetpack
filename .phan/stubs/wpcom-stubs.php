@@ -4,10 +4,11 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit fc607c626f1d1faf6baaba974cb048312f3c5841.
+ * Stubs automatically generated from WordPress.com commit ef5f6b904036b358955cab7358dae634b1ec9c37.
  */
 
 namespace {
+    \define('WPCOM_PERSONAL_BUNDLE', 1009);
     \define('WPCOM_VALUE_BUNDLE', 1003);
     \define('TRANSLATE_BLOG_ID', 101407);
     /**
@@ -101,9 +102,14 @@ namespace {
          * @param string $message
          * @param array $skip_connections
          * @param bool $check_feature
+         * @param bool $sync
+         * @param int $_user_id
          * @return array|false|WP_Error
          */
-        public function republicize_post($post_id, $message, $skip_connections, $check_feature = \false, $sync = \true)
+        public function republicize_post($post_id, $message, $skip_connections, $check_feature = \false, $sync = \true, $_user_id = \null)
+        {
+        }
+        public function get_all_connections_for_blog_id($_blog_id = \false, $format = 'complete')
         {
         }
     }
@@ -171,6 +177,13 @@ namespace {
         public static function get_existing_cart(?array $args = []): self
         {
         }
+        /**
+         * @param array|null $args
+         * @return bool
+         */
+        public static function is_cart_empty(?array $args = []): bool
+        {
+        }
     }
     class Store_Product_List
     {
@@ -178,6 +191,9 @@ namespace {
          * @return array
          */
         public static function get_from_cache()
+        {
+        }
+        public static function get()
         {
         }
         /**
@@ -202,6 +218,8 @@ namespace {
     {
         public $product_id;
         public string $product_name;
+        public string $product_slug;
+        public string $product_type;
     }
     /**
      * @property Store_Transaction $transaction
@@ -238,6 +256,23 @@ namespace {
     }
     function global_css()
     {
+    }
+    class WPCOM_External_Connections
+    {
+        /**
+         * @return WPCOM_External_Connections
+         */
+        static function init()
+        {
+        }
+        /**
+         * @param string $type
+         * @param int|false $blog_id
+         * @return array
+         */
+        public function get_external_services_list($type = \false, $blog_id = \false)
+        {
+        }
     }
     class WPCOM_Google_Sheets_Helper
     {
@@ -389,7 +424,12 @@ namespace {
     }
     class Memberships_Store_Sandbox
     {
-        public function init($force = \false)
+        /**
+         * @param bool $force
+         * @param int|null $blog_id
+         * @return void
+         */
+        public function init($force = \false, ?int $blog_id = \null)
         {
         }
         /**
@@ -425,7 +465,7 @@ namespace {
         public function request_dalle_generation(string $prompt, string $model = 'dall-e-2', array $options = array())
         {
         }
-        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null)
+        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null, $store = \false, int $timeout = 120)
         {
         }
         /**
@@ -433,6 +473,54 @@ namespace {
          * @return true|WP_Error
          */
         public function moderate($prompt)
+        {
+        }
+    }
+    class Publicize_Actions
+    {
+        /**
+         * @param int $blog_id
+         * @return array|WP_Error
+         */
+        public static function get_scheduled_actions_by_blog_id($blog_id, $limit = \Publicize_Actions::ACTIONS_LIMIT)
+        {
+        }
+        /**
+         * @param int $blog_id
+         * @param int $post_id
+         * @return array|WP_Error
+         */
+        public static function get_scheduled_actions_by_blog_and_post_id($blog_id, $post_id, $limit = \Publicize_Actions::ACTIONS_LIMIT)
+        {
+        }
+        /**
+         * @param array $action_data
+         * @return int|WP_Error
+         */
+        public static function add_scheduled_action($action_data)
+        {
+        }
+        /**
+         * @param int $action_id
+         * @return array|WP_Error
+         */
+        public static function get_scheduled_action($action_id)
+        {
+        }
+        /**
+         * @param int $action_id
+         * @param array $action_data
+         * @return boolean|WP_Error
+         */
+        public static function edit_scheduled_action($action_id, $action_data)
+        {
+        }
+        /**
+         * @param int $action_id
+         * @param int $blog_id
+         * @return boolean|WP_Error
+         */
+        public static function delete_scheduled_action($action_id, $blog_id = \null)
         {
         }
     }
@@ -448,6 +536,24 @@ namespace {
         {
         }
         public static function filter_blog($blog_id, $filters)
+        {
+        }
+    }
+    class Social_Connections_Rest_Helper
+    {
+        /**
+         * @return Jetpack_Social_Connections
+         */
+        public static function init()
+        {
+        }
+        public function delete_publicize_connection($publicize_connection_id, $blog_id = \false)
+        {
+        }
+        public function create_publicize_connection($input)
+        {
+        }
+        public function update_connection($publicize_connection_id, $input, $blog_id = \false)
         {
         }
     }
@@ -482,6 +588,19 @@ namespace {
      */
     function get_user_following_recommendations($user, $number_of_recommendations)
     {
+    }
+    /**
+     * @param int $site_id
+     * @return string|false
+     */
+    function wpcom_get_media_export_url($site_id)
+    {
+    }
+    class WPCOM_User
+    {
+        public static function get_types()
+        {
+        }
     }
     /**
      * @param string $url
@@ -541,7 +660,7 @@ namespace {
     {
     }
     /**
-     * @param int|null $blog_id
+     * @param int|string|null $blog_id
      * @return bool
      */
     function wpcom_is_automattic_p2_site($blog_id = \null)
@@ -646,6 +765,12 @@ namespace {
     function comment_like_button($comment_content = '', $comment_object = \null)
     {
     }
+    class Jetpack_Custom_CSS_Customizer
+    {
+        public static function customize_register($wp_customize)
+        {
+        }
+    }
     class Jetpack_Custom_CSS
     {
         /**
@@ -709,14 +834,14 @@ namespace {
     }
     class Subscription_Mailer extends \WordPressMailer
     {
-        public function __construct(\Blog_Subscriber $subscriber, $use_wp = \true)
+        public function __construct(\Blog_Subscriber $subscriber, $use_wp = \true, $locale_type = self::USER_LOCALE)
         {
         }
         /**
          * @param mixed $my_posts
          * @return void
          **/
-        public function send_post($my_posts, \Blog_Subscription $subscription = \null, $extra_text = '', $automattcher = \false)
+        public function send_post($my_posts, ?\Blog_Subscription $subscription = \null, $extra_text = '', $automattcher = \false)
         {
         }
     }
@@ -786,6 +911,15 @@ namespace {
     }
     function add_jetpack_submenu()
     {
+    }
+    class Jetpack_Server_Version
+    {
+        /**
+         * @return bool|WP_Error|object
+         */
+        static function get_token_from_authorization_header()
+        {
+        }
     }
     class Jetpack_Sync_WPCOM_Shadow_Replicastore extends \Automattic\Jetpack\Sync\Replicastore
     {
@@ -1022,7 +1156,7 @@ namespace {
     {
     }
     /**
-     * @return bool
+     * @return int|bool
      */
     function wpcom_subs_is_subscribed($args = array())
     {
@@ -1051,7 +1185,7 @@ namespace {
     function wpcom_is_child_theme()
     {
     }
-    function queue_publish_post($post_id, $post = \null)
+    function queue_publish_post($post_id, $post = \null, $old_post_status = \null)
     {
     }
     /**
@@ -1225,6 +1359,28 @@ namespace {
     function has_any_blog_stickers(array $stickers, $_blog_id = \NULL, $bust_the_cache = \false)
     {
     }
+    class WPCOM_Feature_Flags
+    {
+        const GLOBAL_STYLES_ON_PERSONAL_PLAN = 'GLOBAL_STYLES_ON_PERSONAL_PLAN';
+        public static function get_features(): array
+        {
+        }
+        public static function enable_feature(string $feature): bool
+        {
+        }
+        public static function feature_exists(string $feature): bool
+        {
+        }
+        public static function is_enabled(string $feature): bool
+        {
+        }
+    }
+    /**
+     * @phan-return mixed
+     */
+    function is_graylisted($_blog_id = \NULL)
+    {
+    }
     /**
      * @param string $new_path
      * @param string $path
@@ -1387,12 +1543,48 @@ namespace A8C\TOS_Acceptance_Tracking {
     {
     }
 }
+namespace Automattic\Jetpack\Dashboard_Customizations {
+    /**
+     * @param int $user_id
+     * @return bool
+     */
+    function show_unified_nav($user_id = null)
+    {
+    }
+}
 namespace BloggingPrompts {
     /**
      * @param string $prompt_html
      * @return string
      */
     function prompt_without_blocks($prompt_html)
+    {
+    }
+}
+namespace ExPlat {
+    /**
+     * @param string $experiment_name
+     * @return string|null
+     */
+    function assign_current_user(string $experiment_name): ?string
+    {
+    }
+    /**
+     * @param string $experiment_name
+     * @param \WP_User $user
+     * @return string|null
+     */
+    function assign_given_user(string $experiment_name, \WP_User $user): ?string
+    {
+    }
+    /**
+     * @param string $experiment_name
+     * @return string|null
+     */
+    function assign_maybe_anon_user(string $experiment_name): ?string
+    {
+    }
+    function assign_maybe_anon_with_prioritised_user_attribute_store(string $experiment_name, \WP_User $user = null): ?string
     {
     }
 }
@@ -1417,7 +1609,7 @@ namespace Newsletter_Categories {
      * @param int|null $blog_id
      * @return array
      */
-    function get_newsletter_categories(int $blog_id = null): array
+    function get_newsletter_categories(?int $blog_id = null): array
     {
     }
     /**
@@ -1425,7 +1617,7 @@ namespace Newsletter_Categories {
      * @param array    $term_ids
      * @return array
      */
-    function get_blog_subscription_counts_per_category(int $blog_id = null, array $term_ids = []): array
+    function get_blog_subscription_counts_per_category(?int $blog_id = null, array $term_ids = []): array
     {
     }
     /**
@@ -1433,7 +1625,35 @@ namespace Newsletter_Categories {
      * @param array|null $post_term_ids
      * @return int
      */
-    function get_blog_subscriptions_aggregate_count(int $blog_id = null, $post_term_ids = []): int
+    function get_blog_subscriptions_aggregate_count(?int $blog_id = null, $post_term_ids = []): int
+    {
+    }
+}
+namespace Publicize\Social_Image_Generator {
+    /**
+     * @param int $blog_id
+     * @return bool
+     */
+    function is_enabled($blog_id = 0)
+    {
+    }
+}
+namespace Social_Image_Generator {
+    /**
+     * @param array $args
+     * @return string
+     */
+    function generate_token($args)
+    {
+    }
+}
+namespace WPCOM\Experiments\Internal {
+    /**
+     * @param string $name
+     * @return \WPCOM\Experiments\Models\Experiment|null
+     * @throws File_Cache_Failure
+     */
+    function get_cached_experiment_by_name(string $name): ?\WPCOM\Experiments\Models\Experiment
     {
     }
 }

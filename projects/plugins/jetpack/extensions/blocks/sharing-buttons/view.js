@@ -39,7 +39,7 @@ if ( typeof window !== 'undefined' ) {
 					if ( link?.href && isWebShareAPIEnabled( { url: link.href } ) ) {
 						navigator.share( { url: link.href } );
 					} else {
-						const [ tooltip ] = document.getElementsByClassName( 'tooltiptext' );
+						const [ tooltip ] = link.getElementsByClassName( 'tooltiptext' );
 						if ( tooltip && tooltip.style ) {
 							tooltip.style.display = 'initial';
 							setTimeout( () => {

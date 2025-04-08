@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.8] - 2025-03-21
+### Changed
+- Internal updates.
+
+## [3.0.7] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [3.0.6] - 2025-03-05
+### Changed
+- Internal updates.
+
+## [3.0.5] - 2025-02-24
+### Changed
+- Update dependencies.
+
+## [3.0.4] - 2025-02-03
+### Changed
+- Internal updates.
+
+## [3.0.3] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+
+## [3.0.2] - 2024-12-02
+### Changed
+- Exclude revoked licenses from results when filtering unattached licenses in `Licensing::get_user_licenses()`. Only unattached and valid licenses are now returned. [#40215]
+
+## [3.0.1] - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+
+## [3.0.0] - 2024-11-14
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [2.0.12] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [2.0.11] - 2024-10-29
+### Changed
+- Internal updates.
+
 ## [2.0.10] - 2024-09-23
 ### Changed
 - Update dependencies.
@@ -292,6 +336,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Licensing: Add support for Jetpack licenses
 
+[3.0.8]: https://github.com/Automattic/jetpack-licensing/compare/v3.0.7...v3.0.8
+[3.0.7]: https://github.com/Automattic/jetpack-licensing/compare/v3.0.6...v3.0.7
+[3.0.6]: https://github.com/Automattic/jetpack-licensing/compare/v3.0.5...v3.0.6
+[3.0.5]: https://github.com/Automattic/jetpack-licensing/compare/v3.0.4...v3.0.5
+[3.0.4]: https://github.com/Automattic/jetpack-licensing/compare/v3.0.3...v3.0.4
+[3.0.3]: https://github.com/Automattic/jetpack-licensing/compare/v3.0.2...v3.0.3
+[3.0.2]: https://github.com/Automattic/jetpack-licensing/compare/v3.0.1...v3.0.2
+[3.0.1]: https://github.com/Automattic/jetpack-licensing/compare/v3.0.0...v3.0.1
+[3.0.0]: https://github.com/Automattic/jetpack-licensing/compare/v2.0.12...v3.0.0
+[2.0.12]: https://github.com/Automattic/jetpack-licensing/compare/v2.0.11...v2.0.12
+[2.0.11]: https://github.com/Automattic/jetpack-licensing/compare/v2.0.10...v2.0.11
 [2.0.10]: https://github.com/Automattic/jetpack-licensing/compare/v2.0.9...v2.0.10
 [2.0.9]: https://github.com/Automattic/jetpack-licensing/compare/v2.0.8...v2.0.9
 [2.0.8]: https://github.com/Automattic/jetpack-licensing/compare/v2.0.7...v2.0.8

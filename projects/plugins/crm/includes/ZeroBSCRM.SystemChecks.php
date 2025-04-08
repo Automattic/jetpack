@@ -9,13 +9,7 @@
  * Date: 01/11/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -119,13 +113,12 @@ function zeroBSCRM_checkSystemFeat( $key = '', $with_info = false ) {
 		global $zbs;
 
 		if (!$withInfo)
-			return $zbs->version;
+			return $zbs::VERSION;
 		else {
+			$enabled     = true;
+			$enabled_str = 'Version ' . $zbs::VERSION;
 
-			$enabled = true;
-			$enabledStr = 'Version ' . $zbs->version;
-
-			return array($enabled, $enabledStr);
+			return array( $enabled, $enabled_str );
 		}
 	}
 

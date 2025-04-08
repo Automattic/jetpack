@@ -1,0 +1,16 @@
+.wrapper {
+	margin-bottom: 3em;
+
+	.panel {
+		border-radius: 8px;
+	}
+
+	:global(.components-panel__body-title > button) {
+		font-size: 14px;
+		font-weight: 400;
+	}
+
+	.body {
+		border-color: transparent;
+	}
+}

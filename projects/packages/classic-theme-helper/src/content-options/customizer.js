@@ -104,7 +104,7 @@ function updatePostDetails( selectors, to, hiddenClass ) {
 		} else {
 			element.style.clip = 'auto';
 			element.style.height = 'auto';
-			element.style.overflow = 'auto';
+			element.style.overflow = 'visible';
 			element.style.position = 'relative';
 			element.style.width = 'auto';
 			document.body.classList.remove( hiddenClass );

@@ -1,9 +1,9 @@
 import clsx from 'clsx';
-import ClipboardButton from 'components/form/clipboard-button';
-import TextInput from 'components/text-input';
 import { omit } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import ClipboardButton from 'components/form/clipboard-button';
+import TextInput from 'components/text-input';
 
 import './style.scss';
 

@@ -1,12 +1,11 @@
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { z } from 'zod';
-import indexStyles from '../../../pages/index/index.module.scss';
 import styles from './image-cdn-liar.module.scss';
-import clsx from 'clsx';
 import ModuleSubsection from '$features/ui/module-subsection/module-subsection';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import Pill from '$features/ui/pill/pill';
+import { useMutationNotice } from '$features/ui/mutation-notice/mutation-notice';
+import { useModulesState } from '$features/module/lib/stores';
 
 type ImageCdnLiarProps = {
 	isPremium: boolean;
@@ -17,14 +16,25 @@ export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
 		return;
 	}
 
-	const [ imageCdnLiar, setImageCdnLiar ] = useDataSync(
-		'jetpack_boost_ds',
-		'image_cdn_liar',
-		z.boolean().catch( false )
-	);
+	const [ modulesState, setModulesState ] = useModulesState();
+
+	const enabledMessage = __( 'Auto-resize enabled.', 'jetpack-boost' );
+	const disabledMessage = __( 'Auto-resize disabled.', 'jetpack-boost' );
+
+	const imageCdnLiar = modulesState.data?.image_cdn_liar.active;
+	const setImageCdnLiar = ( value: boolean ) => {
+		setModulesState.mutate( {
+			...modulesState.data,
+			image_cdn_liar: { active: value, available: true },
+		} );
+	};
+
+	useMutationNotice( 'image-cdn-liar', setModulesState, {
+		successMessage: imageCdnLiar ? enabledMessage : disabledMessage,
+	} );
 
 	const handleToggle = ( value: boolean ) => {
-		setImageCdnLiar.mutate( value );
+		setImageCdnLiar( value );
 
 		recordBoostEvent( 'image_cdn_liar_toggle', { enabled: Number( value ) } );
 	};
@@ -35,12 +45,13 @@ export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
 				<div className={ styles.title }>
 					<h4>
 						{ __( 'Auto-Resize Lazy Images', 'jetpack-boost' ) }
-						<span className={ clsx( indexStyles.beta, styles.beta ) }>Beta</span>
+						<Pill text="Beta" />
 					</h4>
 					<ToggleControl
 						className={ styles[ 'toggle-control' ] }
-						checked={ imageCdnLiar.data }
+						checked={ imageCdnLiar }
 						onChange={ handleToggle }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</div>
 			</div>

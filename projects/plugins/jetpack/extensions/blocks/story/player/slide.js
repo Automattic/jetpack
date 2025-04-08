@@ -18,7 +18,7 @@ export const Slide = ( {
 			currentSlideIndex: select( 'jetpack/story/player' ).getCurrentSlideIndex( playerId ),
 			buffering: select( 'jetpack/story/player' ).isBuffering( playerId ),
 		} ),
-		[]
+		[ playerId ]
 	);
 
 	const { slideReady } = useDispatch( 'jetpack/story/player' );
@@ -55,7 +55,6 @@ export const Slide = ( {
 		} );
 	}, [ preload, uploading ] );
 
-	/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 	return (
 		<>
 			{ visible && ( loading || uploading || buffering ) && (
@@ -86,7 +85,6 @@ export const Slide = ( {
 			</div>
 		</>
 	);
-	/* eslint-enable jsx-a11y/no-noninteractive-tabindex */
 };
 
 export default Slide;

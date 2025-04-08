@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.4.9';
+	const PACKAGE_VERSION = '0.7.10';
 
 	/**
 	 * Singleton.
@@ -357,11 +357,21 @@ final class Image_CDN {
 				continue;
 			}
 
+			// Identify image source.
+			$src_orig = $processor->get_attribute( 'src' );
+			$src      = $src_orig;
+
 			/*
-			 * Only examine tags that are considered an image. If encountering
-			 * a closing tag then this is not the image being sought.
+			 * Only examine tags that are considered an image,
+			 * with a valid src attribute.
+			 * If encountering a closing tag then this is not the image being sought.
 			 */
-			if ( $processor->is_tag_closer() || ! in_array( $processor->get_tag(), $image_tags, true ) ) {
+			if (
+				$processor->is_tag_closer()
+				|| ! in_array( $processor->get_tag(), $image_tags, true )
+				|| ! is_string( $src )
+				|| $src === ''
+			) {
 				continue;
 			}
 
@@ -383,7 +393,7 @@ final class Image_CDN {
 			 * present all attributes as double-quoted attributes and include at
 			 * most one copy of each attribute, escaping all values appropriately.
 			 */
-			$tag_name = strtolower( $processor->get_tag() );
+			$tag_name = strtolower( (string) $processor->get_tag() );
 			$tag      = new \WP_HTML_Tag_Processor( "<{$tag_name}>" );
 			$tag->next_tag();
 			foreach ( $processor->get_attribute_names_with_prefix( '' ) ?? array() as $name ) {
@@ -396,10 +406,6 @@ final class Image_CDN {
 
 			// Flag if we need to munge a fullsize URL.
 			$fullsize_url = false;
-
-			// Identify image source.
-			$src_orig = $processor->get_attribute( 'src' );
-			$src      = $src_orig;
 
 			/**
 			 * Allow specific images to be skipped by Photon.
@@ -679,7 +685,11 @@ final class Image_CDN {
 						$processor->set_attribute( 'data-recalc-dims', '1' );
 					}
 				}
-			} elseif ( preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src ) && is_string( $nearest_preceding_href ) && self::validate_image_url( $nearest_preceding_href ) ) {
+			} elseif (
+				preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src )
+				&& is_string( $nearest_preceding_href )
+				&& self::validate_image_url( $nearest_preceding_href )
+			) {
 				$processor->seek( 'link' );
 				$processor->set_attribute( 'href', Image_CDN_Core::cdn_url( $nearest_preceding_href ) );
 				$processor->seek( 'image' );
@@ -1434,5 +1444,14 @@ final class Image_CDN {
 	 */
 	private static function is_amp_endpoint() {
 		return class_exists( '\Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request();
+	}
+
+	/**
+	 * Get the list of supported image extensions
+	 *
+	 * @return string[] Array of supported extensions
+	 */
+	public static function get_supported_extensions() {
+		return self::$extensions;
 	}
 }

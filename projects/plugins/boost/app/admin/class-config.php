@@ -4,7 +4,6 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-
 /**
  * Handle the configuration constants.
  *
@@ -22,21 +21,22 @@ class Config {
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 		$constants = array(
-			'version'         => JETPACK_BOOST_VERSION,
-			'pluginDirUrl'    => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
-			'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
-			'canResizeImages' => wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) ),
-			'site'            => array(
+			'version'             => JETPACK_BOOST_VERSION,
+			'pluginDirUrl'        => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
+			'assetPath'           => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
+			'canResizeImages'     => wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) ),
+			'site'                => array(
 				'url'    => get_home_url(),
 				'domain' => ( new Status() )->get_site_suffix(),
 				'online' => ! ( new Status() )->is_offline_mode() && ! ( new Status() )->is_private_site(),
-				'host'   => ( new Host() )->get_known_host_guess(),
+				'host'   => $this->get_hosting_provider(),
 			),
-			'api'             => array(
+			'api'                 => array(
 				'namespace' => JETPACK_BOOST_REST_NAMESPACE,
 				'prefix'    => JETPACK_BOOST_REST_PREFIX,
 			),
-			'postTypes'       => (object) $this->get_custom_post_types(),
+			'postTypes'           => (object) $this->get_custom_post_types(),
+			'developmentFeatures' => defined( 'JETPACK_BOOST_DEVELOPMENT_FEATURES' ) && JETPACK_BOOST_DEVELOPMENT_FEATURES,
 		);
 
 		/**
@@ -68,5 +68,27 @@ class Config {
 		$post_types = array_filter( $post_types, 'is_post_type_viewable' );
 
 		return wp_list_pluck( $post_types, 'label', 'name' );
+	}
+
+	/**
+	 * Retrieves the hosting provider.
+	 * We're only interested in 'atomic' or 'woa' for now.
+	 *
+	 * @since 3.10.0
+	 *
+	 * @return string The hosting provider.
+	 */
+	public static function get_hosting_provider() {
+		$host = new Host();
+
+		if ( $host->is_woa_site() ) {
+			return 'woa';
+		}
+
+		if ( $host->is_atomic_platform() ) {
+			return 'atomic';
+		}
+
+		return 'other';
 	}
 }

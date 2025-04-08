@@ -40,7 +40,7 @@ export const ModalTrigger = forwardRef(
 
 		const trigger = (
 			<Button variant="secondary" onClick={ onButtonClicked } { ...props } ref={ ref }>
-				{ props.children || __( 'View sharing history', 'jetpack' ) }
+				{ props.children || __( 'View sharing history', 'jetpack-publicize-components' ) }
 			</Button>
 		);
 

@@ -145,6 +145,10 @@ class Publicize extends Publicize_Base {
 	 * @return true
 	 */
 	public function receive_updated_publicize_connections( $publicize_connections ) {
+
+		// Populate the cache with the new data.
+		Connections::get_all( array( 'ignore_cache' => true ) );
+
 		$expiry = 3600 * 4;
 		if ( ! set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, $expiry ) ) {
 			// If the transient has beeen set in another request, the call to set_transient can fail. If so,
@@ -229,7 +233,6 @@ class Publicize extends Publicize_Base {
 	 * Get all connections for a specific user.
 	 *
 	 * @param array $args Arguments to run operations such as force refresh and connection test results.
-
 	 * @return array
 	 */
 	public function get_all_connections_for_user( $args = array() ) {
@@ -246,28 +249,10 @@ class Publicize extends Publicize_Base {
 					$user_id = (int) $connection['connection_data']['user_id'];
 					// phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
 					if ( $user_id === 0 || $this->user_id() === $user_id ) {
-						if ( $this->use_admin_ui_v1() ) {
-							$connections_to_return[] = array_merge(
-								$connection,
-								array(
-									'service_name'   => $service_name,
-									'connection_id'  => $connection['connection_data']['id'],
-									'can_disconnect' => self::can_manage_connection( $connection['connection_data'] ),
-									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
-									'shared'         => '0' === $connection['connection_data']['user_id'],
-									'status'         => 'ok',
-								)
-							);
-						} else {
-							$connections_to_return[ $service_name ][ $id ] = $connection;
-						}
+						$connections_to_return[ $service_name ][ $id ] = $connection;
 					}
 				}
 			}
-		}
-
-		if ( self::use_admin_ui_v1() && isset( $args['test_connections'] ) && $args['test_connections'] && count( $connections_to_return ) > 0 ) {
-			$connections_to_return = $this->add_connection_test_results( $connections_to_return );
 		}
 
 		return $connections_to_return;
@@ -566,6 +551,7 @@ class Publicize extends Publicize_Base {
 			'instagram-business' => array(),
 			'nextdoor'           => array(),
 			'threads'            => array(),
+			'bluesky'            => array(),
 		);
 
 		if ( 'all' === $filter ) {

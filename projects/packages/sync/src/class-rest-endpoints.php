@@ -58,6 +58,11 @@ class REST_Endpoints {
 						'type'        => 'array',
 						'required'    => false,
 					),
+					'context'  => array(
+						'description' => __( 'Context for the Full Sync', 'jetpack-sync' ),
+						'type'        => 'string',
+						'required'    => false,
+					),
 				),
 			)
 		);
@@ -363,9 +368,11 @@ class REST_Endpoints {
 			$modules = null;
 		}
 
+		$context = $request->get_param( 'context' );
+
 		return rest_ensure_response(
 			array(
-				'scheduled' => Actions::do_full_sync( $modules ),
+				'scheduled' => Actions::do_full_sync( $modules, $context ),
 			)
 		);
 	}
@@ -619,7 +626,7 @@ class REST_Endpoints {
 		$sender = new REST_Sender();
 
 		if ( 'immediate' === $queue_name ) {
-			return rest_ensure_response( $sender->immediate_full_sync_pull( $number_of_items ) );
+			return rest_ensure_response( $sender->immediate_full_sync_pull() );
 		}
 
 		$response = $sender->queue_pull( $queue_name, $number_of_items, $args );

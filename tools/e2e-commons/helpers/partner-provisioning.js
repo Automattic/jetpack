@@ -26,7 +26,7 @@ export async function provisionJetpackStartConnection( userId, plan = 'free', us
 	// catch a command failed error so that secrets are not logged
 	try {
 		response = execSyncShellCommand( cmd );
-	} catch ( error ) {
+	} catch {
 		throw new Error( `Jetpack Start provisioning command failed.` );
 	}
 

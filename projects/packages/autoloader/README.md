@@ -45,6 +45,26 @@ During development, you can force the autoloader to use development package vers
   - `9999999-dev`
   - Versions with a `dev-` prefix.
 
+
+Autoloader Limitations and Caveats
+-----
+
+### Plugin Updates
+
+When moving a package class file, renaming a package class file, or changing a package class namespace, make sure that the class will not be loaded after a plugin update. 
+
+The autoloader builds the in memory classmap as soon as the autoloader is loaded. The package class file paths in the map are not updated after a plugin update. If a plugins's package class files are moved during a plugin update and a moved file is autoloaded after the update, an error will occur.
+
+### Moving classes to a different package
+
+Jetpack Autoloader determines the hierarchy of class versions by package version numbers. It can cause problems if a class is moved to a newer package with a lower version number, it will get overshadowed by the old package.
+
+For instance, if your newer version of a class comes from a new package versioned 0.1.0, and the older version comes from a different package with a greater version number 2.0.1, the newer class will not get loaded.
+
+### Jetpack Autoloader uses transient cache
+
+This is a caveat to be aware of when dealing with issues. The JP Autoloader uses transients to cache a list of available plugins to speed up the lookup process. This can sometimes mask problems that arise when loading code too early. See the [Debugging](#debugging) section for more information on how to detect situations like this.
+
 Debugging
 -----
 
@@ -69,14 +89,4 @@ PSR-4 and PSR-0 namespaces are converted to classmaps.
 ### Unoptimized Autoloader
 
 Supports PSR-4 autoloading. PSR-0 namespaces are converted to classmaps.
-
-
-Autoloader Limitations
------
-
-Plugin Updates
-
-When moving a package class file, renaming a package class file, or changing a package class namespace, make sure that the class will not be loaded after a plugin update. 
-
-The autoloader builds the in memory classmap as soon as the autoloader is loaded. The package class file paths in the map are not updated after a plugin update. If a plugins's package class files are moved during a plugin update and a moved file is autoloaded after the update, an error will occur.
 

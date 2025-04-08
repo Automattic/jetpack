@@ -30,12 +30,7 @@ module.exports = {
 			fs: false,
 		},
 	},
-	plugins: [
-		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: { injectPolyfill: true },
-		} ),
-		definePaletteColorsAsStaticVariables(),
-	],
+	plugins: [ ...jetpackWebpackConfig.StandardPlugins(), definePaletteColorsAsStaticVariables() ],
 	externals: {
 		...jetpackWebpackConfig.externals,
 		jetpackConfig: JSON.stringify( {

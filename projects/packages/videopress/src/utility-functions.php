@@ -500,6 +500,7 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	$video_info->description     = $post->post_content;
 	$video_info->title           = $post->post_title;
 	$video_info->caption         = $post->post_excerpt;
+	$video_info->privacy_setting = VIDEOPRESS_PRIVACY::SITE_DEFAULT;
 
 	if ( is_wp_error( $post ) ) {
 		return $video_info;

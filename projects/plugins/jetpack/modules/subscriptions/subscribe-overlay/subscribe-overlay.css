@@ -7,7 +7,7 @@ body.jetpack-subscribe-overlay-open {
 
 	visibility: hidden;
 	position: fixed;
-	z-index: 50000; /* Same as WP.com Action bar */
+	z-index: 50001; /* WP.com Action bar and floating subscribe button are 5000 */
 	left: 0;
 	top: 0;
 	width: 100%;
@@ -79,6 +79,7 @@ body.admin-bar.has-marketing-bar .jetpack-subscribe-overlay__close {
 }
 
 @media screen and (max-width: 640px) {
+
 	.jetpack-subscribe-overlay__content {
 		width: 94%;
 	}

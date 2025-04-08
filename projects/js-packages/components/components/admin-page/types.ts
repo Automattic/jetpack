@@ -1,3 +1,5 @@
+import type { JetpackFooterMenuItem } from '../jetpack-footer/types.js';
+
 export type AdminPageProps = {
 	/**
 	 * The page content
@@ -25,6 +27,11 @@ export type AdminPageProps = {
 	showFooter?: boolean;
 
 	/**
+	 * Whether or not to link to Jetpack plugin admin pages.
+	 */
+	useInternalLinks?: boolean;
+
+	/**
 	 * Link that the Footer Module name will link to (optional).
 	 */
 	moduleNameHref?: string;
@@ -38,4 +45,24 @@ export type AdminPageProps = {
 	 * URL of the site WP Admin.
 	 */
 	siteAdminUrl?: string;
+
+	/**
+	 * The domain of the sanboxed API.
+	 */
+	sandboxedDomain?: string;
+
+	/**
+	 * The root URL of the API.
+	 */
+	apiRoot?: string;
+
+	/**
+	 * The nonce of the API.
+	 */
+	apiNonce?: string;
+
+	/**
+	 * Optional menu items to be displayed
+	 */
+	optionalMenuItems?: JetpackFooterMenuItem[];
 };

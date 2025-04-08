@@ -2,6 +2,7 @@
 @import '@wordpress/base-styles/mixins';
 
 .jp-connection__connect-screen-layout__left {
+
 	/**
 	  * Start with 100% width;
 	  * then account for a 384px pricing card that floats to the right;
@@ -13,6 +14,7 @@
 }
 
 .jp-connection__connect-screen-required-plan {
+
 	@include break-xlarge {
 		position: relative;
 		background: linear-gradient(to right, white 70%, #f9f9f6 30%);
@@ -31,6 +33,7 @@
 	}
 
 	&__pricing-card {
+
 		/** Line up with the top of the product logo,
 		  * and mirror 96px horizontal padding seen in
 		  * .jp-connection__connect-screen-layout__left

@@ -10,7 +10,7 @@
 
 namespace Automattic\Jetpack_CRM\Automations;
 
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * Render the Automations page, which is simply a mounting point for React.

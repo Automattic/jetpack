@@ -57,6 +57,39 @@ class Jetpack_SEO {
 		Jetpack_SEO_Posts::register_post_meta();
 		// Exclude posts with 'jetpack_seo_noindex' set true from the Jetpack sitemap.
 		add_filter( 'jetpack_sitemap_skip_post', array( 'Jetpack_SEO_Posts', 'exclude_noindex_posts_from_jetpack_sitemap' ), 10, 2 );
+		add_action( 'rest_api_init', array( $this, 'add_custom_field_post_type_meta' ) );
+	}
+
+	/**
+	 * Add custom field meta to all public post types that don't already have it.
+	 */
+	public function add_custom_field_post_type_meta() {
+		/**
+		 * Filter the list of post types for which custom fields support is added.
+		 *
+		 * This filter allows modification of the post types that will be processed
+		 * to add support for custom fields if they do not already support it.
+		 *
+		 * @since 14.2
+		 *
+		 * @param array $post_types An array of post type names.
+		 */
+		$post_types = apply_filters(
+			'jetpack_seo_custom_field_post_types',
+			get_post_types(
+				array(
+					'public'   => true,
+					'show_ui'  => true,
+					'_builtin' => false,
+				)
+			)
+		);
+
+		foreach ( $post_types as $post_type ) {
+			if ( ! post_type_supports( $post_type, 'custom-fields' ) ) {
+				add_post_type_support( $post_type, 'custom-fields' );
+			}
+		}
 	}
 
 	/**

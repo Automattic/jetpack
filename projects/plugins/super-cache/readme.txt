@@ -1,10 +1,10 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, adnan007, dilirity, mikemayhem3030, pyronaur, thingalon
 Tags: performance, caching, wp-cache, wp-super-cache, cache
-Requires at least: 6.5
-Requires PHP: 7.0
-Tested up to: 6.6
-Stable tag: 1.12.3
+Requires at least: 6.6
+Requires PHP: 7.2
+Tested up to: 6.7.1
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -268,12 +268,10 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.12.4 - 2024-07-17
-#### Removed
-- General: update WordPress version requirements to WordPress 6.5.
-
-#### Fixed
-- Fixed problem with is_utf8_charset missing in WP 6.6
+### 2.0.1 - 2025-04-04
+#### Changed
+- Code: Use function-style `exit()` and `die()` with a default status code of 0.
+- Update package dependencies.
 
 --------
 

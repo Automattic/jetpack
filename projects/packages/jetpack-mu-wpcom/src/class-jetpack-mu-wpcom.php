@@ -15,7 +15,7 @@ define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.64.0';
+	const PACKAGE_VERSION = '6.3.1';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -27,24 +27,6 @@ class Jetpack_Mu_Wpcom {
 		if ( did_action( 'jetpack_mu_wpcom_initialized' ) ) {
 			return;
 		}
-
-		add_filter(
-			'load_script_textdomain_relative_path',
-			function ( $relative ) {
-				// Check if $relative is a string and contains the required segment
-				if ( str_contains( $relative, 'vendor/automattic/jetpack-mu-wpcom/' ) ) {
-					$pattern = '#^(?:production|staging|moon|sun)/#'; // Matches the environment prefix on Simple Sites
-
-					if ( preg_match( $pattern, $relative ) ) {
-						$relative = preg_replace( $pattern, '', $relative ); // Remove the environment prefix
-					}
-				}
-
-				return $relative;
-			},
-			10,
-			2
-		);
 
 		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
@@ -68,19 +50,21 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_newsletter_dashboard' ) );
 		}
 
 		// These features run only on atomic sites.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
+			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -107,6 +91,169 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Schedules translation updates for Jetpack MU WPCOM.
+	 *
+	 * This function sets up the necessary cron jobs to ensure that translation files
+	 * are regularly updated.
+	 *
+	 * @return void
+	 */
+	public static function schedule_translation_updates() {
+		add_action( 'wpcomsh_translation_update', array( __CLASS__, 'maybe_update_translations' ) );
+
+		if ( ! wp_next_scheduled( 'wpcomsh_translation_update' ) ) {
+			wp_schedule_event( time(), 'twicedaily', 'wpcomsh_translation_update' );
+		}
+	}
+
+	/**
+	 * Fetches and installs Jetpack-mu-wpcom package translations when needed.
+	 */
+	public static function maybe_update_translations() {
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
+		$locales = self::get_all_active_locales();
+		if ( empty( $locales ) ) {
+			return;
+		}
+
+		$plugins_request_data              = array();
+		$plugin_language_pack_destinations = array(
+			'jetpack-mu-wpcom' => WP_LANG_DIR . '/mu-plugins/',
+			'wpcomsh'          => WP_LANG_DIR . '/mu-plugins/',
+		);
+
+		foreach ( array_keys( $plugin_language_pack_destinations ) as $plugin_slug ) {
+			$plugins_request_data[ $plugin_slug ] = array( 'version' => 'latest' );
+		}
+
+		$response = wp_remote_post(
+			'https://translate.wordpress.com/api/translations-updates/wpcom/plugins',
+			array(
+				'body'    => wp_json_encode(
+					array(
+						'locales' => $locales,
+						'plugins' => $plugins_request_data,
+					)
+				),
+				'headers' => array( 'Content-Type' => 'application/json' ),
+				'timeout' => 10,
+			)
+		);
+
+		if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
+			return;
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		// API error, api returned but something was wrong.
+		if ( array_key_exists( 'success', $data ) && false === $data['success'] ) {
+			return;
+		}
+
+		if ( ! is_array( $data ) || ! is_array( $data['data'] ) ) {
+			return;
+		}
+
+		foreach ( $data['data'] as $plugin_name => $language_packs ) {
+			if ( ! isset( $plugin_language_pack_destinations[ $plugin_name ] ) ) {
+				continue;
+			}
+
+			$destination = $plugin_language_pack_destinations[ $plugin_name ];
+
+			foreach ( $language_packs as $translation ) {
+				$locale        = $translation['wp_locale'] ?? '';
+				$package_url   = $translation['package'] ?? '';
+				$last_modified = $translation['last_modified'] ?? '';
+
+				if ( ! $locale || ! $package_url || ! $last_modified ) {
+					continue;
+				}
+
+				$local_po_file = "{$destination}/$plugin_name-{$locale}.po";
+				if ( file_exists( $local_po_file ) ) {
+					$local_po_data                       = wp_get_pomo_file_data( $local_po_file );
+					$installed_translation_revision_time = new \DateTime( $local_po_data['PO-Revision-Date'] );
+					$new_translation_revision_time       = new \DateTime( $last_modified );
+
+					// Skip if translation language pack is not newer than what is installed already.
+					if ( $new_translation_revision_time <= $installed_translation_revision_time ) {
+						continue;
+					}
+				}
+
+				$translation_zip_file = download_url( $package_url );
+				if ( is_wp_error( $translation_zip_file ) ) {
+					continue;
+				}
+
+				static::clear_translation_destination( $destination, $plugin_name, $locale );
+
+				$unzip_result = unzip_file( $translation_zip_file, $destination );
+				if ( is_wp_error( $unzip_result ) ) {
+					wp_delete_file( $translation_zip_file );
+					continue;
+				}
+
+				wp_delete_file( $translation_zip_file );
+
+			}
+		}
+	}
+
+	/**
+	 * Clears the translation destination by deleting existing translation files.
+	 *
+	 * @param string $local_destination The local destination path.
+	 * @param string $plugin_slug The plugin slug.
+	 * @param string $locale The locale.
+	 */
+	public static function clear_translation_destination( $local_destination, $plugin_slug, $locale ) {
+		global $wp_filesystem;
+
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
+		$files = array(
+			"{$local_destination}{$plugin_slug}-{$locale}.po",
+			"{$local_destination}{$plugin_slug}-{$locale}.mo",
+			"{$local_destination}{$plugin_slug}-{$locale}.l10n.php",
+		);
+
+		$json_files = glob( "{$local_destination}{$plugin_slug}-{$locale}-*.json" );
+		if ( $json_files ) {
+			$files = array_merge( $files, $json_files );
+		}
+
+		foreach ( $files as $file ) {
+			if ( $wp_filesystem->exists( $file ) ) {
+				$wp_filesystem->delete( $file );
+			}
+		}
+	}
+
+	/**
+	 * Retrieves all active locales for the site.
+	 */
+	public static function get_all_active_locales() {
+		$locales = array( get_locale() );
+
+		$available_languages = get_available_languages();
+		if ( ! empty( $available_languages ) ) {
+			$locales = array_merge( $locales, $available_languages );
+		}
+		return array_values( array_unique( $locales ) );
+	}
+
+	/**
 	 * Load features that don't need any special loading considerations.
 	 */
 	public static function load_features() {
@@ -117,29 +264,45 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
+		require_once __DIR__ . '/features/css-monkey-patches/index.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
 		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
+		require_once __DIR__ . '/features/holiday-snow/class-holiday-snow.php';
 		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
+		require_once __DIR__ . '/features/launch-button/index.php';
+		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
+		require_once __DIR__ . '/features/post-categories/quick-actions.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
 		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
+		require_once __DIR__ . '/features/wpcom-hotfixes/wpcom-hotfixes.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
+		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Holiday_Snow::init();
+
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
 			Scheduled_Updates::init();
 		}
+	}
+
+	/**
+	 * Load Newsletter Dashboard in Simple sites.
+	 */
+	public static function load_wpcom_newsletter_dashboard() {
+		require_once __DIR__ . '/features/wpcom-newsletter-widget/wpcom-newsletter-widget.php';
 	}
 
 	/**
@@ -156,18 +319,24 @@ class Jetpack_Mu_Wpcom {
 		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
 		}
+		require_once __DIR__ . '/features/pages/pages.php';
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
+		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
+		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-locale/sync-locale-from-calypso-to-atomic.php';
+		require_once __DIR__ . '/features/wpcom-media/wpcom-media-url-upload.php';
+		require_once __DIR__ . '/features/wpcom-media/wpcom-export-media-files.php';
+		require_once __DIR__ . '/features/wpcom-options-general/options-general.php';
 		require_once __DIR__ . '/features/wpcom-plugins/wpcom-plugins.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
-		require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 
 		// Only load the Calypsoify and Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
@@ -182,6 +351,13 @@ class Jetpack_Mu_Wpcom {
 	 * Can be removed once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features_flags() {
+		// Don't load on agency sites.
+		if ( is_fully_managed_agency_site() ) {
+			return;
+		}
+
+		// Don't load if the user is not a wpcom user on WP Admin.
+		// The features is still required on the frontend page regardless of the user.
 		if ( is_admin() && ! is_wpcom_user() ) {
 			return;
 		}
@@ -215,12 +391,20 @@ class Jetpack_Mu_Wpcom {
 	 * Can be moved back to load_features() once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features() {
+		// Don't load on agency sites.
+		if ( is_fully_managed_agency_site() ) {
+			return;
+		}
+
+		// Don't load if the user is not a wpcom user on WP Admin.
+		// The features is still required on the frontend page regardless of the user.
 		if ( is_admin() && ! is_wpcom_user() ) {
 			return;
 		}
 
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
+		require_once __DIR__ . '/features/wpcom-fse/wpcom-fse.php';
 
 		/**
 		 * Load features for the editor and the frontend pages.
@@ -250,8 +434,6 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
 			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
-			require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
-			require_once __DIR__ . '/features/starter-page-templates/class-starter-page-templates.php';
 		}
 	}
 
@@ -271,9 +453,13 @@ class Jetpack_Mu_Wpcom {
 		 * Explicitly pass $markup = false in get_plugin_data to avoid indirectly calling wptexturize that could cause unintended side effects.
 		 * See: https://developer.wordpress.org/reference/functions/get_plugin_data/
 		 */
+		$fse_plugin                 = 'full-site-editing/full-site-editing-plugin.php';
+		$fse_plugin_path            = WP_PLUGIN_DIR . '/' . $fse_plugin;
 		$invalid_fse_version_active =
-			is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) &&
-			version_compare( get_plugin_data( WP_PLUGIN_DIR . '/full-site-editing/full-site-editing-plugin.php', false )['Version'], '3.56084', '<' );
+			file_exists( $fse_plugin_path ) &&
+			is_file( $fse_plugin_path ) &&
+			is_plugin_active( $fse_plugin ) &&
+			version_compare( get_plugin_data( $fse_plugin_path, false )['Version'], '3.56084', '<' );
 
 		if ( $invalid_fse_version_active ) {
 			return;
@@ -384,18 +570,6 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load Gutenberg's Block Theme Previews feature.
-	 */
-	public static function load_block_theme_previews() {
-		if ( defined( 'IS_GUTENBERG_PLUGIN' ) && IS_GUTENBERG_PLUGIN ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( ! empty( $_GET['wp_theme_preview'] ) ) {
-				require_once __DIR__ . '/features/block-theme-previews/block-theme-previews.php';
-			}
-		}
-	}
-
-	/**
 	 * Unbinds focusout event handler on #wp-admin-bar-menu-toggle introduced in WordPress 6.2.
 	 *
 	 * The focusout event handler is preventing the unified navigation from being closed on mobile.
@@ -462,12 +636,18 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Load Verbum Moderate.
+	 */
+	public static function load_verbum_moderate() {
+		require_once __DIR__ . '/features/verbum-comments/assets/class-verbum-moderate.php';
+		new \Automattic\Jetpack\Verbum_Moderate();
+	}
+
+	/**
 	 * Load Odyssey Stats in Simple sites.
 	 */
 	public static function load_wpcom_simple_odyssey_stats() {
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
-		}
+		require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
 	}
 
 	/**

@@ -1,3 +1,4 @@
+import { VideoPressIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 import apiFetch from '@wordpress/api-fetch';
 import { isBlobURL } from '@wordpress/blob';
 import {
@@ -34,13 +35,13 @@ import {
 	createRef,
 	Fragment,
 	useEffect,
+	useCallback,
 } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import clsx from 'clsx';
 import { get, indexOf } from 'lodash';
-import { VideoPressIcon } from '../../shared/icons';
 import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
 import Loading from './loading';
@@ -73,6 +74,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				isEditingWhileUploading: false,
 				isUploadComplete: false,
 				lastPosterValueSource: '',
+				pendingVideoAttributes: null,
 			};
 			this.posterImageButton = createRef();
 			this.previewCacheReloadTimer = null;
@@ -88,12 +90,16 @@ const VideoPressEdit = CoreVideoEdit =>
 				newState.interactive = false;
 			}
 
+			// Ensure we preserve isEditingWhileUploading state during upload
 			if ( state.fileForUpload && ! state.isEditingWhileUploading ) {
 				const isResumableUploading =
 					null !== state.fileForUpload && state.fileForUpload instanceof File;
 				if ( isResumableUploading ) {
 					newState.isEditingWhileUploading = true;
 				}
+			} else if ( state.pendingVideoAttributes ) {
+				// Keep editing state active if we have pending attributes
+				newState.isEditingWhileUploading = true;
 			}
 
 			return Object.keys( newState ).length ? newState : null;
@@ -229,7 +235,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				} else {
 					this.fallbackToCore();
 				}
-			} catch ( e ) {
+			} catch {
 				this.setState( { isFetchingMedia: false } );
 				this.fallbackToCore();
 			}
@@ -515,6 +521,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								onChange={ this.toggleAttribute( 'autoplay' ) }
 								checked={ autoplay }
 								help={ this.getAutoplayHelp }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -524,11 +531,13 @@ const VideoPressEdit = CoreVideoEdit =>
 								) }
 								onChange={ this.toggleAttribute( 'loop' ) }
 								checked={ loop }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ __( 'Muted', 'jetpack' ) }
 								onChange={ this.toggleAttribute( 'muted' ) }
 								checked={ muted }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -538,6 +547,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								) }
 								onChange={ this.toggleAttribute( 'controls' ) }
 								checked={ controls }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -547,6 +557,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								) }
 								onChange={ this.toggleAttribute( 'playsinline' ) }
 								checked={ playsinline }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<SelectControl
 								label={ this.renderControlLabelWithTooltip(
@@ -565,12 +576,14 @@ const VideoPressEdit = CoreVideoEdit =>
 									{ value: 'none', label: _x( 'None', 'VideoPress preload setting', 'jetpack' ) },
 								] }
 								help={ this.getPreloadHelp() }
+								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 							<MediaUploadCheck>
-								<BaseControl
-									className="editor-video-poster-control"
-									label={ __( 'Poster Image', 'jetpack' ) }
-								>
+								<BaseControl className="editor-video-poster-control">
+									<BaseControl.VisualLabel>
+										{ __( 'Poster Image', 'jetpack' ) }
+									</BaseControl.VisualLabel>
 									<MediaUpload
 										title={ __( 'Select Poster Image', 'jetpack' ) }
 										onSelect={ this.onSelectPoster }
@@ -649,6 +662,8 @@ const VideoPressEdit = CoreVideoEdit =>
 									},
 								] }
 								onChange={ this.onChangeRating }
+								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -662,6 +677,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								onChange={ this.onChangeAllowDownload }
 								checked={ allowDownload }
 								disabled={ isFetchingMedia || isUpdatingAllowDownload }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<SelectControl
 								label={ __( 'Video Privacy', 'jetpack' ) }
@@ -683,6 +699,8 @@ const VideoPressEdit = CoreVideoEdit =>
 									},
 								] }
 								disabled={ isFetchingMedia || isUpdatingPrivacySetting }
+								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						</PanelBody>
 					</InspectorControls>
@@ -738,11 +756,12 @@ const VideoPressEdit = CoreVideoEdit =>
 					fileForUpload: null,
 					isUploadComplete: !! mediaId,
 					isEditingWhileUploading: mediaId ? this.state.isEditingWhileUploading : false,
+					// Store video attributes to apply them later when user clicks Done
+					pendingVideoAttributes:
+						mediaId && videoGuid && videoSrc
+							? { id: mediaId, guid: videoGuid, src: videoSrc }
+							: null,
 				} );
-
-				if ( mediaId && videoGuid && videoSrc ) {
-					setAttributes( { id: mediaId, guid: videoGuid, src: videoSrc } );
-				}
 			};
 
 			const onChangeTitle = newTitle => {
@@ -847,7 +866,15 @@ const VideoPressEdit = CoreVideoEdit =>
 			};
 
 			const dismissEditor = () => {
-				this.setState( { isEditingWhileUploading: false } );
+				// Apply any pending video attributes before dismissing
+				if ( this.state.pendingVideoAttributes ) {
+					setAttributes( this.state.pendingVideoAttributes );
+				}
+
+				this.setState( {
+					isEditingWhileUploading: false,
+					pendingVideoAttributes: null,
+				} );
 				saveEditorData();
 			};
 
@@ -940,19 +967,15 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					{ shouldRenderLoadingBlock && (
-						<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
-					) }
-					{ ! shouldRenderLoadingBlock && (
-						<VpBlock
-							{ ...this.props }
-							hideOverlay={ this.hideOverlay }
-							html={ html }
-							scripts={ scripts }
-							interactive={ interactive }
-							caption={ caption }
-						/>
-					) }
+					<VpBlock
+						{ ...this.props }
+						hideOverlay={ this.hideOverlay }
+						html={ html }
+						scripts={ scripts }
+						interactive={ interactive }
+						caption={ caption }
+						shouldRenderLoadingBlock={ shouldRenderLoadingBlock }
+					/>
 				</Fragment>
 			);
 		}
@@ -1024,8 +1047,17 @@ const UploaderBlock = props => {
 // The actual, final rendered video player markup
 // In a separate function component so that `useBlockProps` could be called.
 export const VpBlock = props => {
-	let { scripts } = props;
-	const { html, interactive, caption, isSelected, hideOverlay, attributes, setAttributes } = props;
+	const { scripts } = props;
+	const {
+		html,
+		interactive,
+		caption,
+		isSelected,
+		hideOverlay,
+		attributes,
+		setAttributes,
+		shouldRenderLoadingBlock,
+	} = props;
 
 	const { align, className, videoPressClassNames, maxWidth } = attributes;
 
@@ -1034,6 +1066,35 @@ export const VpBlock = props => {
 			[ `align${ align }` ]: align,
 		} ),
 	} );
+
+	const getSandboxScripts = useCallback( () => {
+		const sandboxScripts = Array.isArray( scripts ) ? scripts : [];
+
+		if ( window.videopressAjax ) {
+			const videopresAjaxURLBlob = new Blob(
+				[ `var videopressAjax = ${ JSON.stringify( window.videopressAjax ) };` ],
+				{
+					type: 'text/javascript',
+				}
+			);
+
+			return [
+				...sandboxScripts,
+				URL.createObjectURL( videopresAjaxURLBlob ),
+				window.videopressAjax.bridgeUrl,
+			];
+		}
+
+		return sandboxScripts;
+	}, [ scripts ] );
+
+	if ( shouldRenderLoadingBlock ) {
+		return (
+			<figure { ...blockProps }>
+				<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
+			</figure>
+		);
+	}
 
 	const onBlockResize = ( event, direction, elem ) => {
 		let newMaxWidth = getComputedStyle( elem ).width;
@@ -1047,21 +1108,6 @@ export const VpBlock = props => {
 
 		setAttributes( { maxWidth: newMaxWidth } );
 	};
-
-	if ( typeof scripts !== 'object' ) {
-		scripts = [];
-	}
-
-	if ( window.videopressAjax ) {
-		const videopresAjaxURLBlob = new Blob(
-			[ `var videopressAjax = ${ JSON.stringify( window.videopressAjax ) };` ],
-			{
-				type: 'text/javascript',
-			}
-		);
-
-		scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
-	}
 
 	return (
 		<figure { ...blockProps }>
@@ -1078,7 +1124,7 @@ export const VpBlock = props => {
 					style={ { margin: 'auto' } }
 					onResizeStop={ onBlockResize }
 				>
-					<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
+					<SandBox html={ html } scripts={ getSandboxScripts() } type={ videoPressClassNames } />
 				</ResizableBox>
 			</div>
 

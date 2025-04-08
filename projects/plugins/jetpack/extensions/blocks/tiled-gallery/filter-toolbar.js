@@ -1,4 +1,13 @@
-import { Dropdown, MenuItem, NavigableMenu, Path, SVG, Toolbar } from '@wordpress/components';
+import { BlockControls } from '@wordpress/block-editor';
+import {
+	Dropdown,
+	MenuItem,
+	NavigableMenu,
+	Path,
+	SVG,
+	Toolbar,
+	ToolbarButton,
+} from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 
 const availableFilters = [
@@ -72,6 +81,13 @@ const availableFilters = [
 
 const label = __( 'Pick an image filter', 'jetpack' );
 
+const toolbarIcon = (
+	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+		<Path fill="none" d="M0 0h24v24H0V0z" />
+		<Path d="M19 10v9H4.98V5h9V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-9h-2zm-2.94-2.06L17 10l.94-2.06L20 7l-2.06-.94L17 4l-.94 2.06L14 7zM12 8l-1.25 2.75L8 12l2.75 1.25L12 16l1.25-2.75L16 12l-2.75-1.25z" />
+	</SVG>
+);
+
 export default function FilterToolbar( { value, onChange } ) {
 	return (
 		<Dropdown
@@ -80,30 +96,18 @@ export default function FilterToolbar( { value, onChange } ) {
 			contentClassName="editor-block-switcher__popover"
 			renderToggle={ ( { onToggle, isOpen } ) => {
 				return (
-					<Toolbar
-						controls={ [
-							{
-								onClick: onToggle,
-								extraProps: {
-									'aria-haspopup': 'true',
-									'aria-expanded': isOpen,
-								},
-								title: label,
-								tooltip: label,
-								icon: (
-									<SVG
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										viewBox="0 0 24 24"
-									>
-										<Path fill="none" d="M0 0h24v24H0V0z" />
-										<Path d="M19 10v9H4.98V5h9V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-9h-2zm-2.94-2.06L17 10l.94-2.06L20 7l-2.06-.94L17 4l-.94 2.06L14 7zM12 8l-1.25 2.75L8 12l2.75 1.25L12 16l1.25-2.75L16 12l-2.75-1.25z" />
-									</SVG>
-								),
-							},
-						] }
-					/>
+					<BlockControls>
+						<Toolbar label={ label }>
+							<ToolbarButton
+								onClick={ onToggle }
+								aria-expanded={ isOpen }
+								aria-haspopup="true"
+								label={ label }
+								showTooltip={ true }
+								icon={ toolbarIcon }
+							/>
+						</Toolbar>
+					</BlockControls>
 				);
 			} }
 			renderContent={ ( { onClose } ) => {

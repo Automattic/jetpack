@@ -2,6 +2,10 @@
 
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
+use Automattic\Jetpack_Boost\Lib\Minify\File_Paths;
+use Automattic\Jetpack_Boost\Modules\Module;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
 /**
  * Get an extra cache key for requests. We can manually bump this when we want
@@ -12,53 +16,123 @@ function jetpack_boost_minify_cache_buster() {
 }
 
 /**
- * Cleanup the given cache folder, removing all files older than $file_age seconds.
- *
- * @param string $cache_folder The path to the cache folder to cleanup.
- * @param int    $file_age The age of files to purge, in seconds.
+ * This ensures that the cache cleanup cron job is only run once per day, espicially for multisite.
  */
-function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file_age = DAY_IN_SECONDS ) {
+function jetpack_boost_should_run_daily_network_cron_job( $hook ) {
+	// If we see it's been executed within 24 hours, don't run
+	if ( get_site_option( 'jetpack_boost_' . $hook . '_last_run', 0 ) > time() - DAY_IN_SECONDS ) {
+		return false;
+	}
+
+	update_site_option( 'jetpack_boost_' . $hook . '_last_run', time() );
+
+	return true;
+}
+
+/**
+ * This ensures that the cache cleanup cron job is only run once per day, espicially for multisite.
+ */
+function jetpack_boost_minify_cron_cache_cleanup() {
+	if ( ! jetpack_boost_should_run_daily_network_cron_job( 'minify_cron_cache_cleanup' ) ) {
+		return;
+	}
+
+	jetpack_boost_legacy_minify_cache_cleanup();
+	jetpack_boost_minify_cache_cleanup();
+}
+
+/**
+ * Cleanup minify cache files stored using the legacy method.
+ *
+ * @param int $file_age The age of files to purge, in seconds.
+ */
+function jetpack_boost_legacy_minify_cache_cleanup( $file_age = DAY_IN_SECONDS ) {
+	// If file_age is not an int, set it to the default.
+	// $file_age can be an empty string if calling this from an action: https://core.trac.wordpress.org/ticket/14881
+	$file_age = is_int( $file_age ) ? $file_age : DAY_IN_SECONDS;
+
+	$cache_folder = Config::get_legacy_cache_dir_path();
+
 	if ( ! is_dir( $cache_folder ) ) {
 		return;
 	}
 
-	$defined_cache_dir = Config::get_cache_dir_path();
-
-	// If cache is disabled when the cleanup runs, purge it
-	$using_cache = ! empty( $defined_cache_dir );
-	if ( ! $using_cache ) {
-		$file_age = 0;
-	}
-
-	// If the cache folder changed since queueing, purge it
-	if ( $using_cache && $cache_folder !== $defined_cache_dir ) {
-		$file_age = 0;
-	}
-
-	// Grab all files in the cache directory
 	$cache_files = glob( $cache_folder . '/page-optimize-cache-*' );
 
-	// Cleanup all files older than $file_age
-	foreach ( $cache_files as $cache_file ) {
-		if ( ! is_file( $cache_file ) ) {
+	jetpack_boost_delete_expired_files( $cache_files, $file_age );
+}
+
+/**
+ * Cleanup obsolete files in static cache folder.
+ *
+ * @param int $file_age The age of files to purge, in seconds.
+ */
+function jetpack_boost_minify_cache_cleanup( $file_age = DAY_IN_SECONDS ) {
+	// Explicitly cast to int as do_action() can pass a non-int value. https://core.trac.wordpress.org/ticket/14881
+	$file_age = is_int( $file_age ) ? $file_age : DAY_IN_SECONDS;
+
+	/*
+	 * Cleanup obsolete files in static cache folder.
+	 * If $file_age is 0, we can skip this as we will delete all files anyway.
+	 */
+	if ( $file_age !== 0 ) {
+		// Cleanup obsolete files in static cache folder
+		jetpack_boost_minify_remove_stale_static_files();
+	}
+
+	$cache_files = glob( Config::get_static_cache_dir_path() . '/*.min.*' );
+
+	jetpack_boost_delete_expired_files( $cache_files, $file_age );
+}
+
+/**
+ * Delete expired files based on access time or file age.
+ *
+ * Only delete files which are either 2x $file_age or have not been accessed in $file_age seconds.
+ *
+ * @param array $files The files to delete.
+ * @param int   $file_age The age of files to purge, in seconds.
+ */
+function jetpack_boost_delete_expired_files( $files, $file_age ) {
+	foreach ( $files as $file ) {
+		if ( ! is_file( $file ) ) {
 			continue;
 		}
 
-		if ( ( time() - $file_age ) > filemtime( $cache_file ) ) {
-			wp_delete_file( $cache_file );
+		if ( $file_age === 0 ) {
+			wp_delete_file( $file );
+			continue;
+		}
+
+		// Delete files that haven't been accessed in $file_age seconds,
+		// or files that are older than 2 * $file_age regardless of access time
+		if ( ( time() - $file_age ) > fileatime( $file ) ) {
+			wp_delete_file( $file );
+		} elseif ( ( time() - ( 2 * $file_age ) ) > filemtime( $file ) ) {
+			wp_delete_file( $file );
 		}
 	}
+}
+
+/**
+ * Clear scheduled cron events for minification.
+ *
+ * Removes the cache cleanup cron job and the 404 tester cron job.
+ */
+function jetpack_boost_minify_clear_scheduled_events() {
+	wp_unschedule_hook( 'jetpack_boost_minify_cron_cache_cleanup' );
+	wp_unschedule_hook( 'jetpack_boost_404_tester_cron' );
 }
 
 /**
  * Plugin deactivation hook - unschedule cronjobs and purge cache.
  */
 function jetpack_boost_page_optimize_deactivate() {
-	$cache_folder = Config::get_cache_dir_path();
+	// Cleanup all cache files even if they are 0 seconds old
+	jetpack_boost_legacy_minify_cache_cleanup( 0 );
+	jetpack_boost_minify_cache_cleanup( 0 );
 
-	jetpack_boost_page_optimize_cache_cleanup( $cache_folder, 0 /* max file age in seconds */ );
-
-	wp_clear_scheduled_hook( 'jetpack_boost_minify_cron_cache_cleanup', array( $cache_folder ) );
+	jetpack_boost_minify_clear_scheduled_events();
 }
 
 /**
@@ -145,15 +219,24 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
 }
 
 /**
+ * Schedule a cronjob for the 404 tester, if one isn't already scheduled.
+ */
+function jetpack_boost_page_optimize_schedule_404_tester() {
+	if ( false === wp_next_scheduled( 'jetpack_boost_404_tester_cron' ) ) {
+		wp_schedule_event( time() + DAY_IN_SECONDS, 'daily', 'jetpack_boost_404_tester_cron' );
+
+		// Run the test immediately, so the settings page can show the result.
+		jetpack_boost_404_tester();
+	}
+}
+
+/**
  * Schedule a cronjob for cache cleanup, if one isn't already scheduled.
  */
 function jetpack_boost_page_optimize_schedule_cache_cleanup() {
-	$cache_folder = Config::get_cache_dir_path();
-	$args         = array( $cache_folder );
-
 	// If caching is on, and job isn't queued for current cache folder
-	if ( false !== $cache_folder && false === wp_next_scheduled( 'jetpack_boost_minify_cron_cache_cleanup', $args ) ) {
-		wp_schedule_event( time(), 'daily', 'jetpack_boost_minify_cron_cache_cleanup', $args );
+	if ( false === wp_next_scheduled( 'jetpack_boost_minify_cron_cache_cleanup' ) ) {
+		wp_schedule_event( time(), 'daily', 'jetpack_boost_minify_cron_cache_cleanup' );
 	}
 }
 
@@ -198,6 +281,13 @@ function jetpack_boost_page_optimize_bail() {
 		return true;
 	}
 
+	// Bail in elementor preview
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( isset( $_GET['elementor-preview'] ) ) {
+		$should_bail = true;
+		return true;
+	}
+
 	return $should_bail;
 }
 
@@ -215,7 +305,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 
 	$url = $siteurl . $path;
 
-	if ( strpos( $url, '?m=' ) ) {
+	if ( str_contains( $url, '?m=' ) ) {
 		return $url;
 	}
 
@@ -252,7 +342,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 }
 
 /**
- * Get the URL prefix for static minify/concat resources. Defaults to /jb_static/, but can be
+ * Get the URL prefix for static minify/concat resources. Defaults to /_jb_static/, but can be
  * overridden by defining JETPACK_BOOST_STATIC_PREFIX.
  */
 function jetpack_boost_get_static_prefix() {
@@ -263,6 +353,10 @@ function jetpack_boost_get_static_prefix() {
 	}
 
 	return trailingslashit( $prefix );
+}
+
+function jetpack_boost_get_minify_url( $file_name = '' ) {
+	return content_url( '/boost-cache/static/' . $file_name );
 }
 
 /**
@@ -278,33 +372,67 @@ function jetpack_boost_minify_serve_concatenated() {
 		$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];
 		$prefix       = jetpack_boost_get_static_prefix();
 		if ( $prefix === substr( $request_path, -strlen( $prefix ), strlen( $prefix ) ) ) {
-			require_once __DIR__ . '/functions-service.php';
+			require_once __DIR__ . '/functions-service-fallback.php';
 			jetpack_boost_page_optimize_service_request();
-			exit; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though jetpack_boost_page_optimize_service_request() itself never returns.
+			exit( 0 ); // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though jetpack_boost_page_optimize_service_request() itself never returns.
 		}
 	}
 }
 
 /**
- * Handles cache service initialization, scheduling of cache cleanup, and disabling of
- * Jetpack photon-cdn for static JS/CSS. Automatically ensures that we don't setup
- * the cache service more than once per request.
+ * Run during activation of any minify module.
+ *
+ * This handles scheduling cache cleanup, and setting up the cronjob to periodically test for the 404 handler.
  *
  * @return void
  */
-function jetpack_boost_minify_setup() {
-	static $setup_done = false;
-	if ( $setup_done ) {
-		return;
-	}
-	$setup_done = true;
-
-	// Schedule cache cleanup.
-	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
+function jetpack_boost_minify_activation() {
+	// Schedule a cronjob for cache cleanup, if one isn't already scheduled.
 	jetpack_boost_page_optimize_schedule_cache_cleanup();
 
-	if ( ! jetpack_boost_page_optimize_bail() ) {
-		// Disable Jetpack Site Accelerator CDN for static JS/CSS, if we're minifying this page.
-		add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
+	// Setup the cronjob to periodically test for the 404 handler.
+	jetpack_boost_404_setup();
+}
+
+function jetpack_boost_minify_is_enabled() {
+	$minify_css = new Module( new Minify_CSS() );
+	$minify_js  = new Module( new Minify_JS() );
+
+	return $minify_css->is_enabled() || $minify_js->is_enabled();
+}
+
+/**
+ * Run during initialization of any minify module.
+ *
+ * Run during every page load if any minify module is active.
+ */
+function jetpack_boost_minify_init() {
+	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_minify_cron_cache_cleanup' );
+
+	if ( jetpack_boost_page_optimize_bail() ) {
+		return;
 	}
+
+	// Disable Jetpack Site Accelerator CDN for static JS/CSS, if we're minifying this page.
+	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
+}
+
+function jetpack_boost_page_optimize_generate_concat_path( $url_paths, $dependency_path_mapping ) {
+	$fs_paths = array();
+	foreach ( $url_paths as $url_path ) {
+		$fs_paths[] = $dependency_path_mapping->uri_path_to_fs_path( $url_path );
+	}
+
+	$mtime = max( array_map( 'filemtime', $fs_paths ) );
+	if ( jetpack_boost_page_optimize_use_concat_base_dir() ) {
+		$paths = array_map( 'jetpack_boost_page_optimize_remove_concat_base_prefix', $fs_paths );
+	} else {
+		$paths = $url_paths;
+	}
+
+	$file_paths = new File_Paths();
+	$file_paths->set( $paths, $mtime, jetpack_boost_minify_cache_buster() );
+	$file_paths->store();
+
+	return $file_paths->get_cache_id();
 }

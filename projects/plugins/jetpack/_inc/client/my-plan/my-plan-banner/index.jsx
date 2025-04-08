@@ -1,7 +1,7 @@
-import { imagePath } from 'constants/urls';
-import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect } from 'react';
+import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 import MyPlanCard from '../my-plan-card';
 
 /**

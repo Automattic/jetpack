@@ -1,6 +1,6 @@
+import { DescriptIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 import { registerBlockVariation } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import { DescriptIcon } from '../../shared/icons';
 
 /*
  * New `core/embed` block variation.

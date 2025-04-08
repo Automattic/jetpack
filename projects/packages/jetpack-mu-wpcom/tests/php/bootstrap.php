@@ -10,7 +10,8 @@
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-\WorDBless\Load::load();
+// Initialize WordPress test environment
+\Automattic\Jetpack\Test_Environment::init();
 
 require_once __DIR__ . '/../lib/functions-wordpress.php';
 require_once __DIR__ . '/../../src/class-jetpack-mu-wpcom.php';

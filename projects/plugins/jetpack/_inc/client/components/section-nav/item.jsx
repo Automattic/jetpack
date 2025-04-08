@@ -2,9 +2,9 @@
 
 import { ExternalLink } from '@wordpress/components';
 import clsx from 'clsx';
-import Count from 'components/count';
 import PropTypes from 'prop-types';
 import React from 'react';
+import Count from 'components/count';
 
 /**
  * Main

@@ -29,6 +29,17 @@ function register_block() {
 			)
 		);
 	}
+	// Add a meta field to the user to track if the donation warning has been dismissed.
+	\register_meta(
+		'user',
+		'jetpack_donation_warning_dismissed',
+		array(
+			'type'         => 'boolean',
+			'single'       => true,
+			'show_in_rest' => true,
+			'default'      => false,
+		)
+	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 

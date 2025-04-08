@@ -26,7 +26,7 @@ wp_oembed_add_provider( '#https?://(www\.)?loom\.com/share/.*#i', 'https://www.l
  *
  * @return int The timeout value in seconds.
  */
-function jetpack_oembed_timeout_override( $timeout, $url ) {
+function jetpack_oembed_timeout_override( $timeout, $url = '' ) {
 	if (
 		is_string( $url )
 		&& str_contains( $url, 'iwmb.icloud.com' )

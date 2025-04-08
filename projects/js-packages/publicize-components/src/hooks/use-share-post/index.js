@@ -35,26 +35,26 @@ function getHumanReadableError( result ) {
 		switch ( errorCode ) {
 			case 'http_request_failed':
 				// Define error message when external service is down.
-				errorMessage = __( 'Unable to share the Post', 'jetpack' );
+				errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 				break;
 			case 'rest_invalid_param':
 				// Error when something is wrong with the request.
-				errorMessage = __( 'Unable to share the Post', 'jetpack' );
+				errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 				break;
 
 			case 'rest_missing_callback_param':
 				// Error when something is wrong with the request.
-				errorMessage = __( 'Unable to share the Post', 'jetpack' );
+				errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 				break;
 
 			default:
-				errorMessage = __( 'Unable to share the Post', 'jetpack' );
+				errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 		}
 	}
 
 	// Im multiple requests, the response contains the errors array.
 	if ( hasSharingErrors ) {
-		errorMessage = __( 'Unable to share the Post', 'jetpack' );
+		errorMessage = __( 'Unable to share the Post', 'jetpack-publicize-components' );
 	}
 
 	return {
@@ -67,7 +67,7 @@ function getHumanReadableError( result ) {
  * A hook to get the necessary data and callbacks to reshare a post.
  *
  * @param {number} [postId] - The ID of the post to share.
- * @return { { doPublicize: (connectionsToSkip?: Array<string>) => Promise<void>, data: object } } The doPublicize callback to share the post.
+ * @return { { doPublicize: (connectionsToSkip?: Array<string>) => Promise<void>, data: object, isFetching: boolean } } The doPublicize callback to share the post.
  */
 export default function useSharePost( postId ) {
 	// Sharing data.

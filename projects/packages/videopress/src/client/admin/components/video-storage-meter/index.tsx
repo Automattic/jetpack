@@ -4,7 +4,7 @@
 import { ProgressBar, Text } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import filesize from 'filesize';
+import { filesize } from 'filesize';
 /**
  * Internal dependencies
  */

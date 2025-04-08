@@ -28,7 +28,7 @@ class Jetpack_Debugger {
 			if ( Jetpack::is_connection_ready() ) {
 				Jetpack::disconnect();
 				wp_safe_redirect( Jetpack::admin_url() );
-				exit;
+				exit( 0 );
 			}
 		}
 	}

@@ -58,6 +58,7 @@ input.jetpack-instant-search__box-input.search-field {
 }
 
 .jetpack-instant-search__box input[type='button'] {
+
 	@include remove-button-styling();
 	color: $color-text-lighter;
 	cursor: pointer;
@@ -75,6 +76,7 @@ input.jetpack-instant-search__box-input.search-field {
 	}
 
 	&:focus {
+
 		@include apply-overlay-focus-styling();
 	}
 }
@@ -121,6 +123,7 @@ input.jetpack-instant-search__box-input.search-field {
 
 // Only show animation to users who have not chosen reduced motion
 @media ( prefers-reduced-motion: no-preference ) {
+
 	.jetpack-instant-search__box input[type='button'] {
 		transition: 0.1s linear all;
 	}

@@ -1,4 +1,4 @@
-/* eslint-disable react/react-in-jsx-scope,jsdoc/no-undefined-types */
+/* eslint-disable jsdoc/no-undefined-types */
 import {
 	BlockEditorKeyboardShortcuts,
 	BlockEditorProvider,

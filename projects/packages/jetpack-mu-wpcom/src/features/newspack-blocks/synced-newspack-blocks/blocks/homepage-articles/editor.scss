@@ -4,21 +4,34 @@
 @use "../../shared/sass/mixins";
 
 .wpnbha {
-	article .entry-title {
-		margin: 0 0 0.25em;
-	}
-
-	@include mixins.media( tablet ) {
-		&.ts-4 article .entry-title {
-			font-size: 1.6em;
-		}
-	}
-
 	.editor-rich-text {
 		width: 100%;
 	}
 
+	/* Image styles */
+	.post-thumbnail {
+		margin: 0;
+		margin-bottom: 0.25em;
+
+		img {
+			height: auto;
+			width: 100%;
+		}
+
+		figcaption {
+			margin-bottom: 0.5em;
+		}
+	}
+
 	/* Article meta */
+	.entry-meta {
+		display: flex;
+		font-size: 0.8em;
+		flex-wrap: wrap;
+		align-items: center;
+		margin-top: 0.5em;
+	}
+
 	.cat-links {
 		font-size: variables.$font__size-xs;
 	}
@@ -36,7 +49,99 @@
 		margin: 0.5em 0;
 	}
 
+	/* Typescale */
+	// Default typescale:
+	.entry-title {
+		font-size: 1.2em;
+		margin: 0 0 0.25em;
+	}
 
+	.avatar {
+		height: 25px;
+		width: 25px;
+	}
+
+	@include mixins.media( tablet ) {
+		&.ts-4 article .entry-title {
+			font-size: 1.6em;
+		}
+	}
+
+	.newspack-post-subtitle {
+		&--in-homepage-block {
+			margin-top: 0.3em;
+			margin-bottom: 0;
+			line-height: 1.4;
+			font-style: italic;
+		}
+	}
+
+	// Different typescales:
+	&.ts-10,
+	&.ts-9,
+	&.ts-8 {
+		.entry-title {
+			line-height: 1.1;
+		}
+	}
+
+	$typescales: (
+		"ts-10" (
+			".entry-title": "2.6em",
+			".newspack-post-subtitle": "1.4em",
+		),
+		"ts-9" (
+			".entry-title": "2.4em",
+			".newspack-post-subtitle": "1.4em",
+		),
+		"ts-8" (
+			".entry-title": "2.2em",
+			".newspack-post-subtitle": "1.4em",
+		),
+		"ts-7" (
+			".entry-title": "2em",
+			".newspack-post-subtitle": "1.4em",
+		),
+		"ts-6" (
+			".entry-title": "1.7em",
+			".newspack-post-subtitle": "1.4em",
+		),
+		"ts-5" (
+			".entry-title": "1.4em",
+			".newspack-post-subtitle": "1.2em",
+		),
+		"ts-3" (
+			".entry-title": "1em",
+			".newspack-post-subtitle": "0.8em",
+			".entry-wrapper p": "0.8em",
+			".entry-wrapper .more-link": "0.8em",
+		),
+		"ts-2" (
+			".entry-title": "0.9em",
+			"article .newspack-post-subtitle": "0.8em",
+			"article .entry-wrapper p": "0.8em",
+			"article .entry-wrapper .more-link": "0.8em",
+		),
+		"ts-1" (
+			".entry-title": "0.9em",
+			"article .newspack-post-subtitle": "0.8em",
+			"article .entry-wrapper p": "0.8em",
+			"article .entry-wrapper .more-link": "0.8em",
+		),
+	);
+
+	// Loop through all our $typescales and generate font size CSS:
+	@each $type, $selectors in $typescales {
+		@each $selector, $values in $selectors {
+			@each $value in $values {
+				&.#{$type} {
+					#{$selector} {
+						font-size: #{$value};
+					}
+				}
+			}
+		}
+	}
 }
 
 .editor-styles-wrapper.wpnbha__wp-block-button__wrapper {
@@ -60,5 +165,55 @@
 			background-color: #fff;
 			opacity: 0.6;
 		}
+	}
+
+	&__panel {
+		.spacing-sizes-control {
+			.components-range-control__root {
+				> span {
+					margin-top: 0;
+				}
+			}
+		}
+
+		> *:not(.components-panel__body-title) {
+			margin-bottom: 16px;
+			margin-top: 0;
+
+			&:last-of-type {
+				margin-bottom: 8px;
+			}
+		}
+
+		&.is-content {
+			.autocomplete-tokenfield + .components-checkbox-control {
+				margin-top: -8px;
+			}
+		}
+	}
+
+	&__button-group {
+		flex: 0 0 100%;
+
+		.components-base-control__label {
+			width: 100%;
+		}
+
+		.components-button-group {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+
+			button {
+				justify-content: center;
+			}
+		}
+	}
+}
+
+.components-base-control__field:empty {
+	display: none;
+
+	+ .components-base-control__help {
+		margin: 0;
 	}
 }

@@ -5,13 +5,13 @@ import dedent from 'ts-dedent';
 
 # How to use this tool
 
-The Jetpack Components Library allows you to discover, test and live-edit Jetpack visual component.
+The Jetpack Components Library allows you to discover, test, and live-edit Jetpack UI components.
 
 ## Publish component stories
 
-Anywhere in a supported package, create one or more directories called `stories` (e.g. src/components/my-component/stories).
+Anywhere in a supported package, create one or more directories called `stories` (e.g. `src/components/my-component/stories`).
 
-In that directory, create an index.stories.js or index.stories.jsx file, like this:
+In that directory, create an `index.stories.jsx` or `index.stories.tsx` file, like this:
 
 <Source
 	language='jsx'
@@ -23,23 +23,29 @@ In that directory, create an index.stories.js or index.stories.jsx file, like th
 		// the default export is metadata about the component
 		export default {
 			title: 'Components/My Component',
+			component: MyComponent,
 		};
 		// the export called __default is the default state of the component
-		export const _default = () => {
-			return <MyComponent foo="bar"/>;
-		};
+		export const _default = {};
 	`}
 />
 
-You can read more about writing stories in the [Storybook JS docs](https://storybook.js.org/docs/react/writing-stories/introduction)
+You can read more about writing stories in the [Storybook JS docs](https://storybook.js.org/docs/react/writing-stories/introduction).
 
 ## Edit components live
 
 To run this locally, just run:
 
-```
+```bash
+# From projects/js-packages/storybook/
 pnpm run storybook:dev
+
+# Or from Jetpack repo root
+pnpm -F @automattic/jetpack-storybook storybook:dev
 ```
 
 Any edits to SCSS, HTML, JSX or other files should be hot-loaded so you can see changes to styles or components.
 
+## Contributing
+
+Ready to contribute? Check out the Jetpack [contributing guide](https://github.com/Automattic/jetpack/blob/trunk/docs/CONTRIBUTING.md).

@@ -1,5 +1,6 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 import { FormFieldset, FormLabel, FormSelect } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -7,7 +8,6 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import SupportInfo from 'components/support-info';
 import TextInput from 'components/text-input';
-import React from 'react';
 
 import './style.scss';
 

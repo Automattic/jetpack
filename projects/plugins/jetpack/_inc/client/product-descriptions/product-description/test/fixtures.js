@@ -103,6 +103,13 @@ export function buildInitialState() {
 						],
 					},
 				},
+				userData: {
+					currentUser: {
+						wpcomUser: {
+							user_currency: 'USD',
+						},
+					},
+				},
 			},
 			products: {
 				items: {

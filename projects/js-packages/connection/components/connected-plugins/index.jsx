@@ -40,7 +40,7 @@ const ConnectedPlugins = props => {
 					<p className="jp-connection__disconnect-dialog__large-text">
 						{ __(
 							'Jetpack is powering other plugins on your site. If you disconnect, these plugins will no longer work.',
-							'jetpack'
+							'jetpack-connection-js'
 						) }
 					</p>
 				</div>

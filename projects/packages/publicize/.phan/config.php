@@ -13,6 +13,7 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
+		'+stubs'          => array( 'wpcom' ),
 		'parse_file_list' => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
 			// Wherever feasible we should really clean up this sort of thing instead of adding stuff here.
@@ -24,6 +25,7 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/_inc/lib/admin-pages/class.jetpack-admin-page.php', // class Jetpack_Admin_Page
 			__DIR__ . '/../../../plugins/jetpack/modules/subscriptions.php',                         // class Jetpack_Subscriptions
 			__DIR__ . '/../../../plugins/jetpack/functions.global.php',                              // function jetpack_render_tos_blurb
+			__DIR__ . '/../../../plugins/jetpack/_inc/lib/core-api/load-wpcom-endpoints.php', // function wpcom_rest_api_v2_load_plugin
 		),
 	)
 );

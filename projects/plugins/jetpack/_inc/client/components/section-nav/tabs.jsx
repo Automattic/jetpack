@@ -2,11 +2,11 @@
 
 import { getWindowInnerWidth } from '@automattic/viewport';
 import clsx from 'clsx';
-import SelectDropdown from 'components/select-dropdown';
-import DropdownItem from 'components/select-dropdown/item';
 import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import SelectDropdown from 'components/select-dropdown';
+import DropdownItem from 'components/select-dropdown/item';
 
 /**
  * Internal Variables
@@ -155,7 +155,7 @@ class NavTabs extends React.Component {
 			case 32: // space
 			case 13: // enter
 				event.preventDefault();
-				document.activeElement.click();
+				event.target.ownerDocument.activeElement.click();
 				break;
 		}
 	};

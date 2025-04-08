@@ -1,9 +1,11 @@
 import clsx from 'clsx';
+import { useContext } from 'preact/hooks';
 import { translate } from '../i18n';
-import { commentParent } from '../state';
+import { VerbumSignals } from '../state';
 import { CustomLoadingSpinner } from './custom-loading-spinner';
 
 export const EditorPlaceholder = ( { onClick, loading } ) => {
+	const { commentParent } = useContext( VerbumSignals );
 	return (
 		<div
 			className="verbum-editor-wrapper"

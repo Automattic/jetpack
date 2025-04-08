@@ -383,9 +383,12 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	 */
 	protected function update() {
 		$query_args = $this->query_args();
+
+		$is_automatic_update = false;
 		if ( isset( $query_args['autoupdate'] ) && $query_args['autoupdate'] || $this->scheduled_update ) {
-			Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
+			$is_automatic_update = true;
 		}
+
 		if ( $this->scheduled_update ) {
 			Constants::set_constant( 'SCHEDULED_AUTOUPDATE', true );
 		}
@@ -416,7 +419,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 		// Early return if unable to obtain auto_updater lock.
 		// @see https://github.com/WordPress/wordpress-develop/blob/66469efa99e7978c8824e287834135aa9842e84f/src/wp-admin/includes/class-wp-automatic-updater.php#L453.
-		if ( Constants::get_constant( 'JETPACK_PLUGIN_AUTOUPDATE' ) && ! WP_Upgrader::create_lock( 'auto_updater', $lock_release_timeout ) ) {
+		if ( $is_automatic_update && ! WP_Upgrader::create_lock( 'auto_updater', $lock_release_timeout ) ) {
 			return new WP_Error( 'update_fail', __( 'Updates are already in progress.', 'jetpack' ), 400 );
 		}
 
@@ -430,7 +433,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 
 			// Rely on WP_Automatic_Updater class to check if a plugin item should be updated if it is a Jetpack autoupdate request.
-			if ( Constants::get_constant( 'JETPACK_PLUGIN_AUTOUPDATE' ) && ! ( new WP_Automatic_Updater() )->should_update( 'plugin', $update_plugins->response[ $plugin ], WP_PLUGIN_DIR ) ) {
+			if ( $is_automatic_update && ! ( new WP_Automatic_Updater() )->should_update( 'plugin', $update_plugins->response[ $plugin ], WP_PLUGIN_DIR ) ) {
 				continue;
 			}
 
@@ -473,7 +476,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		}
 
 		// release auto_udpate lock.
-		if ( Constants::get_constant( 'JETPACK_PLUGIN_AUTOUPDATE' ) ) {
+		if ( $is_automatic_update ) {
 			WP_Upgrader::release_lock( 'auto_updater' );
 		}
 

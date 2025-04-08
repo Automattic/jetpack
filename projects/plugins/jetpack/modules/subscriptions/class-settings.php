@@ -9,12 +9,16 @@
 
 namespace Automattic\Jetpack\Modules\Subscriptions;
 
-use Automattic\Jetpack\Status\Host;
-
 /**
  * Class Settings
  */
 class Settings {
+	/**
+	 * The default reply-to option.
+	 *
+	 * @var string
+	 */
+	public static $default_reply_to = 'comment';
 
 	/**
 	 * Validate the reply-to option.
@@ -28,17 +32,5 @@ class Settings {
 			return true;
 		}
 		return false;
-	}
-	/**
-	 * Get the default reply-to option.
-	 *
-	 * @return string The default reply-to option.
-	 */
-	public static function get_default_reply_to() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			return 'comment';
-		}
-
-		return 'no-reply';
 	}
 }

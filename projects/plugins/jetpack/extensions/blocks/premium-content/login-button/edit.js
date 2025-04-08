@@ -27,6 +27,8 @@ function BorderPanel( { borderRadius = '', setAttributes } ) {
 				initialPosition={ INITIAL_BORDER_RADIUS_POSITION }
 				allowReset
 				onChange={ setBorderRadius }
+				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 		</PanelBody>
 	);

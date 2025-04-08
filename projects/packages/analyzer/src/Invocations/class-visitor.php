@@ -56,7 +56,7 @@ class Visitor extends NodeVisitorAbstract {
 				// calls like this: ( require "$root_dir/modules.php" )( $root_dir ).
 				$function_name = ''; // do nothing :shrug:.
 			} else {
-				$function_name = implode( '\\', $node->name->parts );
+				$function_name = implode( '\\', $node->name->getParts() );
 			}
 
 			$out = new Function_Call( $this->file_path, $node->getLine(), $function_name );

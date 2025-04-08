@@ -1,8 +1,9 @@
 .blaze-panel {
+
 	.blaze-panel-outbound-link__external_icon {
 		width: 1.4em;
 		height: 1.4em;
-		margin: -0.2em 0.1em 0;
+		margin-left: 0.1em;
 		vertical-align: middle;
 		fill: currentColor;
 	}
@@ -12,6 +13,7 @@
 	}
 
 	.post-publish-panel__postpublish-buttons {
+
 		.components-button {
 			padding-top: 0.5em;
 			padding-bottom: 0.4em;

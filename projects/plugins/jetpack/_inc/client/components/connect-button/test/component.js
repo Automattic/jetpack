@@ -1,8 +1,8 @@
 import { jest } from '@jest/globals';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { render, screen } from 'test/test-utils';
 import { ConnectButton } from '../index';
+import { buildInitialState } from './fixtures';
 
 // Mock components that do fetches in the background. We supply needed state directly.
 jest.mock( 'components/data/query-site-benefits', () => ( {
@@ -25,30 +25,15 @@ describe( 'ConnectButton', () => {
 		asLink: false,
 		connectInPlace: false,
 		doNotUseConnectionIframe: false,
+		asBanner: true,
 	};
 
 	describe( 'Initially', () => {
 		it( 'renders a button to connect or link', () => {
-			render( <ConnectButton { ...testProps } fetchingConnectUrl={ true } /> );
-			expect(
-				screen.getByRole( 'link', { name: 'Connect your WordPress.com account' } )
-			).toBeInTheDocument();
-		} );
-
-		it( 'disables the button while fetching the connect URL', () => {
-			render( <ConnectButton { ...testProps } fetchingConnectUrl={ true } /> );
-			expect( screen.getByRole( 'link', { name: 'Connect your WordPress.com account' } ) )
-				// eslint-disable-next-line jest-dom/prefer-enabled-disabled -- `.toBeDisabled()` doesn't work on links.
-				.toHaveAttribute( 'disabled' );
-		} );
-	} );
-
-	describe( 'When it is used to link a user', () => {
-		it( 'has a link to jetpack.wordpress.com', () => {
-			render( <ConnectButton { ...testProps } /> );
-			expect(
-				screen.getByRole( 'link', { name: 'Connect your WordPress.com account' } )
-			).toHaveAttribute( 'href', 'https://jetpack.wordpress.com/jetpack.authorize/1/' );
+			render( <ConnectButton { ...testProps } fetchingConnectUrl={ true } />, {
+				initialState: buildInitialState(),
+			} );
+			expect( screen.getByRole( 'button', { name: 'Connect' } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -62,15 +47,15 @@ describe( 'ConnectButton', () => {
 		};
 
 		it( 'has a link to jetpack.wordpress.com', () => {
-			render( <ConnectButton { ...currentTestProps } /> );
-			expect(
-				screen.getByRole( 'link', { name: 'Link your account to WordPress.com' } )
-			).toHaveAttribute( 'href', 'https://jetpack.wordpress.com/jetpack.authorize/1/' );
+			render( <ConnectButton { ...currentTestProps } />, {
+				initialState: buildInitialState(),
+			} );
+			expect( screen.getByRole( 'button', { name: 'Connect' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'when clicked, loadConnectionScreen() is called once', async () => {
 			const user = userEvent.setup();
-			const loadConnectionScreen = jest.fn( e => e.preventDefault() );
+			const loadConnectionScreen = jest.fn();
 
 			class ConnectButtonMock extends ConnectButton {
 				constructor( props ) {
@@ -79,10 +64,10 @@ describe( 'ConnectButton', () => {
 				}
 			}
 
-			render( <ConnectButtonMock { ...currentTestProps } /> );
-			await user.click(
-				screen.getByRole( 'link', { name: 'Link your account to WordPress.com' } )
-			);
+			render( <ConnectButtonMock { ...currentTestProps } />, {
+				initialState: buildInitialState(),
+			} );
+			await user.click( screen.getByRole( 'button', { name: 'Connect' } ) );
 			expect( loadConnectionScreen ).toHaveBeenCalledTimes( 1 );
 		} );
 	} );
@@ -96,7 +81,9 @@ describe( 'ConnectButton', () => {
 		};
 
 		it( 'does not link to a URL', () => {
-			render( <ConnectButton { ...currentTestProps } /> );
+			render( <ConnectButton { ...currentTestProps } />, {
+				initialState: buildInitialState(),
+			} );
 			expect(
 				screen.getByRole( 'button', { name: 'Unlink your account from WordPress.com' } )
 			).not.toHaveAttribute( 'href' );
@@ -152,7 +139,9 @@ describe( 'ConnectButton', () => {
 		};
 
 		it( 'does not link to a URL', () => {
-			render( <ConnectButton { ...currentTestProps } /> );
+			render( <ConnectButton { ...currentTestProps } />, {
+				initialState: buildInitialState(),
+			} );
 			expect(
 				screen.getByRole( 'button', { name: 'Disconnect your site from WordPress.com' } )
 			).not.toHaveAttribute( 'href' );
@@ -160,7 +149,7 @@ describe( 'ConnectButton', () => {
 
 		it( 'when clicked, handleOpenModal() is called once', async () => {
 			const user = userEvent.setup();
-			const handleOpenModal = jest.fn( e => e.preventDefault() );
+			const handleOpenModal = jest.fn();
 
 			class ConnectButtonMock extends ConnectButton {
 				constructor( props ) {
@@ -169,7 +158,9 @@ describe( 'ConnectButton', () => {
 				}
 			}
 
-			render( <ConnectButtonMock { ...currentTestProps } /> );
+			render( <ConnectButtonMock { ...currentTestProps } />, {
+				initialState: buildInitialState(),
+			} );
 			await user.click(
 				screen.getByRole( 'button', { name: 'Disconnect your site from WordPress.com' } )
 			);

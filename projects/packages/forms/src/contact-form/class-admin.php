@@ -8,10 +8,11 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Tracking;
+use Jetpack_Tracks_Client;
 
 /**
  * Class Admin
@@ -119,7 +120,6 @@ class Admin {
 			return;
 		}
 
-		$jetpack_logo = new Logo();
 		?>
 		<div id="feedback-export-modal" style="display: none;">
 			<div class="feedback-export-modal__wrapper">
@@ -131,32 +131,14 @@ class Admin {
 					<?php $this->get_csv_export_section(); ?>
 					<?php $this->get_gdrive_export_section(); ?>
 				</div>
-				<div class="feedback-export-modal__footer">
-					<div class="feedback-export-modal__footer-column">
-						<a href="https://jetpack.com/support/jetpack-blocks/contact-form/" title="<?php echo esc_attr_x( 'Jetpack Forms', 'Name of Jetpack’s Contact Form feature', 'jetpack-forms' ); ?>" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
-							<?php echo $jetpack_logo->get_jp_emblem(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-						</a>
-						<a href="https://jetpack.com/support/jetpack-blocks/contact-form/" title="<?php echo esc_attr_x( 'Jetpack Forms', 'Name of Jetpack’s Contact Form feature', 'jetpack-forms' ); ?>" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
-							<?php echo esc_html_x( 'Jetpack Forms', 'Name of Jetpack’s Contact Form feature', 'jetpack-forms' ); ?>
-						</a>
-					</div>
-					<div class="feedback-export-modal__footer-column">
-						<a href="https://automattic.com" title="Automattic" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
-							<svg role="img" x="0" y="0" viewBox="0 0 935 38.2" enable-background="new 0 0 935 38.2" aria-labelledby="jp-automattic-byline-logo-title" height="7" class="jp-automattic-byline-logo">
-								<desc id="jp-automattic-byline-logo-title"><?php esc_html_e( 'An Automattic Airline', 'jetpack-forms' ); ?></desc>
-								<path d="M317.1 38.2c-12.6 0-20.7-9.1-20.7-18.5v-1.2c0-9.6 8.2-18.5 20.7-18.5 12.6 0 20.8 8.9 20.8 18.5v1.2C337.9 29.1 329.7 38.2 317.1 38.2zM331.2 18.6c0-6.9-5-13-14.1-13s-14 6.1-14 13v0.9c0 6.9 5 13.1 14 13.1s14.1-6.2 14.1-13.1V18.6zM175 36.8l-4.7-8.8h-20.9l-4.5 8.8h-7L157 1.3h5.5L182 36.8H175zM159.7 8.2L152 23.1h15.7L159.7 8.2zM212.4 38.2c-12.7 0-18.7-6.9-18.7-16.2V1.3h6.6v20.9c0 6.6 4.3 10.5 12.5 10.5 8.4 0 11.9-3.9 11.9-10.5V1.3h6.7V22C231.4 30.8 225.8 38.2 212.4 38.2zM268.6 6.8v30h-6.7v-30h-15.5V1.3h37.7v5.5H268.6zM397.3 36.8V8.7l-1.8 3.1 -14.9 25h-3.3l-14.7-25 -1.8-3.1v28.1h-6.5V1.3h9.2l14 24.4 1.7 3 1.7-3 13.9-24.4h9.1v35.5H397.3zM454.4 36.8l-4.7-8.8h-20.9l-4.5 8.8h-7l19.2-35.5h5.5l19.5 35.5H454.4zM439.1 8.2l-7.7 14.9h15.7L439.1 8.2zM488.4 6.8v30h-6.7v-30h-15.5V1.3h37.7v5.5H488.4zM537.3 6.8v30h-6.7v-30h-15.5V1.3h37.7v5.5H537.3zM569.3 36.8V4.6c2.7 0 3.7-1.4 3.7-3.4h2.8v35.5L569.3 36.8 569.3 36.8zM628 11.3c-3.2-2.9-7.9-5.7-14.2-5.7 -9.5 0-14.8 6.5-14.8 13.3v0.7c0 6.7 5.4 13 15.3 13 5.9 0 10.8-2.8 13.9-5.7l4 4.2c-3.9 3.8-10.5 7.1-18.3 7.1 -13.4 0-21.6-8.7-21.6-18.3v-1.2c0-9.6 8.9-18.7 21.9-18.7 7.5 0 14.3 3.1 18 7.1L628 11.3zM321.5 12.4c1.2 0.8 1.5 2.4 0.8 3.6l-6.1 9.4c-0.8 1.2-2.4 1.6-3.6 0.8l0 0c-1.2-0.8-1.5-2.4-0.8-3.6l6.1-9.4C318.7 11.9 320.3 11.6 321.5 12.4L321.5 12.4z"></path><path d="M37.5 36.7l-4.7-8.9H11.7l-4.6 8.9H0L19.4 0.8H25l19.7 35.9H37.5zM22 7.8l-7.8 15.1h15.9L22 7.8zM82.8 36.7l-23.3-24 -2.3-2.5v26.6h-6.7v-36H57l22.6 24 2.3 2.6V0.8h6.7v35.9H82.8z"></path>
-								<path d="M719.9 37l-4.8-8.9H694l-4.6 8.9h-7.1l19.5-36h5.6l19.8 36H719.9zM704.4 8l-7.8 15.1h15.9L704.4 8zM733 37V1h6.8v36H733zM781 37c-1.8 0-2.6-2.5-2.9-5.8l-0.2-3.7c-0.2-3.6-1.7-5.1-8.4-5.1h-12.8V37H750V1h19.6c10.8 0 15.7 4.3 15.7 9.9 0 3.9-2 7.7-9 9 7 0.5 8.5 3.7 8.6 7.9l0.1 3c0.1 2.5 0.5 4.3 2.2 6.1V37H781zM778.5 11.8c0-2.6-2.1-5.1-7.9-5.1h-13.8v10.8h14.4c5 0 7.3-2.4 7.3-5.2V11.8zM794.8 37V1h6.8v30.4h28.2V37H794.8zM836.7 37V1h6.8v36H836.7zM886.2 37l-23.4-24.1 -2.3-2.5V37h-6.8V1h6.5l22.7 24.1 2.3 2.6V1h6.8v36H886.2zM902.3 37V1H935v5.6h-26v9.2h20v5.5h-20v10.1h26V37H902.3z"></path>
-							</svg>
-						</a>
-					</div>
-				</div>
+
 			</div>
 		</div>
 		<?php
 		$opener_label        = esc_html__( 'Export', 'jetpack-forms' );
 		$export_modal_opener = wp_is_mobile()
-			? "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=550&height=550&inlineId=feedback-export-modal'>{$opener_label}</a>"
-			: "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=680&height=600&inlineId=feedback-export-modal'>{$opener_label}</a>";
+			? "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=550&height=450&inlineId=feedback-export-modal'>{$opener_label}</a>"
+			: "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=680&height=500&inlineId=feedback-export-modal'>{$opener_label}</a>";
 		?>
 		<script type="text/javascript">
 			jQuery( function( $ ) {
@@ -304,7 +286,6 @@ class Admin {
 					<path d="M11.8387 1.16016H2C1.44772 1.16016 1 1.60787 1 2.16016V21.8053V21.8376C1 22.3899 1.44772 22.8376 2 22.8376H16C16.5523 22.8376 17 22.3899 17 21.8376V5.80532M11.8387 1.16016V5.80532H17M11.8387 1.16016L17 5.80532M4.6129 13.0311V16.1279H9.25806M4.6129 13.0311V9.93435H9.25806M4.6129 13.0311H13.9032M13.9032 13.0311V9.93435H9.25806M13.9032 13.0311V16.1279H9.25806M9.25806 9.93435V16.1279" stroke="#008710" stroke-width="1.5"/>
 				</svg>
 				<div class="export-card__header-title"><?php esc_html_e( 'Google Sheets', 'jetpack-forms' ); ?></div>
-				<div class="export-card__beta-badge">BETA</div>
 			</div>
 			<div class="export-card__body">
 				<div class="export-card__body-description">
@@ -319,7 +300,6 @@ class Admin {
 						);
 						?>
 					</div>
-					<p class="export-card__body-description-footer"><?php esc_html_e( 'This premium feature is currently free to use in beta.', 'jetpack-forms' ); ?></p>
 				</div>
 				<div class="export-card__body-cta">
 					<?php
@@ -439,7 +419,7 @@ class Admin {
 		if ( current_user_can( 'edit_posts' ) ) {
 			Form_View::display();
 		}
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -549,7 +529,7 @@ class Admin {
 
 		if ( empty( $_REQUEST['post'] ) ) {
 			wp_safe_redirect( wp_get_referer() );
-			exit;
+			exit( 0 );
 		}
 
 		$post_ids = array_map( 'intval', $_REQUEST['post'] );
@@ -583,7 +563,7 @@ class Admin {
 
 		$redirect_url = add_query_arg( 'message', 'marked-spam', wp_get_referer() );
 		wp_safe_redirect( $redirect_url );
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -702,12 +682,6 @@ class Admin {
 	 * @return void
 	 */
 	public function grunion_manage_post_column_response( $post ) {
-		$non_printable_keys = array(
-			'email_marketing_consent',
-			'entry_title',
-			'entry_permalink',
-			'feedback_id',
-		);
 
 		$post_content = get_post_field( 'post_content', $post->ID );
 		$content      = explode( '<!--more-->', $post_content );
@@ -750,21 +724,45 @@ class Admin {
 			}
 		}
 
-		$response_fields = array_diff_key( $response_fields, array_flip( $non_printable_keys ) );
+		$url = get_permalink( $post->post_parent );
+		if ( isset( $response_fields['entry_page'] ) ) {
+			$url = add_query_arg( 'page', $response_fields['entry_page'], $url );
+		}
+
+		$response_fields = array_diff_key( $response_fields, array_flip( array_keys( Contact_Form_Plugin::NON_PRINTABLE_FIELDS ) ) );
 
 		echo '<hr class="feedback_response__mobile-separator" />';
 		echo '<div class="feedback_response__item">';
-		foreach ( $response_fields as $key => $value ) {
-			if ( is_array( $value ) ) {
-				$value = implode( ', ', $value );
+
+		foreach ( $response_fields as $key => $display_value ) {
+			if ( is_array( $display_value ) ) {
+				if ( Contact_Form::is_file_upload_field( $display_value ) ) {
+						// This is a file upload field, display a link instead of raw data
+						$file_url = sprintf(
+							'%s?file_id=%s&file_nonce=%s',
+							get_rest_url( null, '/wp/v2/feedback/files' ),
+							rawurlencode( $display_value['file_id'] ),
+							rawurlencode( wp_create_nonce( 'jetpack_forms_view_file_' . $display_value['file_id'] ) )
+						);
+						printf(
+							'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value"><a href="%s" target="_blank">%s</a></div>',
+							esc_html( preg_replace( '#^\d+_#', '', $key ) ),
+							esc_url( $file_url ),
+							esc_html( $display_value['name'] )
+						);
+					continue;
+				}
+				// Regular array, just join the values
+				$display_value = implode( ', ', $display_value );
 			}
 
 			printf(
 				'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">%s</div>',
 				esc_html( preg_replace( '#^\d+_#', '', $key ) ),
-				nl2br( esc_html( $value ) )
+				nl2br( esc_html( $display_value ) )
 			);
 		}
+
 		echo '</div>';
 		echo '<hr />';
 
@@ -774,7 +772,7 @@ class Admin {
 			echo '<div class="feedback_response__item-value">' . esc_html( $content_fields['_feedback_ip'] ) . '</div>';
 		}
 		echo '<div class="feedback_response__item-key">' . esc_html__( 'Source', 'jetpack-forms' ) . '</div>';
-		echo '<div class="feedback_response__item-value"><a href="' . esc_url( get_permalink( $post->post_parent ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( get_permalink( $post->post_parent ) ) . '</a></div>';
+		echo '<div class="feedback_response__item-value"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
 		echo '</div>';
 	}
 
@@ -862,8 +860,13 @@ class Admin {
 			return;
 		}
 
-		// Don't apply to the filter dropdown query
-		if ( $query->query_vars['fields'] === 'id=>parent' ) {
+		/**
+		 * In the wp-admin list we perform two queries that trigger the `pre_get_posts` hook.
+		 * One is for the main list and the other is for the `source` dropdown filter.
+		 * We need to explicitly check one unique parameter between the two queries to avoid
+		 * filtering the dropdown query. The dropdown query is in `get_all_parent_post_ids`.
+		 */
+		if ( $query->query_vars['posts_per_page'] === 100000 ) {
 			return;
 		}
 
@@ -981,11 +984,28 @@ class Admin {
 			}
 		}
 
-		if ( isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ) {
-			$fields = sanitize_text_field( stripslashes_deep( $_POST['fields'] ) );
-			usort( $fields, array( $this, 'grunion_sort_objects' ) );
+		$field_shortcodes = array();
 
-			$field_shortcodes = array();
+		if ( isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ) {
+			$fields = array_map(
+				function ( $field ) {
+					if ( is_array( $field ) ) {
+
+						foreach ( array( 'label', 'type', 'required' ) as $key ) {
+							if ( isset( $field[ $key ] ) ) {
+								$field[ $key ] = sanitize_text_field( wp_unslash( $field[ $key ] ) );
+							}
+						}
+
+						if ( isset( $field['options'] ) && is_array( $field['options'] ) ) {
+							$field['options'] = array_map( 'sanitize_text_field', array_map( 'wp_unslash', $field['options'] ) );
+						}
+					}
+					return $field;
+				},
+				$_POST['fields'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each item sanitized above.
+			);
+			usort( $fields, array( $this, 'grunion_sort_objects' ) );
 
 			foreach ( $fields as $field ) {
 				$field_attributes = array();
@@ -1099,14 +1119,23 @@ class Admin {
 		$post_type_object = get_post_type_object( $post->post_type );
 		$akismet_values   = get_post_meta( $post_id, '_feedback_akismet_values', true );
 		if ( $_POST['make_it'] === 'spam' ) {
-			$post->post_status = 'spam';
-			$status            = wp_insert_post( $post );
+
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'spam',
+				)
+			);
 
 			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'spam', $akismet_values );
 		} elseif ( $_POST['make_it'] === 'ham' ) {
-			$post->post_status = 'publish';
-			$status            = wp_insert_post( $post );
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'publish',
+				)
+			);
 
 			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'ham', $akismet_values );
@@ -1183,6 +1212,14 @@ class Admin {
 			if ( ! wp_trash_post( $post_id ) ) {
 				wp_die( esc_html__( 'Error in moving to Trash.', 'jetpack-forms' ) );
 			}
+		} elseif ( $_POST['make_it'] === 'delete' ) {
+			if ( ! current_user_can( $post_type_object->cap->delete_post, $post_id ) ) {
+				wp_die( esc_html__( 'You are not allowed to move this item to the Trash.', 'jetpack-forms' ) );
+			}
+
+			if ( ! wp_delete_post( $post_id, true ) ) {
+				wp_die( esc_html__( 'Error in deleting post.', 'jetpack-forms' ) );
+			}
 		}
 
 		$sql          = "
@@ -1238,7 +1275,7 @@ class Admin {
 		}
 
 		echo $status_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're building the html to echo.
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -1283,6 +1320,18 @@ class Admin {
 			)
 		);
 
+		if ( Contact_Form_Plugin::can_use_analytics() ) {
+			Tracking::register_tracks_functions_scripts( true );
+
+			wp_localize_script(
+				'grunion-admin',
+				'jetpack_forms_tracking',
+				array(
+					'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+				)
+			);
+		}
+
 		wp_enqueue_style( 'grunion.css' );
 
 		// Only add to feedback, only to spam view.
@@ -1298,7 +1347,7 @@ class Admin {
 
 		$button_parameters = array(
 			/* translators: The placeholder is for showing how much of the process has completed, as a percent. e.g., "Emptying Spam (40%)" */
-			'progress_label' => __( 'Emptying Spam (%1$s%)', 'jetpack-forms' ),
+			'progress_label' => __( 'Emptying Spam (%1$s%%)', 'jetpack-forms' ),
 			'success_url'    => $success_url,
 			'failure_url'    => $failure_url,
 			'spam_count'     => $spam_count,
@@ -1411,8 +1460,7 @@ class Admin {
 		$query = 'post_type=feedback&post_status=publish';
 
 		if ( isset( $_POST['limit'] ) && isset( $_POST['offset'] ) ) {
-			// phpcs:ignore Generic.Strings.UnnecessaryStringConcat.Found -- Avoiding https://github.com/WordPress/WordPress-Coding-Standards/issues/2390
-			$query .= '&posts_per' . '_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
+			$query .= '&posts_per_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
 		}
 
 		$approved_feedbacks = get_posts( $query );

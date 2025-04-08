@@ -58,14 +58,12 @@ export default function MediaPicker( {
 	const renderPreview = useCallback(
 		open => {
 			const renderVideoPreview = isVideo( mime );
-			if ( renderVideoPreview && ! length ) {
-				return null;
-			}
-
 			return (
 				<div className={ clsx( styles[ 'preview-wrapper' ], wrapperClassName ) }>
 					<button className={ styles.remove } onClick={ onRemoveMedia }>
-						<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
+						<VisuallyHidden>
+							{ __( 'Remove media', 'jetpack-publicize-components' ) }
+						</VisuallyHidden>
 						<Icon icon={ closeSmall } />
 					</button>
 					<button
@@ -129,7 +127,9 @@ export default function MediaPicker( {
 				) : (
 					<>
 						<button className={ styles[ 'remove-loading' ] } onClick={ onRemoveMedia }>
-							<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
+							<VisuallyHidden>
+								{ __( 'Remove media', 'jetpack-publicize-components' ) }
+							</VisuallyHidden>
 							<Icon icon={ closeSmall } />
 						</button>
 						<Spinner data-testid="spinner" />

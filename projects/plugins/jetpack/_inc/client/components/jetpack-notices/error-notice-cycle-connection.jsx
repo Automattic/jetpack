@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import SimpleNotice from 'components/notice';
 import PropTypes from 'prop-types';
 import React from 'react';
+import SimpleNotice from 'components/notice';
 import NoticeActionReconnect from './notice-action-reconnect';
 
 export default class ErrorNoticeCycleConnection extends React.Component {

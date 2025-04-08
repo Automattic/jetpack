@@ -24,6 +24,7 @@ module.exports = {
 		...jetpackWebpackConfig.output,
 		path: path.resolve( __dirname, 'build' ),
 		filename: 'index.js',
+		uniqueName: 'BoostScoreApiLibrary',
 		library: {
 			name: 'BoostScoreApiLibrary',
 			type: 'umd',

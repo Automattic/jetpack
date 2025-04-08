@@ -63,3 +63,8 @@ $adminbar-recovery-exit-background-alt: mix(black, $adminbar-recovery-exit-backg
 $menu-customizer-text: mix( $base-color, $text-color, 40% ) !default;
 
 $low-contrast-theme: "false" !default;
+
+// Add defaults for the admin bar submenus. In most cases these can match the
+// admin menu submenus, but some schemes may be different.
+$masterbar-submenu-background: $menu-submenu-background !default;
+$masterbar-submenu-background-alt: lighten( $menu-submenu-background, 5% ) !default;

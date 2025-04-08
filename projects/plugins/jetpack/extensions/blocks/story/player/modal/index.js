@@ -69,7 +69,10 @@ class Modal extends Component {
 	 * Removes the specific mounting point for this modal from the DOM.
 	 */
 	cleanDOM() {
-		parentElement.removeChild( this.node );
+		if ( this.node && parentElement && parentElement.contains( this.node ) ) {
+			parentElement.removeChild( this.node );
+		}
+		this.node = null;
 	}
 
 	/**

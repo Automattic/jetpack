@@ -3,11 +3,13 @@
 #wpcontent {
 	padding-left: 0 !important;
 }
+
 #wpbody-content {
 	background-color: #F9F9F6;
 }
 
 @media (max-width: 782px) {
+
 	#wpbody-content {
 		padding-bottom: 50px;
 	}
@@ -98,6 +100,7 @@
 			align-items: flex-start;
 
 			@media screen and ( max-width: 600px ) {
+
 				& {
 					position: relative;
 					padding-top: 68px;
@@ -147,6 +150,7 @@
 					margin-top: 20px;
 
 					a {
+
 						&, &:hover, &:active, &:focus {
 							color: var( --jp-black );
 						}
@@ -175,12 +179,15 @@
 		}
 	}
 }
+
 #jp-plugin-container.is-wide .wrap {
 	max-width: 1040px;
 }
+
 #jp-plugin-container .wrap .jetpack-wrap-container {
 	margin-top: 1em;
 }
+
 .wp-admin #dolly {
 	float: none;
 	position: relative;

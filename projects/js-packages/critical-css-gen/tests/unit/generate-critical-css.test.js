@@ -1,6 +1,6 @@
 const path = require( 'path' );
 const { chromium } = require( 'playwright' );
-const { generateCriticalCSS, BrowserInterfacePlaywright } = require( '../../build-node/node.js' );
+const { generateCriticalCSS, BrowserInterfacePlaywright } = require( '../../build/playwright.js' );
 const { dataDirectory } = require( '../lib/data-directory.js' );
 const mockFetch = require( '../lib/mock-fetch.js' );
 const TestServer = require( '../lib/test-server.js' );

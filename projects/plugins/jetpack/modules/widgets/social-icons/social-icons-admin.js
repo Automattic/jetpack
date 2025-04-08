@@ -27,39 +27,43 @@
 
 	$( document ).ready( function () {
 		// Add an item.
-		$( document ).on( 'click', '.jetpack-social-icons-widget.add-button button', function (
-			event
-		) {
-			event.preventDefault();
+		$( document ).on(
+			'click',
+			'.jetpack-social-icons-widget.add-button button',
+			function ( event ) {
+				event.preventDefault();
 
-			var template, widgetContent, widgetList, widgetLastItem, urlId, urlName;
+				var template, widgetContent, widgetList, widgetLastItem, urlId, urlName;
 
-			template = $( $.trim( $( '#tmpl-jetpack-widget-social-icons-template' ).html() ) );
-			widgetContent = $( this ).parents( '.widget-content' );
-			widgetList = widgetContent.find( '.jetpack-social-icons-widget-list' );
-			urlId = widgetList.data( 'url-icon-id' );
-			urlName = widgetList.data( 'url-icon-name' );
+				template = $( $.trim( $( '#tmpl-jetpack-widget-social-icons-template' ).html() ) );
+				widgetContent = $( this ).parents( '.widget-content' );
+				widgetList = widgetContent.find( '.jetpack-social-icons-widget-list' );
+				urlId = widgetList.data( 'url-icon-id' );
+				urlName = widgetList.data( 'url-icon-name' );
 
-			template
-				.find( '.jetpack-widget-social-icons-url input' )
-				.attr( 'id', urlId )
-				.attr( 'name', urlName + '[]' );
+				template
+					.find( '.jetpack-widget-social-icons-url input' )
+					.attr( 'id', urlId )
+					.attr( 'name', urlName + '[]' );
 
-			widgetList.append( template );
+				widgetList.append( template );
 
-			widgetLastItem = widgetContent.find( '.jetpack-social-icons-widget-item:last' );
-			widgetLastItem.find( 'input:first' ).trigger( 'focus' );
-		} );
+				widgetLastItem = widgetContent.find( '.jetpack-social-icons-widget-item:last' );
+				widgetLastItem.find( 'input:first' ).trigger( 'focus' );
+			}
+		);
 
 		// Remove an item.
-		$( document ).on( 'click', '.jetpack-widget-social-icons-remove-item-button', function (
-			event
-		) {
-			event.preventDefault();
-			var widgetItem = $( this ).parents( '.jetpack-social-icons-widget-item' );
-			widgetItem.find( 'input' ).change();
-			widgetItem.remove();
-		} );
+		$( document ).on(
+			'click',
+			'.jetpack-widget-social-icons-remove-item-button',
+			function ( event ) {
+				event.preventDefault();
+				var widgetItem = $( this ).parents( '.jetpack-social-icons-widget-item' );
+				widgetItem.find( 'input' ).change();
+				widgetItem.remove();
+			}
+		);
 
 		// Event handler for widget open button.
 		$( document ).on(

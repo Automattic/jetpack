@@ -68,7 +68,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 		if ( empty( $modules ) ) {
 			$modules = null;
 		}
-		return array( 'scheduled' => Actions::do_full_sync( $modules ) );
+		return array( 'scheduled' => Actions::do_full_sync( $modules, 'jetpack_json_api_sync_endpoint' ) );
 	}
 
 	/**

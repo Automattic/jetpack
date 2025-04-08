@@ -1,8 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
+import QuerySite from 'components/data/query-site';
 import {
 	isSiteConnected,
 	isOfflineMode,

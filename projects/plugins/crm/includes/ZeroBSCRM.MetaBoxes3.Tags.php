@@ -9,13 +9,7 @@
  * Date: 20/02/2019
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 /* ======================================================
@@ -174,20 +168,6 @@ class zeroBS__Metabox_Tags extends zeroBS__Metabox {
             // Save tags against objid
             // NEEDS AN OBJTYPE SWITCH HERE :)
             $potentialTags = zeroBSCRM_tags_retrieveFromPostBag(true,ZBS_TYPE_CONTACT);
-            
-            if (is_array($potentialTags)){
-
-                global $zbs;
-
-                // new db :)
-                /* Nope. this isn't objtype generic, so re-add later if used
-                $zbs->DAL->addUpdateContactTags(array(
-                        'id' => $objID,
-                        'tags' => $tags,
-                        'mode' => 'replace'
-                ));*/
-
-            } // / if has tags arr
 
         } // / if saveAutomatically
 
@@ -272,5 +252,4 @@ function zeroBSCRM_tags_retrieveFromPostBag($returnAsIDs = true,$objectTypeID=-1
     } // / post
 
     return array();
-
 }

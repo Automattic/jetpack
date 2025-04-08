@@ -1,6 +1,5 @@
 import '../css/deactivation.scss';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default class JetpackPluginDeactivation {
 	private deactivateButton: HTMLAnchorElement;
 	private dialog: HTMLDivElement;

@@ -13,6 +13,7 @@
 .widefat .column-feedback_source {
 	width: 17%;
 }
+
 .widefat .column-feedback_response {
 	width: 100%;
 }
@@ -22,9 +23,19 @@
 }
 
 @media screen and (max-width: 782px) {
+
 	.widefat .column-feedback_response {
 		padding-left: 8px !important;
 	}
+}
+
+#export-modal-opener {
+	margin-right: 8px;
+}
+
+.post-type-feedback .actions {
+	display: inline-flex;
+	margin-bottom: 4px;
 }
 
 .column-feedback_response .feedback_response__item {
@@ -32,12 +43,14 @@
 	grid-template-columns: 35% 1fr;
 	grid-row-gap: 8px;
 }
+
 .column-feedback_response .feedback_response__item-key,
 .column-feedback_response .feedback_response__item-value {
 	align-items: flex-start;
 	display: flex;
 	word-break: break-word;
 }
+
 .column-feedback_response .feedback_response__item-value {
 	font-weight: bold;
 }
@@ -47,6 +60,7 @@
 }
 
 @media screen and (min-width: 783px) {
+
 	.column-feedback_response .feedback_response__mobile-separator {
 		display: none;
 	}
@@ -91,6 +105,7 @@
 .feedback-export-modal__wrapper {
 	display: flex;
 	flex-direction: column;
+
 	/* These strange paddings to add 48px with TB defaults */
 	padding: 0 33px 9px 33px;
 	width: 100%;
@@ -136,27 +151,6 @@
 .feedback-export-modal__footer-column {
 	display: flex;
 	align-items: center;
-}
-
-/* override JP logo */
-.feedback-export-modal__footer #jetpack-logo__icon {
-	width: 16px;
-	height: 16px;
-}
-
-.feedback-export-modal__footer #jetpack-logo__icon path {
-	fill: #000000;
-}
-
-.feedback-export-modal__footer .feedback-export-modal__footer-link {
-	padding-left: 8px;
-	font-size: 12px;
-	font-weight: 600;
-	line-height: 0;
-	letter-spacing: -0.02em;
-	text-align: left;
-	color: #23282D;
-	text-decoration: none;
 }
 
 .export-card {
@@ -206,15 +200,6 @@
 	color: inherit;
 }
 
-.export-card__body-description-footer {
-	font-style: normal;
-	font-weight: 400;
-	font-size: 12px;
-	line-height: 150%;
-	color: #757575;
-	margin-bottom: 0px;
-}
-
 .export-card__body-cta {
 	align-self: flex-end;
 }
@@ -227,19 +212,4 @@
 	background: #000000;
 	border: 1px solid #FFFFFF;
 	border-radius: 4px;
-}
-
-.export-card__beta-badge {
-	background: #2FB41F;
-	border-radius: 2px;
-	font-style: normal;
-	font-weight: 600;
-	font-size: 11px;
-	line-height: 150%;
-	/* identical to box height, or 16px */
-
-	text-align: right;
-	text-transform: uppercase;
-	padding: 4px 8px;
-	color: #FFFFFF;
 }

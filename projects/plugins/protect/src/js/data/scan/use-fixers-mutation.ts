@@ -16,6 +16,18 @@ export default function useFixersMutation(): UseMutationResult {
 	return useMutation( {
 		mutationFn: API.fixThreats,
 		onSuccess: data => {
+			// Handle a top level error
+			if ( data.ok === false ) {
+				throw new Error( data.error );
+			}
+
+			const isThreatLevelError = Object.values( data.threats ).every( threat => 'error' in threat );
+
+			// Handle a threat level error
+			if ( isThreatLevelError ) {
+				throw new Error();
+			}
+
 			// The data returned from the API is the same as the data we need to update the cache.
 			queryClient.setQueryData( [ QUERY_FIXERS_KEY ], data );
 

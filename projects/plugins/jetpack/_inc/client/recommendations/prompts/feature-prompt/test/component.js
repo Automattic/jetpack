@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import userEvent from '@testing-library/user-event';
-import analytics from 'lib/analytics';
 import * as React from 'react';
+import analytics from 'lib/analytics';
 import * as recommendationsActions from 'state/recommendations/actions';
 import { render, screen } from 'test/test-utils';
 import * as featureUtils from '../../../feature-utils';

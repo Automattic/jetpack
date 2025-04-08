@@ -1,6 +1,6 @@
-import IconTooltip from '../index';
+import IconTooltip from '../index.js';
 import './style.scss';
-import type { Placement } from '../types';
+import type { Placement } from '../types.js';
 
 const AVAILABLE_PLACEMENTS: Placement[] = [
 	'top',
@@ -44,6 +44,9 @@ export default {
 			control: { type: null },
 		},
 		wide: {
+			control: { type: 'boolean' },
+		},
+		hoverShow: {
 			control: { type: 'boolean' },
 		},
 	},
@@ -105,4 +108,12 @@ Wide.args = {
 	children: <div>This is a wide tooltip!</div>,
 	wide: true,
 	placement: 'bottom-start',
+};
+
+export const HoverShow = Template.bind( {} );
+HoverShow.args = {
+	title: 'This is title!',
+	children: <div>This is a hover tooltip!</div>,
+	placement: 'bottom-start',
+	hoverShow: true,
 };

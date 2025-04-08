@@ -1,4 +1,3 @@
-/* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable no-alert -- ok for demo */
 import { arrowUp } from '@wordpress/icons';
 import React from 'react';

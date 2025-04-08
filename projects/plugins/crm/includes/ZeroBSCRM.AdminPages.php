@@ -15,7 +15,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -484,49 +484,6 @@ function zeroBSCRM_pages_logout() {
 ======================================================
 	Admin Pages
 	====================================================== */
-
-function zerobscrm_show_love( $url = '', $text = 'Jetpack - The WordPress CRM' ) {
-	// } Quick function to 'show some love'.. called from PayPal Sync and other locale.
-	?>
-	<style>
-	ul.share-buttons{
-	list-style: none;
-	padding: 0;
-	text-align: center;
-	}
-	ul.share-buttons li{
-	display: inline-block;
-	margin-left:4px;
-	}
-	.logo-wrapper{
-	padding:20px;
-	}
-	.logo-wrapper img{
-	width:200px;
-	}
-	</style>
-
-	<?php $text = htmlentities( $text, ENT_COMPAT ); ?>
-
-	<p style="font-size:16px;text-align:center"><?php echo esc_html__( 'Jetpack CRM is the ultimate CRM tool for WordPress.', 'zero-bs-crm' ) . '<br/ >' . esc_html__( 'Help us get the word out and show some love... You know what to do...', 'zero-bs-crm' ); ?></p>
-	<ul class="share-buttons">
-	<li><a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fjetpackcrm.com&t=<?php echo esc_attr( $text ); ?>" target="_blank"
-	><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Facebook.png'; ?>"></a></li>
-	<li><a href="https://twitter.com/intent/tweet?source=https%3A%2F%2Fjetpackcrm.com&text=<?php echo esc_attr( $text ); ?>%20https%3A%2F%2Fjetpackcrm.com&via=zerobscrm" target="_blank" title="Tweet"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Twitter.png'; ?>"></a></li>
-	<li><a href="https://plus.google.com/share?url=https%3A%2F%2Fjetpackcrm.com" target="_blank" title="Share on Google+" onclick="window.open('https://plus.google.com/share?url=' + encodeURIComponent(<?php echo esc_attr( $url ); ?>)); return false;"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Google+.png'; ?>"></a></li>
-	<li><a href="http://www.tumblr.com/share?v=3&u=https%3A%2F%2Fjetpackcrm.com&t=<?php echo esc_attr( $text ); ?>&s=" target="_blank" title="Post to Tumblr"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Tumblr.png'; ?>"></a></li>
-	<li><a href="http://pinterest.com/pin/create/button/?url=https%3A%2F%2Fjetpackcrm.com&description=<?php echo esc_attr( $text ); ?>" target="_blank" title="Pin it"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Pinterest.png'; ?>"></a></li>
-	<li><a href="https://getpocket.com/save?url=https%3A%2F%2Fjetpackcrm.com&title=<?php echo esc_attr( $text ); ?>" target="_blank" title="Add to Pocket"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Pocket.png'; ?>"></a></li>
-	<li><a href="http://www.reddit.com/submit?url=https%3A%2F%2Fjetpackcrm.com&title=<?php echo esc_attr( $text ); ?>" target="_blank" title="Submit to Reddit"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Reddit.png'; ?>"></a></li>
-	<li><a href="http://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fjetpackcrm.com&title=<?php echo esc_attr( $text ); ?>&summary=&source=https%3A%2F%2Fjetpackcrm.com" target="_blank" title="Share on LinkedIn"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/LinkedIn.png'; ?>"></a></li>
-	<li><a href="http://wordpress.com/press-this.php?u=https%3A%2F%2Fjetpackcrm.com&t=<?php echo esc_attr( $text ); ?>&s=" target="_blank" title="Publish on WordPress"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/WordPress.png'; ?>"></a></li>
-	<li><a href="https://pinboard.in/popup_login/?url=https%3A%2F%2Fjetpackcrm.com&title=<?php echo esc_attr( $text ); ?>&description=" target="_blank" title="Save to Pinboard" <img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Pinboard.png'; ?>"></a></li>
-	<li><a href="mailto:?subject=&body=<?php echo esc_attr( $text ); ?>:%20https%3A%2F%2Fjetpackcrm.com" target="_blank" title="Email"><img src="<?php echo esc_url( ZEROBSCRM_URL ) . 'i/Email.png'; ?>"></a></li>
-</ul>
-
-	<?php
-}
-
 // } Main Config page
 function zeroBSCRM_pages_home() {
 
@@ -2440,85 +2397,39 @@ function jpcrm_html_modules() {
 // } post-deletion page
 function zeroBSCRM_html_norights() {
 
-	global $wpdb, $zbs;  // } Req
+	global $zbs;
 
-	// } Discern type of norights:
-	$noaccessType = '?'; // Customer
-	$noaccessstr  = '?'; // Mary Jones ID 123
-	$noaccessID   = -1;
-	$isRestore    = false;
-	$backToPage   = 'edit.php?post_type=zerobs_customer&page=manage-customers';
+	$back_to_page = 'edit.php?post_type=zerobs_customer&page=manage-customers';
 
-	// } Discern type + set back to page
-	$noAccessType = '';
+	$obj_type_str = $zbs->zbsvar( 'zbstype' ); // -1 or 'contact'
 
-	// DAL3 switch
-	if ( $zbs->isDAL3() ) {
-
-		// DAL 3
-		$objID      = $zbs->zbsvar( 'zbsid' ); // -1 or 123 ID
-		$objTypeStr = $zbs->zbsvar( 'zbstype' ); // -1 or 'contact'
-
-		// if objtypestr is -1, assume contact (default)
-		if ( $objTypeStr == -1 ) {
-			$objType = ZBS_TYPE_CONTACT;
-		} else {
-			$objType = $zbs->DAL->objTypeID( $objTypeStr );
-		}
-
-		// if got type, link to list view
-		// else give dash link
-		$slugToSend      = '';
-		$noAccessTypeStr = '';
-
-		// back to page
-		if ( $objType > 0 ) {
-			$slugToSend = $zbs->DAL->listViewSlugFromObjID( $objType );
-		}
-		if ( empty( $slugToSend ) ) {
-			$slugToSend = $zbs->slugs['dash'];
-		}
-		$backToPage = 'admin.php?page=' . $slugToSend;
-
-		// obj type str
-		if ( $objType > 0 ) {
-			$noAccessTypeStr = $zbs->DAL->typeStr( $objType );
-		}
-		if ( empty( $noAccessTypeStr ) ) {
-			$noAccessTypeStr = __( 'Object', 'zero-bs-crm' );
-		}
+	// if objtypestr is -1, assume contact (default)
+	if ( $obj_type_str === -1 ) {
+		$obj_type_id = ZBS_TYPE_CONTACT;
 	} else {
+		$obj_type_id = $zbs->DAL->objTypeID( $obj_type_str ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
 
-		// PRE DAL3:
+	// if got type, link to list view
+	// else give dash link
+	$slug_to_send       = '';
+	$no_access_type_str = '';
 
-		if ( isset( $_GET['post_type'] ) && ! empty( $_GET['post_type'] ) ) {
-			$noAccessType = $_GET['post_type'];
-		} elseif ( isset( $_GET['id'] ) ) {
-			$noAccessType = get_post_type( $_GET['id'] );
-		}
+	// back to page
+	if ( $obj_type_id > 0 ) {
+		$slug_to_send = $zbs->DAL->listViewSlugFromObjID( $obj_type_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
+	if ( empty( $slug_to_send ) ) {
+		$slug_to_send = $zbs->slugs['dash'];
+	}
+	$back_to_page = 'admin.php?page=' . $slug_to_send;
 
-		switch ( $noAccessType ) {
-
-			case 'zerobs_customer':
-				$backToPage      = 'edit.php?post_type=zerobs_customer&page=manage-customers';
-				$noAccessTypeStr = __( 'Contact', 'zero-bs-crm' );
-
-				break;
-
-			case 'zerobs_company':
-				$backToPage      = 'edit.php?post_type=zerobs_company&page=manage-companies';
-				$noAccessTypeStr = __( jpcrm_label_company(), 'zero-bs-crm' );
-
-				break;
-
-			default:
-				// Dash
-				$backToPage      = 'admin.php?page=' . $zbs->slugs['dash'];
-				$noAccessTypeStr = __( 'Resource', 'zero-bs-crm' );
-
-				break;
-
-		}
+	// obj type str
+	if ( $obj_type_id > 0 ) {
+		$no_access_type_str = $zbs->DAL->typeStr( $obj_type_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
+	if ( empty( $no_access_type_str ) ) {
+		$no_access_type_str = __( 'Object', 'zero-bs-crm' );
 	}
 
 	?>
@@ -2527,14 +2438,19 @@ function zeroBSCRM_html_norights() {
 		<div id="zbsNoAccessIco"><i class="fa fa-archive" aria-hidden="true"></i></div>
 		<div class="zbsNoAccessMsg">
 			<h2><?php esc_html_e( 'Access Restricted', 'zero-bs-crm' ); ?></h2>
-			<p><?php esc_html_e( 'You do not have access to this ' . $noAccessTypeStr . '.', 'zero-bs-crm' ); ?></p>
+			<p>
+				<?php
+				// translators: Object type (e.g. contact, company)
+				echo esc_html( sprintf( __( 'You do not have access to this %s.', 'zero-bs-crm' ), $no_access_type_str ) );
+				?>
+			</p>
 		</div>
 		<div class="zbsNoAccessAction">
-			<button type="button" class="ui button primary" onclick="javascript:window.location='<?php echo esc_url( $backToPage ); ?>'"><?php esc_html_e( 'Back', 'zero-bs-crm' ); ?></button>
+			<button type="button" class="ui button primary" onclick="javascript:window.location='<?php echo esc_url( $back_to_page ); ?>'"><?php esc_html_e( 'Back', 'zero-bs-crm' ); ?></button>
 
 		</div>
 		</div>
-	</div>        
+	</div>
 	<?php
 }
 

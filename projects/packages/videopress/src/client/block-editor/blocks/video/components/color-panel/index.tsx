@@ -90,6 +90,7 @@ export default function ColorPanel( { clientId, attributes, setAttributes }: Vid
 				}
 				onChange={ newUseAverageColor => setAttributes( { useAverageColor: newUseAverageColor } ) }
 				checked={ useAverageColor }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			{ ! useAverageColor && (

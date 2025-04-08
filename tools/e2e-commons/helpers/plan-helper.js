@@ -562,7 +562,7 @@ export async function syncPlanData( page ) {
 	let i = 0;
 	do {
 		await page.reload( { waitFor: 'domcontentloaded' } );
-		// eslint-disable-next-line no-undef, camelcase
+		// eslint-disable-next-line no-undef
 		fePlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
 		logger.debug( `PLANS: frontend: ${ fePlan }, backend: ${ bePlan.product_slug }` );
 		isSame = fePlan.trim() === bePlan.product_slug.trim();

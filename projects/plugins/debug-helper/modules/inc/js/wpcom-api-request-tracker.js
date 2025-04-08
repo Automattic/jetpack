@@ -1,3 +1,4 @@
+/* global jQuery */
 let wpcomApiRequestTracker;
 
 ( function ( $ ) {

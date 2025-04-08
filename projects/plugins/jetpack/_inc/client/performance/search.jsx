@@ -1,5 +1,7 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import React, { Fragment, useCallback, useEffect } from 'react';
+import { connect } from 'react-redux';
 import Card from 'components/card';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -7,8 +9,6 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
-import React, { Fragment, useCallback, useEffect } from 'react';
-import { connect } from 'react-redux';
 import { isOfflineMode } from 'state/connection';
 import { currentThemeSupports } from 'state/initial-state';
 import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';

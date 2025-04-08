@@ -3,13 +3,17 @@ import { useBlockProps } from '@wordpress/block-editor';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import ConnectBanner from '../../shared/components/connect-banner';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
 import getConnectUrl from '../../shared/get-connect-url';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
+import FirstTimeModal from './first-time-modal';
+import './first-time-modal.scss';
 import LoadingError from './loading-error';
 import Tabs from './tabs';
 
@@ -20,8 +24,12 @@ const Edit = props => {
 	const blockProps = useBlockProps();
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
+	const [ showFirstTimeModal, setShowFirstTimeModal ] = useState( false );
+	const isUserConnected = useIsUserConnected();
 
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
+	const { getEntityRecord, getCurrentUser } = useSelect( 'core' );
+	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( 'core' );
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
 	const isPostSavingLocked = useSelect(
 		select => select( 'core/editor' ).isPostSavingLocked(),
@@ -68,6 +76,29 @@ const Edit = props => {
 			intervals.includes( '1 year' )
 		);
 	};
+
+	//
+	// Check if this is the first time using the donations block
+	//
+
+	// Add this to preload the user entity
+	const currentUser = getCurrentUser();
+	useEffect( () => {
+		if ( currentUser?.id ) {
+			// Ensure the user entity is loaded
+			getEntityRecord( 'root', 'user', currentUser.id );
+		}
+	}, [ currentUser?.id, getEntityRecord ] );
+
+	const hasDismissedDonationWarning =
+		currentUser?.meta?.jetpack_donation_warning_dismissed || false;
+
+	// Show the modal if the user has not dismissed the warning
+	useEffect( () => {
+		if ( currentUser?.id && hasDismissedDonationWarning === false ) {
+			setShowFirstTimeModal( true );
+		}
+	}, [ currentUser, hasDismissedDonationWarning ] );
 
 	useEffect( () => {
 		lockPostSaving( 'donations' );
@@ -134,7 +165,14 @@ const Edit = props => {
 
 	let content;
 
-	if ( loadingError ) {
+	if ( ! isUserConnected ) {
+		content = (
+			<ConnectBanner
+				block="Donations Form"
+				explanation={ __( 'Connect your WordPress.com account to enable donations.', 'jetpack' ) }
+			/>
+		);
+	} else if ( loadingError ) {
 		content = <LoadingError error={ loadingError } />;
 	} else if ( stripeConnectUrl ) {
 		// Need to connect Stripe first
@@ -146,7 +184,35 @@ const Edit = props => {
 		content = <Tabs { ...props } products={ products } />;
 	}
 
-	return <div { ...blockProps }>{ content }</div>;
+	// When the first time modal is closed, update the user meta to mark the donation warning as dismissed
+	const handleModalClose = async () => {
+		setShowFirstTimeModal( false );
+
+		if ( ! currentUser?.id ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Cannot update user meta: User not loaded' );
+			return;
+		}
+
+		try {
+			await editEntityRecord( 'root', 'user', currentUser.id, {
+				meta: {
+					jetpack_donation_warning_dismissed: true,
+				},
+			} );
+			await saveEditedEntityRecord( 'root', 'user', currentUser.id );
+		} catch ( error ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Failed to update user meta:', error );
+		}
+	};
+
+	return (
+		<div { ...blockProps }>
+			{ content }
+			{ showFirstTimeModal && <FirstTimeModal onClose={ handleModalClose } /> }
+		</div>
+	);
 };
 
 export default Edit;

@@ -1,8 +1,8 @@
 import { getCurrencyObject } from '@automattic/format-currency';
 import { jest } from '@jest/globals';
 import userEvent from '@testing-library/user-event';
-import analytics from 'lib/analytics';
 import * as React from 'react';
+import analytics from 'lib/analytics';
 import { render, screen } from 'test/test-utils';
 import JetpackProductCard from '../index';
 

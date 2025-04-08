@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React from 'react';
-import { JetpackSearchLogoProps } from './types';
+import { JetpackSearchLogoProps } from './types.js';
 
 const JetpackSearchLogo: React.FC< JetpackSearchLogoProps > = ( {
 	logoColor = '#069e08',
@@ -23,7 +23,7 @@ const JetpackSearchLogo: React.FC< JetpackSearchLogoProps > = ( {
 			aria-labelledby="jetpack-logo-title"
 			{ ...otherProps }
 		>
-			<desc id="jetpack-logo-title">{ __( 'Jetpack Search Logo', 'jetpack' ) }</desc>
+			<desc id="jetpack-logo-title">{ __( 'Jetpack Search Logo', 'jetpack-components' ) }</desc>
 			{ showText && (
 				<>
 					<path

@@ -20,4 +20,4 @@ function initialize( id ) {
 	root.render( <Layout /> );
 }
 
-global.jetpackSearchConfigureInit = initialize;
+window.jetpackSearchConfigureInit = initialize;

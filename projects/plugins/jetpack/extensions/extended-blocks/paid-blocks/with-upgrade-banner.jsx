@@ -37,7 +37,7 @@ const withUpgradeBanner = createHigherOrderComponent(
 		const bannerContext = 'editor-canvas';
 		const hasChildrenSelected = useSelect(
 			select => select( 'core/block-editor' ).hasSelectedInnerBlock( clientId, true ),
-			[]
+			[ clientId ]
 		);
 		const { hasParentBanner } = useContext( PaidBlockContext ) || {};
 		// Banner should be not be displayed if one of its parents is already displaying a banner.
@@ -80,7 +80,7 @@ const withUpgradeBanner = createHigherOrderComponent(
 
 		const blockProps = useBlockProps();
 		// Fix for width of cover block because otherwise the div defaults to content-size as max width
-		const cssFixForCoverBlock = { 'max-width': 'unset' };
+		const cssFixForCoverBlock = { maxWidth: 'unset' };
 
 		return (
 			<PaidBlockProvider

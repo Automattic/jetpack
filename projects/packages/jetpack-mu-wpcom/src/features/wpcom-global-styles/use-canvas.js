@@ -3,6 +3,8 @@ import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Custom hook to detect the current canvas (view or edit) of the site editor.
+ *
+ * @return {object} An object containing the current canvas and viewCanvasPath.
  */
 export function useCanvas() {
 	const [ canvas, setCanvas ] = useState();

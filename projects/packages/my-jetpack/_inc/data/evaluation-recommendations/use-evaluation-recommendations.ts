@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../../hooks/use-analytics';
+import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import {
 	QUERY_EVALUATE_KEY,
 	QUERY_REMOVE_EVALUATION_KEY,
@@ -9,15 +10,20 @@ import {
 	REST_API_EVALUATE_SITE_RECOMMENDATIONS,
 	REST_API_SITE_EVALUATION_RESULT,
 } from '../constants';
+import useProductsByOwnership from '../products/use-products-by-ownership';
 import useSimpleMutation from '../use-simple-mutation';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
-import isJetpackUserNew from '../utils/is-jetpack-user-new';
 import useWelcomeBanner from '../welcome-banner/use-welcome-banner';
+
+const NUMBER_OF_RECOMMENDATIONS_TO_SHOW = 5;
 
 type SubmitRecommendationsResult = Record< string, number >;
 
 const getInitialRecommendedModules = (): JetpackModule[] | null => {
 	return getMyJetpackWindowInitialState( 'recommendedModules' ).modules;
+};
+const getInitialIsFirstRun = (): boolean => {
+	return getMyJetpackWindowInitialState( 'recommendedModules' ).isFirstRun;
 };
 
 const useEvaluationRecommendations = () => {
@@ -27,17 +33,33 @@ const useEvaluationRecommendations = () => {
 		'recommendedModules',
 		getInitialRecommendedModules()
 	);
+	const [ isFirstRun, setIsFirstRun ] = useValueStore( 'isFirstRun', getInitialIsFirstRun() );
+	const {
+		data: { ownedProducts: ownedProductsData },
+		isLoading: isProductOwnershipLoading,
+	} = useProductsByOwnership();
+	const isJetpackUserNew = useIsJetpackUserNew();
 
 	const unownedRecommendedModules = useMemo( () => {
-		const { ownedProducts = [] } = getMyJetpackWindowInitialState( 'lifecycleStats' );
-		// We filter out owned modules, and return top 3 recommendations
-		return recommendedModules?.filter( module => ! ownedProducts.includes( module ) ).slice( 0, 3 );
-	}, [ recommendedModules ] );
+		// TODO: Maybe remove this ternary condition
+		// This check is for local development & testing purposes because the monorepo local dev
+		// environment unrealistically returns ALL the products/plugins as owned products, resulting
+		// in zero(0) unownedRecommendedModules.
+		const ownedProducts = (
+			process?.env?.NODE_ENV === 'development'
+				? [ 'anti-spam', 'extras', 'jetpack-ai' ]
+				: ownedProductsData || []
+		) as JetpackModule[];
+		// We filter out owned modules, and return the top recommendations
+		return recommendedModules
+			?.filter( module => ! ownedProducts.includes( module ) )
+			.slice( 0, NUMBER_OF_RECOMMENDATIONS_TO_SHOW );
+	}, [ recommendedModules, ownedProductsData ] );
 
 	const isEligibleForRecommendations = useMemo( () => {
 		const { dismissed } = getMyJetpackWindowInitialState( 'recommendedModules' );
-		return ! dismissed && ! isWelcomeBannerVisible && isJetpackUserNew();
-	}, [ isWelcomeBannerVisible ] );
+		return ! dismissed && ! isWelcomeBannerVisible && isJetpackUserNew;
+	}, [ isWelcomeBannerVisible, isJetpackUserNew ] );
 
 	const [ isSectionVisible, setIsSectionVisible ] = useValueStore(
 		'recommendedModulesVisible',
@@ -104,23 +126,26 @@ const useEvaluationRecommendations = () => {
 	);
 
 	const removeEvaluationResult = useCallback( () => {
+		setIsSectionVisible( false );
+
 		handleRemoveEvaluationResult(
 			{},
 			{
 				onSuccess: () => {
-					setIsSectionVisible( false );
+					setIsFirstRun( false );
 					recordEvent( 'jetpack_myjetpack_evaluation_recommendations_dismiss_click' );
 				},
 			}
 		);
-	}, [ handleRemoveEvaluationResult, recordEvent, setIsSectionVisible ] );
+	}, [ handleRemoveEvaluationResult, recordEvent, setIsFirstRun, setIsSectionVisible ] );
 
 	const redoEvaluation = useCallback( () => {
 		// It just happens locally - on reload we're back to recommendations view
 		setIsSectionVisible( false );
+		setIsFirstRun( false );
 		showWelcomeBanner();
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_redo_click' );
-	}, [ recordEvent, setIsSectionVisible, showWelcomeBanner ] );
+	}, [ recordEvent, setIsFirstRun, setIsSectionVisible, showWelcomeBanner ] );
 
 	return {
 		submitEvaluation,
@@ -129,6 +154,8 @@ const useEvaluationRecommendations = () => {
 		redoEvaluation,
 		recommendedModules: unownedRecommendedModules,
 		isSectionVisible,
+		isFirstRun,
+		isProductOwnershipLoading,
 	};
 };
 

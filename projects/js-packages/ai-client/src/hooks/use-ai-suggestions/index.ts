@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import askQuestion from '../../ask-question/index.js';
+import ChromeAIFactory from '../../chrome-ai/factory.js';
 import {
 	ERROR_CONTEXT_TOO_LARGE,
 	ERROR_MODERATION,
@@ -21,8 +22,7 @@ import {
  */
 import type { AskQuestionOptionsArgProps } from '../../ask-question/index.js';
 import type SuggestionsEventSource from '../../suggestions-event-source/index.js';
-import type { PromptProp, SuggestionErrorCode } from '../../types.js';
-import type { RequestingStateProp } from '../../types.js';
+import type { PromptProp, SuggestionErrorCode, RequestingStateProp } from '../../types.js';
 
 export type RequestingErrorProps = {
 	/*
@@ -70,7 +70,7 @@ type useAiSuggestionsOptions = {
 	/*
 	 * onDone callback.
 	 */
-	onDone?: ( content: string ) => void;
+	onDone?: ( content: string, skipRequestCount?: boolean ) => void;
 
 	/*
 	 * onStop callback.
@@ -256,9 +256,9 @@ export default function useAiSuggestions( {
 		( event: CustomEvent ) => {
 			closeEventSource();
 
-			const fullSuggestion = removeLlamaArtifact( event?.detail );
+			const fullSuggestion = removeLlamaArtifact( event?.detail?.message ?? event?.detail );
 
-			onDone?.( fullSuggestion );
+			onDone?.( fullSuggestion, event?.detail?.source === 'chromeAI' );
 			setRequestingState( 'done' );
 		},
 		[ onDone ]
@@ -315,7 +315,14 @@ export default function useAiSuggestions( {
 			// Set the request status.
 			setRequestingState( 'requesting' );
 
-			eventSourceRef.current = await askQuestion( promptArg, options );
+			// check if we can (or should) use Chrome AI
+			const chromeAI = await ChromeAIFactory( promptArg );
+
+			if ( chromeAI !== false ) {
+				eventSourceRef.current = chromeAI;
+			} else {
+				eventSourceRef.current = await askQuestion( promptArg, options );
+			}
 
 			if ( ! eventSourceRef?.current ) {
 				return;

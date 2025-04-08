@@ -9,7 +9,7 @@
  * Disable direct access and execution.
  */
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 require_once __DIR__ . '/class.jetpack-admin-page.php';

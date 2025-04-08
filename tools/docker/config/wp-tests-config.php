@@ -73,7 +73,7 @@ define( 'SECURE_AUTH_SALT', 'put your unique phrase here' );
 define( 'LOGGED_IN_SALT', 'put your unique phrase here' );
 define( 'NONCE_SALT', 'put your unique phrase here' );
 
-// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 $table_prefix = 'wptests_';   // Only numbers, letters, and underscores please!
 
 define( 'WP_TESTS_DOMAIN', 'example.org' );

@@ -1,0 +1,8 @@
+#the-comment-list tr.liked .row-actions > .like,
+#the-comment-list tr:not(.liked) .row-actions > .unlike {
+	display: none;
+}
+
+#the-comment-list .row-actions > :is(.like, .unlike) > button[disabled] {
+	color: grey;
+}

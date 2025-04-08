@@ -1,7 +1,7 @@
-import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { PostFrontendPage } from '_jetpack-e2e-commons/pages/index.js';
+import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
-import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
-import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
 
 const testPostTitle = 'Hello World with JavaScript';
 

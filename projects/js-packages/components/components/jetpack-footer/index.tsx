@@ -1,16 +1,14 @@
-import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import React from 'react';
-import { getRedirectUrl } from '../..';
-import { STORE_ID as CONNECTION_STORE_ID } from '../../../../js-packages/connection/state/store';
-import getSiteAdminUrl from '../../tools/get-site-admin-url';
-import AutomatticBylineLogo from '../automattic-byline-logo';
+import { getRedirectUrl } from '../../index.js';
+import getSiteAdminUrl from '../../tools/get-site-admin-url/index.js';
+import AutomatticBylineLogo from '../automattic-byline-logo/index.js';
 import './style.scss';
-import JetpackLogo from '../jetpack-logo';
-import useBreakpointMatch from '../layout/use-breakpoint-match';
-import type { JetpackFooterProps, JetpackFooterMenuItem } from './types';
+import JetpackLogo from '../jetpack-logo/index.js';
+import useBreakpointMatch from '../layout/use-breakpoint-match/index.js';
+import type { JetpackFooterProps, JetpackFooterMenuItem } from './types.js';
 
 const JetpackIcon: React.FC = () => (
 	<JetpackLogo logoColor="#000" showText={ false } height={ 16 } aria-hidden="true" />
@@ -22,7 +20,7 @@ const ExternalIcon: React.FC = () => (
 		<span className="jp-dashboard-footer__accessible-external-link">
 			{
 				/* translators: accessibility text */
-				__( '(opens in a new tab)', 'jetpack' )
+				__( '(opens in a new tab)', 'jetpack-components' )
 			}
 		</span>
 	</>
@@ -35,10 +33,11 @@ const ExternalIcon: React.FC = () => (
  * @return {React.ReactNode} JetpackFooter component.
  */
 const JetpackFooter: React.FC< JetpackFooterProps > = ( {
-	moduleName = __( 'Jetpack', 'jetpack' ),
+	moduleName = __( 'Jetpack', 'jetpack-components' ),
 	className,
 	moduleNameHref = 'https://jetpack.com',
 	menu,
+	useInternalLinks,
 	onAboutClick,
 	onPrivacyClick,
 	onTermsClick,
@@ -48,50 +47,30 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	const [ isMd ] = useBreakpointMatch( 'md', '<=' );
 	const [ isLg ] = useBreakpointMatch( 'lg', '>' );
 
-	const { isActive, connectedPlugins } = useSelect(
-		select => {
-			const connectionStatus = select( CONNECTION_STORE_ID ) as {
-				getConnectedPlugins: () => { slug: string }[];
-				getConnectionStatus: () => { isActive: boolean };
-			};
-
-			return {
-				connectedPlugins: connectionStatus?.getConnectedPlugins(),
-				...connectionStatus.getConnectionStatus(),
-			};
-		},
-		[ CONNECTION_STORE_ID ]
-	);
 	const siteAdminUrl = getSiteAdminUrl();
-	const areAdminLinksEnabled =
-		siteAdminUrl &&
-		// Some admin pages require the site to be connected (e.g., Privacy)
-		isActive &&
-		// Admin pages are part of the Jetpack plugin and required it to be installed
-		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 
 	let items: JetpackFooterMenuItem[] = [
 		{
-			label: _x( 'About', 'Link to learn more about Jetpack.', 'jetpack' ),
-			title: __( 'About Jetpack', 'jetpack' ),
-			href: areAdminLinksEnabled
+			label: _x( 'About', 'Link to learn more about Jetpack.', 'jetpack-components' ),
+			title: __( 'About Jetpack', 'jetpack-components' ),
+			href: useInternalLinks
 				? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
 				: getRedirectUrl( 'jetpack-about' ),
-			target: areAdminLinksEnabled ? '_self' : '_blank',
+			target: useInternalLinks ? '_self' : '_blank',
 			onClick: onAboutClick,
 		},
 		{
-			label: _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack' ),
-			title: __( "Automattic's Privacy Policy", 'jetpack' ),
-			href: areAdminLinksEnabled
+			label: _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack-components' ),
+			title: __( "Automattic's Privacy Policy", 'jetpack-components' ),
+			href: useInternalLinks
 				? new URL( 'admin.php?page=jetpack#/privacy', siteAdminUrl ).href
 				: getRedirectUrl( 'a8c-privacy' ),
-			target: areAdminLinksEnabled ? '_self' : '_blank',
+			target: useInternalLinks ? '_self' : '_blank',
 			onClick: onPrivacyClick,
 		},
 		{
-			label: _x( 'Terms', 'Shorthand for Terms of Service.', 'jetpack' ),
-			title: __( 'WordPress.com Terms of Service', 'jetpack' ),
+			label: _x( 'Terms', 'Shorthand for Terms of Service.', 'jetpack-components' ),
+			title: __( 'WordPress.com Terms of Service', 'jetpack-components' ),
 			href: getRedirectUrl( 'wpcom-tos' ),
 			target: '_blank',
 			onClick: onTermsClick,
@@ -120,7 +99,8 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 				},
 				className
 			) }
-			aria-label={ __( 'Jetpack', 'jetpack' ) }
+			aria-label={ __( 'Jetpack', 'jetpack-components' ) }
+			role="contentinfo"
 			{ ...otherProps }
 		>
 			<ul>
@@ -159,11 +139,11 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 				<li className="jp-dashboard-footer__a8c-item">
 					<a
 						href={
-							areAdminLinksEnabled
+							useInternalLinks
 								? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
 								: getRedirectUrl( 'a8c-about' )
 						}
-						aria-label={ __( 'An Automattic Airline', 'jetpack' ) }
+						aria-label={ __( 'An Automattic Airline', 'jetpack-components' ) }
 					>
 						<AutomatticBylineLogo aria-hidden="true" />
 					</a>

@@ -11,7 +11,7 @@
  * 
  */
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Don't allow direct access
+defined( 'ABSPATH' ) || exit( 0 ); // Don't allow direct access
 
 global $zbs;
 $portal = $zbs->modules->portal;
@@ -21,12 +21,11 @@ do_action( 'zbs_enqueue_scripts_and_styles' );
 $ZBSuseInvoices = zeroBSCRM_getSetting('feat_invs');
 
 if($ZBSuseInvoices < 0){
-        status_header( 404 );
-        nocache_headers();
-        include get_query_template( '404' );
-        die();
+	status_header( 404 );
+	nocache_headers();
+	include get_query_template( '404' );
+	die( 0 );
 }
-
 
 $portalLink = zeroBS_portal_link();
 $invoice_endpoint = $portal->get_endpoint( ZBS_TYPE_INVOICE );

@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
-import QueryRecommendationsData from 'components/data/query-recommendations-data';
-import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
+import QueryRecommendationsData from 'components/data/query-recommendations-data';
+import QuerySite from 'components/data/query-site';
 import { getSiteConnectionStatus } from 'state/connection';
 import {
 	getActiveFeatures,

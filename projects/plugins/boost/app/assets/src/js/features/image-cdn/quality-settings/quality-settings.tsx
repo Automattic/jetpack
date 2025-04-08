@@ -1,4 +1,4 @@
-import CollapsibleMeta from '../collapsible-meta/collapsible-meta';
+import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 import { __, sprintf } from '@wordpress/i18n';
 import styles from './quality-settings.module.scss';
 import { IconTooltip } from '@automattic/jetpack-components';
@@ -6,6 +6,7 @@ import QualityControl from '../quality-control/quality-control';
 import { imageCdnSettingsSchema, useImageCdnQuality } from '../lib/stores';
 import { z } from 'zod';
 import ModuleSubsection from '$features/ui/module-subsection/module-subsection';
+import { useMutationNotice } from '$features/ui/mutation-notice/mutation-notice';
 
 type QualitySettingsProps = {
 	isPremium: boolean;
@@ -19,6 +20,8 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 	const [ query, mutation ] = useImageCdnQuality();
 	const imageCdnQuality = query?.data;
 	const setImageCdnQuality = mutation.mutate;
+
+	useMutationNotice( 'image-cdn-quality', mutation );
 
 	const setQuality = ( format: 'jpg' | 'png' | 'webp', newValue: number ) => {
 		if ( ! setImageCdnQuality || ! imageCdnQuality ) {
@@ -50,10 +53,10 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		imageCdnQuality && (
 			<ModuleSubsection>
 				<CollapsibleMeta
-					editText={ __( 'Adjust Quality', 'jetpack-boost' ) }
-					closeEditText={ __( 'Hide', 'jetpack-boost' ) }
+					toggleText={ __( 'Adjust Quality', 'jetpack-boost' ) }
 					header={ <Header /> }
 					summary={ <Summary imageCdnQuality={ imageCdnQuality } /> }
+					tracksEvent="image_cdn_panel_toggle"
 				>
 					<div className={ styles.body }>
 						<h5>Adjust image quality per format</h5>

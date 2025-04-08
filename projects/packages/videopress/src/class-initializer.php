@@ -95,6 +95,10 @@ class Initializer {
 		if ( is_admin() ) {
 			AJAX::init();
 		}
+
+		if ( ! is_admin() ) {
+			Block_Replacement::init();
+		}
 	}
 
 	/**
@@ -203,8 +207,10 @@ class Initializer {
 		// Inline style
 		$style     = '';
 		$max_width = isset( $block_attributes['maxWidth'] ) ? $block_attributes['maxWidth'] : null;
+
 		if ( $max_width && $max_width !== '100%' ) {
-			$style = sprintf( 'max-width: %s; margin: auto;', $max_width );
+			$style    = sprintf( 'max-width: %s;', $max_width );
+			$classes .= ' wp-block-jetpack-videopress--has-max-width';
 		}
 
 		/*

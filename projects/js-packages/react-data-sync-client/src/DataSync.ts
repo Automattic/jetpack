@@ -223,7 +223,6 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		try {
 			data = JSON.parse( text );
 		} catch ( error ) {
-			// eslint-disable-next-line no-console
 			throw new DataSyncError( 'Failed to JSON.parse() the response from the server.', {
 				...this.describeSelf(),
 				location: url,
@@ -346,7 +345,11 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			url = this.maybeRequestDisabled( url );
 			const result = await fetch( url, args );
 			if ( ! result.ok ) {
-				throw new DataSyncError( result.statusText, {
+				let errorText = result.status.toString();
+				if ( result.statusText ) {
+					errorText = `${ errorText } - ${ result.statusText }`;
+				}
+				throw new DataSyncError( `DS request failed: ${ errorText }`, {
 					...this.describeSelf(),
 					method: args.method,
 					location: url,

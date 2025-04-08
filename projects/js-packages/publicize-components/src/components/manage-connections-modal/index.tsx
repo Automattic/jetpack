@@ -5,11 +5,11 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { ExternalLink, Modal } from '@wordpress/components';
-import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
 import { ServicesList } from '../services/services-list';
 import { ConfirmationForm } from './confirmation-form';
@@ -24,22 +24,23 @@ export const ManageConnectionsModal = () => {
 		};
 	}, [] );
 
-	const { setKeyringResult, closeConnectionsModal } = useDispatch( store );
+	const { setKeyringResult, closeConnectionsModal, setReconnectingAccount } = useDispatch( store );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const closeModal = useCallback( () => {
 		setKeyringResult( null );
+		setReconnectingAccount( undefined );
 		closeConnectionsModal();
-	}, [ closeConnectionsModal, setKeyringResult ] );
+	}, [ closeConnectionsModal, setKeyringResult, setReconnectingAccount ] );
 
 	const hasKeyringResult = Boolean( keyringResult?.ID );
 
 	const title = hasKeyringResult
-		? __( 'Connection confirmation', 'jetpack' )
-		: _x( 'Manage Jetpack Social connections', '', 'jetpack' );
+		? __( 'Connection confirmation', 'jetpack-publicize-components' )
+		: _x( 'Manage Jetpack Social connections', '', 'jetpack-publicize-components' );
 
-	const isAdmin = useSelect( select => select( coreStore ).canUser( 'update', 'settings' ), [] );
+	const canMarkAsShared = useUserCanShareConnection();
 
 	return (
 		<Modal
@@ -57,7 +58,7 @@ export const ManageConnectionsModal = () => {
 							<ConfirmationForm
 								keyringResult={ keyringResult }
 								onComplete={ closeModal }
-								isAdmin={ isAdmin }
+								canMarkAsShared={ canMarkAsShared }
 							/>
 						);
 					}
@@ -70,11 +71,11 @@ export const ManageConnectionsModal = () => {
 									<Text>
 										{ __(
 											`Want to share to other networks? Use our Manual Sharing feature from the editor.`,
-											'jetpack'
+											'jetpack-publicize-components'
 										) }
 										&nbsp;
 										<ExternalLink href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }>
-											{ __( 'Learn more', 'jetpack' ) }
+											{ __( 'Learn more', 'jetpack-publicize-components' ) }
 										</ExternalLink>
 									</Text>
 								</em>

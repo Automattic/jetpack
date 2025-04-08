@@ -5,6 +5,296 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.3.1] - 2025-04-07
+### Added
+- MU plugin feature to add custom CSS for edge cases. [#42898]
+
+### Changed
+- Code: First pass of style coding standards. [#42734]
+
+## [6.3.0] - 2025-04-04
+### Added
+- Enabled the RDV treatment group for everyone. [#42765]
+
+### Removed
+- Removing unused files from the "What's New" package. [#42893]
+
+## [6.2.0] - 2025-04-02
+### Security
+- Verbum: Call `wp_die` if nonce check fails. [#41466]
+
+### Added
+- Add "Create course" task list. [#42108]
+- Add a new function that returns the upsell plan based on the what plan is required by Global Styles. [#42471]
+- Add domain upsell button to `options-general.php`. [#42171]
+- Add Fiverr logo maker link in general settings. [#41173]
+- Add general, writing, reading, discussion settings screens to duplicate views list. [#40913]
+- Add intent-newsletter-goal tasks for newsletter goal in `/setup/onboarding`. [#41158]
+- Add Jetpack > Podcasting menu Item. [#42174]
+- Add Like quick link on each comment when using WP Admin. [#41475]
+- Add newsletter widget to the dashboard. [#41807]
+- Add Site Launch button to the admin bar. [#41240]
+- Add Site Management Panel link to General Settings page [#41497]
+- Add subscribers in WP Admin boiler plate. [#42066]
+- Add support link to block description for Grid block. [#41256]
+- Add the ability to like own comments on Atomic sites. [#42300]
+- Admin bar: Add "My WP.com Account" profile submenu. [#42058]
+- Admin bar: Bring back updates and comments menu. [#42146]
+- Admin bar: Make leftmost menu more closely match Core behavior. [#42099]
+- Admin bar: Track clicks on launch button. [#41425]
+- Allow uploading media from URL in Media Library. [#41089]
+- Bump a Tracks stat for every WP Admin page view. [#42422]
+- Comments: Add dark mode. [#41505]
+- Comments: Use Verbum on comments containing block mark-up (simple sites only). [#42022]
+- Dashboard: Add Daily Writing Prompt widget. [#41094]
+- Dashboard: Add general tasks widget. [#41150]
+- Dashboard: Add launchpad. [#41434]
+- Dashboard: Add site preview and links. [#41106]
+- Help Center: Add endpoint to persist open state. [#41126]
+- Import Media: Introduce the Import Media page [#41032]
+- Importer: Fix guided importer banner URL to use site-migration flow [#42693]
+- Importer: Show wpcom importer banner on atomic sites [#42693]
+- Launchpad: Add "Verify Email" and "Add First Subscribers" tasks. [#41502]
+- Launchpad: Add `updated_write_tasklist` flag for testing changes. [#42272]
+- Launchpad: Add tasks for `sell` intent. [#41804]
+- Launchpad: Allow checklists to be based on site goals. [#41944]
+- Media Library: Add Tracks events to Upload from URL feature. [#41620]
+- Media Library: Support Upload from URL on media-new page. [#41627]
+- Newsletter Dashboard Widget: Remove feature flag and enable widget. [#42276]
+- Pages: Add notice for homepage editing. [#42343]
+- RDV: Add `upload.php` to the list of duplicated pages. [#41720]
+- RDV: Add possibility to override and reset the experiment variation. [#41179]
+- RDV: Implement A/A test. [#41093]
+- Show site address and WordPress address on Simple. [#41208]
+- Untangle Calypso: Enable the feature on both `upload.php` and `media-new.php`. [#41709]
+
+### Changed
+- Add "Verify Email" task to newsletter goal launchpad. [#41298]
+- Add export media files under tools [#42691]
+- Add goals prop to wpcom_launchpad_mark_task_complete event. [#41889]
+- Add logic for handling Global Styles on Personal experiment assignment. [#41132]
+- Add Plans::get_plan_short_name() for WPCOM environments. [#42485]
+- Add query param to the wordpress.com login url. [#41246]
+- Add Reader text to the masterbar icon to match Calypso. [#42071]
+- Add URL hash to "Build your audience" task action. [#41299]
+- Admin Bar: Point the Edit Site menu item to `site-editor.php`. [#41137]
+- Always loads Odyssey Stats widget regardless of wpcom_admin_interface. [#40992]
+- Block Editor: Do not show first post modal when the publish-first-post hash is present. [#41618]
+- Block Editor: Fix performance regression. [#41309]
+- Change the experiment cache key so that users get assigned once the experiment starts. [#41383]
+- Code Quality: Update deprecated block editor API usage. [#41176]
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- Coming Soon: Add more checks to the ETK version comparison. [#41273]
+- Disable assigning and caching the global styles on personal experiment variation until we set up a new experiment. [#41999]
+- External Media: Move the external media import page to jetpack-external-media. [#41282]
+- Hide "Verify Email" launchpad task for existing users. [#41326]
+- Hide suggested tags on P2. [#41781]
+- Hide the Import banner when actually running the import tool. [#42621]
+- Improve the import page by fixing the position of the Notice component and adding a color to it to not look disabled. [#42414]
+- Initialize the value to an empty array when empty preferences are received. [#41688]
+- Launchpad: Block design button for users of the treatment_cumulative group on an experiment. [#41726]
+- Launchpad: Disable "Launch Site" task for launched sites. [#41327]
+- Launchpad: Include a hash to identifier for hosting tasks. [#41377]
+- Launchpad: Remove updated_write_tasklist param. [#42560]
+- Launchpad: Replace newsletter preview task with launch task. [#41344]
+- Launchpad: Show "Site Title" task in updated write launchpad. [#42410]
+- Launchpad: Update "Select a Design" step, allowing user to interact with it. [#41952]
+- Launchpad: Update copy for adding subscribers to a site. [#41820]
+- Launchpad: Update tasks so sites created through onboarding have different design task links. [#42145]
+- Launchpad: Use heuristic for "Verify Email" task visibility, regardless of experiment cohort. [#42193]
+- Live Preview: Do not change the homepage when previewing a theme in the Site Editor. [#42388]
+- Move logo-tool to be within jetpack-mu-wpcom. [#42598]
+- Newspack Blocks: Check to avoid warnings when accessing attachment image src. [#42290]
+- Newspack Blocks: Update from v4.5.2 → 4.7.0. [#42223]
+- Prevent site owner from editing user's account-level fields. [#42177]
+- Profile: Make WordPress.com links more concise. [#41943]
+- RDV: Enhance notices. [#40996]
+- Reader: Update URL from `/read` to `/reader`. [#41477]
+- Render the Global Styles frontend bar separately from the WordPress.com launch bar. [#40876]
+- Restore the code that assigned global styles on personal variations and added the new experiment code. [#42062]
+- Site Visibility: Port the site visibility settings from Calypso to WP Admin. [#42230]
+- Theme: Clean up files that were used during the theme switch and theme preview [#42420]
+- Update `/settings/general` url to `/sites/settings/site` for classic style users. [#41776]
+- Update background pattern image [#40983]
+- Update copy on the WordPress.com duplicate view pop ups to include link to learn more. [#41622]
+- Update dependencies. [#41003] [#42564]
+- Update minimum PHP version to 8.1. [#41928]
+- Update package dependencies. [#41099] [#41286] [#41491] [#42163] [#42384] [#42511] [#42809]
+- Update Site Settings link copy. [#41663]
+- Update the design of the coming soon page. [#41499]
+- Update the Import Page notice, improving the text to make clear you can fully import a WordPress site or contents from other platforms. [#42628]
+- Use the control group as discriminator for enabling Global Styles on Personal experiment. [#41353]
+
+### Deprecated
+- Remove customization for the start page options modal. [#41324]
+- Remove global styles modal. [#40939]
+
+### Removed
+- Block editor: Remove hotfix for Gutenberg v19.0, v20.0 and v20.1. [#41915]
+- Launchpad: Remove "About Page" task from Newsletter task list. [#41323]
+- RDV: Delete notices. [#42144]
+- Reader: Remove daily prompt modal from editor screen. [#41121]
+- Remove the "Personalize Link in Bio" launchpad task. [#41949]
+- Remove the "What's New" feature from the Help Center. [#42859]
+- Remove the launch bar from the frontend of Atomic sites. [#41113]
+- Removed start page pattern modal, defaulting instead to core behavior. [#41479]
+- Stop using the custom welcome tour when the user creates a post for the first time, showing the core welcome guide instead. [#41258]
+
+### Fixed
+- Add `is_user_member_of_blog` check for launch button. [#41397]
+- Launchpad: Add messages area anchor in `customize_welcome_message` task path [#41320]
+- Add the launch icon to the launch site button. [#41908]
+- Admin interface: Fix empty setting. [#42021]
+- Caching fixes for RDV project. [#41378]
+- Code: Remove extra params on function calls. [#41263]
+- Comments: Fix broken editor. [#41734]
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42677]
+- Consolidate scripts for General Settings overrides. [#41295]
+- Fix admin menu issues. [#41480]
+- Fix "Celebrate Launch" modal translations. [#41467]
+- Fix Classic Tour. [#41482]
+- Fix first post modal styling for mobile view. [#42735]
+- Fix Site Visibility link for duplicated view experiment users. [#41531]
+- Refine Gutenberg 19.8.0 hotfix so site editor opens correct template by default. [#41110]
+- Global Styles: Add hidden style under wpcom-global-style-view. [#41111]
+- Patch a bug causing the Content block to output truncated HTML with Gutenberg 20.0.0 and WP 6.7.x. [#41333]
+- i18n: Download updated translations for wpcomsh. [#42494]
+- i18n: Load JS translations for 'wpcom-options-general.ts'. [#42131]
+- i18n: Load language packs for Atomic Sites. [#42172]
+- Link "Give your site a name" task to use wp-admin version. [#41867]
+- Media Library: Ensure Upload from URL shows in the editor. [#41711]
+- Media Library: Only load the Upload via URL form in admin screens. [#41848]
+- Do not load ETK on agency sites on all pages. [#41272]
+- Filter out the full-site-editing plugin from the active_plugins list if the plugin file doesn't exist. [#41887]
+- Always show the launch site button in blueberry (modern) scheme. [#42605]
+- Make email and password available on the `profile.php` on the default view. [#41945]
+- Port the fix of the modern color scheme from WP 6.8. [#42462]
+- Newspack Blocks: Fix perms issue with block.json files. [#42231]
+- Remove the dashboard launchpad for Atomic. [#42147]
+- Remove the Verbum Comments dynamic loader dependency on wp-polyfill. [#42391]
+- Remove `options-general.php` from WPCOM_DUPLICATED_VIEW. [#41529]
+- Site Visibility: Prevent accidental changes to blog_public on the Settings > Reading page. [#42716]
+- Update endpoint routes. [#41424]
+- Verbum: Fix broken block editor. [#41747]
+- Verbum: Fix failing nonce checks. [#41985]
+- Send appropriate tracks event for `verify_email` task. [#41624]
+
+## [6.1.0] - 2025-01-10
+### Added
+- Add watch command for this package in composer.json file. [#40927]
+- Add comments page to the list of untangled pages under the experiment. [#40649]
+- CSS Tidy: Add css rule mask to allowlist. [#40655]
+- Pages: Add quick actions to change the homepage and the posts page. [#40699]
+- Post categories: Add quick action to change default category. [#40667]
+- Remove duplicate views: Show notices. [#40609]
+- WordPress.com Features: Add Holiday Snow functionality. [#40478]
+
+### Changed
+- Admin menu: Hide dashboard switcher when WP Admin view is enforced. [#40595]
+- Holiday Snow: Switch to a CSS-only implementation. [#40629]
+- Newspack Blocks: Update to version 4.5.2. [#40636]
+- Remove the option to close upsell notification for custom styles. [#40520]
+- Remove duplicate views: Enforce WP Admin for Pages. [#40706]
+- Remove duplicate views: Redesign notices. [#40901]
+- Use WP Admin for some sections while keeping some untangling changes. [#40479]
+- Updated package dependencies. [#40564] [#40693] [#40792] [#40797] [#40798] [#40810]
+- Use wp_add_inline_script. [#40465]
+
+### Fixed
+- Add a function_exists guard for `wpcom_is_duplicate_views_experiment_enabled` function. [#40708]
+- Code: Clean up JSDoc comments. [#40578]
+- Comments: Add cookie consent input and fix console error. [#40494]
+- Exclude wpcom_admin_interface from the admin_menu action. [#40669]
+- Fix lints following ESLint rule changes for TypeScript. [#40584]
+- Fix several regressions for Stats, Blaze and notices for RDV experiment. [#40690]
+- Fix migration key fetch failing when DIY migration page is reloaded. [#40270]
+- Global Styles: Stop showing the limited global styles notice in distraction-free mode. [#40907]
+- Gutenberg 19.8.0 hotfix: Don't show the template-locked rendering mode for pages. [#40664]
+- Holiday Snow: Do not display on p2s. [#40519]
+- Holiday snow: Replace SCSS `random()` with pregenerated arrays of random numbers to make builds reproducable. [#40666]
+- i18n: Update the .mo and .po translation files. [#40362]
+- Load WPCOM sidebar notice async. [#40422]
+- Restore visited button color in themes.php to Core's default. [#40517]
+- Starter page templates: Insert the pattern to the Content block correctly when rendering mode is template-locked. [#40583]
+- Support adding a comment form inside a query loop. [#40933]
+- wpcom-block-editor-nux: Avoid using useLocation which now throws exception outside Site Editor in Gutenberg 19.9.0. [#40656]
+
+## [6.0.0] - 2024-12-04
+### Changed
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40288] [#40363]
+
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+### Fixed
+- Add missing ids in Verbum EmailForm. [#40199]
+- Block Support Links: Removed support links for the group block and varients, to avoid an issue with the group placeholder displaying the block descriptions incorrectly. [#40275]
+- Coming Soon: update color of the banner to WordPress blue [#39966]
+- Explicitly set `htmlFor` in recommended tags modal FormLabel. [#40199]
+- Subscribe modal: fix an edge case reported by a user, where the site title shows character codes. [#40130]
+
+## [5.66.0] - 2024-11-11
+### Added
+- Added a feature check to the Marketing Bar that updates the text and upgrade link for Global Styles [#40068]
+- Enable test coverage. [#39961]
+- Help Center: add new rest route for support interactions [#39978]
+- Help Center: extend support interaction API [#40112]
+- The notice and modal shown on the editor now displays the plan name and upgrade URL based on the GS gated plan type' [#40095]
+
+### Changed
+- Added feature check for the Global Styles on Personal plan changes. [#39986]
+- Updated package dependencies. [#39999] [#40000] [#40060]
+
+### Fixed
+- Fix PHPUnit coverage warnings. [#39989]
+- Help Center: fixed api typo [#39996]
+- We now check if JP_CONNECTION_INITIAL_STATE is defined before accessing it when using Global Styles' [#39980]
+- wpcom-block-editor: Support getting the canvas mode from the query string after GB 19.6 [#40045]
+
+## [5.65.0] - 2024-10-29
+### Added
+- adding a WPCOM task [#39776]
+- Add new task for domain connection to post-migration checklist. [#39680]
+- Add new task for domain mapping in migration Launchpad [#39764]
+- Adds JSON translation files [#39519]
+- Adds the placeholder task list for the Migration flow [#39593]
+- Add the Plugin Review task for the Post-migration launchpad experience [#39711]
+- Add the Review site task [#39641]
+- Admin bar: Add help icon tooltip [#39845]
+- Admin bar: Add reader icon tooltip [#39803]
+- Global Styles: add a Help Link to premium styles limitation message [#39226]
+
+### Changed
+- Admin bar: replace 'Edit Profile' and 'My Account' with 'My Profile' [#39600]
+- Blog Privacy: Do not add custom rules to wpcom's robots.txt if blog_public=0 [#39468]
+- Help Center: use Zendesk staging when proxied [#39566]
+- jetpack-mu-wpcom: remove unneeded filter [#39552]
+- Launchpad: Added isset to avoid Warnings when finding about page id [#39529]
+- Make the Migrating the site task complete by default [#39769]
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Sharing modal: Repurposed to only display recommended tags. [#39499]
+- Site Management Panel: fix site name encoding display [#39756]
+- Site Management Panel: Migrate to react [#39742]
+- Updated copies used in the plugins banner for wpcom sites plugin-install.php page. [#39725]
+- Updated package dependencies. [#39594] [#39640] [#39707]
+- Update Jetpack Scan link [#39619]
+- Update Verbum Comments resize logic [#39791]
+- wpcom_add_shopping_cart: Use Store_Shopping_Cart::is_cart_empty() when deciding to render icon for incrased performance [#39563]
+
+### Deprecated
+- Site Management Widget: Clean up unused files [#39743]
+
+### Removed
+- Removed import of the class-wp-rest-wpcom-block-editor-sharing-modal-controller.php controller [#39488]
+
+### Fixed
+- Admin bar: ensure the Atomic debug bar is the leftmost menu [#39493]
+- Prevent welcome tour keyboard navigation from hijacking left right keys on the editor [#39683]
+- profile.php: Make wpcom links more concise [#39636]
+- Superadmin bar: always point to wp-admin even on Default admin interface style [#39501]
+- Verbum Comments: fix gravatar width in nested comments [#39757]
+
 ## [5.64.0] - 2024-09-23
 ### Deprecated
 - Removed launchpad-save-modal. [#39429]
@@ -36,8 +326,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Admin bar: update 'My Account' link to /me [#39290]
 - Enable Users -> Profile (profile.php) on all sites [#39181]
 - Launchpad: Require a design is selected before marking the step as complete in both the Write and Free flows [#39189]
-- Updated package dependencies. [#39176]
-- Updated package dependencies. [#39302]
+- Updated package dependencies. [#39176] [#39302]
 
 ### Fixed
 - Use the correct endpoint route for adding suggested tags on new posts. [#39175]
@@ -298,8 +587,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - As we've launched untangling & nav redesign, the wpcom_is_nav_redesign_enabled() function name is not relevant anymore and can be confusing for future developers, so we replace it with the equivalent get_option call. [#38197]
 - Classic Theme Helper - initialize Featured Content from the mu-wpcom package [#37969]
 - Load ETK features with a higher priority to avoid the ETK plugin taking precedence. [#38230]
-- Updated package dependencies. [#38132]
-- Updated package dependencies. [#38235]
+- Updated package dependencies. [#38132] [#38235]
 - Update Verbum Comments accessibility. [#38116]
 
 ### Removed
@@ -1242,6 +1530,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[6.3.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.3.0...v6.3.1
+[6.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.2.0...v6.3.0
+[6.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.1.0...v6.2.0
+[6.1.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.0.0...v6.1.0
+[6.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.66.0...v6.0.0
+[5.66.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.65.0...v5.66.0
+[5.65.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.64.0...v5.65.0
 [5.64.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.63.0...v5.64.0
 [5.63.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.62.0...v5.63.0
 [5.62.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.61.0...v5.62.0

@@ -6,5 +6,12 @@ import getJetpackData from './get-jetpack-data';
  * @return {boolean} Whether the current user is connected.
  */
 export default function isCurrentUserConnected() {
-	return getJetpackData()?.jetpack?.is_current_user_connected ?? false;
+	if (
+		getJetpackData()?.jetpack?.is_current_user_connected ||
+		window?.JP_CONNECTION_INITIAL_STATE?.connectionStatus?.isUserConnected
+	) {
+		return true;
+	}
+
+	return false;
 }

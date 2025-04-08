@@ -1,0 +1,106 @@
+@import '@automattic/jetpack-base-styles/root-variables';
+
+.jetpack-onboarding-testimonial {
+    flex: 1;
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 50px;
+    overflow: hidden;
+
+    // Specific testimonial variations
+    &--1 {
+        background-image: url('./grow-your-audience.png');
+    }
+
+    &--2 {
+        background-image: url('./sasha-endoh.png');
+    }
+
+    &--3 {
+        background-image: url('./tim-ferriss-testimonial.png');
+    }
+
+	// This is to make the image darker and let read the text
+	&--2, &--3 {
+
+		&::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: -16px;
+			background: linear-gradient(0deg, rgba(0, 0, 0, 0.90) 0%, rgba(0, 0, 0, 0.60) 37.5%, rgba(0, 0, 0, 0.02) 100%);
+		}
+	}
+
+    &__content {
+        width: 100%;
+        padding-top: 40px;
+        padding-left: 50px;
+        padding-right: 50px;
+        color: var(--jp-white);
+        text-align: left;
+        position: relative;
+        margin-bottom: 10px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu',
+		'Cantarell', 'Helvetica Neue', sans-serif;
+    }
+
+    &__messages {
+        margin-bottom: 4rem;
+    }
+
+    &__message {
+        color: var(--tag-color);
+        font-size: 3.35rem;
+        font-weight: 400;
+        line-height: 1.1;
+        margin-bottom: 0px;
+        margin-top: 0px;
+        
+    }
+
+    &__quote {
+        margin-bottom: 24px;
+        font-weight: normal;
+        font-size: var(--font-title-small);
+        letter-spacing: 0px;
+		line-height: 1.4;
+    }
+
+    &__author {
+        font-size: 1.25rem;
+		margin-bottom: 0;
+    }
+
+    &__title {
+        font-size: var(--font-body);
+        margin: 0;
+        opacity: 0.9;
+    }
+}
+
+.jetpack-onboarding-testimonials-pager {
+
+    .dot-pager__control-choose-page {
+        background-color: var(--jp-gray);
+        opacity: 0.2;
+
+        &.dot-pager__control-current {
+            background-color: var(--jp-green-mint);
+            opacity: 1;
+        }
+    }
+
+	.swipeable__container {
+		border-radius: 12px;
+	}
+}

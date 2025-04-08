@@ -1,9 +1,10 @@
 import { Text } from '@automattic/jetpack-components';
-import { Popover } from '@wordpress/components';
+import { Popover, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, check, info } from '@wordpress/icons';
 import PropTypes from 'prop-types';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
+import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import styles from './styles.module.scss';
 
 /**
@@ -50,12 +51,20 @@ const getBadgeElement = ( count, checked ) => {
 };
 
 const ItemBadge = ( { count, checked } ) => {
+	const { data: status } = useScanStatusQuery();
+
 	const { popoverText, badgeElement } = getBadgeElement( count, checked );
 	const [ showPopover, setShowPopover ] = useState( false );
 
+	const inProgress = useMemo( () => isScanInProgress( status ), [ status ] );
+
 	const handleEnter = useCallback( () => {
+		if ( inProgress ) {
+			return;
+		}
+
 		setShowPopover( true );
-	}, [] );
+	}, [ inProgress ] );
 
 	const handleOut = useCallback( () => {
 		setShowPopover( false );
@@ -70,7 +79,7 @@ const ItemBadge = ( { count, checked } ) => {
 			onBlur={ popoverText ? handleOut : null }
 			role="presentation"
 		>
-			{ badgeElement }
+			{ ! inProgress ? badgeElement : <Spinner /> }
 			{ showPopover && (
 				<Popover noArrow={ false } inline={ true }>
 					<Text variant="body-small" className={ styles[ 'popover-text' ] }>

@@ -1,4 +1,4 @@
-import UpsellBanner from '..';
+import UpsellBanner from '../index.js';
 import logoSample from './jetpack-manage.svg';
 
 export default {
@@ -9,7 +9,6 @@ export default {
 	},
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const BannerTemplate = args => {
 	// Set up the first CTA
 	const secondaryCtaLabel = 'Learn more';

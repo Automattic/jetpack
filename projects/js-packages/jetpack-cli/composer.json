@@ -1,0 +1,26 @@
+{
+	"name": "automattic/jetpack-cli",
+	"description": "Development tools for the Jetpack monorepo",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-cli",
+		"npmjs-autopublish": true,
+		"autotagger": true
+	}
+}

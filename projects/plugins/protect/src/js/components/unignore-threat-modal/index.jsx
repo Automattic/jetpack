@@ -1,10 +1,10 @@
 import { Button, Text } from '@automattic/jetpack-components';
+import { ThreatSeverityBadge } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useState } from 'react';
 import useUnIgnoreThreatMutation from '../../data/scan/use-unignore-threat-mutation';
 import useModal from '../../hooks/use-modal';
-import ThreatSeverityBadge from '../severity';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 

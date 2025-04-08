@@ -159,7 +159,6 @@ export const uploadTrackForGuid = ( track: UploadTrackDataProps, guid: string ) 
 };
 
 const videoPressDeleteTrack = function ( { kind, srcLang }, guid ) {
-	// eslint-disable-next-line no-undef
 	return new Promise( function ( resolve, reject ) {
 		getMediaToken( 'upload' ).then( ( { token, blogId } ) => {
 			const body = new FormData();

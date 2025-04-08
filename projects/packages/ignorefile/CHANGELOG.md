@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2025-01-09
+### Added
+- Enable test coverage. [#39961]
+
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
 ## [2.1.0] - 2024-08-29
 ### Changed
 - Add "strict mode", defaulting to off. When off, InvalidPatternException will no longer be thrown, instead the pattern will just be ignored to match `git` behavior. [#37289]
@@ -47,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[3.0.0]: https://github.com/Automattic/ignorefile/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/Automattic/ignorefile/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Automattic/ignorefile/compare/v1.0.5...v2.0.0
 [1.0.5]: https://github.com/Automattic/ignorefile/compare/v1.0.4...v1.0.5

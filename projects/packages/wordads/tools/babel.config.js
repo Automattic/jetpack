@@ -5,6 +5,7 @@ module.exports = api => {
 			[
 				'@automattic/jetpack-webpack-config/babel/preset',
 				{
+					autoWpPolyfill: false,
 					presetEnv: {
 						corejs: require( 'core-js/package.json' ).version,
 						modules: false,

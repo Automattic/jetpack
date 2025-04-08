@@ -1,9 +1,9 @@
 import { Popover } from '@wordpress/components';
 import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
-import Button from '../button';
-import Gridicon from '../gridicon/index';
-import { IconTooltipProps, Placement, Position } from './types';
+import Button from '../button/index.js';
+import Gridicon from '../gridicon/index.js';
+import { IconTooltipProps, Placement, Position } from './types.js';
 
 import './style.scss';
 
@@ -38,12 +38,14 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	children,
 	popoverAnchorStyle = 'icon',
 	forceShow = false,
+	hoverShow = false,
 	wide = false,
 	inline = true,
 	shift = false,
 } ) => {
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
+	const [ hoverTimeout, setHoverTimeout ] = useState( null );
 	const hideTooltip = useCallback( () => setIsVisible( false ), [ setIsVisible ] );
 	const toggleTooltip = useCallback(
 		e => {
@@ -78,8 +80,33 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 
 	const isForcedToShow = isAnchorWrapper && forceShow;
 
+	const handleMouseEnter = useCallback( () => {
+		if ( hoverShow ) {
+			if ( hoverTimeout ) {
+				clearTimeout( hoverTimeout );
+				setHoverTimeout( null );
+			}
+			setIsVisible( true );
+		}
+	}, [ hoverShow, hoverTimeout ] );
+
+	const handleMouseLeave = useCallback( () => {
+		if ( hoverShow ) {
+			const id = setTimeout( () => {
+				setIsVisible( false );
+				setHoverTimeout( null );
+			}, 100 );
+			setHoverTimeout( id );
+		}
+	}, [ hoverShow ] );
+
 	return (
-		<div className={ wrapperClassNames } data-testid="icon-tooltip_wrapper">
+		<div
+			className={ wrapperClassNames }
+			data-testid="icon-tooltip_wrapper"
+			onMouseEnter={ handleMouseEnter }
+			onMouseLeave={ handleMouseLeave }
+		>
 			{ ! isAnchorWrapper && (
 				<Button variant="link" onMouseDown={ toggleTooltip }>
 					<Gridicon className={ iconClassName } icon={ iconCode } size={ iconSize } />

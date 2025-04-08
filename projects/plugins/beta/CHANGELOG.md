@@ -1,5 +1,21 @@
 # Changelog
 
+## 4.1.2 - 2025-04-03
+### Changed
+- Code: Use function-style `exit()` and `die()` with a default status code of 0. [#41167]
+- Update package dependencies. [#40515] [#40799] [#42180] [#42815]
+
+## 4.1.1 - 2024-12-04
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- Update dependencies. [#40286]
+- Update package dependencies. [#38228] [#38822] [#39288] [#39653] [#40116]
+- Use site url in email subject if the site title exists and is equale to "Site Title" [#38908]
+
+### Fixed
+- Fix an undefined variable reference. [#38247]
+- Lossless image optimization of images in projects/plugins [subdirectories from a* through social] [#38573]
+
 ## 4.1.0 - 2024-07-02
 ### Added
 - Hook into red bubble notification when bad installation is detected [#36449]

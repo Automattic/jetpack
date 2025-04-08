@@ -31,7 +31,7 @@ class Type_Assoc_Array implements Parser {
 	 * It will then loop over each key that was provided in the constructor
 	 * and pull the value based on that key from the $data array.
 	 *
-	 * @param $value mixed[]
+	 * @param array|object $value
 	 *
 	 * @return array
 	 * @throws Schema_Error - If the $data passed to it is not an associative array.

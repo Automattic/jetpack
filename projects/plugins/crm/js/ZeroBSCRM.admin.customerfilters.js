@@ -7,8 +7,11 @@
  *
  * Date: 17/06/2016
  */
-var zbscrmjsCustomerFilterRetrieving = false;
-var zbscrmjsCustomerFilterHasRetrieved = false;
+
+/* global moment, ajaxurl */
+
+window.zbscrmjsCustomerFilterRetrieving = false;
+window.zbscrmjsCustomerFilterHasRetrieved = false;
 
 // Following was first used in mail campaigns v1.0
 // it auto-initiates on any zbs customfilter ajax setups :)
@@ -19,7 +22,8 @@ var zbscrmjsCustomerFilterHasRetrieved = false;
 
 // generic funcs to be called from other JS
 /**
- * @param dateRangeSelector
+ * Bind date range picker to element.
+ * @param {string} dateRangeSelector - Daterange selector.
  */
 function zbscrmJS_customfilters_bindDateRange( dateRangeSelector ) {
 	// Debug console.log('zbscrmJS_customfilters_bindDateRange',dateRangeSelector);
@@ -43,16 +47,18 @@ function zbscrmJS_customfilters_bindDateRange( dateRangeSelector ) {
 		},
 		zbsJSFilterDateRangeCallback
 	);
-	jQuery( dateRangeSelector ).on( 'cancel.daterangepicker', function ( ev, picker ) {
+	jQuery( dateRangeSelector ).on( 'cancel.daterangepicker', function () {
 		jQuery( this ).val( '' );
 		zbsJSFilterDateRangeClear();
 	} );
 }
 /**
- * @param formSelector
- * @param buttonSelector
- * @param cb
- * @param errcb
+ * Bind AJAX filter call to button.
+ *
+ * @param {string}   formSelector   - Form selector.
+ * @param {string}   buttonSelector - Button selector.
+ * @param {Function} cb             - Callback on success.
+ * @param {Function} errcb          - Callback on error.
  */
 function zbscrmJS_customfilters_bindAjaxButton( formSelector, buttonSelector, cb, errcb ) {
 	// Debug console.log('zbscrmJS_customfilters_bindAjaxButton',[formSelector,buttonSelector,cb,errcb]);
@@ -74,7 +80,7 @@ function zbscrmJS_customfilters_bindAjaxButton( formSelector, buttonSelector, cb
 				//Debug console.log("zbs-ajax-customer-filters:");
 
 				// postbag!
-				var data = {
+				const data = {
 					action: 'filterCustomers',
 					sec: window.zbscrmjs_secToken,
 					// rest is filter data, added below
@@ -83,7 +89,7 @@ function zbscrmJS_customfilters_bindAjaxButton( formSelector, buttonSelector, cb
 				// inputs + select
 				jQuery( formSelector + ' :input, ' + formSelector + ' select' ).each( function () {
 					// checkboxes
-					if ( jQuery( this ).attr( 'type' ) != 'checkbox' ) {
+					if ( jQuery( this ).attr( 'type' ) !== 'checkbox' ) {
 						data[ this.name ] = jQuery( this ).val();
 					} else if ( jQuery( this ).attr( 'checked' ) ) {
 						data[ this.name ] = jQuery( this ).val();
@@ -107,9 +113,7 @@ function zbscrmJS_customfilters_bindAjaxButton( formSelector, buttonSelector, cb
 						// Update UI
 						if ( typeof response.count !== 'undefined' ) {
 							jQuery( formSelector + ' .zbs-crm-customerfilter-ajax-output' ).html(
-								'<i class="fa fa-users"></i> <strong>' +
-									response.count +
-									'</strong> Contacts Found'
+								'<i class="fa fa-users"></i> <strong>' + response.count + '</strong> Contacts Found'
 							);
 
 							// callback
@@ -123,6 +127,7 @@ function zbscrmJS_customfilters_bindAjaxButton( formSelector, buttonSelector, cb
 						}
 					},
 					error: function ( response ) {
+						// eslint-disable-next-line no-console
 						console.error( 'RESPONSE', response );
 
 						// if has retrieved, this is normal error
@@ -167,8 +172,10 @@ function zbscrmJS_customfilters_bindAjaxButton( formSelector, buttonSelector, cb
 }
 
 /**
- * @param start
- * @param end
+ * Format span when selecting a new date range.
+ *
+ * @param {object} start - Start moment.js object.
+ * @param {object} end   - End moment.js object.
  */
 function zbsJSFilterDateRangeCallback( start, end ) {
 	jQuery( '#zbs-crm-customerfilter-addedrange-reportrange span' ).html(
@@ -179,7 +186,7 @@ function zbsJSFilterDateRangeCallback( start, end ) {
 	);
 }
 /**
- *
+ * Clear date range span.
  */
 function zbsJSFilterDateRangeClear() {
 	jQuery( '#zbs-crm-customerfilter-addedrange-reportrange span' ).html( '' );
@@ -187,6 +194,10 @@ function zbsJSFilterDateRangeClear() {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbscrmjsCustomerFilterRetrieving, zbscrmjsCustomerFilterHasRetrieved, zbscrmJS_customfilters_bindDateRange,
-		zbscrmJS_customfilters_bindAjaxButton, zbsJSFilterDateRangeCallback, zbsJSFilterDateRangeClear };
+	module.exports = {
+		zbscrmJS_customfilters_bindDateRange,
+		zbscrmJS_customfilters_bindAjaxButton,
+		zbsJSFilterDateRangeCallback,
+		zbsJSFilterDateRangeClear,
+	};
 }

@@ -13,7 +13,6 @@ return [
     // PhanTypeMismatchArgumentProbablyReal : 3 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
-    // PhanUndeclaredProperty : 2 occurrences
     // PhanAccessMethodInternal : 1 occurrence
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanRedundantArrayValuesCall : 1 occurrence
@@ -31,7 +30,7 @@ return [
         'src/endpoints/class-start.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturnProbablyReal'],
         'src/endpoints/class-tag.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/endpoints/trait-import-id.php' => ['PhanTraitParentReference'],
-        'src/endpoints/trait-import.php' => ['PhanPluginMixedKeyNoKey', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty'],
+        'src/endpoints/trait-import.php' => ['PhanPluginMixedKeyNoKey', 'PhanUndeclaredMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

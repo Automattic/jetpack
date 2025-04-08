@@ -5,6 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.1] - 2025-04-01
+### Changed
+- Add a default value for the error param in the wp_login_failed action callback. [#42819]
+
+## [0.24.0] - 2025-03-31
+### Changed
+- Ensures Brute Force Protection does not log failed attempts on password validation failure. [#40925]
+
+## [0.23.8] - 2025-03-24
+### Changed
+- Internal updates.
+
+## [0.23.7] - 2025-03-17
+### Changed
+- Internal updates.
+
+## [0.23.6] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [0.23.5] - 2025-03-10
+### Changed
+- Ensure check_valid_blocked_user handles error outcomes. [#42036]
+
+## [0.23.4] - 2025-02-24
+### Changed
+- Update dependencies. [#39263]
+
+## [0.23.3] - 2025-02-03
+### Fixed
+- Code: Remove extra params on function calls. [#41263]
+
+## [0.23.2] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+
+## [0.23.1] - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+
+## [0.23.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [0.22.3] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [0.22.2] - 2024-10-29
+### Changed
+- Internal updates. [#39263]
+
+## [0.22.1] - 2024-10-17
+### Fixed
+- WAF: Improve backwards compatibility for sites running outdated bootstrap scripts via standalone mode. [#39812]
+
+## [0.22.0] - 2024-10-14
+### Added
+- WAF: Add new properties to the WAF feature's REST API endpoint. [#39511]
+
+### Fixed
+- Improve backwards compatibility for sites running in standalone mode. [#39652]
+- WAF: Reduce amount of classes autoloaded during standalone mode execution. [#38944]
+
+## [0.21.0] - 2024-10-07
+### Added
+- Firewall Runtime: Added support for rule files to specify body parser type. [#39516]
+
+## [0.20.1] - 2024-10-01
+### Deprecated
+- Added back public API as deprecated. [#39606]
+
+## [0.20.0] - 2024-09-30
+### Added
+- Added Waf_Blocklog_Manager class [#35739]
+
 ## [0.19.0] - 2024-09-23
 ### Added
 - Firewall: add support for CIDR ranges in IP lists. [#39425]
@@ -370,6 +446,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.24.1]: https://github.com/Automattic/jetpack-waf/compare/v0.24.0...v0.24.1
+[0.24.0]: https://github.com/Automattic/jetpack-waf/compare/v0.23.8...v0.24.0
+[0.23.8]: https://github.com/Automattic/jetpack-waf/compare/v0.23.7...v0.23.8
+[0.23.7]: https://github.com/Automattic/jetpack-waf/compare/v0.23.6...v0.23.7
+[0.23.6]: https://github.com/Automattic/jetpack-waf/compare/v0.23.5...v0.23.6
+[0.23.5]: https://github.com/Automattic/jetpack-waf/compare/v0.23.4...v0.23.5
+[0.23.4]: https://github.com/Automattic/jetpack-waf/compare/v0.23.3...v0.23.4
+[0.23.3]: https://github.com/Automattic/jetpack-waf/compare/v0.23.2...v0.23.3
+[0.23.2]: https://github.com/Automattic/jetpack-waf/compare/v0.23.1...v0.23.2
+[0.23.1]: https://github.com/Automattic/jetpack-waf/compare/v0.23.0...v0.23.1
+[0.23.0]: https://github.com/Automattic/jetpack-waf/compare/v0.22.3...v0.23.0
+[0.22.3]: https://github.com/Automattic/jetpack-waf/compare/v0.22.2...v0.22.3
+[0.22.2]: https://github.com/Automattic/jetpack-waf/compare/v0.22.1...v0.22.2
+[0.22.1]: https://github.com/Automattic/jetpack-waf/compare/v0.22.0...v0.22.1
+[0.22.0]: https://github.com/Automattic/jetpack-waf/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/Automattic/jetpack-waf/compare/v0.20.1...v0.21.0
+[0.20.1]: https://github.com/Automattic/jetpack-waf/compare/v0.20.0...v0.20.1
+[0.20.0]: https://github.com/Automattic/jetpack-waf/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/Automattic/jetpack-waf/compare/v0.18.5...v0.19.0
 [0.18.5]: https://github.com/Automattic/jetpack-waf/compare/v0.18.4...v0.18.5
 [0.18.4]: https://github.com/Automattic/jetpack-waf/compare/v0.18.3...v0.18.4

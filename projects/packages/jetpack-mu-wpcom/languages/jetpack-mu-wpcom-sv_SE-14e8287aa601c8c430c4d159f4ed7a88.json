@@ -1,0 +1,16 @@
+{
+	"locale_data": {
+		"messages": {
+			"": {
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "sv_SE",
+				"project_id_version": "WordPress.com - jetpack-mu-wpcom"
+			},
+			"We've adopted WordPress's main %s view to bring improvements to you and millions of WordPress users worldwide.": [
+				"Vi har inf\u00f6rt WordPress huvudsakliga %s-vy f\u00f6r att ge f\u00f6rb\u00e4ttringar till dig och miljontals WordPress-anv\u00e4ndare \u00f6ver hela v\u00e4rlden."
+			],
+			"The %s view just got better": [ "%s-vyn blev precis b\u00e4ttre" ],
+			"Got it": [ "F\u00f6rst\u00e5tt!" ]
+		}
+	}
+}

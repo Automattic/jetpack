@@ -26,7 +26,7 @@ export function ShareStatusAction( { shareItem }: ShareStatusActionProps ) {
 	if ( 'success' === shareItem.status ) {
 		return (
 			<ExternalLink href={ shareItem.message } onClick={ recordViewEvent }>
-				{ __( 'View', 'jetpack' ) }
+				{ __( 'View', 'jetpack-publicize-components' ) }
 			</ExternalLink>
 		);
 	}

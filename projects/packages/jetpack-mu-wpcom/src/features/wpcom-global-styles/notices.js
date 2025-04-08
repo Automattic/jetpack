@@ -1,5 +1,6 @@
 /* global wpcomGlobalStyles */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { ExternalLink, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import {
@@ -28,6 +29,8 @@ const trackEvent = ( eventName, isSiteEditor = true ) =>
 
 /**
  * Limited GS notice for the view canvas of the site editor.
+ *
+ * @return {JSX.Element} The component to render.
  */
 function GlobalStylesWarningNotice() {
 	useEffect( () => {
@@ -63,6 +66,8 @@ function GlobalStylesWarningNotice() {
 
 /**
  * Renders a notice in the view canvas of the site editor when GS are limited.
+ *
+ * @return {null} This component is non-rendering.
  */
 function GlobalStylesViewNotice() {
 	const { canvas } = useCanvas();
@@ -105,6 +110,8 @@ function GlobalStylesViewNotice() {
 
 /**
  * Limited GS notice for the edit view of the site editor.
+ *
+ * @return {null} This component is non-rendering.
  */
 function GlobalStylesEditNotice() {
 	const NOTICE_ID = 'wpcom-global-styles/gating-notice';
@@ -216,6 +223,7 @@ function GlobalStylesEditNotice() {
 			{
 				id: NOTICE_ID,
 				actions: actions,
+				isDismissible: false,
 			}
 		);
 
@@ -231,25 +239,39 @@ function GlobalStylesEditNotice() {
 		upgradePlan,
 	] );
 
+	const isDistractionFree = useSelect(
+		select => select( blockEditorStore ).getSettings().isDistractionFree,
+		[]
+	);
+
 	useEffect( () => {
 		if ( ! isSiteEditor && ! isPostEditor ) {
 			return;
 		}
 
-		if ( globalStylesInUse ) {
+		if ( globalStylesInUse && ! isDistractionFree ) {
 			showNotice();
 		} else {
 			removeNotice( NOTICE_ID );
 		}
 
 		return () => removeNotice( NOTICE_ID );
-	}, [ globalStylesInUse, isSiteEditor, isPostEditor, removeNotice, showNotice ] );
+	}, [
+		globalStylesInUse,
+		isDistractionFree,
+		isSiteEditor,
+		isPostEditor,
+		removeNotice,
+		showNotice,
+	] );
 
 	return null;
 }
 
 /**
  * Limited GS notices for the site editor.
+ *
+ * @return {JSX.Element} The component to render.
  */
 export default function GlobalStylesNotices() {
 	return (

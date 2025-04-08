@@ -41,6 +41,14 @@ jobs:
 This action is intended to be triggered by `pull_request_target` or `pull_request` targeting the specified branch, and by a `push` to the specified tags.
 It will not work for pushes to anything else.
 
+### Permissions required
+
+This action needs access to read pull request data and create status checks.
+
+For OAuth apps and classic access tokens, that's `repo:status`.
+
+For GitHub Apps and fine-grained access tokens, that's read and write for repository "Commit statuses" (`statuses`) and read-only for "Pull requests" (`pull-requests`).
+
 ### On pull request
 
 ```yaml

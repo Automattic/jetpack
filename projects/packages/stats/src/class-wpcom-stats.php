@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Stats;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Error;
 
@@ -48,6 +49,20 @@ class WPCOM_Stats {
 	 * @var string
 	 */
 	protected $resource;
+
+	/**
+	 * If the site is on WPCOM Simple.
+	 *
+	 * @var bool
+	 */
+	protected $is_wpcom_simple;
+
+	/**
+	 * The constructor.
+	 */
+	public function __construct() {
+		$this->is_wpcom_simple = ( new Host() )->is_wpcom_simple();
+	}
 
 	/**
 	 * Get site's stats.
@@ -233,6 +248,19 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get site's views by location.
+	 *
+	 * @param string $geo_mode The type of location to fetch views for (country, region, city).
+	 * @param array  $args     Optional query parameters.
+	 * @return array|WP_Error
+	 */
+	public function get_views_by_location( $geo_mode, $args = array() ) {
+		$this->resource = sprintf( 'location-views/%s', $geo_mode );
+
+		return $this->fetch_stats( $args );
+	}
+
+	/**
 	 * Get site's followers.
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/followers/
@@ -296,6 +324,31 @@ class WPCOM_Stats {
 	 * @return array|WP_Error
 	 */
 	public function get_total_post_views( $args = array() ) {
+		if ( $this->is_wpcom_simple ) {
+			$post_ids         = isset( $args['post_ids'] ) ? explode( ',', $args['post_ids'] ) : array();
+			$escaped_post_ids = implode( ',', array_map( 'esc_sql', $post_ids ) );
+
+			$number_of_days = isset( $args['num'] ) ? absint( $args['num'] ) : 1;
+			// It's the same function used in WPCOM simple.
+			// @phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+			$end_date = $args['end'] ?? date( 'Y-m-d' );
+
+			$stats = $this->fetch_stats_on_wpcom_simple( $end_date, $number_of_days, $escaped_post_ids );
+
+			$post_views = $stats['-'] ?? array();
+
+			$posts = array_map(
+				function ( $post_id ) use ( $post_views ) {
+					return array(
+						'ID'    => $post_id,
+						'views' => $post_views[ $post_id ] ?? 0,
+					);
+				},
+				$post_ids
+			);
+
+			return array( 'posts' => $posts );
+		}
 
 		$this->resource = 'views/posts';
 
@@ -491,6 +544,19 @@ class WPCOM_Stats {
 		}
 
 		return json_decode( $response_body, true );
+	}
+
+	/**
+	 * Fetch the stats when executed in WPCOM Simple.
+	 *
+	 * @param string $end_date         The end date.
+	 * @param int    $number_of_days   The number of days.
+	 * @param string $escaped_post_ids The escaped post ids.
+	 *
+	 * @return array
+	 */
+	protected function fetch_stats_on_wpcom_simple( $end_date, $number_of_days, $escaped_post_ids ) {
+		return stats_get_daily_history( null, get_current_blog_id(), 'postviews', 'post_id', $end_date, $number_of_days, " AND post_id IN ($escaped_post_ids)", 0, true );
 	}
 
 	/**

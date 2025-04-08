@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import Gridicon from 'components/gridicon';
 import React from 'react';
+import Gridicon from 'components/gridicon';
 
 import './style.scss';
 

@@ -4,14 +4,15 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"automattic/jetpack-constants": "@dev"
 	},
 	"require-dev": {
-		"brain/monkey": "2.6.1",
-		"yoast/phpunit-polyfills": "^1.1.1",
+		"brain/monkey": "^2.6.2",
+		"yoast/phpunit-polyfills": "^3.0.0",
 		"automattic/jetpack-changelogger": "@dev",
-		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0"
+		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
+		"automattic/phpunit-select-config": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -32,8 +33,9 @@
 			"pnpm run build-production"
 		],
 		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
+		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
 		"test-js": [
 			"pnpm run test"
 		],
@@ -60,7 +62,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.3.x-dev"
+			"dev-trunk": "4.0.x-dev"
 		}
 	}
 }

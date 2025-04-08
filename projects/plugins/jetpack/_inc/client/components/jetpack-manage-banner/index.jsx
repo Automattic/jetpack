@@ -1,8 +1,8 @@
 import { getRedirectUrl, UpsellBanner } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect } from 'react';
+import analytics from 'lib/analytics';
 import jetpackManageIcon from './jetpack-manage.svg';
 
 const JetpackManageBanner = inprops => {

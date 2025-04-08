@@ -7,6 +7,7 @@ import {
 	Critical_CSS_Error_Type,
 	Provider,
 } from './stores/critical-css-state-types';
+import { ProviderRecommendation } from './stores/recommendation-types';
 
 /**
  * Specification for a set of errors that can appear as a part of a recommendation.
@@ -31,6 +32,11 @@ export function isFatalError( cssState: CriticalCssState ): boolean {
 	}
 
 	if ( cssState.status === 'not_generated' ) {
+		return false;
+	}
+
+	// If there are no providers, the state is being re-initialized. So dismiss any show-stopper errors.
+	if ( cssState.providers.length === 0 ) {
 		return false;
 	}
 
@@ -65,7 +71,9 @@ export function getPrimaryErrorSet( cssState: CriticalCssState ): ErrorSet | und
 	const primaryProviders = [ 'core_front_page', 'core_posts_page' ];
 
 	for ( const key of primaryProviders ) {
-		const provider = providersWithErrors.find( p => p.key === key );
+		const provider = providersWithErrors.find(
+			p => p.key === key || p.key.startsWith( 'cornerstone_' )
+		);
 		if ( provider && provider.errors ) {
 			return getPrimaryGroupedError( provider.errors );
 		}
@@ -132,4 +140,56 @@ export function groupKey( error: CriticalCssErrorDetails ) {
 	}
 
 	return error.type;
+}
+
+type RecommendationsResult = {
+	activeRecommendations: ProviderRecommendation[];
+	dismissedRecommendations: ProviderRecommendation[];
+};
+
+type ErrorsByType = Record< Critical_CSS_Error_Type, CriticalCssErrorDetails[] >;
+
+export function groupRecommendationsByStatus(
+	providersWithIssues: Provider[]
+): RecommendationsResult {
+	const activeRecommendations: ProviderRecommendation[] = [];
+	const dismissedRecommendations: ProviderRecommendation[] = [];
+
+	providersWithIssues.forEach( provider => {
+		const providerErrors = provider.errors || [];
+		// Group errors by type first
+		const errorsByType = providerErrors.reduce( ( acc, error ) => {
+			if ( ! acc[ error.type ] ) {
+				acc[ error.type ] = [];
+			}
+			acc[ error.type ].push( error );
+			return acc;
+		}, {} as ErrorsByType );
+
+		const errorTypeGroups = Object.entries( errorsByType ) as [
+			Critical_CSS_Error_Type,
+			CriticalCssErrorDetails[],
+		][];
+
+		// For each error type group, check if it's dismissed
+		errorTypeGroups.forEach( ( [ errorType, errors ] ) => {
+			if ( provider.dismissed_errors?.includes( errorType ) ) {
+				dismissedRecommendations.push( {
+					key: provider.key,
+					label: provider.label,
+					errorType: errorType,
+					errors: errors,
+				} );
+			} else {
+				activeRecommendations.push( {
+					key: provider.key,
+					label: provider.label,
+					errorType: errorType,
+					errors: errors,
+				} );
+			}
+		} );
+	} );
+
+	return { activeRecommendations, dismissedRecommendations };
 }

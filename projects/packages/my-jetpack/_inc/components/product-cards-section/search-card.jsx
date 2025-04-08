@@ -7,7 +7,7 @@ const SearchCard = props => {
 };
 
 SearchCard.propTypes = {
-	admin: PropTypes.bool.isRequired,
+	admin: PropTypes.bool,
 };
 
 export default SearchCard;

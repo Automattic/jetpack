@@ -10,10 +10,12 @@ const Notice = ( { children, type = 'default', actions = [], onDismiss } ) => {
 
 	return (
 		<div className={ className }>
-			<div className={ styles.content }> { children } </div>
+			<div> { children } </div>
 			{ onDismiss && (
 				<button className={ styles.dismiss } onClick={ onDismiss }>
-					<VisuallyHidden>{ __( 'Dismiss notice', 'jetpack' ) }</VisuallyHidden>
+					<VisuallyHidden>
+						{ __( 'Dismiss notice', 'jetpack-publicize-components' ) }
+					</VisuallyHidden>
 					<Icon icon={ closeSmall } />
 				</button>
 			) }

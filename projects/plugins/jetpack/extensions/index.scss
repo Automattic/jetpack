@@ -2,7 +2,7 @@
 
 .is-beta-extension {
 	position: relative;
-	box-shadow: 0 0 3px var( --jp-green-30 );
+	box-shadow: 0 0 0px 15px white, 0 0 0px 16px var( --jp-green-30 );
 	transition: 0.5s box-shadow linear;
 
 	&.inset-shadow {
@@ -31,9 +31,24 @@
 	&:focus,
 	&:hover {
 		box-shadow: none;
+
 		&::before {
 			opacity: 0;
 			visibility: hidden;
 		}
 	}
+}
+
+.jetpack-likes-sharing-panel {
+
+	.components-toggle-control {
+		margin-bottom: 10px;
+	}
+}
+
+// To match the new default height of the Range Control input field.
+// Affects RangeControl components using the allowReset prop.
+.components-range-control__reset.is-secondary.is-small {
+	height: 40px;
+	min-height: 40px;
 }

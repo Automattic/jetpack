@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
@@ -347,6 +348,23 @@ class Wpcom_Products {
 		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, 5 );
 
 		return $purchases;
+	}
+
+	/**
+	 * Gets the site's currently active "plan" (bundle).
+	 *
+	 * @param bool $reload  Whether to refresh data from wpcom or not.
+	 * @return array
+	 */
+	public static function get_site_current_plan( $reload = false ) {
+		static $reloaded_already = false;
+
+		if ( $reload && ! $reloaded_already ) {
+			Current_Plan::refresh_from_wpcom();
+			$reloaded_already = true;
+		}
+
+		return Current_Plan::get();
 	}
 
 	/**

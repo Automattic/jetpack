@@ -1,14 +1,14 @@
 import formatCurrency from '@automattic/format-currency';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getSocialScriptData } from '@automattic/jetpack-publicize-components';
-import { sprintf, __, _x } from '@wordpress/i18n';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { sprintf, __ } from '@wordpress/i18n';
 import {
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
-	PLAN_JETPACK_CREATOR_YEARLY,
+	PLAN_JETPACK_GROWTH_YEARLY,
 } from 'lib/plans/constants';
 import {
 	getSiteAdminUrl,
@@ -79,16 +79,10 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 			};
 		case 'publicize':
 			return {
-				configureButtonLabel: getSocialScriptData().feature_flags.useAdminUiV1
-					? __( 'View Jetpack Social settings', 'jetpack' )
-					: _x( 'Manage connections', '', 'jetpack' ),
+				configureButtonLabel: __( 'View Jetpack Social settings', 'jetpack' ),
 				displayName: __( 'Social Media Sharing', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
-				configLink: getSocialScriptData().feature_flags.useAdminUiV1
-					? '#/sharing'
-					: getRedirectUrl( 'calypso-marketing-connections', {
-							site: getSiteRawUrl( state ),
-					  } ),
+				configLink: getAdminUrl( 'admin.php?page=jetpack-social' ),
 			};
 		case 'videopress':
 			return {
@@ -163,13 +157,13 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 			return {
 				displayName: __( 'Social Media Sharing', 'jetpack' ),
 				ctaLabel: __( 'Manage', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+				ctaLink: getAdminUrl( 'admin.php?page=jetpack-social' ),
 			};
 		case 'social-v1-activated':
 			return {
 				displayName: __( 'Advanced Sharing Features', 'jetpack' ),
 				ctaLabel: __( 'Manage', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+				ctaLink: getAdminUrl( 'admin.php?page=jetpack-social' ),
 			};
 		case 'antispam-activated':
 			return {
@@ -548,9 +542,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'Manage Social Media Connections', 'jetpack' ),
-				ctaLink: getRedirectUrl( 'calypso-marketing-connections', {
-					site: getSiteRawUrl( state ),
-				} ),
+				ctaLink: getAdminUrl( 'admin.php?page=jetpack-social' ),
 				illustration: 'assistant-jetpack-social',
 				skipText: __( 'Next', 'jetpack' ),
 			};
@@ -562,11 +554,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'Manage Social Media Connections', 'jetpack' ),
-				ctaLink: getSocialScriptData().feature_flags.useAdminUiV1
-					? getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing'
-					: getRedirectUrl( 'calypso-marketing-connections', {
-							site: getSiteRawUrl( state ),
-					  } ),
+				ctaLink: getAdminUrl( 'admin.php?page=jetpack-social' ),
 				ctaForceExternal: true,
 				illustration: 'assistant-jetpack-social',
 				skipText: __( 'Next', 'jetpack' ),
@@ -579,7 +567,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+				ctaLink: getAdminUrl( 'admin.php?page=jetpack-social' ),
 				ctaForceExternal: true,
 				illustration: 'assistant-social-image-post',
 				skipText: __( 'Next', 'jetpack' ),
@@ -631,9 +619,10 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+				ctaLink: getAdminUrl( 'admin.php?page=jetpack-social' ),
 				illustration: 'assistant-jetpack-social',
 				skipText: __( 'Next', 'jetpack' ),
+				ctaForceExternal: true,
 			};
 		case 'social-v1-activated':
 			return {
@@ -643,9 +632,10 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+				ctaLink: getAdminUrl( 'admin.php?page=jetpack-social' ),
 				illustration: 'assistant-social-image-post',
 				skipText: __( 'Next', 'jetpack' ),
+				ctaForceExternal: true,
 			};
 		case 'antispam-activated':
 			return {
@@ -806,17 +796,17 @@ export const getProductCardData = ( state, productSlug ) => {
 				productCardList: products.security ? products.security.features : [],
 				productCardIcon: '/recommendations/cloud-icon.svg',
 			};
-		// Creator Plan
-		case PLAN_JETPACK_CREATOR_YEARLY:
+		// Growth Plan
+		case PLAN_JETPACK_GROWTH_YEARLY:
 			return {
-				productCardTitle: __( 'Grow and monetize your audience', 'jetpack' ),
+				productCardTitle: __( 'Grow and track your audience effortlessly', 'jetpack' ),
 				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
 					site: siteRawUrl,
 					path: productSlug,
 				} ),
-				productCardCtaText: __( 'Get Jetpack Creator', 'jetpack' ),
-				productCardList: products.creator ? products.creator.features : [],
-				productCardIcon: '/recommendations/creator-icon.svg',
+				productCardCtaText: __( 'Get Jetpack Growth', 'jetpack' ),
+				productCardList: products.growth ? products.growth.features : [],
+				productCardIcon: '/recommendations/growth-icon.svg',
 			};
 		case PLAN_JETPACK_ANTI_SPAM:
 			return {

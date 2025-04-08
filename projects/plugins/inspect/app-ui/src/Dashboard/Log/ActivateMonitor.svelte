@@ -1,11 +1,10 @@
 <script lang="ts">
-	import Toggle from "../../Components/Toggle.svelte";
-	import Filters from "./Filters.svelte";
+	import Toggle from '../../Components/Toggle.svelte';
+	import Filters from './Filters.svelte';
 
 	export let label: string;
 	export let isActive = false;
 	export let filter: string;
-
 </script>
 
 <div class="monitor-control">
@@ -19,7 +18,7 @@
 <style>
 	strong {
 		flex: 2;
-		font-size: .85rem;
+		font-size: 0.85rem;
 	}
 	.inline {
 		display: flex;

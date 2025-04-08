@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Use default devtool from js-packages/webpack-config now that it matches what was being used here already.
-
-

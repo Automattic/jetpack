@@ -46,10 +46,9 @@ class LatestAutoloaderGuardTest extends TestCase {
 
 	/**
 	 * Setup runs before each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->plugins_handler    = $this->getMockBuilder( Plugins_Handler::class )
 			->disableOriginalConstructor()
 			->getMock();

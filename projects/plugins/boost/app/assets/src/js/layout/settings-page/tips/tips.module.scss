@@ -9,6 +9,7 @@
 	}
 
 	.tips-items {
+
 		@include breakpoint(md) {
 			display: grid;
 			grid-template-columns: 1fr 1fr;
@@ -17,6 +18,7 @@
 	}
 
 	.item {
+
 		@include breakpoint(sm) {
 			display: grid;
 			grid-template-columns: 80px 1fr;

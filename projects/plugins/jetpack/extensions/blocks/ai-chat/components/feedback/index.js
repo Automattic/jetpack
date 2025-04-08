@@ -89,6 +89,8 @@ export default function Feedback( { blogType, blogId, cacheKey, feedbackSubmitte
 								value={ feedback.comment }
 								disabled={ isSubmittingFeedback || feedbackSubmittedForThisQuestion }
 								onChange={ newComment => setFeedback( { ...feedback, comment: newComment } ) }
+								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 							<Button
 								className="wp-block-button__link jetpack-ai-chat-feedback-submit"

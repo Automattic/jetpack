@@ -1,4 +1,5 @@
 /* eslint-disable no-var */
+/* global jQuery */
 
 jQuery( document ).ready( function ( $ ) {
 	// Refresh our hidden field value if any checkboxes change

@@ -66,7 +66,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'design_selected',
-				'setup_link_in_bio',
 				'plan_selected',
 				'links_added',
 				'link_in_bio_launched',
@@ -79,7 +78,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'design_selected',
-				'setup_link_in_bio',
 				'plan_selected',
 				'links_added',
 				'link_in_bio_launched',
@@ -102,6 +100,32 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
+		'intent-newsletter-goal'  => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'            => array(
+				'verify_email',
+				'site_title',
+				'start_building_your_audience',
+				'customize_welcome_message',
+				'first_post_published',
+				'site_launched',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
+		),
+		'create-course-goal'      => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'            => array(
+				'site_title',
+				'verify_email',
+				'domain_customize',
+				'site_launched',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
+		),
 		'videopress'              => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
@@ -119,9 +143,10 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
-				'setup_write',
-				'design_completed',
-				'plan_selected',
+				'verify_email',
+				'site_title',
+				'start_building_your_audience',
+				'complete_profile',
 				'first_post_published',
 				'site_launched',
 			),
@@ -304,6 +329,23 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'site_launched',
 			),
 		),
+		'sell'                    => array(
+			'get_title'      => function () {
+				return __( 'Site setup', 'jetpack-mu-wpcom' );
+			},
+			'is_dismissible' => true,
+			'task_ids'       => array(
+				'woocommerce_setup',
+				'sensei_setup',
+				'site_title',
+				'front_page_updated',
+				'verify_domain_email',
+				'verify_email',
+				'mobile_app_installed',
+				'post_sharing_enabled',
+				'site_launched',
+			),
+		),
 		'entrepreneur-site-setup' => array(
 			'task_ids' => array(
 				'woo_customize_store',
@@ -313,6 +355,19 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'woo_marketing',
 				'woo_add_domain',
 				'woo_launch_site',
+			),
+		),
+		'post-migration'          => array(
+			'get_title' => function () {
+				return __( 'Site migration', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'  => array(
+				'migrating_site',
+				'review_site',
+				'review_plugins',
+				'connect_migration_domain',
+				'domain_dns_mapped',
+				'check_ssl_status',
 			),
 		),
 	);
@@ -1078,6 +1133,19 @@ function wpcom_launchpad_is_paid_newsletter_enabled() {
 	return wpcom_launchpad_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
 }
 
+/**
+ * Checks if the Newsletter goal flow task list is enabled.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_newsletter_goal_enabled() {
+	$intent = get_option( 'site_intent', false );
+	if ( 'intent-newsletter-goal' !== $intent ) {
+		return false;
+	}
+
+	return apply_filters( 'wpcom_launchpad_intent_newsletter_goal_enabled', false );
+}
 /**
  * Add launchpad options to Jetpack Sync.
  *

@@ -39,6 +39,7 @@
 }
 
 @media screen and (max-width: 782px) {
+
     .fixed .column-comment_likes {
         display: none;
     }

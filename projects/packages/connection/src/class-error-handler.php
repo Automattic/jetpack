@@ -691,7 +691,7 @@ class Error_Handler {
 		/**
 		 * Fires inside the admin_notices hook just before displaying the error message for a broken connection.
 		 *
-		 * If you want to disable the default message from being displayed, return an emtpy value in the jetpack_connection_error_notice_message filter.
+		 * If you want to disable the default message from being displayed, return an empty value in the jetpack_connection_error_notice_message filter.
 		 *
 		 * @since 8.9.0
 		 *

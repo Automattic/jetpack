@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, ButtonGroup } from '@wordpress/components';
+import { Button, Flex } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useImperativeHandle, useRef, useEffect, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -46,6 +46,8 @@ type ExtensionAIControlProps = {
 	onUndo?: () => void;
 	onUpgrade?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	onTryAgain?: () => void;
+	lastAction?: string;
+	blockType: string;
 };
 
 /**
@@ -78,6 +80,8 @@ export function ExtensionAIControl(
 		onUndo,
 		onUpgrade,
 		onTryAgain,
+		lastAction,
+		blockType,
 	}: ExtensionAIControlProps,
 	ref: React.MutableRefObject< HTMLInputElement >
 ): ReactElement {
@@ -85,6 +89,7 @@ export function ExtensionAIControl(
 	const [ editRequest, setEditRequest ] = useState( false );
 	const [ lastValue, setLastValue ] = useState( value || null );
 	const promptUserInputRef = useRef( null );
+	const isDone = value?.length <= 0 && state === 'done';
 
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );
@@ -183,9 +188,9 @@ export function ExtensionAIControl(
 							</Button>
 						</div>
 					) }
-					{ value?.length <= 0 && state === 'done' && (
+					{ isDone && (
 						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
-							<ButtonGroup>
+							<Flex gap={ 1 } role="group" className="jetpack-components-ai-control__button-group">
 								<Button
 									className="jetpack-components-ai-control__controls-prompt_button"
 									label={ __( 'Undo', 'jetpack-ai-client' ) }
@@ -202,7 +207,7 @@ export function ExtensionAIControl(
 								>
 									{ __( 'Close', 'jetpack-ai-client' ) }
 								</Button>
-							</ButtonGroup>
+							</Flex>
 						</div>
 					) }
 				</>
@@ -233,7 +238,18 @@ export function ExtensionAIControl(
 			/>
 		);
 	} else if ( showGuideLine ) {
-		message = <GuidelineMessage />;
+		message = isDone ? (
+			<GuidelineMessage
+				aiFeedbackThumbsOptions={ {
+					showAIFeedbackThumbs: true,
+					ratedItem: 'ai-assistant',
+					prompt: lastAction,
+					block: blockType,
+				} }
+			/>
+		) : (
+			<GuidelineMessage />
+		);
 	}
 
 	return (

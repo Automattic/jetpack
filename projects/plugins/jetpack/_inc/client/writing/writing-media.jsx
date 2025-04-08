@@ -1,12 +1,12 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
+import { connect } from 'react-redux';
 import { FormFieldset, FormLegend, FormLabel, FormSelect } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import React from 'react';
-import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 
@@ -49,7 +49,7 @@ function WritingMedia( props ) {
 			checked={ checked }
 			disabled={ ! isCarouselActive || props.isSavingAnyOption( [ 'carousel' ] ) }
 			toggling={ props.isSavingAnyOption( [ optionName ] ) }
-			onChange={ onChangeHandler /* eslint-disable-line */ }
+			onChange={ onChangeHandler }
 			label={ label }
 		/>
 	);

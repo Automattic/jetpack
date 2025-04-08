@@ -21,6 +21,7 @@
 }
 
 @media ( min-width: 481px ) {
+
 	.card {
 		padding: 24px;
 	}
@@ -342,6 +343,7 @@ input[type="radio"] + span {
 }
 
 @keyframes grow {
+
 	0% {
 		transform: scale(0.3);
 	}
@@ -356,6 +358,7 @@ input[type="radio"] + span {
 }
 
 @keyframes grow {
+
 	0% {
 		transform: scale(0.3);
 	}
@@ -394,6 +397,7 @@ select {
 	vertical-align: top;
 	white-space: nowrap;
 	box-sizing: border-box;
+
 	/* Aligns the text to the 8px baseline grid and adds padding on right to allow for the arrow. */
 	padding: 7px 32px 9px 14px;
 	-webkit-appearance: none;

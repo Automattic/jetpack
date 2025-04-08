@@ -15,9 +15,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test base class for changelog parsers.
  */
-class ParserTestCase extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
+abstract class ParserTestCase extends TestCase {
 
 	/**
 	 * Parser class being tested.
@@ -31,7 +29,7 @@ class ParserTestCase extends TestCase {
 	 *
 	 * @var string
 	 */
-	protected $fixtures;
+	protected static $fixtures;
 
 	/**
 	 * Set to update fixture files after running tests.
@@ -275,9 +273,9 @@ class ParserTestCase extends TestCase {
 	/**
 	 * Data provider for testFixture.
 	 */
-	public function provideFixture() {
+	public static function provideFixture() {
 		$ret = array();
-		foreach ( glob( $this->fixtures ) as $filename ) {
+		foreach ( glob( static::$fixtures ) as $filename ) {
 			$ret[ basename( $filename ) ] = array( $filename );
 		}
 		return $ret;

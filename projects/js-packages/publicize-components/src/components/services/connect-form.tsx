@@ -1,11 +1,12 @@
 import { Button } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback } from 'react';
 import { store } from '../../social-store';
 import { KeyringResult } from '../../social-store/types';
 import { SupportedService } from '../services/use-supported-services';
+import { CustomInputs } from './custom-inputs';
 import styles from './style.module.scss';
 import { useRequestAccess } from './use-request-access';
 
@@ -23,7 +24,7 @@ type ConnectFormProps = {
  *
  * @param {ConnectFormProps} props - Component props
  *
- * @return {import('react').ReactNode} Connect form component
+ * @return Connect form component
  */
 export function ConnectForm( {
 	service,
@@ -36,6 +37,13 @@ export function ConnectForm( {
 	const { setKeyringResult } = useDispatch( store );
 
 	const { isConnectionsModalOpen } = useSelect( select => select( store ), [] );
+
+	const [ isConnecting, setIsConnecting ] = useState( false );
+
+	const isFetchingServicesList = useSelect(
+		select => select( store ).isFetchingServicesList(),
+		[]
+	);
 
 	const onConfirm = useCallback(
 		( result: KeyringResult ) => {
@@ -53,7 +61,7 @@ export function ConnectForm( {
 	} );
 
 	const onSubmitForm = useCallback(
-		( event: React.FormEvent ) => {
+		async ( event: React.FormEvent ) => {
 			event.preventDefault();
 			// Prevent Jetpack settings from being submitted
 			event.stopPropagation();
@@ -62,8 +70,11 @@ export function ConnectForm( {
 				return onSubmit();
 			}
 
+			setIsConnecting( true );
+
 			const formData = new FormData( event.target as HTMLFormElement );
-			requestAccess( formData );
+
+			await requestAccess( formData );
 		},
 		[ onSubmit, requestAccess ]
 	);
@@ -74,31 +85,35 @@ export function ConnectForm( {
 			onSubmit={ onSubmitForm }
 		>
 			{ displayInputs ? (
-				<>
-					{ 'mastodon' === service.ID ? (
-						<input
-							required
-							type="text"
-							name="instance"
-							aria-label={ __( 'Mastodon username', 'jetpack' ) }
-							placeholder={ '@mastodon@mastodon.social' }
-						/>
-					) : null }
-				</>
+				<div className={ clsx( styles[ 'fields-wrapper' ], styles.input ) }>
+					<CustomInputs service={ service } />
+				</div>
 			) : null }
-			<Button
-				variant={ hasConnections ? 'secondary' : 'primary' }
-				type="submit"
-				className={ styles[ 'connect-button' ] }
-			>
-				{ ( label => {
-					if ( label ) {
-						return label;
-					}
 
-					return hasConnections ? _x( 'Connect more', '', 'jetpack' ) : __( 'Connect', 'jetpack' );
-				} )( buttonLabel ) }
-			</Button>
+			<div className={ styles[ 'fields-wrapper' ] }>
+				<div className={ styles[ 'fields-item' ] }>
+					<Button
+						variant={ hasConnections ? 'secondary' : 'primary' }
+						type="submit"
+						className={ styles[ 'connect-button' ] }
+						disabled={ isFetchingServicesList }
+					>
+						{ ( label => {
+							if ( label ) {
+								return label;
+							}
+
+							if ( isFetchingServicesList && isConnecting ) {
+								return __( 'Connecting…', 'jetpack-publicize-components' );
+							}
+
+							return hasConnections
+								? _x( 'Connect more', '', 'jetpack-publicize-components' )
+								: __( 'Connect', 'jetpack-publicize-components' );
+						} )( buttonLabel ) }
+					</Button>
+				</div>
+			</div>
 		</form>
 	);
 }

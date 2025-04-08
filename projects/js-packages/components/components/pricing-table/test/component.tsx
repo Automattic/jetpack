@@ -1,5 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import PricingTable, { PricingTableColumn, PricingTableHeader, PricingTableItem } from '../index';
+import PricingTable, {
+	PricingTableColumn,
+	PricingTableHeader,
+	PricingTableItem,
+} from '../index.js';
 
 describe( 'PricingTable', () => {
 	const testProps = {
@@ -36,6 +40,6 @@ describe( 'PricingTable', () => {
 		render( <PricingTable { ...testProps }></PricingTable> );
 		expect( screen.getAllByText( 'Dummy Item 1' ) ).toHaveLength( 2 );
 		expect( screen.getAllByText( 'Dummy Item 2' ) ).toHaveLength( 2 );
-		expect( screen.getAllByText( 'Dummy Item 3' ) ).toHaveLength( 1 ); // eslint-disable-line jest-dom/prefer-in-document
+		expect( screen.getAllByText( 'Dummy Item 3' ) ).toHaveLength( 1 );
 	} );
 } );

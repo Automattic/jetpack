@@ -1,6 +1,7 @@
 @import '@automattic/jetpack-base-styles/root-variables';
 
 .jetpack-ai-logo-generator-modal {
+
 	@media (min-width: 960px) {
 		max-height: 90%;
 	}
@@ -16,19 +17,6 @@
 
 		> div:not(.components-modal__header) {
 			height: 100%;
-		}
-	}
-
-	.components-button {
-		&:focus:not(:disabled):not(.is-primary) {
-			box-shadow: 0 0 0 2px var(--color-link, #3858e9);
-		}
-
-		&.is-link {
-			text-decoration: none;
-			&:not(:disabled) {
-				color: var(--color-link, #3858e9);
-			}
 		}
 	}
 }
@@ -52,17 +40,7 @@
 
 .jetpack-ai-logo-generator__footer {
 	display: flex;
-
-	.jetpack-ai-logo-generator__feedback-button {
-		display: flex;
-		gap: 4px;
-		align-items: center;
-		margin-top: 8px;
-
-		.icon {
-			color: var(--studio-gray-20);
-		}
-	}
+	justify-content: space-between;
 }
 
 .jetpack-ai-logo-generator-modal__notice-message-wrapper {

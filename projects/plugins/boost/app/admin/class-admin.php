@@ -11,12 +11,11 @@ namespace Automattic\Jetpack_Boost\Admin;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
-use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 
 class Admin {
 	/**
@@ -32,7 +31,7 @@ class Admin {
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
-		add_action( 'admin_menu', array( $this, 'handle_admin_menu' ) );
+		add_action( 'admin_menu', array( $this, 'handle_admin_menu' ), 1 ); // Akismet uses 4, so we use 1 to ensure both menus are added when only they exist.
 	}
 
 	public function handle_admin_menu() {
@@ -46,7 +45,7 @@ class Admin {
 		$total_problems = apply_filters( 'jetpack_boost_total_problem_count', 0 );
 		$menu_label     = _x( 'Boost', 'The Jetpack Boost product name, without the Jetpack prefix', 'jetpack-boost' );
 		if ( $total_problems ) {
-			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_problems );
+			$menu_label .= sprintf( ' <span class="menu-counter count-%d"><span class="count">%d</span></span>', $total_problems, $total_problems );
 		}
 
 		$page_suffix = Admin_Menu::add_menu(
@@ -67,6 +66,7 @@ class Admin {
 		// Clear premium features cache when the plugin settings page is loaded.
 		Premium_Features::clear_cache();
 
+		add_action( 'admin_enqueue_scripts', array( My_Jetpack_Initializer::class, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
@@ -83,28 +83,13 @@ class Admin {
 		 */
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
-		$critical_css_gen_handle = 'jetpack-boost-critical-css-gen';
-
-		Assets::register_script(
-			$critical_css_gen_handle,
-			$internal_path . 'critical-css-gen.js',
-			JETPACK_BOOST_PATH,
-			array(
-				'in_footer' => true,
-			)
-		);
-
 		$admin_js_handle = 'jetpack-boost-admin';
 
 		$admin_js_dependencies = array(
 			'wp-i18n',
 			'wp-components',
+			'my_jetpack_main_app',
 		);
-
-		// Enqueue the critical CSS generator script if Critical CSS is available.
-		if ( ( new Modules_Index() )->is_module_available( Critical_CSS::get_slug() ) ) {
-			$admin_js_dependencies[] = $critical_css_gen_handle;
-		}
 
 		Assets::register_script(
 			$admin_js_handle,

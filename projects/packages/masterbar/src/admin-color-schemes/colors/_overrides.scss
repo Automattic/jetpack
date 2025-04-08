@@ -25,6 +25,26 @@
 		background: $masterbar-highlight-background;
 	}
 
+	#wpadminbar .menupop .ab-sub-wrapper {
+		background: $masterbar-submenu-background;
+	}
+	
+	#wpadminbar .quicklinks .menupop ul.ab-sub-secondary,
+	#wpadminbar .quicklinks .menupop ul.ab-sub-secondary .ab-submenu {
+		background: $masterbar-submenu-background-alt;
+	}
+
+	#wpadminbar:not(.mobile) li:hover .ab-icon:before,
+	#wpadminbar:not(.mobile) li:hover .ab-item:before,
+	#wpadminbar:not(.mobile) li:hover .ab-item:after,
+	#wpadminbar:not(.mobile) li:hover #adminbarsearch:before {
+		color: $menu-submenu-focus-text;
+	}
+
+	#wpadminbar #wp-admin-bar-user-info .display-name,
+	#wpadminbar #wp-admin-bar-user-info .username {
+		color: $menu-submenu-text;
+	}
 }
 
 // Make current submenu icon color stay the same on hover
@@ -34,8 +54,13 @@
 #adminmenu a.wp-has-current-submenu:hover div.wp-menu-image:before,
 #adminmenu a.current:hover div.wp-menu-image:before,
 #adminmenu li.wp-has-current-submenu a:focus div.wp-menu-image:before,
-#adminmenu li.wp-has-current-submenu.opensub div.wp-menu-image:before {
+#adminmenu li.wp-has-current-submenu.opensub a.menu-top div.wp-menu-image:before {
 	color: $menu-current-text;
+}
+
+// Make current menu icon color stay the same on focus
+#adminmenu li a:focus div.wp-menu-image:before {
+	color: $menu-highlight-text;
 }
 
 // Make current submenu item color stay the same on hover/focus

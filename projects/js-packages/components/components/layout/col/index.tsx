@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { createElement } from 'react';
-import { ColProps } from '../types';
+import { ColProps } from '../types.js';
 import styles from './style.module.scss';
 import type React from 'react';
 

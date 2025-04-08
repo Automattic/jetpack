@@ -1,8 +1,12 @@
 import jQuery from 'jquery';
-
+import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 import '../css/jetpack-admin-jitm.scss';
 
 jQuery( document ).ready( function ( $ ) {
+	// Site ID will be automatically added to the request.
+	const JITM_ENDPOINT_URL = `/wpcom/v3/jitm`;
+
 	var templates = {
 		default: function ( envelope ) {
 			const EXTERNAL_LINK_ICON = `
@@ -54,11 +58,7 @@ jQuery( document ).ready( function ( $ ) {
 								'</a>';
 						}
 
-						html +=
-							'<li>' +
-							CHECKMARK_ICON +
-							text +
-							'</li>';
+						html += '<li>' + CHECKMARK_ICON + text + '</li>';
 					}
 				}
 				html += '</div>';
@@ -73,7 +73,8 @@ jQuery( document ).ready( function ( $ ) {
 				html +=
 					'<a href="#" data-module="' +
 					envelope.activate_module +
-					'" data-settings_link="' + envelope.module_settings_link +
+					'" data-settings_link="' +
+					envelope.module_settings_link +
 					'" type="button" class="jitm-button is-compact is-primary" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
 					envelope.id +
 					'-activate_module" data-jitm-path="' +
@@ -82,8 +83,9 @@ jQuery( document ).ready( function ( $ ) {
 					window.jitm_config.activate_module_text +
 					'</a>';
 				html += '</div>';
-				if ( envelope.module_settings_link){
-					html += '<div class="jitm-banner__action" id="jitm-banner__settings" style="display:none;">';
+				if ( envelope.module_settings_link ) {
+					html +=
+						'<div class="jitm-banner__action" id="jitm-banner__settings" style="display:none;">';
 					html +=
 						'<a href="' +
 						envelope.module_settings_link +
@@ -128,8 +130,8 @@ jQuery( document ).ready( function ( $ ) {
 					( ajaxAction ? 'data-ajax-action="' + ajaxAction + '"' : '' ) +
 					'>' +
 					envelope.CTA.message +
-					( externalLink ? EXTERNAL_LINK_ICON : '' )
-					'</a>';
+					( externalLink ? EXTERNAL_LINK_ICON : '' );
+				( '</a>' );
 				html += '</div>';
 			}
 
@@ -156,12 +158,9 @@ jQuery( document ).ready( function ( $ ) {
 
 				$my_template.hide();
 
-				$.ajax( {
-					url: window.jitm_config.api_root + 'jetpack/v4/jitm',
-					method: 'POST', // using DELETE without permalinks is broken in default nginx configuration
-					beforeSend: function ( xhr ) {
-						xhr.setRequestHeader( 'X-WP-Nonce', window.jitm_config.nonce );
-					},
+				apiFetch( {
+					path: JITM_ENDPOINT_URL,
+					method: 'POST',
 					data: {
 						id: response.id,
 						feature_class: response.feature_class,
@@ -260,7 +259,6 @@ jQuery( document ).ready( function ( $ ) {
 
 		// Handle tracking for JITM CTA buttons
 		$template.find( '.jitm-button' ).on( 'click', function ( e ) {
-
 			var button = $( this );
 			var eventName = button.attr( 'data-jptracks-name' );
 			if ( undefined === eventName ) {
@@ -275,7 +273,7 @@ jQuery( document ).ready( function ( $ ) {
 			};
 
 			if ( window.jpTracksAJAX ) {
-				window.jpTracksAJAX.record_ajax_event(eventName, 'click', eventProp);
+				window.jpTracksAJAX.record_ajax_event( eventName, 'click', eventProp );
 			}
 		} );
 	};
@@ -292,7 +290,7 @@ jQuery( document ).ready( function ( $ ) {
 			hash = hash.replace( /#\//, '_' );
 
 			// We always include the hash if this is My Jetpack page
-			if ( message_path.includes( 'jetpack_page_my-jetpack' )) {
+			if ( message_path.includes( 'jetpack_page_my-jetpack' ) ) {
 				message_path = message_path.replace(
 					'jetpack_page_my-jetpack',
 					'jetpack_page_my-jetpack' + hash
@@ -306,23 +304,18 @@ jQuery( document ).ready( function ( $ ) {
 
 			var full_jp_logo_exists = $( '.jetpack-logo__masthead' ).length ? true : false;
 
-			$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
-				message_path: message_path,
-				query: query,
-				full_jp_logo_exists: full_jp_logo_exists,
-				_wpnonce: $el.data( 'nonce' ),
-			} ).then( function ( response ) {
-				if ( 'object' === typeof response && response[ '1' ] ) {
-					response = [ response[ '1' ] ];
+			apiFetch( {
+				path: addQueryArgs( JITM_ENDPOINT_URL, {
+					message_path,
+					query,
+					full_jp_logo_exists,
+				} ),
+				method: 'GET',
+			} ).then( function ( messages ) {
+				const message = messages?.[ 0 ];
+				if ( message?.content ) {
+					setJITMContent( $el, message, redirect );
 				}
-
-				// properly handle the case of an empty array or no content set
-				if ( 0 === response.length || ! response[ 0 ].content ) {
-					return;
-				}
-
-				// for now, always take the first response
-				setJITMContent( $el, response[ 0 ], redirect );
 			} );
 		} );
 	};

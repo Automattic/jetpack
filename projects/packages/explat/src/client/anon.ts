@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import cookie from 'cookie';
+import { parse as cookieParse } from 'cookie';
 
 let initializeAnonIdPromise: Promise< string | null > | null = null;
 const anonIdPollingIntervalMilliseconds = 50;
@@ -13,7 +13,7 @@ const anonIdPollingIntervalMaxAttempts = 100; // 50 * 100 = 5000 = 5 seconds
  * @return {?string} The anonymous cookie value, or null if it doesn't exist
  */
 export const readAnonCookie = (): string | null => {
-	return cookie.parse( document.cookie ).tk_ai || null;
+	return cookieParse( document.cookie ).tk_ai || null;
 };
 
 /**

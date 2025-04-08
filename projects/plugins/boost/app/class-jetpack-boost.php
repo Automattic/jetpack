@@ -24,6 +24,7 @@ use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Pages;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
@@ -31,11 +32,13 @@ use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
-use Automattic\Jetpack_Boost\Modules\Modules_Index;
+use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Cornerstone_Pages;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -95,9 +98,6 @@ class Jetpack_Boost {
 		$this->connection = new Connection();
 		$this->connection->init();
 
-		// Require plugin features.
-		$this->init_textdomain();
-
 		$this->register_deactivation_hook();
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -108,15 +108,24 @@ class Jetpack_Boost {
 		$modules_setup = new Modules_Setup();
 		Setup::add( $modules_setup );
 
+		$cornerstone_pages = new Cornerstone_Pages();
+		Setup::add( $cornerstone_pages );
+
 		// Initialize the Admin experience.
 		$this->init_admin( $modules_setup );
 
 		// Initiate jetpack sync.
 		$this->init_sync();
 
+		add_action( 'admin_init', array( $this, 'schedule_version_change' ) );
+
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
 		add_action( 'jetpack_boost_critical_css_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
+
+		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
+
+		add_filter( 'cron_schedules', array( $this, 'custom_cron_intervals' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -142,6 +151,56 @@ class Jetpack_Boost {
 		register_deactivation_hook( $plugin_file, array( $this, 'deactivate' ) );
 	}
 
+	public function schedule_version_change() {
+		$version = get_option( 'jetpack_boost_version' );
+
+		if ( $version === JETPACK_BOOST_VERSION ) {
+			return;
+		}
+		update_option( 'jetpack_boost_version', JETPACK_BOOST_VERSION );
+
+		// Schedule the cron event to handle the version change. This ensures the previous version's handle is always flushed.
+		if ( ! wp_next_scheduled( 'jetpack_boost_handle_version_change_cron' ) ) {
+			wp_schedule_single_event( time() + 2, 'jetpack_boost_handle_version_change_cron' );
+		}
+	}
+
+	public function handle_version_change() {
+		// Remove this option to prevent the notice from showing up.
+		delete_site_option( 'jetpack_boost_static_minification' );
+
+		if ( jetpack_boost_minify_is_enabled() ) {
+			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
+			jetpack_boost_minify_clear_scheduled_events();
+			jetpack_boost_minify_activation();
+		}
+
+		$page_cache = new Module( new Page_Cache() );
+		if ( $page_cache->is_enabled() ) {
+			// Schedule the cronjob to preload the cache for Cornerstone Pages.
+			( new Cache_Preload() )->schedule_cornerstone_cronjob();
+		}
+	}
+
+	/**
+	 * Adds custom cron intervals used by Boost.
+	 *
+	 * @param array $schedules The existing cron schedules.
+	 * @return array The modified cron schedules.
+	 *
+	 * @since 3.12.0
+	 */
+	public function custom_cron_intervals( $schedules ) {
+		// The "twicehourly" name maintains the same pattern as the default "twicedaily" name.
+		if ( ! isset( $schedules['twicehourly'] ) ) {
+			$schedules['twicehourly'] = array(
+				'interval' => 30 * MINUTE_IN_SECONDS,
+				'display'  => __( 'Twice Hourly', 'jetpack-boost' ),
+			);
+		}
+		return $schedules;
+	}
+
 	/**
 	 * Add query args used by Boost to a list of allowed query args.
 	 *
@@ -151,7 +210,7 @@ class Jetpack_Boost {
 	 */
 	public static function whitelist_query_args( $allowed_query_args ) {
 		$allowed_query_args[] = Generator::GENERATE_QUERY_ACTION;
-		$allowed_query_args[] = Modules_Index::DISABLE_MODULE_QUERY_VAR;
+		$allowed_query_args[] = Module::DISABLE_MODULE_QUERY_VAR;
 		return $allowed_query_args;
 	}
 
@@ -176,7 +235,6 @@ class Jetpack_Boost {
 		do_action( 'jetpack_boost_deactivate' );
 
 		// Tell Minify JS/CSS to clean up.
-		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
 		jetpack_boost_page_optimize_deactivate();
 
 		Regenerate_Admin_Notice::dismiss();
@@ -190,6 +248,8 @@ class Jetpack_Boost {
 	public function init_admin( $modules_setup ) {
 		REST_API::register( List_Site_Urls::class );
 		REST_API::register( List_Source_Providers::class );
+		REST_API::register( List_Cornerstone_Pages::class );
+
 		$this->connection->ensure_connection();
 		( new Admin() )->init( $modules_setup );
 	}
@@ -203,7 +263,7 @@ class Jetpack_Boost {
 					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
 					'boost_sub_modules_state'      => array( new Modules_Setup(), 'get_all_sub_modules_state' ),
 					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
-					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Modules_Index::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
+					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Module::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
 					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),
 				),
 			)
@@ -278,6 +338,10 @@ class Jetpack_Boost {
 		foreach ( $option_names as $option_name ) {
 			delete_option( $option_name );
 		}
+
+		// Delete the last run options for the network-wide cron jobs.
+		delete_site_option( 'jetpack_boost_404_tester_last_run' );
+		delete_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run' );
 
 		// Delete stored Critical CSS.
 		( new Critical_CSS_Storage() )->clear();

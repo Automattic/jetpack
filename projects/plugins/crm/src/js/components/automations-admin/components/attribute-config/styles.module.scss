@@ -1,4 +1,5 @@
 .container {
+
 	:global( .components-base-control__field ) {
 		margin-bottom: 0;
 	}
@@ -17,6 +18,7 @@
 .datepicker {
 	background: var(--jp-white);
 	padding: var(--jp-modal-padding-small) var(--jp-modal-padding);
+
 	/* Adding styling that matches the WordPress default input styling. */
 	border: 1px solid #949494;
 	border-radius: 2px;

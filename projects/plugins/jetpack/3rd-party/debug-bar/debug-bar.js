@@ -1,8 +1,9 @@
-/* global jQuery, JSON */
+/* global jQuery */
+/* eslint no-var: "off" */
 
-( function( $ ) {
-	$( document ).ready( function() {
-		$( '.jetpack-search-debug-bar .json-toggle-wrap .toggle' ).click( function() {
+( function ( $ ) {
+	$( document ).ready( function () {
+		$( '.jetpack-search-debug-bar .json-toggle-wrap .toggle' ).click( function () {
 			var t = $( this ),
 				wrap = t.closest( '.json-toggle-wrap' ),
 				pre = wrap.find( 'pre' ),

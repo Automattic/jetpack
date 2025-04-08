@@ -2,7 +2,6 @@ import { CURRENCIES } from '@automattic/format-currency';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
-	Button,
 	Dashicon,
 	Dropdown,
 	ExternalLink,
@@ -12,6 +11,7 @@ import {
 	ToggleControl,
 	ToolbarGroup,
 	ToolbarItem,
+	ToolbarButton,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
@@ -70,7 +70,7 @@ const Controls = props => {
 									};
 
 									return (
-										<Button
+										<ToolbarButton
 											className="jetpack-donations__currency-toggle"
 											icon={
 												<>
@@ -112,16 +112,19 @@ const Controls = props => {
 						checked={ monthlyDonation.show }
 						onChange={ value => toggleDonation( '1 month', value ) }
 						label={ __( 'Show monthly donations', 'jetpack' ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
 						checked={ annualDonation.show }
 						onChange={ value => toggleDonation( '1 year', value ) }
 						label={ __( 'Show annual donations', 'jetpack' ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
 						checked={ showCustomAmount }
 						onChange={ value => setAttributes( { showCustomAmount: value } ) }
 						label={ __( 'Show custom amount option', 'jetpack' ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ExternalLink href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
 						{ __( 'View donation earnings', 'jetpack' ) }

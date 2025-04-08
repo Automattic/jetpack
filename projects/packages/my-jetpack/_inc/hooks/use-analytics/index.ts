@@ -3,10 +3,10 @@ import { useCallback, useEffect } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 
-type TracksRecordEvent = (
-	event: `jetpack_${ string }`, // Enforces the event name to start with "jetpack_"
-	properties?: Record< Lowercase< string >, unknown >
-) => void;
+export type TracksEvent = `jetpack_${ string }`; // Enforces the event name to start with "jetpack_"
+export type TracksProperties = Record< Lowercase< string >, unknown >; // Defines the shape of the properties object
+
+type TracksRecordEvent = ( event: TracksEvent, properties?: TracksProperties ) => void;
 
 const useAnalytics = () => {
 	const {
@@ -42,11 +42,11 @@ const useAnalytics = () => {
 	 */
 	const recordEvent = useCallback< TracksRecordEvent >( ( event, properties ) => {
 		jetpackAnalytics.tracks.recordEvent( event, {
-			...properties,
 			version: myJetpackVersion,
 			is_site_connected: isSiteConnected,
 			is_user_connected: isUserConnected,
 			referring_plugins: connectedPluginsSlugs,
+			...properties,
 		} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );

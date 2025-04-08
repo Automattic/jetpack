@@ -79,6 +79,8 @@ export default function DetailsPanel( {
 				}
 				onChange={ value => setAttributes( { title: value } ) }
 				disabled={ isRequestingVideoData || !! updateError || ! videoBelongToSite }
+				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 
 			<TextareaControl
@@ -89,6 +91,7 @@ export default function DetailsPanel( {
 				rows={ descriptionControlRows }
 				disabled={ isRequestingVideoData || !! updateError || ! videoBelongToSite }
 				help={ descriptionHelp }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			{ ! hasUploadedChapters && hasIncompleteChapters && (

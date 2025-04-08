@@ -87,7 +87,7 @@ export class MeasurableImageStore {
 
 		try {
 			fileSize = await this.image.getFileSize( this.currentSrc );
-		} catch ( error ) {
+		} catch {
 			fileSize = {
 				weight: -1,
 				height: -1,

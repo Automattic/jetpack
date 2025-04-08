@@ -9,13 +9,7 @@
  * Date: 01/11/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -227,8 +221,6 @@ function zeroBS_integrations_addOrUpdateCustomer($externalSource='',$externalID=
 
 	#} leave this true and it'll run as normal.
 	$usualUpdate = true;
-	
-	global $zbs;
 
 	$potentialCustomerIDfromEmail = false;
 
@@ -269,7 +261,7 @@ function zeroBS_integrations_addOrUpdateCustomer($externalSource='',$externalID=
 
 						#} Notify + exit
 						echo esc_html( 'Contact Add/Update Issue: A contact already exists with the email "' . $customerFields['zbsc_email'] . '" (ID: ' . $potentialCustomerIDfromEmail . '), user could not be processed!' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-						exit();
+						exit( 0 );
 
 						break;
 
@@ -336,12 +328,6 @@ function zeroBS_integrations_addOrUpdateCustomer($externalSource='',$externalID=
 			#} Brutal add/update
 			#} MS - 3rd Jan 2019 - this (eventually) just calls the usual _addUpdateCustomer function
 			$customerID = zeroBS_addUpdateCustomer($potentialCustomerID,$customerFields,$externalSource,$externalID, $customerDate, $fallbackLogToPass, $extraMeta, $automatorPassthrough, -1, $fieldPrefix);
-
-
-			#} Update any title
-			if (!$zbs->isDAL2() && $customerID !== false) zbsCustomer_updateCustomerNameInPostTitle($customerID,false);
-
-
 			return $customerID;
 
 
@@ -568,7 +554,7 @@ function zeroBS_integrations_addOrUpdateCompany(
 
 						#} Notify + exit
 						echo esc_html( __(jpcrm_label_company().' Add/Update Issue: A '.jpcrm_label_company().' already exists with the name "','zero-bs-crm').$potentialCoName.'" (ID: '.$potentialCompanyIDfromName.'), '.__('could not be processed!','zero-bs-crm') );
-						exit();
+						exit( 0 );
 
 						break;
 
@@ -951,8 +937,6 @@ function zeroBS_integrations_getAllCategories($incEmpty=false){
 
 	global $zbs;
 
-	if ($zbs->isDAL2()){
-
 		return array('zerobscrm_customertag' => $zbs->DAL->getTagsForObjType(array(
 
                 'objtypeid'=>ZBS_TYPE_CONTACT,
@@ -964,32 +948,6 @@ function zeroBS_integrations_getAllCategories($incEmpty=false){
                 'sortOrder'   => 'ASC'
 
                 )));
-
-	} else {
-
-		// DAL1
-
-		if (!$incEmpty){
-
-			$cats = array(
-				#'zerobscrm_worktag' => get_categories(array('taxonomy'=>'zerobscrm_worktag','orderby' => 'name','order'=> 'ASC'))#,
-				#Other Tags? 
-				'zerobscrm_customertag' => get_categories(array('taxonomy'=>'zerobscrm_customertag','orderby' => 'name','order'=> 'ASC'))
-			);
-
-		} else {
-
-			$cats = array(
-				#'zerobscrm_worktag' => get_categories(array('taxonomy'=>'zerobscrm_worktag','orderby' => 'name','order'=> 'ASC'))#,
-				#Other Tags? 
-				'zerobscrm_customertag' => get_terms(array('taxonomy'=>'zerobscrm_customertag','orderby' => 'name','order'=> 'ASC','hide_empty' => false))
-			);
-
-		}
-
-	}
-
-	return $cats;
 
 }
 
@@ -1055,8 +1013,7 @@ function zeroBS_integrations_getCustomFields($objTypeID=-1){
 
 		global $zbs;
 
-		if ($zbs->isDAL2())
-			return $zbs->DAL->getActiveCustomFields(array('objtypeid'=>$objTypeID));
+		return $zbs->DAL->getActiveCustomFields( array( 'objtypeid' => $objTypeID ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	}
 

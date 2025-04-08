@@ -1,6 +1,7 @@
+import { type ScanStatus } from '@automattic/jetpack-scan';
+import { AccountProtectionStatus } from './account-protection';
 import { PluginData, ThemeData } from './installed-extensions';
 import { ProductData } from './products';
-import { ScanStatus } from './scans';
 import { WafStatus } from './waf';
 
 declare module '*.scss';
@@ -29,6 +30,7 @@ declare global {
 			jetpackScan: ProductData;
 			hasPlan: boolean;
 			onboardingProgress: string[];
+			accountProtection: AccountProtectionStatus;
 			waf: WafStatus;
 		};
 	}

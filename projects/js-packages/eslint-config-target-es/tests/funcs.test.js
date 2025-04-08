@@ -18,7 +18,7 @@ test( 'getBrowsers', () => {
 		chrome: '21.0.0',
 		firefox: '21.0.0',
 		ie: '10.0.0',
-		safari_ios: '14.5.0',
+		safari_ios: '14.0.0',
 	} );
 } );
 

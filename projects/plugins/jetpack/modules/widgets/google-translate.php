@@ -14,7 +14,7 @@
 use Automattic\Jetpack\Assets;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 /**

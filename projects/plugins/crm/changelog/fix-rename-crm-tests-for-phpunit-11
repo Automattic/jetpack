@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Rename test files to match PHPUnit 10+ requirements, and clean up phpcs rules.
+
+

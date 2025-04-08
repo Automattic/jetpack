@@ -86,6 +86,14 @@ The action relies on the following parameters.
 - (Optional) `playwright_report_path` is the path to the JSON report, output from Playwright test runner JSON reporter. See [Playwright's docs](https://playwright.dev/docs/test-reporters#json-reporter) for details on how to generate this file. If specified, it will be parsed and failures details will be included in the message. You can use the glob pattern to specify multiple files. For example: `playwright_report_path: 'artifacts/**/report.json'`.
 - (Optional) `playwright_output_dir` is the path to the Playwright's configured output directory, where results and attachments are saved. It is needed when the artefacts are downloaded from a previous job, and the absolute paths to attachments found in the JSON report are not valid anymore. This path will be used to convert the paths to those attachments. You can use the glob pattern. For example: `playwright_output_dir: 'artifacts/**/results'`
 
+### GitHub permissions required
+
+This action needs access to list jobs for workflow runs.
+
+For OAuth apps and classic access tokens, no special scopes are needed.
+
+For GitHub Apps and fine-grained access tokens, that's read-only for repository "Actions" (`actions`).
+
 ### Slack token
 
 You will need to [create a Slack bot for your workspace](https://slack.com/intl/en-hu/help/articles/115005265703-Create-a-bot-for-your-workspace) for the action to use. The bot will need the following scopes:

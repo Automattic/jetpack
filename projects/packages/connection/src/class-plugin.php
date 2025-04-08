@@ -32,12 +32,22 @@ class Plugin {
 	private $slug;
 
 	/**
+	 * Users Connection Admin instance.
+	 *
+	 * @var Users_Connection_Admin
+	 */
+	private $users_connection_admin;
+
+	/**
 	 * Initialize the plugin manager.
 	 *
 	 * @param string $slug Plugin slug.
 	 */
 	public function __construct( $slug ) {
 		$this->slug = $slug;
+
+		// Initialize Users_Connection_Admin
+		$this->users_connection_admin = new Users_Connection_Admin();
 	}
 
 	/**

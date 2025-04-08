@@ -121,7 +121,7 @@ class Classic_Search {
 	/**
 	 * Performs setup tasks for the singleton. To be used exclusively after singleton instantitaion.
 	 *
-	 * @param string $blog_id Blog id.
+	 * @param string|int $blog_id Blog id.
 	 */
 	public function setup( $blog_id ) {
 		if ( ! $blog_id ) {
@@ -1448,7 +1448,7 @@ class Classic_Search {
 	 *
 	 * @return array Array of filters applied and info about them.
 	 */
-	public function get_filters( WP_Query $query = null ) {
+	public function get_filters( ?WP_Query $query = null ) {
 		if ( ! $query instanceof WP_Query ) {
 			global $wp_query;
 

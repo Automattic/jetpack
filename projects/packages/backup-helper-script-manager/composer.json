@@ -4,12 +4,13 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0"
+		"php": ">=7.2"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^1.1.1",
+		"yoast/phpunit-polyfills": "^3.0.0",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "@dev"
+		"automattic/jetpack-test-environment": "@dev",
+		"automattic/phpunit-select-config": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -21,13 +22,14 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
-		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		]
 	},
 	"repositories": [
 		{
@@ -47,7 +49,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.2.x-dev"
+			"dev-trunk": "0.3.x-dev"
 		}
 	},
 	"config": {

@@ -35,9 +35,18 @@ export const percentCalculator = ( part, whole ) => {
  * @param {number}          props.previousCount - Previous count.
  * @param {React.ReactNode} props.icon          - Icon to display.
  * @param {React.ReactNode} props.heading       - Card heading.
+ * @param {string}          props.as            - Card root element type.
+ * @param {string}          props.srText        - Text for screen readers.
  * @return {object} CountComparisonCard React component.
  */
-const CountComparisonCard = ( { count = 0, previousCount = 0, icon, heading } ) => {
+const CountComparisonCard = ( {
+	count = 0,
+	previousCount = 0,
+	as = 'div',
+	icon,
+	heading,
+	srText,
+} ) => {
 	const difference = subtract( count, previousCount );
 	const differenceMagnitude = Math.abs( difference );
 	const percentage = Number.isFinite( difference )
@@ -45,44 +54,47 @@ const CountComparisonCard = ( { count = 0, previousCount = 0, icon, heading } ) 
 		: null;
 
 	return (
-		<Card className={ styles[ 'stats-card' ] }>
-			{ icon && <div className={ styles[ 'stats-card-icon' ] }>{ icon }</div> }
-			{ heading && <div className={ styles[ 'stats-card-heading' ] }>{ heading }</div> }
-			<div className={ styles[ 'stats-card-count' ] }>
-				<span
-					className={ styles[ 'stats-card-count-value' ] }
-					title={ Number.isFinite( count ) ? String( count ) : undefined }
-				>
-					{ formatNumber( count ) }
-				</span>
-				{ difference !== null ? (
+		<Card className={ styles[ 'stats-card' ] } as={ as }>
+			<span className="screen-reader-text">{ srText }</span>
+			<div aria-hidden="true">
+				{ icon && <div className={ styles[ 'stats-card-icon' ] }>{ icon }</div> }
+				{ heading && <div className={ styles[ 'stats-card-heading' ] }>{ heading }</div> }
+				<div className={ styles[ 'stats-card-count' ] }>
 					<span
-						className={ clsx( styles[ 'stats-card-difference' ], {
-							[ styles[ 'stats-card-difference--positive' ] ]: difference < 0,
-							[ styles[ 'stats-card-difference--negative' ] ]: difference > 0,
-						} ) }
+						className={ styles[ 'stats-card-count-value' ] }
+						title={ Number.isFinite( count ) ? String( count ) : undefined }
 					>
-						<span
-							className={ styles[ 'stats-card-difference-icon' ] }
-							title={ String( difference ) }
-						>
-							{ difference < 0 && <Icon size={ 18 } icon={ arrowDown } /> }
-							{ difference > 0 && <Icon size={ 18 } icon={ arrowUp } /> }
-						</span>
-						<span className={ styles[ 'stats-card-difference-absolute-value' ] }>
-							{
-								differenceMagnitude > 9999
-									? formatNumber( differenceMagnitude ) // i.e.- 10.1K
-									: formatNumber( differenceMagnitude, {} ) // passing empty object removes the compact number formatting options, i.e.- 10,100
-							}
-						</span>
-						{ percentage !== null && (
-							<span className={ styles[ 'stats-card-difference-absolute-percentage' ] }>
-								({ percentage }%)
-							</span>
-						) }
+						{ formatNumber( count ) }
 					</span>
-				) : null }
+					{ difference !== null ? (
+						<span
+							className={ clsx( styles[ 'stats-card-difference' ], {
+								[ styles[ 'stats-card-difference--positive' ] ]: difference < 0,
+								[ styles[ 'stats-card-difference--negative' ] ]: difference > 0,
+							} ) }
+						>
+							<span
+								className={ styles[ 'stats-card-difference-icon' ] }
+								title={ String( difference ) }
+							>
+								{ difference < 0 && <Icon size={ 18 } icon={ arrowDown } /> }
+								{ difference > 0 && <Icon size={ 18 } icon={ arrowUp } /> }
+							</span>
+							<span className={ styles[ 'stats-card-difference-absolute-value' ] }>
+								{
+									differenceMagnitude > 9999
+										? formatNumber( differenceMagnitude ) // i.e.- 10.1K
+										: formatNumber( differenceMagnitude, {} ) // passing empty object removes the compact number formatting options, i.e.- 10,100
+								}
+							</span>
+							{ percentage !== null && (
+								<span className={ styles[ 'stats-card-difference-absolute-percentage' ] }>
+									({ percentage }%)
+								</span>
+							) }
+						</span>
+					) : null }
+				</div>
 			</div>
 		</Card>
 	);
@@ -93,6 +105,7 @@ CountComparisonCard.propTypes = {
 	heading: PropTypes.node,
 	icon: PropTypes.node,
 	previousCount: PropTypes.number,
+	srText: PropTypes.string,
 };
 
 export default CountComparisonCard;

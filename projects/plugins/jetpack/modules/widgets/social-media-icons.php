@@ -84,9 +84,6 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'twitch'     => array( 'Twitch', 'https://www.twitch.tv/%s/' ),
 			'tumblr'     => array( 'Tumblr', 'https://%s.tumblr.com' ),
 		);
-		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-		}
 	}
 
 	/**
@@ -128,9 +125,17 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$instance['title'] = apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base );
+
+		/*
+		 * Enqueue frontend assets.
+		 */
+
 		if ( ! $this->check_genericons() ) {
 			wp_enqueue_style( 'genericons' );
 		}
+
+		$this->enqueue_style();
+
 		$index = 10;
 		$html  = array();
 		/* Translators: 1. Username. 2. Service name. */

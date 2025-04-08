@@ -1,12 +1,12 @@
 /*
  * External dependencies
  */
+import { isUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { getBlockType } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 /*
  * Internal dependencies
  */
-import { isUserConnected } from '../../lib/connection';
 import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
 
 export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
@@ -34,12 +34,6 @@ export function canAIAssistantBeEnabled(): boolean {
 	// Do not enable AI Assistant if the site is not connected.
 	const connected = isUserConnected();
 	if ( ! connected ) {
-		return false;
-	}
-
-	// Do not enable if there is an error getting the feature.
-	const { errorCode } = select( 'wordpress-com/plans' )?.getAiAssistantFeature?.() || {};
-	if ( errorCode ) {
 		return false;
 	}
 

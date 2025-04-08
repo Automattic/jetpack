@@ -15,7 +15,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -31,8 +31,6 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	// this is here to make centralisation easier later
 	// long term probs in core or classify?
 function zeroBS_contact_actions( $cID = -1, $cObj = false ) {
-
-	global $zbs;
 
 	$actions_array = array();
 
@@ -92,7 +90,8 @@ function zeroBS_contact_actions( $cID = -1, $cObj = false ) {
 							// got pdf?
 							$gotPDF = zeroBSCRM_getSetting( 'feat_pdfinv' );
 
-					if ( $gotPDF == '1' && zeroBS_contactHasInvoice( $cID ) ) {
+					global $zbs;
+					if ( $gotPDF == '1' && $zbs->DAL->contacts->contactHasInvoice( $cID ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 						$sendTo = '';
 						if ( isset( $cObj ) && is_array( $cObj ) && isset( $cObj['email'] ) ) {
@@ -162,18 +161,12 @@ function zeroBS_contact_actions( $cID = -1, $cObj = false ) {
 
 				);
 
-				// DAL3 + add delete (requires new pages etc. simpler to split to 3+)
-				if ( $zbs->isDAL3() ) {
-
-					// delete
-					$actions_array['delete'] = array(
-
-						'url'   => jpcrm_esc_link( 'delete', $cID, 'zerobs_customer' ), // zeroBSCRM_getEditLink($cID),
-						'label' => __( 'Delete Contact', 'zero-bs-crm' ),
-						'ico'   => 'red trash icon',
-
-					);
-				}
+				// delete
+				$actions_array['delete'] = array(
+					'url'   => jpcrm_esc_link( 'delete', $cID, 'zerobs_customer' ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					'label' => __( 'Delete Contact', 'zero-bs-crm' ),
+					'ico'   => 'red trash icon',
+				);
 	}
 
 	// apply filters

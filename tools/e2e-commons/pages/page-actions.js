@@ -333,7 +333,7 @@ export default class PageActions {
 		try {
 			await this.page.locator( selector ).first().waitFor( { timeout } );
 			return true;
-		} catch ( e ) {
+		} catch {
 			logger.warn( `Element '${ selector }' was not visible. Waited for ${ timeout }ms` );
 			return false;
 		}

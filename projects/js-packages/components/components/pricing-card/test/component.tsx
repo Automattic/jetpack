@@ -5,7 +5,7 @@
 
 import { jest } from '@jest/globals';
 import { render, screen, cleanup } from '@testing-library/react/pure';
-import PricingCard from '../index';
+import PricingCard from '../index.js';
 
 describe( 'PricingCard', () => {
 	const testProps = {

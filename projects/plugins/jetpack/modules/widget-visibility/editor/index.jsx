@@ -1,13 +1,13 @@
 import { isSimpleSite, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
+import { InspectorAdvancedControls } from '@wordpress/block-editor';
 import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { Fragment, useCallback, useMemo } from '@wordpress/element';
+import { addFilter } from '@wordpress/hooks';
 import { __, _x } from '@wordpress/i18n';
 
 /* global widget_conditions_data */
-/* eslint-disable react/react-in-jsx-scope */
 
 //// Unescape utility
 const htmlUnescapes = {
@@ -64,7 +64,7 @@ function addVisibilityAttribute( settings, name ) {
 	return settings;
 }
 
-wp.hooks.addFilter( 'blocks.registerBlockType', 'widget/visibility', addVisibilityAttribute );
+addFilter( 'blocks.registerBlockType', 'widget/visibility', addVisibilityAttribute );
 
 /*
  * We are using the same options data for legacy widgets (rendered in PHP) and
@@ -174,6 +174,8 @@ const VisibilityRule = props => {
 						value={ rule.major }
 						options={ majorOptions }
 						onChange={ setMajor }
+						__next40pxDefaultSize={ true }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</div>
 			</div>
@@ -194,6 +196,8 @@ const VisibilityRule = props => {
 							value={ rule.minor }
 							options={ minorOptions }
 							onChange={ setMinor }
+							__next40pxDefaultSize={ true }
+							__nextHasNoMarginBottom={ true }
 						/>
 					</div>
 				</div>
@@ -347,6 +351,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 						'No visibility rules yet. Add at least one rule to use this feature.',
 						'jetpack'
 					) }
+					__nextHasNoMarginBottom={ true }
 				>
 					<Button variant="secondary" onClick={ addNewRule } className="widget-vis__add-new-rule">
 						{ __( 'Add new rule', 'jetpack' ) }
@@ -359,6 +364,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 					className="widget-vis__wrapper"
 					id="widget-vis__wrapper"
 					label={ __( 'Visibility', 'jetpack' ) }
+					__nextHasNoMarginBottom={ true }
 				>
 					<SelectControl
 						className="widget-vis__show-hide"
@@ -370,6 +376,8 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 							{ label: __( 'Hide this block', 'jetpack' ), value: 'hide' },
 						] }
 						onChange={ setAction }
+						__next40pxDefaultSize={ true }
+						__nextHasNoMarginBottom={ true }
 					/>
 					{ rules.map( ( rule, i ) => (
 						<VisibilityRule
@@ -387,6 +395,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 							label={ __( 'Match all rules', 'jetpack' ) }
 							checked={ conditions.match_all === '1' }
 							onChange={ toggleMatchAll }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 					<Button variant="secondary" onClick={ addNewRule }>
@@ -412,6 +421,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 								'Please select the top level block of this widget to apply visibility rules.',
 								'jetpack'
 							) }
+							__nextHasNoMarginBottom={ true }
 						></BaseControl>
 					</InspectorAdvancedControls>
 				) }
@@ -421,4 +431,4 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 	'visibilityAdvancedControls'
 );
 
-wp.hooks.addFilter( 'editor.BlockEdit', 'widget/visibility', visibilityAdvancedControls );
+addFilter( 'editor.BlockEdit', 'widget/visibility', visibilityAdvancedControls );

@@ -1,19 +1,20 @@
 import { GlobalNotices, ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
+import React from 'react';
+import { connect } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import Discussion from 'discussion';
 import Earn from 'earn';
 import Subscriptions from 'newsletter';
 import Performance from 'performance';
 import Privacy from 'privacy';
-import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import SearchableModules from 'searchable-modules';
 import Security from 'security';
 import Sharing from 'sharing';
 import { isModuleActivated as isModuleActivatedSelector } from 'state/modules';
 import Traffic from 'traffic';
 import Writing from 'writing';
+import { FEATURE_JETPACK_EARN } from '../lib/plans/constants';
 
 class Settings extends React.Component {
 	static displayName = 'SearchableSettings';
@@ -66,7 +67,12 @@ class Settings extends React.Component {
 						active={ '/newsletter' === pathname }
 						{ ...commonProps }
 					/>
-					<Earn siteRawUrl={ siteRawUrl } active={ '/earn' === pathname } { ...commonProps } />
+					<Earn
+						siteRawUrl={ siteRawUrl }
+						active={ '/earn' === pathname }
+						feature={ FEATURE_JETPACK_EARN }
+						{ ...commonProps }
+					/>
 					<Performance active={ '/performance' === pathname } { ...commonProps } />
 					<Traffic
 						siteRawUrl={ siteRawUrl }
@@ -107,4 +113,4 @@ export default connect( state => {
 	return {
 		isModuleActivated: module => isModuleActivatedSelector( state, module ),
 	};
-} )( withRouter( Settings ) );
+} )( props => <Settings { ...props } location={ useLocation() } /> );

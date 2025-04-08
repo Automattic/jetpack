@@ -25,7 +25,7 @@ function register_plugins() {
 	if (
 		! current_user_can( $capability )
 	) {
-		Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
+		Jetpack_Gutenberg::set_extension_unavailable( 'publicize', 'unauthorized' );
 		return;
 	}
 
@@ -35,7 +35,7 @@ function register_plugins() {
 		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
 	) {
 		// Register Publicize.
-		Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
+		Jetpack_Gutenberg::set_extension_available( 'publicize' );
 
 		// Set the republicize availability, depending on the site plan.
 		Jetpack_Gutenberg::set_availability_for_plan( 'republicize' );

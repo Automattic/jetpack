@@ -600,7 +600,7 @@ async function buildProject( t ) {
 			composerJson.require?.[ 'automattic/jetpack-changelogger' ] ||
 			composerJson[ 'require-dev' ]?.[ 'automattic/jetpack-changelogger' ] )
 	) {
-		const changelogger = npath.resolve( 'projects/packages/changelogger/bin/changelogger' );
+		const changelogger = npath.resolve( 'projects/packages/changelogger/vendor/bin/changelogger' );
 		const changesDir = npath.resolve(
 			t.cwd,
 			composerJson.extra?.changelogger?.[ 'changes-dir' ] || 'changelog'
@@ -612,6 +612,15 @@ async function buildProject( t ) {
 				() => false
 			)
 		) {
+			// If we're building changelogger itself, we need to install before we can run it.
+			if ( t.project === 'packages/changelogger' ) {
+				await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
+					cwd: t.cwd,
+					stdio: [ 'ignore', 'inherit', 'inherit' ],
+					buffer: false,
+				} );
+			}
+
 			let prerelease = 'alpha';
 			if ( composerJson.extra?.[ 'dev-releases' ] ) {
 				const m = (

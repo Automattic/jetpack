@@ -1,6 +1,6 @@
 <?php
 // don't call the file directly
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die( 0 );
 
 class VaultPress_Filesystem {
 
@@ -68,7 +68,7 @@ class VaultPress_Filesystem {
 		while ( !feof( $fp ) )
 			echo @fread( $fp, 8192 );
 		@fclose( $fp );
-		die();
+		die( 0 );
 	}
 
 	function exec_checksum( $file, $method ) {

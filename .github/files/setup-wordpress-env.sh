@@ -25,8 +25,6 @@ password=root
 EOF
 chmod 0600 ~/.my.cnf
 mysql -e "set global wait_timeout = 3600;"
-mysql -e "DROP DATABASE IF EXISTS wordpress_tests;"
-mysql -e "CREATE DATABASE wordpress_tests;"
 echo "::endgroup::"
 
 echo "::group::Preparing WordPress from \"$WP_BRANCH\" branch";
@@ -35,6 +33,12 @@ git clone --depth=1 --branch "$WORDPRESS_TAG" git://develop.git.wordpress.org/ "
 # We need a built version of WordPress to test against, so download that into the src directory instead of what's in wordpress-develop.
 rm -rf "/tmp/wordpress-$WP_BRANCH/src"
 git clone --depth=1 --branch "$WORDPRESS_TAG" git://core.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH/src"
+
+echo "::group::Setting up WordPress uploads directory"
+mkdir -p "/tmp/wordpress-$WP_BRANCH/src/wp-content/uploads"
+chmod -R 777 "/tmp/wordpress-$WP_BRANCH/src/wp-content/uploads"
+echo "::endgroup::"
+
 echo "::endgroup::"
 
 if [[ -n "$GITHUB_ENV" ]]; then
@@ -107,19 +111,6 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	fi
 	cd "$BASE"
 
-	# Upgrade/downgrade WorDBless if necessary.
-	if [[ ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) && "$TEST_SCRIPT" == "test-php" ]]; then
-		VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
-		if [[ -n "$VER" ]]; then
-			INSVER=$WORDPRESS_TAG
-			[[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
-			echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
-			# Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
-			rm -rf "$DIR/wordpress"
-			composer --working-dir="$DIR" require --dev roots/wordpress="$INSVER" roots/wordpress-no-content="$INSVER"
-		fi
-	fi
-
 	cp -r "$DIR" "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME"
 	# Plugin dir for tests in WP >= 5.6-beta1
 	ln -s "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME" "/tmp/wordpress-$WP_BRANCH/tests/phpunit/data/plugins/$NAME"
@@ -127,6 +118,22 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	# Update monorepo repo entry in composer.json to point back here, and to mirror per COMPOSER_MIRROR_PATH_REPOS.
 	JSON="$(jq --tab --arg dir "$BASE/$DIR" --argjson pkgversions "$PKGVERSIONS" '( .repositories // empty | .[] | select( .options.monorepo ) ) |= ( .url |= "\($dir)/\(.)" | .options.symlink |= false | .options.versions |= $pkgversions )' "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME/composer.json")"
 	echo "$JSON" > "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME/composer.json"
+
+	# Set up a wp test config for each plugin.
+	WP_TEST_CONFIG="/tmp/wordpress-$WP_BRANCH/wp-tests-config.$NAME.php"
+	DBNAME="wptests_${NAME//-/_}"
+
+	mysql -e "DROP DATABASE IF EXISTS $DBNAME;"
+	mysql -e "CREATE DATABASE $DBNAME;"
+
+	cp "/tmp/wordpress-$WP_BRANCH/wp-tests-config-sample.php" "$WP_TEST_CONFIG"
+	sed -i "s/youremptytestdbnamehere/$DBNAME/" "$WP_TEST_CONFIG"
+	sed -i "s/yourusernamehere/root/" "$WP_TEST_CONFIG"
+	sed -i "s/yourpasswordhere/root/" "$WP_TEST_CONFIG"
+	sed -i "s/localhost/127.0.0.1/" "$WP_TEST_CONFIG"
+
+	# If WooCommerce is installed, be sure we get the monorepo versions rather than the versions distributed with that.
+	echo "define( 'JETPACK_AUTOLOAD_DEV', true );" >> "$WP_TEST_CONFIG"
 
 	echo "::endgroup::"
 done
@@ -173,15 +180,7 @@ if [[ "$WITH_WPCOMSH" == true ]]; then
 	echo "::endgroup::"
 fi
 
-cd "/tmp/wordpress-$WP_BRANCH"
-
-cp wp-tests-config-sample.php wp-tests-config.php
-sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
-sed -i "s/yourusernamehere/root/" wp-tests-config.php
-sed -i "s/yourpasswordhere/root/" wp-tests-config.php
-sed -i "s/localhost/127.0.0.1/" wp-tests-config.php
-
-# If WooCommerce is installed, be sure we get the monorepo versions rather than the versions distributed with that.
-echo "define( 'JETPACK_AUTOLOAD_DEV', true );" >> wp-tests-config.php
+# Catch anything that doesn't use the WP_TESTS_CONFIG_FILE_PATH env variable.
+echo '<?php throw new \Exception( "Use the WP_TESTS_CONFIG_FILE_PATH environment variable to locate a customized config." );' > "/tmp/wordpress-$WP_BRANCH/wp-tests-config.php"
 
 exit $EXIT

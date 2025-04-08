@@ -105,6 +105,8 @@ class Attachment extends \WP_REST_Attachments_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
+		// Set the WP_IMPORTING constant to prevent sync notifications
+		$this->set_importing();
 		$file_info  = $this->get_file_info( $request );
 		$attachment = $this->get_attachment_by_file_info( $file_info );
 		if ( $attachment ) {

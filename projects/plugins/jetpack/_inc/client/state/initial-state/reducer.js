@@ -22,8 +22,8 @@ export const initialState = ( state = window.Initial_State, action ) => {
  * Returns bool if current version is Dev version
  * Which means -alpha, -beta, etc...
  *
- * @param {Object} state Global state tree
- * @return {bool} true if dev version
+ * @param {object} state - Global state tree
+ * @return {boolean} true if dev version
  */
 export function isDevVersion( state ) {
 	return !! state.jetpack.initialState.isDevVersion;
@@ -33,7 +33,7 @@ export function isDevVersion( state ) {
  * Returns a string of the current Jetpack version defined
  * by JETPACK__VERSION
  *
- * @param {Object} state Global state tree
+ * @param {object} state - Global state tree
  * @return {string}         Version number. Empty string if the data is not yet available.
  */
 export function getCurrentVersion( state ) {
@@ -125,9 +125,9 @@ export function userCanManageOptions( state ) {
 /**
  * Return true if user can edit posts, usually admins, editors, authors and contributors.
  *
- * @param {Object} state Global state tree
+ * @param {object} state - Global state tree
  *
- * @return {bool} Whether user can edit posts.
+ * @return {boolean} Whether user can edit posts.
  */
 export function userCanEditPosts( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'edit_posts', false );
@@ -136,9 +136,9 @@ export function userCanEditPosts( state ) {
 /**
  * Return true if user can manage plugins, which means being able to install, activate, update and delete plugins.
  *
- * @param {Object} state Global state tree
+ * @param {object} state - Global state tree
  *
- * @return {bool} Whether user can manage plugins.
+ * @return {boolean} Whether user can manage plugins.
  */
 export function userCanManagePlugins( state ) {
 	return get(
@@ -170,8 +170,8 @@ export function userCanConnectAccount( state ) {
 /**
  * Returns true if current user is connection owner.
  *
- * @param {Object} state Global state tree
- * @return {bool} true if the current user is connection owner, false otherwise
+ * @param {object} state - Global state tree
+ * @return {boolean} true if the current user is connection owner, false otherwise
  *
  * @deprecated 9.3.0
  */
@@ -223,8 +223,8 @@ export function getDisplayName( state ) {
 
 /**
  * Gets the current wp-admin user id
- * @param {Object} state Global state tree
- * @return {int} The user id in wp-admin
+ * @param {object} state - Global state tree
+ * @return {number} The user id in wp-admin
  */
 export function getUserId( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, 'id', '' );
@@ -247,7 +247,7 @@ export function getSiteId( state ) {
 /**
  * Returns the site icon as an image URL.
  *
- * @param {object} state Global state tree
+ * @param {object} state - Global state tree
  *
  * @return {string}        the URL of the icon
  */
@@ -258,7 +258,7 @@ export function getSiteIcon( state ) {
 /**
  * Check whether the site is accessible by search engines or not. It's true by default in an initial WP installation.
  *
- * @param {object} state Global state tree
+ * @param {object} state - Global state tree
  *
  * @return {boolean} False if site is set to discourage search engines from indexing it. True otherwise.
  */
@@ -287,11 +287,12 @@ export function getApiRootUrl( state ) {
 /**
  * Returns the registration nonce.
  *
- * @param {object} state - Global state tree
- * @return {string} The registration nonce
+ * @deprecated since 14.5
+ *
+ * @return {string} The empty string for backward compatibility.
  */
-export function getRegistrationNonce( state ) {
-	return get( state.jetpack.initialState, 'registrationNonce' );
+export function getRegistrationNonce() {
+	return '';
 }
 
 /**
@@ -337,9 +338,9 @@ export function getCurrentIp( state ) {
 /**
  * Returns a permalink to the last published entry of 'post' type.
  *
- * @param {Object} state Global state tree
+ * @param {object} state - Global state tree
  *
- * @return {String} URL to last published post.
+ * @return {string} URL to last published post.
  */
 export function getLastPostUrl( state ) {
 	return get( state.jetpack.initialState, 'lastPostUrl' );
@@ -348,7 +349,7 @@ export function getLastPostUrl( state ) {
 /**
  * Check if promotions like banners are visible or hidden.
  *
- * @param {object} state Global state tree
+ * @param {object} state - Global state tree
  *
  * @return {boolean} True if promotions are active, false otherwise.
  */
@@ -401,8 +402,8 @@ export function currentThemeStylesheet( state ) {
 /**
  * Check that theme supports a certain feature
  *
- * @param {Object} state   Global state tree.
- * @param {string} feature Feature to check if current theme supports. Can be 'infinite-scroll'.
+ * @param {object} state   - Global state tree.
+ * @param {string} feature - Feature to check if current theme supports. Can be 'infinite-scroll'.
  *
  * @return {boolean} URL to last published post.
  */
@@ -423,7 +424,7 @@ export function currentThemeIsBlockTheme( state ) {
 /**
  * Check if backups UI should be displayed.
  *
- * @param {object} state Global state tree
+ * @param {object} state - Global state tree
  *
  * @return {boolean} True if backups UI should be displayed.
  */
@@ -486,7 +487,7 @@ export function showLicensingUi( state ) {
 /**
  * Check if the site is part of a Multisite network.
  *
- * @param {object} state Global state tree
+ * @param {object} state - Global state tree
  *
  * @return {boolean} True if the site is part of a Multisite network.
  */
@@ -497,7 +498,7 @@ export function isMultisite( state ) {
 /**
  * Get the site's date format, in format accepted by DateTimeInterface::format().
  *
- * @param {object} state Global state tree
+ * @param {object} state - Global state tree
  *
  * @return {string} Date format of the site.
  */
@@ -508,7 +509,7 @@ export function getDateFormat( state ) {
 /**
  * Returns the affiliate code, if it exists. Otherwise an empty string.
  *
- * @param {object} state Global state tree
+ * @param {object} state - Global state tree
  *
  * @return {string} The affiliate code.
  */
@@ -519,7 +520,7 @@ export function getAffiliateCode( state ) {
 /**
  * Returns the partner subsidiary id, if it exists. Otherwise an empty string.
  *
- * @param {object} state Global state tree
+ * @param {object} state - Global state tree
  *
  * @return {string} The partner subsidiary id.
  */
@@ -601,11 +602,13 @@ export function getStaticProductsForPurchase( state ) {
 /**
  * Returns the list of products that are available for purchase.
  *
- * @param state
- * @returns Array of Products that you can purchase.
+ * @param {object} state - Global state tree
+ * @return {Array} of Products that you can purchase.
  */
 export function getProductsForPurchase( state ) {
 	const staticProducts = get( state.jetpack.initialState, 'products', {} );
+	const wpcomUser = get( state.jetpack.initialState?.userData?.currentUser, 'wpcomUser', {} );
+	const currencyCode = wpcomUser?.user_currency || null;
 	const jetpackProducts = getSiteProducts( state );
 	const products = {};
 
@@ -618,7 +621,7 @@ export function getProductsForPurchase( state ) {
 			features: product.features,
 			disclaimer: product.disclaimer,
 			available: get( jetpackProducts, [ product.slug, 'available' ], false ),
-			currencyCode: get( jetpackProducts, [ product.slug, 'currency_code' ], '' ),
+			currencyCode: currencyCode ?? get( jetpackProducts, [ product.slug, 'currency_code' ], '' ),
 			showPromotion: product.show_promotion,
 			promotionPercentage: product.discount_percent,
 			includedInPlans: product.included_in_plans,
@@ -647,7 +650,7 @@ export function getInitialRecommendationsStep( state ) {
 /**
  * Get the connection errors.
  *
- * @param {Object} state Global state tree.
+ * @param {object} state - Global state tree.
  * @return {Array} Connection errors.
  */
 export function getConnectionErrors( state ) {
@@ -659,7 +662,7 @@ export function getConnectionErrors( state ) {
 /**
  * Check if the user is on Safari browser.
  *
- * @param {Object} state Global state tree.
+ * @param {object} state - Global state tree.
  *
  * @return {boolean} True the user is on Safari browser.
  */
@@ -670,7 +673,7 @@ export function isSafari( state ) {
 /**
  * Check if the `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME` constant is true.
  *
- * @param {Object} state Global state tree.
+ * @param {object} state - Global state tree.
  *
  * @return {boolean} True, the `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME` constant is true.
  */
@@ -713,10 +716,10 @@ export function isOdysseyStatsEnabled( state ) {
  * Returns true if Blaze can be used on the site.
  *
  * @param {object} state - Global state tree.
- * @return {boolean} True if Blaze is available on the site.
+ * @return {object} A boolean indicating if Blaze can be used and a reason why if it cannot.
  */
 export function shouldInitializeBlaze( state ) {
-	return !! state.jetpack.initialState.shouldInitializeBlaze;
+	return state.jetpack.initialState.shouldInitializeBlaze;
 }
 
 /**
@@ -727,6 +730,16 @@ export function shouldInitializeBlaze( state ) {
  */
 export function isBlazeDashboardEnabled( state ) {
 	return !! state.jetpack.initialState.isBlazeDashboardEnabled;
+}
+
+/**
+ * Returns true if the wp-admin Subscriber dashboard is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the Subscriber dashboard is enabled.
+ */
+export function isWpAdminSubscriberManagementEnabled( state ) {
+	return !! state.jetpack.initialState.isWpAdminSubscriberManagementEnabled;
 }
 
 /**
@@ -765,7 +778,7 @@ export function isSubscriptionSiteEnabled( state ) {
  * @param {object} state - Global state tree.
  * @return {string} Newsletter date example.
  */
-export function getNewsetterDateExample( state ) {
+export function getNewsletterDateExample( state ) {
 	return state.jetpack.initialState.newsletterDateExample;
 }
 
@@ -780,11 +793,11 @@ export function subscriptionSiteEditSupported( state ) {
 }
 
 /**
- * Get the Jetpack Social Initial State
+ * Returns true if the wp-admin SEO Enhancer setting/feature is available.
  *
  * @param {object} state - Global state tree.
- * @return {object} Jetpack Social Initial State
+ * @return {boolean} True if the SEO Enhancer is available.
  */
-export function getSocialInitiaState( state ) {
-	return state.jetpack.initialState.socialInitialState ?? {};
+export function isSeoEnhancerAvailable( state ) {
+	return 'ai_seo_enhancer_enabled' in state.jetpack.initialState.getModules[ 'seo-tools' ].options;
 }

@@ -14,8 +14,6 @@
  */
 $tools = array(
 	// Always loaded, but only registered if theme supports it.
-	'custom-post-types/testimonial.php',
-	'custom-post-types/nova.php',
 	'geo-location.php',
 	// Those oEmbed providers are always available.
 	'shortcodes/facebook.php',
@@ -24,7 +22,6 @@ $tools = array(
 	'theme-tools.php',
 	'theme-tools/social-links.php',
 	'theme-tools/featured-content.php',
-	'theme-tools/infinite-scroll.php',
 	'theme-tools/responsive-videos.php',
 	'theme-tools/site-logo.php',
 	'theme-tools/site-breadcrumbs.php',
@@ -36,6 +33,7 @@ $tools = array(
 
 // Some features are only available when connected to WordPress.com.
 $connected_tools = array(
+	'external-media/external-media.php',
 	'plugin-search.php',
 	'scan/scan.php', // Shows Jetpack Scan alerts in the admin bar if threats found.
 	'simple-payments/simple-payments.php',
@@ -44,6 +42,8 @@ $connected_tools = array(
 	// Starting from 2020-10-24, they need an authentication token, and that token is stored on WordPress.com.
 	// More information: https://developers.facebook.com/docs/instagram/oembed/.
 	'shortcodes/instagram.php',
+	// This Twitter oEmbed provider relies on a connection to WordPress.com to proxy the request.
+	'shortcodes/twitter.php',
 );
 
 // Add connected features to our existing list if the site is currently connected.

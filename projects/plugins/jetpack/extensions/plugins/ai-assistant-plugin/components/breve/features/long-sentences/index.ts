@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { escapeRegExp } from '../../utils/escapeRegExp';
+import { escapeRegExp } from '../../utils/escape-regexp';
 /**
  * Types
  */

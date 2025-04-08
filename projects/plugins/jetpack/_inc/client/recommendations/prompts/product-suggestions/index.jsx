@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
+import { useMemo } from 'react';
+import { connect } from 'react-redux';
+import { Navigate } from 'react-router-dom';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
-import React, { useMemo } from 'react';
-import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
 import {
 	getNextRoute,
 	isProductSuggestionsAvailable as isProductSuggestionsAvailableCheck,
@@ -41,7 +41,7 @@ const ProductSuggestionsComponent = ( {
 		// We have to remove the first "#" value from the next route value
 		// so React Router will match it with one of the other recommendations paths.
 		// E.g. "#/recommendations/monitor" => "/recommendations/monitor".
-		return <Redirect to={ nextRoute.substring( 1 ) } />;
+		return <Navigate to={ nextRoute.substring( 1 ) } replace />;
 	}
 
 	return (

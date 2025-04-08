@@ -10,7 +10,7 @@
  */
 
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 function zeroBSCRM_render_tasks_calendar_page() {

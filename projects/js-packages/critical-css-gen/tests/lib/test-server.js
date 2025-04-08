@@ -23,10 +23,7 @@ class TestServer {
 	async start() {
 		this.app = express();
 
-		this.app.use(
-			'/bundle.js',
-			express.static( require.resolve( '../../build-browser/bundle.full.js' ) )
-		);
+		this.app.use( '/bundle.js', express.static( require.resolve( '../build/bundle.js' ) ) );
 
 		for ( const [ virtualPath, realDirectory ] of Object.entries( this.staticPaths ) ) {
 			this.app.use( '/' + virtualPath, express.static( realDirectory ) );

@@ -14,7 +14,7 @@ const ConnectButton = props => {
 	const {
 		apiRoot,
 		apiNonce,
-		connectLabel = __( 'Connect', 'jetpack' ),
+		connectLabel = __( 'Connect', 'jetpack-connection-js' ),
 		registrationNonce,
 		redirectUri = null,
 		from,

@@ -1,11 +1,14 @@
-import { AdminPage as JetpackAdminPage, Container } from '@automattic/jetpack-components';
+import {
+	AdminPage as JetpackAdminPage,
+	Container,
+	JetpackProtectLogo,
+} from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useNotices from '../../hooks/use-notices';
-import useWafData from '../../hooks/use-waf-data';
-import Logo from '../logo';
+import useProtectData from '../../hooks/use-protect-data';
 import Notice from '../notice';
 import Tabs, { Tab } from '../tabs';
 import styles from './styles.module.scss';
@@ -13,8 +16,12 @@ import styles from './styles.module.scss';
 const AdminPage = ( { children } ) => {
 	const { notice } = useNotices();
 	const { isRegistered } = useConnection();
-	const { isSeen: wafSeen } = useWafData();
 	const navigate = useNavigate();
+	const {
+		counts: {
+			current: { threats: numThreats },
+		},
+	} = useProtectData();
 
 	// Redirect to the setup page if the site is not registered.
 	useEffect( () => {
@@ -28,21 +35,34 @@ const AdminPage = ( { children } ) => {
 	}
 
 	return (
-		<JetpackAdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
+		<JetpackAdminPage
+			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
+			header={ <JetpackProtectLogo /> }
+		>
 			{ notice && <Notice floating={ true } dismissable={ true } { ...notice } /> }
 			<Container horizontalSpacing={ 0 }>
 				<Tabs className={ styles.navigation }>
-					<Tab link="/scan" label={ __( 'Scan', 'jetpack-protect' ) } />
+					<Tab
+						link="/scan"
+						label={
+							<span className={ styles.tab }>
+								{ numThreats > 0
+									? sprintf(
+											// translators: %d is the number of threats found.
+											__( 'Scan (%d)', 'jetpack-protect' ),
+											numThreats
+									  )
+									: __( 'Scan', 'jetpack-protect' ) }
+							</span>
+						}
+					/>
 					<Tab
 						link="/firewall"
-						label={
-							<>
-								{ __( 'Firewall', 'jetpack-protect' ) }
-								{ wafSeen === false && (
-									<span className={ styles.badge }>{ __( 'New', 'jetpack-protect' ) }</span>
-								) }
-							</>
-						}
+						label={ <span className={ styles.tab }>{ __( 'Firewall', 'jetpack-protect' ) }</span> }
+					/>
+					<Tab
+						link="/settings"
+						label={ <span className={ styles.tab }>{ __( 'Settings', 'jetpack-protect' ) }</span> }
 					/>
 				</Tabs>
 			</Container>

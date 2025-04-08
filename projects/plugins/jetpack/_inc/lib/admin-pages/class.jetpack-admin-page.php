@@ -14,12 +14,13 @@ use Automattic\Jetpack\Status;
  * Shared logic between Jetpack admin pages.
  */
 abstract class Jetpack_Admin_Page {
+
 	/**
-	 * Jetpack Object.
+	 * Determines whether or not to hide if not active.
 	 *
-	 * @var Jetpack
+	 * @var bool
 	 */
-	public $jetpack;
+	protected $dont_show_if_not_active;
 
 	/**
 	 * Add page specific actions given the page hook.
@@ -53,22 +54,6 @@ abstract class Jetpack_Admin_Page {
 	public function additional_styles() {}
 
 	/**
-	 * The constructor.
-	 */
-	public function __construct() {
-		add_action( 'jetpack_loaded', array( $this, 'on_jetpack_loaded' ) );
-	}
-
-	/**
-	 * Runs on Jetpack being ready to load its packages.
-	 *
-	 * @param Jetpack $jetpack object.
-	 */
-	public function on_jetpack_loaded( $jetpack ) {
-		$this->jetpack = $jetpack;
-	}
-
-	/**
 	 * Add common page actions and attach page-specific actions.
 	 */
 	public function add_actions() {
@@ -93,7 +78,6 @@ abstract class Jetpack_Admin_Page {
 		$hook = $this->get_page_hook();
 
 		// Attach hooks common to all Jetpack admin pages based on the created hook.
-		add_action( "load-$hook", array( $this, 'admin_help' ) );
 		add_action( "load-$hook", array( $this, 'admin_page_load' ) );
 		add_action( "admin_print_styles-$hook", array( $this, 'admin_styles' ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts' ) );
@@ -135,19 +119,10 @@ abstract class Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Load Help tab.
-	 *
-	 * @todo This may no longer be used.
-	 */
-	public function admin_help() {
-		$this->jetpack->admin_help();
-	}
-
-	/**
 	 * Call the existing admin page events.
 	 */
 	public function admin_page_load() {
-		$this->jetpack->admin_page_load();
+		Jetpack::init()->admin_page_load();
 	}
 
 	/**
@@ -155,7 +130,7 @@ abstract class Jetpack_Admin_Page {
 	 */
 	public function admin_scripts() {
 		$this->page_admin_scripts(); // Delegate to inheriting class.
-		add_action( 'admin_footer', array( $this->jetpack, 'do_stats' ) );
+		add_action( 'admin_footer', array( Jetpack::init(), 'do_stats' ) );
 	}
 
 	/**

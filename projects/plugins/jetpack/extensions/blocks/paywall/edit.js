@@ -1,5 +1,5 @@
 import './editor.scss';
-import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -7,15 +7,29 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon, people, check } from '@wordpress/icons';
+import ConnectBanner from '../../shared/components/connect-banner';
 import PlansSetupDialog from '../../shared/components/plans-setup-dialog';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 
 function PaywallEdit() {
 	const blockProps = useBlockProps();
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
+	const isUserConnected = useIsUserConnected();
+	const setAccess = useSetAccess();
+
+	// Add cleanup effect to reset access level when paywall is removed
+	useEffect( () => {
+		// This function will run when the component unmounts
+		return () => {
+			// Reset access level to "everybody" when the paywall block is removed
+			setAccess( accessOptions.everybody.key );
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
 		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
@@ -27,7 +41,6 @@ function PaywallEdit() {
 
 	const [ showDialog, setShowDialog ] = useState( false );
 	const closeDialog = () => setShowDialog( false );
-	const setAccess = useSetAccess();
 
 	useEffect( () => {
 		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
@@ -41,6 +54,20 @@ function PaywallEdit() {
 			return;
 		}
 		setAccess( value );
+	}
+
+	if ( ! isUserConnected ) {
+		return (
+			<div { ...blockProps }>
+				<ConnectBanner
+					block="Paywall"
+					explanation={ __(
+						'Connect your WordPress.com account to enable a paywall for your site.',
+						'jetpack'
+					) }
+				/>
+			</div>
+		);
 	}
 
 	const getText = key => {

@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
+import React, { useCallback } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import ButtonGroup from 'components/button-group';
 import analytics from 'lib/analytics';
-import React, { useCallback } from 'react';
-import { connect } from 'react-redux';
 import {
 	getSiteConnectionStatus,
 	hasConnectedOwner as hasConnectedOwnerSelector,

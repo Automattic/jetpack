@@ -1,4 +1,4 @@
-import cookie from 'cookie';
+import * as cookie from 'cookie';
 import { COOKIE_NAME, MAX_COOKIE_AGE } from './constants';
 
 function getViewCount() {

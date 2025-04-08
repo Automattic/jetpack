@@ -81,8 +81,6 @@ class Search_Widget extends \WP_Widget {
 
 		if ( is_admin() ) {
 			add_action( 'sidebar_admin_setup', array( $this, 'widget_admin_setup' ) );
-		} else {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 		}
 
 		add_action( 'jetpack_search_render_filters_widget_title', array( 'Automattic\Jetpack\Search\Template_Tags', 'render_widget_title' ), 10, 3 );
@@ -164,7 +162,7 @@ class Search_Widget extends \WP_Widget {
 	 * @since 5.8.0
 	 */
 	public function enqueue_frontend_scripts() {
-		if ( ! is_active_widget( false, false, $this->id_base, true ) || Options::is_instant_enabled() ) {
+		if ( Options::is_instant_enabled() ) {
 			return;
 		}
 		Assets::register_script(
@@ -178,9 +176,9 @@ class Search_Widget extends \WP_Widget {
 				// @see https://github.com/Automattic/jetpack/blob/b3de78dce3d88b0d9b283282a5b04515245c8057/projects/plugins/jetpack/tools/builder/frontend-css.js#L52.
 				// @see https://github.com/Automattic/jetpack/blob/bb1b6a9a9cfa98600441f8fa31c9f9c4ef9a04a5/projects/plugins/jetpack/class.jetpack.php#L106.
 				'css_path'   => 'css/search-widget-frontend.css',
+				'enqueue'    => true,
 			)
 		);
-		Assets::enqueue_script( 'jetpack-search-widget' );
 	}
 
 	/**
@@ -301,6 +299,9 @@ class Search_Widget extends \WP_Widget {
 			return;
 		}
 
+		// Enqueue front end assets.
+		$this->enqueue_frontend_scripts();
+
 		if ( Options::is_instant_enabled() ) {
 			if ( array_key_exists( 'id', $args ) && Instant_Search::INSTANT_SEARCH_SIDEBAR === $args['id'] ) {
 				$this->widget_empty_instant( $args, $instance );
@@ -323,12 +324,13 @@ class Search_Widget extends \WP_Widget {
 		$display_filters = false;
 
 		// Search instance must have been initialized before widget render.
-		if ( is_search() && Classic_Search::instance() ) {
+		if ( is_search() ) {
+			$search_instance = Inline_Search::get_instance_maybe_fallback_to_classic();
 			if ( Helper::should_rerun_search_in_customizer_preview() ) {
-				Classic_Search::instance()->update_search_results_aggregations();
+				$search_instance->update_search_results_aggregations();
 			}
 
-			$filters = Classic_Search::instance()->get_filters();
+			$filters = $search_instance->get_filters();
 
 			if ( ! Helper::are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
 				$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
@@ -605,11 +607,11 @@ class Search_Widget extends \WP_Widget {
 	private function sorting_to_wp_query_param( $sort ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$parts   = explode( '|', $sort );
-		$orderby = isset( $_GET['orderby'] )
+		$orderby = isset( $_GET['orderby'] ) && is_string( $_GET['orderby'] )
 			? sanitize_sql_orderby( wp_unslash( $_GET['orderby'] ) )
 			: $parts[0];
 
-		$order = isset( $_GET['order'] )
+		$order = isset( $_GET['order'] ) && is_string( $_GET['order'] )
 			? ( strtoupper( $_GET['order'] ) === 'ASC' ? 'ASC' : 'DESC' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			: ( ( isset( $parts[1] ) && 'ASC' === strtoupper( $parts[1] ) ) ? 'ASC' : 'DESC' );
 
@@ -636,8 +638,8 @@ class Search_Widget extends \WP_Widget {
 		// Keep `search_box_enabled` and `user_sort_enabled` settings when updating widget on Instant Search
 		// Set `search_box_enabled` and `user_sort_enabled` default to '1' when createing a NEW widget
 		if ( Options::is_instant_enabled() ) {
-			$instance['search_box_enabled'] = empty( $old_instance ) ? '1' : $old_instance['search_box_enabled'];
-			$instance['user_sort_enabled']  = empty( $old_instance ) ? '1' : $old_instance['user_sort_enabled'];
+			$instance['search_box_enabled'] = empty( $old_instance ) || empty( $old_instance['search_box_enabled'] ) ? '1' : $old_instance['search_box_enabled'];
+			$instance['user_sort_enabled']  = empty( $old_instance ) || empty( $old_instance['user_sort_enabled'] ) ? '1' : $old_instance['user_sort_enabled'];
 		} else {
 			$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
 			$instance['user_sort_enabled']  = empty( $new_instance['user_sort_enabled'] ) ? '0' : '1';

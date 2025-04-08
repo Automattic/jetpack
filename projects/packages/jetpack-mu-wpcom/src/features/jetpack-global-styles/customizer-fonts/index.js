@@ -1,6 +1,6 @@
 /**
  * Record a Tracks event.
- * @param tracksEventName - {string} The name of the event to record in Tracks.
+ * @param {string} tracksEventName - The name of the event to record in Tracks.
  */
 function recordTracksEvent( tracksEventName ) {
 	window.parent.window._tkq = window.parent.window._tkq || [];

@@ -2,6 +2,7 @@ name: Enhancement Request
 description: Suggest a change to a feature you like!
 title: "Enhancement:"
 labels: ["[Type] Enhancement"]
+type: 'Enhancement'
 body:
   - type: dropdown
     id: plugin-type

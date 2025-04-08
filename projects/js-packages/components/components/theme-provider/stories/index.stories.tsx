@@ -1,8 +1,8 @@
 import { Button } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
-import Col from '../../layout/col';
-import Container from '../../layout/container';
-import ThemeProvider, { typography, colors, borders, spacing } from '../index';
+import Col from '../../layout/col/index.js';
+import Container from '../../layout/container/index.js';
+import ThemeProvider, { typography, colors, borders, spacing } from '../index.js';
 import styles from './style.module.scss';
 import type { StoryFn, Meta } from '@storybook/react';
 
@@ -41,9 +41,11 @@ function getContrast( hexcolor ) {
 	// Check contrast
 	return yiq >= 128 ? 'black' : 'white';
 }
-export default {
+const meta: Meta< typeof ThemeProvider > = {
 	title: 'JS Packages/Components/Theme Provider',
-} as Meta< typeof ThemeProvider >;
+};
+
+export default meta;
 
 const noop = () => {
 	//
@@ -62,7 +64,7 @@ const Section = ( { title, data, children = null } ) => (
 		<h1 className={ styles.title }>{ title }</h1>
 		<Container fluid>
 			{ Object.keys( data ).map( key => (
-				<Col lg={ 3 } className={ styles.box }>
+				<Col key={ key } lg={ 3 } className={ styles.box }>
 					<Container fluid horizontalGap={ 2 }>
 						<Col className={ styles.key }>{ key }</Col>
 						{ children && <Col className={ styles.example }>{ children( data[ key ] ) }</Col> }
@@ -103,7 +105,11 @@ Tokens.parameters = {
 export const Typographies = args => (
 	<div className={ styles[ 'instances-wrapper' ] }>
 		{ Object.keys( typography ).map( key => (
-			<div className={ styles[ 'font-instance' ] } style={ { fontSize: typography[ key ] } }>
+			<div
+				key={ key }
+				className={ styles[ 'font-instance' ] }
+				style={ { fontSize: typography[ key ] } }
+			>
 				{ args?.[ 'Text Instance' ] || `${ key } (${ typography[ key ] } )` }
 
 				<ClipboardButton variant="tertiary" text={ key } className={ styles[ 'copy-button' ] }>
@@ -125,6 +131,7 @@ export const Colors = () => (
 	<div className={ styles[ 'instances-wrapper' ] }>
 		{ Object.keys( colors ).map( key => (
 			<div
+				key={ key }
 				className={ styles[ 'color-instance' ] }
 				style={ { backgroundColor: colors[ key ], color: getContrast( colors[ key ] ) } }
 			>

@@ -1,3 +1,4 @@
+@import "../../shared/styles/align";
 // Hide the link if an iframe got appended to the container.
 .eventbrite__direct-link:not(:only-child) {
 	display: none;
@@ -33,6 +34,7 @@
 }
 
 @media (max-width: 660px) {
+
 	.eventbrite__lighbox-iframe-wrapper {
 	position: absolute;
 	top: 0;
@@ -43,6 +45,7 @@
 }
 
 @media (min-width: 661px) {
+
 	.eventbrite__lighbox-iframe-wrapper {
 	width: 95%;
 	height: 95%;
@@ -63,5 +66,14 @@
 	right: 0;
 	width: 40px;
 	height: 40px;
+
 	/* @todo More styling could be copied from Eventbrite */
+}
+
+.wp-block-jetpack-eventbrite {
+
+	.wp-block-jetpack-button {
+
+		@include align-block;
+	}
 }

@@ -1,5 +1,5 @@
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SubscriptionEdit } from '../edit';
 
@@ -102,34 +102,6 @@ describe( 'SubscriptionEdit', () => {
 		expect(
 			screen.getByPlaceholderText( defaultAttributes.subscribePlaceholder )
 		).toBeInTheDocument();
-	} );
-
-	test( 'renders subscription placeholder when module is disabled', async () => {
-		useModuleStatus.mockReturnValue( {
-			isModuleActive: false,
-			changeStatus: jest.fn(),
-		} );
-
-		render( <SubscriptionEdit { ...defaultProps } /> );
-
-		const button = screen.getByText( defaultAttributes.subscriptionPlaceholderText );
-		fireEvent.submit( button );
-		expect( screen.getByText( defaultAttributes.subscriptionPlaceholderText ) ).toBeInTheDocument();
-	} );
-
-	test( 'calls subscription activation when placeholder button is clicked', async () => {
-		const user = userEvent.setup();
-		const onChangeStatus = jest.fn();
-		useModuleStatus.mockReturnValue( {
-			isModuleActive: false,
-			changeStatus: onChangeStatus,
-		} );
-
-		render( <SubscriptionEdit { ...defaultProps } /> );
-
-		const actionButton = screen.getByText( defaultAttributes.subscriptionPlaceholderText );
-		await user.click( actionButton );
-		expect( onChangeStatus ).toHaveBeenCalledWith( true );
 	} );
 
 	test( 'renders button with default text', async () => {

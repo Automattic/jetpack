@@ -24,11 +24,11 @@ function jetpack_image_cdn_photon_compat() {
 	 * Image_CDN_Core class. And the filters are now handled by the Image_CDN_Core class itself.
 	 */
 	// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Just removing this deprecated filter function. No point in stubbing it.
-	remove_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
+	remove_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10 );
 	// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Just removing this deprecated filter function. No point in stubbing it.
-	remove_filter( 'jetpack_photon_pre_args', 'jetpack_photon_parse_wpcom_query_args', 10, 2 );
+	remove_filter( 'jetpack_photon_pre_args', 'jetpack_photon_parse_wpcom_query_args', 10 );
 	// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Just removing this deprecated filter function. No point in stubbing it.
-	remove_filter( 'jetpack_photon_skip_for_url', 'jetpack_photon_banned_domains', 9, 2 );
+	remove_filter( 'jetpack_photon_skip_for_url', 'jetpack_photon_banned_domains', 9 );
 	// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Just removing this deprecated filter function. No point in stubbing it.
 	remove_filter( 'widget_text', 'jetpack_photon_support_text_widgets' );
 

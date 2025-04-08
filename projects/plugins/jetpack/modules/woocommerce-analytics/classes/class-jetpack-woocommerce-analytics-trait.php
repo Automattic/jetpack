@@ -12,7 +12,7 @@
  * Bail if accessed directly
  */
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 /**

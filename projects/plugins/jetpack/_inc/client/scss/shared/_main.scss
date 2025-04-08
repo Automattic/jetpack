@@ -6,6 +6,7 @@
 // TODO Extract into other files
 
 .jp-hidden-on-mobile {
+
 	@include breakpoint( "<660px" ) {
 		display: none;
 	}
@@ -110,12 +111,14 @@
 #contextual-help-link-wrap {
 	display: none;
 }
+
 .is-placeholder {
 	animation: pulse-light 0.8s ease-in-out infinite;
 	background: lighten( $gray, 20% );
 }
 
 @keyframes pulse-light {
+
 	50% { background-color: lighten( $gray, 30% ); }
 }
 

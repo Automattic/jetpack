@@ -12,9 +12,9 @@ import {
 /**
  * Error reducer.
  *
- * @param {string} state
- * @param {object} action
- * @returns {string}
+ * @param {number} state  - Global state tree
+ * @param {object} action - The action
+ * @return {string} - The error
  */
 export const error = ( state = window.Initial_State.licensing.error, action ) => {
 	switch ( action.type ) {
@@ -115,7 +115,7 @@ export const reducer = combineReducers( {
 /**
  * Get the latest licensing error, if any.
  *
- * @param {Object} state - Global state tree.
+ * @param {object} state - Global state tree.
  * @return {string} - Error message or an empty string.
  */
 export function getLicensingError( state ) {

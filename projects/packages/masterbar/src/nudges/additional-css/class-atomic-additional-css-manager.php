@@ -36,8 +36,11 @@ class Atomic_Additional_CSS_Manager {
 	 * @param \WP_Customize_Manager $wp_customize_manager Core customize manager.
 	 */
 	public function register_nudge( \WP_Customize_Manager $wp_customize_manager ) {
-		$nudge_url  = $this->get_nudge_url();
-		$nudge_text = __( 'Purchase the Creator plan to<br> activate CSS customization', 'jetpack-masterbar' );
+		$plan = $this->get_plan_name();
+
+		$nudge_url = $this->get_nudge_url();
+		/* translators: %s is the plan name. */
+		$nudge_text = sprintf( __( 'Purchase the %s plan to<br> activate CSS customization', 'jetpack-masterbar' ), $plan );
 
 		$nudge = new CSS_Customizer_Nudge(
 			$nudge_url,
@@ -48,6 +51,15 @@ class Atomic_Additional_CSS_Manager {
 		$wp_customize_manager->remove_section( 'custom_css' );
 
 		$nudge->customize_register_nudge( $wp_customize_manager );
+	}
+
+	/**
+	 * Get the plan name.
+	 *
+	 * @return mixed
+	 */
+	protected function get_plan_name() {
+		return \Automattic\Jetpack\Plans::get_plan( 'business_bundle' )->product_name_short;
 	}
 
 	/**

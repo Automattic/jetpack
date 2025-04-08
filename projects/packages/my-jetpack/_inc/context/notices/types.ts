@@ -5,6 +5,7 @@ export type NoticeButtonAction = NoticeAction & {
 	isLoading?: boolean;
 	loadingText?: string;
 	isDisabled?: boolean;
+	isExternalLink?: boolean;
 };
 
 export type Notice = {

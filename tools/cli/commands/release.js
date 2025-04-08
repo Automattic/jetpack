@@ -47,6 +47,10 @@ export function releaseDefine( yargs ) {
 					describe: 'Append the GH PR number to each entry',
 					type: 'boolean',
 				} )
+				.option( 'use-version', {
+					describe: 'Specify a version number explicitly',
+					type: 'string',
+				} )
 				.option( 'init-next-cycle', {
 					describe: 'For `version`, init the next release cycle',
 					type: 'boolean',
@@ -141,6 +145,9 @@ export async function scriptRouter( argv ) {
 			} else if ( argv.beta ) {
 				argv.scriptArgs.unshift( '-b' );
 			}
+			if ( argv.useVersion ) {
+				argv.scriptArgs.unshift( '-r', argv.useVersion );
+			}
 			argv.addPrNum && argv.scriptArgs.unshift( '-p' );
 			argv.next = `Finished! You may want to update the readme.txt by running 'jetpack release ${ argv.project } readme' \n`;
 			break;
@@ -162,6 +169,9 @@ export async function scriptRouter( argv ) {
 			argv.script = `vendor/bin/changelogger`;
 			argv.scriptArgs = [ `write`, `--amend` ];
 			argv.addPrNum && argv.scriptArgs.push( '--add-pr-num' );
+			if ( argv.useVersion ) {
+				argv.scriptArgs.push( '--use-version', argv.useVersion );
+			}
 			argv.workingDir = `projects/${ argv.project }`;
 			argv.next = `Finished! You will now likely want to update readme.txt again:
 				    jetpack release ${ argv.project } readme \n`.replace( /^\t+/gm, '' );
@@ -246,9 +256,13 @@ export async function parseProj( argv ) {
  * Get a potential version that we might need when creating a release branch or bumping versions.
  *
  * @param {object} argv - the arguments passed
- * @return {object} argv
+ * @return {string} Version
  */
 export async function getReleaseVersion( argv ) {
+	if ( argv.useVersion ) {
+		return argv.useVersion;
+	}
+
 	let potentialVersion = child_process
 		.execSync( `tools/plugin-version.sh ${ argv.project }` )
 		.toString()

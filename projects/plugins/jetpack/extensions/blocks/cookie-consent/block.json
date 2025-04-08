@@ -15,7 +15,8 @@
 		"anchor": false,
 		"color": {
 			"gradients": true,
-			"link": true
+			"link": true,
+			"background": true
 		},
 		"spacing": {
 			"padding": true
@@ -63,5 +64,6 @@
 			"type": "boolean",
 			"default": false
 		}
-	}
+	},
+	"viewScript": "file:./view.js"
 }

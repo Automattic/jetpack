@@ -12,6 +12,7 @@ import {
 } from '$features/image-size-analysis';
 import clsx from 'clsx';
 import styles from './table.module.scss';
+import rowStyles from '../row.module.scss';
 
 const toggleImageFix = ( imageDetails: IsaImage ) => {
 	const imageFixer = useImageFixer();
@@ -46,7 +47,7 @@ interface TableProps {
 const Table = ( { isaDataLoading, images, isaReport }: TableProps ) => {
 	return (
 		<>
-			<div className={ clsx( 'jb-loading-spinner', { 'jb-active': isaDataLoading } ) }>
+			<div className={ clsx( styles[ 'loading-spinner' ], { [ styles.active ]: isaDataLoading } ) }>
 				<Spinner size="3rem" lineWidth="4px" />
 			</div>
 
@@ -57,12 +58,12 @@ const Table = ( { isaDataLoading, images, isaReport }: TableProps ) => {
 						: __( 'No image size issues found yet…', 'jetpack-boost' ) }
 				</h4>
 			) : (
-				<div className={ clsx( 'jb-table', { 'jb-loading': isaDataLoading } ) }>
-					<div className="jb-table-header jb-recommendation-page-grid">
-						<div className="jb-table-header__image">Image</div>
-						<div className="jb-table-header__potential-size">Potential Size</div>
-						<div className="jb-table-header__device">Device</div>
-						<div className="jb-table-header__page">Page/Post</div>
+				<div className={ clsx( styles.table, { [ styles.loading ]: isaDataLoading } ) }>
+					<div className={ clsx( styles[ 'table-header' ], rowStyles[ 'row-grid' ] ) }>
+						<div className={ styles.image }>Image</div>
+						<div className={ styles[ 'potential-size' ] }>Potential Size</div>
+						<div className={ styles.device }>Device</div>
+						<div className={ styles.page }>Page/Post</div>
 					</div>
 
 					{ isaDataLoading

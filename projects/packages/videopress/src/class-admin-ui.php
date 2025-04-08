@@ -34,6 +34,23 @@ class Admin_UI {
 	 * @return void
 	 */
 	public static function init() {
+
+		add_action( 'admin_menu', array( __CLASS__, 'enable_menu' ), 1 ); // Akismet uses 4, so we use 1 to ensure both menus are added when only they exist.
+
+		add_action( 'admin_footer-upload.php', array( __CLASS__, 'attachment_details_two_column_template' ) );
+		add_action( 'admin_footer-post.php', array( __CLASS__, 'attachment_details_template' ), 20 );
+
+		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
+
+		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
+	}
+
+	/**
+	 * Enable the menu, separately to init due to translations needing to run early for the page suffix.
+	 *
+	 * @return void
+	 */
+	public static function enable_menu() {
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ),
 			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress-pkg' ),
@@ -43,13 +60,6 @@ class Admin_UI {
 			3
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
-
-		add_action( 'admin_footer-upload.php', array( __CLASS__, 'attachment_details_two_column_template' ) );
-		add_action( 'admin_footer-post.php', array( __CLASS__, 'attachment_details_template' ), 20 );
-
-		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
-
-		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
 	}
 
 	/**
@@ -382,6 +392,10 @@ class Admin_UI {
 	 */
 	protected static function attachment_info_template_part() {
 		?>
+		<span class="setting" data-setting="title">
+			<label for="attachment-details-title" class="name"><?php _e( 'Title', 'jetpack-videopress-pkg' ); ?></label>
+			<input type="text" id="attachment-details-title" value="{{ data.title }}" readonly />
+		</span>
 		<span class="setting" data-setting="filename">
 			<label for="attachment-details-filename" class="name"><?php _e( 'File name', 'jetpack-videopress-pkg' ); ?></label>
 			<input type="text" id="attachment-details-filename" value="{{ data.filename }}" readonly />

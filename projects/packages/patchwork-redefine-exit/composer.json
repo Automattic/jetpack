@@ -11,12 +11,13 @@
 	],
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0",
-		"antecedent/patchwork": "^2.1"
+		"php": ">=7.2",
+		"antecedent/patchwork": "^2.2"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^1.1.1",
-		"automattic/jetpack-changelogger": "@dev"
+		"yoast/phpunit-polyfills": "^3.0.0",
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -25,7 +26,10 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -45,7 +49,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "1.0.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/patchwork-redefine-exit/compare/v${old}...v${new}"

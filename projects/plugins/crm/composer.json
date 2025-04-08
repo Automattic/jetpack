@@ -10,7 +10,8 @@
 		"codeception/module-db": "^2.0 || 3.1.0 || ^3.1.2",
 		"codeception/module-filesystem": "^2.0 || ^3.0",
 		"codeception/util-universalframework": "^1.0",
-		"yoast/phpunit-polyfills": "^1.1.1"
+		"yoast/phpunit-polyfills": "^3.0.0",
+		"automattic/phpunit-select-config": "@dev"
 	},
 	"scripts": {
 		"build-development": [
@@ -18,6 +19,9 @@
 		],
 		"build-production": [
 			"pnpm run build-production"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"tests": "vendor/bin/codecept run acceptance --fail-fast",
 		"tests-debug": "vendor/bin/codecept run acceptance --fail-fast --debug",
@@ -28,7 +32,7 @@
 		"cs-staged": "temp=$(git diff --diff-filter=d --name-only --cached | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-staged $temp || echo 'No changes found.'",
 		"cs-unstaged": "temp=$(git diff --diff-filter=d --name-only | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-unstaged $temp || echo 'No changes found.'",
 		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
 		"skip-test-php": "tests/action-skip-test-php.sh",
 		"test-php": [
@@ -42,7 +46,7 @@
 		]
 	},
 	"config": {
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_4_4",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_5_1",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true,
@@ -54,8 +58,8 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/woocommerce": "^3.0",
-		"dompdf/dompdf": "2.0.4"
+		"automattic/woocommerce": "^3.1",
+		"dompdf/dompdf": "^2.0"
 	},
 	"repositories": [
 		{
@@ -83,6 +87,9 @@
 			"link-template": "https://github.com/Automattic/jetpack-crm/compare/${old}...${new}"
 		},
 		"release-branch-prefix": "crm",
+		"version-constants": {
+			"::VERSION": "includes/ZeroBSCRM.Core.php"
+		},
 		"wp-plugin-slug": "zero-bs-crm",
 		"wp-svn-autopublish": true
 	}

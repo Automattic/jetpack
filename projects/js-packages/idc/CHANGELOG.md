@@ -2,6 +2,131 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.12.21 - 2025-04-07
+### Changed
+- Code: First pass of style coding standards. [#42734]
+
+## 0.12.20 - 2025-04-01
+### Changed
+- Update package dependencies. [#42809]
+
+## 0.12.19 - 2025-04-01
+### Changed
+- Update dependencies.
+
+## 0.12.18 - 2025-03-31
+### Changed
+- Update dependencies.
+
+## 0.12.17 - 2025-03-26
+### Changed
+- Update dependencies.
+
+## 0.12.16 - 2025-03-24
+### Changed
+- Update dependencies.
+
+## 0.12.15 - 2025-03-24
+### Changed
+- Update dependencies.
+
+## 0.12.14 - 2025-03-18
+### Changed
+- Update package dependencies. [#42511]
+
+## 0.12.13 - 2025-03-17
+### Changed
+- Update dependencies.
+
+## 0.12.12 - 2025-03-12
+### Changed
+- Update dependencies.
+
+## 0.12.11 - 2025-03-10
+### Fixed
+- Safe Mode: Add mainBodyTextDev for the body text in development mode. [#42280]
+
+## 0.12.10 - 2025-03-06
+### Fixed
+- Safe Mode: Make sure custom text works in development mode. [#42235]
+
+## 0.12.9 - 2025-03-05
+### Changed
+- Update dependencies.
+
+## 0.12.8 - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+## 0.12.7 - 2025-02-24
+### Changed
+- Update dependencies.
+
+## 0.12.6 - 2025-02-17
+### Changed
+- Update dependencies.
+
+## 0.12.5 - 2025-02-11
+### Changed
+- Update dependencies.
+
+## 0.12.4 - 2025-02-10
+### Changed
+- Updated package dependencies. [#41491]
+
+## 0.12.3 - 2025-01-20
+### Changed
+- Updated package dependencies. [#41099]
+
+## 0.12.2 - 2025-01-06
+### Changed
+- Updated package dependencies. [#40797]
+
+## 0.12.1 - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## 0.12.0 - 2024-12-04
+### Changed
+- Changed text domain from 'jetpack' to 'jetpack-idc'. [#40368]
+- Updated package dependencies. [#40363]
+
+## 0.11.22 - 2024-11-26
+### Changed
+- Update dependencies.
+
+## 0.11.21 - 2024-11-25
+### Changed
+- Updated package dependencies. [#40288]
+
+## 0.11.20 - 2024-11-18
+### Changed
+- Update dependencies.
+
+## 0.11.19 - 2024-11-14
+### Changed
+- Update dependencies.
+
+## 0.11.18 - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## 0.11.17 - 2024-10-15
+### Changed
+- Update dependencies.
+
+## 0.11.16 - 2024-10-14
+### Changed
+- Update dependencies.
+
+## 0.11.15 - 2024-10-10
+### Changed
+- Updated package dependencies.
+
+## 0.11.14 - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
 ## 0.11.13 - 2024-09-25
 ### Changed
 - Update dependencies.
@@ -64,8 +189,7 @@
 
 ## 0.10.72 - 2024-05-16
 ### Changed
-- Updated package dependencies. [#37379]
-- Updated package dependencies. [#37380]
+- Updated package dependencies. [#37379] [#37380]
 
 ## 0.10.71 - 2024-05-08
 ### Changed
@@ -171,8 +295,7 @@
 
 ## 0.10.45 - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## 0.10.44 - 2023-08-09
 ### Changed

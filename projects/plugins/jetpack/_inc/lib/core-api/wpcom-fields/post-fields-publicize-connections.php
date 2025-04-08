@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Publicize\REST_API\Connections_Controller;
+
 /**
  * Add per-post Publicize Connection data.
  *
@@ -102,64 +104,40 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	 * Schema for the endpoint.
 	 */
 	private function post_connection_schema() {
+		$connection_fields = Connections_Controller::get_the_item_schema();
+		$deprecated_fields = array(
+			'id'       => array(
+				'type'        => 'string',
+				'description' => __( 'Unique identifier for the Jetpack Social connection.', 'jetpack' ) . ' ' . sprintf(
+					/* translators: %s is the new field name */
+					__( 'Deprecated in favor of %s.', 'jetpack' ),
+					'connection_id'
+				),
+			),
+			'username' => array(
+				'type'        => 'string',
+				'description' => __( 'Username of the connected account.', 'jetpack' ) . ' ' . sprintf(
+					/* translators: %s is the new field name */
+					__( 'Deprecated in favor of %s.', 'jetpack' ),
+					'external_handle'
+				),
+			),
+		);
+
 		return array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			'title'      => 'jetpack-publicize-post-connection',
 			'type'       => 'object',
-			'properties' => array(
-				'id'              => array(
-					'description' => __( 'Unique identifier for the Jetpack Social connection', 'jetpack' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'readonly'    => true,
-				),
-				'service_name'    => array(
-					'description' => __( 'Alphanumeric identifier for the Jetpack Social service', 'jetpack' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'readonly'    => true,
-				),
-				'display_name'    => array(
-					'description' => __( 'Display name of the connected account', 'jetpack' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'readonly'    => true,
-				),
-				'username'        => array(
-					'description' => __( 'Username of the connected account', 'jetpack' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'readonly'    => true,
-				),
-				'profile_picture' => array(
-					'description' => __( 'Profile picture of the connected account', 'jetpack' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'readonly'    => true,
-				),
-				'enabled'         => array(
-					'description' => __( 'Whether to share to this connection', 'jetpack' ),
-					'type'        => 'boolean',
-					'context'     => array( 'edit' ),
-				),
-				'done'            => array(
-					'description' => __( 'Whether Jetpack Social has already finished sharing for this post', 'jetpack' ),
-					'type'        => 'boolean',
-					'context'     => array( 'edit' ),
-					'readonly'    => true,
-				),
-				'toggleable'      => array(
-					'description' => __( 'Whether `enable` can be changed for this post/connection', 'jetpack' ),
-					'type'        => 'boolean',
-					'context'     => array( 'edit' ),
-					'readonly'    => true,
-				),
-				'external_id'     => array(
-					'description' => __( 'The external ID of the connected account', 'jetpack' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'readonly'    => true,
-				),
+			'properties' => array_merge(
+				$deprecated_fields,
+				$connection_fields,
+				array(
+					'enabled' => array(
+						'description' => __( 'Whether to share to this connection.', 'jetpack' ),
+						'type'        => 'boolean',
+						'context'     => array( 'edit' ),
+					),
+				)
 			),
 		);
 	}
@@ -248,11 +226,6 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 					$output_connection[ $property ] = $connection[ $property ];
 				}
 			}
-			$output_connection['id']            = (string) $connection['unique_id'];
-			$output_connection['connection_id'] = (string) $connection['id'];
-
-			$output_connection['can_disconnect'] = current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection['user_id'];
-			$output_connection['shared']         = $connection['global'];
 
 			$output_connections[] = $output_connection;
 		}
@@ -349,7 +322,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		$available_connections_by_connection_id = array();
 		$available_connections_by_service_name  = array();
 		foreach ( $available_connections as $available_connection ) {
-			$available_connections_by_connection_id[ $available_connection['id'] ] = $available_connection;
+			$available_connections_by_connection_id[ $available_connection['connection_id'] ] = $available_connection;
 
 			if ( ! isset( $available_connections_by_service_name[ $available_connection['service_name'] ] ) ) {
 				$available_connections_by_service_name[ $available_connection['service_name'] ] = array();
@@ -369,8 +342,8 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			}
 
 			foreach ( $available_connections_by_service_name[ $requested_connection['service_name'] ] as $available_connection ) {
-				if ( $requested_connection['connection_id'] === $available_connection['id'] ) {
-					$changed_connections[ $available_connection['id'] ] = $requested_connection['enabled'];
+				if ( $requested_connection['connection_id'] === $available_connection['connection_id'] ) {
+					$changed_connections[ $available_connection['connection_id'] ] = $requested_connection['enabled'];
 					break;
 				}
 			}
@@ -394,7 +367,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		foreach ( $changed_connections as $id => $enabled ) {
 			$connection = $available_connections_by_connection_id[ $id ];
 
-			if ( $connection['done'] || ! $connection['toggleable'] ) {
+			if ( $connection['done'] ) {
 				continue;
 			}
 

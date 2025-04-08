@@ -73,7 +73,7 @@ docopy "$PLUGIN_DIR" "$TMPDIR/plugin"
 
 info "Creating POT file"
 mkdir "$TMPDIR/pot"
-php -d memory_limit=2G $(command -v wp) --allow-root --debug i18n make-pot --slug="$DOMAIN" --ignore-domain "$TMPDIR/plugin/" "$TMPDIR/pot/$DOMAIN.pot"
+php -d memory_limit=2G $(command -v wp) --debug i18n make-pot --slug="$DOMAIN" --ignore-domain "$TMPDIR/plugin/" "$TMPDIR/pot/$DOMAIN.pot"
 
 info "Making translations"
 cat <<EOF > "$TMPDIR/pot/en_piglatin.po"
@@ -187,10 +187,10 @@ EOJ
 rm "$TMPDIR/pot/$DOMAIN.pot"
 
 info "Extracting JS translations"
-wp --allow-root --debug i18n make-json "$TMPDIR/pot/"
+wp --debug i18n make-json "$TMPDIR/pot/"
 
 info "Creating MO files"
-wp --allow-root --debug i18n make-mo "$TMPDIR/pot/"
+wp --debug i18n make-mo "$TMPDIR/pot/"
 
 info "Copying translations into /var/www/html/wp-content/languages/plugins/"
 mkdir -p /var/www/html/wp-content/languages/plugins/

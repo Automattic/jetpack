@@ -1,12 +1,13 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import DashItem from 'components/dash-item';
+import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
 
@@ -78,26 +79,29 @@ class DashMonitor extends Component {
 				support={ support }
 				className="jp-dash-item__is-inactive"
 				noToggle={ ! this.props.hasConnectedOwner }
+				overrideContent={
+					( ! this.props.hasConnectedOwner && ! this.props.isOfflineMode && (
+						<JetpackBanner
+							title={ __(
+								'Connect your WordPress.com account to enable alerts if your site goes down.',
+								'jetpack'
+							) }
+							noIcon
+							callToAction={ __( 'Connect', 'jetpack' ) }
+							onClick={ this.props.connectUser }
+							eventFeature="monitor"
+							path="dashboard"
+							eventProps={ { type: 'connect' } }
+						/>
+					) ) ||
+					null
+				}
 			>
 				<p className="jp-dash-item__description">
 					{ this.props.isOfflineMode
 						? __( 'Unavailable in Offline Mode.', 'jetpack' )
 						: activateMessage }
 				</p>
-
-				{ ! this.props.isOfflineMode && ! this.props.hasConnectedOwner && (
-					<p className="jp-dash-item__description jp-dash-item__connect">
-						{ createInterpolateElement(
-							__(
-								'<Button>Connect your WordPress.com</Button> account to use this feature.',
-								'jetpack'
-							),
-							{
-								Button: <Button className="jp-link-button" onClick={ this.connect } />,
-							}
-						) }
-					</p>
-				) }
 			</DashItem>
 		);
 	}

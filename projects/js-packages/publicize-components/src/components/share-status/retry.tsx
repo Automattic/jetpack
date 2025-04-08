@@ -28,7 +28,6 @@ export type RetryProps = {
  */
 export function Retry( { shareItem }: RetryProps ) {
 	const { recordEvent } = useAnalytics();
-	// @ts-expect-error -- `@wordpress/editor` is badly typed, causes issue in CI
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const connections = useSelect( select => select( socialStore ).getConnections(), [] );
 
@@ -90,7 +89,7 @@ export function Retry( { shareItem }: RetryProps ) {
 				if ( connectionExists && isResharingSupported ) {
 					return (
 						<Button variant="link" onClick={ onRetry }>
-							{ __( 'Retry', 'jetpack' ) }
+							{ __( 'Retry', 'jetpack-publicize-components' ) }
 						</Button>
 					);
 				}
@@ -98,13 +97,16 @@ export function Retry( { shareItem }: RetryProps ) {
 				return (
 					<>
 						<Button variant="tertiary" disabled>
-							{ __( 'Retry', 'jetpack' ) }
+							{ __( 'Retry', 'jetpack-publicize-components' ) }
 						</Button>
 						<IconTooltip shift placement="bottom-end">
 							{ ( () => {
 								if ( ! isResharingSupported ) {
 									// TODO - Add link to upgrade
-									return __( 'To re-share a post, you need to upgrade to a paid plan.', 'jetpack' );
+									return __(
+										'To re-share a post, you need to upgrade to a paid plan.',
+										'jetpack-publicize-components'
+									);
 								}
 
 								// Now we know that the connection doesn't exist
@@ -112,11 +114,15 @@ export function Retry( { shareItem }: RetryProps ) {
 								// If we don't have external_id - in case of old share data,
 								// we can't be sure if the connection has been removed or reconnected
 								return shareItem.external_id
-									? _x( 'This connection has been removed.', 'Social media connection', 'jetpack' )
+									? _x(
+											'This connection has been removed.',
+											'Social media connection',
+											'jetpack-publicize-components'
+									  )
 									: _x(
 											'This connection has been reconnected or removed.',
 											'Social media connection',
-											'jetpack'
+											'jetpack-publicize-components'
 									  );
 							} )() }
 						</IconTooltip>

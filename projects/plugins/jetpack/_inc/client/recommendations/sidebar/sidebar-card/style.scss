@@ -4,6 +4,7 @@
 @import 'node_modules/@automattic/jetpack-base-styles/style';
 
 .jp-recommendations-sidebar-card {
+
 	@include card;
 
 	width: 100%;
@@ -70,5 +71,6 @@
 }
 
 .jp-recommendations-sidebar-card__features {
+
 	@include features-list;
 }

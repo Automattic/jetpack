@@ -70,6 +70,7 @@
 }
 
 @media (max-width: 1260px) {
+
 	.wpcom-plugins-banner {
 		padding: 32px;
 		background-size: 400px;
@@ -82,16 +83,19 @@
 }
 
 @media (max-width: 1120px) {
+
 	.wpcom-plugins-banner {
 		background-position: bottom right 5px;
 		background-size: 300px
 	}
+
 	.rtl .wpcom-plugins-banner {
 		background-position: bottom left 5px;
 	}
 }
 
 @media (max-width: 850px) {
+
 	.wpcom-plugins-banner {
 		background-image: none;
 	}
@@ -102,6 +106,7 @@
 }
 
 @media (max-width: 782px) {
+
 	.wpcom-plugins-banner {
 		padding: 24px;
 	}

@@ -24,6 +24,8 @@ export default ( {
 				options={ fontHeadingsOptions }
 				onChange={ newValue => updateHeadingsFont( newValue ) }
 				style={ { fontFamily: fontHeadings !== 'unset' ? fontHeadings : fontHeadingsDefault } }
+				__next40pxDefaultSize={ true }
+				__nextHasNoMarginBottom={ true }
 			/>
 			<SelectControl
 				label={ __( 'Base Font', 'jetpack-mu-wpcom' ) }
@@ -31,6 +33,8 @@ export default ( {
 				options={ fontBaseOptions }
 				onChange={ newValue => updateBaseFont( newValue ) }
 				style={ { fontFamily: fontBase !== 'unset' ? fontBase : fontBaseDefault } }
+				__next40pxDefaultSize={ true }
+				__nextHasNoMarginBottom={ true }
 			/>
 			<hr />
 		</>

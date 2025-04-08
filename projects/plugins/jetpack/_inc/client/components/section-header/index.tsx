@@ -1,6 +1,6 @@
 import clsx from 'clsx';
-import Card from 'components/card';
 import React from 'react';
+import Card from 'components/card';
 
 import './style.scss';
 

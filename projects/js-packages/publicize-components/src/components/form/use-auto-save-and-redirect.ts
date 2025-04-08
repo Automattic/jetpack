@@ -9,7 +9,6 @@ import { useCallback } from '@wordpress/element';
  * @return {Function} Function to handle autosaving and redirecting.
  */
 export function useAutoSaveAndRedirect(): React.DOMAttributes< HTMLAnchorElement >[ 'onClick' ] {
-	// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript
 	const { isEditedPostDirty } = useSelect( editorStore, [] );
 	const { autosave } = useDispatch( editorStore );
 
