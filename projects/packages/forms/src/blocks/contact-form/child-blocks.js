@@ -4,6 +4,7 @@ import { Path, Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { globe, envelope, mobile, upload } from '@wordpress/icons';
 import { filter, isEmpty, map, startsWith, trim } from 'lodash';
+import JetpackDropzone from './components/jetpack-dropzone';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldConsent from './components/jetpack-field-consent';
@@ -615,6 +616,27 @@ export const childBlocks = [
 				},
 			},
 			isBeta: true,
+		},
+	},
+	{
+		name: 'field-file-dropzone',
+		settings: {
+			title: __( 'File Upload Dropzone', 'jetpack-forms' ),
+			parent: [ 'jetpack/field-file' ],
+			icon: {
+				foreground: getIconColor(),
+				src: <Icon icon={ upload } />,
+			},
+			edit: JetpackDropzone,
+			save: () => {
+				const blockProps = useBlockProps.save();
+				const innerBlocksProps = useInnerBlocksProps.save();
+				return (
+					<div { ...blockProps }>
+						<div { ...innerBlocksProps } />
+					</div>
+				);
+			},
 		},
 	},
 	{
