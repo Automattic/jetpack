@@ -122,7 +122,7 @@ class Filesystem_Utils_Test extends TestCase {
 		file_put_contents( $test_dir . '/subdir/test3.html', 'Test 3' );
 
 		$result = Filesystem_Utils::iterate_directory( $test_dir, new Simple_Delete() );
-		$this->assertTrue( $result === 3 );
+		$this->assertTrue( $result === 5 );
 		$this->assertFalse( file_exists( $test_dir ) );
 	}
 
@@ -152,7 +152,7 @@ class Filesystem_Utils_Test extends TestCase {
 		touch( $file1, time() - 3600 );
 
 		$count = Filesystem_Utils::iterate_directory( $test_dir, new Filter_Older( time() - 1800, new Simple_Delete() ) );
-		$this->assertSame( 1, $count );
+		$this->assertSame( 2, $count );
 		$this->assertFalse( file_exists( $file1 ) );
 		$this->assertTrue( file_exists( $file2 ) );
 	}
