@@ -148,7 +148,11 @@ export type BreveFeatureConfig = {
 
 export type BreveFeature = {
 	config: BreveFeatureConfig;
-	highlight: ( text: string, blockClientId: string ) => Array< HighlightedText >;
+	highlight: (
+		text: string,
+		blockClientId: string,
+		richTextIdentifier?: string
+	) => Array< HighlightedText >;
 	dictionary?: { [ key: string ]: string };
 	description: string;
 };
