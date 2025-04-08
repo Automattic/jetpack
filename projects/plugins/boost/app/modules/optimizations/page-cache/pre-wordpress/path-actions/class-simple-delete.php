@@ -33,8 +33,7 @@ class Simple_Delete implements Path_Action {
 		$count = 0;
 		if ( Filesystem_Utils::is_dir_empty( $file->getPathname() ) ) {
 			// An empty directory will still have an index.html file, which we will delete with the directory.
-			$count += $this->delete_file( new SplFileInfo( $file->getPathname() . '/index.html' ) );
-			@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+			$count += Filesystem_Utils::delete_empty_dir( $file->getPathname() );
 		}
 
 		return $count;

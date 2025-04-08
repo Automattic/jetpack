@@ -226,6 +226,23 @@ class Filesystem_Utils {
 	}
 
 	/**
+	 * Delete an empty cache directory.
+	 *
+	 * @param string $dir - The directory to delete.
+	 * @return int - 1 if the directory was deleted, 0 otherwise.
+	 *
+	 * This function will delete the index.html file and the directory itself.
+	 */
+	public static function delete_empty_dir( $dir ) {
+		if ( self::is_dir_empty( $dir ) ) {
+			@unlink( $dir . '/index.html' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+			@rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
 	 * Check if a directory is empty.
 	 *
 	 * @param string $dir - The directory to check.

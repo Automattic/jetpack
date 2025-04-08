@@ -7,6 +7,11 @@ use SplFileInfo;
 
 class Rebuild_File implements Path_Action {
 	public function apply_to_path( SplFileInfo $file ) {
+		if ( $file->isDir() && Filesystem_Utils::is_dir_empty( $file->getPathname() ) ) {
+			Filesystem_Utils::delete_empty_dir( $file->getPathname() );
+			return false;
+		}
+
 		if ( $file->isDir() || $file->getFilename() === 'index.html' ) {
 			return false;
 		}
