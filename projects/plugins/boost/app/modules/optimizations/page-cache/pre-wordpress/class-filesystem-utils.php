@@ -41,7 +41,7 @@ class Filesystem_Utils {
 
 		$count = 0;
 		foreach ( $iterator as $file ) {
-			$count += $action->apply_to_path( $file );
+			$count += $action->apply_to_path( new SplFileInfo( $file ) );
 		}
 
 		$count += $action->apply_to_path( new SplFileInfo( $path ) );
