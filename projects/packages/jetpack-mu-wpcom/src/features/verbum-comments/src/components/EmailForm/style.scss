@@ -1,4 +1,5 @@
 .comment-form__verbum .verbum-subscriptions .verbum-form {
+
 	.verbum-form__content {
 		// protect the button from style leaks from the site; reset all.
 		all: unset;
@@ -89,6 +90,7 @@
 	}
 
 	&.has-profile {
+
 		.verbum-form__profile img {
 			display: block;
 		}
@@ -114,6 +116,7 @@
 	}
 
 	&.loading label[for='verbum-email-form-email'] {
+
 		svg {
 			animation: spin 1s linear infinite;
 		}
@@ -121,11 +124,13 @@
 }
 
 @keyframes borderFlashAndGrow {
+
 	0%,
 	100% {
 		border-color: transparent;
 		transform: scale(1);
 	}
+
 	25%,
 	50%,
 	75% {
@@ -135,15 +140,18 @@
 }
 
 @keyframes spin {
+
 	0% {
 		transform: rotate(0deg);
 	}
+
 	100% {
 		transform: rotate(360deg);
 	}
 }
 
 @keyframes gravatar-pulse {
+
 	0% {
 		opacity: 1;
 	}
