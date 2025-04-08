@@ -425,8 +425,10 @@ class Jetpack_Likes {
 		$url_parts = wp_parse_url( $url );
 		$domain    = $url_parts['host'];
 
-		// Make sure to include the scripts before the iframe otherwise weird things happen.
-		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
+		// Make sure to include the `queuehandler` scripts before the iframe otherwise the script won't find the iframe.
+		if ( ! has_action( 'wp_footer', 'jetpack_likes_master_iframe' ) ) {
+			add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
+		}
 
 		/**
 		* If the same post appears more then once on a page the page goes crazy

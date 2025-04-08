@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\WordAds;
  * WordAds package general information
  */
 class Package {
-	const VERSION = '0.4.18';
+	const VERSION = '0.4.19';
 	const SLUG    = 'wordads';
 
 	/**

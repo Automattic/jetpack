@@ -6,6 +6,15 @@
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] I18n Loader Webpack Plugin"
 	},
+	"keywords": [
+		"webpack",
+		"plugin",
+		"loader",
+		"webpack-plugin",
+		"wordpress",
+		"gettext",
+		"i18n"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",

@@ -14,6 +14,7 @@ const attributes = {
 export const name = 'email';
 
 export const settings = {
+	apiVersion: 3,
 	title: __( 'Email Address', 'jetpack' ),
 	description: __(
 		'Lets you add an email address with an automatically generated click-to-email link.',
