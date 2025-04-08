@@ -9,56 +9,71 @@
 	overflow: scroll;
 	margin-bottom: 20px;
 }
+
 .widget-liquid-right .widget.expanded {
 	overflow: visible;
 }
+
 .widget-conditional-hide {
 	display: none;
 }
+
 .widget-conditional .widget-conditional-inner {
 	background: #f6f7f7;
 	border: 1px solid #dcdcde;
 	padding: 12px 10px 0;
 
 }
+
 .widget-conditional {
 	margin-bottom: 12px;
 	margin-top: 10px;
 }
+
 .widget-conditional .conditions{
 	margin-bottom: 12px;
 }
+
 .widget-conditional .condition,
 .widget-conditional .condition-top {
 	clear:both;
 }
+
 .widget-conditional .condition {
 	padding-top: 12px;
 	position: relative;
 }
+
 .widget-conditional .condition select {
 	width: 120px;
 	position: relative;
 	z-index: 2;
 }
+
 .widget-conditional .condition-top select {
 	width: auto;
 }
+
 .widget-conditional .condition-control {
 	padding-top: 4px;
 	clear: both;
 	margin-top: -20px;
 }
+
 .widget-conditional .selection {
 	margin-right: 50px;
 	margin-left: 20px;
 }
+
 .widget-conditional .conditions-rule-has-children {
 	display: block;
 }
+
 .widget-conditional .condition .actions {
 	margin-top: -28px;
-}.widget-conditional .condition .actions {
+}
+
+.widget-conditional .condition .actions {
 	margin-top: -28px;
 }
 
@@ -80,11 +95,13 @@
 	top: 0;
 	left: 0;
 }
+
 .wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional .condition-control .delete-condition,
 .widget-conditional .condition-control .delete-condition {
 	left: 0;
 	color: #f11;
 }
+
 .widget-conditional .condition-control .add-condition {
 	right: 0;
 }
@@ -125,6 +142,7 @@
 .wp-core-ui .button.display-options {
 	margin-right: 5px;
 }
+
 .wp-core-ui .button.display-options:hover {
 	text-decoration: none;
 }
@@ -134,16 +152,20 @@
 	max-width: none;
 	height: auto;
 }
+
 .wp-customizer .widget-conditional .condition-control a {
 	top: 15px;
 }
+
 @media screen and ( max-width: 782px ) {
+
 	.widget-conditional .condition-control a {
 		top: 20px;
 	}
 }
 
 .wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional-inner {
+
 	/*
 	 * fonts of labels are reset to 13px in gutenberg editor for legacy widgets, ensure a consistent look on non-labels
 	 */

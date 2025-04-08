@@ -6,8 +6,10 @@ $tiled-gallery-max-column-count: 20;
 $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 
 .wp-block-jetpack-tiled-gallery {
+
 	&.is-style-circle,
 	.is-style-circle {
+
 		.tiled-gallery__item img {
 			border-radius: 50%;
 		}
@@ -17,12 +19,14 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 	&.is-style-circle,
 	.is-style-square,
 	.is-style-circle{
+
 		.tiled-gallery__row {
 			flex-grow: 1;
 			width: 100%;
 
 			@for $cols from 1 through $tiled-gallery-max-column-count {
 				&.columns-#{$cols} {
+
 					.tiled-gallery__col {
 						width: calc( ( 100% - #{ $tiled-gallery-gutter * ( $cols - 1 ) } ) / #{$cols} );
 					}
@@ -39,6 +43,7 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 	&.is-style-rectangular,
 	.is-style-columns,
 	.is-style-rectangular {
+
 		.tiled-gallery__item {
 			display: flex;
 		}
@@ -98,14 +103,17 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 	}
 
 	&.filter__1977 {
+
 		@include _1977;
 	}
 
 	&.filter__clarendon {
+
 		@include clarendon;
 	}
 
 	&.filter__gingham {
+
 		@include gingham;
 	}
 
@@ -137,6 +145,7 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 }
 
 .is-email {
+
 	.tiled-gallery__gallery {
 		display: block;
 	}

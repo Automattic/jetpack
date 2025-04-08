@@ -84,9 +84,11 @@
 
 	input[type="text"] {
 		width: 100%;
+
 		@include breakpoint( '>660px' ) {
 			border-left: 0;
 		}
+
 		@include breakpoint( '<660px' ) {
 			border-top: 0;
 		}
@@ -150,6 +152,7 @@ button.jp-form-input-suffix {
 }
 
 .jp-form-textarea {
+
 	&-wide {
 		width: 100%;
 	}

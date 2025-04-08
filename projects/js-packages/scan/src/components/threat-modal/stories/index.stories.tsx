@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import ThreatModal from '../index.js';
 
 export default {
-	title: 'JS Packages/Components/Threat Modal',
+	title: 'JS Packages/Scan/Threat Modal',
 	component: ThreatModal,
 };
 

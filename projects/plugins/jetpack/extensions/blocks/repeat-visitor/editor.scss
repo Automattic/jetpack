@@ -1,13 +1,16 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-repeat-visitor {
+
 	.components-notice {
 		margin: 1em 0 0;
 		color: $gray-900;
 	}
+
 	.components-radio-control__option {
 		text-align: left;
 	}
+
 	.components-notice__content {
 		margin: 0.5em 0;
 		font-size: 1em;
@@ -33,6 +36,7 @@
 
 	.components-placeholder__fieldset {
 		flex-wrap: nowrap;
+
 		.components-base-control {
 			flex-basis: 100%;
 			margin-bottom: 0;
@@ -62,6 +66,7 @@
 
 // Overrides to make the preview look good
 .block-editor-inserter__preview {
+
 	.wp-block-jetpack-repeat-visitor {
 		padding: 16px;
 

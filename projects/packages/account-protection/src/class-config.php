@@ -16,7 +16,6 @@ class Config {
 	public const RECENT_PASSWORD_HASHES_USER_META_KEY = self::PREFIX . '_recent_password_hashes';
 
 	// Password Detection Constants
-	public const PASSWORD_DETECTION_ERROR_CODE            = 'password_detection_validation_error';
 	public const PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION = 600; // 10 minutes
 	public const PASSWORD_DETECTION_EMAIL_REQUEST_LIMIT   = 4;
 

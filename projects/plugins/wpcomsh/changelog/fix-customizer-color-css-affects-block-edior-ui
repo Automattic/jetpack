@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixes an issue where setting color identity on the customizer breaks block editor UI elements.

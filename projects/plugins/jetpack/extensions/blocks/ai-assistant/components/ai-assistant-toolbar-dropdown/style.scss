@@ -1,7 +1,9 @@
 @import '@automattic/jetpack-base-styles/style';
 
 .jetpack-ai-assistant__button {
+
 	&.is-suggesting {
+
 		.ai-assistant-icon > path {
 			animation: fadingSpark 300ms ease-in-out alternate infinite;
 	
@@ -21,6 +23,7 @@
 }
 
 @keyframes fadingSpark {
+
 	to {
 		opacity: 0.3;
 	}

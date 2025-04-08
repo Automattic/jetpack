@@ -2,6 +2,7 @@
 @import "$css/main/variables.scss";
 
 .problem {
+
 	img {
 		margin-top: 20px;
 		display: block;
@@ -21,6 +22,7 @@
 	padding: 24px 69px 24px 27px;
 
 	li {
+
 		@include word-wrap();
 	}
 

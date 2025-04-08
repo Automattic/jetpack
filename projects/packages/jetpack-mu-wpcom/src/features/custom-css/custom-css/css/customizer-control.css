@@ -9,35 +9,43 @@
 	border-top: 1px solid #dcdcde;
 	border-bottom: 1px solid #dcdcde;
 }
+
 #customize-control-custom_css#customize-control-custom_css {
 	margin-right: -12px;
 	margin-left: -12px;
 	width: calc( 100% + 24px );
 }
+
 .customize-control-code_editor .CodeMirror {
 	height: 300px;
 	height: calc( 100vh - 268px );
 }
+
 .for-codemirror {
 	width: 98%;
 	height: 300px;
 }
+
 #customize-control-wpcom_custom_css_content_width_control {
 	position: relative;
 }
+
 #customize-control-wpcom_custom_css_content_width_control > label {
 	position: relative;
 	width: 100px;
 }
+
 #customize-control-wpcom_custom_css_content_width_control .customize-control-title {
 	padding-bottom: 6px;
 }
+
 #customize-controls #customize-control-wpcom_custom_css_content_width_control input[type="text"], /* stronger selector to override new-customizer.css */
 #customize-control-wpcom_custom_css_content_width_control input[type="text"] {
 	width: 64px;
 	padding-right: 22px;
 	text-align: right;
 }
+
 #customize-control-wpcom_custom_css_content_width_control input[type="text"] + span {
 	position: absolute;
 	left: 43px;

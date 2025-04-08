@@ -123,6 +123,7 @@
 }
 
 @media screen and (min-width: 44.375em) {
+
 	#infinite-handle {
 		margin: 0 0 1em 0;
 		text-align: center;
@@ -138,12 +139,14 @@
 }
 
 @media screen and (min-width: 48em) {
+
 	.infinite-wrap > article {
 		padding-bottom: 4em;
 	}
 }
 
 @media screen and (min-width: 48em) {
+
 	#infinite-footer .blog-info,
 	#infinite-footer .blog-credits {
 		line-height: 35px;

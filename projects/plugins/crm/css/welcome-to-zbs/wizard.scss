@@ -28,6 +28,7 @@ body {
 .btn-jetpack{
   background: $jetpack_green;
   color: white;
+
   &:hover{
     color:white;
   }
@@ -72,12 +73,14 @@ body {
   line-height: 1.428571429;
   border-radius: 15px;
 }
+
 .stepwizard-step .btn-default{
   color: $jetpack_green!important;
   border-color: $jetpack_green;
   background:white;
   opacity: 1;
 }
+
 .stepwizard-step .btn-primary{
   color:white !important;
   background: $jetpack_green !important;
@@ -131,6 +134,7 @@ input[type=checkbox], input[type=radio]{
 .clear{
   clear:both;
 }
+
 .pos-rel{
   position:relative;
 }
@@ -154,6 +158,7 @@ input[type=checkbox], input[type=radio]{
 
 /* Layout */
   .ck_form.ck_minimal {
+
   /* divider image */
   background: #f9f9f9;
   font-family: 'Helvetica Neue', Helvetica, Arial, Verdana, sans-serif;
@@ -202,6 +207,7 @@ input[type=checkbox], input[type=radio]{
   float: left;
   padding: 5%;
 }
+
 /* Form fields */
 
 .ck_errorArea {
@@ -263,6 +269,7 @@ input[type=checkbox], input[type=radio]{
   display: block;
   clear: both;
 }
+
 .ck_form .ck_powered_by {
   display: block;
   color: #aaa;
@@ -302,6 +309,7 @@ input[type=checkbox], input[type=radio]{
 }
 
 @media all and (min-width: 801px) {
+
   .ck_modal.ck_form_v6 .ck_form.ck_minimal {
     margin-left: -300px;
     width: 600px;
@@ -324,6 +332,7 @@ input[type=checkbox], input[type=radio]{
 .ck_slide_up.ck_form_v6 .ck_minimal + .ck_close_link {
   top: 5px;
 }
+
 .ck_slide_up.ck_form_v6 .ck_minimal h3.ck_form_title {
   margin-top: 5px;
 }
@@ -348,17 +357,20 @@ input[type=checkbox], input[type=radio]{
     margin-bottom: 26px;
 
 }
+
 .setup-content select {
     width: auto !important;
     height: 39px !important;
     line-height: 39px !important;
     font-size: 17px !important;
 }
+
 hr {
 
     margin-top: 32px;
 
 }
+
 #demo-override-img {
 
     margin-bottom: 5px;
@@ -366,6 +378,7 @@ hr {
     border-radius: 4px;
     padding: 4px;
 }
+
 h2.sbhomep {
 
     font-size: 22px;
@@ -374,9 +387,11 @@ h2.sbhomep {
     text-align: center;
 
 }
+
 p.sbhomep {
   text-align:center;
 }
+
 #sbSubPage {
   
   max-width:100% !important;
@@ -424,6 +439,7 @@ $darkenColor: darken($activeColor, 20%);
   position: relative !important;
   border-radius: 50px !important;
   box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2) !important;
+
   &:after {
     content: 'OFF' !important;
     color: #000 !important;
@@ -434,6 +450,7 @@ $darkenColor: darken($activeColor, 20%);
     font-weight: bold !important;
     text-shadow: 1px 1px 0px rgba(255,255,255,.15) !important;
   }
+
   &:before {
     content: 'ON';
     color: $activeColor !important;
@@ -443,6 +460,7 @@ $darkenColor: darken($activeColor, 20%);
     font: 12px/26px Arial, sans-serif !important;
     font-weight: bold !important;
   }
+
   label {
     margin-top: 0 !important;
     display: block !important;
@@ -459,13 +477,16 @@ $darkenColor: darken($activeColor, 20%);
     transition: all 0.4s ease !important;
     box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3) !important;
   }
+
   input[type=checkbox] {
     visibility: hidden !important;
+
     &:checked + label {
       left: 43px !important;
     }
   }    
 }
+
 /* end .switchCheckbox */
 
 
@@ -479,12 +500,16 @@ $darkenColor: darken($activeColor, 20%);
     margin-right: auto;
 
 }
+
 @media (min-width: 992px) {
+
     .container {
         width: 100%;
     }
 }
+
 @media (min-width: 768px) {
+
     .container {
         width: 100%;
     }
@@ -494,6 +519,7 @@ $darkenColor: darken($activeColor, 20%);
 .setup-content h3 {
     margin-top:10px !important;
 }
+
 .stepwizard-step {
     width:25%;
 }
@@ -501,6 +527,7 @@ $darkenColor: darken($activeColor, 20%);
 .wizopt {
     margin-bottom: 24px;
 }
+
 .zbs-menu-opt {
     width: 31%;
     display: inline-block;
@@ -510,19 +537,23 @@ $darkenColor: darken($activeColor, 20%);
     margin-bottom:10px;
     border-radius: 4px;
 }
+
 .zbs-menu-opt:hover {
     cursor:pointer;
     background:#d9e5fb;
 }
+
 .zbs-menu-opt img {
     max-height:280px;
 }
+
 .zbs-menu-opt-desc {
     font-size: 16px;
     font-weight: 600;
     margin-top: 6px;
     margin-bottom: 6px;
 }
+
 .zbs-extrainfo {
     padding: 12px;
     background: #d9e5fb;
@@ -533,6 +564,7 @@ $darkenColor: darken($activeColor, 20%);
 #zbs-lead-header{
     color:#CCC;
 }
+
 p.lead {
     font-size:18px;
     color:#000;
@@ -553,6 +585,7 @@ p.lead {
     color: #000;
     display:inline-block;
     height:290px;
+
     h3{
       color:#000;
       margin-top: 8px !important;
@@ -560,6 +593,7 @@ p.lead {
       text-align:left;
       font-size:18px;     
     }
+
     .zbs-sync-img{
       text-align: center;         
       width: 50%;
@@ -580,11 +614,13 @@ p.lead {
     margin-left: 16px;
     text-align: justify;
 }
+
 .zbs-sync-wrap .butt {
     text-align: center;
     margin: 10px 0 10px 0;
     padding-top: 16px;
 }
+
 .zbs-psst {
     padding: 12px;
     background: #d9e5fb;
@@ -601,6 +637,7 @@ p.lead {
     border-radius: 4px;
     text-align: center;
 }
+
 .zbs-extra a {
     border-bottom: 2px #FFF dotted;
 }

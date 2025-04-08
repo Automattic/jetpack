@@ -50,6 +50,7 @@
     justify-content: flex-end;
 
     :global {
+
         .components-button {
             --spacing-base: 16px;
             --font-body-extra-small: 14px;
@@ -62,7 +63,9 @@
 }
 
 .connect-button-wrapper {
+
 	:global {
+
 		.components-button.is-primary {
 			min-width: 228px;
 		}

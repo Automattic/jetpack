@@ -1,6 +1,6 @@
 <?php
 /**
- * Sniff for textdomains to some additiona functions.
+ * Sniff for textdomains to some additional functions.
  *
  * @package automattic/jetpack-codesniffer
  */
@@ -15,7 +15,7 @@ use PHP_CodeSniffer\Util\Common as Util_Common;
 use PHP_CodeSniffer\Util\Tokens;
 
 /**
- * Sniff for textdomains to some additiona functions.
+ * Sniff for textdomains to some additional functions.
  *
  * Checks that `wp_set_script_translations()` and `Assets::register_script()` are passed
  * a correct domain.

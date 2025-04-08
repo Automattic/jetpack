@@ -9,6 +9,7 @@ import save from './save';
 
 const name = 'premium-content/logged-out-view';
 const settings = {
+	apiVersion: 3,
 	title: __( 'Guest View', 'jetpack' ),
 	description: __(
 		'The container for all content shown to site visitors who are not subscribers.',

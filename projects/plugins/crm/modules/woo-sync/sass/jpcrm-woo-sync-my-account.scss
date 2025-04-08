@@ -12,23 +12,29 @@
 @import '../../../sass/daterangepicker.dirty.fix';
 
  .zbs-invoice-list{
+
     .paid {
         background: green;
     }
+
     .draft {
         background: #999;
     }
+
     .overdue {
         background: red;
     }
+
     .unpaid {
         background: #d0d012;
     }
+
     .status {
         padding: 5px;
         color: white;
         font-weight: 700;
     }
+
     .tools .fa {
         color: #a3210b;
     }
@@ -46,6 +52,7 @@
         border-bottom: 3px solid #383838;
         display:inline;
     }
+
     .zbs-portal-value {
         font-size: 40px;
         color: black;

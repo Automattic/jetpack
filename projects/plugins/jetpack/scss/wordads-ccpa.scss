@@ -4,6 +4,7 @@ $z-index-max: 2147483647;
 @import "cleanslate";
 
 body.admin-bar .cleanslate .components-modal__frame {
+
 	@media (max-width: 599px) {
 		top: 46px !important;
 	}
@@ -38,6 +39,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 		box-shadow: 0 3px 30px rgba(25, 30, 35, 0.2) !important;
 		overflow: auto !important;
 	}
+
 	.ccpa__loading-message {
 		position: absolute !important;
 		top: 50% !important;
@@ -49,7 +51,9 @@ body.admin-bar .cleanslate .components-modal__frame {
 		text-align: center !important;
 		color: #ffffff !important;
 	}
+
 	@media (min-width: 600px) {
+
 		.components-modal__frame {
 			top: 50% !important;
 			right: auto !important;
@@ -63,10 +67,13 @@ body.admin-bar .cleanslate .components-modal__frame {
 			animation-fill-mode: forwards !important;
 		}
 	}
+
 	@keyframes components-modal__appear-animation {
+
 		from {
 			margin-top: 32px !important;
 		}
+
 		to {
 			margin-top: 0 !important;
 		}
@@ -142,7 +149,9 @@ body.admin-bar .cleanslate .components-modal__frame {
 		cursor: pointer !important;
 		-webkit-appearance: none !important;
 		background: none !important;
+
 		/* Buttons that look like links, for a cross of good semantics with the visual */
+
 		/* Link buttons that are red to indicate destructive behavior. */
 	}
 
@@ -179,6 +188,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 	}
 
 	.components-icon-button:not(:disabled):not([aria-disabled="true"]):not(.is-default) {
+
 		&:hover, &:focus {
 			background-color: #fff !important;
 			color: #1d2327 !important;
@@ -251,6 +261,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 	}
 
 	@media (prefers-reduced-motion: reduce) {
+
 		.components-form-toggle .components-form-toggle__track {
 			transition-duration: 0s !important;
 		}
@@ -271,6 +282,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 	}
 
 	@media (prefers-reduced-motion: reduce) {
+
 		.components-form-toggle .components-form-toggle__thumb {
 			transition-duration: 0s !important;
 		}
@@ -357,7 +369,9 @@ body.admin-bar .cleanslate .components-modal__frame {
 		cursor: pointer !important;
 		-webkit-appearance: none !important;
 		background: none !important;
+
 		/* Buttons that look like links, for a cross of good semantics with the visual */
+
 		/* Link buttons that are red to indicate destructive behavior. */
 	}
 

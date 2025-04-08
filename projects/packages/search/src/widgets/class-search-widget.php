@@ -607,11 +607,11 @@ class Search_Widget extends \WP_Widget {
 	private function sorting_to_wp_query_param( $sort ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$parts   = explode( '|', $sort );
-		$orderby = isset( $_GET['orderby'] )
+		$orderby = isset( $_GET['orderby'] ) && is_string( $_GET['orderby'] )
 			? sanitize_sql_orderby( wp_unslash( $_GET['orderby'] ) )
 			: $parts[0];
 
-		$order = isset( $_GET['order'] )
+		$order = isset( $_GET['order'] ) && is_string( $_GET['order'] )
 			? ( strtoupper( $_GET['order'] ) === 'ASC' ? 'ASC' : 'DESC' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			: ( ( isset( $parts[1] ) && 'ASC' === strtoupper( $parts[1] ) ) ? 'ASC' : 'DESC' );
 

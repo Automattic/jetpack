@@ -19,6 +19,7 @@
 	}
 
 	.components-placeholder__fieldset {
+
 		p {
 			font-size: 13px;
 			margin: 0 0 1em;
@@ -27,6 +28,7 @@
 		form {
 			flex-direction: row;
 			flex-wrap: nowrap;
+
 			@media screen and ( max-width: 479px ) {
 				display: block;
 			}
@@ -45,7 +47,9 @@
 
 			.components-form-token-field__input-container {
 				width: 100%;
+
 				@media screen and ( min-width: 480px ) {
+
 					input[type='text'].components-form-token-field__input {
 						min-height: 32px;
 					}
@@ -99,17 +103,21 @@
 	&-placeholder-links {
 		display: flex;
 		flex-direction: column;
+
 		@media screen and ( min-width: 480px ) {
 			display: block;
 		}
 
 		a {
+
 			@media screen and ( min-width: 480px ) {
+
 				form > button {
 					height: 50px;
 				}
 			}
 			padding: 0.25em 1em 0.25em 0;
+
 			&:last-child {
 				padding-right: 0;
 				padding-left: 1em;
@@ -118,7 +126,9 @@
 	}
 
 	& > .is-style-button {
+
 		&.has-no-margin {
+
 			iframe {
 				margin: -14px;
 			}
@@ -133,6 +143,7 @@
 	}
 
 	&.wp-block > .is-style-wide {
+
 		&.alignright {
 			left: auto;
 			right: 0;
@@ -141,6 +152,7 @@
 }
 
 .wp-block[data-type='jetpack/opentable'] {
+
 	.components-notice__content {
 		text-align: left;
 	}
@@ -151,6 +163,7 @@
 }
 
 .is-opentable {
+
 	button.is-active {
 		font-weight: bold;
 	}

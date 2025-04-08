@@ -4,6 +4,7 @@
 // Extra specific to override in some themes
 .jetpack-instant-search .widget,
 .jetpack-instant-search .widget.widget_archive ul li {
+
 	a {
 		border: none;
 		color: $color-link;
@@ -51,6 +52,7 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 	&,
 	.widget,
 	.widget.widget_archive ul li {
+
 		a {
 			color: $color-dark-link;
 
@@ -97,8 +99,10 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 
 	button.jetpack-instant-search__overlay-close {
 		border-color: $color-dark-layout-borders;
+
 		&:focus,
 		&:hover {
+
 			svg.gridicon {
 				fill: $color-dark-text-light;
 			}
@@ -154,6 +158,7 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 		}
 
 		&.jetpack-instant-search__search-results-secondary--show-as-modal {
+
 			@include break-large-down() {
 				background: $color-dark-modal-background;
 				border-color: $color-dark-layout-borders;

@@ -46,6 +46,7 @@
 }
 
 @media (min-width: 768px) {
+
 	.jpcrm-form-grid {
 		grid-template-columns: 1fr 1fr;
 	}
@@ -56,6 +57,7 @@
 }
 
 @media (max-width: 767px) {
+
 	.jpcrm-form-grid {
 		grid-template-columns: 1fr;
 	}

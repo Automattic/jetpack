@@ -18,6 +18,7 @@ $border_radius: math.div($bar-height, 2);
     align-items: center;
     column-gap: 1em;
     margin: 8px 0 8px;
+
     &--letter {
         all: unset;
         font-size: var(--font-title-small);
@@ -27,6 +28,7 @@ $border_radius: math.div($bar-height, 2);
         padding: 0 5px;
         border-radius: var(--jp-border-radius);
         cursor: pointer;
+
         &:focus {
             outline: 1px dotted var( --jp-black );
         }
@@ -34,12 +36,14 @@ $border_radius: math.div($bar-height, 2);
 }
 
 .boost-score-tooltip {
+
     &__heading {
         font-size: var(--font-title-small);
         line-height: 30px;
         margin: 0;
         color: black;
     }
+
     &__content {
         font-size: var(--font-body);
         line-height: 24px;
@@ -54,6 +58,7 @@ $border_radius: math.div($bar-height, 2);
         @media (min-width: 783px) {
             width: 100vw;
         }
+
         p:last-child {
             margin-bottom: 0;
         }
@@ -61,6 +66,7 @@ $border_radius: math.div($bar-height, 2);
 }
 
 .mj-boost-speed-score__bar {
+
     .jb-score-bar__label {
         display: none;
     }

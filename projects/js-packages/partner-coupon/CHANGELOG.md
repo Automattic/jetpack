@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.3.15 - 2025-04-07
+### Changed
+- Code: First pass of style coding standards. [#42734]
+- Update dependencies. [#42820]
+- Update package dependencies. [#42809]
+
 ## 0.3.14 - 2025-03-31
 ### Changed
 - Update dependencies. [#42678]

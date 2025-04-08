@@ -4,6 +4,29 @@ import { dateI18n } from '@wordpress/date';
 import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
 
 /**
+ * Creates an event handler function for tracking user interactions
+ *
+ * @param tracks          - The tracks analytics object
+ * @param eventName       - The "action" part of the event name. Will be appended to "jetpack_newsletter_widget_"
+ * @param eventProperties - Additional properties to include in the event
+ * @returns A callback function that records the event when triggered. To primarily be used as an onClick prop.
+ *
+ * @example
+ * const handleClick = createTracksEventHandler( tracks, 'learn_more_click', { locale: 'en' } );
+ */
+export const createTracksEventHandler = (
+	tracks: typeof analytics.tracks,
+
+	eventAction: string,
+
+	eventProperties: Record< string, unknown > = {}
+) => {
+	return () => {
+		tracks.recordEvent( `jetpack_newsletter_widget_${ eventAction }`, eventProperties );
+	};
+};
+
+/**
  * Helper function to build the Jetpack redirect source URL.
  * @param url         - The url to redirect to. Note: it can only be to a whitelisted domain, and query params and anchors must be passed to getRedirectUrl as arguments.
  * @param isWpcomSite - The the site on the WordPress.com platform. Simple or WoA.
@@ -35,6 +58,24 @@ export const getSubscriberStatsUrl = (
 	return isWpcomSite
 		? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
 		: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`;
+};
+
+/**
+ * Generates the URL for newsletter settings based on site context.
+ *
+ * @param {string}  site        - The site identifier
+ * @param {boolean} isWpcomSite - Whether the site is on WordPress.com
+ * @param {string}  adminUrl    - The admin URL for self-hosted sites
+ * @returns {string} The appropriate newsletter settings URL
+ */
+export const getNewsletterSettingsUrl = (
+	site: string,
+	isWpcomSite: boolean,
+	adminUrl: string
+): string => {
+	return isWpcomSite
+		? getRedirectUrl( buildJPRedirectSource( 'settings/newsletter/' + site ) )
+		: `${ adminUrl }admin.php?page=jetpack#newsletter`;
 };
 
 /**
@@ -136,30 +177,13 @@ export const calcLeftAxisMargin = ( subs: ChartSubscriptionDataPoint[] ): number
 	const CHAR_PX_WIDTH = 8;
 	const PADDING = 10;
 
+	if ( subs.length === 0 ) {
+		return DEFAULT_MARGIN;
+	}
+
 	const maxValue = Math.max( ...subs.map( d => Math.max( d.all || 0, d.paid || 0 ) ) );
 	// Estimate character width (in pixels) and calculate margin
 	// Each digit is roughly 8px, plus add some padding
 	const digitCount = maxValue.toString().length;
 	return Math.max( DEFAULT_MARGIN, digitCount * CHAR_PX_WIDTH + PADDING );
-};
-
-/**
- * Creates an event handler function for tracking user interactions
- *
- * @param tracks          - The tracks analytics object
- * @param eventName       - The "action" part of the event name. Will be appended to "jetpack_newsletter_widget_"
- * @param eventProperties - Additional properties to include in the event
- * @returns A callback function that records the event when triggered. To primarily be used as an onClick prop.
- *
- * @example
- * const handleClick = createTracksEventHandler( tracks, 'learn_more_click', { locale: 'en' } );
- */
-export const createTracksEventHandler = (
-	tracks: typeof analytics.tracks,
-	eventAction: string,
-	eventProperties: Record< string, unknown > = {}
-) => {
-	return () => {
-		tracks.recordEvent( `jetpack_newsletter_widget_${ eventAction }`, eventProperties );
-	};
 };

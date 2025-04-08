@@ -39,6 +39,7 @@ $image-square-size: 128px;
 
 .jetpack-instant-search__search-result-expanded__image-link {
 	margin-left: 1em;
+
 	@include break-small-down() {
 		margin: 0 auto 0.5em auto;
 	}
@@ -60,6 +61,7 @@ $image-square-size: 128px;
 // See https://css-tricks.com/aspect-ratio-boxes/
 .jetpack-instant-search__search-result-expanded__image-container {
 	position: relative;
+
 	&:before {
 		display: block;
 		content: '';
@@ -67,6 +69,7 @@ $image-square-size: 128px;
 		padding-top: 100%;
 	}
 }
+
 .jetpack-instant-search__search-result-expanded__image {
 	position: absolute;
 	top: 0;
@@ -118,6 +121,7 @@ $image-square-size: 128px;
 
 .jetpack-instant-search__search-result-expanded__footer-blog,
 .jetpack-instant-search__search-result-expanded__footer-author {
+
 	&:after {
 		content: '·';
 		margin-left: 10px;

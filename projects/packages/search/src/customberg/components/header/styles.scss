@@ -33,6 +33,7 @@
 	display: flex;
 
 	.components-button.jp-search-configure-header__show-settings-button {
+
 		@include break-small() {
 			margin-right: $grid-unit-10;
 		}
