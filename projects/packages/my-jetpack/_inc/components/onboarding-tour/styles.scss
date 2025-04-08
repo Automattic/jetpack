@@ -19,10 +19,10 @@ $tour-footer-spacing: 16px;
         }
 
         .myjetpack-onboarding-welcome-tour__heading {
-            @include heading-x-large;
-
             margin: $grid-unit-20 0 8px 0;
             padding: 0 $grid-unit-20;
+
+            @include heading-x-large;
         }
 
         .myjetpack-onboarding-welcome-tour__text {
