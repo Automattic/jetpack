@@ -164,9 +164,13 @@ const SiteVisibility = ( {
 									<div className="notice notice-warning inline">
 										<p>
 											{ createInterpolateElement(
-												__(
-													'Your site is using <strong>wpcomstaging.com</strong> as the primary domain, which is prevented from being indexed by search engines.<br />To change this, <link1>buy a custom domain</link1>, or <link2>set a custom domain as the primary domain</link2>.',
-													'jetpack-mu-wpcom'
+												sprintf(
+													// translators: %s: the primary domain of the site
+													__(
+														"Your site's current primary domain is <strong>%s</strong>. This domain is intended for temporary use and will not be indexed by search engines. To ensure your site can be indexed, please <link1>register</link1> or <link2>connect a custom primary domain</link2>.",
+														'jetpack-mu-wpcom'
+													),
+													host
 												),
 												{
 													strong: <strong />,
