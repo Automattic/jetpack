@@ -14,6 +14,10 @@ class Lcp implements Feature {
 	}
 
 	public static function is_available() {
-		return true;
+		if ( defined( 'JETPACK_BOOST_ALPHA_FEATURES' ) && JETPACK_BOOST_ALPHA_FEATURES ) {
+			return true;
+		}
+
+		return false;
 	}
 }
