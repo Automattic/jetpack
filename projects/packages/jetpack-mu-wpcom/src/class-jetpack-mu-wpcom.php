@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack;
 
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
-
 /**
  * Jetpack_Mu_Wpcom main class.
  */
@@ -283,6 +282,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-hotfixes/wpcom-hotfixes.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
+		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
 		// Initializers, if needed.

@@ -346,8 +346,6 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	/**
 	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
 	 *
-	 * @covers \Automattic\Jetpack\Extensions\Subscriptions\maybe_close_comments
-	 *
 	 * @return void
 	 */
 	public function test_comments_are_not_displaying_on_not_pages() {
@@ -361,8 +359,6 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 	/**
 	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
-	 *
-	 * @covers \Automattic\Jetpack\Extensions\Subscriptions\maybe_close_comments
 	 *
 	 * @return void
 	 */
@@ -396,8 +392,6 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 	/**
 	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
-	 *
-	 * @covers \Automattic\Jetpack\Extensions\Subscriptions\maybe_close_comments
 	 *
 	 * @return void
 	 */

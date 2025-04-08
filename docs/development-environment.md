@@ -323,39 +323,57 @@ To get started, there are several ways to run the unit tests, depending on how y
 
 ## JavaScript unit tests
 
-Jetpack includes also several [Jest](https://jestjs.io/) based unit tests.
-To execute them in your local environment, you can use the following commands.
+The `jetpack test` command can be used from the monorepo's root to run a specific project's tests.
 
-* ### Admin Page unit tests
+This may be of limited benefit locally during development since it isn't possible to use watch mode or run tests only for an individual file.
 
-	Standing on your jetpack directory, run
+Each project within the monorepo may also have its own test commands, so an alternative is to `cd` into the project's root, and run the test commands from there.
 
-	```sh
-	pnpm install
-	pnpm test-client
-	pnpm test-gui
-	```
+### Packages
 
-* ### Jetpack modules unit tests
+Packages may have a package.json in the root that has a `scripts` entry, and this details the different types of test commands that can be run, `pnpm test` is the usual command for JavaScript unit tests.
 
-	Standing on your jetpack directory, run
+For example, to run an individual test file in watch mode:
+```sh
+cd projects/packages/forms
+pnpm test --watch -- path/to/test/file.js
+```
 
-	```sh
-	pnpm install
-	pnpm test-modules
-	```
+### Jetpack Plugin
 
-	You can also only run tests matching a specific pattern. To do that, use the argument `-g, --grep <pattern>`:
+The Jetpack plugin project also has some additional test commands that can be run from its root.
 
-	```sh
-	pnpm test-gui -g 'my custom pattern to filter tests'
-	```
+#### Admin Page unit tests
 
-	To use a custom reporter, pass the argument `-R, --reporter <name>`:
+Tests for the Jetpack dashboard and settings pages can be run using the following command:
 
-	```sh
-	pnpm test-client -R 'my_reporter'
-	```
+```sh
+cd projects/plugins/jetpack
+pnpm test-adminpage
+```
+
+This runs both the `client` (stores and other business logic) and `gui` (react component) tests, but they can also be run individually using `pnpm test-client` or `pnpm test-gui`.
+
+You can also run only tests that match a specific pattern. To do that, use the argument `-g, --grep <pattern>`:
+
+```sh
+pnpm test-gui -g 'my custom pattern to filter tests'
+```
+
+To use a custom reporter, pass the argument `-R, --reporter <name>`:
+
+```sh
+pnpm test-client -R 'my_reporter'
+```
+
+#### Extension unit tests
+
+Tests for editor extensions (including blocks, sidebars and more) can be run using the following command:
+
+```sh
+cd projects/plugins/jetpack
+pnpm test-extensions
+```
 
 # Good code - linting, standards, compatibility, etc.
 
