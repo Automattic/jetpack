@@ -18,6 +18,8 @@ define(
 	'JETPACK_MU_WPCOM_RETIRED_WIDGETS',
 	array(
 		'i_voted' => 'Jetpack_I_Voted_Widget',
+		'links'   => 'WP_Widget_Links',
+		'meta'    => 'WP_Widget_Meta',
 	)
 );
 
