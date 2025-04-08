@@ -51,10 +51,9 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Initialize the object before running the test method.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
 			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id', 'unlink_user_from_wpcom', 'update_connection_owner_wpcom', 'disconnect_site_wpcom' ) )
 			->getMock();
@@ -76,10 +75,9 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		wp_set_current_user( 0 );
 		WorDBless_Users::init()->clear_all_users();
 		WorDBless_Options::init()->clear_options();

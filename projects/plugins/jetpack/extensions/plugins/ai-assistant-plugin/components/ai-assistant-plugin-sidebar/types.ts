@@ -13,3 +13,11 @@ export type CoreSelect = {
 		viewable: boolean;
 	};
 };
+
+export interface PanelProps {
+	title: string;
+	icon?: JSX.Element;
+	initialOpen?: boolean;
+	name?: string;
+	children: React.ReactNode;
+}

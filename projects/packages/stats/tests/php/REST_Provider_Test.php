@@ -26,10 +26,9 @@ class REST_Provider_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
@@ -41,10 +40,9 @@ class REST_Provider_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
 

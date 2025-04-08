@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Upgrading: prevent case where plan caching causes short delay in upgrading of scan data source after upgrading to a paid plan.

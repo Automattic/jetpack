@@ -40,10 +40,9 @@ class REST_Authentication_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		self::clear_auth_singleton();
 		$this->rest_authentication = Rest_Authentication::init();
 
@@ -59,10 +58,9 @@ class REST_Authentication_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		$_GET = null;
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$this->rest_authentication->reset_saved_auth_state();

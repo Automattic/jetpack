@@ -1,4 +1,4 @@
-import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
+import { Button, Flex, DropdownMenu } from '@wordpress/components';
 import styles from './style.module.scss';
 import { SplitButtonProps } from './types.js';
 import type React from 'react';
@@ -22,17 +22,19 @@ const SplitButton: React.FC< SplitButtonProps > = ( {
 	...buttonProps
 } ) => {
 	return (
-		<ButtonGroup className={ styles[ 'split-button' ] }>
-			<Button variant={ variant } { ...buttonProps } className={ styles.button } />
-			<DropdownMenu
-				toggleProps={ { variant, className: styles.button, ...toggleProps } }
-				popoverProps={ { noArrow: false, ...popoverProps } }
-				icon={ <DownIcon /> }
-				disableOpenOnArrowDown={ true }
-				controls={ controls }
-				label={ label }
-			/>
-		</ButtonGroup>
+		<Flex className={ styles[ 'split-button' ] }>
+			<div role="group" className="components-button-group">
+				<Button variant={ variant } { ...buttonProps } className={ styles.button } />
+				<DropdownMenu
+					toggleProps={ { variant, className: styles.button, ...toggleProps } }
+					popoverProps={ { noArrow: false, ...popoverProps } }
+					icon={ <DownIcon /> }
+					disableOpenOnArrowDown={ true }
+					controls={ controls }
+					label={ label }
+				/>
+			</div>
+		</Flex>
 	);
 };
 

@@ -51,6 +51,7 @@
 .dops-chart__bar-marker,
 .dops-chart__y-axis-label,
 .dops-chart .dops-chart__y-axis-marker {
+
 	&.is-fifty {
 		top: 50%;
 	}
@@ -229,6 +230,7 @@
 // 1: L/R matches padding of y-axis labels in chart
 
 .dops-chart__legend {
+
 	@include clear-fix;
 	margin-bottom: -8px;
 }
@@ -299,6 +301,7 @@
 }
 
 @include breakpoint( "<480px" ) {
+
 	.dops-chart__legend-option:first-child .dops-chart__legend-color {
 		margin-left: 2px; // 2
 	}
@@ -351,6 +354,7 @@
 		font-size: inherit;
 
 		&::before {
+
 			@include noticons;
 			content: '\f456';
 			position: absolute;
@@ -375,6 +379,7 @@
 		text-align: left;
 
 		ul {
+
 			@include clear-fix;
 			list-style: none;
 			margin: 0;
@@ -449,6 +454,7 @@
 						font-weight: bold;
 					}
 				}
+
 				.value {
 					float: none;
 				}

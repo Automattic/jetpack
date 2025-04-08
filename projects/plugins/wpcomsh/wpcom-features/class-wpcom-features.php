@@ -328,6 +328,7 @@ class WPCOM_Features {
 	 * Public const for every mapped feature, sorted alphabetically.
 	 */
 	public const AI_ASSISTANT                      = 'ai-assistant';
+	public const AI_SEO_ENHANCER                   = 'ai-seo-enhancer';
 	public const AD_CREDIT_VOUCHERS                = 'ad-credit';
 	public const ADVANCED_SEO                      = 'advanced-seo';
 	public const AKISMET                           = 'akismet';
@@ -380,7 +381,6 @@ class WPCOM_Features {
 	public const INSTALL_THEMES                    = 'install-themes';
 	public const INSTALL_WOO_ONBOARDING_PLUGINS    = 'install-woo-onboarding-plugins';
 	public const INSTANT_SEARCH                    = 'instant-search';
-	public const INSTANT_SEARCH_NO_BUSINESS        = 'instant-search-no-business'; // TEMP AND TO BE DELETED AFTER REBUILDING the jetpack-search index
 	public const JETPACK_DASHBOARD                 = 'jetpack-dashboard';
 	public const LEGACY_CONTACT                    = 'legacy-contact';
 	public const LIST_INSTALLED_PLUGINS            = 'list-installed-plugins';
@@ -477,6 +477,10 @@ class WPCOM_Features {
 		self::AI_ASSISTANT                      => array(
 			self::JETPACK_AI_PLANS,
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+		),
+		self::AI_SEO_ENHANCER                   => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::AD_CREDIT_VOUCHERS                => array(
@@ -774,16 +778,6 @@ class WPCOM_Features {
 			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 		),
 		self::INSTANT_SEARCH                    => array(
-			self::WPCOM_BUSINESS_PLANS,
-			self::WPCOM_ECOMMERCE_PLANS,
-			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
-			self::WPCOM_SEARCH,
-			self::WPCOM_SEARCH_MONTHLY,
-			self::WP_P2_PLUS_MONTHLY,
-			self::JETPACK_SEARCH_PLANS,
-			self::JETPACK_COMPLETE_PLANS,
-		),
-		self::INSTANT_SEARCH_NO_BUSINESS        => array(
 			self::WPCOM_SEARCH,
 			self::WPCOM_SEARCH_MONTHLY,
 			self::WP_P2_PLUS_MONTHLY,
@@ -1080,6 +1074,7 @@ class WPCOM_Features {
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_SOCIAL_PLANS,
 			self::JETPACK_GROWTH_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		self::SOCIAL_ADMIN_PAGE                 => array(
 			self::WPCOM_ALL_SITES,

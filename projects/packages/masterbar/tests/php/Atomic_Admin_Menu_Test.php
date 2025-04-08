@@ -66,10 +66,9 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Set up each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $menu, $submenu;
 
 		static::$domain       = ( new Status() )->get_site_suffix();
@@ -94,10 +93,9 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}

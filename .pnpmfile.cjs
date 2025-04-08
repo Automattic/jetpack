@@ -1,3 +1,31 @@
+// Packages we need to copy versions from for `@wordpress/dataviews/wp`.
+const wpPkgs = {
+	'@wordpress/components': [
+		'change-case',
+		'colord',
+		'date-fns',
+		'deepmerge',
+		'@emotion/cache',
+		'@emotion/css',
+		'@emotion/react',
+		'@emotion/styled',
+		'@emotion/utils',
+		'fast-deep-equal',
+		'@floating-ui/react-dom',
+		'framer-motion',
+		'highlight-words-core',
+		'is-plain-object',
+		'memize',
+		'@use-gesture/react',
+		'uuid',
+		'@wordpress/date',
+		'@wordpress/hooks',
+	],
+	'@wordpress/element': [ 'react-dom' ],
+	'@wordpress/data': [ 'use-memo-one' ],
+};
+const wpPkgFetches = {};
+
 /**
  * Fix package dependencies.
  *
@@ -6,7 +34,7 @@
  * @param {object} pkg - Dependency package.json contents.
  * @return {object} Modified pkg.
  */
-function fixDeps( pkg ) {
+async function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` and hope any breaking changes will not really break.
 	if ( pkg.name === '@automattic/social-previews' ) {
@@ -28,56 +56,48 @@ function fixDeps( pkg ) {
 
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
-	// https://github.com/WordPress/gutenberg/issues/68694
 	if (
-		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/upload-media' ) &&
+		pkg.name === '@wordpress/icons' &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
 		pkg.peerDependencies.react = '^18';
 	}
 
-	// Missing dep or peer dep on @babel/runtime and react
-	// https://github.com/WordPress/gutenberg/issues/68694
-	if (
-		pkg.name === '@wordpress/upload-media' &&
-		! pkg.dependencies?.[ '@babel/runtime' ] &&
-		! pkg.peerDependencies?.[ '@babel/runtime' ]
-	) {
-		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
+	// Unused deprecated dependency.
+	// https://github.com/WordPress/gutenberg/issues/69254
+	if ( pkg.name === '@wordpress/upload-media' ) {
+		delete pkg.dependencies?.[ '@shopify/web-worker' ];
 	}
 
 	// We need to add the missing deps for `@wordpress/dataviews` because
 	// the build fails when using pnpm with hoisting.
 	// @see https://github.com/WordPress/gutenberg/issues/67864
 	if ( pkg.name === '@wordpress/dataviews' ) {
-		for ( const dep of [
-			'change-case',
-			'colord',
-			'date-fns',
-			'deepmerge',
-			'@emotion/cache',
-			'@emotion/css',
-			'@emotion/react',
-			'@emotion/styled',
-			'@emotion/utils',
-			'fast-deep-equal',
-			'@floating-ui/react-dom',
-			'framer-motion',
-			'highlight-words-core',
-			'is-plain-object',
-			'memize',
-			'react-dom',
-			'@use-gesture/react',
-			'use-memo-one',
-			'uuid',
-		] ) {
-			pkg.optionalDependencies[ dep ] = '*';
+		for ( const fromPkg of Object.keys( wpPkgs ) ) {
+			if ( ! wpPkgFetches[ fromPkg ] ) {
+				wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>
+					r.json()
+				);
+			}
+			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' );
+			const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
+			for ( const dep of wpPkgs[ fromPkg ] ) {
+				if ( deps[ dep ] === undefined ) {
+					// prettier-ignore
+					throw new Error( `pnpmfile hack needs updating, ${ fromPkg } ${ ver } doesn't depend on ${ dep } anymore?` );
+				}
+				pkg.optionalDependencies[ dep ] = deps[ dep ];
+			}
 		}
+
+		// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
+		// https://github.com/WordPress/gutenberg/issues/60975
+		pkg.optionalDependencies[ 'framer-motion' ] += ' <11.5.0';
 	}
 
-	// Missing dep or peer dep.
-	// https://github.com/actions/toolkit/issues/1684
+	// Missing dep or peer dep. Fixed in main, but needs a release.
+	// https://github.com/actions/toolkit/issues/1993
 	if (
 		pkg.name === '@actions/github' &&
 		! pkg.dependencies?.undici &&
@@ -150,7 +170,7 @@ function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency. And it doesn't really use it in our configuration anyway.
-	// No upstream bug link yet.
+	// Looks like it's updated in master but has had no release since.
 	if ( pkg.name === 'rollup-plugin-svelte-svg' && pkg.dependencies.svgo === '^2.3.1' ) {
 		pkg.dependencies.svgo = '*';
 	}
@@ -188,6 +208,21 @@ function fixDeps( pkg ) {
 				pkg.dependencies[ k ] = '*';
 			}
 		}
+	}
+
+	// Outdated, deprecated dependency.
+	// https://github.com/fontello/svg2ttf/issues/123
+	if ( pkg.name === 'svg2ttf' && pkg.dependencies?.[ '@xmldom/xmldom' ] === '^0.7.2' ) {
+		pkg.dependencies[ '@xmldom/xmldom' ] = '^0.9';
+	}
+
+	// Outdated, deprecated dependency.
+	// https://github.com/hipstersmoothie/react-docgen-typescript-plugin/issues/93
+	if (
+		pkg.name === '@storybook/react-docgen-typescript-plugin' &&
+		pkg.dependencies?.[ 'flat-cache' ] === '^3.0.4'
+	) {
+		pkg.dependencies[ 'flat-cache' ] = '^4';
 	}
 
 	return pkg;
@@ -248,9 +283,9 @@ function fixPeerDeps( pkg ) {
  * @param {object} context - Pnpm object of some sort.
  * @return {object} Modified pkg.
  */
-function readPackage( pkg, context ) {
+async function readPackage( pkg, context ) {
 	if ( pkg.name ) {
-		pkg = fixDeps( pkg, context );
+		pkg = await fixDeps( pkg, context );
 		pkg = fixPeerDeps( pkg, context );
 	}
 	return pkg;

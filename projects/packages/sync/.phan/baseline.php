@@ -15,10 +15,10 @@ return [
     // PhanTypeMismatchReturn : 20+ occurrences
     // PhanParamSignatureMismatch : 15+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
-    // PhanPluginSimplifyExpressionBool : 9 occurrences
-    // PhanPossiblyUndeclaredVariable : 8 occurrences
+    // PhanPluginSimplifyExpressionBool : 8 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 6 occurrences
     // PhanNonClassMethodCall : 5 occurrences
+    // PhanPossiblyUndeclaredVariable : 5 occurrences
     // PhanRedundantCondition : 4 occurrences
     // PhanTypeExpectedObjectPropAccess : 4 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
@@ -61,7 +61,7 @@ return [
         'src/modules/class-callables.php' => ['PhanParamSignatureMismatch', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-comments.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-constants.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/modules/class-full-sync-immediately.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchReturn'],
+        'src/modules/class-full-sync-immediately.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchReturn'],
         'src/modules/class-full-sync.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanTypeComparisonFromArray'],
         'src/modules/class-import.php' => ['PhanTypeMismatchArgumentInternal'],
         'src/modules/class-module.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],

@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-AI Assistant: Improved performance by optimizing state management in the AI feature hook to prevent unnecessary re-renders

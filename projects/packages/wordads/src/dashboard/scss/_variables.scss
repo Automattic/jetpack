@@ -24,6 +24,7 @@ $jp-green-secondary: #2fb41f;
 $jp-border-radius: 4px;
 $jp-menu-border-height: 1px;
 $jp-underline-thickness: 2px;
+
 /********* Generic styles *********/
 $wp-gray-dark: #23282d;
 $black: #000;
@@ -33,22 +34,28 @@ $color-plan: #069e08; // $studio-jetpack-green-40
 
 /********* Mixins *********/
 @mixin for-phone-up {
+
 	@media ( min-width: 600px ) {
 		@content;
 	}
 }
+
 @mixin for-tablet-up {
+
 	@media ( min-width: 960px ) {
 		@content;
 	}
 }
 
 @mixin for-phone-down {
+
 	@media ( max-width: 600px ) {
 		@content;
 	}
 }
+
 @mixin for-tablet-down {
+
 	@media ( max-width: 960px ) {
 		@content;
 	}

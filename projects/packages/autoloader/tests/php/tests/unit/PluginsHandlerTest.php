@@ -41,10 +41,9 @@ class PluginsHandlerTest extends TestCase {
 
 	/**
 	 * Setup runs before each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->plugin_locator  = $this->getMockBuilder( Plugin_Locator::class )
 			->disableOriginalConstructor()
 			->getMock();
@@ -56,10 +55,9 @@ class PluginsHandlerTest extends TestCase {
 
 	/**
 	 * Teardown runs after each test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		cleanup_test_wordpress_data();
 	}
 

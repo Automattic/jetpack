@@ -401,27 +401,12 @@ export async function runTests( argv, opts ) {
 						task: async () => {
 							const tmpdir = path.join( opts.ARTIFACTS_DIR, 'tmp' );
 							await fs.mkdir( tmpdir, { recursive: true } );
-							const tmpfile = path.join( tmpdir, 'js-combined.json' );
 
 							try {
-								if ( argv.v ) {
-									sstdout.write(
-										// prettier-ignore
-										`Executing ${ path.join( scriptDir, 'node_modules/.bin/istanbul-merge' ) } --out ${ tmpfile } ${ jsFiles.join( ' ' ) }\n`
-									);
+								// nyc can merge files itself, but needs them all in one directory (not in subdirs).
+								for ( let i = 0; i < jsFiles.length; i++ ) {
+									await fs.cp( jsFiles[ i ], path.join( tmpdir, `${ i + 10000 }.json` ) );
 								}
-								const proc1 = execa(
-									path.join( scriptDir, 'node_modules/.bin/istanbul-merge' ),
-									[ '--out', tmpfile, ...jsFiles ],
-									{
-										stdio: [ 'ignore', argv.v ? 'pipe' : 'ignore', argv.v ? 'pipe' : 'ignore' ],
-									}
-								);
-								if ( argv.v ) {
-									proc1.stdout.pipe( sstdout, { end: false } );
-									proc1.stderr.pipe( sstderr, { end: false } );
-								}
-								await proc1;
 
 								const dir = path.join( opts.HTML_DIR, 'js' );
 								if ( argv.v ) {
@@ -430,7 +415,7 @@ export async function runTests( argv, opts ) {
 										`Executing ${ path.join( scriptDir, 'node_modules/.bin/nyc' ) } report --no-exclude-after-remap --report-dir=${ dir } --temp-dir=${ tmpdir } --reporter=html-spa\n`
 									);
 								}
-								const proc2 = execa(
+								const proc = execa(
 									path.join( scriptDir, 'node_modules/.bin/nyc' ),
 									[
 										'report',
@@ -444,10 +429,10 @@ export async function runTests( argv, opts ) {
 									}
 								);
 								if ( argv.v ) {
-									proc2.stdout.pipe( sstdout, { end: false } );
-									proc2.stderr.pipe( sstderr, { end: false } );
+									proc.stdout.pipe( sstdout, { end: false } );
+									proc.stderr.pipe( sstderr, { end: false } );
 								}
-								await proc2;
+								await proc;
 								opts.JS_HTML_INDEX = url.pathToFileURL( path.join( dir, 'index.html' ) );
 							} finally {
 								await fs.rm( tmpdir, { recursive: true } ).catch( () => {} );

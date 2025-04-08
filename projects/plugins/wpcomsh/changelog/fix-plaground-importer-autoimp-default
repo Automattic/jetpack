@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix: do not set default values for autoincrement columns

@@ -521,11 +521,12 @@ async function rsyncToDest( source, dest ) {
 
 	try {
 		await runCommand( 'rsync', [
-			'-azLKPv',
+			'-azKPv',
 			'--prune-empty-dirs',
 			'--delete',
 			'--delete-after',
 			'--delete-excluded',
+			'--copy-unsafe-links',
 			`--include-from=${ tmpFile.name }`,
 			source,
 			dest,

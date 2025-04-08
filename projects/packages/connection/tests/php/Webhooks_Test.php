@@ -30,10 +30,9 @@ class Webhooks_Test extends TestCase {
 
 	/**
 	 * Setting up the testing environment.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Monkey\Functions\when( 'check_admin_referer' )->justReturn( true );
 		Monkey\Functions\when( 'wp_safe_redirect' )->alias(
 			function ( $redirect ) {
@@ -45,10 +44,9 @@ class Webhooks_Test extends TestCase {
 
 	/**
 	 * Reverting the testing environment to its original state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 		$this->redirect_stack = array();
 		unset( $_GET['handler'], $_GET['action'] );

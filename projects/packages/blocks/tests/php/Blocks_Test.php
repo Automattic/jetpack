@@ -27,10 +27,9 @@ class Blocks_Test extends TestCase {
 
 	/**
 	 * Setup runs before each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Monkey\setUp();
 		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', __DIR__ . '/fixtures/jetpack.php' );
 		// Register a test block.
@@ -39,10 +38,9 @@ class Blocks_Test extends TestCase {
 
 	/**
 	 * Teardown runs after each test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 		Jetpack_Constants::clear_constants();
 		// Unregister the test Jetpack block we may have created for our tests.

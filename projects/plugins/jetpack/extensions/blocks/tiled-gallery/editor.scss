@@ -4,20 +4,25 @@
 
 // inspired by from assets/shared/_animations loading-fade
 @keyframes tiled-gallery-img-placeholder {
+
 	0% {
 		background-color: var( --color-neutral-0 );
 	}
+
 	50% {
 		background-color: rgba( var( --color-neutral-0-rgb ), 0.5 );
 	}
+
 	100% {
 		background-color: var( --color-neutral-0 );
 	}
 }
 
 .wp-block-jetpack-tiled-gallery {
+
 	&.is-style-square,
 	&.is-style-circle {
+
 		.tiled-gallery__item.is-transient img {
 			// Transient images (no src attribute) occupy no vertical space.
 			// If on a row by themself, the row is hidden.
@@ -48,6 +53,7 @@
 
 			// Disable filters when selected
 			filter: none;
+
 			&::before,
 			&::after {
 				content: none;
@@ -57,6 +63,7 @@
 		&.is-transient {
 			height: 100%;
 			width: 100%;
+
 			img {
 				background-position: center;
 				background-size: cover;
@@ -72,6 +79,7 @@
 			border: 1px solid $dark-gray-placeholder;
 			border-radius: $radius-block-ui;
 			transition: box-shadow 0.2s ease-out;
+
 			@include reduce-motion("transition");
 
 			&:hover {
@@ -181,6 +189,7 @@
 
 	// Hide upload buttons in style picker preview
 	.block-editor-block-preview__content & {
+
 		.block-editor-media-placeholder {
 			display: none;
 		}

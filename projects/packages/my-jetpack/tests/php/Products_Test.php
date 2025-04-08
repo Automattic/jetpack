@@ -15,10 +15,9 @@ require_once __DIR__ . '/assets/mock-classes.php';
 class Products_Test extends TestCase {
 	/**
 	 * Cleaning up after the test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		// Make sure to clear the filters even after exceptions.
 		remove_filter( 'my_jetpack_products_classes', array( $this, 'return_valid_class' ) );
 		remove_filter( 'my_jetpack_products_classes', array( $this, 'return_non_existent_class' ) );

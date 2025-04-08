@@ -31,8 +31,6 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		parent::set_up_wordbless();
@@ -56,8 +54,6 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Clean up after test
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		wp_delete_user( $this->admin_id );

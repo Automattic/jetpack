@@ -14,9 +14,9 @@ if ( ! defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) ) {
 }
 
 // Load minify library code.
-require_once __DIR__ . '/app/lib/minify/Utils.php';
-require_once __DIR__ . '/app/lib/minify/Config.php';
-require_once __DIR__ . '/app/lib/minify/Dependency_Path_Mapping.php';
+require_once __DIR__ . '/app/lib/minify/class-utils.php';
+require_once __DIR__ . '/app/lib/minify/class-config.php';
+require_once __DIR__ . '/app/lib/minify/class-dependency-path-mapping.php';
 require_once __DIR__ . '/app/lib/minify/functions-helpers.php';
 require_once __DIR__ . '/app/lib/minify/functions-service-fallback.php';
 

@@ -2,6 +2,7 @@
 $grid-line-color: #d7d6d6;
 
 .grid-control {
+
   :global(.visx-line) {
     stroke: $grid-line-color;
     stroke-width: 1px;

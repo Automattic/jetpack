@@ -1,0 +1,46 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.FunctionComment.Missing
+
+use PHPUnit\Framework\TestCase;
+
+/**
+ * A test class
+ *
+ * @covers Foo
+ * @covers Bar::barbar
+ * @covers ::some_function
+ * @covers \Bar
+ * @covers \Baz
+ * @covers \Oof
+ * @uses Oof
+ * @uses Rab::rabrab
+ * @uses ::noitcnuf_emos
+ * @uses \Foo
+ * @uses \Rab::rab2
+ * @uses \Zab
+ */
+#[Attribute]
+class PhpunitMethodCoversTest extends TestCase {
+	/**
+	 * @dataProvider provideFoo
+	 */
+	public function testFoo() {
+	}
+
+	public function testBar() {
+	}
+
+	public function testSomething() {
+	}
+
+	/** @dataProvider provideSomething2 */
+	public function testSomething2() {
+	}
+
+	public function testBaz1() {
+	}
+
+	public function testBaz2() {
+	}
+}

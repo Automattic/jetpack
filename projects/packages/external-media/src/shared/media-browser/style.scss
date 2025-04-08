@@ -72,6 +72,7 @@ $grid-size: 8px;
 		}
 
 		&__selected {
+
 			img {
 				border-color: var(--wp-admin-theme-color);
 			}
@@ -83,6 +84,7 @@ $grid-size: 8px;
 		}
 
 		&.is-transient {
+
 			img {
 				border-color: rgba(0, 0, 0, 0.1);
 			}
@@ -153,7 +155,9 @@ $grid-size: 8px;
 
 // Show more thumbs beyond mobile.
 @media only screen and ( min-width: 600px ) {
+
 	.jetpack-external-media-browser {
+
 		.jetpack-external-media-browser__media {
 			grid-template-columns: repeat(5, 1fr);
 		}

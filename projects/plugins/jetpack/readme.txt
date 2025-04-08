@@ -4,7 +4,7 @@ Tags: Security, backup, malware, scan, performance
 Stable tag: 14.4
 Requires at least: 6.6
 Requires PHP: 7.2
-Tested up to: 6.7
+Tested up to: 6.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -326,14 +326,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.5-a.7 - 2025-03-18
+### 14.6-a.1 - 2025-04-07
 #### Enhancements
-- Forms: Add quick link in the admin bar for form entries.
+- Replace video embed with VideoPress block in Media & Text block.
+- Forms: Add custom hooks for integrations.
+- Forms: Add endpoint for all integrations.
+- Forms: Update default forms view to dataviews.
+- Newsletter Widget: Improve the display of links in the Newsletter widget.
+
+#### Improved compatibility
+- Blocks: Ensure all child blocks use the latest version of the Blocks API.
 
 #### Bug fixes
-- Forms: Add a default label for textarea fields.
-- Forms: Remove Google Drive beta badge.
-- Forms: Remove Salesforce beta badge.
+- Reset access level of the post to everyone when a paywall is removed.
+- Slideshow: Prevent images from appearing stuck to the mouse in block-based themes.
+- Star Rating: Fix padding and improve panel copy.
 
 --------
 

@@ -7,9 +7,6 @@
 
 namespace Automattic\Jetpack_Boost\Compatibility\Super_Cache;
 
-use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
-use Automattic\Jetpack_Boost\Modules\Modules_Index;
-
 /**
  * Add WP Super Cache bypass query param to the URL.
  *
@@ -41,32 +38,8 @@ function clear_cache() {
 	if ( function_exists( 'wp_cache_clear_cache' ) ) {
 		wp_cache_clear_cache( $wpdb->blogid );
 	}
+
+	// Remove the action so it doesn't run again during the same request.
+	remove_action( 'jetpack_boost_page_output_changed', __NAMESPACE__ . '\clear_cache' );
 }
-add_action( 'jetpack_boost_critical_css_generated', __NAMESPACE__ . '\clear_cache' );
-add_action( 'jetpack_boost_critical_css_invalidated', __NAMESPACE__ . '\clear_cache' );
-
-/**
- * Clear Super Cache's cache when a module is enabled or disabled.
- *
- * @param string $module_slug The module slug.
- * @param bool   $status The new status.
- */
-function module_status_updated( $module_slug, $status ) {
-	// Get a list of modules that can change the HTML output.
-	$output_changing_modules = Modules_Index::get_modules_implementing( Changes_Page_Output::class );
-
-	// Special case: don't clear when enabling Critical or Cloud CSS, as they will
-	// be handled after generation.
-	if ( $status ) {
-		unset( $output_changing_modules['critical_css'] );
-		unset( $output_changing_modules['cloud_css'] );
-	}
-
-	$slugs = array_keys( $output_changing_modules );
-	if ( ! in_array( $module_slug, $slugs, true ) ) {
-		return;
-	}
-
-	clear_cache();
-}
-add_action( 'jetpack_boost_module_status_updated', __NAMESPACE__ . '\module_status_updated', 10, 2 );
+add_action( 'jetpack_boost_page_output_changed', __NAMESPACE__ . '\clear_cache' );

@@ -75,6 +75,7 @@ export class MapBoxComponent extends Component {
 							value={ title }
 							onChange={ value => updateActiveMarker( { title: value } ) }
 							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
 						/>
 						<TextareaControl
 							className="wp-block-jetpack-map__marker-caption"

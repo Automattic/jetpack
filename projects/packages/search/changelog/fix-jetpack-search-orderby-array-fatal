@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Search: fix errors caused by malformed order arguments

@@ -28,10 +28,9 @@ class Pre_Connection_JITM_Test extends TestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Monkey\setUp();
 
 		Functions\when( 'get_current_screen' )->justReturn( new \stdClass() );
@@ -57,10 +56,9 @@ class Pre_Connection_JITM_Test extends TestCase {
 
 	/**
 	 * Tear down.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 	}
 

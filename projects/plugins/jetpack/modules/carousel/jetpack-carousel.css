@@ -20,6 +20,7 @@
 .jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
 	background-image: none;
 }
+
 /* end of temporary fix */
 
 [data-carousel-extra]:not( .jp-carousel-wrap ) img, [data-carousel-extra]:not( .jp-carousel-wrap ) img + figcaption {
@@ -361,6 +362,7 @@ div.jp-carousel-buttons a:hover {
 	background: var(--jp-carousel-primary-color);
 	opacity: 0.5;
 }
+
 /** Pagination End **/
 
 /** Title and Desc Start **/
@@ -725,6 +727,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	width: 20px;
 	height: 20px;
 }
+
 #jp-carousel-comment-form-spinner {
 	display: none;
 	float: left;
@@ -749,20 +752,25 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 @-webkit-keyframes load8 {
+
 	0% {
 		-webkit-transform: rotate( 0deg );
 		transform: rotate( 0deg );
 	}
+
 	100% {
 		-webkit-transform: rotate( 360deg );
 		transform: rotate( 360deg );
 	}
 }
+
 @keyframes load8 {
+
 	0% {
 		-webkit-transform: rotate( 0deg );
 		transform: rotate( 0deg );
 	}
+
 	100% {
 		-webkit-transform: rotate( 360deg );
 		transform: rotate( 360deg );
@@ -933,6 +941,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-selected .jp-carousel-icon {
 	background: var(--jp-carousel-primary-color);
 }
+
 .jp-carousel-selected rect {
 	fill: var(--jp-carousel-bg-color);
 }
@@ -969,6 +978,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 /* Small screens */
 @media only screen and ( max-width: 760px ) {
+
 	.jp-carousel-overlay .swiper-container .swiper-button-next,
 	.jp-carousel-overlay .swiper-container .swiper-button-prev {
 		display: none !important;

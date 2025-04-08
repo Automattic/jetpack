@@ -63,6 +63,7 @@
 }
 
 .dataview-wrapper {
+
 	/**
 	 * We have to use scoped import to avoid styles being added globally.
 	 * By importing the styles here, all the styles from dataviews package will be scoped to this component.

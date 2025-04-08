@@ -16,10 +16,9 @@ use PHPUnit\Framework\TestCase;
 class Constants_Test extends TestCase {
 	/**
 	 * Sets up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		if ( ! defined( 'JETPACK__VERSION' ) ) {
 			define( 'JETPACK__VERSION', '7.5' );
 		}
@@ -28,10 +27,9 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tears down the test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 		Constants::$set_constants = array();
 	}

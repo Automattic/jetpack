@@ -8,6 +8,7 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 		overflow: hidden;
 
 		&.is-mandatory {
+
 			&::before {
 				content: '';
 				position: absolute;
@@ -35,6 +36,7 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 		&:hover, &:focus {
 			background-color: var(--jp-white);
 		}
+
 		&:disabled {
 			pointer-events: none;
 		}
@@ -155,6 +157,7 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 	}
 
 	&.connection-ready {
+
 		.logo {
 			transform: scale(1.4);
 			animation: popIn 1s ease-out 0.3s forwards;
@@ -166,6 +169,7 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 	}
 
 	&.recommendations {
+
 		.logo {
 			transform: scale(1.4);
 			animation: none;
@@ -199,10 +203,12 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 }
 
 @keyframes drawCircle {
+
 	0% {
 		opacity: 1;
 		stroke-dashoffset: 276;
 	}
+
 	100% {
 		opacity: 1;
 		stroke-dashoffset: 0;
@@ -210,24 +216,29 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 }
 
 @keyframes fadeIn {
+
 	to {
 		opacity: 1;
 	}
 }
 
 @keyframes popIn {
+
 	25% {
 		transform: scale(1.25);
 	}
+
 	100% {
 		transform: scale(1.4);
 	}
 }
 
 @keyframes slideDown {
+
 	0% {
 		transform: translateY(-300px);
 	}
+
 	100% {
 		transform: translateY(0);
 	}

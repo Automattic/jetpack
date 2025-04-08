@@ -52,7 +52,7 @@ class Publicize_Assets {
 
 		// We don't want to render the Social UI in Jetpack sidebar
 		// if Jetpack is old, which has it bundled.
-		if ( defined( 'JETPACK__VERSION' ) && ( version_compare( (string) JETPACK__VERSION, '14.4-a.7', '<=' ) ) ) {
+		if ( defined( 'JETPACK__VERSION' ) && ( version_compare( (string) JETPACK__VERSION, '14.5-a.1', '<' ) ) ) {
 			return;
 		}
 

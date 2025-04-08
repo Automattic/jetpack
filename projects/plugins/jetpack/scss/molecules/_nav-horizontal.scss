@@ -3,6 +3,7 @@
 // ==========================================================================
 
 .nav-horizontal {
+
 	&:after {
 		content: ".";
 		display: block;
@@ -14,10 +15,12 @@
 	a {
 		display: inline-block;
 	}
+
 	li {
 		position: relative;
 		float: left;
 	}
+
 	ul {
 		margin: 0;
 		padding: 0;

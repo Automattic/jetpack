@@ -5,9 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.46.0] - 2025-04-07
+### Added
+- Add controls to IntegrationCard header. [#42930]
+- Add custom hooks for integrations. [#42822]
+- Add header, body, and button components to integrations modal. [#42903]
+- Add endpoint for all integrations. [#42878]
+- Add progress and errors to the form upload field. [#42845]
+- Update CRM integration to hooks. [#42831]
+
+### Changed
+- Add default file label. [#42801]
+- Add consent toggle to Creative Mail card. [#42874]
+- Add brand icons for integrations modal. [#42870]
+- Change default submissions view to dataviews. [#42329]
+- Change path and return for form integrations endpoint. [#42826]
+- Code: First pass of style coding standards. [#42734]
+- Move shared integration card logic. [#42908]
+- Reorganize form integration modal code. [#42918]
+- Update Creative Mail integration to hooks. [#42828] [#42762] [#42806] [#42809]
+
+### Fixed
+- Ensure response management compatibility with WordPress 6.6. [#42883]
+
+## [0.45.0] - 2025-03-31
+### Added
+- Add third-party integration endpoint. [#42730]
+- Add File Upload field prototype. [#42695]
+
+### Changed
+- Add block integrations modal with feature flag. [#42747]
+- Create IntegrationCard component. [#42771]
+- Update button styles in inspector controls. [#42769]
+- Update IntegrationCard header markup and style. [#42772]
+- Update dependencies. [#42678]
+
+### Fixed
+- Components: Update controls to prevent more deprecation notices. [#42677]
+- Fix sorting of responses in Classic view. [#42764]
+- Fix WordPress `useSelect` warning. [#42675]
+
+## [0.44.0] - 2025-03-24
+### Changed
+- Update editor sidebar copy. [#42642]
+- Update dependencies. [#42564]
+
+### Fixed
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42576]
+- Fix `source` filtering in Classic view for responses management. [#42641]
+- Prevent custom label font sizes from breaking animated label font size reduction. [#42248]
+- Placeholder should always display if it's a non-empty string. [#42173]
+
 ## [0.43.0] - 2025-03-18
 ### Added
-- Forms: Add a quick link to the admin bar to form entries [#42474]
+- Add a quick link to the admin bar to form entries. [#42474]
 
 ### Changed
 - Remove Google Drive beta badge. [#42481]
@@ -908,6 +959,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.46.0]: https://github.com/automattic/jetpack-forms/compare/v0.45.0...v0.46.0
+[0.45.0]: https://github.com/automattic/jetpack-forms/compare/v0.44.0...v0.45.0
+[0.44.0]: https://github.com/automattic/jetpack-forms/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/automattic/jetpack-forms/compare/v0.42.1...v0.43.0
 [0.42.1]: https://github.com/automattic/jetpack-forms/compare/v0.42.0...v0.42.1
 [0.42.0]: https://github.com/automattic/jetpack-forms/compare/v0.41.0...v0.42.0

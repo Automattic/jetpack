@@ -1,8 +1,8 @@
 import { Container, Col, JetpackLogo } from '@automattic/jetpack-components';
 import clsx from 'clsx';
 import { useFullScreen } from '../../hooks/use-fullscreen';
+import Testimonials from '../testimonials';
 import ConnectionForm from './connection-form/connection-form';
-import exampleImage from './grow-your-audience.png';
 import styles from './styles.module.scss';
 import type { FC } from 'react';
 
@@ -30,7 +30,7 @@ const OnboardingScreen: FC = () => {
 				lg={ 6 }
 				className={ clsx( styles.column, styles[ 'seconday-column' ], styles.testimonials ) }
 			>
-				<img src={ exampleImage } alt="Onboarding Screen" />
+				<Testimonials />
 			</Col>
 		</Container>
 	);

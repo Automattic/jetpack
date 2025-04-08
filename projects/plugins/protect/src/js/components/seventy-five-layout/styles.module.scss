@@ -3,6 +3,7 @@
 // adding a gap on one column
 // in between main and secondary sections.
 @media ( min-width: 960px ) {
+
 	.main {
 		grid-column: 1 / span 6;
 	}

@@ -82,7 +82,9 @@
 		"ai-list-to-table-transform",
 		"ai-seo-assistant",
 		"ai-use-chrome-ai-sometimes",
-		"ai-seo-enhancer"
+		"ai-seo-enhancer",
+		"ai-seo-enhancer-enabled-unrestricted",
+		"ai-proofread-harper"
 	],
 	"experimental": [],
 	"no-post-editor": [

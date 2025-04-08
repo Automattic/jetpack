@@ -46,8 +46,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 
 	/**
 	 * Clean up after test
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		wp_delete_user( $this->admin_id );

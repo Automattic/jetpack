@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix possibly unset variable access from #41761
-
-

@@ -76,7 +76,7 @@
 
 	.product-interstitial__hero-side {
 		display: flex;
-		gap: calc(var(--spacing-base)* 3);
+		gap: calc(var(--spacing-base) * 3);
 		align-items: center;
 		flex-wrap: wrap;
 		justify-content: flex-end;
@@ -188,7 +188,7 @@
 	.product-interstitial__section-emoji {
 		font-size: 48px;
 		line-height: 24px;
-		margin-bottom: calc(var(--spacing-base)* 6);
+		margin-bottom: calc(var(--spacing-base) * 6);
 	}
 }
 

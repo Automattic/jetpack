@@ -11,14 +11,19 @@
 
 	img {
 		max-width: 100%;
+
 		/* Avoids image blur with scaling */
+
 		/* Firefox */
 		image-rendering: -moz-crisp-edges;
+
 		/* Opera */
 		image-rendering: -o-crisp-edges;
+
 		/* Webkit (non-standard naming) */
 		image-rendering: -webkit-optimize-contrast;
 		image-rendering: crisp-edges;
+
 		/* IE (non-standard property) */
 		-ms-interpolation-mode: nearest-neighbor;
 	}

@@ -4,6 +4,7 @@
 .infinite-scroll .pagination,
 .infinite-scroll .posts-navigation,
 .infinite-scroll.neverending .site-footer {
+
 	/* Theme Footer (when set to scrolling) */
 	display: none;
 }
@@ -346,6 +347,7 @@
 
 /* Search widget override */
 @media only screen and (min-width: 600px) {
+
 	.widget.widget_search .search-field {
 		max-width: calc( 50vw - 20% );
 	}

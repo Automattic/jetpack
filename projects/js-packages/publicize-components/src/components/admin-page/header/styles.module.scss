@@ -25,6 +25,7 @@
 	}
 
 	@media ( min-width: 1120px ) {
+
 		> * {
 			width: auto;
 		}
@@ -50,6 +51,7 @@
 }
 
 .column {
+
 	> * + * {
 		margin-top: calc( var( --spacing-base ) * 3 );
 	}

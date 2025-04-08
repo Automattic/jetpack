@@ -28,19 +28,17 @@ class Atomic_Additional_CSS_Manager_Test extends TestCase {
 
 	/**
 	 * Set up each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->wp_customize = new \WP_Customize_Manager();
 	}
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}

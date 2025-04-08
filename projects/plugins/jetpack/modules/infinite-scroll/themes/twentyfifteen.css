@@ -102,6 +102,7 @@
 }
 
 @media screen and (min-width: 38.75em) {
+
 	.infinite-loader {
 		margin: 7.6923% 0;
 	}
@@ -116,6 +117,7 @@
 }
 
 @media screen and (min-width: 46.25em) {
+
 	#infinite-handle span {
 		display: block;
 		font-size: 14px;
@@ -125,6 +127,7 @@
 }
 
 @media screen and (min-width: 55em) {
+
 	#infinite-handle span {
 		font-size: 16px;
 		font-size: 1.6rem;
@@ -133,6 +136,7 @@
 }
 
 @media screen and (min-width: 59.6875em) {
+
 	.infinite-loader {
 		margin: 8.3333% 0;
 	}
@@ -159,6 +163,7 @@
 }
 
 @media screen and (min-width: 68.75em) {
+
 	#infinite-handle span {
 		display: inline-block;
 		font-size: 14px;
@@ -188,6 +193,7 @@
 }
 
 @media screen and (min-width: 77.5em) {
+
 	#infinite-handle span {
 		font-size: 16px;
 		font-size: 1.6rem;

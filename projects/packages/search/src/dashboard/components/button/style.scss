@@ -33,6 +33,7 @@
 		border-color: $blue-grey-dark;
 		color: $blue-grey-dark;
 	}
+
 	&[disabled],
 	&:disabled {
 		color: lighten( $gray, 30% );
@@ -40,11 +41,13 @@
 		border-color: lighten( $gray, 30% );
 		cursor: default;
 	}
+
 	&:focus {
 		background: $white;
 		border-color: $blue-medium-dark;
 		box-shadow: 0 0 0 1px $blue-medium-dark;
 	}
+
 	&.is-compact {
 		padding: 0 10px;
 		line-height: 2;
@@ -52,6 +55,7 @@
 		&:disabled {
 			color: lighten( $gray, 30% );
 		}
+
 		.gridicon {
 			top: 4px;
 			margin-top: -8px;
@@ -69,9 +73,11 @@
 			margin-left: -4px;
 		}
 	}
+
 	&.hidden {
 		display: none;
 	}
+
 	.gridicon {
 		position: relative;
 			top: 4px;
@@ -93,11 +99,13 @@
 		background: $blue-medium-dark;
 		color: $white;
 	}
+
 	&:focus {
 		box-shadow:
 			0 0 0 1px $white,
 			0 0 0 3px $blue-medium-dark;
 	}
+
 	&[disabled],
 	&:disabled {
 		color: #66c6e4 !important;
@@ -107,6 +115,7 @@
 		text-shadow: none !important;
 		cursor: default;
 	}
+
 	&.is-compact {
 		color: $white;
 		white-space: nowrap;
@@ -121,9 +130,11 @@
 	&:focus {
 		border-color: $alert-red;
 	}
+
 	&:focus {
 		box-shadow: 0 0 0 2px lighten( $alert-red, 20% );
 	}
+
 	&[disabled],
 	&:disabled {
 		color: lighten( $alert-red, 30% );
@@ -140,6 +151,7 @@
 	&:focus {
 		border-color: darken( $alert-red, 40% );
 	}
+
 	&[disabled],
 	&:disabled {
 		background: lighten( $alert-red, 20% );
@@ -181,6 +193,7 @@
 			border-width: 0;
 		}
 	}
+
 	&.is-scary {
 		color: $alert-red;
 
@@ -197,6 +210,7 @@
 	&.is-compact {
 		background: transparent;
 		border-radius: 0;
+
 		.gridicon {
 			width: 18px;
 			height: 18px;

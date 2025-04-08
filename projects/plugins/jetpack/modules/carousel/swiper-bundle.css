@@ -1,7 +1,9 @@
 /* eslint-disable */
+
 /* If a new version is imported from swiper the selectors should all be namespaced with .jp-carousel-overlay 
 /* to prevent clashes with other plugins that are overrding swiperjs css
 */
+
 /**
  * Swiper 6.7.0
  * Most modern mobile touch slider and framework with hardware accelerated transitions
@@ -21,9 +23,11 @@
 	font-weight: 400;
 	font-style: normal;
 }
+
 :root {
 	--swiper-theme-color: #007aff;
 }
+
 .jp-carousel-overlay .swiper-container {
 	margin-left: auto;
 	margin-right: auto;
@@ -31,12 +35,15 @@
 	overflow: hidden;
 	list-style: none;
 	padding: 0;
+
 	/* Fix of Webkit flickering */
 	z-index: 1;
 }
+
 .jp-carousel-overlay .swiper-container-vertical > .swiper-wrapper {
 	flex-direction: column;
 }
+
 .jp-carousel-overlay .swiper-wrapper {
 	position: relative;
 	width: 100%;
@@ -46,27 +53,34 @@
 	transition-property: transform;
 	box-sizing: content-box;
 }
+
 .jp-carousel-overlay .swiper-container-android .swiper-slide,
 .jp-carousel-overlay .swiper-wrapper {
 	transform: translate3d( 0px, 0, 0 );
 }
+
 .jp-carousel-overlay .swiper-container-multirow > .swiper-wrapper {
 	flex-wrap: wrap;
 }
+
 .jp-carousel-overlay .swiper-container-multirow-column > .swiper-wrapper {
 	flex-wrap: wrap;
 	flex-direction: column;
 }
+
 .jp-carousel-overlay .swiper-container-free-mode > .swiper-wrapper {
 	transition-timing-function: ease-out;
 	margin: 0 auto;
 }
+
 .jp-carousel-overlay .swiper-container-pointer-events {
 	touch-action: pan-y;
 }
+
 .jp-carousel-overlay .swiper-container-pointer-events.swiper-container-vertical {
 	touch-action: pan-x;
 }
+
 .jp-carousel-overlay .swiper-slide {
 	flex-shrink: 0;
 	width: 100%;
@@ -74,22 +88,27 @@
 	position: relative;
 	transition-property: transform;
 }
+
 .jp-carousel-overlay .swiper-slide-invisible-blank {
 	visibility: hidden;
 }
+
 /* Auto Height */
 .jp-carousel-overlay .swiper-container-autoheight,
 .jp-carousel-overlay .swiper-container-autoheight .swiper-slide {
 	height: auto;
 }
+
 .jp-carousel-overlay .swiper-container-autoheight .swiper-wrapper {
 	align-items: flex-start;
 	transition-property: transform, height;
 }
+
 /* 3D Effects */
 .jp-carousel-overlay .swiper-container-3d {
 	perspective: 1200px;
 }
+
 .jp-carousel-overlay .swiper-container-3d .swiper-wrapper,
 .jp-carousel-overlay .swiper-container-3d .swiper-slide,
 .jp-carousel-overlay .swiper-container-3d .swiper-slide-shadow-left,
@@ -99,6 +118,7 @@
 .jp-carousel-overlay .swiper-container-3d .swiper-cube-shadow {
 	transform-style: preserve-3d;
 }
+
 .jp-carousel-overlay .swiper-container-3d .swiper-slide-shadow-left,
 .jp-carousel-overlay .swiper-container-3d .swiper-slide-shadow-right,
 .jp-carousel-overlay .swiper-container-3d .swiper-slide-shadow-top,
@@ -111,44 +131,58 @@
 	pointer-events: none;
 	z-index: 10;
 }
+
 .jp-carousel-overlay .swiper-container-3d .swiper-slide-shadow-left {
 	background-image: linear-gradient( to left, rgba( 0, 0, 0, 0.5 ), rgba( 0, 0, 0, 0 ) );
 }
+
 .jp-carousel-overlay .swiper-container-3d .swiper-slide-shadow-right {
 	background-image: linear-gradient( to right, rgba( 0, 0, 0, 0.5 ), rgba( 0, 0, 0, 0 ) );
 }
+
 .jp-carousel-overlay .swiper-container-3d .swiper-slide-shadow-top {
 	background-image: linear-gradient( to top, rgba( 0, 0, 0, 0.5 ), rgba( 0, 0, 0, 0 ) );
 }
+
 .jp-carousel-overlay .swiper-container-3d .swiper-slide-shadow-bottom {
 	background-image: linear-gradient( to bottom, rgba( 0, 0, 0, 0.5 ), rgba( 0, 0, 0, 0 ) );
 }
+
 /* CSS Mode */
 .jp-carousel-overlay .swiper-container-css-mode > .swiper-wrapper {
 	overflow: auto;
 	scrollbar-width: none;
+
 	/* For Firefox */
 	-ms-overflow-style: none;
+
 	/* For Internet Explorer and Edge */
 }
+
 .jp-carousel-overlay .swiper-container-css-mode > .swiper-wrapper::-webkit-scrollbar {
 	display: none;
 }
+
 .jp-carousel-overlay .swiper-container-css-mode > .swiper-wrapper > .swiper-slide {
 	scroll-snap-align: start start;
 }
+
 .jp-carousel-overlay .swiper-container-horizontal.swiper-container-css-mode > .swiper-wrapper {
 	scroll-snap-type: x mandatory;
 }
+
 .jp-carousel-overlay .swiper-container-vertical.swiper-container-css-mode > .swiper-wrapper {
 	scroll-snap-type: y mandatory;
 }
+
 :root {
 	--swiper-navigation-size: 44px;
+
 	/*
   --swiper-navigation-color: var(--swiper-theme-color);
   */
 }
+
 .jp-carousel-overlay .swiper-button-prev,
 .jp-carousel-overlay .swiper-button-next {
 	position: absolute;
@@ -163,12 +197,14 @@
 	justify-content: center;
 	color: var( --swiper-navigation-color, var( --swiper-theme-color ) );
 }
+
 .jp-carousel-overlay .swiper-button-prev.swiper-button-disabled,
 .jp-carousel-overlay .swiper-button-next.swiper-button-disabled {
 	opacity: 0.35;
 	cursor: auto;
 	pointer-events: none;
 }
+
 .jp-carousel-overlay .swiper-button-prev:after,
 .jp-carousel-overlay .swiper-button-next:after {
 	font-family: swiper-icons;
@@ -179,40 +215,50 @@
 	font-variant: initial;
 	line-height: 1;
 }
+
 .jp-carousel-overlay .swiper-button-prev,
 .jp-carousel-overlay .swiper-container-rtl .swiper-button-next {
 	left: 10px;
 	right: auto;
 }
+
 .jp-carousel-overlay .swiper-button-prev:after,
 .jp-carousel-overlay .swiper-container-rtl .swiper-button-next:after {
 	content: 'prev';
 }
+
 .jp-carousel-overlay .swiper-button-next,
 .jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
 	right: 10px;
 	left: auto;
 }
+
 .jp-carousel-overlay .swiper-button-next:after,
 .jp-carousel-overlay .swiper-container-rtl .swiper-button-prev:after {
 	content: 'next';
 }
+
 .jp-carousel-overlay .swiper-button-prev.swiper-button-white,
 .jp-carousel-overlay .swiper-button-next.swiper-button-white {
 	--swiper-navigation-color: #ffffff;
 }
+
 .jp-carousel-overlay .swiper-button-prev.swiper-button-black,
 .jp-carousel-overlay .swiper-button-next.swiper-button-black {
 	--swiper-navigation-color: #000000;
 }
+
 .jp-carousel-overlay .swiper-button-lock {
 	display: none;
 }
+
 :root {
+
 	/*
   --swiper-pagination-color: var(--swiper-theme-color);
   */
 }
+
 .jp-carousel-overlay .swiper-pagination {
 	position: absolute;
 	text-align: center;
@@ -220,9 +266,11 @@
 	transform: translate3d( 0, 0, 0 );
 	z-index: 10;
 }
+
 .jp-carousel-overlay .swiper-pagination.swiper-pagination-hidden {
 	opacity: 0;
 }
+
 /* Common Styles */
 .jp-carousel-overlay .swiper-pagination-fraction,
 .jp-carousel-overlay .swiper-pagination-custom,
@@ -231,33 +279,42 @@
 	left: 0;
 	width: 100%;
 }
+
 /* Bullets */
 .jp-carousel-overlay .swiper-pagination-bullets-dynamic {
 	overflow: hidden;
 	font-size: 0;
 }
+
 .jp-carousel-overlay .swiper-pagination-bullets-dynamic .swiper-pagination-bullet {
 	transform: scale( 0.33 );
 	position: relative;
 }
+
 .jp-carousel-overlay .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active {
 	transform: scale( 1 );
 }
+
 .jp-carousel-overlay .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-main {
 	transform: scale( 1 );
 }
+
 .jp-carousel-overlay .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-prev {
 	transform: scale( 0.66 );
 }
+
 .jp-carousel-overlay .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-prev-prev {
 	transform: scale( 0.33 );
 }
+
 .jp-carousel-overlay .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-next {
 	transform: scale( 0.66 );
 }
+
 .jp-carousel-overlay .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-next-next {
 	transform: scale( 0.33 );
 }
+
 .jp-carousel-overlay .swiper-pagination-bullet {
 	width: 8px;
 	height: 8px;
@@ -266,6 +323,7 @@
 	background: #000;
 	opacity: 0.2;
 }
+
 .jp-carousel-overlay button.swiper-pagination-bullet {
 	border: none;
 	margin: 0;
@@ -274,18 +332,22 @@
 	-webkit-appearance: none;
 	appearance: none;
 }
+
 .jp-carousel-overlay .swiper-pagination-clickable .swiper-pagination-bullet {
 	cursor: pointer;
 }
+
 .jp-carousel-overlay .swiper-pagination-bullet-active {
 	opacity: 1;
 	background: var( --swiper-pagination-color, var( --swiper-theme-color ) );
 }
+
 .jp-carousel-overlay .swiper-container-vertical > .swiper-pagination-bullets {
 	right: 10px;
 	top: 50%;
 	transform: translate3d( 0px, -50%, 0 );
 }
+
 .jp-carousel-overlay
 	.swiper-container-vertical
 	> .swiper-pagination-bullets
@@ -293,6 +355,7 @@
 	margin: 6px 0;
 	display: block;
 }
+
 .jp-carousel-overlay
 	.swiper-container-vertical
 	> .swiper-pagination-bullets.swiper-pagination-bullets-dynamic {
@@ -300,6 +363,7 @@
 	transform: translateY( -50% );
 	width: 8px;
 }
+
 .jp-carousel-overlay
 	.swiper-container-vertical
 	> .swiper-pagination-bullets.swiper-pagination-bullets-dynamic
@@ -307,12 +371,14 @@
 	display: inline-block;
 	transition: 200ms transform, 200ms top;
 }
+
 .jp-carousel-overlay
 	.swiper-container-horizontal
 	> .swiper-pagination-bullets
 	.swiper-pagination-bullet {
 	margin: 0 4px;
 }
+
 .jp-carousel-overlay
 	.swiper-container-horizontal
 	> .swiper-pagination-bullets.swiper-pagination-bullets-dynamic {
@@ -320,23 +386,27 @@
 	transform: translateX( -50% );
 	white-space: nowrap;
 }
+
 .jp-carousel-overlay
 	.swiper-container-horizontal
 	> .swiper-pagination-bullets.swiper-pagination-bullets-dynamic
 	.swiper-pagination-bullet {
 	transition: 200ms transform, 200ms left;
 }
+
 .jp-carousel-overlay
 	.swiper-container-horizontal.swiper-container-rtl
 	> .swiper-pagination-bullets-dynamic
 	.swiper-pagination-bullet {
 	transition: 200ms transform, 200ms right;
 }
+
 /* Progress */
 .jp-carousel-overlay .swiper-pagination-progressbar {
 	background: rgba( 0, 0, 0, 0.25 );
 	position: absolute;
 }
+
 .jp-carousel-overlay .swiper-pagination-progressbar .swiper-pagination-progressbar-fill {
 	background: var( --swiper-pagination-color, var( --swiper-theme-color ) );
 	position: absolute;
@@ -347,12 +417,14 @@
 	transform: scale( 0 );
 	transform-origin: left top;
 }
+
 .jp-carousel-overlay
 	.swiper-container-rtl
 	.swiper-pagination-progressbar
 	.swiper-pagination-progressbar-fill {
 	transform-origin: right top;
 }
+
 .jp-carousel-overlay .swiper-container-horizontal > .swiper-pagination-progressbar,
 .jp-carousel-overlay
 	.swiper-container-vertical
@@ -362,6 +434,7 @@
 	left: 0;
 	top: 0;
 }
+
 .jp-carousel-overlay .swiper-container-vertical > .swiper-pagination-progressbar,
 .jp-carousel-overlay
 	.swiper-container-horizontal
@@ -371,15 +444,19 @@
 	left: 0;
 	top: 0;
 }
+
 .jp-carousel-overlay .swiper-pagination-white {
 	--swiper-pagination-color: #ffffff;
 }
+
 .jp-carousel-overlay .swiper-pagination-black {
 	--swiper-pagination-color: #000000;
 }
+
 .jp-carousel-overlay .swiper-pagination-lock {
 	display: none;
 }
+
 .jp-carousel-overlay .swiper-zoom-container {
 	width: 100%;
 	height: 100%;
@@ -388,6 +465,7 @@
 	align-items: center;
 	text-align: center;
 }
+
 .jp-carousel-overlay .swiper-zoom-container > img,
 .jp-carousel-overlay .swiper-zoom-container > svg,
 .jp-carousel-overlay .swiper-zoom-container > canvas {
@@ -395,9 +473,11 @@
 	max-height: 100%;
 	object-fit: contain;
 }
+
 .jp-carousel-overlay .swiper-slide-zoomed {
 	cursor: move;
 }
+
 /* a11y */
 .jp-carousel-overlay .swiper-container .swiper-notification {
 	position: absolute;

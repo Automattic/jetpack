@@ -1,5 +1,6 @@
 .jetpack-subscribe-pre-publish-panel,
 .jetpack-subscribe-post-publish-panel {
+
 	.jetpack-inspector-notice {
 		margin: 0;
 	}
@@ -19,6 +20,7 @@
 	}
 
 	&__notice {
+
 		&.components-notice {
 			margin: 0;
 			padding: 0;
@@ -36,6 +38,7 @@
 }
 
 .paid-newsletters-post-publish-panel {
+
 	&__external_icon {
 		height: 1.55em;
 		margin: -0.2em 0.1em 0;
@@ -44,6 +47,7 @@
 	}
 
 	.post-publish-panel__postpublish-buttons {
+
 		.components-button {
 			padding-top: 0.5em;
 			padding-bottom: 0.4em;
@@ -57,6 +61,7 @@
 
 // Dedicated Newsletter sidebar
 .jetpack-newsletter-settings-sidebar {
+
 	.jetpack-subscribe-email-document-setting {
 		margin-bottom: 1em;
 	}

@@ -416,6 +416,7 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 					'url'             => false,
 					'filter'          => false,
 					'wpLocalConstant' => false,
+					'option'          => false,
 				),
 			),
 			$response
@@ -451,6 +452,7 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 					'url'             => false,
 					'filter'          => true,
 					'wpLocalConstant' => false,
+					'option'          => false,
 				),
 			),
 			$response

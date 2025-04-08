@@ -18,6 +18,7 @@ div.jetpack-quiz div.jetpack-quiz-answer {
 	padding: 1em 0 1em 1em;
 	border-bottom: 1px dotted #999;
 }
+
 div.jetpack-quiz div.jetpack-quiz-answer.last {
 	padding-bottom: 0;
 	margin-bottom: 0;

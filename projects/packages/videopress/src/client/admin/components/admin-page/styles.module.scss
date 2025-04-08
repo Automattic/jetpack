@@ -102,7 +102,9 @@
 
 // JITM
 :global {
+
 	#wpbody-content {
+
 		& > .notice {
 			display: none;
 		}
@@ -110,7 +112,9 @@
 }
 
 .jetpack-videopress-jitm-card {
+
 	:global {
+
 		.jitm-card {
 			margin-right: 0;
 			margin-bottom: 0;

@@ -99,6 +99,7 @@
 	max-width: var(--content-max-width);
 
 	.jp-forms__wp-sites {
+
 		@media (max-width: 1280px) {
 			max-width: 600px;
 			margin-left: auto;
@@ -249,6 +250,7 @@
 		}
 
 		@media (max-width: 1440px) {
+
 			h1 {
 				font-size: 32px;
 			}
@@ -327,6 +329,7 @@
 	}
 
 	@media (max-width: 1460px) {
+
 		&.feature-export,
 		&.feature-dependencies {
 			grid-column: span 4/ span 4;
@@ -380,6 +383,7 @@
 		}
 
 		&.feature-validation {
+
 			.jp-forms__feature-image-wrapper {
 				margin-bottom: 0;
 			}

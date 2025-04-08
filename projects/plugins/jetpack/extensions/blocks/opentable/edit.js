@@ -213,6 +213,7 @@ function OpenTableEdit( {
 						onChange={ newLang => setAttributes( { lang: newLang } ) }
 						options={ languageOptions }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<ToggleControl
 						label={ __( 'Open in a new window', 'jetpack' ) }
