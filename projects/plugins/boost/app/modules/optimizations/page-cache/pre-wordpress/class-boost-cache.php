@@ -302,7 +302,7 @@ class Boost_Cache {
 		 * If a comment is not approved, we only need to delete the cache for
 		 * this post for this visitor so the unmoderated comment is shown to them.
 		 */
-		if ( $comment_approved === 1 ) {
+		if ( $comment_approved !== 1 ) {
 			$parameters = $this->request->get_parameters();
 
 			/*
