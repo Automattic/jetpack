@@ -472,6 +472,21 @@ function runCssLint( cssFilesToLint ) {
 		stdio: 'inherit',
 	} );
 
+	// Check for newly-dirty files, which indicates they were fixed.
+	const newDirty = parseGitDiffToPathArray( [ '--diff-filter=ACMR' ] ).filter( file =>
+		checkFileAgainstDirtyList( file, dirtyFiles )
+	);
+
+	// Stage fixes.
+	if ( newDirty.length > 0 ) {
+		spawnSync( 'git', [ 'add', '-v', '--', ...newDirty ], { stdio: 'inherit' } );
+		console.log(
+			chalk.yellow(
+				'Some CSS issues were detected and automatically fixed via `pnpm lint-style --fix`.'
+			)
+		);
+	}
+
 	if ( cssLintResult && cssLintResult.status && ! isJetpackDraftMode() ) {
 		checkFailed( 'CSS linting found issues that cannot be automatically fixed!\n' );
 	}
