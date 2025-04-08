@@ -9,7 +9,6 @@ import { useCornerstonePages } from './lib/stores/cornerstone-pages';
 import Pill from '$features/ui/pill/pill';
 import Prerender from './prerender/prerender';
 import { useSingleModuleState } from '$features/module/lib/stores';
-import Lcp from './lcp/lcp';
 
 const CornerstonePages = () => {
 	const premiumFeatures = usePremiumFeatures();
@@ -48,9 +47,6 @@ const CornerstonePages = () => {
 							<Prerender />
 						</PanelRow>
 					) }
-					<PanelRow>
-						<Lcp />
-					</PanelRow>
 					<CornerstonePagesUpgradeCTA />
 				</PanelBody>
 			</Panel>
