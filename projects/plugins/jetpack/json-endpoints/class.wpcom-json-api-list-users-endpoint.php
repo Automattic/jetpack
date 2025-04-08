@@ -95,7 +95,7 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	public $response_format = array(
 		'found'       => '(int) The total number of authors found that match the request (ignoring limits and offsets).',
-		'users'       => '(array:author) Array of user objects',
+		'users'       => '(array:user) Array of user objects',
 		'total_users' => '(int) The total number of site users.',
 	);
 
@@ -181,49 +181,37 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		remove_filter( 'user_search_columns', array( $this, 'api_user_override_search_columns' ) );
 
+		$response        = array();
+		$users           = array();
 		$is_wpcom        = defined( 'IS_WPCOM' ) && IS_WPCOM;
 		$include_viewers = (bool) isset( $args['include_viewers'] ) && $args['include_viewers'] && $is_wpcom;
+		$user_query      = new WP_User_Query( $query );
+		$viewers         = $include_viewers ? $this->get_viewers( $args, $blog_id ) : array();
 
-		$page    = ( (int) ( $args['offset'] / $args['number'] ) ) + 1;
-		$viewers = $include_viewers ? get_private_blog_users(
-			$blog_id,
-			array(
-				'page'     => $page,
-				'per_page' => $args['number'],
-			)
-		) : array();
-		$viewers = array_map( array( $this, 'get_author' ), $viewers );
-
-		// When include_viewers is true, search by username or email.
-		if ( $include_viewers && ! empty( $args['search'] ) ) {
-			$viewers = array_filter(
-				$viewers,
-				function ( $viewer ) use ( $args ) {
-					// Convert to WP_User so expected fields are available.
-					$wp_viewer = new WP_User( $viewer->ID );
-					// remove special database search characters from search term
-					$search_term = str_replace( '*', '', $args['search'] );
-					return ( str_contains( $wp_viewer->user_login, $search_term ) || str_contains( $wp_viewer->user_email, $search_term ) || str_contains( $wp_viewer->display_name, $search_term ) );
-				}
-			);
-		}
-
-		$return = array();
 		foreach ( array_keys( $this->response_format ) as $key ) {
 			switch ( $key ) {
-				// Total users found in the current query.
+				/*
+				 * Total users found in the current query.
+				 * Note: This is not the total number of users, or the total number returned
+				 * in $response['users'].
+				 *
+				 * @see https://developer.wordpress.org/reference/classes/wp_user_query/#total-count-parameter
+				 */
 				case 'found':
 					$user_count   = (int) $user_query->get_total();
 					$viewer_count = 0;
+
 					if ( $include_viewers ) {
 						$viewer_count = count( $viewers );
 					}
 
-					$return[ $key ] = $user_count + $viewer_count;
+					$response[ $key ] = $user_count + $viewer_count;
 					break;
 				case 'users':
 					$users        = array();
 					$is_multisite = is_multisite();
+
+					// Get users.
 					foreach ( $user_query->get_results() as $u ) {
 						$the_user = $this->get_author( $u, true );
 						if ( $the_user && ! is_wp_error( $the_user ) ) {
@@ -248,24 +236,88 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 						);
 					}
 
-					$return[ $key ] = $combined_users;
+					$response[ $key ] = $combined_users;
 					break;
 				// Total users from the site. Only available to users with the `list_users` capability (Super admins and admins).
 				case 'total_users':
 					if ( ! empty( $args['total_users'] ) && true === $args['total_users'] && $can_list_users ) {
 						$viewer_count = 0;
 						if ( $include_viewers ) {
-							$viewer_count = (int) get_count_private_blog_users( $blog_id );
+							$viewer_count = $this->get_viewers_count( $viewers, $user_query->get_results(), $blog_id );
 						}
-						$user           = count_users( 'time', $blog_id );
-						$total_users    = isset( $user['total_users'] ) ? (int) $user['total_users'] : 0;
-						$return[ $key ] = $total_users + $viewer_count;
+						$user             = count_users( 'time', $blog_id );
+						$total_users      = isset( $user['total_users'] ) ? (int) $user['total_users'] : 0;
+						$response[ $key ] = $total_users + $viewer_count;
 					}
 					break;
 			}
 		}
 
-		return $return;
+		return $response;
+	}
+
+	/**
+	 * Get the count of private blog users.
+	 *
+	 * @param array $viewers - the viewers.
+	 * @param int   $blog_id - the blog ID.
+	 * @return int
+	 */
+	protected function get_viewers_count( $viewers, $blog_id ) {
+		/*
+		 * We can't get the count of viewers from get_count_private_blog_users because it returns a count for all viewers found,
+		 * even if the viewer has been made a site user. So we want to exclude from the total count users who are viewers.
+		 * Reason is, prior to https://github.a8c.com/Automattic/wpcom/pull/173734, viewers who were promoted to users on a site
+		 * were not removed from drama_blog_access. This function supports the legacy behavior by excluding viewers who are users from the count.
+		 */
+		$duplicate_user_ids = array();
+		$viewers            = get_private_blog_users( $blog_id );
+		// Check each viewer to see if they are also a site user
+		foreach ( $viewers as $viewer ) {
+			if ( is_user_member_of_blog( $viewer->ID, $blog_id ) ) {
+				$duplicate_user_ids[] = $viewer->ID;
+			}
+		}
+
+		return (int) count( $viewers ) - count( $duplicate_user_ids );
+	}
+
+	/**
+	 * Get viewers.
+	 *
+	 * @param array $args - query arguments.
+	 * @param int   $blog_id - the blog ID.
+	 * @return array
+	 */
+	protected function get_viewers( $args, $blog_id ) {
+		$viewers = array();
+		$page    = ( (int) ( $args['offset'] / $args['number'] ) ) + 1;
+		$viewers = get_private_blog_users(
+			$blog_id,
+			array(
+				'page'     => $page,
+				'per_page' => $args['number'],
+			)
+		);
+
+		// Returns author object. See `WPCOM_JSON_API_Endpoint::get_author` in `class.json-api-endpoints.php`.
+		$viewers = array_map( array( $this, 'get_author' ), $viewers );
+
+			// Search by username or email.
+		if ( ! empty( $args['search'] ) ) {
+			$viewers = array_filter(
+				$viewers,
+				function ( $viewer ) use ( $args ) {
+					// Convert to WP_User so expected fields are available.
+					$wp_viewer = new WP_User( $viewer->ID );
+					// remove special database search characters from search term
+					$search_term = str_replace( '*', '', $args['search'] );
+					return ( str_contains( $wp_viewer->user_login, $search_term ) || str_contains( $wp_viewer->user_email, $search_term ) || str_contains( $wp_viewer->display_name, $search_term ) );
+				}
+			);
+		}
+
+		return $viewers;
 	}
 
 	/**
