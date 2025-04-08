@@ -1,5 +1,6 @@
 import { effect, batch, useSignal, useComputed } from '@preact/signals';
 import clsx from 'clsx';
+import { Suspense, lazy } from 'preact/compat';
 import { useState, useEffect, useContext } from 'preact/hooks';
 import { translate } from '../../i18n';
 import { Name, Website, Email } from '../../images';
@@ -9,7 +10,6 @@ import { NewCommentEmail } from '../new-comment-email';
 import { NewPostsEmail } from '../new-posts-email';
 import { EmailFormCookieConsent } from './email-form-cookie-consent';
 import { getProfile } from './profile-get';
-import { ProfileImage } from './profile-image';
 import type { ChangeEvent } from 'preact/compat';
 import './style.scss';
 
@@ -21,6 +21,10 @@ interface UpdatedFields {
 	author?: string;
 	url?: string;
 }
+
+const ProfileImage = lazy(
+	() => import( /* webpackChunkName: './verbum-profile' */ './profile-image' )
+);
 
 export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 	const { mailLoginData, isMailFormInvalid, shouldStoreEmailData } = useContext( VerbumSignals );
@@ -44,6 +48,11 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 
 		// Have we already requested this?
 		if ( userEmail.value === userProfile.value?.email ) {
+			return;
+		}
+
+		// Are we already loading the profile?
+		if ( isLoadingProfile.value ) {
 			return;
 		}
 
@@ -154,8 +163,10 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 				<div className="verbum-form__wrapper">
 					<div className="verbum-form__content">
 						<label htmlFor="verbum-email-form-email" className="verbum__label">
-							{ userProfile.value && userProfile.value.emailHash ? (
-								<ProfileImage key={ userProfile.value.email } profile={ userProfile.value } />
+							{ userProfile?.value?.emailHash ? (
+								<Suspense fallback={ <Email /> }>
+									<ProfileImage key={ userProfile.value.email } profile={ userProfile.value } />
+								</Suspense>
 							) : (
 								<Email />
 							) }

@@ -5,6 +5,11 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { CommentUser } from './profile-get';
 
 const UPDATE_DELAY = 2000; // Some time for the caches to clear
+const LOCALE_MAP = {
+	en: '',
+	zh_TW: 'zh-TW',
+	fr_ca: 'fr-CA',
+};
 
 const getAvatarUrl = ( profile: CommentUser, cacheBuster: number ) => {
 	if ( ! profile.avatarUrl ) {
@@ -16,20 +21,14 @@ const getAvatarUrl = ( profile: CommentUser, cacheBuster: number ) => {
 
 const getLocale = ( locale: string ) => {
 	// Convert special locales to Gravatar locales
-	const localeMap = {
-		en: '',
-		zh_TW: 'zh-TW',
-		fr_ca: 'fr-CA',
-	};
-
-	if ( localeMap[ locale ] ) {
-		return localeMap[ locale ];
+	if ( LOCALE_MAP[ locale ] ) {
+		return LOCALE_MAP[ locale ];
 	}
 
 	return locale.replace( /_.*$/, '' );
 };
 
-export const ProfileImage = ( { profile } ) => {
+const ProfileImage = ( { profile } ) => {
 	const profileImageRef = useRef( null );
 	const quickEditorRef = useRef( null );
 	const hovercardRef = useRef( null );
@@ -88,3 +87,5 @@ export const ProfileImage = ( { profile } ) => {
 		</button>
 	);
 };
+
+export default ProfileImage;

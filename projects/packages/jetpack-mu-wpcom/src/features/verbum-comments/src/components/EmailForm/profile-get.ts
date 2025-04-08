@@ -40,18 +40,19 @@ const generateSHA256Hash = async ( data: string ) => {
 };
 
 export const getProfile = async ( email: string ) => {
-	const emailHash = await generateSHA256Hash( email );
+	const emailHash = await generateSHA256Hash( email.toLowerCase() );
 
-	return fetch( `https://api.gravatar.com/v3/profiles/${ emailHash }?source=hovercard` )
-		.then( res => {
-			if ( res.status !== 200 ) {
-				return null;
-			}
-
-			return res.json();
-		} )
-		.then( profile => convertJsonToUser( profile, email, emailHash ) )
-		.catch( () => {
+	try {
+		const response = await fetch(
+			`https://api.gravatar.com/v3/profiles/${ emailHash }?source=hovercard`
+		);
+		if ( response.status !== 200 ) {
 			return null;
-		} );
+		}
+
+		const profile = await response.json();
+		return convertJsonToUser( profile, email, emailHash );
+	} catch {
+		return null;
+	}
 };
