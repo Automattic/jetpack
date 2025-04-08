@@ -97,7 +97,8 @@ pre {
 }
 
 code,kbd,pre,samp {
-    font-family: monospace;
+	/* stylelint-disable-next-line font-family-no-duplicate-names -- this is a known rendering hack to force proportional font sizes. */
+    font-family: monospace, monospace;
     font-size:1em
 }
 
