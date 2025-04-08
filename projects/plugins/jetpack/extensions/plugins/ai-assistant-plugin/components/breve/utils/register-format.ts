@@ -109,7 +109,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 						setBlockMd5( blockClientId, textMd5 );
 					}
 
-					const highlights = featureHighlight( text, blockClientId, richTextIdentifier );
+					const highlights = featureHighlight( text, blockClientId, richTextIdentifier ) ?? [];
 
 					const applied = highlight( {
 						ignored: ignoredList,
