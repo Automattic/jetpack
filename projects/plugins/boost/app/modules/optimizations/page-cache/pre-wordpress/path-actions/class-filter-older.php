@@ -17,7 +17,12 @@ class Filter_Older implements Path_Action {
 		$file_path = $file->getPathname();
 		$filemtime = filemtime( $file_path );
 
-		if ( $filemtime <= $this->timestamp ) {
+		/*
+		 * if the file is a directory, then we process it, regardless of age.
+		 * Any modification of items in the directory will update the filemtime of the directory.
+		 * That's why we always process directories.
+		 */
+		if ( $file->isDir() || $filemtime <= $this->timestamp ) {
 			return $this->sub_action->apply_to_path( $file );
 		}
 
