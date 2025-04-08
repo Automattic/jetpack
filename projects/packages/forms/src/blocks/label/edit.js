@@ -49,7 +49,7 @@ const LabelEdit = ( { attributes, clientId, name, setAttributes, context } ) => 
 				<RichText
 					allowedFormats={ ALLOWED_FORMATS }
 					className="jetpack-field-label__input"
-					onChange={ value => setAttributes( { label: value } ) }
+					onChange={ value => setAttributes( { label: value || undefined } ) }
 					placeholder={ placeholder }
 					tagName="label"
 					value={ label }

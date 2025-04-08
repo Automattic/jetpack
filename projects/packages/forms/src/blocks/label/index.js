@@ -43,7 +43,6 @@ const settings = {
 		},
 	},
 	attributes: {
-		// TODO: Make sure previous empty string defaults aren't required and confirm no empty strings in persisted block attributes.
 		label: {
 			type: 'string',
 		},
