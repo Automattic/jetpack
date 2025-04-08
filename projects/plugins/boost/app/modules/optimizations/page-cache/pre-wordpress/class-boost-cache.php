@@ -302,7 +302,7 @@ class Boost_Cache {
 		 * If a comment is not approved, we only need to delete the cache for
 		 * this post for this visitor so the unmoderated comment is shown to them.
 		 */
-		if ( $comment_approved !== 1 ) {
+		if ( $comment_approved === 1 ) {
 			$parameters = $this->request->get_parameters();
 
 			/*
@@ -465,7 +465,14 @@ class Boost_Cache {
 		$this->rebuild_recursive( home_url() );
 	}
 
-	private function rebuild_post_cache( $post ) {
+	public function delete_post_cache( $post ) {
+		$post_path = $this->get_post_path_for_invalidation( $post );
+		if ( $post_path ) {
+			$this->delete_recursive( $post_path );
+		}
+	}
+
+	public function rebuild_post_cache( $post ) {
 		$post_path = $this->get_post_path_for_invalidation( $post );
 		if ( $post_path ) {
 			$this->rebuild_recursive( $post_path );
@@ -473,22 +480,46 @@ class Boost_Cache {
 	}
 
 	public function rebuild_page( $path, $parameters = false ) {
-		$this->storage->rebuild_page( $path, $parameters );
+		$this->storage->clear(
+			$path,
+			array(
+				'rebuild'    => true,
+				'parameters' => $parameters,
+			)
+		);
 		$this->invalidate_cache_success( $path, 'rebuild', 'page' );
 	}
 
 	public function delete_page( $path, $parameters = false ) {
-		$this->storage->delete_page( $path, $parameters );
+		$this->storage->clear(
+			$path,
+			array(
+				'rebuild'    => false,
+				'parameters' => $parameters,
+			)
+		);
 		$this->invalidate_cache_success( $path, 'delete', 'page' );
 	}
 
 	public function rebuild_recursive( $path ) {
-		$this->storage->rebuild_recursive( $path );
+		$this->storage->clear(
+			$path,
+			array(
+				'rebuild'   => true,
+				'recursive' => true,
+			)
+		);
 		$this->invalidate_cache_success( $path, 'rebuild', 'recursive' );
 	}
 
 	public function delete_recursive( $path ) {
-		$this->storage->delete_recursive( $path );
+		$this->storage->clear(
+			$path,
+			array(
+				'rebuild'   => false,
+				'recursive' => true,
+			)
+		);
 		$this->invalidate_cache_success( $path, 'delete', 'recursive' );
 	}
 

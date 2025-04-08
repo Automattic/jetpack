@@ -5,7 +5,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Manage_Expired;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Filter_Older;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Simple_Delete;
 
 /**
@@ -189,6 +189,6 @@ class Logger {
 	}
 
 	public static function delete_old_logs() {
-		Filesystem_Utils::iterate_directory( self::LOG_DIRECTORY, new Manage_Expired( 24 * 60 * 60, new Simple_Delete() ) );
+		Filesystem_Utils::iterate_directory( self::LOG_DIRECTORY, new Filter_Older( time() - 24 * 60 * 60, new Simple_Delete() ) );
 	}
 }

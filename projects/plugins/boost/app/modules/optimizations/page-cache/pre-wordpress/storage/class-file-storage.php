@@ -9,9 +9,10 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Manage_Expired;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Filter_Older;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Rebuild_File;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Simple_Delete;
+use SplFileInfo;
 
 /**
  * File Storage - handles writing to disk, reading from disk, purging and pruning old content.
@@ -116,13 +117,13 @@ class File_Storage implements Storage {
 	/**
 	 * Garbage collect expired files.
 	 */
-	public function garbage_collect() {
-		if ( JETPACK_BOOST_CACHE_DURATION === 0 ) {
+	public function garbage_collect( $created_before = JETPACK_BOOST_CACHE_DURATION ) {
+		if ( $created_before === 0 ) {
 			// Garbage collection is disabled.
 			return false;
 		}
 
-		$count = Filesystem_Utils::iterate_directory( $this->root_path, new Manage_Expired( JETPACK_BOOST_CACHE_DURATION, new Rebuild_File() ) );
+		$count = Filesystem_Utils::iterate_directory( $this->root_path, new Filter_Older( $created_before, new Rebuild_File() ) );
 		if ( $count instanceof Boost_Cache_Error ) {
 			Logger::debug( 'Garbage collection failed: ' . $count->get_error_message() );
 			return false;
@@ -159,58 +160,39 @@ class File_Storage implements Storage {
 	}
 
 	/**
-	 * Delete the cache for a specific page.
+	 * Delete cache based on given parameters.
 	 *
 	 * @param string $path - The path to delete the cache for.
-	 * @param array  $parameters - The parameters defining the cache filename.
+	 * @param array  $args - The parameters defining the cache filename.
+	 * Example:
+	 * array(
+	 *  'rebuild' => (boolean) default true - If true, cache files will be rebuilt instead of being deleted.
+	 *  'parameters' => false | array, default false - If array is provided, the files created for that specific request matching the parameter will be effected. If parameter is provided, recursive is ignored and considered as false.
+	 *  'recursive' => (boolean) default false - If true, the cache will be deleted recursively in subdirectories.
+	 * )
 	 */
-	public function delete_page( $path, $parameters = false ) {
+	public function clear( $path, $args = array() ) {
 		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
 
-		if ( $parameters ) {
-			// If parameters are provided, use DELETE_FILE for specific file
-			$result = Filesystem_Utils::delete_file( $normalized_path . Filesystem_Utils::get_request_filename( $parameters ) );
-		} else {
-			// Otherwise use the default behavior
-			$result = Filesystem_Utils::iterate_files( $normalized_path, new Simple_Delete() );
+		$recursive  = isset( $args['recursive'] ) ? $args['recursive'] : false;
+		$rebuild    = isset( $args['rebuild'] ) ? $args['rebuild'] : true;
+		$parameters = isset( $args['parameters'] ) ? $args['parameters'] : false;
+
+		$action = new Simple_Delete();
+		if ( $rebuild ) {
+			$action = new Rebuild_File();
 		}
 
-		return $result;
-	}
-
-	/**
-	 * Rebuild the cache for a specific page.
-	 *
-	 * @param string $path - The path to rebuild the cache for.
-	 * @param array  $parameters - The parameters defining the cache filename.
-	 */
-	public function rebuild_page( $path, $parameters = false ) {
-		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
-
+		// If parameters are provided, delete the specific file and skip any iteration.
 		if ( $parameters ) {
-			// If parameters are provided, use REBUILD_FILE for specific file
-			$result = Filesystem_Utils::rebuild_file( $normalized_path . Filesystem_Utils::get_request_filename( $parameters ) );
-		} else {
-			// Otherwise use the default behavior
-			$result = Filesystem_Utils::iterate_files( $normalized_path, new Rebuild_File() );
+			$action->apply_to_path( new SplFileInfo( $normalized_path . Filesystem_Utils::get_request_filename( $parameters ) ) );
+			return;
 		}
 
-		return $result;
-	}
-
-	public function delete_recursive( $path ) {
-		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
-
-		$result = Filesystem_Utils::iterate_directory( $normalized_path, new Simple_Delete() );
-
-		return $result;
-	}
-
-	public function rebuild_recursive( $path ) {
-		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
-
-		$result = Filesystem_Utils::iterate_directory( $normalized_path, new Rebuild_File() );
-
-		return $result;
+		if ( $recursive ) {
+			Filesystem_Utils::iterate_directory( $normalized_path, $action );
+		} else {
+			Filesystem_Utils::iterate_files( $normalized_path, $action );
+		}
 	}
 }
