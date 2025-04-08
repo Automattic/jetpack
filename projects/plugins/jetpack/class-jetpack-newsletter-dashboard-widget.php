@@ -10,6 +10,6 @@
 
 _deprecated_file(
 	basename( __FILE__ ),
-	'jetpack-$$next-version$$',
+	'$$next-version$$',
 	JETPACK__PLUGIN_DIR . '/modules/subscriptions/dashboard-widget/class-jetpack-newsletter-dashboard-widget.php' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 );
