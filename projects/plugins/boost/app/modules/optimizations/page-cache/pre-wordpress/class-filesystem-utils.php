@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Path_Action;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Rebuild_File;
 use SplFileInfo;
 
 class Filesystem_Utils {
@@ -25,7 +24,7 @@ class Filesystem_Utils {
 	 *
 	 * @param string      $path - The directory to iterate over.
 	 * @param Path_Action $action - The action to apply to each file.
-	 * @return bool|Boost_Cache_Error - true on success, Boost_Cache_Error on failure.
+	 * @return int|Boost_Cache_Error - The number of files processed, or Boost_Cache_Error on failure.
 	 */
 	public static function iterate_directory( $path, Path_Action $action ) {
 		clearstatcache();
@@ -56,7 +55,7 @@ class Filesystem_Utils {
 	 *
 	 * @param string      $path - The directory to iterate over.
 	 * @param Path_Action $action - The action to apply to each file.
-	 * @return bool|Boost_Cache_Error - true on success, Boost_Cache_Error on failure.
+	 * @return int|Boost_Cache_Error - The number of files processed, or Boost_Cache_Error on failure.
 	 */
 	public static function iterate_files( $path, Path_Action $action ) {
 		clearstatcache();

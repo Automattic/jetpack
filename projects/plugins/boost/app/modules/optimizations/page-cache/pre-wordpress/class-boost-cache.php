@@ -6,7 +6,6 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
 use WP_Comment;
-use WP_Error;
 use WP_Post;
 
 /*
@@ -446,7 +445,6 @@ class Boost_Cache {
 	 * Delete the entire cache for the author's archive page.
 	 *
 	 * @param int $author_id - The id of the author.
-	 * @return bool|WP_Error - True if the cache was deleted, WP_Error otherwise.
 	 */
 	public function rebuild_author_page( $author_id ) {
 		$author = get_userdata( $author_id );

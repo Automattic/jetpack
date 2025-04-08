@@ -13,8 +13,8 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
     // PhanTypeArraySuspicious : 9 occurrences
     // PhanTypeMismatchArgument : 6 occurrences
-    // PhanTypeMismatchReturnProbablyReal : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
+    // PhanTypeMismatchReturnProbablyReal : 4 occurrences
     // PhanUndeclaredFunction : 4 occurrences
     // PhanPossiblyUndeclaredVariable : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
@@ -28,6 +28,7 @@ return [
     // PhanRedundantCondition : 1 occurrence
     // PhanTypeInvalidUnaryOperandIncOrDec : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
+    // PhanTypeMismatchReturn : 1 occurrence
     // PhanTypeMissingReturn : 1 occurrence
     // PhanUndeclaredClassMethod : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
@@ -49,9 +50,9 @@ return [
         'app/modules/image-size-analysis/data-sync/class-image-analysis-action-fix.php' => ['PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition'],
         'app/modules/optimizations/critical-css/class-css-proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/optimizations/page-cache/class-page-cache-setup.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
-        'app/modules/optimizations/page-cache/pre-wordpress/class-boost-cache.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'app/modules/optimizations/page-cache/pre-wordpress/class-logger.php' => ['PhanCoalescingNeverNull', 'PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/optimizations/page-cache/pre-wordpress/class-request.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault'],
+        'app/modules/optimizations/page-cache/pre-wordpress/path-actions/class-simple-delete.php' => ['PhanTypeMismatchReturn'],
         'app/modules/optimizations/render-blocking-js/class-render-blocking-js.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault'],
         'compatibility/elementor.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/page-optimize.php' => ['PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],

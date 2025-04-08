@@ -11,7 +11,7 @@ class Simple_Delete implements Path_Action {
 	 * Delete a file or directory.
 	 *
 	 * @param SplFileInfo $file The file or directory to delete.
-	 * @return bool True if it was a file, false if it was a directory.
+	 * @return int The number of files or directories deleted.
 	 */
 	public function apply_to_path( SplFileInfo $file ) {
 		if ( $file->isDir() && Filesystem_Utils::is_dir_empty( $file->getPathname() ) ) {
