@@ -37,7 +37,7 @@
 .ui-datepicker .ui-datepicker-header {
 	background-image: none;
 	border: none;
-	font-weight: normal;
+	font-weight: 400;
 }
 
 .ui-datepicker .ui-datepicker-header .ui-state-hover {
@@ -92,7 +92,7 @@
 
 .ui-datepicker .ui-datepicker-prev:before,
 .ui-datepicker .ui-datepicker-next:before {
-	font: normal 20px/34px 'dashicons';
+	font: 400 20px/34px dashicons;
 	padding-left: 7px;
 	speak: none;
 	-webkit-font-smoothing: antialiased;
@@ -158,7 +158,7 @@
 	width: auto;
 	display: block;
 	padding: 5px 10px;
-	font-weight: normal;
+	font-weight: 400;
 	color: #444;
 }
 

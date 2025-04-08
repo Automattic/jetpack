@@ -82,13 +82,13 @@
 .contact-form label {
 	margin-bottom: 0.25em;
 	float: none;
-	font-weight: bold;
+	font-weight: 700;
 	display: block;
 }
 
 .contact-form label.consent {
 	font-size: 13px;
-	font-weight: normal;
+	font-weight: 400;
 	text-transform: uppercase;
 	display: flex;
 	align-items: center;
@@ -99,13 +99,13 @@
 }
 
 .contact-form label.checkbox {
-	font-weight: normal;
+	font-weight: 400;
 }
 
 .contact-form label.checkbox-multiple,
 .contact-form label.radio {
 	margin-bottom: 0;
-	font-weight: normal;
+	font-weight: 400;
 	flex: 1;
 }
 
@@ -160,7 +160,7 @@
 .grunion-label-required {
 	font-size: 85%;
 	margin-left: 0.25em;
-	font-weight: normal;
+	font-weight: 400;
 	opacity: 0.6;
 }
 
@@ -848,7 +848,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	font-size: 0.8em;
 	font-style: normal;
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .contact-form__checkbox-wrap {

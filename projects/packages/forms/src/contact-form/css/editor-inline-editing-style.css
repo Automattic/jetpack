@@ -267,7 +267,7 @@ input[type="checkbox"] {
 .checkbox:checked:before,
 input[type="checkbox"]:checked:before {
 	content: '\f147';
-	font-family: Dashicons;
+	font-family: dashicons;
 	margin: -3px 0 0 -4px;
 	float: left;
 	display: inline-block;
@@ -314,7 +314,7 @@ input[type="checkbox"]:disabled:hover {
 .checkbox + span,
 input[type="checkbox"] + span {
 	display: block;
-	font-weight: normal;
+	font-weight: 400;
 	margin-left: 24px;
 }
 
@@ -409,7 +409,7 @@ input[type="radio"]:disabled:checked:before {
 .radio-button + span,
 input[type="radio"] + span {
 	display: block;
-	font-weight: normal;
+	font-weight: 400;
 	margin-left: 24px;
 }
 
@@ -731,7 +731,7 @@ input[type="submit"].button-primary {
 
 .delete-option:before,
 .delete-field:before {
-	font-family: Dashicons;
+	font-family: dashicons;
 
 /*	content: "\f158"; /* This is the bolder X */
 	content: "\f335"; /* This is the thinner X */

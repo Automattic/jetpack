@@ -97,7 +97,8 @@ pre {
 }
 
 code,kbd,pre,samp {
-    font-family:monospace,monospace;
+	/* stylelint-disable-next-line font-family-no-duplicate-names -- this is a known rendering hack to force proportional font sizes. */
+    font-family: monospace, monospace;
     font-size:1em
 }
 
@@ -4023,14 +4024,6 @@ table [class*=span],.row-fluid table [class*=span] {
 
 #ZeroBSCRMAdminPage .table-hover tbody tr.info:hover td {
     background-color: #c4e3f3;
-}
-
-#ZeroBSCRMAdminPage .hide-text {
-    font: 0/0 a;
-    color: transparent;
-    text-shadow: none;
-    background-color: transparent;
-    border: 0;
 }
 
 #ZeroBSCRMAdminPage .input-block-level {

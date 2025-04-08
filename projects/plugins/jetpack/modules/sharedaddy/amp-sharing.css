@@ -14,7 +14,7 @@ amp-social-share,
 amp-social-share::before,
 .amp-social-share::before {
 	display: inline-block;
-	font: normal 18px/1 'social-logos';
+	font: 400 18px/1 social-logos;
 	padding: 7px;
 	position: relative;
 	top: 1px;

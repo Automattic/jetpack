@@ -23,7 +23,7 @@ div.sharedaddy h3.sd-title {
 	display: inline-block;
 	line-height: 1.2;
 	font-size: 9pt;
-	font-weight: bold;
+	font-weight: 700;
 }
 
 body.highlander-light h3.sd-title:before {
@@ -180,7 +180,7 @@ body.highlander-dark h3.sd-title:before {
 	display: inline-block;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	font: normal 18px/1 'social-logos';
+	font: 400 18px/1 social-logos;
 	vertical-align: top;
 	text-align: center;
 }
@@ -775,7 +775,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	color: #21759b;
 	display: block;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: 700;
 	height: auto;
 	left: 5px;
 	line-height: normal;

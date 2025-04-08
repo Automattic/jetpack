@@ -212,7 +212,7 @@ input[type="checkbox"] {
 
 input[type="checkbox"]:checked:before {
 	content: '\f147';
-	font-family: Dashicons;
+	font-family: dashicons;
 	margin: -3px 0 0 -4px;
 	float: left;
 	display: inline-block;
@@ -253,7 +253,7 @@ input[type="checkbox"]:disabled:hover {
 
 input[type="checkbox"] + span {
 	display: block;
-	font-weight: normal;
+	font-weight: 400;
 	margin-left: 24px;
 }
 
@@ -338,7 +338,7 @@ input[type="radio"]:disabled:checked:before {
 
 input[type="radio"] + span {
 	display: block;
-	font-weight: normal;
+	font-weight: 400;
 	margin-left: 24px;
 }
 

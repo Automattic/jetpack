@@ -229,7 +229,7 @@ textarea.form-control{
   .ui.checkbox label, .ui.checkbox+label {
       font-size: 16px !important;
       color: #555;
-      font-weight: normal;
+      font-weight: 400;
   }
 
   // this fixed a bug where you could still somehow click them?!
@@ -271,7 +271,7 @@ textarea.form-control{
         label {
           font-size: 16px !important;
           color: #555;
-          font-weight: normal;
+          font-weight: 400;
       }
 
     }

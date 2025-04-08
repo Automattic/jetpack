@@ -277,7 +277,7 @@
 	// Duplicated classname to preserve specificity level.
 	.jetpack-field-label__input.jetpack-field-label__input {
 		cursor: text;
-		font-weight: bold;
+		font-weight: 700;
 		margin-bottom: 0.25em;
 	}
 
@@ -293,7 +293,7 @@
 		opacity: 0.6;
 		font-size: 85%;
 		margin-inline-start: 0.25em;
-		font-weight: normal;
+		font-weight: 400;
 	}
 
 	.components-toggle-control .components-base-control__field {
@@ -380,7 +380,7 @@
 			box-sizing: border-box;
 			content: ' ';
 			display: flex;
-			font-weight: bold;
+			font-weight: 700;
 			height: var(--jetpack--contact-form--font-size, 16px);
 			justify-content: center;
 			width: var(--jetpack--contact-form--font-size, 16px);

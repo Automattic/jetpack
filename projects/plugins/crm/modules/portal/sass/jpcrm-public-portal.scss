@@ -82,7 +82,7 @@
    color: #FFF;
    padding: 1em;
    margin: 2em;
-   font-family: helvetica;
+   font-family: helvetica, sans-serif;
    border-radius: 0.5em;
 
    img, a img {
@@ -425,7 +425,7 @@
 
        .zbs-cf-checkbox label, .zbs-cf-checkbox+label {
            font-size: 16px !important;
-           font-weight: normal;
+           font-weight: 400;
       }
   }
    // edit pages radio custom fields 
@@ -457,7 +457,7 @@
            min-width: 17px;
            // good if these match the above checkbox labels ^^ label {
                font-size: 16px !important;
-               font-weight: normal;
+               font-weight: 400;
           }
     }
 }
@@ -616,7 +616,7 @@
   }
 
   .zbs-field-group-label {
-    font-weight: bold;
+    font-weight: 700;
     font-size: 110%;
   }
 
@@ -817,7 +817,7 @@ i.icon.child:before {
 		width: 50%;
 
 		.title {
-			font-weight: bold;
+			font-weight: 700;
 		}
 
 		.subtitle {

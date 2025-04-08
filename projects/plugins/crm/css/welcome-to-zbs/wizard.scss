@@ -187,7 +187,7 @@ input[type=checkbox], input[type=radio]{
   font-family: 'Open Sans', Helvetica, Arial, sans-serif;
   text-transform: uppercase;
   font-size: 18px;
-  font-weight: normal;
+  font-weight: 400;
   padding-top: 0px;
   margin-top: 0px;
 }
@@ -447,7 +447,7 @@ $darkenColor: darken($activeColor, 20%);
     right: 10px !important;
     z-index: 0 !important;
     font: 12px/26px Arial, sans-serif !important;
-    font-weight: bold !important;
+    font-weight: 700 !important;
     text-shadow: 1px 1px 0px rgba(255,255,255,.15) !important;
   }
 
@@ -458,7 +458,7 @@ $darkenColor: darken($activeColor, 20%);
     left: 10px !important;
     z-index: 0 !important;
     font: 12px/26px Arial, sans-serif !important;
-    font-weight: bold !important;
+    font-weight: 700 !important;
   }
 
   label {
