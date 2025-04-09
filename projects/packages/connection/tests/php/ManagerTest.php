@@ -16,6 +16,8 @@ use WP_Error;
 
 /**
  * Connection Manager functionality testing.
+ *
+ * @covers \Automattic\Jetpack\Connection\Manager
  */
 class ManagerTest extends TestCase {
 
@@ -88,8 +90,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_active` functionality when connected.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_active
 	 */
 	public function test_is_active_when_connected() {
 		$access_token = (object) array(
@@ -105,8 +105,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_active` functionality when not connected.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_active
 	 */
 	public function test_is_active_when_not_connected() {
 		$this->tokens->expects( $this->once() )
@@ -118,8 +116,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `has_connected_owner` functionality when connected.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
 	 */
 	public function test_has_connected_owner_when_connected() {
 		$admin_id = wp_insert_user(
@@ -140,8 +136,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `has_connected_owner` functionality when not connected.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
 	 */
 	public function test_has_connected_owner_when_not_connected() {
 		$this->manager->method( 'get_connection_owner_id' )
@@ -153,8 +147,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `api_url` generation.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::api_url
 	 */
 	public function test_api_url_defaults() {
 		add_filter( 'jetpack_constant_default_value', array( $this, 'filter_api_constant' ), 10, 2 );
@@ -173,8 +165,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Testing the ability of the api_url method to follow set constants and filters.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::api_url
 	 */
 	public function test_api_url_uses_constants_and_filters() {
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );
@@ -220,8 +210,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_user_connected` functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_default_user_id_logged_out() {
 		$this->assertFalse( $this->manager->is_user_connected() );
@@ -229,8 +217,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_user_connected` functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_false_user_id_logged_out() {
 		$this->assertFalse( $this->manager->is_user_connected( false ) );
@@ -238,8 +224,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_user_connected` functionality
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_user_id_logged_out_not_connected() {
 		$this->tokens->expects( $this->once() )
@@ -251,8 +235,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_user_connected` functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_default_user_id_logged_in() {
 		wp_set_current_user( $this->user_id );
@@ -270,8 +252,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_user_connected` functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_user_id_logged_in() {
 		$access_token = (object) array(
@@ -287,8 +267,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Unit test for the "Delete all tokens" functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::delete_all_connection_tokens
 	 */
 	public function test_delete_all_connection_tokens() {
 		( new Plugin( 'plugin-slug-1' ) )->add( 'Plugin Name 1' );
@@ -305,8 +283,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Unit test for the "Disconnect from WP" functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_site_wpcom
 	 */
 	public function test_disconnect_site_wpcom() {
 		( new Plugin( 'plugin-slug-1' ) )->add( 'Plugin Name 1' );
@@ -324,7 +300,6 @@ class ManagerTest extends TestCase {
 	/**
 	 * Test the `jetpack_connection_custom_caps' method.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::jetpack_connection_custom_caps
 	 * @dataProvider jetpack_connection_custom_caps_data_provider
 	 *
 	 * @param bool   $in_offline_mode Whether offline mode is active.
@@ -382,8 +357,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `get_signed_token` functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::get_signed_token
 	 */
 	public function test_get_signed_token() {
 		$access_token = (object) array(
@@ -413,7 +386,6 @@ class ManagerTest extends TestCase {
 	/**
 	 * Test disconnecting a user from WordPress.com.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user
 	 * @dataProvider get_disconnect_user_scenarios
 	 *
 	 * @param bool $remote   Was the remote disconnection successful.
@@ -498,8 +470,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test updating the connection owner to a non-admin user.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
 	 */
 	public function test_update_connection_owner_non_admin() {
 		$editor_id = wp_insert_user(
@@ -520,8 +490,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test updating the connection owner to the existing owner.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
 	 */
 	public function test_update_connection_owner_same_owner() {
 		$admin_id = wp_insert_user(
@@ -546,8 +514,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test updating the connection owner to a not connected admin.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
 	 */
 	public function test_update_connection_owner_not_connected() {
 		$admin_id = wp_insert_user(
@@ -568,8 +534,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test updating the connection owner when remote call to wpcom fails.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
 	 */
 	public function test_update_connection_owner_with_failed_wpcom_request() {
 		$admin_id = wp_insert_user(
@@ -604,8 +568,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test updating the connection owner when remote call to wpcom succeeds.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
 	 */
 	public function test_update_connection_owner_with_successful_wpcom_request() {
 		$admin_id = wp_insert_user(
@@ -638,8 +600,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test disconnecting the site will remove tracked package verions.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_site
 	 */
 	public function test_disconnect_site_will_remove_tracked_package_versions() {
 		$this->manager->method( 'disconnect_site_wpcom' )
@@ -793,7 +753,6 @@ class ManagerTest extends TestCase {
 	/**
 	 * Test disconnecting a user from WordPress.com with force parameter.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user_force
 	 * @dataProvider get_disconnect_user_force_scenarios
 	 *
 	 * @param bool $remote   Was the remote disconnection successful.
@@ -849,8 +808,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test disconnecting all users except the primary (owner) user.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_all_users_except_primary
 	 */
 	public function test_disconnect_all_users_except_primary() {
 		// Create owner and connected users
@@ -932,8 +889,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test disconnecting all users except primary when there's a failure.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_all_users_except_primary
 	 */
 	public function test_disconnect_all_users_except_primary_failure() {
 		// Create owner and one other user

@@ -99,7 +99,7 @@
 			background-size: 183px auto;
 			color: #fff;
 			line-height: 60px;
-			font-weight: normal;
+			font-weight: 400;
 
 			span {
 				text-indent: -9999px;
@@ -188,7 +188,7 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		font: 300 em(24px) 'genericons' !important;
+		font: 300 em(24px) Genericons !important;
 		color: #777;
 		content: '\f405';
 		display: inline-block;
@@ -604,7 +604,7 @@
 		&:before {
 			color: #fff;
 			content: '\f418';
-			font-family: 'Genericons';
+			font-family: Genericons;
 			font-size: 33px;
 			height: 33px;
 			left: 25px;

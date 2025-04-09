@@ -5,6 +5,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
+import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSharePost from '../../hooks/use-share-post';
 import { store as socialStore } from '../../social-store';
 import { ShareStatusItem } from '../../social-store/types';
@@ -29,6 +30,8 @@ export function Retry( { shareItem }: RetryProps ) {
 	const { recordEvent } = useAnalytics();
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const connections = useSelect( select => select( socialStore ).getConnections(), [] );
+
+	const { isRePublicizeFeatureAvailable } = usePublicizeConfig();
 
 	const connectionStillExists = connections.some( connectionMatchesShareItem( shareItem ) );
 
@@ -82,32 +85,50 @@ export function Retry( { shareItem }: RetryProps ) {
 
 	return (
 		<div className={ styles[ 'retry-wrapper' ] }>
-			<Button
-				variant={ connectionStillExists ? 'link' : 'tertiary' }
-				onClick={ connectionStillExists ? onRetry : undefined }
-				disabled={ ! connectionStillExists }
-			>
-				{ __( 'Retry', 'jetpack-publicize-components' ) }
-			</Button>
-			{ ! connectionStillExists ? (
-				<IconTooltip shift placement="bottom-end">
-					{
-						// If we don't have external_id - in case of old share data,
-						// we can't be sure if the connection has been removed or reconnected
-						shareItem.external_id
-							? _x(
-									'This connection has been removed.',
-									'Social media connection',
-									'jetpack-publicize-components'
-							  )
-							: _x(
-									'This connection has been reconnected or removed.',
-									'Social media connection',
-									'jetpack-publicize-components'
-							  )
-					}
-				</IconTooltip>
-			) : null }
+			{ ( ( connectionExists, isResharingSupported ) => {
+				if ( connectionExists && isResharingSupported ) {
+					return (
+						<Button variant="link" onClick={ onRetry }>
+							{ __( 'Retry', 'jetpack-publicize-components' ) }
+						</Button>
+					);
+				}
+
+				return (
+					<>
+						<Button variant="tertiary" disabled>
+							{ __( 'Retry', 'jetpack-publicize-components' ) }
+						</Button>
+						<IconTooltip shift placement="bottom-end">
+							{ ( () => {
+								if ( ! isResharingSupported ) {
+									// TODO - Add link to upgrade
+									return __(
+										'To re-share a post, you need to upgrade to a paid plan.',
+										'jetpack-publicize-components'
+									);
+								}
+
+								// Now we know that the connection doesn't exist
+
+								// If we don't have external_id - in case of old share data,
+								// we can't be sure if the connection has been removed or reconnected
+								return shareItem.external_id
+									? _x(
+											'This connection has been removed.',
+											'Social media connection',
+											'jetpack-publicize-components'
+									  )
+									: _x(
+											'This connection has been reconnected or removed.',
+											'Social media connection',
+											'jetpack-publicize-components'
+									  );
+							} )() }
+						</IconTooltip>
+					</>
+				);
+			} )( connectionStillExists, isRePublicizeFeatureAvailable ) }
 		</div>
 	);
 }

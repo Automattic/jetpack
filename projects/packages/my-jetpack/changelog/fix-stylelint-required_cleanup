@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Code: Clean up style rule violations that made it in before requiring Stylelint.

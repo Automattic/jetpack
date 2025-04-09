@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 6.0.0
+ * Version: 6.1.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '6.0.0' );
+define( 'WPCOMSH_VERSION', '6.1.0' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -52,7 +52,6 @@ require_once __DIR__ . '/jetpack-token-error-header/class-atomic-record-jetpack-
  */
 require_once __DIR__ . '/widgets/class-aboutme-widget.php';
 require_once __DIR__ . '/widgets/class-gravatar-widget.php';
-require_once __DIR__ . '/widgets/class-jetpack-i-voted-widget.php';
 require_once __DIR__ . '/widgets/class-jetpack-posts-i-like-widget.php';
 require_once __DIR__ . '/widgets/class-music-player-widget.php';
 require_once __DIR__ . '/widgets/class-widget-authors-grid.php';

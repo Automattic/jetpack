@@ -14,7 +14,7 @@
 
 .videopress-modal {
 	padding: 10px 20px;
-	background: white;
+	background: #fff;
 	position: absolute;
 	top: 0;
 	width: 440px;
@@ -39,7 +39,7 @@
 	float: right;
 	width: 65%;
 	margin-top: 18px;
-	background: black;
+	background: #000;
 	min-height: 97px;
 	text-decoration: none;
 }
@@ -59,7 +59,7 @@
 .videopress-preview span {
 	display: block;
 	padding-top: 40px;
-	color: white !important;
+	color: #fff !important;
 	text-align: center;
 }
 

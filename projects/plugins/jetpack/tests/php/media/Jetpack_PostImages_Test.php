@@ -2,13 +2,15 @@
 
 require_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/slideshow.php';
 
+/**
+ * @covers \Jetpack_PostImages
+ */
 class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @author blobaugh
 	 * @author Alda Vigdís <alda.vigdis@automattic.com>
-	 * @covers Jetpack_PostImages::from_html
 	 * @since 2.7
 	 */
 	public function test_from_html_single_quotes() {
@@ -26,7 +28,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * @author blobaugh
 	 * @author Alda Vigdís <alda.vigdis@automattic.com>
-	 * @covers Jetpack_PostImages::from_html
 	 * @since 2.7
 	 */
 	public function test_from_html_double_quotes() {
@@ -57,8 +58,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test image size extract in src filename
-	 *
-	 * @covers Jetpack_PostImages::from_html
 	 */
 	public function test_from_html_size() {
 		$s = "<img src='img-2300x1300.jpg' />";
@@ -73,8 +72,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test ignoring unrealistic image sizes from src filename
-	 *
-	 * @covers Jetpack_PostImages::from_html
 	 */
 	public function test_from_html_no_size() {
 		$s = "<img src='img-851958915511220x220.jpg' />";
@@ -84,9 +81,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 		$this->assertEquals( array(), $result );
 	}
 
-	/**
-	 * @covers Jetpack_PostImages::from_html
-	 */
 	public function test_from_html_alt_utf8() {
 		$s = '<img src="bob.jpg" width="200" height="200" alt="Ḽơᶉëᶆ ȋṕšᶙṁ ḍỡḽǭᵳ ʂǐť ӓṁệẗ" />';
 
@@ -99,7 +93,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_PostImages::from_slideshow
 	 * @since 3.2
 	 */
 	public function test_from_slideshow_is_array() {
@@ -178,7 +171,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_PostImages::from_gallery
 	 * @since 3.2
 	 */
 	public function test_from_gallery_is_array() {
@@ -191,7 +183,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author robfelty
-	 * @covers Jetpack_PostImages::from_gallery
 	 * @since 13.2
 	 */
 	public function test_from_gallery_is_correct_array() {
@@ -214,7 +205,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * @author scotchfield
 	 * @author Alda Vigdís <alda.vigdis@automattic.com>
-	 * @covers Jetpack_PostImages::from_attachment
 	 * @since 3.2
 	 */
 	public function test_from_attachment_is_correct_array() {
@@ -258,7 +248,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author robfelty
-	 * @covers Jetpack_PostImages::from_attachment
 	 * @since 13.2
 	 */
 	public function test_from_attachment_without_meta_is_correct_array() {
@@ -358,7 +347,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if an array of images can be extracted from Image blocks in the new block editor.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
 	 */
 	public function test_from_image_block_from_post_id_is_array() {
@@ -377,7 +365,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if the array extracted from Image blocks include the image URL and alt text.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
 	 */
 	public function test_from_image_block_from_post_id_is_correct_array() {
@@ -399,7 +386,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if an image block with an externally hosted image is not extracted by Post Images.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
 	 */
 	public function test_from_image_block_from_html_is_empty_array() {
@@ -485,7 +471,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if the array extracted from Gallery blocks include the image URL.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
 	 */
 	public function test_from_gallery_block_from_post_id_is_correct_array() {
@@ -507,7 +492,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if the array extracted from Gallery blocks include the image URL.
 	 *
-	 * @covers Jetpack_PostImages::get_attachment_data
 	 * @since 6.9.0
 	 */
 	public function test_get_attachment_data_returns_false_on_unavailable_data() {
@@ -578,8 +562,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if an array of images can be extracted from column blocks in the new block editor.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
-	 *
 	 * @since 7.8.0
 	 */
 	public function test_from_columns_block_from_post_id_is_array() {
@@ -597,8 +579,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test if the array extracted from Colunms blocks include the image URL and alt text.
-	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 *
 	 * @since 7.8.0
 	 */
@@ -621,7 +601,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if a Colunms block with an externally hosted image is not extracted by Post Images.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
 	 */
 	public function test_from_columns_block_from_html_is_empty_array() {
@@ -750,7 +729,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if the array extracted from a Story block includes the correct image URLs.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 9.1.0
 	 */
 	public function test_from_story_block_from_post_id_is_correct_array_no_videopress() {
@@ -776,7 +754,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 *
 	 * For this test we simulate VideoPress being enabled for the site.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 9.1.0
 	 */
 	public function test_from_story_block_from_post_id_is_correct_array_videopress() {
@@ -804,7 +781,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 *
 	 * For this test we simulate 'WP.com mode' for VideoPress, which has a different structure for attachment meta.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 9.1.0
 	 */
 	public function test_from_story_block_from_post_id_is_correct_array_videopress_wpcom() {
@@ -830,7 +806,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if the array extracted is empty in case post_id is invalid.
 	 *
-	 * @covers Jetpack_PostImages::from_gravatar
 	 * @dataProvider provider_gravatar_invalid_posts
 	 *
 	 * @since 11.4
@@ -862,7 +837,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if the array extracted has a valid image when sending a valid post.
 	 *
-	 * @covers Jetpack_PostImages::from_gravatar
 	 * @since 11.4
 	 */
 	public function test_from_gravatar_returns_valid_image() {

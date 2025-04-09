@@ -7,8 +7,6 @@
 
 /**
  * Test class for Launchpad_Task_Lists.
- *
- * @coversDefaultClass Launchpad_Task_Lists
  */
 class Launchpad_Task_List_Validation_Test extends \WorDBless\BaseTestCase {
 	/**

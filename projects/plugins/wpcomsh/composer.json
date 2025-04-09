@@ -126,7 +126,7 @@
 			"composer/installers": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ6_0_0"
+		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ6_1_0"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/wpcom-site-helper",
