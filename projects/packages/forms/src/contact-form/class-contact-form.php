@@ -506,16 +506,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string $message
 	 */
 	public static function success_message( $feedback_id, $form ) {
-		error_log( "DEBUG: success_message called for feedback ID: $feedback_id" );
 
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
 			$message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
-			error_log( 'DEBUG: Using custom thank you message: ' . $message );
 		} else {
 			$compiled_form = self::get_compiled_form( $feedback_id, $form );
-			error_log( 'DEBUG: Compiled form items count: ' . count( $compiled_form ) );
-			$message = '<p>' . implode( '</p><p>', $compiled_form ) . '</p>';
-			error_log( 'DEBUG: Generated success message (pre-kses): ' . $message );
+			$message       = '<p>' . implode( '</p><p>', $compiled_form ) . '</p>';
 		}
 
 		// Add more allowed HTML elements for file download links
@@ -542,7 +538,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		);
 
 		$filtered_message = wp_kses( $message, $allowed_html );
-		error_log( 'DEBUG: Final filtered success message: ' . $filtered_message );
 
 		return $filtered_message;
 	}
@@ -557,11 +552,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form( $feedback_id, $form ) {
-		error_log( "DEBUG: get_compiled_form called for feedback ID: $feedback_id" );
 		$feedback       = get_post( $feedback_id );
 		$field_ids      = $form->get_field_ids();
 		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $feedback_id );
-		error_log( 'DEBUG: Content fields from parse_fields_from_content: ' . print_r( $content_fields, true ) );
 
 		// Maps field_ids to post_meta keys
 		$field_value_map = array(
@@ -619,8 +612,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $field_ids['extra'] ) {
 			// array indexed by field label (not field id)
 			$extra_fields = get_post_meta( $feedback_id, '_feedback_extra_fields', true );
-			error_log( 'DEBUG: Extra fields from post meta: ' . print_r( $extra_fields, true ) );
-
 			/**
 			 * Only get data for the compiled form if `$extra_fields` is a valid and non-empty array.
 			 */
@@ -635,13 +626,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 					$label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
 
-					error_log( 'DEBUG: Processing extra field: ' . $field->get_attribute( 'label' ) . " (ID: $field_id)" );
-					error_log( 'DEBUG: Field type: ' . $field->get_attribute( 'type' ) );
-
-					if ( $field->get_attribute( 'type' ) === 'file' ) {
-						error_log( 'DEBUG: This is a file field. Value from extra_fields: ' . print_r( $extra_fields[ $extra_field_keys[ $i ] ], true ) );
-					}
-
 					$compiled_form[ $field_index ] = sprintf(
 						'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
 						wp_kses( $label, array() ),
@@ -655,8 +639,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Sorting lines by the field index
 		ksort( $compiled_form );
-
-		error_log( 'DEBUG: Final compiled form: ' . print_r( $compiled_form, true ) );
 
 		return $compiled_form;
 	}
@@ -786,10 +768,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return mixed|string
 	 */
 	public static function escape_and_sanitize_field_value( $value ) {
-		l( 'Value: ' . var_export( $value, true ) );
 		// Handle file upload field (new structure with field_id and files array)
 		if ( self::is_file_upload_field( $value ) ) {
-			l( 'File upload field detected' );
 			$files = $value['files'];
 			if ( empty( $files ) ) {
 				return '';
@@ -1320,9 +1300,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			if ( $field->get_attribute( 'type' ) === 'file' ) {
-				error_log( 'DEBUG: Processing file field: ' . $field->get_attribute( 'label' ) . " (ID: $field_id)" );
 				$field->value = $this->process_file_upload_field( $field_id, $field );
-				error_log( 'DEBUG: After processing, file field value: ' . print_r( $field->value, true ) );
 			}
 			$value = $field->value;
 			if ( is_array( $value ) && ! ( $field->get_attribute( 'type' ) === 'file' ) ) {
@@ -1351,9 +1329,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$extra_values[ $label ] = $value;
 			++$i; // Increment prefix counter for the next extra field
 		}
-
-		l( 'All values: ' . var_export( $all_values, true ) );
-		l( 'Extra values: ' . var_export( $extra_values, true ) );
 
 		if ( ! empty( $_REQUEST['is_block'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not changing the site.
 			$extra_values['is_block'] = true;
@@ -1600,14 +1575,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			)
 		);
 
-		error_log( "DEBUG: Created feedback post with ID: $post_id" );
-		error_log( 'DEBUG: Extra values to be saved as meta: ' . print_r( $extra_values, true ) );
-
 		// once insert has finished we don't need this filter any more
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
-		error_log( 'DEBUG: Saved _feedback_extra_fields meta' );
 
 		if ( 'publish' === $feedback_status ) {
 			// Increase count of unread feedback.
@@ -2040,9 +2011,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public function process_file_upload_field( $field_id, $field ) {
 		$field_id = sanitize_key( $field_id );
 
-		// Debug: Log the field info
-		error_log( "DEBUG: Processing file upload field: $field_id" );
-
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verification happens in the parent form submission handler
 		$raw_data = array();
 		if ( isset( $_POST[ sanitize_key( $field_id ) ] ) ) {
@@ -2066,11 +2034,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$raw_data
 			) : array();
 
-		// Debug: Log file data
-		error_log( 'DEBUG: File data: ' . print_r( $file_data_array, true ) );
-
 		if ( empty( $file_data_array ) ) {
-			error_log( "DEBUG: No file data found for field $field_id" );
 			$field->add_error( __( 'Failed to upload file.', 'jetpack-forms' ) );
 			return array(
 				'field_id' => $field_id,
