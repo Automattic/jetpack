@@ -93,7 +93,7 @@ export default function useSyncStyleAttributes( clientId, name, parentName, shar
 					// Single and multiple choice fields nest their individual option blocks
 					// within a `jetpack/options` block. If we're syncing option block styles
 					// all the individual options within a choice field need to be included.
-					if ( name === 'jetpack/option' && isChoiceField ) {
+					if ( name === 'jetpack/option' && isChoiceField && innerFieldBlocks?.length ) {
 						const optionsBlock = innerFieldBlocks.find( block => block.name === 'jetpack/options' );
 
 						blockEditor.getBlocks( optionsBlock.clientId ).forEach( block => {
