@@ -1,7 +1,7 @@
 /**
  * Types
  */
-import type { Suggestion } from 'harper.js';
+import type { Span, Suggestion } from 'harper.js';
 
 export type BreveControls = () => React.JSX.Element;
 
@@ -11,6 +11,17 @@ export type Anchor = {
 		getBoundingClientRect: () => DOMRect;
 		contextElement?: HTMLElement;
 	};
+};
+
+export type AiSuggestion = {
+	html: string;
+	suggestion: string;
+};
+
+export type HarperSuggestion = {
+	replacement: string;
+	kind: number;
+	suggestionObject: Suggestion;
 };
 
 export type GrammarLint = {
@@ -48,14 +59,12 @@ export type BreveState = {
 		reload?: boolean;
 	};
 	suggestions?: {
-		[ key: string ]: {
-			[ key: string ]: {
-				[ key: string ]: {
+		[ blockId: string ]: {
+			[ feature: string ]: {
+				[ anchorId: string ]: {
 					loading: boolean;
-					suggestions: {
-						html: string;
-						suggestion: string;
-					};
+					suggestions: AiSuggestion | HarperSuggestion[];
+					span?: Span;
 				};
 			};
 		};
@@ -75,25 +84,31 @@ export type BreveSelect = {
 	getBlockMd5: ( blockId: string ) => string;
 	getSuggestionsLoading: ( {
 		feature,
-		id,
+		anchorId,
 		blockId,
 	}: {
 		feature: string;
-		id: string;
+		anchorId: string;
 		blockId: string;
 	} ) => boolean;
 	getSuggestions: ( {
 		feature,
-		id,
+		anchorId,
 		blockId,
 	}: {
 		feature: string;
-		id: string;
+		anchorId: string;
 		blockId: string;
-	} ) => {
-		html: string;
-		suggestion: string;
-	};
+	} ) => AiSuggestion | HarperSuggestion[];
+	getSuggestionsSpan: ( {
+		feature,
+		anchorId,
+		blockId,
+	}: {
+		feature: string;
+		anchorId: string;
+		blockId: string;
+	} ) => Span | null;
 	getIgnoredSuggestions: ( { blockId }: { blockId: string } ) => Array< string >;
 	getReloadFlag: () => boolean;
 	getLintFeatures: ( blockId: string ) => {
@@ -119,18 +134,31 @@ export type BreveDispatch = {
 	toggleFeature: ( feature: string, force?: boolean ) => void;
 	setDictionaryLoading( feature: string, loading: boolean ): void;
 	invalidateSuggestions: ( blockId: string ) => void;
-	invalidateSingleSuggestion: ( feature: string, blockId: string, id: string ) => void;
+	invalidateSingleSuggestion: ( feature: string, blockId: string, anchorId: string ) => void;
 	reloadDictionary: () => void;
-	ignoreSuggestion: ( blockId: string, id: string ) => void;
+	ignoreSuggestion: ( blockId: string, anchorId: string ) => void;
 	setBlockMd5: ( blockId: string, md5: string ) => void;
-	setSuggestions: ( suggestions: {
+	requestSuggestions: ( suggestions: {
 		anchor: Anchor[ 'target' ];
-		id: string;
+		anchorId: string;
 		feature: string;
 		target: string;
 		text: string;
 		blockId: string;
 		occurrence: string;
+	} ) => void;
+	setSuggestions: ( {
+		anchorId,
+		feature,
+		suggestions,
+		blockId,
+		span,
+	}: {
+		anchorId: string;
+		feature: string;
+		suggestions: AiSuggestion | HarperSuggestion[];
+		blockId: string;
+		span?: Span;
 	} ) => void;
 	setLints: ( {
 		text,
@@ -162,6 +190,7 @@ export type BreveFeatureConfig = {
 	tagName: string;
 	className: string;
 	defaultEnabled: boolean;
+	localSuggestions?: boolean;
 };
 
 export type BreveFeature = {

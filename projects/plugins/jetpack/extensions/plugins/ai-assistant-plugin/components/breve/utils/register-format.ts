@@ -121,6 +121,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 							'data-identifier': richTextIdentifier ?? 'none',
 							'data-block': blockClientId,
 						},
+						text,
 					} );
 
 					setTimeout( () => {

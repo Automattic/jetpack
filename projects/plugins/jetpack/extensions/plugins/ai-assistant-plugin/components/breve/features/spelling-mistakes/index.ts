@@ -23,6 +23,7 @@ export const SPELLING_MISTAKES: BreveFeatureConfig = {
 	tagName: 'span',
 	className: 'jetpack-ai-breve__has-proofread-highlight--spelling-mistakes',
 	defaultEnabled: true,
+	localSuggestions: true,
 };
 
 const spellCheckers: { [ key: string ]: SpellChecker } = {};

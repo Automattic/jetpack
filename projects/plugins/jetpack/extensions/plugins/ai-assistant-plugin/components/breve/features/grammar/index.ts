@@ -4,10 +4,12 @@
 import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { WorkerLinter, binary } from 'harper.js';
+import { getAnchorIdFromText } from '../../utils/get-anchor-id';
 /**
  * Types
  */
 import type { BreveFeatureConfig, HighlightedText, BreveDispatch, BreveSelect } from '../../types';
+import type { Span, Suggestion } from 'harper.js';
 
 export const GRAMMAR: BreveFeatureConfig = {
 	name: 'grammar-harper',
@@ -15,6 +17,7 @@ export const GRAMMAR: BreveFeatureConfig = {
 	tagName: 'span',
 	className: 'jetpack-ai-breve__has-proofread-highlight--grammar-harper',
 	defaultEnabled: true,
+	localSuggestions: true,
 };
 
 const worker = new WorkerLinter( { binary } );
@@ -36,6 +39,10 @@ export default function grammar(
 	return getHighlightsFromStore( text, blockId, richTextIdentifier );
 }
 
+export async function applyGrammarFix( text: string, suggestion: Suggestion, span: Span ) {
+	return worker.applySuggestion( text, suggestion, span );
+}
+
 /**
  * Harper wrapper to get the lints asynchronously and save them to the store
  * @param text               - The text to check the grammar of.
@@ -43,7 +50,7 @@ export default function grammar(
  * @param richTextIdentifier - The rich text identifier of the block.
  */
 async function getLintsFromHarper( text: string, blockId: string, richTextIdentifier: string ) {
-	const { setLints } = dispatch( 'jetpack/ai-breve' ) as BreveDispatch;
+	const { setLints, setSuggestions } = dispatch( 'jetpack/ai-breve' ) as BreveDispatch;
 	const previousLints = ( select( 'jetpack/ai-breve' ) as BreveSelect ).getLints(
 		blockId,
 		GRAMMAR.name,
@@ -60,10 +67,31 @@ async function getLintsFromHarper( text: string, blockId: string, richTextIdenti
 	const items = [];
 
 	for ( const lint of lints ) {
+		const suggestions = lint.suggestions().map( suggestion => {
+			return {
+				replacement: suggestion.get_replacement_text(),
+				kind: suggestion.kind(),
+				suggestionObject: suggestion,
+			};
+		} );
+
+		const span = lint.span();
+		const startIndex = span.start;
+		const endIndex = span.end;
+
+		const anchorId = getAnchorIdFromText( {
+			text,
+			startIndex,
+			endIndex,
+			blockId,
+		} );
+
+		setSuggestions( { anchorId, feature: GRAMMAR.name, suggestions, blockId, span } );
+
 		const item = {
 			message: lint.message(),
-			startIndex: lint.span().start,
-			endIndex: lint.span().end,
+			startIndex,
+			endIndex,
 			kind: lint.lint_kind(),
 		};
 		items.push( item );

@@ -51,16 +51,23 @@ export function getBlockMd5( state: BreveState, blockId: string ) {
 
 export function getSuggestionsLoading(
 	state: BreveState,
-	{ feature, id, blockId }: { feature: string; id: string; blockId: string }
+	{ feature, anchorId, blockId }: { feature: string; anchorId: string; blockId: string }
 ) {
-	return state.suggestions?.[ blockId ]?.[ feature ]?.[ id ]?.loading;
+	return state.suggestions?.[ blockId ]?.[ feature ]?.[ anchorId ]?.loading;
 }
 
 export function getSuggestions(
 	state: BreveState,
-	{ feature, id, blockId }: { feature: string; id: string; blockId: string }
+	{ feature, anchorId, blockId }: { feature: string; anchorId: string; blockId: string }
 ) {
-	return state.suggestions?.[ blockId ]?.[ feature ]?.[ id ]?.suggestions;
+	return state.suggestions?.[ blockId ]?.[ feature ]?.[ anchorId ]?.suggestions;
+}
+
+export function getSuggestionsSpan(
+	state: BreveState,
+	{ feature, anchorId, blockId }: { feature: string; anchorId: string; blockId: string }
+) {
+	return state.suggestions?.[ blockId ]?.[ feature ]?.[ anchorId ]?.span;
 }
 
 export function getIgnoredSuggestions( state: BreveState, { blockId }: { blockId: string } ) {

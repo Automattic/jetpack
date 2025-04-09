@@ -9,6 +9,7 @@ import { getRequestMessages } from '../utils/get-request-messages';
  * Types
  */
 import type { Anchor, GrammarLint } from '../types';
+import type { Span } from 'harper.js';
 
 // ACTIONS
 
@@ -76,20 +77,20 @@ export function invalidateSuggestions( blockId: string ) {
 	};
 }
 
-export function ignoreSuggestion( blockId: string, id: string ) {
+export function ignoreSuggestion( blockId: string, anchorId: string ) {
 	return {
 		type: 'IGNORE_SUGGESTION',
 		blockId,
-		id,
+		anchorId,
 	};
 }
 
-export function invalidateSingleSuggestion( feature: string, blockId: string, id: string ) {
+export function invalidateSingleSuggestion( feature: string, blockId: string, anchorId: string ) {
 	return {
 		type: 'INVALIDATE_SINGLE_SUGGESTION',
 		feature,
 		blockId,
-		id,
+		anchorId,
 	};
 }
 
@@ -99,9 +100,9 @@ export function reloadDictionary() {
 	};
 }
 
-export function setSuggestions( {
+export function requestSuggestions( {
 	anchor,
-	id,
+	anchorId,
 	feature,
 	target,
 	text,
@@ -109,7 +110,7 @@ export function setSuggestions( {
 	occurrence,
 }: {
 	anchor: HTMLElement;
-	id: string;
+	anchorId: string;
 	feature: string;
 	target: string;
 	text: string;
@@ -121,7 +122,7 @@ export function setSuggestions( {
 
 		dispatch( {
 			type: 'SET_SUGGESTIONS_LOADING',
-			id,
+			anchorId,
 			feature,
 			blockId,
 			loading: true,
@@ -146,7 +147,7 @@ export function setSuggestions( {
 					const suggestions = JSON.parse( response );
 					dispatch( {
 						type: 'SET_SUGGESTIONS',
-						id,
+						anchorId,
 						feature,
 						suggestions,
 						blockId,
@@ -154,7 +155,7 @@ export function setSuggestions( {
 				} catch {
 					dispatch( {
 						type: 'SET_SUGGESTIONS_LOADING',
-						id,
+						anchorId,
 						feature,
 						blockId,
 						loading: false,
@@ -166,12 +167,35 @@ export function setSuggestions( {
 
 				dispatch( {
 					type: 'SET_SUGGESTIONS_LOADING',
-					id,
+					anchorId,
 					feature,
 					blockId,
 					loading: false,
 				} );
 			} );
+	};
+}
+
+export function setSuggestions( {
+	anchorId,
+	feature,
+	suggestions,
+	blockId,
+	span,
+}: {
+	anchorId: string;
+	feature: string;
+	suggestions: Array< GrammarLint >;
+	blockId: string;
+	span?: Span;
+} ) {
+	return {
+		type: 'SET_SUGGESTIONS',
+		anchorId,
+		feature,
+		suggestions,
+		blockId,
+		span,
 	};
 }
 

@@ -110,9 +110,11 @@
 			border-top: 1px solid #dcdcde;
 			width: 100%;
 
-			.jetpack-ai-breve__spelling-suggestion {
+			.jetpack-ai-breve__spelling-suggestion,
+			.jetpack-ai-breve__grammar-suggestion {
 
-				& + .jetpack-ai-breve__spelling-suggestion {
+				& + .jetpack-ai-breve__spelling-suggestion,
+				& + .jetpack-ai-breve__grammar-suggestion {
 					border-top: 1px solid #dcdcde;
 				}
 

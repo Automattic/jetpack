@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { applyFormat } from '@wordpress/rich-text';
-import md5 from 'crypto-js/md5';
+import { getAnchorIdFromText } from '../utils/get-anchor-id';
 /**
  * Types
  */
@@ -15,12 +15,13 @@ export type HighlightProps = {
 	indexes: Array< HighlightedText >;
 	attributes?: { [ key: string ]: string };
 	ignored: Array< string >;
+	text?: string;
 };
 
 type HighlightData = {
 	start: number;
 	end: number;
-	id: string;
+	anchorId: string;
 };
 
 const applyHighlightFormat = ( {
@@ -29,19 +30,25 @@ const applyHighlightFormat = ( {
 	indexes,
 	attributes = {},
 	ignored = [],
+	text,
 }: HighlightProps ): RichTextValue => {
 	let newContent = content;
 
 	if ( indexes.length > 0 ) {
 		newContent = indexes
 			.map( highlightedText => {
-				const { startIndex, endIndex, text } = highlightedText;
-				const id = md5( `${ text }-${ startIndex }-${ endIndex }` ).toString();
-				return { start: startIndex, end: endIndex, id } as HighlightData;
+				const { startIndex, endIndex, text: highlightText } = highlightedText;
+				const anchorId = getAnchorIdFromText( {
+					text: text ?? highlightText,
+					startIndex,
+					endIndex,
+					blockId: attributes[ 'data-block' ],
+				} );
+				return { start: startIndex, end: endIndex, anchorId } as HighlightData;
 			} )
-			.filter( data => ! ignored.includes( data?.id ) )
-			.reduce( ( acc: RichTextValue, { start, end, id }: HighlightData ) => {
-				const currentAttr = { ...attributes, 'data-id': id };
+			.filter( data => ! ignored.includes( data?.anchorId ) )
+			.reduce( ( acc: RichTextValue, { start, end, anchorId }: HighlightData ) => {
+				const currentAttr = { ...attributes, 'data-id': anchorId };
 
 				const format = {
 					type,
@@ -61,6 +68,7 @@ export default function highlight( {
 	indexes,
 	attributes,
 	ignored,
+	text,
 }: HighlightProps ) {
-	return applyHighlightFormat( { indexes, content, type, attributes, ignored } );
+	return applyHighlightFormat( { indexes, content, type, attributes, ignored, text } );
 }

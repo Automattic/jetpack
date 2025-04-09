@@ -16,12 +16,14 @@ import React from 'react';
  */
 import { BREVE_FEATURE_NAME } from '../constants';
 import features from '../features';
+import { GRAMMAR } from '../features/grammar';
 import { LONG_SENTENCES } from '../features/long-sentences';
 import {
 	SPELLING_MISTAKES,
 	addTextToDictionary,
 	suggestSpellingFixes,
 } from '../features/spelling-mistakes';
+import { getAnchorIdFromElement } from '../utils/get-anchor-id';
 import getTargetText from '../utils/get-target-text';
 import { numberToOrdinal } from '../utils/number-to-ordinal';
 import replaceOccurrence from '../utils/replace-occurrence';
@@ -29,7 +31,7 @@ import './style.scss';
 /**
  * Types
  */
-import type { BreveDispatch, BreveSelect } from '../types';
+import type { BreveDispatch, BreveSelect, AiSuggestion, HarperSuggestion } from '../types';
 
 type CoreBlockEditorSelect = {
 	getBlock: ( clientId: string ) => Block;
@@ -39,7 +41,7 @@ type CoreBlockEditorSelect = {
 export default function Highlight() {
 	const {
 		setPopoverHover,
-		setSuggestions,
+		requestSuggestions,
 		invalidateSuggestions,
 		ignoreSuggestion,
 		invalidateSingleSuggestion,
@@ -52,19 +54,20 @@ export default function Highlight() {
 
 		return { getBlock: selector.getBlock };
 	}, [] );
-	const [ spellingSuggestions, setSpellingSuggestions ] = useState< string[] >( [] );
+	const [ nspellSpellingSuggestions, setNspellSpellingSuggestions ] = useState< string[] >( [] );
 
 	const {
 		anchor,
 		virtual,
 		popoverOpen,
-		id,
+		anchorId,
 		feature,
 		blockId,
 		title,
 		loading,
 		suggestions,
 		description,
+		usesLocalSuggestions,
 	} = useSelect( select => {
 		const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
 
@@ -76,26 +79,33 @@ export default function Highlight() {
 		const defaultAnchor = { target: null, virtual: null };
 		const { target: anchorEl, virtual: virtualEl } =
 			breveSelect.getPopoverAnchor() ?? defaultAnchor;
+		const anchorDataId = getAnchorIdFromElement( anchorEl ) as string;
 		const anchorFeature = anchorEl?.getAttribute?.( 'data-breve-type' ) as string;
-		const anchorId = anchorEl?.getAttribute?.( 'data-id' ) as string;
 		const anchorBlockId = anchorEl?.getAttribute?.( 'data-block' ) as string;
 
 		// Feature data
 		const featureData = features?.find?.( ftr => ftr.config.name === anchorFeature );
-		const featureConfig = featureData?.config ?? { name: '', title: '' };
+		const featureConfig = featureData?.config;
 		const featureDescription = featureData?.description ?? '';
 		const featureTitle = featureConfig?.title ?? '';
+		const featureLocalSuggestions = featureConfig?.localSuggestions ?? false;
 
 		// Suggestions
 		const loadingSuggestions = breveSelect.getSuggestionsLoading( {
 			feature: anchorFeature,
-			id: anchorId,
+			anchorId: anchorDataId,
 			blockId: anchorBlockId,
 		} );
 
 		const suggestionsData = breveSelect.getSuggestions( {
 			feature: anchorFeature,
-			id: anchorId,
+			anchorId: anchorDataId,
+			blockId: anchorBlockId,
+		} );
+
+		const span = breveSelect.getSuggestionsSpan( {
+			feature: anchorFeature,
+			anchorId: anchorDataId,
 			blockId: anchorBlockId,
 		} );
 
@@ -105,16 +115,21 @@ export default function Highlight() {
 			anchor: anchorEl,
 			virtual: virtualEl,
 			feature: anchorFeature,
-			id: anchorId,
+			anchorId: anchorDataId,
 			blockId: anchorBlockId,
 			popoverOpen: isHighlightHover || isPopoverHover,
 			loading: loadingSuggestions,
 			suggestions: suggestionsData,
+			usesLocalSuggestions: featureLocalSuggestions,
+			anchorSpan: span,
 		};
 	}, [] );
 
 	const isPopoverOpen = popoverOpen && virtual;
-	const hasSuggestions = Boolean( suggestions?.suggestion ) || spellingSuggestions.length > 0;
+	const hasSuggestions =
+		( Array.isArray( suggestions ) && suggestions.length > 0 ) ||
+		Boolean( ( suggestions as AiSuggestion )?.suggestion ) ||
+		nspellSpellingSuggestions.length > 0;
 
 	const handleMouseEnter = () => {
 		setPopoverHover( true );
@@ -125,7 +140,7 @@ export default function Highlight() {
 		setPopoverHover( false );
 	};
 
-	const handleSuggestions = () => {
+	const handleAskAiSuggestions = () => {
 		const block = getBlock( blockId );
 
 		if ( ! block ) {
@@ -142,9 +157,9 @@ export default function Highlight() {
 		const { target, text, occurrence } = getTargetText( anchor as HTMLElement );
 		const ordinalOccurence = numberToOrdinal( occurrence );
 
-		setSuggestions( {
+		requestSuggestions( {
 			anchor,
-			id,
+			anchorId,
 			target,
 			feature,
 			text,
@@ -153,7 +168,7 @@ export default function Highlight() {
 		} );
 	};
 
-	const handleApplySuggestion = () => {
+	const handleApplySuggestionFromAI = () => {
 		const block = getBlock( blockId );
 
 		if ( ! block ) {
@@ -161,17 +176,19 @@ export default function Highlight() {
 			return;
 		}
 
-		let render = suggestions?.html;
+		const { html } = ( suggestions as AiSuggestion ) || { html: '' };
+
+		let render = html;
 
 		// Apply known fixes for table and list-item blocks
 		if ( block.name === 'core/table' ) {
-			render = fixes.table( suggestions?.html, true, {
+			render = fixes.table( html, true, {
 				hasFixedLayout: block.attributes?.hasFixedLayout,
 			} );
 		}
 
 		if ( block.name === 'core/list-item' ) {
-			render = fixes.listItem( suggestions?.html, true );
+			render = fixes.listItem( html, true );
 		}
 
 		const [ newBlock ] = rawHandler( { HTML: render } );
@@ -186,7 +203,7 @@ export default function Highlight() {
 		} );
 	};
 
-	const handleApplySpellingFix = ( spellingSuggestion: string ) => {
+	const handleApplyNspellSpellingFix = ( spellingSuggestion: string ) => {
 		const block = getBlock( blockId );
 
 		if ( ! block ) {
@@ -211,9 +228,13 @@ export default function Highlight() {
 		setPopoverHover( false );
 	};
 
+	const handleApplyGrammarFix = async ( suggestion: HarperSuggestion ) => {
+		handleApplyNspellSpellingFix( suggestion.replacement );
+	};
+
 	const handleRetry = () => {
-		invalidateSingleSuggestion( feature, blockId, id );
-		handleSuggestions();
+		invalidateSingleSuggestion( feature, blockId, anchorId );
+		handleAskAiSuggestions();
 
 		tracks.recordEvent( 'jetpack_ai_breve_retry', {
 			feature: BREVE_FEATURE_NAME,
@@ -222,7 +243,7 @@ export default function Highlight() {
 	};
 
 	const handleIgnoreSuggestion = () => {
-		ignoreSuggestion( blockId, id );
+		ignoreSuggestion( blockId, anchorId );
 		setPopoverHover( false );
 
 		tracks.recordEvent( 'jetpack_ai_breve_ignore', {
@@ -243,6 +264,7 @@ export default function Highlight() {
 		} );
 	};
 
+	// Get nspell suggestions when the popover opens
 	useEffect( () => {
 		if ( feature === SPELLING_MISTAKES.name && isPopoverOpen ) {
 			// Get the typo
@@ -253,9 +275,9 @@ export default function Highlight() {
 			}
 
 			// Get the suggestions
-			setSpellingSuggestions( suggestSpellingFixes( typo ) );
+			setNspellSpellingSuggestions( suggestSpellingFixes( typo ) );
 		} else {
-			setSpellingSuggestions( [] );
+			setNspellSpellingSuggestions( [] );
 		}
 	}, [ feature, isPopoverOpen, anchor ] );
 
@@ -282,7 +304,7 @@ export default function Highlight() {
 								<div className="jetpack-ai-breve__color" data-breve-type={ feature } />
 								<div>{ title }</div>
 							</div>
-							{ feature !== SPELLING_MISTAKES.name && (
+							{ ! usesLocalSuggestions && (
 								<div className="jetpack-ai-breve__action">
 									{ hasSuggestions ? (
 										<Button
@@ -304,7 +326,7 @@ export default function Highlight() {
 													className="jetpack-ai-breve__suggest"
 													icon={ AiSVG }
 													iconSize={ 18 }
-													onClick={ handleSuggestions }
+													onClick={ handleAskAiSuggestions }
 												>
 													{ __( 'Suggest', 'jetpack' ) }
 												</Button>
@@ -315,21 +337,34 @@ export default function Highlight() {
 							) }
 						</div>
 						<div className="jetpack-ai-breve__suggestions-container">
-							{ feature !== SPELLING_MISTAKES.name && hasSuggestions && (
-								<Button variant="tertiary" onClick={ handleApplySuggestion }>
-									{ suggestions?.suggestion }
+							{ ! usesLocalSuggestions && hasSuggestions && (
+								<Button variant="tertiary" onClick={ handleApplySuggestionFromAI }>
+									{ ( suggestions as AiSuggestion )?.suggestion }
 								</Button>
 							) }
 
 							{ feature === SPELLING_MISTAKES.name &&
-								spellingSuggestions.map( spellingSuggestion => (
+								nspellSpellingSuggestions.map( ( spellingSuggestion, index ) => (
 									<Button
 										variant="tertiary"
-										onClick={ () => handleApplySpellingFix( spellingSuggestion ) }
-										key={ spellingSuggestion }
+										onClick={ () => handleApplyNspellSpellingFix( spellingSuggestion ) }
+										key={ `${ spellingSuggestion }-${ index }` }
 										className="jetpack-ai-breve__spelling-suggestion"
 									>
 										{ spellingSuggestion }
+									</Button>
+								) ) }
+
+							{ feature === GRAMMAR.name &&
+								hasSuggestions &&
+								( suggestions as HarperSuggestion[] ).map( ( suggestion, index ) => (
+									<Button
+										variant="tertiary"
+										onClick={ () => handleApplyGrammarFix( suggestion ) }
+										key={ `${ suggestion.replacement }-${ index }` }
+										className="jetpack-ai-breve__grammar-suggestion"
+									>
+										{ suggestion.replacement }
 									</Button>
 								) ) }
 						</div>
@@ -348,7 +383,7 @@ export default function Highlight() {
 							<div className="jetpack-ai-breve__helper-inner">
 								<AiFeedbackThumbs
 									disabled={ ! hasSuggestions }
-									ratedItem={ id }
+									ratedItem={ anchorId }
 									iconSize={ 18 }
 									feature="write-brief"
 									options={ {

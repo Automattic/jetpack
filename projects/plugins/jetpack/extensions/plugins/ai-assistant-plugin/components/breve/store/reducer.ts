@@ -10,6 +10,7 @@ import features from '../features';
  * Types
  */
 import type { Anchor, BreveState, GrammarLint, LintState } from '../types';
+import type { Span } from 'harper.js';
 
 const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-breve-enabled' );
 const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
@@ -148,21 +149,22 @@ export function suggestions(
 	state = {},
 	action: {
 		type: string;
-		id: string;
+		anchorId: string;
 		feature?: string;
 		blockId: string;
 		loading: boolean;
 		md5?: string;
+		span?: Span;
 		suggestions?: {
 			revisedText: string;
 			suggestion: string;
 		};
 	}
 ) {
-	const { id, feature, blockId } = action ?? {};
+	const { anchorId, feature, blockId } = action ?? {};
 	const current = { ...state };
 	const currentBlock = current?.[ blockId ] ?? {};
-	const currentItem = current?.[ blockId ]?.[ feature ]?.[ id ] || {};
+	const currentItem = current?.[ blockId ]?.[ feature ]?.[ anchorId ] || {};
 
 	switch ( action.type ) {
 		case 'SET_SUGGESTIONS_LOADING': {
@@ -172,7 +174,7 @@ export function suggestions(
 					...currentBlock,
 					[ feature ]: {
 						...( currentBlock[ feature ] ?? {} ),
-						[ id ]: {
+						[ anchorId ]: {
 							...currentItem,
 							loading: action.loading,
 						},
@@ -188,10 +190,11 @@ export function suggestions(
 					...currentBlock,
 					[ feature ]: {
 						...( currentBlock[ feature ] ?? {} ),
-						[ id ]: {
+						[ anchorId ]: {
 							...currentItem,
 							loading: false,
 							suggestions: action.suggestions,
+							span: action.span,
 						},
 					},
 				},
@@ -222,7 +225,7 @@ export function suggestions(
 					...currentBlock,
 					[ feature ]: {
 						...( currentBlock[ feature ] ?? {} ),
-						[ id ]: {},
+						[ anchorId ]: {},
 					},
 				},
 			};
@@ -233,7 +236,7 @@ export function suggestions(
 				...current,
 				[ blockId ]: {
 					...currentBlock,
-					ignored: [ ...( currentBlock.ignored ?? [] ), id ],
+					ignored: [ ...( currentBlock.ignored ?? [] ), anchorId ],
 				},
 			};
 		}
