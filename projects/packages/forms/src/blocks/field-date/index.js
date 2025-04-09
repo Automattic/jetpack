@@ -32,11 +32,6 @@ const settings = {
 	},
 	attributes: {
 		...defaultSettings.attributes,
-		label: {
-			type: 'string',
-			default: 'Date',
-			role: 'content',
-		},
 		dateFormat: {
 			type: 'string',
 			default: 'yy-mm-dd',
