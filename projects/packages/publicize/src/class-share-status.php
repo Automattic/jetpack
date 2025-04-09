@@ -23,7 +23,7 @@ class Share_Status {
 
 		$post = get_post( $post_id );
 
-		if ( empty( $post ) ) {
+		if ( empty( $post ) || ! metadata_exists( 'post', $post_id, self::SHARES_META_KEY ) ) {
 			return array(
 				'done'   => false,
 				'shares' => array(),
@@ -38,35 +38,30 @@ class Share_Status {
 			$shares = get_post_meta( $post_id, self::SHARES_META_KEY );
 		}
 
-		$done = metadata_exists( 'post', $post_id, self::SHARES_META_KEY );
+		if ( $filter_by_access ) {
+			// The site could have multiple admins, editors and authors connected. Load shares information that only the current user has access to.
+			$connection_ids = wp_list_pluck( Connections::get_all_for_user(), 'connection_id', 'connection_id' );
 
-		if ( $done ) {
-
-			if ( $filter_by_access ) {
-				// The site could have multiple admins, editors and authors connected. Load shares information that only the current user has access to.
-				$connection_ids = wp_list_pluck( Connections::get_all_for_user(), 'connection_id', 'connection_id' );
-
-				$shares = array_filter(
-					$shares,
-					function ( $share ) use ( $connection_ids ) {
-						return isset( $share['connection_id'] ) && isset( $connection_ids[ $share['connection_id'] ] );
-					}
-				);
-			}
-
-			usort(
+			$shares = array_filter(
 				$shares,
-				function ( $a, $b ) {
-					return $b['timestamp'] - $a['timestamp'];
+				function ( $share ) use ( $connection_ids ) {
+					return isset( $share['connection_id'] ) && isset( $connection_ids[ $share['connection_id'] ] );
 				}
 			);
-
-			$shares = array_values( $shares );
 		}
 
+		usort(
+			$shares,
+			function ( $a, $b ) {
+				return $b['timestamp'] - $a['timestamp'];
+			}
+		);
+
+		$shares = array_values( $shares );
+
 		return array(
-			'shares' => $done ? $shares : array(),
-			'done'   => $done,
+			'shares' => $shares,
+			'done'   => true,
 		);
 	}
 }
