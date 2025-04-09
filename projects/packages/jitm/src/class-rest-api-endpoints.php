@@ -4,7 +4,7 @@
  *
  * DO NOT REMOVE.
  *
- * Whilst this endpoint has been superseded by the wpcom/v3/jitm endpoint.
+ * Whilst this endpoint has been superseded by the wpcom/v3/jitm endpoint,
  * it CANNOT BE REMOVED as Odyssey Stats may be running
  * against older versions of Jetpack. These versions will not have the
  * wpcom/v3/jitm endpoint registered and therefore it must be kept
