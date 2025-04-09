@@ -38,7 +38,6 @@ const baseConfig = {
 		'length-zero-no-unit': null,
 		'media-feature-name-no-unknown': null,
 		'no-descending-specificity': null,
-		'no-duplicate-at-import-rules': null,
 		'no-duplicate-selectors': null,
 		'no-empty-source': null,
 		'no-invalid-position-at-import-rule': null,
