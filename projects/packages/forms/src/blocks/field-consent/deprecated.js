@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import INNER_BLOCKS_DEPRECATION from '../shared/deprecations/inner-blocks-deprecation';
 import deprecateFieldStyles from '../shared/util/deprecate-field-styles';
 
-// TODO: Test and fix this deprecation...coded blind quickly.
 export default [
 	{
 		...INNER_BLOCKS_DEPRECATION,
