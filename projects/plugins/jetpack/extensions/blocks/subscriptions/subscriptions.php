@@ -696,9 +696,12 @@ function render_block( $attributes ) {
 		'preselected_newsletter_categories' => get_attribute( $attributes, 'preselectNewsletterCategories', false ),
 	);
 
-	// Only render the email version in non-frontend contexts like emails, feeds, embeds etc.
-	if ( is_feed() || is_embed() || wp_is_xml_request() ||
-		( defined( 'REST_REQUEST' ) && REST_REQUEST && ! wp_is_json_request() ) ) {
+	// Only render the email version in non-frontend contexts.
+	if ( is_feed() || wp_is_xml_request() ||
+		( defined( 'REST_REQUEST' ) && REST_REQUEST && ! wp_is_json_request() ) ||
+		( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
+		( defined( 'WP_CLI' ) && WP_CLI ) ||
+		wp_is_jsonp_request() ) {
 		return render_for_email( $data, $styles );
 	}
 
