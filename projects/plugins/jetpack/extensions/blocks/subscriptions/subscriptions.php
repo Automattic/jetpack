@@ -698,12 +698,10 @@ function render_block( $attributes ) {
 
 	/**
 	 * Check if we're in an email-specific context where we should render the simplified email version.
-	 * This explicitly checks for email-related filters and the WP_MAIL constant rather than relying on
-	 * jetpack_is_frontend() to avoid false positives during regular frontend requests (e.g. embed requests).
+	 * This explicitly checks for the WP_MAIL constant rather than relying on jetpack_is_frontend()
+	 * to avoid false positives during regular frontend requests (e.g. embed requests).
 	 */
-	$is_email_context = doing_filter( 'jetpack_subscriptions_email_content' ) ||
-		doing_filter( 'jetpack_subscription_email_content' ) ||
-		( defined( 'WP_MAIL' ) && WP_MAIL );
+	$is_email_context = defined( 'WP_MAIL' ) && WP_MAIL;
 
 	if ( $is_email_context ) {
 		return render_for_email( $data, $styles );
