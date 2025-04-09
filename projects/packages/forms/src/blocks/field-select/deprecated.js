@@ -22,7 +22,6 @@ export default [
 		migrate( attributes ) {
 			const { restAttributes, labelStyles, inputStyles } = deprecateFieldStyles( attributes );
 			const { toggleLabel, ...newAttributes } = restAttributes;
-			// TODO: Similar to the checkbox field. We might need to migrate option styles?
 
 			const labelBlock = createBlock( 'jetpack/label', {
 				label: attributes.label,
