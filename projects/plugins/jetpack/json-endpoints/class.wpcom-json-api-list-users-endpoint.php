@@ -107,6 +107,19 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public $search_columns;
 
 	/**
+	 * Constructor.
+	 *
+	 * @param array $args - the arguments.
+	 */
+	public function __construct( $args ) {
+		parent::__construct( $args );
+		add_action( 'remove_user_from_blog', array( $this, 'clear_total_users_cache' ), 10, 3 );
+		add_action( 'add_user_to_blog', array( $this, 'add_user_to_blog_clear_total_users_cache' ), 10, 3 );
+		add_action( 'remove_private_blog_user', array( $this, 'clear_total_users_cache' ), 10, 2 );
+		add_action( 'added_private_blog_user', array( $this, 'clear_total_users_cache' ), 10, 2 );
+	}
+
+	/**
 	 * API callback.
 	 *
 	 * @param string $path - the path.
@@ -241,13 +254,22 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 				// Total users from the site. Only available to users with the `list_users` capability (Super admins and admins).
 				case 'total_users':
 					if ( ! empty( $args['total_users'] ) && true === $args['total_users'] && $can_list_users ) {
+						$cache_key   = 'rest-api-list-users-' . $blog_id . '-total-count';
+						$total_users = wp_cache_get( $cache_key, 'WPCOM_JSON_API_List_Users_Endpoint' );
+						if ( false !== $total_users ) {
+							$response[ $key ] = $total_users;
+							break;
+						}
+
 						$viewer_count = 0;
 						if ( $include_viewers ) {
-							$viewer_count = $this->get_viewers_count( $viewers, $user_query->get_results(), $blog_id );
+							$viewer_count = $this->get_viewers_count( $blog_id );
 						}
 						$user             = count_users( 'time', $blog_id );
 						$total_users      = isset( $user['total_users'] ) ? (int) $user['total_users'] : 0;
-						$response[ $key ] = $total_users + $viewer_count;
+						$total_users      = $total_users + $viewer_count;
+						$response[ $key ] = $total_users;
+						wp_cache_set( $cache_key, $total_users, 'WPCOM_JSON_API_List_Users_Endpoint', DAY_IN_SECONDS );
 					}
 					break;
 			}
@@ -257,13 +279,40 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Clear the total users cache.
+	 *
+	 * @param int $user_id - the user ID.
+	 * @param int $blog_id - the blog ID.
+	 */
+	public function clear_total_users_cache( $user_id, $blog_id ) {
+		$current_blog_id = get_current_blog_id();
+		if ( $current_blog_id !== $blog_id ) {
+			return;
+		}
+
+		$cache_key = 'rest-api-list-users-' . $blog_id . '-total-count';
+		wp_cache_delete( $cache_key, 'WPCOM_JSON_API_List_Users_Endpoint' );
+	}
+
+	/**
+	 * Clear the total users cache when a user is added to a blog.
+	 * Required in addition to clear_total_users_cache because the argument order is different.
+	 *
+	 * @param int    $user_id - the user ID.
+	 * @param string $role - the role.
+	 * @param int    $blog_id - the blog ID.
+	 */
+	public function add_user_to_blog_clear_total_users_cache( $user_id, $role, $blog_id ) {
+		$this->clear_total_users_cache( $user_id, $blog_id );
+	}
+
+	/**
 	 * Get the count of private blog users.
 	 *
-	 * @param array $viewers - the viewers.
-	 * @param int   $blog_id - the blog ID.
+	 * @param int $blog_id - the blog ID.
 	 * @return int
 	 */
-	protected function get_viewers_count( $viewers, $blog_id ) {
+	protected function get_viewers_count( $blog_id ) {
 		/*
 		 * We can't get the count of viewers from get_count_private_blog_users because it returns a count for all viewers found,
 		 * even if the viewer has been made a site user. So we want to exclude from the total count users who are viewers.
@@ -272,12 +321,18 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 		 */
 		$duplicate_user_ids = array();
 		$viewers            = get_private_blog_users( $blog_id );
-		// Check each viewer to see if they are also a site user
+
+		// Check each viewer to see if they have any roles on the site
 		foreach ( $viewers as $viewer ) {
-			if ( is_user_member_of_blog( $viewer->ID, $blog_id ) ) {
+			$user_roles = get_user_meta( $viewer->ID, $blog_id . '_capabilities', true );
+			if ( ! empty( $user_roles ) ) {
 				$duplicate_user_ids[] = $viewer->ID;
 			}
 		}
+
+		l( '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> get_viewers_count' );
+		l( $viewers );
+		l( $duplicate_user_ids );
 
 		return (int) count( $viewers ) - count( $duplicate_user_ids );
 	}
