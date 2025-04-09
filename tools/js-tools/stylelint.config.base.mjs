@@ -30,7 +30,6 @@ const baseConfig = {
 		'selector-class-pattern': null,
 
 		// Disable all other rules for now.
-		'declaration-block-no-duplicate-custom-properties': null,
 		'declaration-block-no-duplicate-properties': null,
 		'declaration-block-no-shorthand-property-overrides': null,
 		'declaration-property-unit-allowed-list': null,
