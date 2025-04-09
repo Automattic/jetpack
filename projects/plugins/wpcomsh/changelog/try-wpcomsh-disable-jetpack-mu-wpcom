@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Allow wpcomsh to not load the jetpack-mu-wpcom package
