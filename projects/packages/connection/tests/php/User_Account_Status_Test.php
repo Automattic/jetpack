@@ -123,8 +123,6 @@ class User_Account_Status_Test extends TestCase {
 
 	/**
 	 * Test possible_account_mismatch with matching emails.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\User_Account_Status::possible_account_mismatch
 	 */
 	public function test_possible_account_mismatch_with_matching_emails() {
 		// When emails match, should return false
@@ -134,8 +132,6 @@ class User_Account_Status_Test extends TestCase {
 
 	/**
 	 * Test possible_account_mismatch with empty WPCOM email.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\User_Account_Status::possible_account_mismatch
 	 */
 	public function test_possible_account_mismatch_with_empty_wpcom_email() {
 		// When WPCOM email is empty, should return false
@@ -145,8 +141,6 @@ class User_Account_Status_Test extends TestCase {
 
 	/**
 	 * Test possible_account_mismatch with existing transient.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\User_Account_Status::possible_account_mismatch
 	 */
 	public function test_possible_account_mismatch_with_existing_transient() {
 		// When transient exists, should return the cached value (true in this case)
@@ -156,8 +150,6 @@ class User_Account_Status_Test extends TestCase {
 
 	/**
 	 * Test possible_account_mismatch with a local user having WPCOM email.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\User_Account_Status::possible_account_mismatch
 	 */
 	public function test_possible_account_mismatch_with_local_user_having_wpcom_email() {
 		// Delete any existing transient
@@ -185,8 +177,6 @@ class User_Account_Status_Test extends TestCase {
 
 	/**
 	 * Test check_account_errors with no errors.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\User_Account_Status::check_account_errors
 	 */
 	public function test_check_account_errors_with_no_errors() {
 		// Use same email to avoid mismatch (no errors)
@@ -196,8 +186,6 @@ class User_Account_Status_Test extends TestCase {
 
 	/**
 	 * Test check_account_errors with mismatch error.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\User_Account_Status::check_account_errors
 	 */
 	public function test_check_account_errors_with_mismatch_error() {
 		// Set up the transient to simulate a mismatch
@@ -216,8 +204,6 @@ class User_Account_Status_Test extends TestCase {
 
 	/**
 	 * Test the filter in check_account_errors.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\User_Account_Status::check_account_errors
 	 */
 	public function test_check_account_errors_filter() {
 		// Add a test filter
@@ -257,8 +243,6 @@ class User_Account_Status_Test extends TestCase {
 
 	/**
 	 * Test clean_account_mismatch_transients method with email.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\User_Account_Status::clean_account_mismatch_transients
 	 */
 	public function test_clean_account_mismatch_transients_with_email() {
 		// Set up a test transient
@@ -278,8 +262,6 @@ class User_Account_Status_Test extends TestCase {
 
 	/**
 	 * Test clean_account_mismatch_transients method with user ID.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\User_Account_Status::clean_account_mismatch_transients
 	 */
 	public function test_clean_account_mismatch_transients_with_user_id() {
 		// Set up a test transient
@@ -300,8 +282,6 @@ class User_Account_Status_Test extends TestCase {
 
 	/**
 	 * Test clean_account_mismatch_transients with invalid inputs.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\User_Account_Status::clean_account_mismatch_transients
 	 */
 	public function test_clean_account_mismatch_transients_with_invalid_inputs() {
 		// Non-existent user ID

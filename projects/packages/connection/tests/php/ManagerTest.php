@@ -16,8 +16,6 @@ use WP_Error;
 
 /**
  * Connection Manager functionality testing.
- *
- * @covers \Automattic\Jetpack\Connection\Manager
  */
 class ManagerTest extends TestCase {
 
@@ -938,8 +936,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the clean_account_mismatch_transients method cleans transients properly.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\User_Account_Status::clean_account_mismatch_transients
 	 */
 	public function test_clean_account_mismatch_transients() {
 		// Create a test user

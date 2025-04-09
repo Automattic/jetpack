@@ -126,8 +126,6 @@ class REST_Connector_Test extends TestCase {
 
 	/**
 	 * Placeholder test to ensure the class is properly set up.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\REST_Connector
 	 */
 	public function test_class_exists() {
 		$this->assertTrue( class_exists( 'Automattic\Jetpack\Connection\REST_Connector' ) );
@@ -135,8 +133,6 @@ class REST_Connector_Test extends TestCase {
 
 	/**
 	 * Test the static connection_plugins_permission_check method.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\REST_Connector::connection_plugins_permission_check
 	 */
 	public function test_connection_plugins_permission_check() {
 		// Test without any user
@@ -162,8 +158,6 @@ class REST_Connector_Test extends TestCase {
 
 	/**
 	 * Test the static unlink_user_permission_callback method.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\REST_Connector::unlink_user_permission_callback
 	 */
 	public function test_unlink_user_permission_callback() {
 		// Test without any user
@@ -179,8 +173,6 @@ class REST_Connector_Test extends TestCase {
 
 	/**
 	 * Test the static is_request_signed_by_jetpack_debugger method.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\REST_Connector::is_request_signed_by_jetpack_debugger
 	 */
 	public function test_is_request_signed_by_jetpack_debugger_with_no_signature() {
 		// Test without proper signature
@@ -190,8 +182,6 @@ class REST_Connector_Test extends TestCase {
 
 	/**
 	 * Test that connection_status method exists as static.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\REST_Connector::connection_status
 	 */
 	public function test_connection_status_method_exists() {
 		$this->assertTrue( method_exists( REST_Connector::class, 'connection_status' ) );
