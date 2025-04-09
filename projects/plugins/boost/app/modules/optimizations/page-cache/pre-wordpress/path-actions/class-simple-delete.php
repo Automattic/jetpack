@@ -17,7 +17,7 @@ class Simple_Delete implements Path_Action {
 		if ( $file->isDir() && Filesystem_Utils::is_dir_empty( $file->getPathname() ) ) {
 			Logger::debug( 'rmdir: ' . $file->getPathname() );
 			return $this->delete_dir( $file );
-		} else {
+		} elseif ( $file->isFile() ) {
 			// Do not delete index.html files independently. We will only delete them when the directory is empty.
 			if ( $file->getFilename() === 'index.html' ) {
 				return 0;
