@@ -265,8 +265,10 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 						if ( $include_viewers ) {
 							$viewer_count = $this->get_viewers_count( $blog_id );
 						}
-						$user             = count_users( 'time', $blog_id );
-						$total_users      = isset( $user['total_users'] ) ? (int) $user['total_users'] : 0;
+						$user        = count_users( 'time', $blog_id );
+						$total_users = isset( $user['total_users'] ) ? (int) $user['total_users'] : 0;
+						// Suppress Phan warning about duplicate expression assignment for readability.
+						// @phan-suppress-next-line PhanPluginDuplicateExpressionAssignmentOperation
 						$total_users      = $total_users + $viewer_count;
 						$response[ $key ] = $total_users;
 						wp_cache_set( $cache_key, $total_users, 'WPCOM_JSON_API_List_Users_Endpoint', DAY_IN_SECONDS );
@@ -329,10 +331,6 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$duplicate_user_ids[] = $viewer->ID;
 			}
 		}
-
-		l( '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> get_viewers_count' );
-		l( $viewers );
-		l( $duplicate_user_ids );
 
 		return (int) count( $viewers ) - count( $duplicate_user_ids );
 	}
