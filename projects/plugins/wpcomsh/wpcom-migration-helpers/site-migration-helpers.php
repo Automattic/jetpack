@@ -115,3 +115,38 @@ function aiowp_migration_logging_helper() {
 	);
 }
 add_action( 'plugins_loaded', 'aiowp_migration_logging_helper', 10 );
+
+/**
+ * Helper function that registers a filter that listens for the AIOWP migration completed event.
+ * Once detected, it will trigger a call to an endpoint on WPCOM to run the corresponding cleanup jobs.
+ */
+function aiowp_migration_status_helper() {
+	if ( ! class_exists( 'Ai1wm_Main_Controller' ) ) {
+		return;
+	}
+
+	add_filter(
+		'ai1wm_import',
+		function () {
+			$wpcom_blog_id = _wpcom_get_current_blog_id();
+			$endpoint      = sprintf( '/sites/%s/migration-aiowp-notifications', $wpcom_blog_id );
+
+			$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+				$endpoint,
+				'v2',
+				array( 'method' => 'POST' ),
+				array( 'status' => 'completed' ),
+				'wpcom'
+			);
+
+			if ( 200 !== $response['response']['code'] || empty( $response['body'] ) ) {
+				return false;
+			}
+
+			return true;
+		},
+		410
+	);
+}
+
+add_action( 'plugins_loaded', 'aiowp_migration_status_helper', 10 );
