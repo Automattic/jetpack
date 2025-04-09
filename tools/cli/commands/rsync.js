@@ -569,23 +569,20 @@ async function rsyncToDest( source, dest ) {
 	const tmpFile = await createFilterFile( paths );
 
 	try {
-		const rsyncOptions = [
+		// Some versions of openrsync partially work with --copy-unsafe-links, so do that for them.
+		const copyLinksOpt = isOpenrsync ? '--copy-unsafe-links' : '--copy-links';
+
+		await runCommand( 'rsync', [
 			'-azKPv',
 			'--prune-empty-dirs',
 			'--delete',
 			'--delete-after',
 			'--delete-excluded',
+			copyLinksOpt,
 			`--include-from=${ tmpFile.name }`,
 			source,
 			dest,
-		];
-		if ( isOpenrsync ) {
-			// This transforms "unsafe" links at the expense of copying `node_modules`.
-			rsyncOptions.push( '--copy-unsafe-links' );
-		} else {
-			rsyncOptions.push( '--copy-links' );
-		}
-		await runCommand( 'rsync', rsyncOptions );
+		] );
 		tmpFile.removeCallback();
 	} catch ( e ) {
 		console.log( e );
