@@ -85,13 +85,13 @@ export async function rsyncInit( argv ) {
 				await enquirer
 					.prompt( {
 						type: 'confirm',
-						name: 'ignoreUntracked',
+						name: 'proceedWithOpenrsync',
 						message:
 							'Continuing will not break anything, but will copy many unneeded files.\nProceed to sync files?',
 						initial: false,
 					} )
 					.then( answer => {
-						if ( ! answer.ignoreUntracked ) {
+						if ( ! answer.proceedWithOpenrsync ) {
 							process.exit( 0 );
 						}
 					} );
