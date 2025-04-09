@@ -94,6 +94,8 @@ class Current_Plan {
 				'jetpack_creator_monthly',
 			),
 			'supports' => array(
+				'contact-form',
+				'field-file', // Forms file upload field
 				'simple-payments',
 				'vaultpress',
 				'videopress',

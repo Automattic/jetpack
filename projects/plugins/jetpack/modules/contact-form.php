@@ -22,6 +22,8 @@ use Automattic\Jetpack\Forms\Jetpack_Forms;
  * Module Tags: Other
  * Feature: Writing
  * Additional Search Queries: contact, form, grunion, feedback, submission, contact form, email, feedback, contact form plugin, custom form, custom form plugin, form builder, forms, form maker, survey, contact by jetpack, contact us, forms free, creator
+ * Free: false
+ * Plans: premium
  */
 
 /**

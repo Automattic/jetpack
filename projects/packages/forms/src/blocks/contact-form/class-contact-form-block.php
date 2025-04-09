@@ -30,8 +30,18 @@ class Contact_Form_Block {
 			'jetpack/contact-form',
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
+				// See https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#paid-blocks
+				'plan_check'      => true,
 			)
 		);
+		/*
+		add_action(
+			'jetpack_register_gutenberg_extensions',
+			function () {
+				\Jetpack_Gutenberg::set_availability_for_plan( 'contact-form' );
+			}
+		);
+		*/
 
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
 		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
