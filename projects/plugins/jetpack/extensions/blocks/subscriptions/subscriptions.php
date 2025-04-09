@@ -698,8 +698,8 @@ function render_block( $attributes ) {
 
 	/**
 	 * Check if we're in an email-specific context where we should render the simplified email version.
-	 * This explicitly checks for the WP_MAIL constant rather than relying on jetpack_is_frontend()
-	 * to avoid false positives during regular frontend requests (e.g. embed requests).
+	 * This explicitly checks for the WP_MAIL constant to ensure we only render the email version
+	 * when actually sending an email.
 	 */
 	$is_email_context = defined( 'WP_MAIL' ) && WP_MAIL;
 
