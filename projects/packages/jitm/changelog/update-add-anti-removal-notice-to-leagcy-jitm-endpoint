@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Updating a doc block with warning not to deprecate the jetpack/v4 endpoint
+
+
