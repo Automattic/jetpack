@@ -18,14 +18,6 @@ const settings = {
 		src: <Icon icon={ envelope } />,
 	},
 	edit,
-	attributes: {
-		...defaultSettings.attributes,
-		label: {
-			type: 'string',
-			default: 'Email',
-			role: 'content',
-		},
-	},
 	deprecated,
 	save,
 };
