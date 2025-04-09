@@ -135,7 +135,7 @@
 .color-grid .unavailable:before {
 	color: #fff;
 	content: '\f406';
-	font-family: "Noticons";
+	font-family: Noticons;
 	font-size: 21px;
 	opacity: 0.4;
 	float: left;
@@ -304,7 +304,7 @@ a.revert {
 }
 
 #the-bg-picker-prompt h4 strong {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .choose-color,
@@ -684,7 +684,7 @@ input#iris {
 }
 
 .background-options p.radios input:checked + label {
-	font-weight: bold;
+	font-weight: 700;
 	color: #fff;
 	background: #87a6bc !important; /* $gray */
 	border-color: #668eaa; /* $gray-darken-10 */
@@ -806,7 +806,7 @@ input#iris {
 }
 
 .the-picker p a {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .color-suggestions,

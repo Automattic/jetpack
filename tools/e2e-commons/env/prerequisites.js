@@ -6,6 +6,7 @@ import { provisionJetpackStartConnection } from '../helpers/partner-provisioning
 import {
 	execWpCommand,
 	getDotComCredentials,
+	getSiteCredentials,
 	isLocalSite,
 	resetWordpressInstall,
 } from '../helpers/utils-helper.js';
@@ -136,14 +137,15 @@ export async function ensureConnectedState( requiredConnected = false ) {
  */
 async function connect() {
 	const creds = getDotComCredentials();
-	await execWpCommand( `user update wordpress --user_email=${ creds.email }` );
+	const siteCreds = getSiteCredentials();
+	await execWpCommand( `user update ${ siteCreds.username } --user_email=${ creds.email }` );
 
 	try {
-		provisionJetpackStartConnection( creds.userId, 'free' );
+		provisionJetpackStartConnection( creds.userId, 'free', siteCreds.username );
 	} catch ( error ) {
 		// Let's try to re-try the provisioning if it fails the first time.
 		if ( error.message.startsWith( 'Jetpack Start provisioning failed' ) ) {
-			provisionJetpackStartConnection( creds.userId, 'free' );
+			provisionJetpackStartConnection( creds.userId, 'free', siteCreds.username );
 		} else {
 			throw error;
 		}

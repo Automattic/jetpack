@@ -11,15 +11,13 @@ require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
 /**
  * Class for testing the Jetpack_Podcast_Helper class.
  *
- * @coversDefaultClass Jetpack_Podcast_Helper
+ * @covers \Jetpack_Podcast_Helper
  */
 class Jetpack_Podcast_Helper_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Tests get_track_data() when the feed cannot be retrieved.
-	 *
-	 * @covers ::get_track_data
 	 */
 	public function test_get_track_data_feed_error() {
 		$podcast_helper = $this->getMockBuilder( 'Jetpack_Podcast_Helper' )
@@ -39,8 +37,6 @@ class Jetpack_Podcast_Helper_Test extends WP_UnitTestCase {
 
 	/**
 	 * Tests get_track_data() finds the given episode.
-	 *
-	 * @covers ::get_track_data
 	 */
 	public function test_get_track_data_find_episode() {
 		$podcast_helper = $this->getMockBuilder( 'Jetpack_Podcast_Helper' )

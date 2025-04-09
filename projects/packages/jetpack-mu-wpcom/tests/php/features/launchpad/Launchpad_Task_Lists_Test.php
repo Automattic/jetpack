@@ -8,7 +8,8 @@
 /**
  * Test class for Launchpad_Task_Lists.
  *
- * @coversDefaultClass Launchpad_Task_Lists
+ * @covers \Launchpad_Task_Lists
+ * @covers ::wpcom_launchpad_is_task_list_dismissed
  */
 class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	/**
@@ -29,8 +30,6 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Make sure that ::build() doesn't create a PHP warning when it doesn't get a valid ID.
-	 *
-	 * @covers ::build
 	 */
 	public function test_build_creates_no_PHP_warnings() {
 		$result = Launchpad_Task_Lists::get_instance()->build( '' );
@@ -41,8 +40,6 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Filter out tasks with the task list callback.
-	 *
-	 * @covers ::build
 	 */
 	public function test_task_list_is_visible_callback() {
 		wpcom_register_launchpad_task(
@@ -525,8 +522,6 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test dismiss temporally a task list when a date in future is used
-	 *
-	 * @covers wpcom_launchpad_is_task_list_dismissed
 	 */
 	public function test_temporary_dismiss_task_when_date_is_in_the_future() {
 		wpcom_register_launchpad_task(
@@ -555,8 +550,6 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test remove the dismiss status when the temporary dismiss date is expired
-	 *
-	 * @covers wpcom_launchpad_is_task_list_dismissed
 	 */
 	public function test_remove_temporary_dismiss_when_date_is_in_the_past() {
 		wpcom_register_launchpad_task(

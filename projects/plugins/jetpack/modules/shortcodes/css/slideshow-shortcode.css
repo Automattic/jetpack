@@ -161,5 +161,5 @@ body div div.jetpack-slideshow-controls a.running { background-position: -34px 8
 body div div.jetpack-slideshow-controls a.paused { background-position: 9px 8px !important;}
 
 .jetpack-slideshow-controls a img {
-	border: 50px dotted fuchsia;
+	border: 50px dotted #f0f;
 }
