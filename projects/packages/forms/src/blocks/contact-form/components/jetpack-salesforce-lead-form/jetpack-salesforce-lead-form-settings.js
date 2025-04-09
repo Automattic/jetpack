@@ -21,51 +21,39 @@ export const salesforceLeadFormVariation = {
 	innerBlocks: [
 		[
 			'jetpack/field-email',
-			{
-				required: true,
-				label: __( 'Business Email', 'jetpack-forms' ),
-				id: 'email',
-			},
+			{ required: true, label: __( 'Business Email', 'jetpack-forms' ), id: 'email' },
+			[
+				[ 'jetpack/label', { label: __( 'Business Email', 'jetpack-forms' ) } ],
+				[ 'jetpack/input' ],
+			],
 		],
 		[
 			'jetpack/field-name',
-			{
-				required: true,
-				label: __( 'First Name', 'jetpack-forms' ),
-				id: 'first_name',
-			},
+			{ required: true, label: __( 'First Name', 'jetpack-forms' ), id: 'first_name' },
+			[ [ 'jetpack/label', { label: __( 'First Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 		],
 		[
 			'jetpack/field-name',
-			{
-				required: true,
-				label: __( 'Last Name', 'jetpack-forms' ),
-				id: 'last_name',
-			},
+			{ required: true, label: __( 'Last Name', 'jetpack-forms' ), id: 'last_name' },
+			[ [ 'jetpack/label', { label: __( 'Last Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 		],
 		[
 			'jetpack/field-text',
-			{
-				required: true,
-				label: __( 'Job Title', 'jetpack-forms' ),
-				id: 'title',
-			},
+			{ required: true, label: __( 'Job Title', 'jetpack-forms' ), id: 'title' },
+			[ [ 'jetpack/label', { label: __( 'Job Title', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 		],
 		[
 			'jetpack/field-text',
-			{
-				required: true,
-				label: __( 'Company', 'jetpack-forms' ),
-				id: 'company',
-			},
+			{ required: true, label: __( 'Company', 'jetpack-forms' ), id: 'company' },
+			[ [ 'jetpack/label', { label: __( 'Company', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 		],
 		[
 			'jetpack/field-telephone',
-			{
-				required: true,
-				label: __( 'Phone Number', 'jetpack-forms' ),
-				id: 'phone',
-			},
+			{ required: true, label: __( 'Phone Number', 'jetpack-forms' ), id: 'phone' },
+			[
+				[ 'jetpack/label', { label: __( 'Phone Number', 'jetpack-forms' ) } ],
+				[ 'jetpack/input' ],
+			],
 		],
 		[
 			'jetpack/button',
@@ -87,27 +75,55 @@ export const salesforceLeadFormVariation = {
 		innerBlocks: [
 			{
 				name: 'jetpack/field-email',
-				attributes: { required: true, label: __( 'Business Email', 'jetpack-forms' ) },
+				attributes: { required: true, label: __( 'Business Email', 'jetpack-forms' ), id: 'email' },
+				innerBlocks: [
+					{ name: 'jetpack/label', attributes: { label: __( 'Business Email', 'jetpack-forms' ) } },
+					{ name: 'jetpack/input' },
+				],
 			},
 			{
 				name: 'jetpack/field-name',
-				attributes: { required: true, label: __( 'First Name', 'jetpack-forms' ) },
+				attributes: {
+					required: true,
+					label: __( 'First Name', 'jetpack-forms' ),
+					id: 'first_name',
+				},
+				innerBlocks: [
+					{ name: 'jetpack/label', attributes: { label: __( 'First Name', 'jetpack-forms' ) } },
+					{ name: 'jetpack/input' },
+				],
 			},
 			{
 				name: 'jetpack/field-name',
-				attributes: { required: true, label: __( 'Last Name', 'jetpack-forms' ) },
+				attributes: { required: true, label: __( 'Last Name', 'jetpack-forms' ), id: 'last_name' },
+				innerBlocks: [
+					{ name: 'jetpack/label', attributes: { label: __( 'Last Name', 'jetpack-forms' ) } },
+					{ name: 'jetpack/input' },
+				],
 			},
 			{
 				name: 'jetpack/field-text',
-				attributes: { required: true, label: __( 'Job Title', 'jetpack-forms' ) },
+				attributes: { required: true, label: __( 'Job Title', 'jetpack-forms' ), id: 'title' },
+				innerBlocks: [
+					{ name: 'jetpack/label', attributes: { label: __( 'Job Title', 'jetpack-forms' ) } },
+					{ name: 'jetpack/input' },
+				],
 			},
 			{
 				name: 'jetpack/field-text',
-				attributes: { required: true, label: __( 'Company', 'jetpack-forms' ) },
+				attributes: { required: true, label: __( 'Company', 'jetpack-forms' ), id: 'company' },
+				innerBlocks: [
+					{ name: 'jetpack/label', attributes: { label: __( 'Company', 'jetpack-forms' ) } },
+					{ name: 'jetpack/input' },
+				],
 			},
 			{
 				name: 'jetpack/field-telephone',
-				attributes: { required: true, label: __( 'Phone Number', 'jetpack-forms' ) },
+				attributes: { required: true, label: __( 'Phone Number', 'jetpack-forms' ), id: 'phone' },
+				innerBlocks: [
+					{ name: 'jetpack/label', attributes: { label: __( 'Phone Number', 'jetpack-forms' ) } },
+					{ name: 'jetpack/input' },
+				],
 			},
 			{
 				name: 'jetpack/button',
