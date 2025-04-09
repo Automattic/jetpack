@@ -106,10 +106,7 @@ const variations = compact( [
 			],
 			[
 				'jetpack/field-radio',
-				{
-					label: __( 'Attending?', 'jetpack-forms' ),
-					required: true,
-				},
+				{ required: true },
 				[
 					[ 'jetpack/label', { label: __( 'Attending?', 'jetpack-forms' ) } ],
 					[
@@ -175,10 +172,7 @@ const variations = compact( [
 				},
 				{
 					name: 'jetpack/field-radio',
-					attributes: {
-						label: __( 'Attending?', 'jetpack-forms' ),
-						required: true,
-					},
+					attributes: { required: true },
 					innerBlocks: [
 						{ name: 'jetpack/label', attributes: { label: __( 'Attending?', 'jetpack-forms' ) } },
 						{
@@ -457,10 +451,7 @@ const variations = compact( [
 			],
 			[
 				'jetpack/field-radio',
-				{
-					label: __( 'Time', 'jetpack-forms' ),
-					required: true,
-				},
+				{ required: true },
 				[
 					[ 'jetpack/label', { label: __( 'Time', 'jetpack-forms' ) } ],
 					[
@@ -542,10 +533,7 @@ const variations = compact( [
 				},
 				{
 					name: 'jetpack/field-radio',
-					attributes: {
-						label: __( 'Time', 'jetpack-forms' ),
-						required: true,
-					},
+					attributes: { required: true },
 					innerBlocks: [
 						{ name: 'jetpack/label', attributes: { label: __( 'Time', 'jetpack-forms' ) } },
 						{
@@ -633,10 +621,7 @@ const variations = compact( [
 			],
 			[
 				'jetpack/field-radio',
-				{
-					label: __( 'Please rate our website', 'jetpack-forms' ),
-					required: true,
-				},
+				{ required: true },
 				[
 					[ 'jetpack/label', { label: __( 'Please rate our website', 'jetpack-forms' ) } ],
 					[
@@ -723,10 +708,7 @@ const variations = compact( [
 				},
 				{
 					name: 'jetpack/field-radio',
-					attributes: {
-						label: __( 'Please rate our website', 'jetpack-forms' ),
-						required: true,
-					},
+					attributes: { required: true },
 					innerBlocks: [
 						{
 							name: 'jetpack/label',
