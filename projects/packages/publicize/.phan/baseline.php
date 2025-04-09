@@ -17,7 +17,6 @@ return [
     // PhanNoopNew : 2 occurrences
     // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
-    // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
     // PhanImpossibleCondition : 1 occurrence
@@ -25,6 +24,7 @@ return [
     // PhanPluginDuplicateExpressionAssignmentOperation : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanSuspiciousMagicConstant : 1 occurrence
+    // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchDimFetch : 1 occurrence
@@ -41,7 +41,6 @@ return [
         'src/class-publicize-ui.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-publicize.php' => ['PhanParamSignatureMismatch', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-share-status.php' => ['PhanTypeMismatchArgumentNullableInternal'],
         'src/rest-api/class-connections-controller.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeSuspiciousNonTraversableForeach'],
         'src/rest-api/class-connections-post-field.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/rest-api/class-scheduled-actions-controller.php' => ['PhanPluginMixedKeyNoKey'],
