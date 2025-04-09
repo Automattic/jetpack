@@ -45,7 +45,6 @@ export default function TextareaFieldEdit( props ) {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,
 		template,
 		templateLock: 'all',
-		type: 'textarea',
 	} );
 
 	useEffect( () => {

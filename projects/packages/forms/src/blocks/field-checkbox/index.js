@@ -23,15 +23,6 @@ const settings = {
 		),
 	},
 	edit,
-	attributes: {
-		...defaultSettings.attributes,
-		// TODO: Audit all block attributes. Things like this label should be handled by inner blocks.
-		label: {
-			type: 'string',
-			default: 'Add label…',
-			role: 'content',
-		},
-	},
 	providesContext: {
 		'jetpack/field-required': 'required',
 		'jetpack/field-defaultValue': 'defaultValue',
