@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Publicize\REST_API\Proxy_Requests;
 use Jetpack_Options;
 use WP_Error;
@@ -149,6 +150,30 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_publicize_connection' ),
 				'permission_callback' => array( $this, 'manage_connection_permission_check' ),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/social/sync-shares/post/(?P<id>\d+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_post_shares' ),
+					'permission_callback' => array( Rest_Authentication::class, 'is_signed_with_blog_token' ),
+					'args'                => array(
+						'meta' => array(
+							'type'       => 'object',
+							'required'   => true,
+							'properties' => array(
+								'_publicize_shares' => array(
+									'type'     => 'array',
+									'required' => true,
+								),
+							),
+						),
+					),
+				),
 			)
 		);
 
@@ -502,6 +527,57 @@ class REST_Controller {
 	 */
 	protected function get_blog_id() {
 		return $this->is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
+	}
+
+	/**
+	 * Update the post with information about shares.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 */
+	public function update_post_shares( $request ) {
+
+		Publicize_Utils::endpoint_deprecated_warning(
+			__METHOD__,
+			'jetpack-14.6, jetpack-social-6.4.0',
+			'jetpack/v4/social/sync-shares/post/:id',
+			'wpcom/v2/publicize/share-status/sync'
+		);
+
+		$request_body = $request->get_json_params();
+
+		$post_id   = $request->get_param( 'id' );
+		$post_meta = $request_body['meta'];
+		$post      = get_post( $post_id );
+
+		if ( $post && 'publish' === $post->post_status && isset( $post_meta[ Share_Status::SHARES_META_KEY ] ) ) {
+			update_post_meta( $post_id, Share_Status::SHARES_META_KEY, $post_meta[ Share_Status::SHARES_META_KEY ] );
+			$urls = array();
+			foreach ( $post_meta[ Share_Status::SHARES_META_KEY ] as $share ) {
+				if ( isset( $share['status'] ) && 'success' === $share['status'] ) {
+					$urls[] = array(
+						'url'     => $share['message'],
+						'service' => $share['service'],
+					);
+				}
+			}
+			/**
+			 * Fires after Publicize Shares post meta has been saved.
+			 *
+			 * @param array $urls {
+			 *     An array of social media shares.
+			 *     @type array $url URL to the social media post.
+			 *     @type string $service Social media service shared to.
+			 * }
+			 */
+			do_action( 'jetpack_publicize_share_urls_saved', $urls );
+			return rest_ensure_response( new WP_REST_Response() );
+		}
+
+		return new WP_Error(
+			'rest_cannot_edit',
+			__( 'Failed to update the post meta', 'jetpack-publicize-pkg' ),
+			array( 'status' => 500 )
+		);
 	}
 
 	/**
