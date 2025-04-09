@@ -601,15 +601,9 @@
 }
 
 .jetpack-field-consent {
-	align-items: center;
-
-	.jetpack-field-label {
-		flex-grow: 1;
-
-		.jetpack-field-label__input {
-			font-size: 13px;
-			text-transform: uppercase;
-		}
+	:where(.wp-block-jetpack-option) {
+		font-size: 13px;
+		text-transform: uppercase;
 	}
 }
 
