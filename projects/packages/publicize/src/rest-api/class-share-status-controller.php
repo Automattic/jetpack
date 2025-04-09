@@ -8,8 +8,7 @@
 namespace Automattic\Jetpack\Publicize\REST_API;
 
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
-use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
-use Automattic\Jetpack\Publicize\REST_Controller;
+use Automattic\Jetpack\Publicize\Share_Status;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -71,41 +70,25 @@ class Share_Status_Controller extends Base_Controller {
 	public function get_items( $request ) {
 		$post_id = $request->get_param( 'post_id' );
 
-		if ( Utils::is_wpcom() ) {
-			$post = get_post( $post_id );
+		$post = get_post( $post_id );
 
-			if ( empty( $post ) ) {
-				return new WP_Error( 'not_found', 'Cannot find that post', array( 'status' => 404 ) );
-			}
-			if ( 'publish' !== $post->post_status ) {
-				return new WP_Error( 'not_published', 'Cannot get share status for an unpublished post', array( 'status' => 400 ) );
-			}
-
-			$shares = get_post_meta( $post_id, REST_CONTROLLER::SOCIAL_SHARES_POST_META_KEY, true );
-
-			// If the data is in an associative array format, we fetch it without true to get all the shares.
-			// This is needed to support the old WPCOM format.
-			if ( isset( $shares ) && is_array( $shares ) && ! array_is_list( $shares ) ) {
-				$shares = get_post_meta( $post_id, REST_CONTROLLER::SOCIAL_SHARES_POST_META_KEY );
-			}
-
-			$done = metadata_exists( 'post', $post_id, REST_CONTROLLER::SOCIAL_SHARES_POST_META_KEY );
-
-			$response = array(
-				'shares' => $done ? $shares : array(),
-				'done'   => $done,
+		if ( empty( $post ) ) {
+			return new WP_Error(
+				'post_not_found',
+				__( 'Cannot find that post.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 404 )
 			);
-
-			return rest_ensure_response( $response );
 		}
 
-		$response = $this->proxy_request_to_wpcom_as_user( $request );
-
-		if ( is_wp_error( $response ) ) {
-			return rest_ensure_response( $response );
+		if ( 'publish' !== $post->post_status ) {
+			return new WP_Error(
+				'post_not_published',
+				__( 'Cannot get share status for an unpublished post', 'jetpack-publicize-pkg' ),
+				array( 'status' => 400 )
+			);
 		}
 
-		return rest_ensure_response( $response );
+		return rest_ensure_response( Share_Status::get_post_share_status( $post_id ) );
 	}
 
 	/**
