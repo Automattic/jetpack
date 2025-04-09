@@ -88,6 +88,11 @@ function wpcom_should_limit_global_styles( $blog_id = 0 ) {
 		return false;
 	}
 
+	// Do not limit Global Styles for sites with the Custom CSS addon.
+	if ( wpcom_site_has_feature( WPCOM_Features::CUSTOM_DESIGN, $blog_id ) ) {
+		return false;
+	}
+
 	return true;
 }
 
