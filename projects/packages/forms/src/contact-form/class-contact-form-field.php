@@ -169,7 +169,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		if ( ! empty( $attributes['options'] ) && is_string( $attributes['options'] ) ) {
 			$attributes['options'] = array_map( 'trim', explode( ',', $attributes['options'] ) );
 
-			// TODO: Work out where these values are set? Are they actually set anywhere?
 			if ( ! empty( $attributes['values'] ) && is_string( $attributes['values'] ) ) {
 				$attributes['values'] = array_map( 'trim', explode( ',', $attributes['values'] ) );
 			}
