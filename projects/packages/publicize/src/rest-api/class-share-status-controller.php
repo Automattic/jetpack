@@ -172,6 +172,10 @@ class Share_Status_Controller extends Base_Controller {
 				'description' => __( 'Profile link of the sharing account.', 'jetpack-publicize-pkg' ),
 				'type'        => 'string',
 			),
+			'wpcom_user_id'   => array(
+				'type'        => 'integer',
+				'description' => __( 'wordpress.com ID of the user the connection belongs to.', 'jetpack-publicize-pkg' ),
+			),
 		);
 	}
 
