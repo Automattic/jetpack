@@ -58,8 +58,6 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 
 	/**
 	 * Test for Tracking_Pixel::build_view_data with home
-	 *
-	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
 	 */
 	public function test_build_view_data_with_home() {
 		global $wp_the_query;
@@ -80,8 +78,6 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 
 	/**
 	 * Test for Tracking_Pixel::build_view_data with archives
-	 *
-	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
 	 */
 	public function test_build_view_data_with_archives() {
 		// testing author archives
@@ -178,8 +174,6 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 
 	/**
 	 * Test for Tracking_Pixel::build_view_data with error
-	 *
-	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
 	 */
 	public function test_build_view_data_with_error() {
 		global $wp_the_query;
@@ -200,8 +194,6 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 
 	/**
 	 * Test for Tracking_Pixel::build_view_data with an undefined type of page
-	 *
-	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
 	 */
 	public function test_build_view_data_with_undefined_type() {
 		$view_data          = Tracking_Pixel::build_view_data();
@@ -220,8 +212,6 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 
 	/**
 	 * Test for Tracking_Pixel::build_view_data with search
-	 *
-	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
 	 */
 	public function test_build_view_data_with_search() {
 		global $wp_the_query;
