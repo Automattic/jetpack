@@ -2713,6 +2713,8 @@ function wpcom_launchpad_add_subscribe_block_check( $post_id, $post ) {
 		return;
 	}
 
+	error_log( print_r( compact( $post->post_content ), true ) );
+
 	// Check if our subscribe block is in the template or template part content.
 	if ( has_block( 'jetpack/subscriptions', $post->post_content ) ) {
 		// Run your specific function if the subscribe block is found.
