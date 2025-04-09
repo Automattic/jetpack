@@ -1,9 +1,22 @@
-import attributes from './attributes';
 import transforms from './transforms';
 
 export default {
 	apiVersion: 3,
-	attributes,
+	attributes: {
+		id: { type: 'string' },
+		required: {
+			type: 'boolean',
+			default: false,
+		},
+		width: {
+			type: 'number',
+			default: 100,
+		},
+		shareFieldAttributes: {
+			type: 'boolean',
+			default: true,
+		},
+	},
 	category: 'contact-form',
 	example: {},
 	providesContext: { 'jetpack/field-required': 'required' },

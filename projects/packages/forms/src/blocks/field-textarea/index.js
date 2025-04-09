@@ -24,8 +24,6 @@ const settings = {
 		),
 	},
 	edit,
-	// TODO: Revisit all the field attributes so they don't have label, placeholder etc.
-	attributes: defaultSettings.attributes,
 	deprecated,
 	save,
 };

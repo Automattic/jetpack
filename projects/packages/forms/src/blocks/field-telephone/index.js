@@ -22,14 +22,6 @@ const settings = {
 		src: <Icon icon={ mobile } />,
 	},
 	edit,
-	attributes: {
-		...defaultSettings.attributes,
-		label: {
-			type: 'string',
-			default: 'Phone',
-			role: 'content',
-		},
-	},
 	deprecated,
 	save,
 };
