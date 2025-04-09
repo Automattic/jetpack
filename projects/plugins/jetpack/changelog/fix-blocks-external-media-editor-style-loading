@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blocks: Ensure assets are dequeued when appropriate only when viewing patterns
