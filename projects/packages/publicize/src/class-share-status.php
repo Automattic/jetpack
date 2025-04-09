@@ -41,10 +41,11 @@ class Share_Status {
 		$done = metadata_exists( 'post', $post_id, self::SHARES_META_KEY );
 
 		if ( $done ) {
-			// The site could have multiple admins, editors and authors connected. Load shares information that only the current user has access to.
-			$connection_ids = wp_list_pluck( Connections::get_all_for_user(), 'connection_id', 'connection_id' );
 
 			if ( $filter_by_access ) {
+				// The site could have multiple admins, editors and authors connected. Load shares information that only the current user has access to.
+				$connection_ids = wp_list_pluck( Connections::get_all_for_user(), 'connection_id', 'connection_id' );
+
 				$shares = array_filter(
 					$shares,
 					function ( $share ) use ( $connection_ids ) {
