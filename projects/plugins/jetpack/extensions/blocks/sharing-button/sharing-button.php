@@ -85,7 +85,7 @@ function render_block( $attr, $content, $block ) {
 		esc_html( $title )
 	);
 
-	$accessible_name .= ' ' . __( '(Opens in new window)', 'jetpack' );
+	$accessible_name .= __( ' (Opens in new window)', 'jetpack' );
 
 	$block_class_name = 'jetpack-sharing-button__list-item';
 
