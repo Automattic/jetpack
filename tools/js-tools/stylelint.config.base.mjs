@@ -53,7 +53,6 @@ const baseConfig = {
 		'selector-attribute-quotes': null,
 		'selector-id-pattern': null,
 		'selector-pseudo-element-colon-notation': null,
-		'selector-type-no-unknown': null,
 		'unit-no-unknown': null,
 		'value-keyword-case': null,
 	},
