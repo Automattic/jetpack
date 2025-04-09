@@ -70,7 +70,7 @@ export default function CheckboxFieldEdit( props ) {
 	return (
 		<>
 			<div { ...innerBlocksProps } />
-			<BlockControls>
+			<BlockControls __experimentalShareWithChildBlocks>
 				<ToolbarRequiredGroup required={ required } onClick={ onRequiredToggle } />
 			</BlockControls>
 			<InspectorControls>
