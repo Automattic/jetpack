@@ -1,4 +1,4 @@
-import * as allIcons from '../index.js';
+import * as allIcons from '../index.tsx';
 import styles from './style.module.scss';
 import type { StoryFn, Meta } from '@storybook/react';
 

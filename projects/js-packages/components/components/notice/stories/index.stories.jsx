@@ -1,7 +1,7 @@
 /* eslint-disable no-alert -- ok for demo */
 import { ExternalLink } from '@wordpress/components';
-import Button from '../../button/index.js';
-import Notice from '../index.js';
+import Button from '../../button/index.tsx';
+import Notice from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Components/Notice',

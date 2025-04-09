@@ -1,5 +1,5 @@
-import type { ImageStyleObject } from '../../hooks/use-image-generator/constants.js';
-import type { SiteDetails } from '../types.js';
+import type { ImageStyleObject } from '../../hooks/use-image-generator/constants.ts';
+import type { SiteDetails } from '../types.ts';
 
 /**
  * Types for the AI Assistant feature.

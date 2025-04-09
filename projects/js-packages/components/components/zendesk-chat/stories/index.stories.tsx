@@ -1,4 +1,4 @@
-import ZendeskChat from '../index.js';
+import ZendeskChat from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Components/Zendesk Chat',
