@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-uaXpvT0PvT0IEEpUWl3YCJWkKnT1QTsUvPUQNwmeEek=
+pnpmfileChecksum: sha256-AJ+gkSMru7ZZQDe/JuohyBfWGVAdC0lqOM0JYAXfuLk=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -14885,8 +14885,8 @@ packages:
   text-hex@1.0.0:
     resolution: {integrity: sha512-uuVGNWzgJ4yhRaNSiubPY7OjISw4sw4E5Uv0wbjp+OzcbmVU/rsT8ujgcXJhn9ypzsgr5vlzpPqP+MBBKcGvbg==}
 
-  third-party-web@0.26.5:
-    resolution: {integrity: sha512-tDuKQJUTfjvi9Fcrs1s6YAQAB9mzhTSbBZMfNgtWNmJlHuoFeXO6dzBFdGeCWRvYL50jQGK0jPsBZYxqZQJ2SA==}
+  third-party-web@0.26.6:
+    resolution: {integrity: sha512-GsjP92xycMK8qLTcQCacgzvffYzEqe29wyz3zdKVXlfRD5Kz1NatCTOZEeDaSd6uCZXvGd2CNVtQ89RNIhJWvA==}
 
   thread-loader@3.0.4:
     resolution: {integrity: sha512-ByaL2TPb+m6yArpqQUZvP+5S1mZtXsEP7nWKKlAUTm7fCml8kB5s1uI3+eHRP2bk5mVYfRSBI7FFf+tWEyLZwA==}
@@ -17595,7 +17595,7 @@ snapshots:
 
   '@paulirish/trace_engine@0.0.50':
     dependencies:
-      third-party-web: 0.26.5
+      third-party-web: 0.26.6
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -25695,7 +25695,7 @@ snapshots:
       robots-parser: 3.0.1
       semver: 5.7.2
       speedline-core: 1.4.3
-      third-party-web: 0.26.5
+      third-party-web: 0.26.6
       tldts-icann: 6.1.85
       ws: 7.5.10
       yargs: 17.6.2
@@ -28803,7 +28803,7 @@ snapshots:
 
   text-hex@1.0.0: {}
 
-  third-party-web@0.26.5: {}
+  third-party-web@0.26.6: {}
 
   thread-loader@3.0.4(webpack@5.94.0):
     dependencies:
