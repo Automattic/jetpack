@@ -131,9 +131,9 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	vertical-align: top;
 	text-align: center;
 	display: inline-block;
-	font-family: "Noticons";
+	font-family: Noticons;
 	font-style: normal;
-	font-weight: normal;
+	font-weight: 400;
 	font-variant: normal;
 	line-height: 1;
 	text-decoration: inherit;
@@ -244,7 +244,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 		display: inline-block;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
-		font: normal math.div($icon-size, 1) 'Noticons';
+		font: 400 math.div($icon-size, 1) 'Noticons';
 		color: $white;
 		position: absolute;
 		top: 0;

@@ -11,6 +11,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * REST Authentication functionality testing.
+ *
+ * @covers \Automattic\Jetpack\Connection\REST_Authentication
  */
 class REST_Authentication_Test extends TestCase {
 
@@ -69,8 +71,6 @@ class REST_Authentication_Test extends TestCase {
 
 	/**
 	 * Tests wp_rest_authentication_errors with an incoming error.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\REST_Authentication::wp_rest_authentication_errors
 	 */
 	public function test_wp_rest_authentication_errors_existing_error() {
 		$error = new \WP_Error( 'test_error', 'This is a test error' );
@@ -79,8 +79,6 @@ class REST_Authentication_Test extends TestCase {
 
 	/**
 	 * Tests wp_rest_authenticate with an incoming user id.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\REST_Authentication::wp_rest_authenticate
 	 */
 	public function test_wp_rest_authenticate_existing_user() {
 		$user_id = 123;
@@ -93,7 +91,6 @@ class REST_Authentication_Test extends TestCase {
 	 * @param array $test_inputs      The array containing the test inputs.
 	 * @param array $expected_outputs The array containg the expected test outputs.
 	 *
-	 * @covers \Automattic\Jetpack\Connection\REST_Authentication::wp_rest_authenticate
 	 * @dataProvider wp_rest_authenticate_data_provider
 	 */
 	public function test_wp_rest_authenticate( $test_inputs, $expected_outputs ) {
@@ -303,7 +300,6 @@ class REST_Authentication_Test extends TestCase {
 	 * @param array $test_inputs The array containing the test inputs.
 	 * @param bool  $expected    The array containg the expected test outputs.
 	 *
-	 * @covers \Automattic\Jetpack\Connection\REST_Authentication::is_signed_with_blog_token
 	 * @dataProvider is_signed_with_blog_token_data_provider
 	 */
 	public function test_is_signed_with_blog_token( $test_inputs, $expected ) {

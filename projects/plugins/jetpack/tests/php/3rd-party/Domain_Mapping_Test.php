@@ -32,6 +32,7 @@ class MockDomainMapping extends Domain_Mapping {
  * Class Domain_Mapping_Test
  *
  * @package automattic/jetpack
+ * @covers \Automattic\Jetpack\Third_Party\Domain_Mapping
  */
 class Domain_Mapping_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -50,8 +51,6 @@ class Domain_Mapping_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Tests that hooks will be hooked when SUNRISE is not true.
-	 *
-	 * @covers Automattic\Jetpack\Third_Party\Domain_Mapping::attempt_to_hook_domain_mapping_plugins
 	 */
 	public function test_domain_mapping_should_not_try_to_hook_when_sunrise_disable() {
 		$stub = $this->getMockBuilder( MockDomainMapping::class )
@@ -73,8 +72,6 @@ class Domain_Mapping_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Tests that hooks will only be applied once.
-	 *
-	 * @covers Automattic\Jetpack\Third_Party\Domain_Mapping::attempt_to_hook_domain_mapping_plugins
 	 */
 	public function test_domain_mapping_should_stop_search_after_hooking_once() {
 		Constants::set_constant( 'SUNRISE', true );
@@ -98,8 +95,6 @@ class Domain_Mapping_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Tests if domain mapping hooks for Domain Mapping when the function does not exists.
-	 *
-	 * @covers Automattic\Jetpack\Third_Party\Domain_Mapping::hook_wordpress_mu_domain_mapping
 	 */
 	public function test_domain_mapping_mu_domain_mapping_not_hooked_when_function_not_exists() {
 		Constants::set_constant( 'SUNRISE_LOADED', true );
@@ -122,8 +117,6 @@ class Domain_Mapping_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Tests if domain mapping hooks for Domain Mapping when the function exists.
-	 *
-	 * @covers Automattic\Jetpack\Third_Party\Domain_Mapping::hook_wordpress_mu_domain_mapping
 	 */
 	public function test_domain_mapping_mu_domain_mapping_hooked_when_function_exists() {
 		Constants::set_constant( 'SUNRISE_LOADED', true );
@@ -146,8 +139,6 @@ class Domain_Mapping_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Tests if domain mapping hooks for WPMU DEV's Domain Mapping when the function doesn't exists.
-	 *
-	 * @covers Automattic\Jetpack\Third_Party\Domain_Mapping::hook_wpmu_dev_domain_mapping
 	 */
 	public function test_domain_mapping_wpmu_dev_domain_mapping_not_hooked_when_functions_not_exist() {
 		$stub = $this->getMockBuilder( MockDomainMapping::class )
@@ -172,8 +163,6 @@ class Domain_Mapping_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Tests if domain mapping hooks for WPMU DEV's Domain Mapping when the function exists.
-	 *
-	 * @covers Automattic\Jetpack\Third_Party\Domain_Mapping::hook_wpmu_dev_domain_mapping
 	 */
 	public function test_domain_mapping_wpmu_dev_domain_mapping_hooked_when_functions_exist() {
 		$stub = $this->getMockBuilder( MockDomainMapping::class )

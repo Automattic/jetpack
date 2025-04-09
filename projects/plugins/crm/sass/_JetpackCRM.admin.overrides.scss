@@ -77,7 +77,7 @@
 .dops-button.is-primary {
 	background: #007cba;
 	border-color: #007cba;
-	color: white;
+	color: #fff;
 }
 
 // hide logo
@@ -88,11 +88,11 @@
 }
 
 .inbox-nav{
-	background:white !important;
+	background: #fff !important;
 	border-right: 1px solid #dddd !important;
 
 	.item{
 		border-bottom: 1px solid #e2e2e2;
-		color: black !important;
+		color: #000 !important;
 	}
 }

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Added support for border width, style and color to Button block.

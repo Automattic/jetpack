@@ -25,11 +25,25 @@ export const settings = {
 				fontSize: true,
 			},
 		},
+		__experimentalBorder: {
+			color: true,
+			style: true,
+			width: true,
+			__experimentalSkipSerialization: true,
+			__experimentalDefaultControls: {
+				color: true,
+				style: true,
+				width: true,
+			},
+		},
 	},
 	styles: [
 		{ name: 'fill', label: __( 'Fill', 'jetpack' ), isDefault: true },
 		{ name: 'outline', label: __( 'Outline', 'jetpack' ) },
 	],
+	selectors: {
+		border: '.wp-block-jetpack-button .wp-block-button__link',
+	},
 	attributes,
 	edit,
 	save,
