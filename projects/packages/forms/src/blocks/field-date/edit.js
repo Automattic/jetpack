@@ -12,7 +12,7 @@ import { ALLOWED_INNER_BLOCKS, DATE_FORMAT_OPTIONS } from '../shared/util/consta
 
 export default function DateFieldEdit( props ) {
 	const { attributes, clientId, isSelected, name, setAttributes } = props;
-	const { id, label, required, width, dateFormat } = attributes;
+	const { id, required, width, dateFormat } = attributes;
 
 	useFormWrapper( { attributes, clientId, name } );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
@@ -28,8 +28,11 @@ export default function DateFieldEdit( props ) {
 	const labelBlockType = getBlockType( 'jetpack/label' );
 	const defaultLabel = labelBlockType.attributes.label.default;
 	const template = useMemo( () => {
-		return [ [ 'jetpack/label', { label, required, defaultLabel } ], [ 'jetpack/input' ] ];
-	}, [ label, defaultLabel, required ] );
+		return [
+			[ 'jetpack/label', { label: __( 'Date', 'jetpack-forms' ), required, defaultLabel } ],
+			[ 'jetpack/input' ],
+		];
+	}, [ defaultLabel, required ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,

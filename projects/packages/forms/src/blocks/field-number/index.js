@@ -19,14 +19,6 @@ const settings = {
 		/>
 	),
 	edit,
-	attributes: {
-		...defaultSettings.attributes,
-		label: {
-			type: 'string',
-			default: 'Number',
-			role: 'content',
-		},
-	},
 	deprecated,
 	save,
 };

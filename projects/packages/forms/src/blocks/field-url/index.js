@@ -23,14 +23,6 @@ const settings = {
 		src: <Icon icon={ globe } />,
 	},
 	edit,
-	attributes: {
-		...defaultSettings.attributes,
-		label: {
-			type: 'string',
-			default: 'Website',
-			role: 'content',
-		},
-	},
 	deprecated,
 	save,
 };

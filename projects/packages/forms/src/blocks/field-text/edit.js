@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import JetpackField from '../shared/components/jetpack-field';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 
@@ -8,7 +9,7 @@ export default function TextFieldEdit( props ) {
 		<JetpackField
 			clientId={ props.clientId }
 			type="text"
-			label={ props.attributes.label }
+			label={ __( 'Text', 'jetpack-forms' ) }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
 			setAttributes={ props.setAttributes }
