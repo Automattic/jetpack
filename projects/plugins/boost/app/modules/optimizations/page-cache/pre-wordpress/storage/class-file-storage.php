@@ -174,7 +174,7 @@ class File_Storage implements Storage {
 	 * )
 	 */
 	public function clear( $path, $args = array() ) {
-		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
+		$normalized_path = Boost_Cache_Utils::trailingslashit( $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path ) );
 
 		$recursive  = $args['recursive'] ?? false;
 		$rebuild    = $args['rebuild'] ?? true;
