@@ -62,7 +62,7 @@ function jetpack_boost_delete_cache_for_home() {
  */
 function jetpack_boost_delete_cache_for_url( $url ) {
 	$boost_cache = new Boost_Cache();
-	$boost_cache->delete_page( $url );
+	$boost_cache->delete_recursive( $url );
 }
 
 /**
