@@ -4,6 +4,11 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 use Automattic\Jetpack\Constants;
 
+/**
+ * @covers ::jetpack_instagram_get_allowed_parameters
+ * @covers ::jetpack_instagram_oembed_fetch_url
+ * @covers ::jetpack_shortcode_instagram
+ */
 class Jetpack_Shortcodes_Instagram_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -176,9 +181,6 @@ BODY;
 		return $response;
 	}
 
-	/**
-	 * @covers ::jetpack_shortcode_instagram
-	 */
 	public function test_shortcode_instagram() {
 		$instagram_url = 'https://www.instagram.com/p/BnMO9vRleEx/';
 		$content       = '[instagram url="' . $instagram_url . '"]';
@@ -194,7 +196,6 @@ BODY;
 	/**
 	 * Test different oEmbed URLs and their output.
 	 *
-	 * @covers ::jetpack_instagram_oembed_fetch_url
 	 * @dataProvider get_instagram_urls
 	 *
 	 * @param string $original Instagram URL provided by user.
@@ -253,7 +254,6 @@ BODY;
 	 * Uses a real HTTP request to Instagram's oEmbed endpoint.
 	 *
 	 * @see ::set_up()
-	 * @covers ::jetpack_shortcode_instagram
 	 * @group external-http
 	 */
 	public function test_shortcode_instagram_via_oembed_http_request() {
@@ -353,8 +353,6 @@ BODY;
 	 * Test the build of a set of allowed parameters from a variety of inputs.
 	 *
 	 * @dataProvider get_instagram_parameters
-	 * @covers ::jetpack_instagram_get_allowed_parameters
-	 *
 	 * @param string $url      URL of the content to be embedded.
 	 * @param array  $atts     Shortcode attributes.
 	 * @param array  $expected Array of expected parameters.
@@ -370,8 +368,6 @@ BODY;
 
 	/**
 	 * Variety of parameters available from an embed.
-	 *
-	 * @covers ::jetpack_instagram_get_allowed_parameters
 	 *
 	 * @since 9.1.0
 	 */

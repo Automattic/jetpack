@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: only display the dashboard widget to site admins.

@@ -24,7 +24,7 @@
 		// handle
 		li:before { 
 
-			font-family: 'FontAwesome';
+			font-family: FontAwesome;
 			content: '\f0c9';
     		margin: 0 10px 0 0;
 			color: #ddd;
@@ -34,7 +34,7 @@
 		// ico when dragging
 		li.ui-sortable-helper:before { 
 
-			font-family: 'FontAwesome';
+			font-family: FontAwesome;
 			content: '\f0c9';
     		margin: 0 10px 0 0;
 			color: #000;

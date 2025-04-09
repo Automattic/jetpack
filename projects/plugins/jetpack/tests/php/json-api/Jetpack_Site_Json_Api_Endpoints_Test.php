@@ -9,6 +9,8 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
  * Jetpack `site/%s` endpoint unit tests.
+ *
+ * @covers \WPCOM_JSON_API_GET_Site_Endpoint
  */
 class Jetpack_Site_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -69,7 +71,6 @@ class Jetpack_Site_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	 * Test that trial flags are returned for sites that have them.
 	 *
 	 * @author zaerl
-	 * @covers WPCOM_JSON_API_GET_Site_Endpoint::build_current_site_response
 	 */
 	public function test_get_site_trials_list() {
 		global $blog_id;

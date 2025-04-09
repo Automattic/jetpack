@@ -11,7 +11,7 @@
 
 .widefat .menu-label-row td h3 .edit-nova-section {
 	font-size: .8em;
-	font-weight: normal;
+	font-weight: 400;
 	margin-left: 5px;
 }
 
@@ -84,7 +84,7 @@
 .nova-move-menu-up:before,
 .nova-move-menu-down:before {
 	margin-right: 5px;
-	font: normal 10px/1 'dashicons' !important;
+	font: 400 10px/1 dashicons !important;
 	speak: none;
 }
 
@@ -97,7 +97,7 @@
 }
 
 .dashicon:before {
-	font: normal 20px/1 'dashicons';
+	font: 400 20px/1 dashicons;
 	speak: none;
 	top: 5px;
 	display: inline-block;

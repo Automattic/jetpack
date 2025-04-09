@@ -14,7 +14,7 @@
  .zbs-invoice-list{
 
     .paid {
-        background: green;
+        background: #008000;
     }
 
     .draft {
@@ -22,7 +22,7 @@
     }
 
     .overdue {
-        background: red;
+        background: #f00;
     }
 
     .unpaid {
@@ -31,7 +31,7 @@
 
     .status {
         padding: 5px;
-        color: white;
+        color: #fff;
         font-weight: 700;
     }
 
@@ -45,7 +45,7 @@
     padding: 50px;
     border: 1px solid #ddd;
     margin-bottom: 15px;
-    background: white;
+    background: #fff;
     position: relative;
 
     .zbs-portal-label {
@@ -55,7 +55,7 @@
 
     .zbs-portal-value {
         font-size: 40px;
-        color: black;
+        color: #000;
         font-weight: 900;
     }
 
@@ -81,7 +81,7 @@
     .pay-to-name {
         font-size: 22px;
         font-weight: 800;
-        color: black;
+        color: #000;
     }
 
     #zbs-business-info-wrapper, .zbs-invoice-pull-left {
