@@ -43,7 +43,7 @@
 		margin-bottom:10px;
 		border: 1px solid #ccc;
 		padding:10px;
-		background: white;
+		background: #fff;
 		font-size: 13px;
 	}
 
@@ -162,9 +162,9 @@
 
 		#zbs_success{
 			display:none;
-			background:green;
+			background: #008000;
 			padding:10px;
-			color: white;
+			color: #fff;
 			font-weight:100;
 			font-size:14px;
 
@@ -270,7 +270,7 @@
 
 	    	.bord{
 	    		background: #f5f5f5;
-	    		color: black;
+	    		color: #000;
 	    		font-weight: 800;
 	    		border-bottom: 2px solid #ccc;
 	    	}
@@ -311,7 +311,7 @@
 	    }
 
 	    .row-amount{
-		    color: black;
+		    color: #000;
 		    font-weight: 400;
 		    height:20px;
 		    text-align:right;
@@ -356,7 +356,7 @@
 		}
 
 		.row-amount{
-			color: black;
+			color: #000;
 			font-weight:400;
 			text-align:right;
 		}
@@ -416,7 +416,7 @@
 	    	.draft{
 	    		background-color: #ddd;
 	    		text-transform: uppercase;
-	    		color: white;
+	    		color: #fff;
 			    padding: 7px;
 			    font-weight: 900;
 			    font-size: 25px;	    		
@@ -425,16 +425,16 @@
 	    	.unpaid{
 	    		background-color: #ffd800;
 	    		text-transform: uppercase;
-	    		color: white;
+	    		color: #fff;
 			    padding: 7px;
 			    font-weight: 900;
 			    font-size: 25px;
 	    	}
 
 	    	.paid{
-	    		background-color: green;
+	    		background-color: #008000;
 	    		text-transform: uppercase;
-	    		color: white;
+	    		color: #fff;
 			    padding: 7px;
 			    font-weight: 900;
 			    font-size: 25px;	    		
@@ -575,7 +575,7 @@
 		margin-top: 20px;
 	    padding: 30px;
 	    width: 100%;
-	    background: aliceblue;
+	    background: #f0f8ff;
 	    margin-bottom: 20px;
 	    border-radius: 11px;
 	    border: 1px solid #428bca;

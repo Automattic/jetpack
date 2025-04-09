@@ -88,12 +88,12 @@
 	    vertical-align: baseline;
 	    background: #E0E1E2 none;
 	    color: rgba(0,0,0,0.6);
-	    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+	    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
 	    margin: 0em 0.25em 0em 0em;
 	    padding: 0.78571429em 1.5em 0.78571429em;
 	    text-transform: none;
 	    text-shadow: none;
-	    font-weight: bold;
+	    font-weight: 700;
 	    line-height: 1em;
 	    font-style: normal;
 	    text-align: center;
@@ -113,7 +113,7 @@
 
 	    background: transparent none !important;
 	    color: rgba(0,0,0,0.6) !important;
-	    font-weight: normal;
+	    font-weight: 400;
 	    border-radius: 0.28571429rem;
 	    text-transform: none;
 	    text-shadow: none !important;
@@ -213,7 +213,7 @@ i.zbs-hide-longdesc {
 // ++========= MS additions WH moved out of inline 27/2/19
 
 .zbs-social-buttons a{
-color:white;
+color: #fff;
 }
 
 .zbs-social-buttons .zbs-social-acc{
@@ -224,7 +224,7 @@ width:30px;
 
 .zbs-social-buttons .icon{
 margin: 0px !important;
-color:white;
+color: #fff;
 font-size:14px;
 }
 

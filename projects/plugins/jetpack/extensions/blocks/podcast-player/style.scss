@@ -192,7 +192,7 @@ $jetpack-podcast-player-error: $alert-red;
 		 * above) to apply styling for different scenarios.
 		 */
 		&.is-active {
-			font-weight: bold;
+			font-weight: 700;
 			color: var( --jetpack-podcast-player-primary );
 
 			&:not( .has-primary ) {
@@ -302,7 +302,7 @@ $jetpack-podcast-player-error: $alert-red;
 		margin-inline-start: ( $gutter-l - 2px ) + $track-status-icon-size + $gutter-m; // has to be aligned with the track title
 		margin-bottom: $gutter-s;
 		font-size: 0.8em;
-		font-weight: normal;
+		font-weight: 400;
 		color: $jetpack-podcast-player-error;
 
 		& > span {
@@ -327,7 +327,7 @@ $jetpack-podcast-player-error: $alert-red;
 		margin: 0;
 		color: $jetpack-podcast-player-error;
 		font-size: 0.8em;
-		font-weight: normal;
+		font-weight: 400;
 	}
 
 	@supports ( mask-image: none ) or ( -webkit-mask-image: none ) {

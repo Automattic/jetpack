@@ -6,13 +6,13 @@
 	}
 
 	.jetpack-subscribe-reader-count {
-		font-weight: bold;
+		font-weight: 700;
 		white-space: nowrap; // Prevent reader counts from being broken into separate lines.
 	}
 
 	&__heading {
 		margin-inline-start: 3px;
-		font-weight: normal;
+		font-weight: 400;
 	}
 
 	.components-notice__content {
