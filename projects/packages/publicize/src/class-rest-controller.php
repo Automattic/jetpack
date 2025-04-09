@@ -523,6 +523,6 @@ class REST_Controller {
 			'wpcom/v2/publicize/share-status'
 		);
 
-		return rest_ensure_response( SHare_Status::get_post_share_status( $post_id ) );
+		return rest_ensure_response( Share_Status::get_post_share_status( $post_id ) );
 	}
 }
