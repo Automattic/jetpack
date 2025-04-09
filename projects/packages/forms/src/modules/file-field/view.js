@@ -103,7 +103,7 @@ const addFileToContext = file => {
 		error = config.i18n.maxFiles;
 	}
 
-	const fileId = performance.now() + '-' + Math.random();
+	const clientFileId = performance.now() + '-' + Math.random();
 
 	// Update the context.
 	context.hasFiles = true;
@@ -113,18 +113,18 @@ const addFileToContext = file => {
 		formattedSize: formatBytes( file.size, 2 ),
 		hasToken: false,
 		hasError: !! error,
-		id: fileId,
+		id: clientFileId,
 		error,
 	} );
 
-	const uploadFileWithScope = withScope( uploadFile.bind( this, file, fileId ) );
+	const uploadFileWithScope = withScope( uploadFile.bind( this, file, clientFileId ) );
 
 	// Start the upload if we don't have any errors.
 	! error && uploadFileWithScope();
 
 	// Load the file so we can display it. In case it is an image.
 	reader.onload = withScope( () => {
-		updateFileContext( { url: 'url(' + reader.result + ')' }, fileId );
+		updateFileContext( { url: 'url(' + reader.result + ')' }, clientFileId );
 	} );
 };
 
@@ -136,11 +136,11 @@ const uploadControllers = new Map();
  * This function is a generator so that we can use the withScope function.
  * And the context gets passed to the onProgress and onReadyStateChange functions.
  *
- * @param {File}   file   - The file to upload.
- * @param {string} fileId - The file ID.
+ * @param {File}   file         - The file to upload.
+ * @param {string} clientFileId - The client file ID.
  * @yield {Promise<string>} The upload token.
  */
-function* uploadFile( file, fileId ) {
+function* uploadFile( file, clientFileId ) {
 	const { endpoint } = getConfig( NAMESPACE );
 
 	const token = yield getUploadToken();
@@ -149,16 +149,19 @@ function* uploadFile( file, fileId ) {
 
 	// Create an AbortController for this upload
 	const abortController = new AbortController();
-	uploadControllers.set( fileId, abortController );
+	uploadControllers.set( clientFileId, abortController );
 
 	xhr.open( 'POST', endpoint, true );
-	xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, fileId ) ) );
-	xhr.addEventListener( 'readystatechange', withScope( onReadyStateChange.bind( this, fileId ) ) );
+	xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, clientFileId ) ) );
+	xhr.addEventListener(
+		'readystatechange',
+		withScope( onReadyStateChange.bind( this, clientFileId ) )
+	);
 
 	// Handle abort signal
 	abortController.signal.addEventListener( 'abort', () => {
 		xhr.abort();
-		updateFileContext( { error: 'Upload canceled', hasError: true }, fileId );
+		updateFileContext( { error: 'Upload canceled', hasError: true }, clientFileId );
 	} );
 
 	formData.append( 'file', file );
@@ -170,22 +173,22 @@ function* uploadFile( file, fileId ) {
  * Responsible for updating the progress circle.
  * Gets called on the progress upload.
  *
- * @param {string}        fileId - The file ID.
- * @param {ProgressEvent} event  - The progress event object.
+ * @param {string}        clientFileId - The client file ID.
+ * @param {ProgressEvent} event        - The progress event object.
  */
-const onProgress = ( fileId, event ) => {
+const onProgress = ( clientFileId, event ) => {
 	const progress = ( event.loaded / event.total ) * 100;
 	// We don't want to show 100% progress, as it's misleading.
-	updateFileContext( { progress: Math.min( progress, 97 ) }, fileId );
+	updateFileContext( { progress: Math.min( progress, 97 ) }, clientFileId );
 };
 
 /**
  * React to the onReadyStateChange event when the endpoint returns.
  *
- * @param {string} fileId - The file ID.
- * @param {Event}  event  - The event object.
+ * @param {string} clientFileId - The file ID.
+ * @param {Event}  event        - The event object.
  */
-const onReadyStateChange = ( fileId, event ) => {
+const onReadyStateChange = ( clientFileId, event ) => {
 	const xhr = event.target;
 	if ( xhr.readyState === 4 ) {
 		if ( xhr.status === 200 ) {
@@ -193,26 +196,26 @@ const onReadyStateChange = ( fileId, event ) => {
 			if ( response.success ) {
 				updateFileContext(
 					{
-						file_id: response.data.token,
+						file_id: response.data.file_id,
 						hasToken: true,
 						name: response.data.name,
 						type: response.data.type,
 						size: response.data.size,
 						fileJson: JSON.stringify( {
-							file_id: response.data.token,
+							file_id: response.data.file_id,
 							name: response.data.name,
 							size: response.data.size,
 							type: response.data.type,
 						} ),
 					},
-					fileId
+					clientFileId
 				);
 				return;
 			}
 		}
 		if ( xhr.responseText ) {
 			const response = JSON.parse( xhr.responseText );
-			updateFileContext( { error: response.message, hasError: true }, fileId );
+			updateFileContext( { error: response.message, hasError: true }, clientFileId );
 		}
 	}
 };
@@ -220,12 +223,12 @@ const onReadyStateChange = ( fileId, event ) => {
 /**
  * Update the context with the new updatedFile object based on the file ID.
  *
- * @param {object} updatedFile - The updated file object.
- * @param {string} fileId      - The file ID.
+ * @param {object} updatedFile  - The updated file object.
+ * @param {string} clientFileId - The client file ID.
  */
-const updateFileContext = ( updatedFile, fileId ) => {
+const updateFileContext = ( updatedFile, clientFileId ) => {
 	const context = getContext();
-	const index = context.files.findIndex( file => file.id === fileId );
+	const index = context.files.findIndex( file => file.id === clientFileId );
 	context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
 };
 
@@ -312,16 +315,16 @@ store( NAMESPACE, {
 		removeFile: function* ( event ) {
 			event.preventDefault();
 			const context = getContext();
-			const fileId = event.target.dataset.id;
+			const clientFileId = event.target.dataset.id;
 
 			// Cancel the upload if it's in progress
-			if ( uploadControllers.has( fileId ) ) {
-				const abortController = uploadControllers.get( fileId );
+			if ( uploadControllers.has( clientFileId ) ) {
+				const abortController = uploadControllers.get( clientFileId );
 				abortController.abort(); // Cancel the upload
-				uploadControllers.delete( fileId ); // Clean up the controller
+				uploadControllers.delete( clientFileId ); // Clean up the controller
 			}
 
-			const file = context.files.find( fileObject => fileObject.id === fileId );
+			const file = context.files.find( fileObject => fileObject.id === clientFileId );
 
 			if ( file && file.file_id ) {
 				const { endpoint } = getConfig( NAMESPACE );
@@ -334,7 +337,7 @@ store( NAMESPACE, {
 					body: formData,
 				} );
 			}
-			context.files = context.files.filter( fileObject => fileObject.id !== fileId );
+			context.files = context.files.filter( fileObject => fileObject.id !== clientFileId );
 			context.hasFiles = context.files.length > 0;
 		},
 	},
