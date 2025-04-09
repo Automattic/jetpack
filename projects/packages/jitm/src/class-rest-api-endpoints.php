@@ -1,6 +1,16 @@
 <?php
 /**
- * JITM's REST API Endpoints
+ * JITM's (LEGACY) REST API Endpoint
+ *
+ * DO NOT REMOVE.
+ *
+ * Whilst this endpoint has been superseded by the wpcom/v3/jitm endpoint.
+ * it CANNOT BE REMOVED as Odyssey Stats may be running
+ * against older versions of Jetpack. These versions will not have the
+ * wpcom/v3/jitm endpoint registered and therefore it must be kept
+ * for backwards compatibility.
+ *
+ * See PCYsg-Pp7-p2
  *
  * @package automattic/jetpack-jitm
  */
