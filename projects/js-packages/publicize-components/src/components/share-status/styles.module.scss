@@ -1,6 +1,11 @@
 .trigger-wrapper {
-	margin-top: 1rem;
 	padding-block: 1rem;
+
+}
+
+.trigger:not(:global(.is-link)) {
+	width: 100%;
+	justify-content: center;
 }
 
 .wrapper {

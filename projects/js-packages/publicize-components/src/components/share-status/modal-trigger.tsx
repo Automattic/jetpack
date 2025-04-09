@@ -2,6 +2,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { forwardRef, useCallback } from 'react';
 import { store as socialStore } from '../../social-store';
 import { getSocialScriptData } from '../../utils/script-data';
@@ -39,7 +40,13 @@ export const ModalTrigger = forwardRef(
 		}
 
 		const trigger = (
-			<Button variant="secondary" onClick={ onButtonClicked } { ...props } ref={ ref }>
+			<Button
+				variant="secondary"
+				onClick={ onButtonClicked }
+				{ ...props }
+				className={ clsx( styles.trigger, props.className ) }
+				ref={ ref }
+			>
 				{ props.children || __( 'View sharing history', 'jetpack-publicize-components' ) }
 			</Button>
 		);
