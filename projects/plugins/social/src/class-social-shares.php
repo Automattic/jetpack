@@ -65,13 +65,12 @@ class Social_Shares {
 		$html = '<div class="jp_social_shares">';
 
 		if ( ! empty( $shares ) ) {
-			$html .= '<h3>' . __( 'Also on:', 'jetpack-social' ) . '</h5><ul>';
+			$html .= '<h5>' . __( 'Also on:', 'jetpack-social' ) . '</h5><ul>';
 			foreach ( $shares as $service => $item ) {
 				$message = esc_url( $item['message'] );
 				$html   .= '<li><a href="' . $message . '">' . self::get_service_display_name( $service ) . '</a></li>';
 			}
 			$html .= '</ul>';
-			$html .= '</div>';
 		}
 
 		$html .= '</div>';
