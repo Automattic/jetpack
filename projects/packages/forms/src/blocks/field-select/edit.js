@@ -11,8 +11,6 @@ import { useSelect } from '@wordpress/data';
 import { useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-// TODO: Get rid of lodash use here.
-import { split, trim } from 'lodash';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
@@ -111,7 +109,7 @@ export default function DropdownFieldEdit( props ) {
 	};
 
 	const handleChangeOption = index => value => {
-		const values = split( value, '\n' ).filter( op => op && trim( op ) !== '' );
+		const values = ( value || '' ).split( '\n' ).filter( op => op && op.trim() !== '' );
 
 		if ( ! values.length ) {
 			return;
