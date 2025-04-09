@@ -29,12 +29,12 @@ class Social_Shares {
 
 		$shares = Share_Status::get_post_share_status( $post->ID, false );
 
-		if ( empty( $shares ) ) {
+		if ( empty( $shares['shares'] ) ) {
 			return array();
 		}
 
 		$succesful_shares = array_filter(
-			$shares[0],
+			$shares['shares'],
 			function ( $share ) {
 				return isset( $share['status'] ) && 'success' === $share['status'];
 			}
