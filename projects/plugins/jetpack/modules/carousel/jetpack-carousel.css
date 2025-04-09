@@ -20,6 +20,7 @@
 .jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
 	background-image: none;
 }
+
 /* end of temporary fix */
 
 [data-carousel-extra]:not( .jp-carousel-wrap ) img, [data-carousel-extra]:not( .jp-carousel-wrap ) img + figcaption {
@@ -252,7 +253,7 @@ so we have to target all affected elements in touch devices.
 div.jp-carousel-buttons a {
 	border: none !important;
 	color: var(--jp-carousel-primary-subtle-color);
-	font: normal 11px/1.2em 'Helvetica Neue', sans-serif !important;
+	font: 400 11px/1.2em 'Helvetica Neue', sans-serif !important;
 	letter-spacing: 0 !important;
 	padding: 5px 2px 5px 0;
 	text-decoration: none !important;
@@ -333,7 +334,7 @@ div.jp-carousel-buttons a:hover {
 .jp-carousel-pagination {
 	color: var(--jp-carousel-primary-color);
 	font-size: 15px; /* same as .jp-carousel-info-footer .jp-carousel-photo-title  */
-	font-weight: normal;
+	font-weight: 400;
 	white-space: nowrap;
 	display: none;
 	position: static !important;
@@ -361,6 +362,7 @@ div.jp-carousel-buttons a:hover {
 	background: var(--jp-carousel-primary-color);
 	opacity: 0.5;
 }
+
 /** Pagination End **/
 
 /** Title and Desc Start **/
@@ -377,7 +379,7 @@ div.jp-carousel-buttons a:hover {
 	background: none !important;
 	border: none !important;
 	display: inline-block;
-	font: normal 20px/1.3em 'Helvetica Neue', sans-serif;
+	font: 400 20px/1.3em 'Helvetica Neue', sans-serif;
 	line-height: normal;
 	letter-spacing: 0 !important;
 	margin: 0 0 10px 0;
@@ -431,13 +433,13 @@ div.jp-carousel-buttons a:hover {
 	color: var(--jp-carousel-primary-color) !important;
 	border: none !important;
 	text-decoration: underline !important;
-	font-weight: normal !important;
+	font-weight: 400 !important;
 	font-style: normal !important;
 }
 
 .jp-carousel-photo-description p strong,
 .jp-carousel-photo-description p b {
-	font-weight: bold;
+	font-weight: 700;
 	color: var(--jp-carousel-primary-subtle-color);
 }
 
@@ -466,7 +468,7 @@ div.jp-carousel-buttons a:hover {
 
 .jp-carousel-caption {
 	font-size: 14px;
-	font-weight: normal;
+	font-weight: 400;
 	margin: 0;
 }
 
@@ -725,6 +727,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	width: 20px;
 	height: 20px;
 }
+
 #jp-carousel-comment-form-spinner {
 	display: none;
 	float: left;
@@ -749,20 +752,25 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 @-webkit-keyframes load8 {
+
 	0% {
 		-webkit-transform: rotate( 0deg );
 		transform: rotate( 0deg );
 	}
+
 	100% {
 		-webkit-transform: rotate( 360deg );
 		transform: rotate( 360deg );
 	}
 }
+
 @keyframes load8 {
+
 	0% {
 		-webkit-transform: rotate( 0deg );
 		transform: rotate( 0deg );
 	}
+
 	100% {
 		-webkit-transform: rotate( 360deg );
 		transform: rotate( 360deg );
@@ -933,6 +941,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-selected .jp-carousel-icon {
 	background: var(--jp-carousel-primary-color);
 }
+
 .jp-carousel-selected rect {
 	fill: var(--jp-carousel-bg-color);
 }
@@ -951,7 +960,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-radius: 4px;
 	background: var(--jp-carousel-primary-color);
 	color: var(--jp-carousel-bg-color);
-	font-weight: normal;
+	font-weight: 400;
 	font-family: 'Helvetica Neue', sans-serif !important;
 	position: relative;
 }
@@ -969,6 +978,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 /* Small screens */
 @media only screen and ( max-width: 760px ) {
+
 	.jp-carousel-overlay .swiper-container .swiper-button-next,
 	.jp-carousel-overlay .swiper-container .swiper-button-prev {
 		display: none !important;

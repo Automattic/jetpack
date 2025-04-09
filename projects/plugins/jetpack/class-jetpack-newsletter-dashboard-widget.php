@@ -90,6 +90,11 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	 * Sets up the Jetpack Newsletter widget in the WordPress admin dashboard.
 	 */
 	public static function wp_dashboard_setup() {
+		// Do not show the widget to non-admins.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		if ( Jetpack::is_connection_ready() ) {
 			static::load_admin_scripts(
 				'jp-newsletter-widget',

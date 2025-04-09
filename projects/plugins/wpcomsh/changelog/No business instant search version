@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added a temporary version of Instant Search which excludes business/commerce sites for performance reasons. As soon as the index rebuild is done and we have jetpack-search-30 ready, we can remove this Instant Search version.

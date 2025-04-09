@@ -157,8 +157,9 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			<>
 				<InspectorControls>
 					<PanelBody
-						title={ __( 'Manage Responses', 'jetpack-forms' ) }
+						title={ __( 'Manage responses', 'jetpack-forms' ) }
 						className="jetpack-contact-form__manage-responses-panel"
+						initialOpen={ false }
 					>
 						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
 					</PanelBody>
@@ -214,7 +215,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							</div>
 						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Email Connection', 'jetpack-forms' ) }>
+					<PanelBody title={ __( 'Email connection', 'jetpack-forms' ) } initialOpen={ false }>
 						<JetpackEmailConnectionSettings
 							emailAddress={ to }
 							emailSubject={ subject }
@@ -226,8 +227,9 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 					{ isFormModalEnabled && (
 						<PanelBody
-							title={ __( 'Manage Integrations', 'jetpack-forms' ) }
+							title={ __( 'Manage integrations', 'jetpack-forms' ) }
 							className="jetpack-contact-form__integrations-panel"
+							initialOpen={ false }
 						>
 							<IntegrationPanel attributes={ attributes } setAttributes={ setAttributes } />
 						</PanelBody>
@@ -243,7 +245,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					{ ! isFormModalEnabled && ! isSimpleSite() && canUserInstallPlugins && (
 						<>
 							<AkismetPanel />
-							<PanelBody title={ __( 'CRM Connection', 'jetpack-forms' ) } initialOpen={ false }>
+							<PanelBody title={ __( 'CRM connection', 'jetpack-forms' ) } initialOpen={ false }>
 								<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
 							</PanelBody>
 							<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>

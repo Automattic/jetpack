@@ -16,7 +16,7 @@ namespace Automattic\Jetpack\Backup;
  */
 class Package_Version {
 
-	const PACKAGE_VERSION = '4.0.20';
+	const PACKAGE_VERSION = '4.0.21';
 
 	const PACKAGE_SLUG = 'backup';
 

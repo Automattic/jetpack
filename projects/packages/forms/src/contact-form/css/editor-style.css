@@ -8,7 +8,7 @@
 	margin: 0 auto;
 	padding: 16px;
 	box-sizing: border-box;
-	background: white;
+	background: #fff;
 	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 }
 
@@ -21,6 +21,7 @@
 }
 
 @media ( min-width: 481px ) {
+
 	.card {
 		padding: 24px;
 	}
@@ -211,7 +212,7 @@ input[type="checkbox"] {
 
 input[type="checkbox"]:checked:before {
 	content: '\f147';
-	font-family: Dashicons;
+	font-family: dashicons;
 	margin: -3px 0 0 -4px;
 	float: left;
 	display: inline-block;
@@ -252,7 +253,7 @@ input[type="checkbox"]:disabled:hover {
 
 input[type="checkbox"] + span {
 	display: block;
-	font-weight: normal;
+	font-weight: 400;
 	margin-left: 24px;
 }
 
@@ -337,11 +338,12 @@ input[type="radio"]:disabled:checked:before {
 
 input[type="radio"] + span {
 	display: block;
-	font-weight: normal;
+	font-weight: 400;
 	margin-left: 24px;
 }
 
 @keyframes grow {
+
 	0% {
 		transform: scale(0.3);
 	}
@@ -356,6 +358,7 @@ input[type="radio"] + span {
 }
 
 @keyframes grow {
+
 	0% {
 		transform: scale(0.3);
 	}
@@ -394,6 +397,7 @@ select {
 	vertical-align: top;
 	white-space: nowrap;
 	box-sizing: border-box;
+
 	/* Aligns the text to the 8px baseline grid and adds padding on right to allow for the arrow. */
 	padding: 7px 32px 9px 14px;
 	-webkit-appearance: none;
@@ -469,7 +473,7 @@ input[type="submit"] {
 	-moz-appearance: none;
 			 appearance: none;
 	vertical-align: baseline;
-	background: white;
+	background: #fff;
 	border-color: #c8d7e1;
 	border-style: solid;
 	border-width: 1px 1px 2px;
@@ -509,7 +513,7 @@ input[type="submit"]:visited {
 input[type="submit"][disabled],
 input[type="submit"]:disabled {
 	color: #e9eff3;
-	background: white;
+	background: #fff;
 	border-color: #e9eff3;
 	cursor: default;
 }

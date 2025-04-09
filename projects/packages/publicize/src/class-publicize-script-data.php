@@ -213,7 +213,7 @@ class Publicize_Script_Data {
 
 		// get_post_share_status is not available on WPCOM yet.
 		if ( Utils::should_block_editor_have_social() && $post && self::has_feature_flag( 'share-status' ) ) {
-			$share_status[ $post->ID ] = self::publicize()->get_post_share_status( $post->ID );
+			$share_status[ $post->ID ] = Share_Status::get_post_share_status( $post->ID );
 		}
 
 		$should_have_connections = self::has_feature_flag( 'connections-management' ) || self::has_feature_flag( 'editor-preview' );

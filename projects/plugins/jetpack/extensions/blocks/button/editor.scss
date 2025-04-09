@@ -2,6 +2,7 @@
 
 // This level of CSS specificity is required to overwrite existing styles
 .editor-styles-wrapper .block-editor-block-list__block.wp-block-jetpack-button {
+
 	@include align-block;
 	max-width: 100%;
 	width: fit-content;

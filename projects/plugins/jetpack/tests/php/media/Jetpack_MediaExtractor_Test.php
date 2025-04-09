@@ -2,12 +2,14 @@
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-extractor.php';
 
+/**
+ * @covers \Jetpack_Media_Meta_Extractor
+ */
 class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_empty_array() {
@@ -25,7 +27,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_image() {
@@ -46,7 +47,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author robfelty
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 13.1
 	 */
 	public function test_mediaextractor_extract_image_with_alttext() {
@@ -73,7 +73,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_shortcode() {
@@ -96,7 +95,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_link() {
@@ -118,7 +116,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_mention() {
@@ -139,7 +136,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_embed() {
@@ -161,7 +157,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract_images_from_content
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_images_from_content_return_empty_array() {
@@ -175,7 +170,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract_images_from_content
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_images_from_content_return_correct_image_struct() {
@@ -194,7 +188,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author robfelty
-	 * @covers Jetpack_Media_Meta_Extractor::extract_images_from_content
 	 * @since 13.1
 	 */
 	public function test_mediaextractor_extract_images_from_content_with_alttext_return_correct_image_struct() {
@@ -216,7 +209,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::get_images_from_html
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_get_images_from_html_empty() {
@@ -230,7 +222,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::get_images_from_html
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_get_images_from_html_already_extracted() {
@@ -245,7 +236,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::get_images_from_html
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_get_images_from_html_duplicate_in_already_extracted() {
@@ -391,7 +381,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_links() {
@@ -445,7 +434,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_extract_images() {
@@ -469,7 +457,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_extract_images_with_alt_text() {
@@ -509,7 +496,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_extract_mentions() {
@@ -532,7 +518,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_extract_shortcodes() {
@@ -592,7 +577,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_extract_embeds() {
@@ -618,7 +602,6 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::get_images_from_html
 	 * @since 3.2
 	 */
 	public function test_extract_image_from_html() {
@@ -650,7 +633,6 @@ EOT;
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_exclude_video_links() {
@@ -704,7 +686,6 @@ EOT;
 	 * Verify alt_text is extracted.
 	 *
 	 * @author mdbitz
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_alt_text() {
@@ -753,8 +734,6 @@ EOT;
 
 	/**
 	 * Verify that audio shortcode URL is extracted.
-	 *
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 */
 	public function test_audio_shortcode() {
 		$post_id = self::factory()->post->create(
@@ -785,8 +764,6 @@ EOT;
 
 	/**
 	 * Verify that video shortcode URL is extracted.
-	 *
-	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 */
 	public function test_video_shortcode() {
 		$post_id = self::factory()->post->create(

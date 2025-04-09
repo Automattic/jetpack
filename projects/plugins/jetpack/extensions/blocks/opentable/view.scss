@@ -36,6 +36,7 @@
 
 	& > .is-style-wide {
 		height: 150px;
+
 		iframe {
 			width: 840px !important;
 		}
@@ -54,11 +55,13 @@
 
 	& > .is-style-button {
 		height: 113px;
+
 		&.aligncenter iframe {
 			width: 210px !important;
 		}
 
 		&.has-no-margin {
+
 			> div[id^="ot-widget-container"] {
 				margin: -14px;
 			}
@@ -79,6 +82,7 @@
 		input[type='submit'] {
 			text-transform: none;
 			padding: 0;
+
 			&:hover {
 				text-decoration: none;
 			}

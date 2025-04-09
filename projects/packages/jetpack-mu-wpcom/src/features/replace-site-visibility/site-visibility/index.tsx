@@ -1,5 +1,8 @@
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { useState } from 'react';
+import { wpcomTrackEvent } from '../../../common/tracks';
 import SitePreviewLink from '../site-preview-link';
 import type { SitePreviewLinkObject } from '../site-preview-link';
 import './style.scss';
@@ -38,6 +41,9 @@ const SiteVisibility = ( {
 
 	const { blogPublic, wpcomComingSoon, wpcomPublicComingSoon, wpcomDataSharingOptOut } = fields;
 
+	const { host } = new URL( homeUrl );
+	const isWpcomStagingDomain = host.endsWith( '.wpcomstaging.com' );
+
 	// isPrivateAndUnlaunched means it is an unlaunched coming soon v1 site
 	const isPrivateAndUnlaunched = -1 === blogPublic && isUnlaunchedSite;
 	const isAnyComingSoonEnabled =
@@ -45,7 +51,8 @@ const SiteVisibility = ( {
 	const isPublicChecked = ( blogPublic === 0 && ! wpcomPublicComingSoon ) || blogPublic === 1;
 	const showPreviewLink =
 		Number( defaultWpcomPublicComingSoon ) === 1 && isAnyComingSoonEnabled && hasSitePreviewLink;
-	const discourageSearchChecked = 0 === blogPublic && ! wpcomPublicComingSoon;
+	const discourageSearchChecked =
+		( 0 === blogPublic && ! wpcomPublicComingSoon ) || isWpcomStagingDomain;
 
 	return (
 		<>
@@ -133,6 +140,8 @@ const SiteVisibility = ( {
 										type="checkbox"
 										value="0"
 										checked={ discourageSearchChecked }
+										// See https://github.com/Automattic/wp-calypso/issues/101828.
+										disabled={ isWpcomStagingDomain }
 										onChange={ () =>
 											updateFields( {
 												blogPublic:
@@ -151,6 +160,46 @@ const SiteVisibility = ( {
 										'jetpack-mu-wpcom'
 									) }
 								</p>
+								{ isWpcomStagingDomain && (
+									<div className="notice notice-warning inline">
+										<p>
+											{ createInterpolateElement(
+												sprintf(
+													// translators: %s: the primary domain of the site
+													__(
+														"Your site's current primary domain is <strong>%s</strong>. This domain is intended for temporary use and will not be indexed by search engines. To ensure your site can be indexed, please <link1>register</link1> or <link2>connect a custom primary domain</link2>.",
+														'jetpack-mu-wpcom'
+													),
+													host
+												),
+												{
+													strong: <strong />,
+													br: <br />,
+													link1: (
+														<ExternalLink
+															href={ `https://wordpress.com/domains/add/${ host }?redirect_to=${ window.location.href }` }
+															target="_blank"
+															onClick={ () =>
+																wpcomTrackEvent( 'wpcom_settings_reading_add_domain_button_click' )
+															}
+														/>
+													),
+													link2: (
+														<ExternalLink
+															href={ `https://wordpress.com/domains/manage/${ host }?source=${ window.location.pathname }` }
+															target="_blank"
+															onClick={ () =>
+																wpcomTrackEvent(
+																	'wpcom_settings_reading_manage_domain_button_click'
+																)
+															}
+														/>
+													),
+												}
+											) }
+										</p>
+									</div>
+								) }
 							</li>
 							<li>
 								<label htmlFor="wpcom_site_visibility_data_sharing_opt_out">
@@ -177,7 +226,7 @@ const SiteVisibility = ( {
 									{ sprintf(
 										// translators: %s: the slug of the site
 										__( 'Prevent third-party sharing for %s', 'jetpack-mu-wpcom' ),
-										new URL( homeUrl ).host
+										host
 									) }
 								</label>
 								<p className="description">

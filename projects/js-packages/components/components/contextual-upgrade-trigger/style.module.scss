@@ -34,6 +34,7 @@
 
 	&:focus-within,
 	&:hover {
+
 		& .icon {
 			transform: translateX( calc( var( --spacing-base ) * 2 ) );
 		}
@@ -46,12 +47,12 @@
 
 	// Overwrite styles in Text component
 	.cta {
-		font-weight: bold;
+		font-weight: 700;
 	}
 }
 
 .cta {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .icon {

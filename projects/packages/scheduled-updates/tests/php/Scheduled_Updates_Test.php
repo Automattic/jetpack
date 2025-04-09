@@ -10,7 +10,8 @@ namespace Automattic\Jetpack;
 /**
  * Test class for Scheduled_Updates.
  *
- * @coversDefaultClass Automattic\Jetpack\Scheduled_Updates
+ * @covers \Automattic\Jetpack\Scheduled_Updates
+ * @covers \WPCOM_REST_API_V2_Endpoint_Update_Schedules
  */
 class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
@@ -92,8 +93,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Simulate and test unmanaged plugins
-	 *
-	 * @covers ::add_is_managed_extension_field
 	 */
 	public function test_unmanaged_plugins() {
 		$request       = new \WP_REST_Request( 'GET', '/wp/v2/plugins' );
@@ -108,8 +107,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Managed plugins should be linked from a root /wordpress directory,
 	 * other paths should be ignored.
-	 *
-	 * @covers ::add_is_managed_extension_field
 	 */
 	public function test_unmanaged_plugins_not_in_root_directory() {
 		symlink( WP_PLUGIN_DIR . '/wordpress/managed-plugin', WP_PLUGIN_DIR . '/managed-plugin' );
@@ -127,7 +124,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * Simulate managed plugins linked from a root /wordpress directory.
 	 *
 	 * @group failing
-	 * @covers ::add_is_managed_extension_field
 	 */
 	public function test_managed_plugins() {
 		symlink( WP_PLUGIN_DIR . '/wordpress/managed-plugin', WP_PLUGIN_DIR . '/managed-plugin' );
@@ -147,8 +143,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test no scheduled events are created on plugin deletion and base checks.
-	 *
-	 * @covers ::deleted_plugin
 	 */
 	public function test_base_deleted_plugin_checks() {
 		$plugin_name = 'deleted-plugin';
@@ -172,8 +166,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test single event is deleted if a plugin is deleted.
-	 *
-	 * @covers ::deleted_plugin
 	 */
 	public function test_event_is_deleted_on_plugin_deletion() {
 		$plugins = $this->create_plugins_for_deletion( 1 );
@@ -201,8 +193,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test other events are not deleted if a plugin of a list is deleted.
-	 *
-	 * @covers ::deleted_plugin
 	 */
 	public function test_events_are_not_deleted_on_plugin_list_deletion() {
 		$plugins = $this->create_plugins_for_deletion( 3 );
@@ -245,8 +235,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test deleting a plugin in multiple events do not delete the events.
-	 *
-	 * @covers ::deleted_plugin
 	 */
 	public function test_delete_plugin_in_multiple_events() {
 		$plugins = $this->create_plugins_for_deletion( 3 );
@@ -299,8 +287,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test deleting a plugin in multiple events delete a single event but not the others.
-	 *
-	 * @covers ::deleted_plugin
 	 */
 	public function test_delete_plugin_in_multiple_single_and_list_events() {
 		$plugins = $this->create_plugins_for_deletion( 3 );
@@ -355,8 +341,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test multiple deleting plugins.
-	 *
-	 * @covers ::deleted_plugin
 	 */
 	public function test_multiple_deleted_plugins() {
 		$plugins = $this->create_plugins_for_deletion( 2 );
@@ -393,8 +377,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test multiple deleting plugins in parallel.
-	 *
-	 * @covers ::deleted_plugin
 	 */
 	public function test_multiple_deleted_plugins_in_parallel() {
 		$plugins = $this->create_plugins_for_deletion( 2 );
@@ -429,8 +411,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test unschedule error do not interrupt the deletion hook.
-	 *
-	 * @covers ::deleted_plugin
 	 */
 	public function test_unschedule_error_do_not_interrupt_deletion_hook() {
 		$plugins = $this->create_plugins_for_deletion( 2 );
@@ -474,8 +454,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test deleting a plugin in multiple events generate new events that inherit the previous statuses.
-	 *
-	 * @covers ::deleted_plugin
 	 */
 	public function test_delete_plugin_new_events_inherit_statuses() {
 		$plugins = $this->create_plugins_for_deletion( 3 );
@@ -536,8 +514,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test clear CRON cache.
-	 *
-	 * @covers ::clear_cron_cache
 	 */
 	public function test_clear_cron_cache() {
 		$plugins = $this->create_plugins_for_deletion( 3 );
@@ -653,8 +629,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test when all requested plugins are not installed.
-	 *
-	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::validate_plugins_param
 	 */
 	public function test_verify_plugins_not_installed() {
 		$plugins = array( 'not-installed-plugin-1/not-installed-plugin-1.php', 'not-installed-plugin-2/not-installed-plugin-2.php' );
@@ -680,8 +654,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test when all requested plugins are managed.
-	 *
-	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::validate_plugins_param
 	 */
 	public function test_verify_plugins_all_managed() {
 		$plugins = array( 'managed-plugin-1/managed-plugin-1.php', 'managed-plugin-2/managed-plugin-2.php' );
@@ -707,8 +679,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test when one requested plugin is installed and not managed, and another is installed but managed.
-	 *
-	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::validate_plugins_param
 	 */
 	public function test_verify_plugins_installed_mixed() {
 		$plugins = array( 'managed-plugin/managed-plugin.php', 'installed-plugin/installed-plugin.php' );

@@ -7,6 +7,7 @@
 
 // Styles shared between modals
 .jetpack-social-previews__modal {
+
 	.components-modal__header {
 		margin: 0;
 	}
@@ -107,6 +108,7 @@
 	// Mastodon
 
 	.components-tab-panel__tab-content {
+
 		.mastodon-preview {
 			max-width: 578px;
 		}
@@ -184,6 +186,7 @@
 	}
 
 	@media ( min-width: $break-medium ) {
+
 		.jetpack-social-previews__upgrade-description {
 			padding: 0 2em 2em;
 		}

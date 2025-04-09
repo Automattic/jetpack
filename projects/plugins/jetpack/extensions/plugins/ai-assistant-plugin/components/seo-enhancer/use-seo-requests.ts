@@ -11,7 +11,7 @@ import {
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
@@ -57,6 +57,7 @@ export const useSeoRequests = () => {
 	const { setImageBusy, setImageFailed } = useDispatch( store );
 	const { createInfoNotice } = useDispatch( 'core/notices' );
 	const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
+	const [ triggerType, setTriggerType ] = useState< 'manual' | 'auto' >( null );
 
 	const request = useCallback(
 		async ( type: PromptType, block?: Block, useBase64Image: boolean = false ) => {
@@ -117,13 +118,21 @@ export const useSeoRequests = () => {
 				const response = await request( 'seo-title' );
 				const title = parseResponse( response ).titles?.[ 0 ];
 
-				if ( ! globalSelect( editorStore ).isCurrentPostPublished() ) {
-					editPost( {
-						meta: {
-							jetpack_seo_html_title: title,
-						},
+				if ( title && title.length > 70 ) {
+					tracks.recordEvent( 'jetpack_seo_enhancer_title_too_long', {
+						character_count: title.length,
 					} );
 				}
+
+				if ( triggerType === 'auto' && globalSelect( editorStore ).isCurrentPostPublished() ) {
+					return false;
+				}
+
+				editPost( {
+					meta: {
+						jetpack_seo_html_title: title,
+					},
+				} );
 
 				return true;
 			} catch ( error ) {
@@ -133,7 +142,7 @@ export const useSeoRequests = () => {
 				setTitleBusy( false );
 			}
 		},
-		[ setTitleBusy, request, editPost ]
+		[ setTitleBusy, request, editPost, tracks, triggerType ]
 	);
 
 	const updateDescription = useCallback(
@@ -150,13 +159,21 @@ export const useSeoRequests = () => {
 				const response = await request( 'seo-meta-description' );
 				const description = parseResponse( response ).descriptions?.[ 0 ];
 
-				if ( ! globalSelect( editorStore ).isCurrentPostPublished() ) {
-					editPost( {
-						meta: {
-							advanced_seo_description: description,
-						},
+				if ( description && description.length > 156 ) {
+					tracks.recordEvent( 'jetpack_seo_enhancer_description_too_long', {
+						character_count: description.length,
 					} );
 				}
+
+				if ( triggerType === 'auto' && globalSelect( editorStore ).isCurrentPostPublished() ) {
+					return false;
+				}
+
+				editPost( {
+					meta: {
+						advanced_seo_description: description,
+					},
+				} );
 
 				return true;
 			} catch ( error ) {
@@ -166,7 +183,7 @@ export const useSeoRequests = () => {
 				setDescriptionBusy( false );
 			}
 		},
-		[ setDescriptionBusy, request, editPost ]
+		[ setDescriptionBusy, request, editPost, tracks, triggerType ]
 	);
 
 	const updateAltText = useCallback(
@@ -196,9 +213,12 @@ export const useSeoRequests = () => {
 
 				const altText = parseResponse( response ).texts?.[ 0 ];
 
-				if ( ! globalSelect( editorStore ).isCurrentPostPublished() ) {
-					await updateBlockAttributes( block.clientId, { alt: altText } );
+				if ( triggerType === 'auto' && globalSelect( editorStore ).isCurrentPostPublished() ) {
+					setImageBusy( block.clientId, false );
+					return false;
 				}
+
+				await updateBlockAttributes( block.clientId, { alt: altText } );
 
 				setImageBusy( block.clientId, false );
 
@@ -229,6 +249,7 @@ export const useSeoRequests = () => {
 			increaseRequestsCount,
 			updateBlockAttributes,
 			setImageFailed,
+			triggerType,
 		]
 	);
 
@@ -251,6 +272,7 @@ export const useSeoRequests = () => {
 		async ( { trigger = 'manual' }: { trigger?: 'manual' | 'auto' } = {} ) => {
 			const promises = [];
 			setBusy( true );
+			setTriggerType( trigger );
 
 			const trackData = {
 				trigger,

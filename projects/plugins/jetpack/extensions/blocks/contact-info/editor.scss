@@ -1,4 +1,5 @@
 .jetpack-contact-info-block {
+
 	/* css class added to increase specificity */
 	.block-editor-plain-text.block-editor-plain-text:focus {
 		box-shadow: none;
@@ -23,6 +24,7 @@
 
 // Overrides to make the preview look good
 .block-editor-inserter__preview {
+
 	.jetpack-contact-info-block {
 		padding: 16px;
 

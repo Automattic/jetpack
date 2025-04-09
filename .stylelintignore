@@ -18,6 +18,7 @@ projects/plugins/crm/sass/_color_studio.scss
 projects/plugins/crm/sass/_daterangepicker.scss
 projects/plugins/crm/sass/font-awesome.scss
 projects/plugins/crm/sass/semantic-ui
+projects/plugins/jetpack/modules/carousel/swiper-bundle.css
 projects/plugins/jetpack/scss/cleanslate.scss
 
 # Ignore test-related CSS files that need further investigation

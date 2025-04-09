@@ -10,12 +10,11 @@
 namespace Automattic\Jetpack;
 
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
-
 /**
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.3.0';
+	const PACKAGE_VERSION = '6.3.1';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -264,6 +263,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
+		require_once __DIR__ . '/features/css-monkey-patches/index.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
@@ -282,6 +282,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-hotfixes/wpcom-hotfixes.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
+		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
 		// Initializers, if needed.

@@ -52,6 +52,7 @@
 			ul {
 				font-size: 16px;
 				line-height: 24px;
+
 				li {
 
 					margin-bottom: 10px;
@@ -81,7 +82,7 @@
 
 		&:after {
 			content: '\f335';
-			font: normal 32px/29px dashicons;
+			font: 400 32px/29px dashicons;
 			-webkit-font-smoothing: antialiased;
 			-moz-osx-font-smoothing: grayscale;
 		}

@@ -1,6 +1,7 @@
 @import '@automattic/jetpack-base-styles/style';
 
 .modal {
+
 	:global(.components-modal__header) {
 		padding-bottom: 0 !important;
 	}
@@ -57,6 +58,7 @@
 	}
 
 	:global {
+
 		.components-button:not(:last-child) {
 			margin-right: 12px;
 		}

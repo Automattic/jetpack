@@ -12,6 +12,7 @@
 		overflow: visible;
 
 		&:not( :disabled )::before {
+
 			@include long-content-fade( $size: 16px );
 			right: calc( 100% + 1px );
 		}

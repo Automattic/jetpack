@@ -415,6 +415,30 @@ jobs:
           echo "Running tools/check-plugin-monorepo-deps.sh ${ARGS[@]}"
           tools/check-plugin-monorepo-deps.sh "${ARGS[@]}"
 
+  typecheck:
+    name: Type checking
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+      - name: Pnpm install
+        run: pnpm install
+      - name: Run type checking
+        # Can't just `pnpm typecheck` here, GitHub won't match the output files correctly
+        # and unfortunately https://github.com/microsoft/TypeScript/issues/36221 is still open.
+        run: |
+          EXIT=0
+          set -o pipefail
+          for DIR in $( jq -r 'if .scripts.typecheck then input_filename | sub( "/package.json"; "" ) else empty end' projects/*/*/package.json ); do
+            echo "::group::$DIR"
+            if ! ( cd "$DIR" && pnpm run typecheck ) | sed -uE 's#^.+\([0-9,]+\): error #'"$DIR"'/&#'; then
+              EXIT=1
+            fi
+            echo "::endgroup::"
+          done
+          exit $EXIT
+
   # Probably this should be a linting test too, but we don't run linting on trunk or release branches.
   phan:
     name: Static analysis

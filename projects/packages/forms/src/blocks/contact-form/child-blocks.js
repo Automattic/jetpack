@@ -609,6 +609,10 @@ export const childBlocks = [
 					type: 'string',
 					default: '',
 				},
+				maxfiles: {
+					type: 'number',
+					default: 1,
+				},
 			},
 			isBeta: true,
 		},

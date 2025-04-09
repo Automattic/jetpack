@@ -74,6 +74,7 @@
 	}
 
 	&:focus {
+
 		&.is-valid {
 			box-shadow: 0 0 0 2px lighten( $alert-green, 35 );
 

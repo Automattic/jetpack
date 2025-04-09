@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.72.2",
+	"version": "0.72.3",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -91,6 +91,7 @@
 		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverage"
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsc --noEmit"
 	}
 }

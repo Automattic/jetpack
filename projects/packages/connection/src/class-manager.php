@@ -156,6 +156,13 @@ class Manager {
 		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
 		add_action( 'remove_user_from_blog', array( $manager, 'disconnect_user_force' ), 9, 1 );
 
+		// Add hooks for cleaning up account mismatch transients
+		$user_account_status = new User_Account_Status();
+		add_action( 'delete_user', array( $user_account_status, 'clean_account_mismatch_transients' ), 9, 1 );
+		add_action( 'remove_user_from_blog', array( $user_account_status, 'clean_account_mismatch_transients' ), 9, 1 );
+		add_action( 'user_register', array( $user_account_status, 'clean_account_mismatch_transients' ), 9, 1 );
+		add_action( 'profile_update', array( $user_account_status, 'clean_account_mismatch_transients' ), 9, 1 );
+
 		$manager->add_connection_status_invalidation_hooks();
 
 		// Set up package version hook.
@@ -1017,6 +1024,10 @@ class Manager {
 
 		$is_disconnected_locally = false;
 		if ( $is_disconnected_from_wpcom || $force_disconnect_locally ) {
+			// Get the WordPress.com email before disconnecting the user
+			$wpcom_user_data = $this->get_connected_user_data( $user_id );
+			$wpcom_email     = isset( $wpcom_user_data['email'] ) ? $wpcom_user_data['email'] : null;
+
 			// Disconnect the user locally.
 			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id );
 
@@ -1024,6 +1035,12 @@ class Manager {
 				// Delete cached connected user data.
 				$transient_key = "jetpack_connected_user_data_$user_id";
 				delete_transient( $transient_key );
+
+				// Clean up account mismatch transients for this user
+				if ( $wpcom_email ) {
+					$user_account_status = new User_Account_Status();
+					$user_account_status->clean_account_mismatch_transients( $wpcom_email );
+				}
 
 				/**
 				 * Fires after the current user has been unlinked from WordPress.com.

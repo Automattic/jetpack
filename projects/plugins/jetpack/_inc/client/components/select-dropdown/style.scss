@@ -38,6 +38,7 @@
 	.dops-accessible-focus .dops-select-dropdown.is-open & {
 		z-index: z-index( 'root', '.dops-accessible-focus .dops-select-dropdown.is-open .dops-select-dropdown__container' );
 		box-shadow: 0 0 0 2px $blue-light;
+
 		.select-dropdown__header {
 			border-color: $blue-wordpress;
 		}
@@ -68,6 +69,7 @@
 	cursor: pointer;
 
 	&::after {
+
 		@include dashicons;
 		content: '\f347';
 		position: absolute;
@@ -105,6 +107,7 @@
 		background-color: $gray-light;
 
 		&::after {
+
 			@include dashicons;
 			content: '\f343';
 		}
@@ -146,6 +149,7 @@
 }
 
 .dops-select-dropdown__option {
+
 	&:last-child .dops-select-dropdown__item {
 		border-radius: 0 0 4px 4px;
 	}
@@ -243,11 +247,14 @@
 }
 
 .dops-select-dropdown.is-rna {
+
 	.dops-select-dropdown__container {
+
 		.dops-accessible-focus &:focus,
 		.dops-accessible-focus .dops-select-dropdown.is-open & {
 			z-index: z-index( 'root', '.dops-accessible-focus .dops-select-dropdown.is-open .dops-select-dropdown__container' );
 			box-shadow: 0 0 0 2px var( --jp-green-30 );
+
 			.select-dropdown__header {
 				border-color: var( --jp-green );
 			}
@@ -260,6 +267,7 @@
 			border-radius: 4px;
 		}
 	}
+
 	.dops-select-dropdown__header {
 		border-width: 1px;
 		border-color: var( --jp-gray-5 );
@@ -268,23 +276,31 @@
 			color: var( --jp-black-80 );
 		}
 	}
+
 	.dops-select-dropdown__options {
+
 		.dops-accessible-focus & {
 			border-color: var( --jp-green );
 		}
 	}
+
 	.dops-select-dropdown__option {
 		margin-bottom: 0;
 	}
+
 	.dops-select-dropdown__item {
+
 		&.is-selected {
 			background-color: var( --jp-black );
 			color: var( --jp-white );
 		}
+
 		.notouch & {
+
 			&:hover {
 				color: var( --jp-green );
 			}
+
 			&.is-selected:hover {
 				color: $white;
 			}

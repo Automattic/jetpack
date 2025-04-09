@@ -90,6 +90,10 @@ async function fixDeps( pkg ) {
 				pkg.optionalDependencies[ dep ] = deps[ dep ];
 			}
 		}
+
+		// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
+		// https://github.com/WordPress/gutenberg/issues/60975
+		pkg.optionalDependencies[ 'framer-motion' ] += ' <11.5.0';
 	}
 
 	// Missing dep or peer dep. Fixed in main, but needs a release.
