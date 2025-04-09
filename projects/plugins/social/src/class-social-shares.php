@@ -5,11 +5,12 @@
  * @package automattic/jetpack-social-plugin
  */
 
+use Automattic\Jetpack\Publicize\Share_Status;
+
 /**
  * Register the Jetpack Social Shares Class.
  */
 class Social_Shares {
-	const SOCIAL_SHARES_POST_META_KEY = '_publicize_shares';
 
 	/**
 	 * Return a list of of social shares.
@@ -19,16 +20,14 @@ class Social_Shares {
 	 * @return array
 	 */
 	public static function get_social_shares( $post_id = null ) {
-		if ( empty( $post_id ) ) {
-			$post    = get_post();
-			$post_id = $post->ID ?? 0;
-		}
 
-		if ( empty( $post_id ) ) {
+		$post = get_post( $post_id );
+
+		if ( empty( $post ) ) {
 			return array();
 		}
 
-		$shares = get_post_meta( $post_id, self::SOCIAL_SHARES_POST_META_KEY );
+		$shares = Share_Status::get_post_share_status( $post->ID, false );
 
 		if ( empty( $shares ) ) {
 			return array();
