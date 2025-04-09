@@ -64,11 +64,12 @@ class Filesystem_Utils {
 			return $validation_error;
 		}
 
+		$path = Boost_Cache_Utils::trailingslashit( $path );
 		// Files to delete are all files in the given directory, except index.html. index.html is used to prevent directory listing.
 		$files = array_diff( scandir( $path ), array( '.', '..', 'index.html' ) );
 		$count = 0;
 		foreach ( $files as $file ) {
-			$fileinfo = new SplFileInfo( $path . '/' . $file );
+			$fileinfo = new SplFileInfo( $path . $file );
 			$count   += (int) $action->apply_to_path( $fileinfo );
 		}
 
