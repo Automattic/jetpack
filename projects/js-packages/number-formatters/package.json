@@ -27,7 +27,6 @@
 		"jest-environment-jsdom": "29.7.0",
 		"typescript": "5.8.2"
 	},
-	"type": "module",
 	"exports": {
 		".": {
 			"jetpack:src": "./src/index.ts",
