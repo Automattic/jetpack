@@ -132,6 +132,7 @@ class File_Storage implements Storage {
 		}
 
 		Logger::debug( "Garbage collected $count files" );
+		return $count;
 	}
 
 	/**

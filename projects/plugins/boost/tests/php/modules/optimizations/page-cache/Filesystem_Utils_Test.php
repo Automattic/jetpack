@@ -4,9 +4,9 @@ namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Page_Cache;
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Filter_Older;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Rebuild_File;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Simple_Delete;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Storage\File_Storage;
 use PHPUnit\Framework\TestCase;
 
 class Filesystem_Utils_Test extends TestCase {
@@ -113,7 +113,7 @@ class Filesystem_Utils_Test extends TestCase {
 		$this->assertFalse( Filesystem_Utils::is_dir_empty( $non_empty_dir ) );
 	}
 
-	public function test_walk_directory_delete_all() {
+	public function test_directory_iteration_delete_all() {
 		$test_dir = $this->boost_cache_dir . '/walk-test';
 		mkdir( $test_dir, 0755, true );
 		file_put_contents( $test_dir . '/test1.html', 'Test 1' );
@@ -126,20 +126,24 @@ class Filesystem_Utils_Test extends TestCase {
 		$this->assertFalse( file_exists( $test_dir ) );
 	}
 
-	public function test_walk_directory_rebuild_all() {
+	public function test_directory_iteration_rebuild_all() {
 		$test_dir = $this->boost_cache_dir . '/rebuild-test';
 		mkdir( $test_dir, 0755, true );
 		file_put_contents( $test_dir . '/test1.html', 'Test 1' );
 		file_put_contents( $test_dir . '/test2.html', 'Test 2' );
+		file_put_contents( $test_dir . '/test3.html.rebuild.html', 'Test 3' );
 
 		$result = Filesystem_Utils::iterate_directory( $test_dir, new Rebuild_File() );
-		$this->assertTrue( $result === 2 );
+		$this->assertTrue( $result === 3 );
 		$this->assertTrue( file_exists( $test_dir . '/test1.html.rebuild.html' ) );
 		$this->assertTrue( file_exists( $test_dir . '/test2.html.rebuild.html' ) );
+
+		// Trying to rebuild a file that is already a rebuild file should delete it.
+		$this->assertFalse( file_exists( $test_dir . '/test3.html.rebuild.html' ) );
 	}
 
 	public function test_gc_expired_files() {
-		$test_dir = $this->boost_cache_dir . '/gc-test';
+		$test_dir = $this->boost_cache_dir . '/cache/gc-test';
 		mkdir( $test_dir, 0755, true );
 
 		// Create test files with different modification times
@@ -151,8 +155,9 @@ class Filesystem_Utils_Test extends TestCase {
 		// Set file1 to be expired
 		touch( $file1, time() - 3600 );
 
-		$count = Filesystem_Utils::iterate_directory( $test_dir, new Filter_Older( time() - 1800, new Simple_Delete() ) );
-		$this->assertSame( 2, $count );
+		$storage = new File_Storage( 'gc-test' );
+		$count   = $storage->garbage_collect( 1800 );
+		$this->assertSame( 1, $count );
 		$this->assertFalse( file_exists( $file1 ) );
 		$this->assertTrue( file_exists( $file2 ) );
 	}
