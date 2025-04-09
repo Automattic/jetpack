@@ -17,7 +17,7 @@ class Path_Actions_Test extends \PHPUnit\Framework\TestCase {
 
 	public function tearDown(): void {
 		parent::tearDown();
-		@rmdir( $this->test_dir );
+		@rmdir( $this->test_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 	}
 
 	private function create_file( $path ) {
@@ -71,7 +71,7 @@ class Path_Actions_Test extends \PHPUnit\Framework\TestCase {
 		$this->assertTrue( $this->file_exists( 'index.html' ) );
 
 		// Applying the action on an empty directory(with index.html) should delete the index.html file and directory.
-		@unlink( $this->test_dir . '/test.txt' );
+		@unlink( $this->test_dir . '/test.txt' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		$action->apply_to_path( new \SplFileInfo( $this->test_dir ) );
 		$this->assertFalse( $this->file_exists( 'index.html' ) );
 		$this->assertFalse( $this->file_exists( '' ) );
