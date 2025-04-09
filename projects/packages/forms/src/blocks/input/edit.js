@@ -40,7 +40,7 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes } ) 
 
 	const onChange = useCallback(
 		event => {
-			setAttributes( { placeholder: event.target.value } );
+			setAttributes( { placeholder: event.target.value || undefined } );
 		},
 		[ setAttributes ]
 	);

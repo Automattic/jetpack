@@ -24,25 +24,6 @@ const settings = {
 	},
 	edit,
 	allowedBlocks: [ 'jetpack/label', 'jetpack/field-options' ],
-	attributes: {
-		// TODO: Are there still attributes from the form fieldDefaults that need to be brought here?
-		required: {
-			type: 'boolean',
-			default: false,
-		},
-		id: {
-			type: 'string',
-			default: '',
-		},
-		width: {
-			type: 'number',
-			default: 100,
-		},
-		shareFieldAttributes: {
-			type: 'boolean',
-			default: true,
-		},
-	},
 	deprecated,
 	save,
 	styles: [

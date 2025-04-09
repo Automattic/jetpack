@@ -28,11 +28,6 @@ const settings = {
 	edit,
 	attributes: {
 		...defaultSettings.attributes,
-		// TODO: Remove this label attribute?
-		label: {
-			type: 'string',
-			default: __( 'Consent', 'jetpack-forms' ),
-		},
 		consentType: {
 			type: 'string',
 			default: 'implicit',
