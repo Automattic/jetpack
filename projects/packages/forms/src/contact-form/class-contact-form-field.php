@@ -174,7 +174,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
-		// TODO: Is this the right place to decode the options data for inner block based choice fields?
 		if ( ! empty( $attributes['optionsdata'] ) ) {
 			$attributes['optionsdata'] = json_decode( html_entity_decode( $attributes['optionsdata'] ), true );
 		}
@@ -1240,9 +1239,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field = $this->render_label( 'select', $id, $label, $required, $required_field_text );
-		// TODO: Prevent application of styles and classes on bother wrapper and `select` to avoid double spacing, relative font size issues etc.
-		// Update: Sorted for block instance styles. Global Styles needs checking.
+		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
 		$field .= "<div class='contact-form__select-wrapper'>";
 		if ( ! empty( $this->field_classes ) ) {
 			$class = preg_replace( '/class="([^"]*)"/', 'class="$1 ' . esc_attr( $this->field_classes ) . '"', $class );
