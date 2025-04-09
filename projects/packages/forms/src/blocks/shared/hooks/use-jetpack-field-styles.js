@@ -1,8 +1,6 @@
-import { isNumber } from 'lodash';
+const isNumber = value => typeof value === 'number' && ! isNaN( value );
 
-// TODO: Is this hook even needed? Do we actually want to keep this CSS var stuff?
-// Do we have to for BC only?
-
+// TODO: Is this hook actually needed? Do we need to keep the CSS vars for BC?
 const useJetpackFieldStyles = attributes => {
 	const blockStyle = {
 		'--jetpack--contact-form--border-color': attributes.borderColor,
