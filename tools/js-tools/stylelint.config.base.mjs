@@ -35,7 +35,6 @@ const baseConfig = {
 		'declaration-property-unit-allowed-list': null,
 		'function-linear-gradient-no-nonstandard-direction': null,
 		'function-url-quotes': null,
-		'keyframe-declaration-no-important': null,
 		'length-zero-no-unit': null,
 		'media-feature-name-no-unknown': null,
 		'no-descending-specificity': null,
