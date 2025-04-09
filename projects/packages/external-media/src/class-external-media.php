@@ -32,7 +32,10 @@ class External_Media {
 			require_once __DIR__ . '/features/admin/external-media-import.php';
 		}
 
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
+		if ( is_admin() ) {
+			// This loads assets in the editor iframe (block content) context
+			add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
+		}
 	}
 
 	/**
