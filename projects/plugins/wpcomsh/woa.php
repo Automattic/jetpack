@@ -454,3 +454,4 @@ function wpcomsh_woa_post_process_activate_jetpack_modules( $args, $assoc_args )
 
 // Add this action for all three operation types to ensure modules are always activated
 add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_process_activate_jetpack_modules', 10, 2 );
+add_action( 'wpcomsh_woa_post_reset', 'wpcomsh_woa_post_process_activate_jetpack_modules', 10, 2 );
