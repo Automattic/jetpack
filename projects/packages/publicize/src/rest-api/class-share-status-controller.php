@@ -238,7 +238,7 @@ class Share_Status_Controller extends Base_Controller {
 		$shares = $request->get_param( 'shares' );
 
 		// This check ensures that the shares data is in the expected format.
-		if ( empty( $shares ) || empty( $shares[0]['status'] ) ) {
+		if ( ! empty( $shares ) && empty( $shares[0]['status'] ) ) {
 			return new WP_Error(
 				'invalid_shares',
 				__( 'Invalid shares data.', 'jetpack-publicize-pkg' ),
