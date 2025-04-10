@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -33,7 +33,6 @@ function Newsletter( props ) {
 	const {
 		siteRawUrl,
 		blogID,
-		toggleModuleNow,
 		isSavingAnyOption,
 		isLinked,
 		isSubscriptionsActive,
@@ -42,6 +41,9 @@ function Newsletter( props ) {
 		siteHasConnectedUser,
 		wpAdminSubscriberManagementEnabled,
 		siteAdminUrl,
+		updateOptions,
+		getOptionValue,
+		refreshSettings,
 	} = props;
 
 	const getSubClickableCard = () => {
@@ -68,6 +70,26 @@ function Newsletter( props ) {
 			</Card>
 		);
 	};
+
+	const toggleModule = useCallback(
+		module => {
+			const status = getOptionValue( module );
+			// Track the toggle (analytics)
+			analytics.tracks.recordEvent( 'jetpack_wpa_settings_toggle', {
+				module: module,
+				setting: module,
+				toggled: status ? 'off' : 'on',
+			} );
+
+			updateOptions( { [ module ]: ! status } ).then( () => {
+				// Refresh settings if the module is being activated
+				if ( ! status ) {
+					refreshSettings();
+				}
+			} );
+		},
+		[ getOptionValue, updateOptions, refreshSettings ]
+	);
 
 	return (
 		<SettingsCard
@@ -96,7 +118,7 @@ function Newsletter( props ) {
 					disabled={ ! siteHasConnectedUser || unavailableInOfflineMode }
 					activated={ isSubscriptionsActive }
 					toggling={ isSavingAnyOption( SUBSCRIPTIONS_MODULE_NAME ) }
-					toggleModule={ toggleModuleNow }
+					toggleModule={ toggleModule }
 				>
 					<span className="jp-form-toggle-explanation">
 						{ __(

@@ -62,7 +62,6 @@ $myjetpack-connection-avatar-overlap: 10px;
 
 		&-text {
 			display: flex;
-			align-items: center;
 			gap: var(--spacing-base);
 
 			&.error {
@@ -82,5 +81,13 @@ $myjetpack-connection-avatar-overlap: 10px;
 				}
 			}
 		}
+	}
+}
+
+:global(.account-error-tooltip) {
+	color: var(--jp-yellow-50) !important;
+	
+	svg {
+		fill: var(--jp-yellow-50) !important;
 	}
 }

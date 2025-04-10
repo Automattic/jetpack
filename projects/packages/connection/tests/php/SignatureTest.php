@@ -12,12 +12,13 @@ use stdClass;
 
 /**
  * Provides unit tests for the methods in the Jetpack_Signature class.
+ *
+ * @covers \Jetpack_Signature
  */
 class SignatureTest extends TestCase {
 	/**
 	 * Tests the Jetpack_Signature->join_with_equal_sign() method.
 	 *
-	 * @covers \Jetpack_Signature::join_with_equal_sign
 	 * @dataProvider join_with_equal_sign_data_provider
 	 *
 	 * @param string       $name Query string key value.
@@ -104,7 +105,6 @@ class SignatureTest extends TestCase {
 	/**
 	 * Tests the Jetpack_Signature->normalized_query_parameters() method.
 	 *
-	 * @covers \Jetpack_Signature::normalized_query_parameters
 	 * @dataProvider normalized_query_parameters_data_provider
 	 *
 	 * @param string       $query_string Query string key value.

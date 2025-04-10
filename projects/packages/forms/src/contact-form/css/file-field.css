@@ -83,7 +83,7 @@
 	position: relative;
 	justify-content:start;
 	border-radius: var( --jetpack--contact-form--border-radius, 0 );
-	background-color: var(--jetpack--contact-form--input-background, white);
+	background-color: var(--jetpack--contact-form--input-background, #fff);
 	color: var(--jetpack--contact-form--text-color, #333);
 	border: var(--jetpack--contact-form--border-size, 1px) var( --jetpack--contact-form--border-style, solid) var(--jetpack--contact-form--border-color, #333 );
 	margin-top: 8px;
@@ -159,7 +159,7 @@
 .jetpack-form-file-field__remove:hover {
 	cursor: pointer;
 	border-radius: 50%;
-	background-color: var(--jetpack--contact-form--input-background, white );
+	background-color: var(--jetpack--contact-form--input-background, #fff );
 	filter: invert(0.1);
 	transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }

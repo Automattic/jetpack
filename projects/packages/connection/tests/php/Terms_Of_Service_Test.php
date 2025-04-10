@@ -16,6 +16,7 @@ use PHPUnit\Framework\TestCase;
  * Class Terms_Of_Service_Test
  *
  * @package Automattic\Jetpack
+ * @covers \Automattic\Jetpack\Terms_Of_Service
  */
 class Terms_Of_Service_Test extends TestCase {
 	use MockeryPHPUnitIntegration;
@@ -49,8 +50,6 @@ class Terms_Of_Service_Test extends TestCase {
 
 	/**
 	 * Tests the agree function.
-	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_agree() {
 		Functions\expect( 'do_action' )->once()->with( 'jetpack_agreed_to_terms_of_service' );
@@ -62,8 +61,6 @@ class Terms_Of_Service_Test extends TestCase {
 
 	/**
 	 * Tests the revoke function.
-	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_revoke() {
 		Functions\expect( 'do_action' )->never();
@@ -75,8 +72,6 @@ class Terms_Of_Service_Test extends TestCase {
 
 	/**
 	 * Tests if has_agreed returns correctly if TOS not agreed to.
-	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_returns_false_if_not_agreed() {
 		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( false );
@@ -85,8 +80,6 @@ class Terms_Of_Service_Test extends TestCase {
 
 	/**
 	 * Tests if has_agreed returns corrected if agreed but in dev mode.
-	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_returns_false_if_has_agreed_but_is_offline_mode() {
 		// is_offline_mode.
