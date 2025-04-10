@@ -367,7 +367,6 @@ div.jp-carousel-buttons a:hover {
 
 /** Title and Desc Start **/
 .jp-carousel-info-footer .jp-carousel-photo-title-container {
-	flex-basis: 50vw;
 	flex: 4;
 	justify-content: center;
 	overflow: hidden;
@@ -477,7 +476,6 @@ div.jp-carousel-buttons a:hover {
 /** Meta Box Start **/
 .jp-carousel-image-meta {
 	color: var(--jp-carousel-primary-color);
-	font-size: 13px;
 	font: 12px/1.4 'Helvetica Neue', sans-serif !important;
 	width: 100%;
 	display: none;

@@ -71,11 +71,11 @@ body.admin-bar .cleanslate .components-modal__frame {
 	@keyframes components-modal__appear-animation {
 
 		from {
-			margin-top: 32px !important;
+			margin-top: 32px;
 		}
 
 		to {
-			margin-top: 0 !important;
+			margin-top: 0;
 		}
 	}
 

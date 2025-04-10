@@ -257,6 +257,9 @@ textarea:focus {
 
 
 /* Admin Menu */
+#adminmenu {
+	padding-top: 6px;
+}
 
 #adminmenuback,
 #adminmenuwrap,
@@ -774,6 +777,8 @@ div#wp-responsive-toggle a:before {
 .wp-full-overlay-footer .devices button:focus:before {
 	color: $highlight-color;
 }
+
+/* stylelint-disable no-invalid-position-at-import-rule -- these imports are intentional overrides */
 
 /* Overrides */
 @import 'overrides';

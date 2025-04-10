@@ -1,4 +1,4 @@
-import createNumberFormatters from './create-number-formatters.js';
+import createNumberFormatters from './create-number-formatters.ts';
 
 const defaultFormatter = createNumberFormatters();
 
@@ -13,7 +13,7 @@ export const {
 
 export { createNumberFormatters };
 
-export * from './types.js';
+export * from './types.ts';
 
 // We can optionally export the formatters individually if we want to use them in a more granular way.
 // export { numberFormat, numberFormatCompact, numberFormatCurrency, getCurrencyObject };

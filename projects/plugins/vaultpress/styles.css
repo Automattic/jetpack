@@ -542,7 +542,7 @@ Helpers
 	font-size: 18px;
 }
 
-@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3, '/', 2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3, '/', 2), only screen and (-webkit-min-device-pixel-ratio: 1.5) {
 
 	.trial-expiring p {
 		font-size: 16px;
@@ -582,7 +582,7 @@ Helpers
 	background: none;
 }
 
-@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3, '/', 2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3, '/', 2), only screen and (-webkit-min-device-pixel-ratio: 1.5) {
 
 	#no-access-credentials:before {
 		background-image: url(images/dashboard-icon-sprite-2x.png) no-repeat;
@@ -630,7 +630,7 @@ Helpers
 	background-size: 16px;
 }
 
-@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3, '/', 2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3, '/', 2), only screen and (-webkit-min-device-pixel-ratio: 1.5) {
 
 	#wpadminbar #wp-admin-bar-vp-notice .ab-icon:before {
 		background: url(images/vp-toolbar-icon-trans-2x.png) no-repeat;
@@ -898,7 +898,7 @@ Progress Bars
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(41,154,11,1)), color-stop(100%,rgba(41,154,11,1)));
 	background: -webkit-linear-gradient(top, rgba(41,154,11,1) 0%,rgba(41,154,11,1) 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#299a0b', endColorstr='#299a0b',GradientType=0 );
-	background: linear-gradient(top, rgba(41,154,11,1) 0%,rgba(41,154,11,1) 100%);
+	background: linear-gradient(to bottom, rgba(41,154,11,1) 0%,rgba(41,154,11,1) 100%);
 }
 
 #vp-wrap #vp_progress .vp_graphs ul li {
@@ -943,7 +943,7 @@ Progress Bars
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#63b6db), color-stop(100%,#309dcf));
 	background: -webkit-linear-gradient(top, #63b6db 0%,#309dcf 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#63b6db', endColorstr='#309dcf',GradientType=0 );
-	background: linear-gradient(top, #63b6db 0%,#309dcf 100%);
+	background: linear-gradient(to bottom, #63b6db 0%,#309dcf 100%);
 	-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
 	box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
 	border-radius: 20px;

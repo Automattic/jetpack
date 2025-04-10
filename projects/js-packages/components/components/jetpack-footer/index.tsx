@@ -2,13 +2,13 @@ import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import React from 'react';
-import { getRedirectUrl } from '../../index.js';
-import getSiteAdminUrl from '../../tools/get-site-admin-url/index.js';
-import AutomatticBylineLogo from '../automattic-byline-logo/index.js';
+import { getRedirectUrl } from '../../index.ts';
+import getSiteAdminUrl from '../../tools/get-site-admin-url/index.ts';
+import AutomatticBylineLogo from '../automattic-byline-logo/index.tsx';
 import './style.scss';
-import JetpackLogo from '../jetpack-logo/index.js';
-import useBreakpointMatch from '../layout/use-breakpoint-match/index.js';
-import type { JetpackFooterProps, JetpackFooterMenuItem } from './types.js';
+import JetpackLogo from '../jetpack-logo/index.tsx';
+import useBreakpointMatch from '../layout/use-breakpoint-match/index.ts';
+import type { JetpackFooterProps, JetpackFooterMenuItem } from './types.ts';
 
 const JetpackIcon: React.FC = () => (
 	<JetpackLogo logoColor="#000" showText={ false } height={ 16 } aria-hidden="true" />

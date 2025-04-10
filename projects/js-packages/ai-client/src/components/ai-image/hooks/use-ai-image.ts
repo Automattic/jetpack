@@ -9,11 +9,11 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import askQuestionSync from '../../../ask-question/sync.js';
-import useAiFeature from '../../../hooks/use-ai-feature/index.js';
-import { ImageStyleObject, ImageStyle } from '../../../hooks/use-image-generator/constants.js';
-import useImageGenerator from '../../../hooks/use-image-generator/index.js';
-import useSaveToMediaLibrary from '../../../hooks/use-save-to-media-library.js';
+import askQuestionSync from '../../../ask-question/sync.ts';
+import useAiFeature from '../../../hooks/use-ai-feature/index.ts';
+import { ImageStyleObject, ImageStyle } from '../../../hooks/use-image-generator/constants.ts';
+import useImageGenerator from '../../../hooks/use-image-generator/index.ts';
+import useSaveToMediaLibrary from '../../../hooks/use-save-to-media-library.ts';
 /**
  * Types
  */
@@ -21,9 +21,9 @@ import {
 	CoreSelectors,
 	FEATURED_IMAGE_FEATURE_NAME,
 	GENERAL_IMAGE_FEATURE_NAME,
-} from '../types.js';
-import type { RoleType } from '../../../types.js';
-import type { CarrouselImageData, CarrouselImages } from '../components/carrousel.js';
+} from '../types.ts';
+import type { RoleType } from '../../../types.ts';
+import type { CarrouselImageData, CarrouselImages } from '../components/carrousel.tsx';
 import type { FeatureControl } from '@automattic/jetpack-shared-extension-utils/store/wordpress-com/types';
 
 type ImageFeatureControl = FeatureControl & {

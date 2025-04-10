@@ -1,11 +1,11 @@
 import { getSettings } from '@wordpress/date';
-import { FALLBACK_LOCALE } from './constants.js';
+import { FALLBACK_LOCALE } from './constants.ts';
 import {
 	numberFormatCurrency,
 	getCurrencyObject as getCurrencyObjectFromCurrencyFormatter,
-} from './number-format-currency/index.js';
-import { numberFormat, numberFormatCompact } from './number-format.js';
-import type { CurrencyObject, FormatCurrency, FormatNumber, GetCurrencyObject } from './types.js';
+} from './number-format-currency/index.ts';
+import { numberFormat, numberFormatCompact } from './number-format.ts';
+import type { CurrencyObject, FormatCurrency, FormatNumber, GetCurrencyObject } from './types.ts';
 
 // Since global is used inside createNumberFormatters, we need to declare it for TS
 declare const global: typeof globalThis;
