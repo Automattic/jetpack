@@ -1,7 +1,7 @@
 import { usePrevious } from '@wordpress/compose';
+import { useDispatch } from '@wordpress/data';
 import { createContext, useContext, useEffect, useMemo, useReducer } from '@wordpress/element';
 import { isEqual } from 'lodash';
-
 /** @typedef {import('react')} React */
 
 /**
@@ -36,7 +36,9 @@ export function SyncedAttributeProvider( { children } ) {
 }
 
 /**
- * Returns the synced attributes for a block.
+ * Uses the `SyncedAttributeContext`, but returns only the values for the given block type.
+ * The `setSyncedAttributes` function it returns is also adjusted so that it only updates
+ * the attributes for the given block type.
  *
  * @param {string} name - The name of the block.
  *
@@ -111,6 +113,8 @@ export function useSyncedAttributes(
 	attributes,
 	setOwnAttributes
 ) {
+	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch( 'core/block-editor' );
+
 	// The synced attributes are pulled from the parent form block via react context.
 	// They can be updated using the `setSyncedAttributes` function.
 	// These attributes are the source of truth for all blocks that are synced.
@@ -158,6 +162,7 @@ export function useSyncedAttributes(
 		const updatedSyncedAttributes = getModifiedAttributes( syncedAttributes, [ ownAttributes ] );
 		// If there are changes to the synced attributes, update the block's own attributes.
 		if ( Object.keys( updatedSyncedAttributes ).length > 0 ) {
+			__unstableMarkNextChangeAsNotPersistent();
 			setOwnAttributes( updatedSyncedAttributes );
 		}
 	}, [
@@ -167,5 +172,6 @@ export function useSyncedAttributes(
 		ownAttributes,
 		previousOwnAttributes,
 		syncedAttributes,
+		__unstableMarkNextChangeAsNotPersistent,
 	] );
 }
