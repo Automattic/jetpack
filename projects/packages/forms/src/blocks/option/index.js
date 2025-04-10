@@ -33,9 +33,18 @@ const settings = {
 		},
 	},
 	attributes: {
-		defaultLabel: { type: 'string' },
-		label: { type: 'string' },
-		requiredText: { type: 'string' },
+		defaultLabel: {
+			type: 'string',
+			default: '',
+		},
+		label: {
+			type: 'string',
+			default: '',
+		},
+		requiredText: {
+			type: 'string',
+			default: '',
+		},
 		// TODO: Work out the best approach here for type.
 		// Currently, the type attribute isn't required as it can be passed via block
 		// context. It turns out though that choice items for the single and multiple
