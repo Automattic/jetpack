@@ -218,8 +218,8 @@ class Filesystem_Utils {
 		$deletable = is_writable( $file_path );
 
 		if ( $deletable ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-			return unlink( $file_path );
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+			return @unlink( $file_path );
 		}
 
 		return false;

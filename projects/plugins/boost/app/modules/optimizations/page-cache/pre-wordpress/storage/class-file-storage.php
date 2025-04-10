@@ -60,7 +60,7 @@ class File_Storage implements Storage {
 		$hash_path = $directory . $filename;
 
 		if ( file_exists( $hash_path ) ) {
-			$expired = ( filemtime( $hash_path ) + JETPACK_BOOST_CACHE_REBUILD_DURATION ) <= time();
+			$expired = ( @filemtime( $hash_path ) + JETPACK_BOOST_CACHE_REBUILD_DURATION ) <= time(); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 			if ( $expired ) {
 				if ( Filesystem_Utils::delete_file( $hash_path ) ) {
@@ -94,7 +94,7 @@ class File_Storage implements Storage {
 		$hash_path = $directory . $filename;
 
 		if ( file_exists( $hash_path ) ) {
-			$filemtime = filemtime( $hash_path );
+			$filemtime = @filemtime( $hash_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			$expired   = ( $filemtime + JETPACK_BOOST_CACHE_DURATION ) <= time();
 
 			// If file exists and is not expired, return the file contents.

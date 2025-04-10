@@ -15,7 +15,11 @@ class Filter_Older implements Path_Action {
 
 	public function apply_to_path( SplFileInfo $file ) {
 		$file_path = $file->getPathname();
-		$filemtime = filemtime( $file_path );
+		$filemtime = @filemtime( $file_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+		if ( ! $filemtime ) {
+			return 0;
+		}
 
 		/*
 		 * if the file is a directory, then we process it, regardless of age.
