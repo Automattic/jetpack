@@ -30,6 +30,7 @@
  * Fixes Gutenberg in not fullscreen mode.
  */
  @media (min-width: 783px) {
+
 	.interface-interface-skeleton,
 	.edit-post-layout .components-editor-notices__snackbar {
 		left: 272px;
@@ -37,6 +38,7 @@
 }
 
 @media (min-width: 961px) {
+
 	body:not(.folded).auto-fold .interface-interface-skeleton,
 	.auto-fold .edit-post-layout .components-editor-notices__snackbar,
 	.components-snackbar-list.edit-widgets-notices__snackbar,
@@ -78,7 +80,7 @@
 
 #adminmenu .toplevel_page_site-notices .wp-menu-image:before {
 	content: '\f534';
-	font-family: 'dashicons';
+	font-family: dashicons;
 	font-size: 20px;
 	line-height: 20px;
 	background-color: #a7aaad;
@@ -127,6 +129,7 @@
 }
 
 @media screen and (min-width: 782px) {
+
 	.folded #adminmenu .toplevel_page_site-notices .wp-menu-image {
 		display: block;
 		width: 30px;
@@ -141,6 +144,7 @@
 }
 
 @media screen and (min-width: 782px) and (max-width: 960px){
+
 	.auto-fold #adminmenu .toplevel_page_site-notices .wp-menu-image {
 		display: block;
 		width: 30px;
@@ -189,6 +193,7 @@
 
 /* Auto-folding of the admin menu */
 @media only screen and (max-width: 960px) {
+
 	#adminmenu,
 	#adminmenuwrap,
 	#adminmenuback {
@@ -209,12 +214,14 @@
 }
 
 @media screen and (min-width: 782px) and (max-width: 960px) {
+
 	.auto-fold #adminmenu a.menu-top {
 		height: 34px;
 	}
 }
 
 @media screen and (max-width: 782px) {
+
 	#adminmenu li.menu-top .wp-submenu>li>a,
 	.auto-fold #adminmenu li.menu-top .wp-submenu>li>a {
 		padding-left: 42px;
@@ -239,6 +246,7 @@
 }
 
 @media only screen and (max-width: 660px) {
+
 	#adminmenuback,
 	#adminmenuwrap,
 	#adminmenu,
@@ -286,6 +294,7 @@
 }
 
 @media screen and  (max-width: 782px) {
+
 	.screen-options-tab__dropdown {
 		right: 10px;
 		top: 47px;
@@ -293,6 +302,7 @@
 }
 
 @media screen and  (max-width: 600px) {
+
 	.screen-options-tab__dropdown {
 		top: 93px;
 	}
@@ -340,6 +350,7 @@
 	display: flex;
 	flex-direction: column;
 }
+
 #adminmenu .menu-top[class*="/start?ref=calypso-sidebar"] {
 	order: 99999;
 }
