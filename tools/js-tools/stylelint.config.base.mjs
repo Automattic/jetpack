@@ -36,7 +36,6 @@ const baseConfig = {
 		'function-linear-gradient-no-nonstandard-direction': null,
 		'function-url-quotes': null,
 		'length-zero-no-unit': null,
-		'media-feature-name-no-unknown': null,
 		'no-descending-specificity': null,
 		'no-duplicate-selectors': null,
 		'no-empty-source': null,
