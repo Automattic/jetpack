@@ -892,6 +892,9 @@ class Contact_Form_Test extends BaseTestCase {
 	public function test_make_sure_checkbox_field_renders_as_expected_with_style() {
 		$block     = array(
 			'blockName'   => 'jetpack/field-checkbox',
+			'attrs'       => array(
+				'required' => false,
+			),
 			'innerBlocks' => array(
 				array(
 					'blockName' => 'jetpack/option',
@@ -912,11 +915,11 @@ class Contact_Form_Test extends BaseTestCase {
 			),
 		);
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox( array(), '', new \WP_Block( $block ) );
+		$expected  = '[contact-field type="checkbox" label="single" optionclasses=" has-text-color" optionstyles="color:caramel; font-size:24px;"/]';
+		$this->assertEquals( $expected, $shortcode );
 
-		// use HTML processor to parse code and check HTML
-		$form = new Contact_Form( array(), $shortcode );
-		$form->parse_content( $form->__toString() );
-		// test here?
+		$html = do_shortcode( $shortcode );
+		$this->assertEquals( $expected, $html );
 	}
 
 	/**
