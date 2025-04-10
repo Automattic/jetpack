@@ -82,7 +82,7 @@ class Jetpack_Blog_Stats_Helper {
 				}
 				// @phan-suppress-next-line PhanUndeclaredFunction
 				$stats = array_sum( stats_get_visitors( get_current_blog_id(), false, gmdate( 'Y' ) - 2012, 365 ) );
-				wp_cache_set( "stats_get_visitors_total_$_blog_id", $stats, 'blog-stats-block' );
+				wp_cache_set( "stats_get_visitors_total_$_blog_id", $stats, 'blog-stats-block', HOUR_IN_SECONDS );
 
 				return $stats;
 			}
