@@ -138,6 +138,15 @@ export function useSyncedAttributes(
 			return;
 		}
 
+		// If the synced attributes are unset, but the block does have attribute values, it indicates
+		// the synced attributes have not yet been primed. Set them to an initial value.
+		// The only drawback here it that this will cause a `setSyncedAttributes` call for every block on the
+		// first run through.
+		if ( ! syncedAttributes && ownAttributes ) {
+			setSyncedAttributes( ownAttributes );
+			return;
+		}
+
 		// Check whether the block's own attributes have changed compared to the block's previous own attributes
 		// and the synced attributes.
 		//
@@ -152,11 +161,6 @@ export function useSyncedAttributes(
 		// If there are changes to the block's own attributes, update the synced attributes.
 		if ( Object.keys( updatedOwnAttributes ).length > 0 ) {
 			setSyncedAttributes( updatedOwnAttributes );
-
-			// Return early and don't continue to try syncing the block's own attributes.
-			// The local state of the synced attributes has not yet been updated,
-			// so the block's own attributes will end up being set back to whatever they previously were
-			// if this early return were not present.
 			return;
 		}
 
@@ -164,6 +168,10 @@ export function useSyncedAttributes(
 		const updatedSyncedAttributes = getModifiedAttributes( syncedAttributes, [ ownAttributes ] );
 		// If there are changes to the synced attributes, update the block's own attributes.
 		if ( Object.keys( updatedSyncedAttributes ).length > 0 ) {
+			// Mark the change as not persistent to prevent the attribute modifications from being
+			// individual updates to the undo stack.
+			// It might be good to move towards batching these changes together, to do this the updates,
+			// would need to be made from the top level `SyncedAttributeProvider`.
 			__unstableMarkNextChangeAsNotPersistent();
 			setOwnAttributes( updatedSyncedAttributes );
 		}
