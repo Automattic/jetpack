@@ -76,10 +76,10 @@ export class MeasurableImageStore {
 	public async updateDimensions() {
 		const sizeOnPage = this.image.getSizeOnPage();
 		this.sizeOnPage.set( sizeOnPage );
-		await this.updateSize();
+		await this.updateFileDimensions();
 	}
 
-	private async updateSize() {
+	private async updateFileDimensions() {
 		/**
 		 * Current source can change when resizing screen.
 		 * If the URL has changed since last update,
