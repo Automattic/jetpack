@@ -1,5 +1,5 @@
 import { CURRENCIES } from '@automattic/format-currency';
-import ProductPrice from '../index.js';
+import ProductPrice from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof ProductPrice > = {

@@ -8,7 +8,7 @@ import { useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { renderMarkdownFromHTML } from '../libs/markdown/index.js';
+import { renderMarkdownFromHTML } from '../libs/markdown/index.ts';
 /**
  * Types
  */

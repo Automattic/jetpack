@@ -6,7 +6,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import * as allIcons from '../index.js';
+import * as allIcons from '../index.ts';
 import styles from './style.module.scss';
 /**
  * Types

@@ -1,5 +1,6 @@
 import { createWriteStream, existsSync } from 'fs';
 import fs from 'fs/promises';
+import os from 'os';
 import path from 'path';
 import process from 'process';
 import util from 'util';
@@ -17,6 +18,7 @@ import { allProjectsByType, dirs } from '../helpers/projectHelpers.js';
 import { runCommand } from '../helpers/runCommand.js';
 
 const rsyncConfigStore = new Configstore( 'automattic/jetpack-cli/rsync' );
+let isOpenrsync = false;
 
 /**
  * Escapes dots in a string. Useful when saving destination as key in Configstore. Otherwise it tries strings with dots
@@ -50,6 +52,53 @@ function setRsyncDest( pluginDestPath, alias = false ) {
  * @param {object} argv - The argv for the command line.
  */
 export async function rsyncInit( argv ) {
+	// Apple ships a special fork of openrsync, which has various quirks.
+	// In particular, it doesn't handle symlink recursion well, which breaks
+	// in macOS 15.4 and copies child node_modules dirs in 15.5.
+	//
+	// See also:
+	// * p1742486518169009-slack-CDLH4C1UZ
+	// * https://github.com/apple-oss-distributions/rsync/tree/main/openrsync
+	if ( os.platform() === 'darwin' ) {
+		const { stdout: rsyncVersion } = await execa( 'rsync', [ '--version' ] );
+		isOpenrsync = rsyncVersion.indexOf( 'openrsync' ) >= 0;
+		if ( isOpenrsync ) {
+			const { stdout: macOS_version } = await execa( 'sw_vers', [ '--productVersion' ] );
+			if ( macOS_version === '15.4' ) {
+				console.error(
+					chalk.red(
+						'The implementation of rsync in macOS 15.4 is unable to properly sync symlinks.'
+					)
+				);
+				console.error( chalk.red( 'Please install standard rsync (e.g. `brew install rsync`).' ) );
+				process.exit( 1 );
+			} else {
+				console.error(
+					chalk.yellow(
+						'The implementation of rsync in macOS is unable to properly sync symlinks.'
+					)
+				);
+				console.error(
+					chalk.yellow( 'Installing standard rsync (e.g. `brew install rsync`) is recommended.' )
+				);
+				console.error();
+				await enquirer
+					.prompt( {
+						type: 'confirm',
+						name: 'proceedWithOpenrsync',
+						message:
+							'Continuing will not break anything, but will copy many unneeded files.\nProceed to sync files?',
+						initial: false,
+					} )
+					.then( answer => {
+						if ( ! answer.proceedWithOpenrsync ) {
+							process.exit( 0 );
+						}
+					} );
+			}
+		}
+	}
+
 	if ( argv.config ) {
 		await promptToManageConfig();
 		return;
@@ -520,13 +569,16 @@ async function rsyncToDest( source, dest ) {
 	const tmpFile = await createFilterFile( paths );
 
 	try {
+		// Some versions of openrsync partially work with --copy-unsafe-links, so do that for them.
+		const copyLinksOpt = isOpenrsync ? '--copy-unsafe-links' : '--copy-links';
+
 		await runCommand( 'rsync', [
 			'-azKPv',
 			'--prune-empty-dirs',
 			'--delete',
 			'--delete-after',
 			'--delete-excluded',
-			'--copy-unsafe-links',
+			copyLinksOpt,
 			`--include-from=${ tmpFile.name }`,
 			source,
 			dest,

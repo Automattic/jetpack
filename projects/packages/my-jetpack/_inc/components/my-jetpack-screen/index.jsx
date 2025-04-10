@@ -41,11 +41,13 @@ import useAnalytics from '../../hooks/use-analytics';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
+import { useQueryParameter } from '../../hooks/use-query-parameter';
 import ConnectionsSection from '../connections-section';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
 import LoadingBlock from '../loading-block';
+import OnboardingTour from '../onboarding-tour';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
 import WelcomeFlow from '../welcome-flow';
@@ -177,6 +179,9 @@ export default function MyJetpackScreen() {
 		setReloading( true );
 	}
 
+	// show welcome tour if user is redirected from the onboarding flow
+	const isRedirectingFromOnboarding = useQueryParameter( 'from' ) === 'jetpack-onboarding';
+
 	if ( reloading ) {
 		return null;
 	}
@@ -245,6 +250,8 @@ export default function MyJetpackScreen() {
 			{ ! isWelcomeBannerVisible && isSectionVisible && userIsAdmin && (
 				<EvaluationRecommendations />
 			) }
+
+			{ isRedirectingFromOnboarding && <OnboardingTour /> }
 
 			<ProductCardsSection />
 

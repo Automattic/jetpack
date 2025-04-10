@@ -92,11 +92,11 @@
 
 #adminmenu .toplevel_page_site-notices .wp-menu-image:before {
 	content: '\f534';
-	font-family: 'dashicons';
+	font-family: dashicons;
 	font-size: 20px;
 	line-height: 20px;
 	background-color: #a7aaad;
-	color: white;
+	color: #fff;
 	border-radius: 50%;
 	margin: 5px;
 	padding: 0;

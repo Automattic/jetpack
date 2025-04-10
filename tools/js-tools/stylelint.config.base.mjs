@@ -12,18 +12,24 @@ const baseConfig = {
 				ignorePseudoClasses: [ 'export', 'global' ],
 			},
 		],
+		'font-family-no-missing-generic-family-keyword': [
+			true,
+			{
+				ignoreFontFamilies: [
+					'dashicons', // https://github.com/WordPress/dashicons
+					'FontAwesome', // https://fontawesome.com/icons, used by CRM
+					'Genericons', // https://github.com/Automattic/genericons
+					'Noticons', // WordPress.com internal font
+					'social-logos', // see js-packages/social-logos
+				],
+			},
+		],
 
 		// Disable all other rules for now.
-		'color-hex-length': null,
-		'color-named': null,
 		'declaration-block-no-duplicate-custom-properties': null,
 		'declaration-block-no-duplicate-properties': null,
 		'declaration-block-no-shorthand-property-overrides': null,
 		'declaration-property-unit-allowed-list': null,
-		'font-family-name-quotes': null,
-		'font-family-no-duplicate-names': null,
-		'font-family-no-missing-generic-family-keyword': null,
-		'font-weight-notation': null,
 		'function-linear-gradient-no-nonstandard-direction': null,
 		'function-url-quotes': null,
 		'keyframe-declaration-no-important': null,

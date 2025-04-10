@@ -80,7 +80,7 @@
 	#zbs-add-new-row{
 		padding: 8px;
 		background: #f5f5f5;
-		color: black;
+		color: #000;
 		cursor: pointer;
 		text-align: center;
 		border: 1px solid #ddd;
@@ -276,7 +276,7 @@
 		.remove-row{
 			font-size:15px;
 			margin-top: 10px;
-			color: black;	
+			color: #000;	
 		}
 
 		.third{
@@ -320,9 +320,9 @@
 
 	.mark-as-paid{
 		margin-left: 10px;
-		background-color: green;
+		background-color: #008000;
 		text-transform: uppercase;
-		color: white;
+		color: #fff;
 		padding: 7px;
 		font-weight: 900;
 		font-size: 25px;
@@ -401,9 +401,9 @@
 
 		#zbs_success{
 			display:none;
-			background:green;
+			background: #008000;
 			padding:10px;
-			color: white;
+			color: #fff;
 			font-weight:100;
 			font-size:14px;
 
@@ -423,9 +423,9 @@
 
 		#zbs_success, #zbs_test_success{
 			display:none;
-			background:green;
+			background: #008000;
 			padding:10px;
-			color: white;
+			color: #fff;
 			font-weight:100;
 			font-size:14px;
 
@@ -533,7 +533,7 @@
 
 	    	.bord{
 	    		background: #f5f5f5;
-	    		color: black;
+	    		color: #000;
 	    		font-weight: 800;
 	    		border-bottom: 2px solid #ccc;
 	    	}
@@ -575,7 +575,7 @@
 
 	    .row-amount{
 	        background: #f5f5f5;
-		    color: black;
+		    color: #000;
 		    font-weight: 400;
 		    height:20px;
 		    text-align:right;
@@ -626,7 +626,7 @@
 
 		.row-amount{
     		background: #f5f5f5;
-			color: black;
+			color: #000;
 			font-weight:800;
 			text-align:right;
 			height:35px;
@@ -679,11 +679,11 @@
 		}
 
 		.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th{
-			border-top: 0px solid white !important;
+			border-top: 0px solid #fff !important;
 		}
 
 		.add-row{
-			border-left: 0px solid white;
+			border-left: 0px solid #fff;
 		}
 
 		.zbs-row-actions{
@@ -712,7 +712,7 @@
 	    	.draft{
 	    		background-color: #ddd;
 	    		text-transform: uppercase;
-	    		color: white;
+	    		color: #fff;
 			    padding: 7px;
 			    font-weight: 900;
 			    font-size: 25px;	    		
@@ -721,25 +721,25 @@
 	    	.unpaid{
 	    		background-color: #ffd800;
 	    		text-transform: uppercase;
-	    		color: white;
+	    		color: #fff;
 			    padding: 7px;
 			    font-weight: 900;
 			    font-size: 25px;
 	    	}
 
 	    	.paid{
-	    		background-color: green;
+	    		background-color: #008000;
 	    		text-transform: uppercase;
-	    		color: white;
+	    		color: #fff;
 			    padding: 7px;
 			    font-weight: 900;
 			    font-size: 25px;	    		
 	    	}
 
 	    	.overdue{
-	    		background-color: red;
+	    		background-color: #f00;
 	    		text-transform: uppercase;
-	    		color: white;
+	    		color: #fff;
 			    padding: 7px;
 			    font-weight: 900;
 			    font-size: 25px;		    	
@@ -799,7 +799,7 @@
 
 		.handlediv {
 		    display: none;
-		    border-bottom: 0px solid white;
+		    border-bottom: 0px solid #fff;
 		}
 	}
 
@@ -900,7 +900,7 @@
 	    cursor:pointer;
 
 	    .fa{
-	    	color: black;
+	    	color: #000;
 	    	margin-right:5px;
 			margin-bottom:10px;
 	    	font-size:40px;
@@ -909,7 +909,7 @@
 
 	    .wh-logo-text{
 		    font-weight: 300;
-		    color: black;
+		    color: #000;
 		    font-size: 18px;
 		    margin-left: 20px;
 		    position: absolute;
@@ -976,7 +976,7 @@
 		.zbsCloseThisAndLog:hover {
 
 			cursor:pointer;
-			color:green;
+			color: #008000;
 
 		}
 

@@ -10,7 +10,7 @@
 
 	#form-embed, #form-preview{
 		min-height: 50px;
-	    background: white;
+	    background: #fff;
 	    margin-bottom: 20px;
 	    border: 1px solid #e5e5e5;
 	    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.04);
@@ -33,7 +33,7 @@
 	    margin-bottom: 20px;
 	    margin-left: 20px;
 	    margin-right: 20px;
-	    background: aliceblue;
+	    background: #f0f8ff;
 	    padding: 12px;
 	    border: 1px solid #00A0D3;
 	    border-radius: 4px;
@@ -92,7 +92,7 @@
 
 	pre {
 	  display:block;
-	  font:normal 12px/22px Monaco,Monospace !important;
+	  font:400 12px/22px Monaco,Monospace !important;
 	  color:#CFDBEC;
 	  background-color:#2f2f2f;
 	  background-image:-webkit-repeating-linear-gradient(top, #444 0px, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
@@ -142,8 +142,8 @@
 				}
 
 				.br{
-					color: white;
-					background:white;
+					color: #fff;
+					background: #fff;
 				}
 			}
 
@@ -158,7 +158,7 @@
 				margin-bottom: 8px;
 
 				h1{
-					color: black;
+					color: #000;
 					font-size: 20px;
 					padding: 5px;
 				}
@@ -185,7 +185,7 @@
 						text-align:left;
 						color: #ccc;
 						font-weight: 100;
-						background:white;
+						background: #fff;
 					}
 
 					.textarea{
@@ -197,7 +197,7 @@
 						text-align:left;
 						color: #ccc;
 						font-weight: 100;
-						background:white;		
+						background: #fff;		
 						height: 200px;
 						margin-bottom:10px;				
 					}
@@ -205,7 +205,7 @@
 					.send{
 						width: 20%;
 						background: #0d6db8;
-						color:white;
+						color: #fff;
 						height: 30px;
 						float:left;
 						text-align: center;
@@ -238,8 +238,8 @@
 				}
 
 				.br{
-					color: white;
-					background:white;
+					color: #fff;
+					background: #fff;
 				}
 			}
 
@@ -254,7 +254,7 @@
 				margin-bottom: 8px;
 
 				h1{
-					color: black;
+					color: #000;
 					font-size: 20px;
 					padding: 5px;
 				}
@@ -281,13 +281,13 @@
 						text-align:left;
 						color: #ccc;
 						font-weight: 100;
-						background:white;
+						background: #fff;
 					}
 
 					.send{
 						width: 20%;
 						background: #0d6db8;
-						color:white;
+						color: #fff;
 						height: 30px;
 						float:left;
 						text-align: center;
@@ -321,8 +321,8 @@
 				}
 
 				.br{
-					color: white;
-					background:white;
+					color: #fff;
+					background: #fff;
 				}
 			}
 
@@ -349,7 +349,7 @@
 					.send{
 						width: 20%;
 						background: #0d6db8;
-						color:white;
+						color: #fff;
 						height: 30px;
 						float:left;
 						text-align: center;
@@ -400,8 +400,8 @@
 				}
 
 				.br{
-					color: white;
-					background:white;
+					color: #fff;
+					background: #fff;
 				}
 			}
 
@@ -416,7 +416,7 @@
 				margin-bottom: 8px;
 
 				h1{
-					color: black;
+					color: #000;
 					font-size: 20px;
 					padding: 5px;
 				}
@@ -446,13 +446,13 @@
 						padding: 5px;
 						text-align:left;
 						font-weight: 100;
-						background:white;
+						background: #fff;
 					}
 
 					.send, input[type="submit"]{
 						width: 20%;
 						background: #0d6db8;
-						color:white;
+						color: #fff;
 						height: 33px;
 						float:left;
 						text-align: center;
@@ -489,8 +489,8 @@
 				}
 
 				.br{
-					color: white;
-					background:white;
+					color: #fff;
+					background: #fff;
 				}
 			}
 
@@ -505,7 +505,7 @@
 				margin-bottom: 8px;
 
 				h1{
-					color: black;
+					color: #000;
 					font-size: 20px;
 					padding: 5px;
 				}
@@ -531,7 +531,7 @@
 						padding: 5px;
 						text-align:left;
 						font-weight: 100;
-						background:white;
+						background: #fff;
 					}
 
 					.textarea{
@@ -542,7 +542,7 @@
 						padding: 5px;
 						text-align:left;
 						font-weight: 100;
-						background:white;		
+						background: #fff;		
 						height: 200px;
 						margin-bottom:10px;				
 					}
@@ -550,7 +550,7 @@
 					.send, input[type="submit"]{
 						width: 20%;
 						background: #0d6db8;
-						color:white;
+						color: #fff;
 						height: 33px;
 						float:left;
 						text-align: center;
@@ -596,8 +596,8 @@
 				}
 
 				.br{
-					color: white;
-					background:white;
+					color: #fff;
+					background: #fff;
 				}
 			}
 
@@ -623,7 +623,7 @@
 					.send, input[type="submit"]{
 						width: 20%;
 						background: #0d6db8;
-						color:white;
+						color: #fff;
 						height: 33px;
 						float:left;
 						text-align: center;

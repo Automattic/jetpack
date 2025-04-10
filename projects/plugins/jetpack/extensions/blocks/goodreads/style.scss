@@ -6,7 +6,7 @@
 	// These styles are directly from Goodreads and
 	// shared with the Goodreads Widget in Jetpack.
 	[class^='gr_custom_container_'] {
-		border: 1px solid gray;
+		border: 1px solid #808080;
 		border-radius: 10px;
 		margin: auto;
 		padding: 0 5px 10px 5px;
@@ -16,7 +16,7 @@
 	}
 
 	[class^='gr_custom_header_'] {
-		border-bottom: 1px solid gray;
+		border-bottom: 1px solid #808080;
 		width: 100%;
 		padding: 10px 0;
 		margin: auto;
@@ -56,7 +56,7 @@
 
 	[class^='gr_custom_tags_'] {
 		font-size: 10px;
-		color: gray;
+		color: #808080;
 	}
 
 	[class^='gr_custom_rating_'] {
