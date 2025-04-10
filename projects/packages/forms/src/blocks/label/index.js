@@ -43,9 +43,18 @@ const settings = {
 		},
 	},
 	attributes: {
-		label: { type: 'string' },
-		defaultLabel: { type: 'string' },
-		requiredText: { type: 'string' },
+		label: {
+			type: 'string',
+			default: '',
+		},
+		defaultLabel: {
+			type: 'string',
+			default: '',
+		},
+		requiredText: {
+			type: 'string',
+			default: '',
+		},
 	},
 	usesContext: [ 'jetpack/form-className', 'jetpack/field-required', 'jetpack/field-dateFormat' ],
 	edit,

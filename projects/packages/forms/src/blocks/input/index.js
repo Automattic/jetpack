@@ -53,7 +53,10 @@ const settings = {
 		},
 	},
 	attributes: {
-		placeholder: { type: 'string' },
+		placeholder: {
+			type: 'string',
+			default: '',
+		},
 		type: { type: 'string' },
 		min: { type: 'number' },
 		max: { type: 'number' },
