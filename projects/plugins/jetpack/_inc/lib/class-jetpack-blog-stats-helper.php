@@ -27,6 +27,7 @@ class Jetpack_Blog_Stats_Helper {
 				'postId'      => get_the_ID(),
 			)
 		);
+
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 			// Jetpack sites.
 			$wpcom_stats = new WPCOM_Stats();
@@ -37,8 +38,8 @@ class Jetpack_Blog_Stats_Helper {
 				$cache_in_meta = true;
 				$data          = $wpcom_stats->convert_stats_array_to_object(
 					$wpcom_stats->get_post_views(
-						get_the_ID(),
-						array( 'fields' => 'views' ),
+						$stats_option['postId'],
+						array( 'fields' => 'views' ), // No visitor count for posts.
 						$cache_in_meta
 					)
 				);
