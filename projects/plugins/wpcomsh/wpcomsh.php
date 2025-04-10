@@ -52,7 +52,6 @@ require_once __DIR__ . '/jetpack-token-error-header/class-atomic-record-jetpack-
  */
 require_once __DIR__ . '/widgets/class-aboutme-widget.php';
 require_once __DIR__ . '/widgets/class-gravatar-widget.php';
-require_once __DIR__ . '/widgets/class-jetpack-i-voted-widget.php';
 require_once __DIR__ . '/widgets/class-jetpack-posts-i-like-widget.php';
 require_once __DIR__ . '/widgets/class-music-player-widget.php';
 require_once __DIR__ . '/widgets/class-widget-authors-grid.php';

@@ -2,6 +2,9 @@
 
 require_once __DIR__ . '/trait.http-request-cache.php';
 
+/**
+ * @covers ::dailymotion_shortcode
+ */
 class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -15,7 +18,6 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_exists() {
@@ -24,7 +26,6 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion() {
@@ -37,7 +38,6 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_id() {
@@ -51,7 +51,6 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_missing_id() {
@@ -64,7 +63,6 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_title() {
@@ -79,7 +77,6 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_user() {
@@ -94,7 +91,6 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_video() {
@@ -109,7 +105,6 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author mathildes
-	 * @covers ::dailymotion_shortcode
 	 * @since 4.2.0
 	 */
 	public function test_shortcodes_dailymotion_width_height() {
@@ -127,7 +122,6 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 
 		/**
 		 * @author mathildes
-		 * @covers ::dailymotion_shortcode
 		 * @since 4.2.0
 		 */
 	public function test_shortcodes_dailymotion_params() {

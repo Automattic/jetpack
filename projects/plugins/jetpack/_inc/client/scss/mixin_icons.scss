@@ -8,11 +8,11 @@
 @mixin dashicons {
 
 	@include clear-text-icon;
-	font: normal 16px/1 'Dashicons';
+	font: 400 16px/1 dashicons;
 }
 
 @mixin noticons {
 
 	@include clear-text-icon;
-	font: normal 16px/1 'Noticons';
+	font: 400 16px/1 Noticons;
 }

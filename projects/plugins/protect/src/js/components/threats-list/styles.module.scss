@@ -61,7 +61,7 @@
 .accordion-header {
 	display: grid;
 	grid-template-columns: repeat( 9, 1fr );
-	background-color: white;
+	background-color: #fff;
 	padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 ); // 16px | 24px
 	border: 1px solid var( --jp-gray );
 	border-bottom: none;

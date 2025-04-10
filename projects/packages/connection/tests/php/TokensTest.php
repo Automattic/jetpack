@@ -16,6 +16,8 @@ use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 
 /**
  * Tokens functionality testing.
+ *
+ * @covers \Automattic\Jetpack\Connection\Tokens
  */
 class TokensTest extends TestCase {
 
@@ -55,8 +57,6 @@ class TokensTest extends TestCase {
 
 	/**
 	 * Test the `validate` functionality when the site is not registered.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Tokens::validate
 	 */
 	public function test_validate_when_site_is_not_registered() {
 		$expected = new WP_Error( 'site_not_registered', 'Site not registered.' );
@@ -65,8 +65,6 @@ class TokensTest extends TestCase {
 
 	/**
 	 * Test the `validate` functionality when the current user is not connnected, aka user token is missing.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Tokens::validate
 	 */
 	public function test_validate_with_missing_user_token() {
 		add_filter(
@@ -92,8 +90,6 @@ class TokensTest extends TestCase {
 
 	/**
 	 * Test the `validate` functionality when the remote request to the `jetpack-token-health` endpoint fails.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Tokens::validate
 	 */
 	public function test_validate_with_failed_remote_request() {
 		add_filter(
@@ -126,8 +122,6 @@ class TokensTest extends TestCase {
 
 	/**
 	 * Test the `validate` functionality when the remote request to the `jetpack-token-health` endpoint succeeds.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Tokens::validate
 	 */
 	public function test_validate() {
 		add_filter(
@@ -169,8 +163,6 @@ class TokensTest extends TestCase {
 
 	/**
 	 * Test the `get_signed_token` functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Tokens::get_signed_token
 	 */
 	public function test_get_signed_token() {
 		$access_token = (object) array(
@@ -257,10 +249,6 @@ class TokensTest extends TestCase {
 
 	/**
 	 * Test the locking/unlocking tokens functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Tokens::set_lock
-	 * @covers Automattic\Jetpack\Connection\Tokens::is_locked
-	 * @covers Automattic\Jetpack\Connection\Tokens::remove_lock
 	 */
 	public function test_set_lock() {
 		$tokens = new Tokens();
@@ -295,9 +283,6 @@ class TokensTest extends TestCase {
 
 	/**
 	 * Test the auto-unlocking tokens functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Tokens::set_lock
-	 * @covers Automattic\Jetpack\Connection\Tokens::is_locked
 	 */
 	public function test_unlock() {
 		$tokens = new Tokens();

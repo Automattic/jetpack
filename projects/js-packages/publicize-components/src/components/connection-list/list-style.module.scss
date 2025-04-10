@@ -14,7 +14,7 @@
 		margin-block: 0;
 		padding-inline: 0;
 		padding-block: 0;
-		border: 1px solid #dddddd;
+		border: 1px solid #ddd;
 		border-radius: 2px;
 	}
 
@@ -22,7 +22,7 @@
 		width: 100%;
 
 		&:not(:last-child) {
-			border-bottom: 1px solid #dddddd;
+			border-bottom: 1px solid #ddd;
 		}
 	}
 }

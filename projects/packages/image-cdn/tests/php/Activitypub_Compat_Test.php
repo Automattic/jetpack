@@ -10,11 +10,12 @@ use WorDBless\BaseTestCase;
 
 require __DIR__ . '/../../src/compatibility/activitypub.php';
 
+/**
+ * @covers ::\Automattic\Jetpack\Image_CDN\Compatibility\load_activitypub_compat
+ */
 class Activitypub_Compat_Test extends BaseTestCase {
 	/**
 	 * Test that we do not disable CDN for ActivityPub requests by default.
-	 *
-	 * @covers Automattic\Jetpack\Image_CDN\Compatibility\load_activitypub_compat
 	 */
 	public function test_load_activitypub_compat_default() {
 		\Automattic\Jetpack\Image_CDN\Compatibility\load_activitypub_compat();
@@ -25,8 +26,6 @@ class Activitypub_Compat_Test extends BaseTestCase {
 
 	/**
 	 * Test that we disable CDN for ActivityPub requests when the filter is used.
-	 *
-	 * @covers Automattic\Jetpack\Image_CDN\Compatibility\load_activitypub_compat
 	 */
 	public function test_load_activitypub_compat_disabled_filter() {
 		// Set the filter to overwrite the default behavior.

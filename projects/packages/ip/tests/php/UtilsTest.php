@@ -11,6 +11,8 @@ use Brain\Monkey\Functions;
 
 /**
  * Utils class test suite.
+ *
+ * @covers \Automattic\Jetpack\IP\Utils
  */
 final class UtilsTest extends PHPUnit\Framework\TestCase {
 	/**
@@ -34,8 +36,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Test `get_ip`.
 	 *
-	 * @covers Automattic\Jetpack\IP\Utils::get_ip
-	 * @covers Automattic\Jetpack\IP\Utils::clean_ip
 	 * @dataProvider provide_get_ip
 	 * @param string|false $expect Expected output.
 	 * @param array        $server Data for `$_SERVER`.
@@ -247,8 +247,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test `ip_is_private`.
-	 *
-	 * @covers Automattic\Jetpack\IP\Utils::ip_is_private
 	 */
 	public function test_ip_is_private() {
 		$public_ips = array(
@@ -274,8 +272,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test `convert_ip_address`.
-	 *
-	 * @covers Automattic\Jetpack\IP\Utils::convert_ip_address
 	 */
 	public function test_convert_ip_address() {
 		$converted_ip_address = Utils::convert_ip_address( '1.2.3.4' );
@@ -284,8 +280,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test `ip_address_is_in_range`.
-	 *
-	 * @covers Automattic\Jetpack\IP\Utils::ip_address_is_in_range
 	 */
 	public function test_ip_address_is_in_range() {
 		// IPv4 - Hyphenated ranges
@@ -387,8 +381,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Test `get_ip_addresses_from_string`.
 	 * Covers IPv4 and IPv6 addresses, including ranges, concatenated with various delimiters.
-	 *
-	 * @covers Automattic\Jetpack\IP\Utils::get_ip_addresses_from_string
 	 */
 	public function test_get_ip_addresses_from_string() {
 		$ip_string =
@@ -429,8 +421,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test `validate_ip_range`.
-	 *
-	 * @covers Automattic\Jetpack\IP\Utils::validate_ip_range
 	 */
 	public function test_validate_ip_range() {
 		// Valid ranges - IPv4.
@@ -474,8 +464,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test `validate_cidr`.
-	 *
-	 * @covers Automattic\Jetpack\IP\Utils::validate_cidr
 	 */
 	public function test_validate_cidr() {
 		// Valid IPv4 CIDR notations
@@ -542,8 +530,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test `parse_cidr`.
-	 *
-	 * @covers Automattic\Jetpack\IP\Utils::parse_cidr
 	 */
 	public function test_parse_cidr() {
 		// Valid IPv4 CIDR notation
@@ -565,8 +551,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test `get_ip_version`.
-	 *
-	 * @covers Automattic\Jetpack\IP\Utils::get_ip_version
 	 */
 	public function test_get_ip_version() {
 		// Valid IPv4 address
@@ -581,8 +565,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test `validate_netmask`.
-	 *
-	 * @covers Automattic\Jetpack\IP\Utils::validate_netmask
 	 */
 	public function test_validate_netmask() {
 		// Valid netmask for IPv4
@@ -607,8 +589,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test `ip_in_ipv4_cidr`.
-	 *
-	 * @covers Automattic\Jetpack\IP\Utils::ip_in_ipv4_cidr
 	 */
 	public function test_ip_in_ipv4_cidr() {
 		// IP within CIDR range
@@ -632,8 +612,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test `ip_in_ipv6_cidr`.
-	 *
-	 * @covers Automattic\Jetpack\IP\Utils::ip_in_ipv6_cidr
 	 */
 	public function test_ip_in_ipv6_cidr() {
 		// IP within CIDR range
@@ -657,8 +635,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test `ip_in_cidr`.
-	 *
-	 * @covers Automattic\Jetpack\IP\Utils::ip_in_cidr
 	 */
 	public function test_ip_in_cidr() {
 		// IPv4 - Valid cases

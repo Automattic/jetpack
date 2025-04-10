@@ -2,13 +2,18 @@
 
 require_once __DIR__ . '/trait.http-request-cache.php';
 
+/**
+ * @covers ::soundcloud_shortcode
+ * @covers ::soundcloud_get_option
+ * @covers ::soundcloud_url_has_tracklist
+ * @covers ::jetpack_soundcloud_embed_reversal
+ */
 class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::soundcloud_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_soundcloud_exists() {
@@ -17,7 +22,6 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::soundcloud_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_soundcloud() {
@@ -124,7 +128,6 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 	/**
 	 * Tests the shortcode output on an AMP endpoint.
 	 *
-	 * @covers ::soundcloud_shortcode
 	 * @since 8.0.0
 	 */
 	public function tests_shortcodes_soundcloud_amp() {
