@@ -125,11 +125,11 @@ function aiowp_migration_status_helper() {
 		return;
 	}
 
+	$wpcom_blog_id = _wpcom_get_current_blog_id();
 	add_filter(
 		'ai1wm_import',
-		function () {
-			$wpcom_blog_id = _wpcom_get_current_blog_id();
-			$endpoint      = sprintf( '/sites/%s/migration-aiowp-notifications', $wpcom_blog_id );
+		function ( $params = array() ) use ( $wpcom_blog_id ) {
+			$endpoint = sprintf( '/sites/%s/migration-aiowp-notifications', $wpcom_blog_id );
 
 			$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
 				$endpoint,
@@ -140,12 +140,12 @@ function aiowp_migration_status_helper() {
 			);
 
 			if ( 200 !== $response['response']['code'] || empty( $response['body'] ) ) {
-				return false;
+				return $params;
 			}
 
-			return true;
+			return $params;
 		},
-		410
+		400
 	);
 }
 
