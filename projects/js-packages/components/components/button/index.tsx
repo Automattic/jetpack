@@ -10,7 +10,7 @@ import React, { forwardRef } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.scss';
-import type { ButtonProps } from './types.js';
+import type { ButtonProps } from './types.ts';
 
 /**
  * Button component

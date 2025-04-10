@@ -109,13 +109,6 @@ const sbconfig = {
 			$images: path.join( __dirname, '../../../plugins/boost/app/assets/static/images' ),
 		};
 
-		// For tsc
-		config.resolve.extensionAlias = {
-			'.js': [ '.js', '.jsx', '.ts', '.tsx' ],
-			'.cjs': [ '.cjs', '.cts' ],
-			'.mjs': [ '.mjs', '.mts' ],
-		};
-
 		return config;
 	},
 	refs: {

@@ -1,4 +1,4 @@
-import AutomatticBylineLogo from '../index.js';
+import AutomatticBylineLogo from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof AutomatticBylineLogo > = {
