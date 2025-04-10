@@ -326,22 +326,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.5-a.9 - 2025-03-24
+### 14.6-a.1 - 2025-04-07
 #### Enhancements
-- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack.
+- Replace video embed with VideoPress block in Media & Text block.
+- Forms: Add custom hooks for integrations.
+- Forms: Add endpoint for all integrations.
+- Forms: Update default forms view to dataviews.
+- Newsletter Widget: Improve the display of links in the Newsletter widget.
 
 #### Improved compatibility
-- VideoPress: Add block sidebar notice to transform embed into a block.
-- AI Assistant: Improve performance by optimizing state management in the AI feature hook.
-- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls.
+- Blocks: Ensure all child blocks use the latest version of the Blocks API.
 
 #### Bug fixes
-- Admin Color Scheme: Fix colors in the Aquatic color scheme.
-- Newsletter: Ensure external links are marked as such in the Newsletter widget.
-- Search: Ensure the count of returned results is shown after searching.
-- Site Badge: Update styles of the Coming Soon badge.
-- Site Verification: Fix auto-verification via Google when Social is disabled.
-- Stats: Ensure the Stats widget is automatically disabled when the Stats module is disabled.
+- Reset access level of the post to everyone when a paywall is removed.
+- Slideshow: Prevent images from appearing stuck to the mouse in block-based themes.
+- Star Rating: Fix padding and improve panel copy.
 
 --------
 

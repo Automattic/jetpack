@@ -89,7 +89,6 @@ export const automatticAssignments = {
 			'[Plugin] VaultPress',
 			'[Feature] Backup & Scan',
 			'[Feature] Backups',
-			'[Feature] Scan',
 			'[Package] Backup',
 			'[Package] Transport Helper',
 		],

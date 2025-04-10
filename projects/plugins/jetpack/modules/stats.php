@@ -16,7 +16,6 @@
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\Main as Stats;
@@ -24,6 +23,7 @@ use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
+use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
 use Automattic\Jetpack\Status\Host;
@@ -59,16 +59,12 @@ function stats_load() {
 		add_action( 'wp_head', 'stats_admin_bar_head', 100 );
 	}
 
+	Admin_Post_List_Column::register();
+
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
-	// Add an icon to see stats in WordPress.com for a particular post.
-	add_action( 'admin_print_styles-edit.php', 'jetpack_stats_load_admin_css' );
-	add_filter( 'manage_posts_columns', 'jetpack_stats_post_table' );
-	add_filter( 'manage_pages_columns', 'jetpack_stats_post_table' );
-	add_action( 'manage_posts_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
-	add_action( 'manage_pages_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
 	// Filter for adding the Jetpack plugin version to tracking stats.
 	add_filter( 'stats_array', 'filter_stats_array_add_jp_version' );
 
@@ -1443,108 +1439,6 @@ function stats_get_from_restapi( $args = array(), $resource = '' ) {
 	set_transient( $transient_name, array( time() => $data ), 5 * MINUTE_IN_SECONDS );
 
 	return $return;
-}
-
-/**
- * Load CSS needed for Stats column width in WP-Admin area.
- *
- * @since 4.7.0
- */
-function jetpack_stats_load_admin_css() {
-	?>
-	<style type="text/css">
-		.fixed .column-stats {
-			width: 5em;
-		}
-	</style>
-	<?php
-}
-
-/**
- * Set header for column that allows to view an entry's stats.
- *
- * @param array $columns An array of column names.
- *
- * @since 4.7.0
- *
- * @return mixed
- */
-function jetpack_stats_post_table( $columns ) {
-	/*
-	 * Stats can be accessed in wp-admin or in Calypso,
-	 * depending on what version of the stats screen is enabled on your site.
-	 *
-	 * In both cases, the user must be allowed to access stats.
-	 *
-	 * If the Odyssey Stats experience isn't enabled, the user will need to go to Calypso,
-	 * so they need to be connected to WordPress.com to be able to access that page.
-	 */
-	if (
-		! current_user_can( 'view_stats' )
-		|| (
-			! Stats_Options::get_option( 'enable_odyssey_stats' )
-			&& ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected()
-		)
-	) {
-		return $columns;
-	}
-
-	// Array-Fu to add before comments.
-	$pos = array_search( 'comments', array_keys( $columns ), true );
-
-	// Fallback to the last position if the post type does not support comments.
-	if ( ! is_int( $pos ) ) {
-		$pos = count( $columns );
-	}
-
-	// Final fallback, if the array was malformed by another plugin for example.
-	if ( ! is_int( $pos ) ) {
-		return $columns;
-	}
-
-	$chunks             = array_chunk( $columns, $pos, true );
-	$chunks[0]['stats'] = esc_html__( 'Stats', 'jetpack' );
-
-	return call_user_func_array( 'array_merge', $chunks );
-}
-
-/**
- * Set content for cell with link to an entry's stats in Odyssey Stats.
- *
- * @param string $column  The name of the column to display.
- * @param int    $post_id The current post ID.
- *
- * @since 4.7.0
- *
- * @return mixed
- */
-function jetpack_stats_post_table_cell( $column, $post_id ) {
-	if ( 'stats' === $column ) {
-		if ( 'publish' !== get_post_status( $post_id ) ) {
-			printf(
-				'<span aria-hidden="true">—</span><span class="screen-reader-text">%s</span>',
-				esc_html__( 'No stats', 'jetpack' )
-			);
-		} else {
-			// Link to the wp-admin stats page.
-			$stats_post_url = admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, Jetpack_Options::get_option( 'id', 0 ) ) );
-			// Unless the user is on a Default style WOA site, in which case link to Calypso.
-			if ( ( new Host() )->is_woa_site() && Stats_Options::get_option( 'enable_odyssey_stats' ) && 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
-				$stats_post_url = Redirect::get_url(
-					'calypso-stats-post',
-					array(
-						'path' => $post_id,
-					)
-				);
-			}
-
-			printf(
-				'<a href="%s" title="%s" class="dashicons dashicons-chart-bar" target="_blank"></a>',
-				esc_url( $stats_post_url ),
-				esc_html__( 'View stats for this post', 'jetpack' )
-			);
-		}
-	}
 }
 
 /**

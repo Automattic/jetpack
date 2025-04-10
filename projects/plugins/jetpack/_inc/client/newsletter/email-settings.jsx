@@ -26,7 +26,7 @@ import {
 	getSiteTitle,
 	getUserGravatar,
 	getDisplayName,
-	getNewsetterDateExample,
+	getNewsletterDateExample,
 	getSiteAdminUrl,
 	getCurrenUserEmailAddress,
 } from 'state/initial-state';
@@ -476,7 +476,7 @@ export default withModuleSettingsFormHelpers(
 			adminUrl: getSiteAdminUrl( state ),
 			subscriptionReplyTo: ownProps.getOptionValue( REPLY_TO_OPTION ),
 			subscriptionFromName: ownProps.getOptionValue( FROM_NAME_OPTION ),
-			dateExample: getNewsetterDateExample( state ),
+			dateExample: getNewsletterDateExample( state ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			siteHasConnectedUser: hasConnectedOwner( state ),
 		};

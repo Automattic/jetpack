@@ -29,7 +29,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 		parent::set_up();
 
 		$this->wpcom_stats = $this->getMockBuilder( 'Automattic\Jetpack\Stats\WPCOM_Stats' )
-			->onlyMethods( array( 'fetch_remote_stats' ) )
+			->onlyMethods( array( 'fetch_remote_stats', 'fetch_stats_on_wpcom_simple' ) )
 			->getMock();
 	}
 
@@ -529,6 +529,49 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 		$stats = $this->wpcom_stats->get_total_post_views();
 		$this->assertSame( $expected_stats, $stats );
 		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/views/posts' ) );
+	}
+
+	/**
+	 * Test get_total_post_views on WPCOM Simple sites.
+	 *
+	 * @return void
+	 */
+	public function test_get_total_post_views_with_valid_post_ids_on_simple_sites() {
+		$reflection = new \ReflectionClass( $this->wpcom_stats );
+		$property   = $reflection->getProperty( 'is_wpcom_simple' );
+		$property->setAccessible( true );
+		$property->setValue( $this->wpcom_stats, true );
+
+		// Prepare mock data for the stats
+		$mock_stats = array(
+			'-' => array(
+				1 => 100,  // Post ID 1 has 100 views
+				2 => 200,  // Post ID 2 has 200 views
+			),
+		);
+
+		// Set up the mock to return the mock stats when called
+		$this->wpcom_stats->expects( $this->once() )
+					->method( 'fetch_stats_on_wpcom_simple' )
+					->with( '2025-03-07', 1, '1,2' )
+					->willReturn( $mock_stats );
+
+		$args = array(
+			'post_ids' => '1,2',
+			'end'      => '2025-03-07',
+			'num'      => 1,
+		);
+
+		// Execute the method
+		$result = $this->wpcom_stats->get_total_post_views( $args );
+
+		// Assert the structure and the expected values
+		$this->assertArrayHasKey( 'posts', $result );
+		$this->assertCount( 2, $result['posts'] );
+
+		// Check if the correct views are returned for each post
+		$this->assertEquals( 100, $result['posts'][0]['views'] );
+		$this->assertEquals( 200, $result['posts'][1]['views'] );
 	}
 
 	/**

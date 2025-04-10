@@ -51,7 +51,7 @@ module.exports = [
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
 			'wpcom-media-url-upload': './src/features/wpcom-media/wpcom-media-url-upload.js',
 			'wpcom-options-general': [
-				'./src/features/wpcom-options-general/options-general.js',
+				'./src/features/wpcom-options-general/options-general.ts',
 				'./src/features/wpcom-options-general/options-general.scss',
 			],
 			'wpcom-plugins-banner': './src/features/wpcom-plugins/js/banner.js',
@@ -77,7 +77,6 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 			alias: {
 				...jetpackWebpackConfig.resolve.alias,
-				'@automattic/calypso-config': '@automattic/calypso-config/src/client.js',
 				/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
 				classnames: findPackage( 'clsx' ),
 			},

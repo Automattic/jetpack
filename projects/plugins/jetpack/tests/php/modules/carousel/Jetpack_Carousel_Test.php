@@ -9,6 +9,8 @@ require_once JETPACK__PLUGIN_DIR . 'modules/carousel/jetpack-carousel.php';
 
 /**
  * Class Jetpack_Carousel_Test
+ *
+ * @covers \Jetpack_Carousel
  */
 class Jetpack_Carousel_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -92,9 +94,6 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 	 * Test add_data_img_tags_and_enqueue_assets.
 	 *
 	 * @dataProvider get_data_img_tags
-	 * @covers Jetpack_Carousel::add_data_img_tags_and_enqueue_assets()
-	 * @covers Jetpack_Carousel::maybe_add_amp_lightbox()
-	 *
 	 * @param string      $content The initial content to be filtered.
 	 * @param bool        $is_amp Whether this is an AMP endpoint.
 	 * @param string|null $expected The filtered content.

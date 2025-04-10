@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Use wpcom_get_custom_admin_menu_class helper instead of calling the admin menu class. This way, the quick fix that prevented the UI switcher to be registered twice is no longer needed.
-
-

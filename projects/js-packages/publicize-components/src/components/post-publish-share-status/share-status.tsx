@@ -88,8 +88,8 @@ export function ShareStatus( { reShareTimestamp }: ShareStatusProps ) {
 				{ sprintf(
 					/* translators: %d: number of connections to which a post was shared */
 					_n(
-						'You post was successfuly shared to %d connection.',
-						'You post was successfuly shared to %d connections.',
+						'Your post was successfuly shared to %d connection.',
+						'Your post was successfuly shared to %d connections.',
 						currentShares.length,
 						'jetpack-publicize-components'
 					),

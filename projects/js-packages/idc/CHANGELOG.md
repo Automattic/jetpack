@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.12.21 - 2025-04-07
+### Changed
+- Code: First pass of style coding standards. [#42734]
+
+## 0.12.20 - 2025-04-01
+### Changed
+- Update package dependencies. [#42809]
+
+## 0.12.19 - 2025-04-01
+### Changed
+- Update dependencies.
+
+## 0.12.18 - 2025-03-31
+### Changed
+- Update dependencies.
+
 ## 0.12.17 - 2025-03-26
 ### Changed
 - Update dependencies.

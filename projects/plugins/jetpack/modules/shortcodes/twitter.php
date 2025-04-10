@@ -9,7 +9,7 @@
  * and is force-loaded via module-extras.php regardless of module status.
  *
  * @package automattic/jetpack
- * @since $$next-version$$
+ * @since 14.5
  */
 
 use Automattic\Jetpack\Connection\Client;

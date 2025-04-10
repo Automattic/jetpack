@@ -1,29 +1,26 @@
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo, useState } from 'react';
-import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import useOauthConnection from '../../../hooks/use-oauth-connection';
+import { useCallback, useMemo } from 'react';
+import ErrorMessage from './error-message';
 import styles from './styles.module.scss';
+import type { SubmitType, UseOauthConnectionReturn } from '../../../hooks/use-oauth-connection';
 import type { ChangeEvent, FC, FormEvent } from 'react';
-
 interface EmailInputProps {
-	onSubmit?: () => void;
+	onSubmit: ( submitType: SubmitType ) => void;
+	loading: boolean;
 	isDisabled: boolean;
+	lastClicked: SubmitType | null;
+	oauthConnectionData: UseOauthConnectionReturn;
 }
 
-const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
-	const [ isClicked, setIsClicked ] = useState( false );
-	const {
-		userEmail,
-		setUserEmail,
-		isValidEmail,
-		handleSubmitEmail,
-		isLoadingAuthorizeUrl,
-		isError,
-		isRedirecting,
-	} = useOauthConnection();
-
-	const { siteIsRegistering } = useMyJetpackConnection();
+const EmailInput: FC< EmailInputProps > = ( {
+	isDisabled,
+	onSubmit,
+	loading,
+	lastClicked,
+	oauthConnectionData,
+} ) => {
+	const { userEmail, setUserEmail, errorType } = oauthConnectionData;
 
 	const handleOnInput = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
@@ -34,38 +31,43 @@ const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 
 	const handleOnSubmit = useCallback(
 		async ( event: FormEvent< HTMLFormElement > ) => {
-			setIsClicked( true );
 			event.preventDefault();
-			onSubmit?.();
-			handleSubmitEmail();
+			onSubmit?.( 'email' );
 		},
-		[ onSubmit, handleSubmitEmail ]
+		[ onSubmit ]
 	);
 
-	const getErrorMessage = () => {
-		if ( ! isValidEmail ) {
-			// Third argument is to avoid a compilation issue with ternary operator
-			return __( 'Please enter a valid email address', 'jetpack-my-jetpack', 0 );
-		}
+	const isLastClicked = useMemo( () => {
+		return lastClicked === 'email';
+	}, [ lastClicked ] );
 
-		return __( 'An error occurred. Please try again.', 'jetpack-my-jetpack' );
-	};
-
-	const isLoading = isLoadingAuthorizeUrl || isRedirecting || ( isClicked && siteIsRegistering );
+	// Purpose of this is to only show errors and loading indicators
+	// on the last clicked button, not on all buttons.
+	const isThisLoading = useMemo( () => {
+		return loading && isLastClicked;
+	}, [ loading, isLastClicked ] );
 
 	const getAriaLabel = useMemo( () => {
-		if ( isLoading ) {
+		if ( isThisLoading ) {
 			return __( 'Connecting…', 'jetpack-my-jetpack', 0 );
 		}
 
 		return __( 'Start with email', 'jetpack-my-jetpack' );
-	}, [ isLoading ] );
+	}, [ isThisLoading ] );
+
+	const isInputDisabled = useMemo( () => {
+		return isDisabled || isThisLoading;
+	}, [ isDisabled, isThisLoading ] );
+
+	const isFormDisabled = useMemo( () => {
+		return isInputDisabled || errorType === 'email-validation';
+	}, [ isInputDisabled, errorType ] );
 
 	return (
 		<form onSubmit={ handleOnSubmit } className={ styles[ 'email-input-container' ] }>
 			<input
 				className={ `${ styles[ 'email-input' ] } ${
-					! isValidEmail ? styles[ 'email-input-error' ] : ''
+					errorType === 'email-validation' ? styles[ 'email-input-error' ] : ''
 				}` }
 				type="email"
 				autoComplete="email"
@@ -74,30 +76,21 @@ const EmailInput: FC< EmailInputProps > = ( { isDisabled, onSubmit } ) => {
 				name="user-email"
 				placeholder={ __( 'Enter your email address', 'jetpack-my-jetpack' ) }
 				aria-label={ __( 'Email address', 'jetpack-my-jetpack' ) }
-				aria-invalid={ ! isValidEmail || isError }
-				aria-describedby={ ! isValidEmail || isError ? 'email-error-message' : undefined }
+				aria-invalid={ errorType === 'email-validation' }
+				aria-describedby={ errorType ? 'email-error-message' : undefined }
 				value={ userEmail }
-				disabled={ isDisabled }
+				disabled={ isInputDisabled }
 				onInput={ handleOnInput }
 			/>
-			{ ( ! isValidEmail || isError ) && (
-				<div
-					id="email-error-message"
-					role="alert"
-					aria-live="polite"
-					className={ styles[ 'email-error-message' ] }
-				>
-					{ getErrorMessage() }
-				</div>
-			) }
+			{ isLastClicked && <ErrorMessage errorType={ errorType } /> }
 			<button
 				className={ styles[ 'submit-button' ] }
-				disabled={ isDisabled || ! userEmail || isLoading }
-				aria-busy={ isLoading }
+				disabled={ isFormDisabled }
+				aria-busy={ isThisLoading }
 				aria-label={ getAriaLabel }
 				type="submit"
 			>
-				{ isLoading ? (
+				{ isThisLoading ? (
 					<Spinner className={ styles.spinner } />
 				) : (
 					<span>{ __( 'Start with email', 'jetpack-my-jetpack' ) }</span>

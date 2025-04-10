@@ -97,7 +97,8 @@ pre {
 }
 
 code,kbd,pre,samp {
-    font-family:monospace,monospace;
+	/* stylelint-disable-next-line font-family-no-duplicate-names -- this is a known rendering hack to force proportional font sizes. */
+    font-family: monospace, monospace;
     font-size:1em
 }
 
@@ -168,6 +169,7 @@ td,th {
 }
 
 @media print {
+
 * {
     text-shadow:none!important;
     color:#000!important;
@@ -313,6 +315,7 @@ p {
 }
 
 @media (min-width:768px) {
+
 .lead {
     font-size:21px
 }
@@ -471,6 +474,7 @@ dd {
 }
 
 @media (min-width:768px) {
+
 .dl-horizontal dt {
     float:left;
     width:160px;
@@ -664,6 +668,7 @@ table td[class*=col-],table th[class*=col-] {
 }
 
 @media (max-width:767px) {
+
 .table-responsive {
     width:100%;
     margin-bottom:15px;
@@ -1006,6 +1011,7 @@ input[type=date] {
 }
 
 @media (min-width:768px) {
+
 .form-inline .form-group,.navbar-form .form-group {
     display:inline-block;
     margin-bottom:0;
@@ -1070,6 +1076,7 @@ input[type=date] {
 }
 
 @media (min-width:768px) {
+
 .form-horizontal .control-label {
     text-align:right
 }
@@ -1503,6 +1510,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .navbar-right .dropdown-menu {
     right:0;
     left:auto
@@ -1942,6 +1950,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .nav-justified>li,.nav-tabs.nav-justified>li {
     display:table-cell;
     width:1%
@@ -1966,6 +1975,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .nav-tabs-justified>li>a,.nav-tabs.nav-justified>li>a {
     border-bottom:1px solid #ddd;
     border-radius:4px 4px 0 0
@@ -2007,6 +2017,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .navbar {
     border-radius:4px
 }
@@ -2022,6 +2033,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .navbar-header {
     float:left
 }
@@ -2051,6 +2063,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .navbar-collapse {
     width:auto;
     border-top:0;
@@ -2080,6 +2093,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .container-fluid>.navbar-collapse,.container-fluid>.navbar-header,.container>.navbar-collapse,.container>.navbar-header {
     margin-right:0;
     margin-left:0
@@ -2092,6 +2106,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .navbar-static-top {
     border-radius:0
 }
@@ -2105,6 +2120,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .navbar-fixed-bottom,.navbar-fixed-top {
     border-radius:0
 }
@@ -2134,6 +2150,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .navbar>.container .navbar-brand,.navbar>.container-fluid .navbar-brand {
     margin-left:-15px
 }
@@ -2168,6 +2185,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .navbar-toggle {
     display:none
 }
@@ -2184,6 +2202,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (max-width:767px) {
+
 .navbar-nav .open .dropdown-menu {
     position:static;
     float:none;
@@ -2208,6 +2227,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .navbar-nav {
     float:left;
     margin:0
@@ -2228,6 +2248,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .navbar-left {
     float:left!important
 }
@@ -2250,12 +2271,14 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (max-width:767px) {
+
 .navbar-form .form-group {
     margin-bottom:5px
 }
 }
 
 @media (min-width:768px) {
+
 .navbar-form {
     width:auto;
     border:0;
@@ -2304,6 +2327,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (min-width:768px) {
+
 .navbar-text {
     float:left;
     margin-left:15px;
@@ -2370,6 +2394,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (max-width:767px) {
+
 .navbar-default .navbar-nav .open .dropdown-menu>li>a {
     color:#777
 }
@@ -2453,6 +2478,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 @media (max-width:767px) {
+
 .navbar-inverse .navbar-nav .open .dropdown-menu>.dropdown-header {
     border-color:#090909
 }
@@ -2591,7 +2617,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 .label-default[href]:focus,.label-default[href]:hover {
-    background-color:gray
+    background-color: #808080
 }
 
 .label-primary {
@@ -3455,6 +3481,7 @@ button.close {
 }
 
 @media (min-width:768px) {
+
 .modal-dialog {
     width:600px;
     margin:30px auto
@@ -3999,14 +4026,6 @@ table [class*=span],.row-fluid table [class*=span] {
     background-color: #c4e3f3;
 }
 
-#ZeroBSCRMAdminPage .hide-text {
-    font: 0/0 a;
-    color: transparent;
-    text-shadow: none;
-    background-color: transparent;
-    border: 0;
-}
-
 #ZeroBSCRMAdminPage .input-block-level {
     display: block;
     width: 100%;
@@ -4546,6 +4565,7 @@ th.column-ID {
 #sbDesc {    
     padding: 18px 10px 0 10px;
 }
+
 #sbSubPage {
     margin-top:18px;
 }
@@ -4573,16 +4593,19 @@ th.column-ID {
     background:url(../i/styles-plain.png) 0 0 no-repeat;
     
 }
+
 #whStyleLibEditPage table.wtab tr td .whStyleSelect .whStyleOption.whStyle-green {
     
     background:url(../i/styles-green.png) 0 0 no-repeat;
     
 }
+
 #whStyleLibEditPage table.wtab tr td .whStyleSelect .whStyleOption.whStyle-nouveau {
     
     background:url(../i/styles-nouveau.png) 0 0 no-repeat;
     
 }
+
 #whStyleLibEditPage table.wtab tr td .whStyleSelect .whStyleOption.whStyle-custom {
     
     background:url(../i/styles-custom.png) 0 0 no-repeat;

@@ -35,25 +35,46 @@ const formatBytes = ( size, decimals = 2 ) => {
 const addFileToContext = file => {
 	const reader = new FileReader();
 	reader.readAsDataURL( file );
-	reader.onload = withScope( () => {
-		const context = getContext();
-		const config = getConfig( NAMESPACE );
-		const fileId = performance.now() + '-' + Math.random();
 
-		let error = null;
-		if ( file.size > config.maxUploadSize ) {
-			error = config.i18n.fileTooLarge;
-		}
-		context.files.push( {
-			name: file.name,
-			url: 'url(' + reader.result + ')',
-			formattedSize: formatBytes( file.size, 2 ),
-			hasToken: false,
-			id: fileId,
-			error,
-		} );
-		context.hasFiles = true;
-		! error && uploadFile( file, fileId );
+	const config = getConfig( NAMESPACE );
+	const context = getContext();
+
+	let error = null;
+
+	// Check that the file not more then the max size.
+	if ( file.size > config.maxUploadSize ) {
+		error = config.i18n.fileTooLarge;
+	}
+
+	// Check that the file type is allowed.
+	if ( ! context.allowedMimeTypes.includes( file.type ) ) {
+		error = config.i18n.invalidType;
+	}
+
+	// Check if the user is trying to add more files then allowed.
+	if ( context.maxFiles < context.files.length + 1 ) {
+		error = config.i18n.maxFiles;
+	}
+
+	const fileId = performance.now() + '-' + Math.random();
+
+	// Update the context.
+	context.hasFiles = true;
+	context.files.push( {
+		name: file.name,
+		formattedSize: formatBytes( file.size, 2 ),
+		hasToken: false,
+		hasError: !! error,
+		id: fileId,
+		error,
+	} );
+
+	// Start the upload if we don't have any errors.
+	! error && uploadFile( file, fileId );
+
+	// Load the file so we can display it. In case it is an image.
+	reader.onload = withScope( () => {
+		updateFileContext( { url: 'url(' + reader.result + ')' }, fileId );
 	} );
 };
 
@@ -64,18 +85,16 @@ const addFileToContext = file => {
  * @param {string} fileId - The file ID.
  */
 const uploadFile = ( file, fileId ) => {
-	const { endpoint, wp_nonce, jp_nonce } = getConfig( NAMESPACE );
+	const { endpoint, uploadToken } = getConfig( NAMESPACE );
 	const xhr = new XMLHttpRequest();
 	const formData = new FormData();
+
 	xhr.open( 'POST', endpoint, true );
-	xhr.withCredentials = true;
 	xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, fileId ) ) );
 	xhr.addEventListener( 'readystatechange', withScope( onReadyStateChange.bind( this, fileId ) ) );
-	formData.append( 'context', 'jetpack-form' );
+
 	formData.append( 'file', file );
-	// Send nonces in FormData instead of headers to avoid CORS preflight requests
-	formData.append( 'wp_nonce', wp_nonce );
-	formData.append( 'jp_upload_nonce', jp_nonce );
+	formData.append( 'upload_token', uploadToken );
 	xhr.send( formData );
 };
 
@@ -110,8 +129,7 @@ const onReadyStateChange = ( fileId, event ) => {
 		}
 		if ( xhr.responseText ) {
 			const response = JSON.parse( xhr.responseText );
-			// eslint-disable-next-line no-console
-			console.error( 'Error uploading file', response );
+			updateFileContext( { error: response.message, hasError: true }, fileId );
 		}
 	}
 };
@@ -131,27 +149,32 @@ const updateFileContext = ( updatedFile, fileId ) => {
 /**
  * Remove file from the temporary folder.
  *
- * @param {string} token - The token of the file to remove.
+ * @param {string} fileId - The file ID to remove.
  */
-const removeFile = token => {
-	const { endpoint, wp_nonce, jp_nonce } = getConfig( NAMESPACE );
+const removeFile = fileId => {
+	const { endpoint, uploadToken } = getConfig( NAMESPACE );
+	const formData = new FormData();
+	formData.append( 'file_id', fileId );
+	formData.append( 'upload_token', uploadToken );
 
-	const request = new Request( endpoint + '/remove', {
+	fetch( `${ endpoint }/remove`, {
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify( {
-			token,
-			context: 'jetpack-form',
-			wp_nonce: wp_nonce,
-			jp_upload_nonce: jp_nonce,
-		} ),
-	} );
-	fetch( request );
+		body: formData,
+	} ).then( response => response.json() );
 };
 
 store( NAMESPACE, {
+	state: {
+		get hasFiles() {
+			return !! getContext().files.length > 0;
+		},
+
+		get hasMaxFiles() {
+			const context = getContext();
+			return context.maxFiles <= context.files.length;
+		},
+	},
+
 	actions: {
 		/**
 		 * Open the file picker dialog.
@@ -218,13 +241,11 @@ store( NAMESPACE, {
 		 * @param {Event} event - The event object.
 		 */
 		removeFile: event => {
+			event.preventDefault();
 			const context = getContext();
 			const fileId = event.target.dataset.id;
-			const file = context.files.find( fileObject => fileObject.id === fileId );
 			context.files = context.files.filter( fileObject => fileObject.id !== fileId );
-			context.hasFiles = context.files.length > 0;
-
-			removeFile( file.token );
+			removeFile( fileId );
 		},
 	},
 

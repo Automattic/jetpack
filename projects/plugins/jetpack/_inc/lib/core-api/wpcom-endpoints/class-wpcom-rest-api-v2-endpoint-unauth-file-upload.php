@@ -11,6 +11,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Unauth_File_Upload_Handler;
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload
  *
@@ -42,14 +44,6 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 				'methods'             => 'POST',
 				'permission_callback' => array( $this, 'permissions_check' ),
 				'callback'            => array( $this, 'handle_upload' ),
-				'args'                => array(
-					'context' => array(
-						'description' => __( 'Context identifier for the upload', 'jetpack' ),
-						'type'        => 'string',
-						'required'    => true,
-					),
-					// it also expects a file but there's no way to say this in the args
-				),
 			)
 		);
 
@@ -58,20 +52,13 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 			$this->rest_base . '/remove',
 			array(
 				'methods'             => 'POST',
-				'permission_callback' => array( $this, 'permissions_check_params' ),
+				'permission_callback' => array( $this, 'permissions_check' ),
 				'callback'            => array( $this, 'remove_file' ),
 				'args'                => array(
-					'context' => array(
-						'description' => __( 'Context identifier for the upload', 'jetpack' ),
-						'type'        => 'string',
-						'required'    => true,
+					'file_id' => array(
+						'required' => true,
+						'type'     => 'string',
 					),
-					'token'   => array(
-						'description' => __( 'Token of the recetnly uploaded file', 'jetpack' ),
-						'type'        => 'string',
-						'required'    => true,
-					),
-					// it also expects a file but there's no way to say this in the args
 				),
 			)
 		);
@@ -84,75 +71,35 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 * @return bool|WP_Error True if the request has permission, WP_Error object otherwise.
 	 */
 	public function permissions_check( $request ) {
-		$this->served = true;
-		// First check if we have a file at all
-		$files = $request->get_file_params();
-		if ( empty( $files ) || empty( $files['file'] ) ) {
+		$token = $request->get_param( 'upload_token' );
+		if ( ! $token ) {
 			return new WP_Error(
-				'rest_missing_callback_param',
-				__( 'No file was uploaded.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-		}
-
-		return $this->permissions_check_params( $request );
-	}
-
-	/**
-	 * Checks if the request has permission to upload files
-	 *
-	 * @param WP_REST_Request $request Full data about the request.
-	 * @return bool|WP_Error True if the request has permission, WP_Error object otherwise.
-	 */
-	public function permissions_check_params( $request ) {
-		// Check the wp_rest upload nonce
-		$upload_nonce = $request->get_param( 'wp_nonce' );
-
-		if ( ! $upload_nonce ) {
-			return new WP_Error(
-				'missing_upload_nonce',
-				__( 'wp rest nonce is required.', 'jetpack' ),
+				'missing_token',
+				__( 'Upload token is required.', 'jetpack' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
 
-		// Verify the upload nonce with its context
-		$context = $request->get_param( 'context' );
+		try {
+			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-unauth-file-upload-handler.php';
+			$handler = new Unauth_File_Upload_Handler();
+			$claims  = $handler->verify_upload_token( $token );
 
-		// Check the Jetpack upload nonce
-		$upload_nonce = $request->get_param( 'jp_upload_nonce' );
+			// Verify claims
+			if ( time() > $claims->exp ) {
+				return new WP_Error( 'token_expired', 'Upload token has expired' );
+			}
 
-		if ( ! $upload_nonce ) {
-			return new WP_Error(
-				'missing_upload_nonce',
-				__( 'Jetpack upload nonce is required.', 'jetpack' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
+			// Verify IP if specified
+			if ( isset( $claims->ip ) && isset( $_SERVER['REMOTE_ADDR'] ) && $_SERVER['REMOTE_ADDR'] !== $claims->ip ) {
+				return new WP_Error( 'invalid_ip', 'Invalid IP address' );
+			}
+
+			return true;
+
+		} catch ( \Exception $e ) {
+			return new WP_Error( 'invalid_token', $e->getMessage() );
 		}
-
-		if ( ! wp_verify_nonce( $upload_nonce, 'jetpack_file_upload_' . $context ) ) {
-			return new WP_Error(
-				'invalid_upload_nonce',
-				__( 'Invalid Jetpack upload nonce.', 'jetpack' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
-		}
-
-		/**
-		 * Filter whether to allow the file upload based on IP or other criteria.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool|WP_Error $allowed Whether to allow the upload. Return WP_Error to block with a specific message.
-		 * @param WP_REST_Request $request The request object.
-		 */
-		$ip_check = apply_filters( 'jetpack_unauth_file_upload_ip_check', true, $request );
-		if ( is_wp_error( $ip_check ) ) {
-			$ip_check->add_data( array( 'status' => 429 ) ); // Rate limit exceeded
-			return $ip_check;
-		}
-
-		return true;
 	}
 
 	/**
@@ -163,8 +110,15 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	 */
 	public function handle_upload( $request ) {
 		$files = $request->get_file_params();
-		$file  = $files['file'];
+		if ( empty( $files ) || empty( $files['file'] ) ) {
+			return new WP_Error(
+				'rest_missing_callback_param',
+				__( 'No file was uploaded.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
 
+		$file = $files['file'];
 		// Basic file validation
 		if ( empty( $file['tmp_name'] ) || empty( $file['name'] ) ) {
 			return new WP_Error(
@@ -189,12 +143,23 @@ class WPCOM_REST_API_V2_Endpoint_Unauth_File_Upload extends WP_REST_Controller {
 	}
 
 	/**
-	 * Removes the file from the server that was temprary added.
+	 * Removes the file from the server that was temporary added.
 	 *
+	 * @param WP_REST_Request $request Full data about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function remove_file() {
-		// Return dummy success response for testing
+	public function remove_file( $request ) {
+		$file_id = $request->get_param( 'file_id' );
+		if ( empty( $file_id ) ) {
+			return new WP_Error(
+				'missing_file_id',
+				__( 'File ID is required.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// TODO: Implement actual file removal logic here
+		// For now, just return success response
 		return rest_ensure_response(
 			array(
 				'success' => true,

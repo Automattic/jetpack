@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Stop using the custom welcome tour when the user creates a post for the first time, showing the core welcome guide instead

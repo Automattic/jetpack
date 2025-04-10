@@ -1,11 +1,13 @@
 @use '$css/main/variables.scss' as *;
 
 .collapsible-meta {
+
 	.header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		margin-bottom: 1em;
+
 		@media screen and ( max-width: 530px ) {
 			flex-direction: column;
 			align-items: flex-start;
@@ -17,6 +19,7 @@
 	}
 
 	.actions {
+
 		svg {
 			fill: var(--jetpack-green-40);
 		}

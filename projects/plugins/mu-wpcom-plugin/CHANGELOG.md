@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.8.0 - 2025-04-04
+### Added
+- Add newsletter widget to the dashboard. [#41807]
+- Add site launch button to the admin bar. [#41240]
+- Bump a Tracks stat for every wp-admin page view. [#42422]
+- Comments: Use Verbum on comments containing block mark-up. [#42022]
+- Connection: Disconnect all other users before disconnecting connection owner account. [#41923]
+- Dashboard: Add Daily Writing Prompt widget. [#41094]
+- Dashboard: Add general tasks widget. [#41150]
+- Dashboard: Add launchpad. [#41434]
+- Dashboard: Add site preview and links. [#41106]
+- Launchpad: Add create-course-goal intent task list [#42108]
+- Media: Introduce the Import Media page. [#41032]
+- Media: Support Upload from URL on media-new page. [#41627]
+- Media: Untangle Calypso. [#41628]
+- Newsletter Dashboard Widget: Remove feature flag and enable widget. [#42276]
+- Add Subscribers in WP Admin. [#42066]
+- Theme tools: Load theme compat functionality relevant to features in Classic Theme Helper package. [#41598]
+
+### Changed
+- Admin Bar: Point the Edit Site menu item to `/site-editor.php`. [#41137]
+- Admin Color Schemes: Update color schemes to match Calypso. [#40908]
+- Connection: Allow pre-selected login providers. [#42662]
+- Connection: Display connection status on Users page independent of the SSO module. [#41794]
+- Hide "Verify Email" launchpad task for existing users. [#41326]
+- Live Preview: Don't change the homepage when previewing a theme in the Site Editor [#42388]
+- Prevent site owner from editing user's account-level fields. [#42177]
+- Site Visibility: Port the site visibility settings from Calypso to WP Admin. [#42230]
+- Theme: Clean up files that were used during the theme switch and theme preview. [#42420]
+- Update composer.lock files. [#41066]
+- Update package dependencies. [#40980] [#41659] [#42180] [#42815]
+- Update Site Settings link copy. [#41663]
+- Use `Automattic/jetpack-composer-plugin` so jetpack-library packages will be installed in a place where `wp i18n` will see them. [#41185]
+
+### Removed
+- Remove the "Personalize Link in Bio" launchpad task. [#41949]
+- Remove start page pattern modal. [#41479]
+- Use default core welcome tour when the user creates a post for the first time. [#41258]
+
+### Fixed
+- Admin Color Scheme: Fix the color of the Aquatic color scheme. [#42632]
+- Avoid opening Fiverr link when hitting Enter. [#42093]
+- Media Library: Ensure Upload from URL shows in the editor. [#41711]
+- Do not load ETK on agency sites on all pages. [#41272]
+- Filter out the full-site-editing plugin from the active_plugins list if the plugin file doesn't exist. [#41887]
+- Use blueberry (modern) scheme for launch site button. [#42605]
+- Make email and password available in `profile.php` on the default view. [#41945]
+- Port the fix of the modern color scheme from WP 6.8. [#42462]
+- Site Badge: Update styles of the Coming Soon badge. [#42496]
+- Site Visibility: Prevent accidental changes to blog_public on the Settings > Reading page. [#42716]
+- Verbum: Fix broken block editor. [#41747]
+
 ## 2.7.0 - 2025-01-10
 ### Added
 - WordPress.com Features: Add Holiday Snow functionality. [#40478]

@@ -35,6 +35,7 @@ $jetpack-podcast-player-error: $alert-red;
 	}
 
 	.jetpack-podcast-player {
+
 		/**
 		 * Set default values for our CSS variables.
 		 */
@@ -78,6 +79,7 @@ $jetpack-podcast-player-error: $alert-red;
 			text-decoration: none;
 			border: none;
 		}
+
 		a:focus {
 			outline: 1px solid;
 			outline-color: $jetpack-podcast-player-secondary;
@@ -86,6 +88,7 @@ $jetpack-podcast-player-error: $alert-red;
 		}
 
 		a.jetpack-podcast-player__link {
+
 			&,
 			&:active,
 			&:visited {
@@ -189,7 +192,7 @@ $jetpack-podcast-player-error: $alert-red;
 		 * above) to apply styling for different scenarios.
 		 */
 		&.is-active {
-			font-weight: bold;
+			font-weight: 700;
 			color: var( --jetpack-podcast-player-primary );
 
 			&:not( .has-primary ) {
@@ -299,7 +302,7 @@ $jetpack-podcast-player-error: $alert-red;
 		margin-inline-start: ( $gutter-l - 2px ) + $track-status-icon-size + $gutter-m; // has to be aligned with the track title
 		margin-bottom: $gutter-s;
 		font-size: 0.8em;
-		font-weight: normal;
+		font-weight: 400;
 		color: $jetpack-podcast-player-error;
 
 		& > span {
@@ -324,10 +327,11 @@ $jetpack-podcast-player-error: $alert-red;
 		margin: 0;
 		color: $jetpack-podcast-player-error;
 		font-size: 0.8em;
-		font-weight: normal;
+		font-weight: 400;
 	}
 
 	@supports ( mask-image: none ) or ( -webkit-mask-image: none ) {
+
 		.jetpack-podcast-player__track-status-icon--playing {
 			background-image: none;
 
@@ -346,7 +350,9 @@ $jetpack-podcast-player-error: $alert-red;
 				max-width: 20px;
 				margin: 4px 2px 0 0;
 			}
+
 			svg {
+
 				/**
 				* To stay consistent with the mediaelement player icons, we're using the same
 				* icon sprite for the track list playing icon. As we still keep the SVG as a
@@ -362,6 +368,7 @@ $jetpack-podcast-player-error: $alert-red;
 	 * Style the block to hide dynamic UI and show just its default style (no-js).
 	 */
 	&.is-default {
+
 		.jetpack-podcast-player__track-title {
 			padding-inline-start: 0; // Account for missing space for status-icon.
 		}

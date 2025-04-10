@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix not returning correct URL when a page is 404.

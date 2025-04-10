@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social: Disabled retry in share status when resharing is not supported.

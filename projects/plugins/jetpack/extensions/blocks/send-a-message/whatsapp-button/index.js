@@ -17,6 +17,7 @@ export const defaultFirstMessage = __(
 );
 
 export const settings = {
+	apiVersion: 3,
 	title,
 	description: __(
 		'Let your visitors send you a message on WhatsApp with the tap of a button.',

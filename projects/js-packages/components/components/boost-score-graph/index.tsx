@@ -1,7 +1,7 @@
 import React, { type FunctionComponent } from 'react';
-import Text from '../text/index.js';
-import Background from './background.js';
-import UplotLineChart from './uplot-line-chart.js';
+import Text from '../text/index.tsx';
+import Background from './background.tsx';
+import UplotLineChart from './uplot-line-chart.tsx';
 import './style.scss';
 
 export interface Period {

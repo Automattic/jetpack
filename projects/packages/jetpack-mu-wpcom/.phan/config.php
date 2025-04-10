@@ -25,7 +25,6 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/3rd-party/class.jetpack-amp-support.php',  // class Jetpack_AMP_Support
 			__DIR__ . '/../../../plugins/jetpack/modules/custom-css/custom-css.php',        // class Jetpack_Custom_CSS_Enhancements
 			__DIR__ . '/../../../plugins/jetpack/class-jetpack-stats-dashboard-widget.php', // class Jetpack_Stats_Dashboard_Widget
-			__DIR__ . '/../../../plugins/jetpack/class-jetpack-newsletter-dashboard-widget.php', // class Jetpack_Newsletter_Dashboard_Widget
 			__DIR__ . '/../../../plugins/wpcomsh/wpcomsh.php',                              // function wpcomsh_record_tracks_event
 			__DIR__ . '/../../../plugins/wpcomsh/functions.php',                            // function wpcomsh_get_wpcom_active_subscriptions
 			__DIR__ . '/../../../plugins/wpcomsh/support-session.php',

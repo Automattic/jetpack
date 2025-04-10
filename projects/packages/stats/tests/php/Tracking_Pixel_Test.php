@@ -36,8 +36,6 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 
 	/**
 	 * Test for Tracking_Pixel::build_view_data with post
-	 *
-	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
 	 */
 	public function test_build_view_data_with_post() {
 		global $wp_the_query;
@@ -58,8 +56,6 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 
 	/**
 	 * Test for Tracking_Pixel::build_view_data with gmt offset
-	 *
-	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
 	 */
 	public function test_build_view_data_with_gmt_offset() {
 		add_option( 'gmt_offset', '5' );
@@ -78,8 +74,6 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 
 	/**
 	 * Test for Tracking_Pixel::test_get_footer_to_add for an amp request
-	 *
-	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::get_amp_footer
 	 */
 	public function test_get_amp_footer() {
 		$_SERVER['HTTP_HOST'] = '127.0.0.1';
@@ -115,8 +109,6 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 
 	/**
 	 * Test for Tracking_Pixel::get_footer_to_add to check that stat_array filter is applied
-	 *
-	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_stats_details
 	 */
 	public function test_get_footer_to_add_applies_filter() {
 		add_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ), 10, 2 );

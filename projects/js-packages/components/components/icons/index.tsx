@@ -2,7 +2,7 @@ import { Path, SVG, G, Polygon } from '@wordpress/components';
 import clsx from 'clsx';
 import { SocialLogo } from 'social-logos';
 import styles from './style.module.scss';
-import { BaseIconProps } from './types.js';
+import { BaseIconProps } from './types.ts';
 import type React from 'react';
 
 /**

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.9] - 2025-03-31
+### Changed
+- Internal updates.
+
 ## [0.15.8] - 2025-03-24
 ### Changed
 - Internal updates.
@@ -238,6 +242,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.15.9]: https://github.com/Automattic/jetpack-stats/compare/v0.15.8...v0.15.9
 [0.15.8]: https://github.com/Automattic/jetpack-stats/compare/v0.15.7...v0.15.8
 [0.15.7]: https://github.com/Automattic/jetpack-stats/compare/v0.15.6...v0.15.7
 [0.15.6]: https://github.com/Automattic/jetpack-stats/compare/v0.15.5...v0.15.6

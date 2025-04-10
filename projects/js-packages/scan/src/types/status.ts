@@ -1,4 +1,4 @@
-import { Threat } from './threats.js';
+import { Threat } from './threats.ts';
 
 export type ScanStatus = {
 	/** The current status of the scanner. */

@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Components: Add __next40pxDefaultSize to controls, preventing deprecation notices.

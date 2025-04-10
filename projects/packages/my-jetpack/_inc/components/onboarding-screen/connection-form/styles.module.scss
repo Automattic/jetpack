@@ -104,13 +104,6 @@
 		}
 	}
 
-	.email-error-message {
-		color: var(--jp-red-50, #d63638);
-		font-size: 14px;
-		line-height: 20px;
-		margin-top: -8px;
-	}
-
 	.submit-button {
 		width: 100%;
 		padding: 12px 16px;
@@ -154,8 +147,19 @@
 	}
 }
 
+.error-message {
+	color: var(--jp-red-50, #d63638);
+	font-size: var(--font-body-small);
+	line-height: 20px;
+	margin-top: -8px;
+}
+
 svg.spinner {
 	margin: 0;
 	vertical-align: middle;
 	bottom: 2px;
+}
+
+.capitalize {
+	text-transform: capitalize;
 }

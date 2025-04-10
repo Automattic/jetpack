@@ -253,7 +253,7 @@ async function collectAllFiles( toClean, argv ) {
 			allFiles.docker.push( file );
 		} else if ( file.match( /(^|\/)node_modules\/$/ ) ) {
 			allFiles.node_modules.push( file );
-		} else if ( file.match( /(^|\/)vendor\/$/ ) ) {
+		} else if ( file.match( /(^|\/)(jetpack_)?vendor\/$/ ) ) {
 			allFiles.vendor.push( file );
 		} else if ( file.match( /(^|\/)composer\.lock$/ ) ) {
 			allFiles.composerLock.push( file );

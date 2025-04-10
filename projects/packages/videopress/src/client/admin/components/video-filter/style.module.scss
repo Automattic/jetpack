@@ -2,6 +2,7 @@
 	flex-shrink: 0;
 
 	&.is-active {
+
 		> svg {
 			fill: var( --jp-white );
 		}

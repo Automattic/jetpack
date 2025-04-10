@@ -20,7 +20,7 @@
 
 .jpcrm-form-label {
 	display: block;
-	font-weight: normal;
+	font-weight: 400;
 	line-height: 1.4;
 	margin-bottom: calc(8px);
 	padding: 0px;
@@ -46,6 +46,7 @@
 }
 
 @media (min-width: 768px) {
+
 	.jpcrm-form-grid {
 		grid-template-columns: 1fr 1fr;
 	}
@@ -56,6 +57,7 @@
 }
 
 @media (max-width: 767px) {
+
 	.jpcrm-form-grid {
 		grid-template-columns: 1fr;
 	}

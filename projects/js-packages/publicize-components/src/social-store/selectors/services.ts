@@ -1,6 +1,7 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector } from '@wordpress/data';
 import { ConnectionService } from '../../types';
+import { EMPTY_ARRAY } from '../constants';
 
 /**
  * Get the list of supported services
@@ -9,13 +10,13 @@ import { ConnectionService } from '../../types';
  *
  * @return The list of services.
  */
-export const getServicesList = createRegistrySelector( select => () => {
+export const getServicesList = createRegistrySelector( select => (): Array< ConnectionService > => {
 	const data = select( coreStore ).getEntityRecords< ConnectionService >(
 		'wpcom/v2',
 		'publicize/services'
 	);
 
-	return data ?? [];
+	return data ?? EMPTY_ARRAY;
 } );
 
 /**

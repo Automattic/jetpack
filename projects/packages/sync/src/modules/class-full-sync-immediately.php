@@ -316,8 +316,11 @@ class Full_Sync_Immediately extends Module {
 			return array();
 		}
 
-		$table     = $module->table();
-		$id        = $module->id_field();
+		$table = $module->table();
+		$id    = $module->id_field();
+		if ( 'terms' === $module ) { // Terms module relies on the term_taxonomy and term_taxonomy_id for the where sql, let's use term_id instead.
+			$id = 'term_id';
+		}
 		$where_sql = $module->get_where_sql( array() );
 
 		// TODO: Call $wpdb->prepare on the following query.

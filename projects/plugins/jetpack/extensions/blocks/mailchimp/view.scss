@@ -3,13 +3,16 @@
 @import "../../shared/styles/align";
 
 .wp-block-jetpack-mailchimp {
+
 	&.is-processing {
+
 		form {
 			display: none;
 		}
 	}
 
 	.wp-block-jetpack-button, p {
+
 		@include align-block;
 
 		margin-bottom: 1em;
@@ -32,6 +35,7 @@
 		display: none;
 		margin-bottom: $jetpack-block-margin-bottom;
 		padding: 0.75em;
+
 		&.is-visible {
 			display: block;
 		}
@@ -55,10 +59,12 @@
 			color: $white;
 		}
 	}
+
 	/* AMP Related classes */
 	.wp-block-jetpack-mailchimp_notification.wp-block-jetpack-mailchimp__is-amp {
 		display: block;
 	}
+
 	form.amp-form-submitting > p,
 	form.amp-form-submit-success > p,
 	form.amp-form-submit-error > p {

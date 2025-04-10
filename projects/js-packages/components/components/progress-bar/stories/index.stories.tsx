@@ -1,4 +1,4 @@
-import ProgressBar from '../index.js';
+import ProgressBar from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof ProgressBar > = {

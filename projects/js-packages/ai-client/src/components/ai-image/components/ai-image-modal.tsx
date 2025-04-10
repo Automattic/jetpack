@@ -14,13 +14,13 @@ import {
 	IMAGE_STYLE_AUTO,
 	ImageStyleObject,
 	ImageStyle,
-} from '../../../hooks/use-image-generator/constants.js';
-import { AiModalPromptInput } from '../../../logo-generator/index.js';
-import AiModalFooter from '../../ai-modal-footer/index.js';
-import AiAssistantModal from '../../modal/index.js';
-import QuotaExceededMessage from '../../quota-exceeded-message/index.js';
-import Carrousel, { CarrouselImages } from './carrousel.js';
-import UsageCounter from './usage-counter.js';
+} from '../../../hooks/use-image-generator/constants.ts';
+import { AiModalPromptInput } from '../../../logo-generator/index.ts';
+import AiModalFooter from '../../ai-modal-footer/index.tsx';
+import AiAssistantModal from '../../modal/index.tsx';
+import QuotaExceededMessage from '../../quota-exceeded-message/index.tsx';
+import Carrousel, { CarrouselImages } from './carrousel.tsx';
+import UsageCounter from './usage-counter.tsx';
 import './ai-image-modal.scss';
 
 type AiImageModalProps = {
