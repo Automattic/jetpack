@@ -38,11 +38,6 @@ class Share_Status {
 			$shares = get_post_meta( $post_id, self::SHARES_META_KEY );
 		}
 
-		// Better safe than sorry.
-		if ( empty( $shares ) ) {
-			$shares = array();
-		}
-
 		if ( $filter_by_access ) {
 			// The site could have multiple admins, editors and authors connected. Load shares information that only the current user has access to.
 			$connection_ids = wp_list_pluck( Connections::get_all_for_user(), 'connection_id', 'connection_id' );
