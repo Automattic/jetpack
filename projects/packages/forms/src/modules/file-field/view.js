@@ -35,25 +35,46 @@ const formatBytes = ( size, decimals = 2 ) => {
 const addFileToContext = file => {
 	const reader = new FileReader();
 	reader.readAsDataURL( file );
-	reader.onload = withScope( () => {
-		const context = getContext();
-		const config = getConfig( NAMESPACE );
-		const fileId = performance.now() + '-' + Math.random();
 
-		let error = null;
-		if ( file.size > config.maxUploadSize ) {
-			error = config.i18n.fileTooLarge;
-		}
-		context.files.push( {
-			name: file.name,
-			url: 'url(' + reader.result + ')',
-			formattedSize: formatBytes( file.size, 2 ),
-			hasToken: false,
-			id: fileId,
-			error,
-		} );
-		context.hasFiles = true;
-		! error && uploadFile( file, fileId );
+	const config = getConfig( NAMESPACE );
+	const context = getContext();
+
+	let error = null;
+
+	// Check that the file not more then the max size.
+	if ( file.size > config.maxUploadSize ) {
+		error = config.i18n.fileTooLarge;
+	}
+
+	// Check that the file type is allowed.
+	if ( ! context.allowedMimeTypes.includes( file.type ) ) {
+		error = config.i18n.invalidType;
+	}
+
+	// Check if the user is trying to add more files then allowed.
+	if ( context.maxFiles < context.files.length + 1 ) {
+		error = config.i18n.maxFiles;
+	}
+
+	const fileId = performance.now() + '-' + Math.random();
+
+	// Update the context.
+	context.hasFiles = true;
+	context.files.push( {
+		name: file.name,
+		formattedSize: formatBytes( file.size, 2 ),
+		hasToken: false,
+		hasError: !! error,
+		id: fileId,
+		error,
+	} );
+
+	// Start the upload if we don't have any errors.
+	! error && uploadFile( file, fileId );
+
+	// Load the file so we can display it. In case it is an image.
+	reader.onload = withScope( () => {
+		updateFileContext( { url: 'url(' + reader.result + ')' }, fileId );
 	} );
 };
 
@@ -108,8 +129,7 @@ const onReadyStateChange = ( fileId, event ) => {
 		}
 		if ( xhr.responseText ) {
 			const response = JSON.parse( xhr.responseText );
-			// eslint-disable-next-line no-console
-			console.error( 'Error uploading file', response );
+			updateFileContext( { error: response.message, hasError: true }, fileId );
 		}
 	}
 };
@@ -144,6 +164,17 @@ const removeFile = fileId => {
 };
 
 store( NAMESPACE, {
+	state: {
+		get hasFiles() {
+			return !! getContext().files.length > 0;
+		},
+
+		get hasMaxFiles() {
+			const context = getContext();
+			return context.maxFiles <= context.files.length;
+		},
+	},
+
 	actions: {
 		/**
 		 * Open the file picker dialog.
@@ -210,11 +241,10 @@ store( NAMESPACE, {
 		 * @param {Event} event - The event object.
 		 */
 		removeFile: event => {
+			event.preventDefault();
 			const context = getContext();
 			const fileId = event.target.dataset.id;
 			context.files = context.files.filter( fileObject => fileObject.id !== fileId );
-			context.hasFiles = context.files.length > 0;
-
 			removeFile( fileId );
 		},
 	},

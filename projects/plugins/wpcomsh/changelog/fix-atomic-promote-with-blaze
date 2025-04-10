@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Purge the cache when the site visibility changes on Atomic sites

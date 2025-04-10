@@ -1,10 +1,13 @@
 .wp-block-jetpack-map__delete-btn {
 	padding: 0;
+
 	svg {
 		margin-right: 0.4em;
 	}
 }
+
 .wp-block[data-type='jetpack/map'] {
+
 	.wp-block-group-is-layout-flex:not(.is-vertical) > & {
 		flex-basis: 100%;
 	}
@@ -14,6 +17,7 @@
 	}
 
 	.components-placeholder__label {
+
 		svg {
 			fill: currentColor;
 			margin-right: 6px;
@@ -32,6 +36,7 @@
 }
 
 .wp-block-jetpack-map {
+
 	.mapboxgl-popup-close-button {
 		font-size: 21px;
 		padding: 0px 10px 5px 9px;
@@ -67,6 +72,7 @@
  }
 
 .component__add-point__popover {
+
 	.components-popover__content {
 		width: 250px;
 
@@ -78,6 +84,7 @@
 }
 
 .jetpack-map-token-settings {
+
 	.jetpack-update-token-button {
 		box-shadow: inset 0 0 0 1px #1e1e1e;
 		border-radius: 3px 0 0 2px;

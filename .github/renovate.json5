@@ -94,6 +94,14 @@
 			matchPackageNames: [ '@wordpress/dataviews' ],
 			separateMajorMinor: false,
 			prPriority: 1,
+			// Teams using DataViews in their projects
+			additionalReviewers: [
+				'team:jetpack-reach', // Publicize
+				'team:loop', // Newsletter subscriber management
+				'team:jetpack-martech', // My Jetpack
+				'team:waffle-makers', // Scan
+				'team:zap', // Forms
+			],
 		},
 
 		// 🤷

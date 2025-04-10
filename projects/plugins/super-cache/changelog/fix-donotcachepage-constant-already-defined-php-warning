@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Prevent PHP warning in WP Super Cache by avoiding redefining the DONOTCACHEPAGE constant.

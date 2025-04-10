@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Code: Update stylesheets to use hex instead of named colors.

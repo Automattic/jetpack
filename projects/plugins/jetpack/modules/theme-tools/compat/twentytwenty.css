@@ -10,6 +10,7 @@
 .infinite-scroll .pagination-wrapper,
 .infinite-scroll.neverending .footer-nav-widgets-wrapper,
 .infinite-scroll.neverending #site-footer {
+
 	/* Theme Footer (when set to scrolling) */
 	display: none;
 }
@@ -92,6 +93,7 @@
 }
 
 @media (min-width: 700px) {
+
 	.entry-content div.sharedaddy h3.sd-title,
 	.entry-content h3.sd-title,
 	.entry-content #jp-relatedposts h3.jp-relatedposts-headline {
@@ -148,6 +150,7 @@
 }
 
 @media (max-width: 600px) {
+
 	.widget_eu_cookie_law_widget #eu-cookie-law {
 		font-size: 1.4rem;
 		padding: 1.5rem 1.5rem 6.5rem;
@@ -170,7 +173,9 @@
 	font-weight: 700;
 	margin: 0;
 }
+
 @media ( min-width: 700px ) {
+
 	.jetpack_subscription_widget .widget-title label {
 			font-size: 4rem;
 	}
@@ -194,6 +199,7 @@
 }
 
 @media (min-width: 700px) {
+
 	.entry-content #jp-relatedposts {
 		width: calc(100% - 8rem);
 	}
@@ -215,6 +221,7 @@
 }
 
 @media only screen and (max-width: 640px) {
+
 	#jp-relatedposts .jp-relatedposts-grid {
 		flex-direction: column;
 	}
@@ -273,6 +280,7 @@
 
 /* GIF Block */
 .wp-block-jetpack-gif {
+
 	/* Uses !important because the gif block styles are loaded in the footer after this file */
 	margin: 1em auto !important;
 }
@@ -300,6 +308,7 @@
 }
 
 /* Contact form */
+
 /* See https: //core.trac.wordpress.org/browser/trunk/src/wp-content/themes/twentytwenty/style.css?rev=58726#L710 */
 .contact-form input.grunion-field[type="checkbox"] {
 	padding: 0;

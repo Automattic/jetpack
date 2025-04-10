@@ -988,6 +988,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			case 'consent':
 				$str = __( 'Consent', 'jetpack-forms' );
 				break;
+			case 'file':
+				$str = __( 'Upload a file', 'jetpack-forms' );
+				break;
 			default:
 				$str = null;
 		}

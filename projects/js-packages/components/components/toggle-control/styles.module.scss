@@ -15,6 +15,7 @@
 	}
 
 	:global {
+
 		.components-form-toggle {
 			--wp-admin-theme-color: var( --jp-green-40 );
 			height: calc( var(--base-width) * 3 );
@@ -50,7 +51,9 @@
 }
 
 .toggle.is-toggling {
+
 	:global {
+
 		.components-form-toggle {
 			opacity: .6;
 		}

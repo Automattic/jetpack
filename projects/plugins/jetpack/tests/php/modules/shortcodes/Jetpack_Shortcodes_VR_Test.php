@@ -2,13 +2,15 @@
 
 require_once __DIR__ . '/trait.http-request-cache.php';
 
+/**
+ * @covers ::jetpack_vr_viewer_shortcode
+ */
 class Jetpack_Shortcodes_VR_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * @author mkaz
-	 * @covers ::jetpack_vr_viewer_shortcode
 	 * @since 4.5
 	 */
 	public function test_shortcodes_vr_exists() {
@@ -17,7 +19,6 @@ class Jetpack_Shortcodes_VR_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author mkaz
-	 * @covers ::jetpack_vr_viewer_shortcode
 	 * @since 4.5
 	 */
 	public function test_shortcodes_vr() {
@@ -30,7 +31,6 @@ class Jetpack_Shortcodes_VR_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author mkaz
-	 * @covers ::jetpack_vr_viewer_shortcode
 	 * @since 4.5
 	 */
 	public function test_shortcodes_vr_url() {
@@ -44,7 +44,6 @@ class Jetpack_Shortcodes_VR_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author mkaz
-	 * @covers ::jetpack_vr_viewer_shortcode
 	 * @since 4.5
 	 */
 	public function test_shortcodes_vr_url_missing() {

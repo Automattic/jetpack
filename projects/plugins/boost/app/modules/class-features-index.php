@@ -11,6 +11,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Image_CDN;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Liar;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Quality_Settings;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\Lcp;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_Common;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
@@ -28,6 +29,7 @@ class Features_Index {
 	const FEATURES = array(
 		Critical_CSS::class,
 		Cloud_CSS::class,
+		Lcp::class,
 		Image_Size_Analysis::class,
 		Minify_JS::class,
 		Minify_CSS::class,

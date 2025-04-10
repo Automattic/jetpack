@@ -9,8 +9,8 @@
 .wpcom-gifting-banner {
 	background: #000;
 	color: #fff;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu",
-	"Cantarell", "Helvetica Neue", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu,
+	Cantarell, "Helvetica Neue", sans-serif;
 }
 
 .wpcom-gifting-banner__img {
@@ -96,6 +96,7 @@
 }
 
 @media (max-width: 480px) {
+
 	.wpcom-gifting-banner__inner {
 		padding: 16px 14px 16px 14px;
 	}

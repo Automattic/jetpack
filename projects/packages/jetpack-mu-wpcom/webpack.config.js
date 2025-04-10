@@ -77,7 +77,6 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 			alias: {
 				...jetpackWebpackConfig.resolve.alias,
-				'@automattic/calypso-config': '@automattic/calypso-config/src/client.js',
 				/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
 				classnames: findPackage( 'clsx' ),
 			},

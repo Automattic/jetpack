@@ -1,13 +1,19 @@
 @import './features/features.colors';
 
 .jetpack-ai-proofread {
+
 	.components-checkbox-control {
+
 		&__input:not( :disabled ) {
+
 			@include features-colors( ( 'border-color' ) );
+
 			&:checked {
+
 				@include features-colors( ( 'background-color' ) );
 			}
 		}
+
 		&__input:disabled {
 			border-color: #ddd;
 			background-color: #ddd;
@@ -31,6 +37,7 @@
 	}
 
 	&__grade-level-container {
+
 		svg {
 			fill: #757575;
 		}

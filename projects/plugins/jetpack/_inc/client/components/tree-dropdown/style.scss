@@ -2,34 +2,41 @@
 
 
 @keyframes dropdown-slide-down {
+
 	from {
 		border: solid 1px $gray-5;
 	}
+
 	to {
 		border: solid 1px var(--jp-green);
 	}
 }
 
 @keyframes dropdown-slide-up {
+
 	0% {
 		border: solid 1px $gray-5;
 		border-top: none;
 	}
+
 	99% {
 		border: solid 1px $gray-5;
 		border-top: none;
 	}
+
 	100% {
 		border: none;
 	}
 }
 
 @keyframes input-container-slide-up {
+
 	from {
 		border-bottom: none;
 		border-bottom-left-radius: 0;
 		border-bottom-right-radius: 0;
 	}
+
 	to {
 		border-bottom: unset;
 		border-bottom-left-radius: unset;
@@ -38,18 +45,22 @@
 }
 
 @keyframes jp-tree-items-slide-down {
+
 	0% {
 		overflow-y: hidden;
 	}
+
 	99% {
 		overflow-y: hidden;
 	}
+
 	100% {
 		overflow-y: auto;
 	}
 }
 
 .tree-dropdown {
+
 	.tree-dropdown__input-container {
 		animation: input-container-slide-up 500ms;
 		display: flex;
@@ -60,6 +71,7 @@
 		border-radius: 4px;
 		min-height: 40px;
 		padding: 4px 8px;
+
 		&.active {
 			animation: unset;
 			border-color: var(--jp-green);
@@ -68,6 +80,7 @@
 		}
 
 		&.disabled {
+
 			svg, .tree-dropdown__tag {
 				opacity: 0.7;
 			}
@@ -109,6 +122,7 @@
 	}
 
 	.tree-dropdown__dropdown-container {
+
 		.tree-dropdown-colapsable {
 			display: grid;
 			grid-template-rows: 1fr;
@@ -135,6 +149,7 @@
 				border-top: none;
 				border-radius: 0 0 4px 4px;
 				box-shadow: 0px 0px 0px 2px var(--jp-green-5), 0px 10px 15px 0px #00000026;
+
 				&::before {
 					content: '';
 					position: absolute;

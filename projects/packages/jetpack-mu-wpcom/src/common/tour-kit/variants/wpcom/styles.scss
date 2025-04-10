@@ -27,6 +27,7 @@ $wpcom-tour-kit-step-card-overlay-controls-button-bg-color: #32373c; // former $
 		}
 
 		&:hover {
+
 			.wpcom-tour-kit-minimized__tour-index,
 			svg {
 				color: inherit;
@@ -84,6 +85,7 @@ $wpcom-tour-kit-step-card-overlay-controls-button-bg-color: #32373c; // former $
 	}
 
 	.components-card__footer {
+
 		.wpcom-tour-kit-rating__end-text {
 			color: $gray-600;
 			font-size: 0.875rem;
@@ -130,6 +132,7 @@ $wpcom-tour-kit-step-card-overlay-controls-button-bg-color: #32373c; // former $
 
 		.components-button {
 			min-width: auto;
+
 			&.has-icon {
 				padding: 3px;
 			}
@@ -173,6 +176,7 @@ $wpcom-tour-kit-step-card-overlay-controls-button-bg-color: #32373c; // former $
 
 		.tour-kit-frame__container:hover &,
 		.tour-kit-frame__container:focus-within & {
+
 			.components-button {
 				opacity: 0.7;
 

@@ -115,6 +115,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'fieldfontsize'          => null,
 				'min'                    => null,
 				'max'                    => null,
+				'maxfiles'               => null,
 			),
 			$attributes,
 			'contact-field'
@@ -833,6 +834,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$input_attrs['aria-required'] = 'true';
 		}
 
+		$max_files = empty( $this->get_attribute( 'maxfiles' ) ) ? 1 : $this->get_attribute( 'maxfiles' ); // max number of files.
+
 		$max_file_size   = wp_max_upload_size();
 		$file_size_units = array(
 			_x( 'B', 'unit symbol', 'jetpack-forms' ),
@@ -850,8 +853,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 */
 		$upload_token = apply_filters( 'jetpack_forms_file_upload_token', '' );
 
-		$global_state = array(
-			'i18n'          => array(
+		$global_config = array(
+			'i18n'        => array(
 				'language'           => get_bloginfo( 'language' ),
 				'fileSizeUnits'      => $file_size_units,
 				'zeroBytes'          => __( '0 Bytes', 'jetpack-forms' ),
@@ -859,19 +862,23 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'folderNotSupported' => __( 'Folder uploads are not supported', 'jetpack-forms' ),
 				// translators: %s is the formatted maximum file size.
 				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_file_size ) ),
-				'invalidType'        => __( 'This file type is not allowed', 'jetpack-forms' ),
+				'invalidType'        => __( 'This file type is not allowed.', 'jetpack-forms' ),
+				'maxFiles'           => __( 'You have exeeded the number of files that you can upload.', 'jetpack-forms' ),
 			),
-			'maxUploadSize' => $max_file_size,
-			'endpoint'      => $this->get_unauth_endpoint_url(),
-			'uploadToken'   => $upload_token,
+			'endpoint'    => $this->get_unauth_endpoint_url(),
+			'uploadToken' => $upload_token,
 		);
 
-		wp_interactivity_config( 'jetpack/field-file', $global_state );
+		wp_interactivity_config( 'jetpack/field-file', $global_config );
 
 		$context = array(
-			'isDropping' => false,
-			'files'      => array(),
-			'hasFiles'   => false,
+			'isDropping'       => false,
+			'files'            => array(),
+			'hasFiles'         => false,
+			'allowedMimeTypes' => $accepted_file_types,
+			'maxUploadSize'    => $max_file_size,
+			'maxFiles'         => $max_files, // max number of files.
+			'hasMaxFiles'      => false,
 		);
 
 		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text );
@@ -886,28 +893,40 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			data-wp-on--mouseleave="actions.dragLeave"
 			data-wp-on--drop="actions.fileDropped"
 		>
-			<div class="jetpack-form-file-field__dropzone" data-wp-class--is_dropping="context.isDropping">
+			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
 				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker"></div>
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
 				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
-				<input id="<?php echo esc_attr( $id ); ?>" type="file" class="jetpack-form-file-field" data-wp-on--change="actions.fileAdded" />
+				<input
+					id="<?php echo esc_attr( $id ); ?>"
+					type="file" class="jetpack-form-file-field"
+					accept="<?php echo esc_attr( $accepted_file_types ); ?>"
+					<?php echo ( (int) $max_files > 1 ? 'multiple="multiple"' : '' ); ?>
+					data-wp-on--change="actions.fileAdded"  />
 			</div>
-			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="context.hasFiles">
+			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="state.hasFiles">
 				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
-					<div class="jetpack-form-file-field__preview">
-						<div class="jetpack-form-file-field__progress" data-wp-bind--data-progress-id='context.file.id' data-wp-bind--aria-valuenow="context.file.progress" data-wp-style----progress="context.file.progress" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+					<div class="jetpack-form-file-field__preview" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.hasToken">
 						<input type="hidden" name="<?php echo esc_attr( $id ); ?>_token[]" data-wp-bind--value='context.file.token' value="">
-						<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
+
+						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress">
+							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
+							<div class="jetpack-form-file-field__progress-bar" ></div>
+						</div>
+
 						<div class="jetpack-form-file-field__file-wrap">
 							<strong class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></strong>
-							<div class="jetpack-form-file-field__file-info" date-wp-class--is-error="context.file.error" data-wp-class--is-complete="context.file.hasToken">
+							<div class="jetpack-form-file-field__file-info">
 								<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
 								<span class="jetpack-form-file-field__seperator"> &middot; </span>
+								<span class="jetpack-form-file-field__uploading"><?php esc_html_e( 'Uploading...', 'jetpack-forms' ); ?></span>
 								<span class="jetpack-form-file-field__success"><?php esc_html_e( 'Uploaded', 'jetpack-forms' ); ?></span>
 								<span class="jetpack-form-file-field__error" data-wp-text="context.file.error"></span>
 							</div>
 						</div>
+
 						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="<?php esc_attr_e( 'Remove file', 'jetpack-forms' ); ?>" data-wp-on--click="actions.removeFile" title="<?php esc_attr_e( 'Remove', 'jetpack-forms' ); ?>"> </a>
+
 					</div>
 				</template>
 			</div>

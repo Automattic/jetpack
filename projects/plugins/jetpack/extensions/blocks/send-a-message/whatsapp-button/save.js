@@ -1,8 +1,8 @@
-import { RichText } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 import clsx from 'clsx';
 import { whatsAppURL } from './index';
 
-export default function SendAMessageSave( { attributes, className } ) {
+export default function SendAMessageSave( { attributes } ) {
 	const {
 		countryCode,
 		phoneNumber,
@@ -12,6 +12,7 @@ export default function SendAMessageSave( { attributes, className } ) {
 		colorClass,
 		openInNewTab,
 	} = attributes;
+	const blockProps = useBlockProps.save();
 
 	const fullPhoneNumber =
 		countryCode && phoneNumber
@@ -29,7 +30,7 @@ export default function SendAMessageSave( { attributes, className } ) {
 	};
 
 	const cssClassNames = clsx(
-		className,
+		blockProps?.className,
 		colorClass ? 'is-color-' + colorClass : undefined,
 		! buttonText.length ? 'has-no-text' : undefined
 	);
@@ -37,7 +38,7 @@ export default function SendAMessageSave( { attributes, className } ) {
 	const target = openInNewTab ? '_blank' : '_self';
 
 	return (
-		<div className={ cssClassNames }>
+		<div { ...blockProps } className={ cssClassNames }>
 			<a
 				className="whatsapp-block__button"
 				href={ getWhatsAppUrl() }

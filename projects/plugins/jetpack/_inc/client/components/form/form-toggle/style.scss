@@ -29,15 +29,18 @@
 		width: 20px;
 		height: 20px;
 	}
+
 	&:after {
 		left: 0;
 		border-radius: 50%;
 		background: $white;
 		transition: all .2s ease;
 	}
+
 	&:before {
 		display: none;
 	}
+
 	.dops-accessible-focus &:focus{
 		box-shadow: 0 0 0 2px $blue-medium;
 	}
@@ -58,10 +61,13 @@
 }
 
 .form-toggle {
+
 	.dops-accessible-focus &:focus {
+
 		+ .form-toggle__label .form-toggle__switch {
 			box-shadow: 0 0 0 2px $blue-medium;
 		}
+
 		&:checked + .form-toggle__label .form-toggle__switch {
 			box-shadow: 0 0 0 2px $blue-light;
 		}
@@ -72,12 +78,14 @@
 	}
 
 	&:not( :disabled ) {
+
 		+ .form-toggle__label:hover .form-toggle__switch {
 			background: lighten( $gray, 20% );
 		}
 	}
 
 	&:checked{
+
 		+ .form-toggle__label .form-toggle__switch {
 			background: $blue-medium;
 
@@ -88,12 +96,14 @@
 	}
 
 	&:checked:not( :disabled ) {
+
 		+ .form-toggle__label:hover .form-toggle__switch {
 			background: $blue-light;
 		}
 	}
 
 	&:disabled {
+
 		+ label.form-toggle__label span.form-toggle__switch {
 			opacity: 0.25;
 			cursor: default;
@@ -103,10 +113,13 @@
 
 // Classes for toggle state before action is complete (updating plugin or something)
 .form-toggle.is-toggling {
+
 	+ .form-toggle__label .form-toggle__switch {
 		background: $blue-medium;
 	}
+
 	&:checked {
+
 		+ .form-toggle__label .form-toggle__switch {
 			background: lighten( $gray, 20% );
 		}
@@ -114,6 +127,7 @@
 }
 
 .form-toggle.is-compact {
+
 	+ .form-toggle__label .form-toggle__switch {
 		border-radius: 8px;
 		width: 24px;
@@ -125,8 +139,11 @@
 			height: 12px;
 		}
 	}
+
 	&:checked {
+
 		+ .form-toggle__label .form-toggle__switch {
+
 			&:after{
 				left: 8px;
 			}

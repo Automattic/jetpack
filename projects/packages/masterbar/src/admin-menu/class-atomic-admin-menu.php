@@ -74,13 +74,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$this->add_my_home_menu();
 		$this->remove_gutenberg_menu();
 
-		// We don't need the `My Mailboxes` when the interface is set to wp-admin or the site is a staging site,
-		if ( ! $this->use_wp_admin_interface() && ! get_option( 'wpcom_is_staging_site' ) ) {
-			if ( function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && ! wpcom_is_duplicate_views_experiment_enabled() ) {
-				$this->add_my_mailboxes_menu();
-			}
-		}
-
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
 			$this->add_site_card_menu();
@@ -416,21 +409,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
-		if ( Jetpack_Plan::supports( 'security-settings' ) &&
-			function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) &&
-			! wpcom_is_duplicate_views_experiment_enabled()
-		) {
-			add_submenu_page(
-				'options-general.php',
-				esc_attr__( 'Security', 'jetpack-masterbar' ),
-				__( 'Security', 'jetpack-masterbar' ),
-				'manage_options',
-				'https://wordpress.com/settings/security/' . $this->domain,
-				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-				2
-			);
-		}
-
 		$has_feature_atomic = function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::ATOMIC );
 		add_submenu_page(
 			'options-general.php',
@@ -441,14 +419,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			11
 		);
-
-		// The calypso based Performance screen is no longer linked from wp-admin and no longer conflicts with the Page Optimize "Performance"submenu item.
-		if ( function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && ! wpcom_is_duplicate_views_experiment_enabled() ) {
-			// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
-			// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
-			// performance settings already have a link to Page Optimize settings page.
-			$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
-		}
 
 		// Hide Settings > Performance when the interface is set to wp-admin.
 		// This is due to these settings are mostly also available in Jetpack > Settings, in the Performance tab.

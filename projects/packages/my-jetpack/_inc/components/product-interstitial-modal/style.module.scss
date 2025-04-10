@@ -33,6 +33,7 @@ $interstitial-modal-padding: 40px;
 }
 
 .component-product-interstitial-modal__overlay {
+
 	@media ( max-height: 768px ) {
 		overflow: scroll;
 		padding-top: 24px;
@@ -60,6 +61,7 @@ $interstitial-modal-padding: 40px;
 }
 
 .price-container {
+
 	:global(.product-price_container) {
 		align-items: center;
 	}

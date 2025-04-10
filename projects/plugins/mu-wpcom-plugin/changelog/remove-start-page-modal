@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Start page pattern modal: Removed start page pattern modal. We will default to core behaviour from now on, which has equivalent functionality.
