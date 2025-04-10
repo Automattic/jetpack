@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.11.0",
+	"version": "0.11.4",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
