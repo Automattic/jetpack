@@ -198,11 +198,8 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => function () {
 				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
-			'get_calypso_path'      => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post-new.php' );
-				}
-				return '/post/' . $data['site_slug_encoded'];
+			'get_calypso_path'      => function () {
+				return admin_url( 'post-new.php' );
 			},
 		),
 		'newsletter_plan_created'         => array(
@@ -325,13 +322,10 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => function () {
 				add_action( 'add_attachment', 'wpcom_launchpad_track_video_uploaded_task' );
 			},
-			'get_calypso_path'      => function ( $task, $default, $data ) {
+			'get_calypso_path'      => function () {
 				$page_on_front = get_option( 'page_on_front', false );
 				if ( $page_on_front ) {
-					if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-						return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
-					}
-					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
+					return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
 				}
 				return admin_url( 'site-editor.php?canvas=edit' );
 			},
@@ -428,11 +422,8 @@ function wpcom_launchpad_get_task_definitions() {
 					'about_page_id' => wpcom_launchpad_get_site_about_page_id(),
 				);
 			},
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post.php?post=' . wpcom_launchpad_get_site_about_page_id() . '&action=edit' );
-				}
-				return '/page/' . $data['site_slug_encoded'] . '/' . wpcom_launchpad_get_site_about_page_id();
+			'get_calypso_path'     => function () {
+				return admin_url( 'post.php?post=' . wpcom_launchpad_get_site_about_page_id() . '&action=edit' );
 			},
 		),
 
@@ -523,11 +514,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'repetition_count_callback' => 'wpcom_launchpad_get_write_3_posts_repetition_count',
 			'target_repetitions'        => 3,
-			'get_calypso_path'          => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post-new.php' );
-				}
-				return '/post/' . $data['site_slug_encoded'];
+			'get_calypso_path'          => function () {
+				return admin_url( 'post-new.php' );
 			},
 		),
 		'manage_subscribers'              => array(
@@ -565,11 +553,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_about_page_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post-new.php?post_type=page' );
-				}
-				return '/page/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'post-new.php?post_type=page' );
 			},
 		),
 
@@ -690,13 +675,10 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_front_page_updated_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
+			'get_calypso_path'     => function () {
 				$page_on_front = get_option( 'page_on_front', false );
 				if ( $page_on_front ) {
-					if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-						return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
-					}
-					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
+					return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
 				}
 				return admin_url( 'site-editor.php?canvas=edit' );
 			},
