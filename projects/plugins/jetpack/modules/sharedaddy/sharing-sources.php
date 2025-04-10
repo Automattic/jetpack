@@ -1096,7 +1096,8 @@ class Share_Email extends Sharing_Source {
 }
 
 /**
- * Twitter sharing button.
+ * Legacy Twitter sharing button.
+ * Share_X is the new Twitter sharing button.
  */
 class Share_Twitter extends Sharing_Source {
 	/**
@@ -1111,7 +1112,7 @@ class Share_Twitter extends Sharing_Source {
 	 *
 	 * @var string
 	 */
-	public $icon = '\f202';
+	public $icon = '\f10e';
 
 	/**
 	 * Length of a URL on Twitter.
@@ -1144,7 +1145,7 @@ class Share_Twitter extends Sharing_Source {
 	 * @return string
 	 */
 	public function get_name() {
-		return __( 'Twitter', 'jetpack' );
+		return __( 'X', 'jetpack' );
 	}
 
 	/**
@@ -1283,7 +1284,7 @@ class Share_Twitter extends Sharing_Source {
 			) {
 				sharing_register_post_for_share_counts( $post->ID );
 			}
-			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Twitter', 'share to', 'jetpack' ), __( 'Click to share on Twitter', 'jetpack' ), 'share=twitter', 'sharing-twitter-' . $post->ID );
+			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'X', 'share to', 'jetpack' ), __( 'Click to share on X', 'jetpack' ), 'share=twitter', 'sharing-twitter-' . $post->ID );
 		}
 	}
 
@@ -1335,7 +1336,7 @@ class Share_Twitter extends Sharing_Source {
 		$url         = $post_link;
 		$twitter_url = add_query_arg(
 			rawurlencode_deep( array_filter( compact( 'via', 'related', 'text', 'url' ) ) ),
-			'https://twitter.com/intent/tweet'
+			'https://x.com/intent/tweet'
 		);
 
 		parent::redirect_request( $twitter_url );
