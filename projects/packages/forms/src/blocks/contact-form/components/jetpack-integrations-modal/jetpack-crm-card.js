@@ -1,6 +1,6 @@
 import colorStudio from '@automattic/color-studio';
 import { JetpackIcon } from '@automattic/jetpack-components';
-import { Button, ToggleControl } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
@@ -53,8 +53,8 @@ const JetpackCRMCard = ( {
 							'jetpack-forms'
 						) }
 					</p>
-					<Button variant="primary" href={ settingsUrl } __next40pxDefaultSize={ true }>
-						{ __( 'Update CRM', 'jetpack-forms' ) }
+					<Button variant="secondary" href={ settingsUrl } __next40pxDefaultSize={ true }>
+						{ __( 'Update Jetpack CRM', 'jetpack-forms' ) }
 					</Button>
 				</div>
 			);
@@ -84,8 +84,8 @@ const JetpackCRMCard = ( {
 						</p>
 					) }
 					{ canActivateExtension && (
-						<Button variant="primary" href={ settingsUrl } __next40pxDefaultSize={ true }>
-							{ __( 'Enable Jetpack Forms Extension', 'jetpack-forms' ) }
+						<Button variant="secondary" href={ settingsUrl } __next40pxDefaultSize={ true }>
+							{ __( 'Enable Jetpack Forms extension', 'jetpack-forms' ) }
 						</Button>
 					) }
 				</div>
@@ -95,15 +95,16 @@ const JetpackCRMCard = ( {
 		// All conditions met - show toggle and link to CRM settings
 		return (
 			<div>
-				<ToggleControl
-					className="jetpack-contact-form__crm_toggle"
-					label={ __( 'Jetpack CRM', 'jetpack-forms' ) }
-					checked={ jetpackCRM }
-					onChange={ value => setAttributes( { jetpackCRM: value } ) }
-					help={ __( 'Store contact form submissions in your CRM.', 'jetpack-forms' ) }
-				/>
+				<p>
+					{ jetpackCRM
+						? __( 'This form is connected to Jetpack CRM!', 'jetpack-forms' )
+						: __(
+								'To connect this form to Jetpack CRM, enable the toggle above.',
+								'jetpack-forms'
+						  ) }
+				</p>
 				<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
-					{ __( 'Open CRM Settings', 'jetpack-forms' ) }
+					{ __( 'Open Jetpack CRM settings', 'jetpack-forms' ) }
 				</Button>
 			</div>
 		);
@@ -112,7 +113,7 @@ const JetpackCRMCard = ( {
 	return (
 		<IntegrationCard
 			title={ __( 'Jetpack CRM', 'jetpack-forms' ) }
-			description={ __( 'Keep on top of leads as they are added to your CRM', 'jetpack-forms' ) }
+			description={ __( 'Store contact form submissions in your CRM', 'jetpack-forms' ) }
 			icon={ <JetpackIcon color={ COLOR_JETPACK } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

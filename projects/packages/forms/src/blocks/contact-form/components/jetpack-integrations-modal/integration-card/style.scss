@@ -89,6 +89,12 @@
 		display: block;
 	}
 
+	&__links {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
 	.is-spinning {
 		animation: rotation 2s infinite linear;
 	}
@@ -102,5 +108,9 @@
 		to {
 			transform: rotate(359deg);
 		}
-	} 
+	}
+
+	.components-card__body {
+		padding-bottom: 30px;
+	}
 } 

@@ -1,6 +1,6 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { ToggleControl, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import IntegrationCard from './integration-card';
@@ -58,15 +58,7 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			cardData={ cardData }
 		>
 			<div>
-				<p>
-					<em>
-						{ __( "You're all setup for email marketing with Creative Mail.", 'jetpack-forms' ) }
-						<br />
-						<ExternalLink href={ settingsUrl }>
-							{ __( 'Open Creative Mail settings', 'jetpack-forms' ) }
-						</ExternalLink>
-					</em>
-				</p>
+				<p>{ __( "You're all setup for email marketing with Creative Mail.", 'jetpack-forms' ) }</p>
 				{ hasEmailBlock && (
 					<ToggleControl
 						label={ __( 'Add email permission request before submit button', 'jetpack-forms' ) }
@@ -74,6 +66,9 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						onChange={ toggleConsent }
 					/>
 				) }
+				<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
+					{ __( 'Open Creative Mail settings', 'jetpack-forms' ) }
+				</Button>
 			</div>
 		</IntegrationCard>
 	);

@@ -56,7 +56,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						) }
 					</p>
 					<Button
-						variant="primary"
+						variant="secondary"
 						href={ settingsUrl }
 						target="_blank"
 						rel="noopener noreferrer"
@@ -67,33 +67,19 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 				</div>
 			) : (
 				<div>
-					<p>
-						{ createInterpolateElement(
-							__( 'Your forms are protected from spam with <a>Akismet</a>!', 'jetpack-forms' ),
-							{
-								a: <ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) } />,
-							}
-						) }
-					</p>
-					<div style={ { display: 'flex', gap: '8px', justifyContent: 'flex-start' } }>
-						<Button
-							variant="primary"
-							href={ formSubmissionsUrl }
-							target="_blank"
-							rel="noopener noreferrer"
-							__next40pxDefaultSize={ true }
-						>
+					<p>{ __( 'Your forms are automatically protected with Akismet!', 'jetpack-forms' ) }</p>
+					<div className="integration-card__links">
+						<Button variant="link" href={ formSubmissionsUrl }>
 							{ __( 'View spam', 'jetpack-forms' ) }
 						</Button>
-						<Button
-							variant="primary"
-							href={ settingsUrl }
-							target="_blank"
-							rel="noopener noreferrer"
-							__next40pxDefaultSize={ true }
-						>
+						<span>|</span>
+						<Button variant="link" href={ settingsUrl }>
 							{ __( 'View stats', 'jetpack-forms' ) }
 						</Button>
+						<span>|</span>
+						<ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
+							{ __( 'Learn about Akismet', 'jetpack-forms' ) }
+						</ExternalLink>
 					</div>
 				</div>
 			) }
