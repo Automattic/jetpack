@@ -60,6 +60,7 @@ class Jetpack_Blog_Stats_Helper {
 				}
 			}
 		} elseif ( $stats_option['statsOption'] === 'post' ) {
+			// Simple sites.
 			if ( function_exists( 'get_all_time_postviews' ) ) {
 				return get_all_time_postviews( $stats_option['postId'] );
 			}
