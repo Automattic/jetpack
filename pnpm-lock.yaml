@@ -14888,9 +14888,6 @@ packages:
   third-party-web@0.26.5:
     resolution: {integrity: sha512-tDuKQJUTfjvi9Fcrs1s6YAQAB9mzhTSbBZMfNgtWNmJlHuoFeXO6dzBFdGeCWRvYL50jQGK0jPsBZYxqZQJ2SA==}
 
-  third-party-web@0.26.6:
-    resolution: {integrity: sha512-GsjP92xycMK8qLTcQCacgzvffYzEqe29wyz3zdKVXlfRD5Kz1NatCTOZEeDaSd6uCZXvGd2CNVtQ89RNIhJWvA==}
-
   thread-loader@3.0.4:
     resolution: {integrity: sha512-ByaL2TPb+m6yArpqQUZvP+5S1mZtXsEP7nWKKlAUTm7fCml8kB5s1uI3+eHRP2bk5mVYfRSBI7FFf+tWEyLZwA==}
     engines: {node: '>= 10.13.0'}
@@ -17598,7 +17595,7 @@ snapshots:
 
   '@paulirish/trace_engine@0.0.50':
     dependencies:
-      third-party-web: 0.26.6
+      third-party-web: 0.26.5
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -28807,8 +28804,6 @@ snapshots:
   text-hex@1.0.0: {}
 
   third-party-web@0.26.5: {}
-
-  third-party-web@0.26.6: {}
 
   thread-loader@3.0.4(webpack@5.94.0):
     dependencies:
