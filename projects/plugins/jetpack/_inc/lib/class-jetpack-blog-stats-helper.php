@@ -62,16 +62,26 @@ class Jetpack_Blog_Stats_Helper {
 		} elseif ( $stats_option['statsOption'] === 'post' ) {
 			// Simple sites.
 			if ( function_exists( 'get_all_time_postviews' ) ) {
+				// This is cached so no need to cache it again.
 				return get_all_time_postviews( $stats_option['postId'] );
 			}
 		} else {
 			// Simple sites.
+			$_blog_id = get_current_blog_id();
 			if ( $stats_option['statsData'] === 'views' && function_exists( 'stats_grandtotal_views' ) ) {
-				return stats_grandtotal_views( get_current_blog_id() );
+				// This is cached so no need to cache it again.
+				return stats_grandtotal_views( $_blog_id );
 			}
 
 			if ( $stats_option['statsData'] === 'visitors' && function_exists( 'stats_get_visitors' ) ) {
-				return array_sum( stats_get_visitors( get_current_blog_id(), false, gmdate( 'Y' ) - 2012, 365 ) );
+				$stats = wp_cache_get( "stats_get_visitors_total_$_blog_id", 'blog-stats-block' );
+				if ( false !== $stats ) {
+					return $stats;
+				}
+				$stats = array_sum( stats_get_visitors( get_current_blog_id(), false, gmdate( 'Y' ) - 2012, 365 ) );
+				wp_set_cache( "stats_get_visitors_total_$_blog_id", $stats, 'blog-stats-block' );
+
+				return $stats;
 			}
 		}
 
