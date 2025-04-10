@@ -46,15 +46,16 @@ export const useSeoRequests = () => {
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const { getPostContent } = usePostContent();
-	const { isBusy, enabledFeatures } = useSelect( select => {
-		const busy = select( store ).isBusy();
-		const features = select( store ).getEnabledFeatures();
-
-		return { isBusy: busy, enabledFeatures: features };
+	const { isBusy, enabledFeatures, isImageBusy, hasImageFailed } = useSelect( select => {
+		return {
+			isBusy: select( store ).isBusy(),
+			enabledFeatures: select( store ).getEnabledFeatures(),
+			isImageBusy: select( store ).isImageBusy,
+			hasImageFailed: select( store ).hasImageFailed,
+		};
 	}, [] );
-	const { setBusy, setTitleBusy, setDescriptionBusy } = useDispatch( store );
-	const { isImageBusy, hasImageFailed } = useSelect( select => select( store ), [] );
-	const { setImageBusy, setImageFailed } = useDispatch( store );
+	const { setBusy, setTitleBusy, setDescriptionBusy, setImageBusy, setImageFailed } =
+		useDispatch( store );
 	const { createInfoNotice } = useDispatch( 'core/notices' );
 	const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
 	const [ triggerType, setTriggerType ] = useState< 'manual' | 'auto' >( null );
