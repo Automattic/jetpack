@@ -79,18 +79,3 @@ function jetpack_mu_wpcom_hide_retired_widgets_from_legacy_block( $widget_types 
 	return $widget_types;
 }
 add_filter( 'widget_types_to_hide_from_legacy_widget_block', 'jetpack_mu_wpcom_hide_retired_widgets_from_legacy_block' );
-
-/**
- * Provides a fallback Google Maps API key when otherwise not configured by the
- * user. This is subject to a usage quota.
- *
- * @see p5j4vm-1gT-p2
- *
- * @param string $api_key Google Maps API key.
- * @return string Google Maps API key
- */
-function jetpack_mu_wpcom_google_maps_api_key( $api_key ) {
-	// Fall back to the dotcom API key if the user has not set their own.
-	return ( empty( $api_key ) ) ? 'AIzaSyCq4vWNv6eCGe2uvhPRGWQlv80IQp8dwTE' : $api_key;
-}
-add_filter( 'jetpack_google_maps_api_key', 'jetpack_mu_wpcom_google_maps_api_key' );
