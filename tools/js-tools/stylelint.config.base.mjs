@@ -37,7 +37,6 @@ const baseConfig = {
 		'length-zero-no-unit': null,
 		'no-descending-specificity': null,
 		'no-duplicate-selectors': null,
-		'no-empty-source': null,
 		'no-invalid-position-at-import-rule': null,
 		'property-no-unknown': null,
 		'scss/at-extend-no-missing-placeholder': null,
