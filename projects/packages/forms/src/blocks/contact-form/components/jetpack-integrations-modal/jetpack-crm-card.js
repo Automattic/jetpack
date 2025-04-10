@@ -53,7 +53,13 @@ const JetpackCRMCard = ( {
 							'jetpack-forms'
 						) }
 					</p>
-					<Button variant="secondary" href={ settingsUrl } __next40pxDefaultSize={ true }>
+					<Button
+						variant="secondary"
+						href={ settingsUrl }
+						target="_blank"
+						rel="noopener noreferrer"
+						__next40pxDefaultSize={ true }
+					>
 						{ __( 'Update Jetpack CRM', 'jetpack-forms' ) }
 					</Button>
 				</div>
@@ -71,7 +77,14 @@ const JetpackCRMCard = ( {
 								'jetpack-forms'
 							),
 							{
-								a: <Button variant="link" href={ settingsUrl } />,
+								a: (
+									<Button
+										variant="link"
+										href={ settingsUrl }
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
 							}
 						) }
 					</p>
@@ -84,7 +97,13 @@ const JetpackCRMCard = ( {
 						</p>
 					) }
 					{ canActivateExtension && (
-						<Button variant="secondary" href={ settingsUrl } __next40pxDefaultSize={ true }>
+						<Button
+							variant="secondary"
+							href={ settingsUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+							__next40pxDefaultSize={ true }
+						>
 							{ __( 'Enable Jetpack Forms extension', 'jetpack-forms' ) }
 						</Button>
 					) }
