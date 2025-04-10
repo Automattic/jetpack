@@ -14,3 +14,6 @@ export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
 
 // Hooks
 export { default as useChartMouseHandler } from './hooks/use-chart-mouse-handler';
+
+// Types
+export type { DataPoint, DataPointDate, SeriesData } from './types';

@@ -49,7 +49,7 @@
 	.js-toggle-stats_dashboard_widget_control .toggle-indicator:before {
 		content: "\f111";
 		display: inline-block;
-		font: normal 20px/1 dashicons;
+		font: 400 20px/1 dashicons;
 	}
 
 	.inside {
@@ -285,7 +285,7 @@
 
 		h3 {
 			font-size: 1em;
-			font-weight: normal;
+			font-weight: 400;
 			margin: 0 0 0.25em 0;
 			padding: 0;
 		}

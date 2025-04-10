@@ -101,7 +101,6 @@ BODY;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_exists() {
@@ -110,7 +109,6 @@ BODY;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted() {
@@ -123,7 +121,6 @@ BODY;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_id() {
@@ -148,7 +145,6 @@ BODY;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_width_height() {
@@ -174,7 +170,6 @@ BODY;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_lang() {
@@ -201,7 +196,6 @@ BODY;
 	 *
 	 * @see ::set_up()
 	 * @author scotchfield
-	 * @covers ::shortcode_ted
 	 * @group external-http
 	 * @since 7.4.0
 	 */

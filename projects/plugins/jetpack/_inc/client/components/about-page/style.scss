@@ -30,7 +30,7 @@ $color__back-link: #787c82;
 		}
 
 		svg {
-			fill: black;
+			fill: #000;
 			height: 16px;
 			margin-right: 4px;
 			margin-top: -3px;
@@ -78,7 +78,7 @@ $color__back-link: #787c82;
 	}
 
 	a {
-	  color: black;
+	  color: #000;
 	  font-weight: 400;
 	  text-decoration: underline;
 	  transition-duration: .05s;
@@ -92,7 +92,7 @@ $color__back-link: #787c82;
 	  &:focus {
 		text-decoration-line: none;
 		border-radius: 2px;
-		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) #000;
 		outline: 3px solid transparent;
 	  }
   }
@@ -150,12 +150,12 @@ $color__back-link: #787c82;
 	h3 {
 		margin-top: 32px;
 		font-size: 24px;
-		color: black;
+		color: #000;
 		font-weight: 500;
 		line-height: 24px;
 
 	  a {
-		color: black;
+		color: #000;
 	  }
 	}
 
@@ -164,25 +164,25 @@ $color__back-link: #787c82;
 	  border: none;
 	  border-radius: var(--jp-border-radius);
 	  outline: solid 1.5px var(--jp-black);
-	  color: black;
+	  color: #000;
 	  font-weight: 500;
 
 	  &:hover {
 		background: var(--jp-gray-0);
 		outline: solid 1px var(--jp-black);
-		color: black;
+		color: #000;
 	  }
 
 	  &:focus {
 		outline: solid 2px var(--jp-black);
 		border-color: transparent;
 		background: var(--jp-gray-0);
-		color: black;
+		color: #000;
 	  }
 	}
 
 	.star-rating .star {
-	  color: black;
+	  color: #000;
 	}
 }
 
@@ -191,7 +191,7 @@ $color__back-link: #787c82;
 	text-align: center;
 
 	a {
-	  color: black;
+	  color: #000;
 	  text-decoration: underline;
 	}
 

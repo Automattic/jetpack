@@ -49,7 +49,7 @@
         &:checked+.verbum-toggle-control__button:after {
             left: calc(100% - 2px);
             transform: translateX(-100%);
-            background: white;
+            background: #fff;
         }
     }
 
@@ -70,7 +70,7 @@
         margin-top: 4px;
         border-radius: 9px;
         position: relative;
-        border: 1px solid black;
+        border: 1px solid #000;
         opacity: var(--verbum-element-opacity);
 
         &:after {
@@ -80,7 +80,7 @@
             left: 2px;
             width: 14px;
             height: 14px;
-            background: black;
+            background: #000;
             border-radius: 50%;
             transition: 0.3s;
         }

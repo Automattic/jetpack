@@ -1,11 +1,14 @@
 <?php
 
+/**
+ * @covers ::jetpack_get_youtube_id
+ * @covers ::youtube_sanitize_url
+ */
 class Functions_Compat_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @author enkrates
-	 * @covers ::youtube_sanitize_url
 	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_valid_url() {
@@ -19,7 +22,6 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::youtube_sanitize_url
 	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_shortened_url() {
@@ -34,7 +36,6 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::youtube_sanitize_url
 	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_slash_v_slash() {
@@ -49,7 +50,6 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::youtube_sanitize_url
 	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_hashbang() {
@@ -64,7 +64,6 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::youtube_sanitize_url
 	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_amp_ampersand() {
@@ -79,7 +78,6 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::youtube_sanitize_url
 	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_encoded_ampersand() {
@@ -94,7 +92,6 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::youtube_sanitize_url
 	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_playlist() {
@@ -109,7 +106,6 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::youtube_sanitize_url
 	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_extra_question_mark() {
@@ -124,7 +120,6 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author robfelty
-	 * @covers ::youtube_sanitize_url
 	 * @since 13.2
 	 */
 	public function test_youtube_sanitize_url_as_array() {
@@ -141,7 +136,6 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author robfelty
-	 * @covers ::youtube_sanitize_url
 	 * @since 13.2
 	 */
 	public function test_youtube_sanitize_url_invalid_input() {
@@ -158,7 +152,6 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::jetpack_get_youtube_id
 	 * @since 3.2
 	 */
 	public function test_jetpack_get_youtube_id_with_single_video_url() {
@@ -173,7 +166,6 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::jetpack_get_youtube_id
 	 * @since 3.2
 	 */
 	public function test_jetpack_get_youtube_id_with_playlist_url() {

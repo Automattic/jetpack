@@ -1,10 +1,12 @@
 <?php
 
+/**
+ * @covers \Jetpack_Heartbeat
+ */
 class Jetpack_Heartbeat_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
-	 * @covers Jetpack_Heartbeat::init
 	 * @since 3.9.0
 	 */
 	public function test_init() {
@@ -12,7 +14,6 @@ class Jetpack_Heartbeat_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers Jetpack_Heartbeat::generate_stats_array
 	 * @since 3.9.0
 	 */
 	public function test_generate_stats_array() {

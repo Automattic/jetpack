@@ -1,12 +1,14 @@
 <?php
 require __DIR__ . '/../../../../modules/verification-tools/verification-tools-utils.php';
 
+/**
+ * @covers ::jetpack_verification_validate
+ */
 class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @author cbauerman
-	 * @covers ::jetpack_verification_validate
 	 * @since 6.5.0
 	 */
 	public function test_jetpack_verification_validate_google_raw_code() {
@@ -19,7 +21,6 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author cbauerman
-	 * @covers ::jetpack_verification_validate
 	 * @since 6.5.0
 	 */
 	public function test_jetpack_verification_validate_google_code_in_meta_double_quotes() {
@@ -32,7 +33,6 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author cbauerman
-	 * @covers ::jetpack_verification_validate
 	 * @since 6.5.0
 	 */
 	public function test_jetpack_verification_validate_google_code_in_meta_single_quotes() {

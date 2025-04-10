@@ -176,20 +176,26 @@ export function setSuggestions( {
 }
 
 export function setLints( {
+	text,
 	lints,
 	feature,
 	blockId,
+	richTextIdentifier,
 }: {
+	text: string;
 	lints: Array< GrammarLint >;
 	feature: string;
 	blockId: string;
+	richTextIdentifier?: string;
 } ) {
 	return ( { dispatch } ) => {
 		dispatch( {
 			type: 'SET_LINTS',
+			text,
 			feature,
 			lints,
 			blockId,
+			richTextIdentifier,
 		} );
 	};
 }

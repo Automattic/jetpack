@@ -17,6 +17,7 @@ use WorDBless\Options as WorDBless_Options;
  * Unit tests for the Connection Plugin Storage class.
  *
  * @see \Automattic\Jetpack\Connection\Plugin_Storage
+ * @covers \Automattic\Jetpack\Connection\Plugin_Storage
  */
 class Plugin_Storage_Test extends TestCase {
 
@@ -78,8 +79,6 @@ class Plugin_Storage_Test extends TestCase {
 
 	/**
 	 * Unit test for the `Plugin_Storage::update_active_plugins_option()` method.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Plugin_Storage::update_active_plugins_option
 	 */
 	public function test_update_active_plugins_option_without_sync_will_trigger_fallback() {
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
@@ -94,8 +93,6 @@ class Plugin_Storage_Test extends TestCase {
 
 	/**
 	 * Unit test for the `Plugin_Storage::update_active_plugins_option()` method.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Plugin_Storage::update_active_plugins_option
 	 */
 	public function test_update_active_plugins_option_without_sync_fallback_will_return_early_if_not_connected() {
 		add_filter( 'pre_http_request', array( $this, 'intercept_remote_request' ), 10, 3 );
@@ -106,8 +103,6 @@ class Plugin_Storage_Test extends TestCase {
 
 	/**
 	 * Unit test for the `Plugin_Storage::configure()` method.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Plugin_Storage::set_flag_to_refresh_active_connected_plugins
 	 */
 	public function test_setting_flag_on_active_plugins_option_update() {
 		Plugin_Storage::configure();
@@ -117,8 +112,6 @@ class Plugin_Storage_Test extends TestCase {
 
 	/**
 	 * Unit test for the `Plugin_Storage::maybe_update_active_connected_plugins()` method.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Plugin_Storage::maybe_update_active_connected_plugins
 	 */
 	public function test_maybe_update_active_connected_plugins_not_configured() {
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
@@ -139,8 +132,6 @@ class Plugin_Storage_Test extends TestCase {
 
 	/**
 	 * Unit test for the `Plugin_Storage::maybe_update_active_connected_plugins()` method.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Plugin_Storage::maybe_update_active_connected_plugins
 	 */
 	public function test_maybe_update_active_connected_plugins_flag_not_set() {
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
@@ -161,8 +152,6 @@ class Plugin_Storage_Test extends TestCase {
 
 	/**
 	 * Unit test for the `Plugin_Storage::maybe_update_active_connected_plugins()` method.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Plugin_Storage::maybe_update_active_connected_plugins
 	 */
 	public function test_maybe_update_active_connected_plugins_non_post_request() {
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
@@ -183,8 +172,6 @@ class Plugin_Storage_Test extends TestCase {
 
 	/**
 	 * Unit test for the `Plugin_Storage::maybe_update_active_connected_plugins()` method.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Plugin_Storage::maybe_update_active_connected_plugins
 	 */
 	public function test_maybe_update_active_connected_plugins_success() {
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
@@ -207,8 +194,6 @@ class Plugin_Storage_Test extends TestCase {
 
 	/**
 	 * Unit test for the `Plugin_Storage::maybe_update_active_connected_plugins()` method.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Plugin_Storage::maybe_update_active_connected_plugins
 	 */
 	public function test_maybe_update_active_connected_plugins_success_same_plugins() {
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
@@ -233,8 +218,6 @@ class Plugin_Storage_Test extends TestCase {
 
 	/**
 	 * Unit test for the `Plugin_Storage::maybe_update_active_connected_plugins()` method.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Plugin_Storage::maybe_update_active_connected_plugins
 	 */
 	public function test_maybe_update_active_connected_plugins_success_same_count_different_plugins() {
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );

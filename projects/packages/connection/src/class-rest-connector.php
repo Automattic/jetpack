@@ -675,15 +675,22 @@ class REST_Connector {
 		)
 		: false );
 
+		// Check for possible account errors between the local user and WPCOM account.
+		$possible_errors = array();
+		if ( $is_user_connected && ! empty( $wpcom_user_data['email'] ) ) {
+			$user_account_status = new \Automattic\Jetpack\Connection\User_Account_Status();
+			$possible_errors     = $user_account_status->check_account_errors( $current_user->user_email, $wpcom_user_data['email'] );
+		}
+
 		$current_user_connection_data = array(
-			'isConnected' => $is_user_connected,
-			'isMaster'    => $is_master_user,
-			'username'    => $current_user->user_login,
-			'id'          => $current_user->ID,
-			'blogId'      => $blog_id,
-			'wpcomUser'   => $wpcom_user_data,
-			'gravatar'    => get_avatar_url( $current_user->ID ),
-			'permissions' => array(
+			'isConnected'           => $is_user_connected,
+			'isMaster'              => $is_master_user,
+			'username'              => $current_user->user_login,
+			'id'                    => $current_user->ID,
+			'blogId'                => $blog_id,
+			'wpcomUser'             => $wpcom_user_data,
+			'gravatar'              => get_avatar_url( $current_user->ID ),
+			'permissions'           => array(
 				'connect'        => current_user_can( 'jetpack_connect' ),
 				'connect_user'   => current_user_can( 'jetpack_connect_user' ),
 				// This is a mapped capability
@@ -692,6 +699,7 @@ class REST_Connector {
 				'disconnect'     => current_user_can( 'jetpack_disconnect' ),
 				'manage_options' => current_user_can( 'manage_options' ),
 			),
+			'possibleAccountErrors' => $possible_errors,
 		);
 
 		/**
@@ -714,67 +722,6 @@ class REST_Connector {
 		}
 
 		return $response;
-	}
-
-	/**
-	 * Permission check for the connection/data endpoint
-	 *
-	 * @return bool|WP_Error
-	 */
-	public static function user_connection_data_permission_check() {
-		if ( current_user_can( 'jetpack_connect_user' ) ) {
-			return true;
-		}
-
-		return new WP_Error(
-			'invalid_user_permission_user_connection_data',
-			self::get_user_permissions_error_msg(),
-			array( 'status' => rest_authorization_required_code() )
-		);
-	}
-
-	/**
-	 * Verifies if the request was signed with the Jetpack Debugger key
-	 *
-	 * @param string|null $pub_key The public key used to verify the signature. Default is the Jetpack Debugger key. This is used for testing purposes.
-	 *
-	 * @return bool
-	 */
-	public static function is_request_signed_by_jetpack_debugger( $pub_key = null ) {
-		 // phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['signature'] ) || ! isset( $_GET['timestamp'] ) || ! isset( $_GET['url'] ) || ! isset( $_GET['rest_route'] ) ) {
-			return false;
-		}
-
-		// signature timestamp must be within 5min of current time.
-		if ( abs( time() - (int) $_GET['timestamp'] ) > 300 ) {
-			return false;
-		}
-
-		$signature = base64_decode( filter_var( wp_unslash( $_GET['signature'] ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-
-		$signature_data = wp_json_encode(
-			array(
-				'rest_route' => filter_var( wp_unslash( $_GET['rest_route'] ) ),
-				'timestamp'  => (int) $_GET['timestamp'],
-				'url'        => filter_var( wp_unslash( $_GET['url'] ) ),
-			)
-		);
-
-		if (
-			! function_exists( 'openssl_verify' )
-			|| 1 !== openssl_verify(
-				$signature_data,
-				$signature,
-				$pub_key ? $pub_key : static::JETPACK__DEBUGGER_PUBLIC_KEY
-			)
-		) {
-			return false;
-		}
-
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-		return true;
 	}
 
 	/**
@@ -1192,5 +1139,66 @@ class REST_Connector {
 				'authorizeUrl' => $authorize_url,
 			)
 		);
+	}
+
+	/**
+	 * Permission check for the connection/data endpoint
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function user_connection_data_permission_check() {
+		if ( current_user_can( 'jetpack_connect_user' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_user_connection_data',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Verifies if the request was signed with the Jetpack Debugger key
+	 *
+	 * @param string|null $pub_key The public key used to verify the signature. Default is the Jetpack Debugger key. This is used for testing purposes.
+	 *
+	 * @return bool
+	 */
+	public static function is_request_signed_by_jetpack_debugger( $pub_key = null ) {
+		 // phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['signature'] ) || ! isset( $_GET['timestamp'] ) || ! isset( $_GET['url'] ) || ! isset( $_GET['rest_route'] ) ) {
+			return false;
+		}
+
+		// signature timestamp must be within 5min of current time.
+		if ( abs( time() - (int) $_GET['timestamp'] ) > 300 ) {
+			return false;
+		}
+
+		$signature = base64_decode( filter_var( wp_unslash( $_GET['signature'] ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+
+		$signature_data = wp_json_encode(
+			array(
+				'rest_route' => filter_var( wp_unslash( $_GET['rest_route'] ) ),
+				'timestamp'  => (int) $_GET['timestamp'],
+				'url'        => filter_var( wp_unslash( $_GET['url'] ) ),
+			)
+		);
+
+		if (
+			! function_exists( 'openssl_verify' )
+			|| 1 !== openssl_verify(
+				$signature_data,
+				$signature,
+				$pub_key ? $pub_key : static::JETPACK__DEBUGGER_PUBLIC_KEY
+			)
+		) {
+			return false;
+		}
+
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		return true;
 	}
 }

@@ -25,8 +25,12 @@ export type GrammarLint = {
 
 export type LintState = {
 	[ blockId: string ]: {
-		hasChanged: boolean;
-		[ feature: string ]: Array< GrammarLint > | boolean;
+		version: number;
+		features: {
+			[ feature: string ]: {
+				[ text: string ]: Array< GrammarLint >;
+			};
+		};
 	};
 };
 
@@ -92,8 +96,18 @@ export type BreveSelect = {
 	};
 	getIgnoredSuggestions: ( { blockId }: { blockId: string } ) => Array< string >;
 	getReloadFlag: () => boolean;
-	getLints: ( blockId: string ) => LintState;
-	getLintsByFeature: ( blockId: string, feature: string ) => Array< GrammarLint >;
+	getLintFeatures: ( blockId: string ) => {
+		[ feature: string ]: {
+			[ text: string ]: Array< GrammarLint >;
+		};
+	};
+	getLintFeatureTexts: (
+		blockId: string,
+		feature: string
+	) => {
+		[ text: string ]: Array< GrammarLint >;
+	};
+	getLints: ( blockId: string, feature: string, text: string ) => Array< GrammarLint >;
 	getLintVersion: ( blockId: string ) => number;
 };
 
@@ -119,13 +133,17 @@ export type BreveDispatch = {
 		occurrence: string;
 	} ) => void;
 	setLints: ( {
+		text,
 		lints,
 		feature,
 		blockId,
+		richTextIdentifier,
 	}: {
+		text: string;
 		lints: Array< GrammarLint >;
 		feature: string;
 		blockId: string;
+		richTextIdentifier?: string;
 	} ) => void;
 };
 
@@ -148,7 +166,11 @@ export type BreveFeatureConfig = {
 
 export type BreveFeature = {
 	config: BreveFeatureConfig;
-	highlight: ( text: string, blockClientId: string ) => Array< HighlightedText >;
+	highlight: (
+		text: string,
+		blockClientId: string,
+		richTextIdentifier?: string
+	) => Array< HighlightedText >;
 	dictionary?: { [ key: string ]: string };
 	description: string;
 };

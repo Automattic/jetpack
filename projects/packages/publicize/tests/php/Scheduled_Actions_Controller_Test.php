@@ -17,8 +17,6 @@ use WpOrg\Requests\Requests;
 
 /**
  * Class Scheduled_Actions_Controller_Test
- *
- * @coversDefaultClass Automattic\Jetpack\Publicize\REST_API\Scheduled_Actions_Controller
  */
 class Scheduled_Actions_Controller_Test extends TestCase {
 

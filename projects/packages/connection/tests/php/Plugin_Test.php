@@ -14,6 +14,7 @@ use PHPUnit\Framework\TestCase;
  * Unit tests for the Connection Plugin Manager class.
  *
  * @see \Automattic\Jetpack\Connection\Plugin
+ * @covers \Automattic\Jetpack\Connection\Plugin
  */
 class Plugin_Test extends TestCase {
 
@@ -40,8 +41,6 @@ class Plugin_Test extends TestCase {
 
 	/**
 	 * Unit test for the `Plugin::add()` method.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Plugin::add
 	 */
 	public function test_add() {
 		$plugin = new Plugin( self::PLUGIN_SLUG );
@@ -55,7 +54,6 @@ class Plugin_Test extends TestCase {
 	 * Unit test for the `Plugin::remove()` method.
 	 *
 	 * @depends test_add
-	 * @covers Automattic\Jetpack\Connection\Plugin::remove
 	 */
 	public function test_remove() {
 		$plugin = new Plugin( self::PLUGIN_SLUG );
