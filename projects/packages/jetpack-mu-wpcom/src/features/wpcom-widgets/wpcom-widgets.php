@@ -18,7 +18,6 @@ define(
 	'JETPACK_MU_WPCOM_RETIRED_WIDGETS',
 	array(
 		'akismet_widget' => 'Akismet_Widget',
-		'bpextension'    => 'BandPage_Extension_Widget',
 		'author_grid'    => 'Widget_Authors_Grid',
 		'delicious'      => 'Delicious_Widget',
 		'eventbrite'     => 'Eventbrite_Widget',
