@@ -17,11 +17,16 @@ const JetpackCRMCard = ( {
 	refreshStatus,
 } ) => {
 	const { settingsUrl = '', version = '', details = {} } = data || {};
-
 	const { hasExtension = false, canActivateExtension = false } = details;
 
 	const crmVersion = semver.coerce( version );
 	const isRecentVersion = crmVersion && semver.gte( crmVersion, '4.9.1' );
+
+	const connectedMessage = __( 'This form is connected to Jetpack CRM!', 'jetpack-forms' );
+	const disconnectedMessage = __(
+		'To connect this form to Jetpack CRM, enable the toggle above.',
+		'jetpack-forms'
+	);
 
 	const cardData = {
 		...data,
@@ -111,16 +116,10 @@ const JetpackCRMCard = ( {
 			);
 		}
 
-		const connectedMessage = __( 'This form is connected to Jetpack CRM!', 'jetpack-forms' );
-		const disconnectedMessage = __(
-			'To connect this form to Jetpack CRM, enable the toggle above.',
-			'jetpack-forms'
-		);
-		const statusMessage = jetpackCRM ? connectedMessage : disconnectedMessage;
-
+		// All conditions met, show Jetpack CRM connected message
 		return (
 			<div>
-				<p>{ statusMessage }</p>
+				<p>{ jetpackCRM ? connectedMessage : disconnectedMessage }</p>
 				<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
 					{ __( 'Open Jetpack CRM settings', 'jetpack-forms' ) }
 				</Button>
