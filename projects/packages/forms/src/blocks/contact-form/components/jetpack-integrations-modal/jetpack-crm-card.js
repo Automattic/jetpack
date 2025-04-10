@@ -38,11 +38,11 @@ const JetpackCRMCard = ( {
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_crm_click',
 		notInstalledMessage: __(
-			'You can save contacts from Jetpack contact forms in Jetpack CRM.',
+			'You can save your form contacts in Jetpack CRM! To get started, please install the plugin.',
 			'jetpack-forms'
 		),
 		notActivatedMessage: __(
-			"You already have the Jetpack CRM plugin installed, but it's not activated.",
+			'Jetpack CRM is installed! To start saving contacts, simply activate the plugin.',
 			'jetpack-forms'
 		),
 	};

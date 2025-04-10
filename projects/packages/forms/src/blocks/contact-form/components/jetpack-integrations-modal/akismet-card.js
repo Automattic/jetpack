@@ -28,7 +28,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			}
 		),
 		notActivatedMessage: __(
-			"You already have Akismet installed, but it's not activated.",
+			'Akismet is installed! Just activate the plugin to start blocking spam.',
 			'jetpack-forms'
 		),
 	};

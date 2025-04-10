@@ -27,11 +27,11 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_creative_mail_click',
 		notInstalledMessage: __(
-			'To start sending email campaigns, install the Creative Mail plugin for WordPress.',
+			'To start sending email campaigns, install the Creative Mail plugin.',
 			'jetpack-forms'
 		),
 		notActivatedMessage: __(
-			'To start sending email campaigns, activate the Creative Mail plugin for WordPress.',
+			'Creative Mail is installed! To start sending email campaigns, simply activate the plugin.',
 			'jetpack-forms'
 		),
 	};
