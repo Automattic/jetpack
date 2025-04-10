@@ -1,0 +1,79 @@
+<?php
+/**
+ * Blog Stats block helper.
+ *
+ * @package automattic/jetpack
+ */
+
+use Automattic\Jetpack\Stats\WPCOM_Stats;
+
+/**
+ * Class Jetpack_Blog_Stats_Helper
+ */
+class Jetpack_Blog_Stats_Helper {
+	/**
+	 * Returns user's blog stats.
+	 *
+	 * @param array $stats_option Array containing the Blog Stats block attributes.
+	 *
+	 * @return int
+	 */
+	public static function get_stats( $stats_option ) {
+		$stats_option = wp_parse_args(
+			$stats_option,
+			array(
+				'statsOption' => 'blog',
+				'statsData'   => 'views',
+				'postId'      => 0,
+			)
+		);
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			// Jetpack sites.
+			$wpcom_stats = new WPCOM_Stats();
+
+			if ( $stats_option['statsOption'] === 'post' ) {
+				// Cache in post meta to prevent wp_options blowing up when retrieving views
+				// for multiple posts simultaneously (eg. when inserted into template).
+				$cache_in_meta = true;
+				$data          = $wpcom_stats->convert_stats_array_to_object(
+					$wpcom_stats->get_post_views(
+						get_the_ID(),
+						array( 'fields' => 'views' ),
+						$cache_in_meta
+					)
+				);
+
+				if ( isset( $data->views ) ) {
+					return $data->views;
+				}
+			} else {
+				$data = $wpcom_stats->convert_stats_array_to_object(
+					$wpcom_stats->get_stats( array( 'fields' => 'stats' ) )
+				);
+
+				if ( $stats_option['statsData'] === 'views' && isset( $data->stats->views ) ) {
+					return $data->stats->views;
+				}
+
+				if ( $stats_option['statsData'] === 'visitors' && isset( $data->stats->visitors ) ) {
+					return $data->stats->visitors;
+				}
+			}
+		} elseif ( $stats_option['statsOption'] === 'post' ) {
+			if ( function_exists( 'get_all_time_postviews' ) ) {
+				return get_all_time_postviews( $stats_option['postId'] );
+			}
+		} else {
+			// Simple sites.
+			if ( $stats_option['statsData'] === 'views' && function_exists( 'stats_grandtotal_views' ) ) {
+				return stats_grandtotal_views( get_current_blog_id() );
+			}
+
+			if ( $stats_option['statsData'] === 'visitors' && function_exists( 'stats_get_visitors' ) ) {
+				return array_sum( stats_get_visitors( get_current_blog_id(), false, gmdate( 'Y' ) - 2012, 365 ) );
+			}
+		}
+
+		return 0;
+	}
+}
