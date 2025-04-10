@@ -47,4 +47,19 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 		);
 	}
+
+	// public function test_get_block_support_classes_and_styles() {}
+
+	// public function test_block_attributes_to_shortcode_attributes() {
+	// $attributes = array(
+	// 'label'        => 'Single',
+	// 'isStandalone' => true,
+	// 'style'        => array(
+	// 'color' => array( 'text' => 'caramel' ),
+	// ),
+	// );
+
+	// $shortcode_attributes = Contact_Form_Plugin::block_attributes_to_shortcode_attributes( $attributes, 'checkbox', null );
+	// $this->assertEquals( 'label="Single" isStandalone="1" style="color:caramel;"', $shortcode_attributes );
+	// }
 }

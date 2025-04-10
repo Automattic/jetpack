@@ -747,7 +747,7 @@ class Contact_Form_Test extends BaseTestCase {
 			'options' => array( '"foo"', 'bar, baz', '[b\\rackets]' ),
 			'label'   => 'fun ][ times',
 		);
-		$html = Contact_Form_Plugin::gutenblock_render_field_radio( $attr, '' );
+		$html = Contact_Form_Plugin::gutenblock_render_field_radio( $attr, '', null );
 		$this->assertEquals( '[contact-field type="radio" options="&quot;foo&quot;,bar&#044; baz,&#091;b&#092;rackets&#093;" label="fun &#093;&#091; times"/]', $html );
 	}
 
@@ -872,7 +872,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
 	public function test_make_sure_checkbox_field_renders_as_expected() {
-		$attributes = array(
+		$attributes          = array(
 			'label'       => 'fun',
 			'type'        => 'checkbox',
 			'class'       => 'lalala',
@@ -880,9 +880,43 @@ class Contact_Form_Test extends BaseTestCase {
 			'placeholder' => 'PLACEHOLDTHIS!',
 			'id'          => 'funID',
 		);
-
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
 		$this->assertValidCheckboxField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	/**
+	 * Test for checkbox field_renders
+	 *
+	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
+	 */
+	public function test_make_sure_checkbox_field_renders_as_expected_with_style() {
+		$block     = array(
+			'blockName'   => 'jetpack/field-checkbox',
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/option',
+					'attrs'     => array(
+						'label'        => 'single',
+						'isStandalone' => true,
+						'style'        => array(
+							'color'      => array( 'text' => 'caramel' ),
+							'elements'   => array(
+								'link' => array( 'color' => array( 'text' => 'caramel' ) ),
+							),
+							'typography' => array(
+								'fontSize' => '24px',
+							),
+						),
+					),
+				),
+			),
+		);
+		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox( array(), '', new \WP_Block( $block ) );
+
+		// use HTML processor to parse code and check HTML
+		$form = new Contact_Form( array(), $shortcode );
+		$form->parse_content( $form->__toString() );
+		// test here?
 	}
 
 	/**
@@ -948,13 +982,14 @@ class Contact_Form_Test extends BaseTestCase {
 	/**
 	 * Renders a Contact_Form_Field.
 	 *
-	 * @param array $attributes An associative array of shortcode attributes.
+	 * @param array  $attributes An associative array of shortcode attributes.
+	 * @param string $content The content of the field.
 	 *
 	 * @return string The field html string.
 	 */
-	public function render_field( $attributes ) {
+	public function render_field( $attributes, $content = '' ) {
 		$form  = new Contact_Form( array() );
-		$field = new Contact_Form_Field( $attributes, '', $form );
+		$field = new Contact_Form_Field( $attributes, $content, $form );
 		return $field->render();
 	}
 
@@ -1105,7 +1140,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertInstanceOf( DOMElement::class, $label );
 		$this->assertInstanceOf( DOMElement::class, $input );
 
-		$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label ' . $attributes['type'], 'label class doesn\'t match' );
+		$this->assertEquals( $label->getAttribute( 'class' ), 'wp-block-jetpack-option grunion-field-label ' . $attributes['type'], 'label class doesn\'t match' );
 
 		$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
 		$this->assertEquals( 'Yes', $input->getAttribute( 'value' ), 'Input value doesn\'t match' );
