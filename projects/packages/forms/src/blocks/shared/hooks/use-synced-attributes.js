@@ -127,7 +127,7 @@ export function useSyncedAttributes(
 		() => pickSyncedAttributes( attributes, syncedAttributeKeys ),
 		[ attributes, syncedAttributeKeys ]
 	);
-	const previousOwnAttributes = usePrevious( ownAttributes );
+	const previousOwnAttributes = usePrevious( ownAttributes ) ?? ownAttributes;
 
 	useEffect( () => {
 		if ( ! isSynced ) {
