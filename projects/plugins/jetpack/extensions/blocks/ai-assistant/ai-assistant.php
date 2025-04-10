@@ -170,20 +170,6 @@ add_action(
 );
 
 /**
- * Register the `ai-seo-assistant` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
-			apply_filters( 'ai_seo_assistant_enabled', false )
-		) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-seo-assistant' );
-		}
-	}
-);
-
-/**
  * Register the `ai-use-chrome-ai-sometimes` extension.
  */
 add_action(
