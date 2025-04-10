@@ -111,10 +111,12 @@ const JetpackCRMCard = ( {
 			);
 		}
 
-		// All conditions met - show toggle and link to CRM settings
-		const statusMessage = jetpackCRM
-			? __( 'This form is connected to Jetpack CRM!', 'jetpack-forms' )
-			: __( 'To connect this form to Jetpack CRM, enable the toggle above.', 'jetpack-forms' );
+		const connectedMessage = __( 'This form is connected to Jetpack CRM!', 'jetpack-forms' );
+		const disconnectedMessage = __(
+			'To connect this form to Jetpack CRM, enable the toggle above.',
+			'jetpack-forms'
+		);
+		const statusMessage = jetpackCRM ? connectedMessage : disconnectedMessage;
 
 		return (
 			<div>
