@@ -8,7 +8,6 @@ import { MeasurableImageStore } from './stores/MeasurableImageStore.js';
 type ImageProperties = {
 	severity: 'red' | 'yellow' | 'green';
 	oversized_ratio: number;
-	file_weight: number;
 	file_width: number;
 	file_height: number;
 	size_on_page_width: number;
@@ -61,7 +60,6 @@ export default class ImageGuideAnalytics {
 					const oversizedRatio = get( imageStore.oversizedRatio );
 					const severity = getSeverity( oversizedRatio );
 					const fileSize = get( imageStore.fileSize );
-					const fileWeight = get( imageStore.fileWeight );
 					const sizeOnPage = get( imageStore.sizeOnPage );
 					const expectedSize = get( imageStore.expectedSize );
 					const potentialSavings = get( imageStore.potentialSavings );
@@ -70,7 +68,6 @@ export default class ImageGuideAnalytics {
 					const props: ImageProperties = {
 						severity,
 						oversized_ratio: oversizedRatio,
-						file_weight: fileWeight.weight,
 						file_width: fileSize.width,
 						file_height: fileSize.height,
 						size_on_page_width: sizeOnPage.width,
