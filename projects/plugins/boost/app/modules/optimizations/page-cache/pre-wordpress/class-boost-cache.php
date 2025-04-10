@@ -189,6 +189,7 @@ class Boost_Cache {
 		}
 
 		ob_start( array( $this, 'ob_callback' ) );
+		return true;
 	}
 
 	/**
