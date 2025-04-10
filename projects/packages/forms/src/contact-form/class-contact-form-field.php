@@ -1263,7 +1263,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text, $extra_attrs = array() ) {
 		if ( ! $this->is_field_renderable( $type ) ) {
-			return null;
+			return '';
 		}
 
 		$class .= ' grunion-field';

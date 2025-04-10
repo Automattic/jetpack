@@ -14,6 +14,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Status test suite.
+ *
+ * @covers \Automattic\Jetpack\Status\Host
  */
 class Host_Test extends TestCase {
 	/**
@@ -116,7 +118,6 @@ class Host_Test extends TestCase {
 	/**
 	 * Tests getting the correct Calypso host.
 	 *
-	 * @covers Automattic\Jetpack\Status\Host::get_calypso_env
 	 * @dataProvider get_calypso_env_data_provider
 	 *
 	 * @param string $env Calypso environment (empty string if default).
@@ -146,7 +147,6 @@ class Host_Test extends TestCase {
 	/**
 	 * Test adding a source parameter to the Calypso URL.
 	 *
-	 * @covers Automattic\Jetpack\Status\Host::get_source_query
 	 * @dataProvider get_source_query_params
 	 *
 	 * @param string $source Source parameter.
@@ -160,8 +160,6 @@ class Host_Test extends TestCase {
 
 	/**
 	 * Test getting the known host guess.
-	 *
-	 * @covers Automattic\Jetpack\Status\Host::get_nameserver_dns_records
 	 */
 	public function test_get_nameserver_dns_records() {
 		Functions\when( 'dns_get_record' )->justReturn(
@@ -178,8 +176,6 @@ class Host_Test extends TestCase {
 
 	/**
 	 * Test getting the known host guess.
-	 *
-	 * @covers Automattic\Jetpack\Status\Host::get_hosting_provider_by_nameserver
 	 */
 	public function test_get_hosting_provider_by_nameserver() {
 		$mock = $this->createPartialMock( Host::class, array( 'get_nameserver_dns_records' ) );
@@ -193,8 +189,6 @@ class Host_Test extends TestCase {
 
 	/**
 	 * Test getting the known host guess.
-	 *
-	 * @covers Automattic\Jetpack\Status\Host::get_known_host_guess
 	 */
 	public function test_get_known_host_guess() {
 		Functions\when( 'sanitize_text_field' )->alias(

@@ -2,7 +2,7 @@ import { PanelRow, Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import handleDownloadQRCode from '../utils/handle-download-qrcode.js';
+import handleDownloadQRCode from '../utils/handle-download-qr-code.js';
 
 /**
  * Row panel component to address the actions

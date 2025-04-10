@@ -1,4 +1,4 @@
-import MarkedLines from '../index.js';
+import MarkedLines from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Components/Marked Lines',

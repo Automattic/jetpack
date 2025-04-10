@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import LoadingPlaceholder from '../index.js';
+import LoadingPlaceholder from '../index.tsx';
 /**
  * Types
  */

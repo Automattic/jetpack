@@ -2,7 +2,7 @@ import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React, { Children, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
-import { Swipeable } from '../swipeable/index.js';
+import { Swipeable } from '../swipeable/index.tsx';
 
 import './style.scss';
 

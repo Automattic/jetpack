@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import JetpackSearchLogo from '../index.js';
+import JetpackSearchLogo from '../index.tsx';
 
 describe( 'JetpackSearchLogo', () => {
 	const testProps = {

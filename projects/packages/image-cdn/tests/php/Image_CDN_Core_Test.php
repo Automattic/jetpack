@@ -3,6 +3,9 @@
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use WorDBless\BaseTestCase;
 
+/**
+ * @covers \Automattic\Jetpack\Image_CDN\Image_CDN_Core
+ */
 class Image_CDN_Core_Test extends BaseTestCase {
 
 	private $custom_photon_domain;
@@ -31,7 +34,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since 3.9.2
 	 */
 	public function test_photonizing_https_image_adds_ssl_query_arg() {
@@ -42,7 +44,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  3.9.2
 	 */
 	public function test_photonizing_http_image_no_ssl_query_arg() {
@@ -53,7 +54,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author donncha
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since 0.2.3
 	 */
 	public function test_photon_url_with_query_parameters() {
@@ -71,7 +71,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -86,7 +85,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -101,7 +99,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -113,7 +110,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -125,7 +121,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -137,7 +132,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -150,7 +144,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -163,7 +156,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -176,7 +168,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -189,7 +180,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -202,7 +192,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -215,7 +204,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -228,7 +216,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -241,7 +228,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -254,7 +240,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -266,7 +251,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::is_cdn_url
 	 * @since  0.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -284,7 +268,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  0.5.1
 	 * @group  jetpack_photon_filter_url_encoding
 	 */
@@ -296,7 +279,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  0.7.3
 	 * @group  jetpack_photon_filter_url_encoding
 	 */
@@ -307,7 +289,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -319,7 +300,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -331,7 +311,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -343,7 +322,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -355,7 +333,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -367,7 +344,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -379,7 +355,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -393,7 +368,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * Testing the filter allowing to skip Photon for specific domains.
 	 *
 	 * @author aduth
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::banned_domains
 	 * @since  5.0.0
 	 * @group  Image_CDN_Core::banned_domains
 	 * @dataProvider get_photon_domains
@@ -409,7 +383,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * Tests that Photon will rely on native resizing for WordPress.com images.
 	 *
 	 * @author aforcier
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  9.5.0
 	 */
 	public function test_photonizing_wordpress_url() {
@@ -424,7 +397,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * Tests that Photon will rely on native resizing for VideoPress poster images.
 	 *
 	 * @author aforcier
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  9.5.0
 	 */
 	public function test_photonizing_videopress_url() {
@@ -441,8 +413,6 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since 0.7.5
 	 *
 	 * @dataProvider get_different_extensions
-	 *
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 */
 	public function test_photonizing_check_extensions( $image_url, $expected ) {
 		$this->assertEquals( $expected, Image_CDN_Core::cdn_url( $image_url, array( 'w' => 500 ) ) );

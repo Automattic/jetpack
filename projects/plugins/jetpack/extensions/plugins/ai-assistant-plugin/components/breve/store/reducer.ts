@@ -242,48 +242,38 @@ export function suggestions(
 	return state;
 }
 
-function areLintsEqual( oldLints: GrammarLint[], newLints: GrammarLint[] ): boolean {
-	if ( oldLints.length !== newLints.length ) {
-		return false;
-	}
-
-	return oldLints.every( ( oldLint, index ) => {
-		const newLint = newLints[ index ];
-
-		return (
-			oldLint.startIndex === newLint.startIndex &&
-			oldLint.endIndex === newLint.endIndex &&
-			oldLint.message === newLint.message &&
-			oldLint.text === newLint.text
-		);
-	} );
-}
-
 export function lints(
 	state: LintState = {},
 	action: {
 		type: string;
+		text: string;
 		feature?: string;
 		blockId: string;
 		lints?: Array< GrammarLint >;
+		richTextIdentifier?: string;
 	}
 ) {
 	switch ( action.type ) {
 		case 'SET_LINTS': {
-			const oldLints = ( state[ action.blockId ]?.[ action.feature ] ?? [] ) as GrammarLint[];
-			const newLints = action?.lints ?? [];
-			const lintVersion = ! areLintsEqual( oldLints, newLints )
-				? Date.now()
-				: state[ action.blockId ]?.lintVersion ?? 0;
-
-			return {
+			const result = {
 				...state,
 				[ action.blockId ]: {
 					...( state[ action.blockId ] ?? {} ),
-					[ action.feature ]: action?.lints,
-					lintVersion,
+					features: {
+						...( state[ action.blockId ]?.features ?? {} ),
+						[ action.feature ]: {
+							// When richTextIdentifier is 'content' we can assume that text is being replaced, so we remove all other texts for this block/feature
+							...( action.richTextIdentifier === 'content'
+								? {}
+								: ( state[ action.blockId ]?.features ?? {} )[ action.feature ] ?? {} ),
+							[ action.text ]: action?.lints,
+						},
+					},
+					version: Date.now(),
 				},
 			};
+
+			return result;
 		}
 	}
 

@@ -26,7 +26,7 @@ html,body{
 }
 
 .inbox-wrap {
-    background:white;
+    background: #fff;
     height: 100%; margin: 0px; padding: 0px;
 
     .ui.menu.inverted.inbox-nav {
@@ -49,7 +49,7 @@ html,body{
 }
 
 .zbs-email-list{
-    background: white;
+    background: #fff;
     float: left;
     width: 25%;
     height: calc(100vh - 110px);
@@ -73,7 +73,7 @@ html,body{
     width: 20%;
     float: left;
     height: auto;//calc(100vh - 110px);
-    background: white;
+    background: #fff;
     display:none;
     border-left: 1px solid #dededf;
 }
@@ -100,7 +100,7 @@ html,body{
 }
 
 .zbs-email-list .item {
-    border-left:7px solid white;
+    border-left:7px solid #fff;
 }
 
 .zbs-email-list .active:hover,
@@ -178,7 +178,7 @@ html,body{
 }
 
 .zbs-email-list-item{
-    border-top: 0px solid white !important;
+    border-top: 0px solid #fff !important;
     border-bottom: 1px solid #dededf;
 }
 
@@ -204,7 +204,7 @@ html,body{
 
 /* optional: show position indicator in red */
 .zbs-email-list::-webkit-scrollbar-thumb, #zbs-email-body::-webkit-scrollbar-thumb {
-    background: #FF0000;
+    background: #F00;
 }
 
 .customer-panel-header{
@@ -232,7 +232,7 @@ html,body{
 
 .Lead{
     background-color: #2085d0 !important;
-    color: white !important;
+    color: #fff !important;
     margin-top: 5px !important;
 }
 
@@ -246,12 +246,12 @@ html,body{
     width:50%;
     float:left;
     border-right:1px solid #dededf;
-    color: black;
+    color: #000;
     font-weight: 900;
 }
 
 .simple-actions{
-    color: white !important; 
+    color: #fff !important; 
     margin-top:15px;
 }
 
@@ -263,7 +263,7 @@ html,body{
 .simple-actions .label .icon {
 margin: 0px;
 font-size: 12px;
-color: white;
+color: #fff;
 }
 
 .panel-h4{
@@ -287,7 +287,7 @@ color: white;
 
 .the-number{
     font-weight:900;
-    color:black;
+    color: #000;
     font-size:18px;
 }
 
@@ -340,7 +340,7 @@ font-weight:300;
 
     .zbs-email-subject{
         font-size:24px;
-        color:black;
+        color: #000;
         margin-top:0px;
         font-weight:900;
     }
@@ -371,7 +371,7 @@ font-weight:300;
 
         width: 100%;
         text-align: right;
-        background: white;
+        background: #fff;
         border-bottom: 1px solid #ccc;
         padding: 5px;
         z-index: 3;
@@ -540,7 +540,7 @@ font-weight:300;
 
 .zbs-unread-0{
     font-weight: 900;
-    color: black;
+    color: #000;
     border-right: 7px solid #f25333;
 
     .header{
@@ -548,7 +548,7 @@ font-weight:300;
     }
 
     .the_content{
-        color:black;
+        color: #000;
     }
 }
 

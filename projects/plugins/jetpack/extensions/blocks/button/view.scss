@@ -1,7 +1,7 @@
 @import "../../shared/styles/align";
 
 .amp-wp-article .wp-block-jetpack-button {
-	color: #ffffff;
+	color: #fff;
 }
 
 .wp-block-jetpack-button {
@@ -17,8 +17,8 @@
 		border: solid 1px currentColor;
 		color: currentColor;
 	}
-
-	&:not(.is-style-outline) button {
-		border: none;
-	}
+	
+	:where(&:not(.is-style-outline) button) {
+ 		border: none;
+ 	}
 }

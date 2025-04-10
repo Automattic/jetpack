@@ -25,7 +25,7 @@ import {
 	TRANSLATE_LABEL,
 	TURN_LIST_INTO_TABLE_LABEL,
 	WRITE_POST_FROM_LIST_LABEL,
-} from '../constants.js';
+} from '../constants.ts';
 
 type MapActionToHumanTextOptions = {
 	language?: string;

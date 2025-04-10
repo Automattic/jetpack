@@ -79,10 +79,20 @@
 		display: flex;
 		align-items: center;
 		gap: 12px;
+
+		.components-base-control.components-toggle-control {
+			margin-bottom: 0;
+		}
 	}
 
 	&__toggle-icon {
 		display: block;
+	}
+
+	&__links {
+		display: flex;
+		align-items: center;
+		gap: 8px;
 	}
 
 	.is-spinning {
@@ -98,5 +108,15 @@
 		to {
 			transform: rotate(359deg);
 		}
-	} 
+	}
+
+	.components-button .components-spinner {
+		margin: 0 8px;
+		width: 16px;
+		height: 16px;
+	}
+
+	.components-card__body {
+		padding-bottom: 30px;
+	}
 } 

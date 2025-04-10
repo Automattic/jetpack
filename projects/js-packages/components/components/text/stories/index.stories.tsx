@@ -1,6 +1,6 @@
-import Text, { BOX_MODEL_VALUES, H2, H3, Title, VARIANTS_MAPPING } from '../index.js';
+import Text, { BOX_MODEL_VALUES, H2, H3, Title, VARIANTS_MAPPING } from '../index.tsx';
 import styles from './style.module.scss';
-import type { SpacingValue } from '../types.js';
+import type { SpacingValue } from '../types.ts';
 
 const SPACING_VALUES: Array< SpacingValue > = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
 
