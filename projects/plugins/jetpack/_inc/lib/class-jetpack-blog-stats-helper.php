@@ -24,7 +24,7 @@ class Jetpack_Blog_Stats_Helper {
 			array(
 				'statsOption' => 'blog',
 				'statsData'   => 'views',
-				'postId'      => 0,
+				'postId'      => get_the_ID(),
 			)
 		);
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
