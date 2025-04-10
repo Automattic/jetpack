@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -46,12 +47,12 @@ class Publicize_UI {
 	 * Initialize UI-related functionality.
 	 */
 	public function init() {
-		$this->publicize_settings_url = $this->publicize->publicize_connections_url();
-
 		// Show only to users with the capability required to manage their Publicize connections.
-		if ( ! $this->publicize->current_user_can_access_publicize_data() ) {
+		if ( ! Utils::is_publicize_active() || ! $this->publicize->current_user_can_access_publicize_data() ) {
 			return;
 		}
+
+		$this->publicize_settings_url = $this->publicize->publicize_connections_url();
 
 		// Assets (css, js).
 		add_action( 'admin_head-post.php', array( $this, 'post_page_metabox_assets' ) );
