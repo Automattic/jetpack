@@ -15,16 +15,25 @@ class Lcp implements Feature, Changes_Output_On_Activation, Optimization {
 	 */
 	private $output_filter = null;
 
+	/**
+	 * @since $$next-version$$
+	 */
 	public function setup() {
 		$this->output_filter = new Output_Filter();
 
 		add_action( 'template_redirect', array( $this, 'start_output_filtering' ), -999999 );
 	}
 
+	/**
+	 * @since $$next-version$$
+	 */
 	public static function get_slug() {
 		return 'lcp';
 	}
 
+	/**
+	 * @since $$next-version$$
+	 */
 	public static function is_available() {
 		if ( defined( 'JETPACK_BOOST_ALPHA_FEATURES' ) && JETPACK_BOOST_ALPHA_FEATURES ) {
 			return true;
@@ -116,6 +125,8 @@ class Lcp implements Feature, Changes_Output_On_Activation, Optimization {
 	 * @param string $buffer_end   Second part of the buffer.
 	 *
 	 * @return array Parts of the buffer.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function optimize( $buffer_start, $buffer_end ) {
 		// Get the LCP image tag from WP option
@@ -164,6 +175,8 @@ class Lcp implements Feature, Changes_Output_On_Activation, Optimization {
 	 *
 	 * @param string $tag The original image tag.
 	 * @return string The optimized image tag.
+	 *
+	 * @since $$next-version$$
 	 */
 	private function optimize_image_tag( $tag ) {
 		// Add fetchpriority="high" if not present
@@ -176,9 +189,6 @@ class Lcp implements Feature, Changes_Output_On_Activation, Optimization {
 			$tag = preg_replace( '/<img\s/i', '<img loading="eager" ', $tag );
 		}
 
-		// Remove lazy-loading classes if present
-		$tag = preg_replace( '/class\s*=\s*["\']([^"\']*)\blazy\b([^"]*)["\']/i', 'class="$1$2"', $tag );
-
 		return $tag;
 	}
 
@@ -186,6 +196,8 @@ class Lcp implements Feature, Changes_Output_On_Activation, Optimization {
 	 * Get the LCP image tag from the option.
 	 *
 	 * @return string The LCP image HTML tag.
+	 *
+	 * @since $$next-version$$
 	 */
 	private function get_lcp_image_tag() {
 		// TODO: We need to decide on how the data will be stored within Boost. For now, this is a simple option that returns a string.
