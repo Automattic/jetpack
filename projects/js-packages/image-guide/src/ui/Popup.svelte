@@ -62,7 +62,6 @@
 	onMount( () => {
 		initialScrollY = scrollY;
 		initialTop = position.top;
-		store.maybeUpdateWeight();
 	} );
 	$: repositionOnScroll( scrollY );
 

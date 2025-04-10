@@ -43,7 +43,9 @@ export class MeasurableImageStore {
 
 		this.url = writable( measurableImage.getURL() );
 		this.fileSize = writable( initialFileSize );
-		this.fileWeight = writable( { weight: -1 } );
+		this.fileWeight = writable( { weight: -1 }, () => {
+			this.maybeUpdateWeight();
+		} );
 		this.sizeOnPage = writable( initialSizeOnPage );
 		this.potentialSavings = this.derivePotentialSavings();
 		this.oversizedRatio = this.deriveOversizedRatio();
@@ -103,7 +105,7 @@ export class MeasurableImageStore {
 		this.fileSize.set( fileSize );
 	}
 
-	public async maybeUpdateWeight() {
+	private async maybeUpdateWeight() {
 		const url = this.currentSrc;
 
 		if ( this.weightMap[ url ] ) {
