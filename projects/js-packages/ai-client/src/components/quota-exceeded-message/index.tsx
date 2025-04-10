@@ -11,9 +11,9 @@ import debugFactory from 'debug';
 /*
  * Internal dependencies
  */
-import useAICheckout from '../../hooks/use-ai-checkout/index.js';
-import useAiFeature from '../../hooks/use-ai-feature/index.js';
-import { LightNudge } from './light-nudge.js';
+import useAICheckout from '../../hooks/use-ai-checkout/index.ts';
+import useAiFeature from '../../hooks/use-ai-feature/index.ts';
+import { LightNudge } from './light-nudge.tsx';
 import type { ReactElement } from 'react';
 import './style.scss';
 

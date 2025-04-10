@@ -1,4 +1,4 @@
-import JetpackLogo from '../index.js';
+import JetpackLogo from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof JetpackLogo > = {

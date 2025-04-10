@@ -1,4 +1,4 @@
-import ThreatFixerButton from '../index.js';
+import ThreatFixerButton from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Scan/Threat Fixer Button',

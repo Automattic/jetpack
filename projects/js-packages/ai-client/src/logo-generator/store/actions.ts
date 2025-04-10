@@ -1,8 +1,8 @@
 /**
  * Internal dependencies
  */
-import { getSiteLogoHistory } from '../lib/logo-storage.js';
-import wpcomLimitedRequest from '../lib/wpcom-limited-request.js';
+import { getSiteLogoHistory } from '../lib/logo-storage.ts';
+import wpcomLimitedRequest from '../lib/wpcom-limited-request.ts';
 /**
  * Types & Constants
  */
@@ -29,14 +29,14 @@ import {
 	ACTION_SET_SAVE_TO_LIBRARY_ERROR,
 	ACTION_SET_CONTEXT,
 	ACTION_SET_IS_LOADING_HISTORY,
-} from './constants.js';
+} from './constants.ts';
 import type {
 	AiFeatureProps,
 	AiAssistantFeatureEndpointResponseProps,
 	Logo,
 	RequestError,
-} from './types.js';
-import type { SiteDetails } from '../types.js';
+} from './types.ts';
+import type { SiteDetails } from '../types.ts';
 
 /**
  * Map the response from the `sites/$site/ai-assistant-feature`

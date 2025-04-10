@@ -7,9 +7,9 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
-use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
-use Automattic\Jetpack\Publicize\REST_Controller;
+use Automattic\Jetpack\Publicize\Share_Status;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -60,6 +60,33 @@ class Share_Status_Controller extends Base_Controller {
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/sync',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'receive_share_status' ),
+					'permission_callback' => array( Rest_Authentication::class, 'is_signed_with_blog_token' ),
+					'args'                => array(
+						'post_id' => array(
+							'type'        => 'integer',
+							'required'    => true,
+							'description' => __( 'The post ID to update the data for.', 'jetpack-publicize-pkg' ),
+						),
+						'shares'  => array(
+							'type'        => 'array',
+							'required'    => true,
+							'description' => __( 'The share status items.', 'jetpack-publicize-pkg' ),
+							'items'       => array(
+								'type'       => 'object',
+								'properties' => $this->get_share_item_schema(),
+							),
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -71,41 +98,25 @@ class Share_Status_Controller extends Base_Controller {
 	public function get_items( $request ) {
 		$post_id = $request->get_param( 'post_id' );
 
-		if ( Utils::is_wpcom() ) {
-			$post = get_post( $post_id );
+		$post = get_post( $post_id );
 
-			if ( empty( $post ) ) {
-				return new WP_Error( 'not_found', 'Cannot find that post', array( 'status' => 404 ) );
-			}
-			if ( 'publish' !== $post->post_status ) {
-				return new WP_Error( 'not_published', 'Cannot get share status for an unpublished post', array( 'status' => 400 ) );
-			}
-
-			$shares = get_post_meta( $post_id, REST_CONTROLLER::SOCIAL_SHARES_POST_META_KEY, true );
-
-			// If the data is in an associative array format, we fetch it without true to get all the shares.
-			// This is needed to support the old WPCOM format.
-			if ( isset( $shares ) && is_array( $shares ) && ! array_is_list( $shares ) ) {
-				$shares = get_post_meta( $post_id, REST_CONTROLLER::SOCIAL_SHARES_POST_META_KEY );
-			}
-
-			$done = metadata_exists( 'post', $post_id, REST_CONTROLLER::SOCIAL_SHARES_POST_META_KEY );
-
-			$response = array(
-				'shares' => $done ? $shares : array(),
-				'done'   => $done,
+		if ( empty( $post ) ) {
+			return new WP_Error(
+				'post_not_found',
+				__( 'Cannot find that post.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 404 )
 			);
-
-			return rest_ensure_response( $response );
 		}
 
-		$response = $this->proxy_request_to_wpcom_as_user( $request );
-
-		if ( is_wp_error( $response ) ) {
-			return rest_ensure_response( $response );
+		if ( 'publish' !== $post->post_status ) {
+			return new WP_Error(
+				'post_not_published',
+				__( 'Cannot get share status for an unpublished post', 'jetpack-publicize-pkg' ),
+				array( 'status' => 400 )
+			);
 		}
 
-		return rest_ensure_response( $response );
+		return rest_ensure_response( Share_Status::get_post_share_status( $post_id ) );
 	}
 
 	/**
@@ -116,6 +127,56 @@ class Share_Status_Controller extends Base_Controller {
 	 */
 	public function get_items_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return $this->publicize_permissions_check();
+	}
+
+	/**
+	 * Schema for a share item.
+	 *
+	 * @return array
+	 */
+	public function get_share_item_schema() {
+		return array(
+			'status'          => array(
+				'description' => __( 'Status of the share.', 'jetpack-publicize-pkg' ),
+				'type'        => 'string',
+			),
+			'message'         => array(
+				'description' => __( 'Share message or link.', 'jetpack-publicize-pkg' ),
+				'type'        => 'string',
+			),
+			'timestamp'       => array(
+				'description' => __( 'Timestamp of the share.', 'jetpack-publicize-pkg' ),
+				'type'        => 'integer',
+			),
+			'service'         => array(
+				'description' => __( 'The service to which it was shared.', 'jetpack-publicize-pkg' ),
+				'type'        => 'string',
+			),
+			'connection_id'   => array(
+				'description' => __( 'Connection ID for the share.', 'jetpack-publicize-pkg' ),
+				'type'        => 'integer',
+			),
+			'external_id'     => array(
+				'description' => __( 'External ID of the shared post.', 'jetpack-publicize-pkg' ),
+				'type'        => 'string',
+			),
+			'external_name'   => array(
+				'description' => __( 'External name of the shared post.', 'jetpack-publicize-pkg' ),
+				'type'        => 'string',
+			),
+			'profile_picture' => array(
+				'description' => __( 'Profile picture URL of the account sharing.', 'jetpack-publicize-pkg' ),
+				'type'        => 'string',
+			),
+			'profile_link'    => array(
+				'description' => __( 'Profile link of the sharing account.', 'jetpack-publicize-pkg' ),
+				'type'        => 'string',
+			),
+			'wpcom_user_id'   => array(
+				'type'        => 'integer',
+				'description' => __( 'wordpress.com ID of the user the connection belongs to.', 'jetpack-publicize-pkg' ),
+			),
+		);
 	}
 
 	/**
@@ -134,44 +195,7 @@ class Share_Status_Controller extends Base_Controller {
 					'type'        => 'array',
 					'items'       => array(
 						'type'       => 'object',
-						'properties' => array(
-							'status'          => array(
-								'description' => __( 'Status of the share.', 'jetpack-publicize-pkg' ),
-								'type'        => 'string',
-							),
-							'message'         => array(
-								'description' => __( 'Share message or link.', 'jetpack-publicize-pkg' ),
-								'type'        => 'string',
-							),
-							'timestamp'       => array(
-								'description' => __( 'Timestamp of the share.', 'jetpack-publicize-pkg' ),
-								'type'        => 'integer',
-							),
-							'service'         => array(
-								'description' => __( 'The service to which it was shared.', 'jetpack-publicize-pkg' ),
-								'type'        => 'string',
-							),
-							'connection_id'   => array(
-								'description' => __( 'Connection ID for the share.', 'jetpack-publicize-pkg' ),
-								'type'        => 'integer',
-							),
-							'external_id'     => array(
-								'description' => __( 'External ID of the shared post.', 'jetpack-publicize-pkg' ),
-								'type'        => 'string',
-							),
-							'external_name'   => array(
-								'description' => __( 'External name of the shared post.', 'jetpack-publicize-pkg' ),
-								'type'        => 'string',
-							),
-							'profile_picture' => array(
-								'description' => __( 'Profile picture URL of the account sharing.', 'jetpack-publicize-pkg' ),
-								'type'        => 'string',
-							),
-							'profile_link'    => array(
-								'description' => __( 'Profile link of the sharing account.', 'jetpack-publicize-pkg' ),
-								'type'        => 'string',
-							),
-						),
+						'properties' => $this->get_share_item_schema(),
 					),
 				),
 				'done'   => array(
@@ -182,5 +206,70 @@ class Share_Status_Controller extends Base_Controller {
 		);
 
 		return $this->add_additional_fields_schema( $schema );
+	}
+
+	/**
+	 * Receive share status from WPCOM.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function receive_share_status( $request ) {
+
+		$post_id = $request->get_param( 'post_id' );
+		$post    = get_post( $post_id );
+
+		if ( empty( $post ) ) {
+			return new WP_Error(
+				'post_not_found',
+				__( 'Cannot find that post.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( 'publish' !== $post->post_status ) {
+			return new WP_Error(
+				'post_not_published',
+				__( 'Cannot update share status for an unpublished post.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$shares = $request->get_param( 'shares' );
+
+		// This check ensures that the shares data is in the expected format.
+		if ( ! empty( $shares ) && empty( $shares[0]['status'] ) ) {
+			return new WP_Error(
+				'invalid_shares',
+				__( 'Invalid shares data.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		update_post_meta( $post_id, Share_Status::SHARES_META_KEY, $shares );
+
+		$urls = array();
+
+		foreach ( $shares as $share ) {
+			if ( isset( $share['status'] ) && 'success' === $share['status'] ) {
+				$urls[] = array(
+					'url'     => $share['message'],
+					'service' => $share['service'],
+				);
+			}
+		}
+
+		/**
+		 * Fires after Publicize Shares post meta has been saved.
+		 *
+		 * @param array $urls {
+		 *     An array of social media shares.
+		 *     @type array $url URL to the social media post.
+		 *     @type string $service Social media service shared to.
+		 * }
+		 */
+		do_action( 'jetpack_publicize_share_urls_saved', $urls );
+
+		return rest_ensure_response( new WP_REST_Response() );
 	}
 }
