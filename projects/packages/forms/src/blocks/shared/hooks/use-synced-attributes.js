@@ -73,6 +73,9 @@ function pickSyncedAttributes( attributes, syncedAttributeKeys ) {
 /**
  * Returns an object containing only the attributes that have different values compared to the attribute sets.
  *
+ * When multiple attribute sets are provided, the function performs an AND check, so for a given key,
+ * the value in EVERY attribute set must be different for it to be considered modified.
+ *
  * @param {object}   sourceAttributes - The source attributes to compare against.
  * @param {Object[]} attributeSets    - Array of attribute sets to compare with the source.
  *
@@ -121,8 +124,9 @@ export function useSyncedAttributes(
 	// If they change, the current block will be updated to match the synced attributes using its `setAttributes` function.
 	const [ syncedAttributes, setSyncedAttributes ] = useSyncedAttributesForBlock( name );
 
-	// These attributes for the current block that this hook operates on.
-	// If these change and the block is synced, the synced attributes will be updated on the parent form using the `setSyncedAttributes` function.
+	// The  own attributes belong to the current block that this hook operates on.
+	// If these change and the block is synced, the synced attributes will be updated on the parent form using
+	// the `setSyncedAttributes` function.
 	const ownAttributes = useMemo(
 		() => pickSyncedAttributes( attributes, syncedAttributeKeys ),
 		[ attributes, syncedAttributeKeys ]
@@ -137,12 +141,10 @@ export function useSyncedAttributes(
 		// Check whether the block's own attributes have changed compared to the block's previous own attributes
 		// and the synced attributes.
 		//
-		// The block's previous own attributes are checked to protect against a situation where the block might have been
-		// modified to be different to the synced attributeswhile it's `isSynced` attribute was `false`, then later the
-		// `isSynced` was set back to `true`.
-		// In this case, we don't want to update the synced attributes, since that would cause every other block to
-		// receive the block's own attributes.
-		// Instead we want the block that changed back to being synced to update itself to match the synced attributes.
+		// The block's previous own attributes are checked to protect against a situation where a new field block is inserted
+		// into the form with different attribute values to the synced attributes.
+		// In this case we don't want every other block to sync to this new block, instead we want the new block
+		// to sync to the `syncedAttributes`.
 		const updatedOwnAttributes = getModifiedAttributes( ownAttributes, [
 			syncedAttributes,
 			previousOwnAttributes,
