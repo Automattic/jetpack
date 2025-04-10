@@ -108,7 +108,7 @@ export class MeasurableImageStore {
 	private async maybeUpdateWeight() {
 		const url = this.currentSrc;
 
-		if ( this.weightMap[ url ] ) {
+		if ( this.weightMap[ url ] !== undefined ) {
 			this.fileWeight.set( { weight: this.weightMap[ url ] } );
 			return;
 		}
