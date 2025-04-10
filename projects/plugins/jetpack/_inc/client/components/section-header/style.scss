@@ -13,7 +13,7 @@
 	border-bottom: 1px solid #DCDCDE;
 	margin-bottom: 0;
 
-	&:after {
+	&::after {
 		content: '';
 	}
 }
@@ -43,7 +43,7 @@
 	padding-right: rem( 8px );
 	min-width: 0; // weird fix for overflowing items
 
-	&:before {
+	&::before {
 
 		@include long-content-fade( $size: 8px, $color : $white );
 	}

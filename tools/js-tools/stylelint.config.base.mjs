@@ -45,7 +45,6 @@ const baseConfig = {
 		'scss/selector-no-redundant-nesting-selector': null,
 		'selector-attribute-quotes': null,
 		'selector-id-pattern': null,
-		'selector-pseudo-element-colon-notation': null,
 		'value-keyword-case': null,
 	},
 };

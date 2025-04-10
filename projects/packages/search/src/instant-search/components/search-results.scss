@@ -248,7 +248,7 @@ $colophon-height: 40px;
 
 	// Accessibility improvement for VoiceOVer
 	// https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type#Accessibility_concerns
-	li:before {
+	li::before {
 		content: '\200B';
 		position: absolute;
 		height: 1px;

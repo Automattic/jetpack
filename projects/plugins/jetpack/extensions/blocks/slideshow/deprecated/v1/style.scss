@@ -139,13 +139,13 @@
 	}
 
 	// Prevent swiper button pseudo-element content displaying duplicate arrows.
-	.swiper-button-prev:after,
-	.swiper-container-rtl .swiper-button-next:after {
+	.swiper-button-prev::after,
+	.swiper-container-rtl .swiper-button-next::after {
 		content: "";
 	}
 
-	.swiper-button-next:after,
-	.swiper-container-rtl .swiper-button-prev:after {
+	.swiper-button-next::after,
+	.swiper-container-rtl .swiper-button-prev::after {
 		content: "";
 	}
 

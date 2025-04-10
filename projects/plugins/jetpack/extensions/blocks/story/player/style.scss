@@ -423,7 +423,7 @@
 			outline: none;
 		}
 
-		&:before {
+		&::before {
 			box-shadow: none;
 
 			&:hover {

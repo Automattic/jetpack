@@ -80,7 +80,7 @@ $item-spacing: 16px;
 	// See https://css-tricks.com/aspect-ratio-boxes/
 	position: relative;
 
-	&:before {
+	&::before {
 		display: block;
 		content: '';
 		width: 100%;

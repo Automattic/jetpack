@@ -25,7 +25,7 @@ $toggle-width: 3em;
 
 	&.jp-form-search-settings-group--disabled {
 
-		&:after {
+		&::after {
 			content: ' ';
 			position: absolute;
 			top: 0;
@@ -121,8 +121,8 @@ p.jp-form-search-settings-group__toggle-explanation {
 		width: $toggle-width;
 		height: $toggle-height;
 
-		&:before,
-		&:after {
+		&::before,
+		&::after {
 			width: $toggle-dot-radius;
 			height: $toggle-dot-radius;
 			background-color: $black;
@@ -141,20 +141,20 @@ p.jp-form-search-settings-group__toggle-explanation {
 			background: $color-plan;
 			border-color: $color-plan;
 
-			&:after {
+			&::after {
 				left: $toggle-height;
 				background-color: $white;
 			}
 		}
 	}
 
-	&.is-toggling + .form-toggle__switch:before,
-	&.is-toggling + .form-toggle__switch:after {
+	&.is-toggling + .form-toggle__switch::before,
+	&.is-toggling + .form-toggle__switch::after {
 		left: $toggle-height;
 	}
 
-	&.is-toggling:checked + .form-toggle__switch:before,
-	&.is-toggling:checked + .form-toggle__switch:after {
+	&.is-toggling:checked + .form-toggle__switch::before,
+	&.is-toggling:checked + .form-toggle__switch::after {
 		left: 0;
 	}
 }
@@ -184,12 +184,12 @@ p.jp-form-search-settings-group__toggle-explanation {
 			text-decoration-thickness: $jp-underline-thickness;
 		}
 
-		&:after {
+		&::after {
 			transform: translateY( -50% ) translateX( 8px );
 		}
 	}
 
-	&:after {
+	&::after {
 		content: '→';
 		position: absolute;
 		top: 50%;

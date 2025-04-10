@@ -80,7 +80,7 @@
 		color: $wpui-dark-medium-gray;
 		top: 22px;
 
-		&:after {
+		&::after {
 			content: '\f335';
 			font: 400 32px/29px dashicons;
 			-webkit-font-smoothing: antialiased;

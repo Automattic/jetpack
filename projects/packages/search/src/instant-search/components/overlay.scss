@@ -59,8 +59,8 @@ $overlay-horizontal-padding-lg: 3em;
 	}
 
 	*,
-	*:before,
-	*:after {
+	*::before,
+	*::after {
 		box-sizing: inherit;
 	}
 }

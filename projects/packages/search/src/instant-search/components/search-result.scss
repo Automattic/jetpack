@@ -34,7 +34,7 @@
 		height: 30px;
 		margin-left: 0.35em;
 
-		&:after {
+		&::after {
 			content: "";
 			position: absolute;
 			top: 6px;

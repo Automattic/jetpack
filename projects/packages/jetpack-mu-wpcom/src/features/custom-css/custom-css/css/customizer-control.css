@@ -97,7 +97,7 @@
 	background-color: #f3f3f5;
 }
 
-.css-help a:before {
+.css-help a::before {
 	display: inline-block;
 	position: relative;
 	font-family: dashicons;
@@ -114,11 +114,11 @@
 	box-shadow: none;
 }
 
-.css-help a#revisions-link:before {
+.css-help a#revisions-link::before {
 	content: "\f321";
 }
 
-.css-help a#help-link:before {
+.css-help a#help-link::before {
 	content: "\f223";
 }
 

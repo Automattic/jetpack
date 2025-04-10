@@ -62,7 +62,7 @@ $image-square-size: 128px;
 .jetpack-instant-search__search-result-expanded__image-container {
 	position: relative;
 
-	&:before {
+	&::before {
 		display: block;
 		content: '';
 		width: 100%;
@@ -122,7 +122,7 @@ $image-square-size: 128px;
 .jetpack-instant-search__search-result-expanded__footer-blog,
 .jetpack-instant-search__search-result-expanded__footer-author {
 
-	&:after {
+	&::after {
 		content: '·';
 		margin-left: 10px;
 		color: #636363;

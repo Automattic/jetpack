@@ -131,12 +131,12 @@ $wp-gray-dark: #23282d;
 			text-decoration-thickness: var( --jp-underline-thickness );
 		}
 
-		&:after {
+		&::after {
 			transform: translateY( -50% ) translateX( 8px );
 		}
 	}
 
-	&:after {
+	&::after {
 		content: '→';
 		position: absolute;
 		top: 50%;

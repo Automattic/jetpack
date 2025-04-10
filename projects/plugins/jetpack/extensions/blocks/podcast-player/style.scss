@@ -141,8 +141,8 @@ $jetpack-podcast-player-error: $alert-red;
 		letter-spacing: 0; // Fixes Twenty Twenty compressed text.
 		color: inherit;
 
-		&:before,
-		&:after {
+		&::before,
+		&::after {
 			display: none;
 		}
 	}
@@ -336,7 +336,7 @@ $jetpack-podcast-player-error: $alert-red;
 			background-image: none;
 
 			// Using mask on the :before pseudo to prevent it from covering the outline
-			&:before {
+			&::before {
 				display: block;
 				content: '';
 				width: 100%;
