@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { getCachedFormatter } from '../get-cached-formatter.js';
+import { getCachedFormatter } from '../get-cached-formatter.ts';
 
 describe( 'getCachedFormatter()', () => {
 	it( 'should return a cached formatter when one exists', () => {

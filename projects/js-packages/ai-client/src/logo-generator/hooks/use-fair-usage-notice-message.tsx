@@ -5,11 +5,11 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { STORE_NAME } from '../store/index.js';
+import { STORE_NAME } from '../store/index.ts';
 /**
  * Types
  */
-import type { Selectors } from '../store/types.js';
+import type { Selectors } from '../store/types.ts';
 
 const useFairUsageNoticeMessage = (): Element => {
 	const { usagePeriod } = useSelect( select => {

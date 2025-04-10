@@ -1,4 +1,4 @@
-import JetpackVideoPressLogo from '../index.js';
+import JetpackVideoPressLogo from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof JetpackVideoPressLogo > = {

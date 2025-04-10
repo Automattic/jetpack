@@ -6,8 +6,8 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import useAiSuggestions, { RequestingErrorProps } from '../use-ai-suggestions/index.js';
-import type { PromptProp } from '../../types.js';
+import useAiSuggestions, { RequestingErrorProps } from '../use-ai-suggestions/index.ts';
+import type { PromptProp } from '../../types.ts';
 
 const debug = debugFactory( 'jetpack-ai-client:use-transcription-post-processing' );
 

@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import uPlot from 'uplot';
-import { Tooltip } from './tooltip.js';
-import { Period } from './index.js';
+import { Period } from './index.tsx';
+import { Tooltip } from './tooltip.tsx';
 
 /**
  * Custom tooltips plugin for uPlot.

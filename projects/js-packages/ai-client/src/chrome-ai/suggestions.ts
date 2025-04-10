@@ -1,8 +1,8 @@
 import { EventSourceMessage } from '@microsoft/fetch-event-source';
-import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants.js';
-import { getErrorData } from '../hooks/use-ai-suggestions/index.js';
-import { renderHTMLFromMarkdown, renderMarkdownFromHTML } from '../libs/markdown/index.js';
-import { AiModelTypeProp, ERROR_RESPONSE, ERROR_NETWORK } from '../types.js';
+import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants.ts';
+import { getErrorData } from '../hooks/use-ai-suggestions/index.ts';
+import { renderHTMLFromMarkdown, renderMarkdownFromHTML } from '../libs/markdown/index.ts';
+import { AiModelTypeProp, ERROR_RESPONSE, ERROR_NETWORK } from '../types.ts';
 
 type ChromeAISuggestionsEventSourceConstructorArgs = {
 	content: string;
