@@ -603,3 +603,17 @@ function wpcomsh_handle_update_managed_plugins_list( $upgrader, $hook_extra ): v
 	}
 }
 add_action( 'upgrader_process_complete', 'wpcomsh_handle_update_managed_plugins_list', 10, 2 );
+
+/**
+ * Update the list of managed plugins on page load when the option is missing.
+ * This is used for backfilling the option. It only runs once on the site.
+ *
+ * @return void
+ */
+function wpcomsh_update_managed_plugins_on_page_load(): void {
+	// Only run once on the site when the option is missing.
+	if ( get_option( 'wpcomsh_at_managed_plugins', false ) === false ) {
+		wpcomsh_update_managed_plugins();
+	}
+}
+add_action( 'init', 'wpcomsh_update_managed_plugins_on_page_load' );
