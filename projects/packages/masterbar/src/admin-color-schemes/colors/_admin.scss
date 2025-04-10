@@ -775,6 +775,8 @@ div#wp-responsive-toggle a:before {
 	color: $highlight-color;
 }
 
+/* stylelint-disable no-invalid-position-at-import-rule -- these imports are intentional overrides */
+
 /* Overrides */
 @import 'overrides';
 
