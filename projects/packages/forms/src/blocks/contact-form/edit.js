@@ -282,4 +282,5 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		</ThemeProvider>
 	);
 }
+
 export default JetpackContactFormEdit;
