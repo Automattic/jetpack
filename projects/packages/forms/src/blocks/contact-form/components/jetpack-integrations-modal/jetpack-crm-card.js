@@ -112,16 +112,13 @@ const JetpackCRMCard = ( {
 		}
 
 		// All conditions met - show toggle and link to CRM settings
+		const statusMessage = jetpackCRM
+			? __( 'This form is connected to Jetpack CRM!', 'jetpack-forms' )
+			: __( 'To connect this form to Jetpack CRM, enable the toggle above.', 'jetpack-forms' );
+
 		return (
 			<div>
-				<p>
-					{ jetpackCRM
-						? __( 'This form is connected to Jetpack CRM!', 'jetpack-forms' )
-						: __(
-								'To connect this form to Jetpack CRM, enable the toggle above.',
-								'jetpack-forms'
-						  ) }
-				</p>
+				<p>{ statusMessage }</p>
 				<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
 					{ __( 'Open Jetpack CRM settings', 'jetpack-forms' ) }
 				</Button>
