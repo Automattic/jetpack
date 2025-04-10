@@ -64,7 +64,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 						value={ label }
 						placeholder={ __( 'Add label…', 'jetpack-forms' ) }
 						__unstableDisableFormats
-						onChange={ newLabel => setAttributes( { label: newLabel || undefined } ) }
+						onChange={ newLabel => setAttributes( { label: newLabel } ) }
 						onRemove={ onRemove }
 					/>
 					{ required && (
@@ -72,7 +72,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 							ref={ useEnterRequiredRef }
 							allowedFormats={ ALLOWED_FORMATS }
 							className="required"
-							onChange={ value => setAttributes( { requiredText: value || undefined } ) }
+							onChange={ value => setAttributes( { requiredText: value } ) }
 							tagName="span"
 							value={ requiredText || __( '(required)', 'jetpack-forms' ) }
 							withoutInteractiveFormatting
