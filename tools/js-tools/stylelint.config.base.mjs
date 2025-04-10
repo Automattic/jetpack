@@ -39,7 +39,6 @@ const baseConfig = {
 		'property-no-unknown': null,
 		'scss/at-extend-no-missing-placeholder': null,
 		'scss/comment-no-empty': null,
-		'scss/load-partial-extension': null,
 		'scss/no-global-function-names': null,
 		'scss/selector-no-redundant-nesting-selector': null,
 		'selector-attribute-quotes': null,

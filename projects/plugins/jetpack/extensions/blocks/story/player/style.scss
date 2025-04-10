@@ -1,7 +1,7 @@
 @use "sass:math";
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
-@import '../../../shared/styles/jetpack-variables.scss';
-@import './variables.scss';
+@import '../../../shared/styles/jetpack-variables';
+@import './variables';
 
 .wp-story-display-contents {
 	display: contents;
