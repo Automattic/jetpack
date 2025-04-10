@@ -748,7 +748,16 @@ class Admin {
 					$file_name = isset( $file_data['name'] ) ? $file_data['name'] : __( 'Attached file', 'jetpack-forms' );
 					$file_size = isset( $file_data['size'] ) ? size_format( $file_data['size'] ) : '';
 
-					$file_url  = get_admin_url( null, 'admin-ajax.php' ) . '?action=jetpack_unauth_file_download&file_id=' . rawurlencode( $file_data['file_id'] ) . '&post_id=' . rawurlencode( $post->ID ) . '&field_id=' . rawurlencode( $field_id ) . '&_wpnonce=' . rawurlencode( $nonce );
+					$file_url  = add_query_arg(
+						array(
+							'action'   => 'jetpack_unauth_file_download',
+							'file_id'  => $file_data['file_id'],
+							'post_id'  => $post->ID,
+							'field_id' => $field_id,
+							'_wpnonce' => $nonce,
+						),
+						admin_url( 'admin-ajax.php' )
+					);
 					$file_info = empty( $file_size ) ? $file_name : $file_name . ' (' . $file_size . ')';
 
 					printf(

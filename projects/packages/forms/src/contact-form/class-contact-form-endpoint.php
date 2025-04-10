@@ -423,7 +423,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 							continue;
 						}
 						$file['size'] = size_format( $file['size'] );
-						$file['url']  = get_admin_url( null, 'admin-ajax.php' ) . '?action=jetpack_unauth_file_download&file_id=' . rawurlencode( $file['file_id'] ) . '&post_id=' . absint( $item->ID ) . '&field_id=' . rawurlencode( $field_id ) . '&_wpnonce=' . rawurlencode( $nonce );
+						$file['url']  = add_query_arg(
+							array(
+								'action'   => 'jetpack_unauth_file_download',
+								'file_id'  => $file['file_id'],
+								'post_id'  => absint( $item->ID ),
+								'field_id' => $field_id,
+								'_wpnonce' => $nonce,
+							),
+							admin_url( 'admin-ajax.php' )
+						);
 					}
 				}
 			}
