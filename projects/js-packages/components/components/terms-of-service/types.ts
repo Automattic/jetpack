@@ -1,4 +1,4 @@
-import { TextProps } from '../text/types.js';
+import { TextProps } from '../text/types.ts';
 
 type MultipleButtonsProps = {
 	/**

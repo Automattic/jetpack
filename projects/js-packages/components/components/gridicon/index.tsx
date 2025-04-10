@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Component } from 'react';
 import './style.scss';
-import { GridiconProps } from './types.js';
+import { GridiconProps } from './types.ts';
 
 class Gridicon extends Component< GridiconProps > {
 	static defaultProps = {

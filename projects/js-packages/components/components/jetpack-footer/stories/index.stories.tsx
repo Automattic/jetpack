@@ -1,4 +1,4 @@
-import JetpackFooter from '../index.js';
+import JetpackFooter from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof JetpackFooter > = {

@@ -77,11 +77,11 @@ const generateCSS = woff2Buffer => {
 	}
 	const cssContent = `/* This is a generated file. Do not edit. */
 @font-face {
-	font-family: 'social-logos';
+	font-family: social-logos;
 	src: url(
 		data:application/octet-stream;base64,${ base64Font }
 	) format('woff2');
-	font-weight: normal;
+	font-weight: 400;
 	font-style: normal;
 }
 

@@ -1,10 +1,10 @@
-import ImageGuideAnalytics from './analytics.js';
-import { getMeasurableImages } from './find-image-elements.js';
-import { guideState } from './stores/GuideState.js';
-import { MeasurableImageStore } from './stores/MeasurableImageStore.js';
+import ImageGuideAnalytics from './analytics.ts';
+import { getMeasurableImages } from './find-image-elements.ts';
+import { guideState } from './stores/GuideState.ts';
+import { MeasurableImageStore } from './stores/MeasurableImageStore.ts';
 import Main from './ui/Main.svelte';
-import type { FetchFn, MeasurableImage } from './MeasurableImage.js';
-import type { ImageGuideConfig } from './types.js';
+import type { FetchFn, MeasurableImage } from './MeasurableImage.ts';
+import type { ImageGuideConfig } from './types.ts';
 
 const measurableImageStores: MeasurableImageStore[] = [];
 let fetchFunction: FetchFn | undefined;

@@ -43,7 +43,7 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-product-image .je
 
 .jetpack-simple-payments-title p,
 .jetpack-simple-payments-price p {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .jetpack-simple-payments-purchase-box {

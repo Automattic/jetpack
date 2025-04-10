@@ -32,7 +32,7 @@ $tablet-width: 760px;
 
 	* {
 		box-sizing: border-box;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	}
 
 	p {
@@ -200,7 +200,6 @@ $tablet-width: 760px;
 		position: absolute;
 		right: 32px;
 		top: 32px;
-		transition-delay: 0;
 		transition: .55s width ease 0s;
 		z-index: 3;
 
@@ -327,7 +326,6 @@ $tablet-width: 760px;
 		right: 32px;
 		bottom: 5%;
 		transform: translateY(0%);
-		transition-delay: 0;
 		transition: none;
 		width: auto;
 

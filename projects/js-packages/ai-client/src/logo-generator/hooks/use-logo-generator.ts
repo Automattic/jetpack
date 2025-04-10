@@ -7,20 +7,20 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
-import askQuestionSync from '../../ask-question/sync.js';
-import useImageGenerator from '../../hooks/use-image-generator/index.js';
-import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library/index.js';
-import requestJwt from '../../jwt/index.js';
-import { stashLogo } from '../lib/logo-storage.js';
-import { setSiteLogo } from '../lib/set-site-logo.js';
-import { STORE_NAME } from '../store/index.js';
-import useRequestErrors from './use-request-errors.js';
+import askQuestionSync from '../../ask-question/sync.ts';
+import useImageGenerator from '../../hooks/use-image-generator/index.ts';
+import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library/index.ts';
+import requestJwt from '../../jwt/index.ts';
+import { stashLogo } from '../lib/logo-storage.ts';
+import { setSiteLogo } from '../lib/set-site-logo.ts';
+import { STORE_NAME } from '../store/index.ts';
+import useRequestErrors from './use-request-errors.ts';
 /**
  * Types
  */
-import type { ImageStyle, ImageStyleObject } from '../../hooks/use-image-generator/constants.js';
-import type { RoleType } from '../../types.js';
-import type { Logo, Selectors, SaveLogo, LogoGeneratorFeatureControl } from '../store/types.js';
+import type { ImageStyle, ImageStyleObject } from '../../hooks/use-image-generator/constants.ts';
+import type { RoleType } from '../../types.ts';
+import type { Logo, Selectors, SaveLogo, LogoGeneratorFeatureControl } from '../store/types.ts';
 
 const debug = debugFactory( 'jetpack-ai-calypso:use-logo-generator' );
 

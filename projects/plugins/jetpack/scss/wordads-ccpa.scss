@@ -49,7 +49,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 		box-sizing: border-box !important;
 		margin: 0 !important;
 		text-align: center !important;
-		color: #ffffff !important;
+		color: #fff !important;
 	}
 
 	@media (min-width: 600px) {
@@ -71,11 +71,11 @@ body.admin-bar .cleanslate .components-modal__frame {
 	@keyframes components-modal__appear-animation {
 
 		from {
-			margin-top: 32px !important;
+			margin-top: 32px;
 		}
 
 		to {
-			margin-top: 0 !important;
+			margin-top: 0;
 		}
 	}
 
@@ -445,7 +445,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 	}
 
 	.ccpa-setting__header {
-		font-weight: bold !important;
+		font-weight: 700 !important;
 	}
 
 	.ccpa-setting__text {

@@ -1,8 +1,8 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useContext } from 'react';
+import { ThreatModalContext } from './index.tsx';
 import styles from './styles.module.scss';
-import { ThreatModalContext } from './index.js';
 
 /**
  * ThreatSummary component

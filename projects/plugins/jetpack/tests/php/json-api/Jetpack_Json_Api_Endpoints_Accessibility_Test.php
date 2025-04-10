@@ -17,6 +17,10 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
  * Generic tests for Jetpack_JSON_API_Endpoint accessibility.
+ *
+ * @covers \Jetpack_JSON_API_Endpoint
+ * @covers \WPCOM_JSON_API
+ * @covers \WPCOM_JSON_API_Endpoint
  */
 class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -78,7 +82,6 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * Tests accepts_site_based_authentication method.
 	 *
 	 * @author fgiannar
-	 * @covers WPCOM_JSON_API_Endpoint accepts_site_based_authentication
 	 * @group json-api
 	 * @dataProvider data_provider_test_accepts_site_based_authentication
 	 *
@@ -106,7 +109,6 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * Tests api accessibility on a private site.
 	 *
 	 * @author fgiannar
-	 * @covers WPCOM_JSON_API switch_to_blog_and_validate_user
 	 * @group json-api
 	 * @dataProvider data_provider_test_private_site_accessibility
 	 *
@@ -142,7 +144,6 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * Tests endpoint capabilities.
 	 *
 	 * @author fgiannar
-	 * @covers Jetpack_JSON_API_Endpoint validate_call
 	 * @group json-api
 	 * @dataProvider data_provider_test_endpoint_capabilities
 	 *

@@ -1,4 +1,4 @@
-import UpsellBanner from '../index.js';
+import UpsellBanner from '../index.tsx';
 import logoSample from './jetpack-manage.svg';
 
 export default {

@@ -5,13 +5,13 @@ import { useCallback, useContext, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { ERROR_RESPONSE, RequestingErrorProps } from '../types.js';
-import { AiDataContext } from './index.js';
+import { ERROR_RESPONSE, RequestingErrorProps } from '../types.ts';
+import { AiDataContext } from './index.ts';
 /**
  * Types & constants
  */
-import type { AiDataContextProps } from './context.js';
-import type { AskQuestionOptionsArgProps } from '../ask-question/index.js';
+import type { AiDataContextProps } from './context.tsx';
+import type { AskQuestionOptionsArgProps } from '../ask-question/index.ts';
 
 export type UseAiContextOptions = {
 	/*

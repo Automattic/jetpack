@@ -48,7 +48,7 @@
 	display: flex;
 	align-items: center;
 	font-size: var( --font-body-small );
-	font-weight: normal;
+	font-weight: 400;
 }
 
 .accordion-header-label-icon {
@@ -63,7 +63,7 @@
 
 .accordion-header-status {
 	font-size: var( --font-body-small );
-	font-weight: normal;
+	font-weight: 400;
 	margin-left: calc( var( --spacing-base ) * 4 ); // 32px
 	margin-bottom: var( --spacing-base ); // 8px
 }

@@ -1,4 +1,4 @@
-import Dialog from '../index.js';
+import Dialog from '../index.tsx';
 import styles from './style.module.scss';
 
 const Template = ( { isTwoSections } ) => (

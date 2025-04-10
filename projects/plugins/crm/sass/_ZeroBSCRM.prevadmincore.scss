@@ -97,7 +97,8 @@ pre {
 }
 
 code,kbd,pre,samp {
-    font-family:monospace,monospace;
+	/* stylelint-disable-next-line font-family-no-duplicate-names -- this is a known rendering hack to force proportional font sizes. */
+    font-family: monospace, monospace;
     font-size:1em
 }
 
@@ -2616,7 +2617,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 }
 
 .label-default[href]:focus,.label-default[href]:hover {
-    background-color:gray
+    background-color: #808080
 }
 
 .label-primary {
@@ -4025,14 +4026,6 @@ table [class*=span],.row-fluid table [class*=span] {
     background-color: #c4e3f3;
 }
 
-#ZeroBSCRMAdminPage .hide-text {
-    font: 0/0 a;
-    color: transparent;
-    text-shadow: none;
-    background-color: transparent;
-    border: 0;
-}
-
 #ZeroBSCRMAdminPage .input-block-level {
     display: block;
     width: 100%;
@@ -4061,8 +4054,6 @@ table [class*=span],.row-fluid table [class*=span] {
     background-image: linear-gradient(to bottom,#fff,#e6e6e6);
     background-repeat: repeat-x;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff',endColorstr='#ffe6e6e6',GradientType=0);
-    border-color: #e6e6e6 #e6e6e6 #bfbfbf;
-    border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
     filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
     border: 1px solid #bbb;
     border-bottom-color: #a2a2a2;
@@ -4177,7 +4168,7 @@ input[type="submit"]#ZeroBSCRMAdminPage .btn-block,input[type="reset"]#ZeroBSCRM
 #ZeroBSCRMAdminPage .btn-primary {
     color: #fff;
     text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
-    background-image: linear-gradient(tobottom,#08c,#04c);
+    background-image: linear-gradient(to bottom,#08c,#04c);
     background-repeat: repeat-x;
     background-color: #04c;
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
@@ -4196,7 +4187,7 @@ input[type="submit"]#ZeroBSCRMAdminPage .btn-block,input[type="reset"]#ZeroBSCRM
 #ZeroBSCRMAdminPage .btn-warning {
     color: #fff;
     text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
-    background-image: linear-gradient(tobottom,#fbb450,#f89406);
+    background-image: linear-gradient(to bottom,#fbb450,#f89406);
     background-repeat: repeat-x;
     background-color: #f89406;
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
@@ -4215,7 +4206,7 @@ input[type="submit"]#ZeroBSCRMAdminPage .btn-block,input[type="reset"]#ZeroBSCRM
 #ZeroBSCRMAdminPage .btn-danger {
     color: #fff;
     text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
-    background-image: linear-gradient(tobottom,#ee5f5b,#bd362f);
+    background-image: linear-gradient(to bottom,#ee5f5b,#bd362f);
     background-repeat: repeat-x;
     background-color: #bd362f;
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
@@ -4234,7 +4225,7 @@ input[type="submit"]#ZeroBSCRMAdminPage .btn-block,input[type="reset"]#ZeroBSCRM
 #ZeroBSCRMAdminPage .btn-success {
     color: #fff;
     text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
-    background-image: linear-gradient(tobottom,#62c462,#51a351);
+    background-image: linear-gradient(to bottom,#62c462,#51a351);
     background-repeat: repeat-x;
     background-color: #51a351;
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
@@ -4253,7 +4244,7 @@ input[type="submit"]#ZeroBSCRMAdminPage .btn-block,input[type="reset"]#ZeroBSCRM
 #ZeroBSCRMAdminPage .btn-info {
     color: #fff;
     text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
-    background-image: linear-gradient(tobottom,#5bc0de,#2f96b4);
+    background-image: linear-gradient(to bottom,#5bc0de,#2f96b4);
     background-repeat: repeat-x;
     background-color: #2f96b4;
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
@@ -4272,7 +4263,7 @@ input[type="submit"]#ZeroBSCRMAdminPage .btn-block,input[type="reset"]#ZeroBSCRM
 #ZeroBSCRMAdminPage .btn-inverse {
     color: #fff;
     text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
-    background-image: linear-gradient(tobottom,#444,#222);
+    background-image: linear-gradient(to bottom,#444,#222);
     background-repeat: repeat-x;
     background-color: #222;
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
@@ -4433,7 +4424,7 @@ th.column-ID {
     padding: 10px;
     background: #FFF;
     border-radius: 10px;
-    margin-bottom:10p;
+    margin-bottom:10px;
 }
 
 .sbhomep.imp {
