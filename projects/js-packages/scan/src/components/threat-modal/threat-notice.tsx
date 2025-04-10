@@ -3,8 +3,8 @@ import { Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, warning } from '@wordpress/icons';
 import { useContext } from 'react';
+import { ThreatModalContext } from './index.tsx';
 import styles from './styles.module.scss';
-import { ThreatModalContext } from './index.js';
 
 /**
  * ThreatNotice component

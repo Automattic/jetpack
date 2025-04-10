@@ -1,6 +1,6 @@
 import { Button } from '@automattic/jetpack-components';
 import { useCallback, useState } from 'react';
-import ThreatModal from '../index.js';
+import ThreatModal from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Scan/Threat Modal',

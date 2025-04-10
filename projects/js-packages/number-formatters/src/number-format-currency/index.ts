@@ -1,8 +1,8 @@
 import debugFactory from 'debug';
-import { FALLBACK_CURRENCY } from '../constants.js';
-import { getCachedFormatter } from '../get-cached-formatter.js';
-import { defaultCurrencyOverrides } from './currencies.js';
-import type { CurrencyOverride, CurrencyObject, NumberFormatCurrencyParams } from '../types.js';
+import { FALLBACK_CURRENCY } from '../constants.ts';
+import { getCachedFormatter } from '../get-cached-formatter.ts';
+import { defaultCurrencyOverrides } from './currencies.ts';
+import type { CurrencyOverride, CurrencyObject, NumberFormatCurrencyParams } from '../types.ts';
 
 const debug = debugFactory( 'number-formatters:number-format-currency' );
 

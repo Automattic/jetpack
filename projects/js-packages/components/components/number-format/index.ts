@@ -1,4 +1,4 @@
-import { getUserLocale } from '../../lib/locale/index.js';
+import { getUserLocale } from '../../lib/locale/index.ts';
 
 /**
  * Format a number using the locale in use by the user viewing the page.

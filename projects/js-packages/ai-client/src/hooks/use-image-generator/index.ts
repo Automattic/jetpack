@@ -5,8 +5,8 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import askQuestionSync from '../../ask-question/sync.js';
-import requestJwt from '../../jwt/index.js';
+import askQuestionSync from '../../ask-question/sync.ts';
+import requestJwt from '../../jwt/index.ts';
 
 const debug = debugFactory( 'ai-client:use-image-generator' );
 
@@ -263,4 +263,4 @@ const useImageGenerator = () => {
 };
 
 export default useImageGenerator;
-export * from './constants.js';
+export * from './constants.ts';

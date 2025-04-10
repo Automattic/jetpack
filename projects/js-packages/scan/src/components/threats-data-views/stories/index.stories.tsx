@@ -1,4 +1,4 @@
-import ThreatsDataViews from '../index.js';
+import ThreatsDataViews from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Scan/Threats Data Views',

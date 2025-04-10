@@ -5,7 +5,7 @@ import { select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import type { Block } from '../types.js';
+import type { Block } from '../types.ts';
 
 /**
  * Recursively get all blocks from the post, including nested innerBlocks

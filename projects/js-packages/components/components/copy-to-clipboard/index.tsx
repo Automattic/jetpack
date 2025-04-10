@@ -1,9 +1,9 @@
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import Button from '../button/index.js';
-import { ClipboardIcon, CheckmarkIcon } from '../icons/index.js';
-import { CopyToClipboardProps } from './types.js';
+import Button from '../button/index.tsx';
+import { ClipboardIcon, CheckmarkIcon } from '../icons/index.tsx';
+import { CopyToClipboardProps } from './types.ts';
 import type React from 'react';
 
 export const CopyToClipboard: React.FC< CopyToClipboardProps > = ( {

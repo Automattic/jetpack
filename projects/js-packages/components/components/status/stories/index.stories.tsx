@@ -1,4 +1,4 @@
-import Status from '../index.js';
+import Status from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Components/Status',

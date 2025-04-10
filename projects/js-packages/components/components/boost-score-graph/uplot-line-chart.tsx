@@ -2,15 +2,15 @@ import { __ } from '@wordpress/i18n';
 import React, { useMemo, useRef, useCallback } from 'react';
 import uPlot from 'uplot';
 import UplotReact from 'uplot-react';
-import { getUserLocale } from '../../lib/locale/index.js';
-import numberFormat from '../number-format/index.js';
-import { annotationsPlugin } from './annotations-plugin.js';
-import { dayHighlightPlugin } from './day-highlight-plugin.js';
-import getDateFormat from './get-date-format.js';
-import { tooltipsPlugin } from './tooltips-plugin.js';
-import { useBoostScoreTransform } from './use-boost-score-transform.js';
-import useResize from './use-resize.js';
-import { type Annotation, Period } from './index.js';
+import { getUserLocale } from '../../lib/locale/index.ts';
+import numberFormat from '../number-format/index.ts';
+import { annotationsPlugin } from './annotations-plugin.ts';
+import { dayHighlightPlugin } from './day-highlight-plugin.ts';
+import getDateFormat from './get-date-format.ts';
+import { type Annotation, Period } from './index.tsx';
+import { tooltipsPlugin } from './tooltips-plugin.ts';
+import { useBoostScoreTransform } from './use-boost-score-transform.ts';
+import useResize from './use-resize.ts';
 import './style-uplot.scss';
 
 const DEFAULT_DIMENSIONS = {
