@@ -499,7 +499,6 @@ body:not(.folded) #adminmenu .menu-top[class*="/start?ref=calypso-sidebar"] a {
 	border-color: var(--transparent-button-text-color, currentcolor);
 	display: flex;
 	justify-content: center;
-	margin-top: auto;
 	background: transparent;
 	border-style: solid;
 	border-width: 1px;

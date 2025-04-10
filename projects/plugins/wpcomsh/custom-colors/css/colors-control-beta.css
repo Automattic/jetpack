@@ -228,8 +228,6 @@ a.button.right-pill {
 
 .the-picker {
 	background: #fff;
-	border: 2px solid #eee;
-	border-top-style: dashed;
 	border: none;
 	display: none;
 	padding: 50px 20px 20px;
