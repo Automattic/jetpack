@@ -95,8 +95,8 @@ class Password_Manager {
 	/**
 	 * Handle the profile update.
 	 *
-	 * @param int                $user_id The user ID.
-	 * @param \WP_User|\stdClass $old_user_data Object containing user data prior to update.
+	 * @param int                     $user_id The user ID.
+	 * @param \WP_User|\stdClass|null $old_user_data Object containing user data prior to update.
 	 *
 	 * @return void
 	 */
@@ -114,7 +114,7 @@ class Password_Manager {
 	/**
 	 * Handle the password reset.
 	 *
-	 * @param \WP_User|\stdClass $user The user object.
+	 * @param \WP_User|\stdClass|null $user The user object.
 	 *
 	 * @return void
 	 */
