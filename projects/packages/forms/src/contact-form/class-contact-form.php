@@ -11,6 +11,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Sync\Settings;
 use Jetpack_Tracks_Event;
 use PHPMailer\PHPMailer\PHPMailer;
+use WP_Block;
 use WP_Error;
 
 /**
