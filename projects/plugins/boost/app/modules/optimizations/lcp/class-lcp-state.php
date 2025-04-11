@@ -50,11 +50,15 @@ class LCP_State {
 	}
 
 	public function is_analyzed() {
-		return self::ANALYSIS_STATES['analyzed'] === $this->state['status'];
+		return ! empty( $this->state )
+			&& isset( $this->state['status'] )
+			&& self::ANALYSIS_STATES['analyzed'] === $this->state['status'];
 	}
 
 	public function is_pending() {
-		return self::ANALYSIS_STATES['pending'] === $this->state['status'];
+		return ! empty( $this->state )
+			&& isset( $this->state['status'] )
+			&& self::ANALYSIS_STATES['pending'] === $this->state['status'];
 	}
 
 	public function prepare_request() {
