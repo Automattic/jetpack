@@ -93,7 +93,7 @@
             overflow-x:scroll;
 
             ::-webkit-scrollbar {
-                width: 0px;  /* remove scrollbar space */
+                width: 0;  /* remove scrollbar space */
                 background: transparent;  /* optional: just make scrollbar invisible */
             }
         }
@@ -163,7 +163,7 @@
         }
 
         #zbs-customer-panel{
-            padding-right:0px;
+            padding-right:0;
         }
 
         #zbs-customer-panel .three.wide.column img {
@@ -192,7 +192,7 @@
     }
 
     .ui.divided.grid:not([class*="vertically divided"])>.column:not(.row), .ui.divided.grid:not([class*="vertically divided"])>.row>.column{
-        box-shadow:0px;
+        box-shadow:0;
     }
 
     #back-to-list{
@@ -301,7 +301,7 @@
  
 
         #zbs-customer-panel{
-            padding-right:0px;
+            padding-right:0;
         }
 
         //specific targets
@@ -325,7 +325,7 @@
     }
 
     .ui.divided.grid:not([class*="vertically divided"])>.column:not(.row), .ui.divided.grid:not([class*="vertically divided"])>.row>.column{
-        box-shadow:0px;
+        box-shadow:0;
     }
 
     #back-to-list{

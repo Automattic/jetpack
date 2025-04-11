@@ -33,7 +33,6 @@ const baseConfig = {
 		'declaration-block-no-duplicate-properties': null,
 		'declaration-property-unit-allowed-list': null,
 		'function-url-quotes': null,
-		'length-zero-no-unit': null,
 		'no-descending-specificity': null,
 		'no-duplicate-selectors': null,
 		'property-no-unknown': null,

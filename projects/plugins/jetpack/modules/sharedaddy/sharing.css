@@ -109,7 +109,7 @@ body.highlander-dark h3.sd-title::before {
 	display: flex;
 	font-size: 12px;
 	line-height: 12px;
-	padding: 1px 6px 0px 5px;
+	padding: 1px 6px 0 5px;
 	min-height: 20px;
 }
 
@@ -213,7 +213,7 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 @media screen and (-webkit-min-device-pixel-ratio:0) {
 
 	.sd-social-official ul li a.sd-button::before {
-		top: 0px;
+		top: 0;
 	}
 }
 
@@ -590,7 +590,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	border: 1px solid #ccc;
 	padding: 10px;
 	background: #fff;
-	box-shadow: 0px 5px 20px rgba(0,0,0,.2);
+	box-shadow: 0 5px 20px rgba(0,0,0,.2);
 	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
 	border-radius: 2px;

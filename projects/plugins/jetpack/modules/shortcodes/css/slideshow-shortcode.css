@@ -68,8 +68,8 @@ body div.jetpack-slideshow-window * img {
 
 .jetpack-slideshow-line-height-hack {
 	overflow: hidden;
-	width: 0px;
-	font-size: 0px;
+	width: 0;
+	font-size: 0;
 }
 
 .jetpack-slideshow-slide-caption {

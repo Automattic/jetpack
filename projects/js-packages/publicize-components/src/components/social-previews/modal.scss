@@ -56,7 +56,7 @@
 			}
 
 			&.is-active::after {
-				height: 0px;
+				height: 0;
 				border-bottom: 1px solid var( --jp-highlight );
 				margin-bottom: -1px;
 			}

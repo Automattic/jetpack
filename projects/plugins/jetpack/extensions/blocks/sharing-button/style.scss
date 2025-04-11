@@ -7,7 +7,7 @@ a.jetpack-sharing-button__button {
 .jetpack-sharing-button__button {
 	display: flex;
 	flex-direction: row;
-	margin: 4px 4px 0px;
+	margin: 4px 4px 0;
 	cursor: default;
 	font-size: inherit;
 	font-weight: 500;
@@ -117,7 +117,7 @@ a.jetpack-sharing-button__button {
 	&:first-child {
 
 		.jetpack-sharing-button__button {
-			margin-inline-start: 0px;
+			margin-inline-start: 0;
 		}
 	}
 }

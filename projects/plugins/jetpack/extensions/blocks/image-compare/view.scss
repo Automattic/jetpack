@@ -113,15 +113,15 @@ div.jx-arrow.jx-right {
 }
 
 .vertical div.jx-arrow.jx-left {
-	left: 0px;
+	left: 0;
 	top: 2px;
 	border-style: solid;
-	border-width: 0px 8px 8px 8px;
+	border-width: 0 8px 8px 8px;
 	border-color: transparent transparent currentColor transparent;
 }
 
 .vertical div.jx-arrow.jx-right {
-	right: 0px;
+	right: 0;
 	top: auto;
 	bottom: 2px;
 	border-style: solid;
@@ -141,14 +141,14 @@ div.jx-handle:active div.jx-arrow.jx-right {
 
 .vertical div.jx-handle:hover div.jx-arrow.jx-left,
 .vertical div.jx-handle:active div.jx-arrow.jx-left {
-	left: 0px;
-	top: 0px;
+	left: 0;
+	top: 0;
 }
 
 .vertical div.jx-handle:hover div.jx-arrow.jx-right,
 .vertical div.jx-handle:active div.jx-arrow.jx-right {
-	right: 0px;
-	bottom: 0px;
+	right: 0;
+	bottom: 0;
 }
 
 div.jx-image {
