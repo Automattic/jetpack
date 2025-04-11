@@ -1,5 +1,7 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
+$tour-footer-spacing: 16px;
+
 .components-guide {
 
     &.myjetpack-onboarding-welcome-tour {
@@ -18,16 +20,17 @@
         }
 
         .myjetpack-onboarding-welcome-tour__heading {
-            font-size: 24px;
-            line-height: 1.4;
-            margin: $grid-unit-20 0 $grid-unit-20 0;
+            margin: $grid-unit-20 0 8px 0;
             padding: 0 $grid-unit-20;
+
+            @include heading-x-large;
         }
 
         .myjetpack-onboarding-welcome-tour__text {
             line-height: 1.4;
             margin: 0 0 $grid-unit-30 0;
             padding: 0 $grid-unit-20;
+            min-height: 74px; // avoid layout shift when the text is short
         }
 
         .components-modal__header {
@@ -45,6 +48,8 @@
             height: 40px;
             justify-content: flex-end;
             gap: 8px;
+            padding: 0 $tour-footer-spacing;
+            margin-bottom: $tour-footer-spacing;
 
             & > button {
                 position: relative;
@@ -53,6 +58,11 @@
                 left: 0;
                 bottom: 0;
             }
+        }
+
+        .components-button.is-small.has-icon:not(.has-text) {
+            min-width: 8px;
+            padding: 0 9px 0 0;
         }
 
         /* Applying Jetpack colors to the tour */

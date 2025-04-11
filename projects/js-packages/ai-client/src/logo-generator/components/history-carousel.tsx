@@ -8,8 +8,8 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import loader from '../assets/images/loader.gif';
-import { EVENT_NAVIGATE } from '../constants.js';
-import useLogoGenerator from '../hooks/use-logo-generator.js';
+import { EVENT_NAVIGATE } from '../constants.ts';
+import useLogoGenerator from '../hooks/use-logo-generator.ts';
 import './history-carousel.scss';
 /**
  * Types

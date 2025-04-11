@@ -122,7 +122,6 @@ return [
         '_inc/lib/core-api/class.jetpack-core-api-widgets-endpoints.php' => ['PhanTypeMismatchReturn'],
         '_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-admin-menu.php' => ['PhanPluginMixedKeyNoKey', 'PhanPluginSimplifyExpressionBool'],
         '_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-ai.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument'],
-        '_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-blog-stats.php' => ['PhanTypeMismatchReturnProbablyReal'],
         '_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-external-media.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         '_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-newsletter-categories-list.php' => ['PhanUndeclaredMethod'],
         '_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-podcast-player.php' => ['PhanTypeMismatchReturn'],

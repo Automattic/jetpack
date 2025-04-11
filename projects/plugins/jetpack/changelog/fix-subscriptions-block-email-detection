@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Subscriptions block: improve check for email-specific context to render the email version when actually in an email.

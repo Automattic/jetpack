@@ -229,7 +229,6 @@ input[type=checkbox], input[type=radio]{
   -webkit-border-radius: 3px;
   border-radius: 3px; /* border radius */
   background-color: #fff; /* layer fill content */
-  margin-bottom: 5px;
   height: auto;
   float: left;
   margin: 0px;
@@ -472,7 +471,7 @@ $darkenColor: darken($activeColor, 20%);
     left: 3px !important;
     z-index: 1 !important;
     background: #fcfff4 !important;
-    background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%) !important;
+    background: linear-gradient(to bottom, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%) !important;
     border-radius: 50px !important;
     transition: all 0.4s ease !important;
     box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3) !important;

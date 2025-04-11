@@ -15,13 +15,13 @@ import {
 	ErrorMessage,
 	UpgradeMessage,
 	FairUsageLimitMessage,
-} from '../message/index.js';
-import AIControl from './ai-control.js';
+} from '../message/index.tsx';
+import AIControl from './ai-control.tsx';
 import './style.scss';
 /**
  * Types
  */
-import type { RequestingErrorProps, RequestingStateProp } from '../../types.js';
+import type { RequestingErrorProps, RequestingStateProp } from '../../types.ts';
 import type { ReactElement, MouseEvent } from 'react';
 
 type ExtensionAIControlProps = {

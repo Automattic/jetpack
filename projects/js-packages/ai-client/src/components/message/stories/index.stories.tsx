@@ -14,7 +14,7 @@ import {
 	ERROR_NETWORK,
 	ERROR_UNCLEAR_PROMPT,
 	ERROR_RESPONSE,
-} from '../../../types.js';
+} from '../../../types.ts';
 import Message, {
 	GuidelineMessage,
 	UpgradeMessage,
@@ -23,7 +23,7 @@ import Message, {
 	MESSAGE_SEVERITY_ERROR,
 	MESSAGE_SEVERITY_SUCCESS,
 	MESSAGE_SEVERITY_INFO,
-} from '../index.js';
+} from '../index.tsx';
 
 export default {
 	title: 'JS Packages/AI Client/Message',

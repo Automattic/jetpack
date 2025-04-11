@@ -119,6 +119,16 @@ function filterEslintFiles( file ) {
 }
 
 /**
+ * Provides filter to determine which CSS/SCSS files to run through linting.
+ *
+ * @param {string} file - Name of file that was modified.
+ * @return {boolean} Whether the file should be linted.
+ */
+function filterCssFiles( file ) {
+	return [ '.css', '.scss' ].some( extension => file.endsWith( extension ) );
+}
+
+/**
  * Logging function that is used when check is failed
  *
  * @param {string} before - Text before "no-verify" block
@@ -158,6 +168,7 @@ const phpFiles = gitFiles.filter(
 );
 const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
 const phpcsChangedFiles = phpFiles.filter( file => ! phpcsFilesToFilter( file ) );
+const cssFiles = gitFiles.filter( filterCssFiles );
 
 /**
  * Filters out unstaged changes so we do not add an entire file without intention.
@@ -448,6 +459,40 @@ function runCheckGitHubActionsYamlFiles() {
 }
 
 /**
+ * Run CSS linting on CSS/SCSS files
+ *
+ * @param {Array} cssFilesToLint - List of CSS/SCSS files to lint
+ */
+function runCssLint( cssFilesToLint ) {
+	if ( ! cssFilesToLint.length ) {
+		return;
+	}
+
+	const cssLintResult = spawnSync( 'pnpm', [ 'lint-style', '--fix', ...cssFilesToLint ], {
+		stdio: 'inherit',
+	} );
+
+	// Check for newly-dirty files, which indicates they were fixed.
+	const newDirty = parseGitDiffToPathArray( [ '--diff-filter=ACMR' ] ).filter( file =>
+		checkFileAgainstDirtyList( file, dirtyFiles )
+	);
+
+	// Stage fixes.
+	if ( newDirty.length > 0 ) {
+		spawnSync( 'git', [ 'add', '-v', '--', ...newDirty ], { stdio: 'inherit' } );
+		console.log(
+			chalk.yellow(
+				'Some CSS issues were detected and automatically fixed via `pnpm lint-style --fix`.'
+			)
+		);
+	}
+
+	if ( cssLintResult && cssLintResult.status && ! isJetpackDraftMode() ) {
+		checkFailed( 'CSS linting found issues that cannot be automatically fixed!\n' );
+	}
+}
+
+/**
  * Exit script
  *
  * @param {number} exitCodePassed - Shell exit code.
@@ -519,6 +564,11 @@ if ( phpcsFiles.length > 0 ) {
 }
 if ( phpcsChangedFiles.length > 0 ) {
 	runPHPCSChanged( phpcsChangedFiles );
+}
+
+// Run CSS linting
+if ( cssFiles.length > 0 ) {
+	runCssLint( cssFiles );
 }
 
 exit( exitCode );

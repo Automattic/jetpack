@@ -1,5 +1,5 @@
 import React from 'react';
-import DiffViewer from '../index.js';
+import DiffViewer from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Components/Diff Viewer',

@@ -22,6 +22,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		parent::set_up();
 
 		$_SERVER['REQUEST_URI'] = 'index.html?utm_source=a_source&utm_id=some_id';
+		register_taxonomy( 'testtax', array( 'testterm' ) );
 	}
 
 	/**
@@ -32,6 +33,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		global $wp_the_query;
 		$wp_the_query           = new WP_Query();
 		$_SERVER['REQUEST_URI'] = '';
+		unregister_taxonomy( 'testtax' );
 	}
 
 	/**
@@ -55,6 +57,202 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test for Tracking_Pixel::build_view_data with home
+	 */
+	public function test_build_view_data_with_home() {
+		global $wp_the_query;
+		$wp_the_query->is_home = true;
+		$view_data             = Tracking_Pixel::build_view_data();
+		$expected_view_data    = array(
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => '0',
+			'tz'         => false,
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
+			'home'       => '1',
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+	}
+
+	/**
+	 * Test for Tracking_Pixel::build_view_data with archives
+	 */
+	public function test_build_view_data_with_archives() {
+		// testing author archives
+		global $wp_the_query;
+		$wp_the_query->is_archive = true;
+		$wp_the_query->is_author  = true;
+		$wp_the_query->query      = array( 'author_name' => 'some_author' );
+		$view_data                = Tracking_Pixel::build_view_data();
+		$expected_view_data       = array(
+			'v'            => 'ext',
+			'blog'         => 1234,
+			'post'         => '0',
+			'tz'           => false,
+			'srv'          => 'example.org',
+			'utm_id'       => 'some_id',
+			'utm_source'   => 'a_source',
+			'arch_author'  => 'some_author',
+			'arch_results' => 0,
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+
+		// testing date archives
+		$wp_the_query->is_author = false;
+		$wp_the_query->is_date   = true;
+		$wp_the_query->parse_query( 'year=2019&monthnum=12&day=31' );
+		$view_data          = Tracking_Pixel::build_view_data();
+		$expected_view_data = array(
+			'v'            => 'ext',
+			'blog'         => 1234,
+			'post'         => '0',
+			'tz'           => false,
+			'srv'          => 'example.org',
+			'utm_id'       => 'some_id',
+			'utm_source'   => 'a_source',
+			'arch_date'    => '2019/12/31',
+			'arch_results' => 0,
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+
+		// testing category archives
+		$wp_the_query->is_date     = false;
+		$wp_the_query->is_category = true;
+		$wp_the_query->parse_query( 'cat=testcategory&category_name=testcategory' );
+		$view_data          = Tracking_Pixel::build_view_data();
+		$expected_view_data = array(
+			'v'            => 'ext',
+			'blog'         => 1234,
+			'post'         => '0',
+			'tz'           => false,
+			'srv'          => 'example.org',
+			'utm_id'       => 'some_id',
+			'utm_source'   => 'a_source',
+			'arch_cat'     => 'testcategory',
+			'arch_results' => 0,
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+
+		// testing tag archives
+		$wp_the_query->is_category = false;
+		$wp_the_query->is_tag      = true;
+		$wp_the_query->parse_query( 'tag=testtag' );
+		$view_data          = Tracking_Pixel::build_view_data();
+		$expected_view_data = array(
+			'v'            => 'ext',
+			'blog'         => 1234,
+			'post'         => '0',
+			'tz'           => false,
+			'srv'          => 'example.org',
+			'utm_id'       => 'some_id',
+			'utm_source'   => 'a_source',
+			'arch_tag'     => 'testtag',
+			'arch_results' => 0,
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+
+		// testing taxonomy
+		$wp_the_query->is_tag = false;
+		$wp_the_query->parse_query( 'testtax=testterm' );
+		$wp_the_query->posts = array( 'post1', 'post2', 'post3' );
+		$view_data           = Tracking_Pixel::build_view_data();
+		$expected_view_data  = array(
+			'v'                => 'ext',
+			'blog'             => 1234,
+			'post'             => '0',
+			'tz'               => false,
+			'srv'              => 'example.org',
+			'utm_id'           => 'some_id',
+			'utm_source'       => 'a_source',
+			'arch_tax_testtax' => 'testterm',
+			'arch_results'     => 3,
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+	}
+
+	/**
+	 * Test for Tracking_Pixel::build_view_data with error
+	 */
+	public function test_build_view_data_with_error() {
+		global $wp_the_query;
+		$wp_the_query->is_404 = true;
+		$view_data            = Tracking_Pixel::build_view_data();
+		$expected_view_data   = array(
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => '0',
+			'tz'         => false,
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
+			'arch_err'   => $_SERVER['REQUEST_URI'],
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+	}
+
+	/**
+	 * Test for Tracking_Pixel::build_view_data with an undefined type of page
+	 */
+	public function test_build_view_data_with_undefined_type() {
+		$view_data          = Tracking_Pixel::build_view_data();
+		$expected_view_data = array(
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => '0',
+			'tz'         => false,
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
+			'arch_other' => $_SERVER['REQUEST_URI'],
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+	}
+
+	/**
+	 * Test for Tracking_Pixel::build_view_data with search
+	 */
+	public function test_build_view_data_with_search() {
+		global $wp_the_query;
+		$wp_the_query->is_search = true;
+		$wp_the_query->parse_query( 's=term&posts_per_page=10&paged=2&orderby=date&order=ASC&author_name=author&testtax=testterm' );
+		$wp_the_query->posts = array( 'post1', 'post2' );
+		$view_data           = Tracking_Pixel::build_view_data();
+		$expected_view_data  = array(
+			'v'            => 'ext',
+			'blog'         => 1234,
+			'post'         => '0',
+			'tz'           => false,
+			'srv'          => 'example.org',
+			'utm_id'       => 'some_id',
+			'utm_source'   => 'a_source',
+			'arch_search'  => 'term',
+			'arch_filters' => 'posts_per_page=10&paged=2&orderby=date&order=ASC&author_name=author&terms=' . wp_json_encode( array( 'testtax' => array( 'testterm' ) ) ),
+			'arch_results' => 2,
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+
+		// testing search with non-existing taxonomy
+		$wp_the_query->parse_query( 's=term&posts_per_page=10&paged=2&orderby=date&order=ASC&no-testtax=testterm' );
+		$wp_the_query->posts = array( 'post1', 'post2', 'post3' );
+		$view_data           = Tracking_Pixel::build_view_data();
+		$expected_view_data  = array(
+			'v'            => 'ext',
+			'blog'         => 1234,
+			'post'         => '0',
+			'tz'           => false,
+			'srv'          => 'example.org',
+			'utm_id'       => 'some_id',
+			'utm_source'   => 'a_source',
+			'arch_search'  => 'term',
+			'arch_filters' => 'posts_per_page=10&paged=2&orderby=date&order=ASC',
+			'arch_results' => 3,
+		);
+		$this->assertSame( $expected_view_data, $view_data );
+	}
+
+	/**
 	 * Test for Tracking_Pixel::build_view_data with gmt offset
 	 */
 	public function test_build_view_data_with_gmt_offset() {
@@ -68,6 +266,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'srv'        => 'example.org',
 			'utm_id'     => 'some_id',
 			'utm_source' => 'a_source',
+			'arch_other' => $_SERVER['REQUEST_URI'],
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}

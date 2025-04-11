@@ -8,7 +8,9 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Status;
 
 // The $icon-color variable for admin color schemes.
 // See: https://github.com/WordPress/wordpress-develop/blob/679cc0c4a261a77bd8fdb140cd9b0b2ff80ebf37/src/wp-admin/css/colors/_variables.scss#L9
@@ -366,3 +368,104 @@ function wpcom_edit_site_menu_override( $wp_admin_bar ) {
 	}
 }
 add_action( 'admin_bar_menu', 'wpcom_edit_site_menu_override', 41 );
+
+/**
+ * Adds site badges and plan information to the site title dropdown menu.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
+ */
+function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
+	// Get the current blog ID
+	$blog_id = get_current_blog_id();
+	$status  = new Status();
+
+	// Check for various site types
+	$badge_text = '';
+
+	// Check if this is a P2 site
+	if ( str_contains( get_stylesheet(), 'pub/p2' ) ||
+		( function_exists( '\WPForTeams\is_wpforteams_site' ) &&
+		\WPForTeams\is_wpforteams_site( $blog_id ) ) ) {
+		$badge_text = 'P2';
+	} elseif ( (bool) get_option( 'wpcom_is_staging_site' ) ) {
+		// Check for staging site
+		$badge_text = __( 'Staging', 'jetpack-mu-wpcom' );
+	} elseif ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'trial' ) ) {
+		// Check for trial site
+		$badge_text = __( 'Trial', 'jetpack-mu-wpcom' );
+	} elseif ( ( get_option( 'launch-status' ) !== 'launched' ) || $status->is_coming_soon() ) {
+		// Check for Coming Soon site
+		$badge_text = __( 'Coming Soon', 'jetpack-mu-wpcom' );
+	} elseif ( $status->is_private_site() ) {
+		// Check for private site
+		$badge_text = __( 'Private', 'jetpack-mu-wpcom' );
+	} elseif ( ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'difm-lite-in-progress' ) ) ||
+		( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' ) ) ) {
+		// Check for Express service
+		$badge_text = __( 'Express', 'jetpack-mu-wpcom' );
+	} elseif ( function_exists( 'is_simple_site_redirect' ) && is_simple_site_redirect( $status->get_site_suffix() ) ) {
+		// Check for Redirect site
+		$badge_text = __( 'Redirect', 'jetpack-mu-wpcom' );
+	} elseif ( ! empty( get_option( 'options' )['is_domain_only'] ) ) {
+		// Check for Domain Only site
+		$badge_text = __( 'Domain Only', 'jetpack-mu-wpcom' );
+	}
+
+	// Add badge to the site name dropdown if a badge is applicable
+	$status_text = '';
+	if ( $badge_text ) {
+		$status_text = '<div class="wp-admin-bar__site-info">
+							<span class="wp-admin-bar__site-info-label">' . __( 'Status', 'jetpack-mu-wpcom' ) . '</span>
+							<div class="wp-admin-bar__info-badges">' . esc_html( $badge_text ) . '</div>
+						</div>';
+	}
+
+	// Add plan information for non-staging sites
+	$plan_text  = '';
+	$is_staging = (bool) get_option( 'wpcom_is_staging_site' );
+	if ( ! $is_staging ) {
+		if ( class_exists( '\WPCOM_Store_API' ) ) {
+			$current_plan = WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+		} else {
+			$current_plan = Current_Plan::get();
+		}
+		$plan_name = $current_plan['product_name_short'] ?? '';
+		if ( $plan_name ) {
+			$plan_text = '<div class="wp-admin-bar__site-info">
+							<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
+							<div class="wp-admin-bar__info-badges">' . esc_html( $plan_name ) . '</div>
+						</div>';
+		}
+	}
+
+	if ( $status_text || $plan_text ) {
+		$wp_admin_bar->add_group(
+			array(
+				'parent' => 'site-name',
+				'id'     => 'site-badge',
+				'meta'   => array(
+					'class' => 'ab-sub-secondary',
+				),
+			)
+		);
+		if ( $status_text ) {
+			$wp_admin_bar->add_node(
+				array(
+					'parent' => 'site-badge',
+					'id'     => 'site-badge-status',
+					'title'  => $status_text,
+				)
+			);
+		}
+		if ( $plan_text ) {
+			$wp_admin_bar->add_node(
+				array(
+					'parent' => 'site-badge',
+					'id'     => 'site-badge-plan',
+					'title'  => $plan_text,
+				)
+			);
+		}
+	}
+}
+add_action( 'admin_bar_menu', 'wpcom_add_site_badges_and_plan', 35 );
