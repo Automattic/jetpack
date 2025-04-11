@@ -23,6 +23,13 @@ const settings = {
 		),
 	},
 	edit,
+	attributes: {
+		...defaultSettings.attributes,
+		defaultValue: {
+			type: 'string',
+			default: '',
+		},
+	},
 	providesContext: {
 		...defaultSettings.providesContext,
 		'jetpack/field-defaultValue': 'defaultValue',
@@ -30,6 +37,7 @@ const settings = {
 	deprecated,
 	save,
 	example: {
+		attributes: { defaulValue: '' },
 		innerBlocks: [
 			{
 				name: 'jetpack/option',
