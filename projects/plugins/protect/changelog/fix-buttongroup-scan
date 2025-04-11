@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Components: Changed deprecated ButtonGroup component to Flex.
