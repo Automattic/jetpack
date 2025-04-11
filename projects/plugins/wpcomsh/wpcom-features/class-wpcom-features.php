@@ -419,17 +419,12 @@ class WPCOM_Features {
 	public const SITE_PREVIEW_LINKS                = 'site-preview-links';
 	public const SOCIAL_ADMIN_PAGE                 = 'social-admin-page';
 	public const SOCIAL_IMAGE_GENERATOR            = 'social-image-generator';
-	public const SOCIAL_PREVIEWS                   = 'social-previews';
 	public const SOCIAL_SHARES_1000                = 'social-shares-1000';
 	public const SOCIAL_ENHANCED_PUBLISHING        = 'social-enhanced-publishing';
-	public const SOCIAL_MASTODON_CONNECTION        = 'social-mastodon-connection';
-	public const SOCIAL_THREADS_CONNECTION         = 'social-threads-connection';
-	public const SOCIAL_INSTAGRAM_CONNECTION       = 'social-instagram-connection';
-	public const SOCIAL_CONNECTIONS_MANAGEMENT     = 'social-connections-management';
 	public const SOCIAL_IMAGE_AUTO_CONVERT         = 'social-image-auto-convert';
+	public const SOCIAL_CONNECTIONS_MANAGEMENT     = 'social-connections-management';
 	public const SOCIAL_EDITOR_PREVIEW             = 'social-editor-preview';
 	public const SOCIAL_SHARE_STATUS               = 'social-share-status';
-	public const SOCIAL_MULTI_CONNECTIONS          = 'social-multi-connections';
 	public const SPACE                             = 'space';
 	public const SPACE_UPGRADED_STORAGE            = 'space-upgraded-storage';
 	public const SSH                               = 'ssh';
@@ -1043,11 +1038,6 @@ class WPCOM_Features {
 		self::SITE_PREVIEW_LINKS                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
-		self::SOCIAL_PREVIEWS                   => array(
-			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::JETPACK_ALL_SITES,
-		),
 
 		/*
 		 * SOCIAL_SHARES_1000 - This feature is linked to the ability to share upto 1000 social media shares on the Jetpack Social Plugin.
@@ -1079,31 +1069,8 @@ class WPCOM_Features {
 		self::SOCIAL_ADMIN_PAGE                 => array(
 			self::WPCOM_ALL_SITES,
 		),
-		self::SOCIAL_MASTODON_CONNECTION        => array(
-			array(
-				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
-				'before' => '1900-01-01',
-				self::WPCOM_ALL_SITES,
-				self::JETPACK_ALL_SITES,
-			),
-		),
-		self::SOCIAL_THREADS_CONNECTION         => array(
-			array(
-				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
-				'before' => '1900-01-01',
-				self::WPCOM_ALL_SITES,
-				self::JETPACK_ALL_SITES,
-			),
-		),
-		self::SOCIAL_INSTAGRAM_CONNECTION       => array(
-			array(
-				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
-				'before' => '1900-01-01',
-				self::WPCOM_ALL_SITES,
-				self::JETPACK_ALL_SITES,
-			),
-		),
 		self::SOCIAL_CONNECTIONS_MANAGEMENT     => array(
+			self::JETPACK_ALL_SITES,
 			self::WPCOM_ALL_SITES,
 		),
 		self::SOCIAL_EDITOR_PREVIEW             => array(
