@@ -67,12 +67,11 @@ const IntegrationCardHeader = ( {
 							trackEventName={ cardData.trackEventName }
 						/>
 					) }
-					{ showHeaderToggle && (
+					{ ( isActive || isConnected ) && showHeaderToggle && (
 						<ToggleControl
 							checked={ headerToggleValue }
 							onChange={ handleToggleChange }
 							disabled={ ! isHeaderToggleEnabled }
-							onMouseDown={ e => e.stopPropagation() }
 						/>
 					) }
 					<Icon

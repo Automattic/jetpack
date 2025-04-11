@@ -58,14 +58,14 @@ $jp-gray-20:             #a7aaad;
 	text-align: center;
 	min-width: 90px;
 	font-weight: 600;
-	border-color: black;
+	border-color: #000;
 	background: $white;
-	color: black;
+	color: #000;
 	width: 100%;
 
 	// Primary buttons
 	&.is-primary {
-		background: black;
+		background: #000;
 		color: $white;
 
 		.gridicons-external-link {
@@ -77,15 +77,15 @@ $jp-gray-20:             #a7aaad;
 	&.is-secondary {
 
 		.gridicons-external-link {
-			fill: black;
+			fill: #000;
 		}
 
 		&:hover{
-			color: black;
+			color: #000;
 			background: $jp-gray-0;
 
 			.gridicons-external-link {
-				fill: black;
+				fill: #000;
 			}
 		}
 	}
@@ -314,7 +314,7 @@ $jp-gray-20:             #a7aaad;
 	}
 
 	.jitm-banner__icon-circle {
-		color: white;
+		color: #fff;
 		display: none;
 		padding: rem( 3px ) rem( 4px ) rem( 4px ) rem( 3px );
 	}
@@ -419,7 +419,7 @@ $jp-gray-20:             #a7aaad;
 	.jitm-banner__title,
 	.jitm-banner__description,
 	.jitm-banner__description a {
-		color: black;
+		color: #000;
 	}
 
 	.jitm-banner__title {

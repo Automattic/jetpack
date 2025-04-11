@@ -10,8 +10,8 @@ import { useCallback, useEffect, useState, useRef, Dispatch, SetStateAction } fr
 /**
  * Internal dependencies
  */
-import { IMAGE_STYLE_NONE, IMAGE_STYLE_AUTO } from '../../hooks/use-image-generator/constants.js';
-import AiIcon from '../assets/icons/ai.js';
+import { IMAGE_STYLE_NONE, IMAGE_STYLE_AUTO } from '../../hooks/use-image-generator/constants.ts';
+import AiIcon from '../assets/icons/ai.tsx';
 import {
 	EVENT_GENERATE,
 	MINIMUM_PROMPT_LENGTH,
@@ -19,17 +19,17 @@ import {
 	EVENT_PLACEMENT_INPUT_FOOTER,
 	EVENT_SWITCH_STYLE,
 	EVENT_GUESS_STYLE,
-} from '../constants.js';
-import { useCheckout } from '../hooks/use-checkout.js';
-import useLogoGenerator from '../hooks/use-logo-generator.js';
-import useRequestErrors from '../hooks/use-request-errors.js';
-import { FairUsageNotice } from './fair-usage-notice.js';
-import { UpgradeNudge } from './upgrade-nudge.js';
+} from '../constants.ts';
+import { useCheckout } from '../hooks/use-checkout.ts';
+import useLogoGenerator from '../hooks/use-logo-generator.ts';
+import useRequestErrors from '../hooks/use-request-errors.ts';
+import { FairUsageNotice } from './fair-usage-notice.tsx';
+import { UpgradeNudge } from './upgrade-nudge.tsx';
 import './prompt.scss';
 /**
  * Types
  */
-import type { ImageStyle, ImageStyleObject } from '../../hooks/use-image-generator/constants.js';
+import type { ImageStyle, ImageStyleObject } from '../../hooks/use-image-generator/constants.ts';
 
 const debug = debugFactory( 'jetpack-ai-calypso:prompt-box' );
 

@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Status;
-use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -102,8 +101,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Tests add_new_site_link.
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_new_site_link
 	 */
 	public function test_add_new_site_link() {
 		global $menu;
@@ -128,110 +125,7 @@ class Atomic_Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_site_card_menu
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_site_card_menu
-	 */
-	public function test_add_site_card_menu() {
-		global $menu;
-
-		static::$admin_menu->add_site_card_menu();
-
-		$home_url            = home_url();
-		$site_card_menu_item = array(
-			'
-<div class="site__info">
-	<div class="site__title">' . get_option( 'blogname' ) . '</div>
-	<div class="site__domain">' . static::$domain . "</div>\n\t\n</div>",
-			'read',
-			$home_url,
-			'site-card',
-			'menu-top toplevel_page_' . $home_url,
-			'toplevel_page_' . $home_url,
-			plugins_url( 'src/admin-menu/globe-icon.svg', dirname( __DIR__ ) ),
-		);
-
-		$this->assertEquals( $site_card_menu_item, $menu[1] );
-	}
-
-	/**
-	 * Tests add_site_card_menu for Private sites
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_site_card_menu
-	 */
-	public function test_add_site_card_menu_private_site() {
-		global $menu;
-
-		Functions\expect( '\Private_Site\site_is_private' )
-				->andReturn( true );
-
-		static::$admin_menu->add_site_card_menu();
-
-		$home_url            = home_url();
-		$site_card_menu_item = array(
-			'
-<div class="site__info">
-	<div class="site__title">' . get_option( 'blogname' ) . '</div>
-	<div class="site__domain">' . static::$domain . "</div>\n\t<span class=\"site__badge site__badge-private\">Private</span>\n</div>",
-			'read',
-			$home_url,
-			'site-card',
-			'menu-top toplevel_page_' . $home_url,
-			'toplevel_page_' . $home_url,
-			plugins_url( 'src/admin-menu/globe-icon.svg', dirname( __DIR__ ) ),
-		);
-
-		$this->assertEquals( $site_card_menu_item, $menu[1] );
-	}
-
-	/**
-	 * Tests set_site_card_menu_class
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::set_site_card_menu_class
-	 */
-	public function test_set_site_card_menu_class() {
-		global $menu;
-
-		static::$admin_menu->add_site_card_menu();
-
-		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
-		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
-
-		// Atomic fallback site icon counts as no site icon.
-		add_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
-		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
-		remove_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
-		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
-
-		// Custom site icon triggers CSS class.
-		add_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
-		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
-		remove_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
-		$this->assertStringContainsString( 'has-site-icon', $menu[1][4] );
-	}
-
-	/**
-	 * Shim wpcomsh fallback site icon.
-	 *
-	 * @return string
-	 */
-	public function wpcomsh_site_icon_url() {
-		return 'https://s0.wp.com/i/webclip.png';
-	}
-
-	/**
-	 * Custom site icon.
-	 *
-	 * @return string
-	 */
-	public function custom_site_icon_url() {
-		return 'https://s0.wp.com/i/jetpack.png';
-	}
-
-	/**
 	 * Tests get_preferred_view
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_get_preferred_view() {
 		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'export.php' ) );
@@ -239,8 +133,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Tests add_upgrades_menu
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_upgrades_menu
 	 */
 	public function test_add_upgrades_menu() {
 		global $submenu;
@@ -261,8 +153,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Tests add_options_menu
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_options_menu
 	 */
 	public function test_add_options_menu() {
 		global $submenu;
@@ -278,8 +168,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Tests add_users_menu
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_users_menu
 	 */
 	public function test_add_users_menu() {
 		global $submenu;
@@ -294,8 +182,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Tests remove_gutenberg_menu
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::remove_gutenberg_menu
 	 */
 	public function test_remove_gutenberg_menu() {
 		global $menu;
@@ -307,8 +193,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Tests add_plugins_menu
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_plugins_menu
 	 */
 	public function test_add_plugins_menu() {
 		global $submenu;
@@ -329,8 +213,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Tests add_tools_menu
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_tools_menu
 	 */
 	public function test_add_site_monitoring_menu() {
 		global $submenu;
@@ -343,8 +225,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Tests add_github_deployments_menu
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_tools_menu
 	 */
 	public function test_add_github_deployments_menu() {
 		global $submenu;
@@ -357,8 +237,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Tests add_jetpack_scan_menu
-	 *
-	 * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu::add_jetpack_menu
 	 */
 	public function test_add_jetpack_scan_submenu() {
 		global $submenu;

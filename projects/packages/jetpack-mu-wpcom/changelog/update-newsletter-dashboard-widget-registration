@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Subscriptions: load dashboard widget directly from the Jetpack plugin, instead of from mu-wpcom.

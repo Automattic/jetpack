@@ -2,6 +2,41 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.6-a.1 - 2025-04-07
+### Enhancements
+- Replace video embed with VideoPress block in Media & Text block. [#42522]
+- Forms: Add custom hooks for integrations. [#42822]
+- Forms: Add endpoint for all integrations. [#42878]
+- Forms: Update default forms view to dataviews. [#42329]
+- Newsletter Widget: Improve the display of links in the Newsletter widget. [#42645]
+
+### Improved compatibility
+- Blocks: Ensure all child blocks use the latest version of the Blocks API. [#42929]
+
+### Bug fixes
+- Reset access level of the post to everyone when a paywall is removed. [#42788]
+- Slideshow: Prevent images from appearing stuck to the mouse in block-based themes. [#42778]
+- Star Rating: Fix padding and improve panel copy. [#42601]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Block editor: Add REST API endpoint for retrieving editor scripts and stylesheets. [#42314]
+- Code: First pass of style coding standards. [#42734]
+- Dashboard: Update WordPress logo color. [#42811]
+- Fix type checking in the monorepo. [#42817]
+- Forms: Change path and return for form integrations endpoint. [#42826]
+- Jetpack SEO: Change title and description for textarea placeholder and update over-limit message. [#42925]
+- Jetpack SEO: Fix bug where auto-generation would only trigger the last enabled features set by user on manual mode. [#42907]
+- Jetpack SEO Enhancer: Cancel metas/alt-text updates if the post has been published. [#42904]
+- Jetpack SEO Enhancer: List only remaining tasks in the to-do list for the auto-generation feature. [#42805]
+- Jetpack SEO Enhancer: Trigger the auto-generation process when enabling the toggle on PrePublish sidebar. [#42797]
+- Jetpack SEO Enhancer: Remove post publish panel loading status and fix summaries and styles. [#42899]
+- Newsletters: Fix selector name typo. [#42841]
+- Reset to-test.md for Jetpack 14.6. [#42871]
+- Subscribe block: Match the frontend wrapping behavior when editing. [#42869]
+- Tests: Prevent warning when asset file doesn't exist. [#42875]
+- Update package dependencies. [#42762] [#42809] [#42815]
+- Write Brief: Initial Harper linting. [#42905]
+
 ## 14.5 - 2025-04-02
 ### Enhancements
 - Add page view count in the post and page list. [#42218]

@@ -1,4 +1,4 @@
-import { VARIANTS_MAPPING } from './constants.js';
+import { VARIANTS_MAPPING } from './constants.ts';
 import type React from 'react';
 
 export type SpacingValue = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;

@@ -1,11 +1,11 @@
 /**
  * Internal dependencies
  */
-import wpcomLimitedRequest from './wpcom-limited-request.js';
+import wpcomLimitedRequest from './wpcom-limited-request.ts';
 /**
  * Types
  */
-import type { SetSiteLogoProps, SetSiteLogoResponseProps } from '../types.js';
+import type { SetSiteLogoProps, SetSiteLogoResponseProps } from '../types.ts';
 
 /**
  * Set the site logo using a backend request.

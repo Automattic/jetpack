@@ -11,7 +11,7 @@ use Automattic\Jetpack\Scheduled_Updates_Logs;
 /**
  * Test class for WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs.
  *
- * @coversDefaultClass WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs
+ * @covers \WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs
  */
 class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\BaseTestCase {
 	/**
@@ -54,8 +54,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 
 	/**
 	 * Test adding a log entry for a non-existent schedule.
-	 *
-	 * @covers ::create_item
 	 */
 	public function test_add_log_invalid_schedule() {
 		wp_set_current_user( $this->admin_id );
@@ -75,8 +73,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 
 	/**
 	 * Test retrieving logs.
-	 *
-	 * @covers ::get_items
 	 */
 	public function test_get_logs() {
 		wp_set_current_user( $this->admin_id );
@@ -97,9 +93,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 
 	/**
 	 * Test adding a log entry and retrieving it.
-	 *
-	 * @covers ::create_item
-	 * @covers ::get_items
 	 */
 	public function test_add_and_get_log() {
 		wp_set_current_user( $this->admin_id );
@@ -132,9 +125,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 
 	/**
 	 * Test adding multiple runs and retrieving them.
-	 *
-	 * @covers ::create_item
-	 * @covers ::get_items
 	 */
 	public function test_add_and_get_multiple_logs() {
 		wp_set_current_user( $this->admin_id );
@@ -178,8 +168,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 
 	/**
 	 * Test adding a log when unauthorized.
-	 *
-	 * @covers ::create_item
 	 */
 	public function test_add_log_unauthorized() {
 		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );

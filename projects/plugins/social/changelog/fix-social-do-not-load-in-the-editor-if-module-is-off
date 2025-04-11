@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Do not load in the editor if sharing is disabled

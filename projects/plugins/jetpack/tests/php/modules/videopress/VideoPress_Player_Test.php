@@ -12,6 +12,8 @@ require_once JETPACK__PLUGIN_DIR . 'modules/videopress/class.videopress-video.ph
  * Tests Jetpack VideoPress Player
  *
  * To run: jetpack docker phpunit -- --filter=videopress_player
+ *
+ * @covers \VideoPress_Player
  */
 class VideoPress_Player_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -44,8 +46,6 @@ class VideoPress_Player_Test extends WP_UnitTestCase {
 	 * Tests the output of html5_dynamic_next().
 	 *
 	 * @dataProvider get_html_test_data
-	 * @covers VideoPress_Player
-	 *
 	 * @param array  $options The player options.
 	 * @param string $expected The expected generated content.
 	 */

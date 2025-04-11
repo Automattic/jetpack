@@ -185,7 +185,7 @@
 		align-items: center;
 
 		.jp-at-a-glance__stats-empty {
-			background: white;
+			background: #fff;
 			border-radius: 4px;
 			box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 			padding: 30px;
@@ -637,7 +637,7 @@ a.jp-dash-item__manage-in-wpcom,
 		&:focus {
 			text-decoration-line: none;
 			border-radius: 2px;
-			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) #000;
 			outline: 3px solid transparent;
 		}
 	}

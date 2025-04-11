@@ -6,8 +6,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import askQuestion from '../../ask-question/index.js';
-import ChromeAIFactory from '../../chrome-ai/factory.js';
+import askQuestion from '../../ask-question/index.ts';
+import ChromeAIFactory from '../../chrome-ai/factory.ts';
 import {
 	ERROR_CONTEXT_TOO_LARGE,
 	ERROR_MODERATION,
@@ -16,13 +16,13 @@ import {
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
 	ERROR_RESPONSE,
-} from '../../types.js';
+} from '../../types.ts';
 /**
  * Types & constants
  */
-import type { AskQuestionOptionsArgProps } from '../../ask-question/index.js';
-import type SuggestionsEventSource from '../../suggestions-event-source/index.js';
-import type { PromptProp, SuggestionErrorCode, RequestingStateProp } from '../../types.js';
+import type { AskQuestionOptionsArgProps } from '../../ask-question/index.ts';
+import type SuggestionsEventSource from '../../suggestions-event-source/index.ts';
+import type { PromptProp, SuggestionErrorCode, RequestingStateProp } from '../../types.ts';
 
 export type RequestingErrorProps = {
 	/*

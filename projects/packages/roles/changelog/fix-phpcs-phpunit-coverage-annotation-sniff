@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Move `@covers` from test methods to classes (and widen scope where appropriate) for PHPUnit 11 deprecation.
+
+

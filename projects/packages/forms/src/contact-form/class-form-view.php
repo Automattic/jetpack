@@ -163,7 +163,7 @@ class Form_View {
 			.rtl .fb-right label { float: right; }
 			.rtl .fb-success { right: auto; left: 100px;}
 			.rtl .right { float: left; }
-			@media only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+			@media only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5) {
 				.fb-remove { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-field-2x.png') no-repeat; background-size: 20px 23px; }
 				.fb-remove:hover { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-field-hover-2x.png') no-repeat; background-size: 20px 23px; }
 				.fb-remove-option { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-option-2x.png') no-repeat; background-size: 20px 23px; }

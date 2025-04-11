@@ -1,5 +1,5 @@
 import { Icon, postList } from '@wordpress/icons';
-import StatCard from '../index.js';
+import StatCard from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof StatCard > = {

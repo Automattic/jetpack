@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import ThreatSeverityBadge from '../index.js';
+import ThreatSeverityBadge from '../index.tsx';
 
 describe( 'ThreatSeverityBadge', () => {
 	it( 'renders the correct severity label', () => {

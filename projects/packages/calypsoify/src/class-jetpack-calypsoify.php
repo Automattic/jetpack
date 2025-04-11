@@ -15,7 +15,7 @@ use Automattic\Jetpack\Status;
  */
 class Jetpack_Calypsoify {
 
-	const PACKAGE_VERSION = '0.2.2';
+	const PACKAGE_VERSION = '0.2.3';
 
 	/**
 	 * Singleton instance of `Jetpack_Calypsoify`.

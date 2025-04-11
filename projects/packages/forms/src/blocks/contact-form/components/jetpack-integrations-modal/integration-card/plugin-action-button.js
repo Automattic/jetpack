@@ -1,4 +1,4 @@
-import { Button, Icon } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { usePluginInstallation } from '../hooks/usePluginInstallation';
 
@@ -32,7 +32,7 @@ const PluginActionButton = ( { slug, pluginFile, isInstalled, refreshStatus, tra
 			variant="primary"
 			onClick={ handleAction }
 			disabled={ isInstalling }
-			icon={ isInstalling ? <Icon icon="update" className="is-spinning" /> : undefined }
+			icon={ isInstalling ? <Spinner /> : undefined }
 		>
 			{ getButtonText() }
 		</Button>

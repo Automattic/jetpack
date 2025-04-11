@@ -1,9 +1,9 @@
 import { Icon, arrowRight } from '@wordpress/icons';
 import clsx from 'clsx';
-import IconTooltip from '../icon-tooltip/index.js';
-import Text from '../text/index.js';
+import IconTooltip from '../icon-tooltip/index.tsx';
+import Text from '../text/index.tsx';
 import styles from './style.module.scss';
-import { CutBaseProps } from './types.js';
+import { CutBaseProps } from './types.ts';
 import type React from 'react';
 
 const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( {

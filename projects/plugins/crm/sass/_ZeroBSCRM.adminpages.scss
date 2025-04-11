@@ -50,7 +50,7 @@
 			.fa {
 
 				font-size:80px;
-				color:green;
+				color: #008000;
     			margin-bottom: 8px;
 
 			}
@@ -132,7 +132,7 @@
 			.fa {
 
 				font-size:80px;
-				color:green;
+				color: #008000;
     			margin-bottom: 8px;
 
 			}
@@ -168,8 +168,8 @@
 
 // upsell / feedback boxes from func zeroBSCRM_UI2_squareFeedbackUpsell
 .zbs-upgrade-banner{
-    background: black;
-    color:white;
+    background: #000;
+    color: #fff;
     padding:20px;
     text-align:center;
 }
@@ -188,7 +188,7 @@
     margin-top:20px;
     margin-bottom:20px;
     padding:10px;
-    color:white;
+    color: #fff;
     background: #1a6ecc;
 }
 
@@ -230,11 +230,11 @@ div.ui.learn.button {
     left: 25px !important;
     margin-top: -11px;
     border-left-width: 0;
-    border-right-color: white !important;
+    border-right-color: #fff !important;
 }
 
 .popover.bottom .arrow {
-    border-bottom-color: white !important;
+    border-bottom-color: #fff !important;
 }
 
 .popover.right .arrow:after {

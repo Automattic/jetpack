@@ -1,4 +1,4 @@
-import type { MeasurableImageStore } from './stores/MeasurableImageStore.js';
+import type { MeasurableImageStore } from './stores/MeasurableImageStore.ts';
 import type { ComponentConstructorOptions } from 'svelte';
 
 export type GuideSize = 'normal' | 'small' | 'micro';

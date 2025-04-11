@@ -1,6 +1,6 @@
-import IconTooltip from '../index.js';
+import IconTooltip from '../index.tsx';
 import './style.scss';
-import type { Placement } from '../types.js';
+import type { Placement } from '../types.ts';
 
 const AVAILABLE_PLACEMENTS: Placement[] = [
 	'top',
