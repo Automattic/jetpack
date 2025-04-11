@@ -34,6 +34,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev",
 		"brain/monkey": "^2.6.2",
 		"yoast/phpunit-polyfills": "^3.0.0"
