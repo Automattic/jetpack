@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use WorDBless\BaseTestCase;
+use WP_Block;
+use WP_Block_Type_Registry;
 
 /**
  * Test class for Contact_Form_Block
@@ -32,7 +34,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 
 		$expected_block = array_merge( $block, array( 'hasJPFormParent' => true ) );
 
-		$this->assertEquals( $expected_block, Contact_Form_Block::find_nested_html_block( $block, array(), new \WP_Block( $parent_block ) ) );
+		$this->assertEquals( $expected_block, Contact_Form_Block::find_nested_html_block( $block, array(), new WP_Block( $parent_block ) ) );
 	}
 
 	/**
@@ -42,7 +44,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	 */
 	public function test_register_child_blocks( $block_name ) {
 		Contact_Form_Block::register_child_blocks();
-		$registry   = \WP_Block_Type_Registry::get_instance();
+		$registry   = WP_Block_Type_Registry::get_instance();
 		$block_type = $registry->get_registered( $block_name );
 		// @TODO should we also test supports?
 		$this->assertNotNull( $block_type );

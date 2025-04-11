@@ -17,6 +17,7 @@ use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use WP_Block;
+use WP_Block_Type_Registry;
 use WP_Error;
 
 /**
@@ -328,7 +329,7 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	private static function get_block_support_classes_and_styles( $block_name, $attrs ) {
-		$block_type = \WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
+		$block_type = WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
 
 		if ( ! $block_type ) {
 			return array();
@@ -373,9 +374,9 @@ class Contact_Form_Plugin {
 	/**
 	 * Turn block attribute to shortcode attributes.
 	 *
-	 * @param array          $atts  - the block attributes.
-	 * @param string         $type  - the type.
-	 * @param \WP_Block|null $block - the block object.
+	 * @param array         $atts  - the block attributes.
+	 * @param string        $type  - the type.
+	 * @param WP_Block|null $block - the block object.
 	 *
 	 * @return array
 	 */
@@ -558,9 +559,9 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the checkbox field.
 	 *
-	 * @param array     $atts - the block attributes.
-	 * @param string    $content - html content.
-	 * @param \WP_Block $block - the block instance object.
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
@@ -599,9 +600,9 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the radio button field.
 	 *
-	 * @param array     $atts - the block attributes.
-	 * @param string    $content - html content.
-	 * @param \WP_Block $block - the block instance object.
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
 	 *
 	 * @return string HTML for the contact form field.
 	 */

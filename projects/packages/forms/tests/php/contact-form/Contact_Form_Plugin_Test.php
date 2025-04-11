@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use WorDBless\BaseTestCase;
+use WP_Block;
 
 /**
  * Test class for Contact_Form_Plugin
@@ -78,7 +79,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				),
 			),
 		);
-		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox( array(), '', new \WP_Block( $block ) );
+		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox( array(), '', new WP_Block( $block ) );
 		$expected  = '[contact-field type="checkbox" label="single" optionclasses=" has-text-color" optionstyles="color:caramel; font-size:24px;"/]';
 
 		// Check that the generated shortcode is as expected.
@@ -135,7 +136,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				),
 			),
 		);
-		$shortcode_attributes = Contact_Form_Plugin::block_attributes_to_shortcode_attributes( array(), 'checkbox', new \WP_Block( $block ) );
+		$shortcode_attributes = Contact_Form_Plugin::block_attributes_to_shortcode_attributes( array(), 'checkbox', new WP_Block( $block ) );
 
 		$this->assertEquals( 'wp-block-jetpack-label has-text-color has-swamp-green-color', $shortcode_attributes['labelclasses'] );
 		$this->assertEquals( 'wp-block-jetpack-input has-text-color has-background has-border-color', $shortcode_attributes['inputclasses'] );
