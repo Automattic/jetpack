@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { forwardRef, useCallback } from 'react';
 import { store as socialStore } from '../../social-store';
-import { features } from '../../utils';
+import { features } from '../../utils/constants';
 import styles from './styles.module.scss';
 import type { ButtonProps } from '@wordpress/components/build-types/button/types';
 

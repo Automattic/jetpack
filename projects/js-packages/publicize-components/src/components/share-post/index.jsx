@@ -13,7 +13,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { useIsReSharingPossible } from '../../hooks/use-is-resharing-possible';
 import useSharePost from '../../hooks/use-share-post';
 import { store as socialStore } from '../../social-store';
-import { features } from '../../utils';
+import { features } from '../../utils/constants';
 
 /**
  * Removes the current message from resharing a post.

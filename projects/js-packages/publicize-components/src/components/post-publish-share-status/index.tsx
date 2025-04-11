@@ -10,7 +10,7 @@ import { usePostMeta } from '../../hooks/use-post-meta';
 import { usePostPrePublishValue } from '../../hooks/use-post-pre-publish-value';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import { store as socialStore } from '../../social-store';
-import { features } from '../../utils';
+import { features } from '../../utils/constants';
 import { ShareStatus } from './share-status';
 
 const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginPostPublishPanel;
