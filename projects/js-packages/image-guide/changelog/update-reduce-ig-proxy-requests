@@ -1,4 +1,4 @@
 Significance: major
 Type: changed
 
-Reduce espensive image weight determing operation to happen only when necessary.
+Update expensive image weight determining operation to happen only when necessary.
