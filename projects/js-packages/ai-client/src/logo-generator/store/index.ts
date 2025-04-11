@@ -5,9 +5,9 @@ import { createReduxStore, register } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import actions from './actions.js';
-import reducer from './reducer.js';
-import selectors from './selectors.js';
+import actions from './actions.ts';
+import reducer from './reducer.ts';
+import selectors from './selectors.ts';
 
 export const STORE_NAME = 'jetpack-ai/logo-generator';
 

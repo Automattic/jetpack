@@ -8,7 +8,7 @@ import './shared/plan-upgrade-notification';
 import './shared/reader-repost';
 import './shared/stripe-connection-notification';
 import './extended-blocks/core-embed';
-import './extended-blocks/core-site-logo/index.js';
+import './extended-blocks/core-site-logo/index.tsx';
 import './extended-blocks/core-social-links';
 import './extended-blocks/paid-blocks';
 import './shared/styles/slideshow-fix.scss';

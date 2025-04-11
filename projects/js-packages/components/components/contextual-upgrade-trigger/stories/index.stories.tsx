@@ -1,5 +1,5 @@
 import { action } from '@storybook/addon-actions';
-import ContextualUpgradeTrigger from '../index.js';
+import ContextualUpgradeTrigger from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Components/Contextual Upgrade Trigger',

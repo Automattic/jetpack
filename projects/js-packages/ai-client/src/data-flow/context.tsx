@@ -5,10 +5,10 @@ import React, { createContext } from 'react';
 /**
  * Types & Constants
  */
-import SuggestionsEventSource from '../suggestions-event-source/index.js';
-import type { AskQuestionOptionsArgProps } from '../ask-question/index.js';
-import type { RequestingErrorProps } from '../hooks/use-ai-suggestions/index.js';
-import type { PromptProp, RequestingStateProp } from '../types.js';
+import SuggestionsEventSource from '../suggestions-event-source/index.ts';
+import type { AskQuestionOptionsArgProps } from '../ask-question/index.ts';
+import type { RequestingErrorProps } from '../hooks/use-ai-suggestions/index.ts';
+import type { PromptProp, RequestingStateProp } from '../types.ts';
 
 export type AiDataContextProps = {
 	/*

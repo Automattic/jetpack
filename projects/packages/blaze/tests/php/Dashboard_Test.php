@@ -12,12 +12,12 @@ use WorDBless\BaseTestCase;
 
 /**
  * PHPUnit tests for the Dashboard class.
+ *
+ * @covers \Automattic\Jetpack\Blaze\Dashboard
  */
 class Dashboard_Test extends BaseTestCase {
 	/**
 	 * Test has root dom.
-	 *
-	 * @covers Automattic\Jetpack\Blaze\Dashboard::render
 	 */
 	public function test_render() {
 		$this->expectOutputRegex( '/<div id="wpcom" class="jp-blaze-dashboard".*>/i' );
@@ -26,8 +26,6 @@ class Dashboard_Test extends BaseTestCase {
 
 	/**
 	 * Test has root dom with the provided overridden classname.
-	 *
-	 * @covers Automattic\Jetpack\Blaze\Dashboard::render
 	 */
 	public function test_render_with_overridden_class() {
 		$this->expectOutputRegex( '/<div id="wpcom" class="custom-class-dashboard".*>/i' );
@@ -36,8 +34,6 @@ class Dashboard_Test extends BaseTestCase {
 
 	/**
 	 * Ensure the script can be enqueued in admin.
-	 *
-	 * @covers Automattic\Jetpack\Blaze\Dashboard::admin_init
 	 */
 	public function test_admin_init() {
 		( new Dashboard() )->admin_init();
@@ -46,8 +42,6 @@ class Dashboard_Test extends BaseTestCase {
 
 	/**
 	 * Ensure the script and style are enqueued.
-	 *
-	 * @covers Automattic\Jetpack\Blaze\Dashboard::load_admin_scripts
 	 */
 	public function test_load_admin_scripts() {
 		$script_handle = Dashboard::SCRIPT_HANDLE;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import NumberSlider from '../index.js';
+import NumberSlider from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof NumberSlider > = {

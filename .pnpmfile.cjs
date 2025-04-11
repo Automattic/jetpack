@@ -225,6 +225,15 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ 'flat-cache' ] = '^4';
 	}
 
+	// Dependency on "latest" makes for many spurious updates. Leave it for the lockfile maintenance PRs.
+	// No upstream evident to report bugs to.
+	if (
+		pkg.name === '@paulirish/trace_engine' &&
+		pkg.dependencies?.[ 'third-party-web' ] === 'latest'
+	) {
+		pkg.dependencies[ 'third-party-web' ] = '*';
+	}
+
 	return pkg;
 }
 

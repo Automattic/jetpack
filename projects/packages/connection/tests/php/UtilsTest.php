@@ -12,6 +12,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Provides unit tests for the methods in the Utils class.
+ *
+ * @covers \Automattic\Jetpack\Connection\Utils
  */
 class UtilsTest extends TestCase {
 
@@ -26,7 +28,6 @@ class UtilsTest extends TestCase {
 	/**
 	 * Tests the Utils::jetpack_api_constant_filter() method.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Utils::jetpack_api_constant_filter
 	 * @dataProvider jetpack_api_constant_filter_data_provider
 	 *
 	 * @param mixed  $constant_value The constant value.

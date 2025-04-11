@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Do not load in the editor if module is off

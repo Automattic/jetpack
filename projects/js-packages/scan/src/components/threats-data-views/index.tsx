@@ -16,7 +16,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import { ThreatSeverityBadge, getThreatType, type Threat } from '@automattic/jetpack-scan';
-import ThreatFixerButton from '../threat-fixer-button/index.js';
+import ThreatFixerButton from '../threat-fixer-button/index.tsx';
 import {
 	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
@@ -37,9 +37,9 @@ import {
 	THREAT_ICONS,
 	THREAT_STATUSES,
 	THREAT_TYPES,
-} from './constants.js';
+} from './constants.ts';
 import styles from './styles.module.scss';
-import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-control.js';
+import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-control.tsx';
 
 /**
  * DataViews component for displaying security threats.

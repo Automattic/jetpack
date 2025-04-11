@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/number-formatters",
-	"version": "1.0.0-alpha.1",
+	"version": "1.0.0-alpha.2",
 	"description": "Number formatting utilities",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -27,7 +27,6 @@
 		"jest-environment-jsdom": "29.7.0",
 		"typescript": "5.8.2"
 	},
-	"type": "module",
 	"exports": {
 		".": {
 			"jetpack:src": "./src/index.ts",

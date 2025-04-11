@@ -1,7 +1,7 @@
 /**
  * Types
  */
-import type { Logo } from './store/types.js';
+import type { Logo } from './store/types.ts';
 
 export type SiteDetails = {
 	ID: number;

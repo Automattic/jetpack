@@ -1,13 +1,13 @@
 import { Writable, writable } from 'svelte/store';
-import { ApiError } from './ApiError.js';
+import { ApiError } from './ApiError.ts';
 import {
 	Pending,
 	SyncedStoreInterface,
 	SyncedWritable,
 	SyncedStoreCallback,
 	SyncedStoreError,
-} from './types.js';
-import { sleep } from './utils.js';
+} from './types.ts';
+import { sleep } from './utils.ts';
 
 /*
  * A custom Svelte Store that's used to indicate if a value is being synced.

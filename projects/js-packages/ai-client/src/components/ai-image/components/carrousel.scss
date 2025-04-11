@@ -37,7 +37,7 @@ $scale-factor: 0.55;
 
 		&-message {
 			font-size: 10px;
-			color: red;
+			color: #f00;
 		}
 	}
 
@@ -71,10 +71,10 @@ $scale-factor: 0.55;
 					}
 
 					&-icon {
-						fill: white;
+						fill: #fff;
 
 						&.is-disabled {
-							fill: gray;
+							fill: #808080;
 						}
 					}
 
@@ -129,7 +129,7 @@ $scale-factor: 0.55;
 					&-icon {
 
 						&.is-disabled {
-							fill: gray;
+							fill: #808080;
 						}
 					}
 				}
