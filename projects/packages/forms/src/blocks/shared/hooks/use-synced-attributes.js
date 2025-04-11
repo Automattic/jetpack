@@ -7,9 +7,9 @@ import { isEqual } from 'lodash';
 /**
  * Context for managing synced attributes across blocks.
  *
- * @type {React.Context<?{syncedAttributes: object, setSyncedAttributes: Function}>}
+ * @type {React.Context<[syncedAttributes: object, setSyncedAttributes: Function]>}
  */
-const SyncedAttributeContext = createContext( {} );
+const SyncedAttributeContext = createContext( [ {}, () => {} ] );
 
 /**
  * Provider component that manages synced attributes across blocks.
@@ -40,18 +40,15 @@ export function SyncedAttributeProvider( { children } ) {
  * The `setSyncedAttributes` function it returns is also adjusted so that it only updates
  * the attributes for the given block type.
  *
- * @param {string} name - The name of the block.
- *
+ * @param {string}             name         - The name of the block.
+ * @param {[object, Function]} contextValue - The context value from SyncedAttributeContext.
  * @return {Array} Array containing the synced attributes and the function to update them.
  */
-function useSyncedAttributesForBlock( name ) {
-	const [ syncedAttributes, setSyncedAttributes ] = useContext( SyncedAttributeContext );
+function useSyncedAttributesForBlock( name, contextValue ) {
+	const [ syncedAttributes, setSyncedAttributes ] = contextValue;
 
 	return useMemo( () => {
-		return [
-			syncedAttributes?.[ name ],
-			attributes => setSyncedAttributes( { name, attributes } ),
-		];
+		return [ syncedAttributes[ name ], attributes => setSyncedAttributes( { name, attributes } ) ];
 	}, [ name, setSyncedAttributes, syncedAttributes ] );
 }
 
@@ -117,14 +114,18 @@ export function useSyncedAttributes(
 	setOwnAttributes
 ) {
 	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch( 'core/block-editor' );
+	const contextValue = useContext( SyncedAttributeContext );
 
 	// The synced attributes are pulled from the parent form block via react context.
 	// They can be updated using the `setSyncedAttributes` function.
 	// These attributes are the source of truth for all blocks that are synced.
 	// If they change, the current block will be updated to match the synced attributes using its `setAttributes` function.
-	const [ syncedAttributes, setSyncedAttributes ] = useSyncedAttributesForBlock( name );
+	const [ syncedAttributes, setSyncedAttributes ] = useSyncedAttributesForBlock(
+		name,
+		contextValue
+	);
 
-	// The  own attributes belong to the current block that this hook operates on.
+	// The own attributes belong to the current block that this hook operates on.
 	// If these change and the block is synced, the synced attributes will be updated on the parent form using
 	// the `setSyncedAttributes` function.
 	const ownAttributes = useMemo(
@@ -134,7 +135,10 @@ export function useSyncedAttributes(
 	const previousOwnAttributes = usePrevious( ownAttributes ) ?? ownAttributes;
 
 	useEffect( () => {
-		if ( ! isSynced ) {
+		// Skip syncing if not needed or possible.
+		// When a field is rendered in a preview i.e. without a parent form the useFormWrapper hook will
+		// wrap the field in a new block leading to a moment when the synced attribute context is not yet available.
+		if ( ! isSynced || ! contextValue ) {
 			return;
 		}
 
@@ -183,5 +187,6 @@ export function useSyncedAttributes(
 		previousOwnAttributes,
 		syncedAttributes,
 		__unstableMarkNextChangeAsNotPersistent,
+		contextValue,
 	] );
 }
