@@ -101,7 +101,7 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function on_profile_update( int $user_id, $old_user_data ): void {
-		if ( ! is_object( $old_user_data ) || ! isset( $old_user_data->user_pass ) || '' === $old_user_data->user_pass ) {
+		if ( ! is_object( $old_user_data ) || empty( $old_user_data->user_pass ) ) {
 			return;
 		}
 
@@ -119,7 +119,7 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function on_password_reset( $user ): void {
-		if ( ! is_object( $user ) || ! isset( $user->ID ) || ! isset( $user->user_pass ) || '' === $user->user_pass ) {
+		if ( ! is_object( $user ) || ! isset( $user->ID ) || empty( $user->user_pass ) ) {
 			return;
 		}
 
