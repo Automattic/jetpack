@@ -48,18 +48,57 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		);
 	}
 
-	// public function test_get_block_support_classes_and_styles() {}
+	/**
+	 * Test that ::block_attributes_to_shortcode_attributes works correctly with styles.
+	 */
+	public function test_block_attributes_to_shortcode_attributes_with_styles() {
+		$block                = array(
+			'blockName'   => 'jetpack/field-name',
+			'attrs'       => array(
+				'required' => false,
+			),
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/label',
+					'attrs'     => array(
+						'label'     => 'Name',
+						'textColor' => 'swamp-green',
+						'style'     => array(
+							'elements' => array(
+								'link' => array( 'color' => array( 'text' => 'var:preset|color|accent-3' ) ),
+							),
+						),
+					),
+				),
+				array(
+					'blockName' => 'jetpack/input',
+					'attrs'     => array(
+						'style' => array(
+							'color'      => array(
+								'text'       => 'swamp-green',
+								'background' => 'swamp-red',
+							),
+							'typography' => array(
+								'fontSize'      => '24px',
+								'fontWeight'    => 'bold',
+								'fontStyle'     => 'italic',
+								'lineHeight'    => '1.5',
+								'letterSpacing' => '0.1em',
+							),
+							'border'     => array(
+								'color' => 'swamp-blue',
+								'width' => '1px',
+								'style' => 'dashed',
+							),
+						),
+					),
+				),
+			),
+		);
+		$shortcode_attributes = Contact_Form_Plugin::block_attributes_to_shortcode_attributes( array(), 'checkbox', new \WP_Block( $block ) );
 
-	// public function test_block_attributes_to_shortcode_attributes() {
-	// $attributes = array(
-	// 'label'        => 'Single',
-	// 'isStandalone' => true,
-	// 'style'        => array(
-	// 'color' => array( 'text' => 'caramel' ),
-	// ),
-	// );
-
-	// $shortcode_attributes = Contact_Form_Plugin::block_attributes_to_shortcode_attributes( $attributes, 'checkbox', null );
-	// $this->assertEquals( 'label="Single" isStandalone="1" style="color:caramel;"', $shortcode_attributes );
-	// }
+		$this->assertEquals( 'wp-block-jetpack-label has-text-color has-swamp-green-color', $shortcode_attributes['labelclasses'] );
+		$this->assertEquals( 'wp-block-jetpack-input has-text-color has-background has-border-color', $shortcode_attributes['inputclasses'] );
+		$this->assertEquals( 'color:swamp-green;background-color:swamp-red; font-size:24px;font-style:italic;font-weight:bold;line-height:1.5;letter-spacing:0.1em; border-color:swamp-blue;border-style:dashed;border-width:1px;', $shortcode_attributes['inputstyles'] );
+	}
 }

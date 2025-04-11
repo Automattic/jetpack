@@ -889,7 +889,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
-	public function test_make_sure_checkbox_field_renders_as_expected_with_style() {
+	public function test_gutenblock_render_field_checkbox() {
 		$block     = array(
 			'blockName'   => 'jetpack/field-checkbox',
 			'attrs'       => array(
@@ -916,8 +916,10 @@ class Contact_Form_Test extends BaseTestCase {
 		);
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox( array(), '', new \WP_Block( $block ) );
 		$expected  = '[contact-field type="checkbox" label="single" optionclasses=" has-text-color" optionstyles="color:caramel; font-size:24px;"/]';
-		$this->assertEquals( $expected, $shortcode );
 
+		// Check that the generated shortcode is as expected.
+		// @TODO do we need this step?
+		$this->assertEquals( $expected, $shortcode );
 		$html = do_shortcode( $shortcode );
 		$this->assertEquals( $expected, $html );
 	}
