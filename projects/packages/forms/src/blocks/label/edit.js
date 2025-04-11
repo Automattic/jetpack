@@ -1,11 +1,11 @@
 import { RichText, useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
-import useSyncStyleAttributes from '../shared/hooks/use-sync-style-attributes';
+import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
 import { ALLOWED_FORMATS, DATE_FORMATS, FORM_STYLE } from '../shared/util/constants.js';
 import getBlockStyle from '../shared/util/get-block-style.js';
 
-const SYNCED_ATTRIBUTES = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
+const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
 
 const WithNotchedWrapper = ( { formStyle, children } ) => {
 	if ( formStyle === FORM_STYLE.OUTLINED ) {
@@ -21,14 +21,15 @@ const WithNotchedWrapper = ( { formStyle, children } ) => {
 	return <>{ children }</>;
 };
 
-const LabelEdit = ( { attributes, clientId, name, setAttributes, context } ) => {
-	useSyncStyleAttributes( clientId, name, 'jetpack/contact-form', SYNCED_ATTRIBUTES );
-
+const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 	const {
 		'jetpack/form-className': formClassName,
 		'jetpack/field-required': required,
 		'jetpack/field-dateFormat': dateFormat,
+		'jetpack/field-share-attributes': isSynced,
 	} = context;
+	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
+
 	const { label, defaultLabel, requiredText } = attributes;
 
 	const placeholder = defaultLabel ?? label ?? __( 'Add label…', 'jetpack-forms' );
