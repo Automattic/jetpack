@@ -32,6 +32,10 @@ const settings = {
 			type: 'string',
 			default: 'implicit',
 		},
+		defaultValue: {
+			type: 'string',
+			default: '',
+		},
 		implicitConsentMessage: {
 			type: 'string',
 			default: __(
