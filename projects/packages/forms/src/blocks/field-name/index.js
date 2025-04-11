@@ -21,6 +21,22 @@ const settings = {
 	edit,
 	deprecated,
 	save,
+	example: {
+		innerBlocks: [
+			{
+				name: 'jetpack/label',
+				attributes: {
+					label: __( 'Name', 'jetpack-forms' ),
+				},
+			},
+			{
+				name: 'jetpack/input',
+				attributes: {
+					type: 'text',
+				},
+			},
+		],
+	},
 };
 
 export default {
