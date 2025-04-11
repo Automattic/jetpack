@@ -10,23 +10,13 @@ use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 
 class Lcp implements Feature, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync {
-	/**
-	 * Storage class instance.
-	 *
-	 * @var LCP_Storage
-	 */
-	protected $storage;
-
-	public function __construct() {
-		$this->storage = new LCP_Storage();
-	}
 
 	public function setup() {
 		return true;
 	}
 
 	public static function activate() {
-		( new LCP_Optimizer() )->start();
+		( new LCP_Analyzer() )->start();
 	}
 
 	public static function get_slug() {
@@ -47,8 +37,7 @@ class Lcp implements Feature, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync {
 	 * @return bool
 	 */
 	public function is_ready() {
-		// return ( new LCP_State() )->is_optimized();
-		return true;
+		return ( new LCP_State() )->is_analyzed();
 	}
 
 	/**
@@ -57,7 +46,7 @@ class Lcp implements Feature, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync {
 	 * @return string[]
 	 */
 	public static function get_change_output_action_names() {
-		return array( 'jetpack_boost_lcp_optimized' );
+		return array( 'jetpack_boost_lcp_analyzed' );
 	}
 
 	/**
@@ -79,7 +68,7 @@ class Lcp implements Feature, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync {
 							)
 						)
 					),
-					'status'       => Schema::enum( array( 'not_optimized', 'generated', 'pending', 'error' ) )->fallback( 'not_optimized' ),
+					'status'       => Schema::enum( array( 'not_analyzed', 'analyzed', 'pending', 'error' ) )->fallback( 'not_analyzed' ),
 					'created'      => Schema::as_float()->nullable(),
 					'updated'      => Schema::as_float()->nullable(),
 					'status_error' => Schema::as_string()->nullable(),
@@ -87,7 +76,7 @@ class Lcp implements Feature, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync {
 			)->fallback(
 				array(
 					'pages'   => array( 'fallback' ),
-					'status'  => 'not_optimized',
+					'status'  => 'not_analyzed',
 					'created' => null,
 					'updated' => null,
 				)

@@ -6,17 +6,17 @@ use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Cornerstone_Provider;
 
-class LCP_Optimizer {
+class LCP_Analyzer {
 	/** @var LCP_State */
 	private $state;
 
 	/**
-	 * Start the LCP optimization process
+	 * Start the LCP analysis process
 	 *
 	 * @return array The current state data
 	 */
 	public function start() {
-		// Get cornerstone pages to optimize
+		// Get cornerstone pages to analyze
 		$pages = $this->get_cornerstone_pages();
 
 		// Store those pages in the LCP State
@@ -28,11 +28,10 @@ class LCP_Optimizer {
 		// Get the data
 		$data = $this->state->get();
 
-		// Start the optimization process
-		// This would call an API or run a local process
-		$this->optimize_pages( $pages );
+		// Start the analysis process
+		$this->analyze_pages( $pages );
 
-		// Clear previous LCP optimization data from storage
+		// Clear previous LCP analysis data from storage
 		// TODO: Uncomment this when we have a storage class
 		// $storage = new LCP_Storage();
 		// $storage->clear();
@@ -41,7 +40,7 @@ class LCP_Optimizer {
 	}
 
 	/**
-	 * Get cornerstone pages for optimization
+	 * Get cornerstone pages for analysis
 	 *
 	 * @return array
 	 */
@@ -60,17 +59,16 @@ class LCP_Optimizer {
 	}
 
 	/**
-	 * Run optimization for the given pages
-	 * This is where you'd implement the actual LCP optimization logic
+	 * Run analysis for the given pages
 	 *
-	 * @param array $pages Pages to optimize
+	 * @param array $pages Pages to analyze
 	 */
-	private function optimize_pages( $pages ) {
+	private function analyze_pages( $pages ) {
 		$payload = array(
 			'pages'     => $pages,
 			'requestId' => md5( wp_json_encode( $pages ) . time() ),
 		);
-		return Boost_API::post( 'optimize-lcp', $payload );
+		return Boost_API::post( 'analyze-lcp', $payload );
 	}
 
 	/**

@@ -2,12 +2,14 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
+use WP_Error;
+
 class LCP_State {
-	const OPTIMIZATION_STATES = array(
-		'not_optimized' => 'not_optimized',
-		'pending'       => 'pending',
-		'optimized'     => 'optimized',
-		'error'         => 'error',
+	const ANALYSIS_STATES = array(
+		'not_analyzed' => 'not_analyzed',
+		'pending'      => 'pending',
+		'analyzed'     => 'analyzed',
+		'error'        => 'error',
 	);
 
 	const PAGE_STATES = array(
@@ -30,11 +32,11 @@ class LCP_State {
 		$this->state['updated'] = microtime( true );
 		jetpack_boost_ds_set( 'lcp_state', $this->state );
 
-		if ( $this->is_optimized() ) {
+		if ( $this->is_analyzed() ) {
 			/**
-			 * Fires when LCP optimization has successfully completed.
+			 * Fires when LCP analysis has successfully completed.
 			 */
-			do_action( 'jetpack_boost_lcp_optimized' );
+			do_action( 'jetpack_boost_lcp_analyzed' );
 		}
 	}
 
@@ -44,7 +46,7 @@ class LCP_State {
 		}
 
 		$this->state['status_error'] = $message;
-		$this->state['status']       = self::OPTIMIZATION_STATES['error'];
+		$this->state['status']       = self::ANALYSIS_STATES['error'];
 
 		return $this;
 	}
@@ -54,7 +56,7 @@ class LCP_State {
 	 *
 	 * @param string $page_key The page key.
 	 * @param array  $state    An array to overlay over the current state.
-	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 * @return bool|\WP_Error True on success, WP_Error on failure.
 	 */
 	public function update_page_state( $page_key, $state ) {
 		if ( empty( $this->state['pages'] ) ) {
@@ -71,7 +73,7 @@ class LCP_State {
 			$state
 		);
 
-		$this->maybe_set_optimized();
+		$this->maybe_set_analyzed();
 
 		return true;
 	}
@@ -81,7 +83,7 @@ class LCP_State {
 	 *
 	 * @param string $page_key The page key.
 	 * @param array  $errors   A list of errors to store with this page.
-	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 * @return bool|\WP_Error True on success, WP_Error on failure.
 	 */
 	public function set_page_errors( $page_key, $errors ) {
 		return $this->update_page_state(
@@ -98,7 +100,7 @@ class LCP_State {
 	 *
 	 * @param string $page_key  The page key.
 	 * @param array  $metrics   Optional metrics to store with this page.
-	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 * @return bool|\WP_Error True on success, WP_Error on failure.
 	 */
 	public function set_page_success( $page_key, $metrics = array() ) {
 		return $this->update_page_state(
@@ -111,10 +113,10 @@ class LCP_State {
 	}
 
 	/**
-	 * Set the state to optimized if all pages are done. Should be called wherever
+	 * Set the state to analyzed if all pages are done. Should be called wherever
 	 * a page's state is updated.
 	 */
-	private function maybe_set_optimized() {
+	private function maybe_set_analyzed() {
 		if ( empty( $this->state['pages'] ) ) {
 			return;
 		}
@@ -123,7 +125,7 @@ class LCP_State {
 		$is_done     = ! in_array( self::PAGE_STATES['pending'], $page_states, true );
 
 		if ( $is_done ) {
-			$this->state['status'] = self::OPTIMIZATION_STATES['optimized'];
+			$this->state['status'] = self::ANALYSIS_STATES['analyzed'];
 		}
 	}
 
@@ -140,24 +142,24 @@ class LCP_State {
 			true
 		);
 
-		return self::OPTIMIZATION_STATES['error'] === $this->state['status'] || $any_page_has_error;
+		return self::ANALYSIS_STATES['error'] === $this->state['status'] || $any_page_has_error;
 	}
 
 	public function get_error_message() {
 		return isset( $this->state['status_error'] ) ? $this->state['status_error'] : null;
 	}
 
-	public function is_optimized() {
-		return self::OPTIMIZATION_STATES['optimized'] === $this->state['status'];
+	public function is_analyzed() {
+		return self::ANALYSIS_STATES['analyzed'] === $this->state['status'];
 	}
 
 	public function is_pending() {
-		return self::OPTIMIZATION_STATES['pending'] === $this->state['status'];
+		return self::ANALYSIS_STATES['pending'] === $this->state['status'];
 	}
 
 	public function prepare_request() {
 		$this->state = array(
-			'status'  => self::OPTIMIZATION_STATES['pending'],
+			'status'  => self::ANALYSIS_STATES['pending'],
 			'pages'   => array(),
 			'created' => microtime( true ),
 			'updated' => microtime( true ),
@@ -176,14 +178,14 @@ class LCP_State {
 
 	/**
 	 * Add pages to the state, sets their status to pending
-	 * and sets the optimization status to pending.
+	 * and sets the analysis status to pending.
 	 *
 	 * @param array $pages The pages to include in the state and set as pending.
 	 * @return $this
 	 */
-	public function prepare_for_optimization( $pages ) {
+	public function prepare_for_analysis( $pages ) {
 		$this->set_pending_pages( $pages );
-		$this->state['status'] = self::OPTIMIZATION_STATES['pending'];
+		$this->state['status'] = self::ANALYSIS_STATES['pending'];
 		return $this;
 	}
 
