@@ -179,7 +179,7 @@ function get_button_styles( $attributes ) {
 	$has_custom_font_size        = $has_typography_styles && array_key_exists( 'fontSize', $attributes['style']['typography'] );
 	$has_custom_text_transform   = $has_typography_styles && array_key_exists( 'textTransform', $attributes['style']['typography'] );
 	$border_styles               = array();
-	$border_attribute            = isset( $attributes['style']['border'] ) ? $attributes['style']['border'] : null;
+	$border_attribute            = $attributes['style']['border'] ?? null;
 	$is_border_style_array       = is_array( $border_attribute );
 
 	$has_custom_border_color = $is_border_style_array && isset( $border_attribute['color'] );
