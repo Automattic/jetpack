@@ -5,6 +5,7 @@ export default [
 	makeEnvConfig( 'jquery', [
 		'src/features/custom-css/custom-css/js/**',
 		'src/features/logo-tool/js/**',
+		'src/features/wpcom-widgets/music-player/**',
 	] ),
 	{
 		rules: {
