@@ -1192,6 +1192,21 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that the form content is trimmed
+	 */
+	public function test_parse_contact_field_trims_content() {
+
+		$shortcode = '[contact-field id="1" required]     adsasd        [/contact-field]';
+		$html      = do_shortcode( $shortcode );
+
+		/*
+		 * The expected string has some quotes escaped, since we want to make
+		 * sure we don't output anything harmful
+		 */
+		$this->assertEquals( '[contact-field id="1" required]adsasd[/contact-field]', $html );
+	}
+
+	/**
 	 * Test get_export_data_for_posts with fully vaid data input.
 	 *
 	 * @group csvexport
