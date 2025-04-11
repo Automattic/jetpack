@@ -101,12 +101,13 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function on_profile_update( int $user_id, $old_user_data ): void {
+		if ( ! isset( $old_user_data->user_pass ) || '' === $old_user_data->user_pass ) {
+			return;
+		}
+
 		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
-			// Only save if user_pass property exists and is not empty
-			if ( isset( $old_user_data->user_pass ) && '' !== $old_user_data->user_pass ) {
-				$this->save_recent_password_hash( $user_id, $old_user_data->user_pass );
-			}
+			$this->save_recent_password_hash( $user_id, $old_user_data->user_pass );
 		}
 	}
 
@@ -118,7 +119,7 @@ class Password_Manager {
 	 * @return void
 	 */
 	public function on_password_reset( $user ): void {
-		if ( ! isset( $user->ID ) || ! isset( $user->user_pass ) || empty( $user->user_pass ) ) {
+		if ( ! isset( $user->ID ) || ! isset( $user->user_pass ) || '' === $user->user_pass ) {
 			return;
 		}
 
