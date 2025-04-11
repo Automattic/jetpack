@@ -8,8 +8,10 @@ use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
+use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_LCP;
 
-class Lcp implements Feature, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync {
+class Lcp implements Feature, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync, Has_Always_Available_Endpoints {
 
 	public function setup() {
 		return true;
@@ -21,6 +23,12 @@ class Lcp implements Feature, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync {
 
 	public static function get_slug() {
 		return 'lcp';
+	}
+
+	public function get_always_available_endpoints() {
+		return array(
+			new Update_LCP(),
+		);
 	}
 
 	public static function is_available() {

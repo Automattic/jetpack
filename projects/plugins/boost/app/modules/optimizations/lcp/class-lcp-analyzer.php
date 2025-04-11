@@ -32,9 +32,8 @@ class LCP_Analyzer {
 		$this->analyze_pages( $pages );
 
 		// Clear previous LCP analysis data from storage
-		// TODO: Uncomment this when we have a storage class
-		// $storage = new LCP_Storage();
-		// $storage->clear();
+		$storage = new LCP_Storage();
+		$storage->clear();
 
 		return $data;
 	}

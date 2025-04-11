@@ -98,16 +98,14 @@ class LCP_State {
 	/**
 	 * Set a page's state to success.
 	 *
-	 * @param string $page_key  The page key.
-	 * @param array  $metrics   Optional metrics to store with this page.
+	 * @param string $page_key The page key.
 	 * @return bool|\WP_Error True on success, WP_Error on failure.
 	 */
-	public function set_page_success( $page_key, $metrics = array() ) {
+	public function set_page_success( $page_key ) {
 		return $this->update_page_state(
 			$page_key,
-			array_merge(
-				array( 'status' => self::PAGE_STATES['success'] ),
-				$metrics
+			array(
+				'status' => self::PAGE_STATES['success'],
 			)
 		);
 	}
