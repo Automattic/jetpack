@@ -42,9 +42,10 @@ export default function BlogrollAppenderResults( { results, onSelect, searchInpu
 			{ results.length > 0 && (
 				<ul aria-live="polite">
 					{ results.map( result => {
-						const isDuplicate = siteRecommendations.some( siteRecommendation => {
-							return siteRecommendation?.id === result?.blog_id;
-						} );
+						const isDuplicate =
+							siteRecommendations?.some?.( siteRecommendation => {
+								return siteRecommendation?.id === result?.blog_id;
+							} ) || false;
 
 						return (
 							<li key={ result.blog_id } className="jetpack-blogroll__appender-result-container">
