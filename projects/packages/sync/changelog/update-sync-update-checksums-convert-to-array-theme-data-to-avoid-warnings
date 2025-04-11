@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Warning removal for sites with wrong info in update_themes site transient
+
+
