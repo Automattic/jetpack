@@ -23,6 +23,7 @@ import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
+import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
@@ -33,7 +34,6 @@ import JetpackManageResponsesSettings from './components/jetpack-manage-response
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
-
 const validFields = filter( childBlocks, ( { settings } ) => {
 	return (
 		! settings.parent ||
@@ -254,9 +254,11 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	}
 
 	return (
-		<ThemeProvider targetDom={ wrapperRef.current }>
-			<div { ...blockProps }>{ elt }</div>
-		</ThemeProvider>
+		<SyncedAttributeProvider>
+			<ThemeProvider targetDom={ wrapperRef.current }>
+				<div { ...blockProps }>{ elt }</div>
+			</ThemeProvider>
+		</SyncedAttributeProvider>
 	);
 }
 
