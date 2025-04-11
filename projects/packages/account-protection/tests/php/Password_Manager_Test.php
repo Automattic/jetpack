@@ -145,6 +145,16 @@ class Password_Manager_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_on_profile_update_with_null_user_data() {
+		$_POST['action'] = 'update';
+
+		$password_manager_mock = $this->create_password_manager_mocks();
+		$password_manager_mock->expects( $this->never() )
+			->method( 'save_recent_password_hash' );
+
+		$password_manager_mock->on_profile_update( 1, null );
+	}
+
 	public function test_on_password_reset_saves_recent_password() {
 		$user            = new \WP_User();
 		$user->ID        = 1;
@@ -193,6 +203,14 @@ class Password_Manager_Test extends BaseTestCase {
 			->method( 'save_recent_password_hash' );
 
 		$password_manager_mock->on_password_reset( $user );
+	}
+
+	public function test_on_password_reset_with_null_user_data() {
+		$password_manager_mock = $this->create_password_manager_mocks();
+		$password_manager_mock->expects( $this->never() )
+			->method( 'save_recent_password_hash' );
+
+		$password_manager_mock->on_password_reset( null );
 	}
 
 	public function test_save_recent_password_hash_stores_last_10_hashes() {
