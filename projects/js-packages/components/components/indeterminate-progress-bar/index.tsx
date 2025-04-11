@@ -7,7 +7,7 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import styles from './style.module.scss';
-import { IndeterminateProgressBarProps } from './types.js';
+import { IndeterminateProgressBarProps } from './types.ts';
 import type React from 'react';
 
 /**

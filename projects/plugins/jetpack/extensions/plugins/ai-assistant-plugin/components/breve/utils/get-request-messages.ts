@@ -3,7 +3,7 @@
  */
 import { getBlockContent } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
-import features from '../features/index.js';
+import features from '../features/index.ts';
 
 // Map of types to the corresponding AI Assistant request type.
 const requestTypeMap = {

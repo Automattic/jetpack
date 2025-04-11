@@ -6,8 +6,8 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import AudioDurationDisplay from '../../../components/audio-duration-display/index.js';
-import useMediaRecording from '../index.js';
+import AudioDurationDisplay from '../../../components/audio-duration-display/index.tsx';
+import useMediaRecording from '../index.ts';
 /**
  * Types
  */

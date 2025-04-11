@@ -23,8 +23,6 @@ class Jetpack_Widget_Conditions_Test extends WP_UnitTestCase {
 	 *
 	 * Expects to see the same paragraph block for (1) and (3),
 	 * and false for (2).
-	 *
-	 * @covers Jetpack_Widget_Conditions::filter_widget
 	 */
 	public function test_filter_widget() {
 		// Block with rule for "Display only when logged out" (Will pass during unit tests).

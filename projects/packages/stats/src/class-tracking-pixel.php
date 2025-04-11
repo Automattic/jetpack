@@ -47,11 +47,12 @@ class Tracking_Pixel {
 	public static function build_view_data() {
 		global $wp_the_query;
 
-		$blog     = Jetpack_Options::get_option( 'id' );
-		$tz       = get_option( 'gmt_offset' );
-		$v        = 'ext';
-		$blog_url = wp_parse_url( site_url() );
-		$srv      = $blog_url['host'];
+		$blog        = Jetpack_Options::get_option( 'id' );
+		$tz          = get_option( 'gmt_offset' );
+		$v           = 'ext';
+		$blog_url    = wp_parse_url( site_url() );
+		$srv         = $blog_url['host'];
+		$is_not_post = false;
 		if ( $wp_the_query->is_single || $wp_the_query->is_page || $wp_the_query->is_posts_page ) {
 			// Store and reset the queried_object and queried_object_id
 			// Otherwise, redirect_canonical() will redirect to home_url( '/' ) for show_on_front = page sites where home_url() is not all lowercase.
@@ -70,7 +71,8 @@ class Tracking_Pixel {
 				$wp_the_query->queried_object_id = $queried_object_id;
 			}
 		} else {
-			$post = '0';
+			$post        = '0';
+			$is_not_post = true;
 		}
 		$view_data = compact( 'v', 'blog', 'post', 'tz', 'srv' );
 		// Batcache removes some of the UTM params from $_GET, we need to extract them from uri directly instead.
@@ -85,7 +87,83 @@ class Tracking_Pixel {
 			}
 		}
 
+		if ( $is_not_post ) {
+			if ( $wp_the_query->is_home() ) {
+				$view_data['home'] = '1';
+			} elseif ( $wp_the_query->is_search() ) {
+				$view_data['arch_search']  = sanitize_text_field( $wp_the_query->query['s'] );
+				$view_data['arch_filters'] = sanitize_text_field( self::build_search_filters( $wp_the_query ) );
+				$view_data['arch_results'] = $wp_the_query->posts ? count( $wp_the_query->posts ) : 0;
+			} elseif ( $wp_the_query->is_archive() ) {
+				if ( $wp_the_query->is_date ) {
+					$query                  = $wp_the_query->query;
+					$date_parts             = array_filter( array( $query['year'] ?? null, $query['monthnum'] ?? null, $query['day'] ?? null ) );
+					$date                   = implode( '/', $date_parts );
+					$view_data['arch_date'] = $date;
+				}
+				if ( $wp_the_query->is_category ) {
+					$view_data['arch_cat'] = $wp_the_query->query['category_name'] ?? $wp_the_query->query_vars['category_name'] ?? '';
+				}
+				if ( $wp_the_query->is_tag ) {
+					$view_data['arch_tag'] = $wp_the_query->query['tag'];
+				}
+				if ( $wp_the_query->is_author ) {
+					$view_data['arch_author'] = $wp_the_query->query['author_name'] ?? '';
+				}
+				if ( $wp_the_query->is_tax ) {
+					$query = $wp_the_query->query;
+					if ( is_array( $query ) && count( $query ) === 1 ) {
+						$view_data[ 'arch_tax_' . array_keys( $query )[0] ] = array_values( $query )[0];
+					}
+				}
+				$view_data['arch_results'] = $wp_the_query->posts ? count( $wp_the_query->posts ) : 0;
+			} elseif ( $wp_the_query->is_404() ) {
+				$view_data['arch_err'] = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
+			} else {
+				$view_data['arch_other'] = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
+			}
+		}
 		return $view_data;
+	}
+
+	/**
+	 * Collect the tracking data for a search page.
+	 *
+	 * @access private
+	 * @param  \WP_Query $query The WP_Query object to parse all the filters from.
+	 * @return string The search filters in a URL query string format.
+	 */
+	private static function build_search_filters( $query ) {
+		$data = array(
+			'posts_per_page' => $query->get( 'posts_per_page' ),
+			'paged'          => ( $query->get( 'paged' ) ) ? absint( $query->get( 'paged' ) ) : 1,
+			'orderby'        => $query->get( 'orderby' ),
+			'order'          => $query->get( 'order' ),
+		);
+
+		if ( $query->get( 'author_name' ) ) {
+			$data['author_name'] = $query->get( 'author_name' );
+		}
+		$filters = http_build_query( $data );
+
+		$the_tax_query = $query->tax_query;
+		$terms         = array();
+		if ( ! empty( $the_tax_query->queried_terms ) && is_array( $the_tax_query->queried_terms ) ) {
+			foreach ( $the_tax_query->queries as $tax_query ) {
+				if ( ! is_array( $tax_query ) || 'slug' !== $tax_query['field'] ) {
+					continue;
+				}
+				$taxonomy = $tax_query['taxonomy'];
+				if ( ! isset( $terms[ $taxonomy ] ) || ! is_array( $terms[ $taxonomy ] ) ) {
+					$terms[ $taxonomy ] = array();
+				}
+				$terms[ $taxonomy ] = array_merge( $terms[ $taxonomy ], $tax_query['terms'] );
+			}
+		}
+		if ( ! empty( $terms ) ) {
+			$filters .= '&terms=' . wp_json_encode( $terms );
+		}
+		return $filters;
 	}
 
 	/**

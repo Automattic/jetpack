@@ -66,37 +66,33 @@ function render_block( $attr, $content, $block ) {
 		return $content;
 	}
 
-	$service         = new $services[ $service_name ]( $service_name, array() );
-	$link_props      = $service->get_link(
+	$service      = new $services[ $service_name ]( $service_name, array() );
+	$link_props   = $service->get_link(
 		$post_id,
 		'share=' . esc_attr( $service_name ) . '&nb=1',
 		esc_attr( $data_shared )
 	);
-	$link_url        = $link_props['url'];
-	$link_classes    = sprintf(
+	$link_url     = $link_props['url'];
+	$link_classes = sprintf(
 		'jetpack-sharing-button__button style-%1$s share-%2$s',
 		$style_type,
 		$service_name
 	);
-	$link_aria_label = sprintf(
-		/* translators: %s refers to a string representation of sharing service, e.g. Facebook  */
-		esc_html__( 'Share on %s', 'jetpack' ),
+
+	$accessible_name = sprintf(
+		/* translators: %s refers to a string representation of sharing service, e.g. Facebook */
+		esc_html__( 'Click to share on %s', 'jetpack' ),
 		esc_html( $title )
 	);
 
-	$link_props = $service->get_link(
-		$post_id,
-		'share=' . esc_attr( $service_name ) . '&nb=1',
-		false,
-		esc_attr( $data_shared )
-	);
+	$accessible_name .= __( ' (Opens in new window)', 'jetpack' );
 
 	$block_class_name = 'jetpack-sharing-button__list-item';
 
 	if ( $service_name === 'share' ) {
 		$block_class_name .= ' tooltip';
 		/* translators: aria label for SMS sharing button */
-		$link_aria_label = esc_attr__( 'Share using Native tools', 'jetpack' );
+		$accessible_name = esc_attr__( 'Share using Native tools', 'jetpack' );
 		$link_props      = $service->get_link( $post_id );
 	}
 
@@ -129,13 +125,19 @@ function render_block( $attr, $content, $block ) {
 
 	$component  = '<li class="' . esc_attr( $block_class_name ) . '">';
 	$component .= sprintf(
-		'<a href="%1$s" target="_blank" rel="nofollow noopener noreferrer" class="%2$s" style="%3$s" data-service="%4$s" data-shared="%5$s" aria-label="%6$s">',
+		'<a href="%1$s" target="_blank" rel="nofollow noopener noreferrer" class="%2$s" style="%3$s" data-service="%4$s" data-shared="%5$s" aria-labelledby="%5$s">',
 		esc_url( $link_url ),
 		esc_attr( $link_classes ),
 		esc_attr( $link_styles ),
 		esc_attr( $service_name ),
+		esc_attr( $data_shared )
+	);
+
+	// Add hidden span with accessible name
+	$component .= sprintf(
+		'<span id="%s" hidden>%s</span>',
 		esc_attr( $data_shared ),
-		esc_attr( $link_aria_label )
+		esc_html( $accessible_name )
 	);
 
 	$component .= $style_type !== 'text' ? $icon : '';

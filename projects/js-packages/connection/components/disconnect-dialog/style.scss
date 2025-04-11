@@ -28,7 +28,6 @@
 
 	&__link,
 	.jp-connection__disconnect-dialog__link {
-		font-size: var( --font-body );
 		color: var( --jp-black );
 		text-decoration: underline;
 		height: auto;
@@ -46,7 +45,7 @@
 		}
 
 		&--bold {
-		  font-weight: bold;
+		  font-weight: 700;
 		}
 	}
 

@@ -10,15 +10,13 @@ namespace Automattic\Jetpack;
 /**
  * Test class for Scheduled_Updates_Admin.
  *
- * @coversDefaultClass Automattic\Jetpack\Scheduled_Updates_Admin
+ * @covers \Automattic\Jetpack\Scheduled_Updates_Admin
  */
 class Scheduled_Updates_Admin_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Test get_scheduled_update_text.
 	 *
 	 * @dataProvider update_text_provider
-	 * @covers ::get_scheduled_update_text
-	 *
 	 * @param object $schedule The schedule object.
 	 * @param string $expected The expected text.
 	 */

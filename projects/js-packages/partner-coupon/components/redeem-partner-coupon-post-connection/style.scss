@@ -81,8 +81,8 @@
 		display: flex;
 		justify-content: left;
 		align-items: center;
-		color: #000000;
-		font-weight: bold;
+		color: #000;
+		font-weight: 700;
 
 		> * + * {
 			margin-left: 8px;
@@ -95,17 +95,17 @@
 
   &__heading {
 		font-style: normal;
-		font-weight: bold;
+		font-weight: 700;
 		font-size: 36px;
 		line-height: 40px;
-		color: #000000;
+		color: #000;
 		margin-top: 48px;
 		margin-bottom: 0;
 	}
 
 	p, li {
 		font-style: normal;
-		font-weight: normal;
+		font-weight: 400;
 		font-size: 16px;
 		line-height: 24px;
 		color: var( --jp-black );
@@ -168,7 +168,7 @@
 		padding: 2px 0;
 		border: 0;
 		background: transparent;
-		color: #000000;
+		color: #000;
 		font-weight: 600;
 		font-size: 1rem;
 		text-decoration: underline;

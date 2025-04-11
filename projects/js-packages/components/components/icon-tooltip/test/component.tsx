@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import IconTooltip from '../index.js';
-import { IconTooltipProps } from '../types.js';
+import IconTooltip from '../index.tsx';
+import { IconTooltipProps } from '../types.ts';
 
 describe( 'IconTooltip', () => {
 	const testProps: IconTooltipProps = {

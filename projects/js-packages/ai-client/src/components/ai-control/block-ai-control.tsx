@@ -18,13 +18,13 @@ import React, { forwardRef } from 'react';
 /**
  * Internal dependencies
  */
-import { GuidelineMessage } from '../message/index.js';
-import AIControl from './ai-control.js';
+import { GuidelineMessage } from '../message/index.tsx';
+import AIControl from './ai-control.tsx';
 import './style.scss';
 /**
  * Types
  */
-import type { RequestingStateProp } from '../../types.js';
+import type { RequestingStateProp } from '../../types.ts';
 import type { ReactElement } from 'react';
 
 type BlockAIControlProps = {

@@ -143,7 +143,7 @@
 .color-grid .unavailable:before {
 	color: #fff;
 	content: '\f406';
-	font-family: "Noticons";
+	font-family: Noticons;
 	font-size: 40px;
 	opacity: 0.4;
 	float: left;
@@ -228,8 +228,6 @@ a.button.right-pill {
 
 .the-picker {
 	background: #fff;
-	border: 2px solid #eee;
-	border-top-style: dashed;
 	border: none;
 	display: none;
 	padding: 50px 20px 20px;
@@ -347,7 +345,7 @@ a.button.right-pill {
 }
 
 #the-bg-picker-prompt h4 strong {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .choose-color,
@@ -718,16 +716,16 @@ input#iris {
 
 .background-options p.radios label {
 	margin-left: 2px;
-	color: black;
+	color: #000;
 	float: right;
 	padding: 2px 4px 2px 4px;
 	display: inline-block;
-	background: grey;
+	background: #808080;
 }
 
 .background-options p.radios input:checked + label {
-	font-weight: bold;
-	background: white;
+	font-weight: 700;
+	background: #fff;
 }
 
 .background-options p.bottom {

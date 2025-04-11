@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Remove `default_rendering_mode` hotfix since there's no need for it anymore. 

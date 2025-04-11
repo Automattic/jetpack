@@ -1,2 +1,2 @@
-export * from './components/generator-modal.js';
-export { AiModalPromptInput } from './components/prompt.js';
+export * from './components/generator-modal.tsx';
+export { AiModalPromptInput } from './components/prompt.tsx';

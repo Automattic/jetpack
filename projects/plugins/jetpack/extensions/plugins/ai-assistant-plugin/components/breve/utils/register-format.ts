@@ -94,8 +94,13 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 
 				if ( text && isProofreadEnabled && isFeatureEnabled && ! isFeatureDictionaryLoading ) {
 					const block = getBlock( blockClientId );
+					let blockContent = text ?? '';
+
 					// Only use block content for complex blocks like tables
-					const blockContent = richTextIdentifier === 'content' ? text : getBlockContent( block );
+					if ( richTextIdentifier !== 'content' && !! block ) {
+						blockContent = getBlockContent( block );
+					}
+
 					const textMd5 = md5( blockContent ).toString();
 
 					if ( currentMd5 !== textMd5 ) {
@@ -104,7 +109,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 						setBlockMd5( blockClientId, textMd5 );
 					}
 
-					const highlights = featureHighlight( text, blockClientId );
+					const highlights = featureHighlight( text, blockClientId, richTextIdentifier ) ?? [];
 
 					const applied = highlight( {
 						ignored: ignoredList,

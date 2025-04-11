@@ -226,18 +226,26 @@ function wpcomsh_hide_plugin_remove_link( $links ) {
 }
 
 /**
- * Disable bulk plugin deactivation.
+ * Ensure critical plugins (Jetpack and Akismet) remain active.
  *
- * @param array $actions The actions.
- *
- * @return array
+ * @param mixed $value The new, unserialized option value.
+ * @return array The filtered array of active plugins.
  */
-function wpcomsh_disable_bulk_plugin_deactivation( $actions ) {
-	unset( $actions['deactivate-selected'] );
+function wpcomsh_ensure_critical_plugins_active( $value ) {
+	if ( ! is_array( $value ) ) {
+		return $value;
+	}
 
-	return $actions;
+	// Add critical plugins if they're not in the list
+	foreach ( WPCOM_CORE_ATOMIC_PLUGINS as $critical_plugin ) {
+		if ( ! in_array( $critical_plugin, $value, true ) ) {
+			$value[] = $critical_plugin;
+		}
+	}
+
+	return $value;
 }
-add_filter( 'bulk_actions-plugins', 'wpcomsh_disable_bulk_plugin_deactivation' );
+add_filter( 'pre_update_option_active_plugins', 'wpcomsh_ensure_critical_plugins_active', 10, 2 );
 
 /**
  * Hide the Jetpack version number from the plugin list.

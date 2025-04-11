@@ -19,6 +19,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styles from './index.module.scss';
+import LcpModule from '$features/lcp/lcp';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -144,6 +145,7 @@ const Index = () => {
 			>
 				<CloudCssMeta />
 			</Module>
+			<LcpModule />
 			<PageCacheModule />
 			<Module
 				slug="render_blocking_js"
