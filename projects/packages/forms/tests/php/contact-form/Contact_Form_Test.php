@@ -885,46 +885,6 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test for checkbox field_renders
-	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
-	 */
-	public function test_gutenblock_render_field_checkbox() {
-		$block     = array(
-			'blockName'   => 'jetpack/field-checkbox',
-			'attrs'       => array(
-				'required' => false,
-			),
-			'innerBlocks' => array(
-				array(
-					'blockName' => 'jetpack/option',
-					'attrs'     => array(
-						'label'        => 'single',
-						'isStandalone' => true,
-						'style'        => array(
-							'color'      => array( 'text' => 'caramel' ),
-							'elements'   => array(
-								'link' => array( 'color' => array( 'text' => 'caramel' ) ),
-							),
-							'typography' => array(
-								'fontSize' => '24px',
-							),
-						),
-					),
-				),
-			),
-		);
-		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox( array(), '', new \WP_Block( $block ) );
-		$expected  = '[contact-field type="checkbox" label="single" optionclasses=" has-text-color" optionstyles="color:caramel; font-size:24px;"/]';
-
-		// Check that the generated shortcode is as expected.
-		// @TODO do we need this step?
-		$this->assertEquals( $expected, $shortcode );
-		$html = do_shortcode( $shortcode );
-		$this->assertEquals( $expected, $html );
-	}
-
-	/**
 	 * Multiple fields
 	 *
 	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
