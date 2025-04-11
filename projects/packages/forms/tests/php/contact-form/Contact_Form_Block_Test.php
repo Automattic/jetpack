@@ -32,7 +32,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 
 		$expected_block = array_merge( $block, array( 'hasJPFormParent' => true ) );
 
-		$this->assertEquals( $expected_block, Contact_Form_Block::find_nested_html_block( $block, null, new \WP_Block( $parent_block ) ) );
+		$this->assertEquals( $expected_block, Contact_Form_Block::find_nested_html_block( $block, array(), new \WP_Block( $parent_block ) ) );
 	}
 
 	/**
