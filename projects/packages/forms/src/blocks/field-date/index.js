@@ -39,6 +39,22 @@ const settings = {
 	},
 	deprecated,
 	save,
+	example: {
+		innerBlocks: [
+			{
+				name: 'jetpack/label',
+				attributes: {
+					label: __( 'Date', 'jetpack-forms' ),
+				},
+			},
+			{
+				name: 'jetpack/input',
+				attributes: {
+					type: 'text',
+				},
+			},
+		],
+	},
 };
 
 export default {

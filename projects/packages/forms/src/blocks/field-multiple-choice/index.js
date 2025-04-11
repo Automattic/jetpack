@@ -23,6 +23,42 @@ const settings = {
 		),
 	},
 	edit,
+	example: {
+		innerBlocks: [
+			{
+				name: 'jetpack/label',
+				attributes: {
+					label: __( 'Choose several options', 'jetpack-forms' ),
+				},
+			},
+			{
+				name: 'jetpack/options',
+				attributes: {
+					type: 'checkbox',
+				},
+				innerBlocks: [
+					{
+						name: 'jetpack/option',
+						attributes: {
+							label: __( 'First option', 'jetpack-forms' ),
+						},
+					},
+					{
+						name: 'jetpack/option',
+						attributes: {
+							label: __( 'Second option', 'jetpack-forms' ),
+						},
+					},
+					{
+						name: 'jetpack/option',
+						attributes: {
+							label: __( 'Third option', 'jetpack-forms' ),
+						},
+					},
+				],
+			},
+		],
+	},
 	allowedBlocks: [ 'jetpack/label', 'jetpack/field-options' ],
 	deprecated,
 	save,
