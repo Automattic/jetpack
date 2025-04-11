@@ -65,7 +65,7 @@ class Jetpack_Blog_Stats_Helper {
 			if ( function_exists( 'get_all_time_postviews' ) ) {
 				// This is cached so no need to cache it again.
 				// @phan-suppress-next-line PhanUndeclaredFunction
-				return get_all_time_postviews( $stats_option['postId'] );
+				return (int) get_all_time_postviews( $stats_option['postId'] );
 			}
 		} else {
 			// Simple sites.
