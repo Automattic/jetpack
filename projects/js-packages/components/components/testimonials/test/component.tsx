@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import Testimonials from '../index.js';
-import { Testimonial } from '../testimonial.js';
+import Testimonials from '../index.tsx';
+import { Testimonial } from '../testimonial.tsx';
 
 const testimonials = [
 	{

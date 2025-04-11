@@ -18,8 +18,8 @@ import {
 	ENDPOINT_AI_ASSISTANT_FEATURE,
 	NEW_ASYNC_REQUEST_TIMER_INTERVAL,
 	ACTION_SET_TIER_PLANS_ENABLED,
-} from './constants.js';
-import type { Plan, AiFeatureProps, SiteAIAssistantFeatureEndpointResponseProps } from './types.js';
+} from './constants.ts';
+import type { Plan, AiFeatureProps, SiteAIAssistantFeatureEndpointResponseProps } from './types.ts';
 
 /**
  * Map the response from the `sites/$site/ai-assistant-feature`

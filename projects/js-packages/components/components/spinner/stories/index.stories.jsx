@@ -1,5 +1,5 @@
 import React from 'react';
-import Spinner from '../index.js';
+import Spinner from '../index.jsx';
 
 export default {
 	title: 'JS Packages/Components/Spinner',

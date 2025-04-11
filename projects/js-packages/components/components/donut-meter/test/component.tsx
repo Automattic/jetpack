@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import DonutMeter, { DonutMeterProps } from '../index.js';
+import DonutMeter, { DonutMeterProps } from '../index.tsx';
 
 describe( 'DonutMeter', () => {
 	const testProps: DonutMeterProps = {

@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
-import parseFilename from './parse-filename.js';
-import parsePatch from './parse-patch.js';
+import parseFilename from './parse-filename.ts';
+import parsePatch from './parse-patch.ts';
 import styles from './styles.module.scss';
 
 const filename = ( {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { numberFormat, numberFormatCompact } from '../number-format.js';
+import { numberFormat, numberFormatCompact } from '../number-format.ts';
 
 describe( 'numberFormat()', () => {
 	it( 'should format number with default options', () => {

@@ -1,7 +1,7 @@
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
-import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants.js';
-import { PromptProp, PromptItemProps } from '../types.js';
-import ChromeAISuggestionsEventSource from './suggestions.js';
+import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants.ts';
+import { PromptProp, PromptItemProps } from '../types.ts';
+import ChromeAISuggestionsEventSource from './suggestions.ts';
 
 /**
  * Check for the feature flag.
