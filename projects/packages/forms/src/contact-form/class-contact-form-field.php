@@ -209,7 +209,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function validate() {
 		$field_type = $this->maybe_override_type();
-
 		// If it's not required, there's nothing to validate
 		if ( ! $this->get_attribute( 'required' ) || ! $this->is_field_renderable( $field_type ) ) {
 			return;
@@ -258,6 +257,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				if ( ! is_numeric( $field_value ) ) {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires a number', 'jetpack-forms' ), $field_label ) );
+				}
+				break;
+			case 'file':
+				// Make sure the file field is not empty
+				if ( ! is_array( $field_value ) || empty( $field_value[0] ) ) {
+					/* translators: %s is the name of a form field */
+					$this->add_error( sprintf( __( '%s requires a file to be uploaded.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			default:
@@ -875,6 +881,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		ob_start();
 		?>
 		<div
+			class="jetpack-form-file-field__container"
+			id="<?php echo esc_attr( $id ); ?>"
+			name="dropzone-<?php echo esc_attr( $id ); ?>"
 			data-wp-interactive="jetpack/field-file"
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
 			<?php echo wp_interactivity_data_wp_context( $context ); ?>
@@ -882,22 +891,22 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			data-wp-on--dragleave="actions.dragLeave"
 			data-wp-on--mouseleave="actions.dragLeave"
 			data-wp-on--drop="actions.fileDropped"
+			data-is-required="<?php echo esc_attr( $required ); ?>"
 		>
-			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
+			<div class="jetpack-form-file-field__dropzone"  data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
 				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker"></div>
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
 				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
 				<input
-					id="<?php echo esc_attr( $id ); ?>"
 					type="file" class="jetpack-form-file-field"
 					accept="<?php echo esc_attr( $accepted_file_types ); ?>"
 					<?php echo ( (int) $max_files > 1 ? 'multiple="multiple"' : '' ); ?>
 					data-wp-on--change="actions.fileAdded"  />
 			</div>
-			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="state.hasFiles">
+			<div class="jetpack-form-file-field__preview-wrap" name="file-field-<?php echo esc_attr( $id ); ?>" data-wp-class--is-active="state.hasFiles">
 				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
 					<div class="jetpack-form-file-field__preview" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.hasToken">
-						<input type="hidden" name="<?php echo esc_attr( $id ); ?>[]" data-wp-bind--value='context.file.fileJson' value="">
+						<input type="hidden" name="<?php echo esc_attr( $id ); ?>[]" class="jetpack-form-file-field__hidden" data-wp-bind--value='context.file.fileJson' value="">
 						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress">
 							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
 							<div class="jetpack-form-file-field__progress-bar" ></div>

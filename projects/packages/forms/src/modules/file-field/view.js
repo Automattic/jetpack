@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { store, getContext, withScope, getElement, getConfig } from '@wordpress/interactivity';
+import { clearInputError } from '../../contact-form/js/form-errors.js';
 
 const NAMESPACE = 'jetpack/field-file';
 
@@ -82,6 +83,9 @@ const formatBytes = ( size, decimals = 2 ) => {
 const addFileToContext = file => {
 	const reader = new FileReader();
 	reader.readAsDataURL( file );
+
+	const { ref } = getElement();
+	clearInputError( ref, { clearInputError: false } );
 
 	const config = getConfig( NAMESPACE );
 	const context = getContext();
@@ -314,6 +318,11 @@ store( NAMESPACE, {
 		 */
 		removeFile: function* ( event ) {
 			event.preventDefault();
+
+			const { ref } = getElement();
+			const field = ref.parentElement.parentElement.parentElement; // Needed to select the top most field.
+			clearInputError( field, { clearInputError: false } );
+
 			const context = getContext();
 			const clientFileId = event.target.dataset.id;
 
