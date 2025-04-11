@@ -6,7 +6,6 @@ import {
 	__experimentalGetColorClassesAndStyles as getColorClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	getTypographyClassesAndStyles,
 } from '@wordpress/block-editor';
-import { getBlockType } from '@wordpress/blocks';
 import { useSelect } from '@wordpress/data';
 import { useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -22,7 +21,7 @@ const noop = () => undefined;
 
 export default function DropdownFieldEdit( props ) {
 	const { attributes, clientId, isSelected, name, setAttributes } = props;
-	const { id, label, options, required, width } = attributes;
+	const { id, options, required, width } = attributes;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const { isInnerBlockSelected, inputBlockAttributes } = useSelect(
 		select => {
@@ -46,14 +45,12 @@ export default function DropdownFieldEdit( props ) {
 	const optionsWrapper = useRef( undefined );
 	useFormWrapper( { attributes, clientId, name } );
 
-	const labelBlockType = getBlockType( 'jetpack/label' );
-	const defaultLabel = labelBlockType.attributes.label.default;
 	const template = useMemo( () => {
 		return [
-			[ 'jetpack/label', { label, required, defaultLabel } ],
+			[ 'jetpack/label', { required } ],
 			[ 'jetpack/input', { type: 'dropdown' } ],
 		];
-	}, [ label, defaultLabel, required ] );
+	}, [ required ] );
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field-dropdown__wrapper' },
