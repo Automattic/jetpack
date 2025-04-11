@@ -11,10 +11,10 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 	 */
 	public function __construct() {
 		$widget_ops = array(
-			'description'                 => __( 'A cloud of your most used tags.', 'wpcomsh' ),
+			'description'                 => __( 'A cloud of your most used tags.', 'jetpack-mu-wpcom' ),
 			'customize_selective_refresh' => true,
 		);
-		parent::__construct( 'tag_cloud', __( 'Tag Cloud', 'wpcomsh' ), $widget_ops );
+		parent::__construct( 'tag_cloud', __( 'Tag Cloud', 'jetpack-mu-wpcom' ), $widget_ops );
 	}
 
 	/**
@@ -32,7 +32,7 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 		if ( ! empty( $instance['title'] ) ) {
 			$title = $instance['title'];
 		} elseif ( 'post_tag' === $current_taxonomy ) {
-			$title = __( 'Tags', 'wpcomsh' );
+			$title = __( 'Tags', 'jetpack-mu-wpcom' );
 		} else {
 			$tax   = get_taxonomy( $current_taxonomy );
 			$title = $tax->labels->name;
@@ -121,14 +121,14 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 		$instance['title'] = ! empty( $instance['title'] ) ? esc_attr( $instance['title'] ) : '';
 		$max_tags          = empty( $instance['max_tags'] ) ? 0 : $instance['max_tags'];
 
-		echo '<p><label for="' . esc_attr( $title_id ) . '">' . esc_html__( 'Title:', 'wpcomsh' ) . '</label>
+		echo '<p><label for="' . esc_attr( $title_id ) . '">' . esc_html__( 'Title:', 'jetpack-mu-wpcom' ) . '</label>
 			<input type="text" class="widefat" id="' . esc_attr( $title_id ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" value="' . esc_attr( $instance['title'] ) . '" />
 		</p>';
 
 		$max_tags_id = $this->get_field_id( 'max_tags' );
-		echo '<p><label for="' . esc_attr( $max_tags_id ) . '">' . esc_html__( 'Number of Tags:', 'wpcomsh' ) . '</label>
+		echo '<p><label for="' . esc_attr( $max_tags_id ) . '">' . esc_html__( 'Number of Tags:', 'jetpack-mu-wpcom' ) . '</label>
 		     <input type="number" class="widefat" id="' . esc_attr( $max_tags_id ) . '" name="' . esc_attr( $this->get_field_name( 'max_tags' ) ) . '" value="' . esc_attr( $max_tags ) . '" />
-		     <small>' . esc_html__( 'Maximum number of tags displayed', 'wpcomsh' ) . '</small>
+		     <small>' . esc_html__( 'Maximum number of tags displayed', 'jetpack-mu-wpcom' ) . '</small>
 		</p>';
 
 		$taxonomies = get_taxonomies( array( 'show_tagcloud' => true ), 'object' );
@@ -140,14 +140,14 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 			esc_attr( $this->get_field_id( 'count' ) ),
 			esc_attr( $this->get_field_name( 'count' ) ),
 			checked( $count, true, false ),
-			esc_html__( 'Show tag counts', 'wpcomsh' )
+			esc_html__( 'Show tag counts', 'jetpack-mu-wpcom' )
 		);
 
 		switch ( count( $taxonomies ) ) {
 
 			// No tag cloud supporting taxonomies found, display error message.
 			case 0:
-				echo '<p>' . esc_html__( 'The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget.', 'wpcomsh' ) . '</p>';
+				echo '<p>' . esc_html__( 'The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget.', 'jetpack-mu-wpcom' ) . '</p>';
 				echo '<input type="hidden" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="" />';
 				break;
 
@@ -165,7 +165,7 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 					'<p><label for="%1$s">%2$s</label>' .
 					'<select class="widefat" id="%1$s" name="%3$s">',
 					esc_attr( $id ),
-					esc_html__( 'Taxonomy:', 'wpcomsh' ),
+					esc_html__( 'Taxonomy:', 'jetpack-mu-wpcom' ),
 					esc_attr( $name )
 				);
 

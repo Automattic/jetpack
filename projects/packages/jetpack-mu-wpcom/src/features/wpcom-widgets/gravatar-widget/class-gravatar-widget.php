@@ -14,10 +14,10 @@ class Gravatar_Widget extends WP_Widget {
 	public function __construct() {
 		$widget_ops = array(
 			'classname'   => 'widget_gravatar',
-			'description' => __( 'Insert a Gravatar image', 'wpcomsh' ),
+			'description' => __( 'Insert a Gravatar image', 'jetpack-mu-wpcom' ),
 		);
 
-		parent::__construct( 'gravatar', __( 'Gravatar', 'wpcomsh' ), $widget_ops );
+		parent::__construct( 'gravatar', __( 'Gravatar', 'jetpack-mu-wpcom' ), $widget_ops );
 	}
 
 	/**
@@ -95,7 +95,7 @@ class Gravatar_Widget extends WP_Widget {
 			printf(
 				wp_kses(
 					// translators: %s is the URL to the widget settings.
-					__( 'You need to pick a user or enter an email address in your <a href="%s">Gravatar Widget</a> settings.', 'wpcomsh' ),
+					__( 'You need to pick a user or enter an email address in your <a href="%s">Gravatar Widget</a> settings.', 'jetpack-mu-wpcom' ),
 					array(
 						'a' => array( 'href' => array() ),
 					)
@@ -144,21 +144,21 @@ class Gravatar_Widget extends WP_Widget {
 		$email_user     = $instance['email_user'];
 
 		$sizes  = array(
-			64  => __( 'Small (64 pixels)', 'wpcomsh' ),
-			96  => __( 'Medium (96 pixels)', 'wpcomsh' ),
-			128 => __( 'Large (128 pixels)', 'wpcomsh' ),
-			256 => __( 'Extra Large (256 pixels)', 'wpcomsh' ),
+			64  => __( 'Small (64 pixels)', 'jetpack-mu-wpcom' ),
+			96  => __( 'Medium (96 pixels)', 'jetpack-mu-wpcom' ),
+			128 => __( 'Large (128 pixels)', 'jetpack-mu-wpcom' ),
+			256 => __( 'Extra Large (256 pixels)', 'jetpack-mu-wpcom' ),
 		);
 		$aligns = array(
-			'none'   => __( 'None', 'wpcomsh' ),
-			'left'   => __( 'Left', 'wpcomsh' ),
-			'right'  => __( 'Right', 'wpcomsh' ),
-			'center' => __( 'Center', 'wpcomsh' ),
+			'none'   => __( 'None', 'jetpack-mu-wpcom' ),
+			'left'   => __( 'Left', 'jetpack-mu-wpcom' ),
+			'right'  => __( 'Right', 'jetpack-mu-wpcom' ),
+			'center' => __( 'Center', 'jetpack-mu-wpcom' ),
 		);
 		?>
-<p><label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'wpcomsh' ); ?> <input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" /></label></p>
+<p><label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack-mu-wpcom' ); ?> <input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" /></label></p>
 
-<p><?php esc_html_e( 'Select a user or pick "custom" and enter a custom email address.', 'wpcomsh' ); ?></p>
+<p><?php esc_html_e( 'Select a user or pick "custom" and enter a custom email address.', 'jetpack-mu-wpcom' ); ?></p>
 <p>
 		<?php
 		wp_dropdown_users(
@@ -171,10 +171,10 @@ class Gravatar_Widget extends WP_Widget {
 		?>
 		</p>
 
-<p id="gravatar_email_user"><label for="<?php echo esc_attr( $this->get_field_id( 'email' ) ); ?>"><?php esc_html_e( 'Custom Email Address:', 'wpcomsh' ); ?> <input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'email' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'email' ) ); ?>" type="text" value="<?php echo esc_attr( $email ); ?>" /></label></p>
+<p id="gravatar_email_user"><label for="<?php echo esc_attr( $this->get_field_id( 'email' ) ); ?>"><?php esc_html_e( 'Custom Email Address:', 'jetpack-mu-wpcom' ); ?> <input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'email' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'email' ) ); ?>" type="text" value="<?php echo esc_attr( $email ); ?>" /></label></p>
 
 <p>
-	<label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_size' ) ); ?>"><?php esc_html_e( 'Size:', 'wpcomsh' ); ?>
+	<label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_size' ) ); ?>"><?php esc_html_e( 'Size:', 'jetpack-mu-wpcom' ); ?>
 		<select id="<?php echo esc_attr( $this->get_field_id( 'gravatar_size' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_size' ) ); ?>">
 			<?php foreach ( $sizes as $size => $name ) : ?>
 				<option value="<?php echo $size; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- size is an integer set in the same function.*/ ?>"
@@ -185,7 +185,7 @@ class Gravatar_Widget extends WP_Widget {
 	</label>
 </p>
 <p>
-	<label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_align' ) ); ?>"><?php esc_html_e( 'Gravatar alignment:', 'wpcomsh' ); ?>
+	<label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_align' ) ); ?>"><?php esc_html_e( 'Gravatar alignment:', 'jetpack-mu-wpcom' ); ?>
 		<select id="<?php echo esc_attr( $this->get_field_id( 'gravatar_align' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_align' ) ); ?>">
 			<?php foreach ( $aligns as $align => $name ) : ?>
 				<option value="<?php echo esc_attr( $align ); ?>"
@@ -195,14 +195,14 @@ class Gravatar_Widget extends WP_Widget {
 		</select>
 	</label>
 </p>
-<p><label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_url' ) ); ?>"><?php esc_html_e( 'Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:', 'wpcomsh' ); ?> <input  class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'gravatar_url' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_url' ) ); ?>" type="text" value="<?php echo esc_attr( $gravatar_url ); ?>" /></label></p>
-<p><label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_text' ) ); ?>"><?php esc_html_e( 'Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about.', 'wpcomsh' ); ?><br/> <textarea class="widefat" style="font-size: 0.9em" id="<?php echo esc_attr( $this->get_field_id( 'gravatar_text' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_text' ) ); ?>" rows="5"><?php echo htmlspecialchars( $gravatar_text, ENT_COMPAT ); /* // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?></textarea></label></p>
+<p><label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_url' ) ); ?>"><?php esc_html_e( 'Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:', 'jetpack-mu-wpcom' ); ?> <input  class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'gravatar_url' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_url' ) ); ?>" type="text" value="<?php echo esc_attr( $gravatar_url ); ?>" /></label></p>
+<p><label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_text' ) ); ?>"><?php esc_html_e( 'Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about.', 'jetpack-mu-wpcom' ); ?><br/> <textarea class="widefat" style="font-size: 0.9em" id="<?php echo esc_attr( $this->get_field_id( 'gravatar_text' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_text' ) ); ?>" rows="5"><?php echo htmlspecialchars( $gravatar_text, ENT_COMPAT ); /* // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?></textarea></label></p>
 <p>
 		<?php
 		printf(
 			wp_kses(
 				// translators: %s is a link to the WordPress user profile.
-				__( 'You can modify your Gravatar from your <a href="%s">profile page</a>.', 'wpcomsh' ),
+				__( 'You can modify your Gravatar from your <a href="%s">profile page</a>.', 'jetpack-mu-wpcom' ),
 				array(
 					'a' => array( 'href' => array() ),
 				)

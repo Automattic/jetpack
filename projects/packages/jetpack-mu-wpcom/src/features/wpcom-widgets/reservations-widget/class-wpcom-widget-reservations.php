@@ -24,26 +24,26 @@ class WPCOM_Widget_Reservations extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'reservations',
-			__( 'Reservations', 'wpcomsh' ),
+			__( 'Reservations', 'jetpack-mu-wpcom' ),
 			array( 'description' => 'Allow visitors to submit a reservation inquiry.' )
 		);
 
 		$this->defaults = array(
-			'title'    => __( 'Reservations', 'wpcomsh' ),
-			'subject'  => __( 'Reservation Inquiry', 'wpcomsh' ),
+			'title'    => __( 'Reservations', 'jetpack-mu-wpcom' ),
+			'subject'  => __( 'Reservation Inquiry', 'jetpack-mu-wpcom' ),
 			'email_to' => get_option( 'admin_email' ),
 			'show'     => array( 'name', 'email', 'adults', 'children', 'arrival', 'departure', 'message' ),
 		);
 
 		$this->fields = array(
-			'name'      => __( 'Name', 'wpcomsh' ),
-			'email'     => __( 'Email', 'wpcomsh' ),
-			'phone'     => __( 'Phone', 'wpcomsh' ),
-			'message'   => __( 'Message', 'wpcomsh' ),
-			'adults'    => __( '# Adults', 'wpcomsh' ),
-			'children'  => __( '# Children', 'wpcomsh' ),
-			'arrival'   => __( 'Arrival', 'wpcomsh' ),
-			'departure' => __( 'Departure', 'wpcomsh' ),
+			'name'      => __( 'Name', 'jetpack-mu-wpcom' ),
+			'email'     => __( 'Email', 'jetpack-mu-wpcom' ),
+			'phone'     => __( 'Phone', 'jetpack-mu-wpcom' ),
+			'message'   => __( 'Message', 'jetpack-mu-wpcom' ),
+			'adults'    => __( '# Adults', 'jetpack-mu-wpcom' ),
+			'children'  => __( '# Children', 'jetpack-mu-wpcom' ),
+			'arrival'   => __( 'Arrival', 'jetpack-mu-wpcom' ),
+			'departure' => __( 'Departure', 'jetpack-mu-wpcom' ),
 		);
 	}
 
@@ -58,24 +58,24 @@ class WPCOM_Widget_Reservations extends WP_Widget {
 		?>
 		<p>
 			<label>
-				<?php esc_html_e( 'Title:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Title:', 'jetpack-mu-wpcom' ); ?>
 				<input type="text" class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Recipient E-mail Address:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Recipient E-mail Address:', 'jetpack-mu-wpcom' ); ?>
 				<input type="text" class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'email_to' ) ); ?>" value="<?php echo esc_attr( $instance['email_to'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'E-mail Subject:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'E-mail Subject:', 'jetpack-mu-wpcom' ); ?>
 				<input type="text" class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'subject' ) ); ?>" value="<?php echo esc_attr( $instance['subject'] ); ?>" />
 			</label>
 		</p>
 		<p>
-			<?php esc_html_e( 'Show:', 'wpcomsh' ); ?>
+			<?php esc_html_e( 'Show:', 'jetpack-mu-wpcom' ); ?>
 			<fieldset style="padding: 0 10px;">
 				<?php foreach ( $this->fields as $key => $label ) { ?>
 					<label style="display: block; float: left; width: 50%; margin-bottom: 5px;">

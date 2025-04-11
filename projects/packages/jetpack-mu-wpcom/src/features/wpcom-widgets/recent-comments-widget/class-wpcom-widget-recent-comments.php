@@ -50,10 +50,10 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'recent-comments',
-			__( 'Recent Comments', 'wpcomsh' ),
+			__( 'Recent Comments', 'jetpack-mu-wpcom' ),
 			array(
 				'classname'   => 'widget_recent_comments',
-				'description' => __( 'Display your site\'s most recent comments', 'wpcomsh' ),
+				'description' => __( 'Display your site\'s most recent comments', 'jetpack-mu-wpcom' ),
 			)
 		);
 
@@ -189,7 +189,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		$instance = wp_parse_args( $instance, self::$widget_defaults );
 
 		if ( empty( $instance['title'] ) ) {
-			$instance['title'] = __( 'Recent Comments', 'wpcomsh' );
+			$instance['title'] = __( 'Recent Comments', 'jetpack-mu-wpcom' );
 		} else {
 			$instance['title'] = apply_filters( 'widget_title', $instance['title'] );
 		}
@@ -309,7 +309,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 						echo '<td class="' . esc_attr( $comment_index === 0 ? 'recentcommentstexttop' : 'recentcommentstextend' ) . '" style="' . esc_attr( $text_bg ) . '">';
 
 						if ( $comment->comment_author === '' ) {
-							$comment->comment_author = __( 'Anonymous', 'wpcomsh' );
+							$comment->comment_author = __( 'Anonymous', 'jetpack-mu-wpcom' );
 						}
 
 						$author  = $comment->comment_author;
@@ -339,7 +339,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 						printf(
 							wp_kses(
 								/* translators: comments widget: 1: comment author, 2: comment link, 3: comment title */
-								_x( '%1$s on <a href="%2$s">%3$s</a>', 'widgets', 'wpcomsh' ),
+								_x( '%1$s on <a href="%2$s">%3$s</a>', 'widgets', 'jetpack-mu-wpcom' ),
 								array(
 									'a' => array(
 										'href' => array(),
@@ -359,7 +359,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 
 					if ( 0 === $comments_printed ) {
 						echo '<tr><td class="recentcommentstexttop" style="' . esc_attr( $text_bg ) . '">';
-						esc_html_e( 'There are no public comments available to display.', 'wpcomsh' );
+						esc_html_e( 'There are no public comments available to display.', 'jetpack-mu-wpcom' );
 						echo '</td></tr>';
 					}
 
@@ -384,7 +384,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 							printf(
 								wp_kses(
 									/* translators: comments widget: 1: comment author link HTML, 2: comment link, 3: comment title */
-									_x( '%1$s on <a href="%2$s">%3$s</a>', 'widgets', 'wpcomsh' ),
+									_x( '%1$s on <a href="%2$s">%3$s</a>', 'widgets', 'jetpack-mu-wpcom' ),
 									array(
 										'a' => array( 'href' => array() ),
 									)
@@ -433,26 +433,26 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		?>
 		<p>
 			<label>
-				<?php esc_html_e( 'Title:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Title:', 'jetpack-mu-wpcom' ); ?>
 				<input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Number of comments to show:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Number of comments to show:', 'jetpack-mu-wpcom' ); ?>
 				<select name="<?php echo esc_attr( $this->get_field_name( 'number' ) ); ?>">
 					<?php for ( $i = 1; $i <= 15; $i++ ) : ?>
 						<option value="<?php echo (int) $i; ?>" <?php selected( $instance['number'], $i ); ?>><?php echo (int) $i; /* @phan-suppress-current-line PhanRedundantConditionInLoop -- phpcs needs the explicit cast. */ ?></option>
 					<?php endfor; ?>
 				</select>
-				<small><?php esc_html_e( '(at most 15)', 'wpcomsh' ); ?></small>
+				<small><?php esc_html_e( '(at most 15)', 'jetpack-mu-wpcom' ); ?></small>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Avatar Size (px):', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Avatar Size (px):', 'jetpack-mu-wpcom' ); ?>
 				<select name="<?php echo esc_attr( $this->get_field_name( 'avatar_size' ) ); ?>">
-					<option value="1" <?php selected( $instance['avatar_size'], 1 ); ?>><?php esc_html_e( 'No Avatars', 'wpcomsh' ); ?></option>
+					<option value="1" <?php selected( $instance['avatar_size'], 1 ); ?>><?php esc_html_e( 'No Avatars', 'jetpack-mu-wpcom' ); ?></option>
 					<option value="16" <?php selected( $instance['avatar_size'], 16 ); ?>>16x16</option>
 					<option value="32" <?php selected( $instance['avatar_size'], 32 ); ?>>32x32</option>
 					<option value="48" <?php selected( $instance['avatar_size'], 48 ); ?>>48x48</option>
@@ -463,18 +463,18 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Avatar background color:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Avatar background color:', 'jetpack-mu-wpcom' ); ?>
 				<input name="<?php echo esc_attr( $this->get_field_name( 'avatar_bg' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['avatar_bg'] ); ?>" size="3" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Text background color:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Text background color:', 'jetpack-mu-wpcom' ); ?>
 				<input name="<?php echo esc_attr( $this->get_field_name( 'text_bg' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['text_bg'] ); ?>" size="3" />
 			</label>
 		</p>
 		<p>
-			<label><?php esc_html_e( 'Show comments from:', 'wpcomsh' ); ?></label><br />
+			<label><?php esc_html_e( 'Show comments from:', 'jetpack-mu-wpcom' ); ?></label><br />
 
 			<?php foreach ( $this->get_allowed_post_types() as $post_type => $label ) : ?>
 				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]" id="<?php echo esc_attr( $this->get_field_id( 'post_types' ) ); ?>-<?php echo esc_attr( $post_type ); ?>" value="<?php echo esc_attr( $post_type ); ?>"<?php checked( in_array( $post_type, (array) $instance['post_types'], true ) ); ?> /> <label for="<?php echo esc_attr( $this->get_field_id( 'post_types' ) ); ?>-<?php echo esc_attr( $post_type ); ?>"><?php echo esc_html( $label ); // Don't translate as it's already translated. ?></label><br />

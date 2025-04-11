@@ -12,9 +12,9 @@ class PD_Top_Rated extends WP_Widget {
 	public function __construct() {
 		$widget_ops = array(
 			'classname'   => 'top_rated',
-			'description' => __( 'A list of your top rated posts, pages or comments.', 'wpcomsh' ),
+			'description' => __( 'A list of your top rated posts, pages or comments.', 'jetpack-mu-wpcom' ),
 		);
-		parent::__construct( 'PD_Top_Rated', __( 'Top Rated', 'wpcomsh' ), $widget_ops );
+		parent::__construct( 'PD_Top_Rated', __( 'Top Rated', 'jetpack-mu-wpcom' ), $widget_ops );
 	}
 
 	/**
@@ -41,7 +41,7 @@ class PD_Top_Rated extends WP_Widget {
 		$instance = wp_parse_args( $instance, $defaults );
 
 		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		$title              = empty( $instance['title'] ) ? __( 'Top Rated', 'wpcomsh' ) : apply_filters( 'widget_title', $instance['title'] );
+		$title              = empty( $instance['title'] ) ? __( 'Top Rated', 'jetpack-mu-wpcom' ) : apply_filters( 'widget_title', $instance['title'] );
 		$posts_rating_id    = (int) get_option( 'pd-rating-posts-id' );
 		$pages_rating_id    = (int) get_option( 'pd-rating-pages-id' );
 		$comments_rating_id = (int) get_option( 'pd-rating-comments-id' );
@@ -149,33 +149,33 @@ class PD_Top_Rated extends WP_Widget {
 		$filter_by_category = (int) $instance['filter_by_category'];
 		$item_count         = (int) $instance['item_count'];
 		?>
-		<p><label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'wpcomsh' ); ?><input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" /></label></p>
+		<p><label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack-mu-wpcom' ); ?><input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" /></label></p>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'show_posts' ) ); ?>">
 				<input type="checkbox" class="checkbox"  id="<?php echo esc_attr( $this->get_field_id( 'show_posts' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_posts' ) ); ?>" value="1" <?php checked( $show_posts, 1 ); ?> />
-				<?php esc_html_e( 'Show for posts', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Show for posts', 'jetpack-mu-wpcom' ); ?>
 			</label>
 		</p>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'show_pages' ) ); ?>">
 				<input type="checkbox" class="checkbox"  id="<?php echo esc_attr( $this->get_field_id( 'show_pages' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_pages' ) ); ?>" value="1" <?php checked( $show_pages, 1 ); ?> />
-				<?php esc_html_e( 'Show for pages', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Show for pages', 'jetpack-mu-wpcom' ); ?>
 			</label>
 		</p>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'show_comments' ) ); ?>">
 				<input type="checkbox" class="checkbox" id="<?php echo esc_attr( $this->get_field_id( 'show_comments' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_comments' ) ); ?>" value="1" <?php checked( $show_comments, 1 ); ?>/>
-				<?php esc_html_e( 'Show for comments', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Show for comments', 'jetpack-mu-wpcom' ); ?>
 			</label>
 		</p>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'filter_by_category' ) ); ?>">
 				<input type="checkbox" class="checkbox" id="<?php echo esc_attr( $this->get_field_id( 'filter_by_category' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'filter_by_category' ) ); ?>" value="1" <?php checked( $filter_by_category, 1 ); ?>/>
-				<?php esc_html_e( 'Filter by category', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Filter by category', 'jetpack-mu-wpcom' ); ?>
 			</label>
 		</p>
 		<p>
-			<label for="rss-items-<?php echo (int) $item_count; ?>"><?php esc_html_e( 'How many items would you like to display?', 'wpcomsh' ); ?>
+			<label for="rss-items-<?php echo (int) $item_count; ?>"><?php esc_html_e( 'How many items would you like to display?', 'jetpack-mu-wpcom' ); ?>
 				<select id="<?php echo esc_attr( $this->get_field_id( 'item_count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'item_count' ) ); ?>">
 					<?php
 					for ( $i = 1; $i <= 20; ++$i ) {

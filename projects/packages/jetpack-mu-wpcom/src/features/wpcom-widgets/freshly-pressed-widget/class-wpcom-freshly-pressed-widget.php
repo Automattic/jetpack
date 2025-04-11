@@ -10,10 +10,10 @@ class WPCOM_Freshly_Pressed_Widget extends WP_Widget {
 	public function __construct() {
 		$widget_ops  = array(
 			'classname'   => 'widget_freshly_pressed',
-			'description' => __( 'Display a Freshly Pressed badge in your sidebar', 'wpcomsh' ),
+			'description' => __( 'Display a Freshly Pressed badge in your sidebar', 'jetpack-mu-wpcom' ),
 		);
 		$control_ops = array( 'width' => 250 );
-		parent::__construct( 'freshly_pressed', __( 'Freshly Pressed', 'wpcomsh' ), $widget_ops, $control_ops );
+		parent::__construct( 'freshly_pressed', __( 'Freshly Pressed', 'jetpack-mu-wpcom' ), $widget_ops, $control_ops );
 	}
 
 	/**
@@ -77,11 +77,11 @@ class WPCOM_Freshly_Pressed_Widget extends WP_Widget {
 		$title = esc_attr( $instance['title'] );
 		$badge = esc_attr( $instance['badge'] );
 
-		echo '<p><label for="' . esc_attr( $this->get_field_id( 'title' ) ) . '">' . esc_html__( 'Title:', 'wpcomsh' ) . '
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'title' ) ) . '">' . esc_html__( 'Title:', 'jetpack-mu-wpcom' ) . '
 		<input class="widefat" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" type="text" value="' . esc_attr( $title ) . '" />
 		</label></p>
 
-		<p>' . esc_html__( 'Choose an image to display in your sidebar:', 'wpcomsh' ) . '<br /><br />';
+		<p>' . esc_html__( 'Choose an image to display in your sidebar:', 'jetpack-mu-wpcom' ) . '<br /><br />';
 
 		foreach ( $this->badges() as $badge_name => $badge_ops ) {
 			echo '<input type="radio" name="' . esc_attr( $this->get_field_name( 'badge' ) ) . '" value="' . esc_attr( $badge_name ) . '" ' . checked( $badge_name, $badge, false ) . '/> <img src="' . esc_url( $this->get_badge_url( $badge_name ) ) . '" width="' . intval( $badge_ops['width'] ) . 'px" height="' . intval( $badge_ops['height'] ) . 'px" style="vertical-align: middle" /><br /><br />';

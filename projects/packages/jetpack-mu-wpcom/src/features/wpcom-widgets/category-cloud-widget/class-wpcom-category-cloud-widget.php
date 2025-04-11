@@ -24,9 +24,9 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'wpcom_category_cloud',
-			__( 'Category Cloud', 'wpcomsh' ),
+			__( 'Category Cloud', 'jetpack-mu-wpcom' ),
 			array(
-				'description' => __( 'Your most used categories in cloud format.', 'wpcomsh' ),
+				'description' => __( 'Your most used categories in cloud format.', 'jetpack-mu-wpcom' ),
 				'classname'   => 'widget_tag_cloud',
 			)
 		);
@@ -62,7 +62,7 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 		);
 
 		if ( empty( $instance['title'] ) ) {
-			$instance['title'] = __( 'Category Cloud', 'wpcomsh' );
+			$instance['title'] = __( 'Category Cloud', 'jetpack-mu-wpcom' );
 		}
 
 		$tags_info = wp_cache_get( 'widget_cat_cloud_cache' . $this->id, 'widget' );
@@ -138,7 +138,7 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 			printf(
 				wp_kses(
 					// translators: link to support doc about categories
-					__( 'If you use more <a href="%s">categories</a> on your site, they will appear here.', 'wpcomsh' ),
+					__( 'If you use more <a href="%s">categories</a> on your site, they will appear here.', 'jetpack-mu-wpcom' ),
 					array(
 						'a' => array( 'href' => array() ),
 					)
@@ -173,32 +173,32 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 		?>
 		<p>
 			<label>
-				<?php esc_html_e( 'Title:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Title:', 'jetpack-mu-wpcom' ); ?>
 				<input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>"/>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Maximum number of categories to show:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Maximum number of categories to show:', 'jetpack-mu-wpcom' ); ?>
 				<input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'max_tags' ) ); ?>" type="number" value="<?php echo esc_attr( $instance['max_tags'] ); ?>"/>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Exclude:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Exclude:', 'jetpack-mu-wpcom' ); ?>
 				<input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'exclude' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['exclude'] ); ?>"/>
-				<small><?php esc_html_e( 'Category IDs, separated by commas', 'wpcomsh' ); ?></small>
+				<small><?php esc_html_e( 'Category IDs, separated by commas', 'jetpack-mu-wpcom' ); ?></small>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Minimum font percentage:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Minimum font percentage:', 'jetpack-mu-wpcom' ); ?>
 				<input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'min_font_per' ) ); ?>" type="number" value="<?php echo esc_attr( $instance['min_font_per'] ); ?>" min="10" max="1000" maxlength="4"/>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Maximum font percentage:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Maximum font percentage:', 'jetpack-mu-wpcom' ); ?>
 				<input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'max_font_per' ) ); ?>" type="number" value="<?php echo esc_attr( $instance['max_font_per'] ); ?>" min="10" max="9999" maxlength="4"/>
 			</label>
 		</p>
@@ -206,9 +206,9 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 			<label>
 				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'parent_pad' ) ); ?>" <?php checked( $instance['parent_pad'] ); ?> value="1"/>
 				<?php
-				esc_html_e( 'Count items in sub-categories toward parent total.', 'wpcomsh' );
+				esc_html_e( 'Count items in sub-categories toward parent total.', 'jetpack-mu-wpcom' );
 				?>
-				(<a href="https://en.support.wordpress.com/widgets/category-cloud-widget/#settings" target="_blank" title="<?php esc_attr_e( 'Click for more information', 'wpcomsh' ); ?>">?</a>)
+				(<a href="https://en.support.wordpress.com/widgets/category-cloud-widget/#settings" target="_blank" title="<?php esc_attr_e( 'Click for more information', 'jetpack-mu-wpcom' ); ?>">?</a>)
 			</label>
 		</p>
 		<?php

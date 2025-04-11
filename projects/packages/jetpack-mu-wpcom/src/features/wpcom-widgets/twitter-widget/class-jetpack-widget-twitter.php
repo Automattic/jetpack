@@ -18,10 +18,10 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'twitter',
-			apply_filters( 'jetpack_widget_name', __( 'Twitter', 'wpcomsh' ) ),
+			apply_filters( 'jetpack_widget_name', __( 'Twitter', 'jetpack-mu-wpcom' ) ),
 			array(
 				'classname'   => 'widget_twitter',
-				'description' => __( 'Display your Tweets from Twitter', 'wpcomsh' ),
+				'description' => __( 'Display your Tweets from Twitter', 'jetpack-mu-wpcom' ),
 			)
 		);
 	}
@@ -43,7 +43,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 				printf(
 					wp_kses(
 						// translators: %s is a link to the widget settings page.
-						__( 'Please configure your Twitter username for the <a href="%s">Twitter Widget</a>.', 'wpcomsh' ),
+						__( 'Please configure your Twitter username for the <a href="%s">Twitter Widget</a>.', 'jetpack-mu-wpcom' ),
 						array( 'a' => array( 'href' => array() ) )
 					),
 					esc_url( admin_url( 'widgets.php' ) )
@@ -57,14 +57,14 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 
 		$title = apply_filters( 'widget_title', $instance['title'] );
 		if ( empty( $title ) ) {
-			$title = __( 'Twitter Updates', 'wpcomsh' );
+			$title = __( 'Twitter Updates', 'jetpack-mu-wpcom' );
 		}
 
 		echo "{$args['before_widget']}{$args['before_title']}<a href='" . esc_url( "http://twitter.com/{$account}" ) . "'>" . esc_html( $title ) . "</a>{$args['after_title']}"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		$anchor_text = sprintf(
 			/* translators: %s is the Twitter account name */
-			__( 'Tweets by %s', 'wpcomsh' ),
+			__( 'Tweets by %s', 'jetpack-mu-wpcom' ),
 			esc_html( $account )
 		);
 
@@ -132,18 +132,18 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 		 * @see http://socialp2.wordpress.com/2013/04/19/following-on-from-justins-previous-post-its-time/
 		 */
 		?>
-		<p><em><?php echo esc_html__( "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization.", 'wpcomsh' ); ?></em></p>
+		<p><em><?php echo esc_html__( "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization.", 'jetpack-mu-wpcom' ); ?></em></p>
 
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
-				<?php esc_html_e( 'Title:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Title:', 'jetpack-mu-wpcom' ); ?>
 				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 			</label>
 		</p>
 
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'account' ) ); ?>">
-				<?php esc_html_e( 'Twitter username:', 'wpcomsh' ); ?> <a href="http://support.wordpress.com/widgets/twitter-widget/#twitter-username" target="_blank">( ? )</a>
+				<?php esc_html_e( 'Twitter username:', 'jetpack-mu-wpcom' ); ?> <a href="http://support.wordpress.com/widgets/twitter-widget/#twitter-username" target="_blank">( ? )</a>
 				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'account' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'account' ) ); ?>" type="text" value="<?php echo esc_attr( $account ); ?>" />
 			</label>
 		</p>

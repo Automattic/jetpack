@@ -13,9 +13,9 @@ class Music_Player_Widget extends WP_Widget {
 	public function __construct() {
 		$widget_ops = array(
 			'classname'   => 'music-player',
-			'description' => __( 'A multi-song music player', 'wpcomsh' ),
+			'description' => __( 'A multi-song music player', 'jetpack-mu-wpcom' ),
 		);
-		parent::__construct( 'music-player', __( 'Music Player', 'wpcomsh' ), $widget_ops );
+		parent::__construct( 'music-player', __( 'Music Player', 'jetpack-mu-wpcom' ), $widget_ops );
 		add_action( 'admin_enqueue_scripts', array( $this, 'widget_scripts' ) );
 		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
 	}
@@ -99,7 +99,7 @@ class Music_Player_Widget extends WP_Widget {
 		);
 		printf(
 			'<p><label>%s <input type="text" value="%s" name="%s" id="%s" /></label></p>',
-			esc_html__( 'Title:', 'wpcomsh' ),
+			esc_html__( 'Title:', 'jetpack-mu-wpcom' ),
 			esc_attr( $instance['title'] ),
 			esc_attr( $this->get_field_name( 'title' ) ),
 			esc_attr( $this->get_field_id( 'title' ) )
@@ -108,12 +108,12 @@ class Music_Player_Widget extends WP_Widget {
 		printf(
 			'<p><a class="music-player-edit" data-widget_id="%s" href="#">%s</a></p>',
 			esc_attr( $this->get_field_id( 'shortcode' ) ),
-			esc_html__( 'Choose songs', 'wpcomsh' )
+			esc_html__( 'Choose songs', 'jetpack-mu-wpcom' )
 		);
 
 		printf(
 			'<p><label>%s <input class="widefat" name="%s" id="%s" value="%s" /></label>',
-			esc_html__( 'Music Player', 'wpcomsh' ),
+			esc_html__( 'Music Player', 'jetpack-mu-wpcom' ),
 			esc_attr( $this->get_field_name( 'shortcode' ) ),
 			esc_attr( $this->get_field_id( 'shortcode' ) ),
 			esc_attr( $instance['shortcode'] )

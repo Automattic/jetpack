@@ -7,6 +7,7 @@ Version: 0.1
 Author: Automattic Inc.
 Author URI: http://automattic.com/
 License: GPLv2 or later
+Text Domain: jetpack-mu-wpcom
 */
 
 /*
@@ -34,9 +35,9 @@ class Tlkio_Widget extends WP_Widget {
 	public function __construct() {
 		$widget_ops = array(
 			'classname'   => 'tlkio-widget',
-			'description' => __( 'Add a tlk.io webchat.', 'wpcomsh' ),
+			'description' => __( 'Add a tlk.io webchat.', 'jetpack-mu-wpcom' ),
 		);
-		parent::__construct( 'tlkio_widget', __( 'tlk.io Webchat', 'wpcomsh' ), $widget_ops );
+		parent::__construct( 'tlkio_widget', __( 'tlk.io Webchat', 'jetpack-mu-wpcom' ), $widget_ops );
 	}
 
 	/**
@@ -73,15 +74,15 @@ class Tlkio_Widget extends WP_Widget {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 		?>
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'wpcomsh' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack-mu-wpcom' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 		</p>
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'channel' ) ); ?>"><?php esc_html_e( 'Channel:', 'wpcomsh' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'channel' ) ); ?>"><?php esc_html_e( 'Channel:', 'jetpack-mu-wpcom' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'channel' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'channel' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['channel'] ); ?>" />
 		</p>
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>"><?php esc_html_e( 'Height (in pixel):', 'wpcomsh' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>"><?php esc_html_e( 'Height (in pixel):', 'jetpack-mu-wpcom' ); ?></label>
 			<input id="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'height' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['height'] ); ?>" size="3" />
 		</p>
 		<?php

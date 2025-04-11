@@ -28,8 +28,8 @@ class Widget_Top_Clicks extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'top-clicks',
-			__( 'Top Clicks', 'wpcomsh' ),
-			array( 'description' => __( 'List the most-clicked links on your blog.', 'wpcomsh' ) )
+			__( 'Top Clicks', 'jetpack-mu-wpcom' ),
+			array( 'description' => __( 'List the most-clicked links on your blog.', 'jetpack-mu-wpcom' ) )
 		);
 	}
 
@@ -43,7 +43,7 @@ class Widget_Top_Clicks extends WP_Widget {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
 		if ( empty( $instance['title'] ) ) {
-			$instance['title'] = __( 'Top Clicks', 'wpcomsh' );
+			$instance['title'] = __( 'Top Clicks', 'jetpack-mu-wpcom' );
 		}
 
 		$instance['count'] = isset( $instance['count'] ) ? intval( $instance['count'] ) : null;
@@ -70,19 +70,19 @@ class Widget_Top_Clicks extends WP_Widget {
 		?>
 		<p>
 			<label>
-				<?php esc_html_e( 'Title:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Title:', 'jetpack-mu-wpcom' ); ?>
 				<input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Display length:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'Display length:', 'jetpack-mu-wpcom' ); ?>
 				<input style="width: 60px;" name="<?php echo esc_attr( $this->get_field_name( 'len' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['len'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'URLs to show:', 'wpcomsh' ); ?>
+				<?php esc_html_e( 'URLs to show:', 'jetpack-mu-wpcom' ); ?>
 				<select name="<?php echo esc_attr( $this->get_field_name( 'count' ) ); ?>">
 					<?php for ( $i = 1; $i <= 12; ++$i ) { ?>
 						<option value="<?php echo $i; ?>" <?php selected( $i, $instance['count'] ); ?>><?php echo $i; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $i is an integer iterator. */ ?></option>
@@ -90,7 +90,7 @@ class Widget_Top_Clicks extends WP_Widget {
 				</select>
 			</label>
 		</p>
-		<p><?php esc_html_e( 'Top Clicks are calculated from 48-72 hours of stats. They take a while to change.', 'wpcomsh' ); ?></p>
+		<p><?php esc_html_e( 'Top Clicks are calculated from 48-72 hours of stats. They take a while to change.', 'jetpack-mu-wpcom' ); ?></p>
 		<?php
 	}
 
@@ -104,7 +104,7 @@ class Widget_Top_Clicks extends WP_Widget {
 		$new_instance          = wp_parse_args(
 			$new_instance,
 			array(
-				'title' => __( 'Top Clicks', 'wpcomsh' ),
+				'title' => __( 'Top Clicks', 'jetpack-mu-wpcom' ),
 				'count' => 10,
 				'len'   => 25,
 			)
@@ -160,7 +160,7 @@ class Widget_Top_Clicks extends WP_Widget {
 					$html .= '<li>' . $this->shrink_link( $url, $len ) . '</li>';
 				}
 			} else {
-				$html .= '<li>' . __( 'None', 'wpcomsh' ) . '</li>';
+				$html .= '<li>' . __( 'None', 'jetpack-mu-wpcom' ) . '</li>';
 			}
 			$html .= '</ul>';
 			$html  = preg_replace( '|<a (.+?)>|', "<a $1 rel='nofollow'>", $html );
