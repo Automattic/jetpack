@@ -88,6 +88,73 @@ class Password_Manager_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_on_profile_update_stdclass_with_user_pass() {
+		$_POST['action'] = 'update';
+
+		$user_id                  = 1;
+		$old_user_data            = new \stdClass();
+		$old_user_data->user_pass = 'old_password_hash';
+
+		$validation_service_mock = $this->createMock( Validation_Service::class );
+		$password_manager_mock   = $this->getMockBuilder( Password_Manager::class )
+			->setConstructorArgs( array( $validation_service_mock ) )
+			->onlyMethods( array( 'save_recent_password_hash' ) )
+			->getMock();
+
+		$password_manager_mock->expects( $this->once() )
+			->method( 'save_recent_password_hash' )
+			->with( $user_id, 'old_password_hash' );
+
+		$password_manager_mock->on_profile_update(
+			$user_id,
+			$old_user_data
+		);
+	}
+
+	public function test_on_profile_update_stdclass_without_user_pass() {
+		$_POST['action'] = 'update';
+
+		$user_id       = 1;
+		$old_user_data = new \stdClass();
+		// Intentionally not setting user_pass
+
+		$validation_service_mock = $this->createMock( Validation_Service::class );
+		$password_manager_mock   = $this->getMockBuilder( Password_Manager::class )
+			->setConstructorArgs( array( $validation_service_mock ) )
+			->onlyMethods( array( 'save_recent_password_hash' ) )
+			->getMock();
+
+		$password_manager_mock->expects( $this->never() )
+			->method( 'save_recent_password_hash' );
+
+		$password_manager_mock->on_profile_update(
+			$user_id,
+			$old_user_data
+		);
+	}
+
+	public function test_on_profile_update_stdclass_with_empty_user_pass() {
+		$_POST['action'] = 'update';
+
+		$user_id                  = 1;
+		$old_user_data            = new \stdClass();
+		$old_user_data->user_pass = '';
+
+		$validation_service_mock = $this->createMock( Validation_Service::class );
+		$password_manager_mock   = $this->getMockBuilder( Password_Manager::class )
+			->setConstructorArgs( array( $validation_service_mock ) )
+			->onlyMethods( array( 'save_recent_password_hash' ) )
+			->getMock();
+
+		$password_manager_mock->expects( $this->never() )
+			->method( 'save_recent_password_hash' );
+
+		$password_manager_mock->on_profile_update(
+			$user_id,
+			$old_user_data
+		);
+	}
+
 	public function test_on_password_reset_saves_recent_password() {
 		$user            = new \WP_User();
 		$user->ID        = 1;
