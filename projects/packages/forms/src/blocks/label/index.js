@@ -56,7 +56,12 @@ const settings = {
 			default: '',
 		},
 	},
-	usesContext: [ 'jetpack/form-className', 'jetpack/field-required', 'jetpack/field-dateFormat' ],
+	usesContext: [
+		'jetpack/form-className',
+		'jetpack/field-required',
+		'jetpack/field-dateFormat',
+		'jetpack/field-share-attributes',
+	],
 	edit,
 	save,
 };

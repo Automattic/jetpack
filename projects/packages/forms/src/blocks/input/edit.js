@@ -4,10 +4,10 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
-import useSyncStyleAttributes from '../shared/hooks/use-sync-style-attributes';
+import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
 import { ALLOWED_FORMATS } from '../shared/util/constants.js';
 
-const SYNCED_ATTRIBUTES = [
+const SYNCED_ATTRIBUTE_KEYS = [
 	'backgroundColor',
 	'borderColor',
 	'fontFamily',
@@ -28,8 +28,9 @@ const getInputClass = type => {
 	return 'jetpack-field__input';
 };
 
-const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes } ) => {
-	useSyncStyleAttributes( clientId, name, 'jetpack/contact-form', SYNCED_ATTRIBUTES );
+const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, context } ) => {
+	const { 'jetpack/field-share-attributes': isSynced } = context;
+	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
 	const { max, min, placeholder, type } = attributes;
 	const className = clsx( getInputClass( attributes.type ), {
