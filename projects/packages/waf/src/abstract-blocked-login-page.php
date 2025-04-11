@@ -68,6 +68,7 @@ abstract class Blocked_Login_Page {
 	 */
 	public static function instance( $ip_address ) {
 		if ( ! self::$instance ) {
+			// @phan-suppress-next-line PhanTypeInstantiateAbstractStatic -- This is only instantiated in non-abstract classes (i.e. Waf_Blocked_Login_Page).
 			self::$instance = new static( $ip_address );
 		}
 
