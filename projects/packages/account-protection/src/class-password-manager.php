@@ -113,11 +113,15 @@ class Password_Manager {
 	/**
 	 * Handle the password reset.
 	 *
-	 * @param \WP_User $user The user.
+	 * @param \WP_User|\stdClass $user The user object.
 	 *
 	 * @return void
 	 */
-	public function on_password_reset( \WP_User $user ): void {
+	public function on_password_reset( $user ): void {
+		if ( ! isset( $user->ID ) || ! isset( $user->user_pass ) || empty( $user->user_pass ) ) {
+			return;
+		}
+
 		$this->save_recent_password_hash( $user->ID, $user->user_pass );
 	}
 
