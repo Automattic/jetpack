@@ -18,6 +18,7 @@ const settings = {
 		'jetpack/field-text',
 		'jetpack/field-textarea',
 	],
+	usesContext: [ 'jetpack/field-share-attributes' ],
 	supports: {
 		reusable: false,
 		html: false,
