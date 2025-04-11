@@ -7,7 +7,7 @@ import { isEqual } from 'lodash';
 /**
  * Context for managing synced attributes across blocks.
  *
- * @type {React.Context<[object, Function]>}
+ * @type {React.Context<[syncedAttributes: object, setSyncedAttributes: Function]>}
  */
 const SyncedAttributeContext = createContext( [ {}, () => {} ] );
 
