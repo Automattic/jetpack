@@ -1,7 +1,7 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .panel {
-	margin: 1rem 0 1.5rem;
+	margin-block: 1rem;
 
 	:global(button.is-secondary) {
 		white-space: break-spaces;

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection: Added check for mismatching WP and WPcom user email.

@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 use Jetpack_Custom_CSS;
 use JITM;
@@ -50,7 +49,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
-			$this->add_site_card_menu();
 			$this->add_new_site_link();
 		}
 
@@ -131,81 +129,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		$this->add_admin_menu_separator();
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_menu_page( __( 'Add New Site', 'jetpack-masterbar' ), __( 'Add New Site', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt' );
-	}
-
-	/**
-	 * Adds site card component.
-	 */
-	public function add_site_card_menu() {
-		$default         = plugins_url( 'globe-icon.svg', __FILE__ );
-		$icon            = get_site_icon_url( 32, $default );
-		$blog_name       = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
-		$status          = new Status();
-		$is_private_site = $status->is_private_site();
-		$is_coming_soon  = $status->is_coming_soon();
-
-		if ( $default === $icon && blavatar_exists( $this->domain ) ) {
-			$icon = blavatar_url( $this->domain, 'img', 32 );
-		}
-
-		$badge = '';
-		if ( $is_private_site || $is_coming_soon ) {
-			$badge .= sprintf(
-				'<span class="site__badge site__badge-private">%s</span>',
-				$is_coming_soon ? esc_html__( 'Coming Soon', 'jetpack-masterbar' ) : esc_html__( 'Private', 'jetpack-masterbar' )
-			);
-		}
-
-		if ( function_exists( 'is_simple_site_redirect' ) && is_simple_site_redirect( $this->domain ) ) {
-			$badge .= '<span class="site__badge site__badge-redirect">' . esc_html__( 'Redirect', 'jetpack-masterbar' ) . '</span>';
-		}
-
-		if ( ! empty( get_option( 'options' )['is_domain_only'] ) ) {
-			$badge .= '<span class="site__badge site__badge-domain-only">' . esc_html__( 'Domain', 'jetpack-masterbar' ) . '</span>';
-		}
-
-		$site_card = '
-<div class="site__info">
-	<div class="site__title">%1$s</div>
-	<div class="site__domain">%2$s</div>
-	%3$s
-</div>';
-
-		$site_card = sprintf(
-			$site_card,
-			$blog_name,
-			$this->domain,
-			$badge
-		);
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( 'site-card', $site_card, 'read', get_home_url(), null, $icon, 1 );
-		add_filter( 'add_menu_classes', array( $this, 'set_site_card_menu_class' ) );
-	}
-
-	/**
-	 * Adds a custom element class and id for Site Card's menu item.
-	 *
-	 * @param array $menu Associative array of administration menu items.
-	 * @return array
-	 */
-	public function set_site_card_menu_class( array $menu ) {
-		foreach ( $menu as $key => $menu_item ) {
-			if ( 'site-card' !== $menu_item[3] ) {
-				continue;
-			}
-
-			$classes = ' toplevel_page_site-card';
-			if ( blavatar_exists( $this->domain ) ) {
-				$classes .= ' has-site-icon';
-			}
-
-			$menu[ $key ][4] = $menu_item[4] . $classes;
-			$menu[ $key ][5] = 'toplevel_page_site_card';
-			break;
-		}
-
-		return $menu;
 	}
 
 	/**

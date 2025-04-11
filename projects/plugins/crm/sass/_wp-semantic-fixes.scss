@@ -171,4 +171,5 @@ i.alternate {
 // ==== Everywhere we want semantic overrides, we also want modal overrides (small addition)
 
   // pull in modal css
+  /* stylelint-disable-next-line no-invalid-position-at-import-rule -- this is an intentional override */
   @import 'JetpackCRM.admin.modals';

@@ -1,4 +1,4 @@
-import DecorativeCard from '../index.js';
+import DecorativeCard from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof DecorativeCard > = {

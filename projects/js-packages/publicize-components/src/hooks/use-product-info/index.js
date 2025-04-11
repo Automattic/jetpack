@@ -1,20 +1,21 @@
 import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 import { useCallback, useEffect, useState } from 'react';
 
-const getPriceData = productObject => {
+const getPriceData = priceInfo => {
 	return {
-		price: productObject.cost / 12,
-		introOffer: productObject.introductory_offer
-			? productObject.introductory_offer.cost_per_interval / 12
+		price: priceInfo.full_price / 12,
+		introOffer: priceInfo.introductory_offer
+			? priceInfo.introductory_offer.cost_per_interval / 12
 			: null,
 	};
 };
 
-const parsePromotedProductInfo = response => {
-	const currencyCode = response?.v1?.currency_code || 'USD';
+const parsePromotedProductInfo = priceInfo => {
+	const currencyCode = priceInfo.currency_code || 'USD';
 	return {
 		currencyCode,
-		v1: response?.v1 ? getPriceData( response.v1 ) : null,
+		v1: getPriceData( priceInfo ),
 	};
 };
 
@@ -29,9 +30,10 @@ export default function useProductInfo() {
 	const getAsyncInfo = useCallback( async () => {
 		try {
 			const socialPromotedProductInfo = await apiFetch( {
-				path: '/jetpack/v4/social-product-info',
+				path: addQueryArgs( '/my-jetpack/v1/site/products', { products: 'social' } ),
 			} );
-			setProductInfo( parsePromotedProductInfo( socialPromotedProductInfo ) );
+			const pricingInfo = socialPromotedProductInfo?.social?.pricing_for_ui;
+			pricingInfo && setProductInfo( parsePromotedProductInfo( pricingInfo ) );
 		} catch {
 			setProductInfo( null );
 		}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Ensure form field hook returns string.

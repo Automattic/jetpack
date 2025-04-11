@@ -1,3 +1,4 @@
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel as DeprecatedPluginPostPublishPanel } from '@wordpress/edit-post';
 import {
@@ -9,7 +10,7 @@ import { usePostMeta } from '../../hooks/use-post-meta';
 import { usePostPrePublishValue } from '../../hooks/use-post-pre-publish-value';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import { store as socialStore } from '../../social-store';
-import { getSocialScriptData } from '../../utils/script-data';
+import { features } from '../../utils/constants';
 import { ShareStatus } from './share-status';
 
 const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginPostPublishPanel;
@@ -22,7 +23,6 @@ const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginP
 export function PostPublishShareStatus() {
 	const { isPublicizeEnabled } = usePostMeta();
 	const { pollForPostShareStatus } = useDispatch( socialStore );
-	const { feature_flags } = getSocialScriptData();
 
 	const { isPostPublished } = useSelect( select => {
 		const _editorStore = select( editorStore );
@@ -40,7 +40,7 @@ export function PostPublishShareStatus() {
 
 	const willPostBeShared = isPublicizeEnabled && enabledConnections.length > 0 && isSharingPossible;
 
-	const showStatus = feature_flags.useShareStatus && willPostBeShared && isPostPublished;
+	const showStatus = siteHasFeature( features.SHARE_STATUS ) && willPostBeShared && isPostPublished;
 
 	usePostJustPublished( () => {
 		if ( showStatus ) {

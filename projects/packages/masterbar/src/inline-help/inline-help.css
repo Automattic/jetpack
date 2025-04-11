@@ -26,9 +26,9 @@
 	box-shadow: 0 4px 5px 0 rgba( 16, 21, 23, 0.14 ),
 										0 1px 10px 0 rgba( 16, 21, 23, 0.12 ),
 										0 2px 4px -1px rgba( 16, 21, 23, 0.2 ); /* IE11 fallback - Classic Dark */
-	box-shadow: 0 4px 5px 0 rgba( var( --color-neutral-100-rgb ), 0.14 ),
-										0 1px 10px 0 rgba( var( --color-neutral-100-rgb ), 0.12 ),
-										0 2px 4px -1px rgba( var( --color-neutral-100-rgb ), 0.2 );
+	box-shadow: 0 4px 5px 0 color-mix(in srgb, var(--color-neutral-100) 14%, transparent),
+										0 1px 10px 0 color-mix(in srgb, var(--color-neutral-100) 12%, transparent),
+										0 2px 4px -1px color-mix(in srgb, var(--color-neutral-100) 20%, transparent);
 }
 
 .a8c-faux-inline-help .a8c-faux-inline-help__button::before {

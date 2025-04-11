@@ -13,6 +13,6 @@ test.describe( 'Starter plugin!', () => {
 	// eslint-disable-next-line playwright/expect-expect -- TODO: Fix/justify this.
 	test( 'Visit Jetpack page', async ( { page } ) => {
 		await DashboardPage.visit( page );
-		await ( await Sidebar.init( page ) ).selectJetpack();
+		await ( await Sidebar.init( page ) ).selectJetpackSubMenuItem();
 	} );
 } );

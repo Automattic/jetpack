@@ -200,7 +200,6 @@ $tablet-width: 760px;
 		position: absolute;
 		right: 32px;
 		top: 32px;
-		transition-delay: 0;
 		transition: .55s width ease 0s;
 		z-index: 3;
 
@@ -327,7 +326,6 @@ $tablet-width: 760px;
 		right: 32px;
 		bottom: 5%;
 		transform: translateY(0%);
-		transition-delay: 0;
 		transition: none;
 		width: auto;
 
