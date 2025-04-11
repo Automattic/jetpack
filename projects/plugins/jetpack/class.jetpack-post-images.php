@@ -1127,10 +1127,10 @@ class Jetpack_PostImages {
 
 		if ( $width >= $height ) {
 			// For landscape or square images.
-			$dims = image_resize_dimensions( $width, $height, $max_dimension, null ); // Height will be calculated automatically.
+			$dims = image_resize_dimensions( $width, $height, $max_dimension, 0 ); // Height will be calculated automatically.
 		} else {
 			// For portrait images.
-			$dims = image_resize_dimensions( $width, $height, null, $max_dimension ); // Width will be calculated automatically.
+			$dims = image_resize_dimensions( $width, $height, 0, $max_dimension ); // Width will be calculated automatically.
 		}
 
 		return array(

@@ -1001,7 +1001,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 		$max_dimension = Jetpack_PostImages::get_max_thumbnail_dimension();
 		if ( 1200 !== $max_dimension ) {
 			$this->markTestSkipped( 'Max dimension is not 1200px, skipping test as the data provider assumes 1200px max dimension.' );
-			return;
 		}
 		$this->assertSame( $expected, Jetpack_PostImages::determine_thumbnail_size_for_photon( $original_width, $original_height ) );
 	}
