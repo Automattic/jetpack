@@ -849,15 +849,21 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Test for checkbox field_renders
+	 *
+	 * @covers Contact_Form_Field::render_checkbox_field()
 	 */
 	public function test_make_sure_checkbox_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'checkbox',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
+			'label'         => 'fun',
+			'type'          => 'checkbox',
+			'class'         => 'lalala',
+			'default'       => 'foo',
+			'placeholder'   => 'PLACEHOLDTHIS!',
+			'id'            => 'funID',
+			'optionclasses' => 'option-tomato option-lettuce',
+			'optionstyles'  => 'color:cheese;font-size:11px;',
+			'labelclasses'  => 'label-tomato label-lettuce',
+			'labelstyles'   => 'color:beef;font-size:22px;',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
@@ -866,18 +872,35 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Multiple fields
+	 *
+	 * @covers Contact_Form_Field::render_checkbox_multiple_field()
 	 */
 	public function test_make_sure_checkbox_multiple_field_renders_as_expected() {
-		$attributes = array(
-			'label'   => 'fun',
-			'type'    => 'checkbox-multiple',
-			'class'   => 'lalala',
-			'default' => 'option 1',
-			'id'      => 'funID',
-			'options' => array( 'option 1', 'option 2' ),
-			'values'  => array( 'option 1', 'option 2' ),
+		$attributes          = array(
+			'label'         => 'fun',
+			'type'          => 'checkbox-multiple',
+			'class'         => 'lalala',
+			'default'       => 'option 1',
+			'id'            => 'funID',
+			'options'       => array( 'option 1', 'option 2' ),
+			'values'        => array( 'option 1', 'option 2' ),
+			'optionclasses' => 'option-cheese option-ham',
+			'inputclasses'  => 'input-tomato input-lettuce',
+			'optionsdata'   => wp_json_encode(
+				array(
+					array(
+						'label' => 'option 1',
+						'class' => 'has-text-color',
+						'style' => 'color:caramel; font-size:14px;',
+					),
+					array(
+						'label' => 'option 2',
+						'class' => 'has-text-color',
+						'style' => 'color:gummy; font-size:14px;',
+					),
+				)
+			),
 		);
-
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
 		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
 	}
@@ -970,12 +993,114 @@ class Contact_Form_Test extends BaseTestCase {
 			$attributes['class'] = 'jp-contact-form-date';
 		}
 
-		$css_class = "grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap grunion-field-wrap";
+		/*
+		 * $attributes['optionclasses'] is passed to Contact_Form_Field->render_field()
+		 * via $field_class and applied to the wrapper div.
+		 */
+		$options_classes_wrap = '';
+		if ( isset( $attributes['optionclasses'] ) ) {
+			$options_classes = explode( ' ', $attributes['optionclasses'] );
+			foreach ( $options_classes as $option_class ) {
+				$options_classes_wrap .= " {$option_class}-wrap";
+			}
+		}
+
+		/*
+		 * $attributes['inputclasses'] is passed to Contact_Form_Field->render_field()
+		 * via $field_class applied to the wrapper div.
+		 */
+		$input_classes_wrap = '';
+		if ( isset( $attributes['inputclasses'] ) ) {
+			$input_classes = explode( ' ', $attributes['inputclasses'] );
+			foreach ( $input_classes as $input_class ) {
+				$input_classes_wrap .= " {$input_class}-wrap";
+			}
+		}
+
+		$css_class = "grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap{$input_classes_wrap}{$options_classes_wrap} grunion-field-wrap";
 
 		$this->assertEquals(
 			$wrapper_div->getAttribute( 'class' ),
 			$css_class,
 			'div class attribute doesn\'t match'
+		);
+	}
+
+	/**
+	 * Tests whether the input class attribute matches the field's class attribute value.
+	 *
+	 * @param DOMElement $input The input element.
+	 * @param array      $attributes An associative array containing the field's attributes.
+	 */
+	public function assertInputClasses( $input, $attributes ) {
+		/*
+		 * $attributes['optionclasses'] is passed to
+		 * Contact_Form_Field->render_checkbox_multiple_field() as $class
+		 * and applied to the input.
+		 */
+		$options_classes_input = '';
+		if ( isset( $attributes['optionclasses'] ) ) {
+			$options_classes = explode( ' ', $attributes['optionclasses'] );
+			foreach ( $options_classes as $option_class ) {
+				$options_classes_input .= " {$option_class}";
+			}
+		}
+
+		/*
+		 * $attributes['inputclasses'] is passed to Contact_Form_Field->render_field()
+		 * via $field_class applied to the wrapper div.
+		 */
+		$input_classes_input = '';
+		if ( isset( $attributes['inputclasses'] ) ) {
+			$input_classes = explode( ' ', $attributes['inputclasses'] );
+			foreach ( $input_classes as $input_class ) {
+				$input_classes_input .= " {$input_class}";
+			}
+		}
+
+		$this->assertEquals(
+			$input->getAttribute( 'class' ),
+			$attributes['type'] . ' ' . $attributes['class'] . $input_classes_input . $options_classes_input . ' grunion-field',
+			'input class attribute doesn\'t match'
+		);
+	}
+
+	/**
+	 * Tests whether the label class attribute matches the field's class attribute value.
+	 *
+	 * @param DOMElement $input The input element.
+	 * @param array      $attributes An associative array containing the field's attributes.
+	 * @param string     $classes_prefix The prefix of the classes.
+	 */
+	public function assertLabelClasses( $label, $attributes, $classes_prefix ) {
+		/*
+		 * $attributes['optionclasses'] is added to the label class attribute in
+		 * render functions, e.g., Contact_Form_Field->render_checkbox_field().
+		 */
+		$options_classes_input = '';
+		if ( isset( $attributes['optionclasses'] ) ) {
+			$options_classes = explode( ' ', $attributes['optionclasses'] );
+			foreach ( $options_classes as $option_class ) {
+				$options_classes_input .= " {$option_class}";
+			}
+		}
+
+		/*
+		 * $attributes['labelclasses'] is assigned to $this->label_classes and applied in
+		 * render functions, e.g., Contact_Form_Field->render_checkbox_field().
+		 */
+		$label_classes_input = '';
+		if ( isset( $attributes['labelclasses'] ) ) {
+			$label_classes = explode( ' ', $attributes['labelclasses'] );
+			foreach ( $label_classes as $label_class ) {
+				$label_classes_input .= " {$label_class}";
+			}
+		}
+
+		$this->assertEquals(
+			$label->getAttribute( 'class' ),
+			$classes_prefix . $label_classes_input . $options_classes_input,
+			'input class attribute doesn\'t match'
 		);
 	}
 
@@ -1078,7 +1203,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertInstanceOf( DOMElement::class, $label );
 		$this->assertInstanceOf( DOMElement::class, $input );
 
-		$this->assertEquals( $label->getAttribute( 'class' ), 'wp-block-jetpack-option grunion-field-label ' . $attributes['type'], 'label class doesn\'t match' );
+		$this->assertLabelClasses( $label, $attributes, 'wp-block-jetpack-option grunion-field-label ' . $attributes['type'] );
 
 		$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
 		$this->assertEquals( 'Yes', $input->getAttribute( 'value' ), 'Input value doesn\'t match' );
@@ -1087,7 +1212,8 @@ class Contact_Form_Test extends BaseTestCase {
 			$this->assertEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 		}
 
-		$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'] . ' grunion-field', 'Input class doesn\'t match' );
+		$styles = $label->getAttribute( 'style' );
+		$this->assertEquals( $attributes['labelstyles'] . $attributes['optionstyles'], $styles, 'Label styles don\'t match' );
 	}
 
 	/**
@@ -1164,11 +1290,29 @@ class Contact_Form_Test extends BaseTestCase {
 					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'] . '[]', 'Input name doesn\'t match' );
 				}
 				$this->assertEquals( $input->getAttribute( 'value' ), $attributes['values'][ $i ], 'Input value doesn\'t match' );
-				$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'] . ' grunion-field', 'Input class doesn\'t match' );
+
+				$this->assertInputClasses( $input, $attributes );
+
 				if ( 0 === $i ) {
 					$this->assertEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 				} else {
 					$this->assertNotEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
+				}
+
+				if ( ! empty( $attributes['optionsdata'] ) ) {
+					$filtered    = array_filter(
+						json_decode( $attributes['optionsdata'] ),
+						function ( $option ) use ( $input ) {
+							return $option->label === $input->getAttribute( 'value' );
+						}
+					);
+					$label_style = array_values( $filtered )[0] ?? null;
+					if ( $item_label->getAttribute( 'style' ) ) {
+						$this->assertEquals( $item_label->getAttribute( 'style' ), $label_style->style, 'Style doesn\'t match' );
+					}
+					if ( $item_label->getAttribute( 'class' ) ) {
+						$this->assertContains( $label_style->class, explode( ' ', $item_label->getAttribute( 'class' ) ), 'Class doesn\'t match' );
+					}
 				}
 			}
 		}
