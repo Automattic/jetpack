@@ -40,6 +40,8 @@ class Odyssey_Config_Data {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		$host    = new Host();
 
+		$can_blaze = class_exists( 'Automattic\Jetpack\Blaze' ) && \Automattic\Jetpack\Blaze::should_initialize()['can_init'] === true;
+
 		return array(
 			'admin_page_base'                => $this->get_admin_path(),
 			'api_root'                       => esc_url_raw( rest_url() ),
@@ -96,6 +98,7 @@ class Odyssey_Config_Data {
 								'jetpack_version'       => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
 								'stats_admin_version'   => Main::VERSION,
 								'software_version'      => $wp_version,
+								'can_blaze'             => $can_blaze,
 							),
 						),
 					),
