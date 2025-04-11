@@ -18,7 +18,6 @@ export default {
 		},
 	},
 	category: 'contact-form',
-	example: {},
 	providesContext: {
 		'jetpack/field-required': 'required',
 		'jetpack/field-share-attributes': 'shareFieldAttributes',
