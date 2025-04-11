@@ -175,7 +175,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		if ( ! empty( $attributes['optionsdata'] ) ) {
-			$attributes['optionsdata'] = json_decode( html_entity_decode( $attributes['optionsdata'] ), true );
+			$attributes['optionsdata'] = json_decode( html_entity_decode( $attributes['optionsdata'], ENT_COMPAT ), true );
 		}
 
 		if ( $form ) {
