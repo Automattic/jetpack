@@ -6,7 +6,28 @@
  */
 
 /**
- * WP.com Widgets (in alphabetical order)
+ * WPCOMSH Widgets
+ */
+if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+	require_once __DIR__ . '/gravatar-widget/class-gravatar-widget.php';
+	require_once __DIR__ . '/posts-i-like-widget/class-jetpack-posts-i-like-widget.php';
+	require_once __DIR__ . '/music-player-widget/class-music-player-widget.php';
+	require_once __DIR__ . '/authors-grid-widget/class-widget-authors-grid.php';
+	require_once __DIR__ . '/freshly-pressed-widget/class-wpcom-freshly-pressed-widget.php';
+	require_once __DIR__ . '/recent-comments-widget/class-wpcom-widget-recent-comments.php';
+	require_once __DIR__ . '/reservations-widget/class-wpcom-widget-reservations.php';
+	require_once __DIR__ . '/category-cloud-widget/class-wpcom-category-cloud-widget.php';
+	// Override core tag cloud widget to add a settable `limit` parameter
+	require_once __DIR__ . '/tag-cloud-widget/class-wpcom-tag-cloud-widget.php';
+	require_once __DIR__ . '/tlkio/class-tlkio-widget.php';
+	require_once __DIR__ . '/top-clicks-widget/class-widget-top-clicks.php';
+	require_once __DIR__ . '/pd-top-rated-widget/class-pd-top-rated.php';
+	require_once __DIR__ . '/twitter-widget/class-jetpack-widget-twitter.php';
+}
+
+/**
+ * These widgets have been refactored and are shared in both WPCOM and Atomic.
+ * The ideal end state is that all widgets are shared between them.
  */
 require_once __DIR__ . '/class-jetpack-i-voted-widget.php';
 

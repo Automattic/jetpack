@@ -47,27 +47,6 @@ require_once __DIR__ . '/class-wpcomsh-log.php';
 require_once __DIR__ . '/safeguard/plugins.php';
 require_once __DIR__ . '/jetpack-token-error-header/class-atomic-record-jetpack-token-errors.php';
 
-/**
- * WP.com Widgets (in alphabetical order)
- */
-require_once __DIR__ . '/widgets/class-gravatar-widget.php';
-require_once __DIR__ . '/widgets/class-jetpack-posts-i-like-widget.php';
-require_once __DIR__ . '/widgets/class-music-player-widget.php';
-require_once __DIR__ . '/widgets/class-widget-authors-grid.php';
-require_once __DIR__ . '/widgets/class-wpcom-freshly-pressed-widget.php';
-require_once __DIR__ . '/widgets/class-wpcom-widget-recent-comments.php';
-require_once __DIR__ . '/widgets/class-wpcom-widget-reservations.php';
-
-// WP.com Category Cloud widget
-require_once __DIR__ . '/widgets/class-wpcom-category-cloud-widget.php';
-// Override core tag cloud widget to add a settable `limit` parameter
-require_once __DIR__ . '/widgets/class-wpcom-tag-cloud-widget.php';
-
-require_once __DIR__ . '/widgets/tlkio/class-tlkio-widget.php';
-require_once __DIR__ . '/widgets/class-widget-top-clicks.php';
-require_once __DIR__ . '/widgets/class-pd-top-rated.php';
-require_once __DIR__ . '/widgets/class-jetpack-widget-twitter.php';
-
 // autoload composer sourced plugins
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/vendor/automattic/at-pressable-podcasting/podcasting.php';
