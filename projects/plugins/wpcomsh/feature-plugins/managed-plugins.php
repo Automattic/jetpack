@@ -591,7 +591,8 @@ function wpcomsh_update_managed_plugins(): void {
 add_action( 'deleted_plugin', 'wpcomsh_update_managed_plugins', 100 );
 
 /**
- * Update the list of managed plugins after a plugin is installed.
+ * Update the list of managed plugins after a plugin is installed or updated.
+ * We only update the list if the managed plugins list is not already set for the update action.
  *
  * @param WP_Upgrader $upgrader The upgrader object.
  * @param array       $hook_extra Extra arguments passed to hooked filters.
