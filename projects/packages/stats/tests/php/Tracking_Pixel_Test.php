@@ -71,7 +71,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'srv'        => 'example.org',
 			'utm_id'     => 'some_id',
 			'utm_source' => 'a_source',
-			'home'       => '1',
+			'arch_home'  => '1',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
