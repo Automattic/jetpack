@@ -98,7 +98,7 @@ class Lcp implements Feature, Changes_Output_On_Activation, Optimization, Has_Ac
 				)
 			)->fallback(
 				array(
-					'pages'   => array( 'fallback' ),
+					'pages'   => array(),
 					'status'  => 'not_analyzed',
 					'created' => null,
 					'updated' => null,
