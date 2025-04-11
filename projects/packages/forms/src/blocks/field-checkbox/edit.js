@@ -4,9 +4,8 @@ import {
 	useBlockProps,
 	useInnerBlocksProps,
 } from '@wordpress/block-editor';
-import { getBlockType } from '@wordpress/blocks';
 import { PanelBody, ToggleControl } from '@wordpress/components';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import ToolbarRequiredGroup from '../contact-form/components/block-controls/toolbar-required-group';
 import JetpackFieldWidth from '../contact-form/components/jetpack-field-width';
@@ -33,14 +32,7 @@ export default function CheckboxFieldEdit( props ) {
 		},
 	} );
 
-	const optionBlockType = getBlockType( 'jetpack/option' );
-	// TODO: Is this even needed? i.e. getting the defaultLabel value form attributes definition.
-	const defaultLabel = optionBlockType.attributes.label.default;
-	// TODO: If we've deprecated all label values to inner blocks then, we shouldn't need them in templates right?
-	const template = useMemo( () => {
-		return [ [ 'jetpack/option', { defaultLabel, isStandalone: true } ] ];
-	}, [ defaultLabel ] );
-
+	const template = [ [ 'jetpack/option', { isStandalone: true } ] ];
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,
 		template,
