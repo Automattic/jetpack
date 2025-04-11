@@ -34,6 +34,36 @@ const settings = {
 		{ name: 'list', label: __( 'List', 'jetpack-forms' ), isDefault: true },
 		{ name: 'button', label: __( 'Button', 'jetpack-forms' ) },
 	],
+	example: {
+		innerBlocks: [
+			{
+				name: 'jetpack/label',
+				attributes: {
+					label: __( 'Choose one option', 'jetpack-forms' ),
+				},
+			},
+			{
+				name: 'jetpack/options',
+				attributes: {
+					type: 'radio',
+				},
+				innerBlocks: [
+					{
+						name: 'jetpack/option',
+						attributes: {
+							label: __( 'First option', 'jetpack-forms' ),
+						},
+					},
+					{
+						name: 'jetpack/option',
+						attributes: {
+							label: __( 'Second option', 'jetpack-forms' ),
+						},
+					},
+				],
+			},
+		],
+	},
 };
 
 export default {
