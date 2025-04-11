@@ -7,9 +7,9 @@ import { isEqual } from 'lodash';
 /**
  * Context for managing synced attributes across blocks.
  *
- * @type {React.Context<?{syncedAttributes: object, setSyncedAttributes: Function}>}
+ * @type {React.Context<[object, Function]>}
  */
-const SyncedAttributeContext = createContext( {} );
+const SyncedAttributeContext = createContext( [ {}, () => {} ] );
 
 /**
  * Provider component that manages synced attributes across blocks.
@@ -40,22 +40,16 @@ export function SyncedAttributeProvider( { children } ) {
  * The `setSyncedAttributes` function it returns is also adjusted so that it only updates
  * the attributes for the given block type.
  *
- * @param {string} name - The name of the block.
- *
+ * @param {string}             name         - The name of the block.
+ * @param {[object, Function]} contextValue - The context value from SyncedAttributeContext.
  * @return {Array} Array containing the synced attributes and the function to update them.
  */
-function useSyncedAttributesForBlock( name ) {
-	const contextValue = useContext( SyncedAttributeContext );
+function useSyncedAttributesForBlock( name, contextValue ) {
+	const [ syncedAttributes, setSyncedAttributes ] = contextValue;
 
 	return useMemo( () => {
-		// When context isn't available, e.g. for previews/transforms, return no-op values.
-		if ( ! contextValue || ! Array.isArray( contextValue ) ) {
-			return [ null, () => {} ];
-		}
-
-		const [ syncedAttributes = {}, setSyncedAttributes ] = contextValue;
 		return [ syncedAttributes[ name ], attributes => setSyncedAttributes( { name, attributes } ) ];
-	}, [ name, contextValue ] );
+	}, [ name, setSyncedAttributes, syncedAttributes ] );
 }
 
 /**
@@ -126,7 +120,10 @@ export function useSyncedAttributes(
 	// They can be updated using the `setSyncedAttributes` function.
 	// These attributes are the source of truth for all blocks that are synced.
 	// If they change, the current block will be updated to match the synced attributes using its `setAttributes` function.
-	const [ syncedAttributes, setSyncedAttributes ] = useSyncedAttributesForBlock( name );
+	const [ syncedAttributes, setSyncedAttributes ] = useSyncedAttributesForBlock(
+		name,
+		contextValue
+	);
 
 	// The own attributes belong to the current block that this hook operates on.
 	// If these change and the block is synced, the synced attributes will be updated on the parent form using
