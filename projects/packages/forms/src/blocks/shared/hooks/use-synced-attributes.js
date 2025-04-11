@@ -45,14 +45,17 @@ export function SyncedAttributeProvider( { children } ) {
  * @return {Array} Array containing the synced attributes and the function to update them.
  */
 function useSyncedAttributesForBlock( name ) {
-	const [ syncedAttributes, setSyncedAttributes ] = useContext( SyncedAttributeContext );
+	const contextValue = useContext( SyncedAttributeContext );
 
 	return useMemo( () => {
-		return [
-			syncedAttributes?.[ name ],
-			attributes => setSyncedAttributes( { name, attributes } ),
-		];
-	}, [ name, setSyncedAttributes, syncedAttributes ] );
+		// When context isn't available, e.g. for previews/transforms, return no-op values.
+		if ( ! contextValue || ! Array.isArray( contextValue ) ) {
+			return [ null, () => {} ];
+		}
+
+		const [ syncedAttributes = {}, setSyncedAttributes ] = contextValue;
+		return [ syncedAttributes[ name ], attributes => setSyncedAttributes( { name, attributes } ) ];
+	}, [ name, contextValue ] );
 }
 
 /**
@@ -117,6 +120,7 @@ export function useSyncedAttributes(
 	setOwnAttributes
 ) {
 	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch( 'core/block-editor' );
+	const contextValue = useContext( SyncedAttributeContext );
 
 	// The synced attributes are pulled from the parent form block via react context.
 	// They can be updated using the `setSyncedAttributes` function.
@@ -124,7 +128,7 @@ export function useSyncedAttributes(
 	// If they change, the current block will be updated to match the synced attributes using its `setAttributes` function.
 	const [ syncedAttributes, setSyncedAttributes ] = useSyncedAttributesForBlock( name );
 
-	// The  own attributes belong to the current block that this hook operates on.
+	// The own attributes belong to the current block that this hook operates on.
 	// If these change and the block is synced, the synced attributes will be updated on the parent form using
 	// the `setSyncedAttributes` function.
 	const ownAttributes = useMemo(
@@ -134,7 +138,10 @@ export function useSyncedAttributes(
 	const previousOwnAttributes = usePrevious( ownAttributes ) ?? ownAttributes;
 
 	useEffect( () => {
-		if ( ! isSynced ) {
+		// Skip syncing if not needed or possible.
+		// When a field is rendered in a preview i.e. without a parent form the useFormWrapper hook will
+		// wrap the field in a new block leading to a moment when the synced attribute context is not yet available.
+		if ( ! isSynced || ! contextValue ) {
 			return;
 		}
 
@@ -183,5 +190,6 @@ export function useSyncedAttributes(
 		previousOwnAttributes,
 		syncedAttributes,
 		__unstableMarkNextChangeAsNotPersistent,
+		contextValue,
 	] );
 }
