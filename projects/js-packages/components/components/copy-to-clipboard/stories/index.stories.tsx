@@ -1,4 +1,4 @@
-import CopyToClipboard from '../index.js';
+import CopyToClipboard from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof CopyToClipboard > = {

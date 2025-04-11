@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React from 'react';
-import { JetpackLogoProps } from './types.js';
+import { JetpackLogoProps } from './types.ts';
 
 const JetpackVaultPressBackupLogo: React.FC< JetpackLogoProps > = ( {
 	showText = true,

@@ -6,6 +6,7 @@ jetpack_vendor/
 /.nova/
 /logs
 /allure-results/
+/.pnpm-store/
 
 ## FILES
 .DS_Store

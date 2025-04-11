@@ -5,7 +5,7 @@ import React from 'react';
 /*
  * Internal Dependencies
  */
-import AiStatusIndicator, { AiStatusIndicatorProps } from '../index.js';
+import AiStatusIndicator, { AiStatusIndicatorProps } from '../index.tsx';
 
 type AiStatusIndicatoryStoryProps = AiStatusIndicatorProps & {
 	icon: string;

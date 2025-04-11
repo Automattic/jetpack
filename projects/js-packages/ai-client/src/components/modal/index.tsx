@@ -7,8 +7,8 @@ import { close } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import AiStatusIndicator from '../ai-status-indicator/index.js';
-import type { RequestingStateProp } from '../../types.js';
+import AiStatusIndicator from '../ai-status-indicator/index.tsx';
+import type { RequestingStateProp } from '../../types.ts';
 import './style.scss';
 
 const ModalHeader = ( {

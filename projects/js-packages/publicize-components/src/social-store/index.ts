@@ -1,5 +1,5 @@
 import { createReduxStore, register } from '@wordpress/data';
-import { getSocialScriptData } from '../utils';
+import { getSocialScriptData } from '../utils/script-data';
 import actions from './actions';
 import { hydrateStores } from './hydrate-stores';
 import reducer from './reducer';

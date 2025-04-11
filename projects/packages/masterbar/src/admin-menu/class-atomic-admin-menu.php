@@ -12,7 +12,6 @@ use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -76,7 +75,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
-			$this->add_site_card_menu();
 			$this->add_new_site_link();
 		}
 
@@ -213,75 +211,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_menu_page( __( 'Add New Site', 'jetpack-masterbar' ), __( 'Add New Site', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt' );
-	}
-
-	/**
-	 * Adds site card component.
-	 */
-	public function add_site_card_menu() {
-		$default        = plugins_url( 'globe-icon.svg', __FILE__ );
-		$icon           = get_site_icon_url( 32, $default );
-		$blog_name      = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
-		$is_coming_soon = ( new Status() )->is_coming_soon();
-
-		$badge = '';
-
-		if ( get_option( 'wpcom_is_staging_site' ) ) {
-			$badge .= '<span class="site__badge site__badge-staging">' . esc_html__( 'Staging', 'jetpack-masterbar' ) . '</span>';
-		}
-
-		if ( ( function_exists( '\Private_Site\site_is_private' ) && \Private_Site\site_is_private() ) || $is_coming_soon ) {
-			$badge .= sprintf(
-				'<span class="site__badge site__badge-private">%s</span>',
-				$is_coming_soon ? esc_html__( 'Coming Soon', 'jetpack-masterbar' ) : esc_html__( 'Private', 'jetpack-masterbar' )
-			);
-		}
-
-		$site_card = '
-<div class="site__info">
-	<div class="site__title">%1$s</div>
-	<div class="site__domain">%2$s</div>
-	%3$s
-</div>';
-
-		$site_card = sprintf(
-			$site_card,
-			$blog_name,
-			$this->domain,
-			$badge
-		);
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( 'site-card', $site_card, 'read', get_home_url(), null, $icon, 1 );
-		add_filter( 'add_menu_classes', array( $this, 'set_site_card_menu_class' ) );
-	}
-
-	/**
-	 * Adds a custom element class and id for Site Card's menu item.
-	 *
-	 * @param array $menu Associative array of administration menu items.
-	 *
-	 * @return array
-	 */
-	public function set_site_card_menu_class( array $menu ) {
-		foreach ( $menu as $key => $menu_item ) {
-			if ( 'site-card' !== $menu_item[3] ) {
-				continue;
-			}
-
-			$classes = ' toplevel_page_site-card';
-
-			// webclip.png is the default on WoA sites. Anything other than that means we have a custom site icon.
-			if ( has_site_icon() && 'https://s0.wp.com/i/webclip.png' !== get_site_icon_url( 512 ) ) {
-				$classes .= ' has-site-icon';
-			}
-
-			$menu[ $key ][4] = $menu_item[4] . $classes;
-			$menu[ $key ][5] = 'toplevel_page_site_card';
-			break;
-		}
-
-		return $menu;
 	}
 
 	/**
