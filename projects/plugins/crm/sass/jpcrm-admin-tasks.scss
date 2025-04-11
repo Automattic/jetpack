@@ -54,7 +54,7 @@
     height: 24px;
     white-space: nowrap;
     overflow: hidden;
-    background: white;
+    background: #fff;
     color: rgba(0,0,0,0.95);
     padding: 2px;
 }
@@ -69,16 +69,16 @@
 
 .fc-event{
     border:0px;
-    background:white;
+    background: #fff;
     border: 1px solid #ddd;
 }
 
 .fc-content{
-    color:black;
+    color: #000;
 }
 
 .fc-button{
-    background:white;
+    background: #fff;
 }
 
 .zbs-avatar{
@@ -95,7 +95,7 @@
 }
 
 .fc-unthemed .fc-divider, .fc-unthemed .fc-list-heading td, .fc-unthemed .fc-popover .fc-header {
-background: white;
+background: #fff;
 }
 
 .fc-toolbar .fc-state-active, .fc-toolbar .ui-state-active{
@@ -131,7 +131,7 @@ background: white;
 
     width:80%;
     float:left;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
     font-size: 14px;
     font-weight: 400;
     min-height: 0;
@@ -146,7 +146,7 @@ background: white;
 
 .zbs-show{
     border: 1px solid #ddd;
-    background:white;
+    background: #fff;
 }
 
 
@@ -158,14 +158,14 @@ background: white;
 
     width: 100%;
     font-size: 14px;
-    color: #cccccc;
+    color: #ccc;
     border: 1px solid #ccc;
     margin:0;
     padding:4px;
 }
 
 .show-on-calendar, .remind_task{
-    color:black;
+    color: #000;
 
     div input {
         margin: 0.2em 0.5em !important;
@@ -242,7 +242,7 @@ background: white;
 }
 
 .no-owner .dn{
-    color: black;
+    color: #000;
     line-height: 30px;
     vertical-align: middle;
     width: 80%;
@@ -304,7 +304,7 @@ background: white;
     margin-top:0;
 }
 
-#task-mark-complete ui .button:focus {
+#task-mark-complete .button:focus {
     border-color:none !important;
     box-shadow: none !important;
 }
@@ -355,7 +355,7 @@ background: white;
     float: left;
     margin-right: 5px;
     width: 18%; min-width:134px;
-    color:black;
+    color: #000;
     padding-left: 0.3em;
 }
 
@@ -394,7 +394,7 @@ background: white;
 }
 
 .zbs-task-for-who{
-    color:black;
+    color: #000;
 }
 
 

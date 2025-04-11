@@ -1,4 +1,4 @@
-import { Tooltip } from '../tooltip.js';
+import { Tooltip } from '../tooltip.tsx';
 import type { Meta } from '@storybook/react';
 
 const meta: Meta< typeof Tooltip > = {

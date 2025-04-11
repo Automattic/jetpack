@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.45] - 2025-04-10
+### Added
+- Add keywords in package.json for npm search. [#42948]
+
 ## [1.0.44] - 2025-03-18
 ### Changed
 - Update package dependencies. [#42511]
@@ -197,6 +201,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release.
 - Replace missing domains too.
 
+[1.0.45]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.44...v1.0.45
 [1.0.44]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.43...v1.0.44
 [1.0.43]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.42...v1.0.43
 [1.0.42]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.41...v1.0.42

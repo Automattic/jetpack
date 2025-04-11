@@ -6,7 +6,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { ImageLoader } from './image-loader.js';
+import { ImageLoader } from './image-loader.tsx';
 import './first-load-screen.scss';
 
 export const FirstLoadScreen: React.FC< {

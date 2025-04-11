@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import NumberSlider from '../index.js';
+import NumberSlider from '../index.tsx';
 
 describe( 'NumberSlider', () => {
 	it( 'renders the number slider', () => {

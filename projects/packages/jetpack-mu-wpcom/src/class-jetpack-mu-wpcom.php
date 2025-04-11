@@ -10,12 +10,11 @@
 namespace Automattic\Jetpack;
 
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
-
 /**
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.3.0';
+	const PACKAGE_VERSION = '6.3.1';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -58,7 +57,6 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_newsletter_dashboard' ) );
 		}
 
 		// These features run only on atomic sites.
@@ -283,6 +281,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-hotfixes/wpcom-hotfixes.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
+		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
 		// Initializers, if needed.
@@ -296,13 +295,6 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
 			Scheduled_Updates::init();
 		}
-	}
-
-	/**
-	 * Load Newsletter Dashboard in Simple sites.
-	 */
-	public static function load_wpcom_newsletter_dashboard() {
-		require_once __DIR__ . '/features/wpcom-newsletter-widget/wpcom-newsletter-widget.php';
 	}
 
 	/**

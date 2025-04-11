@@ -1,5 +1,5 @@
 import debugFactory from 'debug';
-import { FALLBACK_LOCALE } from './constants.js';
+import { FALLBACK_LOCALE } from './constants.ts';
 
 const debug = debugFactory( 'number-formatters:get-cached-formatter' );
 

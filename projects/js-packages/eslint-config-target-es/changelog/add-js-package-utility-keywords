@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add keywords in package.json for npm search.

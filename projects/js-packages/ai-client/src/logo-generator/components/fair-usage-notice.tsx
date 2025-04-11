@@ -1,5 +1,5 @@
 import { Notice } from '@wordpress/components';
-import useFairUsageNoticeMessage from '../hooks/use-fair-usage-notice-message.js';
+import useFairUsageNoticeMessage from '../hooks/use-fair-usage-notice-message.tsx';
 
 type FairUsageNoticeProps = {
 	variant?: 'error' | 'muted';

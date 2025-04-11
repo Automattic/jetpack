@@ -12,8 +12,8 @@ import { addFilter } from '@wordpress/hooks';
  * Internal dependencies
  */
 import { getFeatureAvailability } from '../../blocks/ai-assistant/lib/utils/get-feature-availability';
-import AiToolbarButton from './components/ai-toolbar-button.js';
-import { SITE_LOGO_BLOCK_AI_EXTENSION, TOOL_PLACEMENT, PLACEMENT_CONTEXT } from './constants.js';
+import AiToolbarButton from './components/ai-toolbar-button.tsx';
+import { SITE_LOGO_BLOCK_AI_EXTENSION, TOOL_PLACEMENT, PLACEMENT_CONTEXT } from './constants.ts';
 
 /**
  * Mininal type definition for the core select function.

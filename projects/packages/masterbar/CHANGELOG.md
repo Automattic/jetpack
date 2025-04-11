@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.1] - 2025-04-07
+### Changed
+- Code: First pass of style coding standards. [#42734]
+
 ## [0.15.0] - 2025-04-04
 ### Changed
-- Updated code to avoid using RDV experiment assignment. [#42765]
+- Stop using RDV experiment assignment. [#42765]
 
 ## [0.14.4] - 2025-04-02
 ### Changed
@@ -282,6 +286,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.15.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.14.4...v0.15.0
 [0.14.4]: https://github.com/Automattic/jetpack-masterbar/compare/v0.14.3...v0.14.4
 [0.14.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.14.2...v0.14.3

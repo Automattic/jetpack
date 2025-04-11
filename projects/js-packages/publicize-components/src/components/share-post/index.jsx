@@ -13,8 +13,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { useIsReSharingPossible } from '../../hooks/use-is-resharing-possible';
 import useSharePost from '../../hooks/use-share-post';
 import { store as socialStore } from '../../social-store';
-import { features } from '../../utils';
-import { getSocialScriptData } from '../../utils/script-data';
+import { features } from '../../utils/constants';
 
 /**
  * Removes the current message from resharing a post.
@@ -87,7 +86,6 @@ export function SharePostButton( { onShareCompleted, isDisabled = false } ) {
 			isSavingPost: editorSelector.isSavingPost(),
 		};
 	}, [] );
-	const { feature_flags } = getSocialScriptData();
 	const { pollForPostShareStatus } = useDispatch( socialStore );
 	const { recordEvent } = useAnalytics();
 	const savePost = dispatch( editorStore ).savePost;
@@ -136,7 +134,7 @@ export function SharePostButton( { onShareCompleted, isDisabled = false } ) {
 
 		await doPublicize();
 
-		if ( feature_flags.useShareStatus ) {
+		if ( siteHasFeature( features.SHARE_STATUS ) ) {
 			pollForPostShareStatus();
 		}
 	}, [
@@ -146,7 +144,6 @@ export function SharePostButton( { onShareCompleted, isDisabled = false } ) {
 		isAutosaveablePost,
 		hasMediaFeatures,
 		doPublicize,
-		feature_flags.useShareStatus,
 		savePost,
 		pollForPostShareStatus,
 	] );

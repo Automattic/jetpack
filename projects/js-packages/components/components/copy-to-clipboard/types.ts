@@ -1,4 +1,4 @@
-import { ButtonProps } from '../button/types.js';
+import { ButtonProps } from '../button/types.ts';
 
 export type CopyToClipboardProps = ButtonProps & {
 	buttonStyle?: 'icon' | 'text' | 'icon-text';

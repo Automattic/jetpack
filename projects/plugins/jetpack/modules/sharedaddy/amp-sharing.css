@@ -14,7 +14,7 @@ amp-social-share,
 amp-social-share::before,
 .amp-social-share::before {
 	display: inline-block;
-	font: normal 18px/1 'social-logos';
+	font: 400 18px/1 social-logos;
 	padding: 7px;
 	position: relative;
 	top: 1px;
@@ -63,11 +63,11 @@ amp-social-share[type='facebook']::before {
 }
 
 amp-social-share[type='twitter'] {
-	background: #00acee;
+	background: #000;
 }
 
 amp-social-share[type='twitter']::before {
-	content: '\f202';
+	content: '\f10e';
 }
 
 amp-social-share[type='pinterest'] {
@@ -79,7 +79,7 @@ amp-social-share[type='pinterest']::before {
 }
 
 amp-social-share[type='telegram'] {
-	background: #0088cc;
+	background: #08c;
 }
 
 amp-social-share[type='telegram']::before {

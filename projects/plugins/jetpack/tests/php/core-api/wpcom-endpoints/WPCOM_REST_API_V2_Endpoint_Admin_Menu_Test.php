@@ -10,7 +10,7 @@ require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test
  *
- * @coversDefaultClass WPCOM_REST_API_V2_Endpoint_Admin_Menu
+ * @covers \WPCOM_REST_API_V2_Endpoint_Admin_Menu
  */
 class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 
@@ -59,8 +59,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 
 	/**
 	 * Tests the permission check.
-	 *
-	 * @covers ::get_item_permissions_check
 	 */
 	public function test_get_item_permissions_check() {
 		wp_set_current_user( 0 );
@@ -93,9 +91,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	/**
 	 * Tests get item.
 	 *
-	 * @covers ::get_item_permissions_check
-	 * @covers ::get_item
-	 * @covers ::prepare_menu_for_response
 	 * @depends test_successful_request
 	 *
 	 * @param WP_REST_Response $response Admin Menu API response.
@@ -112,7 +107,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	/**
 	 * Tests that submenu items get promoted when the user doesn't have the caps for the top-level menu item.
 	 *
-	 * @covers ::prepare_menu_for_response
 	 * @depends test_successful_request
 	 *
 	 * @param WP_REST_Response $response Admin Menu API response.
@@ -143,7 +137,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	 *
 	 * @throws \ReflectionException Noop.
 	 * @dataProvider menu_item_data
-	 * @covers ::prepare_menu_item
 	 */
 	public function test_prepare_menu_item( array $menu_item, array $expected ) {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
@@ -216,7 +209,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	 *
 	 * @throws \ReflectionException Noop.
 	 * @dataProvider submenu_item_data
-	 * @covers ::prepare_submenu_item
 	 */
 	public function test_prepare_submenu_item( array $submenu_item, array $menu_item, array $expected ) {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
@@ -350,8 +342,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	 *
 	 * @throws \ReflectionException Noop.
 	 * @dataProvider menu_item_icon_data
-	 * @covers ::prepare_menu_item_icon
-	 * @covers ::prepare_dashicon
 	 */
 	public function test_prepare_menu_item_icon( $icon, $expected ) {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
@@ -419,7 +409,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	 *
 	 * @throws \ReflectionException Noop.
 	 * @dataProvider menu_item_url_data
-	 * @covers ::prepare_menu_item_url
 	 */
 	public function test_prepare_menu_item_url( $url, $parent_slug, $callback, $expected ) {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
@@ -559,7 +548,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	 *
 	 * @throws \ReflectionException Noop.
 	 * @dataProvider menu_item_update_data
-	 * @covers ::parse_menu_item
 	 */
 	public function test_parse_menu_item( $menu_item, $expected ) {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );

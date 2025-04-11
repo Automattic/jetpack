@@ -6,6 +6,12 @@
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Remove Asset Webpack Plugin"
 	},
+	"keywords": [
+		"webpack",
+		"plugin",
+		"remove",
+		"assets"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",

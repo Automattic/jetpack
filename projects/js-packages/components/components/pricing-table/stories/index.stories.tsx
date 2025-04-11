@@ -1,10 +1,10 @@
-import Button from '../../button/index.js';
-import ProductPrice from '../../product-price/index.js';
+import Button from '../../button/index.tsx';
+import ProductPrice from '../../product-price/index.tsx';
 import PricingTable, {
 	PricingTableColumn,
 	PricingTableHeader,
 	PricingTableItem,
-} from '../index.js';
+} from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof PricingTable > = {
