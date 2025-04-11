@@ -12,7 +12,7 @@ if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 	require_once __DIR__ . '/gravatar/class-gravatar-widget.php';
 	require_once __DIR__ . '/posts-i-like/class-jetpack-posts-i-like-widget.php';
 	require_once __DIR__ . '/music-player/class-music-player-widget.php';
-	require_once __DIR__ . '/authors-grid/class-widget-authors-grid.php';
+	require_once __DIR__ . '/author-grid/class-widget-authors-grid.php';
 	require_once __DIR__ . '/freshly-pressed/class-wpcom-freshly-pressed-widget.php';
 	require_once __DIR__ . '/recent-comments/class-wpcom-widget-recent-comments.php';
 	require_once __DIR__ . '/reservations/class-wpcom-widget-reservations.php';
