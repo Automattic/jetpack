@@ -40,6 +40,29 @@ const settings = {
 	},
 	deprecated,
 	save,
+	example: {
+		attributes: {
+			options: [
+				__( 'First option', 'jetpack-forms' ),
+				__( 'Second option', 'jetpack-forms' ),
+				__( 'Third option', 'jetpack-forms' ),
+			],
+		},
+		innerBlocks: [
+			{
+				name: 'jetpack/label',
+				attributes: {
+					label: __( 'Dropdown', 'jetpack-forms' ),
+				},
+			},
+			{
+				name: 'jetpack/input',
+				attributes: {
+					type: 'text',
+				},
+			},
+		],
+	},
 };
 
 export default {
