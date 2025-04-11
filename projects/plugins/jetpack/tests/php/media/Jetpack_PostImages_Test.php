@@ -3,7 +3,8 @@ use Automattic\Jetpack\Image_CDN\Image_CDN;
 require_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/slideshow.php';
 
 /**
- * @covers \Jetpack_PostImages
+ * @covers Jetpack_PostImages
+ * @covers Jetpack_PostImages::from_thumbnail
  */
 class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -856,7 +857,10 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test image resizing with Photon when image is too large
+	 * Test image resizing with Photon when image is too large.
+	 *
+	 * @since $$next-version$$
+	 * @see https://github.com/Automattic/jetpack/issues/40349
 	 */
 	public function test_from_thumbnail_resizes_large_image_with_photon() {
 		// Mock photon being active
@@ -895,7 +899,10 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test image resizing with Photon when custom image size exists
+	 * Test image resizing with Photon when custom image size exists.
+	 *
+	 * @since $$next-version$$
+	 * @see https://github.com/Automattic/jetpack/issues/40349
 	 */
 	public function test_from_thumbnail_resizes_large_image_with_photon_and_custom_size() {
 		// Mock photon being active
@@ -936,6 +943,67 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 		// Cleanup
 		remove_image_size( 'test-size' );
 		remove_all_filters( 'jetpack_active_modules' );
+	}
+
+	/**
+	 * Data provider for test_determine_thumbnail_size_for_photon.
+	 *
+	 * @return array Test cases with original dimensions and expected output.
+	 */
+	public static function provide_thumbnail_sizes_for_photon() {
+		return array(
+			'landscape_image' => array(
+				2000, // Original width
+				1333, // Original height
+				array(
+					'width'  => 1200,
+					'height' => 800,
+				), // Expected dimensions
+			),
+			'portrait_image'  => array(
+				1333, // Original width
+				2000, // Original height
+				array(
+					'width'  => 800,
+					'height' => 1200,
+				), // Expected dimensions
+			),
+			'square_image'    => array(
+				2000, // Original width
+				2000, // Original height
+				array(
+					'width'  => 1200,
+					'height' => 1200,
+				), // Expected dimensions
+			),
+			'small_image'     => array(
+				800, // Original width
+				600, // Original height
+				array(
+					'width'  => 800,
+					'height' => 600,
+				), // Expected dimensions - no resize needed
+			),
+		);
+	}
+
+	/**
+	 * Tests if the ::determine_thumbnail_size_for_photon method returns the correct size.
+	 *
+	 * @since $$next-version$$
+	 * @see https://github.com/Automattic/jetpack/issues/40349
+	 * @dataProvider provide_thumbnail_sizes_for_photon
+	 * @param int   $original_width Width of the original image.
+	 * @param int   $original_height Height of the original image.
+	 * @param array $expected Expected dimensions after resize.
+	 */
+	public function test_determine_thumbnail_size_for_photon( $original_width, $original_height, $expected ) {
+		$max_dimension = Jetpack_PostImages::get_max_thumbnail_dimension();
+		if ( 1200 !== $max_dimension ) {
+			$this->markTestSkipped( 'Max dimension is not 1200px, skipping test as the data provider assumes 1200px max dimension.' );
+			return;
+		}
+		$this->assertSame( $expected, Jetpack_PostImages::determine_thumbnail_size_for_photon( $original_width, $original_height ) );
 	}
 
 	/**
