@@ -1,5 +1,5 @@
 import React from 'react';
-import Chip from '../index.js';
+import Chip from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Components/Chip',

@@ -137,6 +137,7 @@ export default function QuestionAnswer( {
 						value={ question }
 						onChange={ newQuestion => setQuestion( newQuestion ) }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 
 					<Button

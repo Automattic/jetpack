@@ -3,7 +3,8 @@
  * Jetpack plugin implementation.
  */
 
-import { PanelBody, ToggleControl } from '@wordpress/components';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
@@ -12,7 +13,7 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { getSocialScriptData } from '../../utils/script-data';
+import { features } from '../../utils/constants';
 import PublicizeForm from '../form';
 import { ManualSharing } from '../manual-sharing';
 import { ReSharingPanel } from '../resharing-panel';
@@ -27,7 +28,6 @@ type PublicizePanelProps = {
 const PublicizePanel = ( { prePublish, children }: PublicizePanelProps ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const { feature_flags } = getSocialScriptData();
 
 	const refreshConnections = useRefreshConnections();
 
@@ -59,21 +59,23 @@ const PublicizePanel = ( { prePublish, children }: PublicizePanelProps ) => {
 			{ ! hidePublicizeFeature && (
 				<Fragment>
 					{ ! isPostPublished && (
-						<ToggleControl
-							label={
-								isPublicizeEnabled
-									? __( 'Share when publishing', 'jetpack-publicize-components' )
-									: _x(
-											'Sharing is disabled',
-											'Label for publicize toggle',
-											'jetpack-publicize-components'
-									  )
-							}
-							onChange={ togglePublicizeFeature }
-							checked={ isPublicizeEnabled && hasConnections }
-							disabled={ ! hasConnections }
-							__nextHasNoMarginBottom={ true }
-						/>
+						<PanelRow>
+							<ToggleControl
+								label={
+									isPublicizeEnabled
+										? __( 'Share when publishing', 'jetpack-publicize-components' )
+										: _x(
+												'Sharing is disabled',
+												'Label for publicize toggle',
+												'jetpack-publicize-components'
+										  )
+								}
+								onChange={ togglePublicizeFeature }
+								checked={ isPublicizeEnabled && hasConnections }
+								disabled={ ! hasConnections }
+								__nextHasNoMarginBottom={ true }
+							/>
+						</PanelRow>
 					) }
 
 					<PublicizeForm />
@@ -81,7 +83,7 @@ const PublicizePanel = ( { prePublish, children }: PublicizePanelProps ) => {
 			) }
 			{ isPostPublished && (
 				<>
-					{ feature_flags.useShareStatus ? <ReSharingPanel /> : null }
+					{ siteHasFeature( features.SHARE_STATUS ) ? <ReSharingPanel /> : null }
 					<ManualSharing />
 				</>
 			) }

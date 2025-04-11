@@ -416,6 +416,7 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 					'url'             => false,
 					'filter'          => false,
 					'wpLocalConstant' => false,
+					'option'          => false,
 				),
 			),
 			$response
@@ -451,6 +452,7 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 					'url'             => false,
 					'filter'          => true,
 					'wpLocalConstant' => false,
+					'option'          => false,
 				),
 			),
 			$response
@@ -968,7 +970,6 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	/**
 	 * Test fetching user connection data with connected user.
 	 *
-	 * @covers Jetpack::filter_jetpack_current_user_connection_data
 	 * @since 10.0
 	 */
 	public function test_get_user_connection_data_with_connected_user() {

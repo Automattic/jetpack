@@ -130,6 +130,7 @@ class Jetpack_Subscriptions {
 
 		// Set "social_notifications_subscribe" option during the first-time activation.
 		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_social_notifications_subscribe' ) );
+		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_featured_image_in_email_default' ) );
 
 		// Hide subscription messaging in Publish panel for posts that were published in the past
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
@@ -911,6 +912,15 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
+	 * Set the featured image in email option to `1` when the Subscriptions module is activated in the first time.
+	 *
+	 * @return void
+	 */
+	public function set_featured_image_in_email_default() {
+		add_option( 'wpcom_featured_image_in_email', 1 );
+	}
+
+	/**
 	 * Save a flag when a post was ever published.
 	 *
 	 * It saves the post meta when the post was published and becomes a draft.
@@ -1062,3 +1072,4 @@ require __DIR__ . '/subscriptions/views.php';
 require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
 require __DIR__ . '/subscriptions/subscribe-overlay/class-jetpack-subscribe-overlay.php';
 require __DIR__ . '/subscriptions/subscribe-floating-button/class-jetpack-subscribe-floating-button.php';
+require __DIR__ . '/subscriptions/newsletter-widget/class-jetpack-newsletter-dashboard-widget.php';

@@ -4,7 +4,7 @@
 
 @font-face {
 	font-display: swap;
-	font-family: "Recoleta";
+	font-family: Recoleta;
 	font-weight: 400;
 	src: url("https://s1.wp.com/i/fonts/recoleta/400.woff2") format("woff2"), url("https://s1.wp.com/i/fonts/recoleta/400.woff") format("woff");
 }
@@ -37,7 +37,7 @@
 }
 
 .wpcom-plugins-banner h3 {
-	font-family: 'Recoleta';
+	font-family: Recoleta, serif;
 	font-size: 32px;
 	line-height: 40px;
 	color: #FFF;
@@ -52,7 +52,7 @@
 .wpcom-plugins-banner a,
 .wpcom-plugins-banner a:visited {
 	background-color: #3858E9;
-	color: white;
+	color: #fff;
 	border-radius: 4px;
 	padding: 10px 24px;
 	font-size: 14px;
@@ -65,11 +65,12 @@
 
 .wpcom-plugins-banner a:hover,
 .wpcom-plugins-banner a:focus {
-	background-color: white;
+	background-color: #fff;
 	color: #1d2327;
 }
 
 @media (max-width: 1260px) {
+
 	.wpcom-plugins-banner {
 		padding: 32px;
 		background-size: 400px;
@@ -82,16 +83,19 @@
 }
 
 @media (max-width: 1120px) {
+
 	.wpcom-plugins-banner {
 		background-position: bottom right 5px;
 		background-size: 300px
 	}
+
 	.rtl .wpcom-plugins-banner {
 		background-position: bottom left 5px;
 	}
 }
 
 @media (max-width: 850px) {
+
 	.wpcom-plugins-banner {
 		background-image: none;
 	}
@@ -102,6 +106,7 @@
 }
 
 @media (max-width: 782px) {
+
 	.wpcom-plugins-banner {
 		padding: 24px;
 	}

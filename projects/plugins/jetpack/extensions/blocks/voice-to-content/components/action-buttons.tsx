@@ -52,6 +52,7 @@ export default function ActionButtons( {
 					onChange={ onUpload }
 					variant="secondary"
 					className="jetpack-ai-voice-to-content__button"
+					__next40pxDefaultSize={ true }
 				>
 					{ __( 'Upload audio', 'jetpack' ) }
 				</FormFileUpload>

@@ -9,3 +9,5 @@ export const SERIES_LABELS = {
 	all: __( 'All', 'jetpack' ),
 	paid: __( 'Paid', 'jetpack' ),
 };
+
+export const TRACKS_EVENT_NAME_PREFIX = 'jetpack_newsletter_widget_';

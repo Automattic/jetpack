@@ -9,6 +9,11 @@
 
 /**
  * Tests Jetpack_VideoPress_Utility_Functions
+ *
+ * @covers ::jetpack_videopress_flash_embed_filter
+ * @covers ::videopress_get_post_by_guid
+ * @covers ::videopress_get_post_id_by_guid
+ * @covers \VIDEOPRESS_PRIVACY
  */
 class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -16,7 +21,6 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	/**
 	 * Tests a helper function to get the post by guid, when there is no post found.
 	 *
-	 * @covers ::videopress_get_post_by_guid
 	 * @since 8.4.0
 	 */
 	public function test_no_post_found_videopress_get_post_by_guid() {
@@ -50,7 +54,6 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	 * Tests a helper function to get the post by guid, when there's initially no cached value.
 	 *
 	 * @dataProvider get_data_test_video_non_cached
-	 * @covers ::videopress_get_post_by_guid
 	 * @since 8.4.0
 	 *
 	 * @param callable    $callback The callback to get the caching.
@@ -107,7 +110,6 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	 * this should return that instead of instantiating WP_Query.
 	 *
 	 * @dataProvider get_data_test_video_cached
-	 * @covers ::videopress_get_post_by_guid
 	 * @since 8.4.0
 	 *
 	 * @param callable    $callback The callback to set the caching.
@@ -157,7 +159,6 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	 * the tested method should ignore it and query for the post.
 	 *
 	 * @dataProvider get_data_cached_invalid
-	 * @covers ::videopress_get_post_by_guid
 	 * @since 8.4.0
 	 *
 	 * @param mixed $invalid_cached_value A cached value that should be ignored.
@@ -178,8 +179,6 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	 * Tests Video Privacy Settings.
 	 *
 	 * @dataProvider privacy_settings_data_provider
-	 *
-	 * @covers VIDEOPRESS_PRIVACY
 	 *
 	 * @param int $expected The expected privacy constant value.
 	 * @param int $actual   The actual privacy constant value.
@@ -203,7 +202,6 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	/**
 	 * Tests a helper function to get the post id by guid.
 	 *
-	 * @covers ::videopress_get_post_id_by_guid
 	 * @since 8.4.0
 	 */
 	public function test_non_cached_videopress_get_post_id_by_guid() {
@@ -224,7 +222,6 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	 * Tests the VideoPress Flash to oEmbedable URL filter.
 	 *
 	 * @author kraftbj
-	 * @covers ::jetpack_videopress_flash_embed_filter
 	 * @since 8.1.0
 	 */
 	public function test_jetpack_videopress_flash_embed_filter_flash() {

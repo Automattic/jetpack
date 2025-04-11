@@ -65,10 +65,9 @@ class WPcom_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Set up each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $menu, $submenu;
 
 		static::$domain       = ( new Status() )->get_site_suffix();
@@ -105,10 +104,9 @@ class WPcom_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}
@@ -141,68 +139,6 @@ class WPcom_Admin_Menu_Test extends TestCase {
 			'dashicons-plus-alt',
 		);
 		$this->assertSame( array_pop( $menu ), $new_site_menu_item );
-	}
-
-	/**
-	 * Tests add_site_card_menu
-	 */
-	public function test_add_site_card_menu() {
-		global $menu;
-
-		if ( ! static::$is_wpcom ) {
-			$this->markTestSkipped( 'Only used on WP.com.' );
-		}
-
-		static::$admin_menu->add_site_card_menu();
-
-		$home_url            = home_url();
-		$site_card_menu_item = array(
-			'
-<div class="site__info">
-	<div class="site__title">' . get_option( 'blogname' ) . '</div>
-	<div class="site__domain">' . static::$domain . '</div>
-
-</div>',
-			'read',
-			$home_url,
-			'site-card',
-			'menu-top toplevel_page_' . $home_url,
-			'toplevel_page_' . $home_url,
-			plugins_url( 'src/admin-menu/globe-icon.svg', dirname( __DIR__ ) ),
-		);
-
-		$this->assertEquals( $menu[1], $site_card_menu_item );
-	}
-
-	/**
-	 * Tests set_site_card_menu_class
-	 */
-	public function test_set_site_card_menu_class() {
-		global $menu;
-
-		if ( ! static::$is_wpcom ) {
-			$this->markTestSkipped( 'Only used on WP.com.' );
-		}
-
-		static::$admin_menu->add_site_card_menu();
-
-		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
-		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
-
-		// Custom site icon triggers CSS class.
-		add_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
-		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
-		remove_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
-		$this->assertStringContainsString( 'has-site-icon', $menu[1][4] );
-	}
-
-	/**
-	 * Custom site icon.
-	 *
-	 * @return string
-	 */
-	public function custom_site_icon_url() {
-		return 'https://s0.wp.com/i/jetpack.png';
 	}
 
 	/**

@@ -1,5 +1,5 @@
 .a8cjptt-threats p {
-	font-weight: normal;
+	font-weight: 400;
 }
 
 .a8cjptt-threats p code {
@@ -19,13 +19,13 @@
 }
 
 .a8cjptt-danger {
-	color: red;
+	color: #f00;
 }
 
 .a8cjptt-success {
-	color: green;
+	color: #008000;
 }
 
 .a8cjptt-info {
-	color: blue;
+	color: #00f;
 }

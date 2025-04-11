@@ -19,6 +19,7 @@ margin:0.5em 0;
 padding:1em;
 border:solid #7284AB 2px;
 }
+
 fieldset.code_output {
 display:inline;
 }
@@ -72,10 +73,10 @@ cursor:help;
 }
 
 p.important {
-border:solid 1px red;
-font-weight:bold;
+border:solid 1px #f00;
+font-weight:700;
 padding:1em;
-background:white;
+background: #fff;
 }
 
 p {
@@ -87,7 +88,7 @@ padding-left:0.5em;
 }
 
 dt {
-font-weight:bold;
+font-weight:700;
 margin:0;
 float:left;
 clear:both;
@@ -100,7 +101,7 @@ height:1.5em;
 }
 
 fieldset#messages {
-background:white;
+background: #fff;
 padding:0 0 0 1em;
 }
 
@@ -110,9 +111,9 @@ overflow:auto;
 }
 
 dd.Warning {
-color:orange;
+color: #ffa500;
 }
 
 dd.Information {
-color:green;
+color:#008000;
 }

@@ -101,6 +101,7 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 							aria-activedescendant={ activeId }
 							onKeyDown={ onKeyDown }
 							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
 						/>
 					) }
 				</Lookup>

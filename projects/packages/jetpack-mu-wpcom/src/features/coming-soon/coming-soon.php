@@ -9,6 +9,8 @@ namespace A8C\FSE\Coming_soon;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
+require_once __DIR__ . '/../../utils.php';
+
 /**
  * Determines whether the coming soon page should be shown.
  *

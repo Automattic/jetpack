@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import Button from '../../button/index.js';
-import { GlobalNotices, useGlobalNotices } from '../index.js';
+import Button from '../../button/index.tsx';
+import { GlobalNotices, useGlobalNotices } from '../index.ts';
 import type { Meta } from '@storybook/react';
 
 const meta: Meta< typeof GlobalNotices > = {

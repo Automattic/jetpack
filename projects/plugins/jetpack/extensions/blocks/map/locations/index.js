@@ -44,6 +44,7 @@ export class Locations extends Component {
 					value={ point.title }
 					onChange={ title => this.setMarkerField( 'title', title, index ) }
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				/>
 				<TextareaControl
 					label="Marker Caption"

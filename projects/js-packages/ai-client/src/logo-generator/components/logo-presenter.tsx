@@ -9,22 +9,22 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import AiFeedbackThumbs from '../../components/ai-feedback/index.js';
-import CheckIcon from '../assets/icons/check.js';
-import LogoIcon from '../assets/icons/logo.js';
-import MediaIcon from '../assets/icons/media.js';
-import { EVENT_SAVE, EVENT_USE } from '../constants.js';
-import useLogoGenerator from '../hooks/use-logo-generator.js';
-import useRequestErrors from '../hooks/use-request-errors.js';
-import { updateLogo } from '../lib/logo-storage.js';
-import { STORE_NAME } from '../store/index.js';
-import { ImageLoader } from './image-loader.js';
+import AiFeedbackThumbs from '../../components/ai-feedback/index.tsx';
+import CheckIcon from '../assets/icons/check.tsx';
+import LogoIcon from '../assets/icons/logo.tsx';
+import MediaIcon from '../assets/icons/media.tsx';
+import { EVENT_SAVE, EVENT_USE } from '../constants.ts';
+import useLogoGenerator from '../hooks/use-logo-generator.ts';
+import useRequestErrors from '../hooks/use-request-errors.ts';
+import { updateLogo } from '../lib/logo-storage.ts';
+import { STORE_NAME } from '../store/index.ts';
+import { ImageLoader } from './image-loader.tsx';
 import './logo-presenter.scss';
 /**
  * Types
  */
-import type { Logo } from '../store/types.js';
-import type { LogoPresenterProps } from '../types.js';
+import type { Logo } from '../store/types.ts';
+import type { LogoPresenterProps } from '../types.ts';
 import type React from 'react';
 
 const debug = debugFactory( 'jetpack-ai-calypso:logo-presenter' );

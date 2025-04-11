@@ -12,6 +12,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tracking test suite.
+ *
+ * @covers \Automattic\Jetpack\Tracking
  */
 class Tracking_Test extends TestCase {
 
@@ -31,10 +33,9 @@ class Tracking_Test extends TestCase {
 
 	/**
 	 * Test setup.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Monkey\setUp();
 
 		$this->connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
@@ -45,10 +46,9 @@ class Tracking_Test extends TestCase {
 
 	/**
 	 * Test teardown.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 	}
 
@@ -58,7 +58,6 @@ class Tracking_Test extends TestCase {
 	 * @param array   $inputs The test input values.
 	 * @param boolean $expected_output The expected output of Automattic\Jetpack\Tracking::should_enable_tracking().
 	 *
-	 * @covers Automattic\Jetpack\Tracking::should_enable_tracking
 	 * @dataProvider data_provider_test_should_enable_tracking
 	 */
 	public function test_should_enable_tracking( $inputs, $expected_output ) {

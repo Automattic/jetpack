@@ -41,6 +41,7 @@
 	.jp-license-activation-screen-controls--license-field-with-success {
 		max-width: 500px;
 		margin-top: 10px;
+
 		.components-input-control__label.components-input-control__label.components-input-control__label {
 			font-weight: 600;
 			font-size: var(--font-body);
@@ -57,12 +58,14 @@
 	}
 
 	.jp-license-activation-screen-controls--license-field {
+
 		input.components-text-control__input {
 			border: 1px solid var( --jp-gray-40 );
 		}
 	}
 
 	.jp-license-activation-screen-controls--license-field-with-error {
+
 		input.components-text-control__input,
 		select.components-select-control__input {
 			border: 1px solid var(--jp-red);
@@ -70,6 +73,7 @@
 	}
 
 	.jp-license-activation-screen-controls--license-field-with-success {
+
 		input.components-text-control__input,
 		select.components-select-control__input {
 			border: 1px solid var(--jp-green);

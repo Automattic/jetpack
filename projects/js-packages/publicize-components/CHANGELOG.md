@@ -5,9 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.84.5] - 2025-04-07
+### Changed
+- Code: First pass of style coding standards. [#42734]
+- Update dependencies. [#42820]
+- Update package dependencies. [#42806] [#42809]
+
+### Fixed
+- Fix TypeScript type checking in the monorepo. [#42817]
+
+## [0.84.4] - 2025-03-31
+### Changed
+- Social: Replace the Social UI in Sharing settings with a link to the Social admin page. [#42761]
+- Update dependencies. [#42678]
+
+### Fixed
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42677]
+- Fix deprecation warnings by replacing `@wordpress/edit-post` package. [#42634]
+- Fix performance issues with Social store. [#42633]
+- Social: Fix editor crash on p2 with old package versions. [#42694]
+
+## [0.84.3] - 2025-03-24
+### Changed
+- Update dependencies. [#39855]
+
+## [0.84.2] - 2025-03-21
+### Changed
+- Update the endpoint used on the frontend to get Social Image Generator token from WordPress.com. [#42567]
+
+### Fixed
+- Fix sidebar panel toggle and connection button styles. [#42622]
+- ScheduleButton: Update the tests to correctly `await` asynchronous calls. [#42589]
+- Fix incorrect "unsupported" notice in the editor about Twitter. [#42569]
+
 ## [0.84.1] - 2025-03-19
 ### Changed
-- Update dependencies [#42564]
+- Update dependencies. [#42564]
 
 ## [0.84.0] - 2025-03-18
 ### Changed
@@ -1175,6 +1208,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.84.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.4...v0.84.5
+[0.84.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.3...v0.84.4
+[0.84.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.2...v0.84.3
+[0.84.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.1...v0.84.2
 [0.84.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.0...v0.84.1
 [0.84.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.83.1...v0.84.0
 [0.83.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.83.0...v0.83.1

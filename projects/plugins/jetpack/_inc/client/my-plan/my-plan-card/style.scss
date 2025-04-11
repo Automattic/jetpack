@@ -5,6 +5,7 @@
 
 // My Plan Card
 .my-plan-card {
+
 	@include breakpoint( '>960px' ) {
 		display: flex;
 		flex-flow: row nowrap;
@@ -171,7 +172,7 @@
 	  &:focus {
 		text-decoration-line: none;
 		border-radius: 2px;
-		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) #000;
 		outline: 3px solid transparent;
 		color: $black;
 	  }
@@ -194,6 +195,7 @@
 .my-plan-card__expired {
 	color: $alert-red;
 }
+
 .my-plan-card__renew {
 	display: flex;
 	justify-content: flex-end;

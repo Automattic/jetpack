@@ -112,7 +112,6 @@ function make_phan_config( $dir, $options = array() ) {
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/footer-credit/footer-credit/customizer.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/footer-credit/theme-optimizations.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/lib/require-lib.php";
-					$extra_stubs[] = "$root/projects/plugins/wpcomsh/logo-tool/logo-tool.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/wpcom-features/class-wpcom-features.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/wpcom-features/functions-wpcom-features.php";
 				}

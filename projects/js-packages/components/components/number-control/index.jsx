@@ -14,7 +14,9 @@ import {
 const NumberControl =
 	ExperimentalNumberControl ||
 	function CustomNumberControl( props ) {
-		return <TextControl type="number" inputMode="numeric" { ...props } />;
+		return (
+			<TextControl type="number" inputMode="numeric" { ...props } __next40pxDefaultSize={ true } />
+		);
 	};
 
 export default NumberControl;

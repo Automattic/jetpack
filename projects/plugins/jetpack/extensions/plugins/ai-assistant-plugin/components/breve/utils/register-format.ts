@@ -55,6 +55,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 				isProofreadEnabled,
 				isFeatureDictionaryLoading,
 				getReloadFlag,
+				getLintVersion,
 			} = select( 'jetpack/ai-breve' ) as BreveSelect;
 
 			const canBeEnabled = canWriteBriefBeEnabled();
@@ -66,6 +67,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 				ignored: getIgnoredSuggestions( { blockId: blockClientId } ),
 				isFeatureDictionaryLoading: isFeatureDictionaryLoading( config.name ),
 				reloadFlag: getReloadFlag(), // Used to force a reload of the highlights
+				lintVersion: getLintVersion( blockClientId ), // Used to force a reload of async highlights
 			};
 		},
 
@@ -92,8 +94,13 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 
 				if ( text && isProofreadEnabled && isFeatureEnabled && ! isFeatureDictionaryLoading ) {
 					const block = getBlock( blockClientId );
+					let blockContent = text ?? '';
+
 					// Only use block content for complex blocks like tables
-					const blockContent = richTextIdentifier === 'content' ? text : getBlockContent( block );
+					if ( richTextIdentifier !== 'content' && !! block ) {
+						blockContent = getBlockContent( block );
+					}
+
 					const textMd5 = md5( blockContent ).toString();
 
 					if ( currentMd5 !== textMd5 ) {
@@ -102,7 +109,8 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 						setBlockMd5( blockClientId, textMd5 );
 					}
 
-					const highlights = featureHighlight( text );
+					const highlights = featureHighlight( text, blockClientId, richTextIdentifier ) ?? [];
+
 					const applied = highlight( {
 						ignored: ignoredList,
 						content: record,

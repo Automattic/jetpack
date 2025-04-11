@@ -35,10 +35,9 @@ class WPCOM_User_Profile_Fields_Revert_Test extends TestCase {
 
 	/**
 	 * Set up each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $l10n;
 		$this->l10n_backup = $l10n;
 
@@ -59,10 +58,9 @@ class WPCOM_User_Profile_Fields_Revert_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		// Restore the original global.
 		global $l10n;
 		$l10n = $this->l10n_backup;

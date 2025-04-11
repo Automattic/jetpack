@@ -1,10 +1,12 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { curveMonotoneX } from '@visx/curve';
 import { LegendOrdinal } from '@visx/legend';
 import { ParentSize } from '@visx/responsive';
 import { scaleOrdinal } from '@visx/scale';
 import { Axis, Grid, LineSeries, Tooltip, XYChart, buildChartTheme } from '@visx/xychart';
+import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { SERIES_COLORS, SERIES_LABELS } from '../constants';
+import { SERIES_COLORS, SERIES_LABELS, TRACKS_EVENT_NAME_PREFIX } from '../constants';
 import {
 	calcLeftAxisMargin,
 	formatAxisTickDate,
@@ -117,6 +119,12 @@ interface SubscribersChartProps {
 }
 
 export const SubscribersChart = ( { subscriberTotalsByDate }: SubscribersChartProps ) => {
+	const { tracks } = useAnalytics();
+
+	useEffect( () => {
+		tracks.recordEvent( `${ TRACKS_EVENT_NAME_PREFIX }chart_view` );
+	}, [ tracks ] );
+
 	if ( Object.keys( subscriberTotalsByDate ).length === 0 ) {
 		return <div>{ __( 'No data available', 'jetpack' ) }</div>;
 	}

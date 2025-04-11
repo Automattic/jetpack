@@ -18,6 +18,38 @@ use WP_REST_Response;
  */
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
+	 * Supported integrations configuration
+	 *
+	 * @var array
+	 */
+	private $supported_integrations = array(
+		'akismet'                           => array(
+			'type'         => 'plugin',
+			'file'         => 'akismet/akismet.php',
+			'settings_url' => 'admin.php?page=akismet-key-config',
+		),
+		'creative-mail-by-constant-contact' => array(
+			'type'         => 'plugin',
+			'file'         => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
+			'settings_url' => 'admin.php?page=creativemail',
+		),
+		'zero-bs-crm'                       => array(
+			'type'         => 'plugin',
+			'file'         => 'zero-bs-crm/ZeroBSCRM.php',
+			'settings_url' => 'admin.php?page=zerobscrm-plugin-settings',
+		),
+	);
+
+	/**
+	 * Get filtered list of supported integrations
+	 *
+	 * @return array Filtered list of supported integrations
+	 */
+	private function get_supported_integrations() {
+		return apply_filters( 'jetpack_forms_supported_integrations', $this->supported_integrations );
+	}
+
+	/**
 	 * Registers the REST routes.
 	 *
 	 * @access public
@@ -31,6 +63,37 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_filters' ),
 				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+			)
+		);
+
+		// Register integrations routes
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/integrations',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_all_integrations_status' ),
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/integrations/(?P<slug>[\w-]+)',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_single_integration_status' ),
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'args'                => array(
+					'slug' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => function ( $param ) {
+							return isset( $this->get_supported_integrations()[ $param ] );
+						},
+					),
+				),
 			)
 		);
 
@@ -56,6 +119,47 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'required' => true,
 					),
 				),
+			)
+		);
+
+		// Register the file endpoint route
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/files',
+			array(
+				'methods'                 => \WP_REST_Server::READABLE,
+				'callback'                => array( $this, 'get_file' ),
+				'permission_callback'     => array( $this, 'get_file_permissions_check' ),
+				'args'                    => array(
+					'file_id'    => array(
+						'required'          => true,
+						'validate_callback' => function ( $param ) {
+							if ( empty( $param ) ) {
+								return new WP_Error(
+									'missing_file_id',
+									esc_html__( 'File ID is required.', 'jetpack-forms' ),
+									array( 'status' => 400 )
+								);
+							}
+							return true;
+						},
+					),
+					'file_nonce' => array(
+						'required'          => true,
+						'validate_callback' => function ( $file_nonce, $request ) {
+							$file_id = $request->get_param( 'file_id' );
+							if ( ! wp_verify_nonce( $file_nonce, 'jetpack_forms_view_file_' . $file_id ) ) {
+								return new WP_Error(
+									'rest_forbidden',
+									esc_html__( 'Invalid or missing file access token.', 'jetpack-forms' ),
+									array( 'status' => 403 )
+								);
+							}
+							return true;
+						},
+					),
+				),
+				'requires_authentication' => true,
 			)
 		);
 	}
@@ -113,6 +217,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	public function get_item_schema() {
 		$schema = parent::get_item_schema();
+
+		$schema['properties']['parent'] = array(
+			'description' => __( 'The ID for the parent of the post. This refers to the post/page where the feedback was created.', 'jetpack-forms' ),
+			'type'        => 'integer',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'readonly'    => true,
+		);
 
 		$schema['properties']['uid'] = array(
 			'description' => __( 'Unique identifier for the form response.', 'jetpack-forms' ),
@@ -304,6 +415,35 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Retrieves the query params for the feedback collection.
+	 *
+	 * @return array Collection parameters.
+	 */
+	public function get_collection_params() {
+		$query_params = parent::get_collection_params();
+
+		// Add parent related query parameters since the `feedback` post type is not hierarchical, but
+		// it uses the `parent` field to store the ID of the post/page where the feedback was created.
+		$query_params['parent']         = array(
+			'description' => __( 'Limit result set to items with particular parent IDs.', 'jetpack-forms' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+			'default'     => array(),
+		);
+		$query_params['parent_exclude'] = array(
+			'description' => __( 'Limit result set to all items except those of a particular parent ID.', 'jetpack-forms' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+			'default'     => array(),
+		);
+		return $query_params;
+	}
+
+	/**
 	 * Handles bulk actions for Jetpack Forms responses.
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
@@ -406,5 +546,128 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Checks if the current user has permission to view files.
+	 *
+	 * @return true|\WP_Error True if the user has permission, WP_Error otherwise.
+	 */
+	public function get_file_permissions_check() {
+		// Verify the user is logged in with appropriate capabilities
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				esc_html__( 'You must be logged in with appropriate permissions to view this file.', 'jetpack-forms' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Retrieves a file using the file_id and serves it to the client.
+	 *
+	 * @param \WP_REST_Request $request The current request object.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function get_file( $request ) {
+		$file_id = $request->get_param( 'file_id' );
+
+		// Create dummy content that includes the file ID for testing
+		$dummy_content = sprintf(
+			"This is a test file.\nRequested File ID: %s\nThis is a dummy response for testing the file download endpoint.",
+			esc_html( $file_id )
+		);
+
+		return new \WP_REST_Response(
+			$dummy_content,
+			200,
+			array(
+				'Content-Type'              => 'text/plain',
+				'Content-Disposition'       => 'attachment; filename="test-file.txt"',
+				'Content-Length'            => strlen( $dummy_content ),
+				'Content-Transfer-Encoding' => 'binary',
+				'X-Robots-Tag'              => 'noindex',
+				'Cache-Control'             => 'no-cache, must-revalidate, max-age=0',
+			)
+		);
+	}
+
+	/**
+	 * Get status for all supported integrations.
+	 *
+	 * @return WP_REST_Response Response object.
+	 */
+	public function get_all_integrations_status() {
+		$integrations = array();
+
+		foreach ( array_keys( $this->get_supported_integrations() ) as $slug ) {
+			// For now, we only have plugin integrations.
+			// When needed, handle other integration types here.
+			$integrations[ $slug ] = $this->get_plugin_status( $slug );
+		}
+
+		return rest_ensure_response( $integrations );
+	}
+
+	/**
+	 * REST endpoint handler for single integration status.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object.
+	 */
+	public function get_single_integration_status( $request ) {
+		// Slug validation is handled in endpoint registration.
+		$slug = $request->get_param( 'slug' );
+		// For now, we only have plugin integrations.
+		// When needed, handle other integration types here.
+		return rest_ensure_response( $this->get_plugin_status( $slug ) );
+	}
+
+	/**
+	 * Get plugin status.
+	 *
+	 * @param string $plugin_slug Plugin slug.
+	 * @return array Plugin status data.
+	 */
+	private function get_plugin_status( $plugin_slug ) {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$integrations  = $this->get_supported_integrations();
+		$plugin_config = $integrations[ $plugin_slug ];
+
+		$installed_plugins = get_plugins();
+		$is_installed      = isset( $installed_plugins[ $plugin_config['file'] ] );
+		$is_active         = is_plugin_active( $plugin_config['file'] );
+
+		$response = array(
+			'type'        => 'plugin',
+			'slug'        => $plugin_slug,
+			'pluginFile'  => str_replace( '.php', '', $plugin_config['file'] ),
+			'isInstalled' => $is_installed,
+			'isActive'    => $is_active,
+			'isConnected' => false,
+			'version'     => $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null,
+			'settingsUrl' => $is_active ? admin_url( $plugin_config['settings_url'] ) : null,
+			'details'     => array(),
+		);
+
+		// Plugin-specific customizations
+		if ( 'akismet' === $plugin_slug ) {
+			$response['isConnected'] = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
+		} elseif ( 'zero-bs-crm' === $plugin_slug && $is_active ) {
+			$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
+			$response['details'] = array(
+				'hasExtension'         => $has_extension,
+				'canActivateExtension' => current_user_can( 'manage_options' ),
+			);
+		}
+
+		return $response;
 	}
 }

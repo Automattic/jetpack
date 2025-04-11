@@ -42,11 +42,11 @@ const useAnalytics = () => {
 	 */
 	const recordEvent = useCallback< TracksRecordEvent >( ( event, properties ) => {
 		jetpackAnalytics.tracks.recordEvent( event, {
-			...properties,
 			version: myJetpackVersion,
 			is_site_connected: isSiteConnected,
 			is_user_connected: isUserConnected,
 			referring_plugins: connectedPluginsSlugs,
+			...properties,
 		} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );

@@ -53,6 +53,10 @@ class Status {
 		 */
 		$offline_mode = (bool) apply_filters( 'jetpack_offline_mode', $offline_mode );
 
+		if ( ! $offline_mode ) {
+			$offline_mode = (bool) get_option( 'jetpack_offline_mode' );
+		}
+
 		Cache::set( 'is_offline_mode', $offline_mode );
 		return $offline_mode;
 	}

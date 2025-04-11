@@ -1,4 +1,4 @@
-import { curveCatmullRom, curveLinear } from '@visx/curve';
+import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import {
 	XYChart,
@@ -17,11 +17,40 @@ import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
+type CurveType = 'smooth' | 'linear' | 'monotone';
+
 const X_TICK_WIDTH = 100;
+
+/**
+ * Determines the curve type for the line chart based on the provided type and smoothing parameters
+ *
+ * @param {CurveType} type      - The explicit curve type to use
+ * @param {boolean}   smoothing - Legacy smoothing parameter
+ * @return The curve function to use for the line
+ */
+const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
+	// If no type specified, use legacy smoothing behavior
+	if ( ! type ) {
+		return smoothing ? curveCatmullRom : curveLinear;
+	}
+
+	// Handle explicit curve types
+	switch ( type ) {
+		case 'smooth':
+			return curveCatmullRom;
+		case 'monotone':
+			return curveMonotoneX;
+		case 'linear':
+			return curveLinear;
+		default:
+			return curveLinear;
+	}
+};
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withGradientFill: boolean;
 	smoothing?: boolean;
+	curveType?: CurveType;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 }
 
@@ -102,6 +131,7 @@ const LineChart: FC< LineChartProps > = ( {
 	legendOrientation = 'horizontal',
 	withGradientFill = false,
 	smoothing = true,
+	curveType = 'linear',
 	renderTooltip = renderDefaultTooltip,
 	options = {},
 	onPointerDown = undefined,
@@ -223,7 +253,7 @@ const LineChart: FC< LineChartProps > = ( {
 									withGradientFill ? `url(#area-gradient-${ chartId }-${ index + 1 })` : undefined
 								}
 								renderLine={ true }
-								curve={ smoothing ? curveCatmullRom : curveLinear }
+								curve={ getCurveType( curveType, smoothing ) }
 								lineProps={ lineProps }
 							/>
 						</g>

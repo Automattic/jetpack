@@ -1,5 +1,5 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Icon, Spinner, PanelBody } from '@wordpress/components';
+import { Spinner, PanelBody } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -19,34 +19,27 @@ const PluginIntegrationPanel = ( {
 	tracksEventName,
 	children,
 	initialOpen = false,
+	onPluginActivated,
 } ) => {
 	const [ isInstalling, setIsInstalling ] = useState( false );
 	const [ isActivating, setIsActivating ] = useState( false );
 	const { invalidateResolution } = useDispatch( coreStore );
 	const { tracks } = useAnalytics();
 
-	const { pluginStatus, isLoading } = useSelect(
+	const { isLoading, isInstalled, isActive } = useSelect(
 		select => {
 			const installedPlugins = select( coreStore ).getPlugins();
-
-			if ( ! installedPlugins ) {
-				return { isLoading: true };
-			}
-
-			const plugin = installedPlugins.find( p => p.plugin === pluginPath );
-
+			const plugin = installedPlugins
+				? installedPlugins.find( p => p.plugin === pluginPath )
+				: null;
 			return {
-				isLoading: false,
-				pluginStatus: {
-					isInstalled: !! plugin,
-					isActive: plugin?.status === 'active',
-				},
+				isLoading: ! installedPlugins,
+				isInstalled: !! plugin,
+				isActive: plugin && plugin.status === 'active',
 			};
 		},
 		[ pluginPath ]
 	);
-
-	const { isInstalled = false, isActive = false } = pluginStatus || {};
 
 	const handleButtonClick = useCallback( () => {
 		const func = isInstalled ? activatePlugin : installAndActivatePlugin;
@@ -64,6 +57,10 @@ const PluginIntegrationPanel = ( {
 			invalidateResolution( 'getPlugins' );
 			setIsInstalling( false );
 			setIsActivating( false );
+
+			if ( isActivationCall && onPluginActivated ) {
+				onPluginActivated();
+			}
 		} );
 	}, [
 		isInstalled,
@@ -74,6 +71,7 @@ const PluginIntegrationPanel = ( {
 		setIsActivating,
 		invalidateResolution,
 		tracks,
+		onPluginActivated,
 	] );
 
 	return (
@@ -88,19 +86,7 @@ const PluginIntegrationPanel = ( {
 					</div>
 				) }
 
-				{ ! isLoading && ! pluginStatus && (
-					<div className="jetpack-plugin-integration__status">
-						<Icon icon="warning" />
-						<span>
-							{ __(
-								'Unable to determine plugin status. Please refresh the page.',
-								'jetpack-forms'
-							) }
-						</span>
-					</div>
-				) }
-
-				{ ! isLoading && pluginStatus && ! isInstalled && (
+				{ ! isLoading && ! isInstalled && (
 					<div className="jetpack-plugin-integration__panel">
 						<div className="jetpack-plugin-integration__panel-content">
 							<div>{ description }</div>

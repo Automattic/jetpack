@@ -9,9 +9,9 @@ import { Icon, warning } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { EVENT_PLACEMENT_UPGRADE_PROMPT, EVENT_UPGRADE } from '../constants.js';
-import { useCheckout } from '../hooks/use-checkout.js';
-import useLogoGenerator from '../hooks/use-logo-generator.js';
+import { EVENT_PLACEMENT_UPGRADE_PROMPT, EVENT_UPGRADE } from '../constants.ts';
+import { useCheckout } from '../hooks/use-checkout.ts';
+import useLogoGenerator from '../hooks/use-logo-generator.ts';
 import './upgrade-nudge.scss';
 
 export const UpgradeNudge = () => {

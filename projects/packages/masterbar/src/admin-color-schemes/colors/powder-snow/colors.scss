@@ -4,6 +4,7 @@
 
 // Specific overrides for this color scheme.
 .admin-color-powder-snow {
+
 	#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item,
 	#wpadminbar:not(.mobile) .ab-top-menu > li > .ab-item:focus,
 	#wpadminbar.nojq .quicklinks .ab-top-menu > li > .ab-item:focus,
@@ -12,10 +13,10 @@
 	#wpadminbar:not(.mobile) > #wp-toolbar li:hover span.ab-label,
 	#wpadminbar:not(.mobile) > #wp-toolbar li.hover span.ab-label,
 	#wpadminbar:not(.mobile) > #wp-toolbar a:focus span.ab-label,
-	#wpadminbar:not(.mobile) li:hover .ab-icon:before,
-	#wpadminbar:not(.mobile) li:hover .ab-item:before,
-	#wpadminbar:not(.mobile) li:hover .ab-item:after,
-	#wpadminbar:not(.mobile) li:hover #adminbarsearch:before,
+	#wpadminbar:not(.mobile) li:hover .ab-icon::before,
+	#wpadminbar:not(.mobile) li:hover .ab-item::before,
+	#wpadminbar:not(.mobile) li:hover .ab-item::after,
+	#wpadminbar:not(.mobile) li:hover #adminbarsearch::before,
 	#wpadminbar .quicklinks .menupop ul li a:hover,
 	#wpadminbar .quicklinks .menupop ul li a:focus,
 	#wpadminbar .quicklinks .menupop ul li a:hover strong,
@@ -25,16 +26,16 @@
 	#wpadminbar .quicklinks .menupop.hover ul li a:focus,
 	#wpadminbar.nojs .quicklinks .menupop:hover ul li a:hover,
 	#wpadminbar.nojs .quicklinks .menupop:hover ul li a:focus,
-	#wpadminbar li:hover .ab-icon:before,
-	#wpadminbar li:hover .ab-item:before,
-	#wpadminbar li a:focus .ab-icon:before,
-	#wpadminbar li .ab-item:focus:before,
-	#wpadminbar li .ab-item:focus .ab-icon:before,
-	#wpadminbar li.hover .ab-icon:before,
-	#wpadminbar li.hover .ab-item:before,
-	#wpadminbar li:hover #adminbarsearch:before,
-	#wpadminbar li #adminbarsearch.adminbar-focused:before {
-		color: $studio-blue-30;
+	#wpadminbar li:hover .ab-icon::before,
+	#wpadminbar li:hover .ab-item::before,
+	#wpadminbar li a:focus .ab-icon::before,
+	#wpadminbar li .ab-item:focus::before,
+	#wpadminbar li .ab-item:focus .ab-icon::before,
+	#wpadminbar li.hover .ab-icon::before,
+	#wpadminbar li.hover .ab-item::before,
+	#wpadminbar li:hover #adminbarsearch::before,
+	#wpadminbar li #adminbarsearch.adminbar-focused::before {
+		color: $deprecated-studio-blue-30;
 	}
 
 	#wpadminbar .ab-submenu .ab-item,
@@ -47,6 +48,6 @@
 	}
 
 	#wpadminbar #wp-admin-bar-user-info a:hover .display-name {
-		color: $studio-blue-30;
+		color: $deprecated-studio-blue-30;
 	}
 }

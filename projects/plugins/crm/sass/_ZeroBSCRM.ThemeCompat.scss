@@ -14,18 +14,21 @@
   .entry-header {
     display:none;
   }
+
   .entry-content {
     float: none !important;
     width: 100% !important;
   }
 
   .zbs-client-portal-wrap {
+
     .form-control {
       margin-bottom:0.4em;
     }
   }
 
   #zbs-nav-tabs {
+
     li a i.fa {
       margin-right: 0.6em;
     }
@@ -40,7 +43,9 @@
       width:214px;
     }
   }
+
   .zbs-fieldgroup-main_address table {
+
     td div.zbs-text-input {
       width:204px;
     }
@@ -98,6 +103,7 @@
       box-shadow: none !important;
 
   }
+
   .zbs-portal-wrapper {
 
       // looks better against default page colour.s
@@ -113,6 +119,7 @@
         font-size: 2em !important;
 
       }
+
       h2 {
 
           margin-top: 0 !important;
@@ -180,9 +187,11 @@
   .entry-content {
     margin-top: 0;
   }
+
   .site-main {
     padding-top: 0;
   }
+
   .zbs-portal-wrapper {
     margin-top: 0;
   }
@@ -215,6 +224,7 @@
   }
 
   .zbs-portal-grid {
+
     /* give padding to main portal area */
     padding: 0 30px 0 30px;
 
@@ -223,6 +233,7 @@
       border-collapse: collapse;
       width: 100%;
     }
+
     th, td {
       border: 1px solid;
       padding: 10px;

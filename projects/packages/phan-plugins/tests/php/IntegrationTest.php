@@ -19,10 +19,8 @@ class IntegrationTest extends TestCase {
 	/** @var CodeBase|null */
 	private $codeBase = null;
 
-	/**
-	 * @before
-	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		// Do what Phan does in its own CodeBaseAwareTest class.
 		// They say it's slow to create. Also I find reconstructing it seems to raise PHP constant deprecations on subsequent runs.
 		static $codeBase = null;
@@ -37,10 +35,8 @@ class IntegrationTest extends TestCase {
 		$this->codeBase = $codeBase->shallowClone();
 	}
 
-	/**
-	 * @after
-	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		$this->codeBase = null;
 	}
 

@@ -95,6 +95,10 @@ class Initializer {
 		if ( is_admin() ) {
 			AJAX::init();
 		}
+
+		if ( ! is_admin() ) {
+			Block_Replacement::init();
+		}
 	}
 
 	/**

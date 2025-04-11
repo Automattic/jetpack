@@ -78,6 +78,7 @@
 
     .iconContainer {
         padding-top: calc( var( --jp-underline-thickness) * 2 );
+
         > svg {
             fill: var( --jp-red );
         }

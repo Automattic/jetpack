@@ -1,3 +1,17 @@
+@import '@wordpress/base-styles/mixins';
+@import '@wordpress/base-styles/colors';
+
+/**
+ * Allow to apply the modern scheme to elements.
+ */
+#wpadminbar {
+
+	.admin-color-modern {
+
+		@include admin-scheme(#3858e9);
+	}
+}
+
 /**
  * Always shows WP logo (All Sites)
  */
@@ -16,11 +30,14 @@
  * Hides certain icons on smaller viewports.
  */
 @media (max-width: 480px) {
+
 	#wpadminbar #wp-admin-bar-new-content {
 		display: none !important;
 	}
 }
+
 @media (max-width: 360px) {
+
 	#wpadminbar .wp-admin-bar-reader {
 		display: none !important;
 	}
@@ -30,6 +47,7 @@
  * Hamburger menu
  */
 #wpadminbar #wp-admin-bar-menu-toggle>.ab-item .ab-icon {
+
 	@media (max-width: 480px) {
 		width: 48px;
 	}
@@ -45,6 +63,7 @@
 		padding: 0;
 	}
 }
+
 #wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon {
 	margin-right: 0 !important;
 
@@ -52,7 +71,8 @@
 		width: 44px;
 	}
 }
-#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon:before {
+
+#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon::before {
 	display: flex;
 	content: "";
 	width: 20px;
@@ -73,29 +93,77 @@
 	}
 
 }
+
 #wpadminbar #wp-admin-bar-wpcom-logo:not(:first-child) {
 	// Site admin on mobile viewport (the first child is the hamburger menu)
 	@media (max-width: 480px) {
-		>.ab-item .ab-icon:before {
+
+		>.ab-item .ab-icon::before {
 			margin: 0 7px 0 5px;
 		}
 	}
 }
 
 #wpadminbar #wp-admin-bar-site-name {
-    > .ab-item:before {
-        /**
-    	 * Always show the House icon by the site name.
-    	 */
-	    content: "\f102" !important;
-    }
+
+	> .ab-item::before {
+
+		/**
+		 * Always show the House icon by the site name.
+		 */
+		content:"\f102" !important;
+	}
 
 	@media (max-width: 480px) {
-        > a.ab-item,
-		> a.ab-item:before {
-    		width: 46px;
+
+		> a.ab-item,
+		> a.ab-item::before {
+			width: 46px;
 		}
 	}
+}
+
+/**
+ * Site badge and plan info in the dropdown
+ */
+#wp-admin-bar-site-badge {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 260px;
+}
+
+#wp-admin-bar-site-badge-status .ab-item,
+#wp-admin-bar-site-badge-plan .ab-item {
+	height: auto !important;
+}
+
+#wpadminbar .wp-admin-bar__site-info {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+
+#wpadminbar .wp-admin-bar__site-info-label {
+	margin-bottom: 4px;
+}
+
+#wpadminbar .wp-admin-bar__info-badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	background-color: rgba(255, 255, 255, 0.1);
+	border-radius: 4px;
+	box-sizing: border-box;
+	padding: 0 8px;
+	min-height: 24px;
+	border-radius: 2px;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 20px;
+	display: flex;
+	align-items: center;
 }
 
 /**
@@ -105,6 +173,7 @@
 	// Add background color to the right side of the admin bar for the mobile view
 	.quicklinks {
 		background-color: inherit;
+
 		#wp-admin-bar-top-secondary {
 			background-color: inherit;
 		}
@@ -112,6 +181,7 @@
 
 	// Move the secondary admin bar to the left side if the site is RTL.
 	body.rtl & {
+
 		#wp-admin-bar-top-secondary {
 			left: 0;
 			right: inherit;
@@ -124,13 +194,16 @@
 		right: 0;
 
 		@media (max-width: 600px) {
+
 			&.ab-top-menu > .menupop > .ab-sub-wrapper {
 				left: unset;
 			}
 		}
 
 		#wp-admin-bar-my-account {
+
 			.ab-item {
+
 				> .display-name {
 					color: currentColor;
 				}
@@ -151,7 +224,7 @@
 
 				span.wpcom-button {
 					display: inline-block;
-					color: white;
+					color: #fff;
 					background-color: #3858e9;
 					border-color: #3858e9;
 					border-radius: 2px;
@@ -166,7 +239,7 @@
 						font-size: 16px;
 					}
 
-					span.wpcom-logo:before {
+					span.wpcom-logo::before {
 						content: "";
 						display: inline-block;
 						position: relative;
@@ -200,6 +273,7 @@
 
 		/* Reader menu item */
 		#wp-admin-bar-reader {
+
 			.ab-item {
 				padding: 0px;
 			}
@@ -211,7 +285,7 @@
 				margin: 0;
 				height: 100%;
 
-				&:before {
+				&::before {
 					display: flex;
 					content: "";
 					width: 24px;
@@ -230,6 +304,7 @@
 		}
 
 		#wp-admin-bar-cart {
+
 			.cart-icon__dot {
 				margin-left: 17px;
 				position: absolute;
@@ -246,7 +321,7 @@
 				height: 100%;
 				margin: 0;
 
-				&:before{
+				&::before{
 					background-color: currentColor;
 					content: "";
 					display: flex;
@@ -278,7 +353,7 @@
 						justify-content: center;
 						padding: 0px;
 
-						&:before {
+						&::before {
 							width: 36px;
 							height: 36px;
 							margin: 0px;
@@ -305,7 +380,7 @@
 					justify-content: center;
 					padding: 0;
 
-					&:before{
+					&::before{
 						height: 32px;
 						margin: 0;
 						mask-size: contain;
@@ -332,6 +407,7 @@
 			#wp-admin-bar-notes {
 				display: block !important;
 				width: 52px !important;
+
 				.ab-item {
 					justify-content: center;
 
@@ -340,7 +416,7 @@
 						height: 46px;
 						top: 0;
 
-						&:before {
+						&::before {
 							background-position-y: bottom;
 							background-position-x: center;
 							right: 0;
@@ -356,7 +432,9 @@
 				}
 			}
 		}
+
 		@media (max-width: 480px) {
+
 			#wp-admin-bar-reader {
 				width: 46px;
 
@@ -364,13 +442,17 @@
 					max-width: 40px;
 				}
 			}
+
 			#wp-admin-bar-help-center {
 				width: 46px !important;
 			}
+
 			#wp-admin-bar-notes {
 				width: 46px !important;
 			}
+
 			#wp-admin-bar-my-account {
+
 				.ab-item {
 					width: 46px;
 

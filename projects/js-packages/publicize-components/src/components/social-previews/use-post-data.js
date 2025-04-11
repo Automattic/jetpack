@@ -1,5 +1,8 @@
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
+import { useMemo } from 'react';
 import { usePostMeta } from '../../hooks/use-post-meta';
 import { getSigImageUrl } from '../generated-image-preview/utils';
 import { getMediaSourceUrl, getPostImageUrl } from './utils';
@@ -12,11 +15,12 @@ import { getMediaSourceUrl, getPostImageUrl } from './utils';
 export function usePostData() {
 	const { attachedMedia, imageGeneratorSettings } = usePostMeta();
 
-	return useSelect(
-		select => {
-			const { getMedia } = select( 'core' );
-			const { getEditedPostAttribute, getEditedPostContent } = select( 'core/editor' );
+	const { getMedia } = useSelect( coreStore, [] );
+	const { getEditedPostAttribute, getEditedPostContent } = useSelect( editorStore, [] );
 
+	return useMemo(
+		// eslint-disable-next-line no-unused-vars -- This is here temporarily to avoid prettier making the diff unreadable.
+		_ => {
 			const featuredImageId = getEditedPostAttribute( 'featured_media' );
 
 			// Use the featured image by default, if it's available.
@@ -84,6 +88,13 @@ export function usePostData() {
 				initialTabName: null,
 			};
 		},
-		[ attachedMedia, imageGeneratorSettings ]
+		[
+			attachedMedia,
+			getEditedPostAttribute,
+			getEditedPostContent,
+			getMedia,
+			imageGeneratorSettings.enabled,
+			imageGeneratorSettings.token,
+		]
 	);
 }

@@ -58,6 +58,7 @@ dev:
 e2e:
   # Volumes to mount inside the environment, as above. Merged with those above.
   volumeMappings:
+    tools/e2e-commons/plugins/e2e-direct-filesystem.php: /var/www/html/wp-content/plugins/e2e-direct-filesystem.php
     tools/e2e-commons/plugins/e2e-plugin-updater.php: /var/www/html/wp-content/plugins/e2e-plugin-updater.php
     tools/e2e-commons/plugins/e2e-plan-data-interceptor.php: /var/www/html/wp-content/plugins/e2e-plan-data-interceptor.php
     tools/e2e-commons/plugins/e2e-waf-data-interceptor.php: /var/www/html/wp-content/plugins/e2e-waf-data-interceptor.php

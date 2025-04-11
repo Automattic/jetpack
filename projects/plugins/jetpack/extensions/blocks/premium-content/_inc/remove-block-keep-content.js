@@ -1,8 +1,12 @@
 import { select, dispatch } from '@wordpress/data';
-import { PluginBlockSettingsMenuItem } from '@wordpress/edit-post';
+import { PluginBlockSettingsMenuItem as DeprecatedPluginBlockSettingsMenuItem } from '@wordpress/edit-post';
+import { PluginBlockSettingsMenuItem as EditorPluginBlockSettingsMenuItem } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import metadata from '../block.json';
 import { transformToCoreGroup } from './transform-to-core-group';
+
+const PluginBlockSettingsMenuItem =
+	EditorPluginBlockSettingsMenuItem || DeprecatedPluginBlockSettingsMenuItem;
 
 function replaceBlockAndKeepContent() {
 	const block = select( 'core/block-editor' ).getSelectedBlock();

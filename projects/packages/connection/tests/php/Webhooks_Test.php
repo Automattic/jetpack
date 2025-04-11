@@ -17,6 +17,7 @@ use WP_Error;
  * Unit tests for the Connection Webhooks class.
  *
  * @see \Automattic\Jetpack\Connection\Webhooks
+ * @covers \Automattic\Jetpack\Connection\Webhooks
  */
 class Webhooks_Test extends TestCase {
 
@@ -30,10 +31,9 @@ class Webhooks_Test extends TestCase {
 
 	/**
 	 * Setting up the testing environment.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Monkey\Functions\when( 'check_admin_referer' )->justReturn( true );
 		Monkey\Functions\when( 'wp_safe_redirect' )->alias(
 			function ( $redirect ) {
@@ -45,10 +45,9 @@ class Webhooks_Test extends TestCase {
 
 	/**
 	 * Reverting the testing environment to its original state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 		$this->redirect_stack = array();
 		unset( $_GET['handler'], $_GET['action'] );
@@ -57,8 +56,6 @@ class Webhooks_Test extends TestCase {
 	/**
 	 * Unit test for the `Webhooks::handle_authorize()` method.
 	 * Capturing the authorization error.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\Webhooks::handle_authorize
 	 */
 	public function test_handle_authorize_fail() {
 		$webhooks = new Webhooks( new Manager() );
@@ -89,8 +86,6 @@ class Webhooks_Test extends TestCase {
 	/**
 	 * Unit test for the `Webhooks::handle_authorize()` method.
 	 * Testing the successful authorization.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\Webhooks::handle_authorize
 	 */
 	public function test_handle_authorize_success() {
 		$manager = $this->createMock( Manager::class );
@@ -117,8 +112,6 @@ class Webhooks_Test extends TestCase {
 
 	/**
 	 * Unit test for the `Webhooks::controller()` method.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\Webhooks::controller
 	 */
 	public function test_controller() {
 		$webhooks = $this->getMockBuilder( Webhooks::class )
@@ -154,8 +147,6 @@ class Webhooks_Test extends TestCase {
 	/**
 	 * Unit test for the `Webhooks::handle_connect_url_redirect()` method.
 	 * Testing the repeated attempt to authorize user.
-	 *
-	 * @covers \Automattic\Jetpack\Connection\Webhooks::handle_authorize
 	 */
 	public function test_handle_connect_url_redirect() {
 		$webhooks = $this->getMockBuilder( Webhooks::class )

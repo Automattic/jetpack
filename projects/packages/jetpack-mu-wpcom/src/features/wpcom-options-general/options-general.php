@@ -40,7 +40,7 @@ add_action( 'load-options-general.php', 'wpcom_fiverr' );
 function wpcom_site_management_panel_link() {
 	?>
 	<a href="https://wordpress.com/sites/settings/site/<?php echo esc_attr( wpcom_get_site_slug() ); ?>">
-		<?php esc_html_e( 'Manage site visibility, gift subscriptions, ownership, and other site tools on WordPress.com ↗', 'jetpack-mu-wpcom' ); ?>
+		<?php esc_html_e( 'Manage gift subscriptions, ownership, and other site tools on WordPress.com ↗', 'jetpack-mu-wpcom' ); ?>
 	</a>
 	<?php
 }
@@ -50,8 +50,8 @@ function wpcom_site_management_panel_link() {
  */
 function wpcom_site_management_panel() {
 	$current_screen = wpcom_admin_get_current_screen();
-	if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
-		add_settings_field( 'wpcom_site_management_panel_link', __( 'WordPress.com Site Settings', 'jetpack-mu-wpcom' ), 'wpcom_site_management_panel_link', 'general', 'default' );
+	if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) ) {
+		add_settings_field( 'wpcom_site_management_panel_link', __( 'WordPress.com Site Settings', 'jetpack-mu-wpcom' ), 'wpcom_site_management_panel_link', 'general' );
 	}
 }
 add_action( 'load-options-general.php', 'wpcom_site_management_panel' );

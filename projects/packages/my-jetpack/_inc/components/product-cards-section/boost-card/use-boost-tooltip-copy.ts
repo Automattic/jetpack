@@ -1,6 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
 import useProduct from '../../../data/products/use-product';
-import type { ReactElement } from 'react';
 
 /**
  * Gets the translated tooltip copy based on the Boost letter grade and other factors.
@@ -8,7 +7,7 @@ import type { ReactElement } from 'react';
  * @param {object}      props                    - React props
  * @param {string}      props.speedLetterGrade   - The Boost score letter grade.
  * @param {number|null} props.boostScoreIncrease - The number of points the score increased.
- * @return {ReactElement | string} A translated JSX Element or string.
+ * @return {string} A translated JSX Element or string.
  */
 export function useBoostTooltipCopy( {
 	speedLetterGrade,
@@ -16,7 +15,7 @@ export function useBoostTooltipCopy( {
 }: {
 	speedLetterGrade: string;
 	boostScoreIncrease: number | null;
-} ): ReactElement | string {
+} ): string {
 	const slug = 'boost';
 	const { detail } = useProduct( slug );
 	const { isPluginActive, hasPaidPlanForProduct: hasBoostPaidPlan } = detail;

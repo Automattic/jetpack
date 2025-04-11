@@ -17,9 +17,6 @@ if ( ! defined( 'JETPACK_BOOST_SPEED_SCORE_DIR_PATH' ) ) {
  * @package Automattic\Jetpack\Boost_Speed_Score\Tests
  */
 abstract class Base_TestCase extends TestCase {
-	/**
-	 * @before
-	 */
 	protected function set_up() {
 		Monkey\setUp();
 		Monkey\Functions\stubEscapeFunctions();
@@ -38,9 +35,6 @@ abstract class Base_TestCase extends TestCase {
 		);
 	}
 
-	/**
-	 * @after
-	 */
 	protected function tear_down() {
 		Monkey\tearDown();
 	}

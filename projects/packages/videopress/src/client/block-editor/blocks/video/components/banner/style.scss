@@ -4,13 +4,13 @@
     font-size: 14px;
     align-self: center;
     align-items: center;
-    background: black;
+    background: #000;
     border-radius: 2px;
     padding: 0 20px;
-    box-shadow: 0 0 1px inset white;
+    box-shadow: 0 0 1px inset #fff;
 
     .block-banner__content {
-        color: white;
+        color: #fff;
         margin: 10px 10px 10px 0;
     }
 
@@ -18,8 +18,8 @@
         padding: 0;
 
         .components-button.is-primary {
-            background: white;
-            color: black;
+            background: #fff;
+            color: #000;
             font-weight: 600;
             font-size: 14px;
             padding: 4px 8px;

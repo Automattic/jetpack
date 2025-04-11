@@ -15,10 +15,9 @@ use PHPUnit\Framework\TestCase;
 class Instant_Search_Auto_Config_JP_Search_Widget_Test extends TestCase {
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Instant_Search::initialize( -1 );
 	}
 

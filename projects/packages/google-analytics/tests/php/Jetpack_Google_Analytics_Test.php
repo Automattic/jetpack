@@ -31,12 +31,8 @@ class Jetpack_Google_Analytics_Test extends TestCase {
 
 	/**
 	 * Runs the routine before each test is executed.
-	 *
-	 * @before
-	 *
-	 * @return void
 	 */
-	public function set_up() {
+	public function setUp(): void {
 		parent::setUp();
 
 		// Hijack the option for Jetpack_Google_Analytics_Options::get_tracking_code().

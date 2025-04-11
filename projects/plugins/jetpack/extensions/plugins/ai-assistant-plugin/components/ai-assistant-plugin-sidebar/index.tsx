@@ -17,10 +17,18 @@ import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-uti
 import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
-import { store as editorStore } from '@wordpress/editor';
+import {
+	PluginPrePublishPanel as DeprecatedPluginPrePublishPanel,
+	PluginDocumentSettingPanel as DeprecatedPluginDocumentSettingPanel,
+} from '@wordpress/edit-post';
+import {
+	PluginPrePublishPanel as EditorPluginPrePublishPanel,
+	PluginDocumentSettingPanel as EditorPluginDocumentSettingPanel,
+	store as editorStore,
+} from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
+import { ComponentType } from 'react';
 /**
  * Internal dependencies
  */
@@ -42,7 +50,13 @@ import './style.scss';
 /**
  * Types
  */
-import type { CoreSelect, JetpackSettingsContentProps } from './types';
+import type { CoreSelect, JetpackSettingsContentProps, PanelProps } from './types';
+
+const BasePrePublishPanel = EditorPluginPrePublishPanel || DeprecatedPluginPrePublishPanel;
+const BaseDocumentPanel = EditorPluginDocumentSettingPanel || DeprecatedPluginDocumentSettingPanel;
+
+const PrePublishPanel = BasePrePublishPanel as ComponentType< PanelProps >;
+const DocumentPanel = BaseDocumentPanel as ComponentType< PanelProps >;
 
 const debug = debugFactory( 'jetpack-ai-assistant-plugin:sidebar' );
 /**
@@ -225,7 +239,7 @@ export default function AiAssistantPluginSidebar() {
 				</PanelBody>
 			</JetpackPluginSidebar>
 
-			<PluginDocumentSettingPanel
+			<DocumentPanel
 				icon={ <JetpackEditorPanelLogo /> }
 				title={ title }
 				name="jetpack-ai-assistant"
@@ -237,13 +251,9 @@ export default function AiAssistantPluginSidebar() {
 					showUsagePanel={ showUsagePanel }
 					showFairUsageNotice={ showFairUsageNotice }
 				/>
-			</PluginDocumentSettingPanel>
+			</DocumentPanel>
 
-			<PluginPrePublishPanel
-				title={ title }
-				icon={ <JetpackEditorPanelLogo /> }
-				initialOpen={ false }
-			>
+			<PrePublishPanel title={ title } icon={ <JetpackEditorPanelLogo /> } initialOpen={ false }>
 				<>
 					{ isAITitleOptimizationAvailable && (
 						<TitleOptimization
@@ -258,7 +268,7 @@ export default function AiAssistantPluginSidebar() {
 						disabled={ requireUpgrade }
 					/>
 				</>
-			</PluginPrePublishPanel>
+			</PrePublishPanel>
 		</>
 	);
 }

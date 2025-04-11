@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Redirect;
@@ -1863,26 +1862,16 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Get Calypso URL for Publicize connections.
+	 * Get the URL to the connections management page.
 	 *
-	 * @param string $source The idenfitier of the place the function is called from.
 	 * @return string
 	 */
-	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
-		if ( current_user_can( 'manage_options' ) ) {
-			$has_social_admin_page = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) || Publicize_Script_Data::has_feature_flag( 'admin-page' );
+	public function publicize_connections_url() {
+		$has_social_admin_page = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) || Publicize_Script_Data::has_feature_flag( 'admin-page' );
 
-			$page = $has_social_admin_page ? 'jetpack-social' : 'jetpack#/sharing';
+		$page = $has_social_admin_page ? 'jetpack-social' : 'jetpack#/sharing';
 
-			return ( new Paths() )->admin_url( array( 'page' => $page ) );
-		}
-
-		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
-		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
-		$blog_id         = Connection_Manager::get_site_id( true );
-		$site            = ( new Status() )->get_site_suffix();
-
-		return Redirect::get_url( $source, array( 'site' => $blog_id ? $blog_id : $site ) );
+		return ( new Paths() )->admin_url( array( 'page' => $page ) );
 	}
 
 	/**

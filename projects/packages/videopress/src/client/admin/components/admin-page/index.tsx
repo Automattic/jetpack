@@ -274,6 +274,7 @@ const Admin = () => {
 												{ __( 'Add new video', 'jetpack-videopress-pkg' ) }
 											</Button>
 										) }
+										__next40pxDefaultSize={ true }
 									/>
 								) : (
 									<Text variant="title-medium">

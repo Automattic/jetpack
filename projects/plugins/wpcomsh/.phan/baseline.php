@@ -51,7 +51,6 @@ return [
         'footer-credit/theme-optimizations.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredStaticMethod'],
         'functions.php' => ['PhanImpossibleCondition', 'PhanUndeclaredClassStaticProperty'],
         'imports/playground/class-sql-importer.php' => ['PhanUndeclaredConstant'],
-        'logo-tool/logo-tool.php' => ['PhanTypeMismatchArgumentNullableInternal'],
         'notices/plan-notices.php' => ['PhanImpossibleCondition'],
         'private-site/access-denied-coming-soon-template.php' => ['PhanTypeSuspiciousEcho'],
         'private-site/access-denied-preview-login-template.php' => ['PhanTypeSuspiciousEcho'],

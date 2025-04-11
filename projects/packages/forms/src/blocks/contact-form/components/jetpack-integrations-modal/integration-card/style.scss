@@ -1,0 +1,122 @@
+.integration-card {
+
+	&__header {
+		cursor: pointer;
+	}
+
+	&__header-content {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+	}
+
+	&__header-main {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+	}
+
+	&__title-section {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	&__title-row {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	&__service-icon {
+		color: var(--jp-gray-80);
+		flex-shrink: 0;
+		margin-top: 2px;
+	}
+
+	&__title {
+		margin: 0;
+		font-size: var(--font-body);
+		font-weight: 600;
+		line-height: 1.4;
+	}
+
+	&__plugin-badge,
+	&__connected-badge {
+		font-size: 11px;
+		padding: 4px 8px;
+		border-radius: 3px;
+		margin-left: 8px;
+		font-weight: 500;
+		line-height: 16px;
+	}
+
+	&__plugin-badge {
+		background: #F0F0F0;
+		color: #646970;
+	}
+
+	&__connected-badge {
+		background: #E5F5E8;
+		color: #008710;
+		display: flex;
+		align-items: center;
+		gap: 4px;
+
+		.components-icon {
+			color: #93c692;
+		}
+	}
+
+	&__description {
+		color: var(--jp-gray-50);
+		font-size: 13px;
+		line-height: 1.4;
+	}
+
+	&__actions {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+
+		.components-base-control.components-toggle-control {
+			margin-bottom: 0;
+		}
+	}
+
+	&__toggle-icon {
+		display: block;
+	}
+
+	&__links {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.is-spinning {
+		animation: rotation 2s infinite linear;
+	}
+	
+	@keyframes rotation {
+
+		from {
+			transform: rotate(0deg);
+		}
+
+		to {
+			transform: rotate(359deg);
+		}
+	}
+
+	.components-button .components-spinner {
+		margin: 0 8px;
+		width: 16px;
+		height: 16px;
+	}
+
+	.components-card__body {
+		padding-bottom: 30px;
+	}
+} 

@@ -274,6 +274,8 @@ abstract class Blocked_Login_Page {
 			return false;
 		}
 
+		set_transient( 'jetpack_protect_recovery_key_validated_' . $user_id, true, 600 );
+
 		return true;
 	}
 

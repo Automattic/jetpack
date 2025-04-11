@@ -12,7 +12,9 @@
 }
 
 @keyframes fadeIn {
+
 	from { opacity: 0; visibility: hidden; }
+
 	to { opacity: 1; visibility: visible; }
 }
 
@@ -115,9 +117,11 @@ amp-consent.widget_eu_cookie_law_widget.widget.top {
 }
 
 @media ( max-width: 600px ) {
+
 	#eu-cookie-law {
 		padding-bottom: 55px;
 	}
+
 	#eu-cookie-law input.accept {
 		bottom: 8px;
 		position: absolute;

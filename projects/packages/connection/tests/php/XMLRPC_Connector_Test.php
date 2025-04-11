@@ -11,6 +11,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Text XMLRPC Connector
+ *
+ * @covers \Automattic\Jetpack\Connection\REST_Connector
  */
 class XMLRPC_Connector_Test extends TestCase {
 
@@ -37,10 +39,9 @@ class XMLRPC_Connector_Test extends TestCase {
 
 	/**
 	 * Initialize tests
-	 *
-	 * @beforeClass
 	 */
-	public static function set_up_before_class() {
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
 		$keys = openssl_pkey_new();
 		openssl_pkey_export( $keys, $private_key );
 		$public_key       = openssl_pkey_get_details( $keys );
@@ -63,7 +64,6 @@ class XMLRPC_Connector_Test extends TestCase {
 	 * @param bool  $expected The expected return of is_request_signed_by_jetpack_debugger.
 	 *
 	 * @dataProvider is_request_signed_by_jetpack_debugger_data
-	 * @covers Automattic\Jetpack\Connection\REST_Connector::is_request_signed_by_jetpack_debugger
 	 * @return void
 	 */
 	public function test_is_request_signed_by_jetpack_debugger( $get_params, $expected ) {

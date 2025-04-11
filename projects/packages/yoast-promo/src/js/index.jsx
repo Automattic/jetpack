@@ -2,12 +2,15 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { PanelRow, ExternalLink, Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { PluginPrePublishPanel } from '@wordpress/edit-post';
+import { PluginPrePublishPanel as DeprecatedPluginPrePublishPanel } from '@wordpress/edit-post';
+import { PluginPrePublishPanel as EditorPluginPrePublishPanel } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Gridicon from 'gridicons';
 import { JetpackYoastLogos } from './JetpackYoastLogos';
 import { createStore } from './utils';
+
+const PluginPrePublishPanel = EditorPluginPrePublishPanel || DeprecatedPluginPrePublishPanel;
 
 const PLUGIN_SLUG_YOAST_FREE = 'wordpress-seo/wp-seo';
 const PLUGIN_SLUG_YOAST_PREMIUM = 'wordpress-seo-premium/wp-seo-premium';

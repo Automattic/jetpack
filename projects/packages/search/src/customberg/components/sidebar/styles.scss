@@ -11,9 +11,11 @@
 		display: flex;
 		height: 100%;
 	}
+
 	li {
 		margin: 0;
 	}
+
 	.components-button.jp-search-configure-sidebar__hide-settings-button {
 		margin-right: $grid-unit-05;
 
@@ -57,7 +59,7 @@
 	&.is-active {
 		// The transparent shadow ensures no jumpiness when focus animates on an active tab.
 		box-shadow: inset 0 0 0 var( --wp-admin-border-width-focus ) transparent,
-			inset 0 0 -$border-width-tab 0 0 var( --wp-admin-theme-color );
+			inset 0 (-$border-width-tab) 0 0 var( --wp-admin-theme-color );
 		font-weight: 600;
 		position: relative;
 
@@ -79,22 +81,25 @@
 
 	&.is-active:focus {
 		box-shadow: inset 0 0 0 var( --wp-admin-border-width-focus ) var( --wp-admin-theme-color ),
-			inset 0 0 -$border-width-tab 0 0 var( --wp-admin-theme-color );
+			inset 0 (-$border-width-tab) 0 0 var( --wp-admin-theme-color );
 	}
 }
 
 .jp-search-configure-sidebar-description {
 	display: flex;
 	padding: $grid-unit-20;
+
 	.block-editor-block-icon {
 		margin-right: $grid-unit-20;
 	}
+
 	.components-button.is-tertiary {
 		margin-left: -( $grid-unit-15 * 0.5 );
 	}
 }
 
 .jp-search-configure-sidebar-options {
+
 	.components-base-control {
 		margin-bottom: $grid-unit-30;
 
@@ -136,6 +141,7 @@
 		&:first-child {
 			margin-right: $grid-unit-05;
 		}
+
 		&:last-child {
 			margin-left: $grid-unit-05;
 		}
@@ -145,6 +151,7 @@
 			border-radius: 3px;
 			margin-bottom: $grid-unit-05;
 		}
+
 		&.jp-search-configure-theme-button--selected svg {
 			border-color: $gray-800;
 		}
@@ -152,6 +159,7 @@
 }
 
 .jp-search-configure-sidebar-options--is-disabled {
+
 	input {
 		pointer-events: none;
 		cursor: not-allowed;

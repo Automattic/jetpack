@@ -70,7 +70,6 @@
 			<directory suffix=".php">jetpack-token-error-header</directory>
 			<directory suffix=".php">jetpack-token-resilience</directory>
 			<directory suffix=".php">lib</directory>
-			<directory suffix=".php">logo-tool</directory>
 			<directory suffix=".php">mailpoet</directory>
 			<directory suffix=".php">notices</directory>
 			<directory suffix=".php">performance-profiler</directory>

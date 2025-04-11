@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -46,12 +47,12 @@ class Publicize_UI {
 	 * Initialize UI-related functionality.
 	 */
 	public function init() {
-		$this->publicize_settings_url = $this->publicize->publicize_connections_url();
-
 		// Show only to users with the capability required to manage their Publicize connections.
-		if ( ! $this->publicize->current_user_can_access_publicize_data() ) {
+		if ( ! Utils::is_publicize_active() || ! $this->publicize->current_user_can_access_publicize_data() ) {
 			return;
 		}
+
+		$this->publicize_settings_url = $this->publicize->publicize_connections_url();
 
 		// Assets (css, js).
 		add_action( 'admin_head-post.php', array( $this, 'post_page_metabox_assets' ) );
@@ -374,7 +375,7 @@ jQuery( function($) {
 .publicize-external-link__text {
 	text-decoration: underline;
 }
-#publicize-title:before {
+#publicize-title::before {
 	content: "\f237";
 	font: normal 20px/1 dashicons;
 	speak: none;
@@ -462,13 +463,13 @@ jQuery( function($) {
 				?>
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- labels are already escaped above ?>
 					<span id="publicize-defaults"><?php echo implode( ', ', $labels ); ?></span>
-					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
+					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize->publicize_connections_url() ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
 					<?php
 			else :
 				$publicize_form = '';
 				?>
 				<strong><?php esc_html_e( 'Not Connected', 'jetpack-publicize-pkg' ); ?></strong>
-				<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
+				<a href="<?php echo esc_url( $this->publicize->publicize_connections_url() ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
 				<?php
 
 			endif;

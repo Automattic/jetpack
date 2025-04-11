@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-extension-utils';
+import { JETPACK_MODULES_STORE_ID, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { createReduxStore, register, select } from '@wordpress/data';
 /**
  * Internal dependencies
@@ -13,18 +13,21 @@ import * as selectors from './selectors';
 import type { JetpackModuleSelector } from '../types';
 export const STORE_NAME = 'jetpack/seo-enhancer';
 
-let enhancerEnabled;
+let isAutoEnhanceEnabled = false;
 
 try {
-	const seoModuleSettings = (
-		select( JETPACK_MODULES_STORE_ID ) as JetpackModuleSelector
-	 ).getJetpackModules()[ 'seo-tools' ];
-	const enhancerAvailable =
-		seoModuleSettings && 'ai_seo_enhancer_enabled' in seoModuleSettings.options;
-	enhancerEnabled =
-		enhancerAvailable && seoModuleSettings.options?.ai_seo_enhancer_enabled?.current_value;
+	// Will always be false on simple sites, as jetpack modules request will return 404
+	if ( ! isSimpleSite() ) {
+		const seoModuleSettings = (
+			select( JETPACK_MODULES_STORE_ID ) as JetpackModuleSelector
+		 ).getJetpackModules()[ 'seo-tools' ];
+		const enhancerAvailable =
+			seoModuleSettings && 'ai_seo_enhancer_enabled' in seoModuleSettings.options;
+		isAutoEnhanceEnabled =
+			enhancerAvailable && seoModuleSettings.options?.ai_seo_enhancer_enabled?.current_value;
+	}
 } catch {
-	enhancerEnabled = false;
+	isAutoEnhanceEnabled = false;
 }
 
 function getInitialState() {
@@ -50,7 +53,7 @@ function getInitialState() {
 	return {
 		isBusy: false,
 		isTogglingAutoEnhance: false,
-		isAutoEnhanceEnabled: enhancerEnabled,
+		isAutoEnhanceEnabled,
 		busyImages: {},
 		failedImages: {},
 		features,

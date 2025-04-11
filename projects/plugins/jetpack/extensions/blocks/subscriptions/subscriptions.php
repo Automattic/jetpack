@@ -641,10 +641,11 @@ function render_block( $attributes ) {
 		return '';
 	}
 
+	// Prefill the email field with the current user's email if they are logged in via Memberships premium content token
 	$subscribe_email = Jetpack_Memberships::get_current_user_email();
 
-	/** This filter is documented in \Automattic\Jetpack\Forms\ContactForm\Contact_Form */
-	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
+	// If no email, then prefill the email field with the current user's email if they are logged in
+	if ( empty( $subscribe_email ) ) {
 		$current_user = wp_get_current_user();
 		if ( ! empty( $current_user->user_email ) ) {
 			$subscribe_email = $current_user->user_email;
@@ -695,7 +696,12 @@ function render_block( $attributes ) {
 		'preselected_newsletter_categories' => get_attribute( $attributes, 'preselectNewsletterCategories', false ),
 	);
 
-	if ( ! jetpack_is_frontend() ) {
+	// Only render the email version in non-frontend contexts.
+	if ( is_feed() || wp_is_xml_request() ||
+		( defined( 'REST_REQUEST' ) && REST_REQUEST && ! wp_is_json_request() ) ||
+		( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
+		( defined( 'WP_CLI' ) && WP_CLI ) ||
+		wp_is_jsonp_request() ) {
 		return render_for_email( $data, $styles );
 	}
 

@@ -5,9 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.11] - 2025-04-07
+### Changed
+- Code: First pass of style coding standards. [#42734]
+
+## [0.18.10] - 2025-04-02
+### Changed
+- Update package dependencies. [#42809]
+
+## [0.18.9] - 2025-04-01
+### Changed
+- Update dependencies. [#42328]
+
+## [0.18.8] - 2025-03-31
+### Changed
+- Update dependencies. [#42328]
+
+## [0.18.7] - 2025-03-26
+### Changed
+- Update dependencies. [#42328]
+
+## [0.18.6] - 2025-03-24
+### Changed
+- Update dependencies. [#42328]
+
+## [0.18.5] - 2025-03-24
+### Changed
+- Update dependencies. [#42328]
+
 ## [0.18.4] - 2025-03-19
 ### Changed
-- Update dependencies [#42564]
+- Update dependencies. [#42564]
 
 ## [0.18.3] - 2025-03-18
 ### Changed
@@ -577,6 +605,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.18.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.10...0.18.11
+[0.18.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.9...0.18.10
+[0.18.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.8...0.18.9
+[0.18.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.7...0.18.8
+[0.18.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.6...0.18.7
+[0.18.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.5...0.18.6
+[0.18.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.4...0.18.5
 [0.18.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.3...0.18.4
 [0.18.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.2...0.18.3
 [0.18.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.1...0.18.2

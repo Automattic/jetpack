@@ -1,6 +1,7 @@
 import {
 	getColorClassName,
 	__experimentalGetGradientClass as getGradientClass, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalGetBorderClassesAndStyles as getBorderClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	RichText,
 	useBlockProps,
 } from '@wordpress/block-editor';
@@ -30,6 +31,8 @@ export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 
 	const blockProps = useBlockProps.save();
 
+	const borderProps = getBorderClassesAndStyles( attributes );
+
 	const backgroundClass = getColorClassName( 'background-color', backgroundColor );
 	const gradientClass = IS_GRADIENT_AVAILABLE ? getGradientClass( gradient ) : undefined;
 	const textClass = getColorClassName( 'color', textColor );
@@ -39,6 +42,7 @@ export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 		'jetpack-submit-button',
 		className,
 		blockProps?.className,
+		borderProps.className,
 		{
 			[ `wp-block-jetpack-${ blockName }` ]: blockName,
 		}
@@ -64,6 +68,7 @@ export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 		color: textClass ? undefined : customTextColor,
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
 		width,
+		...borderProps.style,
 	};
 
 	return (

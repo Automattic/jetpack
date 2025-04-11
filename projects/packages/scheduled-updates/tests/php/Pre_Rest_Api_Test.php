@@ -11,13 +11,13 @@ use Automattic\Jetpack\Scheduled_Updates;
 
 /**
  * Test class for behavior that runs outside REST API requests.
+ *
+ * @covers \Automattic\Jetpack\Scheduled_Updates
  */
 class Pre_Rest_Api_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
 	protected function set_up() {
 		parent::set_up_wordbless();
@@ -26,8 +26,6 @@ class Pre_Rest_Api_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test that the scheduled updates option contains all expected data.
-	 *
-	 * @covers \Automattic\Jetpack\Scheduled_Updates::update_option_cron
 	 */
 	public function test_update_option_cron() {
 		$plugins = array( 'gutenberg/gutenberg.php' );

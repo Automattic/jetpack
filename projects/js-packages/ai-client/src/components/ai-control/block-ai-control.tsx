@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, ButtonGroup } from '@wordpress/components';
+import { Button, Flex } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useImperativeHandle, useRef, useEffect, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -18,13 +18,13 @@ import React, { forwardRef } from 'react';
 /**
  * Internal dependencies
  */
-import { GuidelineMessage } from '../message/index.js';
-import AIControl from './ai-control.js';
+import { GuidelineMessage } from '../message/index.tsx';
+import AIControl from './ai-control.tsx';
 import './style.scss';
 /**
  * Types
  */
-import type { RequestingStateProp } from '../../types.js';
+import type { RequestingStateProp } from '../../types.ts';
 import type { ReactElement } from 'react';
 
 type BlockAIControlProps = {
@@ -224,7 +224,7 @@ export function BlockAIControl(
 			{ showAccept && ! editRequest && (
 				<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 					{ ( value?.length > 0 || lastValue === null ) && (
-						<ButtonGroup>
+						<Flex gap={ 1 } role="group" className="jetpack-components-ai-control__button-group">
 							<Button
 								className="jetpack-components-ai-control__controls-prompt_button"
 								label={ __( 'Discard', 'jetpack-ai-client' ) }
@@ -242,7 +242,7 @@ export function BlockAIControl(
 							>
 								<Icon icon={ regenerate } />
 							</Button>
-						</ButtonGroup>
+						</Flex>
 					) }
 					<Button
 						className="jetpack-components-ai-control__controls-prompt_button"

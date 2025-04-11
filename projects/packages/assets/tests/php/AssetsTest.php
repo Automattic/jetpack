@@ -30,16 +30,18 @@ interface AssetsTest_test_wp_default_scripts_hook {
 
 /**
  * Assets test suite.
+ *
+ * @covers \Automattic\Jetpack\Assets
  */
 class AssetsTest extends TestCase {
 	use \Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 	/**
 	 * Test setup.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
+
 		Monkey\setUp();
 		$plugin_dir = dirname( __DIR__, 4 ) . '/';
 		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', $plugin_dir . 'jetpack.php' );
@@ -71,10 +73,10 @@ class AssetsTest extends TestCase {
 
 	/**
 	 * Run after every test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
+
 		Monkey\tearDown();
 		Jetpack_Constants::clear_constants();
 
@@ -218,7 +220,6 @@ class AssetsTest extends TestCase {
 	/**
 	 * Test whether static resources are properly updated to use a WordPress.com static domain.
 	 *
-	 * @covers Automattic\Jetpack\Assets::staticize_subdomain
 	 * @dataProvider get_resources_urls
 	 *
 	 * @param string $original       Source URL.
