@@ -26,7 +26,7 @@ class Waf_Blocked_Login_Page extends Blocked_Login_Page {
 	 *
 	 * @param string $ip_address IP address.
 	 *
-	 * @var Waf_Blocked_Login_Page
+	 * @return Waf_Blocked_Login_Page
 	 */
 	public static function instance( $ip_address ) {
 		if ( ! self::$instance ) {
