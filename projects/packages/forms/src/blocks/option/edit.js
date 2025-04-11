@@ -1,21 +1,22 @@
 import { RichText, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import useSyncStyleAttributes from '../shared/hooks/use-sync-style-attributes';
+import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
 import { ALLOWED_FORMATS } from '../shared/util/constants';
 import useEnter from './use-enter';
 
-const SYNCED_ATTRIBUTES = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
+const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
 
 const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) => {
 	const {
 		'jetpack/field-defaultValue': defaultValue,
 		'jetpack/field-options-type': type = 'checkbox',
 		'jetpack/field-required': required,
+		'jetpack/field-share-attributes': isSynced,
 	} = context;
 	const { hideInput, label, isStandalone, requiredText } = attributes;
 
-	useSyncStyleAttributes( clientId, name, 'jetpack/contact-form', SYNCED_ATTRIBUTES );
+	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
 	const { removeBlock } = useDispatch( blockEditorStore );
 	const siblingsCount = useSelect(

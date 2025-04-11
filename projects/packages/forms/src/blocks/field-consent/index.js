@@ -45,7 +45,7 @@ const settings = {
 		},
 	},
 	providesContext: {
-		'jetpack/field-required': 'required',
+		...defaultSettings.providesContext,
 		'jetpack/field-defaultValue': 'defaultValue',
 	},
 	deprecated,

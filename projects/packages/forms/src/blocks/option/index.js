@@ -72,6 +72,7 @@ const settings = {
 		'jetpack/field-defaultValue',
 		'jetpack/field-options-type',
 		'jetpack/field-required',
+		'jetpack/field-share-attributes',
 	],
 	edit,
 	save,
