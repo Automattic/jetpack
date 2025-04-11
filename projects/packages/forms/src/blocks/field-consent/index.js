@@ -50,6 +50,21 @@ const settings = {
 	},
 	deprecated,
 	save,
+	example: {
+		innerBlocks: [
+			{
+				name: 'jetpack/option',
+				attributes: {
+					label: __(
+						"By submitting your information, you're giving us permission to email you. You may unsubscribe at any time.",
+						'jetpack-forms'
+					),
+					isStandalone: true,
+					hideInput: true,
+				},
+			},
+		],
+	},
 };
 
 export default {

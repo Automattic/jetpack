@@ -29,6 +29,17 @@ const settings = {
 	},
 	deprecated,
 	save,
+	example: {
+		innerBlocks: [
+			{
+				name: 'jetpack/option',
+				attributes: {
+					label: __( 'Option', 'jetpack-forms' ),
+					isStandalone: true,
+				},
+			},
+		],
+	},
 };
 
 export default {
