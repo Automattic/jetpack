@@ -86,6 +86,20 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test display_critical_css() with SVG.
+	 */
+	public function test_display_critical_css_with_svg() {
+		$css_with_svg = ".test-svg-background { background:#fff url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%2328303d'><polygon points='0,0 10,0 5,5'/></svg>\") no-repeat;}";
+		$instance     = new Display_Critical_CSS( $css_with_svg );
+
+		ob_start();
+		$instance->display_critical_css();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '</svg>', $output );
+	}
+
+	/**
 	 * Test asynchronize_stylesheets() with async method.
 	 */
 	public function test_asynchronize_stylesheets_async() {
