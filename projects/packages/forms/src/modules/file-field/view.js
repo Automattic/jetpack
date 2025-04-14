@@ -85,7 +85,7 @@ const addFileToContext = file => {
 	reader.readAsDataURL( file );
 
 	const { ref } = getElement();
-	clearInputError( ref, { clearInputError: false } );
+	clearInputError( ref, { hasInsetLabel: isInlineForm( ref ) } );
 
 	const config = getConfig( NAMESPACE );
 	const context = getContext();
@@ -236,6 +236,21 @@ const updateFileContext = ( updatedFile, clientFileId ) => {
 	context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
 };
 
+/**
+ * Check if the file field is in an inline form.
+ *
+ * @param {HTMLElement} ref - The reference element.
+ *
+ * @return {boolean} True if the file field is in an inline form, false otherwise.
+ */
+const isInlineForm = ref => {
+	const form = ref.closest( '.wp-block-jetpack-contact-form' );
+	return (
+		( form && form.classList.contains( 'is-style-outlined' ) ) ||
+		form.classList.contains( 'is-style-animated' )
+	);
+};
+
 store( NAMESPACE, {
 	state: {
 		get hasFiles() {
@@ -321,7 +336,7 @@ store( NAMESPACE, {
 
 			const { ref } = getElement();
 			const field = ref.parentElement.parentElement.parentElement; // Needed to select the top most field.
-			clearInputError( field, { clearInputError: false } );
+			clearInputError( field, { hasInsetLabel: isInlineForm( ref ) } );
 
 			const context = getContext();
 			const clientFileId = event.target.dataset.id;

@@ -65,6 +65,10 @@
 .jetpack-form-file-field__preview-wrap {
 	padding: 0;
 	visibility: hidden;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	transition: visibility 0.3s ease-in-out;
 }
 
 .jetpack-form-file-field__preview-wrap.is-active {
@@ -85,7 +89,6 @@
 	background-color: var(--jetpack--contact-form--input-background, #fff);
 	color: var(--jetpack--contact-form--text-color, #333);
 	border: var(--jetpack--contact-form--border-size, 1px) var( --jetpack--contact-form--border-style, solid) var(--jetpack--contact-form--border-color, #333 );
-	margin-top: 8px;
 	font-size: 12px;
 	line-height: 18px;
 }
