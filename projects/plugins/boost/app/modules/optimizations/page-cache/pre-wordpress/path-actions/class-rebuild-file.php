@@ -5,6 +5,9 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPres
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use SplFileInfo;
 
+/**
+ * Rebuild a file.
+ */
 class Rebuild_File implements Path_Action {
 	public function apply_to_path( SplFileInfo $file ) {
 		if ( $file->isDir() && Filesystem_Utils::is_dir_empty( $file->getPathname() ) ) {

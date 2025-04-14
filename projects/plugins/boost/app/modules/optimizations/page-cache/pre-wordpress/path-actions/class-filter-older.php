@@ -4,6 +4,9 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPres
 
 use SplFileInfo;
 
+/**
+ * Apply a given sub-action to all files in the path that are older than a given timestamp.
+ */
 class Filter_Older implements Path_Action {
 	private $timestamp;
 	private $sub_action;

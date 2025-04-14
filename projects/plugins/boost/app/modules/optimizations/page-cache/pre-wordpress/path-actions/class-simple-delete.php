@@ -6,6 +6,9 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\File
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 use SplFileInfo;
 
+/**
+ * Delete a file or directory, non-recursively.
+ */
 class Simple_Delete implements Path_Action {
 	/**
 	 * Delete a file or directory.
