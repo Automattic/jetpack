@@ -15,7 +15,7 @@ import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
 
 export default function CheckboxFieldEdit( props ) {
-	const { instanceId, setAttributes, attributes } = props;
+	const { setAttributes, attributes } = props;
 	const { defaultValue, required, width } = attributes;
 
 	useFormWrapper( props );
@@ -23,7 +23,6 @@ export default function CheckboxFieldEdit( props ) {
 	// TODO: Is this block style needed?
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const blockProps = useBlockProps( {
-		id: `jetpack-field-checkbox-${ instanceId }`,
 		className: 'jetpack-field jetpack-field-checkbox',
 		style: {
 			...blockStyle,
