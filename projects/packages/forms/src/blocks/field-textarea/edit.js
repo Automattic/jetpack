@@ -9,17 +9,8 @@ import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
 
 export default function TextareaFieldEdit( props ) {
-	const {
-		attributes,
-		clientId,
-		id,
-		isSelected,
-		label,
-		required,
-		requiredText,
-		setAttributes,
-		width,
-	} = props;
+	const { attributes, clientId, id, isSelected, label, requiredText, setAttributes } = props;
+	const { required, width } = attributes;
 
 	useFormWrapper( props );
 
