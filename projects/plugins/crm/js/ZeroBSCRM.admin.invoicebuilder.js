@@ -679,7 +679,7 @@ function zbscrm_JS_draw_customise( res ) {
 	let html = '';
 
 	html += '<div id="zbs-invoice-customiser">';
-	html += '<div class="ui grid" style="margin: 0em 0.5em;">';
+	html += '<div class="ui grid" style="margin: 0 0.5em;">';
 	html += '<div class="eight wide column" style="padding:0">';
 	html +=
 		'<span class="header" style="float:left;">' + zbscrm_JS_invoice_lang( 'customise' ) + '</span>';

@@ -33,11 +33,11 @@ $invoice_endpoint = $portal->get_endpoint( ZBS_TYPE_INVOICE );
 ?>
 <style>
 .zbs-portal-invoices-list .paid {
-    background: green;
-    color: white;
-    font-weight: 700;
-    line-height: 35px;
-    border-radius: 0px !important;
+	background: green;
+	color: white;
+	font-weight: 700;
+	line-height: 35px;
+	border-radius: 0 !important;
 }
 </style>
 <div class="alignwide zbs-site-main zbs-portal-grid">
