@@ -1,3 +1,4 @@
+import { createSelector } from '@wordpress/data';
 /**
  * Types
  */
@@ -35,12 +36,11 @@ export function hasImageFailed( state: SeoEnhancerState, clientId: string ) {
 	return state.failedImages[ clientId ] ?? false;
 }
 
-export function getEnabledFeatures( state: SeoEnhancerState ) {
-	return Object.keys( state.features ).filter(
-		feature => state.features[ feature ]
-	) as PromptType[];
-}
-
+export const getEnabledFeatures = createSelector(
+	( state: SeoEnhancerState ): PromptType[] =>
+		Object.keys( state.features ).filter( feature => state.features[ feature ] ) as PromptType[],
+	( state: SeoEnhancerState ) => [ state.features ]
+);
 export function isImageAltTextFeatureEnabled( state: SeoEnhancerState ) {
 	return getEnabledFeatures( state ).includes( 'images-alt-text' );
 }
