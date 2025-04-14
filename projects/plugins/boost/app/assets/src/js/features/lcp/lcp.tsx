@@ -14,7 +14,10 @@ const Status = () => {
 	if ( lcpState?.status === 'error' ) {
 		return (
 			<div className={ styles?.failures }>
-				An error occurred while optimizing your Cornerstone Page&#39;s LCP. Please try again.
+				{ __(
+					"An error occurred while optimizing your Cornerstone Page's LCP. Please try again.",
+					'jetpack-boost'
+				) }
 			</div>
 		);
 	}
@@ -22,14 +25,22 @@ const Status = () => {
 	if ( lcpState?.status === 'not_analyzed' ) {
 		// This should never happen, but just in case.
 		return (
-			<div>Click the optimize button to start optimizing your Cornerstone Page&#39;s LCP.</div>
+			<div>
+				{ __(
+					"Click the optimize button to start optimizing your Cornerstone Page's LCP.",
+					'jetpack-boost'
+				) }
+			</div>
 		);
 	}
 
 	if ( lcpState?.status === 'pending' ) {
 		return (
 			<div className={ styles?.generating }>
-				Jetpack Boost is optimizing your Cornerstone Page&#39;s LCP for you.
+				{ __(
+					"Jetpack Boost is optimizing your Cornerstone Page's LCP for you.",
+					'jetpack-boost'
+				) }
 			</div>
 		);
 	}
@@ -40,7 +51,8 @@ const Status = () => {
 
 	return (
 		<div className={ styles?.successes }>
-			Last optimized <TimeAgo time={ new Date( lcpState.updated * 1000 ) } />.
+			{ __( 'Last optimized', 'jetpack-boost' ) }{ ' ' }
+			<TimeAgo time={ new Date( lcpState.updated * 1000 ) } />.
 		</div>
 	);
 };
