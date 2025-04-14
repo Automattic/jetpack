@@ -416,6 +416,13 @@ class Boost_Cache {
 		 * the post name. We need to get the post name from the post object.
 		 */
 		$permalink = get_permalink( $post->ID );
+		if ( strpos( $permalink, '?p=' ) !== false ) {
+			if ( ! function_exists( 'get_sample_permalink' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/post.php';
+			}
+			list( $permalink, $post_name ) = get_sample_permalink( $post );
+			$permalink                     = str_replace( '%postname%', $post_name, $permalink );
+		}
 		return $permalink;
 	}
 
