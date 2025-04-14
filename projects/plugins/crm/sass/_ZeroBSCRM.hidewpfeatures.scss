@@ -30,7 +30,7 @@ ul#adminmenu {
 	#admin_page_zerobscrm-plugin,
 	#toplevel_page_zerobscrm-logout {
 
-		a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:after {
+		a.wp-has-current-submenu::after, ul#adminmenu>li.current>a.current::after {
 			display:none !important;
 		}
 

@@ -89,7 +89,7 @@ input[type=number].jetpack-simple-payments-items-number::-webkit-outer-spin-butt
 	position: relative;
 }
 
-.jetpack-simple-payments-purchase-message:before {
+.jetpack-simple-payments-purchase-message::before {
 	font-family: dashicons !important;
 	font-size: 48px !important;
 	line-height: 1 !important;
@@ -106,12 +106,12 @@ input[type=number].jetpack-simple-payments-items-number::-webkit-outer-spin-butt
 	display: block;
 }
 
-.jetpack-simple-payments-purchase-message.success:before {
+.jetpack-simple-payments-purchase-message.success::before {
 	color: #4ab866;
 	content: "\f147";
 }
 
-.jetpack-simple-payments-purchase-message.error:before {
+.jetpack-simple-payments-purchase-message.error::before {
 	color: #d94f4f;
 	content: "\f335";
 }

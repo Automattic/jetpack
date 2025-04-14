@@ -96,8 +96,8 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.entry div.sharedaddy h3.sd-title:before,
-.entry h3.sd-title:before {
+.entry div.sharedaddy h3.sd-title::before,
+.entry h3.sd-title::before {
 	background: #767676;
 	border-top: none;
 	content: "\020";
@@ -139,7 +139,7 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.entry #jp-relatedposts h3.jp-relatedposts-headline:before {
+.entry #jp-relatedposts h3.jp-relatedposts-headline::before {
 	background: #767676;
 	border-top: none;
 	content: "\020";
@@ -150,7 +150,7 @@
 	min-width: inherit;
 }
 
-.entry #jp-relatedposts h3.jp-relatedposts-headline em:before {
+.entry #jp-relatedposts h3.jp-relatedposts-headline em::before {
 	display: none;
 }
 
@@ -334,7 +334,7 @@
 	font-style: normal;
 }
 
-.widget_rss cite:before {
+.widget_rss cite::before {
 	content: "\2014\00a0";
 }
 

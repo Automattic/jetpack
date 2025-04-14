@@ -32,6 +32,7 @@
 	$: isLoading = store.loading;
 	$: oversizedRatio = store.oversizedRatio;
 	$: fileSize = store.fileSize;
+	$: fileWeight = store.fileWeight;
 	$: sizeOnPage = store.sizeOnPage;
 	$: potentialSavings = store.potentialSavings;
 	$: expectedSize = store.expectedSize;
@@ -153,8 +154,8 @@
 			<div class="row">
 				<div class="label">Image Size</div>
 				<div class="value">
-					{#if $fileSize.weight > 0}
-						{Math.round( $fileSize.weight )} KB
+					{#if $fileWeight.weight > 0}
+						{Math.round( $fileWeight.weight )} KB
 					{:else if $isLoading}
 						Loading...
 					{:else}

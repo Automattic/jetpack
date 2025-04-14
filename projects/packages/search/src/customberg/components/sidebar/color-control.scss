@@ -20,7 +20,7 @@
 
 	.components-circular-option-picker__option-wrapper {
 
-		:focus:after {
+		:focus::after {
 			top: -4px;
 			left: -4px;
 		}
