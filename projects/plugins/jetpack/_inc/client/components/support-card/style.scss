@@ -39,7 +39,7 @@
 		padding: rem( 10px ) 0;
 		border-top: 1px transparentize( lighten( $gray, 20% ), .5 ) solid;
 
-		&:first-letter {
+		&::first-letter {
 			text-transform: capitalize;
 		}
 

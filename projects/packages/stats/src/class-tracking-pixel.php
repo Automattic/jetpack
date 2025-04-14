@@ -89,7 +89,7 @@ class Tracking_Pixel {
 
 		if ( $is_not_post ) {
 			if ( $wp_the_query->is_home() ) {
-				$view_data['home'] = '1';
+				$view_data['arch_home'] = '1';
 			} elseif ( $wp_the_query->is_search() ) {
 				$view_data['arch_search']  = sanitize_text_field( $wp_the_query->query['s'] );
 				$view_data['arch_filters'] = sanitize_text_field( self::build_search_filters( $wp_the_query ) );

@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Update expensive image weight determining operation to happen only when necessary.

@@ -46,7 +46,7 @@
             outline: 1px solid var(--wp-components-color-accent, var(--verbum-focus-color, #0675c4));
         }
 
-        &:checked+.verbum-toggle-control__button:after {
+        &:checked+.verbum-toggle-control__button::after {
             left: calc(100% - 2px);
             transform: translateX(-100%);
             background: #fff;
@@ -73,7 +73,7 @@
         border: 1px solid #000;
         opacity: var(--verbum-element-opacity);
 
-        &:after {
+        &::after {
             content: '';
             position: absolute;
             top: 2px;
@@ -85,7 +85,7 @@
             transition: 0.3s;
         }
 
-        &:active:after {
+        &:active::after {
             width: 14px;
         }
     }

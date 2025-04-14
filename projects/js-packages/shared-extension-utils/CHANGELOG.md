@@ -5,9 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2025-04-14
+### Changed
+- Adjust relative imports in TypeScript sources to use correct extensions after enabling TypeScript's new `rewriteRelativeImportExtensions` option. [#42990]
+- Update dependencies. [#43001]
+
+### Fixed
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
 ## [0.18.11] - 2025-04-07
 ### Changed
-- Code: First pass of style coding standards. [#42734]
+- Linting: First pass of style coding standards. [#42734]
 
 ## [0.18.10] - 2025-04-02
 ### Changed
@@ -605,6 +613,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.19.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.11...0.19.0
 [0.18.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.10...0.18.11
 [0.18.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.9...0.18.10
 [0.18.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.8...0.18.9

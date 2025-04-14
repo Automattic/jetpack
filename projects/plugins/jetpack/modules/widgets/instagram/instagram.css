@@ -4,8 +4,8 @@
 	grid-auto-columns: 1fr;
 }
 
-.wpcom-instagram-images:before,
-.wpcom-instagram-images:after {
+.wpcom-instagram-images::before,
+.wpcom-instagram-images::after {
 	content: none;
 }
 

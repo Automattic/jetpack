@@ -107,7 +107,7 @@
 			}
 
 			// needs to be cleaned up and removed - jeffgolenski
-			&:before {
+			&::before {
 				content: '';
 				position: absolute;
 				top: 0;
@@ -340,22 +340,22 @@
 	padding: em(140px) 0 em(60px);
 	text-align: center;
 
-	&:before,
-	&:after {
+	&::before,
+	&::after {
 		content: '';
 		position: absolute;
 		left: 0;
 		pointer-events: none;
 	}
 
-	&:before {
+	&::before {
 		top: 0;
 		margin-top: -1px; // Removes subpixel gap on retina landscape
 		width: 100%;
 		height: 195px;
 	}
 
-	&:after {
+	&::after {
 		display: none;
 	}
 
@@ -371,7 +371,7 @@
 		padding-top: 165px;
 		padding-bottom: 0;
 
-		&:before {
+		&::before {
 			background-size: 160% auto;
 		}
 
@@ -499,7 +499,7 @@
 		right: 9999px;
 		outline: 0;
 
-		&:after {
+		&::after {
 			content: 'A';
 			position: absolute;
 			top: 2px;
@@ -513,7 +513,7 @@
 
 		&:hover {
 
-			&:after {
+			&::after {
 				animation: jetpack-candy .4s ease-in-out;
 			}
 		}
@@ -601,7 +601,7 @@
 		position: relative;
 		text-align: left;
 
-		&:before {
+		&::before {
 			color: #fff;
 			content: '\f418';
 			font-family: Genericons;
@@ -617,7 +617,7 @@
 		@include breakpoint(large-phone){
 			padding: 23px;
 
-			&:before {
+			&::before {
 				display: none;
 			}
 		}
@@ -632,8 +632,8 @@
 		}
 	}
 
-	&.error .squeezer:before,
-	&.jetpack-err .squeezer:before {
+	&.error .squeezer::before,
+	&.jetpack-err .squeezer::before {
 		content: '\f414';
 	}
 }

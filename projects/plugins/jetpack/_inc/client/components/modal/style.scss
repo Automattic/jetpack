@@ -23,7 +23,7 @@ body.dops-modal-showing {
 	background-color: rgba(0, 0, 0, 0.5);
 	cursor: pointer;
 
-	&:before {
+	&::before {
 		content: '';
 		display: inline-block;
 		height: 100%;

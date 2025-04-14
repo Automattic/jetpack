@@ -4,8 +4,8 @@ Mini normalize
 #vp-notice,
 #vp-wrap,
 #vp-wrap *,
-#vp-wrap *:before,
-#vp-wrap *:after {
+#vp-wrap *::before,
+#vp-wrap *::after {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
@@ -379,7 +379,7 @@ Mini normalize
 	box-shadow: 0 0 0 1px rgba(213, 213, 213, 0.5), 0 1px 2px #eee;
 }
 
-.dops-card:after {
+.dops-card::after {
 	content: ".";
 	display: block;
 	height: 0;
@@ -513,8 +513,8 @@ Helpers
 	zoom:1;
 }
 
-.clearfix:after,
-.clrfix:after {
+.clearfix::after,
+.clrfix::after {
 	content:".";
 	display:block;
 	height:0;
@@ -561,7 +561,7 @@ Helpers
 	overflow: hidden;
 }
 
-#no-access-credentials:before {
+#no-access-credentials::before {
 	content: '';
 	position: absolute;
 	top: 15px;
@@ -584,7 +584,7 @@ Helpers
 
 @media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3, '/', 2), only screen and (-webkit-min-device-pixel-ratio: 1.5) {
 
-	#no-access-credentials:before {
+	#no-access-credentials::before {
 		background-image: url(images/dashboard-icon-sprite-2x.png) no-repeat;
 	}
 }
@@ -619,7 +619,7 @@ Helpers
 	position: static;
 }
 
-#wpadminbar #wp-admin-bar-vp-notice .ab-icon:before {
+#wpadminbar #wp-admin-bar-vp-notice .ab-icon::before {
 	content: '';
 	position: absolute;
 	top: 4px;
@@ -632,7 +632,7 @@ Helpers
 
 @media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3, '/', 2), only screen and (-webkit-min-device-pixel-ratio: 1.5) {
 
-	#wpadminbar #wp-admin-bar-vp-notice .ab-icon:before {
+	#wpadminbar #wp-admin-bar-vp-notice .ab-icon::before {
 		background: url(images/vp-toolbar-icon-trans-2x.png) no-repeat;
 		background-size: 16px;
 	}
@@ -819,7 +819,7 @@ Tabs
 Progress Bars
 ========================================================================== */
 
-#vp_progress:after {
+#vp_progress::after {
 
 	/* clearfix */
 	content: ".";
@@ -847,7 +847,7 @@ Progress Bars
 	}
 }
 
-.vp_graphs:after {
+.vp_graphs::after {
 
 	/* clearfix */
 	content: ".";

@@ -35,6 +35,25 @@ class Jetpack_Sync_Module_Stats_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
+	 * Tests that jetpack_package_versions is present in stats data.
+	 */
+	public function test_sends_jetpack_package_versions_data_on_heartbeat() {
+		$heartbeat = Heartbeat::init();
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+		$heartbeat->cron_exec();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+
+		$this->sender->do_sync();
+
+		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
+
+		$this->assertArrayHasKey( 'jetpack_package_versions', $action->args[0] );
+		$this->assertArrayHasKey( 'connection', $action->args[0]['jetpack_package_versions'] );
+		$this->assertArrayHasKey( 'sync', $action->args[0]['jetpack_package_versions'] );
+	}
+
+	/**
 	 * Tests that expensive data is not sent on heartbeat.
 	 *
 	 * @return void

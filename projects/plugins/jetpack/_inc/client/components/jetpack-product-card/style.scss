@@ -1,9 +1,9 @@
 @import '../../scss/calypso-colors';
 @import '../../scss/functions/rem';
-@import '../../scss/mixin_breakpoint.scss';
+@import '../../scss/mixin_breakpoint';
 @import '../../scss/typography';
 @import '../../scss/variables/colors';
-@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import 'node_modules/@automattic/color-studio/dist/color-variables';
 
 .jp-product-card {
 	position: relative;
