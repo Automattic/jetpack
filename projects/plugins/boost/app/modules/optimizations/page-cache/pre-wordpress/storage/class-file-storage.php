@@ -188,9 +188,10 @@ class File_Storage implements Storage {
 		$rebuild    = $args['rebuild'] ?? true;
 		$parameters = $args['parameters'] ?? false;
 
-		$action = new Simple_Delete();
 		if ( $rebuild ) {
 			$action = new Rebuild_File();
+		} else {
+			$action = new Simple_Delete();
 		}
 
 		// If parameters are provided, delete the specific file and skip any iteration.
