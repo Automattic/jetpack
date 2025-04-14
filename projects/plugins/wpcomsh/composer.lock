@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bba2f0c5c366144065179146d49f37fb",
+    "content-hash": "7faf21219ffeeb48c7b13b7aa56d3257",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -2047,16 +2047,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.9.2",
+            "version": "v2.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "e740874c1149a1307a1da2ec73f2ffde6a260540"
+                "reference": "e62c53682814d151bca197a5d9fccdfd9f104205"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/e740874c1149a1307a1da2ec73f2ffde6a260540",
-                "reference": "e740874c1149a1307a1da2ec73f2ffde6a260540",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/e62c53682814d151bca197a5d9fccdfd9f104205",
+                "reference": "e62c53682814d151bca197a5d9fccdfd9f104205",
                 "shasum": ""
             },
             "require-dev": {
@@ -2095,7 +2095,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2025-03-26T12:26:04+00:00"
+            "time": "2025-04-11T10:28:21+00:00"
         },
         {
             "name": "scssphp/scssphp",
@@ -2960,16 +2960,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.5.15",
+            "version": "11.5.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "4b6a4ee654e5e0c5e1f17e2f83c0f4c91dee1f9c"
+                "reference": "fd2e863a2995cdfd864fb514b5e0b28b09895b5c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/4b6a4ee654e5e0c5e1f17e2f83c0f4c91dee1f9c",
-                "reference": "4b6a4ee654e5e0c5e1f17e2f83c0f4c91dee1f9c",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/fd2e863a2995cdfd864fb514b5e0b28b09895b5c",
+                "reference": "fd2e863a2995cdfd864fb514b5e0b28b09895b5c",
                 "shasum": ""
             },
             "require": {
@@ -3041,7 +3041,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.15"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.17"
             },
             "funding": [
                 {
@@ -3057,7 +3057,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-03-23T16:02:11+00:00"
+            "time": "2025-04-08T07:59:11+00:00"
         },
         {
             "name": "psr/container",

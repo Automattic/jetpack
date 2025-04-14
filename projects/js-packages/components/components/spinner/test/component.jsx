@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import Spinner from '../index.js';
+import Spinner from '../index.jsx';
 
 describe( 'Spinner', () => {
 	const testProps = {

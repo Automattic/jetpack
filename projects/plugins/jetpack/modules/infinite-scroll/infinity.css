@@ -169,7 +169,7 @@
  */
 @media (max-width: 800px) {
 
-	#infinite-handle span:before {
+	#infinite-handle span::before {
 		display: none;
 	}
 

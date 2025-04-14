@@ -1,6 +1,6 @@
 /* =Infinity Styles
 -------------------------------------------------------------- */
-.infinite-scroll .site-content:after {
+.infinite-scroll .site-content::after {
 	clear: both;
 	content: '';
 	display: block;

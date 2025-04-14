@@ -3,7 +3,7 @@ import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { type FunctionComponent } from 'react';
 import './style-tooltip.scss';
-import { Period } from './index.js';
+import { Period } from './index.tsx';
 
 export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => {
 	if ( ! period || ! period.dimensions || ! period.timestamp ) {

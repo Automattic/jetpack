@@ -3,7 +3,7 @@ import PricingTable, {
 	PricingTableColumn,
 	PricingTableHeader,
 	PricingTableItem,
-} from '../index.js';
+} from '../index.tsx';
 
 describe( 'PricingTable', () => {
 	const testProps = {
