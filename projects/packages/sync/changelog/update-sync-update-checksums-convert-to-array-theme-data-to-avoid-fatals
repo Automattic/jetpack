@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Fatal removal for sites with wrong info in update_themes site transient
+
+
