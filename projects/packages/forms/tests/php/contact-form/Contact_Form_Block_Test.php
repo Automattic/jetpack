@@ -15,7 +15,7 @@ use WP_Block_Type_Registry;
 /**
  * Test class for Contact_Form_Block
  *
- * @covers \Automattic\Jetpack\Forms\Contact_Form\Contact_Form_Block
+ * @covers \Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block
  */
 class Contact_Form_Block_Test extends BaseTestCase {
 	/**
