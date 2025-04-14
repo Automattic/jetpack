@@ -68,7 +68,8 @@ export default function ConsentFieldEdit( props ) {
 	);
 	const { clientId: optionBlockId } = optionBlock ?? {};
 
-	const { updateBlockAttributes } = useDispatch( blockEditorStore );
+	const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } =
+		useDispatch( blockEditorStore );
 
 	const prevConsentType = usePrevious( consentType );
 	const prevLabel = usePrevious( optionBlock?.attributes?.label );
@@ -78,6 +79,9 @@ export default function ConsentFieldEdit( props ) {
 		if ( optionBlockId && consentType !== prevConsentType ) {
 			const label = consentType === 'explicit' ? explicitConsentMessage : implicitConsentMessage;
 
+			// As this is an automated update, ensure it doesn't end up in the undo stack
+			// by calling `__unstableMarkNextChangeAsNotPersistent`.
+			__unstableMarkNextChangeAsNotPersistent();
 			updateBlockAttributes( optionBlockId, {
 				label,
 				defaultLabel: sprintf(
@@ -95,6 +99,7 @@ export default function ConsentFieldEdit( props ) {
 		explicitConsentMessage,
 		implicitConsentMessage,
 		updateBlockAttributes,
+		__unstableMarkNextChangeAsNotPersistent,
 	] );
 
 	// Persist user-edited labels to the correct parent attribute.
@@ -109,6 +114,9 @@ export default function ConsentFieldEdit( props ) {
 		const isNewlyTyped = prevLabel && currentLabel !== prevLabel && currentLabel !== defaultLabel;
 
 		if ( isNewlyTyped ) {
+			// As this is an automated update, ensure it doesn't end up in the undo stack
+			// by calling `__unstableMarkNextChangeAsNotPersistent`.
+			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( {
 				[ consentType === 'explicit' ? 'explicitConsentMessage' : 'implicitConsentMessage' ]:
 					currentLabel,
@@ -121,6 +129,7 @@ export default function ConsentFieldEdit( props ) {
 		prevConsentType,
 		defaultLabels,
 		setAttributes,
+		__unstableMarkNextChangeAsNotPersistent,
 	] );
 
 	const onShareFieldAttributesChange = useCallback(

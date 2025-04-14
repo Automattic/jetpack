@@ -1,5 +1,5 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
-import { useEffect, useMemo } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
@@ -13,7 +13,6 @@ export default function TextareaFieldEdit( props ) {
 	const { required, width } = attributes;
 
 	useFormWrapper( props );
-
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const { isInnerBlockSelected, hasPlaceholder } = useFieldSelected( clientId );
 	const blockProps = useBlockProps( {
@@ -25,25 +24,20 @@ export default function TextareaFieldEdit( props ) {
 	} );
 
 	const defaultLabel = __( 'Message', 'jetpack-forms' );
+
+	const templateLabel = label ?? '';
 	const template = useMemo( () => {
 		return [
-			[ 'jetpack/label', { label, required, defaultLabel, requiredText } ],
+			[ 'jetpack/label', { label: templateLabel, defaultLabel, requiredText } ],
 			[ 'jetpack/input', { type: 'textarea' } ],
 		];
-	}, [ label, defaultLabel, required, requiredText ] );
+	}, [ templateLabel, defaultLabel, required, requiredText ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,
 		template,
 		templateLock: 'all',
 	} );
-
-	useEffect( () => {
-		if ( label === null || label === undefined ) {
-			setAttributes( { label: '' } );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
 
 	return (
 		<>
