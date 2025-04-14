@@ -79,7 +79,7 @@ export default function ConsentFieldEdit( props ) {
 		if ( optionBlockId && consentType !== prevConsentType ) {
 			const label = consentType === 'explicit' ? explicitConsentMessage : implicitConsentMessage;
 
-			// As this is an automated update, ensure if doesn't end up in the undo stack
+			// As this is an automated update, ensure it doesn't end up in the undo stack
 			// by calling `__unstableMarkNextChangeAsNotPersistent`.
 			__unstableMarkNextChangeAsNotPersistent();
 			updateBlockAttributes( optionBlockId, {
@@ -114,7 +114,7 @@ export default function ConsentFieldEdit( props ) {
 		const isNewlyTyped = prevLabel && currentLabel !== prevLabel && currentLabel !== defaultLabel;
 
 		if ( isNewlyTyped ) {
-			// As this is an automated update, ensure if doesn't end up in the undo stack
+			// As this is an automated update, ensure it doesn't end up in the undo stack
 			// by calling `__unstableMarkNextChangeAsNotPersistent`.
 			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( {

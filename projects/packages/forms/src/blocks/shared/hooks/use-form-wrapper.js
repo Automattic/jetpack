@@ -21,7 +21,7 @@ export default function useFormWrapper( { attributes, clientId, name } ) {
 
 	useEffect( () => {
 		if ( ! parents?.length ) {
-			// As this is an automated update, ensure if doesn't end up in the undo stack
+			// As this is an automated update, ensure it doesn't end up in the undo stack
 			// by calling `__unstableMarkNextChangeAsNotPersistent`.
 			__unstableMarkNextChangeAsNotPersistent();
 			replaceBlock(
