@@ -162,55 +162,218 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 	/**
 	 * Test that ::block_attributes_to_shortcode_attributes works correctly with styles.
+	 *
+	 * @dataProvider data_provider_block_attributes_to_shortcode_attributes_with_styles
+	 * @covers Contact_Form_Plugin::block_attributes_to_shortcode_attributes
+	 *
+	 * @param array  $expected The expected shortcode attributes.
+	 * @param array  $inner_blocks The inner blocks of the block.
+	 * @param string $type The type of the field.
 	 */
-	public function test_block_attributes_to_shortcode_attributes_with_styles() {
+	public function test_block_attributes_to_shortcode_attributes_with_styles( $expected, $inner_blocks, $type = 'text' ) {
 		$block                = array(
 			'blockName'   => 'jetpack/field-name',
 			'attrs'       => array(
 				'required' => false,
 			),
-			'innerBlocks' => array(
-				array(
-					'blockName' => 'jetpack/label',
-					'attrs'     => array(
-						'label'     => 'Name',
-						'textColor' => 'swamp-green',
-						'style'     => array(
-							'elements' => array(
-								'link' => array( 'color' => array( 'text' => 'var:preset|color|accent-3' ) ),
+			'innerBlocks' => $inner_blocks,
+		);
+		$shortcode_attributes = Contact_Form_Plugin::block_attributes_to_shortcode_attributes( array(), $type, new WP_Block( $block ) );
+
+		// Sorting here so we don't have to care about the order of the attributes in the shortcode/data provider.
+		$expected_keys = array_keys( $expected );
+		$actual_keys   = array_keys( $shortcode_attributes );
+		sort( $expected_keys );
+		sort( $actual_keys );
+		$this->assertEquals( $expected_keys, $actual_keys );
+
+		foreach ( $expected as $key => $value ) {
+			$this->assertEquals( $value, $shortcode_attributes[ $key ] );
+		}
+	}
+
+	/**
+	 * Data provider for test_block_attributes_to_shortcode_attributes_with_styles
+	 *
+	 * @return array
+	 */
+	public static function data_provider_block_attributes_to_shortcode_attributes_with_styles() {
+		return array(
+			'label and input'   => array(
+				'expected'     => array(
+					'labelclasses' => 'wp-block-jetpack-label has-text-color has-accent-3-color',
+					'labelstyles'  => 'font-size:32px;',
+					'inputclasses' => 'wp-block-jetpack-input has-text-color has-background has-border-color',
+					'inputstyles'  => 'color:swamp-green;background-color:swamp-red; font-size:24px;font-style:italic;font-weight:bold;line-height:1.5;letter-spacing:0.1em; border-color:swamp-blue;border-style:dashed;border-width:1px;',
+					'label'        => 'Label and Input',
+					'requiredText' => 'Do it',
+					'placeholder'  => 'Yo',
+					'min'          => '1',
+					'max'          => '10',
+					'type'         => 'text',
+				),
+				'inner_blocks' => array(
+					array(
+						'blockName' => 'jetpack/label',
+						'attrs'     => array(
+							'label'        => 'Label and Input',
+							'textColor'    => 'accent-3',
+							'requiredText' => 'Do it',
+							'style'        => array(
+								'elements'   => array(
+									'link' => array( 'color' => array( 'text' => 'var:preset|color|accent-3' ) ),
+								),
+								'typography' => array(
+									'fontSize' => '32px',
+								),
 							),
 						),
 					),
-				),
-				array(
-					'blockName' => 'jetpack/input',
-					'attrs'     => array(
-						'style' => array(
-							'color'      => array(
-								'text'       => 'swamp-green',
-								'background' => 'swamp-red',
-							),
-							'typography' => array(
-								'fontSize'      => '24px',
-								'fontWeight'    => 'bold',
-								'fontStyle'     => 'italic',
-								'lineHeight'    => '1.5',
-								'letterSpacing' => '0.1em',
-							),
-							'border'     => array(
-								'color' => 'swamp-blue',
-								'width' => '1px',
-								'style' => 'dashed',
+					array(
+						'blockName' => 'jetpack/input',
+						'attrs'     => array(
+							'placeholder' => 'Yo',
+							'min'         => '1',
+							'max'         => '10',
+							'type'        => 'text',
+							'style'       => array(
+								'color'      => array(
+									'text'       => 'swamp-green',
+									'background' => 'swamp-red',
+								),
+								'typography' => array(
+									'fontSize'      => '24px',
+									'fontWeight'    => 'bold',
+									'fontStyle'     => 'italic',
+									'lineHeight'    => '1.5',
+									'letterSpacing' => '0.1em',
+								),
+								'border'     => array(
+									'color' => 'swamp-blue',
+									'width' => '1px',
+									'style' => 'dashed',
+								),
 							),
 						),
 					),
 				),
 			),
+			'option'            => array(
+				'expected'     => array(
+					'optionclasses' => ' has-text-color has-swamp-cheese-color',
+					'optionstyles'  => 'font-size:24px;font-style:italic;font-weight:bold;line-height:1.5;letter-spacing:0.1em;',
+					'label'         => 'Option',
+					'type'          => 'radio',
+				),
+				'inner_blocks' => array(
+					array(
+						'blockName' => 'jetpack/option',
+						'attrs'     => array(
+							'label'     => 'Option',
+							'textColor' => 'swamp-cheese',
+							'style'     => array(
+								'color'      => array(
+									'background' => 'swamp-cheese',
+								),
+								'typography' => array(
+									'fontSize'      => '24px',
+									'fontWeight'    => 'bold',
+									'fontStyle'     => 'italic',
+									'lineHeight'    => '1.5',
+									'letterSpacing' => '0.1em',
+								),
+								'border'     => array(
+									'color' => 'swamp-cheese',
+									'width' => '1px',
+									'style' => 'dashed',
+								),
+							),
+						),
+					),
+				),
+				'type'         => 'radio',
+			),
+			'label and options' => array(
+				'expected'     => array(
+					'labelclasses' => 'wp-block-jetpack-label has-text-color has-accent-3-color',
+					'labelstyles'  => 'letter-spacing:0.1em;',
+					'options'      => 'Option 1,Option 2',
+					'optionsdata'  => '[{"label":"Option 1","class":"has-text-color has-sweet-potato-option-1-color","style":"font-size:24px;font-weight:bold;line-height:1.5;letter-spacing:0.1em;"},{"label":"Option 2","class":"has-text-color has-sweet-potato-option-2-color","style":"font-size:22px;font-weight:normal;"}]',
+					'label'        => 'Label multiple options',
+					'type'         => 'checkbox-multiple',
+					'requiredText' => 'Do it again',
+				),
+				'inner_blocks' => array(
+					array(
+						'blockName' => 'jetpack/label',
+						'attrs'     => array(
+							'label'        => 'Label multiple options',
+							'textColor'    => 'accent-3',
+							'requiredText' => 'Do it again',
+							'style'        => array(
+								'elements'   => array(
+									'link' => array( 'color' => array( 'text' => 'var:preset|color|accent-3' ) ),
+								),
+								'typography' => array(
+									'letterSpacing' => '0.1em',
+								),
+							),
+						),
+					),
+					array(
+						'blockName'   => 'jetpack/options',
+						'attrs'       => array(
+							'type' => 'radio',
+						),
+						'innerBlocks' => array(
+							array(
+								'blockName' => 'jetpack/option',
+								'attrs'     => array(
+									'label'     => 'Option 1',
+									'textColor' => 'sweet-potato-option1',
+									'style'     => array(
+										'color'      => array(
+											'background' => 'sweet-potato-option1',
+										),
+										'typography' => array(
+											'fontSize'   => '24px',
+											'fontWeight' => 'bold',
+											'lineHeight' => '1.5',
+											'letterSpacing' => '0.1em',
+										),
+										'border'     => array(
+											'color' => 'sweet-potato-option1',
+											'style' => 'dashed',
+										),
+									),
+								),
+							),
+							array(
+								'blockName' => 'jetpack/option',
+								'attrs'     => array(
+									'label'     => 'Option 2',
+									'textColor' => 'sweet-potato-option2',
+									'style'     => array(
+										'color'      => array(
+											'background' => 'sweet-potato-option2',
+										),
+										'typography' => array(
+											'fontSize'   => '22px',
+											'fontWeight' => 'normal',
+										),
+										'border'     => array(
+											'color' => 'sweet-potato-option2',
+											'width' => '1px',
+											'style' => 'gotted',
+										),
+									),
+								),
+							),
+						),
+					),
+				),
+				'type'         => 'checkbox-multiple',
+			),
 		);
-		$shortcode_attributes = Contact_Form_Plugin::block_attributes_to_shortcode_attributes( array(), 'checkbox', new WP_Block( $block ) );
-
-		$this->assertEquals( 'wp-block-jetpack-label has-text-color has-swamp-green-color', $shortcode_attributes['labelclasses'] );
-		$this->assertEquals( 'wp-block-jetpack-input has-text-color has-background has-border-color', $shortcode_attributes['inputclasses'] );
-		$this->assertEquals( 'color:swamp-green;background-color:swamp-red; font-size:24px;font-style:italic;font-weight:bold;line-height:1.5;letter-spacing:0.1em; border-color:swamp-blue;border-style:dashed;border-width:1px;', $shortcode_attributes['inputstyles'] );
 	}
 }
