@@ -412,12 +412,13 @@ function wpcomsh_woa_post_process_activate_jetpack_modules( $args, $assoc_args )
 	// First, make sure the jetpack_blocks_disabled option is deleted
 	delete_option( 'jetpack_blocks_disabled' );
 
-	// Array of modules to ensure are activated
 	$modules_to_activate = array(
-		'blocks',
 		'account-protection',
 		'blaze',
+		'blocks',
 	);
+
+	$activated_modules = array();
 
 	foreach ( $modules_to_activate as $module ) {
 		$result = WP_CLI::runcommand(
@@ -431,6 +432,7 @@ function wpcomsh_woa_post_process_activate_jetpack_modules( $args, $assoc_args )
 
 		if ( 0 === $result->return_code ) {
 			WP_CLI::log( sprintf( 'Successfully activated Jetpack module: %s', $module ) );
+			$activated_modules[] = $module;
 		} else {
 			WP_CLI::warning( sprintf( 'Failed to activate Jetpack module: %s - %s', $module, $result->stderr ) );
 		}
@@ -449,7 +451,9 @@ function wpcomsh_woa_post_process_activate_jetpack_modules( $args, $assoc_args )
 	WP_CLI::log( 'Currently active Jetpack modules:' );
 	WP_CLI::log( $active_modules_result->stdout );
 
-	WP_CLI::success( 'Jetpack modules activation completed' );
+	if ( count( $activated_modules ) === count( $modules_to_activate ) ) {
+		WP_CLI::success( 'Jetpack modules activation completed' );
+	}
 }
 
 // Add this action for all three operation types to ensure modules are always activated
