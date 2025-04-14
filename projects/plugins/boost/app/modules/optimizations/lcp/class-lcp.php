@@ -210,7 +210,6 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 		$storage = new LCP_Storage();
 
 		$lcp_storage = $storage->get_current_request_lcp();
-
 		// Early return if we don't have any LCP data
 		if ( empty( $lcp_storage ) ) {
 			return array( $buffer_start, $buffer_end );
@@ -251,16 +250,23 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 			return $buffer;
 		}
 
-		$lcp_html = $lcp_data['html'];
-		// Check if the tag exists in the combined buffer
+		// Defensive check to ensure the LCP HTML is not empty.
+		if ( empty( $lcp_data['html'] ) ) {
+			return $buffer;
+		}
+
+		// Remove the last (closing) character from the LCP HTML in case the buffer adds a closing forward slash to the img tag. Which is not found by the Cloud.
+		$lcp_html = substr( $lcp_data['html'], 0, -1 );
+
+		// If the LCP HTML is not found in the buffer, return early.
 		if ( ! str_contains( $buffer, $lcp_html ) ) {
 			return $buffer;
 		}
 
-		// Create the optimized tag with required attributes
+		// Create the optimized tag with required attributes.
 		$optimized_tag = $this->optimize_image_tag( $lcp_html );
 
-		// If no optimization was needed, return early
+		// If no optimization was needed, return early.
 		if ( $optimized_tag === $lcp_html ) {
 			return $buffer;
 		}
