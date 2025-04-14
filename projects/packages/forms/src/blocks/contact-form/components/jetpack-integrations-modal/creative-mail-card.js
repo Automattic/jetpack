@@ -3,7 +3,7 @@ import { createBlock } from '@wordpress/blocks';
 import { ToggleControl, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import creativeMailIcon from './creative-mail-icon';
+import CreativeMailIcon from '../../../../icons/creative-mail-icon';
 import IntegrationCard from './integration-card';
 
 const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
@@ -53,7 +53,7 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		<IntegrationCard
 			title={ __( 'Creative Mail', 'jetpack-forms' ) }
 			description={ __( 'Manage email contacts and campaigns', 'jetpack-forms' ) }
-			icon={ creativeMailIcon }
+			icon={ CreativeMailIcon }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 			cardData={ cardData }

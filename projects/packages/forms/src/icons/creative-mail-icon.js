@@ -1,9 +1,10 @@
-import { SVG, G, Rect, Path } from '@wordpress/components';
+import { SVG, G, Rect, Path } from '@wordpress/primitives';
 
-const CreativeMailIcon = (
+const CreativeMailIcon = props => (
 	<SVG
-		width="258"
-		height="258"
+		{ ...props }
+		width="30"
+		height="30"
 		viewBox="0 0 258 258"
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"
