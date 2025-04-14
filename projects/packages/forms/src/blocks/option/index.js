@@ -45,20 +45,6 @@ const settings = {
 			type: 'string',
 			default: '',
 		},
-		// TODO: Work out the best approach here for type.
-		// Currently, the type attribute isn't required as it can be passed via block
-		// context. It turns out though that choice items for the single and multiple
-		// choice fields had custom and different icons. Sharing a single
-		// `jetpack/option` block for global styling purposes means that can't happen
-		// without block variations. Block variations would require the type attribute
-		// at this block's level to allow different icons for each variation.
-		//
-		// Is this really needed?
-		//
-		// type: {
-		// 	type: 'string',
-		// 	default: 'checkbox',
-		// },
 		hideInput: {
 			type: 'boolean',
 			default: false,
