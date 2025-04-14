@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Adjust relative imports in TypeScript sources to use correct extensions after enabling TypeScript's new `rewriteRelativeImportExtensions` option.

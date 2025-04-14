@@ -700,7 +700,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "2d0a9a01df4f9c6a035cd9de5a2c703a7d1dbba0"
+                "reference": "8b6fb10f12a15323a4af26c97ed28e3cd98327bd"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -736,7 +736,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.10.x-dev"
+                    "dev-trunk": "6.11.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1151,7 +1151,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "d9c77496b5bf737b4b147c4932d04507349accbc"
+                "reference": "2f0576b08251752f44d2e82f8b8263ba5bc746e3"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1181,7 +1181,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.15.x-dev"
+                    "dev-trunk": "0.16.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -1614,7 +1614,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "eec6e8271495190abad94cc652ed5d2c5ec69304"
+                "reference": "17d370fe6ad03ba4efd6b26ba367dfc8951c1670"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1642,7 +1642,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.15.x-dev"
+                    "dev-trunk": "0.16.x-dev"
                 },
                 "textdomain": "jetpack-stats"
             },

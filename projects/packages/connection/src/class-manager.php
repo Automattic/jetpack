@@ -2728,7 +2728,7 @@ class Manager {
 	/**
 	 * If the site-level connection is active, add the list of plugins using connection to the heartbeat (except Jetpack itself)
 	 *
-	 * @since $$next-version$$ Add the list of Jetpack package versions to the heartbeat.
+	 * @since 6.11.0 Add the list of Jetpack package versions to the heartbeat.
 	 *
 	 * @param array $stats The Heartbeat stats array.
 	 * @return array $stats

@@ -322,21 +322,21 @@ abstract class Sharing_Source {
 		 * @module sharedaddy
 		 *
 		 * @since 3.4.0
-		 * @deprecated $$next-version$$ Use jetpack_sharing_accessible_name instead.
+		 * @deprecated 14.6 Use jetpack_sharing_accessible_name instead.
 		 *
 		 * @param string $title Sharing service title.
 		 * @param object $this Sharing service properties.
 		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
-		$accessible_name = apply_filters_deprecated( 'jetpack_sharing_display_title', array( $accessible_name, $this, $id, $args ), '$$next-version$$', 'jetpack_sharing_accessible_name' );
+		$accessible_name = apply_filters_deprecated( 'jetpack_sharing_display_title', array( $accessible_name, $this, $id, $args ), '14.6', 'jetpack_sharing_accessible_name' );
 
 		/**
 		 * Filter the sharing accessible name.
 		 *
 		 * @module sharedaddy
 		 *
-		 * @since $$next-version$$
+		 * @since 14.6
 		 *
 		 * @param string $accessible_name Sharing service accessible name.
 		 * @param object $this Sharing service properties.
