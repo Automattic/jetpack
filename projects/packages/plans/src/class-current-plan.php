@@ -94,8 +94,7 @@ class Current_Plan {
 				'jetpack_creator_monthly',
 			),
 			'supports' => array(
-				'contact-form',
-				'field-file', // Forms file upload field
+				'field-number', // Forms
 				'simple-payments',
 				'vaultpress',
 				'videopress',
@@ -362,6 +361,11 @@ class Current_Plan {
 	 * @return bool True if plan supports feature, false if not
 	 */
 	public static function supports( $feature, $refresh_from_wpcom = false ) {
+
+		if ( in_array( $feature, ['field-number'] ) ) {
+			l('['.$feature.'] 🍌 supports()');
+		}
+
 		if ( $refresh_from_wpcom ) {
 			self::refresh_from_wpcom();
 		}
@@ -373,6 +377,9 @@ class Current_Plan {
 			wpcom_feature_exists( $feature )
 		);
 		if ( $should_wpcom_gate_feature ) {
+			if ( in_array( $feature, ['field-number'] ) ) {
+				l('['.$feature.'] 🍌 plan support: should_wpcom_gate_feature?');
+			}
 			return wpcom_site_has_feature( $feature );
 		}
 
@@ -393,13 +400,25 @@ class Current_Plan {
 
 		$plan = self::get();
 
+		if ( in_array( $feature, ['field-number'] ) ) {
+			l('['.$feature.'] 🍌 plan support:', $plan['product_slug'], $plan['class']);
+		}
+
 		if (
 			in_array( $feature, $plan['supports'], true )
 			|| in_array( $feature, $plan['features']['active'], true )
 		) {
+			if ( in_array( $feature, ['field-number'] ) ) {
+				l('['.$feature.'] 🍌 plan support ✅' );
+				l('['.$feature.'] 🍌 plan "supports" list:', in_array( $feature, $plan['supports'], true ) );
+				l('['.$feature.'] 🍌 plan "active" list:', in_array( $feature, $plan['features']['active'], true ) );
+			}
 			return true;
 		}
 
+		if ( in_array( $feature, ['field-number'] ) ) {
+			l('['.$feature.'] 🍌 plan support ❌ ' );
+		}
 		return false;
 	}
 

@@ -182,6 +182,10 @@ class Jetpack_Gutenberg {
 	 * @param array  $details A free-form array containing more information on why the extension is unavailable.
 	 */
 	public static function set_extension_unavailable( $slug, $reason, $details = array() ) {
+		if ( in_array( $slug, ['field-number'] ) ) {
+			l('['.$slug.'] 🔍 set_extension_unavailable:', $slug);
+		}
+
 		if (
 			// Extensions that require a plan may be eligible for upgrades.
 			'missing_plan' === $reason
@@ -207,6 +211,11 @@ class Jetpack_Gutenberg {
 			$reason .= '__nudge_disabled';
 		}
 		$slug                        = self::remove_extension_prefix( $slug );
+
+		if ( in_array( $slug, ['field-number'] ) ) {
+			l('['.$slug.'] 🔍 set_extension_unavailable:', $reason, $details );
+		}
+
 		self::$availability[ $slug ] = array(
 			'reason'  => $reason,
 			'details' => $details,
@@ -347,10 +356,11 @@ class Jetpack_Gutenberg {
 	 * @return array A list of block and plugins and their availability status.
 	 */
 	public static function get_cached_availability() {
-		if ( null === self::$cached_availability ) {
-			self::$cached_availability = self::get_availability();
-		}
-		return self::$cached_availability;
+		//if ( null === self::$cached_availability ) {
+		//	self::$cached_availability = self::get_availability();
+		//}
+		//return self::$cached_availability;
+		return self::get_availability();
 	}
 
 	/**
@@ -410,7 +420,13 @@ class Jetpack_Gutenberg {
 			 *
 			 * @param array
 			 */
+			l('APPLYING filter jetpack_set_available_extensions');
 			self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_available_extensions() );
+			if ( in_array( 'field-number', self::$extensions ) ) {
+				l('field number is in the extensions array! ✅');
+			} else {
+				l('field number IS NOT in the extensions array! ❌');
+			}
 		}
 
 		return self::$extensions;
@@ -1187,10 +1203,20 @@ class Jetpack_Gutenberg {
 	 */
 	public static function set_availability_for_plan( $slug ) {
 		$slug = self::remove_extension_prefix( $slug );
+		if ( in_array( $slug, ['field-number'] ) ) {
+			l('['.$slug.'] 🔑 set_availability_for_plan');
+		}
 
 		if ( Jetpack_Plan::supports( $slug ) ) {
+			if ( in_array( $slug, ['field-number'] ) ) {
+				l('['.$slug.'] 🔑 set_availability_for_plan plan supports it! ✅');
+			}
 			self::set_extension_available( $slug );
 			return;
+		} else {
+			if ( in_array( $slug, ['field-number'] ) ) {
+				l('['.$slug.'] 🔑 set_availability_for_plan plan DOES NOT support it! ❌');
+			}
 		}
 
 		// Check what's the minimum plan where the feature is available.
@@ -1218,6 +1244,9 @@ class Jetpack_Gutenberg {
 			// Jetpack sites.
 			$plan = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
 		}
+		if ( in_array( $slug, ['field-number'] ) ) {
+			l('['.$slug.'] 🔑 set_availability_for_plan - get_minimum_plan_for_feature:', $plan);
+		}
 
 		self::set_extension_unavailable(
 			$slug,
@@ -1237,9 +1266,16 @@ class Jetpack_Gutenberg {
 	 * @param callable $render_callback The render_callback that will be called if the block is available.
 	 */
 	public static function get_render_callback_with_availability_check( $slug, $render_callback ) {
+		if ( in_array( $slug, ['field-number'] ) ) {
+			l('['.$slug.']😅 get_render_callback_with_availability_check' );
+		}
 		return function ( $prepared_attributes, $block_content, $block ) use ( $render_callback, $slug ) {
 			$availability = self::get_cached_availability();
 			$bare_slug    = self::remove_extension_prefix( $slug );
+			if ( in_array( $slug, ['field-number'] ) ) {
+				$n = isset( $availability[ $bare_slug ] ) ? $availability[ $bare_slug ] : false;
+				l('['.$slug.']😅 get_render_callback_with_availability_check:', $n );
+			}
 			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
 				return call_user_func( $render_callback, $prepared_attributes, $block_content );
 			}
@@ -1247,18 +1283,32 @@ class Jetpack_Gutenberg {
 			// A preview of the block is rendered for admins on the frontend with an upgrade nudge.
 			if ( isset( $availability[ $bare_slug ] ) ) {
 				if ( self::should_show_frontend_preview( $availability[ $bare_slug ] ) ) {
+					if ( in_array( $slug, ['field-number'] ) ) {
+						l('['.$slug.']😅 shouldDisplayFrontendBanner should_show_frontend_preview? ✅' );
+					}
 					$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content );
 
 					// If the upgrade nudge isn't already being displayed by a parent block, display the nudge.
 					if ( isset( $block->attributes['shouldDisplayFrontendBanner'] ) && $block->attributes['shouldDisplayFrontendBanner'] ) {
+
+						if ( in_array( $slug, ['field-number'] ) ) {
+							l('['.$slug.']😅 shouldDisplayFrontendBanner shouldDisplayFrontendBanner? ✅✅' );
+						}
 						$upgrade_nudge = self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
 						return $upgrade_nudge . $block_preview;
 					}
 
 					return $block_preview;
+				} else {
+					if ( in_array( $slug, ['field-number'] ) ) {
+						l('['.$slug.']😅 shouldDisplayFrontendBanner should_show_frontend_preview? ❌' );
+					}
 				}
 			}
 
+			if ( in_array( $slug, ['field-number'] ) ) {
+				l('['.$slug.']😅 get_render_callback_with_availability_check: return null ❌' );
+			}
 			return null;
 		};
 	}

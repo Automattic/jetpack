@@ -13,6 +13,7 @@ use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Jetpack_Gutenberg;
 use Jetpack;
 
 /**
@@ -30,18 +31,8 @@ class Contact_Form_Block {
 			'jetpack/contact-form',
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
-				// See https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#paid-blocks
-				'plan_check'      => true,
 			)
 		);
-		/*
-		add_action(
-			'jetpack_register_gutenberg_extensions',
-			function () {
-				\Jetpack_Gutenberg::set_availability_for_plan( 'contact-form' );
-			}
-		);
-		*/
 
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
 		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
@@ -177,7 +168,42 @@ class Contact_Form_Block {
 			'jetpack/field-number',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_number' ),
+				// See https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#paid-blocks
+				'plan_check'      => true,
 			)
+		);
+
+		// Not sure if we need this, Blocks::jetpack_register_block() potentially handles this already
+		/*
+		add_action(
+			'jetpack_register_gutenberg_extensions',
+			function () {
+				l( 'SETTING EXTENSION AVAILABLE  (jetpack_set_available_extensions?)');
+				\Jetpack_Gutenberg::set_extension_available( 'field-number' );
+			}
+		);
+		*/
+		l( 'ADDING filter for jetpack_set_available_extensions');
+		add_filter(
+			'jetpack_set_available_extensions',
+			function ( $extensions ) {
+				return array_merge(
+					$extensions,
+					array(
+						'field-number',
+					)
+				);
+			},
+			20
+		);
+
+		// Not sure if we need this either, handled by Blocks::jetpack_register_block() ?
+		add_action(
+			'jetpack_register_gutenberg_extensions',
+			function () {
+				l( 'SETTING EXTENSION AVAILABLE FOR PLAN');
+				\Jetpack_Gutenberg::set_availability_for_plan( 'field-number' );
+			}
 		);
 
 		$blocks_variation = apply_filters( 'jetpack_blocks_variation', \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' ) );
@@ -194,8 +220,6 @@ class Contact_Form_Block {
 			'jetpack/field-file',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
-				// See https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#paid-blocks
-				'plan_check'      => true,
 			)
 		);
 	}

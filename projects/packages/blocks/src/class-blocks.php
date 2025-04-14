@@ -41,6 +41,7 @@ class Blocks {
 	 * @return \WP_Block_Type|false The registered block type on success, or false on failure.
 	 */
 	public static function jetpack_register_block( $slug, $args = array() ) {
+
 		// Slug doesn't start with `jetpack/`, isn't an absolute path, or doesn't contain a slash
 		// (synonym of a namespace) at all.
 		if ( ! str_starts_with( $slug, 'jetpack/' ) && ! path_is_absolute( $slug ) && ! strpos( $slug, '/' ) ) {
@@ -71,8 +72,17 @@ class Blocks {
 
 		$feature_name = self::remove_extension_prefix( $slug );
 
+		if ( in_array( $feature_name, ['field-number'] ) ) {
+			l( '['.$feature_name.'] 🥙 jetpack_register_block ' );
+		}
+
+		if ( in_array( $feature_name, ['field-number'] ) ) {
+			$st = self::is_standalone_block() ? '✅' : '❌';
+			l( '['.$feature_name.'] Standalone block? ' . $st );
+		}
+
 		// This is only useful in Jetpack.
-		if ( ! self::is_standalone_block() ) {
+		// if ( ! self::is_standalone_block() ) {
 			// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
 			if ( ! empty( $args['plan_check'] ) ) {
 				// Set up attributes.
@@ -89,7 +99,13 @@ class Blocks {
 						),
 					)
 				);
+				if ( in_array( $feature_name, ['field-number'] ) ) {
+					l( '['.$feature_name.'] jetpack_register_block: plan check fo '. $feature_name, $args['attributes'] );
+				}
 				if ( isset( $args['render_callback'] ) ) {
+					if ( in_array( $feature_name, ['field-number'] ) ) {
+						l( '['.$feature_name.'] jetpack_register_block: render callback wrapped' );
+					}
 					$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
 				}
 				$method_name = 'set_availability_for_plan';
@@ -109,7 +125,7 @@ class Blocks {
 			if ( ! isset( $args['editor_style'] ) ) {
 				$args['editor_style'] = 'jetpack-blocks-editor';
 			}
-		}
+		// }
 
 		return register_block_type( $block_type, $args );
 	}
