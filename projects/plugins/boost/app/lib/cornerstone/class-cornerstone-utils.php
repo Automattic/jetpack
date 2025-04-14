@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Lib\Cornerstone;
 
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Cornerstone_Provider;
+
 class Cornerstone_Utils {
 
 	/**
@@ -36,6 +38,17 @@ class Cornerstone_Utils {
 
 		$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
 		return in_array( untrailingslashit( $url ), $cornerstone_pages, true );
+	}
+
+	/**
+	 * Checks if the current page is a cornerstone page.
+	 *
+	 * @return bool True if the current page is a cornerstone page, false otherwise.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function is_current_page_cornerstone() {
+		return self::is_cornerstone_page_by_url( Cornerstone_Provider::get_request_url() );
 	}
 
 	/**

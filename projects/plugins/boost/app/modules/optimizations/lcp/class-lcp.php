@@ -10,6 +10,7 @@ use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
+use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_LCP;
@@ -127,6 +128,10 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 		 * @since   $$next-version$$
 		 */
 		if ( false === apply_filters( 'jetpack_boost_should_optimize_lcp', true ) ) {
+			return;
+		}
+
+		if ( ! Cornerstone_Utils::is_current_page_cornerstone() ) {
 			return;
 		}
 
