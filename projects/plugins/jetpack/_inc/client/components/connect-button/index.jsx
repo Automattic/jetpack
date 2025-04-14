@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { DisconnectDialog } from '@automattic/jetpack-connection';
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -110,20 +111,10 @@ export class ConnectButton extends React.Component {
 		if ( e ) {
 			e.preventDefault();
 		}
-		// If the iframe is already loaded or we don't have a connectUrl yet, return.
-		if ( this.props.isAuthorizing || this.props.fetchingConnectUrl ) {
-			return;
-		}
-
 		// Track click
 		analytics.tracks.recordJetpackClick( 'link_account_in_place' );
 
-		if ( this.props.customConnect ) {
-			this.props.customConnect();
-		} else {
-			// Dispatch user in place authorization.
-			this.props.doConnectUser( null, this.props.from );
-		}
+		window.location.href = getMyJetpackUrl( '&step=onboarding' );
 	};
 
 	renderDisconnectStepComponent = () => {
