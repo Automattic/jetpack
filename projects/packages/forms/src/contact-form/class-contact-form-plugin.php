@@ -19,6 +19,7 @@ use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use WP_Block_Patterns_Registry;
 use WP_Block;
+use WP_Block_Type_Registry;
 use WP_Error;
 
 /**
@@ -336,7 +337,7 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	private static function get_block_support_classes_and_styles( $block_name, $attrs ) {
-		$block_type = \WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
+		$block_type = WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
 
 		if ( ! $block_type ) {
 			return array();
