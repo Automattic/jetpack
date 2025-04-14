@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added tests for migration of form fields to inner blocks 
