@@ -32,7 +32,9 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 
 	const { label, defaultLabel, requiredText } = attributes;
 
-	const placeholder = defaultLabel ?? label ?? __( 'Add label…', 'jetpack-forms' );
+	const emptyToNull = str => ( str === '' ? null : str );
+	const placeholder =
+		emptyToNull( defaultLabel ) ?? emptyToNull( label ) ?? __( 'Add label…', 'jetpack-forms' );
 	const suffix = dateFormat
 		? `(${ DATE_FORMATS.find( f => f.value === dateFormat )?.label })`
 		: undefined;
