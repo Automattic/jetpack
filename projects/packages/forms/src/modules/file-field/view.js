@@ -33,23 +33,34 @@ const getUploadToken = async () => {
 const fetchUploadToken = async () => {
 	const { endpoint } = getConfig( NAMESPACE );
 
-	const response = await fetch( `${ endpoint }/token`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify( { context: 'file-upload' } ),
-	} );
-
-	if ( ! response.ok ) {
-		throw new Error( 'Failed to fetch JWT token' );
-	}
-
-	const data = await response.json();
-	return {
-		token: data.token, // Assuming the token is in the `token` field
-		expiresAt: data.expiration,
+	const tokenError = {
+		token: null, // Assuming the token is in the `token` field
+		expiresAt: 0,
 	};
+	try {
+		const response = await fetch( `${ endpoint }/token`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify( { context: 'file-upload' } ),
+		} );
+
+		if ( ! response.ok ) {
+			return tokenError;
+		}
+
+		const data = await response.json();
+		return {
+			token: data.token, // Assuming the token is in the `token` field
+			expiresAt: data.expiration,
+		};
+	} catch (error ) {
+		if( error ) {
+			return 
+		}
+	}
+	return tokenError;
 };
 
 /**
@@ -102,8 +113,9 @@ const addFileToContext = file => {
 		error = config.i18n.invalidType;
 	}
 
+	// Get all files that don't have an error properly
 	// Check if the user is trying to add more files then allowed.
-	if ( context.maxFiles < context.files.length + 1 ) {
+	if ( context.maxFiles < validFiles.length + 1 ) {
 		error = config.i18n.maxFiles;
 	}
 
@@ -145,9 +157,15 @@ const uploadControllers = new Map();
  * @yield {Promise<string>} The upload token.
  */
 function* uploadFile( file, clientFileId ) {
-	const { endpoint } = getConfig( NAMESPACE );
+	const { endpoint, i18n } = getConfig( NAMESPACE );
 
 	const token = yield getUploadToken();
+
+	if ( ! token ) {
+		updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
+		return;
+	}
+
 	const xhr = new XMLHttpRequest();
 	const formData = new FormData();
 
@@ -165,7 +183,7 @@ function* uploadFile( file, clientFileId ) {
 	// Handle abort signal
 	abortController.signal.addEventListener( 'abort', () => {
 		xhr.abort();
-		updateFileContext( { error: 'Upload canceled', hasError: true }, clientFileId );
+		updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
 	} );
 
 	formData.append( 'file', file );
@@ -216,6 +234,10 @@ const onReadyStateChange = ( clientFileId, event ) => {
 				);
 				return;
 			}
+		} else {
+			const config = getConfig( NAMESPACE );
+			updateFileContext( { error: config.i18n.uploadFailed, hasError: true }, clientFileId );
+			return;
 		}
 		if ( xhr.responseText ) {
 			const response = JSON.parse( xhr.responseText );
@@ -353,13 +375,15 @@ store( NAMESPACE, {
 			if ( file && file.file_id ) {
 				const { endpoint } = getConfig( NAMESPACE );
 				const token = yield getUploadToken();
-				const formData = new FormData();
-				formData.append( 'token', token );
-				formData.append( 'file_id', file.file_id );
-				fetch( `${ endpoint }/remove`, {
-					method: 'POST',
-					body: formData,
-				} );
+				if ( token ) {
+					const formData = new FormData();
+					formData.append( 'token', token );
+					formData.append( 'file_id', file.file_id );
+					fetch( `${ endpoint }/remove`, {
+						method: 'POST',
+						body: formData,
+					} );
+				}
 			}
 			context.files = context.files.filter( fileObject => fileObject.id !== clientFileId );
 			context.hasFiles = context.files.length > 0;
