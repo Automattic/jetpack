@@ -175,7 +175,14 @@ class File_Storage implements Storage {
 	 * )
 	 */
 	public function clear( $path, $args = array() ) {
-		$normalized_path = Boost_Cache_Utils::trailingslashit( $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path ) );
+		$normalized_path = Boost_Cache_Utils::normalize_request_uri( $this->sanitize_path( $path ) );
+		$normalized_path = Boost_Cache_Utils::trailingslashit( $this->root_path . $normalized_path );
+
+		// Ensure the path is within the cache directory
+		if ( strpos( $normalized_path, $this->root_path ) !== 0 ) {
+			Logger::debug( 'Attempted to delete cache for path outside of cache directory: ' . $path );
+			return;
+		}
 
 		$recursive  = $args['recursive'] ?? false;
 		$rebuild    = $args['rebuild'] ?? true;
