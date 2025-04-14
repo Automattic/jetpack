@@ -14,7 +14,6 @@
 	clear: both;
 }
 
-/* TODO: Should the placeholders actually honor user color selections? */
 .contact-form input::placeholder {
 	transition: opacity 0.3s ease-out;
 }
