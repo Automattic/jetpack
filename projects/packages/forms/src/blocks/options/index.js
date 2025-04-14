@@ -19,6 +19,11 @@ const settings = {
 	providesContext: {
 		'jetpack/field-options-type': 'type',
 	},
+	supports: {
+		spacing: {
+			blockGap: false,
+		},
+	},
 	edit,
 	save,
 };
