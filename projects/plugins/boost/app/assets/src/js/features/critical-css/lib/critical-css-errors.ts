@@ -181,7 +181,7 @@ export function groupRecommendationsByStatus(
 
 		// For each error type group, check if it's dismissed
 		Object.entries( errorsByType ).forEach( ( [ errorType, errors ] ) => {
-			if ( provider.dismissed_errors?.includes( errorType ) ) {
+			if ( provider.dismissed_errors?.includes( errorType as Critical_CSS_Error_Type ) ) {
 				dismissedRecommendations.push( {
 					key: provider.key,
 					label: provider.label,
