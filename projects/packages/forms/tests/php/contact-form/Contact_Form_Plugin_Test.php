@@ -161,6 +161,56 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_text
+	 */
+	public function test_gutenblock_gutenblock_render_field_text_shortcode() {
+		$block     = array(
+			'blockName'   => 'field-text',
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/label',
+					'attrs'     => array(
+						'label'        => 'Label',
+						'requiredText' => 'Do it',
+						'style'        => array(
+							'color'      => array( 'text' => 'caramel' ),
+							'elements'   => array(
+								'link' => array( 'color' => array( 'text' => 'caramel' ) ),
+							),
+							'typography' => array(
+								'fontSize' => '24px',
+							),
+						),
+					),
+				),
+				array(
+					'blockName' => 'jetpack/input',
+					'attrs'     => array(
+						'label'       => 'Label',
+						'placeholder' => 'hi!',
+						'min'         => '1',
+						'max'         => '10',
+						'style'       => array(
+							'color'      => array( 'text' => 'toot' ),
+							'border'     => array(
+								'color' => 'toot',
+								'width' => '1px',
+							),
+							'typography' => array(
+								'fontSize' => '33rem',
+							),
+						),
+					),
+				),
+			),
+		);
+		$shortcode = Contact_Form_Plugin::gutenblock_render_field_text( array(), '', new WP_Block( $block ) );
+		$expected  = '[contact-field type="text" label="Label" requiredText="Do it" labelclasses="wp-block-jetpack-label has-text-color" labelstyles="color:caramel; font-size:24px;" placeholder="hi!" min="1" max="10" inputclasses="wp-block-jetpack-input has-text-color has-border-color" inputstyles="color:toot; font-size:33rem; border-color:toot;border-width:1px;"/]';
+
+		$this->assertEquals( $expected, $shortcode );
+	}
+
+	/**
 	 * Test that ::block_attributes_to_shortcode_attributes works correctly with styles.
 	 *
 	 * @dataProvider data_provider_block_attributes_to_shortcode_attributes_with_styles
