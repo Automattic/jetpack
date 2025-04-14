@@ -809,19 +809,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$accepted_file_types = implode(
 			', ',
 			array(
+				// Image file types.
+				'image/jpg',
 				'image/jpeg',
 				'image/gif',
 				'image/png',
 				'image/webp',
-				'application/pdf',
-				'application/msword',
-				'application/vnd.ms-excel',
-				'application/vnd.ms-powerpoint',
-				'text/plain',
-				'text/csv',
-				'text/calendar',
-				'text/css',
-				'text/html',
+				'image/heic',
+				'image/heif',
+				'image/bmp',
+				// Document file types.
+				'application/msword',                                                         // .doc
+				'application/vnd.ms-powerpoint',                                              // .ppt, .pps
+				'application/vnd.ms-excel',                                                   // .xls
+				'application/vnd.openxmlformats-officedocument.presentationml.presentation',  // .pptx
+				'application/vnd.openxmlformats-officedocument.presentationml.slideshow',     // .ppsx
+				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',          // .xlsx
+				'application/vnd.openxmlformats-officedocument.wordprocessingml.document',    // .docx
+				'application/vnd.oasis.opendocument.text',                                    // .odt
+				'application/pdf',                                                            // .pdf
+
 			)
 		);
 
@@ -840,9 +847,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$input_attrs['aria-required'] = 'true';
 		}
 
-		$max_files = empty( $this->get_attribute( 'maxfiles' ) ) ? 1 : $this->get_attribute( 'maxfiles' ); // max number of files.
-
-		$max_file_size   = wp_max_upload_size();
+		$max_files       = empty( $this->get_attribute( 'maxfiles' ) ) ? 1 : $this->get_attribute( 'maxfiles' ); // max number of files.
+		$max_file_size   = 20 * 1024 * 1024; // 20MB
 		$file_size_units = array(
 			_x( 'B', 'unit symbol', 'jetpack-forms' ),
 			_x( 'KB', 'unit symbol', 'jetpack-forms' ),
