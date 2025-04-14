@@ -840,7 +840,11 @@
 
 					.jetpack-field-dropdown__toggle {
 
-						/* TODO: Find way around these !important hacks due to label rendering input borders for Outlined style. */
+						/*
+						 * For the Outlined block style, labels render the input border styles,
+						 * unfortuntely, the !important rule is required to overcome the inline
+						 * border styles that block supports apply for block instance styles.
+						 */
 						border-color: transparent !important;
 						border-radius: transparent !important;
 						padding-left: calc(var(--notch-width) + 4px);
@@ -890,9 +894,13 @@
 			.jetpack-field__input, .jetpack-field__textarea {
 				display: flex;
 
-				/* TODO: Find a way around these !important hacks due to use of the label to render input borders for Outlined style. */
-				border-color: transparent !important; //Need to override styles coming from the style attribute
-				border-radius: 0 !important; //Need to override styles coming from the style attribute
+				/*
+				 * For the Outlined block style, labels render the input border styles,
+				 * unfortuntely, the !important rule is required to overcome the inline
+				 * border styles that block supports apply for block instance styles.
+				 */
+				border-color: transparent !important;
+				border-radius: 0 !important;
 				outline: none;
 				padding-left: calc(var(--notch-width) + 4px);
 				padding-right: calc(var(--notch-width) + 4px);
