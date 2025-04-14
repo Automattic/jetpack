@@ -28,8 +28,11 @@ class Simple_Delete implements Path_Action {
 
 			// Delete a file in the directory
 			Logger::debug( 'unlink: ' . $file->getPathname() );
-			return $this->delete_file( $file );
+			$this->delete_file( $file );
+			return 1;
 		}
+
+		return 0;
 	}
 
 	private function delete_dir( SplFileInfo $file ) {
