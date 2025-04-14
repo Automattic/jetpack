@@ -15,13 +15,12 @@ import JetpackManageResponsesSettings from '../contact-form/components/jetpack-m
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 
 export default function ConsentFieldEdit( props ) {
-	const { attributes, clientId, instanceId, setAttributes } = props;
+	const { attributes, clientId, setAttributes } = props;
 	const { consentType, width, implicitConsentMessage, explicitConsentMessage } = attributes;
 
 	useFormWrapper( props );
 
 	const blockProps = useBlockProps( {
-		id: `jetpack-field-consent-${ instanceId }`,
 		className: 'jetpack-field jetpack-field-consent',
 	} );
 
