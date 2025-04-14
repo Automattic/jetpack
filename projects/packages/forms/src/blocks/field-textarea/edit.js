@@ -28,7 +28,7 @@ export default function TextareaFieldEdit( props ) {
 	const templateLabel = label ?? '';
 	const template = useMemo( () => {
 		return [
-			[ 'jetpack/label', { label: templateLabel, required, defaultLabel, requiredText } ],
+			[ 'jetpack/label', { label: templateLabel, defaultLabel, requiredText } ],
 			[ 'jetpack/input', { type: 'textarea' } ],
 		];
 	}, [ templateLabel, defaultLabel, required, requiredText ] );
