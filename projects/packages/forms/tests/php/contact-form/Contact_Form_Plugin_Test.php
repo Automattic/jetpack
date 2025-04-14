@@ -214,7 +214,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	 * Test that ::block_attributes_to_shortcode_attributes works correctly with styles.
 	 *
 	 * @dataProvider data_provider_block_attributes_to_shortcode_attributes_with_styles
-	 * @covers Contact_Form_Plugin::block_attributes_to_shortcode_attributes
+	 * @covers \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::block_attributes_to_shortcode_attributes
 	 *
 	 * @param array  $expected The expected shortcode attributes.
 	 * @param array  $inner_blocks The inner blocks of the block.
