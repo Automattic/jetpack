@@ -475,13 +475,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param array  $extra_attrs Array of key/value pairs to append as attributes to the element.
+	 * @param bool   $always_render - if the label should always be shown.
 	 *
 	 * @return string HTML
 	 */
-	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array() ) {
+	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array(), $always_render = false ) {
 		$form_style = $this->get_form_style();
 
-		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
+		if ( ! empty( $form_style ) && $form_style !== 'default' && ! $always_render ) {
 			return '';
 		}
 
@@ -883,7 +884,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'hasMaxFiles'      => false,
 		);
 
-		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text );
+		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true );
+
 		ob_start();
 		?>
 		<div
@@ -1360,7 +1362,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				break;
 		}
 
-		if ( ! empty( $form_style ) && $form_style !== 'default' && ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent' ), true ) ) {
+		if ( ! empty( $form_style ) && $form_style !== 'default' && ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
 			switch ( $form_style ) {
 				case 'outlined':
 					$field .= $this->render_outline_label( $id, $label, $required, $required_field_text );
