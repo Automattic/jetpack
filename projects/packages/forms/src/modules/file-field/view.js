@@ -114,6 +114,8 @@ const addFileToContext = file => {
 	}
 
 	// Get all files that don't have an error properly
+	const validFiles = context.files.filter( fileInfo => ! fileInfo.error );
+
 	// Check if the user is trying to add more files then allowed.
 	if ( context.maxFiles < validFiles.length + 1 ) {
 		error = config.i18n.maxFiles;
