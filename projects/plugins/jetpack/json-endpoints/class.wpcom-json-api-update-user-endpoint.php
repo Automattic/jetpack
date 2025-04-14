@@ -134,10 +134,6 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		if ( get_current_user_id() === (int) $user_id ) {
-			return new WP_Error( 'invalid_input', 'User can not remove or delete self through this endpoint.', 400 );
-		}
-
 		if ( ! $this->user_exists( $user_id ) ) {
 			return new WP_Error( 'invalid_input', 'A user does not exist with that ID.', 400 );
 		}
@@ -152,7 +148,8 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return array|WP_Error
 	 */
 	public function remove_user( $user_id ) {
-		if ( ! current_user_can( 'remove_users' ) ) {
+		// Skip the check if the user is removing themselves.
+		if ( ! current_user_can( 'remove_users' ) && get_current_user_id() !== (int) $user_id ) {
 			return new WP_Error( 'unauthorized', 'User cannot remove users for specified site.', 403 );
 		}
 
@@ -172,7 +169,8 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return array|WP_Error
 	 */
 	public function delete_user( $user_id ) {
-		if ( ! current_user_can( 'delete_users' ) ) {
+		// Skip the check if the user is deleting themselves.
+		if ( ! current_user_can( 'delete_users' ) && get_current_user_id() !== (int) $user_id ) {
 			return new WP_Error( 'unauthorized', 'User cannot delete users for specified site.', 403 );
 		}
 
