@@ -18,10 +18,33 @@ class LCP_State {
 		'error'   => 'error',
 	);
 
-	public $state;
+	/**
+	 * LCP analysis state data
+	 *
+	 * @var array
+	 */
+	public $state = array();
+
+	/**
+	 * Retrieves and validates the LCP state
+	 *
+	 * @param bool $refresh Whether to refresh the state from storage.
+	 * @return array The validated state
+	 * @since $$next-version$$
+	 */
+	private function get_state( $refresh = false ) {
+		if ( $refresh ) {
+			$stored_state = jetpack_boost_ds_get( 'lcp_state' );
+			$this->state  = is_array( $stored_state ) ? $stored_state : array();
+		} elseif ( ! is_array( $this->state ) ) {
+			$this->state = array();
+		}
+
+		return $this->state;
+	}
 
 	public function __construct() {
-		$this->state = jetpack_boost_ds_get( 'lcp_state' );
+		$this->get_state( true );
 	}
 
 	public function clear() {
@@ -29,6 +52,7 @@ class LCP_State {
 	}
 
 	public function save() {
+		$this->state            = $this->get_state();
 		$this->state['updated'] = microtime( true );
 		jetpack_boost_ds_set( 'lcp_state', $this->state );
 
@@ -45,6 +69,7 @@ class LCP_State {
 			return $this;
 		}
 
+		$this->state                 = $this->get_state();
 		$this->state['status_error'] = $message;
 		$this->state['status']       = self::ANALYSIS_STATES['error'];
 
@@ -59,6 +84,8 @@ class LCP_State {
 	 * @return bool|\WP_Error True on success, WP_Error on failure.
 	 */
 	public function update_page_state( $page_key, $state ) {
+		$this->state = $this->get_state();
+
 		if ( empty( $this->state['pages'] ) ) {
 			return new WP_Error( 'invalid_page_key', 'No pages exist' );
 		}
@@ -111,12 +138,14 @@ class LCP_State {
 	}
 
 	public function is_analyzed() {
+		$this->get_state();
 		return ! empty( $this->state )
 			&& isset( $this->state['status'] )
 			&& self::ANALYSIS_STATES['analyzed'] === $this->state['status'];
 	}
 
 	public function is_pending() {
+		$this->get_state();
 		return ! empty( $this->state )
 			&& isset( $this->state['status'] )
 			&& self::ANALYSIS_STATES['pending'] === $this->state['status'];
@@ -143,9 +172,11 @@ class LCP_State {
 
 	/**
 	 * Get fresh state
+	 *
+	 * @return array Current LCP state
+	 * @since $$next-version$$
 	 */
 	public function get() {
-		$this->state = jetpack_boost_ds_get( 'lcp_state' );
-		return $this->state;
+		return $this->get_state( true );
 	}
 }
