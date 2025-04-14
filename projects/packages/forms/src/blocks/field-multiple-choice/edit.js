@@ -10,7 +10,7 @@ import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 
 export default function MultipleChoiceFieldEdit( props ) {
-	const { className, clientId, instanceId, setAttributes, isSelected, attributes } = props;
+	const { className, clientId, setAttributes, isSelected, attributes } = props;
 	const { required, id, width } = attributes;
 
 	useFormWrapper( props );
@@ -26,7 +26,6 @@ export default function MultipleChoiceFieldEdit( props ) {
 	} );
 
 	const blockProps = useBlockProps( {
-		id: `jetpack-field-multiple-${ instanceId }`,
 		className: classes,
 	} );
 
