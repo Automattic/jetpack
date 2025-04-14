@@ -25,6 +25,10 @@ const sharedWebpackConfig = {
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
+		alias: {
+			...jetpackWebpackConfig.resolve.alias,
+			src: path.resolve( __dirname, '../src' ),
+		},
 	},
 	node: {},
 	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],

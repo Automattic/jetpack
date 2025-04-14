@@ -56,6 +56,10 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 			resolve: {
 				...jetpackWebpackConfig.resolve,
 				modules: [ 'node_modules' ],
+				alias: {
+					...jetpackWebpackConfig.resolve.alias,
+					src: path.resolve( __dirname, '../src' ),
+				},
 			},
 			externals: {
 				...jetpackWebpackConfig.externals,

@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import AkismetIcon from '../../../../icons/akismet-icon';
+import AkismetIcon from 'src/icons/akismet-icon';
 import IntegrationCard from './integration-card';
 
 const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {

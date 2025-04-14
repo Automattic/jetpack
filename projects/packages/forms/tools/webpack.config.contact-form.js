@@ -26,6 +26,7 @@ const sharedWebpackConfig = {
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
+			src: path.resolve( __dirname, '../src' ),
 		},
 	},
 	node: {},
