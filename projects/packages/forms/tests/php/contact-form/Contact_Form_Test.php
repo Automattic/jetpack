@@ -1068,7 +1068,7 @@ class Contact_Form_Test extends BaseTestCase {
 	/**
 	 * Tests whether the label class attribute matches the field's class attribute value.
 	 *
-	 * @param DOMElement $input The input element.
+	 * @param DOMElement $label The input element.
 	 * @param array      $attributes An associative array containing the field's attributes.
 	 * @param string     $classes_prefix The prefix of the classes.
 	 */
