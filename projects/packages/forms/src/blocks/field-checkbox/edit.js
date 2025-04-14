@@ -18,7 +18,6 @@ export default function CheckboxFieldEdit( props ) {
 	const { instanceId, setAttributes, attributes } = props;
 	const { defaultValue, required, width } = attributes;
 
-	// TODO: Double check the use of useFormWrapper across all refactored field blocks.
 	useFormWrapper( props );
 
 	// TODO: Is this block style needed?
