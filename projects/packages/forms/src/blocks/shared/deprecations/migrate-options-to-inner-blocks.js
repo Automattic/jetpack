@@ -2,16 +2,16 @@ import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import deprecateFieldStyles from '../util/deprecate-field-styles';
 
-// Legacy choice fields used inner blocks for only individual options.
-// This function migrates that to use inner blocks for label + options,
-// moving the previous individual option blocks under the new options block.
-export default function migrateInnerOptionBlocks( attributes, innerBlocks, fieldType ) {
-	const { restAttributes, labelStyles, optionStyles } = deprecateFieldStyles( attributes );
-	const { options, ...updatedAttributes } = restAttributes;
+const isValidOption = value => typeof value === 'string' && value.trim().length > 0;
 
-	const optionBlocks = innerBlocks.map( optionBlock =>
+export default function migrateOptionsToInnerBlocks( attributes, fieldType ) {
+	const { restAttributes, labelStyles, optionStyles } = deprecateFieldStyles( attributes );
+	const { options, ...migratedAttributes } = restAttributes;
+
+	const nonEmptyOptions = options ? options.filter( option => isValidOption( option ) ) : [];
+	const optionBlocks = nonEmptyOptions.map( option =>
 		createBlock( 'jetpack/option', {
-			label: optionBlock.attributes.label,
+			label: option,
 			defaultLabel: __( 'Add option…', 'jetpack-forms' ),
 			style: optionStyles,
 		} )
@@ -26,5 +26,5 @@ export default function migrateInnerOptionBlocks( attributes, innerBlocks, field
 		createBlock( 'jetpack/options', { type: fieldType }, optionBlocks ),
 	];
 
-	return [ updatedAttributes, newInnerBlocks ];
+	return [ migratedAttributes, newInnerBlocks ];
 }
