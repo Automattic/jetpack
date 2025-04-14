@@ -176,8 +176,8 @@ function wpcom_admin_get_current_screen() {
 function wpcom_admin_interface_pre_get_option( $default_value ) {
 	$current_screen = wpcom_admin_get_current_screen();
 
-	// We need to keep the experiment check here so that we can use the re-share feature on Calypso until it's ported to wp-admin.
-	if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+	// If the user is on a screen that has been untangled, we need to return the wp-admin interface.
+	if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) ) {
 		return 'wp-admin';
 	}
 
@@ -274,22 +274,6 @@ add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
  * Option to force and cache the Remove duplicate Views experiment assigned variation.
  */
 const RDV_EXPERIMENT_FORCE_ASSIGN_OPTION = 'remove_duplicate_views_experiment_assignment_160125';
-
-/**
- * Check if the duplicate views experiment is enabled.
- *
- * @return boolean
- */
-function wpcom_is_duplicate_views_experiment_enabled(): bool {
-	// Check the forced assignment option.
-	$variation = get_user_option( RDV_EXPERIMENT_FORCE_ASSIGN_OPTION, get_current_user_id() );
-	if ( false !== $variation ) {
-		return 'treatment' === $variation;
-	}
-
-	// We default to true for everyone else.
-	return true;
-}
 
 /**
  * Set the Calypso preference for rdv.
