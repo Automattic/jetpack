@@ -13,6 +13,7 @@ use DOMDocument;
 use DOMElement;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts;
+use WP_Block;
 
 /**
  * Test class for Contact_Form
@@ -735,12 +736,15 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Tests Gutenblock input with commas and brackets.
 	 */
 	public function test_array_values_with_commas_and_brackets_from_gutenblock() {
-		$attr = array(
+		$attr  = array(
 			'type'    => 'radio',
 			'options' => array( '"foo"', 'bar, baz', '[b\\rackets]' ),
 			'label'   => 'fun ][ times',
 		);
-		$html = Contact_Form_Plugin::gutenblock_render_field_radio( $attr, '', null );
+		$block = array(
+			'blockName' => 'jetpack/field-radio',
+		);
+		$html  = Contact_Form_Plugin::gutenblock_render_field_radio( $attr, '', new WP_Block( $block ) );
 		$this->assertEquals( '[contact-field type="radio" options="&quot;foo&quot;,bar&#044; baz,&#091;b&#092;rackets&#093;" label="fun &#093;&#091; times"/]', $html );
 	}
 
