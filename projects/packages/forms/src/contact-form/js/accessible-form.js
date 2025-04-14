@@ -36,7 +36,7 @@ const L10N = {
 	submittingForm: __( 'Submitting form', 'jetpack-forms' ),
 	/* translators: generic error message */
 	genericError: __( 'Please correct this field', 'jetpack-forms' ),
-	fileRequired: __( 'A file is required', 'jetpack-forms' ),
+	fileRequired: __( 'A file is required.', 'jetpack-forms' ),
 	/* translators: error message shown when no field has been filled out */
 	emptyForm: __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
 	errorCount: d =>
