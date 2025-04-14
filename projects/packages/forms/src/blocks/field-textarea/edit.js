@@ -31,7 +31,7 @@ export default function TextareaFieldEdit( props ) {
 			[ 'jetpack/label', { label: templateLabel, defaultLabel, requiredText } ],
 			[ 'jetpack/input', { type: 'textarea' } ],
 		];
-	}, [ templateLabel, defaultLabel, required, requiredText ] );
+	}, [ templateLabel, defaultLabel, requiredText ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,
