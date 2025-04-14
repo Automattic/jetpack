@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Story block will use a placeholder if used outside the loop

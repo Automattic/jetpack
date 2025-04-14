@@ -326,21 +326,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.6-a.1 - 2025-04-07
+### 14.6-a.3 - 2025-04-14
 #### Enhancements
-- Replace video embed with VideoPress block in Media & Text block.
-- Forms: Add custom hooks for integrations.
-- Forms: Add endpoint for all integrations.
-- Forms: Update default forms view to dataviews.
-- Newsletter Widget: Improve the display of links in the Newsletter widget.
+- Add My Jetpack tour.
+- Admin Menu: Update the icon of WooCommerce for the Woo installation.
+- Button block: Add support for border width, style, and color.
+- Forms: Close block panels by default.
+- Sharing buttons: Update legacy Twitter logos to use the X logo.
 
 #### Improved compatibility
-- Blocks: Ensure all child blocks use the latest version of the Blocks API.
+- Add Share status support for WordPress.com sites.
 
 #### Bug fixes
-- Reset access level of the post to everyone when a paywall is removed.
-- Slideshow: Prevent images from appearing stuck to the mouse in block-based themes.
-- Star Rating: Fix padding and improve panel copy.
+- Forms: Ensure `render_field` returns string.
+- Social: Do not load in the Classic editor if module is off.
+- Subscriptions: Only display the dashboard widget to site admins when the Subscriptions feature is active.
 
 --------
 
