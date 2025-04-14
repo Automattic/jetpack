@@ -56,10 +56,10 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test display_critical_css() with false CSS.
+	 * Test display_critical_css() with empty CSS.
 	 */
-	public function test_display_critical_css_with_false_css() {
-		$instance = new Display_Critical_CSS( false );
+	public function test_display_critical_css_with_empty_css() {
+		$instance = new Display_Critical_CSS( '' );
 
 		ob_start();
 		$result = $instance->display_critical_css();
@@ -131,10 +131,10 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test asynchronize_stylesheets() with false CSS.
+	 * Test asynchronize_stylesheets() with empty CSS.
 	 */
-	public function test_asynchronize_stylesheets_with_false_css() {
-		$instance = new Display_Critical_CSS( false );
+	public function test_asynchronize_stylesheets_with_empty_css() {
+		$instance = new Display_Critical_CSS( '' );
 
 		$html   = '<link rel="stylesheet" href="style.css" media="all" />';
 		$output = $instance->asynchronize_stylesheets( $html, 'handle', 'style.css', 'all' );
