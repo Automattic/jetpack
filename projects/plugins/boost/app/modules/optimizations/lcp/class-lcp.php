@@ -4,7 +4,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
-use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
@@ -12,7 +12,7 @@ use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
 
-class Lcp implements Feature, Changes_Output_On_Activation, Optimization, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync {
+class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync {
 	/**
 	 * Utility class that supports output filtering.
 	 *
