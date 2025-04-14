@@ -55,9 +55,9 @@ const fetchUploadToken = async () => {
 			token: data.token, // Assuming the token is in the `token` field
 			expiresAt: data.expiration,
 		};
-	} catch (error ) {
-		if( error ) {
-			return 
+	} catch ( error ) {
+		if ( error ) {
+			return tokenError;
 		}
 	}
 	return tokenError;
