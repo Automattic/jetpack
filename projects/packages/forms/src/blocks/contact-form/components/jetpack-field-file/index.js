@@ -25,8 +25,8 @@ const BLOCKS_TEMPLATE = [
 						right: '48px',
 					},
 					margin: {
-						top: '8px',
-						bottom: '8px',
+						top: '0',
+						bottom: '0',
 					},
 				},
 				border: {
@@ -127,9 +127,14 @@ const JetpackFieldFile = props => {
 				width={ width }
 				setAttributes={ setAttributes }
 				attributes={ attributes }
+				hidePlaceholder={ true }
 				extraFieldSettings={ [
 					{
 						index: 1,
+						element: <p>{ __( 'Maximum file size is set to 20MB', 'jetpack-forms' ) }</p>,
+					},
+					{
+						index: 2,
 						element: (
 							<NumberControl
 								key="maxfiles"
