@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
@@ -40,7 +41,7 @@ class Odyssey_Config_Data {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		$host    = new Host();
 
-		$can_blaze = class_exists( 'Automattic\Jetpack\Blaze' ) && \Automattic\Jetpack\Blaze::should_initialize()['can_init'] === true;
+		$can_blaze = class_exists( 'Automattic\Jetpack\Blaze' ) && Blaze::should_initialize()['can_init'];
 
 		return array(
 			'admin_page_base'                => $this->get_admin_path(),

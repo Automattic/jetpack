@@ -2704,9 +2704,10 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/stats-admin",
-				"reference": "ba5965287a795a75d5f05b923bdc478d9d71743a"
+				"reference": "d6c733cb5102f8189dcaa1d9b77e5b34403fa32e"
 			},
 			"require": {
+				"automattic/jetpack-blaze": "@dev",
 				"automattic/jetpack-connection": "@dev",
 				"automattic/jetpack-constants": "@dev",
 				"automattic/jetpack-jitm": "@dev",

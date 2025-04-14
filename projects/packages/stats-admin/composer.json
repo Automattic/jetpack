@@ -6,6 +6,7 @@
 	"require": {
 		"php": ">=7.2",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-blaze": "@dev",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-stats": "@dev",
