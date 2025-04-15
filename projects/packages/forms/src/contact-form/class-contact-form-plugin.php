@@ -918,7 +918,7 @@ class Contact_Form_Plugin {
 	public static function format_value_for_display( $value ) {
 		if ( is_array( $value ) ) {
 			// Check if this is a file upload field
-			if ( isset( $value['file_id'] ) && isset( $value['name'] ) ) {
+			if ( Contact_Form::is_file_upload_field( $value ) ) {
 				// This is a file upload field, return as is to be handled by the proper renderer
 				return $value;
 			}
