@@ -422,6 +422,10 @@ class Contact_Form_Plugin {
 					$atts['inputclasses']  = 'wp-block-jetpack-input';
 					$atts['inputclasses'] .= isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
 					$atts['inputstyles']   = $input_attrs['style'] ?? null;
+
+					if ( 'jetpack/field-select' === $block->name ) {
+						$atts['togglelabel'] = $inner_block['attrs']['placeholder'];
+					}
 				}
 
 				// The following handles when option blocks are a direct inner block for a field e.g. singular checkbox field.
