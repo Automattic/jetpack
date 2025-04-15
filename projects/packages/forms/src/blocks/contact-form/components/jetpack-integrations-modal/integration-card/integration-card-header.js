@@ -1,5 +1,6 @@
 import { CardHeader, Icon, ToggleControl, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { chevronDown, chevronUp } from '@wordpress/icons';
 import PluginActionButton from './plugin-action-button';
 
 const IntegrationCardHeader = ( {
@@ -100,10 +101,7 @@ const IntegrationCardHeader = ( {
 							</span>
 						</Tooltip>
 					) }
-					<Icon
-						icon={ isExpanded ? 'arrow-up-alt2' : 'arrow-down-alt2' }
-						className="integration-card__toggle-icon"
-					/>
+					<Icon icon={ isExpanded ? chevronUp : chevronDown } />
 				</div>
 			</div>
 		</CardHeader>
