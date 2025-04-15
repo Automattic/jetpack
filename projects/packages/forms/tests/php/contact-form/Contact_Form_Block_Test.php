@@ -42,12 +42,16 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_register_child_blocks
 	 */
-	public function test_register_child_blocks( $block_name ) {
+	public function test_register_child_blocks( $block_name, $expected_supports = array() ) {
 		Contact_Form_Block::register_child_blocks();
 		$registry   = WP_Block_Type_Registry::get_instance();
 		$block_type = $registry->get_registered( $block_name );
-		// @TODO should we also test supports?
 		$this->assertNotNull( $block_type );
+
+		// Test block supports if provided
+		if ( ! empty( $expected_supports ) ) {
+			$this->assertSame( $expected_supports, $block_type->supports, 'Block supports do not match expected values' );
+		}
 	}
 
 	/**
@@ -57,15 +61,175 @@ class Contact_Form_Block_Test extends BaseTestCase {
 		return array(
 			'jetpack/input'   => array(
 				'jetpack/input',
+				array(
+					'__experimentalBorder' => array(
+						'color'  => true,
+						'radius' => true,
+						'style'  => true,
+						'width'  => true,
+					),
+					'color'                => array(
+						'text'       => true,
+						'background' => true,
+						'gradient'   => true,
+					),
+					'typography'           => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
 			),
 			'jetpack/label'   => array(
 				'jetpack/label',
+				array(
+					'color'      => array(
+						'text'       => true,
+						'background' => true,
+						'gradient'   => false,
+					),
+					'typography' => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
 			),
 			'jetpack/options' => array(
 				'jetpack/options',
+				array(
+					'spacing' => array(
+						'blockGap' => true,
+					),
+				),
 			),
 			'jetpack/option'  => array(
 				'jetpack/option',
+				array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
+						'gradient'   => false,
+					),
+					'typography' => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Test that block supports are properly configured.
+	 *
+	 * @dataProvider data_provider_test_block_supports
+	 * @param string $block_name The name of the block.
+	 * @param array  $expected_supports The expected support configuration.
+	 */
+	public function test_child_blocks_block_supports( $block_name, $expected_supports ) {
+		Contact_Form_Block::register_child_blocks();
+		$registry = WP_Block_Type_Registry::get_instance();
+		$block    = $registry->get_registered( $block_name );
+
+		$this->assertNotNull( $block );
+		$this->assertEquals( $expected_supports, $block->supports );
+	}
+
+	/**
+	 * Data provider for test_child_blocks_block_supports.
+	 */
+	public static function data_provider_test_block_supports() {
+		return array(
+			'jetpack/input supports'   => array(
+				'jetpack/input',
+				array(
+					'__experimentalBorder' => array(
+						'color'  => true,
+						'radius' => true,
+						'style'  => true,
+						'width'  => true,
+					),
+					'color'                => array(
+						'text'       => true,
+						'background' => true,
+						'gradient'   => true,
+					),
+					'typography'           => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+			),
+			'jetpack/label supports'   => array(
+				'jetpack/label',
+				array(
+					'color'      => array(
+						'text'       => true,
+						'background' => true,
+						'gradient'   => false,
+					),
+					'typography' => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+			),
+			'jetpack/options supports' => array(
+				'jetpack/options',
+				array(
+					'spacing' => array(
+						'blockGap' => true,
+					),
+				),
+			),
+			'jetpack/option supports'  => array(
+				'jetpack/option',
+				array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
+						'gradient'   => false,
+					),
+					'typography' => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
 			),
 		);
 	}
