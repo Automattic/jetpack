@@ -1054,8 +1054,6 @@
 	font-weight: 700;
 }
 
-.jetpack-field-dropdown__toggle {
-	.rich-text {
-		flex-grow: 1;
-	}
+.jetpack-field-dropdown__toggle .rich-text {
+	flex-grow: 1;
 }
