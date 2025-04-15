@@ -86,7 +86,7 @@
 
 .contact-form :where(label) {
 	margin-bottom: 0.25em;
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .contact-form label.consent {
