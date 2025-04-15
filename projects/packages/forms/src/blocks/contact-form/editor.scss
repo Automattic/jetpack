@@ -1040,3 +1040,9 @@
 :where(.wp-block-jetpack-label) {
 	font-weight: bold;
 }
+
+.jetpack-field-dropdown__toggle {
+	.rich-text {
+		flex-grow: 1;
+	}
+}
