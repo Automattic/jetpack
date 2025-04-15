@@ -523,14 +523,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'class' => array(),
 				'style' => array(),
 			),
-			'a'          => array(
-				'href'     => array(),
-				'class'    => array(),
-				'target'   => array(),
-				'rel'      => array(),
-				'download' => array(),
-				'title'    => array(),
-			),
 			'span'       => array(
 				'class' => array(),
 				'style' => array(),
@@ -2011,10 +2003,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public function process_file_upload_field( $field_id, $field ) {
 		$field_id = sanitize_key( $field_id );
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verification happens in the parent form submission handler
 		$raw_data = array();
-		if ( isset( $_POST[ sanitize_key( $field_id ) ] ) ) {
-			$raw_post_data = wp_unslash( $_POST[ sanitize_key( $field_id ) ] );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( isset( $_POST[ $field_id ] ) ) {
+
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing
+			$raw_post_data = wp_unslash( $_POST[ $field_id ] );
 			if ( is_array( $raw_post_data ) ) {
 				$raw_data = array_map( 'sanitize_text_field', $raw_post_data );
 			}
