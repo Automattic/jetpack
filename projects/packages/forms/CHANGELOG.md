@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.0] - 2025-04-14
+### Changed
+- Close block panels by default. [#42953]
+- Simplify IntegrationCardBody content. [#43020]
+- Update IntegrationCard markup and styles. [#43017]
+
+### Fixed
+- Center pattern button in Form block placeholder. [#42968]
+- Ensure form field hook returns string. [#43011]
+- Fix IntegrationCardHeader toggle styles. [#42942]
+- Fix integration modal tracks events. [#42945]
+- Linting: Clean up various Styleline violations. [#43010]
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
 ## [0.46.0] - 2025-04-07
 ### Added
 - Add controls to IntegrationCard header. [#42930]
@@ -20,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add brand icons for integrations modal. [#42870]
 - Change default submissions view to dataviews. [#42329]
 - Change path and return for form integrations endpoint. [#42826]
-- Code: First pass of style coding standards. [#42734]
+- Linting: First pass of style coding standards. [#42734]
 - Move shared integration card logic. [#42908]
 - Reorganize form integration modal code. [#42918]
 - Update Creative Mail integration to hooks. [#42828] [#42762] [#42806] [#42809]
@@ -959,6 +974,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.47.0]: https://github.com/automattic/jetpack-forms/compare/v0.46.0...v0.47.0
 [0.46.0]: https://github.com/automattic/jetpack-forms/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/automattic/jetpack-forms/compare/v0.44.0...v0.45.0
 [0.44.0]: https://github.com/automattic/jetpack-forms/compare/v0.43.0...v0.44.0

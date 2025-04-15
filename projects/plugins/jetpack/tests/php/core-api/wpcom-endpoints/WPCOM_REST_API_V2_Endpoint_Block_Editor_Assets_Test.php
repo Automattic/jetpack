@@ -130,4 +130,149 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$this->assertIsString( $data['styles'] );
 		$this->assertIsString( $data['scripts'] );
 	}
+
+	/**
+	 * Test that get_items returns the expected block types.
+	 */
+	public function test_get_items_returns_allowed_block_types() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify allowed block types are present
+		$this->assertArrayHasKey( 'allowed_block_types', $data );
+		$this->assertIsArray( $data['allowed_block_types'] );
+
+		// Test core blocks are included
+		$core_blocks = array_filter(
+			$data['allowed_block_types'],
+			function ( $block_name ) {
+				return strpos( $block_name, 'core/' ) === 0;
+			}
+		);
+		$this->assertNotEmpty( $core_blocks );
+
+		// Test Jetpack blocks are included
+		$jetpack_blocks = array_filter(
+			$data['allowed_block_types'],
+			function ( $block_name ) {
+				return strpos( $block_name, 'jetpack/' ) === 0;
+			}
+		);
+		$this->assertNotEmpty( $jetpack_blocks );
+
+		// Test specific known blocks are present
+		$this->assertContains( 'jetpack/contact-form', $data['allowed_block_types'] );
+		$this->assertContains( 'jetpack/subscriptions', $data['allowed_block_types'] );
+	}
+
+	/**
+	 * Test that disallowed plugin assets are filtered out.
+	 */
+	public function test_disallowed_plugin_assets_are_filtered() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Register a disallowed plugin asset
+		wp_register_script( 'disallowed-plugin', 'http://example.org/disallowed-plugin/script.js', array(), '1.0', true );
+		wp_enqueue_script( 'disallowed-plugin' );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify the disallowed plugin script is not in the output
+		$this->assertStringNotContainsString( 'disallowed-plugin/script.js', $data['scripts'] );
+	}
+
+	/**
+	 * Test that protected core handles are preserved.
+	 */
+	public function test_protected_handles_are_preserved() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Ensure jQuery (a protected handle) is enqueued
+		wp_enqueue_script( 'jquery' );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify jQuery is in the output
+		$this->assertStringContainsString( 'jquery', $data['scripts'] );
+	}
+
+	/**
+	 * Test that required WordPress actions are triggered.
+	 */
+	public function test_required_wordpress_actions_are_triggered() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$wp_loaded_triggered           = false;
+		$block_assets_triggered        = false;
+		$block_editor_assets_triggered = false;
+
+		add_action(
+			'wp_loaded',
+			function () use ( &$wp_loaded_triggered ) {
+				$wp_loaded_triggered = true;
+			}
+		);
+
+		add_action(
+			'enqueue_block_assets',
+			function () use ( &$block_assets_triggered ) {
+				$block_assets_triggered = true;
+			}
+		);
+
+		add_action(
+			'enqueue_block_editor_assets',
+			function () use ( &$block_editor_assets_triggered ) {
+				$block_editor_assets_triggered = true;
+			}
+		);
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$this->server->dispatch( $request );
+
+		$this->assertTrue( $wp_loaded_triggered, 'wp_loaded action was not triggered' );
+		$this->assertTrue( $block_assets_triggered, 'enqueue_block_assets action was not triggered' );
+		$this->assertTrue( $block_editor_assets_triggered, 'enqueue_block_editor_assets action was not triggered' );
+	}
+
+	/**
+	 * Test response when user has edit capability for custom post types.
+	 */
+	public function test_get_items_permissions_check_with_custom_post_type() {
+		// Register a custom post type.
+		register_post_type(
+			'custom_type',
+			array(
+				'show_in_rest' => true,
+				'capabilities' => array(
+					'edit_posts' => 'edit_custom_type',
+				),
+			)
+		);
+
+		// Create a role with custom capability.
+		add_role(
+			'custom_editor',
+			'Custom Editor',
+			array(
+				'edit_custom_type' => true,
+			)
+		);
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'custom_editor' ) ) );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$this->assertTrue( $this->instance->get_items_permissions_check( $request ) );
+
+		// Cleanup.
+		unregister_post_type( 'custom_type' );
+		remove_role( 'custom_editor' );
+	}
 }

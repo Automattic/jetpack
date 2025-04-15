@@ -34,10 +34,10 @@
 		background: $masterbar-submenu-background-alt;
 	}
 
-	#wpadminbar:not(.mobile) li:hover .ab-icon:before,
-	#wpadminbar:not(.mobile) li:hover .ab-item:before,
-	#wpadminbar:not(.mobile) li:hover .ab-item:after,
-	#wpadminbar:not(.mobile) li:hover #adminbarsearch:before {
+	#wpadminbar:not(.mobile) li:hover .ab-icon::before,
+	#wpadminbar:not(.mobile) li:hover .ab-item::before,
+	#wpadminbar:not(.mobile) li:hover .ab-item::after,
+	#wpadminbar:not(.mobile) li:hover #adminbarsearch::before {
 		color: $menu-submenu-focus-text;
 	}
 
@@ -48,18 +48,18 @@
 }
 
 // Make current submenu icon color stay the same on hover
-#adminmenu li.wp-has-current-submenu:hover div.wp-menu-image:before,
-#adminmenu .wp-has-current-submenu div.wp-menu-image:before,
-#adminmenu .current div.wp-menu-image:before,
-#adminmenu a.wp-has-current-submenu:hover div.wp-menu-image:before,
-#adminmenu a.current:hover div.wp-menu-image:before,
-#adminmenu li.wp-has-current-submenu a:focus div.wp-menu-image:before,
-#adminmenu li.wp-has-current-submenu.opensub a.menu-top div.wp-menu-image:before {
+#adminmenu li.wp-has-current-submenu:hover div.wp-menu-image::before,
+#adminmenu .wp-has-current-submenu div.wp-menu-image::before,
+#adminmenu .current div.wp-menu-image::before,
+#adminmenu a.wp-has-current-submenu:hover div.wp-menu-image::before,
+#adminmenu a.current:hover div.wp-menu-image::before,
+#adminmenu li.wp-has-current-submenu a:focus div.wp-menu-image::before,
+#adminmenu li.wp-has-current-submenu.opensub a.menu-top div.wp-menu-image::before {
 	color: $menu-current-text;
 }
 
 // Make current menu icon color stay the same on focus
-#adminmenu li a:focus div.wp-menu-image:before {
+#adminmenu li a:focus div.wp-menu-image::before {
 	color: $menu-highlight-text;
 }
 

@@ -94,13 +94,13 @@
 			0 0px 0 #3e6c20,
 			0 0 0 rgba(0,0,0,.4);
 
-		&:after {
+		&::after {
 			// fixes buggy clicks
 			top: -6px;
 		}
 	}
 
-	&:before {
+	&::before {
 		content: '';
 		display: inline-block;
 		position: relative;
@@ -113,7 +113,7 @@
 		background-size: 100%;
 	}
 
-	&:after {
+	&::after {
 		// fixes buggy clicks
 		content: '';
 		position: absolute;
@@ -126,7 +126,7 @@
 	@include breakpoint(large-desktop){
 		font-size: em(18px);
 
-		&:before {
+		&::before {
 			top: -1px;
 			width: 23px;
 			height: 23px;
@@ -144,7 +144,7 @@
 		font-size: em(17px);
 		font-weight: 600;
 
-		&:before {
+		&::before {
 			width: 19px;
 			height: 19px;
 			margin-right: 9px;

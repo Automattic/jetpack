@@ -716,7 +716,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	gap: 0.5em;
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:checked + .grunion-radio-label:before {
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:checked + .grunion-radio-label::before {
 	content: "\2713";
 }
 

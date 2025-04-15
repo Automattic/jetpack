@@ -29,7 +29,7 @@
 	&.is-not-off-price {
 		color: var( --jp-gray-20);
 
-		&:after {
+		&::after {
 			content: " ";
 			display: block;
 			width: 100%;

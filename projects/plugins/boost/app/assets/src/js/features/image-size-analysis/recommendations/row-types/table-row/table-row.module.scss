@@ -27,7 +27,7 @@
 	// overflow: hidden to clip border radius here.
 	position: relative;
 
-	&:before {
+	&::before {
 		content: '';
 		position: absolute;
 		box-shadow: 0px 4px 24px 0px hsla(0, 0%, 0%, 0.08);

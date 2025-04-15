@@ -115,24 +115,15 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => function () {
 				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
-			'get_calypso_path'      => function ( $task, $default, $data ) {
-				$is_blog_onboarding_flow = in_array( get_option( 'site_intent' ), array( 'start-writing', 'design-first' ), true );
-				$use_wp_admin_link = wpcom_launchpad_should_use_wp_admin_link() || $is_blog_onboarding_flow;
+			'get_calypso_path'      => function () {
 				$latest_draft_id = wpcom_launchpad_get_latest_draft_id();
 
 				if ( is_int( $latest_draft_id ) ) {
 					// There is a draft post, redirect the user to the draft instead of making a fresh post.
-					if ( $use_wp_admin_link ) {
-						return admin_url( 'post.php?action=edit&post=' . rawurlencode( $latest_draft_id ) );
-					}
-					return '/post/' . $data['site_slug_encoded'] . '/' . rawurlencode( $latest_draft_id );
+					return admin_url( 'post.php?action=edit&post=' . rawurlencode( $latest_draft_id ) );
 				}
 
-				$base_path = $use_wp_admin_link
-					? admin_url( 'post-new.php' )
-					: '/post/' . $data['site_slug_encoded'];
-
-				return $base_path;
+				return admin_url( 'post-new.php' );
 			},
 		),
 		'generate_content'                => array(
@@ -207,11 +198,8 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => function () {
 				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
-			'get_calypso_path'      => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post-new.php' );
-				}
-				return '/post/' . $data['site_slug_encoded'];
+			'get_calypso_path'      => function () {
+				return admin_url( 'post-new.php' );
 			},
 		),
 		'newsletter_plan_created'         => array(
@@ -229,11 +217,8 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Personalize newsletter', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'options-general.php' );
-				}
-				return '/settings/general/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'options-general.php' );
 			},
 		),
 		'set_up_payments'                 => array(
@@ -334,13 +319,10 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => function () {
 				add_action( 'add_attachment', 'wpcom_launchpad_track_video_uploaded_task' );
 			},
-			'get_calypso_path'      => function ( $task, $default, $data ) {
+			'get_calypso_path'      => function () {
 				$page_on_front = get_option( 'page_on_front', false );
 				if ( $page_on_front ) {
-					if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-						return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
-					}
-					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
+					return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
 				}
 				return admin_url( 'site-editor.php?canvas=edit' );
 			},
@@ -372,11 +354,8 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Personalize your site', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'options-general.php' );
-				}
-				return '/settings/general/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'options-general.php' );
 			},
 		),
 
@@ -398,11 +377,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_site_title_task_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'options-general.php' );
-				}
-				return '/settings/general/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'options-general.php' );
 			},
 		),
 
@@ -421,11 +397,8 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Add a new page', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post-new.php?post_type=page' );
-				}
-				return '/page/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'post-new.php?post_type=page' );
 			},
 		),
 
@@ -440,11 +413,8 @@ function wpcom_launchpad_get_task_definitions() {
 					'about_page_id' => wpcom_launchpad_get_site_about_page_id(),
 				);
 			},
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post.php?post=' . wpcom_launchpad_get_site_about_page_id() . '&action=edit' );
-				}
-				return '/page/' . $data['site_slug_encoded'] . '/' . wpcom_launchpad_get_site_about_page_id();
+			'get_calypso_path'     => function () {
+				return admin_url( 'post.php?post=' . wpcom_launchpad_get_site_about_page_id() . '&action=edit' );
 			},
 		),
 
@@ -454,11 +424,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_edit_page_task_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'edit.php?post_type=page' );
-				}
-				return '/pages/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'edit.php?post_type=page' );
 			},
 		),
 
@@ -538,11 +505,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'repetition_count_callback' => 'wpcom_launchpad_get_write_3_posts_repetition_count',
 			'target_repetitions'        => 3,
-			'get_calypso_path'          => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post-new.php' );
-				}
-				return '/post/' . $data['site_slug_encoded'];
+			'get_calypso_path'          => function () {
+				return admin_url( 'post-new.php' );
 			},
 		),
 		'manage_subscribers'              => array(
@@ -580,11 +544,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_about_page_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post-new.php?post_type=page' );
-				}
-				return '/page/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'post-new.php?post_type=page' );
 			},
 		),
 
@@ -705,13 +666,10 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_front_page_updated_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
+			'get_calypso_path'     => function () {
 				$page_on_front = get_option( 'page_on_front', false );
 				if ( $page_on_front ) {
-					if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-						return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
-					}
-					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
+					return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
 				}
 				return admin_url( 'site-editor.php?canvas=edit' );
 			},
