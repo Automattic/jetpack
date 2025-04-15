@@ -48,7 +48,10 @@ export default function DropdownFieldEdit( props ) {
 	const template = useMemo( () => {
 		return [
 			[ 'jetpack/label', { required } ],
-			[ 'jetpack/input', { type: 'dropdown' } ],
+			[
+				'jetpack/input',
+				{ type: 'dropdown', placeholder: __( 'Select one option', 'jetpack-forms' ) },
+			],
 		];
 	}, [ required ] );
 
