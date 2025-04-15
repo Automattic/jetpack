@@ -477,7 +477,7 @@ class Boost_Cache {
 			return;
 		}
 
-		if ( trailingslashit( $post_path ) !== trailingslashit( home_url() ) ) {
+		if ( Boost_Cache_Utils::trailingslashit( $post_path ) !== Boost_Cache_Utils::trailingslashit( home_url() ) ) {
 			$this->delete_recursive( $post_path );
 		} else {
 			$this->delete_page( $post_path );
@@ -490,7 +490,7 @@ class Boost_Cache {
 			return;
 		}
 
-		if ( trailingslashit( $post_path ) !== trailingslashit( home_url() ) ) {
+		if ( Boost_Cache_Utils::trailingslashit( $post_path ) !== Boost_Cache_Utils::trailingslashit( home_url() ) ) {
 			$this->rebuild_recursive( $post_path );
 		} else {
 			$this->rebuild_page( $post_path );
