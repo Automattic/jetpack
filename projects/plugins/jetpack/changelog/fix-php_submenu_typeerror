@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix PHP error when submenu isn't defined.
