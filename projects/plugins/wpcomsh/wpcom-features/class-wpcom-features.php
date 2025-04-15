@@ -397,6 +397,8 @@ class WPCOM_Features {
 	public const OPTIONS_PERMALINK                 = 'options-permalink';
 	public const PAYMENTS                          = 'payments';
 	public const PERFORMANCE_HISTORY               = 'performance-history';
+	public const PLUGINS_ALLOW_ONE                 = 'plugins-allow-one';
+	public const PLUGINS_ALLOW_THREE               = 'plugins-allow-three';
 	public const POLLDADDY                         = 'polldaddy';
 	public const PREMIUM_CONTENT_CONTAINER         = 'premium-content/container';
 	public const PERSONAL_THEMES                   = 'personal-themes';
@@ -883,6 +885,12 @@ class WPCOM_Features {
 		self::PERFORMANCE_HISTORY               => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+		),
+		self::PLUGINS_ALLOW_ONE                 => array(
+			self::WPCOM_PERSONAL_PLANS,
+		),
+		self::PLUGINS_ALLOW_THREE               => array(
+			self::WPCOM_PREMIUM_PLANS,
 		),
 		self::POLLDADDY                         => array(
 			self::JETPACK_BUSINESS_PLANS,
