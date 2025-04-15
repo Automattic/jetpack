@@ -28,7 +28,6 @@ return [
     // PhanRedundantCondition : 1 occurrence
     // PhanTypeInvalidUnaryOperandIncOrDec : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
-    // PhanTypeMismatchReturn : 1 occurrence
     // PhanTypeMissingReturn : 1 occurrence
     // PhanUndeclaredClassMethod : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
@@ -52,7 +51,6 @@ return [
         'app/modules/optimizations/page-cache/class-page-cache-setup.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
         'app/modules/optimizations/page-cache/pre-wordpress/class-logger.php' => ['PhanCoalescingNeverNull', 'PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/optimizations/page-cache/pre-wordpress/class-request.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault'],
-        'app/modules/optimizations/page-cache/pre-wordpress/path-actions/class-simple-delete.php' => ['PhanTypeMismatchReturn'],
         'app/modules/optimizations/render-blocking-js/class-render-blocking-js.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault'],
         'compatibility/elementor.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/page-optimize.php' => ['PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
