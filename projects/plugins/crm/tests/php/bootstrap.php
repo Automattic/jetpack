@@ -75,6 +75,15 @@ if ( ! is_readable( $_plugin_root . '/vendor/autoload_packages.php' ) ) {
  */
 require $test_root . '/includes/functions.php';
 
+// Speed things up by turning down the password hashing cost.
+tests_add_filter(
+	'wp_hash_password_options',
+	function ( $options ) {
+		$options['cost'] = 4;
+		return $options;
+	}
+);
+
 /**
  * Load Jetpack CRM.
  */
