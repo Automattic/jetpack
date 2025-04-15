@@ -51,7 +51,7 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 			<div { ...blockProps }>
 				<RichText
 					allowedFormats={ ALLOWED_FORMATS }
-					onChange={ onChange }
+					onChange={ value => setAttributes( { placeholder: value } ) }
 					value={ placeholder ? placeholder : __( 'Select one option', 'jetpack-forms' ) }
 					withoutInteractiveFormatting
 				/>
