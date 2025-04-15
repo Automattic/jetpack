@@ -19,6 +19,14 @@ require_once __DIR__ . '/class-verbum-asset-loader.php';
  */
 class Verbum_Gutenberg_Editor {
 	/**
+	 * Comment forms can appear anywhere (page, post, query loop, etc), there is no reliable way to determine if there are comments on the page,
+	 * So we hook into `comment_form_before` and set this flag to true when a comment form is found.
+	 *
+	 * @var bool
+	 */
+	public $should_enqueue_assets = false;
+
+	/**
 	 * Class constructor
 	 */
 	public function __construct() {
@@ -31,6 +39,13 @@ class Verbum_Gutenberg_Editor {
 				return __( 'Write a comment...', 'jetpack-mu-wpcom' );
 			},
 			9999
+		);
+
+		add_action(
+			'comment_form_before',
+			function () {
+				$this->should_enqueue_assets = true;
+			}
 		);
 
 		add_filter( 'init', array( $this, 'remove_strict_kses_filters' ) );
@@ -56,10 +71,7 @@ class Verbum_Gutenberg_Editor {
 	 * In case the page is singular and has comment closed or front page with comments closed we avoid the enqueueing
 	 */
 	public function enqueue_assets() {
-		if (
-			! ( is_singular() && comments_open() )
-			&& ! ( is_front_page() && is_page() && comments_open() )
-		) {
+		if ( ! $this->should_enqueue_assets ) {
 			return;
 		}
 

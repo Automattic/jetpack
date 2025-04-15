@@ -31,6 +31,14 @@ class Verbum_Comments {
 	public $blog_id;
 
 	/**
+	 * Comment forms can appear anywhere (page, post, query loop, etc), there is no reliable way to determine if there are comments on the page,
+	 * So we hook into `comment_form_before` and set this flag to true when a comment form is found.
+	 *
+	 * @var bool
+	 */
+	public $should_enqueue_assets = false;
+
+	/**
 	 * Class constructor
 	 */
 	public function __construct() {
@@ -42,6 +50,13 @@ class Verbum_Comments {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$this->blog_id = intval( $_GET['blogid'] );
 		}
+
+		add_action(
+			'comment_form_before',
+			function () {
+				$this->should_enqueue_assets = true;
+			}
+		);
 
 		// Selfishly remove everything from the existing comment form
 		add_filter( 'comment_form_field_comment', '__return_false', 11 );
@@ -112,10 +127,7 @@ class Verbum_Comments {
 	 * Enqueue Assets
 	 */
 	public function enqueue_assets() {
-		if (
-			! ( is_singular() && comments_open() )
-			&& ! ( is_front_page() && is_page() && comments_open() )
-		) {
+		if ( ! $this->should_enqueue_assets ) {
 			return;
 		}
 
@@ -138,6 +150,8 @@ class Verbum_Comments {
 				'in_footer' => true,
 			)
 		);
+
+		wp_enqueue_script( 'wp-i18n' );
 
 		wp_enqueue_style( 'verbum' );
 		\WP_Enqueue_Dynamic_Script::enqueue_script( 'verbum' );
