@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: do not dismiss all HTTP error recommendations when dismissing one.

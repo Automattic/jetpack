@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Page Cache: Fix not clearing up preload schedule on deactivation.

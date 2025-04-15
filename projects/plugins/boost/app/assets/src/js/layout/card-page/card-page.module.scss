@@ -1,6 +1,6 @@
-@import "$css/main/variables.scss";
-@import "$css/main/mixins.scss";
-@import "$css/main/common.scss";
+@import "$css/main/variables";
+@import "$css/main/mixins";
+@import "$css/main/common";
 
 .card {
 	background: #FFF url("$images/color-shift.svg") no-repeat top right;

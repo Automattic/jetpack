@@ -23,7 +23,7 @@
 	background-color: #A68169;
 	position: relative;
 
-	&:after {
+	&::after {
 		content:" ";
 		border: 1px dashed rgba( 0, 0, 0, 0.6 );
 		display: block;
@@ -38,7 +38,7 @@
 		background-color: #B9C386;
 		position: relative;
 
-		&:after {
+		&::after {
 			content:" ";
 			border: 1px dashed rgba( 0, 0, 0, 0.6 );
 			display: block;
@@ -57,7 +57,7 @@
 			text-align: center;
 			position: relative;
 
-			&:after {
+			&::after {
 				content: " ";
 				border: 1px dashed rgba( 0, 0, 0, 0.4 );
 				display: block;

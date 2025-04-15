@@ -90,8 +90,8 @@
 	float: right;
 }
 
-.ui-datepicker .ui-datepicker-prev:before,
-.ui-datepicker .ui-datepicker-next:before {
+.ui-datepicker .ui-datepicker-prev::before,
+.ui-datepicker .ui-datepicker-next::before {
 	font: 400 20px/34px dashicons;
 	padding-left: 7px;
 	speak: none;
@@ -101,16 +101,16 @@
 	height: 34px;
 }
 
-.ui-datepicker .ui-datepicker-prev:before {
+.ui-datepicker .ui-datepicker-prev::before {
 	content: '\f341';
 }
 
-.ui-datepicker .ui-datepicker-next:before {
+.ui-datepicker .ui-datepicker-next::before {
 	content: '\f345';
 }
 
-.ui-datepicker .ui-datepicker-prev-hover:before,
-.ui-datepicker .ui-datepicker-next-hover:before {
+.ui-datepicker .ui-datepicker-prev-hover::before,
+.ui-datepicker .ui-datepicker-next-hover::before {
 	opacity: 0.7;
 }
 

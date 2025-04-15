@@ -604,7 +604,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		public function set_custom_font_icon() {
 			?>
 		<style type="text/css">
-		#menu-posts-nova_menu_item .wp-menu-image:before {
+		#menu-posts-nova_menu_item .wp-menu-image::before {
 			font-family: 'nova-font' !important;
 			content: '\e603' !important;
 		}

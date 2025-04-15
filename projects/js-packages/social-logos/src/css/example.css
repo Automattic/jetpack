@@ -99,7 +99,7 @@
 		box-sizing: border-box;
 	}
 
-	.handle:before {
+	.handle::before {
 		position: absolute;
 		content: "";
 		height: 12px;
@@ -115,7 +115,7 @@
 		border-color: #3AA662;
 	}
 
-	input:checked + .handle:before {
+	input:checked + .handle::before {
 		background: #3AA662;
 		transform: translateX(20px);
 	}

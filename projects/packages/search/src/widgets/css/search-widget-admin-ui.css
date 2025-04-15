@@ -70,7 +70,7 @@
 	display: none;
 }
 
-.jetpack-search-filters-help:before {
+.jetpack-search-filters-help::before {
 	display: inline-block;
 	position: relative;
 	font-family: dashicons;

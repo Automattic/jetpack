@@ -1,5 +1,5 @@
 @use "sass:map";
-@import "../breakpoints.module.scss";
+@import "../breakpoints.module";
 
 @mixin cols($size) {
 

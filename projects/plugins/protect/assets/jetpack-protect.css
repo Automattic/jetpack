@@ -27,6 +27,6 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.jp-protect-icon:before {
+.jp-protect-icon::before {
 	content: "\e900";
 }

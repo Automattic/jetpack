@@ -46,7 +46,7 @@ body {
     filter: alpha(opacity=100) !important;
 }
 
-.stepwizard-row:before {
+.stepwizard-row::before {
     top: 14px;
     bottom: 0;
     position: absolute;
@@ -439,7 +439,7 @@ $darkenColor: darken($activeColor, 20%);
   border-radius: 50px !important;
   box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2) !important;
 
-  &:after {
+  &::after {
     content: 'OFF' !important;
     color: #000 !important;
     position: absolute !important;
@@ -450,7 +450,7 @@ $darkenColor: darken($activeColor, 20%);
     text-shadow: 1px 1px 0px rgba(255,255,255,.15) !important;
   }
 
-  &:before {
+  &::before {
     content: 'ON';
     color: $activeColor !important;
     position: absolute !important;

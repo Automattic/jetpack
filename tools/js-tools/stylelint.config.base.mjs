@@ -39,13 +39,10 @@ const baseConfig = {
 		'property-no-unknown': null,
 		'scss/at-extend-no-missing-placeholder': null,
 		'scss/comment-no-empty': null,
-		'scss/load-no-partial-leading-underscore': null,
-		'scss/load-partial-extension': null,
 		'scss/no-global-function-names': null,
 		'scss/selector-no-redundant-nesting-selector': null,
 		'selector-attribute-quotes': null,
 		'selector-id-pattern': null,
-		'selector-pseudo-element-colon-notation': null,
 		'value-keyword-case': null,
 	},
 };

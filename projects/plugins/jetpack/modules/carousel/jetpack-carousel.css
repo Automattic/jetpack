@@ -67,10 +67,10 @@ so we have to target all affected elements in touch devices.
 	opacity: 1;
 }
 
-.jp-carousel-overlay .swiper-button-next:after,
-.jp-carousel-overlay .swiper-container-rtl .swiper-button-next:after,
-.jp-carousel-overlay .swiper-button-prev:after,
-.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev:after {
+.jp-carousel-overlay .swiper-button-next::after,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-next::after,
+.jp-carousel-overlay .swiper-button-prev::after,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev::after {
 	content: none;
 }
 
@@ -106,9 +106,9 @@ so we have to target all affected elements in touch devices.
 }
 
 /* Fix for Twenty Nineteen theme compatibility */
-.jp-carousel-overlay h1:before,
-.jp-carousel-overlay h2:before,
-.jp-carousel-overlay h3:before {
+.jp-carousel-overlay h1::before,
+.jp-carousel-overlay h2::before,
+.jp-carousel-overlay h3::before {
 	content: none;
 	display: none;
 }
@@ -458,10 +458,10 @@ div.jp-carousel-buttons a:hover {
 	display: none;
 }
 
-.jp-carousel-photo-info h1:before,
-.jp-carousel-photo-info h1:after,
-.jp-carousel-comments-wrapper h1:before,
-.jp-carousel-comments-wrapper h1:after {
+.jp-carousel-photo-info h1::before,
+.jp-carousel-photo-info h1::after,
+.jp-carousel-comments-wrapper h1::before,
+.jp-carousel-comments-wrapper h1::after {
 	content: none !important;
 }
 
@@ -696,7 +696,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 #jp-carousel-library-loading,
-#jp-carousel-library-loading:after {
+#jp-carousel-library-loading::after {
 	border-radius: 50%;
 	width: 40px;
 	height: 40px;
@@ -720,7 +720,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 #jp-carousel-comment-form-spinner,
-#jp-carousel-comment-form-spinner:after {
+#jp-carousel-comment-form-spinner::after {
 	border-radius: 50%;
 	width: 20px;
 	height: 20px;

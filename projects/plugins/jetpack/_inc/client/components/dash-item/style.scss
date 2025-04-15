@@ -168,7 +168,7 @@
 		.dops-card {
 			background: none;
 
-			.dops-section-header__label-text:before {
+			.dops-section-header__label-text::before {
 				background: none;
 			}
 		}
@@ -188,7 +188,7 @@
 
 	.dops-section-header__label-text {
 
-		&:before {
+		&::before {
 
 			@include long-content-fade( $size: 8px, $color : $white );
 		}

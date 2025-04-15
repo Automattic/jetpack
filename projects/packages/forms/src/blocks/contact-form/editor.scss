@@ -444,7 +444,7 @@
 				margin-left: 0;
 				margin-right: 0.75rem;
 
-				&:before {
+				&::before {
 					font-size: 1rem;
 				}
 			}
@@ -477,7 +477,7 @@
 		align-items: baseline; /* Align input with first label line */
 		flex-wrap: nowrap;
 
-		.jetpack-option__type:before {
+		.jetpack-option__type::before {
 			display: block; /* display: flex causes baselines to not align */
 		}
 	}
@@ -727,7 +727,7 @@
 
 	.is-style-outlined & {
 
-		.block-editor-block-list__block:not([contenteditable]):focus:after {
+		.block-editor-block-list__block:not([contenteditable]):focus::after {
 			top: -10px;
 			left: -10px;
 			bottom: -10px;
