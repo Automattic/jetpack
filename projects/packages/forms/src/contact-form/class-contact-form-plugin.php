@@ -2391,4 +2391,108 @@ class Contact_Form_Plugin {
 
 		return $is_wpcom || $should_enable_tracking;
 	}
+
+	/**
+	 * Handle file download requests from the admin page.
+	 *
+	 * @return never This method never returns as it exits directly
+	 */
+	public function handle_file_download() {
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack-forms' ) );
+		}
+
+		if ( ! ( isset( $_GET['_wpnonce'] ) && isset( $_GET['post_id'] ) ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'jetpack_unauth_file_download_nonce_' . absint( wp_unslash( $_GET['post_id'] ) ) ) ) {
+			wp_die( esc_html__( 'Invalid nonce.', 'jetpack-forms' ) );
+		}
+
+		$file_id  = isset( $_GET['file_id'] ) ? urldecode( sanitize_text_field( wp_unslash( $_GET['file_id'] ) ) ) : '';
+		$post_id  = isset( $_GET['post_id'] ) ? intval( $_GET['post_id'] ) : 0;
+		$field_id = isset( $_GET['field_id'] ) ? urldecode( sanitize_text_field( wp_unslash( $_GET['field_id'] ) ) ) : '';
+
+		if ( ! $file_id || ! $post_id || ! $field_id ) {
+			wp_die( esc_html__( 'Invalid file request.', 'jetpack-forms' ) );
+		}
+
+		$fields = self::parse_fields_from_content( $post_id );
+
+		// Find the file in the fields
+		$file = false;
+		foreach ( $fields['_feedback_all_fields'] as $field ) {
+			if ( isset( $field['field_id'] ) && $field['field_id'] === $field_id ) {
+				foreach ( $field['files'] as $_file ) {
+					if ( $_file['file_id'] === $file_id ) {
+						$file = $_file;
+						break 2;
+					}
+				}
+			}
+		}
+
+		if ( ! $file ) {
+			wp_die( esc_html__( 'File not found.', 'jetpack-forms' ) );
+		}
+
+		if ( empty( $file['type'] ) ) {
+			wp_die( esc_html__( 'Unknown file type.', 'jetpack-forms' ) );
+		}
+
+		$file_content = apply_filters( 'jetpack_unauth_file_upload_get_file_content', '', $file_id );
+
+		if ( ! is_string( $file_content ) ) {
+			if ( is_wp_error( $file_content ) ) {
+				$error_message = $file_content->get_error_message();
+				if ( ! empty( $error_message ) ) {
+					wp_die( esc_html( $error_message ) );
+				}
+			}
+			wp_die( esc_html__( 'File content is not a string.', 'jetpack-forms' ) );
+		}
+
+		// Clean output buffer
+		if ( ob_get_length() ) {
+				ob_clean();
+		}
+
+		// Set headers for download
+		header( 'Content-Type: ' . $file['type'] );
+		// Forcing the file to be downloaded is important to prevent XSS attacks.
+		header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $file['name'] ) . '"' );
+		header( 'Content-Length: ' . strlen( $file_content ) );
+		header( 'Content-Transfer-Encoding: binary' );
+		header( 'Cache-Control: no-cache, must-revalidate, max-age=0' );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
+
+		// Output file content and exit
+		echo $file_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Binary file data
+		exit;
+	}
+
+	/**
+	 * Get the file content.
+	 *
+	 * @param string $file_content The file content.
+	 * @param string $file_id The file ID.
+	 * @return string The file content.
+	 */
+	public function get_file_content( $file_content, $file_id ) {
+		if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
+			return $file_content;
+		}
+		$blog_id     = \Jetpack_Options::get_option( 'id' );
+		$request_url = sprintf( '/sites/%d/unauth-file-upload/%s', $blog_id, $file_id );
+
+		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+			$request_url,
+			'v2',
+			array(
+				'method' => 'GET',
+			),
+			null,
+			'wpcom'
+		);
+
+		return wp_remote_retrieve_body( $response );
+	}
 }
