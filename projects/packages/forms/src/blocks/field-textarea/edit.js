@@ -25,6 +25,7 @@ export default function TextareaFieldEdit( props ) {
 
 	const defaultLabel = __( 'Message', 'jetpack-forms' );
 
+	// TODO: this label attribute is no longer provided, should we remove it?
 	const templateLabel = label ?? '';
 	const template = useMemo( () => {
 		return [

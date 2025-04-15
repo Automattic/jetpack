@@ -84,7 +84,14 @@ export const settings = {
 			},
 			{
 				name: 'jetpack/field-textarea',
-				attributes: { label: __( 'Message', 'jetpack-forms' ) },
+				attributes: {},
+				innerBlocks: [
+					{
+						name: 'jetpack/label',
+						attributes: { label: __( 'Message', 'jetpack-forms' ) },
+					},
+					{ name: 'jetpack/input', attributes: { type: 'textarea' } },
+				],
 			},
 			{
 				name: 'jetpack/button',
