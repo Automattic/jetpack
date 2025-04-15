@@ -123,6 +123,9 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 				// Add submenu items.
 				foreach ( $submenu_items as $submenu_item ) {
+					if ( ! $submenu_item ) {
+						continue;
+					}
 					$submenu_item = $this->prepare_submenu_item( $submenu_item, $menu_item );
 					if ( ! empty( $submenu_item ) ) {
 						$item['children'][] = $submenu_item;
