@@ -2056,4 +2056,68 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 		return wp_kses( (string) $raw_label, array() );
 	}
+
+	/**
+	 * Enforce required block supports UIs for Classic themes.
+	 *
+	 * @param \WP_Theme_JSON_Data $theme_json_data Theme JSON data object.
+	 *
+	 * @return \WP_Theme_JSON_Data Updated theme JSON settings.
+	 */
+	public static function add_theme_json_data_for_classic_themes( $theme_json_data ) {
+		if ( wp_is_block_theme() ) {
+			return $theme_json_data;
+		}
+
+		$data = $theme_json_data->get_data();
+
+		if ( ! isset( $data['settings']['blocks'] ) ) {
+			$data['settings']['blocks'] = array();
+		}
+
+		$data['settings']['blocks']['jetpack/input'] = array(
+			'color'      => array(
+				'text'       => true,
+				'background' => true,
+			),
+			'border'     => array(
+				'color'  => true,
+				'radius' => true,
+				'style'  => true,
+				'width'  => true,
+			),
+			'typography' => array(
+				'fontFamily'     => true,
+				'fontSize'       => true,
+				'fontStyle'      => true,
+				'fontWeight'     => true,
+				'letterSpacing'  => true,
+				'lineHeight'     => true,
+				'textDecoration' => true,
+				'textTransform'  => true,
+			),
+		);
+
+		$shared_settings                              = array(
+			'color'      => array(
+				'text'       => true,
+				'background' => false,
+			),
+			'typography' => array(
+				'fontFamily'     => true,
+				'fontSize'       => true,
+				'fontStyle'      => true,
+				'fontWeight'     => true,
+				'letterSpacing'  => true,
+				'lineHeight'     => true,
+				'textDecoration' => true,
+				'textTransform'  => true,
+			),
+		);
+		$data['settings']['blocks']['jetpack/label']  = $shared_settings;
+		$data['settings']['blocks']['jetpack/option'] = $shared_settings;
+
+		$theme_json_class = get_class( $theme_json_data );
+		return new $theme_json_class( $data, 'default' );
+	}
 }
