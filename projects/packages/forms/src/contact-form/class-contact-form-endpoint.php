@@ -308,7 +308,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 								'type'       => 'object',
 								'properties' => array(
 									'file_id' => array(
-										'type'        => 'string',
+										'type'        => 'integer',
 										'arg_options' => array(
 											'sanitize_callback' => 'sanitize_text_field',
 										),
@@ -340,6 +340,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['has_file'] = array(
+			'description' => __( 'Does the form response contain a file.', 'jetpack-forms' ),
+			'type'        => 'boolean',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'booleanval',
+			),
+			'readonly'    => true,
+		);
+
 		$this->schema = $schema;
 
 		return $this->add_additional_fields_schema( $this->schema );
@@ -357,12 +367,14 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$data     = $response->get_data();
 		$fields   = $this->get_fields_for_response( $request );
 
-		$base_fields   = array(
+		$has_file    = false;
+		$base_fields = array(
 			'email_marketing_consent' => '',
 			'entry_title'             => '',
 			'entry_permalink'         => '',
 			'feedback_id'             => '',
 		);
+
 		$data_defaults = array(
 			'_feedback_author'       => '',
 			'_feedback_author_email' => '',
@@ -422,22 +434,25 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 							// this shouldn't happen, todo: log this
 							continue;
 						}
-						$file['size'] = size_format( $file['size'] );
-						$file['url']  = add_query_arg(
+						$file['file_id'] = absint( $file['file_id'] );
+						$file['size']    = size_format( $file['size'] );
+						$file['url']     = add_query_arg(
 							array(
 								'action'   => 'jetpack_unauth_file_download',
-								'file_id'  => $file['file_id'],
+								'file_id'  => absint( $file['file_id'] ),
 								'post_id'  => absint( $item->ID ),
 								'field_id' => $field_id,
 								'_wpnonce' => $nonce,
 							),
 							admin_url( 'admin-ajax.php' )
 						);
+						$has_file        = true;
 					}
 				}
 			}
 
-			$data['fields'] = $fields_data;
+			$data['fields']   = $fields_data;
+			$data['has_file'] = $has_file;
 		}
 		return rest_ensure_response( $data );
 	}
