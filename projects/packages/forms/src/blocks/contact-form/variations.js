@@ -429,10 +429,7 @@ const variations = compact( [
 			[
 				'jetpack/field-date',
 				{ required: true },
-				[
-					[ 'jetpack/label', { label: __( 'Date', 'jetpack-forms' ) } ],
-					[ 'jetpack/input', { type: 'date' } ],
-				],
+				[ [ 'jetpack/label', { label: __( 'Date', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
 				'jetpack/field-radio',
@@ -512,7 +509,7 @@ const variations = compact( [
 					attributes: { required: true },
 					innerBlocks: [
 						{ name: 'jetpack/label', attributes: { label: __( 'Date', 'jetpack-forms' ) } },
-						{ name: 'jetpack/input', attributes: { type: 'date' } },
+						{ name: 'jetpack/input' },
 					],
 				},
 				{
