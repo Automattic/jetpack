@@ -2451,7 +2451,7 @@ class Contact_Form_Plugin {
 
 		// Clean output buffer
 		if ( ob_get_length() ) {
-				ob_clean();
+			ob_clean();
 		}
 
 		// Set headers for download
