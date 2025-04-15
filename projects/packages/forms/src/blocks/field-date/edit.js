@@ -10,6 +10,8 @@ import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { ALLOWED_INNER_BLOCKS, DATE_FORMAT_OPTIONS } from '../shared/util/constants';
 
+const TYPE = 'date';
+
 export default function DateFieldEdit( props ) {
 	const { attributes, clientId, isSelected, name, setAttributes } = props;
 	const { id, required, width, dateFormat } = attributes;
@@ -30,7 +32,7 @@ export default function DateFieldEdit( props ) {
 	const template = useMemo( () => {
 		return [
 			[ 'jetpack/label', { label: __( 'Date', 'jetpack-forms' ), required, defaultLabel } ],
-			[ 'jetpack/input' ],
+			[ 'jetpack/input', { type: TYPE } ],
 		];
 	}, [ defaultLabel, required ] );
 
@@ -56,7 +58,7 @@ export default function DateFieldEdit( props ) {
 				width={ width }
 				setAttributes={ setAttributes }
 				attributes={ attributes }
-				type="date"
+				type={ TYPE }
 				extraFieldSettings={ [
 					{
 						index: 1,
