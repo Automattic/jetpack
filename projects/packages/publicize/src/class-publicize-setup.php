@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -37,12 +38,39 @@ class Publicize_Setup {
 	}
 
 	/**
+	 * Whether to load the Publicize module.
+	 *
+	 * @return bool
+	 */
+	private static function should_load() {
+
+		/**
+		 * We do not want to load Publicize on WPCOM private sites.
+		 */
+		$is_wpcom_platform_private_site = ( new Host() )->is_wpcom_platform() && ( new Status() )->is_private_site();
+
+		$should_load = ! $is_wpcom_platform_private_site;
+
+		/**
+		 * Filters the flag to decide whether to load the Publicize module.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $should_load Whether to load the Publicize module.
+		 */
+		return (bool) apply_filters( 'jetpack_publicize_should_load', $should_load );
+	}
+
+	/**
 	 * Initialization of publicize logic that should always be loaded,
 	 * regardless of whether Publicize is enabled or not.
 	 *
 	 * You should justify everyting that is done here, as it will be loaded on every pageload.
 	 */
 	public static function pre_initialization() {
+		if ( ! self::should_load() ) {
+			return;
+		}
 
 		$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
 
@@ -79,7 +107,7 @@ class Publicize_Setup {
 	 * To configure the publicize package, when called via the Config package.
 	 */
 	public static function on_jetpack_feature_publicize_enabled() {
-		if ( self::$initialized ) {
+		if ( self::$initialized || ! self::should_load() ) {
 			return;
 		}
 
