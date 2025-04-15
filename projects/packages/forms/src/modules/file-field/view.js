@@ -129,7 +129,7 @@ const addFileToContext = file => {
 	context.files.push( {
 		name: file.name,
 		formattedSize: formatBytes( file.size, 2 ),
-		hasToken: false,
+		isUploaded: false,
 		hasError: !! error,
 		id: clientFileId,
 		error,
