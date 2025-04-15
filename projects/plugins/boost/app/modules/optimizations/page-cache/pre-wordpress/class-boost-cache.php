@@ -234,11 +234,7 @@ class Boost_Cache {
 	 */
 	public function rebuild_front_page() {
 		if ( get_option( 'show_on_front' ) === 'page' ) {
-			$front_page_id = get_option( 'page_on_front' ); // static page
-			if ( $front_page_id ) {
-				Logger::debug( 'rebuild_front_page: deleting front page cache' );
-				$this->rebuild_post_cache( get_post( $front_page_id ) );
-			}
+			$this->rebuild_page( home_url() );
 			$posts_page_id = get_option( 'page_for_posts' ); // posts page
 			if ( $posts_page_id ) {
 				Logger::debug( 'rebuild_front_page: deleting posts page cache' );
@@ -477,15 +473,27 @@ class Boost_Cache {
 
 	public function delete_post_cache( $post ) {
 		$post_path = $this->get_post_path_for_invalidation( $post );
-		if ( $post_path ) {
+		if ( null === $post_path ) {
+			return;
+		}
+
+		if ( trailingslashit( $post_path ) !== trailingslashit( home_url() ) ) {
 			$this->delete_recursive( $post_path );
+		} else {
+			$this->delete_page( $post_path );
 		}
 	}
 
 	public function rebuild_post_cache( $post ) {
 		$post_path = $this->get_post_path_for_invalidation( $post );
-		if ( $post_path ) {
+		if ( null === $post_path ) {
+			return;
+		}
+
+		if ( trailingslashit( $post_path ) !== trailingslashit( home_url() ) ) {
 			$this->rebuild_recursive( $post_path );
+		} else {
+			$this->rebuild_page( $post_path );
 		}
 	}
 
