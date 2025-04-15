@@ -138,7 +138,7 @@ class Contact_Form_Block {
 			array(
 				'supports'         => array(
 					'spacing' => array(
-						'blockGap' => true,
+						'blockGap' => false,
 					),
 				),
 				'provides_context' => array(

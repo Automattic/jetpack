@@ -90,7 +90,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 				array(
 					'color'      => array(
 						'text'       => true,
-						'background' => false,
+						'background' => true,
 						'gradient'   => false,
 					),
 					'typography' => array(
