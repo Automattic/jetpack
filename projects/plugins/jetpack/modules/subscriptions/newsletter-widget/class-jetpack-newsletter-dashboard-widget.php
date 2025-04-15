@@ -89,6 +89,13 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			return;
 		}
 
+		// This covers both P2 and P2020 themes.
+		$site_id = \Jetpack_Options::get_option( 'id' );
+		$is_p2   = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $site_id );
+		if ( $is_p2 ) {
+			return;
+		}
+
 		if ( Jetpack::is_connection_ready() ) {
 			static::load_admin_scripts(
 				'jp-newsletter-widget',
