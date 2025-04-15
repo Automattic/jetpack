@@ -835,7 +835,7 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test for textarea field_renders
+	 * Test for textarea field_renders.
 	 */
 	public function test_make_sure_textarea_field_renders_as_expected() {
 		$attributes = array(
@@ -852,9 +852,7 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test for checkbox field_renders
-	 *
-	 * @covers \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field::render_checkbox_field()
+	 * Test for checkbox field_renders.
 	 */
 	public function test_make_sure_checkbox_field_renders_as_expected() {
 		$attributes = array(
@@ -875,9 +873,7 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Multiple fields
-	 *
-	 * @covers \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field::render_checkbox_multiple_field()
+	 * Multiple fields.
 	 */
 	public function test_make_sure_checkbox_multiple_field_renders_as_expected() {
 		$attributes          = array(
