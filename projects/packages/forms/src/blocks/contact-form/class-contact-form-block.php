@@ -113,7 +113,7 @@ class Contact_Form_Block {
 				'supports'     => array(
 					'color'      => array(
 						'text'       => true,
-						'background' => true,
+						'background' => false,
 						'gradient'   => false,
 					),
 					'typography' => array(
