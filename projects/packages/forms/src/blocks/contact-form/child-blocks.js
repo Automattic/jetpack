@@ -621,6 +621,8 @@ export const childBlocks = [
 	{
 		name: 'field-file-dropzone',
 		settings: {
+			apiVersion: 3,
+			category: 'contact-form',
 			title: __( 'File Upload Dropzone', 'jetpack-forms' ),
 			parent: [ 'jetpack/field-file' ],
 			icon: {
@@ -630,12 +632,84 @@ export const childBlocks = [
 			edit: JetpackDropzone,
 			save: () => {
 				const blockProps = useBlockProps.save();
-				const innerBlocksProps = useInnerBlocksProps.save();
-				return (
-					<div { ...blockProps }>
-						<div { ...innerBlocksProps } />
-					</div>
-				);
+				const innerBlocksProps = useInnerBlocksProps.save( blockProps );
+				return <div { ...innerBlocksProps } />;
+			},
+			attributes: {
+				width: {
+					type: 'number',
+					default: 100,
+				},
+				style: {
+					type: 'object',
+					default: {
+						spacing: {
+							padding: {
+								top: '48px',
+								bottom: '48px',
+								left: '48px',
+								right: '48px',
+							},
+							margin: {
+								top: '8px',
+								bottom: '8px',
+							},
+						},
+						border: {
+							style: 'dashed',
+							width: '1px',
+							color: 'rgba(125,125,125,0.3)',
+						},
+					},
+				},
+			},
+			supports: {
+				reusable: false,
+				html: false,
+				layout: {
+					type: 'constrained',
+					allowSwitching: true,
+					allowInheriting: true,
+					allowEditing: true,
+					default: {
+						type: 'constrained',
+					},
+				},
+				color: {
+					gradients: true,
+					heading: true,
+					button: true,
+					link: true,
+					__experimentalDefaultControls: {
+						background: true,
+						text: true,
+					},
+				},
+				spacing: {
+					margin: [ 'top', 'bottom' ],
+					padding: true,
+					blockGap: true,
+					__experimentalDefaultControls: {
+						padding: true,
+						blockGap: true,
+					},
+				},
+				dimensions: {
+					minHeight: true,
+				},
+				__experimentalBorder: {
+					color: true,
+					radius: true,
+					style: true,
+					width: true,
+					__experimentalDefaultControls: {
+						color: true,
+						radius: true,
+						style: true,
+						width: true,
+					},
+				},
+				align: [ 'wide', 'full' ],
 			},
 		},
 	},
@@ -658,7 +732,6 @@ export const childBlocks = [
 			},
 			edit: EditTextarea,
 			attributes: {
-				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
 					default: __( 'Message', 'jetpack-forms' ),

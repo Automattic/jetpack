@@ -1,4 +1,4 @@
-import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
@@ -20,6 +20,11 @@ const JetpackFieldFile = props => {
 		style: blockStyle,
 	} );
 
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		template: [ [ 'jetpack/field-file-dropzone' ] ],
+		templateLock: false,
+	} );
+
 	return (
 		<>
 			<div { ...blockProps }>
@@ -30,10 +35,7 @@ const JetpackFieldFile = props => {
 					requiredText={ requiredText }
 					setAttributes={ setAttributes }
 				/>
-				<InnerBlocks
-					template={ [ [ 'jetpack/field-file-dropzone', {}, [] ] ] }
-					templateLock="all"
-				/>
+				<div { ...innerBlocksProps } />
 			</div>
 
 			<JetpackFieldControls
