@@ -1,9 +1,10 @@
 <?php
-
+use Automattic\Jetpack\Image_CDN\Image_CDN;
 require_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/slideshow.php';
 
 /**
- * @covers \Jetpack_PostImages
+ * @covers Jetpack_PostImages
+ * @covers Jetpack_PostImages::from_thumbnail
  */
 class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -853,5 +854,191 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 		$this->assertEquals( 96, $images[0]['src_height'] );
 		$this->assertNotEmpty( $images[0]['href'] );
 		$this->assertSame( '', $images[0]['alt_text'] );
+	}
+
+	/**
+	 * Test image resizing with Photon when image is too large.
+	 *
+	 * @since $$next-version$$
+	 * @see https://github.com/Automattic/jetpack/issues/40349
+	 */
+	public function test_from_thumbnail_resizes_large_image_with_photon() {
+		// Mock photon being active
+		add_filter(
+			'jetpack_active_modules',
+			function ( $modules ) {
+				$modules[] = 'photon';
+				return $modules;
+			}
+		);
+
+		Image_CDN::instance();
+
+		// Create test image attachment
+		$filename = dirname( __DIR__ ) . '/files/large-featured-image.png';
+		$contents = file_get_contents( $filename );
+
+		$upload = wp_upload_bits( basename( $filename ), null, $contents );
+		$this->assertFalse( $upload['error'] );
+
+		$attachment_id = $this->make_attachment( $upload );
+
+		// Create post and set featured image
+		$post_id = self::factory()->post->create();
+		set_post_thumbnail( $post_id, $attachment_id );
+
+		// Get image data
+		$images = Jetpack_PostImages::from_thumbnail( $post_id );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( 1200, $images[0]['src_width'] );
+		$this->assertEquals( 800, $images[0]['src_height'] );
+		$this->assertStringContainsString( 'i0.wp.com', $images[0]['src'], 'Image URL should be transformed by Photon' );
+
+		remove_all_filters( 'jetpack_active_modules' );
+	}
+
+	/**
+	 * Test image resizing with Photon when custom image size exists.
+	 *
+	 * @since $$next-version$$
+	 * @see https://github.com/Automattic/jetpack/issues/40349
+	 */
+	public function test_from_thumbnail_resizes_large_image_with_photon_and_custom_size() {
+		// Mock photon being active
+		add_filter(
+			'jetpack_active_modules',
+			function ( $modules ) {
+				$modules[] = 'photon';
+				return $modules;
+			}
+		);
+
+		Image_CDN::instance();
+
+		// Add custom image size with hard crop.
+		add_image_size( 'test-size', 1200, 1200, true );
+
+		// Create test image attachment
+		$filename = dirname( __DIR__ ) . '/files/large-featured-image.png';
+		$contents = file_get_contents( $filename );
+
+		$upload = wp_upload_bits( basename( $filename ), null, $contents );
+		$this->assertFalse( $upload['error'] );
+
+		$attachment_id = $this->make_attachment( $upload );
+
+		// Create post and set featured image
+		$post_id = self::factory()->post->create();
+		set_post_thumbnail( $post_id, $attachment_id );
+
+		// Get image data
+		$images = Jetpack_PostImages::from_thumbnail( $post_id );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( 1200, $images[0]['src_width'] );
+		$this->assertEquals( 800, $images[0]['src_height'] );
+		$this->assertStringContainsString( 'i0.wp.com', $images[0]['src'], 'Image URL should be transformed by Photon' );
+
+		// Cleanup
+		remove_image_size( 'test-size' );
+		remove_all_filters( 'jetpack_active_modules' );
+	}
+
+	/**
+	 * Data provider for test_determine_thumbnail_size_for_photon.
+	 *
+	 * @return array Test cases with original dimensions and expected output.
+	 */
+	public static function provide_thumbnail_sizes_for_photon() {
+		return array(
+			'landscape_image' => array(
+				2000, // Original width
+				1333, // Original height
+				array(
+					'width'  => 1200,
+					'height' => 800,
+				), // Expected dimensions
+			),
+			'portrait_image'  => array(
+				1333, // Original width
+				2000, // Original height
+				array(
+					'width'  => 800,
+					'height' => 1200,
+				), // Expected dimensions
+			),
+			'square_image'    => array(
+				2000, // Original width
+				2000, // Original height
+				array(
+					'width'  => 1200,
+					'height' => 1200,
+				), // Expected dimensions
+			),
+			'small_image'     => array(
+				800, // Original width
+				600, // Original height
+				array(
+					'width'  => 800,
+					'height' => 600,
+				), // Expected dimensions - no resize needed
+			),
+		);
+	}
+
+	/**
+	 * Tests if the ::determine_thumbnail_size_for_photon method returns the correct size.
+	 *
+	 * @since $$next-version$$
+	 * @see https://github.com/Automattic/jetpack/issues/40349
+	 * @dataProvider provide_thumbnail_sizes_for_photon
+	 * @param int   $original_width Width of the original image.
+	 * @param int   $original_height Height of the original image.
+	 * @param array $expected Expected dimensions after resize.
+	 */
+	public function test_determine_thumbnail_size_for_photon( $original_width, $original_height, $expected ) {
+		$max_dimension = Jetpack_PostImages::get_max_thumbnail_dimension();
+		if ( 1200 !== $max_dimension ) {
+			$this->markTestSkipped( 'Max dimension is not 1200px, skipping test as the data provider assumes 1200px max dimension.' );
+		}
+		$this->assertSame( $expected, Jetpack_PostImages::determine_thumbnail_size_for_photon( $original_width, $original_height ) );
+	}
+
+	/**
+	 * Helper function to create an attachment
+	 *
+	 * @param array $upload Upload data array.
+	 * @return int Attachment ID.
+	 */
+	protected function make_attachment( $upload ) {
+		$type = '';
+		if ( ! empty( $upload['type'] ) ) {
+			$type = $upload['type'];
+		} else {
+			$mime = wp_check_filetype( $upload['file'] );
+			if ( $mime ) {
+				$type = $mime['type'];
+			}
+		}
+
+		$attachment = array(
+			'post_title'     => basename( $upload['file'] ),
+			'post_content'   => '',
+			'post_type'      => 'attachment',
+			'post_parent'    => 0,
+			'post_mime_type' => $type,
+			'guid'           => $upload['url'],
+		);
+
+		$id = wp_insert_attachment( $attachment, $upload['file'] );
+
+		// Make sure wp_generate_attachment_metadata creates the intermediate sizes
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+		$metadata = wp_generate_attachment_metadata( $id, $upload['file'] );
+
+		wp_update_attachment_metadata( $id, $metadata );
+
+		return $id;
 	}
 } // end class
