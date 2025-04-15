@@ -571,7 +571,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Get the status of a forms integration.
+	 * Get status for all supported integrations.
 	 *
 	 * @return WP_REST_Response Response object.
 	 */
