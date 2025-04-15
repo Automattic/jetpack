@@ -128,7 +128,7 @@ class Contact_Form_Block {
 				'supports'     => array(
 					'color'      => array(
 						'text'       => true,
-						'background' => true,
+						'background' => false,
 						'gradient'   => false,
 					),
 					'typography' => array(
@@ -153,7 +153,7 @@ class Contact_Form_Block {
 			array(
 				'supports'         => array(
 					'spacing' => array(
-						'blockGap' => true,
+						'blockGap' => false,
 					),
 				),
 				'provides_context' => array(
