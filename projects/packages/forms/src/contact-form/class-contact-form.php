@@ -1896,7 +1896,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$template = '';
-
+		$style    = '';
 		/**
 		 * Filter the filename of the template HTML surrounding the response email. The PHP file will return the template in a variable called $template.
 		 *
@@ -1907,9 +1907,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string the filename of the HTML template used for response emails to the form owner.
 		 */
 		require apply_filters( 'jetpack_forms_response_email_template', __DIR__ . '/templates/email-response.php' );
-		if ( ! isset( $style ) ) {
-			$style = '';
-		}
 		$html_message = sprintf(
 			// The tabs are just here so that the raw code is correctly formatted for developers
 			// They're removed so that they don't affect the final message sent to users

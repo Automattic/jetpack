@@ -46,7 +46,7 @@ $template = '
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- used in class-contact-form.php
 $style = '<style>
 body {
-  font-family: Arial, sans-serif;
+  font-family: sans-serif;
   background-color: #f7f7f7;
   margin: 0;
   padding: 0;
