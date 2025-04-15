@@ -202,8 +202,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 
 	/**
 	 * Tests how prepare_menu_for_response processes empty submenu items.
-	 *
-	 * @covers ::prepare_menu_for_response
 	 */
 	public function test_prepare_menu_for_response_should_ignore_non_array_submenu_items() {
 		global $submenu;
