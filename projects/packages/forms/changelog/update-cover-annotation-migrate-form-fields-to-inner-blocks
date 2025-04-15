@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hoisting `@cover` annotation in PHP unit tests to class level.
