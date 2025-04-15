@@ -82,11 +82,13 @@ const IntegrationCardHeader = ( {
 									: __( 'Enable for this form', 'jetpack-forms' )
 							}
 						>
-							<ToggleControl
-								checked={ headerToggleValue }
-								onChange={ handleToggleChange }
-								disabled={ ! isHeaderToggleEnabled }
-							/>
+							<span className="integration-card__toggle-tooltip-wrapper">
+								<ToggleControl
+									checked={ headerToggleValue }
+									onChange={ handleToggleChange }
+									disabled={ ! isHeaderToggleEnabled }
+								/>
+							</span>
 						</Tooltip>
 					) }
 					<Icon
