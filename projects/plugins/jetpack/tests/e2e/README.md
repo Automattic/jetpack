@@ -83,22 +83,28 @@ Once your target WP environment is running on `localhost:8889` you can run the t
 
 Run all tests: `pnpm test:run`
 
-Playwright runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window, and the running tests you can use the `--headed` flag:
+Playwright runs headless by default (i.e. browser is not visible). When developing or debugging tests it's usually useful to see what's happening. Playwright's [UI Mode](https://playwright.dev/docs/test-ui-mode) is a good option, it allows running individual or groups of tests, watching tests and has handy time travel feature. To launch it use the `--ui` flag:
 
 ```bash
-pnpm test:run --headed
-```
-
-To run an individual test, use the direct path to the spec. For example:
-
-```bash
-pnpm test:run ./specs/dummy.test.js
+pnpm test:run --ui
 ```
 
 To run in debug mode, use the `--debug` flag. Debug mode uses a headed browser and opens the [Playwright inspector](https://playwright.dev/docs/inspector/).
 
 ```bash
 pnpm test:run --debug
+```
+
+A simpler option is `headed` mode, which runs tests in your regular browser window:
+
+```bash
+pnpm test:run --headed
+```
+
+To run an individual test, use the direct path to the spec. This can be done in conjunction with any of the previously mentioned flags. For example:
+
+```bash
+pnpm test:run ./specs/dummy.test.js
 ```
 
 ### Selecting tests to run

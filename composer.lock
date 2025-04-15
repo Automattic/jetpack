@@ -64,7 +64,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "c8eea0b7f2d6052a61a6e562eeeb0e33c6dcc096"
+                "reference": "e7023bcebb8b7f229801884d8522ed5d28f0522f"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -97,7 +97,13 @@
                     "hacks/"
                 ],
                 "psr-4": {
-                    "Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs"
+                    "Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs",
+                    "Automattic\\Jetpack\\Codesniffer\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Codesniffer\\Tests\\": "tests/php/unit/"
                 }
             },
             "scripts": {
@@ -108,7 +114,8 @@
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
-                    "@composer phpunit"
+                    "@composer phpunit",
+                    "./check-docs.sh"
                 ]
             },
             "license": [

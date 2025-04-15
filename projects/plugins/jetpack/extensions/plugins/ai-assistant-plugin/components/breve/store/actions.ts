@@ -4,8 +4,11 @@
 import { askQuestionSync } from '@automattic/jetpack-ai-client';
 import { select } from '@wordpress/data';
 import { BREVE_FEATURE_NAME } from '../constants';
-import { Anchor } from '../types';
 import { getRequestMessages } from '../utils/get-request-messages';
+/**
+ * Types
+ */
+import type { Anchor, GrammarLint } from '../types';
 
 // ACTIONS
 
@@ -169,5 +172,30 @@ export function setSuggestions( {
 					loading: false,
 				} );
 			} );
+	};
+}
+
+export function setLints( {
+	text,
+	lints,
+	feature,
+	blockId,
+	richTextIdentifier,
+}: {
+	text: string;
+	lints: Array< GrammarLint >;
+	feature: string;
+	blockId: string;
+	richTextIdentifier?: string;
+} ) {
+	return ( { dispatch } ) => {
+		dispatch( {
+			type: 'SET_LINTS',
+			text,
+			feature,
+			lints,
+			blockId,
+			richTextIdentifier,
+		} );
 	};
 }

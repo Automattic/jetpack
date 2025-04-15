@@ -38,6 +38,10 @@ class Cornerstone_Provider extends Provider {
 		return $groups;
 	}
 
+	public static function get_provider_key( $url ) {
+		return self::$name . '_' . self::get_hash_for_url( $url );
+	}
+
 	/**
 	 * Get the current storage keys for cornerstone pages.
 	 *
@@ -45,7 +49,7 @@ class Cornerstone_Provider extends Provider {
 	 */
 	public static function get_current_storage_keys() {
 		$current_url = self::get_request_url();
-		return array( self::$name . '_' . self::get_hash_for_url( $current_url ) );
+		return array( self::get_provider_key( $current_url ) );
 	}
 
 	private static function get_request_url() {

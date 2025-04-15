@@ -10,8 +10,6 @@ require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-feed-locator
 
 /**
  * Class for testing the Jetpack_Podcast_Feed_Locator class.
- *
- * @coversDefaultClass Jetpack_Podcast_Feed_Locator
  */
 class Jetpack_Podcast_Feed_Locator_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;

@@ -6,7 +6,7 @@ import React from 'react';
 /*
  * Internal Dependencies
  */
-import AiModalFooter from '../index.js';
+import AiModalFooter from '../index.tsx';
 
 export default {
 	title: 'JS Packages/AI Client/AiModalFooter',

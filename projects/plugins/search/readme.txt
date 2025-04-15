@@ -122,30 +122,24 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 4.0.0 - 2025-01-10
+### 4.1.0 - 2025-04-04
 #### Added
-- Enable test coverage.
-- My Jetpack: Update recommendations section in My Jetpack to include a slider interaction for the cards.
-- Search: Added ability to customize results.
+- Add Account Protection initialization.
+- Connection: Disconnect all other users before disconnecting connection owner account.
+- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
+- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack.
 
 #### Changed
-- Classic Widget: Update asset enqueuing strategy to ensure compatibility with the Elementor plugin.
-- General: Indicate compatibility with the upcoming version of WordPress - 6.7.
-- Include `wp-polyfill` as a script dependency only when needed.
-- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation.
-- Social: Changed My Jetpack CTA for Social from "Learn more" to "Activate"
-- Updated dependencies.
-- Updated package dependencies.
-
-#### Removed
-- Connection: Removed deprecated `features_available` method.
-- Connection: Removed deprecated `features_enabled` method.
-- General: Update minimum PHP version to 7.2.
-- General: Update minimum WordPress version to 6.6.
+- Code: Use function-style `exit()` and `die()` with a default status code of 0.
+- Connection: Allow pre-selected login providers.
+- Connection: Display connection status on Users page independent of the SSO module.
+- General: Indicate compatibility with WordPress 6.8.
+- Update composer.lock
+- Update package dependencies.
+- Update the unowned section from a product grid to a product list
 
 #### Fixed
-- E2E Tests: Only install single browser used by Playwright.
-- My Jetpack: Update GlobalNotice component to look better on mobile.
+- Search: Ensure the count of returned results is shown after searching.
 
 == Testimonials ==
 

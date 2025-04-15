@@ -10,6 +10,7 @@
 .dot-pager__page {
 	height: 100%;
 	transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+
 	@include reduce-motion( "transition" );
 	opacity: 1;
 	visibility: visible;
@@ -26,6 +27,7 @@
 	left: 0;
 	right: 0;
 	z-index: 1;
+
 	li {
 		display: inline-flex;
 		margin: 0 4px;
@@ -35,6 +37,7 @@
 		&:first-child {
 			margin-left: 0;
 		}
+
 		&:last-child {
 			margin-right: 0;
 		}
@@ -74,6 +77,7 @@
 }
 
 .dot-pager {
+
 	&__button {
 		margin-right: 10px;
 	}

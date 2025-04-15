@@ -1,6 +1,7 @@
 .container {
 	row-gap: 0;
 	column-gap: 0;
+
 	> div {
 		border-right: 1px dotted var( --jp-gray-10 );
 		border-bottom: 1px dotted var( --jp-gray-10 );

@@ -3,6 +3,7 @@
  */
 
  [data-title="Recipe Details"] {
+
    &.alignright,
    &.alignleft,
    &.aligncenter {
@@ -10,12 +11,14 @@
    }
 
    &.alignright {
+
     .wp-recipe-block-details {
         justify-content: right;
     }
    }
 
    &.aligncenter {
+
     .wp-recipe-block-details {
       justify-content: center;
     }

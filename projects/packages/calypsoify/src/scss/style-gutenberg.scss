@@ -5,6 +5,7 @@
  * Hide the last item of the first group when the screen is big enough.
  */
 @media (min-width: 782px) {
+
   .interface-more-menu-dropdown__content .components-dropdown-menu__menu:first-child .components-menu-group:first-child .components-button:last-of-type,
   .more-menu-dropdown__content .components-dropdown-menu__menu:first-child .components-menu-group:first-child .components-button:last-of-type {
 	display: none;
@@ -50,6 +51,7 @@
 .revisions-controls {
   height: 118px;
 }
+
 .comparing-two-revisions .revisions-controls {
   height: 176px;
 }
@@ -61,12 +63,14 @@
 .diff-meta {
   min-height: 46px;
 }
+
 .revisions-controls .author-card .avatar {
   border-radius: 50%;
   height: 38px;
   margin-top: 4px;
   width: 38px;
 }
+
 .revisions-controls .author-card .author-info {
   line-height: 20px;
   margin-top: 4px;

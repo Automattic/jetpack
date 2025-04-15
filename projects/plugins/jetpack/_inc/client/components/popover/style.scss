@@ -28,10 +28,11 @@
 			&:hover {
 				text-decoration-thickness: 3px;
 			}
+
 			&:focus {
 				text-decoration-line: none;
 				border-radius: 2px;
-				box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+				box-shadow: 0 0 0 var(--wp-admin-border-width-focus) #000;
 				outline: 3px solid transparent;
 			}
 		}
@@ -109,6 +110,7 @@
 		&.is-#{$side}-#{$cross-opposite-side} .dops-popover__arrow {
 
 			#{$opposite-side}: 0 #{"/*rtl:ignore*/"};
+
 			@include shared-between-base-and-before( $side );
 
 			&::before {
@@ -116,6 +118,7 @@
 				border: 10px solid $white;
 				content: " ";
 				position: absolute;
+
 				@include shared-between-base-and-before( $side );
 			}
 		}
@@ -205,7 +208,7 @@
 		background-color: $blue-medium;
 		border: 0;
 		box-shadow: none;
-		color: white;
+		color: #fff;
 
 		.gridicon {
 			color: $white;

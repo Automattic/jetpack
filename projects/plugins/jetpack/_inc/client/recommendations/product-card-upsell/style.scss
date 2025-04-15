@@ -5,6 +5,7 @@
 @import '../../scss/mixin_breakpoint';
 
 .jp-recommendations-product-card-upsell {
+
 	@include card;
 
 	position: relative;
@@ -65,7 +66,7 @@
 
 	color: var( --jp-gray-20 );
 
-	&:before {
+	&::before {
 		content: "";
 
 		position: absolute;

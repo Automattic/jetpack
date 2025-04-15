@@ -58,6 +58,7 @@
 		position: relative;
 		margin: 0 auto;
 		max-width: 350px;
+
 		&-icon {
 			position: absolute;
 			top: calc( 50% - 12px );
@@ -75,15 +76,18 @@
 		margin-top: 0;
 		display: block;
 	}
+
 	.jp-related-posts-i2__post {
 		max-width: none;
 		margin: 0;
 		margin-top: 1rem;
 	}
+
 	.jp-related-posts-i2__post-image-placeholder {
 		max-width: 350px;
 		margin: 0;
 	}
+
 	.jp-related-posts-i2__post-img-link {
 		margin-top: 1rem;
 	}

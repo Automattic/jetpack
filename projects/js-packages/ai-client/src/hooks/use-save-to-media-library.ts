@@ -8,7 +8,7 @@ import debugFactory from 'debug';
 /**
  * Types
  */
-import type { BlockEditorStore } from '../types.js';
+import type { BlockEditorStore } from '../types.ts';
 
 const debug = debugFactory( 'jetpack-ai-client:save-to-media-library' );
 

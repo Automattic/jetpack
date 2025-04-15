@@ -1,7 +1,8 @@
-@import "$css/main/mixins.scss";
-@import "$css/main/variables.scss";
+@import "$css/main/mixins";
+@import "$css/main/variables";
 
 .problem {
+
 	img {
 		margin-top: 20px;
 		display: block;
@@ -21,13 +22,14 @@
 	padding: 24px 69px 24px 27px;
 
 	li {
+
 		@include word-wrap();
 	}
 
 	h4 {
 		font-size: 20px;
 		margin-bottom: 1rem;
-		font-weight: bold;
+		font-weight: 700;
 
 		svg {
 			vertical-align: sub;

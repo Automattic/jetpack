@@ -9,18 +9,22 @@
 // WH modified 11/10/16 - as this selector affects "all transactions" page etc. too
 //.post-type-zerobs_transaction{
 #zeroBSCRM-transaction-meta-box {
+
 	input{
 		width: 90%;
 	}
+
 	.hide{
 		display:none;
 	}
+
 	.twitter-typeahead{
 		width: 90%;
 	}
 }
 
 #zeroBSCRM-transaction-meta-box #zbs-transaction-assignment-wrap {
+
 	input.zbstypeahead, .twitter-typeahead{
 		width: 100%;
 	}

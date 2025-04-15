@@ -50,6 +50,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 
 		$set_cap = function ( $caps ) {
 			unset( $caps['view_stats'] );
+			unset( $caps['manage_options'] );
 
 			return $caps;
 		};

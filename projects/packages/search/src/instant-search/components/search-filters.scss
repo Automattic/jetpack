@@ -1,4 +1,4 @@
-@import '../lib/styles/_helper.scss';
+@import '../lib/styles/helper';
 
 .jetpack-instant-search__search-filters {
 	position: relative;
@@ -29,6 +29,7 @@
 	top: 0;
 
 	&:focus {
+
 		@include apply-overlay-focus-styling();
 	}
 }
@@ -71,11 +72,14 @@
 		height: initial;
 		margin: 0;
 		width: initial;
+
 		&::after,
 		&::before {
 			display: none !important; // always hide custom selected checkbox styling.
 		}
+
 		&:focus {
+
 			@include apply-overlay-focus-styling();
 			outline-offset: 2px;
 		}
@@ -87,7 +91,7 @@
 		color: inherit;
 		cursor: pointer;
 		display: inline-block;
-		font-weight: normal;
+		font-weight: 400;
 		margin: 0 0 0 8px;
 		padding: 0;
 		width: auto;

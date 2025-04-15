@@ -9,8 +9,8 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import AiFeedbackThumbs from '../../ai-feedback/index.js';
-import AiIcon from '../../ai-icon/index.js';
+import AiFeedbackThumbs from '../../ai-feedback/index.tsx';
+import AiIcon from '../../ai-icon/index.tsx';
 import './carrousel.scss';
 
 export type CarrouselImageData = {

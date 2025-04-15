@@ -2,10 +2,12 @@
 
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/Jetpack_REST_TestCase.php';
 
+/**
+ * @covers \Jetpack_Core_Json_Api_Endpoints
+ */
 class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCase {
 	/**
 	 * @author zinigor
-	 * @covers Jetpack_Core_Json_Api_Endpoints
 	 * @dataProvider api_routes
 	 */
 	public function test_register_routes( $route_string = false, $method = false, $classname = false ) {

@@ -2,13 +2,15 @@
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemaps.php';
 
+/**
+ * @covers \Jetpack_Sitemap_Manager
+ */
 class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Constructor does not throw any fatal errors.
 	 *
-	 * @covers Jetpack_Sitemap_Manager::__construct
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -20,7 +22,6 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	/**
 	 * Tests default value of 'jetpack_sitemap_location' filter.
 	 *
-	 * @covers Jetpack_Sitemap_Manager::callback_action_filter_sitemap_location
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -42,7 +43,6 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	/**
 	 * Tests value of 'jetpack_sitemap_location' when a filter is added.
 	 *
-	 * @covers Jetpack_Sitemap_Manager::callback_action_filter_sitemap_location
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
