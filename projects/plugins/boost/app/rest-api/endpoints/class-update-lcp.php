@@ -16,13 +16,13 @@ use WP_REST_Server;
 /**
  * Handler for POST lcp/update. Expects the following body params:
  * - success: boolean - False if the whole LCP job failed.
- * - message: string containing an error message if success is false.
- * - data: Object containing all results from the LCP job:
+ * - message: string - Error message if success is false.
+ * - data: object - All results from the LCP job:
  *
  * Each data key contains:
  * - key: string - The key of the page.
  * - url: string - The URL of the page.
- * - devices: Object containing the LCP data for both mobile and desktop.
+ * - devices: object - The LCP data for both mobile and desktop.
  *
  * Each device key contains:
  * - success: boolean - False if this device key failed.
