@@ -30,26 +30,6 @@ function twentytwenty_jetpack_setup() {
 			),
 		)
 	);
-
-	// Add theme support for Content Options.
-	add_theme_support(
-		'jetpack-content-options',
-		array(
-			'post-details'    => array(
-				'stylesheet' => 'twentytwenty-style',
-				'date'       => '.post-date',
-				'categories' => '.entry-categories',
-				'tags'       => '.post-tags',
-				'author'     => '.post-author',
-			),
-			'featured-images' => array(
-				'archive'  => true,
-				'post'     => true,
-				'page'     => true,
-				'fallback' => false,
-			),
-		)
-	);
 }
 add_action( 'after_setup_theme', 'twentytwenty_jetpack_setup' );
 
