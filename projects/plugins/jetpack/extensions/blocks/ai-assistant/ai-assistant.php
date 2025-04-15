@@ -133,10 +133,6 @@ add_action(
 			if ( apply_filters( 'ai_seo_enhancer_enabled', true ) ) {
 				Jetpack_Gutenberg::set_availability_for_plan( 'ai-seo-enhancer' );
 			}
-
-			if ( apply_filters( 'breve_enabled', true ) && apply_filters( 'breve_harper_enabled', false ) ) {
-				Jetpack_Gutenberg::set_extension_available( 'ai-proofread-harper' );
-			}
 		}
 	}
 );
