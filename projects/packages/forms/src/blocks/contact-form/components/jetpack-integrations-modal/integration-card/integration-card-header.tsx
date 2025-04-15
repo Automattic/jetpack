@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { CoreBadge as Badge } from '@automattic/components';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 /**
  * Internal dependencies
@@ -129,17 +130,9 @@ const IntegrationCardHeader = ( {
 					<div className="integration-card__title-section">
 						<div className="integration-card__title-row">
 							<h3 className="integration-card__title">{ title }</h3>
-							{ showPluginAction && (
-								<span className="integration-card__plugin-badge">
-									{ ! isInstalled && installPluginActionLabel }
-									{ isInstalled && ! isActive && activatePluginActionLabel }
-								</span>
-							) }
+							{ showPluginAction && <Badge>{ __( 'Plugin', 'jetpack-forms' ) }</Badge> }
 							{ showConnectedBadge && (
-								<span className="integration-card__connected-badge">
-									<Icon icon="yes-alt" size={ 12 } />
-									{ __( 'Enabled', 'jetpack-forms' ) }
-								</span>
+								<Badge intent="success">{ __( 'Connected', 'jetpack-forms' ) }</Badge>
 							) }
 							{ showPendingBadge && <>{ pendingBadge }</> }
 						</div>
