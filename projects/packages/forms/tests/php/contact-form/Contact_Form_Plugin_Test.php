@@ -215,6 +215,78 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_radio
+	 */
+	public function test_gutenblock_gutenblock_render_field_radio() {
+		$block = array(
+			'blockName'   => 'jetpack/field-radio',
+			'attrs'       => array(
+				'required' => true,
+				'width'    => '100%',
+			),
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/label',
+					'attrs'     => array(
+						'label'        => 'Radio gaga',
+						'defaultLabel' => 'Radio gaga…',
+						'textColor'    => 'turmoil-purple',
+						'style'        => array(
+							'elements' => array(
+								'link' => array( 'color' => array( 'text' => 'var:preset|color|turmoil-purple' ) ),
+							),
+						),
+					),
+				),
+				array(
+					'blockName'   => 'jetpack/options',
+					'attrs'       => array(
+						'type' => 'radio',
+					),
+					'innerBlocks' => array(
+						array(
+							'blockName' => 'jetpack/option',
+							'attrs'     => array(
+								'label' => 'freddy',
+								'style' => array(
+									'color'      => array( 'text' => 'reddo' ),
+									'elements'   => array(
+										'link' => array( 'color' => array( 'text' => 'greeno' ) ),
+									),
+									'typography' => array(
+										'fontSize' => '24px',
+									),
+								),
+							),
+						),
+						array(
+							'blockName' => 'jetpack/option',
+							'attrs'     => array(
+								'label' => 'brian',
+								'style' => array(
+									'color'      => array( 'text' => 'blueo' ),
+									'elements'   => array(
+										'link' => array( 'color' => array( 'text' => 'orango' ) ),
+									),
+									'typography' => array(
+										'fontSize' => '100rem',
+									),
+								),
+							),
+						),
+					),
+				),
+			),
+		);
+
+		// Render the shortcode.
+		$shortcode = Contact_Form_Plugin::gutenblock_render_field_radio( array(), '', new WP_Block( $block ) );
+		$expected  = '[contact-field type="radio" label="Radio gaga" labelclasses="wp-block-jetpack-label has-text-color has-turmoil-purple-color" options="freddy,brian" optionsdata="&#091;{&quot;label&quot;:&quot;freddy&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:reddo; font-size:24px;&quot;}&#044;{&quot;label&quot;:&quot;brian&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:blueo; font-size:100rem;&quot;}&#093;"/]';
+
+		$this->assertEquals( $expected, $shortcode, 'Shortcode is not as expected' );
+	}
+
+	/**
 	 * Test that ::block_attributes_to_shortcode_attributes works correctly with styles.
 	 *
 	 * @dataProvider data_provider_block_attributes_to_shortcode_attributes_with_styles
