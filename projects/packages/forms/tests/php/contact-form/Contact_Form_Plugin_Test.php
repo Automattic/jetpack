@@ -54,7 +54,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_checkbox
+	 * Tests the render output of gutenblock_render_field_checkbox_multiple.
 	 */
 	public function test_gutenblock_render_field_checkbox_multiple_shortcode() {
 		$block = array(
@@ -131,7 +131,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_checkbox
+	 * Tests the render output of gutenblock_render_field_checkbox.
 	 */
 	public function test_gutenblock_render_field_checkbox_shortcode() {
 		$block     = array(
@@ -165,7 +165,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_text
+	 * Tests the render output of gutenblock_render_field_text.
 	 */
 	public function test_gutenblock_gutenblock_render_field_text_shortcode() {
 		$block     = array(
@@ -215,7 +215,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_radio
+	 * Tests the render output of gutenblock_render_field_radio.
 	 */
 	public function test_gutenblock_gutenblock_render_field_radio() {
 		$block = array(
@@ -290,7 +290,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	 * Test that ::block_attributes_to_shortcode_attributes works correctly with styles.
 	 *
 	 * @dataProvider data_provider_block_attributes_to_shortcode_attributes_with_styles
-	 * @covers \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::block_attributes_to_shortcode_attributes
 	 *
 	 * @param array  $expected The expected shortcode attributes.
 	 * @param array  $inner_blocks The inner blocks of the block.
