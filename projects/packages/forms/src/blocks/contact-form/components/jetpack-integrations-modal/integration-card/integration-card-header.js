@@ -1,4 +1,5 @@
-import { CardHeader, Icon, ToggleControl } from '@wordpress/components';
+import { CardHeader, Icon, ToggleControl, Tooltip } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import PluginActionButton from './plugin-action-button';
 
 const IntegrationCardHeader = ( {
@@ -46,11 +47,15 @@ const IntegrationCardHeader = ( {
 					<div className="integration-card__title-section">
 						<div className="integration-card__title-row">
 							<h3 className="integration-card__title">{ title }</h3>
-							{ showPluginAction && <span className="integration-card__plugin-badge">Plugin</span> }
+							{ showPluginAction && (
+								<span className="integration-card__plugin-badge">
+									{ __( 'Plugin', 'jetpack-forms' ) }
+								</span>
+							) }
 							{ showConnectedBadge && (
 								<span className="integration-card__connected-badge">
 									<Icon icon="yes-alt" size={ 16 } />
-									Connected
+									{ __( 'Connected', 'jetpack-forms' ) }
 								</span>
 							) }
 						</div>
@@ -70,11 +75,19 @@ const IntegrationCardHeader = ( {
 						/>
 					) }
 					{ ( isActive || isConnected ) && showHeaderToggle && (
-						<ToggleControl
-							checked={ headerToggleValue }
-							onChange={ handleToggleChange }
-							disabled={ ! isHeaderToggleEnabled }
-						/>
+						<Tooltip
+							text={
+								isHeaderToggleEnabled
+									? __( 'Disable for this form', 'jetpack-forms' )
+									: __( 'Enable for this form', 'jetpack-forms' )
+							}
+						>
+							<ToggleControl
+								checked={ headerToggleValue }
+								onChange={ handleToggleChange }
+								disabled={ ! isHeaderToggleEnabled }
+							/>
+						</Tooltip>
 					) }
 					<Icon
 						icon={ isExpanded ? 'arrow-up-alt2' : 'arrow-down-alt2' }
