@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Prevent Google Drive connection attempt without Jetpack user account connection
