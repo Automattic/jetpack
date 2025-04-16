@@ -155,7 +155,7 @@ function aiowp_migration_status_helper() {
 				return $params;
 			}
 
-			if ( empty( $wpcom_blog_id ) || ! is_numeric( $wpcom_blog_id ) ) {
+			if ( ! is_numeric( $wpcom_blog_id ) || (int) $wpcom_blog_id === 0 ) {
 				do_action( 'wpcomsh_log', 'The content of the wpcom_blog_id_backup_file is not valid' );
 				return $params;
 			}
