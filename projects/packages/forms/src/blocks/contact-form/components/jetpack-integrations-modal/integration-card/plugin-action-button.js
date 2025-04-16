@@ -27,8 +27,8 @@ const PluginActionButton = ( { slug, pluginFile, isInstalled, refreshStatus, tra
 		);
 	};
 
-	const tooltipTextActivate = __( 'This is a plugin that needs activating', 'jetpack-forms' );
-	const tooltipTextInstall = __( 'This is a plugin that needs install', 'jetpack-forms' );
+	const tooltipTextActivate = __( 'Activate this plugin', 'jetpack-forms' );
+	const tooltipTextInstall = __( 'Install this plugin', 'jetpack-forms' );
 
 	return (
 		<Tooltip text={ isInstalled ? tooltipTextActivate : tooltipTextInstall }>
