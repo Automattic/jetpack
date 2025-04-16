@@ -379,3 +379,31 @@ function wpcomsh_prevent_exceeding_plugin_limit( $new_value, $old_value ) {
 	return $new_value;
 }
 add_filter( 'pre_update_option_active_plugins', 'wpcomsh_prevent_exceeding_plugin_limit', 10, 2 );
+
+/**
+ * Remove activation links for non-default plugins when the plugin limit is reached.
+ *
+ * @param array  $actions     Array of plugin action links.
+ * @param string $plugin_file Path to the plugin file relative to the plugins directory.
+ * @return array Modified array of plugin action links.
+ */
+function wpcomsh_maybe_remove_activation_link( $actions, $plugin_file ) {
+	// Skip if no activate action or if it's a default plugin
+	if ( ! isset( $actions['activate'] ) || wpcomsh_is_default_plugin( $plugin_file ) ) {
+		return $actions;
+	}
+
+	// Get currently active plugins
+	$active_plugins = get_option( 'active_plugins', array() );
+
+	// Add this plugin to the list to simulate its activation
+	$active_plugins[] = $plugin_file;
+
+	// Check if activating this plugin would exceed the limit
+	if ( wpcomsh_would_exceed_plugin_limit( $active_plugins ) ) {
+		$actions['activate'] = __( 'Plugin limit reached', 'wpcomsh' );
+	}
+
+	return $actions;
+}
+add_filter( 'plugin_action_links', 'wpcomsh_maybe_remove_activation_link', 10, 2 );
