@@ -56,8 +56,6 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test constructor sets up default post types
-	 *
-	 * @covers Jetpack_Sitemap_Builder::__construct
 	 */
 	public function test_constructor_sets_default_post_types() {
 		$post_types = get_option( 'jetpack_sitemap_post_types' );
@@ -66,8 +64,6 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test sitemap index generation with multiple sitemaps
-	 *
-	 * @covers Jetpack_Sitemap_Builder::build_next_sitemap_index_of_type
 	 */
 	public function test_sitemap_index_generation() {
 		// Create enough posts to generate multiple sitemaps
@@ -95,8 +91,6 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test master sitemap generation
-	 *
-	 * @covers Jetpack_Sitemap_Builder::build_master_sitemap
 	 */
 	public function test_master_sitemap_generation() {
 		// Create content of different types
@@ -201,8 +195,6 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test sitemap generation with custom post types
-	 *
-	 * @covers Jetpack_Sitemap_Builder::build_one_page_sitemap
 	 */
 	public function test_sitemap_with_custom_post_types() {
 		// Reset the sitemap state to ensure clean test

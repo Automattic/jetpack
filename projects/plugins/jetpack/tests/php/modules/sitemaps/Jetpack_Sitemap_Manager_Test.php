@@ -3,7 +3,9 @@
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemaps.php';
 
 /**
- * @covers \Jetpack_Sitemap_Manager
+ * Test class for Jetpack_Sitemap_Manager
+ *
+ * @covers Jetpack_Sitemap_Manager
  */
 class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -76,7 +78,6 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	/**
 	 * Tests that the sitemap cron schedule is added correctly.
 	 *
-	 * @covers Jetpack_Sitemap_Manager::callback_add_sitemap_schedule
 	 * @group jetpack-sitemap
 	 */
 	public function test_sitemap_manager_adds_cron_schedule() {
@@ -91,7 +92,6 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	/**
 	 * Tests that robots.txt is modified correctly.
 	 *
-	 * @covers Jetpack_Sitemap_Manager::callback_action_do_robotstxt
 	 * @group jetpack-sitemap
 	 */
 	public function test_sitemap_manager_modifies_robotstxt() {
@@ -107,7 +107,6 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	/**
 	 * Tests that the news sitemap cache is flushed when a post is published.
 	 *
-	 * @covers Jetpack_Sitemap_Manager::callback_action_flush_news_sitemap_cache
 	 * @group jetpack-sitemap
 	 */
 	public function test_sitemap_manager_flushes_news_sitemap_cache() {
@@ -122,7 +121,6 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	/**
 	 * Tests that all sitemap data is purged correctly.
 	 *
-	 * @covers Jetpack_Sitemap_Manager::callback_action_purge_data
 	 * @group jetpack-sitemap
 	 */
 	public function test_sitemap_manager_purges_all_data() {
