@@ -41,8 +41,9 @@ const BLOCKS_TEMPLATE = [
 				'core/image',
 				{
 					url: DEFAULT_ICON,
-					width: 24,
-					height: 24,
+					width: '24px',
+					height: '24px',
+					scale: 'cover',
 					align: 'center',
 					className: 'is-style-default',
 					style: {
