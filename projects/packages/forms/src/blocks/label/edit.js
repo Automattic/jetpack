@@ -47,8 +47,15 @@ function useSiblingBlock( clientId ) {
 	return inputBlock;
 }
 
-const WithNotchedWrapper = ( { formStyle, styles, cssVars, className, children } ) => {
-	if ( formStyle === FORM_STYLE.OUTLINED ) {
+const WithNotchedWrapper = ( {
+	formStyle,
+	styles,
+	cssVars,
+	className,
+	children,
+	forcePlainStyle = false,
+} ) => {
+	if ( formStyle === FORM_STYLE.OUTLINED && ! forcePlainStyle ) {
 		return (
 			<div className="notched-label" style={ cssVars }>
 				<div className={ clsx( 'notched-label__leading', className ) } style={ styles } />
@@ -107,6 +114,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 	return (
 		<WithNotchedWrapper
 			formStyle={ formStyle }
+			forcePlainStyle={ ! inputBlock }
 			styles={ variationProps?.style }
 			cssVars={ variationProps?.cssVars }
 			className={ variationProps?.className }

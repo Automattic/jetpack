@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Forms\Jetpack_Forms;
 
 /**
  * Class for the contact-field shortcode.
@@ -1083,6 +1084,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'uploadFailed'       => __( 'File upload failed, try again.', 'jetpack-forms' ),
 			),
 			'endpoint'      => $this->get_unauth_endpoint_url(),
+			'iconsPath'     => Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/',
 			'maxUploadSize' => $max_file_size,
 		);
 
@@ -1113,8 +1115,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			data-wp-on--drop="actions.fileDropped"
 			data-is-required="<?php echo esc_attr( $required ); ?>"
 		>
-			<div class="jetpack-form-file-field__dropzone"  data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
-				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker"></div>
+			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
+				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.handleKeyDown" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'Select a file to upload.', 'jetpack-forms' ); ?>"></div>
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
 				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
 				<input
@@ -1122,12 +1124,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					accept="<?php echo esc_attr( $accept_attribute_value ); ?>"
 					data-wp-on--change="actions.fileAdded"  />
 			</div>
-			<div class="jetpack-form-file-field__preview-wrap" name="file-field-<?php echo esc_attr( $id ); ?>" data-wp-class--is-active="state.hasFiles">
+			<div class="jetpack-form-file-field__preview-wrap"  name="file-field-<?php echo esc_attr( $id ); ?>" data-wp-class--is-active="state.hasFiles">
 				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
-					<div class="jetpack-form-file-field__preview" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.isUploaded">
+					<div class="jetpack-form-file-field__preview" tabindex="0" data-wp-bind--aria-label="context.file.name" data-wp-init--focus="callbacks.focusElement" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.isUploaded">
 						<input type="hidden" name="<?php echo esc_attr( $id ); ?>[]" class="jetpack-form-file-field__hidden include-hidden" data-wp-bind--value='context.file.fileJson' value="">
-						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress">
-							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
+						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress" data-wp-class--has-icon="context.file.hasIcon">
+							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" data-wp-style--mask-image="context.file.mask"  ></div>
 							<div class="jetpack-form-file-field__progress-bar" ></div>
 						</div>
 
@@ -1136,14 +1138,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 							<div class="jetpack-form-file-field__file-info" data-wp-class--is-error="context.file.error" data-wp-class--is-complete="context.file.file_id">
 								<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
 								<span class="jetpack-form-file-field__seperator"> &middot; </span>
-								<span class="jetpack-form-file-field__uploading"><?php esc_html_e( 'Uploading...', 'jetpack-forms' ); ?></span>
-								<span class="jetpack-form-file-field__success"><?php esc_html_e( 'Uploaded', 'jetpack-forms' ); ?></span>
-								<span class="jetpack-form-file-field__error" data-wp-text="context.file.error"></span>
+								<span aria-live="polite">
+									<span class="jetpack-form-file-field__uploading"><?php esc_html_e( 'Uploading...', 'jetpack-forms' ); ?></span>
+									<span class="jetpack-form-file-field__success"><?php esc_html_e( 'Uploaded', 'jetpack-forms' ); ?></span>
+									<span class="jetpack-form-file-field__error" data-wp-text="context.file.error"></span>
+								</span>
 							</div>
 						</div>
-
-						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="<?php esc_attr_e( 'Remove file', 'jetpack-forms' ); ?>" data-wp-on--click="actions.removeFile" title="<?php esc_attr_e( 'Remove', 'jetpack-forms' ); ?>"> </a>
-
+						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="<?php esc_attr_e( 'Remove file', 'jetpack-forms' ); ?>" data-wp-on--click="actions.removeFile" data-wp-on--keydown="actions.removeFileKeydown"  title="<?php esc_attr_e( 'Remove', 'jetpack-forms' ); ?>"> </a>
 					</div>
 				</template>
 			</div>
@@ -1176,6 +1178,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$version
 		);
 	}
+
 	/**
 	 * Returns the URL for the unauthenticated file upload endpoint.
 	 *
@@ -1284,9 +1287,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								type='checkbox'
 								name='" . esc_attr( $id ) . "[]'
 								value='" . esc_attr( $checkbox_value ) . "' "
-								. $class
-								. checked( in_array( $option_label, (array) $value, true ), true, false )
-								. ' /> ';
+							. $class
+							. checked( in_array( $option_label, (array) $value, true ), true, false )
+							. ' /> ';
 					$field .= "<label for='" . esc_attr( $checkbox_id ) . "' class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
 					$field .= '</label>';
@@ -1315,9 +1318,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								type='checkbox'
 								name='" . esc_attr( $id ) . "[]'
 								value='" . esc_attr( $checkbox_value ) . "' "
-								. $class
-								. checked( in_array( $option, (array) $value, true ), true, false )
-								. ' /> ';
+							. $class
+							. checked( in_array( $option, (array) $value, true ), true, false )
+							. ' /> ';
 					$field .= "<label for='" . esc_attr( $checkbox_id ) . "' {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option ) . '</span>';
 					$field .= '</label>';
@@ -1358,10 +1361,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$option = Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
 				$field .= "\t\t<option"
-								. selected( $option, $value, false )
-								. " value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) )
-								. "'>" . esc_html( $option )
-								. "</option>\n";
+							. selected( $option, $value, false )
+							. " value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) )
+							. "'>" . esc_html( $option )
+							. "</option>\n";
 			}
 		}
 		$field .= "\t</select><span class='jetpack-field-dropdown__icon'></span></span>\n";
@@ -1524,31 +1527,27 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$legacy_border_radius    = ! empty( $border_radius_attribute ) || $border_radius_attribute === '0' ? $border_radius_attribute . 'px' : $variation_attributes['border']['radius'] ?? null;
 
 		$border_top_size = $legacy_border_size ??
-			$variation_attributes['border']['width'] ??
-			$variation_attributes['border']['top']['width'] ??
-			$global_styles['width'] ??
-			$global_styles['top']['width'] ?? null;
+		$variation_attributes['border']['top']['width'] ??
+		$global_styles['width'] ??
+		$global_styles['top']['width'] ?? null;
 
 		$border_right_size = $legacy_border_size ??
-
-			$variation_attributes['border']['right']['width'] ??
-			$global_styles['width'] ??
-			$global_styles['right']['width'] ?? null;
+		$variation_attributes['border']['right']['width'] ??
+		$global_styles['width'] ??
+		$global_styles['right']['width'] ?? null;
 
 		$border_bottom_size = $legacy_border_size ??
-			$variation_attributes['border']['width'] ??
-			$variation_attributes['border']['bottom']['width'] ??
-			$global_styles['width'] ??
-			$global_styles['bottom']['width'] ?? null;
+		$variation_attributes['border']['bottom']['width'] ??
+		$global_styles['width'] ??
+		$global_styles['bottom']['width'] ?? null;
 
 		$border_left_size = $legacy_border_size ??
-			$variation_attributes['border']['width'] ??
-			$variation_attributes['border']['left']['width'] ??
-			$global_styles['width'] ??
-			$global_styles['left']['width'] ?? null;
+		$variation_attributes['border']['left']['width'] ??
+		$global_styles['width'] ??
+		$global_styles['left']['width'] ?? null;
 
 		$border_radius = $legacy_border_radius ??
-			$global_styles['radius'] ?? null;
+		$global_styles['radius'] ?? null;
 
 		// Border size to accommodate legacy border width attribute.
 		$css_vars = $legacy_border_size ? '--jetpack--contact-form--border-size: ' . $legacy_border_size . ';' : '';
@@ -1583,41 +1582,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Return the HTML for the outlined label.
-	 *
-	 * @param int    $id - the ID.
-	 * @param string $label - the label.
-	 * @param bool   $required - if the field is marked as required.
-	 * @param string $required_field_text - the text in the required text field.
-	 *
-	 * @return string HTML
-	 */
-	public function render_outline_label( $id, $label, $required, $required_field_text ) {
-		$classes  = 'notched-label__label';
-		$classes .= $this->is_error() ? ' form-error' : '';
-		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
-
-		$output_data = $this->get_form_variation_style_properties();
-
-		return '
-			<div class="notched-label">
-				<div class="notched-label__leading' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
-				<div class="notched-label__notch' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '">
-					<label
-						for="' . esc_attr( $id ) . '"
-						class=" ' . $classes . '"
-						style="' . $this->label_styles . esc_attr( $output_data['css_vars'] ) . '"
-					>
-					<span class="grunion-label-text">' . esc_html( $label ) . '</span>'
-					. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
-			'</label>
-				</div>
-				<div class="notched-label__filler' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
-				<div class="notched-label__trailing' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
-			</div>';
-	}
-
-	/**
 	 * Return the HTML for the animated label.
 	 *
 	 * @param int    $id - the ID.
@@ -1639,8 +1603,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				style="' . $this->label_styles . '"
 			>
 				<span class="grunion-label-text">' . esc_html( $label ) . '</span>'
-				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
-			'</label>';
+			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+		'</label>';
 	}
 
 	/**
@@ -1659,9 +1623,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				for="' . esc_attr( $id ) . '"
 				class="below-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
 			>'
-			. esc_html( $label )
-			. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
-			'</label>';
+		. esc_html( $label )
+		. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
+		'</label>';
 	}
 
 	/**

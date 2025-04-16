@@ -1,0 +1,6 @@
+:where( .jetpack-form-file-field__dropzone ) {
+    padding: 48px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    border: 1px dashed var(--jp-form-color-border, rgba( 125, 125, 125, 0.3 ) );
+}
