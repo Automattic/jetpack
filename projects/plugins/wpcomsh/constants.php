@@ -33,3 +33,18 @@ define( 'JETPACK_BLOCKS_VARIATION', 'experimental' );
 
 // Date for lowering storage from 200 GB to 50 GB for business and higher plans. Ref: D108151-code.
 define( 'LEGACY_200GB_CUTOFF_DATE', '2023-07-20' );
+
+define(
+	'WOA_SOFTWARE_SET_DEFAULT',
+	array(
+		'plugins/akismet',
+		'plugins/jetpack',
+		'plugins/classic-editor',
+		'plugins/gutenberg',
+		'plugins/layout-grid',
+		'plugins/page-optimize',
+		'plugins/crowdsignal-forms',
+		'plugins/polldaddy',
+		'themes/pub/twentytwentytwo',
+	)
+);

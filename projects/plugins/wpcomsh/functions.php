@@ -434,3 +434,63 @@ add_filter( 'likes_new_layout', '__return_true' );
  * @see https://github.com/Automattic/wp-calypso/issues/100279
  */
 add_filter( 'send_email_change_email', '__return_false' );
+
+/**
+ * Check if a plugin is part of the default WOA software set.
+ *
+ * @param string $plugin Plugin path relative to the plugins directory (e.g. 'akismet/akismet.php').
+ * @return bool True if the plugin is part of the default set, false otherwise.
+ */
+function wpcomsh_is_default_plugin( $plugin ) {
+	if ( ! defined( 'WOA_SOFTWARE_SET_DEFAULT' ) ) {
+		return false;
+	}
+
+	// Extract the plugin folder name from the full plugin path
+	$plugin_folder = explode( '/', $plugin )[0];
+
+	// Check if the plugin folder exists in the default set
+	foreach ( WOA_SOFTWARE_SET_DEFAULT as $default_item ) {
+		if ( strpos( $default_item, 'plugins/' ) === 0 && $plugin_folder === substr( $default_item, 8 ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Check if the given list of plugins would exceed the plan's plugin limit.
+ *
+ * @param array $plugins Array of plugin paths to check.
+ * @return bool True if the plugin count would exceed the limit, false otherwise.
+ */
+function wpcomsh_would_exceed_plugin_limit( $plugins ) {
+	if ( ! is_array( $plugins ) ) {
+		return false;
+	}
+
+	// If site doesn't have either limit feature, no limit applies
+	if ( ! wpcom_site_has_feature( WPCOM_Features::PLUGINS_ALLOW_ONE ) && ! wpcom_site_has_feature( WPCOM_Features::PLUGINS_ALLOW_THREE ) ) {
+		return false;
+	}
+
+	// Count non-default active plugins
+	$active_count = 0;
+	foreach ( $plugins as $plugin ) {
+		if ( ! wpcomsh_is_default_plugin( $plugin ) ) {
+			++$active_count;
+		}
+	}
+
+	// Check against plan limits
+	if ( wpcom_site_has_feature( WPCOM_Features::PLUGINS_ALLOW_ONE ) && $active_count > 1 ) {
+		return true;
+	}
+
+	if ( wpcom_site_has_feature( WPCOM_Features::PLUGINS_ALLOW_THREE ) && $active_count > 3 ) {
+		return true;
+	}
+
+	return false;
+}

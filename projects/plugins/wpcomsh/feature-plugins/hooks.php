@@ -347,3 +347,35 @@ function wpcomsh_remove_jetpack_manage_menu_item() {
 }
 
 add_action( 'admin_menu', 'wpcomsh_remove_jetpack_manage_menu_item', 1001 ); // Automattic\Jetpack\Admin_UI\Admin_Menu uses 1000.
+
+/**
+ * Prevent plugin activation if it would exceed the plan's plugin limit.
+ *
+ * @param array $new_value The new value of the option.
+ * @param array $old_value The old value of the option.
+ * @return array|WP_Error The filtered value.
+ */
+function wpcomsh_prevent_exceeding_plugin_limit( $new_value, $old_value ) {
+	if ( is_multisite() && is_network_admin() ) {
+		return $new_value;
+	}
+
+	$newly_activated = array_diff( $new_value, $old_value );
+	if ( empty( $newly_activated ) ) {
+		return $new_value;
+	}
+
+	// Plugins are manually activated one by one
+	if ( 1 === count( $newly_activated ) && wpcomsh_is_default_plugin( $newly_activated[0] ) ) {
+		return $new_value;
+	}
+
+	// Otherwise check if we would exceed the limit
+	if ( wpcomsh_would_exceed_plugin_limit( $new_value ) ) {
+		// Return the old value to prevent the update
+		return $old_value;
+	}
+
+	return $new_value;
+}
+add_filter( 'pre_update_option_active_plugins', 'wpcomsh_prevent_exceeding_plugin_limit', 10, 2 );
