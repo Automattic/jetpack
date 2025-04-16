@@ -1653,11 +1653,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			apply_filters(
 				'jetpack_forms_response_email_footer',
 				array(
-					'<br />',
-					'<hr />',
-					'<span style="font-size: 12px">',
+					'<span>',
 					$footer_time . '<br />',
-					$footer_ip ? $footer_ip . '<br />' : null,
+					$footer_ip ? $footer_ip : null,
 					$footer_url . '<br />',
 					$sent_by_text,
 					'</span>',

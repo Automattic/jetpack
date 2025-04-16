@@ -16,69 +16,193 @@ $template = '
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  %6$s
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	%6$s
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-		%1$s
-    </div>
-    <div class="content">
-	<!-- response -->
-		<p>%2$s</p>
-		%3$s
-		%4$s
-    </div>
-  </div>
-  <div class="container container-meta">
-		<div class="meta">
-			<!-- footer -->
-			<p>%5$s</p>
-		</div>
-		<p class="meta">' . __( 'Powered by Jetpack Forms', 'jetpack-forms' ) . '</p>
-    </div>
+	<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
+	<tr>
+		<td>&nbsp;</td>
+			<td class="container">
+				<div class="content">
+					<span class="preheader">%1$s</span>
+					<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="main">
+						<tr>
+						<td class="wrapper">
+							<!-- response -->
+							<p>%2$s</p>
+							%3$s
+							%4$s
+						</td>
+						</tr>
+					</table>
+
+					<!-- START FOOTER -->
+					<div class="footer">
+						<table role="presentation" border="0" cellpadding="0" cellspacing="0">
+						<tr>
+							<td class="content-block wrapper">
+								<!-- footer -->
+								<p>%5$s</p>
+							</td>
+						</tr>
+						<tr>
+							<td class="content-block powered-by">
+								Powered by <a href="https://jetpack.com/forms/">Jetpack Forms</a>
+							</td>
+						</tr>
+						</table>
+					</div>
+				</div>
+			</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
 </body>
 </html>
 ';
 
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- used in class-contact-form.php
-$style = '<style>
-body {
-  font-family: sans-serif;
-  background-color: #f7f7f7;
-  margin: 0;
-  padding: 0;
-}
-.container {
-  max-width: 640px;
-  margin: 40px auto 0;
-  background-color: #FFF;
-  overflow: hidden;
-}
-.container-meta {
-	margin-top: 0;
-	background-color: #f7f7f7;
-}
-hr { display: none; }
-.header {
-  padding: 24px;
-  border-bottom: 1px solid #eee;
-}
-.header h1 {
-  margin: 0 0 10px;
-  font-size: 24px;
-}
-.meta {
-  color: #888;
-  font-size: 14px;
-  padding: 0 24px;
-}
-.content {
-  padding: 24px;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #333;
-}
+$style = '<style media="all" type="text/css">
+	body {
+		font-family: sans-serif;
+		-webkit-font-smoothing: antialiased;
+		font-size: 16px;
+		line-height: 1.3;
+		-ms-text-size-adjust: 100%;
+		-webkit-text-size-adjust: 100%;
+	}
+
+	table {
+		border-collapse: separate;
+		mso-table-lspace: 0pt;
+		mso-table-rspace: 0pt;
+		width: 100%;
+	}
+
+	table td {
+		font-family: Helvetica, sans-serif;
+		font-size: 16px;
+		vertical-align: top;
+	}
+
+	body {
+		background-color: #f4f5f6;
+		margin: 0;
+		padding: 0;
+	}
+
+	.body {
+		background-color: #f4f5f6;
+		width: 100%;
+	}
+
+	.container {
+		margin: 0 auto !important;
+		max-width: 640px;
+		padding: 0;
+		padding-top: 24px;
+		width: 640px;
+	}
+
+	.content {
+		box-sizing: border-box;
+		display: block;
+		margin: 0 auto;
+		max-width: 640px;
+		padding: 0;
+	}
+
+	.main {
+		background: #ffffff;
+		width: 100%;
+	}
+
+	.wrapper {
+		box-sizing: border-box;
+		padding: 24px;
+	}
+	.content-block {
+		box-sizing: border-box;
+		padding: 0 24px;
+
+	}
+
+	.footer {
+		clear: both;
+		padding-top: 24px;
+		width: 100%;
+	}
+	.footer td,
+	.footer p,
+	.footer span,
+	.footer a {
+		color: #9a9ea6;
+		font-size: 12px;
+	}
+	p {
+		font-family: sans-serif;
+		font-size: 16px;
+		font-weight: normal;
+		margin: 0;
+		margin-bottom: 16px;
+	}
+
+	.powered-by a {
+		text-decoration: none;
+	}
+	@media only screen and (max-width: 640px) {
+		.main p,
+		.main td,
+		.main span {
+			font-size: 16px !important;
+		}
+		.wrapper {
+			padding: 8px !important;
+		}
+		.content {
+			padding: 0 !important;
+		}
+		.container {
+			padding: 0 !important;
+			padding-top: 8px !important;
+			width: 100% !important;
+		}
+		.main {
+			border-left-width: 0 !important;
+			border-radius: 0 !important;
+			border-right-width: 0 !important;
+		}
+	}
+
+	@media all {
+		.ExternalClass {
+			width: 100%;
+		}
+		.ExternalClass,
+		.ExternalClass p,
+		.ExternalClass span,
+		.ExternalClass font,
+		.ExternalClass td,
+		.ExternalClass div {
+			line-height: 100%;
+		}
+		.apple-link a {
+			color: inherit !important;
+			font-family: inherit !important;
+			font-size: inherit !important;
+			font-weight: inherit !important;
+			line-height: inherit !important;
+			text-decoration: none !important;
+		}
+		#MessageViewBody a {
+			color: inherit;
+			text-decoration: none;
+			font-size: inherit;
+			font-family: inherit;
+			font-weight: inherit;
+			line-height: inherit;
+		}
+	}
 </style>';
