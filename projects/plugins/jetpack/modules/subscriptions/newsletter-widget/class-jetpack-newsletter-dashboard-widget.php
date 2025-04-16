@@ -91,7 +91,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 
 		// This covers both P2 and P2020 themes.
 		$site_id = \Jetpack_Options::get_option( 'id' );
-		$is_p2   = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $site_id );
+		$is_p2   = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( $site_id );
 		if ( $is_p2 ) {
 			return;
 		}
