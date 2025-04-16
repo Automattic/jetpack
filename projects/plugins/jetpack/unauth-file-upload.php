@@ -52,7 +52,8 @@ function handle_file_download() {
 	 * @param array $data The script data.
 	 */
 	$blocks_variation = apply_filters( 'jetpack_blocks_variation', \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' ) );
-	if ( apply_filters( 'jetpack_unauth_file_download_available', $blocks_variation === 'beta' ) ) {
+
+	if ( apply_filters( 'jetpack_unauth_file_download_available', $blocks_variation !== 'beta' ) ) {
 		wp_die( esc_html__( 'File download is not available.', 'jetpack' ) );
 	}
 
