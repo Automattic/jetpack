@@ -462,6 +462,8 @@ We strongly recommend that you install tools to review your code in your IDE. It
 
 	`add_filter( 'jetpack_offline_mode', '__return_true' );`
 
+	See the [Custom code snippets](#custom-code-snippets-mu-plugins) section for more information on how to add custom code snippets.
+
 	While in Offline Mode, some features will not be available at all as they require WordPress.com for all functionality—Related Posts and Jetpack Social, for example. Other features will have reduced functionality to give developers a good-faith representation of the feature. For example, Tiled Galleries requires the WordPress.com Photon CDN; however, in Offline Mode, Jetpack provides a fallback so developers can have a similar experience during development and testing. Find out more in [our support documentation](https://jetpack.com/support/jetpack-for-developers/).
 
 * ### JETPACK__SANDBOX_DOMAIN
