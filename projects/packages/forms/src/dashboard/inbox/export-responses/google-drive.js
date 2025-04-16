@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useConnection } from '@automattic/jetpack-connection';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
@@ -15,6 +16,10 @@ import { config } from '../..';
 const GoogleDriveExport = ( { onExport } ) => {
 	const [ isConnected, setIsConnected ] = useState( config( 'gdriveConnection' ) );
 	const { tracks } = useAnalytics();
+
+	const { isUserConnected, handleConnectUser, userIsConnecting, isOfflineMode } = useConnection( {
+		redirectUri: location.href.split( 'wp-admin/' )[ 1 ],
+	} );
 
 	const pollForConnection = useCallback( () => {
 		const interval = setInterval( async () => {
@@ -64,6 +69,10 @@ const GoogleDriveExport = ( { onExport } ) => {
 		} );
 	}, [ tracks, pollForConnection ] );
 
+	if ( isOfflineMode ) {
+		return null;
+	}
+
 	const buttonClasses = clsx( 'button', 'export-button', 'export-gdrive' );
 
 	return (
@@ -108,7 +117,20 @@ const GoogleDriveExport = ( { onExport } ) => {
 						</button>
 					) }
 
-					{ ! isConnected && (
+					{ ! isConnected && ! isUserConnected && (
+						<Button
+							className={ buttonClasses }
+							variant="primary"
+							rel="noopener noreferrer"
+							target="_blank"
+							onClick={ handleConnectUser }
+							isBusy={ userIsConnecting }
+						>
+							{ __( 'Connect Jetpack user account', 'jetpack-forms' ) }
+						</Button>
+					) }
+
+					{ ! isConnected && isUserConnected && (
 						<Button
 							href={ config( 'gdriveConnectURL' ) }
 							className={ buttonClasses }
