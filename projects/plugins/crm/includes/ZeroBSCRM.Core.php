@@ -1393,9 +1393,6 @@ final class ZeroBSCRM {
 		// Admin init - should condition this per page..
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
-		// Add thumbnail support?
-		add_action( 'after_setup_theme', array( $this, 'setup_environment' ) );
-
 		// Extension links
 		add_filter( 'plugin_action_links_' . plugin_basename( ZBS_ROOTFILE ), array( $this, 'add_action_links' ) );
 
@@ -1517,10 +1514,6 @@ final class ZeroBSCRM {
 		}
 		// =================== / General Perf Testing =========================
 		// ====================================================================
-	}
-
-	public function setup_environment() {
-		// Don't think we need this $this->add_thumbnail_support();  //add thumbnail support
 	}
 
 	public function add_action_links( $links ) {
