@@ -14,25 +14,23 @@ use Automattic\Jetpack_Boost\REST_API\Permissions\Signed_With_Blog_Token;
 use WP_REST_Server;
 
 /**
- * Handler for POST cloud-css/update. Expects the following body params:
- * - success: boolean - False if the whole Critical CSS job failed.
- * - message: string containing an error message if success is false.
- * - providers: Object containing one result for each key:
+ * Handler for POST lcp/update. Expects the following body params:
+ * - success: boolean - False if the whole LCP job failed.
+ * - message: string - Error message if success is false.
+ * - data: object - All results from the LCP job:
  *
- * Each provider key contains:
- * - success: boolean - False if this provider key failed.
- * - data: Either a successful CSS block, or a CSS error.
+ * Each data key contains:
+ * - key: string - The key of the page.
+ * - url: string - The URL of the page.
+ * - devices: object - The LCP data for both mobile and desktop.
  *
- * Each CSS block looks like:
- * - css: string - containing CSS data.
- *
- * Each CSS error looks like:
- * - urls: Object describing each URL which failed. Keys are URLs.
- *
- * Each URL failure looks like:
- * - message: string - containing an error message.
- * - type: string - machine readable error type.
- * - meta: Object - JSON string compatible object containing extra metadata for consumption in the UI.
+ * Each device key contains:
+ * - success: boolean - False if this device key failed.
+ * - element: string - The selector of the LCP element.
+ * - type: string - The type of the LCP element. Either 'img' or 'background-image'.
+ * - url: string - Only for 'img' elements. The URL of LCP element.
+ * - html: string - The HTML of the LCP element.
+ * - report: object - The full report of the LCP element.
  */
 class Update_LCP implements Endpoint {
 

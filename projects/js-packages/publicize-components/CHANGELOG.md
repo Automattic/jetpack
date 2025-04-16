@@ -5,9 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.85.0] - 2025-04-14
+### Added
+- Add share status support for WordPress.com sites. [#42593]
+
+### Changed
+- Pricing Page: Swap to using the My Jetpack endpoint for pricing information. [#42812]
+- Social: Disable retry in share status when resharing is not supported. [#39545]
+- Social: Use `siteHasFeature` utility for share status feature check. [#43030]
+
+### Fixed
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Clean up various Styleline violations. [#43010]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+- Social: Fix share status typo and button style. [#42986]
+- Social: Ensure manual sharing is visible on post publish screen. [#42958]
+
 ## [0.84.5] - 2025-04-07
 ### Changed
-- Code: First pass of style coding standards. [#42734]
+- Linting: First pass of style coding standards. [#42734]
 - Update dependencies. [#42820]
 - Update package dependencies. [#42806] [#42809]
 
@@ -1208,6 +1224,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.85.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.5...v0.85.0
 [0.84.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.4...v0.84.5
 [0.84.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.3...v0.84.4
 [0.84.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.2...v0.84.3

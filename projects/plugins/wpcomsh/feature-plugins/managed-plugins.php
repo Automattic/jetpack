@@ -591,15 +591,26 @@ function wpcomsh_update_managed_plugins(): void {
 add_action( 'deleted_plugin', 'wpcomsh_update_managed_plugins', 100 );
 
 /**
- * Update the list of managed plugins after a plugin is installed.
+ * Update the list of managed plugins after a plugin is installed or updated.
+ * We only update the list if the managed plugins list is not already set for the update action.
  *
  * @param WP_Upgrader $upgrader The upgrader object.
  * @param array       $hook_extra Extra arguments passed to hooked filters.
  * @return void
  */
 function wpcomsh_handle_update_managed_plugins_list( $upgrader, $hook_extra ): void {
-	if ( isset( $hook_extra['type'] ) && $hook_extra['type'] === 'plugin' && isset( $hook_extra['action'] ) && $hook_extra['action'] === 'install' ) {
+	$is_plugin_operation = isset( $hook_extra['type'] ) && 'plugin' === $hook_extra['type'];
+	$is_valid_action     = isset( $hook_extra['action'] ) && in_array( $hook_extra['action'], array( 'install', 'update' ), true );
+	$is_update_action    = 'update' === $hook_extra['action'];
+	$has_managed_plugins = get_option( 'wpcomsh_at_managed_plugins', false );
+
+	if ( $is_plugin_operation && $is_valid_action ) {
+		// If the plugin is being updated and the managed plugins list is already set, don't update it.
+		if ( $is_update_action && $has_managed_plugins ) {
+			return;
+		}
+
 		wpcomsh_update_managed_plugins();
 	}
 }
-add_action( 'upgrader_process_complete', 'wpcomsh_handle_update_managed_plugins_list', 10, 2 );
+add_action( 'upgrader_process_complete', 'wpcomsh_handle_update_managed_plugins_list', 50, 2 );

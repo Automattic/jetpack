@@ -82,7 +82,9 @@ class Cache_Preload_Test extends TestCase {
 	 */
 	public function test_preload() {
 		define( 'JETPACK_BOOST_CACHE_DURATION', 1 );
-		define( 'ABSPATH', '/pseudo' );
+		if ( ! defined( 'ABSPATH' ) ) {
+			define( 'ABSPATH', '/pseudo' );
+		}
 
 		$urls = array( 'https://example.com', 'https://example.com/page' );
 

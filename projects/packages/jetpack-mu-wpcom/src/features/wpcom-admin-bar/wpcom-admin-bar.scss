@@ -72,7 +72,7 @@
 	}
 }
 
-#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon:before {
+#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon::before {
 	display: flex;
 	content: "";
 	width: 20px;
@@ -98,7 +98,7 @@
 	// Site admin on mobile viewport (the first child is the hamburger menu)
 	@media (max-width: 480px) {
 
-		>.ab-item .ab-icon:before {
+		>.ab-item .ab-icon::before {
 			margin: 0 7px 0 5px;
 		}
 	}
@@ -106,7 +106,7 @@
 
 #wpadminbar #wp-admin-bar-site-name {
 
-	> .ab-item:before {
+	> .ab-item::before {
 
 		/**
 		 * Always show the House icon by the site name.
@@ -117,7 +117,7 @@
 	@media (max-width: 480px) {
 
 		> a.ab-item,
-		> a.ab-item:before {
+		> a.ab-item::before {
 			width: 46px;
 		}
 	}
@@ -239,7 +239,7 @@
 						font-size: 16px;
 					}
 
-					span.wpcom-logo:before {
+					span.wpcom-logo::before {
 						content: "";
 						display: inline-block;
 						position: relative;
@@ -285,7 +285,7 @@
 				margin: 0;
 				height: 100%;
 
-				&:before {
+				&::before {
 					display: flex;
 					content: "";
 					width: 24px;
@@ -321,7 +321,7 @@
 				height: 100%;
 				margin: 0;
 
-				&:before{
+				&::before{
 					background-color: currentColor;
 					content: "";
 					display: flex;
@@ -353,7 +353,7 @@
 						justify-content: center;
 						padding: 0px;
 
-						&:before {
+						&::before {
 							width: 36px;
 							height: 36px;
 							margin: 0px;
@@ -380,7 +380,7 @@
 					justify-content: center;
 					padding: 0;
 
-					&:before{
+					&::before{
 						height: 32px;
 						margin: 0;
 						mask-size: contain;
@@ -416,7 +416,7 @@
 						height: 46px;
 						top: 0;
 
-						&:before {
+						&::before {
 							background-position-y: bottom;
 							background-position-x: center;
 							right: 0;

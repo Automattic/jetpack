@@ -1,6 +1,6 @@
 /* =Infinity Styles
 -------------------------------------------------------------- */
-.infinite-scroll #main:after {
+.infinite-scroll #main::after {
 	clear: both;
 	content: '';
 	display: block;

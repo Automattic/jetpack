@@ -21,8 +21,8 @@
 	cursor: pointer;
 	transition: all .4s ease, box-shadow 0s;
 
-	&:before,
-	&:after {
+	&::before,
+	&::after {
 		position: relative;
 		display: block;
 		content: "";
@@ -30,14 +30,14 @@
 		height: 20px;
 	}
 
-	&:after {
+	&::after {
 		left: 0;
 		border-radius: 50%;
 		background: $white;
 		transition: all .2s ease;
 	}
 
-	&:before {
+	&::before {
 		display: none;
 	}
 
@@ -84,7 +84,7 @@
 		+ .form-toggle__label .form-toggle__switch {
 			background: $blue-medium;
 
-			&:after {
+			&::after {
 				left: 16px;
 			}
 		}
@@ -128,8 +128,8 @@
 		width: 24px;
 		height: 16px;
 
-		&:before,
-		&:after {
+		&::before,
+		&::after {
 			width: 12px;
 			height: 12px;
 		}
@@ -139,7 +139,7 @@
 
 		+ .form-toggle__switch {
 
-			&:after {
+			&::after {
 				left: 8px;
 			}
 		}

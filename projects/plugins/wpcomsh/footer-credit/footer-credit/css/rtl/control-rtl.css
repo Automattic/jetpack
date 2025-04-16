@@ -18,7 +18,7 @@
 	margin-left: 2px;
 }
 
-.footercredit-upgrade-link .dashicons:before {
+.footercredit-upgrade-link .dashicons::before {
 	position: relative;
 	top: 3px;
 }

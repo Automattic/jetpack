@@ -61,7 +61,7 @@
 }
 
 // restyled the arrow to match our gray
-.toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu:after {
+.toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu::after {
 	border-right-color: $gray-light;
 }
 

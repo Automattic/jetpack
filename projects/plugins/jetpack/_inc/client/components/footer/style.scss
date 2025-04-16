@@ -16,7 +16,7 @@
 	--jp-black: #000;
 	--font-body-extra-small: 12px;
 
-	&, *, *:before, *:after {
+	&, *, *::before, *::after {
 		box-sizing: border-box;
 	}
 

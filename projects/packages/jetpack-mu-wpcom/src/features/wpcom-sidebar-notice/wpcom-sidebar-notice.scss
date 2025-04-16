@@ -6,7 +6,7 @@
 	align-items: center;
 }
 
-#wpadminbar .wp-admin-bar-all-sites a.ab-item:before {
+#wpadminbar .wp-admin-bar-all-sites a.ab-item::before {
 	content: "";
 	width: 16px;
 	height: 16px;
@@ -33,7 +33,7 @@
 		font-size: 0;
 	}
 
-	#wpadminbar .wp-admin-bar-all-sites a.ab-item:before {
+	#wpadminbar .wp-admin-bar-all-sites a.ab-item::before {
 		width: 36px;
 		height: 36px;
 		margin: 0 8px;

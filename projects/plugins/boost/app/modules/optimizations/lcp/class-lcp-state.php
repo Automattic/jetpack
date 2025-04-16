@@ -52,7 +52,6 @@ class LCP_State {
 	}
 
 	public function save() {
-		$this->state            = $this->get_state();
 		$this->state['updated'] = microtime( true );
 		jetpack_boost_ds_set( 'lcp_state', $this->state );
 
@@ -69,7 +68,6 @@ class LCP_State {
 			return $this;
 		}
 
-		$this->state                 = $this->get_state();
 		$this->state['status_error'] = $message;
 		$this->state['status']       = self::ANALYSIS_STATES['error'];
 
@@ -84,8 +82,6 @@ class LCP_State {
 	 * @return bool|\WP_Error True on success, WP_Error on failure.
 	 */
 	public function update_page_state( $page_key, $state ) {
-		$this->state = $this->get_state();
-
 		if ( empty( $this->state['pages'] ) ) {
 			return new WP_Error( 'invalid_page_key', 'No pages exist' );
 		}
@@ -138,14 +134,12 @@ class LCP_State {
 	}
 
 	public function is_analyzed() {
-		$this->get_state();
 		return ! empty( $this->state )
 			&& isset( $this->state['status'] )
 			&& self::ANALYSIS_STATES['analyzed'] === $this->state['status'];
 	}
 
 	public function is_pending() {
-		$this->get_state();
 		return ! empty( $this->state )
 			&& isset( $this->state['status'] )
 			&& self::ANALYSIS_STATES['pending'] === $this->state['status'];

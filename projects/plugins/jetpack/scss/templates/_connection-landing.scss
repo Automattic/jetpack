@@ -40,12 +40,12 @@
 		margin-top: 0;
 		background-image: none;
 
-		&:before {
+		&::before {
 			height: inherit;
 		}
 	}
 
-	.more-info:before {
+	.more-info::before {
 		content: none;
 	}
 } //.jp-content

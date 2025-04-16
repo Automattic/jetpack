@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Subscriptions: only display the dashboard widget when the Subscriptions feature is active.

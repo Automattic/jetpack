@@ -78,6 +78,24 @@ class Test_Environment {
 			throw new \RuntimeException( 'Failed to initialize WordPress test environment: ' . $e->getMessage() );
 		}
 
+		// For various tests using WorDBless, speed things up by reducing the password hashing cost.
+		add_filter( 'wp_hash_password_options', array( __CLASS__, 'reduce_password_cost' ) );
+
 		self::$initialized = true;
+	}
+
+	/**
+	 * Hook for `wp_hash_password_options` to reduce the password hashing cost.
+	 *
+	 * Since WordPress 6.8, `wp_hash_password` uses PHP's `password_hash`, which has settings that use a lot
+	 * of CPU power to hash passwords to make them harder to crack. We don't care about password security for
+	 * the dummy users created in tests using WorDBless, so turn it way down to speed up the test runs.
+	 *
+	 * @param array $options Password options.
+	 * @return array Modified options.
+	 */
+	public static function reduce_password_cost( $options ) {
+		$options['cost'] = 4;
+		return $options;
 	}
 }
