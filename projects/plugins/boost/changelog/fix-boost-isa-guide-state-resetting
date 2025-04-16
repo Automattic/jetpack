@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Image Guide: Fix front-end state not being in sync with Boost settings.

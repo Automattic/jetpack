@@ -45,7 +45,7 @@ class Cornerstone_Utils {
 	 *
 	 * @return bool True if the current page is a cornerstone page, false otherwise.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.13.1
 	 */
 	public static function is_current_page_cornerstone() {
 		return self::is_cornerstone_page_by_url( Cornerstone_Provider::get_request_url() );

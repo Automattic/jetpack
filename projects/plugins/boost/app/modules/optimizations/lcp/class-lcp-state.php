@@ -30,7 +30,7 @@ class LCP_State {
 	 *
 	 * @param bool $refresh Whether to refresh the state from storage.
 	 * @return array The validated state
-	 * @since $$next-version$$
+	 * @since 3.13.1
 	 */
 	private function get_state( $refresh = false ) {
 		if ( $refresh ) {
@@ -168,7 +168,7 @@ class LCP_State {
 	 * Get fresh state
 	 *
 	 * @return array Current LCP state
-	 * @since $$next-version$$
+	 * @since 3.13.1
 	 */
 	public function get() {
 		return $this->get_state( true );
