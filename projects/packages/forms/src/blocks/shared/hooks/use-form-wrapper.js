@@ -6,29 +6,30 @@ import { __ } from '@wordpress/i18n';
 import { FORM_BLOCK_NAME } from '../util/constants';
 
 export default function useFormWrapper( { attributes, clientId, name } ) {
-	const BUTTON_BLOCK_NAME = 'jetpack/button';
-	const SUBMIT_BUTTON_ATTR = {
-		text: __( 'Submit', 'jetpack-forms' ),
-		element: 'button',
-		lock: { remove: true },
-	};
-
 	const { replaceBlock, __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
+	const { getBlocks } = useSelect( blockEditorStore );
 
-	const parents = useSelect( select => {
-		return select( blockEditorStore ).getBlockParentsByBlockName( clientId, FORM_BLOCK_NAME );
-	} );
+	const parentForms = useSelect(
+		select => {
+			return select( blockEditorStore ).getBlockParentsByBlockName( clientId, FORM_BLOCK_NAME );
+		},
+		[ clientId ]
+	);
 
 	useEffect( () => {
-		if ( ! parents?.length ) {
+		if ( ! parentForms?.length ) {
 			// As this is an automated update, ensure it doesn't end up in the undo stack
 			// by calling `__unstableMarkNextChangeAsNotPersistent`.
 			__unstableMarkNextChangeAsNotPersistent();
 			replaceBlock(
 				clientId,
 				createBlock( FORM_BLOCK_NAME, {}, [
-					createBlock( name, attributes ),
-					createBlock( BUTTON_BLOCK_NAME, SUBMIT_BUTTON_ATTR ),
+					createBlock( name, attributes, getBlocks( clientId ) ),
+					createBlock( 'jetpack/button', {
+						text: __( 'Submit', 'jetpack-forms' ),
+						element: 'button',
+						lock: { remove: true },
+					} ),
 				] )
 			);
 		}
