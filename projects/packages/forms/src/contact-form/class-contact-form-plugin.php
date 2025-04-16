@@ -2460,22 +2460,23 @@ class Contact_Form_Plugin {
 		 * @return string The file content.
 		 */
 		$file_content = apply_filters( 'jetpack_unauth_file_upload_get_file_content', '', $file_id );
+		if ( is_wp_error( $file_content ) || ! is_string( $file_content ) || empty( $file_content ) ) {
+			wp_die( esc_html__( 'Error retrieving file content.', 'jetpack-forms' ) );
+		}
 
-		if ( ! is_string( $file_content ) ) {
-			if ( is_wp_error( $file_content ) ) {
-				$error_message = $file_content->get_error_message();
-				if ( ! empty( $error_message ) ) {
-					wp_die( esc_html( $error_message ) );
-				}
+		try {
+			$content = json_decode( $file_content, true, 3, defined( 'JSON_THROW_ON_ERROR' ) ? \JSON_THROW_ON_ERROR : 0 ); // phpcs:ignore PHPCompatibility.Constants.NewConstants.json_throw_on_errorFound
+			if ( isset( $content['message'] ) ) {
+				wp_die( esc_html( $content['message'] ) );
 			}
-			wp_die( esc_html__( 'File content is not a string.', 'jetpack-forms' ) );
+		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// If the file is not JSON, we assume it's a binary file.
 		}
 
 		// Clean output buffer
 		if ( ob_get_length() ) {
 			ob_clean();
 		}
-
 		// Set headers for download
 		header( 'Content-Type: ' . $file['type'] );
 		// Forcing the file to be downloaded is important to prevent XSS attacks.
