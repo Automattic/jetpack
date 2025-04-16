@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Resolves php warnings when the thumbnail is really close to 1200, e.g. 1201

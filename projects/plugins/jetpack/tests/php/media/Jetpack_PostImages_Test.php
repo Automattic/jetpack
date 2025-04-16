@@ -952,7 +952,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 */
 	public static function provide_thumbnail_sizes_for_photon() {
 		return array(
-			'landscape_image' => array(
+			'landscape_image'           => array(
 				2000, // Original width
 				1333, // Original height
 				array(
@@ -960,7 +960,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 					'height' => 800,
 				), // Expected dimensions
 			),
-			'portrait_image'  => array(
+			'portrait_image'            => array(
 				1333, // Original width
 				2000, // Original height
 				array(
@@ -968,7 +968,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 					'height' => 1200,
 				), // Expected dimensions
 			),
-			'square_image'    => array(
+			'square_image'              => array(
 				2000, // Original width
 				2000, // Original height
 				array(
@@ -976,13 +976,21 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 					'height' => 1200,
 				), // Expected dimensions
 			),
-			'small_image'     => array(
+			'small_image'               => array(
 				800, // Original width
 				600, // Original height
 				array(
 					'width'  => 800,
 					'height' => 600,
 				), // Expected dimensions - no resize needed
+			),
+			'image_virtually_same_size' => array(
+				1201, // Original width
+				672, // Original height
+				array(
+					'width'  => 1201,
+					'height' => 672,
+				), // Close enough to 1200 to not resize.
 			),
 		);
 	}

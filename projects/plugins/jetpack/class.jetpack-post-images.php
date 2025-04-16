@@ -1133,10 +1133,18 @@ class Jetpack_PostImages {
 			$dims = image_resize_dimensions( $width, $height, 0, $max_dimension ); // Width will be calculated automatically.
 		}
 
-		return array(
-			'width'  => $dims[4],
-			'height' => $dims[5],
-		);
+		// $dims can be false if the image is virtually the same size as the max dimension, e.g. wp_fuzzy_number_match.
+		if ( $dims && isset( $dims[4] ) && isset( $dims[5] ) ) {
+			return array(
+				'width'  => $dims[4],
+				'height' => $dims[5],
+			);
+		}
+
+			return array(
+				'width'  => $width,
+				'height' => $height,
+			);
 	}
 
 	/**
