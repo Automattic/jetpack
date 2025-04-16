@@ -3,7 +3,7 @@
 $grid-size: 8px;
 
 .jetpack-external-media-browser {
-	background: white;
+	background: #fff;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
@@ -72,6 +72,7 @@ $grid-size: 8px;
 		}
 
 		&__selected {
+
 			img {
 				border-color: var(--wp-admin-theme-color);
 			}
@@ -83,12 +84,13 @@ $grid-size: 8px;
 		}
 
 		&.is-transient {
+
 			img {
 				border-color: rgba(0, 0, 0, 0.1);
 			}
 
 			&::after {
-				background: white;
+				background: #fff;
 				opacity: 0.8;
 			}
 		}
@@ -112,7 +114,7 @@ $grid-size: 8px;
 
 	.jetpack-external-media-browser__media__info {
 		font-size: 12px;
-		font-weight: bold;
+		font-weight: 700;
 		width: 100%;
 		display: flex;
 		justify-content: space-between;
@@ -135,7 +137,7 @@ $grid-size: 8px;
 		width: 100%;
 		height: 76px;
 		padding: 0 32px;
-		background: white;
+		background: #fff;
 		display: flex;
 		align-items: center;
 		justify-content: flex-end;
@@ -153,7 +155,9 @@ $grid-size: 8px;
 
 // Show more thumbs beyond mobile.
 @media only screen and ( min-width: 600px ) {
+
 	.jetpack-external-media-browser {
+
 		.jetpack-external-media-browser__media {
 			grid-template-columns: repeat(5, 1fr);
 		}

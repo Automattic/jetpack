@@ -5,7 +5,9 @@
 }
 
 .jetpack-upgrade-plan-banner.jetpack-ai-upgrade-banner {
+
     .jetpack-upgrade-plan-banner__wrapper {
+
         .components-button.is-primary.is-busy {
             background: var( --jp-white );
             color: var( --jp-black );
@@ -18,7 +20,7 @@
     margin: 0px;
     text-wrap: pretty;
     font-size: calc(13px);
-    font-weight: normal;
+    font-weight: 400;
     color: #757575;
 
     a {

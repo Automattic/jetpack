@@ -1,7 +1,7 @@
 /**
  * Types & Constants
  */
-import { DEFAULT_LOGO_COST } from '../constants.js';
+import { DEFAULT_LOGO_COST } from '../constants.ts';
 import {
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
@@ -28,10 +28,10 @@ import {
 	ACTION_SET_LOGO_UPDATE_ERROR,
 	ACTION_SET_CONTEXT,
 	ACTION_SET_IS_LOADING_HISTORY,
-} from './constants.js';
-import INITIAL_STATE from './initial-state.js';
-import type { AiFeatureStateProps, RequestError, TierLimitProp } from './types.js';
-import type { SiteDetails } from '../types.js';
+} from './constants.ts';
+import INITIAL_STATE from './initial-state.ts';
+import type { AiFeatureStateProps, RequestError, TierLimitProp } from './types.ts';
+import type { SiteDetails } from '../types.ts';
 
 /**
  * Reducer for the Logo Generator store.

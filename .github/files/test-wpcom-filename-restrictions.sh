@@ -4,8 +4,8 @@ set -eo pipefail
 
 source "$GITHUB_WORKSPACE/trunk/.github/files/gh-funcs.sh"
 
-# Based on Automattic/pre-receive-hooks/blob/8bf13a23/common/050-stop-underscores.sh
-IGNORE_UNDERSCORE_RULE_FOR='bin/wp-cli|bin/atoum|bin/wp-cli-wpcom|wp-includes/random_compat|wp-includes/sodium_compat|wp-content/plugins/glotpress|.phabricator-linter|wp-content/lib/customer-lists/|wp-content/lib/feature-store/vendor/|wp-content/lib/nosara/ThriftSQL.src/ThriftGenerated/|wp-content/mu-plugins/jetpack-plugin/vendor/|wp-content/lib/aws/vendor/|wp-content/mu-plugins/crowdsignal-forms/vendor/|wp-content/plugins/woocommerce/|wp-content/plugins/amp-2.0/|wp-content/plugins/woocommerce-payments/|wp-content/plugins/woocommerce-subscriptions/|wp-content/plugins/p2(-wpcom)?|wp-content/lib/google/|wp-content/lib/tus-php/|wp-content/vip-plugins/facebook-instant-articles-3.2/|wp-content/vip-plugins/facebook-instant-articles-4.0/|wp-content/mu-plugins/jetpack-packages/|wp-content/plugins/woo-gutenberg-products-block/vendor/|/autoload_|/vendor/composer/'
+# Based on Automattic/pre-receive-hooks/blob/221f27e6/common/050-stop-underscores.sh
+IGNORE_UNDERSCORE_RULE_FOR='bin/wp-cli|bin/wp-cli-wpcom|wp-includes/sodium_compat|wp-content/plugins/glotpress|.phabricator-linter|wp-content/lib/nosara/ThriftSQL.src/ThriftGenerated/|wp-content/lib/aws/vendor/|wp-content/plugins/woocommerce/|wp-content/plugins/woocommerce-payments/|wp-content/plugins/woocommerce-subscriptions/|wp-content/plugins/p2(-wpcom)?|wp-content/lib/google/|wp-content/plugins/woo-gutenberg-products-block/vendor/|/autoload_|/vendor/composer/|wp-content/a8c-plugins/one-offs/a8cmaileditor/'
 function check_underscores {
 	local FILE="$1"
 	if echo "$PREFIX/$FILE" |
@@ -22,7 +22,7 @@ function check_underscores {
 	fi
 }
 
-# Based on Automattic/pre-receive-hooks/blob/8bf13a23/common/120-stop-invalid-chars.sh
+# Based on Automattic/pre-receive-hooks/blob/221f27e6/common/120-stop-invalid-chars.sh
 function check_invalid_chars {
 	local FILE="$1"
 	local Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/-]' <<<"$FILE" || true )
@@ -36,7 +36,7 @@ function check_invalid_chars {
 	fi
 }
 
-# Based on Automattic/pre-receive-hooks/blob/8bf13a23/common/130-stop-executables.sh
+# Based on Automattic/pre-receive-hooks/blob/221f27e6/common/130-stop-executables.sh
 function check_executable {
 	local FILE="$1"
 	if [[ "$( git ls-files -s "${FILE}" | awk '{ print $1 }' )" == "100755" ]]; then
@@ -45,7 +45,7 @@ function check_executable {
 	fi
 }
 
-# Based on Automattic/pre-receive-hooks/blob/8bf13a23/common/160-stop-symlinks.sh
+# Based on Automattic/pre-receive-hooks/blob/221f27e6/common/160-stop-symlinks.sh
 function check_symlink {
 	local FILE="$1"
 	if [[ "$( git ls-files -s "${FILE}" | awk '{ print $1 }' )" == "120000" ]]; then

@@ -7,6 +7,8 @@
 
 /**
  * Class BlogTokenResilienceTest.
+ *
+ * @covers \WPCOMSH_Blog_Token_Resilience
  */
 class BlogTokenResilienceTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -26,7 +28,6 @@ class BlogTokenResilienceTest extends WP_UnitTestCase {
 	 * @param string|null $value_on_persistent_data The value to be present at the Persistent Data storage at the time get_option is called.
 	 * @param string|bool $expected_value The expeceted return of get_option call.
 	 * @return void
-	 * @covers WPCOMSH_Blog_Token_Resilience::filter_get_option
 	 * @dataProvider get_blog_token_data
 	 */
 	public function test_get_blog_token( $value_on_db, $value_on_persistent_data, $expected_value ) {

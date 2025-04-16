@@ -5,10 +5,12 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 @keyframes animate-drop {
+
 	0% {
 		opacity: 0;
 		transform: translateY(-100%);
 	}
+
 	100% {
 		opacity: 1;
 		transform: translateY(0);
@@ -57,7 +59,9 @@
 // Reset placeholder button margin.
 .components-placeholder__fieldset,
 .editor-post-featured-image {
+
 	.components-dropdown .jetpack-external-media-button-menu {
+
 		> svg {
 			display: none;
 		}
@@ -71,6 +75,7 @@
 
 .block-editor-inserter__media-panel .components-search-control input[type=search].components-search-control__input[placeholder~="Google"] {
 	display: none;
+
 	& + .components-search-control__icon {
 		display: none;
 	}

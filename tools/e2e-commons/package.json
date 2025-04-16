@@ -19,10 +19,10 @@
 		"jetpack-connect": "node bin/e2e-jetpack-connector.js"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.48.2",
+		"@playwright/test": "1.51.1",
 		"@slack/web-api": "7.3.2",
 		"@types/lodash-es": "4.17.12",
-		"@wordpress/e2e-test-utils-playwright": "1.19.0",
+		"@wordpress/e2e-test-utils-playwright": "1.21.0",
 		"allure-playwright": "2.9.2",
 		"axios": "1.8.2",
 		"chalk": "5.4.1",

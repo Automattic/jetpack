@@ -18,6 +18,7 @@
 
  //for the admin field slug label (needs margin top 5px;
  .zbscrm-cf{
+
 	 .label{
 		 margin-top:5px;
 	 }
@@ -49,7 +50,7 @@
 			.fa {
 
 				font-size:80px;
-				color:green;
+				color: #008000;
     			margin-bottom: 8px;
 
 			}
@@ -83,6 +84,7 @@
 }
 
 .zbs-settings_page_zerobscrm-plugin-settings{
+
 	.wfieldname{
 		text-align:left !important;
 		width:30%;
@@ -130,7 +132,7 @@
 			.fa {
 
 				font-size:80px;
-				color:green;
+				color: #008000;
     			margin-bottom: 8px;
 
 			}
@@ -166,24 +168,27 @@
 
 // upsell / feedback boxes from func zeroBSCRM_UI2_squareFeedbackUpsell
 .zbs-upgrade-banner{
-    background: black;
-    color:white;
+    background: #000;
+    color: #fff;
     padding:20px;
     text-align:center;
 }
+
 .zbs-upgrade-banner h4{
     font-weight: 600;
     color: #f3f3f3;
     text-transform: uppercase;
 }
+
 .zbs-upgrade-banner p{
         color: #999;
 }
+
 .zbs-upgrade-banner .btn{
     margin-top:20px;
     margin-bottom:20px;
     padding:10px;
-    color:white;
+    color: #fff;
     background: #1a6ecc;
 }
 
@@ -193,6 +198,7 @@
 	max-width: 1551px;
 
 	.jpcrm-learn-menu {
+
 		.ui.popup {
 			max-width: 800px !important;
 		}
@@ -224,14 +230,14 @@ div.ui.learn.button {
     left: 25px !important;
     margin-top: -11px;
     border-left-width: 0;
-    border-right-color: white !important;
+    border-right-color: #fff !important;
 }
 
 .popover.bottom .arrow {
-    border-bottom-color: white !important;
+    border-bottom-color: #fff !important;
 }
 
-.popover.right .arrow:after {
+.popover.right .arrow::after {
     content: " ";
     left: 1px;
     bottom: -10px;
@@ -245,10 +251,12 @@ div.ui.learn.button {
 
 //TEAM STUFF BELOW HERE
 #zbs-team-user-table{
+
 	.dn{
 		line-height:30px;
 		float:left;
 	}
+
 	img{
 		border-radius:50%;
 		margin-right:5px;
@@ -260,7 +268,7 @@ div.ui.learn.button {
 	padding:10px;
 }
 
-#zbs-team-mechanics:after{
+#zbs-team-mechanics::after{
 	clear:both;
 }
 
@@ -425,9 +433,11 @@ table#zbsFilesTable td {
 .swal-wide{
     width:550px !important;
 }
+
 .swal-wider{
     width:850px !important;
 }
+
 .jpcrm-external-link-icon {
 	width: 1em;
 	height: 1em;

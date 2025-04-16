@@ -1,17 +1,12 @@
 <?php
 /**
- * Stubs automatically generated from WooCommerce 9.7.1
+ * Stubs automatically generated from WooCommerce 9.8.1
  * using the definition file `tools/stubs/woocommerce-internal-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
  */
 
 namespace {
-    /**
-     * Product helpers.
-     *
-     * @package WooCommerce\Tests
-     */
     /**
      * Class WC_Helper_Product.
      *

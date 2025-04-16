@@ -1,13 +1,15 @@
 .jetpack-business-hours {
+
 	dt,
 	dd {
+
 		@media (min-width: 480px ) {
 			display: inline-block;
 		}
 	}
 
 	dt {
-		font-weight: bold;
+		font-weight: 700;
 		margin-inline-end: 0.5em;
 		min-width: 30%;
 		vertical-align: top;
@@ -15,6 +17,7 @@
 
 	dd {
 		margin: 0;
+
 		@media (min-width: 480px ) {
 			max-width: calc( 70% - 0.5em );
 		}

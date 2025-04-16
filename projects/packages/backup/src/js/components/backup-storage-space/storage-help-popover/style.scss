@@ -1,4 +1,5 @@
 .backup-storage-space {
+
 	&__help-popover {
 		line-height: 28px;
 		vertical-align: top;
@@ -6,6 +7,7 @@
 	}
 
 	&__popover.components-popover {
+
 		.components-popover__content {
 			padding: 24px;
 			color: var(--jp-gray-70);
@@ -36,6 +38,7 @@
 	}
 
 	&__toggle-popover {
+
 		&.components-button {
 			padding: 0px 4px !important;
 			height: auto !important;

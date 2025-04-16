@@ -7,8 +7,8 @@ import TourImage1x2 from './images/jp_onboarding_tour_1-2x.png';
 import TourImage1 from './images/jp_onboarding_tour_1.png';
 import TourImage2x2 from './images/jp_onboarding_tour_2-2x.png';
 import TourImage2 from './images/jp_onboarding_tour_2.png';
-import TourImage3x2 from './images/jp_onboarding_tour_3-2x.png';
-import TourImage3 from './images/jp_onboarding_tour_3.png';
+// import TourImage3x2 from './images/jp_onboarding_tour_3-2x.png';
+// import TourImage3 from './images/jp_onboarding_tour_3.png';
 import TourImage4x2 from './images/jp_onboarding_tour_4-2x.png';
 import TourImage4 from './images/jp_onboarding_tour_4.png';
 import './styles.scss';
@@ -84,30 +84,30 @@ const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
 								</>
 							),
 						},
-						{
-							image: (
-								<WelcomeTourImage
-									className="myjetpack-onboarding-welcome-tour__image"
-									nonAnimatedSrc={ TourImage3 }
-									nonAnimatedSrc2x={ TourImage3x2 }
-									animatedSrc={ TourImage3 }
-									animatedSrc2x={ TourImage3x2 }
-								/>
-							),
-							content: (
-								<>
-									<h1 className="myjetpack-onboarding-welcome-tour__heading">
-										{ __( 'Your entire site, safe in the cloud', 'jetpack-my-jetpack' ) }
-									</h1>
-									<p className="myjetpack-onboarding-welcome-tour__text">
-										{ __(
-											'We’ve started to back up your entire site in the cloud. Restore with one click if anything goes wrong.',
-											'jetpack-my-jetpack'
-										) }
-									</p>
-								</>
-							),
-						},
+						// {
+						// 	image: (
+						// 		<WelcomeTourImage
+						// 			className="myjetpack-onboarding-welcome-tour__image"
+						// 			nonAnimatedSrc={ TourImage3 }
+						// 			nonAnimatedSrc2x={ TourImage3x2 }
+						// 			animatedSrc={ TourImage3 }
+						// 			animatedSrc2x={ TourImage3x2 }
+						// 		/>
+						// 	),
+						// 	content: (
+						// 		<>
+						// 			<h1 className="myjetpack-onboarding-welcome-tour__heading">
+						// 				{ __( 'Your entire site, safe in the cloud', 'jetpack-my-jetpack' ) }
+						// 			</h1>
+						// 			<p className="myjetpack-onboarding-welcome-tour__text">
+						// 				{ __(
+						// 					'We’ve started to back up your entire site in the cloud. Restore with one click if anything goes wrong.',
+						// 					'jetpack-my-jetpack'
+						// 				) }
+						// 			</p>
+						// 		</>
+						// 	),
+						// },
 						{
 							image: (
 								<WelcomeTourImage
@@ -126,7 +126,7 @@ const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
 									<p className="myjetpack-onboarding-welcome-tour__text">
 										{ createInterpolateElement(
 											__(
-												'Install the Jetpack app for iOS or Android and stay connected to your site from anywhere!<br />We sent you an email with the download link.',
+												'Install the Jetpack app for iOS or Android and stay connected to your site from anywhere!<br /><br />We sent you an email with the download link.',
 												'jetpack-my-jetpack'
 											),
 											{

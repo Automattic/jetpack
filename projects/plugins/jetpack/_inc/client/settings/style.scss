@@ -47,6 +47,7 @@
 		padding-right: 0;
 		min-width: 98px;
 	}
+
 	.jp-form-input-with-prefix input[type="text"] {
 		border-left: 1px solid #d5d5d5;
 	}
@@ -55,14 +56,17 @@
 	.components-base-control.components-toggle-control {
 		margin-bottom: 16px;
 	}
+
 	.components-base-control.components-toggle-control:last-child {
 		margin-bottom: 0;
 	}
+
 	form#jp-settings-newsletter-jetpack .components-base-control.components-toggle-control:last-child {
 		margin-bottom: 16px;
 	}
 
 	.jp-form-has-child {
+
 		& > .jp-form-fieldset {
 			margin-left: 64px;
 
@@ -97,6 +101,7 @@
 	}
 
 	@include breakpoint( "<480px" ) {
+
 		.dops-search.is-expanded-to-container {
 			height: 46px;
 		}

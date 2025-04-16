@@ -156,20 +156,15 @@ function JetpackLikesMessageListener( event ) {
 
 			break;
 
-		case 'showLikeWidget': {
-			// Add a `liked` class to the wrapper if the post already has likes.
-			if ( data.total > 0 ) {
-				document.querySelector( `#${ data.id }` ).classList.add( 'liked' );
-			}
-
+		// We're keeping this for planned future follow ups.
+		// @see: https://github.com/Automattic/jetpack/pull/42361#discussion_r1995338815
+		case 'showLikeWidget':
 			break;
-		}
 
 		// We're keeping this for planned future follow ups.
 		// @see: https://github.com/Automattic/jetpack/pull/42361#discussion_r1995338815
-		case 'showCommentLikeWidget': {
+		case 'showCommentLikeWidget':
 			break;
-		}
 
 		case 'killCommentLikes':
 			// If kill switch for comment likes is enabled remove all widgets wrappers and `Loading...` placeholders.
@@ -188,16 +183,6 @@ function JetpackLikesMessageListener( event ) {
 			hideLikersPopover();
 			break;
 		}
-
-		case 'clickPostLike':
-			// Add or remove the wrapper `liked` class based on the total likes.
-			if ( data.total > 0 ) {
-				document.querySelector( `#${ data.id }` ).classList.add( 'liked' );
-			} else {
-				document.querySelector( `#${ data.id }` ).classList.remove( 'liked' );
-			}
-
-			break;
 
 		case 'showOtherGravatars': {
 			const container = document.querySelector( '#likes-other-gravatars' );

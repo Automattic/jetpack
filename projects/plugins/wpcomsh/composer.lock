@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bba2f0c5c366144065179146d49f37fb",
+    "content-hash": "7faf21219ffeeb48c7b13b7aa56d3257",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -53,23 +53,26 @@
         },
         {
             "name": "automattic/custom-fonts-typekit",
-            "version": "v2.0.0",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/custom-fonts-typekit.git",
-                "reference": "0be6c997f3c576fc86844b5d57130d6ed81fe624"
+                "reference": "d576a78495b78d0d6acc465beecaf4079463d24c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts-typekit/zipball/0be6c997f3c576fc86844b5d57130d6ed81fe624",
-                "reference": "0be6c997f3c576fc86844b5d57130d6ed81fe624",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts-typekit/zipball/d576a78495b78d0d6acc465beecaf4079463d24c",
+                "reference": "d576a78495b78d0d6acc465beecaf4079463d24c",
                 "shasum": ""
             },
             "require-dev": {
                 "10up/wp_mock": "dev-master"
             },
-            "type": "library",
-            "time": "2023-05-01T20:00:28+00:00"
+            "type": "wordpress-plugin",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "time": "2025-04-02T12:48:49+00:00"
         },
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -697,7 +700,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "2d0a9a01df4f9c6a035cd9de5a2c703a7d1dbba0"
+                "reference": "8b6fb10f12a15323a4af26c97ed28e3cd98327bd"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -733,7 +736,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.10.x-dev"
+                    "dev-trunk": "6.11.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1148,7 +1151,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "387a32f99c92a2c5a12c6a4d005f548062fe8623"
+                "reference": "2f0576b08251752f44d2e82f8b8263ba5bc746e3"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1178,7 +1181,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.14.x-dev"
+                    "dev-trunk": "0.16.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -1231,7 +1234,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "91fe66046ca9b610bf283babb7148be1db059567"
+                "reference": "2324a26120cdda4a43d16d40cfa3d61c1aec0486"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1268,7 +1271,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "6.1.x-dev"
+                    "dev-trunk": "6.3.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1611,7 +1614,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "eec6e8271495190abad94cc652ed5d2c5ec69304"
+                "reference": "17d370fe6ad03ba4efd6b26ba367dfc8951c1670"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1639,7 +1642,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.15.x-dev"
+                    "dev-trunk": "0.16.x-dev"
                 },
                 "textdomain": "jetpack-stats"
             },
@@ -2044,16 +2047,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.9.2",
+            "version": "v2.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "e740874c1149a1307a1da2ec73f2ffde6a260540"
+                "reference": "e62c53682814d151bca197a5d9fccdfd9f104205"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/e740874c1149a1307a1da2ec73f2ffde6a260540",
-                "reference": "e740874c1149a1307a1da2ec73f2ffde6a260540",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/e62c53682814d151bca197a5d9fccdfd9f104205",
+                "reference": "e62c53682814d151bca197a5d9fccdfd9f104205",
                 "shasum": ""
             },
             "require-dev": {
@@ -2092,7 +2095,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2025-03-26T12:26:04+00:00"
+            "time": "2025-04-11T10:28:21+00:00"
         },
         {
             "name": "scssphp/scssphp",
@@ -2957,16 +2960,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.5.14",
+            "version": "11.5.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "9d6046153c2893b521784069e6b5249ce7d2acae"
+                "reference": "fd2e863a2995cdfd864fb514b5e0b28b09895b5c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/9d6046153c2893b521784069e6b5249ce7d2acae",
-                "reference": "9d6046153c2893b521784069e6b5249ce7d2acae",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/fd2e863a2995cdfd864fb514b5e0b28b09895b5c",
+                "reference": "fd2e863a2995cdfd864fb514b5e0b28b09895b5c",
                 "shasum": ""
             },
             "require": {
@@ -3038,7 +3041,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.14"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.17"
             },
             "funding": [
                 {
@@ -3054,7 +3057,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-03-19T13:45:48+00:00"
+            "time": "2025-04-08T07:59:11+00:00"
         },
         {
             "name": "psr/container",
@@ -4089,16 +4092,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v7.2.1",
+            "version": "v7.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "fefcc18c0f5d0efe3ab3152f15857298868dc2c3"
+                "reference": "e51498ea18570c062e7df29d05a7003585b19b88"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/fefcc18c0f5d0efe3ab3152f15857298868dc2c3",
-                "reference": "fefcc18c0f5d0efe3ab3152f15857298868dc2c3",
+                "url": "https://api.github.com/repos/symfony/console/zipball/e51498ea18570c062e7df29d05a7003585b19b88",
+                "reference": "e51498ea18570c062e7df29d05a7003585b19b88",
                 "shasum": ""
             },
             "require": {
@@ -4162,7 +4165,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v7.2.1"
+                "source": "https://github.com/symfony/console/tree/v7.2.5"
             },
             "funding": [
                 {
@@ -4178,7 +4181,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-12-11T03:49:26+00:00"
+            "time": "2025-03-12T08:11:12+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -4567,16 +4570,16 @@
         },
         {
             "name": "symfony/process",
-            "version": "v7.2.4",
+            "version": "v7.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "d8f411ff3c7ddc4ae9166fb388d1190a2df5b5cf"
+                "reference": "87b7c93e57df9d8e39a093d32587702380ff045d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/d8f411ff3c7ddc4ae9166fb388d1190a2df5b5cf",
-                "reference": "d8f411ff3c7ddc4ae9166fb388d1190a2df5b5cf",
+                "url": "https://api.github.com/repos/symfony/process/zipball/87b7c93e57df9d8e39a093d32587702380ff045d",
+                "reference": "87b7c93e57df9d8e39a093d32587702380ff045d",
                 "shasum": ""
             },
             "require": {
@@ -4608,7 +4611,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v7.2.4"
+                "source": "https://github.com/symfony/process/tree/v7.2.5"
             },
             "funding": [
                 {
@@ -4624,7 +4627,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-02-05T08:33:46+00:00"
+            "time": "2025-03-13T12:21:46+00:00"
         },
         {
             "name": "symfony/service-contracts",

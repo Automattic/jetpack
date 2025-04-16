@@ -30,6 +30,8 @@ interface AssetsTest_test_wp_default_scripts_hook {
 
 /**
  * Assets test suite.
+ *
+ * @covers \Automattic\Jetpack\Assets
  */
 class AssetsTest extends TestCase {
 	use \Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -218,7 +220,6 @@ class AssetsTest extends TestCase {
 	/**
 	 * Test whether static resources are properly updated to use a WordPress.com static domain.
 	 *
-	 * @covers Automattic\Jetpack\Assets::staticize_subdomain
 	 * @dataProvider get_resources_urls
 	 *
 	 * @param string $original       Source URL.

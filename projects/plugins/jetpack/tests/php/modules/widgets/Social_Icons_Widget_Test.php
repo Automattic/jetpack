@@ -23,8 +23,6 @@ class Social_Icons_Widget_Test extends WP_UnitTestCase {
 	/**
 	 * Verifies that the target and url attributes in the icon urls are correct when the new tab setting
 	 * is enabled.
-	 *
-	 * @covers Jetpack_Widget_Social_Icons::widget
 	 */
 	public function test_widget_icon_urls_new_tab() {
 		$args = array(
@@ -54,8 +52,6 @@ class Social_Icons_Widget_Test extends WP_UnitTestCase {
 	/**
 	 * Verifies that the target and url attributes in the icon urls are correct when the new tab setting
 	 * is disabled.
-	 *
-	 * @covers Jetpack_Widget_Social_Icons::widget
 	 */
 	public function test_widget_icon_urls_same_tab() {
 		$args = array(

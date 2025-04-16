@@ -1,11 +1,13 @@
 /**
  * External dependencies
  */
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
-const RecipeIngredientsListSave = ( { className } ) => {
+const RecipeIngredientsListSave = () => {
+	const blockProps = useBlockProps.save();
+
 	return (
-		<div className={ className }>
+		<div { ...blockProps }>
 			<InnerBlocks.Content />
 		</div>
 	);

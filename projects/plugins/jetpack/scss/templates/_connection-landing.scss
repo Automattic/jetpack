@@ -11,6 +11,7 @@
 
 // wrapping these common element names temporarily until I can audit - jeff
 .jp-content {
+
 	.hide {
 		display: none;
 	}
@@ -33,28 +34,31 @@
 			color: $green;
 		}
 	}
+
 	.footer {
 		padding-top: 0;
 		margin-top: 0;
 		background-image: none;
 
-		&:before {
+		&::before {
 			height: inherit;
 		}
 	}
 
-	.more-info:before {
+	.more-info::before {
 		content: none;
 	}
 } //.jp-content
 
 .landing {
+
 	.wpcom-connect {
 		min-height: 400px;
 	}
 }
 
 .wpcom-connect {
+
 	.j-col {
 		padding: 0;
 	}
@@ -62,7 +66,9 @@
 
 // Breakpoints
 @include breakpoint(large-desktop) {
+
 	.jp-content {
+
 		.landing {
 			padding: 0 2em;
 		}
@@ -74,7 +80,9 @@
 } // large-desktop
 
 @include breakpoint(large-phone) {
+
 	.jp-content {
+
 		.landing {
 			padding: 0 .5em;
 		}

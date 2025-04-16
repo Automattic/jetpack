@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
+import { getAllBlocks } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BaseControl,
 	ToggleControl,
@@ -10,16 +12,18 @@ import {
 	CheckboxControl,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
 import { FEATURE_LABELS, FEATURES } from './constants';
+import { SeoEnhancerTaskList } from './seo-enhancer-task-list';
 import { store } from './store';
 import { useSeoModuleSettings } from './use-seo-module-settings';
 import { useSeoRequests } from './use-seo-requests';
+import type { BlockInstance } from '@wordpress/blocks';
 import './style.scss';
 /**
  * Types
@@ -41,7 +45,21 @@ export function SeoEnhancer( {
 
 		return isBusy || isAnyImageBusy;
 	}, [] );
+
 	const enabledFeatures = useSelect( select => select( store ).getEnabledFeatures(), [] );
+	const blocks = useSelect(
+		select => ( select( blockEditorStore ) as { getBlocks: () => BlockInstance[] } ).getBlocks(),
+		[]
+	);
+
+	const imageBlocks = useMemo( () => {
+		return blocks.length
+			? getAllBlocks().filter(
+					block => block.name === 'core/image' && block.attributes.url && ! block.attributes.alt
+			  )
+			: [];
+	}, [ blocks ] );
+
 	const { setFeatureEnabled } = useDispatch( store );
 
 	const { updateSeoData } = useSeoRequests();
@@ -96,10 +114,6 @@ export function SeoEnhancer( {
 							) }
 						/>
 					) }
-				</BaseControl>
-			</PanelRow>
-			<PanelRow className="jetpack-seo-sidebar__feature-section">
-				<BaseControl __nextHasNoMarginBottom={ true }>
 					{ ( ! isEnabled || disableAutoEnhance ) && (
 						<div className="feature-checkboxes-container">
 							{ FEATURES.map( feature => (
@@ -116,20 +130,10 @@ export function SeoEnhancer( {
 						</div>
 					) }
 					{ isEnabled && ! disableAutoEnhance && (
-						<div className="jetpack-seo-sidebar__feature-list-container">
-							{ enabledFeatures.length > 0 ? (
-								<>
-									<p>{ __( "We'll auto-generate:", 'jetpack' ) }</p>
-									<ul className="jetpack-seo-sidebar__feature-list">
-										{ enabledFeatures.map( feature => (
-											<li key={ feature }>{ FEATURE_LABELS[ feature ] }</li>
-										) ) }
-									</ul>
-								</>
-							) : (
-								<p>{ __( 'No features selected to auto-generate', 'jetpack' ) }</p>
-							) }
-						</div>
+						<SeoEnhancerTaskList
+							isPrePublish={ placement === 'jetpack-prepublish-sidebar' }
+							imageBlocks={ imageBlocks }
+						/>
 					) }
 				</BaseControl>
 			</PanelRow>

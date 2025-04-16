@@ -66,7 +66,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/account-protection",
-				"reference": "f28f8f4f15238256f9f5ea8c22aac22113dff87d"
+				"reference": "b0dc90cd2c96bd61af153cae661e6dbfad5e4b27"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -88,7 +88,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.1.x-dev"
+					"dev-trunk": "0.2.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-account-protection/compare/v${old}...v${new}"
@@ -965,7 +965,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "2d0a9a01df4f9c6a035cd9de5a2c703a7d1dbba0"
+				"reference": "8b6fb10f12a15323a4af26c97ed28e3cd98327bd"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1001,7 +1001,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "6.10.x-dev"
+					"dev-trunk": "6.11.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -1359,7 +1359,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "bd2a5e5d0d80f9e782ec199beae48aaf926f3855"
+				"reference": "f5fdbe1d6d8ca870e968b6ee3a6e4ab959b7e560"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1388,7 +1388,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.45.x-dev"
+					"dev-trunk": "0.48.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -1805,7 +1805,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/masterbar",
-				"reference": "387a32f99c92a2c5a12c6a4d005f548062fe8623"
+				"reference": "2f0576b08251752f44d2e82f8b8263ba5bc746e3"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1835,7 +1835,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.14.x-dev"
+					"dev-trunk": "0.16.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -1888,7 +1888,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "aa86997841a46215f641c2b8312a10eb237fb5c4"
+				"reference": "8bc8bd1b22cc42ac9915f23da56d8b6605465b0b"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1927,7 +1927,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "5.10.x-dev"
+					"dev-trunk": "5.12.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2365,7 +2365,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "9fab41c69c15ca16748a4fab7edc11eaab90016a"
+				"reference": "7eeac92159794d3ebaa0ea710972fc795a05fb46"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2396,7 +2396,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.62.x-dev"
+					"dev-trunk": "0.63.x-dev"
 				}
 			},
 			"autoload": {
@@ -2637,7 +2637,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/stats",
-				"reference": "eec6e8271495190abad94cc652ed5d2c5ec69304"
+				"reference": "17d370fe6ad03ba4efd6b26ba367dfc8951c1670"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2665,7 +2665,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.15.x-dev"
+					"dev-trunk": "0.16.x-dev"
 				},
 				"textdomain": "jetpack-stats"
 			},
@@ -2989,7 +2989,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/videopress",
-				"reference": "e53d35eae4e726b22a055a606daca4b1fc6a7ba7"
+				"reference": "c14954ff73879d665f632af7c2074b79186657a1"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2997,6 +2997,7 @@
 				"automattic/jetpack-connection": "@dev",
 				"automattic/jetpack-my-jetpack": "@dev",
 				"automattic/jetpack-plans": "@dev",
+				"automattic/jetpack-status": "@dev",
 				"php": ">=7.2"
 			},
 			"require-dev": {
@@ -3017,7 +3018,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.27.x-dev"
+					"dev-trunk": "0.28.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-package-version.php"
@@ -4224,16 +4225,16 @@
 		},
 		{
 			"name": "phpunit/phpunit",
-			"version": "11.5.14",
+			"version": "11.5.15",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/sebastianbergmann/phpunit.git",
-				"reference": "9d6046153c2893b521784069e6b5249ce7d2acae"
+				"reference": "4b6a4ee654e5e0c5e1f17e2f83c0f4c91dee1f9c"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/9d6046153c2893b521784069e6b5249ce7d2acae",
-				"reference": "9d6046153c2893b521784069e6b5249ce7d2acae",
+				"url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/4b6a4ee654e5e0c5e1f17e2f83c0f4c91dee1f9c",
+				"reference": "4b6a4ee654e5e0c5e1f17e2f83c0f4c91dee1f9c",
 				"shasum": ""
 			},
 			"require": {
@@ -4305,7 +4306,7 @@
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/phpunit/issues",
 				"security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-				"source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.14"
+				"source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.15"
 			},
 			"funding": [
 				{
@@ -4321,7 +4322,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-03-19T13:45:48+00:00"
+			"time": "2025-03-23T16:02:11+00:00"
 		},
 		{
 			"name": "psr/container",
@@ -5356,16 +5357,16 @@
 		},
 		{
 			"name": "symfony/console",
-			"version": "v7.2.1",
+			"version": "v7.2.5",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/console.git",
-				"reference": "fefcc18c0f5d0efe3ab3152f15857298868dc2c3"
+				"reference": "e51498ea18570c062e7df29d05a7003585b19b88"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/console/zipball/fefcc18c0f5d0efe3ab3152f15857298868dc2c3",
-				"reference": "fefcc18c0f5d0efe3ab3152f15857298868dc2c3",
+				"url": "https://api.github.com/repos/symfony/console/zipball/e51498ea18570c062e7df29d05a7003585b19b88",
+				"reference": "e51498ea18570c062e7df29d05a7003585b19b88",
 				"shasum": ""
 			},
 			"require": {
@@ -5429,7 +5430,7 @@
 				"terminal"
 			],
 			"support": {
-				"source": "https://github.com/symfony/console/tree/v7.2.1"
+				"source": "https://github.com/symfony/console/tree/v7.2.5"
 			},
 			"funding": [
 				{
@@ -5445,7 +5446,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2024-12-11T03:49:26+00:00"
+			"time": "2025-03-12T08:11:12+00:00"
 		},
 		{
 			"name": "symfony/deprecation-contracts",
@@ -5834,16 +5835,16 @@
 		},
 		{
 			"name": "symfony/process",
-			"version": "v7.2.4",
+			"version": "v7.2.5",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/process.git",
-				"reference": "d8f411ff3c7ddc4ae9166fb388d1190a2df5b5cf"
+				"reference": "87b7c93e57df9d8e39a093d32587702380ff045d"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/process/zipball/d8f411ff3c7ddc4ae9166fb388d1190a2df5b5cf",
-				"reference": "d8f411ff3c7ddc4ae9166fb388d1190a2df5b5cf",
+				"url": "https://api.github.com/repos/symfony/process/zipball/87b7c93e57df9d8e39a093d32587702380ff045d",
+				"reference": "87b7c93e57df9d8e39a093d32587702380ff045d",
 				"shasum": ""
 			},
 			"require": {
@@ -5875,7 +5876,7 @@
 			"description": "Executes commands in sub-processes",
 			"homepage": "https://symfony.com",
 			"support": {
-				"source": "https://github.com/symfony/process/tree/v7.2.4"
+				"source": "https://github.com/symfony/process/tree/v7.2.5"
 			},
 			"funding": [
 				{
@@ -5891,7 +5892,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-02-05T08:33:46+00:00"
+			"time": "2025-03-13T12:21:46+00:00"
 		},
 		{
 			"name": "symfony/service-contracts",

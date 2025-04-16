@@ -15,6 +15,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class Blocks_Test
+ *
+ * @covers \Automattic\Jetpack\Blocks
  */
 class Blocks_Test extends TestCase {
 
@@ -51,8 +53,6 @@ class Blocks_Test extends TestCase {
 	 * Test the different inputs and matching output for Classes.
 	 *
 	 * @since 9.0.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::classes
 	 */
 	public function test_block_classes() {
 		$block_name = 'foo';
@@ -79,8 +79,6 @@ class Blocks_Test extends TestCase {
 	 * Test for invalid alignment values.
 	 *
 	 * @since 9.0.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::classes
 	 */
 	public function test_block_classes_invalid_align() {
 		$attr          = array( 'align' => 'test' );
@@ -93,8 +91,6 @@ class Blocks_Test extends TestCase {
 	 * Test whether we can detect an AMP view.
 	 *
 	 * @since 9.0.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_amp_request
 	 */
 	public function test_is_amp_request() {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -109,8 +105,6 @@ class Blocks_Test extends TestCase {
 	 * Test whether we can detect an AMP view.
 	 *
 	 * @since 9.0.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_amp_request
 	 */
 	public function test_is_not_amp_request() {
 		$this->assertFalse( Blocks::is_amp_request() );
@@ -118,8 +112,6 @@ class Blocks_Test extends TestCase {
 
 	/**
 	 * Test WordPress and Gutenberg version requirements.
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_gutenberg_version_available
 	 */
 	public function test_returns_false_if_core_wp_version_less_than_minimum() {
 		$version_gated = Blocks::is_gutenberg_version_available(
@@ -134,8 +126,6 @@ class Blocks_Test extends TestCase {
 
 	/**
 	 * Test WordPress and Gutenberg version requirements.
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_gutenberg_version_available
 	 */
 	public function test_returns_true_if_core_wp_version_greater_or_equal_to_minimum() {
 		$version_gated = Blocks::is_gutenberg_version_available(
@@ -150,8 +140,6 @@ class Blocks_Test extends TestCase {
 
 	/**
 	 * Testing removing the Jetpack prefix from a block slug.
-	 *
-	 * @covers Automattic\Jetpack\Blocks::remove_extension_prefix
 	 *
 	 * @dataProvider get_extension_name_provider
 	 *
@@ -188,8 +176,6 @@ class Blocks_Test extends TestCase {
 
 	/**
 	 * Test to ensure that an extension is returned as registered.
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_registered
 	 */
 	public function test_is_extension_registered() {
 		// Test for the block that is registered for all tests here.
@@ -200,8 +186,6 @@ class Blocks_Test extends TestCase {
 
 	/**
 	 * Ensure blocks cannot be registered twice.
-	 *
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
 	public function test_jetpack_register_block_twice() {
 		$result = Blocks::jetpack_register_block( $this->block_name );
@@ -212,7 +196,6 @@ class Blocks_Test extends TestCase {
 	 * Test to ensure blocks without a Jetpack prefix are registered, but with a jetpack prefix.
 	 *
 	 * @expectedIncorrectUsage Automattic\Jetpack\Blocks::jetpack_register_block
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
 	public function test_jetpack_register_block_without_jetpack() {
 		$result = Blocks::jetpack_register_block( 'doing-it-wrong' );
@@ -223,8 +206,6 @@ class Blocks_Test extends TestCase {
 	 * Test that we can detect an FSE theme.
 	 *
 	 * @since 9.8.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_fse_theme
 	 */
 	public function test_is_not_fse_theme() {
 		$this->assertFalse( Blocks::is_fse_theme() );
@@ -234,8 +215,6 @@ class Blocks_Test extends TestCase {
 	 * Test that we can detect an FSE theme using the provided filter.
 	 *
 	 * @since 9.8.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_fse_theme
 	 */
 	public function test_is_fse_theme_via_filter() {
 		add_filter( 'jetpack_is_fse_theme', '__return_true' );
@@ -250,8 +229,6 @@ class Blocks_Test extends TestCase {
 	 * Test that by default we are not running in a Jetpack plugin context.
 	 *
 	 * @since 9.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
 	 */
 	public function test_is_standalone_block() {
 		$this->assertTrue( Blocks::is_standalone_block() );
@@ -262,8 +239,6 @@ class Blocks_Test extends TestCase {
 	 * as a standalone block.
 	 *
 	 * @since 9.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
 	 */
 	public function test_is_not_standalone_block() {
 		add_filter( 'jetpack_is_standalone_block', '__return_false' );
@@ -279,8 +254,6 @@ class Blocks_Test extends TestCase {
 	 * when the Jetpack_Gutenberg class is not available.
 	 *
 	 * @since 9.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
 	public function test_jetpack_register_block_without_editor_style() {
 		$result = Blocks::jetpack_register_block( 'jetpack/block-without-editor-style' );
@@ -293,8 +266,6 @@ class Blocks_Test extends TestCase {
 	 * when the Jetpack_Gutenberg class is available.
 	 *
 	 * @since 9.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
 	public function test_jetpack_register_block_with_editor_style() {
 		add_filter( 'jetpack_is_standalone_block', '__return_false' );
@@ -312,8 +283,6 @@ class Blocks_Test extends TestCase {
 	 * when the Jetpack_Gutenberg class is available.
 	 *
 	 * @since 9.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
 	public function test_jetpack_register_block_with_existing_editor_style() {
 		add_filter( 'jetpack_is_standalone_block', '__return_false' );
@@ -335,8 +304,6 @@ class Blocks_Test extends TestCase {
 	 * Test registering a block by specifying the path to its metadata file.
 	 *
 	 * @since 1.5.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_jetpack_register_block_from_metadata_file() {
 		$result = Blocks::jetpack_register_block( __DIR__ . '/fixtures/test-block/block.json' );
@@ -348,8 +315,6 @@ class Blocks_Test extends TestCase {
 	 * Test reading metadata from a block.json file by specifying its path.
 	 *
 	 * @since 1.5.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_get_block_metadata_from_file() {
 		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/test-block/block.json' );
@@ -362,8 +327,6 @@ class Blocks_Test extends TestCase {
 	 * Test reading metadata from a block.json file by specifying its folder.
 	 *
 	 * @since 1.5.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_get_block_metadata_from_folder() {
 		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/test-block' );
@@ -376,8 +339,6 @@ class Blocks_Test extends TestCase {
 	 * Test reading metadata from a file that doesn't exist.
 	 *
 	 * @since 1.5.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_get_block_metadata_from_wrong_file() {
 		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/ghost-folder/block.json' );
@@ -390,8 +351,6 @@ class Blocks_Test extends TestCase {
 	 * Test reading the name of a block from its metadata.
 	 *
 	 * @since 1.5.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_metadata
 	 */
 	public function test_get_block_name_from_metadata() {
 		$name   = 'jetpack/test-block';
@@ -408,8 +367,6 @@ class Blocks_Test extends TestCase {
 	 * Test reading the feature name of a block from its metadata.
 	 *
 	 * @since 1.5.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_metadata
 	 */
 	public function test_get_block_feature_from_metadata() {
 		$feature = 'test-block';
@@ -427,8 +384,6 @@ class Blocks_Test extends TestCase {
 	 * Test getting the path to a block's metadata file.
 	 *
 	 * @since 1.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_path_to_block_metadata
 	 */
 	public function test_get_path_to_block_metadata() {
 		$base_dir  = __DIR__ . '/fixtures';
@@ -462,8 +417,6 @@ class Blocks_Test extends TestCase {
 	 * Test getting the block name.
 	 *
 	 * @since 1.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_name
 	 */
 	public function test_get_block_name() {
 		// Pass metadata
@@ -487,8 +440,6 @@ class Blocks_Test extends TestCase {
 	 * Test getting the block feature name.
 	 *
 	 * @since 1.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_feature
 	 */
 	public function test_get_block_feature() {
 		// Pass metadata
@@ -512,8 +463,6 @@ class Blocks_Test extends TestCase {
 	 * Test getting the block name from path convention.
 	 *
 	 * @since 1.x.x
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_path_convention
 	 */
 	public function test_get_block_name_from_path_convention() {
 		/**

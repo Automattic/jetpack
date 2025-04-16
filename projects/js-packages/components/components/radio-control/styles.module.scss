@@ -4,9 +4,13 @@
 /// @link https://github.com/WordPress/gutenberg/tree/trunk/packages/components/src/radio-control
 
 .radio {
+
 	:global {
+
 		.components-radio-control {
+
 			&__input[type="radio"] {
+
 				&:checked {
 					background: var( --jp-green-40 );
 					border-color: var( --jp-green-40 );

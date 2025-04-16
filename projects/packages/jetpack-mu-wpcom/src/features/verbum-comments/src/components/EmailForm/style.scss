@@ -1,5 +1,6 @@
 .comment-form__verbum .verbum-subscriptions .verbum-form
 {
+
 	.verbum-form__content {
 		// protect the button from style leaks from the site; reset all.
 		all: unset;
@@ -33,6 +34,7 @@
 				width: 100%;
 				height: 100%;
 				padding-left: 48px;
+
 				/* Override border styling */ 
 				border: none !important;
 				font-size: 14px;
@@ -62,10 +64,7 @@
 
 	.verbum-mail-form-cookie-consent {
 		margin-bottom: 16px;
-
-		.verbum-toggle-control {
-			padding: 0 21px;
-		}
+		padding: 0 21px;
 
 		.verbum-toggle-control__text {
 			font-size: 0.875rem;

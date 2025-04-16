@@ -11,7 +11,7 @@ import {
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
@@ -57,6 +57,7 @@ export const useSeoRequests = () => {
 	const { setImageBusy, setImageFailed } = useDispatch( store );
 	const { createInfoNotice } = useDispatch( 'core/notices' );
 	const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
+	const [ triggerType, setTriggerType ] = useState< 'manual' | 'auto' >( null );
 
 	const request = useCallback(
 		async ( type: PromptType, block?: Block, useBase64Image: boolean = false ) => {
@@ -106,7 +107,7 @@ export const useSeoRequests = () => {
 	const updateTitle = useCallback(
 		async ( force: boolean = false ) => {
 			const hasTitle =
-				!! globalSelect( 'core/editor' ).getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title;
+				!! globalSelect( editorStore ).getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title;
 
 			if ( hasTitle && force !== true ) {
 				return null;
@@ -116,6 +117,16 @@ export const useSeoRequests = () => {
 				setTitleBusy( true );
 				const response = await request( 'seo-title' );
 				const title = parseResponse( response ).titles?.[ 0 ];
+
+				if ( title && title.length > 70 ) {
+					tracks.recordEvent( 'jetpack_seo_enhancer_title_too_long', {
+						character_count: title.length,
+					} );
+				}
+
+				if ( triggerType === 'auto' && globalSelect( editorStore ).isCurrentPostPublished() ) {
+					return false;
+				}
 
 				editPost( {
 					meta: {
@@ -131,13 +142,13 @@ export const useSeoRequests = () => {
 				setTitleBusy( false );
 			}
 		},
-		[ setTitleBusy, request, editPost ]
+		[ setTitleBusy, request, editPost, tracks, triggerType ]
 	);
 
 	const updateDescription = useCallback(
 		async ( force: boolean = false ) => {
 			const hasDescription =
-				!! globalSelect( 'core/editor' ).getEditedPostAttribute( 'meta' )?.advanced_seo_description;
+				!! globalSelect( editorStore ).getEditedPostAttribute( 'meta' )?.advanced_seo_description;
 
 			if ( hasDescription && force !== true ) {
 				return null;
@@ -147,6 +158,17 @@ export const useSeoRequests = () => {
 				setDescriptionBusy( true );
 				const response = await request( 'seo-meta-description' );
 				const description = parseResponse( response ).descriptions?.[ 0 ];
+
+				if ( description && description.length > 156 ) {
+					tracks.recordEvent( 'jetpack_seo_enhancer_description_too_long', {
+						character_count: description.length,
+					} );
+				}
+
+				if ( triggerType === 'auto' && globalSelect( editorStore ).isCurrentPostPublished() ) {
+					return false;
+				}
+
 				editPost( {
 					meta: {
 						advanced_seo_description: description,
@@ -161,7 +183,7 @@ export const useSeoRequests = () => {
 				setDescriptionBusy( false );
 			}
 		},
-		[ setDescriptionBusy, request, editPost ]
+		[ setDescriptionBusy, request, editPost, tracks, triggerType ]
 	);
 
 	const updateAltText = useCallback(
@@ -191,7 +213,13 @@ export const useSeoRequests = () => {
 
 				const altText = parseResponse( response ).texts?.[ 0 ];
 
+				if ( triggerType === 'auto' && globalSelect( editorStore ).isCurrentPostPublished() ) {
+					setImageBusy( block.clientId, false );
+					return false;
+				}
+
 				await updateBlockAttributes( block.clientId, { alt: altText } );
+
 				setImageBusy( block.clientId, false );
 
 				return true;
@@ -221,6 +249,7 @@ export const useSeoRequests = () => {
 			increaseRequestsCount,
 			updateBlockAttributes,
 			setImageFailed,
+			triggerType,
 		]
 	);
 
@@ -243,6 +272,7 @@ export const useSeoRequests = () => {
 		async ( { trigger = 'manual' }: { trigger?: 'manual' | 'auto' } = {} ) => {
 			const promises = [];
 			setBusy( true );
+			setTriggerType( trigger );
 
 			const trackData = {
 				trigger,
@@ -251,20 +281,29 @@ export const useSeoRequests = () => {
 				images_alt_text: false,
 			};
 
-			enabledFeatures.forEach( feature => {
-				if ( feature === 'seo-title' ) {
-					promises.push( updateTitle() );
-					trackData.seo_title = true;
-				}
-				if ( feature === 'seo-meta-description' ) {
-					promises.push( updateDescription() );
-					trackData.seo_meta_description = true;
-				}
-				if ( feature === 'images-alt-text' ) {
-					promises.push( updateAltTexts() );
-					trackData.images_alt_text = true;
-				}
-			} );
+			if ( trigger === 'auto' ) {
+				promises.push( updateTitle() );
+				promises.push( updateDescription() );
+				promises.push( updateAltTexts() );
+				trackData.seo_title = true;
+				trackData.seo_meta_description = true;
+				trackData.images_alt_text = true;
+			} else {
+				enabledFeatures.forEach( feature => {
+					if ( feature === 'seo-title' ) {
+						promises.push( updateTitle() );
+						trackData.seo_title = true;
+					}
+					if ( feature === 'seo-meta-description' ) {
+						promises.push( updateDescription() );
+						trackData.seo_meta_description = true;
+					}
+					if ( feature === 'images-alt-text' ) {
+						promises.push( updateAltTexts() );
+						trackData.images_alt_text = true;
+					}
+				} );
+			}
 
 			tracks.recordEvent( 'jetpack_seo_enhancer_trigger', trackData );
 

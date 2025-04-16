@@ -3,6 +3,7 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 @keyframes jetpack-memberships_button__spinner-animation {
+
 	100% {
 		transform: rotate(360deg);
 	}
@@ -13,7 +14,9 @@
 	width: 1em;
 	height: 1em;
 	margin: 0 0 0 5px;
+
 	svg {
+
 		/* Better center-align the spinner with button text, because 1m height doesn't take line-height into account */
 		margin-bottom: -2px;
 		width: 100%;
@@ -59,6 +62,7 @@ dialog.jetpack-memberships-modal {
 	}
 
 	&.is-loading {
+
 		&, &::backdrop {
 			opacity: 0;
 		}

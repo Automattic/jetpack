@@ -1,5 +1,5 @@
-import { ProductPriceProps } from '../product-price/types.js';
-import type { JetpackIconSlug } from '../icons/index.js';
+import { ProductPriceProps } from '../product-price/types.ts';
+import type { JetpackIconSlug } from '../icons/index.tsx';
 
 export type ProductOfferProps = {
 	/**

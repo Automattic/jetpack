@@ -12,23 +12,29 @@
 @import '../../../sass/daterangepicker.dirty.fix';
 
  .zbs-invoice-list{
+
     .paid {
-        background: green;
+        background: #008000;
     }
+
     .draft {
         background: #999;
     }
+
     .overdue {
-        background: red;
+        background: #f00;
     }
+
     .unpaid {
         background: #d0d012;
     }
+
     .status {
         padding: 5px;
-        color: white;
+        color: #fff;
         font-weight: 700;
     }
+
     .tools .fa {
         color: #a3210b;
     }
@@ -39,16 +45,17 @@
     padding: 50px;
     border: 1px solid #ddd;
     margin-bottom: 15px;
-    background: white;
+    background: #fff;
     position: relative;
 
     .zbs-portal-label {
         border-bottom: 3px solid #383838;
         display:inline;
     }
+
     .zbs-portal-value {
         font-size: 40px;
-        color: black;
+        color: #000;
         font-weight: 900;
     }
 
@@ -74,7 +81,7 @@
     .pay-to-name {
         font-size: 22px;
         font-weight: 800;
-        color: black;
+        color: #000;
     }
 
     #zbs-business-info-wrapper, .zbs-invoice-pull-left {

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-MU WPCOM: Filter out the full-site-editing plugin from the active_plugins list if the plugin file doesn't exist

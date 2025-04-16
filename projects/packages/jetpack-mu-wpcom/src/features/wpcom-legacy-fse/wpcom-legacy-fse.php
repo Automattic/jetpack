@@ -31,7 +31,6 @@ function populate_wp_template_data() {
 	$theme_slug        = normalize_theme_slug( get_theme_slug() );
 	$template_inserter = new WP_Template_Inserter( $theme_slug );
 	$template_inserter->insert_default_template_data();
-	$template_inserter->insert_default_pages();
 }
 register_activation_hook( __FILE__, __NAMESPACE__ . '\populate_wp_template_data' );
 add_action( 'switch_theme', __NAMESPACE__ . '\populate_wp_template_data' );

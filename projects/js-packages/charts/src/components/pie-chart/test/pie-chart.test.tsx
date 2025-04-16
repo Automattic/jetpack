@@ -18,6 +18,7 @@ describe( 'PieChart', () => {
 	const renderWithTheme = ( props = {} ) => {
 		return render(
 			<ThemeProvider>
+				{ /* @ts-expect-error TODO Fix the missing props */ }
 				<PieChart { ...defaultProps } { ...props } />
 			</ThemeProvider>
 		);

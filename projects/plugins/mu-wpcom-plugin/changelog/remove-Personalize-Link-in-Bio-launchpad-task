@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Removed the `Personalize Link in Bio` launchpad task, since the link in bio related flow is now deprecated

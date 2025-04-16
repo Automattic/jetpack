@@ -1,4 +1,4 @@
-import { cleanLocale } from '../index.js';
+import { cleanLocale } from '../index.ts';
 
 describe( 'cleanLocale', () => {
 	const testLocales = [

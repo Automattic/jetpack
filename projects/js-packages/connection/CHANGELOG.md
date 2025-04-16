@@ -2,6 +2,24 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.39.11] - 2025-04-14
+### Fixed
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Clean up various Styleline violations. [#43010]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
+## [0.39.10] - 2025-04-07
+### Changed
+- Linting: First pass of style coding standards. [#42734]
+
+## [0.39.9] - 2025-04-01
+### Changed
+- Update package dependencies. [#42809]
+
+## [0.39.8] - 2025-04-01
+### Fixed
+- Fix TypeScript configuration. [#42762]
+
 ## [0.39.7] - 2025-03-31
 ### Changed
 - Update dependencies.
@@ -984,6 +1002,10 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.39.11]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.10...v0.39.11
+[0.39.10]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.9...v0.39.10
+[0.39.9]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.8...v0.39.9
+[0.39.8]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.7...v0.39.8
 [0.39.7]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.6...v0.39.7
 [0.39.6]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.5...v0.39.6
 [0.39.5]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.4...v0.39.5
