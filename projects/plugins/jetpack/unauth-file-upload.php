@@ -7,24 +7,9 @@
 
 namespace Automattic\Jetpack\UnauthFileUpload;
 
-/**
- * The file download url.
- *
- * @param int $file_id The file ID.
- *
- * @return string The file download URL.
- */
-function get_download_url( $file_id ) {
-	$nonce = wp_create_nonce( 'jetpack_unauth_file_download_nonce_' . $file_id );
-	return add_query_arg(
-		array(
-			'action'   => 'jetpack_unauth_file_download',
-			'file_id'  => $file_id,
-			'_wpnonce' => $nonce,
-		),
-		admin_url( 'admin-ajax.php' )
-	);
-}
+add_action( 'wp_ajax_jetpack_unauth_file_download', __NAMESPACE__ . '\handle_file_download' );
+add_filter( 'jetpack_unauth_file_upload_get_file', __NAMESPACE__ . '\get_file_content', 10, 2 );
+add_filter( 'jetpack_unauth_file_download_url', __NAMESPACE__ . '\filter_get_download_url', 10, 2 );
 
 /**
  * Get the file download URL filter callback.
@@ -34,8 +19,16 @@ function get_download_url( $file_id ) {
  *
  * @return string The file download URL.
  */
-function handle_get_download_url( $url, $file_id ) {
-	return get_download_url( $file_id );
+function filter_get_download_url( $url, $file_id ) {
+	$nonce = wp_create_nonce( 'jetpack_unauth_file_download_nonce_' . $file_id );
+	return add_query_arg(
+		array(
+			'action'   => 'jetpack_unauth_file_download',
+			'file_id'  => $file_id,
+			'_wpnonce' => $nonce,
+		),
+		admin_url( 'admin-ajax.php' )
+	);
 }
 
 /**
