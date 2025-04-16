@@ -1,4 +1,4 @@
-import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
+import { useInnerBlocksProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -6,6 +6,7 @@ import { upload } from '@wordpress/icons';
 import { filter, isEmpty, map, startsWith } from 'lodash';
 import DeprecatedOptionCheckbox from '../deprecated/field-option-checkbox';
 import DeprecatedOptionRadio from '../deprecated/field-option-radio';
+import JetpackDropzone from '../dropzone';
 import JetpackCheckboxField from '../field-checkbox';
 import JetpackConsentField from '../field-consent/';
 import JetpackDateField from '../field-date';
@@ -251,6 +252,7 @@ const FieldDefaults = {
 
 export const childBlocks = [
 	JetpackLabel,
+	JetpackDropzone,
 	JetpackInput,
 	JetpackOption,
 	JetpackOptions,
@@ -284,26 +286,33 @@ export const childBlocks = [
 			},
 			edit: JetpackFieldFile,
 			save: () => {
-				const blockProps = useBlockProps.save();
-				const innerBlocksProps = useInnerBlocksProps.save( {
-					className: 'jetpack-form-file-field__content-wrap',
-				} );
-				return (
-					<div { ...blockProps }>
-						<div { ...innerBlocksProps } />
-					</div>
-				);
+				const innerBlocksProps = useInnerBlocksProps.save();
+				return <div { ...innerBlocksProps } />;
 			},
 			attributes: {
-				...FieldDefaults.attributes,
-				label: {
+				id: {
 					type: 'string',
-					default: __( 'Upload a file', 'jetpack-forms' ),
-					role: 'content',
+					default: '',
 				},
 				filetype: {
 					type: 'string',
 					default: '',
+				},
+				maxfiles: {
+					type: 'number',
+					default: 1,
+				},
+				required: {
+					type: 'boolean',
+					default: false,
+				},
+				shareFieldAttributes: {
+					type: 'boolean',
+					default: true,
+				},
+				width: {
+					type: 'number',
+					default: 100,
 				},
 			},
 			isBeta: true,
