@@ -700,7 +700,7 @@ const invalidateForm = ( form, opts ) => {
 	return listenToInvalidFields( form, opts );
 };
 
-const isFileFiled = field => {
+const isFileField = field => {
 	return field.classList.contains( 'jetpack-form-file-field__container' );
 };
 
@@ -737,7 +737,7 @@ const listenToInvalidFields = ( form, opts ) => {
 			obj = listenToInvalidSingleChoiceField( field, eventCb, form, opts );
 		} else if ( isMultipleChoiceField( field ) && isMultipleChoiceFieldRequired( field ) ) {
 			obj = listenToInvalidMultipleChoiceField( field, eventCb, form, opts );
-		} else if ( isFileFiled( field ) ) {
+		} else if ( isFileField( field ) ) {
 			obj = listenToInvalidFileField( field, eventCb, form, opts );
 		} else {
 			obj = listenToInvalidSimpleField( field, eventCb, form, opts );
