@@ -12,7 +12,6 @@
  * @since $$next-version$$
  */
 class Jetpack_Sitemap_Buffer_Image_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWriter {
-
 	/**
 	 * Initialize the buffer with required headers and root element.
 	 */
@@ -60,28 +59,43 @@ class Jetpack_Sitemap_Buffer_Image_XMLWriter extends Jetpack_Sitemap_Buffer_XMLW
 	 * @param array $array The URL item to append.
 	 */
 	protected function append_item( $array ) {
-		if ( ! empty( $array['url'] ) ) {
-			$this->writer->startElement( 'url' );
-
-			// Add URL elements
-			foreach ( $array['url'] as $tag => $value ) {
-				if ( $tag !== 'images' ) {
-					$this->writer->writeElement( $tag, strval( $value ) );
-				}
-			}
-
-			// Add image:image elements
-			if ( ! empty( $array['url']['images'] ) ) {
-				foreach ( $array['url']['images'] as $image ) {
-					$this->writer->startElement( 'image:image' );
-					foreach ( $image as $tag => $value ) {
-						$this->writer->writeElement( "image:$tag", strval( $value ) );
-					}
-					$this->writer->endElement(); // image:image
-				}
-			}
-
-			$this->writer->endElement(); // url
+		if ( ! isset( $array['url'] ) || ! is_array( $array['url'] ) ) {
+			return;
 		}
+
+		$url = $array['url'];
+
+		$this->writer->startElement( 'url' );
+
+		if ( isset( $url['loc'] ) ) {
+			$this->writer->writeElement( 'loc', esc_url( $url['loc'] ) );
+		}
+
+		if ( isset( $url['lastmod'] ) ) {
+			$this->writer->writeElement( 'lastmod', esc_html( $url['lastmod'] ) );
+		}
+
+		if ( isset( $url['image:image'] ) && is_array( $url['image:image'] ) ) {
+			$this->writer->startElement( 'image:image' );
+
+			// Required image loc
+			if ( isset( $url['image:image']['image:loc'] ) ) {
+				$this->writer->writeElement( 'image:loc', esc_url( $url['image:image']['image:loc'] ) );
+			}
+
+			// Optional image title
+			if ( ! empty( $url['image:image']['image:title'] ) ) {
+				$this->writer->writeElement( 'image:title', esc_html( $url['image:image']['image:title'] ) );
+			}
+
+			// Optional image caption
+			if ( ! empty( $url['image:image']['image:caption'] ) ) {
+				$this->writer->writeElement( 'image:caption', esc_html( $url['image:image']['image:caption'] ) );
+			}
+
+			$this->writer->endElement(); // image:image
+		}
+
+		$this->writer->endElement(); // url
 	}
 }

@@ -19,6 +19,12 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-master-xmlwr
  * Test class for XMLWriter sitemap buffer implementations.
  *
  * @since $$next-version$$
+ * @covers \Jetpack_Sitemap_Buffer_Image_XMLWriter
+ * @covers \Jetpack_Sitemap_Buffer_Master_XMLWriter
+ * @covers \Jetpack_Sitemap_Buffer_News_XMLWriter
+ * @covers \Jetpack_Sitemap_Buffer_Page_XMLWriter
+ * @covers \Jetpack_Sitemap_Buffer_Video_XMLWriter
+ * @covers \Jetpack_Sitemap_Buffer_XMLWriter
  */
 class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -26,7 +32,6 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	/**
 	 * Test page sitemap buffer with XMLWriter.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer_Page_XMLWriter
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
@@ -62,7 +67,6 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	/**
 	 * Test image sitemap buffer with XMLWriter.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer_Image_XMLWriter
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
@@ -73,37 +77,57 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 			'1970-01-01 00:00:00'
 		);
 
+		// Test case 1: Basic image entry matching sitemap-builder.php structure
 		$url_data = array(
 			'url' => array(
-				'loc'     => 'https://example.com/test-page',
-				'lastmod' => '2024-03-31 12:00:00',
-				'images'  => array(
-					array(
-						'loc'     => 'https://example.com/test-image.jpg',
-						'title'   => 'Test Image',
-						'caption' => 'A test image caption',
-					),
+				'loc'         => 'https://example.com/test-page',
+				'lastmod'     => '2024-03-31 12:00:00',
+				'image:image' => array(
+					'image:loc' => 'https://example.com/test-image.jpg',
 				),
 			),
 		);
 
-		$buffer->append( $url_data );
+		$this->assertTrue( $buffer->append( $url_data ) );
 		$content = $buffer->contents();
 
 		$this->assertStringContainsString( '<?xml version="1.0" encoding="UTF-8"?>', $content );
 		$this->assertStringContainsString( '<urlset', $content );
 		$this->assertStringContainsString( 'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"', $content );
-		$this->assertStringContainsString( '<url>', $content );
-		$this->assertStringContainsString( '<image:image>', $content );
+		$this->assertStringContainsString( '<loc>https://example.com/test-page</loc>', $content );
 		$this->assertStringContainsString( '<image:loc>https://example.com/test-image.jpg</image:loc>', $content );
-		$this->assertStringContainsString( '<image:title>Test Image</image:title>', $content );
-		$this->assertStringContainsString( '<image:caption>A test image caption</image:caption>', $content );
+		$this->assertStringContainsString( '</urlset>', $content );
+
+		// Test case 2: Image with optional fields
+		$buffer = new Jetpack_Sitemap_Buffer_Image_XMLWriter(
+			JP_SITEMAP_MAX_ITEMS,
+			JP_SITEMAP_MAX_BYTES,
+			'1970-01-01 00:00:00'
+		);
+
+		$url_data_with_optional = array(
+			'url' => array(
+				'loc'         => 'https://example.com/test-page-2',
+				'lastmod'     => '2024-03-31 12:00:00',
+				'image:image' => array(
+					'image:loc'     => 'https://example.com/test-image-2.jpg',
+					'image:title'   => 'Test Image Title',
+					'image:caption' => 'Test Image Caption',
+				),
+			),
+		);
+
+		$this->assertTrue( $buffer->append( $url_data_with_optional ) );
+		$content = $buffer->contents();
+
+		$this->assertStringContainsString( '<image:title>Test Image Title</image:title>', $content );
+		$this->assertStringContainsString( '<image:caption>Test Image Caption</image:caption>', $content );
+		$this->assertStringContainsString( '</urlset>', $content );
 	}
 
 	/**
 	 * Test video sitemap buffer with XMLWriter.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer_Video_XMLWriter
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
@@ -146,7 +170,6 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	/**
 	 * Test news sitemap buffer with XMLWriter.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer_News_XMLWriter
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
@@ -192,7 +215,6 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	/**
 	 * Test master sitemap buffer with XMLWriter.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer_Master_XMLWriter
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
@@ -224,7 +246,6 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	/**
 	 * Test buffer capacity limits with XMLWriter.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer_XMLWriter
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
@@ -257,7 +278,6 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	/**
 	 * Test last modified tracking with XMLWriter.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer_XMLWriter
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
