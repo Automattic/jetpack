@@ -131,7 +131,11 @@ const JetpackFieldFile = props => {
 				extraFieldSettings={ [
 					{
 						index: 1,
-						element: <p>{ __( 'Maximum file size is set to 20MB', 'jetpack-forms' ) }</p>,
+						element: (
+							<p key="max-file-size">
+								{ __( 'Maximum file size is set to 20MB', 'jetpack-forms' ) }
+							</p>
+						),
 					},
 					{
 						index: 2,
