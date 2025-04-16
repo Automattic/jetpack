@@ -8,7 +8,7 @@
 		user-select: auto;
 	}
 
-	&:after {
+	&::after {
 		content: none;
 	}
 }

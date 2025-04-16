@@ -30,7 +30,7 @@
 	flex-direction: column;
 	height: 100%;
 
-	.components-tab-panel__tabs-item:focus-visible:before {
+	.components-tab-panel__tabs-item:focus-visible::before {
 		box-shadow: none;
 		outline: none;
 	}
@@ -145,7 +145,7 @@
 			position: relative;
 			margin-bottom: 12px;
 
-			&:before {
+			&::before {
 				content: '\2713 ';
 				position: absolute;
 				left: -20px;

@@ -7,13 +7,13 @@
 	width: 100%;
 	margin: 0 auto;
 
-	&:before,
-	&:after {
+	&::before,
+	&::after {
 		content: " ";
 		display: table;
 	}
 
-	&:after {
+	&::after {
 		clear: both;
 	}
 }

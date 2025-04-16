@@ -34,7 +34,7 @@ SVG
 /*--------------------------------------------------------------
 Genericons
 --------------------------------------------------------------*/
-.jetpack-social-navigation-genericons a:before {
+.jetpack-social-navigation-genericons a::before {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	display: inline-block;
@@ -51,168 +51,168 @@ Genericons
 }
 
 /* Default */
-.jetpack-social-navigation-genericons a:before {
+.jetpack-social-navigation-genericons a::before {
 	content: "\f415";
 }
 
 /* Bluesky */
-.jetpack-social-navigation-genericons a[href*="bsky.app"]:before {
+.jetpack-social-navigation-genericons a[href*="bsky.app"]::before {
 	content: "\f10f";
 }
 
 /* CodePen */
-.jetpack-social-navigation-genericons a[href*="codepen.io"]:before {
+.jetpack-social-navigation-genericons a[href*="codepen.io"]::before {
 	content: "\f216";
 }
 
 /* Digg */
-.jetpack-social-navigation-genericons a[href*="digg.com"]:before {
+.jetpack-social-navigation-genericons a[href*="digg.com"]::before {
 	content: "\f221";
 }
 
 /* Dribbble */
-.jetpack-social-navigation-genericons a[href*="dribbble.com"]:before {
+.jetpack-social-navigation-genericons a[href*="dribbble.com"]::before {
 	content: "\f201";
 }
 
 /* Dropbox */
-.jetpack-social-navigation-genericons a[href*="dropbox.com"]:before {
+.jetpack-social-navigation-genericons a[href*="dropbox.com"]::before {
 	content: "\f225";
 }
 
 /* Email */
-.jetpack-social-navigation-genericons a[href*="mailto:"]:before {
+.jetpack-social-navigation-genericons a[href*="mailto:"]::before {
 	content: "\f410";
 }
 
 /* Facebook */
-.jetpack-social-navigation-genericons a[href*="facebook.com"]:before {
+.jetpack-social-navigation-genericons a[href*="facebook.com"]::before {
 	content: "\f203";
 }
 
 /* Flickr */
-.jetpack-social-navigation-genericons a[href*="flickr.com"]:before {
+.jetpack-social-navigation-genericons a[href*="flickr.com"]::before {
 	content: "\f211";
 }
 
 /* Foursquare */
-.jetpack-social-navigation-genericons a[href*="foursquare.com"]:before {
+.jetpack-social-navigation-genericons a[href*="foursquare.com"]::before {
 	content: "\f226";
 }
 
 /* GitHub */
-.jetpack-social-navigation-genericons a[href*="github.com"]:before {
+.jetpack-social-navigation-genericons a[href*="github.com"]::before {
 	content: "\f200";
 }
 
 /* Google Plus */
-.jetpack-social-navigation-genericons a[href*="plus.google.com"]:before {
+.jetpack-social-navigation-genericons a[href*="plus.google.com"]::before {
 	content: "\f206";
 }
 
 /* Instagram */
-.jetpack-social-navigation-genericons a[href*="instagram.com"]:before {
+.jetpack-social-navigation-genericons a[href*="instagram.com"]::before {
 	content: "\f215";
 }
 
 /* LinkedIn */
-.jetpack-social-navigation-genericons a[href*="linkedin.com"]:before {
+.jetpack-social-navigation-genericons a[href*="linkedin.com"]::before {
 	content: "\f208";
 }
 
 /* Nextdoor */
-.jetpack-social-navigation-genericons a[href*="nextdoor.com"]:before {
+.jetpack-social-navigation-genericons a[href*="nextdoor.com"]::before {
 	content: "\f10c";
 }
 
 /* Path */
-.jetpack-social-navigation-genericons a[href*="path.com"]:before {
+.jetpack-social-navigation-genericons a[href*="path.com"]::before {
 	content: "\f219";
 }
 
 /* Pinterest */
-.jetpack-social-navigation-genericons a[href*="pinterest."]:before {
+.jetpack-social-navigation-genericons a[href*="pinterest."]::before {
 	content: "\f210";
 }
 
 /* Pocket */
-.jetpack-social-navigation-genericons a[href*="getpocket.com"]:before {
+.jetpack-social-navigation-genericons a[href*="getpocket.com"]::before {
 	content: "\f224";
 }
 
 /* Polldaddy */
-.jetpack-social-navigation-genericons a[href*="polldaddy.com"]:before {
+.jetpack-social-navigation-genericons a[href*="polldaddy.com"]::before {
 	content: "\f217";
 }
 
 /* Reddit */
-.jetpack-social-navigation-genericons a[href*="reddit.com"]:before {
+.jetpack-social-navigation-genericons a[href*="reddit.com"]::before {
 	content: "\f222";
 }
 
 /* RSS Feed */
-.jetpack-social-navigation-genericons a[href$="/feed/"]:before {
+.jetpack-social-navigation-genericons a[href$="/feed/"]::before {
 	content: "\f413";
 }
 
 /* Skype */
-.jetpack-social-navigation-genericons a[href*="skype:"]:before {
+.jetpack-social-navigation-genericons a[href*="skype:"]::before {
 	content: "\f220";
 }
 
 /* Skype */
-.jetpack-social-navigation-genericons a[href*="sms:"]:before {
+.jetpack-social-navigation-genericons a[href*="sms:"]::before {
 	content: "\f110";
 }
 
 /* Spotify */
-.jetpack-social-navigation-genericons a[href*="spotify.com"]:before {
+.jetpack-social-navigation-genericons a[href*="spotify.com"]::before {
 	content: "\f515";
 }
 
 /* StumbleUpon */
-.jetpack-social-navigation-genericons a[href*="stumbleupon.com"]:before {
+.jetpack-social-navigation-genericons a[href*="stumbleupon.com"]::before {
 	content: "\f223";
 }
 
 /* Threads */
-.jetpack-social-navigation-genericons a[href*="threads.net"]:before {
+.jetpack-social-navigation-genericons a[href*="threads.net"]::before {
 	content: "\f10d";
 }
 
 /* Tumblr */
-.jetpack-social-navigation-genericons a[href*="tumblr.com"]:before {
+.jetpack-social-navigation-genericons a[href*="tumblr.com"]::before {
 	content: "\f214";
 }
 
 /* Twitch */
-.jetpack-social-navigation-genericons a[href*="twitch.tv"]:before {
+.jetpack-social-navigation-genericons a[href*="twitch.tv"]::before {
 	content: "\f516";
 }
 
 /* Twitter, X */
-.jetpack-social-navigation-genericons a[href*="x.com"]:before,
-.jetpack-social-navigation-genericons a[href*="twitter.com"]:before {
+.jetpack-social-navigation-genericons a[href*="x.com"]::before,
+.jetpack-social-navigation-genericons a[href*="twitter.com"]::before {
 	content: "\f202";
 }
 
 /* Vimeo */
-.jetpack-social-navigation-genericons a[href*="vimeo.com"]:before {
+.jetpack-social-navigation-genericons a[href*="vimeo.com"]::before {
 	content: "\f212";
 }
 
 /* Vine */
-.jetpack-social-navigation-genericons a[href*="vine.co"]:before {
+.jetpack-social-navigation-genericons a[href*="vine.co"]::before {
 	content: "\f517";
 }
 
 /* WordPress */
-.jetpack-social-navigation-genericons a[href*="wordpress.com"]:before,
-.jetpack-social-navigation-genericons a[href*="wordpress.org"]:before {
+.jetpack-social-navigation-genericons a[href*="wordpress.com"]::before,
+.jetpack-social-navigation-genericons a[href*="wordpress.org"]::before {
 	content: "\f205";
 }
 
 /* YouTube */
-.jetpack-social-navigation-genericons a[href*="youtube.com"]:before {
+.jetpack-social-navigation-genericons a[href*="youtube.com"]::before {
 	content: "\f213";
 }

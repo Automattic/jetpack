@@ -40,7 +40,9 @@ const IntegrationCardHeader = ( {
 		<CardHeader onClick={ handleHeaderClick } className="integration-card__header">
 			<div className="integration-card__header-content">
 				<div className="integration-card__header-main">
-					<Icon icon={ icon } className="integration-card__service-icon" size={ 30 } />
+					<div className="integration-card__service-icon-container">
+						<Icon icon={ icon } className="integration-card__service-icon" size={ 30 } />
+					</div>
 					<div className="integration-card__title-section">
 						<div className="integration-card__title-row">
 							<h3 className="integration-card__title">{ title }</h3>

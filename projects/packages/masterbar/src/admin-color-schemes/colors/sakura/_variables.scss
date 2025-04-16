@@ -1,6 +1,6 @@
 // make use of color studio variables for consistency across products
-@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
-@import '../deprecated-color-variables.scss';
+@import 'node_modules/@automattic/color-studio/dist/color-variables';
+@import '../deprecated-color-variables';
 
 // core variables (core _variables.scss)
 $base-color: $studio-celadon-70; // Calypso --color-masterbar-background

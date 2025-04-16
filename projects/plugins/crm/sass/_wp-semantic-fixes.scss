@@ -35,7 +35,7 @@
 }
 
 // match wp menu bg colour to page (white)
-ul#adminmenu a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:after {
+ul#adminmenu a.wp-has-current-submenu::after, ul#adminmenu>li.current>a.current::after {
 
     border-right-color: none !important;
 
@@ -72,7 +72,7 @@ i.card {
 }
 
 //https://stackoverflow.com/questions/12514915/semantic-html-and-clear-both
-.ui.zbsclear:after { clear:both; content:"."; display:block; height:0; visibility:hidden; }
+.ui.zbsclear::after { clear:both; content:"."; display:block; height:0; visibility:hidden; }
 
 // centered big ico segment
 .ui.segment.zbsbigico {

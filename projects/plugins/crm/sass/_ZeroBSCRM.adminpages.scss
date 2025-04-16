@@ -237,7 +237,7 @@ div.ui.learn.button {
     border-bottom-color: #fff !important;
 }
 
-.popover.right .arrow:after {
+.popover.right .arrow::after {
     content: " ";
     left: 1px;
     bottom: -10px;
@@ -268,7 +268,7 @@ div.ui.learn.button {
 	padding:10px;
 }
 
-#zbs-team-mechanics:after{
+#zbs-team-mechanics::after{
 	clear:both;
 }
 

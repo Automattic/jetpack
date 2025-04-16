@@ -8,7 +8,6 @@ import { MeasurableImageStore } from './stores/MeasurableImageStore.ts';
 type ImageProperties = {
 	severity: 'red' | 'yellow' | 'green';
 	oversized_ratio: number;
-	file_weight: number;
 	file_width: number;
 	file_height: number;
 	size_on_page_width: number;
@@ -69,7 +68,6 @@ export default class ImageGuideAnalytics {
 					const props: ImageProperties = {
 						severity,
 						oversized_ratio: oversizedRatio,
-						file_weight: fileSize.weight,
 						file_width: fileSize.width,
 						file_height: fileSize.height,
 						size_on_page_width: sizeOnPage.width,

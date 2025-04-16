@@ -22,7 +22,7 @@
 		}
 
 		// handle
-		li:before { 
+		li::before { 
 
 			font-family: FontAwesome;
 			content: '\f0c9';
@@ -32,7 +32,7 @@
 		}
 
 		// ico when dragging
-		li.ui-sortable-helper:before { 
+		li.ui-sortable-helper::before { 
 
 			font-family: FontAwesome;
 			content: '\f0c9';

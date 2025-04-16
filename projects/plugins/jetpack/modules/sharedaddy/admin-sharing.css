@@ -114,7 +114,7 @@ body.settings_page_sharing ul.services-hidden {
 }
 
 /* Generic style icons */
-li.service span:before {
+li.service span::before {
 	-webkit-font-smoothing: antialiased;
 	font: 400 18px/1 social-logos;
 	position: relative;
@@ -124,72 +124,72 @@ li.service span:before {
 	height: 16px;
 }
 
-li.service.share-print span:before {
+li.service.share-print span::before {
 	content: '\f469';
 }
 
-li.service.share-digg span:before {
+li.service.share-digg span::before {
 	content: '\f221';
 }
 
-li.service.share-email span:before {
+li.service.share-email span::before {
 	content: '\f410';
 }
 
-li.service.share-linkedin span:before {
+li.service.share-linkedin span::before {
 	content: '\f207';
 }
 
-li.service.share-x span:before,
-li.service.share-twitter span:before {
+li.service.share-x span::before,
+li.service.share-twitter span::before {
 	content: '\f10e';
 }
 
-li.service.share-reddit span:before {
+li.service.share-reddit span::before {
 	content: '\f222';
 }
 
-li.service.share-tumblr span:before {
+li.service.share-tumblr span::before {
 	content: '\f214';
 }
 
-li.service.share-pocket span:before {
+li.service.share-pocket span::before {
 	content: '\f224';
 }
 
-li.service.share-pinterest span:before {
+li.service.share-pinterest span::before {
 	content: '\f209';
 }
 
-li.service.share-facebook span:before {
+li.service.share-facebook span::before {
 	content: '\f203';
 }
 
-li.service.share-press-this span:before {	/* Fixme: remove this button in favor of reblog */
+li.service.share-press-this span::before {	/* Fixme: remove this button in favor of reblog */
 	content: '\f205';
 }
 
-li.service.share-telegram span:before {
+li.service.share-telegram span::before {
 	content: '\f606';
 }
 
-li.service.share-threads span:before {
+li.service.share-threads span::before {
 	content: '\f10d';
 }
 
-li.service.share-jetpack-whatsapp span:before {
+li.service.share-jetpack-whatsapp span::before {
 	content: '\f608';
 }
 
-li.service.share-mastodon span:before {
+li.service.share-mastodon span::before {
 	content: '\f10a';
 }
 
-li.service.share-nextdoor span:before {
+li.service.share-nextdoor span::before {
 	content: '\f10c';
 }
 
-li.service.share-bluesky span:before {
+li.service.share-bluesky span::before {
 	content: '\f10f';
 }
 

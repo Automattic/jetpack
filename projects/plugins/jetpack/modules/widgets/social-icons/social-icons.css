@@ -17,8 +17,8 @@
 	padding: 0;
 }
 
-.jetpack_widget_social_icons ul li:before,
-.jetpack_widget_social_icons ul li:after {
+.jetpack_widget_social_icons ul li::before,
+.jetpack_widget_social_icons ul li::after {
 	display: none;
 }
 

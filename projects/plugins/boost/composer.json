@@ -34,15 +34,17 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev",
 		"brain/monkey": "^2.6.2",
 		"yoast/phpunit-polyfills": "^3.0.0"
 	},
 	"scripts": {
 		"phpunit": [
-			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --bootstrap tests/bootstrap.php --testsuite unit --colors=always",
+			"phpunit-select-config phpunit.#.xml.dist --bootstrap tests/bootstrap-wordbless.php --testsuite critical-css --colors=always"
 		],
-		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
+		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --bootstrap tests/bootstrap.php --testsuite unit --coverage-php \"$COVERAGE_DIR/php-unit.cov\" && php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --bootstrap tests/bootstrap-wordbless.php --testsuite critical-css --coverage-php \"$COVERAGE_DIR/php-critical.cov\"' 'pnpm:test-coverage'",
 		"test-js": [
 			"pnpm run test"
 		],
