@@ -807,31 +807,34 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$this->enqueue_file_field_assets();
 
 		// Get allowed MIME types for display in the field.
-		$accepted_file_types = implode(
-			', ',
-			array(
-				// Image file types.
-				'image/jpg',
-				'image/jpeg',
-				'image/gif',
-				'image/png',
-				'image/webp',
-				'image/heic',
-				'image/heif',
-				'image/bmp',
-				// Document file types.
-				'application/msword',                                                         // .doc
-				'application/vnd.ms-powerpoint',                                              // .ppt, .pps
-				'application/vnd.ms-excel',                                                   // .xls
-				'application/vnd.openxmlformats-officedocument.presentationml.presentation',  // .pptx
-				'application/vnd.openxmlformats-officedocument.presentationml.slideshow',     // .ppsx
-				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',          // .xlsx
-				'application/vnd.openxmlformats-officedocument.wordprocessingml.document',    // .docx
-				'application/vnd.oasis.opendocument.text',                                    // .odt
-				'application/pdf',                                                            // .pdf
-
-			)
+		$accepted_file_types = array(
+			'jpg|jpeg|jpe'    => 'image/jpeg',
+			'png'             => 'image/png',
+			'gif'             => 'image/gif',
+			'pdf'             => 'application/pdf',
+			'doc'             => 'application/msword',
+			'docx'            => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			'docm'            => 'application/vnd.ms-word.document.macroEnabled.12',
+			'pot|pps|ppt'     => 'application/vnd.ms-powerpoint',
+			'pptx'            => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+			'pptm'            => 'application/vnd.ms-powerpoint.presentation.macroEnabled.12',
+			'odt'             => 'application/vnd.oasis.opendocument.text',
+			'ppsx'            => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
+			'ppsm'            => 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
+			'xla|xls|xlt|xlw' => 'application/vnd.ms-excel',
+			'xlsx'            => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			'xlsm'            => 'application/vnd.ms-excel.sheet.macroEnabled.12',
+			'xlsb'            => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
+			'key'             => 'application/vnd.apple.keynote',
+			'webp'            => 'image/webp',
+			'heic'            => 'image/heic',
+			'heics'           => 'image/heic-sequence',
+			'heif'            => 'image/heif',
+			'heifs'           => 'image/heif-sequence',
+			'asc'             => 'application/pgp-keys',
 		);
+
+		$accept_attribute_value = implode( ', ', array_values( $accepted_file_types ) );
 
 		// Add accessibility attributes and required status if needed.
 		$input_attrs = array(
@@ -839,7 +842,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'class'      => 'jetpack-form-file-field ' . esc_attr( $class ),
 			'name'       => esc_attr( $id ),
 			'id'         => esc_attr( $id ),
-			'accept'     => esc_attr( $accepted_file_types ),
+			'accept'     => esc_attr( $accept_attribute_value ),
 			'aria-label' => esc_attr( $label ),
 		);
 
@@ -908,7 +911,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
 				<input
 					type="file" class="jetpack-form-file-field"
-					accept="<?php echo esc_attr( $accepted_file_types ); ?>"
+					accept="<?php echo esc_attr( $accept_attribute_value ); ?>"
 					<?php echo ( (int) $max_files > 1 ? 'multiple="multiple"' : '' ); ?>
 					data-wp-on--change="actions.fileAdded"  />
 			</div>
