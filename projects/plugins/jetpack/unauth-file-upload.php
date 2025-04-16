@@ -74,7 +74,7 @@ function handle_file_download() {
 	 * @param array $file_content The file content.
 	 * @param string $file_id The file ID.
 	 *
-	 * @return array|WP_Error The file array, containing the content, name and type.
+	 * @return array|\WP_Error The file array, containing the content, name and type.
 	 */
 	$file = apply_filters( 'jetpack_unauth_file_upload_get_file', array(), $file_id );
 
@@ -106,7 +106,7 @@ function handle_file_download() {
  *
  * @param array   $file_content The file content, name and type.
  * @param integer $file_id The file ID.
- * @return array|WP_Error The file content, name and type
+ * @return array|\WP_Error The file content, name and type
  */
 function get_file_content( $file_content, $file_id ) {
 	if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
