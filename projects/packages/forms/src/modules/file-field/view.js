@@ -221,7 +221,7 @@ const onReadyStateChange = ( clientFileId, event ) => {
 				updateFileContext(
 					{
 						file_id: response.data.file_id,
-						hasToken: true,
+						isUploaded: true,
 						name: response.data.name,
 						type: response.data.type,
 						size: response.data.size,
