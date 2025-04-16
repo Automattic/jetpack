@@ -63,13 +63,7 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 	 * Test that log_failed_attempt properly handles WP_Error objects with password validation errors.
 	 */
 	public function test_log_failed_attempt_handles_password_validation_error() {
-		// Mock a WP_Error-like object for testing
-		$error = $this->createMock( 'WP_Error' );
-
-		// Set up the errors property for the mock
-		$error->errors = array(
-			'password_detection_validation_error' => array( 'Password validation error' ),
-		);
+		$error = new WP_Error( 'password_detection_validation_error', 'Password validation error' );
 
 		// Method should return early and not call protect_call.
 		$this->instance->expects( $this->never() )
@@ -82,13 +76,7 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 	 * Test that log_failed_attempt properly handles WP_Error objects with other errors.
 	 */
 	public function test_log_failed_attempt_handles_wp_error() {
-		// Mock a WP_Error-like object for testing
-		$error = $this->createMock( 'WP_Error' );
-
-		// Set up the errors property for the mock
-		$error->errors = array(
-			'incorrect_password' => array( 'Incorrect password' ),
-		);
+		$error = new WP_Error( 'incorrect_password', 'Incorrect password' );
 
 		// Method should process the failed attempt.
 		$this->instance->expects( $this->once() )
