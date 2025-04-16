@@ -11,9 +11,9 @@
 	font-style: normal;
 }
 
-#menu-posts-nova_menu_item:before,
-#dashboard_right_now .nova-menu-count a:before,
-#dashboard_right_now .nova-menu-count span:before {
+#menu-posts-nova_menu_item::before,
+#dashboard_right_now .nova-menu-count a::before,
+#dashboard_right_now .nova-menu-count span::before {
 	/* stylelint-disable-next-line font-family-no-missing-generic-family-keyword -- this is a one-off icon font. */
 	font-family: nova-font;
 	speak: none;
@@ -28,6 +28,6 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-#dashboard_right_now .nova-menu-count a:before, #dashboard_right_now .nova-menu-count span:before {
+#dashboard_right_now .nova-menu-count a::before, #dashboard_right_now .nova-menu-count span::before {
 	content: '\e603';
 }

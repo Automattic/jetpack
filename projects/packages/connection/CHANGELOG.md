@@ -5,9 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.11.0] - 2025-04-14
+### Added
+- Add check for mismatched WordPress/WordPress.com user email. [#42674]
+
+### Changed
+- Add Jetpack package version info to Heartbeat. [#43060]
+
+### Fixed
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
 ## [6.10.3] - 2025-04-07
 ### Changed
-- Code: First pass of style coding standards. [#42734]
+- Linting: First pass of style coding standards. [#42734]
 
 ## [6.10.2] - 2025-04-01
 ### Changed
@@ -1394,6 +1405,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[6.11.0]: https://github.com/Automattic/jetpack-connection/compare/v6.10.3...v6.11.0
 [6.10.3]: https://github.com/Automattic/jetpack-connection/compare/v6.10.2...v6.10.3
 [6.10.2]: https://github.com/Automattic/jetpack-connection/compare/v6.10.1...v6.10.2
 [6.10.1]: https://github.com/Automattic/jetpack-connection/compare/v6.10.0...v6.10.1

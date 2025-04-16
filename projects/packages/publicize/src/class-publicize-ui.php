@@ -375,7 +375,7 @@ jQuery( function($) {
 .publicize-external-link__text {
 	text-decoration: underline;
 }
-#publicize-title:before {
+#publicize-title::before {
 	content: "\f237";
 	font: normal 20px/1 dashicons;
 	speak: none;

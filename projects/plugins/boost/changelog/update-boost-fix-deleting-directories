@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Page Cache: Fix garbage collection and clear cache functionality leaving empty directories behind

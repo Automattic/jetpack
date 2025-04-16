@@ -84,7 +84,7 @@
 			float:right;
 		}
 
-		&.disabled:before {
+		&.disabled::before {
 			content: '';
 			display: block;
 			position: absolute;

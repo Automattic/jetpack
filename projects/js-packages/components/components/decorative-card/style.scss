@@ -22,7 +22,7 @@
 		background-size: cover;
 		position: relative;
 
-		&:before {
+		&::before {
 			content: '';
 			display: block;
 			position: absolute;
@@ -85,7 +85,7 @@
 			top: calc(100% + 16px);
 		}
 
-		&:after {
+		&::after {
 			top: calc(100% + 32px);
 			width: 75%;
 		}

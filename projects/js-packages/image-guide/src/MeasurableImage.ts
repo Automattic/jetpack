@@ -46,24 +46,25 @@ export class MeasurableImage {
 	}
 
 	public async getFileSize( url: string ) {
-		const [ weight, { width, height } ] = await Promise.all( [
-			this.fetchFileWeight( url ),
-			this.fetchFileDimensions( url ),
-		] );
+		const { width, height } = await this.fetchFileDimensions( url );
 
 		return {
 			width,
 			height,
-			weight,
 		};
 	}
 
-	public getPotentialSavings( fileSize: Dimensions & Weight, sizeOnPage: Dimensions ) {
+	public async getWeight( url: string ) {
+		const weight = await this.fetchFileWeight( url );
+		return weight;
+	}
+
+	public getPotentialSavings( fileSize: Dimensions, fileWeight: Weight, sizeOnPage: Dimensions ) {
 		const oversizedRatio = this.getOversizedRatio( fileSize, sizeOnPage );
 		if ( oversizedRatio <= 1 ) {
 			return null;
 		}
-		return Math.round( fileSize.weight - fileSize.weight / oversizedRatio );
+		return Math.round( fileWeight.weight - fileWeight.weight / oversizedRatio );
 	}
 
 	/**

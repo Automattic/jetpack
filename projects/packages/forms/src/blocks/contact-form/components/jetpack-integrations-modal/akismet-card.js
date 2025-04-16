@@ -41,6 +41,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 			cardData={ cardData }
+			toggleTooltip={ __( 'We keep your forms protected', 'jetpack-forms' ) }
 		>
 			{ ! akismetActiveWithKey ? (
 				<div>

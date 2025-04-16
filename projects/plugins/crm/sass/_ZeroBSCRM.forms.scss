@@ -138,13 +138,13 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 }
 
 // Needed for custom contact avatars add/edit pages
-.jpcrm-customer-file-upload:before {
+.jpcrm-customer-file-upload::before {
   content: "\f0ee"; 
   display: inline-block;
   font-family: FontAwesome;
 }
 
-.jpcrm-customer-file-upload-remove:before {
+.jpcrm-customer-file-upload-remove::before {
   content: "\f00d"; 
   display: inline-block;
   font-family: FontAwesome;

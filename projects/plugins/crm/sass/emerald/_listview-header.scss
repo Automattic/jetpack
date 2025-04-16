@@ -20,7 +20,7 @@ jpcrm-listview-header#jpcrm-listview-header {
 			font: inherit;
 			cursor: pointer;
 
-			&.dashicons:before {
+			&.dashicons::before {
 				font-family: dashicons;
 				font-size: inherit;
 				display: flex;
