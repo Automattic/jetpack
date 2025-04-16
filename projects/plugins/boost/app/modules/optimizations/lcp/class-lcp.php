@@ -24,7 +24,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	private $output_filter = null;
 
 	/**
-	 * @since $$next-version$$
+	 * @since 3.13.1
 	 */
 	public function setup() {
 		$this->output_filter = new Output_Filter();
@@ -33,14 +33,14 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	}
 
 	/**
-	 * @since $$next-version$$
+	 * @since 3.13.1
 	 */
 	public static function activate() {
 		( new LCP_Analyzer() )->start();
 	}
 
 	/**
-	 * @since $$next-version$$
+	 * @since 3.13.1
 	 */
 	public static function get_slug() {
 		return 'lcp';
@@ -53,7 +53,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	}
 
 	/**
-	 * @since $$next-version$$
+	 * @since 3.13.1
 	 */
 	public static function is_available() {
 		if ( defined( 'JETPACK_BOOST_ALPHA_FEATURES' ) && JETPACK_BOOST_ALPHA_FEATURES ) {
@@ -117,7 +117,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	}
 
 	/**
-	 * @since $$next-version$$
+	 * @since 3.13.1
 	 */
 	public function start_output_filtering() {
 		/**
@@ -125,7 +125,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 		 *
 		 * @param bool $optimize return false to disable optimization
 		 *
-		 * @since   $$next-version$$
+		 * @since   3.13.1
 		 */
 		if ( false === apply_filters( 'jetpack_boost_should_optimize_lcp', true ) ) {
 			return;
@@ -203,7 +203,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 *
 	 * @return array Parts of the buffer.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.13.1
 	 */
 	public function optimize( $buffer_start, $buffer_end ) {
 		// Get the LCP image tag from WP option
@@ -243,7 +243,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @param array  $lcp_data The LCP data returned from the Cloud.
 	 * @return string The optimized buffer, or the original buffer if no optimization was needed
 	 *
-	 * @since $$next-version$$
+	 * @since 3.13.1
 	 */
 	private function optimize_viewport( $buffer, $lcp_data ) {
 		if ( empty( $lcp_data ) || empty( $lcp_data['html'] ) ) {
@@ -280,7 +280,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @param string $tag The original image tag.
 	 * @return string The optimized image tag.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.13.1
 	 */
 	private function optimize_image_tag( $tag ) {
 		// Add fetchpriority="high" if not present
