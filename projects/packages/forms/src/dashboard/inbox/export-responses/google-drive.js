@@ -33,7 +33,7 @@ const GoogleDriveExport = ( { onExport } ) => {
 				} );
 				const data = await response.json();
 
-				if ( ! data.connection ) {
+				if ( data.connection !== true ) {
 					return;
 				}
 
