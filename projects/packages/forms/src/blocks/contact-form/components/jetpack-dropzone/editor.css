@@ -34,12 +34,3 @@
     opacity: 0.4;
     font-size: min(var(--jetpack--contact-form--font-size, inherit), 14px);
 } 
-
-/* 
- * Ensure upload icon is centered. This should be handled by dropzone
- * layout controls, but they do not seem to be working. But this fix is
- * temporary and will be removed when the form field refactor is merged.
- */
-.wp-block-jetpack-field-file-dropzone .wp-block-image.aligncenter .wp-block-image.aligncenter {
-    width: 100%;
-}
