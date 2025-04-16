@@ -147,7 +147,6 @@ function aiowp_migration_status_helper() {
 			}
 
 			// Read the wpcom_blog_id from the backup file.
-			$wpcom_blog_id = false;
 			$file_contents = file_get_contents( $wpcom_blog_id_backup_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
 			if ( false === $file_contents ) {
@@ -155,7 +154,7 @@ function aiowp_migration_status_helper() {
 				return $params;
 			}
 
-			if ( ! is_numeric( $wpcom_blog_id ) || (int) $wpcom_blog_id === 0 ) {
+			if ( ! is_numeric( $file_contents ) || (int) $file_contents === 0 ) {
 				do_action( 'wpcomsh_log', 'The content of the wpcom_blog_id_backup_file is not valid' );
 				return $params;
 			}
