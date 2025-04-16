@@ -9,6 +9,7 @@ const IntegrationCardHeader = ( {
 	isExpanded,
 	onToggle,
 	cardData = {},
+	toggleTooltip,
 } ) => {
 	const {
 		isInstalled,
@@ -24,6 +25,18 @@ const IntegrationCardHeader = ( {
 	const showConnectedBadge = isActive && isConnected;
 	const disableFormText = __( 'Disable for this form', 'jetpack-forms' );
 	const enableFormText = __( 'Enable for this form', 'jetpack-forms' );
+
+	const getTooltipText = checked => {
+		if ( toggleTooltip ) {
+			return toggleTooltip;
+		}
+
+		if ( checked ) {
+			return disableFormText;
+		}
+
+		return enableFormText;
+	};
 
 	const handleToggleChange = value => {
 		if ( onHeaderToggleChange ) {
@@ -77,7 +90,7 @@ const IntegrationCardHeader = ( {
 						/>
 					) }
 					{ ( isActive || isConnected ) && showHeaderToggle && (
-						<Tooltip text={ isHeaderToggleEnabled ? disableFormText : enableFormText }>
+						<Tooltip text={ getTooltipText( headerToggleValue ) }>
 							<span className="integration-card__toggle-tooltip-wrapper">
 								<ToggleControl
 									checked={ headerToggleValue }
