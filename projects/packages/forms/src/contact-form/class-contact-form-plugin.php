@@ -15,6 +15,7 @@ use Automattic\Jetpack\Forms\Service\Post_To_Url;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Jetpack_Gutenberg;
 use Jetpack_Options;
 use WP_Error;
 
@@ -2398,6 +2399,17 @@ class Contact_Form_Plugin {
 	 * @return never This method never returns as it exits directly
 	 */
 	public function handle_file_download() {
+		/**
+		 * Check if the file is availabe for download.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $data The script data.
+		 */
+		if ( apply_filters( 'jetpack_unauth_file_download_available', Jetpack_Gutenberg::blocks_variation() === 'beta' ) ) {
+			wp_die( esc_html__( 'File download is not available.', 'jetpack-forms' ) );
+		}
+
 		if ( ! current_user_can( 'edit_pages' ) ) {
 			wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack-forms' ) );
 		}
@@ -2437,6 +2449,16 @@ class Contact_Form_Plugin {
 			wp_die( esc_html__( 'Unknown file type.', 'jetpack-forms' ) );
 		}
 
+		/**
+		 * Get the file content that we send to the user to download.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $file_content The file content.
+		 * @param string $file_id The file ID.
+		 *
+		 * @return string The file content.
+		 */
 		$file_content = apply_filters( 'jetpack_unauth_file_upload_get_file_content', '', $file_id );
 
 		if ( ! is_string( $file_content ) ) {
