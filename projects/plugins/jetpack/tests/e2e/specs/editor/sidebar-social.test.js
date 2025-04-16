@@ -13,7 +13,7 @@ test.beforeEach( async ( { page } ) => {
 } );
 
 test.describe( 'Editor sidebar: Social', () => {
-	test( 'Activation of publicize from the editor', async ( { page } ) => {
+	test( 'Activation of publicize from the editor', async ( { editor, page } ) => {
 		logger.sync( 'Creating new post' );
 
 		/**
@@ -25,7 +25,9 @@ test.describe( 'Editor sidebar: Social', () => {
 		await blockEditor.waitForEditor();
 
 		logger.action( 'Close "Welcome to the block editor" dialog' );
-		await blockEditor.closeWelcomeGuide();
+		await editor.setPreferences( 'core/edit-post', {
+			welcomeGuide: false,
+		} );
 
 		logger.action( 'Open Jetpack sidebar' );
 		await blockEditor.openSettings( 'Jetpack' );
