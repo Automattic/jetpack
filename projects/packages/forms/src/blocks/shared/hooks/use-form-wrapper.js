@@ -9,12 +9,12 @@ export default function useFormWrapper( { attributes, clientId, name } ) {
 	const { replaceBlock, __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
 	const { getBlocks } = useSelect( blockEditorStore );
 
-	const forms = useSelect( select => {
+	const parentForms = useSelect( select => {
 		return select( blockEditorStore ).getBlockParentsByBlockName( clientId, FORM_BLOCK_NAME );
 	} );
 
 	useEffect( () => {
-		if ( ! forms?.length ) {
+		if ( ! parentForms?.length ) {
 			// As this is an automated update, ensure it doesn't end up in the undo stack
 			// by calling `__unstableMarkNextChangeAsNotPersistent`.
 			__unstableMarkNextChangeAsNotPersistent();
