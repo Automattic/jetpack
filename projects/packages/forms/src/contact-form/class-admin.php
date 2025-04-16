@@ -739,25 +739,14 @@ class Admin {
 				);
 
 				// Get the files array from the new structure
-				$files    = $display_value['files'];
-				$field_id = $display_value['field_id'];
-				$nonce    = wp_create_nonce( 'jetpack_unauth_file_download_nonce_' . $post->ID );
+				$files = $display_value['files'];
 
 				foreach ( $files as $file_data ) {
 					// If we have a valid URL, show the file link with additional details
 					$file_name = isset( $file_data['name'] ) ? $file_data['name'] : __( 'Attached file', 'jetpack-forms' );
 					$file_size = isset( $file_data['size'] ) ? size_format( $file_data['size'] ) : '';
-
-					$file_url  = add_query_arg(
-						array(
-							'action'   => 'jetpack_unauth_file_download',
-							'file_id'  => $file_data['file_id'],
-							'post_id'  => $post->ID,
-							'field_id' => $field_id,
-							'_wpnonce' => $nonce,
-						),
-						admin_url( 'admin-ajax.php' )
-					);
+					$file_id   = absint( $file_data['file_id'] );
+					$file_url  = \Automattic\Jetpack\UnauthFileUpload\get_download_url( $file_id );
 					$file_info = empty( $file_size ) ? $file_name : $file_name . ' (' . $file_size . ')';
 
 					printf(
