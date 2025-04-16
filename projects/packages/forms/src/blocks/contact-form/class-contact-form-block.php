@@ -21,13 +21,13 @@ use Jetpack;
 class Contact_Form_Block {
 	/**
 	 * Register the Contact Form block.
-	 * We are core block only wether jetpack contact form plugin
+	 * We are core block dependent only on whether the jetpack contact form plugin
 	 * is active or not. This is allowing us to make it more discoverable
-	 * and enable plugin in one click
+	 * and enable the plugin in one click
 	 */
 	public static function register_block() {
 		Blocks::jetpack_register_block(
-			dirname( __DIR__, 3 ) . '/dist/blocks',
+			'jetpack/contact-form',
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
 			)
@@ -217,6 +217,26 @@ class Contact_Form_Block {
 	}
 
 	/**
+	 * Load editor styles for the block.
+	 * These are loaded via enqueue_block_assets to ensure proper loading in the editor iframe context.
+	 */
+	public static function load_editor_styles() {
+
+		$handle = 'jp-forms-blocks';
+
+		Assets::register_script(
+			$handle,
+			'../../../dist/blocks/editor.js',
+			__FILE__,
+			array(
+				'css_path'   => '../../../dist/blocks/editor.css',
+				'textdomain' => 'jetpack-forms',
+			)
+		);
+		wp_enqueue_style( 'jp-forms-blocks' );
+	}
+
+	/**
 	 * Loads scripts
 	 */
 	public static function load_editor_scripts() {
@@ -231,7 +251,7 @@ class Contact_Form_Block {
 				'in_footer'  => true,
 				'textdomain' => 'jetpack-forms',
 				'enqueue'    => true,
-				// Editor styles are declared in the block.json metadata file.
+				// Editor styles are loaded separately, see load_editor_styles().
 				'css_path'   => null,
 			)
 		);
