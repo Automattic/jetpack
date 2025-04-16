@@ -7,19 +7,6 @@
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
-	// gets 'Contact' (legacy/deprecated)
-   	// Unless this is used in any extensions this can be removed.
-	function zeroBSCRM_getContactOrCustomer(){ return __('Contact',"zero-bs-crm"); }
-
-	// gets company label, backward compatibility:
-	function zeroBSCRM_getCompanyOrOrg(){
-		return jpcrm_label_company(false);
-	}	
-	function zeroBSCRM_getCompanyOrOrgPlural(){
-		return jpcrm_label_company(true);
-	}
-
-
     /**
      * Returns global label used to differentiate b2b mode objects (Companies)
      * Replaces old functions zeroBSCRM_getCompanyOrOrg and zeroBSCRM_getCompanyOrOrgPlural
