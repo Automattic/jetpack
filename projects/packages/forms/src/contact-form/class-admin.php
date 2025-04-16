@@ -746,7 +746,7 @@ class Admin {
 					$file_name = isset( $file_data['name'] ) ? $file_data['name'] : __( 'Attached file', 'jetpack-forms' );
 					$file_size = isset( $file_data['size'] ) ? size_format( $file_data['size'] ) : '';
 					$file_id   = absint( $file_data['file_id'] );
-					$file_url  = \Automattic\Jetpack\UnauthFileUpload\get_download_url( $file_id );
+					$file_url  = \apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
 					$file_info = empty( $file_size ) ? $file_name : $file_name . ' (' . $file_size . ')';
 
 					printf(

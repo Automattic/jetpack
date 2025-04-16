@@ -27,6 +27,18 @@ function get_download_url( $file_id ) {
 }
 
 /**
+ * Get the file download URL filter callback.
+ *
+ * @param string $url The file download URL.
+ * @param int    $file_id The file ID.
+ *
+ * @return string The file download URL.
+ */
+function handle_get_download_url( $url, $file_id ) {
+	return get_download_url( $file_id );
+}
+
+/**
  * Handle file download requests from the admin page.
  *
  * @return never This method never returns as it exits directly
