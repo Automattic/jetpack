@@ -149,18 +149,19 @@ function aiowp_migration_status_helper() {
 			// Read the wpcom_blog_id from the backup file.
 			$wpcom_blog_id = false;
 			$file_contents = file_get_contents( $wpcom_blog_id_backup_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			if ( false !== $file_contents ) {
-				$wpcom_blog_id = intval( $file_contents );
-				unlink( $wpcom_blog_id_backup_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-			} else {
+
+			if ( false === $file_contents ) {
 				do_action( 'wpcomsh_log', 'Failed to read wpcom_blog_id_backup_file' );
 				return $params;
 			}
 
-			if ( ! $wpcom_blog_id ) {
+			if ( empty( $wpcom_blog_id ) || ! is_numeric( $wpcom_blog_id ) ) {
 				do_action( 'wpcomsh_log', 'The content of the wpcom_blog_id_backup_file is not valid' );
 				return $params;
 			}
+
+			$wpcom_blog_id = intval( $file_contents );
+			unlink( $wpcom_blog_id_backup_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 
 			$endpoint = sprintf( '/sites/%s/migration-aiowp-notifications', $wpcom_blog_id );
 			$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
