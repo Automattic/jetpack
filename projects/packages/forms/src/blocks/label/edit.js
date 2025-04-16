@@ -1,4 +1,5 @@
-import { RichText, useBlockProps } from '@wordpress/block-editor';
+import { RichText, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
@@ -46,6 +47,13 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 	} );
 	const blockProps = useBlockProps( { className } );
 
+	// The label value to use for the RichText field must manually fall back to the
+	// placeholder to be rendered in previews.
+	const isPreviewMode = useSelect( select => {
+		return select( blockEditorStore ).getSettings().isPreviewMode;
+	}, [] );
+	const labelValue = isPreviewMode ? emptyToNull( label ) ?? placeholder : label;
+
 	return (
 		<WithNotchedWrapper formStyle={ formStyle }>
 			<div { ...blockProps }>
@@ -55,7 +63,7 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 					onChange={ value => setAttributes( { label: value } ) }
 					placeholder={ placeholder }
 					tagName="label"
-					value={ label }
+					value={ labelValue }
 					withoutInteractiveFormatting
 				/>
 				{ suffix && <span className="jetpack-field-label__suffix">{ suffix }</span> }
