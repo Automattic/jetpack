@@ -9,9 +9,12 @@ export default function useFormWrapper( { attributes, clientId, name } ) {
 	const { replaceBlock, __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
 	const { getBlocks } = useSelect( blockEditorStore );
 
-	const parentForms = useSelect( select => {
-		return select( blockEditorStore ).getBlockParentsByBlockName( clientId, FORM_BLOCK_NAME );
-	} );
+	const parentForms = useSelect(
+		select => {
+			return select( blockEditorStore ).getBlockParentsByBlockName( clientId, FORM_BLOCK_NAME );
+		},
+		[ clientId ]
+	);
 
 	useEffect( () => {
 		if ( ! parentForms?.length ) {
