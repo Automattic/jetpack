@@ -2358,25 +2358,6 @@ class zeroBS__Metabox_ContactCompany extends zeroBS__Metabox{
     }
 }
 
-/* DEPRECATED! */
-function zbsCustomer_companyDropdown( $default = '', $companies = array() ) {
-
-    echo 'zbsCustomer_companyDropdown is Deprecated!<br />';
-
-  foreach ($companies as $co){
-    echo "\n\t" . '<option value="'. esc_attr( $co['id'] ) .'"';
-    if ($co['id'] == $default) echo ' selected="selected"';
-    //echo '>'.$co['meta']['coname'].'</option>';
-    $coName = '';
-    if (isset($co) && isset($co['meta']) && isset($co['meta']['coname'])) $coName = $co['meta']['coname'];
-    # Shouldn't need this? WH attempted fix for caching, not here tho..
-    if (empty($coName) && isset($co['coname'])) $coName = $co['coname'];
-    if (empty($coName)) $coName = jpcrm_label_company().' #'.$co['id'];
-    echo '>'. esc_html( $coName ) .'</option>';
-  }
-
-}
-
 /* ======================================================
   / "Contacts at Company" Metabox Related Funcs
    ====================================================== */
