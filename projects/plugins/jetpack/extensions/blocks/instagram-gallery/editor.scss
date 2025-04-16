@@ -1,4 +1,4 @@
-@import './view.scss';
+@import './view';
 
 .wp-block-jetpack-instagram-gallery .components-placeholder {
 
@@ -6,7 +6,7 @@
 		margin-bottom: $default-block-margin;
 
 		label {
-			font-weight: normal;
+			font-weight: 400;
 		}
 	}
 

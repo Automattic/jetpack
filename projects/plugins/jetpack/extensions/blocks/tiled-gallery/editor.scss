@@ -1,5 +1,5 @@
-@import './view.scss';
-@import './variables.scss';
+@import './view';
+@import './variables';
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 // inspired by from assets/shared/_animations loading-fade
@@ -10,7 +10,7 @@
 	}
 
 	50% {
-		background-color: rgba( var( --color-neutral-0-rgb ), 0.5 );
+		background-color: color-mix(in srgb, var(--color-neutral-0) 50%, transparent);
 	}
 
 	100% {

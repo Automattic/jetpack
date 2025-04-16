@@ -1,5 +1,5 @@
-@import 'scss/_variables';
-@import 'scss/rna-styles.scss';
+@import 'scss/variables';
+@import 'scss/rna-styles';
 
 * {
 	box-sizing: border-box;
@@ -9,8 +9,8 @@ body {
 	min-height: 100%;
 	margin: 0;
 	padding: 0;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu',
-		'Cantarell', 'Helvetica Neue', sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu,
+		Cantarell, 'Helvetica Neue', sans-serif;
 }
 
 #wpcontent {

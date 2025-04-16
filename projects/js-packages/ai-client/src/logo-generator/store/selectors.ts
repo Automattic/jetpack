@@ -1,9 +1,9 @@
 /**
  * Types
  */
-import { DEFAULT_LOGO_COST } from '../constants.js';
-import type { AiFeatureProps, LogoGeneratorStateProp, Logo, RequestError } from './types.js';
-import type { SiteDetails } from '../types.js';
+import { DEFAULT_LOGO_COST } from '../constants.ts';
+import type { AiFeatureProps, LogoGeneratorStateProp, Logo, RequestError } from './types.ts';
+import type { SiteDetails } from '../types.ts';
 
 const selectors = {
 	/**

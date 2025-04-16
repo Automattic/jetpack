@@ -1,4 +1,4 @@
-import JetpackVaultPressBackupLogo from '../index.js';
+import JetpackVaultPressBackupLogo from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof JetpackVaultPressBackupLogo > = {

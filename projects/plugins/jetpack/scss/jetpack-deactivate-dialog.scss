@@ -1,5 +1,5 @@
-@import '../_inc/client/scss/variables/_colors.scss';
-@import '../_inc/client/scss/calypso-colors.scss';
+@import '../_inc/client/scss/variables/colors';
+@import '../_inc/client/scss/calypso-colors';
 
 #TB_window.jetpack-disconnect-modal {
 
@@ -80,9 +80,9 @@
 		color: $wpui-dark-medium-gray;
 		top: 22px;
 
-		&:after {
+		&::after {
 			content: '\f335';
-			font: normal 32px/29px dashicons;
+			font: 400 32px/29px dashicons;
 			-webkit-font-smoothing: antialiased;
 			-moz-osx-font-smoothing: grayscale;
 		}

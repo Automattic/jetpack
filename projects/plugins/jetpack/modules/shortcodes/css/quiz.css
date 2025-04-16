@@ -9,7 +9,7 @@ div.jetpack-quiz {
 
 div.jetpack-quiz div.jetpack-quiz-question {
 	margin-bottom: .5em;
-	font-weight: bold;
+	font-weight: 700;
 }
 
 div.jetpack-quiz div.jetpack-quiz-answer {
@@ -26,11 +26,11 @@ div.jetpack-quiz div.jetpack-quiz-answer.last {
 }
 
 div.jetpack-quiz div.jetpack-quiz-answer.correct {
-	color: green;
+	color: #008000;
 }
 
 div.jetpack-quiz div.jetpack-quiz-answer.wrong {
-	color: red;
+	color: #f00;
 }
 
 div.jetpack-quiz div.jetpack-quiz-answer div.jetpack-quiz-explanation {
@@ -39,7 +39,7 @@ div.jetpack-quiz div.jetpack-quiz-answer div.jetpack-quiz-explanation {
 
 div.jetpack-quiz div.jetpack-quiz-answer.correct div.jetpack-quiz-explanation, div.jetpack-quiz div.jetpack-quiz-answer.wrong div.jetpack-quiz-explanation {
 	display: block;
-	color: black;
+	color: #000;
 	font-size: 90%;
 	margin-top: 1em;
 }

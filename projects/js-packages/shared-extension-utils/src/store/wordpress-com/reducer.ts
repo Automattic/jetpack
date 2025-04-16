@@ -13,8 +13,8 @@ import {
 	FREE_PLAN_REQUESTS_LIMIT,
 	UNLIMITED_PLAN_REQUESTS_LIMIT,
 	ACTION_SET_TIER_PLANS_ENABLED,
-} from './constants.js';
-import type { PlanStateProps, TierLimitProp } from './types.js';
+} from './constants.ts';
+import type { PlanStateProps, TierLimitProp } from './types.ts';
 
 const INITIAL_STATE: PlanStateProps = {
 	plans: [],

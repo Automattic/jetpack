@@ -4,5 +4,5 @@
 }
 
 #the-comment-list .row-actions > :is(.like, .unlike) > button[disabled] {
-	color: grey;
+	color: #808080;
 }

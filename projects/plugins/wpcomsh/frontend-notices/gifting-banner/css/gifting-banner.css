@@ -9,8 +9,8 @@
 .wpcom-gifting-banner {
 	background: #000;
 	color: #fff;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu",
-	"Cantarell", "Helvetica Neue", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu,
+	Cantarell, "Helvetica Neue", sans-serif;
 }
 
 .wpcom-gifting-banner__img {
@@ -85,7 +85,7 @@
 	padding: 6px 12px;
 }
 
-.wpcom-gifting-banner__more-info-button:before {
+.wpcom-gifting-banner__more-info-button::before {
 	background: url(../images/gridicons-help-outline.svg) no-repeat center;
 	content: '';
 	height: 16px;

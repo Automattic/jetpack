@@ -2,6 +2,13 @@
 
 require_once __DIR__ . '/trait.http-request-cache.php';
 
+/**
+ * @covers ::jetpack_shortcode_youtube_args
+ * @covers ::jetpack_shortcode_youtube_dimensions
+ * @covers ::wpcom_youtube_oembed_fetch_url
+ * @covers ::youtube_id
+ * @covers ::youtube_shortcode
+ */
 class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -25,7 +32,6 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::youtube_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_youtube_exists() {
@@ -34,7 +40,6 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::youtube_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_youtube() {
@@ -47,7 +52,6 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::youtube_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_youtube_url() {
@@ -64,7 +68,6 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	 * Tests options within a YouTube URL as parsed as expected iframe parameters.
 	 *
 	 * @author kraftbj
-	 * @covers ::youtube_id
 	 * @dataProvider get_youtube_id_options
 	 * @since 9.9
 	 *
@@ -95,7 +98,6 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author Toro_Unit
-	 * @covers ::youtube_shortcode
 	 * @since 3.9
 	 */
 	public function test_shortcodes_youtube_replace_url_with_iframe_in_the_content() {
@@ -167,8 +169,6 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	 * Test jetpack_shortcode_youtube_args.
 	 *
 	 * @dataProvider get_youtube_args_data
-	 * @covers ::jetpack_shortcode_youtube_args
-	 *
 	 * @param array      $url The parsed URL in which to look for query args.
 	 * @param array|bool $expected The expected return value of the tested function.
 	 */
@@ -239,8 +239,6 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	 * Test youtube_id.
 	 *
 	 * @dataProvider get_amp_youtube_data
-	 * @covers ::youtube_id
-	 *
 	 * @param string $url             The shortcode URL.
 	 * @param string $expected_amp    The expected shortcode returned from the function on AMP pages.
 	 * @param string $expected_nonamp The expected shortcode returned from the function on non-AMP pages.
@@ -291,8 +289,6 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	 * Test youtube_id.
 	 *
 	 * @dataProvider get_amp_youtube_shortcode_data
-	 * @covers ::jetpack_shortcode_youtube_dimensions
-	 *
 	 * @param array  $query_args The query args to pass to the function.
 	 * @param string $expected The expected return value.
 	 */
@@ -324,7 +320,6 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	/**
 	 * Test different oEmbed URLs and their output.
 	 *
-	 * @covers ::wpcom_youtube_oembed_fetch_url
 	 * @dataProvider get_youtube_urls
 	 *
 	 * @param string $original The original YouTube provider URL.

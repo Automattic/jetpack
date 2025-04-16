@@ -1,5 +1,5 @@
 import React from 'react';
-import ThreatSeverityBadge from '../index.js';
+import ThreatSeverityBadge from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Scan/Threat Severity Badge',

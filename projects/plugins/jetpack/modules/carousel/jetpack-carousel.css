@@ -67,10 +67,10 @@ so we have to target all affected elements in touch devices.
 	opacity: 1;
 }
 
-.jp-carousel-overlay .swiper-button-next:after,
-.jp-carousel-overlay .swiper-container-rtl .swiper-button-next:after,
-.jp-carousel-overlay .swiper-button-prev:after,
-.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev:after {
+.jp-carousel-overlay .swiper-button-next::after,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-next::after,
+.jp-carousel-overlay .swiper-button-prev::after,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev::after {
 	content: none;
 }
 
@@ -106,9 +106,9 @@ so we have to target all affected elements in touch devices.
 }
 
 /* Fix for Twenty Nineteen theme compatibility */
-.jp-carousel-overlay h1:before,
-.jp-carousel-overlay h2:before,
-.jp-carousel-overlay h3:before {
+.jp-carousel-overlay h1::before,
+.jp-carousel-overlay h2::before,
+.jp-carousel-overlay h3::before {
 	content: none;
 	display: none;
 }
@@ -253,7 +253,7 @@ so we have to target all affected elements in touch devices.
 div.jp-carousel-buttons a {
 	border: none !important;
 	color: var(--jp-carousel-primary-subtle-color);
-	font: normal 11px/1.2em 'Helvetica Neue', sans-serif !important;
+	font: 400 11px/1.2em 'Helvetica Neue', sans-serif !important;
 	letter-spacing: 0 !important;
 	padding: 5px 2px 5px 0;
 	text-decoration: none !important;
@@ -334,7 +334,7 @@ div.jp-carousel-buttons a:hover {
 .jp-carousel-pagination {
 	color: var(--jp-carousel-primary-color);
 	font-size: 15px; /* same as .jp-carousel-info-footer .jp-carousel-photo-title  */
-	font-weight: normal;
+	font-weight: 400;
 	white-space: nowrap;
 	display: none;
 	position: static !important;
@@ -367,7 +367,6 @@ div.jp-carousel-buttons a:hover {
 
 /** Title and Desc Start **/
 .jp-carousel-info-footer .jp-carousel-photo-title-container {
-	flex-basis: 50vw;
 	flex: 4;
 	justify-content: center;
 	overflow: hidden;
@@ -379,7 +378,7 @@ div.jp-carousel-buttons a:hover {
 	background: none !important;
 	border: none !important;
 	display: inline-block;
-	font: normal 20px/1.3em 'Helvetica Neue', sans-serif;
+	font: 400 20px/1.3em 'Helvetica Neue', sans-serif;
 	line-height: normal;
 	letter-spacing: 0 !important;
 	margin: 0 0 10px 0;
@@ -433,13 +432,13 @@ div.jp-carousel-buttons a:hover {
 	color: var(--jp-carousel-primary-color) !important;
 	border: none !important;
 	text-decoration: underline !important;
-	font-weight: normal !important;
+	font-weight: 400 !important;
 	font-style: normal !important;
 }
 
 .jp-carousel-photo-description p strong,
 .jp-carousel-photo-description p b {
-	font-weight: bold;
+	font-weight: 700;
 	color: var(--jp-carousel-primary-subtle-color);
 }
 
@@ -459,16 +458,16 @@ div.jp-carousel-buttons a:hover {
 	display: none;
 }
 
-.jp-carousel-photo-info h1:before,
-.jp-carousel-photo-info h1:after,
-.jp-carousel-comments-wrapper h1:before,
-.jp-carousel-comments-wrapper h1:after {
+.jp-carousel-photo-info h1::before,
+.jp-carousel-photo-info h1::after,
+.jp-carousel-comments-wrapper h1::before,
+.jp-carousel-comments-wrapper h1::after {
 	content: none !important;
 }
 
 .jp-carousel-caption {
 	font-size: 14px;
-	font-weight: normal;
+	font-weight: 400;
 	margin: 0;
 }
 
@@ -477,7 +476,6 @@ div.jp-carousel-buttons a:hover {
 /** Meta Box Start **/
 .jp-carousel-image-meta {
 	color: var(--jp-carousel-primary-color);
-	font-size: 13px;
 	font: 12px/1.4 'Helvetica Neue', sans-serif !important;
 	width: 100%;
 	display: none;
@@ -698,7 +696,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 #jp-carousel-library-loading,
-#jp-carousel-library-loading:after {
+#jp-carousel-library-loading::after {
 	border-radius: 50%;
 	width: 40px;
 	height: 40px;
@@ -722,7 +720,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 #jp-carousel-comment-form-spinner,
-#jp-carousel-comment-form-spinner:after {
+#jp-carousel-comment-form-spinner::after {
 	border-radius: 50%;
 	width: 20px;
 	height: 20px;
@@ -960,7 +958,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-radius: 4px;
 	background: var(--jp-carousel-primary-color);
 	color: var(--jp-carousel-bg-color);
-	font-weight: normal;
+	font-weight: 400;
 	font-family: 'Helvetica Neue', sans-serif !important;
 	position: relative;
 }

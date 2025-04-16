@@ -1,12 +1,12 @@
 /**
  * Internal dependencies
  */
-import HTMLToMarkdown from './html-to-markdown.js';
-import MarkdownToHTML, { fixes } from './markdown-to-html.js';
+import HTMLToMarkdown from './html-to-markdown.ts';
+import MarkdownToHTML, { fixes } from './markdown-to-html.ts';
 /**
  * Types
  */
-import type { Fix as HTMLFix } from './markdown-to-html.js';
+import type { Fix as HTMLFix } from './markdown-to-html.ts';
 
 const defaultMarkdownConverter = new MarkdownToHTML();
 const defaultHTMLConverter = new HTMLToMarkdown();

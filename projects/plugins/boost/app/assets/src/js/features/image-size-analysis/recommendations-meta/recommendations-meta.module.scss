@@ -1,4 +1,4 @@
-@import "$css/main/variables.scss";
+@import "$css/main/variables";
 
 .summary-line {
 	font-size: 14px;
@@ -66,6 +66,6 @@
 	margin: 32px 0;
 	border: 2px solid $jetpack-green;
 	border-radius: $border-radius;
-	background-color: #ffffff;
+	background-color: #fff;
 	text-align: left;
 }

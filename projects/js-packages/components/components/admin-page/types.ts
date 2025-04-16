@@ -1,4 +1,4 @@
-import type { JetpackFooterMenuItem } from '../jetpack-footer/types.js';
+import type { JetpackFooterMenuItem } from '../jetpack-footer/types.ts';
 
 export type AdminPageProps = {
 	/**

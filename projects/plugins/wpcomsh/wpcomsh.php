@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 6.0.0
+ * Version: 6.1.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '6.0.0' );
+define( 'WPCOMSH_VERSION', '6.1.0' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -50,9 +50,7 @@ require_once __DIR__ . '/jetpack-token-error-header/class-atomic-record-jetpack-
 /**
  * WP.com Widgets (in alphabetical order)
  */
-require_once __DIR__ . '/widgets/class-aboutme-widget.php';
 require_once __DIR__ . '/widgets/class-gravatar-widget.php';
-require_once __DIR__ . '/widgets/class-jetpack-i-voted-widget.php';
 require_once __DIR__ . '/widgets/class-jetpack-posts-i-like-widget.php';
 require_once __DIR__ . '/widgets/class-music-player-widget.php';
 require_once __DIR__ . '/widgets/class-widget-authors-grid.php';
@@ -321,21 +319,6 @@ function check_site_has_pending_automated_transfer() {
 }
 
 add_filter( 'jetpack_site_pending_automated_transfer', 'check_site_has_pending_automated_transfer' );
-
-/**
- * Provides a fallback Google Maps API key when otherwise not configured by the
- * user. This is subject to a usage quota.
- *
- * @see p5j4vm-1gT-p2
- *
- * @param string $api_key Google Maps API key.
- * @return string Google Maps API key
- */
-function wpcomsh_google_maps_api_key( $api_key ) {
-	// Fall back to the dotcom API key if the user has not set their own.
-	return ( empty( $api_key ) ) ? 'AIzaSyCq4vWNv6eCGe2uvhPRGWQlv80IQp8dwTE' : $api_key;
-}
-add_filter( 'jetpack_google_maps_api_key', 'wpcomsh_google_maps_api_key' );
 
 /**
  * We have some instances where `track_number` of an audio attachment is `??0` and shows up as type string.

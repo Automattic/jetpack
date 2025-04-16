@@ -1,8 +1,9 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { ToggleControl, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import CreativeMailIcon from '../../../../icons/creative-mail-icon';
 import IntegrationCard from './integration-card';
 
 const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
@@ -27,11 +28,11 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_creative_mail_click',
 		notInstalledMessage: __(
-			'To start sending email campaigns, install the Creative Mail plugin for WordPress.',
+			'To start sending email campaigns, install the Creative Mail plugin.',
 			'jetpack-forms'
 		),
 		notActivatedMessage: __(
-			'To start sending email campaigns, activate the Creative Mail plugin for WordPress.',
+			'Creative Mail is installed! To start sending email campaigns, simply activate the plugin.',
 			'jetpack-forms'
 		),
 	};
@@ -52,21 +53,13 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		<IntegrationCard
 			title={ __( 'Creative Mail', 'jetpack-forms' ) }
 			description={ __( 'Manage email contacts and campaigns', 'jetpack-forms' ) }
-			icon="email"
+			icon={ CreativeMailIcon }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 			cardData={ cardData }
 		>
 			<div>
-				<p>
-					<em>
-						{ __( "You're all setup for email marketing with Creative Mail.", 'jetpack-forms' ) }
-						<br />
-						<ExternalLink href={ settingsUrl }>
-							{ __( 'Open Creative Mail settings', 'jetpack-forms' ) }
-						</ExternalLink>
-					</em>
-				</p>
+				<p>{ __( "You're all setup for email marketing with Creative Mail.", 'jetpack-forms' ) }</p>
 				{ hasEmailBlock && (
 					<ToggleControl
 						label={ __( 'Add email permission request before submit button', 'jetpack-forms' ) }
@@ -74,6 +67,9 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						onChange={ toggleConsent }
 					/>
 				) }
+				<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
+					{ __( 'Open Creative Mail settings', 'jetpack-forms' ) }
+				</Button>
 			</div>
 		</IntegrationCard>
 	);

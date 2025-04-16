@@ -149,6 +149,18 @@ type RecommendationsResult = {
 
 type ErrorsByType = Record< Critical_CSS_Error_Type, CriticalCssErrorDetails[] >;
 
+export function getErrorTypeKey( error: CriticalCssErrorDetails ): Critical_CSS_Error_Type {
+	if (
+		error.type === 'HttpError' &&
+		typeof error.meta === 'object' &&
+		error.meta !== null &&
+		'code' in error.meta
+	) {
+		return `HttpError-${ error.meta.code }` as Critical_CSS_Error_Type;
+	}
+	return error.type;
+}
+
 export function groupRecommendationsByStatus(
 	providersWithIssues: Provider[]
 ): RecommendationsResult {
@@ -159,32 +171,28 @@ export function groupRecommendationsByStatus(
 		const providerErrors = provider.errors || [];
 		// Group errors by type first
 		const errorsByType = providerErrors.reduce( ( acc, error ) => {
-			if ( ! acc[ error.type ] ) {
-				acc[ error.type ] = [];
+			const errorTypeKey = getErrorTypeKey( error );
+			if ( ! acc[ errorTypeKey ] ) {
+				acc[ errorTypeKey ] = [];
 			}
-			acc[ error.type ].push( error );
+			acc[ errorTypeKey ].push( error );
 			return acc;
 		}, {} as ErrorsByType );
 
-		const errorTypeGroups = Object.entries( errorsByType ) as [
-			Critical_CSS_Error_Type,
-			CriticalCssErrorDetails[],
-		][];
-
 		// For each error type group, check if it's dismissed
-		errorTypeGroups.forEach( ( [ errorType, errors ] ) => {
-			if ( provider.dismissed_errors?.includes( errorType ) ) {
+		Object.entries( errorsByType ).forEach( ( [ errorType, errors ] ) => {
+			if ( provider.dismissed_errors?.includes( errorType as Critical_CSS_Error_Type ) ) {
 				dismissedRecommendations.push( {
 					key: provider.key,
 					label: provider.label,
-					errorType: errorType,
+					errorType: errorType as Critical_CSS_Error_Type,
 					errors: errors,
 				} );
 			} else {
 				activeRecommendations.push( {
 					key: provider.key,
 					label: provider.label,
-					errorType: errorType,
+					errorType: errorType as Critical_CSS_Error_Type,
 					errors: errors,
 				} );
 			}

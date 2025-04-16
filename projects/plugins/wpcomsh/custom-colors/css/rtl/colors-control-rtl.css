@@ -140,10 +140,10 @@
 	border: none;
 }
 
-.color-grid .unavailable:before {
+.color-grid .unavailable::before {
 	color: #fff;
 	content: '\f406';
-	font-family: "Noticons";
+	font-family: Noticons;
 	font-size: 21px;
 	opacity: 0.4;
 	float: right;
@@ -194,7 +194,6 @@ a.revert {
 .the-picker {
 	background: #fff;
 	border: 2px solid #eee;
-	border-top-style: dashed;
 	border: none;
 	display: none;
 	padding: 10px 20px;
@@ -298,7 +297,7 @@ a.revert {
 	text-align: center;
 }
 
-#the-bg-picker-prompt:after {
+#the-bg-picker-prompt::after {
 	content: '.';
 	display: block;
 	height: 0;
@@ -312,7 +311,7 @@ a.revert {
 }
 
 #the-bg-picker-prompt h4 strong {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .choose-color,
@@ -409,7 +408,7 @@ a.revert {
 }*/
 
 /* Theme featured palettes */
-.colour-lovers.featured:before {
+.colour-lovers.featured::before {
 	content: 'Featured';
 	background: #000;
 	color: #fff;
@@ -463,7 +462,7 @@ a.revert {
 	width: 72px;
 }
 
-#colourlovers-patterns:after {
+#colourlovers-patterns::after {
 	content: '.';
 	display: block;
 	height: 0;
@@ -553,7 +552,7 @@ input#iris {
 	padding-right: 20px;
 }
 
-.free-mode.preview-mode #accordion-section-colors_manager_tool h3:after {
+.free-mode.preview-mode #accordion-section-colors_manager_tool h3::after {
 	display: none;
 }
 
@@ -696,7 +695,7 @@ input#iris {
 }
 
 .background-options p.radios input:checked + label {
-	font-weight: bold;
+	font-weight: 700;
 	color: #fff;
 	background: #87a6bc !important; /* $gray */
 	border-color: #668eaa; /* $gray-darken-10 */
@@ -755,7 +754,7 @@ input#iris {
 
 /* only show theme palettes */
 .nux .color-grid:not(.featured),
-.nux .colour-lovers.featured:before {
+.nux .colour-lovers.featured::before {
 	display: none;
 }
 
@@ -795,7 +794,7 @@ input#iris {
 	box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2), inset 0 -2px 0 rgba(255, 255, 255, 0.1);
 }
 
-.color-grid .unavailable:before {
+.color-grid .unavailable::before {
 	font-size: 20px;
 	right: 17px;
 	top: 20px;
@@ -813,7 +812,7 @@ input#iris {
 }
 
 .the-picker p a {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .color-suggestions,

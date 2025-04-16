@@ -1,3 +1,3 @@
-export * from './fixers.js';
-export * from './status.js';
-export * from './threats.js';
+export * from './fixers.ts';
+export * from './status.ts';
+export * from './threats.ts';

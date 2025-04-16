@@ -169,7 +169,7 @@
 }
 
 .jetpack-contact-form.is-placeholder {
-	background-color: white;
+	background-color: #fff;
 	border: 1px solid #1e1e1e;
 	padding: 24px;
 
@@ -190,6 +190,7 @@
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
+		width: 100%;
 	}
 }
 
@@ -277,7 +278,7 @@
 	// Duplicated classname to preserve specificity level.
 	.jetpack-field-label__input.jetpack-field-label__input {
 		cursor: text;
-		font-weight: bold;
+		font-weight: 700;
 		margin-bottom: 0.25em;
 	}
 
@@ -293,7 +294,7 @@
 		opacity: 0.6;
 		font-size: 85%;
 		margin-inline-start: 0.25em;
-		font-weight: normal;
+		font-weight: 400;
 	}
 
 	.components-toggle-control .components-base-control__field {
@@ -380,7 +381,7 @@
 			box-sizing: border-box;
 			content: ' ';
 			display: flex;
-			font-weight: bold;
+			font-weight: 700;
 			height: var(--jetpack--contact-form--font-size, 16px);
 			justify-content: center;
 			width: var(--jetpack--contact-form--font-size, 16px);
@@ -443,7 +444,7 @@
 				margin-left: 0;
 				margin-right: 0.75rem;
 
-				&:before {
+				&::before {
 					font-size: 1rem;
 				}
 			}
@@ -476,7 +477,7 @@
 		align-items: baseline; /* Align input with first label line */
 		flex-wrap: nowrap;
 
-		.jetpack-option__type:before {
+		.jetpack-option__type::before {
 			display: block; /* display: flex causes baselines to not align */
 		}
 	}
@@ -726,7 +727,7 @@
 
 	.is-style-outlined & {
 
-		.block-editor-block-list__block:not([contenteditable]):focus:after {
+		.block-editor-block-list__block:not([contenteditable]):focus::after {
 			top: -10px;
 			left: -10px;
 			bottom: -10px;

@@ -1,5 +1,5 @@
-@import 'scss/_variables.scss';
-@import 'scss/mixin_breakpoint.scss';
+@import 'scss/variables';
+@import 'scss/mixin_breakpoint';
 
 $sidebar-width: 220px;
 $close-button-size: 60px;
@@ -96,7 +96,7 @@ $color-text-lighter: $studio-gray-50;
 
 	.jp-mocked-instant-search__result-statistics {
 		font-size: 1em;
-		font-weight: bold;
+		font-weight: 700;
 
 		@include breakpoint( '<480px' ) {
 			width: 100%;
@@ -150,7 +150,7 @@ $color-text-lighter: $studio-gray-50;
 }
 
 .jp-mocked-instant-search__search-filter-header {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .jp-mocked-instant-search__search-filter {
@@ -159,7 +159,7 @@ $color-text-lighter: $studio-gray-50;
 		cursor: default;
 
 		input[type='checkbox'] {
-			border: 1px solid lavender;
+			border: 1px solid #e6e6fa;
 			border-radius: 5px;
 			cursor: default;
 		}
@@ -169,7 +169,7 @@ $color-text-lighter: $studio-gray-50;
 		display: inline-block;
 		margin-left: 1em;
 		line-height: 1.35;
-		background-color: lavender;
+		background-color: #e6e6fa;
 		width: 50em;
 	}
 

@@ -15,10 +15,10 @@
 	}
 
 	.dashicons {
-		font-family: 'dashicons';
+		font-family: dashicons;
 		margin-top: -6px;
 
-		&:before {
+		&::before {
 			font-size: 18px;
 		}
 	}

@@ -1,4 +1,4 @@
-import RecordMeterBar, { RecordMeterBarProps } from '../index.js';
+import RecordMeterBar, { RecordMeterBarProps } from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Components/RecordMeterBar',

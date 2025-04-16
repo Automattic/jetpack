@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import JetpackFooter from '../index.js';
+import JetpackFooter from '../index.tsx';
 
 describe( 'JetpackFooter', () => {
 	const className = 'sample-classname';

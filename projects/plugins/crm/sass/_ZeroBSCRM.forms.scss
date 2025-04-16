@@ -60,7 +60,7 @@
 	overflow-x:hidden;
 	overflow-y:auto;
 	font-size:14px;
-	font-weight:normal;
+	font-weight:400;
 	background:#FFF;
 	border:1px solid #CCC;
 	border-radius:5px;
@@ -71,7 +71,7 @@
 	// standout div
 	div.greenhighlight {
 
-	    color: green;
+	    color: #008000;
 	    padding: 4px 10px;
 	    
 	}
@@ -84,7 +84,7 @@
 input.zbs-prominent {
 
     font-size: 14px !important;
-    color: green !important;
+    color: #008000 !important;
     line-height: 1.4em;
     height: 38px !important;
 }
@@ -138,13 +138,13 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 }
 
 // Needed for custom contact avatars add/edit pages
-.jpcrm-customer-file-upload:before {
+.jpcrm-customer-file-upload::before {
   content: "\f0ee"; 
   display: inline-block;
   font-family: FontAwesome;
 }
 
-.jpcrm-customer-file-upload-remove:before {
+.jpcrm-customer-file-upload-remove::before {
   content: "\f00d"; 
   display: inline-block;
   font-family: FontAwesome;

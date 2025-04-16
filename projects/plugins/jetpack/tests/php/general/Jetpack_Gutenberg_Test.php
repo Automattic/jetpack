@@ -2,6 +2,10 @@
 
 use Automattic\Jetpack\Blocks;
 
+/**
+ * @covers \Automattic\Jetpack\Blocks
+ * @covers \Jetpack_Gutenberg
+ */
 class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -312,9 +316,6 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	/**
 	 * Test that get_block_name_from_path_convention() provides the same results as get_block_name()
 	 * for all blocks registered by load_independent_blocks().
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_path_convention
-	 * @covers Automattic\Jetpack\Blocks::get_block_name
 	 */
 	public function test_get_block_name_from_path_convention_matches_get_block_name() {
 		$extensions = Jetpack_Gutenberg::get_available_extensions();

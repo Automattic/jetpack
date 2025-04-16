@@ -1,6 +1,6 @@
-import { Title } from '../index.js';
+import { Title } from '../index.tsx';
 import styles from './style.module.scss';
-import type { TitleProps } from '../types.js';
+import type { TitleProps } from '../types.ts';
 
 const TIPOGRAPHY_SIZES: Array< TitleProps[ 'size' ] > = [ 'medium', 'small' ];
 

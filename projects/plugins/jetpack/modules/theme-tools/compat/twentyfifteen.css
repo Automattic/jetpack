@@ -23,7 +23,7 @@
 	font-family: "Noto Sans", sans-serif;
 }
 
-.site .portfolio-entry-content .more-link:after {
+.site .portfolio-entry-content .more-link::after {
 	font-size: 16px;
 	top: 1px;
 }
@@ -328,7 +328,7 @@ iframe[id*="twitter-widget-"] {
 	border-bottom: 0;
 }
 
-.hentry .jp-relatedposts-headline em:before {
+.hentry .jp-relatedposts-headline em::before {
 	opacity: 0.7;
 }
 
@@ -405,7 +405,7 @@ iframe[id*="twitter-widget-"] {
 		font-size: 14px;
 	}
 
-	.site .portfolio-entry-content .more-link:after {
+	.site .portfolio-entry-content .more-link::after {
 		top: 3px;
 	}
 
@@ -508,7 +508,7 @@ iframe[id*="twitter-widget-"] {
 		font-size: 16px;
 	}
 
-	.site .portfolio-entry-content .more-link:after {
+	.site .portfolio-entry-content .more-link::after {
 		font-size: 24px;
 		top: 0;
 	}
@@ -580,7 +580,7 @@ iframe[id*="twitter-widget-"] {
 		font-size: 12px;
 	}
 
-	.site .portfolio-entry-content .more-link:after {
+	.site .portfolio-entry-content .more-link::after {
 		font-size: 16px;
 		top: 1px;
 	}
@@ -656,7 +656,7 @@ iframe[id*="twitter-widget-"] {
 		font-size: 14px;
 	}
 
-	.site .portfolio-entry-content .more-link:after {
+	.site .portfolio-entry-content .more-link::after {
 		top: 3px;
 	}
 
@@ -726,7 +726,7 @@ iframe[id*="twitter-widget-"] {
 		font-size: 16px;
 	}
 
-	.site .portfolio-entry-content .more-link:after {
+	.site .portfolio-entry-content .more-link::after {
 		font-size: 24px;
 		top: 0;
 	}

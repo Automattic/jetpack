@@ -111,7 +111,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 
 @mixin clear-fix {
 
-	&:after {
+	&::after {
 		content: ".";
 		display: block;
 		height: 0;
@@ -131,9 +131,9 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	vertical-align: top;
 	text-align: center;
 	display: inline-block;
-	font-family: "Noticons";
+	font-family: Noticons;
 	font-style: normal;
-	font-weight: normal;
+	font-weight: 400;
 	font-variant: normal;
 	line-height: 1;
 	text-decoration: inherit;
@@ -164,7 +164,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	box-sizing: border-box;
 	box-shadow: 0 0 2px rgba(0,0,0,0.15), 0 3px 8px rgba(0,0,0,0.1);
 
-	&:after {
+	&::after {
 		border: 6px solid transparent;
 		border-bottom-color: $white;
 		content: ' ';
@@ -244,7 +244,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 		display: inline-block;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
-		font: normal math.div($icon-size, 1) 'Noticons';
+		font: 400 math.div($icon-size, 1) 'Noticons';
 		color: $white;
 		position: absolute;
 		top: 0;
@@ -348,7 +348,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	background-color: lighten( $gray, $lighten-percentage );
 	color: transparent;
 
-	&:after {
+	&::after {
 		content: '\00a0';
 	}
 }

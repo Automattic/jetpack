@@ -1,4 +1,4 @@
-@import '../lib/styles/_helper.scss';
+@import '../lib/styles/helper';
 
 $item-spacing: 16px;
 
@@ -80,7 +80,7 @@ $item-spacing: 16px;
 	// See https://css-tricks.com/aspect-ratio-boxes/
 	position: relative;
 
-	&:before {
+	&::before {
 		display: block;
 		content: '';
 		width: 100%;
@@ -132,7 +132,7 @@ $item-spacing: 16px;
 	mark {
 		align-items: center;
 		display: flex;
-		font-weight: normal;
+		font-weight: 400;
 	}
 
 	.gridicon {

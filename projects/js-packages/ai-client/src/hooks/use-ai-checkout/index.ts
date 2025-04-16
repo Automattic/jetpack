@@ -8,7 +8,7 @@ import {
 	getSiteFragment,
 	useAutosaveAndRedirect,
 } from '@automattic/jetpack-shared-extension-utils';
-import useAiFeature from '../use-ai-feature/index.js';
+import useAiFeature from '../use-ai-feature/index.ts';
 /*
  * Types
  */

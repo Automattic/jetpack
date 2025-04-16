@@ -1,4 +1,4 @@
-@import '../lib/styles/_helper.scss';
+@import '../lib/styles/helper';
 
 .jetpack-instant-search__search-filters {
 	position: relative;
@@ -91,7 +91,7 @@
 		color: inherit;
 		cursor: pointer;
 		display: inline-block;
-		font-weight: normal;
+		font-weight: 400;
 		margin: 0 0 0 8px;
 		padding: 0;
 		width: auto;

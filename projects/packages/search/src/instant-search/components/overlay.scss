@@ -1,4 +1,4 @@
-@import '../lib/styles/_helper.scss';
+@import '../lib/styles/helper';
 
 $overlay-vertical-padding-sm: 0;
 $overlay-vertical-padding-md: 3em;
@@ -59,8 +59,8 @@ $overlay-horizontal-padding-lg: 3em;
 	}
 
 	*,
-	*:before,
-	*:after {
+	*::before,
+	*::after {
 		box-sizing: inherit;
 	}
 }

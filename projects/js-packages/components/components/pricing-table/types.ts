@@ -1,4 +1,4 @@
-import type { Placement } from '../icon-tooltip/types.js';
+import type { Placement } from '../icon-tooltip/types.ts';
 
 export type PricingTableProps = {
 	/**

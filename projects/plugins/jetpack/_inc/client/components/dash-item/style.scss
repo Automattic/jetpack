@@ -103,7 +103,7 @@
 		&:focus {
 			text-decoration-line: none;
 			border-radius: 2px;
-			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) #000;
 			outline: 3px solid transparent;
 		}
 	}
@@ -168,7 +168,7 @@
 		.dops-card {
 			background: none;
 
-			.dops-section-header__label-text:before {
+			.dops-section-header__label-text::before {
 				background: none;
 			}
 		}
@@ -188,7 +188,7 @@
 
 	.dops-section-header__label-text {
 
-		&:before {
+		&::before {
 
 			@include long-content-fade( $size: 8px, $color : $white );
 		}

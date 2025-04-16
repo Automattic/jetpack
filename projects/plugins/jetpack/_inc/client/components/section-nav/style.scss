@@ -62,7 +62,7 @@
 	font-weight: 600;
 	cursor: pointer;
 
-	&:after {
+	&::after {
 
 		@include dashicons;
 		content: '\f347';
@@ -72,7 +72,7 @@
 
 	.dops-section-nav.is-open & {
 
-		&:after {
+		&::after {
 
 			@include dashicons;
 			content: '\f343';
@@ -82,7 +82,7 @@
 	.dops-section-nav.has-pinned-items & {
 		padding-right: 50px;
 
-		&:after {
+		&::after {
 			margin-left: 8px;
 		}
 	}
@@ -320,7 +320,7 @@
 			color: currentColor;
 		}
 
-		&:after {
+		&::after {
 			// @include noticon('\f442');
 			font-size: 18px;
 			padding-left: 2px;
@@ -349,7 +349,7 @@
 			color: $black;
 			background-color: transparent;
 
-			&:after {
+			&::after {
 				display: none;
 			}
 		}

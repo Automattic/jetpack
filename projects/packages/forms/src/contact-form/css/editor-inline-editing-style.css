@@ -24,7 +24,7 @@ body {
 	margin: 0 auto 10px auto;
 	padding: 16px;
 	box-sizing: border-box;
-	background: white;
+	background: #fff;
 	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 }
 
@@ -33,7 +33,7 @@ body {
 	background: #f6f7f7;
 }
 
-.card:after {
+.card::after {
 	content: ".";
 	display: block;
 	height: 0;
@@ -264,10 +264,10 @@ input[type="checkbox"] {
 	cursor: pointer;
 }
 
-.checkbox:checked:before,
-input[type="checkbox"]:checked:before {
+.checkbox:checked::before,
+input[type="checkbox"]:checked::before {
 	content: '\f147';
-	font-family: Dashicons;
+	font-family: dashicons;
 	margin: -3px 0 0 -4px;
 	float: left;
 	display: inline-block;
@@ -281,8 +281,8 @@ input[type="checkbox"]:checked:before {
 	color: #00aadc;
 }
 
-.checkbox:disabled:checked:before,
-input[type="checkbox"]:disabled:checked:before {
+.checkbox:disabled:checked::before,
+input[type="checkbox"]:disabled:checked::before {
 	color: #a8bece;
 }
 
@@ -314,7 +314,7 @@ input[type="checkbox"]:disabled:hover {
 .checkbox + span,
 input[type="checkbox"] + span {
 	display: block;
-	font-weight: normal;
+	font-weight: 400;
 	margin-left: 24px;
 }
 
@@ -367,8 +367,8 @@ input[type="radio"]:focus::-ms-clear {
 	display: none;
 }
 
-.radio-button:checked:before,
-input[type="radio"]:checked:before {
+.radio-button:checked::before,
+input[type="radio"]:checked::before {
 	float: left;
 	display: inline-block;
 	content: '\2022';
@@ -402,14 +402,14 @@ input[type="radio"]:disabled::placeholder {
 }
 
 .radio-button:disabled:checked::before,
-input[type="radio"]:disabled:checked:before {
+input[type="radio"]:disabled:checked::before {
 	background: #e9eff3;
 }
 
 .radio-button + span,
 input[type="radio"] + span {
 	display: block;
-	font-weight: normal;
+	font-weight: 400;
 	margin-left: 24px;
 }
 
@@ -544,7 +544,7 @@ input[type="submit"] {
 	-moz-appearance: none;
 	appearance: none;
 	vertical-align: baseline;
-	background: white;
+	background: #fff;
 	border-color: #c8d7e1;
 	border-style: solid;
 	border-width: 1px 1px 2px;
@@ -584,7 +584,7 @@ input[type="submit"]:visited {
 input[type="submit"][disabled],
 input[type="submit"]:disabled {
 	color: #e9eff3;
-	background: white;
+	background: #fff;
 	border-color: #e9eff3;
 	cursor: default;
 }
@@ -614,24 +614,24 @@ input[type="submit"] .gridicon {
 input[type="submit"].button-primary {
 	background: #00aadc;
 	border-color: #008ab3;
-	color: white;
+	color: #fff;
 }
 
 input[type="submit"].button-primary:hover,
 input[type="submit"].button-primary:focus {
 	border-color: #005082;
-	color: white;
+	color: #fff;
 }
 
 input[type="submit"].button-primary[disabled],
 input[type="submit"].button-primary:disabled {
 	background: #bceefd;
 	border-color: #8cc9e2;
-	color: white;
+	color: #fff;
 }
 
 input[type="submit"].button-primary {
-	color: white;
+	color: #fff;
 }
 
 
@@ -729,9 +729,9 @@ input[type="submit"].button-primary {
 	flex-grow: 0;
 }
 
-.delete-option:before,
-.delete-field:before {
-	font-family: Dashicons;
+.delete-option::before,
+.delete-field::before {
+	font-family: dashicons;
 
 /*	content: "\f158"; /* This is the bolder X */
 	content: "\f335"; /* This is the thinner X */

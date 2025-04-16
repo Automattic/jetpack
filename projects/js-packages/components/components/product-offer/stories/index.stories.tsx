@@ -1,5 +1,5 @@
-import { IconsCard } from '../icons-card.js';
-import ProductOffer from '../index.js';
+import { IconsCard } from '../icons-card.tsx';
+import ProductOffer from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof ProductOffer > = {

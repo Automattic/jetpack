@@ -2,13 +2,13 @@
 	display: none;
 }
 
-.infinite-wrap > article:before,
-.infinite-wrap > article:after {
+.infinite-wrap > article::before,
+.infinite-wrap > article::after {
 	content: "";
 	display: table;
 }
 
-.infinite-wrap > article:after {
+.infinite-wrap > article::after {
 	clear: both;
 }
 
@@ -99,7 +99,7 @@
 #infinite-footer .blog-info a,
 #infinite-footer .blog-credits,
 #infinite-footer .blog-credits a {
-	color: #222222;
+	color: #222;
 }
 
 #infinite-footer .blog-info a:hover,

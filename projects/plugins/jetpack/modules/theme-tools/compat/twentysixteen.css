@@ -124,13 +124,13 @@
 	margin: 0 0 -0.4375em;
 }
 
-.widget.widget_wpcom_social_media_icons_widget ul:before,
-.widget.widget_wpcom_social_media_icons_widget ul:after {
+.widget.widget_wpcom_social_media_icons_widget ul::before,
+.widget.widget_wpcom_social_media_icons_widget ul::after {
 	content: "";
 	display: table;
 }
 
-.widget.widget_wpcom_social_media_icons_widget ul:after {
+.widget.widget_wpcom_social_media_icons_widget ul::after {
 	clear: both;
 }
 
@@ -149,15 +149,15 @@
 	width: 35px;
 }
 
-.widget.widget_wpcom_social_media_icons_widget li a:before {
+.widget.widget_wpcom_social_media_icons_widget li a::before {
 	height: 33px;
 	line-height: 33px;
 	text-align: center;
 	width: 33px;
 }
 
-.widget.widget_wpcom_social_media_icons_widget li a:hover:before,
-.widget.widget_wpcom_social_media_icons_widget li a:focus:before {
+.widget.widget_wpcom_social_media_icons_widget li a:hover::before,
+.widget.widget_wpcom_social_media_icons_widget li a:focus::before {
 	opacity: 0.8;
 }
 
@@ -166,13 +166,13 @@
 	margin: 0 0 -0.4375em;
 }
 
-.widget.jetpack_widget_social_icons ul:before,
-.widget.jetpack_widget_social_icons ul:after {
+.widget.jetpack_widget_social_icons ul::before,
+.widget.jetpack_widget_social_icons ul::after {
 	content: "";
 	display: table;
 }
 
-.widget.jetpack_widget_social_icons ul:after {
+.widget.jetpack_widget_social_icons ul::after {
 	clear: both;
 }
 
@@ -533,8 +533,8 @@ iframe[src^="http://api.mixcloud.com/"] {
 	position: relative;
 }
 
-.jp-relatedposts:before,
-.jp-relatedposts:last-child:after {
+.jp-relatedposts::before,
+.jp-relatedposts:last-child::after {
 	background-color: currentColor;
 	content: "";
 	height: 1px;
@@ -545,7 +545,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	width: 100%;
 }
 
-.jp-relatedposts:last-child:after {
+.jp-relatedposts:last-child::after {
 	bottom: 0;
 	top: auto;
 }
@@ -560,7 +560,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	margin-bottom: 1.076923077em;
 }
 
-.entry-content #jp-relatedposts h3.jp-relatedposts-headline em:before {
+.entry-content #jp-relatedposts h3.jp-relatedposts-headline em::before {
 	display: none;
 }
 
@@ -568,13 +568,13 @@ iframe[src^="http://api.mixcloud.com/"] {
 	font-weight: 400;
 }
 
-.jp-relatedposts-items:before,
-.jp-relatedposts-items:after {
+.jp-relatedposts-items::before,
+.jp-relatedposts-items::after {
 	content: "";
 	display: table;
 }
 
-.jp-relatedposts-items:after {
+.jp-relatedposts-items::after {
 	clear: both;
 }
 
@@ -659,8 +659,8 @@ iframe[src^="http://api.mixcloud.com/"] {
 	position: relative;
 }
 
-.sharedaddy:before,
-.sharedaddy:last-child:after {
+.sharedaddy::before,
+.sharedaddy:last-child::after {
 	background-color: currentColor;
 	content: "";
 	height: 1px;
@@ -670,7 +670,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	width: 100%;
 }
 
-.sharedaddy:last-child:after {
+.sharedaddy:last-child::after {
 	bottom: 0;
 	top: auto;
 }
@@ -694,7 +694,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	margin-bottom: 1.076923077em;
 }
 
-.hentry div.sharedaddy h3.sd-title:before {
+.hentry div.sharedaddy h3.sd-title::before {
 	display: none;
 }
 
@@ -805,8 +805,8 @@ iframe[src^="http://api.mixcloud.com/"] {
 		padding-bottom: 0;
 	}
 
-	body:not(.search-results) article:not(.type-page) .sharedaddy:last-child:after,
-	body:not(.search-results) article:not(.type-page) .jp-relatedposts:last-child:after {
+	body:not(.search-results) article:not(.type-page) .sharedaddy:last-child::after,
+	body:not(.search-results) article:not(.type-page) .jp-relatedposts:last-child::after {
 		display: none;
 	}
 

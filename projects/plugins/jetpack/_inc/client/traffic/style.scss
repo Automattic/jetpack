@@ -1,4 +1,4 @@
-@import "../scss/variables/_colors";
+@import "../scss/variables/colors";
 @import "../scss/mixin_breakpoint";
 
 .jp-form-google-label-unverified {
@@ -142,7 +142,7 @@
 		background-color: $alert-red;
 		font-weight: $bold;
 		border-radius: 4px;
-		color: white;
+		color: #fff;
 	}
 
 	&-save-button {

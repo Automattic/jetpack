@@ -314,7 +314,7 @@ class Jetpack_Likes {
 			}
 			.fixed .column-likes .post-com-count::after { border: none !important; }
 			.fixed .column-likes .post-com-count:hover { background-color: #2271b1; }
-			.fixed .column-likes .vers:before {
+			.fixed .column-likes .vers::before {
 				font: normal 20px/1 dashicons;
 				content: '\f155';
 				speak: none;
