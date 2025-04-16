@@ -57,9 +57,7 @@ const settings = {
 			},
 			{
 				name: 'jetpack/input',
-				attributes: {
-					type: 'text',
-				},
+				attributes: { type: 'dropdown', placeholder: __( 'Select one option', 'jetpack-forms' ) },
 			},
 		],
 	},
