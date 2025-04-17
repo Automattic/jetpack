@@ -790,7 +790,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( is_array( $value ) ) {
-			return implode( ', ', array_map( array( self, 'escape_and_sanitize_field_value' ), $value ) );
+			return implode( ', ', array_map( array( __CLASS__, 'escape_and_sanitize_field_value' ), $value ) );
 		}
 
 		$value = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value );
