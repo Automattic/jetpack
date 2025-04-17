@@ -25,15 +25,13 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 				className="jetpack-contact-form__integrations-panel"
 				initialOpen={ false }
 			>
-				<div className="jetpack-forms-integration-panel">
-					<Button
-						variant="secondary"
-						onClick={ () => setIsModalOpen( true ) }
-						__next40pxDefaultSize={ true }
-					>
-						{ __( 'Manage integrations', 'jetpack-forms' ) }
-					</Button>
-				</div>
+				<Button
+					variant="secondary"
+					onClick={ () => setIsModalOpen( true ) }
+					__next40pxDefaultSize={ true }
+				>
+					{ __( 'Manage integrations', 'jetpack-forms' ) }
+				</Button>
 			</PanelBody>
 
 			<BlockControls>
