@@ -332,11 +332,13 @@
 		margin: 0;
 	}
 
+	// Reduced specificity to 0,1,0 so that global styles can override it.
 	:where( .jetpack-field__input, .jetpack-field__textarea ) {
 		border: 1px solid #8c8f94;
 		border-radius: 0;
 	}
 
+	// Reduced specificity to 0,1,0 so that global styles can override it.
 	:where( .jetpack-field__textarea ) {
 		border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
 		border-color: var(--jetpack--contact-form--border-color, #8c8f94);
@@ -400,68 +402,6 @@
 		}
 	}
 
-	&.jetpack-field-multiple {
-
-		&.is-style-button {
-
-			.jetpack-field-option,
-			.wp-block-jetpack-field-option-checkbox,
-			.wp-block-jetpack-field-option-radio {
-				background: var(--jetpack--contact-form--button-outline--background-color);
-				color: var(--jetpack--contact-form--button-outline--text-color);
-				border: var(--jetpack--contact-form--button-outline--border);
-				border-width: var(--jetpack--contact-form--button-outline--border-size);
-				border-color: currentColor;
-				border-radius: var(--jetpack--contact-form--button-outline--border-radius);
-				padding: var(--jetpack--contact-form--button-outline--padding);
-				line-height: var(--jetpack--contact-form--button-outline--line-height);
-				align-items: center;
-
-				&.field-option-radio {
-					position: relative;
-					flex-direction: row-reverse;
-					gap: 16px;
-
-					.jetpack-option__type {
-						display: none;
-					}
-				}
-
-				.jetpack-option__type {
-					color: var(--jetpack--contact-form--button-outline--color);
-				}
-			}
-
-			.wp-block-jetpack-field-option-radio {
-
-				.jetpack-option__type {
-					display: none;
-				}
-			}
-		}
-
-		.jetpack-field-multiple__add-option {
-			margin: 0;
-			padding: 0;
-
-			.dashicon {
-				width: 1rem;
-				height: 1rem;
-				display: flex;
-				margin-left: 0;
-				margin-right: 0.75rem;
-
-				&::before {
-					font-size: 1rem;
-				}
-			}
-
-			svg {
-				margin-right: 12px;
-			}
-		}
-	}
-
 	.jetpack-field-consent__checkbox + .jetpack-field-label {
 		line-height: normal;
 	}
@@ -495,6 +435,71 @@
 		.jetpack-option__type {
 			transform: translateY(5%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
 		}
+	}
+}
+
+.jetpack-field-multiple:where(.is-style-button) {
+	// Reduced specificity to 0,1,0 so that global styles can override it.
+	:where(.jetpack-field-option) {
+		background: var(--jetpack--contact-form--button-outline--background-color);
+		color: var(--jetpack--contact-form--button-outline--text-color);
+		border: var(--jetpack--contact-form--button-outline--border);
+		border-width: var(--jetpack--contact-form--button-outline--border-size);
+		border-color: currentColor;
+		border-radius: var(--jetpack--contact-form--button-outline--border-radius);
+		padding: var(--jetpack--contact-form--button-outline--padding);
+		line-height: var(--jetpack--contact-form--button-outline--line-height);
+	}
+
+	// Increase specificity to override the `align-items: baseline` from the `jetpack-field-option` class.
+	.jetpack-field-option.jetpack-field-option {
+		align-items: center;
+	}
+
+	.jetpack-field-option.field-option-radio {
+		// TODO - Investigate if this is needed.
+		position: relative;
+		flex-direction: row-reverse;
+		gap: 16px;
+
+		// Hide the radio input when in the button style.
+		// TODO - Check why this isn't done for the checkboxes.
+		.jetpack-option__type {
+			display: none;
+		}
+	}
+
+	.jetpack-field-option .jetpack-option__type {
+		color: inherit;
+	}
+
+	.wp-block-jetpack-field-option-radio {
+
+		.jetpack-option__type {
+			display: none;
+		}
+	}
+}
+
+// TODO - See if we can find usage of this class. It's possibly a dead style.
+.jetpack-field-multiple .jetpack-field-multiple__add-option {
+	margin: 0;
+	padding: 0;
+
+	.dashicon {
+		width: 1rem;
+		height: 1rem;
+		display: flex;
+		margin-left: 0;
+		margin-right: 0.75rem;
+
+		&::before {
+			font-size: 1rem;
+		}
+	}
+
+	svg {
+		margin-right: 12px;
 	}
 }
 
