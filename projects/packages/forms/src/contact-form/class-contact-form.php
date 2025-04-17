@@ -760,6 +760,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return mixed|string
 	 */
 	public static function escape_and_sanitize_field_value( $value ) {
+		if ( empty( $value ) ) {
+			return '';
+		}
+
 		// Handle file upload field (new structure with field_id and files array)
 		if ( self::is_file_upload_field( $value ) ) {
 			$files = $value['files'];
@@ -786,10 +790,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( is_array( $value ) ) {
-			if ( is_array( reset( $value ) ) ) {
-				return '';
-			}
-			return implode( ', ', array_map( 'strval', $value ) );
+			return implode( ', ', array_map( array( self, 'escape_and_sanitize_field_value' ), $value ) );
 		}
 
 		$value = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value );
