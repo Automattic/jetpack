@@ -322,10 +322,8 @@
 }
 
 .jetpack-field {
-
 	.jetpack-field__input, .jetpack-field__textarea {
 		width: 100%;
-		font: inherit;
 		box-sizing: border-box;
 		box-shadow: unset;
 		padding: 16px;
@@ -334,6 +332,7 @@
 
 	// Reduced specificity to 0,1,0 so that global styles can override it.
 	:where( .jetpack-field__input, .jetpack-field__textarea ) {
+		font: inherit;
 		border: 1px solid #8c8f94;
 		border-radius: 0;
 	}
