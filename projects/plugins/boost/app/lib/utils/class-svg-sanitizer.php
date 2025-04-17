@@ -49,9 +49,32 @@ class SVG_Sanitizer {
 		$allowed_tags         = array_keys( $allowed_html );
 		$allowed_tags_pattern = implode( '|', array_map( 'preg_quote', $allowed_tags ) );
 
-		// Remove any disallowed tags and their content. This is using reverse lookup to find the tags that are not in the allowed list. This let's us remove a whole tag, e.g. <script>something</script> including the content.
+		/*
+		This regex finds and removes any HTML/XML tags that aren't in our allowed list. Here's how it works:
+		 *
+		 * %                   - Pattern delimiter (using % instead of / or # to avoid conflicts with HTML/CSS content)
+		 * <                   - Matches literal opening bracket of a tag
+		 * (                   - Start capturing the tag name
+		 *   (?!               - Negative lookahead (a way to say "not followed by")
+		 *     (?:             - Non-capturing group
+		 *       pattern|svg   - Our allowed tags joined with | (e.g., "svg|path|circle")
+		 *     )               - End non-capturing group
+		 *   )                 - End negative lookahead
+		 *   [a-z][a-z0-9]*+   - Match a tag name: must start with letter, then letter/number, possessive quantifier
+		 * )                   - End capturing the tag name
+		 * (?:\s[^>]*)?+       - Optionally match attributes: whitespace then anything but >, possessive quantifier
+		 * >                   - Matches literal closing bracket of opening tag
+		 * .*?                 - Matches any content inside the tag
+		 * </                  - Matches literal opening of closing tag
+		 * \1                  - Matches same tag name we captured earlier
+		 * \s*+                - Matches optional whitespace in closing tag, possessive quantifier
+		 * >                   - Matches literal closing bracket
+		 * %si                 - Pattern modifiers: s=dot matches newline, i=case insensitive
+		 *
+		 * Example: <script>alert('xss')</script> - "script" isn't in allowed tags, so whole thing is removed
+		 */
 		$html = preg_replace_callback(
-			'#<((?!' . $allowed_tags_pattern . ')[a-z0-9]+)(\s[^>]*)?>(.*?)</\1>#is',
+			'%<((?!(?:' . $allowed_tags_pattern . '))[a-z][a-z0-9]*+)(?:\s[^>]*)?+>.*?</\\1\s*+>%si',
 			function () {
 				return '';
 			},
