@@ -163,7 +163,7 @@ class Inline_Search extends Classic_Search {
 			return $this->highlighted_content[ $post_id ]['title'];
 		}
 
-		// If no pre-highlighted title, manually highlight the search term
+		// If we don't have highlighted title, manually highlight the search term
 		if ( ! empty( $this->search_term ) ) {
 			return $this->apply_highlight_patterns( $title, $this->search_term );
 		}
@@ -679,39 +679,7 @@ class Inline_Search extends Classic_Search {
 	}
 
 	/**
-	 * Prepare search pattern for highlighting
-	 *
-	 * @param string $search_term The search term to highlight.
-	 * @return array Array of patterns to use for highlighting.
-	 */
-	private function prepare_highlight_patterns( $search_term ) {
-		// Split search term into words
-		$terms    = preg_split( '/\s+/', trim( $search_term ) );
-		$patterns = array();
-
-		// Add patterns for each individual word
-		foreach ( $terms as $term ) {
-			if ( strlen( $term ) < 3 ) {
-				// Use exact matching for very short terms
-				$patterns[] = '/\b(' . preg_quote( $term, '/' ) . ')\b/i';
-			} else {
-				// Word boundary for normal words
-				$patterns[] = '/\b(' . preg_quote( $term, '/' ) . ')\b/i';
-				// Also try without word boundary
-				$patterns[] = '/(' . preg_quote( $term, '/' ) . ')/i';
-			}
-		}
-
-		// Also try the full phrase
-		if ( count( $terms ) > 1 ) {
-			$patterns[] = '/(' . preg_quote( $search_term, '/' ) . ')/i';
-		}
-
-		return $patterns;
-	}
-
-	/**
-	 * Apply highlight patterns to content
+	 * Apply highlight markup to content
 	 *
 	 * @param string $content The content to highlight.
 	 * @param string $search_term The search term to highlight.
@@ -719,23 +687,32 @@ class Inline_Search extends Classic_Search {
 	 * @return string The highlighted content.
 	 */
 	private function apply_highlight_patterns( $content, $search_term, $use_corrected = true ) {
-		$patterns    = $this->prepare_highlight_patterns( $search_term );
 		$highlighted = $content;
 
-		// Apply original search term patterns
-		foreach ( $patterns as $pattern ) {
-			$highlighted = preg_replace( $pattern, '<mark>$1</mark>', $highlighted );
+		// Highlight the original search term
+		if ( ! empty( $search_term ) ) {
+			$highlighted = $this->add_mark_tags( $highlighted, $search_term );
 		}
 
-		// Also apply corrected search term patterns if available and requested
+		// Also highlight corrected search term if available and requested
 		if ( $use_corrected && ! empty( $this->corrected_search_term ) && $this->corrected_search_term !== $search_term ) {
-			$corrected_patterns = $this->prepare_highlight_patterns( $this->corrected_search_term );
-			foreach ( $corrected_patterns as $pattern ) {
-				$highlighted = preg_replace( $pattern, '<mark>$1</mark>', $highlighted );
-			}
+			$highlighted = $this->add_mark_tags( $highlighted, $this->corrected_search_term );
 		}
 
 		return $highlighted;
+	}
+
+	/**
+	 * Add mark tags around search terms in content
+	 *
+	 * @param string $content The content to search within.
+	 * @param string $term The term to highlight.
+	 * @return string The content with highlighted terms.
+	 */
+	private function add_mark_tags( $content, $term ) {
+		// Case-insensitive matching but preserve original case
+		$pattern = '/(' . preg_quote( $term, '/' ) . ')/i';
+		return preg_replace( $pattern, '<mark>$1</mark>', $content );
 	}
 
 	/**
