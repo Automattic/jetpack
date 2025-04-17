@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Editor extensions: handle status of the VideoPress module when the Jetpack plugin is active.

@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Forms: Ensure styles are loaded when expected, preventing console warnings

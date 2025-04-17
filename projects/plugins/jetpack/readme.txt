@@ -326,21 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.6-a.1 - 2025-04-07
-#### Enhancements
-- Replace video embed with VideoPress block in Media & Text block.
-- Forms: Add custom hooks for integrations.
-- Forms: Add endpoint for all integrations.
-- Forms: Update default forms view to dataviews.
-- Newsletter Widget: Improve the display of links in the Newsletter widget.
-
-#### Improved compatibility
-- Blocks: Ensure all child blocks use the latest version of the Blocks API.
-
+### 14.6-a.5 - 2025-04-15
 #### Bug fixes
-- Reset access level of the post to everyone when a paywall is removed.
-- Slideshow: Prevent images from appearing stuck to the mouse in block-based themes.
-- Star Rating: Fix padding and improve panel copy.
+- Stats: Fix PHP TypeError.
 
 --------
 

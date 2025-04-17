@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.6
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 3.13.0
+Stable tag: 3.13.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,23 +183,13 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.13.0 - 2025-04-01
-#### Added
-- Cornerstone Pages: Add speculation rules toggle to prerender those URLs
-- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
-- Speculation rules: Add Cornerstone Pages to the WP speculation rules for displaying
-
-#### Changed
-- General: Update interstitial modal secondary button to use URL from Jetpack Redirect
-- Critical CSS: Improve reliability of generation by running hooks after saving the state.
-- General: Indicate compatibility with the upcoming version of WordPress - 6.8.
-- General: Update Class/Interface file names to adhere to WordPress Convention
-- UI: Show module loading errors with details.
-- Update package dependencies.
-
+### 3.13.1 - 2025-04-16
 #### Fixed
-- Admin Menu: Ensure Akismet menu item display alongside standalone.
-- Misc: Fix incorrectly registering plugin text domain.
+- Critical CSS: Fix cases where dismissing a recommendation would dismiss multiple ones.
+- Critical CSS: Fix not showing status code when generation fails for some pages.
+- Image Guide: Fix front-end state not being in sync with Boost settings.
+- Page Cache: Fix garbage collection and clear cache functionality leaving empty directories behind.
+- Page Cache: Fix not clearing up some events on deactivation.
 
 --------
 

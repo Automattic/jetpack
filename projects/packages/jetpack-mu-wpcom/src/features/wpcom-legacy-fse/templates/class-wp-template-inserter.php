@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE;
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
-
 /**
  * Class WP_Template_Inserter
  */
@@ -49,15 +47,6 @@ class WP_Template_Inserter {
 	 * @var string $fse_template_data_option
 	 */
 	private $fse_template_data_option;
-
-	/**
-	 * This site option will be used to indicate that default page data has already been
-	 * inserted for this theme, in order to prevent this functionality from running
-	 * more than once.
-	 *
-	 * @var string $fse_page_data_option
-	 */
-	private $fse_page_data_option = 'fse-page-data-v1';
 
 	/**
 	 * The strategy to use for default data insertion.
@@ -305,172 +294,6 @@ class WP_Template_Inserter {
 				'theme_slug' => $this->theme_slug,
 			)
 		);
-	}
-
-	/**
-	 * Determines whether default pages have already been created.
-	 *
-	 * @return bool True if default pages have already been created, false otherwise.
-	 */
-	public function is_pages_data_inserted() {
-		return get_option( $this->fse_page_data_option ) ? true : false;
-	}
-
-	/**
-	 * Retrieves a page given its title.
-	 *
-	 * If more than one post uses the same title, the post with the smallest ID will be returned.
-	 * Be careful: in case of more than one post having the same title, it will check the oldest
-	 * publication date, not the smallest ID.
-	 *
-	 * Because this function uses the MySQL '=' comparison, $page_title will usually be matched
-	 * as case-insensitive with default collation.
-	 *
-	 * @global wpdb $wpdb WordPress database abstraction object.
-	 *
-	 * @param string       $page_title Page title.
-	 * @param string       $output     Optional. The required return type. One of OBJECT, ARRAY_A, or ARRAY_N, which
-	 *                                 correspond to a WP_Post object, an associative array, or a numeric array,
-	 *                                 respectively. Default OBJECT.
-	 * @param string|array $post_type  Optional. Post type or array of post types. Default 'page'.
-	 * @return \WP_Post|array|null WP_Post (or array) on success, or null on failure.
-	 */
-	public function get_page_by_title( $page_title, $output = OBJECT, $post_type = 'page' ) {
-		global $wpdb;
-
-		if ( is_array( $post_type ) ) {
-			$post_type           = esc_sql( $post_type );
-			$post_type_in_string = "'" . implode( "','", $post_type ) . "'";
-			$sql                 = $wpdb->prepare(
-				"SELECT ID
-				FROM $wpdb->posts
-				WHERE post_title = %s
-				AND post_type IN ($post_type_in_string)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$page_title
-			);
-		} else {
-			$sql = $wpdb->prepare(
-				"SELECT ID
-				FROM $wpdb->posts
-				WHERE post_title = %s
-				AND post_type = %s",
-				$page_title,
-				$post_type
-			);
-		}
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-		$page = $wpdb->get_var( $sql );
-
-		if ( $page ) {
-			return get_post( (int) $page, $output );
-		}
-
-		return null;
-	}
-
-	/**
-	 * Inserts default About and Contact pages based on Starter Page Templates content.
-	 *
-	 * The insertion will not happen if this data has been already inserted or if pages
-	 * with 'About' and 'Contact' titles already exist.
-	 */
-	public function insert_default_pages() {
-		do_action(
-			'a8c_fse_log',
-			'before_pages_population',
-			array(
-				'context'    => 'WP_Template_Inserter->insert_default_pages',
-				'theme_slug' => $this->theme_slug,
-			)
-		);
-
-		// Bail if this data has already been inserted.
-		if ( $this->is_pages_data_inserted() ) {
-			do_action(
-				'a8c_fse_log',
-				'pages_population_failure',
-				array(
-					'context'    => 'WP_Template_Inserter->insert_default_pages',
-					'error'      => 'Data already exist',
-					'theme_slug' => $this->theme_slug,
-				)
-			);
-			return;
-		}
-
-		$request_url = add_query_arg(
-			array(
-				'_locale' => $this->get_template_locale(),
-			),
-			'https://public-api.wordpress.com/wpcom/v2/verticals/m1/templates'
-		);
-
-		$response = $this->fetch_retry( $request_url );
-
-		if ( ! $response ) {
-			do_action(
-				'a8c_fse_log',
-				'pages_population_failure',
-				array(
-					'context'    => 'WP_Template_Inserter->insert_default_pages',
-					'error'      => 'Fetch retry timeout',
-					'theme_slug' => $this->theme_slug,
-				)
-			);
-			return;
-		}
-
-		$api_response = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( empty( $api_response ) ) {
-			return;
-		}
-
-		// Convert templates response to [ slug => content ] pairs to extract required content more easily.
-		$template_content_by_slug = wp_list_pluck( $api_response['templates'], 'content', 'slug' );
-
-		if ( empty( $this->get_page_by_title( 'About' ) ) && ! empty( $template_content_by_slug['about'] ) ) {
-			wp_insert_post(
-				array(
-					'post_title'   => _x( 'About', 'Default page title', 'jetpack-mu-wpcom' ),
-					'post_content' => $template_content_by_slug['about'],
-					'post_status'  => 'publish',
-					'post_type'    => 'page',
-					'menu_order'   => 1,
-				)
-			);
-		}
-
-		if ( empty( $this->get_page_by_title( 'Contact' ) ) && ! empty( $template_content_by_slug['contact'] ) ) {
-			wp_insert_post(
-				array(
-					'post_title'   => _x( 'Contact', 'Default page title', 'jetpack-mu-wpcom' ),
-					'post_content' => $template_content_by_slug['contact'],
-					'post_status'  => 'publish',
-					'post_type'    => 'page',
-					'menu_order'   => 1,
-				)
-			);
-		}
-
-		update_option( $this->fse_page_data_option, true );
-
-		do_action(
-			'a8c_fse_log',
-			'pages_population_success',
-			array(
-				'context'    => 'WP_Template_Inserter->insert_default_pages',
-				'theme_slug' => $this->theme_slug,
-			)
-		);
-	}
-
-	/**
-	 * Returns the locale to be used for page templates
-	 */
-	private function get_template_locale() {
-		$language = get_locale();
-		return Common\get_iso_639_locale( $language );
 	}
 
 	/**

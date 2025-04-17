@@ -93,7 +93,7 @@ class Tracking_Pixel {
 			} elseif ( $wp_the_query->is_search() ) {
 				$view_data['arch_search']  = sanitize_text_field( $wp_the_query->query['s'] );
 				$view_data['arch_filters'] = sanitize_text_field( self::build_search_filters( $wp_the_query ) );
-				$view_data['arch_results'] = $wp_the_query->posts ? count( $wp_the_query->posts ) : 0;
+				$view_data['arch_results'] = $wp_the_query->posts ? $wp_the_query->post_count : 0;
 			} elseif ( $wp_the_query->is_archive() ) {
 				if ( $wp_the_query->is_date ) {
 					$query                  = $wp_the_query->query;
@@ -116,7 +116,7 @@ class Tracking_Pixel {
 						$view_data[ 'arch_tax_' . array_keys( $query )[0] ] = array_values( $query )[0];
 					}
 				}
-				$view_data['arch_results'] = $wp_the_query->posts ? count( $wp_the_query->posts ) : 0;
+				$view_data['arch_results'] = $wp_the_query->posts ? $wp_the_query->post_count : 0;
 			} elseif ( $wp_the_query->is_404() ) {
 				$view_data['arch_err'] = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
 			} else {

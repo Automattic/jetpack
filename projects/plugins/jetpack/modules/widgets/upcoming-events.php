@@ -152,7 +152,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 				<li>
 					<strong class="event-summary">
 						<?php
-						echo $ical->escape( stripslashes( $event['SUMMARY'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this method is built to escape.
+						echo $ical->escape( stripslashes( $event['SUMMARY'] ?? '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this method is built to escape.
 						?>
 					</strong>
 					<span class="event-when"><?php echo esc_html( $ical->formatted_date( $event ) ); ?></span>

@@ -36,6 +36,7 @@ const L10N = {
 	submittingForm: __( 'Submitting form', 'jetpack-forms' ),
 	/* translators: generic error message */
 	genericError: __( 'Please correct this field', 'jetpack-forms' ),
+	fileRequired: __( 'A file is required.', 'jetpack-forms' ),
 	/* translators: error message shown when no field has been filled out */
 	emptyForm: __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
 	errorCount: d =>
@@ -133,9 +134,7 @@ const initForm = form => {
  * @returns {boolean}
  */
 const isFormValid = form => {
-	let isValid = form.checkValidity();
-
-	if ( ! isValid ) {
+	if ( ! form.checkValidity() ) {
 		return false;
 	}
 
@@ -158,7 +157,16 @@ const isFormValid = form => {
 		}
 	}
 
-	return isValid;
+	// Handle the File Field
+	const fileDropzone = getFileDropzones( form );
+	for ( const field of fileDropzone ) {
+		if ( hasFileFiledError( field ) ) {
+			return false;
+		} else if ( isFileFieldRequiredEmpty( field ) ) {
+			return false;
+		}
+	}
+	return true;
 };
 
 /**
@@ -335,6 +343,22 @@ const getMultipleChoiceFields = form => {
 	return Array.from( form.querySelectorAll( '.grunion-checkbox-multiple-options' ) );
 };
 
+const getFileDropzones = form => {
+	return Array.from( form.querySelectorAll( '.jetpack-form-file-field__container' ) );
+};
+
+const hasFileFiledError = field => {
+	return ! ( Array.from( field.querySelectorAll( '.is-error' ) ).length === 0 );
+};
+
+const isFileFieldRequiredEmpty = field => {
+	if ( field.dataset.isRequired === '1' ) {
+		return Array.from( field.querySelectorAll( '.jetpack-form-file-field__hidden' ) ).length === 0;
+	}
+
+	return false;
+};
+
 /**
  * Return the Date Picker fields of a form.
  * @param {HTMLFormElement} form Form element
@@ -406,6 +430,9 @@ const getFormFields = form => {
 			}
 		}
 	}
+
+	// File Upload Fields
+	fields.fileFields = getFileDropzones( form );
 
 	return fields;
 };
@@ -673,6 +700,25 @@ const invalidateForm = ( form, opts ) => {
 	return listenToInvalidFields( form, opts );
 };
 
+const isFileField = field => {
+	return field.classList.contains( 'jetpack-form-file-field__container' );
+};
+
+const listenToInvalidFileField = ( field, eventCb ) => {
+	const callback = mutationList => {
+		for ( const mutation of mutationList ) {
+			if ( mutation.type === 'attributes' ) {
+				if ( mutation.attributeName === 'aria-invalid' ) {
+					eventCb();
+				}
+			}
+		}
+	};
+
+	const observer = new MutationObserver( callback );
+	observer.observe( field, { attributes: true } );
+};
+
 /**
  * Trigger the fields revalidation on a form inputs blur.
  * @param {HTMLFormElement} form Form element
@@ -691,6 +737,8 @@ const listenToInvalidFields = ( form, opts ) => {
 			obj = listenToInvalidSingleChoiceField( field, eventCb, form, opts );
 		} else if ( isMultipleChoiceField( field ) && isMultipleChoiceFieldRequired( field ) ) {
 			obj = listenToInvalidMultipleChoiceField( field, eventCb, form, opts );
+		} else if ( isFileField( field ) ) {
+			obj = listenToInvalidFileField( field, eventCb, form, opts );
 		} else {
 			obj = listenToInvalidSimpleField( field, eventCb, form, opts );
 		}
@@ -904,7 +952,7 @@ const updateFormErrorMessage = form => {
  */
 const setFieldErrors = ( form, opts ) => {
 	const invalidFields = [];
-	const { simple, singleChoice, multipleChoice } = getFormFields( form );
+	const { simple, singleChoice, multipleChoice, fileFields } = getFormFields( form );
 
 	for ( const field of simple ) {
 		if ( ! isSimpleFieldValid( field ) ) {
@@ -926,6 +974,16 @@ const setFieldErrors = ( form, opts ) => {
 		if ( ! isMultipleChoiceFieldValid( field ) ) {
 			setMultipleChoiceFieldError( field, form, opts );
 
+			invalidFields.push( field );
+		}
+	}
+
+	for ( const field of fileFields ) {
+		if ( isFileFieldRequiredEmpty( field ) ) {
+			setSimpleFieldError( field, form, opts, L10N.fileRequired );
+			invalidFields.push( field );
+		} else if ( hasFileFiledError( field ) ) {
+			setSimpleFieldError( field, form, opts, L10N.genericError );
 			invalidFields.push( field );
 		}
 	}

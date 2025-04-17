@@ -156,9 +156,10 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		// testing taxonomy
 		$wp_the_query->is_tag = false;
 		$wp_the_query->parse_query( 'testtax=testterm' );
-		$wp_the_query->posts = array( 'post1', 'post2', 'post3' );
-		$view_data           = Tracking_Pixel::build_view_data();
-		$expected_view_data  = array(
+		$wp_the_query->posts      = array( 'post1', 'post2', 'post3' );
+		$wp_the_query->post_count = count( $wp_the_query->posts );
+		$view_data                = Tracking_Pixel::build_view_data();
+		$expected_view_data       = array(
 			'v'                => 'ext',
 			'blog'             => 1234,
 			'post'             => '0',
@@ -217,9 +218,10 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		global $wp_the_query;
 		$wp_the_query->is_search = true;
 		$wp_the_query->parse_query( 's=term&posts_per_page=10&paged=2&orderby=date&order=ASC&author_name=author&testtax=testterm' );
-		$wp_the_query->posts = array( 'post1', 'post2' );
-		$view_data           = Tracking_Pixel::build_view_data();
-		$expected_view_data  = array(
+		$wp_the_query->posts      = array( 'post1', 'post2' );
+		$wp_the_query->post_count = count( $wp_the_query->posts );
+		$view_data                = Tracking_Pixel::build_view_data();
+		$expected_view_data       = array(
 			'v'            => 'ext',
 			'blog'         => 1234,
 			'post'         => '0',
@@ -235,9 +237,10 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 
 		// testing search with non-existing taxonomy
 		$wp_the_query->parse_query( 's=term&posts_per_page=10&paged=2&orderby=date&order=ASC&no-testtax=testterm' );
-		$wp_the_query->posts = array( 'post1', 'post2', 'post3' );
-		$view_data           = Tracking_Pixel::build_view_data();
-		$expected_view_data  = array(
+		$wp_the_query->posts      = array( 'post1', 'post2', 'post3' );
+		$wp_the_query->post_count = count( $wp_the_query->posts );
+		$view_data                = Tracking_Pixel::build_view_data();
+		$expected_view_data       = array(
 			'v'            => 'ext',
 			'blog'         => 1234,
 			'post'         => '0',

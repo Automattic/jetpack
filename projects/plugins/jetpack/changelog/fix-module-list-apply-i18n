@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Dashboard: avoid layout issues with "Apply" button on sites using a localized version of WordPress.

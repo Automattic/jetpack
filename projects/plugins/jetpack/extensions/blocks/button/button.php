@@ -179,10 +179,18 @@ function get_button_styles( $attributes ) {
 	$has_custom_font_size        = $has_typography_styles && array_key_exists( 'fontSize', $attributes['style']['typography'] );
 	$has_custom_text_transform   = $has_typography_styles && array_key_exists( 'textTransform', $attributes['style']['typography'] );
 	$border_styles               = array();
-	$has_custom_border_color     = array_key_exists( 'style', $attributes ) && array_key_exists( 'border', $attributes['style'] ) && array_key_exists( 'color', $attributes['style']['border'] );
-	$has_border_style            = array_key_exists( 'style', $attributes ) && array_key_exists( 'border', $attributes['style'] ) && array_key_exists( 'style', $attributes['style']['border'] );
-	$has_border_width            = array_key_exists( 'style', $attributes ) && array_key_exists( 'border', $attributes['style'] ) && array_key_exists( 'width', $attributes['style']['border'] );
-	$has_individual_borders      = array_key_exists( 'style', $attributes ) && array_key_exists( 'border', $attributes['style'] ) && ( array_key_exists( 'top', $attributes['style']['border'] ) || array_key_exists( 'right', $attributes['style']['border'] ) || array_key_exists( 'bottom', $attributes['style']['border'] ) || array_key_exists( 'left', $attributes['style']['border'] ) );
+	$border_attribute            = $attributes['style']['border'] ?? null;
+	$is_border_style_array       = is_array( $border_attribute );
+
+	$has_custom_border_color = $is_border_style_array && isset( $border_attribute['color'] );
+	$has_border_style        = $is_border_style_array && isset( $border_attribute['style'] );
+	$has_border_width        = $is_border_style_array && isset( $border_attribute['width'] );
+	$has_individual_borders  = $is_border_style_array && (
+		isset( $border_attribute['top'] ) ||
+		isset( $border_attribute['right'] ) ||
+		isset( $border_attribute['bottom'] ) ||
+		isset( $border_attribute['left'] )
+	);
 
 	if ( $has_font_family ) {
 		$styles[] = sprintf( 'font-family: %s;', $attributes['fontFamily'] );
@@ -232,13 +240,15 @@ function get_button_styles( $attributes ) {
 
 	if ( $has_individual_borders ) {
 		foreach ( array( 'top', 'right', 'bottom', 'left' ) as $side ) {
-			$border                 = $attributes['style']['border'][ $side ] ?? null;
-			$border_side_values     = array(
-				'width' => $border['width'] ?? null,
-				'color' => $border['color'] ?? null,
-				'style' => $border['style'] ?? null,
-			);
-			$border_styles[ $side ] = $border_side_values;
+			$border = $attributes['style']['border'][ $side ] ?? null;
+			if ( is_array( $border ) ) {
+				$border_side_values     = array(
+					'width' => $border['width'] ?? null,
+					'color' => $border['color'] ?? null,
+					'style' => $border['style'] ?? null,
+				);
+				$border_styles[ $side ] = $border_side_values;
+			}
 		}
 	}
 

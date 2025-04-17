@@ -8,6 +8,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Simple_Delete;
 
 class Page_Cache_Setup {
 
@@ -313,8 +314,7 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		self::deactivate();
 		// Call the Cache Preload module deactivation here to ensure it's cleaned up properly.
 		Cache_Preload::deactivate();
-
-		$result = Filesystem_Utils::walk_directory( WP_CONTENT_DIR . '/boost-cache', Filesystem_Utils::DELETE_ALL );
+		$result = Filesystem_Utils::iterate_directory( WP_CONTENT_DIR . '/boost-cache', new Simple_Delete() );
 		if ( $result instanceof Boost_Cache_Error ) {
 			return $result->to_wp_error();
 		}
