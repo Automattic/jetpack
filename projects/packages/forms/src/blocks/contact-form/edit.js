@@ -19,7 +19,7 @@ import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef } from '@wordpress/element';
+import { useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
@@ -31,6 +31,8 @@ import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleto
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import IntegrationPanel from './components/jetpack-integration-panel';
+import IntegrationsModal from './components/jetpack-integrations-modal';
+import { useIntegrationsStatus } from './components/jetpack-integrations-modal/hooks/useIntegrationsStatus';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
@@ -76,6 +78,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		salesforceData,
 		formTitle,
 	} = attributes;
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
+	const { integrations, refreshIntegrations } = useIntegrationsStatus();
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 	const { postTitle, canUserInstallPlugins, hasInnerBlocks, postAuthorEmail } = useSelect(
 		select => {
@@ -226,13 +230,24 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					</PanelBody>
 
 					{ isFormModalEnabled && ! isSimpleSite() && (
-						<PanelBody
-							title={ __( 'Manage integrations', 'jetpack-forms' ) }
-							className="jetpack-contact-form__integrations-panel"
-							initialOpen={ false }
-						>
-							<IntegrationPanel attributes={ attributes } setAttributes={ setAttributes } />
-						</PanelBody>
+						<>
+							<PanelBody
+								title={ __( 'Manage integrations', 'jetpack-forms' ) }
+								className="jetpack-contact-form__integrations-panel"
+								initialOpen={ false }
+							>
+								<IntegrationPanel setIsModalOpen={ setIsModalOpen } />
+							</PanelBody>
+
+							<IntegrationsModal
+								isOpen={ isModalOpen }
+								onClose={ () => setIsModalOpen( false ) }
+								attributes={ attributes }
+								setAttributes={ setAttributes }
+								integrationsData={ integrations }
+								refreshIntegrations={ refreshIntegrations }
+							/>
+						</>
 					) }
 
 					{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (

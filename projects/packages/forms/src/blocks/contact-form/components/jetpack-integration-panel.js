@@ -1,21 +1,14 @@
 import { Button } from '@wordpress/components';
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import IntegrationsModal from './jetpack-integrations-modal';
-import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/useIntegrationsStatus';
 
 /**
  * Integration Panel component.
  *
- * @param {object}   props               - Component props.
- * @param {object}   props.attributes    - Block attributes.
- * @param {Function} props.setAttributes - Function to set block attributes.
+ * @param {object}   props                - Component props.
+ * @param {Function} props.setIsModalOpen - Function to set modal open or closed
  * @return {object} The IntegrationPanel component.
  */
-export default function IntegrationPanel( { attributes, setAttributes } ) {
-	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const { integrations, refreshIntegrations } = useIntegrationsStatus();
-
+export default function IntegrationPanel( { setIsModalOpen } ) {
 	return (
 		<div className="jetpack-forms-integration-panel">
 			<Button
@@ -23,16 +16,8 @@ export default function IntegrationPanel( { attributes, setAttributes } ) {
 				onClick={ () => setIsModalOpen( true ) }
 				__next40pxDefaultSize={ true }
 			>
-				{ __( 'Manage Integrations', 'jetpack-forms' ) }
+				{ __( 'Manage integrations', 'jetpack-forms' ) }
 			</Button>
-			<IntegrationsModal
-				isOpen={ isModalOpen }
-				onClose={ () => setIsModalOpen( false ) }
-				attributes={ attributes }
-				setAttributes={ setAttributes }
-				integrationsData={ integrations }
-				refreshIntegrations={ refreshIntegrations }
-			/>
 		</div>
 	);
 }
