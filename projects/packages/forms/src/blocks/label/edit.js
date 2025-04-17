@@ -7,6 +7,7 @@ import { ALLOWED_FORMATS, DATE_FORMATS, FORM_STYLE } from '../shared/util/consta
 import getBlockStyle from '../shared/util/get-block-style.js';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
+const emptyToNull = str => ( str === '' ? null : str );
 
 const WithNotchedWrapper = ( { formStyle, children } ) => {
 	if ( formStyle === FORM_STYLE.OUTLINED ) {
@@ -33,7 +34,6 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 
 	const { label, defaultLabel, requiredText } = attributes;
 
-	const emptyToNull = str => ( str === '' ? null : str );
 	const placeholder =
 		emptyToNull( defaultLabel ) ?? emptyToNull( label ) ?? __( 'Add label…', 'jetpack-forms' );
 	const suffix = dateFormat

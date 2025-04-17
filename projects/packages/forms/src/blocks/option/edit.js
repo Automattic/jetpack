@@ -7,6 +7,14 @@ import useEnter from './use-enter';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
 
+const getLabelOrFallback = ( label, placeholder ) => {
+	if ( label === '' ) {
+		return placeholder;
+	}
+
+	return label ?? placeholder;
+};
+
 const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) => {
 	const {
 		'jetpack/field-defaultValue': defaultValue,
@@ -46,10 +54,9 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 		return select( blockEditorStore ).getSettings().isPreviewMode;
 	}, [] );
 	const placeholder = __( 'Add label…', 'jetpack-forms' );
-	const emptyToNull = str => ( str === '' ? null : str );
 	// The label value to use for the RichText field must manually fall back to the
 	// placeholder to be rendered in previews.
-	const labelValue = isPreviewMode ? emptyToNull( label ) ?? placeholder : label;
+	const labelValue = isPreviewMode ? getLabelOrFallback( label, placeholder ) : label;
 
 	// Some fields such as Checkbox or Consent, do not have a list of options.
 	// Additionally, a checkbox field may also be flagged as required so we need
