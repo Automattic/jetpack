@@ -322,6 +322,7 @@
 }
 
 .jetpack-field {
+
 	.jetpack-field__input, .jetpack-field__textarea {
 		width: 100%;
 		box-sizing: border-box;
@@ -533,6 +534,7 @@
 		display: none;
 	}
 
+	// TODO - This looks like dead code, it looks like field select can't contain a multiple list.
 	// TODO: make this a class, @enej
 	[data-type='jetpack/field-select'] & {
 		border: 1px solid rgba( 0, 0, 0, 0.4 );
@@ -551,6 +553,7 @@
 	margin-top: 0;
 }
 
+// TODO - This looks like dead code, along with the `JetpackOption` component.
 // Duplicated to elevate specificity in order to overwrite core styles
 .jetpack-option__input.jetpack-option__input.jetpack-option__input {
 	color: inherit;
@@ -575,6 +578,7 @@
 	font-size: inherit;
 }
 
+// TODO - This is possibly dead CSS.
 // Duplicated to elevate specificity in order to overwrite calypso styles
 .jetpack-option__remove.jetpack-option__remove {
 	padding: 6px;
