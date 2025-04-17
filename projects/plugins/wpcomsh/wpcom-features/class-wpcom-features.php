@@ -525,7 +525,8 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 		),
 		self::ATOMIC                            => array(
-			self::WPCOM_PRO_PLANS,
+			self::WPCOM_PERSONAL_PLANS,
+			self::WPCOM_PREMIUM_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_STAGING_PRODUCT,
 			array( 'product_type' => array( 'marketplace_plugin', 'saas_plugin' ) ),
@@ -755,6 +756,8 @@ class WPCOM_Features {
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::INSTALL_PLUGINS                   => array(
+			self::WPCOM_PERSONAL_PLANS,
+			self::WPCOM_PREMIUM_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
@@ -762,6 +765,8 @@ class WPCOM_Features {
 			),
 		),
 		self::INSTALL_PURCHASED_PLUGINS         => array(
+			self::WPCOM_PERSONAL_PLANS,
+			self::WPCOM_PREMIUM_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STARTER_PLANS,
