@@ -16,7 +16,6 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Run_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
 class Page_Cache implements Feature, Has_Deactivate, Has_Data_Sync, Optimization, Needs_To_Be_Ready {
@@ -87,7 +86,7 @@ class Page_Cache implements Feature, Has_Deactivate, Has_Data_Sync, Optimization
 
 	private function invalidate_cache() {
 		$cache = new Boost_Cache();
-		$cache->get_storage()->invalidate( home_url(), Filesystem_Utils::DELETE_ALL );
+		$cache->delete_recursive( home_url() );
 	}
 
 	/**

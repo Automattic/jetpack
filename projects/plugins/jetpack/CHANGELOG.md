@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.6-a.5 - 2025-04-15
+### Bug fixes
+- Stats: Fix PHP TypeError. [#43072]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Story block will use a placeholder if used outside the loop. [#41135]
+
 ## 14.6-a.3 - 2025-04-14
 ### Enhancements
 - Add My Jetpack tour. [#42880]

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix PHP Fatal error: Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, WP_Query given

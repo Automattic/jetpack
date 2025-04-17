@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Extensions\Top_Posts;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Jetpack_Gutenberg;
 use Jetpack_Top_Posts_Helper;
@@ -25,6 +26,15 @@ if ( ! class_exists( 'Jetpack_Top_Posts_Helper' ) ) {
  * registration if we need to.
  */
 function register_block() {
+	/*
+	 * The block is available even when the module is not active,
+	 * so we can display a nudge to activate the module instead of the block.
+	 * However, since non-admins cannot activate modules, we do not display the empty block for them.
+	 */
+	if ( ! ( new Modules() )->is_active( 'stats' ) && ! current_user_can( 'jetpack_activate_modules' ) ) {
+		return;
+	}
+
 	if ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() ) {
 		Blocks::jetpack_register_block(
 			__DIR__,
@@ -42,6 +52,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attributes ) {
+	// Do not render anything when the Stats module is not active.
+	if ( ! ( new Modules() )->is_active( 'stats' ) ) {
+		return;
+	}
+
 	// Do not render in contexts outside the front-end (eg. emails, API).
 	if ( ! jetpack_is_frontend() ) {
 		return;

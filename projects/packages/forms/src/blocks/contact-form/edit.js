@@ -225,7 +225,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						/>
 					</PanelBody>
 
-					{ isFormModalEnabled && (
+					{ isFormModalEnabled && ! isSimpleSite() && (
 						<PanelBody
 							title={ __( 'Manage integrations', 'jetpack-forms' ) }
 							className="jetpack-contact-form__integrations-panel"
