@@ -34,20 +34,26 @@ class SVG_Sanitizer {
 		return $kses_rules;
 	}
 
+	/**
+	 * Remove any tags that are not explicitly allowed, along with their content.
+	 *
+	 * @param string $html        The HTML to sanitize.
+	 * @param array  $allowed_html Optional. Array of allowed HTML elements and their attributes.
+	 * @return string The sanitized HTML.
+	 */
 	public function remove_disallowed_tags_and_content( $html, $allowed_html = array() ) {
 		if ( empty( $allowed_html ) ) {
 			$allowed_html = self::get_kses_svg_rules();
 		}
 
-		$allowed_tags = array_keys( $allowed_html );
+		$allowed_tags         = array_keys( $allowed_html );
+		$allowed_tags_pattern = implode( '|', array_map( 'preg_quote', $allowed_tags ) );
 
-		// Remove content of any tag not in allowed list.
-		// Match opening + content + closing tags, e.g. <script>...</script>
+		// Remove any disallowed tags and their content. This is using reverse lookup to find the tags that are not in the allowed list. This let's us remove a whole tag, e.g. <script>something</script> including the content.
 		$html = preg_replace_callback(
-			'#<([a-z0-9]+)(\b[^>]*)?>.*?</\1>#is',
-			function ( $matches ) use ( $allowed_tags ) {
-				$tag = strtolower( $matches[1] );
-				return in_array( $tag, $allowed_tags, true ) ? $matches[0] : '';
+			'#<((?!' . $allowed_tags_pattern . ')[a-z0-9]+)(\s[^>]*)?>(.*?)</\1>#is',
+			function () {
+				return '';
 			},
 			$html
 		);
