@@ -7,14 +7,14 @@ import IntegrationsModal from './jetpack-integrations-modal';
 import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/useIntegrationsStatus';
 
 /**
- * Integration Panel component.
+ * Integration controls component containing Panel for settings sidebar and block toolbar.
  *
  * @param {object}   props               - Component props.
  * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Function to set block attributes.
- * @return {object} The IntegrationPanel component.
+ * @return {object} The IntegrationControls component.
  */
-export default function IntegrationPanel( { attributes, setAttributes } ) {
+export default function IntegrationControls( { attributes, setAttributes } ) {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const { integrations, refreshIntegrations } = useIntegrationsStatus();
 
