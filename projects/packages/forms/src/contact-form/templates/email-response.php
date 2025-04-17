@@ -49,7 +49,12 @@ $template = '
 						</tr>
 						<tr>
 							<td class="content-block powered-by">
-								Powered by <a href="https://jetpack.com/forms/">Jetpack Forms</a>
+								' .
+								sprintf(
+									// translators: %1$s is a link to the Jetpack Forms page.
+									__( 'Powered by %1$s', 'jetpack-forms' ),
+									'<a href="https://jetpack.com/forms/?utm_source=jetpack-forms&utm_medium=email&utm_campaign=form-submissions">Jetpack Forms</a>'
+								) . '
 							</td>
 						</tr>
 						</table>
