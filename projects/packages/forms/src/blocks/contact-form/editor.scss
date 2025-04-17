@@ -337,7 +337,7 @@
 		border-radius: 0;
 	}
 
-	.jetpack-field__textarea {
+	:where( .jetpack-field__textarea ) {
 		border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
 		border-color: var(--jetpack--contact-form--border-color, #8c8f94);
 		border-style: var(--jetpack--contact-form--border-style, solid);
