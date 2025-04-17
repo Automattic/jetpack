@@ -356,6 +356,7 @@ add_action( 'admin_menu', 'wpcomsh_remove_jetpack_manage_menu_item', 1001 ); // 
  * @return array|WP_Error The filtered value.
  */
 function wpcomsh_prevent_exceeding_plugin_limit( $new_value, $old_value ) {
+	// Skip check for network-wide operations
 	if ( is_multisite() && is_network_admin() ) {
 		return $new_value;
 	}
@@ -365,8 +366,17 @@ function wpcomsh_prevent_exceeding_plugin_limit( $new_value, $old_value ) {
 		return $new_value;
 	}
 
-	// Plugins are manually activated one by one
-	if ( 1 === count( $newly_activated ) && wpcomsh_is_default_plugin( $newly_activated[0] ) ) {
+	// Check if all newly activated plugins are default plugins
+	$has_non_default = false;
+	foreach ( $newly_activated as $plugin ) {
+		if ( ! wpcomsh_is_default_plugin( $plugin ) ) {
+			$has_non_default = true;
+			break;
+		}
+	}
+
+	// If all newly activated plugins are default plugins, allow the activation
+	if ( ! $has_non_default ) {
 		return $new_value;
 	}
 
