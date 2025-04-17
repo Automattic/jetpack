@@ -7,7 +7,15 @@ import { ALLOWED_FORMATS, DATE_FORMATS, FORM_STYLE } from '../shared/util/consta
 import getBlockStyle from '../shared/util/get-block-style.js';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
+
 const emptyToNull = str => ( str === '' ? null : str );
+const getLabelOrFallback = ( label, placeholder ) => {
+	if ( label === '' ) {
+		return placeholder;
+	}
+
+	return label ?? placeholder;
+};
 
 const WithNotchedWrapper = ( { formStyle, children } ) => {
 	if ( formStyle === FORM_STYLE.OUTLINED ) {
@@ -34,8 +42,8 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 
 	const { label, defaultLabel, requiredText } = attributes;
 
-	const placeholder =
-		emptyToNull( defaultLabel ) ?? emptyToNull( label ) ?? __( 'Add label…', 'jetpack-forms' );
+	const defaultPlaceholder = __( 'Add label…', 'jetpack-forms' );
+	const placeholder = emptyToNull( defaultLabel ) ?? emptyToNull( label ) ?? defaultPlaceholder;
 	const suffix = dateFormat
 		? `(${ DATE_FORMATS.find( f => f.value === dateFormat )?.label })`
 		: undefined;
@@ -52,7 +60,7 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 	const isPreviewMode = useSelect( select => {
 		return select( blockEditorStore ).getSettings().isPreviewMode;
 	}, [] );
-	const labelValue = isPreviewMode ? emptyToNull( label ) ?? placeholder : label;
+	const labelValue = isPreviewMode ? getLabelOrFallback( label, defaultPlaceholder ) : label;
 
 	return (
 		<WithNotchedWrapper formStyle={ formStyle }>
