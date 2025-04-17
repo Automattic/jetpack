@@ -1,0 +1,3 @@
+Significance: patch
+Type: bugfix
+Comment: Fix PHP fatal error that occurs when parsing non-array submenu items in the wpcom/v2/admin-menu endpoint.

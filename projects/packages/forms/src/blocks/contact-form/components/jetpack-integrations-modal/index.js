@@ -1,4 +1,5 @@
-import { Modal } from '@wordpress/components';
+// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+import { Modal, __experimentalVStack as VStack } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import AkismetCard from './akismet-card';
@@ -32,11 +33,11 @@ const IntegrationsModal = ( {
 
 	return (
 		<Modal
-			title={ __( 'Manage Integrations', 'jetpack-forms' ) }
+			title={ __( 'Manage integrations', 'jetpack-forms' ) }
 			onRequestClose={ onClose }
 			style={ { width: '700px' } }
 		>
-			<div style={ { padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' } }>
+			<VStack spacing="4">
 				<AkismetCard
 					isExpanded={ expandedCards.akismet }
 					onToggle={ () => toggleCard( 'akismet' ) }
@@ -57,7 +58,7 @@ const IntegrationsModal = ( {
 					data={ integrationsData?.[ 'creative-mail-by-constant-contact' ] }
 					refreshStatus={ refreshIntegrations }
 				/>
-			</div>
+			</VStack>
 		</Modal>
 	);
 };

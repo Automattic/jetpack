@@ -81,8 +81,7 @@
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
 		"ai-list-to-table-transform",
-		"ai-use-chrome-ai-sometimes",
-		"ai-proofread-harper"
+		"ai-use-chrome-ai-sometimes"
 	],
 	"experimental": [],
 	"no-post-editor": [

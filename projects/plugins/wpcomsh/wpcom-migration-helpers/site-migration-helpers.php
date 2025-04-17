@@ -115,3 +115,68 @@ function aiowp_migration_logging_helper() {
 	);
 }
 add_action( 'plugins_loaded', 'aiowp_migration_logging_helper', 10 );
+
+/**
+ * Helper function that registers a filter that listens for the AIOWP migration completed event.
+ * Once detected, it will trigger a call to an endpoint on WPCOM to run the corresponding cleanup jobs.
+ */
+function aiowp_migration_status_helper() {
+	if ( ! class_exists( 'Ai1wm_Main_Controller' ) ) {
+		return;
+	}
+
+	$wpcom_blog_id             = Jetpack_Options::get_option( 'id' );
+	$wpcom_blog_id_backup_file = WP_CONTENT_DIR . '/uploads/blog_id_backup.txt';
+	add_filter(
+		'ai1wm_import',
+		function ( $params = array() ) use ( $wpcom_blog_id, $wpcom_blog_id_backup_file ) {
+			// This filter runs at this priority at the start of the import.
+			// We store the wpcom_blog_id in a backup file so we can use it later in the import, since
+			// the blog id is removed from the db by subsequent steps in the AIOWP migration.
+			file_put_contents( $wpcom_blog_id_backup_file, $wpcom_blog_id ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			return $params;
+		},
+		10
+	);
+	add_filter(
+		'ai1wm_import',
+		function ( $params = array() ) use ( $wpcom_blog_id_backup_file ) {
+			if ( ! file_exists( $wpcom_blog_id_backup_file ) ) {
+				do_action( 'wpcomsh_log', 'No wpcom_blog_id_backup_file found' );
+				return $params;
+			}
+
+			// Read the wpcom_blog_id from the backup file.
+			$file_contents = file_get_contents( $wpcom_blog_id_backup_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+			if ( false === $file_contents ) {
+				do_action( 'wpcomsh_log', 'Failed to read wpcom_blog_id_backup_file' );
+				return $params;
+			}
+
+			if ( ! is_numeric( $file_contents ) || (int) $file_contents === 0 ) {
+				do_action( 'wpcomsh_log', 'The content of the wpcom_blog_id_backup_file is not valid' );
+				return $params;
+			}
+
+			$wpcom_blog_id = intval( $file_contents );
+			unlink( $wpcom_blog_id_backup_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+
+			$endpoint = sprintf( '/sites/%s/migration-aiowp-notifications', $wpcom_blog_id );
+			$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+				$endpoint,
+				'v2',
+				array( 'method' => 'POST' ),
+				array( 'status' => 'completed' ),
+				'wpcom'
+			);
+			if ( 200 !== $response['response']['code'] || empty( $response['body'] ) ) {
+				return $params;
+			}
+			return $params;
+		},
+		400
+	);
+}
+
+add_action( 'plugins_loaded', 'aiowp_migration_status_helper', 10 );

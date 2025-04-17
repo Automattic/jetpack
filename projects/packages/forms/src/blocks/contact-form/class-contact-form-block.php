@@ -13,6 +13,7 @@ use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Modules;
 use Jetpack;
 
 /**
@@ -26,6 +27,15 @@ class Contact_Form_Block {
 	 * and enable plugin in one click
 	 */
 	public static function register_block() {
+		/*
+		 * The block is available even when the module is not active,
+		 * so we can display a nudge to activate the module instead of the block.
+		 * However, since non-admins cannot activate modules, we do not display the empty block for them.
+		 */
+		if ( ! self::can_manage_block() ) {
+			return;
+		}
+
 		Blocks::jetpack_register_block(
 			'jetpack/contact-form',
 			array(
@@ -77,6 +87,11 @@ class Contact_Form_Block {
 	 * We are registering child blocks only when Contact Form plugin is Active
 	 */
 	public static function register_child_blocks() {
+		// Bail early if the user cannot manage the block.
+		if ( ! self::can_manage_block() ) {
+			return;
+		}
+
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
@@ -197,8 +212,8 @@ class Contact_Form_Block {
 	 * @return string
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
-		// We should not render block is module is disabled
-		if ( ! Jetpack::is_module_active( 'contact-form' ) ) {
+		// We should not render block if the module is disabled on a site using the Jetpack plugin.
+		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) ) {
 			return '';
 		}
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
@@ -220,6 +235,10 @@ class Contact_Form_Block {
 	 * Loads scripts
 	 */
 	public static function load_editor_scripts() {
+		// Bail early if the user cannot manage the block.
+		if ( ! self::can_manage_block() ) {
+			return;
+		}
 
 		$handle = 'jp-forms-blocks';
 
@@ -275,5 +294,40 @@ class Contact_Form_Block {
 				'enqueue'    => true,
 			)
 		);
+	}
+
+	/**
+	 * Check if the current user can view the block.
+	 * Every user can see it if the Contact Form module is active,
+	 * but if it is inactive, only admins can see it.
+	 *
+	 * This is only useful when the Contact Form package is used within the Jetpack plugin,
+	 * where the module logic exists.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function can_manage_block() {
+		if (
+			/**
+			 * Allow third-parties to override the form block's visibility.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @module contact-form
+			 *
+			 * @param bool $can_manage_block Whether the current user can manage the block.
+			 */
+			apply_filters( 'jetpack_contact_form_can_manage_block', false )
+		) {
+			return true;
+		}
+
+		if ( ! class_exists( 'Jetpack' ) ) {
+			return true;
+		}
+
+		return ( new Modules() )->is_active( 'contact-form' ) || current_user_can( 'jetpack_activate_modules' );
 	}
 }

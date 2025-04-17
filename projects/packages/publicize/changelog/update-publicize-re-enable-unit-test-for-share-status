@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Re-enabled unit tests for share status

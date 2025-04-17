@@ -462,9 +462,29 @@ We strongly recommend that you install tools to review your code in your IDE. It
 
 	`add_filter( 'jetpack_offline_mode', '__return_true' );`
 
+	See the [Custom code snippets](#custom-code-snippets-mu-plugins) section for more information on how to add custom code snippets.
+
 	While in Offline Mode, some features will not be available at all as they require WordPress.com for all functionality—Related Posts and Jetpack Social, for example. Other features will have reduced functionality to give developers a good-faith representation of the feature. For example, Tiled Galleries requires the WordPress.com Photon CDN; however, in Offline Mode, Jetpack provides a fallback so developers can have a similar experience during development and testing. Find out more in [our support documentation](https://jetpack.com/support/jetpack-for-developers/).
 
 * ### JETPACK__SANDBOX_DOMAIN
 
 	External contributors do not need this constant.
 	If you’re working on changes to the WordPress.com/server side of Jetpack, you’ll need to instruct your Jetpack installation to talk to your development server. Refer to internal documentation for detailed instructions.
+
+## Custom code snippets (mu-plugins)
+
+You can add [mu-plugins](https://developer.wordpress.org/advanced-administration/plugins/mu-plugins/) inside `tools/docker/mu-plugins` like `0-snippets.php` to add custom code snippets to your test site. Those files are gitignored. This is useful for testing specific features or debugging issues.
+
+For example, you can add the following code to the `0-snippets.php` file to use local Calypso URLs instead of the production ones for connecting a site.
+
+```php
+add_filter(
+	'jetpack_build_authorize_url',
+	function ( $url ) {
+		// Comment out this line when not using local Calypso development URL.
+		$url = str_replace( 'https://wordpress.com', 'http://calypso.localhost:3000', $url );
+
+		return $url;
+	}
+);
+```
