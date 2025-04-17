@@ -63,6 +63,9 @@ class Hooks {
 
 		add_filter( 'jetpack_options_whitelist', array( $this, 'add_to_options_whitelist' ) );
 
+		// Override the filter from projects/plugins/wpcomsh/feature-plugins/managed-plugins.php that forces jetpack/jetpack.php to be enabled.
+		add_filter( 'pre_update_option_active_plugins', array( $this, 'unbreak_wpcomsh' ), 11 );
+
 		if ( is_admin() ) {
 			self::maybe_schedule_autoupdate();
 			Admin::init();
@@ -623,5 +626,23 @@ class Hooks {
 			// Returning false makes the error go through the standard error handler as well.
 			return false;
 		}
+	}
+
+	/**
+	 * Filter: Ensure wpcomsh doesn't reactivate the non-dev Jetpack.
+	 *
+	 * @param mixed $value The new, unserialized option value.
+	 * @return array The filtered array of active plugins.
+	 */
+	public function unbreak_wpcomsh( $value ) {
+		if ( ! is_array( $value ) ) {
+			return $value;
+		}
+
+		if ( in_array( 'jetpack/jetpack.php', $value, true ) && in_array( 'jetpack-dev/jetpack.php', $value, true ) ) {
+			$value = array_diff( $value, array( 'jetpack/jetpack.php' ) );
+		}
+
+		return $value;
 	}
 }
