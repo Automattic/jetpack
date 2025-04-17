@@ -1,7 +1,16 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Flickr Widget, pulling recent photos from Flickr using RSS feed.
+ *
+ * This widget is now deprecated.
+ * Flickr does not offer RSS feeds anymore.
+ *
+ * @see https://github.com/Automattic/jetpack/issues/39824
+ *
+ * @package automattic/jetpack
+ */
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
-
 
 /**
  * Disable direct access/execution to/of the widget code.
@@ -228,7 +237,19 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 	 * Register Jetpack_Flickr_Widget widget.
 	 */
 	function jetpack_register_flickr_widget() {
-		register_widget( 'Jetpack_Flickr_Widget' );
+		$transient  = 'jetpack_flickr_widget::is_active';
+		$has_widget = get_transient( $transient );
+
+		if ( false === $has_widget ) {
+			$is_active_widget = is_active_widget( false, false, 'flickr', false );
+			$has_widget       = (int) ! empty( $is_active_widget );
+			set_transient( $transient, $has_widget, 1 * HOUR_IN_SECONDS );
+		}
+
+		// [DEPRECATION]: Only register widget if active widget exists already
+		if ( $has_widget ) {
+			register_widget( 'Jetpack_Flickr_Widget' );
+		}
 	}
 	add_action( 'widgets_init', 'jetpack_register_flickr_widget' );
 }
