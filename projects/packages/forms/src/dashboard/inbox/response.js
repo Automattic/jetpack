@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-import { Button } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { map } from 'lodash';
+import { getPath } from './utils';
 
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -106,9 +107,9 @@ const InboxResponse = ( { loading, response } ) => {
 						{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
 					</span>
 					<span className="jp-forms__inbox-response-meta-value">
-						<Button variant="link" href={ response.entry_permalink }>
-							{ response.entry_permalink }
-						</Button>
+						<ExternalLink href={ response.entry_permalink }>
+							{ decodeEntities( response.entry_title ) || getPath( response ) }
+						</ExternalLink>
 					</span>
 				</div>
 				<div className="jp-forms__inbox-response-meta-label">
