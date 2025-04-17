@@ -36,7 +36,11 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton icon={ plugins } onClick={ () => setIsModalOpen( true ) }>
+					<ToolbarButton
+						icon={ plugins }
+						onClick={ () => setIsModalOpen( true ) }
+						style={ { paddingLeft: 0 } }
+					>
 						{ __( 'Integrations', 'jetpack-forms' ) }
 					</ToolbarButton>
 				</ToolbarGroup>
