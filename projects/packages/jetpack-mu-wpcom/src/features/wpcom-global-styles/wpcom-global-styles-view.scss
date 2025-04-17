@@ -8,11 +8,13 @@
 	width: 100%;
 	z-index: 99998;
 	text-decoration: none;
+
 	.is-mobile {
 		display: none;
 	}
+
 	* {
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 		font-size: 16px;
 		font-style: normal;
 		line-height: normal;
@@ -110,7 +112,7 @@
 
 	.launch-bar-global-styles-popover {
 		position: absolute;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 		width: 320px;
 		top: 48px;
 		font-size: 13px;
@@ -127,6 +129,7 @@
 		align-items: flex-start;
 		gap: 16px;
 		border-radius: 8px;
+
 		&::before {
 			content: "";
 			width: 0;
@@ -141,9 +144,11 @@
 		}
 
 		&.is-resetting {
+
 			button, a, form {
 				pointer-events: none;
 			}
+
 			form,
 			.launch-bar-global-styles__button--upgrade,
 			.launch-bar-global-styles__button--reset {
@@ -193,6 +198,7 @@
 			font-weight: 300;
 			justify-content: flex-end;
 			font-size: 12px;
+
 			svg {
 				fill: #0675c4;
 				margin-right: 6px;
@@ -246,12 +252,14 @@
 				width: 0;
 				pointer-events: none;
 			}
+
 			label {
 				cursor: pointer;
 				display: flex;
 				align-items: center;
 				gap: 8px;
 			}
+
 			.launch-bar-global-styles-preview__label-text {
 				font-size: 13px;
 				line-height: 1.5;
@@ -315,6 +323,7 @@
 	.admin-bar #launch-banner.launch-banner {
 		top: 46px;
 	}
+
 	.launch-banner {
 		position: absolute;
 	}
@@ -344,6 +353,7 @@
 }
 
 @media screen and (max-width: 460px) {
+
 	.launch-banner-section.bar-controls {
 		overflow-y: scroll;
 	}
