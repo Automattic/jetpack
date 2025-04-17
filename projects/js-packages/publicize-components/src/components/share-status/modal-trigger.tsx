@@ -1,3 +1,4 @@
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -5,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { forwardRef, useCallback } from 'react';
 import { store as socialStore } from '../../social-store';
-import { getSocialScriptData } from '../../utils/script-data';
+import { features } from '../../utils/constants';
 import styles from './styles.module.scss';
 import type { ButtonProps } from '@wordpress/components/build-types/button/types';
 
@@ -33,9 +34,7 @@ export const ModalTrigger = forwardRef(
 			return null;
 		}
 
-		const { feature_flags } = getSocialScriptData();
-
-		if ( ! feature_flags.useShareStatus ) {
+		if ( ! siteHasFeature( features.SHARE_STATUS ) ) {
 			return null;
 		}
 

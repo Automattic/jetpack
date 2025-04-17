@@ -448,7 +448,6 @@
 	    .btn-primary{
 	        color: #fff;
 		    background-color: #428bca;
-		    border-color: #428bca;
 		    border: 1px solid #428bca;
 		    border-width: 0px;
 		    font-size: 15px;
@@ -459,7 +458,6 @@
 
 	    .btn-secondary{
 	    	background: #ddd;
-	    	border-color: #ddd;
 	    	border: 1px solid #ddd;
 			border-width: 0px;
 		    font-size: 15px;
@@ -604,6 +602,8 @@
 // updated from core on 11/10/16 - WH
 
 // Import generic edit page styles (old legacy of wh from taxibooker! :o to rewrite)
+/* stylelint-disable no-invalid-position-at-import-rule -- these are intentional overrides */
+
 @import 'ZeroBSCRM.genericeditpages';
 
 // Import "core" styles

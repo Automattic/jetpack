@@ -28,7 +28,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			}
 		),
 		notActivatedMessage: __(
-			"You already have Akismet installed, but it's not activated.",
+			'Akismet is installed! Just activate the plugin to start blocking spam.',
 			'jetpack-forms'
 		),
 	};
@@ -41,6 +41,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 			cardData={ cardData }
+			toggleTooltip={ __( 'We keep your forms protected', 'jetpack-forms' ) }
 		>
 			{ ! akismetActiveWithKey ? (
 				<div>
@@ -56,7 +57,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						) }
 					</p>
 					<Button
-						variant="primary"
+						variant="secondary"
 						href={ settingsUrl }
 						target="_blank"
 						rel="noopener noreferrer"
@@ -67,33 +68,24 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 				</div>
 			) : (
 				<div>
-					<p>
-						{ createInterpolateElement(
-							__( 'Your forms are protected from spam with <a>Akismet</a>!', 'jetpack-forms' ),
-							{
-								a: <ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) } />,
-							}
-						) }
-					</p>
-					<div style={ { display: 'flex', gap: '8px', justifyContent: 'flex-start' } }>
+					<p>{ __( 'Your forms are automatically protected with Akismet!', 'jetpack-forms' ) }</p>
+					<div className="integration-card__links">
 						<Button
-							variant="primary"
+							variant="link"
 							href={ formSubmissionsUrl }
 							target="_blank"
 							rel="noopener noreferrer"
-							__next40pxDefaultSize={ true }
 						>
 							{ __( 'View spam', 'jetpack-forms' ) }
 						</Button>
-						<Button
-							variant="primary"
-							href={ settingsUrl }
-							target="_blank"
-							rel="noopener noreferrer"
-							__next40pxDefaultSize={ true }
-						>
+						<span>|</span>
+						<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
 							{ __( 'View stats', 'jetpack-forms' ) }
 						</Button>
+						<span>|</span>
+						<ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
+							{ __( 'Learn about Akismet', 'jetpack-forms' ) }
+						</ExternalLink>
 					</div>
 				</div>
 			) }

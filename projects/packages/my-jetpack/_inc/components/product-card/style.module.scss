@@ -81,7 +81,7 @@ $status-size: 8px;
 	display: flex;
 	align-items: center;
 
-	&:before {
+	&::before {
 		content: "";
 		display: inline-block;
 		width: $status-size;
@@ -104,7 +104,7 @@ $status-size: 8px;
 		&.#{$status} {
 			color: $color;
 
-			&:before {
+			&::before {
 				background: $color;
 			}
 		}
@@ -112,7 +112,7 @@ $status-size: 8px;
 
 	&.is-fetching {
 
-		&:before {
+		&::before {
 			animation: blink-animation 0.5s linear infinite;
 		}
 	}

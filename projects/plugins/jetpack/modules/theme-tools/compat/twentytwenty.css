@@ -101,12 +101,12 @@
 	}
 }
 
-.entry-content div.sharedaddy h3.sd-title:before,
-.entry-content h3.sd-title:before {
+.entry-content div.sharedaddy h3.sd-title::before,
+.entry-content h3.sd-title::before {
 	border: 0 none;
 }
 
-.entry-content #jp-relatedposts h3.jp-relatedposts-headline em:before {
+.entry-content #jp-relatedposts h3.jp-relatedposts-headline em::before {
 	border: 0 none;
 }
 

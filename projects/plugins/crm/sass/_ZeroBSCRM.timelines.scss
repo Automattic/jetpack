@@ -58,7 +58,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
         top: 0; bottom: 0; left: 0;
         width: 15px;
 
-        &:before {
+        &::before {
             background: $primary-color;
             border: 3px solid transparent;
             border-radius: 100%;
@@ -72,7 +72,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
                     border 0.3s ease-in-out;
         }
 
-        &:after {
+        &::after {
             content: "";
             width: 3px;
             background: #d7d7d8;
@@ -81,12 +81,12 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
             top: 24px; bottom: 0; left: 6px;
         }
 
-        .zbs-timeline-item:last-child &:after {
+        .zbs-timeline-item:last-child &::after {
             content: none;
         }
     }
 
-    .zbs-timeline-item:not(.period):hover .zbs-timeline-marker:before {
+    .zbs-timeline-item:not(.period):hover .zbs-timeline-marker::before {
         // no hover effect
         //background: transparent;
         //border: 3px solid $primary-color;
@@ -138,7 +138,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
 	        top: 0; bottom: 0; left: 0;
 	        width: 15px;
 
-	        &:before {
+	        &::before {
 	        	// Modified SMALLER version of marker for subsequent timeline events in 1 day
 	            background: $primary-color;
 	            border: 1px solid transparent;
@@ -154,7 +154,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
 	            z-index: 10000;
 	        }
 
-	        &:after {
+	        &::after {
 	            content: "";
 	            width: 3px;
 	            background: #d7d7d8;
@@ -163,12 +163,12 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
 	            top: 0; bottom: 0; left: 6px;
 	        }
 
-	        .zbs-timeline-item:last-child &:after {
+	        .zbs-timeline-item:last-child &::after {
 	            content: none;
 	        }
 	    }
 
-	    .zbs-timeline-item:not(.period):hover .zbs-timeline-marker:before {
+	    .zbs-timeline-item:not(.period):hover .zbs-timeline-marker::before {
 	        // no hover effect
 	        //background: transparent;
 	        //border: 3px solid $primary-color;
@@ -205,7 +205,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
 
         .zbs-timeline-marker {
 
-            &:before {
+            &::before {
                 background: transparent;
                 content: "";
                 width: 15px;
@@ -219,7 +219,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
                 border-bottom: 3px solid #CCD5DB;
             }
 
-            &:after {
+            &::after {
                 content: "";
                 height: 32px;
                 top: auto;
@@ -350,7 +350,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
                     padding: 50px 0 90px;
                 }
 
-                .period .zbs-timeline-marker:after {
+                .period .zbs-timeline-marker::after {
                     height: 30px;
                     bottom: 0;
                     top: auto;
@@ -370,13 +370,13 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
 
             .zbs-timeline-marker {
 
-                &:before {
+                &::before {
                     background: transparent;
                     border-color: $primary-color;
                 }
             }
 
-            .zbs-timeline-item:hover .zbs-timeline-marker:before {
+            .zbs-timeline-item:hover .zbs-timeline-marker::before {
                 background: $primary-color;
             }
         }

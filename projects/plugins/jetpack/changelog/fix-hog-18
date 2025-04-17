@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Open Graph tags: ensure scaled images are used when specific registered image files exist on a site

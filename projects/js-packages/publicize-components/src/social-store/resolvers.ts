@@ -1,6 +1,7 @@
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
-import { getSocialScriptData } from '../utils/script-data';
+import { features } from '../utils/constants';
 import { normalizeShareStatus } from '../utils/share-status';
 import { setConnections } from './actions/connection-data';
 import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
@@ -54,9 +55,8 @@ export function getPostShareStatus( _postId ) {
 	return async ( { dispatch, registry } ) => {
 		// Default to the current post ID if none is provided.
 		const postId = _postId || registry.select( editorStore ).getCurrentPostId();
-		const { feature_flags } = getSocialScriptData();
 
-		if ( ! feature_flags.useShareStatus ) {
+		if ( ! siteHasFeature( features.SHARE_STATUS ) ) {
 			return;
 		}
 

@@ -14,7 +14,7 @@
 		opacity: 1;
 	}
 
-	&:before, &:after {
+	&::before, &::after {
 		position: absolute;
 		left: 9px;
 		content: ' ';
@@ -23,11 +23,11 @@
 		background-color: #333;
 	}
 
-	&:before {
+	&::before {
 		transform: rotate( 45deg );
 	}
 
-	&:after {
+	&::after {
 		transform: rotate( -45deg );
 	}
 

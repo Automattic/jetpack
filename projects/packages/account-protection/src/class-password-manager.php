@@ -95,12 +95,16 @@ class Password_Manager {
 	/**
 	 * Handle the profile update.
 	 *
-	 * @param int      $user_id The user ID.
-	 * @param \WP_User $old_user_data Object containing user data prior to update.
+	 * @param int                     $user_id The user ID.
+	 * @param \WP_User|\stdClass|null $old_user_data Object containing user data prior to update.
 	 *
 	 * @return void
 	 */
-	public function on_profile_update( int $user_id, \WP_User $old_user_data ): void {
+	public function on_profile_update( int $user_id, $old_user_data ): void {
+		if ( ! is_object( $old_user_data ) || empty( $old_user_data->user_pass ) ) {
+			return;
+		}
+
 		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
 			$this->save_recent_password_hash( $user_id, $old_user_data->user_pass );
@@ -110,11 +114,15 @@ class Password_Manager {
 	/**
 	 * Handle the password reset.
 	 *
-	 * @param \WP_User $user The user.
+	 * @param \WP_User|\stdClass|null $user The user object.
 	 *
 	 * @return void
 	 */
-	public function on_password_reset( \WP_User $user ): void {
+	public function on_password_reset( $user ): void {
+		if ( ! is_object( $user ) || ! isset( $user->ID ) || empty( $user->user_pass ) ) {
+			return;
+		}
+
 		$this->save_recent_password_hash( $user->ID, $user->user_pass );
 	}
 

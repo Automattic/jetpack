@@ -5,7 +5,7 @@
  */
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
 /**
  * Delete all cache.
@@ -44,7 +44,7 @@ add_action( 'jetpack_boost_clear_page_cache_post', 'jetpack_boost_delete_cache_b
  */
 function jetpack_boost_delete_cache() {
 	$boost_cache = new Boost_Cache();
-	$boost_cache->invalidate_cache( Filesystem_Utils::DELETE_ALL );
+	$boost_cache->delete_recursive( home_url() );
 }
 
 /**
@@ -52,7 +52,15 @@ function jetpack_boost_delete_cache() {
  */
 function jetpack_boost_delete_cache_for_home() {
 	$boost_cache = new Boost_Cache();
-	$boost_cache->invalidate_cache_for_front_page( Filesystem_Utils::DELETE_ALL );
+	$boost_cache->delete_page( home_url() );
+	Logger::debug( 'jetpack_boost_delete_cache_for_home: deleting front page cache' );
+	if ( get_option( 'show_on_front' ) === 'page' ) {
+		$posts_page_id = get_option( 'page_for_posts' ); // posts page
+		if ( $posts_page_id ) {
+			$boost_cache->delete_recursive( get_permalink( $posts_page_id ) );
+			Logger::debug( 'jetpack_boost_delete_cache_for_home: deleting posts page cache' );
+		}
+	}
 }
 
 /**
@@ -62,7 +70,7 @@ function jetpack_boost_delete_cache_for_home() {
  */
 function jetpack_boost_delete_cache_for_url( $url ) {
 	$boost_cache = new Boost_Cache();
-	$boost_cache->invalidate_cache_for_url( $url, Filesystem_Utils::DELETE_ALL );
+	$boost_cache->delete_recursive( $url );
 }
 
 /**
@@ -71,6 +79,10 @@ function jetpack_boost_delete_cache_for_url( $url ) {
  * @param int $post_id - The ID of the post to delete the cache for.
  */
 function jetpack_boost_delete_cache_by_post_id( $post_id ) {
+	$post = get_post( (int) $post_id );
+
+	Logger::debug( 'invalidate_cache_for_post: ' . $post->ID );
+
 	$boost_cache = new Boost_Cache();
-	$boost_cache->invalidate_cache_by_post_id( (int) $post_id, Filesystem_Utils::DELETE_ALL );
+	$boost_cache->delete_post_cache( $post );
 }

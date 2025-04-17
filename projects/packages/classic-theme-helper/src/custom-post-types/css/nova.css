@@ -81,22 +81,22 @@
 	padding-top: 15px;
 }
 
-.nova-move-menu-up:before,
-.nova-move-menu-down:before {
+.nova-move-menu-up::before,
+.nova-move-menu-down::before {
 	margin-right: 5px;
 	font: 400 10px/1 dashicons !important;
 	speak: none;
 }
 
-.nova-move-menu-up:before {
+.nova-move-menu-up::before {
 	content: "\f342";
 }
 
-.nova-move-menu-down:before {
+.nova-move-menu-down::before {
 	content: "\f346";
 }
 
-.dashicon:before {
+.dashicon::before {
 	font: 400 20px/1 dashicons;
 	speak: none;
 	top: 5px;
@@ -108,11 +108,11 @@
 	vertical-align: top;
 }
 
-.dashicon-plus:before {
+.dashicon-plus::before {
 	content: "\f132";
 }
 
-.dashicon-edit:before {
+.dashicon-edit::before {
 	margin: 2px 5px 0 10px;
 	content: "\f327";
 	font-size: 10px;

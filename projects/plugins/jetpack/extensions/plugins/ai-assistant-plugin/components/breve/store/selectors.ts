@@ -66,19 +66,3 @@ export function getSuggestions(
 export function getIgnoredSuggestions( state: BreveState, { blockId }: { blockId: string } ) {
 	return state.suggestions?.[ blockId ]?.ignored;
 }
-
-export function getLintFeatures( state: BreveState, blockId: string ) {
-	return state.lints?.[ blockId ]?.features ?? {};
-}
-
-export function getLintFeatureTexts( state: BreveState, blockId: string, feature: string ) {
-	return state.lints?.[ blockId ]?.features?.[ feature ] ?? {};
-}
-
-export function getLints( state: BreveState, blockId: string, feature: string, text: string ) {
-	return state.lints?.[ blockId ]?.features?.[ feature ]?.[ text ] ?? null; // An empty array is a valid value, so we return null to indicate that the lints are not yet available
-}
-
-export function getLintVersion( state: BreveState, blockId: string ) {
-	return state.lints?.[ blockId ]?.version ?? 0;
-}

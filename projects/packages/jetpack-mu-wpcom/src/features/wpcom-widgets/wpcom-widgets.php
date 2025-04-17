@@ -17,7 +17,17 @@ require_once __DIR__ . '/class-jetpack-i-voted-widget.php';
 define(
 	'JETPACK_MU_WPCOM_RETIRED_WIDGETS',
 	array(
-		'i_voted' => 'Jetpack_I_Voted_Widget',
+		'akismet_widget' => 'Akismet_Widget',
+		'author_grid'    => 'Widget_Authors_Grid',
+		'delicious'      => 'Delicious_Widget',
+		'eventbrite'     => 'Eventbrite_Widget',
+		'geo_widget'     => 'Geo_Widget',
+		'i_voted'        => 'Jetpack_I_Voted_Widget',
+		'links'          => 'WP_Widget_Links',
+		'meta'           => 'WP_Widget_Meta',
+		'pd_top_rated'   => 'PD_Top_Rated',
+		'top-clicks'     => 'Widget_Top_Clicks',
+		'music-player'   => 'Music_Player_Widget',
 	)
 );
 

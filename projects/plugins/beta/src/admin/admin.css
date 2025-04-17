@@ -100,7 +100,7 @@ html {
 	box-shadow: 0 0 0 1px rgba( 200, 215, 225, 0.5 ), 0 1px 2px #e9eff3;
 }
 
-.dops-card:after {
+.dops-card::after {
 	content: '.';
 	display: block;
 	height: 0;
@@ -158,7 +158,7 @@ html {
 	border-bottom: 1px solid #dcdcde;
 }
 
-.dops-card-section:after {
+.dops-card-section::after {
 	content: '.';
 	display: block;
 	height: 0;
@@ -416,7 +416,7 @@ html {
 	display: inline-block;
 }
 
-.form-toggle__switch:after {
+.form-toggle__switch::after {
 	left: 2px;
 	top: 2px;
 	border-radius: 50%;
@@ -435,8 +435,8 @@ html {
 	background: #00aadc;
 }
 
-.form-toggle__label:active .form-toggle__switch:after,
-.form-toggle__label.is-active .form-toggle__switch:after {
+.form-toggle__label:active .form-toggle__switch::after,
+.form-toggle__label.is-active .form-toggle__switch::after {
 	left: 10px;
 }
 
@@ -444,7 +444,7 @@ html {
 	background: #a8bece;
 }
 
-.form-toggle__label.is-active:active .form-toggle__switch:after {
+.form-toggle__label.is-active:active .form-toggle__switch::after {
 	left: 2px;
 }
 
@@ -454,7 +454,7 @@ html {
 	padding: 0;
 }
 
-.dops-foldable-card.dops-card:after {
+.dops-foldable-card.dops-card::after {
 	content: '.';
 	display: block;
 	height: 0;
@@ -930,7 +930,7 @@ button.dops-foldable-card__action {
 	cursor: pointer;
 }
 
-.dops-section-nav__mobile-header:after {
+.dops-section-nav__mobile-header::after {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	display: inline-block;
@@ -941,7 +941,7 @@ button.dops-foldable-card__action {
 	color: rgba( 135, 166, 188, 0.5 );
 }
 
-.dops-section-nav.is-open .dops-section-nav__mobile-header:after {
+.dops-section-nav.is-open .dops-section-nav__mobile-header::after {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	display: inline-block;
@@ -954,7 +954,7 @@ button.dops-foldable-card__action {
 	padding-right: 50px;
 }
 
-.dops-section-nav.has-pinned-items .dops-section-nav__mobile-header:after {
+.dops-section-nav.has-pinned-items .dops-section-nav__mobile-header::after {
 	margin-left: 8px;
 }
 
@@ -1197,7 +1197,7 @@ button.dops-foldable-card__action {
 	outline: solid #87a6bc 1px;
 }
 
-.is-external .dops-section-nav-tab__link:after {
+.is-external .dops-section-nav-tab__link::after {
 	font-size: 18px;
 	padding-left: 2px;
 }
@@ -1229,7 +1229,7 @@ button.dops-foldable-card__action {
 		background-color: transparent;
 	}
 
-	.is-selected .dops-section-nav-tab__link:after {
+	.is-selected .dops-section-nav-tab__link::after {
 		display: none;
 	}
 
