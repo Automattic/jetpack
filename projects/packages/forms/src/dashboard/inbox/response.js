@@ -124,7 +124,9 @@ const InboxResponse = ( { loading, response } ) => {
 			<div className="jp-forms__inbox-response-data">
 				{ map( response.fields, ( value, key ) => (
 					<div key={ key } className="jp-forms__inbox-response-item">
-						<div className="jp-forms__inbox-response-data-label">{ key }:</div>
+						<div className="jp-forms__inbox-response-data-label">
+							{ key.endsWith( '?' ) ? key : `${ key }:` }
+						</div>
 						<div className="jp-forms__inbox-response-data-value">{ renderFieldValue( value ) }</div>
 					</div>
 				) ) }
