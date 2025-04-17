@@ -33,6 +33,13 @@ class Inline_Search extends Classic_Search {
 	private $search_term;
 
 	/**
+	 * Stores the corrected search term if provided by the API.
+	 *
+	 * @var string
+	 */
+	private $corrected_search_term;
+
+	/**
 	 * Stores the list of post IDs that are actual search results.
 	 *
 	 * @var array
@@ -550,6 +557,13 @@ class Inline_Search extends Classic_Search {
 		$this->highlighted_content = array();
 		$this->search_term         = $query->get( 's' );
 
+		// Store corrected query if available
+		if ( ! empty( $this->search_result['corrected_query'] ) ) {
+			$this->corrected_search_term = $this->search_result['corrected_query'];
+		} else {
+			$this->corrected_search_term = '';
+		}
+
 		foreach ( $this->search_result['results'] as $result ) {
 			$post_id    = (int) ( $result['fields']['post_id'] ?? 0 );
 			$post_ids[] = $post_id;
@@ -583,14 +597,48 @@ class Inline_Search extends Classic_Search {
 		);
 
 		// If we don't have highlighted content, create some by highlighting the search term.
-		if ( empty( $title ) && ! empty( $result['fields']['title'] ) && ! empty( $this->search_term ) ) {
-			$title_with_highlights                          = $this->apply_highlight_patterns( $result['fields']['title'], $this->search_term );
-			$this->highlighted_content[ $post_id ]['title'] = $title_with_highlights;
+		if ( empty( $title ) && ! empty( $result['fields']['title'] ) ) {
+			// First use the original search term
+			if ( ! empty( $this->search_term ) ) {
+				$title_with_highlights = $this->apply_highlight_patterns(
+					$result['fields']['title'],
+					$this->search_term,
+					false // Don't use corrected term yet
+				);
+
+				// Then apply the corrected term if available
+				if ( ! empty( $this->corrected_search_term ) && $this->corrected_search_term !== $this->search_term ) {
+					$title_with_highlights = $this->apply_highlight_patterns(
+						$title_with_highlights,
+						$this->corrected_search_term,
+						false // Don't recursively apply correction
+					);
+				}
+
+				$this->highlighted_content[ $post_id ]['title'] = $title_with_highlights;
+			}
 		}
 
-		if ( empty( $content ) && ! empty( $result['fields']['content'] ) && ! empty( $this->search_term ) ) {
-			$content_with_highlights                          = $this->apply_highlight_patterns( $result['fields']['content'], $this->search_term );
-			$this->highlighted_content[ $post_id ]['content'] = $content_with_highlights;
+		if ( empty( $content ) && ! empty( $result['fields']['content'] ) ) {
+			// First use the original search term
+			if ( ! empty( $this->search_term ) ) {
+				$content_with_highlights = $this->apply_highlight_patterns(
+					$result['fields']['content'],
+					$this->search_term,
+					false // Don't use corrected term yet
+				);
+
+				// Then apply the corrected term if available
+				if ( ! empty( $this->corrected_search_term ) && $this->corrected_search_term !== $this->search_term ) {
+					$content_with_highlights = $this->apply_highlight_patterns(
+						$content_with_highlights,
+						$this->corrected_search_term,
+						false // Don't recursively apply correction
+					);
+				}
+
+				$this->highlighted_content[ $post_id ]['content'] = $content_with_highlights;
+			}
 		}
 	}
 
@@ -667,14 +715,24 @@ class Inline_Search extends Classic_Search {
 	 *
 	 * @param string $content The content to highlight.
 	 * @param string $search_term The search term to highlight.
+	 * @param bool   $use_corrected Whether to also use the corrected search term.
 	 * @return string The highlighted content.
 	 */
-	private function apply_highlight_patterns( $content, $search_term ) {
+	private function apply_highlight_patterns( $content, $search_term, $use_corrected = true ) {
 		$patterns    = $this->prepare_highlight_patterns( $search_term );
 		$highlighted = $content;
 
+		// Apply original search term patterns
 		foreach ( $patterns as $pattern ) {
 			$highlighted = preg_replace( $pattern, '<mark>$1</mark>', $highlighted );
+		}
+
+		// Also apply corrected search term patterns if available and requested
+		if ( $use_corrected && ! empty( $this->corrected_search_term ) && $this->corrected_search_term !== $search_term ) {
+			$corrected_patterns = $this->prepare_highlight_patterns( $this->corrected_search_term );
+			foreach ( $corrected_patterns as $pattern ) {
+				$highlighted = preg_replace( $pattern, '<mark>$1</mark>', $highlighted );
+			}
 		}
 
 		return $highlighted;
