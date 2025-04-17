@@ -6,6 +6,8 @@
 
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
+use Automattic\Jetpack_Boost\Lib\Utils\SVG_Sanitizer;
+
 class Display_Critical_CSS {
 
 	/**
@@ -97,9 +99,9 @@ class Display_Critical_CSS {
 
 		echo '<style id="jetpack-boost-critical-css">';
 
-		// Ensure no </style> tag (or any HTML tags) in output.
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo wp_strip_all_tags( $critical_css );
+		// Ensure no </style> tag (or any HTML tags) in output. Allowed SVG are passed through.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This function runs it through wp_kses.
+		echo ( new SVG_Sanitizer() )->remove_disallowed_tags_and_content( $critical_css );
 
 		echo '</style>';
 	}
