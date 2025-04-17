@@ -7,6 +7,14 @@ import useEnter from './use-enter';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
 
+const getLabelOrFallback = ( label, placeholder ) => {
+	if ( label === '' ) {
+		return placeholder;
+	}
+
+	return label ?? placeholder;
+};
+
 const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) => {
 	const {
 		'jetpack/field-defaultValue': defaultValue,
@@ -42,6 +50,14 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 	const useEnterRef = useEnter( { content: label, clientId, isStandalone } );
 	const useEnterRequiredRef = useEnter( { content: label, clientId, isStandalone } );
 
+	const isPreviewMode = useSelect( select => {
+		return select( blockEditorStore ).getSettings().isPreviewMode;
+	}, [] );
+	const placeholder = __( 'Add label…', 'jetpack-forms' );
+	// The label value to use for the RichText field must manually fall back to the
+	// placeholder to be rendered in previews.
+	const labelValue = isPreviewMode ? getLabelOrFallback( label, placeholder ) : label;
+
 	// Some fields such as Checkbox or Consent, do not have a list of options.
 	// Additionally, a checkbox field may also be flagged as required so we need
 	// to allow for custom required text.
@@ -62,8 +78,8 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 						identifier="label"
 						tagName="div"
 						className="wp-block"
-						value={ label }
-						placeholder={ __( 'Add label…', 'jetpack-forms' ) }
+						value={ labelValue }
+						placeholder={ placeholder }
 						__unstableDisableFormats
 						onChange={ newLabel => setAttributes( { label: newLabel } ) }
 						onRemove={ onRemove }
@@ -92,7 +108,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 				identifier="label"
 				tagName="div"
 				className="wp-block"
-				value={ label }
+				value={ labelValue }
 				placeholder={ __( 'Add option…', 'jetpack-forms' ) }
 				__unstableDisableFormats
 				onChange={ newLabel => setAttributes( { label: newLabel } ) }
