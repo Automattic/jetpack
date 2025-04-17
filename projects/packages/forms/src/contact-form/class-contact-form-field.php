@@ -863,7 +863,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		);
 
 		$global_config = array(
-			'i18n'     => array(
+			'i18n'          => array(
 				'language'           => get_bloginfo( 'language' ),
 				'fileSizeUnits'      => $file_size_units,
 				'zeroBytes'          => __( '0 Bytes', 'jetpack-forms' ),
@@ -875,7 +875,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'maxFiles'           => __( 'You have exeeded the number of files that you can upload.', 'jetpack-forms' ),
 				'uploadFailed'       => __( 'File upload failed, try again.', 'jetpack-forms' ),
 			),
-			'endpoint' => $this->get_unauth_endpoint_url(),
+			'endpoint'      => $this->get_unauth_endpoint_url(),
+			'maxUploadSize' => $max_file_size,
 		);
 
 		wp_interactivity_config( 'jetpack/field-file', $global_config );
@@ -885,7 +886,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'files'            => array(),
 			'hasFiles'         => false,
 			'allowedMimeTypes' => $accepted_file_types,
-			'maxUploadSize'    => $max_file_size,
 			'maxFiles'         => $max_files, // max number of files.
 			'hasMaxFiles'      => false,
 		);
