@@ -1,6 +1,7 @@
 @import '../../scss/mixins/ui';
 
 .jp-support-card {
+
 	@include dashboard-card-shadow;
 
 	margin-top: rem( 16px );
@@ -38,9 +39,10 @@
 		padding: rem( 10px ) 0;
 		border-top: 1px transparentize( lighten( $gray, 20% ), .5 ) solid;
 
-		&:first-letter {
+		&::first-letter {
 			text-transform: capitalize;
 		}
+
 		&:first-of-type {
 			border-top: 0;
 		}
@@ -53,6 +55,7 @@
 	flex-flow: row nowrap;
 
 	@include breakpoint( "<660px" ) {
+
 		.jp-support-card__description:first-of-type {
 			margin-bottom: rem( 16px );
 		}

@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Path_Action;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Rebuild_File;
 use SplFileInfo;
 
 class Filesystem_Utils {
@@ -25,7 +24,7 @@ class Filesystem_Utils {
 	 *
 	 * @param string      $path - The directory to iterate over.
 	 * @param Path_Action $action - The action to apply to each file.
-	 * @return bool|Boost_Cache_Error - true on success, Boost_Cache_Error on failure.
+	 * @return int|Boost_Cache_Error - The number of files processed, or Boost_Cache_Error on failure.
 	 */
 	public static function iterate_directory( $path, Path_Action $action ) {
 		clearstatcache();
@@ -41,7 +40,7 @@ class Filesystem_Utils {
 
 		$count = 0;
 		foreach ( $iterator as $file ) {
-			$count += $action->apply_to_path( $file );
+			$count += $action->apply_to_path( new SplFileInfo( $file ) );
 		}
 
 		$count += $action->apply_to_path( new SplFileInfo( $path ) );
@@ -56,7 +55,7 @@ class Filesystem_Utils {
 	 *
 	 * @param string      $path - The directory to iterate over.
 	 * @param Path_Action $action - The action to apply to each file.
-	 * @return bool|Boost_Cache_Error - true on success, Boost_Cache_Error on failure.
+	 * @return int|Boost_Cache_Error - The number of files processed, or Boost_Cache_Error on failure.
 	 */
 	public static function iterate_files( $path, Path_Action $action ) {
 		clearstatcache();
@@ -65,11 +64,12 @@ class Filesystem_Utils {
 			return $validation_error;
 		}
 
+		$path = Boost_Cache_Utils::trailingslashit( $path );
 		// Files to delete are all files in the given directory, except index.html. index.html is used to prevent directory listing.
 		$files = array_diff( scandir( $path ), array( '.', '..', 'index.html' ) );
 		$count = 0;
 		foreach ( $files as $file ) {
-			$fileinfo = new SplFileInfo( $path . '/' . $file );
+			$fileinfo = new SplFileInfo( $path . $file );
 			$count   += (int) $action->apply_to_path( $fileinfo );
 		}
 
@@ -218,11 +218,28 @@ class Filesystem_Utils {
 		$deletable = is_writable( $file_path );
 
 		if ( $deletable ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-			return unlink( $file_path );
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+			return @unlink( $file_path );
 		}
 
 		return false;
+	}
+
+	/**
+	 * Delete an empty cache directory.
+	 *
+	 * @param string $dir - The directory to delete.
+	 * @return int - 1 if the directory was deleted, 0 otherwise.
+	 *
+	 * This function will delete the index.html file and the directory itself.
+	 */
+	public static function delete_empty_dir( $dir ) {
+		if ( self::is_dir_empty( $dir ) ) {
+			@unlink( $dir . '/index.html' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+			@rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+			return 1;
+		}
+		return 0;
 	}
 
 	/**

@@ -5,10 +5,12 @@
 	overflow: hidden;
 	border-radius: 2px;
 }
+
 .color-admin-notice a {
 	color: #005684;
 	white-space: nowrap;
 }
+
 .color-admin-notice img {
 	margin: 0 24px 12px 0;
 	float: left;

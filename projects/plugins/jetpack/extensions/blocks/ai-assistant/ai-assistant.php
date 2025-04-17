@@ -130,10 +130,7 @@ add_action(
 				Jetpack_Gutenberg::set_extension_available( 'ai-proofread-breve' );
 			}
 
-			if ( apply_filters( 'ai_seo_enhancer_enabled_unrestricted', false ) ) {
-				Jetpack_Gutenberg::set_extension_available( 'ai-seo-enhancer-enabled-unrestricted' );
-				Jetpack_Gutenberg::set_extension_available( 'ai-seo-enhancer' );
-			} elseif ( apply_filters( 'ai_seo_enhancer_enabled', false ) ) {
+			if ( apply_filters( 'ai_seo_enhancer_enabled', true ) ) {
 				Jetpack_Gutenberg::set_availability_for_plan( 'ai-seo-enhancer' );
 			}
 		}
@@ -164,20 +161,6 @@ add_action(
 			apply_filters( 'ai_response_feedback_enabled', true )
 		) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-response-feedback' );
-		}
-	}
-);
-
-/**
- * Register the `ai-seo-assistant` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
-			apply_filters( 'ai_seo_assistant_enabled', false )
-		) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-seo-assistant' );
 		}
 	}
 );

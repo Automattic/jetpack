@@ -1,4 +1,4 @@
-import { BrowserInterface, BrowserRunnable } from './browser-interface.js';
+import { BrowserInterface, BrowserRunnable } from './browser-interface.ts';
 import {
 	CrossDomainError,
 	HttpError,
@@ -9,8 +9,8 @@ import {
 	XFrameDenyError,
 	InvalidURLError,
 	UrlError,
-} from './errors.js';
-import { Viewport, NullableViewport } from './types.js';
+} from './errors.ts';
+import { Viewport, NullableViewport } from './types.ts';
 
 const defaultLoadTimeout = 60 * 1000;
 
@@ -185,7 +185,7 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 					// Check HTTP status code first.
 					const is404 = await this.is404Page( fullUrl );
 					if ( is404 ) {
-						throw new HttpError( { url, code: 404 } );
+						throw new HttpError( { url: fullUrl, code: 404 } );
 					}
 
 					// Verify the inner document is readable.

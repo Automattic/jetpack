@@ -1,4 +1,4 @@
-import { CurrentUserData } from './types.js';
+import { CurrentUserData } from './types.ts';
 
 /**
  * Get the script data from the window object.

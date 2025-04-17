@@ -19,6 +19,7 @@ const name = 'premium-content/login-button';
  * @type {BlockConfiguration}
  */
 const settings = {
+	apiVersion: 3,
 	title: __( 'Premium Content login button', 'jetpack' ),
 	description: __(
 		'Prompt subscriber visitors to log in with a button-style link (only visible for logged out users).',

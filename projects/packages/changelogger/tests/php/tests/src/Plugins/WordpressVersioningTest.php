@@ -183,6 +183,16 @@ class WordpressVersioningTest extends TestCase {
 				),
 			),
 			array(
+				'1.2-beta.2',
+				array(
+					'major'      => 1.2,
+					'point'      => 0,
+					'prerelease' => 'beta.2',
+					'buildinfo'  => null,
+					'version'    => '1.2',
+				),
+			),
+			array(
 				'1.2.3-rc',
 				array(
 					'major'      => 1.2,
@@ -515,6 +525,8 @@ class WordpressVersioningTest extends TestCase {
 			array( '1.1.1-alpha', '<', '1.1.1-beta' ),
 			array( '1.1.1-dev', '<', '1.1.1-alpha' ),
 			array( '1.1.1-alpha9', '<', '1.1.1-beta1' ),
+			array( '1.1.1-beta', '<', '1.1.1-beta.2' ),
+			array( '1.1.1-beta.2', '==', '1.1.1-beta.2' ),
 			array( '1.1.1-beta9', '>', '1.1.1-beta1' ),
 			array( '1.1.1-beta9', '==', '1.1.1-beta9' ),
 			array( '1.1.1-alpha', '==', '1.1.1-alpha0' ),

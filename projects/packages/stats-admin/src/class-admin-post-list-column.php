@@ -129,6 +129,12 @@ class Admin_Post_List_Column {
 	 * @return mixed
 	 */
 	public function add_stats_post_table( $columns ) {
+		/**
+		 * The manage_options capability is a fallback for Simple.
+		 * This should be updated with a proper fix. Implemented based on this PR: https://github.com/Automattic/jetpack/pull/41549.
+		 */
+		$has_access = current_user_can( 'view_stats' ) || current_user_can( 'manage_options' );
+
 		/*
 		 * Stats can be accessed in wp-admin or in Calypso,
 		 * depending on what version of the stats screen is enabled on your site.
@@ -139,7 +145,7 @@ class Admin_Post_List_Column {
 		 * so they need to be connected to WordPress.com to be able to access that page.
 		 */
 		if (
-			! current_user_can( 'view_stats' )
+			! $has_access
 			|| (
 				! Stats_Options::get_option( 'enable_odyssey_stats' )
 				&& ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected()

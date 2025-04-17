@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.6
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 3.12.1
+Stable tag: 3.13.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,9 +183,13 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.12.1 - 2025-03-27
+### 3.13.1 - 2025-04-16
 #### Fixed
-- General: Fixed intermittent error during module loading.
+- Critical CSS: Fix cases where dismissing a recommendation would dismiss multiple ones.
+- Critical CSS: Fix not showing status code when generation fails for some pages.
+- Image Guide: Fix front-end state not being in sync with Boost settings.
+- Page Cache: Fix garbage collection and clear cache functionality leaving empty directories behind.
+- Page Cache: Fix not clearing up some events on deactivation.
 
 --------
 

@@ -41,22 +41,27 @@
 	margin-right: 2%;
 	width: 15%;
 }
+
 .testimonial-entry-first-item-row {
 	clear: both;
 }
+
 .testimonial-entry-last-item-row {
 	margin-right: 0;
 }
 
 @media screen and (max-width:768px) {
+
 	.testimonial-entry-mobile-first-item-row{
 		margin-right: 4%;
 		width: 48%;
 		clear:both;
 	}
+
 	.testimonial-entry-first-item-row {
 		clear:none;
 	}
+
 	.testimonial-entry-mobile-last-item-row{
 		width: 48%;
 		margin-right: 0;

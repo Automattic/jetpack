@@ -22,10 +22,11 @@
 		&:hover {
 			text-decoration-thickness: 3px;
 		}
+
 		&:focus {
 			text-decoration-line: none;
 			border-radius: 2px;
-			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) #000;
 			outline: 3px solid transparent;
 		}
 	}
@@ -52,6 +53,7 @@
 
 	// need to clean up ClassName nesting
 	.jp-dash-section-header__label {
+
 		@include breakpoint( "<480px" ) {
 			display: inline-block;
 		}
@@ -72,6 +74,7 @@
 			color: $blue-wordpress;
 		}
 	}
+
 	.gridicon {
 		position: relative;
 		top: 1px;

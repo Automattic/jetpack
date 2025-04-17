@@ -1,8 +1,8 @@
 import { Button } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
-import Col from '../../layout/col/index.js';
-import Container from '../../layout/container/index.js';
-import ThemeProvider, { typography, colors, borders, spacing } from '../index.js';
+import Col from '../../layout/col/index.tsx';
+import Container from '../../layout/container/index.tsx';
+import ThemeProvider, { typography, colors, borders, spacing } from '../index.tsx';
 import styles from './style.module.scss';
 import type { StoryFn, Meta } from '@storybook/react';
 

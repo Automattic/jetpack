@@ -30,6 +30,7 @@
 	}
 
 	&__card {
+
 		@include card( $borderless: true );
 
 		box-shadow: 0 0 40px rgba( 0, 0, 0, 0.08 );
@@ -76,6 +77,7 @@
 	}
 
 	&__feature-list {
+
 		@include features-list;
 	}
 

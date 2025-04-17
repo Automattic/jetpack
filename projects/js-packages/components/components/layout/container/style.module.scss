@@ -1,5 +1,5 @@
 @use "sass:map";
-@import "../breakpoints.module.scss";
+@import "../breakpoints.module";
 
 @mixin container($size) {
 	$paddings: ("sm": "16px", "md": "18px", "lg": "24px");

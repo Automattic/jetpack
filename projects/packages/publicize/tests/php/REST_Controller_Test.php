@@ -85,8 +85,8 @@ class REST_Controller_Test extends TestCase {
 	public function test_get_publicize_connections_without_proper_permission() {
 		$request  = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/connections' );
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
-		$this->assertEquals( 401, $response->get_status() );
-		$this->assertEquals( 'Sorry, you are not allowed to access Jetpack Social data on this site.', $response->get_data()['message'] );
+		$this->assertEquals( 404, $response->get_status() );
+		$this->assertEquals( 'No route was found matching the URL and request method.', $response->get_data()['message'] );
 	}
 
 	/**
@@ -97,6 +97,24 @@ class REST_Controller_Test extends TestCase {
 		wp_set_current_user( $this->admin_id );
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		$this->assertCount( 3, $response->data );
+	}
+
+	public function test_social_product_info_deprecation() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/social-product-info' );
+		wp_set_current_user( $this->admin_id );
+		$captured = '';
+		// Copture the deprecation notice and prevent the error being triggered.
+		$capture_callback = function ( $trigger, $function, $message ) use ( &$captured ) {
+			$captured = $message;
+			return false;
+		};
+		add_action( 'doing_it_wrong_trigger_error', $capture_callback, 10, 3 );
+
+		$this->dispatch_request_signed_with_blog_token( $request );
+
+		remove_action( 'doing_it_wrong_trigger_error', $capture_callback );
+		$this->assertNotEmpty( $captured, 'Expected a _doing_it_wrong notice to be triggered.' );
+		$this->assertStringContainsString( 'endpoint has been deprecated', $captured );
 	}
 
 	/**

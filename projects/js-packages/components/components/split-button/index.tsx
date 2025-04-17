@@ -1,6 +1,6 @@
 import { Button, Flex, DropdownMenu } from '@wordpress/components';
 import styles from './style.module.scss';
-import { SplitButtonProps } from './types.js';
+import { SplitButtonProps } from './types.ts';
 import type React from 'react';
 
 const DownIcon = () => (

@@ -4,12 +4,12 @@ export {
 	renderHTMLFromMarkdown,
 	renderMarkdownFromHTML,
 	fixes,
-} from './markdown/index.js';
+} from './markdown/index.ts';
 
-export { mapActionToHumanText } from './map-action-to-human-text.js';
-export { openBlockSidebar } from './open-block-sidebar.js';
-export { showAiAssistantSection } from './show-ai-assistant-section.js';
-export { getAllBlocks } from './get-all-blocks.js';
-export { getBase64Image } from './get-base64-image.js';
+export { mapActionToHumanText } from './map-action-to-human-text.ts';
+export { openBlockSidebar } from './open-block-sidebar.ts';
+export { showAiAssistantSection } from './show-ai-assistant-section.ts';
+export { getAllBlocks } from './get-all-blocks.ts';
+export { getBase64Image } from './get-base64-image.ts';
 
-export type { RenderHTMLRules } from './markdown/index.js';
+export type { RenderHTMLRules } from './markdown/index.ts';

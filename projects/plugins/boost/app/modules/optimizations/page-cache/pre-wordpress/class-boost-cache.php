@@ -6,7 +6,6 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
 use WP_Comment;
-use WP_Error;
 use WP_Post;
 
 /*
@@ -190,6 +189,7 @@ class Boost_Cache {
 		}
 
 		ob_start( array( $this, 'ob_callback' ) );
+		return true;
 	}
 
 	/**
@@ -234,11 +234,7 @@ class Boost_Cache {
 	 */
 	public function rebuild_front_page() {
 		if ( get_option( 'show_on_front' ) === 'page' ) {
-			$front_page_id = get_option( 'page_on_front' ); // static page
-			if ( $front_page_id ) {
-				Logger::debug( 'rebuild_front_page: deleting front page cache' );
-				$this->rebuild_post_cache( get_post( $front_page_id ) );
-			}
+			$this->rebuild_page( home_url() );
 			$posts_page_id = get_option( 'page_for_posts' ); // posts page
 			if ( $posts_page_id ) {
 				Logger::debug( 'rebuild_front_page: deleting posts page cache' );
@@ -416,6 +412,17 @@ class Boost_Cache {
 		 * the post name. We need to get the post name from the post object.
 		 */
 		$permalink = get_permalink( $post->ID );
+		if ( strpos( $permalink, '?p=' ) !== false || strpos( $permalink, '?page_id=' ) !== false ) {
+			if ( $post->post_type === 'page' ) {
+				$permalink = get_page_link( $post->ID, false, true );
+			} else {
+				if ( ! function_exists( 'get_sample_permalink' ) ) {
+					require_once ABSPATH . 'wp-admin/includes/post.php';
+				}
+				list( $permalink, $post_name ) = get_sample_permalink( $post->ID );
+				$permalink                     = str_replace( '%postname%', $post_name, $permalink );
+			}
+		}
 		return $permalink;
 	}
 
@@ -446,7 +453,6 @@ class Boost_Cache {
 	 * Delete the entire cache for the author's archive page.
 	 *
 	 * @param int $author_id - The id of the author.
-	 * @return bool|WP_Error - True if the cache was deleted, WP_Error otherwise.
 	 */
 	public function rebuild_author_page( $author_id ) {
 		$author = get_userdata( $author_id );
@@ -467,15 +473,27 @@ class Boost_Cache {
 
 	public function delete_post_cache( $post ) {
 		$post_path = $this->get_post_path_for_invalidation( $post );
-		if ( $post_path ) {
+		if ( null === $post_path ) {
+			return;
+		}
+
+		if ( Boost_Cache_Utils::trailingslashit( $post_path ) !== Boost_Cache_Utils::trailingslashit( home_url() ) ) {
 			$this->delete_recursive( $post_path );
+		} else {
+			$this->delete_page( $post_path );
 		}
 	}
 
 	public function rebuild_post_cache( $post ) {
 		$post_path = $this->get_post_path_for_invalidation( $post );
-		if ( $post_path ) {
+		if ( null === $post_path ) {
+			return;
+		}
+
+		if ( Boost_Cache_Utils::trailingslashit( $post_path ) !== Boost_Cache_Utils::trailingslashit( home_url() ) ) {
 			$this->rebuild_recursive( $post_path );
+		} else {
+			$this->rebuild_page( $post_path );
 		}
 	}
 

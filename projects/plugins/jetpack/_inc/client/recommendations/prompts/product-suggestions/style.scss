@@ -1,4 +1,4 @@
-@import '_inc/client/scss/variables/_colors';
+@import '_inc/client/scss/variables/colors';
 @import '../../../scss/mixin_breakpoint';
 @import '../../../scss/typography';
 
@@ -34,6 +34,7 @@
 }
 
 .jp-recommendations-product-suggestion__item {
+
 	@include breakpoint( '<782px' ) {
 		margin-bottom: 2rem;
 

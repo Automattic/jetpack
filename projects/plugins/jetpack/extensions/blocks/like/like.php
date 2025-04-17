@@ -62,13 +62,17 @@ function render_block( $attr, $content, $block ) {
 		return;
 	}
 
-	add_action( 'wp_footer', __NAMESPACE__ . '\render_iframe', 25 );
+	// make sure we have `jetpack_likes_master_iframe` defined
+	require_once JETPACK__PLUGIN_DIR . 'modules/likes/jetpack-likes-master-iframe.php';
+
+	if ( ! has_action( 'wp_footer', 'jetpack_likes_master_iframe' ) ) {
+		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
+	}
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$style_url  = content_url( 'mu-plugins/likes/jetpack-likes.css' );
 		$script_url = content_url( 'mu-plugins/likes/queuehandler.js' );
 	} else {
-		require_once JETPACK__PLUGIN_DIR . 'modules/likes.php';
 		$style_url  = plugins_url( 'modules/likes/style.css', dirname( __DIR__, 2 ) );
 		$script_url = Assets::get_file_url_for_environment(
 			'_inc/build/likes/queuehandler.min.js',
@@ -114,36 +118,4 @@ function render_block( $attr, $content, $block ) {
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		$html
 	);
-}
-
-/**
- * Helper function to determine whether the Like module has been disabled
- */
-function is_legacy_likes_disabled() {
-	$settings = new \Jetpack_Likes_Settings();
-
-	$is_wpcom                 = defined( 'IS_WPCOM' ) && IS_WPCOM;
-	$is_likes_module_inactive = ! \Jetpack::is_module_active( 'likes' );
-	$is_disabled_on_wpcom     = $is_wpcom && get_option( 'disabled_likes' ) && get_option( 'disabled_reblogs' );
-	$is_disabled_on_non_wpcom = ! $is_wpcom && get_option( 'disabled_likes' );
-	return $is_likes_module_inactive || $is_disabled_on_wpcom || $is_disabled_on_non_wpcom || ! $settings->is_likes_module_enabled();
-}
-
-/**
- * Renders the iframe and enqueues the necessary scripts.
- */
-function render_iframe() {
-	static $main_iframe_added = false;
-
-	if ( ! $main_iframe_added ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Can't do a stub for this one since Jetpack has its own class with the same name.
-			\Jetpack_Likes::likes_master();
-		} else {
-			require_once JETPACK__PLUGIN_DIR . 'modules/likes.php';
-			jetpack_likes_master_iframe();
-		}
-
-		$main_iframe_added = true;
-	}
 }

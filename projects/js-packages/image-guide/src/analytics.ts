@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
-import { guideState } from './stores/GuideState.js';
-import { MeasurableImageStore } from './stores/MeasurableImageStore.js';
+import { guideState } from './stores/GuideState.ts';
+import { MeasurableImageStore } from './stores/MeasurableImageStore.ts';
 
 /**
  * Image properties sent to tracks.
@@ -8,7 +8,6 @@ import { MeasurableImageStore } from './stores/MeasurableImageStore.js';
 type ImageProperties = {
 	severity: 'red' | 'yellow' | 'green';
 	oversized_ratio: number;
-	file_weight: number;
 	file_width: number;
 	file_height: number;
 	size_on_page_width: number;
@@ -69,7 +68,6 @@ export default class ImageGuideAnalytics {
 					const props: ImageProperties = {
 						severity,
 						oversized_ratio: oversizedRatio,
-						file_weight: fileSize.weight,
 						file_width: fileSize.width,
 						file_height: fileSize.height,
 						size_on_page_width: sizeOnPage.width,

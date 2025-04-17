@@ -4,8 +4,8 @@
 	grid-auto-columns: 1fr;
 }
 
-.wpcom-instagram-images:before,
-.wpcom-instagram-images:after {
+.wpcom-instagram-images::before,
+.wpcom-instagram-images::after {
 	content: none;
 }
 
@@ -13,14 +13,17 @@
 	display: block;
 	margin: 4px 2px;
 }
+
 .wpcom-instagram-columns-2 a,
 .wpcom-instagram-columns-3 a {
 	display: inline-block;
 	vertical-align: top;
 }
+
 .wpcom-instagram-columns-2 a {
 	width: calc(50% - 8px);
 }
+
 .wpcom-instagram-columns-3 a {
 	width: calc(33.3333% - 8px);
 }
@@ -43,6 +46,7 @@
 }
 
 @supports (display:grid) {
+
 	.wpcom-instagram-images a {
 		display: block;
 		margin: 0;

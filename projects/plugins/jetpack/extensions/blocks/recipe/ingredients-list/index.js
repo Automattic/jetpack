@@ -10,6 +10,7 @@ import './editor.scss';
 export const name = 'recipe-ingredients-list';
 export const title = __( 'Recipe Ingredients List', 'jetpack' );
 export const settings = {
+	apiVersion: 3,
 	title,
 	description: __( 'Recipe ingredient list', 'jetpack' ),
 	icon: getBlockIconProp( metadata ),

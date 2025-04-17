@@ -3,6 +3,9 @@
 require_once __DIR__ . '/trait.http-request-cache.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/slideshow/slideshow.php';
 
+/**
+ * @covers \Jetpack_Slideshow_Shortcode
+ */
 class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -67,7 +70,6 @@ class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Slideshow_Shortcode::shortcode_callback
 	 * @since 3.2
 	 */
 	public function test_shortcodes_slideshow_exists() {
@@ -76,7 +78,6 @@ class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Slideshow_Shortcode::shortcode_callback
 	 * @since 3.2
 	 */
 	public function test_shortcodes_slideshow() {
@@ -159,7 +160,6 @@ class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 	 * Test slideshow shortcode output in AMP.
 	 *
 	 * @dataProvider get_slideshow_shortcode_amp
-	 * @covers Jetpack_Slideshow_Shortcode::shortcode_callback()
 	 * @since 8.5.0
 	 *
 	 * @param string $shortcode The initial shortcode.

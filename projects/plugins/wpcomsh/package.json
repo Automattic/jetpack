@@ -3,7 +3,7 @@
 	"name": "@automattic/jetpack-wpcomsh",
 	"description": "A helper for connecting WordPress.com sites to external host infrastructure.",
 	"homepage": "https://jetpack.com",
-	"version": "6.0.0",
+	"version": "6.1.0",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Wpcomsh"
 	},

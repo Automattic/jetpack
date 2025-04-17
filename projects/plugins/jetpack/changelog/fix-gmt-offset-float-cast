@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+SAL: Cast gmt_offset to float when retrieving offset from option to prevent type errors

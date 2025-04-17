@@ -4,6 +4,7 @@
 .infinite-scroll .pagination,
 .infinite-scroll .posts-navigation,
 .infinite-scroll.neverending .site-footer {
+
 	/* Theme Footer (when set to scrolling) */
 	display: none;
 }
@@ -41,8 +42,8 @@
 	border: none;
 	border-radius: 5px;
 	box-sizing: border-box;
-	color: white;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	color: #fff;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 	font-size: 0.8888888889em;
 	font-weight: 600;
 	line-height: 1.2;
@@ -85,7 +86,7 @@
 
 .entry div.sharedaddy h3.sd-title,
 .entry h3.sd-title {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 	font-size: 1.125em;
 	font-weight: 700;
 	letter-spacing: -0.02em;
@@ -95,8 +96,8 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.entry div.sharedaddy h3.sd-title:before,
-.entry h3.sd-title:before {
+.entry div.sharedaddy h3.sd-title::before,
+.entry h3.sd-title::before {
 	background: #767676;
 	border-top: none;
 	content: "\020";
@@ -128,7 +129,7 @@
 }
 
 .entry #jp-relatedposts h3.jp-relatedposts-headline {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 	font-size: 1.125em;
 	font-weight: 700;
 	letter-spacing: -0.02em;
@@ -138,7 +139,7 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.entry #jp-relatedposts h3.jp-relatedposts-headline:before {
+.entry #jp-relatedposts h3.jp-relatedposts-headline::before {
 	background: #767676;
 	border-top: none;
 	content: "\020";
@@ -149,7 +150,7 @@
 	min-width: inherit;
 }
 
-.entry #jp-relatedposts h3.jp-relatedposts-headline em:before {
+.entry #jp-relatedposts h3.jp-relatedposts-headline em::before {
 	display: none;
 }
 
@@ -159,7 +160,7 @@
 
 .entry #jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title,
 .entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 	font-size: 1em;
 	letter-spacing: -0.02em;
 	line-height: 1.2;
@@ -181,7 +182,7 @@
 
 .entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-context,
 .entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-date {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 	font-size: 13px;
 	font-weight: 500;
 }
@@ -230,7 +231,7 @@
 .widget_jp_blogs_i_follow li,
 .widget_rss_links li {
 	color: #767676;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 	font-size: calc(22px * 1.125);
 	font-weight: 700;
 	line-height: 1.2;
@@ -252,7 +253,7 @@
 
 .widget_authors > ul > li > a {
 	display: block;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 	position: relative;
 }
 
@@ -298,7 +299,7 @@
 .widget_eu_cookie_law_widget #eu-cookie-law {
 	border-color: #ccc;
 	color: #767676;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 	font-size: 0.68182em;
 	padding: 0.5rem 1rem;
 }
@@ -315,7 +316,7 @@
 }
 
 .widget_rss .rssSummary {
-	font-family: "NonBreakingSpaceOverride", "Hoefler Text", "Baskerville Old Face", Garamond, "Times New Roman", serif;
+	font-family: NonBreakingSpaceOverride, "Hoefler Text", "Baskerville Old Face", Garamond, "Times New Roman", serif;
 	font-weight: 400;
 	font-size: 22px;
 }
@@ -333,7 +334,7 @@
 	font-style: normal;
 }
 
-.widget_rss cite:before {
+.widget_rss cite::before {
 	content: "\2014\00a0";
 }
 
@@ -346,6 +347,7 @@
 
 /* Search widget override */
 @media only screen and (min-width: 600px) {
+
 	.widget.widget_search .search-field {
 		max-width: calc( 50vw - 20% );
 	}

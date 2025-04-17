@@ -60,7 +60,7 @@ class File_Storage implements Storage {
 		$hash_path = $directory . $filename;
 
 		if ( file_exists( $hash_path ) ) {
-			$expired = ( filemtime( $hash_path ) + JETPACK_BOOST_CACHE_REBUILD_DURATION ) <= time();
+			$expired = ( @filemtime( $hash_path ) + JETPACK_BOOST_CACHE_REBUILD_DURATION ) <= time(); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 			if ( $expired ) {
 				if ( Filesystem_Utils::delete_file( $hash_path ) ) {
@@ -94,7 +94,7 @@ class File_Storage implements Storage {
 		$hash_path = $directory . $filename;
 
 		if ( file_exists( $hash_path ) ) {
-			$filemtime = filemtime( $hash_path );
+			$filemtime = @filemtime( $hash_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			$expired   = ( $filemtime + JETPACK_BOOST_CACHE_DURATION ) <= time();
 
 			// If file exists and is not expired, return the file contents.
@@ -117,15 +117,13 @@ class File_Storage implements Storage {
 	/**
 	 * Garbage collect expired files.
 	 */
-	public function garbage_collect( $created_before = null ) {
-		if ( $created_before === 0 ) {
+	public function garbage_collect( $cache_duration = JETPACK_BOOST_CACHE_DURATION ) {
+		if ( $cache_duration === 0 ) {
 			// Garbage collection is disabled.
 			return false;
 		}
 
-		if ( $created_before === null ) {
-			$created_before = time() - JETPACK_BOOST_CACHE_DURATION;
-		}
+		$created_before = time() - $cache_duration;
 
 		$count = Filesystem_Utils::iterate_directory( $this->root_path, new Filter_Older( $created_before, new Rebuild_File() ) );
 		if ( $count instanceof Boost_Cache_Error ) {
@@ -134,6 +132,7 @@ class File_Storage implements Storage {
 		}
 
 		Logger::debug( "Garbage collected $count files" );
+		return $count;
 	}
 
 	/**
@@ -176,15 +175,23 @@ class File_Storage implements Storage {
 	 * )
 	 */
 	public function clear( $path, $args = array() ) {
-		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
+		$normalized_path = Boost_Cache_Utils::normalize_request_uri( $this->sanitize_path( $path ) );
+		$normalized_path = Boost_Cache_Utils::trailingslashit( $this->root_path . $normalized_path );
 
-		$recursive  = isset( $args['recursive'] ) ? $args['recursive'] : false;
-		$rebuild    = isset( $args['rebuild'] ) ? $args['rebuild'] : true;
-		$parameters = isset( $args['parameters'] ) ? $args['parameters'] : false;
+		// Ensure the path is within the cache directory
+		if ( strpos( $normalized_path, $this->root_path ) !== 0 ) {
+			Logger::debug( 'Attempted to delete cache for path outside of cache directory: ' . $path );
+			return;
+		}
 
-		$action = new Simple_Delete();
+		$recursive  = $args['recursive'] ?? false;
+		$rebuild    = $args['rebuild'] ?? true;
+		$parameters = $args['parameters'] ?? false;
+
 		if ( $rebuild ) {
 			$action = new Rebuild_File();
+		} else {
+			$action = new Simple_Delete();
 		}
 
 		// If parameters are provided, delete the specific file and skip any iteration.

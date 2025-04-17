@@ -9,6 +9,8 @@ require __DIR__ . '/../../../../modules/widgets/twitter-timeline.php';
 
 /**
  * Test Jetpack_Twitter_Timeline_Widget.
+ *
+ * @covers \Jetpack_Twitter_Timeline_Widget
  */
 class Twitter_Timeline_Widget_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -109,8 +111,6 @@ class Twitter_Timeline_Widget_Test extends WP_UnitTestCase {
 	 * Test the widget method that outputs the markup.
 	 *
 	 * @dataProvider get_widget_data
-	 * @covers Jetpack_Twitter_Timeline_Widget::widget()
-	 *
 	 * @param array  $instance The widget instance.
 	 * @param bool   $is_amp Whether this is on an AMP endpoint.
 	 * @param string $expected The expected output of the tested method.

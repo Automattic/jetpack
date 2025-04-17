@@ -175,13 +175,25 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 3.1 - 2025-01-10
+### 3.2 - 2025-04-03
+#### Added
+- Adds Account Protection initialization.
+- Components: Export the getRedirectUrl function with subpath
+- Connection: Disconnect all other users before disconnecting connection owner account.
+- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
+- My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack.
+
 #### Changed
-- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation.
-- Social: Change My Jetpack CTA for Social from "Learn more" to "Activate".
-- Update backup plugin screenshots
-- Updated dependencies.
-- Updated package dependencies.
+- Code: Use function-style `exit()` and `die()` with a default status code of 0.
+- Connection: Allow pre-selected login providers.
+- Connection: Display connection status on Users page independent of the SSO module.
+- General: Indicate compatibility with WordPress 6.8.
+- Update composer.lock
+- Update package dependencies.
+- Update the unowned section from a product grid to a product list
+
+#### Fixed
+- Admin menu: Move backup admin menu addition to a function hooked into admin_menu, preventing PHP warnings.
 
 --------
 

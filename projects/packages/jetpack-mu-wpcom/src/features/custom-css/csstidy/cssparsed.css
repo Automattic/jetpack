@@ -1,29 +1,29 @@
 code#copytext {
 	white-space: pre;
-	font-family: Verdana;
+	font-family: Verdana, sans-serif;
 }
 
 .at {
-color:darkblue;
+color: #00008b;
 }
 
 .format {
-color:gray;
+color: #808080;
 }
 
 .property {
-color:green;
+color:#008000;
 }
 
 .selector {
-color:blue;
+color: #00f;
 }
 
 .value {
-color:red;
+color:#f00;
 left: 500px;
 }
 
 .comment {
-color:orange;
+color: #ffa500;
 }

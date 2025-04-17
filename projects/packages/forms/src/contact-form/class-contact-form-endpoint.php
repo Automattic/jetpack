@@ -18,6 +18,38 @@ use WP_REST_Response;
  */
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
+	 * Supported integrations configuration
+	 *
+	 * @var array
+	 */
+	private $supported_integrations = array(
+		'akismet'                           => array(
+			'type'         => 'plugin',
+			'file'         => 'akismet/akismet.php',
+			'settings_url' => 'admin.php?page=akismet-key-config',
+		),
+		'creative-mail-by-constant-contact' => array(
+			'type'         => 'plugin',
+			'file'         => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
+			'settings_url' => 'admin.php?page=creativemail',
+		),
+		'zero-bs-crm'                       => array(
+			'type'         => 'plugin',
+			'file'         => 'zero-bs-crm/ZeroBSCRM.php',
+			'settings_url' => 'admin.php?page=zerobscrm-plugin-settings',
+		),
+	);
+
+	/**
+	 * Get filtered list of supported integrations
+	 *
+	 * @return array Filtered list of supported integrations
+	 */
+	private function get_supported_integrations() {
+		return apply_filters( 'jetpack_forms_supported_integrations', $this->supported_integrations );
+	}
+
+	/**
 	 * Registers the REST routes.
 	 *
 	 * @access public
@@ -34,12 +66,23 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			)
 		);
 
+		// Register integrations routes
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/integration-status/(?P<slug>[\w-]+)',
+			$this->rest_base . '/integrations',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_integration_status' ),
+				'callback'            => array( $this, 'get_all_integrations_status' ),
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/integrations/(?P<slug>[\w-]+)',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_single_integration_status' ),
 				'permission_callback' => array( $this, 'get_items_permissions_check' ),
 				'args'                => array(
 					'slug' => array(
@@ -47,7 +90,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'required'          => true,
 						'sanitize_callback' => 'sanitize_text_field',
 						'validate_callback' => function ( $param ) {
-							return preg_match( '/^[\w-]+$/', $param );
+							return isset( $this->get_supported_integrations()[ $param ] );
 						},
 					),
 				),
@@ -554,91 +597,77 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Get the status of a forms integration.
+	 * Get status for all supported integrations.
 	 *
-	 * @param WP_REST_Request $request The request object.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 * @return WP_REST_Response Response object.
 	 */
-	public function get_integration_status( WP_REST_Request $request ) {
-		$slug = $request->get_param( 'slug' );
+	public function get_all_integrations_status() {
+		$integrations = array();
 
-		switch ( $slug ) {
-			case 'akismet':
-				return $this->get_akismet_status();
-
-			case 'creative-mail':
-			case 'jetpack-crm':
-				return $this->get_plugin_status( $slug );
-
-			default:
-				return new WP_Error(
-					'invalid_integration',
-					/* translators: %s: integration slug */
-					sprintf( __( 'Unknown integration: %s', 'jetpack-forms' ), $slug )
-				);
+		foreach ( array_keys( $this->get_supported_integrations() ) as $slug ) {
+			// For now, we only have plugin integrations.
+			// When needed, handle other integration types here.
+			$integrations[ $slug ] = $this->get_plugin_status( $slug );
 		}
+
+		return rest_ensure_response( $integrations );
 	}
 
 	/**
-	 * Get basic plugin status (installed/active).
+	 * REST endpoint handler for single integration status.
 	 *
-	 * @param string $plugin_slug The plugin slug (e.g. 'akismet' or 'creative-mail').
-	 * @return WP_REST_Response Plugin status data.
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object.
+	 */
+	public function get_single_integration_status( $request ) {
+		// Slug validation is handled in endpoint registration.
+		$slug = $request->get_param( 'slug' );
+		// For now, we only have plugin integrations.
+		// When needed, handle other integration types here.
+		return rest_ensure_response( $this->get_plugin_status( $slug ) );
+	}
+
+	/**
+	 * Get plugin status.
+	 *
+	 * @param string $plugin_slug Plugin slug.
+	 * @return array Plugin status data.
 	 */
 	private function get_plugin_status( $plugin_slug ) {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$plugin_files = array(
-			'akismet'       => 'akismet/akismet.php',
-			'creative-mail' => 'creative-mail-by-constant-contact/creative-mail-by-constant-contact.php',
-			'jetpack-crm'   => 'zero-bs-crm/ZeroBSCRM.php',
+		$integrations  = $this->get_supported_integrations();
+		$plugin_config = $integrations[ $plugin_slug ];
+
+		$installed_plugins = get_plugins();
+		$is_installed      = isset( $installed_plugins[ $plugin_config['file'] ] );
+		$is_active         = is_plugin_active( $plugin_config['file'] );
+
+		$response = array(
+			'type'        => 'plugin',
+			'slug'        => $plugin_slug,
+			'pluginFile'  => str_replace( '.php', '', $plugin_config['file'] ),
+			'isInstalled' => $is_installed,
+			'isActive'    => $is_active,
+			'isConnected' => false,
+			'version'     => $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null,
+			'settingsUrl' => $is_active ? admin_url( $plugin_config['settings_url'] ) : null,
+			'details'     => array(),
 		);
 
-		$plugin_file = $plugin_files[ $plugin_slug ] ?? '';
-		if ( empty( $plugin_file ) ) {
-			return rest_ensure_response(
-				array(
-					'type'        => 'plugin',
-					'isInstalled' => false,
-					'isActive'    => false,
-					/* translators: %s: plugin slug */
-					'error'       => sprintf( __( 'Unknown plugin: %s', 'jetpack-forms' ), $plugin_slug ),
-				)
+		// Plugin-specific customizations
+		if ( 'akismet' === $plugin_slug ) {
+			$response['isConnected'] = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
+		} elseif ( 'zero-bs-crm' === $plugin_slug && $is_active ) {
+			$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
+			$response['details'] = array(
+				'hasExtension'         => $has_extension,
+				'canActivateExtension' => current_user_can( 'manage_options' ),
 			);
 		}
 
-		$installed_plugins = get_plugins();
-		$is_installed      = isset( $installed_plugins[ $plugin_file ] );
-		$is_active         = is_plugin_active( $plugin_file );
-
-		return rest_ensure_response(
-			array(
-				'type'        => 'plugin',
-				'isInstalled' => $is_installed,
-				'isActive'    => $is_active,
-			)
-		);
-	}
-
-	/**
-	 * Get Akismet plugin status including key configuration.
-	 *
-	 * @return WP_REST_Response Response object.
-	 */
-	public function get_akismet_status() {
-		$plugin_status = $this->get_plugin_status( 'akismet' );
-		$status_data   = $plugin_status->get_data();
-
-		return rest_ensure_response(
-			array_merge(
-				$status_data,
-				array(
-					'isConnected'      => class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active(),
-					'configurationUrl' => admin_url( 'admin.php?page=akismet-key-config' ),
-				)
-			)
-		);
+		return $response;
 	}
 }

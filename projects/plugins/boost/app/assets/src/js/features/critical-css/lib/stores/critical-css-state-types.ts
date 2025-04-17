@@ -1,19 +1,27 @@
 import { JSONSchema } from '$lib/utils/json-types';
 import z from 'zod';
 
-const CriticalCssErrorType = z.enum( [
-	'SuccessTargetError',
-	'UrlError',
-	'HttpError',
-	'UnknownError',
-	'CrossDomainError',
-	'LoadTimeoutError',
-	'RedirectError',
-	'UrlVerifyError',
-	'EmptyCSSError',
-	'XFrameDenyError',
-	'InvalidURLError',
-	'ProviderError',
+const HttpErrorPattern = z.custom< `HttpError-${ number }` >( val => {
+	if ( typeof val !== 'string' ) return false;
+	return /^HttpError-\d+$/.test( val );
+} );
+
+const CriticalCssErrorType = z.union( [
+	z.enum( [
+		'SuccessTargetError',
+		'UrlError',
+		'HttpError',
+		'UnknownError',
+		'CrossDomainError',
+		'LoadTimeoutError',
+		'RedirectError',
+		'UrlVerifyError',
+		'EmptyCSSError',
+		'XFrameDenyError',
+		'InvalidURLError',
+		'ProviderError',
+	] ),
+	HttpErrorPattern,
 ] );
 
 export const CriticalCssErrorDetailsSchema = z.object( {
