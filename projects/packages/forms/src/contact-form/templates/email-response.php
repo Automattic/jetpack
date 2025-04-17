@@ -168,6 +168,9 @@ $style = '<style media="all" type="text/css">
 		.wrapper {
 			padding: 8px 16px !important;
 		}
+		.powered-by {
+			padding: 0 16px 16px!important;
+		}
 		.content {
 			padding: 0 !important;
 		}
