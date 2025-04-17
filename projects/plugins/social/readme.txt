@@ -117,7 +117,6 @@ The easiest way is to use the Custom Message option in the publishing options bo
 - General: indicate compatibility with the upcoming version of WordPress - 6.8.
 - Improved the logic for share status
 - Update package dependencies.
-- Update package dependencies.
 
 #### Fixed
 - Do not load in the editor if sharing is disabled
