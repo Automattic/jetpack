@@ -11,6 +11,7 @@ vendor/autoload_functions.php                   production-include
 vendor/autoload_packages.php                    production-include
 vendor/automattic/**                            production-include
 vendor/composer/**                              production-include
+vendor/enshrined/svg-sanitize/**                production-include
 vendor/jetpack-autoloader/**                    production-include
 vendor/tedivm/**                                production-include
 vendor/matthiasmullie/**                        production-include
