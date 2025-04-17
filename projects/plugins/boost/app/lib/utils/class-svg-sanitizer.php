@@ -75,7 +75,7 @@ class SVG_Sanitizer {
 		 */
 		$html = preg_replace_callback(
 			'%<((?!(?:' . $allowed_tags_pattern . '))[a-z][a-z0-9]*+)(?:\s[^>]*)?+>.*?</\\1\s*+>%si',
-			function () {
+			function ( $matches ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Keeping phan happy!
 				return '';
 			},
 			$html
