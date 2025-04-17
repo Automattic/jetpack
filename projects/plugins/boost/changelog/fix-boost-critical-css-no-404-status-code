@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Critical CSS: Fix not showing status code when generation fails for some pages.

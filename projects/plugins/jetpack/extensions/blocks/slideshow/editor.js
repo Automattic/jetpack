@@ -16,24 +16,20 @@ registerJetpackBlockFromMetadata( metadata, {
 		attributes: {
 			align: 'center',
 			autoplay: true,
-			ids: [ 22, 23 ],
 			images: [
 				{
 					alt: '',
 					caption: '',
-					id: 22,
 					url: slideshowExample1,
 				},
 				{
 					alt: '',
 					caption: '',
-					id: 23,
 					url: slideshowExample2,
 				},
 				{
 					alt: '',
 					caption: '',
-					id: 23,
 					url: slideshowExample3,
 				},
 			],

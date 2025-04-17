@@ -54,7 +54,12 @@ class Config_Test extends TestCase {
 					return '';
 				}
 			);
-		Functions\when( 'plugins_url' )->justReturn( 'http://example.com/wp-content/plugins/jetpack-boost/app/assets/dist' );
+		Functions\when( 'plugins_url' )
+			->alias(
+				function ( $path = '' ) {
+					return 'http://example.com/wp-content/plugins/jetpack-boost/app/assets/dist' . ( $path ? '/' . ltrim( $path, '/' ) : '' );
+				}
+			);
 		Functions\when( 'wp_image_editor_supports' )
 			->alias(
 				function ( $args ) {
@@ -132,7 +137,12 @@ class Config_Test extends TestCase {
 					return '';
 				}
 			);
-		Functions\when( 'plugins_url' )->justReturn( 'http://example.com/wp-content/plugins/jetpack-boost/app/assets/dist' );
+		Functions\when( 'plugins_url' )
+			->alias(
+				function ( $path = '' ) {
+					return 'http://example.com/wp-content/plugins/jetpack-boost/app/assets/dist' . ( $path ? '/' . ltrim( $path, '/' ) : '' );
+				}
+			);
 		Functions\when( 'wp_image_editor_supports' )
 			->alias(
 				function ( $args ) {

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Ensure render_field returns string.

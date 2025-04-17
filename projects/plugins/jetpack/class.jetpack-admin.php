@@ -105,6 +105,9 @@ class Jetpack_Admin {
 
 		// Register Jetpack partner coupon hooks.
 		Jetpack_Partner_Coupon::register_coupon_admin_hooks( 'jetpack', Jetpack::admin_url() );
+
+		// Register Unauthenticated file download hooks.
+		require_once JETPACK__PLUGIN_DIR . 'unauth-file-upload.php';
 	}
 
 	/**

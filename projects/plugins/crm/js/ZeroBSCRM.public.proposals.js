@@ -53,6 +53,7 @@ jQuery( function () {
  * Send quote acceptance AJAX.
  * @param {string} quoteHash - Quote hash.
  * @param {number} quoteID   - Quote ID.
+ * @return {object} jQuery AJAX call Promise object.
  */
 function zbsCRM_JS_acceptProp( quoteHash, quoteID ) {
 	// postbag!
@@ -66,7 +67,7 @@ function zbsCRM_JS_acceptProp( quoteHash, quoteID ) {
 	};
 
 	// Send
-	jQuery.ajax( {
+	return jQuery.ajax( {
 		type: 'POST',
 		url: window.jpcrm_proposal_data.ajax_url,
 		data: data,

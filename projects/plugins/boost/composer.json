@@ -3,7 +3,7 @@
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"version": "3.13.0",
+	"version": "3.13.1",
 	"authors": [
 		{
 			"name": "Automattic, Inc.",
@@ -42,9 +42,10 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --bootstrap tests/bootstrap.php --testsuite unit --colors=always",
+			"phpunit-select-config phpunit.#.xml.dist --bootstrap tests/bootstrap-wordbless.php --testsuite critical-css --colors=always"
 		],
-		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
+		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --bootstrap tests/bootstrap.php --testsuite unit --coverage-php \"$COVERAGE_DIR/php-unit.cov\" && php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --bootstrap tests/bootstrap-wordbless.php --testsuite critical-css --coverage-php \"$COVERAGE_DIR/php-critical.cov\"' 'pnpm:test-coverage'",
 		"test-js": [
 			"pnpm run test"
 		],
@@ -77,7 +78,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "b1e77e6231d50e7663f84529b6a3dfda_jetpack_boostⓥ3_13_0",
+		"autoloader-suffix": "b1e77e6231d50e7663f84529b6a3dfda_jetpack_boostⓥ3_13_1",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

@@ -123,6 +123,12 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 				// Add submenu items.
 				foreach ( $submenu_items as $submenu_item ) {
+					// As $submenu_item can be null or false due to combination of plugins/themes, its value
+					// must be checked before passing it to the prepare_submenu_item method. It may be related
+					// to the common usage of null as a "hidden" submenu item like was fixed in CRM in #29945.
+					if ( ! is_array( $submenu_item ) ) {
+						continue;
+					}
 					$submenu_item = $this->prepare_submenu_item( $submenu_item, $menu_item );
 					if ( ! empty( $submenu_item ) ) {
 						$item['children'][] = $submenu_item;

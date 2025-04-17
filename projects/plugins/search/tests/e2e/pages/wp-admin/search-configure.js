@@ -19,7 +19,7 @@ export default class SearchConfigure extends WpPage {
 	}
 
 	async choosePinkAsHighlightColor() {
-		const pinkColorSelector = 'button[aria-label="Color: Pale pink"]';
+		const pinkColorSelector = 'button[aria-label="Pale pink"]';
 		return await this.click( pinkColorSelector );
 	}
 
@@ -52,7 +52,7 @@ export default class SearchConfigure extends WpPage {
 	}
 
 	async isHighlightPink() {
-		const pinkColorSelector = 'button[aria-selected="true"][aria-label="Color: Pale pink"]';
+		const pinkColorSelector = 'button[aria-selected="true"][aria-label="Pale pink"]';
 		return await this.isElementVisible( pinkColorSelector, 200 );
 	}
 

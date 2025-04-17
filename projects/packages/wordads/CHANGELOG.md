@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.20] - 2025-04-14
+### Fixed
+- Linting: Format SCSS imports consistently. [#43018]
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
 ## [0.4.19] - 2025-04-07
 ### Changed
 - Code: First pass of style coding standards. [#42734]
@@ -519,6 +525,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
 - Updated package dependencies.
 
+[0.4.20]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.19...v0.4.20
 [0.4.19]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.18...v0.4.19
 [0.4.18]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.17...v0.4.18
 [0.4.17]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.16...v0.4.17

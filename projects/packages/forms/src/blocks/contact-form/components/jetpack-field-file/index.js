@@ -25,8 +25,8 @@ const BLOCKS_TEMPLATE = [
 						right: '48px',
 					},
 					margin: {
-						top: '8px',
-						bottom: '8px',
+						top: '0',
+						bottom: '0',
 					},
 				},
 				border: {
@@ -41,8 +41,9 @@ const BLOCKS_TEMPLATE = [
 				'core/image',
 				{
 					url: DEFAULT_ICON,
-					width: 24,
-					height: 24,
+					width: '24px',
+					height: '24px',
+					scale: 'cover',
 					align: 'center',
 					className: 'is-style-default',
 					style: {
@@ -127,9 +128,18 @@ const JetpackFieldFile = props => {
 				width={ width }
 				setAttributes={ setAttributes }
 				attributes={ attributes }
+				hidePlaceholder={ true }
 				extraFieldSettings={ [
 					{
 						index: 1,
+						element: (
+							<p key="max-file-size">
+								{ __( 'Maximum file size is set to 20MB', 'jetpack-forms' ) }
+							</p>
+						),
+					},
+					{
+						index: 2,
 						element: (
 							<NumberControl
 								key="maxfiles"
