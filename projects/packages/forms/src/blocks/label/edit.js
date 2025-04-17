@@ -1,4 +1,5 @@
-import { RichText, useBlockProps } from '@wordpress/block-editor';
+import { RichText, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
@@ -6,6 +7,7 @@ import { ALLOWED_FORMATS, DATE_FORMATS, FORM_STYLE } from '../shared/util/consta
 import getBlockStyle from '../shared/util/get-block-style.js';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
+const emptyToNull = str => ( str === '' ? null : str );
 
 const WithNotchedWrapper = ( { formStyle, children } ) => {
 	if ( formStyle === FORM_STYLE.OUTLINED ) {
@@ -32,7 +34,6 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 
 	const { label, defaultLabel, requiredText } = attributes;
 
-	const emptyToNull = str => ( str === '' ? null : str );
 	const placeholder =
 		emptyToNull( defaultLabel ) ?? emptyToNull( label ) ?? __( 'Add label…', 'jetpack-forms' );
 	const suffix = dateFormat
@@ -46,6 +47,13 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 	} );
 	const blockProps = useBlockProps( { className } );
 
+	// The label value to use for the RichText field must manually fall back to the
+	// placeholder to be rendered in previews.
+	const isPreviewMode = useSelect( select => {
+		return select( blockEditorStore ).getSettings().isPreviewMode;
+	}, [] );
+	const labelValue = isPreviewMode ? emptyToNull( label ) ?? placeholder : label;
+
 	return (
 		<WithNotchedWrapper formStyle={ formStyle }>
 			<div { ...blockProps }>
@@ -55,7 +63,7 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 					onChange={ value => setAttributes( { label: value } ) }
 					placeholder={ placeholder }
 					tagName="label"
-					value={ label }
+					value={ labelValue }
 					withoutInteractiveFormatting
 				/>
 				{ suffix && <span className="jetpack-field-label__suffix">{ suffix }</span> }
