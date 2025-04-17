@@ -36,9 +36,9 @@ export function lcpErrorState(): LcpState {
 
 /**
  * Hook which creates a callable action for optimizing Lcp.
- * @param callback
+ * @param onSuccess
  */
-export function useOptimizeLcpAction( callback?: () => void ) {
+export function useOptimizeLcpAction( onSuccess?: ( state: LcpState ) => void ) {
 	const optimisticState: LcpState = { status: 'pending', pages: [] };
 
 	return useDataSyncAction( {
@@ -58,8 +58,8 @@ export function useOptimizeLcpAction( callback?: () => void ) {
 			optimisticUpdate: ( _requestData, _state: LcpState ) => optimisticState,
 			onResult: ( result, _state ): LcpState => {
 				if ( result.success ) {
-					if ( callback ) {
-						callback();
+					if ( onSuccess ) {
+						onSuccess( result.state );
 					}
 
 					return result.state;

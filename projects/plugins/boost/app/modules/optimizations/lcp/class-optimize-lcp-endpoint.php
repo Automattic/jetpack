@@ -13,28 +13,21 @@ class Optimize_LCP_Endpoint implements Data_Sync_Action {
 	 * @param \WP_REST_Request $_request The request object.
 	 */
 	public function handle( $_data, $_request ) {
-		try {
-			$analyzer = new LCP_Analyzer();
-			$state    = $analyzer->get_state();
-			if ( $state->is_pending() ) {
-				// If the analysis is already in progress, return the current state.
-				return array(
-					'success' => true,
-					'state'   => $state->get(),
-				);
-			}
-
-			$state = $analyzer->start();
-
+		$analyzer = new LCP_Analyzer();
+		$state    = $analyzer->get_state();
+		if ( $state->is_pending() ) {
+			// If the analysis is already in progress, return the current state.
 			return array(
 				'success' => true,
-				'state'   => $state,
-			);
-		} catch ( \Exception $e ) {
-			return array(
-				'success' => false,
-				'state'   => ( new LCP_State() )->set_error( $e->getMessage() )->get(),
+				'state'   => $state->get(),
 			);
 		}
+
+		$state = $analyzer->start();
+
+		return array(
+			'success' => true,
+			'state'   => $state,
+		);
 	}
 }

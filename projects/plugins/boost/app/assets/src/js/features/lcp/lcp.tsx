@@ -64,13 +64,8 @@ const Lcp = () => {
 	const optimizeAction = useOptimizeLcpAction();
 
 	const handleEnable = () => {
-		recordBoostEvent( 'lcp_optimize_enabled', {} );
 		// Refetch the lcp State as when the module is enabled, the Analyzer will start running.
 		query.refetch();
-	};
-
-	const handleDisable = () => {
-		recordBoostEvent( 'lcp_optimize_disabled', {} );
 	};
 
 	const handleClickOptimize = () => {
@@ -91,7 +86,6 @@ const Lcp = () => {
 				</p>
 			}
 			onEnable={ handleEnable }
-			onDisable={ handleDisable }
 		>
 			<div className={ styles.status }>
 				<div className={ styles.summary }>

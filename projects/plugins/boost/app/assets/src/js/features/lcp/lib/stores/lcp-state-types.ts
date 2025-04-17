@@ -48,5 +48,5 @@ export const LcpStateSchema = z
  * Infer Zod Types
  */
 export type LcpState = z.infer< typeof LcpStateSchema >;
-export type Lcp_Error_Type = z.infer< typeof LcpErrorType >;
+export type LcpErrorType = z.infer< typeof LcpErrorType >;
 export type LcpErrorDetails = z.infer< typeof LcpErrorDetailsSchema >;
