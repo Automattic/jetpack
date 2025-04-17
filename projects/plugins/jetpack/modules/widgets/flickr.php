@@ -3,7 +3,9 @@
  * Flickr Widget, pulling recent photos from Flickr using RSS feed.
  *
  * This widget is now deprecated.
- * Flickr does not offer RSS feeds anymore.
+ * Existing widgets will continue to work, but Flickr no longer displays RSS feeds,
+ * making it impossible for site owners to configure this widget.
+ * We consequently only register the widget if it's already in use on the site.
  *
  * @see https://github.com/Automattic/jetpack/issues/39824
  *
