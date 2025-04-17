@@ -79,6 +79,7 @@ class Current_Plan {
 				'akismet',
 				'payments',
 				'videopress',
+				'field-file', // Forms
 			),
 		),
 		'premium'  => array(
@@ -146,7 +147,9 @@ class Current_Plan {
 				'jetpack_complete_monthly',
 				'vip',
 			),
-			'supports' => array(),
+			'supports' => array(
+				'field-file', // Forms
+			),
 		),
 	);
 
