@@ -40,20 +40,6 @@ class Inline_Search extends Classic_Search {
 	private $search_result_ids = array();
 
 	/**
-	 * Set up the WordPress filters.
-	 *
-	 * @param string $blog_id The blog ID to set up for.
-	 */
-	public function setup( $blog_id ) {
-		parent::setup( $blog_id );
-
-		// Add filters to display highlighted content
-		add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
-		add_filter( 'the_content', array( $this, 'filter_highlighted_content' ), 10, 1 );
-		add_filter( 'get_the_excerpt', array( $this, 'filter_highlighted_excerpt' ), 10, 2 );
-	}
-
-	/**
 	 * Returns whether this class should be used instead of Classic_Search.
 	 */
 	public static function should_replace_classic_search(): bool {
@@ -92,6 +78,20 @@ class Inline_Search extends Classic_Search {
 		} else {
 			return Classic_Search::instance( $blog_id );
 		}
+	}
+
+	/**
+	 * Set up the WordPress filters.
+	 *
+	 * @param string $blog_id The blog ID to set up for.
+	 */
+	public function setup( $blog_id ) {
+		parent::setup( $blog_id );
+
+		// Add filters to display highlighted content
+		add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
+		add_filter( 'the_content', array( $this, 'filter_highlighted_content' ), 10, 1 );
+		add_filter( 'get_the_excerpt', array( $this, 'filter_highlighted_excerpt' ), 10, 2 );
 	}
 
 	/**
@@ -135,106 +135,6 @@ class Inline_Search extends Classic_Search {
 		$query->max_num_pages = ceil( $this->found_posts / $query->get( 'posts_per_page' ) );
 
 		return $posts_query->posts;
-	}
-
-	/**
-	 * Process search results to extract post IDs and highlighted content.
-	 *
-	 * @param \WP_Query $query The original WP_Query.
-	 */
-	private function process_search_results( $query ) {
-		$post_ids                  = array();
-		$this->highlighted_content = array();
-		$this->search_term         = $query->get( 's' );
-
-		foreach ( $this->search_result['results'] as $result ) {
-			$post_id    = (int) ( $result['fields']['post_id'] ?? 0 );
-			$post_ids[] = $post_id;
-
-			$this->process_result_highlighting( $result, $post_id );
-		}
-
-		$this->search_result_ids = $post_ids;
-	}
-
-	/**
-	 * Process highlighting data for a single search result.
-	 *
-	 * @param array $result  The search result data from the API.
-	 * @param int   $post_id The post ID for this result.
-	 */
-	private function process_result_highlighting( $result, $post_id ) {
-		if ( empty( $result['highlight'] ) ) {
-			return;
-		}
-
-		// Check for data in various highlight field formats.
-		$title   = $this->extract_highlight_field( $result, 'title' );
-		$content = $this->extract_highlight_field( $result, 'content' );
-		$excerpt = $this->extract_highlight_field( $result, 'excerpt' );
-
-		$this->highlighted_content[ $post_id ] = array(
-			'title'   => $title,
-			'content' => $content,
-			'excerpt' => $excerpt,
-		);
-
-		// If we don't have highlighted content, create some by highlighting the search term.
-		if ( empty( $title ) && ! empty( $result['fields']['title'] ) && ! empty( $this->search_term ) ) {
-			$title_with_highlights                          = $this->apply_highlight_patterns( $result['fields']['title'], $this->search_term );
-			$this->highlighted_content[ $post_id ]['title'] = $title_with_highlights;
-		}
-
-		if ( empty( $content ) && ! empty( $result['fields']['content'] ) && ! empty( $this->search_term ) ) {
-			$content_with_highlights                          = $this->apply_highlight_patterns( $result['fields']['content'], $this->search_term );
-			$this->highlighted_content[ $post_id ]['content'] = $content_with_highlights;
-		}
-	}
-
-	/**
-	 * Extract a highlight field from the search result, handling different field formats.
-	 *
-	 * @param array  $result The search result data from the API.
-	 * @param string $field  The field name to extract.
-	 * @return string The extracted highlighted field.
-	 */
-	private function extract_highlight_field( $result, $field ) {
-		if ( ! empty( $result['highlight'][ $field ] ) && is_array( $result['highlight'][ $field ] ) ) {
-			return $result['highlight'][ $field ][0];
-		} elseif ( ! empty( $result['highlight'][ $field . '.default' ] ) && is_array( $result['highlight'][ $field . '.default' ] ) ) {
-			return $result['highlight'][ $field . '.default' ][0];
-		}
-		return '';
-	}
-
-	/**
-	 * Create a WP_Query to fetch the posts for search results.
-	 *
-	 * @param \WP_Query $original_query The original WP_Query.
-	 * @return \WP_Query The new query with posts matching the search results.
-	 */
-	private function create_posts_query( $original_query ) {
-		$args = array(
-			'post__in'            => $this->search_result_ids,
-			'orderby'             => 'post__in',
-			'perm'                => 'readable',
-			'post_type'           => 'any',
-			'ignore_sticky_posts' => true,
-			'suppress_filters'    => true,
-			'posts_per_page'      => $original_query->get( 'posts_per_page' ),
-		);
-
-		return new \WP_Query( $args );
-	}
-
-	/**
-	 * Check if the current post is a search result from our API
-	 *
-	 * @param int $post_id The post ID to check.
-	 * @return bool Whether the post is a search result.
-	 */
-	private function is_search_result( $post_id ) {
-		return is_search() && in_the_loop() && ! empty( $this->search_result_ids ) && in_array( $post_id, $this->search_result_ids, true );
 	}
 
 	/**
@@ -638,6 +538,98 @@ class Inline_Search extends Classic_Search {
 		return $this->search_result;
 	}
 
+	// PRIVATE HELPER METHODS
+
+	/**
+	 * Process search results to extract post IDs and highlighted content.
+	 *
+	 * @param \WP_Query $query The original WP_Query.
+	 */
+	private function process_search_results( $query ) {
+		$post_ids                  = array();
+		$this->highlighted_content = array();
+		$this->search_term         = $query->get( 's' );
+
+		foreach ( $this->search_result['results'] as $result ) {
+			$post_id    = (int) ( $result['fields']['post_id'] ?? 0 );
+			$post_ids[] = $post_id;
+
+			$this->process_result_highlighting( $result, $post_id );
+		}
+
+		$this->search_result_ids = $post_ids;
+	}
+
+	/**
+	 * Process highlighting data for a single search result.
+	 *
+	 * @param array $result  The search result data from the API.
+	 * @param int   $post_id The post ID for this result.
+	 */
+	private function process_result_highlighting( $result, $post_id ) {
+		if ( empty( $result['highlight'] ) ) {
+			return;
+		}
+
+		// Check for data in various highlight field formats.
+		$title   = $this->extract_highlight_field( $result, 'title' );
+		$content = $this->extract_highlight_field( $result, 'content' );
+		$excerpt = $this->extract_highlight_field( $result, 'excerpt' );
+
+		$this->highlighted_content[ $post_id ] = array(
+			'title'   => $title,
+			'content' => $content,
+			'excerpt' => $excerpt,
+		);
+
+		// If we don't have highlighted content, create some by highlighting the search term.
+		if ( empty( $title ) && ! empty( $result['fields']['title'] ) && ! empty( $this->search_term ) ) {
+			$title_with_highlights                          = $this->apply_highlight_patterns( $result['fields']['title'], $this->search_term );
+			$this->highlighted_content[ $post_id ]['title'] = $title_with_highlights;
+		}
+
+		if ( empty( $content ) && ! empty( $result['fields']['content'] ) && ! empty( $this->search_term ) ) {
+			$content_with_highlights                          = $this->apply_highlight_patterns( $result['fields']['content'], $this->search_term );
+			$this->highlighted_content[ $post_id ]['content'] = $content_with_highlights;
+		}
+	}
+
+	/**
+	 * Extract a highlight field from the search result, handling different field formats.
+	 *
+	 * @param array  $result The search result data from the API.
+	 * @param string $field  The field name to extract.
+	 * @return string The extracted highlighted field.
+	 */
+	private function extract_highlight_field( $result, $field ) {
+		if ( ! empty( $result['highlight'][ $field ] ) && is_array( $result['highlight'][ $field ] ) ) {
+			return $result['highlight'][ $field ][0];
+		} elseif ( ! empty( $result['highlight'][ $field . '.default' ] ) && is_array( $result['highlight'][ $field . '.default' ] ) ) {
+			return $result['highlight'][ $field . '.default' ][0];
+		}
+		return '';
+	}
+
+	/**
+	 * Create a WP_Query to fetch the posts for search results.
+	 *
+	 * @param \WP_Query $original_query The original WP_Query.
+	 * @return \WP_Query The new query with posts matching the search results.
+	 */
+	private function create_posts_query( $original_query ) {
+		$args = array(
+			'post__in'            => $this->search_result_ids,
+			'orderby'             => 'post__in',
+			'perm'                => 'readable',
+			'post_type'           => 'any',
+			'ignore_sticky_posts' => true,
+			'suppress_filters'    => true,
+			'posts_per_page'      => $original_query->get( 'posts_per_page' ),
+		);
+
+		return new \WP_Query( $args );
+	}
+
 	/**
 	 * Prepare search pattern for highlighting
 	 *
@@ -686,5 +678,15 @@ class Inline_Search extends Classic_Search {
 		}
 
 		return $highlighted;
+	}
+
+	/**
+	 * Check if the current post is a search result from our API
+	 *
+	 * @param int $post_id The post ID to check.
+	 * @return bool Whether the post is a search result.
+	 */
+	private function is_search_result( $post_id ) {
+		return is_search() && in_the_loop() && ! empty( $this->search_result_ids ) && in_array( $post_id, $this->search_result_ids, true );
 	}
 }
