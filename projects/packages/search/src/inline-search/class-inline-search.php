@@ -99,6 +99,7 @@ class Inline_Search extends Classic_Search {
 		add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
 		add_filter( 'the_content', array( $this, 'filter_highlighted_content' ), 10, 1 );
 		add_filter( 'get_the_excerpt', array( $this, 'filter_highlighted_excerpt' ), 10, 2 );
+		add_filter( 'comment_text', array( $this, 'filter_highlighted_comment' ), 10, 2 );
 	}
 
 	/**
@@ -159,11 +160,11 @@ class Inline_Search extends Classic_Search {
 
 		// Check if we have a highlighted title from the API
 		if ( ! empty( $this->highlighted_content[ $post_id ]['title'] ) ) {
-			// Return the highlighted content
 			return $this->highlighted_content[ $post_id ]['title'];
 		}
 
-		// If we don't have highlighted title, manually highlight the search term
+		// Fallback: Even though the API should provide highlighted titles,
+		// in some cases it doesn't, so we need to apply our own highlighting
 		if ( ! empty( $this->search_term ) ) {
 			return $this->apply_highlight_patterns( $title, $this->search_term );
 		}
@@ -219,12 +220,34 @@ class Inline_Search extends Classic_Search {
 			return $this->highlighted_content[ $post_id ]['excerpt'];
 		}
 
-		// If we don't have highlighted excerpt, manually highlight the search term
-		if ( ! empty( $this->search_term ) ) {
-			return $this->apply_highlight_patterns( $excerpt, $this->search_term );
+		return $excerpt;
+	}
+
+	/**
+	 * Filter comment text to show highlighted version.
+	 *
+	 * @param string $comment_text The comment text.
+	 * @return string The filtered comment text.
+	 */
+	public function filter_highlighted_comment( $comment_text ) {
+		// Only process if this is one of our search results and we're in a search context
+		if ( ! is_search() || ! in_the_loop() ) {
+			return $comment_text;
 		}
 
-		return $excerpt;
+		$post_id = get_the_ID();
+
+		// Check if this post is a search result and we have highlighted comments for it
+		if ( ! $this->is_search_result( $post_id ) || empty( $this->highlighted_content[ $post_id ]['comments'] ) ) {
+			return $comment_text;
+		}
+
+		// Simple check to see if this comment contains our search term
+		if ( ! empty( $this->search_term ) && stripos( $comment_text, $this->search_term ) !== false ) {
+			return $this->apply_highlight_patterns( $comment_text, $this->search_term );
+		}
+
+		return $comment_text;
 	}
 
 	/**
@@ -414,20 +437,30 @@ class Inline_Search extends Classic_Search {
 		}
 
 		$highlight_options = array(
-			'pre_tags'  => array( '<mark>' ),
-			'post_tags' => array( '</mark>' ),
+			'pre_tags'  => array( '__MARK__' ),
+			'post_tags' => array( '__/MARK__' ),
 			'fields'    => array(
-				'title'   => array( 'number_of_fragments' => 0 ),
-				'content' => array( 'number_of_fragments' => 0 ),
-				'excerpt' => array( 'number_of_fragments' => 0 ),
+				'title',
+				'content',
+				'excerpt',
+				'comments',
 			),
+		);
+
+		$fields = array(
+			'blog_id',
+			'post_id',
+			'title',
+			'content',
+			'excerpt',
+			'comments',
 		);
 
 		return array(
 			'blog_id'      => $this->jetpack_blog_id,
 			'size'         => absint( $args['posts_per_page'] ),
 			'from'         => min( $from, Helper::get_max_offset() ),
-			'fields'       => array( 'blog_id', 'post_id', 'title', 'content', 'excerpt' ),
+			'fields'       => $fields,
 			'highlight'    => $highlight_options,
 			'query'        => $args['query'] ?? '',
 			'sort'         => $sort,
@@ -586,14 +619,16 @@ class Inline_Search extends Classic_Search {
 		}
 
 		// Check for data in various highlight field formats.
-		$title   = $this->extract_highlight_field( $result, 'title' );
-		$content = $this->extract_highlight_field( $result, 'content' );
-		$excerpt = $this->extract_highlight_field( $result, 'excerpt' );
+		$title    = $this->extract_highlight_field( $result, 'title' );
+		$content  = $this->extract_highlight_field( $result, 'content' );
+		$excerpt  = $this->extract_highlight_field( $result, 'excerpt' );
+		$comments = $this->extract_highlight_field( $result, 'comments' );
 
 		$this->highlighted_content[ $post_id ] = array(
-			'title'   => $title,
-			'content' => $content,
-			'excerpt' => $excerpt,
+			'title'    => $title,
+			'content'  => $content,
+			'excerpt'  => $excerpt,
+			'comments' => $comments,
 		);
 
 		// If we don't have highlighted content, create some by highlighting the search term.
@@ -650,11 +685,16 @@ class Inline_Search extends Classic_Search {
 	 * @return string The extracted highlighted field.
 	 */
 	private function extract_highlight_field( $result, $field ) {
-		if ( ! empty( $result['highlight'][ $field ] ) && is_array( $result['highlight'][ $field ] ) ) {
-			return $result['highlight'][ $field ][0];
-		} elseif ( ! empty( $result['highlight'][ $field . '.default' ] ) && is_array( $result['highlight'][ $field . '.default' ] ) ) {
-			return $result['highlight'][ $field . '.default' ][0];
+		// Try all possible field variants in order of likelihood
+		foreach ( $result['highlight'] as $key => $value ) {
+			// Check if this key is for our requested field (exact match or with suffix)
+			if ( $key === $field || strpos( $key, $field . '.' ) === 0 ) {
+				if ( is_array( $value ) && ! empty( $value ) ) {
+					return $value[0];
+				}
+			}
 		}
+
 		return '';
 	}
 
@@ -710,7 +750,6 @@ class Inline_Search extends Classic_Search {
 	 * @return string The content with highlighted terms.
 	 */
 	private function add_mark_tags( $content, $term ) {
-		// Case-insensitive matching but preserve original case
 		$pattern = '/(' . preg_quote( $term, '/' ) . ')/i';
 		return preg_replace( $pattern, '<mark>$1</mark>', $content );
 	}
