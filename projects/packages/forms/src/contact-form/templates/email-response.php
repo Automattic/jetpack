@@ -22,8 +22,8 @@ $template = '
 </head>
 <body>
 	<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
-	<tr>
-		<td>&nbsp;</td>
+		<tr>
+			<td class="collapse">&nbsp;</td>
 			<td class="container">
 				<div class="content">
 					<span class="preheader">%1$s</span>
@@ -56,7 +56,7 @@ $template = '
 					</div>
 				</div>
 			</td>
-			<td>&nbsp;</td>
+			<td class="collapse">&nbsp;</td>
 		</tr>
 	</table>
 </body>
@@ -88,13 +88,13 @@ $style = '<style media="all" type="text/css">
 	}
 
 	body {
-		background-color: #f4f5f6;
+		background-color: #f6f7f7;
 		margin: 0;
 		padding: 0;
 	}
 
 	.body {
-		background-color: #f4f5f6;
+		background-color: #f6f7f7;
 		width: 100%;
 	}
 
@@ -115,7 +115,7 @@ $style = '<style media="all" type="text/css">
 	}
 
 	.main {
-		background: #ffffff;
+		background: #fff;
 		width: 100%;
 	}
 
@@ -125,21 +125,23 @@ $style = '<style media="all" type="text/css">
 	}
 	.content-block {
 		box-sizing: border-box;
-		padding: 0 24px;
-
+		padding: 0 24px 24px;
 	}
 
 	.footer {
 		clear: both;
-		padding-top: 24px;
+		padding: 24px 0;
 		width: 100%;
 	}
 	.footer td,
 	.footer p,
 	.footer span,
 	.footer a {
-		color: #9a9ea6;
+		color: #101517;
 		font-size: 12px;
+	}
+	h1 {
+		font-size: 20px;
 	}
 	p {
 		font-family: sans-serif;
@@ -159,7 +161,7 @@ $style = '<style media="all" type="text/css">
 			font-size: 16px !important;
 		}
 		.wrapper {
-			padding: 8px !important;
+			padding: 8px 16px !important;
 		}
 		.content {
 			padding: 0 !important;
@@ -174,6 +176,8 @@ $style = '<style media="all" type="text/css">
 			border-radius: 0 !important;
 			border-right-width: 0 !important;
 		}
+		.collapse { display: none; }
+		h1 { padding:0 16px; }
 	}
 
 	@media all {
