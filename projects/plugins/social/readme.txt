@@ -120,7 +120,6 @@ The easiest way is to use the Custom Message option in the publishing options bo
 
 #### Fixed
 - Do not load in the editor if sharing is disabled
-- E2E: Fix tests following WP 6.8 release
 - Fix arguments for jetpack_open_graph_tags filter
 
 == Upgrade Notice ==
