@@ -170,6 +170,7 @@ function jetpack_facebook_embed_reversal( $content ) {
 				continue;
 			}
 
+			$query_args = array();
 			wp_parse_str( $parsed_url['query'], $query_args );
 			if ( empty( $query_args['href'] ) ) {
 				continue;

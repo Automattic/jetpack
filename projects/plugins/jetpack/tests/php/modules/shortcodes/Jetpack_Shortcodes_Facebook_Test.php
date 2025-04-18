@@ -121,12 +121,13 @@ class Jetpack_Shortcodes_Facebook_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test converting an embed code from Facebook.com into an oEmbeddable URL.
+	 *
 	 * @since x.x.x
 	 */
 	public function test_embed_to_url() {
 		$facebook_url = 'https://www.facebook.com/techcrunch/posts/pfbid0997g1PXQKfyFNHNTiCgaCFevt3PRFMaUBBB9eEFPR5NsXCv8EXxBw3p9bBYezWkHl';
-		$embed = '<iframe src="https://www.facebook.com/plugins/post.php?href=' . urlencode( $facebook_url ) . '&show_text=true&width=500" width="500" height="504" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>';
-		$result = jetpack_facebook_embed_reversal( $embed );
+		$embed        = '<iframe src="https://www.facebook.com/plugins/post.php?href=' . urlencode( $facebook_url ) . '&show_text=true&width=500" width="500" height="504" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>';
+		$result       = jetpack_facebook_embed_reversal( $embed );
 
 		$this->assertEquals( sprintf( "\n\n%s\n\n", $facebook_url ), $result );
 	}
