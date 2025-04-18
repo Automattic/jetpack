@@ -89,13 +89,6 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			return;
 		}
 
-		// This covers both P2 and P2020 themes.
-		$site_id = \Jetpack_Options::get_option( 'id' );
-		$is_p2   = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( $site_id );
-		if ( $is_p2 ) {
-			return;
-		}
-
 		if ( Jetpack::is_connection_ready() ) {
 			static::load_admin_scripts(
 				'jp-newsletter-widget',
@@ -134,22 +127,6 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			<div id="newsletter-widget-app"></div>
 		</div>
 		<?php
-	}
-
-	/**
-	 * Load the admin scripts for the Jetpack Newsletter widget.
-	 *
-	 * @return void
-	 */
-	public static function admin_init() {
-		static::load_admin_scripts(
-			'jp-newsletter-widget',
-			'newsletter-widget',
-			array(
-				'config_variable_name' => 'jetpackNewsletterWidgetConfigData',
-				'config_data'          => static::get_config_data(),
-			)
-		);
 	}
 
 	/**
