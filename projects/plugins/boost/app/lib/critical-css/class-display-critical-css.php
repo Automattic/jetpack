@@ -38,7 +38,7 @@ class Display_Critical_CSS {
 		$media
 	) {
 		// If there is no critical CSS, do not alter the stylesheet loading.
-		if ( false === $this->css ) {
+		if ( ! $this->css ) {
 			return $html;
 		}
 
@@ -90,7 +90,7 @@ class Display_Critical_CSS {
 	public function display_critical_css() {
 		$critical_css = $this->css;
 
-		if ( false === $critical_css ) {
+		if ( ! $critical_css ) {
 			// phpcs:ignore Universal.CodeAnalysis.ConstructorDestructorReturn.ReturnValueFound -- This is not a PHP 4 constructor, that only applies to non-namespaced classes.
 			return false;
 		}

@@ -201,6 +201,30 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	}
 
 	/**
+	 * Tests how prepare_menu_for_response processes empty submenu items.
+	 */
+	public function test_prepare_menu_for_response_should_ignore_non_array_submenu_items() {
+		global $submenu;
+		$old_submenu_value = $submenu;
+		$menu_item         = array( 'menu_title', 'read', 'index.php', '', '', '', '' );
+		$submenu_items     = array();
+		for ( $i = 0; $i < 5; $i++ ) {
+			$submenu_items[] = array( "submenu_title_$i", 'read', "submenu$i.php", '', '', '', '' );
+		}
+		$submenu_items[1] = null;
+		$submenu_items[4] = null;
+
+		$submenu = array( 'index.php' => $submenu_items );
+		$menu    = ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->prepare_menu_for_response( array( $menu_item ) );
+		$submenu = $old_submenu_value;
+
+		$this->assertIsArray( $menu, 'The returned menu should be an array.' );
+		$this->assertArrayHasKey( 'children', $menu[0], 'The first menu item should contain a "children" key.' );
+		$this->assertIsArray( $menu[0]['children'], 'The "children" key should hold an array.' );
+		$this->assertCount( 3, $menu[0]['children'], 'The "children" array should contain exactly 3 items.' );
+	}
+
+	/**
 	 * Tests preparing a submenu item.
 	 *
 	 * @param array $submenu_item Submenu item as generated in wp-admin/menu.php.

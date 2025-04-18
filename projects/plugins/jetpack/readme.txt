@@ -326,21 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.6-a.3 - 2025-04-14
-#### Enhancements
-- Add My Jetpack tour.
-- Admin Menu: Update the icon of WooCommerce for the Woo installation.
-- Button block: Add support for border width, style, and color.
-- Forms: Close block panels by default.
-- Sharing buttons: Update legacy Twitter logos to use the X logo.
-
-#### Improved compatibility
-- Add Share status support for WordPress.com sites.
-
+### 14.6-a.5 - 2025-04-15
 #### Bug fixes
-- Forms: Ensure `render_field` returns string.
-- Social: Do not load in the Classic editor if module is off.
-- Subscriptions: Only display the dashboard widget to site admins when the Subscriptions feature is active.
+- Stats: Fix PHP TypeError.
 
 --------
 

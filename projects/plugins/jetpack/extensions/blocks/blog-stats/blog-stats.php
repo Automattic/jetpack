@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Extensions\Blog_Stats;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Blog_Stats_Helper;
@@ -26,6 +27,15 @@ if ( ! class_exists( 'Jetpack_Blog_Stats_Helper' ) ) {
  * registration if we need to.
  */
 function register_block() {
+	/*
+	 * The block is available even when the module is not active,
+	 * so we can display a nudge to activate the module instead of the block.
+	 * However, since non-admins cannot activate modules, we do not display the empty block for them.
+	 */
+	if ( ! ( new Modules() )->is_active( 'stats' ) && ! current_user_can( 'jetpack_activate_modules' ) ) {
+		return;
+	}
+
 	if (
 		( new Host() )->is_wpcom_simple()
 		|| (
@@ -57,7 +67,7 @@ function load_assets( $attributes ) {
 	}
 
 	// For when Stats has been disabled subsequent to inserting the block.
-	if ( ! \Jetpack::is_module_active( 'stats' ) ) {
+	if ( ! ( new Modules() )->is_active( 'stats' ) ) {
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			return sprintf(
 				'<p>%s</p>',

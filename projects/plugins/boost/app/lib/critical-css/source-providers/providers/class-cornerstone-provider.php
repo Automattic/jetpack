@@ -52,7 +52,7 @@ class Cornerstone_Provider extends Provider {
 		return array( self::get_provider_key( $current_url ) );
 	}
 
-	private static function get_request_url() {
+	public static function get_request_url() {
 		global $wp;
 
 		// If pretty parmalinks are enabled, use the request. Otherwise, use the query vars.

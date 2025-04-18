@@ -888,17 +888,48 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Sanitize the value.
+	 * Sanitizes the value of a field.
 	 *
-	 * @param string $value - the value to sanitize.
-	 *
-	 * @return string
+	 * @param string|array|null $value The value to sanitize.
+	 * @return string The sanitized value.
 	 */
 	public static function sanitize_value( $value ) {
 		if ( null === $value ) {
 			return '';
 		}
+
+		// If value is an array, convert it to a comma-separated string
+		if ( is_array( $value ) ) {
+			return implode( ', ', array_map( array( __CLASS__, 'sanitize_value' ), $value ) );
+		}
+
 		return preg_replace( '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i', '', $value );
+	}
+
+	/**
+	 * Sanitizes and formats values for display, ensuring arrays are properly converted to strings.
+	 *
+	 * @param mixed $value The value to format.
+	 * @return string|array The formatted value ready for display or file array for upload fields.
+	 */
+	public static function format_value_for_display( $value ) {
+		if ( is_array( $value ) ) {
+			// Check if this is a file upload field
+			if ( Contact_Form::is_file_upload_field( $value ) ) {
+				// This is a file upload field, return as is to be handled by the proper renderer
+				return $value;
+			}
+
+			// Process each array element recursively and join with commas
+			$formatted_values = array();
+			foreach ( $value as $key => $item ) {
+				$formatted_values[] = is_numeric( $key ) ? self::format_value_for_display( $item ) : "$key: " . self::format_value_for_display( $item );
+			}
+			return implode( ', ', $formatted_values );
+		}
+
+		// Simple value, just convert to string
+		return (string) $value;
 	}
 
 	/**
@@ -2100,26 +2131,16 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Parse the contact form fields.
+	 * Helper function to parse the post content.
 	 *
-	 * @param int $post_id - the post ID.
-	 * @return array Fields.
+	 * @param string $post_content The post content to parse.
+	 * @return array Parsed fields.
 	 */
-	public static function parse_fields_from_content( $post_id ) {
-		static $post_fields;
+	public static function parse_feedback_content( $post_content ) {
+		$all_values = array();
 
-		if ( ! is_array( $post_fields ) ) {
-			$post_fields = array();
-		}
-
-		if ( isset( $post_fields[ $post_id ] ) ) {
-			return $post_fields[ $post_id ];
-		}
-
-		$all_values   = array();
-		$post_content = get_post_field( 'post_content', $post_id );
-		$content      = explode( '<!--more-->', $post_content );
-		$lines        = array();
+		$content = explode( '<!--more-->', $post_content );
+		$lines   = array();
 
 		if ( count( $content ) > 1 ) {
 			$content = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
@@ -2167,6 +2188,29 @@ class Contact_Form_Plugin {
 		}
 
 		$fields['_feedback_all_fields'] = $all_values;
+
+		return $fields;
+	}
+
+	/**
+	 * Parse the contact form fields.
+	 *
+	 * @param int $post_id - the post ID.
+	 * @return array Fields.
+	 */
+	public static function parse_fields_from_content( $post_id ) {
+		static $post_fields;
+
+		if ( ! is_array( $post_fields ) ) {
+			$post_fields = array();
+		}
+
+		if ( isset( $post_fields[ $post_id ] ) ) {
+			return $post_fields[ $post_id ];
+		}
+
+		$post_content = get_post_field( 'post_content', $post_id );
+		$fields       = self::parse_feedback_content( $post_content );
 
 		$post_fields[ $post_id ] = $fields;
 

@@ -21,6 +21,10 @@
 	<testsuites>
 		<testsuite name="unit">
 			<directory suffix="Test.php">tests/php</directory>
+			<exclude>tests/php/lib/critical-css/Display_Critical_CSS_Test.php</exclude>
+		</testsuite>
+		<testsuite name="critical-css">
+			<file>tests/php/lib/critical-css/Display_Critical_CSS_Test.php</file>
 		</testsuite>
 	</testsuites>
 

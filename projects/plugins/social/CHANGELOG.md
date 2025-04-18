@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 6.4.0 - 2025-04-17
+### Added
+- Added more error logging. [#42959]
+- Added Share status support for WPCOM sites [#42593]
+- Adding My Jetpack tour. [#42880]
+- Adds Account Protection initialization [#40925]
+- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process. [#42757]
+
+### Changed
+- Connection: Allow pre-selected login providers [#42662]
+- General: indicate compatibility with the upcoming version of WordPress - 6.8. [#42701]
+- Improved the logic for share status [#42978]
+- Update package dependencies. [#42815]
+- Update package dependencies. [#43071]
+
+### Fixed
+- Do not load in the editor if sharing is disabled [#43006]
+- E2E: Fix tests following WP 6.8 release [#43105]
+- Fix arguments for jetpack_open_graph_tags filter [#42665]
+
 ## 6.3.0 - 2025-03-21
 ### Added
 - My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]

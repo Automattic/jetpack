@@ -371,6 +371,10 @@ jobs:
 
       - name: Test storybook
         if: steps.changed.outputs.any == 'true'
+        env:
+          # Chromium bug, see https://github.com/microsoft/playwright/issues/34046
+          LANG: en_US
+          LC_ALL: en_US
         run: |
           cd projects/js-packages/storybook
           node bin/webserver.mjs

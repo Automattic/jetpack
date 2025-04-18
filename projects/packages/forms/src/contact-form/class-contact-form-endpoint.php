@@ -17,6 +17,7 @@ use WP_REST_Response;
  * registered in \Automattic\Jetpack\Forms\ContactForm\Contact_Form.
  */
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
+
 	/**
 	 * Supported integrations configuration
 	 *
@@ -119,47 +120,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'required' => true,
 					),
 				),
-			)
-		);
-
-		// Register the file endpoint route
-		register_rest_route(
-			$this->namespace,
-			$this->rest_base . '/files',
-			array(
-				'methods'                 => \WP_REST_Server::READABLE,
-				'callback'                => array( $this, 'get_file' ),
-				'permission_callback'     => array( $this, 'get_file_permissions_check' ),
-				'args'                    => array(
-					'file_id'    => array(
-						'required'          => true,
-						'validate_callback' => function ( $param ) {
-							if ( empty( $param ) ) {
-								return new WP_Error(
-									'missing_file_id',
-									esc_html__( 'File ID is required.', 'jetpack-forms' ),
-									array( 'status' => 400 )
-								);
-							}
-							return true;
-						},
-					),
-					'file_nonce' => array(
-						'required'          => true,
-						'validate_callback' => function ( $file_nonce, $request ) {
-							$file_id = $request->get_param( 'file_id' );
-							if ( ! wp_verify_nonce( $file_nonce, 'jetpack_forms_view_file_' . $file_id ) ) {
-								return new WP_Error(
-									'rest_forbidden',
-									esc_html__( 'Invalid or missing file access token.', 'jetpack-forms' ),
-									array( 'status' => 403 )
-								);
-							}
-							return true;
-						},
-					),
-				),
-				'requires_authentication' => true,
 			)
 		);
 	}
@@ -327,10 +287,65 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		$schema['properties']['fields'] = array(
 			'description' => __( 'The custom form fields and their submitted values.', 'jetpack-forms' ),
-			'type'        => 'string',
+			'type'        => 'object',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'arg_options' => array(
 				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'properties'  => array(
+				'files' => array(
+					'type'       => 'object',
+					'properties' => array(
+						'field_id' => array(
+							'type'        => 'string',
+							'arg_options' => array(
+								'sanitize_callback' => 'sanitize_text_field',
+							),
+						),
+						'files'    => array(
+							'type'  => 'array',
+							'items' => array(
+								'type'       => 'object',
+								'properties' => array(
+									'file_id' => array(
+										'type'        => 'integer',
+										'arg_options' => array(
+											'sanitize_callback' => 'sanitize_text_field',
+										),
+									),
+									'name'    => array(
+										'type'        => 'string',
+										'arg_options' => array(
+											'sanitize_callback' => 'sanitize_text_field',
+										),
+									),
+									'size'    => array(
+										'type'        => 'string',
+										'arg_options' => array(
+											'sanitize_callback' => 'sanitize_text_field',
+										),
+									),
+									'url'     => array(
+										'type'        => 'string',
+										'arg_options' => array(
+											'sanitize_callback' => 'esc_url_raw',
+										),
+									),
+								),
+							),
+						),
+					),
+				),
+			),
+			'readonly'    => true,
+		);
+
+		$schema['properties']['has_file'] = array(
+			'description' => __( 'Does the form response contain a file.', 'jetpack-forms' ),
+			'type'        => 'boolean',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'booleanval',
 			),
 			'readonly'    => true,
 		);
@@ -352,12 +367,14 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$data     = $response->get_data();
 		$fields   = $this->get_fields_for_response( $request );
 
-		$base_fields   = array(
+		$has_file    = false;
+		$base_fields = array(
 			'email_marketing_consent' => '',
 			'entry_title'             => '',
 			'entry_permalink'         => '',
 			'feedback_id'             => '',
 		);
+
 		$data_defaults = array(
 			'_feedback_author'       => '',
 			'_feedback_author_email' => '',
@@ -406,10 +423,27 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['subject'] = $feedback_data['_feedback_subject'];
 		}
 		if ( rest_is_field_included( 'fields', $fields ) ) {
-			$data['fields'] = array_diff_key(
-				$all_fields,
-				$base_fields
-			);
+			$fields_data = array_diff_key( $all_fields, $base_fields );
+
+			foreach ( $fields_data as &$field ) {
+				if ( Contact_Form::is_file_upload_field( $field ) ) {
+
+					foreach ( $field['files'] as &$file ) {
+						if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
+							// this shouldn't happen, todo: log this
+							continue;
+						}
+						$file_id         = absint( $file['file_id'] );
+						$file['file_id'] = $file_id;
+						$file['size']    = size_format( $file['size'] );
+						$file['url']     = \apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
+						$has_file        = true;
+					}
+				}
+			}
+
+			$data['fields']   = $fields_data;
+			$data['has_file'] = $has_file;
 		}
 		return rest_ensure_response( $data );
 	}
@@ -546,54 +580,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Checks if the current user has permission to view files.
-	 *
-	 * @return true|\WP_Error True if the user has permission, WP_Error otherwise.
-	 */
-	public function get_file_permissions_check() {
-		// Verify the user is logged in with appropriate capabilities
-		if ( ! current_user_can( 'edit_pages' ) ) {
-			return new WP_Error(
-				'rest_forbidden',
-				esc_html__( 'You must be logged in with appropriate permissions to view this file.', 'jetpack-forms' ),
-				array( 'status' => 403 )
-			);
-		}
-
-		return true;
-	}
-
-	/**
-	 * Retrieves a file using the file_id and serves it to the client.
-	 *
-	 * @param \WP_REST_Request $request The current request object.
-	 *
-	 * @return \WP_REST_Response
-	 */
-	public function get_file( $request ) {
-		$file_id = $request->get_param( 'file_id' );
-
-		// Create dummy content that includes the file ID for testing
-		$dummy_content = sprintf(
-			"This is a test file.\nRequested File ID: %s\nThis is a dummy response for testing the file download endpoint.",
-			esc_html( $file_id )
-		);
-
-		return new \WP_REST_Response(
-			$dummy_content,
-			200,
-			array(
-				'Content-Type'              => 'text/plain',
-				'Content-Disposition'       => 'attachment; filename="test-file.txt"',
-				'Content-Length'            => strlen( $dummy_content ),
-				'Content-Transfer-Encoding' => 'binary',
-				'X-Robots-Tag'              => 'noindex',
-				'Cache-Control'             => 'no-cache, must-revalidate, max-age=0',
-			)
-		);
 	}
 
 	/**

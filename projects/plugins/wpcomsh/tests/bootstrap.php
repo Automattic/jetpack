@@ -43,6 +43,15 @@ foreach ( new RegexIterator( $lib, '/^.*\.php$/', RegexIterator::GET_MATCH ) as 
 // Give access to tests_add_filter() function.
 require_once $_tests_dir . '/includes/functions.php';
 
+// Speed things up by turning down the password hashing cost.
+tests_add_filter(
+	'wp_hash_password_options',
+	function ( $options ) {
+		$options['cost'] = 4;
+		return $options;
+	}
+);
+
 /**
  * Manually load the plugin being tested.
  */

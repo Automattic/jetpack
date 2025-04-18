@@ -166,7 +166,6 @@ return [
         'enhanced-open-graph.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'extensions/blocks/ai-chat/ai-chat.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
         'extensions/blocks/blog-stats/blog-stats.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'extensions/blocks/blogroll/blogroll-item/blogroll-item.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'extensions/blocks/calendly/calendly.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'extensions/blocks/donations/donations.php' => ['PhanTypeMismatchArgument'],
         'extensions/blocks/gif/gif.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
