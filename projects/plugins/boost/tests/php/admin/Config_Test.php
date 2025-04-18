@@ -7,12 +7,16 @@ use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack_Boost\Admin\Config;
 use Brain\Monkey\Functions;
 use Mockery;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class Config_Test extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();

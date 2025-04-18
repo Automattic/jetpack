@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Changelog\Tests;
 use Automattic\Jetpack\Changelog\ChangeEntry;
 use DateTime;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,6 +19,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Changelog\ChangeEntry
  */
+#[CoversClass( ChangeEntry::class )]
 class ChangeEntryTest extends TestCase {
 
 	/**
@@ -101,6 +104,7 @@ class ChangeEntryTest extends TestCase {
 	 * @param array       $config Compare config.
 	 * @param int         $expect Expected value.
 	 */
+	#[DataProvider( 'provideCompare' )]
 	public function testCompare( ChangeEntry $a, ChangeEntry $b, array $config, $expect ) {
 		// We only care about the sign of the return value.
 		$ret = ChangeEntry::compare( $a, $b, $config ) <=> 0;
@@ -399,6 +403,7 @@ class ChangeEntryTest extends TestCase {
 	 * @param string             $json JSON data.
 	 * @param ChangeEntry|string $change Change entry, or error message if decoding should fail.
 	 */
+	#[DataProvider( 'provideJson' )]
 	public function testJson( $json, $change ) {
 		if ( is_string( $change ) ) {
 			$this->expectException( InvalidArgumentException::class );

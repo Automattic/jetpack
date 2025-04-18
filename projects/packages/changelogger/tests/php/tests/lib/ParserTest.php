@@ -11,6 +11,7 @@ use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelog\Changelog;
 use Automattic\Jetpack\Changelog\ChangelogEntry;
 use Automattic\Jetpack\Changelog\Parser;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -18,6 +19,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Changelog\Parser
  */
+#[CoversClass( Parser::class )]
 class ParserTest extends TestCase {
 
 	/**

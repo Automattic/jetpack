@@ -1,11 +1,15 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
  * @covers ::jetpack_facebook_embed_handler
  * @covers ::jetpack_facebook_shortcode_handler
  */
+#[CoversFunction( 'jetpack_facebook_embed_handler' )]
+#[CoversFunction( 'jetpack_facebook_shortcode_handler' )]
 class Jetpack_Shortcodes_Facebook_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;

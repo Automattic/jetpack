@@ -6,6 +6,8 @@ use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
 
@@ -14,6 +16,7 @@ require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
  *
  * @group jetpack-sync
  */
+#[Group( 'jetpack-sync' )]
 class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 
 	protected $post;
@@ -1408,6 +1411,7 @@ That was a cool video.';
 	 * @param int      $post_ID Post ID.
 	 * @param \WP_Post $post    Post object.
 	 */
+	#[DataProvider( 'provider_jetpack_published_post_no_action' )]
 	public function test_sync_jetpack_published_post_no_action( $post_ID, $post ) {
 		$this->server_event_storage->reset();
 		do_action( 'wp_after_insert_post', $post_ID, $post, false, null );
