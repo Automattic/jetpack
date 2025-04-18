@@ -107,7 +107,7 @@ class Storage_Post_Type {
 	 * @return mixed
 	 */
 	public function get( $key, $default ) {
-		$cached = wp_cache_get( $key, $this->post_type_slug() );
+		$cached = get_transient( $this->post_type_slug() . '_' . $key );
 		if ( $cached ) {
 			return $cached;
 		}
@@ -142,7 +142,7 @@ class Storage_Post_Type {
 			return $default;
 		}
 
-		wp_cache_set( $key, $value['data'], $this->post_type_slug(), HOUR_IN_SECONDS );
+		set_transient( $this->post_type_slug() . '_' . $key, $value['data'], HOUR_IN_SECONDS );
 
 		return $value['data'];
 	}
