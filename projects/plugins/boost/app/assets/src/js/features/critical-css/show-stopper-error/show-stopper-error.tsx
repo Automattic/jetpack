@@ -13,6 +13,7 @@ import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useRetryRegenerate } from '../lib/use-retry-regenerate';
 import RawError from '../raw-error/raw-error';
+import { ExternalLink } from '@wordpress/components';
 
 type ShowStopperErrorTypes = {
 	supportLink?: string;
@@ -206,17 +207,16 @@ const OtherErrors = ( { cssState, supportLink }: ShowStopperErrorTypes ) => {
 							{ __( 'Refresh', 'jetpack-boost' ) }
 						</button>
 					) : (
-						<a
+						<ExternalLink
 							className="button button-secondary"
 							href={ supportLink }
 							target="_blank"
-							rel="noreferrer"
 							onClick={ () => {
 								recordBoostEvent( 'critical_css_contact_support', {} );
 							} }
 						>
 							{ __( 'Contact Support', 'jetpack-boost' ) }
-						</a>
+						</ExternalLink>
 					) }
 				</>
 			) }
