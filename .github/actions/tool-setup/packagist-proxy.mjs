@@ -77,7 +77,9 @@ server.on( 'request', ( req, res ) => {
 	// about this code using user input to build the request path, it's fine.
 	// This proxy only runs on localhost inside of CI, any attacker could just
 	// make their bad request directly.
-	const upstreamUrl = upstreamHost + req.url.replace( /^\//, '' );
+	const parsedUrl = new URL(req.url, 'http://localhost'); // Parse the incoming URL
+	const sanitizedPath = parsedUrl.pathname.replace(/^\//, '').replace(/\.\./g, ''); // Remove leading slash and prevent path traversal
+	const upstreamUrl = upstreamHost + sanitizedPath;
 	console.log( `!![${ reqid }] Proxying to ${ upstreamUrl }` );
 	const upstreamReq = https.request( upstreamUrl, {
 		method: req.method,
