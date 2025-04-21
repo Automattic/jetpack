@@ -1,0 +1,19 @@
+.jetpack-forms-enabled-integrations {
+	margin: 8px 0;
+}
+
+.jetpack-forms-integration-icon {
+	position: relative;
+	padding-left: 6px;
+
+	&__status-indicator {
+		position: absolute;
+		bottom: 2px;
+		right: 0px;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background-color: var(--jp-green-40);
+		box-shadow: 0 0 0 1px #fff;
+	}
+} 
