@@ -525,11 +525,19 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 				'featured_content',
 				array(
 					'title'          => esc_html__( 'Featured Content', 'jetpack-classic-theme-helper' ),
-					'description'    => sprintf(
+					'description'    => wp_kses(
+						sprintf(
 						/* translators: %1$s: Link to 'featured' admin tag view. %2$s: Max number of posts shown by theme in featured content area. */
-						__( 'Easily feature all posts with the <a href="%1$s">"featured" tag</a> or a tag of your choice. Your theme supports up to %2$s posts in its featured content area.', 'jetpack-classic-theme-helper' ),
-						admin_url( '/edit.php?tag=featured' ),
-						absint( self::$max_posts )
+							__( 'Easily feature all posts with the <a href="%1$s">"featured" tag</a> or a tag of your choice. Your theme supports up to %2$s posts in its featured content area.<p>Please note: The featured tag name is case sensitive.</p>', 'jetpack-classic-theme-helper' ),
+							esc_url( admin_url( '/edit.php?tag=featured' ) ),
+							absint( self::$max_posts )
+						),
+						array(
+							'a' => array(
+								'href' => array(),
+							),
+							'p' => array(), // Allow paragraph tags
+						)
 					),
 					'priority'       => 130,
 					'theme_supports' => 'featured-content',
@@ -549,6 +557,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 					'sanitize_js_callback' => array( __CLASS__, 'delete_transient' ),
 				)
 			);
+
 			$wp_customize->add_setting(
 				'featured-content[hide-tag]',
 				array(
