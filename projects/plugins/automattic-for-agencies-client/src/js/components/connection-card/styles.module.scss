@@ -20,7 +20,7 @@
 			line-height: 32px;
 		}
 	}
-	
+
 	h2 {
 		font-size: 32px;
 		line-height: 35px;
@@ -31,7 +31,7 @@
 			line-height: 32px;
 		}
 	}
-	
+
 	p {
 		margin: 0;
 	}
@@ -56,7 +56,7 @@
 			line-height: 32px;
 		}
 	}
-	
+
 	h2 {
 		font-size: 32px;
 		line-height: 35px;
@@ -67,7 +67,7 @@
 			line-height: 32px;
 		}
 	}
-	
+
 	p {
 		margin: 0;
 	}
@@ -135,13 +135,12 @@
 		font-size: 13px;
 		color: var(--jp-black);
 		max-width: 460px;
-		
+
 	}
 
 	.terms-of-service__link {
 		color: $studio-automattic-blue;
 		white-space: nowrap;
-		text-decoration: underline;
 	}
 
 	:global {
