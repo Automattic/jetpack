@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { isAdminConnected } from '@automattic/jetpack-shared-extension-utils';
 import { getBlockType } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 /*
@@ -31,8 +32,7 @@ export function canAIAssistantBeEnabled(): boolean {
 	}
 
 	// Do not enable AI Assistant if the site is not connected.
-	const { getConnectionStatus } = select( 'jetpack-connection' );
-	const connected = getConnectionStatus?.()?.isRegistered;
+	const connected = isAdminConnected();
 	if ( ! connected ) {
 		return false;
 	}

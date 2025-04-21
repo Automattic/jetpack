@@ -12,12 +12,12 @@ import {
 	useAICheckout,
 	useAiFeature,
 } from '@automattic/jetpack-ai-client';
-import { useConnection } from '@automattic/jetpack-connection';
 import {
 	useAnalytics,
 	PLAN_TYPE_FREE,
 	PLAN_TYPE_UNLIMITED,
 	usePlanType,
+	isAdminConnected,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
@@ -140,7 +140,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const isWaitingResponse = requestingState === 'requesting';
 	const isLoadingCompletion = [ 'requesting', 'suggesting' ].includes( requestingState );
 
-	const { isRegistered: connected } = useConnection();
+	const connected = isAdminConnected();
 
 	const { productPageUrl } = useAiProductPage();
 

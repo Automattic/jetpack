@@ -70,11 +70,19 @@ class Jetpack_AI_Helper {
 	public static function get_status_permission_check( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		/*
-		 * We should think more about which users should be able to access this.
-		 * Right now, we check only if site is connected.
+		 * This may need to be updated
+		 * to take into account the different ways we can make requests
+		 * (from a WordPress.com site, from a Jetpack site).
 		 */
-		$connection = new Manager();
-		return $connection->is_connected();
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to access Jetpack AI help on this site.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
 	}
 
 	/**
@@ -246,7 +254,7 @@ class Jetpack_AI_Helper {
 			return $response;
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/sites/%d/jetpack-ai/completions', $site_id ),
 			2,
 			array(
@@ -320,7 +328,7 @@ class Jetpack_AI_Helper {
 			return $result;
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/sites/%d/jetpack-ai/images/generations', $site_id ),
 			2,
 			array(
@@ -420,7 +428,7 @@ class Jetpack_AI_Helper {
 
 		$request_path = sprintf( '/sites/%d/jetpack-ai/ai-assistant-feature', $blog_id );
 
-		$wpcom_request = Client::wpcom_json_api_request_as_blog(
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
 			$request_path,
 			'v2',
 			array(
