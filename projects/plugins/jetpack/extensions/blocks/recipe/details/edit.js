@@ -1,4 +1,4 @@
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { TextControl, __experimentalUnitControl as UnitControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import './editor.scss';
 
@@ -9,8 +9,10 @@ const units = [
 
 function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 	const { prepTime, prepTimeLabel, cookTime, cookTimeLabel, servings, servingsLabel } = attributes;
+	const blockProps = useBlockProps( { className } );
+
 	return (
-		<div className={ className }>
+		<div { ...blockProps }>
 			<div className="wp-container wp-recipe-block-details">
 				<div className="group">
 					<TextControl

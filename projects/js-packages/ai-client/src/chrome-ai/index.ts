@@ -1,2 +1,2 @@
-export { default as ChromeAIFactory } from './factory.js';
-export { default as ChromeAISuggestionsEventSource } from './suggestions.js';
+export { default as ChromeAIFactory } from './factory.ts';
+export { default as ChromeAISuggestionsEventSource } from './suggestions.ts';

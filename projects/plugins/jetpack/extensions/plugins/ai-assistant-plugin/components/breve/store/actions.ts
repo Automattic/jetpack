@@ -4,8 +4,11 @@
 import { askQuestionSync } from '@automattic/jetpack-ai-client';
 import { select } from '@wordpress/data';
 import { BREVE_FEATURE_NAME } from '../constants';
-import { Anchor } from '../types';
 import { getRequestMessages } from '../utils/get-request-messages';
+/**
+ * Types
+ */
+import type { Anchor } from '../types';
 
 // ACTIONS
 

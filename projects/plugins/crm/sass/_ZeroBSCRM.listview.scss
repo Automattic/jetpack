@@ -3,6 +3,31 @@
  * https://jetpackcrm.com
  */
 
+
+//weirdly this was not being applied in semantic.min.css on list view pages so adding here too
+.ui.dropdown .menu .left.menu {
+	left: auto !important;
+	right: 100%;
+	margin: 0em 0em 0em 0em !important;
+	border-radius: 0.28571429rem !important;
+}
+
+.ui.simple.dropdown:hover>.menu>.item:hover>.left {
+	left: auto !important;
+}
+
+//company contact images
+.zbs-co-img {
+	float:left;
+
+	img{
+		border-radius:50%;
+		max-width:30px;
+		height:auto;
+		margin-right:5px;
+	}
+}
+
 #zbs-list-col-editor {
 
     margin-bottom: 46px;
@@ -19,6 +44,7 @@
 		}
 
 	}
+
 	#zbs-column-manager-available-cols {
 
 		// needed to drop into empty list:
@@ -70,7 +96,9 @@
 // company list contacts HTML..
 
 .zero-bs-crm_page_manage-companies-crm{
+
 	.zbs-co-img{
+
 		img{
 			width:30px;
 			height:auto;
@@ -139,7 +167,7 @@
 }
 // when editing:
 .jpcrm-listview-table td.zbs-inline-editing {
-	border-bottom: 2px dashed orange;
+	border-bottom: 2px dashed #ffa500;
 	text-align: center;
 	padding-top: 0.6em;
 }

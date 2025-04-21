@@ -25,6 +25,7 @@ $no_boost_score_size: 28px;
 
 	@media (max-width: 767px) {
 		flex-direction: column;
+
 		&__label {
 			background-color: transparent;
 		}
@@ -32,6 +33,7 @@ $no_boost_score_size: 28px;
 
 
 	&__loading {
+
 		@extend %score-pill;
 		width: $bar_height;
 		display: flex;
@@ -40,6 +42,7 @@ $no_boost_score_size: 28px;
 	}
 
 	&__label {
+
 		@extend %score-pill;
 		display: grid;
 		grid-template-columns: 24px 1fr;
@@ -57,6 +60,7 @@ $no_boost_score_size: 28px;
 	}
 
 	&__score {
+
 		@extend %score-pill;
 		border-radius: 100%;
 		font-weight: 700;
@@ -76,6 +80,7 @@ $no_boost_score_size: 28px;
 		max-width: 100%;
 		position: relative;
 		z-index: $label_z_index - 10;
+
 		@media (min-width: 768px) {
 			width: calc(100% + #{math.div($bar-height, 2)});
 			margin-left: math.div(-$bar_height, 2) ;
@@ -91,6 +96,7 @@ $no_boost_score_size: 28px;
 		will-change: width;
 		width: 0;
 		position: relative;
+
 		@media (max-width: 767px) {
 			min-width: $bar_height + 1px;
 			border-radius: inherit;

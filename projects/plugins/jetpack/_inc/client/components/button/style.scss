@@ -33,6 +33,7 @@
 		box-shadow: inset 0 0 0 1px $black;
 		color: $gray-80;
 	}
+
 	&[disabled],
 	&:disabled {
 		color: lighten( $gray, 30% );
@@ -40,6 +41,7 @@
 		border-color: lighten( $gray, 30% );
 		cursor: default;
 	}
+
 	&:focus {
 		background: $white;
 		border-color: $black;
@@ -53,6 +55,7 @@
 		&:disabled {
 			color: lighten( $gray, 30% );
 		}
+
 		.gridicon {
 			top: 4px;
 			margin-top: -8px;
@@ -75,6 +78,7 @@
 	&.hidden {
 		display: none;
 	}
+
 	.gridicon {
 		position: relative;
 		top: 4px;
@@ -104,6 +108,7 @@
 		text-shadow: none !important;
 		cursor: default;
 	}
+
 	&.is-compact {
 		color: $white;
 		white-space: nowrap;
@@ -118,9 +123,11 @@
   &:focus {
 	border-color: $alert-red;
   }
+
   &:focus {
 	box-shadow: 0 0 0 2px lighten( $alert-red, 20% );
   }
+
   &[disabled],
   &:disabled {
 	color: lighten( $alert-red, 30% );
@@ -137,6 +144,7 @@
   &:focus {
 	border-color: darken( $alert-red, 40% );
   }
+
   &[disabled],
   &:disabled {
 	background: lighten( $alert-red, 20% );
@@ -178,6 +186,7 @@
 	  border-width: 0;
 	}
   }
+
   &.is-scary {
 	color: $alert-red;
 
@@ -194,6 +203,7 @@
   &.is-compact {
 	background: transparent;
 	border-radius: 0;
+
 	.gridicon {
 	  width: 18px;
 	  height: 18px;

@@ -77,6 +77,7 @@
 }
 
 @media (max-width: 640px) {
+
 	#infinite-footer {
 		display: none;
 	}
@@ -94,6 +95,7 @@
 }
 
 @media screen and (min-width: 401px) {
+
 	.infinite-loader,
 	#infinite-handle {
 		padding: 0 0 48px;

@@ -70,7 +70,8 @@ const getCopyForCategorySubscribers = ( {
 	reachCount,
 } ) => {
 	const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
-	const reachCountString = reachCount.toLocaleString();
+	// This needs a more elegant solution, but for now it stops the crash when the count is undefined.
+	const reachCountString = undefined === reachCount ? '0' : reachCount.toLocaleString();
 
 	if ( futureTense ) {
 		return sprintf(
@@ -78,7 +79,7 @@ const getCopyForCategorySubscribers = ( {
 			_n(
 				'This post will be sent to everyone subscribed to %1$s (%2$s subscriber).',
 				'This post will be sent to everyone subscribed to %1$s (%2$s subscribers).',
-				reachCount,
+				reachCount ?? 0,
 				'jetpack'
 			),
 			formattedCategoryNames,
@@ -91,7 +92,7 @@ const getCopyForCategorySubscribers = ( {
 		_n(
 			'This post was sent to everyone subscribed to %1$s (%2$s subscriber).',
 			'This post was sent to everyone subscribed to %1$s (%2$s subscribers).',
-			reachCount,
+			reachCount ?? 0,
 			'jetpack'
 		),
 		formattedCategoryNames,

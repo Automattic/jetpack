@@ -6,7 +6,7 @@ import { useState } from 'react';
 /**
  * Internal dependencies
  */
-import ActionPopover from '../index.js';
+import ActionPopover from '../index.tsx';
 import styles from './styles.module.scss';
 
 export default {

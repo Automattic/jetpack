@@ -12,6 +12,8 @@ use WorDBless\BaseTestCase;
 
 /**
  * PHPUnit tests for the Blaze class.
+ *
+ * @covers \Automattic\Jetpack\Blaze
  */
 class Blaze_Test extends BaseTestCase {
 	/**
@@ -63,8 +65,6 @@ class Blaze_Test extends BaseTestCase {
 
 	/**
 	 * Test that Blaze::init() does not run everything by default.
-	 *
-	 * @covers Automattic\Jetpack\Blaze::init
 	 */
 	public function test_should_not_check_eligibility_by_default() {
 		/*
@@ -81,8 +81,6 @@ class Blaze_Test extends BaseTestCase {
 
 	/**
 	 * Test that the jetpack_blaze_dashboard_enable filter overwrites eligibility for the dashboard page.
-	 *
-	 * @covers Automattic\Jetpack\Blaze::is_dashboard_enabled
 	 */
 	public function test_dashboard_filter_enable() {
 		$this->assertTrue( Blaze::is_dashboard_enabled() );
@@ -93,8 +91,6 @@ class Blaze_Test extends BaseTestCase {
 
 	/**
 	 * Test that the jetpack_blaze_enabled filter overwrites eligibility, for admins.
-	 *
-	 * @covers Automattic\Jetpack\Blaze::should_initialize
 	 */
 	public function test_filter_overwrites_eligibility() {
 		$this->assertFalse( Blaze::should_initialize()['can_init'] );
@@ -106,8 +102,6 @@ class Blaze_Test extends BaseTestCase {
 
 	/**
 	 * Test that Blaze is not available to editors.
-	 *
-	 * @covers Automattic\Jetpack\Blaze::should_initialize
 	 */
 	public function test_editor_not_eligible() {
 		wp_set_current_user( $this->editor_id );
@@ -123,8 +117,6 @@ class Blaze_Test extends BaseTestCase {
 
 	/**
 	 * Tests if the post_row action is added for admins when we force Blaze to be enabled.
-	 *
-	 * @covers Automattic\Jetpack\Blaze::add_post_links_actions
 	 */
 	public function test_post_row_added() {
 		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
@@ -139,8 +131,6 @@ class Blaze_Test extends BaseTestCase {
 
 	/**
 	 * Test if the admin menu is added for admins when we force Blaze to be enabled.
-	 *
-	 * @covers Automattic\Jetpack\Blaze::enable_blaze_menu
 	 */
 	public function test_admin_menu_added() {
 		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
@@ -160,8 +150,6 @@ class Blaze_Test extends BaseTestCase {
 
 	/**
 	 * Test that we avoid enqueuing assets when Blaze is not enabled.
-	 *
-	 * @covers Automattic\Jetpack\Blaze::enqueue_block_editor_assets
 	 *
 	 * @dataProvider get_enqueue_scenarios
 	 *
@@ -201,8 +189,6 @@ class Blaze_Test extends BaseTestCase {
 	 * Test the different scenarios for Blaze eligibility.
 	 *
 	 * @dataProvider get_blaze_eligibility_responses
-	 *
-	 * @covers Automattic\Jetpack\Blaze::site_supports_blaze
 	 *
 	 * @param array $eligibility_details  Details about the site status and the expected response.
 	 * @param bool  $expected_eligibility The expected result of the Blaze eligibility check.
@@ -250,8 +236,6 @@ class Blaze_Test extends BaseTestCase {
 
 	/**
 	 * Different scenarios (pages, Blaze eligibility) to test if Blaze js is enqueued in the editor.
-	 *
-	 * @covers Automattic\Jetpack\Blaze::enqueue_block_editor_assets
 	 *
 	 * @return array
 	 */

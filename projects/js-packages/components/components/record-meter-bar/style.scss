@@ -11,16 +11,19 @@
 	}
 
 	&__legend {
+
 		&--items {
 			display: flex;
 			margin: 0;
 		}
+
 		&--item {
 			display: flex;
 			margin: 0;
 			margin-inline-end: 1em;
 			align-items: center;
 		}
+
 		&--item-circle {
 			width: 1rem;
 			height: 1rem;
@@ -28,9 +31,11 @@
 			margin-inline-end: 0.4em;
 			border-radius: 100%;
 		}
+
 		&--item-count {
 			margin-inline-end: 0.4em;
 		}
+
 		&--item-label-first {
 			margin-inline-end: 0.4em;
 		}

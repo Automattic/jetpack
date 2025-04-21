@@ -1,6 +1,7 @@
 @import '../../scss/calypso-colors';
 
 .dops-tooltip.dops-popover {
+
 	.dops-popover__arrow {
 		border-width: 6px;
 	}
@@ -8,6 +9,7 @@
 	&.is-bottom-right,
 	&.is-bottom-left,
 	&.is-bottom {
+
 		.dops-popover__arrow {
 			border-bottom-color: darken( $gray, 30% );
 			top: 4px;
@@ -19,18 +21,21 @@
 		}
 
 		&.is-error {
+
 			.dops-popover__arrow {
 				border-bottom-color: $alert-red;
 			}
 		}
 
 		&.is-warning {
+
 			.dops-popover__arrow {
 				border-bottom-color: $alert-yellow;
 			}
 		}
 
 		&.is-success {
+
 			.dops-popover__arrow {
 				border-bottom-color: $alert-green;
 			}
@@ -40,6 +45,7 @@
 	&.is-top,
 	&.is-top-left,
 	&.is-top-right {
+
 		.dops-popover__arrow {
 			border-top-color: darken( $gray, 30% );
 			bottom: 4px;
@@ -51,18 +57,21 @@
 		}
 
 		&.is-error {
+
 			.dops-popover__arrow {
 				border-top-color: $alert-red;
 			}
 		}
 
 		&.is-warning {
+
 			.dops-popover__arrow {
 				border-top-color: $alert-yellow;
 			}
 		}
 
 		&.is-success {
+
 			.dops-popover__arrow {
 				border-top-color: $alert-green;
 			}
@@ -71,6 +80,7 @@
 
 	&.is-top,
 	&.is-bottom {
+
 		.dops-popover__arrow {
 			margin-left: -6px;
 		}
@@ -79,6 +89,7 @@
 	&.is-left,
 	&.is-right {
 		padding-top: 0;
+
 		.dops-popover__arrow {
 			margin-top: -6px;
 
@@ -88,18 +99,21 @@
 		}
 
 		&.is-error {
+
 			.dops-popover__arrow {
 				border-right-color: $alert-red;
 			}
 		}
 
 		&.is-warning {
+
 			.dops-popover__arrow {
 				border-right-color: $alert-yellow;
 			}
 		}
 
 		&.is-success {
+
 			.dops-popover__arrow {
 				border-right-color: $alert-green;
 			}
@@ -107,6 +121,7 @@
 	}
 
 	&.is-left {
+
 		.dops-popover__arrow {
 			margin-right: 4px;
 			border-left-color: darken( $gray, 30% );
@@ -114,6 +129,7 @@
 	}
 
 	&.is-right {
+
 		.dops-popover__arrow {
 			margin-left: 4px;
 			border-right-color: darken( $gray, 30% );
@@ -132,18 +148,21 @@
 	}
 
 	&.is-error {
+
 		.dops-popover__inner {
 			background: $alert-red;
 		}
 	}
 
 	&.is-warning {
+
 		.dops-popover__inner {
 			background: $alert-yellow;
 		}
 	}
 
 	&.is-success {
+
 		.dops-popover__inner {
 			background: $alert-green;
 		}

@@ -11,6 +11,7 @@
 #zbs-normal-sortables.zbs-metaboxes {
     padding-top: 1em;
 }
+
 #side-sortables.zbs-metaboxes,
 #zbs-side-sortables.zbs-metaboxes {
     padding-top: 1em;
@@ -91,6 +92,7 @@
 		}
 
 	}
+
 	.zbs-metabox:hover {
     	cursor: move;
 	}
@@ -114,6 +116,7 @@
 		.caret.up.icon {
 			display:block;
 		}
+
 		.caret.down.icon {
 			display:none;
 		}
@@ -127,6 +130,7 @@
 
 	}
 }
+
 .zbs-metabox.zbs-minimised {
 
 	.zbs-metabox-minimise {
@@ -134,6 +138,7 @@
 		.caret.up.icon {
 			display:none;
 		}
+
 		.caret.down.icon {
 			display:block;
 		}

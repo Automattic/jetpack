@@ -23,11 +23,6 @@
 			margin-right:6px;
 
 		}
-
-		label {
-
-
-		}
 	}
 
 }
@@ -37,12 +32,14 @@
 	padding-top:0;
 	min-width:auto !important;
 }
+
 #zbs-settings-menu .branding.item {
 
 	text-align:center;
 	line-height: 20px;
     font-size: 1.2em;
     font-weight: 800;
+
 	img {
 
 	    max-width: 30px !important;
@@ -57,6 +54,7 @@
 	margin-bottom: -1em;
     padding: 0;
 }
+
 #zbs-settings-menu.ui.vertical.menu .item a.item.zbs-settings-head.active.item {
 	color: #2185D0 !important;
     background: rgba(0, 0, 0, 0);
@@ -84,6 +82,7 @@
 		max-width:200px;
 		clear:both;
 	}
+
 	.zbs-cf-type-autonumber-input-wrap {
 	    margin-bottom: 0.5em;
 
@@ -118,6 +117,7 @@
     opacity: 0.92;
     border-radius: 0.2em;
 }
+
 #zbs-migration-settings-notice {
     z-index: 10001;
     position: absolute;

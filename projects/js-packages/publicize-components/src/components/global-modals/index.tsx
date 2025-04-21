@@ -1,8 +1,7 @@
-import { getSocialScriptData } from '../../utils/script-data';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { features } from '../../utils/constants';
 import { ThemedShareStatusModal as ShareStatusModal } from '../share-status';
 
 export const GlobalModals = () => {
-	const { feature_flags } = getSocialScriptData();
-
-	return <>{ feature_flags.useShareStatus ? <ShareStatusModal /> : null }</>;
+	return <>{ siteHasFeature( features.SHARE_STATUS ) ? <ShareStatusModal /> : null }</>;
 };

@@ -1,6 +1,7 @@
 // Animation
 
 @keyframes pulse {
+
 	0% {
 		transform: scale( 1 );
 	}
@@ -63,6 +64,7 @@
 	}
 
 	&:not( .is-small ) {
+
 		> img {
 			border-radius: var( --jp-border-radius );
 		}
@@ -99,6 +101,7 @@
 	}
 
 	&.is-row {
+
 		.progress-bar {
 			max-width: 80px;
 		}

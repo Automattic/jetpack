@@ -16,6 +16,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-fallback.php
  * Test class for Jetpack_Sitemap_Buffer.
  *
  * @since 4.7.0
+ * @covers \Jetpack_Sitemap_Buffer
  */
 class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -23,7 +24,6 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	/**
 	 * Construct a new buffer.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::__construct
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -39,7 +39,6 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	/**
 	 * Add items to a buffer.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::append
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -59,7 +58,6 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	/**
 	 * New buffer is empty; buffer with items is not empty.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::is_empty()
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -73,7 +71,6 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	/**
 	 * Try to add an item to a buffer at item capacity.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::append
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -93,7 +90,6 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	/**
 	 * Try to add an item to a buffer at byte capacity.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::append
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -113,7 +109,6 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	/**
 	 * Try to add an item to a buffer which is below byte capacity, but item is too large.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::append
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -133,7 +128,6 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	/**
 	 * Buffer at item capacity is full.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::is_full
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -150,7 +144,6 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	/**
 	 * Buffer at byte capacity is full.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::is_full
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -167,7 +160,6 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	/**
 	 * Last modified time is given by constructor if we don't view any new times.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::last_modified
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -179,7 +171,6 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	/**
 	 * Last modified time updates if we view a more recent time.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::view_time
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -192,7 +183,6 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	/**
 	 * Last modified time does not update if we view a less recent time.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::view_time
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -205,7 +195,6 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	/**
 	 * Test array_to_xml_string with a real-life example of an array.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::array_to_xml_string
 	 * @group jetpack-sitemap
 	 * @since 5.1.0
 	 */

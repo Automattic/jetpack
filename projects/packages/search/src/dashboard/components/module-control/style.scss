@@ -1,4 +1,4 @@
-@import 'scss/_variables.scss';
+@import 'scss/variables';
 
 $color-button-background: $black;
 $color-button-text: $white;
@@ -24,7 +24,8 @@ $toggle-width: 3em;
 	}
 
 	&.jp-form-search-settings-group--disabled {
-		&:after {
+
+		&::after {
 			content: ' ';
 			position: absolute;
 			top: 0;
@@ -37,11 +38,14 @@ $toggle-width: 3em;
 }
 
 .jp-form-search-settings-group__toggle {
+
 	&.is-instant-search {
 		margin-top: 4em;
 	}
+
 	.jp-form-search-settings-group__toggle-container {
 		display: flex;
+
 		@include for-tablet-down {
 			justify-content: center;
 		}
@@ -52,6 +56,7 @@ $toggle-width: 3em;
 	font-size: 1.5em;
 	line-height: 1.167;
 	font-weight: 600;
+
 	span {
 		font-weight: 400;
 	}
@@ -100,6 +105,7 @@ p.jp-form-search-settings-group__toggle-explanation {
 	&.is-widgets-editor {
 		color: $color-button-background;
 		background: transparent;
+
 		&:disabled,
 		&[disabled] {
 			color: $color-button-text-disabled;
@@ -107,14 +113,16 @@ p.jp-form-search-settings-group__toggle-explanation {
 		}
 	}
 }
+
 .form-toggle.is-search-admin.is-compact {
+
 	+ .form-toggle__switch {
 		border-radius: calc( #{$toggle-height}/ 2 );
 		width: $toggle-width;
 		height: $toggle-height;
 
-		&:before,
-		&:after {
+		&::before,
+		&::after {
 			width: $toggle-dot-radius;
 			height: $toggle-dot-radius;
 			background-color: $black;
@@ -128,24 +136,25 @@ p.jp-form-search-settings-group__toggle-explanation {
 	}
 
 	&:checked {
+
 		+ .form-toggle__switch {
 			background: $color-plan;
 			border-color: $color-plan;
 
-			&:after {
+			&::after {
 				left: $toggle-height;
 				background-color: $white;
 			}
 		}
 	}
 
-	&.is-toggling + .form-toggle__switch:before,
-	&.is-toggling + .form-toggle__switch:after {
+	&.is-toggling + .form-toggle__switch::before,
+	&.is-toggling + .form-toggle__switch::after {
 		left: $toggle-height;
 	}
 
-	&.is-toggling:checked + .form-toggle__switch:before,
-	&.is-toggling:checked + .form-toggle__switch:after {
+	&.is-toggling:checked + .form-toggle__switch::before,
+	&.is-toggling:checked + .form-toggle__switch::after {
 		left: 0;
 	}
 }
@@ -169,17 +178,18 @@ p.jp-form-search-settings-group__toggle-explanation {
 
 	&:hover,
 	&:focus {
+
 		span:last-of-type {
 			text-decoration: underline;
 			text-decoration-thickness: $jp-underline-thickness;
 		}
 
-		&:after {
+		&::after {
 			transform: translateY( -50% ) translateX( 8px );
 		}
 	}
 
-	&:after {
+	&::after {
 		content: '→';
 		position: absolute;
 		top: 50%;

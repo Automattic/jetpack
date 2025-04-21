@@ -1,5 +1,5 @@
 import * as csstree from 'css-tree';
-import { AtRuleFilter, FilterSpec, PropertiesFilter } from './types.js';
+import { AtRuleFilter, FilterSpec, PropertiesFilter } from './types.ts';
 
 const validMediaTypes = [ 'all', 'print', 'screen', 'speech' ];
 const base64Pattern = /data:[^,]*;base64,/;

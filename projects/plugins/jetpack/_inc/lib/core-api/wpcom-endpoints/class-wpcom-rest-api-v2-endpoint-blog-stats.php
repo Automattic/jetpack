@@ -5,7 +5,9 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Stats\WPCOM_Stats;
+if ( ! class_exists( 'Jetpack_Blog_Stats_Helper' ) ) {
+	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-blog-stats-helper.php';
+}
 
 /**
  * Blog Stats block endpoint.
@@ -55,27 +57,27 @@ class WPCOM_REST_API_V2_Endpoint_Blog_Stats extends WP_REST_Controller {
 	 * @return array Blog stats.
 	 */
 	public function get_blog_stats( $request ) {
-		$wpcom_stats = new WPCOM_Stats();
-		$post_id     = $request->get_param( 'post_id' );
-		$post_data   = $wpcom_stats->convert_stats_array_to_object(
-			$wpcom_stats->get_post_views( $post_id, array( 'fields' => 'views' ) )
-		);
-		$blog_data   = $wpcom_stats->convert_stats_array_to_object(
-			$wpcom_stats->get_stats( array( 'fields' => 'stats' ) )
-		);
-
-		if ( ! isset( $blog_data->stats->views ) || ! isset( $blog_data->stats->visitors ) ) {
-			return false;
-		}
-
-		if ( ! isset( $post_data->views ) ) {
-			$post_data->views = 0;
-		}
+		$post_id = $request->get_param( 'post_id' );
 
 		return array(
-			'post-views'    => $post_data->views,
-			'blog-visitors' => $blog_data->stats->visitors,
-			'blog-views'    => $blog_data->stats->views,
+			'post-views'    => Jetpack_Blog_Stats_Helper::get_stats(
+				array(
+					'statsOption' => 'post',
+					'postId'      => $post_id,
+				)
+			),
+			'blog-visitors' => Jetpack_Blog_Stats_Helper::get_stats(
+				array(
+					'statsOption' => 'blog',
+					'statsData'   => 'visitors',
+				)
+			),
+			'blog-views'    => Jetpack_Blog_Stats_Helper::get_stats(
+				array(
+					'statsOption' => 'blog',
+					'statsData'   => 'views',
+				)
+			),
 		);
 	}
 }

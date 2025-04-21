@@ -21,6 +21,7 @@
 	}
 
 	&:hover {
+
 		& .icon {
 			transform: translateX( calc( var(--spacing-base) * 2 ) );
 		}
@@ -43,14 +44,15 @@
 
 .emojisPseudo {
 
-	&:after {
+	&::after {
 		font-size:xx-large;
 		content: "\01F600"; // 😀
 	}
 
 	&:hover,
 	&:focus {
-		&:after {
+
+		&::after {
 		content: "\01F60D"; // 😍
 		}
 	}

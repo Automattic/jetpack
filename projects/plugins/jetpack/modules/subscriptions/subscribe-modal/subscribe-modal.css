@@ -51,6 +51,7 @@ body.jetpack-subscribe-modal-open {
 }
 
 @media screen and (max-width: 640px) {
+
 	.jetpack-subscribe-modal__modal-content {
 		width: 94%;
 	}

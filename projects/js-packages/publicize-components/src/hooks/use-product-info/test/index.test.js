@@ -4,10 +4,12 @@ import useProductInfo from '..';
 jest.mock( '@wordpress/api-fetch', () => {
 	return jest.fn( () => {
 		return Promise.resolve( {
-			v1: {
-				currency_code: 'USD',
-				cost: 120,
-				introductory_offer: null,
+			social: {
+				pricing_for_ui: {
+					currency_code: 'USD',
+					full_price: 120,
+					introductory_offer: null,
+				},
 			},
 		} );
 	} );

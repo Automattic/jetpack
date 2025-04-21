@@ -10,7 +10,7 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-sta
 /**
  * Class for testing the Jetpack_Redux_State_Helper class.
  *
- * @coversDefaultClass Jetpack_Redux_State_Helper
+ * @covers \Jetpack_Redux_State_Helper
  */
 class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -44,8 +44,6 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 
 	/**
 	 * Tests whether get_initial_state() signals that the theme supports widgets.
-	 *
-	 * @covers ::get_initial_state
 	 */
 	public function test_theme_support_widgets() {
 		add_theme_support( 'widgets' );
@@ -56,8 +54,6 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 
 	/**
 	 * Tests whether get_initial_state() signals that the theme does not support widgets.
-	 *
-	 * @covers ::get_initial_state
 	 */
 	public function test_theme_do_not_support_widgets() {
 		_remove_theme_support( 'widgets' );

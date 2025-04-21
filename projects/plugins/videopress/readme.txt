@@ -84,26 +84,28 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 2.2 - 2025-01-10
+### 2.3 - 2025-04-07
 #### Added
-- Add tracks for connection banner
-- My Jetpack: Update the recommendations section in My Jetpack to include a slider interaction for the cards.
+- Add Account Protection initialization.
+- Add title to the attachment details view.
+- Connection: Disconnect all other users before disconnecting connection owner account.
+- Replace video embed with VideoPress block in Media & Text block.
+- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
+- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack.
 
 #### Changed
-- General: Indicate compatibility with the upcoming version of WordPress - 6.7.
-- Include `wp-polyfill` as a script dependency only when needed.
-- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation.
-- Social: Change My Jetpack CTA for Social from "Learn more" to "Activate".
-- Updated dependencies.
-- Updated package dependencies.
-
-#### Removed
-- Connection: Remove deprecated `features_available` method.
-- Connection: Remove deprecated `features_enabled` method.
-- General: Update minimum PHP version to 7.2.
-- General: Update minimum WordPress version to 6.6.
+- Code: Use function-style `exit()` and `die()` with a default status code of 0.
+- Connection: Allow pre-selected login providers.
+- Connection: Display connection status on Users page independent of the SSO module.
+- External Media: Move GooglePhotosMedia, OpenverseMedia, and PexelsMedia to `@automattic/jetpack-shared-extension-utils`.
+- General: Indicate compatibility with WordPress 6.8.
+- Update composer.lock
+- Update package dependencies.
+- Update the unowned section from a product grid to a product list.
 
 #### Fixed
-- E2E Tests: Only install single browser used by Playwright.
-- My Jetpack: Update GlobalNotice component to look better on mobile.
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls.
+- Ensure all files are uploaded when drag-and-dropped into editor.
+- Fix issue with VideoPress block with 0 height and width.
+- Ensure undo function works.
 

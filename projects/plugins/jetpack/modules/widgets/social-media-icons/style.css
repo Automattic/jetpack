@@ -15,7 +15,7 @@
 }
 
 .widget_wpcom_social_media_icons_widget .genericon {
-    font-family: 'Genericons';
+    font-family: Genericons;
 }
 
 .widget_wpcom_social_media_icons_widget .screen-reader-text {
@@ -37,7 +37,7 @@
     display: block;
     font-size: 14px;
     font-size: 0.875rem;
-    font-weight: bold;
+    font-weight: 700;
     height: auto;
     left: 5px;
     line-height: normal;

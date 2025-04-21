@@ -21,22 +21,27 @@
 }
 
 @keyframes inprogress {
+
 	0% {
 		opacity: 0;
 		transform: translateY( 24px );
 	}
+
 	20% {
 		opacity: 1;
 		transform: translateY( 0 );
 	}
+
 	50% {
 		opacity: 1;
 		transform: translateY( 0 );
 	}
+
 	60% {
 		opacity: 0;
 		transform: translateY( -48px );
 	}
+
 	100% {
 		opacity: 0;
 		transform: translateY( -48px );
@@ -44,6 +49,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
 	.inProgressAnimation__el {
 		animation: none;
 	}

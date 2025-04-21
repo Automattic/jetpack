@@ -2,13 +2,15 @@
 
 require_once __DIR__ . '/trait.http-request-cache.php';
 
+/**
+ * @covers ::vine_shortcode
+ */
 class Jetpack_Shortcodes_Vine_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::vine_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vine_exists() {
@@ -17,7 +19,6 @@ class Jetpack_Shortcodes_Vine_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::vine_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vine() {
@@ -30,7 +31,6 @@ class Jetpack_Shortcodes_Vine_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::vine_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vine_url() {
@@ -44,7 +44,6 @@ class Jetpack_Shortcodes_Vine_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::vine_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vine_inappropriate_url() {
@@ -58,7 +57,6 @@ class Jetpack_Shortcodes_Vine_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::vine_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vine_url_width_height() {
@@ -76,7 +74,6 @@ class Jetpack_Shortcodes_Vine_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::vine_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vine_url_postcard() {

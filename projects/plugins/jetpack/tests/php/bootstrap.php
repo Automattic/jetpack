@@ -105,6 +105,15 @@ require __DIR__ . '/lib/CallableMock.php';
 require __DIR__ . '/_inc/lib/mocks/simplepie.php';
 require $test_root . '/includes/functions.php';
 
+// Speed things up by turning down the password hashing cost.
+tests_add_filter(
+	'wp_hash_password_options',
+	function ( $options ) {
+		$options['cost'] = 4;
+		return $options;
+	}
+);
+
 /** Activates this plugin in WordPress so it can be tested. */
 function _manually_load_plugin() {
 	if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {

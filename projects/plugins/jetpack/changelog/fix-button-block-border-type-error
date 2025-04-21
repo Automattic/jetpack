@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Button Block: Prevent TypeError when handling border attributes.

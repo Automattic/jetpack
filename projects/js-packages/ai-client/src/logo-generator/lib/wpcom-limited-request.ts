@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import apiFetch from '../../api-fetch/index.js';
+import apiFetch from '../../api-fetch/index.ts';
 /**
  * Types
  */

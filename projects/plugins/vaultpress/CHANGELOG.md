@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## 4.0.1 - 2025-04-07
+### Changed
+- Code: First pass of style coding standards. [#42734]
+- Code: Use function-style `exit()` and `die()` with a default status code of 0. [#41167]
+- General: Indicate compatibility with WordPress 6.8. [#42701]
+- Update package dependencies. [#40980] [#41659] [#42180] [#42815]
+
+### Fixed
+- Code: Prevent dynamic class properties. [#41857]
+- Code: Remove extra params on function calls. [#41263]
+
 ## 4.0.0 - 2025-01-10
 ### Added
 - Enable test coverage. [#39961]

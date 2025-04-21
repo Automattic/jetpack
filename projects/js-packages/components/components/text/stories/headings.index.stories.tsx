@@ -1,7 +1,7 @@
 import React from 'react';
-import { H2, H3 } from '../index.js';
+import { H2, H3 } from '../index.tsx';
 import styles from './style.module.scss';
-import type { H3Props } from '../types.js';
+import type { H3Props } from '../types.ts';
 
 const TIPOGRAPHY_WEIGHTS: Array< H3Props[ 'weight' ] > = [ 'regular', 'bold' ];
 

@@ -18,9 +18,12 @@ const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginP
  * @return {import('react').JSX.Element} Post Publish Manual Sharing component.
  */
 export default function PostPublishManualSharing() {
-	const { isCurrentPostPublished } = useSelect( select => select( editorStore ), [] );
+	const isCurrentPostPublished = useSelect(
+		select => select( editorStore ).isCurrentPostPublished(),
+		[]
+	);
 
-	if ( ! isCurrentPostPublished() ) {
+	if ( ! isCurrentPostPublished ) {
 		return null;
 	}
 

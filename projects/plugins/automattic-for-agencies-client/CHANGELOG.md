@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.5.0 - 2025-04-03
+### Added
+- Add Account Protection initialization. [#40925]
+- Connection: Disconnect all other users before disconnecting connection owner account. [#41923]
+- Components: Export the `getRedirectUrl` function with subpath. [#41078]
+
+### Changed
+- Code: Use function-style `exit()` and `die()` with a default status code of 0. [#41167]
+- Connection: Allow pre-selected login providers. [#42662]
+- Connection: Display connection status on Users page independent of the SSO module. [#41794]
+- General: Indicate compatibility with WordPress 6.8. [#42701]
+- Update dependencies. [#42564]
+- Updated package dependencies. [#40980] [#41099] [#41286] [#41491] [#41577] [#41659] [#42163] [#42180] [#42384] [#42511] [#42809] [#42815]
+
 ## 0.4.0 - 2025-01-09
 ### Changed
 - Updated dependencies. [#40286]

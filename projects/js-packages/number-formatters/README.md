@@ -9,7 +9,7 @@ Internally, the package calls a formatter closure/factory that returns methods f
 ```typescript
 import { setLocale, formatNumber } from '@automattic/number-formatters';
 
-setLocale( 'de' );
+setLocale( 'de' ); // See notes below about locale state
 formatNumber( 1000 ); // Returns "1.000"
 
 setLocale( 'en' );
@@ -17,6 +17,17 @@ formatNumber( 1000 ); // Returns "1,000"
 ```
 
 In a future version, we may expose the internal methods/formatters that accept a `locale` parameter instead. See `Dev/Setup` notes below.
+
+### Notes: On locale state / `setLocale`
+
+The package exports a `setLocale` method (see "Methods" below), which allows for setting the locale variable used for localising the numbers. There is a fallback chain for a default value, which may suffice for many cases (hence not needing to set this manually in the code through `setLocale`).
+The fallback locale is defined as either/or:
+
+1. the current WordPress user locale, if available through `@wordpress/date` settings (assuming this runs in a WordPress context). Note that this is derived from **user settings**, not the site's.
+2. the browser's locale, if available through `window.navigator.language`
+3. an internal fallback locale constant (`en` - may be switched to `en-US`)
+
+If the locale is set through a call to `setLocale`, then that will obviously take precedence.
 
 ## Methods
 

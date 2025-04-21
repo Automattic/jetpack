@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Brute Force Protection: properly handle unexpected parameter types from third-party plugins during login failure processing.
