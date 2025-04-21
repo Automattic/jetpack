@@ -528,15 +528,15 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 					'description'    => wp_kses(
 						sprintf(
 						/* translators: %1$s: Link to 'featured' admin tag view. %2$s: Max number of posts shown by theme in featured content area. */
-							__( 'Easily feature all posts with the <a href="%1$s">"featured" tag</a> or a tag of your choice. Your theme supports up to %2$s posts in its featured content area.<p>Please note: The featured tag name is case sensitive.</p>', 'jetpack-classic-theme-helper' ),
+							__( 'Easily feature all posts with the <a href="%1$s">"featured" tag</a> or a tag of your choice. Your theme supports up to %2$s posts in its featured content area.<br><br>Please note: The featured tag name is case sensitive.', 'jetpack-classic-theme-helper' ),
 							esc_url( admin_url( '/edit.php?tag=featured' ) ),
 							absint( self::$max_posts )
 						),
 						array(
-							'a' => array(
+							'a'  => array(
 								'href' => array(),
 							),
-							'p' => array(),
+							'br' => array(),
 						)
 					),
 					'priority'       => 130,
