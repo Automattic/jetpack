@@ -18,8 +18,6 @@ const getIsEnabledForForm = ( key, integration, blockAttributes ) => {
 			return (
 				integration.isActive && integration.details?.hasExtension && blockAttributes.jetpackCRM
 			);
-		case 'creative-mail-by-constant-contact':
-			return integration.isActive && integration.isConnected;
 		default:
 			return false;
 	}
