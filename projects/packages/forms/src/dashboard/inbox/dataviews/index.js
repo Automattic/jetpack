@@ -146,7 +146,7 @@ export default function InboxView() {
 				 */
 				fields: Object.entries( record.fields || {} ).reduce( ( accumulator, [ key, value ] ) => {
 					let _key = formatFieldName( key );
-					let counter = 1;
+					let counter = 2;
 					while ( accumulator[ _key ] ) {
 						_key = `${ formatFieldName( key ) } (${ counter })`;
 						counter++;
