@@ -15,6 +15,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Modules;
 use Jetpack;
+use Jetpack_Gutenberg;
 
 /**
  * Contact Form block render callback.
@@ -199,20 +200,13 @@ class Contact_Form_Block {
 			'jetpack/field-file',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
-				// See https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#paid-blocks
-				'plan_check'      => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
 			)
 		);
 
-		// We only need to enable the jetpack_block_editor_enable_upgrade_nudge filter if the plan check is true
-		// This way, packages/blocks/src/class-blocks.php:101 handles the availability method (set_availability_for_plan or set_extension_available)
-		// TODO: once we remove the featire filter, we can just set upgrade nudge filter to return true.
 		add_action(
 			'jetpack_register_gutenberg_extensions',
 			function () {
-				if ( apply_filters( 'jetpack_unauth_file_upload_plan_check', true ) ) {
-					add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
-				}
+				Jetpack_Gutenberg::set_availability_for_plan( 'field-file' );
 			}
 		);
 	}
