@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack_Upcoming_Events_Widget: Fix warning when `$event['SUMMARY']` does not exist

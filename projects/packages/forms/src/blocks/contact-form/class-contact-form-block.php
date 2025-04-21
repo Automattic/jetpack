@@ -329,7 +329,7 @@ class Contact_Form_Block {
 	 * This is only useful when the Contact Form package is used within the Jetpack plugin,
 	 * where the module logic exists.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.49.0
 	 *
 	 * @return bool
 	 */
@@ -338,7 +338,7 @@ class Contact_Form_Block {
 			/**
 			 * Allow third-parties to override the form block's visibility.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.49.0
 			 *
 			 * @module contact-form
 			 *
