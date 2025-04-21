@@ -536,7 +536,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 							'a' => array(
 								'href' => array(),
 							),
-							'p' => array(), // Allow paragraph tags
+							'p' => array(),
 						)
 					),
 					'priority'       => 130,
@@ -557,7 +557,6 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 					'sanitize_js_callback' => array( __CLASS__, 'delete_transient' ),
 				)
 			);
-
 			$wp_customize->add_setting(
 				'featured-content[hide-tag]',
 				array(
