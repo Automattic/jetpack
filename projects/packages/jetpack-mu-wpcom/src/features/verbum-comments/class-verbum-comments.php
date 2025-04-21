@@ -127,7 +127,11 @@ class Verbum_Comments {
 	 * Enqueue Assets
 	 */
 	public function enqueue_assets() {
-		if ( ! $this->should_enqueue_assets ) {
+		if (
+			! ( is_singular() && comments_open() )
+			&& ! ( is_front_page() && is_page() && comments_open() )
+			&& ! $this->should_enqueue_assets
+		) {
 			return;
 		}
 

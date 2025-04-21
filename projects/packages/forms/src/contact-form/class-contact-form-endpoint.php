@@ -436,7 +436,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						$file_id         = absint( $file['file_id'] );
 						$file['file_id'] = $file_id;
 						$file['size']    = size_format( $file['size'] );
-						$file['url']     = \apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
+						$file['url']     = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
 						$has_file        = true;
 					}
 				}

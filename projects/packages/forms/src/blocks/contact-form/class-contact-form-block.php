@@ -276,11 +276,13 @@ class Contact_Form_Block {
 		);
 
 		// Create a Contact_Form instance to get the default values
+		$dashboard_view_switch   = new Dashboard_View_Switch();
 		$contact_form            = new Contact_Form( array() );
 		$defaults                = $contact_form->defaults;
-		$admin_url               = ( new Dashboard_View_Switch() )->get_forms_admin_url( 'spam' );
+		$admin_url               = $dashboard_view_switch->get_forms_admin_url( 'spam' );
 		$akismet_active_with_key = Jetpack::is_akismet_active();
 		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
+		$preferred_view          = $dashboard_view_switch->get_preferred_view();
 
 		$data = array(
 			'defaults' => array(
@@ -291,6 +293,7 @@ class Contact_Form_Block {
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
 				'isFormModalEnabled'   => true, // Disable or enable integrations modal and use sidebar panels instead
+				'preferredView'        => $preferred_view,
 			),
 		);
 
