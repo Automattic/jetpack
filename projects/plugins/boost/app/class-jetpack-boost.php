@@ -233,12 +233,12 @@ class Jetpack_Boost {
 		 * Check what modules are already active (from a previous activation for example).
 		 * If there are active modules, we need to ensure each module-related event is triggered again.
 		 */
-		$active_modules = $modules_setup->get_ready_active_optimization_modules();
+		$active_modules = $modules_setup->get_status();
 		if (
 			! empty( $active_modules )
 			&& ( new Connection() )->is_connected()
 		) {
-			foreach ( $active_modules as $module ) {
+			foreach ( $active_modules as $module => $status ) {
 				$modules_setup->on_module_status_update( $module, true );
 			}
 		}

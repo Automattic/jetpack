@@ -73,6 +73,11 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 		return $working_modules;
 	}
 
+	/**
+	 * Get the status of all available modules and submodules.
+	 *
+	 * @return array<string, bool> Slugs of modules and their status.
+	 */
 	public function get_status() {
 		$status = array();
 		foreach ( $this->get_available_modules_and_submodules() as $slug => $module ) {
