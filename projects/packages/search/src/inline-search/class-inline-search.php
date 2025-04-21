@@ -98,7 +98,6 @@ class Inline_Search extends Classic_Search {
 		// Add filters to display highlighted content
 		add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
 		add_filter( 'the_content', array( $this, 'filter_highlighted_content' ), 10, 1 );
-		add_filter( 'get_the_excerpt', array( $this, 'filter_highlighted_excerpt' ), 10, 2 );
 		add_filter( 'comment_text', array( $this, 'filter_highlighted_comment' ), 10, 2 );
 	}
 
@@ -197,30 +196,6 @@ class Inline_Search extends Classic_Search {
 		}
 
 		return $content;
-	}
-
-	/**
-	 * Filter the post excerpt to show highlighted version.
-	 *
-	 * @param string $excerpt The post excerpt.
-	 * @param int    $post_id The post ID.
-	 * @return string The filtered excerpt.
-	 */
-	public function filter_highlighted_excerpt( $excerpt, $post_id = 0 ) {
-		if ( 0 === $post_id ) {
-			$post_id = get_the_ID();
-		}
-
-		// Only process if this is one of our search results
-		if ( ! $this->is_search_result( $post_id ) ) {
-			return $excerpt;
-		}
-
-		if ( ! empty( $this->highlighted_content[ $post_id ]['excerpt'] ) ) {
-			return $this->highlighted_content[ $post_id ]['excerpt'];
-		}
-
-		return $excerpt;
 	}
 
 	/**
@@ -442,7 +417,6 @@ class Inline_Search extends Classic_Search {
 			'fields'    => array(
 				'title',
 				'content',
-				'excerpt',
 				'comments',
 			),
 		);
@@ -452,7 +426,6 @@ class Inline_Search extends Classic_Search {
 			'post_id',
 			'title',
 			'content',
-			'excerpt',
 			'comments',
 		);
 
@@ -621,13 +594,11 @@ class Inline_Search extends Classic_Search {
 		// Check for data in various highlight field formats.
 		$title    = $this->extract_highlight_field( $result, 'title' );
 		$content  = $this->extract_highlight_field( $result, 'content' );
-		$excerpt  = $this->extract_highlight_field( $result, 'excerpt' );
 		$comments = $this->extract_highlight_field( $result, 'comments' );
 
 		$this->highlighted_content[ $post_id ] = array(
 			'title'    => $title,
 			'content'  => $content,
-			'excerpt'  => $excerpt,
 			'comments' => $comments,
 		);
 
