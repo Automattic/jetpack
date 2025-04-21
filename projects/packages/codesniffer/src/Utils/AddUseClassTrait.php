@@ -54,6 +54,8 @@ trait AddUseClassTrait {
 
 		$tokens = $phpcsFile->getTokens();
 
+		$nlStart = '';
+
 		// @phan-suppress-next-line PhanAccessMethodInternal
 		if ( Cache::isCached( $phpcsFile, __METHOD__, $nsinfo['nsptr'] ?? '' ) ) {
 			// @phan-suppress-next-line PhanAccessMethodInternal
@@ -69,7 +71,9 @@ trait AddUseClassTrait {
 				$lastUse = $idx;
 			}
 
-			$data = array();
+			$data             = array();
+			$data['eolStart'] = "\n";
+			$data['eolEnd']   = '';
 			if ( $lastUse !== null ) {
 				$data['useInsertPos'] = $phpcsFile->findEndOfStatement( $lastUse );
 				$data['useIndent']    = '';
@@ -115,14 +119,16 @@ trait AddUseClassTrait {
 					$data['useIndent']    = '';
 				}
 
-				// When we do this, insert an extra newline.
-				$statement .= $phpcsFile->eolChar;
+				// When we do this, the newline goes at the end rather than the start. Except the first time through, when we need both.
+				$nlStart          = $phpcsFile->eolChar;
+				$data['eolStart'] = '';
+				$data['eolEnd']   = $phpcsFile->eolChar;
 			}
 
 			// @phan-suppress-next-line PhanAccessMethodInternal
 			Cache::set( $phpcsFile, __METHOD__, $nsinfo['nsptr'] ?? '', $data );
 		}
 
-		return $phpcsFile->fixer->addContent( $data['useInsertPos'], $phpcsFile->eolChar . $data['useIndent'] . $statement );
+		return $phpcsFile->fixer->addContent( $data['useInsertPos'], $nlStart . $data['eolStart'] . $data['useIndent'] . $statement . $data['eolEnd'] );
 	}
 }
