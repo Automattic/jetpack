@@ -17,7 +17,7 @@ import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/useInt
  */
 export default function IntegrationControls( { attributes, setAttributes } ) {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const { integrations, refreshIntegrations } = useIntegrationsStatus();
+	const { integrations, refreshIntegrations } = useIntegrationsStatus( attributes );
 	const { tracks } = useAnalytics();
 
 	const handleOpenModal = entry_point => {
