@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class RemoveDocBlockIfEmptyTraitTest extends TestCase {
 
 	/**
+	 * @dataProvider provideRemoveDocBlockIfEmpty
 	 * @param string                                     $content File content to test with.
 	 * @param array{string|int,string|null,int,string}[] $toReplace Tokens to replace before running the function.
 	 * @param string                                     $expect Expected fixed content.
