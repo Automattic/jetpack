@@ -16,6 +16,7 @@ export {
 	getUsableBlockProps,
 } from './src/plan-utils';
 export { default as isCurrentUserConnected } from './src/is-current-user-connected';
+export { default as isAdminConnected } from './src/is-admin-connected';
 export { default as useAnalytics } from './src/hooks/use-analytics';
 export { default as useAutosaveAndRedirect } from './src/hooks/use-autosave-and-redirect';
 export * from './src/hooks/use-plan-type';
