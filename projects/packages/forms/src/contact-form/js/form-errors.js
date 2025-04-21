@@ -64,7 +64,6 @@ export const clearInputError = ( input, opts ) => {
 	const inputErrors = form.querySelectorAll( '.contact-form__input-error' );
 	const mainErrorDiv = form.querySelector( '.contact-form__error' );
 	if ( mainErrorDiv && inputErrors.length === 0 ) {
-		mainErrorDiv.replaceChildren();
 		mainErrorDiv.remove();
 	}
 };
