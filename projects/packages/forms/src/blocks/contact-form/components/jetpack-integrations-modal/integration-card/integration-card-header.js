@@ -18,7 +18,7 @@ const IntegrationCardHeader = ( {
 		isConnected,
 		type,
 		showHeaderToggle,
-		headerToggleValue,
+		isEnabledForForm,
 		isHeaderToggleEnabled,
 		onHeaderToggleChange,
 	} = cardData;
@@ -91,10 +91,10 @@ const IntegrationCardHeader = ( {
 						/>
 					) }
 					{ ( isActive || isConnected ) && showHeaderToggle && (
-						<Tooltip text={ getTooltipText( headerToggleValue ) }>
+						<Tooltip text={ getTooltipText( isEnabledForForm ) }>
 							<span className="integration-card__toggle-tooltip-wrapper">
 								<ToggleControl
-									checked={ headerToggleValue }
+									checked={ isEnabledForForm }
 									onChange={ handleToggleChange }
 									disabled={ ! isHeaderToggleEnabled }
 								/>
