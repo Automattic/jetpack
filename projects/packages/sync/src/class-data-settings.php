@@ -36,6 +36,7 @@ class Data_Settings {
 			'wp_get_environment_type'           => 'wp_get_environment_type',
 			'wp_max_upload_size'                => 'wp_max_upload_size',
 			'wp_version'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+			'jetpack_sync_active_modules'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_sync_active_modules' ),
 		),
 		'jetpack_sync_constants_whitelist' => array(
 			'ABSPATH',

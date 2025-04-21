@@ -4,7 +4,11 @@ import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
 import InspectorHint from '../components/inspector-hint';
 
-const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;
+const preferredView = window?.jpFormsBlocks?.defaults?.preferredView;
+
+const RESPONSES_PATH =
+	get( getJetpackData(), 'adminUrl', false ) +
+	( preferredView === 'classic' ? 'edit.php?post_type=feedback' : 'admin.php?page=jetpack-forms' );
 
 const JetpackManageResponsesSettings = () => {
 	return (
