@@ -28,6 +28,34 @@ class SVG_Sanitizer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test SVG with xmlns attribute
+	 */
+	public function test_svg_with_xmlns_attribute() {
+		$sanitizer = new SVG_Sanitizer();
+		$input     = '<svg xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" /></svg>';
+		$expected  = '<svg xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" /></svg>';
+		$this->assertSame( $expected, $sanitizer->remove_disallowed_tags_and_content( $input ) );
+	}
+
+	/**
+	 * Test SVG with polygon element with attributes.
+	 */
+	public function test_svg_with_polygon_element_with_attributes() {
+		$sanitizer = new SVG_Sanitizer();
+		$input     = '<svg><polygon points="50 50 100 100 100 50" fill="red" /></svg>';
+		$expected  = '<svg><polygon points="50 50 100 100 100 50" fill="red" /></svg>';
+		$this->assertSame( $expected, $sanitizer->remove_disallowed_tags_and_content( $input ) );
+	}
+
+	/** Test SVG with xmlns and polygon element with attributes, using single quotes */
+	public function test_svg_with_xmlns_and_polygon_element_with_attributes_using_single_quotes() {
+		$sanitizer = new SVG_Sanitizer();
+		$input     = "<svg xmlns='http://www.w3.org/2000/svg'><polygon points='50 50 100 100 100 50' fill='red' /></svg>";
+		$expected  = "<svg xmlns='http://www.w3.org/2000/svg'><polygon points='50 50 100 100 100 50' fill='red' /></svg>";
+		$this->assertSame( $expected, $sanitizer->remove_disallowed_tags_and_content( $input ) );
+	}
+
+	/**
 	 * Test SVG with disallowed script elements
 	 */
 	public function test_svg_with_disallowed_script() {
