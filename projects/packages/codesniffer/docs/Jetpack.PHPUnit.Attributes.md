@@ -30,7 +30,7 @@ Not fixable by phpcbf:
   * Note heredocs and nowdocs are not currently supported, and constants cannot be supported as phpcs cannot determine the correct value to check for a matching annotation.
 * `AttributeNonStaticClassParameter`: Attribute `%s` parameter `%s` uses `%s::class`, which this sniff cannot process.
 * `InvalidAnnotation`: Failed to parse `%s` annotation.
-* `InvalidAttribute`: Attribute `%s` requires a boolean value for its `%s` parameter.
+* `InvalidAttribute`: Attribute `%s` requires a boolean value (`true` or `false`) for its `%s` parameter. Assuming `%s` here.
   * Note the attribute will still be processed. Common falsey values `null`, `0`, `""`, `''`, `"0"`, and `'0'` are recognized as such. Everything else, including falsey values such as `0x0`, are assumed to be true.
     Those unrecognized falsey values may result in spurious `AnnotationFoundMissingAttribute`, `AttributeFoundMissingAnnotation`, or `RedundantAnnotationFound` messages/fixes.
 * `UselessAnnotation`: Annotation has no effect. To work, it must be `@%s enabled`.

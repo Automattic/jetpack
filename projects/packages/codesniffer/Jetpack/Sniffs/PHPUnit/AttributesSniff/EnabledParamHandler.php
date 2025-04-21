@@ -45,33 +45,25 @@ class EnabledParamHandler extends GenericHandler {
 			return null;
 		}
 
-		switch ( strtolower( $data['params'][1]['clean'] ) ) {
+		$value = strtolower( $data['params'][1]['clean'] );
+		switch ( $value ) {
 			case 'true':
 				return 1;
 			case 'false':
 				return 0;
-			case 'null':
-			case '0': // @phan-suppress-current-line PhanPluginDuplicateSwitchCaseLooseEquality -- https://github.com/phan/phan/issues/3659
-			case '""': // @phan-suppress-current-line PhanPluginDuplicateSwitchCaseLooseEquality -- https://github.com/phan/phan/issues/3659
-			case "''": // @phan-suppress-current-line PhanPluginDuplicateSwitchCaseLooseEquality -- https://github.com/phan/phan/issues/3659
-			case '"0"': // @phan-suppress-current-line PhanPluginDuplicateSwitchCaseLooseEquality -- https://github.com/phan/phan/issues/3659
-			case "'0'": // @phan-suppress-current-line PhanPluginDuplicateSwitchCaseLooseEquality -- https://github.com/phan/phan/issues/3659
-				$phpcsFile->addError(
-					'Attribute `%s` requires a boolean value for its `$enabled` parameter.',
-					$data['ptr'],
-					'InvalidAttribute',
-					array( preg_replace( '!.*\\\\!', '', $data['name'] ) )
-				);
-				return 0;
 			default:
-				$phpcsFile->addError(
-					'Attribute `%s` requires a boolean value for its `$enabled` parameter.',
+				$value = match ( $value ) {
+					'null', '0', '""', "''", '"0"', "'0'" => false,
+					// Still some possible falsey values (empty array and other numeric zeros), but it's not worth worrying about.
+					default => true,
+				};
+				$phpcsFile->addWarning(
+					'Attribute `%s` requires a boolean value (`true` or `false`) for its `$enabled` parameter. Assuming `%s` here.',
 					$data['ptr'],
 					'InvalidAttribute',
-					array( preg_replace( '!.*\\\\!', '', $data['name'] ) )
+					array( preg_replace( '!.*\\\\!', '', $data['name'] ), $value ? 'true' : 'false' )
 				);
-				// Still some possible falsey values (empty array and other numeric zeros), but it's not worth worrying about.
-				return 1;
+				return (int) $value;
 		}
 	}
 
