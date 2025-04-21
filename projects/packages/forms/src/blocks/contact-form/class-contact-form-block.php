@@ -211,7 +211,7 @@ class Contact_Form_Block {
 			'jetpack_register_gutenberg_extensions',
 			function () {
 				if ( apply_filters( 'jetpack_unauth_file_upload_plan_check', true ) ) {
-						add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
+					add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 				}
 			}
 		);
