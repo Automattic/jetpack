@@ -20,8 +20,8 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 	const { integrations, refreshIntegrations } = useIntegrationsStatus();
 	const { tracks } = useAnalytics();
 
-	const handleOpenModal = () => {
-		tracks.recordEvent( 'jetpack_forms_block_modal_view' );
+	const handleOpenModal = entry_point => {
+		tracks.recordEvent( 'jetpack_forms_block_modal_view', { entry_point } );
 		setIsModalOpen( true );
 	};
 
@@ -32,14 +32,22 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 				className="jetpack-contact-form__integrations-panel"
 				initialOpen={ false }
 			>
-				<Button variant="secondary" onClick={ handleOpenModal } __next40pxDefaultSize={ true }>
+				<Button
+					variant="secondary"
+					onClick={ () => handleOpenModal( 'block-sidebar' ) }
+					__next40pxDefaultSize={ true }
+				>
 					{ __( 'Manage integrations', 'jetpack-forms' ) }
 				</Button>
 			</PanelBody>
 
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton icon={ plugins } onClick={ handleOpenModal } style={ { paddingLeft: 0 } }>
+					<ToolbarButton
+						icon={ plugins }
+						onClick={ () => handleOpenModal( 'block-toolbar' ) }
+						style={ { paddingLeft: 0 } }
+					>
 						{ __( 'Integrations', 'jetpack-forms' ) }
 					</ToolbarButton>
 				</ToolbarGroup>
