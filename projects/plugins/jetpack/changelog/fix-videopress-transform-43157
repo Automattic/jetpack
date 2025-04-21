@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: avoid displaying an invitation to transform a block into a VideoPress block for non-supported Video blocks.
