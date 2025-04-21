@@ -1123,7 +1123,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 	protected function should_load_theme_functions( $post_id = null ) {
 		if ( empty( $post_id ) ) {
 			$input = $this->input( true );
-			$type  = $input['type'];
+			$type  = $input['type'] ?? null;
 		} else {
 			$type = get_post_type( $post_id );
 		}
