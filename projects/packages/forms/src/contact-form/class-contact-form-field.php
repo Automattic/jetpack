@@ -209,7 +209,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function validate() {
 		$field_type = $this->maybe_override_type();
-
 		// If it's not required, there's nothing to validate
 		if ( ! $this->get_attribute( 'required' ) || ! $this->is_field_renderable( $field_type ) ) {
 			return;
@@ -258,6 +257,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				if ( ! is_numeric( $field_value ) ) {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires a number', 'jetpack-forms' ), $field_label ) );
+				}
+				break;
+			case 'file':
+				// Make sure the file field is not empty
+				if ( ! is_array( $field_value ) || empty( $field_value[0] ) ) {
+					/* translators: %s is the name of a form field */
+					$this->add_error( sprintf( __( '%s requires a file to be uploaded.', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			default:
@@ -469,13 +475,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param array  $extra_attrs Array of key/value pairs to append as attributes to the element.
+	 * @param bool   $always_render - if the label should always be shown.
 	 *
 	 * @return string HTML
 	 */
-	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array() ) {
+	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array(), $always_render = false ) {
 		$form_style = $this->get_form_style();
 
-		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
+		if ( ! empty( $form_style ) && $form_style !== 'default' && ! $always_render ) {
 			return '';
 		}
 
@@ -800,24 +807,36 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$this->enqueue_file_field_assets();
 
 		// Get allowed MIME types for display in the field.
-		$accepted_file_types = implode(
-			', ',
+		$accepted_file_types = array_values(
 			array(
-				'image/jpeg',
-				'image/gif',
-				'image/png',
-				'image/webp',
-				'application/pdf',
-				'application/msword',
-				'application/vnd.ms-excel',
-				'application/vnd.ms-powerpoint',
-				'text/plain',
-				'text/csv',
-				'text/calendar',
-				'text/css',
-				'text/html',
+				'jpg|jpeg|jpe'    => 'image/jpeg',
+				'png'             => 'image/png',
+				'gif'             => 'image/gif',
+				'pdf'             => 'application/pdf',
+				'doc'             => 'application/msword',
+				'docx'            => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+				'docm'            => 'application/vnd.ms-word.document.macroEnabled.12',
+				'pot|pps|ppt'     => 'application/vnd.ms-powerpoint',
+				'pptx'            => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+				'pptm'            => 'application/vnd.ms-powerpoint.presentation.macroEnabled.12',
+				'odt'             => 'application/vnd.oasis.opendocument.text',
+				'ppsx'            => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
+				'ppsm'            => 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
+				'xla|xls|xlt|xlw' => 'application/vnd.ms-excel',
+				'xlsx'            => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+				'xlsm'            => 'application/vnd.ms-excel.sheet.macroEnabled.12',
+				'xlsb'            => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
+				'key'             => 'application/vnd.apple.keynote',
+				'webp'            => 'image/webp',
+				'heic'            => 'image/heic',
+				'heics'           => 'image/heic-sequence',
+				'heif'            => 'image/heif',
+				'heifs'           => 'image/heif-sequence',
+				'asc'             => 'application/pgp-keys',
 			)
 		);
+
+		$accept_attribute_value = implode( ', ', $accepted_file_types );
 
 		// Add accessibility attributes and required status if needed.
 		$input_attrs = array(
@@ -825,7 +844,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'class'      => 'jetpack-form-file-field ' . esc_attr( $class ),
 			'name'       => esc_attr( $id ),
 			'id'         => esc_attr( $id ),
-			'accept'     => esc_attr( $accepted_file_types ),
+			'accept'     => esc_attr( $accept_attribute_value ),
 			'aria-label' => esc_attr( $label ),
 		);
 
@@ -834,9 +853,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$input_attrs['aria-required'] = 'true';
 		}
 
-		$max_files = empty( $this->get_attribute( 'maxfiles' ) ) ? 1 : $this->get_attribute( 'maxfiles' ); // max number of files.
-
-		$max_file_size   = wp_max_upload_size();
+		$max_files       = empty( $this->get_attribute( 'maxfiles' ) ) ? 1 : $this->get_attribute( 'maxfiles' ); // max number of files.
+		$max_file_size   = 20 * 1024 * 1024; // 20MB
 		$file_size_units = array(
 			_x( 'B', 'unit symbol', 'jetpack-forms' ),
 			_x( 'KB', 'unit symbol', 'jetpack-forms' ),
@@ -844,17 +862,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			_x( 'GB', 'unit symbol', 'jetpack-forms' ),
 		);
 
-		/**
-		 * Filters the upload token for the file field.
-		 *
-		 * @since 0.45.0
-		 *
-		 * @param string $upload_token Default empty token.
-		 */
-		$upload_token = apply_filters( 'jetpack_forms_file_upload_token', '' );
-
 		$global_config = array(
-			'i18n'        => array(
+			'i18n'     => array(
 				'language'           => get_bloginfo( 'language' ),
 				'fileSizeUnits'      => $file_size_units,
 				'zeroBytes'          => __( '0 Bytes', 'jetpack-forms' ),
@@ -864,9 +873,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_file_size ) ),
 				'invalidType'        => __( 'This file type is not allowed.', 'jetpack-forms' ),
 				'maxFiles'           => __( 'You have exeeded the number of files that you can upload.', 'jetpack-forms' ),
+				'uploadFailed'       => __( 'File upload failed, try again.', 'jetpack-forms' ),
 			),
-			'endpoint'    => $this->get_unauth_endpoint_url(),
-			'uploadToken' => $upload_token,
+			'endpoint' => $this->get_unauth_endpoint_url(),
 		);
 
 		wp_interactivity_config( 'jetpack/field-file', $global_config );
@@ -881,10 +890,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'hasMaxFiles'      => false,
 		);
 
-		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text );
+		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true );
+
 		ob_start();
 		?>
 		<div
+			class="jetpack-form-file-field__container"
+			id="<?php echo esc_attr( $id ); ?>"
+			name="dropzone-<?php echo esc_attr( $id ); ?>"
 			data-wp-interactive="jetpack/field-file"
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
 			<?php echo wp_interactivity_data_wp_context( $context ); ?>
@@ -892,23 +905,22 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			data-wp-on--dragleave="actions.dragLeave"
 			data-wp-on--mouseleave="actions.dragLeave"
 			data-wp-on--drop="actions.fileDropped"
+			data-is-required="<?php echo esc_attr( $required ); ?>"
 		>
-			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
+			<div class="jetpack-form-file-field__dropzone"  data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
 				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker"></div>
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
 				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
 				<input
-					id="<?php echo esc_attr( $id ); ?>"
 					type="file" class="jetpack-form-file-field"
-					accept="<?php echo esc_attr( $accepted_file_types ); ?>"
+					accept="<?php echo esc_attr( $accept_attribute_value ); ?>"
 					<?php echo ( (int) $max_files > 1 ? 'multiple="multiple"' : '' ); ?>
 					data-wp-on--change="actions.fileAdded"  />
 			</div>
-			<div class="jetpack-form-file-field__preview-wrap" data-wp-class--is-active="state.hasFiles">
+			<div class="jetpack-form-file-field__preview-wrap" name="file-field-<?php echo esc_attr( $id ); ?>" data-wp-class--is-active="state.hasFiles">
 				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
-					<div class="jetpack-form-file-field__preview" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.hasToken">
-						<input type="hidden" name="<?php echo esc_attr( $id ); ?>_token[]" data-wp-bind--value='context.file.token' value="">
-
+					<div class="jetpack-form-file-field__preview" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.isUploaded">
+						<input type="hidden" name="<?php echo esc_attr( $id ); ?>[]" class="jetpack-form-file-field__hidden" data-wp-bind--value='context.file.fileJson' value="">
 						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress">
 							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
 							<div class="jetpack-form-file-field__progress-bar" ></div>
@@ -916,7 +928,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 						<div class="jetpack-form-file-field__file-wrap">
 							<strong class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></strong>
-							<div class="jetpack-form-file-field__file-info">
+							<div class="jetpack-form-file-field__file-info" date-wp-class--is-error="context.file.error" data-wp-class--is-complete="context.file.file_id">
 								<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
 								<span class="jetpack-form-file-field__seperator"> &middot; </span>
 								<span class="jetpack-form-file-field__uploading"><?php esc_html_e( 'Uploading...', 'jetpack-forms' ); ?></span>
@@ -970,10 +982,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return '#jetpack-not-active';
 		}
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/unauth-file-upload', get_current_blog_id() );
-		}
-		return rest_url( 'wpcom/v2/unauth-file-upload' );
+		return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/unauth-file-upload', \Jetpack_Options::get_option( 'id' ) );
 	}
 
 	/**
@@ -1359,7 +1368,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				break;
 		}
 
-		if ( ! empty( $form_style ) && $form_style !== 'default' && ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent' ), true ) ) {
+		if ( ! empty( $form_style ) && $form_style !== 'default' && ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
 			switch ( $form_style ) {
 				case 'outlined':
 					$field .= $this->render_outline_label( $id, $label, $required, $required_field_text );

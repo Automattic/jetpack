@@ -72,7 +72,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.63.x-dev"
+			"dev-trunk": "0.64.x-dev"
 		}
 	},
 	"config": {

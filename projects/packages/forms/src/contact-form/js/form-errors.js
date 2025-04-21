@@ -10,8 +10,9 @@ const L10N = {
  * @param {HTMLFormElement} form  Parent form element
  * @param {object}          opts  Form options
  */
-export const setSimpleFieldError = ( input, form, opts ) => {
-	const errorId = `${ input.name }-error`;
+export const setSimpleFieldError = ( input, form, opts, message = null ) => {
+	const name = input.name ? input.name : input.getAttribute( 'name' );
+	const errorId = `${ name }-error`;
 
 	let error = form.querySelector( `#${ errorId }` );
 
@@ -27,8 +28,11 @@ export const setSimpleFieldError = ( input, form, opts ) => {
 		}
 	}
 
-	error.replaceChildren( createError( input.validationMessage ) );
+	if ( ! message ) {
+		message = input.validationMessage;
+	}
 
+	error.replaceChildren( createError( message ) );
 	input.setAttribute( 'aria-invalid', 'true' );
 	input.setAttribute( 'aria-describedby', errorId );
 };
