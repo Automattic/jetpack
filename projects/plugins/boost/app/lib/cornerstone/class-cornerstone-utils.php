@@ -14,6 +14,11 @@ class Cornerstone_Utils {
 	public static function get_list() {
 		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
 
+		// Bail early if no pages are found.
+		if ( empty( $pages ) ) {
+			return array();
+		}
+
 		$permalink_structure = get_option( 'permalink_structure' );
 
 		// If permalink structure ends with slash, add trailing slashes
