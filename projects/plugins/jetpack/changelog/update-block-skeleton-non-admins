@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Block editor: do not display blocks to non-admins when a feature is not active.
