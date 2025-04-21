@@ -21,7 +21,7 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 	const { tracks } = useAnalytics();
 
 	const handleOpenModal = () => {
-		tracks.recordEvent( 'jetpack_forms_block_modal_open' );
+		tracks.recordEvent( 'jetpack_forms_block_modal_view' );
 		setIsModalOpen( true );
 	};
 
