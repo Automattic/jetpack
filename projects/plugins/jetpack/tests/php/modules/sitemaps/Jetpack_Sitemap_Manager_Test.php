@@ -87,6 +87,7 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	 *
 	 * @group jetpack-sitemap
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_manager_adds_cron_schedule() {
 		$schedules = array();
 		$result    = $this->manager->callback_add_sitemap_schedule( $schedules );
@@ -101,6 +102,7 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	 *
 	 * @group jetpack-sitemap
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_manager_modifies_robotstxt() {
 		ob_start();
 		$this->manager->callback_action_do_robotstxt();
@@ -116,6 +118,7 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	 *
 	 * @group jetpack-sitemap
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_manager_flushes_news_sitemap_cache() {
 		// Set up a mock cache entry
 		set_transient( 'jetpack_news_sitemap_xml', 'test cache data' );
@@ -130,6 +133,7 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	 *
 	 * @group jetpack-sitemap
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_manager_purges_all_data() {
 		// Set up mock data
 		set_transient( 'jetpack_news_sitemap_xml', 'test cache data' );
