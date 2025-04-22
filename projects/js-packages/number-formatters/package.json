@@ -22,30 +22,28 @@
 		"@babel/core": "7.26.10",
 		"@babel/preset-react": "7.26.3",
 		"@jest/globals": "29.4.3",
-		"@rollup/plugin-typescript": "12.1.0",
 		"@types/jest": "29.5.14",
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",
-		"rollup": "3.29.5",
-		"rollup-plugin-dts": "6.1.1",
 		"typescript": "5.8.2"
 	},
 	"type": "module",
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/mjs/index.js",
-	"types": "./dist/index.d.ts",
+	"types": "./dist/types/index.d.ts",
 	"exports": {
 		".": {
 			"jetpack:src": "./src/index.ts",
+			"types": "./dist/types/index.d.ts",
 			"import": "./dist/mjs/index.js",
-			"require": "./dist/cjs/index.js",
-			"types": "./dist/index.d.ts"
+			"require": "./dist/cjs/index.js"
 		}
 	},
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build:prod",
-		"build:prod": "pnpm run clean && rollup -c --environment NODE_ENV:production",
-		"clean": "rm -rf dist/",
+		"build": "pnpm run clean && pnpm run build:esm && pnpm run build:cjs",
+		"build:esm": "tsc --declarationDir dist/types --outDir dist/mjs",
+		"build:cjs": "tsc --module CommonJS --moduleResolution node10 --declaration false --outDir dist/cjs",
+		"clean": "rm -rf dist",
 		"compile-ts": "tsc --pretty",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage",

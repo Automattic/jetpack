@@ -1140,9 +1140,6 @@ importers:
       '@jest/globals':
         specifier: 29.4.3
         version: 29.4.3
-      '@rollup/plugin-typescript':
-        specifier: 12.1.0
-        version: 12.1.0(rollup@3.29.5)(tslib@2.5.0)(typescript@5.8.2)
       '@types/jest':
         specifier: 29.5.14
         version: 29.5.14
@@ -1152,12 +1149,6 @@ importers:
       jest-environment-jsdom:
         specifier: 29.7.0
         version: 29.7.0
-      rollup:
-        specifier: 3.29.5
-        version: 3.29.5
-      rollup-plugin-dts:
-        specifier: 6.1.1
-        version: 6.1.1(rollup@3.29.5)(typescript@5.8.2)
       typescript:
         specifier: 5.8.2
         version: 5.8.2

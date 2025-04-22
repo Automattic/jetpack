@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Build CJS and ESM versions with TypeScript
