@@ -21,11 +21,11 @@
 	<testsuites>
 		<testsuite name="unit">
 			<directory suffix="Test.php">tests/php</directory>
-			<exclude>tests/php/lib/critical-css/Display_Critical_CSS_Test.php</exclude>
+			<exclude>tests/php/lib/critical-css</exclude>
 			<exclude>tests/php/lib/utils/SVG_Sanitizer_Test.php</exclude>
 		</testsuite>
 		<testsuite name="with-wordpress">
-			<file>tests/php/lib/critical-css/Display_Critical_CSS_Test.php</file>
+			<directory>tests/php/lib/critical-css</directory>
 			<file>tests/php/lib/utils/SVG_Sanitizer_Test.php</file>
 		</testsuite>
 	</testsuites>
