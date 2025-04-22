@@ -18,7 +18,6 @@ import {
 	isFetchingConnectUrl as _isFetchingConnectUrl,
 	getConnectUrl as _getConnectUrl,
 	unlinkUser,
-	connectUser as _connectUser,
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser,
 	isConnectingUser as _isConnectingUser,
@@ -28,8 +27,6 @@ import {
 } from 'state/connection';
 import {
 	getSiteRawUrl,
-	isSafari,
-	doNotUseConnectionIframe,
 	getApiNonce,
 	getApiRootUrl,
 	getInitialStateConnectedPlugins,
@@ -53,8 +50,6 @@ export class ConnectButton extends React.Component {
 		asLink: PropTypes.bool,
 		asBanner: PropTypes.bool,
 		connectLegend: PropTypes.string,
-		connectInPlace: PropTypes.bool,
-		customConnect: PropTypes.func,
 		autoOpenInDisconnectRoute: PropTypes.bool,
 		rna: PropTypes.bool,
 		compact: PropTypes.bool,
@@ -65,7 +60,6 @@ export class ConnectButton extends React.Component {
 		connectUser: false,
 		from: '',
 		asLink: false,
-		connectInPlace: true,
 		autoOpenInDisconnectRoute: false,
 		rna: false,
 		compact: false,
@@ -294,8 +288,6 @@ export default connect(
 			isLinked: _isCurrentUserLinked( state ),
 			isUnlinking: _isUnlinkingUser( state ),
 			isAuthorizing: _isConnectingUser( state ),
-			isSafari: isSafari( state ),
-			doNotUseConnectionIframe: doNotUseConnectionIframe( state ),
 			apiNonce: getApiNonce( state ),
 			apiRoot: getApiRootUrl( state ),
 			connectedPlugins: getInitialStateConnectedPlugins( state ),
@@ -317,9 +309,6 @@ export default connect(
 			},
 			unlinkUser: () => {
 				return dispatch( unlinkUser() );
-			},
-			doConnectUser: ( featureLabel, from ) => {
-				return dispatch( _connectUser( featureLabel, from ) );
 			},
 		};
 	}
