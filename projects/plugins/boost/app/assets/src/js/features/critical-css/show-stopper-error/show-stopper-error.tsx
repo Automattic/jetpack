@@ -207,7 +207,6 @@ const OtherErrors = ( { cssState, supportLink }: ShowStopperErrorTypes ) => {
 						<ExternalLink
 							className="button button-secondary"
 							href={ supportLink }
-							target="_blank"
 							onClick={ () => {
 								recordBoostEvent( 'critical_css_contact_support', {} );
 							} }
