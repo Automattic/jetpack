@@ -2,11 +2,11 @@ import colorStudio from '@automattic/color-studio';
 import { JetpackIcon } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import AkismetIcon from '../../../../../icons/akismet-icon';
-import './style.scss';
+import './active-integrations.scss';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
-export default function IntegrationIconsRow( { enabledIntegrations, isLoading } ) {
+export default function ActiveIntegrations( { integrations, attributes, isLoading } ) {
 	const getIconForIntegration = key => {
 		switch ( key ) {
 			case 'akismet':
@@ -25,6 +25,17 @@ export default function IntegrationIconsRow( { enabledIntegrations, isLoading } 
 			</div>
 		);
 	}
+
+	const enabledIntegrations = Object.entries( integrations ).filter( ( [ key, integration ] ) => {
+		switch ( key ) {
+			case 'akismet':
+				return integration.isConnected;
+			case 'zero-bs-crm':
+				return integration.isActive && integration.details?.hasExtension && attributes.jetpackCRM;
+			default:
+				return false;
+		}
+	} );
 
 	if ( ! enabledIntegrations?.length ) {
 		return null;

@@ -5,8 +5,8 @@ import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
 import IntegrationsModal from './jetpack-integrations-modal';
+import ActiveIntegrations from './jetpack-integrations-modal/active-integrations';
 import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/useIntegrationsStatus';
-import IntegrationIconsRow from './jetpack-integrations-modal/integration-icons-row';
 
 /**
  * Integration controls component containing Panel for settings sidebar and block toolbar.
@@ -18,17 +18,13 @@ import IntegrationIconsRow from './jetpack-integrations-modal/integration-icons-
  */
 export default function IntegrationControls( { attributes, setAttributes } ) {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const { integrations, refreshIntegrations, isLoading } = useIntegrationsStatus( attributes );
+	const { integrations, refreshIntegrations, isLoading } = useIntegrationsStatus();
 	const { tracks } = useAnalytics();
 
 	const handleOpenModal = entry_point => {
 		tracks.recordEvent( 'jetpack_forms_block_modal_view', { entry_point } );
 		setIsModalOpen( true );
 	};
-
-	const enabledIntegrations = Object.entries( integrations ).filter(
-		entry => entry[ 1 ].isEnabledForForm
-	);
 
 	return (
 		<>
@@ -37,7 +33,11 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 				className="jetpack-contact-form__integrations-panel"
 				initialOpen={ false }
 			>
-				<IntegrationIconsRow enabledIntegrations={ enabledIntegrations } isLoading={ isLoading } />
+				<ActiveIntegrations
+					integrations={ integrations }
+					attributes={ attributes }
+					isLoading={ isLoading }
+				/>
 				<Button
 					variant="secondary"
 					onClick={ () => handleOpenModal( 'block-sidebar' ) }

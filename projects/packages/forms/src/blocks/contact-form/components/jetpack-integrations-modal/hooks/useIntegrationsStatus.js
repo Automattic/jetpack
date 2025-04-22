@@ -3,33 +3,11 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
- * Helper function to determine if an integration is enabled for a form
- *
- * @param {string} key             - Integration key
- * @param {object} integration     - Integration data
- * @param {object} blockAttributes - Block attributes
- * @return {boolean} Whether the integration is enabled for the form
- */
-const getIsEnabledForForm = ( key, integration, blockAttributes ) => {
-	switch ( key ) {
-		case 'akismet':
-			return integration.isConnected;
-		case 'zero-bs-crm':
-			return (
-				integration.isActive && integration.details?.hasExtension && blockAttributes.jetpackCRM
-			);
-		default:
-			return false;
-	}
-};
-
-/**
  * Custom hook to fetch and manage all integrations status.
  *
- * @param {object|null} blockAttributes - Block attributes when used in block editor context. Determines if isEnabledForForm is calculated.
  * @return {object} Object containing integrations data and loading state
  */
-export const useIntegrationsStatus = ( blockAttributes = null ) => {
+export const useIntegrationsStatus = () => {
 	const [ status, setStatus ] = useState( {
 		isLoading: true,
 		integrations: [],
@@ -44,23 +22,9 @@ export const useIntegrationsStatus = ( blockAttributes = null ) => {
 				} ),
 			} );
 
-			// Transform integrations data
-			const integrations = Object.entries( response );
-			const integrationsWithEnabled = Object.fromEntries(
-				integrations.map( ( [ key, integration ] ) => [
-					key,
-					{
-						...integration,
-						...( blockAttributes && {
-							isEnabledForForm: getIsEnabledForForm( key, integration, blockAttributes ),
-						} ),
-					},
-				] )
-			);
-
 			setStatus( {
 				isLoading: false,
-				integrations: integrationsWithEnabled,
+				integrations: response,
 				error: null,
 			} );
 		} catch ( error ) {
@@ -70,7 +34,7 @@ export const useIntegrationsStatus = ( blockAttributes = null ) => {
 				error,
 			} );
 		}
-	}, [ blockAttributes ] );
+	}, [] );
 
 	// Function to manually refresh the status
 	const refreshIntegrations = useCallback( async () => {

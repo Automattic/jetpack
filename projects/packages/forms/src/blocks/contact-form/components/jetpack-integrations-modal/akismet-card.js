@@ -14,6 +14,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		...data,
 		showHeaderToggle: true,
 		isHeaderToggleEnabled: false,
+		isEnabledForForm: akismetActiveWithKey,
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_akismet_click',

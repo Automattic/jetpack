@@ -32,6 +32,7 @@ const JetpackCRMCard = ( {
 		...data,
 		showHeaderToggle: true,
 		isHeaderToggleEnabled: true,
+		isEnabledForForm: jetpackCRM,
 		onHeaderToggleChange: value => setAttributes( { jetpackCRM: value } ),
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
