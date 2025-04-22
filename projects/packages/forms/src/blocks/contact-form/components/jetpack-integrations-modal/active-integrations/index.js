@@ -7,27 +7,21 @@ import './style.scss';
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
 export default function ActiveIntegrations( { integrations, attributes, isLoading } ) {
-	const getIconForIntegration = key => {
-		switch ( key ) {
-			case 'akismet':
-				return <AkismetIcon width={ 30 } height={ 30 } />;
-			case 'zero-bs-crm':
-				return <JetpackIcon size={ 30 } color={ COLOR_JETPACK } />;
-			default:
-				return null;
-		}
-	};
-
-	const enabledIntegrations = integrations.filter( integration => {
+	const activeIntegrations = integrations.reduce( ( acc, integration ) => {
 		switch ( integration.id ) {
 			case 'akismet':
-				return integration.isConnected;
+				if ( integration.isConnected ) {
+					acc.push( { ...integration, icon: <AkismetIcon width={ 30 } height={ 30 } /> } );
+				}
+				break;
 			case 'zero-bs-crm':
-				return integration.isActive && integration.details?.hasExtension && attributes.jetpackCRM;
-			default:
-				return false;
+				if ( integration.isActive && integration.details?.hasExtension && attributes.jetpackCRM ) {
+					acc.push( { ...integration, icon: <JetpackIcon size={ 30 } color={ COLOR_JETPACK } /> } );
+				}
+				break;
 		}
-	} );
+		return acc;
+	}, [] );
 
 	if ( isLoading ) {
 		return (
@@ -37,15 +31,15 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 		);
 	}
 
-	if ( ! enabledIntegrations?.length ) {
+	if ( ! activeIntegrations?.length ) {
 		return null;
 	}
 
 	return (
 		<div className="jetpack-forms-enabled-integrations">
-			{ enabledIntegrations.map( integration => (
+			{ activeIntegrations.map( integration => (
 				<span key={ integration.id } className="jetpack-forms-integration-icon">
-					{ getIconForIntegration( integration.id ) }
+					{ integration.icon }
 					<span className="jetpack-forms-integration-icon__status-indicator" />
 				</span>
 			) ) }
