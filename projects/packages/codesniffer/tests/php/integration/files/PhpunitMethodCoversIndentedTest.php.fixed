@@ -4,6 +4,8 @@
 // phpcs:disable Squiz.Commenting.FunctionComment.Missing
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.DuplicateClassName.Found
 
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Attributes\UsesMethod;
 use PHPUnit\Framework\TestCase;
 
 if ( isset( $_SERVER['something'] ) ) {
@@ -13,6 +15,7 @@ if ( isset( $_SERVER['something'] ) ) {
 	 * @uses \Foo::foofoo
 	 */
 	#[Attribute]
+	#[UsesMethod( Foo::class, 'foofoo' )]
 	class PhpunitMethodCoversIndentedTest extends TestCase {
 		public function testFoo() {
 		}
@@ -22,15 +25,18 @@ if ( isset( $_SERVER['something'] ) ) {
 	 *
 	 * @uses \Foo
 	 */
+	#[UsesClass( Foo::class )]
 	class PhpunitMethodCoversIndentedTest extends TestCase {
 		public function testFoo() {
 		}
 	}
 } elseif ( isset( $_SERVER['dumb'] ) ) {
-	'Wat?'; /**
- * @uses \Foo
- */
+	'Wat?';
+	/**
+	 * @uses \Foo
+	 */
 	#[Attribute]
+	#[UsesClass( Foo::class )]
 	class PhpunitMethodCoversIndentedTest extends TestCase {
 		public function testFoo() {
 		}
@@ -40,6 +46,7 @@ if ( isset( $_SERVER['something'] ) ) {
 	 * @uses \Foo::foobar
 	 */
 	#[Attribute]
+	#[UsesMethod( Foo::class, 'foobar' )]
 	class PhpunitMethodCoversIndentedTest extends TestCase {
 		public function testFoo() {
 		}
