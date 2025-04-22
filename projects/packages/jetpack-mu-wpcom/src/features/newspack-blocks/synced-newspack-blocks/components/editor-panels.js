@@ -2,30 +2,40 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Spinner, CheckboxControl, PanelBody, PanelRow } from '@wordpress/components';
+import { BaseControl, CheckboxControl, PanelBody, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 
-const CheckboxesGroup = ( { options, values, onChange } ) => {
+const CheckboxesGroup = ( { options, values, onChange, defaultRequiredSlug = null } ) => {
 	if ( ! Array.isArray( options ) ) {
 		return <Spinner />;
 	}
-	return options.map( ( { name, slug } ) => (
-		<PanelRow key={ slug }>
+	return options.map( ( { name, slug } ) => {
+		const isDefault = defaultRequiredSlug && slug === defaultRequiredSlug;
+		const otherOptionsSelected = defaultRequiredSlug && values.some( value => value !== defaultRequiredSlug );
+		const isDisabled = isDefault && ! otherOptionsSelected;
+
+		return (
 			<CheckboxControl
 				label={ name }
 				checked={ values.indexOf( slug ) > -1 }
+				disabled={ isDisabled }
 				onChange={ value => {
-					const cleanPostType = [ ...new Set( values ) ];
-					if ( value && cleanPostType.indexOf( slug ) === -1 ) {
-						cleanPostType.push( slug );
-					} else if ( ! value && cleanPostType.indexOf( slug ) > -1 ) {
-						cleanPostType.splice( cleanPostType.indexOf( slug ), 1 );
+					const cleanOptions = [ ...new Set( values ) ];
+					if ( value && cleanOptions.indexOf( slug ) === -1 ) {
+						cleanOptions.push( slug );
+					} else if ( ! value && cleanOptions.indexOf( slug ) > -1 ) {
+						cleanOptions.splice( cleanOptions.indexOf( slug ), 1 );
 					}
-					onChange( cleanPostType );
+					// If no options would be selected, force the default required one
+					if ( defaultRequiredSlug && cleanOptions.length === 0 ) {
+						cleanOptions.push( defaultRequiredSlug );
+					}
+					onChange( cleanOptions );
 				} }
+				key={ slug }
 			/>
-		</PanelRow>
-	) );
+		);
+	} );
 };
 
 export const PostTypesPanel = ( { attributes, setAttributes } ) => {
@@ -50,11 +60,12 @@ export const PostTypesPanel = ( { attributes, setAttributes } ) => {
 	} );
 
 	return (
-		<PanelBody title={ __( 'Post Types', 'jetpack-mu-wpcom' ) }>
+		<PanelBody title={ __( 'Post Types', 'jetpack-mu-wpcom' ) } initialOpen={ false }>
 			<CheckboxesGroup
 				options={ availablePostTypes }
 				values={ attributes.postType }
 				onChange={ postType => setAttributes( { postType } ) }
+				defaultRequiredSlug="post"
 			/>
 		</PanelBody>
 	);
@@ -62,15 +73,8 @@ export const PostTypesPanel = ( { attributes, setAttributes } ) => {
 
 export const PostStatusesPanel = ( { attributes, setAttributes } ) => {
 	return (
-		<PanelBody title={ __( 'Additional Post Statuses', 'jetpack-mu-wpcom' ) }>
-			<PanelRow>
-				<i>
-					{ __(
-						'Selection here has effect only for editors, regular users will only see published posts.',
-						'jetpack-mu-wpcom'
-					) }
-				</i>
-			</PanelRow>
+		<PanelBody title={ __( 'Additional Post Statuses', 'jetpack-mu-wpcom' ) } initialOpen={ false }>
+			<BaseControl help={ __( 'Selection here has effect only for editors, regular users will only see published posts.', 'jetpack-mu-wpcom' ) } />
 			<CheckboxesGroup
 				values={ attributes.includedPostStatuses }
 				options={ [

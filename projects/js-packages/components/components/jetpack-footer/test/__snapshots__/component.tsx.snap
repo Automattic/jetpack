@@ -5,6 +5,7 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
   <footer
     aria-label="Jetpack"
     class="jp-dashboard-footer sample-classname"
+    role="contentinfo"
   >
     <ul>
       <li

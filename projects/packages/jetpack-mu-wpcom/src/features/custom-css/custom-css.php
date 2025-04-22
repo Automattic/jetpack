@@ -79,7 +79,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 			header( 'Content-type: text/css' );
 			header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + YEAR_IN_SECONDS ) . ' GMT' );
 			echo wp_get_custom_css(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			exit;
+			exit( 0 );
 		}
 
 		/**

@@ -1,0 +1,17 @@
+.jetpack-plugin-integration__status {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.jetpack-plugin-integration__content {
+	color: rgba(38, 46, 57, 0.7);
+}
+
+.jetpack-plugin-integration__panel-content > *:not(:last-child) {
+	margin-bottom: 16px;
+}
+
+.jetpack-plugin-integration__spinner-icon {
+	animation: rotation 2s infinite linear;
+} 

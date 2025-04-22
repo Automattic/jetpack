@@ -1,6 +1,7 @@
 @import './common';
 
 .wp-block-jetpack-blogroll {
+
 	[data-type="jetpack/blogroll-item"] + [data-type="jetpack/blogroll-item"] {
 		border-top: 1px solid var(--gray-gray-5, #DCDCDE);
 	}

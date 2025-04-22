@@ -2,6 +2,11 @@
  * External dependencies
  */
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
+import {
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_TIERED,
+	PLAN_TYPE_UNLIMITED,
+} from '@automattic/jetpack-shared-extension-utils';
 import { BaseControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -11,11 +16,6 @@ import React from 'react';
  * Internal dependencies
  */
 import './style.scss';
-import {
-	PLAN_TYPE_FREE,
-	PLAN_TYPE_TIERED,
-	PLAN_TYPE_UNLIMITED,
-} from '../../../../shared/use-plan-type';
 /**
  * Types
  */

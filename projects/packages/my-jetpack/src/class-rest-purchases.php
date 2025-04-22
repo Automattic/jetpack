@@ -58,7 +58,7 @@ class REST_Purchases {
 	/**
 	 * Site purchases endpoint.
 	 *
-	 * @return array of site purchases.
+	 * @return array|WP_Error of site purchases.
 	 */
 	public static function get_site_current_purchases() {
 		$site_id           = \Jetpack_Options::get_option( 'id' );
@@ -72,6 +72,6 @@ class REST_Purchases {
 			return new WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ? $response_code : 400 ) );
 		}
 
-		return rest_ensure_response( $body, 200 );
+		return rest_ensure_response( $body );
 	}
 }

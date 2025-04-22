@@ -11,6 +11,7 @@ module.exports = {
 		path: path.join( __dirname, '../build' ),
 		filename: 'bundle.js',
 		library: 'CriticalCSSGenerator',
+		uniqueName: 'CriticalCSSGenerator',
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,

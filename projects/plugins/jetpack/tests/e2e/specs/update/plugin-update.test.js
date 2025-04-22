@@ -1,11 +1,11 @@
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
-import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
+import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
 import {
 	execShellCommand,
 	resolveSiteUrl,
 	execContainerShellCommand,
-} from 'jetpack-e2e-commons/helpers/utils-helper.js';
-import { PluginsPage, JetpackDashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+} from '_jetpack-e2e-commons/helpers/utils-helper.js';
+import { PluginsPage, JetpackDashboardPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 
 test.skip( 'Update Jetpack plugin', async ( { page } ) => {
 	const binPath = '/usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/update/';

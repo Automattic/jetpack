@@ -1,11 +1,10 @@
 <?php
-if ( !defined( 'ZEROBSCRM_PATH' ) ) exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  *
  * The JPCRM_FeatureSniffer class lets core detect installed
  * plugins for which we already have integrations
- *
  */
 class JPCRM_FeatureSniffer {
 

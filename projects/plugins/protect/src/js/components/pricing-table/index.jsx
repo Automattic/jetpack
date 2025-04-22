@@ -8,10 +8,9 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import useConnectSiteMutation from '../../data/use-connection-mutation';
+import React, { useCallback, useState } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useNotices from '../../hooks/use-notices';
 import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 
@@ -21,13 +20,19 @@ import useProtectData from '../../hooks/use-protect-data';
  * @return {object}                ConnectedPricingTable react component.
  */
 const ConnectedPricingTable = () => {
-	const navigate = useNavigate();
+	const { showErrorNotice } = useNotices();
 	const { recordEvent } = useAnalyticsTracks();
-	const connectSiteMutation = useConnectSiteMutation();
 	const { upgradePlan, isLoading: isPlanLoading } = usePlan();
-	const { registrationError } = useConnection( {
+	const { handleRegisterSite, registrationError } = useConnection( {
+		from: 'protect',
 		skipUserConnection: true,
+		redirectUri: 'admin.php?page=jetpack-protect',
 	} );
+
+	// Track whether the connection process has started outside of the connection/checkout flows.
+	// This flag is used to show the related actions as "busy" all the way until the post-connection/checkout redirect is complete.
+	const [ hasConnectionStarted, setHasConnectionStarted ] = useState( false );
+	const [ hasCheckoutStarted, setHasCheckoutStarted ] = useState( false );
 
 	// Access paid protect product data
 	const { jetpackScan } = useProtectData();
@@ -41,15 +46,21 @@ const ConnectedPricingTable = () => {
 		: null;
 
 	const getScan = useCallback( () => {
+		setHasCheckoutStarted( true );
 		recordEvent( 'jetpack_protect_pricing_table_get_scan_link_click' );
 		upgradePlan();
 	}, [ recordEvent, upgradePlan ] );
 
 	const getProtectFree = useCallback( async () => {
+		setHasConnectionStarted( true );
 		recordEvent( 'jetpack_protect_connected_product_activated' );
-		await connectSiteMutation.mutateAsync();
-		navigate( '/scan' );
-	}, [ connectSiteMutation, recordEvent, navigate ] );
+		try {
+			await handleRegisterSite();
+		} catch {
+			showErrorNotice( __( 'Could not connect site.', 'jetpack-protect' ) );
+			setHasConnectionStarted( false );
+		}
+	}, [ handleRegisterSite, recordEvent, showErrorNotice ] );
 
 	const args = {
 		title: __( 'Stay one step ahead of threats', 'jetpack-protect' ),
@@ -65,6 +76,9 @@ const ConnectedPricingTable = () => {
 			},
 			{
 				name: __( 'Brute force protection', 'jetpack-protect' ),
+			},
+			{
+				name: __( 'Account protection', 'jetpack-protect' ),
 			},
 			{
 				name: __( 'Access to scan on Cloud', 'jetpack-protect' ),
@@ -96,8 +110,8 @@ const ConnectedPricingTable = () => {
 						<Button
 							fullWidth
 							onClick={ getScan }
-							isLoading={ isPlanLoading }
-							disabled={ isPlanLoading || connectSiteMutation.isPending }
+							isLoading={ hasCheckoutStarted }
+							disabled={ isPlanLoading || hasCheckoutStarted }
 						>
 							{ __( 'Get Jetpack Protect', 'jetpack-protect' ) }
 						</Button>
@@ -121,6 +135,7 @@ const ConnectedPricingTable = () => {
 					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ true } />
+					<PricingTableItem isIncluded={ true } />
 				</PricingTableColumn>
 				<PricingTableColumn>
 					<PricingTableHeader>
@@ -134,8 +149,8 @@ const ConnectedPricingTable = () => {
 							fullWidth
 							variant="secondary"
 							onClick={ getProtectFree }
-							isLoading={ connectSiteMutation.isPending }
-							disabled={ connectSiteMutation.isPending || isPlanLoading }
+							isLoading={ hasConnectionStarted }
+							disabled={ isPlanLoading || hasConnectionStarted }
 							error={
 								registrationError
 									? __( 'An error occurred. Please try again.', 'jetpack-protect' )
@@ -154,6 +169,7 @@ const ConnectedPricingTable = () => {
 						isIncluded={ true }
 						label={ __( 'Manual rules only', 'jetpack-protect' ) }
 					/>
+					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ false } />
 					<PricingTableItem isIncluded={ false } />

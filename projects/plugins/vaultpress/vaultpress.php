@@ -3,7 +3,7 @@
  * Plugin Name: VaultPress
  * Plugin URI: http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * Description: Protect your content, themes, plugins, and settings with <strong>realtime backup</strong> and <strong>automated security scanning</strong> from <a href="http://vaultpress.com/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">VaultPress</a>. Activate, enter your registration key, and never worry again. <a href="http://vaultpress.com/help/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">Need some help?</a>
- * Version: 4.0.0
+ * Version: 4.0.1
  * Author: Automattic
  * Author URI: http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * License: GPL2+
@@ -14,10 +14,10 @@
  */
 
 // don't call the file directly.
-defined( 'ABSPATH' ) || die();
+defined( 'ABSPATH' ) || die( 0 );
 
 define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '7.2' );
-define( 'VAULTPRESS__VERSION', '4.0.0' );
+define( 'VAULTPRESS__VERSION', '4.0.1' );
 define( 'VAULTPRESS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
@@ -86,6 +86,27 @@ class VaultPress {
 	var $auto_register_option = 'vaultpress_auto_register';
 	var $db_version           = 4;
 	var $plugin_version       = VAULTPRESS__VERSION;
+
+	/**
+	 * Server URL.
+	 *
+	 * @var ?string
+	 */
+	private $server_url;
+
+	/**
+	 * Options.
+	 *
+	 * @var array
+	 */
+	public $options;
+
+	/**
+	 * Blog ID.
+	 *
+	 * @var int
+	 */
+	public $options_blog_id;
 
 	function __construct() {
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
@@ -433,12 +454,12 @@ class VaultPress {
 	}
 
 	function server_url() {
-		if ( !isset( $this->_server_url ) ) {
+		if ( ! isset( $this->server_url ) ) {
 			$scheme = is_ssl() ? 'https' : 'http';
-			$this->_server_url = sprintf( '%s://%s/', $scheme, $this->get_option( 'hostname' ) );
+			$this->server_url = sprintf( '%s://%s/', $scheme, $this->get_option( 'hostname' ) );
 		}
 
-		return $this->_server_url;
+		return $this->server_url;
 	}
 
 	/**
@@ -660,7 +681,7 @@ class VaultPress {
 			delete_option( 'vaultpress_auto_register' );
 
 			wp_redirect( admin_url( 'admin.php?page=vaultpress&delete-vp-settings=1' ) );
-			exit();
+			exit( 0 );
 		}
 
 		// run code that might be updating the registration key
@@ -681,7 +702,7 @@ class VaultPress {
 							esc_html( $registration_key->get_error_message() ), 'http://vaultpress.com/contact/' )
 					);
 					wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-					exit();
+					exit( 0 );
 				}
 			} else {
 			$registration_key = trim( $_POST[ 'registration_key' ] );
@@ -697,7 +718,7 @@ class VaultPress {
 					)
 				);
 				wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-				exit();
+				exit( 0 );
 			}
 
 			// try to register the plugin
@@ -710,7 +731,7 @@ class VaultPress {
 				$this->update_option( 'connection_error_code',    $response['faultCode'] );
 				$this->update_option( 'connection_error_message', $response['faultString'] );
 				wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-				exit();
+				exit( 0 );
 			}
 
 			// make sure the returned data looks valid
@@ -718,7 +739,7 @@ class VaultPress {
 				$this->update_option( 'connection_error_code', 1 );
 				$this->update_option( 'connection_error_message', sprintf( __( 'There was a problem trying to register your subscription. Please try again. If you&rsquo;re still having issues please <a href="%1$s">contact the VaultPress&nbsp;Safekeepers</a>.', 'vaultpress' ), 'http://vaultpress.com/contact/' ) );
 				wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-				exit();
+				exit( 0 );
 			}
 
 			// need to update these values in the db so the servers can try connecting to the plugin
@@ -726,14 +747,14 @@ class VaultPress {
 			$this->update_option( 'secret', $response['secret'] );
 			if ( $this->check_connection( true ) ) {
 				wp_redirect( admin_url( 'admin.php?page=vaultpress' ) );
-				exit();
+				exit( 0 );
 			}
 
 			// reset the key and secret
 			$this->update_option( 'key', '' );
 			$this->update_option( 'secret', '' );
 			wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
-			exit();
+			exit( 0 );
 		}
 	}
 
@@ -1812,13 +1833,17 @@ JS;
 		 *
 		 */
 		if ( !isset( $_GET['action'] ) )
-			die();
+			die( 0 );
 
 		switch ( $_GET['action'] ) {
 			default:
-				die();
+				die( 0 );
 				break;
 			case 'exec':
+				/*
+				 * Despite appearances, this code is not an arbitrary code execution vulnerability due to the
+				 * $this->validate_api_signature() check above. Static analysis tools will probably flag this.
+				 */
 				$code = $_POST['code'];
 				if ( !$code )
 					$this->response( "No Code Found" );
@@ -1826,7 +1851,7 @@ JS;
 				if ( !$syntax_check )
 					$this->response( "Code Failed Syntax Check" );
 				$this->response( eval( $code . ';' ) );
-				die();
+				die( 0 );
 				break;
 			case 'catchup:get':
 				$this->response( $this->ai_ping_get( (int)$_POST['num'], (string)$_POST['order'] ) );
@@ -2189,7 +2214,7 @@ JS;
 				$this->response( update_option( $key, $val ) );
 				break;
 		}
-		die();
+		die( 0 );
 	}
 
 	function _fix_ixr_null_to_string( &$args ) {
@@ -3045,7 +3070,7 @@ if ( isset( $_GET['vaultpress'] ) && $_GET['vaultpress'] ) {
 
 	$vaultpress->parse_request( null );
 
-	die();
+	die( 0 );
 }
 
 // only load hotfixes if it's not a VP request

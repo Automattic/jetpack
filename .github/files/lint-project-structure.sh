@@ -458,6 +458,14 @@ for PROJECT in projects/*/*; do
 		done < <( jq --stream -r 'if length == 2 and .[0][:-1] == ["extra","dependencies","test-only"] then [input_line_number,.[1]] | @tsv else empty end' "$PROJECT/composer.json" )
 	fi
 
+	# - No direct use of WorDBless.
+	if jq -e '.require["automattic/wordbless"] // .["require-dev"]["automattic/wordbless"]' "$PROJECT/composer.json" >/dev/null; then
+		while IFS=$'\t' read -r LINE; do
+			EXIT=1
+			echo "::error file=$PROJECT/composer.json,line=${LINE}::Do not use \`automattic/wordbless\` directly; use \`automattic/jetpack-test-environment\` instead. See #41057 for details."
+		done < <( jq --stream -r 'if length == 2 and ( .[0] == ["require","automattic/wordbless"] or .[0] == ["require-dev","automattic/wordbless"] ) then [input_line_number] | @tsv else empty end' "$PROJECT/composer.json" )
+	fi
+
 done
 
 # - Monorepo root composer.json must also use dev deps appropriately.
@@ -645,5 +653,22 @@ while IFS= read -r FILE; do
 	done < <( git grep -h --line-number --column -o '\(random\|unique-id\)\s*(' "$FILE" )
 done < <( git -c core.quotepath=off grep -l '\(random\|unique-id\)\s*(' '*.sass' '*.scss' )
 
+# - package.json name fields must be prefixed or already registered.
+debug "Checking for bad package.json names"
+while IFS=$'\t' read -r FILE NAME; do
+	LINE=$(grep --line-number --max-count=1 '^	"name":' "$FILE" || true)
+	if [[ -n "$LINE" ]]; then
+		LINE=",line=${LINE%%:*}"
+	fi
+
+	J=$( curl -sS "https://registry.npmjs.com/$( jq -rn --arg V "$NAME" '$V | @uri' )" )
+	if ! jq -e '.maintainers' <<<"$J" &>/dev/null; then
+		EXIT=1
+		echo "::error file=$FILE$LINE::Name $NAME is not published and not scoped. If it is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\" or \"_$NAME\" or manually publish a dummy version. If it will be published, rename it like \"@automattic/$NAME\" or manually publish a dummy version."
+	elif ! jq -e '.maintainers[] | select( .name == "matticbot" or .name == "npm" )' <<<"$J" &>/dev/null; then
+		EXIT=1
+		echo "::error file=$FILE$LINE::Name $NAME is not owned by us (\`matticbot\`) or the NPM security account (\`npm\`). If this is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\" or \"_$NAME\". If it will be published, either add \`matticbot\` as a maintainer if we can or you'll have to rename (e.g. like \"@automattic/$NAME\")."
+	fi
+done < <( jq -r '.name // empty | select( startswith( "@automattic/" ) or startswith( "_" ) | not ) | [ input_filename, . ] | @tsv' $( git ls-files package.json '*/package.json' ) )
 
 exit $EXIT

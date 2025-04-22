@@ -186,6 +186,7 @@ const GsuiteBlockEdit = props => {
 							options={ aspectRatios }
 							onChange={ value => setAttributes( { aspectRatio: value } ) }
 							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
 						/>
 					</PanelBody>
 				</InspectorControls>

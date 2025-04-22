@@ -47,8 +47,4 @@ function load_assets( $attr, $content ) {
 function enqueue_block_editor_assets() {
 	\jetpack_mu_wpcom_enqueue_assets( 'wpcom-blocks-event-countdown-editor', array( 'js', 'css' ) );
 }
-if ( is_admin() ) {
-	add_action( 'enqueue_block_assets', __NAMESPACE__ . '\enqueue_block_editor_assets' );
-} else {
-	add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_editor_assets' );
-}
+add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_editor_assets' );

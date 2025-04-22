@@ -2,6 +2,90 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.39.11] - 2025-04-14
+### Fixed
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Clean up various Stylelint violations. [#43010]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
+## [0.39.10] - 2025-04-07
+### Changed
+- Linting: First pass of style coding standards. [#42734]
+
+## [0.39.9] - 2025-04-01
+### Changed
+- Update package dependencies. [#42809]
+
+## [0.39.8] - 2025-04-01
+### Fixed
+- Fix TypeScript configuration. [#42762]
+
+## [0.39.7] - 2025-03-31
+### Changed
+- Update dependencies.
+
+## [0.39.6] - 2025-03-26
+### Changed
+- Update dependencies.
+
+## [0.39.5] - 2025-03-24
+### Changed
+- Update dependencies.
+
+## [0.39.4] - 2025-03-24
+### Changed
+- Update dependencies.
+
+## [0.39.3] - 2025-03-18
+### Changed
+- Update package dependencies. [#42509] [#42511]
+
+## [0.39.2] - 2025-03-17
+### Changed
+- Update dependencies.
+
+## [0.39.1] - 2025-03-12
+### Changed
+- Update dependencies.
+
+## [0.39.0] - 2025-03-05
+### Added
+- Enable connection owner disconnection in Dashboard. [#42074]
+
+## [0.38.0] - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+### Removed
+- Remove register_nonce from site connection. [#42076]
+
+### Fixed
+- Improve connection owner unlink modal responsiveness. [#41998]
+
+## [0.37.0] - 2025-02-24
+### Added
+- Warn that disconnecting owner account will disconnect all other users first. [#41923]
+
+### Changed
+- Move the API endpoint for unlinking the user to the automattic/jetpack-connection package. [#41398]
+- Update package dependencies. [#41955]
+
+## [0.36.7] - 2025-02-17
+### Changed
+- Update dependencies.
+
+## [0.36.6] - 2025-02-11
+### Changed
+- Update dependencies.
+
+## [0.36.5] - 2025-02-05
+### Changed
+- Updated package dependencies. [#41491] [#41577]
+
+## [0.36.4] - 2025-01-20
+### Changed
+- Updated package dependencies. [#41099]
+
 ## [0.36.3] - 2025-01-06
 ### Changed
 - Updated package dependencies. [#40797] [#40798] [#40810] [#40841]
@@ -918,6 +1002,24 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.39.11]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.10...v0.39.11
+[0.39.10]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.9...v0.39.10
+[0.39.9]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.8...v0.39.9
+[0.39.8]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.7...v0.39.8
+[0.39.7]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.6...v0.39.7
+[0.39.6]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.5...v0.39.6
+[0.39.5]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.4...v0.39.5
+[0.39.4]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.3...v0.39.4
+[0.39.3]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.2...v0.39.3
+[0.39.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.1...v0.39.2
+[0.39.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.0...v0.39.1
+[0.39.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.38.0...v0.39.0
+[0.38.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.37.0...v0.38.0
+[0.37.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.7...v0.37.0
+[0.36.7]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.6...v0.36.7
+[0.36.6]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.5...v0.36.6
+[0.36.5]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.4...v0.36.5
+[0.36.4]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.3...v0.36.4
 [0.36.3]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.2...v0.36.3
 [0.36.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.1...v0.36.2
 [0.36.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.0...v0.36.1

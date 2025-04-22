@@ -5,6 +5,133 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.11.0] - 2025-04-14
+### Added
+- Add check for mismatched WordPress/WordPress.com user email. [#42674]
+
+### Changed
+- Add Jetpack package version info to Heartbeat. [#43060]
+
+### Fixed
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
+## [6.10.3] - 2025-04-07
+### Changed
+- Linting: First pass of style coding standards. [#42734]
+
+## [6.10.2] - 2025-04-01
+### Changed
+- Update package dependencies. [#42809]
+
+## [6.10.1] - 2025-04-01
+### Changed
+- Update dependencies.
+
+## [6.10.0] - 2025-03-31
+### Added
+- IDC: Add "Offline Mode" flag to secret check endpoint. [#42779]
+
+## [6.9.0] - 2025-03-26
+### Added
+- Connection: Allow pre-selected login providers. [#42662]
+- Indicate when Offline Mode is enabled via DB option. [#42630]
+
+### Changed
+- Connection: Register assets absolutely. [#42468]
+
+## [6.8.1] - 2025-03-24
+### Changed
+- Update dependencies.
+
+## [6.8.0] - 2025-03-24
+### Added
+- Add support for provider-specific authentication. [#42602]
+
+## [6.7.7] - 2025-03-21
+### Changed
+- Internal updates.
+
+## [6.7.6] - 2025-03-18
+### Changed
+- Update package dependencies. [#42511]
+
+## [6.7.5] - 2025-03-17
+### Changed
+- Internal updates.
+
+## [6.7.4] - 2025-03-12
+### Changed
+- Update package dependencies. [#42384]
+
+## [6.7.3] - 2025-03-10
+### Changed
+- Internal updates.
+
+## [6.7.2] - 2025-03-06
+### Changed
+- Update dependencies.
+
+## [6.7.1] - 2025-03-05
+### Changed
+- Internal updates.
+
+## [6.7.0] - 2025-03-03
+### Added
+- Add 'isRegistered' flag to connection data endpoint. [#42123]
+- Add the 'is_signed_with_user_token()' method for REST authentication. [#39432]
+- Allow cookie auth for user provisioning. [#42086]
+
+### Changed
+- Update package dependencies. [#42163]
+
+### Removed
+- Remove excessive check in fetching current user ID in user provisioning. [#42106]
+- Remove register_nonce from site connection. [#42076]
+
+## [6.6.0] - 2025-02-24
+### Added
+- Warn that disconnecting owner account will disconnect all other users first. [#41923]
+
+### Changed
+- Move the API endpoint for unlinking the user to the automattic/jetpack-connection package. [#41398]
+
+## [6.5.0] - 2025-02-17
+### Changed
+- Display connection status on Users page independent of the SSO module. [#41794]
+
+### Fixed
+- Make sure wpcom_id is a string before passing it over as _ui. [#41787]
+
+## [6.4.1] - 2025-02-11
+### Changed
+- Update dependencies.
+
+## [6.4.0] - 2025-02-10
+### Changed
+- Tracks: Add site type to events [#41307]
+- Updated package dependencies. [#41491]
+
+## [6.3.2] - 2025-02-03
+### Changed
+- Updated package dependencies. [#41286]
+
+### Fixed
+- Code: Remove extra params on function calls. [#41263]
+
+## [6.3.1] - 2025-01-27
+### Changed
+- Internal updates.
+
+## [6.3.0] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- Move WPCOM_REST_API_Proxy_Request trait to the connection package. [#41023]
+- Updated package dependencies. [#41099]
+
+### Fixed
+- Add heartbeat deactivation on site disconnection. [#41117]
+
 ## [6.2.2] - 2025-01-06
 ### Added
 - Added tests to increase code coverage. [#39963]
@@ -1278,6 +1405,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[6.11.0]: https://github.com/Automattic/jetpack-connection/compare/v6.10.3...v6.11.0
+[6.10.3]: https://github.com/Automattic/jetpack-connection/compare/v6.10.2...v6.10.3
+[6.10.2]: https://github.com/Automattic/jetpack-connection/compare/v6.10.1...v6.10.2
+[6.10.1]: https://github.com/Automattic/jetpack-connection/compare/v6.10.0...v6.10.1
+[6.10.0]: https://github.com/Automattic/jetpack-connection/compare/v6.9.0...v6.10.0
+[6.9.0]: https://github.com/Automattic/jetpack-connection/compare/v6.8.1...v6.9.0
+[6.8.1]: https://github.com/Automattic/jetpack-connection/compare/v6.8.0...v6.8.1
+[6.8.0]: https://github.com/Automattic/jetpack-connection/compare/v6.7.7...v6.8.0
+[6.7.7]: https://github.com/Automattic/jetpack-connection/compare/v6.7.6...v6.7.7
+[6.7.6]: https://github.com/Automattic/jetpack-connection/compare/v6.7.5...v6.7.6
+[6.7.5]: https://github.com/Automattic/jetpack-connection/compare/v6.7.4...v6.7.5
+[6.7.4]: https://github.com/Automattic/jetpack-connection/compare/v6.7.3...v6.7.4
+[6.7.3]: https://github.com/Automattic/jetpack-connection/compare/v6.7.2...v6.7.3
+[6.7.2]: https://github.com/Automattic/jetpack-connection/compare/v6.7.1...v6.7.2
+[6.7.1]: https://github.com/Automattic/jetpack-connection/compare/v6.7.0...v6.7.1
+[6.7.0]: https://github.com/Automattic/jetpack-connection/compare/v6.6.0...v6.7.0
+[6.6.0]: https://github.com/Automattic/jetpack-connection/compare/v6.5.0...v6.6.0
+[6.5.0]: https://github.com/Automattic/jetpack-connection/compare/v6.4.1...v6.5.0
+[6.4.1]: https://github.com/Automattic/jetpack-connection/compare/v6.4.0...v6.4.1
+[6.4.0]: https://github.com/Automattic/jetpack-connection/compare/v6.3.2...v6.4.0
+[6.3.2]: https://github.com/Automattic/jetpack-connection/compare/v6.3.1...v6.3.2
+[6.3.1]: https://github.com/Automattic/jetpack-connection/compare/v6.3.0...v6.3.1
+[6.3.0]: https://github.com/Automattic/jetpack-connection/compare/v6.2.2...v6.3.0
 [6.2.2]: https://github.com/Automattic/jetpack-connection/compare/v6.2.1...v6.2.2
 [6.2.1]: https://github.com/Automattic/jetpack-connection/compare/v6.2.0...v6.2.1
 [6.2.0]: https://github.com/Automattic/jetpack-connection/compare/v6.1.1...v6.2.0

@@ -13,7 +13,7 @@ namespace Automattic\Jetpack_CRM\Modules\Automations;
 use Automattic\Jetpack\CRM\Automation\Automation_Bootstrap;
 
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 if ( ! apply_filters( 'jetpack_crm_feature_flag_automations', false ) ) {

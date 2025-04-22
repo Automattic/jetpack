@@ -1,0 +1,16 @@
+<?php
+/**
+ * Tests for Jetpack.PHPUnit.UseTestCase
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+// phpcs:disable MediaWiki.Classes.UnusedUseStatement, MediaWiki.Classes.UnsortedUseStatements
+
+use PHPUnit\Fixtures\TestCase; // ok
+use PHPUnit\Fixtures\TestCase as PHPUnit_TestCase; // ok
+use PHPUnit\Fixtures\TestCase as TC; // bad
+use PHPUnit\Fixtures\TestCase as Test_Case; // bad
+use MyTestBase as Base; // bad
+use MyTestBase as TestBase; // ok
+use MyTestBase as TestCase; // nope

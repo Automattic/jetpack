@@ -109,7 +109,7 @@ export const SimplePaymentsEdit = ( {
 		setIsSavingProduct( true );
 
 		saveEntityRecord( 'postType', SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, {
-			id: productId,
+			id: null, // This insures that a new product is created every time a change is made
 			content,
 			featured_media: featuredMediaId,
 			meta: {
@@ -466,6 +466,7 @@ export const SimplePaymentsEdit = ( {
 					<div className="simple-payments__price-container">
 						<SelectControl
 							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize
 							className="simple-payments__field simple-payments__field-currency"
 							label={ __( 'Currency', 'jetpack' ) }
 							onChange={ handleCurrencyChange }

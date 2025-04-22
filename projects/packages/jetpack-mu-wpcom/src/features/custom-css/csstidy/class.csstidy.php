@@ -526,7 +526,7 @@ class csstidy { // phpcs:ignore
 			$madedir = mkdir( 'temp' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
 			if ( ! $madedir ) {
 				print 'Could not make directory "temp" in ' . __DIR__;
-				exit;
+				exit( 0 );
 			}
 		}
 		$handle = fopen( 'temp/' . $filename, 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen

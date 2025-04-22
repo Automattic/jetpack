@@ -3,7 +3,7 @@ Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk
 Tags: social media automation, social media scheduling, auto share, social sharing, social media marketing
 Requires at least: 6.6
 Requires PHP: 7.2
-Tested up to: 6.7
+Tested up to: 6.8
 Stable tag: 4.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -104,43 +104,23 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 6.0.0 - 2025-01-14
+### 6.4.0 - 2025-04-17
 #### Added
-- Add Bluesky to social feature copy.
-- Add a new toggle for UTM tracking.
-- Add LinkedIn permissions warning.
-- Enable test coverage.
-- Make Post share status immediately available in the editor on page load.
-- My Jetpack: Update recommendations section in My Jetpack to include a slider interaction for the cards.
+- Added more error logging.
+- Added Share status support for WPCOM sites
+- Adding My Jetpack tour.
+- Adds Account Protection initialization
+- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
 
 #### Changed
-- Change My Jetpack CTA from "Learn more" to "Activate".
-- Change order of connections.
-- Clean up unused TypeScript types
-- E2E Tests: Update tests to use @wordpress/e2e-test-utils-playwright.
-- Ensure the support link points to Jetpack support.
-- Image Generator: Change description for toggle.
-- Image Generator: Move settings to new store.
-- Migrate settings to new script data.
-- Migrate the last bits of social store to new script data.
-- Move the admin menu initialization to the init hook.
-- Readme: Update documentation to include all supported social networks.
-- Remove some unused code.
-- Resolve an issue where revoked licenses were incorrectly treated as unattached. This caused users to be redirected to the license activation page after site connection, even when unattached licenses were not valid for activation.
-- Updated dependencies.
-- Updated package dependencies.
-
-#### Removed
-- General: Update minimum PHP version to 7.2.
-- General: Update minimum WordPress version to 6.6.
+- Connection: Allow pre-selected login providers
+- General: indicate compatibility with the upcoming version of WordPress - 6.8.
+- Improved the logic for share status
+- Update package dependencies.
 
 #### Fixed
-- E2E Tests: Only install single browser used by Playwright.
-- Fix an issue where we showed the license message even with a plan.
-- Fix the infinite reload issue on Jetpack Sharing settings.
-- Fix the Instagram max video length.
-- Page & Post: Fix the layout on mobile when details are open.
-- Prevent dataviews styles imported in share status from being added globally.
+- Do not load in the editor if sharing is disabled
+- Fix arguments for jetpack_open_graph_tags filter
 
 == Upgrade Notice ==
 

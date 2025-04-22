@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
-import { ensureUserIsLoggedIn } from 'jetpack-e2e-commons/env/prerequisites.js';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
-import logger from 'jetpack-e2e-commons/logger.js';
+import { ensureUserIsLoggedIn } from '_jetpack-e2e-commons/env/prerequisites.js';
+import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
+import logger from '_jetpack-e2e-commons/logger.js';
 import { JetpackBoostPage } from '../pages/index.js';
 
 /**

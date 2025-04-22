@@ -15,7 +15,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -168,7 +168,7 @@ function zeroBSCRM_cjson() {
 
 	echo json_encode( $ret );
 
-	exit();
+	exit( 0 );
 }
 
 	// WH NOTE: WHY is this getting ALL of them and not s? param
@@ -197,7 +197,7 @@ function zeroBSCRM_cojson() {
 
 	echo json_encode( $ret );
 
-	exit();
+	exit( 0 );
 }
 
 /*

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Consolidating widget-related code from wpcom and wpcomsh into jetpack-mu-wpcom

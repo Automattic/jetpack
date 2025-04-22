@@ -7,3 +7,9 @@ Functions\when( 'plugin_dir_path' )->alias(
 		return dirname( $file ) . '/';
 	}
 );
+
+Functions\when( 'sanitize_key' )->alias(
+	function ( $key ) {
+		return strtolower( preg_replace( '/[^a-z0-9_\-]/', '', $key ) );
+	}
+);

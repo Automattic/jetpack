@@ -6,6 +6,7 @@
 # - GITHUB_SHA: Commit SHA.
 # - PR_ID: PR number or "trunk".
 # - SECRET: Shared secret.
+# - For non-trunk runs, anything needed by post-message.sh
 
 set -eo pipefail
 
@@ -17,6 +18,12 @@ fi
 mkdir coverage-data
 cp coverage/summary.tsv coverage-data/summary.tsv
 gzip -9 coverage-data/summary.tsv
+
+# We only need the combined coverage data serialized object for trunk.
+if [[ "$PR_ID" == "trunk" ]]; then
+	cp coverage/php-combined.cov coverage-data/php-combined.cov
+	gzip -9 coverage-data/php-combined.cov
+fi
 
 if [[ -f coverage/js-combined.json ]]; then
 	echo '::group::Pnpm install'
@@ -95,3 +102,7 @@ done
 do_req "op=finish&token=$TOKEN"
 TOKEN=
 echo '::endgroup::'
+
+if [[ "$PR_ID" != "trunk" ]]; then
+	STATUS=$STATUS COVINFO=$JSON .github/files/coverage-munger/post-message.sh
+fi

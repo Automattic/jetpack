@@ -97,6 +97,9 @@ export class OfflineModeNotice extends React.Component {
 					__( 'Your site URL is a known local development environment URL', 'jetpack' )
 				);
 			}
+			if ( offlineMode.option ) {
+				reasons.push( __( 'The jetpack_offline_mode option is active', 'jetpack' ) );
+			}
 
 			const text = createInterpolateElement(
 				/* translators: reasons is an unordered list of reasons why a site may be in Offline mode. */

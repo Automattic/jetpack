@@ -15,7 +15,7 @@ use Composer\Semver\Semver;
 
 // Check that the file is not accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 $manifest   = $plugin->get_manifest( true );

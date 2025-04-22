@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredProperty : 30+ occurrences
+    // PhanUndeclaredProperty : 25+ occurrences
     // PhanTypeMismatchArgument : 8 occurrences
     // PhanPossiblyUndeclaredVariable : 7 occurrences
     // PhanParamSignatureMismatch : 6 occurrences
@@ -20,7 +20,6 @@ return [
     // PhanTypeArraySuspiciousNullable : 5 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
     // PhanUndeclaredTypeParameter : 4 occurrences
-    // PhanDeprecatedEncapsVar : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanPluginDuplicateCatchStatementBody : 2 occurrences
     // PhanTypeMismatchDeclaredParam : 2 occurrences
@@ -36,9 +35,7 @@ return [
         'scripts/core-calls.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
         'scripts/core-definitions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
         'scripts/example.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'scripts/jetpack-slurper.php' => ['PhanDeprecatedEncapsVar'],
         'scripts/jetpack-svn.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
-        'src/Declarations/class-declaration.php' => ['PhanUndeclaredProperty'],
         'src/Differences/class-class-const-missing.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/Differences/class-class-const-moved.php' => ['PhanTypeMismatchArgument'],
         'src/Differences/class-class-method-deprecated.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal'],
@@ -50,13 +47,12 @@ return [
         'src/api/class-analyze-controller.php' => ['PhanPluginUseReturnValueInternalKnown'],
         'src/api/class-controller.php' => ['PhanUndeclaredMethod'],
         'src/api/class-model.php' => ['PhanTypeArraySuspiciousNullable'],
-        'src/api/class-plugin-downloader.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanUndeclaredProperty'],
+        'src/api/class-plugin-downloader.php' => ['PhanPluginDuplicateExpressionAssignmentOperation'],
         'src/class-declarations.php' => ['PhanPluginDuplicateCatchStatementBody'],
         'src/class-differences.php' => ['PhanNonClassMethodCall', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable'],
         'src/class-invocations.php' => ['PhanPluginDuplicateCatchStatementBody'],
         'src/class-utils.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty', 'PhanUndeclaredTypeParameter'],
         'src/class-warnings.php' => ['PhanUndeclaredMethod'],
-        'src/diff-generator.php' => ['PhanDeprecatedEncapsVar'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

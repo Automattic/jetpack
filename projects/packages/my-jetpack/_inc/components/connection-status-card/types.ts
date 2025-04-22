@@ -32,6 +32,7 @@ interface getUserConnectionLineDataProps {
 	hasProductsThatRequireUserConnection: boolean;
 	hasUserConnectionBrokenModules: boolean;
 	isUserConnected: boolean;
+	hasConnectedOwner: boolean;
 	// The user connection data from the connection package is untyped
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	userConnectionData: any;

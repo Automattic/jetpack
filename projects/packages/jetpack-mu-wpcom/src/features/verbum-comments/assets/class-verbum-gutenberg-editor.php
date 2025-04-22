@@ -8,6 +8,7 @@
 declare( strict_types = 1 );
 
 require_once __DIR__ . '/class-verbum-block-utils.php';
+require_once __DIR__ . '/class-verbum-asset-loader.php';
 
 /**
  * Verbum_Gutenberg_Editor is responsible for loading the Gutenberg editor for comments.
@@ -17,6 +18,14 @@ require_once __DIR__ . '/class-verbum-block-utils.php';
  * @see https://github.com/Automattic/isolated-block-editor
  */
 class Verbum_Gutenberg_Editor {
+	/**
+	 * Comment forms can appear anywhere (page, post, query loop, etc), there is no reliable way to determine if there are comments on the page,
+	 * So we hook into `comment_form_before` and set this flag to true when a comment form is found.
+	 *
+	 * @var bool
+	 */
+	public $should_enqueue_assets = false;
+
 	/**
 	 * Class constructor
 	 */
@@ -30,6 +39,13 @@ class Verbum_Gutenberg_Editor {
 				return __( 'Write a comment...', 'jetpack-mu-wpcom' );
 			},
 			9999
+		);
+
+		add_action(
+			'comment_form_before',
+			function () {
+				$this->should_enqueue_assets = true;
+			}
 		);
 
 		add_filter( 'init', array( $this, 'remove_strict_kses_filters' ) );
@@ -58,20 +74,11 @@ class Verbum_Gutenberg_Editor {
 		if (
 			! ( is_singular() && comments_open() )
 			&& ! ( is_front_page() && is_page() && comments_open() )
+			&& ! $this->should_enqueue_assets
 		) {
 			return;
 		}
 
-		$vbe_cache_buster = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/build_meta.json' );
-
-		wp_enqueue_style(
-			'verbum-gutenberg-css',
-			'https://widgets.wp.com/verbum-block-editor/block-editor.css',
-			array(),
-			$vbe_cache_buster
-		);
-
-		// phpcs:ignore Jetpack.Functions.I18n.TextDomainMismatch
-		wp_set_script_translations( 'verbum', 'default', ABSPATH . 'widgets.wp.com/verbum-block-editor/languages/' );
+		\Verbum_Asset_Loader::load_editor_supporting_assets(); // Editor itself is loaded dynamically
 	}
 }

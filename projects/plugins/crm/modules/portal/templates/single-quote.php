@@ -12,7 +12,7 @@
  */
 
 // Don't allow direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined( 'ABSPATH' ) || exit( 0 );
 
 global $zbs;
 $portal = $zbs->modules->portal;
@@ -39,7 +39,6 @@ $show_nav = ( $portal->is_user_enabled() || !$portal->access_is_via_hash( ZBS_TY
     padding: 20px;
     border-radius: 0.28571429rem;
     border: 1px solid rgba(34,36,38,0.15);
-    margin-top: -32px;
 }
 .zerobs-proposal-body li, .zerobs-proposal-body li span{
   padding:5px;

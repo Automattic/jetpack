@@ -24,15 +24,12 @@ use Wikimedia\TestingAccessWrapper;
  */
 class WriteCommandTest extends CommandTestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
-	public function set_up() {
-		parent::set_up();
+	public function setUp(): void {
+		parent::setUp();
 		$this->useTempDir();
 		mkdir( 'changelog' );
 		file_put_contents( 'changelog/.gitkeep', '' );

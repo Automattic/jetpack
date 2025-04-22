@@ -1,5 +1,5 @@
 import { Button } from '@automattic/jetpack-components';
-import { ButtonGroup as WordPressButtonGroup } from '@wordpress/components';
+import { Flex } from '@wordpress/components';
 import React from 'react';
 import styles from './styles.module.scss';
 
@@ -13,12 +13,19 @@ import styles from './styles.module.scss';
  */
 function ButtonGroup( { children, ...props } ) {
 	return (
-		<WordPressButtonGroup className={ styles[ 'button-group' ] } { ...props }>
+		<Flex
+			gap={ 0 }
+			className={ `components-button-group ${ styles[ 'button-group' ] }` }
+			{ ...props }
+		>
 			{ children }
-		</WordPressButtonGroup>
+		</Flex>
 	);
 }
 
-ButtonGroup.Button = props => <Button { ...props } />;
-
+ButtonGroup.Button = ( { onClick, variant = 'secondary', children, ...props } ) => (
+	<Button onClick={ onClick } variant={ variant } className="components-button" { ...props }>
+		<span>{ children }</span>
+	</Button>
+);
 export default ButtonGroup;

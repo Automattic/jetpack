@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.63] - 2025-04-14
+### Changed
+- Update dependencies. [#43001]
+
+## [0.1.62] - 2025-04-01
+### Changed
+- Update package dependencies. [#42809]
+
+## [0.1.61] - 2025-04-01
+### Changed
+- Update package dependencies. [#42762]
+
+## [0.1.60] - 2025-03-18
+### Changed
+- Update dependencies. [#42545]
+
+## [0.1.59] - 2025-03-12
+### Changed
+- Update dependencies.
+
+## [0.1.58] - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+## [0.1.57] - 2025-02-24
+### Changed
+- Update dependencies.
+
+## [0.1.56] - 2025-02-17
+### Changed
+- Update dependencies.
+
+## [0.1.55] - 2025-02-05
+### Changed
+- Updated package dependencies. [#41491]
+
+## [0.1.54] - 2025-02-03
+### Changed
+- Updated package dependencies. [#41286]
+
+## [0.1.53] - 2025-01-27
+### Changed
+- Internal updates.
+
+## [0.1.52] - 2025-01-23
+### Changed
+- Internal updates.
+
+## [0.1.51] - 2025-01-20
+### Changed
+- Updated package dependencies. [#41099]
+
 ## [0.1.50] - 2024-12-16
 ### Changed
 - Updated package dependencies. [#40564]
@@ -215,6 +267,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Create package for the boost score bar API [#30781]
 
+[0.1.63]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.62...v0.1.63
+[0.1.62]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.61...v0.1.62
+[0.1.61]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.60...v0.1.61
+[0.1.60]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.59...v0.1.60
+[0.1.59]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.58...v0.1.59
+[0.1.58]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.57...v0.1.58
+[0.1.57]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.56...v0.1.57
+[0.1.56]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.55...v0.1.56
+[0.1.55]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.54...v0.1.55
+[0.1.54]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.53...v0.1.54
+[0.1.53]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.52...v0.1.53
+[0.1.52]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.51...v0.1.52
+[0.1.51]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.50...v0.1.51
 [0.1.50]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.49...v0.1.50
 [0.1.49]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.48...v0.1.49
 [0.1.48]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.47...v0.1.48

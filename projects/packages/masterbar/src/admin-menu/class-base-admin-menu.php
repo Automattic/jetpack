@@ -76,7 +76,6 @@ abstract class Base_Admin_Menu {
 		if ( ! $this->is_api_request ) {
 			add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
-			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
 			add_action( 'in_admin_header', array( $this, 'add_dashboard_switcher' ) );
 			add_action( 'admin_footer', array( $this, 'dashboard_switcher_scripts' ) );
 			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
@@ -281,20 +280,6 @@ abstract class Base_Admin_Menu {
 	 */
 	public function configure_colors_for_rtl_stylesheets() {
 		wp_style_add_data( 'colors', 'rtl', $this->is_rtl() );
-	}
-
-	/**
-	 * Injects inline-styles for site icon for when third-party plugins remove enqueued stylesheets.
-	 * Unable to use wp_add_inline_style as plugins remove styles from all non-standard handles
-	 */
-	public function set_site_icon_inline_styles() {
-		echo '<style>
-			#adminmenu .toplevel_page_site-card .wp-menu-image,
-			#adminmenu .toplevel_page_site-card .wp-menu-image img {
-				height: 32px;
-				width: 32px;
-			}
-		</style>';
 	}
 
 	/**
@@ -712,13 +697,13 @@ abstract class Base_Admin_Menu {
 			if ( isset( $menu_mappings[ $current_screen ] ) ) {
 				// Using `wp_redirect` intentionally because we're redirecting to Calypso.
 				wp_redirect( $menu_mappings[ $current_screen ] . $this->domain ); // phpcs:ignore WordPress.Security.SafeRedirect
-				exit;
+				exit( 0 );
 			}
 		} elseif ( self::CLASSIC_VIEW === $preferred_view ) {
 			// Removes the `preferred-view` param from the URL to avoid issues with
 			// screens that don't expect this param to be present in the URL.
 			wp_safe_redirect( remove_query_arg( 'preferred-view' ) );
-			exit;
+			exit( 0 );
 		}
 		// phpcs:enable WordPress.Security.NonceVerification
 	}

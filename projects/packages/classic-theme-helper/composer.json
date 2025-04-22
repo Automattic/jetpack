@@ -8,9 +8,9 @@
 		"automattic/jetpack-assets": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^1.1.1",
+		"yoast/phpunit-polyfills": "^3.0.0",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "^0.4.2"
+		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -25,12 +25,10 @@
 			"pnpm run build"
 		],
 		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -47,15 +45,10 @@
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
-	},
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.9.x-dev"
+			"dev-trunk": "0.11.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"

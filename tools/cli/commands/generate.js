@@ -713,12 +713,7 @@ async function createComposerJson( composerJson, answers ) {
 			"echo 'Add your build step to composer.json, please!'";
 	}
 	if ( answers.wordbless ) {
-		composerJson.scripts[ 'post-install-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
-		composerJson.scripts[ 'post-update-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
-		composerJson[ 'require-dev' ][ 'automattic/wordbless' ] = 'dev-master';
-		composerJson.config = composerJson.config || {};
-		composerJson.config[ 'allow-plugins' ] = composerJson.config[ 'allow-plugins' ] || {};
-		composerJson.config[ 'allow-plugins' ][ 'roots/wordpress-core-installer' ] = true;
+		composerJson[ 'require-dev' ][ 'automattic/jetpack-test-environment' ] = '@dev';
 	}
 
 	try {
@@ -960,7 +955,7 @@ function createReadMeTxt( answers ) {
 		'Tags: jetpack, stuff\n' +
 		'Requires at least: 6.6\n' +
 		'Requires PHP: 7.2\n' +
-		'Tested up to: 6.7\n' +
+		'Tested up to: 6.8\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

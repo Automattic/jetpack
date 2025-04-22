@@ -141,7 +141,7 @@ function jetpackcrm_dash_refresh() {
 	);
 
 	echo wp_json_encode( $r );
-	die();
+	die( 0 );
 }
 add_action( 'wp_ajax_jetpackcrm_dash_refresh', 'jetpackcrm_dash_refresh' );
 

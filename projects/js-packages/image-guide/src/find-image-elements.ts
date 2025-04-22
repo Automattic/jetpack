@@ -1,4 +1,4 @@
-import { MeasurableImage, type FetchFn } from './MeasurableImage.js';
+import { MeasurableImage, type FetchFn } from './MeasurableImage.ts';
 
 /**
  * Get elements that either are image tags or have a background image.

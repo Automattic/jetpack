@@ -1,4 +1,4 @@
-@import '../style.module.scss';
+@import '../style.module';
 
 /* More requests */
 .card {
@@ -60,7 +60,7 @@
 		}
 
 		.product-interstitial__hero-sub-heading {
-			font-weight: normal;
+			font-weight: 400;
 			margin: calc( var( --spacing-base ) * 3 ) 0;
 		}
 
@@ -76,7 +76,7 @@
 
 	.product-interstitial__hero-side {
 		display: flex;
-		gap: calc(var(--spacing-base)* 3);
+		gap: calc(var(--spacing-base) * 3);
 		align-items: center;
 		flex-wrap: wrap;
 		justify-content: flex-end;
@@ -176,7 +176,7 @@
 
 	.product-interstitial__section-heading {
 		font-size: 34px;
-		font-weight: normal;
+		font-weight: 400;
 		margin: 0;
 		line-height: 40px;
 	}
@@ -188,7 +188,7 @@
 	.product-interstitial__section-emoji {
 		font-size: 48px;
 		line-height: 24px;
-		margin-bottom: calc(var(--spacing-base)* 6);
+		margin-bottom: calc(var(--spacing-base) * 6);
 	}
 }
 

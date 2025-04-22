@@ -28,6 +28,7 @@
 			font-weight: 500;
 			font-size: 14px;
 		}
+
 		.email{
 			color: #3C434A;
 			font-weight: 400;
@@ -45,10 +46,13 @@
 		}
 
 		tbody {
+
 			tr {
+
 				&.selected {
 					background-color: var(--jp-green-0);
 				}
+
 				&:hover {
 					background-color: var(--jp-gray-0);
 				}

@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Masterbar;
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -189,7 +190,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		parent::add_jetpack_menu();
 
 		/* translators: Jetpack sidebar menu item. */
-		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack-masterbar' ), __( 'Search', 'jetpack-masterbar' ), 'manage_options', 'jetpack-search', admin_url( 'admin.php?page=jetpack-search' ), 4 );
+		add_submenu_page( 'jetpack', esc_attr_x( 'Search', 'Jetpack product name', 'jetpack-masterbar' ), _x( 'Search', 'Jetpack product name', 'jetpack-masterbar' ), 'manage_options', 'jetpack-search', admin_url( 'admin.php?page=jetpack-search' ), 4 );
 
 		// Place "Scan" submenu after Backup.
 		$position = 0;
@@ -246,8 +247,13 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 			add_submenu_page( $users_url, esc_attr__( 'All Users', 'jetpack-masterbar' ), __( 'All Users', 'jetpack-masterbar' ), 'list_users', $users_url, null, 10 );
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( $users_url, esc_attr__( 'Add New User', 'jetpack-masterbar' ), __( 'Add New User', 'jetpack-masterbar' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 20 );
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( $users_url, esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 30 );
+			if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
+				// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+				add_submenu_page( $users_url, esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 30 );
+			} else {
+				$subscribers_dashboard = new Subscribers_Dashboard();
+				$subscribers_dashboard->add_wp_admin_submenu();
+			}
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( $users_url, esc_attr__( 'My Profile', 'jetpack-masterbar' ), __( 'My Profile', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/me', null, 40 );
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.

@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
-import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
+import { getJetpackData, useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
 /*
  * Types
  */

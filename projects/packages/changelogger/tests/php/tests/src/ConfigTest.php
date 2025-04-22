@@ -21,10 +21,9 @@ class ConfigTest extends TestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->useTempDir();
 
 		file_put_contents( 'bogus.json', "bogus\n" );

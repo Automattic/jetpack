@@ -80,6 +80,7 @@ export default function DetailsPanel( {
 				onChange={ value => setAttributes( { title: value } ) }
 				disabled={ isRequestingVideoData || !! updateError || ! videoBelongToSite }
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 
 			<TextareaControl

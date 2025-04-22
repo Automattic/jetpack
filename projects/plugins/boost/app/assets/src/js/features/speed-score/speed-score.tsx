@@ -167,11 +167,11 @@ const SpeedScore = () => {
 export default () => {
 	return (
 		<ErrorBoundary
-			fallback={
+			fallback={ _error => (
 				<div className="jb-container">
 					<p>{ __( 'Failed to load Speed Score.', 'jetpack-boost' ) }</p>
 				</div>
-			}
+			) }
 		>
 			<SpeedScore />
 		</ErrorBoundary>

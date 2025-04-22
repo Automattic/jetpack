@@ -375,7 +375,7 @@ abstract class Sharing_Source_Block {
 
 		// We set up this custom header to indicate to search engines not to index this page.
 		header( 'X-Robots-Tag: noindex, nofollow' );
-		die();
+		die( 0 );
 	}
 }
 
@@ -499,7 +499,7 @@ class Share_Email_Block extends Sharing_Source_Block {
 			wp_send_json_success();
 		} else {
 			wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email&msg=fail' );
-			exit;
+			exit( 0 );
 		}
 
 		wp_die();
@@ -738,7 +738,7 @@ class Share_Pinterest_Block extends Sharing_Source_Block {
 			parent::redirect_request( $pinterest_url );
 		} else {
 			echo '// share count bumped';
-			die();
+			die( 0 );
 		}
 	}
 }
@@ -1188,7 +1188,7 @@ class Share_Twitter_Block extends Sharing_Source_Block {
 	 * @return string
 	 */
 	public function get_name() {
-		return __( 'Twitter', 'jetpack' );
+		return __( 'X', 'jetpack' );
 	}
 
 	/**
@@ -1325,7 +1325,7 @@ class Share_Twitter_Block extends Sharing_Source_Block {
 		$url         = $post_link;
 		$twitter_url = add_query_arg(
 			rawurlencode_deep( array_filter( compact( 'via', 'related', 'text', 'url' ) ) ),
-			'https://twitter.com/intent/tweet'
+			'https://x.com/intent/tweet'
 		);
 
 		parent::redirect_request( $twitter_url );

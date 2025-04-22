@@ -24,15 +24,16 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 	const { deleteConnectionById, setKeyringResult, openConnectionsModal, setReconnectingAccount } =
 		useDispatch( socialStore );
 
-	const { isDisconnecting } = useSelect(
+	const { isDisconnecting, canManageConnection } = useSelect(
 		select => {
-			const { getDeletingConnections } = select( socialStore );
+			const { getDeletingConnections, canUserManageConnection } = select( socialStore );
 
 			return {
 				isDisconnecting: getDeletingConnections().includes( connection.connection_id ),
+				canManageConnection: canUserManageConnection( connection ),
 			};
 		},
-		[ connection.connection_id ]
+		[ connection ]
 	);
 
 	const onConfirm = useCallback(
@@ -62,11 +63,11 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 
 		const formData = new FormData();
 
-		if ( service.ID === 'mastodon' ) {
-			formData.set( 'instance', connection.external_display );
+		if ( service.id === 'mastodon' ) {
+			formData.set( 'instance', connection.external_handle );
 		}
 
-		if ( service.ID === 'bluesky' ) {
+		if ( service.id === 'bluesky' ) {
 			openConnectionsModal();
 		} else {
 			requestAccess( formData );
@@ -76,11 +77,11 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 		deleteConnectionById,
 		openConnectionsModal,
 		requestAccess,
-		service.ID,
+		service.id,
 		setReconnectingAccount,
 	] );
 
-	if ( ! connection.can_disconnect ) {
+	if ( ! canManageConnection ) {
 		return null;
 	}
 

@@ -5,7 +5,7 @@
  * Jetpack CRM - https://jetpackcrm.com
  */
 
-	defined( 'ZEROBSCRM_PATH' ) || exit;
+	defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 	// permissions check
 if ( ! zeroBSCRM_permsExport() ) {

@@ -17,34 +17,19 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Class Jetpack_Publicize
  */
 class Jetpack_Publicize {
-	/**
-	 * Current status about Jetpack modules.
-	 *
-	 * @var Automattic\Jetpack\Modules
-	 */
-	public $modules;
-
-	/**
-	 * If Publicize is executing within Jetpack.
-	 *
-	 * @var bool
-	 */
-	public $in_jetpack = true;
-
 	/**
 	 * Jetpack_Publicize constructor.
 	 */
 	public function __construct() {
 		global $publicize_ui;
 
-		$this->modules    = new Automattic\Jetpack\Modules();
-		$this->in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
-
-		if ( $this->in_jetpack ) {
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
 			Jetpack::enable_module_configurable( __FILE__ );
 
 			/*
@@ -97,7 +82,7 @@ if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 	// None of this should be the case, but we can get here with a broken user connection. If that's the case
 	// then we want to stop loading any more of the module code.
 	if (
-		! ( new Automattic\Jetpack\Modules() )->is_active( 'publicize' )
+		! Jetpack::is_module_active( 'publicize' )
 		|| ! Jetpack::connection()->has_connected_user()
 		|| ! $publicize
 	) {

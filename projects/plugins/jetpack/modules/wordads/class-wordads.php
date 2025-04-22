@@ -247,7 +247,7 @@ class WordAds {
 			http_response_code( 200 );
 			header( 'Content-Type: text/plain; charset=utf-8' );
 			echo esc_html( $ads_txt_content );
-			die();
+			die( 0 );
 		}
 	}
 

@@ -160,6 +160,7 @@ export default function TrackForm( {
 										</Button>
 									);
 								} }
+								__next40pxDefaultSize={ true }
 							/>
 						</MediaUploadCheck>
 					</div>
@@ -173,6 +174,7 @@ export default function TrackForm( {
 						help={ __( 'Title of track', 'jetpack-videopress-pkg' ) }
 						disabled={ isSavingTrack }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<TextControl
 						className="video-tracks-control__track-form-language-tag"
@@ -182,6 +184,7 @@ export default function TrackForm( {
 						help={ __( 'Language (en, fr, etc.)', 'jetpack-videopress-pkg' ) }
 						disabled={ isSavingTrack }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 				</div>
 				<SelectControl
@@ -194,6 +197,7 @@ export default function TrackForm( {
 					onChange={ newKind => updateTrack( 'kind', newKind ) }
 					disabled={ isSavingTrack }
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				/>
 
 				{ error && (

@@ -1087,12 +1087,15 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			);
 
 			$posts = $this->librarian->query_most_recent_posts( JP_NEWS_SITEMAP_MAX_ITEMS );
+			if ( empty( $posts ) ) {
+				$buffer->append( array( 'url' => array( 'loc' => home_url( '/' ) ) ) );
+			} else {
+				foreach ( $posts as $post ) {
+					$current_item = $this->post_to_news_sitemap_item( $post );
 
-			foreach ( $posts as $post ) {
-				$current_item = $this->post_to_news_sitemap_item( $post );
-
-				if ( false === $buffer->append( $current_item['xml'] ) ) {
-					break;
+					if ( false === $buffer->append( $current_item['xml'] ) ) {
+						break;
+					}
 				}
 			}
 

@@ -11,21 +11,19 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 15+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 8 occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
+    // PhanNoopNew : 6 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
-    // PhanNoopNew : 5 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
-    // PhanParamTooMany : 2 occurrences
     // PhanTypeArraySuspicious : 2 occurrences
     // PhanTypeArraySuspiciousNullable : 2 occurrences
     // PhanTypeMismatchDefault : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
     // PhanUndeclaredFunction : 2 occurrences
-    // PhanDeprecatedFunction : 1 occurrence
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanNonClassMethodCall : 1 occurrence
     // PhanNoopArrayAccess : 1 occurrence
@@ -35,7 +33,6 @@ return [
     // PhanTypeComparisonToArray : 1 occurrence
     // PhanTypeMismatchDimFetch : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
-    // PhanTypeNonVarPassByRef : 1 occurrence
     // PhanTypeVoidArgument : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -53,17 +50,16 @@ return [
         'src/features/launchpad/launchpad.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/features/marketplace-products-updater/class-marketplace-products-updater.php' => ['PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn'],
         'src/features/media/heif-support.php' => ['PhanPluginSimplifyExpressionBool'],
-        'src/features/verbum-comments/class-verbum-comments.php' => ['PhanImpossibleTypeComparison', 'PhanNoopNew', 'PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
+        'src/features/verbum-comments/class-verbum-comments.php' => ['PhanImpossibleTypeComparison', 'PhanNoopNew', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-launchpad.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-migrate-guru-key.php' => ['PhanUndeclaredClassMethod'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-wpcom-migration-key.php' => ['PhanUndeclaredClassMethod'],
         'tests/lib/functions-wordpress.php' => ['PhanRedefineFunction'],
-        'tests/php/features/block-patterns/class-wpcom-block-patterns-from-api-test.php' => ['PhanDeprecatedFunction'],
-        'tests/php/features/coming-soon/class-coming-soon-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
+        'tests/php/features/coming-soon/Coming_Soon_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
+        'tests/php/features/launchpad/Launchpad_Task_List_Validation_Test.php' => ['PhanNonClassMethodCall'],
+        'tests/php/features/launchpad/Launchpad_Task_Lists_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
+        'tests/php/features/launchpad/Launchpad_WPCOM_Requests_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/features/launchpad/class-launchpad-jetpack-connection-client-mock.php' => ['PhanTypeMissingReturn'],
-        'tests/php/features/launchpad/class-launchpad-task-list-validation-test.php' => ['PhanNonClassMethodCall'],
-        'tests/php/features/launchpad/class-launchpad-task-lists-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeNonVarPassByRef'],
-        'tests/php/features/launchpad/class-launchpad-wpcom-requests-test.php' => ['PhanTypeMismatchArgument'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

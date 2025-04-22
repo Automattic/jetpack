@@ -75,6 +75,9 @@ function make_phan_config( $dir, $options = array() ) {
 			case 'full-site-editing':
 				$stubs[] = "$root/.phan/stubs/full-site-editing-stubs.php";
 				break;
+			case 'gutenberg':
+				$stubs[] = "$root/.phan/stubs/gutenberg-stubs.php";
+				break;
 			case 'photon-opencv':
 				$stubs[] = "$root/.phan/stubs/photon-opencv-stubs.php";
 				break;
@@ -109,7 +112,6 @@ function make_phan_config( $dir, $options = array() ) {
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/footer-credit/footer-credit/customizer.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/footer-credit/theme-optimizations.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/lib/require-lib.php";
-					$extra_stubs[] = "$root/projects/plugins/wpcomsh/logo-tool/logo-tool.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/wpcom-features/class-wpcom-features.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/wpcom-features/functions-wpcom-features.php";
 				}
@@ -132,6 +134,25 @@ function make_phan_config( $dir, $options = array() ) {
 			throw new InvalidArgumentException( "Can not load internal stubs for '$stub': file $stub_file_path does not exist." );
 		}
 		$internal_stubs[ $stub ] = $stub_file_path;
+	}
+
+	// Check if test-environment is a dependency and add WorDBless if it is
+	$composer_json = $dir . '/composer.json';
+	if ( file_exists( $composer_json ) ) {
+		$composer_data = json_decode( file_get_contents( $composer_json ), true );
+		foreach ( array( 'require', 'require-dev' ) as $require_type ) {
+			if ( isset( $composer_data[ $require_type ]['automattic/jetpack-test-environment'] ) ) {
+				// Use absolute path to ensure WorDBless is found
+				$wordbless_path = dirname( __DIR__ ) . '/tools/php-test-env/vendor/automattic/wordbless';
+				if ( is_dir( $wordbless_path ) ) {
+					// Only include the src directory
+					$options['directory_list'][] = $wordbless_path . '/src';
+					// Exclude from analysis
+					$options['exclude_analysis_directory_list'][] = $wordbless_path;
+				}
+				break;
+			}
+		}
 	}
 
 	$config = array(
@@ -219,7 +240,7 @@ function make_phan_config( $dir, $options = array() ) {
 					'wordpress/',
 					'\.cache/',
 				),
-				// PHPUnit 9.6 has some broken phpdocs and missing `@template` annotations. We provide corrected stubs.
+				// PHPUnit 11.5 has some stuff that doesn't work with Phan. We provide corrected stubs.
 				// This file holds the vendor paths we stubbed.
 				explode( "\n", trim( (string) file_get_contents( "$root/.phan/stubs/phpunit-dirs.txt" ) ) ),
 				$options['exclude_file_regex']

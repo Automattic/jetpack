@@ -1,8 +1,11 @@
 import {
 	getJetpackExtensionAvailability,
+	withHasWarningIsInteractiveClassNames,
 	requiresPaidPlan,
+	getJetpackData,
 } from '@automattic/jetpack-shared-extension-utils';
 import { registerBlockType } from '@wordpress/blocks';
+import { addFilter } from '@wordpress/hooks';
 
 /**
  * Registers a gutenberg block if the availability requirements are met.
@@ -15,6 +18,8 @@ import { registerBlockType } from '@wordpress/blocks';
  */
 export default function registerJetpackBlock( name, settings, childBlocks = [], prefix = true ) {
 	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
+	const jetpackData = getJetpackData();
+	const isBeta = jetpackData?.blocks_variation === 'beta';
 
 	const requiredPlan = requiresPaidPlan( unavailableReason, details );
 	const jpPrefix = prefix ? 'jetpack/' : '';
@@ -32,11 +37,23 @@ export default function registerJetpackBlock( name, settings, childBlocks = [], 
 
 	const result = registerBlockType( jpPrefix + name, settings );
 
+	if ( requiredPlan ) {
+		addFilter(
+			'editor.BlockListBlock',
+			`${ jpPrefix + name }-with-has-warning-is-interactive-class-names`,
+			withHasWarningIsInteractiveClassNames( jpPrefix + name )
+		);
+	}
+
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
 	// their parent is available, we register them all, without checking for their individual availability.
-	childBlocks.forEach( childBlock =>
-		registerBlockType( jpPrefix + childBlock.name, childBlock.settings )
-	);
+	childBlocks.forEach( childBlock => {
+		// Skip beta blocks unless beta variation is enabled
+		if ( childBlock.settings?.isBeta && ! isBeta ) {
+			return;
+		}
+		registerBlockType( jpPrefix + childBlock.name, childBlock.settings );
+	} );
 
 	return result;
 }

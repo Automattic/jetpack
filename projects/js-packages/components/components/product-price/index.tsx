@@ -6,10 +6,10 @@ import clsx from 'clsx';
 /*
  * Internal dependencies
  */
-import Text from '../text';
-import { Price } from './price';
+import Text from '../text/index.tsx';
+import { Price } from './price.tsx';
 import styles from './style.module.scss';
-import type { ProductPriceProps } from './types';
+import type { ProductPriceProps } from './types.ts';
 import type React from 'react';
 
 /**
@@ -87,4 +87,4 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 };
 
 export default ProductPrice;
-export * from './price';
+export * from './price.tsx';

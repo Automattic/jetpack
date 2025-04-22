@@ -1,15 +1,15 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import clsx from 'clsx';
-import Alert from '../alert';
-import Button from '../button/index';
-import { CheckmarkIcon } from '../icons/index';
-import ProductPrice from '../product-price/index';
-import Text, { H3, Title } from '../text/index';
-import { IconsCard } from './icons-card';
-import { ProductOfferHeader } from './product-offer-header';
+import Alert from '../alert/index.tsx';
+import Button from '../button/index.tsx';
+import { CheckmarkIcon } from '../icons/index.tsx';
+import ProductPrice from '../product-price/index.tsx';
+import Text, { H3, Title } from '../text/index.tsx';
+import { IconsCard } from './icons-card.tsx';
+import { ProductOfferHeader } from './product-offer-header.tsx';
 import styles from './style.module.scss';
-import { ProductOfferProps } from './types';
+import { ProductOfferProps } from './types.ts';
 import type React from 'react';
 
 /**
@@ -112,4 +112,4 @@ const ProductOffer: React.FC< ProductOfferProps > = ( {
 };
 
 export default ProductOffer;
-export * from './icons-card';
+export * from './icons-card.tsx';

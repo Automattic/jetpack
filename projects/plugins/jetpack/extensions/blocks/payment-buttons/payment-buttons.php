@@ -37,7 +37,7 @@ function register_block() {
 	} else {
 		$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'personal-bundle' : 'jetpack_personal';
 		\Jetpack_Gutenberg::set_extension_unavailable(
-			Blocks::get_block_name( __DIR__ ),
+			'payment-buttons',
 			'missing_plan',
 			array(
 				'required_feature' => 'memberships',

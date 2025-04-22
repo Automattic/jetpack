@@ -2,12 +2,12 @@ import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useEffect, useCallback } from 'react';
-import JetpackFooter from '../jetpack-footer';
-import JetpackLogo from '../jetpack-logo';
-import Col from '../layout/col';
-import Container from '../layout/container';
+import JetpackFooter from '../jetpack-footer/index.tsx';
+import JetpackLogo from '../jetpack-logo/index.tsx';
+import Col from '../layout/col/index.tsx';
+import Container from '../layout/container/index.tsx';
 import styles from './style.module.scss';
-import type { AdminPageProps } from './types';
+import type { AdminPageProps } from './types.ts';
 import type React from 'react';
 
 /**
@@ -24,10 +24,12 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 	moduleNameHref,
 	showHeader = true,
 	showFooter = true,
+	useInternalLinks = false,
 	showBackground = true,
 	sandboxedDomain = '',
 	apiRoot = '',
 	apiNonce = '',
+	optionalMenuItems,
 	header,
 } ) => {
 	useEffect( () => {
@@ -61,7 +63,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 		<div className={ rootClassName }>
 			{ showHeader && (
 				<Container horizontalSpacing={ 5 }>
-					<Col className={ styles[ 'admin-page-header' ] }>
+					<Col className={ clsx( styles[ 'admin-page-header' ], 'jp-admin-page-header' ) }>
 						{ header ? header : <JetpackLogo /> }
 						{ sandboxedDomain && (
 							<code
@@ -85,7 +87,12 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 			{ showFooter && (
 				<Container horizontalSpacing={ 5 }>
 					<Col>
-						<JetpackFooter moduleName={ moduleName } moduleNameHref={ moduleNameHref } />
+						<JetpackFooter
+							moduleName={ moduleName }
+							moduleNameHref={ moduleNameHref }
+							menu={ optionalMenuItems }
+							useInternalLinks={ useInternalLinks }
+						/>
 					</Col>
 				</Container>
 			) }

@@ -45,6 +45,27 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 	);
 
 	/**
+	 * Name.
+	 *
+	 * @var string
+	 */
+	public $name;
+
+	/**
+	 * Icon.
+	 *
+	 * @var string
+	 */
+	public $icon;
+
+	/**
+	 * Properties.
+	 *
+	 * @var array
+	 */
+	public $props;
+
+	/**
 	 * Initialize the thing.
 	 */
 	public function init() {

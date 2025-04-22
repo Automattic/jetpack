@@ -9,13 +9,7 @@
  * Date: 20/02/2019
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -417,11 +411,6 @@
                     // Save tags against objid
                     $quote['tags'] = zeroBSCRM_tags_retrieveFromPostBag(true,ZBS_TYPE_QUOTE);  
 
-                    /*// debug
-                    echo 'POST:<pre>'.print_r($_POST,1).'</pre>';
-                    echo 'Quote:<pre>'.print_r($quote,1).'</pre>';
-                    exit();*/
-
                     // we always get this, because it's used below, but not part of buildObjArr (currently at 3.0)
                     if ($quoteID > 0) $quote['template'] = (int)$zbs->DAL->quotes->getQuoteTemplateID($quoteID);
 
@@ -529,8 +518,6 @@
 
                     ));
 
-                //echo 'adding:'.$quoteID.':<pre>'.print_r($quote,1).'</pre>'; exit();
-
                 // Note: For NEW objs, we make sure a global is set here, that other update funcs can catch 
                 // ... so it's essential this one runs first!
                 // this is managed in the metabox Class :)
@@ -589,7 +576,7 @@
 
                     // redir
                     wp_redirect( jpcrm_esc_link('edit',$zbsJustInsertedMetaboxID,$this->objType) );
-                    exit;
+				exit( 0 );
 
                 }
 

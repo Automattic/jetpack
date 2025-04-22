@@ -145,6 +145,7 @@
 	}
 
 	:global {
+
 		.components-button.is-link {
 			color: $studio-automattic-blue;
 			white-space: nowrap;
@@ -155,7 +156,9 @@
 }
 
 .connect-button-wrapper {
+
 	:global {
+
 		.components-button {
 			background-color: $studio-automattic-blue;
 			min-width: 178px;
@@ -164,6 +167,7 @@
 }
 
 :global {
+
 	.components-button.is-link.components-button--back {
 		font-size: 14px;
 		color: $studio-black;

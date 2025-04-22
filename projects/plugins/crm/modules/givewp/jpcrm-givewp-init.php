@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * This file registers the GiveWP module with core; it's pretty convoluted,

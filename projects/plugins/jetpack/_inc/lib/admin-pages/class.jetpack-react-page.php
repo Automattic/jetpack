@@ -4,6 +4,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Publicize\Publicize_Script_Data;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class.jetpack-admin-page.php';
@@ -55,7 +56,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			if ( strpos( $page, 'jetpack/' ) === 0 ) {
 				$section = substr( $page, 8 );
 				wp_safe_redirect( admin_url( 'admin.php?page=jetpack#/' . $section ) );
-				exit;
+				exit( 0 );
 			}
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page.
 		}
@@ -79,18 +80,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Remove the main Jetpack submenu if a site is in offline mode or connected.
-	 * At that point, admins can access the Jetpack Dashboard instead.
+	 * Remove the main Jetpack submenu as it is not needed since the user centric onboarding.
+	 * The admins can access the Jetpack Dashboard or My-Jetpack menus instead.
 	 *
 	 * @since 13.8
 	 */
 	public function remove_jetpack_menu() {
-		if (
-			( new Status() )->is_offline_mode()
-			|| Jetpack::is_connection_ready()
-		) {
-			remove_submenu_page( 'jetpack', 'jetpack' );
-		}
+		remove_submenu_page( 'jetpack', 'jetpack' );
 	}
 
 	/**
@@ -169,7 +165,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			 */
 			if (
 				! Jetpack::is_module_active( 'post-by-email' )
-				&& ! Jetpack::is_module_active( 'publicize' )
+					&& (
+						Publicize_Script_Data::has_feature_flag( 'admin-page' ) ||
+						! Jetpack::is_module_active( 'publicize' ) ||
+						! current_user_can( 'publish_posts' )
+					)
 			) {
 				return false;
 			}
@@ -267,7 +267,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$target = sanitize_text_field( wp_unslash( $_GET['jp-react-redirect'] ) );
 		if ( isset( $allowed_paths[ $target ] ) ) {
 			wp_safe_redirect( $allowed_paths[ $target ] );
-			exit;
+			exit( 0 );
 		}
 	}
 

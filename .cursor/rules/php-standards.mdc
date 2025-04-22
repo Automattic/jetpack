@@ -1,0 +1,20 @@
+---
+description: PHP coding standards
+globs: *.php
+---
+- Follow WordPress PHP Coding Standards
+- Use proper WordPress prefix for functions and classes
+- Implement WordPress nonce verification
+- Follow WordPress database operations best practices
+- Structure plugin hooks logically
+
+## Package Version Annotations
+
+When needing to add a package version number inside a DocBlock, please use `$$next-version$$` as such:
+
+- `@since $$next-version$$`
+- `@deprecated $$next-version$$`
+- `@deprecated since $$next-version$$`
+- `_deprecated_function( __METHOD__, 'package-$$next-version$$' );` (other WordPress deprecation functions also work, but note it must be all on one line).
+
+The `$$next-version$$` specifier will be automatically replaced with the correct package version number the next time a new version of that package is released.

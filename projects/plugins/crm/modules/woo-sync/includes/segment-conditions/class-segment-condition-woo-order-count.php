@@ -8,7 +8,7 @@
  */
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * WooSync: Segment Condition: Order Count class

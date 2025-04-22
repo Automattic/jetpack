@@ -1,3 +1,4 @@
+import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -69,7 +70,8 @@ const getCopyForCategorySubscribers = ( {
 	reachCount,
 } ) => {
 	const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
-	const reachCountString = reachCount.toLocaleString();
+	// This needs a more elegant solution, but for now it stops the crash when the count is undefined.
+	const reachCountString = undefined === reachCount ? '0' : reachCount.toLocaleString();
 
 	if ( futureTense ) {
 		return sprintf(
@@ -77,7 +79,7 @@ const getCopyForCategorySubscribers = ( {
 			_n(
 				'This post will be sent to everyone subscribed to %1$s (%2$s subscriber).',
 				'This post will be sent to everyone subscribed to %1$s (%2$s subscribers).',
-				reachCount,
+				reachCount ?? 0,
 				'jetpack'
 			),
 			formattedCategoryNames,
@@ -90,7 +92,7 @@ const getCopyForCategorySubscribers = ( {
 		_n(
 			'This post was sent to everyone subscribed to %1$s (%2$s subscriber).',
 			'This post was sent to everyone subscribed to %1$s (%2$s subscribers).',
-			reachCount,
+			reachCount ?? 0,
 			'jetpack'
 		),
 		formattedCategoryNames,
@@ -260,6 +262,11 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	if ( ! isSendEmailEnabled() ) {
 		text = __( 'Not sent via email.', 'jetpack' );
+	} else if ( isComingSoon() ) {
+		text = __(
+			'Your site is in Coming Soon mode. Emails are sent only when your site is public.',
+			'jetpack'
+		);
 	} else if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
 		// Get newsletter category copy & count separately, unless post is paid
 		text = getCopyForCategorySubscribers( {

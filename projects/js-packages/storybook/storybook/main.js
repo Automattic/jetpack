@@ -54,7 +54,7 @@ const sbconfig = {
 		// Use esbuild to minify.
 		config.optimization.minimizer = [
 			new EsbuildPlugin( {
-				target: 'es2018',
+				target: 'esnext',
 			} ),
 		];
 
@@ -107,13 +107,6 @@ const sbconfig = {
 			$svg: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/svg' ),
 			$css: path.join( __dirname, '../../../plugins/boost/app/assets/src/css' ),
 			$images: path.join( __dirname, '../../../plugins/boost/app/assets/static/images' ),
-		};
-
-		// For tsc
-		config.resolve.extensionAlias = {
-			'.js': [ '.js', '.ts', '.tsx' ],
-			'.cjs': [ '.cjs', '.cts' ],
-			'.mjs': [ '.mjs', '.mts' ],
 		};
 
 		return config;

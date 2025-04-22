@@ -110,6 +110,7 @@ const JetpackEmailConnectionSettings = ( {
 					'jetpack-forms'
 				) }
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 
 			<HelpMessage isError id={ `contact-form-${ instanceId }-email-error` }>
@@ -122,6 +123,7 @@ const JetpackEmailConnectionSettings = ( {
 				placeholder={ __( 'Enter a subject', 'jetpack-forms' ) }
 				onChange={ newSubject => setAttributes( { subject: newSubject } ) }
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 		</>
 	);

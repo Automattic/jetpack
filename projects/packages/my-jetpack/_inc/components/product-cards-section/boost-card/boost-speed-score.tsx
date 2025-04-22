@@ -6,7 +6,7 @@ import {
 import { Spinner, BoostScoreBar } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { arrowUp, Icon } from '@wordpress/icons';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
@@ -19,6 +19,60 @@ import type { SpeedScores, BoostSpeedScoreType } from './types';
 import type { SetStateAction } from 'react';
 
 import './style.scss';
+
+/**
+ * Creates the text read by screen readers for the Boost Speed Score card.
+ *
+ * @param {string} speedLetterGrade     - Letter grade for the speed score (e.g. 'A', 'B', etc)
+ * @param {number} currentSpeedScore    - Current numerical speed score (0-100)
+ * @param {number} [boostScoreIncrease] - Optional score increase/decrease amount
+ * @param {string} [cta]                - Optional call-to-action text
+ * @return {string} Screen reader text describing the speed score
+ */
+
+const createSpeedScoreSRText = (
+	speedLetterGrade: string,
+	currentSpeedScore: number,
+	boostScoreIncrease?: number,
+	cta?: string
+) => {
+	if ( ! speedLetterGrade || typeof currentSpeedScore !== 'number' ) {
+		return '';
+	}
+
+	const fragments = [];
+
+	fragments.push(
+		sprintf(
+			// translators: %1$s: speed grade (e.g. 'A'), %2$s: numerical speed score (e.g. '95').
+			__( 'Your website’s overall speed score is %1$s, or %2$s out of 100.', 'jetpack-my-jetpack' ),
+			speedLetterGrade,
+			currentSpeedScore
+		)
+	);
+
+	if ( typeof boostScoreIncrease === 'number' ) {
+		fragments.push(
+			boostScoreIncrease > 0
+				? sprintf(
+						// translators: %s: score increase (e.g. '10')
+						__( 'Your website’s overall speed score increased by %s.', 'jetpack-my-jetpack' ),
+						boostScoreIncrease
+				  )
+				: sprintf(
+						// translators: %s: score increase (e.g. '10')
+						__( 'Your website’s overall speed score decreased by %s.', 'jetpack-my-jetpack' ),
+						boostScoreIncrease
+				  )
+		);
+	}
+
+	if ( cta ) {
+		fragments.push( cta );
+	}
+
+	return fragments.join( ' ' );
+};
 
 const BoostSpeedScore: BoostSpeedScoreType = () => {
 	const { recordEvent } = useAnalytics();
@@ -174,44 +228,54 @@ const BoostSpeedScore: BoostSpeedScoreType = () => {
 					<Spinner color="#23282d" size={ 16 } />
 				) : (
 					<>
-						<div className="mj-boost-speed-score__grade">
-							<span>{ __( 'Your website’s overall speed score:', 'jetpack-my-jetpack' ) }</span>
-							<span className="mj-boost-speed-score__grade--letter">
-								{ speedLetterGrade }
-								{ ! isLoading && shouldShowTooltip && (
-									<Popover
-										placement={ isMobileViewport ? 'top-end' : 'top-start' }
-										noArrow={ false }
-										offset={ 10 }
-									>
-										<div className={ 'boost-score-tooltip__parent' }>
-											<p className={ 'boost-score-tooltip__heading' }>
-												{ /* Add the `&nbsp;` at the end to prevent widows. */ }
-												{ __( 'Site speed performance:', 'jetpack-my-jetpack' ) }&nbsp;
-												{ speedLetterGrade }
-											</p>
-											<p className={ 'boost-score-tooltip__content' }>{ tooltipCopy }</p>
-										</div>
-									</Popover>
-								) }
-							</span>
+						<div className="screen-reader-text">
+							{ createSpeedScoreSRText(
+								speedLetterGrade,
+								currentSpeedScore,
+								boostScoreIncrease,
+								tooltipCopy
+							) }
 						</div>
-						<div className="mj-boost-speed-score__bar">
-							<BoostScoreBar
-								score={ currentSpeedScore }
-								active={ currentSpeedScore > 0 }
-								isLoading={ isLoading }
-								showPrevScores={ false }
-								scoreBarType="desktop"
-								noBoostScoreTooltip={ null }
-							/>
-						</div>
-						{ !! boostScoreIncrease && (
-							<div className="mj-boost-speed-score__increase">
-								<Icon size={ 18 } icon={ arrowUp } />
-								<span>{ boostScoreIncrease }</span>
+						<div aria-hidden="true">
+							<div className="mj-boost-speed-score__grade">
+								<span>{ __( 'Your website’s overall speed score:', 'jetpack-my-jetpack' ) }</span>
+								<span className="mj-boost-speed-score__grade--letter">
+									{ speedLetterGrade }
+									{ ! isLoading && shouldShowTooltip && (
+										<Popover
+											placement={ isMobileViewport ? 'top-end' : 'top-start' }
+											noArrow={ false }
+											offset={ 10 }
+										>
+											<div className={ 'boost-score-tooltip__parent' }>
+												<p className={ 'boost-score-tooltip__heading' }>
+													{ /* Add the `&nbsp;` at the end to prevent widows. */ }
+													{ __( 'Site speed performance:', 'jetpack-my-jetpack' ) }&nbsp;
+													{ speedLetterGrade }
+												</p>
+												<p className={ 'boost-score-tooltip__content' }>{ tooltipCopy }</p>
+											</div>
+										</Popover>
+									) }
+								</span>
 							</div>
-						) }
+							<div className="mj-boost-speed-score__bar">
+								<BoostScoreBar
+									score={ currentSpeedScore }
+									active={ currentSpeedScore > 0 }
+									isLoading={ isLoading }
+									showPrevScores={ false }
+									scoreBarType="desktop"
+									noBoostScoreTooltip={ null }
+								/>
+							</div>
+							{ !! boostScoreIncrease && (
+								<div className="mj-boost-speed-score__increase">
+									<Icon size={ 18 } icon={ arrowUp } />
+									<span>{ boostScoreIncrease }</span>
+								</div>
+							) }
+						</div>
 					</>
 				) }
 			</div>

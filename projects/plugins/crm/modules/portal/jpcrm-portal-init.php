@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
 *	This function inits everything needed. 

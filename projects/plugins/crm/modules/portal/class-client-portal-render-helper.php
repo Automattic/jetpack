@@ -8,7 +8,7 @@
 */
 namespace Automattic\JetpackCRM;
 
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * 
@@ -31,7 +31,7 @@ class Client_Portal_Render_Helper {
 		$err .= __('Either this object does not exist or you do not have permission to view it.', 'zero-bs-crm');
 		$err .= '</center>';
 		echo $err;
-		die();
+		die( 0 );
 	}
 
 	#} MS - can you make this work with templates, couldn't so dumped (dumbly) here for now:

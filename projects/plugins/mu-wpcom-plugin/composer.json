@@ -4,11 +4,14 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"php": ">=8.1",
+		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-mu-wpcom": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^1.1.1",
-		"automattic/jetpack-changelogger": "@dev"
+		"yoast/phpunit-polyfills": "^3.0.0",
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -17,10 +20,10 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
 		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -45,6 +48,9 @@
 		"release-branch-prefix": "mu-wpcom"
 	},
 	"config": {
-		"autoloader-suffix": "d9d132a783958a00a2c7cccff60ca42d_jetpack_mu_wpcom_pluginⓥ2_7_0"
+		"autoloader-suffix": "d9d132a783958a00a2c7cccff60ca42d_jetpack_mu_wpcom_pluginⓥ2_8_0",
+		"allow-plugins": {
+			"automattic/jetpack-composer-plugin": true
+		}
 	}
 }

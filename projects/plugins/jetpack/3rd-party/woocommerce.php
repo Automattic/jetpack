@@ -89,7 +89,7 @@ function jetpack_woocommerce_remove_share() {
 	if ( is_cart() || is_checkout() || is_account_page() ) {
 		remove_filter( 'the_content', 'sharing_display', 19 );
 		if ( class_exists( 'Jetpack_Likes' ) ) {
-			remove_filter( 'the_content', array( Jetpack_Likes::init(), 'post_likes' ), 30, 1 );
+			remove_filter( 'the_content', array( Jetpack_Likes::init(), 'post_likes' ), 30 );
 		}
 	}
 }

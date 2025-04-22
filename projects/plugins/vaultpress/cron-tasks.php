@@ -1,6 +1,6 @@
 <?php
 // don't call the file directly
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die( 0 );
 
 require_once __DIR__ . '/vp-scanner.php';
 

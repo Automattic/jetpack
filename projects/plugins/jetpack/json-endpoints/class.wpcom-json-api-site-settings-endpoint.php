@@ -499,6 +499,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_waf_share_debug_data'     => (bool) get_option( 'jetpack_waf_share_debug_data' ),
 						'jetpack_waf_automatic_rules_last_updated_timestamp' => (int) get_option( 'jetpack_waf_automatic_rules_last_updated_timestamp' ),
 						'is_fully_managed_agency_site'     => (bool) get_option( 'is_fully_managed_agency_site' ),
+						'wpcom_hide_action_bar'            => (bool) get_option( 'wpcom_hide_action_bar' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -689,6 +690,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( $value ) {
 						Jetpack::activate_module( $blog_id, 'search' );
 					} else {
+						// @phan-suppress-next-line PhanParamTooMany -- Phan doesn't know about the WP.com variant of the Jetpack class.
 						Jetpack::deactivate_module( $blog_id, 'search' );
 					}
 					$updated[ $key ] = (bool) $value;
@@ -705,6 +707,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						if ( $value ) {
 							Jetpack::activate_module( $blog_id, 'related-posts' );
 						} else {
+							// @phan-suppress-next-line PhanParamTooMany -- Phan doesn't know about the WP.com variant of the Jetpack class.
 							Jetpack::deactivate_module( $blog_id, 'related-posts' );
 						}
 					}
@@ -1183,6 +1186,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'is_fully_managed_agency_site':
+				case 'wpcom_hide_action_bar':
 					$coerce_value = (int) (bool) $value;
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = (bool) $coerce_value;

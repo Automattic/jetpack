@@ -12,7 +12,8 @@ define( 'JETPACK_MASTER_USER', true );
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-\WorDBless\Load::load();
+// Initialize WordPress test environment
+\Automattic\Jetpack\Test_Environment::init();
 
 // IXR legacy autoloading runs too early conditionally on ABSPATH and WPINC which are defined only after WordDBless loads.
 require_once ABSPATH . WPINC . '/IXR/class-IXR-client.php';

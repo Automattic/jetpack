@@ -163,7 +163,7 @@ class Jetpack_Admin {
 				)
 			)
 		);
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -481,7 +481,7 @@ class Jetpack_Admin {
 				}
 				// The following two lines will rarely happen, as Jetpack::activate_module normally exits at the end.
 				wp_safe_redirect( wp_get_referer() );
-				exit;
+				exit( 0 );
 			case 'bulk-deactivate':
 				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
 				if ( ! current_user_can( 'jetpack_deactivate_modules' ) ) {
@@ -496,7 +496,7 @@ class Jetpack_Admin {
 				}
 				Jetpack::state( 'module', $modules );
 				wp_safe_redirect( wp_get_referer() );
-				exit;
+				exit( 0 );
 			default:
 				return;
 		}

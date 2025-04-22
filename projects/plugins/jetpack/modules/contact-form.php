@@ -6,14 +6,14 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 
 /**
- * Module Name: Contact Form
- * Module Description: Add a customizable contact form to any post or page using the Jetpack Form Block.
+ * Module Name: Forms
+ * Module Description: Add a customizable form to any post or page using the Jetpack Form block.
  * Sort Order: 15
  * Recommendation Order: 14
  * First Introduced: 1.3

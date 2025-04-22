@@ -72,18 +72,17 @@ export const CheckboxCheckmark = ( props: {
 	onChange?: ( checked: boolean ) => void;
 } ): React.JSX.Element => {
 	return (
-		<label htmlFor={ props.for } className={ styles[ 'checkbox-container' ] }>
-			<Checkbox
-				id={ props.for }
-				className={ styles.checkbox }
-				onChange={ props.onChange }
-				checked={ props.checked }
-				disabled={ props.disabled }
-			/>
-			<span className={ styles[ 'checkbox-checkmark' ] } />
+		<Checkbox
+			id={ props.for }
+			htmlFor={ props.for }
+			className={ styles.checkbox }
+			onChange={ props.onChange }
+			checked={ props.checked }
+			disabled={ props.disabled }
+		>
 			<Text variant="body-small">{ props.label }</Text>
 			{ props.disabledReason && <DisabledReasonTooltip message={ props.disabledReason } /> }
-		</label>
+		</Checkbox>
 	);
 };
 

@@ -92,40 +92,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		// All globals need to be declared for menu items to properly register.
 		global $admin_page_hooks, $menu, $menu_order, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
-		$this->hide_customizer_menu_on_block_theme();
 		require_once ABSPATH . 'wp-admin/includes/admin.php';
 		require_once ABSPATH . 'wp-admin/menu.php';
 
 		return rest_ensure_response( $this->prepare_menu_for_response( $menu ) );
-	}
-
-	/**
-	 * Hides the Customizer menu items when the block theme is active by removing the dotcom-specific actions.
-	 * They are not needed for block themes.
-	 *
-	 * @see https://github.com/Automattic/jetpack/pull/36017
-	 */
-	private function hide_customizer_menu_on_block_theme() {
-		if ( wp_is_block_theme() && ! is_customize_preview() ) {
-			remove_action( 'customize_register', 'add_logotool_button', 20 );
-			remove_action( 'customize_register', 'footercredits_register', 99 );
-			remove_action( 'customize_register', 'wpcom_disable_customizer_site_icon', 20 );
-
-			if ( class_exists( '\Jetpack_Fonts' ) ) {
-				$jetpack_fonts_instance = \Jetpack_Fonts::get_instance();
-				remove_action( 'customize_register', array( $jetpack_fonts_instance, 'register_controls' ) );
-				remove_action( 'customize_register', array( $jetpack_fonts_instance, 'maybe_prepopulate_option' ), 0 );
-			}
-
-			remove_action( 'customize_register', array( 'Jetpack_Fonts_Typekit', 'maybe_override_for_advanced_mode' ), 20 );
-
-			if ( class_exists( 'Automattic\Jetpack\Masterbar' ) ) {
-				remove_action( 'customize_register', 'Automattic\Jetpack\Masterbar\register_css_nudge_control' );
-			}
-
-			// @phan-suppress-next-line PhanUndeclaredClassInCallable
-			remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
-		}
 	}
 
 	/**
@@ -153,6 +123,12 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 				// Add submenu items.
 				foreach ( $submenu_items as $submenu_item ) {
+					// As $submenu_item can be null or false due to combination of plugins/themes, its value
+					// must be checked before passing it to the prepare_submenu_item method. It may be related
+					// to the common usage of null as a "hidden" submenu item like was fixed in CRM in #29945.
+					if ( ! is_array( $submenu_item ) ) {
+						continue;
+					}
 					$submenu_item = $this->prepare_submenu_item( $submenu_item, $menu_item );
 					if ( ! empty( $submenu_item ) ) {
 						$item['children'][] = $submenu_item;

@@ -46,6 +46,13 @@ class iCalendarReader {
 	public $timezone = null;
 
 	/**
+	 * Last iCalendar keyword parsed.
+	 *
+	 * @var string
+	 */
+	public $last_keyword;
+
+	/**
 	 * Class constructor
 	 *
 	 * @return void

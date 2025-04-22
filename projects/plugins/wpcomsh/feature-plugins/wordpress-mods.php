@@ -142,7 +142,7 @@ function wpcomsh_wp_die_handler( $message, $title = '', $args = array() ) {
 	}
 
 	// If the default wp_die handler is not available just die.
-	die();
+	die( 0 );
 }
 
 /**

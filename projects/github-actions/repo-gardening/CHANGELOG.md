@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.0] - 2025-02-05
+### Added
+- Add new range for Sensei. [#40644]
+- PR checks: add new check to ensure that PRs include a [Type] label. [#40428]
+
+### Changed
+- AI Labeling: Allow plugin-specific feature labels. [#40425]
+- Board triage: Add automatic triage to Fediverse project board. [#40430]
+- Issue triage: Update priority matrix. [#40672]
+- Prompt for labels: update conditions to include "[<plugin> Feature]" labels. [#40396]
+- Support References: Send Slack message when an issue is labeled as customer report. [#41027]
+- Support references: Stop gathering p2 comments in list of support references. [#40561]
+- Team assignment: Update issue mapping for Newsletter to Loop team. [#41550]
+- Updated package dependencies. [#40787] [#40812] [#40831]
+
+### Fixed
+- Ensure use of named export for compare-versions. [#40864]
+
 ## [6.0.0] - 2024-12-04
 ### Added
 - Board Triage: automatically add the issue type to our project board when a Type label can be found in the issue. [#40110]
@@ -272,6 +290,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[7.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v6.0.0...v7.0.0
 [6.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v5.1.0...v6.0.0
 [5.1.0]: https://github.com/Automattic/action-repo-gardening/compare/v5.0.0...v5.1.0
 [5.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v4.0.0...v5.0.0

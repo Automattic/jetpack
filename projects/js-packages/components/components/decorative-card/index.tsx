@@ -1,4 +1,4 @@
-import type { DecorativeCardProps } from './types';
+import type { DecorativeCardProps } from './types.ts';
 import type React from 'react';
 import './style.scss';
 

@@ -6,7 +6,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import askQuestion from '../../ask-question/index.js';
+import askQuestion from '../../ask-question/index.ts';
+import ChromeAIFactory from '../../chrome-ai/factory.ts';
 import {
 	ERROR_CONTEXT_TOO_LARGE,
 	ERROR_MODERATION,
@@ -15,13 +16,13 @@ import {
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
 	ERROR_RESPONSE,
-} from '../../types.js';
+} from '../../types.ts';
 /**
  * Types & constants
  */
-import type { AskQuestionOptionsArgProps } from '../../ask-question/index.js';
-import type SuggestionsEventSource from '../../suggestions-event-source/index.js';
-import type { PromptProp, SuggestionErrorCode, RequestingStateProp } from '../../types.js';
+import type { AskQuestionOptionsArgProps } from '../../ask-question/index.ts';
+import type SuggestionsEventSource from '../../suggestions-event-source/index.ts';
+import type { PromptProp, SuggestionErrorCode, RequestingStateProp } from '../../types.ts';
 
 export type RequestingErrorProps = {
 	/*
@@ -69,7 +70,7 @@ type useAiSuggestionsOptions = {
 	/*
 	 * onDone callback.
 	 */
-	onDone?: ( content: string ) => void;
+	onDone?: ( content: string, skipRequestCount?: boolean ) => void;
 
 	/*
 	 * onStop callback.
@@ -255,9 +256,9 @@ export default function useAiSuggestions( {
 		( event: CustomEvent ) => {
 			closeEventSource();
 
-			const fullSuggestion = removeLlamaArtifact( event?.detail );
+			const fullSuggestion = removeLlamaArtifact( event?.detail?.message ?? event?.detail );
 
-			onDone?.( fullSuggestion );
+			onDone?.( fullSuggestion, event?.detail?.source === 'chromeAI' );
 			setRequestingState( 'done' );
 		},
 		[ onDone ]
@@ -314,7 +315,14 @@ export default function useAiSuggestions( {
 			// Set the request status.
 			setRequestingState( 'requesting' );
 
-			eventSourceRef.current = await askQuestion( promptArg, options );
+			// check if we can (or should) use Chrome AI
+			const chromeAI = await ChromeAIFactory( promptArg );
+
+			if ( chromeAI !== false ) {
+				eventSourceRef.current = chromeAI;
+			} else {
+				eventSourceRef.current = await askQuestion( promptArg, options );
+			}
 
 			if ( ! eventSourceRef?.current ) {
 				return;

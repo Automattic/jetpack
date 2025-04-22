@@ -9,13 +9,7 @@
  * Date: 01/11/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 // takes inv meta and works out if due
 // now v3.0 friendly!
@@ -138,22 +132,19 @@ function zeroBSCRM_invoice_generateInvoiceHTML_v3( $invoiceID=-1, $return=true )
             // now all wired through zeroBSCRM_invoicing_generateInvoiceHTML
             $html = zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID,'pdf',$templatedHTML);
 
-            // return
-            if ( !$return ){
-            
-                echo $html; 
-                exit(); 
-                
-            }
+			// return
+			if ( ! $return ) {
+				echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				exit( 0 );
+			}
+		}
 
-        }
+		return $html;
 
-        return $html;
+	}
 
-    } 
-
-    #} Empty inv id
-    return false;
+	#} Empty inv id
+	return false;
 }
 
 // this was clunky, so split into 3.0 and <3.0 versions.
@@ -208,23 +199,18 @@ function zeroBSCRM_invoice_generatePortalInvoiceHTML_v3($invoiceID=-1,$return=tr
             // now all wired through zeroBSCRM_invoicing_generateInvoiceHTML
             $html = zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID,'portal',$html);
 
-            // return
-            if ( !$return ){
-            
-                echo $html; 
-                exit(); 
-                
-            }
+			// return
+			if ( ! $return ) {
+				echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				exit( 0 );
+			}
+		}
 
-        }
+		return $html;
+	}
 
-        return $html;
-
-    } 
-
-    #} Empty inv id
-    return false;
-
+	#} Empty inv id
+	return false;
 }
 
 function zbs_invoice_generate_pdf(){
@@ -234,7 +220,7 @@ function zbs_invoice_generate_pdf(){
 
 		// THIS REALLLY needs nonces! For now (1.1.19) added this for you...
 		if ( ! zeroBSCRM_permsInvoices() ) {
-			exit();
+			exit( 0 );
 		}
 
 		// Check ID
@@ -243,7 +229,7 @@ function zbs_invoice_generate_pdf(){
 			$invoice_id = (int) $_POST['zbs_invoice_id']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		}
 		if ( $invoice_id <= 0 ) {
-			exit();
+			exit( 0 );
 		}
 
 		// generate the PDF
@@ -266,7 +252,7 @@ function zbs_invoice_generate_pdf(){
 
 		}
 
-		exit();
+		exit( 0 );
 	}
 }
 // This fires post ZBS init
@@ -320,15 +306,17 @@ function zbs_invoice_html($invoicePostID){
 #} this generates a PDF statement for a contact, either returning the filepath or a PDF download prompt
 function zeroBSCRM_invoicing_generateStatementPDF( $contactID = -1, $returnPDF = false ){
 
-    if (!zeroBSCRM_permsInvoices()) exit();
+	if ( ! zeroBSCRM_permsInvoices() ) {
+		exit( 0 );
+	}
 
-    global $zbs;
+	global $zbs;
 
     #} Check ID
     $contactID = (int)$contactID;
     #} If user has no perms, or id not present, die
     if (!zeroBSCRM_permsInvoices() || empty($contactID) || $contactID <= 0){
-        die();
+		die( 0 );
     }
 
     $html = zeroBSCRM_invoicing_generateStatementHTML($contactID);
@@ -728,7 +716,7 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return
 		if ( ! $return ) {
 
 			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			exit();
+			exit( 0 );
 
 		}
 

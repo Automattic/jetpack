@@ -2,6 +2,10 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getManagementPageObject, setup } from '../../../../utils/test-factory';
 
+jest.mock( '../../../../hooks/use-user-can-share-connection', () => ( {
+	useUserCanShareConnection: jest.fn( () => true ),
+} ) );
+
 describe( 'ConnectionManagement', () => {
 	afterEach( () => {
 		jest.clearAllMocks();

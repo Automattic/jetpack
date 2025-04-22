@@ -7,7 +7,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { ExtensionAIControl } from '../index.js';
+import { ExtensionAIControl } from '../index.tsx';
 
 export default {
 	title: 'JS Packages/AI Client/AI Control/Extension AI Control',

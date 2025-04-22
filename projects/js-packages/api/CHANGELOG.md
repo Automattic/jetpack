@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.20.1] - 2025-04-01
+### Changed
+- Update package dependencies. [#42809]
+
+## [0.20.0] - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+### Removed
+- Remove the register_nonce from site connection. [#42076]
+
+## [0.19.0] - 2025-02-24
+### Changed
+- Add parameter to unlinkUser to allow all users to be disconnected. [#41923]
+- Move the API endpoint for unlinking the user to the automattic/jetpack-connection package. [#41398]
+
+## [0.18.0] - 2025-02-05
+### Changed
+- Custom Content Types: Ensure feature works on Jetpack settings page without using module functionality. [#41349]
+- Updated package dependencies. [#41491]
+
+## [0.17.22] - 2025-01-20
+### Changed
+- Updated package dependencies. [#41099]
+
 ## [0.17.21] - 2024-12-16
 ### Changed
 - Updated package dependencies. [#40564]
@@ -385,6 +410,11 @@
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
 
+[0.20.1]: https://github.com/Automattic/jetpack-api/compare/v0.20.0...v0.20.1
+[0.20.0]: https://github.com/Automattic/jetpack-api/compare/v0.19.0...v0.20.0
+[0.19.0]: https://github.com/Automattic/jetpack-api/compare/v0.18.0...v0.19.0
+[0.18.0]: https://github.com/Automattic/jetpack-api/compare/v0.17.22...v0.18.0
+[0.17.22]: https://github.com/Automattic/jetpack-api/compare/v0.17.21...v0.17.22
 [0.17.21]: https://github.com/Automattic/jetpack-api/compare/v0.17.20...v0.17.21
 [0.17.20]: https://github.com/Automattic/jetpack-api/compare/v0.17.19...v0.17.20
 [0.17.19]: https://github.com/Automattic/jetpack-api/compare/v0.17.18...v0.17.19

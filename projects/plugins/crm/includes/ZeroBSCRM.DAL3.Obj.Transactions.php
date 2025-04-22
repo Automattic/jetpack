@@ -11,13 +11,7 @@
 
 // phpcs:disable Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 use Automattic\Jetpack\CRM\Event_Manager\Events_Manager;
 

@@ -163,7 +163,7 @@ class Webhooks {
 	 * @return never
 	 */
 	protected function do_exit() {
-		exit;
+		exit( 0 );
 	}
 
 	/**

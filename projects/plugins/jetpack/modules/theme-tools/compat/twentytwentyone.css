@@ -16,6 +16,7 @@
 .infinite-scroll .pagination,
 .infinite-scroll.neverending .widget-area,
 .infinite-scroll.neverending footer#colophon {
+
 	/* Theme Footer (when set to scrolling) */
 	display: none;
 }
@@ -88,7 +89,9 @@ body.infinity-end .site-main > div:last-of-type > article:last-of-type .entry-fo
 }
 
 @media only screen and (min-width: 1024px) {
+
 	.widget-area {
+
 		/*
 			Fix: minimum width of 0
 			See: https://css-tricks.com/preventing-a-grid-blowout/
@@ -98,8 +101,10 @@ body.infinity-end .site-main > div:last-of-type > article:last-of-type .entry-fo
 }
 
 /* Contact form */
+
 /* See https: //core.trac.wordpress.org/browser/trunk/src/wp-content/themes/twentytwentyone/style.css?rev=58726#L1276 */
 @supports (-webkit-appearance: none) or (-moz-appearance: none) {
+
 	.contact-form input.grunion-field[type=checkbox],
 	.contact-form input.grunion-field[type=radio] {
 		width: 25px;

@@ -22,6 +22,7 @@ window.zbs_invoice = false; // stores data of this inv (post init)
 window.zbs_tax = false; // ?
 window.zbs_tax_table = false; // stores tax table
 window.zbsInvBlocker = false; // this is a blocker... ctrl F it
+window.invoice_id = 0;
 
 // ========================================================================
 // ======= /Globals
@@ -41,10 +42,10 @@ jQuery( function () {
 	// but DAL3.0 should return the next available ID and reserve it?
 	// WH - how do we handle the case where YOU and I make a new invoice (same time)
 	// we fill it in, and the ID is the same - won't we have a race condition here?
-	const invoice_id = jQuery( '.zbs_invoice_html_canvas' ).data( 'invid' );
+	window.invoice_id = jQuery( '.zbs_invoice_html_canvas' ).data( 'invid' );
 
 	//draw the invoice HTML UI (v2.98) start by drawing the data from the DB (drawing / getting)
-	zbscrm_JS_retrieve_invoice_data( invoice_id );
+	zbscrm_JS_retrieve_invoice_data( window.invoice_id );
 
 	// hack for weird tax bug
 	if ( jQuery( '#invoice_tax_total' ).val() > 0 ) {

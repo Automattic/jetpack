@@ -176,7 +176,7 @@ const generatePreviewPost = ( id: PostId ) => {
 		newspack_author_info: [
 			{
 				display_name: __( 'Author Name', 'jetpack-mu-wpcom' ),
-				avatar: `<div style="background: #36f;width: 40px;height: 40px;display: block;overflow: hidden;border-radius: 50%; max-width: 100%; max-height: 100%;"></div>`,
+				avatar: `<div style="background: #e8e8e8;width: 40px;height: 40px;display: block;overflow: hidden;border-radius: 50%; max-width: 100%; max-height: 100%;"></div>`,
 				id: 1,
 				author_link: '/',
 			},
@@ -184,11 +184,11 @@ const generatePreviewPost = ( id: PostId ) => {
 		newspack_category_info: __( 'Category', 'jetpack-mu-wpcom' ),
 		newspack_featured_image_caption: __( 'Featured image caption', 'jetpack-mu-wpcom' ),
 		newspack_featured_image_src: {
-			large: `${ PREVIEW_IMAGE_BASE }/newspack-1024x536.jpg`,
-			landscape: `${ PREVIEW_IMAGE_BASE }/newspack-800x600.jpg`,
-			portrait: `${ PREVIEW_IMAGE_BASE }/newspack-600x800.jpg`,
-			square: `${ PREVIEW_IMAGE_BASE }/newspack-800x800.jpg`,
-			uncropped: `${ PREVIEW_IMAGE_BASE }/newspack-1024x536.jpg`,
+			large: `${ PREVIEW_IMAGE_BASE }/placeholder-1024x536.jpg`,
+			landscape: `${ PREVIEW_IMAGE_BASE }/placeholder-800x600.jpg`,
+			portrait: `${ PREVIEW_IMAGE_BASE }/placeholder-600x800.jpg`,
+			square: `${ PREVIEW_IMAGE_BASE }/placeholder-800x800.jpg`,
+			uncropped: `${ PREVIEW_IMAGE_BASE }/placeholder-1024x536.jpg`,
 		},
 		newspack_has_custom_excerpt: false,
 		newspack_sponsors_show_categories: false,
@@ -268,7 +268,7 @@ export const postsBlockDispatch = (
 ) => {
 	return {
 		// Only editor blocks can trigger reflows.
-		// @ts-ignore It's a string.
+		// @ts-expect-error It's a string.
 		triggerReflow: isEditorBlock ? dispatch( STORE_NAMESPACE ).reflow : () => undefined,
 	};
 };

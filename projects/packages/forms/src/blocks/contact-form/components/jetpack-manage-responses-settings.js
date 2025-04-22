@@ -4,7 +4,11 @@ import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
 import InspectorHint from '../components/inspector-hint';
 
-const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;
+const preferredView = window?.jpFormsBlocks?.defaults?.preferredView;
+
+const RESPONSES_PATH =
+	get( getJetpackData(), 'adminUrl', false ) +
+	( preferredView === 'classic' ? 'edit.php?post_type=feedback' : 'admin.php?page=jetpack-forms' );
 
 const JetpackManageResponsesSettings = () => {
 	return (
@@ -12,7 +16,7 @@ const JetpackManageResponsesSettings = () => {
 			<InspectorHint>
 				{ __( 'Manage and export your form responses in WPAdmin:', 'jetpack-forms' ) }
 			</InspectorHint>
-			<Button variant="secondary" href={ RESPONSES_PATH } target="_blank">
+			<Button variant="secondary" href={ RESPONSES_PATH } __next40pxDefaultSize={ true }>
 				{ __( 'View Form Responses', 'jetpack-forms' ) }
 				<span className="screen-reader-text">
 					{ __( '(opens in a new tab)', 'jetpack-forms' ) }

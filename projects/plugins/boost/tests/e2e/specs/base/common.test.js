@@ -1,8 +1,8 @@
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
-import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
-import { DashboardPage, PluginsPage, Sidebar } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
+import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
+import { DashboardPage, PluginsPage, Sidebar } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
+import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
 
@@ -39,10 +39,19 @@ test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommend
 		.withActiveModules( [ 'critical_css' ] )
 		.build();
 	const jetpackBoostPage = await JetpackBoostPage.visit( page );
+
+	// Wait for generation progress UI first
+	expect(
+		await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
+		'Critical CSS generation progress indicator should be visible'
+	).toBeTruthy();
+
+	// Then wait for meta info to be visible
 	expect(
 		await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
 		'Critical CSS meta info should be visible'
 	).toBeTruthy();
+
 	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 

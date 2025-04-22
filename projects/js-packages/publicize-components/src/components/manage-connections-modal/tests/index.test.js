@@ -6,6 +6,9 @@ import { setup } from '../../../utils/test-factory';
 jest.mock( '../confirmation-form', () => ( {
 	ConfirmationForm: () => <div>Confirmation Form</div>,
 } ) );
+jest.mock( '../../../hooks/use-user-can-share-connection', () => ( {
+	useUserCanShareConnection: jest.fn( () => true ),
+} ) );
 
 describe( 'ManageConnectionsModal', () => {
 	let stubSetKeyringResult, stubGetKeyringResult;

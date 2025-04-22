@@ -25,7 +25,6 @@ use Symfony\Component\Process\Process;
  * @covers \Automattic\Jetpack\Changelogger\Utils
  */
 class UtilsTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertObjectProperty;
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 

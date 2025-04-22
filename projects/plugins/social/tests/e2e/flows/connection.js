@@ -1,5 +1,5 @@
-import logger from 'jetpack-e2e-commons/logger.js';
-import { AuthorizePage } from 'jetpack-e2e-commons/pages/wpcom/index.js';
+import logger from '_jetpack-e2e-commons/logger.js';
+import { AuthorizePage } from '_jetpack-e2e-commons/pages/wpcom/index.js';
 import { JetpackSocialPage } from '../pages/index.js';
 
 /**

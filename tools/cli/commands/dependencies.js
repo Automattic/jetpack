@@ -35,9 +35,21 @@ infrastructureFileSets.build = new Set( [
 	'tools/cli/helpers/projectHelpers.js',
 	'.github/workflows/build.yml',
 ] );
+infrastructureFileSets.e2e = {
+	has( f ) {
+		return infrastructureFileSets.base.has( f ) || f.startsWith( 'tools/e2e-commons/' );
+	},
+};
 
 // Files to ignore for --git-changed.
 const ignoreFiles = [ '**/*.md', '**/*.txt' ];
+
+// Patterns that, in certain conditions, should add extra projects to the dependency set.
+const extraFileSets = {};
+extraFileSets.base = {};
+extraFileSets.e2e = {
+	'^projects/plugins/jetpack/tests/e2e/specs/sync/': [ 'packages/sync' ],
+};
 
 export const command = 'dependencies <subcommand> [projects...]';
 export const describe = 'Report monorepo project dependencies';
@@ -75,7 +87,7 @@ export function builder( yargs ) {
 		.option( 'extra', {
 			describe: 'Extra dependencies to consider.',
 			type: 'string',
-			choices: [ 'build', 'test' ],
+			choices: [ 'build', 'test', 'e2e' ],
 		} )
 		.option( 'ignore-root', {
 			describe: 'Ignore the monorepo root.',
@@ -133,6 +145,9 @@ export async function handler( argv ) {
 		} );
 
 		const infrastructureFiles = infrastructureFileSets[ argv.extra ] || infrastructureFileSets.base;
+		const extraFiles = Object.entries( extraFileSets[ argv.extra ] || extraFileSets.base ).map(
+			( [ k, v ] ) => [ new RegExp( k ), v ]
+		);
 		const projset = new Set( argv.projects );
 		const ig = ignore().add( ignoreFiles );
 		const debug = argv.v ? m => console.error( chalkStderr.blue( m ) ) : () => {};
@@ -149,6 +164,16 @@ export async function handler( argv ) {
 				} else {
 					debug( `Diff touches ${ file }, marking ${ slug } as changed.` );
 					projset.add( slug );
+				}
+			}
+			for ( const [ re, extraprojs ] of extraFiles ) {
+				if ( file.match( re ) ) {
+					for ( const extraproj of extraprojs ) {
+						if ( ! projset.has( extraproj ) ) {
+							debug( `Diff touches ${ file }, marking ${ extraproj } as changed.` );
+							projset.add( extraproj );
+						}
+					}
 				}
 			}
 		}

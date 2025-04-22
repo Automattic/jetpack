@@ -1,5 +1,3 @@
-const tsJestResolver = require( 'ts-jest-resolver' );
-
 // Some packages assume that a "browser" environment is esm or otherwise break in node.
 // List them here and the resolver will adjust the conditions to resolve them as "node" instead.
 // cf. https://github.com/microsoft/accessibility-insights-web/pull/5421#issuecomment-1109168149
@@ -22,9 +20,12 @@ module.exports = ( path, options ) => {
 		conditions.add( 'node' );
 	}
 
-	return tsJestResolver( path, {
+	const resolver = options.defaultResolver;
+	const opts = {
 		...options,
 		basedir,
 		conditions,
-	} );
+	};
+
+	return resolver( path, opts );
 };

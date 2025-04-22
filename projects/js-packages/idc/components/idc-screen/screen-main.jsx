@@ -65,12 +65,12 @@ const ScreenMain = props => {
 							}
 					  )
 					: createInterpolateElement(
-							customContent.mainBodyText ||
+							customContent.mainBodyTextDev ||
 								sprintf(
 									/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
 									__(
 										'<span>Your site is in Safe Mode because <hostname>%1$s</hostname> appears to be a staging or development copy of <hostname>%2$s</hostname>.</span>' +
-											'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more or troubleshoot common Safe mode issues</safeModeLink>.',
+											'Two sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more or troubleshoot common Safe mode issues</safeModeLink>.',
 										'jetpack-idc'
 									),
 									currentHostName,

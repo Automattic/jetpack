@@ -10,7 +10,7 @@ import metadata from '../block.json';
 /**
  * Types
  */
-import type { ExtendedBlockProp } from '../extensions/constants';
+import type { ExtendedBlockProp } from '../extensions/text-blocks/constants';
 import type { PromptItemProps } from '../lib/prompt';
 
 export const TRANSFORMABLE_BLOCKS = [ 'core/heading', 'core/paragraph', 'core/list' ];

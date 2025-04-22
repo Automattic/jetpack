@@ -6,7 +6,7 @@ use Automattic\Jetpack\Redirect;
 
 // Disable direct access/execution to/of the widget code.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 /**

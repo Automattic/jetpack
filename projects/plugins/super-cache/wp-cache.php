@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 2.0.0
+ * Version: 2.0.1
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -2079,7 +2079,7 @@ add_action( 'admin_notices', 'wpsc_config_file_notices' );
 function wpsc_dismiss_indexhtml_warning() {
 		check_ajax_referer( "wpsc-index-dismiss" );
 		update_site_option( 'wp_super_cache_index_detected', 3 );
-		die();
+		die( 0 );
 }
 add_action( 'wp_ajax_wpsc-index-dismiss', 'wpsc_dismiss_indexhtml_warning' );
 

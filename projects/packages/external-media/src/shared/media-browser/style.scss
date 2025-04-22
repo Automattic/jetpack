@@ -1,0 +1,171 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+$grid-size: 8px;
+
+.jetpack-external-media-browser {
+	background: #fff;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	flex: 1;
+	position: relative;
+	padding-bottom: 76px;
+
+	.jetpack-external-media-browser__media {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		grid-auto-rows: 1fr;
+		gap: 16px;
+		width: 100%;
+	}
+
+	// Individual Thumbnails
+	.jetpack-external-media-browser__media__item {
+		height: 0;
+		width: 100%;
+		padding-top: 100%;
+		margin: 0;
+		display: inline-flex;
+		position: relative;
+		cursor: pointer;
+
+		// Unset button appearance.
+		border: 0;
+		border-radius: 4px;
+		background-color: $gray-400;
+
+		img {
+			display: block;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			border: 1px solid rgba(0,0,0,0.1);
+			border-radius: 4px;
+			user-select: none;
+		}
+
+		&::after {
+			display: block;
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: transparent;
+		}
+
+		&:hover img {
+			border-color: rgba(0,0,0,0.2);
+		}
+
+		&:focus img {
+			border-color: var(--wp-admin-theme-color);
+			outline: 0.5px solid var(--wp-admin-theme-color);
+		}
+
+		&:focus-visible {
+			outline-color: var(--wp-admin-theme-color);
+		}
+
+		&__selected {
+
+			img {
+				border-color: var(--wp-admin-theme-color);
+			}
+
+			&::after {
+				background: var(--wp-admin-theme-color);
+				opacity: 0.2;
+			}
+		}
+
+		&.is-transient {
+
+			img {
+				border-color: rgba(0, 0, 0, 0.1);
+			}
+
+			&::after {
+				background: #fff;
+				opacity: 0.8;
+			}
+		}
+	}
+
+	.jetpack-external-media-browser__media__checkbox {
+		position: absolute;
+		left: $grid-size;
+		top: $grid-size;
+	}
+
+	.jetpack-external-media-browser__media__folder {
+		float: left;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: center;
+		align-content: flex-start;
+		margin-bottom: 36px;
+	}
+
+	.jetpack-external-media-browser__media__info {
+		font-size: 12px;
+		font-weight: 700;
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		padding: 3px;
+	}
+
+	.jetpack-external-media-browser__media__count {
+		background-color: #dcdcde;
+		padding: 3px 4px;
+		border-radius: 8px;
+		margin-bottom: auto;
+	}
+
+	// Toolbar for "insert" and pagination button.
+	.jetpack-external-media-browser__media__toolbar {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		height: 76px;
+		padding: 0 32px;
+		background: #fff;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+	}
+
+	.jetpack-external-media-browser__loading {
+		flex: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		margin: 24px 0;
+	}
+}
+
+// Show more thumbs beyond mobile.
+@media only screen and ( min-width: 600px ) {
+
+	.jetpack-external-media-browser {
+
+		.jetpack-external-media-browser__media {
+			grid-template-columns: repeat(5, 1fr);
+		}
+	}
+}
+
+.jetpack-external-media-browser__empty {
+	width: 100%;
+	text-align: center;
+	padding-top: 2em;
+}

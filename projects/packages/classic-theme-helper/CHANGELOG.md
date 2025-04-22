@@ -5,6 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.8] - 2025-04-14
+### Changed
+- Social Menus: Update the Twitter sharing button to use the X logo. [#42813]
+
+### Fixed
+- Linting: Update stylesheets to use WordPress rules for fonts. [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
+## [0.11.7] - 2025-04-07
+### Changed
+- Linting: First pass of style coding standards. [#42734]
+
+## [0.11.6] - 2025-04-02
+### Changed
+- Update dependencies. [#42820]
+- Update package dependencies. [#42809]
+
+## [0.11.5] - 2025-03-24
+### Changed
+- Internal updates.
+
+## [0.11.4] - 2025-03-18
+### Changed
+- Update package dependencies. [#42511]
+
+## [0.11.3] - 2025-03-12
+### Changed
+- Internal updates.
+
+## [0.11.2] - 2025-03-10
+### Changed
+- Internal updates.
+
+## [0.11.1] - 2025-03-03
+### Added
+- Custom Content Types: Ensure script with initial state value is only added on Jetpack admin pages. [#42138]
+
+### Changed
+- Update package dependencies. [#42163]
+
+## [0.11.0] - 2025-02-24
+### Added
+- Theme tools: Load theme compat functionality relevant to features in Classic Theme Helper package from this package. [#41598]
+
+### Changed
+- Custom Post Types: Do not display testimonials and portfolios on block themes where they are not in use. [#41714]
+
+## [0.10.1] - 2025-02-17
+### Changed
+- Update dependencies.
+
+## [0.10.0] - 2025-02-10
+### Changed
+- Custom Content Types: Ensure feature works on Jetpack settings page without using module functionality. [#41349]
+- Update package dependencies. [#41491]
+
+## [0.9.3] - 2025-02-03
+### Added
+- Theme compat: Move relevant functionality to the package. [#41394]
+
+### Changed
+- Update package dependencies. [#41286]
+
+## [0.9.2] - 2025-01-27
+### Fixed
+- Classic Theme Helper: Fix Fatal in Jetpack_Portfolio. [#41304]
+
+## [0.9.1] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- Updated package dependencies. [#41099]
+
 ## [0.9.0] - 2025-01-13
 ### Added
 - Nova Restaurant: ensuring the custom post type is now being required via the package. [#40782]
@@ -193,6 +265,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.11.8]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.7...v0.11.8
+[0.11.7]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.6...v0.11.7
+[0.11.6]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.5...v0.11.6
+[0.11.5]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.4...v0.11.5
+[0.11.4]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.3...v0.11.4
+[0.11.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.2...v0.11.3
+[0.11.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.1...v0.11.2
+[0.11.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.0...v0.11.1
+[0.11.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.10.1...v0.11.0
+[0.10.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.10.0...v0.10.1
+[0.10.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.9.3...v0.10.0
+[0.9.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.9.2...v0.9.3
+[0.9.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.9.1...v0.9.2
+[0.9.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.8.3...v0.9.0
 [0.8.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.8.1...v0.8.2

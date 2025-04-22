@@ -1,5 +1,5 @@
 import uPlot from 'uplot';
-import { Annotation } from '.';
+import { Annotation } from './index.tsx';
 
 import './style-annotation.scss';
 

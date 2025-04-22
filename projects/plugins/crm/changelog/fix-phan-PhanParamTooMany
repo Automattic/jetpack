@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Code: Remove extra params on function calls.

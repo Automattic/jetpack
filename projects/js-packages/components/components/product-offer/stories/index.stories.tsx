@@ -1,15 +1,17 @@
-import ProductOffer from '..';
-import { IconsCard } from '../icons-card';
+import { IconsCard } from '../icons-card.tsx';
+import ProductOffer from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof ProductOffer > = {
 	title: 'JS Packages/Components/Product Offer',
 	component: ProductOffer,
 	parameters: {
 		actions: { argTypesRegex: '^on.*' },
 		layout: 'centered',
 	},
-} as Meta< typeof ProductOffer >;
+};
+
+export default meta;
 
 const Template: StoryFn< typeof ProductOffer > = args => <ProductOffer { ...args } />;
 

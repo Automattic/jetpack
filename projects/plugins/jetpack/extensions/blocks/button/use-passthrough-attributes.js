@@ -1,30 +1,41 @@
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-import { isEmpty, mapValues, pickBy } from 'lodash';
+import { isEmpty } from 'lodash';
 
 export default function usePassthroughAttributes( { attributes, clientId, setAttributes } ) {
 	// `passthroughAttributes` is a map of child/parent attribute names,
 	// to indicate which parent attribute values will be injected into which child attributes.
 	// E.g. { childAttribute: 'parentAttribute' }
 	const { passthroughAttributes } = attributes;
+	const attributesToSync = useSelect(
+		select => {
+			// Get store instance once
+			const store = select( 'core/block-editor' );
+			const parentClientId = store.getBlockRootClientId( clientId );
+			const parentAttributes = store.getBlockAttributes( parentClientId ) || {};
 
-	const { attributesToSync } = useSelect( select => {
-		const { getBlockAttributes, getBlockRootClientId } = select( 'core/block-editor' );
-		// Check the root block from which the block is nested, that is, the immediate parent.
-		const parentClientId = getBlockRootClientId( clientId );
-		const parentAttributes = getBlockAttributes( parentClientId ) || {};
-		// Here we actually map the parent attribute value to the child attribute.
-		// E.g. { childAttribute: 'foobar' }
-		const mappedAttributes = mapValues( passthroughAttributes, key => parentAttributes[ key ] );
+			// Only compute if we have both parent attributes and passthrough mappings
+			if ( ! parentClientId || ! passthroughAttributes ) {
+				return {};
+			}
 
-		// Discard all equals attributes
-		const validAttributes = pickBy(
-			mappedAttributes,
-			( value, key ) => value !== attributes[ key ]
-		);
+			// Create new object only if values are different
+			let hasChanges = false;
+			const validAttributes = {};
 
-		return { attributesToSync: validAttributes };
-	} );
+			// Check each attribute mapping
+			Object.entries( passthroughAttributes ).forEach( ( [ childKey, parentKey ] ) => {
+				const parentValue = parentAttributes[ parentKey ];
+				if ( parentValue !== attributes[ childKey ] ) {
+					hasChanges = true;
+					validAttributes[ childKey ] = parentValue;
+				}
+			} );
+
+			return hasChanges ? validAttributes : {};
+		},
+		[ clientId, passthroughAttributes, attributes ]
+	);
 
 	useEffect( () => {
 		if ( ! isEmpty( attributesToSync ) ) {

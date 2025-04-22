@@ -1,30 +1,43 @@
 /**
  * External dependencies
  */
-import { JetpackEditorPanelLogo, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, PanelRow, BaseControl, ExternalLink } from '@wordpress/components';
+import {
+	useAICheckout,
+	useAiFeature,
+	FairUsageNotice,
+	FeaturedImage,
+} from '@automattic/jetpack-ai-client';
+import {
+	useAnalytics,
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_UNLIMITED,
+	usePlanType,
+} from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
+import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
-import { store as editorStore } from '@wordpress/editor';
+import {
+	PluginPrePublishPanel as DeprecatedPluginPrePublishPanel,
+	PluginDocumentSettingPanel as DeprecatedPluginDocumentSettingPanel,
+} from '@wordpress/edit-post';
+import {
+	PluginPrePublishPanel as EditorPluginPrePublishPanel,
+	PluginDocumentSettingPanel as EditorPluginDocumentSettingPanel,
+	store as editorStore,
+} from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
+import { ComponentType } from 'react';
 /**
  * Internal dependencies
  */
-import { FairUsageNotice } from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
-import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
-import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
-import { isBetaExtension } from '../../../../editor';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
-import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
-import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
 import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get-availability';
 import Feedback from '../feedback';
-import SeoAssistant from '../seo-assistant';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
 import {
@@ -37,7 +50,13 @@ import './style.scss';
 /**
  * Types
  */
-import type { CoreSelect, JetpackSettingsContentProps } from './types';
+import type { CoreSelect, JetpackSettingsContentProps, PanelProps } from './types';
+
+const BasePrePublishPanel = EditorPluginPrePublishPanel || DeprecatedPluginPrePublishPanel;
+const BaseDocumentPanel = EditorPluginDocumentSettingPanel || DeprecatedPluginDocumentSettingPanel;
+
+const PrePublishPanel = BasePrePublishPanel as ComponentType< PanelProps >;
+const DocumentPanel = BaseDocumentPanel as ComponentType< PanelProps >;
 
 const debug = debugFactory( 'jetpack-ai-assistant-plugin:sidebar' );
 /**
@@ -60,8 +79,6 @@ const isAITitleOptimizationKeywordsFeatureAvailable = getFeatureAvailability(
 	'ai-title-optimization-keywords-support'
 );
 
-const isSeoAssistantEnabled = getFeatureAvailability( 'ai-seo-assistant' );
-
 const JetpackAndSettingsContent = ( {
 	placement,
 	requireUpgrade,
@@ -72,6 +89,7 @@ const JetpackAndSettingsContent = ( {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
 	const isBreveAvailable = getBreveAvailability();
+	const isPostEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
 
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
@@ -89,16 +107,11 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
-			{ isSeoAssistantEnabled && (
-				<PanelRow
-					className={ `jetpack-ai-sidebar__feature-section ${
-						isBetaExtension( 'ai-seo-assistant' ) ? 'is-beta-extension' : ''
-					}` }
-				>
-					<BaseControl __nextHasNoMarginBottom={ true }>
-						<BaseControl.VisualLabel>{ __( 'SEO', 'jetpack' ) }</BaseControl.VisualLabel>
-						<SeoAssistant busy={ false } disabled={ false } />
-					</BaseControl>
+			{ isPostEmpty && (
+				<PanelRow className="jetpack-ai-sidebar__warning-content">
+					<Notice isDismissible={ false } status="warning">
+						{ __( 'The following features require content to work.', 'jetpack' ) }
+					</Notice>
 				</PanelRow>
 			) }
 
@@ -106,19 +119,12 @@ const JetpackAndSettingsContent = ( {
 				<PanelRow>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
-							{ __( 'Write Brief with AI (BETA)', 'jetpack' ) }
+							{ __( 'Write Brief (Beta)', 'jetpack' ) }
 						</BaseControl.VisualLabel>
 						<Breve />
 					</BaseControl>
 				</PanelRow>
 			) }
-
-			<PanelRow className="jetpack-ai-sidebar__feature-section">
-				<BaseControl __nextHasNoMarginBottom={ true }>
-					<BaseControl.VisualLabel>{ __( 'AI Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
-					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
-				</BaseControl>
-			</PanelRow>
 
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
@@ -128,16 +134,25 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
+
 			{ isAIFeaturedImageAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
-							{ __( 'AI Featured Image', 'jetpack' ) }
+							{ __( 'Get Featured Image', 'jetpack' ) }
 						</BaseControl.VisualLabel>
 						<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
 					</BaseControl>
 				</PanelRow>
 			) }
+
+			<PanelRow className="jetpack-ai-sidebar__feature-section">
+				<BaseControl __nextHasNoMarginBottom={ true }>
+					<BaseControl.VisualLabel>{ __( 'Get Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
+					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
+				</BaseControl>
+			</PanelRow>
+
 			{ requireUpgrade && ! isUsagePanelAvailable && (
 				<PanelRow>
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
@@ -149,21 +164,21 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
-			<PanelRow>
-				<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
-					{ __( 'Provide feedback', 'jetpack' ) }
-				</ExternalLink>
-			</PanelRow>
-
-			<PanelRow>
+			<PanelRow className="jetpack-ai-sidebar__external-link">
 				<ExternalLink href={ productPageUrl }>
 					{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>
 
-			<PanelRow>
+			<PanelRow className="jetpack-ai-sidebar__external-link">
+				<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
+					{ __( 'Give us feedback', 'jetpack' ) }
+				</ExternalLink>
+			</PanelRow>
+
+			<PanelRow className="jetpack-ai-sidebar__external-link">
 				<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
-					{ __( 'AI Guidelines', 'jetpack' ) }
+					{ __( 'AI guidelines', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>
 		</>
@@ -224,7 +239,7 @@ export default function AiAssistantPluginSidebar() {
 				</PanelBody>
 			</JetpackPluginSidebar>
 
-			<PluginDocumentSettingPanel
+			<DocumentPanel
 				icon={ <JetpackEditorPanelLogo /> }
 				title={ title }
 				name="jetpack-ai-assistant"
@@ -236,13 +251,9 @@ export default function AiAssistantPluginSidebar() {
 					showUsagePanel={ showUsagePanel }
 					showFairUsageNotice={ showFairUsageNotice }
 				/>
-			</PluginDocumentSettingPanel>
+			</DocumentPanel>
 
-			<PluginPrePublishPanel
-				title={ title }
-				icon={ <JetpackEditorPanelLogo /> }
-				initialOpen={ false }
-			>
+			<PrePublishPanel title={ title } icon={ <JetpackEditorPanelLogo /> } initialOpen={ false }>
 				<>
 					{ isAITitleOptimizationAvailable && (
 						<TitleOptimization
@@ -257,7 +268,7 @@ export default function AiAssistantPluginSidebar() {
 						disabled={ requireUpgrade }
 					/>
 				</>
-			</PluginPrePublishPanel>
+			</PrePublishPanel>
 		</>
 	);
 }

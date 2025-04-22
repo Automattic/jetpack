@@ -9,7 +9,7 @@
 namespace Automattic\JetpackCRM;
 
 // block direct access
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 #} the WooCommerce API
 use Automattic\WooCommerce\Client;
@@ -1485,7 +1485,7 @@ class Woo_Sync {
 		$log[] = 'fini';
 		//update_option('wlogtemp', $log, false);
 
-		exit();
+		exit( 0 );
 
 
 	}
@@ -2226,7 +2226,7 @@ class Woo_Sync {
 				$new_sync_site = $this->add_sync_site( $data );
 
 			    // verify
-			    if ( is_array( $new_sync_site ) && !empty( $new_sync_site['site_key'] ) && $this->get_active_sync_site( $new_sync_site['site_key'], true ) ){
+			    if ( is_array( $new_sync_site ) && !empty( $new_sync_site['site_key'] ) && $this->get_active_sync_site( $new_sync_site['site_key'] ) ){
 
 			    	// backup and remove old settings
 			    	update_option( 'jpcrm_woosync_52_mig_backup', $settings, false );

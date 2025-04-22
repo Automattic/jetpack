@@ -626,7 +626,7 @@ class REST_Endpoints {
 		$sender = new REST_Sender();
 
 		if ( 'immediate' === $queue_name ) {
-			return rest_ensure_response( $sender->immediate_full_sync_pull( $number_of_items ) );
+			return rest_ensure_response( $sender->immediate_full_sync_pull() );
 		}
 
 		$response = $sender->queue_pull( $queue_name, $number_of_items, $args );

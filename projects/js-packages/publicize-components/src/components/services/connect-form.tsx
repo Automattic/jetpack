@@ -1,6 +1,6 @@
 import { Button } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { store } from '../../social-store';
@@ -24,7 +24,7 @@ type ConnectFormProps = {
  *
  * @param {ConnectFormProps} props - Component props
  *
- * @return {import('react').ReactNode} Connect form component
+ * @return Connect form component
  */
 export function ConnectForm( {
 	service,
@@ -37,6 +37,13 @@ export function ConnectForm( {
 	const { setKeyringResult } = useDispatch( store );
 
 	const { isConnectionsModalOpen } = useSelect( select => select( store ), [] );
+
+	const [ isConnecting, setIsConnecting ] = useState( false );
+
+	const isFetchingServicesList = useSelect(
+		select => select( store ).isFetchingServicesList(),
+		[]
+	);
 
 	const onConfirm = useCallback(
 		( result: KeyringResult ) => {
@@ -54,7 +61,7 @@ export function ConnectForm( {
 	} );
 
 	const onSubmitForm = useCallback(
-		( event: React.FormEvent ) => {
+		async ( event: React.FormEvent ) => {
 			event.preventDefault();
 			// Prevent Jetpack settings from being submitted
 			event.stopPropagation();
@@ -63,9 +70,11 @@ export function ConnectForm( {
 				return onSubmit();
 			}
 
+			setIsConnecting( true );
+
 			const formData = new FormData( event.target as HTMLFormElement );
 
-			requestAccess( formData );
+			await requestAccess( formData );
 		},
 		[ onSubmit, requestAccess ]
 	);
@@ -76,7 +85,7 @@ export function ConnectForm( {
 			onSubmit={ onSubmitForm }
 		>
 			{ displayInputs ? (
-				<div className={ styles[ 'fields-wrapper' ] }>
+				<div className={ clsx( styles[ 'fields-wrapper' ], styles.input ) }>
 					<CustomInputs service={ service } />
 				</div>
 			) : null }
@@ -87,10 +96,15 @@ export function ConnectForm( {
 						variant={ hasConnections ? 'secondary' : 'primary' }
 						type="submit"
 						className={ styles[ 'connect-button' ] }
+						disabled={ isFetchingServicesList }
 					>
 						{ ( label => {
 							if ( label ) {
 								return label;
+							}
+
+							if ( isFetchingServicesList && isConnecting ) {
+								return __( 'Connecting…', 'jetpack-publicize-components' );
 							}
 
 							return hasConnections

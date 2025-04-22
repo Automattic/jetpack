@@ -1,5 +1,5 @@
 import './editor.scss';
-import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -19,6 +19,17 @@ function PaywallEdit() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
 	const isUserConnected = useIsUserConnected();
+	const setAccess = useSetAccess();
+
+	// Add cleanup effect to reset access level when paywall is removed
+	useEffect( () => {
+		// This function will run when the component unmounts
+		return () => {
+			// Reset access level to "everybody" when the paywall block is removed
+			setAccess( accessOptions.everybody.key );
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
 		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
@@ -30,7 +41,6 @@ function PaywallEdit() {
 
 	const [ showDialog, setShowDialog ] = useState( false );
 	const closeDialog = () => setShowDialog( false );
-	const setAccess = useSetAccess();
 
 	useEffect( () => {
 		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {

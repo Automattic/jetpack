@@ -10,6 +10,16 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 use Automattic\Jetpack\Plans;
 
 /**
+ * Checks if Global Styles on personal are available on the current site either by A/B test assign or feature flag.
+ *
+ * @return bool Whether Global Styles are available.
+ */
+function is_global_styles_on_personal_plan() {
+	return wpcom_site_has_global_styles_in_personal_plan()
+		|| ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( WPCOM_Feature_Flags::GLOBAL_STYLES_ON_PERSONAL_PLAN ) );
+}
+
+/**
  * Checks if Global Styles should be limited on the given site.
  *
  * @param  int $blog_id Blog ID.
@@ -47,6 +57,12 @@ function wpcom_should_limit_global_styles( $blog_id = 0 ) {
 
 	// Do not limit Global Styles on theme demo sites.
 	if ( wpcom_global_styles_has_blog_sticker( 'theme-demo-site', $blog_id ) ) {
+		return false;
+	}
+
+	// Do not limit Global Styles on Big Sky free trial sites. Those sites will
+	// have their own paywall to go through.
+	if ( wpcom_global_styles_has_blog_sticker( 'big-sky-free-trial', $blog_id ) ) {
 		return false;
 	}
 
@@ -176,11 +192,12 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 	}
 
 	// @TODO Remove this once the global styles are available for all users on the Personal Plan.
-	$upgrade_url = "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization";
-	$plan_name   = Plans::get_plan( 'value_bundle' )->product_name_short;
-	if ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( WPCOM_Feature_Flags::GLOBAL_STYLES_ON_PERSONAL_PLAN ) ) {
-		$plan_name   = Plans::get_plan( 'personal-bundle' )->product_name_short;
+	if ( is_global_styles_on_personal_plan() ) {
+		$plan_name   = Plans::get_plan_short_name( 'personal-bundle' );
 		$upgrade_url = "$calypso_domain/plans/$site_slug?plan=personal-bundle&feature=style-customization";
+	} else {
+		$plan_name   = Plans::get_plan_short_name( 'value_bundle' );
+		$upgrade_url = "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization";
 	}
 
 	wp_localize_script(
@@ -190,7 +207,6 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 			'upgradeUrl'                 => $upgrade_url,
 			'wpcomBlogId'                => wpcom_global_styles_get_wpcom_current_blog_id(),
 			'planName'                   => $plan_name,
-			'modalImage'                 => plugins_url( 'image.svg', __FILE__ ),
 			'learnMoreAboutStylesUrl'    => $learn_more_about_styles_support_url,
 			'learnMoreAboutStylesPostId' => $learn_more_about_styles_post_id,
 		)
@@ -508,7 +524,7 @@ function wpcom_display_global_styles_launch_bar() {
 	// @TODO Remove this once the global styles are available for all users on the Personal Plan.
 	$gs_upgrade_plan = WPCOM_VALUE_BUNDLE;
 	$upgrade_url     = "https://wordpress.com/plans/$site_slug?plan=value_bundle&feature=style-customization";
-	if ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( WPCOM_Feature_Flags::GLOBAL_STYLES_ON_PERSONAL_PLAN ) ) {
+	if ( is_global_styles_on_personal_plan() ) {
 		$gs_upgrade_plan = WPCOM_PERSONAL_BUNDLE;
 		$upgrade_url     = "https://wordpress.com/plans/$site_slug?plan=personal-bundle&feature=style-customization";
 	}
@@ -724,7 +740,7 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
 	}
 
 	// If the GLOBAL_STYLES_ON_PERSONAL_PLAN feature is enabled, we need to check if the site has a Personal plan and add the sticker.
-	if ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( 'GLOBAL_STYLES_ON_PERSONAL_PLAN' ) ) {
+	if ( is_global_styles_on_personal_plan() ) {
 		if ( wpcom_site_has_personal_plan( $blog_id ) ) {
 			$note = 'Automated sticker. See paYJgx-5w2-p2';
 			$user = 'a8c'; // A non-empty string avoids storing the current user as author of the sticker change.
@@ -760,3 +776,60 @@ function wpcom_global_styles_is_previewing_premium_theme_without_premium_plan( $
 
 	return ! $has_premium_plan_or_higher;
 }
+
+/**
+ * Checks whether the site has access to Global Styles with a Personal plan as part of an A/B test.
+ *
+ * @param  int $blog_id Blog ID.
+ * @return bool Whether the site has access to Global Styles with a Personal plan.
+ */
+function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return false;
+	}
+
+	if ( ! function_exists( '\ExPlat\assign_given_user' ) ) {
+		return false;
+	}
+
+	if ( ! $blog_id ) {
+		$blog_id = get_current_blog_id();
+	}
+
+	$cache_key                          = "global-styles-on-personal-03-2025-$blog_id";
+	$found_in_cache                     = false;
+	$has_global_styles_in_personal_plan = wp_cache_get( $cache_key, 'a8c_experiments', false, $found_in_cache );
+	if ( $found_in_cache ) {
+		return $has_global_styles_in_personal_plan;
+	}
+
+	$owner_id = wpcom_get_blog_owner( $blog_id );
+	if ( ! $owner_id ) {
+		return false;
+	}
+
+	$owner = get_userdata( $owner_id );
+	if ( ! $owner ) {
+		return false;
+	}
+
+	$experiment_assignment              = \ExPlat\assign_given_user( 'calypso_plans_global_styles_personal_v2_20240225', $owner );
+	$has_global_styles_in_personal_plan = null !== $experiment_assignment;
+	// Cache the experiment assignment to prevent duplicate DB queries in the frontend.
+	wp_cache_set( $cache_key, $has_global_styles_in_personal_plan, 'a8c_experiments', MONTH_IN_SECONDS );
+	return $has_global_styles_in_personal_plan;
+}
+
+/**
+ * We return the upsell plan required for the current Global Styles plan requirement.
+ *
+ * @return string
+ */
+function wpcom_get_global_styles_upsell_plan_slug() {
+	if ( wpcom_site_has_global_styles_in_personal_plan() ) {
+		return 'personal-bundle';
+	}
+
+	return 'value_bundle';
+}
+add_filter( 'wpcom_customize_css_plan_slug', 'wpcom_get_global_styles_upsell_plan_slug' );

@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { useCallback, useEffect } from '@wordpress/element';
-import { isEmpty, filter, first, map, pick, isNil } from 'lodash';
+import { isEmpty, first, map, pick, isNil } from 'lodash';
 
 export const useSharedFieldAttributes = ( {
 	attributes,
@@ -11,36 +11,49 @@ export const useSharedFieldAttributes = ( {
 	setAttributes,
 	sharedAttributes,
 } ) => {
-	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
+	const registry = useRegistry();
+	const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } =
+		useDispatch( 'core/block-editor' );
 
-	const siblings = useSelect(
-		select => {
-			const blockEditor = select( 'core/block-editor' );
+	const { getBlockParentsByBlockName, getClientIdsOfDescendants, getBlocksByClientId } =
+		useSelect( 'core/block-editor' );
 
-			const parentId = first(
-				blockEditor.getBlockParentsByBlockName( clientId, 'jetpack/contact-form' )
-			);
+	const getSiblings = useCallback( () => {
+		const parentId = first( getBlockParentsByBlockName( clientId, 'jetpack/contact-form' ) );
 
-			return filter(
-				blockEditor.getBlocks( parentId ),
-				block => block.name.indexOf( 'jetpack/field' ) > -1 && block.attributes.shareFieldAttributes
-			);
-		},
-		[ clientId ]
-	);
+		if ( ! parentId ) {
+			return [];
+		}
+
+		const formDescendants = getClientIdsOfDescendants( parentId );
+
+		return getBlocksByClientId( formDescendants ).filter(
+			block =>
+				block?.name?.includes( 'jetpack/field' ) &&
+				block?.attributes?.shareFieldAttributes &&
+				block?.clientId !== clientId
+		);
+	}, [ clientId, getBlockParentsByBlockName, getClientIdsOfDescendants, getBlocksByClientId ] );
 
 	useEffect( () => {
+		const siblings = getSiblings();
+
 		if ( ! isEmpty( siblings ) && attributes.shareFieldAttributes ) {
 			const newSharedAttributes = pick( first( siblings ).attributes, sharedAttributes );
-			updateBlockAttributes( [ clientId ], newSharedAttributes );
+			registry.batch( () => {
+				__unstableMarkNextChangeAsNotPersistent();
+				updateBlockAttributes( [ clientId ], newSharedAttributes );
+			} );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	return useCallback(
+	const updateAttributes = useCallback(
 		newAttributes => {
-			let blocksToUpdate;
-			let newSharedAttributes;
+			const siblings = getSiblings();
+
+			let blocksToUpdate = [];
+			let newSharedAttributes = {};
 
 			if ( attributes.shareFieldAttributes && isNil( newAttributes.shareFieldAttributes ) ) {
 				blocksToUpdate = map( siblings, block => block.clientId );
@@ -50,14 +63,26 @@ export const useSharedFieldAttributes = ( {
 				newSharedAttributes = pick( first( siblings ).attributes, sharedAttributes );
 			}
 
-			if ( ! isEmpty( blocksToUpdate ) && ! isEmpty( newSharedAttributes ) ) {
-				updateBlockAttributes( blocksToUpdate, newSharedAttributes );
-			}
+			registry.batch( () => {
+				if ( ! isEmpty( blocksToUpdate ) && ! isEmpty( newSharedAttributes ) ) {
+					updateBlockAttributes( blocksToUpdate, newSharedAttributes );
+				}
 
-			setAttributes( newAttributes );
+				setAttributes( newAttributes );
+			} );
 		},
-		[ attributes, clientId, setAttributes, sharedAttributes, siblings, updateBlockAttributes ]
+		[
+			attributes,
+			clientId,
+			getSiblings,
+			registry,
+			setAttributes,
+			sharedAttributes,
+			updateBlockAttributes,
+		]
 	);
+
+	return updateAttributes;
 };
 
 export const withSharedFieldAttributes =

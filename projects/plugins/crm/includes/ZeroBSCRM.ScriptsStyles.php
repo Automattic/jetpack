@@ -8,6 +8,7 @@
  *
  * Date: 06/02/18
  */
+// phpcs:disable WordPress.WP.EnqueuedResourceParameters.NotInFooter,Generic.WhiteSpace.ScopeIndent.Incorrect
 
 #} ===============================================================================
 #} === INIT registration & Global Style & Script setups
@@ -23,15 +24,15 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 		// ================  Global  =================
 
 			//registers the styles on admin init
-			wp_register_style('zbs-wp-semanticui', plugins_url('/css/ZeroBSCRM.admin.semantic-ui'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );
-			wp_register_script('semanticuijs' ,plugins_url('/js/lib/semantic.min.js',ZBS_ROOTFILE), array(), $zbs->version );
+			wp_register_style( 'zbs-wp-semanticui', plugins_url( '/css/ZeroBSCRM.admin.semantic-ui' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_register_script( 'semanticuijs', plugins_url( '/js/lib/semantic.min.js', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
 			// global
-			wp_register_style('zerobscrmadmcss', 	plugins_url('/css/ZeroBSCRM.admin.global'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE),array('zbs-wp-semanticui'), $zbs->version );
-			wp_enqueue_script('zerobscrmadmjs', plugins_url('/js/ZeroBSCRM.admin.global'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version );
+			wp_register_style( 'zerobscrmadmcss', plugins_url( '/css/ZeroBSCRM.admin.global' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array( 'zbs-wp-semanticui' ), $zbs::VERSION );
+			wp_enqueue_script( 'zerobscrmadmjs', plugins_url( '/js/ZeroBSCRM.admin.global' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 			// emerald styles
-			wp_register_style( 'jpcrm-emerald', plugins_url( '/css/jpcrm-emerald' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs->version );
+			wp_register_style( 'jpcrm-emerald', plugins_url( '/css/jpcrm-emerald' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
 		// ================ / Global  ================
 		// ===========================================
@@ -41,44 +42,44 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 		// ============  Page-specific  ==============
 
 			// list view
-			wp_register_style('zerobscrmlistview', 	plugins_url('/css/ZeroBSCRM.admin.listview'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );	
-			wp_register_script('zerobscrmlistviewjs', plugins_url('/js/ZeroBSCRM.admin.listview'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE), array( 'jquery' ),$zbs->version );
+			wp_register_style( 'zerobscrmlistview', plugins_url( '/css/ZeroBSCRM.admin.listview' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_register_script( 'zerobscrmlistviewjs', plugins_url( '/js/ZeroBSCRM.admin.listview' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 				#} localise the list view...
 				// WH note: Pretty sure we do this on page, so should janitor this up (later)
 				$zbs_translation_array = array(
 					'zbs_edit' => __( 'Edit', 'zero-bs-crm' ),
-					'zbs_view'=> __( 'View', "zero-bs-crm")
+					'zbs_view' => __( 'View', 'zero-bs-crm' ),
 				);
 				wp_localize_script( 'zerobscrmlistviewjs', 'zbs_lang', $zbs_translation_array );
 
 			// Single view
-			wp_register_style('zerobscrmsingleview', plugins_url('/css/ZeroBSCRM.admin.singleview'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );
-			wp_register_script('zerobscrmsingleview' ,plugins_url('/js/ZeroBSCRM.admin.singleview'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE), array( 'jquery' ),$zbs->version );
+			wp_register_style( 'zerobscrmsingleview', plugins_url( '/css/ZeroBSCRM.admin.singleview' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_register_script( 'zerobscrmsingleview', plugins_url( '/js/ZeroBSCRM.admin.singleview' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 			// edit view
-			wp_register_style('zerobscrmeditview', 	plugins_url('/css/ZeroBSCRM.admin.editview'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );
-			wp_register_script('zerobscrmeditviewjs', plugins_url('/js/ZeroBSCRM.admin.editview'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version );
-			wp_register_script('zerobscrmtagmetaboxjs', plugins_url('/js/ZeroBSCRM.admin.tags.metabox'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version );
+			wp_register_style( 'zerobscrmeditview', plugins_url( '/css/ZeroBSCRM.admin.editview' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_register_script( 'zerobscrmeditviewjs', plugins_url( '/js/ZeroBSCRM.admin.editview' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+			wp_register_script( 'zerobscrmtagmetaboxjs', plugins_url( '/js/ZeroBSCRM.admin.tags.metabox' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 			// Metabox manager (rearrange them)
-			wp_register_script('zerobscrmmm', plugins_url('/js/ZeroBSCRM.admin.metabox.manager'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE),array('jquery'), $zbs->version);
+			wp_register_script( 'zerobscrmmm', plugins_url( '/js/ZeroBSCRM.admin.metabox.manager' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 			// Segment Editor
-			wp_register_style('zbs-segmentedit-css', plugins_url('/css/ZeroBSCRM.admin.segmentedit'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );
-			wp_register_script('zbs-segmentedit-js',ZEROBSCRM_URL.'/js/ZeroBSCRM.admin.segmentedit'.wp_scripts_get_suffix().'.js',array('jquery'), $zbs->version );
+			wp_register_style( 'zbs-segmentedit-css', plugins_url( '/css/ZeroBSCRM.admin.segmentedit' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_register_script( 'zbs-segmentedit-js', ZEROBSCRM_URL . '/js/ZeroBSCRM.admin.segmentedit' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION );
 
 			// home dash
-			wp_register_style('zerobscrmhomedash', 	plugins_url('/css/ZeroBSCRM.admin.homedash'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array('zbs-wp-semanticui'), $zbs->version );
-		
+			wp_register_style( 'zerobscrmhomedash', plugins_url( '/css/ZeroBSCRM.admin.homedash' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array( 'zbs-wp-semanticui' ), $zbs::VERSION );
+
 			// settings page
-			wp_register_style('zerobscrmsettings', 	plugins_url('/css/ZeroBSCRM.admin.settings'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );
-			
+			wp_register_style( 'zerobscrmsettings', plugins_url( '/css/ZeroBSCRM.admin.settings' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+
 			// mail delivery wizard
-			wp_register_style('zerobscrmmaildeliverywizard', plugins_url('/css/ZeroBSCRM.admin.maildeliverywizard'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );
+			wp_register_style( 'zerobscrmmaildeliverywizard', plugins_url( '/css/ZeroBSCRM.admin.maildeliverywizard' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
 			// systems page: 
-			wp_register_script('jpcrmadminsystem' ,plugins_url('/js/jpcrm-admin-system'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version );
+			wp_register_script( 'jpcrmadminsystem', plugins_url( '/js/jpcrm-admin-system' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 		// ============ / Page-specific ==============
 		// ===========================================
@@ -87,32 +88,31 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 		// ============  Libs  =======================
 
 			// jq ui 
-			wp_register_script('zerobscrmadmjqui', plugins_url('/js/lib/jquery-ui.min.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version );
+			wp_register_script( 'zerobscrmadmjqui', plugins_url( '/js/lib/jquery-ui.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 			// above didn't seem to include all libs req for draggable, this does, specific build for listviews
 			// 29/07/2017 http://jqueryui.com/download/#!version=1.12.1&components=111111111111111110000000010000000000000000000000
-			wp_register_script('zerobscrmadmjquidraggable', plugins_url('/js/lib/jquery-ui.1.12.1.dragdrop.listview.min.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version );
-		
+			wp_register_script( 'zerobscrmadmjquidraggable', plugins_url( '/js/lib/jquery-ui.1.12.1.dragdrop.listview.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+
 			// jq modal
-			wp_register_style('zerobsjsmodal', 	plugins_url('/css/lib/jquery.modal.min.css',ZBS_ROOTFILE), array(), $zbs->version );
-			wp_register_script('zerobsjsmodal' ,plugins_url('/js/lib/jquery.modal.min.js',ZBS_ROOTFILE), array('jquery'), $zbs->version );
-		
+			wp_register_style( 'zerobsjsmodal', plugins_url( '/css/lib/jquery.modal.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_register_script( 'zerobsjsmodal', plugins_url( '/js/lib/jquery.modal.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+
 			// font awesome
-			wp_register_style('jpcrm-fontawesome-v4-4-0-core-css', plugins_url('/css/font-awesome.min.css',ZBS_ROOTFILE), array(), $zbs->version );
-		
+			wp_register_style( 'jpcrm-fontawesome-v4-4-0-core-css', plugins_url( '/css/font-awesome.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+
 			// chart.js
-			wp_register_script('zerobscrmchartjs', plugins_url('/js/lib/chart.min.js',ZBS_ROOTFILE),array('jquery'), $zbs->version );
-		
+			wp_register_script( 'zerobscrmchartjs', plugins_url( '/js/lib/chart.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+
 			// funnel js
-			wp_register_script('zerobscrmfunneljs', plugins_url('/js/lib/jquery.funnel.min.js',ZBS_ROOTFILE),array('jquery'), $zbs->version );
-		
+			wp_register_script( 'zerobscrmfunneljs', plugins_url( '/js/lib/jquery.funnel.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+
 			// sweet alerts - v2 v7.29.0 - 16th nov 18
-			wp_register_style('zerobscrmswa', plugins_url('/css/lib/sweetalert2-7.29.0.min.css',ZBS_ROOTFILE), array(), $zbs->version );
-			wp_enqueue_script('zerobscrmswa', plugins_url('/js/lib/sweetalert2-7.29.0.min.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version );
+			wp_register_style( 'zerobscrmswa', plugins_url( '/css/lib/sweetalert2-7.29.0.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_enqueue_script( 'zerobscrmswa', plugins_url( '/js/lib/sweetalert2-7.29.0.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 			#} Bloodhound (for typeahead) - use prefetch from https://twitter.github.io/typeahead.js/examples/
 			#} https://github.com/twitter/typeahead.js  0.11.1
-			wp_enqueue_script('zerobscrmtajs-0-11-1', plugins_url('/js/lib/typeahead.bundle.min.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version );
-			
+			wp_enqueue_script( 'zerobscrmtajs-0-11-1', plugins_url( '/js/lib/typeahead.bundle.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 		// ============ / Libs =======================
 		// ===========================================
@@ -122,7 +122,9 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 
 			// WL css overrides (3/11/18 ++)
 			// if the file exists, this registers + enqueues css
-			if (file_exists( dirname( ZBS_ROOTFILE ) . '/css/wl.adm.override.css')) wp_enqueue_style('zbswladmcss', 	plugins_url('/css/wl.adm.override.css',ZBS_ROOTFILE), array('zerobscrmadmcss','zerobscrmlistview','zerobscrmeditview'), $zbs->version );
+				if ( file_exists( dirname( ZBS_ROOTFILE ) . '/css/wl.adm.override.css' ) ) {
+					wp_enqueue_style( 'zbswladmcss', plugins_url( '/css/wl.adm.override.css', ZBS_ROOTFILE ), array( 'zerobscrmadmcss', 'zerobscrmlistview', 'zerobscrmeditview' ), $zbs::VERSION );
+				}
 
 		// ============ / Whitelabel =================
 		// ===========================================
@@ -272,8 +274,8 @@ function jpcrm_get_jp_green() {
 function zeroBSCRM_scriptStyles_admin_quoteBuilder(){
 
 	global $zbs;
-	wp_enqueue_style('zerobscrm-quotebuilder', 	plugins_url('/css/ZeroBSCRM.admin.quotebuilder'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );
-	wp_enqueue_script('zerobscrm-quotebuilderjs', plugins_url('/js/ZeroBSCRM.admin.quotebuilder'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version );
+	wp_enqueue_style( 'zerobscrm-quotebuilder', plugins_url( '/css/ZeroBSCRM.admin.quotebuilder' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+	wp_enqueue_script( 'zerobscrm-quotebuilderjs', plugins_url( '/js/ZeroBSCRM.admin.quotebuilder' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 }
 
@@ -284,11 +286,11 @@ function zeroBSCRM_scriptStyles_admin_invoiceBuilder(){
 	global $zbs;
 	#} Bootstrap (for the modals)
 	#} ONLY REQUIRED in invoice editor => AND welcome wizard tour now 
-	//wp_enqueue_script('zerobscrmbsjs', plugins_url('/js/lib/bootstrap.min.js',ZBS_ROOTFILE), array( 'jquery' ));
+	// wp_enqueue_script( 'zerobscrmbsjs', plugins_url( '/js/lib/bootstrap.min.js', ZBS_ROOTFILE ), array( 'jquery' ));
 
 	#}  MS invoice stuff. xxx
-	wp_enqueue_style('zerobscrm-invoicebuilder', 	plugins_url('/css/ZeroBSCRM.admin.invoicebuilder'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );
-	wp_enqueue_script('zerobscrm-invoicebuilderjs', plugins_url('/js/ZeroBSCRM.admin.invoicebuilder'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE), array( 'jquery', 'semanticuijs' ), $zbs->version );
+	wp_enqueue_style( 'zerobscrm-invoicebuilder', plugins_url( '/css/ZeroBSCRM.admin.invoicebuilder' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+	wp_enqueue_script( 'zerobscrm-invoicebuilderjs', plugins_url( '/js/ZeroBSCRM.admin.invoicebuilder' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery', 'semanticuijs' ), $zbs::VERSION );
 
 			//localise the invoice builder strings...
 	$zbs_invtranslation_array = array(
@@ -299,7 +301,7 @@ function zeroBSCRM_scriptStyles_admin_invoiceBuilder(){
 	);
 
 	$zbs_links = array(
-		'admin_url' => admin_url()
+		'admin_url' => admin_url(),
 	);
 
 	wp_localize_script( 'zerobscrm-invoicebuilderjs', 'zbs_lang', $zbs_invtranslation_array );
@@ -311,8 +313,8 @@ function zeroBSCRM_scriptStyles_admin_invoiceBuilder(){
 function zeroBSCRM_scriptStyles_admin_transactionBuilder(){
 
 	global $zbs;
-	wp_enqueue_style('zerobscrmtranscss', 	plugins_url('/css/ZeroBSCRM.admin.transactionedit'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );
-	wp_enqueue_script('zerobscrm-transedit-js', ZEROBSCRM_URL .'js/ZeroBSCRM.admin.transactioneditor'.wp_scripts_get_suffix().'.js', array('jquery'), $zbs->version );
+	wp_enqueue_style( 'zerobscrmtranscss', plugins_url( '/css/ZeroBSCRM.admin.transactionedit' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+	wp_enqueue_script( 'zerobscrm-transedit-js', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.transactioneditor' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION );
 
 }
 
@@ -320,7 +322,7 @@ function zeroBSCRM_scriptStyles_admin_transactionBuilder(){
 function zeroBSCRM_scriptStyles_admin_formBuilder(){
 
 	global $zbs;
-	wp_enqueue_style('zerobscrmformcss', plugins_url('/css/ZeroBSCRM.admin.frontendforms'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );
+	wp_enqueue_style( 'zerobscrmformcss', plugins_url( '/css/ZeroBSCRM.admin.frontendforms' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
 }
 
@@ -354,20 +356,11 @@ function zeroBSCRM_global_admin_styles(){
 		wp_enqueue_style( 'jpcrm-emerald' );
 
 		// moment everywhere (from 2.98)
-		wp_enqueue_script( 'jpcrm-moment-v2-29-4', untrailingslashit( ZEROBSCRM_URL ) . '/js/lib/moment-with-locales.min.js', array( 'jquery' ), $zbs->version, false );
+		wp_enqueue_script( 'jpcrm-moment-v2-29-4', untrailingslashit( ZEROBSCRM_URL ) . '/js/lib/moment-with-locales.min.js', array( 'jquery' ), $zbs::VERSION, false );
 
 		// semantic everywhere (on our pages)
-		wp_enqueue_style( 'zbs-wp-semanticui' );  
-		wp_enqueue_script( 'semanticuijs');	
-
-		// telemetry
-		// V3.0 No more telemetry zeroBSCRM_teleLog('');
-
-
-		#}bootstrap JS (for onboarding tour...)
-		//wp_enqueue_script('zerobscrmbsjs', plugins_url('/js/lib/bootstrap.min.js',ZBS_ROOTFILE), array( 'jquery' ));
-
-		#} EDIT - using STANDALONE tour now instead
+		wp_enqueue_style( 'zbs-wp-semanticui' );
+		wp_enqueue_script( 'semanticuijs' );
 
 		do_action('zbs-global-admin-styles');
 
@@ -378,31 +371,28 @@ function zeroBSCRM_global_admin_styles(){
 		if (!defined('ZBS_GAS')) define('ZBS_GAS',true);
 
 	} // / dupe check protection
-
-
 }
 
 // 2.98.2 - MS styles tidy up that were inline
 // for the Extension Manager page (was inline)
 function zeroBSCRM_extension_admin_styles() {
 	global $zbs;
-	wp_register_style( 'zerobscrmexts', ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.extensions-page' . wp_scripts_get_suffix() . '.css', array(), $zbs->version );
+	wp_register_style( 'zerobscrmexts', ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.extensions-page' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 	wp_enqueue_style( 'zerobscrmexts' );
 }
 
 // 2.98.2 - MS tidy up of style into compressed sheet (was inline)
 function zeroBSCRM_intro_admin_styles() {
 	global $zbs;
-	wp_register_style( 'zerobscrmintro', ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.intro' . wp_scripts_get_suffix() . '.css', array(), $zbs->version );
+	wp_register_style( 'zerobscrmintro', ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.intro' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 	wp_enqueue_style( 'zerobscrmintro' );
 }
 
-
 function zeroBSCRM_email_styles() {
 	global $zbs;
-	wp_register_style( 'zerobscrmemails', ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.email' . wp_scripts_get_suffix() . '.css', array(), $zbs->version );
+	wp_register_style( 'zerobscrmemails', ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.email' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 	wp_enqueue_style( 'zerobscrmemails' );
-	wp_register_script( 'zerobsjsemail' , ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.email' . wp_scripts_get_suffix() . '.js', array('jquery'), $zbs->version );
+	wp_register_script( 'zerobsjsemail', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.email' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION );
 	wp_enqueue_script( 'zerobsjsemail');
 	do_action( 'zbs_extra_email_script_styles' );
 }
@@ -410,31 +400,30 @@ function zeroBSCRM_admin_styles_ui2_listview(){
 
 	// semantic 2.2.11 (EVENTUALLY these PROBS shouldn't be global)
 	wp_enqueue_style( 'zerobscrmlistview' );
-	wp_enqueue_script( 'semanticuijs');
+	wp_enqueue_script( 'semanticuijs' );
 	// Removed at request of plugin reviewers. (used wp core ver) wp_enqueue_script( 'zerobscrmadmjqui');
-	wp_enqueue_script('jquery-ui-sortable');
+	wp_enqueue_script( 'jquery-ui-sortable' );
 
 	// our list view css
-	wp_enqueue_script( 'zerobscrmlistviewjs');
+	wp_enqueue_script( 'zerobscrmlistviewjs' );
 
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
 
 	// hook to allow modules etc. to add list view stylesheets
 	do_action( 'jpcrm_enqueue_styles_listview' );
-
 }
 function zeroBSCRM_admin_styles_ui2_editview(){
-	
+
 	//enqueue these (via the admin_print_styles-{$page})
 
 			// Removed at request of plugin reviewers. (used wp core ver) wp_enqueue_script( 'zerobscrmadmjqui');
-			wp_enqueue_script('jquery-ui-sortable');
+			wp_enqueue_script( 'jquery-ui-sortable' );
 			// semantic 2.2.11 (EVENTUALLY these PROBS shouldn't be global)
 			wp_enqueue_style( 'zerobscrmeditview' );
-			wp_enqueue_script( 'semanticuijs');
-			wp_enqueue_script( 'zerobscrmeditviewjs');
-			wp_enqueue_script( 'zerobscrmtagmetaboxjs');
-			wp_enqueue_script( 'zerobscrmmm'); // metabox manager
+			wp_enqueue_script( 'semanticuijs' );
+			wp_enqueue_script( 'zerobscrmeditviewjs' );
+			wp_enqueue_script( 'zerobscrmtagmetaboxjs' );
+			wp_enqueue_script( 'zerobscrmmm' ); // metabox manager
 
 			// daterange + moment
 			zeroBSCRM_enqueue_libs_js_momentdatepicker();
@@ -476,70 +465,59 @@ function zeroBSCRM_settingspage_admin_styles(){
 	global $zbs;
 
 	// needs datepicker (MS needed for paypal sync, was a gross hack elsewhere so put here)
-	wp_enqueue_script('wh-daterangepicker-v2-1-21-js',untrailingslashit(ZEROBSCRM_URL).'/js/lib/daterangepicker.min.js', array('jquery'), $zbs->version );		
+	wp_enqueue_script( 'wh-daterangepicker-v2-1-21-js', untrailingslashit( ZEROBSCRM_URL ) . '/js/lib/daterangepicker.min.js', array( 'jquery' ), $zbs::VERSION );
 
 	wp_enqueue_style( 'zerobscrmsettings' );
-	wp_register_script('zerobscrm-settingspage-js' , ZEROBSCRM_URL .'js/ZeroBSCRM.admin.settings'.wp_scripts_get_suffix().'.js', array('jquery'), $zbs->version );
-	wp_enqueue_script( 'zerobscrm-settingspage-js');
-	
+	wp_register_script( 'zerobscrm-settingspage-js', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.settings' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION );
+	wp_enqueue_script( 'zerobscrm-settingspage-js' );
+
 	#} Field Sorts
 	if (isset($_GET['tab']) && $_GET['tab'] == 'fieldsorts'){
-
-		#} jQ UI
-		//wp_enqueue_script('zerobscrmadmjqui', plugins_url('/js/lib/jquery-ui.min.js',ZBS_ROOTFILE), array( 'jquery' ));
-		// can just call here as registered in main admin init now (2.2 29/07/2017)
 		wp_enqueue_script( 'zerobscrmadmjqui');
 
 		#} Our custom sortables css
-		wp_enqueue_style('zerobscrmsortscss', plugins_url('/css/ZeroBSCRM.admin.sortables'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );
-
+		wp_enqueue_style( 'zerobscrmsortscss', plugins_url( '/css/ZeroBSCRM.admin.sortables' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 	}
 }
 
-// These now get rolled into zeroBSCRM_global_admin_styles 
-/*function zeroBSCRM_admin_styles_ui2_semantic(){
-			wp_enqueue_style( 'zbs-wp-semanticui' );  
-			wp_enqueue_script( 'semanticuijs');	
-}*/
 /* WH adding in for old ext compatibility e.g. inv pro was still producing error for lack of func */
 function zeroBSCRM_admin_styles_ui2_semantic(){}
 
 function zeroBSCRM_admin_styles_ui2_semantic_settingspage(){
-			// These now get rolled into zeroBSCRM_global_admin_styles wp_enqueue_style( 'zbs-wp-semanticui' );  
-			wp_enqueue_style( 'zerobscrmmaildeliverywizard' );  
-			// These now get rolled into zeroBSCRM_global_admin_styles wp_enqueue_script( 'semanticuijs');	
-			wp_enqueue_style('zerobscrmsettings');
+			// These now get rolled into zeroBSCRM_global_admin_styles wp_enqueue_style( 'zbs-wp-semanticui' );
+			wp_enqueue_style( 'zerobscrmmaildeliverywizard' );
+			// These now get rolled into zeroBSCRM_global_admin_styles wp_enqueue_script( 'semanticuijs');
+			wp_enqueue_style( 'zerobscrmsettings' );
 }
 
 function zeroBSCRM_admin_styles_chartjs(){
-			wp_enqueue_script( 'zerobscrmchartjs');	
-			wp_enqueue_script( 'zerobscrmfunneljs');	
+	wp_enqueue_script( 'zerobscrmchartjs' );
+	wp_enqueue_script( 'zerobscrmfunneljs' );
 }
 function zeroBSCRM_admin_styles_singleview(){
-	
+
 	// single item view
 	wp_enqueue_style( 'zerobscrmsingleview' );
-	wp_enqueue_script( 'zerobscrmsingleview');	
+	wp_enqueue_script( 'zerobscrmsingleview' );
 
 }
 
 function jpcrm_admin_scripts_systems_page(){
 
-	wp_enqueue_script( 'jpcrmadminsystem');
+	wp_enqueue_script( 'jpcrmadminsystem' );
 
 }
 
 function zeroBSCRM_admin_styles_homedash(){
 	global $zbs;
 	//home dashboard styles and script
-	wp_enqueue_style( 'zerobscrmhomedash' ); 
+	wp_enqueue_style( 'zerobscrmhomedash' );
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
-	wp_register_script('zerobscrmjs-dash' , ZEROBSCRM_URL .'js/ZeroBSCRM.admin.dash'.wp_scripts_get_suffix().'.js', array('jquery'), $zbs->version);
-	wp_enqueue_script( 'zerobscrmjs-dash');
+	wp_register_script( 'zerobscrmjs-dash', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.dash' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION );
+	wp_enqueue_script( 'zerobscrmjs-dash' );
 
-	wp_enqueue_script( 'jpcrm-funnel-js', ZEROBSCRM_URL . 'js/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.js', array(), $zbs->version, false );
-	wp_enqueue_style( 'jpcrm-funnel-css', ZEROBSCRM_URL . 'css/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.css', array(), $zbs->version );
-	
+	wp_enqueue_script( 'jpcrm-funnel-js', ZEROBSCRM_URL . 'js/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.js', array(), $zbs::VERSION, false );
+	wp_enqueue_style( 'jpcrm-funnel-css', ZEROBSCRM_URL . 'css/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 }
 
 function zeroBSCRM_admin_scripts_editcust(){
@@ -547,7 +525,7 @@ function zeroBSCRM_admin_scripts_editcust(){
 	zeroBSCRM_dequeueJSModal();
 
 	//scripts here for the edit customer page (for the "Quick Add Company, Tasks, etc")
-	wp_enqueue_script('zerobscrmcustjs');
+	wp_enqueue_script( 'zerobscrmcustjs' );
 }
 
 
@@ -557,54 +535,37 @@ function zeroBSCRM_calendar_admin_styles(){
 
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
 
+	wp_register_style( 'jpcrm-tasks-css', ZEROBSCRM_URL . 'css/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 
-	wp_register_style( 'jpcrm-tasks-css', ZEROBSCRM_URL . 'css/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.css', array(), $zbs->version );
-
-	wp_register_script( 'zerobscrm-calendar-js', ZEROBSCRM_URL . 'js/lib/fullcalendar.mod' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment-v2-29-4' ), $zbs->version, false );
-	wp_register_style('zerobscrm-calendar', ZEROBSCRM_URL .'css/lib/fullcalendar.min.css', array(), $zbs->version );
-	wp_register_style('zerobscrm-calendar-print', ZEROBSCRM_URL .'css/lib/fullcalendar.print.min.css', array(), $zbs->version );
-	wp_register_script( 'jpcrm-tasks-js', ZEROBSCRM_URL . 'js/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment-v2-29-4', 'zerobscrm-calendar-js' ), $zbs->version, false );
-	
+	wp_register_script( 'zerobscrm-calendar-js', ZEROBSCRM_URL . 'js/lib/fullcalendar.mod' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment-v2-29-4' ), $zbs::VERSION, false );
+	wp_register_style( 'zerobscrm-calendar', ZEROBSCRM_URL . 'css/lib/fullcalendar.min.css', array(), $zbs::VERSION );
+	wp_register_style( 'zerobscrm-calendar-print', ZEROBSCRM_URL . 'css/lib/fullcalendar.print.min.css', array(), $zbs::VERSION );
+	wp_register_script( 'jpcrm-tasks-js', ZEROBSCRM_URL . 'js/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment-v2-29-4', 'zerobscrm-calendar-js' ), $zbs::VERSION, false );
 
 	// LOCALE Specific
-	$languageTag = zeroBSCRM_getLocale();
-	$languageTagShort = zeroBSCRM_getLocale(false);
-	if (file_exists(ZEROBSCRM_PATH.'/js/lib/calendar-locale/'.$languageTag .'.js')){
-	
-		// e.g. en-gb	
-		wp_enqueue_script('zerobscrm-calendar-js-locale', ZEROBSCRM_URL . 'js/lib/calendar-locale/'.$languageTag .'.js', array('zerobscrm-calendar-js'), $zbs->version );
-	
-	} else {
-		
-		if (file_exists(ZEROBSCRM_PATH.'/js/lib/calendar-locale/'.$languageTagShort .'.js')){
+	$language_tag       = zeroBSCRM_getLocale();
+	$language_tag_short = zeroBSCRM_getLocale( false );
+	if ( file_exists( ZEROBSCRM_PATH . '/js/lib/calendar-locale/' . $language_tag . '.js' ) ) {
+		// e.g. en-gb
+		wp_enqueue_script( 'zerobscrm-calendar-js-locale', ZEROBSCRM_URL . 'js/lib/calendar-locale/' . $language_tag . '.js', array( 'zerobscrm-calendar-js' ), $zbs::VERSION );
+	} elseif ( file_exists( ZEROBSCRM_PATH . '/js/lib/calendar-locale/' . $language_tag_short . '.js' ) ) {
 
 			// e.g. en
-			wp_enqueue_script('zerobscrm-calendar-js-locale', ZEROBSCRM_URL . 'js/lib/calendar-locale/'.$languageTagShort .'.js', array('zerobscrm-calendar-js'), $zbs->version );
-
-		} else {
-
-			// no language tag exists, notice?
-
-		}
-
-	} 
-
+			wp_enqueue_script( 'zerobscrm-calendar-js-locale', ZEROBSCRM_URL . 'js/lib/calendar-locale/' . $language_tag_short . '.js', array( 'zerobscrm-calendar-js' ), $zbs::VERSION );
+	}
 
 	wp_enqueue_style( 'zerobscrm-calendar' );
 	wp_enqueue_style( 'jpcrm-tasks-css' );
 	// wp_enqueue_style( 'zerobscrm-calendar-print' );	
 
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
-	
-	wp_enqueue_script('zerobscrm-calendar-js');
+	wp_enqueue_script( 'zerobscrm-calendar-js' );
 	wp_enqueue_script( 'jpcrm-tasks-js' );
-
 }
 
 function zeroBSCRM_dequeueJSModal(){
-
-	wp_dequeue_style('zerobsjsmodal');
-	wp_dequeue_script('zerobsjsmodal');
+	wp_dequeue_style( 'zerobsjsmodal' );
+	wp_dequeue_script( 'zerobsjsmodal' );
 }
 
 function zeroBSCRM_add_admin_styles( $hook ) {
@@ -653,24 +614,6 @@ function zeroBSCRM_add_admin_styles( $hook ) {
 }
 add_action( 'admin_enqueue_scripts', 'zeroBSCRM_add_admin_styles', 10, 1 );
 
-#} Public ver :)
-/*v3.0 removed this, no CPT's and don't think was using anyhow by 2.98+
-function zeroBSCRM_add_public_scripts( $hook ) {
-
-    global $post;
-
-    #} Conditionally, for front end: http://wordpress.stackexchange.com/questions/10287/load-scripts-based-on-post-type
-    #if ($post->post_type == 'zerobs_quote' && !is_admin()){ 
-    if( is_single() && get_query_var('post_type') && 'zerobs_quote' == get_query_var('post_type') ){
-
-    	#} Public proposals
-		wp_enqueue_style('zerobscrmpubquocss', ZEROBSCRM_URL .'/css/ZeroBSCRM.public.quotes.min.css' );
-
-    }
-}
-add_action( 'wp_enqueue_scripts', 'zeroBSCRM_add_public_scripts', 10, 1 ); */
-
-
 	// THIS IS LEGACY! It's used for <3.0 on CPT edit pages. Otherwise enqueue properly like in zeroBSCRM_settingspage_admin_styles via menus :)
 	function zeroBSCRM_load_libs_js_momentdatepicker(){
 	    add_action( 'admin_enqueue_scripts', 'zeroBSCRM_enqueue_libs_js_momentdatepicker' );
@@ -679,11 +622,9 @@ add_action( 'wp_enqueue_scripts', 'zeroBSCRM_add_public_scripts', 10, 1 ); */
 	function zeroBSCRM_enqueue_libs_js_momentdatepicker(){
 
 		global $zbs;
-		wp_enqueue_script('wh-daterangepicker-v2-1-21-js',untrailingslashit(ZEROBSCRM_URL).'/js/lib/daterangepicker.min.js', array('jquery'), $zbs->version );
+		wp_enqueue_script( 'wh-daterangepicker-v2-1-21-js', untrailingslashit( ZEROBSCRM_URL ) . '/js/lib/daterangepicker.min.js', array( 'jquery' ), $zbs::VERSION );
 		#} CSS is wrapped into main plugin css
-
 	}
-	
 
 	#} Customer Filters
 	function zeroBSCRM_load_libs_js_customerfilters(){
@@ -693,7 +634,7 @@ add_action( 'wp_enqueue_scripts', 'zeroBSCRM_add_public_scripts', 10, 1 ); */
 
 		global $zbs;
 		#} Customer Filters
-		wp_enqueue_script('zbs-js-customerfilters-v1', ZEROBSCRM_URL.'/js/ZeroBSCRM.admin.customerfilters'.wp_scripts_get_suffix().'.js', array('jquery'), $zbs->version );
+		wp_enqueue_script( 'zbs-js-customerfilters-v1', ZEROBSCRM_URL . '/js/ZeroBSCRM.admin.customerfilters' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION );
 	}
 
 	#} Media Manager
@@ -774,7 +715,7 @@ function zeroBSCRM_admin_styles_exportTools(){
 
 	global $zbs;
 	
-	wp_register_style('zbs-adm-css-export', 	plugins_url('/css/ZeroBSCRM.admin.export'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE),array('zbs-wp-semanticui'), $zbs->version );
+	wp_register_style( 'zbs-adm-css-export', plugins_url( '/css/ZeroBSCRM.admin.export' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array( 'zbs-wp-semanticui' ), $zbs::VERSION );
 
 	wp_enqueue_style( 'zbs-adm-css-export' );
 }
@@ -797,7 +738,7 @@ function jpcrm_support_page_styles_scripts() {
 
 	global $zbs;
 
-	wp_enqueue_style( 'jpcrm-support-page', plugins_url( 'css/jpcrm.admin.support-page' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs->version );
+	wp_enqueue_style( 'jpcrm-support-page', plugins_url( 'css/jpcrm.admin.support-page' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 }
 
 // used in form templates & shortcode outputted forms.
@@ -806,11 +747,11 @@ function zeroBSCRM_forms_scriptsStylesRegister(){
 
 	global $zbs;
 
-		// js
-        wp_register_script('zbsfrontendformsjs', plugins_url('/js/ZeroBSCRM.public.leadform'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version);
-        
-        // css
-        wp_register_style('zbsfrontendformscss', plugins_url('/css/ZeroBSCRM.public.frontendforms'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );
+	// js
+	wp_register_script( 'zbsfrontendformsjs', plugins_url( '/js/ZeroBSCRM.public.leadform' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+
+	// css
+	wp_register_style( 'zbsfrontendformscss', plugins_url( '/css/ZeroBSCRM.public.frontendforms' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
 }
 add_action( 'wp_enqueue_scripts', 'zeroBSCRM_forms_scriptsStylesRegister');

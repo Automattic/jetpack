@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
+import { showAiAssistantSection } from '@automattic/jetpack-ai-client';
 import { dispatch, select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { showAiAssistantSection } from '../utils/show-ai-assistant-section';
 import getContainer from './container';
 import { LONG_SENTENCES } from './long-sentences';
 import features from './index';

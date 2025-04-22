@@ -1,0 +1,2 @@
+ 11 | WARNING | PHPUnit test class name 'PhpunitFilename' should end with 'Test'. (Jetpack.PHPUnit.TestClassName.DoesNotEndWithTest)
+ 11 | ERROR   | PHPUnit test class name 'PhpunitFilename' does not match filename 'PhpunitFilenameNoMatchTest.php'. This mismatch was deprecated in PHPUnit 9 and fails in PHPUnit 10+. (Jetpack.PHPUnit.TestClassName.DoesNotMatchFileName)

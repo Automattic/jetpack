@@ -35,18 +35,17 @@ export const ConnectionsList: React.FC = () => {
 		<div>
 			<ul className={ styles[ 'connections-list' ] }>
 				{ connections.map( conn => {
-					const { display_name, id, service_name, profile_picture, connection_id } = conn;
-					const currentId = connection_id ? connection_id : id;
+					const { display_name, service_name, profile_picture, connection_id } = conn;
 
 					return (
 						<PublicizeConnection
 							disabled={ shouldBeDisabled( conn ) }
 							enabled={ canBeTurnedOn( conn ) && conn.enabled }
-							key={ currentId }
-							id={ currentId }
+							key={ connection_id }
+							id={ connection_id }
 							label={ display_name }
 							name={ service_name }
-							toggleConnection={ toggleConnection( currentId, conn ) }
+							toggleConnection={ toggleConnection( connection_id, conn ) }
 							profilePicture={ profile_picture }
 						/>
 					);

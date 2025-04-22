@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { usePrevious } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -163,6 +164,7 @@ export function useSyncMedia(
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
+	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
 
 	const [ initialState, setState ] = useState< VideoDataProps >( {} );
 
@@ -241,6 +243,7 @@ export function useSyncMedia(
 		}
 
 		debug( 'Updating attributes: ', attributesToUpdate );
+		__unstableMarkNextChangeAsNotPersistent();
 		setAttributes( attributesToUpdate );
 	}, [ videoData, isRequestingVideoData ] );
 

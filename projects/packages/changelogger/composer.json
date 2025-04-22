@@ -11,12 +11,14 @@
 	],
 	"require": {
 		"php": ">=7.2.5",
+		"composer-runtime-api": "^2.2.0",
 		"symfony/console": "^5.4 || ^6.4 || ^7.1",
 		"symfony/process": "^5.4 || ^6.4 || ^7.1"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^1.1.1",
-		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0"
+		"yoast/phpunit-polyfills": "^3.0.0",
+		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
+		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {
 		"psr-4": {
@@ -35,16 +37,16 @@
 	],
 	"scripts": {
 		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
 		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
 		],
-		"post-install-cmd": "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }",
-		"post-update-cmd": "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
+		"post-install-cmd": "rm -f vendor/bin/changelogger && ln -s ../../bin/local-changelogger vendor/bin/changelogger",
+		"post-update-cmd": "rm -f vendor/bin/changelogger && ln -s ../../bin/local-changelogger vendor/bin/changelogger"
 	},
 	"repositories": [
 		{
@@ -60,7 +62,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "5.1.x-dev"
+			"dev-trunk": "6.0.x-dev"
 		},
 		"mirror-repo": "Automattic/jetpack-changelogger",
 		"version-constants": {
@@ -68,6 +70,11 @@
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-changelogger/compare/${old}...${new}"
+		},
+		"dependencies": {
+			"test-only": [
+				"packages/phpunit-select-config"
+			]
 		}
 	}
 }

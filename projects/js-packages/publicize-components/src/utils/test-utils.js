@@ -33,34 +33,28 @@ export const testPost = {
 
 export const connections = [
 	{
-		id: '123456789',
 		service_name: 'facebook',
 		display_name: 'Some name',
 		profile_picture: 'https://wordpress.com/some-url-of-a-picture',
-		username: 'username',
+		external_handle: 'username',
 		enabled: false,
 		connection_id: '987654321',
-		test_success: true,
 	},
 	{
-		id: '234567891',
 		service_name: 'tumblr',
 		display_name: 'Some name',
 		profile_picture: 'https://wordpress.com/some-url-of-another-picture',
-		username: 'username',
+		external_handle: 'username',
 		enabled: false,
 		connection_id: '198765432',
-		test_success: false,
 	},
 	{
-		id: '345678912',
 		service_name: 'mastodon',
 		display_name: 'somename',
 		profile_picture: 'https://wordpress.com/some-url-of-one-more-picture',
-		username: '@somename@mastodon.social',
+		external_handle: '@somename@mastodon.social',
 		enabled: false,
 		connection_id: '219876543',
-		test_success: 'must_reauth',
 	},
 ];
 
@@ -169,3 +163,56 @@ export function postPublishFetchHandler( postData ) {
 		};
 	};
 }
+
+/**
+ * Mocks JetpackScriptData with the provided data.
+ *
+ * @param {import('@automattic/jetpack-script-data').JetpackScriptData} data - The data
+ */
+export function mockScriptData( data = {} ) {
+	Object.defineProperty( global, 'JetpackScriptData', {
+		value: {
+			...data,
+			site: {
+				host: 'unknown',
+				wpcom: { blog_id: '123' },
+				...data.site,
+			},
+			user: {
+				current_user: {
+					id: 123,
+					capabilities: {
+						manage_options: true,
+					},
+					...data.user?.current_user,
+				},
+			},
+			social: {
+				is_publicize_enabled: true,
+				api_paths: {},
+				feature_flags: {},
+				settings: {
+					utmSettings: {},
+					socialNotes: {
+						config: {},
+					},
+					socialImageGenerator: {},
+					...data.social?.settings,
+				},
+				urls: {},
+				plugin_info: {
+					social: { version: '1.0.0' },
+					jetpack: { version: '1.0.0' },
+				},
+				shares_data: {},
+				store_initial_state: {},
+				...data.social,
+			},
+		},
+		writable: true,
+	} );
+}
+
+export const clearMockedScriptData = () => {
+	delete global.JetpackScriptData;
+};

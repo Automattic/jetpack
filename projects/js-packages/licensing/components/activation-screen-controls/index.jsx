@@ -100,6 +100,7 @@ const SelectableLicenseKeyInput = props => {
 		<>
 			<SelectControl
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize
 				className={ className }
 				disabled={ disabled }
 				label={ __( 'Select a license key', 'jetpack-licensing' ) }

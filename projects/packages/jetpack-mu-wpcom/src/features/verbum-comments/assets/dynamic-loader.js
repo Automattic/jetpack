@@ -6,15 +6,18 @@ window.addEventListener( 'DOMContentLoaded', function () {
 		// only load Verbum if the comment field is visible or the browser doesn't support IntersectionObserver
 		if ( window.IntersectionObserver ) {
 			new IntersectionObserver( function ( entries ) {
-				if ( entries.some( el => el.isIntersecting ) ) {
-					const startedLoadingAt = Date.now();
+				for ( const el of entries ) {
+					if ( el.isIntersecting ) {
+						const startedLoadingAt = Date.now();
 
-					WP_Enqueue_Dynamic_Script.loadScript( 'verbum' ).then( () => {
-						const finishedLoadingAt = Date.now();
+						WP_Enqueue_Dynamic_Script.loadScript( 'verbum' ).then( () => {
+							const finishedLoadingAt = Date.now();
 
-						VerbumComments.fullyLoadedTime = finishedLoadingAt - startedLoadingAt;
-					} );
-					this.disconnect();
+							VerbumComments.fullyLoadedTime = finishedLoadingAt - startedLoadingAt;
+						} );
+						this.disconnect();
+						return;
+					}
 				}
 			} ).observe( commentForm );
 		} else {

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
 import styles from './folding-element.module.scss';
+import { Button } from '@automattic/jetpack-components';
 
 type PropTypes = {
 	labelExpandedText: string;
@@ -39,15 +40,16 @@ const FoldingElement: React.FC< PropTypes > = ( {
 
 	return (
 		<>
-			<button
-				className={ clsx( 'components-button is-link', styles[ 'foldable-element-control' ], {
+			<Button
+				variant="link"
+				className={ clsx( styles[ 'foldable-element-control' ], {
 					visible: expanded,
 				} ) }
 				onClick={ handleOnExpand }
 			>
 				{ label }
 				{ expanded ? <ChevronUp /> : <ChevronDown /> }
-			</button>
+			</Button>
 
 			<animated.div
 				className={ expanded ? styles.expanded : '' }

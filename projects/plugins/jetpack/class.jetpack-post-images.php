@@ -338,8 +338,8 @@ class Jetpack_PostImages {
 			if ( ! isset( $meta['height'] ) || $meta['height'] < $height ) {
 				return $images;
 			}
-
-			$too_big = ( ( ! empty( $meta['width'] ) && $meta['width'] > 1200 ) || ( ! empty( $meta['height'] ) && $meta['height'] > 1200 ) );
+			$max_dimension = self::get_max_thumbnail_dimension();
+			$too_big       = ( ( ! empty( $meta['width'] ) && $meta['width'] > $max_dimension ) || ( ! empty( $meta['height'] ) && $meta['height'] > $max_dimension ) );
 
 			if (
 				$too_big &&
@@ -348,7 +348,11 @@ class Jetpack_PostImages {
 					( defined( 'IS_WPCOM' ) && IS_WPCOM )
 				)
 			) {
-				$img_src = wp_get_attachment_image_src( $thumb, array( 1200, 1200 ) );
+				$size        = self::determine_thumbnail_size_for_photon( $meta['width'], $meta['height'] );
+				$photon_args = array(
+					'fit' => $size['width'] . ',' . $size['height'],
+				);
+				$img_src     = array( Image_CDN_Core::cdn_url( wp_get_attachment_url( $thumb ), $photon_args ), $size['width'], $size['height'], true ); // Match the signature of wp_get_attachment_image_src
 			} else {
 				$img_src = wp_get_attachment_image_src( $thumb, 'full' );
 			}
@@ -495,10 +499,18 @@ class Jetpack_PostImages {
 		// Let's grab all image tags from the HTML.
 		$dom_doc = new DOMDocument();
 
+		// DOMDocument defaults to ISO-8859 because we're loading only the post content, without head tag.
+		// Fix: Enforce encoding with meta tag.
+		$charset = get_option( 'blog_charset' );
+		if ( empty( $charset ) || ! preg_match( '/^[a-zA-Z0-9_-]+$/', $charset ) ) {
+			$charset = 'UTF-8';
+		}
+		$html_prefix = sprintf( '<meta http-equiv="Content-Type" content="text/html; charset=%s">', esc_attr( $charset ) );
+
 		// The @ is not enough to suppress errors when dealing with libxml,
 		// we have to tell it directly how we want to handle errors.
 		libxml_use_internal_errors( true );
-		@$dom_doc->loadHTML( $html_info['html'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		@$dom_doc->loadHTML( $html_prefix . $html_info['html'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		libxml_use_internal_errors( false );
 
 		$image_tags = $dom_doc->getElementsByTagName( 'img' );
@@ -890,7 +902,7 @@ class Jetpack_PostImages {
 
 		// If WPCOM hosted image use native transformations.
 		$img_host = wp_parse_url( $src, PHP_URL_HOST );
-		if ( str_ends_with( $img_host, '.files.wordpress.com' ) ) {
+		if ( $img_host && str_ends_with( $img_host, '.files.wordpress.com' ) ) {
 			return add_query_arg(
 				array(
 					'w'    => $width,
@@ -1089,5 +1101,70 @@ class Jetpack_PostImages {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Determine the size to use with Photon for a thumbnail image.
+	 * Images larger than the maximum thumbnail dimension in either dimension are resized to maintain aspect ratio.
+	 *
+	 * @since 14.6
+	 * @see https://github.com/Automattic/jetpack/issues/40349
+	 *
+	 * @param int $width Original image width.
+	 * @param int $height Original image height.
+	 * @return array Array containing the width and height to use with Photon (null means auto).
+	 */
+	public static function determine_thumbnail_size_for_photon( $width, $height ) {
+		$max_dimension = self::get_max_thumbnail_dimension();
+
+		// If neither dimension exceeds max size, return original dimensions.
+		if ( $width <= $max_dimension && $height <= $max_dimension ) {
+			return array(
+				'width'  => $width,
+				'height' => $height,
+			);
+		}
+
+		if ( $width >= $height ) {
+			// For landscape or square images.
+			$dims = image_resize_dimensions( $width, $height, $max_dimension, 0 ); // Height will be calculated automatically.
+		} else {
+			// For portrait images.
+			$dims = image_resize_dimensions( $width, $height, 0, $max_dimension ); // Width will be calculated automatically.
+		}
+
+		// $dims can be false if the image is virtually the same size as the max dimension, e.g. wp_fuzzy_number_match.
+		if ( $dims && isset( $dims[4] ) && isset( $dims[5] ) ) {
+			return array(
+				'width'  => $dims[4],
+				'height' => $dims[5],
+			);
+		}
+
+			return array(
+				'width'  => $width,
+				'height' => $height,
+			);
+	}
+
+	/**
+	 * Function to provide the maximum dimension for a thumbnail image.
+	 * Filterable via the `jetpack_post_images_max_dimension` filter.
+	 *
+	 * @since 14.6
+	 * @see https://github.com/Automattic/jetpack/issues/40349
+	 *
+	 * @return int The maximum dimension for a thumbnail image.
+	 */
+	public static function get_max_thumbnail_dimension() {
+		/**
+		 * Filter the maximum dimension allowed for a thumbnail image.
+		 * The default value is 1200 pixels.
+		 *
+		 * @since 14.6
+		 *
+		 * @param int $max_dimension Maximum dimension in pixels.
+		 */
+		return (int) apply_filters( 'jetpack_post_images_max_thumbnail_dimension', 1200 );
 	}
 }

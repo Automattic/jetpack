@@ -9,13 +9,7 @@
  * Date: 14/01/19
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
 
@@ -56,6 +50,20 @@ class zbsDAL_ObjectLayer {
 	 * See: https://github.com/Automattic/zero-bs-crm/issues/3477
 	 */
 	protected const NAME_CLASH_FIX_SUFFIX = '_zbs-name-clash-tmp-fix';
+
+	/**
+	 * Prefix used in database table columns, etc.
+	 *
+	 * @var string
+	 */
+	protected $objectDBPrefix; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+
+	/**
+	 * Whether object has addresses or not.
+	 *
+	 * @var boolean
+	 */
+	protected $objectIncludesAddresses; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
     function __construct($args=array()) {
 
@@ -384,7 +392,7 @@ class zbsDAL_ObjectLayer {
         $wheres = array('direct'=>array()); $whereStr = ''; $additionalWhere = ''; $params = array(); $res = array();
 
         #} Build query
-        $query = "SELECT ".$this->objFieldCSV." FROM ".$this->objectTableName;
+		$query = 'SELECT ' . $this->objFieldCSV() . ' FROM ' . $this->objectTableName; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
         #} ============= WHERE ================
 

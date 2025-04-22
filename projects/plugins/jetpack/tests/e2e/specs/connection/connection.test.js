@@ -1,11 +1,11 @@
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
-import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { doSiteLevelConnection, doClassicConnection } from 'jetpack-e2e-commons/flows/index.js';
+import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { doSiteLevelConnection, doClassicConnection } from '_jetpack-e2e-commons/flows/index.js';
 import {
 	Sidebar,
 	JetpackDashboardPage,
 	DashboardPage,
-} from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+} from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 
 test.beforeEach( async ( { page } ) => {
 	await prerequisitesBuilder( page )

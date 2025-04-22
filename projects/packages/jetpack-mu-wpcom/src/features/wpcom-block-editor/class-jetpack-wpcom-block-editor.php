@@ -128,11 +128,11 @@ class Jetpack_WPCOM_Block_Editor {
 
 		if ( isset( $_SERVER['REQUEST_URI'] ) && empty( $_GET['calypsoify_cookie_check'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			header( 'Location: ' . esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) . '&calypsoify_cookie_check=true' ) );
-			exit;
+			exit( 0 );
 		}
 
 		header( 'X-Frame-Options: DENY' );
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -210,7 +210,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function do_redirect() {
 		wp_safe_redirect( $GLOBALS['redirect_to'] );
-		exit;
+		exit( 0 );
 	}
 
 	/**

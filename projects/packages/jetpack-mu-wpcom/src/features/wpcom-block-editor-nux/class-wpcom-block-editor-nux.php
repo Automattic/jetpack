@@ -67,12 +67,16 @@ class WPCOM_Block_Editor_NUX {
 			'before'
 		);
 
+		$site_id    = \Jetpack_Options::get_option( 'id' );
+		$is_p2_site = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $site_id );
+
 		/**
 		 * Enqueue the recommended tags modal options.
 		 */
 		$recommended_tags_modal_options = wp_json_encode(
 			array(
 				'isDismissed' => WP_REST_WPCOM_Block_Editor_Recommended_Tags_Modal_Controller::get_wpcom_recommended_tags_modal_dismissed(),
+				'isP2'        => $is_p2_site,
 			),
 			JSON_HEX_TAG | JSON_HEX_AMP
 		);

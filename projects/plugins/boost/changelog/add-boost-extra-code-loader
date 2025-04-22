@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Cache: added extra PHP file the site owner can use to modify how the cache works.

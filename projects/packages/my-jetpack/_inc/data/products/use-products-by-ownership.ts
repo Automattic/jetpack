@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import {
 	QUERY_PRODUCT_BY_OWNERSHIP_KEY,
 	REST_API_SITE_PRODUCTS_OWNERSHIP_ENDPOINT,
@@ -23,8 +22,8 @@ const useFetchProductsByOwnership = () => {
 
 const useProductsByOwnership = () => {
 	const [ productsOwnership, setProductsOwnership ] = useValueStore( 'productsOwnership', {
-		ownedProducts: getMyJetpackWindowInitialState( 'lifecycleStats' ).ownedProducts,
-		unownedProducts: getMyJetpackWindowInitialState( 'lifecycleStats' ).unownedProducts,
+		ownedProducts: [],
+		unownedProducts: [],
 	} );
 
 	const { data, refetch, isLoading } = useFetchProductsByOwnership();

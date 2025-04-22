@@ -28,14 +28,14 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { EXTENDED_BLOCKS } from '../../extensions/constants';
+import { EXTENDED_BLOCKS } from '../../extensions/text-blocks/constants';
 import { I18nMenuDropdown } from '../i18n-dropdown-control';
 import { ToneDropdownMenu } from '../tone-dropdown-control';
 import './style.scss';
 /**
  * Types and constants
  */
-import type { ExtendedBlockProp } from '../../extensions/constants';
+import type { ExtendedBlockProp } from '../../extensions/text-blocks/constants';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { ToneProp } from '../tone-dropdown-control';
 import type { ReactElement } from 'react';

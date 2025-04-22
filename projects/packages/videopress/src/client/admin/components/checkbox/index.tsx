@@ -13,20 +13,28 @@ import styles from './style.module.scss';
 import { CheckboxProps } from './types';
 
 const Checkbox = forwardRef< HTMLInputElement, CheckboxProps >(
-	( { checked, onChange, className, ...inputProps }, ref ) => {
+	( { checked, onChange, className, children, htmlFor, dataTestId, ...inputProps }, ref ) => {
 		const handleCheckboxChange = e => {
 			onChange?.( e.target.checked );
 		};
 
 		return (
-			<input
-				{ ...inputProps }
-				ref={ ref }
-				type="checkbox"
-				checked={ checked }
-				className={ clsx( className, styles.checkbox ) }
-				onChange={ handleCheckboxChange }
-			/>
+			<label
+				htmlFor={ htmlFor }
+				className={ styles[ 'checkbox-container' ] }
+				data-testid={ dataTestId }
+			>
+				<input
+					{ ...inputProps }
+					ref={ ref }
+					type="checkbox"
+					checked={ checked }
+					className={ clsx( className, styles.checkbox ) }
+					onChange={ handleCheckboxChange }
+				/>
+				<span className={ styles[ 'checkbox-checkmark' ] } />
+				{ children }
+			</label>
 		);
 	}
 );

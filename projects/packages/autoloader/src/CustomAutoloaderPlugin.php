@@ -104,7 +104,7 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 			$this->io->writeError( "\n<error>An error occurred while generating the autoloader files:", true );
 			$this->io->writeError( 'The project\'s composer.json or composer environment set a non-default vendor directory.', true );
 			$this->io->writeError( 'The default composer vendor directory must be used.</error>', true );
-			exit();
+			exit( 0 );
 		}
 
 		$installationManager = $this->composer->getInstallationManager();
@@ -174,7 +174,7 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 
 		if ( empty( $requires ) ) {
 			$this->io->writeError( "\n<error>The package is not required and this should never happen?</error>", true );
-			exit();
+			exit( 0 );
 		}
 
 		foreach ( $requires as $require ) {

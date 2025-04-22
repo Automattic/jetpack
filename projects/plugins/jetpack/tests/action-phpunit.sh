@@ -2,4 +2,4 @@
 
 set -eo pipefail
 
-exec phpunit "$@"
+exec phpunit-select-config phpunit.#.xml.dist "$@"

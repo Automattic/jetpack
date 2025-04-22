@@ -1,4 +1,13 @@
-import type { CSSProperties } from 'react';
+import { Orientation } from '@visx/axis';
+import { ScaleType } from '@visx/scale';
+import { EventHandlerParams, LineStyles } from '@visx/xychart';
+import type { CSSProperties, PointerEvent } from 'react';
+
+type ValueOf< T > = T[ keyof T ];
+
+export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
+
+declare type OrientationType = ValueOf< typeof Orientation >;
 
 export type DataPoint = {
 	label: string;
@@ -7,14 +16,18 @@ export type DataPoint = {
 
 export type DataPointDate = {
 	date: Date;
+	value: number | null;
 	label?: string;
-	value: number;
 };
 
 export type SeriesData = {
 	group?: string;
 	label: string;
 	data: DataPointDate[] | DataPoint[];
+	options?: {
+		gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
+		stroke?: string;
+	};
 };
 
 export type MultipleDataPointsDate = {
@@ -63,6 +76,22 @@ export type ChartTheme = {
 	gridColor: string;
 	/** Color of the grid lines in dark mode */
 	gridColorDark: string;
+	/** Styles for x-axis tick lines */
+	xTickLineStyles?: LineStyles;
+	/** Styles for x-axis line */
+	xAxisLineStyles?: LineStyles;
+	/** Styles for series lines */
+	seriesLineStyles?: LineStyles[];
+};
+
+declare type AxisOptions = {
+	orientation?: OrientationType;
+	numTicks?: number;
+	axisClassName?: string;
+	axisLineClassName?: string;
+	labelClassName?: string;
+	tickClassName?: string;
+	tickFormat?: ( value: number ) => string;
 };
 
 /**
@@ -86,14 +115,34 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 */
 	height?: number;
 	/**
+	 * Size of the chart in pixels for pie and donut charts
+	 */
+	size?: number;
+	/**
 	 * Chart margins
 	 */
 	margin?: {
-		top: number;
-		right: number;
-		bottom: number;
-		left: number;
+		top?: number;
+		right?: number;
+		bottom?: number;
+		left?: number;
 	};
+	/**
+	 * Callback function for pointer down event
+	 */
+	onPointerDown?: ( event: EventHandlerParams< object > ) => void;
+	/**
+	 * Callback function for pointer down event
+	 */
+	onPointerUp?: ( event: EventHandlerParams< object > ) => void;
+	/**
+	 * Callback function for pointer down event
+	 */
+	onPointerMove?: ( event: EventHandlerParams< object > ) => void;
+	/**
+	 * Callback function for pointer up event
+	 */
+	onPointerOut?: ( event: PointerEvent< Element > ) => void;
 	/**
 	 * Whether to show tooltips on hover. False by default.
 	 */
@@ -110,6 +159,23 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * Grid visibility. x is default.
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
+
+	/**
+	 * More options for the chart.
+	 */
+	options?: {
+		yScale?: {
+			type?: ScaleType;
+			zero?: boolean;
+			domain?: [ number, number ];
+			range?: [ number, number ];
+		};
+		xScale?: { type?: ScaleType };
+		axis?: {
+			x?: AxisOptions;
+			y?: AxisOptions;
+		};
+	};
 };
 
 /**

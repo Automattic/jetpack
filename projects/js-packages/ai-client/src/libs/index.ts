@@ -4,8 +4,12 @@ export {
 	renderHTMLFromMarkdown,
 	renderMarkdownFromHTML,
 	fixes,
-} from './markdown/index.js';
+} from './markdown/index.ts';
 
-export type { RenderHTMLRules } from './markdown/index.js';
+export { mapActionToHumanText } from './map-action-to-human-text.ts';
+export { openBlockSidebar } from './open-block-sidebar.ts';
+export { showAiAssistantSection } from './show-ai-assistant-section.ts';
+export { getAllBlocks } from './get-all-blocks.ts';
+export { getBase64Image } from './get-base64-image.ts';
 
-export { mapActionToHumanText } from './map-action-to-human-text.js';
+export type { RenderHTMLRules } from './markdown/index.ts';

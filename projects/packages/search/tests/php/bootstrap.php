@@ -9,7 +9,7 @@
  * Load the composer autoloader.
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/class-test-case.php';
+require_once __DIR__ . '/class-testcase.php';
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Search\Helper;
@@ -34,4 +34,5 @@ function dbless_default_options() {
 	);
 }
 
-\WorDBless\Load::load();
+// Initialize WordPress test environment
+\Automattic\Jetpack\Test_Environment::init();

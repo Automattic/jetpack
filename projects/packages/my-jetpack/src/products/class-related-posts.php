@@ -45,6 +45,13 @@ class Related_Posts extends Module_Product {
 	public static $module_name = 'related-posts';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'growth';
+
+	/**
 	 * Whether this module is a Jetpack feature
 	 *
 	 * @var boolean

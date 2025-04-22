@@ -49,6 +49,13 @@ abstract class Product {
 	public static $plugin_slug = null;
 
 	/**
+	 * The category of the product in the Jetpack ecosystem. The options are performance, growth, security, management, and create
+	 *
+	 * @var string
+	 */
+	public static $category = null;
+
+	/**
 	 * The Jetpack plugin slug
 	 *
 	 * @var string
@@ -71,6 +78,13 @@ abstract class Product {
 	 * @var string
 	 */
 	const EXPIRATION_CUTOFF_TIME = '+2 months';
+
+	/**
+	 * Transient key for storing site features
+	 *
+	 * @var string;
+	 */
+	const MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY = 'my-jetpack-site-features';
 
 	/**
 	 * Whether this module is a Jetpack feature
@@ -116,6 +130,13 @@ abstract class Product {
 	public static $requires_plan = false;
 
 	/**
+	 * Defines whether or not to show a product interstitial as tiered pricing or not
+	 *
+	 * @var bool
+	 */
+	public static $is_tiered_pricing = false;
+
+	/**
 	 * The feature slug that identifies the paid plan
 	 *
 	 * @var string
@@ -141,6 +162,24 @@ abstract class Product {
 	}
 
 	/**
+	 * This method will be called in the class initializer to register the product's endpoints
+	 *
+	 * @return void
+	 */
+	public static function register_endpoints(): void {
+		// This method should be implemented in the child class.
+	}
+	/**
+	 * Get data about the AI Assistant feature
+	 *
+	 * @return array
+	 */
+	public static function get_ai_assistant_feature() {
+		// This method should be optionally set in the child class.
+		return array();
+	}
+
+	/**
 	 * Get the installed plugin filename, considering all possible filenames a plugin might have
 	 *
 	 * @param string $plugin Which plugin to check. jetpack for the jetpack plugin or product for the product specific plugin.
@@ -162,7 +201,7 @@ abstract class Product {
 	}
 
 	/**
-	 * Get the Product info for the API
+	 * Get the Static Product Info
 	 *
 	 * @throws \Exception If required attribute is not declared in the child class.
 	 * @return array
@@ -173,40 +212,72 @@ abstract class Product {
 		}
 		return array(
 			'slug'                            => static::$slug,
-			'plugin_slug'                     => static::$plugin_slug,
+			'plugin_slug'                     => static::get_plugin_slug(),
 			'name'                            => static::get_name(),
 			'title'                           => static::get_title(),
+			'category'                        => static::$category,
+			/* Maintain legacy compatibility with the old product info structure. See: #42271 */
 			'description'                     => static::get_description(),
 			'long_description'                => static::get_long_description(),
 			'tiers'                           => static::get_tiers(),
 			'features'                        => static::get_features(),
 			'features_by_tier'                => static::get_features_by_tier(),
+			/* End of legacy compatibility fields. */
 			'disclaimers'                     => static::get_disclaimers(),
-			'status'                          => static::get_status(),
-			'pricing_for_ui'                  => static::get_pricing_for_ui(),
 			'is_bundle'                       => static::is_bundle_product(),
 			'is_plugin_active'                => static::is_plugin_active(),
-			'is_upgradable'                   => static::is_upgradable(),
+			'is_tiered_pricing'               => static::$is_tiered_pricing,
 			'is_upgradable_by_bundle'         => static::is_upgradable_by_bundle(),
 			'is_feature'                      => static::$is_feature,
 			'supported_products'              => static::get_supported_products(),
 			'wpcom_product_slug'              => static::get_wpcom_product_slug(),
 			'requires_user_connection'        => static::$requires_user_connection,
-			'has_any_plan_for_product'        => static::has_any_plan_for_product(),
-			'has_free_plan_for_product'       => static::has_free_plan_for_product(),
-			'has_paid_plan_for_product'       => static::has_paid_plan_for_product(),
+			'feature_identifying_paid_plan'   => static::$feature_identifying_paid_plan,
 			'has_free_offering'               => static::$has_free_offering,
 			'manage_url'                      => static::get_manage_url(),
-			'purchase_url'                    => static::get_purchase_url(),
 			'post_activation_url'             => static::get_post_activation_url(),
 			'post_activation_urls_by_feature' => static::get_manage_urls_by_feature(),
 			'standalone_plugin_info'          => static::get_standalone_info(),
 			'class'                           => static::class,
 			'post_checkout_url'               => static::get_post_checkout_url(),
 			'post_checkout_urls_by_feature'   => static::get_post_checkout_urls_by_feature(),
-			'manage_paid_plan_purchase_url'   => static::get_manage_paid_plan_purchase_url(),
-			'renew_paid_plan_purchase_url'    => static::get_renew_paid_plan_purchase_url(),
 		);
+	}
+
+	/**
+	 * Get the Product Info that requires http requests to get
+	 *
+	 * @throws \Exception If required attribute is not declared in the child class.
+	 * @return array
+	 */
+	public static function get_wpcom_info() {
+		if ( static::$slug === null ) {
+			throw new \Exception( 'Product classes must declare the $slug attribute.' );
+		}
+
+		$product_data = array(
+			'status'                        => static::get_status(),
+			'pricing_for_ui'                => static::get_pricing_for_ui(),
+			'is_upgradable'                 => static::is_upgradable(),
+			'description'                   => static::get_description(),
+			'tiers'                         => static::get_tiers(),
+			'features'                      => static::get_features(),
+			'features_by_tier'              => static::get_features_by_tier(),
+			'long_description'              => static::get_long_description(),
+			'has_any_plan_for_product'      => static::has_any_plan_for_product(),
+			'has_free_plan_for_product'     => static::has_free_plan_for_product(),
+			'has_paid_plan_for_product'     => static::has_paid_plan_for_product(),
+			'purchase_url'                  => static::get_purchase_url(),
+			'manage_paid_plan_purchase_url' => static::get_manage_paid_plan_purchase_url(),
+			'renew_paid_plan_purchase_url'  => static::get_renew_paid_plan_purchase_url(),
+			'does_module_need_attention'    => static::does_module_need_attention(),
+		);
+
+		if ( static::$slug === 'jetpack-ai' ) {
+			$product_data['ai-assistant-feature'] = static::get_ai_assistant_feature();
+		}
+
+		return $product_data;
 	}
 
 	/**
@@ -219,6 +290,12 @@ abstract class Product {
 
 		if ( $features !== null ) {
 			return $features;
+		}
+
+		// Check for a cached value before doing lookup
+		$stored_features = get_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
+		if ( $stored_features !== false ) {
+			return $stored_features;
 		}
 
 		$site_id  = Jetpack_Options::get_option( 'id' );
@@ -236,6 +313,8 @@ abstract class Product {
 			'active'    => $feature_return->active,
 			'available' => $feature_return->available,
 		);
+		// set a short transient to help with multiple lookups on the same page load.
+		set_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, $features, 15 );
 
 		return $features;
 	}
@@ -499,7 +578,7 @@ abstract class Product {
 			return array();
 		}
 		$paid_bundles   = $features['available']->$idendifying_feature ?? array();
-		$current_bundle = Wpcom_Products::get_site_current_plan();
+		$current_bundle = Wpcom_Products::get_site_current_plan( true );
 
 		if ( in_array( static::$feature_identifying_paid_plan, $current_bundle['features']['active'], true ) ) {
 			$paid_bundles[] = $current_bundle['product_slug'];

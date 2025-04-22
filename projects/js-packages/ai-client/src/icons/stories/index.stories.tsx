@@ -6,7 +6,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import * as allIcons from '../index.js';
+import * as allIcons from '../index.ts';
 import styles from './style.module.scss';
 /**
  * Types
@@ -15,14 +15,14 @@ import type { Meta } from '@storybook/react';
 
 interface AIControlStoryMeta extends Meta< typeof allIcons > {
 	title?: string;
-	component?: React.ReactElement;
+	component?: React.ComponentType;
 }
 
 const meta: AIControlStoryMeta = {
 	title: 'JS Packages/AI Client/Icons',
-	component: allIcons,
+	component: allIcons as unknown as React.ComponentType,
 	parameters: {},
-} as Meta< typeof allIcons >;
+} satisfies Meta< typeof allIcons >;
 
 /**
  * Icons story components.

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-
+import { PlayIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 /**
  * WordPress dependencies
  */
@@ -11,10 +11,6 @@ import { createInterpolateElement, useEffect, useRef, useState } from '@wordpres
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import clsx from 'clsx';
-/**
- * Internal dependencies
- */
-import { PlayIcon } from '../../../shared/icons';
 
 import './style.scss';
 
@@ -128,6 +124,7 @@ export const UploadingEditor = props => {
 						onChange={ onChangeTitle }
 						value={ title }
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<div className="uploading-editor__content">
 						<BaseControl __nextHasNoMarginBottom={ true }>
@@ -169,6 +166,7 @@ export const UploadingEditor = props => {
 											withInputField={ false }
 											onChange={ onRangeChange }
 											__nextHasNoMarginBottom={ true }
+											__next40pxDefaultSize={ true }
 										/>
 									</span>
 									<span className="uploading-editor__scrubber-help" style={ posterSelectedStyle }>

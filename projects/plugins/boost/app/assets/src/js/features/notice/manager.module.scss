@@ -2,6 +2,14 @@
 	display: grid;
 	justify-items: end;
 
+	// Positioning
+	box-sizing: content-box;
+	position: fixed;
+	bottom: 100px;
+	right: 100px;
+	z-index: 900;
+
+	// Space between notices
 	:global(.components-snackbar + .components-snackbar) {
 		margin-top: 16px;
 	}

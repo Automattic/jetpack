@@ -12,7 +12,7 @@
 /* ======================================================
   Breaking Checks ( stops direct access )
    ====================================================== */
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 /* ======================================================
   / Breaking Checks
    ====================================================== */
@@ -418,7 +418,7 @@ class zeroBS__Metabox_Invoice extends zeroBS__Metabox {
 
 				// redir
 				wp_redirect( jpcrm_esc_link( 'edit', $zbsJustInsertedMetaboxID, $this->objType ) );
-				exit;
+				exit( 0 );
 
 			}
 
@@ -778,9 +778,6 @@ class zeroBS__Metabox_InvoiceTags extends zeroBS__Metabox_Tags{
         }
 
         public function html( $invoice, $metabox ) {
-
-            // debug print_r($invoice); exit();
-
             ?><div class="zbs-generic-save-wrap">
 
                     <div class="ui medium dividing header"><i class="save icon"></i> <?php esc_html_e('Invoice Actions','zero-bs-crm'); ?></div>

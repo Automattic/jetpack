@@ -120,7 +120,10 @@ module.exports = [
 	// Build all the modules.
 	{
 		...sharedWebpackConfig,
-		entry: moduleEntries,
+		entry: {
+			...moduleEntries,
+			'newsletter-widget': './modules/subscriptions/newsletter-widget/src/index.tsx',
+		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin(),

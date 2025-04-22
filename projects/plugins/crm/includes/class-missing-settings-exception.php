@@ -7,7 +7,7 @@
 
 namespace Automattic\JetpackCRM;
 
-defined( 'ZEROBSCRM_PATH' ) || exit;
+defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
  * Missing Settings exception class.

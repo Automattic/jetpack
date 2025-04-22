@@ -151,7 +151,6 @@ export default function ResumableUpload( { file } ) {
 					</div>
 					<div className="resumable-upload__file-info">
 						<div>
-							{ /* eslint-disable */ }
 							{ /* valid-sprintf doesn't understand double percent escape */ }
 							{ hasPaused
 								? sprintf(
@@ -164,7 +163,6 @@ export default function ResumableUpload( { file } ) {
 										__( 'Uploading (%s%%)', 'jetpack' ),
 										roundedProgress
 								  ) }
-							{ /* eslint-enable */ }
 						</div>
 						<div className="resumable-upload__file-size">{ fileSizeLabel }</div>
 					</div>

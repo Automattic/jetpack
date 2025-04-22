@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Creative_Mail;
 use Automattic\Jetpack\Plugins_Installer;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 const PLUGIN_SLUG = 'creative-mail-by-constant-contact';
@@ -65,7 +65,7 @@ function try_install() {
 
 	wp_safe_redirect( $redirect );
 
-	exit;
+	exit( 0 );
 }
 
 /**

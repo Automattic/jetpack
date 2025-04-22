@@ -15,7 +15,7 @@ import {
 	JETPACK_SETTINGS_SET_UNSAVED_FLAG,
 	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG,
 } from 'state/action-types';
-import { maybeHideNavMenuItem, maybeReloadAfterAction } from 'state/modules';
+import { maybeReloadAfterAction } from 'state/modules';
 
 export const setUnsavedSettingsFlag = () => {
 	return {
@@ -134,7 +134,6 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 					updatedOptions: mapUpdateSettingsResponseFromApi( success, newOptionValues ),
 					success: success,
 				} );
-				maybeHideNavMenuItem( newOptionValues );
 				maybeReloadAfterAction( newOptionValues );
 
 				dispatch( removeNotice( 'module-setting-update' ) );

@@ -305,7 +305,7 @@ class Waf_Runtime {
 	public function redirect( $rule_id, $url ) {
 		error_log( "Jetpack WAF Redirected Request.\tRule:$rule_id\t$url" );
 		header( "Location: $url" );
-		exit;
+		exit( 0 );
 	}
 
 	/**
@@ -616,7 +616,7 @@ class Waf_Runtime {
 					continue 2;
 				default:
 					var_dump( 'Unknown target', $k, $v );
-					exit;
+					exit( 0 );
 			}
 			$return[] = array(
 				'name'   => $k,

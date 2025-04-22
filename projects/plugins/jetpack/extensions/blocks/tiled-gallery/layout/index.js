@@ -54,6 +54,7 @@ export default class Layout extends Component {
 				key={ i }
 				link={ img.link }
 				linkTo={ linkTo }
+				customLink={ img.customLink }
 				onMoveBackward={ isSave ? undefined : onMoveBackward( i ) }
 				onMoveForward={ isSave ? undefined : onMoveForward( i ) }
 				onRemove={ isSave ? undefined : onRemoveImage( i ) }

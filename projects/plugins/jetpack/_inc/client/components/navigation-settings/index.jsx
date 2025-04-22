@@ -147,13 +147,13 @@ export class NavigationSettings extends React.Component {
 							{ _x( 'Performance', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
-					{ this.props.hasAnyOfTheseModules( [
+					{ ( this.props.hasAnyOfTheseModules( [
 						'markdown',
-						'custom-content-types',
 						'post-by-email',
 						'infinite-scroll',
 						'copy-post',
-					] ) && (
+					] ) ||
+						window.CUSTOM_CONTENT_TYPE__INITIAL_STATE.active ) && (
 						<NavItem
 							path="#writing"
 							onClick={ this.handleClickForTracking( 'writing' ) }

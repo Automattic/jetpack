@@ -30,7 +30,7 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 		const store = select( socialStore );
 
 		return {
-			isEnabled: store.getSocialImageGeneratorConfig().enabled,
+			isEnabled: store.getSocialSettings().socialImageGenerator.enabled,
 			isUpdating: store.isSavingSiteSettings(),
 		};
 	}, [] );

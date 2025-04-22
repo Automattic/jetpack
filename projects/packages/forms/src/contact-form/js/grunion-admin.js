@@ -1,4 +1,4 @@
-/* global ajaxurl jetpack_empty_spam_button_parameters */
+/* global ajaxurl jetpack_empty_spam_button_parameters analytics jetpack_forms_tracking */
 jQuery( function ( $ ) {
 	if ( typeof jetpack_empty_spam_button_parameters !== 'undefined' ) {
 		// Create the "Empty Spam" button and add it above and below the list of spam feedbacks.
@@ -83,7 +83,10 @@ jQuery( function ( $ ) {
 
 		// Update the label on the "Empty Spam" button to use the active "Emptying Spam" language.
 		$( '.jetpack-empty-spam' ).text(
-			$( '.jetpack-empty-spam' ).data( 'progress-label' ).replace( '%1$s', '0' )
+			$( '.jetpack-empty-spam' )
+				.data( 'progress-label' )
+				.replace( '%1$s', '0' )
+				.replace( '%%', '%' ) // Convert escaped %% into a single %
 		);
 
 		initial_spam_count = parseInt( $( this ).data( 'spam-feedbacks-count' ), 10 );
@@ -106,7 +109,10 @@ jQuery( function ( $ ) {
 
 		// Update the progress counter on the "Check for Spam" button.
 		empty_spam_buttons.text(
-			empty_spam_buttons.data( 'progress-label' ).replace( '%1$s', percentage_complete )
+			empty_spam_buttons
+				.data( 'progress-label' )
+				.replace( '%1$s', percentage_complete )
+				.replace( '%%', '%' ) // Convert escaped %% into a single %
 		);
 
 		$.post( ajaxurl, {
@@ -187,6 +193,11 @@ jQuery( function ( $ ) {
 				e.preventDefault();
 				updateStatus( postId, 'publish', '#59C859' );
 			}
+
+			if ( $( e.target ).parent().hasClass( 'delete' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'delete', '#FF7979' );
+			}
 		} );
 	} );
 
@@ -222,16 +233,37 @@ jQuery( function ( $ ) {
 		}, 5000 );
 	}
 
-	$( document ).on( 'click', '#jetpack-form-responses-connect', function () {
+	$( document ).on( 'click', '#jetpack-form-responses-connect', function ( e ) {
 		const $this = $( this );
 		const name = $this.data( 'nonce-name' );
 		const value = $( '#' + name ).attr( 'value' );
+		const redirectUrl = $this.attr( 'href' );
+
+		// Pause redirect for tracking.
+		e.preventDefault();
+
 		$this.attr( 'disabled', 'disabled' );
 		$this.text(
 			( window.exportParameters && window.exportParameters.waitingConnection ) ||
 				'Waiting for connection...'
 		);
+
+		// Do the tracking.
+		if (
+			'undefined' !== typeof analytics &&
+			'undefined' !== typeof jetpack_forms_tracking &&
+			jetpack_forms_tracking?.tracksUserData
+		) {
+			const tracksUser = jetpack_forms_tracking.tracksUserData;
+			analytics.initialize( tracksUser.userid, tracksUser.username );
+			analytics.tracks.recordEvent( 'jetpack_forms_upsell_googledrive_click', {
+				screen: 'form-responses-classic',
+			} );
+		}
+
+		// Start polling and continue redirect.
 		startPollingConnection( { name, value } );
+		window.open( redirectUrl, '_blank' );
 	} );
 
 	// Handle export to Google Drive

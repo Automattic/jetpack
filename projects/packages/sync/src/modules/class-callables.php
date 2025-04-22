@@ -379,7 +379,7 @@ class Callables extends Module {
 
 		$plugins_action_links = array();
 		// Is the transient lock in place?
-		$plugins_lock = get_transient( 'jetpack_plugin_api_action_links_refresh', false );
+		$plugins_lock = get_transient( 'jetpack_plugin_api_action_links_refresh' );
 		if ( ! empty( $plugins_lock ) && ( isset( $current_screeen->id ) && 'plugins' !== $current_screeen->id ) ) {
 			return;
 		}

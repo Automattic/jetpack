@@ -3,9 +3,11 @@
 	justify-content: space-between;
 	align-items: center;
     flex-wrap: wrap;
+	width: 100%;
 }
 
 .get-started-button {
+
 	&:focus:not(:disabled) {
 		box-shadow: none;
 	}

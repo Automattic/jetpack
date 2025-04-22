@@ -19,7 +19,6 @@ import {
 	Button,
 	ButtonGroup,
 	PanelBody,
-	PanelRow,
 	Placeholder,
 	RangeControl,
 	Spinner,
@@ -114,7 +113,7 @@ class Edit extends Component {
 	initializeSwiper( initialSlide ) {
 		const { latestPosts } = this.props;
 
-		if ( latestPosts && latestPosts.length ) {
+		if ( latestPosts ) {
 			const { aspectRatio, autoplay, delay, slidesPerView } = this.props.attributes;
 			const swiperInstance = createSwiper(
 				{
@@ -238,7 +237,7 @@ class Edit extends Component {
 		];
 
 		return (
-            (<Fragment>
+            <Fragment>
                 <div className={ classes } ref={ this.carouselRef }>
 					{ hasNoPosts && (
 						<Placeholder className="component-placeholder__align-center">
@@ -361,7 +360,7 @@ class Edit extends Component {
 					) }
 				</div>
                 <InspectorControls>
-					<PanelBody title={ __( 'Display Settings', 'jetpack-mu-wpcom' ) } initialOpen={ true }>
+					<PanelBody title={ __( 'Content', 'jetpack-mu-wpcom' ) }>
 						{ postsToShow && (
 							<QueryControls
 								numberOfItems={ postsToShow }
@@ -381,9 +380,8 @@ class Edit extends Component {
 								onCustomTaxonomiesChange={ value => setAttributes( { customTaxonomies: value } ) }
 								customTaxonomies={ customTaxonomies }
 								specificMode={ specificMode }
-								onSpecificModeChange={ _specificMode =>
-									setAttributes( { specificMode: _specificMode } )
-								}
+								onSpecificModeChange={ () => setAttributes( { specificMode: true } ) }
+								onLoopModeChange={ () => setAttributes( { specificMode: false } ) }
 								specificPosts={ specificPosts }
 								onSpecificPostsChange={ _specificPosts =>
 									setAttributes( { specificPosts: _specificPosts } )
@@ -392,39 +390,83 @@ class Edit extends Component {
 							/>
 						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Slideshow Settings', 'jetpack-mu-wpcom' ) } initialOpen={ true }>
-						<BaseControl
-							label={ __( 'Slide Aspect Ratio', 'jetpack-mu-wpcom' ) }
+					<PanelBody title={ __( 'Display', 'jetpack-mu-wpcom' ) }>
+						<ToggleControl
+							label={ __( 'Hide Controls', 'jetpack-mu-wpcom' ) }
+							help={ __( 'Remove navigation indicators from view.', 'jetpack-mu-wpcom' ) }
+							checked={ hideControls }
+							onChange={ _hideControls => {
+								setAttributes( { hideControls: _hideControls } );
+							} }
+						/>
+						<ToggleControl
+							label={ __( 'Autoplay', 'jetpack-mu-wpcom' ) }
+							help={ __( 'Automatically advance through slides.', 'jetpack-mu-wpcom' ) }
+							checked={ autoplay }
+							onChange={ _autoplay => {
+								setAttributes( { autoplay: _autoplay } );
+							} }
+						/>
+						{ autoplay && (
+							<RangeControl
+								label={ __( 'Transition delay', 'jetpack-mu-wpcom' ) }
+								value={ delay }
+								onChange={ _delay => {
+									setAttributes( { delay: _delay } );
+								} }
+								min={ 1 }
+								max={ 20 }
+								help={ __( 'Set the waiting time between automatic slide transitions in seconds.', 'jetpack-mu-wpcom' ) }
+								__next40pxDefaultSize
+							/>
+						) }
+						{ latestPosts && 1 < latestPosts.length && (
+							<RangeControl
+								label={ __( 'Slides per view', 'jetpack-mu-wpcom' ) }
+								value={ slidesPerView <= latestPosts.length ? slidesPerView : latestPosts.length }
+								onChange={ _slidesPerView => {
+									setAttributes( { slidesPerView: _slidesPerView } );
+								} }
+								min={ 1 }
+								max={
+									specificMode
+										? Math.min( MAX_NUMBER_OF_SLIDES, latestPosts.length )
+										: Math.min( MAX_NUMBER_OF_SLIDES, maxPosts )
+								}
+								help={ __( 'Choose how many slides appear on screen simultaneously.', 'jetpack-mu-wpcom' ) }
+								__next40pxDefaultSize
+							/>
+						) }
+					</PanelBody>
+					<PanelBody title={ __( 'Featured Image', 'jetpack-mu-wpcom' ) } className="newspack-block__panel">
+					<BaseControl
+							label={ __( 'Aspect ratio', 'jetpack-mu-wpcom' ) }
 							help={ __(
 								'All slides will share the same aspect ratio, for consistency.',
 								'jetpack-mu-wpcom'
 							) }
 							id="newspack-blocks__aspect-ratio-control"
+							className="newspack-block__button-group"
 						>
-							<PanelRow>
-								<ButtonGroup
-									id="newspack-blocks__aspect-ratio-control-buttons"
-									aria-label={ __( 'Slide Aspect Ratio', 'jetpack-mu-wpcom' ) }
-								>
-									{ aspectRatioOptions.map( option => {
-										const isCurrent = aspectRatio === option.value;
-										return (
-											<Button
-												isPrimary={ isCurrent }
-												aria-pressed={ isCurrent }
-												aria-label={ option.label }
-												key={ option.value }
-												onClick={ () => setAttributes( { aspectRatio: option.value } ) }
-											>
-												{ option.shortName }
-											</Button>
-										);
-									} ) }
-								</ButtonGroup>
-							</PanelRow>
+							<ButtonGroup>
+								{ aspectRatioOptions.map( option => {
+									const isCurrent = aspectRatio === option.value;
+									return (
+										<Button
+											isPrimary={ isCurrent }
+											aria-pressed={ isCurrent }
+											aria-label={ option.label }
+											key={ option.value }
+											onClick={ () => setAttributes( { aspectRatio: option.value } ) }
+										>
+											{ option.shortName }
+										</Button>
+									);
+								} ) }
+							</ButtonGroup>
 						</BaseControl>
 						<BaseControl
-							label={ __( 'Image Fit', 'jetpack-mu-wpcom' ) }
+							label={ __( 'Fit', 'jetpack-mu-wpcom' ) }
 							help={
 								'cover' === imageFit
 									? __(
@@ -437,131 +479,70 @@ class Edit extends Component {
                                 )
 							}
 							id="newspack-blocks__blocks__image-fit-control"
+							className="newspack-block__button-group"
 						>
-							<PanelRow>
-								<ButtonGroup
-									id="newspack-blocks__image-fit-buttons"
-									aria-label={ __( 'Image Fit', 'jetpack-mu-wpcom' ) }
+							<ButtonGroup>
+								<Button
+									isPrimary={ 'cover' === imageFit }
+									aria-pressed={ 'cover' === imageFit }
+									aria-label={ __( 'Cover', 'jetpack-mu-wpcom' ) }
+									onClick={ () => setAttributes( { imageFit: 'cover' } ) }
 								>
-									<Button
-										isPrimary={ 'cover' === imageFit }
-										aria-pressed={ 'cover' === imageFit }
-										aria-label={ __( 'Cover', 'jetpack-mu-wpcom' ) }
-										onClick={ () => setAttributes( { imageFit: 'cover' } ) }
-									>
-										{ __( 'Cover', 'jetpack-mu-wpcom' ) }
-									</Button>
-									<Button
-										isPrimary={ 'contain' === imageFit }
-										aria-pressed={ 'contain' === imageFit }
-										aria-label={ __( 'Contain', 'jetpack-mu-wpcom' ) }
-										onClick={ () => setAttributes( { imageFit: 'contain' } ) }
-									>
-										{ __( 'Contain', 'jetpack-mu-wpcom' ) }
-									</Button>
-								</ButtonGroup>
-							</PanelRow>
+									{ __( 'Cover', 'jetpack-mu-wpcom' ) }
+								</Button>
+								<Button
+									isPrimary={ 'contain' === imageFit }
+									aria-pressed={ 'contain' === imageFit }
+									aria-label={ __( 'Contain', 'jetpack-mu-wpcom' ) }
+									onClick={ () => setAttributes( { imageFit: 'contain' } ) }
+								>
+									{ __( 'Contain', 'jetpack-mu-wpcom' ) }
+								</Button>
+							</ButtonGroup>
 						</BaseControl>
 						<ToggleControl
-							label={ __( 'Hide Controls', 'jetpack-mu-wpcom' ) }
-							help={ __( 'Hide the slideshow UI. Useful when used with Autoplay.', 'jetpack-mu-wpcom' ) }
-							checked={ hideControls }
-							onChange={ _hideControls => {
-								setAttributes( { hideControls: _hideControls } );
-							} }
+							label={ __( 'Show caption', 'jetpack-mu-wpcom' ) }
+							checked={ showCaption }
+							onChange={ () => setAttributes( { showCaption: ! showCaption } ) }
 						/>
 						<ToggleControl
-							label={ __( 'Autoplay', 'jetpack-mu-wpcom' ) }
-							help={ __( 'Autoplay between slides', 'jetpack-mu-wpcom' ) }
-							checked={ autoplay }
-							onChange={ _autoplay => {
-								setAttributes( { autoplay: _autoplay } );
-							} }
+							label={ __( 'Show credit', 'jetpack-mu-wpcom' ) }
+							checked={ showCredit }
+							onChange={ () => setAttributes( { showCredit: ! showCredit } ) }
 						/>
-						{ autoplay && (
-							<RangeControl
-								label={ __( 'Delay between transitions (in seconds)', 'jetpack-mu-wpcom' ) }
-								value={ delay }
-								onChange={ _delay => {
-									setAttributes( { delay: _delay } );
-								} }
-								min={ 1 }
-								max={ 20 }
-							/>
-						) }
-						{ latestPosts && 1 < latestPosts.length && (
-							<RangeControl
-								label={ __( 'Number of slides to show at once', 'jetpack-mu-wpcom' ) }
-								value={ slidesPerView <= latestPosts.length ? slidesPerView : latestPosts.length }
-								onChange={ _slidesPerView => {
-									setAttributes( { slidesPerView: _slidesPerView } );
-								} }
-								min={ 1 }
-								max={
-									specificMode
-										? Math.min( MAX_NUMBER_OF_SLIDES, latestPosts.length )
-										: Math.min( MAX_NUMBER_OF_SLIDES, maxPosts )
-								}
-							/>
-						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Article Meta Settings', 'jetpack-mu-wpcom' ) }>
-						<PanelRow>
-							<ToggleControl
-								label={ __( 'Show Title', 'jetpack-mu-wpcom' ) }
-								checked={ showTitle }
-								onChange={ () => setAttributes( { showTitle: ! showTitle } ) }
-							/>
-						</PanelRow>
-						<PanelRow>
-							<ToggleControl
-								label={ __( 'Show Date', 'jetpack-mu-wpcom' ) }
-								checked={ showDate }
-								onChange={ () => setAttributes( { showDate: ! showDate } ) }
-							/>
-						</PanelRow>
-						<PanelRow>
-							<ToggleControl
-								label={ __( 'Show Category', 'jetpack-mu-wpcom' ) }
-								checked={ showCategory }
-								onChange={ () => setAttributes( { showCategory: ! showCategory } ) }
-							/>
-						</PanelRow>
-						<PanelRow>
-							<ToggleControl
-								label={ __( 'Show Author', 'jetpack-mu-wpcom' ) }
-								checked={ showAuthor }
-								onChange={ () => setAttributes( { showAuthor: ! showAuthor } ) }
-							/>
-						</PanelRow>
-						{ showAuthor && (
-							<PanelRow>
-								<ToggleControl
-									label={ __( 'Show Author Avatar', 'jetpack-mu-wpcom' ) }
-									checked={ showAvatar }
-									onChange={ () => setAttributes( { showAvatar: ! showAvatar } ) }
-								/>
-							</PanelRow>
-						) }
-						<PanelRow>
-							<ToggleControl
-								label={ __( 'Show Featured Image Caption', 'jetpack-mu-wpcom' ) }
-								checked={ showCaption }
-								onChange={ () => setAttributes( { showCaption: ! showCaption } ) }
-							/>
-						</PanelRow>
-						<PanelRow>
-							<ToggleControl
-								label={ __( 'Show Featured Image Credit', 'jetpack-mu-wpcom' ) }
-								checked={ showCredit }
-								onChange={ () => setAttributes( { showCredit: ! showCredit } ) }
-							/>
-						</PanelRow>
+					<PanelBody title={ __( 'Post Meta', 'jetpack-mu-wpcom' ) }>
+						<ToggleControl
+							label={ __( 'Show title', 'jetpack-mu-wpcom' ) }
+							checked={ showTitle }
+							onChange={ () => setAttributes( { showTitle: ! showTitle } ) }
+						/>
+						<ToggleControl
+							label={ __( 'Show date', 'jetpack-mu-wpcom' ) }
+							checked={ showDate }
+							onChange={ () => setAttributes( { showDate: ! showDate } ) }
+						/>
+						<ToggleControl
+							label={ __( 'Show category', 'jetpack-mu-wpcom' ) }
+							checked={ showCategory }
+							onChange={ () => setAttributes( { showCategory: ! showCategory } ) }
+						/>
+						<ToggleControl
+							label={ __( 'Show author', 'jetpack-mu-wpcom' ) }
+							checked={ showAuthor }
+							onChange={ () => setAttributes( { showAuthor: ! showAuthor } ) }
+						/>
+						<ToggleControl
+							label={ __( 'Show avatar', 'jetpack-mu-wpcom' ) }
+							checked={ showAvatar }
+							onChange={ () => setAttributes( { showAvatar: ! showAvatar } ) }
+							disabled={ ! showAuthor }
+						/>
 					</PanelBody>
 					<PostTypesPanel attributes={ attributes } setAttributes={ setAttributes } />
 					<PostStatusesPanel attributes={ attributes } setAttributes={ setAttributes } />
 				</InspectorControls>
-            </Fragment>)
+            </Fragment>
         );
 	}
 }

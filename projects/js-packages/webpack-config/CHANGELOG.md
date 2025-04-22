@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.6.11 - 2025-04-14
+### Changed
+- Remove extensionAliases from webpack config after enabling TypeScript's `rewriteRelativeImportExtensions` option. [#42990]
+
+## 3.6.10 - 2025-04-10
+### Changed
+- Update dependencies.
+
+## 3.6.9 - 2025-04-01
+### Changed
+- Update package dependencies. [#42809]
+
+## 3.6.8 - 2025-04-01
+### Changed
+- Update package dependencies. [#42762]
+
+## 3.6.7 - 2025-03-18
+### Changed
+- Update package dependencies. [#42511]
+
+## 3.6.6 - 2025-03-12
+### Changed
+- Update package dependencies. [#42384]
+
+## 3.6.5 - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+## 3.6.4 - 2025-02-24
+### Changed
+- Update dependencies.
+
+## 3.6.3 - 2025-02-17
+### Changed
+- Add .jsx extension alias support. [#41524]
+
+## 3.6.2 - 2025-02-04
+### Changed
+- Update package dependencies. [#41491]
+
+## 3.6.1 - 2025-01-31
+### Changed
+- Update package dependencies. [#41286]
+
+## 3.6.0 - 2025-01-27
+### Added
+- Set `output.uniqueName` by default. Note this may change output for things setting `output.library.name`. [#41315]
+
+## 3.5.7 - 2025-01-20
+### Changed
+- Updated package dependencies. [#41099]
+
 ## 3.5.6 - 2025-01-06
 ### Changed
 - Updated package dependencies. [#40797] [#40809]

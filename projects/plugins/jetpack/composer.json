@@ -12,6 +12,7 @@
 		"ext-json": "*",
 		"ext-openssl": "*",
 		"automattic/jetpack-a8c-mc-stats": "@dev",
+		"automattic/jetpack-account-protection": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
@@ -27,6 +28,7 @@
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-error": "@dev",
+		"automattic/jetpack-external-media": "@dev",
 		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-import": "@dev",
@@ -45,6 +47,7 @@
 		"automattic/jetpack-stats": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-subscribers-dashboard": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
@@ -56,8 +59,8 @@
 		"antecedent/patchwork": "^2.2",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
-		"johnkary/phpunit-speedtrap": "^4.0.0",
-		"yoast/phpunit-polyfills": "^1.1.1"
+		"automattic/phpunit-select-config": "@dev",
+		"yoast/phpunit-polyfills": "^3.0.0"
 	},
 	"scripts": {
 		"build-production": [
@@ -74,7 +77,7 @@
 			"tests/action-test-coverage.sh"
 		],
 		"test-js": [
-			"pnpm concurrently 'pnpm:compile-ts' 'pnpm:test-adminpage' 'pnpm:test-extensions'"
+			"pnpm concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions'"
 		],
 		"test-php": [
 			"@php tools/build-module-headings-translations.php",
@@ -106,7 +109,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ14_3_a_1",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ14_6_a_7",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

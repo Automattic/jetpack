@@ -99,7 +99,7 @@ class Scan_Helper {
 		global $wp_filesystem;
 
 		if ( ! $this->has_credentials() ) {
-			die;
+			die( 0 );
 		}
 
 		return $wp_filesystem->get_contents_array( $file_path );
@@ -114,7 +114,7 @@ class Scan_Helper {
 		global $wp_filesystem;
 
 		if ( ! $this->has_credentials() ) {
-			die;
+			die( 0 );
 		}
 
 		return $wp_filesystem->get_contents( $file_path );
@@ -129,7 +129,7 @@ class Scan_Helper {
 		global $wp_filesystem;
 
 		if ( ! $this->has_credentials() ) {
-			die;
+			die( 0 );
 		}
 
 		return $wp_filesystem->exists( $file_path );
@@ -145,7 +145,7 @@ class Scan_Helper {
 		global $wp_filesystem;
 
 		if ( ! $this->has_credentials() ) {
-			die;
+			die( 0 );
 		}
 
 		// Create parent directory of the file if it does not already exist
@@ -166,7 +166,7 @@ class Scan_Helper {
 		global $wp_filesystem;
 
 		if ( ! $this->has_credentials() ) {
-			die;
+			die( 0 );
 		}
 
 		return $wp_filesystem->delete( $file, true );
@@ -431,7 +431,7 @@ class Scan_Helper {
 	 */
 	private function generate_infected_file_threat() {
 		$content = "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;";
-		if ( ! $this->write_file( $this->threats['infected_file'], $content, FILE_APPEND ) ) {
+		if ( ! $this->write_file( $this->threats['infected_file'], $content ) ) {
 			return new WP_Error( 'could-not-write', "Unable to write threat from {$this->threats['infected_file']}" );
 		}
 

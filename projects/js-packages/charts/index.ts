@@ -10,10 +10,7 @@ export { Legend } from './src/components/legend';
 
 // Providers
 export { ThemeProvider } from './src/providers/theme';
+export { defaultTheme, jetpackTheme, wooTheme } from './src/providers/theme/themes';
 
 // Hooks
 export { default as useChartMouseHandler } from './src/hooks/use-chart-mouse-handler';
-
-// Types
-export type * from './src/types';
-export type { BaseTooltipProps } from './src/components/tooltip';

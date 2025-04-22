@@ -305,7 +305,7 @@ function wpcomsh_maybe_redirect_to_calypso_plugin_pages() {
 	// Redirect to calypso when user is trying to install plugin.
 	if ( 0 === strpos( $request_uri, '/wp-admin/plugin-install.php' ) ) {
 		wp_safe_redirect( 'https://wordpress.com/plugins/' . $site );
-		exit;
+		exit( 0 );
 	}
 }
 add_action( 'plugins_loaded', 'wpcomsh_maybe_redirect_to_calypso_plugin_pages' );

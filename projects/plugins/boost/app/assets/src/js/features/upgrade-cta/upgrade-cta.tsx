@@ -4,17 +4,18 @@ import RightArrow from '$svg/right-arrow';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './upgrade-cta.module.scss';
 import { usePricing } from '$lib/stores/pricing';
-import { useNavigate } from 'react-router-dom';
 
 type UpgradeCTAProps = {
 	description: string;
 	identifier: string;
 	eventName?: string;
+	onClick?: () => void;
 };
 
 const UpgradeCTA = ( {
 	description,
 	identifier,
+	onClick,
 	eventName = 'upsell_cta_from_settings_page_in_plugin',
 }: UpgradeCTAProps ) => {
 	// No need to show the upgrade CTA if the site is unreachable.
@@ -22,11 +23,12 @@ const UpgradeCTA = ( {
 		return null;
 	}
 
-	const navigate = useNavigate();
-
-	const showBenefits = () => {
+	const onClickHandler = () => {
 		recordBoostEvent( eventName, { identifier } );
-		navigate( '/upgrade' );
+
+		if ( onClick ) {
+			onClick();
+		}
 	};
 
 	const pricing = usePricing();
@@ -38,7 +40,7 @@ const UpgradeCTA = ( {
 		: '_';
 
 	return (
-		<button className={ styles[ 'upgrade-cta' ] } onClick={ showBenefits }>
+		<button className={ styles[ 'upgrade-cta' ] } onClick={ onClickHandler }>
 			<div className={ styles.body }>
 				<p>{ description }</p>
 				<p className={ styles[ 'action-line' ] }>

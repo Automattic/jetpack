@@ -15,7 +15,7 @@
 	Breaking Checks ( stops direct access )
 	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
+	exit( 0 );
 }
 /*
 ======================================================
@@ -185,25 +185,6 @@ function zeroBSCRM_multisite_getSiteList() {
 	}
 
 	return $sites;
-
-	// debug print_r(zeroBSCRM_multisite_getSiteList()); exit();
-
-	/*
-		we don't need all this
-
-		[blog_id] => 1
-		[site_id] => 1
-		[domain] => multisitetest.local
-		[path] => /
-		[registered] => 2018-08-10 15:29:31
-		[last_updated] => 2018-08-10 15:30:43
-		[public] => 1
-		[archived] => 0
-		[mature] => 0
-		[spam] => 0
-		[deleted] => 0
-		[lang_id] => 0
-	*/
 }
 
 function zeroBSCRM_tidy_multisite_site( $siteRow = array() ) {

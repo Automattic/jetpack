@@ -25,7 +25,7 @@ const WpcomTourKitStepCard: React.FunctionComponent< WpcomTourStepRendererProps 
 	const description = descriptions[ isMobile ? 'mobile' : 'desktop' ] ?? descriptions.desktop;
 
 	return (
-		<Card className="wpcom-tour-kit-step-card" isElevated>
+		<Card className="wpcom-tour-kit-step-card" elevation={ 2 }>
 			<WpcomTourKitStepCardOverlayControls onDismiss={ onDismiss } onMinimize={ onMinimize } />
 			{ imgSrc && (
 				<CardMedia className="wpcom-tour-kit-step-card__media">

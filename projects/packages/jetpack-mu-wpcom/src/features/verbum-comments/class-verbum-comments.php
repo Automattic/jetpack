@@ -31,6 +31,14 @@ class Verbum_Comments {
 	public $blog_id;
 
 	/**
+	 * Comment forms can appear anywhere (page, post, query loop, etc), there is no reliable way to determine if there are comments on the page,
+	 * So we hook into `comment_form_before` and set this flag to true when a comment form is found.
+	 *
+	 * @var bool
+	 */
+	public $should_enqueue_assets = false;
+
+	/**
 	 * Class constructor
 	 */
 	public function __construct() {
@@ -42,6 +50,13 @@ class Verbum_Comments {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$this->blog_id = intval( $_GET['blogid'] );
 		}
+
+		add_action(
+			'comment_form_before',
+			function () {
+				$this->should_enqueue_assets = true;
+			}
+		);
 
 		// Selfishly remove everything from the existing comment form
 		add_filter( 'comment_form_field_comment', '__return_false', 11 );
@@ -61,7 +76,7 @@ class Verbum_Comments {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
 		// Do things before the comment is accepted.
-		add_action( 'pre_comment_on_post', array( $this, 'check_comment_allowed' ) );
+		add_action( 'pre_comment_on_post', array( $this, 'check_comment_allowed' ), 10, 1 );
 		add_action( 'pre_comment_on_post', array( $this, 'allow_logged_out_user_to_comment_as_external' ), 100 ); // Set priority high to run after check to make sure they are logged in to the external service.
 		add_filter( 'preprocess_comment', array( $this, 'verify_external_account' ), 0 );
 
@@ -115,6 +130,7 @@ class Verbum_Comments {
 		if (
 			! ( is_singular() && comments_open() )
 			&& ! ( is_front_page() && is_page() && comments_open() )
+			&& ! $this->should_enqueue_assets
 		) {
 			return;
 		}
@@ -124,6 +140,8 @@ class Verbum_Comments {
 
 		if ( strpos( $primary_redirect, '.wordpress.com' ) === false ) {
 			$connect_url = add_query_arg( 'domain', $primary_redirect, $connect_url );
+		} else {
+			$connect_url = add_query_arg( 'from_comments', 'yes', $connect_url );
 		}
 
 		// Enqueue styles and scripts
@@ -136,6 +154,8 @@ class Verbum_Comments {
 				'in_footer' => true,
 			)
 		);
+
+		wp_enqueue_script( 'wp-i18n' );
 
 		wp_enqueue_style( 'verbum' );
 		\WP_Enqueue_Dynamic_Script::enqueue_script( 'verbum' );
@@ -185,6 +205,7 @@ class Verbum_Comments {
 		$css_mtime        = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.css' );
 		$js_mtime         = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.min.js' );
 		$vbe_cache_buster = max( $js_mtime, $css_mtime );
+		$color_scheme     = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 
 		wp_add_inline_script(
 			'verbum-settings',
@@ -254,9 +275,10 @@ class Verbum_Comments {
 					'allowedBlocks'                      => \Verbum_Block_Utils::get_allowed_blocks(),
 					'embedNonce'                         => wp_create_nonce( 'embed_nonce' ),
 					'verbumBundleUrl'                    => plugins_url( 'dist/index.js', __FILE__ ),
-					'isRTL'                              => is_rtl( $locale ),
+					'isRTL'                              => is_rtl(),
 					'vbeCacheBuster'                     => $vbe_cache_buster,
 					'iframeUniqueId'                     => $iframe_unique_id,
+					'colorScheme'                        => $color_scheme,
 				)
 			),
 			'before'
@@ -448,23 +470,63 @@ HTML;
 	/**
 	 * Verify nonce before accepting comment.
 	 *
-	 * @return WP_Error|void
+	 * @param int $comment_id The comment ID.
+	 * @return void
 	 */
-	public function check_comment_allowed() {
+	public function check_comment_allowed( int $comment_id ) {
 		// Don't check if we're using Jetpack Comments.
 		if ( is_jetpack_comments() ) {
 			return;
 		}
 
 		// Check for Highlander Nonce.
-		if (
-			isset( $_POST['highlander_comment_nonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ), 'highlander_comment' ) )
-		) {
-			return;
+		if ( isset( $_POST['highlander_comment_nonce'] ) ) {
+			$valid_nonce     = false;
+			$current_user_id = get_current_user_id();
+
+			if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ) ), 'highlander_comment' ) ) {
+				$valid_nonce = true;
+			} elseif ( function_exists( 'wp_set_current_user' ) ) {
+				// There randomly occurs a race condition between the logged in/out state of the user.
+				// Check if their nonce is a logged out nonce.
+				wp_set_current_user( 0 );
+				$valid_nonce = wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['highlander_comment_nonce'] ) ), 'highlander_comment' );
+				wp_set_current_user( $current_user_id );
+			}
+
+			// All good, proceed.
+			if ( $valid_nonce ) {
+				return;
+			}
+
+			// Log the error to Log2Logstash.
+			// Related to https://github.com/Automattic/wp-calypso/issues/99436
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+
+				$headers = getallheaders();
+				$data    = array(
+					'session_token' => wp_get_session_token(),
+					'editor_type'   => isset( $_POST['verbum_loaded_editor'] ) ? sanitize_text_field( wp_unslash( $_POST['verbum_loaded_editor'] ) ) : '',
+					'user_agent'    => sanitize_text_field( $headers['User-Agent'] ?? '' ),
+					'referrer'      => esc_url_raw( $headers['Referer'] ?? '' ),
+				);
+
+				log2logstash(
+					array(
+						'feature'    => 'verbum-comments',
+						'message'    => 'Pre-comment nonce failed',
+						'blog_id'    => get_current_blog_id(),
+						'user_id'    => $current_user_id,
+						'host'       => sanitize_text_field( $headers['Host'] ?? '' ),
+						'comment_id' => $comment_id,
+						'extra'      => wp_json_encode( $data ),
+					)
+				);
+			}
 		}
 
-		return new WP_Error( 'verbum', __( 'Error: please try commenting again.', 'jetpack-mu-wpcom' ) );
+		wp_die( esc_html__( 'Sorry, this comment could not be posted.', 'jetpack-mu-wpcom' ) );
 	}
 
 	/**

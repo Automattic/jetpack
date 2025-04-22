@@ -1,4 +1,4 @@
-import { getScriptData, siteHasFeature } from '@automattic/jetpack-script-data';
+import { getAdminUrl, getScriptData, siteHasFeature } from '@automattic/jetpack-script-data';
 import { SocialScriptData } from '../types';
 
 /**
@@ -17,4 +17,13 @@ export function getSocialScriptData(): SocialScriptData {
  */
 export function hasSocialPaidFeatures() {
 	return siteHasFeature( 'social-enhanced-publishing' );
+}
+
+/**
+ * Get the url for the Social admin page.
+ *
+ * @return The Social admin page URL.
+ */
+export function getSocialAdminPageUrl() {
+	return getAdminUrl( 'admin.php?page=jetpack-social' );
 }

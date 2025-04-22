@@ -10,6 +10,7 @@ export default function GalleryImageSave( props ) {
 		id,
 		link,
 		linkTo,
+		customLink,
 		origUrl,
 		url,
 		width,
@@ -28,6 +29,11 @@ export default function GalleryImageSave( props ) {
 		case 'attachment':
 			href = link;
 			break;
+		case 'custom':
+			href = customLink || '';
+			break;
+		default:
+			href = '';
 	}
 
 	const img = (
@@ -40,6 +46,7 @@ export default function GalleryImageSave( props ) {
 			data-id={ id }
 			data-link={ link }
 			data-url={ origUrl }
+			data-custom-link={ customLink }
 			data-width={ width }
 			src={ url }
 			data-amp-layout={ 'responsive' }

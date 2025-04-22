@@ -34,6 +34,13 @@ class Connections_Post_Field {
 	public $memoized_updates = array();
 
 	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		add_action( 'rest_api_init', array( $this, 'register_fields' ) );
+	}
+
+	/**
 	 * Registers the jetpack_publicize_connections field. Called
 	 * automatically on `rest_api_init()`.
 	 */
@@ -188,9 +195,6 @@ class Connections_Post_Field {
 				}
 			}
 
-			$output_connection['id']             = (string) $connection['unique_id'];
-			$output_connection['can_disconnect'] = current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection['user_id'];
-
 			$output_connections[] = $output_connection;
 		}
 
@@ -287,7 +291,7 @@ class Connections_Post_Field {
 		$available_connections_by_connection_id = array();
 		$available_connections_by_service_name  = array();
 		foreach ( $available_connections as $available_connection ) {
-			$available_connections_by_connection_id[ $available_connection['id'] ] = $available_connection;
+			$available_connections_by_connection_id[ $available_connection['connection_id'] ] = $available_connection;
 
 			if ( ! isset( $available_connections_by_service_name[ $available_connection['service_name'] ] ) ) {
 				$available_connections_by_service_name[ $available_connection['service_name'] ] = array();
@@ -307,8 +311,8 @@ class Connections_Post_Field {
 			}
 
 			foreach ( $available_connections_by_service_name[ $requested_connection['service_name'] ] as $available_connection ) {
-				if ( $requested_connection['connection_id'] === $available_connection['id'] ) {
-					$changed_connections[ $available_connection['id'] ] = $requested_connection['enabled'];
+				if ( $requested_connection['connection_id'] === $available_connection['connection_id'] ) {
+					$changed_connections[ $available_connection['connection_id'] ] = $requested_connection['enabled'];
 					break;
 				}
 			}
@@ -332,7 +336,7 @@ class Connections_Post_Field {
 		foreach ( $changed_connections as $id => $enabled ) {
 			$connection = $available_connections_by_connection_id[ $id ];
 
-			if ( $connection['done'] || ! $connection['toggleable'] ) {
+			if ( $connection['done'] ) {
 				continue;
 			}
 

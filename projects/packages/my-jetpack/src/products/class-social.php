@@ -39,6 +39,13 @@ class Social extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-social';
 
 	/**
+	 * The category of the product
+	 *
+	 * @var string
+	 */
+	public static $category = 'growth';
+
+	/**
 	 * Social has a standalone plugin
 	 *
 	 * @var bool
@@ -210,18 +217,10 @@ class Social extends Hybrid_Product {
 	/**
 	 * Get the URL where the user manages the product.
 	 *
-	 * If the standalone plugin is active,
-	 * it will redirect to the standalone plugin settings page.
-	 * Otherwise, it will redirect to the Jetpack settings page.
-	 *
 	 * @return string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_standalone_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack-social' );
-		}
-
-		return admin_url( 'admin.php?page=jetpack#/settings?term=publicize' );
+		return admin_url( 'admin.php?page=jetpack-social' );
 	}
 
 	/**

@@ -7,7 +7,7 @@ use Automattic\Jetpack_Inspect\REST_API\Contracts\Permission;
 /**
  * Nonces are tricky in REST.
  *
- * `rest_api_init` action is only tirggered when visiting an URL that looks like a REST Endpoint.
+ * `rest_api_init` action is only triggered when visiting an URL that looks like a REST Endpoint.
  *  This means that if nonces are generated there, they won't be available in regular
  * `init` or `admin_init` parts of the app. But that's exactly where we need them.
  *
@@ -47,7 +47,7 @@ class Nonce implements Permission {
 	public function __construct( $action, $request_key = 'nonce' ) {
 		$this->action      = $action;
 		$this->request_key = $request_key;
-		$this->generate_nonce( $action );
+		$this->generate_nonce();
 	}
 
 	public function verify( $request ) {

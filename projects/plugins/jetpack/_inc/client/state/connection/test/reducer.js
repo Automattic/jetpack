@@ -5,6 +5,7 @@ import {
 	requests as requestsReducer,
 	connectionRequests,
 	hasSeenWCConnectionModal,
+	isConnectionOwnerName,
 } from '../reducer';
 
 describe( 'status reducer', () => {
@@ -234,5 +235,30 @@ describe( '#hasSeenWCConnectionModal', () => {
 		};
 		const stateOut = hasSeenWCConnectionModal( stateIn, action );
 		expect( stateOut ).toBe( true );
+	} );
+} );
+describe( 'isConnectionOwnerName Selector', () => {
+	test( 'returns the connection owner name if it exists', () => {
+		const state = {
+			jetpack: {
+				connection: {
+					user: {
+						connectionOwner: 'John Doe',
+					},
+				},
+			},
+		};
+		expect( isConnectionOwnerName( state ) ).toBe( 'John Doe' );
+	} );
+
+	test( 'returns undefined if connection owner name does not exist', () => {
+		const state = {
+			jetpack: {
+				connection: {
+					user: {},
+				},
+			},
+		};
+		expect( isConnectionOwnerName( state ) ).toBeUndefined();
 	} );
 } );

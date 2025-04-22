@@ -138,3 +138,29 @@ if ( ! function_exists( 'get_magic_quotes_gpc' ) ) {
 		return false;
 	}
 }
+
+/**
+ * Use filter to remove the Elementor Developer Notice.
+ *
+ * Gutenberg is a default plugin installed on all WordPress.com sites,
+ * however, its presence triggers the beta install notice to appear even
+ * on production sites.
+ *
+ * @param array $notices The array of admin notices from Elementor.
+ * @return array Modified array without the Elementor Developer Notice.
+ */
+function wpcomsh_remove_elementor_dev_notice( $notices ) {
+	if ( is_array( $notices ) ) {
+		if ( class_exists( 'Elementor\Core\Admin\Notices\Elementor_Dev_Notice', false ) ) {
+			foreach ( $notices as $key => $notice ) {
+				if ( $notice instanceof Elementor\Core\Admin\Notices\Elementor_Dev_Notice ) { // @phan-suppress-current-line PhanUndeclaredClassInstanceof -- We've checked the class exists earlier.
+					unset( $notices[ $key ] );
+				}
+			}
+		}
+	}
+
+	return $notices;
+}
+
+add_filter( 'elementor/core/admin/notices', 'wpcomsh_remove_elementor_dev_notice' );

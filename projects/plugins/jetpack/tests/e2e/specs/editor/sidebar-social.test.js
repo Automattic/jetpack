@@ -1,7 +1,7 @@
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
-import { expect, test } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import logger from 'jetpack-e2e-commons/logger.js';
-import { BlockEditorPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
+import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import logger from '_jetpack-e2e-commons/logger.js';
+import { BlockEditorPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 
 test.beforeEach( async ( { page } ) => {
 	await prerequisitesBuilder( page )
@@ -13,7 +13,7 @@ test.beforeEach( async ( { page } ) => {
 } );
 
 test.describe( 'Editor sidebar: Social', () => {
-	test( 'Activation of publicize from the editor', async ( { page } ) => {
+	test( 'Activation of publicize from the editor', async ( { admin, page } ) => {
 		logger.sync( 'Creating new post' );
 
 		/**
@@ -21,11 +21,7 @@ test.describe( 'Editor sidebar: Social', () => {
 		 */
 		const blockEditor = await BlockEditorPage.visit( page );
 
-		await page.waitForURL( '**/post-new.php' );
-		await blockEditor.waitForEditor();
-
-		logger.action( 'Close "Welcome to the block editor" dialog' );
-		await blockEditor.closeWelcomeGuide();
+		await admin.createNewPost( { title: 'Testing Social Sidebar' } );
 
 		logger.action( 'Open Jetpack sidebar' );
 		await blockEditor.openSettings( 'Jetpack' );

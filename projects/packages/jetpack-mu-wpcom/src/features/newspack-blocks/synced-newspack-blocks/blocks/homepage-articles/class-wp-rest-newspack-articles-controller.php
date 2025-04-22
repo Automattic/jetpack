@@ -107,19 +107,6 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 				},
 			]
 		);
-
-		// Endpoint to get styles in the editor.
-		register_rest_route(
-			$this->namespace,
-			'/homepage-articles-css',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ 'Newspack_Blocks_API', 'css_endpoint' ],
-				'permission_callback' => function() {
-					return current_user_can( 'edit_posts' );
-				},
-			]
-		);
 	}
 
 	/**

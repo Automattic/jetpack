@@ -1,17 +1,27 @@
 import { JSONSchema } from '$lib/utils/json-types';
 import z from 'zod';
 
-const CriticalCssErrorType = z.enum( [
-	'SuccessTargetError',
-	'UrlError',
-	'HttpError',
-	'UnknownError',
-	'CrossDomainError',
-	'LoadTimeoutError',
-	'RedirectError',
-	'UrlVerifyError',
-	'EmptyCSSError',
-	'XFrameDenyError',
+const HttpErrorPattern = z.custom< `HttpError-${ number }` >( val => {
+	if ( typeof val !== 'string' ) return false;
+	return /^HttpError-\d+$/.test( val );
+} );
+
+const CriticalCssErrorType = z.union( [
+	z.enum( [
+		'SuccessTargetError',
+		'UrlError',
+		'HttpError',
+		'UnknownError',
+		'CrossDomainError',
+		'LoadTimeoutError',
+		'RedirectError',
+		'UrlVerifyError',
+		'EmptyCSSError',
+		'XFrameDenyError',
+		'InvalidURLError',
+		'ProviderError',
+	] ),
+	HttpErrorPattern,
 ] );
 
 export const CriticalCssErrorDetailsSchema = z.object( {
@@ -37,8 +47,8 @@ export const ProviderSchema = z.object( {
 		.catch( 'validation-error' ),
 	// Error details
 	errors: z.array( CriticalCssErrorDetailsSchema ).optional(),
-	// If this an error, has it been dismissed?
-	error_status: z.enum( [ 'active', 'dismissed' ] ).optional(),
+	// List of error types that have been dismissed for this provider
+	dismissed_errors: z.array( CriticalCssErrorType ).optional(),
 } );
 
 export const CriticalCssStateSchema = z

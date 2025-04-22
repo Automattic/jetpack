@@ -60,7 +60,7 @@ function zbs_wizard_fin() {
 			'ef'    => $crm_enable_forms,
 			'ew'    => $crm_enable_woo_module,
 			'ems'   => $crm_menu_style,
-			'v'     => $zbs->version,
+			'v'     => $zbs::VERSION,
 			'cu'    => $crm_curr,
 		);
 		update_option( 'zbs_initopts_' . time(), $init_options, false );
@@ -215,12 +215,12 @@ function zbs_wizard_fin() {
 		$r['message'] = 'success';
 		$r['success'] = 1;
 		echo wp_json_encode( $r );
-		die();
+		die( 0 );
 	} else {
 		$r['message'] = 'Unauthorised to do this...';
 		$r['success'] = 0;
 		echo wp_json_encode( $r );
-		die();
+		die( 0 );
 	}
 }
 add_action( 'wp_ajax_nopriv_zbs_wizard_fin', 'zbs_wizard_fin' );

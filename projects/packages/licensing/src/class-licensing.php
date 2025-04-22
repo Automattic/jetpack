@@ -353,7 +353,7 @@ class Licensing {
 			&& apply_filters( 'jetpack_connection_user_has_license', false, $licenses, $plugin_slug )
 		) {
 			wp_safe_redirect( '/wp-admin/admin.php?page=my-jetpack#/add-license' );
-			exit;
+			exit( 0 );
 		}
 	}
 }

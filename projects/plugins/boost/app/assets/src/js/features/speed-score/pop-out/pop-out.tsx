@@ -3,9 +3,8 @@ import CloseButton from '$features/ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
 import { ReactNode, useState, useEffect } from 'react';
-import { Button } from '@wordpress/components';
+import { Button, getRedirectUrl } from '@automattic/jetpack-components';
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import { recordBoostEvent } from '$lib/utils/analytics';
 
 type Props = {
@@ -28,7 +27,7 @@ const fasterMessage: ScoreChangeMessage = {
 	title: __( 'Your site got faster', 'jetpack-boost' ),
 	body: <p>{ __( `That's great! If you’re happy, why not rate Boost?`, 'jetpack-boost' ) }</p>,
 	cta: __( 'Rate the Plugin', 'jetpack-boost' ),
-	ctaLink: 'https://wordpress.org/support/plugin/jetpack-boost/reviews/#new-post',
+	ctaLink: getRedirectUrl( 'boost-rate-plugin' ),
 };
 
 const slowerMessage: ScoreChangeMessage = {
@@ -54,6 +53,66 @@ const slowerMessage: ScoreChangeMessage = {
 	ctaLink: getRedirectUrl( 'boost-improve-site-speed-score' ),
 };
 
+type VanillaPopOutProps = {
+	message: ScoreChangeMessage;
+	onClose: () => void;
+	onDismiss: () => void;
+	isVisible: boolean;
+};
+
+/**
+ * The basic pop out excluding all external dependencies.
+ *
+ * @param {VanillaPopOutProps} props
+ * @return {React.ReactNode} Vanilla PopOut component.
+ */
+export const VanillaPopOut = ( { message, onClose, onDismiss, isVisible }: VanillaPopOutProps ) => {
+	const animationStyles = useSpring( {
+		from: {
+			right: '-100%',
+		},
+		to: {
+			right: isVisible ? '0%' : '-100%',
+		},
+	} );
+
+	return (
+		<div id="parent" className={ styles.wrapper }>
+			<animated.div
+				className={ styles.card }
+				style={ {
+					...animationStyles,
+				} }
+			>
+				<CloseButton onClick={ onClose } />
+
+				<h3 className={ styles.headline }>{ message.title }</h3>
+
+				<>{ message.body }</>
+
+				<Button
+					variant="primary"
+					href={ message?.ctaLink }
+					target="_blank"
+					rel="noreferrer"
+					onClick={ onDismiss }
+				>
+					{ message.cta }
+				</Button>
+
+				<Button
+					variant="link"
+					size="small"
+					className={ styles[ 'dismiss-button' ] }
+					onClick={ onDismiss }
+				>
+					{ __( 'Do not show me again', 'jetpack-boost' ) }
+				</Button>
+			</animated.div>
+		</div>
+	);
+};
+
 function PopOut( { scoreChange }: Props ) {
 	/*
 	 * Determine if the score has changed enough to show the alert.
@@ -77,57 +136,31 @@ function PopOut( { scoreChange }: Props ) {
 
 	const hideAlert = () => setClose( true );
 
+	const scoreDirection = scoreChange && scoreChange > 0 ? 'up' : 'down';
+
 	useEffect( () => {
 		if ( hasScoreChanged && ! isDismissed && ! isClosed ) {
 			recordBoostEvent( 'speed_score_alert_shown', {
-				score_direction: scoreChange > 0 ? 'up' : 'down',
+				score_direction: scoreDirection,
 			} );
 		}
-	}, [ hasScoreChanged, scoreChange, isDismissed, isClosed ] );
+	}, [ hasScoreChanged, isDismissed, isClosed, scoreDirection ] );
 
-	const animationStyles = useSpring( {
-		from: {
-			right: '-100%',
-		},
-		to: {
-			right: hasScoreChanged && ! isDismissed && ! isClosed ? '0%' : '-100%',
-		},
-	} );
+	const handleCtaClick = () => {
+		recordBoostEvent( 'speed_score_alert_cta_clicked', {
+			score_direction: scoreDirection,
+		} );
+
+		dismissAlert();
+	};
 
 	return (
-		<div id="parent" className={ styles.wrapper }>
-			<animated.div
-				className={ styles.card }
-				style={ {
-					...animationStyles,
-				} }
-			>
-				<CloseButton onClick={ hideAlert } />
-
-				<h3 className={ styles.headline }>{ message.title }</h3>
-
-				<>{ message.body }</>
-
-				<a
-					className="jb-button--primary"
-					href={ message?.ctaLink }
-					target="_blank"
-					rel="noreferrer"
-					onClick={ dismissAlert }
-				>
-					{ message.cta }
-				</a>
-
-				<Button
-					variant="link"
-					size="small"
-					className={ styles[ 'dismiss-button' ] }
-					onClick={ dismissAlert }
-				>
-					{ __( 'Do not show me again', 'jetpack-boost' ) }
-				</Button>
-			</animated.div>
-		</div>
+		<VanillaPopOut
+			message={ message }
+			onClose={ hideAlert }
+			onDismiss={ handleCtaClick }
+			isVisible={ hasScoreChanged && ! isDismissed && ! isClosed }
+		/>
 	);
 }
 

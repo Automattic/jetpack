@@ -1,8 +1,7 @@
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
-import { store as coreStore } from '@wordpress/core-data';
 import { store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
-import { getSocialScriptData } from '../utils/script-data';
+import { features } from '../utils/constants';
 import { normalizeShareStatus } from '../utils/share-status';
 import { setConnections } from './actions/connection-data';
 import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
@@ -56,16 +55,15 @@ export function getPostShareStatus( _postId ) {
 	return async ( { dispatch, registry } ) => {
 		// Default to the current post ID if none is provided.
 		const postId = _postId || registry.select( editorStore ).getCurrentPostId();
-		const { feature_flags } = getSocialScriptData();
 
-		if ( ! feature_flags.useShareStatus ) {
+		if ( ! siteHasFeature( features.SHARE_STATUS ) ) {
 			return;
 		}
 
 		try {
 			dispatch( fetchPostShareStatus( postId ) );
 			let result = await apiFetch< PostShareStatus >( {
-				path: `jetpack/v4/social/share-status/${ postId }`,
+				path: `/wpcom/v2/publicize/share-status?post_id=${ postId }`,
 			} );
 
 			result = normalizeShareStatus( result );
@@ -77,30 +75,7 @@ export function getPostShareStatus( _postId ) {
 	};
 }
 
-/**
- * Resolves the social plugin settings to ensure the core-data entities are registered.
- *
- * @return {Function} Resolver
- */
-export function getSocialPluginSettings() {
-	return async ( { registry } ) => {
-		const jetpackEntities = registry.select( coreStore ).getEntitiesConfig( 'jetpack/v4' );
-
-		if ( ! jetpackEntities.some( ( { name } ) => name === 'social/settings' ) ) {
-			await registry.dispatch( coreStore ).addEntities( [
-				{
-					kind: 'jetpack/v4',
-					name: 'social/settings',
-					baseURL: '/jetpack/v4/social/settings',
-					label: __( 'Social Settings', 'jetpack-publicize-components' ),
-				},
-			] );
-		}
-	};
-}
-
 export default {
 	getConnections,
 	getPostShareStatus,
-	getSocialPluginSettings,
 };

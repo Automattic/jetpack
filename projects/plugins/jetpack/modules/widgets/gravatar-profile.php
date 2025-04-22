@@ -151,7 +151,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			}
 
 			if ( $instance['show_account_links'] ) {
-				$this->display_accounts( (array) $profile['accounts'] );
+				$this->display_accounts( (array) $profile['accounts'], $profile['displayName'] );
 			}
 
 			?>
@@ -236,9 +236,10 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	/**
 	 * Displays the "Verified Services" accounts.
 	 *
-	 * @param array $accounts Array of social accounts.
+	 * @param array  $accounts     Array of social accounts.
+	 * @param string $display_name Gravatar display name of the user.
 	 */
-	public function display_accounts( $accounts = array() ) {
+	public function display_accounts( $accounts = array(), $display_name = '' ) {
 		if ( empty( $accounts ) ) {
 			return;
 		}
@@ -267,22 +268,26 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 		<?php
 		foreach ( $accounts as $account ) :
-			if ( 'true' !== $account['verified'] ) {
+			$is_hidden = $account['is_hidden'] ?? false;
+			if ( true !== $account['verified'] || $is_hidden ) {
 				continue;
 			}
 
 			$sanitized_service_name = $this->get_sanitized_service_name( $account['shortname'] );
 			$link_title             = sprintf(
-				/* translators: %1$s: service username. %2$s: service name ( Facebook, Twitter, etc.) */
+				/* translators: %1$s: account display name. %2$s: service name ( Facebook, Twitter, etc.) */
 				_x( '%1$s on %2$s', '1: User Name, 2: Service Name (Facebook, Twitter, ...)', 'jetpack' ),
-				esc_html( $account['display'] ),
+				esc_html( $display_name ),
 				esc_html( $sanitized_service_name )
 			);
 			?>
 
 			<li>
 				<a href="<?php echo esc_url( $account['url'] ); ?>" title="<?php echo esc_html( $link_title ); ?>">
-					<span class="grofile-accounts-logo grofile-accounts-<?php echo esc_attr( $account['shortname'] ); ?> accounts_<?php echo esc_attr( $account['shortname'] ); ?>"></span>
+					<span
+						class="grofile-accounts-logo grofile-accounts-<?php echo esc_attr( $account['shortname'] ); ?> accounts_<?php echo esc_attr( $account['shortname'] ); ?>"
+						style="background-image: url('<?php echo esc_attr( $account['iconUrl'] ); ?>')"
+					></span>
 				</a>
 			</li>
 

@@ -5,6 +5,92 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.22] - 2025-04-14
+### Fixed
+- Fix errors caused by malformed order arguments. [#42897]
+- Linting: Format SCSS imports consistently. [#43018]
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
+## [0.47.21] - 2025-04-07
+### Changed
+- Code: First pass of style coding standards. [#42734]
+
+## [0.47.20] - 2025-04-04
+### Changed
+- Update dependencies. [#42820]
+- Update package dependencies. [#42809]
+
+### Fixed
+- Admin menu registration: Allow child classes to overwrite priority. [#42814]
+
+## [0.47.19] - 2025-03-31
+### Changed
+- Update dependencies. [#42678]
+
+### Fixed
+- Admin Menu: Ensure Akismet menu item shows alongside standalone plugin menus. [#42776]
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42677]
+
+## [0.47.18] - 2025-03-24
+### Changed
+- Update dependencies. [#42564]
+
+### Fixed
+- Search: Ensure the count of returned results is shown after searching. [#42570]
+
+## [0.47.17] - 2025-03-18
+### Changed
+- Update package dependencies. [#42511]
+
+## [0.47.16] - 2025-03-17
+### Changed
+- Update dependencies. [#42498]
+
+## [0.47.15] - 2025-03-12
+### Added
+- Provide connection data to footer component. [#42000]
+
+### Changed
+- Update package dependencies. [#42384]
+
+## [0.47.14] - 2025-03-10
+### Changed
+- Internal updates.
+
+## [0.47.13] - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+## [0.47.12] - 2025-02-24
+### Fixed
+- Code: Prevent dynamic class properties. [#41857]
+
+## [0.47.11] - 2025-02-17
+### Changed
+- Update dependencies. [#39855]
+
+## [0.47.10] - 2025-02-11
+### Changed
+- Update dependencies. [#39855]
+
+## [0.47.9] - 2025-02-10
+### Changed
+- Updated package dependencies. [#41491] [#41577]
+
+## [0.47.8] - 2025-02-03
+### Changed
+- Updated package dependencies. [#41286]
+
+## [0.47.7] - 2025-01-27
+### Changed
+- Internal updates.
+
+## [0.47.6] - 2025-01-20
+### Changed
+- Code: Use function-style exit() and die() with a default status code of 0. [#41167]
+- Updated package dependencies. [#41099]
+
 ## [0.47.5] - 2025-01-06
 ### Changed
 - Updated package dependencies. [#40784] [#40792] [#40797] [#40813] [#40843]
@@ -1107,6 +1193,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.47.22]: https://github.com/Automattic/jetpack-search/compare/v0.47.21...v0.47.22
+[0.47.21]: https://github.com/Automattic/jetpack-search/compare/v0.47.20...v0.47.21
+[0.47.20]: https://github.com/Automattic/jetpack-search/compare/v0.47.19...v0.47.20
+[0.47.19]: https://github.com/Automattic/jetpack-search/compare/v0.47.18...v0.47.19
+[0.47.18]: https://github.com/Automattic/jetpack-search/compare/v0.47.17...v0.47.18
+[0.47.17]: https://github.com/Automattic/jetpack-search/compare/v0.47.16...v0.47.17
+[0.47.16]: https://github.com/Automattic/jetpack-search/compare/v0.47.15...v0.47.16
+[0.47.15]: https://github.com/Automattic/jetpack-search/compare/v0.47.14...v0.47.15
+[0.47.14]: https://github.com/Automattic/jetpack-search/compare/v0.47.13...v0.47.14
+[0.47.13]: https://github.com/Automattic/jetpack-search/compare/v0.47.12...v0.47.13
+[0.47.12]: https://github.com/Automattic/jetpack-search/compare/v0.47.11...v0.47.12
+[0.47.11]: https://github.com/Automattic/jetpack-search/compare/v0.47.10...v0.47.11
+[0.47.10]: https://github.com/Automattic/jetpack-search/compare/v0.47.9...v0.47.10
+[0.47.9]: https://github.com/Automattic/jetpack-search/compare/v0.47.8...v0.47.9
+[0.47.8]: https://github.com/Automattic/jetpack-search/compare/v0.47.7...v0.47.8
+[0.47.7]: https://github.com/Automattic/jetpack-search/compare/v0.47.6...v0.47.7
+[0.47.6]: https://github.com/Automattic/jetpack-search/compare/v0.47.5...v0.47.6
 [0.47.5]: https://github.com/Automattic/jetpack-search/compare/v0.47.4...v0.47.5
 [0.47.4]: https://github.com/Automattic/jetpack-search/compare/v0.47.3...v0.47.4
 [0.47.3]: https://github.com/Automattic/jetpack-search/compare/v0.47.2...v0.47.3

@@ -44,7 +44,7 @@ const JetpackFieldControls = ( {
 			const parsedValue = parse( value, 10 );
 
 			setAttributes( {
-				[ key ]: ! isNaN( parsedValue ) ? parsedValue : '',
+				[ key ]: ! isNaN( parsedValue ) ? parsedValue : undefined,
 			} );
 		};
 
@@ -109,7 +109,6 @@ const JetpackFieldControls = ( {
 		<ToggleControl
 			key="required"
 			label={ __( 'Field is required', 'jetpack-forms' ) }
-			className="jetpack-field-label__required"
 			checked={ required }
 			onChange={ value => setAttributes( { required: value } ) }
 			help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
@@ -126,6 +125,7 @@ const JetpackFieldControls = ( {
 					'jetpack-forms'
 				) }
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 		),
 		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
@@ -169,9 +169,7 @@ const JetpackFieldControls = ( {
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
 				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
-					{ fieldSettings.filter( Boolean ).map( ( elt, index ) => (
-						<div key={ index }>{ elt }</div>
-					) ) }
+					<>{ fieldSettings }</>
 				</PanelBody>
 				<PanelColorSettings
 					title={ __( 'Color', 'jetpack-forms' ) }
@@ -179,7 +177,7 @@ const JetpackFieldControls = ( {
 					colorSettings={ colorSettings }
 				/>
 				<PanelBody title={ stylesPanelTitle } initialOpen={ false }>
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<FontSizePicker
 							withReset={ true }
 							size="__unstable-large"
@@ -188,7 +186,7 @@ const JetpackFieldControls = ( {
 							value={ attributes.fieldFontSize }
 						/>
 					</BaseControl>
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<LineHeightControl
 							__nextHasNoMarginBottom={ true }
 							__unstableInputWidth="100%"
@@ -207,6 +205,7 @@ const JetpackFieldControls = ( {
 								min={ 0 }
 								max={ 100 }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 							<RangeControl
 								label={ __( 'Button Border Radius', 'jetpack-forms' ) }
@@ -216,6 +215,7 @@ const JetpackFieldControls = ( {
 								min={ 0 }
 								max={ 100 }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						</>
 					) }
@@ -229,6 +229,7 @@ const JetpackFieldControls = ( {
 								min={ 0 }
 								max={ 100 }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 							<RangeControl
 								label={ __( 'Border Radius', 'jetpack-forms' ) }
@@ -238,12 +239,13 @@ const JetpackFieldControls = ( {
 								min={ 0 }
 								max={ 100 }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						</>
 					) }
 				</PanelBody>
 				<PanelBody title={ __( 'Label Styles', 'jetpack-forms' ) } initialOpen={ false }>
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<FontSizePicker
 							withReset={ true }
 							size="__unstable-large"
@@ -252,7 +254,7 @@ const JetpackFieldControls = ( {
 							value={ attributes.labelFontSize }
 						/>
 					</BaseControl>
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<LineHeightControl
 							__unstableInputWidth="100%"
 							__nextHasNoMarginBottom={ true }
@@ -274,6 +276,7 @@ const JetpackFieldControls = ( {
 						'jetpack-forms'
 					) }
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				/>
 			</InspectorAdvancedControls>
 		</>

@@ -1,0 +1,18 @@
+Hack for https://github.com/WordPress/gutenberg/issues/67897
+
+diff --git a/package.json b/package.json
+index 9df754abc5e871d61e726aa84c92e079db5d6c60..9a0db897aeb3eb15b4a1767da4cd7ef7acef88d7 100644
+--- a/package.json
++++ b/package.json
+@@ -23,11 +23,9 @@
+ 		"npm": ">=8.19.2"
+ 	},
+ 	"main": "build/index.js",
+-	"module": "build-module/index.js",
+ 	"exports": {
+ 		".": {
+ 			"types": "./build-types/index.d.ts",
+-			"import": "./build-module/index.js",
+ 			"default": "./build/index.js"
+ 		},
+ 		"./wp": {

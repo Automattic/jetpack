@@ -1,0 +1,185 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+$grid-size: 8px;
+
+.jetpack-external-media-header__view {
+	display: flex;
+	align-items: flex-start;
+	justify-content: flex-start;
+	flex-direction: column;
+
+	@media only screen and ( min-width: 600px ) {
+		flex-direction: row;
+		align-items: center;
+	}
+
+	select {
+		max-width: 200px !important;
+	}
+
+	.components-base-control__field {
+		display: flex;
+		flex-direction: column;
+	}
+}
+
+.jetpack-external-media-header__change-selection {
+	display: flex;
+	flex-grow: 1;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+
+	.components-button {
+		height: 40px;
+		margin: 1px 1px 9px 0;
+
+		@media only screen and ( min-width: 783px ) {
+			height: 30px;
+		}
+	}
+}
+
+.jetpack-external-media-header__filter,
+.jetpack-external-media-header__view {
+
+	label {
+		margin-right: 10px;
+	}
+
+	.components-base-control {
+		padding-right: $grid-size;
+		margin-bottom: 0;
+	}
+}
+
+.jetpack-external-media-header__filter {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	flex-grow: 1;
+	justify-content: flex-start;
+
+	@media only screen and ( min-width: 600px ) {
+		border-left: 1px solid $gray-400;
+		margin-left: $grid-size * 2;
+		padding-left: $grid-size * 2;
+	}
+
+	.jetpack-external-media-date-filter {
+		display: flex;
+		flex-wrap: wrap;
+
+		button {
+			// Adjust button to match the size and position of inputs.
+			margin-top: 27px;
+			height: 40px;
+
+			@media only screen and ( min-width: 783px ) {
+				height: 30px;
+			}
+		}
+
+		.components-base-control {
+
+			.components-input-control__label {
+				margin-bottom: 3px;
+			}
+
+			.components-input-control__backdrop {
+				border-color: $gray-200;
+				border-radius: 3px;
+			}
+
+			.components-input-control__input {
+				height: 40px;
+				width: 70px; // This input holds only years, so 4 digits width is enough.
+
+				@media only screen and ( min-width: 783px ) {
+					height: 30px;
+				}
+			}
+		}
+	}
+}
+
+.jetpack-external-media-header__account {
+	display: flex;
+	flex-direction: column;
+
+	.jetpack-external-media-header__account-info {
+		display: flex;
+		margin-bottom: 8px;
+	}
+
+	.jetpack-external-media-header__account-image {
+		margin-right: 8px;
+	}
+
+	.jetpack-external-media-header__account-name {
+		height: 18px;
+		max-width: 190px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.jetpack-external-media-browser__disconnect {
+		height: 40px;
+		margin: 1px 1px 9px 0;
+
+		@media only screen and ( min-width: 783px ) {
+			height: 30px;
+		}
+	}
+}
+
+.jetpack-external-media__google-photos-picker {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0;
+	margin-bottom: -72px 0 48px;
+
+	h1 {
+		font-weight: 400;
+	}
+
+	p {
+		font-size: 16px;
+	}
+
+	.jetpack-external-media__google-photos-picker-button {
+		margin-bottom: 10px;
+	}
+
+	.jetpack-external-media-header__account {
+		justify-content: center;
+
+		.components-button {
+			display: block;
+			margin: auto;
+		}
+	}
+}
+
+.jetpack-external-media-auth {
+	max-width: 400px;
+	margin: 0 auto;
+	padding-bottom: 80px;
+	text-align: center;
+
+	p {
+		 margin: 0 0 2em 0;
+	}
+}
+
+.jetpack-external-media__google-photos-loading {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}

@@ -4,15 +4,15 @@ import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useProduct from '../../data/products/use-product';
+import createCookie from '../../utils/create-cookie';
 import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
+import type { NoticeHookType } from './types';
 import type { NoticeOptions } from '../../context/notices/types';
 
-type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
-
-const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
+const useProtectThreatsDetectedNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) => {
 	const { recordEvent } = useAnalytics();
-	const { setNotice } = useContext( NoticeContext );
+	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { detail } = useProduct( 'protect' );
 	const {
 		hasPaidPlanForProduct,
@@ -39,6 +39,12 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 		__( '%s found threats on your site', 'jetpack-my-jetpack' ),
 		hasPaidPlanForProduct && isStandaloneActive ? 'Protect' : 'Scan'
 	);
+
+	const onCloseClick = useCallback( () => {
+		createCookie( 'protect_threats_detected_dismissed', 7 );
+		delete redBubbleAlerts?.protect_has_threats;
+		resetNotice();
+	}, [ redBubbleAlerts?.protect_has_threats, resetNotice ] );
 
 	const onPrimaryCtaClick = useCallback( () => {
 		window.open( protectDashboardUrl );
@@ -103,23 +109,29 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 					isExternalLink: true,
 				},
 			],
+			onClose: onCloseClick,
+			hideCloseButton: false,
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
-		setNotice( {
-			title: noticeTitle,
-			message: noticeMessage,
-			options: noticeOptions,
-		} );
+		if ( ! isLoading ) {
+			setNotice( {
+				title: noticeTitle,
+				message: noticeMessage,
+				options: noticeOptions,
+			} );
+		}
 	}, [
 		hasPaidPlanForProduct,
 		isStandaloneActive,
 		noticeTitle,
+		onCloseClick,
 		onPrimaryCtaClick,
 		onSecondaryCtaClick,
 		redBubbleAlerts?.protect_has_threats,
 		setNotice,
 		type,
+		isLoading,
 	] );
 };
 

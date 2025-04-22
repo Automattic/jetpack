@@ -4,18 +4,18 @@
 import { Popover } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import Button from '../button';
-import useBreakpointMatch from '../layout/use-breakpoint-match';
-import Text from '../text';
+import Button from '../button/index.tsx';
+import useBreakpointMatch from '../layout/use-breakpoint-match/index.ts';
+import Text from '../text/index.tsx';
 /**
  * Internal dependencies
  */
-import ThemeProvider from '../theme-provider';
+import ThemeProvider from '../theme-provider/index.tsx';
 import styles from './styles.module.scss';
 /**
  * Types
  */
-import { ActionPopoverProps } from './types';
+import { ActionPopoverProps } from './types.ts';
 import type React from 'react';
 
 const ActionPopover = ( {
