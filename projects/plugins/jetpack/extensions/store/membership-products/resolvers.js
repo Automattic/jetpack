@@ -16,12 +16,15 @@ import {
 	setSubscriberCounts,
 	setNewsletterCategories,
 	setNewsletterCategoriesSubscriptionsCount,
+	setTotalEmailsSentCount,
 } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import { onError } from './utils';
 
 const EXECUTION_KEY = 'membership-products-resolver-getProducts';
 const SUBSCRIBER_COUNT_EXECUTION_KEY = 'membership-products-resolver-getSubscriberCounts';
+const TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY =
+	'membership-products-resolver-getTotalEmailsSentCount';
 const GET_NEWSLETTER_CATEGORIES_EXECUTION_KEY =
 	'membership-products-resolver-getNewsletterCategories';
 const GET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT_EXECUTION_KEY =
@@ -73,6 +76,38 @@ const mapAPIResponseToMembershipProductsStoreData = ( response, registry, dispat
 const fetchSubscriberCounts = async () => {
 	const response = await apiFetch( {
 		path: '/wpcom/v2/subscribers/counts',
+	} );
+
+	if ( ! response || typeof response !== 'object' ) {
+		throw new Error( 'Unexpected API response' );
+	}
+
+	/**
+	 * WP_Error returns a list of errors with custom names:
+	 * `errors: { foo: [ 'message' ], bar: [ 'message' ] }`
+	 * Since we don't know their names, to get the message, we transform the object
+	 * into an array, and just pick the first message of the first error.
+	 *
+	 * @see https://developer.wordpress.org/reference/classes/wp_error/
+	 */
+	const wpError = response?.errors && Object.values( response.errors )?.[ 0 ]?.[ 0 ];
+	if ( wpError ) {
+		throw new Error( wpError );
+	}
+
+	return response;
+};
+
+const fetchTotalEmailsSentCount = async () => {
+	const { blog_id: siteId } = window.JetpackScriptData?.site?.wpcom ?? {};
+	const postId = window.wp.data.select( 'core/editor' ).getCurrentPostId();
+
+	if ( ! siteId || ! postId ) {
+		return;
+	}
+
+	const response = await apiFetch( {
+		path: `/rest/v1.1/sites/${ siteId }/stats/opens/emails/${ postId }/rate`,
 	} );
 
 	if ( ! response || typeof response !== 'object' ) {
@@ -258,6 +293,23 @@ export const getSubscriberCounts =
 					paidSubscribers: response.counts.paid_subscribers,
 				} )
 			);
+		} catch ( error ) {
+			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
+			onError( error.message, registry );
+		} finally {
+			executionLock.release( lock );
+		}
+	};
+
+export const getTotalEmailsSentCount =
+	() =>
+	async ( { dispatch, registry } ) => {
+		await executionLock.blockExecution( TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY );
+
+		const lock = executionLock.acquire( TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY );
+		try {
+			const response = await fetchTotalEmailsSentCount();
+			dispatch( setTotalEmailsSentCount( response.total_sends ) );
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );

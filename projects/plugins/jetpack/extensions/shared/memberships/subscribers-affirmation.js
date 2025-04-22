@@ -207,12 +207,14 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		newsletterCategoriesEnabled,
 		newsletterCategorySubscriberCount,
 		paidSubscribersCount,
+		totalEmailsSentCount,
 	} = useSelect( select => {
 		const {
 			getNewsletterCategories,
 			getNewsletterCategoriesEnabled,
 			getNewsletterCategoriesSubscriptionsCount,
 			getSubscriberCounts,
+			getTotalEmailsSentCount,
 			hasFinishedResolution,
 		} = select( membershipProductsStore );
 
@@ -231,6 +233,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
 			newsletterCategorySubscriberCount: getNewsletterCategoriesSubscriptionsCount(),
 			paidSubscribersCount: paidSubscribers,
+			totalEmailsSentCount: getTotalEmailsSentCount(),
 		};
 	} );
 
@@ -247,13 +250,17 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	}
 
 	const isPaidPost = accessLevel === accessOptions.paid_subscribers.key;
+	const { status, date_gmt } = window.wp.data.select( 'core/editor' ).getCurrentPost();
+	// To display stats from Jetpack. It is necessary to provide the accurate count for historical posts.
+	const isPostOlderThanADay =
+		status === 'publish' && new Date( date_gmt ) < new Date( Date.now() - 24 * 60 * 60 * 1000 );
 
 	// Show all copy in future tense
 	const futureTense = prePublish || isScheduledPost;
 
 	const reachForAccessLevel = getReachForAccessLevelKey( {
 		accessLevel,
-		subscribers: emailSubscribersCount,
+		subscribers: isPostOlderThanADay ? totalEmailsSentCount : emailSubscribersCount,
 		paidSubscribers: paidSubscribersCount,
 		postHasPaywallBlock,
 	} );
@@ -274,7 +281,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			isPaidPost,
 			newsletterCategories,
 			postCategories,
-			reachCount: newsletterCategorySubscriberCount,
+			reachCount: isPostOlderThanADay ? totalEmailsSentCount : newsletterCategorySubscriberCount,
 		} );
 	} else {
 		text = getCopyForSubscribers( {
