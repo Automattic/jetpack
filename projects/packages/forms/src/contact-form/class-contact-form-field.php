@@ -623,6 +623,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$extra_attrs['style'] = $this->label_styles;
 		}
 
+		$type_class           = $type ? ' ' . $type : '';
+		$extra_attrs['class'] = "grunion-field-label{$type_class}" . ( $this->is_error() ? ' form-error' : '' );
+
+		if ( ! empty( $this->label_classes ) ) {
+			$extra_attrs['class'] .= ' ' . $this->label_classes;
+		}
+
 		$extra_attrs_string = '';
 		if ( is_array( $extra_attrs ) && ! empty( $extra_attrs ) ) {
 			foreach ( $extra_attrs as $attr => $val ) {
@@ -630,11 +637,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
-		// TODO: Work out whether the label block will be used here for legends on things like choice fields.
-
-		$type_class = $type ? ' ' . $type : '';
-		return "<legend
-				class='grunion-field-label{$type_class}" . ( $this->is_error() ? ' form-error' : '' ) . "'"
+		return '<legend '
 				. $extra_attrs_string
 				. '>'
 				. wp_kses_post( $legend )
