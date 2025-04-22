@@ -50,6 +50,12 @@ class Package_Version_Tracker {
 			return;
 		}
 
+		// Only attempt to update the option on POST requests.
+		// This will prevent the option from being updated multiple times due to concurrent requests.
+		if ( ! ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) ) {
+			return;
+		}
+
 		// The version check is being rate limited.
 		if ( $this->is_rate_limiting() ) {
 			return;
@@ -92,6 +98,12 @@ class Package_Version_Tracker {
 	protected function update_package_versions_option( $package_versions ) {
 		if ( ! $this->is_sync_enabled() ) {
 			$this->update_package_versions_via_remote_request( $package_versions );
+			// Remove the checksum for package versions, so it gets recalculated when sync gets activated.
+			$jetpack_callables_sync_checksum = Jetpack_Options::get_raw_option( 'jetpack_callables_sync_checksum' );
+			if ( isset( $jetpack_callables_sync_checksum['jetpack_package_versions'] ) ) {
+				unset( $jetpack_callables_sync_checksum['jetpack_package_versions'] );
+				Jetpack_Options::update_raw_option( 'jetpack_callables_sync_checksum', $jetpack_callables_sync_checksum );
+			}
 			return;
 		}
 
