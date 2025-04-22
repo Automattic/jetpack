@@ -70,7 +70,7 @@ function activateSubscription( block, blogId ) {
 		}
 		const email = emailField.value;
 		const params = [].slice
-			.call( form.querySelectorAll( 'input[type=hidden].mc-submit-param' ) )
+			.call( form.querySelectorAll( 'input[type="hidden"].mc-submit-param' ) )
 			.reduce( ( accumulator, node ) => ( { ...accumulator, [ node.name ]: node.value } ), {} );
 		block.classList.add( 'is-processing' );
 		emailField.removeEventListener( 'input', handleEmailValidation( form, emailField ) );

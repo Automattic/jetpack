@@ -362,10 +362,10 @@ if ( isset( $sbupdated ) ) {
 						// show hides:
 
 						// if is present
-						if (jQuery('.zbs-showhide-field input[type=checkbox]',jQuery(ele))){
+						if (jQuery('.zbs-showhide-field input[type="checkbox"]',jQuery(ele))){
 
 							// if is checked
-							if (jQuery('.zbs-showhide-field input[type=checkbox]',jQuery(ele)).prop('checked')){
+							if (jQuery('.zbs-showhide-field input[type="checkbox"]',jQuery(ele)).prop('checked')){
 
 								// log hide
 								if (csvHideList.length > 0) csvHideList += ',';
