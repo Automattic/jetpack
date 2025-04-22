@@ -31,7 +31,16 @@ async function postOrUpdateMessage( client, update, options ) {
 			}
 
 			try {
-				response = await uploadFileToSlack( client, chunk[ 0 ].path, channel, thread_ts );
+				response = await client.filesUploadV2( {
+					channel_id: channel,
+					thread_ts,
+					file: chunk[ 0 ].path,
+					filename: path.basename( chunk[ 0 ].path ),
+				} );
+
+				if ( ! response.ok ) {
+					throw new Error( 'Failed to upload file' );
+				}
 			} catch ( err ) {
 				error( err );
 				throw err;
@@ -158,41 +167,6 @@ async function getMessage( client, channelId, identifier ) {
 	message ? debug( 'Message found' ) : debug( 'Message not found' );
 
 	return message;
-}
-
-/**
- * Uploads a file to Slack using filesUploadV2.
- *
- * @param {object} client     - Slack client instance
- * @param {string} filePath   - Path to the file to upload
- * @param {string} channel_id - Channel ID where the file will be shared
- * @param {string} thread_ts  - Thread timestamp for threading the file upload
- * @return {Promise<object>} The response from the Slack API
- */
-async function uploadFileToSlack( client, filePath, channel_id, thread_ts ) {
-	try {
-		const filename = path.basename( filePath );
-
-		if ( ! fs.existsSync( filePath ) ) {
-			throw new Error( `File not found: ${ filePath }` );
-		}
-
-		const response = await client.filesUploadV2( {
-			channel_id,
-			thread_ts,
-			file: filePath,
-			filename,
-		} );
-
-		if ( ! response.ok ) {
-			throw new Error( 'Failed to upload file' );
-		}
-
-		return response;
-	} catch ( err ) {
-		error( err );
-		throw err;
-	}
 }
 
 module.exports = {
