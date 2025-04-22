@@ -11,4 +11,4 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // Initialize WordBless test environment.
-\Automattic\Jetpack\Test_Environment::init();
+\Automattic\Jetpack\Test_Environment::init( 'boost', 'sqlite' );
