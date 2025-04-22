@@ -56,6 +56,7 @@ export function keyringData(
 					...state?.requests,
 					[ action.requestId ]: {
 						...state?.requests?.[ action.requestId ],
+						service: action.service ?? state?.requests?.[ action.requestId ]?.service,
 						polling: action.polling,
 					},
 				},

@@ -47,12 +47,12 @@ export function ConnectForm( {
 
 	const onConfirm = useCallback(
 		( requestId: string ) => {
-			// Set the keyring result only if the modal is open
+			// Start polling only if the modal is open
 			if ( isConnectionsModalOpen() ) {
-				pollForKeyringResult( { requestId } );
+				pollForKeyringResult( { requestId, service: service.id } );
 			}
 		},
-		[ pollForKeyringResult, isConnectionsModalOpen ]
+		[ pollForKeyringResult, isConnectionsModalOpen, service.id ]
 	);
 
 	const requestAccess = useRequestAccess( {

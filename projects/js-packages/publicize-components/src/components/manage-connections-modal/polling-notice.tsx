@@ -1,7 +1,8 @@
 import { Notice, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
+import { useServiceLabel } from '../services/use-service-label';
 import styles from './style.module.scss';
 
 /**
@@ -12,6 +13,8 @@ import styles from './style.module.scss';
 export function PollingNotice() {
 	const keyringRequest = useSelect( select => select( socialStore ).getKeyringRequest(), [] );
 	const { abortPollingForLastKeyringResult } = useDispatch( socialStore );
+
+	const getServiceLabel = useServiceLabel();
 
 	if ( ! keyringRequest?.polling ) {
 		return null;
@@ -25,9 +28,10 @@ export function PollingNotice() {
 				onRemove={ abortPollingForLastKeyringResult }
 			>
 				<Spinner />
-				{ __(
-					'Refreshing the available connections, please wait…',
-					'jetpack-publicize-components'
+				{ sprintf(
+					// translators: %s: Social media service name
+					__( 'Getting your %s accounts to connect, please wait…', 'jetpack-publicize-components' ),
+					getServiceLabel( keyringRequest.service )
 				) }
 			</Notice>
 		</div>

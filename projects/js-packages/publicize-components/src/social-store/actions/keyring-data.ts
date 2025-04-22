@@ -66,15 +66,22 @@ export function defaultIsRequestComplete( { code, data }: KeyringResponse ) {
  * Returns an action object used in signalling that polling for the keyring result
  * is in progress.
  *
- * @param requestId - Request ID.
- * @param polling   - Polling status.
+ * @param args           - Arguments.
+ * @param args.requestId - Request ID.
+ * @param args.polling   - Polling status.
+ * @param args.service   - Service name.
  * @return Action object.
  */
-export function pollingForKeyringResult( requestId: string, polling = true ) {
+export function pollingForKeyringResult( args: {
+	requestId: string;
+	polling?: boolean;
+	service?: string;
+} ) {
 	return {
 		type: POLLING_FOR_KEYRING_RESULT,
-		requestId,
-		polling,
+		requestId: args.requestId,
+		polling: args.polling ?? true,
+		service: args.service,
 	};
 }
 
@@ -125,6 +132,7 @@ type PollForKeyringResultOptions = {
 	onRequestComplete?: ( data: KeyringResponse ) => void;
 	pollingInterval?: number;
 	timeout?: number;
+	service?: string;
 };
 
 const ONE_MINUTE_IN_MS = 60 * 1000;
@@ -144,6 +152,7 @@ export function pollForKeyringResult( {
 	pollingInterval = POLLING_INTERVAL,
 	requestId,
 	timeout = ONE_MINUTE_IN_MS * 2,
+	service,
 }: PollForKeyringResultOptions = {} ) {
 	return async function ( { dispatch, select } ) {
 		let isTheRequestComplete = false;
@@ -158,7 +167,7 @@ export function pollForKeyringResult( {
 		] );
 
 		dispatch( setKeyringResultPollingAbortController( requestId, abortController ) );
-		dispatch( pollingForKeyringResult( requestId ) );
+		dispatch( pollingForKeyringResult( { requestId, service } ) );
 
 		do {
 			// Do not fetch if the request is still in progress.
@@ -201,6 +210,6 @@ export function pollForKeyringResult( {
 			} );
 		} while ( ! isTheRequestComplete );
 
-		dispatch( pollingForKeyringResult( requestId, false ) );
+		dispatch( pollingForKeyringResult( { requestId, polling: false } ) );
 	};
 }

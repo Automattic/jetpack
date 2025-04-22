@@ -39,6 +39,11 @@ export type KeyringRequest = {
 	abortController?: AbortController;
 
 	response?: KeyringResponse;
+
+	/**
+	 * The service name.
+	 */
+	service?: string;
 };
 
 export type KeyringData = {
