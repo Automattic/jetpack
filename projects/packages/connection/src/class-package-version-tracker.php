@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Jetpack_Options;
+
 /**
  * The Package_Version_Tracker class.
  */
