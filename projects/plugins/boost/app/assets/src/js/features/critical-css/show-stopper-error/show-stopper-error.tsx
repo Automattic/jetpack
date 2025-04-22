@@ -1,3 +1,4 @@
+import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import FoldingElement from '../folding-element/folding-element';
 import { ErrorSet, getPrimaryErrorSet } from '../lib/critical-css-errors';
@@ -13,7 +14,6 @@ import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useRetryRegenerate } from '../lib/use-retry-regenerate';
 import RawError from '../raw-error/raw-error';
-import { ExternalLink } from '@wordpress/components';
 
 type ShowStopperErrorTypes = {
 	supportLink?: string;
@@ -120,11 +120,8 @@ const DocumentationSection = ( {
 		<p>
 			{ createInterpolateElement( message, {
 				link: (
-					// eslint-disable-next-line jsx-a11y/anchor-has-content
-					<a
+					<ExternalLink
 						href={ getSupportLinkCriticalCss( errorType ) }
-						target="_blank"
-						rel="noopener noreferrer"
 						onClick={ () => {
 							recordBoostEvent( 'critical_css_learn_more', {} );
 						} }
