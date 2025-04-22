@@ -1,15 +1,20 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/Jetpack_REST_TestCase.php';
 
 /**
  * @covers \Jetpack_Core_Json_Api_Endpoints
  */
+#[CoversClass( Jetpack_Core_Json_Api_Endpoints::class )]
 class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCase {
 	/**
 	 * @author zinigor
 	 * @dataProvider api_routes
 	 */
+	#[DataProvider( 'api_routes' )]
 	public function test_register_routes( $route_string = false, $method = false, $classname = false ) {
 		$routes = $this->server->get_routes();
 		$this->assertArrayHasKey( $route_string, $routes );
@@ -101,6 +106,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 	 *
 	 * @dataProvider update_comment_subscription_option_data_provider
 	 */
+	#[DataProvider( 'update_comment_subscription_option_data_provider' )]
 	public function test_update_data_comment_subscription_option( $new_value, $option_value ) {
 		$option_name = 'stb_enabled';
 		delete_option( $option_name );

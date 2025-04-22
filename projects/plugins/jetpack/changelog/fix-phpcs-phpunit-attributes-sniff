@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix issues identified by `Jetpack.PHPUnit.Attributes` phpcs sniff. Should be no changes to functionality.
+
+

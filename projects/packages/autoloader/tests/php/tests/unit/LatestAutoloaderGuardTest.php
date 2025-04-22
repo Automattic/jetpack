@@ -8,6 +8,8 @@
 // We live in the namespace of the test autoloader to avoid many use statements.
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Test_Plugin_Factory;
 
@@ -72,6 +74,8 @@ class LatestAutoloaderGuardTest extends TestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_should_stop_init_when_autoloader_already_initialized() {
 		global $jetpack_autoloader_latest_version;
 		$jetpack_autoloader_latest_version = Test_Plugin_Factory::VERSION_CURRENT;
@@ -90,6 +94,7 @@ class LatestAutoloaderGuardTest extends TestCase {
 	 *
 	 * @preserveGlobalState disabled
 	 */
+	#[PreserveGlobalState( false )]
 	public function test_should_allow_init_when_including_latest() {
 		// Mark it as already initialized so we can make sure it overrides it.
 		global $jetpack_autoloader_latest_version;
@@ -109,6 +114,7 @@ class LatestAutoloaderGuardTest extends TestCase {
 	 *
 	 * @preserveGlobalState disabled
 	 */
+	#[PreserveGlobalState( false )]
 	public function test_should_stop_init_when_not_latest_autoloader() {
 		$this->plugins_handler->method( 'have_plugins_changed' )
 			->with( array() )
@@ -156,6 +162,7 @@ class LatestAutoloaderGuardTest extends TestCase {
 	 *
 	 * @preserveGlobalState disabled
 	 */
+	#[PreserveGlobalState( false )]
 	public function test_should_stop_init_should_reset_when_plugins_change() {
 		$this->plugins_handler->method( 'have_plugins_changed' )
 			->with( array() )

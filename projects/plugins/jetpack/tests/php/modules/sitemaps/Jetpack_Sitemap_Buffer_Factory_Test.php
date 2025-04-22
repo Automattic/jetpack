@@ -1,5 +1,8 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-factory.php';
 
 /**
@@ -9,6 +12,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-factory.php'
  * @package automattic/jetpack
  * @covers Jetpack_Sitemap_Buffer_Factory
  */
+#[CoversClass( Jetpack_Sitemap_Buffer_Factory::class )]
 class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -17,6 +21,7 @@ class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 	 *
 	 * @group jetpack-sitemap
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_create_page_buffer_xmlwriter() {
 		$buffer = Jetpack_Sitemap_Buffer_Factory::create( 'page', 2, 1000 );
 		$this->assertInstanceOf( 'Jetpack_Sitemap_Buffer_Page_XMLWriter', $buffer );
@@ -27,6 +32,7 @@ class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 	 *
 	 * @group jetpack-sitemap
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_create_image_buffer_xmlwriter() {
 		$buffer = Jetpack_Sitemap_Buffer_Factory::create( 'image', 2, 1000 );
 		$this->assertInstanceOf( 'Jetpack_Sitemap_Buffer_Image_XMLWriter', $buffer );
@@ -37,6 +43,7 @@ class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 	 *
 	 * @group jetpack-sitemap
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_create_video_buffer_xmlwriter() {
 		$buffer = Jetpack_Sitemap_Buffer_Factory::create( 'video', 2, 1000 );
 		$this->assertInstanceOf( 'Jetpack_Sitemap_Buffer_Video_XMLWriter', $buffer );
@@ -47,6 +54,7 @@ class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 	 *
 	 * @group jetpack-sitemap
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_create_news_buffer_xmlwriter() {
 		$buffer = Jetpack_Sitemap_Buffer_Factory::create( 'news', 2, 1000 );
 		$this->assertInstanceOf( 'Jetpack_Sitemap_Buffer_News_XMLWriter', $buffer );
@@ -57,6 +65,7 @@ class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 	 *
 	 * @group jetpack-sitemap
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_create_master_buffer_xmlwriter() {
 		$buffer = Jetpack_Sitemap_Buffer_Factory::create( 'master', 2, 1000 );
 		$this->assertInstanceOf( 'Jetpack_Sitemap_Buffer_Master_XMLWriter', $buffer );
@@ -67,6 +76,7 @@ class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 	 *
 	 * @group jetpack-sitemap
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_create_invalid_type() {
 		$buffer = Jetpack_Sitemap_Buffer_Factory::create( 'invalid', 2, 1000 );
 		$this->assertNull( $buffer );
@@ -77,6 +87,7 @@ class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 	 *
 	 * @group jetpack-sitemap
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_create_buffer_with_timestamp() {
 		$time   = '2024-01-01 00:00:00';
 		$buffer = Jetpack_Sitemap_Buffer_Factory::create( 'page', 2, 1000, $time );
@@ -89,6 +100,7 @@ class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 	 *
 	 * @group jetpack-sitemap
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_create_buffer_without_xmlwriter() {
 		// Mock XMLWriter being unavailable
 		if ( ! function_exists( 'runkit_function_rename' ) ) {
@@ -115,6 +127,7 @@ class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 	 *
 	 * @group jetpack-sitemap
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_create_buffer_without_xmlwriter_and_domdocument() {
 		// Mock XMLWriter and DOMDocument being unavailable
 		if ( ! function_exists( 'runkit_function_rename' ) ) {

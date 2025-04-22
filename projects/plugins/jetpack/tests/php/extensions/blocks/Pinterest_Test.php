@@ -6,6 +6,8 @@
  */
 
 use Automattic\Jetpack\Extensions\Pinterest;
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
 require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/pinterest/pinterest.php';
 
 /**
@@ -13,6 +15,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/pinterest/pinterest.php';
  *
  * @covers ::Automattic\Jetpack\Extensions\Pinterest\pin_type
  */
+#[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Pinterest\\pin_type' )]
 class Pinterest_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -26,6 +29,7 @@ class Pinterest_Test extends \WP_UnitTestCase {
 	 * @param null|string $url      Pinterest URL.
 	 * @param string      $expected Pinterest pin type.
 	 */
+	#[DataProvider( 'get_pinterest_urls' )]
 	public function test_pin_type( $url, $expected ) {
 		$pin_type = Pinterest\pin_type( $url );
 

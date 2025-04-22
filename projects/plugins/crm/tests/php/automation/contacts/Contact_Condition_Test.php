@@ -9,6 +9,8 @@ use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -19,6 +21,9 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Contact_Tag
  */
+#[CoversClass( Contact_Field_Changed::class )]
+#[CoversClass( Contact_Tag::class )]
+#[CoversClass( Contact_Transitional_Status::class )]
 class Contact_Condition_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
@@ -70,6 +75,7 @@ class Contact_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the update contact field condition for the is operator.
 	 */
+	#[TestDox( 'Test the update contact field condition for the is operator.' )]
 	public function test_field_changed_is_operator() {
 		$contact_field_changed_condition = $this->get_contact_field_changed_condition( 'is', 'customer' );
 
@@ -93,6 +99,7 @@ class Contact_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the update contact field condition for the is_not operator.
 	 */
+	#[TestDox( 'Test the update contact field condition for the is_not operator.' )]
 	public function test_field_changed_is_not_operator() {
 		$contact_field_changed_condition = $this->get_contact_field_changed_condition( 'is_not', 'customer' );
 
@@ -115,6 +122,7 @@ class Contact_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test if an exception is being correctly thrown for wrong operators.
 	 */
+	#[TestDox( 'Test if an exception is being correctly thrown for wrong operators.' )]
 	public function test_field_changed_invalid_operator_throws_exception() {
 		$contact_field_changed_condition = $this->get_contact_field_changed_condition( 'wrong_operator', 'customer' );
 
@@ -130,6 +138,7 @@ class Contact_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test if an exception is being correctly thrown for wrong operators for transitional status.
 	 */
+	#[TestDox( 'Test if an exception is being correctly thrown for wrong operators for transitional status.' )]
 	public function test_transitional_status_invalid_operator_throws_exception() {
 		$contact_transitional_status_condition = $this->get_contact_transitional_status_condition( 'wrong_operator', 'old_status', 'new_status' );
 
@@ -150,6 +159,7 @@ class Contact_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test if transitional status correctly detects the correct statuses.
 	 */
+	#[TestDox( 'Test if transitional status correctly detects the correct statuses.' )]
 	public function test_transitional_status() {
 		$contact_transitional_status_condition = $this->get_contact_transitional_status_condition( 'from_to', 'old_status', 'new_status' );
 
@@ -183,6 +193,7 @@ class Contact_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test contact tag added condition.
 	 */
+	#[TestDox( 'Test contact tag added condition.' )]
 	public function test_contact_tag_added() {
 		$contact_tag_condition = $this->get_contact_tag_condition( 'tag_added', 'Tag Added' );
 
@@ -230,6 +241,7 @@ class Contact_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test contact tag removed condition.
 	 */
+	#[TestDox( 'Test contact tag removed condition.' )]
 	public function test_contact_tag_removed() {
 		$contact_tag_condition = $this->get_contact_tag_condition( 'tag_removed', 'Tag to be removed' );
 
@@ -273,6 +285,7 @@ class Contact_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test contact has tag condition.
 	 */
+	#[TestDox( 'Test contact has tag condition.' )]
 	public function test_contact_has_tag() {
 		$contact_tag_condition = $this->get_contact_tag_condition( 'has_tag', 'Some Tag' );
 
