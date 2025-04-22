@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added a util method to check if the site has an admin with a user connection
