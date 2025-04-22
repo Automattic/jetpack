@@ -631,7 +631,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		$extra_attrs_string = '';
-		if ( is_array( $extra_attrs ) && ! empty( $extra_attrs ) ) {
+		if ( is_array( $extra_attrs ) ) {
 			foreach ( $extra_attrs as $attr => $val ) {
 				$extra_attrs_string .= sprintf( '%s="%s" ', esc_attr( $attr ), esc_attr( $val ) );
 			}
