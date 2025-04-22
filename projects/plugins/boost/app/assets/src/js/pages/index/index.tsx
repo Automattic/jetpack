@@ -59,13 +59,7 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									link: (
-										<ExternalLink
-											href={ criticalCssLink }
-											onClick={ handleCriticalCssLink }
-											style={ { cursor: 'pointer' } }
-										/>
-									),
+									link: <ExternalLink href={ criticalCssLink } onClick={ handleCriticalCssLink } />,
 								}
 							) }
 						</p>
@@ -114,13 +108,7 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									link: (
-										<ExternalLink
-											href={ criticalCssLink }
-											onClick={ handleCriticalCssLink }
-											style={ { cursor: 'pointer' } }
-										/>
-									),
+									link: <ExternalLink href={ criticalCssLink } onClick={ handleCriticalCssLink } />,
 								}
 							) }
 						</p>
