@@ -541,8 +541,6 @@ class Connections_Controller extends Base_Controller {
 
 		$data = $external_connections->get_last_keyring_token_details();
 
-		l( 'DATA', $data );
-
 		if ( ! $data ) {
 			$response['code'] = 'no_data_found';
 			return rest_ensure_response( $response );
