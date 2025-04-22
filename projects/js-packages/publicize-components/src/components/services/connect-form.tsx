@@ -36,6 +36,7 @@ export function ConnectForm( {
 	const { pollForKeyringResult } = useDispatch( store );
 
 	const { isConnectionsModalOpen } = useSelect( select => select( store ), [] );
+	const keyringRequest = useSelect( select => select( store ).getKeyringRequest(), [] );
 
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
@@ -95,14 +96,14 @@ export function ConnectForm( {
 						variant={ hasConnections ? 'secondary' : 'primary' }
 						type="submit"
 						className={ styles[ 'connect-button' ] }
-						disabled={ isFetchingServicesList }
+						disabled={ keyringRequest?.polling || isFetchingServicesList }
 					>
 						{ ( label => {
 							if ( label ) {
 								return label;
 							}
 
-							if ( isFetchingServicesList && isConnecting ) {
+							if ( ( keyringRequest?.polling || isFetchingServicesList ) && isConnecting ) {
 								return __( 'Connecting…', 'jetpack-publicize-components' );
 							}
 
