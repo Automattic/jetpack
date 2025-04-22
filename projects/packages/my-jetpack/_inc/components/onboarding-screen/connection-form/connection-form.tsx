@@ -30,6 +30,7 @@ const ConnectionForm = () => {
 		handleSocialLogin,
 		isLoading: isLoadingOauth,
 		resetState,
+		setUserEmail,
 	} = oauthConnectionData;
 
 	const socialConnectionTitle = __( 'Start with Jetpack for free', 'jetpack-my-jetpack' );
@@ -52,12 +53,14 @@ const ConnectionForm = () => {
 			if ( submitType === 'email' ) {
 				handleSubmitEmail();
 			} else {
+				// Ensure to reset the email when using social login.
+				setUserEmail( '' );
 				handleSocialLogin( submitType );
 			}
 
 			setIsActionInitiated( true );
 		},
-		[ handleSubmitEmail, handleSocialLogin, resetState ]
+		[ handleSubmitEmail, handleSocialLogin, resetState, setUserEmail ]
 	);
 
 	const isLoading = useMemo( () => {

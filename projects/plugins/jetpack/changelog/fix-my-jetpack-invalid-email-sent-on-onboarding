@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+My Jetpack: Fix social login getting stuck when email input not empty

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.14.23 - 2025-04-14
 ### Fixed
 - Linting: Update stylesheets to use WordPress rules for fonts. [#42928]
-- Linting: Clean up various Styleline violations. [#43010]
+- Linting: Clean up various Stylelint violations. [#43010]
 
 ## 0.14.22 - 2025-04-07
 ### Changed
