@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+
+- Show subscribers count from Jetpack for posts older than a day. This change is made to accurately show numbers on older posts.
+- Add a link which navigates to the Jetpack Email Stats page.
