@@ -16,23 +16,22 @@ const getDisplayName = response => {
 };
 
 const isFileUploadField = value => {
-	return value && typeof value === 'object' && 'file_id' in value && 'name' in value;
+	return value && typeof value === 'object' && 'files' in value && 'field_id' in value;
 };
 
 const renderFieldValue = value => {
 	if ( isFileUploadField( value ) ) {
-		const fileUrl = sprintf(
-			'%1$s?file_id=%2$s&file_nonce=%3$s',
-			'/wp/v2/feedback/files',
-			encodeURIComponent( value.file_id ),
-			encodeURIComponent( value.nonce || '' )
-		);
 		return (
 			<div className="file-field">
-				<a href={ fileUrl } target="_blank" rel="noopener noreferrer">
-					{ value.name }
-				</a>
-				{ value.size && <span className="file-size"> ({ value.size })</span> }
+				{ value.files.map( ( file, index ) => {
+					return (
+						<div key={ index } className="file-field__item">
+							<Button variant="link" href={ file.url } target="_blank">
+								{ decodeEntities( file.name ) } | { file.size }
+							</Button>
+						</div>
+					);
+				} ) }
 			</div>
 		);
 	}
@@ -73,7 +72,7 @@ const InboxResponse = ( { loading, response } ) => {
 			<div className="jp-forms__inbox-response-avatar">
 				<img
 					src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"
-					alt={ __( 'Respondent’s gravatar', 'jetpack-forms' ) }
+					alt={ __( "Respondent's gravatar", 'jetpack-forms' ) }
 				/>
 			</div>
 

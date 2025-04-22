@@ -859,7 +859,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test image resizing with Photon when image is too large.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @see https://github.com/Automattic/jetpack/issues/40349
 	 */
 	public function test_from_thumbnail_resizes_large_image_with_photon() {
@@ -901,7 +901,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test image resizing with Photon when custom image size exists.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @see https://github.com/Automattic/jetpack/issues/40349
 	 */
 	public function test_from_thumbnail_resizes_large_image_with_photon_and_custom_size() {
@@ -998,7 +998,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Tests if the ::determine_thumbnail_size_for_photon method returns the correct size.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @see https://github.com/Automattic/jetpack/issues/40349
 	 * @dataProvider provide_thumbnail_sizes_for_photon
 	 * @param int   $original_width Width of the original image.

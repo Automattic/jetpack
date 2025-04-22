@@ -136,7 +136,12 @@ export default function InboxView() {
 				 * 3. Normalize the values to handle the case where the value is an array or if is empty.
 				 */
 				fields: Object.entries( record.fields || {} ).reduce( ( accumulator, [ key, value ] ) => {
-					const _key = formatFieldName( key );
+					let _key = formatFieldName( key );
+					let counter = 2;
+					while ( accumulator[ _key ] ) {
+						_key = `${ formatFieldName( key ) } (${ counter })`;
+						counter++;
+					}
 					accumulator[ _key ] = formatFieldValue( decodeEntities( value ) );
 					return accumulator;
 				}, {} ),

@@ -1,0 +1,150 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.ClassComment.Missing, Squiz.Commenting.FunctionComment.Missing
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+// phpcs:disable Jetpack.PHPUnit.TestClassName.DoesNotMatchFileName
+
+namespace Xyz;
+
+use NS\UsedClass;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\DependsExternal;
+use PHPUnit\Framework\Attributes\DependsExternalUsingDeepClone;
+use PHPUnit\Framework\Attributes\DependsExternalUsingShallowClone;
+use PHPUnit\Framework\Attributes\DependsOnClass;
+use PHPUnit\Framework\Attributes\DependsOnClassUsingDeepClone;
+use PHPUnit\Framework\Attributes\DependsOnClassUsingShallowClone;
+use PHPUnit\Framework\Attributes\DependsUsingDeepClone;
+use PHPUnit\Framework\Attributes\DependsUsingShallowClone;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * @depends bogus
+ */
+class AnnotationsTest extends TestCase {
+	/**
+	 * @depends someMethod
+	 * @depends Xyz\LocalClass::other_method
+	 * @depends RootClass::class
+	 * @depends NS\SomeClass::class_method
+	 * @depends NS\UsedClass::used_method
+	 */
+	#[Depends( 'someMethod' )]
+	#[DependsExternal( LocalClass::class, 'other_method' )]
+	#[DependsOnClass( \RootClass::class )]
+	#[DependsExternal( \NS\SomeClass::class, 'class_method' )]
+	#[DependsExternal( UsedClass::class, 'used_method' )]
+	public function testAnnotations() {
+		UsedClass::x();
+	}
+
+	/**
+	 * @depends someMethod
+	 * @depends \Xyz\LocalClass::other_method
+	 * @depends \RootClass::class
+	 * @depends \NS\SomeClass::class_method
+	 * @depends \NS\UsedClass::used_method
+	 */
+	#[Depends( 'someMethod' )]
+	#[DependsExternal( LocalClass::class, 'other_method' )]
+	#[DependsOnClass( \RootClass::class )]
+	#[DependsExternal( \NS\SomeClass::class, 'class_method' )]
+	#[DependsExternal( UsedClass::class, 'used_method' )]
+	public function testAttributes() {
+		UsedClass::x();
+	}
+
+	/**
+	 * @depends Xyz\LocalClass::other_method
+	 * @depends RootClass::class
+	 * @depends NS\SomeClass::class_method
+	 * @depends NS\UsedClass::used_method
+	 */
+	#[DependsExternal( 'Xyz\LocalClass', 'other_method' )]
+	#[DependsOnClass( 'RootClass' )]
+	#[DependsExternal( '\NS\SomeClass', 'class_method' )]
+	#[DependsExternal( 'NS\UsedClass', 'used_method' )]
+	public function testQuotedClasses() {
+		UsedClass::x();
+	}
+
+	/**
+	 * @depends clone someMethod
+	 * @depends clone Xyz\LocalClass::other_method
+	 * @depends clone RootClass::class
+	 */
+	#[DependsUsingDeepClone( 'someMethod' )]
+	#[DependsExternalUsingDeepClone( LocalClass::class, 'other_method' )]
+	#[DependsOnClassUsingDeepClone( \RootClass::class )]
+	public function testCloneAnnotations() {
+		UsedClass::x();
+	}
+
+	/**
+	 * @depends clone someMethod
+	 * @depends clone \Xyz\LocalClass::other_method
+	 * @depends clone \RootClass::class
+	 * @depends clone \NS\SomeClass::class_method
+	 */
+	#[DependsUsingDeepClone( 'someMethod' )]
+	#[DependsExternalUsingDeepClone( LocalClass::class, 'other_method' )]
+	#[DependsOnClassUsingDeepClone( 'RootClass' )]
+	#[DependsExternalUsingDeepClone( \NS\SomeClass::class, 'class_method' )]
+	public function testCloneAttributes() {
+		UsedClass::x();
+	}
+
+	/**
+	 * @depends shallowClone someMethod
+	 * @depends shallowClone Xyz\LocalClass::other_method
+	 * @depends shallowClone RootClass::class
+	 */
+	#[DependsUsingShallowClone( 'someMethod' )]
+	#[DependsExternalUsingShallowClone( LocalClass::class, 'other_method' )]
+	#[DependsOnClassUsingShallowClone( \RootClass::class )]
+	public function testShallowCloneAnnotations() {
+		UsedClass::x();
+	}
+
+	/**
+	 * @depends shallowClone someMethod
+	 * @depends shallowClone \Xyz\LocalClass::other_method
+	 * @depends shallowClone \RootClass::class
+	 * @depends shallowClone \NS\SomeClass::class_method
+	 */
+	#[DependsUsingShallowClone( 'someMethod' )]
+	#[DependsExternalUsingShallowClone( LocalClass::class, 'other_method' )]
+	#[DependsOnClassUsingShallowClone( 'RootClass' )]
+	#[DependsExternalUsingShallowClone( \NS\SomeClass::class, 'class_method' )]
+	public function testShallowCloneAttributes() {
+		UsedClass::x();
+	}
+
+	/**
+	 * @depends someMethod
+	 * @depends otherMethod
+	 */
+	#[Depends( 'someMethod' )]
+	#[Depends( 'otherMethod' )]
+	public function testNotCloneAnnotations() {
+		UsedClass::x();
+	}
+
+	#[Depends()]
+	#[Depends( 42 )]
+	#[Depends( Foo::class )]
+	#[DependsExternal()]
+	#[DependsExternal( 42, 42 )]
+	#[DependsOnClass()]
+	#[DependsOnClass( 42 )]
+	#[DependsOnClass( self::class )]
+	public function bad() {
+	}
+
+	/**
+	 * @depends X::yes::this::is::weird
+	 */
+	#[DependsExternal( 'X', 'yes' )]
+	public function otherWeirdStuff() {
+	}
+}

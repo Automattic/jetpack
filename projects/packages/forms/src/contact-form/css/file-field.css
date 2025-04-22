@@ -64,8 +64,11 @@
 
 .jetpack-form-file-field__preview-wrap {
 	padding: 0;
-	margin-top: 8px;
 	visibility: hidden;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	transition: visibility 0.3s ease-in-out;
 }
 
 .jetpack-form-file-field__preview-wrap.is-active {
@@ -75,7 +78,7 @@
 
 .jetpack-form-file-field__preview {
 	align-items: center;
-	animation: jpShowFileField 300ms 100ms cubic-bezier(0.38, 0.97, 0.56, 0.76) forwards;
+	animation: jpShowFileField 0.35s cubic-bezier(.21,1.02,.73,1) forwards;
 	display: flex;
 	gap: 1em;
 	opacity: 0;
@@ -86,7 +89,6 @@
 	background-color: var(--jetpack--contact-form--input-background, #fff);
 	color: var(--jetpack--contact-form--text-color, #333);
 	border: var(--jetpack--contact-form--border-size, 1px) var( --jetpack--contact-form--border-style, solid) var(--jetpack--contact-form--border-color, #333 );
-	margin-top: 8px;
 	font-size: 12px;
 	line-height: 18px;
 }
@@ -284,10 +286,9 @@
 
 @keyframes jpShowFileField {
 
-	100% {
-		opacity: 1;
-		transform: none;
-	}
+	0% {transform: translate3d(0,-10px, 0) scale(.90); opacity:.5;}
+
+	100% {transform: translate3d(0,0,0) scale(1); opacity:1;}
 }
 
 @keyframes jpFadeOutFileField {
