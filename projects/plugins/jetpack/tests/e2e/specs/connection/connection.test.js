@@ -44,3 +44,10 @@ test( 'User connection', async ( { page } ) => {
 		expect( await jetpackPage.isUserConnected(), 'User should be connected' ).toBeTruthy();
 	} );
 } );
+
+test( 'A change to an e2e test', async ( { page } ) => {
+	await test.step( 'testing the tests', async () => {
+		const jetpackPage = await JetpackDashboardPage.visit( page );
+		expect( await jetpackPage.isSiteConnected(), 'Site should be connected' ).toBeFalsy();
+	} );
+} );
