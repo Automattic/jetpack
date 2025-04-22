@@ -134,13 +134,17 @@
 	border: solid 1px var( --jetpack--contact-form--border-color );
 }
 
-.contact-form .grunion-checkbox-multiple-options legend,
-.contact-form .grunion-radio-options legend {
-	margin-bottom: 0.25em;
-	padding: 0;
+.grunion-checkbox-multiple-options,
+.grunion-radio-options {
 
-	font-weight: 700;
+	:where( legend ) {
+		margin-bottom: 0.25em;
+		padding: 0;
+		font-weight: 700;
+	}
 }
+
+.contact-form .is-style-outlined .grunion-checkbox-multiple-options legend,
 
 .contact-form .is-style-outlined .grunion-checkbox-multiple-options legend,
 .contact-form .is-style-outlined .grunion-radio-options legend {
@@ -394,11 +398,11 @@
 
 .contact-form :where( .contact-form__select-wrapper select ) {
 	background-color: var(--jetpack--contact-form--input-background);
+	border: var(--jetpack--contact-form--border);
 	border-color: var(--jetpack--contact-form--border-color);
 	border-radius: var(--jetpack--contact-form--border-radius);
 	border-style: var(--jetpack--contact-form--border-style);
 	border-width: var(--jetpack--contact-form--border-size);
-	border: var(--jetpack--contact-form--border);
 	color: var(--jetpack--contact-form--text-color);
 	font-family: var(--jetpack--contact-form--font-family);
 	font-size: var(--jetpack--contact-form--font-size);
