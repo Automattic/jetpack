@@ -206,7 +206,11 @@ class Contact_Form_Block {
 		add_action(
 			'jetpack_register_gutenberg_extensions',
 			function () {
-				Jetpack_Gutenberg::set_availability_for_plan( 'field-file' );
+				if ( apply_filters( 'jetpack_unauth_file_upload_plan_check', true ) ) {
+					Jetpack_Gutenberg::set_availability_for_plan( 'field-file' );
+				} else {
+					Jetpack_Gutenberg::set_extension_available( 'field-file' );
+				}
 			}
 		);
 	}

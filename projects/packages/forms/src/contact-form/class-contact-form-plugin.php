@@ -531,7 +531,7 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the file upload field.
 	 */
 	public static function gutenblock_render_field_file( $atts, $content ) {
-		if ( ! Current_Plan::supports( 'field-file' ) ) {
+		if ( apply_filters( 'jetpack_unauth_file_upload_plan_check', true ) && ! Current_Plan::supports( 'field-file' ) ) {
 			// if the plan does not support the field-file, return null on the frontend
 			return null;
 		}
