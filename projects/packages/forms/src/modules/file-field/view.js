@@ -132,10 +132,8 @@ const addFileToContext = file => {
 		error,
 	} );
 
-	const uploadFileWithScope = withScope( uploadFile.bind( this, file, clientFileId ) );
-
 	// Start the upload if we don't have any errors.
-	! error && uploadFileWithScope();
+	! error && actions.uploadFile( file, clientFileId );
 
 	// Load the file so we can display it. In case it is an image.
 	reader.onload = withScope( () => {
@@ -145,50 +143,6 @@ const addFileToContext = file => {
 
 // Map to store AbortControllers for each file upload
 const uploadControllers = new Map();
-
-/**
- * Make the endpoint request.
- * This function is a generator so that we can use the withScope function.
- * And the context gets passed to the onProgress and onReadyStateChange functions.
- *
- * @param {File}   file         - The file to upload.
- * @param {string} clientFileId - The client file ID.
- * @yield {Promise<string>} The upload token.
- */
-function* uploadFile( file, clientFileId ) {
-	const { endpoint, i18n } = getConfig( NAMESPACE );
-
-	const token = yield getUploadToken();
-
-	if ( ! token ) {
-		updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
-		return;
-	}
-
-	const xhr = new XMLHttpRequest();
-	const formData = new FormData();
-
-	// Create an AbortController for this upload
-	const abortController = new AbortController();
-	uploadControllers.set( clientFileId, abortController );
-
-	xhr.open( 'POST', endpoint, true );
-	xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, clientFileId ) ) );
-	xhr.addEventListener(
-		'readystatechange',
-		withScope( onReadyStateChange.bind( this, clientFileId ) )
-	);
-
-	// Handle abort signal
-	abortController.signal.addEventListener( 'abort', () => {
-		xhr.abort();
-		updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
-	} );
-
-	formData.append( 'file', file );
-	formData.append( 'token', token );
-	xhr.send( formData );
-}
 
 /**
  * Responsible for updating the progress circle.
@@ -257,7 +211,7 @@ const updateFileContext = ( updatedFile, clientFileId ) => {
 	context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
 };
 
-const { state } = store( NAMESPACE, {
+const { state, actions } = store( NAMESPACE, {
 	state: {
 		get isInlineForm() {
 			const { ref } = getElement();
@@ -337,6 +291,50 @@ const { state } = store( NAMESPACE, {
 		dragLeave: () => {
 			const context = getContext();
 			context.isDropping = false;
+		},
+
+		/**
+		 * Make the endpoint request.
+		 * This function is a generator so that we can use the withScope function.
+		 * And the context gets passed to the onProgress and onReadyStateChange functions.
+		 *
+		 * @param {File}   file         - The file to upload.
+		 * @param {string} clientFileId - The client file ID.
+		 * @yield {Promise<string>} The upload token.
+		 */
+		uploadFile: function* ( file, clientFileId ) {
+			const { endpoint, i18n } = getConfig( NAMESPACE );
+
+			const token = yield getUploadToken();
+
+			if ( ! token ) {
+				updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
+				return;
+			}
+
+			const xhr = new XMLHttpRequest();
+			const formData = new FormData();
+
+			// Create an AbortController for this upload
+			const abortController = new AbortController();
+			uploadControllers.set( clientFileId, abortController );
+
+			xhr.open( 'POST', endpoint, true );
+			xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, clientFileId ) ) );
+			xhr.addEventListener(
+				'readystatechange',
+				withScope( onReadyStateChange.bind( this, clientFileId ) )
+			);
+
+			// Handle abort signal
+			abortController.signal.addEventListener( 'abort', () => {
+				xhr.abort();
+				updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
+			} );
+
+			formData.append( 'file', file );
+			formData.append( 'token', token );
+			xhr.send( formData );
 		},
 
 		/**
