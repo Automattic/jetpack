@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Slack API: update file upload logicin preparation for files.upload deprecation
