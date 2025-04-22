@@ -147,8 +147,18 @@
 	border: solid 1px var( --jetpack--contact-form--border-color );
 }
 
-.contact-form .is-style-animated .grunion-checkbox-multiple-options legend,
-.contact-form .is-style-animated .grunion-radio-options legend,
+.grunion-checkbox-multiple-options,
+.grunion-radio-options {
+
+	:where( legend ) {
+		margin-bottom: 0.25em;
+		padding: 0;
+		font-weight: 700;
+	}
+}
+
+.contact-form .is-style-outlined .grunion-checkbox-multiple-options legend,
+
 .contact-form .is-style-outlined .grunion-checkbox-multiple-options legend,
 .contact-form .is-style-outlined .grunion-radio-options legend {
     margin: 0 0 -0.75em;
@@ -427,7 +437,7 @@
 	border-color: var(--jetpack--contact-form--border-color);
 	border-radius: var(--jetpack--contact-form--border-radius);
 	border-style: var(--jetpack--contact-form--border-style);
-	border-width:  var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
+	border-width: var(--jetpack--contact-form--border-size);
 	color: var(--jetpack--contact-form--text-color);
 	font-family: var(--jetpack--contact-form--font-family);
 	font-size: var(--jetpack--contact-form--font-size);
