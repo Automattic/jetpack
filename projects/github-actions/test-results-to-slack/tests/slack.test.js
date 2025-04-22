@@ -8,7 +8,8 @@ jest.mock( '@slack/web-api', () => {
 			update: jest.fn(),
 		},
 		files: {
-			upload: jest.fn(),
+			getUploadURLExternal: jest.fn(),
+			completeUploadExternal: jest.fn(),
 		},
 		conversations: {
 			history: jest.fn(),
@@ -16,6 +17,26 @@ jest.mock( '@slack/web-api', () => {
 	};
 	return { WebClient: jest.fn( () => slack ) };
 } );
+
+// Mock global fetch
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
+
+// Mock fs.statSync
+jest.mock( 'fs', () => ( {
+	...jest.requireActual( 'fs' ),
+	statSync: jest.fn().mockReturnValue( {
+		size: 12345,
+	} ),
+	createReadStream: jest.fn().mockReturnValue( {
+		on: jest.fn().mockImplementation( ( event, callback ) => {
+			if ( event === 'end' ) {
+				callback();
+			}
+			return this;
+		} ),
+	} ),
+} ) );
 
 const slackClient = new WebClient();
 
@@ -56,6 +77,16 @@ describe( 'Blocks chunks', () => {
 } );
 
 describe( 'Post message', () => {
+	beforeEach( () => {
+		// Reset all mocks before each test
+		jest.clearAllMocks();
+		mockFetch.mockResolvedValue( {
+			ok: true,
+			status: 200,
+			json: () => Promise.resolve( {} ),
+		} );
+	} );
+
 	test.each`
 		isUpdate   | expectedMethod
 		${ false } | ${ 'postMessage' }
@@ -92,7 +123,7 @@ describe( 'Post message', () => {
 		);
 	} );
 
-	test( 'File is uploaded', async () => {
+	test( 'File is uploaded using new three-step process', async () => {
 		const { postOrUpdateMessage } = require( '../src/slack' );
 		const filePath = path.resolve(
 			'tests/resources/playwright/suite-1/results/spec-1/test-failed-1.png'
@@ -107,18 +138,55 @@ describe( 'Post message', () => {
 		const channel = '123abc';
 		const thread_ts = '12345';
 
+		// Mock the three-step upload process
+		slackClient.files.getUploadURLExternal.mockResolvedValue( {
+			ok: true,
+			upload_url: 'https://slack.com/api/upload',
+			file_id: 'F1234567890',
+		} );
+
+		mockFetch.mockResolvedValue( {
+			ok: true,
+			status: 200,
+			json: () => Promise.resolve( {} ),
+		} );
+
+		slackClient.files.completeUploadExternal.mockResolvedValue( {
+			ok: true,
+			file: {
+				id: 'F1234567890',
+			},
+		} );
+
 		await postOrUpdateMessage( slackClient, false, {
 			blocks,
 			channel,
 			thread_ts,
 		} );
 
-		await expect( slackClient.files.upload ).toHaveBeenCalledWith(
+		// Verify getUploadURLExternal was called with correct parameters
+		expect( slackClient.files.getUploadURLExternal ).toHaveBeenCalledWith( {
+			filename: 'test-failed-1.png',
+			length: 12345,
+		} );
+
+		// Verify the file upload request was made
+		expect( mockFetch ).toHaveBeenCalledWith(
+			'https://slack.com/api/upload',
 			expect.objectContaining( {
-				file: expect.objectContaining( { path: filePath } ),
-				channels: channel,
-				thread_ts,
+				method: 'POST',
+				body: expect.any( Buffer ),
+				headers: {
+					'Content-Type': 'application/octet-stream',
+				},
 			} )
 		);
+
+		// Verify completeUploadExternal was called with correct parameters
+		expect( slackClient.files.completeUploadExternal ).toHaveBeenCalledWith( {
+			files: [ { id: 'F1234567890' } ],
+			channel_id: channel,
+			thread_ts,
+		} );
 	} );
 } );

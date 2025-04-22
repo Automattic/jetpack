@@ -1,4 +1,5 @@
 const fs = require( 'fs' );
+const path = require( 'path' );
 const { debug, error } = require( './debug' );
 
 /**
@@ -29,11 +30,7 @@ async function postOrUpdateMessage( client, update, options ) {
 			}
 
 			try {
-				response = await client.files.upload( {
-					file: fs.createReadStream( chunk[ 0 ].path ),
-					channels: channel,
-					thread_ts: thread_ts,
-				} );
+				response = await uploadFileToSlack( client, chunk[ 0 ].path, channel, thread_ts );
 			} catch ( err ) {
 				error( err );
 			}
@@ -154,6 +151,70 @@ async function getMessage( client, channelId, identifier ) {
 	message ? debug( 'Message found' ) : debug( 'Message not found' );
 
 	return message;
+}
+
+/**
+ * Uploads a file to Slack using their three-step upload process.
+ * https://api.slack.com/messaging/files#uploading_files
+ *
+ * @param {object} client     - Slack client instance
+ * @param {string} filePath   - Path to the file to upload
+ * @param {string} channel_id - Channel ID where the file will be shared
+ * @param {string} thread_ts  - Thread timestamp for threading the file upload
+ * @return {Promise<object>} The response from the Slack API
+ */
+async function uploadFileToSlack( client, filePath, channel_id, thread_ts ) {
+	try {
+		// Get file stats for size and name
+		const stats = fs.statSync( filePath );
+		const filename = path.basename( filePath );
+
+		// Step 1: Get upload URL
+		const { ok, upload_url, file_id } = await client.files.getUploadURLExternal( {
+			filename,
+			length: stats.size,
+		} );
+		if ( ! ok ) {
+			throw new Error( 'Failed to get upload URL' );
+		}
+
+		// Step 2: Upload file to the URL
+		const fileStream = fs.createReadStream( filePath );
+		const fileBuffer = await new Promise( ( resolve, reject ) => {
+			const chunks = [];
+			fileStream.on( 'data', chunk => chunks.push( chunk ) );
+			fileStream.on( 'end', () => resolve( Buffer.concat( chunks ) ) );
+			fileStream.on( 'error', reject );
+		} );
+
+		const uploadResponse = await fetch( upload_url, {
+			method: 'POST',
+			body: fileBuffer,
+			headers: {
+				'Content-Type': 'application/octet-stream',
+			},
+		} );
+
+		if ( ! uploadResponse.ok ) {
+			throw new Error( 'Failed to upload file to URL' );
+		}
+
+		// Step 3: Complete the upload
+		const completeResponse = await client.files.completeUploadExternal( {
+			files: [ { id: file_id } ],
+			channel_id,
+			thread_ts,
+		} );
+
+		if ( ! completeResponse.ok ) {
+			throw new Error( 'Failed to complete file upload' );
+		}
+
+		return completeResponse;
+	} catch ( err ) {
+		error( err );
+		throw err;
+	}
 }
 
 module.exports = {
