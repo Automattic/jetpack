@@ -359,7 +359,7 @@ store( NAMESPACE, {
 			event.preventDefault();
 
 			const { ref } = getElement();
-			const field = ref.parentElement.parentElement.parentElement; // Needed to select the top most field.
+			const field = ref.closest( '.jetpack-form-file-field__container' ); // Needed to select the top most field.
 			clearInputError( field, { hasInsetLabel: isInlineForm( ref ) } );
 
 			const context = getContext();
