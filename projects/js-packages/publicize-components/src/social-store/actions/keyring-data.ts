@@ -194,7 +194,7 @@ export function pollForKeyringResult( {
 				break;
 			}
 
-			if ( abortController.signal.aborted ) {
+			if ( signal.aborted ) {
 				break;
 			}
 
