@@ -123,9 +123,6 @@ const addFileToContext = file => {
 
 	const clientFileId = performance.now() + '-' + Math.random();
 
-	// Update the context.
-	context.hasFiles = true;
-
 	context.files.push( {
 		name: file.name,
 		formattedSize: formatBytes( file.size, 2 ),
@@ -388,7 +385,6 @@ store( NAMESPACE, {
 				}
 			}
 			context.files = context.files.filter( fileObject => fileObject.id !== clientFileId );
-			context.hasFiles = context.files.length > 0;
 		},
 	},
 
