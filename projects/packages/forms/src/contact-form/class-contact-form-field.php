@@ -1485,8 +1485,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
+		$trimmed_type      = trim( esc_attr( $type ) );
 		$field_placeholder = ( '' !== $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
-		$field_class       = "class='" . trim( esc_attr( $type ) . ' ' . esc_attr( $class ) ) . "' ";
+		$field_class       = "class='" . $trimmed_type . ' ' . esc_attr( $class ) . "' ";
 		$wrap_classes      = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap'; // this adds
 		$has_inset_label   = $this->has_inset_label();
 
@@ -1494,7 +1495,21 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$wrap_classes .= ' no-label';
 		}
 
-		$shell_field_class = "class='grunion-field-" . trim( esc_attr( $type ) . '-wrap ' . esc_attr( $wrap_classes ) ) . "' ";
+		$shell_field_class = "class='grunion-field-" . $trimmed_type . '-wrap ' . esc_attr( $wrap_classes );
+
+		// @TODO - this is a hack to get the correct class for the checkbox-multiple and radio fields
+		// @TODO - is there a better way to do this?
+		// @TODO - add tests.
+		if ( $trimmed_type === 'checkbox-multiple' ) {
+			$shell_field_class .= ' wp-block-jetpack-field-checkbox-multiple';
+		}
+
+		if ( $trimmed_type === 'radio' ) {
+			$shell_field_class .= ' wp-block-jetpack-field-radio';
+		}
+
+		// End the classname string.
+		$shell_field_class .= "' ";
 
 		/**
 		 * Filter the Contact Form required field text
