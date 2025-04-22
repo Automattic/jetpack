@@ -58,7 +58,6 @@ function zeroBSCRM_forms_shortcode($atts){
 
 	// force enquement
 	zeroBSCRM_forms_enqueuements();
-	zeroBSCRM_exposePID();
 
 	// return the form html
 	return zeroBSCRM_forms_build_form_html($atts['id'],$atts['style'],__('CRM Forms: You have not entered a style in your form shortcode','zero-bs-crm'));
@@ -401,9 +400,6 @@ function jpcrm_content_form_html( $formid = -1, $formObject = array() ) {
 
 	return $content;
 }
-
-// legacy - used elsewhere (extensions?) otherwise safe to remove
-function zeroBSCRM_exposePID() {}
 
 /* ======================================================
    / Front end Form Funcs

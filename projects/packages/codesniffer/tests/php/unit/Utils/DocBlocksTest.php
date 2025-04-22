@@ -460,6 +460,28 @@ class DocBlocksTest extends TestCase {
 			new RuntimeException( '$stackPtr must be of type T_DOC_COMMENT_OPEN_TAG' ),
 			array(),
 		);
+
+		yield 'Edge case: Per spec, anything after a tag is part of the tag' => array(
+			<<<'EOF'
+				<?php
+				/**
+				 * @foo content
+				 *
+				 * phpcs:ignore A.B.C.D -- Technically part of the previous tag.
+				 */
+				EOF,
+			T_DOC_COMMENT_OPEN_TAG,
+			array(
+				array(
+					'name'     => '@foo',
+					'content'  => "content\n\nphpcs:ignore A.B.C.D -- Technically part of the previous tag.",
+					'ptr'      => 6,
+					'startptr' => 3,
+					'endptr'   => 17,
+				),
+			),
+			array( " * @foo content\n *\n * phpcs:ignore A.B.C.D -- Technically part of the previous tag.\n" ),
+		);
 	}
 
 	/**

@@ -11,6 +11,7 @@ const IntegrationCard = ( {
 	onToggle,
 	children,
 	cardData = {},
+	toggleTooltip,
 } ) => {
 	return (
 		<Card className="integration-card">
@@ -21,6 +22,7 @@ const IntegrationCard = ( {
 				isExpanded={ isExpanded }
 				onToggle={ onToggle }
 				cardData={ cardData }
+				toggleTooltip={ toggleTooltip }
 			/>
 			<IntegrationCardBody isExpanded={ isExpanded } cardData={ cardData }>
 				{ children }

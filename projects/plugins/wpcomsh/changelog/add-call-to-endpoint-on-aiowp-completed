@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add hook to signal a migration has ended using AIOWP

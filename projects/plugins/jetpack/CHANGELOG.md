@@ -2,6 +2,87 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.6-a.7 - 2025-04-21
+### Enhancements
+- Forms: Add new integrations setup modal. [#43057]
+- Forms: Reduce default padding in form patterns. [#43124]
+- User: Allow user to delete themselves through the endpoint. [#43065]
+
+### Improved compatibility
+- Forms: Ensure styles are loaded when expected, preventing console warnings. [#42751]
+
+### Bug fixes
+- Add translation context to Search menu item. [#43094]
+- Block editor: Hide blocks from non-admins when feature is not active. [#40209]
+- Blogroll block: Prevent console warnings and block validation issues when adding new items to the blogroll. [#43042]
+- Dashboard: Avoid layout issues with "Apply" button on sites using a localized version of WordPress. [#42950]
+- Forms: Update form responses link on editor sidebar. [#43143]
+- Open Graph: Ensure scaled images are used when specific registered image files exist on a site. [#43026]
+- Related Posts: Ensure the block is properly displayed in the editor regardless of user role. [#42967]
+- Slideshow block: Ensure block preview doesn't generate an invalid API request. [#43083]
+- VideoPress: Avoid suggesting transforming unsupported Video blocks into VideoPress blocks. [#43161]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Button Block: Prevent TypeError when handling border attributes. [#42987]
+- E2E: Fix Jetpack editor smoke test. [#43103]
+- E2E: Fix tests following WP 6.8 release. [#43105]
+- Jetpack SEO Enhancer: Ensure more performant practices when getting enabled features. [#43109]
+- Newsletters: Fix editor crash for contributors when using categories for newsletters. [#43137]
+- Resolve PHP warnings when the thumbnail is really close to 1200px (e.g. 1201px). [#43095]
+- SAL: Cast `gmt_offset` to float when retrieving offset from option to prevent type errors. [#43123]
+- Social: Remove the unused endpoint for connections post field. [#43061]
+- Theme compat: Remove duplicated code that is now served by the Classic Theme Helper package. [#43062]
+- Update package dependencies. [#43071]
+- Widgets: Deprecate the Flickr widget, as Flickr no longer supports fetching recent images from an RSS feed. [#43138]
+- Widgets: Fix warning in Upcoming Events wiget when `$event['SUMMARY']` does not exist. [#43111]
+- Write Brief: Remove partial Harper integration. [#43089]
+
+## 14.6-a.5 - 2025-04-15
+### Bug fixes
+- Stats: Fix PHP TypeError. [#43072]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Story block will use a placeholder if used outside the loop. [#41135]
+
+## 14.6-a.3 - 2025-04-14
+### Enhancements
+- Add My Jetpack tour. [#42880]
+- Admin Menu: Update the icon of WooCommerce for the Woo installation. [#43029]
+- Button block: Add support for border width, style, and color. [#41147]
+- Forms: Close block panels by default. [#42953]
+- Sharing buttons: Update legacy Twitter logos to use the X logo. [#42813]
+
+### Improved compatibility
+- Add Share status support for WordPress.com sites. [#42593]
+
+### Bug fixes
+- Forms: Ensure `render_field` returns string. [#43011]
+- Social: Do not load in the Classic editor if module is off. [#43006]
+- Subscriptions: Only display the dashboard widget to site admins when the Subscriptions feature is active. [#42951] [#42964]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add more error logging. [#42959]
+- Block Editor: Use allow list in assets endpoint to control the allowed blocks types and assets enqueued. [#42835]
+- Blog Stats block: Support WordPress.com simple sites. [#43000]
+- Color Scheme: Clean up `*-rgb` CSS variables. [#42960]
+- Fix accessibility of sharing buttons. [#42824]
+- Infinite Scroll: Catch an obscure PHP error when AMP is enabled. [#43022]
+- Jetpack SEO: Remove all SEO Assistant Wizard code and feature filters. [#42991]
+- Jetpack SEO Enhancer: Cancel meta and alt-text edits if auto-generation requests come back and the post status is publish(ed). [#42955]
+- Jetpack SEO Enhancer: Ensure more performant practices when getting enabled features. [#43031]
+- Jetpack SEO Enhancer: Move feature to production. [#42947]
+- Likes: Remove unused liked/like CSS class. [#42936]
+- Likes: Unify `likes-master` rendering between WordPress.com and Jetpack. [#42912]
+- Linting: Clean up various Stylelint violations. [#43010]
+- Linting: Format SCSS imports consistently. [#43018]
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+- Remove the Jetpack submenu item. [#43012]
+- Social: Remove the unused share status endpoint. [#42963]
+- Subscriptions: Set the featured image in email option to true on module activation. [#42844]
+- Subscriptions block: Improve check for email-specific context to render the email version when actually in an email. [#42989]
+- Write Brief: Fix Harper integration for complex blocks. [#42975]
+
 ## 14.6-a.1 - 2025-04-07
 ### Enhancements
 - Replace video embed with VideoPress block in Media & Text block. [#42522]
@@ -20,7 +101,6 @@
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Block editor: Add REST API endpoint for retrieving editor scripts and stylesheets. [#42314]
-- Code: First pass of style coding standards. [#42734]
 - Dashboard: Update WordPress logo color. [#42811]
 - Fix type checking in the monorepo. [#42817]
 - Forms: Change path and return for form integrations endpoint. [#42826]
@@ -30,6 +110,7 @@
 - Jetpack SEO Enhancer: List only remaining tasks in the to-do list for the auto-generation feature. [#42805]
 - Jetpack SEO Enhancer: Trigger the auto-generation process when enabling the toggle on PrePublish sidebar. [#42797]
 - Jetpack SEO Enhancer: Remove post publish panel loading status and fix summaries and styles. [#42899]
+- Linting: First pass of style coding standards. [#42734]
 - Newsletters: Fix selector name typo. [#42841]
 - Reset to-test.md for Jetpack 14.6. [#42871]
 - Subscribe block: Match the frontend wrapping behavior when editing. [#42869]

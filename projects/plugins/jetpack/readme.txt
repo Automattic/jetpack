@@ -326,21 +326,25 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.6-a.1 - 2025-04-07
+### 14.6-a.7 - 2025-04-21
 #### Enhancements
-- Replace video embed with VideoPress block in Media & Text block.
-- Forms: Add custom hooks for integrations.
-- Forms: Add endpoint for all integrations.
-- Forms: Update default forms view to dataviews.
-- Newsletter Widget: Improve the display of links in the Newsletter widget.
+- Forms: Add new integrations setup modal.
+- Forms: Reduce default padding in form patterns.
+- User: Allow user to delete themselves through the endpoint.
 
 #### Improved compatibility
-- Blocks: Ensure all child blocks use the latest version of the Blocks API.
+- Forms: Ensure styles are loaded when expected, preventing console warnings.
 
 #### Bug fixes
-- Reset access level of the post to everyone when a paywall is removed.
-- Slideshow: Prevent images from appearing stuck to the mouse in block-based themes.
-- Star Rating: Fix padding and improve panel copy.
+- Add translation context to Search menu item.
+- Block editor: Hide blocks from non-admins when feature is not active.
+- Blogroll block: Prevent console warnings and block validation issues when adding new items to the blogroll.
+- Dashboard: Avoid layout issues with "Apply" button on sites using a localized version of WordPress.
+- Forms: Update form responses link on editor sidebar.
+- Open Graph: Ensure scaled images are used when specific registered image files exist on a site.
+- Related Posts: Ensure the block is properly displayed in the editor regardless of user role.
+- Slideshow block: Ensure block preview doesn't generate an invalid API request.
+- VideoPress: Avoid suggesting transforming unsupported Video blocks into VideoPress blocks.
 
 --------
 

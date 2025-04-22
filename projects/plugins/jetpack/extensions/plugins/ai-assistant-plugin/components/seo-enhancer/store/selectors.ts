@@ -1,4 +1,4 @@
-import { createSelector } from '@wordpress/data';
+import { createSelector as wpCreateSelector } from '@wordpress/data';
 /**
  * Types
  */
@@ -36,11 +36,20 @@ export function hasImageFailed( state: SeoEnhancerState, clientId: string ) {
 	return state.failedImages[ clientId ] ?? false;
 }
 
-export const getEnabledFeatures = createSelector(
-	( state: SeoEnhancerState ): PromptType[] =>
-		Object.keys( state.features ).filter( feature => state.features[ feature ] ) as PromptType[],
-	( state: SeoEnhancerState ) => [ state.features ]
-);
+const baseGetEnabledFeatures = ( state: SeoEnhancerState ): PromptType[] => {
+	return Object.keys( state.features ).filter(
+		feature => state.features[ feature ]
+	) as PromptType[];
+};
+
+// Check if createSelector is available
+const createSelector = typeof wpCreateSelector === 'function' ? wpCreateSelector : null;
+
+// @todo: Refactor this to only use createSelector once P2 is using a version of Gutenberg that is 18.2 or higher.
+export const getEnabledFeatures = createSelector
+	? createSelector( baseGetEnabledFeatures, ( state: SeoEnhancerState ) => [ state.features ] )
+	: baseGetEnabledFeatures;
+
 export function isImageAltTextFeatureEnabled( state: SeoEnhancerState ) {
 	return getEnabledFeatures( state ).includes( 'images-alt-text' );
 }

@@ -34,6 +34,13 @@ class Connections_Post_Field {
 	public $memoized_updates = array();
 
 	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		add_action( 'rest_api_init', array( $this, 'register_fields' ) );
+	}
+
+	/**
 	 * Registers the jetpack_publicize_connections field. Called
 	 * automatically on `rest_api_init()`.
 	 */

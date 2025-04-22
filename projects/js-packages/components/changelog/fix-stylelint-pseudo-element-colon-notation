@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Linting: Use double colon notation for pseudo-element selectors.

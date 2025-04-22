@@ -52,7 +52,7 @@ class CSS_Proxy {
 		}
 
 		$cache_key = 'jb_css_proxy_' . md5( $proxy_url );
-		$response  = wp_cache_get( $cache_key );
+		$response  = get_transient( $cache_key );
 
 		if ( is_array( $response ) && isset( $response['error'] ) ) {
 			wp_die( esc_html( $response['error'] ), 400 );
@@ -63,11 +63,11 @@ class CSS_Proxy {
 			$response     = wp_safe_remote_get( $proxy_url );
 			$content_type = wp_remote_retrieve_header( $response, 'content-type' );
 			if ( strpos( $content_type, 'text/css' ) === false ) {
-				wp_cache_set( $cache_key, array( 'error' => 'Invalid content type. Expected CSS.' ), '', HOUR_IN_SECONDS );
+				set_transient( $cache_key, array( 'error' => 'Invalid content type. Expected CSS.' ), HOUR_IN_SECONDS );
 				wp_die( 'Invalid content type. Expected CSS.', 400 );
 			}
 			$css = wp_remote_retrieve_body( $response );
-			wp_cache_set( $cache_key, $css, '', HOUR_IN_SECONDS );
+			set_transient( $cache_key, $css, HOUR_IN_SECONDS );
 		}
 
 		if ( is_wp_error( $response ) ) {

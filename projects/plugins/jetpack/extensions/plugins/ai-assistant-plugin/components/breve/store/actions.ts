@@ -8,7 +8,7 @@ import { getRequestMessages } from '../utils/get-request-messages';
 /**
  * Types
  */
-import type { Anchor, GrammarLint } from '../types';
+import type { Anchor } from '../types';
 
 // ACTIONS
 
@@ -172,30 +172,5 @@ export function setSuggestions( {
 					loading: false,
 				} );
 			} );
-	};
-}
-
-export function setLints( {
-	text,
-	lints,
-	feature,
-	blockId,
-	richTextIdentifier,
-}: {
-	text: string;
-	lints: Array< GrammarLint >;
-	feature: string;
-	blockId: string;
-	richTextIdentifier?: string;
-} ) {
-	return ( { dispatch } ) => {
-		dispatch( {
-			type: 'SET_LINTS',
-			text,
-			feature,
-			lints,
-			blockId,
-			richTextIdentifier,
-		} );
 	};
 }

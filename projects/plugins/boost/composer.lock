@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cd2cf434c3f480764e0d076a5e67d174",
+    "content-hash": "0af68a4402d52a828d6b67e167f731d0",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -521,7 +521,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "2d0a9a01df4f9c6a035cd9de5a2c703a7d1dbba0"
+                "reference": "8b6fb10f12a15323a4af26c97ed28e3cd98327bd"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -557,7 +557,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.10.x-dev"
+                    "dev-trunk": "6.11.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1100,7 +1100,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "7d8a566ea2dc13d82127bf52c58b17be69ff47fe"
+                "reference": "8bc8bd1b22cc42ac9915f23da56d8b6605465b0b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1139,7 +1139,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.11.x-dev"
+                    "dev-trunk": "5.12.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1821,7 +1821,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "1a63ce41fd2291e76d11eecb231787c011db1a1d"
+                "reference": "d69fff7e02a1bfe9045907867d7d59e4c1814de6"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1855,7 +1855,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.10.x-dev"
+                    "dev-trunk": "4.11.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2201,6 +2201,59 @@
                 "dev",
                 "keepachangelog"
             ],
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-test-environment",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/test-environment",
+                "reference": "acf2c63d65d9aab5bfff95da40ee011acc66fa04"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^3.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-test-environment",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-test-environment.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Shared WordPress test environment for Jetpack monorepo projects",
             "transport-options": {
                 "relative": true
             }
@@ -3032,16 +3085,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.5.15",
+            "version": "11.5.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "4b6a4ee654e5e0c5e1f17e2f83c0f4c91dee1f9c"
+                "reference": "fd2e863a2995cdfd864fb514b5e0b28b09895b5c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/4b6a4ee654e5e0c5e1f17e2f83c0f4c91dee1f9c",
-                "reference": "4b6a4ee654e5e0c5e1f17e2f83c0f4c91dee1f9c",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/fd2e863a2995cdfd864fb514b5e0b28b09895b5c",
+                "reference": "fd2e863a2995cdfd864fb514b5e0b28b09895b5c",
                 "shasum": ""
             },
             "require": {
@@ -3113,7 +3166,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.15"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.17"
             },
             "funding": [
                 {
@@ -3129,7 +3182,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-03-23T16:02:11+00:00"
+            "time": "2025-04-08T07:59:11+00:00"
         },
         {
             "name": "psr/container",
@@ -5004,6 +5057,7 @@
         "automattic/jetpack-schema": 20,
         "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
+        "automattic/jetpack-test-environment": 20,
         "automattic/jetpack-wp-js-data-sync": 20,
         "automattic/phpunit-select-config": 20
     },

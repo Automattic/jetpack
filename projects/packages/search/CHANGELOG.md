@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.22] - 2025-04-14
+### Fixed
+- Fix errors caused by malformed order arguments. [#42897]
+- Linting: Format SCSS imports consistently. [#43018]
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
 ## [0.47.21] - 2025-04-07
 ### Changed
 - Code: First pass of style coding standards. [#42734]
@@ -1186,6 +1193,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.47.22]: https://github.com/Automattic/jetpack-search/compare/v0.47.21...v0.47.22
 [0.47.21]: https://github.com/Automattic/jetpack-search/compare/v0.47.20...v0.47.21
 [0.47.20]: https://github.com/Automattic/jetpack-search/compare/v0.47.19...v0.47.20
 [0.47.19]: https://github.com/Automattic/jetpack-search/compare/v0.47.18...v0.47.19

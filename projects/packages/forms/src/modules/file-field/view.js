@@ -2,8 +2,67 @@
  * WordPress dependencies
  */
 import { store, getContext, withScope, getElement, getConfig } from '@wordpress/interactivity';
+import { clearInputError } from '../../contact-form/js/form-errors.js';
 
 const NAMESPACE = 'jetpack/field-file';
+
+let uploadToken = null;
+let tokenExpiry = null;
+
+/**
+ * Retuns the upload token. Sometimes it has to fetch a new one if it expired. Or we haven't needed one just yet.
+ *
+ * @return {string} The upload token.
+ */
+const getUploadToken = async () => {
+	// Check if the token exists and is not expired
+	if ( uploadToken && tokenExpiry && Date.now() < tokenExpiry ) {
+		return uploadToken;
+	}
+
+	const { token, expiresAt } = await fetchUploadToken();
+	uploadToken = token;
+	tokenExpiry = expiresAt * 1000; // Convert expiry timestamp to milliseconds
+	return uploadToken;
+};
+/**
+ * Fetches the upload token from the server.
+ *
+ * @return {{ token: string, expiresAt: number }} The upload token and its expiration time.
+ */
+const fetchUploadToken = async () => {
+	const { endpoint } = getConfig( NAMESPACE );
+
+	const tokenError = {
+		token: null, // Assuming the token is in the `token` field
+		expiresAt: 0,
+	};
+	try {
+		const response = await fetch( `${ endpoint }/token`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify( { context: 'file-upload' } ),
+		} );
+
+		if ( ! response.ok ) {
+			return tokenError;
+		}
+
+		const data = await response.json();
+		return {
+			token: data.token, // Assuming the token is in the `token` field
+			expiresAt: data.expiration,
+		};
+	} catch ( error ) {
+		if ( error ) {
+			return tokenError;
+		}
+	}
+	return tokenError;
+};
+
 /**
  * Format the file size to a human-readable string.
  *
@@ -36,6 +95,9 @@ const addFileToContext = file => {
 	const reader = new FileReader();
 	reader.readAsDataURL( file );
 
+	const { ref } = getElement();
+	clearInputError( ref, { hasInsetLabel: isInlineForm( ref ) } );
+
 	const config = getConfig( NAMESPACE );
 	const context = getContext();
 
@@ -51,85 +113,137 @@ const addFileToContext = file => {
 		error = config.i18n.invalidType;
 	}
 
+	// Get all files that don't have an error properly
+	const validFiles = context.files.filter( fileInfo => ! fileInfo.error );
+
 	// Check if the user is trying to add more files then allowed.
-	if ( context.maxFiles < context.files.length + 1 ) {
+	if ( context.maxFiles < validFiles.length + 1 ) {
 		error = config.i18n.maxFiles;
 	}
 
-	const fileId = performance.now() + '-' + Math.random();
+	const clientFileId = performance.now() + '-' + Math.random();
 
 	// Update the context.
 	context.hasFiles = true;
+
 	context.files.push( {
 		name: file.name,
 		formattedSize: formatBytes( file.size, 2 ),
-		hasToken: false,
+		isUploaded: false,
 		hasError: !! error,
-		id: fileId,
+		id: clientFileId,
 		error,
 	} );
 
+	const uploadFileWithScope = withScope( uploadFile.bind( this, file, clientFileId ) );
+
 	// Start the upload if we don't have any errors.
-	! error && uploadFile( file, fileId );
+	! error && uploadFileWithScope();
 
 	// Load the file so we can display it. In case it is an image.
 	reader.onload = withScope( () => {
-		updateFileContext( { url: 'url(' + reader.result + ')' }, fileId );
+		updateFileContext( { url: 'url(' + reader.result + ')' }, clientFileId );
 	} );
 };
 
+// Map to store AbortControllers for each file upload
+const uploadControllers = new Map();
+
 /**
  * Make the endpoint request.
+ * This function is a generator so that we can use the withScope function.
+ * And the context gets passed to the onProgress and onReadyStateChange functions.
  *
- * @param {File}   file   - The file to upload.
- * @param {string} fileId - The file ID.
+ * @param {File}   file         - The file to upload.
+ * @param {string} clientFileId - The client file ID.
+ * @yield {Promise<string>} The upload token.
  */
-const uploadFile = ( file, fileId ) => {
-	const { endpoint, uploadToken } = getConfig( NAMESPACE );
+function* uploadFile( file, clientFileId ) {
+	const { endpoint, i18n } = getConfig( NAMESPACE );
+
+	const token = yield getUploadToken();
+
+	if ( ! token ) {
+		updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
+		return;
+	}
+
 	const xhr = new XMLHttpRequest();
 	const formData = new FormData();
 
+	// Create an AbortController for this upload
+	const abortController = new AbortController();
+	uploadControllers.set( clientFileId, abortController );
+
 	xhr.open( 'POST', endpoint, true );
-	xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, fileId ) ) );
-	xhr.addEventListener( 'readystatechange', withScope( onReadyStateChange.bind( this, fileId ) ) );
+	xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, clientFileId ) ) );
+	xhr.addEventListener(
+		'readystatechange',
+		withScope( onReadyStateChange.bind( this, clientFileId ) )
+	);
+
+	// Handle abort signal
+	abortController.signal.addEventListener( 'abort', () => {
+		xhr.abort();
+		updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
+	} );
 
 	formData.append( 'file', file );
-	formData.append( 'upload_token', uploadToken );
+	formData.append( 'token', token );
 	xhr.send( formData );
-};
+}
 
 /**
  * Responsible for updating the progress circle.
  * Gets called on the progress upload.
  *
- * @param {string}        fileId - The file ID.
- * @param {ProgressEvent} event  - The progress event object.
+ * @param {string}        clientFileId - The client file ID.
+ * @param {ProgressEvent} event        - The progress event object.
  */
-const onProgress = ( fileId, event ) => {
+const onProgress = ( clientFileId, event ) => {
 	const progress = ( event.loaded / event.total ) * 100;
 	// We don't want to show 100% progress, as it's misleading.
-	updateFileContext( { progress: Math.min( progress, 97 ) }, fileId );
+	updateFileContext( { progress: Math.min( progress, 97 ) }, clientFileId );
 };
 
 /**
  * React to the onReadyStateChange event when the endpoint returns.
  *
- * @param {string} fileId - The file ID.
- * @param {Event}  event  - The event object.
+ * @param {string} clientFileId - The file ID.
+ * @param {Event}  event        - The event object.
  */
-const onReadyStateChange = ( fileId, event ) => {
+const onReadyStateChange = ( clientFileId, event ) => {
 	const xhr = event.target;
 	if ( xhr.readyState === 4 ) {
 		if ( xhr.status === 200 ) {
 			const response = JSON.parse( xhr.responseText );
 			if ( response.success ) {
-				updateFileContext( { token: response.data.token, hasToken: true }, fileId );
+				updateFileContext(
+					{
+						file_id: response.data.file_id,
+						isUploaded: true,
+						name: response.data.name,
+						type: response.data.type,
+						size: response.data.size,
+						fileJson: JSON.stringify( {
+							file_id: response.data.file_id,
+							name: response.data.name,
+							size: response.data.size,
+							type: response.data.type,
+						} ),
+					},
+					clientFileId
+				);
 				return;
 			}
+		} else {
+			const config = getConfig( NAMESPACE );
+			updateFileContext( { error: config.i18n.uploadFailed, hasError: true }, clientFileId );
+			return;
 		}
 		if ( xhr.responseText ) {
 			const response = JSON.parse( xhr.responseText );
-			updateFileContext( { error: response.message, hasError: true }, fileId );
+			updateFileContext( { error: response.message, hasError: true }, clientFileId );
 		}
 	}
 };
@@ -137,30 +251,28 @@ const onReadyStateChange = ( fileId, event ) => {
 /**
  * Update the context with the new updatedFile object based on the file ID.
  *
- * @param {object} updatedFile - The updated file object.
- * @param {string} fileId      - The file ID.
+ * @param {object} updatedFile  - The updated file object.
+ * @param {string} clientFileId - The client file ID.
  */
-const updateFileContext = ( updatedFile, fileId ) => {
+const updateFileContext = ( updatedFile, clientFileId ) => {
 	const context = getContext();
-	const index = context.files.findIndex( file => file.id === fileId );
+	const index = context.files.findIndex( file => file.id === clientFileId );
 	context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
 };
 
 /**
- * Remove file from the temporary folder.
+ * Check if the file field is in an inline form.
  *
- * @param {string} fileId - The file ID to remove.
+ * @param {HTMLElement} ref - The reference element.
+ *
+ * @return {boolean} True if the file field is in an inline form, false otherwise.
  */
-const removeFile = fileId => {
-	const { endpoint, uploadToken } = getConfig( NAMESPACE );
-	const formData = new FormData();
-	formData.append( 'file_id', fileId );
-	formData.append( 'upload_token', uploadToken );
-
-	fetch( `${ endpoint }/remove`, {
-		method: 'POST',
-		body: formData,
-	} ).then( response => response.json() );
+const isInlineForm = ref => {
+	const form = ref.closest( '.wp-block-jetpack-contact-form' );
+	return (
+		( form && form.classList.contains( 'is-style-outlined' ) ) ||
+		form.classList.contains( 'is-style-animated' )
+	);
 };
 
 store( NAMESPACE, {
@@ -182,7 +294,9 @@ store( NAMESPACE, {
 		openFilePicker() {
 			const { ref } = getElement();
 			const fileInput = ref.parentNode.querySelector( '.jetpack-form-file-field' );
+
 			if ( fileInput ) {
+				fileInput.value = ''; // Reset the field so that we always get the onchange event.
 				fileInput.click();
 			}
 		},
@@ -192,7 +306,7 @@ store( NAMESPACE, {
 		 *
 		 * @param {Event} event - The event object.
 		 */
-		fileAdded: event => {
+		fileAdded( event ) {
 			const files = Array.from( event.target.files );
 			files.forEach( addFileToContext );
 		},
@@ -236,16 +350,45 @@ store( NAMESPACE, {
 		},
 
 		/**
-		 * Remove a file from the context.
+		 * Remove a file from the context and cancel its upload if in progress.
 		 *
 		 * @param {Event} event - The event object.
+		 * @yield {Promise<string>} The upload token.
 		 */
-		removeFile: event => {
+		removeFile: function* ( event ) {
 			event.preventDefault();
+
+			const { ref } = getElement();
+			const field = ref.parentElement.parentElement.parentElement; // Needed to select the top most field.
+			clearInputError( field, { hasInsetLabel: isInlineForm( ref ) } );
+
 			const context = getContext();
-			const fileId = event.target.dataset.id;
-			context.files = context.files.filter( fileObject => fileObject.id !== fileId );
-			removeFile( fileId );
+			const clientFileId = event.target.dataset.id;
+
+			// Cancel the upload if it's in progress
+			if ( uploadControllers.has( clientFileId ) ) {
+				const abortController = uploadControllers.get( clientFileId );
+				abortController.abort(); // Cancel the upload
+				uploadControllers.delete( clientFileId ); // Clean up the controller
+			}
+
+			const file = context.files.find( fileObject => fileObject.id === clientFileId );
+
+			if ( file && file.file_id ) {
+				const { endpoint } = getConfig( NAMESPACE );
+				const token = yield getUploadToken();
+				if ( token ) {
+					const formData = new FormData();
+					formData.append( 'token', token );
+					formData.append( 'file_id', file.file_id );
+					fetch( `${ endpoint }/remove`, {
+						method: 'POST',
+						body: formData,
+					} );
+				}
+			}
+			context.files = context.files.filter( fileObject => fileObject.id !== clientFileId );
+			context.hasFiles = context.files.length > 0;
 		},
 	},
 

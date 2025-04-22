@@ -158,6 +158,7 @@ class Data_Test_Data_Settings {
 					'wp_get_environment_type'           => 'wp_get_environment_type',
 					'wp_max_upload_size'                => 'wp_max_upload_size',
 					'wp_version'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+					'jetpack_sync_active_modules'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_sync_active_modules' ),
 					'test_input_2_callable'             => array( 'Automattic\\Jetpack\\Sync\\Test_Input_2', 'test_method_input_2' ),
 				),
 				'jetpack_sync_multisite_callable_whitelist' => \Automattic\Jetpack\Sync\Defaults::$default_multisite_callable_whitelist,
@@ -285,6 +286,7 @@ class Data_Test_Data_Settings {
 					'wp_get_environment_type'           => 'wp_get_environment_type',
 					'wp_max_upload_size'                => 'wp_max_upload_size',
 					'wp_version'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+					'jetpack_sync_active_modules'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_sync_active_modules' ),
 					'test_input_2_callable'             => array( 'Automattic\\Jetpack\\Sync\\Test_Input_2', 'test_method_input_2' ),
 				),
 				'jetpack_sync_multisite_callable_whitelist' => array(),
@@ -932,6 +934,7 @@ class Data_Test_Data_Settings {
 					'wp_get_environment_type'           => 'wp_get_environment_type',
 					'wp_max_upload_size'                => 'wp_max_upload_size',
 					'wp_version'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+					'jetpack_sync_active_modules'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_sync_active_modules' ),
 				),
 				'jetpack_sync_multisite_callable_whitelist' => array(
 					'test_input_10_multisite_callable' => array(
