@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Some form groups need block classes on their wrapper styles for global styles to apply
