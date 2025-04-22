@@ -1,3 +1,4 @@
+import { getSiteData } from '@automattic/jetpack-script-data';
 import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -90,8 +91,8 @@ const getCopyForCategorySubscribers = ( {
 	return sprintf(
 		// translators: %1s is the list of categories, %2d is subscriptions count
 		_n(
-			'This post was sent to everyone subscribed to %1$s (%2$s subscriber).',
-			'This post was sent to everyone subscribed to %1$s (%2$s subscribers).',
+			'This post was sent to everyone subscribed to %1$s (<link>%2$s subscriber</link>).',
+			'This post was sent to everyone subscribed to %1$s (<link>%2$s subscribers</link>).',
 			reachCount ?? 0,
 			'jetpack'
 		),
@@ -141,8 +142,8 @@ export const getCopyForSubscribers = ( {
 		return sprintf(
 			/* translators: %s is the number of subscribers */
 			_n(
-				'This post was sent to <strong>%s paid subscriber</strong>.',
-				'This post was sent to <strong>%s paid subscribers</strong>.',
+				'This post was sent to <link>%s paid subscriber</link>.',
+				'This post was sent to <link>%s paid subscribers</link>.',
 				reachCount,
 				'jetpack'
 			),
@@ -154,8 +155,8 @@ export const getCopyForSubscribers = ( {
 		return sprintf(
 			/* translators: %s is the number of subscribers */
 			_n(
-				'This post was sent to <strong>%s paid subscriber</strong> only.',
-				'This post was sent to <strong>%s paid subscribers</strong> only.',
+				'This post was sent to <link>%s paid subscriber</link> only.',
+				'This post was sent to <link>%s paid subscribers</link> only.',
 				reachCount,
 				'jetpack'
 			),
@@ -167,8 +168,8 @@ export const getCopyForSubscribers = ( {
 	return sprintf(
 		/* translators: %s is the number of subscribers */
 		_n(
-			'This post was sent to <strong>%s subscriber</strong>.',
-			'This post was sent to <strong>%s subscribers</strong>.',
+			'This post was sent to <link>%s subscriber</link>.',
+			'This post was sent to <link>%s subscribers</link>.',
 			reachCount,
 			'jetpack'
 		),
@@ -296,9 +297,17 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		<p>
 			{ createInterpolateElement( text, {
 				strong: <strong />,
+				link: <a href={ getJetpackEmailStatsLink() } />,
 			} ) }
 		</p>
 	);
+}
+
+function getJetpackEmailStatsLink() {
+	const { blog_id: siteId } = getSiteData()?.wpcom ?? {};
+	const postId = window.wp.data.select( 'core/editor' ).getCurrentPostId();
+
+	return `/wp-admin/admin.php?page=stats#!/stats/email/opens/day/${ postId }/${ siteId }`;
 }
 
 export default SubscribersAffirmation;
