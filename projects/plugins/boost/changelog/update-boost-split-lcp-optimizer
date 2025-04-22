@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: LCP: move the optimize code into it's own class
+
+
