@@ -13,8 +13,8 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const cardData = {
 		...data,
 		showHeaderToggle: true,
-		isHeaderToggleEnabled: false,
 		headerToggleValue: akismetActiveWithKey,
+		isHeaderToggleEnabled: false,
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_akismet_click',
