@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useState, useEffect, useCallback } from '@wordpress/element';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Custom hook to fetch and manage all integrations status.
@@ -16,7 +17,9 @@ export const useIntegrationsStatus = () => {
 	const fetchIntegrations = useCallback( async () => {
 		try {
 			const response = await apiFetch( {
-				path: '/wp/v2/feedback/integrations',
+				path: addQueryArgs( '/wp/v2/feedback/integrations', {
+					version: 2,
+				} ),
 			} );
 
 			setStatus( {
