@@ -9,7 +9,7 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
 export const useIntegrationsStatus = () => {
 	const [ status, setStatus ] = useState( {
 		isLoading: true,
-		integrations: {},
+		integrations: [],
 		error: null,
 	} );
 
@@ -27,7 +27,7 @@ export const useIntegrationsStatus = () => {
 		} catch ( error ) {
 			setStatus( {
 				isLoading: false,
-				integrations: {},
+				integrations: [],
 				error,
 			} );
 		}

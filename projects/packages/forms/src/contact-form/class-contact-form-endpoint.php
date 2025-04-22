@@ -593,7 +593,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		foreach ( array_keys( $this->get_supported_integrations() ) as $slug ) {
 			// For now, we only have plugin integrations.
 			// When needed, handle other integration types here.
-			$integrations[ $slug ] = $this->get_plugin_status( $slug );
+			$integrations[] = array_merge(
+				array( 'id' => $slug ),
+				$this->get_plugin_status( $slug )
+			);
 		}
 
 		return rest_ensure_response( $integrations );
