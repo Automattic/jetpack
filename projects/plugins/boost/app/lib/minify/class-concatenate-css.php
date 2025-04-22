@@ -187,6 +187,7 @@ class Concatenate_CSS extends WP_Styles {
 
 		foreach ( $stylesheets as $_idx => $stylesheets_group ) {
 			foreach ( $stylesheets_group as $media => $css ) {
+				$href = '';
 				if ( 'noconcat' === $media ) {
 					foreach ( $css as $handle ) {
 						if ( $this->do_item( $handle, $group ) ) {
