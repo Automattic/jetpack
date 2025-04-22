@@ -22,20 +22,21 @@ jest.mock( '@slack/web-api', () => {
 const mockFetch = jest.fn();
 global.fetch = mockFetch;
 
-// Mock fs.statSync
+// Mock fs.statSync and fs.createReadStream
+const mockStatSync = jest.fn().mockReturnValue( { size: 12345 } );
+const mockCreateReadStream = jest.fn().mockReturnValue( {
+	on: jest.fn().mockImplementation( ( event, callback ) => {
+		if ( event === 'end' ) {
+			callback();
+		}
+		return this;
+	} ),
+} );
+
 jest.mock( 'fs', () => ( {
 	...jest.requireActual( 'fs' ),
-	statSync: jest.fn().mockReturnValue( {
-		size: 12345,
-	} ),
-	createReadStream: jest.fn().mockReturnValue( {
-		on: jest.fn().mockImplementation( ( event, callback ) => {
-			if ( event === 'end' ) {
-				callback();
-			}
-			return this;
-		} ),
-	} ),
+	statSync: mockStatSync,
+	createReadStream: mockCreateReadStream,
 } ) );
 
 const slackClient = new WebClient();
@@ -122,12 +123,27 @@ describe( 'Post message', () => {
 			} )
 		);
 	} );
+} );
 
-	test( 'File is uploaded using new three-step process', async () => {
+describe( 'File Upload', () => {
+	const filePath = path.resolve(
+		'tests/resources/playwright/suite-1/results/spec-1/test-failed-1.png'
+	);
+	const channel = '123abc';
+	const thread_ts = '12345';
+
+	beforeEach( () => {
+		// Reset all mocks before each test
+		jest.clearAllMocks();
+		mockFetch.mockResolvedValue( {
+			ok: true,
+			status: 200,
+			json: () => Promise.resolve( {} ),
+		} );
+	} );
+
+	test( 'Successfully uploads a file using three-step process', async () => {
 		const { postOrUpdateMessage } = require( '../src/slack' );
-		const filePath = path.resolve(
-			'tests/resources/playwright/suite-1/results/spec-1/test-failed-1.png'
-		);
 		const blocks = [
 			{ type: 'context' },
 			{
@@ -135,20 +151,12 @@ describe( 'Post message', () => {
 				path: filePath,
 			},
 		];
-		const channel = '123abc';
-		const thread_ts = '12345';
 
 		// Mock the three-step upload process
 		slackClient.files.getUploadURLExternal.mockResolvedValue( {
 			ok: true,
 			upload_url: 'https://slack.com/api/upload',
 			file_id: 'F1234567890',
-		} );
-
-		mockFetch.mockResolvedValue( {
-			ok: true,
-			status: 200,
-			json: () => Promise.resolve( {} ),
 		} );
 
 		slackClient.files.completeUploadExternal.mockResolvedValue( {
@@ -188,5 +196,163 @@ describe( 'Post message', () => {
 			channel_id: channel,
 			thread_ts,
 		} );
+	} );
+
+	test( 'Handles file not found error', async () => {
+		const { postOrUpdateMessage } = require( '../src/slack' );
+		mockStatSync.mockImplementationOnce( () => {
+			throw new Error( 'ENOENT: no such file or directory' );
+		} );
+
+		const blocks = [
+			{ type: 'context' },
+			{
+				type: 'file',
+				path: filePath,
+			},
+		];
+
+		await expect(
+			postOrUpdateMessage( slackClient, false, {
+				blocks,
+				channel,
+				thread_ts,
+			} )
+		).rejects.toThrow( 'ENOENT: no such file or directory' );
+
+		// Verify no API calls were made
+		expect( slackClient.files.getUploadURLExternal ).not.toHaveBeenCalled();
+		expect( mockFetch ).not.toHaveBeenCalled();
+		expect( slackClient.files.completeUploadExternal ).not.toHaveBeenCalled();
+	} );
+
+	test( 'Handles failed upload URL request', async () => {
+		const { postOrUpdateMessage } = require( '../src/slack' );
+		slackClient.files.getUploadURLExternal.mockResolvedValue( {
+			ok: false,
+			error: 'invalid_request',
+		} );
+
+		const blocks = [
+			{ type: 'context' },
+			{
+				type: 'file',
+				path: filePath,
+			},
+		];
+
+		await expect(
+			postOrUpdateMessage( slackClient, false, {
+				blocks,
+				channel,
+				thread_ts,
+			} )
+		).rejects.toThrow( 'Failed to get upload URL' );
+
+		// Verify only getUploadURLExternal was called
+		expect( slackClient.files.getUploadURLExternal ).toHaveBeenCalled();
+		expect( mockFetch ).not.toHaveBeenCalled();
+		expect( slackClient.files.completeUploadExternal ).not.toHaveBeenCalled();
+	} );
+
+	test( 'Handles failed file upload', async () => {
+		const { postOrUpdateMessage } = require( '../src/slack' );
+		slackClient.files.getUploadURLExternal.mockResolvedValue( {
+			ok: true,
+			upload_url: 'https://slack.com/api/upload',
+			file_id: 'F1234567890',
+		} );
+
+		mockFetch.mockResolvedValue( {
+			ok: false,
+			status: 400,
+			statusText: 'Bad Request',
+		} );
+
+		const blocks = [
+			{ type: 'context' },
+			{
+				type: 'file',
+				path: filePath,
+			},
+		];
+
+		await expect(
+			postOrUpdateMessage( slackClient, false, {
+				blocks,
+				channel,
+				thread_ts,
+			} )
+		).rejects.toThrow( 'Failed to upload file to URL' );
+
+		// Verify completeUploadExternal was not called
+		expect( slackClient.files.completeUploadExternal ).not.toHaveBeenCalled();
+	} );
+
+	test( 'Handles failed upload completion', async () => {
+		const { postOrUpdateMessage } = require( '../src/slack' );
+		slackClient.files.getUploadURLExternal.mockResolvedValue( {
+			ok: true,
+			upload_url: 'https://slack.com/api/upload',
+			file_id: 'F1234567890',
+		} );
+
+		slackClient.files.completeUploadExternal.mockResolvedValue( {
+			ok: false,
+			error: 'invalid_file',
+		} );
+
+		const blocks = [
+			{ type: 'context' },
+			{
+				type: 'file',
+				path: filePath,
+			},
+		];
+
+		await expect(
+			postOrUpdateMessage( slackClient, false, {
+				blocks,
+				channel,
+				thread_ts,
+			} )
+		).rejects.toThrow( 'Failed to complete file upload' );
+	} );
+
+	test( 'Handles file read stream errors', async () => {
+		const { postOrUpdateMessage } = require( '../src/slack' );
+		mockCreateReadStream.mockReturnValueOnce( {
+			on: jest.fn().mockImplementation( ( event, callback ) => {
+				if ( event === 'error' ) {
+					callback( new Error( 'Failed to read file' ) );
+				}
+				return this;
+			} ),
+		} );
+
+		slackClient.files.getUploadURLExternal.mockResolvedValue( {
+			ok: true,
+			upload_url: 'https://slack.com/api/upload',
+			file_id: 'F1234567890',
+		} );
+
+		const blocks = [
+			{ type: 'context' },
+			{
+				type: 'file',
+				path: filePath,
+			},
+		];
+
+		await expect(
+			postOrUpdateMessage( slackClient, false, {
+				blocks,
+				channel,
+				thread_ts,
+			} )
+		).rejects.toThrow( 'Failed to read file' );
+
+		// Verify completeUploadExternal was not called
+		expect( slackClient.files.completeUploadExternal ).not.toHaveBeenCalled();
 	} );
 } );

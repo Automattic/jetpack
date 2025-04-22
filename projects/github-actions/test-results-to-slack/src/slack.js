@@ -25,14 +25,16 @@ async function postOrUpdateMessage( client, update, options ) {
 		// The expectation is that chunks with files will only have one element
 		if ( chunk[ 0 ].type === 'file' ) {
 			if ( ! fs.existsSync( chunk[ 0 ].path ) ) {
-				error( 'File not found: ' + chunk[ 0 ].path );
-				continue;
+				const err = new Error( 'File not found: ' + chunk[ 0 ].path );
+				error( err );
+				throw err;
 			}
 
 			try {
 				response = await uploadFileToSlack( client, chunk[ 0 ].path, channel, thread_ts );
 			} catch ( err ) {
 				error( err );
+				throw err;
 			}
 		} else {
 			try {
@@ -49,6 +51,7 @@ async function postOrUpdateMessage( client, update, options ) {
 				} );
 			} catch ( err ) {
 				error( err );
+				throw err;
 			}
 		}
 	}
