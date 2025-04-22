@@ -49,6 +49,10 @@ async function postOrUpdateMessage( client, update, options ) {
 					unfurl_links: false,
 					unfurl_media: false,
 				} );
+
+				if ( ! response.ok ) {
+					throw new Error( `Failed to ${ method } message` );
+				}
 			} catch ( err ) {
 				error( err );
 				throw err;
