@@ -10,9 +10,9 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 	const getIconForIntegration = key => {
 		switch ( key ) {
 			case 'akismet':
-				return <AkismetIcon width={ 32 } height={ 32 } />;
+				return <AkismetIcon width={ 30 } height={ 30 } />;
 			case 'zero-bs-crm':
-				return <JetpackIcon size={ 32 } color={ COLOR_JETPACK } />;
+				return <JetpackIcon size={ 30 } color={ COLOR_JETPACK } />;
 			default:
 				return null;
 		}
