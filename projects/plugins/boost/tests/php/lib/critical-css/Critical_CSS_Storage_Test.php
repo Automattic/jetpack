@@ -91,7 +91,7 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 	 * Test clearing CSS storage.
 	 */
 	public function test_clear_storage() {
-		$key = 'test-provider';
+		$key = 'provider-3';
 		$css = 'body { color: blue; }';
 
 		$this->instance->store_css( $key, $css );

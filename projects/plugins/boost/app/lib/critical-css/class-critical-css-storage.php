@@ -62,7 +62,7 @@ class Critical_CSS_Storage {
 	public function get_css( $provider_keys ) {
 		foreach ( $provider_keys as $key ) {
 			$data = $this->storage->get( $key, false );
-			if ( $data && isset( $data['css'] ) ) {
+			if ( $data && $data['css'] ) {
 				return array(
 					'key' => $key,
 					'css' => $data['css'],
