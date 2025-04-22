@@ -26,8 +26,8 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 		);
 	}
 
-	const enabledIntegrations = Object.entries( integrations ).filter( ( [ key, integration ] ) => {
-		switch ( key ) {
+	const enabledIntegrations = integrations.filter( integration => {
+		switch ( integration.id ) {
 			case 'akismet':
 				return integration.isConnected;
 			case 'zero-bs-crm':
@@ -43,9 +43,9 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 
 	return (
 		<div className="jetpack-forms-enabled-integrations">
-			{ enabledIntegrations.map( ( [ key ] ) => (
-				<span key={ key } className="jetpack-forms-integration-icon">
-					{ getIconForIntegration( key ) }
+			{ enabledIntegrations.map( integration => (
+				<span key={ integration.id } className="jetpack-forms-integration-icon">
+					{ getIconForIntegration( integration.id ) }
 					<span className="jetpack-forms-integration-icon__status-indicator" />
 				</span>
 			) ) }
