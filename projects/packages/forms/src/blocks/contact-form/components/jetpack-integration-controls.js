@@ -29,7 +29,7 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 	return (
 		<>
 			<PanelBody
-				title={ __( 'Manage integrations', 'jetpack-forms' ) }
+				title={ __( 'Integrations', 'jetpack-forms' ) }
 				className="jetpack-contact-form__integrations-panel"
 				initialOpen={ false }
 			>

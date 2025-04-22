@@ -18,14 +18,6 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 		}
 	};
 
-	if ( isLoading ) {
-		return (
-			<div className="jetpack-forms-enabled-integrations">
-				<Spinner />
-			</div>
-		);
-	}
-
 	const enabledIntegrations = integrations.filter( integration => {
 		switch ( integration.id ) {
 			case 'akismet':
@@ -36,6 +28,14 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 				return false;
 		}
 	} );
+
+	if ( isLoading ) {
+		return (
+			<div className="jetpack-forms-enabled-integrations">
+				<Spinner />
+			</div>
+		);
+	}
 
 	if ( ! enabledIntegrations?.length ) {
 		return null;
