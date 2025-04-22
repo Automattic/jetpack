@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Waf\Waf_Request;
+use PHPUnit\Framework\Attributes\TestWith;
 
 /**
  * Request test suite.
@@ -125,6 +126,10 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 	 * @param string $input     The un-normalized header name.
 	 * @param string $expected  The expected normalized header name.
 	 */
+	#[TestWith( array( 'CONTENTTYPE', 'contenttype' ) )]
+	#[TestWith( array( 'T E  S T', 't-e--s-t' ) )]
+	#[TestWith( array( 'T_E__S___T', 't-e--s---t' ) )]
+	#[TestWith( array( 'My_Header Name', 'my-header-name' ) )]
 	public function testNormalizeHeaderName( $input, $expected ) {
 		$request = new Waf_Request();
 		$this->assertSame( $expected, $request->normalize_header_name( $input ) );

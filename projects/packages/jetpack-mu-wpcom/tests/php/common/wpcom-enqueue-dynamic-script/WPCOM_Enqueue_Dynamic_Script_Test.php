@@ -5,11 +5,14 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 /**
  * Class for WPCOM_Enqueue_Dynamic_Script_Test.
  *
  * @covers WPCOM_Enqueue_Dynamic_Script
  */
+#[CoversClass( WPCOM_Enqueue_Dynamic_Script::class )]
 class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Original scripts.

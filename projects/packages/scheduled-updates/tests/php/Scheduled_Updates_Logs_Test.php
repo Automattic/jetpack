@@ -7,11 +7,14 @@
 
 namespace Automattic\Jetpack;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 /**
  * Test class for Scheduled_Updates_Logs.
  *
  * @covers \Automattic\Jetpack\Scheduled_Updates_Logs
  */
+#[CoversClass( Scheduled_Updates_Logs::class )]
 class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 	/**

@@ -3,12 +3,18 @@
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @covers ::jetpack_instagram_get_allowed_parameters
  * @covers ::jetpack_instagram_oembed_fetch_url
  * @covers ::jetpack_shortcode_instagram
  */
+#[CoversFunction( 'jetpack_instagram_get_allowed_parameters' )]
+#[CoversFunction( 'jetpack_instagram_oembed_fetch_url' )]
+#[CoversFunction( 'jetpack_shortcode_instagram' )]
 class Jetpack_Shortcodes_Instagram_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -201,6 +207,7 @@ BODY;
 	 * @param string $original Instagram URL provided by user.
 	 * @param string $expected Instagram URL embedded in the final post content.
 	 */
+	#[DataProvider( 'get_instagram_urls' )]
 	public function test_instagram_oembed_fetch_url( $original, $expected ) {
 		global $post;
 
@@ -256,6 +263,7 @@ BODY;
 	 * @see ::set_up()
 	 * @group external-http
 	 */
+	#[Group( 'external-http' )]
 	public function test_shortcode_instagram_via_oembed_http_request() {
 		$instagram_url = 'https://www.instagram.com/p/BnMO9vRleEx/';
 		$content       = '[instagram url="' . $instagram_url . '"]';
@@ -325,6 +333,7 @@ BODY;
 	 * @param string $shortcode_content The shortcode content, as entered in the editor.
 	 * @param string $expected The expected return value of the function.
 	 */
+	#[DataProvider( 'get_instagram_amp_data' )]
 	public function test_shortcodes_instagram_amp( $shortcode_content, $expected ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
@@ -344,6 +353,7 @@ BODY;
 	 *
 	 * @param string $shortcode_content The shortcode as entered in the editor.
 	 */
+	#[DataProvider( 'get_instagram_amp_data' )]
 	public function test_shortcodes_instagram_non_amp( $shortcode_content ) {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
 		$this->assertStringNotContainsString( 'amp-instagram', do_shortcode( $shortcode_content ) );
@@ -359,6 +369,7 @@ BODY;
 	 *
 	 * @since 9.1.0
 	 */
+	#[DataProvider( 'get_instagram_parameters' )]
 	public function test_shortcodes_instagram_allowed_parameters( $url, $atts, $expected ) {
 		$GLOBALS['content_width'] = self::CONTENT_WIDTH;
 

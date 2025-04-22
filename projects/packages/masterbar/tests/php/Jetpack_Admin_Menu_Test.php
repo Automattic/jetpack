@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Status;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -19,6 +20,7 @@ require_once __DIR__ . '/data/admin-menu.php';
  *
  * @covers Automattic\Jetpack\Masterbar\Jetpack_Admin_Menu
  */
+#[CoversClass( Jetpack_Admin_Menu::class )]
 class Jetpack_Admin_Menu_Test extends TestCase {
 
 	/**

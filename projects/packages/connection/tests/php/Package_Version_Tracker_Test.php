@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -92,6 +93,7 @@ class Package_Version_Tracker_Test extends TestCase {
 	 *
 	 * @dataProvider jetpack_maybe_update_package_versions_data_provider
 	 */
+	#[DataProvider( 'jetpack_maybe_update_package_versions_data_provider' )]
 	public function test_maybe_update_package_versions( $option_value, $filter_value, $expected_value, $updated ) {
 		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
 			->onlyMethods( array( 'update_package_versions_option' ) )

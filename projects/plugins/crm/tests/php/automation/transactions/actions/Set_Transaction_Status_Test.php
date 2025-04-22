@@ -7,12 +7,15 @@ use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 /**
  * Test Automation Workflow functionalities
  *
  * @covers Automattic\Jetpack\CRM\Automation\Actions\Set_Transaction_Status
  */
+#[CoversClass( Set_Transaction_Status::class )]
 class Set_Transaction_Status_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
@@ -36,6 +39,7 @@ class Set_Transaction_Status_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Test the set transaction status action executes the action, within a workflow.
 	 */
+	#[TestDox( 'Test the set transaction status action executes the action, within a workflow.' )]
 	public function test_set_transaction_status_action_with_workflow() {
 		global $zbs;
 

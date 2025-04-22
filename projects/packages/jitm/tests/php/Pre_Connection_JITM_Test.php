@@ -7,6 +7,7 @@ use Brain\Monkey;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class Pre_Connection_JITM_Test extends TestCase {
@@ -188,6 +189,7 @@ class Pre_Connection_JITM_Test extends TestCase {
 	 *
 	 * @dataProvider data_provider_test_message_icon_values
 	 */
+	#[DataProvider( 'data_provider_test_message_icon_values' )]
 	public function test_message_icon_values( $message_icon_value, $expected_icon ) {
 		$this->set_user_cap_conditions();
 
