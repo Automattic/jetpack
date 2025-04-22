@@ -47,8 +47,6 @@ const Prerender = () => {
 					),
 					{
 						help: <PrerenderWarningMessage />,
-						// eslint-disable-next-line jsx-a11y/anchor-has-content
-						link: <a href={ unsafeSpeculationRulesLink } target="_blank" rel="noreferrer" />,
 					}
 				) }
 			</div>
