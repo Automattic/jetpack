@@ -1,0 +1,201 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.ClassComment.Missing, Squiz.Commenting.FunctionComment.Missing
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+// phpcs:disable Jetpack.PHPUnit.TestClassName.DoesNotMatchFileName
+// phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired, WordPress.Arrays.ArrayDeclarationSpacing, Universal.Arrays.DisallowShortArraySyntax, PHPCompatibility.Syntax.NewFlexibleHeredocNowdoc
+
+
+use PHPUnit\Framework\Attributes\TestWith;
+use PHPUnit\Framework\Attributes\TestWithJson;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * @testWith bogus
+ */
+class AnnotationsTest extends TestCase {
+
+	#[TestWith(
+		[
+			'string', 'foo
+bar',
+		]
+	)]
+	#[TestWith( [ 42, 4.2 ] )]
+	#[TestWith( [ true, false ] )]
+	#[TestWith( [ null ] )]
+	#[TestWith( [] )]
+	#[TestWith( [ [], [] ] )]
+	#[TestWith( [ [ [], 3, [ 'x' => 1 ] ] ] )]
+	public function testAnnotations() {}
+
+	#[TestWith(
+		array(
+			'string',
+			"foo\nbaz",
+			'foo
+bar',
+		)
+	)]
+	#[TestWith( array( 42, 4.2 ) )]
+	#[TestWith( array( true, false ) )]
+	#[TestWith( array( null ) )]
+	#[TestWith( array() )]
+	#[TestWith( array( array() ) )]
+	#[TestWith( array( array( array(), 3, array( 'x' => 1 ) ) ) )]
+	public function testAttribute() {
+	}
+
+	#[TestWithJson( '["string", "foo\nbar"]' )]
+	#[TestWithJson( '[ 42, 4.2 ]' )]
+	#[TestWithJson( "[\n\ttrue,\n\tfalse\n]" )]
+	#[TestWithJson( '[ null ]' )]
+	#[TestWithJson( '[]' )]
+	#[TestWithJson( '[ [], {} ]' )]
+	#[TestWithJson(
+		'[
+			[],
+			3,
+			{ "x": 1 }
+		]'
+	)]
+	public function testJsonAttribute() {
+	}
+
+	#[TestWithJson( '["string", "foo\nbar"]' )]
+	#[TestWith( array( 42, 4.2 ) )]
+	#[TestWithJson( "[\n\ttrue,\n\tfalse\n]" )]
+	#[TestWith( array( null ) )]
+	#[TestWith( array() )]
+	#[TestWithJson( '[ [], {} ]' )]
+	#[TestWith( array( array( array(), 3, array( 'x' => 1 ) ) ) )]
+	public function testMatch() {
+	}
+
+	/**
+	 * Dummy annotation so the NoKeep run checks all these.
+	 *
+	 * @testWith [ "dummy" ]
+	 */
+	#[TestWith()]
+	#[TestWith( 42 )]
+	#[TestWith( array( 1, 2, "x" => 3 ) )]
+	#[TestWith( array( 1 2 3 ) )]
+	#[TestWithJson()]
+	#[TestWithJson( array() )]
+	#[TestWithJson( '42' )]
+	#[TestWithJson( 'XXX' )]
+	#[TestWithJson( '{"x":3}' )]
+	#[TestWith( array( __FILE__ ) )]
+	#[TestWith( array( foo() ) )]
+	#[TestWith( array( "abc $x" ) )]
+	#[TestWith( array( "abc {$x->foo()}" ) )]
+	#[TestWith(
+		[
+			<<<EOF
+			Some text
+			goes here
+			EOF,
+		]
+	)]
+	public function badAttributes() {
+	}
+
+	/**
+	 * Same as the above but with no annotation. All except the missing parameters should not produce errors.
+	 */
+	#[TestWith()]
+	#[TestWith( 42 )]
+	#[TestWith( array( 1, 2, "x" => 3 ) )]
+	#[TestWith( array( 1 2 3 ) )]
+	#[TestWithJson()]
+	#[TestWithJson( array() )]
+	#[TestWithJson( '42' )]
+	#[TestWithJson( 'XXX' )]
+	#[TestWithJson( '{"x":3}' )]
+	#[TestWith( array( __FILE__ ) )]
+	#[TestWith( array( foo() ) )]
+	#[TestWith( array( "abc $x" ) )]
+	#[TestWith( array( "abc {$x->foo()}" ) )]
+	#[TestWith(
+		[
+			<<<EOF
+			Some text
+			goes here
+			EOF,
+		]
+	)]
+	public function badAttributes2() {
+	}
+
+	/**
+	 * @testWith [1]
+	 * @testWith [2]
+	 * @testWith [3]
+	 */
+	public function badMultipleAnnotations() {
+	}
+
+	public function emptyAnnotation() {
+	}
+
+	/**
+	 * @testWith
+	 *  [1]
+	 *  [2]
+	 *
+	 *  [3]
+	 */
+	public function badAnnotationWithBlankLine() {
+	}
+
+	/**
+	 * @testWith
+	 *  [1]
+	 *  {"x":2}
+	 *  [3]
+	 */
+	public function badAnnotationWithInvalidLine() {
+	}
+
+	/**
+	 * @testWith [1]
+	 *  [2]
+	 *  [3,x]
+	 *  [4]
+	 */
+	public function badAnnotationWithBadJsonLine() {
+	}
+
+	/**
+	 * @testWith
+	 *  [1]
+	 *  [2] [3]
+	 *  [4]
+	 */
+	public function badAnnotationWithBadJsonLine2() {
+	}
+
+	#[TestWith( [ ! true ] )]
+	#[TestWith(
+		[
+			/** Foo */
+			<<<'EOF'
+			Some text
+			goes here
+			EOF,
+			42, // Magic!
+		]
+	)]
+	#[TestWith( [ 2 * ( 3 + 4 ), 3 | 6, 3 & 6, 5 % 3, 2 ** 6, ~1, 1 << 2, 1e100 ] )]
+	#[TestWith( [ 3 < 5, 5 >= 5, 3 && 6 ] )]
+	public function complex() {
+	}
+
+	/**
+	 * @testWith [1]
+	 */
+	#[TestWith( [ 2 ] )]
+	public function mismatchedData() {
+	}
+}

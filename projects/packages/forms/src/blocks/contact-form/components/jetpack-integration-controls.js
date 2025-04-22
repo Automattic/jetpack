@@ -1,3 +1,4 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarButton, Button, PanelBody } from '@wordpress/components';
 import { useState } from '@wordpress/element';
@@ -17,6 +18,12 @@ import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/useInt
 export default function IntegrationControls( { attributes, setAttributes } ) {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const { integrations, refreshIntegrations } = useIntegrationsStatus();
+	const { tracks } = useAnalytics();
+
+	const handleOpenModal = entry_point => {
+		tracks.recordEvent( 'jetpack_forms_block_modal_view', { entry_point } );
+		setIsModalOpen( true );
+	};
 
 	return (
 		<>
@@ -27,7 +34,7 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 			>
 				<Button
 					variant="secondary"
-					onClick={ () => setIsModalOpen( true ) }
+					onClick={ () => handleOpenModal( 'block-sidebar' ) }
 					__next40pxDefaultSize={ true }
 				>
 					{ __( 'Manage integrations', 'jetpack-forms' ) }
@@ -38,7 +45,7 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 				<ToolbarGroup>
 					<ToolbarButton
 						icon={ plugins }
-						onClick={ () => setIsModalOpen( true ) }
+						onClick={ () => handleOpenModal( 'block-toolbar' ) }
 						style={ { paddingLeft: 0 } }
 					>
 						{ __( 'Integrations', 'jetpack-forms' ) }

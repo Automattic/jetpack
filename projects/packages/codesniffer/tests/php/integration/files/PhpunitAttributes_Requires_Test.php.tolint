@@ -1,0 +1,148 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.ClassComment.Missing, Squiz.Commenting.FunctionComment.Missing
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+// phpcs:disable Jetpack.PHPUnit.TestClassName.DoesNotMatchFileName
+
+namespace Xyz;
+
+use NS\UsedClass;
+use PHPUnit\Framework\Attributes\RequiresFunction;
+use PHPUnit\Framework\Attributes\RequiresMethod;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystemFamily;
+use PHPUnit\Framework\Attributes\RequiresPhp;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
+use PHPUnit\Framework\Attributes\RequiresPhpunit;
+use PHPUnit\Framework\Attributes\RequiresSetting;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * @requires PHP 7.1.20
+ * @requires PHP >= 7.2
+ * @requires PHP ~7.2
+ * @requires PHPUnit 11.1.0
+ * @requires PHPUnit >=11.1
+ * @requires PHPUnit ~11
+ * @requires OS Linux
+ * @requires OSFAMILY Windows
+ * @requires function a_function
+ * @requires function Xyz\LocalClass::a_method
+ * @requires function RootClass::method2
+ * @requires function NS\SomeClass::method3
+ * @requires function NS\UsedTrait::method4
+ * @requires extension mysqli
+ * @requires extension redis >= 2.2.0
+ * @requires setting foo.bar
+ * @requires setting foo.baz 42
+ */
+class AnnotationsTest extends TestCase {
+	/**
+	 * @requires PHP 7.1.20
+	 * @requires PHP >= 7.2
+	 * @requires PHP ~7.2
+	 * @requires PHPUnit 11.1.0
+	 * @requires PHPUnit >=11.1
+	 * @requires PHPUnit ~11
+	 * @requires OS Linux
+	 * @requires OSFAMILY Windows
+	 * @requires function a_function
+	 * @requires function Xyz\LocalClass::a_method
+	 * @requires function RootClass::method2
+	 * @requires function NS\SomeClass::method3
+	 * @requires function NS\UsedTrait::method4
+	 * @requires extension mysqli
+	 * @requires extension redis >= 2.2.0
+	 * @requires setting foo.bar
+	 * @requires setting foo.baz 42
+	 */
+	public function testMethodAnnotations() {
+		UsedClass::x();
+	}
+
+	/**
+	 * @requires foobar
+	 */
+	public function bad() {
+	}
+}
+
+#[RequiresPhp( '7.1.20' )]
+#[RequiresPhp( '>= 7.2' )]
+#[RequiresPhp( '~7.2' )]
+#[RequiresPhpunit( '11.1.0' )]
+#[RequiresPhpunit( '>=11.1' )]
+#[RequiresPhpunit( '~11' )]
+#[RequiresOperatingSystem( 'Linux' )]
+#[RequiresOperatingSystemFamily( 'Windows' )]
+#[RequiresFunction( 'a_function' )]
+#[RequiresMethod( LocalClass::class, 'a_method' )]
+#[RequiresMethod( \RootClass::class, 'method2' )]
+#[RequiresMethod( \NS\SomeClass::class, 'method3' )]
+#[RequiresMethod( \NS\UsedTrait::class, 'method4' )]
+#[RequiresPhpExtension( 'mysqli' )]
+#[RequiresPhpExtension( 'redis', '>= 2.2.0' )]
+#[RequiresSetting( 'foo.bar', '' )]
+#[RequiresSetting( 'foo.baz', '42' )]
+class AttributesTest extends TestCase {
+	#[RequiresPhp( '7.1.20' )]
+	#[RequiresPhp( '>= 7.2' )]
+	#[RequiresPhp( '~7.2' )]
+	#[RequiresPhpunit( '11.1.0' )]
+	#[RequiresPhpunit( '>=11.1' )]
+	#[RequiresPhpunit( '~11' )]
+	#[RequiresOperatingSystem( 'Linux' )]
+	#[RequiresOperatingSystemFamily( 'Windows' )]
+	#[RequiresFunction( 'a_function' )]
+	#[RequiresMethod( LocalClass::class, 'a_method' )]
+	#[RequiresMethod( \RootClass::class, 'method2' )]
+	#[RequiresMethod( \NS\SomeClass::class, 'method3' )]
+	#[RequiresMethod( \NS\UsedTrait::class, 'method4' )]
+	#[RequiresPhpExtension( 'mysqli' )]
+	#[RequiresPhpExtension( 'redis', '>= 2.2.0' )]
+	#[RequiresSetting( 'foo.bar', '' )]
+	#[RequiresSetting( 'foo.baz', '42' )]
+	public function testMethodAttributes() {
+	}
+
+	/**
+	 * @requires function Xyz\LocalClass::a_method
+	 * @requires function RootClass::method2
+	 * @requires function NS\SomeClass::method3
+	 * @requires function NS\UsedTrait::method4
+	 */
+	#[RequiresMethod( 'Xyz\LocalClass', 'a_method' )]
+	#[RequiresMethod( 'RootClass', 'method2' )]
+	#[RequiresMethod( 'NS\SomeClass', 'method3' )]
+	#[RequiresMethod( '\NS\UsedTrait', 'method4' )]
+	public function testQuotedClasses() {
+	}
+
+	#[RequiresPhp()]
+	#[RequiresPhp( PHP_VERSION )]
+	#[RequiresPhpunit()]
+	#[RequiresOperatingSystem()]
+	#[RequiresOperatingSystemFamily()]
+	#[RequiresFunction()]
+	#[RequiresMethod()]
+	#[RequiresMethod( 42, TestCase::class )]
+	#[RequiresPhpExtension()]
+	#[RequiresPhpExtension( 42 )]
+	#[RequiresPhpExtension( 'ok', 42 )]
+	#[RequiresSetting( 'foo.bar' )]
+	#[RequiresSetting( 'foo.bar', 42 )]
+	public function bad() {
+	}
+
+	/**
+	 * Annotations PHPUnit won't accept, but probably should.
+	 * The timezone one is even an example in their docs.
+	 *
+	 * @requires setting foo bar baz
+	 * @requires setting date.timezone Europe/Berlin
+	 */
+	#[RequiresSetting( 'foo', 'bar baz' )]
+	#[RequiresSetting( 'date.timezone', 'Europe/Berlin' )]
+	public function odd() {
+	}
+}

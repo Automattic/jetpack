@@ -130,3 +130,66 @@ function jetpack_facebook_shortcode_handler( $atts ) {
 	return $wp_embed->shortcode( $atts, $atts['url'] );
 }
 add_shortcode( 'facebook', 'jetpack_facebook_shortcode_handler' );
+
+/**
+ * Embed Reversal for Facebook
+ *
+ * Hooked to pre_kses, converts an embed code from www.facebook.com to an oEmbeddable URL.
+ *
+ * @param string $content Post content.
+ *
+ * @return string The filtered or the original content.
+ **/
+function jetpack_facebook_embed_reversal( $content ) {
+	if ( ! is_string( $content ) || false === stripos( $content, 'https://www.facebook.com/plugins/post.php' ) ) {
+		return $content;
+	}
+
+	/*
+	 * Sample embed code:
+	 * <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Ftechcrunch%2Fposts%2Fpfbid0997g1PXQKfyFNHNTiCgaCFevt3PRFMaUBBB9eEFPR5NsXCv8EXxBw3p9bBYezWkHl&show_text=true&width=500" width="500" height="504" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+	 */
+
+	$regexes   = array();
+	$regexes[] = '#<iframe[^>]+?src="((?:https?:)?//(?:www\.)?facebook\.com/plugins/post\.php\?[^"]+)"[^>]*?>\s*?</iframe>#i';
+	$regexes[] = '#&lt;iframe[^&]+?src="((?:https?:)?//(?:www\.)?facebook\.com/plugins/post\.php\?[^"]+)"[^&]*?&gt;\s*?&lt;/iframe&gt;#i';
+
+	foreach ( $regexes as $regex ) {
+		if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) ) {
+			continue;
+		}
+
+		foreach ( $matches as $match ) {
+			if ( ! preg_match( '#(https?:)?//(?:www\.)?facebook\.com/plugins/post.php([^/]*)#i', $match[1], $url_matches ) ) {
+				continue;
+			}
+
+			$src_url    = $url_matches[0];
+			$parsed_url = wp_parse_url( $src_url );
+			if ( empty( $parsed_url['query'] ) ) {
+				continue;
+			}
+
+			$query_args = array();
+			wp_parse_str( $parsed_url['query'], $query_args );
+			if ( empty( $query_args['href'] ) ) {
+				continue;
+			}
+
+			// Since we support Facebook via oEmbed, we simply leave a link on a line by itself.
+			$replace_regex = sprintf( '#\s*%s\s*#', preg_quote( $match[0], '#' ) );
+			$url           = esc_url( $query_args['href'] );
+
+			$content = preg_replace( $replace_regex, sprintf( "\n\n%s\n\n", $url ), $content );
+			/** This action is documented in modules/shortcodes/youtube.php */
+			do_action( 'jetpack_embed_to_shortcode', 'facebook', $url );
+		}
+	}
+
+	return $content;
+}
+
+/**
+ * Embed reversal: Convert an embed code from Facebook.com to an oEmbeddable URL.
+ */
+add_filter( 'pre_kses', 'jetpack_facebook_embed_reversal' );
