@@ -157,8 +157,7 @@ async function getMessage( client, channelId, identifier ) {
 }
 
 /**
- * Uploads a file to Slack using their three-step upload process.
- * https://api.slack.com/messaging/files#uploading_files
+ * Uploads a file to Slack using filesUploadV2.
  *
  * @param {object} client     - Slack client instance
  * @param {string} filePath   - Path to the file to upload
@@ -168,52 +167,24 @@ async function getMessage( client, channelId, identifier ) {
  */
 async function uploadFileToSlack( client, filePath, channel_id, thread_ts ) {
 	try {
-		// Get file stats for size and name
-		const stats = fs.statSync( filePath );
 		const filename = path.basename( filePath );
 
-		// Step 1: Get upload URL
-		const { ok, upload_url, file_id } = await client.files.getUploadURLExternal( {
-			filename,
-			length: stats.size,
-		} );
-		if ( ! ok ) {
-			throw new Error( 'Failed to get upload URL' );
+		if ( ! fs.existsSync( filePath ) ) {
+			throw new Error( `File not found: ${ filePath }` );
 		}
 
-		// Step 2: Upload file to the URL
-		const fileStream = fs.createReadStream( filePath );
-		const fileBuffer = await new Promise( ( resolve, reject ) => {
-			const chunks = [];
-			fileStream.on( 'data', chunk => chunks.push( chunk ) );
-			fileStream.on( 'end', () => resolve( Buffer.concat( chunks ) ) );
-			fileStream.on( 'error', reject );
-		} );
-
-		const uploadResponse = await fetch( upload_url, {
-			method: 'POST',
-			body: fileBuffer,
-			headers: {
-				'Content-Type': 'application/octet-stream',
-			},
-		} );
-
-		if ( ! uploadResponse.ok ) {
-			throw new Error( 'Failed to upload file to URL' );
-		}
-
-		// Step 3: Complete the upload
-		const completeResponse = await client.files.completeUploadExternal( {
-			files: [ { id: file_id } ],
+		const response = await client.filesUploadV2( {
 			channel_id,
 			thread_ts,
+			file: filePath,
+			filename,
 		} );
 
-		if ( ! completeResponse.ok ) {
-			throw new Error( 'Failed to complete file upload' );
+		if ( ! response.ok ) {
+			throw new Error( 'Failed to upload file' );
 		}
 
-		return completeResponse;
+		return response;
 	} catch ( err ) {
 		error( err );
 		throw err;
