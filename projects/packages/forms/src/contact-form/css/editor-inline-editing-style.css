@@ -324,7 +324,7 @@ input[type="checkbox"] + span {
 ** ======================================================================== */
 
 .radio-button,
-input[type=radio] {
+input[type="radio"] {
 	color: #2e4453;
 	font-size: 16px;
 	border: 1px solid #c8d7e1;

@@ -127,7 +127,7 @@ body {
   line-height:30px !important;
 }
 
-input[type=checkbox], input[type=radio]{
+input[type="checkbox"], input[type="radio"]{
   width:20px;
 }
 
@@ -477,7 +477,7 @@ $darkenColor: darken($activeColor, 20%);
     box-shadow: 0 2px 5px 0 rgba(0,0,0,0.3) !important;
   }
 
-  input[type=checkbox] {
+  input[type="checkbox"] {
     visibility: hidden !important;
 
     &:checked + label {

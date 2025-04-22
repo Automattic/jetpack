@@ -15,7 +15,7 @@
 		text-decoration: none;
 
 		&:any-link,
-		&[role=button] {
+		&[role="button"] {
 			color: inherit;
 		}
 

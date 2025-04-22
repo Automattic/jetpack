@@ -387,7 +387,7 @@
 /* Few tweaks as provided by Alvaro in slack ... wh selectively added those which made sense for multi-theme userbase JIRA-ZBS-531 */
 .zbs-portal-wrapper {
 
-   .zbs-portal-login .login-form input[type='text'], .zbs-portal-login .login-form input[type='password'], .form-control.widetext, .form-control.zbs-tel, .form-control.zbs-email, .form-control.zbs-date, input[type=text], input[type=password], input[type=tel], input[type=email], input.text, input.title, textarea, select {
+   .zbs-portal-login .login-form input[type='text'], .zbs-portal-login .login-form input[type='password'], .form-control.widetext, .form-control.zbs-tel, .form-control.zbs-email, .form-control.zbs-date, input[type="text"], input[type="password"], input[type="tel"], input[type="email"], input.text, input.title, textarea, select {
        padding-left: 1em;
        padding-right: 1em;
        margin-bottom: 1em;
@@ -690,7 +690,7 @@
     margin-top: 2rem;
   }
 
-  input:not([type=checkbox]):not([type=radio]), select, textarea, .jpcrm-inline-file-input {
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea, .jpcrm-inline-file-input {
     width: 95%;
   }
 

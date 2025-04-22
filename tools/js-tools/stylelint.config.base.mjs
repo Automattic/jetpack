@@ -40,7 +40,6 @@ const baseConfig = {
 		'scss/comment-no-empty': null,
 		'scss/no-global-function-names': null,
 		'scss/selector-no-redundant-nesting-selector': null,
-		'selector-attribute-quotes': null,
 		'selector-id-pattern': null,
 		'value-keyword-case': null,
 	},

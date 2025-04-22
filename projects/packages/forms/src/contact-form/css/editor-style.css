@@ -262,7 +262,7 @@ input[type="checkbox"] + span {
 ** Radio buttons
 ** ======================================================================== */
 
-input[type=radio] {
+input[type="radio"] {
 	color: #2e4453;
 	font-size: 16px;
 	border: 1px solid #c8d7e1;
@@ -532,7 +532,7 @@ input[type="submit"]:focus {
 ** Preview styles
 ** ======================================================================== */
 
-.wpview.wpview-wrap[data-wpview-type=contact-form] iframe.inline-edit-contact-form {
+.wpview.wpview-wrap[data-wpview-type="contact-form"] iframe.inline-edit-contact-form {
 	width: 100%;
 	min-height: 500px;
 	border: 0;

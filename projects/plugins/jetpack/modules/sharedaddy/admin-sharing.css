@@ -273,7 +273,7 @@ body.settings_page_sharing .utility {
 	font-size: 10px;
 }
 
-body.settings_page_sharing .advanced input[type=submit] {
+body.settings_page_sharing .advanced input[type="submit"] {
 	float: left;
 	margin-top:10px;
 	margin-right: 10px;

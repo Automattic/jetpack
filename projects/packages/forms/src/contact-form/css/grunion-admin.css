@@ -1,4 +1,4 @@
-.add-new-h2, .view-switch, body.no-js .tablenav select[name^=action], body.no-js #doaction, body.no-js #doaction2 {
+.add-new-h2, .view-switch, body.no-js .tablenav select[name^="action"], body.no-js #doaction, body.no-js #doaction2 {
 	display: none
 }
 
