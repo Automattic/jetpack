@@ -1,4 +1,5 @@
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { getSiteData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
@@ -99,7 +100,7 @@ const fetchSubscriberCounts = async () => {
 };
 
 const fetchTotalEmailsSentCount = async () => {
-	const { blog_id: siteId } = window.JetpackScriptData?.site?.wpcom ?? {};
+	const { blog_id: siteId } = getSiteData()?.wpcom ?? {};
 	const postId = window.wp.data.select( 'core/editor' ).getCurrentPostId();
 
 	if ( ! siteId || ! postId ) {
