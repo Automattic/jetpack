@@ -89,11 +89,8 @@ const Meta = () => {
 						),
 						{
 							link: (
-								// eslint-disable-next-line jsx-a11y/anchor-has-content
-								<a
+								<ExternalLink
 									href={ getSupportLink() }
-									target="_blank"
-									rel="noopener noreferrer"
 									onClick={ () => {
 										recordBoostEvent( 'cornerstone_pages_properties_failed', {} );
 									} }
