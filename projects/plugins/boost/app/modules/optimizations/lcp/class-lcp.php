@@ -10,12 +10,17 @@ use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
-use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_LCP;
 
 class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync, Has_Always_Available_Endpoints {
+	/** LCP type for background images. */
+	const TYPE_BACKGROUND_IMAGE = 'background-image';
+
+	/** LCP type for standard images. */
+	const TYPE_IMAGE = 'img';
+
 	/**
 	 * Utility class that supports output filtering.
 	 *
@@ -123,7 +128,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @since 3.13.1
 	 */
 	public function start_output_filtering() {
-		if ( $this->should_skip_optimization() ) {
+		if ( apply_filters( 'jetpack_boost_should_optimize_lcp', $this->should_skip_optimization() ) ) {
 			return;
 		}
 
@@ -136,7 +141,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @since $$next-version$$
 	 */
 	public function add_preload_links_to_head() {
-		if ( $this->should_skip_optimization() ) {
+		if ( apply_filters( 'jetpack_boost_should_optimize_lcp', $this->should_skip_optimization() ) ) {
 			return;
 		}
 
@@ -149,7 +154,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 
 		$images_to_preload = array();
 		foreach ( $lcp_storage as $lcp_data ) {
-			if ( empty( $lcp_data ) || 'background-image' !== $lcp_data['type'] ) {
+			if ( empty( $lcp_data ) || self::TYPE_BACKGROUND_IMAGE !== $lcp_data['type'] ) {
 				continue;
 			}
 
@@ -183,22 +188,9 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @return bool True if optimization should be skipped, false otherwise.
 	 */
 	private function should_skip_optimization() {
-		/**
-		 * Filter to disable LCP optimization
-		 *
-		 * @param bool $optimize return false to disable optimization
-		 *
-		 * @since   3.13.1
-		 */
-		if ( false === apply_filters( 'jetpack_boost_should_optimize_lcp', true ) ) {
-			return true;
-		}
-
-		if ( ! Cornerstone_Utils::is_current_page_cornerstone() ) {
-			return true;
-		}
-
-		if ( ! ( new LCP_State() )->is_analyzed() ) {
+		$lcp_storage = ( new LCP_Storage() )->get_current_request_lcp();
+		// Early return if we don't have any LCP data
+		if ( empty( $lcp_storage ) ) {
 			return true;
 		}
 
@@ -269,14 +261,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @since 3.13.1
 	 */
 	public function optimize( $buffer_start, $buffer_end ) {
-		// Get the LCP image tag from WP option
-		$storage = new LCP_Storage();
-
-		$lcp_storage = $storage->get_current_request_lcp();
-		// Early return if we don't have any LCP data
-		if ( empty( $lcp_storage ) ) {
-			return array( $buffer_start, $buffer_end );
-		}
+		$lcp_storage = ( new LCP_Storage() )->get_current_request_lcp();
 
 		// Combine the buffers for processing
 		$combined_buffer = $buffer_start . $buffer_end;
@@ -318,7 +303,8 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 			return $buffer;
 		}
 
-		if ( $lcp_data['type'] === 'unknown' ) {
+		// Only optimize if the type is one we know how to handle.
+		if ( ! in_array( $lcp_data['type'], array( self::TYPE_BACKGROUND_IMAGE, self::TYPE_IMAGE ), true ) ) {
 			return $buffer;
 		}
 
@@ -330,7 +316,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 			return $buffer;
 		}
 
-		if ( $lcp_data['type'] === 'img' ) {
+		if ( $lcp_data['type'] === self::TYPE_IMAGE ) {
 			// Create the optimized tag with required attributes.
 			$optimized_tag = $this->optimize_image( $lcp_html );
 
