@@ -77,7 +77,7 @@ export const NotUsingPermalinksNotice = ( { onClose }: NoticeProps ) => {
 			<p>
 				{ createInterpolateElement(
 					__(
-						'To activate this feature, your site needs to use a different URL structure instead of the current Plain (default) permalinks. To learn more, please <link>please click here.</link>',
+						'To activate this feature, your site needs to use a different URL structure instead of the current Plain (default) permalinks. To learn more, please <link>click here.</link>',
 						'jetpack-boost'
 					),
 					{
