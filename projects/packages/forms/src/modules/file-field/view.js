@@ -329,7 +329,6 @@ const { state, actions } = store( NAMESPACE, {
 			// Handle abort signal
 			abortController.signal.addEventListener( 'abort', () => {
 				xhr.abort();
-				updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
 			} );
 
 			formData.append( 'file', file );
@@ -375,6 +374,7 @@ const { state, actions } = store( NAMESPACE, {
 					} );
 				}
 			}
+			// Remove the file from the context
 			context.files = context.files.filter( fileObject => fileObject.id !== clientFileId );
 		},
 	},
