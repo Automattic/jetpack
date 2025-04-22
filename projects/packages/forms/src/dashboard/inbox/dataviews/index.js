@@ -257,19 +257,16 @@ export default function InboxView() {
 		],
 		[ filterOptions, dateSettings.formats.date ]
 	);
-	const actions = useMemo( () => {
-		const _actions = [
-			markAsSpamAction,
-			markAsNotSpamAction,
-			moveToTrashAction,
-			restoreAction,
-			deleteAction,
-		];
-		if ( isMobile ) {
-			_actions.unshift( viewAction );
-		}
-		return _actions;
-	}, [ isMobile ] );
+
+	const actions = [
+		markAsSpamAction,
+		markAsNotSpamAction,
+		moveToTrashAction,
+		restoreAction,
+		deleteAction,
+		viewAction,
+	];
+
 	return (
 		<HStack
 			spacing={ 5 }
