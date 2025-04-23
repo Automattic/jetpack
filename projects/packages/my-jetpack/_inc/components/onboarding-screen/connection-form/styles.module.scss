@@ -82,56 +82,32 @@
 	}
 }
 
-.email-input-container {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
+.jetpack-logo {
+	align-self: flex-start;
+	margin-bottom: 1rem;
+}
 
-	.email-input {
-		width: 100%;
-		margin: 0;
-		padding: 12px 16px;
-		border: 1px solid var(--jp-gray-60, #949494);
-		border-radius: var( --jp-button-radius );
-		box-sizing: border-box;
-		font-size: 15px;
-		line-height: 20px;
-		color: var(--jp-gray-50, #646970);
+.submit-button:global(.components-button) {
+	width: 100%;
+	font-weight: 500;
+	color: var(--jp-white, #fff);
+	background: var(--jp-green-60, #007117);
+	justify-content: center;
 
-		&.email-input-error {
-			border-color: var(--jp-red-50, #d63638);
-			background-color: var(--jp-red-0, #fcf0f1);
-		}
+	&:hover, &:focus {
+		background: var(--jp-green-70, #00801a);
+		color: var(--jp-white, #fff);
 	}
 
-	.submit-button {
-		width: 100%;
-		padding: 12px 16px;
-		border: 1px solid var(--jp-green-60, #007117);
-		border-radius: var( --jp-button-radius );
-		box-sizing: border-box;
-		font-size: 16px;
-		font-weight: 500;
-		line-height: 24px;
-		color: var(--jp-white, #fff);
-		background: var(--jp-green-60, #007117);
+	&:focus {
+		border-color: var(--jp-white, #FFF);
+		outline: 2px solid var(--jp-green-60, #007117);
+	}
 
-		&:hover, &:focus {
-			background: var(--jp-green-70, #00801a);
-			cursor: pointer;
-		}
-
-		&:focus {
-			border-color: var(--jp-white, #FFF);
-			outline: 2px solid var(--jp-green-60, #007117);
-		}
-
-		&:disabled {
-			background: var(--jp-gray, #dcdcde);
-			border-color: var(--jp-gray, #dcdcde);
-			color: var(--jp-gray-50, #646970);
-			cursor: unset;
-		}
+	&:disabled {
+		background: var(--jp-gray, #dcdcde);
+		border-color: var(--jp-gray, #dcdcde);
+		color: var(--jp-gray-50, #646970);
 	}
 }
 
