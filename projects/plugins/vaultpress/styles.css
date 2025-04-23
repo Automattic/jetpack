@@ -6,8 +6,6 @@ Mini normalize
 #vp-wrap *,
 #vp-wrap *::before,
 #vp-wrap *::after {
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 	-webkit-font-smoothing: antialiased;
 }
@@ -597,7 +595,6 @@ Helpers
 	padding: 1px 7px 0 26px;
 	height: 25px;
 	background-color: #ff9a00;
-	color: #fff;
 	color: rgba(255,255,255,0.9);
 	font-size: 12px;
 	line-height: 24px;
@@ -915,7 +912,6 @@ Progress Bars
 	margin: 0 5px 0 0;
 	border: 1px solid rgba(255,255,255,0.1);
 	border-radius: 20px;
-	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.6);
 	box-shadow: inset 0 1px 1px rgba(0,0,0,0.6);
 }
 
@@ -938,7 +934,6 @@ Progress Bars
 	height: 22px;
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#63b6db', endColorstr='#309dcf',GradientType=0 );
 	background: linear-gradient(to bottom, #63b6db 0%,#309dcf 100%);
-	-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
 	box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
 	border-radius: 20px;
 }

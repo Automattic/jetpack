@@ -39,8 +39,6 @@
 .color-grid.main li {
   height: 55px;
   width: 55px;
-  background-image: -moz-radial-gradient( center top, circle farthest-side, rgba(255, 255, 255, .35), rgba(255, 255, 255, 0) 80% );
-  background-image: -webkit-radial-gradient( center top, circle farthest-side, rgba(255, 255, 255, .35), rgba(255, 255, 255, 0) 80% );
   background-image: radial-gradient( center top, circle farthest-side, rgba(255, 255, 255, .35), rgba(255, 255, 255, 0) 80% );
   background-position: center center;
   background-size: cover;
@@ -72,8 +70,6 @@
 .enable-background .color-grid.main .text-placeholder {
 	background: transparent;
 	border: none;
-	-moz-box-sizing: inherit;
-	-webkit-box-sizing: inherit;
 	box-sizing: inherit;
 	display: block;
 	list-style-type: none;
@@ -98,8 +94,6 @@
 	border: 5px solid rgba(0,0,0,0.1);
 	border-width: 1px 1px 5px;
 	font-size: 0;
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 	display: block;
 	float: left;
@@ -322,8 +316,6 @@ a.button.right-pill {
 }
 
 #the-bg-picker-prompt div {
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 	float: left;
 	width: 50%;

@@ -1,8 +1,7 @@
 amp-social-share,
 .amp-social-share {
-	border-radius: 50%;
 	color: #fff;
-	-webkit-border-radius: 50%;
+	border-radius: 50%;
 	position: relative;
 	line-height: 1;
 	width: 32px;

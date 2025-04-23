@@ -192,10 +192,8 @@ table td[class*="col-"],table th[class*="col-"] {
     font-size:14px !important;
 	 line-height: 1.4em;
     background-color:#fff;
-    border:1px solid #ccc;
     border:1px solid rgba(0,0,0,.15);
     border-radius:4px;
-    -webkit-box-shadow:0 6px 12px rgba(0,0,0,.175);
     box-shadow:0 6px 12px rgba(0,0,0,.175);
     background-clip:padding-box;
 }

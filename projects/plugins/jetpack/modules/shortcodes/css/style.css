@@ -92,11 +92,6 @@ body.presentation-wrapper-fullscreen-parent {
 	background-repeat: no-repeat;
 	z-index: 2;
 	opacity: 0;
-
-	-webkit-transition : opacity .25s;
-	-moz-transition    : opacity .25s;
-	-ms-transition     : opacity .25s;
-	-o-transition      : opacity .25s;
 	transition         : opacity .25s;
 }
 
@@ -152,13 +147,7 @@ body.presentation-wrapper-fullscreen-parent {
 	z-index: 100;
 	display: table;
 	border-radius: 50px;
-	background-color: #dcdcde;
 	background-color: rgba(0, 0, 0, 0.75);
-
-	-webkit-transition : opacity .5s;
-	-moz-transition    : opacity .5s;
-	-ms-transition     : opacity .5s;
-	-o-transition      : opacity .5s;
 	transition         : opacity .5s;
 }
 
@@ -179,10 +168,5 @@ body.presentation-wrapper-fullscreen-parent {
 
 .presentation .do-fade {
 	opacity: 1;
-
-	-webkit-transition : opacity .5s;
-	-moz-transition    : opacity .5s;
-	-ms-transition     : opacity .5s;
-	-o-transition      : opacity .5s;
 	transition         : opacity .5s;
 }
