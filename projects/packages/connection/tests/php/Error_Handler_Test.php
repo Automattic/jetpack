@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -254,6 +255,7 @@ class Error_Handler_Test extends BaseTestCase {
 	 *
 	 * @dataProvider get_user_id_from_token_data
 	 */
+	#[DataProvider( 'get_user_id_from_token_data' )]
 	public function test_get_user_id_from_token( $token, $expected ) {
 		$this->assertEquals( $expected, $this->error_handler->get_user_id_from_token( $token ) );
 	}

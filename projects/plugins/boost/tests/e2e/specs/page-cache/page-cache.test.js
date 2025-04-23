@@ -117,15 +117,15 @@ test.describe( 'Cache module', () => {
 			const responseHeaders = response.headers();
 			const cacheHeaderName = 'X-Jetpack-Boost-Cache'.toLowerCase();
 
-			// First visit should always be a miss.
-			const expectValue = totalVisits === 1 ? 'miss' : 'hit';
+			// First visit may be a miss or a hit depending on preloading being finished.
+			const expectValue = totalVisits === 1 ? [ 'miss', 'hit' ] : [ 'hit' ];
 			const expectMessage =
 				totalVisits === 1
-					? 'Page Cache header should be set to miss on first visit.'
+					? 'Page Cache header should be set on first visit.'
 					: 'Page Cache header should be set to hit on second visit.';
 			expect(
 				Object.hasOwn( responseHeaders, cacheHeaderName ) &&
-					responseHeaders[ cacheHeaderName ] === expectValue,
+					expectValue.includes( responseHeaders[ cacheHeaderName ] ),
 				expectMessage
 			).toBeTruthy();
 		} );

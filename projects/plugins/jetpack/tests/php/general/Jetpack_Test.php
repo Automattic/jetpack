@@ -11,6 +11,9 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Cache as StatusCache;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /** Extend with a public constructor so that can be mocked in tests. */
 class MockJetpack extends Jetpack {
@@ -57,6 +60,7 @@ class MockJetpack_XMLRPC_Server extends Jetpack_XMLRPC_Server {
  *
  * @covers Jetpack
  */
+#[CoversClass( Jetpack::class )]
 class Jetpack_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -586,6 +590,7 @@ EXPECTED;
 	 * @author ebinnion
 	 * @dataProvider get_file_url_for_environment_data_provider
 	 */
+	#[DataProvider( 'get_file_url_for_environment_data_provider' )]
 	public function test_get_file_url_for_environment( $min_path, $non_min_path, $is_script_debug, $expected, $not_expected ) {
 		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
 		$file_url = Jetpack::get_file_url_for_environment( $min_path, $non_min_path );
@@ -616,6 +621,7 @@ EXPECTED;
 	/**
 	 * @dataProvider get_content_width_data
 	 */
+	#[DataProvider( 'get_content_width_data' )]
 	public function test_get_content_width( $expected, $content_width ) {
 		$GLOBALS['content_width'] = $content_width;
 		$this->assertSame( $expected, Jetpack::get_content_width() );
@@ -763,6 +769,7 @@ EXPECTED;
 	 *
 	 * @group xmlrpc
 	 */
+	#[Group( 'xmlrpc' )]
 	public function test_classic_xmlrpc_when_active_and_signed_with_no_user() {
 		$this->mocked_setup_xmlrpc_handlers( array( 'for' => 'jetpack' ), true, true );
 
@@ -798,6 +805,7 @@ EXPECTED;
 	 *
 	 * @group xmlrpc
 	 */
+	#[Group( 'xmlrpc' )]
 	public function test_classic_xmlrpc_when_active_and_signed_with_user() {
 		$this->mocked_setup_xmlrpc_handlers( array( 'for' => 'jetpack' ), true, true, get_user_by( 'ID', self::$admin_id ) );
 
@@ -840,6 +848,7 @@ EXPECTED;
 	 *
 	 * @group xmlrpc
 	 */
+	#[Group( 'xmlrpc' )]
 	public function test_classic_xmlrpc_when_active_and_signed_with_user_with_edit() {
 		$this->mocked_setup_xmlrpc_handlers(
 			array( 'for' => 'jetpack' ),
@@ -896,6 +905,7 @@ EXPECTED;
 	 *
 	 * @group xmlrpc
 	 */
+	#[Group( 'xmlrpc' )]
 	public function test_classic_xmlrpc_when_active_and_not_signed() {
 		$this->mocked_setup_xmlrpc_handlers( array( 'for' => 'jetpack' ), true, false );
 
@@ -917,6 +927,7 @@ EXPECTED;
 	 *
 	 * @group xmlrpc
 	 */
+	#[Group( 'xmlrpc' )]
 	public function test_classic_xmlrpc_when_not_active_and_not_signed() {
 		$this->mocked_setup_xmlrpc_handlers( array( 'for' => 'jetpack' ), false, false );
 
@@ -940,6 +951,7 @@ EXPECTED;
 	 *
 	 * @group xmlrpc
 	 */
+	#[Group( 'xmlrpc' )]
 	public function test_classic_xmlrpc_when_not_active_and_signed() {
 		$this->mocked_setup_xmlrpc_handlers( array( 'for' => 'jetpack' ), false, true );
 
@@ -979,6 +991,7 @@ EXPECTED;
 	 *
 	 * @group xmlrpc
 	 */
+	#[Group( 'xmlrpc' )]
 	public function test_wp_getOptions_hook_in_place() {
 		$options = apply_filters( 'xmlrpc_blog_options', array() );
 
@@ -1073,6 +1086,7 @@ EXPECTED;
 	 *
 	 * @dataProvider should_set_cookie_provider
 	 */
+	#[DataProvider( 'should_set_cookie_provider' )]
 	public function test_should_set_cookie( $key, $set_screen, $expected_output ) {
 		global $current_screen;
 		$old_current_screen   = $current_screen;
@@ -1132,6 +1146,7 @@ EXPECTED;
 	 *
 	 * @group jetpack_deactivation
 	 */
+	#[Group( 'jetpack_deactivation' )]
 	public function test_jetpack_version_removed_on_jetpack_deactivation() {
 		Jetpack_Options::update_option( 'version', '10.5' );
 		Jetpack::plugin_deactivation();

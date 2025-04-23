@@ -5,6 +5,7 @@ use Automattic\Jetpack\Boost_Core\Lib\Url;
 use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_TestCase;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class Url_Test
@@ -17,6 +18,7 @@ class Url_Test extends Base_TestCase {
 	 *
 	 * @dataProvider provide_url_data
 	 */
+	#[DataProvider( 'provide_url_data' )]
 	public function test_normalize( $input, $expected ) {
 		$this->markTestSkipped( 'Failing for now, but not used anywhere' );
 		// Dumb, but functional remove_query_arg polyfill.

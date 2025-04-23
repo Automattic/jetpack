@@ -10,6 +10,8 @@ use Automattic\Jetpack\CRM\Automation\Triggers\Task_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Task_Updated;
 use Automattic\Jetpack\CRM\Entities\Task;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -20,6 +22,9 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Task_Deleted
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Task_Updated
  */
+#[CoversClass( Task_Created::class )]
+#[CoversClass( Task_Deleted::class )]
+#[CoversClass( Task_Updated::class )]
 class Task_Trigger_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
@@ -32,6 +37,7 @@ class Task_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the task created trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the task created trigger executes the workflow with an action' )]
 	public function test_task_created_trigger() {
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/task_created' );
 
@@ -65,6 +71,7 @@ class Task_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the task deleted trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the task deleted trigger executes the workflow with an action' )]
 	public function test_task_deleted_trigger() {
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/task_deleted' );
 
@@ -99,6 +106,7 @@ class Task_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the task updated trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the task updated trigger executes the workflow with an action' )]
 	public function test_task_updated_trigger() {
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/task_updated' );
 

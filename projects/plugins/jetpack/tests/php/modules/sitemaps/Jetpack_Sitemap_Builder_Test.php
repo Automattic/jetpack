@@ -6,6 +6,9 @@
  * @since 13.4
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-builder.php';
 
 /**
@@ -14,6 +17,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-builder.php';
  * @since 13.4
  * @covers \Jetpack_Sitemap_Builder
  */
+#[CoversClass( Jetpack_Sitemap_Builder::class )]
 class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -267,6 +271,7 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 13.4
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_build_one_page_sitemap_considers_lastmod_from_other_urls() {
 		$other_urls = array(
 			array(
