@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Test class for Launchpad_Task_Lists.
  */
@@ -146,6 +148,7 @@ class Launchpad_Task_Definitions_Test extends \WorDBless\BaseTestCase {
 	 * @param string $requested_task_id The requested task ID or id_map.
 	 * @param string $expected_option_key The key we expect to be added to the underlying option.
 	 */
+	#[DataProvider( 'provide_update_task_status_id_map_handling_test_cases' )]
 	public function test_wpcom_launchpad_update_task_status_id_map_handling( $requested_task_id, $expected_option_key ) {
 		delete_option( 'launchpad_checklist_tasks_statuses' );
 
@@ -188,6 +191,7 @@ class Launchpad_Task_Definitions_Test extends \WorDBless\BaseTestCase {
 	 * @param mixed $new_status_value New status value to specify for a task.
 	 * @param bool  $is_truthy Should the new status value be considered truthy.
 	 */
+	#[DataProvider( 'provide_non_boolean_task_status_updates' )]
 	public function test_wpcom_launchpad_update_task_status_forces_booleans( $new_status_value, $is_truthy ) {
 		$task_update = array(
 			'test_task1' => $new_status_value,

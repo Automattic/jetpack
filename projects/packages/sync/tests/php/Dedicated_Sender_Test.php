@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -12,6 +13,7 @@ use WorDBless\Options as WorDBless_Options;
  *
  * @package automattic/jetpack-sync
  */
+#[CoversClass( Dedicated_Sender::class )]
 class Dedicated_Sender_Test extends BaseTestCase {
 	/**
 	 * Whether a dedicated Sync request was spawned.

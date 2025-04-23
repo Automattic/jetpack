@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Scheduled_Updates;
 use Automattic\Jetpack\Scheduled_Updates_Health_Paths;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Test class for Scheduled_Updates_Health_Paths.
@@ -14,6 +15,8 @@ use Automattic\Jetpack\Scheduled_Updates_Health_Paths;
  * @covers \Automattic\Jetpack\Scheduled_Updates_Health_Paths
  * @covers \WPCOM_REST_API_V2_Endpoint_Update_Schedules
  */
+#[CoversClass( Scheduled_Updates_Health_Paths::class )]
+#[CoversClass( WPCOM_REST_API_V2_Endpoint_Update_Schedules::class )]
 class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 	/**

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use WP_Error;
 
 /**
@@ -14,6 +15,7 @@ use WP_Error;
  *
  * @covers Automattic\Jetpack\Stats\WPCOM_Stats
  */
+#[CoversClass( WPCOM_Stats::class )]
 class WPCOM_Stats_Test extends StatsBaseTestCase {
 	/**
 	 * Mocked WPCOM_Stats.

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/class-test-helpers-customize.php';
@@ -246,6 +247,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_build_widget_id_data
 	 */
+	#[DataProvider( 'get_build_widget_id_data' )]
 	public function test_build_widget_id( $number, $expected ) {
 		$this->assertSame( $expected, Helper::build_widget_id( $number ) );
 	}
@@ -258,6 +260,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_test_is_active_widget_data
 	 */
+	#[DataProvider( 'get_test_is_active_widget_data' )]
 	public function test_is_active_widget( $number, $expected ) {
 		$this->register_fake_widgets();
 
@@ -412,6 +415,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_should_rerun_search_in_customizer_preview_data
 	 */
+	#[DataProvider( 'get_should_rerun_search_in_customizer_preview_data' )]
 	public function test_should_rerun_search_in_customizer_preview( $expected, $previewing = false, $post = false ) {
 		if ( $previewing ) {
 			$GLOBALS['wp_customize']->previewing = true;
@@ -432,6 +436,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_array_diff_data
 	 */
+	#[DataProvider( 'get_array_diff_data' )]
 	public function test_array_diff( $expected, $array_1, $array_2 ) {
 		$this->assertSame( $expected, Helper::array_diff( $array_1, $array_2 ) );
 	}
@@ -444,6 +449,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_post_types_differ_searchable_data
 	 */
+	#[DataProvider( 'get_post_types_differ_searchable_data' )]
 	public function test_post_types_differ_searchable( $expected, $post_types = array() ) {
 		$GLOBALS['wp_post_types'] = array(
 			'post'       => array(
@@ -471,6 +477,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_post_types_differ_query_data
 	 */
+	#[DataProvider( 'get_post_types_differ_query_data' )]
 	public function test_post_types_differ_query( $expected, $post_types = array(), $get = array() ) {
 		$_GET = $get;
 		$this->assertSame( $expected, Helper::post_types_differ_query( $post_types ) );
@@ -484,6 +491,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_filter_properties_for_tracks_data
 	 */
+	#[DataProvider( 'get_filter_properties_for_tracks_data' )]
 	public function test_get_filter_properties_for_tracks( $expected, $filters ) {
 		$this->assertSame( $expected, Helper::get_filter_properties_for_tracks( $filters ) );
 	}
@@ -496,6 +504,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_widget_properties_for_tracks_data
 	 */
+	#[DataProvider( 'get_widget_properties_for_tracks_data' )]
 	public function test_get_widget_properties_for_tracks( $expected, $widget ) {
 		$this->assertSame( $expected, Helper::get_widget_properties_for_tracks( $widget ) );
 	}
@@ -509,6 +518,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_widget_tracks_value_data
 	 */
+	#[DataProvider( 'get_widget_tracks_value_data' )]
 	public function test_get_widget_tracks_value( $expected, $old_value, $new_value ) {
 		$this->assertSame( $expected, Helper::get_widget_tracks_value( $old_value, $new_value ) );
 	}
@@ -521,6 +531,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_remove_active_from_post_type_buckets_data
 	 */
+	#[DataProvider( 'get_remove_active_from_post_type_buckets_data' )]
 	public function test_remove_active_from_post_type_buckets( $expected, $input ) {
 		$this->assertSame(
 			$expected,
@@ -537,6 +548,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_add_post_types_to_url_data
 	 */
+	#[DataProvider( 'get_add_post_types_to_url_data' )]
 	public function test_add_post_types_to_url( $expected, $url, $post_types ) {
 		$this->assertSame(
 			$expected,
@@ -553,6 +565,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_ensure_post_types_on_remove_url_data
 	 */
+	#[DataProvider( 'get_ensure_post_types_on_remove_url_data' )]
 	public function test_ensure_post_types_on_remove_url( $expected, $filters, $post_types ) {
 		$this->assertSame(
 			$expected,
@@ -569,6 +582,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_site_has_vip_index_data
 	 */
+	#[DataProvider( 'get_site_has_vip_index_data' )]
 	public function test_site_has_vip_index( $expected, $constant = null, $filter = false ) {
 		if ( $constant !== null ) {
 			Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $constant );
@@ -589,6 +603,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_max_posts_per_page_data
 	 */
+	#[DataProvider( 'get_max_posts_per_page_data' )]
 	public function test_get_max_posts_per_page( $expected, $has_vip_index ) {
 		Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
 		$this->assertSame( $expected, Helper::get_max_posts_per_page() );
@@ -602,6 +617,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_max_offset_data
 	 */
+	#[DataProvider( 'get_max_offset_data' )]
 	public function test_get_max_offset( $expected, $has_vip_index ) {
 		Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
 		$this->assertSame( $expected, Helper::get_max_offset() );
@@ -616,6 +632,7 @@ class Helpers_Test extends TestCase {
 	 *
 	 * @dataProvider get_date_filter_type_name_data
 	 */
+	#[DataProvider( 'get_date_filter_type_name_data' )]
 	public function test_get_date_filter_type_name( $expected, $type, $is_updated ) {
 		$this->assertSame(
 			$expected,
