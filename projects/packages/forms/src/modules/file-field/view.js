@@ -96,7 +96,7 @@ const addFileToContext = file => {
 	reader.readAsDataURL( file );
 
 	const { ref } = getElement();
-	clearInputError( ref, { hasInsetLabel: isInlineForm( ref ) } );
+	clearInputError( ref, { hasInsetLabel: state.isInlineForm } );
 
 	const config = getConfig( NAMESPACE );
 	const context = getContext();
@@ -123,9 +123,6 @@ const addFileToContext = file => {
 
 	const clientFileId = performance.now() + '-' + Math.random();
 
-	// Update the context.
-	context.hasFiles = true;
-
 	context.files.push( {
 		name: file.name,
 		formattedSize: formatBytes( file.size, 2 ),
@@ -135,10 +132,8 @@ const addFileToContext = file => {
 		error,
 	} );
 
-	const uploadFileWithScope = withScope( uploadFile.bind( this, file, clientFileId ) );
-
 	// Start the upload if we don't have any errors.
-	! error && uploadFileWithScope();
+	! error && actions.uploadFile( file, clientFileId );
 
 	// Load the file so we can display it. In case it is an image.
 	reader.onload = withScope( () => {
@@ -148,50 +143,6 @@ const addFileToContext = file => {
 
 // Map to store AbortControllers for each file upload
 const uploadControllers = new Map();
-
-/**
- * Make the endpoint request.
- * This function is a generator so that we can use the withScope function.
- * And the context gets passed to the onProgress and onReadyStateChange functions.
- *
- * @param {File}   file         - The file to upload.
- * @param {string} clientFileId - The client file ID.
- * @yield {Promise<string>} The upload token.
- */
-function* uploadFile( file, clientFileId ) {
-	const { endpoint, i18n } = getConfig( NAMESPACE );
-
-	const token = yield getUploadToken();
-
-	if ( ! token ) {
-		updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
-		return;
-	}
-
-	const xhr = new XMLHttpRequest();
-	const formData = new FormData();
-
-	// Create an AbortController for this upload
-	const abortController = new AbortController();
-	uploadControllers.set( clientFileId, abortController );
-
-	xhr.open( 'POST', endpoint, true );
-	xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, clientFileId ) ) );
-	xhr.addEventListener(
-		'readystatechange',
-		withScope( onReadyStateChange.bind( this, clientFileId ) )
-	);
-
-	// Handle abort signal
-	abortController.signal.addEventListener( 'abort', () => {
-		xhr.abort();
-		updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
-	} );
-
-	formData.append( 'file', file );
-	formData.append( 'token', token );
-	xhr.send( formData );
-}
 
 /**
  * Responsible for updating the progress circle.
@@ -260,23 +211,16 @@ const updateFileContext = ( updatedFile, clientFileId ) => {
 	context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
 };
 
-/**
- * Check if the file field is in an inline form.
- *
- * @param {HTMLElement} ref - The reference element.
- *
- * @return {boolean} True if the file field is in an inline form, false otherwise.
- */
-const isInlineForm = ref => {
-	const form = ref.closest( '.wp-block-jetpack-contact-form' );
-	return (
-		( form && form.classList.contains( 'is-style-outlined' ) ) ||
-		form.classList.contains( 'is-style-animated' )
-	);
-};
-
-store( NAMESPACE, {
+const { state, actions } = store( NAMESPACE, {
 	state: {
+		get isInlineForm() {
+			const { ref } = getElement();
+			const form = ref.closest( '.wp-block-jetpack-contact-form' );
+			return (
+				( form && form.classList.contains( 'is-style-outlined' ) ) ||
+				form.classList.contains( 'is-style-animated' )
+			);
+		},
 		get hasFiles() {
 			return !! getContext().files.length > 0;
 		},
@@ -350,6 +294,49 @@ store( NAMESPACE, {
 		},
 
 		/**
+		 * Make the endpoint request.
+		 * This function is a generator so that we can use the withScope function.
+		 * And the context gets passed to the onProgress and onReadyStateChange functions.
+		 *
+		 * @param {File}   file         - The file to upload.
+		 * @param {string} clientFileId - The client file ID.
+		 * @yield {Promise<string>} The upload token.
+		 */
+		uploadFile: function* ( file, clientFileId ) {
+			const { endpoint, i18n } = getConfig( NAMESPACE );
+
+			const token = yield getUploadToken();
+
+			if ( ! token ) {
+				updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
+				return;
+			}
+
+			const xhr = new XMLHttpRequest();
+			const formData = new FormData();
+
+			// Create an AbortController for this upload
+			const abortController = new AbortController();
+			uploadControllers.set( clientFileId, abortController );
+
+			xhr.open( 'POST', endpoint, true );
+			xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, clientFileId ) ) );
+			xhr.addEventListener(
+				'readystatechange',
+				withScope( onReadyStateChange.bind( this, clientFileId ) )
+			);
+
+			// Handle abort signal
+			abortController.signal.addEventListener( 'abort', () => {
+				xhr.abort();
+			} );
+
+			formData.append( 'file', file );
+			formData.append( 'token', token );
+			xhr.send( formData );
+		},
+
+		/**
 		 * Remove a file from the context and cancel its upload if in progress.
 		 *
 		 * @param {Event} event - The event object.
@@ -359,8 +346,8 @@ store( NAMESPACE, {
 			event.preventDefault();
 
 			const { ref } = getElement();
-			const field = ref.parentElement.parentElement.parentElement; // Needed to select the top most field.
-			clearInputError( field, { hasInsetLabel: isInlineForm( ref ) } );
+			const field = ref.closest( '.jetpack-form-file-field__container' ); // Needed to select the top most field.
+			clearInputError( field, { hasInsetLabel: state.isInlineForm } );
 
 			const context = getContext();
 			const clientFileId = event.target.dataset.id;
@@ -387,8 +374,8 @@ store( NAMESPACE, {
 					} );
 				}
 			}
+			// Remove the file from the context
 			context.files = context.files.filter( fileObject => fileObject.id !== clientFileId );
-			context.hasFiles = context.files.length > 0;
 		},
 	},
 

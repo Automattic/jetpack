@@ -884,7 +884,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$context = array(
 			'isDropping'       => false,
 			'files'            => array(),
-			'hasFiles'         => false,
 			'allowedMimeTypes' => $accepted_file_types,
 			'maxFiles'         => $max_files, // max number of files.
 			'hasMaxFiles'      => false,
