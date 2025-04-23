@@ -47,7 +47,7 @@ class Jetpack_Podcast_Helper_Test extends WP_UnitTestCase {
 			->onlyMethods( array( 'load_feed', 'setup_tracks_callback' ) )
 			->getMock();
 
-		$track = $this->getMockBuilder( Jetpack\SimplePie\Item::class )
+		$track = $this->getMockBuilder( SimplePie\Item::class )
 			->disableOriginalConstructor()
 			->onlyMethods( array( 'get_id' ) )
 			->getMock();
@@ -56,7 +56,7 @@ class Jetpack_Podcast_Helper_Test extends WP_UnitTestCase {
 			->method( 'get_id' )
 			->willReturn( '1' );
 
-		$rss = $this->getMockBuilder( Jetpack\SimplePie\SimplePie::class )
+		$rss = $this->getMockBuilder( SimplePie\SimplePie::class )
 			->disableOriginalConstructor()
 			->onlyMethods( array( 'get_items' ) )
 			->getMock();
