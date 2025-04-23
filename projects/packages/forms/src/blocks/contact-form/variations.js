@@ -41,7 +41,97 @@ const variations = compact( [
 				},
 			],
 		],
-		attributes: {},
+
+		attributes: {
+			variationName: 'default',
+		},
+	},
+	{
+		name: 'multistep-form',
+		title: __( 'Multistep Form', 'jetpack-forms' ),
+		description: __( 'Create a form that spans multiple steps.', 'jetpack-forms' ),
+		icon: {
+			foreground: getIconColor(),
+			src: renderMaterialIcon(
+				<Path d="M7 13h14V11H7v2zm0 4h14V15H7v2zm0-8h14V7H7v2zM4 11v2h2v-2H4zm0 4v2h2v-2H4zm0-8v2h2V7H4z" />
+			),
+		},
+		innerBlocks: [
+			[
+				'jetpack/form-progress-indicator',
+				{
+					labels: [
+						__( 'Contact Info', 'jetpack-forms' ),
+						__( 'Details', 'jetpack-forms' ),
+						__( 'Preferences', 'jetpack-forms' ),
+					],
+					activeStep: 0,
+					showLabels: true,
+				},
+			],
+			[
+				'jetpack/form-step',
+				{ title: __( 'Contact Information', 'jetpack-forms' ) },
+				[
+					[ 'jetpack/field-name', { required: true, label: __( 'Full Name', 'jetpack-forms' ) } ],
+					[
+						'jetpack/field-email',
+						{ required: true, label: __( 'Email Address', 'jetpack-forms' ) },
+					],
+					[ 'jetpack/field-telephone', { label: __( 'Phone Number', 'jetpack-forms' ) } ],
+					[ 'jetpack/form-step-navigation' ],
+				],
+			],
+			[
+				'jetpack/form-step',
+				{ title: __( 'Additional Details', 'jetpack-forms' ) },
+				[
+					[
+						'jetpack/field-select',
+						{
+							label: __( 'How did you hear about us?', 'jetpack-forms' ),
+							options: [
+								__( 'Search Engine', 'jetpack-forms' ),
+								__( 'Social Media', 'jetpack-forms' ),
+								__( 'Recommendation', 'jetpack-forms' ),
+								__( 'Advertisement', 'jetpack-forms' ),
+								__( 'Other', 'jetpack-forms' ),
+							],
+						},
+					],
+					[
+						'jetpack/field-textarea',
+						{ label: __( 'What can we help you with?', 'jetpack-forms' ), required: true },
+					],
+					[ 'jetpack/form-step-navigation' ],
+				],
+			],
+			[
+				'jetpack/form-step',
+				{ title: __( 'Preferences', 'jetpack-forms' ) },
+				[
+					[
+						'jetpack/field-select',
+						{
+							label: __( 'Preferred contact method', 'jetpack-forms' ),
+							options: [ __( 'Email', 'jetpack-forms' ), __( 'Phone', 'jetpack-forms' ) ],
+						},
+					],
+					[
+						'jetpack/field-textarea',
+						{
+							label: __( 'Additional notes or preferences', 'jetpack-forms' ),
+						},
+					],
+					[ 'jetpack/form-step-navigation' ],
+				],
+			],
+		],
+		attributes: {
+			variationName: 'multistep',
+		},
+		scope: [ 'block', 'inserter', 'transform' ],
+		isActive: attributes => attributes.variationName === 'multistep',
 	},
 	{
 		name: 'rsvp-form',

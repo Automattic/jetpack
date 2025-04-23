@@ -2,8 +2,22 @@ import { InnerBlocks, useBlockProps, useInnerBlocksProps } from '@wordpress/bloc
 import { createBlock } from '@wordpress/blocks';
 import { Path, Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { globe, envelope, mobile, upload } from '@wordpress/icons';
+import {
+	globe,
+	envelope,
+	mobile,
+	upload,
+	next,
+	pullquote,
+	queryPagination,
+} from '@wordpress/icons';
 import { filter, isEmpty, map, startsWith, trim } from 'lodash';
+import FormProgressIndicatorEdit from '../form-progress-indicator/edit';
+import FormProgressIndicatorSave from '../form-progress-indicator/save';
+import StepEdit from '../step/edit';
+import StepSave from '../step/save';
+import StepNavigationEdit from '../step-navigation/edit';
+import StepNavigationSave from '../step-navigation/save';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldConsent from './components/jetpack-field-consent';
@@ -383,6 +397,23 @@ const EditNumber = props => {
 			max={ props.attributes.max }
 		/>
 	);
+};
+
+const isWithinContactForm = () => {
+	const select = window?.wp?.data?.select( 'core/block-editor' );
+	if ( ! select ) {
+		return false;
+	}
+
+	const selectedBlockClientIds = select.getSelectedBlockClientIds();
+	if ( ! selectedBlockClientIds?.length ) {
+		return false;
+	}
+
+	return selectedBlockClientIds.some( blockId => {
+		const parentBlocks = select.getBlockParentsByBlockName( blockId, 'jetpack/contact-form' );
+		return parentBlocks.length > 0;
+	} );
 };
 
 export const childBlocks = [
@@ -779,6 +810,161 @@ export const childBlocks = [
 					role: 'content',
 				},
 			},
+		},
+	},
+	{
+		name: 'form-step',
+		settings: {
+			apiVersion: 3,
+			title: __( 'Step', 'jetpack-forms' ),
+			category: 'contact-form',
+			description: __( 'A single step in a multi-step form.', 'jetpack-forms' ),
+			icon: {
+				foreground: getIconColor(),
+				src: <Icon icon={ pullquote } />,
+			},
+			parent: [ 'jetpack/contact-form' ],
+			supports: {
+				html: false,
+				reusable: false,
+				inserter: true,
+				align: true,
+				color: {
+					gradients: true,
+					link: true,
+				},
+				spacing: {
+					padding: true,
+					margin: true,
+				},
+			},
+			attributes: {
+				align: {
+					type: 'string',
+				},
+				backgroundColor: {
+					type: 'string',
+				},
+				gradient: {
+					type: 'string',
+				},
+				textColor: {
+					type: 'string',
+				},
+				style: {
+					type: 'object',
+				},
+				stepLabel: {
+					type: 'string',
+					default: __( 'Step', 'jetpack-forms' ),
+				},
+			},
+			template: [ [ 'jetpack/form-step-navigation', {} ] ],
+			edit: StepEdit,
+			save: StepSave,
+			transforms: {
+				from: [
+					{
+						type: 'block',
+						blocks: [ 'core/group' ],
+						isMatch: isWithinContactForm,
+						transform: ( attributes, innerBlocks ) => {
+							return createBlock( 'jetpack/form-step', {}, innerBlocks || [] );
+						},
+					},
+					{
+						// Transform from multiple selected blocks ('*')
+						type: 'block',
+						isMultiBlock: true,
+						blocks: [ '*' ],
+						isMatch: isWithinContactForm,
+						transform: () => {
+							try {
+								const select = window?.wp?.data?.select( 'core/block-editor' );
+								if ( ! select ) {
+									return [ createBlock( 'jetpack/form-step', {} ) ];
+								}
+
+								const selectedIds = select.getSelectedBlockClientIds();
+								if ( ! selectedIds?.length ) {
+									return [ createBlock( 'jetpack/form-step', {} ) ];
+								}
+
+								const newBlocks = [];
+								for ( const id of selectedIds ) {
+									const block = select.getBlock( id );
+									if ( block && block.name ) {
+										newBlocks.push( createBlock( block.name, { ...block.attributes } ) );
+									}
+								}
+
+								const formStep = createBlock( 'jetpack/form-step', {}, newBlocks );
+
+								return [ formStep ];
+							} catch {
+								return [ createBlock( 'jetpack/form-step', {} ) ];
+							}
+						},
+					},
+				],
+			},
+			example: {},
+		},
+	},
+	{
+		name: 'form-step-navigation',
+		settings: {
+			...FieldDefaults,
+			supports: {
+				...FieldDefaults.supports,
+				layout: {
+					allowSwitching: false,
+					allowInheriting: false,
+					default: {
+						type: 'flex',
+					},
+				},
+			},
+			title: __( 'Step Navigation', 'jetpack-forms' ),
+			description: __( 'Responsible for the navigation between steps.', 'jetpack-forms' ),
+			parent: [ 'jetpack/contact-form' ],
+			icon: {
+				foreground: getIconColor(),
+				src: <Icon icon={ next } />,
+			},
+			edit: StepNavigationEdit,
+			save: StepNavigationSave,
+			transforms: {},
+			example: {},
+		},
+	},
+	{
+		name: 'form-progress-indicator',
+		settings: {
+			...FieldDefaults,
+			supports: {
+				html: false,
+				reusable: false,
+				spacing: {
+					padding: true,
+					margin: true,
+				},
+			},
+			title: __( 'Progress Indicator', 'jetpack-forms' ),
+			description: __(
+				'Show a visual indicator of progress through multi-step forms.',
+				'jetpack-forms'
+			),
+			parent: [ 'jetpack/contact-form' ],
+			icon: {
+				foreground: getIconColor(),
+				src: <Icon icon={ queryPagination } />,
+			},
+			edit: FormProgressIndicatorEdit,
+			save: FormProgressIndicatorSave,
+			attributes: {},
+			transforms: {},
+			example: {},
 		},
 	},
 ];

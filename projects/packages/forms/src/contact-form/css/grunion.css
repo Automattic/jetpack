@@ -18,6 +18,18 @@
 	transition: opacity 0.3s ease-out;
 }
 
+.jetpack-form-step {
+	display: none;
+}
+
+.jetpack-form-step.is-current-step {
+	display: block;
+}
+
+.contact-form  button.is-hidden.wp-block-button__link {
+	display: none;
+}
+
 .contact-form input:hover::placeholder {
 	opacity: 0.5;
 }
@@ -237,6 +249,27 @@
 	justify-content: flex-start;
 	flex-direction: row;
 	flex-grow: 1;
+	gap: var(--wp--style--block-gap, 1.5rem);
+}
+
+.wp-block-jetpack-form-step {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	flex-direction: row;
+	flex-grow: 1;
+	gap: var(--wp--style--block-gap, 1.5rem);
+}
+
+.wp-block-jetpack-form-step > * {
+	flex: 0 0 100%;
+	box-sizing: border-box;
+}
+
+.wp-block-jetpack-form-step-navigation {
+	flex: 0 0 100%;
+	display: flex;
+	box-sizing: border-box;
 	gap: var(--wp--style--block-gap, 1.5rem);
 }
 

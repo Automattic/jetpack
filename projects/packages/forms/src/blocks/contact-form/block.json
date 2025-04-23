@@ -21,6 +21,11 @@
 		},
 		"align": [ "wide", "full" ]
 	},
-	"attributes": {},
+	"attributes": {
+		"selectedStepClientId": {
+			"type": "string",
+			"default": "__all__"
+		}
+	},
 	"editorScript": "file:./editor.js"
 }

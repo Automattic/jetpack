@@ -185,6 +185,27 @@ class Contact_Form_Block {
 			)
 		);
 
+		Blocks::jetpack_register_block(
+			'jetpack/form-step',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_step' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-step-navigation',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_step_navigation' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-progress-indicator',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_progress_indicator' ),
+			)
+		);
+
 		$blocks_variation = apply_filters( 'jetpack_blocks_variation', \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' ) );
 		if ( 'beta' === $blocks_variation ) {
 			self::register_beta_blocks();

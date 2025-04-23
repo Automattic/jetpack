@@ -7,19 +7,22 @@ import {
 	useBlockProps,
 	useInnerBlocksProps,
 	store as blockEditorStore,
+	BlockControls,
 } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import {
 	ExternalLink,
 	PanelBody,
 	SelectControl,
 	TextareaControl,
 	TextControl,
+	Notice,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef } from '@wordpress/element';
+import { useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
@@ -30,8 +33,11 @@ import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleto
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import IntegrationControls from './components/jetpack-integration-controls';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
+import StepControls from './components/step-controls';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
+
+const ALL_STEPS_VALUE = '__all__';
 
 const validFields = filter( childBlocks, ( { settings } ) => {
 	return (
@@ -58,6 +64,7 @@ const ALLOWED_BLOCKS = [
 	'core/subhead',
 	'core/video',
 ];
+
 const PRIORITIZED_INSERTER_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
 
 function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, className } ) {
@@ -69,19 +76,37 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		customThankyouMessage,
 		customThankyouRedirect,
 		formTitle,
+		selectedStepClientId = ALL_STEPS_VALUE,
+		variationName,
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
-	const { postTitle, canUserInstallPlugins, hasInnerBlocks, postAuthorEmail } = useSelect(
+	const {
+		postTitle,
+		canUserInstallPlugins,
+		hasAnyInnerBlocks,
+		postAuthorEmail,
+		hasStepBlock,
+		isEveryBlockStep,
+		selectedBlockClientId,
+		innerBlocks,
+	} = useSelect(
 		select => {
-			const { getBlocks } = select( blockEditorStore );
+			const { getBlocks, getSelectedBlockClientId } = select( blockEditorStore );
 			const { getEditedPostAttribute } = select( editorStore );
 			const { getUser, canUser } = select( coreStore );
-			const innerBlocks = getBlocks( clientId );
+			const innerBlocksData = getBlocks( clientId );
 
 			const title = getEditedPostAttribute( 'title' );
 			const authorId = getEditedPostAttribute( 'author' );
 			const authorEmail = authorId && getUser( authorId )?.email;
-			const submitButton = innerBlocks.find( block => block.name === 'jetpack/button' );
+			const submitButton = innerBlocksData.find( block => block.name === 'jetpack/button' );
+			const hasStepBlockChild = innerBlocksData.find( block => block.name === 'jetpack/form-step' );
+			const isEveryChildBlockStep = innerBlocksData.every(
+				block =>
+					block.name === 'jetpack/form-step' ||
+					block.name === 'jetpack/form-step-navigation' ||
+					block.name === 'jetpack/form-progress-indicator'
+			);
 			if ( submitButton && ! submitButton.attributes.lock ) {
 				const lock = { move: false, remove: true };
 				submitButton.attributes.lock = lock;
@@ -90,12 +115,18 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			return {
 				postTitle: title,
 				canUserInstallPlugins: canUser( 'create', 'plugins' ),
-				hasInnerBlocks: innerBlocks.length > 0,
+				hasAnyInnerBlocks: innerBlocksData.length > 0,
 				postAuthorEmail: authorEmail,
+				hasStepBlock: !! hasStepBlockChild,
+				isEveryBlockStep: isEveryChildBlockStep,
+				selectedBlockClientId: getSelectedBlockClientId(),
+				innerBlocks: innerBlocksData,
 			};
 		},
 		[ clientId ]
 	);
+
+	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
 
 	const wrapperRef = useRef();
 	const innerRef = useRef();
@@ -108,13 +139,135 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			style: window.jetpackForms.generateStyleVariables( innerRef.current ),
 		},
 		{
-			allowedBlocks: ALLOWED_BLOCKS,
+			allowedBlocks: hasStepBlock
+				? [
+						'jetpack/form-step',
+						'jetpack/form-step-navigation',
+						'jetpack/form-progress-indicator',
+						'core/paragraph',
+				  ]
+				: ALLOWED_BLOCKS,
 			prioritizedInserterBlocks: PRIORITIZED_INSERTER_BLOCKS,
 			templateInsertUpdatesSelection: false,
 		}
 	);
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
+
+	const hasStructured = useRef( false );
+
+	useEffect( () => {
+		if ( hasStructured.current ) {
+			return;
+		}
+
+		const stepBlocks = innerBlocks.filter( block => block.name === 'jetpack/form-step' );
+		const stepBlockCount = stepBlocks.length;
+
+		if ( stepBlockCount === 0 ) {
+			return;
+		}
+
+		if ( stepBlockCount > 1 ) {
+			hasStructured.current = true;
+			return;
+		}
+
+		if ( isEveryBlockStep ) {
+			hasStructured.current = true;
+			return;
+		}
+
+		const firstStepBlock = stepBlocks[ 0 ];
+		const firstStepBlockIndex = innerBlocks.findIndex(
+			block => block.clientId === firstStepBlock.clientId
+		);
+
+		const fieldsBefore = innerBlocks
+			.slice( 0, firstStepBlockIndex )
+			.filter( block => block.name !== 'jetpack/button' );
+
+		const fieldsAfter = innerBlocks
+			.slice( firstStepBlockIndex + 1 )
+			.filter(
+				block =>
+					block.name !== 'jetpack/button' &&
+					block.name !== 'jetpack/form-step' &&
+					block.name !== 'jetpack/form-step-navigation'
+			);
+
+		const finalBlocks = [];
+
+		if ( fieldsBefore.length > 0 ) {
+			finalBlocks.push(
+				createBlock( 'jetpack/form-step', {}, [
+					...fieldsBefore,
+					createBlock( 'jetpack/form-step-navigation' ),
+				] )
+			);
+		}
+
+		finalBlocks.push( firstStepBlock );
+
+		if ( fieldsAfter.length > 0 ) {
+			finalBlocks.push(
+				createBlock( 'jetpack/form-step', {}, [
+					...fieldsAfter,
+					createBlock( 'jetpack/form-step-navigation' ),
+				] )
+			);
+		}
+
+		// Add progress indicator at the beginning of the form
+		finalBlocks.unshift( createBlock( 'jetpack/form-progress-indicator' ) );
+
+		replaceInnerBlocks( clientId, finalBlocks );
+		hasStructured.current = true;
+	}, [ innerBlocks, clientId, replaceInnerBlocks, isEveryBlockStep ] );
+
+	useEffect( () => {
+		if ( variationName === 'multistep' ) {
+			return;
+		}
+
+		if ( hasStepBlock ) {
+			setAttributes( { variationName: 'multistep' } );
+		} else {
+			setAttributes( { variationName: 'default' } );
+		}
+	}, [ hasStepBlock, variationName, setAttributes ] );
+
+	const prevSelectedBlockClientIdRef = useRef();
+
+	// Effect to sync List View selection with StepControls (if not in 'All Steps')
+	useEffect( () => {
+		const prevSelectedBlockClientId = prevSelectedBlockClientIdRef.current;
+		// console.log('[ContactForm Edit Effect] Running. selectedBlockClientId:', selectedBlockClientId, 'prev:', prevSelectedBlockClientId, 'selectedStepClientId:', selectedStepClientId); // LOGGING
+
+		// Only proceed if the selected block changed *and* it's not null/undefined
+		if ( selectedBlockClientId && selectedBlockClientId !== prevSelectedBlockClientId ) {
+			// console.log('[ContactForm Edit Effect] Selected block changed.'); // LOGGING
+			// Ensure we are NOT in 'All Steps' mode before syncing
+			if ( selectedStepClientId !== ALL_STEPS_VALUE && innerBlocks ) {
+				// console.log('[ContactForm Edit Effect] Not in All Steps mode.'); // LOGGING
+				// Check if the newly selected block is one of our direct step children
+				const isSelectedBlockOurStep = innerBlocks.some(
+					block => block.name === 'jetpack/form-step' && block.clientId === selectedBlockClientId
+				);
+				// console.log('[ContactForm Edit Effect] isSelectedBlockOurStep:', isSelectedBlockOurStep); // LOGGING
+
+				// If a step child is selected via List View and it's not already the active step in the dropdown
+				if ( isSelectedBlockOurStep && selectedBlockClientId !== selectedStepClientId ) {
+					// console.log('[ContactForm Edit Effect] Setting selectedStepClientId to:', selectedBlockClientId); // LOGGING
+					setAttributes( { selectedStepClientId: selectedBlockClientId } );
+				}
+			}
+		}
+		// Update the ref *after* the logic check for the next render
+		prevSelectedBlockClientIdRef.current = selectedBlockClientId;
+
+		// Keep dependencies, but logic now filters based on actual selectedBlockClientId changes
+	}, [ selectedBlockClientId, selectedStepClientId, innerBlocks, setAttributes ] );
 
 	let elt;
 
@@ -130,7 +283,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				/>
 			);
 		}
-	} else if ( ! hasInnerBlocks ) {
+	} else if ( ! hasAnyInnerBlocks ) {
 		elt = (
 			<VariationPicker
 				blockName={ name }
@@ -142,6 +295,15 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	} else {
 		elt = (
 			<>
+				<BlockControls>
+					{ hasStepBlock && (
+						<StepControls
+							clientId={ clientId }
+							selectedStepClientId={ selectedStepClientId }
+							setParentAttributes={ setAttributes }
+						/>
+					) }
+				</BlockControls>
 				<InspectorControls>
 					<PanelBody
 						title={ __( 'Manage responses', 'jetpack-forms' ) }
@@ -233,6 +395,14 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						{ __( 'Read more.', 'jetpack-forms' ) }
 					</ExternalLink>
 				</InspectorAdvancedControls>
+				{ hasStepBlock && ! isEveryBlockStep && (
+					<Notice status="warning" isDismissible={ false }>
+						{ __(
+							'This form contains steps. You can add fields to each step, but you cannot add fields outside of the steps.',
+							'jetpack-forms'
+						) }
+					</Notice>
+				) }
 				<div { ...innerBlocksProps } />
 			</>
 		);

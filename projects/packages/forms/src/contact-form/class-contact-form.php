@@ -413,7 +413,25 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label novalidate>\n";
+			$max_steps = 0;
+			if ( preg_match_all( '/data-wp-context=[\'\"]?\{\"step\":(\d+)[\'\"]?/', $content, $matches ) ) {
+				if ( ! empty( $matches[1] ) ) {
+					$max_steps = max( array_map( 'intval', $matches[1] ) );
+				}
+			}
+
+			$context = array(
+				'formId'      => $id,
+				'formHash'    => $form->hash,
+				'currentStep' => isset( $_GET['step'] ) ? absint( $_GET['step'] ) : 1,
+				'maxSteps'    => $max_steps,
+			);
+
+			$wrapper_attributes = get_block_wrapper_attributes(
+				array( 'class' => $form_classes )
+			);
+
+			$r .= "<form data-wp-interactive='jetpack/form' $wrapper_attributes " . wp_interactivity_data_wp_context( $context ) . " action='" . esc_url( $url ) . "' method='post' $form_aria_label novalidate>\n";
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
@@ -2034,5 +2052,26 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return ''; // kses the empty string
 		}
 		return wp_kses( (string) $raw_label, array() );
+	}
+
+	/**
+	 * Recursively count blocks by name within a list of blocks.
+	 *
+	 * @param array  $blocks    Array of parsed blocks.
+	 * @param string $block_name The name of the block to count.
+	 * @return int The total count of the specified block.
+	 */
+	private static function count_blocks_by_name( $blocks, $block_name ) {
+		$count = 0;
+		foreach ( (array) $blocks as $block ) {
+			if ( isset( $block['blockName'] ) && $block['blockName'] === $block_name ) {
+				++$count;
+			}
+			// Although jetpack/form-step shouldn't be nested, check recursively for robustness.
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$count += self::count_blocks_by_name( $block['innerBlocks'], $block_name );
+			}
+		}
+		return $count;
 	}
 }

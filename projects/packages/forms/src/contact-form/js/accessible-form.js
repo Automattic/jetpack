@@ -330,7 +330,9 @@ const hasFormInsetLabels = form => {
  */
 const getFormSubmitBtn = form => {
 	return (
-		form.querySelector( '[type="submit"]' ) || form.querySelector( 'button:not([type="reset"])' )
+		form.querySelector( '#submit-step' ) ||
+		form.querySelector( '[type="submit"]' ) ||
+		form.querySelector( 'button:not([type="reset"])' )
 	);
 };
 

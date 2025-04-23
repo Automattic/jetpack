@@ -1,0 +1,45 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "jetpack/form-step",
+	"title": "Form Step",
+	"category": "layout",
+	"description": "A single step in a multi-step form.",
+	"keywords": [ "form", "step", "multistep" ],
+	"parent": [ "jetpack/contact-form" ],
+	"supports": {
+		"html": false,
+		"reusable": false,
+		"inserter": false,
+		"align": true,
+		"color": {
+			"gradients": true,
+			"link": true
+		},
+		"spacing": {
+			"padding": true,
+			"margin": true
+		},
+		"interactivity": true
+	},
+	"attributes": {
+		"align": {
+			"type": "string"
+		},
+		"backgroundColor": {
+			"type": "string"
+		},
+		"gradient": {
+			"type": "string"
+		},
+		"textColor": {
+			"type": "string"
+		},
+		"style": {
+			"type": "object"
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css"
+}
