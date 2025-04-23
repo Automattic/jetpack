@@ -64,7 +64,8 @@ if ( explode( '.', \PHPUnit\Runner\Version::id() )[0] >= 10 ) {
 					$annotations = array_merge(
 						$annotations,
 						...array_map(
-							static fn ( ReflectionClass $trait ): array => self::parseDocBlock( (string) $trait->getDocComment() ),
+							static function ( $trait ) {
+								return self::parseDocBlock( (string) $trait->getDocComment() ); },
 							array_values( $reflector->getTraits() )
 						)
 					);
