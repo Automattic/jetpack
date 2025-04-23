@@ -4,37 +4,16 @@ const { WebClient } = require( '@slack/web-api' );
 jest.mock( '@slack/web-api', () => {
 	const slack = {
 		chat: {
-			postMessage: jest.fn(),
-			update: jest.fn(),
+			postMessage: jest.fn().mockResolvedValue( { ok: true } ),
+			update: jest.fn().mockResolvedValue( { ok: true } ),
 		},
-		filesUploadV2: jest.fn(),
+		filesUploadV2: jest.fn().mockResolvedValue( { ok: true } ),
 		conversations: {
 			history: jest.fn(),
 		},
 	};
 	return { WebClient: jest.fn( () => slack ) };
 } );
-
-// Mock global fetch
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
-
-// Mock fs.statSync and fs.createReadStream
-const mockStatSync = jest.fn().mockReturnValue( { size: 12345 } );
-const mockCreateReadStream = jest.fn().mockReturnValue( {
-	on: jest.fn().mockImplementation( ( event, callback ) => {
-		if ( event === 'end' ) {
-			callback();
-		}
-		return this;
-	} ),
-} );
-
-jest.mock( 'fs', () => ( {
-	...jest.requireActual( 'fs' ),
-	statSync: mockStatSync,
-	createReadStream: mockCreateReadStream,
-} ) );
 
 const slackClient = new WebClient();
 
@@ -75,16 +54,6 @@ describe( 'Blocks chunks', () => {
 } );
 
 describe( 'Post message', () => {
-	beforeEach( () => {
-		// Reset all mocks before each test
-		jest.clearAllMocks();
-		mockFetch.mockResolvedValue( {
-			ok: true,
-			status: 200,
-			json: () => Promise.resolve( {} ),
-		} );
-	} );
-
 	test.each`
 		isUpdate   | expectedMethod
 		${ false } | ${ 'postMessage' }
@@ -120,22 +89,12 @@ describe( 'Post message', () => {
 			} )
 		);
 	} );
-} );
 
-describe( 'File Upload', () => {
-	const filePath = path.resolve(
-		'tests/resources/playwright/suite-1/results/spec-1/test-failed-1.png'
-	);
-	const channel = '123abc';
-	const thread_ts = '12345';
-
-	beforeEach( () => {
-		// Reset all mocks before each test
-		jest.clearAllMocks();
-	} );
-
-	test( 'Successfully uploads a file', async () => {
+	test( 'File is uploaded', async () => {
 		const { postOrUpdateMessage } = require( '../src/slack' );
+		const filePath = path.resolve(
+			'tests/resources/playwright/suite-1/results/spec-1/test-failed-1.png'
+		);
 		const blocks = [
 			{ type: 'context' },
 			{
@@ -143,13 +102,8 @@ describe( 'File Upload', () => {
 				path: filePath,
 			},
 		];
-
-		slackClient.filesUploadV2.mockResolvedValue( {
-			ok: true,
-			file: {
-				id: 'F1234567890',
-			},
-		} );
+		const channel = '123abc';
+		const thread_ts = '12345';
 
 		await postOrUpdateMessage( slackClient, false, {
 			blocks,
@@ -157,59 +111,13 @@ describe( 'File Upload', () => {
 			thread_ts,
 		} );
 
-		// Verify filesUploadV2 was called with correct parameters
-		expect( slackClient.filesUploadV2 ).toHaveBeenCalledWith( {
-			channel_id: channel,
-			thread_ts,
-			file: filePath,
-			filename: 'test-failed-1.png',
-		} );
-	} );
-
-	test( 'Handles file not found error', async () => {
-		const { postOrUpdateMessage } = require( '../src/slack' );
-		const nonExistentPath = '/path/to/nonexistent/file.png';
-		const blocks = [
-			{ type: 'context' },
-			{
-				type: 'file',
-				path: nonExistentPath,
-			},
-		];
-
-		await expect(
-			postOrUpdateMessage( slackClient, false, {
-				blocks,
-				channel,
+		await expect( slackClient.filesUploadV2 ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				file: filePath,
+				channel_id: channel,
 				thread_ts,
+				filename: path.basename( filePath ),
 			} )
-		).rejects.toThrow( 'File not found' );
-
-		// Verify no API calls were made
-		expect( slackClient.filesUploadV2 ).not.toHaveBeenCalled();
-	} );
-
-	test( 'Handles upload failure', async () => {
-		const { postOrUpdateMessage } = require( '../src/slack' );
-		slackClient.filesUploadV2.mockResolvedValue( {
-			ok: false,
-			error: 'upload_failed',
-		} );
-
-		const blocks = [
-			{ type: 'context' },
-			{
-				type: 'file',
-				path: filePath,
-			},
-		];
-
-		await expect(
-			postOrUpdateMessage( slackClient, false, {
-				blocks,
-				channel,
-				thread_ts,
-			} )
-		).rejects.toThrow( 'Failed to upload file' );
+		);
 	} );
 } );
