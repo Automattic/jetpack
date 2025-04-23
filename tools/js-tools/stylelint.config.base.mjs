@@ -19,6 +19,11 @@ const baseConfig = {
 			},
 		],
 
+		// In theory this is a good rule, but in practice it's a massive lift to resolve existing violations.
+		// Here's an example that has no good answers:
+		// https://github.com/Automattic/jetpack/blob/86e27497d4b8e0736cae61c325f017dedad16dbb/projects/js-packages/components/components/button/style.module.scss#L73-L94
+		'no-descending-specificity': null,
+
 		// Disabled until a valid pattern has been decided on: https://github.com/WordPress/gutenberg/issues/28616
 		'selector-class-pattern': null,
 
@@ -40,7 +45,6 @@ const baseConfig = {
 
 		// Disable all other rules for now.
 		'declaration-property-unit-allowed-list': null,
-		'no-descending-specificity': null,
 		'no-duplicate-selectors': null,
 		'property-no-unknown': null,
 		'scss/at-extend-no-missing-placeholder': null,
