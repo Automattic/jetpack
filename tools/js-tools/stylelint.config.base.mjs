@@ -6,13 +6,6 @@ import { fileURLToPath } from 'node:url';
 const baseConfig = {
 	extends: fileURLToPath( import.meta.resolve( '@wordpress/stylelint-config/scss' ) ),
 	rules: {
-		// Allow some pseudo-classes that are needed for CSS modules.
-		'selector-pseudo-class-no-unknown': [
-			true,
-			{
-				ignorePseudoClasses: [ 'export', 'global' ],
-			},
-		],
 		'font-family-no-missing-generic-family-keyword': [
 			true,
 			{
@@ -25,6 +18,18 @@ const baseConfig = {
 				],
 			},
 		],
+
+		// Disabled until a valid pattern has been decided on: https://github.com/WordPress/gutenberg/issues/28616
+		'selector-class-pattern': null,
+
+		// Allow some pseudo-classes that are needed for CSS modules.
+		'selector-pseudo-class-no-unknown': [
+			true,
+			{
+				ignorePseudoClasses: [ 'export', 'global' ],
+			},
+		],
+
 		'value-keyword-case': [
 			'lower',
 			{
@@ -32,9 +37,6 @@ const baseConfig = {
 				camelCaseSvgKeywords: true, // This is the overwhelming convention in our codebase and in core.
 			},
 		],
-
-		// Disabled until a valid pattern has been decided on: https://github.com/WordPress/gutenberg/issues/28616
-		'selector-class-pattern': null,
 
 		// Disable all other rules for now.
 		'declaration-property-unit-allowed-list': null,
