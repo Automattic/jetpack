@@ -25,6 +25,14 @@ const baseConfig = {
 				],
 			},
 		],
+		'value-keyword-case': [
+			'lower',
+			{
+				ignoreProperties: [ /^(--|\$)/ ], // Ignore CSS and SCSS vars.
+				ignoreKeywords: [ 'customLoadingSpinner' ],
+				camelCaseSvgKeywords: true, // This is the overwhelming convention in our codebase and in core.
+			},
+		],
 
 		// Disabled until a valid pattern has been decided on: https://github.com/WordPress/gutenberg/issues/28616
 		'selector-class-pattern': null,
@@ -41,7 +49,6 @@ const baseConfig = {
 		'scss/no-global-function-names': null,
 		'scss/selector-no-redundant-nesting-selector': null,
 		'selector-id-pattern': null,
-		'value-keyword-case': null,
 	},
 };
 
