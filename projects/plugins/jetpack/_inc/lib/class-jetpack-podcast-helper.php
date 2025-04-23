@@ -397,9 +397,7 @@ class Jetpack_Podcast_Helper {
 			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-feed-locator.php';
 		}
 
-		// @todo Once we drop support for WordPress 6.6, drop the class_exists check.
-		// @phan-suppress-next-line PhanUndeclaredClassReference -- Being tested for. @phan-suppress-current-line UnusedPluginSuppression
-		$feed->get_registry()->register( class_exists( SimplePie\Locator::class ) ? SimplePie\Locator::class : 'Locator', 'Jetpack_Podcast_Feed_Locator' );
+		$feed->get_registry()->register( SimplePie\Locator::class, 'Jetpack_Podcast_Feed_Locator' );
 	}
 
 	/**
