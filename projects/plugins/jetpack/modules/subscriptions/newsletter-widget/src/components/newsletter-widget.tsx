@@ -115,9 +115,9 @@ export const NewsletterWidget = ( {
 						{
 							link: DashboardLink(
 								isWpcomSite,
-								getRedirectUrl(
-									buildJPRedirectSource( 'learn/courses/newsletters-101/wordpress-com-newsletter' )
-								),
+								isWpcomSite
+									? 'https://wordpress.com/learn/courses/newsletters-101/wordpress-com-newsletter'
+									: 'https://jetpack.com/support/newsletter',
 								'learn_more_click'
 							),
 						}
